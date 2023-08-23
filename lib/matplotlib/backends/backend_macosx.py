@@ -1,4 +1,6 @@
 import os
+import signal
+import socket
 
 import matplotlib as mpl
 from matplotlib import _api, cbook
@@ -69,6 +71,7 @@ class FigureCanvasMac(FigureCanvasAgg, _macosx.FigureCanvas, FigureCanvasBase):
             self._timers.remove(timer)
             timer.stop()
         timer = self.new_timer(interval=0)
+        timer.single_shot = True
         timer.add_callback(callback_func, callback, timer)
         self._timers.add(timer)
         timer.start()
@@ -144,6 +147,7 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
         icon_path = str(cbook._get_data_path('images/matplotlib.pdf'))
         _macosx.FigureManager.set_icon(icon_path)
         FigureManagerBase.__init__(self, canvas, num)
+        self._set_window_mode(mpl.rcParams.get("macosx.window_mode", "system"))
         if self.toolbar is not None:
             self.toolbar.update()
         if mpl.is_interactive():
@@ -164,7 +168,37 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
 
     @classmethod
     def start_main_loop(cls):
-        _macosx.show()
+        # Set up a SIGINT handler to allow terminating a plot via CTRL-C.
+        # The logic is largely copied from qt_compat._maybe_allow_interrupt; see its
+        # docstring for details.  Parts are implemented by wake_on_fd_write in ObjC.
+
+        old_sigint_handler = signal.getsignal(signal.SIGINT)
+        if old_sigint_handler in (None, signal.SIG_IGN, signal.SIG_DFL):
+            _macosx.show()
+            return
+
+        handler_args = None
+        wsock, rsock = socket.socketpair()
+        wsock.setblocking(False)
+        rsock.setblocking(False)
+        old_wakeup_fd = signal.set_wakeup_fd(wsock.fileno())
+        _macosx.wake_on_fd_write(rsock.fileno())
+
+        def handle(*args):
+            nonlocal handler_args
+            handler_args = args
+            _macosx.stop()
+
+        signal.signal(signal.SIGINT, handle)
+        try:
+            _macosx.show()
+        finally:
+            wsock.close()
+            rsock.close()
+            signal.set_wakeup_fd(old_wakeup_fd)
+            signal.signal(signal.SIGINT, old_sigint_handler)
+            if handler_args is not None:
+                old_sigint_handler(*handler_args)
 
     def show(self):
         if not self._shown:

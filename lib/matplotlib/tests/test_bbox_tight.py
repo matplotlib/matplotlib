@@ -92,8 +92,8 @@ def test_bbox_inches_tight_clipping():
     # to generate an appropriately tight bbox
     plt.scatter(np.arange(10), np.arange(10))
     ax = plt.gca()
-    ax.set_xlim([0, 5])
-    ax.set_ylim([0, 5])
+    ax.set_xlim(0, 5)
+    ax.set_ylim(0, 5)
 
     # make a massive rectangle and clip it with a path
     patch = mpatches.Rectangle([-50, -50], 100, 100,

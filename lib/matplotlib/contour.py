@@ -370,7 +370,7 @@ class ContourLabeler:
         # path always starts with a MOVETO, and we consider there's an implicit
         # MOVETO (closing the last path) at the end.
         movetos = (codes == Path.MOVETO).nonzero()[0]
-        start = movetos[movetos < idx][-1]
+        start = movetos[movetos <= idx][-1]
         try:
             stop = movetos[movetos > idx][0]
         except IndexError:
@@ -751,7 +751,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                  hatches=(None,), alpha=None, origin=None, extent=None,
                  cmap=None, colors=None, norm=None, vmin=None, vmax=None,
                  extend='neither', antialiased=None, nchunk=0, locator=None,
-                 transform=None, negative_linestyles=None,
+                 transform=None, negative_linestyles=None, clip_path=None,
                  **kwargs):
         """
         Draw contour lines or filled regions, depending on
@@ -805,6 +805,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         super().__init__(
             antialiaseds=antialiased,
             alpha=alpha,
+            clip_path=clip_path,
             transform=transform,
         )
         self.axes = ax
@@ -941,6 +942,16 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         (w,) for w in self.get_linewidths()]))
     alpha = property(lambda self: self.get_alpha())
     linestyles = property(lambda self: self._orig_linestyles)
+
+    @_api.deprecated("3.8", alternative="set_antialiased or get_antialiased",
+                     addendum="Note that get_antialiased returns an array.")
+    @property
+    def antialiased(self):
+        return all(self.get_antialiased())
+
+    @antialiased.setter
+    def antialiased(self, aa):
+        self.set_antialiased(aa)
 
     @_api.deprecated("3.8")
     @property
@@ -1804,7 +1815,7 @@ xunits, yunits : registered units, optional
 
 antialiased : bool, optional
     Enable antialiasing, overriding the defaults.  For
-    filled contours, the default is *True*.  For line contours,
+    filled contours, the default is *False*.  For line contours,
     it is taken from :rc:`lines.antialiased`.
 
 nchunk : int >= 0, optional
@@ -1869,6 +1880,11 @@ algorithm : {'mpl2005', 'mpl2014', 'serial', 'threaded'}, optional
     further information.
 
     The default is taken from :rc:`contour.algorithm`.
+
+clip_path : `~matplotlib.patches.Patch` or `.Path` or `.TransformedPath`
+    Set the clip path.  See `~matplotlib.artist.Artist.set_clip_path`.
+
+    .. versionadded:: 3.8
 
 data : indexable object, optional
     DATA_PARAMETER_PLACEHOLDER

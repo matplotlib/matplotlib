@@ -52,7 +52,7 @@ its ``stdin``, ``stdout``, and ``stderr`` attributes are utf8-encoded.
 ``pyplot.xticks()`` and ``pyplot.yticks()``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Previously, passing labels without passing the ticks to either `.pyplot.xticks`
-and `.pyplot.yticks` would result in
+and `.pyplot.yticks` would result in::
 
     TypeError: object of type 'NoneType' has no len()
 

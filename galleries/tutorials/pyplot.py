@@ -73,7 +73,7 @@ plt.plot([1, 2, 3, 4], [1, 4, 9, 16])
 # example, to plot the above with red circles, you would issue
 
 plt.plot([1, 2, 3, 4], [1, 4, 9, 16], 'ro')
-plt.axis([0, 6, 0, 20])
+plt.axis((0, 6, 0, 20))
 plt.show()
 
 # %%
@@ -416,7 +416,7 @@ plt.show()
 #
 # :mod:`matplotlib.pyplot` supports not only linear axis scales, but also
 # logarithmic and logit scales. This is commonly used if data spans many orders
-# of magnitude. Changing the scale of an axis is easy:
+# of magnitude. Changing the scale of an axis is easy::
 #
 #     plt.xscale('log')
 #

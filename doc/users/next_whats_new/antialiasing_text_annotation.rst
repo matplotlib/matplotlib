@@ -12,8 +12,7 @@ Examples:
     plt.text(0.5, 0.5, '6 inches x 2 inches', antialiased=True)
     ax.annotate('local max', xy=(2, 1), xytext=(3, 1.5), antialiased=False)
 
-If the text contains math expression, then antialiasing will be set by :rc:`text.antialiased`, and *antialiased* will have no effect
-This applies to the whole text.
+If the text contains math expression, *antialiased* applies to the whole text.
 Examples:
 
 .. code-block::

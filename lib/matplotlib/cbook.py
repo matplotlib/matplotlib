@@ -23,6 +23,11 @@ import weakref
 
 import numpy as np
 
+try:
+    from numpy.exceptions import VisibleDeprecationWarning  # numpy >= 1.25
+except ImportError:
+    from numpy import VisibleDeprecationWarning
+
 import matplotlib
 from matplotlib import _api, _c_internal_utils
 
@@ -286,7 +291,7 @@ class CallbackRegistry:
         """
         if self._signals is not None:
             _api.check_in_list(self._signals, signal=s)
-        for cid, ref in list(self.callbacks.get(s, {}).items()):
+        for ref in list(self.callbacks.get(s, {}).values()):
             func = ref()
             if func is not None:
                 try:
@@ -562,6 +567,7 @@ def flatten(seq, scalarp=is_scalar_or_string):
             yield from flatten(item, scalarp)
 
 
+@_api.deprecated("3.8")
 class Stack:
     """
     Stack of elements with a movable cursor.
@@ -668,6 +674,61 @@ class Stack:
                 self.push(elem)
 
 
+class _Stack:
+    """
+    Stack of elements with a movable cursor.
+
+    Mimics home/back/forward in a web browser.
+    """
+
+    def __init__(self):
+        self._pos = -1
+        self._elements = []
+
+    def clear(self):
+        """Empty the stack."""
+        self._pos = -1
+        self._elements = []
+
+    def __call__(self):
+        """Return the current element, or None."""
+        return self._elements[self._pos] if self._elements else None
+
+    def __len__(self):
+        return len(self._elements)
+
+    def __getitem__(self, ind):
+        return self._elements[ind]
+
+    def forward(self):
+        """Move the position forward and return the current element."""
+        self._pos = min(self._pos + 1, len(self._elements) - 1)
+        return self()
+
+    def back(self):
+        """Move the position back and return the current element."""
+        self._pos = max(self._pos - 1, 0)
+        return self()
+
+    def push(self, o):
+        """
+        Push *o* to the stack after the current position, and return *o*.
+
+        Discard all later elements.
+        """
+        self._elements[self._pos + 1:] = [o]
+        self._pos = len(self._elements) - 1
+        return o
+
+    def home(self):
+        """
+        Push the first element onto the top of the stack.
+
+        The first element is returned.
+        """
+        return self.push(self._elements[0]) if self._elements else None
+
+
 def safe_masked_invalid(x, copy=False):
     x = np.array(x, subok=True, copy=copy)
     if not x.dtype.isnative:
@@ -675,8 +736,7 @@ def safe_masked_invalid(x, copy=False):
         # copy with the byte order swapped.
         x = x.byteswap(inplace=copy).newbyteorder('N')  # Swap to native order.
     try:
-        xm = np.ma.masked_invalid(x, copy=False)
-        xm.shrink_mask()
+        xm = np.ma.masked_where(~(np.isfinite(x)), x, copy=False)
     except TypeError:
         return x
     return xm
@@ -1009,7 +1069,7 @@ def _combine_masks(*args):
                 raise ValueError("Masked arrays must be 1-D")
             try:
                 x = np.asanyarray(x)
-            except (np.VisibleDeprecationWarning, ValueError):
+            except (VisibleDeprecationWarning, ValueError):
                 # NumPy 1.19 raises a warning about ragged arrays, but we want
                 # to accept basically anything here.
                 x = np.asanyarray(x, dtype=object)
@@ -1603,7 +1663,7 @@ def index_of(y):
         pass
     try:
         y = _check_1d(y)
-    except (np.VisibleDeprecationWarning, ValueError):
+    except (VisibleDeprecationWarning, ValueError):
         # NumPy 1.19 will warn on ragged input, and we can't actually use it.
         pass
     else:
@@ -1635,6 +1695,10 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
         if val is None:
             return False
         try:
+            return math.isfinite(val)
+        except TypeError:
+            pass
+        try:
             return np.isfinite(val) if np.isscalar(val) else True
         except TypeError:
             # This is something that NumPy cannot make heads or tails of,
@@ -1661,7 +1725,10 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
         raise RuntimeError("matplotlib does not "
                            "support generators as input")
     else:
-        return next((val for val in obj if safe_isfinite(val)), safe_first_element(obj))
+        for val in obj:
+            if safe_isfinite(val):
+                return val
+        return safe_first_element(obj)
 
 
 def sanitize_sequence(data):
@@ -1706,7 +1773,7 @@ def normalize_kwargs(kw, alias_mapping=None):
 
     # deal with default value of alias_mapping
     if alias_mapping is None:
-        alias_mapping = dict()
+        alias_mapping = {}
     elif (isinstance(alias_mapping, type) and issubclass(alias_mapping, Artist)
           or isinstance(alias_mapping, Artist)):
         alias_mapping = getattr(alias_mapping, "_alias_map", {})

@@ -40,6 +40,7 @@ import re
 import subprocess
 import sys
 import threading
+from typing import Union
 
 import matplotlib as mpl
 from matplotlib import _api, _afm, cbook, ft2font
@@ -315,7 +316,7 @@ FontEntry = dataclasses.make_dataclass(
         ('name', str, dataclasses.field(default='')),
         ('style', str, dataclasses.field(default='normal')),
         ('variant', str, dataclasses.field(default='normal')),
-        ('weight', str, dataclasses.field(default='normal')),
+        ('weight', Union[str, int], dataclasses.field(default='normal')),
         ('stretch', str, dataclasses.field(default='normal')),
         ('size', str, dataclasses.field(default='medium')),
     ],
@@ -464,6 +465,8 @@ def afmFontProperty(fontpath, font):
 
     Parameters
     ----------
+    fontpath : str
+        The filename corresponding to *font*.
     font : AFM
         The AFM font file from which information will be extracted.
 
@@ -621,10 +624,10 @@ class FontProperties:
         - a `str`: it is parsed as a fontconfig pattern;
         - a `dict`: it is passed as ``**kwargs`` to `.FontProperties`.
         """
-        if isinstance(arg, cls):
-            return arg
-        elif arg is None:
+        if arg is None:
             return cls()
+        elif isinstance(arg, cls):
+            return arg
         elif isinstance(arg, os.PathLike):
             return cls(fname=arg)
         elif isinstance(arg, str):
@@ -853,7 +856,7 @@ class FontProperties:
         pattern syntax for use here.
         """
         for key, val in parse_fontconfig_pattern(pattern).items():
-            if type(val) == list:
+            if type(val) is list:
                 getattr(self, "set_" + key)(val[0])
             else:
                 getattr(self, "set_" + key)(val)

@@ -277,21 +277,21 @@ loc : str or pair of floats, default: {default}
     be spelled ``'right'``, and each "string" location can also be given as a
     numeric value:
 
-        ==================   =============
-        Location String      Location Code
-        ==================   =============
-        'best' (Axes only)   0
-        'upper right'        1
-        'upper left'         2
-        'lower left'         3
-        'lower right'        4
-        'right'              5
-        'center left'        6
-        'center right'       7
-        'lower center'       8
-        'upper center'       9
-        'center'             10
-        ==================   =============
+    ==================   =============
+    Location String      Location Code
+    ==================   =============
+    'best' (Axes only)   0
+    'upper right'        1
+    'upper left'         2
+    'lower left'         3
+    'lower right'        4
+    'right'              5
+    'center left'        6
+    'center right'       7
+    'lower center'       8
+    'upper center'       9
+    'center'             10
+    ==================   =============
     {outside}"""
 
 _loc_doc_best = """
@@ -427,11 +427,7 @@ class Legend(Artist):
         super().__init__()
 
         if prop is None:
-            if fontsize is not None:
-                self.prop = FontProperties(size=fontsize)
-            else:
-                self.prop = FontProperties(
-                    size=mpl.rcParams["legend.fontsize"])
+            self.prop = FontProperties(size=mpl._val_or_rc(fontsize, "legend.fontsize"))
         else:
             self.prop = FontProperties._from_any(prop)
             if isinstance(prop, dict) and "size" not in prop:
@@ -447,20 +443,17 @@ class Legend(Artist):
         #: instance.
         self._custom_handler_map = handler_map
 
-        def val_or_rc(val, rc_name):
-            return val if val is not None else mpl.rcParams[rc_name]
-
-        self.numpoints = val_or_rc(numpoints, 'legend.numpoints')
-        self.markerscale = val_or_rc(markerscale, 'legend.markerscale')
-        self.scatterpoints = val_or_rc(scatterpoints, 'legend.scatterpoints')
-        self.borderpad = val_or_rc(borderpad, 'legend.borderpad')
-        self.labelspacing = val_or_rc(labelspacing, 'legend.labelspacing')
-        self.handlelength = val_or_rc(handlelength, 'legend.handlelength')
-        self.handleheight = val_or_rc(handleheight, 'legend.handleheight')
-        self.handletextpad = val_or_rc(handletextpad, 'legend.handletextpad')
-        self.borderaxespad = val_or_rc(borderaxespad, 'legend.borderaxespad')
-        self.columnspacing = val_or_rc(columnspacing, 'legend.columnspacing')
-        self.shadow = val_or_rc(shadow, 'legend.shadow')
+        self.numpoints = mpl._val_or_rc(numpoints, 'legend.numpoints')
+        self.markerscale = mpl._val_or_rc(markerscale, 'legend.markerscale')
+        self.scatterpoints = mpl._val_or_rc(scatterpoints, 'legend.scatterpoints')
+        self.borderpad = mpl._val_or_rc(borderpad, 'legend.borderpad')
+        self.labelspacing = mpl._val_or_rc(labelspacing, 'legend.labelspacing')
+        self.handlelength = mpl._val_or_rc(handlelength, 'legend.handlelength')
+        self.handleheight = mpl._val_or_rc(handleheight, 'legend.handleheight')
+        self.handletextpad = mpl._val_or_rc(handletextpad, 'legend.handletextpad')
+        self.borderaxespad = mpl._val_or_rc(borderaxespad, 'legend.borderaxespad')
+        self.columnspacing = mpl._val_or_rc(columnspacing, 'legend.columnspacing')
+        self.shadow = mpl._val_or_rc(shadow, 'legend.shadow')
         # trim handles and labels if illegal label...
         _lab, _hand = [], []
         for label, handle in zip(labels, handles):
@@ -536,18 +529,15 @@ class Legend(Artist):
         # We use FancyBboxPatch to draw a legend frame. The location
         # and size of the box will be updated during the drawing time.
 
-        if facecolor is None:
-            facecolor = mpl.rcParams["legend.facecolor"]
+        facecolor = mpl._val_or_rc(facecolor, "legend.facecolor")
         if facecolor == 'inherit':
             facecolor = mpl.rcParams["axes.facecolor"]
 
-        if edgecolor is None:
-            edgecolor = mpl.rcParams["legend.edgecolor"]
+        edgecolor = mpl._val_or_rc(edgecolor, "legend.edgecolor")
         if edgecolor == 'inherit':
             edgecolor = mpl.rcParams["axes.edgecolor"]
 
-        if fancybox is None:
-            fancybox = mpl.rcParams["legend.fancybox"]
+        fancybox = mpl._val_or_rc(fancybox, "legend.fancybox")
 
         self.legendPatch = FancyBboxPatch(
             xy=(0, 0), width=1, height=1,
@@ -562,8 +552,7 @@ class Legend(Artist):
                       else "square,pad=0"),
             mutation_scale=self._fontsize,
             snap=True,
-            visible=(frameon if frameon is not None
-                     else mpl.rcParams["legend.frameon"])
+            visible=mpl._val_or_rc(frameon, "legend.frameon")
         )
         self._set_artist_props(self.legendPatch)
 
@@ -606,11 +595,9 @@ class Legend(Artist):
             'markeredgecolor': ['get_markeredgecolor', 'get_edgecolor'],
             'mec':             ['get_markeredgecolor', 'get_edgecolor'],
         }
+        labelcolor = mpl._val_or_rc(labelcolor, 'legend.labelcolor')
         if labelcolor is None:
-            if mpl.rcParams['legend.labelcolor'] is not None:
-                labelcolor = mpl.rcParams['legend.labelcolor']
-            else:
-                labelcolor = mpl.rcParams['text.color']
+            labelcolor = mpl.rcParams['text.color']
         if isinstance(labelcolor, str) and labelcolor in color_getters:
             getter_names = color_getters[labelcolor]
             for handle, text in zip(self.legend_handles, self.texts):
@@ -1171,13 +1158,8 @@ class Legend(Artist):
             loc, bbox, parentbbox,
             self.borderaxespad * renderer.points_to_pixels(self._fontsize))
 
-    def _find_best_position(self, width, height, renderer, consider=None):
-        """
-        Determine the best location to place the legend.
-
-        *consider* is a list of ``(x, y)`` pairs to consider as a potential
-        lower-left corner of the legend. All are display coords.
-        """
+    def _find_best_position(self, width, height, renderer):
+        """Determine the best location to place the legend."""
         assert self.isaxes  # always holds, as this is only called internally
 
         start_time = time.perf_counter()
@@ -1185,16 +1167,13 @@ class Legend(Artist):
         bboxes, lines, offsets = self._auto_legend_data()
 
         bbox = Bbox.from_bounds(0, 0, width, height)
-        if consider is None:
-            consider = [self._get_anchored_bbox(x, bbox,
-                                                self.get_bbox_to_anchor(),
-                                                renderer)
-                        for x in range(1, len(self.codes))]
 
         candidates = []
-        for idx, (l, b) in enumerate(consider):
+        for idx in range(1, len(self.codes)):
+            l, b = self._get_anchored_bbox(idx, bbox,
+                                           self.get_bbox_to_anchor(),
+                                           renderer)
             legendBox = Bbox.from_bounds(l, b, width, height)
-            badness = 0
             # XXX TODO: If markers are present, it would be good to take them
             # into account when checking vertex overlaps in the next line.
             badness = (sum(legendBox.count_contains(line.vertices)
@@ -1203,10 +1182,10 @@ class Legend(Artist):
                        + legendBox.count_overlaps(bboxes)
                        + sum(line.intersects_bbox(legendBox, filled=False)
                              for line in lines))
-            if badness == 0:
-                return l, b
             # Include the index to favor lower codes in case of a tie.
             candidates.append((badness, idx, (l, b)))
+            if badness == 0:
+                break
 
         _, _, (l, b) = min(candidates)
 

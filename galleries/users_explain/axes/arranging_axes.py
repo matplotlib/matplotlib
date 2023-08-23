@@ -417,10 +417,10 @@ plt.show()
 # More reading
 # ============
 #
-#  - More details about :ref:`subplot mosaic <mosaic>`.
-#  - More details about :ref:`constrained layout
-#    <constrainedlayout_guide>`, used to align
-#    spacing in most of these examples.
+# - More details about :ref:`subplot mosaic <mosaic>`.
+# - More details about :ref:`constrained layout
+#   <constrainedlayout_guide>`, used to align
+#   spacing in most of these examples.
 #
 # .. admonition:: References
 #

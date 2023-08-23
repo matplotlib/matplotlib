@@ -1,9 +1,7 @@
 .. _unstructured_plots:
 
-Unstructured coordinates
--------------------------
+Irregularly gridded data
+------------------------
 
-Sometimes we collect data ``z`` at coordinates ``(x,y)`` and want to visualize
-as a contour.  Instead of gridding the data and then using
-`~.axes.Axes.contour`, we can use a triangulation algorithm and fill the
-triangles.
+Plots of data :math:`Z_{x, y}` on `unstructured grids <https://en.wikipedia.org/wiki/Unstructured_grid>`_ ,
+unstructured coordinate grids :math:`(x, y)`, and 2D functions :math:`f(x, y) = z`.

@@ -164,16 +164,27 @@ true for ``*.py`` files.  If you change the C-extension source (which might
 also happen if you change branches) you will have to re-run
 ``python -m pip install -ve .``
 
-Install pre-commit hooks (optional)
-===================================
-`pre-commit <https://pre-commit.com/>`_ hooks automatically check flake8 and
-other style issues when you run ``git commit``. The hooks are defined in the
-top level ``.pre-commit-config.yaml`` file. To install the hooks ::
+Install pre-commit hooks
+========================
+`pre-commit <https://pre-commit.com/>`_ hooks save time in the review process by
+identifying issues with the code before a pull request is formally opened. Most
+hooks can also aide in fixing the errors, and the checks should have
+corresponding :ref:`development workflow <development-workflow>` and
+:ref:`pull request <pr-guidelines>` guidelines. Hooks are configured in
+`.pre-commit-config.yaml <https://github.com/matplotlib/matplotlib/blob/main/.pre-commit-config.yaml?>`_
+and include checks for spelling and formatting, flake 8 conformity, accidentally
+committed files, import order, and incorrect branching.
+
+Install pre-commit hooks ::
 
     python -m pip install pre-commit
     pre-commit install
 
-The hooks can also be run manually. All the hooks can be run, in order as
+Hooks are run automatically after the ``git commit`` stage of the
+:ref:`editing workflow<edit-flow>`. When a hook has found and fixed an error in a
+file, that file must be *staged and committed* again.
+
+Hooks can also be run manually. All the hooks can be run, in order as
 listed in ``.pre-commit-config.yaml``, against the full codebase with ::
 
     pre-commit run --all-files

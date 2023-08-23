@@ -27,71 +27,71 @@ and explicit interfaces.
 
 Modules include:
 
-    :mod:`matplotlib.axes`
-        The `~.axes.Axes` class.  Most pyplot functions are wrappers for
-        `~.axes.Axes` methods.  The axes module is the highest level of OO
-        access to the library.
+:mod:`matplotlib.axes`
+    The `~.axes.Axes` class.  Most pyplot functions are wrappers for
+    `~.axes.Axes` methods.  The axes module is the highest level of OO
+    access to the library.
 
-    :mod:`matplotlib.figure`
-        The `.Figure` class.
+:mod:`matplotlib.figure`
+    The `.Figure` class.
 
-    :mod:`matplotlib.artist`
-        The `.Artist` base class for all classes that draw things.
+:mod:`matplotlib.artist`
+    The `.Artist` base class for all classes that draw things.
 
-    :mod:`matplotlib.lines`
-        The `.Line2D` class for drawing lines and markers.
+:mod:`matplotlib.lines`
+    The `.Line2D` class for drawing lines and markers.
 
-    :mod:`matplotlib.patches`
-        Classes for drawing polygons.
+:mod:`matplotlib.patches`
+    Classes for drawing polygons.
 
-    :mod:`matplotlib.text`
-        The `.Text` and `.Annotation` classes.
+:mod:`matplotlib.text`
+    The `.Text` and `.Annotation` classes.
 
-    :mod:`matplotlib.image`
-        The `.AxesImage` and `.FigureImage` classes.
+:mod:`matplotlib.image`
+    The `.AxesImage` and `.FigureImage` classes.
 
-    :mod:`matplotlib.collections`
-        Classes for efficient drawing of groups of lines or polygons.
+:mod:`matplotlib.collections`
+    Classes for efficient drawing of groups of lines or polygons.
 
-    :mod:`matplotlib.colors`
-        Color specifications and making colormaps.
+:mod:`matplotlib.colors`
+    Color specifications and making colormaps.
 
-    :mod:`matplotlib.cm`
-        Colormaps, and the `.ScalarMappable` mixin class for providing color
-        mapping functionality to other classes.
+:mod:`matplotlib.cm`
+    Colormaps, and the `.ScalarMappable` mixin class for providing color
+    mapping functionality to other classes.
 
-    :mod:`matplotlib.ticker`
-        Calculation of tick mark locations and formatting of tick labels.
+:mod:`matplotlib.ticker`
+    Calculation of tick mark locations and formatting of tick labels.
 
-    :mod:`matplotlib.backends`
-        A subpackage with modules for various GUI libraries and output formats.
+:mod:`matplotlib.backends`
+    A subpackage with modules for various GUI libraries and output formats.
 
 The base matplotlib namespace includes:
 
-    `~matplotlib.rcParams`
-        Default configuration settings; their defaults may be overridden using
-        a :file:`matplotlibrc` file.
+`~matplotlib.rcParams`
+    Default configuration settings; their defaults may be overridden using
+    a :file:`matplotlibrc` file.
 
-    `~matplotlib.use`
-        Setting the Matplotlib backend.  This should be called before any
-        figure is created, because it is not possible to switch between
-        different GUI backends after that.
+`~matplotlib.use`
+    Setting the Matplotlib backend.  This should be called before any
+    figure is created, because it is not possible to switch between
+    different GUI backends after that.
 
 The following environment variables can be used to customize the behavior:
 
-    :envvar:`MPLBACKEND`
-        This optional variable can be set to choose the Matplotlib backend. See
-        :ref:`what-is-a-backend`.
+:envvar:`MPLBACKEND`
+    This optional variable can be set to choose the Matplotlib backend. See
+    :ref:`what-is-a-backend`.
 
-    :envvar:`MPLCONFIGDIR`
-        This is the directory used to store user customizations to
-        Matplotlib, as well as some caches to improve performance. If
-        :envvar:`MPLCONFIGDIR` is not defined, :file:`{HOME}/.config/matplotlib`
-        and :file:`{HOME}/.cache/matplotlib` are used on Linux, and
-        :file:`{HOME}/.matplotlib` on other platforms, if they are
-        writable. Otherwise, the Python standard library's `tempfile.gettempdir`
-        is used to find a base directory in which the :file:`matplotlib`
-        subdirectory is created.
+:envvar:`MPLCONFIGDIR`
+    This is the directory used to store user customizations to
+    Matplotlib, as well as some caches to improve performance. If
+    :envvar:`MPLCONFIGDIR` is not defined, :file:`{HOME}/.config/matplotlib`
+    and :file:`{HOME}/.cache/matplotlib` are used on Linux, and
+    :file:`{HOME}/.matplotlib` on other platforms, if they are
+    writable. Otherwise, the Python standard library's `tempfile.gettempdir`
+    is used to find a base directory in which the :file:`matplotlib`
+    subdirectory is created.
 
 Matplotlib was initially written by John D. Hunter (1968-2012) and is now
 developed and maintained by a host of others.
@@ -574,7 +574,7 @@ def get_cachedir():
     Return the string path of the cache directory.
 
     The procedure used to find the directory is the same as for
-    _get_config_dir, except using ``$XDG_CACHE_HOME``/``$HOME/.cache`` instead.
+    `get_configdir`, except using ``$XDG_CACHE_HOME``/``$HOME/.cache`` instead.
     """
     return _get_config_or_cache_dir(_get_xdg_cache_dir)
 
@@ -1292,6 +1292,13 @@ def is_interactive():
         use `.pyplot.isinteractive` instead.
     """
     return rcParams['interactive']
+
+
+def _val_or_rc(val, rc_name):
+    """
+    If *val* is None, return ``mpl.rcParams[rc_name]``, otherwise return val.
+    """
+    return val if val is not None else rcParams[rc_name]
 
 
 def _init_tests():

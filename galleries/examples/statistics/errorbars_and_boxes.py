@@ -9,16 +9,16 @@ y- directions. To do this, we have to write our own custom function
 called ``make_error_boxes``. Close inspection of this function will
 reveal the preferred pattern in writing functions for matplotlib:
 
-  1. an `~.axes.Axes` object is passed directly to the function
-  2. the function operates on the ``Axes`` methods directly, not through
-     the ``pyplot`` interface
-  3. plotting keyword arguments that could be abbreviated are spelled out for
-     better code readability in the future (for example we use *facecolor*
-     instead of *fc*)
-  4. the artists returned by the ``Axes`` plotting methods are then
-     returned by the function so that, if desired, their styles
-     can be modified later outside of the function (they are not
-     modified in this example).
+1. an `~.axes.Axes` object is passed directly to the function
+2. the function operates on the ``Axes`` methods directly, not through
+   the ``pyplot`` interface
+3. plotting keyword arguments that could be abbreviated are spelled out for
+   better code readability in the future (for example we use *facecolor*
+   instead of *fc*)
+4. the artists returned by the ``Axes`` plotting methods are then
+   returned by the function so that, if desired, their styles
+   can be modified later outside of the function (they are not
+   modified in this example).
 """
 
 import matplotlib.pyplot as plt

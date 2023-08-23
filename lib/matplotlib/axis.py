@@ -6,6 +6,7 @@ import datetime
 import functools
 import logging
 from numbers import Real
+import warnings
 
 import numpy as np
 
@@ -144,12 +145,9 @@ class Tick(martist.Artist):
                 zorder = mlines.Line2D.zorder
         self._zorder = zorder
 
-        if grid_color is None:
-            grid_color = mpl.rcParams["grid.color"]
-        if grid_linestyle is None:
-            grid_linestyle = mpl.rcParams["grid.linestyle"]
-        if grid_linewidth is None:
-            grid_linewidth = mpl.rcParams["grid.linewidth"]
+        grid_color = mpl._val_or_rc(grid_color, "grid.color")
+        grid_linestyle = mpl._val_or_rc(grid_linestyle, "grid.linestyle")
+        grid_linewidth = mpl._val_or_rc(grid_linewidth, "grid.linewidth")
         if grid_alpha is None and not mcolors._has_alpha_channel(grid_color):
             # alpha precedence: kwarg > color alpha > rcParams['grid.alpha']
             # Note: only resolve to rcParams if the color does not have alpha
@@ -574,7 +572,7 @@ class _LazyTickList:
     def __init__(self, major):
         self._major = major
 
-    def __get__(self, instance, cls):
+    def __get__(self, instance, owner):
         if instance is None:
             return self
         else:
@@ -622,6 +620,18 @@ class Axis(martist.Artist):
         The acceptance radius for containment tests. See also `.Axis.contains`.
     majorTicks : list of `.Tick`
         The major ticks.
+
+        .. warning::
+
+            Ticks are not guaranteed to be persistent. Various operations
+            can create, delete and modify the Tick instances. There is an
+            imminent risk that changes to individual ticks will not
+            survive if you work on the figure further (including also
+            panning/zooming on a displayed figure).
+
+            Working on the individual ticks is a method of last resort.
+            Use `.set_tick_params` instead if possible.
+
     minorTicks : list of `.Tick`
         The minor ticks.
     """
@@ -774,6 +784,7 @@ class Axis(martist.Artist):
         self.stale = True
 
     def get_transform(self):
+        """Return the transform used in the Axis' scale"""
         return self._scale.get_transform()
 
     def get_scale(self):
@@ -908,7 +919,6 @@ class Axis(martist.Artist):
 
         self.converter = None
         self.units = None
-        self.set_units(None)
         self.stale = True
 
     def reset_ticks(self):
@@ -1241,11 +1251,13 @@ class Axis(martist.Artist):
             self.axes.callbacks.process(f"{name}lim_changed", self.axes)
             # Call all of the other axes that are shared with this one
             for other in self._get_shared_axes():
-                if other is not self.axes:
-                    other._axis_map[name]._set_lim(
-                        v0, v1, emit=False, auto=auto)
-                    if other.figure != self.figure:
-                        other.figure.canvas.draw_idle()
+                if other is self.axes:
+                    continue
+                other._axis_map[name]._set_lim(v0, v1, emit=False, auto=auto)
+                if emit:
+                    other.callbacks.process(f"{name}lim_changed", other)
+                if other.figure != self.figure:
+                    other.figure.canvas.draw_idle()
 
         self.stale = True
         return v0, v1
@@ -1592,7 +1604,20 @@ class Axis(martist.Artist):
         return self.minor.formatter
 
     def get_major_ticks(self, numticks=None):
-        r"""Return the list of major `.Tick`\s."""
+        r"""
+        Return the list of major `.Tick`\s.
+
+        .. warning::
+
+            Ticks are not guaranteed to be persistent. Various operations
+            can create, delete and modify the Tick instances. There is an
+            imminent risk that changes to individual ticks will not
+            survive if you work on the figure further (including also
+            panning/zooming on a displayed figure).
+
+            Working on the individual ticks is a method of last resort.
+            Use `.set_tick_params` instead if possible.
+        """
         if numticks is None:
             numticks = len(self.get_majorticklocs())
 
@@ -1605,7 +1630,20 @@ class Axis(martist.Artist):
         return self.majorTicks[:numticks]
 
     def get_minor_ticks(self, numticks=None):
-        r"""Return the list of minor `.Tick`\s."""
+        r"""
+        Return the list of minor `.Tick`\s.
+
+        .. warning::
+
+            Ticks are not guaranteed to be persistent. Various operations
+            can create, delete and modify the Tick instances. There is an
+            imminent risk that changes to individual ticks will not
+            survive if you work on the figure further (including also
+            panning/zooming on a displayed figure).
+
+            Working on the individual ticks is a method of last resort.
+            Use `.set_tick_params` instead if possible.
+        """
         if numticks is None:
             numticks = len(self.get_minorticklocs())
 
@@ -1953,6 +1991,17 @@ class Axis(martist.Artist):
         **kwargs
             Text properties.
 
+            .. warning::
+
+                This only sets the properties of the current ticks.
+                Ticks are not guaranteed to be persistent. Various operations
+                can create, delete and modify the Tick instances. There is an
+                imminent risk that these settings can get lost if you work on
+                the figure further (including also panning/zooming on a
+                displayed figure).
+
+                Use `.set_tick_params` instead if possible.
+
         Returns
         -------
         list of `.Text`\s
@@ -1966,7 +2015,10 @@ class Axis(martist.Artist):
             raise TypeError(f"{labels:=} must be a sequence") from None
         locator = (self.get_minor_locator() if minor
                    else self.get_major_locator())
-        if isinstance(locator, mticker.FixedLocator):
+        if not labels:
+            # eg labels=[]:
+            formatter = mticker.NullFormatter()
+        elif isinstance(locator, mticker.FixedLocator):
             # Passing [] as a list of labels is often used as a way to
             # remove all tick labels, so only error for > 0 labels
             if len(locator.locs) != len(labels) and len(labels) != 0:
@@ -1979,16 +2031,23 @@ class Axis(martist.Artist):
             func = functools.partial(self._format_with_dict, tickd)
             formatter = mticker.FuncFormatter(func)
         else:
+            _api.warn_external(
+                 "set_ticklabels() should only be used with a fixed number of "
+                 "ticks, i.e. after set_ticks() or using a FixedLocator.")
             formatter = mticker.FixedFormatter(labels)
 
-        if minor:
-            self.set_minor_formatter(formatter)
-            locs = self.get_minorticklocs()
-            ticks = self.get_minor_ticks(len(locs))
-        else:
-            self.set_major_formatter(formatter)
-            locs = self.get_majorticklocs()
-            ticks = self.get_major_ticks(len(locs))
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message="FixedFormatter should only be used together with FixedLocator")
+            if minor:
+                self.set_minor_formatter(formatter)
+                locs = self.get_minorticklocs()
+                ticks = self.get_minor_ticks(len(locs))
+            else:
+                self.set_major_formatter(formatter)
+                locs = self.get_majorticklocs()
+                ticks = self.get_major_ticks(len(locs))
 
         ret = []
         if fontdict is not None:

@@ -35,6 +35,7 @@ import inspect
 import itertools
 import logging
 from numbers import Integral
+import threading
 
 import numpy as np
 
@@ -2117,10 +2118,10 @@ default: %(va)s
         for ax in ret.values():
             if sharex:
                 ax.sharex(ax0)
-                ax._label_outer_xaxis(check_patch=True)
+                ax._label_outer_xaxis(skip_non_rectangular_axes=True)
             if sharey:
                 ax.sharey(ax0)
-                ax._label_outer_yaxis(check_patch=True)
+                ax._label_outer_yaxis(skip_non_rectangular_axes=True)
         if extra := set(per_subplot_kw) - set(ret):
             raise ValueError(
                 f"The keys {extra} are in *per_subplot_kw* "
@@ -2212,7 +2213,7 @@ class SubFigure(FigureBase):
         self._axobservers = parent._axobservers
         self.canvas = parent.canvas
         self.transFigure = parent.transFigure
-        self.bbox_relative = None
+        self.bbox_relative = Bbox.null()
         self._redo_transform_rel_fig()
         self.figbbox = self._parent.figbbox
         self.bbox = TransformedBbox(self.bbox_relative,
@@ -2277,11 +2278,8 @@ class SubFigure(FigureBase):
         dy = hr[self._subplotspec.rowspan].sum() / hr.sum()
         x0 = wr[:self._subplotspec.colspan.start].sum() / wr.sum()
         y0 = 1 - hr[:self._subplotspec.rowspan.stop].sum() / hr.sum()
-        if self.bbox_relative is None:
-            self.bbox_relative = Bbox.from_bounds(x0, y0, dx, dy)
-        else:
-            self.bbox_relative.p0 = (x0, y0)
-            self.bbox_relative.p1 = (x0 + dx, y0 + dy)
+        self.bbox_relative.p0 = (x0, y0)
+        self.bbox_relative.p1 = (x0 + dx, y0 + dy)
 
     def get_constrained_layout(self):
         """
@@ -2364,6 +2362,18 @@ class Figure(FigureBase):
         depending on the renderer option_image_nocomposite function.  If
         *suppressComposite* is a boolean, this will override the renderer.
     """
+
+    # we want to cache the fonts and mathtext at a global level so that when
+    # multiple figures are created we can reuse them.  This helps with a bug on
+    # windows where the creation of too many figures leads to too many open
+    # file handles and improves the performance of parsing mathtext.  However,
+    # these global caches are not thread safe.  The solution here is to let the
+    # Figure acquire a shared lock at the start of the draw, and release it when it
+    # is done.  This allows multiple renderers to share the cached fonts and
+    # parsed text, but only one figure can draw at a time and so the font cache
+    # and mathtext cache are used by only one renderer at a time.
+
+    _render_lock = threading.RLock()
 
     def __str__(self):
         return "Figure(%gx%g)" % tuple(self.bbox.size)
@@ -3124,33 +3134,33 @@ None}, default: None
     @allow_rasterization
     def draw(self, renderer):
         # docstring inherited
-
-        # draw the figure bounding box, perhaps none for white figure
         if not self.get_visible():
             return
 
-        artists = self._get_draw_artists(renderer)
-        try:
-            renderer.open_group('figure', gid=self.get_gid())
-            if self.axes and self.get_layout_engine() is not None:
-                try:
-                    self.get_layout_engine().execute(self)
-                except ValueError:
-                    pass
-                    # ValueError can occur when resizing a window.
+        with self._render_lock:
 
-            self.patch.draw(renderer)
-            mimage._draw_list_compositing_images(
-                renderer, self, artists, self.suppressComposite)
+            artists = self._get_draw_artists(renderer)
+            try:
+                renderer.open_group('figure', gid=self.get_gid())
+                if self.axes and self.get_layout_engine() is not None:
+                    try:
+                        self.get_layout_engine().execute(self)
+                    except ValueError:
+                        pass
+                        # ValueError can occur when resizing a window.
 
-            for sfig in self.subfigs:
-                sfig.draw(renderer)
+                self.patch.draw(renderer)
+                mimage._draw_list_compositing_images(
+                    renderer, self, artists, self.suppressComposite)
 
-            renderer.close_group('figure')
-        finally:
-            self.stale = False
+                for sfig in self.subfigs:
+                    sfig.draw(renderer)
 
-        DrawEvent("draw_event", self.canvas, renderer)._process()
+                renderer.close_group('figure')
+            finally:
+                self.stale = False
+
+            DrawEvent("draw_event", self.canvas, renderer)._process()
 
     def draw_without_rendering(self):
         """
@@ -3522,14 +3532,14 @@ None}, default: None
         # note that here we do not permanently set the figures engine to
         # tight_layout but rather just perform the layout in place and remove
         # any previous engines.
-        engine = TightLayoutEngine(pad=pad, h_pad=h_pad, w_pad=w_pad,
-                                   rect=rect)
+        engine = TightLayoutEngine(pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
         try:
             previous_engine = self.get_layout_engine()
             self.set_layout_engine(engine)
             engine.execute(self)
-            if not isinstance(previous_engine, TightLayoutEngine) \
-                    and previous_engine is not None:
+            if previous_engine is not None and not isinstance(
+                previous_engine, (TightLayoutEngine, PlaceHolderLayoutEngine)
+            ):
                 _api.warn_external('The figure layout has changed to tight')
         finally:
             self.set_layout_engine('none')

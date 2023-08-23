@@ -1,90 +1,46 @@
 API Reference
 =============
 
-When using the library you will typically create
-:doc:`Figure <figure_api>` and :doc:`Axes <axes_api>` objects and
-call their methods to add content and modify the appearance.
+Matplotlib interfaces
+---------------------
 
-- :mod:`matplotlib.figure`: axes creation, figure-level content
-- :mod:`matplotlib.axes`: most plotting methods, Axes labels, access to axis
-  styling, etc.
+Matplotlib provides two different interfaces:
 
-Example: We create a Figure ``fig`` and Axes ``ax``. Then we call
-methods on them to plot data, add axis labels and a figure title.
+- **Axes interface**: create a `.Figure` and one or more `~.axes.Axes` objects
+  (typically using `.pyplot.subplots`), then *explicitly* use methods on these objects
+  to add data, configure limits, set labels etc.
+- **pyplot interface**: consists of functions in the `.pyplot` module. Figure and Axes
+  are manipulated through these functions and are only *implicitly* present in the
+  background.
 
-.. plot::
-   :include-source:
-   :align: center
+See :ref:`api_interfaces` for a more detailed description of both and their recommended
+use cases.
 
-   import matplotlib.pyplot as plt
-   import numpy as np
+.. grid:: 1 1 2 2
+    :padding: 0 0 1 1
 
-   x = np.arange(0, 4, 0.05)
-   y = np.sin(x*np.pi)
+    .. grid-item-card::
 
-   fig, ax = plt.subplots(figsize=(3,2), constrained_layout=True)
-   ax.plot(x, y)
-   ax.set_xlabel('t [s]')
-   ax.set_ylabel('S [V]')
-   ax.set_title('Sine wave')
-   fig.set_facecolor('lightsteelblue')
+        **Axes interface** (object-based, explicit)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+        API:
 
+        - `~.pyplot.subplots`: create Figure and Axes
+        - :mod:`~matplotlib.axes`: add data, limits, labels etc.
+        - `.Figure`: for figure-level methods
 
-.. _usage_patterns:
+    .. grid-item-card::
 
-Usage patterns
---------------
+        **pyplot interface** (function-based, implicit)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Below we describe several common approaches to plotting with Matplotlib.  See
-:ref:`api_interfaces` for an explanation of the trade-offs between the supported user
-APIs.
+        API:
 
+        - `matplotlib.pyplot`
 
-The explicit API
-^^^^^^^^^^^^^^^^
-
-At its core, Matplotlib is an object-oriented library. We recommend directly
-working with the objects if you need more control and customization of your
-plots.
-
-In many cases you will create a `.Figure` and one or more
-`~matplotlib.axes.Axes` using `.pyplot.subplots` and from then on only work
-on these objects. However, it's also possible to create `.Figure`\ s
-explicitly (e.g. when including them in GUI applications).
-
-Further reading:
-
-- `matplotlib.axes.Axes` and `matplotlib.figure.Figure` for an overview of
-  plotting functions.
-- Most of the :ref:`examples <examples-index>` use the object-oriented approach
-  (except for the pyplot section)
-
-
-The implicit API
-^^^^^^^^^^^^^^^^
-
-`matplotlib.pyplot` is a collection of functions that make
-Matplotlib work like MATLAB. Each pyplot function makes some change to a
-figure: e.g., creates a figure, creates a plotting area in a figure, plots
-some lines in a plotting area, decorates the plot with labels, etc.
-
-`.pyplot` is mainly intended for interactive plots and simple cases of
-programmatic plot generation.
-
-Further reading:
-
-- The `matplotlib.pyplot` function reference
-- :ref:`pyplot_tutorial`
-- :ref:`Pyplot examples <pyplots_examples>`
 
 .. _api-index:
-
-The pylab API (discouraged)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: pylab
-   :no-members:
 
 Modules
 -------
@@ -162,3 +118,4 @@ Alphabetical list of modules:
    toolkits/mplot3d.rst
    toolkits/axes_grid1.rst
    toolkits/axisartist.rst
+   pylab.rst

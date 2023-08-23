@@ -4,8 +4,10 @@ from matplotlib.axes import Axes
 from matplotlib.collections import Collection, PathCollection
 from matplotlib.colors import Colormap, Normalize
 from matplotlib.font_manager import FontProperties
+from matplotlib.path import Path
+from matplotlib.patches import Patch
 from matplotlib.text import Text
-from matplotlib.transforms import Transform
+from matplotlib.transforms import Transform, TransformedPatchPath, TransformedPath
 from matplotlib.ticker import Locator, Formatter
 
 from numpy.typing import ArrayLike
@@ -92,13 +94,13 @@ class ContourSet(ContourLabeler, Collection):
     extent: tuple[float, float, float, float] | None
     colors: ColorType | Sequence[ColorType]
     extend: Literal["neither", "both", "min", "max"]
-    antialiased: bool | None
     nchunk: int
     locator: Locator | None
     logscale: bool
     negative_linestyles: None | Literal[
         "solid", "dashed", "dashdot", "dotted"
     ] | Iterable[Literal["solid", "dashed", "dashdot", "dotted"]]
+    clip_path: Patch | Path | TransformedPath | TransformedPatchPath | None
     labelTexts: list[Text]
     labelCValues: list[ColorType]
     allkinds: list[np.ndarray]
@@ -109,6 +111,10 @@ class ContourSet(ContourLabeler, Collection):
 
     @property
     def alpha(self) -> float | None: ...
+    @property
+    def antialiased(self) -> bool: ...
+    @antialiased.setter
+    def antialiased(self, aa: bool | Sequence[bool]) -> None: ...
     @property
     def collections(self) -> list[PathCollection]: ...
     @property
@@ -145,6 +151,7 @@ class ContourSet(ContourLabeler, Collection):
         negative_linestyles: Literal["solid", "dashed", "dashdot", "dotted"]
         | Iterable[Literal["solid", "dashed", "dashdot", "dotted"]]
         | None = ...,
+        clip_path: Patch | Path | TransformedPath | TransformedPatchPath | None = ...,
         **kwargs
     ) -> None: ...
     def legend_elements(

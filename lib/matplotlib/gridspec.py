@@ -301,10 +301,10 @@ class GridSpecBase:
         # turn off redundant tick labeling
         if sharex in ["col", "all"]:
             for ax in axarr.flat:
-                ax._label_outer_xaxis(check_patch=True)
+                ax._label_outer_xaxis(skip_non_rectangular_axes=True)
         if sharey in ["row", "all"]:
             for ax in axarr.flat:
-                ax._label_outer_yaxis(check_patch=True)
+                ax._label_outer_yaxis(skip_non_rectangular_axes=True)
 
         if squeeze:
             # Discarding unneeded dimensions that equal 1.  If we only have one

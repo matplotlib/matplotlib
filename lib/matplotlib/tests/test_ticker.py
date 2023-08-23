@@ -662,25 +662,20 @@ class TestAsinhLocator:
                             np.arange(101, 102.01, 0.1))
 
     def test_symmetrizing(self):
-        class DummyAxis:
-            bounds = (-1, 1)
-            @classmethod
-            def get_view_interval(cls): return cls.bounds
-
         lctr = mticker.AsinhLocator(linear_width=1, numticks=3,
                                     symthresh=0.25, base=0)
-        lctr.axis = DummyAxis
+        lctr.create_dummy_axis()
 
-        DummyAxis.bounds = (-1, 2)
+        lctr.axis.set_view_interval(-1, 2)
         assert_almost_equal(lctr(), [-1, 0, 2])
 
-        DummyAxis.bounds = (-1, 0.9)
+        lctr.axis.set_view_interval(-1, 0.9)
         assert_almost_equal(lctr(), [-1, 0, 1])
 
-        DummyAxis.bounds = (-0.85, 1.05)
+        lctr.axis.set_view_interval(-0.85, 1.05)
         assert_almost_equal(lctr(), [-1, 0, 1])
 
-        DummyAxis.bounds = (1, 1.1)
+        lctr.axis.set_view_interval(1, 1.1)
         assert_almost_equal(lctr(), [1, 1.05, 1.1])
 
     def test_base_rounding(self):
@@ -897,16 +892,6 @@ class TestScalarFormatter:
         assert sf(0.5) == ''
 
 
-class FakeAxis:
-    """Allow Formatter to be called without having a "full" plot set up."""
-    def __init__(self, vmin=1, vmax=10):
-        self.vmin = vmin
-        self.vmax = vmax
-
-    def get_view_interval(self):
-        return self.vmin, self.vmax
-
-
 class TestLogFormatterExponent:
     param_data = [
         (True, 4, np.arange(-3, 4.0), np.arange(-3, 4.0),
@@ -928,7 +913,8 @@ class TestLogFormatterExponent:
                    expected):
         formatter = mticker.LogFormatterExponent(base=base,
                                                  labelOnlyBase=labelOnlyBase)
-        formatter.axis = FakeAxis(1, base**exponent)
+        formatter.create_dummy_axis()
+        formatter.axis.set_view_interval(1, base**exponent)
         vals = base**locs
         labels = [formatter(x, pos) for (x, pos) in zip(vals, positions)]
         expected = [label.replace('-', '\N{Minus Sign}') for label in expected]
@@ -937,7 +923,8 @@ class TestLogFormatterExponent:
     def test_blank(self):
         # Should be a blank string for non-integer powers if labelOnlyBase=True
         formatter = mticker.LogFormatterExponent(base=10, labelOnlyBase=True)
-        formatter.axis = FakeAxis()
+        formatter.create_dummy_axis()
+        formatter.axis.set_view_interval(1, 10)
         assert formatter(10**0.1) == ''
 
 
@@ -984,7 +971,6 @@ class TestLogFormatterSciNotation:
     @pytest.mark.parametrize('base, value, expected', test_data)
     def test_basic(self, base, value, expected):
         formatter = mticker.LogFormatterSciNotation(base=base)
-        formatter.sublabel = {1, 2, 5, 1.2}
         with mpl.rc_context({'text.usetex': False}):
             assert formatter(value) == expected
 
@@ -1131,6 +1117,20 @@ class TestLogFormatter:
         label = fmt._pprint_val(value, domain)
         assert label == expected
 
+    @pytest.mark.parametrize('value, long, short', [
+        (0.0, "0", "0           "),
+        (0, "0", "0           "),
+        (-1.0, "-10^0", "-1          "),
+        (2e-10, "2x10^-10", "2e-10       "),
+        (1e10, "10^10", "1e+10       "),
+    ])
+    def test_format_data(self, value, long, short):
+        fig, ax = plt.subplots()
+        ax.set_xscale('log')
+        fmt = ax.xaxis.get_major_formatter()
+        assert fmt.format_data(value) == long
+        assert fmt.format_data_short(value) == short
+
     def _sub_labels(self, axis, subs=()):
         """Test whether locator marks subs to be labeled."""
         fmt = axis.get_minor_formatter()
@@ -1183,14 +1183,16 @@ class TestLogFormatter:
     def test_LogFormatter_call(self, val):
         # test _num_to_string method used in __call__
         temp_lf = mticker.LogFormatter()
-        temp_lf.axis = FakeAxis()
+        temp_lf.create_dummy_axis()
+        temp_lf.axis.set_view_interval(1, 10)
         assert temp_lf(val) == str(val)
 
     @pytest.mark.parametrize('val', [1e-323, 2e-323, 10e-323, 11e-323])
     def test_LogFormatter_call_tiny(self, val):
         # test coeff computation in __call__
         temp_lf = mticker.LogFormatter()
-        temp_lf.axis = FakeAxis()
+        temp_lf.create_dummy_axis()
+        temp_lf.axis.set_view_interval(1, 10)
         temp_lf(val)
 
 

@@ -13,6 +13,7 @@ from . import axes_size as Size
 from .parasite_axes import HostAxes
 
 
+@_api.deprecated("3.8", alternative="Axes.inset_axes")
 class InsetPosition:
     @_docstring.dedent_interpd
     def __init__(self, parent, lbwh):
@@ -69,6 +70,8 @@ class AnchoredLocatorBase(AnchoredOffsetbox):
         raise RuntimeError("No draw method should be called")
 
     def __call__(self, ax, renderer):
+        if renderer is None:
+            renderer = ax.figure._get_renderer()
         self.axes = ax
         bbox = self.get_window_extent(renderer)
         px, py = self.get_offset(bbox.width, bbox.height, 0, 0, renderer)

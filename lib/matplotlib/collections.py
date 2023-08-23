@@ -207,7 +207,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return self._paths
 
     def set_paths(self, paths):
-        raise NotImplementedError
+        self._paths = paths
+        self.stale = True
 
     def get_transforms(self):
         return self._transforms
@@ -256,7 +257,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
             # if the offsets are in some coords other than data,
             # then don't use them for autoscaling.
             return transforms.Bbox.null()
-        offsets = self.get_offsets()
 
         paths = self.get_paths()
         if not len(paths):
@@ -269,6 +269,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
             # we may have transform.contains_branch(transData) but not
             # transforms.get_affine().contains_branch(transData).  But later,
             # be careful to only apply the affine part that remains.
+
+        offsets = self.get_offsets()
 
         if any(transform.contains_branch_seperately(transData)):
             # collections that are just in data units (like quiver)
@@ -639,8 +641,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         self._capstyle = CapStyle(cs)
 
+    @_docstring.interpd
     def get_capstyle(self):
-        return self._capstyle.name
+        """
+        Return the cap style for the collection (for all its elements).
+
+        Returns
+        -------
+        %(CapStyle)s or None
+        """
+        return self._capstyle.name if self._capstyle else None
 
     @_docstring.interpd
     def set_joinstyle(self, js):
@@ -653,8 +663,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         self._joinstyle = JoinStyle(js)
 
+    @_docstring.interpd
     def get_joinstyle(self):
-        return self._joinstyle.name
+        """
+        Return the join style for the collection (for all its elements).
+
+        Returns
+        -------
+        %(JoinStyle)s or None
+        """
+        return self._joinstyle.name if self._joinstyle else None
 
     @staticmethod
     def _bcast_lwls(linewidths, dashes):
@@ -693,6 +711,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
                   for (o, d), lw in zip(dashes, linewidths)]
 
         return linewidths, dashes
+
+    def get_antialiased(self):
+        """
+        Get the antialiasing state for rendering.
+
+        Returns
+        -------
+        array of bools
+        """
+        return self._antialiaseds
 
     def set_antialiased(self, aa):
         """
@@ -999,10 +1027,6 @@ class PathCollection(_CollectionWithSizes):
         super().__init__(**kwargs)
         self.set_paths(paths)
         self.set_sizes(sizes)
-        self.stale = True
-
-    def set_paths(self, paths):
-        self._paths = paths
         self.stale = True
 
     def get_paths(self):

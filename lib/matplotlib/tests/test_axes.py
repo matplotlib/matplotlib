@@ -1479,7 +1479,7 @@ def test_pcolorargs():
         ax.pcolormesh(x, y, Z[:-1, :-1], shading="gouraud")
     with pytest.raises(TypeError):
         ax.pcolormesh(X, Y, Z[:-1, :-1], shading="gouraud")
-    x[0] = np.NaN
+    x[0] = np.nan
     with pytest.raises(ValueError):
         ax.pcolormesh(x, y, Z[:-1, :-1])
     with np.errstate(invalid='ignore'):
@@ -2502,7 +2502,7 @@ def test_contour_hatching():
 
 @image_comparison(
     ['contour_colorbar'], style='mpl20',
-    tol=0.02 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
+    tol=0.54 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
 def test_contour_colorbar():
     x, y, z = contour_dat()
 
@@ -2948,13 +2948,13 @@ def test_as_mpl_axes_api():
     prj2.theta_offset = np.pi
 
     # testing axes creation with plt.axes
-    ax = plt.axes([0, 0, 1, 1], projection=prj)
-    assert type(ax) == PolarAxes
+    ax = plt.axes((0, 0, 1, 1), projection=prj)
+    assert type(ax) is PolarAxes
     plt.close()
 
     # testing axes creation with subplot
     ax = plt.subplot(121, projection=prj)
-    assert type(ax) == PolarAxes
+    assert type(ax) is PolarAxes
     plt.close()
 
 
@@ -3221,6 +3221,15 @@ def test_bxp_customcap():
 def test_bxp_customwhisker():
     _bxp_test_helper(bxp_kwargs=dict(
         whiskerprops=dict(linestyle='-', color='m', lw=3)))
+
+
+@check_figures_equal()
+def test_boxplot_median_bound_by_box(fig_test, fig_ref):
+    data = np.arange(3)
+    medianprops_test = {"linewidth": 12}
+    medianprops_ref = {**medianprops_test, "solid_capstyle": "butt"}
+    fig_test.subplots().boxplot(data,  medianprops=medianprops_test)
+    fig_ref.subplots().boxplot(data, medianprops=medianprops_ref)
 
 
 @image_comparison(['bxp_withnotch.png'],
@@ -3574,14 +3583,14 @@ def test_vert_violinplot_baseline():
     np.random.seed(414213562)
     data = [np.random.normal(size=100) for _ in range(4)]
     ax = plt.axes()
-    ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
-                  showmedians=0)
+    ax.violinplot(data, positions=range(4), showmeans=False, showextrema=False,
+                  showmedians=False)
 
     # Reuse testcase from above for a labeled data test
     data = {"d": data}
     fig, ax = plt.subplots()
-    ax.violinplot("d", positions=range(4), showmeans=0, showextrema=0,
-                  showmedians=0, data=data)
+    ax.violinplot("d", positions=range(4), showmeans=False, showextrema=False,
+                  showmedians=False, data=data)
 
 
 @image_comparison(['violinplot_vert_showmeans.png'])
@@ -3590,8 +3599,8 @@ def test_vert_violinplot_showmeans():
     # First 9 digits of frac(sqrt(3))
     np.random.seed(732050807)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), showmeans=1, showextrema=0,
-                  showmedians=0)
+    ax.violinplot(data, positions=range(4), showmeans=True, showextrema=False,
+                  showmedians=False)
 
 
 @image_comparison(['violinplot_vert_showextrema.png'])
@@ -3600,8 +3609,8 @@ def test_vert_violinplot_showextrema():
     # First 9 digits of frac(sqrt(5))
     np.random.seed(236067977)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), showmeans=0, showextrema=1,
-                  showmedians=0)
+    ax.violinplot(data, positions=range(4), showmeans=False, showextrema=True,
+                  showmedians=False)
 
 
 @image_comparison(['violinplot_vert_showmedians.png'])
@@ -3610,8 +3619,8 @@ def test_vert_violinplot_showmedians():
     # First 9 digits of frac(sqrt(7))
     np.random.seed(645751311)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
-                  showmedians=1)
+    ax.violinplot(data, positions=range(4), showmeans=False, showextrema=False,
+                  showmedians=True)
 
 
 @image_comparison(['violinplot_vert_showall.png'])
@@ -3620,8 +3629,8 @@ def test_vert_violinplot_showall():
     # First 9 digits of frac(sqrt(11))
     np.random.seed(316624790)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), showmeans=1, showextrema=1,
-                  showmedians=1,
+    ax.violinplot(data, positions=range(4), showmeans=True, showextrema=True,
+                  showmedians=True,
                   quantiles=[[0.1, 0.9], [0.2, 0.8], [0.3, 0.7], [0.4, 0.6]])
 
 
@@ -3631,8 +3640,8 @@ def test_vert_violinplot_custompoints_10():
     # First 9 digits of frac(sqrt(13))
     np.random.seed(605551275)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
-                  showmedians=0, points=10)
+    ax.violinplot(data, positions=range(4), showmeans=False, showextrema=False,
+                  showmedians=False, points=10)
 
 
 @image_comparison(['violinplot_vert_custompoints_200.png'])
@@ -3641,8 +3650,8 @@ def test_vert_violinplot_custompoints_200():
     # First 9 digits of frac(sqrt(17))
     np.random.seed(123105625)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
-                  showmedians=0, points=200)
+    ax.violinplot(data, positions=range(4), showmeans=False, showextrema=False,
+                  showmedians=False, points=200)
 
 
 @image_comparison(['violinplot_horiz_baseline.png'])
@@ -3651,8 +3660,8 @@ def test_horiz_violinplot_baseline():
     # First 9 digits of frac(sqrt(19))
     np.random.seed(358898943)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
-                  showextrema=0, showmedians=0)
+    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+                  showextrema=False, showmedians=False)
 
 
 @image_comparison(['violinplot_horiz_showmedians.png'])
@@ -3661,8 +3670,8 @@ def test_horiz_violinplot_showmedians():
     # First 9 digits of frac(sqrt(23))
     np.random.seed(795831523)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
-                  showextrema=0, showmedians=1)
+    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+                  showextrema=False, showmedians=True)
 
 
 @image_comparison(['violinplot_horiz_showmeans.png'])
@@ -3671,8 +3680,8 @@ def test_horiz_violinplot_showmeans():
     # First 9 digits of frac(sqrt(29))
     np.random.seed(385164807)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=1,
-                  showextrema=0, showmedians=0)
+    ax.violinplot(data, positions=range(4), vert=False, showmeans=True,
+                  showextrema=False, showmedians=False)
 
 
 @image_comparison(['violinplot_horiz_showextrema.png'])
@@ -3681,8 +3690,8 @@ def test_horiz_violinplot_showextrema():
     # First 9 digits of frac(sqrt(31))
     np.random.seed(567764362)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
-                  showextrema=1, showmedians=0)
+    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+                  showextrema=True, showmedians=False)
 
 
 @image_comparison(['violinplot_horiz_showall.png'])
@@ -3691,8 +3700,8 @@ def test_horiz_violinplot_showall():
     # First 9 digits of frac(sqrt(37))
     np.random.seed(82762530)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=1,
-                  showextrema=1, showmedians=1,
+    ax.violinplot(data, positions=range(4), vert=False, showmeans=True,
+                  showextrema=True, showmedians=True,
                   quantiles=[[0.1, 0.9], [0.2, 0.8], [0.3, 0.7], [0.4, 0.6]])
 
 
@@ -3702,8 +3711,8 @@ def test_horiz_violinplot_custompoints_10():
     # First 9 digits of frac(sqrt(41))
     np.random.seed(403124237)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
-                  showextrema=0, showmedians=0, points=10)
+    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+                  showextrema=False, showmedians=False, points=10)
 
 
 @image_comparison(['violinplot_horiz_custompoints_200.png'])
@@ -3712,8 +3721,8 @@ def test_horiz_violinplot_custompoints_200():
     # First 9 digits of frac(sqrt(43))
     np.random.seed(557438524)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
-                  showextrema=0, showmedians=0, points=200)
+    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+                  showextrema=False, showmedians=False, points=200)
 
 
 def test_violinplot_bad_positions():
@@ -5641,7 +5650,7 @@ def test_shared_aspect_error():
                            "Unrecognized string 'foo' to axis; try 'on' or "
                            "'off'"),
                           (TypeError, ([1, 2], ), {},
-                           "the first argument to axis*"),
+                           "The first argument to axis*"),
                           (TypeError, tuple(), {'foo': None},
                            r"axis\(\) got an unexpected keyword argument "
                            "'foo'"),
@@ -6061,6 +6070,21 @@ def test_retain_tick_visibility():
     plt.plot([0, 1, 2], [0, -1, 4])
     plt.setp(ax.get_yticklabels(), visible=False)
     ax.tick_params(axis="y", which="both", length=0)
+
+
+def test_warn_too_few_labels():
+    # note that the axis is still using an AutoLocator:
+    fig, ax = plt.subplots()
+    with pytest.warns(
+           UserWarning,
+           match=r'set_ticklabels\(\) should only be used with a fixed number'):
+        ax.set_xticklabels(['0', '0.1'])
+    # note that the axis is still using a FixedLocator:
+    fig, ax = plt.subplots()
+    ax.set_xticks([0, 0.5, 1])
+    with pytest.raises(ValueError,
+                       match='The number of FixedLocator locations'):
+        ax.set_xticklabels(['0', '0.1'])
 
 
 def test_tick_label_update():
@@ -7404,7 +7428,7 @@ def test_limits_after_scroll_zoom():
 def test_gettightbbox_ignore_nan():
     fig, ax = plt.subplots()
     remove_ticks_and_titles(fig)
-    ax.text(np.NaN, 1, 'Boo')
+    ax.text(np.nan, 1, 'Boo')
     renderer = fig.canvas.get_renderer()
     np.testing.assert_allclose(ax.get_tightbbox(renderer).width, 496)
 
@@ -8147,11 +8171,11 @@ def test_bar_label_location_vertical():
     rects = ax.bar(xs, heights)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (xs[0], heights[0])
-    assert labels[0].get_ha() == 'center'
-    assert labels[0].get_va() == 'bottom'
+    assert labels[0].get_horizontalalignment() == 'center'
+    assert labels[0].get_verticalalignment() == 'bottom'
     assert labels[1].xy == (xs[1], heights[1])
-    assert labels[1].get_ha() == 'center'
-    assert labels[1].get_va() == 'top'
+    assert labels[1].get_horizontalalignment() == 'center'
+    assert labels[1].get_verticalalignment() == 'top'
 
 
 def test_bar_label_location_vertical_yinverted():
@@ -8161,11 +8185,11 @@ def test_bar_label_location_vertical_yinverted():
     rects = ax.bar(xs, heights)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (xs[0], heights[0])
-    assert labels[0].get_ha() == 'center'
-    assert labels[0].get_va() == 'top'
+    assert labels[0].get_horizontalalignment() == 'center'
+    assert labels[0].get_verticalalignment() == 'top'
     assert labels[1].xy == (xs[1], heights[1])
-    assert labels[1].get_ha() == 'center'
-    assert labels[1].get_va() == 'bottom'
+    assert labels[1].get_horizontalalignment() == 'center'
+    assert labels[1].get_verticalalignment() == 'bottom'
 
 
 def test_bar_label_location_horizontal():
@@ -8174,11 +8198,11 @@ def test_bar_label_location_horizontal():
     rects = ax.barh(ys, widths)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (widths[0], ys[0])
-    assert labels[0].get_ha() == 'left'
-    assert labels[0].get_va() == 'center'
+    assert labels[0].get_horizontalalignment() == 'left'
+    assert labels[0].get_verticalalignment() == 'center'
     assert labels[1].xy == (widths[1], ys[1])
-    assert labels[1].get_ha() == 'right'
-    assert labels[1].get_va() == 'center'
+    assert labels[1].get_horizontalalignment() == 'right'
+    assert labels[1].get_verticalalignment() == 'center'
 
 
 def test_bar_label_location_horizontal_yinverted():
@@ -8188,11 +8212,11 @@ def test_bar_label_location_horizontal_yinverted():
     rects = ax.barh(ys, widths)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (widths[0], ys[0])
-    assert labels[0].get_ha() == 'left'
-    assert labels[0].get_va() == 'center'
+    assert labels[0].get_horizontalalignment() == 'left'
+    assert labels[0].get_verticalalignment() == 'center'
     assert labels[1].xy == (widths[1], ys[1])
-    assert labels[1].get_ha() == 'right'
-    assert labels[1].get_va() == 'center'
+    assert labels[1].get_horizontalalignment() == 'right'
+    assert labels[1].get_verticalalignment() == 'center'
 
 
 def test_bar_label_location_horizontal_xinverted():
@@ -8202,11 +8226,11 @@ def test_bar_label_location_horizontal_xinverted():
     rects = ax.barh(ys, widths)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (widths[0], ys[0])
-    assert labels[0].get_ha() == 'right'
-    assert labels[0].get_va() == 'center'
+    assert labels[0].get_horizontalalignment() == 'right'
+    assert labels[0].get_verticalalignment() == 'center'
     assert labels[1].xy == (widths[1], ys[1])
-    assert labels[1].get_ha() == 'left'
-    assert labels[1].get_va() == 'center'
+    assert labels[1].get_horizontalalignment() == 'left'
+    assert labels[1].get_verticalalignment() == 'center'
 
 
 def test_bar_label_location_horizontal_xyinverted():
@@ -8217,11 +8241,11 @@ def test_bar_label_location_horizontal_xyinverted():
     rects = ax.barh(ys, widths)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (widths[0], ys[0])
-    assert labels[0].get_ha() == 'right'
-    assert labels[0].get_va() == 'center'
+    assert labels[0].get_horizontalalignment() == 'right'
+    assert labels[0].get_verticalalignment() == 'center'
     assert labels[1].xy == (widths[1], ys[1])
-    assert labels[1].get_ha() == 'left'
-    assert labels[1].get_va() == 'center'
+    assert labels[1].get_horizontalalignment() == 'left'
+    assert labels[1].get_verticalalignment() == 'center'
 
 
 def test_bar_label_location_center():
@@ -8230,11 +8254,11 @@ def test_bar_label_location_center():
     rects = ax.barh(ys, widths)
     labels = ax.bar_label(rects, label_type='center')
     assert labels[0].xy == (0.5, 0.5)
-    assert labels[0].get_ha() == 'center'
-    assert labels[0].get_va() == 'center'
+    assert labels[0].get_horizontalalignment() == 'center'
+    assert labels[0].get_verticalalignment() == 'center'
     assert labels[1].xy == (0.5, 0.5)
-    assert labels[1].get_ha() == 'center'
-    assert labels[1].get_va() == 'center'
+    assert labels[1].get_horizontalalignment() == 'center'
+    assert labels[1].get_verticalalignment() == 'center'
 
 
 @image_comparison(['test_centered_bar_label_nonlinear.svg'])
@@ -8266,11 +8290,11 @@ def test_bar_label_location_errorbars():
     rects = ax.bar(xs, heights, yerr=1)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (xs[0], heights[0] + 1)
-    assert labels[0].get_ha() == 'center'
-    assert labels[0].get_va() == 'bottom'
+    assert labels[0].get_horizontalalignment() == 'center'
+    assert labels[0].get_verticalalignment() == 'bottom'
     assert labels[1].xy == (xs[1], heights[1] - 1)
-    assert labels[1].get_ha() == 'center'
-    assert labels[1].get_va() == 'top'
+    assert labels[1].get_horizontalalignment() == 'center'
+    assert labels[1].get_verticalalignment() == 'top'
 
 
 @pytest.mark.parametrize('fmt', [
@@ -8305,7 +8329,7 @@ def test_bar_label_nan_ydata():
     labels = ax.bar_label(bars)
     assert [l.get_text() for l in labels] == ['', '1']
     assert labels[0].xy == (2, 0)
-    assert labels[0].get_va() == 'bottom'
+    assert labels[0].get_verticalalignment() == 'bottom'
 
 
 def test_bar_label_nan_ydata_inverted():
@@ -8315,7 +8339,7 @@ def test_bar_label_nan_ydata_inverted():
     labels = ax.bar_label(bars)
     assert [l.get_text() for l in labels] == ['', '1']
     assert labels[0].xy == (2, 0)
-    assert labels[0].get_va() == 'bottom'
+    assert labels[0].get_verticalalignment() == 'bottom'
 
 
 def test_nan_barlabels():
@@ -8584,7 +8608,7 @@ def test_bar_leading_nan():
     barheights = np.array([0.5, 1.5, 2.0])
     barstarts = np.array([0.77]*3)
 
-    barx[0] = np.NaN
+    barx[0] = np.nan
 
     fig, ax = plt.subplots()
 
@@ -8802,3 +8826,12 @@ def test_set_secondary_axis_color():
     assert mcolors.same_color(sax.xaxis.get_tick_params()["color"], "red")
     assert mcolors.same_color(sax.xaxis.get_tick_params()["labelcolor"], "red")
     assert mcolors.same_color(sax.xaxis.label.get_color(), "red")
+
+
+def test_xylim_changed_shared():
+    fig, axs = plt.subplots(2, sharex=True, sharey=True)
+    events = []
+    axs[1].callbacks.connect("xlim_changed", events.append)
+    axs[1].callbacks.connect("ylim_changed", events.append)
+    axs[0].set(xlim=[1, 3], ylim=[2, 4])
+    assert events == [axs[1], axs[1]]

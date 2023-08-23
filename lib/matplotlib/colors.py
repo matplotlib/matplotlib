@@ -210,10 +210,12 @@ def _sanitize_extrema(ex):
         ret = float(ex)
     return ret
 
+_nth_color_re = re.compile(r"\AC[0-9]+\Z")
+
 
 def _is_nth_color(c):
     """Return whether *c* can be interpreted as an item in the color cycle."""
-    return isinstance(c, str) and re.match(r"\AC[0-9]+\Z", c)
+    return isinstance(c, str) and _nth_color_re.match(c)
 
 
 def is_color_like(c):
@@ -1226,13 +1228,18 @@ class Normalize:
             processed; i.e., ``__call__(A)`` calls ``autoscale_None(A)``.
 
         clip : bool, default: False
-            If ``True`` values falling outside the range ``[vmin, vmax]``,
-            are mapped to 0 or 1, whichever is closer, and masked values are
-            set to 1.  If ``False`` masked values remain masked.
+            Determines the behavior for mapping values outside the range
+            ``[vmin, vmax]``.
 
-            Clipping silently defeats the purpose of setting the over and
-            under colors in a colormap, so it is likely to lead to
-            surprises; therefore the default is ``clip=False``.
+            If clipping is off, values outside the range ``[vmin, vmax]`` are also
+            transformed linearly, resulting in values outside ``[0, 1]``. For a
+            standard use with colormaps, this behavior is desired because colormaps
+            mark these outside values with specific colors for *over* or *under*.
+
+            If ``True`` values falling outside the range ``[vmin, vmax]``,
+            are mapped to 0 or 1, whichever is closer. This makes these values
+            indistinguishable from regular boundary values and can lead to
+            misinterpretation of the data.
 
         Notes
         -----
@@ -1328,6 +1335,8 @@ class Normalize:
         value
             Data to normalize.
         clip : bool, optional
+            See the description of the parameter *clip* in `.Normalize`.
+
             If ``None``, defaults to ``self.clip`` (which defaults to
             ``False``).
 
@@ -1388,6 +1397,12 @@ class Normalize:
     def autoscale_None(self, A):
         """If vmin or vmax are not set, use the min/max of *A* to set them."""
         A = np.asanyarray(A)
+
+        if isinstance(A, np.ma.MaskedArray):
+            # we need to make the distinction between an array, False, np.bool_(False)
+            if A.mask is False or not A.mask.shape:
+                A = A.data
+
         if self.vmin is None and A.size:
             self.vmin = A.min()
         if self.vmax is None and A.size:
@@ -1516,9 +1531,18 @@ class CenteredNorm(Normalize):
             Defaults to the largest absolute difference to *vcenter* for
             the values in the dataset.
         clip : bool, default: False
+            Determines the behavior for mapping values outside the range
+            ``[vmin, vmax]``.
+
+            If clipping is off, values outside the range ``[vmin, vmax]`` are also
+            transformed, resulting in values outside ``[0, 1]``. For a
+            standard use with colormaps, this behavior is desired because colormaps
+            mark these outside values with specific colors for *over* or *under*.
+
             If ``True`` values falling outside the range ``[vmin, vmax]``,
-            are mapped to 0 or 1, whichever is closer, and masked values are
-            set to 1.  If ``False`` masked values remain masked.
+            are mapped to 0 or 1, whichever is closer. This makes these values
+            indistinguishable from regular boundary values and can lead to
+            misinterpretation of the data.
 
         Examples
         --------
@@ -1791,13 +1815,18 @@ class FuncNorm(Normalize):
         processed; i.e., ``__call__(A)`` calls ``autoscale_None(A)``.
 
     clip : bool, default: False
-        If ``True`` values falling outside the range ``[vmin, vmax]``,
-        are mapped to 0 or 1, whichever is closer, and masked values are
-        set to 1.  If ``False`` masked values remain masked.
+        Determines the behavior for mapping values outside the range
+        ``[vmin, vmax]``.
 
-        Clipping silently defeats the purpose of setting the over and
-        under colors in a colormap, so it is likely to lead to
-        surprises; therefore the default is ``clip=False``.
+        If clipping is off, values outside the range ``[vmin, vmax]`` are also
+        transformed by the function, resulting in values outside ``[0, 1]``. For a
+        standard use with colormaps, this behavior is desired because colormaps
+        mark these outside values with specific colors for *over* or *under*.
+
+        If ``True`` values falling outside the range ``[vmin, vmax]``,
+        are mapped to 0 or 1, whichever is closer. This makes these values
+        indistinguishable from regular boundary values and can lead to
+        misinterpretation of the data.
     """
 
 
@@ -1891,13 +1920,18 @@ class PowerNorm(Normalize):
         minimum and maximum value, respectively, of the first input
         processed; i.e., ``__call__(A)`` calls ``autoscale_None(A)``.
     clip : bool, default: False
-        If ``True`` values falling outside the range ``[vmin, vmax]``,
-        are mapped to 0 or 1, whichever is closer, and masked values
-        remain masked.
+        Determines the behavior for mapping values outside the range
+        ``[vmin, vmax]``.
 
-        Clipping silently defeats the purpose of setting the over and under
-        colors, so it is likely to lead to surprises; therefore the default
-        is ``clip=False``.
+        If clipping is off, values outside the range ``[vmin, vmax]`` are also
+        transformed by the power function, resulting in values outside ``[0, 1]``. For
+        a standard use with colormaps, this behavior is desired because colormaps
+        mark these outside values with specific colors for *over* or *under*.
+
+        If ``True`` values falling outside the range ``[vmin, vmax]``,
+        are mapped to 0 or 1, whichever is closer. This makes these values
+        indistinguishable from regular boundary values and can lead to
+        misinterpretation of the data.
 
     Notes
     -----
@@ -2087,9 +2121,13 @@ class NoNorm(Normalize):
     indices directly in a `~matplotlib.cm.ScalarMappable`.
     """
     def __call__(self, value, clip=None):
+        if np.iterable(value):
+            return np.ma.array(value)
         return value
 
     def inverse(self, value):
+        if np.iterable(value):
+            return np.ma.array(value)
         return value
 
 

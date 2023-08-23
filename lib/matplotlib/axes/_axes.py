@@ -920,7 +920,7 @@ class Axes(_AxesBase):
             # data limits should not be adjusted.
             datalim = []
 
-        line = mlines._AxLine(xy1, xy2, slope, **kwargs)
+        line = mlines.AxLine(xy1, xy2, slope, **kwargs)
         # Like add_line, but correctly handling data limits.
         self._set_artist_props(line)
         if line.get_clip_path() is None:
@@ -1715,7 +1715,7 @@ class Axes(_AxesBase):
         (``'green'``) or hex strings (``'#008000'``).
         """
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
-        lines = [*self._get_lines(*args, data=data, **kwargs)]
+        lines = [*self._get_lines(self, *args, data=data, **kwargs)]
         for line in lines:
             self.add_line(line)
         if scalex:
@@ -2745,8 +2745,8 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        list of `.Text`
-            A list of `.Text` instances for the labels.
+        list of `.Annotation`
+            A list of `.Annotation` instances for the labels.
         """
         for key in ['horizontalalignment', 'ha', 'verticalalignment', 'va']:
             if key in kwargs:
@@ -3575,7 +3575,7 @@ class Axes(_AxesBase):
         # that would call self._process_unit_info again, and do other indirect
         # data processing.
         (data_line, base_style), = self._get_lines._plot_args(
-            (x, y) if fmt == '' else (x, y, fmt), kwargs, return_kwargs=True)
+            self, (x, y) if fmt == '' else (x, y, fmt), kwargs, return_kwargs=True)
 
         # Do this after creating `data_line` to avoid modifying `base_style`.
         if barsabove:
@@ -4095,7 +4095,7 @@ class Axes(_AxesBase):
 
         capwidths : float or array-like, default: None
           Either a scalar or a vector and sets the width of each cap.
-          The default is ``0.5*(with of the box)``, see *widths*.
+          The default is ``0.5*(width of the box)``, see *widths*.
 
         vert : bool, default: True
           If `True` (default), makes the boxes vertical.
@@ -4147,6 +4147,17 @@ class Axes(_AxesBase):
         --------
         .. plot:: gallery/statistics/bxp.py
         """
+        # Clamp median line to edge of box by default.
+        medianprops = {
+            "solid_capstyle": "butt",
+            "dash_capstyle": "butt",
+            **(medianprops or {}),
+        }
+        meanprops = {
+            "solid_capstyle": "butt",
+            "dash_capstyle": "butt",
+            **(meanprops or {}),
+        }
 
         # lists of artists to be output
         whiskers = []
@@ -5283,7 +5294,7 @@ default: :rc:`scatter.edgecolors`
         # For compatibility(!), get aliases from Line2D rather than Patch.
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
         # _get_patches_for_fill returns a generator, convert it to a list.
-        patches = [*self._get_patches_for_fill(*args, data=data, **kwargs)]
+        patches = [*self._get_patches_for_fill(self, *args, data=data, **kwargs)]
         for poly in patches:
             self.add_patch(poly)
         self._request_autoscale_view()
@@ -5527,12 +5538,12 @@ default: :rc:`scatter.edgecolors`
 
         The input may either be actual RGB(A) data, or 2D scalar data, which
         will be rendered as a pseudocolor image. For displaying a grayscale
-        image set up the colormapping using the parameters
+        image, set up the colormapping using the parameters
         ``cmap='gray', vmin=0, vmax=255``.
 
         The number of pixels used to render an image is set by the Axes size
-        and the *dpi* of the figure. This can lead to aliasing artifacts when
-        the image is resampled because the displayed image size will usually
+        and the figure *dpi*. This can lead to aliasing artifacts when
+        the image is resampled, because the displayed image size will usually
         not match the size of *X* (see
         :doc:`/gallery/images_contours_and_fields/image_antialiasing`).
         The resampling can be controlled via the *interpolation* parameter
@@ -5567,7 +5578,7 @@ default: :rc:`scatter.edgecolors`
 
             This parameter is ignored if *X* is RGB(A).
 
-        aspect : {'equal', 'auto'} or float, default: :rc:`image.aspect`
+        aspect : {'equal', 'auto'} or float or None, default: None
             The aspect ratio of the Axes.  This parameter is particularly
             relevant for images since it determines whether data pixels are
             square.
@@ -5581,6 +5592,11 @@ default: :rc:`scatter.edgecolors`
             - 'auto': The Axes is kept fixed and the aspect is adjusted so
               that the data fit in the Axes. In general, this will result in
               non-square pixels.
+
+            Normally, None (the default) means to use :rc:`image.aspect`.  However, if
+            the image uses a transform that does not contain the axes data transform,
+            then None means to not modify the axes aspect at all (in that case, directly
+            call `.Axes.set_aspect` if desired).
 
         interpolation : str, default: :rc:`image.interpolation`
             The interpolation method used.
@@ -5715,15 +5731,19 @@ default: :rc:`scatter.edgecolors`
         `~matplotlib.pyplot.imshow` expects RGB images adopting the straight
         (unassociated) alpha representation.
         """
-        if aspect is None:
-            aspect = mpl.rcParams['image.aspect']
-        self.set_aspect(aspect)
         im = mimage.AxesImage(self, cmap=cmap, norm=norm,
                               interpolation=interpolation, origin=origin,
                               extent=extent, filternorm=filternorm,
                               filterrad=filterrad, resample=resample,
                               interpolation_stage=interpolation_stage,
                               **kwargs)
+
+        if aspect is None and not (
+                im.is_transform_set()
+                and not im.get_transform().contains_branch(self.transData)):
+            aspect = mpl.rcParams['image.aspect']
+        if aspect is not None:
+            self.set_aspect(aspect)
 
         im.set_data(X)
         im.set_alpha(alpha)
@@ -7089,13 +7109,13 @@ such objects
             The bin specification:
 
             - If int, the number of bins for the two dimensions
-              (nx=ny=bins).
+              (``nx = ny = bins``).
             - If ``[int, int]``, the number of bins in each dimension
-              (nx, ny = bins).
+              (``nx, ny = bins``).
             - If array-like, the bin edges for the two dimensions
-              (x_edges=y_edges=bins).
+              (``x_edges = y_edges = bins``).
             - If ``[array, array]``, the bin edges in each dimension
-              (x_edges, y_edges = bins).
+              (``x_edges, y_edges = bins``).
 
             The default value is 10.
 
@@ -7113,10 +7133,10 @@ such objects
             An array of values w_i weighing each sample (x_i, y_i).
 
         cmin, cmax : float, default: None
-            All bins that has count less than *cmin* or more than *cmax* will
-            not be displayed (set to NaN before passing to imshow) and these
-            count values in the return value count histogram will also be set
-            to nan upon return.
+            All bins that has count less than *cmin* or more than *cmax* will not be
+            displayed (set to NaN before passing to `~.Axes.pcolormesh`) and these count
+            values in the return value count histogram will also be set to nan upon
+            return.
 
         Returns
         -------

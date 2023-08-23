@@ -1,5 +1,6 @@
 import functools
 import itertools
+import platform
 
 import pytest
 
@@ -55,6 +56,18 @@ def test_invisible_ticks_axis():
     ax.set_zticks([])
     for axis in [ax.xaxis, ax.yaxis, ax.zaxis]:
         axis.line.set_visible(False)
+
+
+@mpl3d_image_comparison(['axis_positions.png'], remove_text=False, style='mpl20')
+def test_axis_positions():
+    positions = ['upper', 'lower', 'both', 'none']
+    fig, axs = plt.subplots(2, 2, subplot_kw={'projection': '3d'})
+    for ax, pos in zip(axs.flatten(), positions):
+        for axis in ax.xaxis, ax.yaxis, ax.zaxis:
+            axis.set_label_position(pos)
+            axis.set_ticks_position(pos)
+        title = f'{pos}'
+        ax.set(xlabel='x', ylabel='y', zlabel='z', title=title)
 
 
 @mpl3d_image_comparison(['aspects.png'], remove_text=False, style='mpl20')
@@ -205,7 +218,9 @@ def test_bar3d_lightsource():
     np.testing.assert_array_max_ulp(color, collection._facecolor3d[1::6], 4)
 
 
-@mpl3d_image_comparison(['contour3d.png'], style='mpl20')
+@mpl3d_image_comparison(
+    ['contour3d.png'], style='mpl20',
+    tol=0.002 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
 def test_contour3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -213,9 +228,7 @@ def test_contour3d():
     ax.contour(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm)
     ax.contour(X, Y, Z, zdir='x', offset=-40, cmap=cm.coolwarm)
     ax.contour(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)
-    ax.set_xlim(-40, 40)
-    ax.set_ylim(-40, 40)
-    ax.set_zlim(-100, 100)
+    ax.axis(xmin=-40, xmax=40, ymin=-40, ymax=40, zmin=-100, zmax=100)
 
 
 @mpl3d_image_comparison(['contour3d_extend3d.png'], style='mpl20')
@@ -1934,27 +1947,27 @@ def test_format_coord():
     xv = 0.1
     yv = 0.1
     fig.canvas.draw()
-    assert ax.format_coord(xv, yv) == 'x=10.5227, y=1.0417, z=0.1444'
+    assert ax.format_coord(xv, yv) == 'x=10.5227, y pane=1.0417, z=0.1444'
 
     # Modify parameters
     ax.view_init(roll=30, vertical_axis="y")
     fig.canvas.draw()
-    assert ax.format_coord(xv, yv) == 'x=9.1875, y=0.9761, z=0.1291'
+    assert ax.format_coord(xv, yv) == 'x pane=9.1875, y=0.9761, z=0.1291'
 
     # Reset parameters
     ax.view_init()
     fig.canvas.draw()
-    assert ax.format_coord(xv, yv) == 'x=10.5227, y=1.0417, z=0.1444'
+    assert ax.format_coord(xv, yv) == 'x=10.5227, y pane=1.0417, z=0.1444'
 
     # Check orthographic projection
     ax.set_proj_type('ortho')
     fig.canvas.draw()
-    assert ax.format_coord(xv, yv) == 'x=10.8869, y=1.0417, z=0.1528'
+    assert ax.format_coord(xv, yv) == 'x=10.8869, y pane=1.0417, z=0.1528'
 
     # Check non-default perspective projection
     ax.set_proj_type('persp', focal_length=0.1)
     fig.canvas.draw()
-    assert ax.format_coord(xv, yv) == 'x=9.0620, y=1.0417, z=0.1110'
+    assert ax.format_coord(xv, yv) == 'x=9.0620, y pane=1.0417, z=0.1110'
 
 
 def test_get_axis_position():
@@ -2167,7 +2180,7 @@ def test_view_init_vertical_axis(
 
         # Assert ticks are correctly aligned:
         tickdir_expected = tickdirs_expected[i]
-        tickdir_actual = axis._get_tickdir()
+        tickdir_actual = axis._get_tickdir('default')
         np.testing.assert_array_equal(tickdir_expected, tickdir_actual)
 
 
@@ -2217,3 +2230,52 @@ def test_mutating_input_arrays_y_and_z(fig_test, fig_ref):
     y = [0.0, 0.0, 0.0]
     z = [0.0, 0.0, 0.0]
     ax2.plot(x, y, z, 'o-')
+
+
+def test_scatter_masked_color():
+    """
+    Test color parameter usage with non-finite coordinate arrays.
+
+    GH#26236
+    """
+
+    x = [np.nan, 1, 2,  1]
+    y = [0, np.inf, 2,  1]
+    z = [0, 1, -np.inf, 1]
+    colors = [
+        [0.0, 0.0, 0.0, 1],
+        [0.0, 0.0, 0.0, 1],
+        [0.0, 0.0, 0.0, 1],
+        [0.0, 0.0, 0.0, 1]
+    ]
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    path3d = ax.scatter(x, y, z, color=colors)
+
+    # Assert sizes' equality
+    assert len(path3d.get_offsets()) ==\
+           len(super(type(path3d), path3d).get_facecolors())
+
+
+@mpl3d_image_comparison(['surface3d_zsort_inf.png'], style='mpl20')
+def test_surface3d_zsort_inf():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    x, y = np.mgrid[-2:2:0.1, -2:2:0.1]
+    z = np.sin(x)**2 + np.cos(y)**2
+    z[x.shape[0] // 2:, x.shape[1] // 2:] = np.inf
+
+    ax.plot_surface(x, y, z, cmap='jet')
+    ax.view_init(elev=45, azim=145)
+
+
+def test_Poly3DCollection_init_value_error():
+    # smoke test to ensure the input check works
+    # GH#26420
+    with pytest.raises(ValueError,
+                       match='You must provide facecolors, edgecolors, '
+                        'or both for shade to work.'):
+        poly = np.array([[0, 0, 1], [0, 1, 1], [0, 0, 0]], float)
+        c = art3d.Poly3DCollection([poly], shade=True)

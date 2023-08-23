@@ -147,7 +147,7 @@ Add ``ax.get_gridspec`` to ``SubplotBase``
 New method ``SubplotBase.get_gridspec`` is added so that users can
 easily get the gridspec that went into making an axes:
 
-  .. code::
+.. code::
 
     import matplotlib.pyplot as plt
 

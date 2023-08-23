@@ -735,7 +735,25 @@ class Axes3D(Axes):
         return tuple(self.xy_viewLim.intervaly)
 
     def get_zlim(self):
-        """Get 3D z limits."""
+        """
+        Return the 3D z-axis view limits.
+
+        Returns
+        -------
+        left, right : (float, float)
+            The current z-axis limits in data coordinates.
+
+        See Also
+        --------
+        set_zlim
+        set_zbound, get_zbound
+        invert_zaxis, zaxis_inverted
+
+        Notes
+        -----
+        The z-axis may be inverted, in which case the *left* value will
+        be greater than the *right* value.
+        """
         return tuple(self.zz_viewLim.intervalx)
 
     get_zscale = _axis_method_wrapper("zaxis", "get_scale")
@@ -1112,11 +1130,16 @@ class Axes3D(Axes):
         """
         Return the location on the axis pane underneath the cursor as a string.
         """
-        p1 = self._calc_coord(xv, yv, renderer)
+        p1, pane_idx = self._calc_coord(xv, yv, renderer)
         xs = self.format_xdata(p1[0])
         ys = self.format_ydata(p1[1])
         zs = self.format_zdata(p1[2])
-        coords = f'x={xs}, y={ys}, z={zs}'
+        if pane_idx == 0:
+            coords = f'x pane={xs}, y={ys}, z={zs}'
+        elif pane_idx == 1:
+            coords = f'x={xs}, y pane={ys}, z={zs}'
+        elif pane_idx == 2:
+            coords = f'x={xs}, y={ys}, z pane={zs}'
         return coords
 
     def _get_camera_loc(self):
@@ -1164,11 +1187,12 @@ class Axes3D(Axes):
                 scales[i] = np.inf
             else:
                 scales[i] = (p1[i] - pane_locs[i]) / vec[i]
-        scale = scales[np.argmin(abs(scales))]
+        pane_idx = np.argmin(abs(scales))
+        scale = scales[pane_idx]
 
         # Calculate the point on the closest pane
         p2 = p1 - scale*vec
-        return p2
+        return p2, pane_idx
 
     def _on_move(self, event):
         """
@@ -1485,6 +1509,12 @@ class Axes3D(Axes):
     def invert_zaxis(self):
         """
         Invert the z-axis.
+
+        See Also
+        --------
+        zaxis_inverted
+        get_zlim, set_zlim
+        get_zbound, set_zbound
         """
         bottom, top = self.get_zlim()
         self.set_zlim(top, bottom, auto=None)
@@ -1494,6 +1524,12 @@ class Axes3D(Axes):
     def get_zbound(self):
         """
         Return the lower and upper z-axis bounds, in increasing order.
+
+        See Also
+        --------
+        set_zbound
+        get_zlim, set_zlim
+        invert_zaxis, zaxis_inverted
         """
         bottom, top = self.get_zlim()
         if bottom < top:
@@ -1507,6 +1543,18 @@ class Axes3D(Axes):
 
         This method will honor axes inversion regardless of parameter order.
         It will not change the autoscaling setting (`.get_autoscalez_on()`).
+
+        Parameters
+        ----------
+        lower, upper : float or None
+            The lower and upper bounds. If *None*, the respective axis bound
+            is not modified.
+
+        See Also
+        --------
+        get_zbound
+        get_zlim, set_zlim
+        invert_zaxis, zaxis_inverted
         """
         if upper is None and np.iterable(lower):
             lower, upper = lower
@@ -1523,11 +1571,24 @@ class Axes3D(Axes):
 
     def text(self, x, y, z, s, zdir=None, **kwargs):
         """
-        Add text to the plot.
+        Add the text *s* to the 3D Axes at location *x*, *y*, *z* in data coordinates.
 
-        Keyword arguments will be passed on to `.Axes.text`, except for the
-        *zdir* keyword, which sets the direction to be used as the z
-        direction.
+        Parameters
+        ----------
+        x, y, z : float
+            The position to place the text.
+        s : str
+            The text.
+        zdir : {'x', 'y', 'z', 3-tuple}, optional
+            The direction to be used as the z-direction. Default: 'z'.
+            See `.get_dir_vector` for a description of the values.
+        **kwargs
+            Other arguments are forwarded to `matplotlib.axes.Axes.text`.
+
+        Returns
+        -------
+        `.Text3D`
+            The created `.Text3D` instance.
         """
         text = super().text(x, y, s, **kwargs)
         art3d.text_2d_to_3d(text, z, zdir)
@@ -1718,10 +1779,10 @@ class Axes3D(Axes):
                     if fcolors is not None:
                         colset.append(fcolors[rs][cs])
 
-        # In cases where there are NaNs in the data (possibly from masked
-        # arrays), artifacts can be introduced. Here check whether NaNs exist
-        # and remove the entries if so
-        if not isinstance(polys, np.ndarray) or np.isnan(polys).any():
+        # In cases where there are non-finite values in the data (possibly NaNs from
+        # masked arrays), artifacts can be introduced. Here check whether such values
+        # are present and remove them.
+        if not isinstance(polys, np.ndarray) or not np.isfinite(polys).all():
             new_polys = []
             new_colset = []
 
@@ -1729,7 +1790,7 @@ class Axes3D(Axes):
             # many elements as polys. In the former case new_colset results in
             # a list with None entries, that is discarded later.
             for p, col in itertools.zip_longest(polys, colset):
-                new_poly = np.array(p)[~np.isnan(p).any(axis=1)]
+                new_poly = np.array(p)[np.isfinite(p).all(axis=1)]
                 if len(new_poly):
                     new_polys.append(new_poly)
                     new_colset.append(col)
@@ -2326,7 +2387,11 @@ class Axes3D(Axes):
             *[np.ravel(np.ma.filled(t, np.nan)) for t in [xs, ys, zs]])
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
-        xs, ys, zs, s, c = cbook.delete_masked_points(xs, ys, zs, s, c)
+        xs, ys, zs, s, c, color = cbook.delete_masked_points(
+            xs, ys, zs, s, c, kwargs.get('color', None)
+            )
+        if kwargs.get('color', None):
+            kwargs['color'] = color
 
         # For xs and ys, 2D scatter() will do the copying.
         if np.may_share_memory(zs_orig, zs):  # Avoid unnecessary copies.
@@ -3058,7 +3123,7 @@ class Axes3D(Axes):
         # that would call self._process_unit_info again, and do other indirect
         # data processing.
         (data_line, base_style), = self._get_lines._plot_args(
-            (x, y) if fmt == '' else (x, y, fmt), kwargs, return_kwargs=True)
+            self, (x, y) if fmt == '' else (x, y, fmt), kwargs, return_kwargs=True)
         art3d.line_2d_to_3d(data_line, zs=z)
 
         # Do this after creating `data_line` to avoid modifying `base_style`.

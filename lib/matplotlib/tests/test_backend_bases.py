@@ -85,13 +85,13 @@ def test_non_gui_warning(monkeypatch):
     with pytest.warns(UserWarning) as rec:
         plt.show()
         assert len(rec) == 1
-        assert ('Matplotlib is currently using pdf, which is a non-GUI backend'
+        assert ('FigureCanvasPdf is non-interactive, and thus cannot be shown'
                 in str(rec[0].message))
 
     with pytest.warns(UserWarning) as rec:
         plt.gcf().show()
         assert len(rec) == 1
-        assert ('Matplotlib is currently using pdf, which is a non-GUI backend'
+        assert ('FigureCanvasPdf is non-interactive, and thus cannot be shown'
                 in str(rec[0].message))
 
 

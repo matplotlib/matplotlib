@@ -14,7 +14,7 @@ import weakref
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import cbook, font_manager as fm
+from matplotlib import _api, cbook, font_manager as fm
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase
 )
@@ -874,16 +874,10 @@ class PdfPages:
     ...     # When no figure is specified the current figure is saved
     ...     pdf.savefig()
     """
-    __slots__ = (
-        '_output_name',
-        'keep_empty',
-        '_n_figures',
-        '_file',
-        '_info_dict',
-        '_metadata',
-    )
 
-    def __init__(self, filename, *, keep_empty=True, metadata=None):
+    _UNSET = object()
+
+    def __init__(self, filename, *, keep_empty=_UNSET, metadata=None):
         """
         Create a new PdfPages object.
 
@@ -912,10 +906,16 @@ class PdfPages:
         """
         self._output_name = filename
         self._n_figures = 0
-        self.keep_empty = keep_empty
+        if keep_empty and keep_empty is not self._UNSET:
+            _api.warn_deprecated("3.8", message=(
+                "Keeping empty pdf files is deprecated since %(since)s and support "
+                "will be removed %(removal)s."))
+        self._keep_empty = keep_empty
         self._metadata = (metadata or {}).copy()
         self._info_dict = _create_pdf_info_dict('pgf', self._metadata)
         self._file = BytesIO()
+
+    keep_empty = _api.deprecate_privatize_attribute("3.8")
 
     def _write_header(self, width_inches, height_inches):
         pdfinfo = ','.join(
@@ -946,7 +946,10 @@ class PdfPages:
         self._file.write(rb'\end{document}\n')
         if self._n_figures > 0:
             self._run_latex()
-        elif self.keep_empty:
+        elif self._keep_empty:
+            _api.warn_deprecated("3.8", message=(
+                "Keeping empty pdf files is deprecated since %(since)s and support "
+                "will be removed %(removal)s."))
             open(self._output_name, 'wb').close()
         self._file.close()
 
@@ -990,12 +993,14 @@ class PdfPages:
                 # luatex<0.85; they were renamed to \pagewidth and \pageheight
                 # on luatex>=0.85.
                 self._file.write(
-                    br'\newpage'
-                    br'\ifdefined\pdfpagewidth\pdfpagewidth'
-                    br'\else\pagewidth\fi=%ain'
-                    br'\ifdefined\pdfpageheight\pdfpageheight'
-                    br'\else\pageheight\fi=%ain'
-                    b'%%\n' % (width, height)
+                    (
+                        r'\newpage'
+                        r'\ifdefined\pdfpagewidth\pdfpagewidth'
+                        fr'\else\pagewidth\fi={width}in'
+                        r'\ifdefined\pdfpageheight\pdfpageheight'
+                        fr'\else\pageheight\fi={height}in'
+                        '%%\n'
+                    ).encode("ascii")
                 )
             figure.savefig(self._file, format="pgf", **kwargs)
             self._n_figures += 1

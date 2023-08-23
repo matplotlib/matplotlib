@@ -108,9 +108,8 @@ class _GSConverter(_Converter):
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             try:
                 self._read_until(b"\nGS")
-            except _ConverterError as err:
-                raise OSError(
-                    "Failed to start Ghostscript:\n\n" + err.args[0]) from None
+            except _ConverterError as e:
+                raise OSError(f"Failed to start Ghostscript:\n\n{e.args[0]}") from None
 
         def encode_and_escape(name):
             return (os.fsencode(name)
@@ -244,10 +243,8 @@ def _update_converter():
         converter['svg'] = _SVGConverter()
 
 
-#: A dictionary that maps filename extensions to functions which
-#: themselves map arguments `old` and `new` (filenames) to a list of strings.
-#: The list can then be passed to Popen to convert files with that
-#: extension to png format.
+#: A dictionary that maps filename extensions to functions which themselves
+#: convert between arguments `old` and `new` (filenames).
 converter = {}
 _update_converter()
 _svg_with_matplotlib_fonts_converter = _SVGWithMatplotlibFontsConverter()

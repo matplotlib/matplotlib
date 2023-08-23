@@ -1,3 +1,10 @@
+from collections.abc import Callable, Iterable, Sequence
+import datetime
+from typing import Any, Literal, overload
+
+import numpy as np
+from numpy.typing import ArrayLike
+
 import matplotlib.artist as martist
 from matplotlib import cbook
 from matplotlib.axes import Axes
@@ -6,12 +13,6 @@ from matplotlib.lines import Line2D
 from matplotlib.text import Text
 from matplotlib.ticker import Locator, Formatter
 from matplotlib.transforms import Transform, Bbox
-
-import datetime
-from collections.abc import Callable, Iterable, Sequence
-from typing import Any, Literal
-import numpy as np
-from numpy.typing import ArrayLike
 from matplotlib.typing import ColorType
 
 
@@ -92,7 +93,11 @@ class Ticker:
 
 class _LazyTickList:
     def __init__(self, major: bool) -> None: ...
-    def __get__(self, instance: Axis, cls: type): ...
+    # Replace return with Self when py3.9 is dropped
+    @overload
+    def __get__(self, instance: None, owner: None) -> _LazyTickList: ...
+    @overload
+    def __get__(self, instance: Axis, owner: type[Axis]) -> list[Tick]: ...
 
 class Axis(martist.Artist):
     OFFSETTEXTPAD: int

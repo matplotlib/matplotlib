@@ -21,6 +21,33 @@ from matplotlib.backend_tools import ToolToggleBase
 from matplotlib.testing import subprocess_run_helper as _run_helper
 
 
+class _WaitForStringPopen(subprocess.Popen):
+    """
+    A Popen that passes flags that allow triggering KeyboardInterrupt.
+    """
+
+    def __init__(self, *args, **kwargs):
+        if sys.platform == 'win32':
+            kwargs['creationflags'] = subprocess.CREATE_NEW_CONSOLE
+        super().__init__(
+            *args, **kwargs,
+            # Force Agg so that each test can switch to its desired backend.
+            env={**os.environ, "MPLBACKEND": "Agg", "SOURCE_DATE_EPOCH": "0"},
+            stdout=subprocess.PIPE, universal_newlines=True)
+
+    def wait_for(self, terminator):
+        """Read until the terminator is reached."""
+        buf = ''
+        while True:
+            c = self.stdout.read(1)
+            if not c:
+                raise RuntimeError(
+                    f'Subprocess died before emitting expected {terminator!r}')
+            buf += c
+            if buf.endswith(terminator):
+                return
+
+
 # Minimal smoke-testing of the backends for which the dependencies are
 # PyPI-installable on CI.  They are not available for all tested Python
 # versions so we don't fail on missing backends.
@@ -167,6 +194,7 @@ def _test_interactive_impl():
             fig = plt.figure()
             assert (type(fig.canvas).__module__ ==
                     f"matplotlib.backends.backend_{alt_backend}")
+            plt.close("all")
 
         if importlib.util.find_spec("cairocffi"):
             check_alt_backend(backend[:-3] + "cairo")
@@ -653,3 +681,161 @@ def test_figure_leak_20490(env, time_mem):
 
     growth = int(result.stdout)
     assert growth <= acceptable_memory_leakage
+
+
+def _impl_test_interactive_timers():
+    # A timer with <1 millisecond gets converted to int and therefore 0
+    # milliseconds, which the mac framework interprets as singleshot.
+    # We only want singleshot if we specify that ourselves, otherwise we want
+    # a repeating timer
+    import os
+    from unittest.mock import Mock
+    import matplotlib.pyplot as plt
+    # increase pause duration on CI to let things spin up
+    # particularly relevant for gtk3cairo
+    pause_time = 2 if os.getenv("CI") else 0.5
+    fig = plt.figure()
+    plt.pause(pause_time)
+    timer = fig.canvas.new_timer(0.1)
+    mock = Mock()
+    timer.add_callback(mock)
+    timer.start()
+    plt.pause(pause_time)
+    timer.stop()
+    assert mock.call_count > 1
+
+    # Now turn it into a single shot timer and verify only one gets triggered
+    mock.call_count = 0
+    timer.single_shot = True
+    timer.start()
+    plt.pause(pause_time)
+    assert mock.call_count == 1
+
+    # Make sure we can start the timer a second time
+    timer.start()
+    plt.pause(pause_time)
+    assert mock.call_count == 2
+    plt.close("all")
+
+
+@pytest.mark.parametrize("env", _get_testable_interactive_backends())
+def test_interactive_timers(env):
+    if env["MPLBACKEND"] == "gtk3cairo" and os.getenv("CI"):
+        pytest.skip("gtk3cairo timers do not work in remote CI")
+    if env["MPLBACKEND"] == "wx":
+        pytest.skip("wx backend is deprecated; tests failed on appveyor")
+    _run_helper(_impl_test_interactive_timers,
+                timeout=_test_timeout, extra_env=env)
+
+
+def _test_sigint_impl(backend, target_name, kwargs):
+    import sys
+    import matplotlib.pyplot as plt
+    import os
+    import threading
+
+    plt.switch_backend(backend)
+
+    def interrupter():
+        if sys.platform == 'win32':
+            import win32api
+            win32api.GenerateConsoleCtrlEvent(0, 0)
+        else:
+            import signal
+            os.kill(os.getpid(), signal.SIGINT)
+
+    target = getattr(plt, target_name)
+    timer = threading.Timer(1, interrupter)
+    fig = plt.figure()
+    fig.canvas.mpl_connect(
+        'draw_event',
+        lambda *args: print('DRAW', flush=True)
+    )
+    fig.canvas.mpl_connect(
+        'draw_event',
+        lambda *args: timer.start()
+    )
+    try:
+        target(**kwargs)
+    except KeyboardInterrupt:
+        print('SUCCESS', flush=True)
+
+
+@pytest.mark.parametrize("env", _get_testable_interactive_backends())
+@pytest.mark.parametrize("target, kwargs", [
+    ('show', {'block': True}),
+    ('pause', {'interval': 10})
+])
+def test_sigint(env, target, kwargs):
+    backend = env.get("MPLBACKEND")
+    if not backend.startswith(("qt", "macosx")):
+        pytest.skip("SIGINT currently only tested on qt and macosx")
+    proc = _WaitForStringPopen(
+        [sys.executable, "-c",
+         inspect.getsource(_test_sigint_impl) +
+         f"\n_test_sigint_impl({backend!r}, {target!r}, {kwargs!r})"])
+    try:
+        proc.wait_for('DRAW')
+        stdout, _ = proc.communicate(timeout=_test_timeout)
+    except Exception:
+        proc.kill()
+        stdout, _ = proc.communicate()
+        raise
+    assert 'SUCCESS' in stdout
+
+
+def _test_other_signal_before_sigint_impl(backend, target_name, kwargs):
+    import signal
+    import matplotlib.pyplot as plt
+
+    plt.switch_backend(backend)
+
+    target = getattr(plt, target_name)
+
+    fig = plt.figure()
+    fig.canvas.mpl_connect('draw_event', lambda *args: print('DRAW', flush=True))
+
+    timer = fig.canvas.new_timer(interval=1)
+    timer.single_shot = True
+    timer.add_callback(print, 'SIGUSR1', flush=True)
+
+    def custom_signal_handler(signum, frame):
+        timer.start()
+    signal.signal(signal.SIGUSR1, custom_signal_handler)
+
+    try:
+        target(**kwargs)
+    except KeyboardInterrupt:
+        print('SUCCESS', flush=True)
+
+
+@pytest.mark.skipif(sys.platform == 'win32',
+                    reason='No other signal available to send on Windows')
+@pytest.mark.parametrize("env", _get_testable_interactive_backends())
+@pytest.mark.parametrize("target, kwargs", [
+    ('show', {'block': True}),
+    ('pause', {'interval': 10})
+])
+def test_other_signal_before_sigint(env, target, kwargs):
+    backend = env.get("MPLBACKEND")
+    if not backend.startswith(("qt", "macosx")):
+        pytest.skip("SIGINT currently only tested on qt and macosx")
+    if backend == "macosx" and target == "show":
+        pytest.xfail("test currently failing for macosx + show()")
+    proc = _WaitForStringPopen(
+        [sys.executable, "-c",
+         inspect.getsource(_test_other_signal_before_sigint_impl) +
+         "\n_test_other_signal_before_sigint_impl("
+            f"{backend!r}, {target!r}, {kwargs!r})"])
+    try:
+        proc.wait_for('DRAW')
+        os.kill(proc.pid, signal.SIGUSR1)
+        proc.wait_for('SIGUSR1')
+        os.kill(proc.pid, signal.SIGINT)
+        stdout, _ = proc.communicate(timeout=_test_timeout)
+    except Exception:
+        proc.kill()
+        stdout, _ = proc.communicate()
+        raise
+    print(stdout)
+    assert 'SUCCESS' in stdout

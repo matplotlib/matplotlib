@@ -297,8 +297,8 @@ def test_patch_alpha_coloring():
                                edgecolor=(0, 0, 1, 0.75))
     ax.add_patch(patch)
 
-    ax.set_xlim([-1, 2])
-    ax.set_ylim([-1, 2])
+    ax.set_xlim(-1, 2)
+    ax.set_ylim(-1, 2)
 
 
 @image_comparison(['patch_alpha_override'], remove_text=True)
@@ -329,8 +329,8 @@ def test_patch_alpha_override():
                                edgecolor=(0, 0, 1, 0.75))
     ax.add_patch(patch)
 
-    ax.set_xlim([-1, 2])
-    ax.set_ylim([-1, 2])
+    ax.set_xlim(-1, 2)
+    ax.set_ylim(-1, 2)
 
 
 @mpl.style.context('default')
@@ -366,8 +366,8 @@ def test_patch_custom_linestyle():
         facecolor=(1, 0, 0), edgecolor=(0, 0, 1))
     ax.add_patch(patch)
 
-    ax.set_xlim([-1, 2])
-    ax.set_ylim([-1, 2])
+    ax.set_xlim(-1, 2)
+    ax.set_ylim(-1, 2)
 
 
 def test_patch_linestyle_accents():
@@ -464,8 +464,8 @@ def test_wedge_range():
 
         ax.add_artist(wedge)
 
-    ax.set_xlim([-2, 8])
-    ax.set_ylim([-2, 9])
+    ax.set_xlim(-2, 8)
+    ax.set_ylim(-2, 9)
 
 
 def test_patch_str():

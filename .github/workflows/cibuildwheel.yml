@@ -91,10 +91,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       CIBW_BEFORE_BUILD: >-
-        pip install certifi oldest-supported-numpy &&
+        pip install certifi numpy>=1.25 &&
         rm -rf {package}/build
       CIBW_BEFORE_BUILD_WINDOWS: >-
-        pip install certifi delvewheel oldest-supported-numpy &&
+        pip install certifi delvewheel numpy>=1.25 &&
         rm -rf {package}/build
       CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >-
         delvewheel repair -w {dest_dir} {wheel}
@@ -102,7 +102,7 @@ jobs:
         twine check {wheel} &&
         python {package}/ci/check_wheel_licenses.py {wheel}
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-      CIBW_SKIP: "*-musllinux*"
+      CIBW_SKIP: "*-musllinux_aarch64"
       CIBW_TEST_COMMAND: >-
         python {package}/ci/check_version_number.py
       # Apple Silicon machines are not available for testing, so silence the
@@ -136,7 +136,7 @@ jobs:
           path: dist/
 
       - name: Build wheels for CPython 3.11
-        uses: pypa/cibuildwheel@0ecddd92b62987d7a2ae8911f4bb8ec9e2e4496a # v2.13.1
+        uses: pypa/cibuildwheel@39a63b5912f086dd459cf6fcb13dcdd3fe3bc24d # v2.15.0
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -144,7 +144,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.10
-        uses: pypa/cibuildwheel@0ecddd92b62987d7a2ae8911f4bb8ec9e2e4496a # v2.13.1
+        uses: pypa/cibuildwheel@39a63b5912f086dd459cf6fcb13dcdd3fe3bc24d # v2.15.0
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -152,7 +152,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.9
-        uses: pypa/cibuildwheel@0ecddd92b62987d7a2ae8911f4bb8ec9e2e4496a # v2.13.1
+        uses: pypa/cibuildwheel@39a63b5912f086dd459cf6fcb13dcdd3fe3bc24d # v2.15.0
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -160,7 +160,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for PyPy
-        uses: pypa/cibuildwheel@0ecddd92b62987d7a2ae8911f4bb8ec9e2e4496a # v2.13.1
+        uses: pypa/cibuildwheel@39a63b5912f086dd459cf6fcb13dcdd3fe3bc24d # v2.15.0
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:

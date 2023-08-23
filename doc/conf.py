@@ -19,6 +19,8 @@ import subprocess
 import sys
 from urllib.parse import urlsplit, urlunsplit
 import warnings
+
+import sphinx
 import yaml
 
 import matplotlib
@@ -144,6 +146,14 @@ def _check_dependencies():
         raise ImportError(
             "The following dependencies are missing to build the "
             f"documentation: {', '.join(missing)}")
+
+    # debug sphinx-pydata-theme and mpl-theme-version
+    if 'mpl_sphinx_theme' not in missing:
+        import pydata_sphinx_theme
+        import mpl_sphinx_theme
+        print(f"pydata sphinx theme: {pydata_sphinx_theme.__version__}")
+        print(f"mpl sphinx theme: {mpl_sphinx_theme.__version__}")
+
     if shutil.which('dot') is None:
         raise OSError(
             "No binary named dot - graphviz must be installed to build the "
@@ -160,8 +170,9 @@ import sphinxext.gallery_order as gallery_order
 # The following import is only necessary to monkey patch the signature later on
 from sphinx_gallery import gen_rst
 
-# On Linux, prevent plt.show() from emitting a non-GUI backend warning.
-os.environ.pop("DISPLAY", None)
+# Prevent plt.show() from emitting a non-GUI backend warning.
+warnings.filterwarnings('ignore', category=UserWarning,
+                        message=r'(\n|.)*is non-interactive, and thus cannot be shown')
 
 autosummary_generate = True
 autodoc_typehints = "none"
@@ -311,7 +322,7 @@ source_suffix = '.rst'
 source_encoding = "utf-8"
 
 # The toplevel toctree document (renamed to root_doc in Sphinx 4.0)
-root_doc = master_doc = 'users/index'
+root_doc = master_doc = 'index'
 
 # General substitutions.
 try:
@@ -399,6 +410,9 @@ def add_html_cache_busting(app, pagename, templatename, context, doctree):
     This adds the Matplotlib version as a query to the link reference in the
     HTML, if the path is not absolute (i.e., it comes from the `_static`
     directory) and doesn't already have a query.
+
+    .. note:: Sphinx 7.1 provides asset checksums; so this hook only runs on
+              Sphinx 7.0 and earlier.
     """
     from sphinx.builders.html import Stylesheet, JavaScript
 
@@ -462,11 +476,18 @@ html_theme_options = {
     },
     "navbar_end": ["theme-switcher", "version-switcher", "mpl_icon_links"],
     "secondary_sidebar_items": "page-toc.html",
-     "footer_start": ["copyright", "sphinx-version", "doc_version"],
+    "footer_start": ["copyright", "sphinx-version", "doc_version"],
+    # We override the announcement template from pydata-sphinx-theme, where
+    # this special value indicates the use of the unreleased banner. If we need
+    # an actual announcement, then just place the text here as usual.
+    "announcement": "unreleased" if not is_release_build else "",
 }
 include_analytics = is_release_build
 if include_analytics:
-    html_theme_options["analytics"] = {"google_analytics_id": "UA-55954603-1"}
+    html_theme_options["analytics"] = {
+        "plausible_analytics_domain": "matplotlib.org",
+        "plausible_analytics_url": "https://views.scientific-python.org/js/script.js"
+    }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -772,5 +793,5 @@ def setup(app):
         bld_type = 'rel'
     app.add_config_value('skip_sub_dirs', 0, '')
     app.add_config_value('releaselevel', bld_type, 'env')
-    app.add_js_file('image-rotator.js')
-    app.connect('html-page-context', add_html_cache_busting, priority=1000)
+    if sphinx.version_info[:2] < (7, 1):
+        app.connect('html-page-context', add_html_cache_busting, priority=1000)

@@ -1,17 +1,17 @@
+from collections.abc import Callable, Iterator, MutableMapping
+from typing import Any, Literal, TypeVar, overload
+
 import matplotlib.patches as mpatches
-from collections.abc import MutableMapping, Iterator
 from matplotlib.axes import Axes
 from matplotlib.axis import Axis
 from matplotlib.path import Path
 from matplotlib.transforms import Transform
 from matplotlib.typing import ColorType
 
-from typing import Literal, TypeVar, overload
-
 class Spine(mpatches.Patch):
     axes: Axes
     spine_type: str
-    axis: Path
+    axis: Axis | None
     def __init__(self, axes: Axes, spine_type: str, path: Path, **kwargs) -> None: ...
     def set_patch_arc(
         self, center: tuple[float, float], radius: float, theta1: float, theta2: float
@@ -63,7 +63,7 @@ class Spine(mpatches.Patch):
 
 class SpinesProxy:
     def __init__(self, spine_dict: dict[str, Spine]) -> None: ...
-    def __getattr__(self, name: str): ...
+    def __getattr__(self, name: str) -> Callable[..., None]: ...
     def __dir__(self) -> list[str]: ...
 
 class Spines(MutableMapping[str, Spine]):

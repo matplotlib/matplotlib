@@ -45,7 +45,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import (
     _api, backend_tools as tools, cbook, colors, _docstring, text,
-    _tight_bbox, transforms, widgets, get_backend, is_interactive, rcParams)
+    _tight_bbox, transforms, widgets, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
 from matplotlib.cbook import _setattr_cm
@@ -170,7 +170,6 @@ class RendererBase:
     * `draw_path_collection`
     * `draw_quad_mesh`
     """
-
     def __init__(self):
         super().__init__()
         self._texmanager = None
@@ -1164,7 +1163,8 @@ class TimerBase:
     def interval(self, interval):
         # Force to int since none of the backends actually support fractional
         # milliseconds, and some error or give warnings.
-        interval = int(interval)
+        # Some backends also fail when interval == 0, so ensure >= 1 msec
+        interval = max(int(interval), 1)
         self._interval = interval
         self._timer_set_interval()
 
@@ -2147,9 +2147,10 @@ class FigureCanvasBase:
                     functools.partial(
                         print_method, orientation=orientation)
                 )
+                # we do this instead of `self.figure.draw_without_rendering`
+                # so that we can inject the orientation
                 with getattr(renderer, "_draw_disabled", nullcontext)():
                     self.figure.draw(renderer)
-
             if bbox_inches:
                 if bbox_inches == "tight":
                     bbox_inches = self.figure.get_tightbbox(
@@ -2303,7 +2304,7 @@ class FigureCanvasBase:
             # ... later
             canvas.mpl_disconnect(cid)
         """
-        return self.callbacks.disconnect(cid)
+        self.callbacks.disconnect(cid)
 
     # Internal subclasses can override _timer_cls instead of new_timer, though
     # this is not a public API for third-party subclasses.
@@ -2735,8 +2736,8 @@ class FigureManagerBase:
             # thus warrants a warning.
             return
         raise NonGuiException(
-            f"Matplotlib is currently using {get_backend()}, which is a "
-            f"non-GUI backend, so cannot show the figure.")
+            f"{type(self.canvas).__name__} is non-interactive, and thus cannot be "
+            f"shown")
 
     def destroy(self):
         pass
@@ -2788,18 +2789,18 @@ class NavigationToolbar2:
 
     They must also define
 
-      :meth:`save_figure`
-         save the current figure
+    :meth:`save_figure`
+        Save the current figure.
 
-      :meth:`draw_rubberband` (optional)
-         draw the zoom to rect "rubberband" rectangle
+    :meth:`draw_rubberband` (optional)
+        Draw the zoom to rect "rubberband" rectangle.
 
-      :meth:`set_message` (optional)
-         display message
+    :meth:`set_message` (optional)
+        Display message.
 
-      :meth:`set_history_buttons` (optional)
-         you can change the history back / forward buttons to
-         indicate disabled / enabled state.
+    :meth:`set_history_buttons` (optional)
+        You can change the history back / forward buttons to indicate disabled / enabled
+        state.
 
     and override ``__init__`` to set up the toolbar -- without forgetting to
     call the base-class init.  Typically, ``__init__`` needs to set up toolbar
@@ -2835,7 +2836,7 @@ class NavigationToolbar2:
     def __init__(self, canvas):
         self.canvas = canvas
         canvas.toolbar = self
-        self._nav_stack = cbook.Stack()
+        self._nav_stack = cbook._Stack()
         # This cursor will be set after the initial draw.
         self._last_cursor = tools.Cursors.POINTER
 
@@ -3411,9 +3412,9 @@ class _Backend:
         """
         Show all figures.
 
-        `show` blocks by calling `mainloop` if *block* is ``True``, or if it
-        is ``None`` and we are neither in IPython's ``%pylab`` mode, nor in
-        `interactive` mode.
+        `show` blocks by calling `mainloop` if *block* is ``True``, or if it is
+        ``None`` and we are not in `interactive` mode and if IPython's
+        ``%matplotlib`` integration has not been activated.
         """
         managers = Gcf.get_all_fig_managers()
         if not managers:
@@ -3426,9 +3427,9 @@ class _Backend:
         if cls.mainloop is None:
             return
         if block is None:
-            # Hack: Are we in IPython's %pylab mode?  In pylab mode, IPython
-            # (>= 0.10) tacks a _needmain attribute onto pyplot.show (always
-            # set to False).
+            # Hack: Is IPython's %matplotlib integration activated?  If so,
+            # IPython's activate_matplotlib (>= 0.10) tacks a _needmain
+            # attribute onto pyplot.show (always set to False).
             pyplot_show = getattr(sys.modules.get("matplotlib.pyplot"), "show", None)
             ipython_pylab = hasattr(pyplot_show, "_needmain")
             block = not ipython_pylab and not is_interactive()

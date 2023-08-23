@@ -47,36 +47,36 @@ Options
 
 The ``.. plot::`` directive supports the following options:
 
-    ``:format:`` : {'python', 'doctest'}
-        The format of the input.  If unset, the format is auto-detected.
+``:format:`` : {'python', 'doctest'}
+    The format of the input.  If unset, the format is auto-detected.
 
-    ``:include-source:`` : bool
-        Whether to display the source code. The default can be changed using
-        the ``plot_include_source`` variable in :file:`conf.py` (which itself
-        defaults to False).
+``:include-source:`` : bool
+    Whether to display the source code. The default can be changed using
+    the ``plot_include_source`` variable in :file:`conf.py` (which itself
+    defaults to False).
 
-    ``:show-source-link:`` : bool
-        Whether to show a link to the source in HTML. The default can be
-        changed using the ``plot_html_show_source_link`` variable in
-        :file:`conf.py` (which itself defaults to True).
+``:show-source-link:`` : bool
+    Whether to show a link to the source in HTML. The default can be
+    changed using the ``plot_html_show_source_link`` variable in
+    :file:`conf.py` (which itself defaults to True).
 
-    ``:context:`` : bool or str
-        If provided, the code will be run in the context of all previous plot
-        directives for which the ``:context:`` option was specified.  This only
-        applies to inline code plot directives, not those run from files. If
-        the ``:context: reset`` option is specified, the context is reset
-        for this and future plots, and previous figures are closed prior to
-        running the code. ``:context: close-figs`` keeps the context but closes
-        previous figures before running the code.
+``:context:`` : bool or str
+    If provided, the code will be run in the context of all previous plot
+    directives for which the ``:context:`` option was specified.  This only
+    applies to inline code plot directives, not those run from files. If
+    the ``:context: reset`` option is specified, the context is reset
+    for this and future plots, and previous figures are closed prior to
+    running the code. ``:context: close-figs`` keeps the context but closes
+    previous figures before running the code.
 
-    ``:nofigs:`` : bool
-        If specified, the code block will be run, but no figures will be
-        inserted.  This is usually useful with the ``:context:`` option.
+``:nofigs:`` : bool
+    If specified, the code block will be run, but no figures will be
+    inserted.  This is usually useful with the ``:context:`` option.
 
-    ``:caption:`` : str
-        If specified, the option's argument will be used as a caption for the
-        figure. This overwrites the caption given in the content, when the plot
-        is generated from a file.
+``:caption:`` : str
+    If specified, the option's argument will be used as a caption for the
+    figure. This overwrites the caption given in the content, when the plot
+    is generated from a file.
 
 Additionally, this directive supports all the options of the `image directive
 <https://docutils.sourceforge.io/docs/ref/rst/directives.html#image>`_,
@@ -88,68 +88,68 @@ Configuration options
 
 The plot directive has the following configuration options:
 
-    plot_include_source
-        Default value for the include-source option (default: False).
+plot_include_source
+    Default value for the include-source option (default: False).
 
-    plot_html_show_source_link
-        Whether to show a link to the source in HTML (default: True).
+plot_html_show_source_link
+    Whether to show a link to the source in HTML (default: True).
 
-    plot_pre_code
-        Code that should be executed before each plot. If None (the default),
-        it will default to a string containing::
+plot_pre_code
+    Code that should be executed before each plot. If None (the default),
+    it will default to a string containing::
 
-            import numpy as np
-            from matplotlib import pyplot as plt
+        import numpy as np
+        from matplotlib import pyplot as plt
 
-    plot_basedir
-        Base directory, to which ``plot::`` file names are relative to.
-        If None or empty (the default), file names are relative to the
-        directory where the file containing the directive is.
+plot_basedir
+    Base directory, to which ``plot::`` file names are relative to.
+    If None or empty (the default), file names are relative to the
+    directory where the file containing the directive is.
 
-    plot_formats
-        File formats to generate (default: ['png', 'hires.png', 'pdf']).
-        List of tuples or strings::
+plot_formats
+    File formats to generate (default: ['png', 'hires.png', 'pdf']).
+    List of tuples or strings::
 
-            [(suffix, dpi), suffix, ...]
+        [(suffix, dpi), suffix, ...]
 
-        that determine the file format and the DPI. For entries whose
-        DPI was omitted, sensible defaults are chosen. When passing from
-        the command line through sphinx_build the list should be passed as
-        suffix:dpi,suffix:dpi, ...
+    that determine the file format and the DPI. For entries whose
+    DPI was omitted, sensible defaults are chosen. When passing from
+    the command line through sphinx_build the list should be passed as
+    suffix:dpi,suffix:dpi, ...
 
-    plot_html_show_formats
-        Whether to show links to the files in HTML (default: True).
+plot_html_show_formats
+    Whether to show links to the files in HTML (default: True).
 
-    plot_rcparams
-        A dictionary containing any non-standard rcParams that should
-        be applied before each plot (default: {}).
+plot_rcparams
+    A dictionary containing any non-standard rcParams that should
+    be applied before each plot (default: {}).
 
-    plot_apply_rcparams
-        By default, rcParams are applied when ``:context:`` option is not used
-        in a plot directive.  If set, this configuration option overrides this
-        behavior and applies rcParams before each plot.
+plot_apply_rcparams
+    By default, rcParams are applied when ``:context:`` option is not used
+    in a plot directive.  If set, this configuration option overrides this
+    behavior and applies rcParams before each plot.
 
-    plot_working_directory
-        By default, the working directory will be changed to the directory of
-        the example, so the code can get at its data files, if any.  Also its
-        path will be added to `sys.path` so it can import any helper modules
-        sitting beside it.  This configuration option can be used to specify
-        a central directory (also added to `sys.path`) where data files and
-        helper modules for all code are located.
+plot_working_directory
+    By default, the working directory will be changed to the directory of
+    the example, so the code can get at its data files, if any.  Also its
+    path will be added to `sys.path` so it can import any helper modules
+    sitting beside it.  This configuration option can be used to specify
+    a central directory (also added to `sys.path`) where data files and
+    helper modules for all code are located.
 
-    plot_template
-        Provide a customized template for preparing restructured text.
+plot_template
+    Provide a customized template for preparing restructured text.
 
-    plot_srcset
-        Allow the srcset image option for responsive image resolutions. List of
-        strings with the multiplicative factors followed by an "x".
-        e.g. ["2.0x", "1.5x"].  "2.0x" will create a png with the default "png"
-        resolution from plot_formats, multiplied by 2. If plot_srcset is
-        specified, the plot directive uses the
-        :doc:`/api/sphinxext_figmpl_directive_api` (instead of the usual figure
-        directive) in the intermediary rst file that is generated.
-        The plot_srcset option is incompatible with *singlehtml* builds, and an
-        error will be raised.
+plot_srcset
+    Allow the srcset image option for responsive image resolutions. List of
+    strings with the multiplicative factors followed by an "x".
+    e.g. ["2.0x", "1.5x"].  "2.0x" will create a png with the default "png"
+    resolution from plot_formats, multiplied by 2. If plot_srcset is
+    specified, the plot directive uses the
+    :doc:`/api/sphinxext_figmpl_directive_api` (instead of the usual figure
+    directive) in the intermediary rst file that is generated.
+    The plot_srcset option is incompatible with *singlehtml* builds, and an
+    error will be raised.
 
 Notes on how it works
 ---------------------

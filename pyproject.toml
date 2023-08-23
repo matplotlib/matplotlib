@@ -2,7 +2,7 @@
 build-backend = "setuptools.build_meta"
 requires = [
     "certifi>=2020.06.20",
-    "oldest-supported-numpy",
+    "numpy>=1.25",
     "pybind11>=2.6",
     "setuptools>=42",
     "setuptools_scm>=7",
@@ -130,10 +130,13 @@ convention = "numpy"
 
 [tool.mypy]
 exclude = [
-  ".*/matplotlib/(sphinxext|backends|testing)",
+  ".*/matplotlib/(sphinxext|backends|testing/jpl_units)",
   ".*/mpl_toolkits",
   # tinypages is used for testing the sphinx ext,
   # stubtest will import and run, opening a figure if not excluded
   ".*/tinypages",
 ]
 ignore_missing_imports = true
+enable_incomplete_feature = [
+  "Unpack",
+]

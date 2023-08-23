@@ -39,6 +39,7 @@ class _axis_method_wrapper:
 
 class _AxesBase(martist.Artist):
     name: str
+    patch: Patch
     spines: Spines
     fmt_xdata: Callable[[float], str] | None
     fmt_ydata: Callable[[float], str] | None
@@ -130,8 +131,8 @@ class _AxesBase(martist.Artist):
             self,
             axes: _AxesBase,
             prop_name: str,
-            valid_types: list[type] | None = ...,
-            invalid_types: tuple[type] | None = ...,
+            valid_types: type | Iterable[type] | None = ...,
+            invalid_types: type | Iterable[type] | None = ...,
         ) -> None: ...
         def __len__(self) -> int: ...
         def __iter__(self) -> Iterator[Artist]: ...
@@ -368,16 +369,16 @@ class _AxesBase(martist.Artist):
     def get_tightbbox(
         self,
         renderer: RendererBase | None = ...,
+        *,
         call_axes_locator: bool = ...,
         bbox_extra_artists: Sequence[Artist] | None = ...,
-        *,
         for_layout_only: bool = ...
     ) -> Bbox | None: ...
     def twinx(self) -> _AxesBase: ...
     def twiny(self) -> _AxesBase: ...
     def get_shared_x_axes(self) -> cbook.GrouperView: ...
     def get_shared_y_axes(self) -> cbook.GrouperView: ...
-    def label_outer(self) -> None: ...
+    def label_outer(self, remove_inner_ticks: bool = ...) -> None: ...
 
     # The methods underneath this line are added via the `_axis_method_wrapper` class
     # Initially they are set to an object, but that object uses `__set_name__` to override

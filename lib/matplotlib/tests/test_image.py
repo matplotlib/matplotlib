@@ -1376,7 +1376,7 @@ def test_rgba_antialias():
     aa[:, int(N/2):] = a[:, int(N/2):]
 
     # set some over/unders and NaNs
-    aa[20:50, 20:50] = np.NaN
+    aa[20:50, 20:50] = np.nan
     aa[70:90, 70:90] = 1e6
     aa[70:90, 20:30] = -1e6
     aa[70:90, 195:215] = 1e6
@@ -1463,7 +1463,7 @@ def test_str_norms(fig_test, fig_ref):
     axrs[3].imshow(t, norm=colors.SymLogNorm(linthresh=2, vmin=.3, vmax=.7))
     axrs[4].imshow(t, norm="logit", clim=(.3, .7))
 
-    assert type(axts[0].images[0].norm) == colors.LogNorm  # Exactly that class
+    assert type(axts[0].images[0].norm) is colors.LogNorm  # Exactly that class
     with pytest.raises(ValueError):
         axts[0].imshow(t, norm="foobar")
 
@@ -1492,3 +1492,14 @@ def test_axesimage_get_shape():
     im.set_data(z)
     assert im.get_shape() == (4, 3)
     assert im.get_size() == im.get_shape()
+
+
+def test_non_transdata_image_does_not_touch_aspect():
+    ax = plt.figure().add_subplot()
+    im = np.arange(4).reshape((2, 2))
+    ax.imshow(im, transform=ax.transAxes)
+    assert ax.get_aspect() == "auto"
+    ax.imshow(im, transform=Affine2D().scale(2) + ax.transData)
+    assert ax.get_aspect() == 1
+    ax.imshow(im, transform=ax.transAxes, aspect=2)
+    assert ax.get_aspect() == 2

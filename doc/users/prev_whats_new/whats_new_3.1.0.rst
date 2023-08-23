@@ -22,7 +22,7 @@ The automatic date formatter used by default can be quite verbose.  A new
 formatter can be accessed that tries to make the tick labels appropriately
 concise.
 
-  .. plot::
+.. plot::
 
     import datetime
     import matplotlib.pyplot as plt
@@ -179,9 +179,8 @@ changed.
 Alternatively to strings like ``"data"`` or ``"axes fraction"``,
 `.ConnectionPatch` now accepts any `~matplotlib.transforms.Transform` as input
 for the *coordsA* and *coordsB* arguments. This allows to draw lines between
-points defined in different user defined coordinate systems. Also see the
-:doc:`Connect Simple01 example </gallery/userdemo/connect_simple01>`.
-
+points defined in different user defined coordinate systems. Also see 
+:ref:`using_connectionpatch`.
 
 mplot3d Line3D now allows {set,get}_data_3d
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

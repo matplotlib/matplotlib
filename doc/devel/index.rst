@@ -9,53 +9,58 @@ ways to contribute: optimizing and refactoring code, detailing unclear
 documentation and writing new examples, reporting and fixing bugs and requesting
 and implementing new features, helping the community...
 
-.. card::
+New contributors
+================
 
-   .. grid:: 1 1 2 2
+.. grid:: 1 1 2 2
+   :class-row: sd-align-minor-center
 
-      .. grid-item::
-         :class: sd-fs-5
-         :child-align: spaced
+   .. grid-item::
+      :class: sd-fs-5
 
-         :octicon:`info;1em;sd-text-info` :ref:`Where should I start? <start-contributing>`
+      :octicon:`info;1em;sd-text-info` :ref:`Where should I start? <start-contributing>`
 
-         :octicon:`question;1em;sd-text-info` :ref:`Where should I ask questions? <get_connected>`
+      :octicon:`question;1em;sd-text-info` :ref:`Where should I ask questions? <get_connected>`
 
-         :octicon:`issue-opened;1em;sd-text-info` :ref:`What are "good-first-issues"? <new_contributors>`
+      :octicon:`issue-opened;1em;sd-text-info` :ref:`What are "good-first-issues"? <new_contributors>`
 
-         :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I claim an issue? <managing_issues_prs>`
+      :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I claim an issue? <managing_issues_prs>`
 
-         .. :octicon:`codespaces;1em;sd-text-info` placeholder for codespaces link
+      :octicon:`codespaces;1em;sd-text-info` :ref:`How do I start a pull request? <how-to-contribute>`
 
-      .. grid-item::
+   .. grid-item::
 
-         .. grid:: 1
-            :gutter: 1
-            :class-row: sd-fs-5
+      .. grid:: 1
+         :gutter: 1
+         :class-row: sd-fs-5
 
-            .. grid-item-card::
-               :link: request-a-new-feature
-               :link-type: ref
+         .. grid-item-card::
+            :link: request-a-new-feature
+            :link-type: ref
+            :shadow: none
 
-               :octicon:`light-bulb;1em;sd-text-info` Request new feature
+            :octicon:`light-bulb;1em;sd-text-info` Request new feature
 
-            .. grid-item-card::
-               :link: submitting-a-bug-report
-               :link-type: ref
+         .. grid-item-card::
+            :link: submitting-a-bug-report
+            :link-type: ref
+            :shadow: none
 
-               :octicon:`bug;1em;sd-text-info` Submit bug report
+            :octicon:`bug;1em;sd-text-info` Submit bug report
 
-            .. grid-item-card::
-               :link: contributing-code
-               :link-type: ref
+         .. grid-item-card::
+            :link: contributing-code
+            :link-type: ref
+            :shadow: none
 
-               :octicon:`code;1em;sd-text-info` Contribute code
+            :octicon:`code;1em;sd-text-info` Contribute code
 
-            .. grid-item-card::
-               :link: documenting-matplotlib
-               :link-type: ref
+         .. grid-item-card::
+            :link: documenting-matplotlib
+            :link-type: ref
+            :shadow: none
 
-               :octicon:`note;1em;sd-text-info` Write documentation
+            :octicon:`note;1em;sd-text-info` Write documentation
 
 If you are new to contributing, we recommend that you first read our
 :ref:`contributing guide<contributing>`. If you are contributing code or
@@ -67,12 +72,15 @@ For code, documentation, or triage, please follow the corresponding
 
 .. _development_environment:
 
-Development workflow
-====================
+Development environment
+=======================
 
 .. grid:: 1 1 2 2
 
-   .. grid-item-card:: Install
+   .. grid-item-card::
+
+      **Install**
+      ^^^
 
       .. toctree::
          :maxdepth: 2
@@ -85,7 +93,10 @@ Development workflow
          dependencies
 
 
-   .. grid-item-card:: Workflow
+   .. grid-item-card::
+
+      **Workflow**
+      ^^^^
 
       .. toctree::
          :maxdepth: 2
@@ -96,13 +107,17 @@ Development workflow
 
 .. _contribution_guideline:
 
-Contribution guides
-===================
+Policies and guidelines
+=======================
 
 .. grid:: 1 1 2 2
    :class-row: sf-fs-1
+   :gutter: 2
 
-   .. grid-item-card:: Code
+   .. grid-item-card::
+
+      **Code**
+      ^^^
 
       | :ref:`coding_guidelines`
 
@@ -112,7 +127,10 @@ Contribution guides
          coding_guide
          testing
 
-   .. grid-item-card:: Documentation
+   .. grid-item-card::
+
+      **Documentation**
+      ^^^
 
       .. toctree::
          :maxdepth: 1
@@ -120,13 +138,19 @@ Contribution guides
          document
          style_guide
 
-   .. grid-item-card:: Triage
+   .. grid-item-card::
+
+      **Triage**
+      ^^^
 
       | :ref:`bug_triaging`
       | :ref:`triage_team`
       | :ref:`triage_workflow`
 
-   .. grid-item-card:: Maintenance
+   .. grid-item-card::
+
+      **Maintenance**
+      ^^^
 
       .. toctree::
          :maxdepth: 1

@@ -10,6 +10,7 @@ from pathlib import Path
 import warnings
 
 import numpy as np
+import PIL.Image
 import PIL.PngImagePlugin
 
 import matplotlib as mpl
@@ -654,14 +655,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred within the image."""
-        if self._different_canvas(mouseevent):
-            return False, {}
-        # 1) This doesn't work for figimage; but figimage also needs a fix
-        #    below (as the check cannot use x/ydata and extents).
-        # 2) As long as the check below uses x/ydata, we need to test axes
-        #    identity instead of `self.axes.contains(event)` because even if
-        #    axes overlap, x/ydata is only valid for event.inaxes anyways.
-        if self.axes is not mouseevent.inaxes:
+        if (self._different_canvas(mouseevent)
+                # This doesn't work for figimage.
+                or not self.axes.contains(mouseevent)[0]):
             return False, {}
         # TODO: make sure this is consistent with patch and patch
         # collection on nonlinear transformed coordinates.
@@ -670,16 +666,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         trans = self.get_transform().inverted()
         x, y = trans.transform([mouseevent.x, mouseevent.y])
         xmin, xmax, ymin, ymax = self.get_extent()
-        if xmin > xmax:
-            xmin, xmax = xmax, xmin
-        if ymin > ymax:
-            ymin, ymax = ymax, ymin
-
-        if x is not None and y is not None:
-            inside = (xmin <= x <= xmax) and (ymin <= y <= ymax)
-        else:
-            inside = False
-
+        # This checks xmin <= x <= xmax *or* xmax <= x <= xmin.
+        inside = (x is not None and (x - xmin) * (x - xmax) <= 0
+                  and y is not None and (y - ymin) * (y - ymax) <= 0)
         return inside, {}
 
     def write_png(self, fname):
@@ -773,10 +762,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', \
 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos', 'none'} or None
         """
-        if s is None:
-            s = mpl.rcParams['image.interpolation']
-        s = s.lower()
-        _api.check_in_list(_interpd_, interpolation=s)
+        s = mpl._val_or_rc(s, 'image.interpolation').lower()
+        _api.check_in_list(interpolations_names, interpolation=s)
         self._interpolation = s
         self.stale = True
 
@@ -813,8 +800,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         v : bool or None
             If None, use :rc:`image.resample`.
         """
-        if v is None:
-            v = mpl.rcParams['image.resample']
+        v = mpl._val_or_rc(v, 'image.resample')
         self._resample = v
         self.stale = True
 
@@ -1614,6 +1600,8 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         # size when dividing and then multiplying by dpi.
         if origin is None:
             origin = mpl.rcParams["image.origin"]
+        else:
+            _api.check_in_list(('upper', 'lower'), origin=origin)
         if origin == "lower":
             arr = arr[::-1]
         if (isinstance(arr, memoryview) and arr.format == "B"

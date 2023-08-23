@@ -249,9 +249,9 @@ class Artist:
                 _ax_flag = True
 
             if self.figure:
-                self.figure = None
                 if not _ax_flag:
-                    self.figure = True
+                    self.figure.stale = True
+                self.figure = None
 
         else:
             raise NotImplementedError('cannot remove artist')
@@ -321,7 +321,7 @@ class Artist:
         # if the artist is animated it does not take normal part in the
         # draw stack and is not expected to be drawn as part of the normal
         # draw loop (when not saving) so do not propagate this change
-        if self.get_animated():
+        if self._animated:
             return
 
         if val and self.stale_callback is not None:
@@ -353,7 +353,7 @@ class Artist:
 
         Parameters
         ----------
-        renderer : `.RendererBase` subclass
+        renderer : `~matplotlib.backend_bases.RendererBase` subclass, optional
             renderer that will be used to draw the figures (i.e.
             ``fig.canvas.get_renderer()``)
 
@@ -440,7 +440,7 @@ class Artist:
 
         Parameters
         ----------
-        t : `.Transform`
+        t : `~matplotlib.transforms.Transform`
         """
         self._transform = t
         self._transformSet = True
@@ -715,7 +715,7 @@ class Artist:
 
         Parameters
         ----------
-        path_effects : `.AbstractPathEffect`
+        path_effects : list of `.AbstractPathEffect`
         """
         self._path_effects = path_effects
         self.stale = True
@@ -733,7 +733,7 @@ class Artist:
 
         Parameters
         ----------
-        fig : `.Figure`
+        fig : `~matplotlib.figure.Figure`
         """
         # if this is a no-op just return
         if self.figure is fig:
@@ -757,16 +757,16 @@ class Artist:
 
         Parameters
         ----------
-        clipbox : `.Bbox`
-
-            Typically would be created from a `.TransformedBbox`. For
-            instance ``TransformedBbox(Bbox([[0, 0], [1, 1]]), ax.transAxes)``
-            is the default clipping for an artist added to an Axes.
+        clipbox : `~matplotlib.transforms.BboxBase` or None
+            Will typically be created from a `.TransformedBbox`. For instance,
+            ``TransformedBbox(Bbox([[0, 0], [1, 1]]), ax.transAxes)`` is the default
+            clipping for an artist added to an Axes.
 
         """
-        self.clipbox = clipbox
-        self.pchanged()
-        self.stale = True
+        if clipbox != self.clipbox:
+            self.clipbox = clipbox
+            self.pchanged()
+            self.stale = True
 
     def set_clip_path(self, path, transform=None):
         """
@@ -987,7 +987,7 @@ class Artist:
 
         Parameters
         ----------
-        renderer : `.RendererBase` subclass.
+        renderer : `~matplotlib.backend_bases.RendererBase` subclass.
 
         Notes
         -----
@@ -1011,9 +1011,10 @@ class Artist:
                 f'alpha must be numeric or None, not {type(alpha)}')
         if alpha is not None and not (0 <= alpha <= 1):
             raise ValueError(f'alpha ({alpha}) is outside 0-1 range')
-        self._alpha = alpha
-        self.pchanged()
-        self.stale = True
+        if alpha != self._alpha:
+            self._alpha = alpha
+            self.pchanged()
+            self.stale = True
 
     def _set_alpha_for_array(self, alpha):
         """
@@ -1046,9 +1047,10 @@ class Artist:
         ----------
         b : bool
         """
-        self._visible = b
-        self.pchanged()
-        self.stale = True
+        if b != self._visible:
+            self._visible = b
+            self.pchanged()
+            self.stale = True
 
     def set_animated(self, b):
         """
@@ -1096,12 +1098,11 @@ class Artist:
         s : object
             *s* will be converted to a string by calling `str`.
         """
-        if s is not None:
-            self._label = str(s)
-        else:
-            self._label = None
-        self.pchanged()
-        self.stale = True
+        label = str(s) if s is not None else None
+        if label != self._label:
+            self._label = label
+            self.pchanged()
+            self.stale = True
 
     def get_zorder(self):
         """Return the artist's zorder."""
@@ -1118,9 +1119,10 @@ class Artist:
         """
         if level is None:
             level = self.__class__.zorder
-        self.zorder = level
-        self.pchanged()
-        self.stale = True
+        if level != self.zorder:
+            self.zorder = level
+            self.pchanged()
+            self.stale = True
 
     @property
     def sticky_edges(self):

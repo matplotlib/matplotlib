@@ -2,7 +2,6 @@ from collections.abc import Iterable, Sequence
 from contextlib import ExitStack
 import functools
 import inspect
-import itertools
 import logging
 from numbers import Real
 from operator import attrgetter
@@ -219,27 +218,20 @@ class _process_plot_var_args:
 
     an arbitrary number of *x*, *y*, *fmt* are allowed
     """
-    def __init__(self, axes, command='plot'):
-        self.axes = axes
+
+    def __init__(self, command='plot'):
         self.command = command
-        self.set_prop_cycle(None)
-
-    def __getstate__(self):
-        # note: it is not possible to pickle a generator (and thus a cycler).
-        return {'axes': self.axes, 'command': self.command}
-
-    def __setstate__(self, state):
-        self.__dict__ = state.copy()
         self.set_prop_cycle(None)
 
     def set_prop_cycle(self, cycler):
         if cycler is None:
             cycler = mpl.rcParams['axes.prop_cycle']
-        self.prop_cycler = itertools.cycle(cycler)
+        self._idx = 0
+        self._cycler_items = [*cycler]
         self._prop_keys = cycler.keys  # This should make a copy
 
-    def __call__(self, *args, data=None, **kwargs):
-        self.axes._process_unit_info(kwargs=kwargs)
+    def __call__(self, axes, *args, data=None, **kwargs):
+        axes._process_unit_info(kwargs=kwargs)
 
         for pos_only in "xy":
             if pos_only in kwargs:
@@ -309,13 +301,15 @@ class _process_plot_var_args:
                 this += args[0],
                 args = args[1:]
             yield from self._plot_args(
-                this, kwargs, ambiguous_fmt_datakey=ambiguous_fmt_datakey)
+                axes, this, kwargs, ambiguous_fmt_datakey=ambiguous_fmt_datakey)
 
     def get_next_color(self):
         """Return the next color in the cycle."""
         if 'color' not in self._prop_keys:
             return 'k'
-        return next(self.prop_cycler)['color']
+        c = self._cycler_items[self._idx]['color']
+        self._idx = (self._idx + 1) % len(self._cycler_items)
+        return c
 
     def _getdefaults(self, ignore, kw):
         """
@@ -328,7 +322,8 @@ class _process_plot_var_args:
         if any(kw.get(k, None) is None for k in prop_keys):
             # Need to copy this dictionary or else the next time around
             # in the cycle, the dictionary could be missing entries.
-            default_dict = next(self.prop_cycler).copy()
+            default_dict = self._cycler_items[self._idx].copy()
+            self._idx = (self._idx + 1) % len(self._cycler_items)
             for p in ignore:
                 default_dict.pop(p, None)
         else:
@@ -344,17 +339,17 @@ class _process_plot_var_args:
             if kw.get(k, None) is None:
                 kw[k] = defaults[k]
 
-    def _makeline(self, x, y, kw, kwargs):
+    def _makeline(self, axes, x, y, kw, kwargs):
         kw = {**kw, **kwargs}  # Don't modify the original kw.
         default_dict = self._getdefaults(set(), kw)
         self._setdefaults(default_dict, kw)
         seg = mlines.Line2D(x, y, **kw)
         return seg, kw
 
-    def _makefill(self, x, y, kw, kwargs):
+    def _makefill(self, axes, x, y, kw, kwargs):
         # Polygon doesn't directly support unitized inputs.
-        x = self.axes.convert_xunits(x)
-        y = self.axes.convert_yunits(y)
+        x = axes.convert_xunits(x)
+        y = axes.convert_yunits(y)
 
         kw = kw.copy()  # Don't modify the original kw.
         kwargs = kwargs.copy()
@@ -403,7 +398,7 @@ class _process_plot_var_args:
         seg.set(**kwargs)
         return seg, kwargs
 
-    def _plot_args(self, tup, kwargs, *,
+    def _plot_args(self, axes, tup, kwargs, *,
                    return_kwargs=False, ambiguous_fmt_datakey=False):
         """
         Process the arguments of ``plot([x], y, [fmt], **kwargs)`` calls.
@@ -495,10 +490,10 @@ class _process_plot_var_args:
         else:
             x, y = index_of(xy[-1])
 
-        if self.axes.xaxis is not None:
-            self.axes.xaxis.update_units(x)
-        if self.axes.yaxis is not None:
-            self.axes.yaxis.update_units(y)
+        if axes.xaxis is not None:
+            axes.xaxis.update_units(x)
+        if axes.yaxis is not None:
+            axes.yaxis.update_units(y)
 
         if x.shape[0] != y.shape[0]:
             raise ValueError(f"x and y must have same first dimension, but "
@@ -534,7 +529,7 @@ class _process_plot_var_args:
         else:
             labels = [label] * n_datasets
 
-        result = (make_artist(x[:, j % ncx], y[:, j % ncy], kw,
+        result = (make_artist(axes, x[:, j % ncx], y[:, j % ncy], kw,
                               {**kwargs, 'label': label})
                   for j, label in enumerate(labels))
 
@@ -1292,8 +1287,8 @@ class _AxesBase(martist.Artist):
         self._tight = None
         self._use_sticky_edges = True
 
-        self._get_lines = _process_plot_var_args(self)
-        self._get_patches_for_fill = _process_plot_var_args(self, 'fill')
+        self._get_lines = _process_plot_var_args()
+        self._get_patches_for_fill = _process_plot_var_args('fill')
 
         self._gridOn = mpl.rcParams['axes.grid']
         old_children, self._children = self._children, []
@@ -1374,7 +1369,10 @@ class _AxesBase(martist.Artist):
             if share is not None:
                 getattr(self, f"share{name}")(share)
             else:
-                axis._set_scale("linear")
+                # Although the scale was set to linear as part of clear,
+                # polar requires that _set_scale is called again
+                if self.name == "polar":
+                    axis._set_scale("linear")
                 axis._set_lim(0, 1, auto=True)
         self._update_transScale()
 
@@ -2056,6 +2054,11 @@ class _AxesBase(martist.Artist):
         --------
         matplotlib.axes.Axes.set_xlim
         matplotlib.axes.Axes.set_ylim
+
+        Notes
+        -----
+        For 3D axes, this method additionally takes *zmin*, *zmax* as
+        parameters and likewise returns them.
         """
         if isinstance(arg, (str, bool)):
             if arg is True:
@@ -2099,28 +2102,34 @@ class _AxesBase(martist.Artist):
                                  "try 'on' or 'off'")
         else:
             if arg is not None:
-                try:
-                    xmin, xmax, ymin, ymax = arg
-                except (TypeError, ValueError) as err:
-                    raise TypeError('the first argument to axis() must be an '
-                                    'iterable of the form '
-                                    '[xmin, xmax, ymin, ymax]') from err
+                if len(arg) != 2*len(self._axis_names):
+                    raise TypeError(
+                        "The first argument to axis() must be an iterable of the form "
+                        "[{}]".format(", ".join(
+                            f"{name}min, {name}max" for name in self._axis_names)))
+                limits = {
+                    name: arg[2*i:2*(i+1)]
+                    for i, name in enumerate(self._axis_names)
+                }
             else:
-                xmin = kwargs.pop('xmin', None)
-                xmax = kwargs.pop('xmax', None)
-                ymin = kwargs.pop('ymin', None)
-                ymax = kwargs.pop('ymax', None)
-            xauto = (None  # Keep autoscale state as is.
-                     if xmin is None and xmax is None
-                     else False)  # Turn off autoscale.
-            yauto = (None
-                     if ymin is None and ymax is None
-                     else False)
-            self.set_xlim(xmin, xmax, emit=emit, auto=xauto)
-            self.set_ylim(ymin, ymax, emit=emit, auto=yauto)
+                limits = {}
+                for name in self._axis_names:
+                    ax_min = kwargs.pop(f'{name}min', None)
+                    ax_max = kwargs.pop(f'{name}max', None)
+                    limits[name] = (ax_min, ax_max)
+            for name, (ax_min, ax_max) in limits.items():
+                ax_auto = (None  # Keep autoscale state as is.
+                           if ax_min is None and ax_max is None
+                           else False)  # Turn off autoscale.
+                set_ax_lim = getattr(self, f'set_{name}lim')
+                set_ax_lim(ax_min, ax_max, emit=emit, auto=ax_auto)
         if kwargs:
             raise _api.kwarg_error("axis", kwargs)
-        return (*self.get_xlim(), *self.get_ylim())
+        lims = ()
+        for name in self._axis_names:
+            get_ax_lim = getattr(self, f'get_{name}lim')
+            lims += get_ax_lim()
+        return lims
 
     def get_legend(self):
         """Return the `.Legend` instance, or None if no legend is defined."""
@@ -2237,8 +2246,7 @@ class _AxesBase(martist.Artist):
         Add a `.Collection` to the Axes; return the collection.
         """
         _api.check_isinstance(mcoll.Collection, collection=collection)
-        label = collection.get_label()
-        if not label:
+        if not collection.get_label():
             collection.set_label(f'_child{len(self._children)}')
         self._children.append(collection)
         collection._remove_method = self._children.remove
@@ -3564,8 +3572,8 @@ class _AxesBase(martist.Artist):
         See Also
         --------
         .Axes.set_xlim
-        set_xbound, get_xbound
-        invert_xaxis, xaxis_inverted
+        .Axes.set_xbound, .Axes.get_xbound
+        .Axes.invert_xaxis, .Axes.xaxis_inverted
 
         Notes
         -----
@@ -3812,8 +3820,8 @@ class _AxesBase(martist.Artist):
         See Also
         --------
         .Axes.set_ylim
-        set_ybound, get_ybound
-        invert_yaxis, yaxis_inverted
+        .Axes.set_ybound, .Axes.get_ybound
+        .Axes.invert_yaxis, .Axes.yaxis_inverted
 
         Notes
         -----
@@ -4514,20 +4522,31 @@ class _AxesBase(martist.Artist):
         """Return an immutable view on the shared y-axes Grouper."""
         return cbook.GrouperView(self._shared_axes["y"])
 
-    def label_outer(self):
+    def label_outer(self, remove_inner_ticks=False):
         """
         Only show "outer" labels and tick labels.
 
         x-labels are only kept for subplots on the last row (or first row, if
         labels are on the top side); y-labels only for subplots on the first
         column (or last column, if labels are on the right side).
-        """
-        self._label_outer_xaxis(check_patch=False)
-        self._label_outer_yaxis(check_patch=False)
 
-    def _label_outer_xaxis(self, *, check_patch):
+        Parameters
+        ----------
+        remove_inner_ticks : bool, default: False
+            If True, remove the inner ticks as well (not only tick labels).
+
+            .. versionadded:: 3.8
+        """
+        self._label_outer_xaxis(skip_non_rectangular_axes=False,
+                                remove_inner_ticks=remove_inner_ticks)
+        self._label_outer_yaxis(skip_non_rectangular_axes=False,
+                                remove_inner_ticks=remove_inner_ticks)
+
+    def _label_outer_xaxis(self, *, skip_non_rectangular_axes,
+                           remove_inner_ticks=False):
         # see documentation in label_outer.
-        if check_patch and not isinstance(self.patch, mpl.patches.Rectangle):
+        if skip_non_rectangular_axes and not isinstance(self.patch,
+                                                        mpl.patches.Rectangle):
             return
         ss = self.get_subplotspec()
         if not ss:
@@ -4536,19 +4555,25 @@ class _AxesBase(martist.Artist):
         if not ss.is_first_row():  # Remove top label/ticklabels/offsettext.
             if label_position == "top":
                 self.set_xlabel("")
-            self.xaxis.set_tick_params(which="both", labeltop=False)
+            top_kw = {'top': False} if remove_inner_ticks else {}
+            self.xaxis.set_tick_params(
+                which="both", labeltop=False, **top_kw)
             if self.xaxis.offsetText.get_position()[1] == 1:
                 self.xaxis.offsetText.set_visible(False)
         if not ss.is_last_row():  # Remove bottom label/ticklabels/offsettext.
             if label_position == "bottom":
                 self.set_xlabel("")
-            self.xaxis.set_tick_params(which="both", labelbottom=False)
+            bottom_kw = {'bottom': False} if remove_inner_ticks else {}
+            self.xaxis.set_tick_params(
+                which="both", labelbottom=False, **bottom_kw)
             if self.xaxis.offsetText.get_position()[1] == 0:
                 self.xaxis.offsetText.set_visible(False)
 
-    def _label_outer_yaxis(self, *, check_patch):
+    def _label_outer_yaxis(self, *, skip_non_rectangular_axes,
+                           remove_inner_ticks=False):
         # see documentation in label_outer.
-        if check_patch and not isinstance(self.patch, mpl.patches.Rectangle):
+        if skip_non_rectangular_axes and not isinstance(self.patch,
+                                                        mpl.patches.Rectangle):
             return
         ss = self.get_subplotspec()
         if not ss:
@@ -4557,13 +4582,17 @@ class _AxesBase(martist.Artist):
         if not ss.is_first_col():  # Remove left label/ticklabels/offsettext.
             if label_position == "left":
                 self.set_ylabel("")
-            self.yaxis.set_tick_params(which="both", labelleft=False)
+            left_kw = {'left': False} if remove_inner_ticks else {}
+            self.yaxis.set_tick_params(
+                which="both", labelleft=False, **left_kw)
             if self.yaxis.offsetText.get_position()[0] == 0:
                 self.yaxis.offsetText.set_visible(False)
         if not ss.is_last_col():  # Remove right label/ticklabels/offsettext.
             if label_position == "right":
                 self.set_ylabel("")
-            self.yaxis.set_tick_params(which="both", labelright=False)
+            right_kw = {'right': False} if remove_inner_ticks else {}
+            self.yaxis.set_tick_params(
+                which="both", labelright=False, **right_kw)
             if self.yaxis.offsetText.get_position()[0] == 1:
                 self.yaxis.offsetText.set_visible(False)
 

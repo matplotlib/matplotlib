@@ -189,13 +189,14 @@ class TransformNode:
         # Parents are stored as weak references, so that if the
         # parents are destroyed, references from the children won't
         # keep them alive.
+        id_self = id(self)
         for child in children:
             # Use weak references so this dictionary won't keep obsolete nodes
             # alive; the callback deletes the dictionary entry. This is a
             # performance improvement over using WeakValueDictionary.
             ref = weakref.ref(
-                self, lambda _, pop=child._parents.pop, k=id(self): pop(k))
-            child._parents[id(self)] = ref
+                self, lambda _, pop=child._parents.pop, k=id_self: pop(k))
+            child._parents[id_self] = ref
 
     def frozen(self):
         """
@@ -670,6 +671,8 @@ class BboxBase(TransformNode):
         y1 = np.minimum(bbox1.ymax, bbox2.ymax)
         return Bbox([[x0, y0], [x1, y1]]) if x0 <= x1 and y0 <= y1 else None
 
+_default_minpos = np.array([np.inf, np.inf])
+
 
 class Bbox(BboxBase):
     """
@@ -765,7 +768,7 @@ class Bbox(BboxBase):
             raise ValueError('Bbox points must be of the form '
                              '"[[x0, y0], [x1, y1]]".')
         self._points = points
-        self._minpos = np.array([np.inf, np.inf])
+        self._minpos = _default_minpos.copy()
         self._ignore = True
         # it is helpful in some contexts to know if the bbox is a
         # default or has been mutated; we store the orig points to
@@ -1773,7 +1776,7 @@ class AffineBase(Transform):
 
     def __eq__(self, other):
         if getattr(other, "is_affine", False) and hasattr(other, "get_matrix"):
-            return np.all(self.get_matrix() == other.get_matrix())
+            return (self.get_matrix() == other.get_matrix()).all()
         return NotImplemented
 
     def transform(self, values):
@@ -1822,7 +1825,7 @@ class Affine2DBase(AffineBase):
     affine transformation, use `Affine2D`.
 
     Subclasses of this class will generally only need to override a
-    constructor and :meth:`get_matrix` that generates a custom 3x3 matrix.
+    constructor and `~.Transform.get_matrix` that generates a custom 3x3 matrix.
     """
     input_dims = 2
     output_dims = 2

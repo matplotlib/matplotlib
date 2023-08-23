@@ -701,6 +701,14 @@ def test_layout_change_warning(layout):
         plt.tight_layout()
 
 
+def test_repeated_tightlayout():
+    fig = Figure()
+    fig.tight_layout()
+    # subsequent calls should not warn
+    fig.tight_layout()
+    fig.tight_layout()
+
+
 @check_figures_equal(extensions=["png", "pdf"])
 def test_add_artist(fig_test, fig_ref):
     fig_test.dpi = 100
@@ -1636,3 +1644,18 @@ def test_get_constrained_layout_pads():
     fig = plt.figure(layout=mpl.layout_engine.ConstrainedLayoutEngine(**params))
     with pytest.warns(PendingDeprecationWarning, match="will be deprecated"):
         assert fig.get_constrained_layout_pads() == expected
+
+
+def test_not_visible_figure():
+    fig = Figure()
+
+    buf = io.StringIO()
+    fig.savefig(buf, format='svg')
+    buf.seek(0)
+    assert '<g ' in buf.read()
+
+    fig.set_visible(False)
+    buf = io.StringIO()
+    fig.savefig(buf, format='svg')
+    buf.seek(0)
+    assert '<g ' not in buf.read()

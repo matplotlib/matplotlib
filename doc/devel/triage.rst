@@ -31,24 +31,24 @@ A third party can give useful feedback or even add
 comments on the issue.
 The following actions are typically useful:
 
-  - documenting issues that are missing elements to reproduce the problem
-    such as code samples
+- documenting issues that are missing elements to reproduce the problem
+  such as code samples
 
-  - suggesting better use of code formatting (e.g. triple back ticks in the
-    markdown).
+- suggesting better use of code formatting (e.g. triple back ticks in the
+  markdown).
 
-  - suggesting to reformulate the title and description to make them more
-    explicit about the problem to be solved
+- suggesting to reformulate the title and description to make them more
+  explicit about the problem to be solved
 
-  - linking to related issues or discussions while briefly describing
-    how they are related, for instance "See also #xyz for a similar
-    attempt at this" or "See also #xyz where the same thing was
-    reported" provides context and helps the discussion
+- linking to related issues or discussions while briefly describing
+  how they are related, for instance "See also #xyz for a similar
+  attempt at this" or "See also #xyz where the same thing was
+  reported" provides context and helps the discussion
 
-  - verifying that the issue is reproducible
+- verifying that the issue is reproducible
 
-  - classify the issue as a feature request, a long standing bug or a
-    regression
+- classify the issue as a feature request, a long standing bug or a
+  regression
 
 .. topic:: Fruitful discussions
 

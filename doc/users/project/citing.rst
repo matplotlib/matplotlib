@@ -21,8 +21,8 @@ DOIs
 The following DOI represents *all* Matplotlib versions. Please select a more
 specific DOI from the list below, referring to the version used for your publication.
 
-   .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.592536.svg
-      :target: https://doi.org/10.5281/zenodo.592536
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.592536.svg
+   :target: https://doi.org/10.5281/zenodo.592536
 
 By version
 ~~~~~~~~~~

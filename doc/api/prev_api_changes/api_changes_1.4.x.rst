@@ -7,16 +7,16 @@ Code changes
 * A major refactoring of the axes module was made. The axes module has been
   split into smaller modules:
 
-    - the ``_base`` module, which contains a new private ``_AxesBase`` class.
-      This class contains all methods except plotting and labelling methods.
-    - the `~matplotlib.axes` module, which contains the `.axes.Axes` class.
-      This class inherits from ``_AxesBase``, and contains all plotting and
-      labelling methods.
-    - the ``_subplot`` module, with all the classes concerning subplotting.
+  - the ``_base`` module, which contains a new private ``_AxesBase`` class.
+    This class contains all methods except plotting and labelling methods.
+  - the `~matplotlib.axes` module, which contains the `.axes.Axes` class.
+    This class inherits from ``_AxesBase``, and contains all plotting and
+    labelling methods.
+  - the ``_subplot`` module, with all the classes concerning subplotting.
 
-There are a couple of things that do not exists in the `~matplotlib.axes`
-module's namespace anymore. If you use them, you need to import them from their
-original location:
+  There are a couple of things that do not exists in the `~matplotlib.axes`
+  module's namespace anymore. If you use them, you need to import them from their
+  original location:
 
   - ``math`` -> ``import math``
   - ``ma`` -> ``from numpy import ma``
@@ -91,11 +91,11 @@ original location:
   :ref:`legend_guide` for further details. Further legend changes
   include:
 
-   * ``matplotlib.axes.Axes._get_legend_handles`` now returns a generator of
-     handles, rather than a list.
+  * ``matplotlib.axes.Axes._get_legend_handles`` now returns a generator of
+    handles, rather than a list.
 
-   * The :func:`~matplotlib.pyplot.legend` function's *loc* positional
-     argument has been deprecated. Use the *loc* keyword argument instead.
+  * The :func:`~matplotlib.pyplot.legend` function's *loc* positional
+    argument has been deprecated. Use the *loc* keyword argument instead.
 
 * The :rc:`savefig.transparent` has been added to control
   default transparency when saving figures.
@@ -107,11 +107,11 @@ original location:
   that `.Annotation` and `.AnnotationBbox` can share a common sensibly named
   api for getting/setting the location of the text or box.
 
-    - *xyann* -> set the location of the annotation
-    - *xy* -> set where the arrow points to
-    - *anncoords* -> set the units of the annotation location
-    - *xycoords* -> set the units of the point location
-    - ``set_position()`` -> `.Annotation` only set location of annotation
+  - *xyann* -> set the location of the annotation
+  - *xy* -> set where the arrow points to
+  - *anncoords* -> set the units of the annotation location
+  - *xycoords* -> set the units of the point location
+  - ``set_position()`` -> `.Annotation` only set location of annotation
 
 * `matplotlib.mlab.specgram`, `matplotlib.mlab.psd`,  `matplotlib.mlab.csd`,
   `matplotlib.mlab.cohere`, ``matplotlib.mlab.cohere_pairs``,

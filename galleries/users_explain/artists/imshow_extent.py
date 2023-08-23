@@ -185,17 +185,17 @@ generate_imshow_demo_grid(extents=[None])
 #
 # For ``origin='lower'``:
 #
-#    - [0, 0] is at (left, bottom)
-#    - [M', 0] is at (left, top)
-#    - [0, N'] is at (right, bottom)
-#    - [M', N'] is at (right, top)
+# - [0, 0] is at (left, bottom)
+# - [M', 0] is at (left, top)
+# - [0, N'] is at (right, bottom)
+# - [M', N'] is at (right, top)
 #
 # ``origin='upper'`` reverses the vertical axes direction and filling:
 #
-#    - [0, 0] is at (left, top)
-#    - [M', 0] is at (left, bottom)
-#    - [0, N'] is at (right, top)
-#    - [M', N'] is at (right, bottom)
+# - [0, 0] is at (left, top)
+# - [M', 0] is at (left, bottom)
+# - [0, N'] is at (right, top)
+# - [M', N'] is at (right, bottom)
 #
 # In summary, the position of the [0, 0] index as well as the extent are
 # influenced by *origin*:

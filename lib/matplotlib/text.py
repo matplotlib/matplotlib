@@ -172,12 +172,10 @@ class Text(Artist):
         antialiased=None
     ):
         self.set_text(text)
-        self.set_color(
-            color if color is not None else mpl.rcParams["text.color"])
+        self.set_color(mpl._val_or_rc(color, "text.color"))
         self.set_fontproperties(fontproperties)
         self.set_usetex(usetex)
-        self.set_parse_math(parse_math if parse_math is not None else
-                            mpl.rcParams['text.parse_math'])
+        self.set_parse_math(mpl._val_or_rc(parse_math, 'text.parse_math'))
         self.set_wrap(wrap)
         self.set_verticalalignment(verticalalignment)
         self.set_horizontalalignment(horizontalalignment)
@@ -195,17 +193,19 @@ class Text(Artist):
 
     def update(self, kwargs):
         # docstring inherited
+        ret = []
         kwargs = cbook.normalize_kwargs(kwargs, Text)
         sentinel = object()  # bbox can be None, so use another sentinel.
         # Update fontproperties first, as it has lowest priority.
         fontproperties = kwargs.pop("fontproperties", sentinel)
         if fontproperties is not sentinel:
-            self.set_fontproperties(fontproperties)
+            ret.append(self.set_fontproperties(fontproperties))
         # Update bbox last, as it depends on font properties.
         bbox = kwargs.pop("bbox", sentinel)
-        super().update(kwargs)
+        ret.extend(super().update(kwargs))
         if bbox is not sentinel:
-            self.set_bbox(bbox)
+            ret.append(self.set_bbox(bbox))
+        return ret
 
     def __getstate__(self):
         d = super().__getstate__()
@@ -577,10 +577,10 @@ class Text(Artist):
             self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
 
     def _update_clip_properties(self):
-        clipprops = dict(clip_box=self.clipbox,
-                         clip_path=self._clippath,
-                         clip_on=self._clipon)
         if self._bbox_patch:
+            clipprops = dict(clip_box=self.clipbox,
+                             clip_path=self._clippath,
+                             clip_on=self._clipon)
             self._bbox_patch.update(clipprops)
 
     def set_clip_box(self, clipbox):
@@ -1271,10 +1271,9 @@ class Text(Artist):
             Any object gets converted to its `str` representation, except for
             ``None`` which is converted to an empty string.
         """
-        if s is None:
-            s = ''
+        s = '' if s is None else str(s)
         if s != self._text:
-            self._text = str(s)
+            self._text = s
             self.stale = True
 
     def _preprocess_math(self, s):
@@ -1351,7 +1350,7 @@ class Text(Artist):
 
     def set_fontname(self, fontname):
         """
-        Alias for `set_family`.
+        Alias for `set_fontfamily`.
 
         One-way alias only: the getter differs.
 
@@ -1365,7 +1364,7 @@ class Text(Artist):
         .font_manager.FontProperties.set_family
 
         """
-        return self.set_family(fontname)
+        self.set_fontfamily(fontname)
 
 
 class OffsetFrom:
@@ -1390,7 +1389,8 @@ class OffsetFrom:
             The screen units to use (pixels or points) for the offset input.
         """
         self._artist = artist
-        self._ref_coord = ref_coord
+        x, y = ref_coord  # Make copy when ref_coord is an array (and check the shape).
+        self._ref_coord = x, y
         self.set_unit(unit)
 
     def set_unit(self, unit):
@@ -1407,13 +1407,6 @@ class OffsetFrom:
     def get_unit(self):
         """Return the unit for input to the transform used by ``__call__``."""
         return self._unit
-
-    def _get_scale(self, renderer):
-        unit = self.get_unit()
-        if unit == "pixels":
-            return 1.
-        else:
-            return renderer.points_to_pixels(1.)
 
     def __call__(self, renderer):
         """
@@ -1444,11 +1437,8 @@ class OffsetFrom:
             x, y = self._artist.transform(self._ref_coord)
         else:
             _api.check_isinstance((Artist, BboxBase, Transform), artist=self._artist)
-
-        sc = self._get_scale(renderer)
-        tr = Affine2D().scale(sc).translate(x, y)
-
-        return tr
+        scale = 1 if self._unit == "pixels" else renderer.points_to_pixels(1)
+        return Affine2D().scale(scale).translate(x, y)
 
 
 class _AnnotationBase:
@@ -1457,7 +1447,8 @@ class _AnnotationBase:
                  xycoords='data',
                  annotation_clip=None):
 
-        self.xy = xy
+        x, y = xy  # Make copy when xy is an array (and check the shape).
+        self.xy = x, y
         self.xycoords = xycoords
         self.set_annotation_clip(annotation_clip)
 

@@ -1,0 +1,6 @@
+Automatic papersize selection in PostScript
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Setting :rc:`ps.papersize` to ``'auto'`` or passing ``papersize='auto'`` to
+`.Figure.savefig` is deprecated. Either pass an explicit paper type name, or
+omit this parameter to use the default from the rcParam.
