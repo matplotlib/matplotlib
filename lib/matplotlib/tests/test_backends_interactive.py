@@ -210,10 +210,6 @@ def _test_interactive_impl():
         # test toolbar button icon LA mode see GH issue 25174
         _test_toolbar_button_la_mode_icon(fig)
 
-    if mpl.rcParams["toolbar"] == "toolmanager":
-        # test toolbar button icon LA mode see GH issue 25174
-        _test_toolbar_button_la_mode_icon(fig)
-
     ax.plot([0, 1], [2, 3])
     if fig.canvas.toolbar:  # i.e toolbar2.
         fig.canvas.toolbar.draw_rubberband(None, 1., 1, 2., 2)
