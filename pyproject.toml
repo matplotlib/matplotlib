@@ -40,8 +40,6 @@ dependencies = [
     "pillow >= 8",
     "pyparsing >= 2.3.1",
     "python-dateutil >= 2.7",
-    "setuptools >= 64",
-    "setuptools_scm >= 7",
     "importlib-resources >= 3.2.0; python_version < '3.10'",
 ]
 requires-python = ">=3.9"
@@ -49,11 +47,16 @@ requires-python = ">=3.9"
 [project.optional-dependencies]
 # Should be a copy of the build dependencies below.
 dev = [
-    "certifi>=2020.06.20",
+    "meson-python>=0.13.1",
     "numpy>=1.25",
     "pybind11>=2.6",
-    "setuptools>=64",
     "setuptools_scm>=7",
+    # Not required by us but setuptools_scm without a version, cso _if_
+    # installed, then setuptools_scm 8 requires at least this version.
+    # Unfortunately, we can't do a sort of minimum-if-instaled dependency, so
+    # we need to keep this for now until setuptools_scm _fully_ drops
+    # setuptools.
+    "setuptools>=64",
 ]
 
 [project.urls]
@@ -66,35 +69,17 @@ dev = [
 "Donate" = "https://numfocus.org/donate-to-matplotlib"
 
 [build-system]
-build-backend = "setuptools.build_meta"
+build-backend = "mesonpy"
 # Also keep in sync with optional dependencies above.
 requires = [
-    "certifi>=2020.06.20",
+    "meson-python>=0.13.1",
     "numpy>=1.25",
     "pybind11>=2.6",
-    "setuptools>=64",
     "setuptools_scm>=7",
 ]
 
-[tool.setuptools]
-platforms = ["any"]
-py-modules = ["pylab"]
-license-files = ["LICENSE/*"]
-namespace-packages = ["mpl_toolkits"]
-
-[tool.setuptools.packages.find]
-where = ["lib"]
-include = ["matplotlib*", "mpl_toolkits*"]
-exclude = [
-    "matplotlib.tests*",
-    "mpl_toolkits.axes_grid1.tests*",
-    "mpl_toolkits.axisartist.tests*",
-    "mpl_toolkits.mplot3d.tests*",
-]
-namespaces = true
-
-[tool.setuptools.exclude-package-data]
-"*" = ["*.png", "*.svg"]
+[tool.meson-python.args]
+install = ['--tags=data,python-runtime,runtime']
 
 [tool.setuptools_scm]
 version_scheme = "release-branch-semver"
@@ -171,8 +156,6 @@ target-version = "py39"
 convention = "numpy"
 
 [tool.ruff.per-file-ignores]
-"setup.py" = ["E402"]
-
 "doc/conf.py" = ["E402"]
 "galleries/examples/animation/frame_grabbing_sgskip.py" = ["E402"]
 "galleries/examples/lines_bars_and_markers/marker_reference.py" = ["E402"]
