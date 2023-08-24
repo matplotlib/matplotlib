@@ -118,16 +118,15 @@ class ToolBase:
         lambda self: self._figure.canvas if self._figure is not None else None,
         doc="The canvas of the figure affected by this tool, or None.")
 
-    @property
-    def figure(self):
-        """The Figure affected by this tool, or None."""
-        return self._figure
-
-    @figure.setter
-    def figure(self, figure):
+    def set_figure(self, figure):
         self._figure = figure
 
-    set_figure = figure.fset
+    figure = property(
+        lambda self: self._figure,
+        # The setter must explicitly call self.set_figure so that subclasses can
+        # meaningfully override it.
+        lambda self, figure: self.set_figure(figure),
+        doc="The Figure affected by this tool, or None.")
 
     def _make_classic_style_pseudo_toolbar(self):
         """
