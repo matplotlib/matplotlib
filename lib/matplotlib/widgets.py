@@ -4212,10 +4212,9 @@ class Lasso(AxesWidget):
         self.useblit = useblit and self.canvas.supports_blit
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
-        
-        style = { **(props if props is not None else
-            { 'linestyle' : '-', 'color' : 'black', 'lw' : 2 })
-            }
+
+        style = {**(props if props is not None else
+                {'linestyle': '-', 'color': 'black', 'lw': 2 })}
 
         x, y = xy
         self.verts = [(x, y)]
