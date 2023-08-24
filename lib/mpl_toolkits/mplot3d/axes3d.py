@@ -517,7 +517,7 @@ class Axes3D(Axes):
         """
         Retrieve autoscaling margin of the z-axis.
 
-        .. versionadded:: 3.7
+        .. versionadded:: 3.9
 
         Returns
         -------

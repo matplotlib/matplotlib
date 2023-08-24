@@ -2621,7 +2621,7 @@ class _AxesBase(martist.Artist):
         """
         Retrieve autoscaling margin of the x-axis.
 
-        .. versionadded:: 3.7
+        .. versionadded:: 3.9
 
         Returns
         -------
@@ -2637,7 +2637,7 @@ class _AxesBase(martist.Artist):
         """
         Retrieve autoscaling margin of the y-axis.
 
-        .. versionadded:: 3.7
+        .. versionadded:: 3.9
 
         Returns
         -------
