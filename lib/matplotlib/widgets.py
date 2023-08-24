@@ -4206,14 +4206,16 @@ class Lasso(AxesWidget):
     """
 
     @_api.make_keyword_only("3.7", name="useblit")
-    def __init__(self, ax, xy, callback, useblit=True, **props):
+    def __init__(self, ax, xy, callback, useblit=True, props=None):
         super().__init__(ax)
 
         self.useblit = useblit and self.canvas.supports_blit
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
-
-        style = { 'linestyle' : '-', 'color' : 'black', 'lw' : 2} | props
+        
+        style = { **(props if props is not None else
+            { 'linestyle' : '-', 'color' : 'black', 'lw' : 2 })
+            }
 
         x, y = xy
         self.verts = [(x, y)]
