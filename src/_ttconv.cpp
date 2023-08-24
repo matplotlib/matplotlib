@@ -8,7 +8,7 @@
 #include "mplutils.h"
 
 #include <pybind11/pybind11.h>
-#include "ttconv/pprdrv.h"
+#include "pprdrv.h"
 #include <vector>
 
 namespace py = pybind11;

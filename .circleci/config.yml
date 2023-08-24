@@ -117,12 +117,9 @@ commands:
               python -m pip install --user -ve .
             fi
       - save_cache:
-          key: build-deps-1
+          key: build-deps-2
           paths:
-            # FreeType 2.6.1 tarball.
-            - ~/.cache/matplotlib/0a3c7dfbda6da1e8fce29232e8e96d987ababbbf71ebc8c75659e4132c367014
-            # Qhull 2020.2 tarball.
-            - ~/.cache/matplotlib/b5c2d7eb833278881b952c8a52d20179eab87766b00b865000469a45c1838b7e
+            - subprojects/packagecache
 
   doc-build:
     steps:
