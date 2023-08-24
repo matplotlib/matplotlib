@@ -480,11 +480,9 @@ class Lasso(AxesWidget):
         ax: Axes,
         xy: tuple[float, float],
         callback: Callable[[list[tuple[float, float]]], Any],
-        linestyle: LineStyleTyle,
-        color: ColorType,
-        lw: int,
         *,
         useblit: bool = ...,
+        props: dict[str, Any] | None = ...,
     ) -> None: ...
     def onrelease(self, event: Event) -> None: ...
     def onmove(self, event: Event) -> None: ...
