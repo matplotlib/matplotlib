@@ -1007,8 +1007,13 @@ def test_lasso_selector_set_props(ax):
 
 def test_lasso_set_props(ax):
     onselect = mock.Mock(spec=noop, return_value=None)
-    tool = widgets.Lasso(ax, (100, 100), onselect) 
-    tool = widgets.Lasso(ax, (100, 100), onselect, props=dict(linestyle='-', color='darkblue', alpha=0.2, lw=1))
+    tool = widgets.Lasso(ax, (100, 100), onselect)
+    line = tool.line
+    assert mcolors.same_color(line.get_color(), 'black')
+    assert line.get_linestyle() == '-'
+    assert line.get_lw() == 2
+    tool = widgets.Lasso(ax, (100, 100), onselect, props=dict(
+        linestyle='-', color='darkblue', alpha=0.2, lw=1))
 
     line = tool.line
     assert mcolors.same_color(line.get_color(), 'darkblue')
