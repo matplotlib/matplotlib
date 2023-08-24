@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import platform
 import re
+import shutil
 import subprocess
 import sys
 import weakref
@@ -318,7 +319,7 @@ def test_cleanup_temporaries(method_name, tmpdir, anim):
         assert list(Path(str(tmpdir)).iterdir()) == []
 
 
-@pytest.mark.skipif(os.name != "posix", reason="requires a POSIX OS")
+@pytest.mark.skipif(shutil.which("/bin/sh") is None, reason="requires a POSIX OS")
 def test_failing_ffmpeg(tmpdir, monkeypatch, anim):
     """
     Test that we correctly raise a CalledProcessError when ffmpeg fails.

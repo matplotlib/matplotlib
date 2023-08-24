@@ -1086,7 +1086,7 @@ def find_tex_file(filename):
     if lk:
         path = lk.search(filename)
     else:
-        if os.name == 'nt':
+        if sys.platform == 'win32':
             # On Windows only, kpathsea can use utf-8 for cmd args and output.
             # The `command_line_encoding` environment variable is set to force
             # it to always use utf-8 encoding.  See Matplotlib issue #11848.

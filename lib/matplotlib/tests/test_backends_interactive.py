@@ -473,7 +473,7 @@ def test_cross_Qt_imports():
 
 @pytest.mark.skipif('TF_BUILD' in os.environ,
                     reason="this test fails an azure for unknown reasons")
-@pytest.mark.skipif(os.name == "nt", reason="Cannot send SIGINT on Windows.")
+@pytest.mark.skipif(sys.platform == "win32", reason="Cannot send SIGINT on Windows.")
 def test_webagg():
     pytest.importorskip("tornado")
     proc = subprocess.Popen(
