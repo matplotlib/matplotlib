@@ -4214,7 +4214,7 @@ class Lasso(AxesWidget):
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
 
         style = {**(props if props is not None else
-                {'linestyle': '-', 'color': 'black', 'lw': 2 })}
+                    {'linestyle': '-', 'color': 'black', 'lw': 2})}
 
         x, y = xy
         self.verts = [(x, y)]
