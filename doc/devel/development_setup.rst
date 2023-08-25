@@ -164,6 +164,22 @@ true for ``*.py`` files.  If you change the C-extension source (which might
 also happen if you change branches) you will have to re-run
 ``python -m pip install -ve .``
 
+Verify the Installation
+=======================
+
+Run the following command to make sure you have correctly installed Matplotlib in editable mode.
+The command should be run when the virtual environment is activated ::
+
+    python -c "import matplotlib; print(matplotlib.__file__)"
+
+This command should return : ``<matplotlib_local_repo>\lib\matplotlib\__init__.py``
+
+We encourage you to run tests and build docs to verify that the code installed correctly and that the docs build cleanly,
+so that when you make code or document related changes you are aware of the existing issues beforehand.
+
+   * Run test cases to verify installation :ref:`testing`
+   * Verify documentation build :ref:`documenting-matplotlib`
+
 Install pre-commit hooks
 ========================
 `pre-commit <https://pre-commit.com/>`_ hooks save time in the review process by
