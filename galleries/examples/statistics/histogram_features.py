@@ -20,7 +20,7 @@ parameters.
 import matplotlib.pyplot as plt
 import numpy as np
 
-rng = np.random.default_rng(19710717)
+rng = np.random.default_rng(19680801)
 
 # example data
 mu = 106  # mean of distribution
