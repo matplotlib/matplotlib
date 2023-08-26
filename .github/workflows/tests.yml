@@ -144,7 +144,7 @@ jobs:
           macOS)
             brew install ccache
             brew tap homebrew/cask-fonts
-            brew install font-noto-sans-cjk
+            brew install font-noto-sans-cjk gobject-introspection gtk4
             ;;
           esac
 
