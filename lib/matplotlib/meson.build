@@ -138,6 +138,20 @@ typing_sources = [
 py3.install_sources(python_sources, typing_sources,
                     subdir: 'matplotlib')
 
+fs = import('fs')
+if fs.exists('_version.py')
+    py3.install_sources('_version.py', subdir: 'matplotlib')
+else
+  cfg = configuration_data()
+  cfg.set_quoted('VCS_TAG', meson.project_version())
+  configure_file(
+    input: '_version.py.in', output: '_version.py',
+    configuration: cfg,
+    install: true,
+    install_tag: 'python-runtime',
+    install_dir: py3.get_install_dir() / 'matplotlib')
+endif
+
 subdir('_api')
 subdir('axes')
 subdir('backends')

@@ -219,15 +219,20 @@ def _get_version():
     if ((root / ".matplotlib-repo").exists()
             and (root / ".git").exists()
             and not (root / ".git/shallow").exists()):
-        import setuptools_scm
-        return setuptools_scm.get_version(
-            root=root,
-            version_scheme="release-branch-semver",
-            local_scheme="node-and-date",
-            fallback_version=_version.version,
-        )
-    else:  # Get the version from the _version.py setuptools_scm file.
-        return _version.version
+        try:
+            import setuptools_scm
+        except ImportError:
+            pass
+        else:
+            return setuptools_scm.get_version(
+                root=root,
+                version_scheme="release-branch-semver",
+                local_scheme="node-and-date",
+                fallback_version=_version.version,
+            )
+    # Get the version from the _version.py file if not in repo or setuptools_scm is
+    # unavailable.
+    return _version.version
 
 
 @_api.caching_module_getattr
