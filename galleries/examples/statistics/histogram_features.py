@@ -40,7 +40,7 @@ y = ((1 / (np.sqrt(2 * np.pi) * sigma)) *
 ax.plot(bins, y, '--')
 ax.set_xlabel('Value')
 ax.set_ylabel('Probability density')
-ax.set_title('Histogram of normal distribution sample: ' 
+ax.set_title('Histogram of normal distribution sample: '
              fr'$\mu={mu:.0f}$, $\sigma={sigma:.0f}$')
 
 # Tweak spacing to prevent clipping of ylabel
