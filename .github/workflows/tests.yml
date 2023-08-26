@@ -149,7 +149,7 @@ jobs:
           macOS)
             brew install ccache
             brew tap homebrew/cask-fonts
-            brew install font-noto-sans-cjk
+            brew install font-noto-sans-cjk gobject-introspection gtk4
             ;;
           esac
 
@@ -226,10 +226,14 @@ jobs:
           # libraries cannot be loaded at runtime, so an actual import is a
           # better check).
           # PyGObject, pycairo, and cariocffi do not install on OSX 10.12.
-           python -m pip install --upgrade pycairo 'cairocffi>=0.8' PyGObject &&
-             python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
-             echo 'PyGObject is available' ||
-             echo 'PyGObject is not available'
+          python -m pip install --upgrade pycairo 'cairocffi>=0.8' PyGObject &&
+            (
+              python -c 'import gi; gi.require_version("Gtk", "4.0"); from gi.repository import Gtk' &&
+              echo 'PyGObject 4 is available' || echo 'PyGObject 4 is not available'
+            ) && (
+              python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
+              echo 'PyGObject 3 is available' || echo 'PyGObject 3 is not available'
+            )
 
           # There are no functioning wheels available for OSX 10.12 (as of
           # Sept 2020) for either pyqt5 (there are only wheels for 10.13+) or
