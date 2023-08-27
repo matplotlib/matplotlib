@@ -95,20 +95,8 @@ request and open a new pull request from the renamed branch. See
 The editing workflow
 ====================
 
-Overview
---------
-
-::
-
-   # hack hack
-   git add my_new_file
-   git commit -am 'NF - some message'
-   git push
-
-In more detail
---------------
-
 #. Make some changes
+#. Save the changes
 #. See which files have changed with ``git status``.
    You'll see a listing like this one:
 
@@ -129,13 +117,17 @@ In more detail
 
 #. Check what the actual changes are with ``git diff``.
 #. Add any new files to version control ``git add new_file_name``.
-#. To commit all modified files into the local copy of your repo,, do
-   ``git commit -am 'A commit message'``.  Note the ``-am`` options to
-   ``commit``. The ``m`` flag just signals that you're going to type a
-   message on the command line.  The ``a`` flag — you can just take on
-   faith — or see `why the -a flag?`_. The
-   `git commit <https://git-scm.com/docs/git-commit>`_ manual page might also be
-   useful.
+#. To commit **all** modified files into the local copy of your repo, type:
+
+   .. code-block:: bash
+
+      git commit -am 'A commit message'
+
+   Note the ``-am`` options to ``commit``. The ``m`` flag signals that you are
+   going to type a message on the command line.  The ``a`` flag stages every
+   file that has been modified, except files listed in ``.gitignore``. For more
+   information, see `why the -a flag?`_ and the
+   `git commit <https://git-scm.com/docs/git-commit>`_  manual page.
 #. To push the changes up to your forked repo on GitHub, do a ``git
    push``.
 

@@ -210,10 +210,6 @@ def _test_interactive_impl():
         # test toolbar button icon LA mode see GH issue 25174
         _test_toolbar_button_la_mode_icon(fig)
 
-    if mpl.rcParams["toolbar"] == "toolmanager":
-        # test toolbar button icon LA mode see GH issue 25174
-        _test_toolbar_button_la_mode_icon(fig)
-
     ax.plot([0, 1], [2, 3])
     if fig.canvas.toolbar:  # i.e toolbar2.
         fig.canvas.toolbar.draw_rubberband(None, 1., 1, 2., 2)
@@ -473,7 +469,7 @@ def test_cross_Qt_imports():
 
 @pytest.mark.skipif('TF_BUILD' in os.environ,
                     reason="this test fails an azure for unknown reasons")
-@pytest.mark.skipif(os.name == "nt", reason="Cannot send SIGINT on Windows.")
+@pytest.mark.skipif(sys.platform == "win32", reason="Cannot send SIGINT on Windows.")
 def test_webagg():
     pytest.importorskip("tornado")
     proc = subprocess.Popen(

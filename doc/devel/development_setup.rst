@@ -164,16 +164,43 @@ true for ``*.py`` files.  If you change the C-extension source (which might
 also happen if you change branches) you will have to re-run
 ``python -m pip install -ve .``
 
-Install pre-commit hooks (optional)
-===================================
-`pre-commit <https://pre-commit.com/>`_ hooks automatically check flake8 and
-other style issues when you run ``git commit``. The hooks are defined in the
-top level ``.pre-commit-config.yaml`` file. To install the hooks ::
+Verify the Installation
+=======================
+
+Run the following command to make sure you have correctly installed Matplotlib in editable mode.
+The command should be run when the virtual environment is activated ::
+
+    python -c "import matplotlib; print(matplotlib.__file__)"
+
+This command should return : ``<matplotlib_local_repo>\lib\matplotlib\__init__.py``
+
+We encourage you to run tests and build docs to verify that the code installed correctly and that the docs build cleanly,
+so that when you make code or document related changes you are aware of the existing issues beforehand.
+
+   * Run test cases to verify installation :ref:`testing`
+   * Verify documentation build :ref:`documenting-matplotlib`
+
+Install pre-commit hooks
+========================
+`pre-commit <https://pre-commit.com/>`_ hooks save time in the review process by
+identifying issues with the code before a pull request is formally opened. Most
+hooks can also aide in fixing the errors, and the checks should have
+corresponding :ref:`development workflow <development-workflow>` and
+:ref:`pull request <pr-guidelines>` guidelines. Hooks are configured in
+`.pre-commit-config.yaml <https://github.com/matplotlib/matplotlib/blob/main/.pre-commit-config.yaml?>`_
+and include checks for spelling and formatting, flake 8 conformity, accidentally
+committed files, import order, and incorrect branching.
+
+Install pre-commit hooks ::
 
     python -m pip install pre-commit
     pre-commit install
 
-The hooks can also be run manually. All the hooks can be run, in order as
+Hooks are run automatically after the ``git commit`` stage of the
+:ref:`editing workflow<edit-flow>`. When a hook has found and fixed an error in a
+file, that file must be *staged and committed* again.
+
+Hooks can also be run manually. All the hooks can be run, in order as
 listed in ``.pre-commit-config.yaml``, against the full codebase with ::
 
     pre-commit run --all-files

@@ -513,6 +513,22 @@ class Axes3D(Axes):
     get_autoscalez_on = _axis_method_wrapper("zaxis", "_get_autoscale_on")
     set_autoscalez_on = _axis_method_wrapper("zaxis", "_set_autoscale_on")
 
+    def get_zmargin(self):
+        """
+        Retrieve autoscaling margin of the z-axis.
+
+        .. versionadded:: 3.9
+
+        Returns
+        -------
+        zmargin : float
+
+        See Also
+        --------
+        mpl_toolkits.mplot3d.axes3d.Axes3D.set_zmargin
+        """
+        return self._zmargin
+
     def set_zmargin(self, m):
         """
         Set padding of Z data limits prior to autoscaling.

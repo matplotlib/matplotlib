@@ -1,7 +1,7 @@
 """
-======================
-Triangular 3D surfaces
-======================
+=====================
+plot_trisurf(x, y, z)
+=====================
 
 See `~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_trisurf`.
 """

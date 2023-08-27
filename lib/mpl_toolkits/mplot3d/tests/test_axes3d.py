@@ -1994,6 +1994,15 @@ def test_margins():
     assert ax.margins() == (0, 0.1, 0)
 
 
+def test_margin_getters():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.margins(0.1, 0.2, 0.3)
+    assert ax.get_xmargin() == 0.1
+    assert ax.get_ymargin() == 0.2
+    assert ax.get_zmargin() == 0.3
+
+
 @pytest.mark.parametrize('err, args, kwargs, match', (
         (ValueError, (-1,), {}, r'margin must be greater than -0\.5'),
         (ValueError, (1, -1, 1), {}, r'margin must be greater than -0\.5'),

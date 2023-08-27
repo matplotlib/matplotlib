@@ -137,6 +137,7 @@ Autoscaling and margins
    :template: autosummary.rst
    :nosignatures:
 
+   get_zmargin
    set_zmargin
    margins
    autoscale

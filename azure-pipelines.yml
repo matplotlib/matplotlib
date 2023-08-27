@@ -92,11 +92,12 @@ stages:
           linux)
             echo 'Acquire::Retries "3";' | sudo tee /etc/apt/apt.conf.d/80-retries
             sudo apt update
-            sudo apt install \
+            sudo apt install --no-install-recommends \
               cm-super \
               dvipng \
               ffmpeg \
               fonts-noto-cjk \
+              fonts-wqy-zenhei \
               gdb \
               gir1.2-gtk-3.0 \
               graphviz \
@@ -111,8 +112,8 @@ stages:
               texlive-latex-base \
               texlive-latex-extra \
               texlive-latex-recommended \
-              texlive-xetex texlive-luatex \
-              ttf-wqy-zenhei
+              texlive-luatex \
+              texlive-xetex
             ;;
           darwin)
             brew install --cask xquartz
