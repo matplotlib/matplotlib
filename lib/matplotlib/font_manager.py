@@ -50,6 +50,30 @@ from matplotlib.rcsetup import _validators
 
 _log = logging.getLogger(__name__)
 
+
+class _findfontFilter(logging.Filter):
+    """
+    Suppress repeat font not found warning messages on a
+    per font and per message type basis
+    """
+    _msg_cache = set()
+
+    @classmethod
+    def clear_cache(cls):
+        _findfontFilter._msg_cache.clear()
+        _log.debug("findfont filter cache reset")
+
+    def filter(self, record):
+        if record.msg in self._msg_cache:
+            return False
+        if record.msg.startswith('findfont'):
+            _findfontFilter._msg_cache.add(record.msg)
+        return True
+
+_log_findfont_filter = _findfontFilter()
+_log.addFilter(_log_findfont_filter)
+_log.debug("findfont filter added to log")
+
 font_scalings = {
     'xx-small': 0.579,
     'x-small':  0.694,
@@ -1011,7 +1035,7 @@ class FontManager:
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires an existing font
     # cache files to be rebuilt.
-    __version__ = 330
+    __version__ = 331
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__
@@ -1576,6 +1600,7 @@ def _load_fontmanager(*, try_read_cache=True):
     fm = FontManager()
     json_dump(fm, fm_path)
     _log.info("generated new fontManager")
+    _findfontFilter._clear_cache()
     return fm
 
 
