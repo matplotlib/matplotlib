@@ -122,7 +122,7 @@ class Tick(martist.Artist):
         if labelcolor is None:
             labelcolor = mpl.rcParams[f"{name}.labelcolor"]
 
-        if labelcolor == 'inherit':
+        if cbook._str_equal(labelcolor, 'inherit'):
             # inherit from tick color
             labelcolor = mpl.rcParams[f"{name}.color"]
 
