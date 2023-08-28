@@ -2237,7 +2237,8 @@ class _AxesBase(martist.Artist):
         ax.stale_callback = martist._stale_axes_callback
 
         self.child_axes.append(ax)
-        ax._remove_method = self.child_axes.remove
+        ax._remove_method = functools.partial(
+            self.figure._remove_axes, owners=[self.child_axes])
         self.stale = True
         return ax
 

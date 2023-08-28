@@ -936,11 +936,25 @@ default: %(va)s
         """
         Remove the `~.axes.Axes` *ax* from the figure; update the current Axes.
         """
+        self._remove_axes(ax, owners=[self._axstack, self._localaxes])
 
-        self._axstack.remove(ax)
+    def _remove_axes(self, ax, owners):
+        """
+        Common helper for removal of standard axes (via delaxes) and of child axes.
+
+        Parameters
+        ----------
+        ax : `~.AxesBase`
+            The Axes to remove.
+        owners
+            List of objects (list or _AxesStack) "owning" the axes, from which the Axes
+            will be remove()d.
+        """
+        for owner in owners:
+            owner.remove(ax)
+
         self._axobservers.process("_axes_change_event", self)
         self.stale = True
-        self._localaxes.remove(ax)
         self.canvas.release_mouse(ax)
 
         for name in ax._axis_names:  # Break link between any shared axes
