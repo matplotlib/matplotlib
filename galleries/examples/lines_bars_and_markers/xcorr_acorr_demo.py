@@ -1,7 +1,7 @@
 """
-================================
-Cross- and Auto-Correlation Demo
-================================
+===========================
+Cross- and auto-correlation
+===========================
 
 Example use of cross-correlation (`~.Axes.xcorr`) and auto-correlation
 (`~.Axes.acorr`) plots.
@@ -17,9 +17,11 @@ x, y = np.random.randn(2, 100)
 fig, [ax1, ax2] = plt.subplots(2, 1, sharex=True)
 ax1.xcorr(x, y, usevlines=True, maxlags=50, normed=True, lw=2)
 ax1.grid(True)
+ax1.set_title('Cross-correlation (xcorr)')
 
 ax2.acorr(x, usevlines=True, normed=True, maxlags=50, lw=2)
 ax2.grid(True)
+ax2.set_title('Auto-correlation (acorr)')
 
 plt.show()
 
