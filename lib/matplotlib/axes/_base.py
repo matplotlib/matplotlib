@@ -2019,26 +2019,30 @@ class _AxesBase(martist.Artist):
             If a bool, turns axis lines and labels on or off. If a string,
             possible values are:
 
-            ======== ==========================================================
-            Value    Description
-            ======== ==========================================================
-            'on'     Turn on axis lines and labels. Same as ``True``.
-            'off'    Turn off axis lines and labels. Same as ``False``.
-            'equal'  Set equal scaling (i.e., make circles circular) by
-                     changing axis limits. This is the same as
-                     ``ax.set_aspect('equal', adjustable='datalim')``.
-                     Explicit data limits may not be respected in this case.
-            'scaled' Set equal scaling (i.e., make circles circular) by
-                     changing dimensions of the plot box. This is the same as
-                     ``ax.set_aspect('equal', adjustable='box', anchor='C')``.
-                     Additionally, further autoscaling will be disabled.
-            'tight'  Set limits just large enough to show all data, then
-                     disable further autoscaling.
-            'auto'   Automatic scaling (fill plot box with data).
-            'image'  'scaled' with axis limits equal to data limits.
-            'square' Square plot; similar to 'scaled', but initially forcing
-                     ``xmax-xmin == ymax-ymin``.
-            ======== ==========================================================
+            ================ ===========================================================
+            Value            Description
+            ================ ===========================================================
+            'off' or `False` Hide all axis decorations, i.e. axis labels, spines,
+                             tick marks, tick labels, and grid lines.
+                             This is the same as `~.Axes.set_axis_off()`.
+            'on' or `True`   Do not hide all axis decorations, i.e. axis labels, spines,
+                             tick marks, tick labels, and grid lines.
+                             This is the same as `~.Axes.set_axis_on()`.
+            'equal'          Set equal scaling (i.e., make circles circular) by
+                             changing the axis limits. This is the same as
+                             ``ax.set_aspect('equal', adjustable='datalim')``.
+                             Explicit data limits may not be respected in this case.
+            'scaled'         Set equal scaling (i.e., make circles circular) by
+                             changing dimensions of the plot box. This is the same as
+                             ``ax.set_aspect('equal', adjustable='box', anchor='C')``.
+                             Additionally, further autoscaling will be disabled.
+            'tight'          Set limits just large enough to show all data, then
+                             disable further autoscaling.
+            'auto'           Automatic scaling (fill plot box with data).
+            'image'          'scaled' with axis limits equal to data limits.
+            'square'         Square plot; similar to 'scaled', but initially forcing
+                             ``xmax-xmin == ymax-ymin``.
+            ================ ===========================================================
 
         emit : bool, default: True
             Whether observers are notified of the axis limit change.
@@ -3423,18 +3427,25 @@ class _AxesBase(martist.Artist):
 
     def set_axis_off(self):
         """
-        Turn the x- and y-axis off.
+        Hide all visual components of the x- and y-axis.
 
-        This affects the axis lines, ticks, ticklabels, grid and axis labels.
+        This sets a flag to suppress drawing of all axis decorations, i.e.
+        axis labels, axis spines, and the axis tick component (tick markers,
+        tick labels, and grid lines). Individual visibility settings of these
+        components are ignored as long as `set_axis_off()` is in effect.
         """
         self.axison = False
         self.stale = True
 
     def set_axis_on(self):
         """
-        Turn the x- and y-axis on.
+        Do not hide all visual components of the x- and y-axis.
 
-        This affects the axis lines, ticks, ticklabels, grid and axis labels.
+        This reverts the effect of a prior `.set_axis_off()` call. Whether the
+        individual axis decorations are drawn is controlled by their respective
+        visibility settings.
+
+        This is on by default.
         """
         self.axison = True
         self.stale = True
@@ -3681,7 +3692,8 @@ class _AxesBase(martist.Artist):
     get_xscale = _axis_method_wrapper("xaxis", "get_scale")
     set_xscale = _axis_method_wrapper("xaxis", "_set_axes_scale")
     get_xticks = _axis_method_wrapper("xaxis", "get_ticklocs")
-    set_xticks = _axis_method_wrapper("xaxis", "set_ticks")
+    set_xticks = _axis_method_wrapper("xaxis", "set_ticks",
+                                      doc_sub={'set_ticks': 'set_xticks'})
     get_xmajorticklabels = _axis_method_wrapper("xaxis", "get_majorticklabels")
     get_xminorticklabels = _axis_method_wrapper("xaxis", "get_minorticklabels")
     get_xticklabels = _axis_method_wrapper("xaxis", "get_ticklabels")
@@ -3912,7 +3924,8 @@ class _AxesBase(martist.Artist):
     get_yscale = _axis_method_wrapper("yaxis", "get_scale")
     set_yscale = _axis_method_wrapper("yaxis", "_set_axes_scale")
     get_yticks = _axis_method_wrapper("yaxis", "get_ticklocs")
-    set_yticks = _axis_method_wrapper("yaxis", "set_ticks")
+    set_yticks = _axis_method_wrapper("yaxis", "set_ticks",
+                                      doc_sub={'set_ticks': 'set_yticks'})
     get_ymajorticklabels = _axis_method_wrapper("yaxis", "get_majorticklabels")
     get_yminorticklabels = _axis_method_wrapper("yaxis", "get_minorticklabels")
     get_yticklabels = _axis_method_wrapper("yaxis", "get_ticklabels")
