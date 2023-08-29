@@ -24,10 +24,8 @@ use cases.
         **Axes interface** (object-based, explicit)
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-        API:
-
-        - `~.pyplot.subplots`: create Figure and Axes
-        - :mod:`~matplotlib.axes`: add data, limits, labels etc.
+        - `~.pyplot.subplots` or `~.pyplot.subplot_mosaic`: create Figure and Axes
+        - `Axes <matplotlib.axes>`: add data, limits, labels etc.
         - `.Figure`: for figure-level methods
 
     .. grid-item-card::
@@ -35,9 +33,46 @@ use cases.
         **pyplot interface** (function-based, implicit)
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-        API:
-
         - `matplotlib.pyplot`
+
+.. tab-set::
+
+  .. tab-item:: Axes interface
+
+    .. plot::
+      :include-source:
+      :align: center
+
+      x = np.arange(0, 4, 0.05)
+      y = np.sin(x*np.pi)
+      # Create a Figure and an Axes:
+      fig, ax = plt.subplots(figsize=(3,2), layout='constrained')
+      # Use the Axes to plot and label:
+      ax.plot(x, y)
+      ax.set_xlabel('t [s]')
+      ax.set_ylabel('S [V]')
+      ax.set_title('Sine wave')
+      # Change a property of the Figure:
+      fig.set_facecolor('lightsteelblue')
+
+
+  .. tab-item:: pyplot interface
+
+    .. plot::
+      :include-source:
+      :align: center
+
+      x = np.arange(0, 4, 0.05)
+      y = np.sin(x*np.pi)
+      # Create a Figure of a given size:
+      plt.figure(figsize=(3, 2), layout='constrained')
+      # plot on a default Axes on the Figure:
+      plt.plot(x, y)
+      plt.xlabel('t [s]')
+      plt.ylabel('S [V]')
+      plt.title('Sine wave')
+      # set a Figure property:
+      plt.gcf().set_facecolor('lightsteelblue')
 
 
 .. _api-index:
