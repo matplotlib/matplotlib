@@ -8,7 +8,6 @@ How to use the `.axes.Axes.contourf` method to create filled contour plots.
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 delta = 0.025
 
 x = y = np.arange(-3.0, 3.01, delta)
@@ -119,7 +118,7 @@ y = x.reshape(-1, 1)
 h = x * y
 
 fig, (ax1, ax2) = plt.subplots(ncols=2)
-# Note: lower and upper are the values provided 
+# Note: lower and upper are the values provided
 # to origin argument in contourf.
 for (ax, origin) in [(ax1, 'upper'), (ax2, 'lower')]:
     ax.set_title(f"origin={origin}")
