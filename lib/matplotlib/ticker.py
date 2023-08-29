@@ -2893,6 +2893,7 @@ class AutoMinorLocator(Locator):
     Dynamically find minor tick positions based on the positions of
     major ticks. The scale must be linear with major ticks evenly spaced.
     """
+
     def __init__(self, n=None):
         """
         *n* is the number of subdivisions of the interval between
@@ -2908,47 +2909,33 @@ class AutoMinorLocator(Locator):
         self.ndivs = n
 
     def __call__(self):
-        """Return the locations of the ticks."""
+        # docstring inherited
         if self.axis.get_scale() == 'log':
-            _api.warn_external('AutoMinorLocator does not work with '
-                               'logarithmic scale')
+            _api.warn_external('AutoMinorLocator does not work on logarithmic scales')
             return []
 
         majorlocs = self.axis.get_majorticklocs()
-        try:
-            majorstep = majorlocs[1] - majorlocs[0]
-        except IndexError:
-            # Need at least two major ticks to find minor tick locations
-            # TODO: Figure out a way to still be able to display minor
-            # ticks without two major ticks visible. For now, just display
-            # no ticks at all.
+        if len(majorlocs) < 2:
+            # Need at least two major ticks to find minor tick locations.
+            # TODO: Figure out a way to still be able to display minor ticks with less
+            # than two major ticks visible. For now, just display no ticks at all.
             return []
+        majorstep = majorlocs[1] - majorlocs[0]
 
         if self.ndivs is None:
-
-            if self.axis.axis_name == 'y':
-                self.ndivs = mpl.rcParams['ytick.minor.ndivs']
-            else:
-                # for x and z axis
-                self.ndivs = mpl.rcParams['xtick.minor.ndivs']
+            self.ndivs = mpl.rcParams[
+                'ytick.minor.ndivs' if self.axis.axis_name == 'y'
+                else 'xtick.minor.ndivs']  # for x and z axis
 
         if self.ndivs == 'auto':
-
-            majorstep_no_exponent = 10 ** (np.log10(majorstep) % 1)
-
-            if np.isclose(majorstep_no_exponent, [1.0, 2.5, 5.0, 10.0]).any():
-                ndivs = 5
-            else:
-                ndivs = 4
+            majorstep_mantissa = 10 ** (np.log10(majorstep) % 1)
+            ndivs = 5 if np.isclose(majorstep_mantissa, [1, 2.5, 5, 10]).any() else 4
         else:
             ndivs = self.ndivs
 
         minorstep = majorstep / ndivs
 
-        vmin, vmax = self.axis.get_view_interval()
-        if vmin > vmax:
-            vmin, vmax = vmax, vmin
-
+        vmin, vmax = sorted(self.axis.get_view_interval())
         t0 = majorlocs[0]
         tmin = round((vmin - t0) / minorstep)
         tmax = round((vmax - t0) / minorstep) + 1
@@ -2957,5 +2944,5 @@ class AutoMinorLocator(Locator):
         return self.raise_if_exceeds(locs)
 
     def tick_values(self, vmin, vmax):
-        raise NotImplementedError('Cannot get tick locations for a '
-                                  '%s type.' % type(self))
+        raise NotImplementedError(
+            f"Cannot get tick locations for a {type(self).__name__}")
