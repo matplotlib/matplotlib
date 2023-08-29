@@ -10,6 +10,8 @@ It is often used to illustrate the importance of looking at a set of data
 graphically and not only relying on basic statistic properties.
 
 .. _Anscombe's quartet: https://en.wikipedia.org/wiki/Anscombe%27s_quartet
+
+.. redirect-from:: /gallery/specialty_plots/anscombe.html
 """
 
 import matplotlib.pyplot as plt
