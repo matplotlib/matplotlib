@@ -122,6 +122,11 @@ table.property-table td {
     margin: 0 0.5em;
 }
 
+/* Make the code examples in the API reference index the same height. */
+.api-interface-example pre {
+    min-height: 6.5rem;
+}
+
 /* Make inheritance images have a scroll bar if necessary. */
 div.graphviz {
     border: 1px solid lightgrey;
