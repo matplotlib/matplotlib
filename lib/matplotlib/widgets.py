@@ -3765,7 +3765,7 @@ class LassoSelector(_SelectorWidget):
         backend). See the tutorial :ref:`blitting`
         for details.
     props : dict, optional
-        Properties with which the line is drawn, see `matplotlib.lines.Line2D`
+        Properties with which the line is drawn, see `.Line2D`
         for valid properties. Default values are defined in ``mpl.rcParams``.
     button : `.MouseButton` or list of `.MouseButton`, optional
         The mouse buttons used for rectangle selection.  Default is ``None``,
@@ -4200,10 +4200,13 @@ class Lasso(AxesWidget):
         backend). See the tutorial :ref:`blitting`
         for details.
     props: dict, optional
-        Lasso line properties. See `matplotlib.lines.Line2D` for valid
-        properties. Default props are:
-            `{'linestyle' : '-', 'color' : 'black', 'lw' : 2}`.
-    """
+        Lasso line properties. See `.Line2D` for valid
+    properties. Default *props* are::
+
+            {'linestyle' : '-', 'color' : 'black', 'lw' : 2}
+
+        .. versionadded:: 3.9
+        """
 
     @_api.make_keyword_only("3.7", name="useblit")
     def __init__(self, ax, xy, callback, useblit=True, props=None):
@@ -4213,8 +4216,10 @@ class Lasso(AxesWidget):
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
 
-        style = {**(props if props is not None else
-                    {'linestyle': '-', 'color': 'black', 'lw': 2})}
+        style = {'linestyle': '-', 'color': 'black', 'lw': 2}
+
+        if props is not None:
+            style.update(props)
 
         x, y = xy
         self.verts = [(x, y)]
