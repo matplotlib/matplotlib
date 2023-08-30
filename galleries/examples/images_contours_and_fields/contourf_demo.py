@@ -66,19 +66,14 @@ cbar.add_lines(CS2)
 
 fig2, ax2 = plt.subplots(layout='constrained')
 levels = [-1.5, -1, -0.5, 0, 0.5, 1]
-CS3 = ax2.contourf(X, Y, Z, levels,
-                   colors=('r', 'g', 'b'),
-                   extend='both')
+CS3 = ax2.contourf(X, Y, Z, levels, colors=('r', 'g', 'b'), extend='both')
 # Our data range extends outside the range of levels; make
 # data below the lowest contour level yellow, and above the
 # highest level cyan:
 CS3.cmap.set_under('yellow')
 CS3.cmap.set_over('cyan')
 
-CS4 = ax2.contour(X, Y, Z, levels,
-                  colors=('k',),
-                  linewidths=(3,)
-                  )
+CS4 = ax2.contour(X, Y, Z, levels, colors=('k',), linewidths=(3,))
 ax2.set_title('Listed colors (3 masked regions)')
 ax2.clabel(CS4, fmt='%2.1f', colors='w', fontsize=14)
 
@@ -110,8 +105,9 @@ plt.show()
 
 # %%
 # Customizing Contour Plots with the origin Keyword
-# ------------------
-# This section demonstrates how to use the origin parameter in Contour
+# -------------------------------------------------
+# This code showcases contour plot customization using the origin keyword,
+# demonstrating distinct upper and lower origin perspectives.
 
 x = np.arange(1, 10)
 y = x.reshape(-1, 1)
@@ -122,9 +118,8 @@ fig, (ax1, ax2) = plt.subplots(ncols=2)
 # to origin argument in contourf.
 for (ax, origin) in [(ax1, 'upper'), (ax2, 'lower')]:
     ax.set_title(f"origin={origin}")
-    cs = ax.contourf(h, levels=[10, 30, 50],
-                     colors=['#808080', '#A0A0A0', '#C0C0C0'],
-                     extend='both', origin=origin)
+    cs = ax.contourf(h, levels=[10, 30, 50], colors=[
+                     '#808080', '#A0A0A0', '#C0C0C0'], extend='both', origin=origin)
     cs.cmap.set_over('red')
     cs.cmap.set_under('blue')
     cs.changed()
