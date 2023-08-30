@@ -3,7 +3,7 @@ GUI neutral widgets
 ===================
 
 Widgets that are designed to work for any of the GUI backends.
-All of these widgets require you to predefine a `matplotlib.axes.Axes`
+All of these widgets require you to predefine an `~.axes.Axes`
 instance and pass that as the first parameter.  Matplotlib doesn't try to
 be too smart with respect to layout -- you will have to figure out how
 wide and tall you want your Axes to be to accommodate your widget.
@@ -170,9 +170,9 @@ class Button(AxesWidget):
     Attributes
     ----------
     ax
-        The `matplotlib.axes.Axes` the button renders into.
+        The `~.axes.Axes` the button renders into.
     label
-        A `matplotlib.text.Text` instance.
+        A `.Text` instance.
     color
         The color of the button when not hovering.
     hovercolor
@@ -190,7 +190,7 @@ class Button(AxesWidget):
             The button text.
         image : array-like or PIL Image
             The image to place in the button, if not *None*.  The parameter is
-            directly forwarded to `~matplotlib.axes.Axes.imshow`.
+            directly forwarded to `~.axes.Axes.imshow`.
         color : color
             The color of the button when not activated.
         hovercolor : color
@@ -1007,9 +1007,9 @@ class CheckButtons(AxesWidget):
     ax : `~matplotlib.axes.Axes`
         The parent Axes for the widget.
 
-    labels : list of `.Text`
+    labels : list of `~matplotlib.text.Text`
 
-    rectangles : list of `.Rectangle`
+    rectangles : list of `~matplotlib.patches.Rectangle`
 
     lines : list of (`.Line2D`, `.Line2D`) pairs
         List of lines for the x's in the checkboxes.  These lines exist for
@@ -1019,7 +1019,7 @@ class CheckButtons(AxesWidget):
     def __init__(self, ax, labels, actives=None, *, useblit=True,
                  label_props=None, frame_props=None, check_props=None):
         """
-        Add check buttons to `matplotlib.axes.Axes` instance *ax*.
+        Add check buttons to `~.axes.Axes` instance *ax*.
 
         Parameters
         ----------
@@ -1876,16 +1876,16 @@ class RadioButtons(AxesWidget):
 
 class SubplotTool(Widget):
     """
-    A tool to adjust the subplot params of a `matplotlib.figure.Figure`.
+    A tool to adjust the subplot params of a `.Figure`.
     """
 
     def __init__(self, targetfig, toolfig):
         """
         Parameters
         ----------
-        targetfig : `.Figure`
+        targetfig : `~matplotlib.figure.Figure`
             The figure instance to adjust.
-        toolfig : `.Figure`
+        toolfig : `~matplotlib.figure.Figure`
             The figure instance to embed the subplot tool into.
         """
 
@@ -2051,7 +2051,7 @@ class MultiCursor(Widget):
     canvas : object
         This parameter is entirely unused and only kept for back-compatibility.
 
-    axes : list of `matplotlib.axes.Axes`
+    axes : list of `~matplotlib.axes.Axes`
         The `~.axes.Axes` to attach the cursor to.
 
     useblit : bool, default: True
@@ -2564,7 +2564,7 @@ class SpanSelector(_SelectorWidget):
         canvas updates. See the tutorial :ref:`blitting` for details.
 
     props : dict, default: {'facecolor': 'red', 'alpha': 0.5}
-        Dictionary of `matplotlib.patches.Patch` properties.
+        Dictionary of `.Patch` properties.
 
     onmove_callback : callable with signature ``func(min: float, max: float)``, optional
         Called on mouse move while the span is being selected.
@@ -2578,8 +2578,7 @@ class SpanSelector(_SelectorWidget):
 
     handle_props : dict, default: None
         Properties of the handle lines at the edges of the span. Only used
-        when *interactive* is True. See `matplotlib.lines.Line2D` for valid
-        properties.
+        when *interactive* is True. See `.Line2D` for valid properties.
 
     grab_range : float, default: 10
         Distance in pixels within which the interactive tool handles can be activated.
@@ -2951,7 +2950,7 @@ class ToolLineHandles:
     direction : {"horizontal", "vertical"}
         Direction of handles, either 'vertical' or 'horizontal'
     line_props : dict, optional
-        Additional line properties. See `matplotlib.lines.Line2D`.
+        Additional line properties. See `.Line2D`.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
         backend). See the tutorial :ref:`blitting`
@@ -3060,9 +3059,9 @@ class ToolHandles:
     x, y : 1D arrays
         Coordinates of control handles.
     marker : str, default: 'o'
-        Shape of marker used to display handle. See `matplotlib.pyplot.plot`.
+        Shape of marker used to display handle. See `~.pyplot.plot`.
     marker_props : dict, optional
-        Additional marker properties. See `matplotlib.lines.Line2D`.
+        Additional marker properties. See `.Line2D`.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
         backend). See the tutorial :ref:`blitting`
@@ -3147,7 +3146,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
 
     props : dict, optional
         Properties with which the __ARTIST_NAME__ is drawn. See
-        `matplotlib.patches.Patch` for valid properties.
+        `.Patch` for valid properties.
         Default:
 
         ``dict(facecolor='red', edgecolor='black', alpha=0.2, fill=True)``
@@ -3165,7 +3164,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
 
     handle_props : dict, optional
         Properties with which the interactive handles (marker artists) are
-        drawn. See the marker arguments in `matplotlib.lines.Line2D` for valid
+        drawn. See the marker arguments in `.Line2D` for valid
         properties.  Default values are defined in ``mpl.rcParams`` except for
         the default value of ``markeredgecolor`` which will be the same as the
         ``edgecolor`` property in *props*.
@@ -3765,7 +3764,7 @@ class LassoSelector(_SelectorWidget):
         backend). See the tutorial :ref:`blitting`
         for details.
     props : dict, optional
-        Properties with which the line is drawn, see `matplotlib.lines.Line2D`
+        Properties with which the line is drawn, see `.Line2D`
         for valid properties. Default values are defined in ``mpl.rcParams``.
     button : `.MouseButton` or list of `.MouseButton`, optional
         The mouse buttons used for rectangle selection.  Default is ``None``,
@@ -3842,15 +3841,14 @@ class PolygonSelector(_SelectorWidget):
         for details.
 
     props : dict, optional
-        Properties with which the line is drawn, see `matplotlib.lines.Line2D`
-        for valid properties.
+        Properties with which the line is drawn, see `.Line2D` for valid properties.
         Default::
 
             dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
 
     handle_props : dict, optional
         Artist properties for the markers drawn at the vertices of the polygon.
-        See the marker arguments in `matplotlib.lines.Line2D` for valid
+        See the marker arguments in `.Line2D` for valid
         properties.  Default values are defined in ``mpl.rcParams`` except for
         the default value of ``markeredgecolor`` which will be the same as the
         ``color`` property in *props*.
