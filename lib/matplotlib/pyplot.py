@@ -1134,7 +1134,7 @@ if Figure.legend.__doc__:
 
 @_docstring.dedent_interpd
 def axes(
-    arg: None | tuple(float, float, float, float) = None,
+    arg: None | tuple[float, float, float, float] = None,
     **kwargs
 ) -> matplotlib.axes.Axes:
     """
