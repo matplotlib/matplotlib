@@ -2788,12 +2788,7 @@ None}, default: None
                      pending=True)
     def set_tight_layout(self, tight):
         """
-        [*Discouraged*] Set whether and how `.tight_layout` is called when
-        drawing.
-
-        .. admonition:: Discouraged
-
-            This method is discouraged in favor of `~.set_layout_engine`.
+        Set whether and how `.tight_layout` is called when drawing.
 
         Parameters
         ----------
@@ -2822,8 +2817,7 @@ None}, default: None
                      pending=True)
     def set_constrained_layout(self, constrained):
         """
-        [*Discouraged*] Set whether ``constrained_layout`` is used upon
-        drawing.
+        Set whether ``constrained_layout`` is used upon drawing.
 
         If None, :rc:`figure.constrained_layout.use` value will be used.
 
@@ -2831,10 +2825,6 @@ None}, default: None
         the default ``constrained_layout`` paddings will be
         overridden.  These pads are in inches and default to 3.0/72.0.
         ``w_pad`` is the width padding and ``h_pad`` is the height padding.
-
-        .. admonition:: Discouraged
-
-            This method is discouraged in favor of `~.set_layout_engine`.
 
         Parameters
         ----------
