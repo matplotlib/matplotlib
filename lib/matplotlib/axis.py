@@ -2090,7 +2090,7 @@ class Axis(martist.Artist):
 
     def set_ticks(self, ticks, labels=None, *, minor=False, **kwargs):
         """
-        Set this Axis' tick locations and optionally labels.
+        Set this Axis' tick locations and optionally tick labels.
 
         If necessary, the view limits of the Axis are expanded so that all
         given ticks are visible.
@@ -2103,14 +2103,19 @@ class Axis(martist.Artist):
 
             The values may be either floats or in axis units.
 
+            Pass an empty list to remove all ticks::
+
+                set_ticks([])
+
             Some tick formatters will not label arbitrary tick positions;
             e.g. log formatters only label decade ticks by default. In
             such a case you can set a formatter explicitly on the axis
             using `.Axis.set_major_formatter` or provide formatted
             *labels* yourself.
         labels : list of str, optional
-            List of tick labels. If not set, the labels are generated with
-            the axis tick `.Formatter`.
+            Tick labels for each location in *ticks*. *labels* must be of the same
+            length as *ticks*. If not set, the labels are generate using the axis
+            tick `.Formatter`.
         minor : bool, default: False
             If ``False``, set the major ticks; if ``True``, the minor ticks.
         **kwargs
