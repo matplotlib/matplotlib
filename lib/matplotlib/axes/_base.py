@@ -3565,6 +3565,8 @@ class _AxesBase(martist.Artist):
         """
         if limit is not None:
             converted_limit = convert(limit)
+            if isinstance(converted_limit, np.ndarray):
+                converted_limit = converted_limit.squeeze()
             if (isinstance(converted_limit, Real)
                     and not np.isfinite(converted_limit)):
                 raise ValueError("Axis limits cannot be NaN or Inf")
