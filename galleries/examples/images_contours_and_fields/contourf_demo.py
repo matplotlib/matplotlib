@@ -106,8 +106,7 @@ plt.show()
 # %%
 # Customizing Contour Plots with the origin Keyword
 # -------------------------------------------------
-# This code showcases contour plot customization using the origin keyword,
-# demonstrating distinct upper and lower origin perspectives.
+# This section demonstrates how to use the origin parameter in Contour
 
 x = np.arange(1, 10)
 y = x.reshape(-1, 1)
