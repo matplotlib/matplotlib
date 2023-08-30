@@ -11,7 +11,7 @@ from matplotlib.backend_bases import (
 from matplotlib.colors import Colormap, Normalize
 from matplotlib.colorbar import Colorbar
 from matplotlib.cm import ScalarMappable
-from matplotlib.gridspec import GridSpec, SubplotSpec
+from matplotlib.gridspec import GridSpec, SubplotSpec, SubplotParams as SubplotParams
 from matplotlib.image import _ImageBase, FigureImage
 from matplotlib.layout_engine import LayoutEngine
 from matplotlib.legend import Legend
@@ -26,32 +26,6 @@ from numpy.typing import ArrayLike
 from collections.abc import Callable, Iterable
 from typing import Any, IO, Literal, overload
 from .typing import ColorType, HashableList
-
-class SubplotParams:
-    def __init__(
-        self,
-        left: float | None = ...,
-        bottom: float | None = ...,
-        right: float | None = ...,
-        top: float | None = ...,
-        wspace: float | None = ...,
-        hspace: float | None = ...,
-    ) -> None: ...
-    left: float
-    right: float
-    bottom: float
-    top: float
-    wspace: float
-    hspace: float
-    def update(
-        self,
-        left: float | None = ...,
-        bottom: float | None = ...,
-        right: float | None = ...,
-        top: float | None = ...,
-        wspace: float | None = ...,
-        hspace: float | None = ...,
-    ) -> None: ...
 
 class FigureBase(Artist):
     artists: list[Artist]
