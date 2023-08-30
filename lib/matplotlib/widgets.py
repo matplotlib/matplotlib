@@ -4205,7 +4205,7 @@ class Lasso(AxesWidget):
 
         {'linestyle' : '-', 'color' : 'black', 'lw' : 2}
 
-        .. versionadded:: 3.9
+    .. versionadded:: 3.9
         """
 
     @_api.make_keyword_only("3.7", name="useblit")
