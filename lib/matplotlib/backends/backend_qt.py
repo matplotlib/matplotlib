@@ -140,7 +140,7 @@ def _create_qApp():
             image = str(cbook._get_data_path('images/matplotlib.svg'))
             icon = QtGui.QIcon(image)
             app.setWindowIcon(icon)
-        app.lastWindowClosed.connect(app.quit)
+        app.setQuitOnLastWindowClosed(True)
         cbook._setup_new_guiapp()
         if qt_version == 5:
             app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
