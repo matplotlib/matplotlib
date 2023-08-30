@@ -155,14 +155,10 @@ endif
 subdir('_api')
 subdir('axes')
 subdir('backends')
+subdir('mpl-data')
 subdir('projections')
 subdir('sphinxext')
 subdir('style')
 subdir('testing')
 subdir('tests')
 subdir('tri')
-
-install_subdir(
-  'mpl-data',
-  install_tag: 'data',
-  install_dir: py3.get_install_dir(subdir: 'matplotlib'))
