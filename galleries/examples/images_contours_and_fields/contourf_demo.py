@@ -114,15 +114,10 @@ y = x.reshape(-1, 1)
 h = x * y
 
 fig, (ax1, ax2) = plt.subplots(ncols=2)
-# Note: lower and upper are the values provided
-# to origin argument in contourf.
-for (ax, origin) in [(ax1, 'upper'), (ax2, 'lower')]:
-    ax.set_title(f"origin={origin}")
-    cs = ax.contourf(h, levels=[10, 30, 50], colors=[
-                     '#808080', '#A0A0A0', '#C0C0C0'], extend='both', origin=origin)
-    cs.cmap.set_over('red')
-    cs.cmap.set_under('blue')
-    cs.changed()
+ax1.set_title("origin='upper'")
+ax2.set_title("origin='lower'")
+ax1.contourf(h, levels=np.arange(5, 70, 5), extend='both', origin="upper")
+ax2.contourf(h, levels=np.arange(5, 70, 5), extend='both', origin="lower")
 
 plt.show()
 
