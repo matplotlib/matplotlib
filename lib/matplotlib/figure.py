@@ -2475,7 +2475,7 @@ None}, default: None
 
             - 'tight': Use the tight layout mechanism. This is a relatively
               simple algorithm that adjusts the subplot parameters so that
-              decorations do not overlap. See `.Figure.set_tight_layout` for
+              decorations do not overlap. See `.set_tight_layout` for
               further details.
 
             - 'none': Do not use a layout engine.
@@ -2618,8 +2618,7 @@ None}, default: None
 
         Parameters
         ----------
-        layout: {'constrained', 'compressed', 'tight', 'none'} or \
-`LayoutEngine` or None
+        layout : {'constrained', 'compressed', 'tight', 'none', `.LayoutEngine`, None}
 
             - 'constrained' will use `~.ConstrainedLayoutEngine`
             - 'compressed' will also use `~.ConstrainedLayoutEngine`, but with
@@ -2627,6 +2626,8 @@ None}, default: None
               ratio Axes.
             - 'tight' uses `~.TightLayoutEngine`
             - 'none' removes layout engine.
+
+            If a `.LayoutEngine` instance, that instance will be used.
 
             If `None`, the behavior is controlled by :rc:`figure.autolayout`
             (which if `True` behaves as if 'tight' was passed) and
@@ -2637,7 +2638,7 @@ None}, default: None
             Users and libraries can define their own layout engines and pass
             the instance directly as well.
 
-        kwargs: dict
+        **kwargs
             The keyword arguments are passed to the layout engine to set things
             like padding and margin sizes.  Only used if *layout* is a string.
 
