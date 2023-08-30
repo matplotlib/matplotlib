@@ -121,8 +121,7 @@ extensions = [
 ]
 
 exclude_patterns = [
-    'api/prev_api_changes/api_changes_*/*'
-]
+    'api/prev_api_changes/api_changes_*/*', '**/*inc.rst']
 
 exclude_patterns += skip_subdirs
 
