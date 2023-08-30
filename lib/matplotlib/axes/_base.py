@@ -1554,9 +1554,11 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        cycler : Cycler
+        cycler : `~cycler.Cycler`
             Set the given Cycler. *None* resets to the cycle defined by the
             current style.
+
+            .. ACCEPTS: `~cycler.Cycler`
 
         label : str
             The property key. Must be a valid `.Artist` property.
@@ -3521,6 +3523,8 @@ class _AxesBase(martist.Artist):
             The lower and upper bounds. If *None*, the respective axis bound
             is not modified.
 
+            .. ACCEPTS: (lower: float, upper: float)
+
         See Also
         --------
         get_xbound
@@ -3594,7 +3598,7 @@ class _AxesBase(martist.Artist):
             (*left*, *right*) as the first positional argument (or as
             the *left* keyword argument).
 
-            .. ACCEPTS: (bottom: float, top: float)
+            .. ACCEPTS: (left: float, right: float)
 
         right : float, optional
             The right xlim in data coordinates. Passing *None* leaves the
@@ -3769,6 +3773,8 @@ class _AxesBase(martist.Artist):
         lower, upper : float or None
             The lower and upper bounds. If *None*, the respective axis bound
             is not modified.
+
+         .. ACCEPTS: (lower: float, upper: float)
 
         See Also
         --------
