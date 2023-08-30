@@ -4203,7 +4203,7 @@ class Lasso(AxesWidget):
         Lasso line properties. See `.Line2D` for valid
     properties. Default *props* are::
 
-            {'linestyle' : '-', 'color' : 'black', 'lw' : 2}
+        {'linestyle' : '-', 'color' : 'black', 'lw' : 2}
 
         .. versionadded:: 3.9
         """
