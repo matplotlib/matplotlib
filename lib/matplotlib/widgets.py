@@ -4206,7 +4206,7 @@ class Lasso(AxesWidget):
         {'linestyle' : '-', 'color' : 'black', 'lw' : 2}
 
     .. versionadded:: 3.9
-        """
+    """
 
     @_api.make_keyword_only("3.7", name="useblit")
     def __init__(self, ax, xy, callback, useblit=True, props=None):
