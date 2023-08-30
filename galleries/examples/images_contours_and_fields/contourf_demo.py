@@ -104,15 +104,16 @@ for ax, extend in zip(axs.flat, extends):
 plt.show()
 
 # %%
-# Customizing Contour Plots with the origin Keyword
-# -------------------------------------------------
-# This section demonstrates how to use the origin parameter in Contour
+# Orient contour plots using the origin keyword
+# -----------------------------------------------
+# This code demonstrates orienting contour plot data using the "origin" keyword
 
 x = np.arange(1, 10)
 y = x.reshape(-1, 1)
 h = x * y
 
 fig, (ax1, ax2) = plt.subplots(ncols=2)
+
 ax1.set_title("origin='upper'")
 ax2.set_title("origin='lower'")
 ax1.contourf(h, levels=np.arange(5, 70, 5), extend='both', origin="upper")
