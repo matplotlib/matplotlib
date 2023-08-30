@@ -296,7 +296,7 @@ Third-party backends should also migrate to the ``*_dashes`` methods.
 ``NavigationToolbar2.dynamic_update``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Use :meth:`.draw_idle` method on the ``Canvas`` instance instead.
+Use `~.FigureCanvasBase.draw_idle` method on the ``Canvas`` instance instead.
 
 
 Testing
