@@ -127,7 +127,7 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
 #   b_asarray = np.asarray(b)
 #
 # Most methods will also parse an addressable object like a *dict*, a
-# `numpy.recarray`, or a `pandas.DataFrame`.  Matplotlib allows you to
+# `numpy.rec.recarray`, or a `pandas.DataFrame`.  Matplotlib allows you to
 # provide the ``data`` keyword argument and generate plots passing the
 # strings corresponding to the *x* and *y* variables.
 np.random.seed(19680801)  # seed the random number generator.

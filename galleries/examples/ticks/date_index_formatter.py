@@ -25,7 +25,7 @@ from matplotlib.ticker import Formatter
 # low, close, volume, adj_close from the mpl-data/sample_data directory. The
 # record array stores the date as an np.datetime64 with a day unit ('D') in
 # the date column (``r.date``).
-r = cbook.get_sample_data('goog.npz')['price_data'].view(np.recarray)
+r = cbook.get_sample_data('goog.npz')['price_data'].view(np.rec.recarray)
 r = r[:9]  # get the first 9 days
 
 fig, (ax1, ax2) = plt.subplots(nrows=2, figsize=(6, 6), layout='constrained')
