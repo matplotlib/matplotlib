@@ -8,8 +8,6 @@ How to use the `.axes.Axes.contourf` method to create filled contour plots.
 import matplotlib.pyplot as plt
 import numpy as np
 
-origin = 'lower'
-
 delta = 0.025
 
 x = y = np.arange(-3.0, 3.01, delta)
@@ -41,14 +39,14 @@ Z[interior] = np.ma.masked
 # for purposes of illustration.
 
 fig1, ax2 = plt.subplots(layout='constrained')
-CS = ax2.contourf(X, Y, Z, 10, cmap=plt.cm.bone, origin=origin)
+CS = ax2.contourf(X, Y, Z, 10, cmap=plt.cm.bone)
 
 # Note that in the following, we explicitly pass in a subset of the contour
 # levels used for the filled contours.  Alternatively, we could pass in
 # additional levels to provide extra resolution, or leave out the *levels*
 # keyword argument to use all of the original levels.
 
-CS2 = ax2.contour(CS, levels=CS.levels[::2], colors='r', origin=origin)
+CS2 = ax2.contour(CS, levels=CS.levels[::2], colors='r')
 
 ax2.set_title('Nonsense (3 masked regions)')
 ax2.set_xlabel('word length anomaly')
@@ -68,20 +66,14 @@ cbar.add_lines(CS2)
 
 fig2, ax2 = plt.subplots(layout='constrained')
 levels = [-1.5, -1, -0.5, 0, 0.5, 1]
-CS3 = ax2.contourf(X, Y, Z, levels,
-                   colors=('r', 'g', 'b'),
-                   origin=origin,
-                   extend='both')
+CS3 = ax2.contourf(X, Y, Z, levels, colors=('r', 'g', 'b'), extend='both')
 # Our data range extends outside the range of levels; make
 # data below the lowest contour level yellow, and above the
 # highest level cyan:
 CS3.cmap.set_under('yellow')
 CS3.cmap.set_over('cyan')
 
-CS4 = ax2.contour(X, Y, Z, levels,
-                  colors=('k',),
-                  linewidths=(3,),
-                  origin=origin)
+CS4 = ax2.contour(X, Y, Z, levels, colors=('k',), linewidths=(3,))
 ax2.set_title('Listed colors (3 masked regions)')
 ax2.clabel(CS4, fmt='%2.1f', colors='w', fontsize=14)
 
@@ -104,10 +96,28 @@ cmap = plt.colormaps["winter"].with_extremes(under="magenta", over="yellow")
 fig, axs = plt.subplots(2, 2, layout="constrained")
 
 for ax, extend in zip(axs.flat, extends):
-    cs = ax.contourf(X, Y, Z, levels, cmap=cmap, extend=extend, origin=origin)
+    cs = ax.contourf(X, Y, Z, levels, cmap=cmap, extend=extend)
     fig.colorbar(cs, ax=ax, shrink=0.9)
     ax.set_title("extend = %s" % extend)
     ax.locator_params(nbins=4)
+
+plt.show()
+
+# %%
+# Orient contour plots using the origin keyword
+# ---------------------------------------------
+# This code demonstrates orienting contour plot data using the "origin" keyword
+
+x = np.arange(1, 10)
+y = x.reshape(-1, 1)
+h = x * y
+
+fig, (ax1, ax2) = plt.subplots(ncols=2)
+
+ax1.set_title("origin='upper'")
+ax2.set_title("origin='lower'")
+ax1.contourf(h, levels=np.arange(5, 70, 5), extend='both', origin="upper")
+ax2.contourf(h, levels=np.arange(5, 70, 5), extend='both', origin="lower")
 
 plt.show()
 
