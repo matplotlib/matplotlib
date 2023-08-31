@@ -4200,12 +4200,12 @@ class Lasso(AxesWidget):
         backend). See the tutorial :ref:`blitting`
         for details.
     props: dict, optional
-        Lasso line properties. See `.Line2D` for valid
-    properties. Default *props* are::
+        Lasso line properties. See `.Line2D` for valid properties.
+        Default *props* are::
 
-        {'linestyle' : '-', 'color' : 'black', 'lw' : 2}
+            {'linestyle' : '-', 'color' : 'black', 'lw' : 2}
 
-    .. versionadded:: 3.9
+        .. versionadded:: 3.9
     """
 
     @_api.make_keyword_only("3.7", name="useblit")
