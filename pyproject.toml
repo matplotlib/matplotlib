@@ -2,10 +2,15 @@
 build-backend = "setuptools.build_meta"
 requires = [
     "certifi>=2020.06.20",
-    "numpy>=1.25",
     "pybind11>=2.6",
     "setuptools>=42",
     "setuptools_scm>=7",
+    "numpy>=1.25,<2; python_version<='3.11'",
+
+    # For Python versions which aren't yet officially supported, we specify an
+    # unpinned NumPy which allows source distributions to be used and allows
+    # wheels to be used as soon as they become available.
+    "numpy>=1.26.0b1; python_version>='3.12'",
 ]
 
 [tool.isort]
