@@ -511,13 +511,13 @@ class ContourLabeler:
             if closed:
                 # This will remove contour if shorter than label
                 if all(i != -1 for i in I):
-                    nlc.append(np.row_stack([xy2, lc[I[1]:I[0]+1], xy1]))
+                    nlc.append(np.vstack([xy2, lc[I[1]:I[0]+1], xy1]))
             else:
                 # These will remove pieces of contour if they have length zero
                 if I[0] != -1:
-                    nlc.append(np.row_stack([lc[:I[0]+1], xy1]))
+                    nlc.append(np.vstack([lc[:I[0]+1], xy1]))
                 if I[1] != -1:
-                    nlc.append(np.row_stack([xy2, lc[I[1]:]]))
+                    nlc.append(np.vstack([xy2, lc[I[1]:]]))
 
             # The current implementation removes contours completely
             # covered by labels.  Uncomment line below to keep
