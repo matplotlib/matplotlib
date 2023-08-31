@@ -152,8 +152,8 @@ def annotate_axes(ax, text, fontsize=18):
 fig, axd = plt.subplot_mosaic([['upper left', 'upper right'],
                                ['lower left', 'lower right']],
                               figsize=(5.5, 3.5), layout="constrained")
-for k in axd:
-    annotate_axes(axd[k], f'axd["{k}"]', fontsize=14)
+for k, ax in axd.items():
+    annotate_axes(ax, f'axd[{k!r}]', fontsize=14)
 fig.suptitle('plt.subplot_mosaic()')
 
 # %%
@@ -200,8 +200,8 @@ fig.suptitle('Fixed aspect Axes: compressed')
 fig, axd = plt.subplot_mosaic([['upper left', 'right'],
                                ['lower left', 'right']],
                               figsize=(5.5, 3.5), layout="constrained")
-for k in axd:
-    annotate_axes(axd[k], f'axd["{k}"]', fontsize=14)
+for k, ax in axd.items():
+    annotate_axes(ax, f'axd[{k!r}]', fontsize=14)
 fig.suptitle('plt.subplot_mosaic()')
 
 # %%
@@ -223,8 +223,8 @@ fig, axd = plt.subplot_mosaic([['upper left', 'right'],
                                ['lower left', 'right']],
                               gridspec_kw=gs_kw, figsize=(5.5, 3.5),
                               layout="constrained")
-for k in axd:
-    annotate_axes(axd[k], f'axd["{k}"]', fontsize=14)
+for k, ax in axd.items():
+    annotate_axes(ax, f'axd[{k!r}]', fontsize=14)
 fig.suptitle('plt.subplot_mosaic()')
 
 # %%
@@ -262,8 +262,8 @@ outer = [['upper left',  inner],
           ['lower left', 'lower right']]
 
 fig, axd = plt.subplot_mosaic(outer, layout="constrained")
-for k in axd:
-    annotate_axes(axd[k], f'axd["{k}"]')
+for k, ax in axd.items():
+    annotate_axes(ax, f'axd[{k!r}]')
 
 # %%
 # Low-level and advanced grid methods

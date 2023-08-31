@@ -48,7 +48,7 @@ demo_con_style(axs[2, 4], "bar,angle=180,fraction=-0.2")
 
 for ax in axs.flat:
     ax.set(xlim=(0, 1), ylim=(0, 1.25), xticks=[], yticks=[], aspect=1.25)
-fig.set_constrained_layout_pads(wspace=0, hspace=0, w_pad=0, h_pad=0)
+fig.get_layout_engine().set(wspace=0, hspace=0, w_pad=0, h_pad=0)
 
 plt.show()
 

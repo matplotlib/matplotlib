@@ -18,6 +18,8 @@ codes.  For example to draw the unit rectangle from (0, 0) to (1, 1), we
 could use this code:
 """
 
+import numpy as np
+
 import matplotlib.pyplot as plt
 
 import matplotlib.patches as patches
@@ -191,11 +193,6 @@ plt.show()
 #       edgecolor='yellow', alpha=0.5)
 #     ax.add_patch(patch)
 
-import numpy as np
-
-import matplotlib.patches as patches
-import matplotlib.path as path
-
 fig, ax = plt.subplots()
 # Fixing random state for reproducibility
 np.random.seed(19680801)
@@ -213,9 +210,9 @@ nrects = len(left)
 
 nverts = nrects*(1+3+1)
 verts = np.zeros((nverts, 2))
-codes = np.ones(nverts, int) * path.Path.LINETO
-codes[0::5] = path.Path.MOVETO
-codes[4::5] = path.Path.CLOSEPOLY
+codes = np.full(nverts, Path.LINETO, dtype=int)
+codes[0::5] = Path.MOVETO
+codes[4::5] = Path.CLOSEPOLY
 verts[0::5, 0] = left
 verts[0::5, 1] = bottom
 verts[1::5, 0] = left
@@ -225,7 +222,7 @@ verts[2::5, 1] = top
 verts[3::5, 0] = right
 verts[3::5, 1] = bottom
 
-barpath = path.Path(verts, codes)
+barpath = Path(verts, codes)
 patch = patches.PathPatch(barpath, facecolor='green',
                           edgecolor='yellow', alpha=0.5)
 ax.add_patch(patch)

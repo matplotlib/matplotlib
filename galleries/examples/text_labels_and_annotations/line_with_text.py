@@ -28,9 +28,11 @@ class MyLine(lines.Line2D):
         self.text.set_figure(figure)
         super().set_figure(figure)
 
-    def set_axes(self, axes):
-        self.text.set_axes(axes)
-        super().set_axes(axes)
+    # Override the axes property setter to set Axes on our children as well.
+    @lines.Line2D.axes.setter
+    def axes(self, new_axes):
+        self.text.axes = new_axes
+        lines.Line2D.axes.fset(self, new_axes)  # Call the superclass property setter.
 
     def set_transform(self, transform):
         # 2 pixel offset
