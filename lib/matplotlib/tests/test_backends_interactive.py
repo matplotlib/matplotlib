@@ -477,24 +477,27 @@ def test_webagg():
          inspect.getsource(_test_interactive_impl)
          + "\n_test_interactive_impl()", "{}"],
         env={**os.environ, "MPLBACKEND": "webagg", "SOURCE_DATE_EPOCH": "0"})
-    url = "http://{}:{}".format(
-        mpl.rcParams["webagg.address"], mpl.rcParams["webagg.port"])
+    url = f'http://{mpl.rcParams["webagg.address"]}:{mpl.rcParams["webagg.port"]}'
     timeout = time.perf_counter() + _test_timeout
-    while True:
-        try:
-            retcode = proc.poll()
-            # check that the subprocess for the server is not dead
-            assert retcode is None
-            conn = urllib.request.urlopen(url)
-            break
-        except urllib.error.URLError:
-            if time.perf_counter() > timeout:
-                pytest.fail("Failed to connect to the webagg server.")
-            else:
-                continue
-    conn.close()
-    proc.send_signal(signal.SIGINT)
-    assert proc.wait(timeout=_test_timeout) == 0
+    try:
+        while True:
+            try:
+                retcode = proc.poll()
+                # check that the subprocess for the server is not dead
+                assert retcode is None
+                conn = urllib.request.urlopen(url)
+                break
+            except urllib.error.URLError:
+                if time.perf_counter() > timeout:
+                    pytest.fail("Failed to connect to the webagg server.")
+                else:
+                    continue
+        conn.close()
+        proc.send_signal(signal.SIGINT)
+        assert proc.wait(timeout=_test_timeout) == 0
+    finally:
+        if proc.poll() is None:
+            proc.kill()
 
 
 def _lazy_headless():
