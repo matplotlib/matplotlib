@@ -57,9 +57,9 @@ class Axes(_AxesBase):
     @overload
     def legend(self) -> Legend: ...
     @overload
-    def legend(self, handles: Sequence[Artist], labels: Sequence[str], **kwargs) -> Legend: ...
+    def legend(self, handles: Sequence[Artist | tuple[Artist, ...]], labels: Sequence[str], **kwargs) -> Legend: ...
     @overload
-    def legend(self, *, handles: Sequence[Artist], **kwargs) -> Legend: ...
+    def legend(self, *, handles: Sequence[Artist | tuple[Artist, ...]], **kwargs) -> Legend: ...
     @overload
     def legend(self, labels: Sequence[str], **kwargs) -> Legend: ...
     @overload
@@ -332,10 +332,10 @@ class Axes(_AxesBase):
         elinewidth: float | None = ...,
         capsize: float | None = ...,
         barsabove: bool = ...,
-        lolims: bool = ...,
-        uplims: bool = ...,
-        xlolims: bool = ...,
-        xuplims: bool = ...,
+        lolims: bool | ArrayLike = ...,
+        uplims: bool | ArrayLike = ...,
+        xlolims: bool | ArrayLike = ...,
+        xuplims: bool | ArrayLike = ...,
         errorevery: int | tuple[int, int] = ...,
         capthick: float | None = ...,
         *,

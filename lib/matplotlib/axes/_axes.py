@@ -280,7 +280,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        handles : sequence of `.Artist`, optional
+        handles : sequence of (`.Artist` or tuple of `.Artist`), optional
             A list of Artists (lines, patches) to be added to the legend.
             Use this together with *labels*, if you need full control on what
             is shown in the legend and the automatic mechanism described above
@@ -288,6 +288,9 @@ class Axes(_AxesBase):
 
             The length of handles and labels should be the same in this
             case. If they are not, they are truncated to the smaller length.
+
+            If an entry contains a tuple, then the legend handler for all Artists in the
+            tuple will be placed alongside a single label.
 
         labels : list of str, optional
             A list of labels to show next to the artists.
@@ -3436,7 +3439,7 @@ class Axes(_AxesBase):
             If True, will plot the errorbars above the plot
             symbols. Default is below.
 
-        lolims, uplims, xlolims, xuplims : bool, default: False
+        lolims, uplims, xlolims, xuplims : bool or array-like, default: False
             These arguments can be used to indicate that a value gives only
             upper/lower limits.  In that case a caret symbol is used to
             indicate this. *lims*-arguments may be scalars, or array-likes of
