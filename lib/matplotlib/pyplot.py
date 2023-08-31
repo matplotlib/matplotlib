@@ -938,7 +938,7 @@ default: None
 
         for hookspecs in rcParams["figure.hooks"]:
             module_name, dotted_name = hookspecs.split(":")
-            obj = importlib.import_module(module_name)
+            obj: Any = importlib.import_module(module_name)
             for part in dotted_name.split("."):
                 obj = getattr(obj, part)
             obj(fig)
