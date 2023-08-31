@@ -2466,8 +2466,7 @@ None}, default: None
               to avoid overlapping axes decorations.  Can handle complex plot
               layouts and colorbars, and is thus recommended.
 
-              See :ref:`constrainedlayout_guide`
-              for examples.
+              See :ref:`constrainedlayout_guide` for examples.
 
             - 'compressed': uses the same algorithm as 'constrained', but
               removes extra space between fixed-aspect-ratio Axes.  Best for
@@ -2475,8 +2474,9 @@ None}, default: None
 
             - 'tight': Use the tight layout mechanism. This is a relatively
               simple algorithm that adjusts the subplot parameters so that
-              decorations do not overlap. See `.set_tight_layout` for
-              further details.
+              decorations do not overlap.
+
+              See :ref:`tight_layout_guide` for examples.
 
             - 'none': Do not use a layout engine.
 
