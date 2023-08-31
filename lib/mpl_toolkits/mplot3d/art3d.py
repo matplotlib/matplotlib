@@ -942,8 +942,8 @@ class Poly3DCollection(PolyCollection):
     def get_vector(self, segments3d):
         """Optimize points for projection."""
         if len(segments3d):
-            xs, ys, zs = np.row_stack(segments3d).T
-        else:  # row_stack can't stack zero arrays.
+            xs, ys, zs = np.vstack(segments3d).T
+        else:  # vstack can't stack zero arrays.
             xs, ys, zs = [], [], []
         ones = np.ones(len(xs))
         self._vec = np.array([xs, ys, zs, ones])

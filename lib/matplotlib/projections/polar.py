@@ -121,7 +121,7 @@ class PolarTransform(mtransforms.Transform):
                         codes.extend(arc.codes[1:])
                 else:  # Interpolate.
                     trs = cbook.simple_linear_interpolation(
-                        np.row_stack([(last_t, last_r), trs]),
+                        np.vstack([(last_t, last_r), trs]),
                         path._interpolation_steps)[1:]
                     xys.extend(self.transform_non_affine(trs))
                     codes.extend([Path.LINETO] * len(trs))

@@ -3677,7 +3677,7 @@ class Axes(_AxesBase):
             #     elow, ehigh = np.broadcast_to(...)
             #     return dep - elow * ~lolims, dep + ehigh * ~uplims
             # except that broadcast_to would strip units.
-            low, high = dep + np.row_stack([-(1 - lolims), 1 - uplims]) * err
+            low, high = dep + np.vstack([-(1 - lolims), 1 - uplims]) * err
             barcols.append(lines_func(
                 *apply_mask([indep, low, high], everymask), **eb_lines_style))
             if self.name == "polar" and dep_axis == "x":
@@ -5485,8 +5485,8 @@ default: :rc:`scatter.edgecolors`
         collection = mcoll.PolyCollection(polys, **kwargs)
 
         # now update the datalim and autoscale
-        pts = np.row_stack([np.column_stack([ind[where], dep1[where]]),
-                            np.column_stack([ind[where], dep2[where]])])
+        pts = np.vstack([np.hstack([ind[where, None], dep1[where, None]]),
+                         np.hstack([ind[where, None], dep2[where, None]])])
         if ind_dir == "y":
             pts = pts[:, ::-1]
 
