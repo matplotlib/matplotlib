@@ -105,7 +105,7 @@ plt.show()
 
 # %%
 # Orient contour plots using the origin keyword
-# -----------------------------------------------
+# ---------------------------------------------
 # This code demonstrates orienting contour plot data using the "origin" keyword
 
 x = np.arange(1, 10)
