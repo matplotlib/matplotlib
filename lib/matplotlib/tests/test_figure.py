@@ -8,22 +8,23 @@ from threading import Timer
 from types import SimpleNamespace
 import warnings
 
-import numpy as np
-import pytest
 from PIL import Image
+import pytest
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 import matplotlib as mpl
 from matplotlib import gridspec
-from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
 from matplotlib.backend_bases import KeyEvent, MouseEvent
+import matplotlib.dates as mdates
 from matplotlib.figure import Figure, FigureBase
 from matplotlib.layout_engine import (ConstrainedLayoutEngine,
-                                      TightLayoutEngine,
-                                      PlaceHolderLayoutEngine)
+                                      PlaceHolderLayoutEngine,
+                                      TightLayoutEngine)
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 
 
 @image_comparison(['figure_align_labels'], extensions=['png', 'svg'],
@@ -1234,7 +1235,8 @@ class TestSubplotMosaic:
         assert list(ax_dict) == list("ABCDEFGHI")
         assert list(fig.axes) == list(ax_dict.values())
 
-    def test_share_all(self):
+    @pytest.mark.parametrize("sharex,sharey", [(True, True), ("all", "all")])
+    def test_share_all(self, sharex, sharey):
         layout = [
             ["A", [["B", "C"],
                    ["D", "E"]]],
@@ -1243,10 +1245,96 @@ class TestSubplotMosaic:
                           ["."]]]]]
         ]
         fig = plt.figure()
-        ax_dict = fig.subplot_mosaic(layout, sharex=True, sharey=True)
+        ax_dict = fig.subplot_mosaic(layout, sharex=sharex, sharey=sharey)
         ax_dict["A"].set(xscale="log", yscale="logit")
         assert all(ax.get_xscale() == "log" and ax.get_yscale() == "logit"
                    for ax in ax_dict.values())
+
+    @check_figures_equal(extensions=["png"])
+    @pytest.mark.parametrize("sharex,sharey", [("row", "none"), ("none", "row")])
+    def test_share_row(self, fig_test, fig_ref, sharex, sharey):
+        axes_test = fig_test.subplot_mosaic(
+            [["A", "B"], ["C", "D"]],
+            sharex=sharex, sharey=sharey
+        )
+        axes_test["A"].set(xscale="log", yscale="logit")
+        if sharex == "row":
+            assert axes_test["A"].get_xscale() == axes_test["B"].get_xscale()
+        if sharey == "row":
+            assert axes_test["A"].get_yscale() == axes_test["B"].get_yscale()
+
+        axes_ref = fig_ref.subplot_mosaic(
+            [
+                ["A", "B"],
+                ["C", "D"]
+            ],
+            sharex=False,
+            sharey=False
+        )
+        if sharex == "row":
+            axes_ref["A"].sharex(axes_ref["B"])
+            axes_ref["C"].sharex(axes_ref["D"])
+        if sharey == "row":
+            axes_ref["A"].sharey(axes_ref["B"])
+            axes_ref["C"].sharey(axes_ref["D"])
+            axes_ref["B"].yaxis.set_tick_params(which="both", labelleft=False)
+            axes_ref["D"].yaxis.set_tick_params(which="both", labelleft=False)
+
+        axes_ref["A"].set(xscale="log", yscale="logit")
+
+    @check_figures_equal(extensions=["png"])
+    @pytest.mark.parametrize("sharex,sharey", [("col", "none"), ("none", "col")])
+    def test_share_col(self, fig_test, fig_ref, sharex, sharey):
+        axes_test = fig_test.subplot_mosaic(
+            [["A", "B"], ["C", "D"]],
+            sharex=sharex, sharey=sharey
+        )
+        axes_test["A"].set(xscale="log", yscale="logit")
+        if sharex == "col":
+            assert axes_test["A"].get_xscale() == axes_test["C"].get_xscale()
+        if sharey == "col":
+            assert axes_test["A"].get_yscale() == axes_test["C"].get_yscale()
+
+        axes_ref = fig_ref.subplot_mosaic(
+            [
+                ["A", "B"],
+                ["C", "D"]
+            ],
+            sharex=False,
+            sharey=False
+        )
+        if sharex == "col":
+            axes_ref["A"].sharex(axes_ref["C"])
+            axes_ref["B"].sharex(axes_ref["D"])
+            axes_ref["A"].xaxis.set_tick_params(which="both", labelbottom=False)
+            axes_ref["B"].xaxis.set_tick_params(which="both", labelbottom=False)
+        if sharey == "col":
+            axes_ref["A"].sharey(axes_ref["C"])
+            axes_ref["B"].sharey(axes_ref["D"])
+
+        axes_ref["A"].set(xscale="log", yscale="logit")
+
+    @pytest.mark.parametrize(
+        "sharex,sharey",
+        [
+            ("row", False),
+            (False, "row"),
+            ("col", False),
+            (False, "col"),
+            ("row", "col")
+        ]
+    )
+    def test_share_row_col_fails_if_nested_mosaic(self, sharex, sharey):
+        mosaic = [
+            ["A", [["B", "C"],
+                   ["D", "E"]]],
+            ["F", "G"],
+            [".", [["H", [["I"],
+                          ["."]]]]]
+        ]
+        fig = plt.figure()
+        with pytest.raises(ValueError):
+            fig.subplot_mosaic(mosaic, sharex=sharex, sharey=sharey)
 
 
 def test_reused_gridspec():
