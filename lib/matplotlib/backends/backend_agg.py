@@ -71,7 +71,7 @@ class RendererAgg(RendererBase):
         self._filter_renderers = []
 
         self._update_methods()
-        self.mathtext_parser = MathTextParser('Agg')
+        self.mathtext_parser = MathTextParser('agg')
 
         self.bbox = Bbox.from_bounds(0, 0, self.width, self.height)
 
