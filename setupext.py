@@ -257,7 +257,7 @@ def get_pkg_config():
 
 def pkg_config_setup_extension(
         ext, package,
-        atleast_version=None, alt_exec=None, default_libraries=()):
+        atleast_version=None, alt_exec=None, envprefix=None, default_libraries=()):
     """Add parameters to the given *ext* for the given *package*."""
 
     # First, try to get the flags from pkg-config.
@@ -295,6 +295,13 @@ def pkg_config_setup_extension(
             conda_env_path = Path(conda_env_path)
             ext.include_dirs.append(str(conda_env_path / "Library/include"))
             ext.library_dirs.append(str(conda_env_path / "Library/lib"))
+        elif envprefix:
+            env_include = os.getenv(envprefix + '_INCLUDE_DIRS')
+            if env_include:
+                ext.include_dirs.extend(env_include.split(';'))
+            env_library_dirs = os.getenv(envprefix + '_LIBRARY_DIRS')
+            if env_library_dirs:
+                ext.library_dirs.extend(env_library_dirs.split(';'))
 
     # Default linked libs.
     ext.libraries.extend(default_libraries)
@@ -585,6 +592,7 @@ class FreeType(SetupPackage):
                 ext, 'freetype2',
                 atleast_version='9.11.3',
                 alt_exec=['freetype-config'],
+                envprefix='FREETYPE',
                 default_libraries=['freetype'])
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
         else:
@@ -755,6 +763,12 @@ class Qhull(SetupPackage):
     def add_flags(cls, ext):
         if options.get("system_qhull"):
             ext.libraries.append("qhull_r")
+            env_include = os.getenv('QHULL_INCLUDE_DIRS')
+            if env_include:
+                ext.include_dirs.extend(env_include.split(';'))
+            env_library_dirs = os.getenv('QHULL_LIBRARY_DIRS')
+            if env_library_dirs:
+                ext.library_dirs.extend(env_library_dirs.split(';'))
         else:
             cls._extensions_to_update.append(ext)
 
