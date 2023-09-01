@@ -309,10 +309,10 @@ class GridSpecBase:
         if squeeze:
             # Discarding unneeded dimensions that equal 1.  If we only have one
             # subplot, just return it instead of a 1-element array.
-            return axarr.item() if axarr.size == 1 else axarr.squeeze()
+            return axarr.item() if axarr.size == 1 else AxesArray(axarr.squeeze())
         else:
             # Returned axis array will be always 2-d, even if nrows=ncols=1.
-            return axarr
+            return AxesArray(axarr)
 
 
 class GridSpec(GridSpecBase):
@@ -736,3 +736,70 @@ class SubplotSpec:
                 fig.add_subplot(gssub[0, i])
         """
         return GridSpecFromSubplotSpec(nrows, ncols, self, **kwargs)
+
+
+class AxesArray:
+    """
+    A container for a 1D or 2D grid arrangement of Axes.
+
+    This is used as the return type of ``subplots()``.
+
+    Formerly, ``subplots()`` returned a numpy array of Axes. For a transition period,
+    AxesArray will act like a numpy array, but all functions and properties that
+    are not listed explicitly below are deprecated.
+    """
+    def __init__(self, array):
+        self._array = array
+
+    @staticmethod
+    def _ensure_wrapped(ax_or_axs):
+        if isinstance(ax_or_axs, np.ndarray):
+            return AxesArray(ax_or_axs)
+        else:
+            return ax_or_axs
+
+    def __getitem__(self, index):
+        return self._ensure_wrapped(self._array[index])
+
+    @property
+    def __array_struct__(self):
+        return self._array.__array_struct__
+
+    @property
+    def ndim(self):
+        return self._array.ndim
+
+    @property
+    def shape(self):
+        return self._array.shape
+
+    @property
+    def size(self):
+        return self._array.size
+
+    @property
+    def flat(self):
+        return self._array.flat
+
+    @property
+    def flatten(self):
+        """[Disouraged] Use ``axs.flat`` instead."""
+        return self._array.flatten
+
+    @property
+    def ravel(self):
+        """[Disouraged] Use ``axs.flat`` instead."""
+        return self._array.ravel
+
+    @property
+    def __iter__(self):
+        return iter([self._ensure_wrapped(row) for row in self._array])
+
+    def __getattr__(self, item):
+        # forward all other attributes to the underlying array
+        # (this is a temporary measure to allow a smooth transition)
+        attr = getattr(self._array, item)
+        _api.warn_deprecated("3.9",
+                             message=f"Using {item!r} on AxesArray is deprecated.",
+                             pending=True)
+        return attr
