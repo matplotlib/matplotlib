@@ -1462,7 +1462,10 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
     @functools.wraps(func)
     def inner(ax, *args, data=None, **kwargs):
         if data is None:
-            return func(ax, *map(sanitize_sequence, args), **kwargs)
+            return func(
+                ax,
+                *map(sanitize_sequence, args),
+                **{k: sanitize_sequence(v) for k, v in kwargs.items()})
 
         bound = new_sig.bind(ax, *args, **kwargs)
         auto_label = (bound.arguments.get(label_namer)
