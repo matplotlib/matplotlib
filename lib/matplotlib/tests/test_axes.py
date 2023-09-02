@@ -1073,9 +1073,9 @@ def test_hexbin_symlog():
     x_2 = symlog_transform_2.transform_non_affine(x)
     y_1 = symlog_transform_1.transform_non_affine(y)
     y_2 = symlog_transform_2.transform_non_affine(y)
-    
+
     fig, ax = plt.subplots(2, 2)
-    
+
     h = ax[0, 0].hexbin(
         x_1, y_1,
         xscale='symlog',
