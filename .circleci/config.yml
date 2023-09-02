@@ -55,6 +55,7 @@ commands:
               graphviz \
               inkscape \
               lmodern \
+              ninja-build \
               optipng \
               texlive-fonts-recommended \
               texlive-latex-base \
@@ -97,6 +98,7 @@ commands:
       - run:
           name: Install Python dependencies
           command: |
+            python -m pip install --user meson-python pybind11
             python -m pip install --user \
                 numpy<< parameters.numpy_version >> \
                 -r requirements/doc/doc-requirements.txt
@@ -114,7 +116,8 @@ commands:
               version=${version#v}
               python -m pip install matplotlib==${version}
             else
-              python -m pip install --user -ve .
+              python -m pip install --user --verbose \
+                --no-build-isolation --editable .[dev]
             fi
       - save_cache:
           key: build-deps-2
@@ -215,8 +218,8 @@ jobs:
       - fonts-install
       - pip-install
 
-      - mpl-install
       - doc-deps-install
+      - mpl-install
 
       - doc-build
       - doc-show-errors-warnings
