@@ -145,15 +145,32 @@ jobs:
           MPL_DISABLE_FH4: "yes"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
-      - name: Build wheels for PyPy
+      - name: Build wheels for PyPy 3.8
         uses: pypa/cibuildwheel@39a63b5912f086dd459cf6fcb13dcdd3fe3bc24d # v2.15.0
         env:
-          CIBW_BUILD: "pp38-* pp39-*"
+          CIBW_BUILD: "pp38-*"
           CIBW_SKIP: "*-musllinux*"
           CIBW_BEFORE_BUILD: >-
             pip install certifi oldest-supported-numpy &&
             git clean -fxd build
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
+        if: matrix.cibw_archs != 'aarch64'
+
+      - name: Build wheels for PyPy 3.9
+        uses: pypa/cibuildwheel@39a63b5912f086dd459cf6fcb13dcdd3fe3bc24d # v2.15.0
+        env:
+          CIBW_BUILD: "pp39-*"
+          CIBW_SKIP: "*-musllinux*"
+          CIBW_BEFORE_BUILD: >-
+            pip install certifi "Cython>=0.29.34,<3.0" "pybind11>=2.6" "setuptools>=42" "setuptools_scm>=7" &&
+            pip install "numpy>=1.25" &&
+            git clean -fxd build
+          CIBW_BEFORE_BUILD_WINDOWS: >-
+            pip install certifi delvewheel "pybind11>=2.6" "setuptools>=42" "setuptools_scm>=7" &&
+            pip install "numpy>=1.25" &&
+            git clean -fxd build
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          CIBW_ENVIRONMENT: PIP_NO_BUILD_ISOLATION=0 PIP_NO_DEPENDENCIES=0
         if: matrix.cibw_archs != 'aarch64'
 
       - name: Validate that LICENSE files are included in wheels
