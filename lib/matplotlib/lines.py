@@ -623,7 +623,7 @@ class Line2D(Artist):
         p : float or callable[[Artist, Event], tuple[bool, dict]]
             If a float, it is used as the pick radius in points.
         """
-        if not callable(p):
+        if isinstance(p, float):
             self.set_pickradius(p)
         self._picker = p
 
