@@ -320,7 +320,7 @@ class GridSpec(GridSpecBase):
     A grid layout to place subplots within a figure.
 
     The location of the grid cells is determined in a similar way to
-    `~.figure.SubplotParams` using *left*, *right*, *top*, *bottom*, *wspace*
+    `.SubplotParams` using *left*, *right*, *top*, *bottom*, *wspace*
     and *hspace*.
 
     Indexing a GridSpec instance returns a `.SubplotSpec`.
@@ -424,7 +424,7 @@ class GridSpec(GridSpecBase):
         if figure is None:
             kw = {k: mpl.rcParams["figure.subplot."+k]
                   for k in self._AllowedKeys}
-            subplotpars = mpl.figure.SubplotParams(**kw)
+            subplotpars = SubplotParams(**kw)
         else:
             subplotpars = copy.copy(figure.subplotpars)
 
@@ -517,9 +517,9 @@ class GridSpecFromSubplotSpec(GridSpecBase):
         figbox = self._subplot_spec.get_position(figure)
         left, bottom, right, top = figbox.extents
 
-        return mpl.figure.SubplotParams(left=left, right=right,
-                                        bottom=bottom, top=top,
-                                        wspace=wspace, hspace=hspace)
+        return SubplotParams(left=left, right=right,
+                             bottom=bottom, top=top,
+                             wspace=wspace, hspace=hspace)
 
     def get_topmost_subplotspec(self):
         """
@@ -736,3 +736,63 @@ class SubplotSpec:
                 fig.add_subplot(gssub[0, i])
         """
         return GridSpecFromSubplotSpec(nrows, ncols, self, **kwargs)
+
+
+class SubplotParams:
+    """
+    Parameters defining the positioning of a subplots grid in a figure.
+    """
+
+    def __init__(self, left=None, bottom=None, right=None, top=None,
+                 wspace=None, hspace=None):
+        """
+        Defaults are given by :rc:`figure.subplot.[name]`.
+
+        Parameters
+        ----------
+        left : float
+            The position of the left edge of the subplots,
+            as a fraction of the figure width.
+        right : float
+            The position of the right edge of the subplots,
+            as a fraction of the figure width.
+        bottom : float
+            The position of the bottom edge of the subplots,
+            as a fraction of the figure height.
+        top : float
+            The position of the top edge of the subplots,
+            as a fraction of the figure height.
+        wspace : float
+            The width of the padding between subplots,
+            as a fraction of the average Axes width.
+        hspace : float
+            The height of the padding between subplots,
+            as a fraction of the average Axes height.
+        """
+        for key in ["left", "bottom", "right", "top", "wspace", "hspace"]:
+            setattr(self, key, mpl.rcParams[f"figure.subplot.{key}"])
+        self.update(left, bottom, right, top, wspace, hspace)
+
+    def update(self, left=None, bottom=None, right=None, top=None,
+               wspace=None, hspace=None):
+        """
+        Update the dimensions of the passed parameters. *None* means unchanged.
+        """
+        if ((left if left is not None else self.left)
+                >= (right if right is not None else self.right)):
+            raise ValueError('left cannot be >= right')
+        if ((bottom if bottom is not None else self.bottom)
+                >= (top if top is not None else self.top)):
+            raise ValueError('bottom cannot be >= top')
+        if left is not None:
+            self.left = left
+        if right is not None:
+            self.right = right
+        if bottom is not None:
+            self.bottom = bottom
+        if top is not None:
+            self.top = top
+        if wspace is not None:
+            self.wspace = wspace
+        if hspace is not None:
+            self.hspace = hspace
