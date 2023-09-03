@@ -1,5 +1,16 @@
-## PR summary
+<!--
+Thank you so much for your PR!  To help us review your contribution, please check
+out the development guide https://matplotlib.org/devdocs/devel/index.html
+-->
 
+## PR summary
+<!-- Please provide at least 1-2 sentences describing the pull request in detail
+(Why is this change required?  What problem does it solve?) and link to relevant
+issues and PRs.
+Also please summarize the changes in the title, for example "Raise ValueError on
+non-numeric input to set_xlim" and avoid non-descriptive titles such as "Addresses
+issue #8576".
+-->
 ## PR checklist
 <!-- Please mark any checkboxes that do not apply to this PR as [N/A].-->
 
@@ -9,32 +20,8 @@
 - [ ] *New Features* and *API Changes* are noted with a [directive and release note](https://matplotlib.org/devdocs/devel/coding_guide.html#new-features-and-api-changes)
 - [ ] Documentation complies with [general](https://matplotlib.org/devdocs/devel/documenting_mpl.html#writing-rest-pages) and [docstring](https://matplotlib.org/devdocs/devel/documenting_mpl.html#writing-docstrings) guidelines
 
-<!--
-Thank you so much for your PR!  To help us review your contribution, please
-consider the following points:
-
-- A development guide is available at https://matplotlib.org/devdocs/devel/index.html.
-
-- Help with git and github is available at https://matplotlib.org/devdocs/devel/development_workflow.html
-
-- Create a separate branch for your changes and open the PR from this branch. Please avoid working on `main`.
-
-- The PR title should summarize the changes, for example "Raise ValueError on
-  non-numeric input to set_xlim".  Avoid non-descriptive titles such as
-  "Addresses issue #8576".
-
-- The summary should provide at least 1-2 sentences describing the pull request
-  in detail (Why is this change required?  What problem does it solve?) and
-  link to any relevant issues.
-
-- If you are contributing fixes to docstrings, please pay attention to
-  https://matplotlib.org/stable/devel/documenting_mpl.html#formatting-conventions.  In particular,
-  note the difference between using single backquotes, double backquotes, and
-  asterisks in the markup.
-
-We understand that PRs can sometimes be overwhelming, especially as the
+<!--We understand that PRs can sometimes be overwhelming, especially as the
 reviews start coming in.  Please let us know if the reviews are unclear or
 the recommended next step seems overly demanding, if you would like help in
 addressing a reviewer's comments, or if you have been waiting too long to hear
-back on your PR.
--->
+back on your PR.-->
