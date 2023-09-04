@@ -116,36 +116,39 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
 # Plot types
 # ==========
 #
-# For an overview of the different types of plot you can create with Matplotlib,
+# For an overview of the different types of plots you can create with Matplotlib,
 # see the :ref:`Plot types gallery <plot_types>`. If you don't find the plot
 # type you need, it may still be possible to create the visualization you want
-# by combining existing :ref:`Artists <users_artists>` and customizing plot
-# elements. For example, `~.matplotlib.axes.Axes.plot` returns a
-# :class:`~.lines.Line2D` object and `~.matplotlib.axes.Axes.scatter` returns a
-# :class:`~.collections.LineCollection`.
-from matplotlib.lines import Line2D
-from matplotlib.patches import Rectangle
+# For example, Matplotlib does not provide a method to automatically annotate a
+# distribution plot. Instead, you can create this visualization by combining the
+# `~.matplotlib.axes.Axes.plot` method to draw the distribution, the
+# `~.matplotlib.axes.Axes.axhline` method to draw the mean, and
+# `~matplotlib.axes.Axes.axhspan` to shade the standard deviation region.
 
-# Plot the data
 x = np.array([3, 4, 9, 8, 9, 8, 0, 8, 4, 8])
 fig, ax = plt.subplots()
-ax.plot(x, label='Data')
 
-# Computing the mean and standard deviation of the data
+# Compute the mean and standard deviation of the data
 mean = np.mean(x)
 std = np.std(x)
 
-# Adding a horizontal line for the mean, and a rectangle representing the
+# Add a horizontal line for the mean, and a rectangle representing the
 # standard deviation of the data
-mean_line = Line2D([0, 10], [np.mean(x)]*2, color='red', label='Mean')
-std_patch = Rectangle([0, mean-std], 10, 2*std, alpha=0.1, label=r'$\sigma$')
+ln_data = ax.plot(x, label='Data')
+ln_mean = ax.axhline(mean, color='red', label='Mean')
+ln_std = ax.axhspan(mean-std, mean+std, alpha=0.1, label=r'$\sigma$')
 
-# Add Artists to Axes object
-ax.add_line(mean_line)
-ax.add_patch(std_patch)
 ax.legend()
+
+# Now, you can use object methods to directly customize your plot.
+# Note that ln_data is a list of `~.matplotlib.lines.Line2D` objects - we'll
+# modify the first entry in this list.
+ln_data[0].set_color('orange')
+ln_mean.set_linestyle(':')
+ln_std.set_hatch('oo')
 # %%
-# See also :ref:`artists_tutorial`.
+# For more information on creating artists from their constructors, see
+# :ref:`artists_tutorial`.
 #
 # .. _input_types:
 #
