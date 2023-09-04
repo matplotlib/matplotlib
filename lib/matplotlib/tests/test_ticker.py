@@ -1640,22 +1640,36 @@ class TestPercentFormatter:
             assert fmt.format_pct(50, 100) == expected
 
 
-def test_locale_comma():
-    currentLocale = locale.getlocale()
+def _impl_locale_comma():
     try:
         locale.setlocale(locale.LC_ALL, 'de_DE.UTF-8')
-        ticks = mticker.ScalarFormatter(useMathText=True, useLocale=True)
-        fmt = '$\\mathdefault{%1.1f}$'
-        x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
-        assert x == '$\\mathdefault{0{,}5}$'
-        # Do not change , in the format string
-        fmt = ',$\\mathdefault{,%1.1f},$'
-        x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
-        assert x == ',$\\mathdefault{,0{,}5},$'
     except locale.Error:
-        pytest.skip("Locale de_DE.UTF-8 is not supported on this machine")
-    finally:
-        locale.setlocale(locale.LC_ALL, currentLocale)
+        print('SKIP: Locale de_DE.UTF-8 is not supported on this machine')
+        return
+    ticks = mticker.ScalarFormatter(useMathText=True, useLocale=True)
+    fmt = '$\\mathdefault{%1.1f}$'
+    x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
+    assert x == '$\\mathdefault{0{,}5}$'
+    # Do not change , in the format string
+    fmt = ',$\\mathdefault{,%1.1f},$'
+    x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
+    assert x == ',$\\mathdefault{,0{,}5},$'
+
+
+def test_locale_comma():
+    # On some systems/pytest versions, `pytest.skip` in an exception handler
+    # does not skip, but is treated as an exception, so directly running this
+    # test can incorrectly fail instead of skip.
+    # Instead, run this test in a subprocess, which avoids the problem, and the
+    # need to fix the locale after.
+    proc = mpl.testing.subprocess_run_helper(_impl_locale_comma, timeout=60,
+                                             extra_env={'MPLBACKEND': 'Agg'})
+    skip_msg = next((line[len('SKIP:'):].strip()
+                     for line in proc.stdout.splitlines()
+                     if line.startswith('SKIP:')),
+                    '')
+    if skip_msg:
+        pytest.skip(skip_msg)
 
 
 def test_majformatter_type():
