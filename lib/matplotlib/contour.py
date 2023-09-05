@@ -892,7 +892,8 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                 self.norm.vmin = vmin
             if vmax is not None:
                 self.norm.vmax = vmax
-            self._process_colors()
+        self.norm._changed()
+        self._process_colors()
 
         if self._paths is None:
             self._paths = self._make_paths_from_contour_generator()
