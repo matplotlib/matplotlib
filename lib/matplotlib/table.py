@@ -57,7 +57,7 @@ class Cell(Rectangle):
                  edgecolor='k', facecolor='w',
                  fill=True,
                  text='',
-                 loc=None,
+                 loc='right',
                  fontproperties=None,
                  visible_edges='closed',
                  ):
@@ -70,20 +70,21 @@ class Cell(Rectangle):
             The cell width.
         height : float
             The cell height.
-        edgecolor : color
+        edgecolor : color, default: 'k'
             The color of the cell border.
-        facecolor : color
+        facecolor : color, default: 'w'
             The cell facecolor.
-        fill : bool
+        fill : bool, default: True
             Whether the cell background is filled.
-        text : str
+        text : str, optional
             The cell text.
-        loc : {'left', 'center', 'right'}, default: 'right'
+        loc : {'right', 'center', 'left'}
             The alignment of the text within the cell.
-        fontproperties : dict
+        fontproperties : dict, optional
             A dict defining the font properties of the text. Supported keys and
             values are the keyword arguments accepted by `.FontProperties`.
-        visible_edges : str, default: 'closed'
+        visible_edges : {'closed', 'open', 'horizontal', 'vertical'} or \
+substring of 'BRTL'
             The cell edges to be drawn with a line: a substring of 'BRTL'
             (bottom, right, top, left), or one of 'open' (no edges drawn),
             'closed' (all edges drawn), 'horizontal' (bottom and top),
@@ -97,8 +98,6 @@ class Cell(Rectangle):
         self.visible_edges = visible_edges
 
         # Create text object
-        if loc is None:
-            loc = 'right'
         self._loc = loc
         self._text = Text(x=xy[0], y=xy[1], clip_on=False,
                           text=text, fontproperties=fontproperties,
@@ -283,7 +282,7 @@ class Table(Artist):
         ----------
         ax : `~matplotlib.axes.Axes`
             The `~.axes.Axes` to plot the table into.
-        loc : str
+        loc : str, optional
             The position of the cell with respect to *ax*. This must be one of
             the `~.Table.codes`.
         bbox : `.Bbox` or [xmin, ymin, width, height], optional
@@ -685,7 +684,7 @@ def table(ax,
     cellColours : 2D list of colors, optional
         The background colors of the cells.
 
-    cellLoc : {'left', 'center', 'right'}, default: 'right'
+    cellLoc : {'right', 'center', 'left'}
         The alignment of the text within the cells.
 
     colWidths : list of float, optional
@@ -698,7 +697,7 @@ def table(ax,
     rowColours : list of colors, optional
         The colors of the row header cells.
 
-    rowLoc : {'left', 'center', 'right'}, default: 'left'
+    rowLoc : {'left', 'center', 'right'}
         The text alignment of the row header cells.
 
     colLabels : list of str, optional
@@ -707,10 +706,10 @@ def table(ax,
     colColours : list of colors, optional
         The colors of the column header cells.
 
-    colLoc : {'left', 'center', 'right'}, default: 'left'
+    colLoc : {'center', 'left', 'right'}
         The text alignment of the column header cells.
 
-    loc : str, optional
+    loc : str, default: 'bottom'
         The position of the cell with respect to *ax*. This must be one of
         the `~.Table.codes`.
 
@@ -718,7 +717,7 @@ def table(ax,
         A bounding box to draw the table into. If this is not *None*, this
         overrides *loc*.
 
-    edges : substring of 'BRTL' or {'open', 'closed', 'horizontal', 'vertical'}
+    edges : {'closed', 'open', 'horizontal', 'vertical'} or substring of 'BRTL'
         The cell edges to be drawn with a line. See also
         `~.Cell.visible_edges`.
 
