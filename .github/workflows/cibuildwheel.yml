@@ -87,7 +87,7 @@ jobs:
                  'CI: Run cibuildwheel')
       )
     needs: build_sdist
-    name: Build wheels on ${{ matrix.os }}
+    name: Build wheels on ${{ matrix.os }} for ${{ matrix.cibw_archs }}
     runs-on: ${{ matrix.os }}
     env:
       CIBW_BEFORE_BUILD: >-
