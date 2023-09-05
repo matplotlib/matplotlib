@@ -54,11 +54,9 @@ class QuiverKey(martist.Artist):
 class Quiver(mcollections.PolyCollection):
     X: ArrayLike
     Y: ArrayLike
-    XY: ArrayLike
     U: ArrayLike
     V: ArrayLike
     Umask: ArrayLike
-    N: int
     scale: float | None
     headwidth: float
     headlength: float
@@ -121,6 +119,10 @@ class Quiver(mcollections.PolyCollection):
         pivot: Literal["tail", "mid", "middle", "tip"] = ...,
         **kwargs
     ) -> None: ...
+    @property
+    def N(self) -> int: ...
+    @property
+    def XY(self) -> ArrayLike: ...
     def get_datalim(self, transData: Transform) -> Bbox: ...
     def set_U(self, U: ArrayLike) -> None: ...
     def set_V(self, V: ArrayLike) -> None: ...
@@ -128,6 +130,7 @@ class Quiver(mcollections.PolyCollection):
     def set_UVC(
         self, U: ArrayLike | None, V: ArrayLike | None, C: ArrayLike | None = ...
     ) -> None: ...
+    def set_offsets(self, xy: ArrayLike) -> None: ...
 
 class Barbs(mcollections.PolyCollection):
     sizes: dict[str, float]

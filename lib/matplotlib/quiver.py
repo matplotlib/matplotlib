@@ -447,7 +447,7 @@ class Quiver(mcollections.PolyCollection):
     The API methods are set_UVC(), set_U(), set_V() and set_C(), which
     can be used to change the size, orientation, and color of the
     arrows; their locations are fixed when the class is
-    instantiated.  Possibly this method will be useful
+    instantiated.  Possibly these methods will be useful
     in animations.
 
     Much of the work in this class is done in the draw()
@@ -475,8 +475,6 @@ class Quiver(mcollections.PolyCollection):
         X, Y, U, V, C = _parse_args(*args, caller_name='quiver')
         self.X = X
         self.Y = Y
-        self.XY = np.column_stack((X, Y))
-        self.N = len(X)
         self.scale = scale
         self.headwidth = headwidth
         self.headlength = float(headlength)
@@ -522,6 +520,14 @@ class Quiver(mcollections.PolyCollection):
                 self._make_verts(self.XY, self.U, self.V, self.angles)
 
             self._dpi_at_last_init = self.axes.figure.dpi
+
+    @property
+    def N(self):
+        return len(self.X)
+
+    @property
+    def XY(self):
+        return np.column_stack((self.X, self.Y))
 
     def get_datalim(self, transData):
         trans = self.get_transform()
@@ -588,6 +594,7 @@ class Quiver(mcollections.PolyCollection):
             The size must the same as the existing U, V or be one.
         C : array-like or None, optional
             The arrow colors. The default is None.
+            The size must the same as the existing U, V or be one.
         """
         if U is None:
             U = self.U
@@ -617,6 +624,19 @@ class Quiver(mcollections.PolyCollection):
         self.Umask = mask
         if C is not None:
             self.set_array(C)
+        self.stale = True
+
+    def set_offsets(self, xy):
+        """
+        Set the offsets for the arrows.  This saves the offsets passed
+        in and masks them as appropriate for the existing X/Y data.
+
+        Parameters
+        ----------
+        xy : sequence of pairs of floats
+        """
+        self.X, self.Y = xy[:, 0], xy[:, 1]
+        super().set_offsets(xy)
         self.stale = True
 
     def _dots_per_unit(self, units):

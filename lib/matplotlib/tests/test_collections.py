@@ -376,6 +376,9 @@ def test_quiver_offsets():
     qc.set_offsets(new_offsets)
 
     np.testing.assert_allclose(qc.get_offsets(), new_offsets)
+    np.testing.assert_allclose(qc.X, new_offsets[::, 0])
+    np.testing.assert_allclose(qc.Y, new_offsets[::, 1])
+    np.testing.assert_allclose(qc.XY, new_offsets)
 
 
 def test_quiver_UVC():
