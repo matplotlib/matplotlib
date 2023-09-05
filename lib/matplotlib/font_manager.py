@@ -1600,7 +1600,7 @@ def _load_fontmanager(*, try_read_cache=True):
     fm = FontManager()
     json_dump(fm, fm_path)
     _log.info("generated new fontManager")
-    _findfontFilter._clear_cache()
+    _findfontFilter.clear_cache()
     return fm
 
 
