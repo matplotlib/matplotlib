@@ -15,7 +15,7 @@ from . import _api, cbook
 from .colors import BoundaryNorm
 from .cm import ScalarMappable
 from .path import Path
-from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
+from .transforms import (BboxBase, Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
 
 _log = logging.getLogger(__name__)
@@ -763,6 +763,7 @@ class Artist:
             clipping for an artist added to an Axes.
 
         """
+        _api.check_isinstance((BboxBase, None), clipbox=clipbox)
         if clipbox != self.clipbox:
             self.clipbox = clipbox
             self.pchanged()
