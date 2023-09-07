@@ -2097,7 +2097,7 @@ class Axis(martist.Artist):
 
         Parameters
         ----------
-        ticks : 1D ArrayLike
+        ticks : 1D array-like
             Array of tick locations.  The axis `.Locator` is replaced by a
             `~.ticker.FixedLocator`.
 
