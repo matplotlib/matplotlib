@@ -1,18 +1,20 @@
+# Options may be set by passing through `pip` or `build` via meson-python:
+# https://meson-python.readthedocs.io/en/stable/how-to-guides/config-settings.html
+
 # By default, Matplotlib downloads and builds its own copies of FreeType and of
-# Qhull.  You may set the following to True to instead link against a system
-# FreeType/Qhull.  As an exception, Matplotlib defaults to the system version
-# of FreeType on AIX.
+# Qhull. You may use the following options to instead link against a system
+# FreeType/Qhull. As an exception, Matplotlib defaults to the system version of
+# FreeType on AIX.
 option('system-freetype', type: 'boolean', value: false,
        description: 'Build against system version of FreeType')
 option('system-qhull', type: 'boolean', value: false,
        description: 'Build against system version of Qhull')
 
 # Some of Matplotlib's components are optional: the MacOSX backend (installed
-# by default on MacOSX; requires the Cocoa headers included with XCode), and
-# the test data (i.e., the baseline image files; not installed by default). You
-# can control whether they are installed by uncommenting the following lines.
-# Note that the MacOSX backend is never built on Linux or Windows, regardless
-# of the config value.
+# by default on MacOSX; requires the Cocoa headers included with XCode). You
+# can control whether they are installed using the following options. Note that
+# the MacOSX backend is never built on Linux or Windows, regardless of the
+# config value.
 option('macosx', type: 'boolean', value: true,
        description: 'Enable MacOSX backend (requires Cocoa)')
 
