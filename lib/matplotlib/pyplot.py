@@ -125,6 +125,7 @@ if TYPE_CHECKING:
 
     _P = ParamSpec('_P')
     _R = TypeVar('_R')
+    _T = TypeVar('_T')
 
 
 # We may not need the following imports here:
@@ -1602,8 +1603,56 @@ def subplots(
     return fig, axs
 
 
+@overload
 def subplot_mosaic(
-    mosaic: str | HashableList,
+    mosaic: str,
+    *,
+    sharex: bool = ...,
+    sharey: bool = ...,
+    width_ratios: ArrayLike | None = ...,
+    height_ratios: ArrayLike | None = ...,
+    empty_sentinel: str = ...,
+    subplot_kw: dict[str, Any] | None = ...,
+    gridspec_kw: dict[str, Any] | None = ...,
+    per_subplot_kw: dict[str | tuple[str, ...], dict[str, Any]] | None = ...,
+    **fig_kw: Any
+) -> tuple[Figure, dict[str, matplotlib.axes.Axes]]: ...
+
+
+@overload
+def subplot_mosaic(
+    mosaic: list[HashableList[_T]],
+    *,
+    sharex: bool = ...,
+    sharey: bool = ...,
+    width_ratios: ArrayLike | None = ...,
+    height_ratios: ArrayLike | None = ...,
+    empty_sentinel: _T = ...,
+    subplot_kw: dict[str, Any] | None = ...,
+    gridspec_kw: dict[str, Any] | None = ...,
+    per_subplot_kw: dict[_T | tuple[_T, ...], dict[str, Any]] | None = ...,
+    **fig_kw: Any
+) -> tuple[Figure, dict[_T, matplotlib.axes.Axes]]: ...
+
+
+@overload
+def subplot_mosaic(
+    mosaic: list[HashableList[Hashable]],
+    *,
+    sharex: bool = ...,
+    sharey: bool = ...,
+    width_ratios: ArrayLike | None = ...,
+    height_ratios: ArrayLike | None = ...,
+    empty_sentinel: Any = ...,
+    subplot_kw: dict[str, Any] | None = ...,
+    gridspec_kw: dict[str, Any] | None = ...,
+    per_subplot_kw: dict[Hashable | tuple[Hashable, ...], dict[str, Any]] | None = ...,
+    **fig_kw: Any
+) -> tuple[Figure, dict[Hashable, matplotlib.axes.Axes]]: ...
+
+
+def subplot_mosaic(
+    mosaic: str | list[HashableList[_T]] | list[HashableList[Hashable]],
     *,
     sharex: bool = False,
     sharey: bool = False,
@@ -1612,9 +1661,13 @@ def subplot_mosaic(
     empty_sentinel: Any = '.',
     subplot_kw: dict[str, Any] | None = None,
     gridspec_kw: dict[str, Any] | None = None,
-    per_subplot_kw: dict[Hashable, dict[str, Any]] | None = None,
-    **fig_kw
-) -> tuple[Figure, dict[Hashable, matplotlib.axes.Axes]]:
+    per_subplot_kw: dict[str | tuple[str, ...], dict[str, Any]] |
+                    dict[_T | tuple[_T, ...], dict[str, Any]] |
+                    dict[Hashable | tuple[Hashable, ...], dict[str, Any]] | None = None,
+    **fig_kw: Any
+) -> tuple[Figure, dict[str, matplotlib.axes.Axes]] | \
+     tuple[Figure, dict[_T, matplotlib.axes.Axes]] | \
+     tuple[Figure, dict[Hashable, matplotlib.axes.Axes]]:
     """
     Build a layout of Axes based on ASCII art or nested lists.
 
@@ -1716,12 +1769,13 @@ def subplot_mosaic(
 
     """
     fig = figure(**fig_kw)
-    ax_dict = fig.subplot_mosaic(
-        mosaic, sharex=sharex, sharey=sharey,
+    ax_dict = fig.subplot_mosaic(  # type: ignore[misc]
+        mosaic,  # type: ignore[arg-type]
+        sharex=sharex, sharey=sharey,
         height_ratios=height_ratios, width_ratios=width_ratios,
         subplot_kw=subplot_kw, gridspec_kw=gridspec_kw,
         empty_sentinel=empty_sentinel,
-        per_subplot_kw=per_subplot_kw,
+        per_subplot_kw=per_subplot_kw,  # type: ignore[arg-type]
     )
     return fig, ax_dict
 

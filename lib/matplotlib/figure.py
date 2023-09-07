@@ -1812,15 +1812,11 @@ default: %(va)s
             if isinstance(k, tuple):
                 for sub_key in k:
                     if sub_key in expanded:
-                        raise ValueError(
-                            f'The key {sub_key!r} appears multiple times.'
-                            )
+                        raise ValueError(f'The key {sub_key!r} appears multiple times.')
                     expanded[sub_key] = v
             else:
                 if k in expanded:
-                    raise ValueError(
-                        f'The key {k!r} appears multiple times.'
-                    )
+                    raise ValueError(f'The key {k!r} appears multiple times.')
                 expanded[k] = v
         return expanded
 
