@@ -808,6 +808,7 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
     """
     if isinstance(col, PathCollection):
         col.__class__ = Path3DCollection
+        col._offset_zordered = None
     elif isinstance(col, PatchCollection):
         col.__class__ = Patch3DCollection
     col._depthshade = depthshade
