@@ -379,11 +379,10 @@ default: %(va)s
     def get_facecolor(self):
         """Get the face color of the Figure rectangle."""
         return self.patch.get_facecolor()
-    
     def get_subplotspec(self):
         """Get the subplotspec of the Figure rectangle."""
         return self.patch.get_subplotspec()
-    
+
     def get_parent(self):
         """Get the parent of the Figure rectangle."""
         return self.patch.get_parent()
@@ -451,7 +450,7 @@ default: %(va)s
         parent : parent
         """
         self.patch.set_subplotspec(subplotspec)
-        
+
     def set_frameon(self, b):
         """
         Set the figure's background patch visibility, i.e.
