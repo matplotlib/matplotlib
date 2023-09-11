@@ -6,9 +6,9 @@ Supports use of bold-italic font style in mathtext using the ``\mathbfit{}`` com
 To change font to bold and italic enclose the text in a font command as
 shown:
 
-.. code-block::
+.. code-block:: none
 
-    r'$\mathbfit{\eta \leq C(\delta(\eta))}$
+    r'$\mathbfit{\eta \leq C(\delta(\eta))}$'
 
 .. math::
    \mathbfit{\eta \leq C(\delta(\eta))}

@@ -140,3 +140,66 @@ ignore_missing_imports = true
 enable_incomplete_feature = [
   "Unpack",
 ]
+
+[tool.rstcheck]
+ignore_directives = [
+    # matplotlib.sphinxext.mathmpl
+    "mathmpl",
+    # matplotlib.sphinxext.plot_directive
+    "plot",
+    # sphinxext.math_symbol_table
+    "math_symbol_table",
+    # sphinxext.redirect_from
+    "redirect-from",
+    # sphinx-design
+    "dropdown",
+    "grid",
+    "tab-set",
+    # sphinx-gallery
+    "minigallery",
+    "image-sg",
+    # sphinx.ext.autodoc
+    "automodule",
+    "autoclass",
+    "autofunction",
+    "autodata",
+    "automethod",
+    "autoattribute",
+    "autoproperty",
+    # sphinx.ext.autosummary
+    "autosummary",
+    # sphinx.ext.ifconfig
+    "ifconfig",
+    # sphinx.ext.inheritance_diagram
+    "inheritance-diagram",
+    # include directive is causing attribute errors
+    "include"
+]
+ignore_roles = [
+    # sphinxext.custom_roles
+    "rc",
+    # matplotlib.sphinxext.mathmpl
+    "mathmpl",
+    "math-stix",
+    # sphinxext.github
+    "ghissue",
+    "ghpull",
+    "ghuser",
+    # sphinx-design
+    "octicon",
+]
+ignore_substitutions = [
+    "Artist",
+    "Axes",
+    "Axis",
+    "Figure",
+    "release"
+]
+
+ignore_messages = [
+    "Hyperlink target \".*\" is not referenced.",
+    "Duplicate implicit target name: \".*\".",
+    "Duplicate explicit target name: \".*\".",
+    # error in role directive is `.. role:: math-stix(mathmpl)
+    "Error in \"role\" directive:",
+]

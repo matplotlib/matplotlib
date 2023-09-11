@@ -284,7 +284,7 @@ Simplifying the font setting for usetex mode
 Now the :rc:`font.family` accepts some font names as value for a more
 user-friendly setup.
 
-.. code-block::
+.. code-block:: python
 
     plt.rcParams.update({
         "text.usetex": True,
@@ -561,7 +561,7 @@ to block callback signals from being processed by the ``CallbackRegistry``.
 The optional keyword, *signal*, can be used to block a specific signal
 from being processed and let all other signals pass.
 
-.. code-block::
+.. code-block:: python
 
     import matplotlib.pyplot as plt
 

@@ -128,7 +128,7 @@ The following 478 authors contributed 9809 commits.
 * Drew J. Sonne
 * Duncan Macleod
 * Dylan Evans
-* E. G. Patrick Bos
+* E\. G\. Patrick Bos
 * Egor Panfilov
 * Elijah Schutz
 * Elizabeth Seiver
@@ -205,7 +205,7 @@ The following 478 authors contributed 9809 commits.
 * Isaac Slavitt
 * Ismo Toijala
 * J Alammar
-* J. Goutin
+* J\. Goutin
 * Jaap Versteegh
 * Jacob McDonald
 * jacob-on-github
@@ -464,7 +464,7 @@ The following 478 authors contributed 9809 commits.
 * Tuan Dung Tran
 * u55
 * ultra-andy
-* V. R
+* V\. R
 * vab9
 * Valentin Schmidt
 * Vedant Nanda

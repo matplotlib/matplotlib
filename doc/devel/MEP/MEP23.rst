@@ -35,7 +35,7 @@ most use cases.
 
 Sometimes when there are too many figures open at the same time, it is
 desirable to be able to group these under the same window
-[see](https://github.com/matplotlib/matplotlib/issues/2194).
+`see <https://github.com/matplotlib/matplotlib/issues/2194>`_.
 
 The proposed solution modifies `.FigureManagerBase` to contain and manage more
 than one ``Canvas``. The settings parameter :rc:`backend.multifigure` control
@@ -44,7 +44,7 @@ when the **MultiFigure** behaviour is desired.
 **Note**
 
 It is important to note, that the proposed solution, assumes that the
-[MEP22](https://github.com/matplotlib/matplotlib/wiki/Mep22) is
+`MEP22 <https://github.com/matplotlib/matplotlib/wiki/Mep22>`_. is
 already in place. This is simply because the actual implementation of
 the ``Toolbar`` makes it pretty hard to switch between canvases.
 

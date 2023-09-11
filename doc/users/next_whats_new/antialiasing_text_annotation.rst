@@ -6,7 +6,7 @@ When *antialiased* is set to ``False``, antialiasing will not be applied to the 
 When *antialiased* is not specified, antialiasing will be set by :rc:`text.antialiased` at the creation time of ``Text`` and ``Annotation`` object.
 Examples:
 
-.. code-block::
+.. code-block:: python
 
     mpl.text.Text(.5, .5, "foo\nbar", antialiased=True)
     plt.text(0.5, 0.5, '6 inches x 2 inches', antialiased=True)
@@ -15,7 +15,7 @@ Examples:
 If the text contains math expression, *antialiased* applies to the whole text.
 Examples:
 
-.. code-block::
+.. code-block:: python
 
     # no part will be antialiased for the text below
     plt.text(0.5, 0.25, r"$I'm \sqrt{x}$", antialiased=False)
