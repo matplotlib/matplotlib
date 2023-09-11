@@ -152,6 +152,9 @@
     "HashableList": [
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot_mosaic:1"
     ],
+    "HashableList[_HT]": [
+      "doc/docstring of builtins.list:17"
+    ],
     "LineStyleType": [
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.eventplot:1",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.hlines:1",
@@ -700,6 +703,9 @@
     ],
     "matplotlib.animation.TimedAnimation.to_jshtml": [
       "doc/api/_as_gen/matplotlib.animation.TimedAnimation.rst:28:<autosummary>:1"
+    ],
+    "matplotlib.typing._HT": [
+      "doc/docstring of builtins.list:17"
     ],
     "mpl_toolkits.axislines.Axes": [
       "lib/mpl_toolkits/axisartist/axis_artist.py:docstring of mpl_toolkits.axisartist.axis_artist:7"
