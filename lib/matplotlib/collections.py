@@ -1404,11 +1404,12 @@ class LineCollection(Collection):
         Parameters
         ----------
         segments : list of array-like
-            A sequence of (*line0*, *line1*, *line2*), where::
+            A sequence (*line0*, *line1*, *line2*) of lines, where each line is a list
+            of points::
 
-                linen = (x0, y0), (x1, y1), ... (xm, ym)
+                lineN = [(x0, y0), (x1, y1), ... (xm, ym)]
 
-            or the equivalent numpy array with two columns. Each line
+            or the equivalent Mx2 numpy array with two columns. Each line
             can have a different number of segments.
         linewidths : float or list of float, default: :rc:`lines.linewidth`
             The width of each line in points.
