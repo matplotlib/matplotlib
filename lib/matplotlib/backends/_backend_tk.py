@@ -26,7 +26,7 @@ from . import _tkagg
 
 
 _log = logging.getLogger(__name__)
-cursord = {
+_CURSOR_DICT = {
     cursors.MOVE: "fleur",
     cursors.HAND: "hand2",
     cursors.POINTER: "arrow",
@@ -51,8 +51,8 @@ _blit_args = {}
 # Initialize to a non-empty string that is not a Tcl command
 _blit_tcl_name = "mpl_blit_" + uuid.uuid4().hex
 
-TK_PHOTO_COMPOSITE_OVERLAY = 0  # apply transparency rules pixel-wise
-TK_PHOTO_COMPOSITE_SET = 1  # set image buffer directly
+_TK_PHOTO_COMPOSITE_OVERLAY = 0  # apply transparency rules pixel-wise
+_TK_PHOTO_COMPOSITE_SET = 1  # set image buffer directly
 
 
 def _blit(argsid):
@@ -97,10 +97,10 @@ def blit(photoimage, aggimage, offsets, bbox=None):
         if (x1 > x2) or (y1 > y2):
             return
         bboxptr = (x1, x2, y1, y2)
-        comp_rule = TK_PHOTO_COMPOSITE_OVERLAY
+        comp_rule = _TK_PHOTO_COMPOSITE_OVERLAY
     else:
         bboxptr = (0, width, 0, height)
-        comp_rule = TK_PHOTO_COMPOSITE_SET
+        comp_rule = _TK_PHOTO_COMPOSITE_SET
 
     # NOTE: _tkagg.blit is thread unsafe and will crash the process if called
     # from a thread (GH#13293). Instead of blanking and blitting here,
@@ -434,7 +434,7 @@ class FigureCanvasTk(FigureCanvasBase):
 
     def set_cursor(self, cursor):
         try:
-            self._tkcanvas.configure(cursor=cursord[cursor])
+            self._tkcanvas.configure(cursor=_CURSOR_DICT[cursor])
         except tkinter.TclError:
             pass
 
