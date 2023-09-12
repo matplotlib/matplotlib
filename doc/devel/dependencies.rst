@@ -38,7 +38,7 @@ The following packages and tools are not required but extend the capabilities
 of Matplotlib.
 
 Backends
-~~~~~~~~
+^^^^^^^^
 
 Matplotlib figures can be rendered to various user interfaces. See
 :ref:`what-is-a-backend` for more details on the optional Matplotlib backends
@@ -73,14 +73,14 @@ and the capabilities they provide.
 .. _ipykernel: https://pypi.org/project/ipykernel/
 
 Animations
-~~~~~~~~~~
+^^^^^^^^^^
 
 * `ffmpeg <https://www.ffmpeg.org/>`_: for saving movies.
 * `ImageMagick <https://www.imagemagick.org/script/index.php>`_: for saving
   animated gifs.
 
 Font handling and rendering
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * `LaTeX <https://www.latex-project.org/>`_ (with `cm-super
   <https://ctan.org/pkg/cm-super>`__ and `underscore
@@ -111,7 +111,7 @@ rasterize characters differently) and of Qhull.  As an exception, Matplotlib
 defaults to the system version of FreeType on AIX.
 
 Use system libraries
-~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 
 To force Matplotlib to use a copy of FreeType or Qhull already installed in
 your system, create a :file:`mplsetup.cfg` file with the following contents:
@@ -185,7 +185,7 @@ remember to clear your artifacts before re-building::
 
 
 Manual Download
-~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^
 
 
 If the automatic download does not work (for example on air-gapped systems) it
@@ -240,17 +240,65 @@ Setup dependencies
 C++ compiler
 ------------
 
-Matplotlib requires a C++ compiler that supports C++11.
+Matplotlib requires a C++ compiler that supports C++11, and each platform has a
+development environment that must be installed before a compiler can be installed.
 
-- `gcc 4.8.1 <https://gcc.gnu.org/projects/cxx-status.html#cxx11>`_ or higher.  For gcc <6.5 you will
-  need to set ``$CFLAGS=-std=c++11`` to enable C++11 support.
-  `Installing GCC: Binaries <https://gcc.gnu.org/install/binaries.html>`_.
-- `clang 3.3 <https://clang.llvm.org/cxx_status.html>`_ or higher.
-  `LLVM Download Page <https://releases.llvm.org/download.html>`_.
-- `Visual Studio 2015
-  <https://docs.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-140>`_
-  (aka VS 14.0) or higher. A free version of Build Tools for Visual Studio is available for
-  `download <https://visualstudio.microsoft.com/downloads/?q=build+tools>`_.
+.. tab-set::
+
+    .. tab-item:: Linux
+
+        On some Linux systems, you can install a meta-build package. For example,
+        on  Ubuntu ``apt install build-essential``
+
+        Otherwise, use the system distribution's package manager to install
+        :ref:`gcc <compiler-table>`.
+
+    .. tab-item:: macOS
+
+        Install `Xcode <https://developer.apple.com/xcode/>`_ for Apple platform development.
+
+    .. tab-item:: Windows
+
+        Install `Visual Studio Build Tools <https://visualstudio.microsoft.com/downloads/?q=build+tools>`_
+
+        Make sure "Desktop development with C++" is selected, and that the latest MSVC,
+        "C++ CMake tools for Windows," and a Windows SDK compatible with your version
+        of Windows are selected and installed. They should be selected by default under
+        the "Optional" subheading, but are required to build Matplotlib from source.
+
+        Alternatively, you can install a Linux-like environment such as `CygWin <https://www.cygwin.com/>`_
+        or `Windows Subsystem for Linux <https://learn.microsoft.com/en-us/windows/wsl/install>`_.
+
+
+We highly recommend that you install a compiler using your platform tool, i.e.,
+Xcode, VS Code or Linux package manager. Choose **one** compiler from this list:
+
+.. _compiler-table:
+
+.. list-table::
+   :widths: 20 20 20 40
+   :header-rows: 1
+
+   * - compiler
+     - minimum version
+     - platforms
+     - notes
+   * - GCC
+     - **4.8.1**
+     - Linux, macOS, Windows
+     - `gcc 4.8.1 <https://gcc.gnu.org/projects/cxx-status.html#cxx11>`_,
+       `GCC: Binaries <https://gcc.gnu.org/install/binaries.html>`_,
+
+       For gcc <6.5 you will need to set ``$CFLAGS=-std=c++11`` to enable C++11 support.
+   * - Clang (LLVM)
+     - **3.3**
+     - Linux, macOS
+     - `clang 3.3 <https://clang.llvm.org/cxx_status.html>`_, `LLVM <https://releases.llvm.org/download.html>`_
+   * - MSVC++
+     - **14.0**
+     - Windows
+     - `Visual Studio 2015 C++ <https://docs.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-140>`_
+
 
 
 .. _test-dependencies:
@@ -286,8 +334,8 @@ testing the following will be used if they are installed.
   fonts for testing font fallback and non-western fonts
 - xarray_ used to test compatibility with xarray
 
-If any of these dependencies are not discovered the tests that rely on them
-will be skipped by pytest.
+If any of these dependencies are not discovered, then the tests that rely on
+them will be skipped by pytest.
 
 .. note::
 

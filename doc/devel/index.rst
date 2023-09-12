@@ -78,6 +78,7 @@ Development environment
 .. grid:: 1 1 2 2
 
    .. grid-item-card::
+      :shadow: none
 
       **Install**
       ^^^
@@ -91,9 +92,11 @@ Development environment
          :maxdepth: 1
 
          dependencies
+         ../users/installing/environment_variables_faq.rst
 
 
    .. grid-item-card::
+      :shadow: none
 
       **Workflow**
       ^^^^
@@ -103,6 +106,10 @@ Development environment
 
          development_workflow
 
+      .. toctree::
+         :maxdepth: 1
+
+         troubleshooting.rst
 
 
 .. _contribution_guideline:
@@ -115,6 +122,7 @@ Policies and guidelines
    :gutter: 2
 
    .. grid-item-card::
+      :shadow: none
 
       **Code**
       ^^^
@@ -128,6 +136,7 @@ Policies and guidelines
          testing
 
    .. grid-item-card::
+      :shadow: none
 
       **Documentation**
       ^^^
@@ -139,6 +148,7 @@ Policies and guidelines
          style_guide
 
    .. grid-item-card::
+      :shadow: none
 
       **Triage**
       ^^^
@@ -148,6 +158,7 @@ Policies and guidelines
       | :ref:`triage_workflow`
 
    .. grid-item-card::
+      :shadow: none
 
       **Maintenance**
       ^^^
