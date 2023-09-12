@@ -17,7 +17,7 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, **kwargs):
     axes_class : `matplotlib.axes.Axes` or None, optional
         Axes class to use for the R, G, and B Axes. If None, use
         the same class as *ax*.
-    **kwargs :
+    **kwargs
         Forwarded to *axes_class* init for the R, G, and B Axes.
     """
 
@@ -130,7 +130,7 @@ class RGBAxes:
         ----------
         r, g, b : array-like
             The red, green, and blue arrays.
-        **kwargs :
+        **kwargs
             Forwarded to `~.Axes.imshow` calls for the four images.
 
         Returns
