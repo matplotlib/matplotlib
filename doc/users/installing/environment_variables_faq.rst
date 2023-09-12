@@ -1,13 +1,12 @@
 .. _environment-variables:
 
-.. redirect-from:: /faq/environment_variables_faq
 
-*********************
+.. redirect-from:: /faq/installing_faq
+.. redirect-from:: /users/faq/installing_faq
+
+=====================
 Environment variables
-*********************
-
-.. contents::
-   :backlinks: none
+=====================
 
 .. envvar:: HOME
 
