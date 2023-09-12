@@ -1,14 +1,12 @@
 .. _howto-faq:
 
 .. redirect-from:: /faq/howto_faq
+.. redirect-from:: /users/faq/howto_faq
+.. redirect-from:: /faq/index
 
-******
-How-to
-******
-
-.. contents::
-   :backlinks: none
-
+==========================
+Frequently Asked Questions
+==========================
 
 .. _how-to-too-many-ticks:
 
@@ -199,14 +197,8 @@ different scales, you can often get ylabels that do not align
 vertically across the multiple subplots, which can be unattractive.
 By default, Matplotlib positions the x location of the ylabel so that
 it does not overlap any of the y ticks.  You can override this default
-behavior by specifying the coordinates of the label.  The example
-below shows the default behavior in the left subplots, and the manual
-setting in the right subplots.
-
-.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_align_ylabels_001.png
-   :target: ../../gallery/text_labels_and_annotations/align_ylabels.html
-   :align: center
-   :scale: 50
+behavior by specifying the coordinates of the label. To learn how, see
+:doc:`/gallery/text_labels_and_annotations/align_ylabels`
 
 .. _howto-set-zorder:
 
@@ -307,3 +299,79 @@ artists.
 You may be able to work on separate figures from separate threads.  However,
 you must in that case use a *non-interactive backend* (typically Agg), because
 most GUI backends *require* being run from the main thread as well.
+
+.. _reporting-problems:
+
+Get help
+--------
+
+There are a number of good resources for getting help with Matplotlib.
+There is a good chance your question has already been asked:
+
+- The `mailing list archive
+  <https://discourse.matplotlib.org/c/community/matplotlib-users/6>`_.
+
+- `GitHub issues <https://github.com/matplotlib/matplotlib/issues>`_.
+
+- Stackoverflow questions tagged `matplotlib
+  <https://stackoverflow.com/questions/tagged/matplotlib>`_.
+
+If you are unable to find an answer to your question through search, please
+provide the following information in your e-mail to the `mailing list
+<https://mail.python.org/mailman/listinfo/matplotlib-users>`_:
+
+* Your operating system (Linux/Unix users: post the output of ``uname -a``).
+
+* Matplotlib version::
+
+     python -c "import matplotlib; print(matplotlib.__version__)"
+
+* Where you obtained Matplotlib (e.g., your Linux distribution's packages,
+  GitHub, PyPI, or `Anaconda <https://www.anaconda.com/>`_).
+
+* Any customizations to your ``matplotlibrc`` file (see
+  :ref:`customizing`).
+
+* If the problem is reproducible, please try to provide a *minimal*, standalone
+  Python script that demonstrates the problem.  This is *the* critical step.
+  If you can't post a piece of code that we can run and reproduce your error,
+  the chances of getting help are significantly diminished.  Very often, the
+  mere act of trying to minimize your code to the smallest bit that produces
+  the error will help you find a bug in *your* code that is causing the
+  problem.
+
+* Matplotlib provides debugging information through the `logging` library, and
+  a helper function to set the logging level: one can call ::
+
+    plt.set_loglevel("info")  # or "debug" for more info
+
+  to obtain this debugging information.
+
+  Standard functions from the `logging` module are also applicable; e.g. one
+  could call ``logging.basicConfig(level="DEBUG")`` even before importing
+  Matplotlib (this is in particular necessary to get the logging info emitted
+  during Matplotlib's import), or attach a custom handler to the "matplotlib"
+  logger.  This may be useful if you use a custom logging configuration.
+
+If you compiled Matplotlib yourself, please also provide:
+
+* any changes you have made to ``setup.py`` or ``setupext.py``.
+* the output of::
+
+     rm -rf build
+     python setup.py build
+
+  The beginning of the build output contains lots of details about your
+  platform that are useful for the Matplotlib developers to diagnose your
+  problem.
+
+* your compiler version -- e.g., ``gcc --version``.
+
+Including this information in your first e-mail to the mailing list
+will save a lot of time.
+
+You will likely get a faster response writing to the mailing list than
+filing a bug in the bug tracker.  Most developers check the bug
+tracker only periodically.  If your problem has been determined to be
+a bug and cannot be quickly solved, you may be asked to file a bug in
+the tracker so the issue doesn't get lost.
