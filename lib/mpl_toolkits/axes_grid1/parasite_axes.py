@@ -105,7 +105,7 @@ class HostAxesBase:
         axes_class : subclass type of `~matplotlib.axes.Axes`, optional
             The `~.axes.Axes` subclass that is instantiated.  If None, the base
             class of the host axes is used.
-        kwargs
+        **kwargs
             Other parameters are forwarded to the parasite axes constructor.
         """
         if axes_class is None:

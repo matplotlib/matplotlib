@@ -2300,6 +2300,18 @@ class LightSource:
         altdeg : float, default: 45 degrees
             The altitude (0-90, degrees up from horizontal) of the light
             source.
+        hsv_min_val : number, default: 0
+            The minimum value ("v" in "hsv") that the *intensity* map can shift the
+            output image to.
+        hsv_max_val : number, default: 1
+            The maximum value ("v" in "hsv") that the *intensity* map can shift the
+            output image to.
+        hsv_min_sat : number, default: 1
+            The minimum saturation value that the *intensity* map can shift the output
+            image to.
+        hsv_max_sat : number, default: 0
+            The maximum saturation value that the *intensity* map can shift the output
+            image to.
 
         Notes
         -----
@@ -2599,18 +2611,20 @@ class LightSource:
             An (M, N, 3) RGB array of floats ranging from 0 to 1 (color image).
         intensity : `~numpy.ndarray`
             An (M, N, 1) array of floats ranging from 0 to 1 (grayscale image).
-        hsv_max_sat : number, default: 1
-            The maximum saturation value that the *intensity* map can shift the
-            output image to.
+        hsv_max_sat : number, optional
+            The maximum saturation value that the *intensity* map can shift the output
+            image to. If not provided, use the value provided upon initialization.
         hsv_min_sat : number, optional
-            The minimum saturation value that the *intensity* map can shift the
-            output image to. Defaults to 0.
+            The minimum saturation value that the *intensity* map can shift the output
+            image to. If not provided, use the value provided upon initialization.
         hsv_max_val : number, optional
-            The maximum value ("v" in "hsv") that the *intensity* map can shift
-            the output image to. Defaults to 1.
+            The maximum value ("v" in "hsv") that the *intensity* map can shift the
+            output image to. If not provided, use the value provided upon
+            initialization.
         hsv_min_val : number, optional
-            The minimum value ("v" in "hsv") that the *intensity* map can shift
-            the output image to. Defaults to 0.
+            The minimum value ("v" in "hsv") that the *intensity* map can shift the
+            output image to. If not provided, use the value provided upon
+            initialization.
 
         Returns
         -------

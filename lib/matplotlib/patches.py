@@ -994,9 +994,10 @@ class StepPatch(PathPatch):
             True or an array is passed to *baseline*, a closed
             path is drawn.
 
-        Other valid keyword arguments are:
+        **kwargs
+            `Patch` properties:
 
-        %(Patch:kwdoc)s
+            %(Patch:kwdoc)s
         """
         self.orientation = orientation
         self._edges = np.asarray(edges)
@@ -1112,7 +1113,7 @@ class Polygon(Patch):
         Parameters
         ----------
         closed : bool
-           True if the polygon is closed
+            True if the polygon is closed
         """
         if self._closed == bool(closed):
             return
