@@ -74,6 +74,22 @@ class _CollectionWithSizes(Collection):
     def get_sizes(self) -> np.ndarray: ...
     def set_sizes(self, sizes: ArrayLike | None, dpi: float = ...) -> None: ...
 
+class _CollectionWithWidthHeightAngle(Collection):
+    def __init__(
+        self,
+        widths: ArrayLike,
+        heights: ArrayLike,
+        angles: ArrayLike,
+        *,
+        units: Literal[
+            "points", "inches", "dots", "width", "height", "x", "y", "xy"
+        ] = ...,
+        **kwargs
+    ) -> None: ...
+    def set_widths(self, widths: ArrayLike) -> None: ...
+    def set_heights(self, heights: ArrayLike) -> None: ...
+    def set_angles(self, angles: ArrayLike) -> None: ...
+
 class PathCollection(_CollectionWithSizes):
     def __init__(
         self, paths: Sequence[Path], sizes: ArrayLike | None = ..., **kwargs
@@ -180,18 +196,8 @@ class EventCollection(LineCollection):
 class CircleCollection(_CollectionWithSizes):
     def __init__(self, sizes: float | ArrayLike, **kwargs) -> None: ...
 
-class EllipseCollection(Collection):
-    def __init__(
-        self,
-        widths: ArrayLike,
-        heights: ArrayLike,
-        angles: ArrayLike,
-        *,
-        units: Literal[
-            "points", "inches", "dots", "width", "height", "x", "y", "xy"
-        ] = ...,
-        **kwargs
-    ) -> None: ...
+class EllipseCollection(_CollectionWithWidthHeightAngle): ...
+class RectangleCollection(_CollectionWithWidthHeightAngle): ...
 
 class PatchCollection(Collection):
     def __init__(
