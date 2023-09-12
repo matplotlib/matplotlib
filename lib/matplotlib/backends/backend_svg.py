@@ -200,6 +200,7 @@ class XMLWriter:
         tag
             Element tag.  If given, the tag must match the start tag.  If
             omitted, the current element is closed.
+        indent : bool, default: True
         """
         if tag:
             assert self.__tags, f"unbalanced end({tag})"

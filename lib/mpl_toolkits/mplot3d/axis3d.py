@@ -192,7 +192,7 @@ class Axis(maxis.XAxis):
 
         Parameters
         ----------
-        str : {'lower', 'upper', 'both', 'default', 'none'}
+        position : {'lower', 'upper', 'both', 'default', 'none'}
             The position of the bolded axis lines, ticks, and tick labels.
         """
         if position in ['top', 'bottom']:
@@ -221,7 +221,7 @@ class Axis(maxis.XAxis):
 
         Parameters
         ----------
-        str : {'lower', 'upper', 'both', 'default', 'none'}
+        position : {'lower', 'upper', 'both', 'default', 'none'}
             The position of the axis label.
         """
         if position in ['top', 'bottom']:

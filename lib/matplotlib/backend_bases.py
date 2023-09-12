@@ -208,10 +208,15 @@ class RendererBase:
         ----------
         gc : `.GraphicsContextBase`
             The graphics context.
+        marker_path : `~matplotlib.path.Path`
+            The path for the marker.
         marker_trans : `~matplotlib.transforms.Transform`
             An affine transform applied to the marker.
+        path : `~matplotlib.path.Path`
+            The locations to draw the markers.
         trans : `~matplotlib.transforms.Transform`
             An affine transform applied to the path.
+        rgbFace : color, optional
         """
         for vertices, codes in path.iter_segments(trans, simplify=False):
             if len(vertices):
