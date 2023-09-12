@@ -1,20 +1,21 @@
 .. _github-stats:
 
-GitHub statistics for 3.8.0 (Aug 09, 2023)
+GitHub statistics for 3.8.0 (Sep 14, 2023)
 ==========================================
 
-GitHub statistics for 2023/02/13 (tag: v3.7.0) - 2023/08/09
+GitHub statistics for 2023/02/13 (tag: v3.7.0) - 2023/09/14
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 168 issues and merged 506 pull requests.
+We closed 185 issues and merged 649 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/77?closed=1>`__
 
-The following 140 authors contributed 2693 commits.
+The following 146 authors contributed 2914 commits.
 
 * 0xedl
 * Aalok Chhetri
 * Adam J. Stewart
+* Adam Turner
 * Albert Y. Shih
 * Alissa
 * Alissa Hodge
@@ -35,6 +36,7 @@ The following 140 authors contributed 2693 commits.
 * David Kaméus
 * David Stansby
 * dependabot[bot]
+* Devilsaint
 * devRD
 * Dusch4593
 * DWesl
@@ -48,6 +50,7 @@ The following 140 authors contributed 2693 commits.
 * Fabian Joswig
 * Felix Goudreault
 * Gabriel Madeira
+* Gautam Sagar
 * Gokberk Gunes
 * Greg Lucas
 * Hai Zhu
@@ -67,6 +70,7 @@ The following 140 authors contributed 2693 commits.
 * Johann Krauter
 * John Paul Jepko
 * Jonathan Wheeler
+* jsdodge
 * Julian Chen
 * kolibril13
 * krooijers
@@ -100,10 +104,11 @@ The following 140 authors contributed 2693 commits.
 * Pavel Zwerschke
 * Peter Cock
 * Petros Tzathas
-* photoniker
 * Photoniker
+* photoniker
 * Pierre Haessig
 * Pieter Eendebak
+* Prajwal Agrawal
 * pre-commit-ci[bot]
 * priyanshi
 * Priyanshi Gaur
@@ -130,6 +135,7 @@ The following 140 authors contributed 2693 commits.
 * Steffen Rehberg
 * stevezhang
 * stevezhang1999
+* Talha Irfan
 * Thomas A Caswell
 * Thomas J. Fan
 * Tigran Khachatryan
@@ -155,8 +161,149 @@ The following 140 authors contributed 2693 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (506):
+Pull Requests (649):
 
+* :ghpull:`26777`: Backport PR #26702 on branch v3.8.x (converted coc to rst and put links in code_of_conduct.md)
+* :ghpull:`26775`: Backport PR #26767 on branch v3.8.x (Trim Gouraud triangles that contain NaN)
+* :ghpull:`26776`: Backport PR #26687 on branch v3.8.x (Remove usage of recarray)
+* :ghpull:`26702`: converted coc to rst and put links in code_of_conduct.md
+* :ghpull:`26687`: Remove usage of recarray
+* :ghpull:`26767`: Trim Gouraud triangles that contain NaN
+* :ghpull:`26770`: Backport PR #26762 on branch v3.8.x (MNT: Numpy 2.0 removals from ndarray class)
+* :ghpull:`26762`: MNT: Numpy 2.0 removals from ndarray class
+* :ghpull:`26769`: DOC: Pin mpl-sphinx-theme to 3.8.x
+* :ghpull:`26768`: Backport PR #26700 on branch v3.8.x (Check type for set_clip_box)
+* :ghpull:`26700`: Check type for set_clip_box
+* :ghpull:`26766`: Backport PR #26763 on branch v3.8.x (DOC: Add redirects for old gitwash files)
+* :ghpull:`26763`: DOC: Add redirects for old gitwash files
+* :ghpull:`26756`: Pin numpy to <2 for 3.8.0
+* :ghpull:`26761`: Merge branch v3.7.x into v3.8.x
+* :ghpull:`26757`: Backport PR #26628 on branch v3.8.x (DOC: move install related FAQ to install docs)
+* :ghpull:`26628`: DOC: move install related FAQ to install docs
+* :ghpull:`26753`: Backport PR #26705 on branch v3.8.x ([Doc] Small fixes found by velin)
+* :ghpull:`26705`: [Doc] Small fixes found by velin
+* :ghpull:`26746`: Backport PR #26671 on branch v3.8.x ([DOC] Enhance API reference index)
+* :ghpull:`26671`: [DOC] Enhance API reference index
+* :ghpull:`26740`: Backport PR #26676 on branch v3.8.x ([DOC] Slightly improve the LineCollection docstring)
+* :ghpull:`26676`: [DOC] Slightly improve the LineCollection docstring
+* :ghpull:`26712`: Backport PR #26491 on branch v3.8.x (TYP: Add common-type overloads of subplot_mosaic)
+* :ghpull:`26726`: Backport PR #26719 on branch v3.8.x (Fix issue with missing attribute in Path3DCollection)
+* :ghpull:`26724`: Backport PR #26721 on branch v3.8.x (Add a Python 3.12 classifier)
+* :ghpull:`26711`: Backport PR #26709 on branch v3.8.x (DOC: consistency in docstrings of formatting of array-like)
+* :ghpull:`26491`: TYP: Add common-type overloads of subplot_mosaic
+* :ghpull:`26709`: DOC: consistency in docstrings of formatting of array-like
+* :ghpull:`26708`: Backport PR #26601 on branch v3.8.x (Avoid checking limits when updating both min and max for contours)
+* :ghpull:`26601`: Avoid checking limits when updating both min and max for contours
+* :ghpull:`26701`: Backport PR #26695 on branch v3.8.x (Bump actions/checkout from 3 to 4)
+* :ghpull:`26695`: Bump actions/checkout from 3 to 4
+* :ghpull:`26694`: Backport PR #26689 on branch v3.8.x (Fix error generation for missing pgf.texsystem.)
+* :ghpull:`26522`: TST: Add failing test
+* :ghpull:`26689`: Fix error generation for missing pgf.texsystem.
+* :ghpull:`26688`: Backport PR #26680 on branch v3.8.x (Fix flaky CI tests)
+* :ghpull:`26680`: Fix flaky CI tests
+* :ghpull:`26675`: Backport PR #26665 on branch v3.8.x (Clarify loading of backend FigureCanvas and show().)
+* :ghpull:`26673`: Backport PR #26193 on branch v3.8.x (Sort tex2uni data in mathtext)
+* :ghpull:`26665`: Clarify loading of backend FigureCanvas and show().
+* :ghpull:`26193`: Sort tex2uni data in mathtext
+* :ghpull:`26663`: Backport PR #26245 on branch v3.8.x ([pre-commit.ci] pre-commit autoupdate)
+* :ghpull:`26668`: Backport PR #26541 on branch v3.8.x (TYP: Add typing on mathtext internals)
+* :ghpull:`26666`: Backport PR #26657 on branch v3.8.x (DOC: Fix some small issues)
+* :ghpull:`26541`: TYP: Add typing on mathtext internals
+* :ghpull:`26662`: Backport PR #26542 on branch v3.8.x (TST: Ensure test_webagg subprocess is terminated)
+* :ghpull:`26661`: Backport PR #26566 on branch v3.8.x (MAINT: Numpy 2.0 deprecations for row_stack and in1d)
+* :ghpull:`26657`: DOC: Fix some small issues
+* :ghpull:`26660`: Backport PR #26656 on branch v3.8.x (TYP: Fix some small bugs)
+* :ghpull:`26659`: Backport PR #26470 on branch v3.8.x ([DOC]: mathtext tutorial-consolidate explain and notes)
+* :ghpull:`26245`: [pre-commit.ci] pre-commit autoupdate
+* :ghpull:`26658`: Backport PR #26608 on branch v3.8.x (Removed unnecessary origin keywords)
+* :ghpull:`26542`: TST: Ensure test_webagg subprocess is terminated
+* :ghpull:`26566`: MAINT: Numpy 2.0 deprecations for row_stack and in1d
+* :ghpull:`26656`: TYP: Fix some small bugs
+* :ghpull:`26651`: Backport PR #26348 on branch v3.8.x (Test some untested Locator code)
+* :ghpull:`26470`: [DOC]: mathtext tutorial-consolidate explain and notes
+* :ghpull:`26608`: Removed unnecessary origin keywords
+* :ghpull:`26655`: Backport PR #26649 on branch v3.8.x ([DOC] Remove "Discouraged" notices that have been superseded by deprecation)
+* :ghpull:`26654`: Backport PR #26597 on branch v3.8.x (Squeeze post-converted values when validating limits)
+* :ghpull:`26652`: Backport PR #26646 on branch v3.8.x (Use standard method for closing QApp when last window is closed.)
+* :ghpull:`26648`: Backport PR #26521 on branch v3.8.x (Replaced list with tuple in pyplot for axes)
+* :ghpull:`26649`: [DOC] Remove "Discouraged" notices that have been superseded by deprecation
+* :ghpull:`26647`: Backport PR #26582 on branch v3.8.x (MNT: Enable wheels for Python 3.12)
+* :ghpull:`26646`: Use standard method for closing QApp when last window is closed.
+* :ghpull:`26650`: Backport PR #26635 on branch v3.8.x ([MNT] Do not configure axes properties via subplots(..., subplot_kw={...}))
+* :ghpull:`26644`: Backport PR #26641 on branch v3.8.x ([Doc] Add ACCEPTS for some Axes set methods)
+* :ghpull:`26348`: Test some untested Locator code
+* :ghpull:`26635`: [MNT] Do not configure axes properties via subplots(..., subplot_kw={...})
+* :ghpull:`26521`: Replaced list with tuple in pyplot for axes
+* :ghpull:`26643`: Backport PR #26636 on branch v3.8.x ([Doc] Improve set_layout_engine docs)
+* :ghpull:`26641`: [Doc] Add ACCEPTS for some Axes set methods
+* :ghpull:`26640`: Backport PR #24209 on branch v3.8.x (List the webagg_core module in the sphinx docs.)
+* :ghpull:`26638`: Backport PR #26633 on branch v3.8.x ([Doc] Shorten documentation links in widgets)
+* :ghpull:`26636`: [Doc] Improve set_layout_engine docs
+* :ghpull:`24209`: List the webagg_core module in the sphinx docs.
+* :ghpull:`26633`: [Doc] Shorten documentation links in widgets
+* :ghpull:`26632`: Backport PR #26540 on branch v3.8.x (TYP: Add overloads for FT2Font.get_sfnt_table)
+* :ghpull:`26631`: Backport PR #26619 on branch v3.8.x ([DOC] Clarify some tick-related docstrings)
+* :ghpull:`26540`: TYP: Add overloads for FT2Font.get_sfnt_table
+* :ghpull:`26619`: [DOC] Clarify some tick-related docstrings
+* :ghpull:`26625`: Backport PR #26622 on branch v3.8.x ([Doc] Improve DSP-related examples)
+* :ghpull:`26622`: [Doc] Improve DSP-related examples
+* :ghpull:`26618`: Backport PR #24711 on branch v3.8.x (Test with Python 3.12)
+* :ghpull:`26617`: Backport PR #26598 on branch v3.8.x (FIX: array labelcolor for Tick)
+* :ghpull:`26615`: Backport PR #26614 on branch v3.8.x (Properly disconnect machinery when removing child axes.)
+* :ghpull:`26614`: Properly disconnect machinery when removing child axes.
+* :ghpull:`24711`: Test with Python 3.12
+* :ghpull:`26607`: Backport PR #26606 on branch v3.8.x ([Doc] Revise histogram features example (Closes #26604))
+* :ghpull:`26606`: [Doc] Revise histogram features example (Closes #26604)
+* :ghpull:`26599`: Backport PR #26565 on branch v3.8.x ([doc]: added section Verify installation)
+* :ghpull:`26565`: [doc]: added section Verify installation
+* :ghpull:`26595`: Backport PR #26591 on branch v3.8.x (Fix ToolBase.figure property setter.)
+* :ghpull:`26591`: Fix ToolBase.figure property setter.
+* :ghpull:`26584`: Backport PR #26581 on branch v3.8.x (Deduplicate test for toolbar button icon LA mode.)
+* :ghpull:`26585`: Backport PR #26576 on branch v3.8.x (Use sys.platform over os.name)
+* :ghpull:`26583`: Backport PR #26578 on branch v3.8.x (MAINT: add __pycache__/ to .gitignore)
+* :ghpull:`26576`: Use sys.platform over os.name
+* :ghpull:`26581`: Deduplicate test for toolbar button icon LA mode.
+* :ghpull:`26578`: MAINT: add __pycache__/ to .gitignore
+* :ghpull:`26579`: Backport PR #26572 on branch v3.8.x ([DOC]: clarify pre-commits and editing workflow)
+* :ghpull:`26572`: [DOC]: clarify pre-commits and editing workflow
+* :ghpull:`26575`: Backport PR #26573 on branch v3.8.x ([DOC]: codespace link in contribute index)
+* :ghpull:`26573`: [DOC]: codespace link in contribute index
+* :ghpull:`26568`: Backport PR #26462 on branch v3.8.x (Boxplot fix median line extending past box boundaries #19409)
+* :ghpull:`26416`: [doc]: add 'validate' section to install docs #26379
+* :ghpull:`26564`: Backport PR #26543 on branch v3.8.x (Add ninja to Cygwin builder)
+* :ghpull:`26462`: Boxplot fix median line extending past box boundaries #19409
+* :ghpull:`26563`: Backport PR #26519 on branch v3.8.x (Fix mathtext mismatched braces)
+* :ghpull:`26543`: Add ninja to Cygwin builder
+* :ghpull:`26519`: Fix mathtext mismatched braces
+* :ghpull:`26556`: Backport PR #26554 on branch v3.8.x (Remove NumPy abs overrides from pylab)
+* :ghpull:`26550`: Backport PR #26545 on branch v3.8.x (Fix size inferral when using cairocffi)
+* :ghpull:`26547`: Backport PR #26493 on branch v3.8.x (Disable ````add_html_cache_busting```` on Sphinx 7.1+)
+* :ghpull:`26546`: Backport PR #26201 on branch v3.8.x (DOC: Add documentation on codespaces usage)
+* :ghpull:`26548`: Backport PR #26514 on branch v3.8.x (Clarify interaction between params of get_path_collection_extents.)
+* :ghpull:`26514`: Clarify interaction between params of get_path_collection_extents.
+* :ghpull:`26537`: Backport PR #26529 on branch v3.8.x (Fix MathText antialiasing)
+* :ghpull:`26536`: Backport PR #26532 on branch v3.8.x (Fix input check in Poly3DCollection.__init__)
+* :ghpull:`26529`: Fix MathText antialiasing
+* :ghpull:`26534`: Backport PR #26513 on branch v3.8.x (Tweak shape repr in _api.check_shape error message.)
+* :ghpull:`26533`: Backport PR #26526 on branch v3.8.x (Bump pypa/cibuildwheel from 2.14.1 to 2.15.0)
+* :ghpull:`26513`: Tweak shape repr in _api.check_shape error message.
+* :ghpull:`26526`: Bump pypa/cibuildwheel from 2.14.1 to 2.15.0
+* :ghpull:`26201`: DOC: Add documentation on codespaces usage
+* :ghpull:`26530`: Backport PR #26509 on branch v3.8.x (Update/tweak SpanSelector docs.)
+* :ghpull:`26509`: Update/tweak SpanSelector docs.
+* :ghpull:`26528`: Backport PR #26504 on branch v3.8.x (TYP: Add overload to specify output of Colormap.__call__ when possible)
+* :ghpull:`26527`: Backport PR #26173 on branch v3.8.x (Synchronize mathtext docs and handling)
+* :ghpull:`26504`: TYP: Add overload to specify output of Colormap.__call__ when possible
+* :ghpull:`26173`: Synchronize mathtext docs and handling
+* :ghpull:`26511`: Backport PR #26490 on branch v3.8.x (Import PIL.Image explicitly over PIL)
+* :ghpull:`26490`: Import PIL.Image explicitly over PIL
+* :ghpull:`26503`: Backport PR #26502 on branch v3.8.x (TST: Increase some tolerances for non-x86 arches)
+* :ghpull:`26502`: TST: Increase some tolerances for non-x86 arches
+* :ghpull:`26499`: Backport PR #26498 on branch v3.8.x (Add plausible analytics to the documentation pages)
+* :ghpull:`26498`: Add plausible analytics to the documentation pages
+* :ghpull:`26493`: Disable ````add_html_cache_busting```` on Sphinx 7.1+
+* :ghpull:`26489`: Backport PR #26487 on branch v3.8.x (DOC: Remove unused image rotator)
+* :ghpull:`26487`: DOC: Remove unused image rotator
 * :ghpull:`26479`: ps: Add option to use figure size as paper size
 * :ghpull:`26469`: Deprecate PdfPages(keep_empty=True).
 * :ghpull:`24379`: DOC: Update dropped splines example
@@ -186,6 +333,7 @@ Pull Requests (506):
 * :ghpull:`26444`: Fix some bugs found by typing
 * :ghpull:`26253`: Filter out inf values in plot_surface
 * :ghpull:`26407`: Improve some smaller typing issues
+* :ghpull:`26328`: [DOC]: improve consistency of plot types gallery
 * :ghpull:`26434`: TYP: Adjust type hint of Norm.__call__ to return masked array
 * :ghpull:`26376`: Text antialiasing for mathtext (reopen)
 * :ghpull:`25830`: Specify ticks and axis label positions for 3D plots
@@ -368,6 +516,7 @@ Pull Requests (506):
 * :ghpull:`25950`: Upload nightlies to new location
 * :ghpull:`25473`: ci: Merge sdist and wheel building workflows
 * :ghpull:`25825`: Fix MarkerStyle types
+* :ghpull:`26002`: Bump pypa/cibuildwheel from 2.12.3 to 2.13.0
 * :ghpull:`25999`: "Inactive" workflow: add close label for inactive issues
 * :ghpull:`24493`: DOC: dropdowns in userguide
 * :ghpull:`25970`: FIX: resolve an issue where no ticks would be drawn for a colorbar with SymLogNorm and ranging exactly from 0 to linthresh
@@ -664,8 +813,24 @@ Pull Requests (506):
 * :ghpull:`24913`: Deprecate Bbox.anchored() with no container.
 * :ghpull:`24905`: Remove some long-obsolete commented code in grid_helper_curvelinear.
 
-Issues (168):
+Issues (185):
 
+* :ghissue:`26765`: [Bug]: Crash in Windows 10 if polar axis lim is lower than lowest data point.
+* :ghissue:`26674`: [Doc]: Line3DCollection segments
+* :ghissue:`26531`: [Bug]: ValueError thrown when ``levels`` is set to a lower value than ``vmin`` when using ``contours`` method of Axes
+* :ghissue:`26029`: [MNT]: Unify tex2uni
+* :ghissue:`26637`: [Doc]: Reduce references to set_tight_layout
+* :ghissue:`26639`: [Bug]: Incorrect type annotation for legend handes?
+* :ghissue:`26600`: [Doc]: contourf demo use of origin keyword
+* :ghissue:`26508`: [Doc]: Pyplot Axes – tuple or list?
+* :ghissue:`21524`: [Bug]: Removing an inset_axes that shares an axes does not remove it from the sharing group
+* :ghissue:`26604`: [Doc]: Inappropriate example in gallery
+* :ghissue:`26379`: [doc]: add 'validate' section to install docs
+* :ghissue:`19409`: Boxplot: Median line too long after changing linewidth
+* :ghissue:`26510`: [Bug]: mathtext silently ignores content after mismatched opening brace
+* :ghissue:`26501`: [Bug]: type-checking errors with mypy + matplotlib 3.8.0rc1
+* :ghissue:`16657`: Postscript backend gives wrong page sizes
+* :ghissue:`11771`: Change PdfPages to default to keep_empty=False and eventually deprecate keep_empty
 * :ghissue:`26438`: [ENH]: ``musllinux`` wheels for Alpine
 * :ghissue:`26446`: Disallow ``clip`` when ``vmin`` and ``vmax`` are not set in ``matplotlib.colors.Normalize``
 * :ghissue:`10002`: can't stop macosx mainloop
@@ -681,6 +846,7 @@ Issues (168):
 * :ghissue:`26409`: [TST] Upcoming dependency test failures
 * :ghissue:`26351`: [Doc]: Bad rendering of the title of the MRI example
 * :ghissue:`26156`: [Doc]: navigating to the User Guide
+* :ghissue:`15785`: xlim_changed not emitted on shared axis
 * :ghissue:`26343`: [Bug]: ContourSet.antialiased attribute not present
 * :ghissue:`14247`: latex \substack doesn't work
 * :ghissue:`17190`: ipython autocomplete does not work for plt.figure()

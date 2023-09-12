@@ -1,3 +1,34 @@
+Removals
+--------
+
+cbook removals
+~~~~~~~~~~~~~~
+
+- ``matplotlib.cbook.MatplotlibDeprecationWarning`` and
+  ``matplotlib.cbook.mplDeprecation`` are removed; use
+  `matplotlib.MatplotlibDeprecationWarning` instead.
+- ``cbook.maxdict``; use the standard library ``functools.lru_cache`` instead.
+
+Groupers from ``get_shared_x_axes`` / ``get_shared_y_axes`` are immutable
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Modifications to the Groupers returned by ``get_shared_x_axes`` and
+``get_shared_y_axes`` are no longer allowed. Note that previously, calling e.g.
+``join()`` would already fail to set up the correct structures for sharing
+axes; use `.Axes.sharex` or `.Axes.sharey` instead.
+
+Deprecated modules removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following deprecated modules are removed:
+
+* ``afm``
+* ``docstring``
+* ``fontconfig_pattern``
+* ``tight_bbox``
+* ``tight_layout``
+* ``type1font``
+
 Parameters to ``plt.figure()`` and the ``Figure`` constructor
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -118,6 +149,36 @@ Vendor the code from a previous version.
 
 ... is removed with no replacement. Copy the previous implementation if
 needed.
+``Figure.callbacks`` is removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Figure ``callbacks`` property has been removed. The only signal was
+"dpi_changed", which can be replaced by connecting to the "resize_event" on the
+canvas ``figure.canvas.mpl_connect("resize_event", func)`` instead.
+
+
+Passing too many positional arguments to ``tripcolor``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... raises ``TypeError`` (extra arguments were previously ignored).
+
+
+The *filled* argument to ``Colorbar`` is removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This behavior was already governed by the underlying ``ScalarMappable``.
+
+
+Widgets
+~~~~~~~
+
+The *visible* attribute setter of Selector widgets has been removed; use ``set_visible``
+The associated getter is also deprecated, but not yet expired.
+
+``Axes3D.set_frame_on`` and ``Axes3D.get_frame_on`` removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``Axes3D.set_frame_on`` is documented as "Set whether the 3D axes panels are
+drawn.". However, it has no effect on 3D axes and is being removed in
+favor of ``Axes3D.set_axis_on`` and ``Axes3D.set_axis_off``.
 
 Miscellaneous internals
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -172,3 +233,55 @@ Backend-specific removals
 - ``backend_svg.short_float_fmt``; vendor the code of the similarly named
   private functions if you rely on it.
 - ``backend_svg.generate_transform`` and ``backend_svg.generate_css``
+
+Removal of deprecated APIs
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following deprecated APIs have been removed.  Unless a replacement is stated, please
+vendor the previous implementation if needed.
+
+- The following methods of `.FigureCanvasBase`: ``pick`` (use ``Figure.pick`` instead),
+  ``resize``, ``draw_event``, ``resize_event``, ``close_event``, ``key_press_event``,
+  ``key_release_event``, ``pick_event``, ``scroll_event``, ``button_press_event``,
+  ``button_release_event``, ``motion_notify_event``, ``leave_notify_event``,
+  ``enter_notify_event`` (for all the ``foo_event`` methods, construct the relevant
+  `.Event` object and call ``canvas.callbacks.process(event.name, event)`` instead).
+- ``ToolBase.destroy`` (connect to ``tool_removed_event`` instead).
+- The *cleared* parameter to `.FigureCanvasAgg.get_renderer` (call ``renderer.clear()``
+  instead).
+- The following methods of `.RendererCairo`: ``set_ctx_from_surface`` and
+  ``set_width_height`` (use ``set_context`` instead, which automatically infers the
+  canvas size).
+- The ``window`` or ``win`` parameters and/or attributes of ``NavigationToolbar2Tk``,
+  ``NavigationToolbar2GTK3``, and ``NavigationToolbar2GTK4``, and the ``lastrect``
+  attribute of ``NavigationToolbar2Tk``
+- The ``error_msg_gtk`` function and the ``icon_filename`` and ``window_icon`` globals
+  in ``backend_gtk3``; the ``error_msg_wx`` function in ``backend_wx``.
+- ``FigureManagerGTK3Agg`` and ``FigureManagerGTK4Agg`` (use ``FigureManagerGTK3``
+  instead); ``RendererGTK3Cairo`` and ``RendererGTK4Cairo``.
+- ``NavigationToolbar2Mac.prepare_configure_subplots`` (use
+  `~.NavigationToolbar2.configure_subplots` instead).
+- ``FigureManagerMac.close``.
+- The ``qApp`` global in `.backend_qt` (use ``QtWidgets.QApplication.instance()``
+  instead).
+- The ``offset_text_height`` method of ``RendererWx``; the ``sizer``, ``figmgr``,
+  ``num``, ``toolbar``, ``toolmanager``, ``get_canvas``, and ``get_figure_manager``
+  attributes or methods of ``FigureFrameWx`` (use ``frame.GetSizer()``,
+  ``frame.canvas.manager``, ``frame.canvas.manager.num``, ``frame.GetToolBar()``,
+  ``frame.canvas.manager.toolmanager``, the *canvas_class* constructor parameter, and
+  ``frame.canvas.manager``, respectively, instead).
+- ``FigureFrameWxAgg`` and ``FigureFrameWxCairo`` (use
+  ``FigureFrameWx(..., canvas_class=FigureCanvasWxAgg)`` and
+  ``FigureFrameWx(..., canvas_class=FigureCanvasWxCairo)``, respectively, instead).
+- The ``filled`` attribute and the ``draw_all`` method of `.Colorbar` (instead of
+  ``draw_all``, use ``figure.draw_without_rendering``).
+- Calling `.MarkerStyle` without setting the *marker* parameter or setting it to None
+  (use ``MarkerStyle("")`` instead).
+- Support for third-party canvas classes without a ``required_interactive_framework``
+  attribute (this can only occur if the canvas class does not inherit from
+  `.FigureCanvasBase`).
+- The ``canvas`` and ``background`` attributes of `.MultiCursor`; the
+  ``state_modifier_keys`` attribute of selector widgets.
+- Passing *useblit*, *horizOn*, or *vertOn* positionally to `.MultiCursor`.
+- Support for the ``seaborn-<foo>`` styles; use ``seaborn-v0_8-<foo>`` instead, or
+  directly use the seaborn API.
