@@ -11,12 +11,14 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
+from datetime import datetime, timezone
 import logging
 import os
 from pathlib import Path
 import shutil
 import subprocess
 import sys
+import time
 from urllib.parse import urlsplit, urlunsplit
 import warnings
 
@@ -25,9 +27,6 @@ import yaml
 
 import matplotlib
 
-from datetime import timezone
-from datetime import datetime
-import time
 
 # debug that building expected version
 print(f"Building Documentation for Matplotlib: {matplotlib.__version__}")
