@@ -34,7 +34,7 @@ _log = logging.getLogger(__name__)
 
 def _get_preamble():
     """Prepare a LaTeX preamble based on the rcParams configuration."""
-    preamble = [
+    return "\n".join([
         # Remove Matplotlib's custom command \mathdefault.  (Not using
         # \mathnormal instead since this looks odd with Computer Modern.)
         r"\def\mathdefault#1{#1}",
@@ -42,21 +42,21 @@ def _get_preamble():
         r"\everymath=\expandafter{\the\everymath\displaystyle}",
         # Allow pgf.preamble to override the above definitions.
         mpl.rcParams["pgf.preamble"],
-    ]
-    if mpl.rcParams["pgf.texsystem"] != "pdflatex":
-        preamble.append("\\usepackage{fontspec}")
-        if mpl.rcParams["pgf.rcfonts"]:
-            families = ["serif", "sans\\-serif", "monospace"]
-            commands = ["setmainfont", "setsansfont", "setmonofont"]
-            for family, command in zip(families, commands):
-                # 1) Forward slashes also work on Windows, so don't mess with
-                # backslashes.  2) The dirname needs to include a separator.
-                path = pathlib.Path(fm.findfont(family))
-                preamble.append(r"\%s{%s}[Path=\detokenize{%s/}]" % (
-                    command, path.name, path.parent.as_posix()))
-    preamble.append(mpl.texmanager._usepackage_if_not_loaded(
-        "underscore", option="strings"))  # Documented as "must come last".
-    return "\n".join(preamble)
+        r"\ifdefined\pdftexversion\else  % non-pdftex case.",
+        r"  \usepackage{fontspec}",
+        *([
+            r"  \%s{%s}[Path=\detokenize{%s/}]"
+            % (command, path.name, path.parent.as_posix())
+            for command, path in zip(
+                ["setmainfont", "setsansfont", "setmonofont"],
+                [pathlib.Path(fm.findfont(family))
+                 for family in ["serif", "sans\\-serif", "monospace"]]
+            )
+        ] if mpl.rcParams["pgf.rcfonts"] else []),
+        r"\fi",
+        # Documented as "must come last".
+        mpl.texmanager._usepackage_if_not_loaded("underscore", option="strings"),
+    ])
 
 
 # It's better to use only one unit for all coordinates, since the
@@ -94,9 +94,9 @@ def _escape_and_apply_props(s, prop):
     family = prop.get_family()[0]
     if family in families:
         commands.append(families[family])
-    elif (any(font.name == family for font in fm.fontManager.ttflist)
-          and mpl.rcParams["pgf.texsystem"] != "pdflatex"):
-        commands.append(r"\setmainfont{%s}\rmfamily" % family)
+    elif any(font.name == family for font in fm.fontManager.ttflist):
+        commands.append(
+            r"\ifdefined\pdftexversion\else\setmainfont{%s}\rmfamily\fi" % family)
     else:
         _log.warning("Ignoring unknown font: %s", family)
 
