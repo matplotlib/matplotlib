@@ -1,5 +1,8 @@
 .. highlight:: bash
 
+.. redirect-from:: /devel/gitwash/development_workflow
+.. redirect-from:: /devel/gitwash/maintainer_workflow
+
 .. _development-workflow:
 
 ####################
