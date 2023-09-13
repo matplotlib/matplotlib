@@ -1,7 +1,7 @@
 """
-==========================
-3D voxel / volumetric plot
-==========================
+=========================
+voxels([x, y, z], filled)
+=========================
 
 See `~mpl_toolkits.mplot3d.axes3d.Axes3D.voxels`.
 """

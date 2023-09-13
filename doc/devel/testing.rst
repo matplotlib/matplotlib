@@ -122,6 +122,12 @@ case :file:`lib/matplotlib/tests/baseline_images/test_lines`).  Put this new
 file under source code revision control (with ``git add``).  When rerunning
 the tests, they should now pass.
 
+It is preferred that new tests use ``style='mpl20'`` as this leads to smaller
+figures and reflects the newer look of default Matplotlib plots. Also, if the
+texts (labels, tick labels, etc) are not really part of what is tested, use
+``remove_text=True`` as this will lead to smaller figures and reduce possible
+issues with font mismatch on different platforms.
+
 Baseline images take a lot of space in the Matplotlib repository.
 An alternative approach for image comparison tests is to use the
 `~matplotlib.testing.decorators.check_figures_equal` decorator, which should be
@@ -130,11 +136,26 @@ images on the figures using two different methods (the tested method and the
 baseline method).  The decorator will arrange for setting up the figures and
 then collect the drawn results and compare them.
 
-It is preferred that new tests use ``style='mpl20'`` as this leads to smaller
-figures and reflects the newer look of default Matplotlib plots. Also, if the
-texts (labels, tick labels, etc) are not really part of what is tested, use
-``remove_text=True`` as this will lead to smaller figures and reduce possible
-issues with font mismatch on different platforms.
+For example, this test compares two different methods to draw the same
+circle: plotting a circle using a `matplotlib.patches.Circle` patch
+vs plotting the circle using the parametric equation of a circle ::
+
+   from matplotlib.testing.decorators import check_figures_equal
+   import matplotib.patches as mpatches
+   import matplotlib.pyplot as plt
+   import numpy as np
+
+   @check_figures_equal(extensions=['png'], tol=100)
+   def test_parametric_circle_plot(fig_test, fig_ref):
+       red_circle_ref = mpatches.Circle((0, 0), 0.2, color='r', clip_on=False)
+       fig_ref.add_artist(red_circle_ref)
+       theta = np.linspace(0, 2 * np.pi, 150)
+       radius = 0.4
+       fig_test.plot(radius * np.cos(theta), radius * np.sin(theta), color='r')
+
+Both comparison decorators have a tolerance argument ``tol`` that is used to specify the
+tolerance for difference in color value between the two images, where 255 is the maximal
+difference. The test fails if the average pixel difference is greater than this value.
 
 See the documentation of `~matplotlib.testing.decorators.image_comparison` and
 `~matplotlib.testing.decorators.check_figures_equal` for additional information
