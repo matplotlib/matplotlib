@@ -1333,7 +1333,7 @@ def test_pcolormesh():
     Qz = np.sin(Y) + np.sin(X)
     Qx = (Qx + 1.1)
     Z = np.hypot(X, Y) / 5
-    Z = (Z - Z.min()) / Z.ptp()
+    Z = (Z - Z.min()) / np.ptp(Z)
 
     # The color array can include masked values:
     Zm = ma.masked_where(np.abs(Qz) < 0.5 * np.max(Qz), Z)
@@ -1354,7 +1354,7 @@ def test_pcolormesh_small():
     Qz = np.sin(Y) + np.sin(X)
     Qx = (Qx + 1.1)
     Z = np.hypot(X, Y) / 5
-    Z = (Z - Z.min()) / Z.ptp()
+    Z = (Z - Z.min()) / np.ptp(Z)
     Zm = ma.masked_where(np.abs(Qz) < 0.5 * np.max(Qz), Z)
     Zm2 = ma.masked_where(Qz < -0.5 * np.max(Qz), Z)
 
@@ -1384,7 +1384,7 @@ def test_pcolormesh_alpha():
     Qx = X
     Qy = Y + np.sin(X)
     Z = np.hypot(X, Y) / 5
-    Z = (Z - Z.min()) / Z.ptp()
+    Z = (Z - Z.min()) / np.ptp(Z)
     vir = mpl.colormaps["viridis"].resampled(16)
     # make another colormap with varying alpha
     colors = vir(np.arange(16))
