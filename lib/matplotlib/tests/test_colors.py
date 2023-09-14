@@ -216,7 +216,7 @@ def test_colormap_endian():
     a = [-0.5, 0, 0.5, 1, 1.5, np.nan]
     for dt in ["f2", "f4", "f8"]:
         anative = np.ma.masked_invalid(np.array(a, dtype=dt))
-        aforeign = anative.byteswap().newbyteorder()
+        aforeign = anative.byteswap().view(anative.dtype.newbyteorder())
         assert_array_equal(cmap(anative), cmap(aforeign))
 
 
@@ -1126,7 +1126,7 @@ def test_light_source_hillshading():
 
         intensity = np.tensordot(normals, illum, axes=(2, 0))
         intensity -= intensity.min()
-        intensity /= intensity.ptp()
+        intensity /= np.ptp(intensity)
         return intensity
 
     y, x = np.mgrid[5:0:-1, :5]
