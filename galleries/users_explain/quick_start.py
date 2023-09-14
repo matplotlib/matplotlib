@@ -126,10 +126,13 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
 #   b = np.matrix([[1, 2], [3, 4]])
 #   b_asarray = np.asarray(b)
 #
-# Most methods will also parse an addressable object like a *dict*, a
-# `numpy.recarray`, or a `pandas.DataFrame`.  Matplotlib allows you to
-# provide the ``data`` keyword argument and generate plots passing the
+# Most methods will also parse a string-indexable object like a *dict*, a
+# `structured numpy array`_, or a `pandas.DataFrame`.  Matplotlib allows you
+# to provide the ``data`` keyword argument and generate plots passing the
 # strings corresponding to the *x* and *y* variables.
+#
+# .. _structured numpy array: <https://numpy.org/doc/stable/user/basics.rec.html#structured-arrays>`_  # noqa: E501
+
 np.random.seed(19680801)  # seed the random number generator.
 data = {'a': np.arange(50),
         'c': np.random.randint(0, 50, 50),
