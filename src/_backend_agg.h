@@ -1193,6 +1193,9 @@ inline void RendererAgg::_draw_gouraud_triangle(PointArray &points,
             tpoints[i][j] = points(i, j);
         }
         trans.transform(&tpoints[i][0], &tpoints[i][1]);
+        if(std::isnan(tpoints[i][0]) || std::isnan(tpoints[i][1])) {
+            return;
+        }
     }
 
     span_alloc_t span_alloc;
