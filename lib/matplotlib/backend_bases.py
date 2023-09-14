@@ -2632,7 +2632,7 @@ class FigureManagerBase:
     _toolbar2_class = None
     _toolmanager_toolbar_class = None
 
-    def __init__(self, canvas, num):
+    def __init__(self, canvas: FigureCanvasBase, num):
         self.canvas = canvas
         canvas.manager = self  # store a pointer to parent
         self.num = num
