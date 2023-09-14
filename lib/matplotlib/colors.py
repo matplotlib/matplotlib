@@ -726,7 +726,8 @@ class Colormap:
 
         xa = np.array(X, copy=True)
         if not xa.dtype.isnative:
-            xa = xa.byteswap().newbyteorder()  # Native byteorder is faster.
+            # Native byteorder is faster.
+            xa = xa.byteswap().view(xa.dtype.newbyteorder())
         if xa.dtype.kind == "f":
             xa *= self.N
             # xa == 1 (== N after multiplication) is not out of range.
@@ -2161,7 +2162,7 @@ def rgb_to_hsv(arr):
     out = np.zeros_like(arr)
     arr_max = arr.max(-1)
     ipos = arr_max > 0
-    delta = arr.ptp(-1)
+    delta = np.ptp(arr, -1)
     s = np.zeros_like(delta)
     s[ipos] = delta[ipos] / arr_max[ipos]
     ipos = delta > 0
