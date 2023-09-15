@@ -90,7 +90,7 @@ methods for its *xy1*, *xy2* and *slope* attributes:
 Clipping for contour plots
 --------------------------
 
-`-.Axes.contour` and `-.Axes.contourf` now accept the *clip_path* parameter.
+`~.Axes.contour` and `~.Axes.contourf` now accept the *clip_path* parameter.
 
 .. plot::
     :include-source: true
@@ -114,7 +114,7 @@ Clipping for contour plots
 
 ``Axes.ecdf``
 -------------
-A new Axes method, `-.Axes.ecdf`, allows plotting empirical cumulative
+A new Axes method, `~.Axes.ecdf`, allows plotting empirical cumulative
 distribution functions without any binning.
 
 .. plot::
@@ -228,19 +228,19 @@ Note that an explicit alpha keyword argument will override an alpha value from
 The pie chart shadow can be controlled
 --------------------------------------
 
-The *shadow* argument to `-.Axes.pie` can now be a dict, allowing more control
+The *shadow* argument to `~.Axes.pie` can now be a dict, allowing more control
 of the `.Shadow`-patch used.
 
 
 ``PolyQuadMesh`` is a new class for drawing quadrilateral meshes
 ----------------------------------------------------------------
 
-`-.Axes.pcolor` previously returned a flattened `.PolyCollection` with only
+`~.Axes.pcolor` previously returned a flattened `.PolyCollection` with only
 the valid polygons (unmasked) contained within it. Now, we return a `.PolyQuadMesh`,
 which is a mixin incorporating the usefulness of 2D array and mesh coordinates
 handling, but still inheriting the draw methods of `.PolyCollection`, which enables
 more control over the rendering properties than a normal `.QuadMesh` that is
-returned from `-.Axes.pcolormesh`. The new class subclasses `.PolyCollection` and thus
+returned from `~.Axes.pcolormesh`. The new class subclasses `.PolyCollection` and thus
 should still behave the same as before. This new class keeps track of the mask for
 the user and updates the Polygons that are sent to the renderer appropriately.
 
@@ -296,7 +296,7 @@ will now use the padding sizes defined on the layout engine.
 Add a public method to modify the location of ``Legend``
 --------------------------------------------------------
 
-`-matplotlib.legend.Legend` locations now can be tweaked after they've been defined.
+`~matplotlib.legend.Legend` locations now can be tweaked after they've been defined.
 
 .. plot::
     :include-source: true
