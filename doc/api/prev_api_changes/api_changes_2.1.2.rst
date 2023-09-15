@@ -12,9 +12,9 @@ list of conditions was incomplete, didn't handle RGB tuples,
 didn't handle linewidths or linestyles etc.
 
 This logic did not exist in `.axes.Axes.legend`.  It was included (erroneously)
-in Matplotlib 2.1.1 when the legend argument parsing was unified
-`#9324 <https://github.com/matplotlib/matplotlib/pull/9324>`_.  This change
-removes that check in `.axes.Axes.legend` again to restore the old behavior.
+in Matplotlib 2.1.1 when the legend argument parsing was unified :ghpull:`9324`.  
+This change removes that check in `.axes.Axes.legend` again to restore the old 
+behavior.
 
 This logic has also been dropped from `.Figure.legend`, where it
 was previously undocumented. Repeated

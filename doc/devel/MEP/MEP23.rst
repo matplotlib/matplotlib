@@ -34,8 +34,8 @@ This is and may continue to be the desired method of operation for
 most use cases.
 
 Sometimes when there are too many figures open at the same time, it is
-desirable to be able to group these under the same window
-`see <https://github.com/matplotlib/matplotlib/issues/2194>`_.
+desirable to be able to group these under the same window. See :ghpull:`2194`.
+
 
 The proposed solution modifies `.FigureManagerBase` to contain and manage more
 than one ``Canvas``. The settings parameter :rc:`backend.multifigure` control
