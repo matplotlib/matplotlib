@@ -1,6 +1,0 @@
-PostScript paper type adds option to use figure size
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The :rc:`ps.papertype` rcParam can now be set to ``'figure'``, which will use
-a paper size that corresponds exactly with the size of the figure that is being
-saved.

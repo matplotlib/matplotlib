@@ -46,7 +46,7 @@ same way as any other matplotlib backend. Because figures require a connection
 to the IPython notebook server for their interactivity, once the notebook is
 saved, each figure will be rendered as a static image - thus allowing
 non-interactive viewing of figures on services such as
-`nbviewer <https://nbviewer.ipython.org/>`__.
+`nbviewer <https://nbviewer.jupyter.org/>`__.
 
 
 

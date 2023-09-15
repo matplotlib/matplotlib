@@ -211,7 +211,7 @@ wxAgg     Agg rendering to a wxWidgets_ canvas (requires wxPython_ 4).
 .. _Cairo: https://www.cairographics.org
 .. _PyGObject: https://wiki.gnome.org/action/show/Projects/PyGObject
 .. _pycairo: https://www.cairographics.org/pycairo/
-.. _cairocffi: https://pythonhosted.org/cairocffi/
+.. _cairocffi: https://doc.courtbouillon.org/cairocffi/stable/
 .. _wxPython: https://www.wxpython.org/
 .. _TkInter: https://docs.python.org/3/library/tk.html
 .. _PyQt: https://riverbankcomputing.com/software/pyqt/intro
