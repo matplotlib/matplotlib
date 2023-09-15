@@ -3382,7 +3382,7 @@ class Axes(_AxesBase):
         Plot y versus x as lines and/or markers with attached errorbars.
 
         *x*, *y* define the data locations, *xerr*, *yerr* define the errorbar
-        sizes. By default, this draws the data markers/lines as well the
+        sizes. By default, this draws the data markers/lines as well as the
         errorbars. Use fmt='none' to draw errorbars without any data markers.
 
         .. versionadded:: 3.7
