@@ -1438,8 +1438,12 @@ default: %(va)s
 
     def add_gridspec(self, nrows=1, ncols=1, **kwargs):
         """
-        Return a `.GridSpec` that has this figure as a parent.  This allows
-        complex layout of Axes in the figure.
+        Low-level API for creating a `.GridSpec` that has this figure as a parent.
+
+        This is a low-level API, allowing you to create a gridspec and
+        subsequently add subplots based on the gridspec. Most users do
+        not need that freedom and should use the higher-level methods
+        `~.Figure.subplots` or `~.Figure.subplot_mosaic`.
 
         Parameters
         ----------
@@ -1663,6 +1667,9 @@ default: %(va)s
         return projection_class, kwargs
 
     def get_default_bbox_extra_artists(self):
+        """
+        Return a list of Artists typically used in `.Figure.get_tightbbox`.
+        """
         bbox_artists = [artist for artist in self.get_children()
                         if (artist.get_visible() and artist.get_in_layout())]
         for ax in self.axes:
@@ -2088,6 +2095,7 @@ class SubFigure(FigureBase):
     """
     Logical figure that can be placed inside a figure.
 
+    See :ref:`figure-api-subfigure` for an index of methods on this class.
     Typically instantiated using `.Figure.add_subfigure` or
     `.SubFigure.add_subfigure`, or `.SubFigure.subfigures`.  A subfigure has
     the same methods as a figure except for those particularly tied to the size
@@ -2298,6 +2306,8 @@ class SubFigure(FigureBase):
 class Figure(FigureBase):
     """
     The top level container for all the plot elements.
+
+    See `matplotlib.figure` for an index of class methods.
 
     Attributes
     ----------
@@ -2715,21 +2725,21 @@ None}, default: None
     dpi = property(_get_dpi, _set_dpi, doc="The resolution in dots per inch.")
 
     def get_tight_layout(self):
-        """Return whether `.tight_layout` is called when drawing."""
+        """Return whether `.Figure.tight_layout` is called when drawing."""
         return isinstance(self.get_layout_engine(), TightLayoutEngine)
 
     @_api.deprecated("3.6", alternative="set_layout_engine",
                      pending=True)
     def set_tight_layout(self, tight):
         """
-        Set whether and how `.tight_layout` is called when drawing.
+        Set whether and how `.Figure.tight_layout` is called when drawing.
 
         Parameters
         ----------
         tight : bool or dict with keys "pad", "w_pad", "h_pad", "rect" or None
-            If a bool, sets whether to call `.tight_layout` upon drawing.
+            If a bool, sets whether to call `.Figure.tight_layout` upon drawing.
             If ``None``, use :rc:`figure.autolayout` instead.
-            If a dict, pass it as kwargs to `.tight_layout`, overriding the
+            If a dict, pass it as kwargs to `.Figure.tight_layout`, overriding the
             default paddings.
         """
         if tight is None:
@@ -3170,7 +3180,7 @@ None}, default: None
 
     def savefig(self, fname, *, transparent=None, **kwargs):
         """
-        Save the current figure.
+        Save the current figure as an image or vector graphic to a file.
 
         Call signature::
 

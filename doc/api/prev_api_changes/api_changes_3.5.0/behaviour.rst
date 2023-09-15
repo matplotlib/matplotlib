@@ -4,7 +4,7 @@ Behaviour changes
 First argument to ``subplot_mosaic`` renamed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Both `.FigureBase.subplot_mosaic`, and `.pyplot.subplot_mosaic` have had the
+Both `.Figure.subplot_mosaic`, and `.pyplot.subplot_mosaic` have had the
 first positional argument renamed from *layout* to *mosaic*. As we have
 consolidated the *constrained_layout* and *tight_layout* keyword arguments in
 the Figure creation functions of `.pyplot` into a single *layout* keyword

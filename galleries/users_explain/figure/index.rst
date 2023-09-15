@@ -1,3 +1,5 @@
+.. _figures_and_backends:
+
 ++++++++++++++++++++
 Figures and backends
 ++++++++++++++++++++

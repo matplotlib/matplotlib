@@ -634,8 +634,8 @@ supxlabel and supylabel
 -----------------------
 
 It is possible to add x- and y-labels to a whole figure, analogous to
-`.FigureBase.suptitle` using the new `.FigureBase.supxlabel` and
-`.FigureBase.supylabel` methods.
+`.Figure.suptitle` using the new `.Figure.supxlabel` and
+`.Figure.supylabel` methods.
 
 .. plot::
 
