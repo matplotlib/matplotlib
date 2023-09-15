@@ -265,21 +265,6 @@ class Tick(martist.Artist):
         """Get the value of the tick label pad in points."""
         return self._base_pad
 
-    def _get_text1(self):
-        """Get the default Text 1 instance."""
-
-    def _get_text2(self):
-        """Get the default Text 2 instance."""
-
-    def _get_tick1line(self):
-        """Get the default `.Line2D` instance for tick1."""
-
-    def _get_tick2line(self):
-        """Get the default `.Line2D` instance for tick2."""
-
-    def _get_gridline(self):
-        """Get the default grid `.Line2D` instance for this tick."""
-
     def get_loc(self):
         """Return the tick location (data coords) as a scalar."""
         return self._loc
