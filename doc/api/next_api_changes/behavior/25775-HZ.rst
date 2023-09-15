@@ -4,7 +4,7 @@ Default antialiasing behavior changes for ``Text`` and ``Annotation``
 ``matplotlib.pyplot.annotate()`` and ``matplotlib.pyplot.text()`` now support parameter *antialiased* when initializing.
 Examples:
 
-.. code-block::
+.. code-block:: python
 
     mpl.text.Text(.5, .5, "foo\nbar", antialiased=True)
     plt.text(0.5, 0.5, '6 inches x 2 inches', antialiased=True)

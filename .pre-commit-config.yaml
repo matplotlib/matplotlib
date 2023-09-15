@@ -26,7 +26,6 @@ repos:
       - id: no-commit-to-branch #default is master and main
       - id: trailing-whitespace
         exclude_types: [svg]
-
   - repo: https://github.com/pycqa/flake8
     rev: 6.0.0
     hooks:
@@ -44,10 +43,15 @@ repos:
           "--skip",
           "doc/users/project/credits.rst"
           ]
-
   - repo: https://github.com/pycqa/isort
     rev: 5.12.0
     hooks:
       - id: isort
         name: isort (python)
         files: ^galleries/tutorials/|^galleries/examples/|^galleries/plot_types/
+  - repo: https://github.com/rstcheck/rstcheck
+    rev: v6.2.0
+    hooks:
+      - id: rstcheck
+        additional_dependencies:
+          - sphinx>=1.8.1

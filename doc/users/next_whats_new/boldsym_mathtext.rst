@@ -6,7 +6,7 @@ Supports using the ``\boldsymbol{}`` command in mathtext:
 To change symbols to bold enclose the text in a font command as
 shown:
 
-.. code-block::
+.. code-block:: none
 
     r'$\boldsymbol{a+2+\alpha}$'
 

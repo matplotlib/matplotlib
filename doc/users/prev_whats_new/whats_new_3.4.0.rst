@@ -494,7 +494,7 @@ display an image of the colormap.
 
 .. only:: html
 
-    .. code-block::
+    .. code-block:: ipython
 
         In[1]: cmap = plt.get_cmap('viridis').with_extremes(bad='r', under='g', over='b')
 

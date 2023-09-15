@@ -264,6 +264,7 @@ value of ``statfxn`` would be ``cbook.boxplot_stats``, but users could
 pass their own function. Then ``transform_in`` and ``transform_out`` would
 then be passed as elements of the ``statfxn_args`` parameter.
 
+.. rstcheck: ignore-next-code-block
 .. code:: python
 
    def boxplot_stats(data, ..., transform_in=None, transform_out=None):
