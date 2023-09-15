@@ -631,7 +631,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
                     command=getattr(self, callback),
                 )
                 if tooltip_text is not None:
-                    ToolTip.createToolTip(button, tooltip_text)
+                    add_tooltip(button, tooltip_text)
 
         self._label_font = tkinter.font.Font(root=window, size=10)
 
@@ -892,62 +892,44 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         state_map = {True: tk.NORMAL, False: tk.DISABLED}
         can_back = self._nav_stack._pos > 0
         can_forward = self._nav_stack._pos < len(self._nav_stack) - 1
-
         if "Back" in self._buttons:
             self._buttons['Back']['state'] = state_map[can_back]
-
         if "Forward" in self._buttons:
             self._buttons['Forward']['state'] = state_map[can_forward]
 
 
-class ToolTip:
-    """
-    Tooltip recipe from
-    http://www.voidspace.org.uk/python/weblog/arch_d7_2006_07_01.shtml#e387
-    """
-    @staticmethod
-    def createToolTip(widget, text):
-        toolTip = ToolTip(widget)
-        def enter(event):
-            toolTip.showtip(text)
-        def leave(event):
-            toolTip.hidetip()
-        widget.bind('<Enter>', enter)
-        widget.bind('<Leave>', leave)
+def add_tooltip(widget, text):
+    tipwindow = None
 
-    def __init__(self, widget):
-        self.widget = widget
-        self.tipwindow = None
-        self.id = None
-        self.x = self.y = 0
-
-    def showtip(self, text):
+    def showtip(event):
         """Display text in tooltip window."""
-        self.text = text
-        if self.tipwindow or not self.text:
+        nonlocal tipwindow
+        if tipwindow or not text:
             return
-        x, y, _, _ = self.widget.bbox("insert")
-        x = x + self.widget.winfo_rootx() + self.widget.winfo_width()
-        y = y + self.widget.winfo_rooty()
-        self.tipwindow = tw = tk.Toplevel(self.widget)
-        tw.wm_overrideredirect(1)
-        tw.wm_geometry("+%d+%d" % (x, y))
-        try:
-            # For Mac OS
-            tw.tk.call("::tk::unsupported::MacWindowStyle",
-                       "style", tw._w,
-                       "help", "noActivates")
+        x, y, _, _ = widget.bbox("insert")
+        x = x + widget.winfo_rootx() + widget.winfo_width()
+        y = y + widget.winfo_rooty()
+        tipwindow = tk.Toplevel(widget)
+        tipwindow.overrideredirect(1)
+        tipwindow.geometry(f"+{x}+{y}")
+        try:  # For Mac OS
+            tipwindow.tk.call("::tk::unsupported::MacWindowStyle",
+                              "style", tipwindow._w,
+                              "help", "noActivates")
         except tk.TclError:
             pass
-        label = tk.Label(tw, text=self.text, justify=tk.LEFT,
+        label = tk.Label(tipwindow, text=text, justify=tk.LEFT,
                          relief=tk.SOLID, borderwidth=1)
         label.pack(ipadx=1)
 
-    def hidetip(self):
-        tw = self.tipwindow
-        self.tipwindow = None
-        if tw:
-            tw.destroy()
+    def hidetip(event):
+        nonlocal tipwindow
+        if tipwindow:
+            tipwindow.destroy()
+        tipwindow = None
+
+    widget.bind("<Enter>", showtip)
+    widget.bind("<Leave>", hidetip)
 
 
 @backend_tools._register_tool_class(FigureCanvasTk)
@@ -1002,7 +984,7 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
                                               lambda: self._button_click(name))
         button.pack_configure(before=before)
         if description is not None:
-            ToolTip.createToolTip(button, description)
+            add_tooltip(button, description)
         self._toolitems.setdefault(name, [])
         self._toolitems[name].append(button)
 
