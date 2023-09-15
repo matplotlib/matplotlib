@@ -221,6 +221,7 @@ fig.text(.1, .1, r'even: $ \delta $ = $ \$4 $')
 # ``\mathcal{CALLIGRAPHY}`` :mathmpl:`\mathcal{CALLIGRAPHY}`
 # ========================= ================================
 #
+# .. rstcheck: ignore-directives=role
 # .. role:: math-stix(mathmpl)
 #    :fontset: stix
 #

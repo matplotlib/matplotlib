@@ -200,6 +200,4 @@ ignore_messages = [
     "Hyperlink target \".*\" is not referenced.",
     "Duplicate implicit target name: \".*\".",
     "Duplicate explicit target name: \".*\".",
-    # error in role directive is `.. role:: math-stix(mathmpl)
-    "Error in \"role\" directive:",
 ]
