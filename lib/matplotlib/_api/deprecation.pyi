@@ -1,18 +1,18 @@
-from collections.abc import Callable
 import contextlib
-from typing import Any, TypedDict, TypeVar, overload
-from typing_extensions import (
-    ParamSpec,  # < Py 3.10
-    Unpack,  # < Py 3.11
-)
+from collections.abc import Callable
+from typing import Any, TypeVar, overload
+from typing_extensions import ParamSpec, Unpack
 
 _P = ParamSpec("_P")
 _R = TypeVar("_R")
 _T = TypeVar("_T")
 
-class MatplotlibDeprecationWarning(DeprecationWarning): ...
 
-class DeprecationKwargs(TypedDict, total=False):
+class MatplotlibDeprecationWarning(DeprecationWarning):
+    """Custom deprecation warning class."""
+
+
+class DeprecationKwargs(dict):
     message: str
     alternative: str
     pending: bool
@@ -20,57 +20,91 @@ class DeprecationKwargs(TypedDict, total=False):
     addendum: str
     removal: str
 
-class NamedDeprecationKwargs(DeprecationKwargs, total=False):
+
+class NamedDeprecationKwargs(DeprecationKwargs):
     name: str
 
-def warn_deprecated(since: str, **kwargs: Unpack[NamedDeprecationKwargs]) -> None: ...
-def deprecated(
-    since: str, **kwargs: Unpack[NamedDeprecationKwargs]
-) -> Callable[[_T], _T]: ...
+
+def warn_deprecated(since: str, **kwargs: NamedDeprecationKwargs) -> None:
+    """Warn about deprecated features."""
+
+
+def deprecated(since: str, **kwargs: NamedDeprecationKwargs) -> Callable[[_T], _T]:
+    """Decorator to mark a function or method as deprecated."""
+
 
 class deprecate_privatize_attribute(Any):
-    def __init__(self, since: str, **kwargs: Unpack[NamedDeprecationKwargs]): ...
-    def __set_name__(self, owner: type[object], name: str) -> None: ...
+    def __init__(self, since: str, **kwargs: NamedDeprecationKwargs):
+        """Deprecate and privatize an attribute."""
 
-DECORATORS: dict[Callable, Callable] = ...
+
+    def __set_name__(self, owner: type[object], name: str) -> None:
+        """Set the name of the owner class."""
+
+
+DECORATORS = {}
+
 
 @overload
 def rename_parameter(
     since: str, old: str, new: str, func: None = ...
-) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]: ...
+) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
+    ...
+
+
 @overload
 def rename_parameter(
     since: str, old: str, new: str, func: Callable[_P, _R]
-) -> Callable[_P, _R]: ...
+) -> Callable[_P, _R]:
+    ...
 
-class _deprecated_parameter_class: ...
 
-_deprecated_parameter: _deprecated_parameter_class
+class _deprecated_parameter_class:
+    ...
+
+
+_deprecated_parameter = _deprecated_parameter_class()
+
 
 @overload
 def delete_parameter(
-    since: str, name: str, func: None = ..., **kwargs: Unpack[DeprecationKwargs]
-) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]: ...
+    since: str, name: str, func: None = ..., **kwargs: NamedDeprecationKwargs
+) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
+    ...
+
+
 @overload
 def delete_parameter(
-    since: str, name: str, func: Callable[_P, _R], **kwargs: Unpack[DeprecationKwargs]
-) -> Callable[_P, _R]: ...
+    since: str, name: str, func: Callable[_P, _R], **kwargs: NamedDeprecationKwargs
+) -> Callable[_P, _R]:
+    ...
+
+
 @overload
 def make_keyword_only(
     since: str, name: str, func: None = ...
-) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]: ...
+) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
+    ...
+
+
 @overload
 def make_keyword_only(
     since: str, name: str, func: Callable[_P, _R]
-) -> Callable[_P, _R]: ...
+) -> Callable[_P, _R]:
+    ...
+
+
 def deprecate_method_override(
     method: Callable[_P, _R],
     obj: object | type,
     *,
     allow_empty: bool = ...,
     since: str,
-    **kwargs: Unpack[NamedDeprecationKwargs]
-) -> Callable[_P, _R]: ...
-def suppress_matplotlib_deprecation_warning() -> (
-    contextlib.AbstractContextManager[None]
-): ...
+    **kwargs: NamedDeprecationKwargs
+) -> Callable[_P, _R]:
+    """Deprecate a method override."""
+
+
+@contextlib.contextmanager
+def suppress_matplotlib_deprecation_warning() -> None:
+    """Suppress Matplotlib deprecation warnings within a context."""
