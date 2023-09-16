@@ -24,11 +24,11 @@ mpl_display_is_valid(PyObject* module)
     // than dlopen().
     if (getenv("DISPLAY")
         && (libX11 = dlopen("libX11.so.6", RTLD_LAZY))) {
+        typedef struct Display* (*XOpenDisplay_t)(char const*);
+        typedef int (*XCloseDisplay_t)(struct Display*);
         struct Display* display = NULL;
-        struct Display* (* XOpenDisplay)(char const*) =
-            dlsym(libX11, "XOpenDisplay");
-        int (* XCloseDisplay)(struct Display*) =
-            dlsym(libX11, "XCloseDisplay");
+        XOpenDisplay_t XOpenDisplay = (XOpenDisplay_t)dlsym(libX11, "XOpenDisplay");
+        XCloseDisplay_t XCloseDisplay = (XCloseDisplay_t)dlsym(libX11, "XCloseDisplay");
         if (XOpenDisplay && XCloseDisplay
                 && (display = XOpenDisplay(NULL))) {
             XCloseDisplay(display);
@@ -44,11 +44,13 @@ mpl_display_is_valid(PyObject* module)
     void* libwayland_client;
     if (getenv("WAYLAND_DISPLAY")
         && (libwayland_client = dlopen("libwayland-client.so.0", RTLD_LAZY))) {
+        typedef struct wl_display* (*wl_display_connect_t)(char const*);
+        typedef void (*wl_display_disconnect_t)(struct wl_display*);
         struct wl_display* display = NULL;
-        struct wl_display* (* wl_display_connect)(char const*) =
-            dlsym(libwayland_client, "wl_display_connect");
-        void (* wl_display_disconnect)(struct wl_display*) =
-            dlsym(libwayland_client, "wl_display_disconnect");
+        wl_display_connect_t wl_display_connect =
+            (wl_display_connect_t)dlsym(libwayland_client, "wl_display_connect");
+        wl_display_disconnect_t wl_display_disconnect =
+            (wl_display_disconnect_t)dlsym(libwayland_client, "wl_display_disconnect");
         if (wl_display_connect && wl_display_disconnect
                 && (display = wl_display_connect(NULL))) {
             wl_display_disconnect(display);
