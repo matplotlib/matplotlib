@@ -3278,7 +3278,7 @@ class _AxesBase(martist.Artist):
                 raise ValueError("scilimits must be a sequence of 2 integers"
                                  ) from err
         STYLES = {'sci': True, 'scientific': True, 'plain': False}
-        if style == None:
+        if style is None:
             is_sci_style = False
         else:
             is_sci_style = _api.check_getitem(STYLES, style=style)
