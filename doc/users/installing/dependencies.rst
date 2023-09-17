@@ -25,7 +25,7 @@ reference.
 * `dateutil <https://pypi.org/project/python-dateutil/>`_ (>= 2.7)
 * `fontTools <https://fonttools.readthedocs.io/en/latest/>`_ (>= 4.22.0)
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.3.1)
-* `NumPy <https://numpy.org>`_ (>= 1.21)
+* `NumPy <https://numpy.org>`_ (>= 1.23)
 * `packaging <https://pypi.org/project/packaging/>`_ (>= 20.0)
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 8.0)
 * `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.3.1)
@@ -238,7 +238,7 @@ then you must manually install the following packages into your development envi
 - `setuptools_scm <https://pypi.org/project/setuptools-scm/>`_ (>= 7).  Used to
   update the reported ``mpl.__version__`` based on the current git commit.
   Also a runtime dependency for editable installs.
-- `NumPy <https://numpy.org>`_ (>= 1.21).  Also a runtime dependency.
+- `NumPy <https://numpy.org>`_ (>= 1.22).  Also a runtime dependency.
 
 
 .. _compile-dependencies:
