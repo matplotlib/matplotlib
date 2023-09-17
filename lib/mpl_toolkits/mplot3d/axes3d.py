@@ -58,11 +58,6 @@ class Axes3D(Axes):
     Axes._shared_axes["z"] = cbook.Grouper()
     Axes._shared_axes["view"] = cbook.Grouper()
 
-    vvec = _api.deprecate_privatize_attribute("3.7")
-    eye = _api.deprecate_privatize_attribute("3.7")
-    sx = _api.deprecate_privatize_attribute("3.7")
-    sy = _api.deprecate_privatize_attribute("3.7")
-
     def __init__(
             self, fig, rect=None, *args,
             elev=30, azim=-60, roll=0, sharez=None, proj_type='persp',
@@ -227,10 +222,6 @@ class Axes3D(Axes):
     get_zgridlines = _axis_method_wrapper("zaxis", "get_gridlines")
     get_zticklines = _axis_method_wrapper("zaxis", "get_ticklines")
 
-    @_api.deprecated("3.7")
-    def unit_cube(self, vals=None):
-        return self._unit_cube(vals)
-
     def _unit_cube(self, vals=None):
         minx, maxx, miny, maxy, minz, maxz = vals or self.get_w_lims()
         return [(minx, miny, minz),
@@ -242,20 +233,12 @@ class Axes3D(Axes):
                 (maxx, maxy, maxz),
                 (minx, maxy, maxz)]
 
-    @_api.deprecated("3.7")
-    def tunit_cube(self, vals=None, M=None):
-        return self._tunit_cube(vals, M)
-
     def _tunit_cube(self, vals=None, M=None):
         if M is None:
             M = self.M
         xyzs = self._unit_cube(vals)
         tcube = proj3d._proj_points(xyzs, M)
         return tcube
-
-    @_api.deprecated("3.7")
-    def tunit_edges(self, vals=None, M=None):
-        return self._tunit_edges(vals, M)
 
     def _tunit_edges(self, vals=None, M=None):
         tc = self._tunit_cube(vals, M)
@@ -942,11 +925,6 @@ class Axes3D(Axes):
         # The coordinates for the eye viewing point. The eye is looking
         # towards the middle of the box of data from a distance:
         eye = R + self._dist * ps
-
-        # vvec, self._vvec and self._eye are unused, remove when deprecated
-        vvec = R - eye
-        self._eye = eye
-        self._vvec = vvec / np.linalg.norm(vvec)
 
         # Calculate the viewing axes for the eye position
         u, v, w = self._calc_view_axes(eye)

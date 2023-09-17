@@ -267,9 +267,6 @@ Aliases and deprecated methods
     set_zlim3d
     stem3D
     text3D
-    tunit_cube
-    tunit_edges
-    unit_cube
 
 
 Other
