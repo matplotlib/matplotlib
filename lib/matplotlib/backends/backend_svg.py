@@ -770,10 +770,6 @@ class RendererSVG(RendererBase):
 
         self._path_collection_id += 1
 
-    def draw_gouraud_triangle(self, gc, points, colors, trans):
-        # docstring inherited
-        self._draw_gouraud_triangle(gc, points, colors, trans)
-
     def _draw_gouraud_triangle(self, gc, points, colors, trans):
         # This uses a method described here:
         #

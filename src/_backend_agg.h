@@ -191,12 +191,6 @@ class RendererAgg
                         ColorArray &edgecolors);
 
     template <class PointArray, class ColorArray>
-    void draw_gouraud_triangle(GCAgg &gc,
-                               PointArray &points,
-                               ColorArray &colors,
-                               agg::trans_affine &trans);
-
-    template <class PointArray, class ColorArray>
     void draw_gouraud_triangles(GCAgg &gc,
                                 PointArray &points,
                                 ColorArray &colors,
@@ -1227,20 +1221,6 @@ inline void RendererAgg::_draw_gouraud_triangle(PointArray &points,
     } else {
         agg::render_scanlines_aa(theRasterizer, slineP8, rendererBase, span_alloc, span_gen);
     }
-}
-
-template <class PointArray, class ColorArray>
-inline void RendererAgg::draw_gouraud_triangle(GCAgg &gc,
-                                               PointArray &points,
-                                               ColorArray &colors,
-                                               agg::trans_affine &trans)
-{
-    theRasterizer.reset_clipping();
-    rendererBase.reset_clipping(true);
-    set_clipbox(gc.cliprect, theRasterizer);
-    bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans, gc.snap_mode);
-
-    _draw_gouraud_triangle(points, colors, trans, has_clippath);
 }
 
 template <class PointArray, class ColorArray>
