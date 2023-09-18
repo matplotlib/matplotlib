@@ -700,7 +700,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             if A.min() < 0 or high < A.max():
                 _log.warning(
                     'Clipping input data to the valid range for imshow with '
-                    'RGB data ([0..1] for floats or [0..255] for integers).'
+                    'RGB data ([0..1] for floats or [0..255] for integers). '
+                    'Got range [%s..%s].',
+                    A.min(), A.max()
                 )
                 A = np.clip(A, 0, high)
             # Cast unsupported integer types to uint8
