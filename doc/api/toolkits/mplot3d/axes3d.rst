@@ -98,6 +98,10 @@ Axis limits and direction
    get_zlim
    set_zlim
    get_w_lims
+   invert_xaxis
+   xaxis_inverted
+   invert_yaxis
+   yaxis_inverted
    invert_zaxis
    zaxis_inverted
    get_xbound
