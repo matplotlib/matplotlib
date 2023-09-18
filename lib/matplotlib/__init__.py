@@ -246,7 +246,7 @@ def _check_versions():
     for modname, minver in [
             ("cycler", "0.10"),
             ("dateutil", "2.7"),
-            ("kiwisolver", "1.0.1"),
+            ("kiwisolver", "1.3.1"),
             ("numpy", "1.21"),
             ("pyparsing", "2.3.1"),
     ]:
