@@ -3534,7 +3534,7 @@ class _AxesBase(martist.Artist):
         --------
         set_xbound
         get_xlim, set_xlim
-        invert_xaxis, xaxis_inverted
+        .invert_xaxis, .xaxis_inverted
         """
         left, right = self.get_xlim()
         if left < right:
@@ -3561,7 +3561,7 @@ class _AxesBase(martist.Artist):
         --------
         get_xbound
         get_xlim, set_xlim
-        invert_xaxis, xaxis_inverted
+        .invert_xaxis, .xaxis_inverted
         """
         if upper is None and np.iterable(lower):
             lower, upper = lower
@@ -3787,7 +3787,7 @@ class _AxesBase(martist.Artist):
         --------
         set_ybound
         get_ylim, set_ylim
-        invert_yaxis, yaxis_inverted
+        .invert_yaxis, .yaxis_inverted
         """
         bottom, top = self.get_ylim()
         if bottom < top:
@@ -3814,7 +3814,7 @@ class _AxesBase(martist.Artist):
         --------
         get_ybound
         get_ylim, set_ylim
-        invert_yaxis, yaxis_inverted
+        .invert_yaxis, .yaxis_inverted
         """
         if upper is None and np.iterable(lower):
             lower, upper = lower

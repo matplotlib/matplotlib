@@ -860,7 +860,7 @@ class Axes3D(Axes):
         --------
         get_xlim
         set_xbound, get_xbound
-        invert_xaxis, xaxis_inverted
+        .invert_xaxis, .xaxis_inverted
 
         Notes
         -----
@@ -932,7 +932,7 @@ class Axes3D(Axes):
         --------
         get_ylim
         set_ybound, get_ybound
-        invert_yaxis, yaxis_inverted
+        .invert_yaxis, .yaxis_inverted
 
         Notes
         -----
