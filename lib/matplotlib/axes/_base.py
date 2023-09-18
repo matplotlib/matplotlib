@@ -3242,10 +3242,11 @@ class _AxesBase(martist.Artist):
         axis : {'x', 'y', 'both'}, default: 'both'
             The axis to configure.  Only major ticks are affected.
 
-        style : {'sci', 'scientific', 'plain'}
+        style : {'sci', 'scientific', 'plain', '', None}, default: None
             Whether to use scientific notation.
             The formatter default is to use scientific notation.
             Sci is equivalent to scientific.
+            The '' option is included solely for backwards-compatibility.
 
         scilimits : pair of ints (m, n)
             Scientific notation is used only for numbers outside the range
@@ -3275,7 +3276,8 @@ class _AxesBase(martist.Artist):
         AttributeError
             If the current formatter is not a `.ScalarFormatter`.
         """
-        style = style.lower()
+        if isinstance(style, str):
+            style = style.lower()
         axis = axis.lower()
         if scilimits is not None:
             try:
@@ -3284,11 +3286,8 @@ class _AxesBase(martist.Artist):
             except (ValueError, TypeError) as err:
                 raise ValueError("scilimits must be a sequence of 2 integers"
                                  ) from err
-        STYLES = {'sci': True, 'scientific': True, 'plain': False}
-        if style is None:
-            is_sci_style = False
-        else:
-            is_sci_style = _api.check_getitem(STYLES, style=style)
+        STYLES = {'sci': True, 'scientific': True, 'plain': False, '': None, None: None}
+        is_sci_style = _api.check_getitem(STYLES, style=style)
         axis_map = {**{k: [v] for k, v in self._axis_map.items()},
                     'both': list(self._axis_map.values())}
         axises = _api.check_getitem(axis_map, axis=axis)
