@@ -800,10 +800,8 @@ def test_image_preserve_size2():
     data = np.identity(n, float)
 
     fig = plt.figure(figsize=(n, n), frameon=False)
-
-    ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
+    ax = fig.add_axes((0.0, 0.0, 1.0, 1.0))
     ax.set_axis_off()
-    fig.add_axes(ax)
     ax.imshow(data, interpolation='nearest', origin='lower', aspect='auto')
     buff = io.BytesIO()
     fig.savefig(buff, dpi=1)
