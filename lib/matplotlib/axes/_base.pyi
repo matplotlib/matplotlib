@@ -283,7 +283,7 @@ class _AxesBase(martist.Artist):
         self,
         *,
         axis: Literal["both", "x", "y"] = ...,
-        style: Literal["", "sci", "scientific", "plain"] = ...,
+        style: Literal["", "sci", "scientific", "plain"] | None = ...,
         scilimits: tuple[int, int] | None = ...,
         useOffset: bool | float | None = ...,
         useLocale: bool | None = ...,
