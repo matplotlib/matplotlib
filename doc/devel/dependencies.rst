@@ -68,7 +68,7 @@ and the capabilities they provide.
 .. _PyGObject: https://pygobject.readthedocs.io/en/latest/
 .. _wxPython: https://www.wxpython.org/
 .. _pycairo: https://pycairo.readthedocs.io/en/latest/
-.. _cairocffi: https://cairocffi.readthedocs.io/en/latest/
+.. _cairocffi: https://doc.courtbouillon.org/cairocffi/stable/
 .. _Tornado: https://pypi.org/project/tornado/
 .. _ipykernel: https://pypi.org/project/ipykernel/
 
