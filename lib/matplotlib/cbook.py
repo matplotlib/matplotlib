@@ -1685,7 +1685,7 @@ def safe_first_element(obj):
 def _safe_first_finite(obj, *, skip_nonfinite=True):
     """
     Return the first finite element in *obj* if one is available and skip_nonfinite is
-    True. Otherwise return the first element.
+    True. Otherwise, return the first element.
 
     This is a method for internal use.
 
@@ -1697,7 +1697,7 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
             return False
         try:
             return math.isfinite(val)
-        except TypeError:
+        except (TypeError, ValueError):
             pass
         try:
             return np.isfinite(val) if np.isscalar(val) else True
