@@ -425,8 +425,9 @@
 #axes.autolimit_mode: data  # If "data", use axes.xmargin and axes.ymargin as is.
                             # If "round_numbers", after application of margins, axis
                             # limits are further expanded to the nearest "round" number.
-#polaraxes.grid: True  # display grid on polar axes
-#axes3d.grid:    True  # display grid on 3D axes
+#polaraxes.grid:    True   # display grid on polar axes
+#axes3d.grid:       True   # display grid on 3D axes
+#axes3d.automargin: False  # automatically add margin when manually setting 3D axis limits
 
 #axes3d.xaxis.panecolor:    (0.95, 0.95, 0.95, 0.5)  # background pane on 3D axes
 #axes3d.yaxis.panecolor:    (0.90, 0.90, 0.90, 0.5)  # background pane on 3D axes

@@ -276,20 +276,12 @@ class Axis(maxis.XAxis):
         else:
             return len(text) > 4
 
-    def _get_coord_info(self, renderer):
+    def _get_coord_info(self):
         mins, maxs = np.array([
             self.axes.get_xbound(),
             self.axes.get_ybound(),
             self.axes.get_zbound(),
         ]).T
-
-        # Get the mean value for each bound:
-        centers = 0.5 * (maxs + mins)
-
-        # Add a small offset between min/max point and the edge of the plot:
-        deltas = (maxs - mins) / 12
-        mins -= 0.25 * deltas
-        maxs += 0.25 * deltas
 
         # Project the bounds along the current position of the cube:
         bounds = mins[0], maxs[0], mins[1], maxs[1], mins[2], maxs[2]
@@ -314,7 +306,17 @@ class Axis(maxis.XAxis):
             elif vertical == 0:  # looking at YZ plane
                 highs = np.array([highs[0], False, False])
 
-        return mins, maxs, centers, deltas, bounds_proj, highs
+        return mins, maxs, bounds_proj, highs
+
+    def _calc_centers_deltas(self, maxs, mins):
+        centers = 0.5 * (maxs + mins)
+        # In mpl3.8, the scale factor was 1/12. mpl3.9 changes this to
+        # 1/12 * 24/25 = 0.08 to compensate for the change in automargin
+        # behavior and keep appearance the same. The 24/25 factor is from the
+        # 1/48 padding added to each side of the axis in mpl3.8.
+        scale = 0.08
+        deltas = (maxs - mins) * scale
+        return centers, deltas
 
     def _get_axis_line_edge_points(self, minmax, maxmin, position=None):
         """Get the edge points for the black bolded axis line."""
@@ -409,8 +411,8 @@ class Axis(maxis.XAxis):
         tickdir = np.roll(info_i, -j)[np.roll(tickdirs_base, j)][i]
         return tickdir
 
-    def active_pane(self, renderer):
-        mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
+    def active_pane(self):
+        mins, maxs, tc, highs = self._get_coord_info()
         info = self._axinfo
         index = info['i']
         if not highs[index]:
@@ -431,7 +433,7 @@ class Axis(maxis.XAxis):
         renderer : `~matplotlib.backend_bases.RendererBase` subclass
         """
         renderer.open_group('pane3d', gid=self.get_gid())
-        xys, loc = self.active_pane(renderer)
+        xys, loc = self.active_pane()
         self.pane.xy = xys[:, :2]
         self.pane.draw(renderer)
         renderer.close_group('pane3d')
@@ -446,6 +448,10 @@ class Axis(maxis.XAxis):
         ticks = self._update_ticks()
         info = self._axinfo
         index = info["i"]
+        juggled = info["juggled"]
+
+        mins, maxs, tc, highs = self._get_coord_info()
+        centers, deltas = self._calc_centers_deltas(maxs, mins)
 
         # Draw ticks:
         tickdir = self._get_tickdir(pos)
@@ -575,7 +581,8 @@ class Axis(maxis.XAxis):
         renderer.open_group("axis3d", gid=self.get_gid())
 
         # Get general axis information:
-        mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
+        mins, maxs, tc, highs = self._get_coord_info()
+        centers, deltas = self._calc_centers_deltas(maxs, mins)
 
         # Calculate offset distances
         # A rough estimate; points are ambiguous since 3D plots rotate
@@ -645,7 +652,7 @@ class Axis(maxis.XAxis):
             info = self._axinfo
             index = info["i"]
 
-            mins, maxs, _, _, _, highs = self._get_coord_info(renderer)
+            mins, maxs, tc, highs = self._get_coord_info()
 
             minmax = np.where(highs, maxs, mins)
             maxmin = np.where(~highs, maxs, mins)

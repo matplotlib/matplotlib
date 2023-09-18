@@ -1094,8 +1094,10 @@ _validators = {
     "axes.ymargin": _validate_greaterthan_minushalf,  # margin added to yaxis
     "axes.zmargin": _validate_greaterthan_minushalf,  # margin added to zaxis
 
-    "polaraxes.grid": validate_bool,  # display polar grid or not
-    "axes3d.grid":    validate_bool,  # display 3d grid
+    "polaraxes.grid":    validate_bool,  # display polar grid or not
+    "axes3d.grid":       validate_bool,  # display 3d grid
+    "axes3d.automargin": validate_bool,  # automatically add margin when
+                                         # manually setting 3D axis limits
 
     "axes3d.xaxis.panecolor":    validate_color,  # 3d background pane
     "axes3d.yaxis.panecolor":    validate_color,  # 3d background pane
