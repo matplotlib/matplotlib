@@ -179,7 +179,7 @@ def _make_type_validator(cls, *, allow_none=False):
 
     def validator(s):
         if (allow_none and
-                (s is None or isinstance(s, str) and s.lower() == "none")):
+                (s is None or cbook._str_lower_equal(s, "none"))):
             return None
         if cls is str and not isinstance(s, str):
             raise ValueError(f'Could not convert {s!r} to str')
@@ -615,7 +615,7 @@ def _validate_minor_tick_ndivs(n):
     two major ticks.
     """
 
-    if isinstance(n, str) and n.lower() == 'auto':
+    if cbook._str_lower_equal(n, 'auto'):
         return n
     try:
         n = _validate_int_greaterequal0(n)

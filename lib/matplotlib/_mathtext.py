@@ -2766,7 +2766,7 @@ class Parser:
             depth = max([x.depth for x in middle if not isinstance(x, str)])
             factor = None
             for idx, el in enumerate(middle):
-                if isinstance(el, str) and el == '\\middle':
+                if el == r'\middle':
                     c = T.cast(str, middle[idx + 1])  # Should be one of p.delims.
                     if c != '.':
                         middle[idx + 1] = AutoHeightChar(
