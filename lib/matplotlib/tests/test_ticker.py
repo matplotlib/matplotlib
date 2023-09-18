@@ -1654,6 +1654,11 @@ def _impl_locale_comma():
     fmt = ',$\\mathdefault{,%1.1f},$'
     x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
     assert x == ',$\\mathdefault{,0{,}5},$'
+    # Make sure no brackets are added if not using math text
+    ticks = mticker.ScalarFormatter(useMathText=False, useLocale=True)
+    fmt = '%1.1f'
+    x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
+    assert x == '0,5'
 
 
 def test_locale_comma():
