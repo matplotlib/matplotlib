@@ -3235,11 +3235,9 @@ class _AxesBase(martist.Artist):
         axis : {'x', 'y', 'both'}, default: 'both'
             The axis to configure.  Only major ticks are affected.
 
-        style : {'sci', 'scientific', 'plain', '', None}, default: None
+        style : {'sci', 'scientific', 'plain'} or None, default: None
             Whether to use scientific notation.
             The formatter default is to use scientific notation.
-            Sci is equivalent to scientific.
-            The '' option is included solely for backwards-compatibility.
 
         scilimits : pair of ints (m, n)
             Scientific notation is used only for numbers outside the range
@@ -3280,6 +3278,8 @@ class _AxesBase(martist.Artist):
                 raise ValueError("scilimits must be a sequence of 2 integers"
                                  ) from err
         STYLES = {'sci': True, 'scientific': True, 'plain': False, '': None, None: None}
+        # 'sci' is equivalent to 'scientific'.
+        # The '' option is included for backwards-compatibility.
         is_sci_style = _api.check_getitem(STYLES, style=style)
         axis_map = {**{k: [v] for k, v in self._axis_map.items()},
                     'both': list(self._axis_map.values())}
