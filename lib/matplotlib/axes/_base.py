@@ -3242,7 +3242,7 @@ class _AxesBase(martist.Artist):
         axis : {'x', 'y', 'both'}, default: 'both'
             The axis to configure.  Only major ticks are affected.
 
-        style : {'sci', 'scientific', 'plain'} or None, default: None
+        style : {'sci', 'scientific', 'plain'}
             Whether to use scientific notation.
             The formatter default is to use scientific notation.
             'sci' is equivalent to 'scientific'.
