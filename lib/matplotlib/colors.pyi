@@ -110,6 +110,11 @@ class Colormap:
     def _repr_png_(self) -> bytes: ...
     def copy(self) -> Colormap: ...
 
+class MultivarColormap:
+    def __init__(
+        self, name, colormaps, combination_mode,
+    ) -> None: ...
+
 class LinearSegmentedColormap(Colormap):
     monochrome: bool
     def __init__(
@@ -137,6 +142,16 @@ class ListedColormap(Colormap):
     ) -> None: ...
     def resampled(self, lutsize: int) -> ListedColormap: ...
     def reversed(self, name: str | None = ...) -> ListedColormap: ...
+
+class BivarColormap:
+    def __init__(
+        self, name, N=256, M=None, shape='square',
+    ) -> None: ...
+
+class SegmentedBivarColormap(BivarColormap):
+    def __init__(
+        self, patch, name, N=256, shape='square',
+    ) -> None: ...
 
 class Normalize:
     callbacks: cbook.CallbackRegistry

@@ -24,6 +24,8 @@ import matplotlib as mpl
 from matplotlib import _api, colors, cbook, scale
 from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
+from matplotlib._cm_multivar import cmap_families as multivar_cmaps
+from matplotlib._cm_bivar import cmaps as bivar_cmaps
 
 
 _LUTSIZE = mpl.rcParams['image.lut']
@@ -220,10 +222,12 @@ class ColormapRegistry(Mapping):
             return self[mpl.rcParams["image.cmap"]]
 
         # if the user passed in a Colormap, simply return it
-        if isinstance(cmap, colors.Colormap):
+        if isinstance(cmap, colors.Colormap) \
+                or isinstance(cmap, colors.MultivarColormap)\
+                or isinstance(cmap, colors.BivarColormap):
             return cmap
         if isinstance(cmap, str):
-            _api.check_in_list(sorted(_colormaps), cmap=cmap)
+            _api.check_in_list(sorted(self._cmaps), cmap=cmap)
             # otherwise, it must be a string so look it up
             return self[cmap]
         raise TypeError(
@@ -237,6 +241,12 @@ class ColormapRegistry(Mapping):
 # detail.
 _colormaps = ColormapRegistry(_gen_cmap_registry())
 globals().update(_colormaps)
+
+_multivar_colormaps = ColormapRegistry(multivar_cmaps)
+globals().update(_multivar_colormaps)
+
+_bivar_colormaps = ColormapRegistry(bivar_cmaps)
+globals().update(_bivar_colormaps)
 
 
 def _auto_norm_from_scale(scale_cls):
@@ -266,6 +276,357 @@ def _auto_norm_from_scale(scale_cls):
             colors.Normalize)()
     return type(norm)
 
+
+def merge_signals(fn):
+    """
+    If multiple ScalarMappables part of a VectorMappable emit 'changed' signals
+    this decorator works to merge them into one so that only one  'changed'
+    signal is emitted by the VectorMappable
+    """
+    @functools.wraps(fn)
+    def wrapper(self, *args, **kwargs):
+        # suspend signals
+        self.pause_signals = True
+        self.intercepted_changed = False
+        # run fn
+        out = fn(self, *args, **kwargs)
+        # resume signals
+        self.pause_signals = False
+        # send 'changed' signal if any were intercepted
+        if self.intercepted_changed:
+            self.changed()
+        return out
+
+    return wrapper
+
+
+class VectorMappable:
+    """
+    A mixin class to map multiple scalar data to RGBA.
+
+    The VectorMappable applies data normalization before returning RGBA colors
+    from the given MultivareColormap or BivarColormap.
+    """
+    def __init__(self, norm=None, cmap=None):
+        """
+        For multivariate data, a MultivariateColormap must be provided and
+        norm must be a list of valid objects with length matching the colormap
+
+        Parameters
+        ----------
+        norm : `.Normalize` (or subclass thereof) or str or None or list thereof
+            The normalizing object which scales data, typically into the
+            interval ``[0, 1]``.
+            If a `str`, a `.Normalize` subclass is dynamically generated based
+            on the scale with the corresponding name.
+            If *None*, *norm* defaults to a *colors.Normalize* object which
+            initializes its scaling based on the first data processed.
+        cmap : str or `~matplotlib.colors.Colormap`
+                                    or `~matplotlib.colors.MultivariateColormap`
+            The colormap used to map normalized data values to RGBA colors.
+
+        """
+        self.pause_signals = False
+
+        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
+        if isinstance(cmap, colors.MultivarColormap) or \
+           isinstance(cmap, colors.BivarColormap):
+            if isinstance(cmap, colors.MultivarColormap):
+                self.scalars = [ScalarMappable(n, c) for n, c in zip(norm, cmap)]
+            else:
+                self.scalars = [ScalarMappable(n) for n in norm]
+            for i, sca in enumerate(self.scalars):
+                sca.callbacks.connect('changed', self.on_changed)
+            self._cmap = cmap
+            self._multivar_A = None
+        else:
+            # i.e type(cmap) is Str
+            # or issubclass(type(cmap), colors.Colorbar)
+            # or cmap is None
+            self.scalars = [ScalarMappable(norm, cmap)]
+            # it would be tempting to just use one layer of callbacks here
+            # i.e. self.callbacks = self.scalars[0].callbacks
+            # but this will require more reformating as it fails in cleanup
+            # if a colorbar is removed
+            self.scalars[0].callbacks.connect('changed', self.on_changed)
+
+    @property
+    def _A(self):
+        if len(self.scalars) == 1:
+            return self.scalars[0]._A
+        else:
+            # _A on the scalars should be views of the same array
+            # or None
+            # If they views of the same array –> ok, return it
+            # else if they are all None, None
+            # else, raise error
+            if any([s is None for s in self.scalars]):
+                if all([s is None for s in self.scalars]):
+                    return None
+                else:
+                    raise AttributeError(
+                        "Attempting to get _A on a VectorMappable but _A on"
+                        " the ScalarMappables are not views of the same base"
+                        " array (at least one is None)."
+                        " Most likely sm.set_array(A) or sm._A = A has been"
+                        " called, which is not supported when the"
+                        " ScalarMappable belongs to a VectorMappable."
+                    )
+            if self._multivar_A is None:
+                raise AttributeError(
+                    "Attempting to get _A on a VectorMappable but _A on"
+                    " has only been indedependently set on"
+                    " ScalarMappables, which is unsupported."
+                    " Please use VectorMappable.set_array(A) instead."
+                )
+
+            if all([np.shares_memory(s._A, self._multivar_A) for s in self.scalars]):
+                return self._multivar_A
+            raise AttributeError(
+                "Attempting to get _A on a VectorMappable but _A on"
+                " the ScalarMappables are not views of _multivar_A"
+                " on the VectorMappable."
+                " Most likely sm.set_array(A) or sm._A = A has been"
+                " called, which is not supported when the"
+                " ScalarMappable belongs to a VectorMappable."
+            )
+
+    @_A.setter
+    def _A(self, A):
+        if len(self.scalars) == 1:
+            self.scalars[0]._A = A
+        else:
+            self._multivar_A = A
+            for s, a in zip(self.scalars, A):
+                s._A = a
+
+    @property
+    def cmap(self):
+        return self.get_cmap()
+
+    @cmap.setter
+    def cmap(self, cmap):
+        self.set_cmap(cmap)
+
+    def get_cmap(self):
+        if len(self.scalars) == 1:
+            return self.scalars[0].get_cmap()
+        else:
+            return self._cmap
+
+    @merge_signals
+    def set_cmap(self, cmap):
+        """
+        Set the colormaps for luminance data.
+
+        Parameters
+        ----------
+        cmap : `.Colormap` or str or None or list thereof
+        """
+        if len(self.scalars) == 1:
+            self.scalars[0].set_cmap(cmap)
+        else:
+            for s, cm in zip(self.scalars, cmap):
+                s.set_cmap(cm)
+            self._cmap = cmap
+
+    @merge_signals
+    def _scale_norm(self, norm, vmin, vmax):
+        """
+        Helper for initial scaling.
+
+        Used by public functions that create a VectorMappable and support
+        parameters *vmin*, *vmax* and *norm*. This makes sure that a *norm*
+        will take precedence over *vmin*, *vmax*.
+
+        Note that this method does not set the norm.
+        """
+        if len(self.scalars) == 1:
+            self.scalars[0]._scale_norm(norm, vmin, vmax)
+        else:
+            for s, n, vm, vx in zip(self.scalars, norm, vmin, vmax):
+                s._scale_norm(n, vm, vx)
+
+    def to_rgba(self, arr, alpha=None, bytes=False, norm=True):
+        """
+        Return a normalized RGBA array corresponding to *arr*.
+
+        See ScalarMappable.to_rgba for behaviour with scalar or RGBA data
+
+        For multivariate data, each variate is converted independently before
+        combination in sRGB space according to the rules of the colormap
+        """
+        if len(self.scalars) == 1:
+            rgba = self.scalars[0].to_rgba(arr, alpha=alpha, bytes=bytes, norm=norm)
+
+        elif isinstance(self._cmap, colors.BivarColormap):
+            if norm:
+                normed_0 = self.scalars[0].norm(arr[0])
+                normed_1 = self.scalars[1].norm(arr[1])
+            else:
+                normed_0 = np.copy(arr[0])
+                normed_1 = np.copy(arr[1])
+            # clip in-place to shape of colormap: square or circle.
+            self._cmap.clip(normed_0, normed_1)
+            rgba = self.cmap((normed_0, normed_1), alpha=alpha, bytes=bytes)
+
+        else:  # i.e. isinstance(self._cmaps, colors.MultivarColormap)
+            rgba = self.scalars[0].to_rgba(arr[0], alpha=alpha, bytes=bytes, norm=norm)
+            for s, a in zip(self.scalars[1:], arr[1:]):
+                rgba += s.to_rgba(a, alpha=alpha, bytes=bytes, norm=norm)
+
+            if self._cmap.combination_mode == 'Sub':
+                rgba[:,:,:3] -= len(self.scalars)-1
+                rgba[:, :, :3] -= len(self.scalars) - 1
+        return rgba
+
+    def set_array(self, A):
+        """
+        Set the value array from array-like *A*.
+
+        Parameters
+        ----------
+        A : array-like or None
+            The values that are mapped to colors.
+
+            The base class `.ScalarMappable` does not make any assumptions on
+            the dimensionality and shape of the value array *A*.
+        """
+        if len(self.scalars) == 1:
+            return self.scalars[0].set_array(A)
+
+        A = cbook.safe_masked_invalid(A, copy=True)
+        if not np.can_cast(A.dtype, float, "same_kind"):
+            raise TypeError(f"Image data of dtype {A.dtype} cannot be "
+                            "converted to float")
+        self._A = A
+
+    def get_array(self):
+        """
+        Return the array of values, that are mapped to colors.
+        """
+        return self._A
+
+    def get_clim(self):
+        """
+        Return the values (min, max) that are mapped to the colormap limits.
+        """
+        if len(self.scalars) == 1:
+            return self.scalars[0].get_clim()
+        else:
+            vmin = []
+            vmax = []
+            for s in self.scalars:
+                vn, vx = s.get_clim()
+                vmin.append(vn)
+                vmax.append(vx)
+            return vmin, vmax
+
+    @merge_signals
+    def set_clim(self, vmin=None, vmax=None):
+        """
+        Set the norm limits for image scaling.
+
+        Parameters
+        ----------
+        vmin, vmax : float
+             The limits.
+
+             For scalar data the limits may also be passed as a tuple
+             (*vmin*, *vmax*) as a single positional argument.
+
+             For vector data *vmin* and *vmax* must be passed as lists
+             of floats
+
+             .. ACCEPTS: (vmin: float, vmax: float)
+        """
+        if len(self.scalars) == 1:
+            self.scalars[0].set_clim(vmin=vmin, vmax=vmax)
+        else:
+            for s, vm, vx in zip(self.scalars, vmin, vmax):
+                s.set_clim(vmin=vm, vmax=vx)
+
+    def get_alpha(self):
+        """
+        Returns
+        -------
+        float
+            Always returns 1.
+        """
+        # This method is intended to be overridden by Artist sub-classes
+        return 1
+
+    @property
+    def norm(self):
+        if len(self.scalars) == 1:
+            return self.scalars[0].norm
+        else:
+            return ([s.norm for s in self.scalars])
+
+    @norm.setter
+    @merge_signals
+    def norm(self, norm):
+        self.set_norm(norm)
+
+    def set_norm(self, norm):
+        """
+        Set the normalization instance.
+
+        Parameters
+        ----------
+        norm : `.Normalize` or str or None or list thereof
+
+        Notes
+        -----
+        If there are any colorbars using the mappable for this norm, setting
+        the norm of the mappable will reset the norm, locator, and formatters
+        on the colorbar to default.
+        """
+        if len(self.scalars) == 1:
+            return self.scalars[0].set_norm(norm)
+        else:
+            for s, n in zip(self.scalars, norm):
+                s.set_norm(n)
+
+        # in_init = self.norm is None
+        # if not in_init:
+        #     self.changed()
+
+    @merge_signals
+    def autoscale(self):
+        """
+        Autoscale the scalar limits on the norms using the current arrays
+        """
+        for s in self.scalars:
+            s.autoscale()
+
+    @merge_signals
+    def autoscale_None(self):
+        """
+        Autoscale the scalar limits on the norms using the
+        current arrays, changing only limits that are None
+        """
+        for s in self.scalars:
+            s.autoscale_None()
+
+    def changed(self):
+        """
+        Call this whenever a ScalarMappable is changed to notify all the
+        callbackSM listeners listening to the VectorMappable to the 'changed'
+        signal.
+        """
+        if not self.pause_signals:
+            self.callbacks.process('changed', self)
+        else:
+            self.intercepted_changed = True  # for the merge_signals decorator
+
+    def on_changed(self, obj=None):
+        """
+        Called on the signal 'changed' from the ScalarMappables
+
+        Propagate the signal to listeners on the VectorMappable
+        """
+        self.changed()
 
 class ScalarMappable:
     """
@@ -365,7 +726,23 @@ class ScalarMappable:
                 elif x.shape[2] == 4:
                     xx = x
                 else:
-                    raise ValueError("Third dimension must be 3 or 4")
+                    if x.shape[2] > 4 and x.shape[0] == 2:
+                        raise ValueError("For RGB or RGBA image data the third "
+                                         "dimension must be 3 or 4. Bivariate"
+                                         "data may in some cases be visualized "
+                                         "by specifying a bivariate or multivariate "
+                                         "colormap. See matplotlib.bivar_colormaps() "
+                                         "and matplotlib.multivar_colormaps() for "
+                                         "lists of suitable candidates.")
+                    elif x.shape[2] > 4 and x.shape[0] < 9:
+                        raise ValueError("For RGB or RGBA image data the third "
+                                         "dimension must be 3 or 4. Multivariate"
+                                         "data may in some cases be visualized "
+                                         "by specifying a multivariate colormap. "
+                                         "See matplotlib.multivar_colormaps() for "
+                                         "a list of suitable candidates.")
+                    else:
+                        raise ValueError("Third dimension must be 3 or 4")
                 if xx.dtype.kind == 'f':
                     # If any of R, G, B, or A is nan, set to 0
                     if np.any(nans := np.isnan(x)):
@@ -609,6 +986,8 @@ def _ensure_cmap(cmap):
     Ensure that we have a `.Colormap` object.
 
     For internal use to preserve type stability of errors.
+
+    see also `axes._base.ensure_cmap`
 
     Parameters
     ----------

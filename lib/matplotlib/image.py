@@ -228,13 +228,14 @@ def _rgb_to_rgba(A):
     return rgba
 
 
-class _ImageBase(martist.Artist, cm.ScalarMappable):
+class _ImageBase(martist.Artist, cm.VectorMappable):
     """
     Base class for images.
 
     interpolation and cmap default to their rc settings
 
-    cmap is a colors.Colormap instance
+    cmap is a colors.Colormap, MultivarColormap or
+    colors.BivarColormap instance
     norm is a colors.Normalize instance to map luminance to 0-1
 
     extent is data axes (left, right, bottom, top) for making image plots
@@ -257,8 +258,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                  interpolation_stage=None,
                  **kwargs
                  ):
+
         martist.Artist.__init__(self)
-        cm.ScalarMappable.__init__(self, norm, cmap)
+        cm.VectorMappable.__init__(self, norm, cmap)
         if origin is None:
             origin = mpl.rcParams['image.origin']
         _api.check_in_list(["upper", "lower"], origin=origin)
@@ -291,11 +293,14 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def get_shape(self):
         """
-        Return the shape of the image as tuple (numrows, numcols, channels).
+        Return the shape of the image as tuple.
+        (numrows, numcols, channels) if RGB/RGBA
+        (numrows, numcols) if scalar/vector data
         """
         if self._A is None:
             raise RuntimeError('You must first set the image array')
-
+        if self.n_variates > 1:
+            return self._A.shape[1:]
         return self._A.shape
 
     def set_alpha(self, alpha):
@@ -331,6 +336,124 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         self._imcache = None
         cm.ScalarMappable.changed(self)
+
+    def _resample_and_norm(self, A, norm, out_shape, out_mask, t):
+        """
+        Parameters
+        ----------
+        A : 2D numpy array to be resampled
+        out_shape : tuple of ints (out_height, out_width)
+        t : Affine2D transform
+
+        Returns
+        -------
+        resampled_arr2D : resampled 2D numpy array
+        """
+        # TODO slice input array first
+        a_min = A.min()
+        a_max = A.max()
+        if a_min is np.ma.masked:  # All masked; values don't matter.
+            a_min, a_max = np.int32(0), np.int32(1)
+        if A.dtype.kind == 'f':  # Float dtype: scale to same dtype.
+            scaled_dtype = np.dtype(
+                np.float64 if A.dtype.itemsize > 4 else np.float32)
+            if scaled_dtype.itemsize < A.dtype.itemsize:
+                _api.warn_external(f"Casting input data from {A.dtype}"
+                                   f" to {scaled_dtype} for imshow.")
+        else:  # Int dtype, likely.
+            # Scale to appropriately sized float: use float32 if the
+            # dynamic range is small, to limit the memory footprint.
+            da = a_max.astype(np.float64) - a_min.astype(np.float64)
+            scaled_dtype = np.float64 if da > 1e8 else np.float32
+
+        # Scale the input data to [.1, .9].  The Agg interpolators clip
+        # to [0, 1] internally, and we use a smaller input scale to
+        # identify the interpolated points that need to be flagged as
+        # over/under.  This may introduce numeric instabilities in very
+        # broadly scaled data.
+
+        # Always copy, and don't allow array subtypes.
+        A_scaled = np.array(A, dtype=scaled_dtype)
+        # Clip scaled data around norm if necessary.  This is necessary
+        # for big numbers at the edge of float64's ability to represent
+        # changes.  Applying a norm first would be good, but ruins the
+        # interpolation of over numbers.
+        norm.autoscale_None(A)
+        dv = np.float64(norm.vmax) - np.float64(norm.vmin)
+        vmid = np.float64(norm.vmin) + dv / 2
+        fact = 1e7 if scaled_dtype == np.float64 else 1e4
+        newmin = vmid - dv * fact
+        if newmin < a_min:
+            newmin = None
+        else:
+            a_min = np.float64(newmin)
+        newmax = vmid + dv * fact
+        if newmax > a_max:
+            newmax = None
+        else:
+            a_max = np.float64(newmax)
+        if newmax is not None or newmin is not None:
+            np.clip(A_scaled, newmin, newmax, out=A_scaled)
+
+        # Rescale the raw data to [offset, 1-offset] so that the
+        # resampling code will run cleanly.  Using dyadic numbers here
+        # could reduce the error, but would not fully eliminate it and
+        # breaks a number of tests (due to the slightly different
+        # error bouncing some pixels across a boundary in the (very
+        # quantized) colormapping step).
+        offset = .1
+        frac = .8
+        # Run vmin/vmax through the same rescaling as the raw data;
+        # otherwise, data values close or equal to the boundaries can
+        # end up on the wrong side due to floating point error.
+        vmin, vmax = norm.vmin, norm.vmax
+        if vmin is np.ma.masked:
+            vmin, vmax = a_min, a_max
+        vrange = np.array([vmin, vmax], dtype=scaled_dtype)
+
+        A_scaled -= a_min
+        vrange -= a_min
+        # .item() handles a_min/a_max being ndarray subclasses.
+        a_min = a_min.astype(scaled_dtype).item()
+        a_max = a_max.astype(scaled_dtype).item()
+
+        if a_min != a_max:
+            A_scaled /= ((a_max - a_min) / frac)
+            vrange /= ((a_max - a_min) / frac)
+        A_scaled += offset
+        vrange += offset
+        # resample the input data to the correct resolution and shape
+        A_resampled = _resample(self, A_scaled, out_shape, t)
+        del A_scaled  # Make sure we don't use A_scaled anymore!
+        # Un-scale the resampled data to approximately the original
+        # range. Things that interpolated to outside the original range
+        # will still be outside, but possibly clipped in the case of
+        # higher order interpolation + drastically changing data.
+        A_resampled -= offset
+        vrange -= offset
+        if a_min != a_max:
+            A_resampled *= ((a_max - a_min) / frac)
+            vrange *= ((a_max - a_min) / frac)
+        A_resampled += a_min
+        vrange += a_min
+        # if using NoNorm, cast back to the original datatype
+        if isinstance(norm, mcolors.NoNorm):
+            A_resampled = A_resampled.astype(A.dtype)
+
+        # mask and run through the norm
+        resampled_masked = np.ma.masked_array(A_resampled, out_mask)
+        # we have re-set the vmin/vmax to account for small errors
+        # that may have moved input values in/out of range
+        s_vmin, s_vmax = vrange
+        if isinstance(norm, mcolors.LogNorm) and s_vmin <= 0:
+            # Don't give 0 or negative values to LogNorm
+            s_vmin = np.finfo(scaled_dtype).eps
+        # Block the norm from sending an update signal during the
+        # temporary vmin/vmax change
+        with norm.callbacks.blocked(), \
+             cbook._setattr_cm(norm, vmin=s_vmin, vmax=s_vmax):
+            output = norm(resampled_masked)
+        return output
 
     def _make_image(self, A, in_bbox, out_bbox, clip_bbox, magnification=1.0,
                     unsampled=False, round_to_pixel_border=True):
@@ -372,7 +495,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                                "this method is called.")
 
         clipped_bbox = Bbox.intersection(out_bbox, clip_bbox)
-
         if clipped_bbox is None:
             return None, 0, 0, None
 
@@ -382,19 +504,20 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if out_width_base == 0 or out_height_base == 0:
             return None, 0, 0, None
 
+        im_shape = self.get_shape()
         if self.origin == 'upper':
             # Flip the input image using a transform.  This avoids the
             # problem with flipping the array, which results in a copy
             # when it is converted to contiguous in the C wrapper
-            t0 = Affine2D().translate(0, -A.shape[0]).scale(1, -1)
+            t0 = Affine2D().translate(0, -im_shape[0]).scale(1, -1)
         else:
             t0 = IdentityTransform()
 
         t0 += (
             Affine2D()
             .scale(
-                in_bbox.width / A.shape[1],
-                in_bbox.height / A.shape[0])
+                in_bbox.width / im_shape[1],
+                in_bbox.height / im_shape[0])
             .translate(in_bbox.x0, in_bbox.y0)
             + self.get_transform())
 
@@ -417,114 +540,31 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             out_width = int(out_width_base)
             out_height = int(out_height_base)
         out_shape = (out_height, out_width)
-
         if not unsampled:
-            if not (A.ndim == 2 or A.ndim == 3 and A.shape[-1] in (3, 4)):
+            if not (A.ndim == 2 or
+                    A.ndim == 3 and A.shape[-1] in (3, 4) or
+                    A.ndim == 3 and self.cmap.n_variates == len(A)):
                 raise ValueError(f"Invalid shape {A.shape} for image data")
-            if A.ndim == 2 and self._interpolation_stage != 'rgba':
-                # if we are a 2D array, then we are running through the
-                # norm + colormap transformation.  However, in general the
+            if self.n_variates > 0 and self._interpolation_stage != 'rgba':
+                # if we are one or more 2D array, then we are running through
+                # norm + colormap transformation(s).  However, in general the
                 # input data is not going to match the size on the screen so we
                 # have to resample to the correct number of pixels
 
-                # TODO slice input array first
-                a_min = A.min()
-                a_max = A.max()
-                if a_min is np.ma.masked:  # All masked; values don't matter.
-                    a_min, a_max = np.int32(0), np.int32(1)
-                if A.dtype.kind == 'f':  # Float dtype: scale to same dtype.
-                    scaled_dtype = np.dtype(
-                        np.float64 if A.dtype.itemsize > 4 else np.float32)
-                    if scaled_dtype.itemsize < A.dtype.itemsize:
-                        _api.warn_external(f"Casting input data from {A.dtype}"
-                                           f" to {scaled_dtype} for imshow.")
-                else:  # Int dtype, likely.
-                    # Scale to appropriately sized float: use float32 if the
-                    # dynamic range is small, to limit the memory footprint.
-                    da = a_max.astype(np.float64) - a_min.astype(np.float64)
-                    scaled_dtype = np.float64 if da > 1e8 else np.float32
-
-                # Scale the input data to [.1, .9].  The Agg interpolators clip
-                # to [0, 1] internally, and we use a smaller input scale to
-                # identify the interpolated points that need to be flagged as
-                # over/under.  This may introduce numeric instabilities in very
-                # broadly scaled data.
-
-                # Always copy, and don't allow array subtypes.
-                A_scaled = np.array(A, dtype=scaled_dtype)
-                # Clip scaled data around norm if necessary.  This is necessary
-                # for big numbers at the edge of float64's ability to represent
-                # changes.  Applying a norm first would be good, but ruins the
-                # interpolation of over numbers.
-                self.norm.autoscale_None(A)
-                dv = np.float64(self.norm.vmax) - np.float64(self.norm.vmin)
-                vmid = np.float64(self.norm.vmin) + dv / 2
-                fact = 1e7 if scaled_dtype == np.float64 else 1e4
-                newmin = vmid - dv * fact
-                if newmin < a_min:
-                    newmin = None
-                else:
-                    a_min = np.float64(newmin)
-                newmax = vmid + dv * fact
-                if newmax > a_max:
-                    newmax = None
-                else:
-                    a_max = np.float64(newmax)
-                if newmax is not None or newmin is not None:
-                    np.clip(A_scaled, newmin, newmax, out=A_scaled)
-
-                # Rescale the raw data to [offset, 1-offset] so that the
-                # resampling code will run cleanly.  Using dyadic numbers here
-                # could reduce the error, but would not fully eliminate it and
-                # breaks a number of tests (due to the slightly different
-                # error bouncing some pixels across a boundary in the (very
-                # quantized) colormapping step).
-                offset = .1
-                frac = .8
-                # Run vmin/vmax through the same rescaling as the raw data;
-                # otherwise, data values close or equal to the boundaries can
-                # end up on the wrong side due to floating point error.
-                vmin, vmax = self.norm.vmin, self.norm.vmax
-                if vmin is np.ma.masked:
-                    vmin, vmax = a_min, a_max
-                vrange = np.array([vmin, vmax], dtype=scaled_dtype)
-
-                A_scaled -= a_min
-                vrange -= a_min
-                # .item() handles a_min/a_max being ndarray subclasses.
-                a_min = a_min.astype(scaled_dtype).item()
-                a_max = a_max.astype(scaled_dtype).item()
-
-                if a_min != a_max:
-                    A_scaled /= ((a_max - a_min) / frac)
-                    vrange /= ((a_max - a_min) / frac)
-                A_scaled += offset
-                vrange += offset
-                # resample the input data to the correct resolution and shape
-                A_resampled = _resample(self, A_scaled, out_shape, t)
-                del A_scaled  # Make sure we don't use A_scaled anymore!
-                # Un-scale the resampled data to approximately the original
-                # range. Things that interpolated to outside the original range
-                # will still be outside, but possibly clipped in the case of
-                # higher order interpolation + drastically changing data.
-                A_resampled -= offset
-                vrange -= offset
-                if a_min != a_max:
-                    A_resampled *= ((a_max - a_min) / frac)
-                    vrange *= ((a_max - a_min) / frac)
-                A_resampled += a_min
-                vrange += a_min
-                # if using NoNorm, cast back to the original datatype
-                if isinstance(self.norm, mcolors.NoNorm):
-                    A_resampled = A_resampled.astype(A.dtype)
-
-                # Compute out_mask (what screen pixels include "bad" data
+                # First compute out_mask (what screen pixels include "bad" data
                 # pixels) and out_alpha (to what extent screen pixels are
                 # covered by data pixels: 0 outside the data extent, 1 inside
                 # (even for bad data), and intermediate values at the edges).
-                mask = (np.where(A.mask, np.float32(np.nan), np.float32(1))
-                        if A.mask.shape == A.shape  # nontrivial mask
-                        else np.ones_like(A, np.float32))
+                if A.ndim == 2:
+                    mask = (np.where(A.mask, np.float32(np.nan), np.float32(1))
+                            if A.mask.shape == A.shape  # nontrivial mask
+                            else np.ones_like(A, np.float32))
+                else:
+                    _maskNd = (np.where(A.mask, np.float32(np.nan), np.float32(1))
+                               if A.mask.shape == A.shape  # nontrivial mask
+                               else np.ones_like(A, np.float32))
+                    mask = np.sum(_maskNd, axis=0)
+
                 # we always have to interpolate the mask to account for
                 # non-affine transformations
                 out_alpha = _resample(self, mask, out_shape, t, resample=True)
@@ -536,25 +576,21 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 if alpha is not None and np.ndim(alpha) > 0:
                     out_alpha *= _resample(self, alpha, out_shape,
                                            t, resample=True)
-                # mask and run through the norm
-                resampled_masked = np.ma.masked_array(A_resampled, out_mask)
-                # we have re-set the vmin/vmax to account for small errors
-                # that may have moved input values in/out of range
-                s_vmin, s_vmax = vrange
-                if isinstance(self.norm, mcolors.LogNorm) and s_vmin <= 0:
-                    # Don't give 0 or negative values to LogNorm
-                    s_vmin = np.finfo(scaled_dtype).eps
-                # Block the norm from sending an update signal during the
-                # temporary vmin/vmax change
-                with self.norm.callbacks.blocked(), \
-                     cbook._setattr_cm(self.norm, vmin=s_vmin, vmax=s_vmax):
-                    output = self.norm(resampled_masked)
+                # Resample data
+                if A.ndim == 2:
+                    output = self._resample_and_norm(A, self.norm, out_shape,
+                                                     out_mask, t)
+                else:
+                    output = [self._resample_and_norm(a, self.norm[i],
+                                                      out_shape, out_mask, t)
+                              for i, a in enumerate(A)]
+
             else:
-                if A.ndim == 2:  # _interpolation_stage == 'rgba'
+                if self.n_variates > 0:  # _interpolation_stage == 'rgba'
                     self.norm.autoscale_None(A)
                     A = self.to_rgba(A)
                 alpha = self._get_scalar_alpha()
-                if A.shape[2] == 3:
+                if self.n_variates == 0 and A.shape[2] == 3:
                     # No need to resample alpha or make a full array; NumPy will expand
                     # this out and cast to uint8 if necessary when it's assigned to the
                     # alpha channel below.
@@ -571,8 +607,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             output = self.to_rgba(output, bytes=True, norm=False)
             # output is now a correctly sized RGBA array of uint8
 
-            # Apply alpha *after* if the input was greyscale without a mask
-            if A.ndim == 2:
+            # Apply alpha *after* if the input was mapped to color without a mask
+            if self.n_variates > 0 and self._interpolation_stage != 'rgba':
                 alpha = self._get_scalar_alpha()
                 alpha_channel = output[:, :, 3]
                 alpha_channel[:] = (  # Assignment will cast to uint8.
@@ -580,7 +616,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         else:
             if self._imcache is None:
-                self._imcache = self.to_rgba(A, bytes=True, norm=(A.ndim == 2))
+                self._imcache = self.to_rgba(A, bytes=True, norm=(self.n_variates > 0))
             output = self._imcache
 
             # Subset the input image to only the part that will be displayed.
@@ -680,20 +716,34 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         PIL.Image.fromarray(im).save(fname, format="png")
 
     @staticmethod
-    def _normalize_image_array(A):
+    def _normalize_image_array(A, cmap=None):
         """
         Check validity of image-like input *A* and normalize it to a format suitable for
         Image subclasses.
+        cmap is used to verify the correct number of variates in the data
+        Without cmap A.shape == (3,n,3) can be either a RGB image or three varaites
         """
         A = cbook.safe_masked_invalid(A, copy=True)
         if A.dtype != np.uint8 and not np.can_cast(A.dtype, float, "same_kind"):
             raise TypeError(f"Image data of dtype {A.dtype} cannot be "
                             f"converted to float")
+        if A.ndim == 2:
+            n_variates = 1
         if A.ndim == 3 and A.shape[-1] == 1:
             A = A.squeeze(-1)  # If just (M, N, 1), assume scalar and apply colormap.
-        if not (A.ndim == 2 or A.ndim == 3 and A.shape[-1] in [3, 4]):
+            n_variates = 1
+        if isinstance(cmap, mcolors.MultivarColormap) or \
+                                    isinstance(cmap, mcolors.BivarColormap):
+            if len(A) != cmap.n_variates:
+                raise TypeError(
+                    f"Invalid shape {A.shape} for image data with colormap"
+                    f" {cmap}. Image data of shape ({cmap.n_variates},n,m) expected"
+                    " got {A.shape}."
+                    )
+            n_variates = cmap.n_variates
+        elif not (A.ndim == 2 or A.ndim == 3 and A.shape[-1] in [3, 4]):
             raise TypeError(f"Invalid shape {A.shape} for image data")
-        if A.ndim == 3:
+        elif A.ndim == 3:
             # If the input data has values outside the valid range (after
             # normalisation), we issue a warning and then clip X to the bounds
             # - otherwise casting wraps extreme values, hiding outliers and
@@ -710,7 +760,11 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             # Cast unsupported integer types to uint8
             if A.dtype != np.uint8 and np.issubdtype(A.dtype, np.integer):
                 A = A.astype(np.uint8)
-        return A
+            n_variates = 0
+        else:  # scalar colormap or no colormap
+            if not (A.ndim == 2 or A.ndim == 3 and A.shape[-1] in [3, 4]):
+                raise TypeError(f"Invalid shape {A.shape} for image data")
+        return A, n_variates
 
     def set_data(self, A):
         """
@@ -724,7 +778,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         if isinstance(A, PIL.Image.Image):
             A = pil_to_array(A)  # Needed e.g. to apply png palette.
-        self._A = self._normalize_image_array(A)
+        self._A, self.n_variates = self._normalize_image_array(A, self.cmap)
         self._imcache = None
         self.stale = True
 
@@ -863,10 +917,12 @@ class AxesImage(_ImageBase):
     Parameters
     ----------
     ax : `~matplotlib.axes.Axes`
-        The Axes the image will belong to.
-    cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+        The axes the image will belong to.
+    cmap : str or `~matplotlib.colors.Colormap`, or
+        `~matplotlib.colors.MultivarColormap` or
+        `~matplotlib.colors.BivarColormap`, default: :rc:`image.cmap`
         The Colormap instance or registered colormap name used to map scalar
-        data to colors.
+        or multivariate data to colors.
     norm : str or `~matplotlib.colors.Normalize`
         Maps luminance to 0-1.
     interpolation : str, default: :rc:`image.interpolation`
@@ -1069,7 +1125,7 @@ class NonUniformImage(AxesImage):
         if unsampled:
             raise ValueError('unsampled not supported on NonUniformImage')
         A = self._A
-        if A.ndim == 2:
+        if self.n_variates > 0:
             if A.dtype != np.uint8:
                 A = self.to_rgba(A, bytes=True)
             else:
@@ -1149,7 +1205,7 @@ class NonUniformImage(AxesImage):
             (M, N) `~numpy.ndarray` or masked array of values to be
             colormapped, or (M, N, 3) RGB array, or (M, N, 4) RGBA array.
         """
-        A = self._normalize_image_array(A)
+        A, self.n_variates = self._normalize_image_array(A, self.cmap)
         x = np.array(x, np.float32)
         y = np.array(y, np.float32)
         if not (x.ndim == y.ndim == 1 and A.shape[:2] == y.shape + x.shape):
@@ -1309,7 +1365,7 @@ class PcolorImage(AxesImage):
             - (M, N, 3): RGB array
             - (M, N, 4): RGBA array
         """
-        A = self._normalize_image_array(A)
+        A, self.n_variates = self._normalize_image_array(A)
         x = np.arange(0., A.shape[1] + 1) if x is None else np.array(x, float).ravel()
         y = np.arange(0., A.shape[0] + 1) if y is None else np.array(y, float).ravel()
         if A.shape[:2] != (y.size - 1, x.size - 1):
@@ -1402,7 +1458,8 @@ class FigureImage(_ImageBase):
 
     def set_data(self, A):
         """Set the image array."""
-        cm.ScalarMappable.set_array(self, A)
+        A, self.n_variates = self._normalize_image_array(A, self.cmap)
+        cm.VectorMappable.set_array(self, A)
         self.stale = True
 
 

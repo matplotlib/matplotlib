@@ -48,6 +48,8 @@ import matplotlib.colorbar as cbar
 import matplotlib.image as mimage
 
 from matplotlib.axes import Axes
+from matplotlib.axes._base import ensure_cmap, ensure_multivariate_norm
+
 from matplotlib.gridspec import GridSpec, SubplotParams
 from matplotlib.layout_engine import (
     ConstrainedLayoutEngine, TightLayoutEngine, LayoutEngine,
@@ -57,7 +59,7 @@ import matplotlib.legend as mlegend
 from matplotlib.patches import Rectangle
 from matplotlib.text import Text
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
-                                   TransformedBbox)
+                                   TransformedBbox, BboxTransform)
 
 _log = logging.getLogger(__name__)
 
@@ -1252,6 +1254,103 @@ default: %(va)s
             k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS})
         cax.figure.stale = True
         return cb
+
+    def colorbars(self, mappable, shape=(-1, -1), fraction_per_row=0.15, pad=0.05,
+                  internal_pad=0.05, total_aspect=20, **kwargs):
+        """
+        Absolute minimal implementation of colorbar option for multivariate data
+        *** This should be remade from scratch ***
+        """
+
+        n_variates = mappable.cmap.n_variates
+        ax = mappable.axes
+
+        parents_bbox = ax.get_position(original=True).frozen()  # .union(
+        #    [ax.get_position(original=True).frozen() for ax in [ax]])
+
+        # assume right - find shape
+        if shape[0] == -1:
+            if shape[1] == -1:
+                shape = (n_variates, 1)
+            else:
+                shape = (np.ceil(n_variates / shape[1]).astype(int), shape[1])
+        else:
+            if shape[1] == -1:
+                shape = (shape[0], np.ceil(n_variates / shape[0]).astype(int))
+            else:
+                if not shape[0] * shape[1] >= n_variates:
+                    raise ValueError("shape too small!")
+
+        # assume right - shift original ax
+        fraction = fraction_per_row * shape[1]
+        pb1, _, pbcb = parents_bbox.splitx(1 - fraction - pad, 1 - fraction)
+
+        shrinking_trans = BboxTransform(parents_bbox, pb1)
+
+        new_posn = shrinking_trans.transform(ax.get_position(original=True))
+        new_posn = Bbox(new_posn)
+        ax._set_position(new_posn)
+
+        # assume right - split reserved space into shape
+
+        ip = internal_pad
+        splits_y = [[i / shape[0] - ip / 2, i / shape[0] + ip / 2]
+                    for i in range(1, shape[0])]
+        splits_y = [item for sublist in splits_y for item in sublist]  # unravel
+        splits_x = [[i / shape[1] - ip / 2, i / shape[1] + ip / 2]
+                    for i in range(1, shape[1])]
+        splits_x = [item for sublist in splits_x for item in sublist]  # unravel
+        caxs = []
+        regions = pbcb.splitx(*splits_x)
+        for region in regions[::2]:
+            spaces = region.splity(*splits_y)
+            for space in spaces[::-2]:
+                if len(caxs) < n_variates:
+                    caxs.append(self.add_axes(space, label="<colorbar>"))
+
+        # make colorbars
+        NON_COLORBAR_KEYS = [  # remove kws that cannot be passed to Colorbar
+            'fraction', 'pad', 'shrink', 'aspect', 'anchor', 'panchor']
+        cbs = []
+        aspect = total_aspect / (1 + internal_pad) / shape[0]
+        for cax, mpbl in zip(caxs, mappable.scalars):
+            cb = cbar.Colorbar(cax, mpbl, **{
+                k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS})
+            cax.figure.stale = True
+            cax.set_box_aspect(aspect)
+            cax.set_aspect('auto')
+            cbs.append(cb)
+        return cbs
+
+    def colorbar_2D(self, mappable, shape=(-1, -1), fraction=0.25, pad=0.1):
+        """
+        Absolute minimal implementation of colorbar option for bivariate data
+        *** This should be remade from scratch ***
+        """
+
+        ax = mappable.axes
+
+        parents_bbox = ax.get_position(original=True).frozen()  # .union(
+        #    [ax.get_position(original=True).frozen() for ax in [ax]])
+
+        # assume right - shift original ax
+        pb1, _, pbcb = parents_bbox.splitx(1 - fraction - pad, 1 - fraction)
+
+        shrinking_trans = BboxTransform(parents_bbox, pb1)
+
+        new_posn = shrinking_trans.transform(ax.get_position(original=True))
+        new_posn = Bbox(new_posn)
+        ax._set_position(new_posn)
+
+        # assume right - split reserved space into shape
+        cax = self.add_axes(pbcb, label="<colorbar2D>")
+
+        # make colorbar
+        extent = [*mappable.scalars[1].get_clim(), *mappable.scalars[0].get_clim()]
+        cim = cax.imshow(mappable._cmap.lut, origin='lower', extent=extent,
+                         aspect=(extent[1] - extent[0]) / (extent[3] - extent[2]))
+
+        return cax
 
     def subplots_adjust(self, left=None, bottom=None, right=None, top=None,
                         wspace=None, hspace=None):
@@ -2928,6 +3027,7 @@ None}, default: None
 
             - (M, N): an image with scalar data.  Color-mapping is controlled
               by *cmap*, *norm*, *vmin*, and *vmax*.
+            - (v, M, N): if coupled with a cmap that supports v scalars
             - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
             - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
               i.e. including transparency.
@@ -2988,6 +3088,11 @@ None}, default: None
             dpi = self.get_dpi()
             figsize = [x / dpi for x in (X.shape[1], X.shape[0])]
             self.set_size_inches(figsize, forward=True)
+
+        cmap = ensure_cmap(cmap)
+        if cmap.n_variates > 1:
+            norm, vmin, vmax = ensure_multivariate_norm(cmap.n_variates, X,
+                                                        norm, vmin, vmax)
 
         im = mimage.FigureImage(self, cmap=cmap, norm=norm,
                                 offsetx=xo, offsety=yo,
