@@ -2302,3 +2302,12 @@ def test_Poly3DCollection_init_value_error():
                         'or both for shade to work.'):
         poly = np.array([[0, 0, 1], [0, 1, 1], [0, 0, 0]], float)
         c = art3d.Poly3DCollection([poly], shade=True)
+
+def test_ndarray_color_kwargs_value_error():
+    # smoke test to ensure that ndarray can be passed to color in kwargs for a 3d projection plot
+    try:
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.scatter(1, 0, 0, color=np.array([0, 0, 0, 1]))
+    except ValueError:
+        pytest.fail("A ValueError was raised when it shouldn't have.")
