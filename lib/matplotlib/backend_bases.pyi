@@ -77,13 +77,6 @@ class RendererBase:
         antialiased: bool,
         edgecolors: Sequence[ColorType] | ColorType | None,
     ) -> None: ...
-    def draw_gouraud_triangle(
-        self,
-        gc: GraphicsContextBase,
-        points: ArrayLike,
-        colors: ArrayLike,
-        transform: Transform,
-    ) -> None: ...
     def draw_gouraud_triangles(
         self,
         gc: GraphicsContextBase,
