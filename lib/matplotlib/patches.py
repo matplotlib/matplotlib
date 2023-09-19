@@ -844,6 +844,14 @@ class Rectangle(Patch):
         return self.get_patch_transform().transform(
             [(0, 0), (1, 0), (1, 1), (0, 1)])
 
+    def _get_edge_midpoints(self):
+        """
+        Return the edge midpoints of the rectangle, moving anti-clockwise from
+        the centre of the left-hand edge.
+        """
+        return self.get_patch_transform().transform(
+            [(0, 0.5), (0.5, 0), (1, 0.5), (0.5, 1)])
+
     def get_center(self):
         """Return the centre of the rectangle."""
         return self.get_patch_transform().transform((0.5, 0.5))
@@ -1760,6 +1768,14 @@ class Ellipse(Patch):
         else:
             ret = self.get_patch_transform().transform([(0, 1), (0, -1)])
         return [tuple(x) for x in ret]
+
+    def _get_edge_midpoints(self):
+        """
+        Return the edge midpoints of the ellipse, moving anti-clockwise from
+        the centre of the left-hand edge.
+        """
+        return self.get_patch_transform().transform(
+            [(0, 0.5), (0.5, 0), (1, 0.5), (0.5, 1)])
 
 
 class Annulus(Patch):
