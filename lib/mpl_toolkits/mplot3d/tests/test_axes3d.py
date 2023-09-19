@@ -2309,5 +2309,6 @@ def test_ndarray_color_kwargs_value_error():
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         ax.scatter(1, 0, 0, color=np.array([0, 0, 0, 1]))
+        fig.canvas.draw()
     except ValueError:
         pytest.fail("A ValueError was raised when it shouldn't have.")
