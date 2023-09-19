@@ -3953,7 +3953,7 @@ def tick_params(axis: Literal["both", "x", "y"] = "both", **kwargs) -> None:
 def ticklabel_format(
     *,
     axis: Literal["both", "x", "y"] = "both",
-    style: Literal["", "sci", "scientific", "plain"] | None = None
+    style: Literal["", "sci", "scientific", "plain"] | None = None,
     scilimits: tuple[int, int] | None = None,
     useOffset: bool | float | None = None,
     useLocale: bool | None = None,
