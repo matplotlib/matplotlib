@@ -228,7 +228,6 @@ class _process_plot_var_args:
             cycler = mpl.rcParams['axes.prop_cycle']
         self._idx = 0
         self._cycler_items = [*cycler]
-        self._prop_keys = cycler.keys  # This should make a copy
 
     def __call__(self, axes, *args, data=None, **kwargs):
         axes._process_unit_info(kwargs=kwargs)
@@ -305,11 +304,12 @@ class _process_plot_var_args:
 
     def get_next_color(self):
         """Return the next color in the cycle."""
-        if 'color' not in self._prop_keys:
-            return 'k'
-        c = self._cycler_items[self._idx]['color']
-        self._idx = (self._idx + 1) % len(self._cycler_items)
-        return c
+        entry = self._cycler_items[self._idx]
+        if "color" in entry:
+            self._idx = (self._idx + 1) % len(self._cycler_items)  # Advance cycler.
+            return entry["color"]
+        else:
+            return "k"
 
     def _getdefaults(self, ignore, kw):
         """
@@ -318,17 +318,13 @@ class _process_plot_var_args:
         of the next entry in the property cycle, excluding keys in *ignore*.
         Otherwise, don't advance the property cycle, and return an empty dict.
         """
-        prop_keys = self._prop_keys - ignore
-        if any(kw.get(k, None) is None for k in prop_keys):
-            # Need to copy this dictionary or else the next time around
-            # in the cycle, the dictionary could be missing entries.
-            default_dict = self._cycler_items[self._idx].copy()
-            self._idx = (self._idx + 1) % len(self._cycler_items)
-            for p in ignore:
-                default_dict.pop(p, None)
+        defaults = self._cycler_items[self._idx]
+        if any(kw.get(k, None) is None for k in {*defaults} - ignore):
+            self._idx = (self._idx + 1) % len(self._cycler_items)  # Advance cycler.
+            # Return a new dict to avoid exposing _cycler_items entries to mutation.
+            return {k: v for k, v in defaults.items() if k not in ignore}
         else:
-            default_dict = {}
-        return default_dict
+            return {}
 
     def _setdefaults(self, defaults, kw):
         """
