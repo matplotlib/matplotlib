@@ -1276,14 +1276,7 @@ class Line2D(Artist):
         x : 1D array
         """
         if not np.iterable(x):
-            # When deprecation cycle is completed
-            # raise RuntimeError('x must be a sequence')
-            _api.warn_deprecated(
-                since="3.7",
-                message="Setting data with a non sequence type "
-                "is deprecated since %(since)s and will be "
-                "remove %(removal)s")
-            x = [x, ]
+            raise RuntimeError('x must be a sequence')
         self._xorig = copy.copy(x)
         self._invalidx = True
         self.stale = True
@@ -1297,14 +1290,7 @@ class Line2D(Artist):
         y : 1D array
         """
         if not np.iterable(y):
-            # When deprecation cycle is completed
-            # raise RuntimeError('y must be a sequence')
-            _api.warn_deprecated(
-                since="3.7",
-                message="Setting data with a non sequence type "
-                "is deprecated since %(since)s and will be "
-                "remove %(removal)s")
-            y = [y, ]
+            raise RuntimeError('y must be a sequence')
         self._yorig = copy.copy(y)
         self._invalidy = True
         self.stale = True
