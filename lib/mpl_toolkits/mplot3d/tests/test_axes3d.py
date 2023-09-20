@@ -2305,7 +2305,7 @@ def test_Poly3DCollection_init_value_error():
 
 
 def test_ndarray_color_kwargs_value_error():
-    # smoke test 
+    # smoke test
     # ensures ndarray can be passed to color in kwargs for 3d projection plot
     try:
         fig = plt.figure()
