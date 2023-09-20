@@ -123,7 +123,7 @@ The default formatter will use an offset to reduce
 the length of the ticklabels.  To turn this feature
 off on a per-axis basis::
 
-   ax.get_xaxis().get_major_formatter().set_useOffset(False)
+   ax.xaxis.get_major_formatter().set_useOffset(False)
 
 set :rc:`axes.formatter.useoffset`, or use a different
 formatter.  See :mod:`~matplotlib.ticker` for details.
