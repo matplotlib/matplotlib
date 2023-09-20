@@ -42,8 +42,8 @@ commands:
       - run:
           name: Install apt packages
           command: |
-            sudo apt -qq update
-            sudo apt install -y \
+            sudo apt-get -qq update
+            sudo apt-get install -yy --no-install-recommends \
               cm-super \
               dvipng \
               ffmpeg \
