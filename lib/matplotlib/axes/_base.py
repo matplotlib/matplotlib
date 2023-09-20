@@ -228,7 +228,6 @@ class _process_plot_var_args:
             cycler = mpl.rcParams['axes.prop_cycle']
         self._idx = 0
         self._cycler_items = [*cycler]
-        self._prop_keys = cycler.keys  # This should make a copy
 
     def __call__(self, axes, *args, data=None, **kwargs):
         axes._process_unit_info(kwargs=kwargs)
@@ -305,30 +304,27 @@ class _process_plot_var_args:
 
     def get_next_color(self):
         """Return the next color in the cycle."""
-        if 'color' not in self._prop_keys:
-            return 'k'
-        c = self._cycler_items[self._idx]['color']
-        self._idx = (self._idx + 1) % len(self._cycler_items)
-        return c
+        entry = self._cycler_items[self._idx]
+        if "color" in entry:
+            self._idx = (self._idx + 1) % len(self._cycler_items)  # Advance cycler.
+            return entry["color"]
+        else:
+            return "k"
 
-    def _getdefaults(self, ignore, kw):
+    def _getdefaults(self, kw, ignore=frozenset()):
         """
         If some keys in the property cycle (excluding those in the set
         *ignore*) are absent or set to None in the dict *kw*, return a copy
         of the next entry in the property cycle, excluding keys in *ignore*.
         Otherwise, don't advance the property cycle, and return an empty dict.
         """
-        prop_keys = self._prop_keys - ignore
-        if any(kw.get(k, None) is None for k in prop_keys):
-            # Need to copy this dictionary or else the next time around
-            # in the cycle, the dictionary could be missing entries.
-            default_dict = self._cycler_items[self._idx].copy()
-            self._idx = (self._idx + 1) % len(self._cycler_items)
-            for p in ignore:
-                default_dict.pop(p, None)
+        defaults = self._cycler_items[self._idx]
+        if any(kw.get(k, None) is None for k in {*defaults} - ignore):
+            self._idx = (self._idx + 1) % len(self._cycler_items)  # Advance cycler.
+            # Return a new dict to avoid exposing _cycler_items entries to mutation.
+            return {k: v for k, v in defaults.items() if k not in ignore}
         else:
-            default_dict = {}
-        return default_dict
+            return {}
 
     def _setdefaults(self, defaults, kw):
         """
@@ -341,8 +337,7 @@ class _process_plot_var_args:
 
     def _makeline(self, axes, x, y, kw, kwargs):
         kw = {**kw, **kwargs}  # Don't modify the original kw.
-        default_dict = self._getdefaults(set(), kw)
-        self._setdefaults(default_dict, kw)
+        self._setdefaults(self._getdefaults(kw), kw)
         seg = mlines.Line2D(x, y, **kw)
         return seg, kw
 
@@ -362,18 +357,16 @@ class _process_plot_var_args:
         # *user* explicitly specifies a marker which should be an error.
         # We also want to prevent advancing the cycler if there are no
         # defaults needed after ignoring the given properties.
-        ignores = {'marker', 'markersize', 'markeredgecolor',
-                   'markerfacecolor', 'markeredgewidth'}
-        # Also ignore anything provided by *kwargs*.
-        for k, v in kwargs.items():
-            if v is not None:
-                ignores.add(k)
+        ignores = ({'marker', 'markersize', 'markeredgecolor',
+                    'markerfacecolor', 'markeredgewidth'}
+                   # Also ignore anything provided by *kwargs*.
+                   | {k for k, v in kwargs.items() if v is not None})
 
         # Only using the first dictionary to use as basis
         # for getting defaults for back-compat reasons.
         # Doing it with both seems to mess things up in
         # various places (probably due to logic bugs elsewhere).
-        default_dict = self._getdefaults(ignores, kw)
+        default_dict = self._getdefaults(kw, ignores)
         self._setdefaults(default_dict, kw)
 
         # Looks like we don't want "color" to be interpreted to
