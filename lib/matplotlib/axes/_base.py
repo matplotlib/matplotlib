@@ -311,7 +311,7 @@ class _process_plot_var_args:
         else:
             return "k"
 
-    def _getdefaults(self, ignore, kw):
+    def _getdefaults(self, kw, ignore=frozenset()):
         """
         If some keys in the property cycle (excluding those in the set
         *ignore*) are absent or set to None in the dict *kw*, return a copy
@@ -337,8 +337,7 @@ class _process_plot_var_args:
 
     def _makeline(self, axes, x, y, kw, kwargs):
         kw = {**kw, **kwargs}  # Don't modify the original kw.
-        default_dict = self._getdefaults(set(), kw)
-        self._setdefaults(default_dict, kw)
+        self._setdefaults(self._getdefaults(kw), kw)
         seg = mlines.Line2D(x, y, **kw)
         return seg, kw
 
@@ -358,18 +357,16 @@ class _process_plot_var_args:
         # *user* explicitly specifies a marker which should be an error.
         # We also want to prevent advancing the cycler if there are no
         # defaults needed after ignoring the given properties.
-        ignores = {'marker', 'markersize', 'markeredgecolor',
-                   'markerfacecolor', 'markeredgewidth'}
-        # Also ignore anything provided by *kwargs*.
-        for k, v in kwargs.items():
-            if v is not None:
-                ignores.add(k)
+        ignores = ({'marker', 'markersize', 'markeredgecolor',
+                    'markerfacecolor', 'markeredgewidth'}
+                   # Also ignore anything provided by *kwargs*.
+                   | {k for k, v in kwargs.items() if v is not None})
 
         # Only using the first dictionary to use as basis
         # for getting defaults for back-compat reasons.
         # Doing it with both seems to mess things up in
         # various places (probably due to logic bugs elsewhere).
-        default_dict = self._getdefaults(ignores, kw)
+        default_dict = self._getdefaults(kw, ignores)
         self._setdefaults(default_dict, kw)
 
         # Looks like we don't want "color" to be interpreted to
