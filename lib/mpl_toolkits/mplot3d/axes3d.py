@@ -2672,7 +2672,7 @@ class Axes3D(Axes):
         xs, ys, zs, s, c, color = cbook.delete_masked_points(
             xs, ys, zs, s, c, kwargs.get('color', None)
             )
-        if kwargs.get('color', None):
+        if kwargs.get("color") is not None:
             kwargs['color'] = color
 
         # For xs and ys, 2D scatter() will do the copying.
