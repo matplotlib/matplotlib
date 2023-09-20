@@ -3630,7 +3630,7 @@ class RectangleSelector(_SelectorWidget):
         # Update displayed shape
         self._draw_shape((corner_min[0], corner_max[0],
                           corner_min[1], corner_max[1]))
-        self.set_visible(self.visible)
+        self.set_visible(self.get_visible())
         self.update()
 
     @property
@@ -3693,7 +3693,7 @@ class RectangleSelector(_SelectorWidget):
     def _update_handles(self):
         self._corner_handles.set_data(*self.corners)
         self._edge_handles.set_data(*self.edge_centers)
-        self._center_handle.set_data(*self.center)
+        self._center_handle.set_data(*self.center.reshape(-1, 1))
 
     def _set_active_handle(self, event):
         """Set active handle based on the location of the mouse event."""
@@ -3782,7 +3782,7 @@ class EllipseSelector(RectangleSelector):
             # Update displayed handles
             self._corner_handles.set_data(*self.corners)
             self._edge_handles.set_data(*self.edge_centers)
-            self._center_handle.set_data(*self.center)
+            self._center_handle.set_data(*self.center.reshape(-1, 1))
 
         self.update()
 
