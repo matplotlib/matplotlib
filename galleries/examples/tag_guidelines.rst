@@ -38,7 +38,7 @@ IV. Internal tags: what information is helpful for maintainers or contributors?
     3. New tags should be be added when they are relevant to existing gallery entries too. Avoid tags that will link to only a single gallery entry.
     4. Tags can recreate other forms of organization.
 
-Note: Tagging organization aims to work for 80-90% of cases. Some examples fall outside of the tagging structure. Niche or specific examples shouldn't be given standalone tags that won't apply to other examples.
+    Note: Tagging organization aims to work for 80-90% of cases. Some examples fall outside of the tagging structure. Niche or specific examples shouldn't be given standalone tags that won't apply to other examples.
 
 *How to tag?*
  where you put the directive is where the tag will show
