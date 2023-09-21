@@ -1,0 +1,5 @@
+``num2julian``, ``julian2num`` and ``JULIAN_OFFSET``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... of the `.dates` module are removed without replacements. These were
+undocumented and not exported.
