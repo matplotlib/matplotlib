@@ -54,7 +54,6 @@ matplotlib.cm.register_cmap
 matplotlib.cm.unregister_cmap
 matplotlib.collections.PolyCollection.span_where
 matplotlib.gridspec.GridSpecBase.get_grid_positions
-matplotlib.widgets.MultiCursor.needclear
 
 # 3.8 deprecations
 matplotlib.cbook.get_sample_data
