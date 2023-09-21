@@ -18,9 +18,9 @@ Every gallery example should be tagged with:
 * 1+ content tags
 * structural, domain, or internal tag(s) if helpful
 
-Examples with many tags may indicate that the entry is a showcase example.
+    Examples with many tags may indicate that the entry is a showcase example.
 
-Tags can repeat existing forms of organization (e.g. an example is in the Animation folder and also gets an ``animation`` tag).
+    Tags can repeat existing forms of organization (e.g. an example is in the Animation folder and also gets an ``animation`` tag).
 
 Tags are helpful to denote particularly good "byproduct" examples. E.g. the explicit purpose of a gallery example might be to demonstrate a colormap, but it's also a good demonstration of a legend. Tag ``legend`` to indicate that, rather than changing the title or the scope of the example.
 
