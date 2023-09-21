@@ -6,7 +6,6 @@ import functools
 import numpy as np
 import pytest
 
-import matplotlib as mpl
 from matplotlib import rc_context, style
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -1280,22 +1279,6 @@ def test_change_interval_multiples():
     fig.canvas.draw()
     assert ax.get_xticklabels()[0].get_text() == 'Jan 15 2020'
     assert ax.get_xticklabels()[1].get_text() == 'Feb 01 2020'
-
-
-def test_julian2num():
-    mdates._reset_epoch_test_example()
-    mdates.set_epoch('0000-12-31')
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        # 2440587.5 is julian date for 1970-01-01T00:00:00
-        # https://en.wikipedia.org/wiki/Julian_day
-        assert mdates.julian2num(2440588.5) == 719164.0
-        assert mdates.num2julian(719165.0) == 2440589.5
-    # set back to the default
-    mdates._reset_epoch_test_example()
-    mdates.set_epoch('1970-01-01T00:00:00')
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        assert mdates.julian2num(2440588.5) == 1.0
-        assert mdates.num2julian(2.0) == 2440589.5
 
 
 def test_DateLocator():
