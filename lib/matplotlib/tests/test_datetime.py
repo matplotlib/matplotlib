@@ -1,3 +1,6 @@
+import datetime
+import numpy as np
+
 import pytest
 
 import matplotlib.pyplot as plt
@@ -239,11 +242,15 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.phase_spectrum(...)
 
-    @pytest.mark.xfail(reason="Test for plot not written yet")
     @mpl.style.context("default")
     def test_plot(self):
-        fig, ax = plt.subplots()
-        ax.plot(...)
+        mpl.rcParams["date.converter"] = 'concise'
+        N = 6
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout='constrained')
+        x = np.array([datetime.datetime(2023, 9, n) for n in range(1, N)])
+        ax1.plot(x, range(1, N))
+        ax2.plot(range(1, N), x)
+        ax3.plot(x, x)
 
     @pytest.mark.xfail(reason="Test for plot_date not written yet")
     @mpl.style.context("default")
