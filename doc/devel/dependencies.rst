@@ -228,7 +228,7 @@ Setup dependencies
   runtime dependency.
 - `PyBind11 <https://pypi.org/project/pybind11/>`_ (>= 2.6). Used to connect C/C++ code
   with Python.
-- `setuptools <https://pypi.org/project/setuptools/>`_ (>= 42).
+- `setuptools <https://pypi.org/project/setuptools/>`_ (>= 64).
 - `setuptools_scm <https://pypi.org/project/setuptools-scm/>`_ (>= 7).  Used to
   update the reported ``mpl.__version__`` based on the current git commit.
   Also a runtime dependency for editable installs.
