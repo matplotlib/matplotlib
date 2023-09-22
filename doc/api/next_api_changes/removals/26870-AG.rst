@@ -1,3 +1,5 @@
-``set_label1`` and ``set_labe2``
+``set_label1`` and ``set_label2``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Removed the functions since they were marked as deprecated.
+... is removed during version 3.8
+
+
