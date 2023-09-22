@@ -308,7 +308,7 @@ class TestDatetimePlotting:
         for label in axs[2].get_xticklabels():
             label.set_rotation(40)
             label.set_horizontalalignment('right')
-            
+
     @pytest.mark.xfail(reason="Test for semilogx not written yet")
     @mpl.style.context("default")
     def test_semilogx(self):
