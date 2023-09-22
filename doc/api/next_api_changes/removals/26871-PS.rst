@@ -1,3 +1,3 @@
 Remove Deprecated API
 ~~~~~~~~~~~~~~~~~~~~~~~
-``matplotlib.patches.SimplePath``
+``matplotlib.patches.ConnectionStyle._Base.SimpleEvent``
