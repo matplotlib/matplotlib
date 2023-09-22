@@ -2708,11 +2708,6 @@ class ConnectionStyle(_Style):
         helper methods.
         """
 
-        @_api.deprecated("3.7")
-        class SimpleEvent:
-            def __init__(self, xy):
-                self.x, self.y = xy
-
         def _in_patch(self, patch):
             """
             Return a predicate function testing whether a point *xy* is

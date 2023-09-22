@@ -455,8 +455,8 @@ class BoxStyle(_Style):
 
 class ConnectionStyle(_Style):
     class _Base(ConnectionStyle):
-        class SimpleEvent:
-            def __init__(self, xy: tuple[float, float]) -> None: ...
+        # class SimpleEvent:
+        #     def __init__(self, xy: tuple[float, float]) -> None: ...
 
         def __call__(
             self,
