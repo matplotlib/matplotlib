@@ -34,13 +34,13 @@ from collections.abc import Callable, Sequence
 from typing import Any, Literal, overload
 import numpy as np
 from numpy.typing import ArrayLike
-from matplotlib.typing import ColorType, MarkerType, LineStyleType
+from matplotlib.typing import ColorType, MarkerType, LineStyleType, StrLike
 
 class Axes(_AxesBase):
     def get_title(self, loc: Literal["left", "center", "right"] = ...) -> str: ...
     def set_title(
         self,
-        label: str,
+        label: StrLike,
         fontdict: dict[str, Any] | None = ...,
         loc: Literal["left", "center", "right"] | None = ...,
         pad: float | None = ...,
@@ -111,13 +111,13 @@ class Axes(_AxesBase):
         self,
         x: float,
         y: float,
-        s: str,
+        s: StrLike,
         fontdict: dict[str, Any] | None = ...,
         **kwargs
     ) -> Text: ...
     def annotate(
         self,
-        text: str,
+        text: StrLike,
         xy: tuple[float, float],
         xytext: tuple[float, float] | None = ...,
         xycoords: str
@@ -164,7 +164,7 @@ class Axes(_AxesBase):
         xmax: float | ArrayLike,
         colors: ColorType | Sequence[ColorType] | None = ...,
         linestyles: LineStyleType = ...,
-        label: str = ...,
+        label: StrLike = ...,
         *,
         data=...,
         **kwargs
@@ -176,7 +176,7 @@ class Axes(_AxesBase):
         ymax: float | ArrayLike,
         colors: ColorType | Sequence[ColorType] | None = ...,
         linestyles: LineStyleType = ...,
-        label: str = ...,
+        label: StrLike = ...,
         *,
         data=...,
         **kwargs
@@ -289,7 +289,7 @@ class Axes(_AxesBase):
         markerfmt: str | None = ...,
         basefmt: str | None = ...,
         bottom: float = ...,
-        label: str | None = ...,
+        label: StrLike | None = ...,
         orientation: Literal["vertical", "horizontal"] = ...,
         data=...,
     ) -> StemContainer: ...
@@ -443,7 +443,7 @@ class Axes(_AxesBase):
         self, x: float, y: float, dx: float, dy: float, **kwargs
     ) -> FancyArrow: ...
     def quiverkey(
-        self, Q: Quiver, X: float, Y: float, U: float, label: str, **kwargs
+        self, Q: Quiver, X: float, Y: float, U: float, label: StrLike, **kwargs
     ) -> QuiverKey: ...
     def quiver(self, *args, data=..., **kwargs) -> Quiver: ...
     def barbs(self, *args, data=..., **kwargs) -> Barbs: ...
@@ -549,7 +549,7 @@ class Axes(_AxesBase):
         rwidth: float | None = ...,
         log: bool = ...,
         color: ColorType | Sequence[ColorType] | None = ...,
-        label: str | Sequence[str] | None = ...,
+        label: StrLike | Sequence[StrLike] | None = ...,
         stacked: bool = ...,
         *,
         data=...,

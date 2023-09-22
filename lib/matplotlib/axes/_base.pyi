@@ -27,7 +27,7 @@ from cycler import Cycler
 import numpy as np
 from numpy.typing import ArrayLike
 from typing import Any, Literal, TypeVar, overload
-from matplotlib.typing import ColorType
+from matplotlib.typing import ColorType, StrLike
 
 _T = TypeVar("_T", bound=Artist)
 
@@ -305,7 +305,7 @@ class _AxesBase(martist.Artist):
     def get_xlabel(self) -> str: ...
     def set_xlabel(
         self,
-        xlabel: str,
+        xlabel: StrLike,
         fontdict: dict[str, Any] | None = ...,
         labelpad: float | None = ...,
         *,
@@ -331,7 +331,7 @@ class _AxesBase(martist.Artist):
     def get_ylabel(self) -> str: ...
     def set_ylabel(
         self,
-        ylabel: str,
+        ylabel: StrLike,
         fontdict: dict[str, Any] | None = ...,
         labelpad: float | None = ...,
         *,

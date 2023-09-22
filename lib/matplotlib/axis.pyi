@@ -13,7 +13,7 @@ from matplotlib.lines import Line2D
 from matplotlib.text import Text
 from matplotlib.ticker import Locator, Formatter
 from matplotlib.transforms import Transform, Bbox
-from matplotlib.typing import ColorType
+from matplotlib.typing import ColorType, StrLike
 
 
 GRIDLINE_INTERPOLATION_STEPS: int
@@ -211,7 +211,7 @@ class Axis(martist.Artist):
     def set_units(self, u) -> None: ...
     def get_units(self): ...
     def set_label_text(
-        self, label: str, fontdict: dict[str, Any] | None = ..., **kwargs
+        self, label: StrLike, fontdict: dict[str, Any] | None = ..., **kwargs
     ) -> Text: ...
     def set_major_formatter(
         self, formatter: Formatter | str | Callable[[float, float], str]

@@ -76,15 +76,15 @@ class Cell(Rectangle):
             The cell facecolor.
         fill : bool, default: True
             Whether the cell background is filled.
-        text : str, optional
+        text : str, default: ''
             The cell text.
-        loc : {'right', 'center', 'left'}
+        loc : {'center', 'left', 'right'}, default: 'right'
             The alignment of the text within the cell.
         fontproperties : dict, optional
             A dict defining the font properties of the text. Supported keys and
             values are the keyword arguments accepted by `.FontProperties`.
         visible_edges : {'closed', 'open', 'horizontal', 'vertical'} or \
-substring of 'BRTL'
+substring of 'BRTL', default: 'closed'
             The cell edges to be drawn with a line: a substring of 'BRTL'
             (bottom, right, top, left), or one of 'open' (no edges drawn),
             'closed' (all edges drawn), 'horizontal' (bottom and top),
@@ -684,7 +684,7 @@ def table(ax,
     cellColours : 2D list of colors, optional
         The background colors of the cells.
 
-    cellLoc : {'right', 'center', 'left'}
+    cellLoc : {'center', 'left', 'right'}, default: 'right'
         The alignment of the text within the cells.
 
     colWidths : list of float, optional
@@ -697,7 +697,7 @@ def table(ax,
     rowColours : list of colors, optional
         The colors of the row header cells.
 
-    rowLoc : {'left', 'center', 'right'}
+    rowLoc : {'center', 'left', 'right'}, default: 'center'
         The text alignment of the row header cells.
 
     colLabels : list of str, optional
@@ -706,7 +706,7 @@ def table(ax,
     colColours : list of colors, optional
         The colors of the column header cells.
 
-    colLoc : {'center', 'left', 'right'}
+    colLoc : {'center', 'left', 'right'}, default: 'center'
         The text alignment of the column header cells.
 
     loc : str, default: 'bottom'
@@ -717,9 +717,9 @@ def table(ax,
         A bounding box to draw the table into. If this is not *None*, this
         overrides *loc*.
 
-    edges : {'closed', 'open', 'horizontal', 'vertical'} or substring of 'BRTL'
-        The cell edges to be drawn with a line. See also
-        `~.Cell.visible_edges`.
+    edges : {'closed', 'open', 'horizontal', 'vertical'} or substring of 'BRTL', \
+default: 'closed'
+        The cell edges to be drawn with a line. See also `~.Cell.visible_edges`.
 
     Returns
     -------
