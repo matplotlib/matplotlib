@@ -53,7 +53,6 @@ matplotlib.figure.Figure.set_tight_layout
 matplotlib.cm.register_cmap
 matplotlib.cm.unregister_cmap
 matplotlib.collections.PolyCollection.span_where
-matplotlib.gridspec.GridSpecBase.get_grid_positions
 
 # 3.8 deprecations
 matplotlib.cbook.get_sample_data
