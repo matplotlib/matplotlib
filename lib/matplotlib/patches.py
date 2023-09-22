@@ -2707,9 +2707,6 @@ class ConnectionStyle(_Style):
         points. This base class defines a __call__ method, and a few
         helper methods.
         """
-
-
-
         def _in_patch(self, patch):
             """
             Return a predicate function testing whether a point *xy* is
