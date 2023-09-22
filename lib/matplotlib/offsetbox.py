@@ -60,8 +60,6 @@ def _compat_get_offset(meth):
         return meth(params["self"], bbox, params["renderer"])
     return get_offset
 
-
-@_api.deprecated("3.7", alternative='patches.bbox_artist')
 def bbox_artist(*args, **kwargs):
     if DEBUG:
         mbbox_artist(*args, **kwargs)
@@ -366,7 +364,6 @@ class OffsetBox(martist.Artist):
         bbox, offsets = self._get_bbox_and_child_offsets(renderer)
         return bbox
 
-    @_api.deprecated("3.7", alternative="get_bbox and child.get_offset")
     def get_extent_offsets(self, renderer):
         """
         Update offset of the children and return the extent of the box.
@@ -386,7 +383,6 @@ class OffsetBox(martist.Artist):
         bbox, offsets = self._get_bbox_and_child_offsets(renderer)
         return bbox.width, bbox.height, -bbox.x0, -bbox.y0, offsets
 
-    @_api.deprecated("3.7", alternative="get_bbox")
     def get_extent(self, renderer):
         """Return a tuple ``width, height, xdescent, ydescent`` of the box."""
         bbox = self.get_bbox(renderer)
