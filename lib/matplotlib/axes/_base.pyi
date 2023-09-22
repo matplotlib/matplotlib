@@ -131,7 +131,6 @@ class _AxesBase(martist.Artist):
     def clear(self) -> None: ...
     def cla(self) -> None: ...
 
-    # Could be made generic, but comments indicate it may be temporary anyway
     class ArtistList(Sequence[_T]):
         def __init__(
             self,
