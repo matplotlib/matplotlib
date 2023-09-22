@@ -295,7 +295,7 @@ class TestDatetimePlotting:
         for label in axs[0].get_xticklabels():
             label.set_rotation(40)
             label.set_horizontalalignment('right')
-        # datetime on y axis 
+        # datetime on y axis
         axs[1].set_title('Axes.scatter used with datetime on y axis')
         axs[1].scatter(y, dates)
         # rotate labels so they don't look clogged
@@ -307,7 +307,7 @@ class TestDatetimePlotting:
         axs[2].scatter(dates, dates)
         for label in axs[2].get_xticklabels():
             label.set_rotation(40)
-            label.set_horizontalalignment('right')   
+            label.set_horizontalalignment('right')
             
     @pytest.mark.xfail(reason="Test for semilogx not written yet")
     @mpl.style.context("default")
