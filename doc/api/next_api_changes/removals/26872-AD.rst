@@ -1,0 +1,6 @@
+``repeat``
+~~~~~~~~~~
+... of `.TimedAnimation` is removed without replacements.
+``save_count``
+~~~~~~~~~~~~~~
+... of `.FuncAnimation` is removed without replacements.

@@ -1446,8 +1446,6 @@ class TimedAnimation(Animation):
         self.event_source.interval = self._interval
         return True
 
-    repeat = _api.deprecate_privatize_attribute("3.7")
-
 
 class ArtistAnimation(TimedAnimation):
     """
@@ -1787,8 +1785,6 @@ class FuncAnimation(TimedAnimation):
 
             for a in self._drawn_artists:
                 a.set_animated(self._blit)
-
-    save_count = _api.deprecate_privatize_attribute("3.7")
 
 
 def _validate_grabframe_kwargs(savefig_kwargs):
