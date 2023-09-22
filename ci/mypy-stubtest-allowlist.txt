@@ -52,7 +52,6 @@ matplotlib.figure.Figure.set_tight_layout
 # 3.7 deprecations
 matplotlib.cm.register_cmap
 matplotlib.cm.unregister_cmap
-matplotlib.collections.PolyCollection.span_where
 
 # 3.8 deprecations
 matplotlib.cbook.get_sample_data

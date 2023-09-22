@@ -6,7 +6,6 @@ from matplotlib.backend_bases import RendererBase
 from matplotlib.collections import (
     Collection,
     LineCollection,
-    BrokenBarHCollection,
     PathCollection,
     PolyCollection,
     EventCollection,
@@ -282,7 +281,7 @@ class Axes(_AxesBase):
         *,
         data=...,
         **kwargs
-    ) -> BrokenBarHCollection: ...
+    ) -> PolyCollection: ...
     def stem(
         self,
         *args: ArrayLike | str,
