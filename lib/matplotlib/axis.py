@@ -281,32 +281,6 @@ class Tick(martist.Artist):
         renderer.close_group(self.__name__)
         self.stale = False
 
-    @_api.deprecated("3.8")
-    def set_label1(self, s):
-        """
-        Set the label1 text.
-
-        Parameters
-        ----------
-        s : str
-        """
-        self.label1.set_text(s)
-        self.stale = True
-
-    set_label = set_label1
-
-    @_api.deprecated("3.8")
-    def set_label2(self, s):
-        """
-        Set the label2 text.
-
-        Parameters
-        ----------
-        s : str
-        """
-        self.label2.set_text(s)
-        self.stale = True
-
     def set_url(self, url):
         """
         Set the url of label1 and label2.
