@@ -1,3 +1,9 @@
+__all__ = [
+    'Axes',
+    'Subplot',
+    'SubplotBase',
+]
+
 from typing import TypeVar
 
 from ._axes import *
