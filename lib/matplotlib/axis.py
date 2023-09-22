@@ -1941,6 +1941,7 @@ class Axis(martist.Artist):
     def _format_with_dict(tickd, x, pos):
         return tickd.get(x, "")
 
+    @_api.deprecated("3.7")
     @_api.rename_parameter("3.7", "ticklabels", "labels")
     def set_ticklabels(self, labels, *, minor=False, fontdict=None, **kwargs):
         r"""
