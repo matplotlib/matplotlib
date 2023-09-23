@@ -44,9 +44,10 @@ def _get_preamble():
         r"\everymath=\expandafter{\the\everymath\displaystyle}",
         # Allow pgf.preamble to override the above definitions.
         mpl.rcParams["pgf.preamble"],
-        r"\ifdefined\pdftexversion\else  % non-pdftex case.",
-        r"  \usepackage{fontspec}",
         *([
+            r"\ifdefined\pdftexversion\else  % non-pdftex case.",
+            r"  \usepackage{fontspec}",
+        ] + [
             r"  \%s{%s}[Path=\detokenize{%s/}]"
             % (command, path.name, path.parent.as_posix())
             for command, path in zip(
@@ -54,8 +55,7 @@ def _get_preamble():
                 [pathlib.Path(fm.findfont(family))
                  for family in ["serif", "sans\\-serif", "monospace"]]
             )
-        ] if mpl.rcParams["pgf.rcfonts"] else []),
-        r"\fi",
+        ] + [r"\fi"] if mpl.rcParams["pgf.rcfonts"] else []),
         # Documented as "must come last".
         mpl.texmanager._usepackage_if_not_loaded("underscore", option="strings"),
     ])
