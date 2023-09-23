@@ -336,7 +336,6 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.streamplot(...)
 
-    @pytest.mark.xfail(reason="Test for table not written yet")
     @mpl.style.context("default")
     def test_table(self):
         val1 = np.array([datetime.datetime(2023, 9, n) for n in range(1, 4)])
