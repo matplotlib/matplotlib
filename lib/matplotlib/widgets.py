@@ -271,7 +271,7 @@ class SliderBase(AxesWidget):
     For the slider to remain responsive you must maintain a reference to it.
     """
     def __init__(self, ax, orientation, closedmin, closedmax,
-                 valmin, valmax, valfmt, dragging, valstep):
+                 valmin, valmax, valfmt, dragging, valstep, useblit):
         if ax.name == '3d':
             raise ValueError('Sliders cannot be added to 3D Axes')
 
@@ -303,6 +303,11 @@ class SliderBase(AxesWidget):
 
         ax.set_axis_off()
         ax.set_navigate(False)
+
+        self._useblit = useblit and self.canvas.supports_blit
+        if self._useblit:
+            self._background = None
+            self.connect_event("draw_event", self._clear)
 
         self.connect_event("button_press_event", self._update)
         self.connect_event("button_release_event", self._update)
@@ -340,6 +345,18 @@ class SliderBase(AxesWidget):
         if np.any(self.val != self.valinit):
             self.set_val(self.valinit)
 
+    def _blit_draw(self, artists):
+        if not self.drawon:
+            return
+        if not self._useblit or self._background is None:
+            self.ax.figure.canvas.draw_idle()
+            return
+
+        self.canvas.restore_region(self._background)
+        for a in artists:
+            self.ax.draw_artist(a)
+        self.canvas.blit(self.ax.get_tightbbox())
+
 
 class Slider(SliderBase):
     """
@@ -360,7 +377,8 @@ class Slider(SliderBase):
                  closedmin=True, closedmax=True, slidermin=None,
                  slidermax=None, dragging=True, valstep=None,
                  orientation='horizontal', *, initcolor='r',
-                 track_color='lightgrey', handle_style=None, **kwargs):
+                 track_color='lightgrey', handle_style=None, useblit=False,
+                 **kwargs):
         """
         Parameters
         ----------
@@ -430,6 +448,13 @@ class Slider(SliderBase):
             `~.Line2D` constructor. e.g. ``handle_style = {'style'='x'}`` will
             result in ``markerstyle = 'x'``.
 
+        useblit : bool, default: False
+            Use blitting for faster drawing if supported by the backend.
+            See the tutorial :doc:`/tutorials/advanced/blitting` for details.
+
+            If you enable blitting, you should set *valfmt* to a fixed-width
+            format, or there may be artifacts if the text changes width.
+
         Notes
         -----
         Additional kwargs are passed on to ``self.poly`` which is the
@@ -438,7 +463,7 @@ class Slider(SliderBase):
         ``edgecolor``, ``alpha``, etc.).
         """
         super().__init__(ax, orientation, closedmin, closedmax,
-                         valmin, valmax, valfmt, dragging, valstep)
+                         valmin, valmax, valfmt, dragging, valstep, useblit)
 
         if slidermin is not None and not hasattr(slidermin, 'val'):
             raise ValueError(
@@ -459,6 +484,7 @@ class Slider(SliderBase):
         marker_props = {
             f'marker{k}': v for k, v in {**defaults, **handle_style}.items()
         }
+        animated_style = {'animated': True} if self._useblit else {}
 
         if orientation == 'vertical':
             self.track = Rectangle(
@@ -467,11 +493,14 @@ class Slider(SliderBase):
                 facecolor=track_color
             )
             ax.add_patch(self.track)
-            self.poly = ax.axhspan(valmin, valinit, .25, .75, **kwargs)
+            self.poly = ax.axhspan(valmin, valinit, .25, .75, **animated_style,
+                                   **kwargs)
             # Drawing a longer line and clipping it to the track avoids
             # pixelation-related asymmetries.
-            self.hline = ax.axhline(valinit, 0, 1, color=initcolor, lw=1,
-                                    clip_path=TransformedPatchPath(self.track))
+            self._line = self.hline = ax.axhline(
+                valinit, 0, 1, color=initcolor, lw=1,
+                clip_path=TransformedPatchPath(self.track),
+                **animated_style)
             handleXY = [[0.5], [valinit]]
         else:
             self.track = Rectangle(
@@ -480,15 +509,19 @@ class Slider(SliderBase):
                 facecolor=track_color
             )
             ax.add_patch(self.track)
-            self.poly = ax.axvspan(valmin, valinit, .25, .75, **kwargs)
-            self.vline = ax.axvline(valinit, 0, 1, color=initcolor, lw=1,
-                                    clip_path=TransformedPatchPath(self.track))
+            self.poly = ax.axvspan(valmin, valinit, .25, .75, **animated_style,
+                                   **kwargs)
+            self._line = self.vline = ax.axvline(
+                valinit, 0, 1, color=initcolor, lw=1,
+                clip_path=TransformedPatchPath(self.track),
+                **animated_style)
             handleXY = [[valinit], [0.5]]
         self._handle, = ax.plot(
             *handleXY,
             "o",
             **marker_props,
-            clip_on=False
+            clip_on=False,
+            **animated_style
         )
 
         if orientation == 'vertical':
@@ -499,7 +532,8 @@ class Slider(SliderBase):
             self.valtext = ax.text(0.5, -0.02, self._format(valinit),
                                    transform=ax.transAxes,
                                    verticalalignment='top',
-                                   horizontalalignment='center')
+                                   horizontalalignment='center',
+                                   **animated_style)
         else:
             self.label = ax.text(-0.02, 0.5, label, transform=ax.transAxes,
                                  verticalalignment='center',
@@ -508,9 +542,21 @@ class Slider(SliderBase):
             self.valtext = ax.text(1.02, 0.5, self._format(valinit),
                                    transform=ax.transAxes,
                                    verticalalignment='center',
-                                   horizontalalignment='left')
+                                   horizontalalignment='left',
+                                   **animated_style)
 
         self.set_val(valinit)
+
+    def _clear(self, event):
+        """Internal event handler to refresh the blitting background."""
+        if self.ignore(event):
+            return
+        area = self.ax.get_tightbbox()
+        self._background = self.canvas.copy_from_bbox(area)
+        artists = [self.poly, self._line, self.valtext, self._handle]
+        for a in artists:
+            self.ax.draw_artist(a)
+        self.canvas.blit(self.ax.get_tightbbox())
 
     def _value_in_bounds(self, val):
         """Makes sure *val* is with given bounds."""
@@ -588,8 +634,7 @@ class Slider(SliderBase):
             self._handle.set_xdata([val])
         self.poly.xy = xy
         self.valtext.set_text(self._format(val))
-        if self.drawon:
-            self.ax.figure.canvas.draw_idle()
+        self._blit_draw([self.poly, self._line, self.valtext, self._handle])
         self.val = val
         if self.eventson:
             self._observers.process('changed', val)
@@ -643,6 +688,7 @@ class RangeSlider(SliderBase):
         orientation="horizontal",
         track_color='lightgrey',
         handle_style=None,
+        useblit=False,
         **kwargs,
     ):
         """
@@ -702,6 +748,13 @@ class RangeSlider(SliderBase):
             `~.Line2D` constructor. e.g. ``handle_style = {'style'='x'}`` will
             result in ``markerstyle = 'x'``.
 
+        useblit : bool, default: False
+            Use blitting for faster drawing if supported by the backend.
+            See the tutorial :doc:`/tutorials/advanced/blitting` for details.
+
+            If you enable blitting, you should set *valfmt* to a fixed-width
+            format, or there may be artifacts if the text changes width.
+
         Notes
         -----
         Additional kwargs are passed on to ``self.poly`` which is the
@@ -710,7 +763,7 @@ class RangeSlider(SliderBase):
         ``edgecolor``, ``alpha``, etc.).
         """
         super().__init__(ax, orientation, closedmin, closedmax,
-                         valmin, valmax, valfmt, dragging, valstep)
+                         valmin, valmax, valfmt, dragging, valstep, useblit)
 
         # Set a value to allow _value_in_bounds() to work.
         self.val = (valmin, valmax)
@@ -729,6 +782,7 @@ class RangeSlider(SliderBase):
         marker_props = {
             f'marker{k}': v for k, v in {**defaults, **handle_style}.items()
         }
+        animated_style = {'animated': True} if self._useblit else {}
 
         if orientation == "vertical":
             self.track = Rectangle(
@@ -750,7 +804,7 @@ class RangeSlider(SliderBase):
             poly_transform = self.ax.get_xaxis_transform(which="grid")
             handleXY_1 = [valinit[0], .5]
             handleXY_2 = [valinit[1], .5]
-        self.poly = Polygon(np.zeros([5, 2]), **kwargs)
+        self.poly = Polygon(np.zeros([5, 2]), **animated_style, **kwargs)
         self._update_selection_poly(*valinit)
         self.poly.set_transform(poly_transform)
         self.poly.get_path()._interpolation_steps = 100
@@ -761,13 +815,15 @@ class RangeSlider(SliderBase):
                 *handleXY_1,
                 "o",
                 **marker_props,
-                clip_on=False
+                clip_on=False,
+                **animated_style
             )[0],
             ax.plot(
                 *handleXY_2,
                 "o",
                 **marker_props,
-                clip_on=False
+                clip_on=False,
+                **animated_style
             )[0]
         ]
 
@@ -788,6 +844,7 @@ class RangeSlider(SliderBase):
                 transform=ax.transAxes,
                 verticalalignment="top",
                 horizontalalignment="center",
+                **animated_style
             )
         else:
             self.label = ax.text(
@@ -806,10 +863,21 @@ class RangeSlider(SliderBase):
                 transform=ax.transAxes,
                 verticalalignment="center",
                 horizontalalignment="left",
+                **animated_style
             )
 
         self._active_handle = None
         self.set_val(valinit)
+
+    def _clear(self, event):
+        """Internal event handler to refresh the blitting background."""
+        if self.ignore(event):
+            return
+        artists = [self.poly, self.valtext, *self._handles]
+        self._background = self.canvas.copy_from_bbox(self.ax.get_tightbbox())
+        for a in artists:
+            self.ax.draw_artist(a)
+        self.canvas.blit(self.ax.get_tightbbox())
 
     def _update_selection_poly(self, vmin, vmax):
         """
@@ -964,8 +1032,7 @@ class RangeSlider(SliderBase):
 
         self.valtext.set_text(self._format((vmin, vmax)))
 
-        if self.drawon:
-            self.ax.figure.canvas.draw_idle()
+        self._blit_draw([self.poly, self.valtext, *self._handles])
         self.val = (vmin, vmax)
         if self.eventson:
             self._observers.process("changed", (vmin, vmax))
