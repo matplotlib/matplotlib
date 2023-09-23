@@ -1,0 +1,3 @@
+Remove Deprecated SimpleEvents class
+ ~~~~~~~~~~~~~~~~~~~~~~~
+ ``matplotlib.patches.ConnectionStyle._Base.SimpleEvent``
