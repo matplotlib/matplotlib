@@ -1,0 +1,4 @@
+``set_xdata`` and ``set_ydata`` requires an iterable.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These APIs require argument which is iterable, use of non sequence type is deprecated.
