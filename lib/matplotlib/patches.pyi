@@ -455,7 +455,6 @@ class BoxStyle(_Style):
 
 class ConnectionStyle(_Style):
     class _Base(ConnectionStyle):
-
         def __call__(
             self,
             posA: tuple[float, float],
