@@ -342,7 +342,7 @@ class TestDatetimePlotting:
         val1 = np.array([datetime.datetime(2023, 9, n) for n in range(1, 4)])
         val2 = np.array([datetime.datetime(2022, 9, n) for n in range(1, 4)])
         val3 = [[datetime.datetime(2022, 9, c) for c in range(1, 4)]
-            for r in range(1, 4)]
+                    for r in range(1, 4)]
         fig, ax = plt.subplots()
         ax.set_axis_off()
         ax.table(cellText=val3, rowLabels=val2, colLabels=val1)
