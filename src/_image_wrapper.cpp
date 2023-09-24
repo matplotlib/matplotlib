@@ -202,7 +202,7 @@ static void image_resample(pybind11::array input_array,
 
 
 PYBIND11_MODULE(_image, m) {
-    pybind11::enum_<interpolation_e>(m, "interpolation_e")
+    pybind11::enum_<interpolation_e>(m, "_InterpolationType")
         .value("NEAREST", NEAREST)
         .value("BILINEAR", BILINEAR)
         .value("BICUBIC", BICUBIC)
