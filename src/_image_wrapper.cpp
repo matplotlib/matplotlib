@@ -78,10 +78,11 @@ static pybind11::array_t<double> _get_transform_mesh(const pybind11::object& tra
     auto output_mesh_array =
         pybind11::array_t<double, pybind11::array::c_style | pybind11::array::forcecast>(output_mesh);
 
-    if (output_mesh_array.ndim() != 2)
+    if (output_mesh_array.ndim() != 2) {
         throw std::runtime_error(
             "Inverse transformed mesh array should be 2D not " +
             std::to_string(output_mesh_array.ndim()) + "D");
+    }
 
     return output_mesh_array;
 }
@@ -102,13 +103,15 @@ static void image_resample(pybind11::array input_array,
     auto dtype = input_array.dtype();  // Validated when determine resampler below
     auto ndim = input_array.ndim();
 
-    if (ndim != 2 && ndim != 3)
+    if (ndim != 2 && ndim != 3) {
         throw std::invalid_argument("Input array must be a 2D or 3D array");
+    }
 
-    if (ndim == 3 && input_array.shape(2) != 4)
+    if (ndim == 3 && input_array.shape(2) != 4) {
         throw std::invalid_argument(
             "3D input array must be RGBA with shape (M, N, 4), has trailing dimension of " +
             std::to_string(ndim));
+    }
 
     // Ensure input array is contiguous, regardless of dtype
     input_array = pybind11::array::ensure(input_array, pybind11::array::c_style);
@@ -116,24 +119,29 @@ static void image_resample(pybind11::array input_array,
     // Validate output array
     auto out_ndim = output_array.ndim();
 
-    if (out_ndim != ndim)
+    if (out_ndim != ndim) {
         throw std::invalid_argument(
             "Input (" + std::to_string(ndim) + "D) and output (" + std::to_string(out_ndim) +
             "D) arrays have different dimensionalities");
+    }
 
-    if (out_ndim == 3 && output_array.shape(2) != 4)
+    if (out_ndim == 3 && output_array.shape(2) != 4) {
         throw std::invalid_argument(
             "3D output array must be RGBA with shape (M, N, 4), has trailing dimension of " +
             std::to_string(out_ndim));
+    }
 
-    if (!output_array.dtype().is(dtype))
+    if (!output_array.dtype().is(dtype)) {
         throw std::invalid_argument("Input and output arrays have mismatched types");
+    }
 
-    if ((output_array.flags() & pybind11::array::c_style) == 0)
+    if ((output_array.flags() & pybind11::array::c_style) == 0) {
         throw std::invalid_argument("Output array must be C-contiguous");
+    }
 
-    if (!output_array.writeable())
+    if (!output_array.writeable()) {
         throw std::invalid_argument("Output array must be writeable");
+    }
 
     resample_params_t params;
     params.interpolation = interpolation;
@@ -187,8 +195,9 @@ static void image_resample(pybind11::array input_array,
             output_array.mutable_data(), output_array.shape(1), output_array.shape(0),
             params);
         Py_END_ALLOW_THREADS
-    } else
+    } else {
         throw std::invalid_argument("arrays must be of dtype byte, short, float32 or float64");
+    }
 }
 
 
