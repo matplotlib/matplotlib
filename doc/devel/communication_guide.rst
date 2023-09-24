@@ -9,7 +9,6 @@ for example at sprints or when giving official talks or tutorials, and in any
 community venue managed by Matplotlib.
 
 
-
 .. _communication-channels:
 
 Official communication channels
@@ -20,6 +19,8 @@ The following venues are managed by Matplotlib maintainers and contributors:
 * forum: https://discourse.matplotlib.org/
 * chat: `https://matrix.to/#/#matplotlib:matrix.org <https://matrix.to/#/#matplotlib:matrix.org>`_
 * blog: https://blog.scientific-python.org/
+
+.. _social-media:
 
 Social media
 ------------
@@ -38,12 +39,14 @@ Official accounts
 * https://www.youtube.com/matplotlib
 
 
+.. _mailing-lists:
+
 Mailing lists
 -------------
 
-* https://mail.python.org/mailman/listinfo/matplotlib-announce
-* https://mail.python.org/mailman/listinfo/matplotlib-users
-* https://mail.python.org/mailman/listinfo/matplotlib-devel
+* `matplotlib-announce@python.org <https://mail.python.org/mailman/listinfo/matplotlib-announce>`_
+* `matplotlib-users@python.org <https://mail.python.org/mailman/listinfo/matplotlib-users>`_
+* `matplotlib-devel@python.org <https://mail.python.org/mailman/listinfo/matplotlib-devel>`_
 
 .. _social-media-coordination:
 
