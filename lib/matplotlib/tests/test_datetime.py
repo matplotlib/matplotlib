@@ -288,13 +288,18 @@ class TestDatetimePlotting:
         lims = [(np.datetime64('2005-02'), np.datetime64('2005-04')),
                 (np.datetime64('2005-02-03'), np.datetime64('2005-02-15')),
                 (np.datetime64('2005-02-03 11:00'), np.datetime64('2005-02-04 13:20'))]
-        axs[0].set_title('Axes.scatter used with datetime on x axis')
         # datetime array on x axis
         axs[0].scatter(dates, y)
+        for label in axs[0].get_xticklabels():
+            label.set_rotation(40)
+            label.set_horizontalalignment('right')
         # datetime on y axis
         axs[1].scatter(y, dates)
         # datetime on both x, y axes
         axs[2].scatter(dates, dates)
+        for label in axs[2].get_xticklabels():
+            label.set_rotation(40)
+            label.set_horizontalalignment('right')
 
     @pytest.mark.xfail(reason="Test for semilogx not written yet")
     @mpl.style.context("default")
