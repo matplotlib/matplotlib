@@ -31,6 +31,7 @@ _log = logging.getLogger(__name__)
 
 DOCUMENTCLASS = r"\documentclass{article}"
 
+
 # Note: When formatting floating point values, it is important to use the
 # %f/{:f} format rather than %s/{} to avoid triggering scientific notation,
 # which is not recognized by TeX.
@@ -47,17 +48,13 @@ def _get_preamble():
         # Use displaystyle for all math.
         r"\everymath=\expandafter{\the\everymath\displaystyle}",
         # Set up font sizes to match font.size setting.
-        r"\makeatletter",
         r"\IfFileExists{scrextend.sty}{",
-        r"  %s" % mpl.texmanager._usepackage_if_not_loaded(
-            "scrextend", option="fontsize=%fpt" % font_size_pt
-        ),
+        r"  \usepackage[fontsize=%fpt]{scrextend}" % font_size_pt,
         r"}{",
         r"  \renewcommand{\normalsize}{\fontsize{%f}{%f}\selectfont}"
         % (font_size_pt, 1.2 * font_size_pt),
         r"  \normalsize",
         r"}",
-        r"\makeatother",
         # Allow pgf.preamble to override the above definitions.
         mpl.rcParams["pgf.preamble"],
         *([
