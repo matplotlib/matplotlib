@@ -3,7 +3,7 @@
 void convert_trans_affine(const pybind11::object& transform, agg::trans_affine& affine)
 {
     // If None assume identity transform so leave affine unchanged
-    if (transform.is(pybind11::none())) {
+    if (transform.is_none()) {
         return;
     }
 

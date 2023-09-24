@@ -10,9 +10,6 @@
  * */
 
 const char* image_resample__doc__ =
-"resample(input_array, output_array, transform, interpolation=NEAREST, resample=False, alpha=1.0, norm=False, radius=1.0)\n"
-"--\n\n"
-
 "Resample input_array, blending it in-place into output_array, using an\n"
 "affine transformation.\n\n"
 
@@ -50,8 +47,8 @@ const char* image_resample__doc__ =
 "    The radius of the kernel, if method is SINC, LANCZOS or BLACKMAN.\n";
 
 
-static pybind11::array_t<double> _get_transform_mesh(const pybind11::object& transform,
-                                                     const pybind11::ssize_t *dims)
+static pybind11::array_t<double>
+_get_transform_mesh(const pybind11::object& transform, const pybind11::ssize_t *dims)
 {
     /* TODO: Could we get away with float, rather than double, arrays here? */
 
@@ -90,14 +87,15 @@ static pybind11::array_t<double> _get_transform_mesh(const pybind11::object& tra
 
 // Using generic pybind::array for input and output arrays rather than the more usual
 // pybind::array_t<type> as function supports multiple array dtypes.
-static void image_resample(pybind11::array input_array,
-                           pybind11::array& output_array,
-                           const pybind11::object& transform,
-                           interpolation_e interpolation,
-                           bool resample_,  // Avoid name clash with resample() function
-                           float alpha,
-                           bool norm,
-                           float radius)
+static void
+image_resample(pybind11::array input_array,
+               pybind11::array& output_array,
+               const pybind11::object& transform,
+               interpolation_e interpolation,
+               bool resample_,  // Avoid name clash with resample() function
+               float alpha,
+               bool norm,
+               float radius)
 {
     // Validate input_array
     auto dtype = input_array.dtype();  // Validated when determine resampler below
@@ -110,7 +108,7 @@ static void image_resample(pybind11::array input_array,
     if (ndim == 3 && input_array.shape(2) != 4) {
         throw std::invalid_argument(
             "3D input array must be RGBA with shape (M, N, 4), has trailing dimension of " +
-            std::to_string(ndim));
+            std::to_string(input_array.shape(2)));
     }
 
     // Ensure input array is contiguous, regardless of dtype
@@ -128,7 +126,7 @@ static void image_resample(pybind11::array input_array,
     if (out_ndim == 3 && output_array.shape(2) != 4) {
         throw std::invalid_argument(
             "3D output array must be RGBA with shape (M, N, 4), has trailing dimension of " +
-            std::to_string(out_ndim));
+            std::to_string(output_array.shape(2)));
     }
 
     if (!output_array.dtype().is(dtype)) {
