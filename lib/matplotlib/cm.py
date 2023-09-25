@@ -435,6 +435,15 @@ class ScalarMappable:
         # rather than deferring to draw time.
         self.autoscale_None()
 
+    def __call__(self, x, alpha=None, bytes=False, norm=True):
+        """
+        Return a normalized RGBA array corresponding to *x*.
+
+        This is a convenience function that is identical to ``to_rgba``. For 
+        more information, see the documentation for that method. 
+        """
+        return self.to_rgba(x, alpha=alpha, bytes=bytes, norm=norm)
+      
     def to_rgba(self, x, alpha=None, bytes=False, norm=True):
         """
         Return a normalized RGBA array corresponding to *x*.
