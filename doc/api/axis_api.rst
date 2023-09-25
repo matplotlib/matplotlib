@@ -260,8 +260,6 @@ specify a matching series of labels.  Calling ``set_ticks`` makes a
    Tick.get_tick_padding
    Tick.get_tickdir
    Tick.get_view_interval
-   Tick.set_label1
-   Tick.set_label2
    Tick.set_pad
    Tick.set_url
    Tick.update_position
