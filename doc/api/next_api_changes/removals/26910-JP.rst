@@ -1,10 +1,13 @@
-``bbox_artist``
-~~~~~~~~~~~~~~~~
-... of `matplotlib.offsetbox` is removed without replacements.
-``get_extent_offsets``
-~~~~~~~~~~~~~~~~~~~~~~~
+``offsetbox.bbox_artist``
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-... of `matplotlib.offsetbox` is removed without replacements.
-``get_extent``
-~~~~~~~~~~~~~~~
-... of `matplotlib.offsetbox` is removed without replacements.
+... is removed. This is just a wrapper to call `.patches.bbox_artist` if aflag is set in the file, so use that directly if you need the behavior.
+
+``OffsetBox.get_extent_offsets`` and ``OffsetBox.get_extent``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... are removed; these methods are also deprecated on all subclasses of `.OffsetBox`.
+
+... To get the offsetbox extents, instead of ``get_extent``, use `.OffsetBox.get_bbox`, which directly returns a `.Bbox` instance.
+
+... To also get the child offsets, instead of ``get_extent_offsets``, separately call `~.OffsetBox.get_offset` on each children after triggering a draw.
