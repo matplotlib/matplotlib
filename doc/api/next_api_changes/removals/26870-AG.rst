@@ -1,5 +1,3 @@
 ``matplotlib.axis.Tick.set_label1`` and ``matplotlib.axis.Tick.set_label2``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ... is removed during version 3.8
-
-
