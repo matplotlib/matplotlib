@@ -3,7 +3,7 @@
 
 ... is removed. This is just a wrapper to call `.patches.bbox_artist` if aflag is set in the file, so use that directly if you need the behavior.
 
-``OffsetBox.get_extent_offsets`` and ``OffsetBox.get_extent``
+``offsetBox.get_extent_offsets`` and ``offsetBox.get_extent``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ... are removed; these methods are also deprecated on all subclasses of `.OffsetBox`.
