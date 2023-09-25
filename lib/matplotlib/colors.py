@@ -1215,8 +1215,22 @@ class ListedColormap(Colormap):
 
 class Normalize:
     """
-    A class which, when called, linearly normalizes data into the
-    ``[0.0, 1.0]`` interval.
+    A class which, when called, maps data values within the interval
+    ``[vmin, vmax]`` linearly to fit within the interval ``[0.0, 1.0]``. Data
+    with values outside ``[vmin, vmax]`` will be mapped based on *clip*.
+
+    Examples
+    --------
+    ::
+
+        # [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+        x = np.linspace(0, 1, 11)
+
+        norm = mpl.colors.Normalize(vmin=0.2, vmax=0.6, clip=False)
+        norm(x) # [-0.5, -0.25, 0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
+
+        norm = mpl.colors.Normalize(vmin=0.2, vmax=0.6, clip=True)
+        norm(x) # [0, 0, 0, 0.25, 0.5, 0.75, 1.0, 1.0, 1.0, 1.0, 1.0]
     """
 
     def __init__(self, vmin=None, vmax=None, clip=False):
@@ -1224,27 +1238,30 @@ class Normalize:
         Parameters
         ----------
         vmin, vmax : float or None
-            If *vmin* and/or *vmax* is not given, they are initialized from the
-            minimum and maximum value, respectively, of the first input
-            processed; i.e., ``__call__(A)`` calls ``autoscale_None(A)``.
+            Values within the range ``[vmin, vmax]`` from the input data will be
+            linearly mapped to the ``[0, 1]``. If either *vmin* or *vmax* is not
+            provided, they default to the minimum and maximum values of the input,
+            respectively.
+
 
         clip : bool, default: False
             Determines the behavior for mapping values outside the range
             ``[vmin, vmax]``.
 
-            If clipping is off, values outside the range ``[vmin, vmax]`` are also
-            transformed linearly, resulting in values outside ``[0, 1]``. For a
-            standard use with colormaps, this behavior is desired because colormaps
-            mark these outside values with specific colors for *over* or *under*.
+            If *clip* is ``False``, values outside ``[vmin, vmax]`` are also transformed
+            linearly, leading to results outside ``[0, 1]``. For a standard use with
+            colormaps, this behavior is desired because colormaps mark these outside
+            values with specific colors for over or under.
 
-            If ``True`` values falling outside the range ``[vmin, vmax]``,
-            are mapped to 0 or 1, whichever is closer. This makes these values
+            If *clip* is ``True``, values outside ``[vmin, vmax]`` are set to 0 or 1,
+            depending on which boundary they're closer to. This makes these values
             indistinguishable from regular boundary values and can lead to
             misinterpretation of the data.
 
+
         Notes
         -----
-        Returns 0 if ``vmin == vmax``.
+        If ``vmin == vmax``, input data will be mapped to 0.
         """
         self._vmin = _sanitize_extrema(vmin)
         self._vmax = _sanitize_extrema(vmax)
@@ -1298,6 +1315,11 @@ class Normalize:
 
         *value* can be a scalar or sequence.
 
+        Parameters
+        ----------
+        value
+            Data to normalize.
+
         Returns
         -------
         result : masked array
@@ -1328,8 +1350,7 @@ class Normalize:
 
     def __call__(self, value, clip=None):
         """
-        Normalize *value* data in the ``[vmin, vmax]`` interval into the
-        ``[0.0, 1.0]`` interval and return it.
+        Normalize the data and return the normalized data.
 
         Parameters
         ----------
@@ -1375,6 +1396,15 @@ class Normalize:
         return result
 
     def inverse(self, value):
+        """
+        Maps the normalized value (i.e., index in the colormap) back to image
+        data value.
+
+        Parameters
+        ----------
+        value
+            Normalized value.
+        """
         if not self.scaled():
             raise ValueError("Not invertible until both vmin and vmax are set")
         (vmin,), _ = self.process_value(self.vmin)
@@ -1410,7 +1440,7 @@ class Normalize:
             self.vmax = A.max()
 
     def scaled(self):
-        """Return whether vmin and vmax are set."""
+        """Return ``True`` if both vmin and vmax are set, return ``False`` otherwise."""
         return self.vmin is not None and self.vmax is not None
 
 
