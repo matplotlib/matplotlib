@@ -534,9 +534,14 @@ class Artist:
                           mouseevent, self, **prop)._process()
 
         # Pick children
-        for a in self.get_children():
+        children = self.get_children()
+        for a in children:
             # make sure the event happened in the same Axes
             ax = getattr(a, 'axes', None)
+            # if subfigure must get the axes from it
+            if isinstance(a, mpl.figure.SubFigure):
+                children.extend(ax)
+                continue
             if (mouseevent.inaxes is None or ax is None
                     or mouseevent.inaxes == ax):
                 # we need to check if mouseevent.inaxes is None
