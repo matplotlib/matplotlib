@@ -30,6 +30,13 @@ class ScalarMappable:
         norm: colors.Normalize | None = ...,
         cmap: str | colors.Colormap | None = ...,
     ) -> None: ...
+    def __call__(
+        self,
+        x: np.ndarray,
+        alpha: float | ArrayLike | None = ...,
+        bytes: bool = ...,
+        norm: bool = ...,
+    ) -> np.ndarray: ...
     def to_rgba(
         self,
         x: np.ndarray,
