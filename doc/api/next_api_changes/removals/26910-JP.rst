@@ -1,9 +1,10 @@
 ``bbox_artist``
-~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 ... of `matplotlib.offsetbox` is removed without replacements.
 ``get_extent_offsets``
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+
 ... of `matplotlib.offsetbox` is removed without replacements.
 ``get_extent``
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 ... of `matplotlib.offsetbox` is removed without replacements.
