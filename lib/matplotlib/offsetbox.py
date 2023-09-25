@@ -61,9 +61,6 @@ def _compat_get_offset(meth):
     return get_offset
 
 
-
-
-
 # for debugging use
 def _bbox_artist(*args, **kwargs):
     if DEBUG:
