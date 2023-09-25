@@ -1,4 +1,4 @@
-from ._tricontour import *  # noqa: F401, F403
+from matplotlib.tri import *  # noqa: F401, F403
 from matplotlib import _api
 
 
