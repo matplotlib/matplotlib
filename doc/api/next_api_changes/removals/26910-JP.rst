@@ -1,7 +1,7 @@
 ``offsetbox.bbox_artist``
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-... is removed. This is just a wrapper to call `.patches.bbox_artist` if aflag is set in the file, so use that directly if you need the behavior.
+... is removed. This was just a wrapper to call `.patches.bbox_artist` if a flag is set in the file, so use that directly if you need the behavior.
 
 ``offsetBox.get_extent_offsets`` and ``offsetBox.get_extent``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
