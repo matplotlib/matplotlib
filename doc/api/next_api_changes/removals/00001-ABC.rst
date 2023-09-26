@@ -1,7 +1,6 @@
-Removal change template
+_api.warn_deprecated is updated
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Enter description of methods/classes removed here....
+... In the ``lib/matplotlib/tri/`` directory.
 
-Please rename file with PR number and your initials i.e. "99999-ABC.rst"
-and ``git add`` the new file.
+All files with _api.warn_deprecated is replaced with ValueError.
