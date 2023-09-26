@@ -721,7 +721,6 @@ class Quiver(mcollections.PolyCollection):
         # Mask handling is deferred to the caller, _make_verts.
         return X, Y
 
-    quiver_doc = _api.deprecated("3.7")(property(lambda self: _quiver_doc))
 
 
 _barbs_doc = r"""
@@ -1178,4 +1177,3 @@ class Barbs(mcollections.PolyCollection):
         super().set_offsets(xy)
         self.stale = True
 
-    barbs_doc = _api.deprecated("3.7")(property(lambda self: _barbs_doc))
