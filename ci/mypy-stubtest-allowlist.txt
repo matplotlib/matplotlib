@@ -55,13 +55,10 @@ matplotlib.cm.unregister_cmap
 matplotlib.collections.PolyCollection.span_where
 
 # 3.8 deprecations
-matplotlib.cbook.get_sample_data
 matplotlib.contour.ContourSet.allkinds
 matplotlib.contour.ContourSet.allsegs
 matplotlib.contour.ContourSet.tcolors
 matplotlib.contour.ContourSet.tlinewidths
-matplotlib.ticker.LogLocator.__init__
-matplotlib.ticker.LogLocator.set_params
 
 # positional-only argument name lacking leading underscores
 matplotlib.axes._base._AxesBase.axis
