@@ -1,0 +1,13 @@
+``offsetbox.bbox_artist``
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... is removed. This was just a wrapper to call `.patches.bbox_artist` if a flag is set in the file, so use that directly if you need the behavior.
+
+``offsetBox.get_extent_offsets`` and ``offsetBox.get_extent``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... are removed; these methods are also removed on all subclasses of `.OffsetBox`.
+
+... To get the offsetbox extents, instead of ``get_extent``, use `.OffsetBox.get_bbox`, which directly returns a `.Bbox` instance.
+
+... To also get the child offsets, instead of ``get_extent_offsets``, separately call `~.OffsetBox.get_offset` on each children after triggering a draw.
