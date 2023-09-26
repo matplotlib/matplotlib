@@ -2,3 +2,5 @@ Deprecated api modified
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 _api.warn_deprecated is replaced with valueError
+
+The modification is for ``lib/matplotlib/tri/*.py``.
