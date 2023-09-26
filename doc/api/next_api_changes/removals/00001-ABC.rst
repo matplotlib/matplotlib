@@ -2,4 +2,5 @@ _api.warn_deprecated is updated
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ... In the ``lib/matplotlib/tri/`` directory.
+
 All files with _api.warn_deprecated is replaced with ValueError.
