@@ -562,7 +562,7 @@ def validate_sketch(s):
     try:
         return tuple(_listify_validator(validate_float, n=3)(s))
     except ValueError:
-        raise ValueError("Expected a (scale, length, randomness) triplet")
+        raise ValueError("Expected a 'scale, length, randomness' triplet")
 
 
 def _validate_greaterthan_minushalf(s):
