@@ -540,7 +540,7 @@ class Artist:
             ax = getattr(a, 'axes', None)
             # if subfigure must get the axes from it
             if isinstance(a, mpl.figure.SubFigure):
-                children.extend(ax)
+                children.extend(a.get_children())
                 continue
             if (mouseevent.inaxes is None or ax is None
                     or mouseevent.inaxes == ax):
