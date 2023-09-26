@@ -59,6 +59,8 @@ class _AxesBase(martist.Artist):
     containers: list[Container]
     callbacks: CallbackRegistry
     child_axes: list[_AxesBase]
+    legend_: Legend | None
+    title: Text
     _projection_init: Any
 
     def __init__(
