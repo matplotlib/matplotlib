@@ -1710,7 +1710,9 @@ default: %(va)s
 
         bb = []
         if bbox_extra_artists is None:
-            artists = self.get_default_bbox_extra_artists()
+            artists = [artist for artist in self.get_children()
+                       if (artist not in self.axes and artist.get_visible()
+                           and artist.get_in_layout())]
         else:
             artists = bbox_extra_artists
 
