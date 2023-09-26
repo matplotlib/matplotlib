@@ -1,0 +1,6 @@
+``quiver_doc``
+~~~~~~~~~~
+This attribute of ``Quiver``\s has been removed.
+``barbs_doc``
+~~~~~~~~~~~~~~
+This attribute of ``Barbs``\s has been removed.
