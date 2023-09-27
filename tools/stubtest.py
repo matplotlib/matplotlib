@@ -52,7 +52,7 @@ class Visitor(ast.NodeVisitor):
             self.visit(child)
 
 
-with tempfile.NamedTemporaryFile("wt") as f:
+with tempfile.NamedTemporaryFile("wt", delete=False) as f:
     for path in mpl.glob("**/*.py"):
         v = Visitor(path, f)
         tree = ast.parse(path.read_text())
@@ -64,6 +64,7 @@ with tempfile.NamedTemporaryFile("wt") as f:
 
         v.visit(tree)
     f.flush()
+    f.close()
     proc = subprocess.run(
         [
             "stubtest",
@@ -75,5 +76,9 @@ with tempfile.NamedTemporaryFile("wt") as f:
         cwd=root,
         env=os.environ | {"MPLBACKEND": "agg"},
     )
+    try:
+        os.unlink(f.name)
+    except OSError:
+        pass
 
 sys.exit(proc.returncode)
