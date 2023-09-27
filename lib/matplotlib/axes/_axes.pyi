@@ -402,7 +402,7 @@ class Axes(_AxesBase):
         x: float | ArrayLike,
         y: float | ArrayLike,
         s: float | ArrayLike | None = ...,
-        c: Sequence[ColorType] | ColorType | None = ...,
+        c: ArrayLike | Sequence[ColorType] | ColorType | None = ...,
         marker: MarkerType | None = ...,
         cmap: str | Colormap | None = ...,
         norm: str | Normalize | None = ...,
