@@ -1118,19 +1118,14 @@ class CheckButtons(AxesWidget):
     def _clicked(self, event):
         if self.ignore(event) or event.button != 1 or not self.ax.contains(event)[0]:
             return
-        pclicked = self.ax.transAxes.inverted().transform((event.x, event.y))
-        distances = {}
-        _, frame_inds = self._frames.contains(event)
-        coords = self._frames.get_offset_transform().transform(
-            self._frames.get_offsets()
-        )
-        for i, t in enumerate(self.labels):
-            if (i in frame_inds["ind"]
-                    or t.get_window_extent().contains(event.x, event.y)):
-                distances[i] = np.linalg.norm(pclicked - coords[i])
-        if len(distances) > 0:
-            closest = min(distances, key=distances.get)
-            self.set_active(closest)
+        idxs = [  # Indices of frames and of texts that contain the event.
+            *self._frames.contains(event)[1]["ind"],
+            *[i for i, text in enumerate(self.labels) if text.contains(event)[0]]]
+        if idxs:
+            coords = self._frames.get_offset_transform().transform(
+                self._frames.get_offsets())
+            self.set_active(  # Closest index, only looking in idxs.
+                idxs[(((event.x, event.y) - coords[idxs]) ** 2).sum(-1).argmin()])
 
     def set_label_props(self, props):
         """
@@ -1656,18 +1651,14 @@ class RadioButtons(AxesWidget):
     def _clicked(self, event):
         if self.ignore(event) or event.button != 1 or not self.ax.contains(event)[0]:
             return
-        pclicked = self.ax.transAxes.inverted().transform((event.x, event.y))
-        _, inds = self._buttons.contains(event)
-        coords = self._buttons.get_offset_transform().transform(
-            self._buttons.get_offsets())
-        distances = {}
-        for i, t in enumerate(self.labels):
-            if (i in inds["ind"]
-                    or t.get_window_extent().contains(event.x, event.y)):
-                distances[i] = np.linalg.norm(pclicked - coords[i])
-        if len(distances) > 0:
-            closest = min(distances, key=distances.get)
-            self.set_active(closest)
+        idxs = [  # Indices of buttons and of texts that contain the event.
+            *self._buttons.contains(event)[1]["ind"],
+            *[i for i, text in enumerate(self.labels) if text.contains(event)[0]]]
+        if idxs:
+            coords = self._buttons.get_offset_transform().transform(
+                self._buttons.get_offsets())
+            self.set_active(  # Closest index, only looking in idxs.
+                idxs[(((event.x, event.y) - coords[idxs]) ** 2).sum(-1).argmin()])
 
     def set_label_props(self, props):
         """
