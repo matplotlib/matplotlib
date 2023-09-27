@@ -479,7 +479,7 @@ def draw_if_interactive(*args, **kwargs):
 
 
 # This function's signature is rewritten upon backend-load by switch_backend.
-def show(*args, **kwargs):
+def show(*args, **kwargs) -> None:
     """
     Display all open figures.
 
