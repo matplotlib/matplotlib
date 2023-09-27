@@ -1231,6 +1231,10 @@ class Normalize:
 
         norm = mpl.colors.Normalize(vmin=0.2, vmax=0.6, clip=True)
         norm(x) # [0, 0, 0, 0.25, 0.5, 0.75, 1.0, 1.0, 1.0, 1.0, 1.0]
+
+    See Also
+    --------
+    :ref:`colormapnorms`
     """
 
     def __init__(self, vmin=None, vmax=None, clip=False):
@@ -1440,7 +1444,7 @@ class Normalize:
             self.vmax = A.max()
 
     def scaled(self):
-        """Return ``True`` if both vmin and vmax are set, return ``False`` otherwise."""
+        """Return whether vim and max are both set"""
         return self.vmin is not None and self.vmax is not None
 
 
