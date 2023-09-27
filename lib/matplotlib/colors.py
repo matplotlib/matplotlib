@@ -1215,22 +1215,20 @@ class ListedColormap(Colormap):
 
 class Normalize:
     """
-    A class which, when called, maps data values within the interval
-    ``[vmin, vmax]`` linearly to fit within the interval ``[0.0, 1.0]``. Data
-    with values outside ``[vmin, vmax]`` will be mapped based on *clip*.
+    A class which, when called, maps values within the interval
+    ``[vmin, vmax]`` linearly to the interval ``[0.0, 1.0]``. The mapping of
+    values outside ``[vmin, vmax]`` depends on *clip*.
 
     Examples
     --------
     ::
 
-        # [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-        x = np.linspace(0, 1, 11)
+        x = [-2, -1, 0, 1, 2]
 
-        norm = mpl.colors.Normalize(vmin=0.2, vmax=0.6, clip=False)
-        norm(x) # [-0.5, -0.25, 0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
-
-        norm = mpl.colors.Normalize(vmin=0.2, vmax=0.6, clip=True)
-        norm(x) # [0, 0, 0, 0.25, 0.5, 0.75, 1.0, 1.0, 1.0, 1.0, 1.0]
+        norm = mpl.colors.Normalize(vmin=-1, vmax=1, clip=False)
+        norm(x)  # [-0.5, 0., 0.5, 1., 1.5]
+        norm = mpl.colors.Normalize(vmin=-1, vmax=1, clip=True)
+        norm(x)  # [0., 0., 0.5, 1., 1.]
 
     See Also
     --------
@@ -1243,7 +1241,7 @@ class Normalize:
         ----------
         vmin, vmax : float or None
             Values within the range ``[vmin, vmax]`` from the input data will be
-            linearly mapped to the ``[0, 1]``. If either *vmin* or *vmax* is not
+            linearly mapped to ``[0, 1]``. If either *vmin* or *vmax* is not
             provided, they default to the minimum and maximum values of the input,
             respectively.
 
@@ -1430,7 +1428,7 @@ class Normalize:
         self._changed()
 
     def autoscale_None(self, A):
-        """If vmin or vmax are not set, use the min/max of *A* to set them."""
+        """If *vmin* or *vmax* are not set, use the min/max of *A* to set them."""
         A = np.asanyarray(A)
 
         if isinstance(A, np.ma.MaskedArray):
@@ -1444,7 +1442,7 @@ class Normalize:
             self.vmax = A.max()
 
     def scaled(self):
-        """Return whether vim and max are both set"""
+        """Return whether *vmin* and *vmax* are both set."""
         return self.vmin is not None and self.vmax is not None
 
 
