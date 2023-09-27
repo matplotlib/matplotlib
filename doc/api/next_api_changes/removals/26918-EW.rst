@@ -1,0 +1,3 @@
+``Quiver.quiver_doc`` and ``Barbs.barbs_doc``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are removed. These are the doc-string and should not be accessible as a named class member.
