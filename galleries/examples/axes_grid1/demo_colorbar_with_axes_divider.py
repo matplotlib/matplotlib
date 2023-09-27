@@ -1,4 +1,6 @@
 """
+.. _demo-colorbar-with-axes-divider:
+
 =========================
 Colorbar with AxesDivider
 =========================
@@ -8,6 +10,10 @@ it to a new `.AxesDivider` and returns the `.AxesDivider`.  The `.append_axes`
 method of the `.AxesDivider` can then be used to create a new axes on a given
 side ("top", "right", "bottom", or "left") of the original axes. This example
 uses `.append_axes` to add colorbars next to axes.
+
+Users should consider simply passing the main axes to the *ax* keyword argument of
+`~.Figure.colorbar` instead of creating a locatable axes manually like this.
+See :ref:`colorbar_placement`.
 """
 
 import matplotlib.pyplot as plt
