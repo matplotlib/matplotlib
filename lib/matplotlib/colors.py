@@ -114,6 +114,11 @@ class ColorSequenceRegistry(Mapping):
     `.ColorSequenceRegistry.register`::
 
         mpl.color_sequences.register('rgb', ['r', 'g', 'b'])
+
+    To get a list of all registered colormaps, you can do::
+
+        from matplotlib import colormaps
+        list(colormaps)
     """
 
     _BUILTIN_COLOR_SEQUENCES = {
