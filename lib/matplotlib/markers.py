@@ -12,6 +12,7 @@ marker                         symbol description
 ``","``                        |m01|  pixel
 ``"o"``                        |m02|  circle
 ``"v"``                        |m03|  triangle_down
+``"~"``                        |m38|  tilda
 ``"^"``                        |m04|  triangle_up
 ``"<"``                        |m05|  triangle_left
 ``">"``                        |m06|  triangle_right
@@ -174,6 +175,7 @@ class MarkerStyle:
         ',': 'pixel',
         'o': 'circle',
         'v': 'triangle_down',
+        '~': 'tilda',
         '^': 'triangle_up',
         '<': 'triangle_left',
         '>': 'triangle_right',
@@ -216,7 +218,7 @@ class MarkerStyle:
     # Just used for informational purposes.  is_filled()
     # is calculated in the _set_* functions.
     filled_markers = (
-        '.', 'o', 'v', '^', '<', '>', '8', 's', 'p', '*', 'h', 'H', 'D', 'd',
+        '.', 'o', 'v', '~', '^', '<', '>', '8', 's', 'p', '*', 'h', 'H', 'D', 'd',
         'P', 'X')
 
     fillstyles = ('full', 'left', 'right', 'bottom', 'top', 'none')
