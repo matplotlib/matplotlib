@@ -3670,7 +3670,7 @@ def scatter(
     x: float | ArrayLike,
     y: float | ArrayLike,
     s: float | ArrayLike | None = None,
-    c: Sequence[ColorType] | ColorType | None = None,
+    c: ArrayLike | Sequence[ColorType] | ColorType | None = None,
     marker: MarkerType | None = None,
     cmap: str | Colormap | None = None,
     norm: str | Normalize | None = None,
