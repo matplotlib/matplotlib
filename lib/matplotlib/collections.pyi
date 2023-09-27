@@ -106,18 +106,6 @@ class PolyCollection(_CollectionWithSizes):
         self, verts: Sequence[ArrayLike | Path], codes: Sequence[int]
     ) -> None: ...
 
-class BrokenBarHCollection(PolyCollection):
-    def __init__(
-        self,
-        xranges: Iterable[tuple[float, float]],
-        yrange: tuple[float, float],
-        **kwargs
-    ) -> None: ...
-    @classmethod
-    def span_where(
-        cls, x: ArrayLike, ymin: float, ymax: float, where: ArrayLike, **kwargs
-    ) -> BrokenBarHCollection: ...
-
 class RegularPolyCollection(_CollectionWithSizes):
     def __init__(
         self, numsides: int, *, rotation: float = ..., sizes: ArrayLike = ..., **kwargs
