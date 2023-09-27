@@ -720,6 +720,8 @@ class Quiver(mcollections.PolyCollection):
             np.copyto(Y, Y1, where=tooshort)
         # Mask handling is deferred to the caller, _make_verts.
         return X, Y
+
+
 _barbs_doc = r"""
 Plot a 2D field of barbs.
 
