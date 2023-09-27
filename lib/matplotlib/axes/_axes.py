@@ -783,6 +783,7 @@ class Axes(_AxesBase):
         trans = self.get_yaxis_transform(which='grid')
         l = mlines.Line2D([xmin, xmax], [y, y], transform=trans, **kwargs)
         self.add_line(l)
+        l.get_path()._interpolation_steps = mpl.axis.GRIDLINE_INTERPOLATION_STEPS
         if scaley:
             self._request_autoscale_view("y")
         return l
@@ -851,6 +852,7 @@ class Axes(_AxesBase):
         trans = self.get_xaxis_transform(which='grid')
         l = mlines.Line2D([x, x], [ymin, ymax], transform=trans, **kwargs)
         self.add_line(l)
+        l.get_path()._interpolation_steps = mpl.axis.GRIDLINE_INTERPOLATION_STEPS
         if scalex:
             self._request_autoscale_view("x")
         return l
@@ -978,10 +980,17 @@ class Axes(_AxesBase):
         self._check_no_units([xmin, xmax], ['xmin', 'xmax'])
         (ymin, ymax), = self._process_unit_info([("y", [ymin, ymax])], kwargs)
 
-        verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
-        p = mpatches.Polygon(verts, **kwargs)
+        p = mpatches.Rectangle((xmin, ymin), xmax - xmin, ymax - ymin, **kwargs)
         p.set_transform(self.get_yaxis_transform(which="grid"))
+        # For Rectangles and non-separable transforms, add_patch can be buggy
+        # and update the x limits even though it shouldn't do so for an
+        # yaxis_transformed patch, so undo that update.
+        ix = self.dataLim.intervalx
+        mx = self.dataLim.minposx
         self.add_patch(p)
+        self.dataLim.intervalx = ix
+        self.dataLim.minposx = mx
+        p.get_path()._interpolation_steps = mpl.axis.GRIDLINE_INTERPOLATION_STEPS
         self._request_autoscale_view("y")
         return p
 
@@ -1034,11 +1043,17 @@ class Axes(_AxesBase):
         self._check_no_units([ymin, ymax], ['ymin', 'ymax'])
         (xmin, xmax), = self._process_unit_info([("x", [xmin, xmax])], kwargs)
 
-        verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
-        p = mpatches.Polygon(verts, **kwargs)
+        p = mpatches.Rectangle((xmin, ymin), xmax - xmin, ymax - ymin, **kwargs)
         p.set_transform(self.get_xaxis_transform(which="grid"))
-        p.get_path()._interpolation_steps = 100
+        # For Rectangles and non-separable transforms, add_patch can be buggy
+        # and update the y limits even though it shouldn't do so for an
+        # xaxis_transformed patch, so undo that update.
+        iy = self.dataLim.intervaly.copy()
+        my = self.dataLim.minposy
         self.add_patch(p)
+        self.dataLim.intervaly = iy
+        self.dataLim.minposy = my
+        p.get_path()._interpolation_steps = mpl.axis.GRIDLINE_INTERPOLATION_STEPS
         self._request_autoscale_view("x")
         return p
 
