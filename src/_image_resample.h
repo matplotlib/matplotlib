@@ -496,7 +496,6 @@ typedef enum {
     SINC,
     LANCZOS,
     BLACKMAN,
-    _n_interpolation
 } interpolation_e;
 
 
@@ -629,7 +628,6 @@ static void get_filter(const resample_params_t &params,
 {
     switch (params.interpolation) {
     case NEAREST:
-    case _n_interpolation:
         // Never should get here.  Here to silence compiler warnings.
         break;
 
