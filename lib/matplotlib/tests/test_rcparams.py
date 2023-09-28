@@ -631,36 +631,24 @@ def test_rcparams_legend_loc_from_file(tmpdir, value):
         assert mpl.rcParams["legend.loc"] == value
 
 
-@pytest.mark.parametrize("value", [(1, 2, 3), '1, 2, 3'])
+@pytest.mark.parametrize("value", [(1, 2, 3), '1, 2, 3', '(1, 2, 3)'])
 def test_validate_sketch(value):
     mpl.rcParams["path.sketch"] = value
     assert mpl.rcParams["path.sketch"] == (1, 2, 3)
     assert validate_sketch(value) == (1, 2, 3)
 
 
-@pytest.mark.parametrize("value", [1, '1', '(1, 2, 3)'])
+@pytest.mark.parametrize("value", [1, '1', '1 2 3'])
 def test_validate_sketch_error(value):
-    with pytest.raises(ValueError, match="'scale, length, randomness'"):
+    with pytest.raises(ValueError, match="scale, length, randomness"):
         validate_sketch(value)
-    with pytest.raises(ValueError, match="'scale, length, randomness'"):
+    with pytest.raises(ValueError, match="scale, length, randomness"):
         mpl.rcParams["path.sketch"] = value
 
 
-def test_rcparams_path_sketch_from_file(tmpdir):
+@pytest.mark.parametrize("value", ['1, 2, 3', '(1,2,3)'])
+def test_rcparams_path_sketch_from_file(tmpdir, value):
     rc_path = tmpdir.join("matplotlibrc")
-    rc_path.write("path.sketch: 1, 2, 3")
-
+    rc_path.write(f"path.sketch: {value}")
     with mpl.rc_context(fname=rc_path):
         assert mpl.rcParams["path.sketch"] == (1, 2, 3)
-
-
-def test_rcparams_path_sketch_from_file_error(tmpdir, caplog):
-    # rcParams parser doesn't read a tuple rcfile entry
-    rc_path = tmpdir.join("matplotlibrc")
-    rc_path.write("path.sketch: (1, 2, 3)")
-
-    with mpl.rc_context(fname=rc_path):
-        with caplog.at_level("WARNING"):
-            assert mpl.rcParams['path.sketch'] is None
-            assert ("Expected a 'scale, length, randomness' triplet"
-                     in caplog.text)
