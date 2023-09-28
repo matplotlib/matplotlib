@@ -1886,23 +1886,19 @@ class Cursor(AxesWidget):
         if not self.ax.contains(event)[0]:
             self.linev.set_visible(False)
             self.lineh.set_visible(False)
-
             if self.needclear:
                 self.canvas.draw()
                 self.needclear = False
             return
         self.needclear = True
-
         xdata, ydata = self._get_data_coords(event)
         self.linev.set_xdata((xdata, xdata))
         self.linev.set_visible(self.visible and self.vertOn)
         self.lineh.set_ydata((ydata, ydata))
         self.lineh.set_visible(self.visible and self.horizOn)
-
-        if self.visible and (self.vertOn or self.horizOn):
-            self._update()
-
-    def _update(self):
+        if not (self.visible and (self.vertOn or self.horizOn)):
+            return
+        # Redraw.
         if self.useblit:
             if self.background is not None:
                 self.canvas.restore_region(self.background)
@@ -1911,7 +1907,6 @@ class Cursor(AxesWidget):
             self.canvas.blit(self.ax.bbox)
         else:
             self.canvas.draw_idle()
-        return False
 
 
 class MultiCursor(Widget):
@@ -2026,10 +2021,9 @@ class MultiCursor(Widget):
         for line in self.hlines:
             line.set_ydata((ydata, ydata))
             line.set_visible(self.visible and self.horizOn)
-        if self.visible and (self.vertOn or self.horizOn):
-            self._update()
-
-    def _update(self):
+        if not (self.visible and (self.vertOn or self.horizOn)):
+            return
+        # Redraw.
         if self.useblit:
             for canvas, info in self._canvas_infos.items():
                 if info["background"]:
