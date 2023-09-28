@@ -129,9 +129,9 @@ def validate_fontstretch(
 def validate_font_properties(s: Any) -> dict[str, Any]: ...
 def validate_whiskers(s: Any) -> list[float] | float: ...
 def validate_ps_distiller(s: Any) -> None | Literal["ghostscript", "xpdf"]: ...
-def validate_fillstyle(
-    s: Any,
-) -> Literal["full", "left", "right", "bottom", "top", "none"]: ...
+
+validate_fillstyle: ValidateInStrings
+
 def validate_fillstylelist(
     s: Any,
 ) -> list[Literal["full", "left", "right", "bottom", "top", "none"]]: ...
@@ -152,3 +152,6 @@ def validate_hist_bins(
 ) -> Literal["auto", "sturges", "fd", "doane", "scott", "rice", "sqrt"] | int | list[
     float
 ]: ...
+
+# At runtime is added in __init__.py
+defaultParams: dict[str, Any]
