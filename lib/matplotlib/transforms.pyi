@@ -175,12 +175,17 @@ class LockableBbox(BboxBase):
     def locked_y1(self, y1: float | None) -> None: ...
 
 class Transform(TransformNode):
-    input_dims: int | None
-    output_dims: int | None
-    is_separable: bool
-    # Implemented as a standard attr in base class, but functionally readonly and some subclasses implement as such
+
+    # Implemented as a standard attrs in base class, but functionally readonly and some subclasses implement as such
+    @property
+    def input_dims(self) -> int | None: ...
+    @property
+    def output_dims(self) -> int | None: ...
+    @property
+    def is_separable(self) -> bool: ...
     @property
     def has_inverse(self) -> bool: ...
+
     def __add__(self, other: Transform) -> Transform: ...
     @property
     def depth(self) -> int: ...
@@ -225,8 +230,6 @@ class Affine2DBase(AffineBase):
     input_dims: Literal[2]
     output_dims: Literal[2]
     def frozen(self) -> Affine2D: ...
-    @property
-    def is_separable(self): ...
     def to_values(self) -> tuple[float, float, float, float, float, float]: ...
 
 class Affine2D(Affine2DBase):
@@ -255,7 +258,6 @@ class _BlendedMixin:
 class BlendedGenericTransform(_BlendedMixin, Transform):
     input_dims: Literal[2]
     output_dims: Literal[2]
-    is_separable: bool
     pass_through: bool
     def __init__(
         self, x_transform: Transform, y_transform: Transform, **kwargs
@@ -265,8 +267,6 @@ class BlendedGenericTransform(_BlendedMixin, Transform):
     def contains_branch(self, other: Transform) -> Literal[False]: ...
     @property
     def is_affine(self) -> bool: ...
-    @property
-    def has_inverse(self) -> bool: ...
 
 class BlendedAffine2D(_BlendedMixin, Affine2DBase):
     def __init__(
@@ -279,8 +279,6 @@ def blended_transform_factory(
 
 class CompositeGenericTransform(Transform):
     pass_through: bool
-    input_dims: int | None
-    output_dims: int | None
     def __init__(self, a: Transform, b: Transform, **kwargs) -> None: ...
 
 class CompositeAffine2D(Affine2DBase):
