@@ -55,3 +55,4 @@ repos:
       - id: rstcheck
         additional_dependencies:
           - sphinx>=1.8.1
+          - tomli

@@ -32,18 +32,6 @@ matplotlib.ticker.LogitLocator.nonsingular
 matplotlib.backend_bases._Mode.__new__
 matplotlib.units.Number.__hash__
 
-# Property read-write vs read-only weirdness, fix if possible
-matplotlib.offsetbox.DraggableBase.canvas
-matplotlib.offsetbox.DraggableBase.cids
-matplotlib.transforms.BboxTransform.is_separable
-matplotlib.transforms.BboxTransformFrom.is_separable
-matplotlib.transforms.BboxTransformTo.is_separable
-matplotlib.transforms.BlendedAffine2D.is_separable
-matplotlib.transforms.CompositeGenericTransform.is_separable
-matplotlib.transforms.TransformWrapper.input_dims
-matplotlib.transforms.TransformWrapper.is_separable
-matplotlib.transforms.TransformWrapper.output_dims
-
 # 3.6 Pending deprecations
 matplotlib.figure.Figure.set_constrained_layout
 matplotlib.figure.Figure.set_constrained_layout_pads
@@ -52,7 +40,6 @@ matplotlib.figure.Figure.set_tight_layout
 # 3.7 deprecations
 matplotlib.cm.register_cmap
 matplotlib.cm.unregister_cmap
-matplotlib.collections.PolyCollection.span_where
 
 # 3.8 deprecations
 matplotlib.contour.ContourSet.allkinds
@@ -63,15 +50,9 @@ matplotlib.contour.ContourSet.tlinewidths
 # positional-only argument name lacking leading underscores
 matplotlib.axes._base._AxesBase.axis
 
-# Other dynamic python behaviors not type hinted
-matplotlib.rcsetup.defaultParams
-
 # Maybe should be abstractmethods, required for subclasses, stubs define once
 matplotlib.tri.*TriInterpolator.__call__
 matplotlib.tri.*TriInterpolator.gradient
-
-# Functionally a method call, but actually a class instance, type hinted as former
-matplotlib.rcsetup.validate_fillstyle
 
 # TypeVar used only in type hints
 matplotlib.backend_bases.FigureCanvasBase._T
