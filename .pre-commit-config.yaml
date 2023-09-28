@@ -26,6 +26,23 @@ repos:
       - id: no-commit-to-branch #default is master and main
       - id: trailing-whitespace
         exclude_types: [svg]
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.1.1
+    hooks:
+      - id: mypy
+        additional_dependencies: [
+          pandas-stubs,
+          types-pillow,
+          types-python-dateutil,
+          types-psutil,
+          types-docutils,
+          types-PyYAML]
+        args: [
+          "--config-file=pyproject.toml",
+          "lib/matplotlib"
+          ]
+        files: lib/matplotlib #only run when files in lib/matplotlib are changed
+        pass_filenames: false
   - repo: https://github.com/pycqa/flake8
     rev: 6.0.0
     hooks:

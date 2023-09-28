@@ -207,15 +207,25 @@ convention = "numpy"
 "galleries/users_explain/text/text_props.py" = ["E501"]
 
 [tool.mypy]
-exclude = [
-  ".*/matplotlib/(sphinxext|backends|testing/jpl_units)",
-  ".*/mpl_toolkits",
-  # tinypages is used for testing the sphinx ext,
-  # stubtest will import and run, opening a figure if not excluded
-  ".*/tinypages",
-]
+ignore_missing_imports = true
 enable_incomplete_feature = [
   "Unpack",
+]
+exclude = [
+  #stubtest
+  ".*/matplotlib/(sphinxext|backends|testing/jpl_units)",
+  #mypy precommit
+  "galleries/",
+  "doc/",
+  "lib/matplotlib/backends/",
+  "lib/matplotlib/sphinxext",
+  "lib/matplotlib/testing/jpl_units",
+  "lib/mpl_toolkits/",
+  #removing tests causes errors in backends
+  "lib/matplotlib/tests/",
+  # tinypages is used for testing the sphinx ext,
+  # stubtest will import and run, opening a figure if not excluded
+  ".*/tinypages"
 ]
 
 [tool.rstcheck]
