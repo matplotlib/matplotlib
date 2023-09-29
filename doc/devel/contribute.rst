@@ -227,6 +227,9 @@ Maplotlib repository to your own computer, or alternatively using
 in-browser development environment that comes with the appropriated setup to
 contribute to Matplotlib.
 
+Workflow overview
+^^^^^^^^^^^^^^^^^
+
 A brief overview of the workflow is as follows.
 
 #. `Create an account <https://github.com/join>`_ on GitHub if you do not
@@ -289,8 +292,13 @@ A brief overview of the workflow is as follows.
 
      git push -u origin my-feature
 
-Finally, go to the web page of your fork of the Matplotlib repo, and click
-'Pull request' to send your changes to the maintainers for review.
+Open a pull request on Matplotlib
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Finally, go to the web page of *your fork* of the Matplotlib repo, and click
+**Compare & pull request** to send your changes to the maintainers for review.
+The base repository is ``matplotlib/matplotlib`` and the base branch is
+generally ``main``. For more guidance, see GitHub's `pull request tutorial
+<https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork>`_.
 
 For more detailed instructions on how to set up Matplotlib for development and
 best practices for contribution, see :ref:`installing_for_devs`.
