@@ -304,7 +304,7 @@ For more detailed instructions on how to set up Matplotlib for development and
 best practices for contribution, see :ref:`installing_for_devs`.
 
 GitHub Codespaces workflows
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * If you need to open a GUI window with Matplotlib output on Codespaces, our
   configuration includes a `light-weight Fluxbox-based desktop
@@ -386,7 +386,7 @@ This ensures that users are notified before the change will take effect and thus
 prevents unexpected breaking of code.
 
 Rules
-~~~~~
+^^^^^
 
 - Deprecations are targeted at the next point.release (e.g. 3.x)
 - Deprecated API is generally removed two point-releases after introduction
@@ -399,7 +399,7 @@ Rules
   API consistency lead developer
 
 Introducing
-~~~~~~~~~~~
+^^^^^^^^^^^
 
 #. Announce the deprecation in a new file
    :file:`doc/api/next_api_changes/deprecations/99999-ABC.rst` where ``99999``
@@ -440,7 +440,7 @@ Introducing
      version number.
 
 Expiring
-~~~~~~~~
+^^^^^^^^
 
 #. Announce the API changes in a new file
    :file:`doc/api/next_api_changes/[kind]/99999-ABC.rst` where ``99999``
@@ -621,7 +621,7 @@ example, use ``_log.error('hello %s', 'world')``  rather than ``_log.error('hell
 {}'.format('world'))`` or ``_log.error(f'hello {s}')``.
 
 Which logging level to use?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 There are five levels at which you can emit messages.
 
