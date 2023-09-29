@@ -435,7 +435,7 @@ def to_rgba_array(c, alpha=None):
         (n, 4) array of RGBA colors,  where each channel (red, green, blue,
         alpha) can assume values between 0 and 1.
     """
-    if isinstance(c, tuple) and len(c) == 2:
+    if isinstance(c, tuple) and len(c) == 2 and isinstance(c[1], Real):
         if alpha is None:
             c, alpha = c
         else:
