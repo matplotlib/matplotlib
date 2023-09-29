@@ -37,7 +37,6 @@ from .backend_webagg_core import (  # noqa: F401 # pylint: disable=W0611
     TimerAsyncio, TimerTornado)
 
 
-
 webagg_server_thread = threading.Thread(
     target=lambda: tornado.ioloop.IOLoop.instance().start())
 
