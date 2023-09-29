@@ -99,7 +99,6 @@ if TYPE_CHECKING:
     from matplotlib.collections import (
         Collection,
         LineCollection,
-        BrokenBarHCollection,
         PolyCollection,
         PathCollection,
         EventCollection,
@@ -2873,7 +2872,7 @@ def broken_barh(
     *,
     data=None,
     **kwargs,
-) -> BrokenBarHCollection:
+) -> PolyCollection:
     return gca().broken_barh(
         xranges, yrange, **({"data": data} if data is not None else {}), **kwargs
     )
@@ -3670,7 +3669,7 @@ def scatter(
     x: float | ArrayLike,
     y: float | ArrayLike,
     s: float | ArrayLike | None = None,
-    c: Sequence[ColorType] | ColorType | None = None,
+    c: ArrayLike | Sequence[ColorType] | ColorType | None = None,
     marker: MarkerType | None = None,
     cmap: str | Colormap | None = None,
     norm: str | Normalize | None = None,

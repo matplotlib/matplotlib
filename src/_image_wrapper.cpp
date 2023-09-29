@@ -1,7 +1,8 @@
-#include "mplutils.h"
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
+
 #include "_image_resample.h"
-#include "numpy_cpp.h"
-#include "py_converters.h"
+#include "py_converters_11.h"
 
 
 /**********************************************************************
@@ -9,9 +10,6 @@
  * */
 
 const char* image_resample__doc__ =
-"resample(input_array, output_array, transform, interpolation=NEAREST, resample=False, alpha=1.0, norm=False, radius=1.0)\n"
-"--\n\n"
-
 "Resample input_array, blending it in-place into output_array, using an\n"
 "affine transformation.\n\n"
 
@@ -49,8 +47,8 @@ const char* image_resample__doc__ =
 "    The radius of the kernel, if method is SINC, LANCZOS or BLACKMAN.\n";
 
 
-static PyArrayObject *
-_get_transform_mesh(PyObject *py_affine, npy_intp *dims)
+static pybind11::array_t<double>
+_get_transform_mesh(const pybind11::object& transform, const pybind11::ssize_t *dims)
 {
     /* TODO: Could we get away with float, rather than double, arrays here? */
 
@@ -58,240 +56,178 @@ _get_transform_mesh(PyObject *py_affine, npy_intp *dims)
     every pixel in the output image to the input image.  This is used
     as a lookup table during the actual resampling. */
 
-    PyObject *py_inverse = NULL;
-    npy_intp out_dims[3];
+    // If attribute doesn't exist, raises Python AttributeError
+    auto inverse = transform.attr("inverted")();
 
-    out_dims[0] = dims[0] * dims[1];
-    out_dims[1] = 2;
+    pybind11::ssize_t mesh_dims[2] = {dims[0]*dims[1], 2};
+    pybind11::array_t<double> input_mesh(mesh_dims);
+    auto p = input_mesh.mutable_data();
 
-    py_inverse = PyObject_CallMethod(py_affine, "inverted", NULL);
-    if (py_inverse == NULL) {
-        return NULL;
-    }
-
-    numpy::array_view<double, 2> input_mesh(out_dims);
-    double *p = (double *)input_mesh.data();
-
-    for (npy_intp y = 0; y < dims[0]; ++y) {
-        for (npy_intp x = 0; x < dims[1]; ++x) {
+    for (auto y = 0; y < dims[0]; ++y) {
+        for (auto x = 0; x < dims[1]; ++x) {
             *p++ = (double)x;
             *p++ = (double)y;
         }
     }
 
-    PyObject *output_mesh = PyObject_CallMethod(
-        py_inverse, "transform", "O", input_mesh.pyobj_steal());
+    auto output_mesh = inverse.attr("transform")(input_mesh);
 
-    Py_DECREF(py_inverse);
+    auto output_mesh_array =
+        pybind11::array_t<double, pybind11::array::c_style | pybind11::array::forcecast>(output_mesh);
 
-    if (output_mesh == NULL) {
-        return NULL;
-    }
-
-    PyArrayObject *output_mesh_array =
-        (PyArrayObject *)PyArray_ContiguousFromAny(
-            output_mesh, NPY_DOUBLE, 2, 2);
-
-    Py_DECREF(output_mesh);
-
-    if (output_mesh_array == NULL) {
-        return NULL;
+    if (output_mesh_array.ndim() != 2) {
+        throw std::runtime_error(
+            "Inverse transformed mesh array should be 2D not " +
+            std::to_string(output_mesh_array.ndim()) + "D");
     }
 
     return output_mesh_array;
 }
 
 
-static PyObject *
-image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
+// Using generic pybind::array for input and output arrays rather than the more usual
+// pybind::array_t<type> as function supports multiple array dtypes.
+static void
+image_resample(pybind11::array input_array,
+               pybind11::array& output_array,
+               const pybind11::object& transform,
+               interpolation_e interpolation,
+               bool resample_,  // Avoid name clash with resample() function
+               float alpha,
+               bool norm,
+               float radius)
 {
-    PyObject *py_input = NULL;
-    PyObject *py_output = NULL;
-    PyObject *py_transform = NULL;
+    // Validate input_array
+    auto dtype = input_array.dtype();  // Validated when determine resampler below
+    auto ndim = input_array.ndim();
+
+    if (ndim != 2 && ndim != 3) {
+        throw std::invalid_argument("Input array must be a 2D or 3D array");
+    }
+
+    if (ndim == 3 && input_array.shape(2) != 4) {
+        throw std::invalid_argument(
+            "3D input array must be RGBA with shape (M, N, 4), has trailing dimension of " +
+            std::to_string(input_array.shape(2)));
+    }
+
+    // Ensure input array is contiguous, regardless of dtype
+    input_array = pybind11::array::ensure(input_array, pybind11::array::c_style);
+
+    // Validate output array
+    auto out_ndim = output_array.ndim();
+
+    if (out_ndim != ndim) {
+        throw std::invalid_argument(
+            "Input (" + std::to_string(ndim) + "D) and output (" + std::to_string(out_ndim) +
+            "D) arrays have different dimensionalities");
+    }
+
+    if (out_ndim == 3 && output_array.shape(2) != 4) {
+        throw std::invalid_argument(
+            "3D output array must be RGBA with shape (M, N, 4), has trailing dimension of " +
+            std::to_string(output_array.shape(2)));
+    }
+
+    if (!output_array.dtype().is(dtype)) {
+        throw std::invalid_argument("Input and output arrays have mismatched types");
+    }
+
+    if ((output_array.flags() & pybind11::array::c_style) == 0) {
+        throw std::invalid_argument("Output array must be C-contiguous");
+    }
+
+    if (!output_array.writeable()) {
+        throw std::invalid_argument("Output array must be writeable");
+    }
+
     resample_params_t params;
+    params.interpolation = interpolation;
+    params.transform_mesh = nullptr;
+    params.resample = resample_;
+    params.norm = norm;
+    params.radius = radius;
+    params.alpha = alpha;
 
-    PyArrayObject *input = NULL;
-    PyArrayObject *output = NULL;
-    PyArrayObject *transform_mesh = NULL;
-    int ndim;
-    int type;
+    // Only used if transform is not affine.
+    // Need to keep it in scope for the duration of this function.
+    pybind11::array_t<double> transform_mesh;
 
-    params.interpolation = NEAREST;
-    params.transform_mesh = NULL;
-    params.resample = false;
-    params.norm = false;
-    params.radius = 1.0;
-    params.alpha = 1.0;
-
-    const char *kwlist[] = {
-        "input_array", "output_array", "transform", "interpolation",
-        "resample", "alpha", "norm", "radius", NULL };
-
-    if (!PyArg_ParseTupleAndKeywords(
-            args, kwargs, "OOO|iO&dO&d:resample", (char **)kwlist,
-            &py_input, &py_output, &py_transform,
-            &params.interpolation, &convert_bool, &params.resample,
-            &params.alpha, &convert_bool, &params.norm, &params.radius)) {
-        return NULL;
-    }
-
-    if (params.interpolation < 0 || params.interpolation >= _n_interpolation) {
-        PyErr_Format(PyExc_ValueError, "Invalid interpolation value %d",
-                     params.interpolation);
-        goto error;
-    }
-
-    input = (PyArrayObject *)PyArray_FromAny(
-        py_input, NULL, 2, 3, NPY_ARRAY_C_CONTIGUOUS, NULL);
-    if (!input) {
-        goto error;
-    }
-    ndim = PyArray_NDIM(input);
-    type = PyArray_TYPE(input);
-
-    if (!PyArray_Check(py_output)) {
-        PyErr_SetString(PyExc_ValueError, "Output array must be a NumPy array");
-        goto error;
-    }
-    output = (PyArrayObject *)py_output;
-    if (PyArray_NDIM(output) != ndim) {
-        PyErr_Format(
-            PyExc_ValueError,
-            "Input (%dD) and output (%dD) have different dimensionalities.",
-            ndim, PyArray_NDIM(output));
-        goto error;
-    }
-    // PyArray_FromAny above checks that input is 2D or 3D.
-    if (ndim == 3 && (PyArray_DIM(input, 2) != 4 || PyArray_DIM(output, 2) != 4)) {
-        PyErr_Format(
-            PyExc_ValueError,
-            "If 3D, input and output arrays must be RGBA with shape (M, N, 4); "
-            "got trailing dimensions of %" NPY_INTP_FMT " and %" NPY_INTP_FMT
-            " respectively", PyArray_DIM(input, 2), PyArray_DIM(output, 2));
-        goto error;
-    }
-    if (PyArray_TYPE(output) != type) {
-        PyErr_SetString(PyExc_ValueError, "Mismatched types");
-        goto error;
-    }
-    if (!PyArray_IS_C_CONTIGUOUS(output)) {
-        PyErr_SetString(PyExc_ValueError, "Output array must be C-contiguous");
-        goto error;
-    }
-
-    if (py_transform == NULL || py_transform == Py_None) {
+    // Validate transform
+    if (transform.is_none()) {
         params.is_affine = true;
     } else {
-        PyObject *py_is_affine;
-        int py_is_affine2;
-        py_is_affine = PyObject_GetAttrString(py_transform, "is_affine");
-        if (!py_is_affine) {
-            goto error;
-        }
+        // Raises Python AttributeError if no such attribute or TypeError if cast fails
+        bool is_affine = pybind11::cast<bool>(transform.attr("is_affine"));
 
-        py_is_affine2 = PyObject_IsTrue(py_is_affine);
-        Py_DECREF(py_is_affine);
-
-        if (py_is_affine2 == -1) {
-            goto error;
-        } else if (py_is_affine2) {
-            if (!convert_trans_affine(py_transform, &params.affine)) {
-                goto error;
-            }
+        if (is_affine) {
+            convert_trans_affine(transform, params.affine);
             params.is_affine = true;
         } else {
-            transform_mesh = _get_transform_mesh(
-                py_transform, PyArray_DIMS(output));
-            if (!transform_mesh) {
-                goto error;
-            }
-            params.transform_mesh = (double *)PyArray_DATA(transform_mesh);
+            transform_mesh = _get_transform_mesh(transform, output_array.shape());
+            params.transform_mesh = transform_mesh.data();
             params.is_affine = false;
         }
     }
 
     if (auto resampler =
             (ndim == 2) ? (
-                (type == NPY_UINT8) ? resample<agg::gray8> :
-                (type == NPY_INT8) ? resample<agg::gray8> :
-                (type == NPY_UINT16) ? resample<agg::gray16> :
-                (type == NPY_INT16) ? resample<agg::gray16> :
-                (type == NPY_FLOAT32) ? resample<agg::gray32> :
-                (type == NPY_FLOAT64) ? resample<agg::gray64> :
+                (dtype.is(pybind11::dtype::of<std::uint8_t>())) ? resample<agg::gray8> :
+                (dtype.is(pybind11::dtype::of<std::int8_t>())) ? resample<agg::gray8> :
+                (dtype.is(pybind11::dtype::of<std::uint16_t>())) ? resample<agg::gray16> :
+                (dtype.is(pybind11::dtype::of<std::int16_t>())) ? resample<agg::gray16> :
+                (dtype.is(pybind11::dtype::of<float>())) ? resample<agg::gray32> :
+                (dtype.is(pybind11::dtype::of<double>())) ? resample<agg::gray64> :
                 nullptr) : (
             // ndim == 3
-                (type == NPY_UINT8) ? resample<agg::rgba8> :
-                (type == NPY_INT8) ? resample<agg::rgba8> :
-                (type == NPY_UINT16) ? resample<agg::rgba16> :
-                (type == NPY_INT16) ? resample<agg::rgba16> :
-                (type == NPY_FLOAT32) ? resample<agg::rgba32> :
-                (type == NPY_FLOAT64) ? resample<agg::rgba64> :
+                (dtype.is(pybind11::dtype::of<std::uint8_t>())) ? resample<agg::rgba8> :
+                (dtype.is(pybind11::dtype::of<std::int8_t>())) ? resample<agg::rgba8> :
+                (dtype.is(pybind11::dtype::of<std::uint16_t>())) ? resample<agg::rgba16> :
+                (dtype.is(pybind11::dtype::of<std::int16_t>())) ? resample<agg::rgba16> :
+                (dtype.is(pybind11::dtype::of<float>())) ? resample<agg::rgba32> :
+                (dtype.is(pybind11::dtype::of<double>())) ? resample<agg::rgba64> :
                 nullptr)) {
         Py_BEGIN_ALLOW_THREADS
         resampler(
-            PyArray_DATA(input), PyArray_DIM(input, 1), PyArray_DIM(input, 0),
-            PyArray_DATA(output), PyArray_DIM(output, 1), PyArray_DIM(output, 0),
+            input_array.data(), input_array.shape(1), input_array.shape(0),
+            output_array.mutable_data(), output_array.shape(1), output_array.shape(0),
             params);
         Py_END_ALLOW_THREADS
     } else {
-        PyErr_SetString(
-            PyExc_ValueError,
-            "arrays must be of dtype byte, short, float32 or float64");
-        goto error;
+        throw std::invalid_argument("arrays must be of dtype byte, short, float32 or float64");
     }
-
-    Py_DECREF(input);
-    Py_XDECREF(transform_mesh);
-    Py_RETURN_NONE;
-
- error:
-    Py_XDECREF(input);
-    Py_XDECREF(transform_mesh);
-    return NULL;
 }
 
-static PyMethodDef module_functions[] = {
-    {"resample", (PyCFunction)image_resample, METH_VARARGS|METH_KEYWORDS, image_resample__doc__},
-    {NULL}
-};
 
-static struct PyModuleDef moduledef = {
-    PyModuleDef_HEAD_INIT, "_image", NULL, 0, module_functions,
-};
+PYBIND11_MODULE(_image, m) {
+    pybind11::enum_<interpolation_e>(m, "_InterpolationType")
+        .value("NEAREST", NEAREST)
+        .value("BILINEAR", BILINEAR)
+        .value("BICUBIC", BICUBIC)
+        .value("SPLINE16", SPLINE16)
+        .value("SPLINE36", SPLINE36)
+        .value("HANNING", HANNING)
+        .value("HAMMING", HAMMING)
+        .value("HERMITE", HERMITE)
+        .value("KAISER", KAISER)
+        .value("QUADRIC", QUADRIC)
+        .value("CATROM", CATROM)
+        .value("GAUSSIAN", GAUSSIAN)
+        .value("BESSEL", BESSEL)
+        .value("MITCHELL", MITCHELL)
+        .value("SINC", SINC)
+        .value("LANCZOS", LANCZOS)
+        .value("BLACKMAN", BLACKMAN)
+        .export_values();
 
-PyMODINIT_FUNC PyInit__image(void)
-{
-    PyObject *m;
-
-    import_array();
-
-    m = PyModule_Create(&moduledef);
-
-    if (m == NULL) {
-        return NULL;
-    }
-
-    if (PyModule_AddIntConstant(m, "NEAREST", NEAREST) ||
-        PyModule_AddIntConstant(m, "BILINEAR", BILINEAR) ||
-        PyModule_AddIntConstant(m, "BICUBIC", BICUBIC) ||
-        PyModule_AddIntConstant(m, "SPLINE16", SPLINE16) ||
-        PyModule_AddIntConstant(m, "SPLINE36", SPLINE36) ||
-        PyModule_AddIntConstant(m, "HANNING", HANNING) ||
-        PyModule_AddIntConstant(m, "HAMMING", HAMMING) ||
-        PyModule_AddIntConstant(m, "HERMITE", HERMITE) ||
-        PyModule_AddIntConstant(m, "KAISER", KAISER) ||
-        PyModule_AddIntConstant(m, "QUADRIC", QUADRIC) ||
-        PyModule_AddIntConstant(m, "CATROM", CATROM) ||
-        PyModule_AddIntConstant(m, "GAUSSIAN", GAUSSIAN) ||
-        PyModule_AddIntConstant(m, "BESSEL", BESSEL) ||
-        PyModule_AddIntConstant(m, "MITCHELL", MITCHELL) ||
-        PyModule_AddIntConstant(m, "SINC", SINC) ||
-        PyModule_AddIntConstant(m, "LANCZOS", LANCZOS) ||
-        PyModule_AddIntConstant(m, "BLACKMAN", BLACKMAN) ||
-        PyModule_AddIntConstant(m, "_n_interpolation", _n_interpolation)) {
-        Py_DECREF(m);
-        return NULL;
-    }
-
-    return m;
+    m.def("resample", &image_resample,
+        pybind11::arg("input_array"),
+        pybind11::arg("output_array"),
+        pybind11::arg("transform"),
+        pybind11::arg("interpolation") = interpolation_e::NEAREST,
+        pybind11::arg("resample") = false,
+        pybind11::arg("alpha") = 1,
+        pybind11::arg("norm") = false,
+        pybind11::arg("radius") = 1,
+        image_resample__doc__);
 }

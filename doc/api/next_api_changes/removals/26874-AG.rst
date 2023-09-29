@@ -1,0 +1,4 @@
+``collections.PolyCollection.span_where`` and ``collections.BrokenBarHCollection``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... removed as it was deprecated during 3.7. Use ``fill_between`` instead

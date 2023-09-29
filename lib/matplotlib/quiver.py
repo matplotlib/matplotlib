@@ -721,8 +721,6 @@ class Quiver(mcollections.PolyCollection):
         # Mask handling is deferred to the caller, _make_verts.
         return X, Y
 
-    quiver_doc = _api.deprecated("3.7")(property(lambda self: _quiver_doc))
-
 
 _barbs_doc = r"""
 Plot a 2D field of barbs.
@@ -1177,5 +1175,3 @@ class Barbs(mcollections.PolyCollection):
         xy = np.column_stack((x, y))
         super().set_offsets(xy)
         self.stale = True
-
-    barbs_doc = _api.deprecated("3.7")(property(lambda self: _barbs_doc))

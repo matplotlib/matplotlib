@@ -432,8 +432,8 @@ class Slider(SliderBase):
         Notes
         -----
         Additional kwargs are passed on to ``self.poly`` which is the
-        `~matplotlib.patches.Polygon` that draws the slider knob.  See the
-        `.Polygon` documentation for valid property names (``facecolor``,
+        `~matplotlib.patches.Rectangle` that draws the slider knob.  See the
+        `.Rectangle` documentation for valid property names (``facecolor``,
         ``edgecolor``, ``alpha``, etc.).
         """
         super().__init__(ax, orientation, closedmin, closedmax,
@@ -576,16 +576,12 @@ class Slider(SliderBase):
         ----------
         val : float
         """
-        xy = self.poly.xy
         if self.orientation == 'vertical':
-            xy[1] = .25, val
-            xy[2] = .75, val
+            self.poly.set_height(val - self.poly.get_y())
             self._handle.set_ydata([val])
         else:
-            xy[2] = val, .75
-            xy[3] = val, .25
+            self.poly.set_width(val - self.poly.get_x())
             self._handle.set_xdata([val])
-        self.poly.xy = xy
         self.valtext.set_text(self._format(val))
         if self.drawon:
             self.ax.figure.canvas.draw_idle()
@@ -1890,23 +1886,19 @@ class Cursor(AxesWidget):
         if not self.ax.contains(event)[0]:
             self.linev.set_visible(False)
             self.lineh.set_visible(False)
-
             if self.needclear:
                 self.canvas.draw()
                 self.needclear = False
             return
         self.needclear = True
-
         xdata, ydata = self._get_data_coords(event)
         self.linev.set_xdata((xdata, xdata))
         self.linev.set_visible(self.visible and self.vertOn)
         self.lineh.set_ydata((ydata, ydata))
         self.lineh.set_visible(self.visible and self.horizOn)
-
-        if self.visible and (self.vertOn or self.horizOn):
-            self._update()
-
-    def _update(self):
+        if not (self.visible and (self.vertOn or self.horizOn)):
+            return
+        # Redraw.
         if self.useblit:
             if self.background is not None:
                 self.canvas.restore_region(self.background)
@@ -1915,7 +1907,6 @@ class Cursor(AxesWidget):
             self.canvas.blit(self.ax.bbox)
         else:
             self.canvas.draw_idle()
-        return False
 
 
 class MultiCursor(Widget):
@@ -2030,10 +2021,9 @@ class MultiCursor(Widget):
         for line in self.hlines:
             line.set_ydata((ydata, ydata))
             line.set_visible(self.visible and self.horizOn)
-        if self.visible and (self.vertOn or self.horizOn):
-            self._update()
-
-    def _update(self):
+        if not (self.visible and (self.vertOn or self.horizOn)):
+            return
+        # Redraw.
         if self.useblit:
             for canvas, info in self._canvas_infos.items():
                 if info["background"]:
