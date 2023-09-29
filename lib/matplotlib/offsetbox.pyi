@@ -280,11 +280,15 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
 class DraggableBase:
     ref_artist: martist.Artist
     got_artist: bool
-    canvas: FigureCanvasBase
-    cids: list[int]
     mouse_x: int
     mouse_y: int
     background: Any
+
+    @property
+    def canvas(self) -> FigureCanvasBase: ...
+    @property
+    def cids(self) -> list[int]: ...
+
     def __init__(self, ref_artist: martist.Artist, use_blit: bool = ...) -> None: ...
     def on_motion(self, evt: Event) -> None: ...
     def on_pick(self, evt: Event) -> None: ...

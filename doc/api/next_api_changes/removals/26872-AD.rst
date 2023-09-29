@@ -1,6 +1,5 @@
-``repeat``
-~~~~~~~~~~
-... of `.TimedAnimation` is removed without replacements.
-``save_count``
-~~~~~~~~~~~~~~
-... of `.FuncAnimation` is removed without replacements.
+``Animation`` attributes
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The attributes ``repeat`` of `.TimedAnimation` and subclasses and
+``save_count`` of `.FuncAnimation` are considered private and removed.

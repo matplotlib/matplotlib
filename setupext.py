@@ -424,12 +424,13 @@ class Matplotlib(SetupPackage):
         add_libagg_flags(ext)
         yield ext
         # image
-        ext = Extension(
+        ext = Pybind11Extension(
             "matplotlib._image", [
                 "src/_image_wrapper.cpp",
-                "src/py_converters.cpp",
-            ])
-        add_numpy_flags(ext)
+                "src/py_converters_11.cpp",
+            ],
+            cxx_std=11)
+        # Only need source code files agg_image_filters.cpp and agg_trans_affine.cpp
         add_libagg_flags_and_sources(ext)
         yield ext
         # path
