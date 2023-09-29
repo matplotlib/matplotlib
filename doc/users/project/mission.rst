@@ -1,4 +1,4 @@
-Mission Statement
+Mission statement
 =================
 
 The Matplotlib developer community develops, maintains, and supports Matplotlib
