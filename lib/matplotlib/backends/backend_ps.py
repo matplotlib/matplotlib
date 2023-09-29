@@ -43,8 +43,6 @@ debugPS = False
 @_api.caching_module_getattr
 class __getattr__:
     # module-level deprecations
-    ps_backend_helper = _api.deprecated("3.7", obj_type="")(
-        property(lambda self: PsBackendHelper()))
     psDefs = _api.deprecated("3.8", obj_type="")(property(lambda self: _psDefs))
 
 
