@@ -39,11 +39,6 @@ _log = logging.getLogger(__name__)
 debugPS = False
 
 
-@_api.deprecated("3.7")
-class PsBackendHelper:
-    def __init__(self):
-        self._cached = {}
-
 
 @_api.caching_module_getattr
 class __getattr__:
