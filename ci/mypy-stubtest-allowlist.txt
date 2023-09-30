@@ -38,8 +38,6 @@ matplotlib.figure.Figure.set_constrained_layout_pads
 matplotlib.figure.Figure.set_tight_layout
 
 # 3.7 deprecations
-matplotlib.cm.register_cmap
-matplotlib.cm.unregister_cmap
 
 # positional-only argument name lacking leading underscores
 matplotlib.axes._base._AxesBase.axis
