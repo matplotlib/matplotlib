@@ -294,10 +294,11 @@ Exception changes
 ~~~~~~~~~~~~~~~~~
 Various APIs that raised a `ValueError` for incorrectly typed inputs now raise
 `TypeError` instead: `.backend_bases.GraphicsContextBase.set_clip_path`,
-``blocking_input.BlockingInput.__call__``, `.cm.register_cmap`, `.dviread.DviFont`,
-`.rcsetup.validate_hatch`, ``.rcsetup.validate_animation_writer_path``, `.spines.Spine`,
-many classes in the :mod:`matplotlib.transforms` module and :mod:`matplotlib.tri`
-package, and Axes methods that take a ``norm`` parameter.
+``blocking_input.BlockingInput.__call__``, ``matplotlib.cm.register_cmap``,
+`.dviread.DviFont`, `.rcsetup.validate_hatch`,
+``.rcsetup.validate_animation_writer_path``, `.spines.Spine`, many classes in
+the :mod:`matplotlib.transforms` module and :mod:`matplotlib.tri` package, and
+Axes methods that take a ``norm`` parameter.
 
 If extra kwargs are passed to `.LogScale`, `TypeError` will now be
 raised instead of `ValueError`.

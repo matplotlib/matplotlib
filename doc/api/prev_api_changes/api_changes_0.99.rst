@@ -7,7 +7,7 @@ Changes in 0.99
   NumPy arrays.
 
 * User-generated colormaps can now be added to the set recognized
-  by :func:`matplotlib.cm.get_cmap`.  Colormaps can be made the
+  by ``matplotlib.cm.get_cmap``.  Colormaps can be made the
   default and applied to the current image using
   :func:`matplotlib.pyplot.set_cmap`.
 
