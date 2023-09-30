@@ -148,9 +148,9 @@ To register new colormaps use::
 
     plt.colormaps.register(my_colormap)
 
-We recommend to use the new API instead of the `~.cm.get_cmap` and
-`~.cm.register_cmap` functions for new code. `matplotlib.cm.get_cmap` and
-`matplotlib.cm.register_cmap` will eventually be deprecated and removed.
+We recommend to use the new API instead of the ``matplotlib.cm.get_cmap`` and
+``matplotlib.cm.register_cmap`` functions for new code. ``matplotlib.cm.get_cmap`` and
+``matplotlib.cm.register_cmap`` will eventually be deprecated and removed.
 Within `.pyplot`, ``plt.get_cmap()`` and ``plt.register_cmap()`` will continue
 to be supported for backward compatibility.
 

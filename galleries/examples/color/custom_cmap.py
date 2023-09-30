@@ -279,4 +279,4 @@ plt.show()
 #    - `matplotlib.colors.LinearSegmentedColormap.from_list`
 #    - `matplotlib.cm`
 #    - `matplotlib.cm.ScalarMappable.set_cmap`
-#    - `matplotlib.cm.register_cmap`
+#    - `matplotlib.cm.ColormapRegistry.register`
