@@ -102,8 +102,6 @@ int PyBufferRegion_get_buffer(PyBufferRegion *self, Py_buffer *buf, int flags)
 static PyTypeObject *PyBufferRegion_init_type()
 {
     static PyMethodDef methods[] = {
-        { "to_string", (PyCFunction)PyBufferRegion_to_string, METH_NOARGS, NULL },
-        { "to_string_argb", (PyCFunction)PyBufferRegion_to_string_argb, METH_NOARGS, NULL },
         { "set_x", (PyCFunction)PyBufferRegion_set_x, METH_VARARGS, NULL },
         { "set_y", (PyCFunction)PyBufferRegion_set_y, METH_VARARGS, NULL },
         { "get_extents", (PyCFunction)PyBufferRegion_get_extents, METH_NOARGS, NULL },
