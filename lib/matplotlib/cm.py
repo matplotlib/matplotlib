@@ -236,50 +236,6 @@ _colormaps = ColormapRegistry(_gen_cmap_registry())
 globals().update(_colormaps)
 
 
-@_api.deprecated("3.7", alternative="``matplotlib.colormaps.register(name)``")
-def register_cmap(name=None, cmap=None, *, override_builtin=False):
-    """
-    Add a colormap to the set recognized by :func:`get_cmap`.
-
-    Register a new colormap to be accessed by name ::
-
-        LinearSegmentedColormap('swirly', data, lut)
-        register_cmap(cmap=swirly_cmap)
-
-    Parameters
-    ----------
-    name : str, optional
-       The name that can be used in :func:`get_cmap` or :rc:`image.cmap`
-
-       If absent, the name will be the :attr:`~matplotlib.colors.Colormap.name`
-       attribute of the *cmap*.
-
-    cmap : matplotlib.colors.Colormap
-       Despite being the second argument and having a default value, this
-       is a required argument.
-
-    override_builtin : bool
-
-        Allow built-in colormaps to be overridden by a user-supplied
-        colormap.
-
-        Please do not use this unless you are sure you need it.
-    """
-    _api.check_isinstance((str, None), name=name)
-    if name is None:
-        try:
-            name = cmap.name
-        except AttributeError as err:
-            raise ValueError("Arguments must include a name or a "
-                             "Colormap") from err
-    # override_builtin is allowed here for backward compatibility
-    # this is just a shim to enable that to work privately in
-    # the global ColormapRegistry
-    _colormaps._allow_override_builtin = override_builtin
-    _colormaps.register(cmap, name=name, force=override_builtin)
-    _colormaps._allow_override_builtin = False
-
-
 def _get_cmap(name=None, lut=None):
     """
     Get a colormap instance, defaulting to rc values if *name* is None.
@@ -307,56 +263,6 @@ def _get_cmap(name=None, lut=None):
         return _colormaps[name]
     else:
         return _colormaps[name].resampled(lut)
-
-# do it in two steps like this so we can have an un-deprecated version in
-# pyplot.
-get_cmap = _api.deprecated(
-    '3.7',
-    name='get_cmap',
-    alternative=(
-        "``matplotlib.colormaps[name]`` " +
-        "or ``matplotlib.colormaps.get_cmap(obj)``"
-    )
-)(_get_cmap)
-
-
-@_api.deprecated("3.7",
-                 alternative="``matplotlib.colormaps.unregister(name)``")
-def unregister_cmap(name):
-    """
-    Remove a colormap recognized by :func:`get_cmap`.
-
-    You may not remove built-in colormaps.
-
-    If the named colormap is not registered, returns with no error, raises
-    if you try to de-register a default colormap.
-
-    .. warning::
-
-      Colormap names are currently a shared namespace that may be used
-      by multiple packages. Use `unregister_cmap` only if you know you
-      have registered that name before. In particular, do not
-      unregister just in case to clean the name before registering a
-      new colormap.
-
-    Parameters
-    ----------
-    name : str
-        The name of the colormap to be un-registered
-
-    Returns
-    -------
-    ColorMap or None
-        If the colormap was registered, return it if not return `None`
-
-    Raises
-    ------
-    ValueError
-       If you try to de-register a default built-in colormap.
-    """
-    cmap = _colormaps.get(name, None)
-    _colormaps.unregister(name)
-    return cmap
 
 
 def _auto_norm_from_scale(scale_cls):
