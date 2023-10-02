@@ -52,25 +52,25 @@ class Visitor(ast.NodeVisitor):
             self.visit(child)
 
 
-with tempfile.NamedTemporaryFile("wt", delete=False) as f:
-    for path in mpl.glob("**/*.py"):
-        v = Visitor(path, f)
-        tree = ast.parse(path.read_text())
+with tempfile.TemporaryDirectory() as d:
+    p = pathlib.Path(d) / "allowlist.txt"
+    with p.open("wt") as f:
+        for path in mpl.glob("**/*.py"):
+            v = Visitor(path, f)
+            tree = ast.parse(path.read_text())
 
-        # Assign parents to tree so they can be backtraced
-        for node in ast.walk(tree):
-            for child in ast.iter_child_nodes(node):
-                child.parent = node
+            # Assign parents to tree so they can be backtraced
+            for node in ast.walk(tree):
+                for child in ast.iter_child_nodes(node):
+                    child.parent = node
 
-        v.visit(tree)
-    f.flush()
-    f.close()
+            v.visit(tree)
     proc = subprocess.run(
         [
             "stubtest",
             "--mypy-config-file=pyproject.toml",
             "--allowlist=ci/mypy-stubtest-allowlist.txt",
-            f"--allowlist={f.name}",
+            f"--allowlist={p}",
             "matplotlib",
         ],
         cwd=root,
