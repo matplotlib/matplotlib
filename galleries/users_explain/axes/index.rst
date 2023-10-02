@@ -43,6 +43,7 @@ annotations like x- and y-labels, titles, and legends.
 
     axes_scales
     axes_ticks
+    axes_units
     Legends <legend_guide>
     Subplot mosaic <mosaic>
 
