@@ -72,7 +72,7 @@ U, V : 1D or 2D array-like
     of these components (in data or in screen space) depends on *angles*.
 
     *U* and *V* must have the same number of elements, matching the number of
-    arrow locations in  *X*, *Y*. *U* and *V* may be masked. Locations masked
+    arrow locations in *X*, *Y*. *U* and *V* may be masked. Locations masked
     in any of *U*, *V*, and *C* will not be drawn.
 
 C : 1D or 2D array-like, optional
@@ -90,7 +90,7 @@ angles : {'uv', 'xy'} or array-like, default: 'uv'
       symbolize a quantity that is not based on *X*, *Y* data coordinates.
 
       If *U* == *V* the orientation of the arrow on the plot is 45 degrees
-      counter-clockwise from the  horizontal axis (positive to the right).
+      counter-clockwise from the horizontal axis (positive to the right).
 
     - 'xy': Arrow direction in data coordinates, i.e. the arrows point from
       (x, y) to (x+u, y+v). Use this e.g. for plotting a gradient field.

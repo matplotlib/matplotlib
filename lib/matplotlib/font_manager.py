@@ -1448,7 +1448,8 @@ class FontManager:
                 # actually raised.
                 return _ExceptionProxy(
                     ValueError,
-                    f"Failed to find font {prop}, and fallback to the default font was disabled"
+                    f"Failed to find font {prop}, and fallback to the default font was "
+                    f"disabled"
                 )
         else:
             _log.debug('findfont: Matching %s to %s (%r) with score of %f.',
