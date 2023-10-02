@@ -1,6 +1,6 @@
 [![PyPi](https://img.shields.io/pypi/v/matplotlib)](https://pypi.org/project/matplotlib/)
-[![Conda](![image](https://github.com/krishvsoni/matplotlib/assets/67964054/fee8b36b-0211-457e-827f-a3e9a84a62ce)
-)](https://anaconda.org/conda-forge/matplotlib)
+[![Conda](![image](https://github.com/krishvsoni/matplotlib/assets/67964054/2093bfaf-58ab-438a-bf15-d62fa329bc59)
+](https://anaconda.org/conda-forge/matplotlib)
 [![Downloads](https://img.shields.io/pypi/dm/matplotlib)](https://pypi.org/project/matplotlib)
 [![NUMFocus](https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A)](https://numfocus.org)
 
