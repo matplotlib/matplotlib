@@ -8863,6 +8863,7 @@ def test_axhvlinespan_interpolation():
     ax.axhspan(.6, .7, .8, .9, fc="C2", alpha=.5)
 
 
+@needs_usetex
 @check_figures_equal()
 def test_latex(fig_test, fig_ref):
 
