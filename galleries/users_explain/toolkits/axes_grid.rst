@@ -86,7 +86,7 @@ colorbar whose height (or width) is in sync with the main axes
    :align: center
 
 scatter_hist.py with AxesDivider
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The :doc:`/gallery/lines_bars_and_markers/scatter_hist` example can be
 rewritten using `~.axes_grid1.axes_divider.make_axes_locatable`::
@@ -141,14 +141,14 @@ parasite axes.  To create a host axes, you may use ``host_subplot`` or
 ``host_axes`` command.
 
 Example 1: twinx
-~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^
 
 .. figure:: /gallery/axes_grid1/images/sphx_glr_parasite_simple_001.png
    :target: /gallery/axes_grid1/parasite_simple.html
    :align: center
 
 Example 2: twin
-~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^
 
 ``twin`` without a transform argument assumes that the parasite axes has the
 same data transform as the host. This can be useful when you want the
