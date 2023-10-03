@@ -527,7 +527,7 @@ class ContourLabeler:
         return rotation, nlc
 
     def add_label(self, x, y, rotation, lev, cvalue):
-        """Add contour label without `.Text.set_transform_rotates_text`."""
+        """Add a contour label, respecting whether *use_clabeltext* was set."""
         data_x, data_y = self.axes.transData.inverted().transform((x, y))
         t = Text(
             data_x, data_y,
@@ -538,20 +538,21 @@ class ContourLabeler:
             color=self.labelMappable.to_rgba(cvalue, alpha=self.get_alpha()),
             fontproperties=self._label_font_props,
             clip_box=self.axes.bbox)
+        if self._use_clabeltext:
+            data_rotation, = self.axes.transData.inverted().transform_angles(
+                [rotation], [[x, y]])
+            t.set(rotation=data_rotation, transform_rotates_text=True)
         self.labelTexts.append(t)
         self.labelCValues.append(cvalue)
         self.labelXYs.append((x, y))
         # Add label to plot here - useful for manual mode label selection
         self.axes.add_artist(t)
 
+    @_api.deprecated("3.8", alternative="add_label")
     def add_label_clabeltext(self, x, y, rotation, lev, cvalue):
         """Add contour label with `.Text.set_transform_rotates_text`."""
-        self.add_label(x, y, rotation, lev, cvalue)
-        # Grab the last added text, and reconfigure its rotation.
-        t = self.labelTexts[-1]
-        data_rotation, = self.axes.transData.inverted().transform_angles(
-            [rotation], [[x, y]])
-        t.set(rotation=data_rotation, transform_rotates_text=True)
+        with cbook._setattr_cm(self, _use_clabeltext=True):
+            self.add_label(x, y, rotation, lev, cvalue)
 
     def add_label_near(self, x, y, inline=True, inline_spacing=5,
                        transform=None):
@@ -600,12 +601,6 @@ class ContourLabeler:
         t.remove()
 
     def labels(self, inline, inline_spacing):
-
-        if self._use_clabeltext:
-            add_label = self.add_label_clabeltext
-        else:
-            add_label = self.add_label
-
         for idx, (icon, lev, cvalue) in enumerate(zip(
                 self.labelIndiceList,
                 self.labelLevelList,
@@ -622,7 +617,7 @@ class ContourLabeler:
                     rotation, path = self._split_path_and_get_label_rotation(
                         subpath, idx, (x, y),
                         label_width, inline_spacing)
-                    add_label(x, y, rotation, lev, cvalue)  # Really add label.
+                    self.add_label(x, y, rotation, lev, cvalue)  # Really add label.
                     if inline:  # If inline, add new contours
                         additions.append(path)
                 else:  # If not adding label, keep old path
