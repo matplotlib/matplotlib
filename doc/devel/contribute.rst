@@ -425,11 +425,7 @@ Introducing
      updated on introduction.
    - Items decorated with ``@_api.delete_parameter`` should include a default value hint
      for the deleted parameter, even if it did not previously have one (e.g.
-     ``param: <type> = ...``). Even so, the decorator changes the default value to a
-     sentinel value which should not be included in the type stub. Thus, Mypy Stubtest
-     needs to be informed of the inconsistency by placing the method into
-     :file:`ci/mypy-stubtest-allowlist.txt` under a heading indicating the deprecation
-     version number.
+     ``param: <type> = ...``).
 
 Expiring
 ~~~~~~~~
@@ -452,11 +448,11 @@ Expiring
      will have been updated at introduction, and require no change now.
    - Items decorated with ``@_api.delete_parameter`` will need to be updated to the
      final signature, in the same way as the ``.py`` file signature is updated.
-     The entry in :file:`ci/mypy-stubtest-allowlist.txt` should be removed.
-   - Any other entries in :file:`ci/mypy-stubtest-allowlist.txt` under a version's
-     deprecations should be double checked, as only ``delete_parameter`` should normally
-     require that mechanism for deprecation. For removed items that were not in the stub
-     file, only deleting from the allowlist is required.
+   - Any entries in :file:`ci/mypy-stubtest-allowlist.txt` which indicate a deprecation
+     version should be double checked. In most cases this is not needed, though some
+     items were never type hinted in the first place and were added to this file
+     instead. For removed items that were not in the stub file, only deleting from the
+     allowlist is required.
 
 Adding new API
 --------------
