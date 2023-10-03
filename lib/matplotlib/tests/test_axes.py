@@ -8865,7 +8865,7 @@ def test_axhvlinespan_interpolation():
 
 @needs_usetex
 @check_figures_equal()
-def test_latex(fig_test, fig_ref):
+def test_latex_pie_percent(fig_test, fig_ref):
 
     data = [20, 10, 70]
 
