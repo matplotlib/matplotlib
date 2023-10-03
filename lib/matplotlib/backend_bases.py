@@ -2123,6 +2123,12 @@ class FigureCanvasBase:
         if dpi == 'figure':
             dpi = getattr(self.figure, '_original_dpi', self.figure.dpi)
 
+        if kwargs.get("papertype") == 'auto':
+            # When deprecation elapses, remove backend_ps._get_papertype & its callers.
+            _api.warn_deprecated(
+                "3.8", name="papertype='auto'", addendum="Pass an explicit paper type, "
+                "'figure', or omit the *papertype* argument entirely.")
+
         # Remove the figure manager, if any, to avoid resizing the GUI widget.
         with cbook._setattr_cm(self, manager=None), \
              self._switch_canvas_and_return_print_method(format, backend) \
