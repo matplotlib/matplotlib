@@ -2,7 +2,7 @@ import datetime
 import numpy as np
 
 import pytest
-
+import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
@@ -86,12 +86,19 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.barh(...)
 
-    @pytest.mark.xfail(reason="Test for boxplot not written yet")
+    # @pytest.mark.xfail(reason="Test for boxplot not written yet")
     @mpl.style.context("default")
     def test_boxplot(self):
-        fig, ax = plt.subplots()
-        ax.boxplot(...)
-
+        df = pd.DataFrame({'date': pd.to_datetime(['2023-01-01', '2023-02-01', '2023-03-01', '2023-04-01', '2023-05-01']),
+                'value': [10, 20, 30, 40, 50]})
+        plt.figure()
+        plt.bar(df['value'], df['date'])
+        df.boxplot(by='date')
+        plt.xlabel('Date')
+        plt.ylabel('Value')
+        plt.title('Boxplot with dates on the x-axis')
+        plt.show()
+        
     @pytest.mark.xfail(reason="Test for broken_barh not written yet")
     @mpl.style.context("default")
     def test_broken_barh(self):
@@ -395,3 +402,8 @@ class TestDatetimePlotting:
     def test_xcorr(self):
         fig, ax = plt.subplots()
         ax.xcorr(...)
+
+instance = TestDatetimePlotting()
+
+
+instance.test_boxplot()
