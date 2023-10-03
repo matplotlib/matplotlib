@@ -412,6 +412,7 @@ class Axes(_AxesBase):
         *,
         edgecolors: Literal["face", "none"] | ColorType | Sequence[ColorType] | None = ...,
         plotnonfinite: bool = ...,
+        markerscale: int = ...,
         data=...,
         **kwargs
     ) -> PathCollection: ...

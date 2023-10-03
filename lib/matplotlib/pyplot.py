@@ -3680,6 +3680,7 @@ def scatter(
     *,
     edgecolors: Literal["face", "none"] | ColorType | Sequence[ColorType] | None = None,
     plotnonfinite: bool = False,
+    markerscale: int = 2,
     data=None,
     **kwargs,
 ) -> PathCollection:
@@ -3697,6 +3698,7 @@ def scatter(
         linewidths=linewidths,
         edgecolors=edgecolors,
         plotnonfinite=plotnonfinite,
+        markerscale=markerscale,
         **({"data": data} if data is not None else {}),
         **kwargs,
     )

@@ -78,6 +78,10 @@ matplotlib.collections.Collection.set_linewidths
 matplotlib.collections.Collection.set_ls
 matplotlib.collections.Collection.set_lw
 matplotlib.collections.Collection.set_transOffset
+matplotlib.collections._CollectionWithSizes.get_markersize
+matplotlib.collections._CollectionWithSizes.get_s
+matplotlib.collections._CollectionWithSizes.set_markersize
+matplotlib.collections._CollectionWithSizes.set_s
 matplotlib.lines.Line2D.get_aa
 matplotlib.lines.Line2D.get_c
 matplotlib.lines.Line2D.get_ds
