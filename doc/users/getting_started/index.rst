@@ -29,11 +29,13 @@ Draw a first plot
 -----------------
 
 Here is a minimal example plot:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. plot::
    :include-source:
    :align: center
 
+   
    import matplotlib.pyplot as plt
    import numpy as np
 
@@ -43,8 +45,9 @@ Here is a minimal example plot:
    fig, ax = plt.subplots()
    ax.plot(x, y)
    plt.show()
+   
 
-If a plot does not show up please check :ref:`troubleshooting-faq`.
+* If a plot does not show up please check :ref:`troubleshooting-faq`.
 
 Where to go next
 ----------------
@@ -53,3 +56,6 @@ Where to go next
   types of plots you can create with Matplotlib.
 - Learn Matplotlib from the ground up in the :ref:`Quick-start guide
   <quick_start>`.
+
+
+  
