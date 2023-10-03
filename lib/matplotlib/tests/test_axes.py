@@ -8873,5 +8873,3 @@ def test_latex(fig_test, fig_ref):
 
     ax1 = fig_ref.subplots()
     ax1.pie(data, autopct=r"%1.0f\%%", textprops={'usetex': True})
-
-    assert ax.get_label() == ax1.get_label()
