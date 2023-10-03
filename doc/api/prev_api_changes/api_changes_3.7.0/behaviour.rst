@@ -51,7 +51,7 @@ Now, the halfrange remains fixed when vcenter is changed, and **vmin** and
 
 For example, this is what the values were when changing vcenter previously.
 
-.. code-block::
+.. code-block:: python
 
     norm = CenteredNorm(vcenter=0, halfrange=1)
     # Move vcenter up by one
@@ -61,7 +61,7 @@ For example, this is what the values were when changing vcenter previously.
 
 and now, with that same example
 
-.. code-block::
+.. code-block:: python
 
     norm = CenteredNorm(vcenter=0, halfrange=1)
     norm.vcenter = 1

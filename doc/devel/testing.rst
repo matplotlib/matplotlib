@@ -153,7 +153,9 @@ vs plotting the circle using the parametric equation of a circle ::
        radius = 0.4
        fig_test.plot(radius * np.cos(theta), radius * np.sin(theta), color='r')
 
-Both comparison decorators have a tolerance argument ``tol`` that is used to specify the tolerance for difference in color value between the two images, where 255 is the maximal difference. The test fails if the average pixel difference is greater than this value.
+Both comparison decorators have a tolerance argument ``tol`` that is used to specify the
+tolerance for difference in color value between the two images, where 255 is the maximal
+difference. The test fails if the average pixel difference is greater than this value.
 
 See the documentation of `~matplotlib.testing.decorators.image_comparison` and
 `~matplotlib.testing.decorators.check_figures_equal` for additional information

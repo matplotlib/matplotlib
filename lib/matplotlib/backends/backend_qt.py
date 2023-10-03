@@ -759,6 +759,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             self.canvas.mpl_connect(
                 "close_event", lambda e: self._subplot_dialog.reject())
         self._subplot_dialog.update_from_current_subplotpars()
+        self._subplot_dialog.setModal(True)
         self._subplot_dialog.show()
         return self._subplot_dialog
 

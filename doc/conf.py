@@ -11,12 +11,14 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
+from datetime import datetime, timezone
 import logging
 import os
 from pathlib import Path
 import shutil
 import subprocess
 import sys
+import time
 from urllib.parse import urlsplit, urlunsplit
 import warnings
 
@@ -25,9 +27,6 @@ import yaml
 
 import matplotlib
 
-from datetime import timezone
-from datetime import datetime
-import time
 
 # debug that building expected version
 print(f"Building Documentation for Matplotlib: {matplotlib.__version__}")
@@ -48,8 +47,9 @@ def _parse_skip_subdirs_file():
     but you can skip subdirectories of 'users'.  Doing this
     can make partial builds very fast.
     """
-    default_skip_subdirs = ['users/prev_whats_new/*', 'api/*', 'gallery/*',
-                            'tutorials/*', 'plot_types/*', 'devel/*']
+    default_skip_subdirs = [
+        'users/prev_whats_new/*', 'users/explain/*', 'api/*', 'gallery/*',
+        'tutorials/*', 'plot_types/*', 'devel/*']
     try:
         with open(".mpl_skip_subdirs.yaml", 'r') as fin:
             print('Reading subdirectories to skip from',
@@ -121,8 +121,7 @@ extensions = [
 ]
 
 exclude_patterns = [
-    'api/prev_api_changes/api_changes_*/*'
-]
+    'api/prev_api_changes/api_changes_*/*', '**/*inc.rst']
 
 exclude_patterns += skip_subdirs
 

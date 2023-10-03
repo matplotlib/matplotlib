@@ -19,6 +19,11 @@ Using Matplotlib
 
             explain/quick_start
 
+        .. toctree::
+            :maxdepth: 1
+
+            faq.rst
+
     .. grid-item-card::
         :padding: 2
 
@@ -91,6 +96,7 @@ Using Matplotlib
             :includehidden:
 
             explain/toolkits/index
+
 
 .. toctree::
     :hidden:

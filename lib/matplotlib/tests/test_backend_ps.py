@@ -40,19 +40,18 @@ import matplotlib.pyplot as plt
     'eps with usetex'
 ])
 def test_savefig_to_stringio(format, use_log, rcParams, orientation, papersize):
-    if rcParams.get("ps.usedistiller") == "ghostscript":
+    mpl.rcParams.update(rcParams)
+    if mpl.rcParams["ps.usedistiller"] == "ghostscript":
         try:
             mpl._get_executable_info("gs")
         except mpl.ExecutableNotFoundError as exc:
             pytest.skip(str(exc))
-    elif rcParams.get("ps.userdistiller") == "xpdf":
+    elif mpl.rcParams["ps.usedistiller"] == "xpdf":
         try:
             mpl._get_executable_info("gs")  # Effectively checks for ps2pdf.
             mpl._get_executable_info("pdftops")
         except mpl.ExecutableNotFoundError as exc:
             pytest.skip(str(exc))
-
-    mpl.rcParams.update(rcParams)
 
     fig, ax = plt.subplots()
 
@@ -67,9 +66,9 @@ def test_savefig_to_stringio(format, use_log, rcParams, orientation, papersize):
             title += " \N{MINUS SIGN}\N{EURO SIGN}"
         ax.set_title(title)
         allowable_exceptions = []
-        if rcParams.get("text.usetex"):
+        if mpl.rcParams["text.usetex"]:
             allowable_exceptions.append(RuntimeError)
-        if rcParams.get("ps.useafm"):
+        if mpl.rcParams["ps.useafm"]:
             allowable_exceptions.append(mpl.MatplotlibDeprecationWarning)
         try:
             fig.savefig(s_buf, format=format, orientation=orientation,
@@ -87,14 +86,14 @@ def test_savefig_to_stringio(format, use_log, rcParams, orientation, papersize):
         if format == 'ps':
             # Default figsize = (8, 6) inches = (576, 432) points = (203.2, 152.4) mm.
             # Landscape orientation will swap dimensions.
-            if rcParams.get("ps.usedistiller") == "xpdf":
+            if mpl.rcParams["ps.usedistiller"] == "xpdf":
                 # Some versions specifically show letter/203x152, but not all,
                 # so we can only use this simpler test.
                 if papersize == 'figure':
                     assert b'letter' not in s_val.lower()
                 else:
                     assert b'letter' in s_val.lower()
-            elif rcParams.get("ps.usedistiller") or rcParams.get("text.usetex"):
+            elif mpl.rcParams["ps.usedistiller"] or mpl.rcParams["text.usetex"]:
                 width = b'432.0' if orientation == 'landscape' else b'576.0'
                 wanted = (b'-dDEVICEWIDTHPOINTS=' + width if papersize == 'figure'
                           else b'-sPAPERSIZE')

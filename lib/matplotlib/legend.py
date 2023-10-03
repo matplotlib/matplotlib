@@ -29,7 +29,7 @@ import time
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, _docstring, colors, offsetbox
+from matplotlib import _api, _docstring, cbook, colors, offsetbox
 from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list
 from matplotlib.font_manager import FontProperties
@@ -622,7 +622,7 @@ class Legend(Artist):
                         break
                     except AttributeError:
                         pass
-        elif isinstance(labelcolor, str) and labelcolor == 'none':
+        elif cbook._str_equal(labelcolor, 'none'):
             for text in self.texts:
                 text.set_color(labelcolor)
         elif np.iterable(labelcolor):

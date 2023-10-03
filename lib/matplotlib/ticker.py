@@ -516,11 +516,11 @@ class ScalarFormatter(Formatter):
         Format *arg* with *fmt*, applying Unicode minus and locale if desired.
         """
         return self.fix_minus(
-                # Escape commas introduced by format_string but not those present
-                # from the beginning in fmt.
-                ",".join(locale.format_string(part, (arg,), True)
-                         .replace(",", "{,}")
-                         for part in fmt.split(","))
+                # Escape commas introduced by locale.format_string if using math text,
+                # but not those present from the beginning in fmt.
+                (",".join(locale.format_string(part, (arg,), True).replace(",", "{,}")
+                          for part in fmt.split(",")) if self._useMathText
+                 else locale.format_string(fmt, (arg,), True))
                 if self._useLocale
                 else fmt % arg)
 
@@ -2102,6 +2102,11 @@ class MaxNLocator(Locator):
             steps = steps[igood]
 
         raw_step = ((_vmax - _vmin) / nbins)
+        if hasattr(self.axis, "axes") and self.axis.axes.name == '3d':
+            # Due to the change in automargin behavior in mpl3.9, we need to
+            # adjust the raw step to match the mpl3.8 appearance. The zoom
+            # factor of 2/48, gives us the 23/24 modifier.
+            raw_step = raw_step * 23/24
         large_steps = steps >= raw_step
         if mpl.rcParams['axes.autolimit_mode'] == 'round_numbers':
             # Classic round_numbers mode may require a larger step.
@@ -2656,51 +2661,32 @@ class AsinhLocator(Locator):
             return self.tick_values(vmin, vmax)
 
     def tick_values(self, vmin, vmax):
-        # Construct a set of "on-screen" locations
-        # that are uniformly spaced:
+        # Construct a set of uniformly-spaced "on-screen" locations.
         ymin, ymax = self.linear_width * np.arcsinh(np.array([vmin, vmax])
-                                                        / self.linear_width)
+                                                    / self.linear_width)
         ys = np.linspace(ymin, ymax, self.numticks)
-        zero_dev = np.abs(ys / (ymax - ymin))
-        if (ymin * ymax) < 0:
-            # Ensure that the zero tick-mark is included,
-            # if the axis straddles zero
+        zero_dev = abs(ys / (ymax - ymin))
+        if ymin * ymax < 0:
+            # Ensure that the zero tick-mark is included, if the axis straddles zero.
             ys = np.hstack([ys[(zero_dev > 0.5 / self.numticks)], 0.0])
 
         # Transform the "on-screen" grid to the data space:
         xs = self.linear_width * np.sinh(ys / self.linear_width)
         zero_xs = (ys == 0)
 
-        # Round the data-space values to be intuitive base-n numbers,
-        # keeping track of positive and negative values separately,
-        # but giving careful treatment to the zero value:
-        if self.base > 1:
-            log_base = math.log(self.base)
-            powers = (
-                np.where(zero_xs, 0, np.sign(xs)) *
-                np.power(self.base,
-                         np.where(zero_xs, 0.0,
-                                  np.floor(np.log(np.abs(xs) + zero_xs*1e-6)
-                                                / log_base)))
-            )
-            if self.subs:
-                qs = np.outer(powers, self.subs).flatten()
-            else:
-                qs = powers
-        else:
-            powers = (
-                np.where(xs >= 0, 1, -1) *
-                np.power(10, np.where(zero_xs, 0.0,
-                                      np.floor(np.log10(np.abs(xs)
-                                                        + zero_xs*1e-6))))
-            )
-            qs = powers * np.round(xs / powers)
+        # Round the data-space values to be intuitive base-n numbers, keeping track of
+        # positive and negative values separately and carefully treating the zero value.
+        with np.errstate(divide="ignore"):  # base ** log(0) = base ** -inf = 0.
+            if self.base > 1:
+                pows = (np.sign(xs)
+                        * self.base ** np.floor(np.log(abs(xs)) / math.log(self.base)))
+                qs = np.outer(pows, self.subs).flatten() if self.subs else pows
+            else:  # No need to adjust sign(pows), as it cancels out when computing qs.
+                pows = np.where(zero_xs, 1, 10**np.floor(np.log10(abs(xs))))
+                qs = pows * np.round(xs / pows)
         ticks = np.array(sorted(set(qs)))
 
-        if len(ticks) >= 2:
-            return ticks
-        else:
-            return np.linspace(vmin, vmax, self.numticks)
+        return ticks if len(ticks) >= 2 else np.linspace(vmin, vmax, self.numticks)
 
 
 class LogitLocator(MaxNLocator):

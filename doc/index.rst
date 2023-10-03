@@ -56,7 +56,7 @@ Learn
             users/explain/quick_start
             User guide <users/index.rst>
             tutorials/index.rst
-            users/faq/index.rst
+            users/faq.rst
 
     .. grid-item-card::
         :padding: 2

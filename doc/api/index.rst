@@ -4,25 +4,23 @@ API Reference
 Matplotlib interfaces
 ---------------------
 
-Matplotlib provides two different interfaces:
-
-- **Axes interface**: create a `.Figure` and one or more `~.axes.Axes` objects
-  (typically using `.pyplot.subplots`), then *explicitly* use methods on these objects
-  to add data, configure limits, set labels etc.
-- **pyplot interface**: consists of functions in the `.pyplot` module. Figure and Axes
-  are manipulated through these functions and are only *implicitly* present in the
-  background.
-
-See :ref:`api_interfaces` for a more detailed description of both and their recommended
-use cases.
+Matplotlib has two interfaces. See :ref:`api_interfaces` for a more detailed
+description of both and their recommended use cases.
 
 .. grid:: 1 1 2 2
-    :padding: 0 0 1 1
+    :padding: 0
+    :gutter: 2
 
     .. grid-item-card::
+        :shadow: none
+        :class-footer: api-interface-footer
 
         **Axes interface** (object-based, explicit)
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+        create a `.Figure` and one or more `~.axes.Axes` objects, then *explicitly* use
+        methods on these objects to add data, configure limits, set labels etc.
+
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         API:
 
@@ -30,14 +28,44 @@ use cases.
         - :mod:`~matplotlib.axes`: add data, limits, labels etc.
         - `.Figure`: for figure-level methods
 
+        +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        Example:
+
+        .. code-block:: python
+           :class: api-interface-example
+
+           fig, ax = plt.subplots()
+           ax.plot(x, y)
+           ax.set_title("Sample plot")
+           plt.show()
+
+
     .. grid-item-card::
+        :shadow: none
+        :class-footer: api-interface-footer
 
         **pyplot interface** (function-based, implicit)
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+        consists of functions in the `.pyplot` module. Figure and Axes are manipulated
+        through these functions and are only *implicitly* present in the background.
+
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         API:
 
         - `matplotlib.pyplot`
+
+        +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        Example:
+
+        .. code-block:: python
+           :class: api-interface-example
+
+           plt.plot(x, y)
+           plt.title("Sample plot")
+           plt.show()
 
 
 .. _api-index:

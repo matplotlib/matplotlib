@@ -305,6 +305,7 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
         'Topic :: Scientific/Engineering :: Visualization',
     ],
 
@@ -331,15 +332,18 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
         "contourpy>=1.0.1",
         "cycler>=0.10",
         "fonttools>=4.22.0",
-        "kiwisolver>=1.0.1",
+        "kiwisolver>=1.3.1",
         "numpy>=1.21",
         "packaging>=20.0",
-        "pillow>=6.2.0",
+        "pillow>=8",
         "pyparsing>=2.3.1",
         "python-dateutil>=2.7",
     ] + (
         # Installing from a git checkout that is not producing a wheel.
-        ["setuptools_scm>=7"] if (
+        # setuptools_scm warns with older setuptools, which turns into errors for our
+        # test suite. However setuptools_scm does not themselves pin the version of
+        # setuptools.
+        ["setuptools_scm>=7", "setuptools>=64"] if (
             Path(__file__).with_name(".git").exists() and
             os.environ.get("CIBUILDWHEEL", "0") != "1"
         ) else []

@@ -1,0 +1,6 @@
+``axvspan`` and ``axhspan`` now return ``Rectangle``\s, not ``Polygons``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This change allows using `~.Axes.axhspan` to draw an annulus on polar axes.
+
+This change also affects other elements built via `~.Axes.axvspan` and
+`~.Axes.axhspan`, such as ``Slider.poly``.

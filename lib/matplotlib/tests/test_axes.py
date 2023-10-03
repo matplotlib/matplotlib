@@ -835,6 +835,12 @@ def test_errorbar_dashes(fig_test, fig_ref):
     ax_test.errorbar(x, y, xerr=np.abs(y), yerr=np.abs(y), dashes=[2, 2])
 
 
+def test_errorbar_mapview_kwarg():
+    D = {ii: ii for ii in range(10)}
+    fig, ax = plt.subplots()
+    ax.errorbar(x=D.keys(), y=D.values(), xerr=D.values())
+
+
 @image_comparison(['single_point', 'single_point'])
 def test_single_point():
     # Issue #1796: don't let lines.marker affect the grid
@@ -1327,7 +1333,7 @@ def test_pcolormesh():
     Qz = np.sin(Y) + np.sin(X)
     Qx = (Qx + 1.1)
     Z = np.hypot(X, Y) / 5
-    Z = (Z - Z.min()) / Z.ptp()
+    Z = (Z - Z.min()) / np.ptp(Z)
 
     # The color array can include masked values:
     Zm = ma.masked_where(np.abs(Qz) < 0.5 * np.max(Qz), Z)
@@ -1348,7 +1354,7 @@ def test_pcolormesh_small():
     Qz = np.sin(Y) + np.sin(X)
     Qx = (Qx + 1.1)
     Z = np.hypot(X, Y) / 5
-    Z = (Z - Z.min()) / Z.ptp()
+    Z = (Z - Z.min()) / np.ptp(Z)
     Zm = ma.masked_where(np.abs(Qz) < 0.5 * np.max(Qz), Z)
     Zm2 = ma.masked_where(Qz < -0.5 * np.max(Qz), Z)
 
@@ -1378,7 +1384,7 @@ def test_pcolormesh_alpha():
     Qx = X
     Qy = Y + np.sin(X)
     Z = np.hypot(X, Y) / 5
-    Z = (Z - Z.min()) / Z.ptp()
+    Z = (Z - Z.min()) / np.ptp(Z)
     vir = mpl.colormaps["viridis"].resampled(16)
     # make another colormap with varying alpha
     colors = vir(np.arange(16))
@@ -8843,3 +8849,15 @@ def test_xylim_changed_shared():
     axs[1].callbacks.connect("ylim_changed", events.append)
     axs[0].set(xlim=[1, 3], ylim=[2, 4])
     assert events == [axs[1], axs[1]]
+
+
+@image_comparison(["axhvlinespan_interpolation.png"], style="default")
+def test_axhvlinespan_interpolation():
+    ax = plt.figure().add_subplot(projection="polar")
+    ax.set_axis_off()
+    ax.axvline(.1, c="C0")
+    ax.axvspan(.2, .3, fc="C1")
+    ax.axvspan(.4, .5, .1, .2, fc="C2")
+    ax.axhline(1, c="C0", alpha=.5)
+    ax.axhspan(.8, .9, fc="C1", alpha=.5)
+    ax.axhspan(.6, .7, .8, .9, fc="C2", alpha=.5)

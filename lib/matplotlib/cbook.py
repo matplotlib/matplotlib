@@ -734,7 +734,8 @@ def safe_masked_invalid(x, copy=False):
     if not x.dtype.isnative:
         # If we have already made a copy, do the byteswap in place, else make a
         # copy with the byte order swapped.
-        x = x.byteswap(inplace=copy).newbyteorder('N')  # Swap to native order.
+        # Swap to native order.
+        x = x.byteswap(inplace=copy).view(x.dtype.newbyteorder('N'))
     try:
         xm = np.ma.masked_where(~(np.isfinite(x)), x, copy=False)
     except TypeError:
@@ -1678,13 +1679,23 @@ def safe_first_element(obj):
     This is a type-independent way of obtaining the first element,
     supporting both index access and the iterator protocol.
     """
-    return _safe_first_finite(obj, skip_nonfinite=False)
+    if isinstance(obj, collections.abc.Iterator):
+        # needed to accept `array.flat` as input.
+        # np.flatiter reports as an instance of collections.Iterator but can still be
+        # indexed via []. This has the side effect of re-setting the iterator, but
+        # that is acceptable.
+        try:
+            return obj[0]
+        except TypeError:
+            pass
+        raise RuntimeError("matplotlib does not support generators as input")
+    return next(iter(obj))
 
 
-def _safe_first_finite(obj, *, skip_nonfinite=True):
+def _safe_first_finite(obj):
     """
     Return the first finite element in *obj* if one is available and skip_nonfinite is
-    True. Otherwise return the first element.
+    True. Otherwise, return the first element.
 
     This is a method for internal use.
 
@@ -1696,7 +1707,10 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
             return False
         try:
             return math.isfinite(val)
-        except TypeError:
+        except (TypeError, ValueError):
+            # if the outer object is 2d, then val is a 1d array, and
+            # - math.isfinite(numpy.zeros(3)) raises TypeError
+            # - math.isfinite(torch.zeros(3)) raises ValueError
             pass
         try:
             return np.isfinite(val) if np.isscalar(val) else True
@@ -1704,26 +1718,12 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
             # This is something that NumPy cannot make heads or tails of,
             # assume "finite"
             return True
-    if skip_nonfinite is False:
-        if isinstance(obj, collections.abc.Iterator):
-            # needed to accept `array.flat` as input.
-            # np.flatiter reports as an instance of collections.Iterator
-            # but can still be indexed via [].
-            # This has the side effect of re-setting the iterator, but
-            # that is acceptable.
-            try:
-                return obj[0]
-            except TypeError:
-                pass
-            raise RuntimeError("matplotlib does not support generators "
-                               "as input")
-        return next(iter(obj))
-    elif isinstance(obj, np.flatiter):
+
+    if isinstance(obj, np.flatiter):
         # TODO do the finite filtering on this
         return obj[0]
     elif isinstance(obj, collections.abc.Iterator):
-        raise RuntimeError("matplotlib does not "
-                           "support generators as input")
+        raise RuntimeError("matplotlib does not support generators as input")
     else:
         for val in obj:
             if safe_isfinite(val):

@@ -205,18 +205,6 @@ _log = logging.getLogger(__name__)
 UTC = datetime.timezone.utc
 
 
-@_api.caching_module_getattr
-class __getattr__:
-    JULIAN_OFFSET = _api.deprecated("3.7")(property(lambda self: 1721424.5))
-    # Julian date at 0000-12-31
-    # note that the Julian day epoch is achievable w/
-    # np.datetime64('-4713-11-24T12:00:00'); datetime64 is proleptic
-    # Gregorian and BC has a one-year offset.  So
-    # np.datetime64('0000-12-31') - np.datetime64('-4713-11-24T12:00') =
-    # 1721424.5
-    # Ref: https://en.wikipedia.org/wiki/Julian_day
-
-
 def _get_tzinfo(tz=None):
     """
     Generate `~datetime.tzinfo` from a string or return `~datetime.tzinfo`.
@@ -464,53 +452,6 @@ def date2num(d):
     d = _dt64_to_ordinalf(d)
 
     return d if iterable else d[0]
-
-
-@_api.deprecated("3.7")
-def julian2num(j):
-    """
-    Convert a Julian date (or sequence) to a Matplotlib date (or sequence).
-
-    Parameters
-    ----------
-    j : float or sequence of floats
-        Julian dates (days relative to 4713 BC Jan 1, 12:00:00 Julian
-        calendar or 4714 BC Nov 24, 12:00:00, proleptic Gregorian calendar).
-
-    Returns
-    -------
-    float or sequence of floats
-        Matplotlib dates (days relative to `.get_epoch`).
-    """
-    ep = np.datetime64(get_epoch(), 'h').astype(float) / 24.
-    ep0 = np.datetime64('0000-12-31T00:00:00', 'h').astype(float) / 24.
-    # Julian offset defined above is relative to 0000-12-31, but we need
-    # relative to our current epoch:
-    dt = __getattr__("JULIAN_OFFSET") - ep0 + ep
-    return np.subtract(j, dt)  # Handles both scalar & nonscalar j.
-
-
-@_api.deprecated("3.7")
-def num2julian(n):
-    """
-    Convert a Matplotlib date (or sequence) to a Julian date (or sequence).
-
-    Parameters
-    ----------
-    n : float or sequence of floats
-        Matplotlib dates (days relative to `.get_epoch`).
-
-    Returns
-    -------
-    float or sequence of floats
-        Julian dates (days relative to 4713 BC Jan 1, 12:00:00).
-    """
-    ep = np.datetime64(get_epoch(), 'h').astype(float) / 24.
-    ep0 = np.datetime64('0000-12-31T00:00:00', 'h').astype(float) / 24.
-    # Julian offset defined above is relative to 0000-12-31, but we need
-    # relative to our current epoch:
-    dt = __getattr__("JULIAN_OFFSET") - ep0 + ep
-    return np.add(n, dt)  # Handles both scalar & nonscalar j.
 
 
 def num2date(x, tz=None):

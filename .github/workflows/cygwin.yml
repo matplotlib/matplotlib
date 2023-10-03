@@ -78,7 +78,7 @@ jobs:
       - name: Fix line endings
         run: git config --global core.autocrlf input
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 

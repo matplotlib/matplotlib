@@ -7,8 +7,6 @@ from matplotlib.backend_bases import MouseEvent
 import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
-from matplotlib.lines import Line2D
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing.widgets import (click_and_drag, do_event, get_ax,
                                         mock_event, noop)
@@ -1055,16 +1053,10 @@ def test_check_radio_buttons_image():
 
     rax1 = fig.add_axes((0.05, 0.7, 0.2, 0.15))
     rb1 = widgets.RadioButtons(rax1, ('Radio 1', 'Radio 2', 'Radio 3'))
-    with pytest.warns(DeprecationWarning,
-                      match='The circles attribute was deprecated'):
-        rb1.circles  # Trigger the old-style elliptic radiobuttons.
 
     rax2 = fig.add_axes((0.05, 0.5, 0.2, 0.15))
     cb1 = widgets.CheckButtons(rax2, ('Check 1', 'Check 2', 'Check 3'),
                                (False, True, True))
-    with pytest.warns(DeprecationWarning,
-                      match='The rectangles attribute was deprecated'):
-        cb1.rectangles  # Trigger old-style Rectangle check boxes
 
     rax3 = fig.add_axes((0.05, 0.3, 0.2, 0.15))
     rb3 = widgets.RadioButtons(
@@ -1162,57 +1154,6 @@ def test_check_button_props(fig_test, fig_ref):
     # This means we cannot pass facecolor to both setters directly.
     check_props['edgecolor'] = check_props.pop('facecolor')
     cb.set_check_props({**check_props, 's': (24 / 2)**2})
-
-
-@check_figures_equal(extensions=["png"])
-def test_check_buttons_rectangles(fig_test, fig_ref):
-    # Test should be removed once .rectangles is removed
-    cb = widgets.CheckButtons(fig_test.subplots(), ["", ""],
-                              [False, False])
-    with pytest.warns(DeprecationWarning,
-                      match='The rectangles attribute was deprecated'):
-        cb.rectangles
-    ax = fig_ref.add_subplot(xticks=[], yticks=[])
-    ys = [2/3, 1/3]
-    dy = 1/3
-    w, h = dy / 2, dy / 2
-    rectangles = [
-        Rectangle(xy=(0.05, ys[i] - h / 2), width=w, height=h,
-                  edgecolor="black",
-                  facecolor="none",
-                  transform=ax.transAxes
-                  )
-        for i, y in enumerate(ys)
-    ]
-    for rectangle in rectangles:
-        ax.add_patch(rectangle)
-
-
-@check_figures_equal(extensions=["png"])
-def test_check_buttons_lines(fig_test, fig_ref):
-    # Test should be removed once .lines is removed
-    cb = widgets.CheckButtons(fig_test.subplots(), ["", ""], [True, True])
-    with pytest.warns(DeprecationWarning,
-                      match='The lines attribute was deprecated'):
-        cb.lines
-    for rectangle in cb._rectangles:
-        rectangle.set_visible(False)
-    ax = fig_ref.add_subplot(xticks=[], yticks=[])
-    ys = [2/3, 1/3]
-    dy = 1/3
-    w, h = dy / 2, dy / 2
-    lineparams = {'color': 'k', 'linewidth': 1.25,
-                    'transform': ax.transAxes,
-                    'solid_capstyle': 'butt'}
-    for i, y in enumerate(ys):
-        x, y = 0.05, y - h / 2
-        l1 = Line2D([x, x + w], [y + h, y], **lineparams)
-        l2 = Line2D([x, x + w], [y, y + h], **lineparams)
-
-        l1.set_visible(True)
-        l2.set_visible(True)
-        ax.add_line(l1)
-        ax.add_line(l2)
 
 
 def test_slider_slidermin_slidermax_invalid():

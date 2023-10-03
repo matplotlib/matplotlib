@@ -800,10 +800,8 @@ def test_image_preserve_size2():
     data = np.identity(n, float)
 
     fig = plt.figure(figsize=(n, n), frameon=False)
-
-    ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
+    ax = fig.add_axes((0.0, 0.0, 1.0, 1.0))
     ax.set_axis_off()
-    fig.add_axes(ax)
     ax.imshow(data, interpolation='nearest', origin='lower', aspect='auto')
     buff = io.BytesIO()
     fig.savefig(buff, dpi=1)
@@ -1470,16 +1468,25 @@ def test_str_norms(fig_test, fig_ref):
 
 def test__resample_valid_output():
     resample = functools.partial(mpl._image.resample, transform=Affine2D())
-    with pytest.raises(ValueError, match="must be a NumPy array"):
+    with pytest.raises(TypeError, match="incompatible function arguments"):
         resample(np.zeros((9, 9)), None)
     with pytest.raises(ValueError, match="different dimensionalities"):
         resample(np.zeros((9, 9)), np.zeros((9, 9, 4)))
-    with pytest.raises(ValueError, match="must be RGBA"):
+    with pytest.raises(ValueError, match="different dimensionalities"):
+        resample(np.zeros((9, 9, 4)), np.zeros((9, 9)))
+    with pytest.raises(ValueError, match="3D input array must be RGBA"):
+        resample(np.zeros((9, 9, 3)), np.zeros((9, 9, 4)))
+    with pytest.raises(ValueError, match="3D output array must be RGBA"):
         resample(np.zeros((9, 9, 4)), np.zeros((9, 9, 3)))
-    with pytest.raises(ValueError, match="Mismatched types"):
+    with pytest.raises(ValueError, match="mismatched types"):
         resample(np.zeros((9, 9), np.uint8), np.zeros((9, 9)))
     with pytest.raises(ValueError, match="must be C-contiguous"):
         resample(np.zeros((9, 9)), np.zeros((9, 9)).T)
+
+    out = np.zeros((9, 9))
+    out.flags.writeable = False
+    with pytest.raises(ValueError, match="Output array must be writeable"):
+        resample(np.zeros((9, 9)), out)
 
 
 def test_axesimage_get_shape():

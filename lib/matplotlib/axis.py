@@ -208,7 +208,7 @@ class Tick(martist.Artist):
         """Set tick direction.  Valid values are 'out', 'in', 'inout'."""
         # This method is responsible for updating `_pad`, and, in subclasses,
         # for setting the tick{1,2}line markers as well.  From the user
-        # perspective this should always be called though _apply_params, which
+        # perspective this should always be called through _apply_params, which
         # further updates ticklabel positions using the new pads.
         if tickdir is None:
             tickdir = mpl.rcParams[f'{self.__name__}.direction']
@@ -264,21 +264,6 @@ class Tick(martist.Artist):
     def get_pad(self):
         """Get the value of the tick label pad in points."""
         return self._base_pad
-
-    def _get_text1(self):
-        """Get the default Text 1 instance."""
-
-    def _get_text2(self):
-        """Get the default Text 2 instance."""
-
-    def _get_tick1line(self):
-        """Get the default `.Line2D` instance for tick1."""
-
-    def _get_tick2line(self):
-        """Get the default `.Line2D` instance for tick2."""
-
-    def _get_gridline(self):
-        """Get the default grid `.Line2D` instance for this tick."""
 
     def get_loc(self):
         """Return the tick location (data coords) as a scalar."""
@@ -855,13 +840,14 @@ class Axis(martist.Artist):
     def _set_autoscale_on(self, b):
         """
         Set whether this Axis is autoscaled when drawing or by
-        `.Axes.autoscale_view`.
+        `.Axes.autoscale_view`. If b is None, then the value is not changed.
 
         Parameters
         ----------
         b : bool
         """
-        self._autoscale_on = b
+        if b is not None:
+            self._autoscale_on = b
 
     def get_children(self):
         return [self.label, self.offsetText,
@@ -1244,8 +1230,7 @@ class Axis(martist.Artist):
         # Mark viewlims as no longer stale without triggering an autoscale.
         for ax in self._get_shared_axes():
             ax._stale_viewlims[name] = False
-        if auto is not None:
-            self._set_autoscale_on(bool(auto))
+        self._set_autoscale_on(auto)
 
         if emit:
             self.axes.callbacks.process(f"{name}lim_changed", self.axes)
@@ -1291,6 +1276,17 @@ class Axis(martist.Artist):
         view_low, view_high = self.get_view_interval()
         if view_low > view_high:
             view_low, view_high = view_high, view_low
+
+        if (hasattr(self, "axes") and self.axes.name == '3d'
+                and mpl.rcParams['axes3d.automargin']):
+            # In mpl3.8, the margin was 1/48. Due to the change in automargin
+            # behavior in mpl3.9, we need to adjust this to compensate for a
+            # zoom factor of 2/48, giving us a 23/24 modifier. So the new
+            # margin is 0.019965277777777776 = 1/48*23/24.
+            margin = 0.019965277777777776
+            delta = view_high - view_low
+            view_high = view_high - delta * margin
+            view_low = view_low + delta * margin
 
         interval_t = self.get_transform().transform([view_low, view_high])
 
@@ -1945,7 +1941,6 @@ class Axis(martist.Artist):
     def _format_with_dict(tickd, x, pos):
         return tickd.get(x, "")
 
-    @_api.rename_parameter("3.7", "ticklabels", "labels")
     def set_ticklabels(self, labels, *, minor=False, fontdict=None, **kwargs):
         r"""
         [*Discouraged*] Set this Axis' tick labels with list of string labels.
@@ -2097,7 +2092,7 @@ class Axis(martist.Artist):
 
         Parameters
         ----------
-        ticks : 1D ArrayLike
+        ticks : 1D array-like
             Array of tick locations.  The axis `.Locator` is replaced by a
             `~.ticker.FixedLocator`.
 

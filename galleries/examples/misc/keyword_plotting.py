@@ -3,13 +3,14 @@
 Plotting with keywords
 ======================
 
-There are some instances where you have data in a format that lets you
-access particular variables with strings: for example, with
-`numpy.recarray` or `pandas.DataFrame`.
+Some data structures, like dict, `structured numpy array
+<https://numpy.org/doc/stable/user/basics.rec.html#structured-arrays>`_
+or `pandas.DataFrame` provide access to labelled data via string index access
+``data[key]``.
 
-Matplotlib allows you to provide such an object with the ``data`` keyword
-argument. If provided, you may generate plots with the strings
-corresponding to these variables.
+For these data types, Matplotlib supports passing the whole datastructure via the
+``data`` keyword argument, and using the string names as plot function parameters,
+where you'd normally pass in your data.
 """
 
 import matplotlib.pyplot as plt

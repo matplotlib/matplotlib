@@ -19,3 +19,4 @@ Classes
    SubplotSpec
    GridSpecBase
    GridSpecFromSubplotSpec
+   SubplotParams

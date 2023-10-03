@@ -8,6 +8,7 @@ Project information
 
     mission.rst
     history.rst
+    Code of Conduct <code_of_conduct.rst>
     citing.rst
     license.rst
     credits.rst

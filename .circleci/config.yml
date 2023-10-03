@@ -42,26 +42,26 @@ commands:
       - run:
           name: Install apt packages
           command: |
-            sudo apt -qq update
-            sudo apt install -y \
-              inkscape \
-              ffmpeg \
-              dvipng \
-              lmodern \
+            sudo apt-get -qq update
+            sudo apt-get install -yy --no-install-recommends \
               cm-super \
-              texlive-latex-base \
-              texlive-latex-extra \
-              texlive-fonts-recommended \
-              texlive-latex-recommended \
-              texlive-pictures \
-              texlive-xetex \
-              ttf-wqy-zenhei \
-              graphviz \
+              dvipng \
+              ffmpeg \
               fonts-crosextra-carlito \
               fonts-freefont-otf \
               fonts-humor-sans \
               fonts-noto-cjk \
-              optipng
+              fonts-wqy-zenhei \
+              graphviz \
+              inkscape \
+              lmodern \
+              optipng \
+              texlive-fonts-recommended \
+              texlive-latex-base \
+              texlive-latex-extra \
+              texlive-latex-recommended \
+              texlive-pictures \
+              texlive-xetex
 
   fonts-install:
     steps:

@@ -1,12 +1,12 @@
 .. redirect-from:: /users/installing
 
-############
+============
 Installation
-############
+============
 
-==============================
-Installing an official release
-==============================
+
+Install an official release
+===========================
 
 Matplotlib releases are available as wheel packages for macOS, Windows and
 Linux on `PyPI <https://pypi.org/project/matplotlib/>`_. Install it using
@@ -33,14 +33,15 @@ precompiled wheel for your OS and Python.
    animations and a larger selection of file formats, you can
    install :ref:`optional_dependencies`.
 
-=========================
+
 Third-party distributions
 =========================
 
 Various third-parties provide Matplotlib for their environments.
 
 Conda packages
-==============
+--------------
+
 Matplotlib is available both via the *anaconda main channel*
 
 .. code-block:: sh
@@ -54,7 +55,7 @@ as well as via the *conda-forge community channel*
    conda install -c conda-forge matplotlib
 
 Python distributions
-====================
+--------------------
 
 Matplotlib is part of major Python distributions:
 
@@ -66,7 +67,7 @@ Matplotlib is part of major Python distributions:
 - `WinPython <https://winpython.github.io/>`_
 
 Linux package manager
-=====================
+---------------------
 
 If you are using the Python version that comes with your Linux distribution,
 you can install Matplotlib via your package manager, e.g.:
@@ -80,9 +81,8 @@ you can install Matplotlib via your package manager, e.g.:
 
 .. _install_from_source:
 
-==========================
-Installing a nightly build
-==========================
+Install a nightly build
+=======================
 
 Matplotlib makes nightly development build wheels available on the
 `scientific-python-nightly-wheels Anaconda Cloud organization
@@ -99,82 +99,30 @@ scientific-python-nightly-wheels as the package index to query:
     --extra-index-url https://pypi.org/simple \
     matplotlib
 
-======================
-Installing from source
-======================
 
-If you are interested in contributing to Matplotlib development,
-running the latest source code, or just like to build everything
-yourself, it is not difficult to build Matplotlib from source.
+Install from source
+===================
 
-First you need to install the :ref:`dependencies`.
+.. admonition:: Installing for Development
+  :class: important
 
-A C compiler is required.  Typically, on Linux, you will need ``gcc``, which
-should be installed using your distribution's package manager; on macOS, you
-will need xcode_; on Windows, you will need `Visual Studio`_ 2015 or later.
+  If you would like to contribute to Matplotlib or otherwise need to
+  install the latest development code, please follow the instructions in
+  :ref:`installing_for_devs`.
 
-For those using Visual Studio, make sure "Desktop development with C++" is
-selected, and that the latest MSVC, "C++ CMake tools for Windows," and a
-Windows SDK compatible with your version of Windows are selected and installed.
-They should be selected by default under the "Optional" subheading, but are
-required to build matplotlib from source.
+The following instructions are for installing from source for production use.
+This is generally *not* recommended; please use prebuilt packages when possible.
+Proceed with caution because these instructions may result in your
+build producing unexpected behavior and/or causing local testing to fail.
 
-.. _xcode: https://guide.macports.org/chunked/installing.html#installing.xcode
+Before trying to install Matplotlib, please install the :ref:`dependencies`.
 
-.. _Visual Studio: https://visualstudio.microsoft.com/downloads/
-
-The easiest way to get the latest development version to start contributing
-is to go to the git `repository <https://github.com/matplotlib/matplotlib>`_
-and run::
-
-  git clone https://github.com/matplotlib/matplotlib.git
-
-or::
-
-  git clone git@github.com:matplotlib/matplotlib.git
-
-If you're developing, it's better to do it in editable mode. The reason why
-is that pytest's test discovery only works for Matplotlib
-if installation is done this way. Also, editable mode allows your code changes
-to be instantly propagated to your library code without reinstalling (though
-you will have to restart your python process / kernel)::
-
-  cd matplotlib
-  python -m pip install -e .
-
-If you're not developing, it can be installed from the source directory with
-a simple (just replace the last step)::
-
-  python -m pip install .
-
-To run the tests you will need to install some additional dependencies::
-
-  python -m pip install -r requirements/dev/dev-requirements.txt
-
-Then, if you want to update your Matplotlib at any time, just do::
-
-  git pull
-
-When you run ``git pull``, if the output shows that only Python files have
-been updated, you are all set. If C files have changed, you need to run ``pip
-install -e .`` again to compile them.
-
-There is more information on :ref:`using git <using-git>` in the developer
-docs.
-
-.. warning::
-
-  The following instructions in this section are for very custom
-  installations of Matplotlib. Proceed with caution because these instructions
-  may result in your build producing unexpected behavior and/or causing
-  local testing to fail.
-
-If you would like to build from a tarball, grab the latest *tar.gz* release
+To build from a tarball, download the latest *tar.gz* release
 file from `the PyPI files page <https://pypi.org/project/matplotlib/>`_.
 
 We provide a `mplsetup.cfg`_ file which you can use to customize the build
 process. For example, which default backend to use, whether some of the
-optional libraries that Matplotlib ships with are installed, and so on.  This
+optional libraries that Matplotlib ships with are installed, and so on. This
 file will be particularly useful to those packaging Matplotlib.
 
 .. _mplsetup.cfg: https://raw.githubusercontent.com/matplotlib/matplotlib/main/mplsetup.cfg.template
@@ -182,23 +130,22 @@ file will be particularly useful to those packaging Matplotlib.
 If you are building your own Matplotlib wheels (or sdists) on Windows, note
 that any DLLs that you copy into the source tree will be packaged too.
 
-==========================
-Installing for development
-==========================
-See :ref:`installing_for_devs`.
 
-.. redirect-from:: /faq/installing_faq
-.. redirect-from:: /users/faq/installing_faq
+Configure build and behavior defaults
+=====================================
+
+Aspects of the build and install process and some behaviorial defaults of the
+library can be configured via :ref:`environment-variables`. Default plotting
+appearance and behavior can be configured via the
+:ref:`rcParams file <customizing-with-matplotlibrc-files>`
+
+
 
 .. _installing-faq:
 
 ==========================
 Frequently asked questions
 ==========================
-
-.. contents::
-   :backlinks: none
-   :local:
 
 Report a compilation problem
 ============================
@@ -326,3 +273,6 @@ Python.org Python, or check your homebrew or macports setup.  Remember that
 the disk image installer only works for Python.org Python, and will not get
 picked up by other Pythons.  If all these fail, please :ref:`let us know
 <reporting-problems>`.
+
+
+.. include:: troubleshooting_faq.inc.rst

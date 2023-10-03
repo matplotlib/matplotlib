@@ -228,6 +228,8 @@ for k, ax in axd.items():
 fig.suptitle('plt.subplot_mosaic()')
 
 # %%
+# .. _nested_axes_layouts:
+#
 # Nested Axes layouts
 # -------------------
 #

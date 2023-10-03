@@ -202,7 +202,7 @@ class Line3D(lines.Line2D):
             The y-data to be plotted.
         zs : array-like
             The z-data to be plotted.
-        *args, **kwargs :
+        *args, **kwargs
             Additional arguments are passed to `~matplotlib.lines.Line2D`.
         """
         super().__init__([], [], *args, **kwargs)
@@ -833,6 +833,7 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
     """
     if isinstance(col, PathCollection):
         col.__class__ = Path3DCollection
+        col._offset_zordered = None
     elif isinstance(col, PatchCollection):
         col.__class__ = Patch3DCollection
     col._depthshade = depthshade

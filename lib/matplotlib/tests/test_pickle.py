@@ -143,7 +143,7 @@ def test_pickle_load_from_subprocess(fig_test, fig_ref, tmp_path):
     proc = subprocess_run_helper(
         _pickle_load_subprocess,
         timeout=60,
-        extra_env={'PICKLE_FILE_PATH': str(fp)}
+        extra_env={'PICKLE_FILE_PATH': str(fp), 'MPLBACKEND': 'Agg'}
     )
 
     loaded_fig = pickle.loads(ast.literal_eval(proc.stdout))

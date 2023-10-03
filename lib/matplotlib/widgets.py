@@ -21,7 +21,7 @@ import matplotlib as mpl
 from . import (_api, _docstring, backend_tools, cbook, collections, colors,
                text as mtext, ticker, transforms)
 from .lines import Line2D
-from .patches import Circle, Rectangle, Ellipse, Polygon
+from .patches import Rectangle, Ellipse, Polygon
 from .transforms import TransformedPatchPath, Affine2D
 
 
@@ -355,11 +355,10 @@ class Slider(SliderBase):
         Slider value.
     """
 
-    @_api.make_keyword_only("3.7", name="valinit")
-    def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt=None,
+    def __init__(self, ax, label, valmin, valmax, *, valinit=0.5, valfmt=None,
                  closedmin=True, closedmax=True, slidermin=None,
                  slidermax=None, dragging=True, valstep=None,
-                 orientation='horizontal', *, initcolor='r',
+                 orientation='horizontal', initcolor='r',
                  track_color='lightgrey', handle_style=None, **kwargs):
         """
         Parameters
@@ -433,8 +432,8 @@ class Slider(SliderBase):
         Notes
         -----
         Additional kwargs are passed on to ``self.poly`` which is the
-        `~matplotlib.patches.Polygon` that draws the slider knob.  See the
-        `.Polygon` documentation for valid property names (``facecolor``,
+        `~matplotlib.patches.Rectangle` that draws the slider knob.  See the
+        `.Rectangle` documentation for valid property names (``facecolor``,
         ``edgecolor``, ``alpha``, etc.).
         """
         super().__init__(ax, orientation, closedmin, closedmax,
@@ -577,16 +576,12 @@ class Slider(SliderBase):
         ----------
         val : float
         """
-        xy = self.poly.xy
         if self.orientation == 'vertical':
-            xy[1] = .25, val
-            xy[2] = .75, val
+            self.poly.set_height(val - self.poly.get_y())
             self._handle.set_ydata([val])
         else:
-            xy[2] = val, .75
-            xy[3] = val, .25
+            self.poly.set_width(val - self.poly.get_x())
             self._handle.set_xdata([val])
-        self.poly.xy = xy
         self.valtext.set_text(self._format(val))
         if self.drawon:
             self.ax.figure.canvas.draw_idle()
@@ -627,13 +622,13 @@ class RangeSlider(SliderBase):
         Slider value.
     """
 
-    @_api.make_keyword_only("3.7", name="valinit")
     def __init__(
         self,
         ax,
         label,
         valmin,
         valmax,
+        *,
         valinit=None,
         valfmt=None,
         closedmin=True,
@@ -1115,35 +1110,18 @@ class CheckButtons(AxesWidget):
             return
         self._background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self._checks)
-        if hasattr(self, '_lines'):
-            for l1, l2 in self._lines:
-                self.ax.draw_artist(l1)
-                self.ax.draw_artist(l2)
 
     def _clicked(self, event):
         if self.ignore(event) or event.button != 1 or not self.ax.contains(event)[0]:
             return
-        pclicked = self.ax.transAxes.inverted().transform((event.x, event.y))
-        distances = {}
-        if hasattr(self, "_rectangles"):
-            for i, (p, t) in enumerate(zip(self._rectangles, self.labels)):
-                x0, y0 = p.get_xy()
-                if (t.get_window_extent().contains(event.x, event.y)
-                        or (x0 <= pclicked[0] <= x0 + p.get_width()
-                            and y0 <= pclicked[1] <= y0 + p.get_height())):
-                    distances[i] = np.linalg.norm(pclicked - p.get_center())
-        else:
-            _, frame_inds = self._frames.contains(event)
+        idxs = [  # Indices of frames and of texts that contain the event.
+            *self._frames.contains(event)[1]["ind"],
+            *[i for i, text in enumerate(self.labels) if text.contains(event)[0]]]
+        if idxs:
             coords = self._frames.get_offset_transform().transform(
-                self._frames.get_offsets()
-            )
-            for i, t in enumerate(self.labels):
-                if (i in frame_inds["ind"]
-                        or t.get_window_extent().contains(event.x, event.y)):
-                    distances[i] = np.linalg.norm(pclicked - coords[i])
-        if len(distances) > 0:
-            closest = min(distances, key=distances.get)
-            self.set_active(closest)
+                self._frames.get_offsets())
+            self.set_active(  # Closest index, only looking in idxs.
+                idxs[(((event.x, event.y) - coords[idxs]) ** 2).sum(-1).argmin()])
 
     def set_label_props(self, props):
         """
@@ -1227,20 +1205,11 @@ class CheckButtons(AxesWidget):
         )
         self._checks.set_facecolor(facecolors)
 
-        if hasattr(self, "_lines"):
-            l1, l2 = self._lines[index]
-            l1.set_visible(not l1.get_visible())
-            l2.set_visible(not l2.get_visible())
-
         if self.drawon:
             if self._useblit:
                 if self._background is not None:
                     self.canvas.restore_region(self._background)
                 self.ax.draw_artist(self._checks)
-                if hasattr(self, "_lines"):
-                    for l1, l2 in self._lines:
-                        self.ax.draw_artist(l1)
-                        self.ax.draw_artist(l2)
                 self.canvas.blit(self.ax.bbox)
             else:
                 self.canvas.draw()
@@ -1283,60 +1252,6 @@ class CheckButtons(AxesWidget):
         """Remove the observer with connection id *cid*."""
         self._observers.disconnect(cid)
 
-    @_api.deprecated("3.7",
-                     addendum="Any custom property styling may be lost.")
-    @property
-    def rectangles(self):
-        if not hasattr(self, "_rectangles"):
-            ys = np.linspace(1, 0, len(self.labels)+2)[1:-1]
-            dy = 1. / (len(self.labels) + 1)
-            w, h = dy / 2, dy / 2
-            rectangles = self._rectangles = [
-                Rectangle(xy=(0.05, ys[i] - h / 2), width=w, height=h,
-                          edgecolor="black",
-                          facecolor="none",
-                          transform=self.ax.transAxes
-                          )
-                for i, y in enumerate(ys)
-            ]
-            self._frames.set_visible(False)
-            for rectangle in rectangles:
-                self.ax.add_patch(rectangle)
-        if not hasattr(self, "_lines"):
-            with _api.suppress_matplotlib_deprecation_warning():
-                _ = self.lines
-        return self._rectangles
-
-    @_api.deprecated("3.7",
-                     addendum="Any custom property styling may be lost.")
-    @property
-    def lines(self):
-        if not hasattr(self, "_lines"):
-            ys = np.linspace(1, 0, len(self.labels)+2)[1:-1]
-            self._checks.set_visible(False)
-            dy = 1. / (len(self.labels) + 1)
-            w, h = dy / 2, dy / 2
-            self._lines = []
-            current_status = self.get_status()
-            lineparams = {'color': 'k', 'linewidth': 1.25,
-                          'transform': self.ax.transAxes,
-                          'solid_capstyle': 'butt',
-                          'animated': self._useblit}
-            for i, y in enumerate(ys):
-                x, y = 0.05, y - h / 2
-                l1 = Line2D([x, x + w], [y + h, y], **lineparams)
-                l2 = Line2D([x, x + w], [y, y + h], **lineparams)
-
-                l1.set_visible(current_status[i])
-                l2.set_visible(current_status[i])
-                self._lines.append((l1, l2))
-                self.ax.add_line(l1)
-                self.ax.add_line(l2)
-        if not hasattr(self, "_rectangles"):
-            with _api.suppress_matplotlib_deprecation_warning():
-                _ = self.rectangles
-        return self._lines
-
 
 class TextBox(AxesWidget):
     """
@@ -1361,8 +1276,7 @@ class TextBox(AxesWidget):
         The color of the text box when hovering.
     """
 
-    @_api.make_keyword_only("3.7", name="color")
-    def __init__(self, ax, label, initial='',
+    def __init__(self, ax, label, initial='', *,
                  color='.95', hovercolor='1', label_pad=.01,
                  textalignment="left"):
         """
@@ -1513,8 +1427,7 @@ class TextBox(AxesWidget):
             self._observers.process('change', self.text)
             self._observers.process('submit', self.text)
 
-    @_api.delete_parameter("3.7", "x")
-    def begin_typing(self, x=None):
+    def begin_typing(self):
         self.capturekeystrokes = True
         # Disable keypress shortcuts, which may otherwise cause the figure to
         # be saved, closed, etc., until the user stops typing.  The way to
@@ -1730,31 +1643,18 @@ class RadioButtons(AxesWidget):
             return
         self._background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self._buttons)
-        if hasattr(self, "_circles"):
-            for circle in self._circles:
-                self.ax.draw_artist(circle)
 
     def _clicked(self, event):
         if self.ignore(event) or event.button != 1 or not self.ax.contains(event)[0]:
             return
-        pclicked = self.ax.transAxes.inverted().transform((event.x, event.y))
-        _, inds = self._buttons.contains(event)
-        coords = self._buttons.get_offset_transform().transform(
-            self._buttons.get_offsets())
-        distances = {}
-        if hasattr(self, "_circles"):  # Remove once circles is removed.
-            for i, (p, t) in enumerate(zip(self._circles, self.labels)):
-                if (t.get_window_extent().contains(event.x, event.y)
-                        or np.linalg.norm(pclicked - p.center) < p.radius):
-                    distances[i] = np.linalg.norm(pclicked - p.center)
-        else:
-            for i, t in enumerate(self.labels):
-                if (i in inds["ind"]
-                        or t.get_window_extent().contains(event.x, event.y)):
-                    distances[i] = np.linalg.norm(pclicked - coords[i])
-        if len(distances) > 0:
-            closest = min(distances, key=distances.get)
-            self.set_active(closest)
+        idxs = [  # Indices of buttons and of texts that contain the event.
+            *self._buttons.contains(event)[1]["ind"],
+            *[i for i, text in enumerate(self.labels) if text.contains(event)[0]]]
+        if idxs:
+            coords = self._buttons.get_offset_transform().transform(
+                self._buttons.get_offsets())
+            self.set_active(  # Closest index, only looking in idxs.
+                idxs[(((event.x, event.y) - coords[idxs]) ** 2).sum(-1).argmin()])
 
     def set_label_props(self, props):
         """
@@ -1824,19 +1724,12 @@ class RadioButtons(AxesWidget):
         button_facecolors[:] = colors.to_rgba("none")
         button_facecolors[index] = colors.to_rgba(self._active_colors[index])
         self._buttons.set_facecolor(button_facecolors)
-        if hasattr(self, "_circles"):  # Remove once circles is removed.
-            for i, p in enumerate(self._circles):
-                p.set_facecolor(self.activecolor if i == index else "none")
-                if self.drawon and self._useblit:
-                    self.ax.draw_artist(p)
+
         if self.drawon:
             if self._useblit:
                 if self._background is not None:
                     self.canvas.restore_region(self._background)
                 self.ax.draw_artist(self._buttons)
-                if hasattr(self, "_circles"):
-                    for p in self._circles:
-                        self.ax.draw_artist(p)
                 self.canvas.blit(self.ax.bbox)
             else:
                 self.canvas.draw()
@@ -1855,23 +1748,6 @@ class RadioButtons(AxesWidget):
     def disconnect(self, cid):
         """Remove the observer with connection id *cid*."""
         self._observers.disconnect(cid)
-
-    @_api.deprecated("3.7",
-                     addendum="Any custom property styling may be lost.")
-    @property
-    def circles(self):
-        if not hasattr(self, "_circles"):
-            radius = min(.5 / (len(self.labels) + 1) - .01, .05)
-            circles = self._circles = [
-                Circle(xy=self._buttons.get_offsets()[i], edgecolor="black",
-                       facecolor=self._buttons.get_facecolor()[i],
-                       radius=radius, transform=self.ax.transAxes,
-                       animated=self._useblit)
-                for i in range(len(self.labels))]
-            self._buttons.set_visible(False)
-            for circle in circles:
-                self.ax.add_patch(circle)
-        return self._circles
 
 
 class SubplotTool(Widget):
@@ -1974,8 +1850,7 @@ class Cursor(AxesWidget):
     --------
     See :doc:`/gallery/widgets/cursor`.
     """
-    @_api.make_keyword_only("3.7", "horizOn")
-    def __init__(self, ax, horizOn=True, vertOn=True, useblit=False,
+    def __init__(self, ax, *, horizOn=True, vertOn=True, useblit=False,
                  **lineprops):
         super().__init__(ax)
 
@@ -2011,23 +1886,19 @@ class Cursor(AxesWidget):
         if not self.ax.contains(event)[0]:
             self.linev.set_visible(False)
             self.lineh.set_visible(False)
-
             if self.needclear:
                 self.canvas.draw()
                 self.needclear = False
             return
         self.needclear = True
-
         xdata, ydata = self._get_data_coords(event)
         self.linev.set_xdata((xdata, xdata))
         self.linev.set_visible(self.visible and self.vertOn)
         self.lineh.set_ydata((ydata, ydata))
         self.lineh.set_visible(self.visible and self.horizOn)
-
-        if self.visible and (self.vertOn or self.horizOn):
-            self._update()
-
-    def _update(self):
+        if not (self.visible and (self.vertOn or self.horizOn)):
+            return
+        # Redraw.
         if self.useblit:
             if self.background is not None:
                 self.canvas.restore_region(self.background)
@@ -2036,7 +1907,6 @@ class Cursor(AxesWidget):
             self.canvas.blit(self.ax.bbox)
         else:
             self.canvas.draw_idle()
-        return False
 
 
 class MultiCursor(Widget):
@@ -2109,8 +1979,6 @@ class MultiCursor(Widget):
 
         self.connect()
 
-    needclear = _api.deprecated("3.7")(lambda self: False)
-
     def connect(self):
         """Connect events."""
         for canvas, info in self._canvas_infos.items():
@@ -2153,10 +2021,9 @@ class MultiCursor(Widget):
         for line in self.hlines:
             line.set_ydata((ydata, ydata))
             line.set_visible(self.visible and self.horizOn)
-        if self.visible and (self.vertOn or self.horizOn):
-            self._update()
-
-    def _update(self):
+        if not (self.visible and (self.vertOn or self.horizOn)):
+            return
+        # Redraw.
         if self.useblit:
             for canvas, info in self._canvas_infos.items():
                 if info["background"]:
@@ -2613,8 +2480,7 @@ class SpanSelector(_SelectorWidget):
     See also: :doc:`/gallery/widgets/span_selector`
     """
 
-    @_api.make_keyword_only("3.7", name="minspan")
-    def __init__(self, ax, onselect, direction, minspan=0, useblit=False,
+    def __init__(self, ax, onselect, direction, *, minspan=0, useblit=False,
                  props=None, onmove_callback=None, interactive=False,
                  button=None, handle_props=None, grab_range=10,
                  state_modifier_keys=None, drag_from_anywhere=False,
@@ -2957,8 +2823,7 @@ class ToolLineHandles:
         for details.
     """
 
-    @_api.make_keyword_only("3.7", "line_props")
-    def __init__(self, ax, positions, direction, line_props=None,
+    def __init__(self, ax, positions, direction, *, line_props=None,
                  useblit=True):
         self.ax = ax
 
@@ -3068,8 +2933,7 @@ class ToolHandles:
         for details.
     """
 
-    @_api.make_keyword_only("3.7", "marker")
-    def __init__(self, ax, x, y, marker='o', marker_props=None, useblit=True):
+    def __init__(self, ax, x, y, *, marker='o', marker_props=None, useblit=True):
         self.ax = ax
         props = {'marker': marker, 'markersize': 7, 'markerfacecolor': 'w',
                  'linestyle': 'none', 'alpha': 0.5, 'visible': False,
@@ -3771,8 +3635,7 @@ class LassoSelector(_SelectorWidget):
         which corresponds to all buttons.
     """
 
-    @_api.make_keyword_only("3.7", name="useblit")
-    def __init__(self, ax, onselect, useblit=True, props=None, button=None):
+    def __init__(self, ax, onselect, *, useblit=True, props=None, button=None):
         super().__init__(ax, onselect, useblit=useblit, button=button)
         self.verts = None
         props = {
@@ -3882,9 +3745,8 @@ class PolygonSelector(_SelectorWidget):
     point.
     """
 
-    @_api.make_keyword_only("3.7", name="useblit")
-    def __init__(self, ax, onselect, useblit=False,
-                 props=None, handle_props=None, grab_range=10, *,
+    def __init__(self, ax, onselect, *, useblit=False,
+                 props=None, handle_props=None, grab_range=10,
                  draw_bounding_box=False, box_handle_props=None,
                  box_props=None):
         # The state modifiers 'move', 'square', and 'center' are expected by
@@ -4199,8 +4061,7 @@ class Lasso(AxesWidget):
         for details.
     """
 
-    @_api.make_keyword_only("3.7", name="useblit")
-    def __init__(self, ax, xy, callback, useblit=True):
+    def __init__(self, ax, xy, callback, *, useblit=True):
         super().__init__(ax)
 
         self.useblit = useblit and self.canvas.supports_blit

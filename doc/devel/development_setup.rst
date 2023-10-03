@@ -148,6 +148,12 @@ The simplest way to do this is to use either Python's virtual environment
 
 Remember to activate the environment whenever you start working on Matplotlib.
 
+Install Dependencies
+====================
+Most Python dependencies will be installed when :ref:`setting up the environment <dev-environment>`
+but non-Python dependencies like C++ compilers, LaTeX, and other system applications
+must be installed separately. For a full list, see :ref:`dependencies`.
+
 Install Matplotlib in editable mode
 ===================================
 

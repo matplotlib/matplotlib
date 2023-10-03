@@ -11,7 +11,7 @@ downstream libraries.
 """
 from collections.abc import Hashable, Sequence
 import pathlib
-from typing import Any, Literal, Union
+from typing import Any, Literal, TypeVar, Union
 
 from . import path
 from ._enums import JoinStyle, CapStyle
@@ -55,5 +55,6 @@ RcStyleType = Union[
     Sequence[Union[str, pathlib.Path, dict[str, Any]]],
 ]
 
-HashableList = list[Union[Hashable, "HashableList"]]
+_HT = TypeVar("_HT", bound=Hashable)
+HashableList = list[Union[_HT, "HashableList[_HT]"]]
 """A nested list of Hashable values."""

@@ -222,10 +222,10 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
         grid_info["lon_info"] = lon_levs, lon_n, lon_factor
         grid_info["lat_info"] = lat_levs, lat_n, lat_factor
 
-        grid_info["lon_labels"] = grid_finder.tick_formatter1(
-            "bottom", lon_factor, lon_levs)
-        grid_info["lat_labels"] = grid_finder.tick_formatter2(
-            "bottom", lat_factor, lat_levs)
+        grid_info["lon_labels"] = grid_finder._format_ticks(
+            1, "bottom", lon_factor, lon_levs)
+        grid_info["lat_labels"] = grid_finder._format_ticks(
+            2, "bottom", lat_factor, lat_levs)
 
         lon_values = lon_levs[:lon_n] / lon_factor
         lat_values = lat_levs[:lat_n] / lat_factor

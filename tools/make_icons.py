@@ -36,8 +36,18 @@ def get_fontawesome():
     return cached_path
 
 
-def save_icon(fig, dest_dir, name):
-    fig.savefig(dest_dir / (name + '.svg'))
+def save_icon(fig, dest_dir, name, add_black_fg_color):
+    if add_black_fg_color:
+        # Add explicit black foreground color to monochromatic svg icons
+        # so it can be replaced by backends to add dark theme support
+        svg_bytes_io = BytesIO()
+        fig.savefig(svg_bytes_io, format='svg')
+        svg = svg_bytes_io.getvalue()
+        before, sep, after = svg.rpartition(b'\nz\n"')
+        svg = before + sep + b' style="fill:black;"' + after
+        (dest_dir / (name + '.svg')).write_bytes(svg)
+    else:
+        fig.savefig(dest_dir / (name + '.svg'))
     fig.savefig(dest_dir / (name + '.pdf'))
     for dpi, suffix in [(24, ''), (48, '_large')]:
         fig.savefig(dest_dir / (name + suffix + '.png'), dpi=dpi)
@@ -102,9 +112,9 @@ def make_icons():
     font_path = get_fontawesome()
     for name, ccode in icon_defs:
         fig = make_icon(font_path, ccode)
-        save_icon(fig, args.dest_dir, name)
+        save_icon(fig, args.dest_dir, name, True)
     fig = make_matplotlib_icon()
-    save_icon(fig, args.dest_dir, 'matplotlib')
+    save_icon(fig, args.dest_dir, 'matplotlib', False)
 
 
 if __name__ == "__main__":

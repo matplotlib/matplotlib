@@ -170,18 +170,18 @@ also welcome to post feature requests or pull requests.
 
 If you are reporting a bug, please do your best to include the following:
 
-1. A short, top-level summary of the bug. In most cases, this should be 1-2
+#. A short, top-level summary of the bug. In most cases, this should be 1-2
    sentences.
 
-2. A short, self-contained code snippet to reproduce the bug, ideally allowing
+#. A short, self-contained code snippet to reproduce the bug, ideally allowing
    a simple copy and paste to reproduce. Please do your best to reduce the code
    snippet to the minimum required.
 
-3. The actual outcome of the code snippet.
+#. The actual outcome of the code snippet.
 
-4. The expected outcome of the code snippet.
+#. The expected outcome of the code snippet.
 
-5. The Matplotlib version, Python version and platform that you are using. You
+#. The Matplotlib version, Python version and platform that you are using. You
    can grab the version with the following commands::
 
       >>> import matplotlib
@@ -229,52 +229,54 @@ contribute to Matplotlib.
 
 A brief overview of the workflow is as follows.
 
-1. `Create an account <https://github.com/join>`_ on GitHub if you do not
+#. `Create an account <https://github.com/join>`_ on GitHub if you do not
    already have one.
 
-2. Fork the `project repository <https://github.com/matplotlib/matplotlib>`_:
-   click on the 'Fork' button near the top of the page. This creates a copy of
-   the code under your account on the GitHub server.
+#. Fork the `project repository <https://github.com/matplotlib/matplotlib>`_ by
+   clicking on the :octicon:`repo-forked` **Fork** button near the top of the page.
+   This creates a copy of the code under your account on the GitHub server.
 
-.. tab-set::
+#. Set up a development environment:
 
-    .. tab-item:: Local development
+   .. tab-set::
 
-        3. Clone this copy to your local disk::
+      .. tab-item:: Local development
 
-             git clone https://github.com/<YOUR GITHUB USERNAME>/matplotlib.git
+          Clone this copy to your local disk::
 
-    .. tab-item:: Using GitHub Codespaces
+            git clone https://github.com/<YOUR GITHUB USERNAME>/matplotlib.git
 
-        3. Check out the Matplotlib repository and activate your development
-           environment:
+      .. tab-item:: Using GitHub Codespaces
 
-           * Open codespaces on your fork by clicking on the green "Code" button
+          Check out the Matplotlib repository and activate your development environment:
+
+          #. Open codespaces on your fork by clicking on the green "Code" button
              on the GitHub web interface and selecting the "Codespaces" tab.
-           * Next, click on "Open codespaces on <your branch name>". You will be
+
+          #. Next, click on "Open codespaces on <your branch name>". You will be
              able to change branches later, so you can select the default
              ``main`` branch.
-           * After the codespace is created, you will be taken to a new browser
+
+          #. After the codespace is created, you will be taken to a new browser
              tab where you can use the terminal to activate a pre-defined conda
              environment called ``mpl-dev``::
 
-               conda activate mpl-dev
+              conda activate mpl-dev
 
 
-
-4. Install the local version of Matplotlib with::
+#. Install the local version of Matplotlib with::
 
      python -m pip install -e .
 
    See :ref:`installing_for_devs` for detailed instructions.
 
-5. Create a branch to hold your changes::
+#. Create a branch to hold your changes::
 
      git checkout -b my-feature origin/main
 
    and start making changes. Never work in the ``main`` branch!
 
-6. Work on this task using Git to do the version control. Codespaces persist for
+#. Work on this task using Git to do the version control. Codespaces persist for
    some time (check the `documentation for details
    <https://docs.github.com/codespaces/getting-started/the-codespace-lifecycle>`_)
    and can be managed on https://github.com/codespaces. When you're done editing
@@ -301,11 +303,11 @@ GitHub Codespaces workflows
   <https://github.com/devcontainers/features/tree/main/src/desktop-lite>`_.
   You can use it by connecting to this desktop via your web browser. To do this:
 
-  1. Press ``F1`` or ``Ctrl/Cmd+Shift+P`` and select
+  #. Press ``F1`` or ``Ctrl/Cmd+Shift+P`` and select
      ``Ports: Focus on Ports View`` in the VSCode session to bring it into
      focus. Open the ports view in your tool, select the ``noVNC`` port, and
      click the Globe icon.
-  2. In the browser that appears, click the Connect button and enter the desktop
+  #. In the browser that appears, click the Connect button and enter the desktop
      password (``vscode`` by default).
 
   Check the `GitHub instructions
@@ -391,10 +393,11 @@ Rules
 Introducing
 ~~~~~~~~~~~
 
-1. Announce the deprecation in a new file
+#. Announce the deprecation in a new file
    :file:`doc/api/next_api_changes/deprecations/99999-ABC.rst` where ``99999``
    is the pull request number and ``ABC`` are the contributor's initials.
-2. If possible, issue a `~matplotlib.MatplotlibDeprecationWarning` when the
+
+#. If possible, issue a `~matplotlib.MatplotlibDeprecationWarning` when the
    deprecated API is used. There are a number of helper tools for this:
 
    - Use ``_api.warn_deprecated()`` for general deprecation warnings
@@ -411,7 +414,7 @@ Introducing
 
    You can use standard rst cross references in *alternative*.
 
-3. Make appropriate changes to the type hints in the associated ``.pyi`` file.
+#. Make appropriate changes to the type hints in the associated ``.pyi`` file.
    The general guideline is to match runtime reported behavior.
 
    - Items marked with ``@_api.deprecated`` or ``@_api.deprecate_privatize_attribute``
@@ -431,15 +434,17 @@ Introducing
 Expiring
 ~~~~~~~~
 
-1. Announce the API changes in a new file
+#. Announce the API changes in a new file
    :file:`doc/api/next_api_changes/[kind]/99999-ABC.rst` where ``99999``
    is the pull request number and ``ABC`` are the contributor's initials, and
    ``[kind]`` is one of the folders :file:`behavior`, :file:`development`,
    :file:`removals`. See :file:`doc/api/next_api_changes/README.rst` for more
    information. For the content, you can usually copy the deprecation notice
    and adapt it slightly.
-2. Change the code functionality and remove any related deprecation warnings.
-3. Make appropriate changes to the type hints in the associated ``.pyi`` file.
+
+#. Change the code functionality and remove any related deprecation warnings.
+
+#. Make appropriate changes to the type hints in the associated ``.pyi`` file.
 
    - Items marked with ``@_api.deprecated`` or ``@_api.deprecate_privatize_attribute``
      are to be removed on expiry.

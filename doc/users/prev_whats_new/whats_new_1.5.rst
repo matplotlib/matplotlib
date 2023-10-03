@@ -517,7 +517,8 @@ also prevents unsafe usage by strictly defining the parameters that a
 user can set.
 
 To use, call ``set_params()`` on a `.Locator` instance with desired arguments:
-::
+
+.. code-block:: python
 
     loc = matplotlib.ticker.LogLocator()
     # Set given attributes for loc.

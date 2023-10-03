@@ -1,0 +1,5 @@
+``SubplotParams`` has been moved from ``matplotlib.figure`` to ``matplotlib.gridspec``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is still importable from ``matplotlib.figure``, so does not require any changes to
+existing code.

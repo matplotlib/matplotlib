@@ -84,7 +84,6 @@ class RendererAgg(RendererBase):
         self.__init__(state['width'], state['height'], state['dpi'])
 
     def _update_methods(self):
-        self.draw_gouraud_triangle = self._renderer.draw_gouraud_triangle
         self.draw_gouraud_triangles = self._renderer.draw_gouraud_triangles
         self.draw_image = self._renderer.draw_image
         self.draw_markers = self._renderer.draw_markers

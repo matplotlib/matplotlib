@@ -13,7 +13,7 @@ are designed to work well in the most common cases.
 A 'classic' style sheet is provided so reverting to the 1.x default
 values is a single line of python
 
-.. code::
+.. code-block:: python
 
   import matplotlib.style
   import matplotlib as mpl
@@ -102,14 +102,14 @@ denote the first 10 colors in :rc:`axes.prop_cycle`. See
 
 To restore the old color cycle use
 
-.. code::
+.. code-block:: python
 
    from cycler import cycler
    mpl.rcParams['axes.prop_cycle'] = cycler(color='bgrcmyk')
 
 or set
 
-.. code::
+.. code-block:: cfg
 
    axes.prop_cycle    : cycler('color', 'bgrcmyk')
 
@@ -156,13 +156,13 @@ map.  For details on all of the colormaps available in matplotlib see
 
 The previous default can be restored using
 
-.. code::
+.. code-block:: python
 
    mpl.rcParams['image.cmap'] = 'jet'
 
 or setting
 
-.. code::
+.. code-block:: cfg
 
    image.cmap    : 'jet'
 

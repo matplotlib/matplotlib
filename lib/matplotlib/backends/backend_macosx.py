@@ -147,7 +147,7 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
         icon_path = str(cbook._get_data_path('images/matplotlib.pdf'))
         _macosx.FigureManager.set_icon(icon_path)
         FigureManagerBase.__init__(self, canvas, num)
-        self._set_window_mode(mpl.rcParams.get("macosx.window_mode", "system"))
+        self._set_window_mode(mpl.rcParams["macosx.window_mode"])
         if self.toolbar is not None:
             self.toolbar.update()
         if mpl.is_interactive():

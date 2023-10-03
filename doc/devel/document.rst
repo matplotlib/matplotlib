@@ -668,7 +668,7 @@ in that case, they can be documented as an ``.. ACCEPTS:`` block, e.g. for
 
 .. code-block:: python
 
-   def set_xlim(self, ...):
+   def set_xlim(self, left=None, right=None):
        """
        Set the x-axis view limits.
 

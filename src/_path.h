@@ -21,6 +21,8 @@
 #include "_backend_agg_basic_types.h"
 #include "numpy_cpp.h"
 
+const size_t NUM_VERTICES[] = { 1, 1, 1, 2, 3 };
+
 struct XY
 {
     double x;

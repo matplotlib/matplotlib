@@ -1,0 +1,4 @@
+``raw`` parameter
+~~~~~~~~~~~~~~~~~
+
+... of `.GridSpecBase.get_grid_positions` is removed without replacements.

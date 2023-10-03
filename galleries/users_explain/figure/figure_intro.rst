@@ -91,7 +91,7 @@ backend.  These are typically chosen either in the user's :ref:`matplotlibrc
     QtAgg backend.
 
 When run from a script, or interactively (e.g. from an
-`iPython shell <https://https://ipython.readthedocs.io/en/stable/>`_) the Figure
+`iPython shell <https://ipython.readthedocs.io/en/stable/>`_) the Figure
 will not be shown until we call ``plt.show()``. The Figure will appear in
 a new GUI window, and usually will have a toolbar with Zoom, Pan, and other tools
 for interacting with the Figure.  By default, ``plt.show()`` blocks
@@ -197,15 +197,15 @@ common cases.
 Adding Artists
 --------------
 
-The `~.FigureBase` class has a number of methods to add artists to a `~.Figure` or
+The `~.Figure` class has a number of methods for adding artists to a `~.Figure` or
 a `~.SubFigure`.  By far the most common are to add Axes of various configurations
-(`~.FigureBase.add_axes`, `~.FigureBase.add_subplot`, `~.FigureBase.subplots`,
-`~.FigureBase.subplot_mosaic`) and subfigures (`~.FigureBase.subfigures`).  Colorbars
-are added to Axes or group of Axes at the Figure level (`~.FigureBase.colorbar`).
-It is also possible to have a Figure-level legend (`~.FigureBase.legend`).
-Other Artists include figure-wide labels (`~.FigureBase.suptitle`,
-`~.FigureBase.supxlabel`, `~.FigureBase.supylabel`) and text (`~.FigureBase.text`).
-Finally, low-level Artists can be added directly using `~.FigureBase.add_artist`
+(`~.Figure.add_axes`, `~.Figure.add_subplot`, `~.Figure.subplots`,
+`~.Figure.subplot_mosaic`) and subfigures (`~.Figure.subfigures`).  Colorbars
+are added to Axes or group of Axes at the Figure level (`~.Figure.colorbar`).
+It is also possible to have a Figure-level legend (`~.Figure.legend`).
+Other Artists include figure-wide labels (`~.Figure.suptitle`,
+`~.Figure.supxlabel`, `~.Figure.supylabel`) and text (`~.Figure.text`).
+Finally, low-level Artists can be added directly using `~.Figure.add_artist`
 usually with care being taken to use the appropriate transform.  Usually these
 include ``Figure.transFigure`` which ranges from 0 to 1 in each direction, and
 represents the fraction of the current Figure size, or ``Figure.dpi_scale_trans``

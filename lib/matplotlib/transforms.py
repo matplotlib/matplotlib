@@ -671,6 +671,7 @@ class BboxBase(TransformNode):
         y1 = np.minimum(bbox1.ymax, bbox2.ymax)
         return Bbox([[x0, y0], [x1, y1]]) if x0 <= x1 and y0 <= y1 else None
 
+
 _default_minpos = np.array([np.inf, np.inf])
 
 
@@ -1011,6 +1012,10 @@ class Bbox(BboxBase):
         """
         return self._minpos
 
+    @minpos.setter
+    def minpos(self, val):
+        self._minpos[:] = val
+
     @property
     def minposx(self):
         """
@@ -1022,6 +1027,10 @@ class Bbox(BboxBase):
         """
         return self._minpos[0]
 
+    @minposx.setter
+    def minposx(self, val):
+        self._minpos[0] = val
+
     @property
     def minposy(self):
         """
@@ -1032,6 +1041,10 @@ class Bbox(BboxBase):
         as the minimum *y*-extent instead of *y0*.
         """
         return self._minpos[1]
+
+    @minposy.setter
+    def minposy(self, val):
+        self._minpos[1] = val
 
     def get_points(self):
         """

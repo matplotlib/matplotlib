@@ -49,8 +49,6 @@ enum {
     CLOSEPOLY = 0x4f
 };
 
-const size_t NUM_VERTICES[] = { 1, 1, 1, 2, 3, 1 };
-
 inline int prepare_and_add_type(PyTypeObject *type, PyObject *module)
 {
     if (PyType_Ready(type)) {

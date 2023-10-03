@@ -15,7 +15,7 @@ from . import _api, cbook
 from .colors import BoundaryNorm
 from .cm import ScalarMappable
 from .path import Path
-from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
+from .transforms import (BboxBase, Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
 
 _log = logging.getLogger(__name__)
@@ -506,7 +506,7 @@ class Artist:
 
         See Also
         --------
-        set_picker, get_picker, pick
+        .Artist.set_picker, .Artist.get_picker, .Artist.pick
         """
         return self.figure is not None and self._picker is not None
 
@@ -519,7 +519,7 @@ class Artist:
 
         See Also
         --------
-        set_picker, get_picker, pickable
+        .Artist.set_picker, .Artist.get_picker, .Artist.pickable
         """
         from .backend_bases import PickEvent  # Circular import.
         # Pick self
@@ -586,11 +586,11 @@ class Artist:
         """
         Return the picking behavior of the artist.
 
-        The possible values are described in `.set_picker`.
+        The possible values are described in `.Artist.set_picker`.
 
         See Also
         --------
-        set_picker, pickable, pick
+        .Artist.set_picker, .Artist.pickable, .Artist.pick
         """
         return self._picker
 
@@ -763,6 +763,7 @@ class Artist:
             clipping for an artist added to an Axes.
 
         """
+        _api.check_isinstance((BboxBase, None), clipbox=clipbox)
         if clipbox != self.clipbox:
             self.clipbox = clipbox
             self.pchanged()
