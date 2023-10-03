@@ -8865,9 +8865,9 @@ def test_axhvlinespan_interpolation():
 
 @check_figures_equal()
 def test_latex(fig_test, fig_ref):
-    
-    data = [20,10,70]
-    
+
+    data = [20, 10, 70]
+
     ax = fig_test.subplots()
     ax.pie(data, autopct="%1.0f%%", textprops={'usetex': True})
 
