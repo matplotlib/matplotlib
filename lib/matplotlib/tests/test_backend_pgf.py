@@ -406,3 +406,27 @@ def test_sketch_params():
     # \pgfdecoratecurrentpath must be after the path definition and before the
     # path is used (\pgfusepath)
     assert baseline in buf
+
+
+# test to make sure that the document font size is set consistently (see #26892)
+@needs_pgf_xelatex
+@pytest.mark.skipif(
+    not _has_tex_package('unicode-math'), reason='needs unicode-math.sty'
+)
+@pytest.mark.backend('pgf')
+@image_comparison(['pgf_document_font_size.pdf'], style='default', remove_text=True)
+def test_document_font_size():
+    mpl.rcParams.update({
+        'pgf.texsystem': 'xelatex',
+        'pgf.rcfonts': False,
+        'pgf.preamble': r'\usepackage{unicode-math}',
+    })
+    plt.figure()
+    plt.plot([],
+             label=r'$this is a very very very long math label a \times b + 10^{-3}$ '
+                   r'and some text'
+             )
+    plt.plot([],
+             label=r'\normalsize the document font size is \the\fontdimen6\font'
+             )
+    plt.legend()
