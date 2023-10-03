@@ -4,6 +4,7 @@ import logging
 import math
 from numbers import Integral, Number, Real
 
+import re
 import numpy as np
 from numpy import ma
 
@@ -3332,13 +3333,8 @@ class Axes(_AxesBase):
                 else:
                     raise TypeError(
                         'autopct must be callable or a format string')
-                
-                if 'usetex' in textprops:
-                    if textprops['usetex']:
-                        s = s.replace("%", "\%")
-                elif mpl.rcParams["text.usetex"]:
-                    s = s.replace("%", r"\%")
-
+                if mpl._val_or_rc(textprops.get("usetex"), "text.usetex"):
+                    s = re.sub(r"([^\\])%", r"\1\\%", s)
                 t = self.text(xt, yt, s,
                               clip_on=False,
                               horizontalalignment='center',
