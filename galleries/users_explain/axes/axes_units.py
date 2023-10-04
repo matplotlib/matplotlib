@@ -23,9 +23,9 @@ Date conversion
 ===============
 
 If ``x`` and/or ``y`` are a list of `datetime` or an array of
-`numpy.datetime64`, Matplotlib has a built in converter that will convert the
-datetime to a float, and add locators and formatters to the axis that are
-appropriate for dates.
+`numpy.datetime64`, Matplotlib has a built-in converter that will convert the
+datetime to a float, and add tick locators and formatters to the axis that are
+appropriate for dates.  See `matplotlib.dates`.
 
 In the following example, the x-axis gains a converter that converts from
 `numpy.datetime64` to float, and a locator that put ticks at the beginning of
@@ -49,8 +49,8 @@ ax.plot(time, x)
 # Note that if we try to plot a float on the x-axis, it will be plotted in
 # units of days since the "epoch" for the converter, in this case 1970-01-01
 # (see :ref:`date-format`).  So when we plot the value 0, the ticks start at
-# 1970-01-01, and note that the locator now chooses every two years for a tick
-# instead of every month:
+# 1970-01-01.  (The locator also now chooses every two years for a tick instead
+# of every month):
 
 fig, ax = plt.subplots(figsize=(5.4, 2), layout='constrained')
 time = np.arange('1980-01-01', '1980-06-25', dtype='datetime64[D]')
@@ -59,7 +59,6 @@ ax.plot(time, x)
 # 0 gets labeled as 1970-01-01
 ax.plot(0, 0, 'd')
 ax.text(0, 0, ' Float x=0', rotation=45)
-
 
 # %%
 #
@@ -80,11 +79,10 @@ ax.set_xlabel('1980')
 # %%
 #
 # The default locator is the `~.dates.AutoDateLocator`, and the default
-# Formatter `~.dates.AutoDateFormatter`.  There is also a "concise"
-# formatter/locator that gives a more compact labelling, and can be set via
-# rcParams.  Note how instead of the redundant "Jan" label at the start of the
-# year, "1980" is used instead.  See :ref:`date_concise_formatter` for more
-# examples.
+# Formatter `~.dates.AutoDateFormatter`.  There are also  "concise" formatter
+# and locators that give a more compact labelling, and can be set via rcParams.
+# Note how instead of the redundant "Jan" label at the start of the year,
+# "1980" is used instead.  See :ref:`date_concise_formatter` for more examples.
 
 plt.rcParams['date.converter'] = 'concise'
 
@@ -95,9 +93,10 @@ ax.plot(time, x)
 
 # %%
 #
-# We can set the limits on the axis either by passing the appropriate dates in
-# or by passing a floating point value in the proper units of floating days
-# since the epoch.  We can get this value from `~.dates.date2num`.
+# We can set the limits on the axis either by passing the appropriate dates as
+# limits, or by passing a floating-point value in the proper units of days
+# since the epoch.  If we need it, we can get this value from
+# `~.dates.date2num`.
 
 fig, axs = plt.subplots(2, 1, figsize=(5.4, 3), layout='constrained')
 for ax in axs.flat:
@@ -135,7 +134,8 @@ fig.suptitle('Categorical Plotting')
 #
 # Note that the "categories" are plotted in the order that they are first
 # specified and that subsequent plotting in a different order will not affect
-# the original order.  Further, new additions will be added on the end:
+# the original order.  Further, new additions will be added on the end (see
+# "pear" below):
 
 fig, ax = plt.subplots(figsize=(5, 3), layout='constrained')
 ax.bar(names, values)
@@ -143,7 +143,7 @@ ax.bar(names, values)
 # plot in a different order:
 ax.scatter(['lemon', 'apple'], [7, 12])
 
-# add a new category, and out of order:
+# add a new category, "pear", and put the other categories in a different order:
 ax.plot(['pear', 'orange', 'apple', 'lemon'], [13, 10, 7, 12], color='C1')
 
 
@@ -154,28 +154,34 @@ ax.plot(['pear', 'orange', 'apple', 'lemon'], [13, 10, 7, 12], color='C1')
 # specified.
 #
 # The category converter maps from categories to integers, starting at zero. So
-# data can also be manually added to the axis using a float.  However, note
-# that a float that is not a category will not get a label.
+# data can also be manually added to the axis using a float.  Note that if a
+# float is passed in that does not have a "category" associated with it, the
+# data point can still be plotted, but a tick will not be created.  In the
+# following, we plot data at 4.0 and 2.5, but no tick is added there because
+# those are not categories.
 
 fig, ax = plt.subplots(figsize=(5, 3), layout='constrained')
 ax.bar(names, values)
+# arguments for styling the labels below:
+args = {'rotation': 70, 'color': 'C1',
+        'bbox': {'color': 'white', 'alpha': .7, 'boxstyle': 'round'}}
+
 
 # 0 gets labeled as "apple"
-ax.plot(0, 0, 'd', color='C1')
-ax.text(0, 0, '  Float x=0', rotation=45, color='C1')
+ax.plot(0, 2, 'd', color='C1')
+ax.text(0, 3, 'Float x=0', **args)
 
 # 2 gets labeled as "lemon"
-ax.plot(2, 0, 'd', color='C1')
-ax.text(2, 0, '  Float x=2', rotation=45, color='C1')
+ax.plot(2, 2, 'd', color='C1')
+ax.text(2, 3, 'Float x=2', **args)
 
 # 4 doesn't get a label
-ax.plot(4, 0, 'd', color='C1')
-ax.text(4, 0, '  Float x=4', rotation=45, color='C1')
+ax.plot(4, 2, 'd', color='C1')
+ax.text(4, 3, 'Float x=4', **args)
 
 # 2.5 doesn't get a label
-ax.plot(2.5, 0, 'd', color='C1')
-ax.text(2.5, 0, '  Float x=2.5', rotation=45, color='C1')
-
+ax.plot(2.5, 2, 'd', color='C1')
+ax.text(2.5, 3, 'Float x=2.5', **args)
 
 # %%
 #
@@ -220,7 +226,7 @@ ax.set_xlabel('x is array of floats')
 # ======================================================
 #
 # Sometimes it is helpful to be able to debug what Matplotlib is using to
-# convert the incoming data: we can do that by querying the ``converter``
+# convert the incoming data.  We can do that by querying the ``converter``
 # property on the axis.  We can also query the formatters and locators using
 # `~.axis.Axis.get_major_locator` and `~.axis.Axis.get_major_formatter`.
 #
@@ -256,11 +262,11 @@ ax.set_xlabel(label)
 
 # %%
 #
-# General unit support
-# ====================
+# More about "unit" support
+# =========================
 #
-# The support for dates and categories is part of "units" support that is
-# built into Matplotlib.  This is described at `.matplotlib.units` and in the #
+# The support for dates and categories is part of "units" support that is built
+# into Matplotlib.  This is described at `.matplotlib.units` and in the
 # :ref:`basic_units` example.
 #
 # Unit support works by querying the type of data passed to the plotting
@@ -274,5 +280,6 @@ for k in munits.registry:
 
 # %%
 #
-# Downstream libraries like pandas, astropy, and pint all can add their own
-# converters to Matplotlib.
+# Downstream libraries like `pandas <https://pandas.pydata.org>`_,
+# `astropy <https://www.astropy.org>`_, `pint <https://pint.readthedocs.io>`_
+# and others supply their own converters that can be used with Matplotlib.
