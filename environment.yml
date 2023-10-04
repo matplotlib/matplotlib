@@ -2,7 +2,7 @@
 #
 #   conda env create -f environment.yml
 #   conda activate mpl-dev
-#   pip install -e .
+#   pip install -e .[dev]
 #
 name: mpl-dev
 channels:
@@ -15,14 +15,15 @@ dependencies:
   - fonttools>=4.22.0
   - importlib-resources>=3.2.0
   - kiwisolver>=1.3.1
+  - meson-python>=0.13.1
   - numpy>=1.21
   - pillow>=8
+  - pkg-config
   - pybind11>=2.6.0
   - pygobject
   - pyparsing>=2.3.1
   - pyqt
   - python-dateutil>=2.1
-  - setuptools
   - setuptools_scm
   - wxpython
   # building documentation

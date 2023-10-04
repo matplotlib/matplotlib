@@ -56,7 +56,6 @@ jobs:
             pyside2-ver: '==5.15.1'  # oldest version with working Py3.9 wheel.
             pyside6-ver: '==6.0.0'
             delete-font-cache: true
-            no-build-isolation: true
           - os: ubuntu-20.04
             python-version: 3.9
             extra-requirements: '-r requirements/testing/extra.txt'
@@ -81,7 +80,6 @@ jobs:
             python-version: '3.12-dev'
             pyside6-ver: '!=6.5.1'
             pre: true
-            no-build-isolation: true
           - os: macos-latest
             python-version: 3.9
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
@@ -131,6 +129,7 @@ jobs:
               libxcb-render-util0 \
               libxcb-xinerama0 \
               lmodern \
+              ninja-build \
               pkg-config \
               qtbase5-dev \
               texlive-fonts-recommended \
@@ -150,7 +149,7 @@ jobs:
           macOS)
             brew install ccache
             brew tap homebrew/cask-fonts
-            brew install font-noto-sans-cjk gobject-introspection gtk4
+            brew install font-noto-sans-cjk gobject-introspection gtk4 ninja
             ;;
           esac
 
@@ -205,16 +204,13 @@ jobs:
           fi
 
           # Install dependencies from PyPI.
+          # Preinstall build requirements to enable no-build-isolation builds.
           python -m pip install --upgrade $PRE \
             'contourpy>=1.0.1' cycler fonttools kiwisolver importlib_resources \
             numpy packaging pillow 'pyparsing!=3.1.0' python-dateutil setuptools-scm \
+            'meson-python>=0.13.1' 'pybind11>=2.6' \
             -r requirements/testing/all.txt \
             ${{ matrix.extra-requirements }}
-
-          # Preinstall pybind11 on no-build-isolation builds.
-          if [[ "${{ matrix.no-build-isolation }}" == 'true' ]]; then
-            python -m pip install 'pybind11>=2.6'
-          fi
 
           # Install optional dependencies from PyPI.
           # Sphinx is needed to run sphinxext tests
@@ -300,20 +296,9 @@ jobs:
             fi
           fi
 
-          cat <<EOT >> mplsetup.cfg
-          [rc_options]
-          backend=Agg
-          EOT
-
-          cat mplsetup.cfg
-
-          if [[ "${{ matrix.no-build-isolation }}" == 'true' ]]; then
-            # Minimum versions run does not use build isolation so that it
-            # builds against the pre-installed minver dependencies.
-            python -m pip install --no-deps --no-build-isolation -ve .
-          else
-            python -m pip install --no-deps -ve .
-          fi
+          python -m pip install --no-deps --no-build-isolation --verbose \
+            --config-settings=setup-args="-DrcParams-backend=Agg" \
+            --editable .[dev]
 
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
             unset CPPFLAGS

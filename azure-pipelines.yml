@@ -96,6 +96,7 @@ stages:
               cm-super \
               dvipng \
               ffmpeg \
+              fonts-freefont-otf \
               fonts-noto-cjk \
               fonts-wqy-zenhei \
               gdb \
@@ -105,23 +106,24 @@ stages:
               libcairo2 \
               libgirepository-1.0-1 \
               lmodern \
-              fonts-freefont-otf \
+              ninja-build \
               poppler-utils \
-              texlive-pictures \
               texlive-fonts-recommended \
               texlive-latex-base \
               texlive-latex-extra \
               texlive-latex-recommended \
               texlive-luatex \
+              texlive-pictures \
               texlive-xetex
             ;;
           darwin)
             brew install --cask xquartz
-            brew install pkg-config ffmpeg imagemagick mplayer ccache
+            brew install ccache ffmpeg imagemagick mplayer ninja pkg-config
             brew tap homebrew/cask-fonts
             brew install font-noto-sans-cjk-sc
             ;;
           win32)
+            choco install ninja
             ;;
           *)
             exit 1
@@ -131,12 +133,15 @@ stages:
 
       - bash: |
           python -m pip install --upgrade pip
+          python -m pip install --upgrade meson-python pybind11
           python -m pip install -r requirements/testing/all.txt -r requirements/testing/extra.txt ||
             [[ "$PYTHON_VERSION" = 'Pre' ]]
         displayName: 'Install dependencies with pip'
 
       - bash: |
-          python -m pip install -ve . ||
+          python -m pip install \
+            --no-build-isolation --config-settings=setup-args="--vsenv" \
+            --verbose --editable .[dev] ||
             [[ "$PYTHON_VERSION" = 'Pre' ]]
         displayName: "Install self"
 

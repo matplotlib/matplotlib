@@ -2,7 +2,7 @@
 #
 # You will first need a matching Matplotlib installation
 # e.g (from the Matplotlib root directory)
-#     pip install -e .
+#     pip install --no-build-isolation --editable .[dev]
 #
 # Install the documentation requirements with:
 #     pip install -r requirements/doc/doc-requirements.txt

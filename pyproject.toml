@@ -1,12 +1,85 @@
-[build-system]
-build-backend = "setuptools.build_meta"
-requires = [
-    "certifi>=2020.06.20",
+[project]
+name = "matplotlib"
+authors = [
+  {email = "matplotlib-users@python.org"},
+  {name = "John D. Hunter, Michael Droettboom"}
+]
+description = "Python plotting package"
+readme = "README.md"
+license = { file = "LICENSE/LICENSE" }
+dynamic = ["version"]
+classifiers=[
+    "Development Status :: 5 - Production/Stable",
+    "Framework :: Matplotlib",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: Python Software Foundation License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
+
+# When updating the list of dependencies, add an api_changes/development
+# entry and also update the following places:
+# - lib/matplotlib/__init__.py (matplotlib._check_versions())
+# - requirements/testing/minver.txt
+# - doc/devel/dependencies.rst
+# - .github/workflows/tests.yml
+# - environment.yml
+dependencies = [
+    "contourpy >= 1.0.1",
+    "cycler >= 0.10",
+    "fonttools >= 4.22.0",
+    "kiwisolver >= 1.3.1",
+    "numpy >= 1.21",
+    "packaging >= 20.0",
+    "pillow >= 8",
+    "pyparsing >= 2.3.1",
+    "python-dateutil >= 2.7",
+    "importlib-resources >= 3.2.0; python_version < '3.10'",
+]
+requires-python = ">=3.9"
+
+[project.optional-dependencies]
+# Should be a copy of the build dependencies below.
+dev = [
+    "meson-python>=0.13.1",
     "numpy>=1.25",
     "pybind11>=2.6",
+    "setuptools_scm>=7",
+    # Not required by us but setuptools_scm without a version, cso _if_
+    # installed, then setuptools_scm 8 requires at least this version.
+    # Unfortunately, we can't do a sort of minimum-if-instaled dependency, so
+    # we need to keep this for now until setuptools_scm _fully_ drops
+    # setuptools.
     "setuptools>=64",
+]
+
+[project.urls]
+"Homepage" = "https://matplotlib.org"
+"Download" = "https://matplotlib.org/stable/users/installing/index.html"
+"Documentation" = "https://matplotlib.org"
+"Source Code" = "https://github.com/matplotlib/matplotlib"
+"Bug Tracker" = "https://github.com/matplotlib/matplotlib/issues"
+"Forum" = "https://discourse.matplotlib.org/"
+"Donate" = "https://numfocus.org/donate-to-matplotlib"
+
+[build-system]
+build-backend = "mesonpy"
+# Also keep in sync with optional dependencies above.
+requires = [
+    "meson-python>=0.13.1",
+    "numpy>=1.25",
+    "pybind11>=2.6",
     "setuptools_scm>=7",
 ]
+
+[tool.meson-python.args]
+install = ['--tags=data,python-runtime,runtime']
 
 [tool.setuptools_scm]
 version_scheme = "release-branch-semver"
@@ -83,8 +156,6 @@ target-version = "py39"
 convention = "numpy"
 
 [tool.ruff.per-file-ignores]
-"setup.py" = ["E402"]
-
 "doc/conf.py" = ["E402"]
 "galleries/examples/animation/frame_grabbing_sgskip.py" = ["E402"]
 "galleries/examples/lines_bars_and_markers/marker_reference.py" = ["E402"]

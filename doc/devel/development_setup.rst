@@ -157,34 +157,36 @@ must be installed separately. For a full list, see :ref:`dependencies`.
 Install Matplotlib in editable mode
 ===================================
 
-Install Matplotlib in editable mode from the :file:`matplotlib` directory
-using the command ::
+Install Matplotlib in editable mode from the :file:`matplotlib` directory using the
+command ::
 
-    python -m pip install -ve .
+    python -m pip install --verbose --no-build-isolation --editable .[dev]
 
-The 'editable/develop mode', builds everything and places links in your Python
-environment so that Python will be able to import Matplotlib from your
-development source directory.  This allows you to import your modified version
-of Matplotlib without re-installing after every change. Note that this is only
-true for ``*.py`` files.  If you change the C-extension source (which might
-also happen if you change branches) you will have to re-run
-``python -m pip install -ve .``
+The 'editable/develop mode' builds everything and places links in your Python environment
+so that Python will be able to import Matplotlib from your development source directory.
+This allows you to import your modified version of Matplotlib without re-installing after
+every change. Note that before the merging of the `Meson port
+<https://github.com/matplotlib/matplotlib/pull/26621>`_, this is only true for ``*.py``
+files. If you change the C-extension source based on a commit before the change to the
+Meson build system (which might also happen if you change branches), you will have to
+re-run the above command.
 
 Verify the Installation
 =======================
 
-Run the following command to make sure you have correctly installed Matplotlib in editable mode.
-The command should be run when the virtual environment is activated ::
+Run the following command to make sure you have correctly installed Matplotlib in
+editable mode. The command should be run when the virtual environment is activated::
 
     python -c "import matplotlib; print(matplotlib.__file__)"
 
 This command should return : ``<matplotlib_local_repo>\lib\matplotlib\__init__.py``
 
-We encourage you to run tests and build docs to verify that the code installed correctly and that the docs build cleanly,
-so that when you make code or document related changes you are aware of the existing issues beforehand.
+We encourage you to run tests and build docs to verify that the code installed correctly
+and that the docs build cleanly, so that when you make code or document related changes
+you are aware of the existing issues beforehand.
 
-   * Run test cases to verify installation :ref:`testing`
-   * Verify documentation build :ref:`documenting-matplotlib`
+* Run test cases to verify installation :ref:`testing`
+* Verify documentation build :ref:`documenting-matplotlib`
 
 Install pre-commit hooks
 ========================

@@ -31,8 +31,6 @@ exclude =
     .eggs
 
 per-file-ignores =
-    setup.py: E402
-
     lib/matplotlib/__init__.py: E402, F401
     lib/matplotlib/_animation_data.py: E501
     lib/matplotlib/_api/__init__.py: F401
