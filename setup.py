@@ -340,7 +340,10 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
         "python-dateutil>=2.7",
     ] + (
         # Installing from a git checkout that is not producing a wheel.
-        ["setuptools_scm>=7"] if (
+        # setuptools_scm warns with older setuptools, which turns into errors for our
+        # test suite. However setuptools_scm does not themselves pin the version of
+        # setuptools.
+        ["setuptools_scm>=7", "setuptools>=64"] if (
             Path(__file__).with_name(".git").exists() and
             os.environ.get("CIBUILDWHEEL", "0") != "1"
         ) else []

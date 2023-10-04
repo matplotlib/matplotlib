@@ -4,9 +4,16 @@ requires = [
     "certifi>=2020.06.20",
     "numpy>=1.25",
     "pybind11>=2.6",
-    "setuptools>=42",
+    "setuptools>=64",
     "setuptools_scm>=7",
 ]
+
+[tool.setuptools_scm]
+version_scheme = "release-branch-semver"
+local_scheme = "node-and-date"
+write_to = "lib/matplotlib/_version.py"
+parentdir_prefix_version = "matplotlib-"
+fallback_version = "0.0+UNKNOWN"
 
 [tool.isort]
 known_pydata = "numpy, matplotlib.pyplot"

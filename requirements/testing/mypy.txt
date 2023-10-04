@@ -24,5 +24,6 @@ pillow>=8
 pyparsing>=2.3.1
 python-dateutil>=2.7
 setuptools_scm>=7
+setuptools>=64
 
 importlib-resources>=3.2.0 ; python_version < "3.10"

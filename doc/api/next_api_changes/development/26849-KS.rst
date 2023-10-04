@@ -1,0 +1,5 @@
+Minimum version of setuptools bumped to 64
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To comply with requirements of ``setuptools_scm``, the minimum version of ``setuptools``
+has been increased from 42 to 64.
