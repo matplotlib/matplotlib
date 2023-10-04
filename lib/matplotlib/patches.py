@@ -380,7 +380,7 @@ class Patch(artist.Artist):
         self.set_facecolor(c)
         self.set_hatchcolor(c)
         self.set_edgecolor(c)
-    
+
     def _set_hatchcolor(self, color):
         self.set_hatch_color = True
         if color is None:
