@@ -139,7 +139,7 @@ extension_data = {
     'include_directories': include_directories('.'),
     # The dl/psapi libraries are needed for finding Tcl/Tk at run time.
     'dependencies': [
-      numpy_dep, agg_dep.partial_dependency(includes: true), dl, comctl32, psapi,
+      pybind11_dep, agg_dep.partial_dependency(includes: true), dl, comctl32, psapi,
     ],
   },
   '_tri': {

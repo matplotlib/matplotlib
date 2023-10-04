@@ -23,6 +23,7 @@ from matplotlib.backend_bases import (
     CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 from matplotlib._pylab_helpers import Gcf
 from . import _tkagg
+from ._tkagg import TK_PHOTO_COMPOSITE_OVERLAY, TK_PHOTO_COMPOSITE_SET
 
 
 _log = logging.getLogger(__name__)
@@ -51,9 +52,6 @@ _blit_args = {}
 # Initialize to a non-empty string that is not a Tcl command
 _blit_tcl_name = "mpl_blit_" + uuid.uuid4().hex
 
-TK_PHOTO_COMPOSITE_OVERLAY = 0  # apply transparency rules pixel-wise
-TK_PHOTO_COMPOSITE_SET = 1  # set image buffer directly
-
 
 def _blit(argsid):
     """
@@ -62,11 +60,11 @@ def _blit(argsid):
     *argsid* is a unique string identifier to fetch the correct arguments from
     the ``_blit_args`` dict, since arguments cannot be passed directly.
     """
-    photoimage, dataptr, offsets, bboxptr, comp_rule = _blit_args.pop(argsid)
+    photoimage, data, offsets, bbox, comp_rule = _blit_args.pop(argsid)
     if not photoimage.tk.call("info", "commands", photoimage):
         return
-    _tkagg.blit(photoimage.tk.interpaddr(), str(photoimage), dataptr,
-                comp_rule, offsets, bboxptr)
+    _tkagg.blit(photoimage.tk.interpaddr(), str(photoimage), data, comp_rule, offsets,
+                bbox)
 
 
 def blit(photoimage, aggimage, offsets, bbox=None):
@@ -87,7 +85,6 @@ def blit(photoimage, aggimage, offsets, bbox=None):
     """
     data = np.asarray(aggimage)
     height, width = data.shape[:2]
-    dataptr = (height, width, data.ctypes.data)
     if bbox is not None:
         (x1, y1), (x2, y2) = bbox.__array__()
         x1 = max(math.floor(x1), 0)
@@ -109,7 +106,7 @@ def blit(photoimage, aggimage, offsets, bbox=None):
 
     # tkapp.call coerces all arguments to strings, so to avoid string parsing
     # within _blit, pack up the arguments into a global data structure.
-    args = photoimage, dataptr, offsets, bboxptr, comp_rule
+    args = photoimage, data, offsets, bboxptr, comp_rule
     # Need a unique key to avoid thread races.
     # Again, make the key a string to avoid string parsing in _blit.
     argsid = str(id(args))
