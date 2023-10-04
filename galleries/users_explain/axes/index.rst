@@ -24,7 +24,6 @@ annotations like x- and y-labels, titles, and legends.
                                 color='darkgrey')
     fig.suptitle('plt.subplots()')
 
-
 .. toctree::
     :maxdepth: 2
 

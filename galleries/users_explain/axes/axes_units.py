@@ -1,9 +1,9 @@
 """
 .. _user_axes_units:
 
-=========================================
-Plotting beyond floats: dates and strings
-=========================================
+==========================
+Plotting dates and strings
+==========================
 
 The most basic way to use Matplotlib plotting methods is to pass coordinates in
 as numerical numpy arrays.  For example, ``plot(x, y)`` will work if ``x`` and
@@ -275,11 +275,19 @@ ax.set_xlabel(label)
 # converter will be ``_SwitchableDateConverter``; if it has has strings in it,
 # it will be sent to the ``StrCategoryConverter``.
 
-for k in munits.registry:
-    print(f"type: {k};\n    converter: {munits.registry[k]}")
+for k, v in munits.registry.items():
+    print(f"type: {k};\n    converter: {type(v)}")
 
 # %%
 #
-# Downstream libraries like `pandas <https://pandas.pydata.org>`_,
-# `astropy <https://www.astropy.org>`_, `pint <https://pint.readthedocs.io>`_
-# and others supply their own converters that can be used with Matplotlib.
+# There are a number of downstream libraries that provide their own converters
+# with locators and formatters.  Physical unit support is provided by
+# `astropy <https://www.astropy.org>`_, `pint <https://pint.readthedocs.io>`_, and
+# `unyt <https://unyt.readthedocs.io>`_, among others.
+#
+# High level libraries like `pandas <https://pandas.pydata.org>`_ and
+# `nc-time-axis <https://nc-time-axis.readthedocs.io>`_ (and thus
+# `xarray <https://docs.xarray.dev>`_) provide their own datetime support.
+# This support can sometimes be incompatible with Matplotlib native datetime
+# support, so care should be taken when using Matplotlib locators and
+# formatters if these libraries are being used.
