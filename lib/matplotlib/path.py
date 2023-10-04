@@ -949,7 +949,10 @@ class Path:
         eta2 = theta2 - 360 * np.floor((theta2 - theta1) / 360)
         # Ensure 2pi range is not flattened to 0 due to floating-point errors,
         # but don't try to expand existing 0 range.
-        if theta2 != theta1 and eta2 <= eta1:
+        # theta1 != theta2 and eta2 <= eta1
+        if (not np.isclose(theta2, theta1) and
+                (np.isclose(eta2, eta1) or
+                    (not np.isclose(eta2, eta1) and eta2 < eta1))):
             eta2 += 360
         eta1, eta2 = np.deg2rad([eta1, eta2])
 
