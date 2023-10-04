@@ -56,8 +56,16 @@ class Patch(artist.Artist):
                  fill=True,
                  capstyle=None,
                  joinstyle=None,
+                 hatchcolor=None,
                  **kwargs):
         """
+        Parameters
+        ----------
+
+        hatchcolor : color or list of color, optional
+            The color of the hatch inside the bar
+            .. versionadded:: 3.9
+
         The following kwarg properties are supported
 
         %(Patch:kwdoc)s
@@ -71,7 +79,7 @@ class Patch(artist.Artist):
         if joinstyle is None:
             joinstyle = JoinStyle.miter
 
-        self._hatch_color = colors.to_rgba(mpl.rcParams['hatch.color'])
+        self.set_hatch_color = False
         self._fill = bool(fill)  # needed for set_facecolor call
         if color is not None:
             if edgecolor is not None or facecolor is not None:
@@ -80,6 +88,7 @@ class Patch(artist.Artist):
                     "the edgecolor or facecolor properties.")
             self.set_color(color)
         else:
+            self.set_hatchcolor(hatchcolor)
             self.set_edgecolor(edgecolor)
             self.set_facecolor(facecolor)
 
@@ -312,17 +321,17 @@ class Patch(artist.Artist):
         self.stale = True
 
     def _set_edgecolor(self, color):
-        set_hatch_color = True
+        set_hatch_color_from_edgecolor = True
         if color is None:
             if (mpl.rcParams['patch.force_edgecolor'] or
                     not self._fill or self._edge_default):
                 color = mpl.rcParams['patch.edgecolor']
             else:
                 color = 'none'
-                set_hatch_color = False
+                set_hatch_color_from_edgecolor = False
 
         self._edgecolor = colors.to_rgba(color, self._alpha)
-        if set_hatch_color:
+        if set_hatch_color_from_edgecolor and (not self.set_hatch_color):
             self._hatch_color = self._edgecolor
         self.stale = True
 
@@ -369,7 +378,28 @@ class Patch(artist.Artist):
             For setting the edge or face color individually.
         """
         self.set_facecolor(c)
+        self.set_hatchcolor(c)
         self.set_edgecolor(c)
+    
+    def _set_hatchcolor(self, color):
+        self.set_hatch_color = True
+        if color is None:
+            self.set_hatch_color = False
+            color = mpl.rcParams['hatch.color']
+        alpha = self._alpha if self._fill else 0
+        self._hatch_color = colors.to_rgba(color, alpha)
+        self.stale = True
+
+    def set_hatchcolor(self, color):
+        """
+        Set the patch hatch color.
+
+        Parameters
+        ----------
+        c : color or None
+        """
+        self._hatch_color = color
+        self._set_hatchcolor(color)
 
     def set_alpha(self, alpha):
         # docstring inherited
