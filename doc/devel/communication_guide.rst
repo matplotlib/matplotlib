@@ -206,4 +206,15 @@ Retired campaigns
 ^^^^^^^^^^^^^^^^^
 * John Hunter Excellence in Plotting, submission and winners
 
+
+Changing the guidelines
+=======================
+
+As the person tasked with implementing communications, the `community-manager`_
+should be alerted to proposed changes to the communications guidelines. Similarly,
+specific platform guidelines (e.g. twitter, instagram) should be reviewed by the
+person responsible for that platform, when different from the community manager.
+If there is no consensus, decisions about communications guidelines revert to
+the community manager.
+
 .. _community-manager: https://matplotlib.org/governance/people.html#deputy-project-leads
