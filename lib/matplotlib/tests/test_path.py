@@ -475,6 +475,22 @@ def test_full_arc(offset):
     np.testing.assert_allclose(maxs, 1)
 
 
+@pytest.mark.parametrize('offset', range(-720, 361, 45))
+def test_full_arc_rounding(offset):
+    # GH 26972 - edge case for floating point rounding
+    # we want get the same result when input of arc
+    # changes within [-tol, tol], where tol = 1e-6
+    tol = 1e-6
+    low = offset
+    high = 360 + offset + tol
+
+    path = Path.arc(low, high)
+    mins = np.min(path.vertices, axis=0)
+    maxs = np.max(path.vertices, axis=0)
+    np.testing.assert_allclose(mins, -1)
+    np.testing.assert_allclose(maxs, 1)
+
+
 def test_disjoint_zero_length_segment():
     this_path = Path(
         np.array([

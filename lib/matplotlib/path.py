@@ -943,16 +943,20 @@ class Path:
            polylines, quadratic or cubic Bezier curves
            <https://web.archive.org/web/20190318044212/http://www.spaceroots.org/documents/ellipse/index.html>`_.
         """
+        # we want to get the same result when the input changes within [-tol, tol]
+        # this behavior is only for internal use to offset floating-point error
+        # so it should not be relied on by the user
+        tol = 1e-6
+
         halfpi = np.pi * 0.5
 
         eta1 = theta1
         eta2 = theta2 - 360 * np.floor((theta2 - theta1) / 360)
         # Ensure 2pi range is not flattened to 0 due to floating-point errors,
         # but don't try to expand existing 0 range.
-        # theta1 != theta2 and eta2 <= eta1
-        if (not np.isclose(theta2, theta1) and
-                (np.isclose(eta2, eta1) or
-                    (not np.isclose(eta2, eta1) and eta2 < eta1))):
+        # condition: theta1 != theta2 and eta2 <= eta1
+        # implementation note: use np.isclose() may break when theta1 = 0
+        if abs(theta1 - theta2) >= tol and (eta2 <= eta1 + tol):
             eta2 += 360
         eta1, eta2 = np.deg2rad([eta1, eta2])
 
