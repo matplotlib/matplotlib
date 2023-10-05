@@ -263,7 +263,7 @@ class QuiverKey(martist.Artist):
             The key label (e.g., length and units of the key).
         angle : float, default: 0
             The angle of the key arrow, in degrees anti-clockwise from the
-            x-axis.
+            horizontal axis.
         coordinates : {'axes', 'figure', 'data', 'inches'}, default: 'axes'
             Coordinate system and units for *X*, *Y*: 'axes' and 'figure' are
             normalized coordinate systems with (0, 0) in the lower left and
@@ -327,10 +327,8 @@ class QuiverKey(martist.Artist):
                                    Umask=ma.nomask):
                 u = self.U * np.cos(np.radians(self.angle))
                 v = self.U * np.sin(np.radians(self.angle))
-                angle = (self.Q.angles if isinstance(self.Q.angles, str)
-                         else 'uv')
-                self.verts = self.Q._make_verts(
-                    np.array([u]), np.array([v]), angle)
+                self.verts = self.Q._make_verts([[0., 0.]],
+                                                np.array([u]), np.array([v]), 'uv')
             kwargs = self.Q.polykw
             kwargs.update(self.kw)
             self.vector = mcollections.PolyCollection(
@@ -521,7 +519,7 @@ class Quiver(mcollections.PolyCollection):
             # _make_verts sets self.scale if not already specified
             if (self._dpi_at_last_init != self.axes.figure.dpi
                     and self.scale is None):
-                self._make_verts(self.U, self.V, self.angles)
+                self._make_verts(self.XY, self.U, self.V, self.angles)
 
             self._dpi_at_last_init = self.axes.figure.dpi
 
@@ -537,7 +535,7 @@ class Quiver(mcollections.PolyCollection):
     @martist.allow_rasterization
     def draw(self, renderer):
         self._init()
-        verts = self._make_verts(self.U, self.V, self.angles)
+        verts = self._make_verts(self.XY, self.U, self.V, self.angles)
         self.set_verts(verts, closed=False)
         super().draw(renderer)
         self.stale = False
@@ -594,33 +592,38 @@ class Quiver(mcollections.PolyCollection):
         self.set_transform(trans)
         return trans
 
-    def _angles_lengths(self, U, V, eps=1):
-        xy = self.axes.transData.transform(self.XY)
+    # Calculate angles and lengths for segment between (x, y), (x+u, y+v)
+    def _angles_lengths(self, XY, U, V, eps=1):
+        xy = self.axes.transData.transform(XY)
         uv = np.column_stack((U, V))
-        xyp = self.axes.transData.transform(self.XY + eps * uv)
+        xyp = self.axes.transData.transform(XY + eps * uv)
         dxy = xyp - xy
         angles = np.arctan2(dxy[:, 1], dxy[:, 0])
         lengths = np.hypot(*dxy.T) / eps
         return angles, lengths
 
-    def _make_verts(self, U, V, angles):
+    # XY is stacked [X, Y].
+    # See quiver() doc for meaning of X, Y, U, V, angles.
+    def _make_verts(self, XY, U, V, angles):
         uv = (U + V * 1j)
         str_angles = angles if isinstance(angles, str) else ''
         if str_angles == 'xy' and self.scale_units == 'xy':
             # Here eps is 1 so that if we get U, V by diffing
             # the X, Y arrays, the vectors will connect the
             # points, regardless of the axis scaling (including log).
-            angles, lengths = self._angles_lengths(U, V, eps=1)
+            angles, lengths = self._angles_lengths(XY, U, V, eps=1)
         elif str_angles == 'xy' or self.scale_units == 'xy':
             # Calculate eps based on the extents of the plot
             # so that we don't end up with roundoff error from
             # adding a small number to a large.
             eps = np.abs(self.axes.dataLim.extents).max() * 0.001
-            angles, lengths = self._angles_lengths(U, V, eps=eps)
+            angles, lengths = self._angles_lengths(XY, U, V, eps=eps)
+
         if str_angles and self.scale_units == 'xy':
             a = lengths
         else:
             a = np.abs(uv)
+
         if self.scale is None:
             sn = max(10, math.sqrt(self.N))
             if self.Umask is not ma.nomask:
@@ -630,6 +633,7 @@ class Quiver(mcollections.PolyCollection):
             # crude auto-scaling
             # scale is typical arrow length as a multiple of the arrow width
             scale = 1.8 * amean * sn / self.span
+
         if self.scale_units is None:
             if self.scale is None:
                 self.scale = scale
