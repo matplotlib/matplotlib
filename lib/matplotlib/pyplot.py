@@ -1440,6 +1440,79 @@ def subplot(*args, **kwargs) -> Axes:
     return ax
 
 
+# NOTE  The actual type is `Axes` or `numpy.ndarray`,
+# but `numpy.ndarray` does notsupport objects.
+# NOTE Since there is no Exclude-type in Python's type hints, it is assumed that
+# the overload that matches first will be resolved.
+# mypy warns that it is an unsafe overload, so mark it as ignore.
+@overload  # type: ignore[misc]
+def subplots(
+    nrows: Literal[1] = ...,
+    ncols: Literal[1] = ...,
+    *,
+    sharex: bool | Literal["none", "all", "row", "col"] = ...,
+    sharey: bool | Literal["none", "all", "row", "col"] = ...,
+    squeeze: Literal[True] = ...,
+    width_ratios: Sequence[float] | None = ...,
+    height_ratios: Sequence[float] | None = ...,
+    subplot_kw: dict[str, Any] | None = ...,
+    gridspec_kw: dict[str, Any] | None = ...,
+    **fig_kw
+) -> tuple[Figure, Axes]:
+    ...
+
+
+@overload  # type: ignore[misc]
+def subplots(
+    nrows: Literal[1] = ...,
+    ncols: int = ...,
+    *,
+    sharex: bool | Literal["none", "all", "row", "col"] = ...,
+    sharey: bool | Literal["none", "all", "row", "col"] = ...,
+    squeeze: Literal[True] = ...,
+    width_ratios: Sequence[float] | None = ...,
+    height_ratios: Sequence[float] | None = ...,
+    subplot_kw: dict[str, Any] | None = ...,
+    gridspec_kw: dict[str, Any] | None = ...,
+    **fig_kw
+) -> tuple[Figure, Sequence[Axes]]:
+    ...
+
+
+@overload  # type: ignore[misc]
+def subplots(
+    nrows: int = ...,
+    ncols: Literal[1] = ...,
+    *,
+    sharex: bool | Literal["none", "all", "row", "col"] = ...,
+    sharey: bool | Literal["none", "all", "row", "col"] = ...,
+    squeeze: Literal[True] = ...,
+    width_ratios: Sequence[float] | None = ...,
+    height_ratios: Sequence[float] | None = ...,
+    subplot_kw: dict[str, Any] | None = ...,
+    gridspec_kw: dict[str, Any] | None = ...,
+    **fig_kw
+) -> tuple[Figure, Sequence[Axes]]:
+    ...
+
+
+@overload  # type: ignore[misc]
+def subplots(
+    nrows: int = ...,
+    ncols: int = ...,
+    *,
+    sharex: bool | Literal["none", "all", "row", "col"] = ...,
+    sharey: bool | Literal["none", "all", "row", "col"] = ...,
+    squeeze: Literal[False] = ...,
+    width_ratios: Sequence[float] | None = ...,
+    height_ratios: Sequence[float] | None = ...,
+    subplot_kw: dict[str, Any] | None = ...,
+    gridspec_kw: dict[str, Any] | None = ...,
+    **fig_kw
+) -> tuple[Figure, Sequence[Sequence[Axes]]]:
+    ...
+
+
 def subplots(
     nrows: int = 1, ncols: int = 1, *,
     sharex: bool | Literal["none", "all", "row", "col"] = False,
