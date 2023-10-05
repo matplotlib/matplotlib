@@ -91,16 +91,17 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       CIBW_BEFORE_BUILD: >-
-        pip install certifi numpy>=1.25 &&
+        pip install numpy>=1.25 &&
         rm -rf {package}/build
       CIBW_BEFORE_BUILD_WINDOWS: >-
-        pip install certifi delvewheel numpy>=1.25 &&
+        pip install delvewheel numpy>=1.25 &&
         rm -rf {package}/build
       CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >-
         delvewheel repair -w {dest_dir} {wheel}
       CIBW_AFTER_BUILD: >-
         twine check {wheel} &&
         python {package}/ci/check_wheel_licenses.py {wheel}
+      CIBW_CONFIG_SETTINGS: setup-args="--vsenv"
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
       CIBW_SKIP: "*-musllinux_aarch64"
       CIBW_TEST_COMMAND: >-
@@ -144,11 +145,11 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           # Remove this once NumPy with Python 3.12 wheels is not pre-release.
           CIBW_BEFORE_BUILD: >-
-            pip install certifi "pybind11>=2.6" "setuptools>=42" "setuptools_scm>=7" &&
+            pip install "meson-python>=0.13.1" ninja "pybind11>=2.6" "setuptools>=42" "setuptools_scm>=7" &&
             pip install --pre "numpy>=1.25" &&
             rm -rf {package}/build
           CIBW_BEFORE_BUILD_WINDOWS: >-
-            pip install certifi delvewheel "pybind11>=2.6" "setuptools>=42" "setuptools_scm>=7" &&
+            pip install delvewheel "meson-python>=0.13.1" ninja "pybind11>=2.6" "setuptools>=42" "setuptools_scm>=7" &&
             pip install --pre "numpy>=1.25" &&
             rm -rf {package}/build
           CIBW_ENVIRONMENT: PIP_NO_BUILD_ISOLATION=0

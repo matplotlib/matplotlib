@@ -41,9 +41,9 @@ jobs:
           # dependencies so we don't need another copy here.
           # https://github.com/jazzband/pip-tools/pull/1681
           python -m pip install --upgrade \
-            certifi contourpy cycler fonttools kiwisolver importlib_resources \
-            numpy packaging pillow pyparsing python-dateutil setuptools-scm \
-            pybind11
+            build contourpy cycler fonttools kiwisolver \
+            importlib_resources meson-python numpy packaging pillow pybind11 \
+            pyparsing python-dateutil setuptools-scm
           echo "CODEQL_PYTHON=$(which python)" >> $GITHUB_ENV
 
       - name: Initialize CodeQL
@@ -56,7 +56,7 @@ jobs:
         if: matrix.language == 'cpp'
         run: |
           mkdir ~/.cache/matplotlib
-          $CODEQL_PYTHON setup.py build
+          $CODEQL_PYTHON -m build
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2

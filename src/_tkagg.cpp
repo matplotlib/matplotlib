@@ -9,6 +9,13 @@
 // rewritten, we have removed the PIL licensing information.  If you want PIL,
 // you can get it at https://python-pillow.org/
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+// Windows 8.1
+#define WINVER 0x0603
+#define _WIN32_WINNT 0x0603
+#endif
+
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 

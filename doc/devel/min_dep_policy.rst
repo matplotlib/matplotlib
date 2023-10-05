@@ -22,7 +22,7 @@ Matplotlib supports:
 - All minor versions of ``numpy`` released in the 24 months prior
   to the project, and at minimum the last three minor versions.
 
-In ``setup.py``, the ``python_requires`` variable should be set to
+In :file:`pyproject.toml`, the ``requires-python`` variable should be set to
 the minimum supported version of Python.  All supported minor
 versions of Python should be in the test matrix and have binary
 artifacts built for the release.

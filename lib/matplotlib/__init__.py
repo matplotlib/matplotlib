@@ -219,15 +219,20 @@ def _get_version():
     if ((root / ".matplotlib-repo").exists()
             and (root / ".git").exists()
             and not (root / ".git/shallow").exists()):
-        import setuptools_scm
-        return setuptools_scm.get_version(
-            root=root,
-            version_scheme="release-branch-semver",
-            local_scheme="node-and-date",
-            fallback_version=_version.version,
-        )
-    else:  # Get the version from the _version.py setuptools_scm file.
-        return _version.version
+        try:
+            import setuptools_scm
+        except ImportError:
+            pass
+        else:
+            return setuptools_scm.get_version(
+                root=root,
+                version_scheme="release-branch-semver",
+                local_scheme="node-and-date",
+                fallback_version=_version.version,
+            )
+    # Get the version from the _version.py file if not in repo or setuptools_scm is
+    # unavailable.
+    return _version.version
 
 
 @_api.caching_module_getattr
@@ -1302,8 +1307,8 @@ def _val_or_rc(val, rc_name):
 
 
 def _init_tests():
-    # The version of FreeType to install locally for running the
-    # tests.  This must match the value in `setupext.py`
+    # The version of FreeType to install locally for running the tests. This must match
+    # the value in `meson.build`.
     LOCAL_FREETYPE_VERSION = '2.6.1'
 
     from matplotlib import ft2font
@@ -1311,8 +1316,8 @@ def _init_tests():
             ft2font.__freetype_build_type__ != 'local'):
         _log.warning(
             f"Matplotlib is not built with the correct FreeType version to "
-            f"run tests.  Rebuild without setting system_freetype=1 in "
-            f"mplsetup.cfg.  Expect many image comparison failures below.  "
+            f"run tests.  Rebuild without setting system-freetype=true in "
+            f"Meson setup options.  Expect many image comparison failures below.  "
             f"Expected freetype version {LOCAL_FREETYPE_VERSION}.  "
             f"Found freetype version {ft2font.__freetype_version__}.  "
             "Freetype build type is {}local".format(

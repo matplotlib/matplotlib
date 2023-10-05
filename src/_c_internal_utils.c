@@ -1,3 +1,9 @@
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+// Windows 10, for latest HiDPI API support.
+#define WINVER 0x0A00
+#define _WIN32_WINNT 0x0A00
+#endif
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #ifdef __linux__

@@ -266,7 +266,7 @@ A brief overview of the workflow is as follows.
 
 #. Install the local version of Matplotlib with::
 
-     python -m pip install -e .
+     python -m pip install --no-build-isolation --editable .[dev]
 
    See :ref:`installing_for_devs` for detailed instructions.
 
@@ -476,9 +476,8 @@ take particular care when adding new API:
 New modules and files: installation
 -----------------------------------
 
-* If you have added new files or directories, or reorganized existing
-  ones, make sure the new files are included in the match patterns in
-  in *package_data* in :file:`setupext.py`.
+* If you have added new files or directories, or reorganized existing ones, make sure the
+  new files are included in the :file:`meson.build` in the corresponding directories.
 * New modules *may* be typed inline or using parallel stub file like existing modules.
 
 C/C++ extensions
