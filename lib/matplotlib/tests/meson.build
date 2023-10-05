@@ -95,7 +95,7 @@ py3.install_sources(python_sources,
                     subdir: 'matplotlib/tests')
 
 install_data(
-  'README',
+  'README.rst',
   'Courier10PitchBT-Bold.pfb',
   'cmr10.pfb',
   'mpltest.ttf',
