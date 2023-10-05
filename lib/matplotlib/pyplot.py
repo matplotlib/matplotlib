@@ -1440,7 +1440,7 @@ def subplot(*args, **kwargs) -> Axes:
     return ax
 
 
-@overload  # type: ignore[misc]
+@overload
 def subplots(
     nrows: Literal[1] = ...,
     ncols: Literal[1] = ...,
@@ -1457,14 +1457,14 @@ def subplots(
     ...
 
 
-@overload  # type: ignore[misc]
+@overload
 def subplots(
     nrows: int = ...,
     ncols: int = ...,
     *,
     sharex: bool | Literal["none", "all", "row", "col"] = ...,
     sharey: bool | Literal["none", "all", "row", "col"] = ...,
-    squeeze: Literal[False] = ...,
+    squeeze: Literal[False],
     width_ratios: Sequence[float] | None = ...,
     height_ratios: Sequence[float] | None = ...,
     subplot_kw: dict[str, Any] | None = ...,
