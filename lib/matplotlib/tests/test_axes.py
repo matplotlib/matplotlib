@@ -8863,38 +8863,28 @@ def test_axhvlinespan_interpolation():
     ax.axhspan(.6, .7, .8, .9, fc="C2", alpha=.5)
 
 
-@check_figures_equal()
-def test_bar_hatchcolor_with_facecolor_and_edgecolor(fig_test, fig_ref):
+@image_comparison(["bar_hatchcolor_with_facecolor_and_edgecolor"])
+def test_bar_hatchcolor_with_facecolor_and_edgecolor():
 
     x = [2, 3, 4, 5]
     y = [1, 3, 1, 4]
 
-    ax1 = fig_test.subplots()
-    ax1.bar(x, y, hatch="////", facecolor=(0, 0, 0, 0),
+    fig, ax = plt.subplots()
+    ax.bar(x, y, hatch="////", facecolor=(0, 0, 0, 0),
              hatchcolor="red", edgecolor="black")
 
-    ax2 = fig_ref.subplots()
-    ax2.bar(x, y, hatch="////", facecolor=(0, 0, 0, 0),
-            edgecolor="black", hatchcolor="red")
 
-
-@check_figures_equal()
-def test_bar_hatchcolor_with_facecolor(fig_test, fig_ref):
+@image_comparison(["bar_hatchcolor_with_facecolor"])
+def test_bar_hatchcolor_with_facecolor():
     x = [6, 7, 8, 9]
     y = [2, 4, 7, 3]
-    ax1 = fig_test.subplots()
-    ax1.bar(x, y, hatch="////", hatchcolor="green", facecolor=(0, 0, 0, 0))
-
-    ax2 = fig_ref.subplots()
-    ax2.bar(x, y, hatch="////", facecolor=(0, 0, 0, 0), hatchcolor="green")
+    fig, ax = plt.subplots()
+    ax.bar(x, y, hatch="////", hatchcolor="green", facecolor=(0, 0, 0, 0))
 
 
-@check_figures_equal()
-def test_bar_hatchcolor(fig_test, fig_ref):
+@image_comparison(["bar_hatchcolor"])
+def test_bar_hatchcolor():
     x = [4, 7, 19, 8]
     y = [1, 5, 8, 14]
-    ax1 = fig_test.subplots()
-    ax1.bar(x, y, hatch="////", hatchcolor="orange")
-
-    ax2 = fig_ref.subplots()
-    ax2.bar(x, y, hatch="////", hatchcolor="orange")
+    fig, ax = plt.subplots()
+    ax.bar(x, y, hatch="////", hatchcolor="orange")
