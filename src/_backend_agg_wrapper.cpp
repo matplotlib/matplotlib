@@ -1,539 +1,339 @@
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
 #include "mplutils.h"
 #include "numpy_cpp.h"
 #include "py_converters.h"
 #include "_backend_agg.h"
+#include "py_converters_11.h"
 
-typedef struct
-{
-    PyObject_HEAD
-    RendererAgg *x;
-    Py_ssize_t shape[3];
-    Py_ssize_t strides[3];
-    Py_ssize_t suboffsets[3];
-} PyRendererAgg;
-
-static PyTypeObject PyRendererAggType;
-
-typedef struct
-{
-    PyObject_HEAD
-    BufferRegion *x;
-    Py_ssize_t shape[3];
-    Py_ssize_t strides[3];
-    Py_ssize_t suboffsets[3];
-} PyBufferRegion;
-
-static PyTypeObject PyBufferRegionType;
-
+using namespace pybind11::literals;
 
 /**********************************************************************
  * BufferRegion
  * */
 
-static PyObject *PyBufferRegion_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    PyBufferRegion *self;
-    self = (PyBufferRegion *)type->tp_alloc(type, 0);
-    self->x = NULL;
-    return (PyObject *)self;
-}
-
-static void PyBufferRegion_dealloc(PyBufferRegion *self)
-{
-    delete self->x;
-    Py_TYPE(self)->tp_free((PyObject *)self);
-}
-
 /* TODO: This doesn't seem to be used internally.  Remove? */
 
-static PyObject *PyBufferRegion_set_x(PyBufferRegion *self, PyObject *args)
+static void
+PyBufferRegion_set_x(BufferRegion *self, int x)
 {
-    int x;
-    if (!PyArg_ParseTuple(args, "i:set_x", &x)) {
-        return NULL;
-    }
-    self->x->get_rect().x1 = x;
-
-    Py_RETURN_NONE;
+    self->get_rect().x1 = x;
 }
 
-static PyObject *PyBufferRegion_set_y(PyBufferRegion *self, PyObject *args)
+static void
+PyBufferRegion_set_y(BufferRegion *self, int y)
 {
-    int y;
-    if (!PyArg_ParseTuple(args, "i:set_y", &y)) {
-        return NULL;
-    }
-    self->x->get_rect().y1 = y;
-
-    Py_RETURN_NONE;
+    self->get_rect().y1 = y;
 }
 
-static PyObject *PyBufferRegion_get_extents(PyBufferRegion *self, PyObject *args)
+static pybind11::object
+PyBufferRegion_get_extents(BufferRegion *self)
 {
-    agg::rect_i rect = self->x->get_rect();
+    agg::rect_i rect = self->get_rect();
 
-    return Py_BuildValue("IIII", rect.x1, rect.y1, rect.x2, rect.y2);
-}
-
-int PyBufferRegion_get_buffer(PyBufferRegion *self, Py_buffer *buf, int flags)
-{
-    Py_INCREF(self);
-    buf->obj = (PyObject *)self;
-    buf->buf = self->x->get_data();
-    buf->len = (Py_ssize_t)self->x->get_width() * (Py_ssize_t)self->x->get_height() * 4;
-    buf->readonly = 0;
-    buf->format = (char *)"B";
-    buf->ndim = 3;
-    self->shape[0] = self->x->get_height();
-    self->shape[1] = self->x->get_width();
-    self->shape[2] = 4;
-    buf->shape = self->shape;
-    self->strides[0] = self->x->get_width() * 4;
-    self->strides[1] = 4;
-    self->strides[2] = 1;
-    buf->strides = self->strides;
-    buf->suboffsets = NULL;
-    buf->itemsize = 1;
-    buf->internal = NULL;
-
-    return 1;
-}
-
-static PyTypeObject *PyBufferRegion_init_type()
-{
-    static PyMethodDef methods[] = {
-        { "set_x", (PyCFunction)PyBufferRegion_set_x, METH_VARARGS, NULL },
-        { "set_y", (PyCFunction)PyBufferRegion_set_y, METH_VARARGS, NULL },
-        { "get_extents", (PyCFunction)PyBufferRegion_get_extents, METH_NOARGS, NULL },
-        { NULL }
-    };
-
-    static PyBufferProcs buffer_procs;
-    buffer_procs.bf_getbuffer = (getbufferproc)PyBufferRegion_get_buffer;
-
-    PyBufferRegionType.tp_name = "matplotlib.backends._backend_agg.BufferRegion";
-    PyBufferRegionType.tp_basicsize = sizeof(PyBufferRegion);
-    PyBufferRegionType.tp_dealloc = (destructor)PyBufferRegion_dealloc;
-    PyBufferRegionType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
-    PyBufferRegionType.tp_methods = methods;
-    PyBufferRegionType.tp_new = PyBufferRegion_new;
-    PyBufferRegionType.tp_as_buffer = &buffer_procs;
-
-    return &PyBufferRegionType;
+    return pybind11::make_tuple(rect.x1, rect.y1, rect.x2, rect.y2);
 }
 
 /**********************************************************************
  * RendererAgg
  * */
 
-static PyObject *PyRendererAgg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    PyRendererAgg *self;
-    self = (PyRendererAgg *)type->tp_alloc(type, 0);
-    self->x = NULL;
-    return (PyObject *)self;
-}
-
-static int PyRendererAgg_init(PyRendererAgg *self, PyObject *args, PyObject *kwds)
-{
-    unsigned int width;
-    unsigned int height;
-    double dpi;
-    int debug = 0;
-
-    if (!PyArg_ParseTuple(args, "IId|i:RendererAgg", &width, &height, &dpi, &debug)) {
-        return -1;
-    }
-
-    CALL_CPP_INIT("RendererAgg", self->x = new RendererAgg(width, height, dpi))
-
-    return 0;
-}
-
-static void PyRendererAgg_dealloc(PyRendererAgg *self)
-{
-    delete self->x;
-    Py_TYPE(self)->tp_free((PyObject *)self);
-}
-
-static PyObject *PyRendererAgg_draw_path(PyRendererAgg *self, PyObject *args)
+static void
+PyRendererAgg_draw_path(RendererAgg *self,
+                        pybind11::object gc_obj,
+                        mpl::PathIterator path,
+                        agg::trans_affine trans,
+                        pybind11::object face_obj)
 {
     GCAgg gc;
-    mpl::PathIterator path;
-    agg::trans_affine trans;
-    PyObject *faceobj = NULL;
     agg::rgba face;
 
-    if (!PyArg_ParseTuple(args,
-                          "O&O&O&|O:draw_path",
-                          &convert_gcagg,
-                          &gc,
-                          &convert_path,
-                          &path,
-                          &convert_trans_affine,
-                          &trans,
-                          &faceobj)) {
-        return NULL;
+    if (!convert_gcagg(gc_obj.ptr(), &gc)) {
+        throw pybind11::error_already_set();
     }
 
-    if (!convert_face(faceobj, gc, &face)) {
-        return NULL;
+    if (!convert_face(face_obj.ptr(), gc, &face)) {
+        throw pybind11::error_already_set();
     }
 
-    CALL_CPP("draw_path", (self->x->draw_path(gc, path, trans, face)));
-
-    Py_RETURN_NONE;
+    self->draw_path(gc, path, trans, face);
 }
 
-static PyObject *PyRendererAgg_draw_text_image(PyRendererAgg *self, PyObject *args)
+static void
+PyRendererAgg_draw_text_image(RendererAgg *self,
+                              pybind11::array_t<agg::int8u, pybind11::array::c_style> image_obj,
+                              double x,
+                              double y,
+                              double angle,
+                              pybind11::object gc_obj)
 {
     numpy::array_view<agg::int8u, 2> image;
-    double x;
-    double y;
-    double angle;
     GCAgg gc;
 
-    if (!PyArg_ParseTuple(args,
-                          "O&dddO&:draw_text_image",
-                          &image.converter_contiguous,
-                          &image,
-                          &x,
-                          &y,
-                          &angle,
-                          &convert_gcagg,
-                          &gc)) {
-        return NULL;
+    if (!image.converter_contiguous(image_obj.ptr(), &image)) {
+        throw pybind11::error_already_set();
+    }
+    if (!convert_gcagg(gc_obj.ptr(), &gc)) {
+        throw pybind11::error_already_set();
     }
 
-    CALL_CPP("draw_text_image", (self->x->draw_text_image(gc, image, x, y, angle)));
-
-    Py_RETURN_NONE;
+    self->draw_text_image(gc, image, x, y, angle);
 }
 
-PyObject *PyRendererAgg_draw_markers(PyRendererAgg *self, PyObject *args)
+static void
+PyRendererAgg_draw_markers(RendererAgg *self,
+                           pybind11::object gc_obj,
+                           mpl::PathIterator marker_path,
+                           agg::trans_affine marker_path_trans,
+                           mpl::PathIterator path,
+                           agg::trans_affine trans,
+                           pybind11::object face_obj)
 {
     GCAgg gc;
-    mpl::PathIterator marker_path;
-    agg::trans_affine marker_path_trans;
-    mpl::PathIterator path;
-    agg::trans_affine trans;
-    PyObject *faceobj = NULL;
     agg::rgba face;
 
-    if (!PyArg_ParseTuple(args,
-                          "O&O&O&O&O&|O:draw_markers",
-                          &convert_gcagg,
-                          &gc,
-                          &convert_path,
-                          &marker_path,
-                          &convert_trans_affine,
-                          &marker_path_trans,
-                          &convert_path,
-                          &path,
-                          &convert_trans_affine,
-                          &trans,
-                          &faceobj)) {
-        return NULL;
+    if (!convert_gcagg(gc_obj.ptr(), &gc)) {
+        throw pybind11::error_already_set();
     }
 
-    if (!convert_face(faceobj, gc, &face)) {
-        return NULL;
+    if (!convert_face(face_obj.ptr(), gc, &face)) {
+        throw pybind11::error_already_set();
     }
 
-    CALL_CPP("draw_markers",
-             (self->x->draw_markers(gc, marker_path, marker_path_trans, path, trans, face)));
-
-    Py_RETURN_NONE;
+    self->draw_markers(gc, marker_path, marker_path_trans, path, trans, face);
 }
 
-static PyObject *PyRendererAgg_draw_image(PyRendererAgg *self, PyObject *args)
+static void
+PyRendererAgg_draw_image(RendererAgg *self,
+                         pybind11::object gc_obj,
+                         double x,
+                         double y,
+                         pybind11::array_t<agg::int8u, pybind11::array::c_style> image_obj)
 {
     GCAgg gc;
-    double x;
-    double y;
     numpy::array_view<agg::int8u, 3> image;
 
-    if (!PyArg_ParseTuple(args,
-                          "O&ddO&:draw_image",
-                          &convert_gcagg,
-                          &gc,
-                          &x,
-                          &y,
-                          &image.converter_contiguous,
-                          &image)) {
-        return NULL;
+    if (!convert_gcagg(gc_obj.ptr(), &gc)) {
+        throw pybind11::error_already_set();
+    }
+    if (!image.set(image_obj.ptr())) {
+        throw pybind11::error_already_set();
     }
 
     x = mpl_round(x);
     y = mpl_round(y);
 
     gc.alpha = 1.0;
-    CALL_CPP("draw_image", (self->x->draw_image(gc, x, y, image)));
-
-    Py_RETURN_NONE;
+    self->draw_image(gc, x, y, image);
 }
 
-static PyObject *
-PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args)
+static void
+PyRendererAgg_draw_path_collection(RendererAgg *self,
+                                   pybind11::object gc_obj,
+                                   agg::trans_affine master_transform,
+                                   pybind11::object paths_obj,
+                                   pybind11::object transforms_obj,
+                                   pybind11::object offsets_obj,
+                                   agg::trans_affine offset_trans,
+                                   pybind11::object facecolors_obj,
+                                   pybind11::object edgecolors_obj,
+                                   pybind11::object linewidths_obj,
+                                   pybind11::object dashes_obj,
+                                   pybind11::object antialiaseds_obj,
+                                   pybind11::object Py_UNUSED(ignored_obj),
+                                   // offset position is no longer used
+                                   pybind11::object Py_UNUSED(offset_position_obj))
 {
     GCAgg gc;
-    agg::trans_affine master_transform;
     mpl::PathGenerator paths;
     numpy::array_view<const double, 3> transforms;
     numpy::array_view<const double, 2> offsets;
-    agg::trans_affine offset_trans;
     numpy::array_view<const double, 2> facecolors;
     numpy::array_view<const double, 2> edgecolors;
     numpy::array_view<const double, 1> linewidths;
     DashesVector dashes;
     numpy::array_view<const uint8_t, 1> antialiaseds;
-    PyObject *ignored;
-    PyObject *offset_position; // offset position is no longer used
 
-    if (!PyArg_ParseTuple(args,
-                          "O&O&O&O&O&O&O&O&O&O&O&OO:draw_path_collection",
-                          &convert_gcagg,
-                          &gc,
-                          &convert_trans_affine,
-                          &master_transform,
-                          &convert_pathgen,
-                          &paths,
-                          &convert_transforms,
-                          &transforms,
-                          &convert_points,
-                          &offsets,
-                          &convert_trans_affine,
-                          &offset_trans,
-                          &convert_colors,
-                          &facecolors,
-                          &convert_colors,
-                          &edgecolors,
-                          &linewidths.converter,
-                          &linewidths,
-                          &convert_dashes_vector,
-                          &dashes,
-                          &antialiaseds.converter,
-                          &antialiaseds,
-                          &ignored,
-                          &offset_position)) {
-        return NULL;
+    if (!convert_gcagg(gc_obj.ptr(), &gc)) {
+        throw pybind11::error_already_set();
+    }
+    if (!convert_pathgen(paths_obj.ptr(), &paths)) {
+        throw pybind11::error_already_set();
+    }
+    if (!convert_transforms(transforms_obj.ptr(), &transforms)) {
+        throw pybind11::error_already_set();
+    }
+    if (!convert_points(offsets_obj.ptr(), &offsets)) {
+        throw pybind11::error_already_set();
+    }
+    if (!convert_colors(facecolors_obj.ptr(), &facecolors)) {
+        throw pybind11::error_already_set();
+    }
+    if (!convert_colors(edgecolors_obj.ptr(), &edgecolors)) {
+        throw pybind11::error_already_set();
+    }
+    if (!linewidths.converter(linewidths_obj.ptr(), &linewidths)) {
+        throw pybind11::error_already_set();
+    }
+    if (!convert_dashes_vector(dashes_obj.ptr(), &dashes)) {
+        throw pybind11::error_already_set();
+    }
+    if (!antialiaseds.converter(antialiaseds_obj.ptr(), &antialiaseds)) {
+        throw pybind11::error_already_set();
     }
 
-    CALL_CPP("draw_path_collection",
-             (self->x->draw_path_collection(gc,
-                                            master_transform,
-                                            paths,
-                                            transforms,
-                                            offsets,
-                                            offset_trans,
-                                            facecolors,
-                                            edgecolors,
-                                            linewidths,
-                                            dashes,
-                                            antialiaseds)));
-
-    Py_RETURN_NONE;
+    self->draw_path_collection(gc,
+            master_transform,
+            paths,
+            transforms,
+            offsets,
+            offset_trans,
+            facecolors,
+            edgecolors,
+            linewidths,
+            dashes,
+            antialiaseds);
 }
 
-static PyObject *PyRendererAgg_draw_quad_mesh(PyRendererAgg *self, PyObject *args)
+static void
+PyRendererAgg_draw_quad_mesh(RendererAgg *self,
+                             pybind11::object gc_obj,
+                             agg::trans_affine master_transform,
+                             unsigned int mesh_width,
+                             unsigned int mesh_height,
+                             pybind11::object coordinates_obj,
+                             pybind11::object offsets_obj,
+                             agg::trans_affine offset_trans,
+                             pybind11::object facecolors_obj,
+                             bool antialiased,
+                             pybind11::object edgecolors_obj)
 {
     GCAgg gc;
-    agg::trans_affine master_transform;
-    unsigned int mesh_width;
-    unsigned int mesh_height;
     numpy::array_view<const double, 3> coordinates;
     numpy::array_view<const double, 2> offsets;
-    agg::trans_affine offset_trans;
     numpy::array_view<const double, 2> facecolors;
-    bool antialiased;
     numpy::array_view<const double, 2> edgecolors;
 
-    if (!PyArg_ParseTuple(args,
-                          "O&O&IIO&O&O&O&O&O&:draw_quad_mesh",
-                          &convert_gcagg,
-                          &gc,
-                          &convert_trans_affine,
-                          &master_transform,
-                          &mesh_width,
-                          &mesh_height,
-                          &coordinates.converter,
-                          &coordinates,
-                          &convert_points,
-                          &offsets,
-                          &convert_trans_affine,
-                          &offset_trans,
-                          &convert_colors,
-                          &facecolors,
-                          &convert_bool,
-                          &antialiased,
-                          &convert_colors,
-                          &edgecolors)) {
-        return NULL;
+    if (!convert_gcagg(gc_obj.ptr(), &gc)) {
+        throw pybind11::error_already_set();
+    }
+    if (!coordinates.converter(coordinates_obj.ptr(), &coordinates)) {
+        throw pybind11::error_already_set();
+    }
+    if (!convert_points(offsets_obj.ptr(), &offsets)) {
+        throw pybind11::error_already_set();
+    }
+    if (!convert_colors(facecolors_obj.ptr(), &facecolors)) {
+        throw pybind11::error_already_set();
+    }
+    if (!convert_colors(edgecolors_obj.ptr(), &edgecolors)) {
+        throw pybind11::error_already_set();
     }
 
-    CALL_CPP("draw_quad_mesh",
-             (self->x->draw_quad_mesh(gc,
-                                      master_transform,
-                                      mesh_width,
-                                      mesh_height,
-                                      coordinates,
-                                      offsets,
-                                      offset_trans,
-                                      facecolors,
-                                      antialiased,
-                                      edgecolors)));
-
-    Py_RETURN_NONE;
+    self->draw_quad_mesh(gc,
+            master_transform,
+            mesh_width,
+            mesh_height,
+            coordinates,
+            offsets,
+            offset_trans,
+            facecolors,
+            antialiased,
+            edgecolors);
 }
 
-static PyObject *
-PyRendererAgg_draw_gouraud_triangles(PyRendererAgg *self, PyObject *args)
+static void
+PyRendererAgg_draw_gouraud_triangles(RendererAgg *self,
+                                     pybind11::object gc_obj,
+                                     pybind11::object points_obj,
+                                     pybind11::object colors_obj,
+                                     agg::trans_affine trans)
 {
     GCAgg gc;
     numpy::array_view<const double, 3> points;
     numpy::array_view<const double, 3> colors;
-    agg::trans_affine trans;
 
-    if (!PyArg_ParseTuple(args,
-                          "O&O&O&O&|O:draw_gouraud_triangles",
-                          &convert_gcagg,
-                          &gc,
-                          &points.converter,
-                          &points,
-                          &colors.converter,
-                          &colors,
-                          &convert_trans_affine,
-                          &trans)) {
-        return NULL;
+    if (!convert_gcagg(gc_obj.ptr(), &gc)) {
+        throw pybind11::error_already_set();
+    }
+    if (!points.converter(points_obj.ptr(), &points)) {
+        throw pybind11::error_already_set();
+    }
+    if (!colors.converter(colors_obj.ptr(), &colors)) {
+        throw pybind11::error_already_set();
     }
 
-    CALL_CPP("draw_gouraud_triangles", self->x->draw_gouraud_triangles(gc, points, colors, trans));
-
-    Py_RETURN_NONE;
+    self->draw_gouraud_triangles(gc, points, colors, trans);
 }
 
-int PyRendererAgg_get_buffer(PyRendererAgg *self, Py_buffer *buf, int flags)
+PYBIND11_MODULE(_backend_agg, m)
 {
-    Py_INCREF(self);
-    buf->obj = (PyObject *)self;
-    buf->buf = self->x->pixBuffer;
-    buf->len = (Py_ssize_t)self->x->get_width() * (Py_ssize_t)self->x->get_height() * 4;
-    buf->readonly = 0;
-    buf->format = (char *)"B";
-    buf->ndim = 3;
-    self->shape[0] = self->x->get_height();
-    self->shape[1] = self->x->get_width();
-    self->shape[2] = 4;
-    buf->shape = self->shape;
-    self->strides[0] = self->x->get_width() * 4;
-    self->strides[1] = 4;
-    self->strides[2] = 1;
-    buf->strides = self->strides;
-    buf->suboffsets = NULL;
-    buf->itemsize = 1;
-    buf->internal = NULL;
+    _import_array();
+    pybind11::class_<RendererAgg>(m, "RendererAgg", pybind11::buffer_protocol())
+        .def(pybind11::init<unsigned int, unsigned int, double>(),
+             "width"_a, "height"_a, "dpi"_a)
 
-    return 1;
-}
+        .def("draw_path", &PyRendererAgg_draw_path,
+             "gc"_a, "path"_a, "trans"_a, "face"_a = nullptr)
+        .def("draw_markers", &PyRendererAgg_draw_markers,
+             "gc"_a, "marker_path"_a, "marker_path_trans"_a, "path"_a, "trans"_a,
+             "face"_a = nullptr)
+        .def("draw_text_image", &PyRendererAgg_draw_text_image,
+             "image"_a, "x"_a, "y"_a, "angle"_a, "gc"_a)
+        .def("draw_image", &PyRendererAgg_draw_image,
+             "gc"_a, "x"_a, "y"_a, "image"_a)
+        .def("draw_path_collection", &PyRendererAgg_draw_path_collection,
+             "gc"_a, "master_transform"_a, "paths"_a, "transforms"_a, "offsets"_a,
+             "offset_trans"_a, "facecolors"_a, "edgecolors"_a, "linewidths"_a,
+             "dashes"_a, "antialiaseds"_a, "ignored"_a, "offset_position"_a)
+        .def("draw_quad_mesh", &PyRendererAgg_draw_quad_mesh,
+             "gc"_a, "master_transform"_a, "mesh_width"_a, "mesh_height"_a,
+             "coordinates"_a, "offsets"_a, "offset_trans"_a, "facecolors"_a,
+             "antialiased"_a, "edgecolors"_a)
+        .def("draw_gouraud_triangles", &PyRendererAgg_draw_gouraud_triangles,
+             "gc"_a, "points"_a, "colors"_a, "trans"_a = nullptr)
 
-static PyObject *PyRendererAgg_clear(PyRendererAgg *self, PyObject *args)
-{
-    CALL_CPP("clear", self->x->clear());
+        .def("clear", &RendererAgg::clear)
 
-    Py_RETURN_NONE;
-}
+        .def("copy_from_bbox", &RendererAgg::copy_from_bbox,
+             "bbox"_a)
+        .def("restore_region",
+             pybind11::overload_cast<BufferRegion&>(&RendererAgg::restore_region),
+             "region"_a)
+        .def("restore_region",
+             pybind11::overload_cast<BufferRegion&, int, int, int, int, int, int>(&RendererAgg::restore_region),
+             "region"_a, "xx1"_a, "yy1"_a, "xx2"_a, "yy2"_a, "x"_a, "y"_a)
 
-static PyObject *PyRendererAgg_copy_from_bbox(PyRendererAgg *self, PyObject *args)
-{
-    agg::rect_d bbox;
-    BufferRegion *reg;
-    PyObject *regobj;
+        .def_buffer([](RendererAgg *renderer) -> pybind11::buffer_info {
+            std::vector<pybind11::ssize_t> shape {
+                renderer->get_height(),
+                renderer->get_width(),
+                4
+            };
+            std::vector<pybind11::ssize_t> strides {
+                renderer->get_width() * 4,
+                4,
+                1
+            };
+            return pybind11::buffer_info(renderer->pixBuffer, shape, strides);
+        });
 
-    if (!PyArg_ParseTuple(args, "O&:copy_from_bbox", &convert_rect, &bbox)) {
-        return 0;
-    }
-
-    CALL_CPP("copy_from_bbox", (reg = self->x->copy_from_bbox(bbox)));
-
-    regobj = PyBufferRegion_new(&PyBufferRegionType, NULL, NULL);
-    ((PyBufferRegion *)regobj)->x = reg;
-
-    return regobj;
-}
-
-static PyObject *PyRendererAgg_restore_region(PyRendererAgg *self, PyObject *args)
-{
-    PyBufferRegion *regobj;
-    int xx1 = 0, yy1 = 0, xx2 = 0, yy2 = 0, x = 0, y = 0;
-
-    if (!PyArg_ParseTuple(args,
-                          "O!|iiiiii:restore_region",
-                          &PyBufferRegionType,
-                          &regobj,
-                          &xx1,
-                          &yy1,
-                          &xx2,
-                          &yy2,
-                          &x,
-                          &y)) {
-        return 0;
-    }
-
-    if (PySequence_Size(args) == 1) {
-        CALL_CPP("restore_region", self->x->restore_region(*(regobj->x)));
-    } else {
-        CALL_CPP("restore_region", self->x->restore_region(*(regobj->x), xx1, yy1, xx2, yy2, x, y));
-    }
-
-    Py_RETURN_NONE;
-}
-
-static PyTypeObject *PyRendererAgg_init_type()
-{
-    static PyMethodDef methods[] = {
-        {"draw_path", (PyCFunction)PyRendererAgg_draw_path, METH_VARARGS, NULL},
-        {"draw_markers", (PyCFunction)PyRendererAgg_draw_markers, METH_VARARGS, NULL},
-        {"draw_text_image", (PyCFunction)PyRendererAgg_draw_text_image, METH_VARARGS, NULL},
-        {"draw_image", (PyCFunction)PyRendererAgg_draw_image, METH_VARARGS, NULL},
-        {"draw_path_collection", (PyCFunction)PyRendererAgg_draw_path_collection, METH_VARARGS, NULL},
-        {"draw_quad_mesh", (PyCFunction)PyRendererAgg_draw_quad_mesh, METH_VARARGS, NULL},
-        {"draw_gouraud_triangles", (PyCFunction)PyRendererAgg_draw_gouraud_triangles, METH_VARARGS, NULL},
-
-        {"clear", (PyCFunction)PyRendererAgg_clear, METH_NOARGS, NULL},
-
-        {"copy_from_bbox", (PyCFunction)PyRendererAgg_copy_from_bbox, METH_VARARGS, NULL},
-        {"restore_region", (PyCFunction)PyRendererAgg_restore_region, METH_VARARGS, NULL},
-        {NULL}
-    };
-
-    static PyBufferProcs buffer_procs;
-    buffer_procs.bf_getbuffer = (getbufferproc)PyRendererAgg_get_buffer;
-
-    PyRendererAggType.tp_name = "matplotlib.backends._backend_agg.RendererAgg";
-    PyRendererAggType.tp_basicsize = sizeof(PyRendererAgg);
-    PyRendererAggType.tp_dealloc = (destructor)PyRendererAgg_dealloc;
-    PyRendererAggType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
-    PyRendererAggType.tp_methods = methods;
-    PyRendererAggType.tp_init = (initproc)PyRendererAgg_init;
-    PyRendererAggType.tp_new = PyRendererAgg_new;
-    PyRendererAggType.tp_as_buffer = &buffer_procs;
-
-    return &PyRendererAggType;
-}
-
-static struct PyModuleDef moduledef = { PyModuleDef_HEAD_INIT, "_backend_agg" };
-
-PyMODINIT_FUNC PyInit__backend_agg(void)
-{
-    import_array();
-    PyObject *m;
-    if (!(m = PyModule_Create(&moduledef))
-        || prepare_and_add_type(PyRendererAgg_init_type(), m)
-        // BufferRegion is not constructible from Python, thus not added to the module.
-        || PyType_Ready(PyBufferRegion_init_type())
-       ) {
-        Py_XDECREF(m);
-        return NULL;
-    }
-    return m;
+    pybind11::class_<BufferRegion>(m, "BufferRegion", pybind11::buffer_protocol())
+        // BufferRegion is not constructible from Python, thus no py::init is added.
+        .def("set_x", &PyBufferRegion_set_x)
+        .def("set_y", &PyBufferRegion_set_y)
+        .def("get_extents", &PyBufferRegion_get_extents)
+        .def_buffer([](BufferRegion *buffer) -> pybind11::buffer_info {
+            std::vector<pybind11::ssize_t> shape {
+                buffer->get_height(),
+                buffer->get_width(),
+                4
+            };
+            std::vector<pybind11::ssize_t> strides {
+                buffer->get_width() * 4,
+                4,
+                1
+            };
+            return pybind11::buffer_info(buffer->get_data(), shape, strides);
+        });
 }
