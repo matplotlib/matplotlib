@@ -1,5 +1,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
+#include <pybind11/stl.h>
 #include "mplutils.h"
 #include "numpy_cpp.h"
 #include "py_converters.h"
@@ -40,17 +41,11 @@ PyBufferRegion_get_extents(BufferRegion *self)
 
 static void
 PyRendererAgg_draw_path(RendererAgg *self,
-                        pybind11::object gc_obj,
+                        GCAgg &gc,
                         mpl::PathIterator path,
                         agg::trans_affine trans,
                         agg::rgba face)
 {
-    GCAgg gc;
-
-    if (!convert_gcagg(gc_obj.ptr(), &gc)) {
-        throw pybind11::error_already_set();
-    }
-
     self->draw_path(gc, path, trans, face);
 }
 
@@ -60,15 +55,11 @@ PyRendererAgg_draw_text_image(RendererAgg *self,
                               double x,
                               double y,
                               double angle,
-                              pybind11::object gc_obj)
+                              GCAgg &gc)
 {
     numpy::array_view<agg::int8u, 2> image;
-    GCAgg gc;
 
     if (!image.converter_contiguous(image_obj.ptr(), &image)) {
-        throw pybind11::error_already_set();
-    }
-    if (!convert_gcagg(gc_obj.ptr(), &gc)) {
         throw pybind11::error_already_set();
     }
 
@@ -77,35 +68,25 @@ PyRendererAgg_draw_text_image(RendererAgg *self,
 
 static void
 PyRendererAgg_draw_markers(RendererAgg *self,
-                           pybind11::object gc_obj,
+                           GCAgg &gc,
                            mpl::PathIterator marker_path,
                            agg::trans_affine marker_path_trans,
                            mpl::PathIterator path,
                            agg::trans_affine trans,
                            agg::rgba face)
 {
-    GCAgg gc;
-
-    if (!convert_gcagg(gc_obj.ptr(), &gc)) {
-        throw pybind11::error_already_set();
-    }
-
     self->draw_markers(gc, marker_path, marker_path_trans, path, trans, face);
 }
 
 static void
 PyRendererAgg_draw_image(RendererAgg *self,
-                         pybind11::object gc_obj,
+                         GCAgg &gc,
                          double x,
                          double y,
                          pybind11::array_t<agg::int8u, pybind11::array::c_style> image_obj)
 {
-    GCAgg gc;
     numpy::array_view<agg::int8u, 3> image;
 
-    if (!convert_gcagg(gc_obj.ptr(), &gc)) {
-        throw pybind11::error_already_set();
-    }
     if (!image.set(image_obj.ptr())) {
         throw pybind11::error_already_set();
     }
@@ -119,7 +100,7 @@ PyRendererAgg_draw_image(RendererAgg *self,
 
 static void
 PyRendererAgg_draw_path_collection(RendererAgg *self,
-                                   pybind11::object gc_obj,
+                                   GCAgg &gc,
                                    agg::trans_affine master_transform,
                                    pybind11::object paths_obj,
                                    pybind11::object transforms_obj,
@@ -128,25 +109,20 @@ PyRendererAgg_draw_path_collection(RendererAgg *self,
                                    pybind11::object facecolors_obj,
                                    pybind11::object edgecolors_obj,
                                    pybind11::object linewidths_obj,
-                                   pybind11::object dashes_obj,
+                                   DashesVector dashes,
                                    pybind11::object antialiaseds_obj,
                                    pybind11::object Py_UNUSED(ignored_obj),
                                    // offset position is no longer used
                                    pybind11::object Py_UNUSED(offset_position_obj))
 {
-    GCAgg gc;
     mpl::PathGenerator paths;
     numpy::array_view<const double, 3> transforms;
     numpy::array_view<const double, 2> offsets;
     numpy::array_view<const double, 2> facecolors;
     numpy::array_view<const double, 2> edgecolors;
     numpy::array_view<const double, 1> linewidths;
-    DashesVector dashes;
     numpy::array_view<const uint8_t, 1> antialiaseds;
 
-    if (!convert_gcagg(gc_obj.ptr(), &gc)) {
-        throw pybind11::error_already_set();
-    }
     if (!convert_pathgen(paths_obj.ptr(), &paths)) {
         throw pybind11::error_already_set();
     }
@@ -163,9 +139,6 @@ PyRendererAgg_draw_path_collection(RendererAgg *self,
         throw pybind11::error_already_set();
     }
     if (!linewidths.converter(linewidths_obj.ptr(), &linewidths)) {
-        throw pybind11::error_already_set();
-    }
-    if (!convert_dashes_vector(dashes_obj.ptr(), &dashes)) {
         throw pybind11::error_already_set();
     }
     if (!antialiaseds.converter(antialiaseds_obj.ptr(), &antialiaseds)) {
@@ -187,7 +160,7 @@ PyRendererAgg_draw_path_collection(RendererAgg *self,
 
 static void
 PyRendererAgg_draw_quad_mesh(RendererAgg *self,
-                             pybind11::object gc_obj,
+                             GCAgg &gc,
                              agg::trans_affine master_transform,
                              unsigned int mesh_width,
                              unsigned int mesh_height,
@@ -198,15 +171,11 @@ PyRendererAgg_draw_quad_mesh(RendererAgg *self,
                              bool antialiased,
                              pybind11::object edgecolors_obj)
 {
-    GCAgg gc;
     numpy::array_view<const double, 3> coordinates;
     numpy::array_view<const double, 2> offsets;
     numpy::array_view<const double, 2> facecolors;
     numpy::array_view<const double, 2> edgecolors;
 
-    if (!convert_gcagg(gc_obj.ptr(), &gc)) {
-        throw pybind11::error_already_set();
-    }
     if (!coordinates.converter(coordinates_obj.ptr(), &coordinates)) {
         throw pybind11::error_already_set();
     }
@@ -234,18 +203,14 @@ PyRendererAgg_draw_quad_mesh(RendererAgg *self,
 
 static void
 PyRendererAgg_draw_gouraud_triangles(RendererAgg *self,
-                                     pybind11::object gc_obj,
+                                     GCAgg &gc,
                                      pybind11::object points_obj,
                                      pybind11::object colors_obj,
                                      agg::trans_affine trans)
 {
-    GCAgg gc;
     numpy::array_view<const double, 3> points;
     numpy::array_view<const double, 3> colors;
 
-    if (!convert_gcagg(gc_obj.ptr(), &gc)) {
-        throw pybind11::error_already_set();
-    }
     if (!points.converter(points_obj.ptr(), &points)) {
         throw pybind11::error_already_set();
     }
