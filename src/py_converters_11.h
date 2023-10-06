@@ -137,6 +137,8 @@ namespace PYBIND11_NAMESPACE { namespace detail {
         bool load(handle src, bool) {
             if (src.is_none()) {
                 value.scale = 0.0;
+                value.length = 0.0;
+                value.randomness = 0.0;
                 return true;
             }
 
