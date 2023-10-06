@@ -8863,7 +8863,8 @@ def test_axhvlinespan_interpolation():
     ax.axhspan(.6, .7, .8, .9, fc="C2", alpha=.5)
 
 
-@image_comparison(["bar_hatchcolor_with_facecolor_and_edgecolor"])
+@image_comparison(["bar_hatchcolor_with_facecolor_and_edgecolor"],
+                  extensions=["png", "pdf"])
 def test_bar_hatchcolor_with_facecolor_and_edgecolor():
 
     x = [2, 3, 4, 5]
@@ -8874,7 +8875,7 @@ def test_bar_hatchcolor_with_facecolor_and_edgecolor():
              hatchcolor="red", edgecolor="black")
 
 
-@image_comparison(["bar_hatchcolor_with_facecolor"])
+@image_comparison(["bar_hatchcolor_with_facecolor"], extensions=["png", "pdf"])
 def test_bar_hatchcolor_with_facecolor():
     x = [6, 7, 8, 9]
     y = [2, 4, 7, 3]
@@ -8882,7 +8883,7 @@ def test_bar_hatchcolor_with_facecolor():
     ax.bar(x, y, hatch="////", hatchcolor="green", facecolor=(0, 0, 0, 0))
 
 
-@image_comparison(["bar_hatchcolor"])
+@image_comparison(["bar_hatchcolor"], extensions=["png", "pdf"])
 def test_bar_hatchcolor():
     x = [4, 7, 19, 8]
     y = [1, 5, 8, 14]
