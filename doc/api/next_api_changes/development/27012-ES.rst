@@ -1,0 +1,7 @@
+Extensions require C++17
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Matplotlib now requires a compiler that supports C++17 in order to build its extensions.
+According to `SciPy's analysis
+<https://docs.scipy.org/doc/scipy/dev/toolchain.html#c-language-standards>`_, this
+should be available on all supported platforms.
