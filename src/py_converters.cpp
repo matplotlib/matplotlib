@@ -415,8 +415,6 @@ int convert_pathgen(PyObject *obj, void *pathgenp)
 int convert_clippath(PyObject *clippath_tuple, void *clippathp)
 {
     ClipPath *clippath = (ClipPath *)clippathp;
-    mpl::PathIterator path;
-    agg::trans_affine trans;
 
     if (clippath_tuple != NULL && clippath_tuple != Py_None) {
         if (!PyArg_ParseTuple(clippath_tuple,
