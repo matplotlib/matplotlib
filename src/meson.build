@@ -77,7 +77,7 @@ extension_data = {
       '_backend_agg.cpp',
       '_backend_agg_wrapper.cpp',
     ),
-    'dependencies': [agg_dep, numpy_dep, freetype_dep],
+    'dependencies': [agg_dep, numpy_dep, freetype_dep, pybind11_dep],
   },
   '_c_internal_utils': {
     'subdir': 'matplotlib',

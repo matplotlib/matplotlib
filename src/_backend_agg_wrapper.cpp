@@ -145,20 +145,6 @@ static int PyRendererAgg_init(PyRendererAgg *self, PyObject *args, PyObject *kwd
         return -1;
     }
 
-    if (dpi <= 0.0) {
-        PyErr_SetString(PyExc_ValueError, "dpi must be positive");
-        return -1;
-    }
-
-    if (width >= 1 << 16 || height >= 1 << 16) {
-        PyErr_Format(
-            PyExc_ValueError,
-            "Image size of %dx%d pixels is too large. "
-            "It must be less than 2^16 in each direction.",
-            width, height);
-        return -1;
-    }
-
     CALL_CPP_INIT("RendererAgg", self->x = new RendererAgg(width, height, dpi))
 
     return 0;
@@ -418,19 +404,6 @@ PyRendererAgg_draw_gouraud_triangles(PyRendererAgg *self, PyObject *args)
                           &colors,
                           &convert_trans_affine,
                           &trans)) {
-        return NULL;
-    }
-    if (points.shape(0) && !check_trailing_shape(points, "points", 3, 2)) {
-        return NULL;
-    }
-    if (colors.shape(0) && !check_trailing_shape(colors, "colors", 3, 4)) {
-        return NULL;
-    }
-    if (points.shape(0) != colors.shape(0)) {
-        PyErr_Format(PyExc_ValueError,
-                     "points and colors arrays must be the same length, got "
-                     "%" NPY_INTP_FMT " points and %" NPY_INTP_FMT "colors",
-                     points.shape(0), colors.shape(0));
         return NULL;
     }
 
