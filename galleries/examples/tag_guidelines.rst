@@ -13,14 +13,14 @@ Guidelines for assigning tags to gallery examples
 
 *What gets a tag?*
 
-    Every gallery example should be tagged with:
+Every gallery example should be tagged with:
 
-    * 1+ content tags
-    * structural, domain, or internal tag(s) if helpful
+* 1+ content tags
+* structural, domain, or internal tag(s) if helpful
 
-        Examples with many tags may indicate that the entry is a showcase example.
+Examples with many tags may indicate that the entry is a showcase example.
 
-        Tags can repeat existing forms of organization (e.g. an example is in the Animation folder and also gets an ``animation`` tag).
+Tags can repeat existing forms of organization (e.g. an example is in the Animation folder and also gets an ``animation`` tag).
 
 Tags are helpful to denote particularly good "byproduct" examples. E.g. the explicit purpose of a gallery example might be to demonstrate a colormap, but it's also a good demonstration of a legend. Tag ``legend`` to indicate that, rather than changing the title or the scope of the example.
 
@@ -38,7 +38,7 @@ IV. Internal tags: what information is helpful for maintainers or contributors?
     3. New tags should be be added when they are relevant to existing gallery entries too. Avoid tags that will link to only a single gallery entry.
     4. Tags can recreate other forms of organization.
 
-    Note: Tagging organization aims to work for 80-90% of cases. Some examples fall outside of the tagging structure. Niche or specific examples shouldn't be given standalone tags that won't apply to other examples.
+Note: Tagging organization aims to work for 80-90% of cases. Some examples fall outside of the tagging structure. Niche or specific examples shouldn't be given standalone tags that won't apply to other examples.
 
 *How to tag?*
  where you put the directive is where the tag will show
