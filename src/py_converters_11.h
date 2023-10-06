@@ -9,6 +9,7 @@
 namespace py = pybind11;
 
 #include "agg_basics.h"
+#include "agg_color_rgba.h"
 #include "agg_trans_affine.h"
 #include "path_converters.h"
 
@@ -54,6 +55,36 @@ namespace PYBIND11_NAMESPACE { namespace detail {
                 throw py::value_error("Invalid bounding box");
             }
 
+            return true;
+        }
+    };
+
+    template <> struct type_caster<agg::rgba> {
+    public:
+        PYBIND11_TYPE_CASTER(agg::rgba, const_name("rgba"));
+
+        bool load(handle src, bool) {
+            if (src.is_none()) {
+                value.r = 0.0;
+                value.g = 0.0;
+                value.b = 0.0;
+                value.a = 0.0;
+            } else {
+                auto rgbatuple = src.cast<pybind11::tuple>();
+                value.r = rgbatuple[0].cast<double>();
+                value.g = rgbatuple[1].cast<double>();
+                value.b = rgbatuple[2].cast<double>();
+                switch (rgbatuple.size()) {
+                case 4:
+                    value.a = rgbatuple[3].cast<double>();
+                    break;
+                case 3:
+                    value.a = 1.0;
+                    break;
+                default:
+                    throw pybind11::value_error("RGBA value must be 3- or 4-tuple");
+                }
+            }
             return true;
         }
     };

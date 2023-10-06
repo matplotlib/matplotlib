@@ -43,16 +43,11 @@ PyRendererAgg_draw_path(RendererAgg *self,
                         pybind11::object gc_obj,
                         mpl::PathIterator path,
                         agg::trans_affine trans,
-                        pybind11::object face_obj)
+                        agg::rgba face)
 {
     GCAgg gc;
-    agg::rgba face;
 
     if (!convert_gcagg(gc_obj.ptr(), &gc)) {
-        throw pybind11::error_already_set();
-    }
-
-    if (!convert_face(face_obj.ptr(), gc, &face)) {
         throw pybind11::error_already_set();
     }
 
@@ -87,16 +82,11 @@ PyRendererAgg_draw_markers(RendererAgg *self,
                            agg::trans_affine marker_path_trans,
                            mpl::PathIterator path,
                            agg::trans_affine trans,
-                           pybind11::object face_obj)
+                           agg::rgba face)
 {
     GCAgg gc;
-    agg::rgba face;
 
     if (!convert_gcagg(gc_obj.ptr(), &gc)) {
-        throw pybind11::error_already_set();
-    }
-
-    if (!convert_face(face_obj.ptr(), gc, &face)) {
         throw pybind11::error_already_set();
     }
 
