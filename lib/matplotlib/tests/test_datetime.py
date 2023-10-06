@@ -139,15 +139,15 @@ class TestDatetimePlotting:
         X_ranges, Y_ranges = np.meshgrid(x_ranges, y_ranges)
         X_timestamps, Y_timestamps = np.meshgrid(x_timestamps, y_timestamps)
 
-        # function to transform x, y values in order to create contour graph
-        f = lambda x, y: np.cos(x / 4) + np.sin(y / 4)
+        Z_timestamps = np.cos(X_timestamps / 4) + np.sin(Y_timestamps / 4)
+        Z_ranges = np.cos(X_ranges / 4) + np.sin(Y_ranges / 4)
 
-        ax1.contour(X_dates, Y_dates, f(X_timestamps, Y_timestamps))
-        ax2.contour(X_dates, Y_ranges, f(X_timestamps, Y_timestamps))
-        ax3.contour(X_ranges, Y_dates, f(X_timestamps, Y_timestamps))
-        bx1.contour(X_dates, Y_dates, f(X_ranges, Y_ranges))
-        bx2.contour(X_dates, Y_ranges, f(X_ranges, Y_ranges))
-        bx3.contour(X_ranges, Y_dates, f(X_ranges, Y_ranges))
+        ax1.contour(X_dates, Y_dates, Z_timestamps)
+        ax2.contour(X_dates, Y_ranges, Z_timestamps)
+        ax3.contour(X_ranges, Y_dates, Z_timestamps)
+        bx1.contour(X_dates, Y_dates, Z_ranges)
+        bx2.contour(X_dates, Y_ranges, Z_ranges)
+        bx3.contour(X_ranges, Y_dates, Z_ranges)
 
     @pytest.mark.xfail(reason="Test for contourf not written yet")
     @mpl.style.context("default")
