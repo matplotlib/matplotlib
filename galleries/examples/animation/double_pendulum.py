@@ -11,8 +11,6 @@ http://www.physics.usyd.edu.au/~wheat/dpend_html/solve_dpend.c
 Output generated via `matplotlib.animation.Animation.to_jshtml`.
 """
 
-from collections import deque
-
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy import cos, sin
@@ -92,19 +90,14 @@ line, = ax.plot([], [], 'o-', lw=2)
 trace, = ax.plot([], [], '.-', lw=1, ms=2)
 time_template = 'time = %.1fs'
 time_text = ax.text(0.05, 0.9, '', transform=ax.transAxes)
-history_x, history_y = deque(maxlen=history_len), deque(maxlen=history_len)
 
 
 def animate(i):
     thisx = [0, x1[i], x2[i]]
     thisy = [0, y1[i], y2[i]]
 
-    if i == 0:
-        history_x.clear()
-        history_y.clear()
-
-    history_x.appendleft(thisx[2])
-    history_y.appendleft(thisy[2])
+    history_x = x2[:i]
+    history_y = y2[:i]
 
     line.set_data(thisx, thisy)
     trace.set_data(history_x, history_y)
