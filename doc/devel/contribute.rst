@@ -227,6 +227,9 @@ Maplotlib repository to your own computer, or alternatively using
 in-browser development environment that comes with the appropriated setup to
 contribute to Matplotlib.
 
+Workflow overview
+^^^^^^^^^^^^^^^^^
+
 A brief overview of the workflow is as follows.
 
 #. `Create an account <https://github.com/join>`_ on GitHub if you do not
@@ -289,14 +292,19 @@ A brief overview of the workflow is as follows.
 
      git push -u origin my-feature
 
-Finally, go to the web page of your fork of the Matplotlib repo, and click
-'Pull request' to send your changes to the maintainers for review.
+Open a pull request on Matplotlib
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Finally, go to the web page of *your fork* of the Matplotlib repo, and click
+**Compare & pull request** to send your changes to the maintainers for review.
+The base repository is ``matplotlib/matplotlib`` and the base branch is
+generally ``main``. For more guidance, see GitHub's `pull request tutorial
+<https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork>`_.
 
 For more detailed instructions on how to set up Matplotlib for development and
 best practices for contribution, see :ref:`installing_for_devs`.
 
 GitHub Codespaces workflows
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * If you need to open a GUI window with Matplotlib output on Codespaces, our
   configuration includes a `light-weight Fluxbox-based desktop
@@ -378,7 +386,7 @@ This ensures that users are notified before the change will take effect and thus
 prevents unexpected breaking of code.
 
 Rules
-~~~~~
+^^^^^
 
 - Deprecations are targeted at the next point.release (e.g. 3.x)
 - Deprecated API is generally removed two point-releases after introduction
@@ -391,7 +399,7 @@ Rules
   API consistency lead developer
 
 Introducing
-~~~~~~~~~~~
+^^^^^^^^^^^
 
 #. Announce the deprecation in a new file
    :file:`doc/api/next_api_changes/deprecations/99999-ABC.rst` where ``99999``
@@ -428,7 +436,7 @@ Introducing
      ``param: <type> = ...``).
 
 Expiring
-~~~~~~~~
+^^^^^^^^
 
 #. Announce the API changes in a new file
    :file:`doc/api/next_api_changes/[kind]/99999-ABC.rst` where ``99999``
@@ -608,7 +616,7 @@ example, use ``_log.error('hello %s', 'world')``  rather than ``_log.error('hell
 {}'.format('world'))`` or ``_log.error(f'hello {s}')``.
 
 Which logging level to use?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 There are five levels at which you can emit messages.
 
