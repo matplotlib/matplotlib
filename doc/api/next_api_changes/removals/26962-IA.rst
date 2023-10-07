@@ -1,5 +1,5 @@
 Deprecated Classes Removed
-~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following deprecated classes from version 3.7 have been removed:
 
