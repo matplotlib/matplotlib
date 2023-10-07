@@ -170,11 +170,20 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.hexbin(...)
 
-    @pytest.mark.xfail(reason="Test for hist not written yet")
+    # Benjamin
+    # @pytest.mark.xfail(reason="Test for hist not written yet")
     @mpl.style.context("default")
     def test_hist(self):
-        fig, ax = plt.subplots()
-        ax.hist(...)
+        mpl.rcParams["date.converter"] = "concise"
+        N = 10
+        fig, (ax1, ax2, ax3) = plt.subplots(
+            3, 1, layout="constrained", figsize=(6, 10)
+        )
+
+        x = np.array([datetime.datetime(2023, 9, n) for n in range(1, N)])
+        ax1.hist(x, range(1, N))
+        ax2.hist(range(1, N), x)
+        ax3.hist(x, x)
 
     @pytest.mark.xfail(reason="Test for hist2d not written yet")
     @mpl.style.context("default")
