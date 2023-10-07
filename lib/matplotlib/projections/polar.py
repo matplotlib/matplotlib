@@ -13,6 +13,7 @@ from matplotlib.path import Path
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 from matplotlib.spines import Spine
+from matplotlib.ticker import AutoLocator
 
 
 class PolarTransform(mtransforms.Transform):
@@ -428,8 +429,10 @@ class ThetaAxis(maxis.XAxis):
                 "The xscale cannot be set on a polar plot")
         super()._set_scale(value, **kwargs)
         # LinearScale.set_default_locators_and_formatters just set the major
-        # locator to be an AutoLocator, so we customize it here to have ticks
+        # locator to be an AutoLocator(maybe), so we customize it here to have ticks
         # at sensible degree multiples.
+        if not isinstance(self.get_major_locator(), AutoLocator):
+            self.set_major_locator(AutoLocator())
         self.get_major_locator().set_params(steps=[1, 1.5, 3, 4.5, 9, 10])
         self._wrap_locator_formatter()
 
