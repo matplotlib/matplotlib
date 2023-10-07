@@ -9,7 +9,7 @@ The following deprecated classes from version 3.7 have been removed:
 These classes were previously marked as deprecated and have now been removed in accordance with the deprecation cycle.
 
 Deprecated C++ Methods Removed
-~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following deprecated C++ methods from `src/_backend_agg_wrapper.cpp`, deprecated since version 3.7, have also been removed:
 
