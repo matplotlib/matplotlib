@@ -170,8 +170,6 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.hexbin(...)
 
-    # Benjamin
-    # @pytest.mark.xfail(reason="Test for hist not written yet")
     @mpl.style.context("default")
     def test_hist(self):
         mpl.rcParams["date.converter"] = "concise"
