@@ -341,18 +341,37 @@ On the other hand, there is a concept of "axis_direction". This is a
 default setting of above properties for each, "bottom", "left", "top",
 and "right" axis.
 
-========== ========== ========= ========== ========= ==========
-label type  parameter    left      bottom      right      top
-========== ========== ========= ========== ========= ==========
-axislabel   direction      '-'       '+'        '+'      '-'
-axislabel   rotation      180         0          0       180
-axislabel   va           center    top       center     bottom
-axislabel   ha           right    center      right     center
-ticklabel   direction      '-'       '+'        '+'      '-'
-ticklabel   rotation       90         0        -90       180
-ticklabel   ha           right    center      right     center
-ticklabel   va           center   baseline    center   baseline
-========== ========== ========= ========== ========= ==========
+.. table:: ``axislabel`` property defaults
+
+   +---------------------+-----------------+----------------+----------------------+--------------------+
+   | reference direction | label direction | label rotation | horizontal alignment | vertical alignment |
+   +=====================+=================+================+======================+====================+
+   | left                | '-'             | 180            | right                | center             |
+   +---------------------+-----------------+----------------+----------------------+--------------------+
+   | bottom              | '+'             | 0              | center               | top                |
+   +---------------------+-----------------+----------------+----------------------+--------------------+
+   | right               | '+'             | 0              | right                | center             |
+   +---------------------+-----------------+----------------+----------------------+--------------------+
+   | top                 | '-'             | 180            | center               | bottom             |
+   +---------------------+-----------------+----------------+----------------------+--------------------+
+
+
+
+.. table:: ``ticklabel`` property defaults
+
+   +---------------------+-----------------+----------------+----------------------+--------------------+
+   | reference direction | label direction | label rotation | horizontal alignment | vertical alignment |
+   +=====================+=================+================+======================+====================+
+   | left                | '-'             | 90             | right                | center             |
+   +---------------------+-----------------+----------------+----------------------+--------------------+
+   | bottom              | '+'             | 0              | center               | baseline           |
+   +---------------------+-----------------+----------------+----------------------+--------------------+
+   | right               | '+'             | -90            | right                | center             |
+   +---------------------+-----------------+----------------+----------------------+--------------------+
+   | top                 | '-'             | 180            | center               | baseline           |
+   +---------------------+-----------------+----------------+----------------------+--------------------+
+
+
 
 And, 'set_axis_direction("top")' means to adjust the text rotation
 etc, for settings suitable for "top" axis. The concept of axis
