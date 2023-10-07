@@ -173,7 +173,7 @@ class TestDatetimePlotting:
     @mpl.style.context("default")
     def test_hist(self):
         mpl.rcParams["date.converter"] = 'concise'
-        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(8, 12), constrained_layout=True)
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, constrained_layout=True)
 
         start_date = datetime.datetime(2023, 10, 1)
         time_delta = datetime.timedelta(days=1)
@@ -182,9 +182,21 @@ class TestDatetimePlotting:
         values2 = np.random.randint(1, 10, 30)
         values3 = np.random.randint(1, 10, 30)
 
-        ax1.hist([start_date + i * time_delta for i in range(30)],bins=10,weights=values1)
-        ax2.hist([start_date + i * time_delta for i in range(30)],bins=10,weights=values2)
-        ax3.hist([start_date + i * time_delta for i in range(30)],bins=10,weights=values3)
+        ax1.hist(
+            [start_date + i * time_delta for i in range(30)],
+            bins=10,
+            weights=values1
+        )
+        ax2.hist(
+            [start_date + i * time_delta for i in range(30)],
+            bins=10,
+            weights=values2
+        )
+        ax3.hist(
+            [start_date + i * time_delta for i in range(30)],
+            bins=10,
+            weights=values3
+        )
 
     @pytest.mark.xfail(reason="Test for hist2d not written yet")
     @mpl.style.context("default")
