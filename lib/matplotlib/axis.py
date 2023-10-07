@@ -20,6 +20,7 @@ import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.units as munits
+from matplotlib.ticker import NullLocator
 
 _log = logging.getLogger(__name__)
 
@@ -568,11 +569,15 @@ class _LazyTickList:
             # list, then create the tick and append it.
             if self._major:
                 instance.majorTicks = []
+                if isinstance(instance.major.locator, NullLocator):
+                    return instance.majorTicks
                 tick = instance._get_tick(major=True)
                 instance.majorTicks.append(tick)
                 return instance.majorTicks
             else:
                 instance.minorTicks = []
+                if isinstance(instance.minor.locator, NullLocator):
+                    return instance.minorTicks
                 tick = instance._get_tick(major=False)
                 instance.minorTicks.append(tick)
                 return instance.minorTicks
@@ -2208,6 +2213,8 @@ class Axis(martist.Artist):
         - "default" if only tick1line, tick2line and label1 are visible;
         - "unknown" otherwise.
         """
+        if not len(self.majorTicks) or not len(self.minorTicks):
+            return "unknown"
         major = self.majorTicks[0]
         minor = self.minorTicks[0]
         if all(tick.tick1line.get_visible()
