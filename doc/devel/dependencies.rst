@@ -100,7 +100,8 @@ Matplotlib brings its own copies of the following libraries:
 Additionally, Matplotlib depends on:
 
 - FreeType_ (>= 2.3): a font rendering library
-- QHull_ (>= 2020.2): a library for computing triangulations
+- QHull_ (>= 8.0.2): a library for computing triangulations (note that this version is
+  also known as 2020.2)
 
 .. _FreeType: https://www.freetype.org/
 .. _Qhull: http://www.qhull.org/
@@ -113,24 +114,16 @@ defaults to the system version of FreeType on AIX.
 Use system libraries
 ^^^^^^^^^^^^^^^^^^^^
 
-To force Matplotlib to use a copy of FreeType or Qhull already installed in
-your system, create a :file:`mplsetup.cfg` file with the following contents:
-
-.. code-block:: cfg
-
-   [libs]
-   system_freetype = true
-   system_qhull = true
-
-before running
+To force Matplotlib to use a copy of FreeType or Qhull already installed in your system,
+you must `pass configuration settings to Meson via meson-python
+<https://meson-python.readthedocs.io/en/stable/how-to-guides/config-settings.html>`_:
 
 .. code-block:: sh
 
-   python -m pip install .
-
-
-You can also use the :envvar:`MPLSETUPCFG` to specify the path to a cfg file when
-installing from pypi.
+   python -m pip install \
+     --config-settings=setup-args="-Dsystem-freetype=true" \
+     --config-settings=setup-args="-Dsystem-qhull=true" \
+     .
 
 
 In this case, you need to install the FreeType and Qhull library and headers.
@@ -187,18 +180,12 @@ remember to clear your artifacts before re-building::
 Manual Download
 ^^^^^^^^^^^^^^^
 
-
-If the automatic download does not work (for example on air-gapped systems) it
-is preferable to instead use system libraries.  However you can manually
-download and unpack the tarballs into::
-
-  build/freetype-2.6.1  # on all platforms but windows ARM64
-  build/freetype-2.11.1 # on windows ARM64
-  build/qhull-2020.2
-
-at the top level of the checkout repository.  The expected sha256 hashes of
-the downloaded tarballs is in :file:`setupext.py` if you wish to verify
-before unpacking.
+If the automatic download does not work (for example, on air-gapped systems) it is
+preferable to instead use system libraries. However you can manually download the
+tarballs into :file:`subprojects/packagecache` at the top level of the checkout
+repository. The expected SHA256 hashes of the downloaded tarballs are in
+:file:`subprojects/*.wrap` if you wish to verify them, but they will also be checked by
+the build system before unpacking.
 
 
 Minimum pip / manylinux support (linux)
@@ -207,7 +194,7 @@ Minimum pip / manylinux support (linux)
 Matplotlib publishes `manylinux wheels <https://github.com/pypa/manylinux>`_
 which have a minimum version of pip which will recognize the wheels
 
-- Python 3.9+: ``manylinx2014`` / pip >= 19.3
+- Python 3.9+: ``manylinux2014`` / pip >= 19.3
 
 In all cases the required version of pip is embedded in the CPython source.
 
@@ -223,12 +210,18 @@ Dependencies for building Matplotlib
 Setup dependencies
 ------------------
 
-- `certifi <https://pypi.org/project/certifi/>`_ (>= 2020.06.20).  Used while
-  downloading the freetype and QHull source during build.  This is not a
-  runtime dependency.
+By default, ``pip`` will build packages using build isolation, and the following
+dependencies will be automatically installed in the isolated environment to build
+Matplotlib. However, for development, you may wish to make an editable install, which
+will require disabling build isolation, so these build dependencies should be installed
+in your target environment manually:
+
+- `meson-python <https://meson-python.readthedocs.io/>`_ (>= 0.13.1).
+- `ninja <https://ninja-build.org/>`_ (>= 1.8.2). This may be available in your package
+  manager or bundled with Meson, but may be installed via ``pip`` if otherwise not
+  available.
 - `PyBind11 <https://pypi.org/project/pybind11/>`_ (>= 2.6). Used to connect C/C++ code
   with Python.
-- `setuptools <https://pypi.org/project/setuptools/>`_ (>= 64).
 - `setuptools_scm <https://pypi.org/project/setuptools-scm/>`_ (>= 7).  Used to
   update the reported ``mpl.__version__`` based on the current git commit.
   Also a runtime dependency for editable installs.
@@ -288,8 +281,6 @@ Xcode, VS Code or Linux package manager. Choose **one** compiler from this list:
      - Linux, macOS, Windows
      - `gcc 4.8.1 <https://gcc.gnu.org/projects/cxx-status.html#cxx11>`_,
        `GCC: Binaries <https://gcc.gnu.org/install/binaries.html>`_,
-
-       For gcc <6.5 you will need to set ``$CFLAGS=-std=c++11`` to enable C++11 support.
    * - Clang (LLVM)
      - **3.3**
      - Linux, macOS
@@ -330,8 +321,8 @@ testing the following will be used if they are installed.
 - pytest-xvfb_ to run tests without windows popping up (Linux)
 - pytz_ used to test pytz int
 - sphinx_ used to test our sphinx extensions
-- WenQuanYi Zen Hei and `Noto Sans CJK <https://fonts.google.com/noto/use>`_
-  fonts for testing font fallback and non-western fonts
+- `WenQuanYi Zen Hei`_ and `Noto Sans CJK`_ fonts for testing font fallback and
+  non-Western fonts
 - xarray_ used to test compatibility with xarray
 
 If any of these dependencies are not discovered, then the tests that rely on
@@ -359,6 +350,8 @@ them will be skipped by pytest.
 .. _pytest-xvfb: https://pypi.org/project/pytest-xvfb/
 .. _pytest: http://doc.pytest.org/en/latest/
 .. _sphinx: https://pypi.org/project/Sphinx/
+.. _WenQuanYi Zen Hei: http://wenq.org/en/
+.. _Noto Sans CJK: https://fonts.google.com/noto/use
 .. _xarray: https://pypi.org/project/xarray/
 
 

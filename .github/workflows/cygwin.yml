@@ -174,8 +174,8 @@ jobs:
       - name: Install Python dependencies
         shell: bash.exe -eo pipefail -o igncr "{0}"
         run: |
-          python -m pip install --upgrade pip 'setuptools<60' wheel
-          python -m pip install kiwisolver 'numpy!=1.21.*' pillow importlib_resources
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install kiwisolver 'numpy>=1.22,<1.26' pillow importlib_resources
           grep -v -F -e psutil requirements/testing/all.txt >requirements_test.txt
           python -m pip install meson-python pybind11
           export PATH="/usr/local/bin:$PATH"
@@ -203,20 +203,14 @@ jobs:
           AUTOCONF: /usr/bin/autoconf-2.69
           MAKEFLAGS: dw
         run: |
+          export PATH="/usr/local/bin:$PATH"
           ccache -s
           git describe
-          cat <<EOT >> mplsetup.cfg
-          [rc_options]
-          backend=Agg
-
-          [libs]
-          system_freetype = False
-          system_qhull = True
-          EOT
-          cat mplsetup.cfg
           # All dependencies must have been pre-installed, so that the minver
           # constraints are held.
-          python -m pip install --no-deps -ve .
+          python -m pip install --no-deps --no-build-isolation --verbose \
+            --config-settings=setup-args="-DrcParams-backend=Agg" \
+            --editable .[dev]
 
       - name: Find DLLs to rebase
         shell: bash.exe -eo pipefail -o igncr "{0}"

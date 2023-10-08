@@ -162,7 +162,7 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
     if (hide_qhull_errors) {
         /* qhull errors are ignored by writing to OS-equivalent of /dev/null.
          * Rather than have OS-specific code here, instead it is determined by
-         * setupext.py and passed in via the macro MPL_DEVNULL. */
+         * meson.build and passed in via the macro MPL_DEVNULL. */
         error_file = fopen(STRINGIFY(MPL_DEVNULL), "w");
         if (error_file == NULL) {
             throw std::runtime_error("Could not open devnull");

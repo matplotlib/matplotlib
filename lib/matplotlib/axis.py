@@ -1961,8 +1961,9 @@ class Axis(martist.Artist):
         ----------
         labels : sequence of str or of `.Text`\s
             Texts for labeling each tick location in the sequence set by
-            `.Axis.set_ticks`; the number of labels must match the number of
-            locations.
+            `.Axis.set_ticks`; the number of labels must match the number of locations.
+            The labels are used as is, via a `.FixedFormatter` (without further
+            formatting).
 
         minor : bool
             If True, set minor ticks instead of major ticks.
@@ -2093,26 +2094,25 @@ class Axis(martist.Artist):
         Parameters
         ----------
         ticks : 1D array-like
-            Array of tick locations.  The axis `.Locator` is replaced by a
-            `~.ticker.FixedLocator`.
+            Array of tick locations (either floats or in axis units). The axis
+            `.Locator` is replaced by a `~.ticker.FixedLocator`.
 
-            The values may be either floats or in axis units.
-
-            Pass an empty list to remove all ticks::
-
-                set_ticks([])
+            Pass an empty list (``set_ticks([])``) to remove all ticks.
 
             Some tick formatters will not label arbitrary tick positions;
             e.g. log formatters only label decade ticks by default. In
             such a case you can set a formatter explicitly on the axis
             using `.Axis.set_major_formatter` or provide formatted
             *labels* yourself.
+
         labels : list of str, optional
-            Tick labels for each location in *ticks*. *labels* must be of the same
-            length as *ticks*. If not set, the labels are generate using the axis
-            tick `.Formatter`.
+            Tick labels for each location in *ticks*; must have the same length as
+            *ticks*. If set, the labels are used as is, via a `.FixedFormatter`.
+            If not set, the labels are generated using the axis tick `.Formatter`.
+
         minor : bool, default: False
             If ``False``, set the major ticks; if ``True``, the minor ticks.
+
         **kwargs
             `.Text` properties for the labels. Using these is only allowed if
             you pass *labels*. In other cases, please use `~.Axes.tick_params`.

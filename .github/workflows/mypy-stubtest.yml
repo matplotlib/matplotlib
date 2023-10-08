@@ -22,7 +22,7 @@ jobs:
         run: |
           pip3 install -r requirements/testing/mypy.txt \
             -r requirements/testing/all.txt
-          pip3 install -e .
+          pip3 install .
 
       - name: Set up reviewdog
         run: |
@@ -38,6 +38,7 @@ jobs:
         run: |
           set -o pipefail
           MPLBACKEND=agg python tools/stubtest.py | \
+              sed -e "s!$pythonLocation/lib/python3.9/site-packages!lib!g" | \
               reviewdog \
                 -efm '%Eerror: %m' \
                 -efm '%CStub: in file %f:%l' \

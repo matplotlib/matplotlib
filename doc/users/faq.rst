@@ -355,17 +355,23 @@ provide the following information in your e-mail to the `mailing list
 
 If you compiled Matplotlib yourself, please also provide:
 
-* any changes you have made to ``setup.py`` or ``setupext.py``.
+* your compiler version -- e.g., ``gcc --version``.
 * the output of::
 
-     rm -rf build
-     python setup.py build
+     pip install --verbose
 
   The beginning of the build output contains lots of details about your
   platform that are useful for the Matplotlib developers to diagnose your
   problem.
 
-* your compiler version -- e.g., ``gcc --version``.
+If you compiled an older version of Matplotlib using the pre-Meson build system, instead
+provide:
+
+* any changes you have made to ``setup.py``/``setupext.py``,
+* the output of::
+
+     rm -rf build
+     python setup.py build
 
 Including this information in your first e-mail to the mailing list
 will save a lot of time.
