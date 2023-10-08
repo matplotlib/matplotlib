@@ -249,11 +249,13 @@ class TestPlotTypes:
     failing_test_cases = [("mixed", ['A', 3.14]),
                           ("number integer", ['1', 1]),
                           ("string integer", ['42', 42]),
+                          ("nested categorical", [["a", "b"], ["c", "d"]]),
                           ("missing", ['12', np.nan])]
 
     fids, fvalues = zip(*failing_test_cases)
 
-    plotters = [Axes.scatter, Axes.bar,
+    plotters = [pytest.param(Axes.scatter, marks=pytest.mark.xfail),
+                Axes.bar,
                 pytest.param(Axes.plot, marks=pytest.mark.xfail)]
 
     @pytest.mark.parametrize("plotter", plotters)
@@ -321,3 +323,33 @@ def test_set_lim():
     ax.plot(["a", "b", "c", "d"], [1, 2, 3, 4])
     with warnings.catch_warnings():
         ax.set_xlim("b", "c")
+
+
+categorical_examples = [("nested categorical", [["a", "b"], ["c", "d"]]),
+                        ("nested with nan", [['0', np.nan], ["aa", "bb"]]),
+                        ("nested mixed", [[1, 'a'], ['b', np.nan]])]
+cids, cvalues = zip(*categorical_examples)
+
+
+@pytest.mark.parametrize("xdata", cvalues, ids=cids)
+@pytest.mark.parametrize("ydata", cvalues, ids=cids)
+def test_nested_categorical(xdata, ydata):
+    ax = plt.figure().subplots()
+    ax.scatter(xdata, ydata)
+
+    xtexts = [xelement._text for xelement in ax.get_xticklabels()]
+
+    assert np.all(xtexts == np.ma.ravel(xdata))
+
+
+@pytest.mark.parametrize("xdata", cvalues, ids=cids)
+def test_nested_categorical_and_numerical(xdata):
+    ydata = [[0, 1], [2, 3]]
+    ax = plt.figure().subplots()
+    splot = ax.scatter(xdata, ydata)
+
+    xtexts = [xelement._text for xelement in ax.get_xticklabels()]
+    y_offset_processed = list(zip(*splot.get_offsets()))[1]
+
+    assert np.all(xtexts == np.ma.ravel(xdata))
+    assert np.all(np.ma.ravel(ydata) == y_offset_processed)

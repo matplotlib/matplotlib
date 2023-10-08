@@ -4657,14 +4657,14 @@ default: :rc:`scatter.edgecolors`
         # further processed by the rest of the function
         linewidths = kwargs.pop('linewidth', None)
         edgecolors = kwargs.pop('edgecolor', None)
-        # Process **kwargs to handle aliases, conflicts with explicit kwargs:
-        x, y = self._process_unit_info([("x", x), ("y", y)], kwargs)
         # np.ma.ravel yields an ndarray, not a masked array,
         # unless its argument is a masked array.
         x = np.ma.ravel(x)
         y = np.ma.ravel(y)
         if x.size != y.size:
             raise ValueError("x and y must be the same size")
+        # Process **kwargs to handle aliases, conflicts with explicit kwargs:
+        x, y = self._process_unit_info([("x", x), ("y", y)], kwargs)
 
         if s is None:
             s = (20 if mpl.rcParams['_internal.classic_mode'] else
