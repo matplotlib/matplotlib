@@ -15,7 +15,7 @@ from matplotlib.colors import (
     BoundaryNorm, LogNorm, PowerNorm, Normalize, NoNorm
 )
 from matplotlib.colorbar import Colorbar
-from matplotlib.ticker import FixedLocator, LogFormatter
+from matplotlib.ticker import FixedLocator, LogFormatter, StrMethodFormatter
 from matplotlib.testing.decorators import check_figures_equal
 
 
@@ -1230,3 +1230,9 @@ def test_colorbar_wrong_figure():
     fig_tl.colorbar(im)
     fig_tl.draw_without_rendering()
     fig_cl.draw_without_rendering()
+
+
+def test_colorbar_format_string_and_old():
+    plt.imshow([[0, 1]])
+    cb = plt.colorbar(format="{x}%")
+    assert isinstance(cb._formatter, StrMethodFormatter)

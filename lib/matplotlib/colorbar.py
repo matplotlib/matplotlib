@@ -404,7 +404,7 @@ class Colorbar:
             try:
                 self._formatter = ticker.FormatStrFormatter(format)
                 _ = self._formatter(0)
-            except TypeError:
+            except (TypeError, ValueError):
                 self._formatter = ticker.StrMethodFormatter(format)
         else:
             self._formatter = format  # Assume it is a Formatter or None
