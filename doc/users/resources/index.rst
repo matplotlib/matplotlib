@@ -71,9 +71,6 @@ Videos
 Tutorials
 =========
 
-
-
-
 * `Matplotlib tutorial <https://www.labri.fr/perso/nrougier/teaching/matplotlib/>`_
   by Nicolas P. Rougier
 
@@ -89,9 +86,8 @@ Tutorials
 Galleries
 =========
 
-
 * `Past winners for JDH plotting contest <https://jhepc.github.io/gallery.html>`_
-   by Nelle Varoquaux
+  by Nelle Varoquaux
 
 * `The Python Graph Gallery <https://www.python-graph-gallery.com>`_
   by Yan Holtz
