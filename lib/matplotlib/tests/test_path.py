@@ -539,3 +539,13 @@ def test_cleanup_closepoly():
         cleaned = p.cleaned(remove_nans=True)
         assert len(cleaned) == 1
         assert cleaned.codes[0] == Path.STOP
+
+
+def test_hatch_density_integer_to_float():
+    with pytest.warns(FutureWarning,
+                      match="behavior change due to float to int conversion."):
+        Path.hatch("x", 6.6)
+
+
+def test_hatch_density_integer():
+    Path.hatch("x", 2.0)

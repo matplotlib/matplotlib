@@ -133,7 +133,7 @@ class SmallCircles(Circles):
     size = 0.2
 
     def __init__(self, hatch, density):
-        self.num_rows = (hatch.count('o')) * density
+        self.num_rows = int((hatch.count('o')) * density)
         super().__init__(hatch, density)
 
 
@@ -141,7 +141,7 @@ class LargeCircles(Circles):
     size = 0.35
 
     def __init__(self, hatch, density):
-        self.num_rows = (hatch.count('O')) * density
+        self.num_rows = int((hatch.count('O')) * density)
         super().__init__(hatch, density)
 
 
@@ -150,7 +150,7 @@ class SmallFilledCircles(Circles):
     filled = True
 
     def __init__(self, hatch, density):
-        self.num_rows = (hatch.count('.')) * density
+        self.num_rows = int((hatch.count('.')) * density)
         super().__init__(hatch, density)
 
 
@@ -159,7 +159,7 @@ class Stars(Shapes):
     filled = True
 
     def __init__(self, hatch, density):
-        self.num_rows = (hatch.count('*')) * density
+        self.num_rows = int((hatch.count('*')) * density)
         path = Path.unit_regular_star(5)
         self.shape_vertices = path.vertices
         self.shape_codes = np.full(len(self.shape_vertices), Path.LINETO,
@@ -196,13 +196,18 @@ def _validate_hatch_pattern(hatch):
             )
 
 
-def get_path(hatchpattern, density=6):
+def get_path(hatchpattern, density=6.0):
     """
     Given a hatch specifier, *hatchpattern*, generates Path to render
     the hatch in a unit square.  *density* is the number of lines per
     unit square.
     """
-    density = int(density)
+    if int(density) != density:
+        _api.warn_external("Passing a floating point density will result in "
+                           "a behavior change due to float to int conversion."
+                           f"Value density ({density}) will be used "
+                           f"instead of {int(density)} to calculate lines",
+                           category=FutureWarning)
 
     patterns = [hatch_type(hatchpattern, density)
                 for hatch_type in _hatch_types]

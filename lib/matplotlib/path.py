@@ -1024,7 +1024,7 @@ class Path:
 
     @staticmethod
     @lru_cache(8)
-    def hatch(hatchpattern, density=6):
+    def hatch(hatchpattern, density=6.0):
         """
         Given a hatch specifier, *hatchpattern*, generates a `Path` that
         can be used in a repeated hatching pattern.  *density* is the
