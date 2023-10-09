@@ -89,8 +89,17 @@ class TestDatetimePlotting:
     @pytest.mark.xfail(reason="Test for boxplot not written yet")
     @mpl.style.context("default")
     def test_boxplot(self):
-        fig, ax = plt.subplots()
-        ax.boxplot(...)
+        data = [datetime.datetime(2023, 10, 5, 18, 52, 59),
+                datetime.datetime(2023, 10, 4, 18, 53, 0),
+                datetime.datetime(2023, 10, 3, 18, 53, 1),
+                datetime.datetime(2023, 10, 2, 18, 53, 2),
+                datetime.datetime(2023, 10, 1, 18, 53, 3)]
+        datums = np.array([datetime.datetime.toordinal(d) for d in data])
+        plt.boxplot(datums, labels=['my data'], showfliers=True)
+        plt.xlabel('Datetime')
+        plt.ylabel('value')
+        plt.title('Boxplot of datetime data')
+        plt.show()
 
     @pytest.mark.xfail(reason="Test for broken_barh not written yet")
     @mpl.style.context("default")
