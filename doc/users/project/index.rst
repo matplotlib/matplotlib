@@ -1,7 +1,7 @@
 .. redirect-from:: /users/backmatter
 
 Project information
--------------------
+===================
 
 .. toctree::
     :maxdepth: 2
