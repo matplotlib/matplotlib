@@ -214,7 +214,6 @@ class TestDatetimePlotting:
         ax6.hist(
             [start_date + i * time_delta for i in range(30)],
             bins=bin_edges,
-            edgecolor='black',
             weights=values3
         )
 
