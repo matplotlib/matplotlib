@@ -10,7 +10,7 @@ and :doc:`Axes <../axes/index>` are Artists, and generally contain
 
 
 Creating Artists
-~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^
 
 Usually we do not instantiate Artists directly, but rather use a plotting
 method on `~.axes.Axes`.  Some examples of plotting methods and the Artist
@@ -58,7 +58,7 @@ Artist via `~.Axes.get_lines()`:
     Line2D(example)
 
 Changing Artist properties
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Getting the ``lines`` object gives us access to all the properties of the
 Line2D object.  So if we want to change the *linewidth* after the fact, we can do so using `.Artist.set`.
@@ -132,7 +132,7 @@ Note most Artists also have a distinct list of setters; e.g.
 `.Line2D.set_color` or `.Line2D.set_linewidth`.
 
 Changing Artist data
-~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 
 In addition to styling properties like *color* and *linewidth*, the Line2D
 object has a *data* property.  You can set the data after the line has been
@@ -149,7 +149,7 @@ same line is shown evolving over time (see :doc:`../animations/index`)
     lines[0].set_data([x, np.cos(x)])
 
 Manually adding Artists
-~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Not all Artists have helper methods, or you may want to use a low-level method
 for some reason.  For example the `.patches.Circle` Artist does not have a
@@ -178,7 +178,7 @@ be clipped, as is the case above for the ``clipped_circle`` patch.
 See :ref:`artist_reference` for other patches.
 
 Removing Artists
-~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^
 
 Sometimes we want to remove an Artist from a figure without re-specifying the
 whole figure from scratch.  Most Artists have a usable *remove* method that
