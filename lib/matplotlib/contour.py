@@ -935,9 +935,11 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             )
 
     allsegs = _api.deprecated("3.8", pending=True)(property(lambda self: [
-        p.vertices for c in self.collections for p in c.get_paths()]))
+        [subp.vertices for subp in p._iter_connected_components()]
+        for p in self.get_paths()]))
     allkinds = _api.deprecated("3.8", pending=True)(property(lambda self: [
-        p.codes for c in self.collections for p in c.get_paths()]))
+        [subp.codes for subp in p._iter_connected_components()]
+        for p in self.get_paths()]))
     tcolors = _api.deprecated("3.8")(property(lambda self: [
         (tuple(rgba),) for rgba in self.to_rgba(self.cvalues, self.alpha)]))
     tlinewidths = _api.deprecated("3.8")(property(lambda self: [
