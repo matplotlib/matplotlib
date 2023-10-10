@@ -10,7 +10,7 @@ project(
   meson_version: '>=1.1.0',
   default_options: [
     'b_lto=true',
-    'cpp_std=c++11',
+    'cpp_std=c++17',
     'auto_features=disabled',  # Force FreeType to avoid extra dependencies.
   ],
 )

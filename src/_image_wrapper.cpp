@@ -10,41 +10,40 @@
  * */
 
 const char* image_resample__doc__ =
-"Resample input_array, blending it in-place into output_array, using an\n"
-"affine transformation.\n\n"
+R"""(Resample input_array, blending it in-place into output_array, using an affine transform.
 
-"Parameters\n"
-"----------\n"
-"input_array : 2-d or 3-d NumPy array of float, double or `numpy.uint8`\n"
-"    If 2-d, the image is grayscale.  If 3-d, the image must be of size\n"
-"    4 in the last dimension and represents RGBA data.\n\n"
+Parameters
+----------
+input_array : 2-d or 3-d NumPy array of float, double or `numpy.uint8`
+    If 2-d, the image is grayscale.  If 3-d, the image must be of size 4 in the last
+    dimension and represents RGBA data.
 
-"output_array : 2-d or 3-d NumPy array of float, double or `numpy.uint8`\n"
-"    The dtype and number of dimensions must match `input_array`.\n\n"
+output_array : 2-d or 3-d NumPy array of float, double or `numpy.uint8`
+    The dtype and number of dimensions must match `input_array`.
 
-"transform : matplotlib.transforms.Transform instance\n"
-"    The transformation from the input array to the output array.\n\n"
+transform : matplotlib.transforms.Transform instance
+    The transformation from the input array to the output array.
 
-"interpolation : int, default: NEAREST\n"
-"    The interpolation method.  Must be one of the following constants\n"
-"    defined in this module:\n\n"
+interpolation : int, default: NEAREST
+    The interpolation method.  Must be one of the following constants defined in this
+    module:
 
-"      NEAREST, BILINEAR, BICUBIC, SPLINE16, SPLINE36,\n"
-"      HANNING, HAMMING, HERMITE, KAISER, QUADRIC, CATROM, GAUSSIAN,\n"
-"      BESSEL, MITCHELL, SINC, LANCZOS, BLACKMAN\n\n"
+      NEAREST, BILINEAR, BICUBIC, SPLINE16, SPLINE36, HANNING, HAMMING, HERMITE, KAISER,
+      QUADRIC, CATROM, GAUSSIAN, BESSEL, MITCHELL, SINC, LANCZOS, BLACKMAN
 
-"resample : bool, optional\n"
-"    When `True`, use a full resampling method.  When `False`, only\n"
-"    resample when the output image is larger than the input image.\n\n"
+resample : bool, optional
+    When `True`, use a full resampling method.  When `False`, only resample when the
+    output image is larger than the input image.
 
-"alpha : float, default: 1\n"
-"    The transparency level, from 0 (transparent) to 1 (opaque).\n\n"
+alpha : float, default: 1
+    The transparency level, from 0 (transparent) to 1 (opaque).
 
-"norm : bool, default: False\n"
-"    Whether to norm the interpolation function.\n\n"
+norm : bool, default: False
+    Whether to norm the interpolation function.
 
-"radius: float, default: 1\n"
-"    The radius of the kernel, if method is SINC, LANCZOS or BLACKMAN.\n";
+radius: float, default: 1
+    The radius of the kernel, if method is SINC, LANCZOS or BLACKMAN.
+)""";
 
 
 static pybind11::array_t<double>
