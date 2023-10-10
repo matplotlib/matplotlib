@@ -31,7 +31,7 @@ Native Matplotlib interfaces
 ----------------------------
 
 The explicit "Axes" interface
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The "Axes" interface is how Matplotlib is implemented, and many customizations
 and fine-tuning end up being done at this level.
@@ -59,7 +59,7 @@ but before they are displayed.
 
 
 The implicit "pyplot" interface
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The `~.matplotlib.pyplot` module shadows most of the
 `~.matplotlib.axes.Axes` plotting methods to give the equivalent of
