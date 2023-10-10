@@ -252,11 +252,24 @@ class TestDatetimePlotting:
         ax2.plot(range(1, N), x)
         ax3.plot(x, x)
 
-    @pytest.mark.xfail(reason="Test for plot_date not written yet")
     @mpl.style.context("default")
     def test_plot_date(self):
-        fig, ax = plt.subplots()
-        ax.plot_date(...)
+        mpl.rcParams["date.converter"] = "concise"
+        range_threshold = 10
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
+
+        x_dates = np.array(
+            [datetime.datetime(2023, 10, delta) for delta in range(1, range_threshold)]
+        )
+        y_dates = np.array(
+            [datetime.datetime(2023, 10, delta) for delta in range(1, range_threshold)]
+        )
+        x_ranges = np.array(range(1, range_threshold))
+        y_ranges = np.array(range(1, range_threshold))
+
+        ax1.plot_date(x_dates, y_dates)
+        ax2.plot_date(x_dates, y_ranges)
+        ax3.plot_date(x_ranges, y_dates)
 
     @pytest.mark.xfail(reason="Test for psd not written yet")
     @mpl.style.context("default")
