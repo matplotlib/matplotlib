@@ -418,8 +418,13 @@ class ContourLabeler:
         new_code_blocks = []
         if is_closed_path:
             if i0 != -1 and i1 != -1:
-                new_xy_blocks.extend([[(x1, y1)], cc_xys[i1:i0+1], [(x0, y0)]])
-                new_code_blocks.extend([[Path.MOVETO], [Path.LINETO] * (i0 + 2 - i1)])
+                # This is probably wrong in the case that the entire contour would
+                # be discarded, but ensures that a valid path is returned and is
+                # consistent with behavior of mpl <3.8
+                points = cc_xys[i1:i0+1]
+                new_xy_blocks.extend([[(x1, y1)], points, [(x0, y0)]])
+                nlines = len(points) + 1
+                new_code_blocks.extend([[Path.MOVETO], [Path.LINETO] * nlines])
         else:
             if i0 != -1:
                 new_xy_blocks.extend([cc_xys[:i0 + 1], [(x0, y0)]])
