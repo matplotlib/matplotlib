@@ -83,8 +83,6 @@ class ColormapRegistry(Mapping):
     def __init__(self, cmaps):
         self._cmaps = cmaps
         self._builtin_cmaps = tuple(cmaps)
-        # A shim to allow register_cmap() to force an override
-        self._allow_override_builtin = False
 
     def __getitem__(self, item):
         try:
@@ -146,10 +144,8 @@ class ColormapRegistry(Mapping):
                 # unless explicitly asked to
                 raise ValueError(
                     f'A colormap named "{name}" is already registered.')
-            elif (name in self._builtin_cmaps
-                    and not self._allow_override_builtin):
-                # We don't allow overriding a builtin unless privately
-                # coming from register_cmap()
+            elif name in self._builtin_cmaps:
+                # We don't allow overriding a builtin
                 raise ValueError("Re-registering the builtin cmap "
                                  f"{name!r} is not allowed.")
 
