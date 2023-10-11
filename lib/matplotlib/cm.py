@@ -83,6 +83,8 @@ class ColormapRegistry(Mapping):
     def __init__(self, cmaps):
         self._cmaps = cmaps
         self._builtin_cmaps = tuple(cmaps)
+        # A shim to allow register_cmap() to force an override
+        self._allow_override_builtin = False
 
     def __getitem__(self, item):
         try:
@@ -144,8 +146,10 @@ class ColormapRegistry(Mapping):
                 # unless explicitly asked to
                 raise ValueError(
                     f'A colormap named "{name}" is already registered.')
-            elif name in self._builtin_cmap:
-                # We don't allow overriding a builtin
+            elif (name in self._builtin_cmaps
+                    and not self._allow_override_builtin):
+                # We don't allow overriding a builtin unless privately
+                # coming from register_cmap()
                 raise ValueError("Re-registering the builtin cmap "
                                  f"{name!r} is not allowed.")
 
@@ -230,6 +234,35 @@ class ColormapRegistry(Mapping):
 # detail.
 _colormaps = ColormapRegistry(_gen_cmap_registry())
 globals().update(_colormaps)
+
+
+def _get_cmap(name=None, lut=None):
+    """
+    Get a colormap instance, defaulting to rc values if *name* is None.
+
+    Parameters
+    ----------
+    name : `~matplotlib.colors.Colormap` or str or None, default: None
+        If a `.Colormap` instance, it will be returned. Otherwise, the name of
+        a colormap known to Matplotlib, which will be resampled by *lut*. The
+        default, None, means :rc:`image.cmap`.
+    lut : int or None, default: None
+        If *name* is not already a Colormap instance and *lut* is not None, the
+        colormap will be resampled to have *lut* entries in the lookup table.
+
+    Returns
+    -------
+    Colormap
+    """
+    if name is None:
+        name = mpl.rcParams['image.cmap']
+    if isinstance(name, colors.Colormap):
+        return name
+    _api.check_in_list(sorted(_colormaps), name=name)
+    if lut is None:
+        return _colormaps[name]
+    else:
+        return _colormaps[name].resampled(lut)
 
 
 def _auto_norm_from_scale(scale_cls):

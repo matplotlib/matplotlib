@@ -55,7 +55,7 @@ Please pass capstyles ("miter", "round", "bevel") and joinstyles ("butt",
 
 Passing raw data to ``register_cmap()``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Passing raw data via parameters *data* and *lut* to ``matplotlib.cm.register_cmap()`` is
+Passing raw data via parameters *data* and *lut* to `.register_cmap()` is
 deprecated. Instead, explicitly create a `.LinearSegmentedColormap` and pass
 it via the *cmap* parameter:
 ``register_cmap(cmap=LinearSegmentedColormap(name, data, lut))``.

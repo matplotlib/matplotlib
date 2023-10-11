@@ -49,6 +49,8 @@ matplotlib.figure.Figure.set_constrained_layout
 matplotlib.figure.Figure.set_constrained_layout_pads
 matplotlib.figure.Figure.set_tight_layout
 
+# 3.7 deprecations
+
 # 3.8 deprecations
 matplotlib.cbook.get_sample_data
 matplotlib.contour.ContourSet.allkinds

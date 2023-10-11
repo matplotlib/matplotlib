@@ -203,7 +203,7 @@ time, not at draw time.
 Raise or warn on registering a colormap twice
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When using ``matplotlib.cm.register_cmap`` to register a user provided or
+When using `matplotlib.cm.register_cmap` to register a user provided or
 third-party colormap it will now raise a `ValueError` if trying to over-write
 one of the built in colormaps and warn if trying to over write a user
 registered colormap. This may raise for user-registered colormaps in the
