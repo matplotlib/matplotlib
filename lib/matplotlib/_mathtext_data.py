@@ -1192,9 +1192,16 @@ stix_virtual_fonts: dict[str, dict[str, list[tuple[int, int, str, int]]] |
             ],
         },
     'cal':
-        [
-        (0x0041, 0x005a, 'it', 0xe22d), # A-Z
-        ],
+        {
+        'it':
+            [
+            (0x0041, 0x005a, 'it', 0xe22d), # A-Z
+            ],
+        'bfit':
+            [
+            (0x0041, 0x005a, 'bfit', 0x1d4d0), # A-Z
+            ],
+        },
     'frak':
         {
         'rm':
