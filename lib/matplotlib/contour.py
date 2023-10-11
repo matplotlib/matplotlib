@@ -383,7 +383,7 @@ class ContourLabeler:
         # If the path is closed, rotate it s.t. it starts at the label.
         is_closed_path = codes[stop - 1] == Path.CLOSEPOLY
         if is_closed_path:
-            cc_xys = np.concatenate([xys[idx:-1], xys[:idx+1]])
+            cc_xys = np.concatenate([cc_xys[idx:-1], cc_xys[:idx+1]])
             idx = 0
 
         # Like np.interp, but additionally vectorized over fp.
