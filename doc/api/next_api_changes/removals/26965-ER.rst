@@ -1,20 +1,23 @@
-``matplotlib.cm.register_cmap``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In Matplotlib 3.5 we added a `.ColormapRegistry` class and exposed an instance
+at the top level as ``matplotlib.colormaps``. The existing top level functions
+in `matplotlib.cm` (``get_cmap``, ``register_cmap``, ``unregister_cmap``) were
+changed to be aliases around the same instance. In Matplotlib 3.6 we have
+marked those top level functions as pending deprecation.
 
-... was removed as it was deprecated during 3.7. Use `matplotlib.colormaps.register` instead.
+In Matplotlib 3.7, the following functions have been marked for deprecation:
 
-``matplotlib.cm.unregister_cmap``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- ``matplotlib.cm.get_cmap``; use ``matplotlib.colormaps[name]`` instead if you
+  have a `str`.
 
-... was removed as it was deprecated during 3.7. Use `matplotlib.colormaps.unregister` instead.
+  **Added 3.6.1** Use `matplotlib.cm.ColormapRegistry.get_cmap` if you
+  have a string, `None` or a `matplotlib.colors.Colormap` object that you want
+  to convert to a `matplotlib.colors.Colormap` instance.
+- ``matplotlib.cm.register_cmap``; use `matplotlib.colormaps.register
+  <.ColormapRegistry.register>` instead
+- ``matplotlib.cm.unregister_cmap``; use `matplotlib.colormaps.unregister
+  <.ColormapRegistry.unregister>` instead
+- ``matplotlib.pyplot.register_cmap``; use `matplotlib.colormaps.register
+  <.ColormapRegistry.register>` instead
 
-``matplotlib.pyplot.register_cmap``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-... was removed as it was deprecated during 3.7. Use `matplotlib.colormaps.register` instead.
-
-``matplotlib.cm.get_cmap``
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-... was removed as it was deprecated during 3.7. Use `matplotlib.cm.ColormapRegistry.get_cmap` if you have a string, `None`
-or a `matplotlib.colors.Colormap` object that you want to convert to a `matplotlib.colors.Colormap` instance.
+The `matplotlib.pyplot.get_cmap` function will stay available for backward
+compatibility.

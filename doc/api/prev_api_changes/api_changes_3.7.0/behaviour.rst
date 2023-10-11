@@ -20,7 +20,7 @@ also be based on ``mpl_toolkits.axisartist``.  This behavior is consistent with
 ``plt.get_cmap`` and ``matplotlib.cm.get_cmap`` return a copy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Formerly, `~.pyplot.get_cmap` and `.cm.get_cmap` returned a global version of a
+Formerly, `~.pyplot.get_cmap` and ``matplotlib.cm.get_cmap`` returned a global version of a
 `.Colormap`. This was prone to errors as modification of the colormap would
 propagate from one location to another without warning. Now, a new copy of the
 colormap is returned.
