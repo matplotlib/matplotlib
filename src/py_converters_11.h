@@ -56,6 +56,34 @@ namespace PYBIND11_NAMESPACE { namespace detail {
             return true;
         }
     };
+
+    template <> struct type_caster<agg::trans_affine> {
+    public:
+        PYBIND11_TYPE_CASTER(agg::trans_affine, const_name("trans_affine"));
+
+        bool load(handle src, bool) {
+            // If None assume identity transform so leave affine unchanged
+            if (src.is_none()) {
+                return true;
+            }
+
+            auto array = py::array_t<double, py::array::c_style>::ensure(src);
+            if (!array || array.ndim() != 2 ||
+                    array.shape(0) != 3 || array.shape(1) != 3) {
+                throw std::invalid_argument("Invalid affine transformation matrix");
+            }
+
+            auto buffer = array.data();
+            value.sx = buffer[0];
+            value.shx = buffer[1];
+            value.tx = buffer[2];
+            value.shy = buffer[3];
+            value.sy = buffer[4];
+            value.ty = buffer[5];
+
+            return true;
+        }
+    };
 }} // namespace PYBIND11_NAMESPACE::detail
 
 #endif /* MPL_PY_CONVERTERS_11_H */
