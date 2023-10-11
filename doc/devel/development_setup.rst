@@ -154,6 +154,8 @@ Most Python dependencies will be installed when :ref:`setting up the environment
 but non-Python dependencies like C++ compilers, LaTeX, and other system applications
 must be installed separately. For a full list, see :ref:`dependencies`.
 
+.. _development-install:
+
 Install Matplotlib in editable mode
 ===================================
 
