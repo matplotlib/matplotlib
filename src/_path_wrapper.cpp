@@ -77,21 +77,17 @@ Py_points_in_path(py::array_t<double> points_obj, double r, py::object path_obj,
 }
 
 static py::tuple
-Py_update_path_extents(py::object path_obj, py::object trans_obj, py::object rect_obj,
+Py_update_path_extents(py::object path_obj, py::object trans_obj, agg::rect_d rect,
                        py::array_t<double> minpos, bool ignore)
 {
     mpl::PathIterator path;
     agg::trans_affine trans;
-    agg::rect_d rect;
     bool changed;
 
     if (!convert_path(path_obj.ptr(), &path)) {
         throw py::error_already_set();
     }
     convert_trans_affine(trans_obj, trans);
-    if (!convert_rect(rect_obj.ptr(), &rect)) {
-        throw py::error_already_set();
-    }
 
     if (minpos.ndim() != 1) {
         throw py::value_error(
@@ -241,17 +237,12 @@ Py_path_in_path(py::object a_obj, py::object atrans_obj,
 }
 
 static py::list
-Py_clip_path_to_rect(py::object path_obj, py::object rect_obj,
-                     bool inside)
+Py_clip_path_to_rect(py::object path_obj, agg::rect_d rect, bool inside)
 {
     mpl::PathIterator path;
-    agg::rect_d rect;
     std::vector<Polygon> result;
 
     if (!convert_path(path_obj.ptr(), &path)) {
-        throw py::error_already_set();
-    }
-    if (!convert_rect(rect_obj.ptr(), &rect)) {
         throw py::error_already_set();
     }
 
@@ -297,14 +288,10 @@ Py_affine_transform(py::array_t<double, py::array::c_style | py::array::forcecas
 }
 
 static int
-Py_count_bboxes_overlapping_bbox(py::object bbox_obj, py::object bboxes_obj)
+Py_count_bboxes_overlapping_bbox(agg::rect_d bbox, py::object bboxes_obj)
 {
-    agg::rect_d bbox;
     numpy::array_view<const double, 3> bboxes;
 
-    if (!convert_rect(bbox_obj.ptr(), &bbox)) {
-        throw py::error_already_set();
-    }
     if (!convert_bboxes(bboxes_obj.ptr(), &bboxes)) {
         throw py::error_already_set();
     }
@@ -374,12 +361,11 @@ Py_convert_path_to_polygons(py::object path_obj, py::object trans_obj,
 
 static py::tuple
 Py_cleanup_path(py::object path_obj, py::object trans_obj, bool remove_nans,
-                py::object clip_rect_obj, py::object snap_mode_obj, double stroke_width,
+                agg::rect_d clip_rect, py::object snap_mode_obj, double stroke_width,
                 std::optional<bool> simplify, bool return_curves, py::object sketch_obj)
 {
     mpl::PathIterator path;
     agg::trans_affine trans;
-    agg::rect_d clip_rect;
     e_snap_mode snap_mode;
     SketchParams sketch;
 
@@ -387,9 +373,6 @@ Py_cleanup_path(py::object path_obj, py::object trans_obj, bool remove_nans,
         throw py::error_already_set();
     }
     convert_trans_affine(trans_obj, trans);
-    if (!convert_rect(clip_rect_obj.ptr(), &clip_rect)) {
-        throw py::error_already_set();
-    }
     if (!convert_snap(snap_mode_obj.ptr(), &snap_mode)) {
         throw py::error_already_set();
     }
@@ -449,13 +432,12 @@ postfix : bool
 )""";
 
 static py::object
-Py_convert_to_string(py::object path_obj, py::object trans_obj, py::object cliprect_obj,
+Py_convert_to_string(py::object path_obj, py::object trans_obj, agg::rect_d cliprect,
                      std::optional<bool> simplify, py::object sketch_obj, int precision,
                      std::array<std::string, 5> codes_obj, bool postfix)
 {
     mpl::PathIterator path;
     agg::trans_affine trans;
-    agg::rect_d cliprect;
     SketchParams sketch;
     char *codes[5];
     std::string buffer;
@@ -465,9 +447,6 @@ Py_convert_to_string(py::object path_obj, py::object trans_obj, py::object clipr
         throw py::error_already_set();
     }
     convert_trans_affine(trans_obj, trans);
-    if (!convert_rect(cliprect_obj.ptr(), &cliprect)) {
-        throw py::error_already_set();
-    }
     if (!convert_sketch_params(sketch_obj.ptr(), &sketch)) {
         throw py::error_already_set();
     }
