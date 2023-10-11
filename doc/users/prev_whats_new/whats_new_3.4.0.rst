@@ -547,7 +547,7 @@ for out-of-range and masked values.
 New ``cm.unregister_cmap`` function
 -----------------------------------
 
-`.cm.unregister_cmap` allows users to remove a colormap that they have
+``matplotlib.cm.unregister_cmap`` allows users to remove a colormap that they have
 previously registered.
 
 New ``CenteredNorm`` for symmetrical data around a center
