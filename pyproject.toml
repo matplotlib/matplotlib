@@ -143,7 +143,6 @@ exclude = [
   # stubtest will import and run, opening a figure if not excluded
   ".*/tinypages",
 ]
-ignore_missing_imports = true
 enable_incomplete_feature = [
   "Unpack",
 ]
