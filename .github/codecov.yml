@@ -1,10 +1,14 @@
 # codecov used to be able to find this anywhere, now we have to manually
 # tell it where to look
 comment: false
+ignore:
+  - doc/
+  - galleries/
 
 codecov:
   notify:
     require_ci_to_pass: no
+    threshold: 1%
 
 coverage:
   status:
