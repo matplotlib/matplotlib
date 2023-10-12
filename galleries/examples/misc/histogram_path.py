@@ -20,7 +20,7 @@ import numpy as np
 import matplotlib.patches as patches
 import matplotlib.path as path
 
-fig, axs = plt.subplots(2)
+fig, axs = plt.subplots(1)
 
 np.random.seed(19680801)  # Fixing random state for reproducibility
 
@@ -44,14 +44,16 @@ barpath = path.Path.make_compound_path_from_polys(XY)
 # make a patch out of it, don't add a margin at y=0
 patch = patches.PathPatch(barpath)
 patch.sticky_edges.y[:] = [0]
-axs[0].add_patch(patch)
-axs[0].autoscale_view()
+axs.add_patch(patch)
+axs.autoscale_view()
+plt.show()
 
 # %%
 # Instead of creating a three-dimensional array and using
 # `~.path.Path.make_compound_path_from_polys`, we could as well create the
 # compound path directly using vertices and codes as shown below
 
+fig, axs = plt.subplots(1)
 nrects = len(left)
 nverts = nrects*(1+3+1)
 verts = np.zeros((nverts, 2))
@@ -72,9 +74,8 @@ barpath = path.Path(verts, codes)
 # make a patch out of it, don't add a margin at y=0
 patch = patches.PathPatch(barpath)
 patch.sticky_edges.y[:] = [0]
-axs[1].add_patch(patch)
-axs[1].autoscale_view()
-
+axs.add_patch(patch)
+axs.autoscale_view()
 plt.show()
 
 # %%
