@@ -14,6 +14,7 @@ from collections import OrderedDict
 import dateutil.parser
 import itertools
 import logging
+import warnings
 
 import numpy as np
 
@@ -220,7 +221,7 @@ class UnitData:
             if val not in self._mapping:
                 self._mapping[val] = next(self._counter)
         if data.size and convertible:
-            _log.info('Using categorical units to plot a list of strings '
+            warnings.warn('Using categorical units to plot a list of strings '
                       'that are all parsable as floats or dates. If these '
                       'strings should be plotted as numbers, cast to the '
                       'appropriate data type before plotting.')
