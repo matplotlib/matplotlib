@@ -930,12 +930,12 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                 ", ".join(map(repr, kwargs))
             )
 
-    allsegs = _api.deprecated("3.8", pending=True)(property(lambda self: [
+    allsegs = property(lambda self: [
         [subp.vertices for subp in p._iter_connected_components()]
-        for p in self.get_paths()]))
-    allkinds = _api.deprecated("3.8", pending=True)(property(lambda self: [
+        for p in self.get_paths()])
+    allkinds = property(lambda self: [
         [subp.codes for subp in p._iter_connected_components()]
-        for p in self.get_paths()]))
+        for p in self.get_paths()])
     tcolors = _api.deprecated("3.8")(property(lambda self: [
         (tuple(rgba),) for rgba in self.to_rgba(self.cvalues, self.alpha)]))
     tlinewidths = _api.deprecated("3.8")(property(lambda self: [
@@ -1389,7 +1389,6 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         return idx_level_min, idx_vtx_min, proj_min
 
-    @_api.deprecated("3.8")
     def find_nearest_contour(self, x, y, indices=None, pixel=True):
         """
         Find the point in the contour plot that is closest to ``(x, y)``.
