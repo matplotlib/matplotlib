@@ -78,6 +78,12 @@ The ``.. plot::`` directive supports the following options:
     figure. This overwrites the caption given in the content, when the plot
     is generated from a file.
 
+``:filter-warning:`` : str
+    When specified, will ignore warnings that match the input string, which is
+    a warnings filter `message regex <msg>`_ string.
+
+.. _msg: https://docs.python.org/3/library/warnings.html#the-warnings-filter
+
 Additionally, this directive supports all the options of the `image directive
 <https://docutils.sourceforge.io/docs/ref/rst/directives.html#image>`_,
 except for ``:target:`` (since plot will add its own target).  These include
@@ -177,6 +183,7 @@ import shutil
 import sys
 import textwrap
 import traceback
+import warnings
 
 from docutils.parsers.rst import directives, Directive
 from docutils.parsers.rst.directives.images import Image
@@ -219,6 +226,10 @@ def _option_context(arg):
 
 def _option_format(arg):
     return directives.choice(arg, ('python', 'doctest'))
+
+
+def _option_string(arg):
+    return arg if arg.strip() else False
 
 
 def mark_plot_labels(app, document):
@@ -271,7 +282,8 @@ class PlotDirective(Directive):
         'context': _option_context,
         'nofigs': directives.flag,
         'caption': directives.unchanged,
-        }
+        'filter-warning': _option_string,
+    }
 
     def run(self):
         """Run the plot directive."""
@@ -854,16 +866,20 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     # make figures
     try:
-        results = render_figures(code=code,
-                                 code_path=source_file_name,
-                                 output_dir=build_dir,
-                                 output_base=output_base,
-                                 context=keep_context,
-                                 function_name=function_name,
-                                 config=config,
-                                 context_reset=context_opt == 'reset',
-                                 close_figs=context_opt == 'close-figs',
-                                 code_includes=source_file_includes)
+        with warnings.catch_warnings(record=True) as w:
+            if msg := options.get('filter-warning', False):
+                warnings.filterwarnings('ignore', message=msg)
+
+            results = render_figures(code=code,
+                                     code_path=source_file_name,
+                                     output_dir=build_dir,
+                                     output_base=output_base,
+                                     context=keep_context,
+                                     function_name=function_name,
+                                     config=config,
+                                     context_reset=context_opt == 'reset',
+                                     close_figs=context_opt == 'close-figs',
+                                     code_includes=source_file_includes)
         errors = []
     except PlotError as err:
         reporter = state.memo.reporter
