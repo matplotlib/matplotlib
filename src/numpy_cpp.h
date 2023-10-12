@@ -492,7 +492,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         return true;
     }
 
-    npy_intp dim(size_t i) const
+    npy_intp shape(size_t i) const
     {
         if (i >= ND) {
             return 0;
@@ -515,7 +515,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         if (empty) {
             return 0;
         } else {
-            return (size_t)dim(0);
+            return (size_t)shape(0);
         }
     }
 

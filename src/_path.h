@@ -379,7 +379,7 @@ void get_path_collection_extents(agg::trans_affine &master_transform,
                                  agg::trans_affine &offset_trans,
                                  extent_limits &extent)
 {
-    if (offsets.size() != 0 && offsets.dim(1) != 2) {
+    if (offsets.size() != 0 && offsets.shape(1) != 2) {
         throw std::runtime_error("Offsets array must have shape (N, 2)");
     }
 
@@ -709,7 +709,7 @@ clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside, std::vecto
 template <class VerticesArray, class ResultArray>
 void affine_transform_2d(VerticesArray &vertices, agg::trans_affine &trans, ResultArray &result)
 {
-    if (vertices.size() != 0 && vertices.dim(1) != 2) {
+    if (vertices.size() != 0 && vertices.shape(1) != 2) {
         throw std::runtime_error("Invalid vertices array.");
     }
 
@@ -739,7 +739,7 @@ void affine_transform_2d(VerticesArray &vertices, agg::trans_affine &trans, Resu
 template <class VerticesArray, class ResultArray>
 void affine_transform_1d(VerticesArray &vertices, agg::trans_affine &trans, ResultArray &result)
 {
-    if (vertices.dim(0) != 2) {
+    if (vertices.shape(0) != 2) {
         throw std::runtime_error("Invalid vertices array.");
     }
 

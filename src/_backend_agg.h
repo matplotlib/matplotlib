@@ -731,22 +731,22 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
     rendererBase.reset_clipping(true);
     if (angle != 0.0) {
         agg::rendering_buffer srcbuf(
-                image.data(), (unsigned)image.dim(1),
-                (unsigned)image.dim(0), (unsigned)image.dim(1));
+                image.data(), (unsigned)image.shape(1),
+                (unsigned)image.shape(0), (unsigned)image.shape(1));
         agg::pixfmt_gray8 pixf_img(srcbuf);
 
         set_clipbox(gc.cliprect, theRasterizer);
 
         agg::trans_affine mtx;
-        mtx *= agg::trans_affine_translation(0, -image.dim(0));
+        mtx *= agg::trans_affine_translation(0, -image.shape(0));
         mtx *= agg::trans_affine_rotation(-angle * (agg::pi / 180.0));
         mtx *= agg::trans_affine_translation(x, y);
 
         agg::path_storage rect;
         rect.move_to(0, 0);
-        rect.line_to(image.dim(1), 0);
-        rect.line_to(image.dim(1), image.dim(0));
-        rect.line_to(0, image.dim(0));
+        rect.line_to(image.shape(1), 0);
+        rect.line_to(image.shape(1), image.shape(0));
+        rect.line_to(0, image.shape(0));
         rect.line_to(0, 0);
         agg::conv_transform<agg::path_storage> rect2(rect, mtx);
 
@@ -767,10 +767,10 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
     } else {
         agg::rect_i fig, text;
 
-        int deltay = y - image.dim(0);
+        int deltay = y - image.shape(0);
 
         fig.init(0, 0, width, height);
-        text.init(x, deltay, x + image.dim(1), y);
+        text.init(x, deltay, x + image.shape(1), y);
         text.clip(fig);
 
         if (gc.cliprect.x1 != 0.0 || gc.cliprect.y1 != 0.0 || gc.cliprect.x2 != 0.0 || gc.cliprect.y2 != 0.0) {
@@ -832,19 +832,19 @@ inline void RendererAgg::draw_image(GCAgg &gc,
 
     agg::rendering_buffer buffer;
     buffer.attach(
-        image.data(), (unsigned)image.dim(1), (unsigned)image.dim(0), -(int)image.dim(1) * 4);
+        image.data(), (unsigned)image.shape(1), (unsigned)image.shape(0), -(int)image.shape(1) * 4);
     pixfmt pixf(buffer);
 
     if (has_clippath) {
         agg::trans_affine mtx;
         agg::path_storage rect;
 
-        mtx *= agg::trans_affine_translation((int)x, (int)(height - (y + image.dim(0))));
+        mtx *= agg::trans_affine_translation((int)x, (int)(height - (y + image.shape(0))));
 
         rect.move_to(0, 0);
-        rect.line_to(image.dim(1), 0);
-        rect.line_to(image.dim(1), image.dim(0));
-        rect.line_to(0, image.dim(0));
+        rect.line_to(image.shape(1), 0);
+        rect.line_to(image.shape(1), image.shape(0));
+        rect.line_to(0, image.shape(0));
         rect.line_to(0, 0);
 
         agg::conv_transform<agg::path_storage> rect2(rect, mtx);
@@ -880,7 +880,7 @@ inline void RendererAgg::draw_image(GCAgg &gc,
     } else {
         set_clipbox(gc.cliprect, rendererBase);
         rendererBase.blend_from(
-            pixf, 0, (int)x, (int)(height - (y + image.dim(0))), (agg::int8u)(alpha * 255));
+            pixf, 0, (int)x, (int)(height - (y + image.shape(0))), (agg::int8u)(alpha * 255));
     }
 
     rendererBase.reset_clipping(true);
@@ -1234,7 +1234,7 @@ inline void RendererAgg::draw_gouraud_triangles(GCAgg &gc,
     set_clipbox(gc.cliprect, theRasterizer);
     bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans, gc.snap_mode);
 
-    for (int i = 0; i < points.dim(0); ++i) {
+    for (int i = 0; i < points.shape(0); ++i) {
         typename PointArray::sub_t point = points.subarray(i);
         typename ColorArray::sub_t color = colors.subarray(i);
 

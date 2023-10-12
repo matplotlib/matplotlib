@@ -29,7 +29,7 @@ class scalar
         return m_value;
     }
 
-    int dim(size_t i)
+    int shape(size_t i)
     {
         return 1;
     }
@@ -65,7 +65,7 @@ class empty
         return empty<T>();
     }
 
-    int dim(size_t i) const
+    int shape(size_t i) const
     {
         return 0;
     }

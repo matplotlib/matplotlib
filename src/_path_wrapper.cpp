@@ -118,10 +118,10 @@ static PyObject *Py_update_path_extents(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (minpos.dim(0) != 2) {
+    if (minpos.shape(0) != 2) {
         PyErr_Format(PyExc_ValueError,
                      "minpos must be of length 2, got %" NPY_INTP_FMT,
-                     minpos.dim(0));
+                     minpos.shape(0));
         return NULL;
     }
 

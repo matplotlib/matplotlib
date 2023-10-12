@@ -466,7 +466,7 @@ PyRendererAgg_draw_gouraud_triangles(PyRendererAgg *self, PyObject *args)
         PyErr_Format(PyExc_ValueError,
                      "points and colors arrays must be the same length, got "
                      "%" NPY_INTP_FMT " points and %" NPY_INTP_FMT "colors",
-                     points.dim(0), colors.dim(0));
+                     points.shape(0), colors.shape(0));
         return NULL;
     }
 
