@@ -713,7 +713,7 @@ void affine_transform_2d(VerticesArray &vertices, agg::trans_affine &trans, Resu
         throw std::runtime_error("Invalid vertices array.");
     }
 
-    size_t n = vertices.size();
+    size_t n = vertices.shape(0);
     double x;
     double y;
     double t0;
