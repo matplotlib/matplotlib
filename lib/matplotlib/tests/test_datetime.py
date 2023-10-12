@@ -14,12 +14,6 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.acorr(...)
 
-    @pytest.mark.xfail(reason="Test for angle_spectrum not written yet")
-    @mpl.style.context("default")
-    def test_angle_spectrum(self):
-        fig, ax = plt.subplots()
-        ax.angle_spectrum(...)
-
     @pytest.mark.xfail(reason="Test for annotate not written yet")
     @mpl.style.context("default")
     def test_annotate(self):
@@ -110,12 +104,6 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.clabel(...)
 
-    @pytest.mark.xfail(reason="Test for cohere not written yet")
-    @mpl.style.context("default")
-    def test_cohere(self):
-        fig, ax = plt.subplots()
-        ax.cohere(...)
-
     @pytest.mark.xfail(reason="Test for contour not written yet")
     @mpl.style.context("default")
     def test_contour(self):
@@ -127,12 +115,6 @@ class TestDatetimePlotting:
     def test_contourf(self):
         fig, ax = plt.subplots()
         ax.contourf(...)
-
-    @pytest.mark.xfail(reason="Test for csd not written yet")
-    @mpl.style.context("default")
-    def test_csd(self):
-        fig, ax = plt.subplots()
-        ax.csd(...)
 
     @pytest.mark.xfail(reason="Test for errorbar not written yet")
     @mpl.style.context("default")
@@ -241,12 +223,6 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.loglog(...)
 
-    @pytest.mark.xfail(reason="Test for magnitude_spectrum not written yet")
-    @mpl.style.context("default")
-    def test_magnitude_spectrum(self):
-        fig, ax = plt.subplots()
-        ax.magnitude_spectrum(...)
-
     @pytest.mark.xfail(reason="Test for matshow not written yet")
     @mpl.style.context("default")
     def test_matshow(self):
@@ -277,12 +253,6 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.pcolormesh(...)
 
-    @pytest.mark.xfail(reason="Test for phase_spectrum not written yet")
-    @mpl.style.context("default")
-    def test_phase_spectrum(self):
-        fig, ax = plt.subplots()
-        ax.phase_spectrum(...)
-
     @mpl.style.context("default")
     def test_plot(self):
         mpl.rcParams["date.converter"] = 'concise'
@@ -311,12 +281,6 @@ class TestDatetimePlotting:
         ax1.plot_date(x_dates, y_dates)
         ax2.plot_date(x_dates, y_ranges)
         ax3.plot_date(x_ranges, y_dates)
-
-    @pytest.mark.xfail(reason="Test for psd not written yet")
-    @mpl.style.context("default")
-    def test_psd(self):
-        fig, ax = plt.subplots()
-        ax.psd(...)
 
     @pytest.mark.xfail(reason="Test for quiver not written yet")
     @mpl.style.context("default")
@@ -347,12 +311,6 @@ class TestDatetimePlotting:
     def test_semilogy(self):
         fig, ax = plt.subplots()
         ax.semilogy(...)
-
-    @pytest.mark.xfail(reason="Test for specgram not written yet")
-    @mpl.style.context("default")
-    def test_specgram(self):
-        fig, ax = plt.subplots()
-        ax.specgram(...)
 
     @pytest.mark.xfail(reason="Test for spy not written yet")
     @mpl.style.context("default")
@@ -389,12 +347,6 @@ class TestDatetimePlotting:
     def test_streamplot(self):
         fig, ax = plt.subplots()
         ax.streamplot(...)
-
-    @pytest.mark.xfail(reason="Test for table not written yet")
-    @mpl.style.context("default")
-    def test_table(self):
-        fig, ax = plt.subplots()
-        ax.table(...)
 
     @pytest.mark.xfail(reason="Test for text not written yet")
     @mpl.style.context("default")
