@@ -40,6 +40,13 @@ class scalar
     }
 };
 
+template <typename T, int ND>
+size_t
+safe_first_shape(scalar<T, ND>)
+{
+    return 1;
+}
+
 template <typename T>
 class empty
 {
@@ -75,6 +82,12 @@ class empty
         return 0;
     }
 };
+
+template <typename T>
+size_t safe_first_shape(empty<T>)
+{
+    return 0;
+}
 }
 
 #endif

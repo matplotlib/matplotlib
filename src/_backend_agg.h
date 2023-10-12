@@ -918,15 +918,15 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
     typedef agg::conv_curve<clipped_t> curve_t;
 
     size_t Npaths = path_generator.num_paths();
-    size_t Noffsets = offsets.size();
+    size_t Noffsets = safe_first_shape(offsets);
     size_t N = std::max(Npaths, Noffsets);
 
-    size_t Ntransforms = transforms.size();
-    size_t Nfacecolors = facecolors.size();
-    size_t Nedgecolors = edgecolors.size();
-    size_t Nlinewidths = linewidths.size();
+    size_t Ntransforms = safe_first_shape(transforms);
+    size_t Nfacecolors = safe_first_shape(facecolors);
+    size_t Nedgecolors = safe_first_shape(edgecolors);
+    size_t Nlinewidths = safe_first_shape(linewidths);
     size_t Nlinestyles = std::min(linestyles.size(), N);
-    size_t Naa = antialiaseds.size();
+    size_t Naa = safe_first_shape(antialiaseds);
 
     if ((Nfacecolors == 0 && Nedgecolors == 0) || Npaths == 0) {
         return;
