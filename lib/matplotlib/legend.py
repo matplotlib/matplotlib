@@ -125,6 +125,9 @@ ncols : int, default: 1
     For backward compatibility, the spelling *ncol* is also supported
     but it is discouraged. If both are given, *ncols* takes precedence.
 
+fill_column_first: bool, default: False
+    Add labels horizontally to the legend.
+
 prop : None or `~matplotlib.font_manager.FontProperties` or dict
     The font properties of the legend. If None (default), the current
     :data:`matplotlib.rcParams` will be used.
@@ -377,6 +380,7 @@ class Legend(Artist):
 
         ncols=1,     # number of columns
         mode=None,  # horizontal distribution of columns: None or "expand"
+        fill_column_first=False,  # fill columns first
 
         fancybox=None,  # True: fancy box, False: rounded box, None: rcParam
         shadow=None,
@@ -427,7 +431,8 @@ class Legend(Artist):
         super().__init__()
 
         if prop is None:
-            self.prop = FontProperties(size=mpl._val_or_rc(fontsize, "legend.fontsize"))
+            self.prop = FontProperties(
+                size=mpl._val_or_rc(fontsize, "legend.fontsize"))
         else:
             self.prop = FontProperties._from_any(prop)
             if isinstance(prop, dict) and "size" not in prop:
@@ -445,14 +450,18 @@ class Legend(Artist):
 
         self.numpoints = mpl._val_or_rc(numpoints, 'legend.numpoints')
         self.markerscale = mpl._val_or_rc(markerscale, 'legend.markerscale')
-        self.scatterpoints = mpl._val_or_rc(scatterpoints, 'legend.scatterpoints')
+        self.scatterpoints = mpl._val_or_rc(
+            scatterpoints, 'legend.scatterpoints')
         self.borderpad = mpl._val_or_rc(borderpad, 'legend.borderpad')
         self.labelspacing = mpl._val_or_rc(labelspacing, 'legend.labelspacing')
         self.handlelength = mpl._val_or_rc(handlelength, 'legend.handlelength')
         self.handleheight = mpl._val_or_rc(handleheight, 'legend.handleheight')
-        self.handletextpad = mpl._val_or_rc(handletextpad, 'legend.handletextpad')
-        self.borderaxespad = mpl._val_or_rc(borderaxespad, 'legend.borderaxespad')
-        self.columnspacing = mpl._val_or_rc(columnspacing, 'legend.columnspacing')
+        self.handletextpad = mpl._val_or_rc(
+            handletextpad, 'legend.handletextpad')
+        self.borderaxespad = mpl._val_or_rc(
+            borderaxespad, 'legend.borderaxespad')
+        self.columnspacing = mpl._val_or_rc(
+            columnspacing, 'legend.columnspacing')
         self.shadow = mpl._val_or_rc(shadow, 'legend.shadow')
         # trim handles and labels if illegal label...
         _lab, _hand = [], []
@@ -476,6 +485,12 @@ class Legend(Artist):
         if len(handles) < 2:
             ncols = 1
         self._ncols = ncols if ncols != 1 else ncol
+
+        if fill_column_first:
+            labels = itertools.chain(*[labels[i::self._ncols] for i in
+                                       range(self._ncols)])
+            handles = itertools.chain(*[handles[i::self._ncols] for i in
+                                        range(self._ncols)])
 
         if self.numpoints <= 0:
             raise ValueError("numpoints must be > 0; it was %d" % numpoints)
@@ -799,7 +814,7 @@ class Legend(Artist):
         tuple: legend_handler.HandlerTuple(),
         PathCollection: legend_handler.HandlerPathCollection(),
         PolyCollection: legend_handler.HandlerPolyCollection()
-        }
+    }
 
     # (get|set|update)_default_handler_maps are public interfaces to
     # modify the default handler map.
@@ -889,12 +904,12 @@ class Legend(Artist):
             handler = self.get_legend_handler(legend_handler_map, orig_handle)
             if handler is None:
                 _api.warn_external(
-                             "Legend does not support handles for "
-                             f"{type(orig_handle).__name__} "
-                             "instances.\nA proxy artist may be used "
-                             "instead.\nSee: https://matplotlib.org/"
-                             "stable/users/explain/axes/legend_guide.html"
-                             "#controlling-the-legend-entries")
+                    "Legend does not support handles for "
+                    f"{type(orig_handle).__name__} "
+                    "instances.\nA proxy artist may be used "
+                    "instead.\nSee: https://matplotlib.org/"
+                    "stable/users/explain/axes/legend_guide.html"
+                    "#controlling-the-legend-entries")
                 # No handle for this artist, so we just defer to None.
                 handle_list.append(None)
             else:
@@ -1266,11 +1281,11 @@ def _get_legend_handles(axs, legend_handler_map=None):
         elif (label and not label.startswith('_') and
                 not has_handler(handler_map, handle)):
             _api.warn_external(
-                             "Legend does not support handles for "
-                             f"{type(handle).__name__} "
-                             "instances.\nSee: https://matplotlib.org/stable/"
-                             "tutorials/intermediate/legend_guide.html"
-                             "#implementing-a-custom-legend-handler")
+                "Legend does not support handles for "
+                f"{type(handle).__name__} "
+                "instances.\nSee: https://matplotlib.org/stable/"
+                "tutorials/intermediate/legend_guide.html"
+                "#implementing-a-custom-legend-handler")
             continue
 
 
@@ -1363,7 +1378,8 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
                 "artists whose label start with an underscore are ignored "
                 "when legend() is called with no argument.")
 
-    elif len(args) == 1:  # 1 arg: user defined labels, automatic handle detection.
+    # 1 arg: user defined labels, automatic handle detection.
+    elif len(args) == 1:
         labels, = args
         if any(isinstance(l, Artist) for l in labels):
             raise TypeError("A single argument passed to legend() must be a "
