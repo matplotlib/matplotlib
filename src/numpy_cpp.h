@@ -519,11 +519,6 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         }
     }
 
-    bool empty() const
-    {
-        return size() == 0;
-    }
-
     // Do not use this for array_view<bool, ND>.  See comment near top of file.
     const T *data() const
     {
