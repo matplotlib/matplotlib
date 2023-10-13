@@ -31,18 +31,18 @@ dependencies:
   - graphviz
   - ipython
   - ipywidgets
-  - numpydoc>=0.8
-  - packaging
-  - pydata-sphinx-theme
+  - numpydoc>=1.0
+  - packaging>=20
+  - pydata-sphinx-theme~=0.13.1
   - pyyaml
-  - sphinx>=1.8.1,!=2.0.0
+  - sphinx>=3.0.0,!=6.1.2
   - sphinx-copybutton
-  - sphinx-gallery>=0.12
+  - sphinx-gallery>=0.12.0
   - sphinx-design
   - pip
   - pip:
-      - mpl-sphinx-theme
-      - sphinxcontrib-svg2pdfconverter
+      - mpl-sphinx-theme~=3.8.0
+      - sphinxcontrib-svg2pdfconverter>=1.1.0
       - pikepdf
   # testing
   - coverage
