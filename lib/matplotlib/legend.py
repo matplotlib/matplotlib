@@ -125,8 +125,8 @@ ncols : int, default: 1
     For backward compatibility, the spelling *ncol* is also supported
     but it is discouraged. If both are given, *ncols* takes precedence.
 
-fill_column_first: bool, default: False
-    Add labels horizontally to the legend.
+order: {'horizontal', 'vertical'}, default: 'vertical'
+    Add labels vertically or horizontally.
 
 prop : None or `~matplotlib.font_manager.FontProperties` or dict
     The font properties of the legend. If None (default), the current
@@ -380,7 +380,7 @@ class Legend(Artist):
 
         ncols=1,     # number of columns
         mode=None,  # horizontal distribution of columns: None or "expand"
-        fill_column_first=False,  # fill columns first
+        order='vertical',  # fill labels vertically or horizontally in legend
 
         fancybox=None,  # True: fancy box, False: rounded box, None: rcParam
         shadow=None,
@@ -486,7 +486,10 @@ class Legend(Artist):
             ncols = 1
         self._ncols = ncols if ncols != 1 else ncol
 
-        if fill_column_first:
+        if order not in {'horizontal', 'vertical'}:
+            raise ValueError("order must be 'horizontal' or 'vertical'")
+
+        if order == 'horizontal':
             labels = itertools.chain(*[labels[i::self._ncols] for i in
                                        range(self._ncols)])
             handles = itertools.chain(*[handles[i::self._ncols] for i in
@@ -604,11 +607,11 @@ class Legend(Artist):
         # set the text color
 
         color_getters = {  # getter function depends on line or patch
-            'linecolor':       ['get_color',           'get_facecolor'],
+            'linecolor': ['get_color', 'get_facecolor'],
             'markerfacecolor': ['get_markerfacecolor', 'get_facecolor'],
-            'mfc':             ['get_markerfacecolor', 'get_facecolor'],
+            'mfc': ['get_markerfacecolor', 'get_facecolor'],
             'markeredgecolor': ['get_markeredgecolor', 'get_edgecolor'],
-            'mec':             ['get_markeredgecolor', 'get_edgecolor'],
+            'mec': ['get_markeredgecolor', 'get_edgecolor'],
         }
         labelcolor = mpl._val_or_rc(labelcolor, 'legend.labelcolor')
         if labelcolor is None:
