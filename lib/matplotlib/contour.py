@@ -25,7 +25,7 @@ import matplotlib.patches as mpatches
 import matplotlib.transforms as mtransforms
 
 
-@_api.deprecated("3.7", alternative="Text.set_transform_rotates_text")
+
 class ClabelText(Text):
     """
     Unlike the ordinary text, the get_rotation returns an updated
@@ -223,18 +223,6 @@ class ContourLabeler:
 
         return cbook.silent_list('text.Text', self.labelTexts)
 
-    @_api.deprecated("3.7", alternative="cs.labelTexts[0].get_font()")
-    @property
-    def labelFontProps(self):
-        return self._label_font_props
-
-    @_api.deprecated("3.7", alternative=(
-        "[cs.labelTexts[0].get_font().get_size()] * len(cs.labelLevelList)"))
-    @property
-    def labelFontSizeList(self):
-        return [self._label_font_props.get_size()] * len(self.labelLevelList)
-
-    @_api.deprecated("3.7", alternative="cs.labelTexts")
     @property
     def labelTextsList(self):
         return cbook.silent_list('text.Text', self.labelTexts)
@@ -260,7 +248,7 @@ class ContourLabeler:
                      figure=fig, fontproperties=self._label_font_props)
                 .get_window_extent(renderer).width)
 
-    @_api.deprecated("3.7", alternative="Artist.set")
+
     def set_label_props(self, label, text, color):
         """Set the label properties - color, fontsize, text."""
         label.set_text(text)
@@ -435,7 +423,7 @@ class ContourLabeler:
 
         return angle, Path(xys, codes)
 
-    @_api.deprecated("3.8")
+
     def calc_label_rot_and_inline(self, slc, ind, lw, lc=None, spacing=5):
         """
         Calculate the appropriate label rotation given the linecontour
@@ -548,7 +536,7 @@ class ContourLabeler:
         # Add label to plot here - useful for manual mode label selection
         self.axes.add_artist(t)
 
-    @_api.deprecated("3.8", alternative="add_label")
+
     def add_label_clabeltext(self, x, y, rotation, lev, cvalue):
         """Add contour label with `.Text.set_transform_rotates_text`."""
         with cbook._setattr_cm(self, _use_clabeltext=True):
@@ -942,8 +930,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
     alpha = property(lambda self: self.get_alpha())
     linestyles = property(lambda self: self._orig_linestyles)
 
-    @_api.deprecated("3.8", alternative="set_antialiased or get_antialiased",
-                     addendum="Note that get_antialiased returns an array.")
+
     @property
     def antialiased(self):
         return all(self.get_antialiased())
@@ -952,7 +939,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
     def antialiased(self, aa):
         self.set_antialiased(aa)
 
-    @_api.deprecated("3.8")
+
     @property
     def collections(self):
         # On access, make oneself invisible and instead add the old-style collections
@@ -1388,7 +1375,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         return idx_level_min, idx_vtx_min, proj_min
 
-    @_api.deprecated("3.8")
+
     def find_nearest_contour(self, x, y, indices=None, pixel=True):
         """
         Find the point in the contour plot that is closest to ``(x, y)``.
