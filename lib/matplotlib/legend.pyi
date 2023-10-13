@@ -80,7 +80,7 @@ class Legend(Artist):
         borderaxespad: float | None = ...,
         columnspacing: float | None = ...,
         ncols: int = ...,
-        order: {'horizontal', 'vertical'}=...,
+        order: Literal["horizontal", "vertical"] = ...,
         mode: Literal["expand"] | None = ...,
         fancybox: bool | None = ...,
         shadow: bool | dict[str, Any] | None = ...,
