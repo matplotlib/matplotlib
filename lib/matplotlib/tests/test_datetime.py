@@ -81,11 +81,13 @@ class TestDatetimePlotting:
         base = datetime.datetime(1970, 1, 1)
         indices = np.arange(N)
         dates = [base + datetime.timedelta(days=(7 * i)) for i in range(N)]
-        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout='constrained')
+        widths = [datetime.timedelta(days=(7*i)) for i in range(N)]
+        fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, layout='constrained')
         error = np.random.rand(N)
         ax1.barh(indices, dates, xerr=error)
         ax2.barh(dates, indices)
         ax3.barh(dates, dates)
+        ax4.barh(indices, width=widths, left=base)
 
     @pytest.mark.xfail(reason="Test for boxplot not written yet")
     @mpl.style.context("default")
