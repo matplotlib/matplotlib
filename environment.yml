@@ -39,6 +39,7 @@ dependencies:
   - sphinx-copybutton
   - sphinx-gallery>=0.12
   - sphinx-design
+  - sphinx-tags
   - pip
   - pip:
       - mpl-sphinx-theme
