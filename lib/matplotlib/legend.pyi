@@ -21,12 +21,15 @@ from collections.abc import Iterable
 from typing import Any, Literal, overload
 from .typing import ColorType
 
+
 class DraggableLegend(DraggableOffsetBox):
     legend: Legend
+
     def __init__(
         self, legend: Legend, use_blit: bool = ..., update: Literal["loc", "bbox"] = ...
     ) -> None: ...
     def finalize_offset(self) -> None: ...
+
 
 class Legend(Artist):
     codes: dict[str, int]
@@ -49,6 +52,7 @@ class Legend(Artist):
     axes: Axes
     parent: Axes | Figure
     legendPatch: FancyBboxPatch
+
     def __init__(
         self,
         parent: Axes | Figure,
@@ -76,6 +80,7 @@ class Legend(Artist):
         borderaxespad: float | None = ...,
         columnspacing: float | None = ...,
         ncols: int = ...,
+        order: {'horizontal', 'vertical'}=...,
         mode: Literal["expand"] | None = ...,
         fancybox: bool | None = ...,
         shadow: bool | dict[str, Any] | None = ...,
@@ -102,11 +107,13 @@ class Legend(Artist):
     def get_default_handler_map(cls) -> dict[type, HandlerBase]: ...
     @classmethod
     def set_default_handler_map(cls, handler_map: dict[type, HandlerBase]) -> None: ...
+
     @classmethod
     def update_default_handler_map(
         cls, handler_map: dict[type, HandlerBase]
     ) -> None: ...
     def get_legend_handler_map(self) -> dict[type, HandlerBase]: ...
+
     @staticmethod
     def get_legend_handler(
         legend_handler_map: dict[type, HandlerBase], orig_handle: Any
@@ -119,6 +126,7 @@ class Legend(Artist):
     def set_alignment(self, alignment: Literal["center", "left", "right"]) -> None: ...
     def get_alignment(self) -> Literal["center", "left", "right"]: ...
     def set_loc(self, loc: str | tuple[float, float] | int | None = ...) -> None: ...
+
     def set_title(
         self, title: str, prop: FontProperties | str | pathlib.Path | None = ...
     ) -> None: ...
@@ -127,6 +135,7 @@ class Legend(Artist):
     def set_frame_on(self, b: bool) -> None: ...
     draw_frame = set_frame_on
     def get_bbox_to_anchor(self) -> BboxBase: ...
+
     def set_bbox_to_anchor(
         self,
         bbox: BboxBase
@@ -135,6 +144,7 @@ class Legend(Artist):
         | None,
         transform: Transform | None = ...
     ) -> None: ...
+
     @overload
     def set_draggable(
         self,
@@ -142,6 +152,7 @@ class Legend(Artist):
         use_blit: bool = ...,
         update: Literal["loc", "bbox"] = ...,
     ) -> DraggableLegend: ...
+
     @overload
     def set_draggable(
         self,
