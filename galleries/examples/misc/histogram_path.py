@@ -20,8 +20,6 @@ import numpy as np
 import matplotlib.patches as patches
 import matplotlib.path as path
 
-fig, axs = plt.subplots(1)
-
 np.random.seed(19680801)  # Fixing random state for reproducibility
 
 # histogram our data with numpy
@@ -44,8 +42,10 @@ barpath = path.Path.make_compound_path_from_polys(XY)
 # make a patch out of it, don't add a margin at y=0
 patch = patches.PathPatch(barpath)
 patch.sticky_edges.y[:] = [0]
-axs.add_patch(patch)
-axs.autoscale_view()
+
+fig, ax = plt.subplots()
+ax.add_patch(patch)
+ax.autoscale_view()
 plt.show()
 
 # %%
@@ -53,7 +53,6 @@ plt.show()
 # `~.path.Path.make_compound_path_from_polys`, we could as well create the
 # compound path directly using vertices and codes as shown below
 
-fig, axs = plt.subplots(1)
 nrects = len(left)
 nverts = nrects*(1+3+1)
 verts = np.zeros((nverts, 2))
@@ -74,8 +73,10 @@ barpath = path.Path(verts, codes)
 # make a patch out of it, don't add a margin at y=0
 patch = patches.PathPatch(barpath)
 patch.sticky_edges.y[:] = [0]
-axs.add_patch(patch)
-axs.autoscale_view()
+
+fig, ax = plt.subplots()
+ax.add_patch(patch)
+ax.autoscale_view()
 plt.show()
 
 # %%
