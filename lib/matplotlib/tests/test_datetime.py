@@ -80,11 +80,18 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.barbs(...)
 
-    @pytest.mark.xfail(reason="Test for barh not written yet")
     @mpl.style.context("default")
     def test_barh(self):
-        fig, ax = plt.subplots()
-        ax.barh(...)
+        mpl.rcParams["date.converter"] = 'concise'
+        N = 14
+        base = datetime.datetime(1970, 1, 1)
+        indices = np.arange(N)
+        dates = [base + datetime.timedelta(days=(7 * i)) for i in range(N)]
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout='constrained')
+        error = np.random.rand(N)
+        ax1.barh(indices, dates, xerr=error)
+        ax2.barh(dates, indices)
+        ax3.barh(dates, dates)
 
     @pytest.mark.xfail(reason="Test for boxplot not written yet")
     @mpl.style.context("default")
