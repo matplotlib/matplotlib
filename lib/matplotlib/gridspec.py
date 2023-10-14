@@ -265,6 +265,7 @@ class GridSpecBase:
         if not isinstance(sharey, str):
             sharey = "all" if sharey else "none"
 
+
         if subplot_kw is None:
             subplot_kw = {}
         # don't mutate kwargs passed by user...
@@ -565,6 +566,8 @@ class SubplotSpec:
                     f"integer, not {arg!r}") from None
         elif len(args) == 3:
             rows, cols, num = args
+        else:
+            continue
 
         gs = GridSpec._check_gridspec_exists(figure, rows, cols)
         if gs is None:
