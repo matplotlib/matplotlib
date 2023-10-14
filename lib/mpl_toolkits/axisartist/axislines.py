@@ -124,9 +124,7 @@ class _FixedAxisArtistHelperBase(_AxisArtistHelperBase):
                 {"bottom": 0, "top": 0, "left": 1, "right": 1}, loc=loc))
         if (nth_coord == 0 and loc not in ["left", "right"]
                 or nth_coord == 1 and loc not in ["bottom", "top"]):
-            _api.warn_deprecated(
-                "3.7", message=f"{loc=!r} is incompatible with "
-                "{nth_coord=}; support is deprecated since %(since)s")
+            raise ValueError("x=None is not supported")
         self._loc = loc
         self._pos = {"bottom": 0, "top": 1, "left": 0, "right": 1}[loc]
         super().__init__()
