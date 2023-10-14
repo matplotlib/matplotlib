@@ -67,6 +67,7 @@ from matplotlib.figure import Figure, FigureBase, figaspect
 from matplotlib.gridspec import GridSpec, SubplotSpec
 from matplotlib import rcParams, get_backend, rcParamsOrig
 from matplotlib.rcsetup import interactive_bk as _interactive_bk
+from matplotlib.rcsetup import _auto_backend_sentinel
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes, Subplot  # type: ignore
 from matplotlib.projections import PolarAxes  # type: ignore
@@ -302,7 +303,7 @@ def switch_backend(newbackend: str) -> None:
     # make sure the init is pulled up so we can assign to it later
     import matplotlib.backends
 
-    if newbackend is rcsetup._auto_backend_sentinel:
+    if newbackend is _auto_backend_sentinel:
         current_framework = cbook._get_running_interactive_framework()
         mapping = {'qt': 'qtagg',
                    'gtk3': 'gtk3agg',
@@ -2475,9 +2476,9 @@ def polar(*args, **kwargs) -> list[Line2D]:
 # is compatible with the current running interactive framework.
 if (rcParams["backend_fallback"]
         and rcParams._get_backend_or_none() in (  # type: ignore
-            set(rcsetup.interactive_bk) - {'WebAgg', 'nbAgg'})
+            set(_interactive_bk) - {'WebAgg', 'nbAgg'})
         and cbook._get_running_interactive_framework()):  # type: ignore
-    rcParams._set("backend", rcsetup._auto_backend_sentinel)  # type: ignore
+    rcParams._set("backend", _auto_backend_sentinel)  # type: ignore
 
 # fmt: on
 
