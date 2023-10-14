@@ -17,7 +17,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, _pylab_helpers, _tight_layout
+from matplotlib import _pylab_helpers, _tight_layout
 from matplotlib.transforms import Bbox
 
 _log = logging.getLogger(__name__)
@@ -265,8 +265,6 @@ class GridSpecBase:
         if not isinstance(sharey, str):
             sharey = "all" if sharey else "none"
 
-        _api.check_in_list(["all", "row", "col", "none", False, True],
-                           sharex=sharex, sharey=sharey)
         if subplot_kw is None:
             subplot_kw = {}
         # don't mutate kwargs passed by user...
@@ -567,8 +565,6 @@ class SubplotSpec:
                     f"integer, not {arg!r}") from None
         elif len(args) == 3:
             rows, cols, num = args
-        else:
-            raise _api.nargs_error("subplot", takes="1 or 3", given=len(args))
 
         gs = GridSpec._check_gridspec_exists(figure, rows, cols)
         if gs is None:
