@@ -3,7 +3,7 @@ font data tables for truetype and afm computer modern fonts
 """
 
 from __future__ import annotations
-
+from typing import overload, Union
 
 latex_to_bakoma = {
     '\\__sqrt__'                 : ('cmex10', 0x70),
@@ -1112,196 +1112,644 @@ tex2uni = {
 
 # Each element is a 4-tuple of the form:
 #   src_start, src_end, dst_font, dst_start
-#
-stix_virtual_fonts: dict[str, dict[str, list[tuple[int, int, str, int]]] |
-                              list[tuple[int, int, str, int]]] = {
+
+_EntryTypeIn = tuple[str, str, str, Union[str, int]]
+_EntryTypeOut = tuple[int, int, str, int]
+
+_stix_virtual_fonts: dict[str, Union[dict[
+    str, list[_EntryTypeIn]], list[_EntryTypeIn]]] = {
     'bb':
         {
-        'rm':
+        "rm":
             [
-            (0x0030, 0x0039, 'rm', 0x1d7d8), # 0-9
-            (0x0041, 0x0042, 'rm', 0x1d538), # A-B
-            (0x0043, 0x0043, 'rm', 0x2102),  # C
-            (0x0044, 0x0047, 'rm', 0x1d53b), # D-G
-            (0x0048, 0x0048, 'rm', 0x210d),  # H
-            (0x0049, 0x004d, 'rm', 0x1d540), # I-M
-            (0x004e, 0x004e, 'rm', 0x2115),  # N
-            (0x004f, 0x004f, 'rm', 0x1d546), # O
-            (0x0050, 0x0051, 'rm', 0x2119),  # P-Q
-            (0x0052, 0x0052, 'rm', 0x211d),  # R
-            (0x0053, 0x0059, 'rm', 0x1d54a), # S-Y
-            (0x005a, 0x005a, 'rm', 0x2124),  # Z
-            (0x0061, 0x007a, 'rm', 0x1d552), # a-z
-            (0x0393, 0x0393, 'rm', 0x213e),  # \Gamma
-            (0x03a0, 0x03a0, 'rm', 0x213f),  # \Pi
-            (0x03a3, 0x03a3, 'rm', 0x2140),  # \Sigma
-            (0x03b3, 0x03b3, 'rm', 0x213d),  # \gamma
-            (0x03c0, 0x03c0, 'rm', 0x213c),  # \pi
+            ("\N{DIGIT ZERO}",
+             "\N{DIGIT NINE}",
+             "rm",
+             "\N{MATHEMATICAL DOUBLE-STRUCK DIGIT ZERO}"),
+            ("\N{LATIN CAPITAL LETTER A}",
+             "\N{LATIN CAPITAL LETTER B}",
+             "rm",
+             "\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL A}"),
+            ("\N{LATIN CAPITAL LETTER C}",
+             "\N{LATIN CAPITAL LETTER C}",
+             "rm",
+             "\N{DOUBLE-STRUCK CAPITAL C}"),
+            ("\N{LATIN CAPITAL LETTER D}",
+             "\N{LATIN CAPITAL LETTER G}",
+             "rm",
+             "\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL D}"),
+            ("\N{LATIN CAPITAL LETTER H}",
+             "\N{LATIN CAPITAL LETTER H}",
+             "rm",
+             "\N{DOUBLE-STRUCK CAPITAL H}"),
+            ("\N{LATIN CAPITAL LETTER I}",
+             "\N{LATIN CAPITAL LETTER M}",
+             "rm",
+             "\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL I}"),
+            ("\N{LATIN CAPITAL LETTER N}",
+             "\N{LATIN CAPITAL LETTER N}",
+             "rm",
+             "\N{DOUBLE-STRUCK CAPITAL N}"),
+            ("\N{LATIN CAPITAL LETTER O}",
+             "\N{LATIN CAPITAL LETTER O}",
+             "rm",
+             "\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL O}"),
+            ("\N{LATIN CAPITAL LETTER P}",
+             "\N{LATIN CAPITAL LETTER Q}",
+             "rm",
+             "\N{DOUBLE-STRUCK CAPITAL P}"),
+            ("\N{LATIN CAPITAL LETTER R}",
+             "\N{LATIN CAPITAL LETTER R}",
+             "rm",
+             "\N{DOUBLE-STRUCK CAPITAL R}"),
+            ("\N{LATIN CAPITAL LETTER S}",
+             "\N{LATIN CAPITAL LETTER Y}",
+             "rm",
+             "\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL S}"),
+            ("\N{LATIN CAPITAL LETTER Z}",
+             "\N{LATIN CAPITAL LETTER Z}",
+             "rm",
+             "\N{DOUBLE-STRUCK CAPITAL Z}"),
+            ("\N{LATIN SMALL LETTER A}",
+             "\N{LATIN SMALL LETTER Z}",
+             "rm",
+             "\N{MATHEMATICAL DOUBLE-STRUCK SMALL A}"),
+            ("\N{GREEK CAPITAL LETTER GAMMA}",
+             "\N{GREEK CAPITAL LETTER GAMMA}",
+             "rm",
+             "\N{DOUBLE-STRUCK CAPITAL GAMMA}"),
+            ("\N{GREEK CAPITAL LETTER PI}",
+             "\N{GREEK CAPITAL LETTER PI}",
+             "rm",
+             "\N{DOUBLE-STRUCK CAPITAL PI}"),
+            ("\N{GREEK CAPITAL LETTER SIGMA}",
+             "\N{GREEK CAPITAL LETTER SIGMA}",
+             "rm",
+             "\N{DOUBLE-STRUCK N-ARY SUMMATION}"),
+            ("\N{GREEK SMALL LETTER GAMMA}",
+             "\N{GREEK SMALL LETTER GAMMA}",
+             "rm",
+             "\N{DOUBLE-STRUCK SMALL GAMMA}"),
+            ("\N{GREEK SMALL LETTER PI}",
+             "\N{GREEK SMALL LETTER PI}",
+             "rm",
+             "\N{DOUBLE-STRUCK SMALL PI}"),
             ],
-        'it':
+        "it":
             [
-            (0x0030, 0x0039, 'rm', 0x1d7d8), # 0-9
-            (0x0041, 0x0042, 'it', 0xe154),  # A-B
-            (0x0043, 0x0043, 'it', 0x2102),  # C
-            (0x0044, 0x0044, 'it', 0x2145),  # D
-            (0x0045, 0x0047, 'it', 0xe156),  # E-G
-            (0x0048, 0x0048, 'it', 0x210d),  # H
-            (0x0049, 0x004d, 'it', 0xe159),  # I-M
-            (0x004e, 0x004e, 'it', 0x2115),  # N
-            (0x004f, 0x004f, 'it', 0xe15e),  # O
-            (0x0050, 0x0051, 'it', 0x2119),  # P-Q
-            (0x0052, 0x0052, 'it', 0x211d),  # R
-            (0x0053, 0x0059, 'it', 0xe15f),  # S-Y
-            (0x005a, 0x005a, 'it', 0x2124),  # Z
-            (0x0061, 0x0063, 'it', 0xe166),  # a-c
-            (0x0064, 0x0065, 'it', 0x2146),  # d-e
-            (0x0066, 0x0068, 'it', 0xe169),  # f-h
-            (0x0069, 0x006a, 'it', 0x2148),  # i-j
-            (0x006b, 0x007a, 'it', 0xe16c),  # k-z
-            (0x0393, 0x0393, 'it', 0x213e),  # \Gamma (not in beta STIX fonts)
-            (0x03a0, 0x03a0, 'it', 0x213f),  # \Pi
-            (0x03a3, 0x03a3, 'it', 0x2140),  # \Sigma (not in beta STIX fonts)
-            (0x03b3, 0x03b3, 'it', 0x213d),  # \gamma (not in beta STIX fonts)
-            (0x03c0, 0x03c0, 'it', 0x213c),  # \pi
+            ("\N{DIGIT ZERO}",
+             "\N{DIGIT NINE}",
+             "rm",
+             "\N{MATHEMATICAL DOUBLE-STRUCK DIGIT ZERO}"),
+            ("\N{LATIN CAPITAL LETTER A}",
+             "\N{LATIN CAPITAL LETTER B}",
+             "it",
+             0xe154),
+            ("\N{LATIN CAPITAL LETTER C}",
+             "\N{LATIN CAPITAL LETTER C}",
+             "it",
+             "\N{DOUBLE-STRUCK CAPITAL C}"),
+            ("\N{LATIN CAPITAL LETTER D}",
+             "\N{LATIN CAPITAL LETTER D}",
+             "it",
+             "\N{DOUBLE-STRUCK ITALIC CAPITAL D}"),
+            ("\N{LATIN CAPITAL LETTER E}",
+             "\N{LATIN CAPITAL LETTER G}",
+             "it",
+             0xe156),
+            ("\N{LATIN CAPITAL LETTER H}",
+             "\N{LATIN CAPITAL LETTER H}",
+             "it",
+             "\N{DOUBLE-STRUCK CAPITAL H}"),
+            ("\N{LATIN CAPITAL LETTER I}",
+             "\N{LATIN CAPITAL LETTER M}",
+             "it",
+             0xe159),
+            ("\N{LATIN CAPITAL LETTER N}",
+             "\N{LATIN CAPITAL LETTER N}",
+             "it",
+             "\N{DOUBLE-STRUCK CAPITAL N}"),
+            ("\N{LATIN CAPITAL LETTER O}",
+             "\N{LATIN CAPITAL LETTER O}",
+             "it",
+             0xe15e),
+            ("\N{LATIN CAPITAL LETTER P}",
+             "\N{LATIN CAPITAL LETTER Q}",
+             "it",
+             "\N{DOUBLE-STRUCK CAPITAL P}"),
+            ("\N{LATIN CAPITAL LETTER R}",
+             "\N{LATIN CAPITAL LETTER R}",
+             "it",
+             "\N{DOUBLE-STRUCK CAPITAL R}"),
+            ("\N{LATIN CAPITAL LETTER S}",
+             "\N{LATIN CAPITAL LETTER Y}",
+             "it",
+             0xe15f),
+            ("\N{LATIN CAPITAL LETTER Z}",
+             "\N{LATIN CAPITAL LETTER Z}",
+             "it",
+             "\N{DOUBLE-STRUCK CAPITAL Z}"),
+            ("\N{LATIN SMALL LETTER A}",
+             "\N{LATIN SMALL LETTER C}",
+             "it",
+             0xe166),
+            ("\N{LATIN SMALL LETTER D}",
+             "\N{LATIN SMALL LETTER E}",
+             "it",
+             "\N{DOUBLE-STRUCK ITALIC SMALL D}"),
+            ("\N{LATIN SMALL LETTER F}",
+             "\N{LATIN SMALL LETTER H}",
+             "it",
+             0xe169),
+            ("\N{LATIN SMALL LETTER I}",
+             "\N{LATIN SMALL LETTER J}",
+             "it",
+             "\N{DOUBLE-STRUCK ITALIC SMALL I}"),
+            ("\N{LATIN SMALL LETTER K}",
+             "\N{LATIN SMALL LETTER Z}",
+             "it",
+             0xe16c),
+            ("\N{GREEK CAPITAL LETTER GAMMA}",
+             "\N{GREEK CAPITAL LETTER GAMMA}",
+             "it",
+             "\N{DOUBLE-STRUCK CAPITAL GAMMA}"),  # \Gamma (not in beta STIX fonts)
+            ("\N{GREEK CAPITAL LETTER PI}",
+             "\N{GREEK CAPITAL LETTER PI}",
+             "it",
+             "\N{DOUBLE-STRUCK CAPITAL PI}"),
+            ("\N{GREEK CAPITAL LETTER SIGMA}",
+             "\N{GREEK CAPITAL LETTER SIGMA}",
+             "it",
+             "\N{DOUBLE-STRUCK N-ARY SUMMATION}"),  # \Sigma (not in beta STIX fonts)
+            ("\N{GREEK SMALL LETTER GAMMA}",
+             "\N{GREEK SMALL LETTER GAMMA}",
+             "it",
+             "\N{DOUBLE-STRUCK SMALL GAMMA}"),  # \gamma (not in beta STIX fonts)
+            ("\N{GREEK SMALL LETTER PI}",
+             "\N{GREEK SMALL LETTER PI}",
+             "it",
+             "\N{DOUBLE-STRUCK SMALL PI}"),
             ],
-        'bf':
+        "bf":
             [
-            (0x0030, 0x0039, 'rm', 0x1d7d8), # 0-9
-            (0x0041, 0x0042, 'bf', 0xe38a),  # A-B
-            (0x0043, 0x0043, 'bf', 0x2102),  # C
-            (0x0044, 0x0044, 'bf', 0x2145),  # D
-            (0x0045, 0x0047, 'bf', 0xe38d),  # E-G
-            (0x0048, 0x0048, 'bf', 0x210d),  # H
-            (0x0049, 0x004d, 'bf', 0xe390),  # I-M
-            (0x004e, 0x004e, 'bf', 0x2115),  # N
-            (0x004f, 0x004f, 'bf', 0xe395),  # O
-            (0x0050, 0x0051, 'bf', 0x2119),  # P-Q
-            (0x0052, 0x0052, 'bf', 0x211d),  # R
-            (0x0053, 0x0059, 'bf', 0xe396),  # S-Y
-            (0x005a, 0x005a, 'bf', 0x2124),  # Z
-            (0x0061, 0x0063, 'bf', 0xe39d),  # a-c
-            (0x0064, 0x0065, 'bf', 0x2146),  # d-e
-            (0x0066, 0x0068, 'bf', 0xe3a2),  # f-h
-            (0x0069, 0x006a, 'bf', 0x2148),  # i-j
-            (0x006b, 0x007a, 'bf', 0xe3a7),  # k-z
-            (0x0393, 0x0393, 'bf', 0x213e),  # \Gamma
-            (0x03a0, 0x03a0, 'bf', 0x213f),  # \Pi
-            (0x03a3, 0x03a3, 'bf', 0x2140),  # \Sigma
-            (0x03b3, 0x03b3, 'bf', 0x213d),  # \gamma
-            (0x03c0, 0x03c0, 'bf', 0x213c),  # \pi
+            ("\N{DIGIT ZERO}",
+             "\N{DIGIT NINE}",
+             "rm",
+             "\N{MATHEMATICAL DOUBLE-STRUCK DIGIT ZERO}"),
+            ("\N{LATIN CAPITAL LETTER A}",
+             "\N{LATIN CAPITAL LETTER B}",
+             "bf",
+             0xe38a),
+            ("\N{LATIN CAPITAL LETTER C}",
+             "\N{LATIN CAPITAL LETTER C}",
+             "bf",
+             "\N{DOUBLE-STRUCK CAPITAL C}"),
+            ("\N{LATIN CAPITAL LETTER D}",
+             "\N{LATIN CAPITAL LETTER D}",
+             "bf",
+             "\N{DOUBLE-STRUCK ITALIC CAPITAL D}"),
+            ("\N{LATIN CAPITAL LETTER E}",
+             "\N{LATIN CAPITAL LETTER G}",
+             "bf",
+             0xe38d),
+            ("\N{LATIN CAPITAL LETTER H}",
+             "\N{LATIN CAPITAL LETTER H}",
+             "bf",
+             "\N{DOUBLE-STRUCK CAPITAL H}"),
+            ("\N{LATIN CAPITAL LETTER I}",
+             "\N{LATIN CAPITAL LETTER M}",
+             "bf",
+             0xe390),
+            ("\N{LATIN CAPITAL LETTER N}",
+             "\N{LATIN CAPITAL LETTER N}",
+             "bf",
+             "\N{DOUBLE-STRUCK CAPITAL N}"),
+            ("\N{LATIN CAPITAL LETTER O}",
+             "\N{LATIN CAPITAL LETTER O}",
+             "bf",
+             0xe395),
+            ("\N{LATIN CAPITAL LETTER P}",
+             "\N{LATIN CAPITAL LETTER Q}",
+             "bf",
+             "\N{DOUBLE-STRUCK CAPITAL P}"),
+            ("\N{LATIN CAPITAL LETTER R}",
+             "\N{LATIN CAPITAL LETTER R}",
+             "bf",
+             "\N{DOUBLE-STRUCK CAPITAL R}"),
+            ("\N{LATIN CAPITAL LETTER S}",
+             "\N{LATIN CAPITAL LETTER Y}",
+             "bf",
+             0xe396),
+            ("\N{LATIN CAPITAL LETTER Z}",
+             "\N{LATIN CAPITAL LETTER Z}",
+             "bf",
+             "\N{DOUBLE-STRUCK CAPITAL Z}"),
+            ("\N{LATIN SMALL LETTER A}",
+             "\N{LATIN SMALL LETTER C}",
+             "bf",
+             0xe39d),
+            ("\N{LATIN SMALL LETTER D}",
+             "\N{LATIN SMALL LETTER E}",
+             "bf",
+             "\N{DOUBLE-STRUCK ITALIC SMALL D}"),
+            ("\N{LATIN SMALL LETTER F}",
+             "\N{LATIN SMALL LETTER H}",
+             "bf",
+             0xe3a2),
+            ("\N{LATIN SMALL LETTER I}",
+             "\N{LATIN SMALL LETTER J}",
+             "bf",
+             "\N{DOUBLE-STRUCK ITALIC SMALL I}"),
+            ("\N{LATIN SMALL LETTER K}",
+             "\N{LATIN SMALL LETTER Z}",
+             "bf",
+             0xe3a7),
+            ("\N{GREEK CAPITAL LETTER GAMMA}",
+             "\N{GREEK CAPITAL LETTER GAMMA}",
+             "bf",
+             "\N{DOUBLE-STRUCK CAPITAL GAMMA}"),
+            ("\N{GREEK CAPITAL LETTER PI}",
+             "\N{GREEK CAPITAL LETTER PI}",
+             "bf",
+             "\N{DOUBLE-STRUCK CAPITAL PI}"),
+            ("\N{GREEK CAPITAL LETTER SIGMA}",
+             "\N{GREEK CAPITAL LETTER SIGMA}",
+             "bf",
+             "\N{DOUBLE-STRUCK N-ARY SUMMATION}"),
+            ("\N{GREEK SMALL LETTER GAMMA}",
+             "\N{GREEK SMALL LETTER GAMMA}",
+             "bf",
+             "\N{DOUBLE-STRUCK SMALL GAMMA}"),
+            ("\N{GREEK SMALL LETTER PI}",
+             "\N{GREEK SMALL LETTER PI}",
+             "bf",
+             "\N{DOUBLE-STRUCK SMALL PI}"),
             ],
         },
     'cal':
         [
-        (0x0041, 0x005a, 'it', 0xe22d), # A-Z
+        ("\N{LATIN CAPITAL LETTER A}",
+         "\N{LATIN CAPITAL LETTER Z}",
+         "it",
+         0xe22d),
         ],
     'frak':
         {
-        'rm':
+        "rm":
             [
-            (0x0041, 0x0042, 'rm', 0x1d504), # A-B
-            (0x0043, 0x0043, 'rm', 0x212d),  # C
-            (0x0044, 0x0047, 'rm', 0x1d507), # D-G
-            (0x0048, 0x0048, 'rm', 0x210c),  # H
-            (0x0049, 0x0049, 'rm', 0x2111),  # I
-            (0x004a, 0x0051, 'rm', 0x1d50d), # J-Q
-            (0x0052, 0x0052, 'rm', 0x211c),  # R
-            (0x0053, 0x0059, 'rm', 0x1d516), # S-Y
-            (0x005a, 0x005a, 'rm', 0x2128),  # Z
-            (0x0061, 0x007a, 'rm', 0x1d51e), # a-z
+            ("\N{LATIN CAPITAL LETTER A}",
+             "\N{LATIN CAPITAL LETTER B}",
+             "rm",
+             "\N{MATHEMATICAL FRAKTUR CAPITAL A}"),
+            ("\N{LATIN CAPITAL LETTER C}",
+             "\N{LATIN CAPITAL LETTER C}",
+             "rm",
+             "\N{BLACK-LETTER CAPITAL C}"),
+            ("\N{LATIN CAPITAL LETTER D}",
+             "\N{LATIN CAPITAL LETTER G}",
+             "rm",
+             "\N{MATHEMATICAL FRAKTUR CAPITAL D}"),
+            ("\N{LATIN CAPITAL LETTER H}",
+             "\N{LATIN CAPITAL LETTER H}",
+             "rm",
+             "\N{BLACK-LETTER CAPITAL H}"),
+            ("\N{LATIN CAPITAL LETTER I}",
+             "\N{LATIN CAPITAL LETTER I}",
+             "rm",
+             "\N{BLACK-LETTER CAPITAL I}"),
+            ("\N{LATIN CAPITAL LETTER J}",
+             "\N{LATIN CAPITAL LETTER Q}",
+             "rm",
+             "\N{MATHEMATICAL FRAKTUR CAPITAL J}"),
+            ("\N{LATIN CAPITAL LETTER R}",
+             "\N{LATIN CAPITAL LETTER R}",
+             "rm",
+             "\N{BLACK-LETTER CAPITAL R}"),
+            ("\N{LATIN CAPITAL LETTER S}",
+             "\N{LATIN CAPITAL LETTER Y}",
+             "rm",
+             "\N{MATHEMATICAL FRAKTUR CAPITAL S}"),
+            ("\N{LATIN CAPITAL LETTER Z}",
+             "\N{LATIN CAPITAL LETTER Z}",
+             "rm",
+             "\N{BLACK-LETTER CAPITAL Z}"),
+            ("\N{LATIN SMALL LETTER A}",
+             "\N{LATIN SMALL LETTER Z}",
+             "rm",
+             "\N{MATHEMATICAL FRAKTUR SMALL A}"),
             ],
-        'bf':
+        "bf":
             [
-            (0x0041, 0x005a, 'bf', 0x1d56c), # A-Z
-            (0x0061, 0x007a, 'bf', 0x1d586), # a-z
+            ("\N{LATIN CAPITAL LETTER A}",
+             "\N{LATIN CAPITAL LETTER Z}",
+             "bf",
+             "\N{MATHEMATICAL BOLD FRAKTUR CAPITAL A}"),
+            ("\N{LATIN SMALL LETTER A}",
+             "\N{LATIN SMALL LETTER Z}",
+             "bf",
+             "\N{MATHEMATICAL BOLD FRAKTUR SMALL A}"),
             ],
         },
     'scr':
         [
-        (0x0041, 0x0041, 'it', 0x1d49c), # A
-        (0x0042, 0x0042, 'it', 0x212c),  # B
-        (0x0043, 0x0044, 'it', 0x1d49e), # C-D
-        (0x0045, 0x0046, 'it', 0x2130),  # E-F
-        (0x0047, 0x0047, 'it', 0x1d4a2), # G
-        (0x0048, 0x0048, 'it', 0x210b),  # H
-        (0x0049, 0x0049, 'it', 0x2110),  # I
-        (0x004a, 0x004b, 'it', 0x1d4a5), # J-K
-        (0x004c, 0x004c, 'it', 0x2112),  # L
-        (0x004d, 0x004d, 'it', 0x2133),  # M
-        (0x004e, 0x0051, 'it', 0x1d4a9), # N-Q
-        (0x0052, 0x0052, 'it', 0x211b),  # R
-        (0x0053, 0x005a, 'it', 0x1d4ae), # S-Z
-        (0x0061, 0x0064, 'it', 0x1d4b6), # a-d
-        (0x0065, 0x0065, 'it', 0x212f),  # e
-        (0x0066, 0x0066, 'it', 0x1d4bb), # f
-        (0x0067, 0x0067, 'it', 0x210a),  # g
-        (0x0068, 0x006e, 'it', 0x1d4bd), # h-n
-        (0x006f, 0x006f, 'it', 0x2134),  # o
-        (0x0070, 0x007a, 'it', 0x1d4c5), # p-z
+        ("\N{LATIN CAPITAL LETTER A}",
+         "\N{LATIN CAPITAL LETTER A}",
+         "it",
+         "\N{MATHEMATICAL SCRIPT CAPITAL A}"),
+        ("\N{LATIN CAPITAL LETTER B}",
+         "\N{LATIN CAPITAL LETTER B}",
+         "it",
+         "\N{SCRIPT CAPITAL B}"),
+        ("\N{LATIN CAPITAL LETTER C}",
+         "\N{LATIN CAPITAL LETTER D}",
+         "it",
+         "\N{MATHEMATICAL SCRIPT CAPITAL C}"),
+        ("\N{LATIN CAPITAL LETTER E}",
+         "\N{LATIN CAPITAL LETTER F}",
+         "it",
+         "\N{SCRIPT CAPITAL E}"),
+        ("\N{LATIN CAPITAL LETTER G}",
+         "\N{LATIN CAPITAL LETTER G}",
+         "it",
+         "\N{MATHEMATICAL SCRIPT CAPITAL G}"),
+        ("\N{LATIN CAPITAL LETTER H}",
+         "\N{LATIN CAPITAL LETTER H}",
+         "it",
+         "\N{SCRIPT CAPITAL H}"),
+        ("\N{LATIN CAPITAL LETTER I}",
+         "\N{LATIN CAPITAL LETTER I}",
+         "it",
+         "\N{SCRIPT CAPITAL I}"),
+        ("\N{LATIN CAPITAL LETTER J}",
+         "\N{LATIN CAPITAL LETTER K}",
+         "it",
+         "\N{MATHEMATICAL SCRIPT CAPITAL J}"),
+        ("\N{LATIN CAPITAL LETTER L}",
+         "\N{LATIN CAPITAL LETTER L}",
+         "it",
+         "\N{SCRIPT CAPITAL L}"),
+        ("\N{LATIN CAPITAL LETTER M}",
+         "\N{LATIN CAPITAL LETTER M}",
+         "it",
+         "\N{SCRIPT CAPITAL M}"),
+        ("\N{LATIN CAPITAL LETTER N}",
+         "\N{LATIN CAPITAL LETTER Q}",
+         "it",
+         "\N{MATHEMATICAL SCRIPT CAPITAL N}"),
+        ("\N{LATIN CAPITAL LETTER R}",
+         "\N{LATIN CAPITAL LETTER R}",
+         "it",
+         "\N{SCRIPT CAPITAL R}"),
+        ("\N{LATIN CAPITAL LETTER S}",
+         "\N{LATIN CAPITAL LETTER Z}",
+         "it",
+         "\N{MATHEMATICAL SCRIPT CAPITAL S}"),
+        ("\N{LATIN SMALL LETTER A}",
+         "\N{LATIN SMALL LETTER D}",
+         "it",
+         "\N{MATHEMATICAL SCRIPT SMALL A}"),
+        ("\N{LATIN SMALL LETTER E}",
+         "\N{LATIN SMALL LETTER E}",
+         "it",
+         "\N{SCRIPT SMALL E}"),
+        ("\N{LATIN SMALL LETTER F}",
+         "\N{LATIN SMALL LETTER F}",
+         "it",
+         "\N{MATHEMATICAL SCRIPT SMALL F}"),
+        ("\N{LATIN SMALL LETTER G}",
+         "\N{LATIN SMALL LETTER G}",
+         "it",
+         "\N{SCRIPT SMALL G}"),
+        ("\N{LATIN SMALL LETTER H}",
+         "\N{LATIN SMALL LETTER N}",
+         "it",
+         "\N{MATHEMATICAL SCRIPT SMALL H}"),
+        ("\N{LATIN SMALL LETTER O}",
+         "\N{LATIN SMALL LETTER O}",
+         "it",
+         "\N{SCRIPT SMALL O}"),
+        ("\N{LATIN SMALL LETTER P}",
+         "\N{LATIN SMALL LETTER Z}",
+         "it",
+         "\N{MATHEMATICAL SCRIPT SMALL P}"),
         ],
     'sf':
         {
-        'rm':
+        "rm":
             [
-            (0x0030, 0x0039, 'rm', 0x1d7e2), # 0-9
-            (0x0041, 0x005a, 'rm', 0x1d5a0), # A-Z
-            (0x0061, 0x007a, 'rm', 0x1d5ba), # a-z
-            (0x0391, 0x03a9, 'rm', 0xe17d),  # \Alpha-\Omega
-            (0x03b1, 0x03c9, 'rm', 0xe196),  # \alpha-\omega
-            (0x03d1, 0x03d1, 'rm', 0xe1b0),  # theta variant
-            (0x03d5, 0x03d5, 'rm', 0xe1b1),  # phi variant
-            (0x03d6, 0x03d6, 'rm', 0xe1b3),  # pi variant
-            (0x03f1, 0x03f1, 'rm', 0xe1b2),  # rho variant
-            (0x03f5, 0x03f5, 'rm', 0xe1af),  # lunate epsilon
-            (0x2202, 0x2202, 'rm', 0xe17c),  # partial differential
+            ("\N{DIGIT ZERO}",
+             "\N{DIGIT NINE}",
+             "rm",
+             "\N{MATHEMATICAL SANS-SERIF DIGIT ZERO}"),
+            ("\N{LATIN CAPITAL LETTER A}",
+             "\N{LATIN CAPITAL LETTER Z}",
+             "rm",
+             "\N{MATHEMATICAL SANS-SERIF CAPITAL A}"),
+            ("\N{LATIN SMALL LETTER A}",
+             "\N{LATIN SMALL LETTER Z}",
+             "rm",
+             "\N{MATHEMATICAL SANS-SERIF SMALL A}"),
+            ("\N{GREEK CAPITAL LETTER ALPHA}",
+             "\N{GREEK CAPITAL LETTER OMEGA}",
+             "rm",
+             0xe17d),
+            ("\N{GREEK SMALL LETTER ALPHA}",
+             "\N{GREEK SMALL LETTER OMEGA}",
+             "rm",
+             0xe196),
+            ("\N{GREEK THETA SYMBOL}",
+             "\N{GREEK THETA SYMBOL}",
+             "rm",
+             0xe1b0),
+            ("\N{GREEK PHI SYMBOL}",
+             "\N{GREEK PHI SYMBOL}",
+             "rm",
+             0xe1b1),
+            ("\N{GREEK PI SYMBOL}",
+             "\N{GREEK PI SYMBOL}",
+             "rm",
+             0xe1b3),
+            ("\N{GREEK RHO SYMBOL}",
+             "\N{GREEK RHO SYMBOL}",
+             "rm",
+             0xe1b2),
+            ("\N{GREEK LUNATE EPSILON SYMBOL}",
+             "\N{GREEK LUNATE EPSILON SYMBOL}",
+             "rm",
+             0xe1af),
+            ("\N{PARTIAL DIFFERENTIAL}",
+             "\N{PARTIAL DIFFERENTIAL}",
+             "rm",
+             0xe17c),
             ],
-        'it':
+        "it":
             [
             # These numerals are actually upright.  We don't actually
             # want italic numerals ever.
-            (0x0030, 0x0039, 'rm', 0x1d7e2), # 0-9
-            (0x0041, 0x005a, 'it', 0x1d608), # A-Z
-            (0x0061, 0x007a, 'it', 0x1d622), # a-z
-            (0x0391, 0x03a9, 'rm', 0xe17d),  # \Alpha-\Omega
-            (0x03b1, 0x03c9, 'it', 0xe1d8),  # \alpha-\omega
-            (0x03d1, 0x03d1, 'it', 0xe1f2),  # theta variant
-            (0x03d5, 0x03d5, 'it', 0xe1f3),  # phi variant
-            (0x03d6, 0x03d6, 'it', 0xe1f5),  # pi variant
-            (0x03f1, 0x03f1, 'it', 0xe1f4),  # rho variant
-            (0x03f5, 0x03f5, 'it', 0xe1f1),  # lunate epsilon
+            ("\N{DIGIT ZERO}",
+             "\N{DIGIT NINE}",
+             "rm",
+             "\N{MATHEMATICAL SANS-SERIF DIGIT ZERO}"),
+            ("\N{LATIN CAPITAL LETTER A}",
+             "\N{LATIN CAPITAL LETTER Z}",
+             "it",
+             "\N{MATHEMATICAL SANS-SERIF ITALIC CAPITAL A}"),
+            ("\N{LATIN SMALL LETTER A}",
+             "\N{LATIN SMALL LETTER Z}",
+             "it",
+             "\N{MATHEMATICAL SANS-SERIF ITALIC SMALL A}"),
+            ("\N{GREEK CAPITAL LETTER ALPHA}",
+             "\N{GREEK CAPITAL LETTER OMEGA}",
+             "rm",
+             0xe17d),
+            ("\N{GREEK SMALL LETTER ALPHA}",
+             "\N{GREEK SMALL LETTER OMEGA}",
+             "it",
+             0xe1d8),
+            ("\N{GREEK THETA SYMBOL}",
+             "\N{GREEK THETA SYMBOL}",
+             "it",
+             0xe1f2),
+            ("\N{GREEK PHI SYMBOL}",
+             "\N{GREEK PHI SYMBOL}",
+             "it",
+             0xe1f3),
+            ("\N{GREEK PI SYMBOL}",
+             "\N{GREEK PI SYMBOL}",
+             "it",
+             0xe1f5),
+            ("\N{GREEK RHO SYMBOL}",
+             "\N{GREEK RHO SYMBOL}",
+             "it",
+             0xe1f4),
+            ("\N{GREEK LUNATE EPSILON SYMBOL}",
+             "\N{GREEK LUNATE EPSILON SYMBOL}",
+             "it",
+             0xe1f1),
             ],
-        'bf':
+        "bf":
             [
-            (0x0030, 0x0039, 'bf', 0x1d7ec), # 0-9
-            (0x0041, 0x005a, 'bf', 0x1d5d4), # A-Z
-            (0x0061, 0x007a, 'bf', 0x1d5ee), # a-z
-            (0x0391, 0x03a9, 'bf', 0x1d756), # \Alpha-\Omega
-            (0x03b1, 0x03c9, 'bf', 0x1d770), # \alpha-\omega
-            (0x03d1, 0x03d1, 'bf', 0x1d78b), # theta variant
-            (0x03d5, 0x03d5, 'bf', 0x1d78d), # phi variant
-            (0x03d6, 0x03d6, 'bf', 0x1d78f), # pi variant
-            (0x03f0, 0x03f0, 'bf', 0x1d78c), # kappa variant
-            (0x03f1, 0x03f1, 'bf', 0x1d78e), # rho variant
-            (0x03f5, 0x03f5, 'bf', 0x1d78a), # lunate epsilon
-            (0x2202, 0x2202, 'bf', 0x1d789), # partial differential
-            (0x2207, 0x2207, 'bf', 0x1d76f), # \Nabla
+            ("\N{DIGIT ZERO}",
+             "\N{DIGIT NINE}",
+             "bf",
+             "\N{MATHEMATICAL SANS-SERIF BOLD DIGIT ZERO}"),
+            ("\N{LATIN CAPITAL LETTER A}",
+             "\N{LATIN CAPITAL LETTER Z}",
+             "bf",
+             "\N{MATHEMATICAL SANS-SERIF BOLD CAPITAL A}"),
+            ("\N{LATIN SMALL LETTER A}",
+             "\N{LATIN SMALL LETTER Z}",
+             "bf",
+             "\N{MATHEMATICAL SANS-SERIF BOLD SMALL A}"),
+            ("\N{GREEK CAPITAL LETTER ALPHA}",
+             "\N{GREEK CAPITAL LETTER OMEGA}",
+             "bf",
+             "\N{MATHEMATICAL SANS-SERIF BOLD CAPITAL ALPHA}"),
+            ("\N{GREEK SMALL LETTER ALPHA}",
+             "\N{GREEK SMALL LETTER OMEGA}",
+             "bf",
+             "\N{MATHEMATICAL SANS-SERIF BOLD SMALL ALPHA}"),
+            ("\N{GREEK THETA SYMBOL}",
+             "\N{GREEK THETA SYMBOL}",
+             "bf",
+             "\N{MATHEMATICAL SANS-SERIF BOLD THETA SYMBOL}"),
+            ("\N{GREEK PHI SYMBOL}",
+             "\N{GREEK PHI SYMBOL}",
+             "bf",
+             "\N{MATHEMATICAL SANS-SERIF BOLD PHI SYMBOL}"),
+            ("\N{GREEK PI SYMBOL}",
+             "\N{GREEK PI SYMBOL}",
+             "bf",
+             "\N{MATHEMATICAL SANS-SERIF BOLD PI SYMBOL}"),
+            ("\N{GREEK KAPPA SYMBOL}",
+             "\N{GREEK KAPPA SYMBOL}",
+             "bf",
+             "\N{MATHEMATICAL SANS-SERIF BOLD KAPPA SYMBOL}"),
+            ("\N{GREEK RHO SYMBOL}",
+             "\N{GREEK RHO SYMBOL}",
+             "bf",
+             "\N{MATHEMATICAL SANS-SERIF BOLD RHO SYMBOL}"),
+            ("\N{GREEK LUNATE EPSILON SYMBOL}",
+             "\N{GREEK LUNATE EPSILON SYMBOL}",
+             "bf",
+             "\N{MATHEMATICAL SANS-SERIF BOLD EPSILON SYMBOL}"),
+            ("\N{PARTIAL DIFFERENTIAL}",
+             "\N{PARTIAL DIFFERENTIAL}",
+             "bf",
+             "\N{MATHEMATICAL SANS-SERIF BOLD PARTIAL DIFFERENTIAL}"),
+            ("\N{NABLA}",
+             "\N{NABLA}",
+             "bf",
+             "\N{MATHEMATICAL SANS-SERIF BOLD NABLA}"),
             ],
-        'bfit':
+        "bfit":
             [
-            (0x0041, 0x005a, 'bfit', 0x1d468), # A-Z
-            (0x0061, 0x007a, 'bfit', 0x1d482), # a-z
-            (0x0393, 0x03a9, 'bfit', 0x1d71e), # \Gamma-\Omega
-            (0x03b1, 0x03c9, 'bfit', 0x1d736), # \alpha-\omega
+            ("\N{LATIN CAPITAL LETTER A}",
+             "\N{LATIN CAPITAL LETTER Z}",
+             "bfit",
+             "\N{MATHEMATICAL BOLD ITALIC CAPITAL A}"),
+            ("\N{LATIN SMALL LETTER A}",
+             "\N{LATIN SMALL LETTER Z}",
+             "bfit",
+             "\N{MATHEMATICAL BOLD ITALIC SMALL A}"),
+            ("\N{GREEK CAPITAL LETTER GAMMA}",
+             "\N{GREEK CAPITAL LETTER OMEGA}",
+             "bfit",
+             "\N{MATHEMATICAL BOLD ITALIC CAPITAL GAMMA}"),
+            ("\N{GREEK SMALL LETTER ALPHA}",
+             "\N{GREEK SMALL LETTER OMEGA}",
+             "bfit",
+             "\N{MATHEMATICAL BOLD ITALIC SMALL ALPHA}"),
             ],
         },
     'tt':
         [
-        (0x0030, 0x0039, 'rm', 0x1d7f6), # 0-9
-        (0x0041, 0x005a, 'rm', 0x1d670), # A-Z
-        (0x0061, 0x007a, 'rm', 0x1d68a)  # a-z
+        ("\N{DIGIT ZERO}",
+         "\N{DIGIT NINE}",
+         "rm",
+         "\N{MATHEMATICAL MONOSPACE DIGIT ZERO}"),
+        ("\N{LATIN CAPITAL LETTER A}",
+         "\N{LATIN CAPITAL LETTER Z}",
+         "rm",
+         "\N{MATHEMATICAL MONOSPACE CAPITAL A}"),
+        ("\N{LATIN SMALL LETTER A}",
+         "\N{LATIN SMALL LETTER Z}",
+         "rm",
+         "\N{MATHEMATICAL MONOSPACE SMALL A}")
         ],
     }
 
+
+@overload
+def _normalize_stix_fontcodes(d: _EntryTypeIn) -> _EntryTypeOut: ...
+
+
+@overload
+def _normalize_stix_fontcodes(d: list[_EntryTypeIn]) -> list[_EntryTypeOut]: ...
+
+
+@overload
+def _normalize_stix_fontcodes(d: dict[str, list[_EntryTypeIn] |
+                                      dict[str, list[_EntryTypeIn]]]
+                              ) -> dict[str, list[_EntryTypeOut] |
+                                        dict[str, list[_EntryTypeOut]]]: ...
+
+
+def _normalize_stix_fontcodes(d):
+    if isinstance(d, tuple):
+        return tuple(ord(x) if isinstance(x, str) and len(x) == 1 else x for x in d)
+    elif isinstance(d, list):
+        return [_normalize_stix_fontcodes(x) for x in d]
+    elif isinstance(d, dict):
+        return {k: _normalize_stix_fontcodes(v) for k, v in d.items()}
+
+
+stix_virtual_fonts: dict[str, Union[dict[str, list[_EntryTypeOut]],
+                                    list[_EntryTypeOut]]]
+stix_virtual_fonts = _normalize_stix_fontcodes(_stix_virtual_fonts)
+
+# Free redundant list now that it has been normalized
+del _stix_virtual_fonts
 
 # Fix some incorrect glyphs.
 stix_glyph_fixes = {

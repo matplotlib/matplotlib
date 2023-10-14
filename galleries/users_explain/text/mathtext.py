@@ -8,11 +8,15 @@ Writing mathematical expressions
 ================================
 
 Matplotlib implements a lightweight TeX expression parser and layout engine and
-*Mathtext* is the subset of Tex markup that this engine supports. Any string can
-be processed as Mathtext by placing the string inside a pair of dollar signs
-``'$'``. Mathtext often contains many backslashes ``'\'``; so that the backslashes
-do not need to be escaped, Mathtext is often written using raw strings. For
-example:
+*Mathtext* is the subset of Tex markup that this engine supports. Note that
+Matplotlib can also render all text directly using TeX if :rc:`text.usetex` is
+*True*; see :ref:`usetex` for more details.   Mathtext support is available
+if :rc:`text.usetex` is *False*.
+
+Any string can be processed as Mathtext by placing the string inside a pair of
+dollar signs ``'$'``. Mathtext often contains many backslashes ``'\'``; so that
+the backslashes do not need to be escaped, Mathtext is often written using raw
+strings. For example:
 """
 
 import matplotlib.pyplot as plt

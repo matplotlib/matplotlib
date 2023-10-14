@@ -366,7 +366,7 @@ which uses the `.backend_nbagg` backend provided by Matplotlib;
 however, nbagg does not work in Jupyter Lab.
 
 GUIs + Jupyter
-~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^
 
 You can also use one of the non-``ipympl`` GUI backends in a Jupyter Notebook.
 If you are running your Jupyter kernel locally, the GUI window will spawn on

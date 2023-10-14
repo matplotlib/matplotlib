@@ -378,7 +378,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
     array_view(PyObject *arr, bool contiguous = false) : m_arr(NULL), m_data(NULL)
     {
         if (!set(arr, contiguous)) {
-            throw py::exception();
+            throw mpl::exception();
         }
     }
 
@@ -413,11 +413,11 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
     {
         PyObject *arr = PyArray_SimpleNew(ND, shape, type_num_of<T>::value);
         if (arr == NULL) {
-            throw py::exception();
+            throw mpl::exception();
         }
         if (!set(arr, true)) {
             Py_DECREF(arr);
-            throw py::exception();
+            throw mpl::exception();
         }
         Py_DECREF(arr);
     }

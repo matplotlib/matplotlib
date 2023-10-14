@@ -195,7 +195,7 @@ exit:
     Py_XDECREF(text_helpers);
     Py_XDECREF(tmp);
     if (PyErr_Occurred()) {
-        throw py::exception();
+        throw mpl::exception();
     }
 }
 

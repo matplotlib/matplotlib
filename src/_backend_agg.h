@@ -244,7 +244,7 @@ class RendererAgg
     template <class R>
     void set_clipbox(const agg::rect_d &cliprect, R &rasterizer);
 
-    bool render_clippath(py::PathIterator &clippath, const agg::trans_affine &clippath_trans, e_snap_mode snap_mode);
+    bool render_clippath(mpl::PathIterator &clippath, const agg::trans_affine &clippath_trans, e_snap_mode snap_mode);
 
     template <class PathIteratorType>
     void _draw_path(PathIteratorType &path, bool has_clippath, const facepair_t &face, GCAgg &gc);
@@ -340,11 +340,11 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const facepair_t &face,
         rendererBase.reset_clipping(true);
 
         // Create and transform the path
-        typedef agg::conv_transform<py::PathIterator> hatch_path_trans_t;
+        typedef agg::conv_transform<mpl::PathIterator> hatch_path_trans_t;
         typedef agg::conv_curve<hatch_path_trans_t> hatch_path_curve_t;
         typedef agg::conv_stroke<hatch_path_curve_t> hatch_path_stroke_t;
 
-        py::PathIterator hatch_path(gc.hatchpath);
+        mpl::PathIterator hatch_path(gc.hatchpath);
         agg::trans_affine hatch_trans;
         hatch_trans *= agg::trans_affine_scaling(1.0, -1.0);
         hatch_trans *= agg::trans_affine_translation(0.0, 1.0);
@@ -447,7 +447,7 @@ template <class PathIterator>
 inline void
 RendererAgg::draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, agg::rgba &color)
 {
-    typedef agg::conv_transform<py::PathIterator> transformed_path_t;
+    typedef agg::conv_transform<mpl::PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removed_t;
     typedef PathClipper<nan_removed_t> clipped_t;
     typedef PathSnapper<clipped_t> snapped_t;
@@ -490,7 +490,7 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
                                       agg::trans_affine &trans,
                                       agg::rgba color)
 {
-    typedef agg::conv_transform<py::PathIterator> transformed_path_t;
+    typedef agg::conv_transform<mpl::PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removed_t;
     typedef PathSnapper<nan_removed_t> snap_t;
     typedef agg::conv_curve<snap_t> curve_t;
