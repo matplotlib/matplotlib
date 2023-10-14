@@ -233,7 +233,7 @@ in your target environment manually:
 C++ compiler
 ------------
 
-Matplotlib requires a C++ compiler that supports C++11, and each platform has a
+Matplotlib requires a C++ compiler that supports C++17, and each platform has a
 development environment that must be installed before a compiler can be installed.
 
 .. tab-set::
@@ -277,18 +277,18 @@ Xcode, VS Code or Linux package manager. Choose **one** compiler from this list:
      - platforms
      - notes
    * - GCC
-     - **4.8.1**
+     - **7.2**
      - Linux, macOS, Windows
-     - `gcc 4.8.1 <https://gcc.gnu.org/projects/cxx-status.html#cxx11>`_,
+     - `gcc 7.2 <https://gcc.gnu.org/projects/cxx-status.html#cxx17>`_,
        `GCC: Binaries <https://gcc.gnu.org/install/binaries.html>`_,
    * - Clang (LLVM)
-     - **3.3**
+     - **5**
      - Linux, macOS
-     - `clang 3.3 <https://clang.llvm.org/cxx_status.html>`_, `LLVM <https://releases.llvm.org/download.html>`_
+     - `clang 5 <https://clang.llvm.org/cxx_status.html>`_, `LLVM <https://releases.llvm.org/download.html>`_
    * - MSVC++
-     - **14.0**
+     - **16.0**
      - Windows
-     - `Visual Studio 2015 C++ <https://docs.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-140>`_
+     - `Visual Studio 2019 C++ <https://docs.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-160>`_
 
 
 

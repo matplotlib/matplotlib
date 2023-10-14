@@ -71,10 +71,6 @@ Videos
 Tutorials
 =========
 
-
-* `The Python Graph Gallery <https://www.python-graph-gallery.com>`_
-  by Yan Holtz
-
 * `Matplotlib tutorial <https://www.labri.fr/perso/nrougier/teaching/matplotlib/>`_
   by Nicolas P. Rougier
 
@@ -85,3 +81,13 @@ Tutorials
 * `Beyond the Basics: Data Visualization in Python
   <https://github.com/stefmolin/python-data-viz-workshop>`_
   by Stefanie Molin
+
+=========
+Galleries
+=========
+
+* `Past winners for JDH plotting contest <https://jhepc.github.io/gallery.html>`_
+  by Nelle Varoquaux
+
+* `The Python Graph Gallery <https://www.python-graph-gallery.com>`_
+  by Yan Holtz

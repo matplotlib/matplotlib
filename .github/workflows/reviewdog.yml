@@ -65,9 +65,7 @@ jobs:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -o pipefail
-          # The --ignore-missing-imports can be removed when typed cycler is released and used
           mypy --config pyproject.toml lib/matplotlib \
-             --ignore-missing-imports \
              --follow-imports silent | \
             reviewdog -f=mypy -name=mypy \
               -tee -reporter=github-check -filter-mode nofilter

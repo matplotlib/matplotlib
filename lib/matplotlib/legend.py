@@ -1337,6 +1337,12 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
         _api.warn_external("You have mixed positional and keyword arguments, "
                            "some input may be discarded.")
 
+    if (hasattr(handles, "__len__") and
+            hasattr(labels, "__len__") and
+            len(handles) != len(labels)):
+        _api.warn_external(f"Mismatched number of handles and labels: "
+                           f"len(handles) = {len(handles)} "
+                           f"len(labels) = {len(labels)}")
     # if got both handles and labels as kwargs, make same length
     if handles and labels:
         handles, labels = zip(*zip(handles, labels))

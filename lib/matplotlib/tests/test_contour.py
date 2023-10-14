@@ -819,14 +819,24 @@ def test_all_nan():
                                 2.4e-14, 5e-14, 7.5e-14, 1e-13])
 
 
+def test_allsegs_allkinds():
+    x, y = np.meshgrid(np.arange(0, 10, 2), np.arange(0, 10, 2))
+    z = np.sin(x) * np.cos(y)
+
+    cs = plt.contour(x, y, z, levels=[0, 0.5])
+
+    # Expect two levels, first with 5 segments and the second with 4.
+    with pytest.warns(PendingDeprecationWarning, match="all"):
+        for result in [cs.allsegs, cs.allkinds]:
+            assert len(result) == 2
+            assert len(result[0]) == 5
+            assert len(result[1]) == 4
+
+
 def test_deprecated_apis():
     cs = plt.contour(np.arange(16).reshape((4, 4)))
     with pytest.warns(mpl.MatplotlibDeprecationWarning, match="collections"):
         colls = cs.collections
-    with pytest.warns(PendingDeprecationWarning, match="allsegs"):
-        assert cs.allsegs == [p.vertices for c in colls for p in c.get_paths()]
-    with pytest.warns(PendingDeprecationWarning, match="allkinds"):
-        assert cs.allkinds == [p.codes for c in colls for p in c.get_paths()]
     with pytest.warns(mpl.MatplotlibDeprecationWarning, match="tcolors"):
         assert_array_equal(cs.tcolors, [c.get_edgecolor() for c in colls])
     with pytest.warns(mpl.MatplotlibDeprecationWarning, match="tlinewidths"):

@@ -77,9 +77,8 @@ jobs:
             pyside6-ver: '!=6.5.1'
             extra-requirements: '-r requirements/testing/extra.txt'
           - os: ubuntu-22.04
-            python-version: '3.12-dev'
+            python-version: '3.12'
             pyside6-ver: '!=6.5.1'
-            pre: true
           - os: macos-latest
             python-version: 3.9
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
@@ -196,10 +195,8 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
 
           # Install pre-release versions during our weekly upcoming dependency tests.
-          # Also install for 3.12 to get working NumPy (remove when 1.26 is released)
-          if [[ "${{ github.event_name == 'schedule' &&
-                     matrix.name-suffix != '(Minimum Versions)' }}" = "true"
-                || "${{ matrix.pre }}" = "true" ]]; then
+          if [[ "${{ github.event_name }}" == 'schedule'
+                && "${{ matrix.name-suffix }}" != '(Minimum Versions)' ]]; then
             PRE="--pre"
           fi
 
@@ -241,7 +238,7 @@ jobs:
             echo 'PyQt5 is available' ||
             echo 'PyQt5 is not available'
           if [[ "${{ runner.os }}" != 'macOS'
-                && "${{ matrix.python-version != '3.12-dev'}}" = "true" ]]; then
+                && "${{ matrix.python-version }}" != '3.12' ]]; then
             python -mpip install --upgrade pyside2${{ matrix.pyside2-ver }} &&
               python -c 'import PySide2.QtCore' &&
               echo 'PySide2 is available' ||
@@ -254,14 +251,14 @@ jobs:
               echo 'PyQt6 is not available'
           fi
           if [[ "${{ runner.os }}" != 'macOS'
-                && "${{ matrix.python-version != '3.12-dev'}}" = "true" ]]; then
+                && "${{ matrix.python-version }}" != '3.12' ]]; then
             python -mpip install --upgrade pyside6${{ matrix.pyside6-ver }} &&
               python -c 'import PySide6.QtCore' &&
               echo 'PySide6 is available' ||
               echo 'PySide6 is not available'
           fi
 
-          if [[ "${{ matrix.python-version != '3.12-dev'}}" = "true" ]]; then
+          if [[ "${{ matrix.python-version }}" != '3.12' ]]; then
             python -mpip install --upgrade \
               -f "https://extras.wxpython.org/wxPython4/extras/linux/gtk3/${{ matrix.os }}" \
               wxPython &&

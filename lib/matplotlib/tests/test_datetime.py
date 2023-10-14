@@ -14,12 +14,6 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.acorr(...)
 
-    @pytest.mark.xfail(reason="Test for angle_spectrum not written yet")
-    @mpl.style.context("default")
-    def test_angle_spectrum(self):
-        fig, ax = plt.subplots()
-        ax.angle_spectrum(...)
-
     @pytest.mark.xfail(reason="Test for annotate not written yet")
     @mpl.style.context("default")
     def test_annotate(self):
@@ -155,12 +149,6 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.contourf(...)
 
-    @pytest.mark.xfail(reason="Test for csd not written yet")
-    @mpl.style.context("default")
-    def test_csd(self):
-        fig, ax = plt.subplots()
-        ax.csd(...)
-
     @pytest.mark.xfail(reason="Test for errorbar not written yet")
     @mpl.style.context("default")
     def test_errorbar(self):
@@ -197,11 +185,52 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.hexbin(...)
 
-    @pytest.mark.xfail(reason="Test for hist not written yet")
     @mpl.style.context("default")
     def test_hist(self):
-        fig, ax = plt.subplots()
-        ax.hist(...)
+        mpl.rcParams["date.converter"] = 'concise'
+
+        start_date = datetime.datetime(2023, 10, 1)
+        time_delta = datetime.timedelta(days=1)
+
+        values1 = np.random.randint(1, 10, 30)
+        values2 = np.random.randint(1, 10, 30)
+        values3 = np.random.randint(1, 10, 30)
+
+        bin_edges = [start_date + i * time_delta for i in range(31)]
+
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, constrained_layout=True)
+        ax1.hist(
+            [start_date + i * time_delta for i in range(30)],
+            bins=10,
+            weights=values1
+        )
+        ax2.hist(
+            [start_date + i * time_delta for i in range(30)],
+            bins=10,
+            weights=values2
+        )
+        ax3.hist(
+            [start_date + i * time_delta for i in range(30)],
+            bins=10,
+            weights=values3
+        )
+
+        fig, (ax4, ax5, ax6) = plt.subplots(3, 1, constrained_layout=True)
+        ax4.hist(
+            [start_date + i * time_delta for i in range(30)],
+            bins=bin_edges,
+            weights=values1
+        )
+        ax5.hist(
+            [start_date + i * time_delta for i in range(30)],
+            bins=bin_edges,
+            weights=values2
+        )
+        ax6.hist(
+            [start_date + i * time_delta for i in range(30)],
+            bins=bin_edges,
+            weights=values3
+        )
 
     @pytest.mark.xfail(reason="Test for hist2d not written yet")
     @mpl.style.context("default")
@@ -226,12 +255,6 @@ class TestDatetimePlotting:
     def test_loglog(self):
         fig, ax = plt.subplots()
         ax.loglog(...)
-
-    @pytest.mark.xfail(reason="Test for magnitude_spectrum not written yet")
-    @mpl.style.context("default")
-    def test_magnitude_spectrum(self):
-        fig, ax = plt.subplots()
-        ax.magnitude_spectrum(...)
 
     @pytest.mark.xfail(reason="Test for matshow not written yet")
     @mpl.style.context("default")
@@ -263,12 +286,6 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.pcolormesh(...)
 
-    @pytest.mark.xfail(reason="Test for phase_spectrum not written yet")
-    @mpl.style.context("default")
-    def test_phase_spectrum(self):
-        fig, ax = plt.subplots()
-        ax.phase_spectrum(...)
-
     @mpl.style.context("default")
     def test_plot(self):
         mpl.rcParams["date.converter"] = 'concise'
@@ -279,17 +296,24 @@ class TestDatetimePlotting:
         ax2.plot(range(1, N), x)
         ax3.plot(x, x)
 
-    @pytest.mark.xfail(reason="Test for plot_date not written yet")
     @mpl.style.context("default")
     def test_plot_date(self):
-        fig, ax = plt.subplots()
-        ax.plot_date(...)
+        mpl.rcParams["date.converter"] = "concise"
+        range_threshold = 10
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
 
-    @pytest.mark.xfail(reason="Test for psd not written yet")
-    @mpl.style.context("default")
-    def test_psd(self):
-        fig, ax = plt.subplots()
-        ax.psd(...)
+        x_dates = np.array(
+            [datetime.datetime(2023, 10, delta) for delta in range(1, range_threshold)]
+        )
+        y_dates = np.array(
+            [datetime.datetime(2023, 10, delta) for delta in range(1, range_threshold)]
+        )
+        x_ranges = np.array(range(1, range_threshold))
+        y_ranges = np.array(range(1, range_threshold))
+
+        ax1.plot_date(x_dates, y_dates)
+        ax2.plot_date(x_dates, y_ranges)
+        ax3.plot_date(x_ranges, y_dates)
 
     @pytest.mark.xfail(reason="Test for quiver not written yet")
     @mpl.style.context("default")
@@ -320,12 +344,6 @@ class TestDatetimePlotting:
     def test_semilogy(self):
         fig, ax = plt.subplots()
         ax.semilogy(...)
-
-    @pytest.mark.xfail(reason="Test for specgram not written yet")
-    @mpl.style.context("default")
-    def test_specgram(self):
-        fig, ax = plt.subplots()
-        ax.specgram(...)
 
     @pytest.mark.xfail(reason="Test for spy not written yet")
     @mpl.style.context("default")
@@ -362,12 +380,6 @@ class TestDatetimePlotting:
     def test_streamplot(self):
         fig, ax = plt.subplots()
         ax.streamplot(...)
-
-    @pytest.mark.xfail(reason="Test for table not written yet")
-    @mpl.style.context("default")
-    def test_table(self):
-        fig, ax = plt.subplots()
-        ax.table(...)
 
     @pytest.mark.xfail(reason="Test for text not written yet")
     @mpl.style.context("default")

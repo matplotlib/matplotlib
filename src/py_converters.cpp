@@ -343,7 +343,7 @@ int convert_trans_affine(PyObject *obj, void *transp)
 
 int convert_path(PyObject *obj, void *pathp)
 {
-    py::PathIterator *path = (py::PathIterator *)pathp;
+    mpl::PathIterator *path = (mpl::PathIterator *)pathp;
 
     PyObject *vertices_obj = NULL;
     PyObject *codes_obj = NULL;
@@ -404,7 +404,7 @@ exit:
 
 int convert_pathgen(PyObject *obj, void *pathgenp)
 {
-    py::PathGenerator *paths = (py::PathGenerator *)pathgenp;
+    mpl::PathGenerator *paths = (mpl::PathGenerator *)pathgenp;
     if (!paths->set(obj)) {
         PyErr_SetString(PyExc_TypeError, "Not an iterable of paths");
         return 0;
@@ -415,7 +415,7 @@ int convert_pathgen(PyObject *obj, void *pathgenp)
 int convert_clippath(PyObject *clippath_tuple, void *clippathp)
 {
     ClipPath *clippath = (ClipPath *)clippathp;
-    py::PathIterator path;
+    mpl::PathIterator path;
     agg::trans_affine trans;
 
     if (clippath_tuple != NULL && clippath_tuple != Py_None) {
