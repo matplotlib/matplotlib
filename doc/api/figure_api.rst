@@ -306,3 +306,8 @@ FigureBase parent class
 =======================
 
 .. autoclass:: FigureBase
+
+Helper functions
+================
+
+.. autofunction:: figaspect
