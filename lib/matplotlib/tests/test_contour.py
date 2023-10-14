@@ -557,15 +557,15 @@ def test_find_nearest_contour_no_filled():
     cs = plt.contourf(img, 10)
 
     with pytest.warns(mpl._api.MatplotlibDeprecationWarning), \
-         pytest.raises(ValueError, match="Method does not support filled contours."):
+         pytest.raises(ValueError, match="Method does not support filled contours"):
         cs.find_nearest_contour(1, 1, pixel=False)
 
     with pytest.warns(mpl._api.MatplotlibDeprecationWarning), \
-         pytest.raises(ValueError, match="Method does not support filled contours."):
+         pytest.raises(ValueError, match="Method does not support filled contours"):
         cs.find_nearest_contour(1, 10, indices=(5, 7), pixel=False)
 
     with pytest.warns(mpl._api.MatplotlibDeprecationWarning), \
-         pytest.raises(ValueError, match="Method does not support filled contours."):
+         pytest.raises(ValueError, match="Method does not support filled contours"):
         cs.find_nearest_contour(2, 5, indices=(2, 7), pixel=True)
 
 
