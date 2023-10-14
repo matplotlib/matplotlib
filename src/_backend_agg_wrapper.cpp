@@ -209,7 +209,7 @@ static void PyRendererAgg_dealloc(PyRendererAgg *self)
 static PyObject *PyRendererAgg_draw_path(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
-    py::PathIterator path;
+    mpl::PathIterator path;
     agg::trans_affine trans;
     PyObject *faceobj = NULL;
     agg::rgba face;
@@ -263,9 +263,9 @@ static PyObject *PyRendererAgg_draw_text_image(PyRendererAgg *self, PyObject *ar
 PyObject *PyRendererAgg_draw_markers(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
-    py::PathIterator marker_path;
+    mpl::PathIterator marker_path;
     agg::trans_affine marker_path_trans;
-    py::PathIterator path;
+    mpl::PathIterator path;
     agg::trans_affine trans;
     PyObject *faceobj = NULL;
     agg::rgba face;
@@ -328,7 +328,7 @@ PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
     agg::trans_affine master_transform;
-    py::PathGenerator paths;
+    mpl::PathGenerator paths;
     numpy::array_view<const double, 3> transforms;
     numpy::array_view<const double, 2> offsets;
     agg::trans_affine offset_trans;

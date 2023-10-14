@@ -856,7 +856,7 @@ inline bool segments_intersect(const double &x1,
 template <class PathIterator1, class PathIterator2>
 bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
 {
-    typedef PathNanRemover<py::PathIterator> no_nans_t;
+    typedef PathNanRemover<mpl::PathIterator> no_nans_t;
     typedef agg::conv_curve<no_nans_t> curve_t;
 
     if (p1.total_vertices() < 2 || p2.total_vertices() < 2) {
@@ -920,7 +920,7 @@ bool path_intersects_rectangle(PathIterator &path,
                                double rect_x2, double rect_y2,
                                bool filled)
 {
-    typedef PathNanRemover<py::PathIterator> no_nans_t;
+    typedef PathNanRemover<mpl::PathIterator> no_nans_t;
     typedef agg::conv_curve<no_nans_t> curve_t;
 
     if (path.total_vertices() == 0) {
@@ -966,7 +966,7 @@ void convert_path_to_polygons(PathIterator &path,
                               int closed_only,
                               std::vector<Polygon> &result)
 {
-    typedef agg::conv_transform<py::PathIterator> transformed_path_t;
+    typedef agg::conv_transform<mpl::PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removal_t;
     typedef PathClipper<nan_removal_t> clipped_t;
     typedef PathSimplifier<clipped_t> simplify_t;
@@ -1032,7 +1032,7 @@ void cleanup_path(PathIterator &path,
                   std::vector<double> &vertices,
                   std::vector<unsigned char> &codes)
 {
-    typedef agg::conv_transform<py::PathIterator> transformed_path_t;
+    typedef agg::conv_transform<mpl::PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removal_t;
     typedef PathClipper<nan_removal_t> clipped_t;
     typedef PathSnapper<clipped_t> snapped_t;
@@ -1189,7 +1189,7 @@ bool convert_to_string(PathIterator &path,
                        std::string& buffer)
 {
     size_t buffersize;
-    typedef agg::conv_transform<py::PathIterator> transformed_path_t;
+    typedef agg::conv_transform<mpl::PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removal_t;
     typedef PathClipper<nan_removal_t> clipped_t;
     typedef PathSimplifier<clipped_t> simplify_t;

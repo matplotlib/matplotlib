@@ -6,8 +6,10 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 
+namespace py = pybind11;
+
 #include "agg_trans_affine.h"
 
-void convert_trans_affine(const pybind11::object& transform, agg::trans_affine& affine);
+void convert_trans_affine(const py::object& transform, agg::trans_affine& affine);
 
 #endif
