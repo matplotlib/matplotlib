@@ -60,20 +60,23 @@ class TestDatetimePlotting:
     def test_bar(self):
         mpl.rcParams["date.converter"] = "concise"
         range_threshold = 10
-        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
+        fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, layout="constrained")
 
         x_dates = np.array(
-            [datetime.datetime(2023, 10, delta) for delta in range(1, range_threshold)]
+            [datetime.datetime(2023, 10, delta) for delta in range(1, range_threshold)],
+            dtype=np.datetime64,
         )
         y_dates = np.array(
-            [datetime.datetime(2023, 10, delta) for delta in range(1, range_threshold)]
+            [datetime.datetime(2023, 10, delta) for delta in range(1, range_threshold)],
+            dtype=np.datetime64,
         )
         x_ranges = np.array(range(1, range_threshold))
         y_ranges = np.array(range(1, range_threshold))
 
-        ax1.bar(x_dates, y_ranges)
-        ax2.bar(x_dates, y_dates)
-        ax3.bar(x_ranges, y_dates)
+        ax1.bar(x_dates, y_ranges, width=np.timedelta64(range_threshold, "D"))
+        ax2.bar(x_dates, y_dates, width=np.timedelta64(range_threshold, "D"))
+        ax3.bar(x_ranges, y_dates, width=np.timedelta64(range_threshold, "D"))
+        ax4.bar(x_ranges, y_ranges, bottom=datetime.datetime(2023, 10, 1))
 
     @pytest.mark.xfail(reason="Test for bar_label not written yet")
     @mpl.style.context("default")
