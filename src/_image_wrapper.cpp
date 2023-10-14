@@ -4,6 +4,8 @@
 #include "_image_resample.h"
 #include "py_converters_11.h"
 
+namespace py = pybind11;
+using namespace pybind11::literals;
 
 /**********************************************************************
  * Free functions
@@ -46,8 +48,8 @@ radius: float, default: 1
 )""";
 
 
-static pybind11::array_t<double>
-_get_transform_mesh(const pybind11::object& transform, const pybind11::ssize_t *dims)
+static py::array_t<double>
+_get_transform_mesh(const py::object& transform, const py::ssize_t *dims)
 {
     /* TODO: Could we get away with float, rather than double, arrays here? */
 
@@ -58,8 +60,8 @@ _get_transform_mesh(const pybind11::object& transform, const pybind11::ssize_t *
     // If attribute doesn't exist, raises Python AttributeError
     auto inverse = transform.attr("inverted")();
 
-    pybind11::ssize_t mesh_dims[2] = {dims[0]*dims[1], 2};
-    pybind11::array_t<double> input_mesh(mesh_dims);
+    py::ssize_t mesh_dims[2] = {dims[0]*dims[1], 2};
+    py::array_t<double> input_mesh(mesh_dims);
     auto p = input_mesh.mutable_data();
 
     for (auto y = 0; y < dims[0]; ++y) {
@@ -72,7 +74,7 @@ _get_transform_mesh(const pybind11::object& transform, const pybind11::ssize_t *
     auto output_mesh = inverse.attr("transform")(input_mesh);
 
     auto output_mesh_array =
-        pybind11::array_t<double, pybind11::array::c_style | pybind11::array::forcecast>(output_mesh);
+        py::array_t<double, py::array::c_style | py::array::forcecast>(output_mesh);
 
     if (output_mesh_array.ndim() != 2) {
         throw std::runtime_error(
@@ -84,12 +86,12 @@ _get_transform_mesh(const pybind11::object& transform, const pybind11::ssize_t *
 }
 
 
-// Using generic pybind::array for input and output arrays rather than the more usual
-// pybind::array_t<type> as function supports multiple array dtypes.
+// Using generic py::array for input and output arrays rather than the more usual
+// py::array_t<type> as this function supports multiple array dtypes.
 static void
-image_resample(pybind11::array input_array,
-               pybind11::array& output_array,
-               const pybind11::object& transform,
+image_resample(py::array input_array,
+               py::array& output_array,
+               const py::object& transform,
                interpolation_e interpolation,
                bool resample_,  // Avoid name clash with resample() function
                float alpha,
@@ -111,7 +113,7 @@ image_resample(pybind11::array input_array,
     }
 
     // Ensure input array is contiguous, regardless of dtype
-    input_array = pybind11::array::ensure(input_array, pybind11::array::c_style);
+    input_array = py::array::ensure(input_array, py::array::c_style);
 
     // Validate output array
     auto out_ndim = output_array.ndim();
@@ -132,7 +134,7 @@ image_resample(pybind11::array input_array,
         throw std::invalid_argument("Input and output arrays have mismatched types");
     }
 
-    if ((output_array.flags() & pybind11::array::c_style) == 0) {
+    if ((output_array.flags() & py::array::c_style) == 0) {
         throw std::invalid_argument("Output array must be C-contiguous");
     }
 
@@ -150,14 +152,14 @@ image_resample(pybind11::array input_array,
 
     // Only used if transform is not affine.
     // Need to keep it in scope for the duration of this function.
-    pybind11::array_t<double> transform_mesh;
+    py::array_t<double> transform_mesh;
 
     // Validate transform
     if (transform.is_none()) {
         params.is_affine = true;
     } else {
         // Raises Python AttributeError if no such attribute or TypeError if cast fails
-        bool is_affine = pybind11::cast<bool>(transform.attr("is_affine"));
+        bool is_affine = py::cast<bool>(transform.attr("is_affine"));
 
         if (is_affine) {
             convert_trans_affine(transform, params.affine);
@@ -171,20 +173,20 @@ image_resample(pybind11::array input_array,
 
     if (auto resampler =
             (ndim == 2) ? (
-                (dtype.is(pybind11::dtype::of<std::uint8_t>())) ? resample<agg::gray8> :
-                (dtype.is(pybind11::dtype::of<std::int8_t>())) ? resample<agg::gray8> :
-                (dtype.is(pybind11::dtype::of<std::uint16_t>())) ? resample<agg::gray16> :
-                (dtype.is(pybind11::dtype::of<std::int16_t>())) ? resample<agg::gray16> :
-                (dtype.is(pybind11::dtype::of<float>())) ? resample<agg::gray32> :
-                (dtype.is(pybind11::dtype::of<double>())) ? resample<agg::gray64> :
+                (dtype.is(py::dtype::of<std::uint8_t>())) ? resample<agg::gray8> :
+                (dtype.is(py::dtype::of<std::int8_t>())) ? resample<agg::gray8> :
+                (dtype.is(py::dtype::of<std::uint16_t>())) ? resample<agg::gray16> :
+                (dtype.is(py::dtype::of<std::int16_t>())) ? resample<agg::gray16> :
+                (dtype.is(py::dtype::of<float>())) ? resample<agg::gray32> :
+                (dtype.is(py::dtype::of<double>())) ? resample<agg::gray64> :
                 nullptr) : (
             // ndim == 3
-                (dtype.is(pybind11::dtype::of<std::uint8_t>())) ? resample<agg::rgba8> :
-                (dtype.is(pybind11::dtype::of<std::int8_t>())) ? resample<agg::rgba8> :
-                (dtype.is(pybind11::dtype::of<std::uint16_t>())) ? resample<agg::rgba16> :
-                (dtype.is(pybind11::dtype::of<std::int16_t>())) ? resample<agg::rgba16> :
-                (dtype.is(pybind11::dtype::of<float>())) ? resample<agg::rgba32> :
-                (dtype.is(pybind11::dtype::of<double>())) ? resample<agg::rgba64> :
+                (dtype.is(py::dtype::of<std::uint8_t>())) ? resample<agg::rgba8> :
+                (dtype.is(py::dtype::of<std::int8_t>())) ? resample<agg::rgba8> :
+                (dtype.is(py::dtype::of<std::uint16_t>())) ? resample<agg::rgba16> :
+                (dtype.is(py::dtype::of<std::int16_t>())) ? resample<agg::rgba16> :
+                (dtype.is(py::dtype::of<float>())) ? resample<agg::rgba32> :
+                (dtype.is(py::dtype::of<double>())) ? resample<agg::rgba64> :
                 nullptr)) {
         Py_BEGIN_ALLOW_THREADS
         resampler(
@@ -199,7 +201,7 @@ image_resample(pybind11::array input_array,
 
 
 PYBIND11_MODULE(_image, m) {
-    pybind11::enum_<interpolation_e>(m, "_InterpolationType")
+    py::enum_<interpolation_e>(m, "_InterpolationType")
         .value("NEAREST", NEAREST)
         .value("BILINEAR", BILINEAR)
         .value("BICUBIC", BICUBIC)
@@ -220,13 +222,13 @@ PYBIND11_MODULE(_image, m) {
         .export_values();
 
     m.def("resample", &image_resample,
-        pybind11::arg("input_array"),
-        pybind11::arg("output_array"),
-        pybind11::arg("transform"),
-        pybind11::arg("interpolation") = interpolation_e::NEAREST,
-        pybind11::arg("resample") = false,
-        pybind11::arg("alpha") = 1,
-        pybind11::arg("norm") = false,
-        pybind11::arg("radius") = 1,
+        "input_array"_a,
+        "output_array"_a,
+        "transform"_a,
+        "interpolation"_a = interpolation_e::NEAREST,
+        "resample"_a = false,
+        "alpha"_a = 1,
+        "norm"_a = false,
+        "radius"_a = 1,
         image_resample__doc__);
 }

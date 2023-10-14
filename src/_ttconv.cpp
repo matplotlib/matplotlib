@@ -12,6 +12,7 @@
 #include <vector>
 
 namespace py = pybind11;
+using namespace pybind11::literals;
 
 /**
  * An implementation of TTStreamWriter that writes to a Python
@@ -75,10 +76,10 @@ PYBIND11_MODULE(_ttconv, m) {
               "fonts to Postscript Type 3, Postscript Type 42 and "
               "Pdf Type 3 fonts.";
     m.def("convert_ttf_to_ps", &convert_ttf_to_ps,
-        py::arg("filename"),
-        py::arg("output"),
-        py::arg("fonttype"),
-        py::arg("glyph_ids") = py::none(),
+        "filename"_a,
+        "output"_a,
+        "fonttype"_a,
+        "glyph_ids"_a = py::none(),
         "Converts the Truetype font into a Type 3 or Type 42 Postscript font, "
         "optionally subsetting the font to only the desired set of characters.\n"
         "\n"
