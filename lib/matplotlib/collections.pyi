@@ -13,7 +13,7 @@ from .path import Path
 from .patches import Patch
 from .ticker import Locator, Formatter
 from .tri import Triangulation
-from .typing import ColorType, LineStyleType, CapStyleType, JoinStyleType
+from .typing import ColorType, LineStyleType, CapStyleType, JoinStyleType, Any
 
 class Collection(artist.Artist, cm.ScalarMappable):
     def __init__(
@@ -178,7 +178,7 @@ class EventCollection(LineCollection):
     def get_color(self) -> ColorType: ...
 
 class CircleCollection(_CollectionWithSizes):
-    def __init__(self, sizes: float | ArrayLike, **kwargs) -> None: ...
+    def __init__(self, sizes: float | ArrayLike, **kwargs:Any) -> None: ...
 
 class EllipseCollection(Collection):
     def __init__(
@@ -200,7 +200,7 @@ class PatchCollection(Collection):
     def set_paths(self, patches: Iterable[Patch]) -> None: ...  # type: ignore[override]
 
 class TriMesh(Collection):
-    def __init__(self, triangulation: Triangulation, **kwargs) -> None: ...
+    def __init__(self, triangulation: Triangulation, **kwargs:Any) -> None: ...
     def get_paths(self) -> list[Path]: ...
     # Parent class has an argument, perhaps add a noop arg?
     def set_paths(self) -> None: ...  # type: ignore[override]
