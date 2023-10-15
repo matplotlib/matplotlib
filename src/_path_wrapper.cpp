@@ -83,7 +83,11 @@ static PyObject *Py_points_in_path(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    npy_intp dims[] = { (npy_intp)points.size() };
+    if (!check_trailing_shape(points, "points", 2)) {
+        return NULL;
+    }
+
+    npy_intp dims[] = { (npy_intp)points.shape(0) };
     numpy::array_view<uint8_t, 1> results(dims);
 
     CALL_CPP("points_in_path", (points_in_path(points, r, path, trans, results)));
@@ -118,10 +122,10 @@ static PyObject *Py_update_path_extents(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (minpos.dim(0) != 2) {
+    if (minpos.shape(0) != 2) {
         PyErr_Format(PyExc_ValueError,
                      "minpos must be of length 2, got %" NPY_INTP_FMT,
-                     minpos.dim(0));
+                     minpos.shape(0));
         return NULL;
     }
 
@@ -361,7 +365,11 @@ static PyObject *Py_affine_transform(PyObject *self, PyObject *args)
         numpy::array_view<double, 2> vertices(vertices_arr);
         Py_DECREF(vertices_arr);
 
-        npy_intp dims[] = { (npy_intp)vertices.size(), 2 };
+        if(!check_trailing_shape(vertices, "vertices", 2)) {
+            return NULL;
+        }
+
+        npy_intp dims[] = { (npy_intp)vertices.shape(0), 2 };
         numpy::array_view<double, 2> result(dims);
         CALL_CPP("affine_transform", (affine_transform_2d(vertices, trans, result)));
         return result.pyobj();
@@ -369,7 +377,7 @@ static PyObject *Py_affine_transform(PyObject *self, PyObject *args)
         numpy::array_view<double, 1> vertices(vertices_arr);
         Py_DECREF(vertices_arr);
 
-        npy_intp dims[] = { (npy_intp)vertices.size() };
+        npy_intp dims[] = { (npy_intp)vertices.shape(0) };
         numpy::array_view<double, 1> result(dims);
         CALL_CPP("affine_transform", (affine_transform_1d(vertices, trans, result)));
         return result.pyobj();

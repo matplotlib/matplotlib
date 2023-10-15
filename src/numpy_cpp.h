@@ -492,7 +492,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         return true;
     }
 
-    npy_intp dim(size_t i) const
+    npy_intp shape(size_t i) const
     {
         if (i >= ND) {
             return 0;
@@ -500,29 +500,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         return m_shape[i];
     }
 
-    /*
-       In most cases, code should use size() instead of dim(0), since
-       size() == 0 when any dimension is 0.
-    */
-    size_t size() const
-    {
-        bool empty = (ND == 0);
-        for (size_t i = 0; i < ND; i++) {
-            if (m_shape[i] == 0) {
-                empty = true;
-            }
-        }
-        if (empty) {
-            return 0;
-        } else {
-            return (size_t)dim(0);
-        }
-    }
-
-    bool empty() const
-    {
-        return size() == 0;
-    }
+    size_t size() const;
 
     // Do not use this for array_view<bool, ND>.  See comment near top of file.
     const T *data() const
@@ -571,6 +549,32 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         return 1;
     }
 };
+
+/* In most cases, code should use safe_first_shape(obj) instead of obj.shape(0), since
+   safe_first_shape(obj) == 0 when any dimension is 0. */
+template <typename T, int ND>
+size_t
+safe_first_shape(const array_view<T, ND> &a)
+{
+    bool empty = (ND == 0);
+    for (size_t i = 0; i < ND; i++) {
+        if (a.shape(i) == 0) {
+            empty = true;
+        }
+    }
+    if (empty) {
+        return 0;
+    } else {
+        return (size_t)a.shape(0);
+    }
+}
+
+template <typename T, int ND>
+size_t
+array_view<T, ND>::size() const
+{
+    return safe_first_shape<T, ND>(*this);
+}
 
 } // namespace numpy
 

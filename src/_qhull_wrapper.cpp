@@ -267,8 +267,8 @@ delaunay(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    npoints = xarray.dim(0);
-    if (npoints != yarray.dim(0)) {
+    npoints = xarray.shape(0);
+    if (npoints != yarray.shape(0)) {
         PyErr_SetString(PyExc_ValueError,
                         "x and y must be 1D arrays of the same length");
         return NULL;
