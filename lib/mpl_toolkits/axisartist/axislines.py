@@ -84,6 +84,9 @@ class _AxisArtistHelperBase:
             return iter_major, iter_minor
     """
 
+    def __init__(self, nth_coord):
+        self.set_nth_coord(nth_coord)
+
     def update_lim(self, axes):
         pass
 
@@ -108,6 +111,12 @@ class _AxisArtistHelperBase:
         else:
             raise ValueError("Unexpected nth_coord")
 
+    def get_nth_coord(self):
+        return self.nth_coord
+
+    def set_nth_coord(self, nth_coord):
+        self.nth_coord = nth_coord
+
 
 class _FixedAxisArtistHelperBase(_AxisArtistHelperBase):
     """Helper class for a fixed (in the axes coordinate) axis."""
@@ -118,23 +127,22 @@ class _FixedAxisArtistHelperBase(_AxisArtistHelperBase):
 
     def __init__(self, loc, nth_coord=None):
         """``nth_coord = 0``: x-axis; ``nth_coord = 1``: y-axis."""
-        self.nth_coord = (
-            nth_coord if nth_coord is not None else
-            _api.check_getitem(
-                {"bottom": 0, "top": 0, "left": 1, "right": 1}, loc=loc))
-        if (nth_coord == 0 and loc not in ["left", "right"]
-                or nth_coord == 1 and loc not in ["bottom", "top"]):
-            _api.warn_deprecated(
-                "3.7", message=f"{loc=!r} is incompatible with "
-                "{nth_coord=}; support is deprecated since %(since)s")
         self._loc = loc
         self._pos = {"bottom": 0, "top": 1, "left": 0, "right": 1}[loc]
-        super().__init__()
+        super().__init__(nth_coord)
         # axis line in transAxes
         self._path = Path(self._to_xy((0, 1), const=self._pos))
 
-    def get_nth_coord(self):
-        return self.nth_coord
+    def set_nth_coord(self, nth_coord):
+        self.nth_coord = (
+            nth_coord if nth_coord is not None else
+            _api.check_getitem(
+                {"bottom": 0, "top": 0, "left": 1, "right": 1}, loc=self._loc))
+        if (nth_coord == 0 and self._loc not in ["left", "right"]
+                or nth_coord == 1 and self._loc not in ["bottom", "top"]):
+            _api.warn_deprecated(
+                "3.7", message=f"{self._loc=!r} is incompatible with "
+                "{nth_coord=}; support is deprecated since %(since)s")
 
     # LINE
 
@@ -170,12 +178,8 @@ class _FixedAxisArtistHelperBase(_AxisArtistHelperBase):
 class _FloatingAxisArtistHelperBase(_AxisArtistHelperBase):
 
     def __init__(self, nth_coord, value):
-        self.nth_coord = nth_coord
         self._value = value
-        super().__init__()
-
-    def get_nth_coord(self):
-        return self.nth_coord
+        super().__init__(nth_coord)
 
     def get_line(self, axes):
         raise RuntimeError(
