@@ -3,12 +3,12 @@ from matplotlib.contour import ContourSet
 from matplotlib.tri._triangulation import Triangulation
 
 from numpy.typing import ArrayLike
-from typing import overload
+from typing import overload,Any
 
 # TODO: more explicit args/kwargs (for all things in this module)?
 
 class TriContourSet(ContourSet):
-    def __init__(self, ax: Axes, *args, **kwargs;Any) -> None: ...
+    def __init__(self, ax: Axes, *args, **kwargs:Any) -> None: ...
 
 @overload
 def tricontour(
