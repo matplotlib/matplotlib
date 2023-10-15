@@ -339,7 +339,7 @@ Merging
 
 Automated tests
 ---------------
-Before being merged, a PR should pass the :ref:`automated-tests`. If you're unsure why a test is failing, ask on the PR or  in our `chat space <https://gitter.im/matplotlib/matplotlib>`_
+Before being merged, a PR should pass the :ref:`automated-tests`. If you are unsure why a test is failing, ask on the PR or in our `chat space <https://gitter.im/matplotlib/matplotlib>`_
 
 .. _pr-squashing:
 
