@@ -8,7 +8,7 @@ from typing import overload
 # TODO: more explicit args/kwargs (for all things in this module)?
 
 class TriContourSet(ContourSet):
-    def __init__(self, ax: Axes, *args, **kwargs) -> None: ...
+    def __init__(self, ax: Axes, *args, **kwargs;Any) -> None: ...
 
 @overload
 def tricontour(
