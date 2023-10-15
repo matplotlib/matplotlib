@@ -15,7 +15,7 @@ from typing import Any, Literal, overload
 
 DEBUG: bool
 
-def bbox_artist(*args, **kwargs) -> None: ...
+def bbox_artist(*args, **kwargs:Any) -> None: ...
 def _get_packed_offsets(
     widths: Sequence[float],
     total: float | None,
@@ -26,7 +26,7 @@ def _get_packed_offsets(
 class OffsetBox(martist.Artist):
     width: float | None
     height: float | None
-    def __init__(self, *args, **kwargs) -> None: ...
+    def __init__(self, *args, **kwargs:Any) -> None: ...
     def set_figure(self, fig: Figure) -> None: ...
     def set_offset(
         self,
