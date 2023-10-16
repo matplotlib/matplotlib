@@ -2,7 +2,6 @@
 
 import numpy as np
 
-from matplotlib import _api
 from matplotlib.path import Path
 
 
@@ -179,16 +178,17 @@ _hatch_types = [
     ]
 
 
-def _validate_hatch_pattern(hatch): 
-    valid_hatch_patterns = set(r'-+|/\xXoO.*') 
-    if hatch is not None: 
-        invalids = set(hatch).difference(valid_hatch_patterns) 
-        if invalids: 
-            valid = ''.join(sorted(valid_hatch_patterns)) 
+def _validate_hatch_pattern(hatch):
+    valid_hatch_patterns = set(r'-+|/\xXoO.*')
+    if hatch is not None:
+        invalids = set(hatch).difference(valid_hatch_patterns)
+        if invalids:
+            valid = ''.join(sorted(valid_hatch_patterns))
             invalids = ''.join(sorted(invalids))
-            message = f"""Unknown hatch symbol(s): {invalids}. 
+            message = f"""Unknown hatch symbol(s): {invalids}.
                           Hatch must consist of a string of {valid}"""
             raise ValueError(message)
+    else:
         raise ValueError("Hatch pattern must be a string")
 
 
