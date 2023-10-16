@@ -4,7 +4,7 @@ from matplotlib.axis import Tick
 from matplotlib.transforms import Transform
 
 from collections.abc import Callable, Iterable
-from typing import Literal
+from typing import Literal, Any
 from numpy.typing import ArrayLike
 from matplotlib.typing import ColorType
 
@@ -38,5 +38,5 @@ class SecondaryAxis(_AxesBase):
         self,
         functions: tuple[Callable[[ArrayLike], ArrayLike], Callable[[ArrayLike], ArrayLike]] | Transform,
     ) -> None: ...
-    def set_aspect(self, *args, **kwargs) -> None: ...
+    def set_aspect(self, *args, **kwargs:Any) -> None: ...
     def set_color(self, color: ColorType) -> None: ...
