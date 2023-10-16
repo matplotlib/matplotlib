@@ -1,9 +1,9 @@
 """
 ======================
-Zoom region inset axes
+Zoom region inset Axes
 ======================
 
-Example of an inset axes and a rectangle showing where the zoom is located.
+Example of an inset Axes and a rectangle showing where the zoom is located.
 """
 
 import numpy as np
@@ -22,7 +22,7 @@ extent = (-3, 4, -4, 3)
 
 ax.imshow(Z2, extent=extent, origin="lower")
 
-# inset axes....
+# inset Axes....
 x1, x2, y1, y2 = -1.5, -0.9, -2.5, -1.9  # subregion of the original image
 axins = ax.inset_axes(
     [0.5, 0.5, 0.47, 0.47],

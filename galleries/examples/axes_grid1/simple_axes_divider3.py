@@ -21,7 +21,7 @@ ax = [fig.add_axes(rect, label="%d" % i) for i in range(4)]
 horiz = [Size.AxesX(ax[0]), Size.Fixed(.5), Size.AxesX(ax[1])]
 vert = [Size.AxesY(ax[0]), Size.Fixed(.5), Size.AxesY(ax[2])]
 
-# divide the axes rectangle into grid whose size is specified by horiz * vert
+# divide the Axes rectangle into grid whose size is specified by horiz * vert
 divider = Divider(fig, rect, horiz, vert, aspect=False)
 
 

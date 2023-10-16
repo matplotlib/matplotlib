@@ -11,7 +11,7 @@ will be color-mapped (based on *norm* and *cmap*) or a 3D RGB(A) array which
 will be used as-is) to a rectangular region in data space.  The orientation of
 the image in the final rendering is controlled by the *origin* and *extent*
 keyword arguments (and attributes on the resulting `.AxesImage` instance) and
-the data limits of the axes.
+the data limits of the Axes.
 
 The *extent* keyword arguments controls the bounding box in data coordinates
 that the image will fill specified as ``(left, right, bottom, top)`` in **data
@@ -218,9 +218,9 @@ generate_imshow_demo_grid(extents=[None])
 # By setting *extent* we define the coordinates of the image area. The
 # underlying image data is interpolated/resampled to fill that area.
 #
-# If the axes is set to autoscale, then the view limits of the axes are set
+# If the Axes is set to autoscale, then the view limits of the Axes are set
 # to match the *extent* which ensures that the coordinate set by
-# ``(left, bottom)`` is at the bottom left of the axes!  However, this
+# ``(left, bottom)`` is at the bottom left of the Axes!  However, this
 # may invert the axis so they do not increase in the 'natural' direction.
 #
 
@@ -240,7 +240,7 @@ set_extent_None_text(columns['lower'][0])
 # -------------------------------
 #
 # If we fix the axes limits by explicitly setting `~.axes.Axes.set_xlim` /
-# `~.axes.Axes.set_ylim`, we force a certain size and orientation of the axes.
+# `~.axes.Axes.set_ylim`, we force a certain size and orientation of the Axes.
 # This can decouple the 'left-right' and 'top-bottom' sense of the image from
 # the orientation on the screen.
 #

@@ -5,7 +5,7 @@ Text and mathtext using pyplot
 
 Set the special text objects `~.pyplot.title`, `~.pyplot.xlabel`, and
 `~.pyplot.ylabel` through the dedicated pyplot functions.  Additional text
-objects can be placed in the axes using `~.pyplot.text`.
+objects can be placed in the Axes using `~.pyplot.text`.
 
 You can use TeX-like mathematical typesetting in all texts; see also
 :ref:`mathtext`.

@@ -20,7 +20,7 @@ def label_axes(ax, text):
 
 
 # %%
-# Fixed axes sizes; fixed paddings.
+# Fixed Axes sizes; fixed paddings.
 
 fig = plt.figure(figsize=(6, 6))
 fig.suptitle("Fixed axes sizes, fixed paddings")
@@ -30,7 +30,7 @@ horiz = [Size.Fixed(1.), Size.Fixed(.5), Size.Fixed(1.5), Size.Fixed(.5)]
 vert = [Size.Fixed(1.5), Size.Fixed(.5), Size.Fixed(1.)]
 
 rect = (0.1, 0.1, 0.8, 0.8)
-# Divide the axes rectangle into a grid with sizes specified by horiz * vert.
+# Divide the Axes rectangle into a grid with sizes specified by horiz * vert.
 div = Divider(fig, rect, horiz, vert, aspect=False)
 
 # The rect parameter will actually be ignored and overridden by axes_locator.
@@ -53,7 +53,7 @@ horiz = [Size.Scaled(1.5), Size.Fixed(.5), Size.Scaled(1.), Size.Scaled(.5)]
 vert = [Size.Scaled(1.), Size.Fixed(.5), Size.Scaled(1.5)]
 
 rect = (0.1, 0.1, 0.8, 0.8)
-# Divide the axes rectangle into a grid with sizes specified by horiz * vert.
+# Divide the Axes rectangle into a grid with sizes specified by horiz * vert.
 div = Divider(fig, rect, horiz, vert, aspect=False)
 
 # The rect parameter will actually be ignored and overridden by axes_locator.

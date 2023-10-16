@@ -1,10 +1,10 @@
 """
 ===============================
-Resizing axes with tight layout
+Resizing Axes with tight layout
 ===============================
 
 `~.Figure.tight_layout` attempts to resize subplots in a figure so that there
-are no overlaps between axes objects and labels on the axes.
+are no overlaps between Axes objects and labels on the Axes.
 
 See :ref:`tight_layout_guide` for more details and
 :ref:`constrainedlayout_guide` for an alternative.

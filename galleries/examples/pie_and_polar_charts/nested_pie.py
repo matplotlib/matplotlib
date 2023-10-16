@@ -46,7 +46,7 @@ plt.show()
 
 # %%
 # However, you can accomplish the same output by using a bar plot on
-# axes with a polar coordinate system. This may give more flexibility on
+# Axes with a polar coordinate system. This may give more flexibility on
 # the exact design of the plot.
 #
 # In this case, we need to map x-values of the bar chart onto radians of

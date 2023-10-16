@@ -30,7 +30,7 @@ def gradient_image(ax, direction=0.3, cmap_range=(0, 1), **kwargs):
     Parameters
     ----------
     ax : Axes
-        The axes to draw on.
+        The Axes to draw on.
     direction : float
         The direction of the gradient. This is a number in
         range 0 (=vertical) to 1 (=horizontal).

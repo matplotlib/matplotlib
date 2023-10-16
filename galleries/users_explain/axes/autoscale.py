@@ -7,7 +7,7 @@ Autoscaling Axis
 ================
 
 The limits on an axis can be set manually (e.g. ``ax.set_xlim(xmin, xmax)``)
-or Matplotlib can set them automatically based on the data already on the axes.
+or Matplotlib can set them automatically based on the data already on the Axes.
 There are a number of options to this autoscaling behaviour, discussed below.
 """
 
@@ -165,8 +165,8 @@ print(ax.margins())
 # ------------------------
 #
 # Autoscale works out of the box for all lines, patches, and images added to
-# the axes. One of the artists that it won't work with is a `.Collection`.
-# After adding a collection to the axes, one has to manually trigger the
+# the Axes. One of the artists that it won't work with is a `.Collection`.
+# After adding a collection to the Axes, one has to manually trigger the
 # `~matplotlib.axes.Axes.autoscale_view()` to recalculate
 # axes limits.
 

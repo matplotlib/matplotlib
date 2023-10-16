@@ -1,6 +1,6 @@
 """
 =======================
-Multiple axes animation
+Multiple Axes animation
 =======================
 
 This example showcases:
