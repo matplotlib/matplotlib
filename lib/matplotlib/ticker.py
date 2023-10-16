@@ -1635,7 +1635,7 @@ class Locator(TickHelper):
         Adjust a range as needed to avoid singularities.
 
         This method gets called during autoscaling, with ``(v0, v1)`` set to
-        the data limits on the axes if the axes contains any data, or
+        the data limits on the Axes if the Axes contains any data, or
         ``(-inf, +inf)`` if not.
 
         - If ``v0 == v1`` (possibly up to some floating point slop), this
@@ -2000,7 +2000,7 @@ class MaxNLocator(Locator):
             *if they fall exactly on an axis' edge* (this typically occurs when
             :rc:`axes.autolimit_mode` is 'round_numbers').  Removing such ticks
             is mostly useful for stacked or ganged plots, where the upper tick
-            of an axes overlaps with the lower tick of the axes above it.
+            of an Axes overlaps with the lower tick of the axes above it.
 
         min_n_ticks : int, default: 2
             Relax *nbins* and *integer* constraints if necessary to obtain

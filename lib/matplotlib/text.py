@@ -1545,10 +1545,10 @@ class _AnnotationBase:
         ----------
         b : bool or None
             - True: The annotation will be clipped when ``self.xy`` is
-              outside the axes.
+              outside the Axes.
             - False: The annotation will always be drawn.
             - None: The annotation will be clipped when ``self.xy`` is
-              outside the axes and ``self.xycoords == "data"``.
+              outside the Axes and ``self.xycoords == "data"``.
         """
         self._annotation_clip = b
 
@@ -1570,7 +1570,7 @@ class _AnnotationBase:
             renderer = self.figure._get_renderer()
         b = self.get_annotation_clip()
         if b or (b is None and self.xycoords == "data"):
-            # check if self.xy is inside the axes.
+            # check if self.xy is inside the Axes.
             xy_pixel = self._get_position_xy(renderer)
             return self.axes.contains_point(xy_pixel)
         return True
@@ -1676,9 +1676,9 @@ callable, default: 'data'
               'subfigure points'   Points from the lower left of the subfigure
               'subfigure pixels'   Pixels from the lower left of the subfigure
               'subfigure fraction' Fraction of subfigure from lower left
-              'axes points'        Points from lower left corner of axes
-              'axes pixels'        Pixels from lower left corner of axes
-              'axes fraction'      Fraction of axes from lower left
+              'axes points'        Points from lower left corner of the Axes
+              'axes pixels'        Pixels from lower left corner of the Axes
+              'axes fraction'      Fraction of Axes from lower left
               'data'               Use the coordinate system of the object
                                    being annotated (default)
               'polar'              *(theta, r)* if not native 'data'
@@ -1782,13 +1782,13 @@ or callable, default: value of *xycoords*
 
         annotation_clip : bool or None, default: None
             Whether to clip (i.e. not draw) the annotation when the annotation
-            point *xy* is outside the axes area.
+            point *xy* is outside the Axes area.
 
             - If *True*, the annotation will be clipped when *xy* is outside
-              the axes.
+              the Axes.
             - If *False*, the annotation will always be drawn.
             - If *None*, the annotation will be clipped when *xy* is outside
-              the axes and *xycoords* is 'data'.
+              the Axes and *xycoords* is 'data'.
 
         **kwargs
             Additional kwargs are passed to `.Text`.

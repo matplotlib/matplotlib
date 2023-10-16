@@ -69,7 +69,7 @@ def _stale_figure_callback(self, val):
 
 class _AxesStack:
     """
-    Helper class to track axes in a figure.
+    Helper class to track Axes in a figure.
 
     Axes are tracked both in the order in which they have been added
     (``self._axes`` insertion/iteration order) and in the separate "gca" stack
@@ -77,30 +77,30 @@ class _AxesStack:
     """
 
     def __init__(self):
-        self._axes = {}  # Mapping of axes to "gca" order.
+        self._axes = {}  # Mapping of Axes to "gca" order.
         self._counter = itertools.count()
 
     def as_list(self):
-        """List the axes that have been added to the figure."""
+        """List the Axes that have been added to the figure."""
         return [*self._axes]  # This relies on dict preserving order.
 
     def remove(self, a):
-        """Remove the axes from the stack."""
+        """Remove the Axes from the stack."""
         self._axes.pop(a)
 
     def bubble(self, a):
-        """Move an axes, which must already exist in the stack, to the top."""
+        """Move an Axes, which must already exist in the stack, to the top."""
         if a not in self._axes:
             raise ValueError("Axes has not been added yet")
         self._axes[a] = next(self._counter)
 
     def add(self, a):
-        """Add an axes to the stack, ignoring it if already present."""
+        """Add an Axes to the stack, ignoring it if already present."""
         if a not in self._axes:
             self._axes[a] = next(self._counter)
 
     def current(self):
-        """Return the active axes, or None if the stack is empty."""
+        """Return the active Axes, or None if the stack is empty."""
         return max(self._axes, key=self._axes.__getitem__, default=None)
 
     def __getstate__(self):
@@ -137,7 +137,7 @@ class FigureBase(Artist):
         # axis._get_tick_boxes_siblings
         self._align_label_groups = {"x": cbook.Grouper(), "y": cbook.Grouper()}
 
-        self._localaxes = []  # track all axes
+        self._localaxes = []  # track all Axes
         self.artists = []
         self.lines = []
         self.patches = []
@@ -508,7 +508,7 @@ default: %(va)s
         sharex, sharey : `~matplotlib.axes.Axes`, optional
             Share the x or y `~matplotlib.axis` with sharex and/or sharey.
             The axis will have the same limits, ticks, and scale as the axis
-            of the shared axes.
+            of the shared Axes.
 
         label : str
             A label for the returned Axes.
@@ -516,7 +516,7 @@ default: %(va)s
         Returns
         -------
         `~.axes.Axes`, or a subclass of `~.axes.Axes`
-            The returned axes class depends on the projection used. It is
+            The returned Axes class depends on the projection used. It is
             `~.axes.Axes` if rectilinear projection is used and
             `.projections.polar.PolarAxes` if polar projection is used.
 
@@ -581,7 +581,7 @@ default: %(va)s
                 raise ValueError(f'all entries in rect must be finite not {rect}')
             projection_class, pkw = self._process_projection_requirements(**kwargs)
 
-            # create the new axes using the axes class given
+            # create the new Axes using the Axes class given
             a = projection_class(self, rect, **pkw)
             key = (projection_class, pkw)
 
@@ -644,7 +644,7 @@ default: %(va)s
         sharex, sharey : `~matplotlib.axes.Axes`, optional
             Share the x or y `~matplotlib.axis` with sharex and/or sharey.
             The axis will have the same limits, ticks, and scale as the axis
-            of the shared axes.
+            of the shared Axes.
 
         label : str
             A label for the returned Axes.
@@ -877,14 +877,14 @@ default: %(va)s
 
     def _remove_axes(self, ax, owners):
         """
-        Common helper for removal of standard axes (via delaxes) and of child axes.
+        Common helper for removal of standard Axes (via delaxes) and of child Axes.
 
         Parameters
         ----------
         ax : `~.AxesBase`
             The Axes to remove.
         owners
-            List of objects (list or _AxesStack) "owning" the axes, from which the Axes
+            List of objects (list or _AxesStack) "owning" the Axes, from which the Axes
             will be remove()d.
         """
         for owner in owners:
@@ -894,7 +894,7 @@ default: %(va)s
         self.stale = True
         self.canvas.release_mouse(ax)
 
-        for name in ax._axis_names:  # Break link between any shared axes
+        for name in ax._axis_names:  # Break link between any shared Axes
             grouper = ax._shared_axes[name]
             siblings = [other for other in grouper.get_siblings(ax) if other is not ax]
             if not siblings:  # Axes was not shared along this axis; we're done.
@@ -909,7 +909,7 @@ default: %(va)s
             remaining_axis.get_minor_formatter().set_axis(remaining_axis)
             remaining_axis.get_minor_locator().set_axis(remaining_axis)
 
-        ax._twinned_axes.remove(ax)  # Break link between any twinned axes.
+        ax._twinned_axes.remove(ax)  # Break link between any twinned Axes.
 
     def clear(self, keep_observers=False):
         """
@@ -923,7 +923,7 @@ default: %(va)s
         """
         self.suppressComposite = None
 
-        # first clear the axes in any subfigures
+        # first clear the Axes in any subfigures
         for subfig in self.subfigs:
             subfig.clear(keep_observers=keep_observers)
         self.subfigs = []
@@ -1192,12 +1192,12 @@ default: %(va)s
         included automatically.
 
         The *shrink* kwarg provides a simple way to scale the colorbar with
-        respect to the axes. Note that if *cax* is specified, it determines the
+        respect to the Axes. Note that if *cax* is specified, it determines the
         size of the colorbar, and *shrink* and *aspect* are ignored.
 
         For more precise control, you can manually specify the positions of the
         axes objects in which the mappable and the colorbar are drawn.  In this
-        case, do not use any of the axes properties kwargs.
+        case, do not use any of the Axes properties kwargs.
 
         It is known that some vector graphics viewers (svg and pdf) render
         white gaps between segments of the colorbar.  This is due to bugs in
@@ -1224,7 +1224,7 @@ default: %(va)s
                     'Either provide the *cax* argument to use as the Axes for '
                     'the Colorbar, provide the *ax* argument to steal space '
                     'from it, or add *mappable* to an Axes.')
-            fig = (  # Figure of first axes; logic copied from make_axes.
+            fig = (  # Figure of first Axes; logic copied from make_axes.
                 [*ax.flat] if isinstance(ax, np.ndarray)
                 else [*ax] if np.iterable(ax)
                 else [ax])[0].figure
@@ -1352,9 +1352,9 @@ default: %(va)s
             _log.debug(' Working on: %s', ax.get_xlabel())
             rowspan = ax.get_subplotspec().rowspan
             pos = ax.xaxis.get_label_position()  # top or bottom
-            # Search through other axes for label positions that are same as
+            # Search through other Axes for label positions that are same as
             # this one and that share the appropriate row number.
-            # Add to a grouper associated with each axes of siblings.
+            # Add to a grouper associated with each Axes of siblings.
             # This list is inspected in `axis.draw` by
             # `axis._update_label_position`.
             for axc in axs:
@@ -1412,9 +1412,9 @@ default: %(va)s
             _log.debug(' Working on: %s', ax.get_ylabel())
             colspan = ax.get_subplotspec().colspan
             pos = ax.yaxis.get_label_position()  # left or right
-            # Search through other axes for label positions that are same as
+            # Search through other Axes for label positions that are same as
             # this one and that share the appropriate column number.
-            # Add to a list associated with each axes of siblings.
+            # Add to a list associated with each Axes of siblings.
             # This list is inspected in `axis.draw` by
             # `axis._update_label_position`.
             for axc in axs:
@@ -1737,7 +1737,7 @@ default: %(va)s
 
         for ax in self.axes:
             if ax.get_visible():
-                # some axes don't take the bbox_extra_artists kwarg so we
+                # some Axes don't take the bbox_extra_artists kwarg so we
                 # need this conditional....
                 try:
                     bbox = ax.get_tightbbox(
@@ -1896,7 +1896,7 @@ default: %(va)s
         -------
         dict[label, Axes]
            A dictionary mapping the labels to the Axes objects.  The order of
-           the axes is left-to-right and top-to-bottom of their position in the
+           the Axes is left-to-right and top-to-bottom of their position in the
            total layout.
 
         """
@@ -2006,7 +2006,7 @@ default: %(va)s
             """
             output = dict()
 
-            # we need to merge together the Axes at this level and the axes
+            # we need to merge together the Axes at this level and the Axes
             # in the (recursively) nested sub-mosaics so that we can add
             # them to the figure in the "natural" order if you were to
             # ravel in c-order all of the Axes that will be created
@@ -2046,7 +2046,7 @@ default: %(va)s
                 # element is an Axes or a nested mosaic.
                 if method == 'axes':
                     slc = arg
-                    # add a single axes
+                    # add a single Axes
                     if name in output:
                         raise ValueError(f"There are duplicate keys {name} "
                                          f"in the layout\n{mosaic!r}")
@@ -2421,15 +2421,15 @@ None}, default: None
             overlapping Axes decorations (labels, ticks, etc). Note that
             layout managers can have significant performance penalties.
 
-            - 'constrained': The constrained layout solver adjusts axes sizes
-              to avoid overlapping axes decorations.  Can handle complex plot
+            - 'constrained': The constrained layout solver adjusts Axes sizes
+              to avoid overlapping Axes decorations.  Can handle complex plot
               layouts and colorbars, and is thus recommended.
 
               See :ref:`constrainedlayout_guide` for examples.
 
             - 'compressed': uses the same algorithm as 'constrained', but
               removes extra space between fixed-aspect-ratio Axes.  Best for
-              simple grids of axes.
+              simple grids of Axes.
 
             - 'tight': Use the tight layout mechanism. This is a relatively
               simple algorithm that adjusts the subplot parameters so that
@@ -2545,7 +2545,7 @@ None}, default: None
 
         self.subplotpars = subplotpars
 
-        self._axstack = _AxesStack()  # track all figure axes and current axes
+        self._axstack = _AxesStack()  # track all figure Axes and current Axes
         self.clear()
 
     def pick(self, mouseevent):
@@ -2914,7 +2914,7 @@ None}, default: None
 
         origin : {'upper', 'lower'}, default: :rc:`image.origin`
             Indicates where the [0, 0] index of the array is in the upper left
-            or lower left corner of the axes.
+            or lower left corner of the Axes.
 
         resize : bool
             If *True*, resize the figure to match the given image size.
@@ -3347,7 +3347,7 @@ None}, default: None
                 # set subfigure to appear transparent in printed image
                 for subfig in self.subfigs:
                     _recursively_make_subfig_transparent(stack, subfig)
-                # set axes to be transparent
+                # set Axes to be transparent
                 for ax in self.axes:
                     _recursively_make_axes_transparent(stack, ax)
             self.canvas.print_figure(fname, **kwargs)

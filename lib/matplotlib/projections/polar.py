@@ -141,7 +141,7 @@ class PolarAffine(mtransforms.Affine2DBase):
     r"""
     The affine part of the polar projection.
 
-    Scales the output so that maximum radius rests on the edge of the axes
+    Scales the output so that maximum radius rests on the edge of the Axes
     circle and the origin is mapped to (0.5, 0.5). The transform applied is
     the same to x and y components and given by:
 
@@ -504,7 +504,7 @@ class _ThetaShift(mtransforms.ScaledTranslation):
     Parameters
     ----------
     axes : `~matplotlib.axes.Axes`
-        The owning axes; used to determine limits.
+        The owning Axes; used to determine limits.
     pad : float
         The padding to apply, in points.
     mode : {'min', 'max', 'rlabel'}
@@ -739,7 +739,7 @@ def _is_full_circle_rad(thetamin, thetamax):
 
 class _WedgeBbox(mtransforms.Bbox):
     """
-    Transform (theta, r) wedge Bbox into axes bounding box.
+    Transform (theta, r) wedge Bbox into Axes bounding box.
 
     Parameters
     ----------

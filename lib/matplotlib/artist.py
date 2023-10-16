@@ -224,10 +224,10 @@ class Artist:
 
         The effect will not be visible until the figure is redrawn, e.g.,
         with `.FigureCanvasBase.draw_idle`.  Call `~.axes.Axes.relim` to
-        update the axes limits if desired.
+        update the Axes limits if desired.
 
         Note: `~.axes.Axes.relim` will not see collections even if the
-        collection was added to the axes with *autolim* = True.
+        collection was added to the Axes with *autolim* = True.
 
         Note: there is no support for removing the artist's legend entry.
         """
@@ -299,7 +299,7 @@ class Artist:
     def axes(self, new_axes):
         if (new_axes is not None and self._axes is not None
                 and new_axes != self._axes):
-            raise ValueError("Can not reset the axes.  You are probably "
+            raise ValueError("Can not reset the Axes.  You are probably "
                              "trying to re-use an artist in more than one "
                              "Axes which is not supported")
         self._axes = new_axes
@@ -340,7 +340,7 @@ class Artist:
         Be careful when using this function, the results will not update
         if the artist window extent of the artist changes.  The extent
         can change due to any changes in the transform stack, such as
-        changing the axes limits, the figure size, or the canvas used
+        changing the Axes limits, the figure size, or the canvas used
         (as is done when saving a figure).  This can lead to unexpected
         behavior where interactive figures will look fine on the screen,
         but will save incorrectly.

@@ -7571,7 +7571,7 @@ def test_axis_options():
 
 def color_boxes(fig, ax):
     """
-    Helper for the tests below that test the extents of various axes elements
+    Helper for the tests below that test the extents of various Axes elements
     """
     fig.canvas.draw()
 

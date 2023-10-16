@@ -1580,7 +1580,7 @@ def _mouse_handler(event):
             if last_axes is not None:
                 # Create a synthetic LocationEvent for the axes_leave_event.
                 # Its inaxes attribute needs to be manually set (because the
-                # cursor is actually *out* of that axes at that point); this is
+                # cursor is actually *out* of that Axes at that point); this is
                 # done with the internal _set_inaxes method which ensures that
                 # the xdata and ydata attributes are also correct.
                 try:

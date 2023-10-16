@@ -1171,7 +1171,7 @@ class Animation:
         # of the entire figure.
         updated_ax = {a.axes for a in artists}
         # Enumerate artists to cache Axes backgrounds. We do not draw
-        # artists yet to not cache foreground from plots with shared axes
+        # artists yet to not cache foreground from plots with shared Axes
         for ax in updated_ax:
             # If we haven't cached the background for the current view of this
             # Axes object, do so now. This might not always be reliable, but

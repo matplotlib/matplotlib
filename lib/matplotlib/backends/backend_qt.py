@@ -741,7 +741,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         axes = self.canvas.figure.get_axes()
         if not axes:
             QtWidgets.QMessageBox.warning(
-                self.canvas.parent(), "Error", "There are no axes to edit.")
+                self.canvas.parent(), "Error", "There are no Axes to edit.")
             return
         elif len(axes) == 1:
             ax, = axes
@@ -761,7 +761,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                     titles[i] += f" (id: {id(ax):#x})"  # Deduplicate titles.
             item, ok = QtWidgets.QInputDialog.getItem(
                 self.canvas.parent(),
-                'Customize', 'Select axes:', titles, 0, False)
+                'Customize', 'Select Axes:', titles, 0, False)
             if not ok:
                 return
             ax = axes[titles.index(item)]
