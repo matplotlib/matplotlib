@@ -53,7 +53,7 @@ class PathEffectRenderer(RendererBase):
 class Normal(AbstractPathEffect): ...
 
 class Stroke(AbstractPathEffect):
-    def __init__(self, offset: tuple[float, float] = ..., **kwargs) -> None: ...
+    def __init__(self, offset: tuple[float, float] = ..., **kwargs:Any) -> None: ...
     # rgbFace becomes non-optional
     def draw_path(self, renderer: RendererBase, gc: GraphicsContextBase, tpath: Path, affine: Transform, rgbFace: ColorType) -> None: ...  # type: ignore
 
@@ -87,7 +87,7 @@ class SimpleLineShadow(AbstractPathEffect):
 
 class PathPatchEffect(AbstractPathEffect):
     patch: Patch
-    def __init__(self, offset: tuple[float, float] = ..., **kwargs) -> None: ...
+    def __init__(self, offset: tuple[float, float] = ..., **kwargs:Any) -> None: ...
     # rgbFace becomes non-optional
     def draw_path(self, renderer: RendererBase, gc: GraphicsContextBase, tpath: Path, affine: Transform, rgbFace: ColorType) -> None: ...  # type: ignore
 

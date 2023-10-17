@@ -4,7 +4,7 @@ from matplotlib.legend import Legend
 from matplotlib.offsetbox import OffsetBox
 from matplotlib.transforms import Transform
 
-from typing import TypeVar
+from typing import TypeVar, Any
 
 from numpy.typing import ArrayLike
 
@@ -104,7 +104,7 @@ class HandlerLine2D(HandlerNpoints):
     ) -> Sequence[Artist]: ...
 
 class HandlerPatch(HandlerBase):
-    def __init__(self, patch_func: Callable | None = ..., **kwargs) -> None: ...
+    def __init__(self, patch_func: Callable | None = ..., **kwargs:Any) -> None: ...
     def create_artists(
         self,
         legend: Legend,
