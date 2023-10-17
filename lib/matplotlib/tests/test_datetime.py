@@ -243,9 +243,9 @@ class TestDatetimePlotting:
         explode_data = []
         for i in range(6):
             if i%2==0:
-              explode_data_larger.append(0.1)
+              explode_data.append(0.1)
             else:
-              explode_data_larger.append(0)
+              explode_data.append(0)
 
         explode_data_larger=[]
         for i in range(30):
