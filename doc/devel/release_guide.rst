@@ -139,7 +139,7 @@ Merge ``*-doc`` branch
 Merge the most recent 'doc' branch (e.g., ``v3.7.0-doc``) into the branch you
 are going to tag on and delete the doc branch on GitHub.
 
-Update supported versions in security policy
+Update supported versions in Security Policy
 --------------------------------------------
 
 When making major or minor releases, update the supported versions in the Security
