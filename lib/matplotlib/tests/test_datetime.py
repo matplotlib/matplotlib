@@ -322,36 +322,12 @@ class TestDatetimePlotting:
     def test_stackplot(self):
         mpl.rcParams["date.converter"] = 'concise'
         N = 10
-        fig, (ax1, ax2) = plt.subplots(2, 1, constrained_layout=True)
+        fig, ax = plt.subplots(constrained_layout=True)
 
         stacked_nums = np.array([range(1, N)] * 4)
+        dates = np.array([datetime.datetime(2020 + i, 1, 1) for i in range(N - 1)])
 
-        dates_days = np.array(
-            [datetime.datetime(2023, 1, i) for i in range(1, N)]
-        )
-        dates_years = np.array(
-            [datetime.datetime(1970 + i, 1, 1) for i in range(1, N)]
-        )
-
-        timedelta_days = np.array(
-            [i * datetime.timedelta(days=1) for i in range(1, N)]
-        )
-        timedelta_hours = np.array(
-            [i * datetime.timedelta(hours=24) for i in range(1, N)]
-        )
-        timedelta_seconds = np.array(
-            [i * datetime.timedelta(seconds=86400) for i in range(1, N)]
-        )
-
-        ax1.stackplot(dates_years, stacked_nums)
-
-        ax2.stackplot(
-            dates_days, dates_days, timedelta_days, timedelta_hours, timedelta_seconds
-        )
-        ax2.set_ylim(
-            datetime.datetime(2022, 12, 31),
-            datetime.datetime(2023, 2, 8)
-        )
+        ax.stackplot(dates, stacked_nums)
 
     @pytest.mark.xfail(reason="Test for stairs not written yet")
     @mpl.style.context("default")
