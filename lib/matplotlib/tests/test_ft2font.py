@@ -4,7 +4,7 @@ import io
 import pytest
 
 from matplotlib import ft2font
-from matplotlib.testing.decorators import check_figures_equal
+from matplotlib.testing.decorators import check_figures_equal, skipif_font_missing
 import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
 
@@ -55,6 +55,7 @@ def test_fallback_smoke():
         fig.savefig(io.BytesIO(), format=fmt)
 
 
+@skipif_font_missing(['WenQuanYi Zen Hei', 'Noto Sans CJK JP'])
 @pytest.mark.parametrize('family_name, file_name',
                          [("WenQuanYi Zen Hei",  "wqy-zenhei"),
                           ("Noto Sans CJK JP", "NotoSansCJK")]
@@ -62,8 +63,6 @@ def test_fallback_smoke():
 @check_figures_equal(extensions=["png", "pdf", "eps", "svg"])
 def test_font_fallback_chinese(fig_test, fig_ref, family_name, file_name):
     fp = fm.FontProperties(family=[family_name])
-    if file_name not in Path(fm.findfont(fp)).name:
-        pytest.skip(f"Font {family_name} ({file_name}) is missing")
 
     text = ["There are", "几个汉字", "in between!"]
 
@@ -78,6 +77,7 @@ def test_font_fallback_chinese(fig_test, fig_ref, family_name, file_name):
         fig_test.text(0.05, .85 - 0.15*j, txt, family=test_font)
 
 
+@skipif_font_missing(['WenQuanYi Zen Hei', 'Noto Sans CJK JP'])
 @pytest.mark.parametrize(
     "family_name, file_name",
     [
@@ -88,8 +88,6 @@ def test_font_fallback_chinese(fig_test, fig_ref, family_name, file_name):
 def test__get_fontmap(family_name, file_name):
     fp = fm.FontProperties(family=[family_name])
     found_file_name = Path(fm.findfont(fp)).name
-    if file_name not in found_file_name:
-        pytest.skip(f"Font {family_name} ({file_name}) is missing")
 
     text = "There are 几个汉字 in between!"
     ft = fm.get_font(

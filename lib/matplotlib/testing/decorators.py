@@ -8,6 +8,7 @@ import shutil
 import string
 import sys
 import warnings
+import matplotlib.font_manager as fm
 
 from packaging.version import parse as parse_version
 
@@ -17,6 +18,8 @@ import matplotlib.testing
 from matplotlib import _pylab_helpers, cbook, ft2font, pyplot as plt, ticker
 from .compare import comparable_formats, compare_images, make_test_filename
 from .exceptions import ImageComparisonFailure
+
+import pytest
 
 
 @contextlib.contextmanager
@@ -462,3 +465,24 @@ def _image_directories(func):
     result_dir = Path().resolve() / "result_images" / module_path.stem
     result_dir.mkdir(parents=True, exist_ok=True)
     return baseline_dir, result_dir
+
+
+def skipif_font_missing(fonts):
+    """
+    Decorator to skip a test if any of the specified fonts are missing.
+
+    Usage example:
+        @skipif_font_missing(['Dejavu Sans', 'Noto SansTC'])
+        def test_font(family_name):
+            # testing code
+    """
+    def decorator(func):
+        def wrapper(family_name):
+            for font in fonts:
+                fp = fm.FontProperties(family=[font])
+                found_file_name = Path(fm.findfont(fp)).name
+                if found_file_name not in fonts:
+                    pytest.skip(f"Font {font} is missing")
+                return func(family_name)
+        return wrapper
+    return decorator
