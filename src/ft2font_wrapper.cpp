@@ -10,9 +10,6 @@
 #include <set>
 #include <algorithm>
 
-#define STRINGIFY(s) XSTRINGIFY(s)
-#define XSTRINGIFY(s) #s
-
 static PyObject *convert_xys_to_array(std::vector<double> &xys)
 {
     npy_intp dims[] = {(npy_intp)xys.size() / 2, 2 };
@@ -1532,7 +1529,7 @@ PyMODINIT_FUNC PyInit_ft2font(void)
         // Glyph is not constructible from Python, thus not added to the module.
         PyType_Ready(PyGlyph_init_type()) ||
         PyModule_AddStringConstant(m, "__freetype_version__", version_string) ||
-        PyModule_AddStringConstant(m, "__freetype_build_type__", STRINGIFY(FREETYPE_BUILD_TYPE)) ||
+        PyModule_AddStringConstant(m, "__freetype_build_type__", FREETYPE_BUILD_TYPE) ||
         PyModule_AddIntConstant(m, "SCALABLE", FT_FACE_FLAG_SCALABLE) ||
         PyModule_AddIntConstant(m, "FIXED_SIZES", FT_FACE_FLAG_FIXED_SIZES) ||
         PyModule_AddIntConstant(m, "FIXED_WIDTH", FT_FACE_FLAG_FIXED_WIDTH) ||
