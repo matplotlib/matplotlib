@@ -8,6 +8,7 @@ from itertools import chain
 import numpy as np
 
 import matplotlib as mpl
+from matplotlib import _api
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D, IdentityTransform
 from .axislines import (
@@ -137,10 +138,10 @@ class FloatingAxisArtistHelper(_FloatingAxisArtistHelperBase):
             "extremes": (lon_min, lon_max, lat_min, lat_max),
             "lon_info": (lon_levs, lon_n, np.asarray(lon_factor)),
             "lat_info": (lat_levs, lat_n, np.asarray(lat_factor)),
-            "lon_labels": grid_finder.tick_formatter1(
-                "bottom", lon_factor, lon_levs),
-            "lat_labels": grid_finder.tick_formatter2(
-                "bottom", lat_factor, lat_levs),
+            "lon_labels": grid_finder._format_ticks(
+                1, "bottom", lon_factor, lon_levs),
+            "lat_labels": grid_finder._format_ticks(
+                2, "bottom", lat_factor, lat_levs),
             "line_xy": (xx, yy),
         }
 
@@ -270,6 +271,7 @@ class GridHelperCurveLinear(GridHelperBase):
         self.grid_finder.update(**kwargs)
         self._old_limits = None  # Force revalidation.
 
+    @_api.make_keyword_only("3.9", "nth_coord")
     def new_fixed_axis(self, loc,
                        nth_coord=None,
                        axis_direction=None,

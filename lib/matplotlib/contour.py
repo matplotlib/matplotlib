@@ -157,21 +157,19 @@ class ContourLabeler:
             A list of `.Text` instances for the labels.
         """
 
-        # clabel basically takes the input arguments and uses them to
-        # add a list of "label specific" attributes to the ContourSet
-        # object.  These attributes are all of the form label* and names
-        # should be fairly self explanatory.
+        # Based on the input arguments, clabel() adds a list of "label
+        # specific" attributes to the ContourSet object.  These attributes are
+        # all of the form label* and names should be fairly self explanatory.
         #
-        # Once these attributes are set, clabel passes control to the
-        # labels method (case of automatic label placement) or
-        # `BlockingContourLabeler` (case of manual label placement).
+        # Once these attributes are set, clabel passes control to the labels()
+        # method (for automatic label placement) or blocking_input_loop and
+        # _contour_labeler_event_handler (for manual label placement).
 
         if fmt is None:
             fmt = ticker.ScalarFormatter(useOffset=False)
             fmt.create_dummy_axis()
         self.labelFmt = fmt
         self._use_clabeltext = use_clabeltext
-        # Detect if manual selection is desired and remove from argument list.
         self.labelManual = manual
         self.rightside_up = rightside_up
         self._clabel_zorder = 2 + self.get_zorder() if zorder is None else zorder
@@ -527,7 +525,7 @@ class ContourLabeler:
         return rotation, nlc
 
     def add_label(self, x, y, rotation, lev, cvalue):
-        """Add contour label without `.Text.set_transform_rotates_text`."""
+        """Add a contour label, respecting whether *use_clabeltext* was set."""
         data_x, data_y = self.axes.transData.inverted().transform((x, y))
         t = Text(
             data_x, data_y,
@@ -538,20 +536,21 @@ class ContourLabeler:
             color=self.labelMappable.to_rgba(cvalue, alpha=self.get_alpha()),
             fontproperties=self._label_font_props,
             clip_box=self.axes.bbox)
+        if self._use_clabeltext:
+            data_rotation, = self.axes.transData.inverted().transform_angles(
+                [rotation], [[x, y]])
+            t.set(rotation=data_rotation, transform_rotates_text=True)
         self.labelTexts.append(t)
         self.labelCValues.append(cvalue)
         self.labelXYs.append((x, y))
         # Add label to plot here - useful for manual mode label selection
         self.axes.add_artist(t)
 
+    @_api.deprecated("3.8", alternative="add_label")
     def add_label_clabeltext(self, x, y, rotation, lev, cvalue):
         """Add contour label with `.Text.set_transform_rotates_text`."""
-        self.add_label(x, y, rotation, lev, cvalue)
-        # Grab the last added text, and reconfigure its rotation.
-        t = self.labelTexts[-1]
-        data_rotation, = self.axes.transData.inverted().transform_angles(
-            [rotation], [[x, y]])
-        t.set(rotation=data_rotation, transform_rotates_text=True)
+        with cbook._setattr_cm(self, _use_clabeltext=True):
+            self.add_label(x, y, rotation, lev, cvalue)
 
     def add_label_near(self, x, y, inline=True, inline_spacing=5,
                        transform=None):
@@ -600,12 +599,6 @@ class ContourLabeler:
         t.remove()
 
     def labels(self, inline, inline_spacing):
-
-        if self._use_clabeltext:
-            add_label = self.add_label_clabeltext
-        else:
-            add_label = self.add_label
-
         for idx, (icon, lev, cvalue) in enumerate(zip(
                 self.labelIndiceList,
                 self.labelLevelList,
@@ -622,7 +615,7 @@ class ContourLabeler:
                     rotation, path = self._split_path_and_get_label_rotation(
                         subpath, idx, (x, y),
                         label_width, inline_spacing)
-                    add_label(x, y, rotation, lev, cvalue)  # Really add label.
+                    self.add_label(x, y, rotation, lev, cvalue)  # Really add label.
                     if inline:  # If inline, add new contours
                         additions.append(path)
                 else:  # If not adding label, keep old path
@@ -935,9 +928,11 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             )
 
     allsegs = _api.deprecated("3.8", pending=True)(property(lambda self: [
-        p.vertices for c in self.collections for p in c.get_paths()]))
+        [subp.vertices for subp in p._iter_connected_components()]
+        for p in self.get_paths()]))
     allkinds = _api.deprecated("3.8", pending=True)(property(lambda self: [
-        p.codes for c in self.collections for p in c.get_paths()]))
+        [subp.codes for subp in p._iter_connected_components()]
+        for p in self.get_paths()]))
     tcolors = _api.deprecated("3.8")(property(lambda self: [
         (tuple(rgba),) for rgba in self.to_rgba(self.cvalues, self.alpha)]))
     tlinewidths = _api.deprecated("3.8")(property(lambda self: [

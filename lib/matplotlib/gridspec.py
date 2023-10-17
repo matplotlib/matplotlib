@@ -141,8 +141,7 @@ class GridSpecBase:
         """
         return self._row_height_ratios
 
-    @_api.delete_parameter("3.7", "raw")
-    def get_grid_positions(self, fig, raw=False):
+    def get_grid_positions(self, fig):
         """
         Return the positions of the grid cells in figure coordinates.
 
@@ -151,11 +150,6 @@ class GridSpecBase:
         fig : `~matplotlib.figure.Figure`
             The figure the grid should be applied to. The subplot parameters
             (margins and spacing between subplots) are taken from *fig*.
-        raw : bool, default: False
-            If *True*, the subplot parameters of the figure are not taken
-            into account. The grid spans the range [0, 1] in both directions
-            without margins and there is no space between grid cells. This is
-            used for constrained_layout.
 
         Returns
         -------
@@ -164,22 +158,13 @@ class GridSpecBase:
             figure coordinates.
         """
         nrows, ncols = self.get_geometry()
-
-        if raw:
-            left = 0.
-            right = 1.
-            bottom = 0.
-            top = 1.
-            wspace = 0.
-            hspace = 0.
-        else:
-            subplot_params = self.get_subplot_params(fig)
-            left = subplot_params.left
-            right = subplot_params.right
-            bottom = subplot_params.bottom
-            top = subplot_params.top
-            wspace = subplot_params.wspace
-            hspace = subplot_params.hspace
+        subplot_params = self.get_subplot_params(fig)
+        left = subplot_params.left
+        right = subplot_params.right
+        bottom = subplot_params.bottom
+        top = subplot_params.top
+        wspace = subplot_params.wspace
+        hspace = subplot_params.hspace
         tot_width = right - left
         tot_height = top - bottom
 

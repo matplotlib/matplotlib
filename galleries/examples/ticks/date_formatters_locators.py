@@ -1,4 +1,6 @@
 """
+.. _date_formatters_locators:
+
 =================================
 Date tick locators and formatters
 =================================

@@ -91,16 +91,17 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       CIBW_BEFORE_BUILD: >-
-        pip install certifi numpy>=1.25 &&
+        pip install numpy>=1.25 &&
         rm -rf {package}/build
       CIBW_BEFORE_BUILD_WINDOWS: >-
-        pip install certifi delvewheel numpy>=1.25 &&
+        pip install delvewheel numpy>=1.25 &&
         rm -rf {package}/build
       CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >-
         delvewheel repair -w {dest_dir} {wheel}
       CIBW_AFTER_BUILD: >-
         twine check {wheel} &&
         python {package}/ci/check_wheel_licenses.py {wheel}
+      CIBW_CONFIG_SETTINGS: setup-args="--vsenv"
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
       CIBW_SKIP: "*-musllinux_aarch64"
       CIBW_TEST_COMMAND: >-
@@ -136,29 +137,15 @@ jobs:
           path: dist/
 
       - name: Build wheels for CPython 3.12
-        uses: pypa/cibuildwheel@a873dd9cbf9e3c4c73a1fd11ac31cf835f6eb502 # v2.16.0
+        uses: pypa/cibuildwheel@fff9ec32ed25a9c576750c91e06b410ed0c15db7 # v2.16.2
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
           CIBW_BUILD: "cp312-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          # Remove this once NumPy with Python 3.12 wheels is not pre-release.
-          CIBW_BEFORE_BUILD: >-
-            pip install certifi "pybind11>=2.6" "setuptools>=42" "setuptools_scm>=7" &&
-            pip install --pre "numpy>=1.25" &&
-            rm -rf {package}/build
-          CIBW_BEFORE_BUILD_WINDOWS: >-
-            pip install certifi delvewheel "pybind11>=2.6" "setuptools>=42" "setuptools_scm>=7" &&
-            pip install --pre "numpy>=1.25" &&
-            rm -rf {package}/build
-          CIBW_ENVIRONMENT: PIP_NO_BUILD_ISOLATION=0
-          # Remove this once contourpy has Python 3.12 wheels.
-          CIBW_BEFORE_TEST: >-
-            pip install "meson>=1.2.0" "meson-python>=0.13.1" "ninja" "pybind11>=2.10.4" &&
-            pip install --pre "numpy>=1.25"
 
       - name: Build wheels for CPython 3.11
-        uses: pypa/cibuildwheel@a873dd9cbf9e3c4c73a1fd11ac31cf835f6eb502 # v2.16.0
+        uses: pypa/cibuildwheel@fff9ec32ed25a9c576750c91e06b410ed0c15db7 # v2.16.2
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -166,7 +153,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.10
-        uses: pypa/cibuildwheel@a873dd9cbf9e3c4c73a1fd11ac31cf835f6eb502 # v2.16.0
+        uses: pypa/cibuildwheel@fff9ec32ed25a9c576750c91e06b410ed0c15db7 # v2.16.2
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -174,7 +161,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.9
-        uses: pypa/cibuildwheel@a873dd9cbf9e3c4c73a1fd11ac31cf835f6eb502 # v2.16.0
+        uses: pypa/cibuildwheel@fff9ec32ed25a9c576750c91e06b410ed0c15db7 # v2.16.2
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -182,7 +169,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for PyPy
-        uses: pypa/cibuildwheel@a873dd9cbf9e3c4c73a1fd11ac31cf835f6eb502 # v2.16.0
+        uses: pypa/cibuildwheel@fff9ec32ed25a9c576750c91e06b410ed0c15db7 # v2.16.2
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:

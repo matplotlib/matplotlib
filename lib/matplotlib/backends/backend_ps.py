@@ -9,6 +9,7 @@ import functools
 from io import StringIO
 import itertools
 import logging
+import math
 import os
 import pathlib
 import shutil
@@ -867,9 +868,6 @@ class FigureCanvasPS(FigureCanvasBase):
         # find the appropriate papertype
         width, height = self.figure.get_size_inches()
         if papertype == 'auto':
-            _api.warn_deprecated("3.8", name="papertype='auto'",
-                                 addendum="Pass an explicit paper type, 'figure', or "
-                                 "omit the *papertype* argument entirely.")
             papertype = _get_papertype(*orientation.swap_if_landscape((width, height)))
 
         if is_eps or papertype == 'figure':
@@ -915,7 +913,7 @@ class FigureCanvasPS(FigureCanvasBase):
             print(f"%%LanguageLevel: 3\n"
                   f"{dsc_comments}\n"
                   f"%%Orientation: {orientation.name}\n"
-                  f"{get_bbox_header(bbox)[0]}\n"
+                  f"{_get_bbox_header(bbox)}\n"
                   f"%%EndComments\n",
                   end="", file=fh)
 
@@ -1024,7 +1022,7 @@ class FigureCanvasPS(FigureCanvasBase):
 %!PS-Adobe-3.0 EPSF-3.0
 %%LanguageLevel: 3
 {dsc_comments}
-{get_bbox_header(bbox)[0]}
+{_get_bbox_header(bbox)}
 %%EndComments
 %%BeginProlog
 /mpldict {len(_psDefs)} dict def
@@ -1053,9 +1051,6 @@ showpage
                     self.figure.get_size_inches())
             else:
                 if papertype == 'auto':
-                    _api.warn_deprecated("3.8", name="papertype='auto'",
-                                         addendum="Pass an explicit paper type, or "
-                                         "omit the *papertype* argument entirely.")
                     papertype = _get_papertype(width, height)
                 paper_width, paper_height = papersize[papertype]
 
@@ -1219,21 +1214,26 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
         pstoeps(tmpfile)
 
 
+@_api.deprecated("3.9")
 def get_bbox_header(lbrt, rotated=False):
     """
     Return a postscript header string for the given bbox lbrt=(l, b, r, t).
     Optionally, return rotate command.
     """
+    return _get_bbox_header(lbrt), (_get_rotate_command(lbrt) if rotated else "")
 
+
+def _get_bbox_header(lbrt):
+    """Return a PostScript header string for bounding box *lbrt*=(l, b, r, t)."""
     l, b, r, t = lbrt
-    if rotated:
-        rotate = f"{l+r:.2f} {0:.2f} translate\n90 rotate"
-    else:
-        rotate = ""
-    bbox_info = '%%%%BoundingBox: %d %d %d %d' % (l, b, np.ceil(r), np.ceil(t))
-    hires_bbox_info = f'%%HiResBoundingBox: {l:.6f} {b:.6f} {r:.6f} {t:.6f}'
+    return (f"%%BoundingBox: {int(l)} {int(b)} {math.ceil(r)} {math.ceil(t)}\n"
+            f"%%HiResBoundingBox: {l:.6f} {b:.6f} {r:.6f} {t:.6f}")
 
-    return '\n'.join([bbox_info, hires_bbox_info]), rotate
+
+def _get_rotate_command(lbrt):
+    """Return a PostScript 90° rotation command for bounding box *lbrt*=(l, b, r, t)."""
+    l, b, r, t = lbrt
+    return f"{l+r:.2f} {0:.2f} translate\n90 rotate"
 
 
 def pstoeps(tmpfile, bbox=None, rotated=False):
@@ -1243,12 +1243,6 @@ def pstoeps(tmpfile, bbox=None, rotated=False):
     None, original bbox will be used.
     """
 
-    # if rotated==True, the output eps file need to be rotated
-    if bbox:
-        bbox_info, rotate = get_bbox_header(bbox, rotated=rotated)
-    else:
-        bbox_info, rotate = None, None
-
     epsfile = tmpfile + '.eps'
     with open(epsfile, 'wb') as epsh, open(tmpfile, 'rb') as tmph:
         write = epsh.write
@@ -1257,7 +1251,7 @@ def pstoeps(tmpfile, bbox=None, rotated=False):
             if line.startswith(b'%!PS'):
                 write(b"%!PS-Adobe-3.0 EPSF-3.0\n")
                 if bbox:
-                    write(bbox_info.encode('ascii') + b'\n')
+                    write(_get_bbox_header(bbox).encode('ascii') + b'\n')
             elif line.startswith(b'%%EndComments'):
                 write(line)
                 write(b'%%BeginProlog\n'
@@ -1269,8 +1263,8 @@ def pstoeps(tmpfile, bbox=None, rotated=False):
                       b'/setpagedevice {pop} def\n'
                       b'%%EndProlog\n'
                       b'%%Page 1 1\n')
-                if rotate:
-                    write(rotate.encode('ascii') + b'\n')
+                if rotated:  # The output eps file need to be rotated.
+                    write(_get_rotate_command(bbox).encode('ascii') + b'\n')
                 break
             elif bbox and line.startswith((b'%%Bound', b'%%HiResBound',
                                            b'%%DocumentMedia', b'%%Pages')):

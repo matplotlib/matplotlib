@@ -339,55 +339,7 @@ Merging
 
 Automated tests
 ---------------
-
-Whenever a pull request is created or updated, various automated test tools
-will run on all supported platforms and versions of Python.
-
-* Make sure the Linting, GitHub Actions, AppVeyor, CircleCI, and Azure
-  pipelines are passing before merging (All checks are listed at the bottom of
-  the GitHub page of your pull request). Here are some tips for finding the
-  cause of the test failure:
-
-  - If *Linting* fails, you have a code style issue, which will be listed
-    as annotations on the pull request's diff.
-  - If *Mypy* or *Stubtest* fails, you have inconsistency in type hints, which
-    will be listed as annotations in the diff.
-  - If a GitHub Actions or AppVeyor run fails, search the log for ``FAILURES``.
-    The subsequent section will contain information on the failed tests.
-  - If CircleCI fails, likely you have some reStructuredText style issue in
-    the docs. Search the CircleCI log for ``WARNING``.
-  - If Azure pipelines fail with an image comparison error, you can find the
-    images as *artifacts* of the Azure job:
-
-    - Click *Details* on the check on the GitHub PR page.
-    - Click *View more details on Azure Pipelines* to go to Azure.
-    - On the overview page *artifacts* are listed in the section *Related*.
-
-
-* Codecov and CodeQL are currently for information only. Their failure is not
-  necessarily a blocker.
-
-* tox_ is not used in the automated testing. It is supported for testing
-  locally.
-
-  .. _tox: https://tox.readthedocs.io/
-
-* If you know only a subset of CIs need to be run, this can be controlled on
-  individual commits by including the following substrings in commit messages:
-
-  - ``[ci doc]``: restrict the CI to documentation checks. For when you only
-    changed documentation (this skip is automatic if the changes are only under
-    ``doc/`` or ``galleries/``).
-  - ``[skip circle]``: skip the documentation build check. For when you didn't
-    change documentation.
-  - Unit tests can be turned off for individual platforms with
-
-    - ``[skip actions]``: GitHub Actions
-    - ``[skip appveyor]`` (must be in the first line of the commit): AppVeyor
-    - ``[skip azp]``: Azure Pipelines
-
-  - ``[skip ci]``: skip all CIs.  Use this only if you know your changes do not
-    need to be tested at all, which is very rare.
+Before being merged, a PR should pass the :ref:`automated-tests`. If you are unsure why a test is failing, ask on the PR or in our `chat space <https://gitter.im/matplotlib/matplotlib>`_
 
 .. _pr-squashing:
 

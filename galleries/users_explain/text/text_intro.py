@@ -238,7 +238,7 @@ plt.show()
 # locations, and how they are labelled.
 #
 # Terminology
-# ~~~~~~~~~~~
+# ^^^^^^^^^^^
 #
 # *Axes* have an `matplotlib.axis.Axis` object for the ``ax.xaxis`` and
 # ``ax.yaxis`` that contain the information about how the labels in the axis
@@ -254,7 +254,7 @@ plt.show()
 # that format the tick labels.
 #
 # Simple ticks
-# ~~~~~~~~~~~~
+# ^^^^^^^^^^^^
 #
 # It is often convenient to simply define the
 # tick values, and sometimes the tick labels, overriding the default
@@ -287,7 +287,7 @@ plt.show()
 
 # %%
 # Tick Locators and Formatters
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # Instead of making a list of all the ticklabels, we could have
 # used `matplotlib.ticker.StrMethodFormatter` (new-style ``str.format()``
@@ -380,7 +380,7 @@ plt.show()
 
 # %%
 # Dateticks
-# ~~~~~~~~~
+# ^^^^^^^^^
 #
 # Matplotlib can accept `datetime.datetime` and `numpy.datetime64`
 # objects as plotting arguments.  Dates and times require special

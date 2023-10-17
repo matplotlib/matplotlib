@@ -22,7 +22,7 @@ jobs:
         run: |
           pip3 install -r requirements/testing/mypy.txt \
             -r requirements/testing/all.txt
-          pip3 install -e .
+          pip3 install .
 
       - name: Set up reviewdog
         run: |
@@ -37,10 +37,8 @@ jobs:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -o pipefail
-          MPLBACKEND=agg python -m mypy.stubtest \
-            --mypy-config-file pyproject.toml \
-            --allowlist ci/mypy-stubtest-allowlist.txt \
-            matplotlib | \
+          MPLBACKEND=agg python tools/stubtest.py | \
+              sed -e "s!$pythonLocation/lib/python3.9/site-packages!lib!g" | \
               reviewdog \
                 -efm '%Eerror: %m' \
                 -efm '%CStub: in file %f:%l' \

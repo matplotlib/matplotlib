@@ -47,8 +47,9 @@ def _parse_skip_subdirs_file():
     but you can skip subdirectories of 'users'.  Doing this
     can make partial builds very fast.
     """
-    default_skip_subdirs = ['users/prev_whats_new/*', 'api/*', 'gallery/*',
-                            'tutorials/*', 'plot_types/*', 'devel/*']
+    default_skip_subdirs = [
+        'users/prev_whats_new/*', 'users/explain/*', 'api/*', 'gallery/*',
+        'tutorials/*', 'plot_types/*', 'devel/*']
     try:
         with open(".mpl_skip_subdirs.yaml", 'r') as fin:
             print('Reading subdirectories to skip from',

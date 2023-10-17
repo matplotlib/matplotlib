@@ -221,7 +221,7 @@ Added size related functions to specialized `.Collection`\s
 Added the ``get_size`` and ``set_size`` functions to control the size of
 elements of specialized collections (
 :class:`~matplotlib.collections.AsteriskPolygonCollection`
-:class:`~matplotlib.collections.BrokenBarHCollection`
+``matplotlib.collections.BrokenBarHCollection``
 :class:`~matplotlib.collections.CircleCollection`
 :class:`~matplotlib.collections.PathCollection`
 :class:`~matplotlib.collections.PolyCollection`

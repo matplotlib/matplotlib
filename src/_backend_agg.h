@@ -244,7 +244,7 @@ class RendererAgg
     template <class R>
     void set_clipbox(const agg::rect_d &cliprect, R &rasterizer);
 
-    bool render_clippath(py::PathIterator &clippath, const agg::trans_affine &clippath_trans, e_snap_mode snap_mode);
+    bool render_clippath(mpl::PathIterator &clippath, const agg::trans_affine &clippath_trans, e_snap_mode snap_mode);
 
     template <class PathIteratorType>
     void _draw_path(PathIteratorType &path, bool has_clippath, const facepair_t &face, GCAgg &gc);
@@ -340,11 +340,11 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const facepair_t &face,
         rendererBase.reset_clipping(true);
 
         // Create and transform the path
-        typedef agg::conv_transform<py::PathIterator> hatch_path_trans_t;
+        typedef agg::conv_transform<mpl::PathIterator> hatch_path_trans_t;
         typedef agg::conv_curve<hatch_path_trans_t> hatch_path_curve_t;
         typedef agg::conv_stroke<hatch_path_curve_t> hatch_path_stroke_t;
 
-        py::PathIterator hatch_path(gc.hatchpath);
+        mpl::PathIterator hatch_path(gc.hatchpath);
         agg::trans_affine hatch_trans;
         hatch_trans *= agg::trans_affine_scaling(1.0, -1.0);
         hatch_trans *= agg::trans_affine_translation(0.0, 1.0);
@@ -447,7 +447,7 @@ template <class PathIterator>
 inline void
 RendererAgg::draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, agg::rgba &color)
 {
-    typedef agg::conv_transform<py::PathIterator> transformed_path_t;
+    typedef agg::conv_transform<mpl::PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removed_t;
     typedef PathClipper<nan_removed_t> clipped_t;
     typedef PathSnapper<clipped_t> snapped_t;
@@ -490,7 +490,7 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
                                       agg::trans_affine &trans,
                                       agg::rgba color)
 {
-    typedef agg::conv_transform<py::PathIterator> transformed_path_t;
+    typedef agg::conv_transform<mpl::PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removed_t;
     typedef PathSnapper<nan_removed_t> snap_t;
     typedef agg::conv_curve<snap_t> curve_t;
@@ -731,22 +731,22 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
     rendererBase.reset_clipping(true);
     if (angle != 0.0) {
         agg::rendering_buffer srcbuf(
-                image.data(), (unsigned)image.dim(1),
-                (unsigned)image.dim(0), (unsigned)image.dim(1));
+                image.data(), (unsigned)image.shape(1),
+                (unsigned)image.shape(0), (unsigned)image.shape(1));
         agg::pixfmt_gray8 pixf_img(srcbuf);
 
         set_clipbox(gc.cliprect, theRasterizer);
 
         agg::trans_affine mtx;
-        mtx *= agg::trans_affine_translation(0, -image.dim(0));
+        mtx *= agg::trans_affine_translation(0, -image.shape(0));
         mtx *= agg::trans_affine_rotation(-angle * (agg::pi / 180.0));
         mtx *= agg::trans_affine_translation(x, y);
 
         agg::path_storage rect;
         rect.move_to(0, 0);
-        rect.line_to(image.dim(1), 0);
-        rect.line_to(image.dim(1), image.dim(0));
-        rect.line_to(0, image.dim(0));
+        rect.line_to(image.shape(1), 0);
+        rect.line_to(image.shape(1), image.shape(0));
+        rect.line_to(0, image.shape(0));
         rect.line_to(0, 0);
         agg::conv_transform<agg::path_storage> rect2(rect, mtx);
 
@@ -767,10 +767,10 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
     } else {
         agg::rect_i fig, text;
 
-        int deltay = y - image.dim(0);
+        int deltay = y - image.shape(0);
 
         fig.init(0, 0, width, height);
-        text.init(x, deltay, x + image.dim(1), y);
+        text.init(x, deltay, x + image.shape(1), y);
         text.clip(fig);
 
         if (gc.cliprect.x1 != 0.0 || gc.cliprect.y1 != 0.0 || gc.cliprect.x2 != 0.0 || gc.cliprect.y2 != 0.0) {
@@ -832,19 +832,19 @@ inline void RendererAgg::draw_image(GCAgg &gc,
 
     agg::rendering_buffer buffer;
     buffer.attach(
-        image.data(), (unsigned)image.dim(1), (unsigned)image.dim(0), -(int)image.dim(1) * 4);
+        image.data(), (unsigned)image.shape(1), (unsigned)image.shape(0), -(int)image.shape(1) * 4);
     pixfmt pixf(buffer);
 
     if (has_clippath) {
         agg::trans_affine mtx;
         agg::path_storage rect;
 
-        mtx *= agg::trans_affine_translation((int)x, (int)(height - (y + image.dim(0))));
+        mtx *= agg::trans_affine_translation((int)x, (int)(height - (y + image.shape(0))));
 
         rect.move_to(0, 0);
-        rect.line_to(image.dim(1), 0);
-        rect.line_to(image.dim(1), image.dim(0));
-        rect.line_to(0, image.dim(0));
+        rect.line_to(image.shape(1), 0);
+        rect.line_to(image.shape(1), image.shape(0));
+        rect.line_to(0, image.shape(0));
         rect.line_to(0, 0);
 
         agg::conv_transform<agg::path_storage> rect2(rect, mtx);
@@ -880,7 +880,7 @@ inline void RendererAgg::draw_image(GCAgg &gc,
     } else {
         set_clipbox(gc.cliprect, rendererBase);
         rendererBase.blend_from(
-            pixf, 0, (int)x, (int)(height - (y + image.dim(0))), (agg::int8u)(alpha * 255));
+            pixf, 0, (int)x, (int)(height - (y + image.shape(0))), (agg::int8u)(alpha * 255));
     }
 
     rendererBase.reset_clipping(true);
@@ -918,15 +918,15 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
     typedef agg::conv_curve<clipped_t> curve_t;
 
     size_t Npaths = path_generator.num_paths();
-    size_t Noffsets = offsets.size();
+    size_t Noffsets = safe_first_shape(offsets);
     size_t N = std::max(Npaths, Noffsets);
 
-    size_t Ntransforms = transforms.size();
-    size_t Nfacecolors = facecolors.size();
-    size_t Nedgecolors = edgecolors.size();
-    size_t Nlinewidths = linewidths.size();
+    size_t Ntransforms = safe_first_shape(transforms);
+    size_t Nfacecolors = safe_first_shape(facecolors);
+    size_t Nedgecolors = safe_first_shape(edgecolors);
+    size_t Nlinewidths = safe_first_shape(linewidths);
     size_t Nlinestyles = std::min(linestyles.size(), N);
-    size_t Naa = antialiaseds.size();
+    size_t Naa = safe_first_shape(antialiaseds);
 
     if ((Nfacecolors == 0 && Nedgecolors == 0) || Npaths == 0) {
         return;
@@ -1234,7 +1234,7 @@ inline void RendererAgg::draw_gouraud_triangles(GCAgg &gc,
     set_clipbox(gc.cliprect, theRasterizer);
     bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans, gc.snap_mode);
 
-    for (int i = 0; i < points.dim(0); ++i) {
+    for (int i = 0; i < points.shape(0); ++i) {
         typename PointArray::sub_t point = points.subarray(i);
         typename ColorArray::sub_t color = colors.subarray(i);
 

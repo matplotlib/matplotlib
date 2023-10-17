@@ -669,14 +669,14 @@
 #path.snap: True  # When True, rectilinear axis-aligned paths will be snapped
                   # to the nearest pixel when certain criteria are met.
                   # When False, paths will never be snapped.
-#path.sketch: None  # May be None, or a 3-tuple of the form:
-                    # (scale, length, randomness).
-                    #     - *scale* is the amplitude of the wiggle
-                    #         perpendicular to the line (in pixels).
-                    #     - *length* is the length of the wiggle along the
-                    #         line (in pixels).
-                    #     - *randomness* is the factor by which the length is
-                    #         randomly scaled.
+#path.sketch: None  # May be None, or a tuple of the form:
+                    #  path.sketch: (scale, length, randomness) 
+                    # - *scale* is the amplitude of the wiggle
+                    #    perpendicular to the line (in pixels).
+                    # - *length* is the length of the wiggle along the
+                    #    line (in pixels).
+                    # - *randomness* is the factor by which the length is
+                    #    randomly scaled.
 #path.effects:
 
 

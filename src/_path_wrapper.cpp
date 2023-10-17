@@ -35,7 +35,7 @@ const char *Py_point_in_path__doc__ =
 static PyObject *Py_point_in_path(PyObject *self, PyObject *args)
 {
     double x, y, r;
-    py::PathIterator path;
+    mpl::PathIterator path;
     agg::trans_affine trans;
     bool result;
 
@@ -68,7 +68,7 @@ static PyObject *Py_points_in_path(PyObject *self, PyObject *args)
 {
     numpy::array_view<const double, 2> points;
     double r;
-    py::PathIterator path;
+    mpl::PathIterator path;
     agg::trans_affine trans;
 
     if (!PyArg_ParseTuple(args,
@@ -83,7 +83,11 @@ static PyObject *Py_points_in_path(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    npy_intp dims[] = { (npy_intp)points.size() };
+    if (!check_trailing_shape(points, "points", 2)) {
+        return NULL;
+    }
+
+    npy_intp dims[] = { (npy_intp)points.shape(0) };
     numpy::array_view<uint8_t, 1> results(dims);
 
     CALL_CPP("points_in_path", (points_in_path(points, r, path, trans, results)));
@@ -97,7 +101,7 @@ const char *Py_update_path_extents__doc__ =
 
 static PyObject *Py_update_path_extents(PyObject *self, PyObject *args)
 {
-    py::PathIterator path;
+    mpl::PathIterator path;
     agg::trans_affine trans;
     agg::rect_d rect;
     numpy::array_view<double, 1> minpos;
@@ -118,10 +122,10 @@ static PyObject *Py_update_path_extents(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (minpos.dim(0) != 2) {
+    if (minpos.shape(0) != 2) {
         PyErr_Format(PyExc_ValueError,
                      "minpos must be of length 2, got %" NPY_INTP_FMT,
-                     minpos.dim(0));
+                     minpos.shape(0));
         return NULL;
     }
 
@@ -177,7 +181,7 @@ const char *Py_get_path_collection_extents__doc__ =
 static PyObject *Py_get_path_collection_extents(PyObject *self, PyObject *args)
 {
     agg::trans_affine master_transform;
-    py::PathGenerator paths;
+    mpl::PathGenerator paths;
     numpy::array_view<const double, 3> transforms;
     numpy::array_view<const double, 2> offsets;
     agg::trans_affine offset_trans;
@@ -227,7 +231,7 @@ static PyObject *Py_point_in_path_collection(PyObject *self, PyObject *args)
 {
     double x, y, radius;
     agg::trans_affine master_transform;
-    py::PathGenerator paths;
+    mpl::PathGenerator paths;
     numpy::array_view<const double, 3> transforms;
     numpy::array_view<const double, 2> offsets;
     agg::trans_affine offset_trans;
@@ -280,9 +284,9 @@ const char *Py_path_in_path__doc__ =
 
 static PyObject *Py_path_in_path(PyObject *self, PyObject *args)
 {
-    py::PathIterator a;
+    mpl::PathIterator a;
     agg::trans_affine atrans;
-    py::PathIterator b;
+    mpl::PathIterator b;
     agg::trans_affine btrans;
     bool result;
 
@@ -314,7 +318,7 @@ const char *Py_clip_path_to_rect__doc__ =
 
 static PyObject *Py_clip_path_to_rect(PyObject *self, PyObject *args)
 {
-    py::PathIterator path;
+    mpl::PathIterator path;
     agg::rect_d rect;
     bool inside;
     std::vector<Polygon> result;
@@ -361,7 +365,11 @@ static PyObject *Py_affine_transform(PyObject *self, PyObject *args)
         numpy::array_view<double, 2> vertices(vertices_arr);
         Py_DECREF(vertices_arr);
 
-        npy_intp dims[] = { (npy_intp)vertices.size(), 2 };
+        if(!check_trailing_shape(vertices, "vertices", 2)) {
+            return NULL;
+        }
+
+        npy_intp dims[] = { (npy_intp)vertices.shape(0), 2 };
         numpy::array_view<double, 2> result(dims);
         CALL_CPP("affine_transform", (affine_transform_2d(vertices, trans, result)));
         return result.pyobj();
@@ -369,7 +377,7 @@ static PyObject *Py_affine_transform(PyObject *self, PyObject *args)
         numpy::array_view<double, 1> vertices(vertices_arr);
         Py_DECREF(vertices_arr);
 
-        npy_intp dims[] = { (npy_intp)vertices.size() };
+        npy_intp dims[] = { (npy_intp)vertices.shape(0) };
         numpy::array_view<double, 1> result(dims);
         CALL_CPP("affine_transform", (affine_transform_1d(vertices, trans, result)));
         return result.pyobj();
@@ -407,8 +415,8 @@ const char *Py_path_intersects_path__doc__ =
 
 static PyObject *Py_path_intersects_path(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    py::PathIterator p1;
-    py::PathIterator p2;
+    mpl::PathIterator p1;
+    mpl::PathIterator p2;
     agg::trans_affine t1;
     agg::trans_affine t2;
     int filled = 0;
@@ -453,7 +461,7 @@ const char *Py_path_intersects_rectangle__doc__ =
 
 static PyObject *Py_path_intersects_rectangle(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    py::PathIterator path;
+    mpl::PathIterator path;
     double rect_x1, rect_y1, rect_x2, rect_y2;
     bool filled = false;
     const char *names[] = { "path", "rect_x1", "rect_y1", "rect_x2", "rect_y2", "filled", NULL };
@@ -489,7 +497,7 @@ const char *Py_convert_path_to_polygons__doc__ =
 
 static PyObject *Py_convert_path_to_polygons(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    py::PathIterator path;
+    mpl::PathIterator path;
     agg::trans_affine trans;
     double width = 0.0, height = 0.0;
     int closed_only = 1;
@@ -524,7 +532,7 @@ const char *Py_cleanup_path__doc__ =
 
 static PyObject *Py_cleanup_path(PyObject *self, PyObject *args)
 {
-    py::PathIterator path;
+    mpl::PathIterator path;
     agg::trans_affine trans;
     bool remove_nans;
     agg::rect_d clip_rect;
@@ -631,7 +639,7 @@ const char *Py_convert_to_string__doc__ =
 
 static PyObject *Py_convert_to_string(PyObject *self, PyObject *args)
 {
-    py::PathIterator path;
+    mpl::PathIterator path;
     agg::trans_affine trans;
     agg::rect_d cliprect;
     PyObject *simplifyobj;

@@ -32,18 +32,6 @@ matplotlib.ticker.LogitLocator.nonsingular
 matplotlib.backend_bases._Mode.__new__
 matplotlib.units.Number.__hash__
 
-# Property read-write vs read-only weirdness, fix if possible
-matplotlib.offsetbox.DraggableBase.canvas
-matplotlib.offsetbox.DraggableBase.cids
-matplotlib.transforms.BboxTransform.is_separable
-matplotlib.transforms.BboxTransformFrom.is_separable
-matplotlib.transforms.BboxTransformTo.is_separable
-matplotlib.transforms.BlendedAffine2D.is_separable
-matplotlib.transforms.CompositeGenericTransform.is_separable
-matplotlib.transforms.TransformWrapper.input_dims
-matplotlib.transforms.TransformWrapper.is_separable
-matplotlib.transforms.TransformWrapper.output_dims
-
 # 3.6 Pending deprecations
 matplotlib.figure.Figure.set_constrained_layout
 matplotlib.figure.Figure.set_constrained_layout_pads
@@ -52,113 +40,19 @@ matplotlib.figure.Figure.set_tight_layout
 # 3.7 deprecations
 matplotlib.cm.register_cmap
 matplotlib.cm.unregister_cmap
-matplotlib.collections.PolyCollection.span_where
-matplotlib.gridspec.GridSpecBase.get_grid_positions
-matplotlib.widgets.MultiCursor.needclear
 
 # 3.8 deprecations
-matplotlib.cbook.get_sample_data
 matplotlib.contour.ContourSet.allkinds
 matplotlib.contour.ContourSet.allsegs
 matplotlib.contour.ContourSet.tcolors
 matplotlib.contour.ContourSet.tlinewidths
-matplotlib.ticker.LogLocator.__init__
-matplotlib.ticker.LogLocator.set_params
 
 # positional-only argument name lacking leading underscores
 matplotlib.axes._base._AxesBase.axis
 
-# Aliases (dynamically generated, not type hinted)
-matplotlib.collections.Collection.get_aa
-matplotlib.collections.Collection.get_antialiaseds
-matplotlib.collections.Collection.get_dashes
-matplotlib.collections.Collection.get_ec
-matplotlib.collections.Collection.get_edgecolors
-matplotlib.collections.Collection.get_facecolors
-matplotlib.collections.Collection.get_fc
-matplotlib.collections.Collection.get_linestyles
-matplotlib.collections.Collection.get_linewidths
-matplotlib.collections.Collection.get_ls
-matplotlib.collections.Collection.get_lw
-matplotlib.collections.Collection.get_transOffset
-matplotlib.collections.Collection.set_aa
-matplotlib.collections.Collection.set_antialiaseds
-matplotlib.collections.Collection.set_dashes
-matplotlib.collections.Collection.set_ec
-matplotlib.collections.Collection.set_edgecolors
-matplotlib.collections.Collection.set_facecolors
-matplotlib.collections.Collection.set_fc
-matplotlib.collections.Collection.set_linestyles
-matplotlib.collections.Collection.set_linewidths
-matplotlib.collections.Collection.set_ls
-matplotlib.collections.Collection.set_lw
-matplotlib.collections.Collection.set_transOffset
-matplotlib.lines.Line2D.get_aa
-matplotlib.lines.Line2D.get_c
-matplotlib.lines.Line2D.get_ds
-matplotlib.lines.Line2D.get_ls
-matplotlib.lines.Line2D.get_lw
-matplotlib.lines.Line2D.get_mec
-matplotlib.lines.Line2D.get_mew
-matplotlib.lines.Line2D.get_mfc
-matplotlib.lines.Line2D.get_mfcalt
-matplotlib.lines.Line2D.get_ms
-matplotlib.lines.Line2D.set_aa
-matplotlib.lines.Line2D.set_c
-matplotlib.lines.Line2D.set_ds
-matplotlib.lines.Line2D.set_ls
-matplotlib.lines.Line2D.set_lw
-matplotlib.lines.Line2D.set_mec
-matplotlib.lines.Line2D.set_mew
-matplotlib.lines.Line2D.set_mfc
-matplotlib.lines.Line2D.set_mfcalt
-matplotlib.lines.Line2D.set_ms
-matplotlib.patches.Patch.get_aa
-matplotlib.patches.Patch.get_ec
-matplotlib.patches.Patch.get_fc
-matplotlib.patches.Patch.get_ls
-matplotlib.patches.Patch.get_lw
-matplotlib.patches.Patch.set_aa
-matplotlib.patches.Patch.set_ec
-matplotlib.patches.Patch.set_fc
-matplotlib.patches.Patch.set_ls
-matplotlib.patches.Patch.set_lw
-matplotlib.text.Text.get_c
-matplotlib.text.Text.get_family
-matplotlib.text.Text.get_font
-matplotlib.text.Text.get_font_properties
-matplotlib.text.Text.get_ha
-matplotlib.text.Text.get_name
-matplotlib.text.Text.get_size
-matplotlib.text.Text.get_style
-matplotlib.text.Text.get_va
-matplotlib.text.Text.get_variant
-matplotlib.text.Text.get_weight
-matplotlib.text.Text.set_c
-matplotlib.text.Text.set_family
-matplotlib.text.Text.set_font
-matplotlib.text.Text.set_font_properties
-matplotlib.text.Text.set_ha
-matplotlib.text.Text.set_ma
-matplotlib.text.Text.set_name
-matplotlib.text.Text.set_size
-matplotlib.text.Text.set_stretch
-matplotlib.text.Text.set_style
-matplotlib.text.Text.set_va
-matplotlib.text.Text.set_variant
-matplotlib.text.Text.set_weight
-matplotlib.axes._base._AxesBase.get_fc
-matplotlib.axes._base._AxesBase.set_fc
-
-# Other dynamic python behaviors not type hinted
-matplotlib.rcsetup.defaultParams
-
 # Maybe should be abstractmethods, required for subclasses, stubs define once
 matplotlib.tri.*TriInterpolator.__call__
 matplotlib.tri.*TriInterpolator.gradient
-
-# Functionally a method call, but actually a class instance, type hinted as former
-matplotlib.rcsetup.validate_fillstyle
 
 # TypeVar used only in type hints
 matplotlib.backend_bases.FigureCanvasBase._T

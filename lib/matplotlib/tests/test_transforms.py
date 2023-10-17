@@ -627,9 +627,9 @@ def test_invalid_arguments():
         t.transform([])
     with pytest.raises(RuntimeError):
         t.transform([1])
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ValueError):
         t.transform([[1]])
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ValueError):
         t.transform([[1, 2, 3]])
 
 

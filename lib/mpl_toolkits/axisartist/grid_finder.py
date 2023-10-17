@@ -1,6 +1,6 @@
 import numpy as np
 
-from matplotlib import ticker as mticker
+from matplotlib import ticker as mticker, _api
 from matplotlib.transforms import Bbox, Transform
 
 
@@ -150,6 +150,19 @@ class GridFinder:
         self.tick_formatter2 = tick_formatter2
         self.set_transform(transform)
 
+    def _format_ticks(self, idx, direction, factor, levels):
+        """
+        Helper to support both standard formatters (inheriting from
+        `.mticker.Formatter`) and axisartist-specific ones; should be called instead of
+        directly calling ``self.tick_formatter1`` and ``self.tick_formatter2``.  This
+        method should be considered as a temporary workaround which will be removed in
+        the future at the same time as axisartist-specific formatters.
+        """
+        fmt = _api.check_getitem(
+            {1: self.tick_formatter1, 2: self.tick_formatter2}, idx=idx)
+        return (fmt.format_ticks(levels) if isinstance(fmt, mticker.Formatter)
+                else fmt(direction, factor, levels))
+
     def get_grid_info(self, x1, y1, x2, y2):
         """
         lon_values, lat_values : list of grid values. if integer is given,
@@ -175,9 +188,7 @@ class GridFinder:
                                                         lon_min, lon_max,
                                                         lat_min, lat_max)
 
-        ddx = (x2-x1)*1.e-10
-        ddy = (y2-y1)*1.e-10
-        bb = Bbox.from_extents(x1-ddx, y1-ddy, x2+ddx, y2+ddy)
+        bb = Bbox.from_extents(x1, y1, x2, y2).expanded(1 + 2e-10, 1 + 2e-10)
 
         grid_info = {
             "extremes": extremes,
@@ -192,14 +203,14 @@ class GridFinder:
         tck_labels = grid_info["lon"]["tick_labels"] = {}
         for direction in ["left", "bottom", "right", "top"]:
             levs = grid_info["lon"]["tick_levels"][direction]
-            tck_labels[direction] = self.tick_formatter1(
-                direction, lon_factor, levs)
+            tck_labels[direction] = self._format_ticks(
+                1, direction, lon_factor, levs)
 
         tck_labels = grid_info["lat"]["tick_labels"] = {}
         for direction in ["left", "bottom", "right", "top"]:
             levs = grid_info["lat"]["tick_levels"][direction]
-            tck_labels[direction] = self.tick_formatter2(
-                direction, lat_factor, levs)
+            tck_labels[direction] = self._format_ticks(
+                2, direction, lat_factor, levs)
 
         return grid_info
 
