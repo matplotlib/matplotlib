@@ -27,6 +27,7 @@ from matplotlib.rcsetup import (
     validate_int,
     validate_markevery,
     validate_stringlist,
+    validate_sketch,
     _validate_linestyle,
     _listify_validator)
 
@@ -628,3 +629,26 @@ def test_rcparams_legend_loc_from_file(tmpdir, value):
 
     with mpl.rc_context(fname=rc_path):
         assert mpl.rcParams["legend.loc"] == value
+
+
+@pytest.mark.parametrize("value", [(1, 2, 3), '1, 2, 3', '(1, 2, 3)'])
+def test_validate_sketch(value):
+    mpl.rcParams["path.sketch"] = value
+    assert mpl.rcParams["path.sketch"] == (1, 2, 3)
+    assert validate_sketch(value) == (1, 2, 3)
+
+
+@pytest.mark.parametrize("value", [1, '1', '1 2 3'])
+def test_validate_sketch_error(value):
+    with pytest.raises(ValueError, match="scale, length, randomness"):
+        validate_sketch(value)
+    with pytest.raises(ValueError, match="scale, length, randomness"):
+        mpl.rcParams["path.sketch"] = value
+
+
+@pytest.mark.parametrize("value", ['1, 2, 3', '(1,2,3)'])
+def test_rcparams_path_sketch_from_file(tmpdir, value):
+    rc_path = tmpdir.join("matplotlibrc")
+    rc_path.write(f"path.sketch: {value}")
+    with mpl.rc_context(fname=rc_path):
+        assert mpl.rcParams["path.sketch"] == (1, 2, 3)
