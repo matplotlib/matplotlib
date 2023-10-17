@@ -229,12 +229,6 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.matshow(...)
 
-    @pytest.mark.xfail(reason="Test for pie not written yet")
-    @mpl.style.context("default")
-    def test_pie(self):
-        fig, ax = plt.subplots()
-        ax.pcolor(...)
-
     @pytest.mark.xfail(reason="Test for pcolor not written yet")
     @mpl.style.context("default")
     def test_pcolor(self):
