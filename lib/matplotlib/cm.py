@@ -74,6 +74,11 @@ class ColormapRegistry(Mapping):
     Additional colormaps can be added via `.ColormapRegistry.register`::
 
         mpl.colormaps.register(my_colormap)
+
+    To get a list of all registered colormaps, you can do::
+
+        from matplotlib import colormaps
+        list(colormaps)
     """
     def __init__(self, cmaps):
         self._cmaps = cmaps
