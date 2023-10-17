@@ -229,11 +229,68 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.matshow(...)
 
-    @pytest.mark.xfail(reason="Test for pie not written yet")
     @mpl.style.context("default")
     def test_pie(self):
-        fig, ax = plt.subplots()
-        ax.pcolor(...)
+        mpl.rcParams["date.converter"] = 'concise'
+
+        start_date = datetime.datetime(2023,11,1)
+        delta = datetime.timedelta(days=1)
+        date_data = [start_date + i*delta for i in range(30)]
+        date_data_ymd = [date.strftime('%Y%m%d') for date in date_data]
+        date_data_ordinal = [date.toordinal() for date in date_data]
+        label_data = ["Date: "+str(date) for date in date_data_ymd]
+        color_data = ["#4B0082","#FF00FF","#6A5ACD","#6495ED","#00BFFF","#00FFFF","#00FA9A","#556B2F","#FFD700"]
+        explode_data = []
+        for i in range(6):
+            if i%2==0:
+              explode_data_larger.append(0.1)
+            else:
+              explode_data_larger.append(0)
+
+        explode_data_larger=[]
+        for i in range(30):
+           if i%2==0:
+              explode_data_larger.append(0.1)
+           else:
+              explode_data_larger.append(0)
+
+        # Making the basic plot for testing
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, constrained_layout=True)
+        ax1.pie(
+          date_data_ordinal[0:6],
+          labels = label_data[0:6]
+        )
+        ax2.pie(
+          date_data_ordinal[6:12],
+          labels = label_data[6:12],
+          colors = color_data[6:12]
+        )
+        ax3.pie(
+          date_data_ordinal[0:6],
+          labels = label_data[0:6],
+          colors = color_data[0:6],
+          explode = explode_data
+        )
+
+
+        # Making the plot with larger dataset for testing
+        fig, (ax4, ax5, ax6) = plt.subplots(3,1,constrained_layout=True)
+        ax4.pie(
+        date_data_ordinal,
+        labels = label_data
+        )
+        ax5.pie(
+        date_data_ordinal,
+        labels = label_data,
+        colors = color_data
+        )
+        ax6.pie(
+        date_data_ordinal,
+        labels = label_data,
+        colors = color_data,
+        explode = explode_data_larger
+       )
+
 
     @pytest.mark.xfail(reason="Test for pcolor not written yet")
     @mpl.style.context("default")
