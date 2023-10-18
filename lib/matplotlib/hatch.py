@@ -181,6 +181,8 @@ _hatch_types = [
 def _validate_hatch_pattern(hatch):
     valid_hatch_patterns = set(r'-+|/\xXoO.*')
     if hatch is not None:
+        if not isinstance(hatch, str):
+            raise ValueError("Hatch pattern must be a string")
         invalids = set(hatch).difference(valid_hatch_patterns)
         if invalids:
             valid = ''.join(sorted(valid_hatch_patterns))
