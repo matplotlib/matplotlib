@@ -157,7 +157,7 @@ Update release notes
 --------------------
 
 What's new
-~~~~~~~~~~
+^^^^^^^^^^
 
 *Only needed for major and minor releases. Bugfix releases should not have new
 features.*
@@ -167,7 +167,7 @@ file :file:`doc/users/prev_whats_new/whats_new_{X}.{Y}.0.rst` and delete the ind
 files.
 
 API changes
-~~~~~~~~~~~
+^^^^^^^^^^^
 
 *Primarily needed for major and minor releases. We may sometimes have API
 changes in bugfix releases.*
@@ -177,7 +177,7 @@ file :file:`doc/api/prev_api_changes/api_changes_{X}.{Y}.{Z}.rst` and delete the
 individual files.
 
 Release notes TOC
-~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^
 
 Update :file:`doc/users/release_notes.rst`:
 
@@ -202,7 +202,7 @@ Update :file:`doc/users/release_notes.rst`:
      prev_whats_new/github_stats_X.Y.Z.rst
 
 Update version switcher
-~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Update ``doc/_static/switcher.json``:
 
