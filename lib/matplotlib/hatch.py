@@ -188,8 +188,7 @@ def _validate_hatch_pattern(hatch):
             message = f"""Unknown hatch symbol(s): {invalids}.
                     Hatch must consist of a string of {valid}"""
             raise ValueError(message)
-    else:
-        raise ValueError("Hatch pattern must be a string")
+    return hatch
 
 
 def get_path(hatchpattern, density=6):
