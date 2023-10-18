@@ -40,29 +40,19 @@ class TestDatetimePlotting:
         start_date = datetime.datetime(2023, 1, 1)
         time_delta = datetime.timedelta(days=1)
 
-        values = np.random.randint(1, 10, 30)
-        bin_edges = [start_date + i * time_delta for i in range(31)]
+        fig, (ax1, ax2) = plt.subplots(2, 1, constrained_layout=True, figsize=(10, 8))
 
-        fig, (ax1, ax2) = plt.subplots(2, 1, constrained_layout=True)
-
-        ax1.hist(
-            [start_date + i * time_delta for i in range(30)],
-            bins=bin_edges,
-            weights=values)
-
+        ax1.set_ylim(start_date, start_date + 29*time_delta)
         for i in range(np.random.randint(1, 5)):
-            ymin = np.random.randint(1, 8)
-            ymax = ymin + np.random.randint(1, 3)
+            ymin = start_date + np.random.randint(0, 30) * time_delta
+            ymax = ymin + np.random.randint(1, 3) * time_delta
             ax1.axhspan(ymin=ymin, ymax=ymax, facecolor='green', alpha=0.5)
 
-        ax2.hist(
-            [start_date + i * time_delta for i in range(30)],
-            bins=bin_edges,
-            weights=values)
-
-        y_values = np.unique(values)
-        for i, y in enumerate(y_values[::2]):
-            ax2.axhspan(ymin=y, ymax=y+1, facecolor='green', alpha=0.5)
+        ax2.set_ylim(start_date, start_date + 29*time_delta)
+        for i in range(0, 30, 2):
+            ymin = start_date + i * time_delta
+            ymax = ymin + time_delta
+            ax2.axhspan(ymin=ymin, ymax=ymax, facecolor='green', alpha=0.5)
 
     @pytest.mark.xfail(reason="Test for axline not written yet")
     @mpl.style.context("default")
