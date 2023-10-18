@@ -96,6 +96,11 @@ extension_data = {
     'dependencies': [
       freetype_dep, numpy_dep, agg_dep.partial_dependency(includes: true),
     ],
+    'cpp_args': [
+      '-DFREETYPE_BUILD_TYPE="@0@"'.format(
+        freetype_dep.type_name() == 'internal' ? 'local' : 'system',
+      ),
+    ],
   },
   '_image': {
     'subdir': 'matplotlib',

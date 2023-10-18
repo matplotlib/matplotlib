@@ -1315,13 +1315,15 @@ def _init_tests():
     if (ft2font.__freetype_version__ != LOCAL_FREETYPE_VERSION or
             ft2font.__freetype_build_type__ != 'local'):
         _log.warning(
-            f"Matplotlib is not built with the correct FreeType version to "
-            f"run tests.  Rebuild without setting system-freetype=true in "
-            f"Meson setup options.  Expect many image comparison failures below.  "
-            f"Expected freetype version {LOCAL_FREETYPE_VERSION}.  "
-            f"Found freetype version {ft2font.__freetype_version__}.  "
-            "Freetype build type is {}local".format(
-                "" if ft2font.__freetype_build_type__ == 'local' else "not "))
+            "Matplotlib is not built with the correct FreeType version to run tests.  "
+            "Rebuild without setting system-freetype=true in Meson setup options.  "
+            "Expect many image comparison failures below.  "
+            "Expected freetype version %s.  "
+            "Found freetype version %s.  "
+            "Freetype build type is %slocal.",
+            LOCAL_FREETYPE_VERSION,
+            ft2font.__freetype_version__,
+            "" if ft2font.__freetype_build_type__ == 'local' else "not ")
 
 
 def _replacer(data, value):

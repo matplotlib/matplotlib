@@ -74,11 +74,24 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.barbs(...)
 
-    @pytest.mark.xfail(reason="Test for barh not written yet")
     @mpl.style.context("default")
     def test_barh(self):
-        fig, ax = plt.subplots()
-        ax.barh(...)
+        mpl.rcParams["date.converter"] = 'concise'
+        fig, (ax1, ax2) = plt.subplots(2, 1, layout='constrained')
+        birth_date = np.array([datetime.datetime(2020, 4, 10),
+                               datetime.datetime(2020, 5, 30),
+                               datetime.datetime(2020, 10, 12),
+                               datetime.datetime(2020, 11, 15)])
+        year_start = datetime.datetime(2020, 1, 1)
+        year_end = datetime.datetime(2020, 12, 31)
+        age = [21, 53, 20, 24]
+        ax1.set_xlabel('Age')
+        ax1.set_ylabel('Birth Date')
+        ax1.barh(birth_date, width=age, height=datetime.timedelta(days=10))
+        ax2.set_xlim(left=year_start, right=year_end)
+        ax2.set_xlabel('Birth Date')
+        ax2.set_ylabel('Order of Birth Dates')
+        ax2.barh(np.arange(4), birth_date-year_start, left=year_start)
 
     @pytest.mark.xfail(reason="Test for boxplot not written yet")
     @mpl.style.context("default")
@@ -312,11 +325,15 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.spy(...)
 
-    @pytest.mark.xfail(reason="Test for stackplot not written yet")
     @mpl.style.context("default")
     def test_stackplot(self):
-        fig, ax = plt.subplots()
-        ax.stackplot(...)
+        mpl.rcParams["date.converter"] = 'concise'
+        N = 10
+        stacked_nums = np.tile(np.arange(1, N), (4, 1))
+        dates = np.array([datetime.datetime(2020 + i, 1, 1) for i in range(N - 1)])
+
+        fig, ax = plt.subplots(layout='constrained')
+        ax.stackplot(dates, stacked_nums)
 
     @pytest.mark.xfail(reason="Test for stairs not written yet")
     @mpl.style.context("default")
