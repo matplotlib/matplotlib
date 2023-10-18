@@ -53,6 +53,7 @@ class TestDatetimePlotting:
     @mpl.style.context("default")
     def test_axvspan(self):
         mpl.rcParams["date.converter"] = 'concise'
+        np.random.seed(19680801)
 
         start_date = datetime.datetime(2023, 1, 1)
         time_delta = datetime.timedelta(days=1)
