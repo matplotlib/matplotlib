@@ -297,9 +297,6 @@ class TestDatetimePlotting:
         np.random.seed(19680801)
         y = np.cumsum(np.random.randn(N))
         fig, axs = plt.subplots(3, 1, layout='constrained', figsize=(6, 6))
-        lims = [(np.datetime64('2005-02'), np.datetime64('2005-04')),
-                (np.datetime64('2005-02-03'), np.datetime64('2005-02-15')),
-                (np.datetime64('2005-02-03 11:00'), np.datetime64('2005-02-04 13:20'))]
         # datetime array on x axis
         axs[0].scatter(dates, y)
         for label in axs[0].get_xticklabels():
