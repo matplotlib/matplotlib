@@ -430,7 +430,7 @@ of history which can cause confusion.
 .. _automated-tests:
 
 Automated tests
----------------
+===============
 
 Whenever a pull request is created or updated, various automated test tools
 will run on all supported platforms and versions of Python.
