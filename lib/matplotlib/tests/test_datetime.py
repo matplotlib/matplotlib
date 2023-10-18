@@ -32,11 +32,37 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.axhline(...)
 
-    @pytest.mark.xfail(reason="Test for axhspan not written yet")
     @mpl.style.context("default")
     def test_axhspan(self):
-        fig, ax = plt.subplots()
-        ax.axhspan(...)
+        mpl.rcParams["date.converter"] = 'concise'
+        np.random.seed(19680801)
+
+        start_date = datetime.datetime(2023, 1, 1)
+        time_delta = datetime.timedelta(days=1)
+
+        values = np.random.randint(1, 10, 30)
+        bin_edges = [start_date + i * time_delta for i in range(31)]
+
+        fig, (ax1, ax2) = plt.subplots(2, 1, constrained_layout=True)
+
+        ax1.hist(
+            [start_date + i * time_delta for i in range(30)],
+            bins=bin_edges,
+            weights=values)
+
+        for i in range(np.random.randint(1, 5)):
+            ymin = np.random.randint(1, 8)
+            ymax = ymin + np.random.randint(1, 3)
+            ax1.axhspan(ymin=ymin, ymax=ymax, facecolor='green', alpha=0.5)
+
+        ax2.hist(
+            [start_date + i * time_delta for i in range(30)],
+            bins=bin_edges,
+            weights=values)
+
+        y_values = np.unique(values)
+        for i, y in enumerate(y_values[::2]):
+            ax2.axhspan(ymin=y, ymax=y+1, facecolor='green', alpha=0.5)
 
     @pytest.mark.xfail(reason="Test for axline not written yet")
     @mpl.style.context("default")
