@@ -186,7 +186,7 @@ def _validate_hatch_pattern(hatch):
             valid = ''.join(sorted(valid_hatch_patterns))
             invalids = ''.join(sorted(invalids))
             message = f"""Unknown hatch symbol(s): {invalids}.
-                          Hatch must consist of a string of {valid}"""
+                    Hatch must consist of a string of {valid}"""
             raise ValueError(message)
     else:
         raise ValueError("Hatch pattern must be a string")
