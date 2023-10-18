@@ -22,7 +22,7 @@ import re
 
 import numpy as np
 
-from hatch import _validate_hatch_pattern
+from matplotlib.hatch import _validate_hatch_pattern
 from matplotlib import _api, cbook
 from matplotlib.cbook import ls_mapper
 from matplotlib.colors import Colormap, is_color_like
@@ -180,7 +180,7 @@ def _make_type_validator(cls, *, allow_none=False):
 
     def validator(s):
         if (allow_none and
-                (s is None or isinstance(s, str) and s.lower() == "none")):
+                (s is None or cbook._str_lower_equal(s, "none"))):
             return None
         if cls is str and not isinstance(s, str):
             raise ValueError(f'Could not convert {s!r} to str')
@@ -439,6 +439,19 @@ def validate_ps_distiller(s):
         return ValidateInStrings('ps.usedistiller', ['ghostscript', 'xpdf'])(s)
 
 
+def _validate_papersize(s):
+    # Re-inline this validator when the 'auto' deprecation expires.
+    s = ValidateInStrings("ps.papersize",
+                          ["figure", "auto", "letter", "legal", "ledger",
+                           *[f"{ab}{i}" for ab in "ab" for i in range(11)]],
+                          ignorecase=True)(s)
+    if s == "auto":
+        _api.warn_deprecated("3.8", name="ps.papersize='auto'",
+                             addendum="Pass an explicit paper type, figure, or omit "
+                             "the *ps.papersize* rcParam entirely.")
+    return s
+
+
 # A validator dedicated to the named line styles, based on the items in
 # ls_mapper, and a list of possible strings read from Line2D.set_linestyle
 _validate_named_linestyle = ValidateInStrings(
@@ -577,11 +590,10 @@ def _validate_int_greaterequal0(s):
         raise RuntimeError(f'Value must be >=0; got {s}')
 
 
-def validate_hatch(hatch):
-    _validate_hatch_pattern(hatch)
+validate_hatch = _validate_hatch_pattern
 
 
-validate_hatchlist = _listify_validator(_validate_hatch_pattern)
+validate_hatchlist = _listify_validator(validate_hatch)
 validate_dashlist = _listify_validator(validate_floatlist)
 
 
@@ -592,7 +604,7 @@ def _validate_minor_tick_ndivs(n):
     two major ticks.
     """
 
-    if isinstance(n, str) and n.lower() == 'auto':
+    if cbook._str_lower_equal(n, 'auto'):
         return n
     try:
         n = _validate_int_greaterequal0(n)
@@ -726,6 +738,51 @@ class _DunderChecker(ast.NodeVisitor):
         if node.attr.startswith("__") and node.attr.endswith("__"):
             raise ValueError("cycler strings with dunders are forbidden")
         self.generic_visit(node)
+
+
+# A validator dedicated to the named legend loc
+_validate_named_legend_loc = ValidateInStrings(
+    'legend.loc',
+    [
+        "best",
+        "upper right", "upper left", "lower left", "lower right", "right",
+        "center left", "center right", "lower center", "upper center",
+        "center"],
+    ignorecase=True)
+
+
+def _validate_legend_loc(loc):
+    """
+    Confirm that loc is a type which rc.Params["legend.loc"] supports.
+
+    .. versionadded:: 3.8
+
+    Parameters
+    ----------
+    loc : str | int | (float, float) | str((float, float))
+        The location of the legend.
+
+    Returns
+    -------
+    loc : str | int | (float, float) or raise ValueError exception
+        The location of the legend.
+    """
+    if isinstance(loc, str):
+        try:
+            return _validate_named_legend_loc(loc)
+        except ValueError:
+            pass
+        try:
+            loc = ast.literal_eval(loc)
+        except (SyntaxError, ValueError):
+            pass
+    if isinstance(loc, int):
+        if 0 <= loc <= 10:
+            return loc
+    if isinstance(loc, tuple):
+        if len(loc) == 2 and all(isinstance(e, Real) for e in loc):
+            return loc
+    raise ValueError(f"{loc} is not a valid legend location.")
 
 
 def validate_cycler(s):
@@ -1026,8 +1083,10 @@ _validators = {
     "axes.ymargin": _validate_greaterthan_minushalf,  # margin added to yaxis
     "axes.zmargin": _validate_greaterthan_minushalf,  # margin added to zaxis
 
-    "polaraxes.grid": validate_bool,  # display polar grid or not
-    "axes3d.grid":    validate_bool,  # display 3d grid
+    "polaraxes.grid":    validate_bool,  # display polar grid or not
+    "axes3d.grid":       validate_bool,  # display 3d grid
+    "axes3d.automargin": validate_bool,  # automatically add margin when
+                                         # manually setting 3D axis limits
 
     "axes3d.xaxis.panecolor":    validate_color,  # 3d background pane
     "axes3d.yaxis.panecolor":    validate_color,  # 3d background pane
@@ -1052,11 +1111,7 @@ _validators = {
 
     # legend properties
     "legend.fancybox": validate_bool,
-    "legend.loc": _ignorecase([
-        "best",
-        "upper right", "upper left", "lower left", "lower right", "right",
-        "center left", "center right", "lower center", "upper center",
-        "center"]),
+    "legend.loc": _validate_legend_loc,
 
     # the number of points in the legend line
     "legend.numpoints":      validate_int,
@@ -1068,6 +1123,7 @@ _validators = {
     "legend.labelcolor":     _validate_color_or_linecolor,
     # the relative size of legend markers vs. original
     "legend.markerscale":    validate_float,
+    # using dict in rcParams not yet supported, so make sure it is bool
     "legend.shadow":         validate_bool,
     # whether or not to draw a frame around legend
     "legend.frameon":        validate_bool,
@@ -1162,6 +1218,7 @@ _validators = {
     "figure.autolayout":       validate_bool,
     "figure.max_open_warning": validate_int,
     "figure.raise_window":     validate_bool,
+    "macosx.window_mode":      ["system", "tab", "window"],
 
     "figure.subplot.left":   validate_float,
     "figure.subplot.right":  validate_float,
@@ -1194,9 +1251,7 @@ _validators = {
     "tk.window_focus": validate_bool,  # Maintain shell focus for TkAgg
 
     # Set the papersize/type
-    "ps.papersize":       _ignorecase(["auto", "letter", "legal", "ledger",
-                                      *[f"{ab}{i}"
-                                        for ab in "ab" for i in range(11)]]),
+    "ps.papersize":       _validate_papersize,
     "ps.useafm":          validate_bool,
     # use ghostscript or xpdf to distill ps output
     "ps.usedistiller":    validate_ps_distiller,
