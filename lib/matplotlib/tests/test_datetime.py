@@ -50,11 +50,34 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.axvline(...)
 
-    @pytest.mark.xfail(reason="Test for axvspan not written yet")
     @mpl.style.context("default")
     def test_axvspan(self):
-        fig, ax = plt.subplots()
-        ax.axvspan(...)
+        mpl.rcParams["date.converter"] = 'concise'
+
+        start_date = datetime.datetime(2023, 1, 1)
+        time_delta = datetime.timedelta(days=1)
+
+        values1 = np.random.randint(1, 10, 30)
+        values2 = np.random.randint(1, 10, 30)
+        values3 = np.random.randint(1, 10, 30)
+
+        bin_edges = [start_date + i * time_delta for i in range(31)]
+
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, constrained_layout=True)
+
+        axes = [ax1, ax2, ax3]
+        values_list = [values1, values2, values3]
+
+        for ax, values in zip(axes, values_list):
+            ax.hist(
+                [start_date + i * time_delta for i in range(30)],
+                bins=bin_edges,
+                weights=values
+            )
+            for i in range(np.random.randint(1, 5)):
+                xmin = start_date + np.random.randint(0, 30) * time_delta
+                xmax = xmin + np.random.randint(1, 3) * time_delta
+                ax.axvspan(xmin=xmin, xmax=xmax, facecolor='green', alpha=0.5)
 
     @pytest.mark.xfail(reason="Test for bar not written yet")
     @mpl.style.context("default")
