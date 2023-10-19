@@ -1113,14 +1113,13 @@ def _broadcast_with_masks(*args, compress=False):
     masks = bcast[len(args):]
     if masks:
         # combine the masks into one
-        mask = functools.reduce(np.logical_or, masks)
+        mask = np.logical_or.reduce(masks)
         # put mask on and compress
         if compress:
             inputs = [np.ma.array(k, mask=mask).compressed()
                       for k in inputs]
         else:
-            inputs = [np.ravel(np.ma.array(k, mask=mask,
-                                           dtype=float).filled(np.nan))
+            inputs = [np.ma.array(k, mask=mask, dtype=float).filled(np.nan).ravel()
                       for k in inputs]
     else:
         inputs = [np.ravel(k) for k in inputs]
