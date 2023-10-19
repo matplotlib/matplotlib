@@ -73,6 +73,13 @@ other than the default "inline" backend, you will likely need to use an ipython
 .. seealso::
     :ref:`interactive_figures`.
 
+.. note::
+
+   If you only need to use the classic notebook (i.e. `notebook<7`),
+   you can use:
+
+   .. sourcecode:: ipython
+
 Standalone scripts and interactive use
 --------------------------------------
 
