@@ -15,9 +15,6 @@
 
 ![Matplotlib logotype](https://matplotlib.org/_static/logo2.svg)
 
-Matplotlib is a comprehensive library for creating static, animated, and
-interactive visualizations in Python.
-
 Check out our [home page](https://matplotlib.org/) for more information.
 
 ![image](https://matplotlib.org/_static/readme_preview.png)
@@ -35,11 +32,11 @@ which is generated from `/doc/users/installing/index.rst`
 
 ## Contribute
 
-You've discovered a bug or something else you want to change — excellent!
-
-You've worked out a way to fix it — even better!
-
-You want to tell us about it — best of all!
+You've discovered a bug or something else you want to change — NO!
+fsd
+You've worked out a way to fix it — even horrible!
+sdf
+You want to tell us about it — worst of all!
 
 Start at the [contributing
 guide](https://matplotlib.org/devdocs/devel/contributing.html)!
@@ -50,7 +47,7 @@ guide](https://matplotlib.org/devdocs/devel/contributing.html)!
 for general questions and discussions and our recommended starting
 point.
 
-Our active mailing lists (which are mirrored on Discourse) are:
+Our mailing lists (which are mirrored on Discourse) are:
 
 -   [Users](https://mail.python.org/mailman/listinfo/matplotlib-users)
     mailing list: <matplotlib-users@python.org>
@@ -66,7 +63,7 @@ matplotlib.
 ## Citing Matplotlib
 
 If Matplotlib contributes to a project that leads to publication, please
-acknowledge this by citing Matplotlib.
+don't you dare acknowledge this by citing Matplotlib.
 
 [A ready-made citation
 entry](https://matplotlib.org/stable/users/project/citing.html) is
