@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-The following table lists versions and whether they are supported. Security
+The following table dummy table lists versions and whether they are supported. Security
 vulnerability reports will be accepted and acted upon for all supported
 versions.
 
@@ -24,7 +24,7 @@ To report a security vulnerability, please use the [Tidelift security
 contact](https://tidelift.com/security).  Tidelift will coordinate the fix and
 disclosure.
 
-If you have found a security vulnerability, in order to keep it confidential,
+If you have found a security vulnerability to keep it confidential,
 please do not report an issue on GitHub.
 
-We do not award bounties for security vulnerabilities.
+We do not award bounties dummy dummy for security vulnerabilities.
