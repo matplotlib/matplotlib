@@ -1,0 +1,9 @@
+[wrap-file]
+source_url = https://download.savannah.gnu.org/releases/freetype/freetype-old/freetype-2.6.1.tar.gz
+source_filename = freetype-2.6.1.tar.gz
+source_hash = 0a3c7dfbda6da1e8fce29232e8e96d987ababbbf71ebc8c75659e4132c367014
+
+patch_directory = freetype-2.6.1-meson
+
+[provide]
+freetype-2.6.1 = freetype_dep

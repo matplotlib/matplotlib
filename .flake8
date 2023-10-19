@@ -1,0 +1,95 @@
+[flake8]
+max-line-length = 88
+select =
+    # flake8 default
+    D, E, F, W,
+ignore =
+    # flake8 default
+    E121,E123,E126,E226,E24,E704,W503,W504,
+    # Additional ignores:
+    E127, E131,
+    E266,
+    E305, E306,
+    E741,
+    F841,
+    # pydocstyle
+    D100, D101, D102, D103, D104, D105, D106,
+    D200, D202, D204, D205,
+    D301,
+    D400, D401, D403, D404
+    # ignored by pydocstyle numpy docstring convention
+    D107, D203, D212, D213, D402, D413, D415, D416, D417,
+
+exclude =
+    .git
+    build
+    doc/gallery
+    doc/tutorials
+    # External files.
+    tools/gh_api.py
+    .tox
+    .eggs
+
+per-file-ignores =
+    lib/matplotlib/__init__.py: E402, F401
+    lib/matplotlib/_animation_data.py: E501
+    lib/matplotlib/_api/__init__.py: F401
+    lib/matplotlib/_cm.py: E122, E202, E203, E302
+    lib/matplotlib/_mathtext.py: E221, E251
+    lib/matplotlib/_mathtext_data.py: E122, E203, E261
+    lib/matplotlib/axes/__init__.py: F401, F403
+    lib/matplotlib/backends/backend_template.py: F401
+    lib/matplotlib/font_manager.py: E501
+    lib/matplotlib/image.py: F401, F403
+    lib/matplotlib/mathtext.py: E221
+    lib/matplotlib/pylab.py: F401, F403
+    lib/matplotlib/pyplot.py: F401, F811
+    lib/matplotlib/tests/test_mathtext.py: E501
+    lib/matplotlib/transforms.py: E201, E202, E203
+    lib/matplotlib/tri/_triinterpolate.py: E201, E221
+    lib/mpl_toolkits/axes_grid1/axes_size.py: E272
+    lib/mpl_toolkits/axisartist/__init__.py: F401
+    lib/mpl_toolkits/axisartist/angle_helper.py: E221
+    lib/pylab.py: F401, F403
+
+    doc/conf.py: E402
+    galleries/users_explain/artists/paths.py: E402
+    galleries/users_explain/artists/patheffects_guide.py: E402
+    galleries/users_explain/artists/transforms_tutorial.py: E402, E501
+    galleries/users_explain/colors/colormaps.py: E501
+    galleries/users_explain/colors/colors.py: E402
+    galleries/tutorials/artists.py: E402
+    galleries/users_explain/axes/constrainedlayout_guide.py: E402
+    galleries/users_explain/axes/legend_guide.py: E402
+    galleries/users_explain/axes/tight_layout_guide.py: E402
+    galleries/users_explain/animations/animations.py: E501
+    galleries/tutorials/images.py: E501
+    galleries/tutorials/pyplot.py: E402, E501
+    galleries/users_explain/text/annotations.py: E402, E501
+    galleries/users_explain/text/mathtext.py: E501
+    galleries/users_explain/text/text_intro.py: E402
+    galleries/users_explain/text/text_props.py: E501
+
+    galleries/examples/animation/frame_grabbing_sgskip.py: E402
+    galleries/examples/images_contours_and_fields/tricontour_demo.py: E201
+    galleries/examples/images_contours_and_fields/tripcolor_demo.py: E201
+    galleries/examples/images_contours_and_fields/triplot_demo.py: E201
+    galleries/examples/lines_bars_and_markers/marker_reference.py: E402
+    galleries/examples/misc/print_stdout_sgskip.py: E402
+    galleries/examples/misc/table_demo.py: E201
+    galleries/examples/style_sheets/bmh.py: E501
+    galleries/examples/subplots_axes_and_figures/demo_constrained_layout.py: E402
+    galleries/examples/text_labels_and_annotations/custom_legends.py: E402
+    galleries/examples/ticks/date_concise_formatter.py: E402
+    galleries/examples/ticks/date_formatters_locators.py: F401
+    galleries/examples/user_interfaces/embedding_in_gtk3_panzoom_sgskip.py: E402
+    galleries/examples/user_interfaces/embedding_in_gtk3_sgskip.py: E402
+    galleries/examples/user_interfaces/embedding_in_gtk4_panzoom_sgskip.py: E402
+    galleries/examples/user_interfaces/embedding_in_gtk4_sgskip.py: E402
+    galleries/examples/user_interfaces/gtk3_spreadsheet_sgskip.py: E402
+    galleries/examples/user_interfaces/gtk4_spreadsheet_sgskip.py: E402
+    galleries/examples/user_interfaces/mpl_with_glade3_sgskip.py: E402
+    galleries/examples/user_interfaces/pylab_with_gtk3_sgskip.py: E402
+    galleries/examples/user_interfaces/pylab_with_gtk4_sgskip.py: E402
+    galleries/examples/userdemo/pgf_preamble_sgskip.py: E402
+force-check = True

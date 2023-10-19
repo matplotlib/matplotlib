@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (https://matplotlib.org/) -->
+<svg height="432pt" version="1.1" viewBox="0 0 576 432" width="576pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:butt;stroke-linejoin:round;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 432
+L 576 432
+L 576 0
+L 0 0
+z
+" style="fill:#ffffff;"/>
+  </g>
+  <g id="axes_1">
+   <g id="text_1">
+    <text style="font-family:'DejaVu Sans';font-size:12px;font-style:normal;font-weight:normal;opacity:0.5;text-anchor:start;" transform="rotate(-0, 183.6, 302.4)" x="183.6" y="302.4">50% using `color`</text>
+   </g>
+   <g id="text_2">
+    <text style="font-family:'DejaVu Sans';font-size:12px;font-style:normal;font-weight:normal;opacity:0.5;text-anchor:start;" transform="rotate(-0, 183.6, 216)" x="183.6" y="216">50% using `alpha`</text>
+   </g>
+   <g id="text_3">
+    <text style="font-family:'DejaVu Sans';font-size:12px;font-style:normal;font-weight:normal;opacity:0.5;text-anchor:start;" transform="rotate(-0, 183.6, 129.6)" x="183.6" y="129.6">50% using `alpha` and 100% `color`</text>
+   </g>
+  </g>
+ </g>
+</svg>

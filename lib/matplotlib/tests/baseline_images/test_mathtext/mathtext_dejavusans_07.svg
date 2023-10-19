@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.org/) -->
+<svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:butt;stroke-linejoin:round;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 54 
+L 378 54 
+L 378 0 
+L 0 0 
+z
+" style="fill:#ffffff;"/>
+  </g>
+  <g id="text_1">
+   <!-- $x\leftarrow y\ x\forall y\ x-y$ -->
+   <defs>
+    <path d="M 4.890625 29.15625 
+L 4.890625 33.546875 
+L 24.078125 52.734375 
+L 29.9375 46.875 
+L 18.5625 35.5 
+L 78.078125 35.5 
+L 78.078125 27.203125 
+L 18.5625 27.203125 
+L 29.9375 15.828125 
+L 24.078125 9.96875 
+z
+" id="DejaVuSans-2190"/>
+    <path d="M 24.8125 -5.078125 
+Q 18.5625 -15.578125 14.625 -18.1875 
+Q 10.6875 -20.796875 4.59375 -20.796875 
+L -2.484375 -20.796875 
+L -0.984375 -13.28125 
+L 4.203125 -13.28125 
+Q 7.953125 -13.28125 10.59375 -11.234375 
+Q 13.234375 -9.1875 16.5 -3.21875 
+L 19.28125 2 
+L 7.171875 54.6875 
+L 16.703125 54.6875 
+L 25.78125 12.796875 
+L 50.875 54.6875 
+L 60.296875 54.6875 
+z
+" id="DejaVuSans-Oblique-79"/>
+    <path d="M 10.59375 35.5 
+L 73.1875 35.5 
+L 73.1875 27.203125 
+L 10.59375 27.203125 
+z
+" id="DejaVuSans-2212"/>
+    <path d="M 34.1875 9.71875 
+L 47.609375 46 
+L 20.796875 46 
+z
+M 28.609375 0 
+L 0.78125 72.90625 
+L 11.1875 72.90625 
+L 17.828125 54.203125 
+L 50.6875 54.203125 
+L 57.328125 72.90625 
+L 67.578125 72.90625 
+L 39.796875 0 
+z
+" id="DejaVuSans-2200"/>
+    <path d="M 60.015625 54.6875 
+L 34.90625 27.875 
+L 50.296875 0 
+L 39.984375 0 
+L 28.421875 21.6875 
+L 8.296875 0 
+L -2.59375 0 
+L 24.3125 28.8125 
+L 10.015625 54.6875 
+L 20.3125 54.6875 
+L 30.8125 34.90625 
+L 49.125 54.6875 
+z
+" id="DejaVuSans-Oblique-78"/>
+   </defs>
+   <g transform="translate(144.960000 30.286875)scale(0.120000 -0.120000)">
+    <use transform="translate(0.000000 0.093750)" xlink:href="#DejaVuSans-Oblique-78"/>
+    <use transform="translate(78.662109 0.093750)" xlink:href="#DejaVuSans-2190"/>
+    <use transform="translate(181.933594 0.093750)" xlink:href="#DejaVuSans-Oblique-79"/>
+    <use transform="translate(273.583660 0.093750)" xlink:href="#DejaVuSans-Oblique-78"/>
+    <use transform="translate(332.763347 0.093750)" xlink:href="#DejaVuSans-2200"/>
+    <use transform="translate(401.171550 0.093750)" xlink:href="#DejaVuSans-Oblique-79"/>
+    <use transform="translate(492.821616 0.093750)" xlink:href="#DejaVuSans-Oblique-78"/>
+    <use transform="translate(571.483726 0.093750)" xlink:href="#DejaVuSans-2212"/>
+    <use transform="translate(674.755210 0.093750)" xlink:href="#DejaVuSans-Oblique-79"/>
+   </g>
+  </g>
+ </g>
+</svg>

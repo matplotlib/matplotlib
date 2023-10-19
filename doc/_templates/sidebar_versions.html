@@ -1,0 +1,38 @@
+<div class="sidebar-versions">
+<script>
+function getSnippet(id, url) {
+    var req = false;
+    // For Safari, Firefox, and other non-MS browsers
+    if (window.XMLHttpRequest) {
+        try {
+            req = new XMLHttpRequest();
+        } catch (e) {
+            req = false;
+        }
+    } else if (window.ActiveXObject) {
+        // For Internet Explorer on Windows
+        try {
+            req = new ActiveXObject("Msxml2.XMLHTTP");
+        } catch (e) {
+            try {
+            req = new ActiveXObject("Microsoft.XMLHTTP");
+            } catch (e) {
+            req = false;
+            }
+        }
+    }
+    var element = document.querySelector(".sidebar-versions");
+    if (req) {
+        // Synchronous request, wait till we have it all
+        req.open('GET', url, false);
+        req.send(null);
+        if (req.status == 200) {
+            element.innerHTML = req.responseText;
+        } else {
+            element.innerHTML = "<mark>Could not find Snippet to insert at " + url + "</mark>"
+        }
+    }
+}
+getSnippet('other_versions', '/versions.html');
+</script>
+</div>

@@ -1,0 +1,17 @@
+``draw_gouraud_triangle``
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... is removed. Use `~.RendererBase.draw_gouraud_triangles` instead.
+
+A ``draw_gouraud_triangle`` call in a custom `~matplotlib.artist.Artist` can readily be
+replaced as::
+
+    self.draw_gouraud_triangles(gc, points.reshape((1, 3, 2)),
+                                colors.reshape((1, 3, 4)), trans)
+
+A `~.RendererBase.draw_gouraud_triangles` method can be implemented from an
+existing ``draw_gouraud_triangle`` method as::
+
+    transform = transform.frozen()
+    for tri, col in zip(triangles_array, colors_array):
+        self.draw_gouraud_triangle(gc, tri, col, transform)

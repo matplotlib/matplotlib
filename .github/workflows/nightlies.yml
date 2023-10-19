@@ -1,0 +1,65 @@
+---
+name: Upload nightly wheels to Anaconda Cloud
+
+on:
+  # Run daily at 1:23 UTC to upload nightly wheels to Anaconda Cloud
+  schedule:
+    - cron: '23 1 * * *'
+  # Run on demand with workflow dispatch
+  workflow_dispatch:
+
+permissions:
+  actions: read
+
+jobs:
+  upload_nightly_wheels:
+    name: Upload nightly wheels to Anaconda Cloud
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        # The login shell is necessary for the setup-micromamba setup
+        # to work in subsequent jobs.
+        # https://github.com/mamba-org/setup-micromamba#about-login-shells
+        shell: bash -e -l {0}
+    if: github.repository_owner == 'matplotlib'
+
+    steps:
+      # https://github.com/actions/download-artifact/issues/3#issuecomment-1017141067
+      - name: Download wheel artifacts from last build on 'main'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PROJECT_REPO="matplotlib/matplotlib"
+          BRANCH="main"
+          WORKFLOW_NAME="cibuildwheel.yml"
+          ARTIFACT_NAME="wheels"
+
+          gh run --repo "${PROJECT_REPO}" \
+             list --branch "${BRANCH}" \
+                  --workflow "${WORKFLOW_NAME}" \
+                  --json event,status,conclusion,databaseId > runs.json
+          RUN_ID=$(
+            jq --compact-output \
+              '[
+                .[] |
+                # Filter on "push" events to main (merged PRs) ...
+                select(.event == "push") |
+                # that have completed successfully ...
+                select(.status == "completed" and .conclusion == "success")
+               ] |
+              # and get ID of latest build of wheels.
+              sort_by(.databaseId) | reverse | .[0].databaseId' runs.json
+          )
+          gh run --repo "${PROJECT_REPO}" view "${RUN_ID}"
+          gh run --repo "${PROJECT_REPO}" \
+             download "${RUN_ID}" --name "${ARTIFACT_NAME}"
+
+          mkdir dist
+          mv *.whl dist/
+          ls -l dist/
+
+      - name: Upload wheels to Anaconda Cloud as nightlies
+        uses: scientific-python/upload-nightly-action@5fb764c5bce1ac2297084c0f7161b1919f17c74f # 0.2.0
+        with:
+          artifacts_path: dist
+          anaconda_nightly_upload_token: ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }}

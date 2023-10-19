@@ -1,0 +1,75 @@
+ci:
+  autofix_prs: false
+  autoupdate_schedule: 'quarterly'
+exclude: |
+  (?x)^(
+    extern|
+    LICENSE|
+    lib/matplotlib/mpl-data|
+    doc/devel/gitwash|
+    doc/users/prev|
+    doc/api/prev|
+    lib/matplotlib/tests/tinypages
+    )
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-docstring-first
+        exclude: lib/matplotlib/typing.py  # docstring used for attribute flagged by check
+      - id: end-of-file-fixer
+        exclude_types: [svg]
+      - id: mixed-line-ending
+      - id: name-tests-test
+        args: ["--pytest-test-first"]
+      - id: no-commit-to-branch #default is master and main
+      - id: trailing-whitespace
+        exclude_types: [svg]
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.1.1
+    hooks:
+      - id: mypy
+        additional_dependencies: [
+          pandas-stubs,
+          types-pillow,
+          types-python-dateutil,
+          types-psutil,
+          types-docutils,
+          types-PyYAML]
+        args: [
+          "--config-file=pyproject.toml",
+          "lib/matplotlib"
+          ]
+        files: lib/matplotlib #only run when files in lib/matplotlib are changed
+        pass_filenames: false
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        additional_dependencies: [pydocstyle>5.1.0, flake8-docstrings>1.4.0, flake8-force]
+        args: ["--docstring-convention=all"]
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.5
+    hooks:
+      - id: codespell
+        files: ^.*\.(py|c|cpp|h|m|md|rst|yml)$
+        args: [
+          "--ignore-words",
+          "ci/codespell-ignore-words.txt",
+          "--skip",
+          "doc/users/project/credits.rst"
+          ]
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        name: isort (python)
+        files: ^galleries/tutorials/|^galleries/examples/|^galleries/plot_types/
+  - repo: https://github.com/rstcheck/rstcheck
+    rev: v6.2.0
+    hooks:
+      - id: rstcheck
+        additional_dependencies:
+          - sphinx>=1.8.1
+          - tomli

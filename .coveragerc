@@ -1,0 +1,16 @@
+[run]
+branch = true
+source =
+    matplotlib
+    mpl_toolkits
+omit = matplotlib/_version.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    raise NotImplemented
+    def __str__
+    def __repr__
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+    if typing.TYPE_CHECKING:

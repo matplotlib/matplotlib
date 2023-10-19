@@ -1,0 +1,60 @@
+# Non-typed (and private) modules/functions
+matplotlib.backends.*
+matplotlib.tests.*
+matplotlib.pylab.*
+matplotlib._.*
+matplotlib.rcsetup._listify_validator
+matplotlib.rcsetup._validate_linestyle
+matplotlib.ft2font.Glyph
+matplotlib.testing.jpl_units.*
+matplotlib.sphinxext.*
+
+# set methods have heavy dynamic usage of **kwargs, with differences for subclasses
+# which results in technically inconsistent signatures, but not actually a problem
+matplotlib.*\.set$
+
+# Typed inline, inconsistencies largely due to imports
+matplotlib.pyplot.*
+matplotlib.typing.*
+
+# Other decorator modifying signature
+# Runtime picks up  *args **kwargs, but only decorated by a decorator that uses @wraps so?
+matplotlib.axis.Axis.draw
+# Backcompat decorator which does not modify runtime reported signature
+matplotlib.offsetbox.*Offset[Bb]ox.get_offset
+
+# Inconsistent super/sub class parameter name (maybe rename for consistency)
+matplotlib.projections.polar.RadialLocator.nonsingular
+matplotlib.ticker.LogLocator.nonsingular
+matplotlib.ticker.LogitLocator.nonsingular
+
+# Stdlib/Enum considered inconsistent (no fault of ours, I don't think)
+matplotlib.backend_bases._Mode.__new__
+matplotlib.units.Number.__hash__
+
+# 3.6 Pending deprecations
+matplotlib.figure.Figure.set_constrained_layout
+matplotlib.figure.Figure.set_constrained_layout_pads
+matplotlib.figure.Figure.set_tight_layout
+
+# 3.7 deprecations
+matplotlib.cm.register_cmap
+matplotlib.cm.unregister_cmap
+
+# 3.8 deprecations
+matplotlib.contour.ContourSet.allkinds
+matplotlib.contour.ContourSet.allsegs
+matplotlib.contour.ContourSet.tcolors
+matplotlib.contour.ContourSet.tlinewidths
+
+# positional-only argument name lacking leading underscores
+matplotlib.axes._base._AxesBase.axis
+
+# Maybe should be abstractmethods, required for subclasses, stubs define once
+matplotlib.tri.*TriInterpolator.__call__
+matplotlib.tri.*TriInterpolator.gradient
+
+# TypeVar used only in type hints
+matplotlib.backend_bases.FigureCanvasBase._T
+matplotlib.backend_managers.ToolManager._T
+matplotlib.spines.Spine._T

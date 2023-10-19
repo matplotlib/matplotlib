@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2022-10-24T13:46:49.965486</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.6.0.dev4028+g98b55b4eed.d20221024, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 54 
+L 378 54 
+L 378 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="text_1">
+   <!-- $\left\Vert \frac{a}{b} \right\Vert \left\vert \frac{a}{b} \right\vert \left\| \frac{a}{b}\right\| \left| \frac{a}{b} \right| \Vert a \Vert \vert b \vert \| a \| | b |$ -->
+   <g transform="translate(124.5 28.62) scale(0.12 -0.12)">
+    <defs>
+     <path id="STIXGeneral-Regular-2016" d="M 2522 -1210 
+L 2099 -1210 
+L 2099 4416 
+L 2522 4416 
+L 2522 -1210 
+z
+M 1248 -1210 
+L 826 -1210 
+L 826 4416 
+L 1248 4416 
+L 1248 -1210 
+z
+" transform="scale(0.015625)"/>
+     <path id="STIXGeneral-Italic-61" d="M 2963 710 
+L 3046 640 
+Q 2688 205 2518 70 
+Q 2349 -64 2157 -64 
+Q 1901 -64 1901 198 
+Q 1901 358 2048 934 
+Q 1690 397 1389 163 
+Q 1088 -70 749 -70 
+Q 467 -70 288 125 
+Q 109 320 109 672 
+Q 109 1158 387 1664 
+Q 666 2170 1094 2496 
+Q 1523 2822 1939 2822 
+Q 2368 2822 2451 2451 
+L 2522 2758 
+L 2541 2778 
+L 2931 2822 
+L 2976 2803 
+Q 2970 2778 2938 2669 
+Q 2368 595 2368 346 
+Q 2368 262 2458 262 
+Q 2554 262 2790 525 
+L 2963 710 
+z
+M 2336 2310 
+Q 2336 2477 2240 2579 
+Q 2144 2682 1978 2682 
+Q 1542 2682 1139 2093 
+Q 928 1779 787 1395 
+Q 646 1011 646 717 
+Q 646 243 1030 243 
+Q 1408 243 1843 870 
+Q 2336 1581 2336 2310 
+z
+" transform="scale(0.015625)"/>
+     <path id="STIXGeneral-Italic-62" d="M 1043 1856 
+L 1050 1856 
+Q 1370 2387 1654 2604 
+Q 1939 2822 2285 2822 
+Q 2618 2822 2822 2617 
+Q 3027 2413 3027 2054 
+Q 3027 1562 2726 1062 
+Q 2426 563 1942 246 
+Q 1459 -70 979 -70 
+Q 685 -70 416 32 
+Q 147 134 147 269 
+L 147 307 
+L 1056 3654 
+Q 1114 3885 1114 3955 
+Q 1114 4058 1053 4080 
+Q 992 4102 704 4115 
+L 704 4224 
+Q 1184 4282 1683 4371 
+L 1715 4339 
+L 1581 3814 
+L 1043 1856 
+z
+M 2483 1958 
+Q 2483 2509 2035 2509 
+Q 1594 2509 1158 1773 
+Q 954 1427 826 1008 
+Q 698 589 698 294 
+Q 698 77 992 77 
+Q 1414 77 1779 454 
+Q 2074 762 2278 1187 
+Q 2483 1613 2483 1958 
+z
+" transform="scale(0.015625)"/>
+     <path id="STIXGeneral-Regular-7c" d="M 851 -90 
+L 429 -90 
+L 429 4326 
+L 851 4326 
+L 851 -90 
+z
+" transform="scale(0.015625)"/>
+    </defs>
+    <use xlink:href="#STIXGeneral-Regular-2016" transform="translate(0 -17.78125) scale(1.267881)"/>
+    <use xlink:href="#STIXGeneral-Italic-61" transform="translate(66.290237 38.807812) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Italic-62" transform="translate(66.290237 -41.015625) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-2016" transform="translate(113.860231 -17.78125) scale(1.267881)"/>
+    <use xlink:href="#STIXGeneral-Regular-7c" transform="translate(180.150468 -39.515625) scale(1.615285)"/>
+    <use xlink:href="#STIXGeneral-Italic-61" transform="translate(212.450456 38.807812) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Italic-62" transform="translate(212.450456 -41.015625) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-7c" transform="translate(260.02045 -39.515625) scale(1.615285)"/>
+    <use xlink:href="#STIXGeneral-Regular-2016" transform="translate(292.320438 -17.78125) scale(1.267881)"/>
+    <use xlink:href="#STIXGeneral-Italic-61" transform="translate(358.610675 38.807812) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Italic-62" transform="translate(358.610675 -41.015625) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-2016" transform="translate(406.180669 -17.78125) scale(1.267881)"/>
+    <use xlink:href="#STIXGeneral-Regular-7c" transform="translate(472.470906 -39.515625) scale(1.615285)"/>
+    <use xlink:href="#STIXGeneral-Italic-61" transform="translate(504.770894 38.807812) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Italic-62" transform="translate(504.770894 -41.015625) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-7c" transform="translate(552.340887 -39.515625) scale(1.615285)"/>
+    <use xlink:href="#STIXGeneral-Regular-2016" transform="translate(584.640875 0.245312)"/>
+    <use xlink:href="#STIXGeneral-Italic-61" transform="translate(636.940863 0.245312)"/>
+    <use xlink:href="#STIXGeneral-Regular-2016" transform="translate(687.040854 0.245312)"/>
+    <use xlink:href="#STIXGeneral-Regular-7c" transform="translate(739.340842 0.245312)"/>
+    <use xlink:href="#STIXGeneral-Italic-62" transform="translate(759.340826 0.245312)"/>
+    <use xlink:href="#STIXGeneral-Regular-7c" transform="translate(809.340811 0.245312)"/>
+    <use xlink:href="#STIXGeneral-Regular-2016" transform="translate(829.340796 0.245312)"/>
+    <use xlink:href="#STIXGeneral-Italic-61" transform="translate(881.640784 0.245312)"/>
+    <use xlink:href="#STIXGeneral-Regular-2016" transform="translate(931.740775 0.245312)"/>
+    <use xlink:href="#STIXGeneral-Regular-7c" transform="translate(984.040762 0.245312)"/>
+    <use xlink:href="#STIXGeneral-Italic-62" transform="translate(1004.040747 0.245312)"/>
+    <use xlink:href="#STIXGeneral-Regular-7c" transform="translate(1054.040732 0.245312)"/>
+    <path d="M 66.290237 13.042187 
+L 66.290237 19.292187 
+L 101.360231 19.292187 
+L 101.360231 13.042187 
+L 66.290237 13.042187 
+z
+"/>
+    <path d="M 212.450456 13.042187 
+L 212.450456 19.292187 
+L 247.52045 19.292187 
+L 247.52045 13.042187 
+L 212.450456 13.042187 
+z
+"/>
+    <path d="M 358.610675 13.042187 
+L 358.610675 19.292187 
+L 393.680669 19.292187 
+L 393.680669 13.042187 
+L 358.610675 13.042187 
+z
+"/>
+    <path d="M 504.770894 13.042187 
+L 504.770894 19.292187 
+L 539.840887 19.292187 
+L 539.840887 13.042187 
+L 504.770894 13.042187 
+z
+"/>
+   </g>
+  </g>
+ </g>
+</svg>

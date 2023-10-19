@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.org/) -->
+<svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:butt;stroke-linejoin:round;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 54 
+L 378 54 
+L 378 0 
+L 0 0 
+z
+" style="fill:#ffffff;"/>
+  </g>
+  <g id="text_1">
+   <!-- $M \, M \thinspace M \/ M \&gt; M \: M \; M \ M \enspace M \quad M \qquad M \! M$ -->
+   <defs>
+    <path d="M 16.890625 72.90625 
+L 31.6875 72.90625 
+L 40.1875 23.78125 
+L 68.40625 72.90625 
+L 83.59375 72.90625 
+L 69.390625 0 
+L 59.8125 0 
+L 72.21875 63.921875 
+L 43.609375 14.015625 
+L 33.984375 14.015625 
+L 24.703125 64.109375 
+L 12.3125 0 
+L 2.6875 0 
+z
+" id="DejaVuSans-Oblique-4d"/>
+   </defs>
+   <g transform="translate(98.280000 30.311250)scale(0.120000 -0.120000)">
+    <use transform="translate(0.000000 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(102.514973 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(205.029946 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(307.544919 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(415.471135 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(523.397351 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(636.735784 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(755.485459 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(890.470811 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(1074.162217 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(1355.265732 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(1425.309353 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
+   </g>
+  </g>
+ </g>
+</svg>

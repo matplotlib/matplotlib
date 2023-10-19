@@ -1,0 +1,29 @@
+# Extra pip requirements for the GitHub Actions mypy build
+
+mypy==1.1.1
+typing-extensions>=4.1,<5
+
+# Extra stubs distributed separately from the main pypi package
+pandas-stubs
+types-pillow
+types-python-dateutil
+types-psutil
+
+sphinx
+
+# Default requirements, included here because mpl itself does not
+# need to be installed for mypy to run, but deps are needed
+# and pip has no --deps-only install command
+contourpy>=1.0.1
+cycler>=0.10
+fonttools>=4.22.0
+kiwisolver>=1.3.1
+numpy>=1.19
+packaging>=20.0
+pillow>=8
+pyparsing>=2.3.1
+python-dateutil>=2.7
+setuptools_scm>=7
+setuptools>=64
+
+importlib-resources>=3.2.0 ; python_version < "3.10"

@@ -1,0 +1,7 @@
+{%- if show_source and has_source and sourcename %}
+  <div id="sidebar-pagesource" role="note" aria-label="source link"
+    style="margin-top: 1.5em; padding-top: 0.1em; border-top: 1px solid #86989b">
+  <a href="{{ pathto('_sources/' + sourcename, true)|e }}"
+     style="color: #c0c0c0" rel="nofollow">{{ _('Show Page Source') }}</a>
+  </div>
+{%- endif %}

@@ -1,0 +1,171 @@
+# Python package
+# Create and test a Python package on multiple Python versions.
+# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/ecosystems/python?view=azure-devops
+
+trigger:
+  branches:
+    exclude:
+      - v*-doc
+pr:
+  branches:
+    exclude:
+      - v*-doc
+  paths:
+    exclude:
+      - doc/**/*
+      - galleries/**/*
+
+stages:
+
+- stage: Check
+  jobs:
+  - job: Skip
+    pool:
+      vmImage: 'ubuntu-latest'
+    variables:
+      DECODE_PERCENTS: 'false'
+      RET: 'true'
+    steps:
+    - bash: |
+        git_log=`git log --max-count=1 --skip=1 --pretty=format:"%B" | tr "\n" " "`
+        echo "##vso[task.setvariable variable=log]$git_log"
+    - bash: echo "##vso[task.setvariable variable=RET]false"
+      condition: or(contains(variables.log, '[skip azp]'), contains(variables.log, '[azp skip]'), contains(variables.log, '[skip ci]'), contains(variables.log, '[ci skip]'), contains(variables.log, '[ci doc]'))
+    - bash: echo "##vso[task.setvariable variable=start_main;isOutput=true]$RET"
+      name: result
+
+- stage: Main
+  condition: and(succeeded(), eq(dependencies.Check.outputs['Skip.result.start_main'], 'true'))
+  dependsOn: Check
+  jobs:
+    - job: Pytest
+      strategy:
+        matrix:
+          Linux_py39:
+            vmImage: 'ubuntu-20.04'  # keep one job pinned to the oldest image
+            python.version: '3.9'
+          Linux_py310:
+            vmImage: 'ubuntu-latest'
+            python.version: '3.10'
+          Linux_py311:
+            vmImage: 'ubuntu-latest'
+            python.version: '3.11'
+          macOS_py39:
+            vmImage: 'macOS-latest'
+            python.version: '3.9'
+          macOS_py310:
+            vmImage: 'macOS-latest'
+            python.version: '3.10'
+          macOS_py311:
+            vmImage: 'macOS-latest'
+            python.version: '3.11'
+          Windows_py39:
+            vmImage: 'windows-2019'  # keep one job pinned to the oldest image
+            python.version: '3.9'
+          Windows_py310:
+            vmImage: 'windows-latest'
+            python.version: '3.10'
+          Windows_py311:
+            vmImage: 'windows-latest'
+            python.version: '3.11'
+        maxParallel: 4
+      pool:
+        vmImage: '$(vmImage)'
+      steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '$(python.version)'
+          architecture: 'x64'
+        displayName: 'Use Python $(python.version)'
+        condition: and(succeeded(), ne(variables['python.version'], 'Pre'))
+
+      - task: stevedower.python.InstallPython.InstallPython@1
+        displayName: 'Use prerelease Python'
+        inputs:
+          prerelease: true
+        condition: and(succeeded(), eq(variables['python.version'], 'Pre'))
+
+      - bash: |
+          set -e
+          case "$(python -c 'import sys; print(sys.platform)')" in
+          linux)
+            echo 'Acquire::Retries "3";' | sudo tee /etc/apt/apt.conf.d/80-retries
+            sudo apt update
+            sudo apt install --no-install-recommends \
+              cm-super \
+              dvipng \
+              ffmpeg \
+              fonts-freefont-otf \
+              fonts-noto-cjk \
+              fonts-wqy-zenhei \
+              gdb \
+              gir1.2-gtk-3.0 \
+              graphviz \
+              inkscape \
+              libcairo2 \
+              libgirepository-1.0-1 \
+              lmodern \
+              ninja-build \
+              poppler-utils \
+              texlive-fonts-recommended \
+              texlive-latex-base \
+              texlive-latex-extra \
+              texlive-latex-recommended \
+              texlive-luatex \
+              texlive-pictures \
+              texlive-xetex
+            ;;
+          darwin)
+            brew install --cask xquartz
+            brew install ccache ffmpeg imagemagick mplayer ninja pkg-config
+            brew tap homebrew/cask-fonts
+            brew install font-noto-sans-cjk-sc
+            ;;
+          win32)
+            choco install ninja
+            ;;
+          *)
+            exit 1
+            ;;
+          esac
+        displayName: 'Install dependencies'
+
+      - bash: |
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade meson-python pybind11
+          python -m pip install -r requirements/testing/all.txt -r requirements/testing/extra.txt ||
+            [[ "$PYTHON_VERSION" = 'Pre' ]]
+        displayName: 'Install dependencies with pip'
+
+      - bash: |
+          python -m pip install \
+            --no-build-isolation --config-settings=setup-args="--vsenv" \
+            --verbose --editable .[dev] ||
+            [[ "$PYTHON_VERSION" = 'Pre' ]]
+        displayName: "Install self"
+
+      - script: env
+        displayName: 'print env'
+
+      - script: pip list
+        displayName: 'print pip'
+
+      - bash: |
+          PYTHONFAULTHANDLER=1 python -m pytest --junitxml=junit/test-results.xml -raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n 2 ||
+            [[ "$PYTHON_VERSION" = 'Pre' ]]
+        displayName: 'pytest'
+
+      - bash: |
+          bash <(curl -s https://codecov.io/bash)  -f "!*.gcov" -X gcov
+        displayName: 'Upload to codecov.io'
+
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFiles: '**/test-results.xml'
+          testRunTitle: 'Python $(python.version)'
+        condition: succeededOrFailed()
+
+      - publish: $(System.DefaultWorkingDirectory)/result_images
+        artifact: $(Agent.JobName)-result_images
+        condition: and(failed(), ne(variables['python.version'], 'Pre'))

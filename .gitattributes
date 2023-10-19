@@ -1,0 +1,6 @@
+* text=auto
+*.m diff=objc
+*.ppm binary
+*.svg binary
+*.svg linguist-language=true
+.git_archival.txt export-subst

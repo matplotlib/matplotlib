@@ -1,0 +1,163 @@
+:root {
+    --pst-color-link: var(--pst-color-primary);
+    --pst-color-link-hover: var(--pst-color-secondary);
+    --sd-color-primary: var(--pst-color-primary);
+    --sd-color-primary-text: var(--pst-color-text-base);
+}
+
+.simple li>p {
+    margin: 0;
+}
+
+/* Make announcement an error colour for unreleased documentation, and sticky. */
+#unreleased-message.bd-header-announcement {
+    border-bottom: solid var(--pst-color-danger-highlight);
+    color: var(--pst-color-danger-text);
+    font-weight: var(--pst-admonition-font-weight-heading);
+    position: sticky;
+    top: 0;
+    z-index: 1050;
+}
+
+#unreleased-message.bd-header-announcement:after {
+    background-color: var(--pst-color-danger);
+    opacity: 1;
+}
+
+#unreleased-message.bd-header-announcement a {
+    color: var(--pst-color-danger-text);
+}
+
+#unreleased-message.bd-header-announcement + .bd-navbar {
+    top: 3rem;  /* Minimum height of announcement header. */
+}
+
+/* multi column TOC */
+.contents ul {
+    list-style-type: none;
+    padding-left: 2em;
+}
+
+.contents > ul {
+    padding-left: 0;
+}
+
+.multicol-toc > ul {
+    column-width: 250px;
+    column-gap: 60px;
+    -webkit-column-width: 250px;
+    -moz-column-width: 250px;
+    column-rule: 1px solid #ccc;
+}
+
+.multicol-toc > li {
+       /* break inside is not yet broadly supported, but we just try */
+    break-inside: avoid-column;
+    -moz-break-inside: avoid-column;
+    -webkit-break-inside: avoid-column;
+}
+
+.contents > ul > li > a {
+    font-size: 1.0em;
+}
+
+/* Hide red ¶ between the thumbnail and caption in gallery
+
+Due the way that sphinx-gallery floats its captions the perma-link
+does not float with it.
+*/
+.sphx-glr-thumbcontainer p.caption:hover > a.headerlink{
+    visibility: hidden;
+}
+
+/* slightly reduce horizontal margin compared to gallery.css to
+ * get four columns of thumbnails in the pydata-sphinx-theme. */
+.sphx-glr-thumbcontainer {
+    margin: 5px 2px;
+}
+
+html[data-theme="dark"] .sphx-glr-thumbcontainer {
+    background-color: rgb(63, 63, 63);
+}
+
+/* workaround: the default padding decenters the image inside the frame */
+.sphx-glr-thumbcontainer .figure {
+    padding: 0;
+}
+
+/* hide download buttons in example headers
+ * https://sphinx-gallery.github.io/stable/advanced.html#hide-the-download-buttons-in-the-example-headers
+ */
+div.sphx-glr-download-link-note {
+    display: none;
+}
+
+/* re-style the download button */
+div.sphx-glr-download a {
+    background-color: #E3F0F6;
+    background-image: none;
+    color: #11557c;
+    border: 0;
+}
+
+div.sphx-glr-download a:hover {
+    background-color: #BCD4DF;
+}
+
+/* Do not fold multiple figures in examples into two column layout. */
+img.sphx-glr-multi-img {
+    max-width: 100%;
+}
+
+table.property-table th,
+table.property-table td {
+    padding: 4px 10px;
+}
+
+/* Fix selection of parameter names; remove when fixed in the theme
+ * https://github.com/sphinx-doc/sphinx/pull/9763
+ */
+.classifier:before {
+    display: inline-block;
+    margin: 0 0.5em;
+}
+
+/* Make the code examples in the API reference index the same height. */
+.api-interface-example pre {
+    min-height: 6.5rem;
+}
+
+/* Make inheritance images have a scroll bar if necessary. */
+div.graphviz {
+    border: 1px solid lightgrey;
+    max-height: 50em;
+    overflow: auto;
+}
+img.graphviz.inheritance {
+    max-width: none;
+}
+
+/* Make tables in notes horizontally scrollable if too large. */
+div.wide-table {
+    overflow-x: auto;
+}
+
+div.wide-table table th.stub {
+    background-color: var(--pst-color-background);
+    background-clip: padding-box;
+    left: 0;
+    position: sticky;
+}
+
+.imrot-img {
+    display: flex;
+    margin: auto;
+    max-width:15em;
+    align-self: center;
+  }
+
+  .imrot-cap {
+    text-align: center;
+    font-style: italic;
+    font-size:  large;
+  }

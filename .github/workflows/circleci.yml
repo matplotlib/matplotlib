@@ -1,0 +1,70 @@
+---
+name: "CircleCI artifact handling"
+on: [status]
+jobs:
+  circleci_artifacts_redirector_job:
+    if: "${{ github.event.context == 'ci/circleci: docs-python39' }}"
+    permissions:
+      statuses: write
+    runs-on: ubuntu-latest
+    name: Run CircleCI artifacts redirector
+    steps:
+      - name: GitHub Action step
+        uses: larsoner/circleci-artifacts-redirector-action@master
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          api-token: ${{ secrets.CIRCLECI_TOKEN }}
+          artifact-path: 0/doc/build/html/index.html
+          circleci-jobs: docs-python39
+          job-title: View the built docs
+
+  post_warnings_as_review:
+    if: "${{ github.event.context == 'ci/circleci: docs-python39' }}"
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    name: Post warnings/errors as review
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch result artifacts
+        id: fetch-artifacts
+        run: |
+          python .circleci/fetch_doc_logs.py "${{ github.event.target_url }}"
+
+      - name: Set up reviewdog
+        if: "${{ steps.fetch-artifacts.outputs.count != 0 }}"
+        uses: reviewdog/action-setup@v1
+        with:
+          reviewdog_version: latest
+
+      - name: Post review
+        if: "${{ steps.fetch-artifacts.outputs.count != 0 }}"
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REVIEWDOG_SKIP_DOGHOUSE: "true"
+          CI_COMMIT: ${{ github.event.sha }}
+          CI_REPO_OWNER: ${{ github.event.repository.owner.login }}
+          CI_REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          # The 'status' event does not contain information in the way that
+          # reviewdog expects, so we unset those so it reads from the
+          # environment variables we set above.
+          unset GITHUB_ACTIONS GITHUB_EVENT_PATH
+          cat logs/sphinx-errors-warnings.log | \
+            reviewdog \
+              -efm '%f\:%l: %tEBUG: %m' \
+              -efm '%f\:%l: %tNFO: %m' \
+              -efm '%f\:%l: %tARNING: %m' \
+              -efm '%f\:%l: %tRROR: %m' \
+              -efm '%f\:%l: %tEVERE: %m' \
+              -efm '%f\:%s: %tARNING: %m' \
+              -efm '%f\:%s: %tRROR: %m' \
+              -name=sphinx -tee -fail-on-error=false \
+              -reporter=github-check -filter-mode=nofilter
+          cat logs/sphinx-deprecations.log | \
+            reviewdog \
+              -efm '%f\:%l: %m' \
+              -name=examples -tee -reporter=github-check -filter-mode=nofilter

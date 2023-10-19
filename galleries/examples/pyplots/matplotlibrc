@@ -1,0 +1,3 @@
+# local matplotlibrc for generating image files in this directory
+backend      : Agg
+figure.figsize   : 6, 4    # figure size in inches

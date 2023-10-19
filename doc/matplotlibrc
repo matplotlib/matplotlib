@@ -1,0 +1,5 @@
+backend            : Agg
+figure.figsize     : 5.5, 4.5 # figure size in inches
+savefig.dpi        : 80       # figure dots per inch
+docstring.hardcopy : True     # set this when you want to generate hardcopy docstring
+animation.embed_limit : 30    # allow embedded animations to be big

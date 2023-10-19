@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+{% set title = _('Search') %}
+{%- block scripts %}
+    {{ super() }}
+    <script type="text/javascript" src="{{ pathto('_static/searchtools.js', 1) }}"></script>
+    <script type="text/javascript" src="{{ pathto('_static/language_data.js', 1) }}"></script>
+{%- endblock %}
+{% block body %}
+  <h1 id="search-documentation">{{ _('Search') }}</h1>
+  <p>
+    {% trans %}Searching for multiple words only shows matches that contain
+    all words.{% endtrans %}
+  </p>
+  <p>
+    If you want to limit your search to working code examples, include the
+    keyword "codex" (mnemonic for <i>code example</i>) in your search, e.g.,
+    "codex ellipse".
+  </p>
+  <form action="" method="get">
+    <input type="text" name="q" value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+    <input type="submit" value="{{ _('search') }}" />
+    <span id="search-progress" style="padding-left: 10px"></span>
+  </form>
+  {% if search_performed %}
+    <h2>{{ _('Search Results') }}</h2>
+    {% if not search_results %}
+      <p>{{ _('Your search did not match any results.') }}</p>
+    {% endif %}
+  {% endif %}
+  <div id="search-results">
+  {% if search_results %}
+    <ul>
+    {% for href, caption, context in search_results %}
+      <li><a href="{{ pathto(item.href) }}">{{ caption }}</a>
+        <div class="context">{{ context|e }}</div>
+      </li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+  </div>
+{% endblock %}
+{% block footer %}
+  {{ super() }}
+  <script type="text/javascript" src="{{ pathto('searchindex.js', 1) }}" defer></script>
+{% endblock %}

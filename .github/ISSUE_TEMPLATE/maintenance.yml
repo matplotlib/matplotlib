@@ -1,0 +1,17 @@
+name: Maintenance
+description: Help improve performance, usability and/or consistency.
+title: "[MNT]: "
+labels: [Maintenance]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description:  Please provide 1-2 short sentences that succinctly describes what could be improved.
+    validations:
+      required: true
+  - type: textarea
+    id: fix
+    attributes:
+      label: Proposed fix
+      description: Please describe how you think this could be improved.

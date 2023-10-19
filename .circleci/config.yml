@@ -1,0 +1,253 @@
+# Circle CI configuration file
+# https://circleci.com/docs/
+
+version: 2.1
+
+
+#######################################
+# Define some common steps as commands.
+#
+
+commands:
+  check-skip:
+    steps:
+      - run:
+          name: Check-skip
+          command: |
+            export git_log=$(git log --max-count=1 --pretty=format:"%B" | tr "\n" " ")
+            echo "Got commit message:"
+            echo "${git_log}"
+            if [[ -v CIRCLE_PULL_REQUEST ]] && ([[ "$git_log" == *"[skip circle]"* ]] || [[ "$git_log" == *"[circle skip]"* ]]); then
+              echo "Skip detected, exiting job ${CIRCLE_JOB} for PR ${CIRCLE_PULL_REQUEST}."
+              circleci-agent step halt;
+            fi
+
+  merge:
+    steps:
+      - run:
+          name: Merge with upstream
+          command: |
+            if ! git remote -v | grep upstream; then
+              git remote add upstream https://github.com/matplotlib/matplotlib.git
+            fi
+            git fetch upstream
+            if [[ "$CIRCLE_BRANCH" != "main" ]] && \
+               [[ "$CIRCLE_PR_NUMBER" != "" ]]; then
+              echo "Merging ${CIRCLE_PR_NUMBER}"
+              git pull --ff-only upstream "refs/pull/${CIRCLE_PR_NUMBER}/merge"
+            fi
+
+  apt-install:
+    steps:
+      - run:
+          name: Install apt packages
+          command: |
+            sudo apt-get -qq update
+            sudo apt-get install -yy --no-install-recommends \
+              cm-super \
+              dvipng \
+              ffmpeg \
+              fonts-crosextra-carlito \
+              fonts-freefont-otf \
+              fonts-humor-sans \
+              fonts-noto-cjk \
+              fonts-wqy-zenhei \
+              graphviz \
+              inkscape \
+              lmodern \
+              ninja-build \
+              optipng \
+              texlive-fonts-recommended \
+              texlive-latex-base \
+              texlive-latex-extra \
+              texlive-latex-recommended \
+              texlive-pictures \
+              texlive-xetex
+
+  fonts-install:
+    steps:
+      - restore_cache:
+          key: fonts-2
+      - run:
+          name: Install custom fonts
+          command: |
+            mkdir -p ~/.local/share/fonts
+            wget -nc https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O ~/.local/share/fonts/Felipa-Regular.ttf || true
+            fc-cache -f -v
+      - save_cache:
+          key: fonts-2
+          paths:
+            - ~/.local/share/fonts/
+
+  pip-install:
+    description: Upgrade pip and setuptools and wheel to get as clean an install as possible
+    steps:
+      - run:
+          name: Upgrade pip, setuptools, wheel
+          command: |
+            python -m pip install --upgrade --user pip
+            python -m pip install --upgrade --user wheel
+            python -m pip install --upgrade --user 'setuptools!=60.6.0'
+
+  doc-deps-install:
+    parameters:
+      numpy_version:
+        type: string
+        default: ""
+    steps:
+      - run:
+          name: Install Python dependencies
+          command: |
+            python -m pip install --user meson-python pybind11
+            python -m pip install --user \
+                numpy<< parameters.numpy_version >> \
+                -r requirements/doc/doc-requirements.txt
+            python -m pip install --no-deps --user \
+                git+https://github.com/matplotlib/mpl-sphinx-theme.git
+
+  mpl-install:
+    steps:
+      - run:
+          name: Install Matplotlib
+          command: |
+            if [[ "$CIRCLE_BRANCH" == v*-doc ]]; then
+              # The v*-doc branches must build against the specified release.
+              version=${CIRCLE_BRANCH%-doc}
+              version=${version#v}
+              python -m pip install matplotlib==${version}
+            else
+              python -m pip install --user --verbose \
+                --no-build-isolation --editable .[dev]
+            fi
+      - save_cache:
+          key: build-deps-2
+          paths:
+            - subprojects/packagecache
+
+  doc-build:
+    steps:
+      - restore_cache:
+          keys:
+            - sphinx-env-v1-{{ .BuildNum }}-{{ .Environment.CIRCLE_JOB }}
+            - sphinx-env-v1-{{ .Environment.CIRCLE_PREVIOUS_BUILD_NUM }}-{{ .Environment.CIRCLE_JOB }}
+      - run:
+          name: Build documentation
+          command: |
+            # Set epoch to date of latest tag.
+            export SOURCE_DATE_EPOCH="$(git log -1 --format=%at $(git describe --abbrev=0))"
+            # Set release mode only when deploying to devdocs.
+            if [ "$CIRCLE_PROJECT_USERNAME" = "matplotlib" ] && \
+               [ "$CIRCLE_BRANCH" = "main" ] && \
+               [ "$CIRCLE_PR_NUMBER" = "" ]; then
+              export RELEASE_TAG='-t release'
+            fi
+            mkdir -p logs
+            make html O="-T $RELEASE_TAG -j4 -w /tmp/sphinxerrorswarnings.log"
+            rm -r build/html/_sources
+          working_directory: doc
+      - save_cache:
+          key: sphinx-env-v1-{{ .BuildNum }}-{{ .Environment.CIRCLE_JOB }}
+          paths:
+            - doc/build/doctrees
+
+  doc-show-errors-warnings:
+    steps:
+      - run:
+          name: Extract possible build errors and warnings
+          command: |
+            (grep "WARNING\|ERROR" /tmp/sphinxerrorswarnings.log ||
+             echo "No errors or warnings")
+            # Save logs as an artifact, and convert from absolute paths to
+            # repository-relative paths.
+            sed "s~$PWD/~~" /tmp/sphinxerrorswarnings.log > \
+              doc/logs/sphinx-errors-warnings.log
+          when: always
+      - store_artifacts:
+          path: doc/logs/sphinx-errors-warnings.log
+
+  doc-show-deprecations:
+    steps:
+      - run:
+          name: Extract possible deprecation warnings in examples and tutorials
+          command: |
+            (grep -rl DeprecationWarning doc/build/html/gallery ||
+             echo "No deprecation warnings in gallery")
+            (grep -rl DeprecationWarning doc/build/html/plot_types ||
+             echo "No deprecation warnings in plot_types")
+            (grep -rl DeprecationWarning doc/build/html/tutorials ||
+             echo "No deprecation warnings in tutorials")
+            # Save deprecations that are from this absolute directory, and
+            # convert to repository-relative paths.
+            (grep -Ero --no-filename "$PWD/.+DeprecationWarning.+$" \
+             doc/build/html/{gallery,plot_types,tutorials} || echo) | \
+              sed "s~$PWD/~~" > doc/logs/sphinx-deprecations.log
+          when: always
+      - store_artifacts:
+          path: doc/logs/sphinx-deprecations.log
+
+  doc-bundle:
+    steps:
+      - run:
+          name: Bundle sphinx-gallery documentation artifacts
+          command: >
+            tar cf doc/build/sphinx-gallery-files.tar.gz
+            doc/api/_as_gen
+            doc/gallery
+            doc/plot_types
+            doc/tutorials
+          when: always
+      - store_artifacts:
+          path: doc/build/sphinx-gallery-files.tar.gz
+
+
+##########################################
+# Here is where the real jobs are defined.
+#
+
+jobs:
+  docs-python39:
+    docker:
+      - image: cimg/python:3.9
+    resource_class: large
+    steps:
+      - checkout
+      - check-skip
+      - merge
+
+      - apt-install
+      - fonts-install
+      - pip-install
+
+      - doc-deps-install
+      - mpl-install
+
+      - doc-build
+      - doc-show-errors-warnings
+      - doc-show-deprecations
+
+      - doc-bundle
+
+      - store_artifacts:
+          path: doc/build/html
+      - store_test_results:
+          path: doc/build/test-results
+
+      - add_ssh_keys:
+          fingerprints:
+            - "be:c3:c1:d8:fb:a1:0e:37:71:72:d7:a3:40:13:8f:14"
+
+      - deploy:
+          name: "Deploy new docs"
+          command: ./.circleci/deploy-docs.sh
+
+#########################################
+# Defining workflows gets us parallelism.
+#
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      # NOTE: If you rename this job, then you must update the `if` condition
+      # and `circleci-jobs` option in `.github/workflows/circleci.yml`.
+      - docs-python39
