@@ -471,11 +471,11 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
         legend_handle.set_clip_box(None)
         legend_handle.set_clip_path(None)
 
-    def create_collection(self, orig_handle, sizes, offsets, offset_transform):
+    def create_collection(self, orig_handle, sizes, offsets, trans):
         return type(orig_handle)(
             orig_handle.get_numsides(),
             rotation=orig_handle.get_rotation(), sizes=sizes,
-            offsets=offsets, offset_transform=offset_transform,
+            offsets=offsets, trans=trans,
         )
 
     def create_artists(self, legend, orig_handle,
@@ -493,29 +493,29 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
 
         p = self.create_collection(
             orig_handle, sizes,
-            offsets=list(zip(xdata_marker, ydata)), offset_transform=trans)
+            offsets=list(zip(xdata_marker, ydata)), trans=trans)
 
         self.update_prop(p, orig_handle, legend)
-        p.set_offset_transform(trans)
+        p.set_trans(trans)
         return [p]
 
 
 class HandlerPathCollection(HandlerRegularPolyCollection):
     r"""Handler for `.PathCollection`\s, which are used by `~.Axes.scatter`."""
 
-    def create_collection(self, orig_handle, sizes, offsets, offset_transform):
+    def create_collection(self, orig_handle, sizes, offsets, trans):
         return type(orig_handle)(
             [orig_handle.get_paths()[0]], sizes=sizes,
-            offsets=offsets, offset_transform=offset_transform,
+            offsets=offsets, trans=trans,
         )
 
 
 class HandlerCircleCollection(HandlerRegularPolyCollection):
     r"""Handler for `.CircleCollection`\s."""
 
-    def create_collection(self, orig_handle, sizes, offsets, offset_transform):
+    def create_collection(self, orig_handle, sizes, offsets, trans):
         return type(orig_handle)(
-            sizes, offsets=offsets, offset_transform=offset_transform)
+            sizes, offsets=offsets, trans=trans)
 
 
 class HandlerErrorbar(HandlerLine2D):

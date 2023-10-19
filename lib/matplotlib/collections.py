@@ -30,7 +30,7 @@ from ._enums import JoinStyle, CapStyle
     "facecolor": ["facecolors", "fc"],
     "linestyle": ["linestyles", "dashes", "ls"],
     "linewidth": ["linewidths", "lw"],
-    "offset_transform": ["transOffset"],
+    "trans": ["transOffset"],
 })
 class Collection(artist.Artist, cm.ScalarMappable):
     r"""
@@ -84,7 +84,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  joinstyle=None,
                  antialiaseds=None,
                  offsets=None,
-                 offset_transform=None,
+                 trans=None,
                  norm=None,  # optional for ScalarMappable
                  cmap=None,  # ditto
                  pickradius=5.0,
@@ -126,7 +126,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             A vector by which to translate each patch after rendering (default
             is no translation). The translation is performed in screen (pixel)
             coordinates (i.e. after the Artist's transform is applied).
-        offset_transform : `~.Transform`, default: `.IdentityTransform`
+        trans : `~.Transform`, default: `.IdentityTransform`
             A single transform which will be applied to each *offsets* vector
             before it is used.
         cmap, norm
@@ -197,7 +197,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 offsets = offsets[None, :]
 
         self._offsets = offsets
-        self._offset_transform = offset_transform
+        self._trans = trans
 
         self._path_effects = None
         self._internal_update(kwargs)
@@ -213,25 +213,25 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def get_transforms(self):
         return self._transforms
 
-    def get_offset_transform(self):
+    def get_trans(self):
         """Return the `.Transform` instance used by this artist offset."""
-        if self._offset_transform is None:
-            self._offset_transform = transforms.IdentityTransform()
-        elif (not isinstance(self._offset_transform, transforms.Transform)
-              and hasattr(self._offset_transform, '_as_mpl_transform')):
-            self._offset_transform = \
-                self._offset_transform._as_mpl_transform(self.axes)
-        return self._offset_transform
+        if self._trans is None:
+            self._trans = transforms.IdentityTransform()
+        elif (not isinstance(self._trans, transforms.Transform)
+              and hasattr(self._trans, '_as_mpl_transform')):
+            self._trans = \
+                self._trans._as_mpl_transform(self.axes)
+        return self._trans
 
-    def set_offset_transform(self, offset_transform):
+    def set_trans(self, trans):
         """
         Set the artist offset transform.
 
         Parameters
         ----------
-        offset_transform : `.Transform`
+        trans : `.Transform`
         """
-        self._offset_transform = offset_transform
+        self._trans = trans
 
     def get_datalim(self, transData):
         # Calculate the data limits and return them as a `.Bbox`.
@@ -241,7 +241,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         #
         # 1. offsets = None, transform child of transData: use the paths for
         # the automatic limits (i.e. for LineCollection in streamline).
-        # 2. offsets != None: offset_transform is child of transData:
+        # 2. offsets != None: trans is child of transData:
         #
         #    a. transform is child of transData: use the path + offset for
         #       limits (i.e for bar).
@@ -251,7 +251,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # 3. otherwise return a null Bbox.
 
         transform = self.get_transform()
-        offset_trf = self.get_offset_transform()
+        offset_trf = self.get_trans()
         if not (isinstance(offset_trf, transforms.IdentityTransform)
                 or offset_trf.contains_branch(transData)):
             # if the offsets are in some coords other than data,
@@ -311,7 +311,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # Helper for drawing and hit testing.
 
         transform = self.get_transform()
-        offset_trf = self.get_offset_transform()
+        offset_trf = self.get_trans()
         offsets = self.get_offsets()
         paths = self.get_paths()
 
@@ -1292,7 +1292,7 @@ class RegularPolyCollection(_CollectionWithSizes):
                 edgecolors=("black",),
                 linewidths=(1,),
                 offsets=offsets,
-                offset_transform=ax.transData,
+                trans=ax.transData,
                 )
         """
         super().__init__(**kwargs)
@@ -2141,7 +2141,7 @@ class QuadMesh(_MeshData, Collection):
             return
         renderer.open_group(self.__class__.__name__, self.get_gid())
         transform = self.get_transform()
-        offset_trf = self.get_offset_transform()
+        offset_trf = self.get_trans()
         offsets = self.get_offsets()
 
         if self.have_units():

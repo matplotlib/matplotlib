@@ -1118,7 +1118,7 @@ class CheckButtons(AxesWidget):
             *self._frames.contains(event)[1]["ind"],
             *[i for i, text in enumerate(self.labels) if text.contains(event)[0]]]
         if idxs:
-            coords = self._frames.get_offset_transform().transform(
+            coords = self._frames.get_trans().transform(
                 self._frames.get_offsets())
             self.set_active(  # Closest index, only looking in idxs.
                 idxs[(((event.x, event.y) - coords[idxs]) ** 2).sum(-1).argmin()])
@@ -1697,7 +1697,7 @@ class RadioButtons(AxesWidget):
             *self._buttons.contains(event)[1]["ind"],
             *[i for i, text in enumerate(self.labels) if text.contains(event)[0]]]
         if idxs:
-            coords = self._buttons.get_offset_transform().transform(
+            coords = self._buttons.get_trans().transform(
                 self._buttons.get_offsets())
             self.set_active(  # Closest index, only looking in idxs.
                 idxs[(((event.x, event.y) - coords[idxs]) ** 2).sum(-1).argmin()])

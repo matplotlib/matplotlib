@@ -4759,7 +4759,7 @@ default: :rc:`scatter.edgecolors`
             edgecolors=edgecolors,
             linewidths=linewidths,
             offsets=offsets,
-            offset_transform=kwargs.pop('transform', self.transData),
+            trans=kwargs.pop('transform', self.transData),
             alpha=alpha,
         )
         collection.set_transform(mtransforms.IdentityTransform())
@@ -5089,7 +5089,7 @@ default: :rc:`scatter.edgecolors`
                 edgecolors=edgecolors,
                 linewidths=linewidths,
                 offsets=offsets,
-                offset_transform=mtransforms.AffineDeltaTransform(
+                trans=mtransforms.AffineDeltaTransform(
                     self.transData),
             )
 

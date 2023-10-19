@@ -136,5 +136,5 @@ def get_path_collection_extents(
     paths: Sequence[Path],
     transforms: Iterable[Affine2D],
     offsets: ArrayLike,
-    offset_transform: Affine2D,
+    trans: Affine2D,
 ) -> Bbox: ...

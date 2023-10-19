@@ -272,7 +272,7 @@ Miscellaneous deprecations
 - ``Collection.__init__`` previously ignored *transOffset* without *offsets* also
   being specified. In the future, *transOffset* will begin having an effect
   regardless of *offsets*. In the meantime, if you wish to set *transOffset*,
-  call `.Collection.set_offset_transform` explicitly.
+  call `.Collection.set_trans` explicitly.
 - ``Colorbar.patch`` is deprecated; this attribute is not correctly updated
   anymore.
 - ``ContourLabeler.get_label_width`` is deprecated.

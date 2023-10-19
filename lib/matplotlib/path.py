@@ -1050,7 +1050,7 @@ class Path:
 
 
 def get_path_collection_extents(
-        master_transform, paths, transforms, offsets, offset_transform):
+        master_transform, paths, transforms, offsets, trans):
     r"""
     Get bounding box of a `.PathCollection`\s internal objects.
 
@@ -1065,7 +1065,7 @@ def get_path_collection_extents(
     transforms : list of `~matplotlib.transforms.Affine2DBase`
         If non-empty, this overrides *master_transform*.
     offsets : (N, 2) array-like
-    offset_transform : `~matplotlib.transforms.Affine2DBase`
+    trans : `~matplotlib.transforms.Affine2DBase`
         Transform applied to the offsets before offsetting the path.
 
     Notes
@@ -1089,5 +1089,5 @@ def get_path_collection_extents(
             " be removed %(removal)s.")
     extents, minpos = _path.get_path_collection_extents(
         master_transform, paths, np.atleast_3d(transforms),
-        offsets, offset_transform)
+        offsets, trans)
     return Bbox.from_extents(*extents, minpos=minpos)

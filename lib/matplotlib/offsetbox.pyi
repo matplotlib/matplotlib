@@ -92,7 +92,7 @@ class DrawingArea(OffsetBox):
     height: float
     xdescent: float
     ydescent: float
-    offset_transform: Transform
+    trans: Transform
     dpi_transform: Transform
     def __init__(
         self,
@@ -114,7 +114,7 @@ class DrawingArea(OffsetBox):
     def add_artist(self, a: martist.Artist) -> None: ...
 
 class TextArea(OffsetBox):
-    offset_transform: Transform
+    trans: Transform
     def __init__(
         self,
         s: str,
@@ -133,8 +133,8 @@ class TextArea(OffsetBox):
 
 class AuxTransformBox(OffsetBox):
     aux_transform: Transform
-    offset_transform: Transform
-    ref_offset_transform: Transform
+    trans: Transform
+    ref_trans: Transform
     def __init__(self, aux_transform: Transform) -> None: ...
     def add_artist(self, a: martist.Artist) -> None: ...
     def get_transform(self) -> Transform: ...

@@ -881,7 +881,7 @@ Pull Requests (894):
 * :ghpull:`22140`: Ensure log formatters use Unicode minus
 * :ghpull:`21342`: Fix drawing animated artists changed in selector callback
 * :ghpull:`22134`: Deprecated ``tight_bbox`` and ``tight_layout`` modules
-* :ghpull:`21965`: Switch transOffset to offset_transform.
+* :ghpull:`21965`: Switch transOffset to trans.
 * :ghpull:`22145`: Make Tk windows use the same icon as other backends
 * :ghpull:`22107`: Expire mathttext-related deprecations
 * :ghpull:`22139`: FIX: width/height were reversed in macosx rectangle creation

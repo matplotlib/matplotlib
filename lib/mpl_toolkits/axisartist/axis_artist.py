@@ -688,7 +688,7 @@ class AxisArtist(martist.Artist):
 
         if offset is None:
             offset = (0, 0)
-        self.offset_transform = ScaledTranslation(
+        self.trans = ScaledTranslation(
             *offset,
             Affine2D().scale(1 / 72)  # points to inches.
             + self.axes.figure.dpi_scale_trans)
@@ -787,7 +787,7 @@ class AxisArtist(martist.Artist):
             {"+": 0, "-": 180}, label_direction=label_direction)
 
     def get_transform(self):
-        return self.axes.transAxes + self.offset_transform
+        return self.axes.transAxes + self.trans
 
     def get_helper(self):
         """
@@ -837,7 +837,7 @@ class AxisArtist(martist.Artist):
         Initialize the *line* artist that is responsible to draw the axis line.
         """
         tran = (self._axis_artist_helper.get_line_transform(self.axes)
-                + self.offset_transform)
+                + self.trans)
 
         axisline_style = self.get_axisline_style()
         if axisline_style is None:
@@ -862,7 +862,7 @@ class AxisArtist(martist.Artist):
         axis_name = self.axis.axis_name
 
         trans = (self._axis_artist_helper.get_tick_transform(self.axes)
-                 + self.offset_transform)
+                 + self.trans)
 
         self.major_ticks = Ticks(
             kwargs.get(
@@ -987,7 +987,7 @@ class AxisArtist(martist.Artist):
 
     def _init_label(self, **kwargs):
         tr = (self._axis_artist_helper.get_axislabel_transform(self.axes)
-              + self.offset_transform)
+              + self.trans)
         self.label = AxisLabel(
             0, 0, "__from_axes__",
             color="auto",

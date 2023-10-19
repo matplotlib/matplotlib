@@ -30,7 +30,7 @@ class LassoManager:
         # collection's array (0 = out, 1 = in), which then gets colormapped to blue
         # (out) and red (in).
         self.collection = RegularPolyCollection(
-            6, sizes=(100,), offset_transform=ax.transData,
+            6, sizes=(100,), trans=ax.transData,
             offsets=data, array=np.zeros(len(data)),
             clim=(0, 1), cmap=mcolors.ListedColormap(["tab:blue", "tab:red"]))
         ax.add_collection(self.collection)

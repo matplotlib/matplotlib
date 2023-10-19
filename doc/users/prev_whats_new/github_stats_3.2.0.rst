@@ -465,7 +465,7 @@ Pull Requests (839):
 * :ghpull:`15242`: Cleanup widgets docstrings.
 * :ghpull:`14889`: Support pixel-by-pixel alpha in imshow.
 * :ghpull:`14928`: Logit scale nonsingular
-* :ghpull:`14998`: Fix nonlinear spine positions & inline Spine._calc_offset_transform into get_spine_transform.
+* :ghpull:`14998`: Fix nonlinear spine positions & inline Spine._calc_trans into get_spine_transform.
 * :ghpull:`15231`: Doc: Do not write default for non-existing rcParams
 * :ghpull:`15222`: Cleanup projections/__init__.py.
 * :ghpull:`15228`: Minor docstring style cleanup
@@ -705,7 +705,7 @@ Pull Requests (839):
 * :ghpull:`14794`: DOC: Update the documentation of homepage of website
 * :ghpull:`14629`: Delete HTML build sources to save on artefact upload time
 * :ghpull:`14792`: Fix spelling typos
-* :ghpull:`14789`: Prefer Affine2D.translate to offset_transform in examples.
+* :ghpull:`14789`: Prefer Affine2D.translate to trans in examples.
 * :ghpull:`14783`: Cleanup mlab.detrend.
 * :ghpull:`14791`: Make 'extended' and 'expanded' synonymous in font_manager
 * :ghpull:`14787`: Remove axis_artist _update, which is always a noop.

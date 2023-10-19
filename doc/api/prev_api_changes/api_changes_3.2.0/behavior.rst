@@ -90,7 +90,7 @@ properties of the `.Collection` object:
 
 1. ``offsets = None``, ``transform`` is a child of ``Axes.transData``: use the paths
    for the automatic limits (i.e. for `.LineCollection` in `.Axes.streamplot`).
-2. ``offsets != None``, and ``offset_transform`` is child of ``Axes.transData``:
+2. ``offsets != None``, and ``trans`` is child of ``Axes.transData``:
 
    a) ``transform`` is child of ``Axes.transData``: use the ``path + offset`` for
       limits (i.e., for `.Axes.bar`).

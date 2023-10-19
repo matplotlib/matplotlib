@@ -175,7 +175,7 @@ static PyObject *Py_update_path_extents(PyObject *self, PyObject *args)
 
 const char *Py_get_path_collection_extents__doc__ =
     "get_path_collection_extents("
-    "master_transform, paths, transforms, offsets, offset_transform)\n"
+    "master_transform, paths, transforms, offsets, trans)\n"
     "--\n\n";
 
 static PyObject *Py_get_path_collection_extents(PyObject *self, PyObject *args)

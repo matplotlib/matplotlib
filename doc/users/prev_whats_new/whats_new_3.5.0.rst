@@ -123,7 +123,7 @@ parameter, also accepts these new styles.
 Setting collection offset transform after initialization
 --------------------------------------------------------
 
-The added `.collections.Collection.set_offset_transform` may be used to set the
+The added `.collections.Collection.set_trans` may be used to set the
 offset transform after initialization. This can be helpful when creating a
 `.collections.Collection` outside an Axes object, and later adding it with
 `.Axes.add_collection()` and setting the offset transform to ``Axes.transData``.

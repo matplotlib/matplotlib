@@ -77,7 +77,7 @@ def test_collection_transform_of_none():
     c = mcollections.PatchCollection([e], facecolor='yellow', alpha=0.5)
     ax.add_collection(c)
     # the collection should be in data coordinates
-    assert c.get_offset_transform() + c.get_transform() == ax.transData
+    assert c.get_trans() + c.get_transform() == ax.transData
 
     # providing a transform of None puts the ellipse in device coordinates
     e = mpatches.Ellipse(xy_pix, width=120, height=120)
@@ -93,7 +93,7 @@ def test_collection_transform_of_none():
                                      transform=mtransforms.IdentityTransform(),
                                      alpha=0.5)
     ax.add_collection(c)
-    assert isinstance(c.get_offset_transform(), mtransforms.IdentityTransform)
+    assert isinstance(c.get_trans(), mtransforms.IdentityTransform)
 
 
 @image_comparison(["clip_path_clipping"], remove_text=True)
@@ -169,7 +169,7 @@ def test_hatching():
     ax.add_patch(rect1)
 
     rect2 = mcollections.RegularPolyCollection(
-        4, sizes=[16000], offsets=[(1.5, 6.5)], offset_transform=ax.transData,
+        4, sizes=[16000], offsets=[(1.5, 6.5)], trans=ax.transData,
         hatch='/')
     ax.add_collection(rect2)
 
@@ -178,7 +178,7 @@ def test_hatching():
     ax.add_patch(rect3)
 
     rect4 = mcollections.RegularPolyCollection(
-        4, sizes=[16000], offsets=[(5.5, 6.5)], offset_transform=ax.transData,
+        4, sizes=[16000], offsets=[(5.5, 6.5)], trans=ax.transData,
         hatch='/', edgecolor='C1')
     ax.add_collection(rect4)
 

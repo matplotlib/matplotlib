@@ -172,7 +172,7 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
         orig_handle: _T,
         sizes: Sequence[float] | None,
         offsets: Sequence[float] | None,
-        offset_transform: Transform,
+        trans: Transform,
     ) -> _T: ...
     def create_artists(
         self,
@@ -192,7 +192,7 @@ class HandlerPathCollection(HandlerRegularPolyCollection):
         orig_handle: _T,
         sizes: Sequence[float] | None,
         offsets: Sequence[float] | None,
-        offset_transform: Transform,
+        trans: Transform,
     ) -> _T: ...
 
 class HandlerCircleCollection(HandlerRegularPolyCollection):
@@ -201,7 +201,7 @@ class HandlerCircleCollection(HandlerRegularPolyCollection):
         orig_handle: _T,
         sizes: Sequence[float] | None,
         offsets: Sequence[float] | None,
-        offset_transform: Transform,
+        trans: Transform,
     ) -> _T: ...
 
 class HandlerErrorbar(HandlerLine2D):

@@ -31,7 +31,7 @@ class AbstractPathEffect:
         """
         self._offset = offset
 
-    def _offset_transform(self, renderer):
+    def _trans(self, renderer):
         """Apply the offset to the given transform."""
         return mtransforms.Affine2D().translate(
             *map(renderer.points_to_pixels, self._offset))
@@ -210,7 +210,7 @@ class Stroke(AbstractPathEffect):
         gc0.copy_properties(gc)
         gc0 = self._update_gc(gc0, self._gc)
         renderer.draw_path(
-            gc0, tpath, affine + self._offset_transform(renderer), rgbFace)
+            gc0, tpath, affine + self._trans(renderer), rgbFace)
         gc0.restore()
 
 
@@ -277,7 +277,7 @@ class SimplePatchShadow(AbstractPathEffect):
 
         gc0 = self._update_gc(gc0, self._gc)
         renderer.draw_path(
-            gc0, tpath, affine + self._offset_transform(renderer),
+            gc0, tpath, affine + self._trans(renderer),
             shadow_rgbFace)
         gc0.restore()
 
@@ -338,7 +338,7 @@ class SimpleLineShadow(AbstractPathEffect):
 
         gc0 = self._update_gc(gc0, self._gc)
         renderer.draw_path(
-            gc0, tpath, affine + self._offset_transform(renderer))
+            gc0, tpath, affine + self._trans(renderer))
         gc0.restore()
 
 
@@ -365,7 +365,7 @@ class PathPatchEffect(AbstractPathEffect):
 
     def draw_path(self, renderer, gc, tpath, affine, rgbFace):
         self.patch._path = tpath
-        self.patch.set_transform(affine + self._offset_transform(renderer))
+        self.patch.set_transform(affine + self._trans(renderer))
         self.patch.set_clip_box(gc.get_clip_rectangle())
         clip_path = gc.get_clip_path()
         if clip_path and self.patch.get_clip_path() is None:
@@ -431,7 +431,7 @@ class TickedStroke(AbstractPathEffect):
         gc0.copy_properties(gc)
 
         gc0 = self._update_gc(gc0, self._gc)
-        trans = affine + self._offset_transform(renderer)
+        trans = affine + self._trans(renderer)
 
         theta = -np.radians(self._angle)
         trans_matrix = np.array([[np.cos(theta), -np.sin(theta)],

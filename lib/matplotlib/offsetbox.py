@@ -585,7 +585,7 @@ class DrawingArea(OffsetBox):
         self.xdescent = xdescent
         self.ydescent = ydescent
         self._clip_children = clip
-        self.offset_transform = mtransforms.Affine2D()
+        self.trans = mtransforms.Affine2D()
         self.dpi_transform = mtransforms.Affine2D()
 
     @property
@@ -605,7 +605,7 @@ class DrawingArea(OffsetBox):
         """
         Return the `~matplotlib.transforms.Transform` applied to the children.
         """
-        return self.dpi_transform + self.offset_transform
+        return self.dpi_transform + self.trans
 
     def set_transform(self, t):
         """
@@ -622,8 +622,8 @@ class DrawingArea(OffsetBox):
             The (x, y) coordinates of the offset in display units.
         """
         self._offset = xy
-        self.offset_transform.clear()
-        self.offset_transform.translate(xy[0], xy[1])
+        self.trans.clear()
+        self.trans.translate(xy[0], xy[1])
         self.stale = True
 
     def get_offset(self):
@@ -703,9 +703,9 @@ class TextArea(OffsetBox):
         self._text = mtext.Text(0, 0, s, **textprops)
         super().__init__()
         self._children = [self._text]
-        self.offset_transform = mtransforms.Affine2D()
+        self.trans = mtransforms.Affine2D()
         self._baseline_transform = mtransforms.Affine2D()
-        self._text.set_transform(self.offset_transform +
+        self._text.set_transform(self.trans +
                                  self._baseline_transform)
         self._multilinebaseline = multilinebaseline
 
@@ -751,8 +751,8 @@ class TextArea(OffsetBox):
             The (x, y) coordinates of the offset in display units.
         """
         self._offset = xy
-        self.offset_transform.clear()
-        self.offset_transform.translate(xy[0], xy[1])
+        self.trans.clear()
+        self.trans.translate(xy[0], xy[1])
         self.stale = True
 
     def get_offset(self):
@@ -806,10 +806,10 @@ class AuxTransformBox(OffsetBox):
     def __init__(self, aux_transform):
         self.aux_transform = aux_transform
         super().__init__()
-        self.offset_transform = mtransforms.Affine2D()
-        # ref_offset_transform makes offset_transform always relative to the
+        self.trans = mtransforms.Affine2D()
+        # ref_trans makes trans always relative to the
         # lower-left corner of the bbox of its children.
-        self.ref_offset_transform = mtransforms.Affine2D()
+        self.ref_trans = mtransforms.Affine2D()
 
     def add_artist(self, a):
         """Add an `.Artist` to the container box."""
@@ -823,8 +823,8 @@ class AuxTransformBox(OffsetBox):
         to the children
         """
         return (self.aux_transform
-                + self.ref_offset_transform
-                + self.offset_transform)
+                + self.ref_trans
+                + self.trans)
 
     def set_transform(self, t):
         """
@@ -841,8 +841,8 @@ class AuxTransformBox(OffsetBox):
             The (x, y) coordinates of the offset in display units.
         """
         self._offset = xy
-        self.offset_transform.clear()
-        self.offset_transform.translate(xy[0], xy[1])
+        self.trans.clear()
+        self.trans.translate(xy[0], xy[1])
         self.stale = True
 
     def get_offset(self):
@@ -851,16 +851,16 @@ class AuxTransformBox(OffsetBox):
 
     def get_bbox(self, renderer):
         # clear the offset transforms
-        _off = self.offset_transform.get_matrix()  # to be restored later
-        self.ref_offset_transform.clear()
-        self.offset_transform.clear()
+        _off = self.trans.get_matrix()  # to be restored later
+        self.ref_trans.clear()
+        self.trans.clear()
         # calculate the extent
         bboxes = [c.get_window_extent(renderer) for c in self._children]
         ub = Bbox.union(bboxes)
-        # adjust ref_offset_transform
-        self.ref_offset_transform.translate(-ub.x0, -ub.y0)
+        # adjust ref_trans
+        self.ref_trans.translate(-ub.x0, -ub.y0)
         # restore offset transform
-        self.offset_transform.set_matrix(_off)
+        self.trans.set_matrix(_off)
         return Bbox.from_bounds(0, 0, ub.width, ub.height)
 
     def draw(self, renderer):

@@ -50,9 +50,9 @@ of Artists is no longer possible. Most arguments are now keyword-only.
 The *emit* and *auto* parameters of ``set_xlim``, ``set_ylim``,
 ``set_zlim``, ``set_rlim`` are now keyword-only.
 
-The *transOffset* parameter of `.Collection.set_offset_transform` and the
+The *transOffset* parameter of `.Collection.set_trans` and the
 various ``create_collection`` methods of legend handlers has been renamed to
-*offset_transform* (consistently with the property name).
+*trans* (consistently with the property name).
 
 ``Axes.get_window_extent`` / ``Figure.get_window_extent`` accept only
 *renderer*. This aligns the API with the general `.Artist.get_window_extent`

@@ -127,9 +127,9 @@ Passing *emit* and *auto* parameters of ``set_xlim``, ``set_ylim``,
 ``set_zlim``, ``set_rlim`` positionally is deprecated; they will become
 keyword-only in a future release.
 
-The *transOffset* parameter of `.Collection.set_offset_transform` and the
+The *transOffset* parameter of `.Collection.set_trans` and the
 various ``create_collection`` methods of legend handlers has been renamed to
-*offset_transform* (consistently with the property name).
+*trans* (consistently with the property name).
 
 Calling ``MarkerStyle()`` with no arguments or ``MarkerStyle(None)`` is
 deprecated; use ``MarkerStyle("")`` to construct an empty marker style.

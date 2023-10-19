@@ -336,7 +336,7 @@ class QuiverKey(martist.Artist):
             self.vector = mcollections.PolyCollection(
                 self.verts,
                 offsets=[(self.X, self.Y)],
-                offset_transform=self.get_transform(),
+                trans=self.get_transform(),
                 **kwargs)
             if self.color is not None:
                 self.vector.set_color(self.color)
@@ -498,7 +498,7 @@ class Quiver(mcollections.PolyCollection):
         self.transform = kwargs.pop('transform', ax.transData)
         kwargs.setdefault('facecolors', color)
         kwargs.setdefault('linewidths', (0,))
-        super().__init__([], offsets=self.XY, offset_transform=self.transform,
+        super().__init__([], offsets=self.XY, trans=self.transform,
                          closed=False, **kwargs)
         self.polykw = kwargs
         self.set_UVC(U, V, C)
@@ -527,7 +527,7 @@ class Quiver(mcollections.PolyCollection):
 
     def get_datalim(self, transData):
         trans = self.get_transform()
-        offset_trf = self.get_offset_transform()
+        offset_trf = self.get_trans()
         full_transform = (trans - transData) + (offset_trf - transData)
         XY = full_transform.transform(self.XY)
         bbox = transforms.Bbox.null()
@@ -932,7 +932,7 @@ class Barbs(mcollections.PolyCollection):
         # Make a collection
         barb_size = self._length ** 2 / 4  # Empirically determined
         super().__init__(
-            [], (barb_size,), offsets=xy, offset_transform=transform, **kwargs)
+            [], (barb_size,), offsets=xy, trans=transform, **kwargs)
         self.set_transform(transforms.IdentityTransform())
 
         self.set_UVC(u, v, c)

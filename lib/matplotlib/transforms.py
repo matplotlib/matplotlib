@@ -2704,7 +2704,7 @@ class AffineDeltaTransform(Affine2DBase):
     A transform wrapper for transforming displacements between pairs of points.
 
     This class is intended to be used to transform displacements ("position
-    deltas") between pairs of points (e.g., as the ``offset_transform``
+    deltas") between pairs of points (e.g., as the ``trans``
     of `.Collection`\s): given a transform ``t`` such that ``t =
     AffineDeltaTransform(t) + offset``, ``AffineDeltaTransform``
     satisfies ``AffineDeltaTransform(a - b) == AffineDeltaTransform(a) -
