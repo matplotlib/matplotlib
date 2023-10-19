@@ -464,10 +464,12 @@ class BboxBase(TransformNode):
         """
         Construct a `Bbox` by statically transforming this one by *transform*.
         """
-        pts = self.get_points()
-        ll, ul, lr = transform.transform(np.array(
-            [pts[0], [pts[0, 0], pts[1, 1]], [pts[1, 0], pts[0, 1]]]))
-        return Bbox([ll, [lr[0], ul[1]]])
+        corners = self.corners()
+        pts = transform.transform( corners )
+        bb = Bbox.null()
+        bb.update_from_data_xy(pts)
+
+        return bb
 
     coefs = {'C':  (0.5, 0.5),
              'SW': (0, 0),
