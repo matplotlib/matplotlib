@@ -577,6 +577,7 @@ class _AxesBase(martist.Artist):
                  xscale=None,
                  yscale=None,
                  box_aspect=None,
+                 forward_navigation_events="auto",
                  **kwargs
                  ):
         """
@@ -610,6 +611,11 @@ class _AxesBase(martist.Artist):
         box_aspect : float, optional
             Set a fixed aspect for the Axes box, i.e. the ratio of height to
             width. See `~.axes.Axes.set_box_aspect` for details.
+
+        forward_navigation_events : bool or "auto", default: "auto"
+            Control whether pan/zoom events are passed through to Axes below
+            this one. "auto" is *True* for axes with an invisible patch and
+            *False* otherwise.
 
         **kwargs
             Other optional keyword arguments:
@@ -646,6 +652,7 @@ class _AxesBase(martist.Artist):
         self._adjustable = 'box'
         self._anchor = 'C'
         self._stale_viewlims = {name: False for name in self._axis_names}
+        self._forward_navigation_events = forward_navigation_events
         self._sharex = sharex
         self._sharey = sharey
         self.set_label(label)
@@ -4031,6 +4038,11 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         b : bool
+
+        See Also
+        --------
+        matplotlib.axes.Axes.set_forward_navigation_events
+
         """
         self._navigate = b
 
@@ -4481,6 +4493,8 @@ class _AxesBase(martist.Artist):
                     [0, 0, 1, 1], self.transAxes))
         self.set_adjustable('datalim')
         twin.set_adjustable('datalim')
+        twin.set_zorder(self.zorder)
+
         self._twinned_axes.join(self, twin)
         return twin
 
@@ -4626,6 +4640,31 @@ class _AxesBase(martist.Artist):
                 which="both", labelright=False, **right_kw)
             if self.yaxis.offsetText.get_position()[0] == 1:
                 self.yaxis.offsetText.set_visible(False)
+
+    def set_forward_navigation_events(self, forward):
+        """
+        Set how pan/zoom events are forwarded to Axes below this one.
+
+        Parameters
+        ----------
+        forward : bool or "auto"
+            Possible values:
+
+            - True: Forward events to other axes with lower or equal zorder.
+            - False: Events are only executed on this axes.
+            - "auto": Default behaviour (*True* for axes with an invisible
+              patch and *False* otherwise)
+
+        See Also
+        --------
+        matplotlib.axes.Axes.set_navigate
+
+        """
+        self._forward_navigation_events = forward
+
+    def get_forward_navigation_events(self):
+        """Get how pan/zoom events are forwarded to Axes below this one."""
+        return self._forward_navigation_events
 
 
 def _draw_rasterized(figure, artists, renderer):
