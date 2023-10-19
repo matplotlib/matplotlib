@@ -274,20 +274,29 @@ class TestDatetimePlotting:
     def test_plot_date(self):
         mpl.rcParams["date.converter"] = "concise"
         range_threshold = 10
-        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
+        fig, (ax1, ax2, ax3, ax4, ax5, ax6) = plt.subplots(6, 1, layout="constrained")
+
+        limit_value = 10
+        above = datetime.datetime(2100, 10, 18)
+        below = datetime.datetime(1900, 10, 18)
+
+        x_ranges = np.array(range(1, limit_value))
+        y_ranges = np.array(range(1, limit_value))
 
         x_dates = np.array(
-            [datetime.datetime(2023, 10, delta) for delta in range(1, range_threshold)]
+            [datetime.datetime(2023, 10, n) for n in range(1, limit_value)]
         )
         y_dates = np.array(
-            [datetime.datetime(2023, 10, delta) for delta in range(1, range_threshold)]
+            [datetime.datetime(2023, 10, n) for n in range(1, limit_value)]
         )
-        x_ranges = np.array(range(1, range_threshold))
-        y_ranges = np.array(range(1, range_threshold))
 
-        ax1.plot_date(x_dates, y_dates)
-        ax2.plot_date(x_dates, y_ranges)
-        ax3.plot_date(x_ranges, y_dates)
+        ax1.stem(x_dates, y_dates, bottom = above)
+        ax2.stem(x_dates, y_ranges, bottom = 5)
+        ax3.stem(x_ranges, y_dates, bottom = below)
+
+        ax4.stem(x_ranges, y_dates, orientation="horizontal", bottom=above) 
+        ax5.stem(x_dates, y_ranges, orientation="horizontal", bottom=5)
+        ax6.stem(x_ranges, y_dates, orientation="horizontal", bottom=below)
 
     @pytest.mark.xfail(reason="Test for quiver not written yet")
     @mpl.style.context("default")
@@ -340,7 +349,6 @@ class TestDatetimePlotting:
     @mpl.style.context("default")
     def test_stem(self):
         mpl.rcParams["date.converter"] = "concise"
-    
         limit_value = 10
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
 
