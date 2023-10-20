@@ -177,6 +177,11 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         self._current_image_mode = 'full'
         # Track mouse events to fill in the x, y position of key events.
         self._last_mouse_xy = (None, None)
+        # Keep track of the number of received images.
+        # (init with None for backends that do not send "ack" messages)
+        self._ack_cnt = None
+        # Cache-dict to store events that occurred during image processing.
+        self._event_cache = dict()
 
     def show(self):
         # show the figure window
@@ -258,10 +263,34 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                 return png.getvalue()
 
     def handle_event(self, event):
+        # Check if all pending images have been processed.
+        if self._ack_cnt is not None:
+            cnt_eq = self.manager._send_cnt <= self._ack_cnt
+            if cnt_eq:
+                self.manager._send_cnt, self._ack_cnt = 0, 0  # Reset counters.
+        else:
+            # If no ack message was ever received, always process events.
+            cnt_eq = True
+
+        # Handle events as follows:
+        #   - Always process explicit "ack" and "draw" events.
+        #   - Process all other events only if "ack count" equals "send count"
         e_type = event['type']
-        handler = getattr(self, f'handle_{e_type}',
-                          self.handle_unknown_event)
-        return handler(event)
+        if cnt_eq or e_type in ["ack", "draw"]:
+            # Handle cached events of all types other than the current type.
+            self._event_cache.pop(e_type, None)
+            for cache_event_type, cache_event in self._event_cache.items():
+                getattr(self, 'handle_{0}'.format(cache_event_type),
+                        self.handle_unknown_event)(cache_event)
+            self._event_cache.clear()
+
+            # Handle the current event.
+            handler = getattr(self, 'handle_{0}'.format(e_type),
+                              self.handle_unknown_event)
+            return handler(event)
+        else:
+            # Cache the last event of each type so we can process it later.
+            self._event_cache[event["type"]] = event
 
     def handle_unknown_event(self, event):
         _log.warning('Unhandled message type %s. %s', event["type"], event)
@@ -273,7 +302,11 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # This could also be used as a simple sanity check in the
         # future, but for now the performance increase is enough
         # to justify it, even if the server does nothing with it.
-        pass
+
+        # Keep track of the number of received ack messages.
+        if self._ack_cnt is None:
+            self._ack_cnt = 0  # To support backends that do not send "ack".
+        self._ack_cnt += 1
 
     def handle_draw(self, event):
         self.draw()
@@ -431,6 +464,8 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
         self.web_sockets = set()
         super().__init__(canvas, num)
 
+        self._send_cnt = 0  # Counter for the number of sent images.
+
     def show(self):
         pass
 
@@ -469,6 +504,8 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
             if diff is not None:
                 for s in self.web_sockets:
                     s.send_binary(diff)
+
+                self._send_cnt += 1  # Keep track of the number of sent images.
 
     @classmethod
     def get_javascript(cls, stream=None):
