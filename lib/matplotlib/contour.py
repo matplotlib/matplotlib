@@ -350,6 +350,11 @@ class ContourLabeler:
         taken into account when breaking the path, but not when computing the angle.
         """
         if hasattr(self, "_old_style_split_collections"):
+            vis = False
+            for coll in self._old_style_split_collections:
+                vis |= coll.get_visible()
+                coll.remove()
+            self.set_visible(vis)
             del self._old_style_split_collections  # Invalidate them.
 
         xys = path.vertices

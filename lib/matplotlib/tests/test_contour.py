@@ -116,10 +116,30 @@ def test_contour_manual_labels(split_collections):
 
     plt.figure(figsize=(6, 2), dpi=200)
     cs = plt.contour(x, y, z)
+
+    _maybe_split_collections(split_collections)
+
     pts = np.array([(1.0, 3.0), (1.0, 4.4), (1.0, 6.0)])
     plt.clabel(cs, manual=pts)
     pts = np.array([(2.0, 3.0), (2.0, 4.4), (2.0, 6.0)])
     plt.clabel(cs, manual=pts, fontsize='small', colors=('r', 'g'))
+
+
+@pytest.mark.parametrize("split_collections", [False, True])
+@image_comparison(['contour_disconnected_segments'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_contour_label_with_disconnected_segments(split_collections):
+    x, y = np.mgrid[-1:1:21j, -1:1:21j]
+    z = 1 / np.sqrt(0.01 + (x + 0.3) ** 2 + y ** 2)
+    z += 1 / np.sqrt(0.01 + (x - 0.3) ** 2 + y ** 2)
+
+    plt.figure()
+    cs = plt.contour(x, y, z, levels=[7])
+
+    # Adding labels should invalidate the old style
+    _maybe_split_collections(split_collections)
+
+    cs.clabel(manual=[(0.2, 0.1)])
 
     _maybe_split_collections(split_collections)
 
@@ -231,6 +251,9 @@ def test_labels(split_collections):
     CS = ax.contour(X, Y, Z)
     disp_units = [(216, 177), (359, 290), (521, 406)]
     data_units = [(-2, .5), (0, -1.5), (2.8, 1)]
+
+    # Adding labels should invalidate the old style
+    _maybe_split_collections(split_collections)
 
     CS.clabel()
 
