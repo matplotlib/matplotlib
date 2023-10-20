@@ -128,7 +128,9 @@ def stackplot(axes, x, *args,
 
     # Color between x = 0 and the first array.
     coll = axes.fill_between(x, first_line, stack[0, :],
-                             facecolor=next(colors), hatch=next(hatch), label=next(labels, None),
+                             facecolor=next(colors),
+                             hatch=next(hatch),
+                             label=next(labels, None),
                              **kwargs)
     coll.sticky_edges.y[:] = [0]
     r = [coll]
