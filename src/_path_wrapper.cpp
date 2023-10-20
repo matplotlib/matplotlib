@@ -11,9 +11,9 @@
 
 #include "_path.h"
 
+#include "py_adaptors.h"
 #include "py_converters.h"
 #include "py_converters_11.h"
-#include "py_adaptors.h"
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -33,29 +33,19 @@ convert_polygon_vector(std::vector<Polygon> &polygons)
 }
 
 static bool
-Py_point_in_path(double x, double y, double r, py::object path_obj,
+Py_point_in_path(double x, double y, double r, mpl::PathIterator path,
                  agg::trans_affine trans)
 {
-    mpl::PathIterator path;
-
-    if (!convert_path(path_obj.ptr(), &path)) {
-        throw py::error_already_set();
-    }
-
     return point_in_path(x, y, r, path, trans);
 }
 
 static py::array_t<double>
-Py_points_in_path(py::array_t<double> points_obj, double r, py::object path_obj,
+Py_points_in_path(py::array_t<double> points_obj, double r, mpl::PathIterator path,
                   agg::trans_affine trans)
 {
     numpy::array_view<double, 2> points;
-    mpl::PathIterator path;
 
     if (!convert_points(points_obj.ptr(), &points)) {
-        throw py::error_already_set();
-    }
-    if (!convert_path(path_obj.ptr(), &path)) {
         throw py::error_already_set();
     }
 
@@ -73,15 +63,10 @@ Py_points_in_path(py::array_t<double> points_obj, double r, py::object path_obj,
 }
 
 static py::tuple
-Py_update_path_extents(py::object path_obj, agg::trans_affine trans, agg::rect_d rect,
-                       py::array_t<double> minpos, bool ignore)
+Py_update_path_extents(mpl::PathIterator path, agg::trans_affine trans,
+                       agg::rect_d rect, py::array_t<double> minpos, bool ignore)
 {
-    mpl::PathIterator path;
     bool changed;
-
-    if (!convert_path(path_obj.ptr(), &path)) {
-        throw py::error_already_set();
-    }
 
     if (minpos.ndim() != 1) {
         throw py::value_error(
@@ -202,31 +187,16 @@ Py_point_in_path_collection(double x, double y, double radius,
 }
 
 static bool
-Py_path_in_path(py::object a_obj, agg::trans_affine atrans,
-                py::object b_obj, agg::trans_affine btrans)
+Py_path_in_path(mpl::PathIterator a, agg::trans_affine atrans,
+                mpl::PathIterator b, agg::trans_affine btrans)
 {
-    mpl::PathIterator a;
-    mpl::PathIterator b;
-
-    if (!convert_path(a_obj.ptr(), &a)) {
-        throw py::error_already_set();
-    }
-    if (!convert_path(b_obj.ptr(), &b)) {
-        throw py::error_already_set();
-    }
-
     return path_in_path(a, atrans, b, btrans);
 }
 
 static py::list
-Py_clip_path_to_rect(py::object path_obj, agg::rect_d rect, bool inside)
+Py_clip_path_to_rect(mpl::PathIterator path, agg::rect_d rect, bool inside)
 {
-    mpl::PathIterator path;
     std::vector<Polygon> result;
-
-    if (!convert_path(path_obj.ptr(), &path)) {
-        throw py::error_already_set();
-    }
 
     clip_path_to_rect(path, rect, inside, result);
 
@@ -278,20 +248,11 @@ Py_count_bboxes_overlapping_bbox(agg::rect_d bbox, py::object bboxes_obj)
 }
 
 static bool
-Py_path_intersects_path(py::object p1_obj, py::object p2_obj, bool filled)
+Py_path_intersects_path(mpl::PathIterator p1, mpl::PathIterator p2, bool filled)
 {
-    mpl::PathIterator p1;
-    mpl::PathIterator p2;
     agg::trans_affine t1;
     agg::trans_affine t2;
     bool result;
-
-    if (!convert_path(p1_obj.ptr(), &p1)) {
-        throw py::error_already_set();
-    }
-    if (!convert_path(p2_obj.ptr(), &p2)) {
-        throw py::error_already_set();
-    }
 
     result = path_intersects_path(p1, p2);
     if (filled) {
@@ -307,28 +268,17 @@ Py_path_intersects_path(py::object p1_obj, py::object p2_obj, bool filled)
 }
 
 static bool
-Py_path_intersects_rectangle(py::object path_obj, double rect_x1, double rect_y1,
+Py_path_intersects_rectangle(mpl::PathIterator path, double rect_x1, double rect_y1,
                              double rect_x2, double rect_y2, bool filled)
 {
-    mpl::PathIterator path;
-
-    if (!convert_path(path_obj.ptr(), &path)) {
-        throw py::error_already_set();
-    }
-
     return path_intersects_rectangle(path, rect_x1, rect_y1, rect_x2, rect_y2, filled);
 }
 
 static py::list
-Py_convert_path_to_polygons(py::object path_obj, agg::trans_affine trans,
+Py_convert_path_to_polygons(mpl::PathIterator path, agg::trans_affine trans,
                             double width, double height, bool closed_only)
 {
-    mpl::PathIterator path;
     std::vector<Polygon> result;
-
-    if (!convert_path(path_obj.ptr(), &path)) {
-        throw py::error_already_set();
-    }
 
     convert_path_to_polygons(path, trans, width, height, closed_only, result);
 
@@ -336,17 +286,13 @@ Py_convert_path_to_polygons(py::object path_obj, agg::trans_affine trans,
 }
 
 static py::tuple
-Py_cleanup_path(py::object path_obj, agg::trans_affine trans, bool remove_nans,
+Py_cleanup_path(mpl::PathIterator path, agg::trans_affine trans, bool remove_nans,
                 agg::rect_d clip_rect, py::object snap_mode_obj, double stroke_width,
                 std::optional<bool> simplify, bool return_curves, py::object sketch_obj)
 {
-    mpl::PathIterator path;
     e_snap_mode snap_mode;
     SketchParams sketch;
 
-    if (!convert_path(path_obj.ptr(), &path)) {
-        throw py::error_already_set();
-    }
     if (!convert_snap(snap_mode_obj.ptr(), &snap_mode)) {
         throw py::error_already_set();
     }
@@ -406,19 +352,16 @@ postfix : bool
 )""";
 
 static py::object
-Py_convert_to_string(py::object path_obj, agg::trans_affine trans, agg::rect_d cliprect,
-                     std::optional<bool> simplify, py::object sketch_obj, int precision,
+Py_convert_to_string(mpl::PathIterator path, agg::trans_affine trans,
+                     agg::rect_d cliprect, std::optional<bool> simplify,
+                     py::object sketch_obj, int precision,
                      std::array<std::string, 5> codes_obj, bool postfix)
 {
-    mpl::PathIterator path;
     SketchParams sketch;
     char *codes[5];
     std::string buffer;
     bool status;
 
-    if (!convert_path(path_obj.ptr(), &path)) {
-        throw py::error_already_set();
-    }
     if (!convert_sketch_params(sketch_obj.ptr(), &sketch)) {
         throw py::error_already_set();
     }

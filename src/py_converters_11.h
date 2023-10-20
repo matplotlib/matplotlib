@@ -84,6 +84,32 @@ namespace PYBIND11_NAMESPACE { namespace detail {
             return true;
         }
     };
+
+/* Remove all this macro magic after dropping NumPy usage and just include `py_adaptors.h`. */
+#ifdef MPL_PY_ADAPTORS_H
+    template <> struct type_caster<mpl::PathIterator> {
+    public:
+        PYBIND11_TYPE_CASTER(mpl::PathIterator, const_name("PathIterator"));
+
+        bool load(handle src, bool) {
+            if (src.is_none()) {
+                return true;
+            }
+
+            auto vertices = src.attr("vertices");
+            auto codes = src.attr("codes");
+            auto should_simplify = src.attr("should_simplify").cast<bool>();
+            auto simplify_threshold = src.attr("simplify_threshold").cast<double>();
+
+            if (!value.set(vertices.ptr(), codes.ptr(),
+                           should_simplify, simplify_threshold)) {
+                return false;
+            }
+
+            return true;
+        }
+    };
+#endif
 }} // namespace PYBIND11_NAMESPACE::detail
 
 #endif /* MPL_PY_CONVERTERS_11_H */
