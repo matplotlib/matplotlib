@@ -1,15 +1,17 @@
 .. _dependencies:
 
-============
+************
 Dependencies
-============
+************
+
+.. _runtime_dependencies:
 
 Runtime dependencies
 ====================
 
 
-Mandatory dependencies
-----------------------
+Required
+--------
 
 When installing through a package manager like ``pip`` or ``conda``, the
 mandatory dependencies are automatically installed. This list is mainly for
@@ -31,8 +33,8 @@ reference.
 
 .. _optional_dependencies:
 
-Optional dependencies
----------------------
+Optional
+--------
 
 The following packages and tools are not required but extend the capabilities
 of Matplotlib.
@@ -106,10 +108,14 @@ Additionally, Matplotlib depends on:
 .. _FreeType: https://www.freetype.org/
 .. _Qhull: http://www.qhull.org/
 
-By default, Matplotlib downloads and builds its own copies of FreeType (this is
-necessary to run the test suite, because different versions of FreeType
-rasterize characters differently) and of Qhull.  As an exception, Matplotlib
-defaults to the system version of FreeType on AIX.
+
+Download during install
+^^^^^^^^^^^^^^^^^^^^^^^
+
+By default, Matplotlib downloads and builds its own copies of Qhull and FreeType.
+The vendored version of FreeType is necessary to run the test suite, because
+different versions of FreeType rasterize characters differently.
+
 
 Use system libraries
 ^^^^^^^^^^^^^^^^^^^^
@@ -176,9 +182,8 @@ remember to clear your artifacts before re-building::
 
   git clean -xfd
 
-
-Manual Download
-^^^^^^^^^^^^^^^
+From source files
+^^^^^^^^^^^^^^^^^
 
 If the automatic download does not work (for example, on air-gapped systems) it is
 preferable to instead use system libraries. However you can manually download the
@@ -202,19 +207,23 @@ In all cases the required version of pip is embedded in the CPython source.
 
 .. _development-dependencies:
 
-Dependencies for building Matplotlib
-====================================
+Build dependencies
+==================
+
 
 .. _setup-dependencies:
 
-Setup dependencies
-------------------
+Python
+------
 
-By default, ``pip`` will build packages using build isolation, and the following
-dependencies will be automatically installed in the isolated environment to build
-Matplotlib. However, for development, you may wish to make an editable install, which
-will require disabling build isolation, so these build dependencies should be installed
-in your target environment manually:
+By default, ``pip`` will build packages using build isolation, meaning that these
+build dependencies are temporally installed by pip for the duration of the
+Matplotlib build process. However, build isolation is disabled when :ref:`installing Matplotlib for development <development-install>`;
+therefore we recommend using one of our :ref:`virtual environment configurations <dev-environment>` to
+create a development environment in which these packages are automatically installed.
+
+If you are developing Matplotlib and unable to use our environment configurations,
+then you must manually install the following packages into your development environment:
 
 - `meson-python <https://meson-python.readthedocs.io/>`_ (>= 0.13.1).
 - `ninja <https://ninja-build.org/>`_ (>= 1.8.2). This may be available in your package
@@ -230,11 +239,13 @@ in your target environment manually:
 
 .. _compile-dependencies:
 
-C++ compiler
-------------
+Compiled extensions
+-------------------
 
 Matplotlib requires a C++ compiler that supports C++17, and each platform has a
 development environment that must be installed before a compiler can be installed.
+You may also need to install headers for various libraries used in the compiled extension
+source files.
 
 .. tab-set::
 
@@ -261,6 +272,8 @@ development environment that must be installed before a compiler can be installe
 
         Alternatively, you can install a Linux-like environment such as `CygWin <https://www.cygwin.com/>`_
         or `Windows Subsystem for Linux <https://learn.microsoft.com/en-us/windows/wsl/install>`_.
+        If using `MinGW-64 <https://www.mingw-w64.org/>`_, we require **v6** of the
+        ```Mingw-w64-x86_64-headers``.
 
 
 We highly recommend that you install a compiler using your platform tool, i.e.,
@@ -294,16 +307,19 @@ Xcode, VS Code or Linux package manager. Choose **one** compiler from this list:
 
 .. _test-dependencies:
 
-Dependencies for testing Matplotlib
-===================================
+Test dependencies
+=================
+
 This section lists the additional software required for
 :ref:`running the tests <testing>`.
 
-Required:
+Required
+--------
 
 - pytest_ (>= 7.0.0)
 
-Optional:
+Optional
+--------
 
 In addition to all of the optional dependencies on the main library, for
 testing the following will be used if they are installed.
@@ -357,11 +373,12 @@ them will be skipped by pytest.
 
 .. _doc-dependencies:
 
-Dependencies for building Matplotlib's documentation
-====================================================
+Documentation dependencies
+==========================
 
-Python packages
----------------
+Python
+------
+
 The additional Python packages required to build the
 :ref:`documentation <documenting-matplotlib>` are listed in
 :file:`doc-requirements.txt` and can be installed using ::
@@ -373,13 +390,22 @@ The content of :file:`doc-requirements.txt` is also shown below:
 .. include:: ../../requirements/doc/doc-requirements.txt
    :literal:
 
-Additional external dependencies
---------------------------------
-Required:
 
+External tools
+--------------
+
+The documentation requires LaTeX and Graphviz.  These are not
+Python packages and must be installed separately. The documentation can be
+built without Inkscape and optipng, but the build process will raise various
+warnings. If the build process warns that you are missing fonts, make sure
+your LaTeX distribution bundles cm-super or install it separately.
+
+Required
+^^^^^^^^
+
+* `Graphviz <http://www.graphviz.org/download>`_
 * a minimal working LaTeX distribution, e.g., `TeX Live <https://www.tug.org/texlive/>`_ or
   `MikTeX <https://miktex.org/>`_
-* `Graphviz <http://www.graphviz.org/download>`_
 * the following LaTeX packages (if your OS bundles TeX Live, the
   "complete" version of the installer, e.g. "texlive-full" or "texlive-all",
   will often automatically include these packages):
@@ -388,18 +414,11 @@ Required:
   * `dvipng <https://ctan.org/pkg/dvipng>`_
   * `underscore <https://ctan.org/pkg/underscore>`_
 
-Optional, but recommended:
+Optional
+^^^^^^^^
 
 * `Inkscape <https://inkscape.org>`_
 * `optipng <http://optipng.sourceforge.net>`_
 * the font "Humor Sans" (aka the "XKCD" font), or the free alternative
   `Comic Neue <http://comicneue.com/>`_
 * the font "Times New Roman"
-
-.. note::
-
-  The documentation will not build without LaTeX and Graphviz.  These are not
-  Python packages and must be installed separately. The documentation can be
-  built without Inkscape and optipng, but the build process will raise various
-  warnings. If the build process warns that you are missing fonts, make sure
-  your LaTeX distribution bundles cm-super or install it separately.
