@@ -6,6 +6,7 @@ https://stackoverflow.com/q/2225995/
 (https://stackoverflow.com/users/66549/doug)
 """
 
+from collections.abc import Iterable
 import itertools
 
 import numpy as np
@@ -16,7 +17,7 @@ __all__ = ['stackplot']
 
 
 def stackplot(axes, x, *args,
-              labels=(), colors=None, baseline='zero',
+              labels=(), colors=None, hatch=None, baseline='zero',
               **kwargs):
     """
     Draw a stacked area plot.
@@ -55,6 +56,12 @@ def stackplot(axes, x, *args,
 
         If not specified, the colors from the Axes property cycle will be used.
 
+    hatch : list of hatching styles, optional
+        A sequence of styles to be cycled through for filling the stacked areas.
+        The sequence need not be exactly the same length as the number
+        of provided *y*, in which case the styles will repeat from the
+        beginning.
+
     data : indexable object, optional
         DATA_PARAMETER_PLACEHOLDER
 
@@ -75,6 +82,14 @@ def stackplot(axes, x, *args,
         colors = itertools.cycle(colors)
     else:
         colors = (axes._get_lines.get_next_color() for _ in y)
+
+    if hatch:
+        if isinstance(hatch, Iterable):
+            hatch = itertools.cycle(hatch)
+        else:
+            hatch = (hatch for _ in y)
+    else:
+        hatch = (" " for _ in y)
 
     # Assume data passed has not been 'stacked', so stack it here.
     # We'll need a float buffer for the upcoming calculations.
@@ -113,7 +128,7 @@ def stackplot(axes, x, *args,
 
     # Color between x = 0 and the first array.
     coll = axes.fill_between(x, first_line, stack[0, :],
-                             facecolor=next(colors), label=next(labels, None),
+                             facecolor=next(colors), hatch=next(hatch), label=next(labels, None),
                              **kwargs)
     coll.sticky_edges.y[:] = [0]
     r = [coll]
@@ -122,6 +137,7 @@ def stackplot(axes, x, *args,
     for i in range(len(y) - 1):
         r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
                                    facecolor=next(colors),
+                                   hatch=next(hatch),
                                    label=next(labels, None),
                                    **kwargs))
     return r
