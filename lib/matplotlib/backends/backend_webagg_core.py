@@ -265,10 +265,11 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
     def handle_event(self, event):
         # Check if all pending images have been processed.
-        if self._ack_cnt is not None:
-            cnt_eq = self.manager._send_cnt <= self._ack_cnt
-            if cnt_eq:
-                self.manager._send_cnt, self._ack_cnt = 0, 0  # Reset counters.
+        if self._num_received_images is not None:
+            cnt_eq = self.manager._num_sent_images <= self._num_received_images
+            if cnt_eq:  # Reset counters
+                self.manager._num_sent_images = 0
+                self._num_received_images = 0
         else:
             # If no ack message was ever received, always process events.
             cnt_eq = True
@@ -305,9 +306,9 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # to justify it, even if the server does nothing with it.
 
         # Keep track of the number of received ack messages.
-        if self._ack_cnt is None:
-            self._ack_cnt = 0  # To support backends that do not send "ack".
-        self._ack_cnt += 1
+        if self._num_received_images is None:
+            self._num_received_images = 0  # To support no "ack" messages.
+        self._num_received_images += 1
 
     def handle_draw(self, event):
         self.draw()
@@ -506,7 +507,7 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
                 for s in self.web_sockets:
                     s.send_binary(diff)
 
-                self._send_cnt += 1  # Keep track of the number of sent images.
+                self._num_sent_images += 1  # Count number of sent images.
 
     @classmethod
     def get_javascript(cls, stream=None):
