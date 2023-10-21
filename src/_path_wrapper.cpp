@@ -11,6 +11,7 @@
 
 #include "_path.h"
 
+#include "_backend_agg_basic_types.h"
 #include "py_adaptors.h"
 #include "py_converters.h"
 #include "py_converters_11.h"
@@ -288,14 +289,8 @@ Py_convert_path_to_polygons(mpl::PathIterator path, agg::trans_affine trans,
 static py::tuple
 Py_cleanup_path(mpl::PathIterator path, agg::trans_affine trans, bool remove_nans,
                 agg::rect_d clip_rect, e_snap_mode snap_mode, double stroke_width,
-                std::optional<bool> simplify, bool return_curves, py::object sketch_obj)
+                std::optional<bool> simplify, bool return_curves, SketchParams sketch)
 {
-    SketchParams sketch;
-
-    if (!convert_sketch_params(sketch_obj.ptr(), &sketch)) {
-        throw py::error_already_set();
-    }
-
     if (!simplify.has_value()) {
         simplify = path.should_simplify();
     }
@@ -350,17 +345,12 @@ postfix : bool
 static py::object
 Py_convert_to_string(mpl::PathIterator path, agg::trans_affine trans,
                      agg::rect_d cliprect, std::optional<bool> simplify,
-                     py::object sketch_obj, int precision,
+                     SketchParams sketch, int precision,
                      std::array<std::string, 5> codes_obj, bool postfix)
 {
-    SketchParams sketch;
     char *codes[5];
     std::string buffer;
     bool status;
-
-    if (!convert_sketch_params(sketch_obj.ptr(), &sketch)) {
-        throw py::error_already_set();
-    }
 
     for (auto i = 0; i < 5; ++i) {
         codes[i] = const_cast<char *>(codes_obj[i].c_str());

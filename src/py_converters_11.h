@@ -127,6 +127,26 @@ namespace PYBIND11_NAMESPACE { namespace detail {
         }
     };
 #endif
+
+/* Remove all this macro magic after dropping NumPy usage and just include `_backend_agg_basic_types.h`. */
+#ifdef MPL_BACKEND_AGG_BASIC_TYPES_H
+    template <> struct type_caster<SketchParams> {
+    public:
+        PYBIND11_TYPE_CASTER(SketchParams, const_name("SketchParams"));
+
+        bool load(handle src, bool) {
+            if (src.is_none()) {
+                value.scale = 0.0;
+                return true;
+            }
+
+            auto params = src.cast<std::tuple<double, double, double>>();
+            std::tie(value.scale, value.length, value.randomness) = params;
+
+            return true;
+        }
+    };
+#endif
 }} // namespace PYBIND11_NAMESPACE::detail
 
 #endif /* MPL_PY_CONVERTERS_11_H */
