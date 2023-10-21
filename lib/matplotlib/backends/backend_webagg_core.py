@@ -464,7 +464,7 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
         self.web_sockets = set()
         super().__init__(canvas, num)
 
-        self._send_cnt = 0  # Counter for the number of sent images.
+        self._num_sent_images = 0
 
     def show(self):
         pass
