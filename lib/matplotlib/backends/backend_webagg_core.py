@@ -177,9 +177,10 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         self._current_image_mode = 'full'
         # Track mouse events to fill in the x, y position of key events.
         self._last_mouse_xy = (None, None)
-        # Keep track of the number of received images.
-        # (init with None for backends that do not send "ack" messages)
-        self._ack_cnt = None
+        # Keep track of the number of images that the frontend has confirmed
+        # to have received by sending an "ack" message.
+        # (init with None for backends that do not handle "ack" messages)
+        self._num_received_images = None
         # Cache-dict to store events that occurred during image processing.
         self._event_cache = dict()
 
