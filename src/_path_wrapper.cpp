@@ -287,15 +287,11 @@ Py_convert_path_to_polygons(mpl::PathIterator path, agg::trans_affine trans,
 
 static py::tuple
 Py_cleanup_path(mpl::PathIterator path, agg::trans_affine trans, bool remove_nans,
-                agg::rect_d clip_rect, py::object snap_mode_obj, double stroke_width,
+                agg::rect_d clip_rect, e_snap_mode snap_mode, double stroke_width,
                 std::optional<bool> simplify, bool return_curves, py::object sketch_obj)
 {
-    e_snap_mode snap_mode;
     SketchParams sketch;
 
-    if (!convert_snap(snap_mode_obj.ptr(), &snap_mode)) {
-        throw py::error_already_set();
-    }
     if (!convert_sketch_params(sketch_obj.ptr(), &sketch)) {
         throw py::error_already_set();
     }

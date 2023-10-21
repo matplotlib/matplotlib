@@ -10,6 +10,7 @@ namespace py = pybind11;
 
 #include "agg_basics.h"
 #include "agg_trans_affine.h"
+#include "path_converters.h"
 
 void convert_trans_affine(const py::object& transform, agg::trans_affine& affine);
 
@@ -80,6 +81,22 @@ namespace PYBIND11_NAMESPACE { namespace detail {
             value.shy = buffer[3];
             value.sy = buffer[4];
             value.ty = buffer[5];
+
+            return true;
+        }
+    };
+
+    template <> struct type_caster<e_snap_mode> {
+    public:
+        PYBIND11_TYPE_CASTER(e_snap_mode, const_name("e_snap_mode"));
+
+        bool load(handle src, bool) {
+            if (src.is_none()) {
+                value = SNAP_AUTO;
+                return true;
+            }
+
+            value = src.cast<bool>() ? SNAP_TRUE : SNAP_FALSE;
 
             return true;
         }
