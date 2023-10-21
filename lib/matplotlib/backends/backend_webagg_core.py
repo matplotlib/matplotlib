@@ -266,19 +266,21 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     def handle_event(self, event):
         # Check if all pending images have been processed.
         if self._num_received_images is not None:
-            cnt_eq = self.manager._num_sent_images <= self._num_received_images
-            if cnt_eq:  # Reset counters
+            pending_images = (
+                self.manager._num_sent_images > self._num_received_images
+                )
+            if not pending_images:  # Reset counters
                 self.manager._num_sent_images = 0
                 self._num_received_images = 0
         else:
             # If no ack message was ever received, always process events.
-            cnt_eq = True
+            pending_images = False
 
         # Handle events as follows:
         #   - Always process explicit "ack" and "draw" events.
         #   - Process all other events only if "ack count" equals "send count"
         e_type = event['type']
-        if cnt_eq or e_type in ["ack", "draw"]:
+        if not pending_images or e_type in ["ack", "draw"]:
             # Handle cached events of all types other than the current type.
             self._event_cache.pop(e_type, None)
             for cache_event_type, cache_event in self._event_cache.items():
