@@ -8,6 +8,7 @@ from itertools import chain
 import numpy as np
 
 import matplotlib as mpl
+from matplotlib import _api
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D, IdentityTransform
 from .axislines import (
@@ -270,6 +271,7 @@ class GridHelperCurveLinear(GridHelperBase):
         self.grid_finder.update(**kwargs)
         self._old_limits = None  # Force revalidation.
 
+    @_api.make_keyword_only("3.9", "nth_coord")
     def new_fixed_axis(self, loc,
                        nth_coord=None,
                        axis_direction=None,

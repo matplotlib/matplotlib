@@ -154,6 +154,8 @@ Most Python dependencies will be installed when :ref:`setting up the environment
 but non-Python dependencies like C++ compilers, LaTeX, and other system applications
 must be installed separately. For a full list, see :ref:`dependencies`.
 
+.. _development-install:
+
 Install Matplotlib in editable mode
 ===================================
 
@@ -164,12 +166,25 @@ command ::
 
 The 'editable/develop mode' builds everything and places links in your Python environment
 so that Python will be able to import Matplotlib from your development source directory.
-This allows you to import your modified version of Matplotlib without re-installing after
-every change. Note that before the merging of the `Meson port
-<https://github.com/matplotlib/matplotlib/pull/26621>`_, this is only true for ``*.py``
-files. If you change the C-extension source based on a commit before the change to the
-Meson build system (which might also happen if you change branches), you will have to
-re-run the above command.
+This allows you to import your modified version of Matplotlib without having to
+re-install after changing a ``.py`` or compiled extension file.
+
+When working on a branch that does not have Meson enabled, meaning it does not
+have :ghpull:`26621` in its history (log), you will have to reinstall from source
+each time you change any compiled extension code.
+
+Build options
+-------------
+If you are working heavily with files that need to be compiled, you may want to
+inspect the compilation log. This can be enabled by setting the environment
+variable :envvar:`MESONPY_EDITABLE_VERBOSE` or by setting the ``editable-verbose``
+config during installation ::
+
+   python -m pip install --no-build-isolation --config-settings=editable-verbose=true --editable .
+
+For more information on installation and other configuration options, see the
+Meson Python :external+meson-python:ref:`editable installs guide <how-to-guides-editable-installs>`.
+
 
 Verify the Installation
 =======================

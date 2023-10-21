@@ -32,11 +32,42 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.axhline(...)
 
-    @pytest.mark.xfail(reason="Test for axhspan not written yet")
     @mpl.style.context("default")
     def test_axhspan(self):
-        fig, ax = plt.subplots()
-        ax.axhspan(...)
+        mpl.rcParams["date.converter"] = 'concise'
+
+        start_date = datetime.datetime(2023, 1, 1)
+        dates = [start_date + datetime.timedelta(days=i) for i in range(31)]
+        numbers = list(range(1, 32))
+
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1,
+                                            constrained_layout=True,
+                                            figsize=(10, 12))
+
+        ax1.plot(dates, numbers, marker='o', color='blue')
+        for i in range(0, 31, 2):
+            ax1.axhspan(ymin=i+1, ymax=i+2, facecolor='green', alpha=0.5)
+        ax1.set_title('Datetime vs. Number')
+        ax1.set_xlabel('Date')
+        ax1.set_ylabel('Number')
+
+        ax2.plot(numbers, dates, marker='o', color='blue')
+        for i in range(0, 31, 2):
+            ymin = start_date + datetime.timedelta(days=i)
+            ymax = ymin + datetime.timedelta(days=1)
+            ax2.axhspan(ymin=ymin, ymax=ymax, facecolor='green', alpha=0.5)
+        ax2.set_title('Number vs. Datetime')
+        ax2.set_xlabel('Number')
+        ax2.set_ylabel('Date')
+
+        ax3.plot(dates, dates, marker='o', color='blue')
+        for i in range(0, 31, 2):
+            ymin = start_date + datetime.timedelta(days=i)
+            ymax = ymin + datetime.timedelta(days=1)
+            ax3.axhspan(ymin=ymin, ymax=ymax, facecolor='green', alpha=0.5)
+        ax3.set_title('Datetime vs. Datetime')
+        ax3.set_xlabel('Date')
+        ax3.set_ylabel('Date')
 
     @pytest.mark.xfail(reason="Test for axline not written yet")
     @mpl.style.context("default")
@@ -90,11 +121,24 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.barbs(...)
 
-    @pytest.mark.xfail(reason="Test for barh not written yet")
     @mpl.style.context("default")
     def test_barh(self):
-        fig, ax = plt.subplots()
-        ax.barh(...)
+        mpl.rcParams["date.converter"] = 'concise'
+        fig, (ax1, ax2) = plt.subplots(2, 1, layout='constrained')
+        birth_date = np.array([datetime.datetime(2020, 4, 10),
+                               datetime.datetime(2020, 5, 30),
+                               datetime.datetime(2020, 10, 12),
+                               datetime.datetime(2020, 11, 15)])
+        year_start = datetime.datetime(2020, 1, 1)
+        year_end = datetime.datetime(2020, 12, 31)
+        age = [21, 53, 20, 24]
+        ax1.set_xlabel('Age')
+        ax1.set_ylabel('Birth Date')
+        ax1.barh(birth_date, width=age, height=datetime.timedelta(days=10))
+        ax2.set_xlim(left=year_start, right=year_end)
+        ax2.set_xlabel('Birth Date')
+        ax2.set_ylabel('Order of Birth Dates')
+        ax2.barh(np.arange(4), birth_date-year_start, left=year_start)
 
     @pytest.mark.xfail(reason="Test for boxplot not written yet")
     @mpl.style.context("default")
@@ -126,11 +170,29 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.contour(...)
 
-    @pytest.mark.xfail(reason="Test for contourf not written yet")
     @mpl.style.context("default")
     def test_contourf(self):
-        fig, ax = plt.subplots()
-        ax.contourf(...)
+        mpl.rcParams["date.converter"] = "concise"
+        range_threshold = 10
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
+
+        x_dates = np.array(
+            [datetime.datetime(2023, 10, delta) for delta in range(1, range_threshold)]
+        )
+        y_dates = np.array(
+            [datetime.datetime(2023, 10, delta) for delta in range(1, range_threshold)]
+        )
+        x_ranges = np.array(range(1, range_threshold))
+        y_ranges = np.array(range(1, range_threshold))
+
+        X_dates, Y_dates = np.meshgrid(x_dates, y_dates)
+        X_ranges, Y_ranges = np.meshgrid(x_ranges, y_ranges)
+
+        Z_ranges = np.cos(X_ranges / 4) + np.sin(Y_ranges / 4)
+
+        ax1.contourf(X_dates, Y_dates, Z_ranges)
+        ax2.contourf(X_dates, Y_ranges, Z_ranges)
+        ax3.contourf(X_ranges, Y_dates, Z_ranges)
 
     @pytest.mark.xfail(reason="Test for errorbar not written yet")
     @mpl.style.context("default")
@@ -245,12 +307,6 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.matshow(...)
 
-    @pytest.mark.xfail(reason="Test for pie not written yet")
-    @mpl.style.context("default")
-    def test_pie(self):
-        fig, ax = plt.subplots()
-        ax.pcolor(...)
-
     @pytest.mark.xfail(reason="Test for pcolor not written yet")
     @mpl.style.context("default")
     def test_pcolor(self):
@@ -310,11 +366,27 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.quiverkey(...)
 
-    @pytest.mark.xfail(reason="Test for scatter not written yet")
     @mpl.style.context("default")
     def test_scatter(self):
-        fig, ax = plt.subplots()
-        ax.scatter(...)
+        mpl.rcParams["date.converter"] = 'concise'
+        base = datetime.datetime(2005, 2, 1)
+        dates = [base + datetime.timedelta(hours=(2 * i)) for i in range(10)]
+        N = len(dates)
+        np.random.seed(19680801)
+        y = np.cumsum(np.random.randn(N))
+        fig, axs = plt.subplots(3, 1, layout='constrained', figsize=(6, 6))
+        # datetime array on x axis
+        axs[0].scatter(dates, y)
+        for label in axs[0].get_xticklabels():
+            label.set_rotation(40)
+            label.set_horizontalalignment('right')
+        # datetime on y axis
+        axs[1].scatter(y, dates)
+        # datetime on both x, y axes
+        axs[2].scatter(dates, dates)
+        for label in axs[2].get_xticklabels():
+            label.set_rotation(40)
+            label.set_horizontalalignment('right')
 
     @pytest.mark.xfail(reason="Test for semilogx not written yet")
     @mpl.style.context("default")
@@ -334,11 +406,15 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.spy(...)
 
-    @pytest.mark.xfail(reason="Test for stackplot not written yet")
     @mpl.style.context("default")
     def test_stackplot(self):
-        fig, ax = plt.subplots()
-        ax.stackplot(...)
+        mpl.rcParams["date.converter"] = 'concise'
+        N = 10
+        stacked_nums = np.tile(np.arange(1, N), (4, 1))
+        dates = np.array([datetime.datetime(2020 + i, 1, 1) for i in range(N - 1)])
+
+        fig, ax = plt.subplots(layout='constrained')
+        ax.stackplot(dates, stacked_nums)
 
     @pytest.mark.xfail(reason="Test for stairs not written yet")
     @mpl.style.context("default")
@@ -364,11 +440,33 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.streamplot(...)
 
-    @pytest.mark.xfail(reason="Test for text not written yet")
     @mpl.style.context("default")
     def test_text(self):
-        fig, ax = plt.subplots()
-        ax.text(...)
+        mpl.rcParams["date.converter"] = 'concise'
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
+
+        limit_value = 10
+        font_properties = {'family': 'serif', 'size': 12, 'weight': 'bold'}
+        test_date = datetime.datetime(2023, 10, 1)
+
+        x_data = np.array(range(1, limit_value))
+        y_data = np.array(range(1, limit_value))
+
+        x_dates = np.array(
+            [datetime.datetime(2023, 10, n) for n in range(1, limit_value)]
+        )
+        y_dates = np.array(
+            [datetime.datetime(2023, 10, n) for n in range(1, limit_value)]
+        )
+
+        ax1.plot(x_dates, y_data)
+        ax1.text(test_date, 5, "Inserted Text", **font_properties)
+
+        ax2.plot(x_data, y_dates)
+        ax2.text(7, test_date, "Inserted Text", **font_properties)
+
+        ax3.plot(x_dates, y_dates)
+        ax3.text(test_date, test_date, "Inserted Text", **font_properties)
 
     @pytest.mark.xfail(reason="Test for tricontour not written yet")
     @mpl.style.context("default")
