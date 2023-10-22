@@ -6,7 +6,6 @@ https://stackoverflow.com/q/2225995/
 (https://stackoverflow.com/users/66549/doug)
 """
 
-from collections.abc import Iterable
 import itertools
 
 import numpy as np
@@ -83,13 +82,10 @@ def stackplot(axes, x, *args,
     else:
         colors = (axes._get_lines.get_next_color() for _ in y)
 
-    if hatch:
-        if isinstance(hatch, Iterable):
-            hatch = itertools.cycle(hatch)
-        else:
-            hatch = (hatch for _ in y)
+    if not hatch or isinstance(hatch, str):
+        hatch = itertools.cycle([hatch])
     else:
-        hatch = (" " for _ in y)
+        hatch = itertools.cycle(hatch)
 
     # Assume data passed has not been 'stacked', so stack it here.
     # We'll need a float buffer for the upcoming calculations.
