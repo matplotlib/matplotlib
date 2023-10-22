@@ -431,6 +431,11 @@ class Colorbar:
             "ylim_changed", self._do_extends)
 
     @property
+    def long_axis(self):
+        """Axis that has decorations (ticks etc) on it."""
+        return self._long_axis()
+
+    @property
     def locator(self):
         """Major tick `.Locator` for the colorbar."""
         return self._long_axis().get_major_locator()
