@@ -291,3 +291,10 @@ ignore_messages = [
     "No role entry for \"external+.*\".",
     "Unknown interpreted text role \"external+.*\"."
 ]
+
+[tool.pytest.ini_options]
+# Because tests can be run from an installed copy, most of our Pytest
+# configuration is in the `pytest_configure` function in
+# `lib/matplotlib/testing/conftest.py`.
+minversion = "7.0"
+testpaths = ["lib"]
