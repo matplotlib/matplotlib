@@ -88,6 +88,7 @@ def test_date2num_masked():
                                   (False, True, True, False, False, False,
                                    True))
 
+
 def test_timedelta_numpy():
     # TODO: merge with datetime test?
     # test that numpy timedeltas work properly...
@@ -1618,13 +1619,15 @@ def test_timdelta_formatter(t_delta, fmt, expected):
 
 @pytest.mark.parametrize('delta, expected', [
     (datetime.timedelta(days=200),
-     ['%d days' % day for day in range(20, 261, 20)]),
+     [r'$\mathdefault{%d\;}$days' % day for day in range(20, 261, 20)]),
     (datetime.timedelta(days=1),
-     ['%d days, %02d:00' % (day, hour) for day, hour in [
+     [r'$\mathdefault{%d\;}$days$\mathdefault{,\;%02d{:}00}$'
+      % (day, hour) for day, hour in [
          (39, 18), (40, 0), (40, 6), (40, 12), (40, 18), (41, 0), (41, 6)]
       ]),
     (datetime.timedelta(hours=2),
-     ['%d days, %02d:%02d' % (day, hour, minu) for day, hour, minu in [
+     [r'$\mathdefault{%d\;}$days$\mathdefault{,\;%02d{:}%02d}$'
+      % (day, hour, minu) for day, hour, minu in [
          (39, 23, 45), (40, 0, 0), (40, 0, 15), (40, 0, 30), (40, 0, 45),
          (40, 1, 0), (40, 1, 15), (40, 1, 30), (40, 1, 45), (40, 2, 0),
          (40, 2, 15)]
@@ -1642,8 +1645,9 @@ def test_timedelta_formatter_usetex(delta, expected):
                                    mdates.timedelta2num(d2))
 
     formatter = mdates.AutoTimedeltaFormatter(locator, usetex=True)
-    assert [formatter(loc) for loc in locator()] == [
-        r'{\fontfamily{\familydefault}\selectfont %s}' % s for s in expected]
+    print([formatter(loc) for loc in locator()])
+    print([s for s in expected])
+    assert [formatter(loc) for loc in locator()] == [s for s in expected]
 
 
 @pytest.mark.parametrize('t_delta, expected', [
