@@ -165,3 +165,9 @@ PostScript paper type adds option to use figure size
 The :rc:`ps.papertype` rcParam can now be set to ``'figure'``, which will use
 a paper size that corresponds exactly with the size of the figure that is being
 saved.
+
+``hexbin`` *mincnt* parameter made consistently inclusive
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously, *mincnt* was inclusive with no *C* provided but exclusive when *C* is provided.
+It is now inclusive of *mincnt* in both cases.
