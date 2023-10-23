@@ -1375,3 +1375,9 @@ def test_legend_handle_label_mismatch_no_len():
                         labels=iter(["pl1", "pl2", "pl3"]))
     assert len(legend.legend_handles) == 2
     assert len(legend.get_texts()) == 2
+
+
+def test_legend_nolabels_warning():
+    plt.plot([1, 2, 3])
+    with pytest.raises(UserWarning):
+        plt.legend()
