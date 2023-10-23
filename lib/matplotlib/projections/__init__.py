@@ -55,7 +55,11 @@ A full-fledged and heavily annotated example is in
 from .. import axes, _docstring
 from .geo import AitoffAxes, HammerAxes, LambertAxes, MollweideAxes
 from .polar import PolarAxes
-from mpl_toolkits.mplot3d import Axes3D
+
+try:
+    from mpl_toolkits.mplot3d import Axes3D
+except ImportError:
+    Axes3D = None
 
 
 class ProjectionRegistry:
@@ -87,8 +91,12 @@ projection_registry.register(
     HammerAxes,
     LambertAxes,
     MollweideAxes,
-    Axes3D,
 )
+if Axes3D is not None:
+    projection_registry.register(Axes3D)
+else:
+    # remove from namespace if not importable
+    del Axes3D
 
 
 def register_projection(cls):
