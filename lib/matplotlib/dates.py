@@ -176,7 +176,6 @@ The available date formatters are:
 import datetime
 import functools
 import logging
-import math
 import re
 import string
 
@@ -1083,7 +1082,7 @@ class ConciseTimedeltaFormatter(_ConciseTimevalueFormatter):
         return 0, 0, d, h, m, s, td.microseconds
 
     def _get_formats(self):
-        # extend list of format strings by two emtpy (and unused) strings for
+        # extend list of format strings by two empty (and unused) strings for
         # year and month (necessary for compatibility with base class)
         ret = list()
         for fmts in (self.formats, self.zero_formats, self.offset_formats):
