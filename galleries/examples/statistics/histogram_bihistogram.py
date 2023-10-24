@@ -32,7 +32,7 @@ fig, ax = plt.subplots()
 # Plot the first histogram
 ax.hist(dataset1, bins=n_bins, label="Dataset 1")
 
-# Plot the second histogram 
+# Plot the second histogram
 # (notice the negative weights, which flip the histogram upside down)
 ax.hist(dataset2, weights=-np.ones_like(dataset2), bins=n_bins, label="Dataset 2")
 ax.axhline(0, color="k")
