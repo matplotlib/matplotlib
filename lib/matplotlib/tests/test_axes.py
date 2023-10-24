@@ -4532,6 +4532,13 @@ def test_hist_emptydata():
     ax.hist([[], range(10), range(10)], histtype="step")
 
 
+def test_hist_bihistogram():
+    fig, ax = plt.subplots()
+    data1 = np.random.random(size=10)
+    data2 = np.random.random(size=10)
+    ax.hist([data1, data2], bihist=True)
+
+
 def test_hist_labels():
     # test singleton labels OK
     fig, ax = plt.subplots()

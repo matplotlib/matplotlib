@@ -6717,7 +6717,7 @@ default: :rc:`scatter.edgecolors`
             'bar' or on top of each other if histtype is 'step'
 
         bihist : bool, default: False
-            Plot a bihistgoram if ``True``. Plots two histgorams, one facing up
+            Plot a bihistogram if ``True``. Plots two histgorams, one facing up
             and one inverted, facing down on the same x-axis. Setting `bihist=True`
             is only valid for when *x* has exactly two arrays in it.
 
