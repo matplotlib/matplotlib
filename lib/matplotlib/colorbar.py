@@ -432,7 +432,7 @@ class Colorbar:
 
     @property
     def long_axis(self):
-        """Axis that has decorations (ticks etc) on it."""
+        """Axis that has decorations (ticks, etc) on it."""
         return self._long_axis()
 
     @property
