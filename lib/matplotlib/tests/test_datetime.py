@@ -350,16 +350,16 @@ class TestDatetimePlotting:
         fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, layout="constrained")
 
         start_date = datetime.date(2023, 1, 1)
-        date_x = [start_date + datetime.timedelta(days=i) for i in range(1, limit)]
-        date_y = [start_date + datetime.timedelta(days=i) for i in range(1, limit)]
+        x_date = [start_date + datetime.timedelta(days=i) for i in range(1, limit)]
+        y_date = [start_date + datetime.timedelta(days=i) for i in range(1, limit)]
         x_ranges = np.array(range(1, limit))
         y_ranges = np.array(range(1, limit))
 
-        ax1.step(x_ranges, date_y, 'g', where='pre', label='pre')
-        ax2.step(date_x, y_ranges, 'b', where='mid', label='mid')
-        ax3.step(date_x, date_y, 'r', where='post', label='post')
+        ax1.step(x_ranges, y_date, 'g', where='pre', label='pre')
+        ax2.step(x_date, y_ranges, 'b', where='mid', label='mid')
+        ax3.step(x_date, y_date, 'r', where='post', label='post')
         ax4.step("date", "signal",
-                 data={"date": date_x, "signal": y_ranges},
+                 data={"date": x_date, "signal": y_ranges},
                  where='mid', label='mid')
 
     @pytest.mark.xfail(reason="Test for streamplot not written yet")
