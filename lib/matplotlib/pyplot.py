@@ -3212,6 +3212,7 @@ def hist(
     color: ColorType | Sequence[ColorType] | None = None,
     label: str | Sequence[str] | None = None,
     stacked: bool = False,
+    bihist=False,
     *,
     data=None,
     **kwargs,
@@ -3236,6 +3237,7 @@ def hist(
         color=color,
         label=label,
         stacked=stacked,
+        bihist=bihist,
         **({"data": data} if data is not None else {}),
         **kwargs,
     )
