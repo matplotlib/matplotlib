@@ -623,16 +623,17 @@ def strftimedelta(td, fmt_str):
     Return a string representing a timedelta, controlled by an explicit
     format string.
 
-    The format codes are similar to the C standard format codes for formatting
-    dates. All format codes that are reasonably transferable to timedelta are
-    supported. Additionally, some extensions to the C standard are defined.
+    The format codes are similar to the Python's datetime format codes from the
+    :mod:`datetime` module (which are equivalent to the C standard format
+    codes).
 
-    The following is a full list of the format codes that are supported.
+    The following is a full list of the format codes that are supported by this
+    function.
 
     +-----------+---------------------------------------+---------------------+
-    | Directive | Meaning                               | Example             |
+    | Code      | Meaning                               | Example             |
     +-----------+---------------------------------------+---------------------+
-    | %d        | Days                                  | 0, 1, 2, ...        |
+    | %d        | Days (*)                              | 0, 1, 2, ...        |
     +-----------+---------------------------------------+---------------------+
     | %H        | Hours as zero-padded decimal number   | 00, 01, ..., 23     |
     +-----------+---------------------------------------+---------------------+
@@ -640,23 +641,31 @@ def strftimedelta(td, fmt_str):
     +-----------+---------------------------------------+---------------------+
     | %S        | Seconds as zero-padded decimal number | 00, 01, ..., 59     |
     +-----------+---------------------------------------+---------------------+
-    | %-H       | Hours as decimal number               | 0, 1, ..., 23       |
+    | %-H       | Hours as decimal number (**)          | 0, 1, ..., 23       |
     +-----------+---------------------------------------+---------------------+
-    | %-M       | Minutes as decimal number             | 0, 1, ..., 59       |
+    | %-M       | Minutes as decimal number (**)        | 0, 1, ..., 59       |
     +-----------+---------------------------------------+---------------------+
-    | %-S       | Seconds as decimal number             | 0, 1, ..., 59       |
+    | %-S       | Seconds as decimal number (**)        | 0, 1, ..., 59       |
     +-----------+---------------------------------------+---------------------+
     | %>H       | Total number of hours including days  | 0, 1, ..., 100, ... |
+    |           | (***)                                 |                     |
     +-----------+---------------------------------------+---------------------+
     | %>M       | Total number of minutes including     | 0, 1, ..., 100, ... |
-    |           | days and hours                        |                     |
+    |           | days and hours (***)                  |                     |
     +-----------+---------------------------------------+---------------------+
     | %>S       | Total number of seconds including     | 0, 1, ..., 100, ... |
-    |           | days, hours and minutes               |                     |
+    |           | days, hours and minutes (***)         |                     |
     +-----------+---------------------------------------+---------------------+
     | %f        | Microseconds as a decimal number,     | 000000, 000001, ... |
     |           | zero-padded to 6 digits               | 999999              |
     +-----------+---------------------------------------+---------------------+
+
+    - (*): Days are zero-padded to two digits in the C standard. Zero-padding
+      is not used here, because there is no maximum number of digits
+    - (**): Support for %-H, %-M, %-S is platform specific in ``strftime``, but
+      they are always supported in :func:`strftimedelta`.
+    - (***): %>H, %>M, %>S are extensions to the C standard to support
+      representations like 3 days as 72 hours, for example.
 
     # TODO: move format code docs to general section at the top
 
@@ -681,7 +690,7 @@ def strftimedelta(td, fmt_str):
     # standard implementation for strftime for dates are supported
     # >H, >M, >S are total values and not partially consumed by there next
     # larger units e.g. for timedelta(days=1.5): d=1, h=12, H=36
-    values = {'d': int(d),  # days; equivalent to c standard
+    values = {'d': int(d),  # days; no zero-padding compared to c std
               '>H': int(h_t),  # total number of h, m, s;
               '>M': int(m_t),  # extension to c standard
               '>S': int(s_t),
@@ -704,6 +713,8 @@ def strftdnum(td_num, fmt_str):
     """
     Return a string representing a matplotlib internal float based timedelta,
     controlled by an explicit format string.
+
+    # TODO: reference table of format codes
 
     Arguments
     ---------
