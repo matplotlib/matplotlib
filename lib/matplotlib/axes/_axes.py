@@ -6787,6 +6787,11 @@ such objects
         x = cbook._reshape_2D(x, 'x')
         nx = len(x)  # number of datasets
 
+        # If attempting to plot a bihistogram, only two datasets should be passed in
+        if nx != 2 and bihist:
+            raise ValueError(f"If bihist=True, only two datasets can be passed in. "
+                             f"Actual number of datasets: {nx}")
+
         # Process unit information.  _process_unit_info sets the unit and
         # converts the first dataset; then we convert each following dataset
         # one at a time.
