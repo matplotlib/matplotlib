@@ -31,18 +31,7 @@ class TestDatetimePlotting:
     def test_axhline(self):
         mpl.rcParams["date.converter"] = 'concise'
         fig, ax = plt.subplots(layout='constrained')
-        birth_date = np.array([datetime.datetime(2020, 4, 10),
-                               datetime.datetime(2020, 5, 30),
-                               datetime.datetime(2020, 10, 12),
-                               datetime.datetime(2020, 11, 15)])
-        year_start = datetime.datetime(2020, 1, 1)
-        year_end = datetime.datetime(2020, 12, 31)
-        age = [21, 53, 20, 24]
-        ax.set_xlabel('Birth Date')
-        ax.set_ylabel('Age')
-        ax.set_ylim(bottom=year_start, top=year_end)
-        ax.bar(x=age, height=birth_date)
-        ax.axhline(y=datetime.datetime(2020, 6, 1))
+        ax.axhline(y=datetime.datetime(2020, 6, 1), xmin=0.2, xmax=0.8)
 
     @pytest.mark.xfail(reason="Test for axhspan not written yet")
     @mpl.style.context("default")
