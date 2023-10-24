@@ -1383,3 +1383,10 @@ def test_legend_nolabels_warning():
     plt.plot([1, 2, 3])
     with pytest.raises(UserWarning):
         plt.legend()
+
+
+def test_legend_nolabels_draw():
+    plt.plot([1, 2, 3])
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        plt.legend()
