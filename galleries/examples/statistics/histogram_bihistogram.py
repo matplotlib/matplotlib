@@ -28,7 +28,8 @@ dataset2 = np.random.normal(1, 2, size=N_points)
 
 # Use a constant bin width to make the two histograms easier to compare visually
 bin_width = 0.25
-bins=np.arange(np.min([dataset1, dataset2]), np.max([dataset1, dataset2]) + bin_width, bin_width)
+bins = np.arange(np.min([dataset1, dataset2]),
+                    np.max([dataset1, dataset2]) + bin_width, bin_width)
 
 fig, ax = plt.subplots()
 
