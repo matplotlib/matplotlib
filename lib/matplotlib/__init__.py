@@ -810,8 +810,7 @@ class RcParams(MutableMapping):
 
     def __iter__(self):
         """Yield from sorted list of keys"""
-        with _api.suppress_matplotlib_deprecation_warning():
-            yield from sorted(self._rcvalues.keys())
+        yield from sorted(self._rcvalues.keys())
 
     def __len__(self):
         return len(self._rcvalues)
