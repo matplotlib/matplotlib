@@ -106,7 +106,7 @@ class TestDatetimePlotting:
 
         x = np.datetime64(datetime.datetime(2020, 6, 1))
         ax1.bar(x_dates, x_ranges, width=np.timedelta64(4, "D"))
-        ax2.bar(np.arange(4), x_dates, bottom=x)
+        ax2.bar(np.arange(4), x_dates - x, bottom=x)
 
     @pytest.mark.xfail(reason="Test for bar_label not written yet")
     @mpl.style.context("default")
