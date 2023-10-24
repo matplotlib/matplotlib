@@ -766,7 +766,8 @@ class SubplotParams:
 
     def _repr_pretty_(self, p: Any, cycle: bool) -> None:
         del cycle
-        s = f"{self.__class__.__name__}(left={self.left}, bottom={self.bottom}, right={self.right}, top={self.top}, "            + f"wspace={self.wspace}, hspace={self.hspace})\n"
+        s = f"{self.__class__.__name__}(left={self.left}, bottom={self.bottom}, right={self.right}, top={self.top}, "
+        s += f"wspace={self.wspace}, hspace={self.hspace})"
         p.text(s)
                     
     def update(self, left=None, bottom=None, right=None, top=None,
