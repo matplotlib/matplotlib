@@ -9,7 +9,7 @@ Often, users need not access this module directly, and can use higher-level
 methods like `~.pyplot.subplots`, `~.pyplot.subplot_mosaic` and
 `~.Figure.subfigures`. See the tutorial :ref:`arranging_axes` for a guide.
 """
-
+from typing import Any
 import copy
 import logging
 from numbers import Integral
@@ -728,7 +728,6 @@ class SubplotSpec:
         return GridSpecFromSubplotSpec(nrows, ncols, self, **kwargs)
 
 
-
 class SubplotParams:
     """
     Parameters defining the positioning of a subplots grid in a figure.
@@ -766,10 +765,11 @@ class SubplotParams:
 
     def _repr_pretty_(self, p: Any, cycle: bool) -> None:
         del cycle
-        s = f"{self.__class__.__name__}(left={self.left}, bottom={self.bottom}, right={self.right}, top={self.top}, "
-        s += f"wspace={self.wspace}, hspace={self.hspace})"
+        name = self.__class__.__name__
+        s = f"{name}(left={self.left}, bottom={self.bottom}, right={self.right}, "
+        s += f" top={self.top}, wspace={self.wspace}, hspace={self.hspace})"
         p.text(s)
-                    
+
     def update(self, left=None, bottom=None, right=None, top=None,
                wspace=None, hspace=None, rc_default=False):
         """
@@ -783,7 +783,8 @@ class SubplotParams:
                 >= (top if top is not None else self.top)):
             raise ValueError('bottom cannot be >= top')
             
-        attributes = {'left': left, 'right': right, 'bottom': bottom, 'top': top, 'hspace': hspace, 'wspace': wspace}
+        attributes = {'left': left, 'right': right, 'bottom': bottom, 'top': top,
+                          'hspace': hspace, 'wspace': wspace}
         for key, value in attributes.items():
             if value is None:
                 if rc_default:

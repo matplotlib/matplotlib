@@ -1290,7 +1290,8 @@ default: %(va)s
                 "incompatible with subplots_adjust and/or tight_layout; "
                 "not calling subplots_adjust.")
             return
-        self.subplotpars.update(left, bottom, right, top, wspace, hspace, rc_default = rc_default)
+        self.subplotpars.update(left, bottom, right, top, wspace, hspace,
+                                rc_default=rc_default)
         for ax in self.axes:
             if ax.get_subplotspec() is not None:
                 ax._set_position(ax.get_subplotspec().get_position(self))
