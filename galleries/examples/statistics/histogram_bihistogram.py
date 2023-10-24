@@ -1,7 +1,7 @@
 """
-==========
+===========
 Bihistogram
-==========
+===========
 
 How to plot a bihistogram with Matplotlib.
 """
@@ -14,7 +14,7 @@ rng = np.random.default_rng(19680801)
 
 # %%
 # Generate data and plot a bihistogram
-# -----------------------------------------
+# ------------------------------------
 #
 # To generate a bihistogram we need two datasets (each being a vector of numbers).
 # We will plot both histograms using plt.hist() and set the weights of the second
