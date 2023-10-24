@@ -774,7 +774,8 @@ class SubplotParams:
                wspace=None, hspace=None, rc_default=False):
         """
         Update the dimensions of the passed parameters. *None* means unchanged.
-        If *rc_default* is True, then restore the parameters with value *None* to the default.
+        If *rc_default* is True, then restore the parameters with value *None*
+        to the default.
         """
         if ((left if left is not None else self.left)
                 >= (right if right is not None else self.right)):
@@ -782,7 +783,7 @@ class SubplotParams:
         if ((bottom if bottom is not None else self.bottom)
                 >= (top if top is not None else self.top)):
             raise ValueError('bottom cannot be >= top')
-            
+
         attributes = {'left': left, 'right': right, 'bottom': bottom, 'top': top,
                           'hspace': hspace, 'wspace': wspace}
         for key, value in attributes.items():
@@ -800,4 +801,3 @@ class SubplotParams:
             A dictionary with the subplot parameters
         """
         return self.__dict__.copy()
-    
