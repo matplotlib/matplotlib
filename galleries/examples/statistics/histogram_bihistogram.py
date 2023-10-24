@@ -17,8 +17,8 @@ rng = np.random.default_rng(19680801)
 # -----------------------------------------
 #
 # To generate a bihistogram we need two datasets (each being a vector of numbers).
-# We will plot both histograms using plt.hist() and set the weights of the second one to be negative.
-# We'll generate data below and plot the bihistogram.
+# We will plot both histograms using plt.hist() and set the weights of the second
+# one to be negative. We'll generate data below and plot the bihistogram.
 
 N_points = 10_000
 n_bins = 30
@@ -32,7 +32,8 @@ fig, ax = plt.subplots()
 # Plot the first histogram
 ax.hist(dataset1, bins=n_bins, label="Dataset 1")
 
-# Plot the second histogram (notice the negative weights, which flip the histogram upside down)
+# Plot the second histogram 
+# (notice the negative weights, which flip the histogram upside down)
 ax.hist(dataset2, weights=-np.ones_like(dataset2), bins=n_bins, label="Dataset 2")
 ax.axhline(0, color="k")
 ax.legend()
