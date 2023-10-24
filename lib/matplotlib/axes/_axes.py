@@ -6570,7 +6570,7 @@ default: :rc:`scatter.edgecolors`
     def hist(self, x, bins=None, range=None, density=False, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False,
-             color=None, label=None, stacked=False, **kwargs):
+             color=None, label=None, stacked=False, bihist=False, **kwargs):
         """
         Compute and plot a histogram.
 
@@ -6715,6 +6715,11 @@ default: :rc:`scatter.edgecolors`
             If ``True``, multiple data are stacked on top of each other If
             ``False`` multiple data are arranged side by side if histtype is
             'bar' or on top of each other if histtype is 'step'
+
+        bihist : bool, default: False
+            Plot a bihistgoram if ``True``. Plots two histgorams, one facing up
+            and one inverted, facing down on the same x-axis. Setting `bihist=True`
+            is only valid for when *x* has exactly two arrays in it.
 
         Returns
         -------
@@ -6862,12 +6867,23 @@ such objects
 
         # List to store all the top coordinates of the histograms
         tops = []  # Will have shape (n_datasets, n_bins).
+
         # Loop through datasets
-        for i in range(nx):
-            # this will automatically overwrite bins,
-            # so that each histogram uses the same bins
-            m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
-            tops.append(m)
+        if not bihist:
+            for i in range(nx):
+                # this will automatically overwrite bins,
+                # so that each histogram uses the same bins
+                m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
+                tops.append(m)
+        else:
+            # Special case for plotting bihistograms
+            if nx == 2:
+                m, bins = np.histogram(x[0], bins, weights=w[0], **hist_kwargs)
+                tops.append(m)
+                m, bins = np.histogram(x[1], bins, weights=w[1], **hist_kwargs)
+                tops.append(-m)
+                self.axhline(y=0, color='black', linestyle='-')
+
         tops = np.array(tops, float)  # causes problems later if it's an int
         bins = np.array(bins, float)  # causes problems if float16
         if stacked:
@@ -6902,7 +6918,12 @@ such objects
             if histtype == 'bar' and not stacked:
                 width = dr * totwidth / nx
                 dw = width
-                boffset = -0.5 * dr * totwidth * (1 - 1 / nx)
+                if not bihist:
+                    boffset = -0.5 * dr * totwidth * (1 - 1 / nx)
+                else:
+                    width = dr * totwidth
+                    dw = width
+                    boffset = -0.5 * dr * totwidth
             elif histtype == 'barstacked' or stacked:
                 width = dr * totwidth
                 boffset, dw = 0.0, 0.0
@@ -6932,7 +6953,8 @@ such objects
                 patches.append(bars)
                 if stacked:
                     bottom = top
-                boffset += dw
+                if not bihist:
+                    boffset += dw
             # Remove stickies from all bars but the lowest ones, as otherwise
             # margin expansion would be unable to cross the stickies in the
             # middle of the bars.
