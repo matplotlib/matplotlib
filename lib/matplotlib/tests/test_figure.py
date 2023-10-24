@@ -1707,6 +1707,7 @@ def test_warn_colorbar_mismatch():
     with pytest.warns(UserWarning, match="different Figure"):
         subfig3_1.colorbar(im4_1)
 
+
 def test_clf_subplotpars():
     keys = ('left', 'right', 'bottom', 'top', 'wspace', 'hspace')
     rc_params = {key: plt.rcParams['figure.subplot.'+key] for key in keys}
