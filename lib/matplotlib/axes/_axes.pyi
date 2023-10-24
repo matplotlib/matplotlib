@@ -551,6 +551,7 @@ class Axes(_AxesBase):
         color: ColorType | Sequence[ColorType] | None = ...,
         label: str | Sequence[str] | None = ...,
         stacked: bool = ...,
+        bihist: bool = ...,
         *,
         data=...,
         **kwargs
