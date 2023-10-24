@@ -359,8 +359,8 @@ class TestDatetimePlotting:
         ax2.step(date_x, y_ranges, 'b', where='mid', label='mid')
         ax3.step(date_x, date_y, 'r', where='post', label='post')
         ax4.step("date", "signal",
-                data={"date": date_x, "signal": y_ranges},
-                where='mid', label='mid')
+                 data={"date": date_x, "signal": y_ranges},
+                 where='mid', label='mid')
 
     @pytest.mark.xfail(reason="Test for streamplot not written yet")
     @mpl.style.context("default")
