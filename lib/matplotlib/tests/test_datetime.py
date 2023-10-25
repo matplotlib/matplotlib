@@ -343,8 +343,8 @@ class TestDatetimePlotting:
         fig, (ax1, ax2, ax3, ax4, ax5, ax6) = plt.subplots(6, 1, layout="constrained")
 
         limit_value = 10
-        above = datetime.datetime(2100, 10, 18)
-        below = datetime.datetime(1900, 10, 18)
+        above = datetime.datetime(2023, 9, 18)
+        below = datetime.datetime(2023, 11, 18)
 
         x_ranges = np.array(range(1, limit_value))
         y_ranges = np.array(range(1, limit_value))
