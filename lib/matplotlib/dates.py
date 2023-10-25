@@ -308,16 +308,16 @@ def get_epoch():
     return _epoch
 
 
-def _dt64_to_ordinalf(d, *, is_timedelta=False):
+def _to_ordinalf(d, *, is_timedelta=False):
     """
     Convert `numpy.datetime64` or an `numpy.ndarray` of those types to
     Gregorian date as UTC float relative to the epoch (see `.get_epoch`).
     Roundoff is float64 precision.  Practically: microseconds for dates
     between 290301 BC, 294241 AD, milliseconds for larger dates
     (see `numpy.datetime64`).
-    `is_timedelta` indicates that the converted values are timedelta instead
-    of datetime. The converted floating point timedelta values are relative
-    to `timedelta(0)`.
+    If `is_timedelta=True`, converts `numpy.timedelta64` or an `numpy.ndarray`
+    of those types to float. The converted floating point timedelta values are
+    relative to `timedelta(0)`.
     """
 
     # the "extra" ensures that we at least allow the dynamic range out to
@@ -336,11 +336,7 @@ def _dt64_to_ordinalf(d, *, is_timedelta=False):
 
     NaT_int = np.datetime64('NaT').astype(np.int64)
     t_int = d.astype(np.int64)
-    try:
-        dt[t_int == NaT_int] = np.nan
-    except TypeError:
-        if t_int == NaT_int:
-            dt = np.nan
+    dt[t_int == NaT_int] = np.nan
 
     return dt
 
@@ -486,7 +482,7 @@ def _timevalue2num(v, *, is_timedelta=False):
     elif not is_timedelta and not np.issubdtype(v.dtype, np.datetime64):
         # datetime arrays
         if not v.size:
-            # deals with an empty array...
+            # deals with an empty array; only required for datetime
             return v
         tzi = getattr(v[0], 'tzinfo', None)
         if tzi is not None:
@@ -496,7 +492,7 @@ def _timevalue2num(v, *, is_timedelta=False):
         v = v.astype('datetime64[us]')
 
     v = np.ma.masked_array(v, mask=mask) if masked else v
-    v = _dt64_to_ordinalf(v, is_timedelta=is_timedelta)
+    v = _to_ordinalf(v, is_timedelta=is_timedelta)
 
     return v if iterable else v[0]
 
@@ -704,8 +700,10 @@ def strftimedelta(td, fmt_str):
 
     try:
         result = _TimedeltaFormatTemplate(fmt_str).substitute(**values)
-    except KeyError:
-        raise ValueError(f"Invalid format string '{fmt_str}' for timedelta")
+    except ValueError as exc:
+        # show a more understandable error message
+        exc.args = (f"Invalid format string '{fmt_str}' for timedelta", )
+        raise exc
     return sign + result
 
 
@@ -785,6 +783,7 @@ class _ConciseTimevalueFormatter(ticker.Formatter):
         self.offset_string = ''
         self.show_offset = show_offset
         self._usetex = mpl._val_or_rc(usetex, 'text.usetex')
+        self._zerovals = [None, None, None, None, None, None, None]
 
         self.formats = list()
         self.zero_formats = list()
@@ -826,11 +825,10 @@ class _ConciseTimevalueFormatter(ticker.Formatter):
 
         # level is the basic level we will label at.
         # now loop through and decide the actual ticklabels
-        zerovals = [0, 1, 1, 0, 0, 0, 0]
         labels = [''] * len(ticktuple)
         for nn in range(len(ticktuple)):
             if level < 5:
-                if ticktuple[nn][level] == zerovals[level]:
+                if ticktuple[nn][level] == self._zerovals[level]:
                     fmt = zerofmts[level]
                 else:
                     fmt = fmts[level]
@@ -964,6 +962,9 @@ class ConciseDateFormatter(_ConciseTimevalueFormatter):
         """
         super().__init__(locator, show_offset=show_offset, usetex=usetex)
         self._tz = tz
+        # zerovals are values that are zeros for a given tick level, for dates,
+        # months and days start at 1, while hours, minutes, ... start at 0
+        self._zerovals = [0, 1, 1, 0, 0, 0, 0]
         self.defaultfmt = '%Y'
         # there are 6 levels with each level getting a specific format
         # 0: mostly years,  1: months,  2: days,
@@ -1038,7 +1039,10 @@ class ConciseTimedeltaFormatter(_ConciseTimevalueFormatter):
         initial string, and then redundant elements are removed.
         """
         super().__init__(locator, show_offset=show_offset, usetex=usetex)
-        self.defaultfmt = '%{d}D'
+        # zerovals are values that are zeros for a given tick level. For
+        # timedelta, this is always 0
+        self._zerovals = [0, 0, 0, 0, 0, 0, 0]
+        self.defaultfmt = '%d d'
         # there are 6 levels with each level getting a specific format
         # 0: mostly years,  1: months,  2: days,
         # 3: hours, 4: minutes, 5: seconds
@@ -1049,7 +1053,7 @@ class ConciseTimedeltaFormatter(_ConciseTimevalueFormatter):
                                  '4 format strings (or None)')
             self.formats = formats
         else:
-            self.formats = ['%{d} days',  # days
+            self.formats = ['%d d',  # days
                             '%-H:%M',   # hours
                             '%-H:%M',   # minutes
                             '%-S.%f',   # secs
@@ -1064,7 +1068,7 @@ class ConciseTimedeltaFormatter(_ConciseTimevalueFormatter):
             self.zero_formats = zero_formats
         else:
             # use the users formats for the zero tick formats
-            self.zero_formats = [''] + self.formats[:-1]
+            self.zero_formats = ['%d d'] + self.formats[:-1]
 
         if offset_formats:
             if len(offset_formats) != 4:
@@ -1074,8 +1078,8 @@ class ConciseTimedeltaFormatter(_ConciseTimevalueFormatter):
         else:
             self.offset_formats = ['',
                                    '',
-                                   '%{d} days',
-                                   '%{d} days %-H:%M']
+                                   '%d days',
+                                   '%d days %-H:%M']
 
     def __call__(self, x, pos=None):
         formatter = TimedeltaFormatter(self.defaultfmt, usetex=self._usetex)
@@ -1107,7 +1111,7 @@ class ConciseTimedeltaFormatter(_ConciseTimevalueFormatter):
         return super()._format_ticks(ticktimedelta, ticktuple)
 
     def format_data_short(self, value):
-        return strftimedelta(num2timedelta(value), '%{d}D %H:%M:%S')
+        return strftimedelta(num2timedelta(value), '%d d %H:%M:%S')
 
     def _format_string(self, value, fmt):
         return strftimedelta(value, fmt)
@@ -2121,7 +2125,7 @@ class TimedeltaLocator(ticker.MultipleLocator):
         locator = TimedeltaLocator(HOURLY, 4)
     """
     default_range = (timedelta2num(datetime.timedelta(days=0)),
-                     timedelta2num(datetime.timedelta(days=10)))
+                     timedelta2num(datetime.timedelta(days=1)))
     """The default min and max limits of the axis."""
 
     _FACTORS = {
@@ -2293,6 +2297,7 @@ class AutoTimedeltaLocator(TimedeltaLocator):
                     break
             break
         else:
+            # prevent interval from being undefined in case intervald was empty
             interval = 1
         super().set_params(freq=freq, interval=interval)
 
