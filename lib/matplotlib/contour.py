@@ -350,6 +350,11 @@ class ContourLabeler:
         taken into account when breaking the path, but not when computing the angle.
         """
         if hasattr(self, "_old_style_split_collections"):
+            vis = False
+            for coll in self._old_style_split_collections:
+                vis |= coll.get_visible()
+                coll.remove()
+            self.set_visible(vis)
             del self._old_style_split_collections  # Invalidate them.
 
         xys = path.vertices
@@ -383,7 +388,7 @@ class ContourLabeler:
         # If the path is closed, rotate it s.t. it starts at the label.
         is_closed_path = codes[stop - 1] == Path.CLOSEPOLY
         if is_closed_path:
-            cc_xys = np.concatenate([xys[idx:-1], xys[:idx+1]])
+            cc_xys = np.concatenate([cc_xys[idx:-1], cc_xys[:idx+1]])
             idx = 0
 
         # Like np.interp, but additionally vectorized over fp.
@@ -418,8 +423,13 @@ class ContourLabeler:
         new_code_blocks = []
         if is_closed_path:
             if i0 != -1 and i1 != -1:
-                new_xy_blocks.extend([[(x1, y1)], cc_xys[i1:i0+1], [(x0, y0)]])
-                new_code_blocks.extend([[Path.MOVETO], [Path.LINETO] * (i0 + 2 - i1)])
+                # This is probably wrong in the case that the entire contour would
+                # be discarded, but ensures that a valid path is returned and is
+                # consistent with behavior of mpl <3.8
+                points = cc_xys[i1:i0+1]
+                new_xy_blocks.extend([[(x1, y1)], points, [(x0, y0)]])
+                nlines = len(points) + 1
+                new_code_blocks.extend([[Path.MOVETO], [Path.LINETO] * nlines])
         else:
             if i0 != -1:
                 new_xy_blocks.extend([cc_xys[:i0 + 1], [(x0, y0)]])
