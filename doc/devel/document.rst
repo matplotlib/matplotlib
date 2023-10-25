@@ -176,6 +176,7 @@ Given the size of the table and length of each entry, use:
 +-------------+-------------------------------+--------------------+
 
 For more information, see `rst tables <https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#tables>`_.
+
 .. _sg: https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#tables
 .. _lt: https://docutils.sourceforge.io/docs/ref/rst/directives.html#list-table
 .. _csv: https://docutils.sourceforge.io/docs/ref/rst/directives.html#toc-entry-22
