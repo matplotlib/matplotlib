@@ -410,7 +410,7 @@ default: %(va)s
 
         Parameters
         ----------
-        color : color
+        color : color; see :ref:`colors_def`
         """
         self.patch.set_edgecolor(color)
 
@@ -420,7 +420,7 @@ default: %(va)s
 
         Parameters
         ----------
-        color : color
+        color : color; see :ref:`colors_def`
         """
         self.patch.set_facecolor(color)
 

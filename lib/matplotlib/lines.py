@@ -1056,7 +1056,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        color : color
+        color : color; see :ref:`colors_def`
         """
         mcolors._check_color_like(color=color)
         self._color = color
