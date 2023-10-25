@@ -31,7 +31,7 @@ precompiled wheel for your OS and Python.
 
    For support of other GUI frameworks, LaTeX rendering, saving
    animations and a larger selection of file formats, you can
-   install :ref:`optional_dependencies`.
+   install :ref:`optional dependencies <optional_dependencies>`.
 
 
 Third-party distributions

@@ -1,0 +1,6 @@
+*loc* parameter of ``Cell`` doesn't accept ``None`` anymore
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The default value of the *loc* parameter has been changed from ``None`` to ``right``,
+which already was the default location. The behavior of `.Cell` didn't change when
+called without an explicit *loc* parameter.

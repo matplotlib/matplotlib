@@ -112,10 +112,6 @@ class _AxisArtistHelperBase:
 class _FixedAxisArtistHelperBase(_AxisArtistHelperBase):
     """Helper class for a fixed (in the axes coordinate) axis."""
 
-    passthru_pt = _api.deprecated("3.7")(property(
-        lambda self: {"left": (0, 0), "right": (1, 0),
-                      "bottom": (0, 0), "top": (0, 1)}[self._loc]))
-
     @_api.delete_parameter("3.9", "nth_coord")
     def __init__(self, loc, nth_coord=None):
         """``nth_coord = 0``: x-axis; ``nth_coord = 1``: y-axis."""
