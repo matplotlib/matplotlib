@@ -116,7 +116,7 @@ jobs:
              rm -rf {package}/build'
         }}
       CIBW_BUILD_FRONTEND: >-
-        ${{ (((github.event_name == '' && github.ref == 'refs/heads/main') ||
+        ${{ (((github.event_name == 'push' && github.ref == 'refs/heads/main') ||
               (github.event_name == 'pull_request' && github.base_ref == 'refs/heads/main')) &&
             'pip; args: --no-build-isolation') || 'build' }}
       CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >-
