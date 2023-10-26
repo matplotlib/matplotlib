@@ -102,7 +102,7 @@ jobs:
       # istalled more targeted.
       CIBW_BUILD_FRONTEND: >-
         ${{ (((github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-              (github.event_name == 'pull_request' && github.base_ref == 'refs/heads/main')) &&
+              (github.event_name == 'pull_request' && github.base_ref == 'main')) &&
             'pip; args: --pre --extra-index-url "https://pypi.anaconda.org/scientific-python-nightly-wheels/simple"') ||
             'build' }}
       CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >-
