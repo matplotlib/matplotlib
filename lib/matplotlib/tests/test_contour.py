@@ -569,23 +569,19 @@ def test_find_nearest_contour():
     img = np.exp(-np.pi * (np.sum((xy - 5)**2, 0)/5.**2))
     cs = plt.contour(img, 10)
 
-    with pytest.warns(mpl._api.MatplotlibDeprecationWarning):
-        nearest_contour = cs.find_nearest_contour(1, 1, pixel=False)
+    nearest_contour = cs.find_nearest_contour(1, 1, pixel=False)
     expected_nearest = (1, 0, 33, 1.965966, 1.965966, 1.866183)
     assert_array_almost_equal(nearest_contour, expected_nearest)
 
-    with pytest.warns(mpl._api.MatplotlibDeprecationWarning):
-        nearest_contour = cs.find_nearest_contour(8, 1, pixel=False)
+    nearest_contour = cs.find_nearest_contour(8, 1, pixel=False)
     expected_nearest = (1, 0, 5, 7.550173, 1.587542, 0.547550)
     assert_array_almost_equal(nearest_contour, expected_nearest)
 
-    with pytest.warns(mpl._api.MatplotlibDeprecationWarning):
-        nearest_contour = cs.find_nearest_contour(2, 5, pixel=False)
+    nearest_contour = cs.find_nearest_contour(2, 5, pixel=False)
     expected_nearest = (3, 0, 21, 1.884384, 5.023335, 0.013911)
     assert_array_almost_equal(nearest_contour, expected_nearest)
 
-    with pytest.warns(mpl._api.MatplotlibDeprecationWarning):
-        nearest_contour = cs.find_nearest_contour(2, 5, indices=(5, 7), pixel=False)
+    nearest_contour = cs.find_nearest_contour(2, 5, indices=(5, 7), pixel=False)
     expected_nearest = (5, 0, 16, 2.628202, 5.0, 0.394638)
     assert_array_almost_equal(nearest_contour, expected_nearest)
 
@@ -595,16 +591,13 @@ def test_find_nearest_contour_no_filled():
     img = np.exp(-np.pi * (np.sum((xy - 5)**2, 0)/5.**2))
     cs = plt.contourf(img, 10)
 
-    with pytest.warns(mpl._api.MatplotlibDeprecationWarning), \
-         pytest.raises(ValueError, match="Method does not support filled contours."):
+    with pytest.raises(ValueError, match="Method does not support filled contours"):
         cs.find_nearest_contour(1, 1, pixel=False)
 
-    with pytest.warns(mpl._api.MatplotlibDeprecationWarning), \
-         pytest.raises(ValueError, match="Method does not support filled contours."):
+    with pytest.raises(ValueError, match="Method does not support filled contours"):
         cs.find_nearest_contour(1, 10, indices=(5, 7), pixel=False)
 
-    with pytest.warns(mpl._api.MatplotlibDeprecationWarning), \
-         pytest.raises(ValueError, match="Method does not support filled contours."):
+    with pytest.raises(ValueError, match="Method does not support filled contours"):
         cs.find_nearest_contour(2, 5, indices=(2, 7), pixel=True)
 
 
@@ -864,12 +857,11 @@ def test_allsegs_allkinds():
 
     cs = plt.contour(x, y, z, levels=[0, 0.5])
 
-    # Expect two levels, first with 5 segments and the second with 4.
-    with pytest.warns(PendingDeprecationWarning, match="all"):
-        for result in [cs.allsegs, cs.allkinds]:
-            assert len(result) == 2
-            assert len(result[0]) == 5
-            assert len(result[1]) == 4
+    # Expect two levels, the first with 5 segments and the second with 4.
+    for result in [cs.allsegs, cs.allkinds]:
+        assert len(result) == 2
+        assert len(result[0]) == 5
+        assert len(result[1]) == 4
 
 
 def test_deprecated_apis():

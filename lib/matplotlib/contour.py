@@ -2,6 +2,7 @@
 Classes to support contour plotting and labelling for the Axes class.
 """
 
+from contextlib import ExitStack
 import functools
 import math
 from numbers import Integral
@@ -937,12 +938,12 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                 ", ".join(map(repr, kwargs))
             )
 
-    allsegs = _api.deprecated("3.8", pending=True)(property(lambda self: [
+    allsegs = property(lambda self: [
         [subp.vertices for subp in p._iter_connected_components()]
-        for p in self.get_paths()]))
-    allkinds = _api.deprecated("3.8", pending=True)(property(lambda self: [
+        for p in self.get_paths()])
+    allkinds = property(lambda self: [
         [subp.codes for subp in p._iter_connected_components()]
-        for p in self.get_paths()]))
+        for p in self.get_paths()])
     tcolors = _api.deprecated("3.8")(property(lambda self: [
         (tuple(rgba),) for rgba in self.to_rgba(self.cvalues, self.alpha)]))
     tlinewidths = _api.deprecated("3.8")(property(lambda self: [
@@ -1396,7 +1397,6 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         return idx_level_min, idx_vtx_min, proj_min
 
-    @_api.deprecated("3.8")
     def find_nearest_contour(self, x, y, indices=None, pixel=True):
         """
         Find the point in the contour plot that is closest to ``(x, y)``.
@@ -1417,64 +1417,39 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         Returns
         -------
-        contour : `.Collection`
-            The contour that is closest to ``(x, y)``.
-        segment : int
-            The index of the `.Path` in *contour* that is closest to
-            ``(x, y)``.
+        path : int
+            The index of the path that is closest to ``(x, y)``.  Each path corresponds
+            to one contour level.
+        subpath : int
+            The index within that closest path of the subpath that is closest to
+            ``(x, y)``.  Each subpath corresponds to one unbroken contour line.
         index : int
-            The index of the path segment in *segment* that is closest to
+            The index of the vertices within that subpath that are closest to
             ``(x, y)``.
         xmin, ymin : float
             The point in the contour plot that is closest to ``(x, y)``.
         d2 : float
             The squared distance from ``(xmin, ymin)`` to ``(x, y)``.
         """
+        segment = index = d2 = None
 
-        # This function uses a method that is probably quite
-        # inefficient based on converting each contour segment to
-        # pixel coordinates and then comparing the given point to
-        # those coordinates for each contour.  This will probably be
-        # quite slow for complex contours, but for normal use it works
-        # sufficiently well that the time is not noticeable.
-        # Nonetheless, improvements could probably be made.
+        with ExitStack() as stack:
+            if not pixel:
+                # _find_nearest_contour works in pixel space. We want axes space, so
+                # effectively disable the transformation here by setting to identity.
+                stack.enter_context(self._cm_set(
+                    transform=mtransforms.IdentityTransform()))
 
-        if self.filled:
-            raise ValueError("Method does not support filled contours.")
+            i_level, i_vtx, (xmin, ymin) = self._find_nearest_contour((x, y), indices)
 
-        if indices is None:
-            indices = range(len(self.collections))
+        if i_level is not None:
+            cc_cumlens = np.cumsum(
+                [*map(len, self._paths[i_level]._iter_connected_components())])
+            segment = cc_cumlens.searchsorted(i_vtx, "right")
+            index = i_vtx if segment == 0 else i_vtx - cc_cumlens[segment - 1]
+            d2 = (xmin-x)**2 + (ymin-y)**2
 
-        d2min = np.inf
-        conmin = None
-        segmin = None
-        imin = None
-        xmin = None
-        ymin = None
-
-        point = np.array([x, y])
-
-        for icon in indices:
-            con = self.collections[icon]
-            trans = con.get_transform()
-            paths = con.get_paths()
-
-            for segNum, linepath in enumerate(paths):
-                lc = linepath.vertices
-                # transfer all data points to screen coordinates if desired
-                if pixel:
-                    lc = trans.transform(lc)
-
-                d2, xc, leg = _find_closest_point_on_path(lc, point)
-                if d2 < d2min:
-                    d2min = d2
-                    conmin = icon
-                    segmin = segNum
-                    imin = leg[1]
-                    xmin = xc[0]
-                    ymin = xc[1]
-
-        return (conmin, segmin, imin, xmin, ymin, d2min)
+        return (i_level, segment, index, xmin, ymin, d2)
 
     def draw(self, renderer):
         paths = self._paths
