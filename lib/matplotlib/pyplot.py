@@ -51,7 +51,7 @@ import threading
 import time
 from typing import cast, overload
 
-from cycler import cycler
+from matplotlib.rcsetup import cycler
 import matplotlib
 import matplotlib.colorbar
 import matplotlib.image
