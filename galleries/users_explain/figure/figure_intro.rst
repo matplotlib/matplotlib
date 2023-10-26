@@ -80,6 +80,8 @@ other than the default "inline" backend, you will likely need to use an ipython
 
    .. sourcecode:: ipython
 
+   %matplotlib notebook
+
 Standalone scripts and interactive use
 --------------------------------------
 

@@ -7,7 +7,7 @@
 .. _interactive_figures:
 
 ===================
-Interactive Figures
+Interactive figures
 ===================
 
 When working with data, interactivity can be invaluable. The pan/zoom and
@@ -62,7 +62,7 @@ collected. `.Figure`\s can be closed and deregistered from `.pyplot` individuall
 
 .. _ipython-pylab:
 
-IPython Integration
+IPython integration
 ===================
 
 We recommend using IPython for an interactive shell.  In addition to
@@ -314,7 +314,7 @@ Preserve aspect ratio              hold **CONTROL** when panning/zooming with mo
 
 .. _other-shells:
 
-Other Python Prompts
+Other Python prompts
 ====================
 
 Interactive mode works in the default Python prompt:
