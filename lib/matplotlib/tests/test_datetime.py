@@ -218,11 +218,27 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.hist2d(...)
 
-    @pytest.mark.xfail(reason="Test for hlines not written yet")
     @mpl.style.context("default")
     def test_hlines(self):
-        fig, ax = plt.subplots()
-        ax.hlines(...)
+        mpl.rcParams["date.converter"] = 'concise'
+        fig, axs = plt.subplots(2, 3, layout='constrained')
+        dateStrs = ['2023-03-08',
+                    '2023-04-09',
+                    '2023-05-13',
+                    '2023-07-28',
+                    '2023-12-24']
+        dates = [datetime.datetime(2023, m*2, 10) for m in range(1, 6)]
+        npDates = [np.datetime64(s) for s in dateStrs]
+        axs[0, 0].hlines(y=dates,
+                         xmin=[0.1, 0.2, 0.3, 0.4, 0.5],
+                         xmax=[0.5, 0.6, 0.7, 0.8, 0.9])
+        axs[0, 1].hlines(y=dates, xmin=0.2, xmax=0.8)
+        axs[0, 2].hlines(dates, xmin=0, xmax=1)
+        axs[1, 0].hlines(y=npDates,
+                         xmin=[0.5, 0.6, 0.7, 0.8, 0.9],
+                         xmax=[0.1, 0.2, 0.3, 0.4, 0.5])
+        axs[1, 1].hlines(y=npDates, xmin=0.45, xmax=0.65)
+        axs[1, 2].hlines(npDates, xmin=0, xmax=1)
 
     @pytest.mark.xfail(reason="Test for imshow not written yet")
     @mpl.style.context("default")
