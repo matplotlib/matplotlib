@@ -405,10 +405,10 @@ class TestLegendFunction:
         th = np.linspace(0, 2*np.pi, 1024)
         lns, = ax.plot(th, np.sin(th), label='sin')
         lnc, = ax.plot(th, np.cos(th), label='cos')
-        with pytest.warns(UserWarning) as record:
+        with pytest.warns(DeprecationWarning) as record:
             ax.legend((lnc, lns), labels=('a', 'b'))
         assert len(record) == 1
-        assert str(record[0].message) == (
+        assert str(record[0].message).startswith(
             "You have mixed positional and keyword arguments, some input may "
             "be discarded.")
 
@@ -474,10 +474,10 @@ class TestLegendFigureFunction:
         fig, axs = plt.subplots(1, 2)
         lines = axs[0].plot(range(10))
         lines2 = axs[1].plot(np.arange(10) * 2.)
-        with pytest.warns(UserWarning) as record:
+        with pytest.warns(DeprecationWarning) as record:
             fig.legend((lines, lines2), labels=('a', 'b'))
         assert len(record) == 1
-        assert str(record[0].message) == (
+        assert str(record[0].message).startswith(
             "You have mixed positional and keyword arguments, some input may "
             "be discarded.")
 
