@@ -15,7 +15,7 @@ The following lists a few use cases for `~.Axes.set_box_aspect`.
 
 # %%
 # A square axes, independent of data
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # Produce a square axes, no matter what the data limits are.
 
@@ -31,7 +31,7 @@ plt.show()
 
 # %%
 # Shared square axes
-# ~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^
 #
 # Produce shared subplots that are squared in size.
 #
@@ -47,7 +47,7 @@ plt.show()
 
 # %%
 # Square twin axes
-# ~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^
 #
 # Produce a square axes, with a twin axes. The twinned axes takes over the
 # box aspect of the parent.
@@ -67,7 +67,7 @@ plt.show()
 
 # %%
 # Normal plot next to image
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # When creating an image plot with fixed data aspect and the default
 # ``adjustable="box"`` next to a normal plot, the axes would be unequal in
@@ -90,7 +90,7 @@ plt.show()
 
 # %%
 # Square joint/marginal plot
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # It may be desirable to show marginal distributions next to a plot of joint
 # data. The following creates a square plot with the box aspect of the
@@ -116,7 +116,7 @@ plt.show()
 
 # %%
 # Square joint/marginal plot
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # When setting the box aspect, one may still set the data aspect as well.
 # Here we create an Axes with a box twice as long as tall and use an "equal"
@@ -133,7 +133,7 @@ plt.show()
 
 # %%
 # Box aspect for many subplots
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # It is possible to pass the box aspect to an Axes at initialization. The
 # following creates a 2 by 3 subplot grid with all square Axes.
