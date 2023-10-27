@@ -1381,7 +1381,7 @@ def test_legend_handle_label_mismatch_no_len():
 
 def test_legend_nolabels_warning():
     plt.plot([1, 2, 3])
-    with pytest.raises(UserWarning):
+    with pytest.raises(UserWarning, match="No artists with labels found"):
         plt.legend()
 
 
