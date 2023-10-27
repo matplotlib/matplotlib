@@ -651,14 +651,13 @@ bool FT2Font::load_char_with_fallback(FT2Font *&ft_object_with_glyph,
     glyph_seen_fonts.insert(face->family_name);
 
     if (glyph_index || override) {
-
         charcode_error = FT_Load_Glyph(face, glyph_index, flags);
         if (charcode_error) {
             return false;
         }
         FT_Glyph thisGlyph;
         glyph_error = FT_Get_Glyph(face->glyph, &thisGlyph);
-        if (glyph_error){
+        if (glyph_error) {
             return false;
         }
 
@@ -676,9 +675,9 @@ bool FT2Font::load_char_with_fallback(FT2Font *&ft_object_with_glyph,
     else {
         for (size_t i = 0; i < fallbacks.size(); ++i) {
             bool was_found = fallbacks[i]->load_char_with_fallback(
-                ft_object_with_glyph, final_glyph_index, parent_glyphs, parent_char_to_font,
-                parent_glyph_to_font, charcode, flags, charcode_error, glyph_error,
-                glyph_seen_fonts, override);
+                ft_object_with_glyph, final_glyph_index, parent_glyphs,
+                parent_char_to_font, parent_glyph_to_font, charcode, flags,
+                charcode_error, glyph_error, glyph_seen_fonts, override);
             if (was_found) {
                 return true;
             }
