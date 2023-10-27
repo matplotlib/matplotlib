@@ -284,6 +284,7 @@ class TestDatetimePlotting:
         )
         x_ranges = np.array(range(1, range_threshold))
         y_ranges = np.array(range(1, range_threshold))
+
         ax1.plot_date(x_dates, y_dates)
         ax2.plot_date(x_dates, y_ranges)
         ax3.plot_date(x_ranges, y_dates)
@@ -346,8 +347,8 @@ class TestDatetimePlotting:
         above = datetime.datetime(2023, 9, 18)
         below = datetime.datetime(2023, 11, 18)
 
-        x_ranges = np.array(range(1, limit_value))
-        y_ranges = np.array(range(1, limit_value))
+        x_ranges = np.arange(1, limit_value)
+        y_ranges = np.arange(1, limit_value)
 
         x_dates = np.array(
             [datetime.datetime(2023, 10, n) for n in range(1, limit_value)]
