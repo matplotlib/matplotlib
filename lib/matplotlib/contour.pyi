@@ -103,12 +103,17 @@ class ContourSet(ContourLabeler, Collection):
     clip_path: Patch | Path | TransformedPath | TransformedPatchPath | None
     labelTexts: list[Text]
     labelCValues: list[ColorType]
-    allkinds: list[np.ndarray]
-    tcolors: list[tuple[float, float, float, float]]
+    @property
+    def tcolors(self) -> list[tuple[tuple[float, float, float, float]]]: ...
 
     # only for not filled
-    tlinewidths: list[tuple[float]]
+    @property
+    def tlinewidths(self) -> list[tuple[float]]: ...
 
+    @property
+    def allkinds(self) -> list[list[np.ndarray | None]]: ...
+    @property
+    def allsegs(self) -> list[list[np.ndarray]]: ...
     @property
     def alpha(self) -> float | None: ...
     @property
