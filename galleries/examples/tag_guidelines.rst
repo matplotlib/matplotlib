@@ -3,13 +3,13 @@ Guidelines for assigning tags to gallery examples
 
 *Why do we need tags?*
 
-    Tags serve multiple purposes.
+Tags serve multiple purposes.
 
-    Tags have a one-to-many organization (i.e. one example can have several tags), while the gallery structure requires that examples are placed in only one location. This means tags provide a secondary layer of organization and make the gallery of examples more flexible and more user-friendly.
+Tags have a one-to-many organization (i.e. one example can have several tags), while the gallery structure requires that examples are placed in only one location. This means tags provide a secondary layer of organization and make the gallery of examples more flexible and more user-friendly.
 
-    They allow for better discoverability, search, and browse functions. They are helpful for users struggling to write a search query for what they're looking for.
+They allow for better discoverability, search, and browse functions. They are helpful for users struggling to write a search query for what they're looking for.
 
-    Hidden tags provide additional functionality for maintainers and contributors.
+Hidden tags provide additional functionality for maintainers and contributors.
 
 *What gets a tag?*
 
@@ -33,10 +33,10 @@ IV. Internal tags: what information is helpful for maintainers or contributors?
 
 *Proposing new tags*
 
-    1. Review existing tag list, looking out for similar entries (i.e. ``axes`` and ``axis``).
-    2. If a relevant tag or subcategory does not yet exist, propose it. Each tag is two parts: ``subcategory: tag``. Tags should be one or two words.
-    3. New tags should be be added when they are relevant to existing gallery entries too. Avoid tags that will link to only a single gallery entry.
-    4. Tags can recreate other forms of organization.
+1. Review existing tag list, looking out for similar entries (i.e. ``axes`` and ``axis``).
+2. If a relevant tag or subcategory does not yet exist, propose it. Each tag is two parts: ``subcategory: tag``. Tags should be one or two words.
+3. New tags should be be added when they are relevant to existing gallery entries too. Avoid tags that will link to only a single gallery entry.
+4. Tags can recreate other forms of organization.
 
 Note: Tagging organization aims to work for 80-90% of cases. Some examples fall outside of the tagging structure. Niche or specific examples shouldn't be given standalone tags that won't apply to other examples.
 

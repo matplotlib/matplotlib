@@ -3,10 +3,10 @@
 Tag Glossary
 ============
 
-    I. API tags: what content from the API reference is in the example?
-    II. Structural tags: what format is the example? What context can we provide?
-    III. Domain tags: what discipline(s) might seek this example consistently?
-    IV. Internal tags: what information is helpful for maintainers or contributors?
+I. API tags: what content from the API reference is in the example?
+II. Structural tags: what format is the example? What context can we provide?
+III. Domain tags: what discipline(s) might seek this example consistently?
+IV. Internal tags: what information is helpful for maintainers or contributors?
 
 
 *1. API tags: what content from the API reference is in the example?*
@@ -155,8 +155,6 @@ Note: it's futile to draw fences around "who owns what", and that's not the poin
 |``domain: oceanography``       |                                        |
 +-------------------------------+----------------------------------------+
 |``domain: signal-processing``  |                                        |
-+-------------------------------+----------------------------------------+
-|                               |                                        |
 +-------------------------------+----------------------------------------+
 
 *4. Internal tags: what information is helpful for maintainers or contributors?*
