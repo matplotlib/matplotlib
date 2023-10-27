@@ -644,7 +644,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             else:
                 slot = getattr(self, callback)
                 # https://bugreports.qt.io/browse/PYSIDE-2512
-                slot = lambda slot=slot, *args: slot(*args)
+                slot = functools.partial(slot)
                 slot = QtCore.Slot()(slot)
 
                 a = self.addAction(self._icon(image_file + '.png'),
