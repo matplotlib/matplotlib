@@ -46,10 +46,6 @@ matplotlib.widgets.MultiCursor.needclear
 
 # 3.8 deprecations
 matplotlib.cbook.get_sample_data
-matplotlib.contour.ContourSet.allkinds
-matplotlib.contour.ContourSet.allsegs
-matplotlib.contour.ContourSet.tcolors
-matplotlib.contour.ContourSet.tlinewidths
 matplotlib.ticker.LogLocator.__init__
 matplotlib.ticker.LogLocator.set_params
 
