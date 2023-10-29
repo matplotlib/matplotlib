@@ -28,9 +28,9 @@ class TestDatetimePlotting:
         ax1.annotate(text=test_text, xy=(dates[15], data[15]))
         ax2.plot(data, dates)
         ax2.annotate(text=test_text, xy=(data[5], dates[26]))
-        ax3.plot(data, data)
+        ax3.plot(dates, dates)
         ax3.annotate(text=test_text, xy=(dates[15], dates[3]))
-        ax4.plot(data, data)
+        ax4.plot(dates, dates)
         ax4.annotate(text=test_text, xy=(dates[5], dates[30]),
                         xytext=(dates[1], dates[7]), arrowprops=dict(facecolor='red'))
 
