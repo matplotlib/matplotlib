@@ -29,10 +29,10 @@ class TestDatetimePlotting:
         ax2.plot(data, dates)
         ax2.annotate(text=test_text, xy=(data[5], dates[26]))
         ax3.plot(data, data)
-        ax3.annotate(text=test_text, xy=(data[15], data[3]))
+        ax3.annotate(text=test_text, xy=(dates[15], dates[3]))
         ax4.plot(data, data)
-        ax4.annotate(text=test_text, xy=(data[5], data[30]), xytext=(data[1], data[7]),
-                     arrowprops=dict(facecolor='red'))
+        ax4.annotate(text=test_text, xy=(dates[5], dates[30]),
+                        xytext=(dates[1], dates[7]), arrowprops=dict(facecolor='red'))
 
     @pytest.mark.xfail(reason="Test for arrow not written yet")
     @mpl.style.context("default")
