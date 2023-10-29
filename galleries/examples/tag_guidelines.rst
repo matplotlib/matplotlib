@@ -1,7 +1,8 @@
 Guidelines for assigning tags to gallery examples
 =================================================
 
-*Why do we need tags?*
+Why do we need tags?
+--------------------
 
 Tags serve multiple purposes.
 
@@ -11,7 +12,8 @@ They allow for better discoverability, search, and browse functions. They are he
 
 Hidden tags provide additional functionality for maintainers and contributors.
 
-*What gets a tag?*
+What gets a tag?
+----------------
 
 Every gallery example should be tagged with:
 
@@ -24,14 +26,15 @@ Tags can repeat existing forms of organization (e.g. an example is in the Animat
 
 Tags are helpful to denote particularly good "byproduct" examples. E.g. the explicit purpose of a gallery example might be to demonstrate a colormap, but it's also a good demonstration of a legend. Tag ``legend`` to indicate that, rather than changing the title or the scope of the example.
 
-*Tag Categories* - See :doc:`Tag Glossary <tag_glossary>` for a complete list of tags.
+**Tag Categories** - See :doc:`Tag Glossary <tag_glossary>` for a complete list of tags.
 
 I. API tags: what content from the API reference is in the example?
 II. Structural tags: what format is the example? What context can we provide?
 III. Domain tags: what discipline(s) might seek this example consistently?
 IV. Internal tags: what information is helpful for maintainers or contributors?
 
-*Proposing new tags*
+Proposing new tags
+------------------
 
 1. Review existing tag list, looking out for similar entries (i.e. ``axes`` and ``axis``).
 2. If a relevant tag or subcategory does not yet exist, propose it. Each tag is two parts: ``subcategory: tag``. Tags should be one or two words.
@@ -40,12 +43,15 @@ IV. Internal tags: what information is helpful for maintainers or contributors?
 
 Note: Tagging organization aims to work for 80-90% of cases. Some examples fall outside of the tagging structure. Niche or specific examples shouldn't be given standalone tags that won't apply to other examples.
 
-*How to tag?*
+How to tag?
+-----------
  where you put the directive is where the tag will show
 
-**Related content**
+Related content
+---------------
 
-*What is a gallery example?*
+What is a gallery example?
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The gallery of examples contains visual demonstrations of matplolib features. Gallery examples exist so that users can scan through visual examples.
 
@@ -53,7 +59,8 @@ Unlike tutorials or user guides, gallery examples teach by demonstration, rather
 
 Gallery examples should avoid instruction or excessive explanation except for brief clarifying code comments. Instead, they can tag related concepts and/or link to relevant tutorials or user guides.
 
-Format:
+Format
+^^^^^^
 
 All gallery examples should aim to follow the following format:
 
