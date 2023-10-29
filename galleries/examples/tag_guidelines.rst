@@ -8,7 +8,7 @@ Tags serve multiple purposes.
 
 Tags have a one-to-many organization (i.e. one example can have several tags), while the gallery structure requires that examples are placed in only one location. This means tags provide a secondary layer of organization and make the gallery of examples more flexible and more user-friendly.
 
-They allow for better discoverability, search, and browse functions. They are helpful for users struggling to write a search query for what they're looking for.
+They allow for better discoverability, search, and browse functionality. They are helpful for users struggling to write a search query for what they're looking for.
 
 Hidden tags provide additional functionality for maintainers and contributors.
 
