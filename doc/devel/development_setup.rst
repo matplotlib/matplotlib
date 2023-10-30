@@ -173,6 +173,11 @@ When working on a branch that does not have Meson enabled, meaning it does not
 have :ghpull:`26621` in its history (log), you will have to reinstall from source
 each time you change any compiled extension code.
 
+If the installation is not working, please consult the :ref:`troubleshooting guide <troubleshooting-faq>`.
+If the guide does not offer a solution, please reach out via `chat <https://gitter.im/matplotlib/matplotlib>`_
+or :ref:`open an issue <submitting-a-bug-report>`.
+
+
 Build options
 -------------
 If you are working heavily with files that need to be compiled, you may want to
