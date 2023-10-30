@@ -38,6 +38,8 @@ IV. Internal tags: what information is helpful for maintainers or contributors?
 |``styling: conditional``           |styling is determined programmatically by a  |
 |                                   |condition being met                          |
 +-----------------------------------+---------------------------------------------+
+|``styling: showcase``              |good showcase example                        |
++-----------------------------------+---------------------------------------------+
 |                                   |                                             |
 +-----------------------------------+---------------------------------------------+
 |**Primary or relevant plot component**                                           |

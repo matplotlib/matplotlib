@@ -20,8 +20,6 @@ Every gallery example should be tagged with:
 * 1+ content tags
 * structural, domain, or internal tag(s) if helpful
 
-Examples with many tags may indicate that the entry is a showcase example.
-
 Tags can repeat existing forms of organization (e.g. an example is in the Animation folder and also gets an ``animation`` tag).
 
 Tags are helpful to denote particularly good "byproduct" examples. E.g. the explicit purpose of a gallery example might be to demonstrate a colormap, but it's also a good demonstration of a legend. Tag ``legend`` to indicate that, rather than changing the title or the scope of the example.
@@ -45,7 +43,7 @@ Note: Tagging organization aims to work for 80-90% of cases. Some examples fall 
 
 How to tag?
 -----------
- where you put the directive is where the tag will show
+Put each tag as a directive at the bottom of the page.
 
 Related content
 ---------------
@@ -53,7 +51,7 @@ Related content
 What is a gallery example?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The gallery of examples contains visual demonstrations of matplolib features. Gallery examples exist so that users can scan through visual examples.
+The gallery of examples contains visual demonstrations of matplotlib features. Gallery examples exist so that users can scan through visual examples.
 
 Unlike tutorials or user guides, gallery examples teach by demonstration, rather than by explanation or instruction.
 
@@ -62,7 +60,7 @@ Gallery examples should avoid instruction or excessive explanation except for br
 Format
 ^^^^^^
 
-All gallery examples should aim to follow the following format:
+All :ref:`examples-index` should aim to follow the following format:
 
 * Title: 1-6 words, descriptive of content
 * Subtitle: 10-50 words, action-oriented description of the example subject
@@ -71,7 +69,7 @@ All gallery examples should aim to follow the following format:
 
 Example:
 
-``bbox_intersect`` gallery example showcases the point of visual examples
+The ``bbox_intersect`` gallery example demonstrates the point of visual examples:
 
-* messy example/ hard to categorize, but the gallery is definitely the right spot for it because it's the kind of thing you'd find by visual search
+* this example is "messy" in that it's hard to categorize, but the gallery is the right spot for it because it makes sense to find it by visual search
 * https://matplotlib.org/devdocs/gallery/misc/bbox_intersect.html#sphx-glr-gallery-misc-bbox-intersect-py
