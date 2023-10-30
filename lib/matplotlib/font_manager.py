@@ -36,6 +36,7 @@ import logging
 from numbers import Number
 import os
 from pathlib import Path
+import plistlib
 import re
 import subprocess
 import sys
@@ -261,6 +262,14 @@ def _get_fontconfig_fonts():
     return [Path(os.fsdecode(fname)) for fname in out.split(b'\n')]
 
 
+@lru_cache
+def _get_macos_fonts():
+    """Cache and list the font paths known to ``system_profiler SPFontsDataType``."""
+    d, = plistlib.loads(
+        subprocess.check_output(["system_profiler", "-xml", "SPFontsDataType"]))
+    return [Path(entry["path"]) for entry in d["_items"]]
+
+
 def findSystemFonts(fontpaths=None, fontext='ttf'):
     """
     Search for fonts in the specified font paths.  If no paths are
@@ -279,6 +288,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
         else:
             installed_fonts = _get_fontconfig_fonts()
             if sys.platform == 'darwin':
+                installed_fonts += _get_macos_fonts()
                 fontpaths = [*X11FontDirectories, *OSXFontDirectories]
             else:
                 fontpaths = X11FontDirectories
@@ -1011,7 +1021,7 @@ class FontManager:
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires an existing font
     # cache files to be rebuilt.
-    __version__ = 330
+    __version__ = 390
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__
