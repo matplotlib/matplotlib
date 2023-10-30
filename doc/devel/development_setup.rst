@@ -162,6 +162,7 @@ using the command ::
 
     python -m pip install -ve .
 
+
 The 'editable/develop mode', builds everything and places links in your Python
 environment so that Python will be able to import Matplotlib from your
 development source directory.  This allows you to import your modified version
@@ -169,6 +170,10 @@ of Matplotlib without re-installing after every change. Note that this is only
 true for ``*.py`` files.  If you change the C-extension source (which might
 also happen if you change branches) you will have to re-run
 ``python -m pip install -ve .``
+
+If the installation is not working, please consult the :ref:`troubleshooting guide <troubleshooting-faq>`.
+If the guide does not offer a solution, please reach out via `chat <https://gitter.im/matplotlib/matplotlib>`_
+or :ref:`open an issue <submitting-a-bug-report>`.
 
 Verify the Installation
 =======================
