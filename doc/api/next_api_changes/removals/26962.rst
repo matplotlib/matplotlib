@@ -1,0 +1,8 @@
+``backend_ps.PsBackendHelper`` and ``backend_webagg.ServerThread``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are removed .These were mareked as deprecated since 3.7 of Matplpotlib
+
+``PyBufferRegion_to_string`` and ``PyBufferRegion_to_string_argb``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... methods are removed from `src/_backend_agg_wrapper.cpp`.These were mareked as 
+    deprecated since 3.7 Matplpotlib
