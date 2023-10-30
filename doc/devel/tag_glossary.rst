@@ -9,8 +9,8 @@ III. Domain tags: what discipline(s) might seek this example consistently?
 IV. Internal tags: what information is helpful for maintainers or contributors?
 
 
-1. API tags: what content from the API reference is in the example?
--------------------------------------------------------------------
+API tags: what content from the API reference is in the example?
+----------------------------------------------------------------
 
 +-----------------------------------+---------------------------------------------+
 |``tag``                            | use case - if not obvious                   |
@@ -70,8 +70,6 @@ IV. Internal tags: what information is helpful for maintainers or contributors?
 |``styling: conditional``           |styling is determined programmatically by a  |
 |                                   |condition being met                          |
 +-----------------------------------+---------------------------------------------+
-|``styling: showcase``              |good showcase example                        |
-+-----------------------------------+---------------------------------------------+
 |                                   |                                             |
 +-----------------------------------+---------------------------------------------+
 |**Interactivity**                                                                |
@@ -114,8 +112,8 @@ IV. Internal tags: what information is helpful for maintainers or contributors?
 +-----------------------------------+---------------------------------------------+
 
 
-2. Structural tags: what format is the example? What context can we provide?
-----------------------------------------------------------------------------
+Structural tags: what format is the example? What context can we provide?
+-------------------------------------------------------------------------
 
 +----------------------------+-------------------------------------------------------------------+
 |``tag``                     | use case                                                          |
@@ -138,11 +136,13 @@ IV. Internal tags: what information is helpful for maintainers or contributors?
 +----------------------------+-------------------------------------------------------------------+
 |``purpose: fun``            |just for fun!                                                      |
 +----------------------------+-------------------------------------------------------------------+
+|``styling: showcase``       |good showcase example                                              |
++----------------------------+-------------------------------------------------------------------+
 
-3. Domain tags: what discipline(s) might seek this example consistently?
-------------------------------------------------------------------------
+Domain tags: what discipline(s) might seek this example consistently?
+---------------------------------------------------------------------
 
-Note: it's futile to draw fences around "who owns what", and that's not the point of domain tags. Domain tags help groups of people to privately organize relevant information, and so are not displayed publicly. See below for a list of existing domain tags. If you don't see the one you're looking for and you think it should exist, consider proposing it.
+It's futile to draw fences around "who owns what", and that's not the point of domain tags. Domain tags help groups of people to privately organize relevant information, and so are not displayed publicly. See below for a list of existing domain tags. If you don't see the one you're looking for and you think it should exist, consider proposing it.
 
 +-------------------------------+----------------------------------------+
 |``tag``                        | use case                               |
@@ -160,8 +160,8 @@ Note: it's futile to draw fences around "who owns what", and that's not the poin
 |``domain: signal-processing``  |                                        |
 +-------------------------------+----------------------------------------+
 
-4. Internal tags: what information is helpful for maintainers or contributors?
-------------------------------------------------------------------------------
+Internal tags: what information is helpful for maintainers or contributors?
+---------------------------------------------------------------------------
 
 +-------------------------------+-----------------------------------------------------------------------+
 |``tag``                        | use case                                                              |
