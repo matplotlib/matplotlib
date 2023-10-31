@@ -1,5 +1,0 @@
-Deprecations removed in ``contour``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-``contour.allsegs``, ``contour.allkinds``, and ``contour.find_nearest_contour`` are no
-longer marked for deprecation.

@@ -131,7 +131,7 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
 # to provide the ``data`` keyword argument and generate plots passing the
 # strings corresponding to the *x* and *y* variables.
 #
-# .. _structured numpy array: <https://numpy.org/doc/stable/user/basics.rec.html#structured-arrays>`_  # noqa: E501
+# .. _structured numpy array: https://numpy.org/doc/stable/user/basics.rec.html#structured-arrays  # noqa: E501
 
 np.random.seed(19680801)  # seed the random number generator.
 data = {'a': np.arange(50),
