@@ -118,6 +118,7 @@ extensions = [
     'sphinxext.redirect_from',
     'sphinx_copybutton',
     'sphinx_design',
+    'sphinx_tags',
 ]
 
 exclude_patterns = [
@@ -283,6 +284,18 @@ if 'plot_gallery=0' in sys.argv:
     logger = logging.getLogger('sphinx')
     logger.addFilter(gallery_image_warning_filter)
 
+# Sphinx tags configuration
+tags_create_tags = True
+tags_page_title = "All tags"
+tags_create_badges = True
+tags_badge_colors = {
+    "animation": "primary",
+    "component:*": "secondary",
+    "event-handling": "success",
+    "interactivity:*": "dark",
+    "plot-type:*": "danger",
+    "*": "light"  # default value
+}
 
 mathmpl_fontsize = 11.0
 mathmpl_srcset = ['2x']

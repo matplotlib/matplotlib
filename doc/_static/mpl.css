@@ -3,6 +3,11 @@
     --pst-color-link-hover: var(--pst-color-secondary);
     --sd-color-primary: var(--pst-color-primary);
     --sd-color-primary-text: var(--pst-color-text-base);
+    --sd-color-secondary: #ee9040;
+    --sd-color-success: #28a745;
+    --sd-color-dark: #323232;
+    --sd-color-danger: #dc3545;
+    --sd-color-light: #c9c9c9;
 }
 
 .simple li>p {

@@ -82,6 +82,7 @@ galleries/examples/*/*.svgz
 result_images
 doc/_static/constrained_layout*.png
 doc/.mpl_skip_subdirs.yaml
+doc/_tags
 
 # Nose/Pytest generated files #
 ###############################
