@@ -136,7 +136,7 @@ Structural tags: what format is the example? What context can we provide?
 +----------------------------+-------------------------------------------------------------------+
 |``purpose: fun``            |just for fun!                                                      |
 +----------------------------+-------------------------------------------------------------------+
-|``styling: showcase``       |good showcase example                                              |
+|``purpose: showcase``       |good showcase example                                              |
 +----------------------------+-------------------------------------------------------------------+
 
 Domain tags: what discipline(s) might seek this example consistently?
