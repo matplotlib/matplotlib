@@ -16,5 +16,6 @@ You can also find :ref:`external resources <resources-index>` and
 a :ref:`FAQ <faq-index>` in our :ref:`user guide <users-guide-index>`.
 
 
-.. note::
+.. admonition:: Tagging!
+
     You can also browse the example gallery by :ref:`tags <tagoverview>`.

@@ -81,4 +81,4 @@ plt.show()
 #    - `matplotlib.patches.ConnectionPatch`
 #    - `matplotlib.animation.FuncAnimation`
 #
-# .. tags:: component:axes, animation
+# .. tags:: component: axes, animation

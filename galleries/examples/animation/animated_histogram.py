@@ -57,4 +57,4 @@ ani = animation.FuncAnimation(fig, prepare_animation(bar_container), 50,
 plt.show()
 
 # %%
-# .. tags:: plot-type:histogram, animation
+# .. tags:: plot-type: histogram, animation
