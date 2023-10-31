@@ -49,3 +49,15 @@ ax = plt.gca()
 ax.set_xticklabels([])
 
 plt.show()
+
+# %%
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.patches.ConnectionPatch`
+#    - `matplotlib.animation.FuncAnimation`
+#
+# .. tags:: component: figure, plot type: line, purpose: reference
