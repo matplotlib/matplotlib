@@ -51,7 +51,4 @@ ax.set_xticklabels([])
 plt.show()
 
 # %%
-#
-# .. admonition:: References
-#
 # .. tags:: component: figure, plot type: line, purpose: reference
