@@ -334,7 +334,7 @@ documentation of your GUI toolkit for details.
 .. _jupyter_notebooks_jupyterlab:
 
 Jupyter Notebooks / JupyterLab
-==============================
+------------------------------
 
 To get interactive figures in the 'classic' notebook or Jupyter lab,
 use the `ipympl <https://matplotlib.org/ipympl>`__ backend
@@ -347,7 +347,7 @@ If ``ipympl`` is installed use the magic:
 
 to select and enable it.
 
-If you only need to use the classic notebook (i.e. `notebook<7`), you can use
+If you only need to use the classic notebook (i.e. ``notebook<7``), you can use
 
 .. sourcecode:: ipython
 
@@ -367,7 +367,7 @@ however, nbagg does not work in Jupyter Lab.
    cells.
 
 GUIs + Jupyter
---------------
+^^^^^^^^^^^^^^
 
 You can also use one of the non-``ipympl`` GUI backends in a Jupyter Notebook.
 If you are running your Jupyter kernel locally, the GUI window will spawn on

@@ -75,7 +75,7 @@ other than the default "inline" backend, you will likely need to use an ipython
 
 .. note::
 
-   If you only need to use the classic notebook (i.e. `notebook<7`),
+   If you only need to use the classic notebook (i.e. ``notebook<7``),
    you can use:
 
    .. sourcecode:: ipython
