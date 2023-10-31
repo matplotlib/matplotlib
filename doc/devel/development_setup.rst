@@ -131,9 +131,13 @@ The simplest way to do this is to use either Python's virtual environment
       On some systems, you may need to type ``python3`` instead of ``python``.
       For a discussion of the technical reasons, see `PEP-394 <https://peps.python.org/pep-0394>`_.
 
+      Install the Python dependencies with ::
+
+        pip install -r requirements/dev/dev-requirements.txt
+
    .. tab-item:: conda environment
 
-      Create a new `conda`_ environment with ::
+      Create a new `conda`_ environment and install the Python dependencies with ::
 
         conda env create -f environment.yml
 
