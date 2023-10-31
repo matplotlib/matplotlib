@@ -146,6 +146,7 @@ Policies and guidelines
 
          document
          style_guide
+         tag_guidelines
 
    .. grid-item-card::
       :shadow: none
