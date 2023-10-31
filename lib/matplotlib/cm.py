@@ -225,13 +225,6 @@ class ColormapRegistry(Mapping):
         )
 
 
-# public access to the colormaps should be via `matplotlib.colormaps`. For now,
-# we still create the registry here, but that should stay an implementation
-# detail.
-_colormaps = ColormapRegistry(_gen_cmap_registry())
-globals().update(_colormaps)
-
-
 def _get_cmap(name=None, lut=None):
     """
     Get a colormap instance, defaulting to rc values if *name* is None.

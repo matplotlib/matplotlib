@@ -142,6 +142,10 @@ from .ticker import (  # noqa: F401
 _log = logging.getLogger(__name__)
 
 
+_colormaps = ColormapRegistry(_gen_cmap_registry())
+globals().update(_colormaps)
+
+
 # Explicit rename instead of import-as for typing's sake.
 colormaps = _colormaps
 color_sequences = _color_sequences
