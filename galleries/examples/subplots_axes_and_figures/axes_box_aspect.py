@@ -119,8 +119,8 @@ plt.show()
 # -------------------------------
 #
 # When setting the box aspect, one may still set the data aspect as well.
-# Here we create an Axes with a box twice as long as it is tall and use 
-# an "equal" data aspect for its contents, i.e. the circle actually 
+# Here we create an Axes with a box twice as long as it is tall and use
+# an "equal" data aspect for its contents, i.e. the circle actually
 # stays circular.
 
 fig6, ax = plt.subplots()
