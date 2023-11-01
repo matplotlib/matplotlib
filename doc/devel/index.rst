@@ -168,6 +168,7 @@ Policies and guidelines
          :maxdepth: 1
 
          release_guide
+         communication_guide
          min_dep_policy
          MEP/index
 

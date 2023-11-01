@@ -1,4 +1,4 @@
-.. code_of_conduct
+.. _code_of_conduct:
 
 ====================================
 Contributor Covenant Code of Conduct
