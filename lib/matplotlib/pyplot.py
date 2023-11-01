@@ -2412,18 +2412,15 @@ def matshow(A: ArrayLike, fignum: None | int = None, **kwargs) -> AxesImage:
         The matrix to be displayed.
 
     fignum : None or int
-        If *None*, create a new figure window with automatic numbering.
+        If *None*, create a new, appropriately sized figure window.
 
-        If a nonzero integer, draw into the figure with the given number
-        (create it if it does not exist).
+        If 0, use the current Axes (creating one if there is none, without ever
+        adjusting the figure size).
 
-        If 0, use the current axes (or create one if it does not exist).
-
-        .. note::
-
-           Because of how `.Axes.matshow` tries to set the figure aspect
-           ratio to be the one of the array, strange things may happen if you
-           reuse an existing figure.
+        Otherwise, create a new Axes on the figure with the given number
+        (creating it at the appropriate size if it does not exist, but not
+        adjusting the figure size otherwise).  Note that this will be drawn on
+        top of any preexisting Axes on the figure.
 
     Returns
     -------
