@@ -1,12 +1,3 @@
-.. raw:: html
-
-   <style>
-   .checklist { list-style: none; padding: 0; margin: 0; }
-   .checklist li { margin-left: 24px; padding-left: 23px;  margin-right: 6px; }
-   .checklist li:before { content: "\2610\2001"; margin-left: -24px; }
-   .checklist li p {display: inline; }
-   </style>
-
 .. _pr-guidelines:
 
 ***********************

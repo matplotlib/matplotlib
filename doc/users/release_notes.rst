@@ -1,6 +1,7 @@
 .. redirect-from:: /api/api_changes_old
 .. redirect-from:: /users/whats_new_old
 
+.. _release-notes:
 
 =============
 Release notes
