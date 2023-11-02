@@ -194,11 +194,6 @@ config during installation ::
 For more information on installation and other configuration options, see the
 Meson Python :external+meson-python:ref:`editable installs guide <how-to-guides-editable-installs>`.
 
-
-If the installation is not working, please consult the :ref:`troubleshooting guide <troubleshooting-faq>`.
-If the guide does not offer a solution, please reach out via `chat <https://gitter.im/matplotlib/matplotlib>`_
-or :ref:`open an issue <submitting-a-bug-report>`.
-
 Verify the Installation
 =======================
 
