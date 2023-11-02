@@ -1,3 +1,5 @@
+.. _mission-statement:
+
 Mission Statement
 =================
 

@@ -1,18 +1,41 @@
 .. _communications-guidelines:
 
-========================
-Communication guidelines
-========================
+==========================
+Community management guide
+==========================
 
-These guidelines are applicable when acting as a representative of Matplotlib,
+These guidelines are applicable when **acting as a representative** of Matplotlib,
 for example at sprints or when giving official talks or tutorials, and in any
 community venue managed by Matplotlib.
 
+Our approach to community engagement is foremost guided by our :ref:`mission-statement`:
+
+* We demonstrate that we care about visualization as a practice
+* We deepen our practice and the community’s capacity to support users,
+  facilitate exploration, produce high quality visualizations, and be
+  understandable and extensible
+* We showcase advanced use of the library without adding maintenance burden to
+  the documentation and recognize contributions that happen outside of the github
+  workflow.
+* We use communications platforms to maintain relationships with contributors
+  who may no longer be active on GitHub, build relationships with potential
+  contributors, and connect with other projects and communities who use
+  Matplotlib.
+* In prioritizing understandability and extensiblity, we recognize that people
+  using Matplotlib, in whatever capacity, are part of our community. Doing so
+  empowers our community members to build community with each other, for example
+  by creating educational resources, building third party tools, and building
+  informal mentoring networks.
 
 .. _communication-channels:
 
 Official communication channels
 ===============================
+The Scientific Python community uses various communications platforms to stay
+updated on new features and projects, to contribute by telling us what is on
+their mind and suggest issues and bugs, and to showcase their use cases and the
+tools they have built.
+
 The following venues are managed by Matplotlib maintainers and contributors:
 
 * library and docs: https://github.com/matplotlib/matplotlib
@@ -148,12 +171,32 @@ Visual media in communications should be made as accessible as possible:
   * Do not make bright, strobing images.
   * More guidelines at https://webaim.org/techniques/images/.
 
+.. _social-media-brand:
 
 Social media
 ============
 
-Please follow these guidelines to maintain a consistent brand identity across
-platforms.
+Matplotlib aims for a single voice across all social media platforms to build and
+maintain a consistent brand identity for Matplotlib as an organization. This
+depersonalization is the norm on social media platforms because it enables
+constructive and productive conversations; People generally feel more comfortable
+giving negative and constructive feedback to a brand than to specific contributors.
+
+The current Matplotlib voice and persona aims to be kind, patient, supportive and
+educational. This is so that it can de-escalate tensions and facilitate
+constructive conversations; being perceived as negative or
+argumentative can escalate very fast into long-lasting brand damage, being
+perceived as personal leads to aggression and accusations faster than an
+impersonal account, and being perceived as friendly and approachable leads to
+higher engagement. Instead of speaking with a directive authority, which can be
+intimidating and lead to negative engagement, it speaks as a peer or educator to
+empower participation. The current voice encourages more input from folks we
+engage with, and also makes it possible for folks who are not in the core team
+to participate in managing the account.
+
+While the :ref:`brand identity <social-media-brand>` is casual, the showcased
+content is high quality, peer-led resource building. Please follow these
+guidelines to maintain a consistent brand identity across platforms.
 
 Persona
 -------
@@ -213,11 +256,10 @@ Retired campaigns
 Changing the guidelines
 =======================
 
-As the person tasked with implementing communications, the `community-manager`_
-should be alerted to proposed changes to the communications guidelines. Similarly,
-specific platform guidelines (e.g. twitter, instagram) should be reviewed by the
-person responsible for that platform, when different from the community manager.
-If there is no consensus, decisions about communications guidelines revert to
-the community manager.
+As the person tasked with implementing these guidelines, the `community-manager`_
+should be alerted to proposed changes. Similarly, specific platform guidelines
+(e.g. twitter, instagram) should be reviewed by the person responsible for that
+platform, when different from the community manager. If there is no consensus,
+decisions about guidelines revert to the community manager.
 
 .. _community-manager: https://matplotlib.org/governance/people.html#deputy-project-leads
