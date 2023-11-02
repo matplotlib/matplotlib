@@ -2402,17 +2402,17 @@ class Figure(FigureBase):
         )
 
     def __init__(self,
-                 figsize=None,  # not checked 
-                 dpi=None, #not checked
+                 figsize=None,  
+                 dpi=None, 
                  *,
-                 facecolor=None, # not checked
-                 edgecolor=None, # not checked
-                 linewidth=0.0, #not checked
-                 frameon=None, # not checked
-                 subplotpars=None,  # rc figure.subplot.* # getter setter
-                 tight_layout=None,  # rc figure.autolayout # not checked
-                 constrained_layout=None,  # rc figure.constrained_layout.use # not checked
-                 layout=None, # not checked
+                 facecolor=None, 
+                 edgecolor=None, 
+                 linewidth=0.0, 
+                 frameon=None, 
+                 subplotpars=None,  # rc figure.subplot.* 
+                 tight_layout=None,  # rc figure.autolayout 
+                 constrained_layout=None,  # rc figure.constrained_layout.use 
+                 layout=None, 
                  **kwargs
                  ):
         """
@@ -2971,7 +2971,30 @@ None}, default: None
         matplotlib.figure.Figure.get_subplotpars
         """
         return self.subplotpars
+    
+    def set_figsize(self,fig_size_params):
+        self.set_size_inches(fig_size_params[0],fig_size_params[1])
+        """
+        Calls all the set_size_inches() methods of the figure and its subfigures.
+        passes Parameters
+        """
+    def get_figsize(self):
+        """
+        Returns the size of the figure in inches
+        """
+        return self.get_size_inches()
+    def set_layout(self, layout_params):
+        """
+        Sets the layout of the figure.
+        """
+        self.set_layout_engine(layout_params)       
 
+    def get_layout(self):   
+        """
+        Returns the layout of the figure.
+        """
+        return self.get_layout_engine()
+    
     @_docstring.interpd
     def figimage(self, X, xo=0, yo=0, alpha=None, norm=None, cmap=None,
                  vmin=None, vmax=None, origin=None, resize=False, **kwargs):
