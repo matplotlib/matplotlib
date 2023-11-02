@@ -4,7 +4,7 @@
 .. _colormaps:
 
 ********************************
-Choosing Colormaps in Matplotlib
+Choosing colormaps in Matplotlib
 ********************************
 
 Matplotlib has a number of built-in colormaps accessible via

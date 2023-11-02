@@ -2,13 +2,13 @@
 .. redirect-from:: /tutorials/colors/colorbar_only
 
 =============================
-Customized Colorbars Tutorial
+Customized colorbars tutorial
 =============================
 
 This tutorial shows how to build and customize standalone colorbars, i.e.
 without an attached plot.
 
-Customized Colorbars
+Customized colorbars
 ====================
 
 A `~.Figure.colorbar` needs a "mappable" (`matplotlib.cm.ScalarMappable`)

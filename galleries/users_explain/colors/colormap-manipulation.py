@@ -4,7 +4,7 @@
 .. _colormap-manipulation:
 
 ********************************
-Creating Colormaps in Matplotlib
+Creating colormaps in Matplotlib
 ********************************
 
 Matplotlib has a number of built-in colormaps accessible via
