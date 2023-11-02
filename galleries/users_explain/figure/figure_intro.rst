@@ -1,7 +1,7 @@
 
 .. redirect-from:: /users/explain/figure
 
-.. _figure_explanation:
+.. _figure-intro:
 
 +++++++++++++++++++++++
 Introduction to Figures
@@ -35,6 +35,8 @@ Viewing Figures
 We will discuss how to create Figures in more detail below, but first it is
 helpful to understand how to view a Figure.  This varies based on how you are
 using Matplotlib, and what :ref:`Backend <what-is-a-backend>` you are using.
+
+.. _notebooks-and-ides:
 
 Notebooks and IDEs
 ------------------
@@ -81,6 +83,8 @@ other than the default "inline" backend, you will likely need to use an ipython
    .. sourcecode:: ipython
 
    %matplotlib notebook
+
+.. _standalone-scripts-and-interactive-use:
 
 Standalone scripts and interactive use
 --------------------------------------
