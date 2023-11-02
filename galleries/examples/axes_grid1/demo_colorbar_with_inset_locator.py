@@ -16,6 +16,7 @@ work in the same way, and are also demonstrated here.
 Users should consider using `.Axes.inset_axes` instead (see
 :ref:`colorbar_placement`).
 
+.. redirect-from:: /gallery/axes_grid1/demo_colorbar_of_inset_axes
 """
 
 import matplotlib.pyplot as plt
