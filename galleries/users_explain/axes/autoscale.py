@@ -3,8 +3,8 @@
 
 .. _autoscale:
 
-Autoscaling
-===========
+Autoscaling axes
+================
 
 The limits on an axis can be set manually (e.g. ``ax.set_xlim(xmin, xmax)``)
 or Matplotlib can set them automatically based on the data already on the axes.

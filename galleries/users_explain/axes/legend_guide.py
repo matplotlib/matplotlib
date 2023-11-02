@@ -216,7 +216,7 @@ ax.legend(handles=[line2], loc='lower right')
 plt.show()
 
 # %%
-# Legend Handlers
+# Legend handlers
 # ===============
 #
 # In order to create legend entries, handles are given as an argument to an

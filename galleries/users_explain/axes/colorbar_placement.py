@@ -4,7 +4,7 @@
 .. redirect-from:: /gallery/subplots_axes_and_figures/colorbar_placement
 
 =================
-Placing Colorbars
+Placing colorbars
 =================
 
 Colorbars indicate the quantitative extent of image data.  Placing in
