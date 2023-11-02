@@ -15,7 +15,7 @@ mouse-location tools built into the Matplotlib GUI windows are often sufficient,
 you can also use the event system to build customized data exploration tools.
 
 .. seealso::
-    :ref:`figure_explanation`.
+    :ref:`figure-intro`.
 
 
 Matplotlib ships with :ref:`backends <what-is-a-backend>` binding to

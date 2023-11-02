@@ -38,7 +38,7 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
 #
 # Note that to get this Figure to display, you may have to call ``plt.show()``,
 # depending on your backend.  For more details of Figures and backends, see
-# :ref:`figure_explanation`.
+# :ref:`figure-intro`.
 #
 # .. _figure_parts:
 #
@@ -71,7 +71,7 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
 # :ref:`Matplotlib backends <backends>` support zooming and
 # panning on figure windows.
 #
-# For more on Figures, see :ref:`figure_explanation`.
+# For more on Figures, see :ref:`figure-intro`.
 #
 # :class:`~matplotlib.axes.Axes`
 # ------------------------------

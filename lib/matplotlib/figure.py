@@ -27,7 +27,7 @@ Figures are typically created using pyplot methods `~.pyplot.figure`,
 Some situations call for directly instantiating a `~.figure.Figure` class,
 usually inside an application of some sort (see :ref:`user_interfaces` for a
 list of examples) .  More information about Figures can be found at
-:ref:`figure_explanation`.
+:ref:`figure-intro`.
 """
 
 from contextlib import ExitStack
