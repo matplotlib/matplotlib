@@ -64,6 +64,9 @@ jobs:
         run: |
           python -m build --sdist
           python ci/export_sdist_name.py
+        env:
+          # Prevent including development runtime dependencies in metadata.
+          CIBUILDWHEEL: 1
 
       - name: Check README rendering for PyPI
         run: twine check dist/*
