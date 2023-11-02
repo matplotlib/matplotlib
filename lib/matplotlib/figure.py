@@ -1212,7 +1212,64 @@ default: %(va)s
         with semi-transparent images (alpha < 1) and colorbar extensions;
         therefore, this workaround is not used by default (see issue #1188).
 
+        
+        
         """
+
+        def set_subplotpars(self, subplotparams={}):
+        """
+        Set the subplot layout parameters.
+        Accepts either a `.SubplotParams` object, from which the relevant
+        parameters are copied, or a dictionary of subplot layout parameters.
+        If a dictionary is provided, this function is a convenience wrapper for
+        `matplotlib.figure.Figure.subplots_adjust`
+        Parameters
+        ----------
+        subplotparams : `~matplotlib.figure.SubplotParams` or dict with keys \
+"left", "bottom", "right", 'top", "wspace", "hspace"] , optional
+            SubplotParams object to copy new subplot parameters from, or a dict
+             of SubplotParams constructor arguments.
+            By default, an empty dictionary is passed, which maintains the
+             current state of the figure's `.SubplotParams`
+        See Also
+        --------
+        matplotlib.figure.Figure.subplots_adjust
+        matplotlib.figure.Figure.get_subplotpars
+        """
+        subplotparams_args = ["left", "bottom", "right",
+                              "top", "wspace", "hspace"]
+        kwargs = {}
+        if isinstance(subplotparams, SubplotParams):
+            for key in subplotparams_args:
+                kwargs[key] = getattr(subplotparams, key)
+        elif isinstance(subplotparams, dict):
+            for key in subplotparams.keys():
+                if key in subplotparams_args:
+                    kwargs[key] = subplotparams[key]
+                else:
+                    _api.warn_external(
+                        f"'{key}' is not a valid key for set_subplotpars;"
+                        " this key was ignored.")
+        else:
+            raise TypeError(
+                "subplotpars must be a dictionary of keyword-argument pairs or"
+                " an instance of SubplotParams()")
+        if kwargs == {}:
+            self.set_subplotpars(self.get_subplotpars())
+        self.subplots_adjust(**kwargs)
+
+    def get_subplotpars(self):
+        """
+        Return the `.SubplotParams` object associated with the Figure.
+        Returns
+        -------
+        `.SubplotParams`
+        See Also
+        --------
+        matplotlib.figure.Figure.subplots_adjust
+        matplotlib.figure.Figure.get_subplotpars
+        """
+        return self.subplotpars
 
         if ax is None:
             ax = getattr(mappable, "axes", None)
@@ -2345,17 +2402,17 @@ class Figure(FigureBase):
         )
 
     def __init__(self,
-                 figsize=None,
-                 dpi=None,
+                 figsize=None,  # not checked 
+                 dpi=None, #not checked
                  *,
-                 facecolor=None,
-                 edgecolor=None,
-                 linewidth=0.0,
-                 frameon=None,
-                 subplotpars=None,  # rc figure.subplot.*
-                 tight_layout=None,  # rc figure.autolayout
-                 constrained_layout=None,  # rc figure.constrained_layout.use
-                 layout=None,
+                 facecolor=None, # not checked
+                 edgecolor=None, # not checked
+                 linewidth=0.0, #not checked
+                 frameon=None, # not checked
+                 subplotpars=None,  # rc figure.subplot.* # getter setter
+                 tight_layout=None,  # rc figure.autolayout # not checked
+                 constrained_layout=None,  # rc figure.constrained_layout.use # not checked
+                 layout=None, # not checked
                  **kwargs
                  ):
         """
@@ -2859,6 +2916,61 @@ None}, default: None
         canvas : FigureCanvas
         """
         self.canvas = canvas
+
+    def set_subplotpars(self, subplotparams={}):
+        """
+        Set the subplot layout parameters.
+        Accepts either a `.SubplotParams` object, from which the relevant
+        parameters are copied, or a dictionary of subplot layout parameters.
+        If a dictionary is provided, this function is a convenience wrapper for
+        `matplotlib.figure.Figure.subplots_adjust`
+        Parameters
+        ----------
+        subplotparams : `~matplotlib.figure.SubplotParams` or dict with keys \
+"left", "bottom", "right", 'top", "wspace", "hspace"] , optional
+            SubplotParams object to copy new subplot parameters from, or a dict
+             of SubplotParams constructor arguments.
+            By default, an empty dictionary is passed, which maintains the
+             current state of the figure's `.SubplotParams`
+        See Also
+        --------
+        matplotlib.figure.Figure.subplots_adjust
+        matplotlib.figure.Figure.get_subplotpars
+        """
+        subplotparams_args = ["left", "bottom", "right",
+                              "top", "wspace", "hspace"]
+        kwargs = {}
+        if isinstance(subplotparams, SubplotParams):
+            for key in subplotparams_args:
+                kwargs[key] = getattr(subplotparams, key)
+        elif isinstance(subplotparams, dict):
+            for key in subplotparams.keys():
+                if key in subplotparams_args:
+                    kwargs[key] = subplotparams[key]
+                else:
+                    _api.warn_external(
+                        f"'{key}' is not a valid key for set_subplotpars;"
+                        " this key was ignored.")
+        else:
+            raise TypeError(
+                "subplotpars must be a dictionary of keyword-argument pairs or"
+                " an instance of SubplotParams()")
+        if kwargs == {}:
+            self.set_subplotpars(self.get_subplotpars())
+        self.subplots_adjust(**kwargs)
+
+    def get_subplotpars(self):
+        """
+        Return the `.SubplotParams` object associated with the Figure.
+        Returns
+        -------
+        `.SubplotParams`
+        See Also
+        --------
+        matplotlib.figure.Figure.subplots_adjust
+        matplotlib.figure.Figure.get_subplotpars
+        """
+        return self.subplotpars
 
     @_docstring.interpd
     def figimage(self, X, xo=0, yo=0, alpha=None, norm=None, cmap=None,
