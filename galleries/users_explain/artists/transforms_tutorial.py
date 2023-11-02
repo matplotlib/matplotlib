@@ -4,7 +4,7 @@
 .. _transforms_tutorial:
 
 ========================
-Transformations Tutorial
+Transformations tutorial
 ========================
 
 Like any graphics packages, Matplotlib is built on top of a transformation
