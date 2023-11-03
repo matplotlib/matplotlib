@@ -211,6 +211,8 @@ you are aware of the existing issues beforehand.
 * Run test cases to verify installation :ref:`testing`
 * Verify documentation build :ref:`documenting-matplotlib`
 
+.. _pre-commit-hooks:
+
 Install pre-commit hooks
 ========================
 `pre-commit <https://pre-commit.com/>`_ hooks save time in the review process by
