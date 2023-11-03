@@ -194,7 +194,6 @@ config during installation ::
 For more information on installation and other configuration options, see the
 Meson Python :external+meson-python:ref:`editable installs guide <how-to-guides-editable-installs>`.
 
-
 Verify the Installation
 =======================
 
