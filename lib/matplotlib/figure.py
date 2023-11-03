@@ -2959,6 +2959,7 @@ None}, default: None
             self.set_subplotpars(self.get_subplotpars())
         self.subplots_adjust(**kwargs)
 
+
     def get_subplotpars(self):
         """
         Return the `.SubplotParams` object associated with the Figure.
