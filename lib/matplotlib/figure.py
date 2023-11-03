@@ -2866,7 +2866,6 @@ None}, default: None
             self.set_subplotpars(self.get_subplotpars())
         self.subplots_adjust(**kwargs)
 
-
     def get_subplotpars(self):
         """
         Return the `.SubplotParams` object associated with the Figure.
@@ -2880,8 +2879,8 @@ None}, default: None
         """
         return self.subplotpars
     
-    def set_figsize(self,fig_size_params):
-        self.set_size_inches(fig_size_params[0],fig_size_params[1])
+    def set_figsize(self, fig_size_params):
+        self.set_size_inches(fig_size_params[0], fig_size_params[1])
         """
         Calls all the set_size_inches() methods of the figure and its subfigures.
         passes Parameters
@@ -2891,6 +2890,7 @@ None}, default: None
         Returns the size of the figure in inches
         """
         return self.get_size_inches()
+    
     def set_layout(self, layout_params):
         """
         Sets the layout of the figure.
