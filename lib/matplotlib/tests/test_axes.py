@@ -7494,6 +7494,20 @@ def test_annotate_across_transforms():
                 arrowprops=dict(arrowstyle="->"))
 
 
+class _Translation(mtransforms.Transform):
+    input_dims = 1
+    output_dims = 1
+
+    def __init__(self, dx):
+        self.dx = dx
+
+    def transform(self, values):
+        return values + self.dx
+
+    def inverted(self):
+        return _Translation(-self.dx)
+
+
 @image_comparison(['secondary_xy.png'], style='mpl20')
 def test_secondary_xy():
     fig, axs = plt.subplots(1, 2, figsize=(10, 5), constrained_layout=True)
@@ -7513,6 +7527,7 @@ def test_secondary_xy():
         secax(0.4, functions=(lambda x: 2 * x, lambda x: x / 2))
         secax(0.6, functions=(lambda x: x**2, lambda x: x**(1/2)))
         secax(0.8)
+        secax("top" if nn == 0 else "right", functions=_Translation(2))
 
 
 def test_secondary_fail():
