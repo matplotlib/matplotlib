@@ -40,15 +40,13 @@ Those are described in detail throughout the following sections.
 
 .. warning::
 
-    Calling ``plt.tight_layout()`` will turn off *constrained layout*!
+    Calling `~.pyplot.tight_layout` will turn off *constrained layout*!
 
 Simple example
 ==============
 
-In Matplotlib, the location of Axes (including subplots) are specified in
-normalized figure coordinates. It can happen that your axis labels or titles
-(or sometimes even ticklabels) go outside the figure area, and are thus
-clipped.
+With the default Axes positioning, the axes title, axis labels, or tick labels
+can sometimes go outside the figure area, and thus get clipped.
 """
 
 # sphinx_gallery_thumbnail_number = 18
