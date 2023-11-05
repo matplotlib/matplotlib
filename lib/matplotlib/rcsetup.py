@@ -568,6 +568,41 @@ def validate_sketch(s):
         raise ValueError("Expected a (scale, length, randomness) tuple") from exc
 
 
+def validate_path_effects(s):
+    if not s:
+        return []
+    if isinstance(s, str) and s.strip().startswith("("):
+        s = ast.literal_eval(s)
+
+    _validate_name = ValidateInStrings("path.effects.function",
+                                        ["Normal",
+                                         "PathPatchEffect",
+                                         "SimpleLineShadow",
+                                         "SimplePatchShadow",
+                                         "Stroke",
+                                         "TickedStroke",
+                                         "withSimplePatchShadow",
+                                         "withStroke",
+                                         "withTickedStroke"])
+
+    def _validate_dict(d):
+        if not isinstance(d, dict):
+            raise ValueError("Expected a dictionary of keyword arguments")
+        return d
+
+    try:
+        # cast to list for the 1 tuple case
+        s = [s] if isinstance(s[0], str) else s
+        # patheffects.{AbstractPathEffect} object or (_valid_name, {**kwargs})
+        return [pe if getattr(pe, '__module__', "") == 'matplotlib.patheffects'
+                   else (_validate_name(pe[0].strip()),
+                         {} if len(pe) < 2 else _validate_dict(pe[1]))
+                for pe in s]
+    except TypeError:
+        raise ValueError("Expected a list of patheffects functions"
+                         " or (funcname, {**kwargs}) tuples")
+
+
 def _validate_greaterthan_minushalf(s):
     s = validate_float(s)
     if s > -0.5:
@@ -1293,7 +1328,7 @@ _validators = {
     "path.simplify_threshold": _validate_greaterequal0_lessequal1,
     "path.snap":               validate_bool,
     "path.sketch":             validate_sketch,
-    "path.effects":            validate_anylist,
+    "path.effects":            validate_path_effects,
     "agg.path.chunksize":      validate_int,  # 0 to disable chunking
 
     # key-mappings (multi-character mappings should be a list/tuple)

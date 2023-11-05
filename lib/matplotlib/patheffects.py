@@ -161,6 +161,9 @@ class Normal(AbstractPathEffect):
     no special path effect.
     """
 
+    def __init__(self, offset=(0., 0.)):
+        super().__init__(offset)
+
 
 def _subclass_with_normal(effect_class):
     """

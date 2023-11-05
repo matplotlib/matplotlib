@@ -163,7 +163,6 @@ from matplotlib.cbook import sanitize_sequence
 from matplotlib._api import MatplotlibDeprecationWarning
 from matplotlib.rcsetup import validate_backend, cycler
 
-
 _log = logging.getLogger(__name__)
 
 __bibtex__ = r"""@Article{Hunter:2007,
@@ -763,6 +762,14 @@ class RcParams(MutableMapping, dict):
             if val is rcsetup._auto_backend_sentinel:
                 from matplotlib import pyplot as plt
                 plt.switch_backend(rcsetup._auto_backend_sentinel)
+
+        elif key == "path.effects" and self is globals().get("rcParams"):
+            # defers loading of patheffects to avoid circular imports
+            import matplotlib.patheffects as path_effects
+            # use patheffects object or instantiate patheffects.object(**kwargs)
+            return [pe if isinstance(pe, path_effects.AbstractPathEffect)
+                       else getattr(path_effects, pe[0])(**pe[1])
+                    for pe in self._get('path.effects')]
 
         return self._get(key)
 

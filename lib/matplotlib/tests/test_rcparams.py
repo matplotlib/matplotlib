@@ -11,6 +11,9 @@ import matplotlib as mpl
 from matplotlib import _api, _c_internal_utils
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+import matplotlib.patheffects as path_effects
+from matplotlib.testing.decorators import check_figures_equal
+
 import numpy as np
 from matplotlib.rcsetup import (
     validate_bool,
@@ -27,8 +30,10 @@ from matplotlib.rcsetup import (
     validate_markevery,
     validate_stringlist,
     validate_sketch,
+    validate_path_effects,
     _validate_linestyle,
-    _listify_validator)
+    _listify_validator,
+    )
 
 
 def test_rcparams(tmp_path):
@@ -628,6 +633,73 @@ def test_rcparams_legend_loc_from_file(tmp_path, value):
 
     with mpl.rc_context(fname=rc_path):
         assert mpl.rcParams["legend.loc"] == value
+
+ped = [('Normal', {}),
+       ('Stroke', {'offset': (1, 2)}),
+       ('withStroke', {'linewidth': 4, 'foreground': 'w'})]
+
+pel = [path_effects.Normal(),
+       path_effects.Stroke((1, 2)),
+       path_effects.withStroke(linewidth=4, foreground='w')]
+
+
+@pytest.mark.parametrize("value", [pel, ped], ids=["func", "dict"])
+def test_path_effects(value):
+    assert validate_path_effects(value) == value
+    for v in value:
+        assert validate_path_effects(value) == value
+
+
+def test_path_effects_string():
+    """test list of dicts properly parsed"""
+    pstr = "('Normal', ), "
+    pstr += "('Stroke', {'offset': (1, 2)}),"
+    pstr += "('withStroke', {'linewidth': 4, 'foreground': 'w'})"
+    assert validate_path_effects(pstr) == ped
+
+
+@pytest.mark.parametrize("fdict, flist",
+                         [([ped[0]], [pel[0]]),
+                          ([ped[1]], [pel[1]]),
+                          ([ped[2]], [ped[2]]),
+                          (ped, pel)],
+                         ids=['function', 'args', 'kwargs', 'all'])
+@check_figures_equal()
+def test_path_effects_picture(fig_test, fig_ref, fdict, flist):
+    with mpl.rc_context({'path.effects': fdict}):
+        fig_test.subplots().plot([1, 2, 3])
+
+    with mpl.rc_context({'path.effects': flist}):
+        fig_ref.subplots().plot([1, 2, 3])
+
+
+@pytest.mark.parametrize("s, msg", [
+ ([1, 2, 3], "Expected a list of patheffects .*"),
+ (("Happy", ), r".* 'Happy' is not a valid value for path\.effects\.function.*"),
+ (("Normal", [1, 2, 3]), "Expected a dictionary .*"),])
+def test_validate_path_effect_errors(s, msg):
+    with pytest.raises(ValueError, match=msg):
+        mpl.rcParams['path.effects'] = s
+
+
+def test_path_effects_wrong_kwargs():
+    mpl.rcParams['path.effects'] = [('Normal', {'invalid_kwarg': 1})]
+
+    msg = ".* got an unexpected keyword argument 'invalid_kwarg'"
+    with pytest.raises(TypeError, match=msg):
+        mpl.rcParams.get('path.effects')
+
+
+def test_path_effects_from_file(tmpdir):
+    # rcParams['legend.loc'] should be settable from matplotlibrc.
+    # if any of these are not allowed, an exception will be raised.
+    # test for gh issue #22338
+    rc_path = tmpdir.join("matplotlibrc")
+    rc_path.write("path.effects: ('Normal', {}), ('withStroke', {'linewidth': 2})")
+
+    with mpl.rc_context(fname=rc_path):
+        assert isinstance(mpl.rcParams["path.effects"][0], path_effects.Normal)
+        assert isinstance(mpl.rcParams["path.effects"][1], path_effects.withStroke)
 
 
 @pytest.mark.parametrize("value", [(1, 2, 3), '1, 2, 3', '(1, 2, 3)'])
