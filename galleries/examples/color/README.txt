@@ -3,6 +3,5 @@
 Color
 =====
 
-For more in-depth information about the colormaps available in matplotlib
-as well as a description of their properties,
+For a description of the colormaps available in Matplotlib,
 see the :ref:`colormaps tutorial <tutorials-colors>`.
