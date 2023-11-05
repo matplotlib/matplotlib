@@ -17,15 +17,11 @@ of ticklabels, axis labels, and titles.
 An alternative to *tight_layout* is :ref:`constrained_layout
 <constrainedlayout_guide>`.
 
-
-Simple Example
+Simple example
 ==============
 
-In matplotlib, the location of axes (including subplots) are specified in
-normalized figure coordinates. It can happen that your axis labels or
-titles (or sometimes even ticklabels) go outside the figure area, and are thus
-clipped.
-
+With the default Axes positioning, the axes title, axis labels, or tick labels
+can sometimes go outside the figure area, and thus get clipped.
 """
 
 # sphinx_gallery_thumbnail_number = 7
@@ -190,8 +186,8 @@ gs1.tight_layout(fig)
 
 # %%
 # You may provide an optional *rect* parameter, which specifies the bounding
-# box that the subplots will be fit inside. The coordinates must be in
-# normalized figure coordinates and the default is (0, 0, 1, 1).
+# box that the subplots will be fit inside. The coordinates are in
+# normalized figure coordinates and default to (0, 0, 1, 1) (the whole figure).
 
 fig = plt.figure()
 
@@ -245,7 +241,7 @@ plt.show()
 # Use with AxesGrid1
 # ==================
 #
-# While limited, :mod:`mpl_toolkits.axes_grid1` is also supported.
+# Limited support for :mod:`mpl_toolkits.axes_grid1` is provided.
 
 from mpl_toolkits.axes_grid1 import Grid
 
