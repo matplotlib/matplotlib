@@ -1,7 +1,7 @@
 r"""
-=================================
-Using accented text in Matplotlib
-=================================
+=============
+Accented text
+=============
 
 Matplotlib supports accented characters via TeX mathtext or Unicode.
 

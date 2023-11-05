@@ -3,9 +3,9 @@
 
 .. _colormap-manipulation:
 
-********************************
-Creating Colormaps in Matplotlib
-********************************
+******************
+Creating Colormaps
+******************
 
 Matplotlib has a number of built-in colormaps accessible via
 `.matplotlib.colormaps`.  There are also external libraries like
@@ -13,16 +13,14 @@ palettable_ that have many extra colormaps.
 
 .. _palettable: https://jiffyclub.github.io/palettable/
 
-However, we often want to create or manipulate colormaps in Matplotlib.
+However, we may also want to create or manipulate our own colormaps.
 This can be done using the class `.ListedColormap` or
 `.LinearSegmentedColormap`.
-Seen from the outside, both colormap classes map values between 0 and 1 to
-a bunch of colors. There are, however, slight differences, some of which are
-shown in the following.
+Both colormap classes map values between 0 and 1 to colors. There are however
+differences, as explained below.
 
 Before manually creating or manipulating colormaps, let us first see how we
 can obtain colormaps and their colors from existing colormap classes.
-
 
 Getting colormaps and accessing their values
 ============================================
@@ -32,7 +30,6 @@ First, getting a named colormap, most of which are listed in
 which returns a colormap object.  The length of the list of colors used
 internally to define the colormap can be adjusted via `.Colormap.resampled`.
 Below we use a modest value of 8 so there are not a lot of values to look at.
-
 """
 
 import matplotlib.pyplot as plt
