@@ -7,13 +7,10 @@
 Legend guide
 ============
 
-Generating legends flexibly in Matplotlib.
-
 .. currentmodule:: matplotlib.pyplot
 
-This legend guide is an extension of the documentation available at
-:func:`~matplotlib.pyplot.legend` - please ensure you are familiar with
-contents of that documentation before proceeding with this guide.
+This legend guide extends the `~.Axes.legend` docstring -
+please read it before proceeding with this guide.
 
 This guide makes use of some common terms, which are documented here for
 clarity:
@@ -62,8 +59,8 @@ the appropriate handles directly to :func:`legend`::
     line_down, = ax.plot([3, 2, 1], label='Line 1')
     ax.legend(handles=[line_up, line_down])
 
-In some cases, it is not possible to set the label of the handle, so it is
-possible to pass through the list of labels to :func:`legend`::
+In the rare case where the labels cannot directly be set on the handles, they
+can also be directly passed to :func:`legend`::
 
     fig, ax = plt.subplots()
     line_up, = ax.plot([1, 2, 3], label='Line 2')
