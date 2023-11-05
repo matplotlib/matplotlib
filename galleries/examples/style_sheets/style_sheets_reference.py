@@ -23,6 +23,7 @@ using style sheets<customizing-with-style-sheets>`.
 import matplotlib.pyplot as plt
 import numpy as np
 
+import matplotlib as mpl
 import matplotlib.colors as mcolors
 from matplotlib.patches import Rectangle
 
@@ -47,7 +48,7 @@ def plot_colored_lines(ax):
     def sigmoid(t, t0):
         return 1 / (1 + np.exp(-(t - t0)))
 
-    nb_colors = len(plt.rcParams['axes.prop_cycle'])
+    nb_colors = len(mpl.rcParams['axes.prop_cycle'])
     shifts = np.linspace(-5, 5, nb_colors)
     amplitudes = np.linspace(1, 1.5, nb_colors)
     for t0, a in zip(shifts, amplitudes):
@@ -75,14 +76,15 @@ def plot_colored_circles(ax, prng, nb_samples=15):
     the color cycle, because different styles may have different numbers
     of colors.
     """
-    for sty_dict, j in zip(plt.rcParams['axes.prop_cycle'](),
+    for sty_dict, j in zip(mpl.rcParams['axes.prop_cycle'](),
                            range(nb_samples)):
         ax.add_patch(plt.Circle(prng.normal(scale=3, size=2),
                                 radius=1.0, color=sty_dict['color']))
     ax.grid(visible=True)
 
     # Add title for enabling grid
-    plt.title('ax.grid(True)', family='monospace', fontsize='small')
+    font_family = mpl.rcParams.get('font.family', 'monospace')
+    ax.set_title('ax.grid(True)', family=font_family, fontsize='medium')
 
     ax.set_xlim([-4, 8])
     ax.set_ylim([-5, 6])
@@ -133,11 +135,12 @@ def plot_figure(style_label=""):
     # make a suptitle, in the same style for all subfigures,
     # except those with dark backgrounds, which get a lighter color:
     background_color = mcolors.rgb_to_hsv(
-        mcolors.to_rgb(plt.rcParams['figure.facecolor']))[2]
+        mcolors.to_rgb(mpl.rcParams['figure.facecolor']))[2]
     if background_color < 0.5:
         title_color = [0.8, 0.8, 1]
     else:
         title_color = np.array([19, 6, 84]) / 256
+
     fig.suptitle(style_label, x=0.01, ha='left', color=title_color,
                  fontsize=14, fontfamily='DejaVu Sans', fontweight='normal')
 
@@ -147,28 +150,25 @@ def plot_figure(style_label=""):
     plot_colored_lines(axs[3])
     plot_histograms(axs[4], prng)
     plot_colored_circles(axs[5], prng)
-
     # add divider
     rec = Rectangle((1 + 0.025, -2), 0.05, 16,
                     clip_on=False, color='gray')
 
     axs[4].add_artist(rec)
 
-if __name__ == "__main__":
 
-    # Set up a list of all available styles, in alphabetical order but
-    # the `default` and `classic` ones, which will be forced resp. in
-    # first and second position.
-    # styles with leading underscores are for internal use such as testing
-    # and plot types gallery. These are excluded here.
-    style_list = ['default', 'classic'] + sorted(
-        style for style in plt.style.available
-        if style != 'classic' and not style.startswith('_'))
+# Set up a list of all available styles, in alphabetical order but
+# the `default` and `classic` ones, which will be forced resp. in
+# first and second position.
+# styles with leading underscores are for internal use such as testing
+# and plot types gallery. These are excluded here.
+style_list = ['default', 'classic'] + sorted(
+    style for style in mpl.style.available
+    if style != 'classic' and not style.startswith('_'))
 
-    # Plot a demonstration figure for every available style sheet.
-    for style_label in style_list:
-        with plt.rc_context({"figure.max_open_warning": len(style_list)}):
-            with plt.style.context(style_label):
-                plot_figure(style_label=style_label)
-
-    plt.show()
+# Plot a demonstration figure for every available style sheet:
+for style_label in style_list:
+    with mpl.rc_context({"figure.max_open_warning": len(style_list)}):
+        with mpl.style.context(style_label, after_reset=True):
+            plot_figure(style_label=style_label)
+            plt.show()

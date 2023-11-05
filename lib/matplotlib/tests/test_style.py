@@ -8,6 +8,7 @@ import pytest
 
 import matplotlib as mpl
 from matplotlib import pyplot as plt, style
+from matplotlib.testing.decorators import check_figures_equal
 from matplotlib.style.core import USER_LIBRARY_PATHS, STYLE_EXTENSION
 
 
@@ -169,11 +170,38 @@ def test_xkcd_no_cm():
     assert mpl.rcParams["path.sketch"] == (1, 100, 2)
 
 
+def test_xkcd_no_cm_style():
+    assert mpl.rcParams["path.sketch"] is None
+    plt.style.use('xkcd')
+    assert mpl.rcParams["path.sketch"] == (1, 100, 2)
+    np.testing.break_cycles()
+    assert mpl.rcParams["path.sketch"] == (1, 100, 2)
+
+
 def test_xkcd_cm():
     assert mpl.rcParams["path.sketch"] is None
     with plt.xkcd():
         assert mpl.rcParams["path.sketch"] == (1, 100, 2)
     assert mpl.rcParams["path.sketch"] is None
+
+
+def test_xkcd_cm_style():
+    assert mpl.rcParams["path.sketch"] is None
+    with style.context('xkcd'):
+        assert mpl.rcParams["path.sketch"] == (1, 100, 2)
+    assert mpl.rcParams["path.sketch"] is None
+
+
+@check_figures_equal()
+def test_xkcd_style(fig_test, fig_ref):
+
+    with style.context('xkcd'):
+        fig_test.subplots().plot([1, 2, 3])
+        fig_test.text(.5, .5, "Hello World!")
+
+    with plt.xkcd():
+        fig_ref.subplots().plot([1, 2, 3])
+        fig_ref.text(.5, .5, "Hello World!")
 
 
 def test_up_to_date_blacklist():
