@@ -4,9 +4,9 @@
 
 .. _text_intro:
 
-========================
-Text in Matplotlib Plots
-========================
+==================
+Text in Matplotlib
+==================
 
 Introduction to plotting and working with text in Matplotlib.
 
