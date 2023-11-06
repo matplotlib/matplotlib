@@ -162,10 +162,10 @@ history clean.
 
 You can achieve this by using
 
-  .. code-block:: bash
+.. code-block:: bash
 
-     git commit -a --amend --no-edit
-     git push [your-remote-repo] [your-branch] --force-with-lease
+    git commit -a --amend --no-edit
+    git push [your-remote-repo] [your-branch] --force-with-lease
 
 
 Manage commit history
