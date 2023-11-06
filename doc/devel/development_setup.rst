@@ -25,11 +25,12 @@ Fork the Matplotlib repository
 ==============================
 
 Matplotlib is hosted at https://github.com/matplotlib/matplotlib.git. If you
-plan on solving issues or submit pull requests to the main Matplotlib
+plan on solving issues or submitting pull requests to the main Matplotlib
 repository, you should first *fork* this repository by visiting
 https://github.com/matplotlib/matplotlib.git and clicking on the
-``Fork`` button on the top right of the page (see
-`the GitHub documentation <https://docs.github.com/get-started/quickstart/fork-a-repo>`__ for more details.)
+``Fork`` :octicon:`repo-forked` button on the top right of the page. See
+`the GitHub documentation <https://docs.github.com/get-started/quickstart/fork-a-repo>`__
+for more details.
 
 Retrieve the latest version of the code
 =======================================
