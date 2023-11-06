@@ -1212,6 +1212,42 @@ default: %(va)s
         with semi-transparent images (alpha < 1) and colorbar extensions;
         therefore, this workaround is not used by default (see issue #1188).
           """
+        
+
+        if ax is None:
+            ax = getattr(mappable, "axes", None)
+
+        if cax is None:
+            if ax is None:
+                raise ValueError(
+                    'Unable to determine Axes to steal space for Colorbar. '
+                    'Either provide the *cax* argument to use as the Axes for '
+                    'the Colorbar, provide the *ax* argument to steal space '
+                    'from it, or add *mappable* to an Axes.')
+            fig = (  # Figure of first axes; logic copied from make_axes.
+                [*ax.flat] if isinstance(ax, np.ndarray)
+                else [*ax] if np.iterable(ax)
+                else [ax])[0].figure
+            current_ax = fig.gca()
+            if (fig.get_layout_engine() is not None and
+                    not fig.get_layout_engine().colorbar_gridspec):
+                use_gridspec = False
+            if (use_gridspec
+                    and isinstance(ax, mpl.axes._base._AxesBase)
+                    and ax.get_subplotspec()):
+                cax, kwargs = cbar.make_axes_gridspec(ax, **kwargs)
+            else:
+                cax, kwargs = cbar.make_axes(ax, **kwargs)
+            # make_axes calls add_{axes,subplot} which changes gca; undo that.
+            fig.sca(current_ax)
+            cax.grid(visible=False, which='both', axis='both')
+
+        NON_COLORBAR_KEYS = [  # remove kws that cannot be passed to Colorbar
+            'fraction', 'pad', 'shrink', 'aspect', 'anchor', 'panchor']
+        cb = cbar.Colorbar(cax, mappable, **{
+            k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS})
+        cax.figure.stale = True
+        return cb
 
     def subplots_adjust(self, left=None, bottom=None, right=None, top=None,
                         wspace=None, hspace=None):
@@ -2310,7 +2346,7 @@ class Figure(FigureBase):
 
     def __init__(self,
                  figsize=None,  
-                 dpi=None, 
+                 dpi=None,
                  *,
                  facecolor=None, 
                  edgecolor=None, 
@@ -2878,7 +2914,7 @@ None}, default: None
         matplotlib.figure.Figure.get_subplotpars
         """
         return self.subplotpars
-    
+        
     def set_figsize(self, fig_size_params):
         self.set_size_inches(fig_size_params[0], fig_size_params[1])
         """
@@ -2890,14 +2926,14 @@ None}, default: None
         Returns the size of the figure in inches
         """
         return self.get_size_inches()
-    
+
     def set_layout(self, layout_params):
         """
         Sets the layout of the figure.
         """
-        self.set_layout_engine(layout_params)       
+        self.set_layout_engine(layout_params)
 
-    def get_layout(self):   
+    def get_layout(self):
         """
         Returns the layout of the figure.
         """
