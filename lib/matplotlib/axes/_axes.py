@@ -3007,11 +3007,10 @@ class Axes(_AxesBase):
             A format string defining the properties of the baseline.
 
         orientation : {'vertical', 'horizontal'}, default: 'vertical'
-            If 'vertical', will produce a plot with stems oriented vertically,
-            If 'horizontal', the stems will be oriented horizontally.
+            The orientation of the stems.
 
         bottom : float, default: 0
-            The y/x-position of the baseline (depending on orientation).
+            The y/x-position of the baseline (depending on *orientation*).
 
         label : str, default: None
             The label to use for the stems in legends.
