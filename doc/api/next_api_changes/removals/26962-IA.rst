@@ -11,9 +11,9 @@ These classes were previously marked as deprecated and have now been removed in 
 Deprecated C++ Methods Removed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following deprecated C++ methods from `src/_backend_agg_wrapper.cpp`, deprecated since version 3.7, have also been removed:
+The following deprecated C++ methods from :file:`src/_backend_agg_wrapper.cpp`, deprecated since version 3.7, have also been removed:
 
-- `PyBufferRegion_to_string`
-- `PyBufferRegion_to_string_argb`
+- ``PyBufferRegion_to_string``
+- ``PyBufferRegion_to_string_argb``
 
 These methods were previously marked as deprecated and have now been removed.
