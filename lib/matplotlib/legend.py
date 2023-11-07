@@ -194,7 +194,7 @@ facecolor : "inherit" or color, default: :rc:`legend.facecolor`
 
 edgecolor : "inherit" or color, default: :rc:`legend.edgecolor`
     The legend's background patch edge color.
-    If ``"inherit"``, use take :rc:`axes.edgecolor`.
+    If ``"inherit"``, use :rc:`axes.edgecolor`.
 
 mode : {"expand", None}
     If *mode* is set to ``"expand"`` the legend will be horizontally
