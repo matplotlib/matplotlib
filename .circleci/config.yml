@@ -49,7 +49,6 @@ commands:
               ffmpeg \
               fonts-crosextra-carlito \
               fonts-freefont-otf \
-              fonts-humor-sans \
               fonts-noto-cjk \
               fonts-wqy-zenhei \
               graphviz \
@@ -67,15 +66,16 @@ commands:
   fonts-install:
     steps:
       - restore_cache:
-          key: fonts-2
+          key: fonts-4
       - run:
           name: Install custom fonts
           command: |
             mkdir -p ~/.local/share/fonts
             wget -nc https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O ~/.local/share/fonts/Felipa-Regular.ttf || true
+            wget -nc https://github.com/ipython/xkcd-font/blob/master/xkcd-script/font/xkcd-script.ttf?raw=true -O ~/.local/share/fonts/xkcd-Script.ttf || true
             fc-cache -f -v
       - save_cache:
-          key: fonts-2
+          key: fonts-4
           paths:
             - ~/.local/share/fonts/
 
