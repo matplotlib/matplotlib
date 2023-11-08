@@ -1,12 +1,3 @@
-.. raw:: html
-
-   <style>
-   .checklist { list-style: none; padding: 0; margin: 0; }
-   .checklist li { margin-left: 24px; padding-left: 23px;  margin-right: 6px; }
-   .checklist li:before { content: "\2610\2001"; margin-left: -24px; }
-   .checklist li p {display: inline; }
-   </style>
-
 .. _pr-guidelines:
 
 ***********************
@@ -17,144 +8,82 @@ Pull request guidelines
 <https://docs.github.com/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests>`__
 are the mechanism for contributing to Matplotlib's code and documentation.
 
-It is recommended to check that your contribution complies with the following
-rules before submitting a pull request:
+We value contributions from people with all levels of experience. In particular,
+if this is your first PR not everything has to be perfect. We'll guide you
+through the PR process. Nevertheless, please try to follow our guidelines as well
+as you can to help make the PR process quick and smooth. If your pull request is
+incomplete or a work-in-progress, please mark it as a `draft pull requests <https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests>`_
+on GitHub and specify what feedback from the developers would be helpful.
 
-* If your pull request addresses an issue, please use the title to describe the
-  issue (e.g. "Add ability to plot timedeltas") and mention the issue number
-  in the pull request description to ensure that a link is created to the
-  original issue (e.g. "Closes #8869" or "Fixes #8869"). This will ensure the
-  original issue mentioned is automatically closed when your PR is merged. See
-  `the GitHub documentation
-  <https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue>`__
-  for more details.
-
-* Formatting should follow the recommendations of PEP8_, as enforced by
-  flake8_. Matplotlib modifies PEP8 to extend the maximum line length to 88
-  characters. You can check flake8 compliance from the command line with ::
-
-    python -m pip install flake8
-    flake8 /path/to/module.py
-
-  or your editor may provide integration with it.  Note that Matplotlib
-  intentionally does not use the black_ auto-formatter (1__), in particular due
-  to its inability to understand the semantics of mathematical expressions
-  (2__, 3__).
-
-  .. _PEP8: https://www.python.org/dev/peps/pep-0008/
-  .. _flake8: https://flake8.pycqa.org/
-  .. _black: https://black.readthedocs.io/
-  .. __: https://github.com/matplotlib/matplotlib/issues/18796
-  .. __: https://github.com/psf/black/issues/148
-  .. __: https://github.com/psf/black/issues/1984
-
-* All public methods should have informative docstrings with sample usage when
-  appropriate. Use the :ref:`docstring standards <writing-docstrings>`.
-
-* For high-level plotting functions, consider adding a simple example either in
-  the ``Example`` section of the docstring or the
-  :ref:`examples gallery <gallery>`.
-
-* Changes (both new features and bugfixes) should have good test coverage. See
-  :ref:`testing` for more details.
-
-* Import the following modules using the standard scipy conventions::
-
-     import numpy as np
-     import numpy.ma as ma
-     import matplotlib as mpl
-     import matplotlib.pyplot as plt
-     import matplotlib.cbook as cbook
-     import matplotlib.patches as mpatches
-
-  In general, Matplotlib modules should **not** import `.rcParams` using ``from
-  matplotlib import rcParams``, but rather access it as ``mpl.rcParams``.  This
-  is because some modules are imported very early, before the `.rcParams`
-  singleton is constructed.
-
-* If your change is a major new feature, add an entry to the ``What's new``
-  section by adding a new file in ``doc/users/next_whats_new`` (see
-  :file:`doc/users/next_whats_new/README.rst` for more information).
-
-* If you change the API in a backward-incompatible way, please document it in
-  :file:`doc/api/next_api_changes/behavior`, by adding a new file with the
-  naming convention ``99999-ABC.rst`` where the pull request number is followed
-  by the contributor's initials. (see :file:`doc/api/api_changes.rst` for more
-  information)
-
-* If you add new public API or change public API, update or add the
-  corresponding type hints. Most often this is found in the corresponding
-  ``.pyi`` file for the ``.py`` file which was edited. Changes in ``pyplot.py``
-  are type hinted inline.
-
-* See below for additional points about :ref:`keyword-argument-processing`, if
-  applicable for your pull request.
-
-.. note::
-
-    The current state of the Matplotlib code base is not compliant with all
-    of these guidelines, but we expect that enforcing these constraints on all
-    new contributions will move the overall code base quality in the right
-    direction.
-
-
-.. seealso::
-
-  * :ref:`coding_guidelines`
-  * :ref:`testing`
-  * :ref:`documenting-matplotlib`
-
+Please be patient with reviewers. We try our best to respond quickly, but we have
+limited bandwidth. If there is no feedback within a couple of days, please ping
+us by posting a comment to your PR or reaching out on a :ref:`communication channel <communication-channels>`
 
 
 Summary for pull request authors
 ================================
 
-.. note::
-
-   * We value contributions from people with all levels of experience. In
-     particular if this is your first PR not everything has to be perfect.
-     We'll guide you through the PR process.
-   * Nevertheless, please try to follow the guidelines below as well as you can to
-     help make the PR process quick and smooth.
-   * Be patient with reviewers. We try our best to respond quickly, but we
-     have limited bandwidth. If there is no feedback within a couple of days,
-     please ping us by posting a comment to your PR.
-
-When making a PR, pay attention to:
+We recommend that you check that your contribution complies with the following
+guidelines before submitting a pull request:
 
 .. rst-class:: checklist
 
-* :ref:`Target the main branch <pr-branch-selection>`.
-* Adhere to the :ref:`coding_guidelines`.
+* Changes, both new features and bugfixes, should have good test coverage. See
+  :ref:`testing` for more details.
+
 * Update the :ref:`documentation <pr-documentation>` if necessary.
-* Aim at making the PR as "ready-to-go" as you can. This helps to speed up
-  the review process.
-* It is ok to open incomplete or work-in-progress PRs if you need help or
-  feedback from the developers. You may mark these as
-  `draft pull requests <https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests>`_
-  on GitHub.
-* When updating your PR, instead of adding new commits to fix something, please
-  consider amending your initial commit(s) to keep the history clean.
-  You can achieve this by using
 
-  .. code-block:: bash
+* All public methods should have informative docstrings with sample usage when
+  appropriate. Use the :ref:`docstring standards <writing-docstrings>`.
 
-     git commit --amend --no-edit
-     git push [your-remote-repo] [your-branch] --force-with-lease
+* For high-level plotting functions, consider adding a small example to the
+  :ref:`examples gallery <gallery>`.
 
-See also :ref:`contributing` for how to make a PR.
+* If you add a major new feature or change the API in a backward-incompatible
+  way, please document it as described in :ref:`new-changed-api`
+
+* Code should follow our conventions as documented in our :ref:`coding_guidelines`
+
+* When adding or changing public function signatures, add :ref:`type hints <type-hints>`
+
+* When adding keyword arguments, see our guide to :ref:`keyword-argument-processing`.
+
+When opening a pull request on Github, please ensure that:
+
+.. rst-class:: checklist
+
+* Changes were made on a :ref:`feature branch <make-feature-branch>`.
+
+* :ref:`pre-commit <pre-commit-hooks>` checks for spelling, formatting, etc pass
+
+* The pull request targets the :ref:`main branch <pr-branch-selection>`
+
+* If your pull request addresses an issue, please use the title to describe the
+  issue (e.g. "Add ability to plot timedeltas") and mention the issue number
+  in the pull request description to ensure that a link is created to the
+  original issue (e.g. "Closes #8869" or "Fixes #8869"). This will ensure the
+  original issue mentioned is automatically closed when your PR is merged. For more
+  details, see `linking an issue and pull request <https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue>`__.
+
+* :ref:`pr-automated-tests` pass
+
+For guidance on creating and managing a pull request, please see our
+:ref:`contributing <contributing>` and :ref:`pull request workflow <edit-flow>`
+guides.
+
 
 Summary for pull request reviewers
 ==================================
 
 .. redirect-from:: /devel/maintainer_workflow
 
-.. note::
+**Please help review and merge PRs!**
 
-   * If you have commit rights, then you are trusted to use them.
-     **Please help review and merge PRs!**
-   * Be patient and `kind <https://youtu.be/tzFWz5fiVKU?t=49m30s>`__ with
-     contributors.
+If you have commit rights, then you are trusted to use them. Please be patient
+and `kind <https://youtu.be/tzFWz5fiVKU?t=49m30s>`__ with contributors.
+
+When reviewing, please ensure that the pull request satisfies the following
+requirements before merging it:
 
 Content topics:
 
@@ -204,61 +133,6 @@ Documentation
 * Build the docs and make sure all formatting warnings are addressed.
 
 * See :ref:`documenting-matplotlib` for our documentation style guide.
-
-.. _release_notes:
-
-New features and API changes
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-When adding a major new feature or changing the API in a backward incompatible
-way, please document it by including a versioning directive in the docstring
-and adding an entry to the folder for either the what's new or API change notes.
-
-+-------------------+-----------------------------+----------------------------------+
-| for this addition | include this directive      | create entry in this folder      |
-+===================+=============================+==================================+
-| new feature       | ``.. versionadded:: 3.N``   | :file:`doc/users/next_whats_new/`|
-+-------------------+-----------------------------+----------------------------------+
-| API change        | ``.. versionchanged:: 3.N`` | :file:`doc/api/next_api_changes/`|
-|                   |                             |                                  |
-|                   |                             | probably in ``behavior/``        |
-+-------------------+-----------------------------+----------------------------------+
-
-The directives should be placed at the end of a description block. For example::
-
-  class Foo:
-      """
-      This is the summary.
-
-      Followed by a longer description block.
-
-      Consisting of multiple lines and paragraphs.
-
-      .. versionadded:: 3.5
-
-      Parameters
-      ----------
-      a : int
-          The first parameter.
-      b: bool, default: False
-          This was added later.
-
-          .. versionadded:: 3.6
-      """
-
-      def set_b(b):
-          """
-          Set b.
-
-          .. versionadded:: 3.6
-
-          Parameters
-          ----------
-          b: bool
-
-For classes and functions, the directive should be placed before the
-*Parameters* section. For parameters, the directive should be placed at the
-end of the parameter description. The patch release version is omitted and
-the directive should not be added to entire modules.
 
 .. _pr-labels:
 
@@ -339,7 +213,8 @@ Merging
 
 Automated tests
 ---------------
-Before being merged, a PR should pass the :ref:`automated-tests`. If you are unsure why a test is failing, ask on the PR or in our `chat space <https://gitter.im/matplotlib/matplotlib>`_
+Before being merged, a PR should pass the :ref:`automated-tests`. If you are
+unsure why a test is failing, ask on the PR or in our :ref:`communication-channels`
 
 .. _pr-squashing:
 

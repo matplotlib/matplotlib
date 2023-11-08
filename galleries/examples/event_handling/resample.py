@@ -75,3 +75,6 @@ ax.set_autoscale_on(False)  # Otherwise, infinite loop
 ax.callbacks.connect('xlim_changed', d.update)
 ax.set_xlim(16, 365)
 plt.show()
+
+# %%
+# .. tags:: interactivity: zoom, event-handling

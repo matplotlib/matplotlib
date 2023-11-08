@@ -41,12 +41,6 @@ matplotlib.figure.Figure.set_tight_layout
 matplotlib.cm.register_cmap
 matplotlib.cm.unregister_cmap
 
-# 3.8 deprecations
-matplotlib.contour.ContourSet.allkinds
-matplotlib.contour.ContourSet.allsegs
-matplotlib.contour.ContourSet.tcolors
-matplotlib.contour.ContourSet.tlinewidths
-
 # positional-only argument name lacking leading underscores
 matplotlib.axes._base._AxesBase.axis
 

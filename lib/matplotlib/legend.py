@@ -194,7 +194,7 @@ facecolor : "inherit" or color, default: :rc:`legend.facecolor`
 
 edgecolor : "inherit" or color, default: :rc:`legend.edgecolor`
     The legend's background patch edge color.
-    If ``"inherit"``, use take :rc:`axes.edgecolor`.
+    If ``"inherit"``, use :rc:`axes.edgecolor`.
 
 mode : {"expand", None}
     If *mode* is set to ``"expand"`` the legend will be horizontally
@@ -1301,7 +1301,7 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
         legend(handles=handles, labels=labels)
 
     The behavior for a mixture of positional and keyword handles and labels
-    is undefined and issues a warning.
+    is undefined and issues a warning; it will be an error in the future.
 
     Parameters
     ----------
@@ -1334,8 +1334,10 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
     handlers = kwargs.get('handler_map')
 
     if (handles is not None or labels is not None) and args:
-        _api.warn_external("You have mixed positional and keyword arguments, "
-                           "some input may be discarded.")
+        _api.warn_deprecated("3.9", message=(
+            "You have mixed positional and keyword arguments, some input may "
+            "be discarded.  This is deprecated since %(since)s and will "
+            "become an error %(removal)s."))
 
     if (hasattr(handles, "__len__") and
             hasattr(labels, "__len__") and

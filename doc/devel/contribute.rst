@@ -367,27 +367,160 @@ project that leads to a scientific publication, please follow the
 Coding guidelines
 =================
 
-API changes
------------
+While the current state of the Matplotlib code base is not compliant with all
+of these guidelines, our goal in enforcing these constraints on new
+contributions is that it improves the readability and consistency of the code base
+going forward.
 
-API consistency and stability are of great value. Therefore, API changes
+PEP8, as enforced by flake8
+---------------------------
+
+Formatting should follow the recommendations of PEP8_, as enforced by flake8_.
+Matplotlib modifies PEP8 to extend the maximum line length to 88
+characters. You can check flake8 compliance from the command line with ::
+
+    python -m pip install flake8
+    flake8 /path/to/module.py
+
+or your editor may provide integration with it.  Note that Matplotlib intentionally
+does not use the black_ auto-formatter (1__), in particular due to its inability
+to understand the semantics of mathematical expressions (2__, 3__).
+
+.. _PEP8: https://www.python.org/dev/peps/pep-0008/
+.. _flake8: https://flake8.pycqa.org/
+.. _black: https://black.readthedocs.io/
+.. __: https://github.com/matplotlib/matplotlib/issues/18796
+.. __: https://github.com/psf/black/issues/148
+.. __: https://github.com/psf/black/issues/1984
+
+
+Package imports
+---------------
+Import the following modules using the standard scipy conventions::
+
+  import numpy as np
+  import numpy.ma as ma
+  import matplotlib as mpl
+  import matplotlib.pyplot as plt
+  import matplotlib.cbook as cbook
+  import matplotlib.patches as mpatches
+
+In general, Matplotlib modules should **not** import `.rcParams` using ``from
+matplotlib import rcParams``, but rather access it as ``mpl.rcParams``.  This
+is because some modules are imported very early, before the `.rcParams`
+singleton is constructed.
+
+Variable names
+--------------
+
+When feasible, please use our internal variable naming convention for objects
+of a given class and objects of any child class:
+
++------------------------------------+---------------+------------------------------------------+
+|             base class             | variable      |                multiples                 |
++====================================+===============+==========================================+
+| `~matplotlib.figure.FigureBase`    | ``fig``       |                                          |
++------------------------------------+---------------+------------------------------------------+
+| `~matplotlib.axes.Axes`            | ``ax``        |                                          |
++------------------------------------+---------------+------------------------------------------+
+| `~matplotlib.transforms.Transform` | ``trans``     | ``trans_<source>_<target>``              |
++                                    +               +                                          +
+|                                    |               | ``trans_<source>`` when target is screen |
++------------------------------------+---------------+------------------------------------------+
+
+Generally, denote more than one instance of the same class by adding suffixes to
+the variable names. If a format isn't specified in the table, use numbers or
+letters as appropriate.
+
+
+.. _type-hints:
+
+Type hints
+----------
+
+If you add new public API or change public API, update or add the
+corresponding `mypy <https://mypy.readthedocs.io/en/latest/>`_ type hints.
+We generally use `stub files
+<https://typing.readthedocs.io/en/latest/source/stubs.html#type-stubs>`_
+(``*.pyi``) to store the type information; for example ``colors.pyi`` contains
+the type information for ``colors.py``. A notable exception is ``pyplot.py``,
+which is type hinted inline.
+
+Type hints are checked by the mypy :ref:`pre-commit hook <pre-commit-hooks>`
+and can often be verified using ``tools\stubtest.py`` and occasionally may
+require the use of ``tools\check_typehints.py``.
+
+
+.. _new-changed-api:
+
+API changes and new features
+----------------------------
+
+API consistency and stability are of great value; Therefore, API changes
 (e.g. signature changes, behavior changes, removals) will only be conducted
-if the added benefit is worth the user effort for adapting.
+if the added benefit is worth the effort of adapting existing code.
 
-Because we are a visualization library our primary output is the final
-visualization the user sees.  Thus it is our :ref:`long standing
-<color_changes>` policy that the appearance of the figure is part of the API
-and any changes, either semantic or esthetic, will be treated as a
-backwards-incompatible API change.
+Because we are a visualization library, our primary output is the final
+visualization the user sees; therefore, the appearance of the figure is part of
+the API and any changes, either semantic or :ref:`esthetic <color_changes>`,
+are backwards-incompatible API changes.
 
+.. _api_whats_new:
+
+Announce changes, deprecations, and new features
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When adding or changing the API in a backward in-compatible way, please add the
+appropriate :ref:`versioning directive <versioning-directives>` and document it
+for the release notes and add the entry to the appropriate folder:
+
++-------------------+-----------------------------+----------------------------------------------+
+| addition          |   versioning directive      |  announcement folder                         |
++===================+=============================+==============================================+
+| new feature       | ``.. versionadded:: 3.N``   | :file:`doc/users/next_whats_new/`            |
++-------------------+-----------------------------+----------------------------------------------+
+| API change        | ``.. versionchanged:: 3.N`` | :file:`doc/api/next_api_changes/[kind]`      |
++-------------------+-----------------------------+----------------------------------------------+
+
+API deprecations are first introduced and then expired. During the introduction
+period, users are warned that the API *will* change in the future.
+During the expiration period, code is changed as described in the notice posted
+during the introductory period.
+
++-----------+--------------------------------------------------+----------------------------------------------+
+|   stage   |                 required changes                 |             announcement folder              |
++===========+==================================================+==============================================+
+| introduce | :ref:`introduce deprecation <intro-deprecation>` | :file:`doc/api/next_api_changes/deprecation` |
++-----------+--------------------------------------------------+----------------------------------------------+
+| expire    | :ref:`expire deprecation <expire-deprecation>`   | :file:`doc/api/next_api_changes/[kind]`      |
++-----------+--------------------------------------------------+----------------------------------------------+
+
+For both change notes and what's new, please avoid using references in section
+titles, as it causes links to be confusing in the table of contents. Instead,
+ensure that a reference is included in the descriptive text.
+
+API Change Notes
+""""""""""""""""
+.. include:: ../api/next_api_changes/README.rst
+   :start-line: 5
+   :end-line: 31
+
+What's new
+""""""""""
+.. include:: ../users/next_whats_new/README.rst
+   :start-line: 5
+   :end-line: 24
+
+
+Deprecation
+^^^^^^^^^^^
 API changes in Matplotlib have to be performed following the deprecation process
-below, except in very rare circumstances as deemed necessary by the development team.
-This ensures that users are notified before the change will take effect and thus
-prevents unexpected breaking of code.
+below, except in very rare circumstances as deemed necessary by the development
+team. This ensures that users are notified before the change will take effect
+and thus prevents unexpected breaking of code.
 
 Rules
-^^^^^
-
+"""""
 - Deprecations are targeted at the next point.release (e.g. 3.x)
 - Deprecated API is generally removed two point-releases after introduction
   of the deprecation. Longer deprecations can be imposed by core developers on
@@ -398,12 +531,12 @@ Rules
 - If in doubt, decisions about API changes are finally made by the
   API consistency lead developer
 
-Introducing
-^^^^^^^^^^^
+.. _intro-deprecation:
 
-#. Announce the deprecation in a new file
-   :file:`doc/api/next_api_changes/deprecations/99999-ABC.rst` where ``99999``
-   is the pull request number and ``ABC`` are the contributor's initials.
+Introduce deprecation
+"""""""""""""""""""""
+
+#. Create :ref:`deprecation notice <api_whats_new>`
 
 #. If possible, issue a `~matplotlib.MatplotlibDeprecationWarning` when the
    deprecated API is used. There are a number of helper tools for this:
@@ -435,16 +568,13 @@ Introducing
      for the deleted parameter, even if it did not previously have one (e.g.
      ``param: <type> = ...``).
 
-Expiring
-^^^^^^^^
+.. _expire-deprecation:
 
-#. Announce the API changes in a new file
-   :file:`doc/api/next_api_changes/[kind]/99999-ABC.rst` where ``99999``
-   is the pull request number and ``ABC`` are the contributor's initials, and
-   ``[kind]`` is one of the folders :file:`behavior`, :file:`development`,
-   :file:`removals`. See :file:`doc/api/next_api_changes/README.rst` for more
-   information. For the content, you can usually copy the deprecation notice
-   and adapt it slightly.
+Expire deprecation
+""""""""""""""""""
+
+#. Create :ref:`deprecation announcement <api_whats_new>`. For the content,
+   you can usually copy the deprecation notice and adapt it slightly.
 
 #. Change the code functionality and remove any related deprecation warnings.
 
@@ -462,8 +592,8 @@ Expiring
      instead. For removed items that were not in the stub file, only deleting from the
      allowlist is required.
 
-Adding new API
---------------
+Adding new API and features
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Every new function, parameter and attribute that is not explicitly marked as
 private (i.e., starts with an underscore) becomes part of Matplotlib's public
@@ -479,6 +609,51 @@ take particular care when adding new API:
   `API Evolution the Right Way -- Add Parameters Compatibly`__.
 
   __ https://emptysqua.re/blog/api-evolution-the-right-way/#adding-parameters
+
+
+.. _versioning-directives:
+
+Versioning directives
+"""""""""""""""""""""
+
+When making a backward incompatible change, please add a versioning directive in
+the docstring. The directives should be placed at the end of a description block.
+For example::
+
+  class Foo:
+      """
+      This is the summary.
+
+      Followed by a longer description block.
+
+      Consisting of multiple lines and paragraphs.
+
+      .. versionadded:: 3.5
+
+      Parameters
+      ----------
+      a : int
+          The first parameter.
+      b: bool, default: False
+          This was added later.
+
+          .. versionadded:: 3.6
+      """
+
+      def set_b(b):
+          """
+          Set b.
+
+          .. versionadded:: 3.6
+
+          Parameters
+          ----------
+          b: bool
+
+For classes and functions, the directive should be placed before the
+*Parameters* section. For parameters, the directive should be placed at the
+end of the parameter description. The patch release version is omitted and
+the directive should not be added to entire modules.
 
 
 New modules and files: installation

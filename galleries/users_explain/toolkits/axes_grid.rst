@@ -81,8 +81,8 @@ side ("left", "right", "top", "bottom") of the original axes.
 colorbar whose height (or width) is in sync with the main axes
 --------------------------------------------------------------
 
-.. figure:: /gallery/axes_grid1/images/sphx_glr_simple_colorbar_001.png
-   :target: /gallery/axes_grid1/simple_colorbar.html
+.. figure:: /gallery/axes_grid1/images/sphx_glr_demo_colorbar_with_axes_divider_001.png
+   :target: /gallery/axes_grid1/demo_colorbar_with_axes_divider.html
    :align: center
 
 scatter_hist.py with AxesDivider

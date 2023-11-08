@@ -261,6 +261,8 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         # Force querying of the modifiers, as the cached modifier state can
         # have been invalidated while the window was out of focus.
         mods = QtWidgets.QApplication.instance().queryKeyboardModifiers()
+        if self.figure is None:
+            return
         LocationEvent("figure_enter_event", self,
                       *self.mouseEventCoords(event),
                       modifiers=self._mpl_modifiers(mods),
@@ -268,6 +270,8 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def leaveEvent(self, event):
         QtWidgets.QApplication.restoreOverrideCursor()
+        if self.figure is None:
+            return
         LocationEvent("figure_leave_event", self,
                       *self.mouseEventCoords(),
                       modifiers=self._mpl_modifiers(),
@@ -275,7 +279,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def mousePressEvent(self, event):
         button = self.buttond.get(event.button())
-        if button is not None:
+        if button is not None and self.figure is not None:
             MouseEvent("button_press_event", self,
                        *self.mouseEventCoords(event), button,
                        modifiers=self._mpl_modifiers(),
@@ -283,13 +287,15 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def mouseDoubleClickEvent(self, event):
         button = self.buttond.get(event.button())
-        if button is not None:
+        if button is not None and self.figure is not None:
             MouseEvent("button_press_event", self,
                        *self.mouseEventCoords(event), button, dblclick=True,
                        modifiers=self._mpl_modifiers(),
                        guiEvent=event)._process()
 
     def mouseMoveEvent(self, event):
+        if self.figure is None:
+            return
         MouseEvent("motion_notify_event", self,
                    *self.mouseEventCoords(event),
                    modifiers=self._mpl_modifiers(),
@@ -297,7 +303,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def mouseReleaseEvent(self, event):
         button = self.buttond.get(event.button())
-        if button is not None:
+        if button is not None and self.figure is not None:
             MouseEvent("button_release_event", self,
                        *self.mouseEventCoords(event), button,
                        modifiers=self._mpl_modifiers(),
@@ -311,7 +317,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             steps = event.angleDelta().y() / 120
         else:
             steps = event.pixelDelta().y()
-        if steps:
+        if steps and self.figure is not None:
             MouseEvent("scroll_event", self,
                        *self.mouseEventCoords(event), step=steps,
                        modifiers=self._mpl_modifiers(),
@@ -319,20 +325,22 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def keyPressEvent(self, event):
         key = self._get_key(event)
-        if key is not None:
+        if key is not None and self.figure is not None:
             KeyEvent("key_press_event", self,
                      key, *self.mouseEventCoords(),
                      guiEvent=event)._process()
 
     def keyReleaseEvent(self, event):
         key = self._get_key(event)
-        if key is not None:
+        if key is not None and self.figure is not None:
             KeyEvent("key_release_event", self,
                      key, *self.mouseEventCoords(),
                      guiEvent=event)._process()
 
     def resizeEvent(self, event):
         if self._in_resize_event:  # Prevent PyQt6 recursion
+            return
+        if self.figure is None:
             return
         self._in_resize_event = True
         try:

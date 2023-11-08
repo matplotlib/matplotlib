@@ -1499,7 +1499,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        color : color
+        color : color; see :ref:`colors_def`
         """
         self._facecolor = color
         self.stale = True

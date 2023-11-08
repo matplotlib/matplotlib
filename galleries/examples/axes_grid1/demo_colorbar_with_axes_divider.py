@@ -14,6 +14,8 @@ uses `.append_axes` to add colorbars next to axes.
 Users should consider simply passing the main axes to the *ax* keyword argument of
 `~.Figure.colorbar` instead of creating a locatable axes manually like this.
 See :ref:`colorbar_placement`.
+
+.. redirect-from:: /gallery/axes_grid1/simple_colorbar
 """
 
 import matplotlib.pyplot as plt

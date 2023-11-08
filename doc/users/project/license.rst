@@ -46,5 +46,86 @@ control logs.
 License agreement
 =================
 
-.. literalinclude:: ../../../LICENSE/LICENSE
-   :language: none
+.. dropdown:: License agreement for Matplotlib versions 1.3.0 and later
+   :open:
+   :class-container: sdd
+
+   .. literalinclude:: ../../../LICENSE/LICENSE
+      :language: none
+
+
+
+Bundled software
+================
+
+.. dropdown:: JSX Tools Resize Observer
+   :class-container: sdd
+
+   .. literalinclude:: ../../../LICENSE/LICENSE_JSXTOOLS_RESIZE_OBSERVER
+      :language: none
+
+.. dropdown:: QT4 Editor
+   :class-container: sdd
+
+   .. literalinclude:: ../../../LICENSE/LICENSE_QT4_EDITOR
+      :language: none
+
+
+.. _licenses-cmaps-styles:
+
+Colormaps and themes
+--------------------
+
+.. dropdown:: ColorBrewer
+   :class-container: sdd
+
+   .. literalinclude:: ../../../LICENSE/LICENSE_COLORBREWER
+      :language: none
+
+.. dropdown:: Solarized
+   :class-container: sdd
+
+   .. literalinclude:: ../../../LICENSE/LICENSE_SOLARIZED
+      :language: none
+
+.. dropdown:: Yorick
+   :class-container: sdd
+
+   .. literalinclude:: ../../../LICENSE/LICENSE_YORICK
+      :language: none
+
+
+.. _licenses-fonts:
+
+Fonts
+-----
+
+.. dropdown:: American Mathematical Society (AMS) fonts
+   :class-container: sdd
+
+   .. literalinclude:: ../../../LICENSE/LICENSE_AMSFONTS
+      :language: none
+
+.. dropdown:: BaKoMa
+   :class-container: sdd
+
+   .. literalinclude:: ../../../LICENSE/LICENSE_BAKOMA
+      :language: none
+
+.. dropdown:: Carlogo
+   :class-container: sdd
+
+   .. literalinclude:: ../../../LICENSE/LICENSE_CARLOGO
+      :language: none
+
+.. dropdown:: Courier 10
+   :class-container: sdd
+
+   .. literalinclude:: ../../../LICENSE/LICENSE_COURIERTEN
+      :language: none
+
+.. dropdown:: STIX
+   :class-container: sdd
+
+   .. literalinclude:: ../../../LICENSE/LICENSE_STIX
+      :language: none

@@ -25,11 +25,12 @@ Fork the Matplotlib repository
 ==============================
 
 Matplotlib is hosted at https://github.com/matplotlib/matplotlib.git. If you
-plan on solving issues or submit pull requests to the main Matplotlib
+plan on solving issues or submitting pull requests to the main Matplotlib
 repository, you should first *fork* this repository by visiting
 https://github.com/matplotlib/matplotlib.git and clicking on the
-``Fork`` button on the top right of the page (see
-`the GitHub documentation <https://docs.github.com/get-started/quickstart/fork-a-repo>`__ for more details.)
+``Fork`` :octicon:`repo-forked` button on the top right of the page. See
+`the GitHub documentation <https://docs.github.com/get-started/quickstart/fork-a-repo>`__
+for more details.
 
 Retrieve the latest version of the code
 =======================================
@@ -131,9 +132,13 @@ The simplest way to do this is to use either Python's virtual environment
       On some systems, you may need to type ``python3`` instead of ``python``.
       For a discussion of the technical reasons, see `PEP-394 <https://peps.python.org/pep-0394>`_.
 
+      Install the Python dependencies with ::
+
+        pip install -r requirements/dev/dev-requirements.txt
+
    .. tab-item:: conda environment
 
-      Create a new `conda`_ environment with ::
+      Create a new `conda`_ environment and install the Python dependencies with ::
 
         conda env create -f environment.yml
 
@@ -154,6 +159,8 @@ Most Python dependencies will be installed when :ref:`setting up the environment
 but non-Python dependencies like C++ compilers, LaTeX, and other system applications
 must be installed separately. For a full list, see :ref:`dependencies`.
 
+.. _development-install:
+
 Install Matplotlib in editable mode
 ===================================
 
@@ -164,12 +171,29 @@ command ::
 
 The 'editable/develop mode' builds everything and places links in your Python environment
 so that Python will be able to import Matplotlib from your development source directory.
-This allows you to import your modified version of Matplotlib without re-installing after
-every change. Note that before the merging of the `Meson port
-<https://github.com/matplotlib/matplotlib/pull/26621>`_, this is only true for ``*.py``
-files. If you change the C-extension source based on a commit before the change to the
-Meson build system (which might also happen if you change branches), you will have to
-re-run the above command.
+This allows you to import your modified version of Matplotlib without having to
+re-install after changing a ``.py`` or compiled extension file.
+
+When working on a branch that does not have Meson enabled, meaning it does not
+have :ghpull:`26621` in its history (log), you will have to reinstall from source
+each time you change any compiled extension code.
+
+If the installation is not working, please consult the :ref:`troubleshooting guide <troubleshooting-faq>`.
+If the guide does not offer a solution, please reach out via `chat <https://gitter.im/matplotlib/matplotlib>`_
+or :ref:`open an issue <submitting-a-bug-report>`.
+
+
+Build options
+-------------
+If you are working heavily with files that need to be compiled, you may want to
+inspect the compilation log. This can be enabled by setting the environment
+variable :envvar:`MESONPY_EDITABLE_VERBOSE` or by setting the ``editable-verbose``
+config during installation ::
+
+   python -m pip install --no-build-isolation --config-settings=editable-verbose=true --editable .
+
+For more information on installation and other configuration options, see the
+Meson Python :external+meson-python:ref:`editable installs guide <how-to-guides-editable-installs>`.
 
 Verify the Installation
 =======================
@@ -187,6 +211,8 @@ you are aware of the existing issues beforehand.
 
 * Run test cases to verify installation :ref:`testing`
 * Verify documentation build :ref:`documenting-matplotlib`
+
+.. _pre-commit-hooks:
 
 Install pre-commit hooks
 ========================

@@ -151,6 +151,23 @@ If you don't think your request is ready to be merged, just say so in your pull
 request message and use the "Draft PR" feature of GitHub. This is a good way of
 getting some preliminary code review.
 
+.. _update-pull-request:
+
+Update a pull request
+=====================
+
+When updating your pull request after making revisions, instead of adding new
+commits, please consider amending your initial commit(s) to keep the commit
+history clean.
+
+You can achieve this by using
+
+.. code-block:: bash
+
+    git commit -a --amend --no-edit
+    git push [your-remote-repo] [your-branch] --force-with-lease
+
+
 Manage commit history
 =====================
 

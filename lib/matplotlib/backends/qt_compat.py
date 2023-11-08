@@ -163,7 +163,7 @@ def _exec(obj):
 
 
 @contextlib.contextmanager
-def _maybe_allow_interrupt(qapp):
+def _maybe_allow_interrupt(qapp_or_eventloop):
     """
     This manager allows to terminate a plot by sending a SIGINT. It is
     necessary because the running Qt backend prevents Python interpreter to
@@ -215,7 +215,9 @@ def _maybe_allow_interrupt(qapp):
     def handle(*args):
         nonlocal handler_args
         handler_args = args
-        qapp.quit()
+        if hasattr(qapp_or_eventloop, 'closeAllWindows'):
+            qapp_or_eventloop.closeAllWindows()
+        qapp_or_eventloop.quit()
 
     signal.signal(signal.SIGINT, handle)
     try:
