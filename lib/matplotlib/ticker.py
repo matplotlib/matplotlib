@@ -2510,7 +2510,7 @@ class SymmetricalLogLocator(Locator):
         """
         Set the minor ticks for the log scaling every ``base**i*subs[j]``.
         """
-        if subs is None:  # consistency with previous bad API
+        if subs is None:
             self._subs = np.array([1.0])
         elif isinstance(subs, str):
             _api.check_in_list(('all', 'auto'), subs=subs)
