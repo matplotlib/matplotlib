@@ -4302,6 +4302,9 @@ def violinplot(
     | Callable[[GaussianKDE], float]
     | None = None,
     side: Literal["both", "low", "high"] = "both",
+    facecolor: Sequence[ColorType] | ColorType | None = None,
+    edgecolor: Sequence[ColorType] | ColorType | None = None,
+    alpha: float | None = 0.3,
     *,
     data=None,
 ) -> dict[str, Collection]:
@@ -4318,6 +4321,9 @@ def violinplot(
         points=points,
         bw_method=bw_method,
         side=side,
+        facecolor=facecolor,
+        edgecolor=edgecolor,
+        alpha=alpha,
         **({"data": data} if data is not None else {}),
     )
 

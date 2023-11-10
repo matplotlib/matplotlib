@@ -755,6 +755,9 @@ class Axes(_AxesBase):
         | Callable[[GaussianKDE], float]
         | None = ...,
         side: Literal["both", "low", "high"] = ...,
+        facecolor: Sequence[ColorType] | ColorType | None = ...,
+        edgecolor: Sequence[ColorType] | ColorType | None = ...,
+        alpha: float | None = ...,
         data=...,
     ) -> dict[str, Collection]: ...
     def violin(
@@ -769,6 +772,9 @@ class Axes(_AxesBase):
         showextrema: bool = ...,
         showmedians: bool = ...,
         side: Literal["both", "low", "high"] = ...,
+        facecolor: Sequence[ColorType] | ColorType | None = ...,
+        edgecolor: Sequence[ColorType] | ColorType | None = ...,
+        alpha: float | None = ...,
     ) -> dict[str, Collection]: ...
 
     table = mtable.table
