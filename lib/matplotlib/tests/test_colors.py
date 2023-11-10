@@ -1400,6 +1400,23 @@ def test_scalarmappable_to_rgba(bytes):
     np.testing.assert_array_equal(sm.to_rgba(xm[..., :3], bytes=bytes), expected)
 
 
+@pytest.mark.parametrize("inp", (
+    [[[2, .5, 1], [.5, .5, .5]]],
+    [[[np.nan, .5, 1], [.5, .5, .5]]],
+    [[[-1, .5, 1], [.5, .5, .5]]],
+    [[[np.inf, .5, 1], [.5, .5, .5]]],
+    [[[-np.inf, .5, 1], [.5, .5, .5]]]
+   )
+)
+def test_scalarmappable_to_rgba_invalid(inp):
+    sm = cm.ScalarMappable()
+    with pytest.raises(
+            ValueError,
+            match="Floating point image RGB values must be in the 0..1 range."
+    ):
+        sm.to_rgba(np.asarray(inp))
+
+
 def test_failed_conversions():
     with pytest.raises(ValueError):
         mcolors.to_rgba('5')
