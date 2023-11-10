@@ -1,0 +1,3 @@
+``GridHelperCurveLinear.get_tick_iterator``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated with no replacement.
