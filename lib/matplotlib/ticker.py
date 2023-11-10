@@ -2246,7 +2246,6 @@ def _is_close_to_int(x):
 
 class LogLocator(Locator):
     """
-
     Determine the tick locations for log axes.
 
     Place ticks on the locations : ``subs[j] * base**i``
@@ -2272,7 +2271,6 @@ class LogLocator(Locator):
         of ``None`` will try to choose intelligently as long as this
         Locator has already been assigned to an axis using
         `~.axis.Axis.get_tick_space`, but otherwise falls back to 9.
-
     """
 
     @_api.delete_parameter("3.8", "numdecs")
@@ -2444,7 +2442,6 @@ class LogLocator(Locator):
 
 class SymmetricalLogLocator(Locator):
     """
-
     Determine the tick locations for symmetric log axes.
 
     Place ticks on the locations : ``subs[j] * base**i``
@@ -2472,7 +2469,6 @@ class SymmetricalLogLocator(Locator):
         The *base*, *linthresh* and *linscale* of the symlog transform, as
         documented for `.SymmetricalLogScale`.  These parameters are only used
         if *transform* is not set.
-
     """
 
     def __init__(self, transform=None, subs=None, numticks=None,
