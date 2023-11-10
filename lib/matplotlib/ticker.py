@@ -1064,6 +1064,7 @@ class LogFormatter(Formatter):
         if x == 0.0:  # Symlog
             return '0'
 
+        sign = np.sign(x)
         x = abs(x)
         b = self._base
         # only label the decades
@@ -1079,7 +1080,7 @@ class LogFormatter(Formatter):
 
         vmin, vmax = self.axis.get_view_interval()
         vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
-        s = self._num_to_string(x, vmin, vmax)
+        s = self._num_to_string(sign * x, vmin, vmax)
         return self.fix_minus(s)
 
     def format_data(self, value):
