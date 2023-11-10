@@ -926,9 +926,9 @@ class LogFormatter(Formatter):
         avoid crowding. If ``numdec > subset`` then no minor ticks will
         be labeled.
 
-    linthresh : None or float, default: None
-        If a symmetric log scale is in use, its ``linthresh``
-        parameter must be supplied here.
+    linthresh, linscale : None or float, default: None
+        If a symmetric log scale is in use, its ``linthresh`` and ``linscale``
+        parameters must be supplied here.
 
     Notes
     -----
@@ -958,7 +958,7 @@ class LogFormatter(Formatter):
 
     def __init__(self, base=10.0, labelOnlyBase=False,
                  minor_thresholds=None,
-                 linthresh=None):
+                 linthresh=None, linscale=None):
 
         self.set_base(base)
         self.set_label_minor(labelOnlyBase)
@@ -970,6 +970,9 @@ class LogFormatter(Formatter):
         self.minor_thresholds = minor_thresholds
         self._sublabels = None
         self._linthresh = linthresh
+        self._linscale = linscale
+        self._symlogutil = None
+        self._firstsublabels = None
 
     def set_base(self, base):
         """
@@ -991,6 +994,21 @@ class LogFormatter(Formatter):
         """
         self.labelOnlyBase = labelOnlyBase
 
+    @property
+    def _symlog(self):
+        if self._symlogutil is not None:
+            return True
+        if self._linthresh is not None and self._linscale is not None:
+            self._symlogutil = _SymmetricalLogUtil(base=self._base,
+                                                   linthresh=self._linthresh,
+                                                   linscale=self._linscale)
+            return True
+        transf = self.axis.get_transform()
+        if hasattr(transf, 'linthresh'):
+            self._symlogutil = _SymmetricalLogUtil(transf)
+            return True
+        return False
+
     def set_locs(self, locs=None):
         """
         Use axis view limits to control which ticks are labeled.
@@ -1001,19 +1019,11 @@ class LogFormatter(Formatter):
             self._sublabels = None
             return
 
-        # Handle symlog case:
-        linthresh = self._linthresh
-        if linthresh is None:
-            try:
-                linthresh = self.axis.get_transform().linthresh
-            except AttributeError:
-                pass
-
         vmin, vmax = self.axis.get_view_interval()
         if vmin > vmax:
             vmin, vmax = vmax, vmin
 
-        if linthresh is None and vmin <= 0:
+        if not self._symlog and vmin <= 0:
             # It's probably a colorbar with
             # a format kwarg setting a LogFormatter in the manner
             # that worked with 1.5.x, but that doesn't work now.
@@ -1021,16 +1031,8 @@ class LogFormatter(Formatter):
             return
 
         b = self._base
-        if linthresh is not None:  # symlog
-            # Only compute the number of decades in the logarithmic part of the
-            # axis
-            numdec = 0
-            if vmin < -linthresh:
-                rhs = min(vmax, -linthresh)
-                numdec += math.log(vmin / rhs) / math.log(b)
-            if vmax > linthresh:
-                lhs = max(vmin, linthresh)
-                numdec += math.log(vmax / lhs) / math.log(b)
+        if self._symlog:
+            numdec = self._symlogutil.pos(vmax) - self._symlogutil.pos(vmin)
         else:
             vmin = math.log(vmin) / math.log(b)
             vmax = math.log(vmax) / math.log(b)
@@ -1039,6 +1041,8 @@ class LogFormatter(Formatter):
         if numdec > self.minor_thresholds[0]:
             # Label only bases
             self._sublabels = {1}
+            if self._symlog:
+                self._firstsublabels = {0}
         elif numdec > self.minor_thresholds[1]:
             # Add labels between bases at log-spaced coefficients;
             # include base powers in case the locations include
@@ -1046,9 +1050,16 @@ class LogFormatter(Formatter):
             c = np.geomspace(1, b, int(b)//2 + 1)
             self._sublabels = set(np.round(c))
             # For base 10, this yields (1, 2, 3, 4, 6, 10).
+            if self._symlog:
+                # For the linear part of the scale we use an analog selection.
+                c = np.linspace(2, b, int(b) // 2)
+                self._firstsublabels = set(np.round(c))
+                # For base 10, this yields (0, 2, 4, 6, 8, 10).
         else:
             # Label all integer multiples of base**n.
             self._sublabels = set(np.arange(1, b + 1))
+            if self._symlog:
+                self._firstsublabels = set(np.arange(0, b + 1))
 
     def _num_to_string(self, x, vmin, vmax):
         if x > 10000:
@@ -1073,10 +1084,17 @@ class LogFormatter(Formatter):
         exponent = round(fx) if is_x_decade else np.floor(fx)
         coeff = round(b ** (fx - exponent))
 
-        if self.labelOnlyBase and not is_x_decade:
-            return ''
-        if self._sublabels is not None and coeff not in self._sublabels:
-            return ''
+        _, firstpow = self._symlogutil.firstdec() if self._symlog else None, 0
+        if x < firstpow:
+            if self.labelOnlyBase:
+                return ''
+            if self._firstsublabels is not None and coeff not in self._firstsublabels:
+                return ''
+        else:
+            if self.labelOnlyBase and not is_x_decade:
+                return ''
+            if self._sublabels is not None and coeff not in self._sublabels:
+                return ''
 
         vmin, vmax = self.axis.get_view_interval()
         vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
@@ -1154,10 +1172,17 @@ class LogFormatterMathtext(LogFormatter):
         exponent = round(fx) if is_x_decade else np.floor(fx)
         coeff = round(b ** (fx - exponent))
 
-        if self.labelOnlyBase and not is_x_decade:
-            return ''
-        if self._sublabels is not None and coeff not in self._sublabels:
-            return ''
+        _, firstpow = self._symlogutil.firstdec() if self._symlog else (None, 0)
+        if x < firstpow:
+            if self.labelOnlyBase:
+                return ''
+            if self._firstsublabels is not None and coeff not in self._firstsublabels:
+                return ''
+        else:
+            if self.labelOnlyBase and not is_x_decade:
+                return ''
+            if self._sublabels is not None and coeff not in self._sublabels:
+                return ''
 
         if is_x_decade:
             fx = round(fx)
