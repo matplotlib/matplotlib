@@ -853,7 +853,7 @@ class _SymmetricalLogUtil:
         return sign * val
 
     def unpos(self, val):
-        """The inverse of _pos."""
+        """The inverse of pos."""
         sign, val = np.sign(val), np.abs(val)
         if val > self.linscale:
             val = np.power(self.base, val - self.linscale)
@@ -865,7 +865,7 @@ class _SymmetricalLogUtil:
         """
         Get the first decade (i.e. first positive major tick candidate).
         It shall be at least half the width of a logarithmic decade from the
-        origin (i.e. its _pos shall be at least 0.5).
+        origin (i.e. its pos shall be at least 0.5).
         """
         firstexp = np.ceil(np.log(self.unpos(0.5)) / np.log(self.base))
         firstpow = np.power(self.base, firstexp)
@@ -888,7 +888,7 @@ class _SymmetricalLogUtil:
         return sign * val
 
     def undec(self, val):
-        """The inverse of _dec."""
+        """The inverse of dec."""
         firstexp, firstpow = self.firstdec()
         sign, val = np.sign(val), np.abs(val)
         if val > 1:
