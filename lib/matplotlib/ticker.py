@@ -812,6 +812,92 @@ class ScalarFormatter(Formatter):
             self.format = r'$\mathdefault{%s}$' % self.format
 
 
+class _SymmetricalLogUtil:
+    """
+    Helper class for working with symmetrical log scales.
+
+    Parameters
+    ----------
+    transform : `~.scale.SymmetricalLogTransform`, optional
+        If set, defines *base*, *linthresh* and *linscale* of the symlog transform.
+    base, linthresh, linscale : float, optional
+        The *base*, *linthresh* and *linscale* of the symlog transform, as
+        documented for `.SymmetricalLogScale`.  These parameters are only used
+        if *transform* is not set.
+    """
+
+    def __init__(self, transform=None, base=None, linthresh=None, linscale=None):
+        if transform is not None:
+            self.base = transform.base
+            self.linthresh = transform.linthresh
+            self.linscale = transform.linscale
+        elif base is not None and linthresh is not None and linscale is not None:
+            self.base = base
+            self.linthresh = linthresh
+            self.linscale = linscale
+        else:
+            raise ValueError("Either transform, or all of base, linthresh and "
+                             "linscale must be provided.")
+
+    def pos(self, val):
+        """
+        Calculate the normalized position of the value on the axis.
+        It is normalized such that the distance between two logarithmic decades
+        is 1 and the position of linthresh is linscale.
+        """
+        sign, val = np.sign(val), np.abs(val) / self.linthresh
+        if val > 1:
+            val = self.linscale + np.log(val) / np.log(self.base)
+        else:
+            val *= self.linscale
+        return sign * val
+
+    def unpos(self, val):
+        """The inverse of _pos."""
+        sign, val = np.sign(val), np.abs(val)
+        if val > self.linscale:
+            val = np.power(self.base, val - self.linscale)
+        else:
+            val /= self.linscale
+        return sign * val * self.linthresh
+
+    def firstdec(self):
+        """
+        Get the first decade (i.e. first positive major tick candidate).
+        It shall be at least half the width of a logarithmic decade from the
+        origin (i.e. its _pos shall be at least 0.5).
+        """
+        firstexp = np.ceil(np.log(self.unpos(0.5)) / np.log(self.base))
+        firstpow = np.power(self.base, firstexp)
+        return firstexp, firstpow
+
+    def dec(self, val):
+        """
+        Calculate the decade number of the value. The first decade to have a
+        position (given by _pos) of at least 0.5 is given the number 1, the
+        value 0 is given the decade number 0.
+        """
+        firstexp, firstpow = self.firstdec()
+        sign, val = np.sign(val), np.abs(val)
+        if val > firstpow:
+            val = np.log(val) / np.log(self.base) - firstexp + 1
+        else:
+            # We scale linearly in order to get a monotonous mapping between
+            # 0 and 1, though the linear nature is arbitrary.
+            val /= firstpow
+        return sign * val
+
+    def undec(self, val):
+        """The inverse of _dec."""
+        firstexp, firstpow = self.firstdec()
+        sign, val = np.sign(val), np.abs(val)
+        if val > 1:
+            val = np.power(self.base, val - 1 + firstexp)
+        else:
+            val *= firstpow
+        return sign * val
+
+
 class LogFormatter(Formatter):
     """
     Base class for formatting ticks on a log or symlog scale.
@@ -2474,17 +2560,7 @@ class SymmetricalLogLocator(Locator):
     def __init__(self, transform=None, subs=None, numticks=None,
                  base=None, linthresh=None, linscale=None):
         """Place ticks on the locations : subs[j] * base**i."""
-        if transform is not None:
-            self._base = transform.base
-            self._linthresh = transform.linthresh
-            self._linscale = transform.linscale
-        elif base is not None and linthresh is not None and linscale is not None:
-            self._base = base
-            self._linthresh = linthresh
-            self._linscale = linscale
-        else:
-            raise ValueError("Either transform, or all of base, linthresh and "
-                             "linscale must be provided.")
+        self._symlogutil = _SymmetricalLogUtil(transform, base, linthresh, linscale)
         self._set_subs(subs)
         if numticks is None:
             if mpl.rcParams['_internal.classic_mode']:
@@ -2501,11 +2577,11 @@ class SymmetricalLogLocator(Locator):
         if numticks is not None:
             self.numticks = numticks
         if base is not None:
-            self._base = float(base)
+            self._symlogutil.base = float(base)
         if linthresh is not None:
-            self._linthresh = float(linthresh)
+            self._symlogutil.linthresh = float(linthresh)
         if linscale is not None:
-            self._linscale = float(linscale)
+            self._symlogutil.linscale = float(linscale)
 
     def _set_subs(self, subs):
         """
@@ -2547,8 +2623,8 @@ class SymmetricalLogLocator(Locator):
             vmin, vmax = vmax, vmin
 
         haszero = vmin <= 0 <= vmax
-        firstdec = np.ceil(self._dec(vmin))
-        lastdec = np.floor(self._dec(vmax))
+        firstdec = np.ceil(self._symlogutil.dec(vmin))
+        lastdec = np.floor(self._symlogutil.dec(vmax))
         maxdec = max(abs(firstdec), abs(lastdec))
         # Number of decades completely contained in the range.
         numdec = lastdec - firstdec
@@ -2565,7 +2641,7 @@ class SymmetricalLogLocator(Locator):
                     subs = np.array([1.0])
             else:
                 _first = 2.0 if self._subs == 'auto' else 1.0
-                subs = np.arange(_first, self._base)
+                subs = np.arange(_first, self._symlogutil.base)
         else:
             subs = self._subs
 
@@ -2599,16 +2675,16 @@ class SymmetricalLogLocator(Locator):
                 ticklocs = []
                 for dec in decades:
                     if dec > 0:
-                        ticklocs.append(subs * self._undec(dec))
+                        ticklocs.append(subs * self._symlogutil.undec(dec))
                     elif dec < 0:
-                        ticklocs.append(np.flip(subs * self._undec(dec)))
+                        ticklocs.append(np.flip(subs * self._symlogutil.undec(dec)))
                     else:
-                        if self._linscale < 0.5:
+                        if self._symlogutil.linscale < 0.5:
                             # Don't add minor ticks around 0, it's too camped.
                             zeroticks = np.array([])
                         else:
                             # We add the usual subs as well as the next lower decade.
-                            zeropow = self._undec(1) / self._base
+                            zeropow = self._symlogutil.undec(1) / self._symlogutil.base
                             zeroticks = subs * zeropow
                             if subs[0] != 1.0:
                                 zeroticks = np.concatenate(([zeropow], zeroticks))
@@ -2620,7 +2696,7 @@ class SymmetricalLogLocator(Locator):
                 ticklocs = np.array([])
         else:
             # Major locator.
-            ticklocs = np.array([self._undec(dec) for dec in decades])
+            ticklocs = np.array([self._symlogutil.undec(dec) for dec in decades])
 
         _log.debug('ticklocs %r', ticklocs)
         if (len(subs) > 1
@@ -2633,70 +2709,12 @@ class SymmetricalLogLocator(Locator):
         else:
             return self.raise_if_exceeds(ticklocs)
 
-    def _pos(self, val):
-        """
-        Calculate the normalized position of the value on the axis.
-        It is normalized such that the distance between two logarithmic decades
-        is 1 and the position of linthresh is linscale.
-        """
-        sign, val = np.sign(val), np.abs(val) / self._linthresh
-        if val > 1:
-            val = self._linscale + np.log(val) / np.log(self._base)
-        else:
-            val *= self._linscale
-        return sign * val
-
-    def _unpos(self, val):
-        """The inverse of _pos."""
-        sign, val = np.sign(val), np.abs(val)
-        if val > self._linscale:
-            val = np.power(self._base, val - self._linscale)
-        else:
-            val /= self._linscale
-        return sign * val * self._linthresh
-
-    def _firstdec(self):
-        """
-        Get the first decade (i.e. first positive major tick candidate).
-        It shall be at least half the width of a logarithmic decade from the
-        origin (i.e. its _pos shall be at least 0.5).
-        """
-        firstexp = np.ceil(np.log(self._unpos(0.5)) / np.log(self._base))
-        firstpow = np.power(self._base, firstexp)
-        return firstexp, firstpow
-
-    def _dec(self, val):
-        """
-        Calculate the decade number of the value. The first decade to have a
-        position (given by _pos) of at least 0.5 is given the number 1, the
-        value 0 is given the decade number 0.
-        """
-        firstexp, firstpow = self._firstdec()
-        sign, val = np.sign(val), np.abs(val)
-        if val > firstpow:
-            val = np.log(val) / np.log(self._base) - firstexp + 1
-        else:
-            # We scale linearly in order to get a monotonous mapping between
-            # 0 and 1, though the linear nature is arbitrary.
-            val /= firstpow
-        return sign * val
-
-    def _undec(self, val):
-        """The inverse of _dec."""
-        firstexp, firstpow = self._firstdec()
-        sign, val = np.sign(val), np.abs(val)
-        if val > 1:
-            val = np.power(self._base, val - 1 + firstexp)
-        else:
-            val *= firstpow
-        return sign * val
-
     def view_limits(self, vmin, vmax):
         """Try to choose the view limits intelligently."""
         vmin, vmax = self.nonsingular(vmin, vmax)
         if mpl.rcParams['axes.autolimit_mode'] == 'round_numbers':
-            vmin = self._undec(np.floor(self._dec(vmin)))
-            vmax = self._undec(np.ceil(self._dec(vmax)))
+            vmin = self._symlogutil.undec(np.floor(self._symlogutil.dec(vmin)))
+            vmax = self._symlogutil.undec(np.ceil(self._symlogutil.dec(vmax)))
         return vmin, vmax
 
 class AsinhLocator(Locator):
