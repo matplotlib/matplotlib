@@ -82,9 +82,9 @@ extension_data = {
   '_c_internal_utils': {
     'subdir': 'matplotlib',
     'sources': files(
-      '_c_internal_utils.c',
+      '_c_internal_utils.cpp',
     ),
-    'dependencies': [py3_dep, dl, ole32, shell32, user32],
+    'dependencies': [pybind11_dep, dl, ole32, shell32, user32],
   },
   'ft2font': {
     'subdir': 'matplotlib',
