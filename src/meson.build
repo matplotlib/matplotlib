@@ -127,7 +127,7 @@ extension_data = {
     'sources': files(
       '_qhull_wrapper.cpp',
     ),
-    'dependencies': [numpy_dep, qhull_dep],
+    'dependencies': [pybind11_dep, qhull_dep],
     'c_args': [f'-DMPL_DEVNULL=@devnull@'],
     'cpp_args': [f'-DMPL_DEVNULL=@devnull@'],
   },
