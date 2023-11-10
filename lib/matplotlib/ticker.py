@@ -2491,6 +2491,7 @@ class SymmetricalLogLocator(Locator):
                 numticks = 15
             else:
                 numticks = 'auto'
+        self.numticks = numticks
 
     def set_params(self, subs=None, numticks=None,
                    base=None, linthresh=None, linscale=None):
@@ -2584,7 +2585,7 @@ class SymmetricalLogLocator(Locator):
         if haszero:
             # Make sure 0 is ticked.
             decades = np.concatenate(
-                (np.flip(np.arange(stride, -firstdec + 2 * stride, stride)),
+                (np.flip(-np.arange(stride, -firstdec + 2 * stride, stride)),
                  np.arange(0, lastdec + 2 * stride, stride))
             )
         else:
@@ -2619,7 +2620,7 @@ class SymmetricalLogLocator(Locator):
                 ticklocs = np.array([])
         else:
             # Major locator.
-            ticklocs = np.power(self._base, decades)
+            ticklocs = np.array([self._undec(dec) for dec in decades])
 
         _log.debug('ticklocs %r', ticklocs)
         if (len(subs) > 1
