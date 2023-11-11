@@ -1518,45 +1518,30 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
     wh_space = 2 * pad / (1 - pad)
 
     if location in ('left', 'right'):
-        # for shrinking
-        height_ratios = [
-                (1-anchor[1])*(1-shrink), shrink, anchor[1]*(1-shrink)]
-
+        gs = parent.get_subplotspec().subgridspec(
+            3, 2, wspace=wh_space, hspace=0,
+            height_ratios=[(1-anchor[1])*(1-shrink), shrink, anchor[1]*(1-shrink)])
         if location == 'left':
-            gs = parent.get_subplotspec().subgridspec(
-                    1, 2, wspace=wh_space,
-                    width_ratios=[fraction, 1-fraction-pad])
-            ss_main = gs[1]
-            ss_cb = gs[0].subgridspec(
-                    3, 1, hspace=0, height_ratios=height_ratios)[1]
+            gs.set_width_ratios([fraction, 1 - fraction - pad])
+            ss_main = gs[:, 1]
+            ss_cb = gs[1, 0]
         else:
-            gs = parent.get_subplotspec().subgridspec(
-                    1, 2, wspace=wh_space,
-                    width_ratios=[1-fraction-pad, fraction])
-            ss_main = gs[0]
-            ss_cb = gs[1].subgridspec(
-                    3, 1, hspace=0, height_ratios=height_ratios)[1]
+            gs.set_width_ratios([1 - fraction - pad, fraction])
+            ss_main = gs[:, 0]
+            ss_cb = gs[1, 1]
     else:
-        # for shrinking
-        width_ratios = [
-                anchor[0]*(1-shrink), shrink, (1-anchor[0])*(1-shrink)]
-
-        if location == 'bottom':
-            gs = parent.get_subplotspec().subgridspec(
-                    2, 1, hspace=wh_space,
-                    height_ratios=[1-fraction-pad, fraction])
-            ss_main = gs[0]
-            ss_cb = gs[1].subgridspec(
-                    1, 3, wspace=0, width_ratios=width_ratios)[1]
-            aspect = 1 / aspect
+        gs = parent.get_subplotspec().subgridspec(
+            2, 3, hspace=wh_space, wspace=0,
+            width_ratios=[anchor[0]*(1-shrink), shrink, (1-anchor[0])*(1-shrink)])
+        if location == 'top':
+            gs.set_height_ratios([fraction, 1 - fraction - pad])
+            ss_main = gs[1, :]
+            ss_cb = gs[0, 1]
         else:
-            gs = parent.get_subplotspec().subgridspec(
-                    2, 1, hspace=wh_space,
-                    height_ratios=[fraction, 1-fraction-pad])
-            ss_main = gs[1]
-            ss_cb = gs[0].subgridspec(
-                    1, 3, wspace=0, width_ratios=width_ratios)[1]
-            aspect = 1 / aspect
+            gs.set_height_ratios([1 - fraction - pad, fraction])
+            ss_main = gs[0, :]
+            ss_cb = gs[1, 1]
+        aspect = 1 / aspect
 
     parent.set_subplotspec(ss_main)
     if panchor is not False:
