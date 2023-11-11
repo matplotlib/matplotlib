@@ -1003,10 +1003,11 @@ class LogFormatter(Formatter):
                                                    linthresh=self._linthresh,
                                                    linscale=self._linscale)
             return True
-        transf = self.axis.get_transform()
-        if hasattr(transf, 'linthresh'):
-            self._symlogutil = _SymmetricalLogUtil(transf)
+        try:
+            self._symlogutil = _SymmetricalLogUtil(self.axis.get_transform())
             return True
+        except AttributeError:
+            pass
         return False
 
     def set_locs(self, locs=None):
