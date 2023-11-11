@@ -601,12 +601,12 @@ class TestIndexLocator:
 class TestSymmetricalLogLocator:
     def test_set_params(self):
         """
-        Create symmetrical log locator with default subs =[1.0] numticks = 15,
+        Create symmetrical log locator with default subs=[1.0] numticks='auto',
         and change it to something else.
         See if change was successful.
         Should not exception.
         """
-        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1)
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, linscale=1)
         sym.set_params(subs=[2.0], numticks=8)
         assert sym._subs == [2.0]
         assert sym.numticks == 8
@@ -614,32 +614,33 @@ class TestSymmetricalLogLocator:
     @pytest.mark.parametrize(
             'vmin, vmax, expected',
             [
-                (0, 1, [0, 1]),
-                (-1, 1, [-1, 0, 1]),
+                (0, 1, [-1, 0, 1, 10]),
+                (-1, 1, [-10, -1, 0, 1, 10]),
             ],
     )
     def test_values(self, vmin, vmax, expected):
         # https://github.com/matplotlib/matplotlib/issues/25945
-        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1)
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, linscale=1)
         ticks = sym.tick_values(vmin=vmin, vmax=vmax)
         assert_array_equal(ticks, expected)
 
     def test_subs(self):
-        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, subs=[2.0, 4.0])
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, linscale=1, subs=[2.0, 4.0])
         sym.create_dummy_axis()
         sym.axis.set_view_interval(-10, 10)
-        assert (sym() == [-20., -40.,  -2.,  -4.,   0.,   2.,   4.,  20.,  40.]).all()
+        assert (sym() == [-400., -200., -40., -20., -4., -2., -0.4, -0.2, -0.1, 0.,
+                          0.1, 0.2, 0.4, 2., 4., 20., 40., 200., 400.]).all()
 
     def test_extending(self):
-        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1)
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, linscale=1)
         sym.create_dummy_axis()
         sym.axis.set_view_interval(8, 9)
-        assert (sym() == [1.0]).all()
-        sym.axis.set_view_interval(8, 12)
         assert (sym() == [1.0, 10.0]).all()
-        assert sym.view_limits(10, 10) == (1, 100)
-        assert sym.view_limits(-10, -10) == (-100, -1)
-        assert sym.view_limits(0, 0) == (-0.001, 0.001)
+        sym.axis.set_view_interval(8, 12)
+        assert (sym() == [1.0, 10.0, 100.0]).all()
+        assert sym.view_limits(10, 10) == (1.0, 100.0)
+        assert sym.view_limits(-10, -10) == (-100.0, -1.0)
+        assert sym.view_limits(0, 0) == (-1.0, 1.0)
 
 
 class TestAsinhLocator:
