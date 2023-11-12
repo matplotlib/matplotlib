@@ -625,7 +625,8 @@ class TestSymmetricalLogLocator:
         assert_array_equal(ticks, expected)
 
     def test_subs(self):
-        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, linscale=1, subs=[2.0, 4.0])
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, linscale=1,
+                                            subs=[2.0, 4.0])
         sym.create_dummy_axis()
         sym.axis.set_view_interval(-10, 10)
         assert (sym() == [-400., -200., -40., -20., -4., -2., -0.4, -0.2, -0.1, 0.,

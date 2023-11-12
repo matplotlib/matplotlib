@@ -2744,6 +2744,7 @@ class SymmetricalLogLocator(Locator):
             vmax = self._symlogutil.undec(np.ceil(self._symlogutil.dec(vmax)))
         return vmin, vmax
 
+
 class AsinhLocator(Locator):
     """
     An axis tick locator specialized for the inverse-sinh scale
