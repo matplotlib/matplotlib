@@ -1062,6 +1062,15 @@ class LogFormatter(Formatter):
             if self._symlog:
                 self._firstsublabels = set(np.arange(0, b + 1))
 
+        if self._symlog:
+            _, firstpow = self._symlogutil.firstdec()
+            if self._firstsublabels == {0} and -firstpow < vmin < vmax < firstpow:
+                # No minor ticks are being labeled right now and the only major tick is
+                # at 0. This means the axis scaling cannot be read from the labels.
+                numsteps = int(np.ceil(firstpow / max(-vmin, vmax)))
+                step = int(b / numsteps)
+                self._firstsublabels = set(range(0, int(b) + 1, step))
+
     def _num_to_string(self, x, vmin, vmax):
         if x > 10000:
             s = '%1.0e' % x
