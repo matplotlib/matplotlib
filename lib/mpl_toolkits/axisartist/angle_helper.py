@@ -1,6 +1,7 @@
 import numpy as np
 import math
 
+from matplotlib.transforms import Bbox
 from mpl_toolkits.axisartist.grid_finder import ExtremeFinderSimple
 
 
@@ -347,11 +348,12 @@ class ExtremeFinderCycle(ExtremeFinderSimple):
         self.lon_minmax = lon_minmax
         self.lat_minmax = lat_minmax
 
-    def __call__(self, transform_xy, x1, y1, x2, y2):
+    def _find_transformed_bbox(self, trans, bbox):
         # docstring inherited
-        x, y = np.meshgrid(
-            np.linspace(x1, x2, self.nx), np.linspace(y1, y2, self.ny))
-        lon, lat = transform_xy(np.ravel(x), np.ravel(y))
+        grid = np.reshape(np.meshgrid(np.linspace(bbox.x0, bbox.x1, self.nx),
+                                      np.linspace(bbox.y0, bbox.y1, self.ny)),
+                          (2, -1)).T
+        lon, lat = trans.transform(grid).T
 
         # iron out jumps, but algorithm should be improved.
         # This is just naive way of doing and my fail for some cases.
@@ -367,11 +369,10 @@ class ExtremeFinderCycle(ExtremeFinderSimple):
                 lat0 = np.nanmin(lat)
                 lat -= 360. * ((lat - lat0) > 180.)
 
-        lon_min, lon_max = np.nanmin(lon), np.nanmax(lon)
-        lat_min, lat_max = np.nanmin(lat), np.nanmax(lat)
-
-        lon_min, lon_max, lat_min, lat_max = \
-            self._add_pad(lon_min, lon_max, lat_min, lat_max)
+        tbbox = Bbox.null()
+        tbbox.update_from_data_xy(np.column_stack([lon, lat]))
+        tbbox = tbbox.expanded(1 + 2 / self.nx, 1 + 2 / self.ny)
+        lon_min, lat_min, lon_max, lat_max = tbbox.extents
 
         # check cycle
         if self.lon_cycle:
@@ -391,4 +392,4 @@ class ExtremeFinderCycle(ExtremeFinderSimple):
             max0 = self.lat_minmax[1]
             lat_max = min(max0, lat_max)
 
-        return lon_min, lon_max, lat_min, lat_max
+        return Bbox.from_extents(lon_min, lat_min, lon_max, lat_max)
