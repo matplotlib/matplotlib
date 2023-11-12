@@ -1033,7 +1033,7 @@ class LogFormatter(Formatter):
 
         b = self._base
         if self._symlog:
-            numdec = self._symlogutil.pos(vmax) - self._symlogutil.pos(vmin)
+            numdec = self._symlogutil.dec(vmax) - self._symlogutil.dec(vmin)
         else:
             vmin = math.log(vmin) / math.log(b)
             vmax = math.log(vmax) / math.log(b)
