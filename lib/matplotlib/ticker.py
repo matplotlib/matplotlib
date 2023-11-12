@@ -2706,15 +2706,11 @@ class SymmetricalLogLocator(Locator):
                     elif dec < 0:
                         ticklocs.append(np.flip(subs * self._symlogutil.undec(dec)))
                     else:
-                        if self._symlogutil.linscale < 0.5:
-                            # Don't add minor ticks around 0, it's too camped.
-                            zeroticks = np.array([])
-                        else:
-                            # We add the usual subs as well as the next lower decade.
-                            zeropow = self._symlogutil.undec(1) / self._symlogutil.base
-                            zeroticks = subs * zeropow
-                            if subs[0] != 1.0:
-                                zeroticks = np.concatenate(([zeropow], zeroticks))
+                        # We add the usual subs as well as the next lower decade.
+                        zeropow = self._symlogutil.undec(1) / self._symlogutil.base
+                        zeroticks = subs * zeropow
+                        if subs[0] != 1.0:
+                            zeroticks = np.concatenate(([zeropow], zeroticks))
                         ticklocs.append(np.flip(-zeroticks))
                         ticklocs.append([0.0])
                         ticklocs.append(zeroticks)
