@@ -32,7 +32,7 @@ def stackplot(axes, x, *args,
             stackplot(x, y)           # where y has shape (M, N)
             stackplot(x, y1, y2, y3)  # where y1, y2, y3, y4 have length N
 
-    baseline : {'zero', 'sym', 'wiggle', 'weighted_wiggle'}
+    baseline : {'zero', 'sym', 'wiggle', 'weighted_wiggle', int}
         Method used to calculate the baseline:
 
         - ``'zero'``: Constant zero baseline, i.e. a simple stacked plot.
@@ -42,6 +42,7 @@ def stackplot(axes, x, *args,
         - ``'weighted_wiggle'``: Does the same but weights to account for
           size of each layer. It is also called 'Streamgraph'-layout. More
           details can be found at http://leebyron.com/streamgraph/.
+        - ``int``:  Scalar baseline. Useful for cases where 0 is not sensible.
 
     labels : list of str, optional
         A sequence of labels to assign to each data series. If unspecified,
@@ -94,8 +95,9 @@ def stackplot(axes, x, *args,
     # We'll need a float buffer for the upcoming calculations.
     stack = np.cumsum(y, axis=0, dtype=np.promote_types(y.dtype, np.float32))
 
-    _api.check_in_list(['zero', 'sym', 'wiggle', 'weighted_wiggle'],
-                       baseline=baseline)
+    if isinstance(baseline, int) != True:
+        _api.check_in_list(['zero', 'sym', 'wiggle', 'weighted_wiggle'],
+                        baseline=baseline)
     if baseline == 'zero':
         first_line = 0.
 
@@ -124,6 +126,10 @@ def stackplot(axes, x, *args,
         center = np.cumsum(center.sum(0))
         first_line = center - 0.5 * total
         stack += first_line
+
+    else:
+        # Here we are 100% certain that baseline is an integer
+        first_line = baseline.
 
     # Color between x = 0 and the first array.
     coll = axes.fill_between(x, first_line, stack[0, :],
