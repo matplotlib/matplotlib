@@ -95,9 +95,9 @@ def stackplot(axes, x, *args,
     # We'll need a float buffer for the upcoming calculations.
     stack = np.cumsum(y, axis=0, dtype=np.promote_types(y.dtype, np.float32))
 
-    if isinstance(baseline, int) != True:
+    if not isinstance(baseline, int):
         _api.check_in_list(['zero', 'sym', 'wiggle', 'weighted_wiggle'],
-                        baseline=baseline)
+                            baseline=baseline)
     if baseline == 'zero':
         first_line = 0.
 
@@ -129,7 +129,7 @@ def stackplot(axes, x, *args,
 
     else:
         # Here we are 100% certain that baseline is an integer
-        first_line = baseline.
+        first_line = float(baseline)
 
     # Color between x = 0 and the first array.
     coll = axes.fill_between(x, first_line, stack[0, :],
