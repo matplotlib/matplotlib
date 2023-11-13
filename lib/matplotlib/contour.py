@@ -2,6 +2,7 @@
 Classes to support contour plotting and labelling for the Axes class.
 """
 
+from contextlib import ExitStack
 import functools
 import math
 from numbers import Integral
@@ -348,6 +349,11 @@ class ContourLabeler:
         taken into account when breaking the path, but not when computing the angle.
         """
         if hasattr(self, "_old_style_split_collections"):
+            vis = False
+            for coll in self._old_style_split_collections:
+                vis |= coll.get_visible()
+                coll.remove()
+            self.set_visible(vis)
             del self._old_style_split_collections  # Invalidate them.
 
         xys = path.vertices
@@ -381,7 +387,7 @@ class ContourLabeler:
         # If the path is closed, rotate it s.t. it starts at the label.
         is_closed_path = codes[stop - 1] == Path.CLOSEPOLY
         if is_closed_path:
-            cc_xys = np.concatenate([xys[idx:-1], xys[:idx+1]])
+            cc_xys = np.concatenate([cc_xys[idx:-1], cc_xys[:idx+1]])
             idx = 0
 
         # Like np.interp, but additionally vectorized over fp.
@@ -416,8 +422,13 @@ class ContourLabeler:
         new_code_blocks = []
         if is_closed_path:
             if i0 != -1 and i1 != -1:
-                new_xy_blocks.extend([[(x1, y1)], cc_xys[i1:i0+1], [(x0, y0)]])
-                new_code_blocks.extend([[Path.MOVETO], [Path.LINETO] * (i0 + 2 - i1)])
+                # This is probably wrong in the case that the entire contour would
+                # be discarded, but ensures that a valid path is returned and is
+                # consistent with behavior of mpl <3.8
+                points = cc_xys[i1:i0+1]
+                new_xy_blocks.extend([[(x1, y1)], points, [(x0, y0)]])
+                nlines = len(points) + 1
+                new_code_blocks.extend([[Path.MOVETO], [Path.LINETO] * nlines])
         else:
             if i0 != -1:
                 new_xy_blocks.extend([cc_xys[:i0 + 1], [(x0, y0)]])
@@ -927,12 +938,12 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                 ", ".join(map(repr, kwargs))
             )
 
-    allsegs = _api.deprecated("3.8", pending=True)(property(lambda self: [
+    allsegs = property(lambda self: [
         [subp.vertices for subp in p._iter_connected_components()]
-        for p in self.get_paths()]))
-    allkinds = _api.deprecated("3.8", pending=True)(property(lambda self: [
+        for p in self.get_paths()])
+    allkinds = property(lambda self: [
         [subp.codes for subp in p._iter_connected_components()]
-        for p in self.get_paths()]))
+        for p in self.get_paths()])
     tcolors = _api.deprecated("3.8")(property(lambda self: [
         (tuple(rgba),) for rgba in self.to_rgba(self.cvalues, self.alpha)]))
     tlinewidths = _api.deprecated("3.8")(property(lambda self: [
@@ -1103,22 +1114,14 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         """Compute ``paths`` using C extension."""
         if self._paths is not None:
             return self._paths
-        paths = []
+        cg = self._contour_generator
         empty_path = Path(np.empty((0, 2)))
-        if self.filled:
-            lowers, uppers = self._get_lowers_and_uppers()
-            for level, level_upper in zip(lowers, uppers):
-                vertices, kinds = \
-                    self._contour_generator.create_filled_contour(
-                        level, level_upper)
-                paths.append(Path(np.concatenate(vertices), np.concatenate(kinds))
-                             if len(vertices) else empty_path)
-        else:
-            for level in self.levels:
-                vertices, kinds = self._contour_generator.create_contour(level)
-                paths.append(Path(np.concatenate(vertices), np.concatenate(kinds))
-                             if len(vertices) else empty_path)
-        return paths
+        vertices_and_codes = (
+            map(cg.create_filled_contour, *self._get_lowers_and_uppers())
+            if self.filled else
+            map(cg.create_contour, self.levels))
+        return [Path(np.concatenate(vs), np.concatenate(cs)) if len(vs) else empty_path
+                for vs, cs in vertices_and_codes]
 
     def _get_lowers_and_uppers(self):
         """
@@ -1386,7 +1389,6 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         return idx_level_min, idx_vtx_min, proj_min
 
-    @_api.deprecated("3.8")
     def find_nearest_contour(self, x, y, indices=None, pixel=True):
         """
         Find the point in the contour plot that is closest to ``(x, y)``.
@@ -1407,64 +1409,39 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         Returns
         -------
-        contour : `.Collection`
-            The contour that is closest to ``(x, y)``.
-        segment : int
-            The index of the `.Path` in *contour* that is closest to
-            ``(x, y)``.
+        path : int
+            The index of the path that is closest to ``(x, y)``.  Each path corresponds
+            to one contour level.
+        subpath : int
+            The index within that closest path of the subpath that is closest to
+            ``(x, y)``.  Each subpath corresponds to one unbroken contour line.
         index : int
-            The index of the path segment in *segment* that is closest to
+            The index of the vertices within that subpath that are closest to
             ``(x, y)``.
         xmin, ymin : float
             The point in the contour plot that is closest to ``(x, y)``.
         d2 : float
             The squared distance from ``(xmin, ymin)`` to ``(x, y)``.
         """
+        segment = index = d2 = None
 
-        # This function uses a method that is probably quite
-        # inefficient based on converting each contour segment to
-        # pixel coordinates and then comparing the given point to
-        # those coordinates for each contour.  This will probably be
-        # quite slow for complex contours, but for normal use it works
-        # sufficiently well that the time is not noticeable.
-        # Nonetheless, improvements could probably be made.
+        with ExitStack() as stack:
+            if not pixel:
+                # _find_nearest_contour works in pixel space. We want axes space, so
+                # effectively disable the transformation here by setting to identity.
+                stack.enter_context(self._cm_set(
+                    transform=mtransforms.IdentityTransform()))
 
-        if self.filled:
-            raise ValueError("Method does not support filled contours.")
+            i_level, i_vtx, (xmin, ymin) = self._find_nearest_contour((x, y), indices)
 
-        if indices is None:
-            indices = range(len(self.collections))
+        if i_level is not None:
+            cc_cumlens = np.cumsum(
+                [*map(len, self._paths[i_level]._iter_connected_components())])
+            segment = cc_cumlens.searchsorted(i_vtx, "right")
+            index = i_vtx if segment == 0 else i_vtx - cc_cumlens[segment - 1]
+            d2 = (xmin-x)**2 + (ymin-y)**2
 
-        d2min = np.inf
-        conmin = None
-        segmin = None
-        imin = None
-        xmin = None
-        ymin = None
-
-        point = np.array([x, y])
-
-        for icon in indices:
-            con = self.collections[icon]
-            trans = con.get_transform()
-            paths = con.get_paths()
-
-            for segNum, linepath in enumerate(paths):
-                lc = linepath.vertices
-                # transfer all data points to screen coordinates if desired
-                if pixel:
-                    lc = trans.transform(lc)
-
-                d2, xc, leg = _find_closest_point_on_path(lc, point)
-                if d2 < d2min:
-                    d2min = d2
-                    conmin = icon
-                    segmin = segNum
-                    imin = leg[1]
-                    xmin = xc[0]
-                    ymin = xc[1]
-
-        return (conmin, segmin, imin, xmin, ymin, d2min)
+        return (i_level, segment, index, xmin, ymin, d2)
 
     def draw(self, renderer):
         paths = self._paths

@@ -49,3 +49,6 @@ ax = plt.gca()
 ax.set_xticklabels([])
 
 plt.show()
+
+# %%
+# .. tags:: component: figure, plot type: line

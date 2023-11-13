@@ -8,6 +8,13 @@
 Frequently Asked Questions
 ==========================
 
+.. _how-do-no-figure:
+
+I don't see a figure window
+---------------------------
+
+Please see :ref:`figures-not-showing`.
+
 .. _how-to-too-many-ticks:
 
 Why do I have so many ticks, and/or why are they out of order?
@@ -301,6 +308,7 @@ you must in that case use a *non-interactive backend* (typically Agg), because
 most GUI backends *require* being run from the main thread as well.
 
 .. _reporting-problems:
+.. _get-help:
 
 Get help
 --------

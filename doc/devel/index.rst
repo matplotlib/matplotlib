@@ -146,6 +146,7 @@ Policies and guidelines
 
          document
          style_guide
+         tag_guidelines
 
    .. grid-item-card::
       :shadow: none
@@ -167,6 +168,7 @@ Policies and guidelines
          :maxdepth: 1
 
          release_guide
+         communication_guide
          min_dep_policy
          MEP/index
 

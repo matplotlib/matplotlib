@@ -11,7 +11,6 @@ Module containing Axes3D, an object which can plot 3D objects on a
 """
 
 from collections import defaultdict
-import functools
 import itertools
 import math
 import textwrap
@@ -1909,8 +1908,7 @@ class Axes3D(Axes):
         else:
             zs = kwargs.pop('zs', 0)
 
-        # Match length
-        zs = np.broadcast_to(zs, np.shape(xs))
+        xs, ys, zs = cbook._broadcast_with_masks(xs, ys, zs)
 
         lines = super().plot(xs, ys, *args, **kwargs)
         for line in lines:
@@ -2665,8 +2663,7 @@ class Axes3D(Axes):
         had_data = self.has_data()
         zs_orig = zs
 
-        xs, ys, zs = np.broadcast_arrays(
-            *[np.ravel(np.ma.filled(t, np.nan)) for t in [xs, ys, zs]])
+        xs, ys, zs = cbook._broadcast_with_masks(xs, ys, zs)
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
         xs, ys, zs, s, c, color = cbook.delete_masked_points(
@@ -2722,7 +2719,7 @@ class Axes3D(Axes):
 
         patches = super().bar(left, height, *args, **kwargs)
 
-        zs = np.broadcast_to(zs, len(left))
+        zs = np.broadcast_to(zs, len(left), subok=True)
 
         verts = []
         verts_zs = []
@@ -2988,23 +2985,8 @@ class Axes3D(Axes):
 
         had_data = self.has_data()
 
-        input_args = [X, Y, Z, U, V, W]
-
-        # extract the masks, if any
-        masks = [k.mask for k in input_args
-                 if isinstance(k, np.ma.MaskedArray)]
-        # broadcast to match the shape
-        bcast = np.broadcast_arrays(*input_args, *masks)
-        input_args = bcast[:6]
-        masks = bcast[6:]
-        if masks:
-            # combine the masks into one
-            mask = functools.reduce(np.logical_or, masks)
-            # put mask on and compress
-            input_args = [np.ma.array(k, mask=mask).compressed()
-                          for k in input_args]
-        else:
-            input_args = [np.ravel(k) for k in input_args]
+        input_args = cbook._broadcast_with_masks(X, Y, Z, U, V, W,
+                                                 compress=True)
 
         if any(len(v) == 0 for v in input_args):
             # No quivers, so just make an empty collection and return early

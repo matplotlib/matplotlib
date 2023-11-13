@@ -15,7 +15,7 @@ mouse-location tools built into the Matplotlib GUI windows are often sufficient,
 you can also use the event system to build customized data exploration tools.
 
 .. seealso::
-    :ref:`figure_explanation`.
+    :ref:`figure-intro`.
 
 
 Matplotlib ships with :ref:`backends <what-is-a-backend>` binding to
@@ -36,11 +36,16 @@ that include interactive tools, a toolbar, a tool-tip, and
 `.pyplot.subplots`
     Creates a new `.Figure` and fills it with a grid of `~.axes.Axes`
 
-`.pyplot` has a notion of "The Current Figure" which can be accessed
-through `.pyplot.gcf` and a notion of "The Current Axes" accessed
-through `.pyplot.gca`.  Almost all of the functions in `.pyplot` pass
-through the current `.Figure` / `~.axes.Axes` (or create one) as
-appropriate.
+`.pyplot.gcf`
+    Get the current `.Figure`. If there is current no figure on the pyplot figure
+    stack, a new figure is created
+
+`.pyplot.gca`
+    Get the current `~.axes.Axes`. If there is current no Axes on the Figure,
+    a new one is created
+
+Almost all of the functions in `.pyplot` pass through the current `.Figure` / `~.axes.Axes`
+(or create one) as appropriate.
 
 Matplotlib keeps a reference to all of the open figures
 created via `pyplot.figure` or `pyplot.subplots` so that the figures will not be garbage
@@ -51,7 +56,6 @@ collected. `.Figure`\s can be closed and deregistered from `.pyplot` individuall
 .. seealso::
 
    For more discussion of Matplotlib's event system and integrated event loops:
-
    - :ref:`interactive_figures_and_eventloops`
    - :ref:`event-handling`
 
@@ -189,7 +193,7 @@ the GUI main loop in some other way.
 
 .. warning::
 
-   Using `.Figure.show` it is possible to display a figure on
+   Using `.Figure.show`, it is possible to display a figure on
    the screen without starting the event loop and without being in
    interactive mode.  This may work (depending on the GUI toolkit) but
    will likely result in a non-responsive figure.
@@ -211,8 +215,7 @@ Interactive navigation
 .. image:: ../../../_static/toolbar.png
 
 All figure windows come with a navigation toolbar, which can be used
-to navigate through the data set.  Here is a description of each of
-the buttons at the bottom of the toolbar
+to navigate through the data set.
 
 .. image:: ../../../../lib/matplotlib/mpl-data/images/home_large.png
 
@@ -221,20 +224,19 @@ the buttons at the bottom of the toolbar
 .. image:: ../../../../lib/matplotlib/mpl-data/images/forward_large.png
 
 The ``Home``, ``Forward`` and ``Back`` buttons
-    These are akin to a web browser's home, forward and back controls.
+    These are similar to a web browser's home, forward and back controls.
     ``Forward`` and ``Back`` are used to navigate back and forth between
     previously defined views.  They have no meaning unless you have already
     navigated somewhere else using the pan and zoom buttons.  This is analogous
     to trying to click ``Back`` on your web browser before visiting a
     new page or ``Forward`` before you have gone back to a page --
-    nothing happens.  ``Home`` always takes you to the
-    first, default view of your data. Again, all of these buttons should
-    feel very familiar to any user of a web browser.
+    nothing happens.  ``Home`` takes you to the
+    first, default view of your data.
 
 .. image:: ../../../../lib/matplotlib/mpl-data/images/move_large.png
 
 The ``Pan/Zoom`` button
-    This button has two modes: pan and zoom.  Click the toolbar button
+    This button has two modes: pan and zoom.  Click the ``Pan/Zoom`` button
     to activate panning and zooming, then put your mouse somewhere
     over an axes.  Press the left mouse button and hold it to pan the
     figure, dragging it to a new position.  When you release it, the
@@ -244,8 +246,8 @@ The ``Pan/Zoom`` button
     the right mouse button to zoom, dragging it to a new position.
     The x axis will be zoomed in proportionately to the rightward
     movement and zoomed out proportionately to the leftward movement.
-    The same is true for the y axis and up/down motions.  The point under your
-    mouse when you begin the zoom remains stationary, allowing you to
+    The same is true for the y axis and up/down motions (up zooms in, down zooms out).
+    The point under your mouse when you begin the zoom remains stationary, allowing you to
     zoom in or out around that point as much as you wish.  You can use the
     modifier keys 'x', 'y' or 'CONTROL' to constrain the zoom to the x
     axis, the y axis, or aspect ratio preserve, respectively.
@@ -257,9 +259,8 @@ The ``Pan/Zoom`` button
 
 .. image:: ../../../../lib/matplotlib/mpl-data/images/zoom_to_rect_large.png
 
-The ``Zoom-to-rectangle`` button
-    Click this toolbar button to activate this mode.  Put your mouse somewhere
-    over an axes and press a mouse button.  Define a rectangular region by
+The ``Zoom-to-Rectangle`` button
+    Put your mouse somewhere over an axes and press a mouse button.  Define a rectangular region by
     dragging the mouse while holding the button to a new location.  When using
     the left mouse button, the axes view limits will be zoomed to the defined
     region.  When using the right mouse button, the axes view limits will be
@@ -268,8 +269,8 @@ The ``Zoom-to-rectangle`` button
 .. image:: ../../../../lib/matplotlib/mpl-data/images/subplots_large.png
 
 The ``Subplot-configuration`` button
-    Use this tool to configure the appearance of the subplot:
-    you can stretch or compress the left, right, top, or bottom
+    Use this button to configure the appearance of the subplot.
+    You can stretch or compress the left, right, top, or bottom
     side of the subplot, or the space between the rows or
     space between the columns.
 
@@ -325,7 +326,7 @@ Interactive mode works in the default Python prompt:
    >>> plt.ion()
    >>>
 
-however this does not ensure that the event hook is properly installed
+However, this does not ensure that the event hook is properly installed
 and your figures may not be responsive.  Please consult the
 documentation of your GUI toolkit for details.
 
@@ -334,16 +335,6 @@ documentation of your GUI toolkit for details.
 
 Jupyter Notebooks / JupyterLab
 ------------------------------
-
-.. note::
-
-   To get the interactive functionality described here, you must be
-   using an interactive backend.  The default backend in notebooks,
-   the inline backend, is not.  `~ipykernel.pylab.backend_inline`
-   renders the figure once and inserts a static image into the
-   notebook when the cell is executed.  Because the images are static, they
-   cannot be panned / zoomed, take user input, or be updated from other
-   cells.
 
 To get interactive figures in the 'classic' notebook or Jupyter lab,
 use the `ipympl <https://matplotlib.org/ipympl>`__ backend
@@ -356,7 +347,7 @@ If ``ipympl`` is installed use the magic:
 
 to select and enable it.
 
-If you only need to use the classic notebook, you can use
+If you only need to use the classic notebook (i.e. ``notebook<7``), you can use
 
 .. sourcecode:: ipython
 
@@ -364,6 +355,16 @@ If you only need to use the classic notebook, you can use
 
 which uses the `.backend_nbagg` backend provided by Matplotlib;
 however, nbagg does not work in Jupyter Lab.
+
+.. note::
+
+   To get the interactive functionality described here, you must be
+   using an interactive backend.  The default backend in notebooks,
+   the inline backend, is not.  `~ipykernel.pylab.backend_inline`
+   renders the figure once and inserts a static image into the
+   notebook when the cell is executed.  Because the images are static, they
+   cannot be panned / zoomed, take user input, or be updated from other
+   cells.
 
 GUIs + Jupyter
 ^^^^^^^^^^^^^^

@@ -3,9 +3,9 @@
 
 .. _colormaps:
 
-********************************
-Choosing Colormaps in Matplotlib
-********************************
+******************
+Choosing Colormaps
+******************
 
 Matplotlib has a number of built-in colormaps accessible via
 `.matplotlib.colormaps`.  There are also external libraries that

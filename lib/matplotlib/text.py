@@ -965,7 +965,7 @@ class Text(Artist):
 
         Parameters
         ----------
-        color : color
+        color : color; see :ref:`colors_def`
 
         See Also
         --------
@@ -985,7 +985,7 @@ class Text(Artist):
 
         Parameters
         ----------
-        color : color
+        color : color; see :ref:`colors_def`
         """
         # "auto" is only supported by axisartist, but we can just let it error
         # out at draw time for simplicity.
