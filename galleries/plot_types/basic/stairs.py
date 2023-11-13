@@ -4,6 +4,8 @@ stairs(values)
 ==============
 
 See `~matplotlib.axes.Axes.stairs`.
+
+.. redirect-from:: /plot_types/basic/step
 """
 import matplotlib.pyplot as plt
 import numpy as np
