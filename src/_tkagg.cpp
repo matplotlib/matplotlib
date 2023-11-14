@@ -53,6 +53,11 @@ static inline PyObject *PyErr_SetFromWindowsErr(int ierr) {
 #include <psapi.h>  // Must be linked with 'psapi' library
 #define dlsym GetProcAddress
 #define UNUSED_ON_NON_WINDOWS(x) x
+// Check for old headers that do not defined HiDPI functions and constants.
+#if defined(__MINGW64_VERSION_MAJOR)
+static_assert(__MINGW64_VERSION_MAJOR >= 6,
+              "mingw-w64-x86_64-headers >= 6 are required when compiling with MinGW");
+#endif
 #else
 #include <dlfcn.h>
 #define UNUSED_ON_NON_WINDOWS Py_UNUSED
