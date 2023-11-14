@@ -5,6 +5,7 @@ import pytest
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+from matplotlib.dates import date2num, DateFormatter
 
 
 class TestDatetimePlotting:
@@ -77,11 +78,38 @@ class TestDatetimePlotting:
         ax3.set_xlabel('Date')
         ax3.set_ylabel('Date')
 
-    @pytest.mark.xfail(reason="Test for axline not written yet")
     @mpl.style.context("default")
     def test_axline(self):
-        fig, ax = plt.subplots()
-        ax.axline(...)
+        mpl.rcParams["date.converter"] = 'concise'
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1,
+                                            constrained_layout=True,
+                                            figsize=(10, 12))
+
+        start_date = datetime.datetime(2023, 1, 1)
+        dates = [start_date + datetime.timedelta(days=i) for i in range(31)]
+        values = list(range(1, 32))
+
+        ax1.plot(dates, values, 'ro')
+        ax1.axline((date2num(dates[0]), values[0]), (date2num(dates[-1]), values[-1]),
+                   color='blue', linewidth=2)
+        ax1.set_title('Datetime vs. Number')
+        date_format = DateFormatter('%b%d')
+        ax1.xaxis.set_major_formatter(date_format)
+
+        ax2.plot(values, dates, 'ro')
+        ax2.axline((values[0], date2num(dates[0])), (values[-1], date2num(dates[-1])),
+                   color='blue', linewidth=2)
+        ax2.set_title('Number vs. Datetime')
+        ax2.yaxis.set_major_formatter(date_format)
+
+        dates2 = [start_date + datetime.timedelta(days=2*i) for i in range(31)]
+        ax3.plot(dates, dates2, 'ro')
+        ax3.axline((date2num(dates[0]), date2num(dates2[0])),
+                   (date2num(dates[-1]), date2num(dates2[-1])),
+                   color='blue', linewidth=2)
+        ax3.set_title('Datetime vs. Datetime')
+        ax3.xaxis.set_major_formatter(date_format)
+        ax3.yaxis.set_major_formatter(date_format)
 
     @mpl.style.context("default")
     def test_axvline(self):
