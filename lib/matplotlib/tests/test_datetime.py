@@ -448,17 +448,35 @@ class TestDatetimePlotting:
             label.set_rotation(40)
             label.set_horizontalalignment('right')
 
-    @pytest.mark.xfail(reason="Test for semilogx not written yet")
     @mpl.style.context("default")
     def test_semilogx(self):
-        fig, ax = plt.subplots()
-        ax.semilogx(...)
+        mpl.rcParams["date.converter"] = "concise"
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, constrained_layout=True)
 
-    @pytest.mark.xfail(reason="Test for semilogy not written yet")
+        base = datetime.datetime(2000, 1, 1)
+        log_dates = [base + datetime.timedelta(days=((2 ** i) * 365)) for i in range(5)]
+        reg_dates = [base + datetime.timedelta(days=(i)) for i in range(5)]
+        log_vals = [2 ** i for i in range(5)]
+        reg_vals = [i for i in range(5)]
+
+        ax1.semilogx(log_dates, reg_dates, base = 2)
+        ax2.semilogx(log_dates, reg_vals, base = 2)
+        ax3.semilogx(log_vals, reg_dates, base = 2)
+
     @mpl.style.context("default")
     def test_semilogy(self):
-        fig, ax = plt.subplots()
-        ax.semilogy(...)
+        mpl.rcParams["date.converter"] = "concise"
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, constrained_layout=True)
+
+        base = datetime.datetime(2000, 1, 1)
+        log_dates = [base + datetime.timedelta(days=((2 ** i) * 365)) for i in range(5)]
+        reg_dates = [base + datetime.timedelta(days=(i)) for i in range(5)]
+        log_vals = [2 ** i for i in range(5)]
+        reg_vals = [i for i in range(5)]
+
+        ax1.semilogy(log_dates, reg_dates, base = 2)
+        ax2.semilogy(log_dates, reg_vals, base = 2)
+        ax3.semilogy(log_vals, reg_dates, base = 2)
 
     @pytest.mark.xfail(reason="Test for spy not written yet")
     @mpl.style.context("default")
