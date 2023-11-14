@@ -474,9 +474,9 @@ class TestDatetimePlotting:
         log_vals = [2 ** i for i in range(5)]
         reg_vals = [i for i in range(5)]
 
-        ax1.semilogy(log_dates, reg_dates, base = 2)
-        ax2.semilogy(log_dates, reg_vals, base = 2)
-        ax3.semilogy(log_vals, reg_dates, base = 2)
+        ax1.semilogy(reg_dates, log_dates, base = 2)
+        ax2.semilogy(reg_dates, log_vals, base = 2)
+        ax3.semilogy(reg_vals, log_dates, base = 2)
 
     @pytest.mark.xfail(reason="Test for spy not written yet")
     @mpl.style.context("default")
