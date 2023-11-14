@@ -3237,10 +3237,10 @@ None}, default: None
 
         Call signature::
 
-          savefig(fname, *, dpi='figure', format=None, metadata=None,
-                  bbox_inches=None, pad_inches=0.1,
-                  facecolor='auto', edgecolor='auto',
-                  backend=None, **kwargs
+          savefig(fname, *, transparent=None, dpi='figure', format=None,
+                  metadata=None, bbox_inches=None, pad_inches=0.1,
+                  facecolor='auto', edgecolor='auto', backend=None,
+                  **kwargs
                  )
 
         The available output formats depend on the backend being used.
@@ -3265,6 +3265,22 @@ None}, default: None
 
         Other Parameters
         ----------------
+        transparent : bool, default: :rc:`savefig.transparent`
+            If *True*, the Axes patches will all be transparent; the
+            Figure patch will also be transparent unless *facecolor*
+            and/or *edgecolor* are specified via kwargs.
+
+            If *False* has no effect and the color of the Axes and
+            Figure patches are unchanged (unless the Figure patch
+            is specified via the *facecolor* and/or *edgecolor* keyword
+            arguments in which case those colors are used).
+
+            The transparency of these patches will be restored to their
+            original values upon exit of this function.
+
+            This is useful, for example, for displaying
+            a plot on top of a colored background on a web page.
+
         dpi : float or 'figure', default: :rc:`savefig.dpi`
             The resolution in dots per inch.  If 'figure', use the figure's
             dpi value.
@@ -3323,22 +3339,6 @@ None}, default: None
             One of 'letter', 'legal', 'executive', 'ledger', 'a0' through
             'a10', 'b0' through 'b10'. Only supported for postscript
             output.
-
-        transparent : bool
-            If *True*, the Axes patches will all be transparent; the
-            Figure patch will also be transparent unless *facecolor*
-            and/or *edgecolor* are specified via kwargs.
-
-            If *False* has no effect and the color of the Axes and
-            Figure patches are unchanged (unless the Figure patch
-            is specified via the *facecolor* and/or *edgecolor* keyword
-            arguments in which case those colors are used).
-
-            The transparency of these patches will be restored to their
-            original values upon exit of this function.
-
-            This is useful, for example, for displaying
-            a plot on top of a colored background on a web page.
 
         bbox_extra_artists : list of `~matplotlib.artist.Artist`, optional
             A list of extra artists that will be considered when the
