@@ -249,7 +249,8 @@ def _has_alpha_channel(c):
             # example: [0.5, 0.5, 0.5, 0.5]
             return True
 
-        # if it has length 2, the 2nd element isn't None, and the 1st element has len=3
+        # if it has length 2, it's a color/alpha tuple
+        # if the second element isn't None or the first element has length = 4
         if len(c) == 2 and (c[1] is not None or len(c[0]) == 4):
             # example: ([0.5, 0.5, 0.5, 0.5], None) or ('r', 0.5)
             return True
