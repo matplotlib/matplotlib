@@ -233,8 +233,36 @@ def is_color_like(c):
 
 def _has_alpha_channel(c):
     """Return whether *c* is a color with an alpha channel."""
-    # 4-element sequences are interpreted as r, g, b, a
-    return not isinstance(c, str) and len(c) == 4
+    # If c is not a color, it doesn't have an alpha channel
+    if not is_color_like(c):
+        return False
+
+    # if c is a hex, it has an alpha channel when it has 4 (or 8) digits after '#'
+    if isinstance(c, str) and c[0] == '#' and (len(c) == 5 or len(c) == 9):
+        # example: '#fff8' or '#0f0f0f80'
+        return True
+
+    # if c isn't a string, it can be an RGB(A) or a color-alpha tuple
+    if not isinstance(c, str):
+        # if it has length 4, it has an alpha channel
+        if len(c) == 4:
+            # example: [0.5, 0.5, 0.5, 0.5]
+            return True
+
+        # if it has length 2, the 2nd element isn't None, and the 1st element has len=3
+        if len(c) == 2 and (c[1] is not None or len(c[0]) == 4):
+            # example: ([0.5, 0.5, 0.5, 0.5], None) or ('r', 0.5)
+            return True
+
+    # otherwise it doesn't have an alpha channel
+    return False
+
+
+def _has_alpha_channel_array(cseq):
+    """Return whether each element in *cseq* is a color with an alpha channel"""
+    if is_color_like(cseq):
+        cseq = [cseq]  # force it to be a sequence
+    return [_has_alpha_channel(c) for c in cseq]
 
 
 def _check_color_like(**kwargs):
