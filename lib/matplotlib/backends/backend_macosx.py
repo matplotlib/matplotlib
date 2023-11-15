@@ -1,7 +1,4 @@
-import contextlib
 import os
-import signal
-import socket
 
 import matplotlib as mpl
 from matplotlib import _api, cbook
@@ -10,12 +7,18 @@ from . import _macosx
 from .backend_agg import FigureCanvasAgg
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    ResizeEvent, TimerBase)
+    ResizeEvent, TimerBase, _allow_interrupt)
 
 
 class TimerMac(_macosx.Timer, TimerBase):
     """Subclass of `.TimerBase` using CFRunLoop timer events."""
     # completely implemented at the C-level (in _macosx.Timer)
+
+
+def _allow_interrupt_macos():
+    """A context manager that allows terminating a plot by sending a SIGINT."""
+    return _allow_interrupt(
+        lambda rsock: _macosx.wake_on_fd_write(rsock.fileno()), _macosx.stop)
 
 
 class FigureCanvasMac(FigureCanvasAgg, _macosx.FigureCanvas, FigureCanvasBase):
@@ -109,10 +112,9 @@ class FigureCanvasMac(FigureCanvasAgg, _macosx.FigureCanvas, FigureCanvasBase):
 
     def start_event_loop(self, timeout=0):
         # docstring inherited
-        with _maybe_allow_interrupt():
-            # Call the objc implementation of the event loop after
-            # setting up the interrupt handling
-            self._start_event_loop(timeout=timeout)
+        # Set up a SIGINT handler to allow terminating a plot via CTRL-C.
+        with _allow_interrupt_macos():
+            self._start_event_loop(timeout=timeout)  # Forward to ObjC implementation.
 
 
 class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
@@ -177,9 +179,7 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     @classmethod
     def start_main_loop(cls):
         # Set up a SIGINT handler to allow terminating a plot via CTRL-C.
-        # The logic is largely copied from qt_compat._maybe_allow_interrupt; see its
-        # docstring for details.  Parts are implemented by wake_on_fd_write in ObjC.
-        with _maybe_allow_interrupt():
+        with _allow_interrupt_macos():
             _macosx.show()
 
     def show(self):
@@ -188,45 +188,6 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
             self._shown = True
         if mpl.rcParams["figure.raise_window"]:
             self._raise()
-
-
-@contextlib.contextmanager
-def _maybe_allow_interrupt():
-    """
-    This manager allows to terminate a plot by sending a SIGINT. It is
-    necessary because the running backend prevents Python interpreter to
-    run and process signals (i.e., to raise KeyboardInterrupt exception). To
-    solve this one needs to somehow wake up the interpreter and make it close
-    the plot window. The implementation is taken from qt_compat, see that
-    docstring for a more detailed description.
-    """
-    old_sigint_handler = signal.getsignal(signal.SIGINT)
-    if old_sigint_handler in (None, signal.SIG_IGN, signal.SIG_DFL):
-        yield
-        return
-
-    handler_args = None
-    wsock, rsock = socket.socketpair()
-    wsock.setblocking(False)
-    rsock.setblocking(False)
-    old_wakeup_fd = signal.set_wakeup_fd(wsock.fileno())
-    _macosx.wake_on_fd_write(rsock.fileno())
-
-    def handle(*args):
-        nonlocal handler_args
-        handler_args = args
-        _macosx.stop()
-
-    signal.signal(signal.SIGINT, handle)
-    try:
-        yield
-    finally:
-        wsock.close()
-        rsock.close()
-        signal.set_wakeup_fd(old_wakeup_fd)
-        signal.signal(signal.SIGINT, old_sigint_handler)
-        if handler_args is not None:
-            old_sigint_handler(*handler_args)
 
 
 @_Backend.export
