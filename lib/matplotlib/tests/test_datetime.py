@@ -150,13 +150,13 @@ class TestDatetimePlotting:
     def test_barbs(self):
         plt.rcParams["date.converter"] = 'concise'
 
-        start_date = datetime.datetime.now()
+        start_date = datetime.datetime(2022, 2, 8, 22)
         dates = [start_date + datetime.timedelta(hours=i) for i in range(12)]
 
-        numbers = np.random.rand(len(dates))
+        numbers = np.sin(np.linspace(0, 2 * np.pi, 12))
 
-        u = np.random.rand(len(dates))
-        v = np.random.rand(len(dates)) * 100
+        u = np.ones(12) * 10
+        v = np.arange(0, 120, 10)
 
         fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 6))
 
