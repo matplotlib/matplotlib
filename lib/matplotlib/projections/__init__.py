@@ -58,7 +58,7 @@ from .polar import PolarAxes
 
 try:
     from mpl_toolkits.mplot3d import Axes3D
-except ImportError:
+except Exception:
     import warnings
     warnings.warn("Unable to import Axes3D. This may be due to multiple versions of "
                   "Matplotlib being installed (e.g. as a system package and as a pip "

@@ -1996,13 +1996,11 @@ class MaxNLocator(Locator):
             If True, autoscaling will result in a range symmetric about zero.
 
         prune : {'lower', 'upper', 'both', None}, default: None
-            Remove edge ticks -- useful for stacked or ganged plots where
-            the upper tick of one axes overlaps with the lower tick of the
-            axes above it, primarily when :rc:`axes.autolimit_mode` is
-            ``'round_numbers'``.  If ``prune=='lower'``, the smallest tick will
-            be removed.  If ``prune == 'upper'``, the largest tick will be
-            removed.  If ``prune == 'both'``, the largest and smallest ticks
-            will be removed.  If *prune* is *None*, no ticks will be removed.
+            Remove the 'lower' tick, the 'upper' tick, or ticks on 'both' sides
+            *if they fall exactly on an axis' edge* (this typically occurs when
+            :rc:`axes.autolimit_mode` is 'round_numbers').  Removing such ticks
+            is mostly useful for stacked or ganged plots, where the upper tick
+            of an axes overlaps with the lower tick of the axes above it.
 
         min_n_ticks : int, default: 2
             Relax *nbins* and *integer* constraints if necessary to obtain

@@ -602,6 +602,7 @@ class FigureManagerQT(FigureManagerBase):
                 qt_compat._exec(qapp)
 
     def show(self):
+        self.window._destroying = False
         self.window.show()
         if mpl.rcParams['figure.raise_window']:
             self.window.activateWindow()

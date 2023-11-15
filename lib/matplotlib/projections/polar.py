@@ -201,7 +201,7 @@ class InvertedPolarTransform(mtransforms.Transform):
             Axis associated with this transform. This is used to get the
             minimum radial limit.
         use_rmin : `bool`, optional
-            If ``True`` add the minimum radial axis limit after
+            If ``True``, add the minimum radial axis limit after
             transforming from Cartesian coordinates. *axis* must also be
             specified for this to take effect.
         """

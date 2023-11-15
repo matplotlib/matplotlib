@@ -23,4 +23,5 @@ body:
     id: solution
     attributes:
       label: Proposed solution
-      description: What should the tag be? All tags are in the format `subcategory: tag`
+      description: >
+        What should the tag be? All tags are in the format `subcategory: tag`
