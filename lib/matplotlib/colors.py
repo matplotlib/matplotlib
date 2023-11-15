@@ -238,12 +238,12 @@ def _has_alpha_channel(c):
         return False
 
     # if c is a hex, it has an alpha channel when it has 4 (or 8) digits after '#'
-    if isinstance(c, str) and c[0] == '#' and (len(c) == 5 or len(c) == 9):
-        # example: '#fff8' or '#0f0f0f80'
-        return True
-
-    # if c isn't a string, it can be an RGB(A) or a color-alpha tuple
-    if not isinstance(c, str):
+    if isinstance(c, str):
+        if c[0] == '#' and (len(c) == 5 or len(c) == 9):
+            # example: '#fff8' or '#0f0f0f80'
+            return True
+    else:
+        # if c isn't a string, it can be an RGB(A) or a color-alpha tuple
         # if it has length 4, it has an alpha channel
         if len(c) == 4:
             # example: [0.5, 0.5, 0.5, 0.5]
