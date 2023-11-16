@@ -91,11 +91,20 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       CIBW_BEFORE_BUILD: >-
-        pip install numpy>=1.25 &&
         rm -rf {package}/build
       CIBW_BEFORE_BUILD_WINDOWS: >-
-        pip install delvewheel numpy>=1.25 &&
+        pip install delvewheel &&
         rm -rf {package}/build
+      # Live on the edge when building on main or a PR against main since
+      # these wheels are also used for nightlies and NumPy 2.0 transition
+      # requires using the NumPy 2.0 nightlies for compatibility.
+      # If using all `--pre` releases creates issues, the NumPy wheel can be
+      # istalled more targeted.
+      CIBW_BUILD_FRONTEND: >-
+        ${{ (((github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+              (github.event_name == 'pull_request' && github.base_ref == 'main')) &&
+            'pip; args: --pre --extra-index-url "https://pypi.anaconda.org/scientific-python-nightly-wheels/simple"') ||
+            'build' }}
       CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >-
         delvewheel repair -w {dest_dir} {wheel}
       CIBW_AFTER_BUILD: >-

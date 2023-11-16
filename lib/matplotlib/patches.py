@@ -332,7 +332,7 @@ class Patch(artist.Artist):
 
         Parameters
         ----------
-        color : color or None
+        color : color or None; see :ref:`colors_def`
         """
         self._original_edgecolor = color
         self._set_edgecolor(color)
@@ -350,7 +350,7 @@ class Patch(artist.Artist):
 
         Parameters
         ----------
-        color : color or None
+        color : color or None; see :ref:`colors_def`
         """
         self._original_facecolor = color
         self._set_facecolor(color)

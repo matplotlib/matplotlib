@@ -1,0 +1,14 @@
+``contour.ClabelText`` and ``ContourLabeler.set_label_props``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are removed.
+
+Use ``Text(..., transform_rotates_text=True)`` as a replacement for
+``contour.ClabelText(...)`` and ``text.set(text=text, color=color,
+fontproperties=labeler.labelFontProps, clip_box=labeler.axes.bbox)`` as a
+replacement for the ``ContourLabeler.set_label_props(label, text, color)``.
+
+``ContourLabeler`` attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``labelFontProps``, ``labelFontSizeList``, and ``labelTextsList``
+attributes of `.ContourLabeler` have been removed.  Use the ``labelTexts``
+attribute and the font properties of the corresponding text objects instead.

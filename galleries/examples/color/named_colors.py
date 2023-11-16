@@ -3,7 +3,7 @@
 List of named colors
 ====================
 
-This plots a list of the named colors supported in matplotlib.
+This plots a list of the named colors supported by Matplotlib.
 For more information on colors in matplotlib see
 
 * the :ref:`colors_def` tutorial;
@@ -101,8 +101,10 @@ plt.show()
 # -----------
 # XKCD Colors
 # -----------
-# XKCD colors are supported, but they produce a large figure, so we skip them
-# for now. You can use the following code if desired::
+# Matplotlib supports colors from the
+# `xkcd color survey <https://xkcd.com/color/rgb/>`_, e.g. ``"xkcd:sky blue"``. Since
+# this contains almost 1000 colors, a figure of this would be very large and is thus
+# omitted here. You can use the following code to generate the overview yourself ::
 #
 #     xkcd_fig = plot_colortable(mcolors.XKCD_COLORS)
 #     xkcd_fig.savefig("XKCD_Colors.png")

@@ -41,6 +41,66 @@ static bool keyChangeOption = false;
 static bool keyChangeCapsLock = false;
 /* Keep track of the current mouse up/down state for open/closed cursor hand */
 static bool leftMouseGrabbing = false;
+/* Keep track of whether stdin has been received */
+static bool stdin_received = false;
+static bool stdin_sigint = false;
+// Global variable to store the original SIGINT handler
+static struct sigaction originalSigintAction = {0};
+
+// Signal handler for SIGINT, only sets a flag to exit the run loop
+static void handleSigint(int signal) {
+    stdin_sigint = true;
+}
+
+static int wait_for_stdin() {
+    @autoreleasepool {
+        stdin_received = false;
+        stdin_sigint = false;
+
+        // Set up a SIGINT handler to interrupt the event loop if ctrl+c comes in too
+        struct sigaction customAction = {0};
+        customAction.sa_handler = handleSigint;
+        // Set the new handler and store the old one
+        sigaction(SIGINT, &customAction, &originalSigintAction);
+
+        // Create an NSFileHandle for standard input
+        NSFileHandle *stdinHandle = [NSFileHandle fileHandleWithStandardInput];
+
+        // Register for data available notifications on standard input
+        [[NSNotificationCenter defaultCenter] addObserverForName: NSFileHandleDataAvailableNotification
+                                                          object: stdinHandle
+                                                           queue: [NSOperationQueue mainQueue] // Use the main queue
+                                                      usingBlock: ^(NSNotification *notification) {
+                                                                    // Mark that input has been received
+                                                                    stdin_received = true;
+                                                                    }
+        ];
+
+        // Wait in the background for anything that happens to stdin
+        [stdinHandle waitForDataInBackgroundAndNotify];
+
+        // continuously run an event loop until the stdin_received flag is set to exit
+        while (!stdin_received && !stdin_sigint) {
+            while (true) {
+                NSEvent *event = [NSApp nextEventMatchingMask: NSEventMaskAny
+                                                    untilDate: [NSDate distantPast]
+                                                       inMode: NSDefaultRunLoopMode
+                                                      dequeue: YES];
+                if (!event) { break; }
+                [NSApp sendEvent: event];
+            }
+            // We need to run the run loop for a short time to allow the
+            // events to be processed and keep flushing them while we wait for stdin
+            [[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 0.01]];
+        }
+        // Remove the input handler as an observer
+        [[NSNotificationCenter defaultCenter] removeObserver: stdinHandle];
+
+        // Restore the original SIGINT handler upon exiting the function
+        sigaction(SIGINT, &originalSigintAction, NULL);
+        return 1;
+    }
+}
 
 /* ---------------------------- Cocoa classes ---------------------------- */
 
@@ -139,6 +199,9 @@ static void lazy_init(void) {
     NSApp = [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 
+    // Run our own event loop while waiting for stdin on the Python side
+    // this is needed to keep the application responsive while waiting for input
+    PyOS_InputHook = wait_for_stdin;
 }
 
 static PyObject*
@@ -388,7 +451,7 @@ FigureCanvas_remove_rubberband(FigureCanvas* self)
 }
 
 static PyObject*
-FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keywords)
+FigureCanvas__start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keywords)
 {
     float timeout = 0.0;
 
@@ -459,8 +522,8 @@ static PyTypeObject FigureCanvasType = {
          (PyCFunction)FigureCanvas_remove_rubberband,
          METH_NOARGS,
          "Remove the current rubberband rectangle."},
-        {"start_event_loop",
-         (PyCFunction)FigureCanvas_start_event_loop,
+        {"_start_event_loop",
+         (PyCFunction)FigureCanvas__start_event_loop,
          METH_KEYWORDS | METH_VARARGS,
          NULL},  // docstring inherited
         {"stop_event_loop",
@@ -1069,8 +1132,10 @@ choose_save_file(PyObject* unused, PyObject* args)
 }
 
 static void _buffer_release(void* info, const void* data, size_t size) {
+    PyGILState_STATE gstate = PyGILState_Ensure();
     PyBuffer_Release((Py_buffer *)info);
     free(info);
+    PyGILState_Release(gstate);
 }
 
 static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)

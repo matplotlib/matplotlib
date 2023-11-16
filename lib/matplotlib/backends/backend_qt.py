@@ -9,13 +9,12 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     TimerBase, cursors, ToolContainerBase, MouseButton,
-    CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
+    CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent,
+    _allow_interrupt)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from . import qt_compat
 from .qt_compat import (
-    QtCore, QtGui, QtWidgets, __version__, QT_API,
-    _to_int, _isdeleted, _maybe_allow_interrupt
-)
+    QtCore, QtGui, QtWidgets, __version__, QT_API, _to_int, _isdeleted)
 
 
 # SPECIAL_KEYS are Qt::Key that do *not* return their Unicode name
@@ -148,6 +147,38 @@ def _create_qApp():
     return app
 
 
+def _allow_interrupt_qt(qapp_or_eventloop):
+    """A context manager that allows terminating a plot by sending a SIGINT."""
+
+    # Use QSocketNotifier to read the socketpair while the Qt event loop runs.
+
+    def prepare_notifier(rsock):
+        sn = QtCore.QSocketNotifier(rsock.fileno(), QtCore.QSocketNotifier.Type.Read)
+
+        @sn.activated.connect
+        def _may_clear_sock():
+            # Running a Python function on socket activation gives the interpreter a
+            # chance to handle the signal in Python land.  We also need to drain the
+            # socket with recv() to re-arm it, because it will be written to as part of
+            # the wakeup.  (We need this in case set_wakeup_fd catches a signal other
+            # than SIGINT and we shall continue waiting.)
+            try:
+                rsock.recv(1)
+            except BlockingIOError:
+                # This may occasionally fire too soon or more than once on Windows, so
+                # be forgiving about reading an empty socket.
+                pass
+
+        return sn  # Actually keep the notifier alive.
+
+    def handle_sigint():
+        if hasattr(qapp_or_eventloop, 'closeAllWindows'):
+            qapp_or_eventloop.closeAllWindows()
+        qapp_or_eventloop.quit()
+
+    return _allow_interrupt(prepare_notifier, handle_sigint)
+
+
 class TimerQT(TimerBase):
     """Subclass of `.TimerBase` using QTimer events."""
 
@@ -261,6 +292,8 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         # Force querying of the modifiers, as the cached modifier state can
         # have been invalidated while the window was out of focus.
         mods = QtWidgets.QApplication.instance().queryKeyboardModifiers()
+        if self.figure is None:
+            return
         LocationEvent("figure_enter_event", self,
                       *self.mouseEventCoords(event),
                       modifiers=self._mpl_modifiers(mods),
@@ -268,6 +301,8 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def leaveEvent(self, event):
         QtWidgets.QApplication.restoreOverrideCursor()
+        if self.figure is None:
+            return
         LocationEvent("figure_leave_event", self,
                       *self.mouseEventCoords(),
                       modifiers=self._mpl_modifiers(),
@@ -275,7 +310,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def mousePressEvent(self, event):
         button = self.buttond.get(event.button())
-        if button is not None:
+        if button is not None and self.figure is not None:
             MouseEvent("button_press_event", self,
                        *self.mouseEventCoords(event), button,
                        modifiers=self._mpl_modifiers(),
@@ -283,13 +318,15 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def mouseDoubleClickEvent(self, event):
         button = self.buttond.get(event.button())
-        if button is not None:
+        if button is not None and self.figure is not None:
             MouseEvent("button_press_event", self,
                        *self.mouseEventCoords(event), button, dblclick=True,
                        modifiers=self._mpl_modifiers(),
                        guiEvent=event)._process()
 
     def mouseMoveEvent(self, event):
+        if self.figure is None:
+            return
         MouseEvent("motion_notify_event", self,
                    *self.mouseEventCoords(event),
                    modifiers=self._mpl_modifiers(),
@@ -297,7 +334,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def mouseReleaseEvent(self, event):
         button = self.buttond.get(event.button())
-        if button is not None:
+        if button is not None and self.figure is not None:
             MouseEvent("button_release_event", self,
                        *self.mouseEventCoords(event), button,
                        modifiers=self._mpl_modifiers(),
@@ -311,7 +348,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             steps = event.angleDelta().y() / 120
         else:
             steps = event.pixelDelta().y()
-        if steps:
+        if steps and self.figure is not None:
             MouseEvent("scroll_event", self,
                        *self.mouseEventCoords(event), step=steps,
                        modifiers=self._mpl_modifiers(),
@@ -319,20 +356,22 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def keyPressEvent(self, event):
         key = self._get_key(event)
-        if key is not None:
+        if key is not None and self.figure is not None:
             KeyEvent("key_press_event", self,
                      key, *self.mouseEventCoords(),
                      guiEvent=event)._process()
 
     def keyReleaseEvent(self, event):
         key = self._get_key(event)
-        if key is not None:
+        if key is not None and self.figure is not None:
             KeyEvent("key_release_event", self,
                      key, *self.mouseEventCoords(),
                      guiEvent=event)._process()
 
     def resizeEvent(self, event):
         if self._in_resize_event:  # Prevent PyQt6 recursion
+            return
+        if self.figure is None:
             return
         self._in_resize_event = True
         try:
@@ -409,7 +448,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         if timeout > 0:
             _ = QtCore.QTimer.singleShot(int(timeout * 1000), event_loop.quit)
 
-        with _maybe_allow_interrupt(event_loop):
+        with _allow_interrupt_qt(event_loop):
             qt_compat._exec(event_loop)
 
     def stop_event_loop(self, event=None):
@@ -590,10 +629,11 @@ class FigureManagerQT(FigureManagerBase):
     def start_main_loop(cls):
         qapp = QtWidgets.QApplication.instance()
         if qapp:
-            with _maybe_allow_interrupt(qapp):
+            with _allow_interrupt_qt(qapp):
                 qt_compat._exec(qapp)
 
     def show(self):
+        self.window._destroying = False
         self.window.show()
         if mpl.rcParams['figure.raise_window']:
             self.window.activateWindow()

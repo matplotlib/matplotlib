@@ -116,10 +116,30 @@ def test_contour_manual_labels(split_collections):
 
     plt.figure(figsize=(6, 2), dpi=200)
     cs = plt.contour(x, y, z)
+
+    _maybe_split_collections(split_collections)
+
     pts = np.array([(1.0, 3.0), (1.0, 4.4), (1.0, 6.0)])
     plt.clabel(cs, manual=pts)
     pts = np.array([(2.0, 3.0), (2.0, 4.4), (2.0, 6.0)])
     plt.clabel(cs, manual=pts, fontsize='small', colors=('r', 'g'))
+
+
+@pytest.mark.parametrize("split_collections", [False, True])
+@image_comparison(['contour_disconnected_segments'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_contour_label_with_disconnected_segments(split_collections):
+    x, y = np.mgrid[-1:1:21j, -1:1:21j]
+    z = 1 / np.sqrt(0.01 + (x + 0.3) ** 2 + y ** 2)
+    z += 1 / np.sqrt(0.01 + (x - 0.3) ** 2 + y ** 2)
+
+    plt.figure()
+    cs = plt.contour(x, y, z, levels=[7])
+
+    # Adding labels should invalidate the old style
+    _maybe_split_collections(split_collections)
+
+    cs.clabel(manual=[(0.2, 0.1)])
 
     _maybe_split_collections(split_collections)
 
@@ -232,6 +252,9 @@ def test_labels(split_collections):
     disp_units = [(216, 177), (359, 290), (521, 406)]
     data_units = [(-2, .5), (0, -1.5), (2.8, 1)]
 
+    # Adding labels should invalidate the old style
+    _maybe_split_collections(split_collections)
+
     CS.clabel()
 
     for x, y in data_units:
@@ -336,6 +359,22 @@ def test_clabel_zorder(use_clabeltext, contour_zorder, clabel_zorder):
         assert clabel.get_zorder() == expected_clabel_zorder
     for clabel in clabels2:
         assert clabel.get_zorder() == expected_clabel_zorder
+
+
+def test_clabel_with_large_spacing():
+    # When the inline spacing is large relative to the contour, it may cause the
+    # entire contour to be removed. In current implementation, one line segment is
+    # retained between the identified points.
+    # This behavior may be worth reconsidering, but check to be sure we do not produce
+    # an invalid path, which results in an error at clabel call time.
+    # see gh-27045 for more information
+    x = y = np.arange(-3.0, 3.01, 0.05)
+    X, Y = np.meshgrid(x, y)
+    Z = np.exp(-X**2 - Y**2)
+
+    fig, ax = plt.subplots()
+    contourset = ax.contour(X, Y, Z, levels=[0.01, 0.2, .5, .8])
+    ax.clabel(contourset, inline_spacing=100)
 
 
 # tol because ticks happen to fall on pixel boundaries so small
@@ -530,23 +569,19 @@ def test_find_nearest_contour():
     img = np.exp(-np.pi * (np.sum((xy - 5)**2, 0)/5.**2))
     cs = plt.contour(img, 10)
 
-    with pytest.warns(mpl._api.MatplotlibDeprecationWarning):
-        nearest_contour = cs.find_nearest_contour(1, 1, pixel=False)
+    nearest_contour = cs.find_nearest_contour(1, 1, pixel=False)
     expected_nearest = (1, 0, 33, 1.965966, 1.965966, 1.866183)
     assert_array_almost_equal(nearest_contour, expected_nearest)
 
-    with pytest.warns(mpl._api.MatplotlibDeprecationWarning):
-        nearest_contour = cs.find_nearest_contour(8, 1, pixel=False)
+    nearest_contour = cs.find_nearest_contour(8, 1, pixel=False)
     expected_nearest = (1, 0, 5, 7.550173, 1.587542, 0.547550)
     assert_array_almost_equal(nearest_contour, expected_nearest)
 
-    with pytest.warns(mpl._api.MatplotlibDeprecationWarning):
-        nearest_contour = cs.find_nearest_contour(2, 5, pixel=False)
+    nearest_contour = cs.find_nearest_contour(2, 5, pixel=False)
     expected_nearest = (3, 0, 21, 1.884384, 5.023335, 0.013911)
     assert_array_almost_equal(nearest_contour, expected_nearest)
 
-    with pytest.warns(mpl._api.MatplotlibDeprecationWarning):
-        nearest_contour = cs.find_nearest_contour(2, 5, indices=(5, 7), pixel=False)
+    nearest_contour = cs.find_nearest_contour(2, 5, indices=(5, 7), pixel=False)
     expected_nearest = (5, 0, 16, 2.628202, 5.0, 0.394638)
     assert_array_almost_equal(nearest_contour, expected_nearest)
 
@@ -556,16 +591,13 @@ def test_find_nearest_contour_no_filled():
     img = np.exp(-np.pi * (np.sum((xy - 5)**2, 0)/5.**2))
     cs = plt.contourf(img, 10)
 
-    with pytest.warns(mpl._api.MatplotlibDeprecationWarning), \
-         pytest.raises(ValueError, match="Method does not support filled contours."):
+    with pytest.raises(ValueError, match="Method does not support filled contours"):
         cs.find_nearest_contour(1, 1, pixel=False)
 
-    with pytest.warns(mpl._api.MatplotlibDeprecationWarning), \
-         pytest.raises(ValueError, match="Method does not support filled contours."):
+    with pytest.raises(ValueError, match="Method does not support filled contours"):
         cs.find_nearest_contour(1, 10, indices=(5, 7), pixel=False)
 
-    with pytest.warns(mpl._api.MatplotlibDeprecationWarning), \
-         pytest.raises(ValueError, match="Method does not support filled contours."):
+    with pytest.raises(ValueError, match="Method does not support filled contours"):
         cs.find_nearest_contour(2, 5, indices=(2, 7), pixel=True)
 
 
@@ -825,12 +857,11 @@ def test_allsegs_allkinds():
 
     cs = plt.contour(x, y, z, levels=[0, 0.5])
 
-    # Expect two levels, first with 5 segments and the second with 4.
-    with pytest.warns(PendingDeprecationWarning, match="all"):
-        for result in [cs.allsegs, cs.allkinds]:
-            assert len(result) == 2
-            assert len(result[0]) == 5
-            assert len(result[1]) == 4
+    # Expect two levels, the first with 5 segments and the second with 4.
+    for result in [cs.allsegs, cs.allkinds]:
+        assert len(result) == 2
+        assert len(result[0]) == 5
+        assert len(result[1]) == 4
 
 
 def test_deprecated_apis():
