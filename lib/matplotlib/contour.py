@@ -1339,15 +1339,18 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         for idx_level in indices:
             path = self._paths[idx_level]
-            if not len(path.vertices):
-                continue
-            lc = self.get_transform().transform(path.vertices)
-            d2, proj, leg = _find_closest_point_on_path(lc, xy)
-            if d2 < d2min:
-                d2min = d2
-                idx_level_min = idx_level
-                idx_vtx_min = leg[1]
-                proj_min = proj
+            idx_vtx_start = 0
+            for subpath in path._iter_connected_components():
+                if not len(subpath.vertices):
+                    continue
+                lc = self.get_transform().transform(subpath.vertices)
+                d2, proj, leg = _find_closest_point_on_path(lc, xy)
+                if d2 < d2min:
+                    d2min = d2
+                    idx_level_min = idx_level
+                    idx_vtx_min = leg[1] + idx_vtx_start
+                    proj_min = proj
+                idx_vtx_start += len(subpath)
 
         return idx_level_min, idx_vtx_min, proj_min
 
