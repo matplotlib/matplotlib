@@ -167,6 +167,22 @@ class Stars(Shapes):
         self.shape_codes[0] = Path.MOVETO
         super().__init__(hatch, density)
 
+class DashedHatch(HatchPatternBase):
+    def __init__(self, hatch, density):
+        self.num_lines = int((hatch.count('_') + hatch.count('+')) * density)
+        self.num_vertices = self.num_lines * 2
+
+    def set_vertices_and_codes(self, vertices, codes):
+        steps, stepsize = np.linspace(0.0, 1.0, self.num_lines, False,
+                                      retstep=True)
+        steps += stepsize / 2.
+        vertices[0::2, 0] = steps
+        vertices[0::2, 1] = 0.0
+        vertices[1::2, 0] = steps
+        vertices[1::2, 1] = 1.0
+        codes[0::2] = Path.MOVETO
+        codes[1::2] = Path.LINETO
+
 _hatch_types = [
     HorizontalHatch,
     VerticalHatch,
@@ -175,12 +191,13 @@ _hatch_types = [
     SmallCircles,
     LargeCircles,
     SmallFilledCircles,
-    Stars
+    Stars,
+    DashedHatch
     ]
 
 
 def _validate_hatch_pattern(hatch):
-    valid_hatch_patterns = set(r'-+|/\xXoO.*')
+    valid_hatch_patterns = set(r'-+|/\xXoO.*_')
     if hatch is not None:
         invalids = set(hatch).difference(valid_hatch_patterns)
         if invalids:
