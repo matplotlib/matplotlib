@@ -22,6 +22,7 @@ Version 3.8
     ../api/prev_api_changes/api_changes_3.8.1.rst
     ../api/prev_api_changes/api_changes_3.8.0.rst
     github_stats.rst
+    prev_whats_new/github_stats_3.8.1.rst
     prev_whats_new/github_stats_3.8.0.rst
 
 Version 3.7

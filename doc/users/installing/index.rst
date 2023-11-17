@@ -125,7 +125,7 @@ process. For example, which default backend to use, whether some of the
 optional libraries that Matplotlib ships with are installed, and so on. This
 file will be particularly useful to those packaging Matplotlib.
 
-.. _mplsetup.cfg: https://raw.githubusercontent.com/matplotlib/matplotlib/main/mplsetup.cfg.template
+.. _mplsetup.cfg: https://raw.githubusercontent.com/matplotlib/matplotlib/v3.8.x/mplsetup.cfg.template
 
 If you are building your own Matplotlib wheels (or sdists) on Windows, note
 that any DLLs that you copy into the source tree will be packaged too.
