@@ -537,7 +537,8 @@ class Artist:
         for a in self.get_children():
             # make sure the event happened in the same Axes
             ax = getattr(a, 'axes', None)
-            if (mouseevent.inaxes is None or ax is None
+            if (isinstance(a, mpl.figure.SubFigure)
+                    or mouseevent.inaxes is None or ax is None
                     or mouseevent.inaxes == ax):
                 # we need to check if mouseevent.inaxes is None
                 # because some objects associated with an Axes (e.g., a
