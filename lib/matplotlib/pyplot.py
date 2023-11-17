@@ -706,11 +706,12 @@ def xkcd(
     scale: float = 1, length: float = 100, randomness: float = 2
 ) -> ExitStack:
     """
-    Turn on `xkcd <https://xkcd.com/>`_ sketch-style drawing mode.  This will
-    only have effect on things drawn after this function is called.
+    Turn on `xkcd <https://xkcd.com/>`_ sketch-style drawing mode.
 
-    For best results, the "Humor Sans" font should be installed: it is
-    not included with Matplotlib.
+    This will only have an effect on things drawn after this function is called.
+
+    For best results, install the `xkcd script <https://github.com/ipython/xkcd-font/>`_
+    font; xkcd fonts are not packaged with Matplotlib.
 
     Parameters
     ----------
@@ -749,8 +750,7 @@ def xkcd(
 
     from matplotlib import patheffects
     rcParams.update({
-        'font.family': ['xkcd', 'xkcd Script', 'Humor Sans', 'Comic Neue',
-                        'Comic Sans MS'],
+        'font.family': ['xkcd', 'xkcd Script', 'Comic Neue', 'Comic Sans MS'],
         'font.size': 14.0,
         'path.sketch': (scale, length, randomness),
         'path.effects': [
