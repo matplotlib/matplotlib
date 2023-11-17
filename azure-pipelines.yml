@@ -124,7 +124,7 @@ stages:
         displayName: 'Install dependencies'
 
       - bash: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools
           python -m pip install -r requirements/testing/all.txt -r requirements/testing/extra.txt ||
             [[ "$PYTHON_VERSION" = 'Pre' ]]
         displayName: 'Install dependencies with pip'

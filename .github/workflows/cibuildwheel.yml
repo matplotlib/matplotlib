@@ -163,7 +163,7 @@ jobs:
           CIBW_SKIP: "*-musllinux*"
           CIBW_BEFORE_BUILD: >-
             pip install certifi "Cython>=0.29.34,<3.0" "pybind11>=2.6" "setuptools>=42" "setuptools_scm>=7" &&
-            pip install "numpy>=1.25" &&
+            pip install "numpy~=1.25.0" &&
             git clean -fxd build
           CIBW_BEFORE_BUILD_WINDOWS: >-
             pip install certifi delvewheel "pybind11>=2.6" "setuptools>=42" "setuptools_scm>=7" &&
