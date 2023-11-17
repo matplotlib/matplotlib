@@ -12,6 +12,7 @@ Core functions and attributes for the matplotlib style library:
 """
 
 import contextlib
+import importlib
 import logging
 import os
 from pathlib import Path
@@ -214,6 +215,29 @@ def read_style_directory(style_dir):
     return styles
 
 
+def _read_pystyle_base_directory():
+    """
+    Return directory of styles defined in *style_dir* as Python files.
+
+    Because Python style files can execute arbitrary code, this feature is only
+    used internally to load files provided by Matplotlib itself, not
+    user-provided style files.
+
+    A Python style is a non-private Python module that exports a dict named
+    ``__mpl_style__``, from which a `RcParams` is constructed.  This convention
+    may be revisited if this feature ever becomes public.
+    """
+    styles = {}
+    for path in Path(BASE_LIBRARY_PATH).glob("*.py"):
+        if path.name.startswith("_"):
+            continue
+        spec = importlib.util.spec_from_file_location(path.stem, path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        styles[path.stem] = mpl.RcParams(module.__mpl_style__)
+    return styles
+
+
 def update_nested_dict(main_dict, new_dict):
     """
     Update nested dict (only level of nesting) with new values.
@@ -230,7 +254,10 @@ def update_nested_dict(main_dict, new_dict):
 
 # Load style library
 # ==================
-_base_library = read_style_directory(BASE_LIBRARY_PATH)
+_base_library = {
+    **read_style_directory(BASE_LIBRARY_PATH),
+    **_read_pystyle_base_directory(),
+}
 library = {}
 available = []
 
