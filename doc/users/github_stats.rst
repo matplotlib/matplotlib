@@ -88,7 +88,7 @@ Issues (14):
 * :ghissue:`26732`: [ENH]: Parser errors should mention that commands do not exist
 * :ghissue:`26497`: [Bug]: AttributeError: 'Path3DCollection' object has no attribute '_offset_zordered' (possible regression)
 * :ghissue:`26588`: [Bug]: Tick class instantiation returns an error when labelcolor is a tuple
-* :ghissue:`26421`: [Doc]: demo testing comparison decorator 
+* :ghissue:`26421`: [Doc]: demo testing comparison decorator
 * :ghissue:`26486`: [Doc]: match 3D plot types listings titles to other titles
 * :ghissue:`26560`: [Doc]: ncols parameter hard-coded
 * :ghissue:`26553`: [TST] Upcoming dependency test failures
@@ -97,7 +97,7 @@ Issues (14):
 * :ghissue:`26152`: [Bug]: Pyparsing 3.1 breaks tests
 * :ghissue:`26336`: [Doc]: GPL compatibility
 * :ghissue:`19721`: head size of FancyArrowPatch is "invisibly small" by default
-* :ghissue:`26290`: [Bug]: calling fig.tight_layout multiple times 
+* :ghissue:`26290`: [Bug]: calling fig.tight_layout multiple times
 * :ghissue:`26287`: [Bug]: Error while creating inset axes using ``mpl_toolkits.axes_grid1.inset_locator.inset_axes``
 
 
