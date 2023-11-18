@@ -18,6 +18,7 @@ Version 3.7
     prev_whats_new/whats_new_3.7.0.rst
     ../api/prev_api_changes/api_changes_3.7.0.rst
     github_stats.rst
+    prev_whats_new/github_stats_3.7.3.rst
     prev_whats_new/github_stats_3.7.2.rst
     prev_whats_new/github_stats_3.7.1.rst
     prev_whats_new/github_stats_3.7.0.rst
