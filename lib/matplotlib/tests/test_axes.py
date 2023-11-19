@@ -3078,6 +3078,18 @@ def test_stackplot_baseline():
 
     fig, axs = plt.subplots(2, 2)
 
+    # Attempt to use an integer value for 'baseline'
+    try:
+        axs[0, 0].stackplot(range(100), d.T, baseline=5)
+    except ValueError as e:
+        print("Error when using an integer as baseline:", e)
+
+    # Attempt to use a float value for 'baseline'
+    try:
+        axs[0, 1].stackplot(range(100), d.T, baseline=2.5)
+    except ValueError as e:
+        print("Error when using a float as baseline:", e)
+
     axs[0, 0].stackplot(range(100), d.T, baseline='zero')
     axs[0, 1].stackplot(range(100), d.T, baseline='sym')
     axs[1, 0].stackplot(range(100), d.T, baseline='wiggle')
