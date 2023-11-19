@@ -32,7 +32,7 @@ def stackplot(axes, x, *args,
             stackplot(x, y)           # where y has shape (M, N)
             stackplot(x, y1, y2, y3)  # where y1, y2, y3, y4 have length N
 
-    baseline : {'zero', 'sym', 'wiggle', 'weighted_wiggle', int}
+    baseline : {'zero', 'sym', 'wiggle', 'weighted_wiggle', float}
         Method used to calculate the baseline:
 
         - ``'zero'``: Constant zero baseline, i.e. a simple stacked plot.
@@ -42,7 +42,7 @@ def stackplot(axes, x, *args,
         - ``'weighted_wiggle'``: Does the same but weights to account for
           size of each layer. It is also called 'Streamgraph'-layout. More
           details can be found at http://leebyron.com/streamgraph/.
-        - ``int``:  Scalar baseline. Useful for cases where 0 is not sensible.
+        - ``float``:  Scalar baseline. Useful for cases where 0 is not sensible.
 
     labels : list of str, optional
         A sequence of labels to assign to each data series. If unspecified,
@@ -95,7 +95,7 @@ def stackplot(axes, x, *args,
     # We'll need a float buffer for the upcoming calculations.
     stack = np.cumsum(y, axis=0, dtype=np.promote_types(y.dtype, np.float32))
 
-    if not isinstance(baseline, int):
+    if isinstance(baseline, str):
         _api.check_in_list(['zero', 'sym', 'wiggle', 'weighted_wiggle'],
                             baseline=baseline)
     if baseline == 'zero':
@@ -128,7 +128,7 @@ def stackplot(axes, x, *args,
         stack += first_line
 
     else:
-        # Here we are 100% certain that baseline is an integer
+        # Here we are 100% certain that baseline is not a string
         first_line = float(baseline)
 
     # Color between x = 0 and the first array.
