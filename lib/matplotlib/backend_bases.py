@@ -2996,7 +2996,6 @@ class NavigationToolbar2:
                 self.release_zoom(event)
 
     def _start_event_axes_interaction(self, event, method="zoom"):
-        # call "ax.start_pan(..)" on all relevant axes of an event
 
         def _ax_filter(ax):
             return (ax.in_axes(event) and
@@ -3024,13 +3023,13 @@ class NavigationToolbar2:
         for ax in reversed(axes):
             grps.setdefault(ax.get_zorder(), []).append(ax)
 
-        pan_axes = []
+        axes_to_trigger = []
         # go through zorders in reverse until we hit a capturing axes
         for zorder in sorted(grps, reverse=True):
             for ax in grps[zorder]:
-                pan_axes.append(ax)
+                axes_to_trigger.append(ax)
                 # NOTE: shared axes are automatically triggered, but twin-axes not!
-                pan_axes.extend(ax._twinned_axes.get_siblings(ax))
+                axes_to_trigger.extend(ax._twinned_axes.get_siblings(ax))
 
                 if _capture_events(ax):
                     break  # break if we hit a capturing axes
@@ -3045,12 +3044,9 @@ class NavigationToolbar2:
             break
 
         # avoid duplicated triggers (but keep order of list)
-        pan_axes = list(dict.fromkeys(pan_axes))
+        axes_to_trigger = list(dict.fromkeys(axes_to_trigger))
 
-        for ax in pan_axes:
-            ax.start_pan(event.x, event.y, event.button)
-
-        return pan_axes
+        return axes_to_trigger
 
     def pan(self, *args):
         """
@@ -3081,6 +3077,10 @@ class NavigationToolbar2:
         axes = self._start_event_axes_interaction(event, method="pan")
         if not axes:
             return
+
+        # call "ax.start_pan(..)" on all relevant axes of an event
+        for ax in axes:
+            ax.start_pan(event.x, event.y, event.button)
 
         self.canvas.mpl_disconnect(self._id_drag)
         id_drag = self.canvas.mpl_connect("motion_notify_event", self.drag_pan)
