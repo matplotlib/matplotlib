@@ -26,20 +26,6 @@ import matplotlib.patches as mpatches
 import matplotlib.transforms as mtransforms
 
 
-@_api.deprecated("3.7", alternative="Text.set_transform_rotates_text")
-class ClabelText(Text):
-    """
-    Unlike the ordinary text, the get_rotation returns an updated
-    angle in the pixel coordinate assuming that the input rotation is
-    an angle in data coordinate (or whatever transform set).
-    """
-
-    def get_rotation(self):
-        new_angle, = self.get_transform().transform_angles(
-            [super().get_rotation()], [self.get_position()])
-        return new_angle
-
-
 def _contour_labeler_event_handler(cs, inline, inline_spacing, event):
     canvas = cs.axes.figure.canvas
     is_button = event.name == "button_press_event"
@@ -222,22 +208,6 @@ class ContourLabeler:
 
         return cbook.silent_list('text.Text', self.labelTexts)
 
-    @_api.deprecated("3.7", alternative="cs.labelTexts[0].get_font()")
-    @property
-    def labelFontProps(self):
-        return self._label_font_props
-
-    @_api.deprecated("3.7", alternative=(
-        "[cs.labelTexts[0].get_font().get_size()] * len(cs.labelLevelList)"))
-    @property
-    def labelFontSizeList(self):
-        return [self._label_font_props.get_size()] * len(self.labelLevelList)
-
-    @_api.deprecated("3.7", alternative="cs.labelTexts")
-    @property
-    def labelTextsList(self):
-        return cbook.silent_list('text.Text', self.labelTexts)
-
     def print_label(self, linecontour, labelwidth):
         """Return whether a contour is long enough to hold a label."""
         return (len(linecontour) > 10 * labelwidth
@@ -258,14 +228,6 @@ class ContourLabeler:
                      self.get_text(self.labelLevelList[nth], self.labelFmt),
                      figure=fig, fontproperties=self._label_font_props)
                 .get_window_extent(renderer).width)
-
-    @_api.deprecated("3.7", alternative="Artist.set")
-    def set_label_props(self, label, text, color):
-        """Set the label properties - color, fontsize, text."""
-        label.set_text(text)
-        label.set_color(color)
-        label.set_fontproperties(self._label_font_props)
-        label.set_clip_box(self.axes.bbox)
 
     def get_text(self, lev, fmt):
         """Get the text of the label."""
@@ -1377,15 +1339,18 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         for idx_level in indices:
             path = self._paths[idx_level]
-            if not len(path.vertices):
-                continue
-            lc = self.get_transform().transform(path.vertices)
-            d2, proj, leg = _find_closest_point_on_path(lc, xy)
-            if d2 < d2min:
-                d2min = d2
-                idx_level_min = idx_level
-                idx_vtx_min = leg[1]
-                proj_min = proj
+            idx_vtx_start = 0
+            for subpath in path._iter_connected_components():
+                if not len(subpath.vertices):
+                    continue
+                lc = self.get_transform().transform(subpath.vertices)
+                d2, proj, leg = _find_closest_point_on_path(lc, xy)
+                if d2 < d2min:
+                    d2min = d2
+                    idx_level_min = idx_level
+                    idx_vtx_min = leg[1] + idx_vtx_start
+                    proj_min = proj
+                idx_vtx_start += len(subpath)
 
         return idx_level_min, idx_vtx_min, proj_min
 

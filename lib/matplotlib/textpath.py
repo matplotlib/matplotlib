@@ -99,7 +99,7 @@ class TextToPath:
             from matplotlib.text import TextToPath
             from matplotlib.font_manager import FontProperties
 
-            fp = FontProperties(family="Humor Sans", style="italic")
+            fp = FontProperties(family="Comic Neue", style="italic")
             verts, codes = TextToPath().get_text_path(fp, "ABC")
             path = Path(verts, codes, closed=False)
 
