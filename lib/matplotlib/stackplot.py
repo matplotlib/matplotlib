@@ -43,7 +43,8 @@ def stackplot(axes, x, *args,
           size of each layer. It is also called 'Streamgraph'-layout. More
           details can be found at http://leebyron.com/streamgraph/.
         - ``float``:  Scalar baseline. Useful for cases where 0 is not sensible.
-          Any type that can be casted to float is accepted (int, float, bool and custom data objects)
+          Any type that can be casted to float is accepted
+          (int, float, bool and custom data objects)
 
     labels : list of str, optional
         A sequence of labels to assign to each data series. If unspecified,
