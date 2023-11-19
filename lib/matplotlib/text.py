@@ -123,7 +123,7 @@ class Text(Artist):
 
         The text is aligned relative to the anchor point (*x*, *y*) according
         to ``horizontalalignment`` (default: 'left') and ``verticalalignment``
-        (default: 'bottom'). See also
+        (default: 'baseline'). See also
         :doc:`/gallery/text_labels_and_annotations/text_alignment`.
 
         While Text accepts the 'label' keyword argument, by default it is not
@@ -1002,7 +1002,7 @@ class Text(Artist):
 
         Parameters
         ----------
-        align : {'left', 'center', 'right'}
+        align : {'left', 'center', 'right'}, default: left
         """
         _api.check_in_list(['center', 'right', 'left'], align=align)
         self._horizontalalignment = align
@@ -1251,7 +1251,7 @@ class Text(Artist):
 
         Parameters
         ----------
-        align : {'bottom', 'baseline', 'center', 'center_baseline', 'top'}
+        align : {'bottom', 'baseline', 'center', 'center_baseline', 'top'}, default: baseline
         """
         _api.check_in_list(
             ['top', 'bottom', 'center', 'baseline', 'center_baseline'],
