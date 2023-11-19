@@ -1251,7 +1251,8 @@ class Text(Artist):
 
         Parameters
         ----------
-        align : {'bottom', 'baseline', 'center', 'center_baseline', 'top'}, default: baseline
+        align : {'bottom', 'baseline', 'center', 'center_baseline', 'top'}, \
+default: baseline
         """
         _api.check_in_list(
             ['top', 'bottom', 'center', 'baseline', 'center_baseline'],
