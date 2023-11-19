@@ -2995,7 +2995,7 @@ class NavigationToolbar2:
             elif event.name == "button_release_event":
                 self.release_zoom(event)
 
-    def _start_event_axes_pan(self, event, method="zoom"):
+    def _start_event_axes_interaction(self, event, method="zoom"):
         # call "ax.start_pan(..)" on all relevant axes of an event
 
         def _ax_filter(ax):
@@ -3078,7 +3078,7 @@ class NavigationToolbar2:
                 or event.x is None or event.y is None):
             return
 
-        axes = self._start_event_axes_pan(event, method="pan")
+        axes = self._start_event_axes_interaction(event, method="pan")
         if not axes:
             return
 
@@ -3131,7 +3131,7 @@ class NavigationToolbar2:
                 or event.x is None or event.y is None):
             return
 
-        axes = self._start_event_axes_pan(event, method="zoom")
+        axes = self._start_event_axes_interaction(event, method="zoom")
         if not axes:
             return
 
