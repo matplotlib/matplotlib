@@ -13,16 +13,20 @@ The default is the following:
 - Shared axes always trigger with their parent axes
   (irrespective of the patch visibility)
 
+Note: The visibility of the patch hereby refers to the value of
+``ax.patch.get_visible()``. The color and transparency of a
+patch have no effect on the treatment of pan/zoom events!
+
 
 ``ax.set_forward_navigation_events(val)`` can be used to override the
 default behaviour:
 
 - ``True``:  Forward navigation events to axes below.
 - ``False``: Execute navigation events only on this axes.
-- ``"auto"``: Use the default behaviour
-  (``True`` for axes with an invisible patch and ``False`` otherwise).
+- ``"auto"``: Use the default behaviour.
 
 To disable pan/zoom events completely, use ``ax.set_navigate(False)``
+
 """
 
 
