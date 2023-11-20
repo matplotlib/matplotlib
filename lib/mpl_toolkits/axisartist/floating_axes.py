@@ -69,14 +69,14 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             trf = grid_finder.get_transform() + axes.transData
             return trf.transform(np.column_stack(np.broadcast_arrays(x, y))).T
 
-        if self.nth_coord == 0:
+        if self._nth_coord == 0:
             mask = (ymin <= yy0) & (yy0 <= ymax)
             (xx1, yy1), (dxx1, dyy1), (dxx2, dyy2) = \
                 grid_helper_curvelinear._value_and_jacobian(
                     trf_xy, self.value, yy0[mask], (xmin, xmax), (ymin, ymax))
             labels = self._grid_info["lat_labels"]
 
-        elif self.nth_coord == 1:
+        elif self._nth_coord == 1:
             mask = (xmin <= xx0) & (xx0 <= xmax)
             (xx1, yy1), (dxx2, dyy2), (dxx1, dyy1) = \
                 grid_helper_curvelinear._value_and_jacobian(

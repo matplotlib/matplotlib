@@ -56,7 +56,7 @@ class FixedAxisArtistHelper(_FixedAxisArtistHelperBase):
 
         self.grid_helper = grid_helper
         if nth_coord_ticks is None:
-            nth_coord_ticks = self.nth_coord
+            nth_coord_ticks = self._nth_coord
         self.nth_coord_ticks = nth_coord_ticks
 
         self.side = side
@@ -69,7 +69,7 @@ class FixedAxisArtistHelper(_FixedAxisArtistHelperBase):
 
     def get_tick_iterators(self, axes):
         """tick_loc, tick_angle, tick_label"""
-        v1, v2 = axes.get_ylim() if self.nth_coord == 0 else axes.get_xlim()
+        v1, v2 = axes.get_ylim() if self._nth_coord == 0 else axes.get_xlim()
         if v1 > v2:  # Inverted limits.
             side = {"left": "right", "right": "left",
                     "top": "bottom", "bottom": "top"}[self.side]
@@ -120,10 +120,10 @@ class FloatingAxisArtistHelper(_FloatingAxisArtistHelperBase):
 
         lon_min, lon_max, lat_min, lat_max = extremes
         e_min, e_max = self._extremes  # ranges of other coordinates
-        if self.nth_coord == 0:
+        if self._nth_coord == 0:
             lat_min = max(e_min, lat_min)
             lat_max = min(e_max, lat_max)
-        elif self.nth_coord == 1:
+        elif self._nth_coord == 1:
             lon_min = max(e_min, lon_min)
             lon_max = min(e_max, lon_max)
 
@@ -132,11 +132,11 @@ class FloatingAxisArtistHelper(_FloatingAxisArtistHelperBase):
         lat_levs, lat_n, lat_factor = \
             grid_finder.grid_locator2(lat_min, lat_max)
 
-        if self.nth_coord == 0:
+        if self._nth_coord == 0:
             xx0 = np.full(self._line_num_points, self.value)
             yy0 = np.linspace(lat_min, lat_max, self._line_num_points)
             xx, yy = grid_finder.transform_xy(xx0, yy0)
-        elif self.nth_coord == 1:
+        elif self._nth_coord == 1:
             xx0 = np.linspace(lon_min, lon_max, self._line_num_points)
             yy0 = np.full(self._line_num_points, self.value)
             xx, yy = grid_finder.transform_xy(xx0, yy0)
@@ -161,17 +161,17 @@ class FloatingAxisArtistHelper(_FloatingAxisArtistHelperBase):
             return trf.transform([x, y]).T
 
         xmin, xmax, ymin, ymax = self._grid_info["extremes"]
-        if self.nth_coord == 0:
+        if self._nth_coord == 0:
             xx0 = self.value
             yy0 = (ymin + ymax) / 2
-        elif self.nth_coord == 1:
+        elif self._nth_coord == 1:
             xx0 = (xmin + xmax) / 2
             yy0 = self.value
         xy1, dxy1_dx, dxy1_dy = _value_and_jacobian(
             trf_xy, xx0, yy0, (xmin, xmax), (ymin, ymax))
         p = axes.transAxes.inverted().transform(xy1)
         if 0 <= p[0] <= 1 and 0 <= p[1] <= 1:
-            d = [dxy1_dy, dxy1_dx][self.nth_coord]
+            d = [dxy1_dy, dxy1_dx][self._nth_coord]
             return xy1, np.rad2deg(np.arctan2(*d[::-1]))
         else:
             return None, None
@@ -195,13 +195,13 @@ class FloatingAxisArtistHelper(_FloatingAxisArtistHelperBase):
             return trf.transform(np.column_stack(np.broadcast_arrays(x, y))).T
 
         # find angles
-        if self.nth_coord == 0:
+        if self._nth_coord == 0:
             mask = (e0 <= yy0) & (yy0 <= e1)
             (xx1, yy1), (dxx1, dyy1), (dxx2, dyy2) = _value_and_jacobian(
                 trf_xy, self.value, yy0[mask], (-np.inf, np.inf), (e0, e1))
             labels = self._grid_info["lat_labels"]
 
-        elif self.nth_coord == 1:
+        elif self._nth_coord == 1:
             mask = (e0 <= xx0) & (xx0 <= e1)
             (xx1, yy1), (dxx2, dyy2), (dxx1, dyy1) = _value_and_jacobian(
                 trf_xy, xx0[mask], self.value, (-np.inf, np.inf), (e0, e1))
