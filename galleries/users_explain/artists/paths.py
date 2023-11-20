@@ -4,7 +4,7 @@
 .. _paths:
 
 =============
-Path tutorial
+Path Tutorial
 =============
 
 Defining paths in your Matplotlib visualization.
