@@ -3,7 +3,7 @@
 
 .. _autoscale:
 
-Autoscaling axes
+Autoscaling Axis
 ================
 
 The limits on an axis can be set manually (e.g. ``ax.set_xlim(xmin, xmax)``)
