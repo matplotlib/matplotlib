@@ -563,7 +563,7 @@ class _ImageBase(martist.Artist, cm.VectorMappable):
                     _maskNd = (np.where(A.mask, np.float32(np.nan), np.float32(1))
                                if A.mask.shape == A.shape  # nontrivial mask
                                else np.ones_like(A, np.float32))
-                    mask = np.sum(_maskNd, axis=0)
+                    mask = np.prod(_maskNd, axis=0)
 
                 # we always have to interpolate the mask to account for
                 # non-affine transformations
@@ -742,6 +742,21 @@ class _ImageBase(martist.Artist, cm.VectorMappable):
                     )
             n_variates = cmap.n_variates
         elif not (A.ndim == 2 or A.ndim == 3 and A.shape[-1] in [3, 4]):
+            if A.ndim == 3 and A.shape[0] == 2:
+                raise TypeError(
+                    f"Invalid shape {A.shape} for rgb/rgba image data."
+                    " To visualize bivariate/multivariate data"
+                    " a valid colormap must be explicitly declared,"
+                    f" for example cmap='BiOrangeBlue'."
+                    )
+            if A.ndim == 3 and A.shape[0] > 1 and A.shape[0] < 9:
+                raise TypeError(
+                    f"Invalid shape {A.shape} for rgb/rgba image data."
+                    " To visualize multivariate data"
+                    " a multivariate colormap must be explicitly declared,"
+                    f" for example cmap='{A.shape[0]}VarAddA'."
+                    )
+
             raise TypeError(f"Invalid shape {A.shape} for image data")
         elif A.ndim == 3:
             # If the input data has values outside the valid range (after

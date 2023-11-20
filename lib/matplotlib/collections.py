@@ -906,17 +906,31 @@ class Collection(artist.Artist, cm.VectorMappable):
             if self._A.ndim > 1 and not isinstance(self, _MeshData):
                 raise ValueError('Collections can only map rank 1 arrays')
             if np.iterable(self._alpha):
-                if self._alpha.size != self._A.size:
-                    raise ValueError(
-                        f'Data array shape, {self._A.shape} '
-                        'is incompatible with alpha array shape, '
-                        f'{self._alpha.shape}. '
-                        'This can occur with the deprecated '
-                        'behavior of the "flat" shading option, '
-                        'in which a row and/or column of the data '
-                        'array is dropped.')
-                # pcolormesh, scatter, maybe others flatten their _A
-                self._alpha = self._alpha.reshape(self._A.shape)
+                if len(self.scalars) == 1:
+                    if self._alpha.size != self._A.size:
+                        raise ValueError(
+                            f'Data array shape, {self._A.shape} '
+                            'is incompatible with alpha array shape, '
+                            f'{self._alpha.shape}. '
+                            'This can occur with the deprecated '
+                            'behavior of the "flat" shading option, '
+                            'in which a row and/or column of the data '
+                            'array is dropped.')
+                    # pcolormesh, scatter, maybe others flatten their _A
+                    self._alpha = self._alpha.reshape(self._A.shape)
+                else:  # len(self.scalars) > 1:
+                    if self._alpha.size != self._A[0].size:
+                        raise ValueError(
+                            f'Data array shape, {self._A[0].shape} '
+                            'is incompatible with alpha array shape, '
+                            f'{self._alpha.shape}. '
+                            'This can occur with the deprecated '
+                            'behavior of the "flat" shading option, '
+                            'in which a row and/or column of the data '
+                            'array is dropped.')
+                    # pcolormesh, scatter, maybe others flatten their _A
+                    self._alpha = self._alpha.reshape(self._A[0].shape)
+
             self._mapped_colors = self.to_rgba(self._A, self._alpha)
 
         if self._face_is_mapped:

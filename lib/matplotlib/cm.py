@@ -321,7 +321,8 @@ class VectorMappable:
             on the scale with the corresponding name.
             If *None*, *norm* defaults to a *colors.Normalize* object which
             initializes its scaling based on the first data processed.
-        cmap : str or `~matplotlib.colors.Colormap`
+        cmap : str or `~matplotlib.colors.Colormap`,
+                                    or `~matplotlib.colors.BivarColormap`
                                     or `~matplotlib.colors.MultivariateColormap`
             The colormap used to map normalized data values to RGBA colors.
 
@@ -453,31 +454,66 @@ class VectorMappable:
 
         See ScalarMappable.to_rgba for behaviour with scalar or RGBA data
 
+
         For multivariate data, each variate is converted independently before
         combination in sRGB space according to the rules of the colormap
+
+        If alpha is set (float or np.ndarray) it replaces the alpha channel
+        in the output image, except where the array is masked or np.nan
+
+        If norm is False, no normalization of the input data is performed
+        and it is assumed to be in the range (0-1).
+
+        If bytes = True, conversion to bytes is done after image conversion.
+        This is less efficient than converting the colormap before making the image
+        (as is done in ScalarMappable.to_rgba) but prevents branching in the code.
         """
         if len(self.scalars) == 1:
             rgba = self.scalars[0].to_rgba(arr, alpha=alpha, bytes=bytes, norm=norm)
+        else:  # multivariate
+            if isinstance(self._cmap, colors.BivarColormap):
+                if norm:
+                    normed_0 = self.scalars[0].norm(arr[0])
+                    normed_1 = self.scalars[1].norm(arr[1])
+                else:
+                    normed_0 = arr[0].copy()
+                    normed_1 = arr[1].copy()
+                # in-place clip to shape of colormap: square, circle, etc.
+                self._cmap.clip(normed_0, normed_1)
+                rgba = self.cmap((normed_0, normed_1))
+            else:  # i.e. isinstance(self._cmaps, colors.MultivarColormap)
+                # ignore alpha in LUTs
+                x = self.scalars[0]
+                rgba = x.to_rgba(arr[0], bytes=False, norm=norm, alpha=1)
+                for s, x in zip(self.scalars[1:], arr[1:]):
+                    sub_rgba = s.to_rgba(x, bytes=False, norm=norm, alpha=1)
+                    rgba[..., :3] += sub_rgba[..., :3]  # add colors
+                    rgba[..., 3] *= sub_rgba[..., 3]  # multiply alpha
+                # MultivarColormap require alpha = 0 for bad values
+                # giving the following condition to get the bad_mask
+                mask_bad = rgba[..., 3] == 0
+                rgba[mask_bad] = self.cmap.get_bad()
 
-        elif isinstance(self._cmap, colors.BivarColormap):
-            if norm:
-                normed_0 = self.scalars[0].norm(arr[0])
-                normed_1 = self.scalars[1].norm(arr[1])
-            else:
-                normed_0 = np.copy(arr[0])
-                normed_1 = np.copy(arr[1])
-            # clip in-place to shape of colormap: square or circle.
-            self._cmap.clip(normed_0, normed_1)
-            rgba = self.cmap((normed_0, normed_1), alpha=alpha, bytes=bytes)
+                if self._cmap.combination_mode == 'Sub':
+                    rgba[:, :, :3] -= len(self.scalars) - 1
 
-        else:  # i.e. isinstance(self._cmaps, colors.MultivarColormap)
-            rgba = self.scalars[0].to_rgba(arr[0], alpha=alpha, bytes=bytes, norm=norm)
-            for s, a in zip(self.scalars[1:], arr[1:]):
-                rgba += s.to_rgba(a, alpha=alpha, bytes=bytes, norm=norm)
+            rgba = np.clip(rgba, 0, 1)
 
-            if self._cmap.combination_mode == 'Sub':
-                rgba[:,:,:3] -= len(self.scalars)-1
-                rgba[:, :, :3] -= len(self.scalars) - 1
+            # If manually specified alpha
+            # rgba[..., -1] is at this point determined by the multivariate
+            # colormaps. (typically 'bad' values set alpha = 0).
+            #
+            if alpha is not None:
+                alpha = np.clip(alpha, 0, 1)
+                if alpha.shape not in [(), arr[0].shape]:
+                    raise ValueError(
+                        f"alpha is array-like but its shape {alpha.shape} does "
+                        f"not match that of the input {arr[0].shape}")
+                rgba[..., -1] *= alpha
+
+            if bytes:
+                rgba = (rgba * 255).astype('uint8')
+
         return rgba
 
     def set_array(self, A):
