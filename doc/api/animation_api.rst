@@ -166,7 +166,7 @@ A third method is to use closures to build up the required
 artists and functions.  A fourth method is to create a class.
 
 Examples
-~~~~~~~~
+^^^^^^^^
 
 * :doc:`../gallery/animation/animate_decay`
 * :doc:`../gallery/animation/bayes_update`
@@ -182,7 +182,7 @@ Examples
 -------------------
 
 Examples
-~~~~~~~~
+^^^^^^^^
 
 * :doc:`../gallery/animation/dynamic_image`
 
