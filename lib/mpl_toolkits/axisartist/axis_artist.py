@@ -677,6 +677,10 @@ class AxisArtist(martist.Artist):
         ----------
         axes : `mpl_toolkits.axisartist.axislines.Axes`
         helper : `~mpl_toolkits.axisartist.axislines.AxisArtistHelper`
+        offset : optional
+        axis_direction : ["left", "right", "top", "bottom"], default: "bottom"
+        **kwargs
+            Additional keywords are passed to `.Artist`.
         """
         # axes is also used to follow the axis attribute (tick color, etc).
 

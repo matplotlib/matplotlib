@@ -142,8 +142,6 @@ class _FixedAxisArtistHelperBase(_AxisArtistHelperBase):
     def get_axislabel_pos_angle(self, axes):
         """
         Return the label reference position in transAxes.
-
-        get_label_transform() returns a transform of (transAxes+offset)
         """
         return dict(left=((0., 0.5), 90),  # (position, angle_tangent)
                     right=((1., 0.5), 90),
@@ -174,8 +172,11 @@ class FixedAxisArtistHelperRectilinear(_FixedAxisArtistHelperBase):
     @_api.delete_parameter("3.9", "nth_coord")
     def __init__(self, axes, loc, nth_coord=None):
         """
-        nth_coord = along which coordinate value varies
-        in 2D, nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
+
+        Parameters
+        ----------
+        axes : `mpl_toolkits.axisartist.axislines.Axes`
+        loc : ["left", "right", "top", "bottom"]
         """
         super().__init__(loc)
         self.axis = [axes.xaxis, axes.yaxis][self.nth_coord]
@@ -211,6 +212,16 @@ class FloatingAxisArtistHelperRectilinear(_FloatingAxisArtistHelperBase):
 
     def __init__(self, axes, nth_coord,
                  passingthrough_point, axis_direction="bottom"):
+        """
+
+        Parameters
+        ----------
+        axes : `mpl_toolkits.axisartist.axislines.Axes`
+        nth_coord : {0, 1}, optional
+            Along which coordinate the value varies in 2D. 0: x-axis, 1: y-axis.
+        passingthrough_point :
+        axis_direction : ["left", "right", "top", "bottom"], default: "bottom"
+        """
         super().__init__(nth_coord, passingthrough_point)
         self._axis_direction = axis_direction
         self.axis = [axes.xaxis, axes.yaxis][self.nth_coord]
@@ -230,8 +241,6 @@ class FloatingAxisArtistHelperRectilinear(_FloatingAxisArtistHelperBase):
     def get_axislabel_pos_angle(self, axes):
         """
         Return the label reference position in transAxes.
-
-        get_label_transform() returns a transform of (transAxes+offset)
         """
         angle = [0, 90][self.nth_coord]
         fixed_coord = 1 - self.nth_coord
@@ -315,6 +324,20 @@ class GridHelperRectlinear(GridHelperBase):
         "3.9", "nth_coord", addendum="'nth_coord' is now inferred from 'loc'.")
     def new_fixed_axis(
             self, loc, nth_coord=None, axis_direction=None, offset=None, axes=None):
+        """
+
+        Parameters
+        ----------
+        loc : ["left", "right", "top", "bottom"]
+        axis_direction : ["left", "right", "top", "bottom"], optional
+            If not provided, *loc* is used.
+        offset :
+        axes : `mpl_toolkits.axisartist.axislines.Axes`
+
+        Returns
+        -------
+        `.AxisArtist`
+        """
         if axes is None:
             _api.warn_external(
                 "'new_fixed_axis' explicitly requires the axes keyword.")
@@ -325,6 +348,20 @@ class GridHelperRectlinear(GridHelperBase):
                           offset=offset, axis_direction=axis_direction)
 
     def new_floating_axis(self, nth_coord, value, axis_direction="bottom", axes=None):
+        """
+
+        Parameters
+        ----------
+        nth_coord : {0, 1}
+            Along which coordinate the value varies in 2D. 0: x-axis, 1: y-axis.
+        value :
+        axis_direction : ["left", "right", "top", "bottom"], default: "bottom"
+        axes : `mpl_toolkits.axisartist.axislines.Axes`
+
+        Returns
+        -------
+        `.AxisArtist`
+        """
         if axes is None:
             _api.warn_external(
                 "'new_floating_axis' explicitly requires the axes keyword.")
@@ -387,6 +424,14 @@ class Axes(maxes.Axes):
         self.toggle_axisline(True)
 
     def toggle_axisline(self, b=None):
+        """
+        Enable/disable or toggle Axis etc.
+
+        Parameters
+        ----------
+        b : bool, optional
+            Enable if True, disable if False, toggle if not provided.
+        """
         if b is None:
             b = not self._axisline_on
         if b:
@@ -462,9 +507,35 @@ class Axes(maxes.Axes):
         return children
 
     def new_fixed_axis(self, loc, offset=None):
+        """
+        Create a new fixed axis in this Axes.
+
+        Parameters
+        ----------
+        loc : ["left", "right", "top", "bottom"]
+        offset : optional
+
+        Returns
+        -------
+        `.AxisArtist`
+        """
         return self.get_grid_helper().new_fixed_axis(loc, offset=offset, axes=self)
 
     def new_floating_axis(self, nth_coord, value, axis_direction="bottom"):
+        """
+        Create a new floating axis in this Axes.
+
+        Parameters
+        ----------
+        nth_coord : {0, 1}
+            Along which coordinate the value varies in 2D. 0: x-axis, 1: y-axis.
+        value :
+        axis_direction : ["left", "right", "top", "bottom"], default: "bottom"
+
+        Returns
+        -------
+        `.AxisArtist`
+        """
         return self.get_grid_helper().new_floating_axis(
             nth_coord, value, axis_direction=axis_direction, axes=self)
 
