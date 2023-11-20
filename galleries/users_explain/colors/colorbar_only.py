@@ -2,7 +2,7 @@
 .. redirect-from:: /tutorials/colors/colorbar_only
 
 =============================
-Customized colorbars tutorial
+Customized Colorbars Tutorial
 =============================
 
 This tutorial shows how to build and customize standalone colorbars, i.e.
