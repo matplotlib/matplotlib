@@ -84,8 +84,14 @@ class _AxisArtistHelperBase:
             return iter_major, iter_minor
     """
 
+    def __init__(self, nth_coord):
+        self.nth_coord = nth_coord
+
     def update_lim(self, axes):
         pass
+
+    def get_nth_coord(self):
+        return self.nth_coord
 
     def _to_xy(self, values, const):
         """
@@ -115,16 +121,12 @@ class _FixedAxisArtistHelperBase(_AxisArtistHelperBase):
     @_api.delete_parameter("3.9", "nth_coord")
     def __init__(self, loc, nth_coord=None):
         """``nth_coord = 0``: x-axis; ``nth_coord = 1``: y-axis."""
-        self.nth_coord = _api.check_getitem(
-            {"bottom": 0, "top": 0, "left": 1, "right": 1}, loc=loc)
+        super().__init__(_api.check_getitem(
+            {"bottom": 0, "top": 0, "left": 1, "right": 1}, loc=loc))
         self._loc = loc
         self._pos = {"bottom": 0, "top": 1, "left": 0, "right": 1}[loc]
-        super().__init__()
         # axis line in transAxes
         self._path = Path(self._to_xy((0, 1), const=self._pos))
-
-    def get_nth_coord(self):
-        return self.nth_coord
 
     # LINE
 
@@ -158,12 +160,8 @@ class _FixedAxisArtistHelperBase(_AxisArtistHelperBase):
 
 class _FloatingAxisArtistHelperBase(_AxisArtistHelperBase):
     def __init__(self, nth_coord, value):
-        self.nth_coord = nth_coord
         self._value = value
-        super().__init__()
-
-    def get_nth_coord(self):
-        return self.nth_coord
+        super().__init__(nth_coord)
 
     def get_line(self, axes):
         raise RuntimeError("get_line method should be defined by the derived class")
