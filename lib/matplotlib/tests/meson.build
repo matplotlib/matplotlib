@@ -55,6 +55,7 @@ python_sources = [
   'test_mathtext.py',
   'test_matplotlib.py',
   'test_mlab.py',
+  'test_multivariate.py',
   'test_offsetbox.py',
   'test_patches.py',
   'test_patheffects.py',
