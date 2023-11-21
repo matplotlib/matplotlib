@@ -309,8 +309,8 @@ load_tkinter_funcs()
         module = py::module_::import("_tkinter");  // CPython
     }
     auto py_path = module.attr("__file__");
-    py::bytes py_path_b = py_path.attr("encode")(
-        Py_FileSystemDefaultEncoding, Py_FileSystemDefaultEncodeErrors);
+    auto py_path_b = py::reinterpret_steal<py::bytes>(
+        PyUnicode_EncodeFSDefault(py_path.ptr()));
     std::string path = py_path_b;
     auto tkinter_lib = dlopen(path.c_str(), RTLD_LAZY);
     if (!tkinter_lib) {
