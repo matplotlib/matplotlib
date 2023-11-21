@@ -322,12 +322,22 @@ class VectorMappable:
             If *None*, *norm* defaults to a *colors.Normalize* object which
             initializes its scaling based on the first data processed.
         cmap : str or `~matplotlib.colors.Colormap`,
-                                    or `~matplotlib.colors.BivarColormap`
-                                    or `~matplotlib.colors.MultivariateColormap`
+                   or `~matplotlib.colors.BivarColormap`
+                   or `~matplotlib.colors.MultivariateColormap`
             The colormap used to map normalized data values to RGBA colors.
 
         """
         self.pause_signals = False
+
+        cmap = ensure_cmap(cmap)
+        if isinstance(norm, str) or not np.iterable(norm):
+            if cmap.n_variates > 1:
+                norm = [norm for i in range(cmap.n_variates)]
+        else:  # multiple norms
+            if len(norm) != cmap.n_variates:
+                raise ValueError(
+                    f'Unable to map the input for norm ({norm}) to '
+                    f'{cmap.n_variates} variables.')
 
         self.callbacks = cbook.CallbackRegistry(signals=["changed"])
         if isinstance(cmap, colors.MultivarColormap) or \
@@ -426,6 +436,14 @@ class VectorMappable:
         ----------
         cmap : `.Colormap` or str or None
         """
+        cmap = ensure_cmap(cmap)
+
+        if not cmap.n_variates == len(self.scalars):
+            raise ValueError("The number of variates cannot be changed"
+                             " after creation."
+                             " Instead use the cmap keyword during creation"
+                             " of the object."
+                             )
         if len(self.scalars) == 1:
             self.scalars[0].set_cmap(cmap)
         else:

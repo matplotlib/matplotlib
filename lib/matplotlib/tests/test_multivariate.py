@@ -3,6 +3,63 @@ import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import (image_comparison,
                                            remove_ticks_and_titles)
 import matplotlib.colors as mcolors
+import matplotlib as mpl
+
+
+@image_comparison(["bivariate_visualizations.png"])
+def test_bivariate_visualizations():
+    x_0 = np.arange(25, dtype='float32').reshape(5, 5) % 5
+    x_1 = np.arange(25, dtype='float32').reshape(5, 5).T % 5
+
+    fig, axes = plt.subplots(1, 5, figsize=(10, 2))
+
+    axes[0].imshow((x_0, x_1), cmap='BiPeak', interpolation='nearest')
+    axes[1].matshow((x_0, x_1), cmap='BiPeak')
+    axes[2].pcolor((x_0, x_1), cmap='BiPeak')
+    axes[3].pcolormesh((x_0, x_1), cmap='BiPeak')
+
+    patches = [
+        mpl.patches.Wedge((.3, .7), .1, 0, 360),             # Full circle
+        mpl.patches.Wedge((.7, .8), .2, 0, 360, width=0.05),  # Full ring
+        mpl.patches.Wedge((.8, .3), .2, 0, 45),              # Full sector
+        mpl.patches.Wedge((.8, .3), .2, 22.5, 90, width=0.10),  # Ring sector
+    ]
+    colors_0 = np.arange(len(patches)) // 2
+    colors_1 = np.arange(len(patches)) % 2
+    p = mpl.collections.PatchCollection(patches, cmap='BiPeak', alpha=0.5)
+    p.set_array((colors_0, colors_1))
+    axes[4].add_collection(p)
+
+    remove_ticks_and_titles(fig)
+
+
+@image_comparison(["multivariate_visualizations.png"])
+def test_multivariate_visualizations():
+    x_0 = np.arange(25, dtype='float32').reshape(5, 5) % 5
+    x_1 = np.arange(25, dtype='float32').reshape(5, 5).T % 5
+    x_2 = np.arange(25, dtype='float32').reshape(5, 5) % 6
+
+    fig, axes = plt.subplots(1, 5, figsize=(10, 2))
+
+    axes[0].imshow((x_0, x_1, x_2), cmap='3VarAddA', interpolation='nearest')
+    axes[1].matshow((x_0, x_1, x_2), cmap='3VarAddA')
+    axes[2].pcolor((x_0, x_1, x_2), cmap='3VarAddA')
+    axes[3].pcolormesh((x_0, x_1, x_2), cmap='3VarAddA')
+
+    patches = [
+        mpl.patches.Wedge((.3, .7), .1, 0, 360),             # Full circle
+        mpl.patches.Wedge((.7, .8), .2, 0, 360, width=0.05),  # Full ring
+        mpl.patches.Wedge((.8, .3), .2, 0, 45),              # Full sector
+        mpl.patches.Wedge((.8, .3), .2, 22.5, 90, width=0.10),  # Ring sector
+    ]
+    colors_0 = np.arange(len(patches)) // 2
+    colors_1 = np.arange(len(patches)) % 2
+    colors_2 = np.arange(len(patches)) % 3
+    p = mpl.collections.PatchCollection(patches, cmap='3VarAddA', alpha=0.5)
+    p.set_array((colors_0, colors_1, colors_2))
+    axes[4].add_collection(p)
+
+    remove_ticks_and_titles(fig)
 
 
 @image_comparison(["multivariate_pcolormesh_alpha.png"])

@@ -201,55 +201,6 @@ def _process_plot_format(fmt, *, ambiguous_fmt_datakey=False):
     return linestyle, marker, color
 
 
-def ensure_cmap(cmap):
-    """
-    Ensure that we have a `Colormap`, `MultivarColormap` or
-    `BivarColormap` object.
-
-    see also cm._ensure_cmap, which accepts only `Colormap`
-    objects, strings in mpl.colormaps or None.
-
-    Parameters
-    ----------
-    cmap : None, str, Colormap
-
-        - if a `Colormap`, `MultivarColormap` or `BivarColormap`,
-         return it
-        - if a string, look it up in three corresponding databases
-          when not found: raise an error based on the expected shape
-        - if None, look up the default color map in mpl.colormaps
-
-    Returns
-    -------
-    Colormap, MultivarColormap or BivarColormap
-
-    """
-    if isinstance(cmap, mcolors.Colormap) or \
-            isinstance(cmap, mcolors.MultivarColormap) or \
-            isinstance(cmap, mcolors.BivarColormap):
-        return cmap
-
-    cmap_name = cmap if cmap is not None else mpl.rcParams["image.cmap"]
-    if cmap_name in mpl.colormaps:
-        return mpl.colormaps[cmap_name]
-    if cmap_name in mpl.multivar_colormaps:
-        return mpl.multivar_colormaps[cmap_name]
-    if cmap_name in mpl.bivar_colormaps:
-        return mpl.bivar_colormaps[cmap_name]
-
-    # this error message is a variant of _api.check_in_list but gives
-    # additional hints as to how to access multivariate colormaps
-
-    msg = f"{cmap!r} is not a valid value for cmap"
-    msg += "; supported values for scalar colormaps are "
-    msg += f"{', '.join(map(repr, sorted(mpl.colormaps)))}\n"
-    msg += "See matplotlib.bivar_colormaps() and"
-    msg += " matplotlib.multivar_colormaps() for"
-    msg += " bivariate and multivariate colormaps."
-
-    raise ValueError(msg)
-
-
 def ensure_multivariate_norm(n_variates, data, norm, vmin, vmax):
     """
     Ensure that the data, norm, cmap, vmin and vmax have the correct number of elements.

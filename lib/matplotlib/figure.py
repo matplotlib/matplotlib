@@ -48,7 +48,8 @@ import matplotlib.colorbar as cbar
 import matplotlib.image as mimage
 
 from matplotlib.axes import Axes
-from matplotlib.axes._base import ensure_cmap, ensure_multivariate_norm
+from matplotlib.axes._base import ensure_multivariate_norm
+from matplotlib.cm import ensure_cmap
 
 from matplotlib.gridspec import GridSpec, SubplotParams
 from matplotlib.layout_engine import (
