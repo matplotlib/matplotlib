@@ -374,6 +374,8 @@ class VectorMappable:
                         " ScalarMappable belongs to a VectorMappable."
                     )
             if self._multivar_A is None:
+                if all([s._A is None for s in self.scalars]):
+                    return None
                 raise AttributeError(
                     "Attempting to get _A on a VectorMappable but _A on"
                     " has only been indedependently set on"

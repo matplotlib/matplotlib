@@ -2297,7 +2297,10 @@ class PolyQuadMesh(_MeshData, PolyCollection):
             arr = self.get_array()
         if arr is not None:
             arr = np.ma.getmaskarray(arr)
-            if arr.ndim == 3:
+            if len(self.scalars) > 1:
+                # multivar case
+                mask |= np.any(arr, axis=0)
+            elif arr.ndim == 3:
                 # RGB(A) case
                 mask |= np.any(arr, axis=-1)
             elif arr.ndim == 2:
