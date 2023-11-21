@@ -232,11 +232,7 @@ def is_color_like(c):
 
 
 def _has_alpha_channel(c):
-    """Return whether *c* is a color with an alpha channel."""
-    # If c is not a color, it doesn't have an alpha channel
-    if not is_color_like(c):
-        return False
-
+    """Return whether *c* is a color with an alpha channel"""
     # if c is a hex, it has an alpha channel when it has 4 (or 8) digits after '#'
     if isinstance(c, str):
         if c[0] == '#' and (len(c) == 5 or len(c) == 9):
