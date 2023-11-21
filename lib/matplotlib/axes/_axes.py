@@ -34,7 +34,8 @@ import matplotlib.units as munits
 from matplotlib import _api, _docstring, _preprocess_data
 from matplotlib.axes._base import (
     _AxesBase, _TransformedBoundsLocator, _process_plot_format,
-    ensure_cmap, ensure_multivariate_norm)
+    ensure_multivariate_norm)
+from matplotlib.cm import ensure_cmap
 from matplotlib.axes._secondary_axes import SecondaryAxis
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 
