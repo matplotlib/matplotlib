@@ -1460,9 +1460,14 @@ class FigureImage(_ImageBase):
         # fac here is to account for pdf, eps, svg backends where
         # figure.dpi is set to 72.  This means we need to scale the
         # image (using magnification) and offset it appropriately.
+        if self.cmap.n_variates == 1:
+            A_shape = self._A.shape
+        else:
+            A_shape = self._A.shape[1:]
+
         bbox = Bbox([[self.ox/fac, self.oy/fac],
-                     [(self.ox/fac + self._A.shape[1]),
-                     (self.oy/fac + self._A.shape[0])]])
+                     [(self.ox/fac + A_shape[1]),
+                     (self.oy/fac + A_shape[0])]])
         width, height = self.figure.get_size_inches()
         width *= renderer.dpi
         height *= renderer.dpi

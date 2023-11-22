@@ -3084,15 +3084,18 @@ None}, default: None
             f.figimage(data)
             plt.show()
         """
-        if resize:
-            dpi = self.get_dpi()
-            figsize = [x / dpi for x in (X.shape[1], X.shape[0])]
-            self.set_size_inches(figsize, forward=True)
-
         cmap = ensure_cmap(cmap)
         if cmap.n_variates > 1:
             norm, vmin, vmax = ensure_multivariate_params(cmap.n_variates, X,
                                                           norm, vmin, vmax)
+
+        if resize:
+            dpi = self.get_dpi()
+            if cmap.n_variates == 1:
+                figsize = [x / dpi for x in (X.shape[1], X.shape[0])]
+            else:
+                figsize = [x / dpi for x in (X.shape[2], X.shape[1])]
+            self.set_size_inches(figsize, forward=True)
 
         im = mimage.FigureImage(self, cmap=cmap, norm=norm,
                                 offsetx=xo, offsety=yo,

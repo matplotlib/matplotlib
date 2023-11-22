@@ -218,6 +218,20 @@ def test_multivariate_imshow_norm():
     remove_ticks_and_titles(fig)
 
 
+@image_comparison(["multivariate_figimage.png"])
+def test_multivariate_figimage():
+    fig = plt.figure(figsize=(2, 2), dpi=100)
+    x, y = np.ix_(np.arange(100) / 100.0, np.arange(100) / 100)
+    z = np.sin(x**2 + y**2 - x*y)
+    c = np.sin(20*x**2 + 50*y**2)
+    img = np.stack((z, c))
+
+    fig.figimage(img, xo=0, yo=0, origin='lower', cmap='BiPeak')
+    fig.figimage(img[:, ::-1, :], xo=0, yo=100, origin='lower', cmap='BiPeak')
+    fig.figimage(img[:, :, ::-1], xo=100, yo=0, origin='lower', cmap='BiPeak')
+    fig.figimage(img[:, ::-1, ::-1], xo=100, yo=100, origin='lower', cmap='BiPeak')
+
+
 def test_wrong_multivar_clim_shape():
     fig, ax = plt.subplots()
     im = np.arange(24).reshape((2, 3, 4))
