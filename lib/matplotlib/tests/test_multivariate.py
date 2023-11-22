@@ -5,6 +5,7 @@ from matplotlib.testing.decorators import (image_comparison,
 import matplotlib.colors as mcolors
 import matplotlib as mpl
 import pytest
+import re
 
 
 @image_comparison(["bivariate_visualizations.png"])
@@ -256,3 +257,21 @@ def test_wrong_multivar_data_shape():
     im = np.arange(12).reshape((3, 4))
     with pytest.raises(ValueError, match="the data must have a first dimension 2"):
         ax.imshow(im, cmap='BiPeak')
+
+
+def test_missing_multivar_cmap_imshow():
+    fig, ax = plt.subplots()
+    im = np.arange(200).reshape((2, 10, 10))
+    with pytest.raises(TypeError,
+                       match=("a valid colormap must be explicitly declared"
+                              + ", for example cmap='BiOrangeBlue'")):
+        ax.imshow(im)
+    im = np.arange(300).reshape((3, 10, 10))
+    with pytest.raises(TypeError,
+                       match=("multivariate colormap must be explicitly declared"
+                              + ", for example cmap='3VarAddA")):
+        ax.imshow(im)
+    im = np.arange(1000).reshape((10, 10, 10))
+    with pytest.raises(TypeError,
+                       match=re.escape("Invalid shape (10, 10, 10) for image data")):
+        ax.imshow(im)

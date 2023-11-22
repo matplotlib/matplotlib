@@ -330,14 +330,7 @@ class VectorMappable:
         self.pause_signals = False
 
         cmap = ensure_cmap(cmap)
-        if isinstance(norm, str) or not np.iterable(norm):
-            if cmap.n_variates > 1:
-                norm = [norm for i in range(cmap.n_variates)]
-        else:  # multiple norms
-            if len(norm) != cmap.n_variates:
-                raise ValueError(
-                    f'Unable to map the input for norm ({norm}) to '
-                    f'{cmap.n_variates} variables.')
+        norm = ensure_multivariate_norm(cmap.n_variates, norm)
 
         self.callbacks = cbook.CallbackRegistry(signals=["changed"])
         if isinstance(cmap, colors.MultivarColormap) or \
@@ -406,6 +399,7 @@ class VectorMappable:
 
     @_A.setter
     def _A(self, A):
+        ensure_multivariate_data(len(self.scalars), A)
         if len(self.scalars) == 1:
             self.scalars[0]._A = A
         else:
