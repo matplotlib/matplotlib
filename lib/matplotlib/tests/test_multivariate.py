@@ -275,3 +275,66 @@ def test_missing_multivar_cmap_imshow():
     with pytest.raises(TypeError,
                        match=re.escape("Invalid shape (10, 10, 10) for image data")):
         ax.imshow(im)
+
+
+def test_setting_A_on_vectormappable():
+    # correct use
+    vm = mpl.cm.VectorMappable(cmap='3VarAddA')
+    data = np.arange(3*25).reshape((3, 5, 5))
+    vm._A = data
+
+    # attempting to set wrong shape of data
+    with pytest.raises(ValueError, match=re.escape(
+      "For the selected colormap the data must have a first dimension 3"
+                                                   )):
+        data = np.arange(2*25).reshape((2, 5, 5))
+        vm._A = data
+
+    # wrong use -> set components independently
+    # error raised on get
+    vm = mpl.cm.VectorMappable(cmap='3VarAddA')
+    data = np.arange(3*25).reshape((3, 5, 5))
+    vm.scalars[0]._A = data[0]
+    with pytest.raises(AttributeError, match=re.escape(
+      "_A on has only been indedependently set on ScalarMappables, which is unsupported"
+                                                       )):
+        _ = vm._A
+
+    # wrong use -> A set on the VectorMappable and separately on the ScalarMappable
+    # error raised on get
+    vm = mpl.cm.VectorMappable(cmap='3VarAddA')
+    vm._A = data
+    vm.scalars[0]._A = np.copy(data[0])
+    with pytest.raises(AttributeError, match=re.escape(
+      "_A on the ScalarMappables are not views of _multivar_A on the VectorMappable"
+                                                       )):
+        _ = vm._A
+
+
+def test_setting_norm_on_vectormappable():
+    # correct use
+    vm = mpl.cm.VectorMappable(cmap='3VarAddA')
+    vm.set_norm('linear')
+    vm.set_norm(['linear', 'log', 'asinh'])
+
+    # attempting to set wrong shape of norm
+    with pytest.raises(ValueError, match=re.escape(
+      "Unable to map the input for norm (('None', 'None')) to 3 variables"
+                                                   )):
+        vm.set_norm(('None', 'None'))
+
+
+def test_setting_clim_on_vectormappable():
+    # correct use
+    vm = mpl.cm.VectorMappable(cmap='3VarAddA')
+    vm.set_clim(0, 1)
+    vm.set_clim([0, 0, 0], [1, 2, 3])
+    # attempting to set wrong shape of vmin/vmax
+    with pytest.raises(ValueError, match=re.escape(
+      "Unable to map the input for vmin ([0, 0]) to 3 variables"
+                                                   )):
+        vm.set_clim(vmin=[0, 0])
+    with pytest.raises(ValueError, match=re.escape(
+      "Unable to map the input for vmax ([1, 2]) to 3 variables"
+                                                   )):
+        vm.set_clim(vmax=[1, 2])

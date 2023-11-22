@@ -776,23 +776,7 @@ class ScalarMappable:
                 elif x.shape[2] == 4:
                     xx = x
                 else:
-                    if x.shape[2] > 4 and x.shape[0] == 2:
-                        raise ValueError("For RGB or RGBA image data the third "
-                                         "dimension must be 3 or 4. Bivariate"
-                                         "data may in some cases be visualized "
-                                         "by specifying a bivariate or multivariate "
-                                         "colormap. See matplotlib.bivar_colormaps() "
-                                         "and matplotlib.multivar_colormaps() for "
-                                         "lists of suitable candidates.")
-                    elif x.shape[2] > 4 and x.shape[0] < 9:
-                        raise ValueError("For RGB or RGBA image data the third "
-                                         "dimension must be 3 or 4. Multivariate"
-                                         "data may in some cases be visualized "
-                                         "by specifying a multivariate colormap. "
-                                         "See matplotlib.multivar_colormaps() for "
-                                         "a list of suitable candidates.")
-                    else:
-                        raise ValueError("Third dimension must be 3 or 4")
+                    raise ValueError("Third dimension must be 3 or 4")
                 if xx.dtype.kind == 'f':
                     # If any of R, G, B, or A is nan, set to 0
                     if np.any(nans := np.isnan(x)):
