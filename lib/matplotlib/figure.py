@@ -1577,6 +1577,7 @@ default: %(va)s
         """
         sf = SubFigure(self, subplotspec, **kwargs)
         self.subfigs += [sf]
+        sf._remove_method = self.subfigs.remove
         return sf
 
     def sca(self, a):
