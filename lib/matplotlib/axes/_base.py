@@ -201,64 +201,6 @@ def _process_plot_format(fmt, *, ambiguous_fmt_datakey=False):
     return linestyle, marker, color
 
 
-def ensure_multivariate_norm(n_variates, data, norm, vmin, vmax):
-    """
-    Ensure that the data, norm, cmap, vmin and vmax have the correct number of elements.
-    If n_variates > 1: A single argument for norm, vmin or vmax will be repeated n
-    times in the output.
-
-    Parameters
-    ----------
-    n_variates : int
-        -  number of variates in the data
-    data : array-like
-        - length checked against n_variates
-    norm, vmin and vmax : as accepted by cm.ScalarMappable or list of accepted elements
-
-
-    Returns
-    -------
-        if n_variates == 1:
-            norm, vmin, vmax
-            returned unchanged
-        if n_variates > 1:
-            norm, vmin, vmax
-            each a lists of length n_variates
-    """
-
-    if len(data) != n_variates:
-        raise ValueError(
-            f'For the selected colormap the data must have a first dimension '
-            f'{n_variates}, not {len(data)}')
-
-    if isinstance(norm, str) or not np.iterable(norm):
-        norm = [norm for i in range(n_variates)]
-    else:
-        if len(norm) != n_variates:
-            raise ValueError(
-                f'Unable to map the input for norm ({norm}) to {n_variates} '
-                f'variables.')
-
-    if not np.iterable(vmin):
-        vmin = [vmin for i in range(n_variates)]
-    else:
-        if len(vmin) != n_variates:
-            raise ValueError(
-                f'Unable to map the input for vmin ({vmin}) to {n_variates} '
-                f'variables.')
-
-    if not np.iterable(vmax):
-        vmax = [vmax for i in range(n_variates)]
-    else:
-        if len(vmax) != n_variates:
-            raise ValueError(
-                f'Unable to map the input for vmax ({vmax}) to {n_variates} '
-                f'variables.')
-        vmax = vmax
-
-    return norm, vmin, vmax
-
-
 class _process_plot_var_args:
     """
     Process variable length arguments to `~.Axes.plot`, to support ::

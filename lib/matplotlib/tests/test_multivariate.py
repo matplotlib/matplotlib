@@ -4,6 +4,7 @@ from matplotlib.testing.decorators import (image_comparison,
                                            remove_ticks_and_titles)
 import matplotlib.colors as mcolors
 import matplotlib as mpl
+import pytest
 
 
 @image_comparison(["bivariate_visualizations.png"])
@@ -215,3 +216,29 @@ def test_multivariate_imshow_norm():
                           norm=(None, n, None))
 
     remove_ticks_and_titles(fig)
+
+
+def test_wrong_multivar_clim_shape():
+    fig, ax = plt.subplots()
+    im = np.arange(24).reshape((2, 3, 4))
+    with pytest.raises(ValueError, match="Unable to map the input for vmin"):
+        ax.imshow(im, cmap='BiPeak', vmin=(None, None, None))
+    with pytest.raises(ValueError, match="Unable to map the input for vmax"):
+        ax.imshow(im, cmap='BiPeak', vmax=(None, None, None))
+
+
+def test_wrong_multivar_norm_shape():
+    fig, ax = plt.subplots()
+    im = np.arange(24).reshape((2, 3, 4))
+    with pytest.raises(ValueError, match="Unable to map the input for norm"):
+        ax.imshow(im, cmap='BiPeak', norm=(None, None, None))
+
+
+def test_wrong_multivar_data_shape():
+    fig, ax = plt.subplots()
+    im = np.arange(12).reshape((1, 3, 4))
+    with pytest.raises(ValueError, match="the data must have a first dimension 2"):
+        ax.imshow(im, cmap='BiPeak')
+    im = np.arange(12).reshape((3, 4))
+    with pytest.raises(ValueError, match="the data must have a first dimension 2"):
+        ax.imshow(im, cmap='BiPeak')

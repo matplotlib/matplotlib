@@ -48,8 +48,7 @@ import matplotlib.colorbar as cbar
 import matplotlib.image as mimage
 
 from matplotlib.axes import Axes
-from matplotlib.axes._base import ensure_multivariate_norm
-from matplotlib.cm import ensure_cmap
+from matplotlib.cm import ensure_cmap, ensure_multivariate_params
 
 from matplotlib.gridspec import GridSpec, SubplotParams
 from matplotlib.layout_engine import (
@@ -3092,8 +3091,8 @@ None}, default: None
 
         cmap = ensure_cmap(cmap)
         if cmap.n_variates > 1:
-            norm, vmin, vmax = ensure_multivariate_norm(cmap.n_variates, X,
-                                                        norm, vmin, vmax)
+            norm, vmin, vmax = ensure_multivariate_params(cmap.n_variates, X,
+                                                          norm, vmin, vmax)
 
         im = mimage.FigureImage(self, cmap=cmap, norm=norm,
                                 offsetx=xo, offsety=yo,

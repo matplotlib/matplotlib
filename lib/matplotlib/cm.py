@@ -461,7 +461,8 @@ class VectorMappable:
         parameters *vmin*, *vmax* and *norm*. This makes sure that a *norm*
         will take precedence over *vmin*, *vmax*.
 
-        Note that this method does not set the norm.
+        Note that this method does not check input for consistency,
+        nor does it set the norm.
         """
         if len(self.scalars) == 1:
             self.scalars[0]._scale_norm(norm, vmin, vmax)
@@ -597,6 +598,7 @@ class VectorMappable:
 
              .. ACCEPTS: (vmin: float, vmax: float)
         """
+        vmin, vmax = ensure_multivariate_clim(len(self.scalars), vmin, vmax)
         if len(self.scalars) == 1:
             self.scalars[0].set_clim(vmin=vmin, vmax=vmax)
         else:
@@ -639,15 +641,12 @@ class VectorMappable:
         the norm of the mappable will reset the norm, locator, and formatters
         on the colorbar to default.
         """
+        norm = ensure_multivariate_norm(len(self.scalars), norm)
         if len(self.scalars) == 1:
             return self.scalars[0].set_norm(norm)
         else:
             for s, n in zip(self.scalars, norm):
                 s.set_norm(n)
-
-        # in_init = self.norm is None
-        # if not in_init:
-        #     self.changed()
 
     @merge_signals
     def autoscale(self):
@@ -924,7 +923,7 @@ class ScalarMappable:
         """
         in_init = self.cmap is None
 
-        self.cmap = _ensure_cmap(cmap)
+        self.cmap = ensure_cmap(cmap, accept_multivariate=False)
         if not in_init:
             self.changed()  # Things are not set up properly yet.
 
@@ -1038,37 +1037,9 @@ vmin, vmax : float, optional
 )
 
 
-def _ensure_cmap(cmap):
-    """
-    Ensure that we have a `.Colormap` object.
-
-    For internal use to preserve type stability of errors.
-
-    Parameters
-    ----------
-    cmap : None, str, Colormap
-
-        - if a `Colormap`, return it
-        - if a string, look it up in mpl.colormaps
-        - if None, look up the default color map in mpl.colormaps
-
-    Returns
-    -------
-    Colormap
-
-    """
-    if isinstance(cmap, colors.Colormap):
-        return cmap
-    cmap_name = cmap if cmap is not None else mpl.rcParams["image.cmap"]
-    # use check_in_list to ensure type stability of the exception raised by
-    # the internal usage of this (ValueError vs KeyError)
-    if cmap_name not in _colormaps:
-        _api.check_in_list(sorted(_colormaps), cmap=cmap_name)
-    return mpl.colormaps[cmap_name]
-
-
 def ensure_cmap(cmap, accept_multivariate=True):
     """
+    For internal use to preserve type stability of errors, and
     for external use to ensure that we have a `Colormap`,
     `MultivarColormap` or `BivarColormap` object.
     This is necessary in order to know the number of variates.
@@ -1086,14 +1057,22 @@ def ensure_cmap(cmap, accept_multivariate=True):
         - if None, look up the default color map in mpl.colormaps
 
     accept_multivariate : bool, default True
-        if False, accept only Colormap, string in mpl.colormaps or None
+
+        - if False, accept only Colormap, string in mpl.colormaps or None
+
     Returns
     -------
     Colormap, MultivarColormap or BivarColormap
 
     """
     if not accept_multivariate:
-        return _ensure_cmap(cmap)
+        if isinstance(cmap, colors.Colormap):
+            return cmap
+        cmap_name = cmap if cmap is not None else mpl.rcParams["image.cmap"]
+        # use check_in_list to ensure type stability of the exception raised by
+        # the internal usage of this (ValueError vs KeyError)
+        if cmap_name not in _colormaps:
+            _api.check_in_list(sorted(_colormaps), cmap=cmap_name)
 
     if isinstance(cmap, colors.Colormap) or \
             isinstance(cmap, colors.MultivarColormap) or \
@@ -1119,3 +1098,109 @@ def ensure_cmap(cmap, accept_multivariate=True):
     msg += " bivariate and multivariate colormaps."
 
     raise ValueError(msg)
+
+
+def ensure_multivariate_norm(n_variates, norm):
+    """
+    Ensure that the norm has the correct number of elements.
+    If n_variates > 1: A single argument for norm will be repeated n
+    times in the output.
+
+    Parameters
+    ----------
+    n_variates : int
+        -  number of variates in the data
+    norm : `.Normalize` (or subclass thereof) or str or None or iterable
+        - If iterable, the length must be equal to n_variates
+
+    Returns
+    -------
+        if n_variates == 1:
+            norm returned unchanged
+        if n_variates > 1:
+            an iterable of length n_variates
+    """
+    if n_variates > 1:
+        if isinstance(norm, str) or not np.iterable(norm):
+            norm = [norm for i in range(n_variates)]
+        else:
+            if len(norm) != n_variates:
+                raise ValueError(
+                    f'Unable to map the input for norm ({norm}) to {n_variates} '
+                    f'variables.')
+    return norm
+
+
+def ensure_multivariate_data(n_variates, data):
+    """
+    Ensure that the data has the correct number of elements.
+    Raises a ValueError if the data does not match the number of variates
+
+    Parameters
+    ----------
+    n_variates : int
+        -  number of variates in the data
+    data : np.ndarray
+
+    """
+    if n_variates > 1:
+        if len(data) != n_variates:
+            raise ValueError(
+                f'For the selected colormap the data must have a first dimension '
+                f'{n_variates}, not {len(data)}')
+
+
+def ensure_multivariate_clim(n_variates, vmin=None, vmax=None):
+    """
+    Ensure that vmin and vmax have the correct number of elements.
+    If n_variates > 1: A single argument for vmin/vmax will be repeated n
+    times in the output.
+
+    Parameters
+    ----------
+    n_variates : int
+        -  number of variates in the data
+    vmin and vmax : float or iterable
+        -  if iterable, the length must be n_variates
+
+    Returns
+    -------
+        if n_variates == 1:
+            vmin, vmax returned unchanged
+        if n_variates > 1:
+            vmin, vmax as iterables of length n_variates
+    """
+    if n_variates > 1:
+        if not np.iterable(vmin):
+            vmin = [vmin for i in range(n_variates)]
+        else:
+            if len(vmin) != n_variates:
+                raise ValueError(
+                    f'Unable to map the input for vmin ({vmin}) to {n_variates} '
+                    f'variables.')
+
+        if not np.iterable(vmax):
+            vmax = [vmax for i in range(n_variates)]
+        else:
+            if len(vmax) != n_variates:
+                raise ValueError(
+                    f'Unable to map the input for vmax ({vmax}) to {n_variates} '
+                    f'variables.')
+            vmax = vmax
+
+    return vmin, vmax
+
+
+def ensure_multivariate_params(n_variates, data, norm, vmin, vmax):
+    """
+    Ensure that the data, norm, vmin and vmax have the correct number of elements.
+    If n_variates == 1, the norm, vmin and vmax are returned unchanged.
+    If n_variates > 1, the length of each input is checked for consistency and
+    single arguments are repeated as necessary.
+    See the component functions for details.
+    """
+    norm = ensure_multivariate_norm(n_variates, norm)
+    vmin, vmax = ensure_multivariate_clim(n_variates, vmin, vmax)
+    ensure_multivariate_data(n_variates, data)
+
+    return norm, vmin, vmax
