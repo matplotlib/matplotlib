@@ -1583,7 +1583,8 @@ class BivarColormap:
         if not self._isinit:
             self._init()
 
-        pixels = (self._lut[::-1, :, :] * 255).astype(np.uint8)
+        pixels = (self.lut[::-1, :, :] * 255).astype(np.uint8)
+
         png_bytes = io.BytesIO()
         title = self.name + ' BivarColormap'
         author = f'Matplotlib v{mpl.__version__}, https://matplotlib.org'

@@ -7,6 +7,10 @@ import matplotlib as mpl
 import pytest
 import re
 
+from io import BytesIO
+from PIL import Image
+import base64
+
 
 @image_comparison(["bivariate_visualizations.png"])
 def test_bivariate_visualizations():
@@ -424,3 +428,39 @@ def test_setting_clim_on_vectormappable():
       "Unable to map the input for vmax ([1, 2]) to 3 variables"
                                                    )):
         vm.set_clim(vmax=[1, 2])
+
+
+def test_bivariate_repr_png():
+    cmap = mpl.bivar_colormaps['BiCone']
+    png = cmap._repr_png_()
+    assert len(png) > 0
+    img = Image.open(BytesIO(png))
+    assert img.width > 0
+    assert img.height > 0
+    assert 'Title' in img.text
+    assert 'Description' in img.text
+    assert 'Author' in img.text
+    assert 'Software' in img.text
+
+
+def test_bivariate_repr_html():
+    cmap = mpl.bivar_colormaps['BiCone']
+    html = cmap._repr_html_()
+    assert len(html) > 0
+    png = cmap._repr_png_()
+    assert base64.b64encode(png).decode('ascii') in html
+    assert cmap.name in html
+    assert html.startswith('<div')
+    assert html.endswith('</div>')
+
+
+def test_multivariate_repr_html():
+    cmap = mpl.multivar_colormaps['4VarAddA']
+    html = cmap._repr_html_()
+    assert len(html) > 0
+    for c in cmap.colormaps:
+        png = c._repr_png_()
+        assert base64.b64encode(png).decode('ascii') in html
+    assert cmap.name in html
+    assert html.startswith('<div')
+    assert html.endswith('</div>')
