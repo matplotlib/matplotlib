@@ -279,13 +279,16 @@ def test_colorbar_single_scatter():
     plt.colorbar(cs)
 
 
-@pytest.mark.parametrize('use_gridspec', [False, True],
-                         ids=['no gridspec', 'with gridspec'])
-def test_remove_from_figure(use_gridspec):
-    """
-    Test `remove` with the specified ``use_gridspec`` setting
-    """
-    fig, ax = plt.subplots()
+@pytest.mark.parametrize('use_gridspec', [True, False])
+@pytest.mark.parametrize('nested_gridspecs', [True, False])
+def test_remove_from_figure(nested_gridspecs, use_gridspec):
+    """Test `remove` with the specified ``use_gridspec`` setting."""
+    fig = plt.figure()
+    if nested_gridspecs:
+        gs = fig.add_gridspec(2, 2)[1, 1].subgridspec(2, 2)
+        ax = fig.add_subplot(gs[1, 1])
+    else:
+        ax = fig.add_subplot()
     sc = ax.scatter([1, 2], [3, 4])
     sc.set_array(np.array([5, 6]))
     pre_position = ax.get_position()
@@ -298,9 +301,7 @@ def test_remove_from_figure(use_gridspec):
 
 
 def test_remove_from_figure_cl():
-    """
-    Test `remove` with constrained_layout
-    """
+    """Test `remove` with constrained_layout."""
     fig, ax = plt.subplots(constrained_layout=True)
     sc = ax.scatter([1, 2], [3, 4])
     sc.set_array(np.array([5, 6]))
