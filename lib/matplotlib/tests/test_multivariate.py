@@ -219,6 +219,31 @@ def test_multivariate_imshow_norm():
     remove_ticks_and_titles(fig)
 
 
+@image_comparison(["bivariate_cmap_shapes.png"])
+def test_bivariate_cmap_shapes():
+    x_0 = np.arange(100, dtype='float32').reshape(10, 10) % 10
+    x_1 = np.arange(100, dtype='float32').reshape(10, 10).T % 10
+
+    fig, axes = plt.subplots(1, 4, figsize=(10, 2))
+
+    # shape = square
+    axes[0].imshow((x_0, x_1), cmap='BiPeak', vmin=1, vmax=8, interpolation='nearest')
+    # shape = cone
+    axes[1].imshow((x_0, x_1), cmap='BiCone', vmin=0.5, vmax=8.5,
+                   interpolation='nearest')
+
+    # shape = ignore
+    cmap = mpl.bivar_colormaps['BiCone']
+    cmap.shape = 'ignore'
+    axes[2].imshow((x_0, x_1), cmap=cmap, vmin=1, vmax=8, interpolation='nearest')
+
+    # shape = circleignore
+    cmap = mpl.bivar_colormaps['BiCone']
+    cmap.shape = 'circleignore'
+    axes[3].imshow((x_0, x_1), cmap=cmap, vmin=0.5, vmax=8.5, interpolation='nearest')
+    remove_ticks_and_titles(fig)
+
+
 @image_comparison(["multivariate_figimage.png"])
 def test_multivariate_figimage():
     fig = plt.figure(figsize=(2, 2), dpi=100)
@@ -231,6 +256,67 @@ def test_multivariate_figimage():
     fig.figimage(img[:, ::-1, :], xo=0, yo=100, origin='lower', cmap='BiPeak')
     fig.figimage(img[:, :, ::-1], xo=100, yo=0, origin='lower', cmap='BiPeak')
     fig.figimage(img[:, ::-1, ::-1], xo=100, yo=100, origin='lower', cmap='BiPeak')
+
+
+@image_comparison(["bivariate_cmap_call.png"])
+def test_bivariate_cmap_call():
+    """
+    This evaluates manual calls to a bivariate colormap
+    The figure exists because implementing an image comparison
+    is easier than anumeraical comparisons for mulitdimensional arrays
+    """
+    x_0 = np.arange(100, dtype='float32').reshape(10, 10) % 10
+    x_1 = np.arange(100, dtype='float32').reshape(10, 10).T % 10
+
+    fig, axes = plt.subplots(1, 5, figsize=(10, 2))
+
+    cmap = mpl.bivar_colormaps['BiCone']
+
+    # call with 1D
+    im = cmap((x_0[0]/9, x_1[::-1, 0]/9))
+    axes[0].scatter(np.arange(10), np.arange(10), c=im)
+
+    # call with 2D
+    im = cmap((x_0/9, x_1/9))
+    axes[1].imshow(im, interpolation='nearest')
+
+    # call with 3D array
+    im = cmap(((x_0/9, x_0/9),
+               (x_1/9, x_1/9)))
+    axes[2].imshow(im.reshape((20, 10, 4)), interpolation='nearest')
+
+    # call with constant alpha
+    im = cmap((x_0/9, x_1/9), alpha=0.5)
+    axes[3].imshow(im, interpolation='nearest')
+
+    # call with variable alpha
+    im = cmap((x_0/9, x_1/9), alpha=(x_0/9)**2, bytes=True)
+    axes[4].imshow(im, interpolation='nearest')
+
+    remove_ticks_and_titles(fig)
+
+
+@image_comparison(["bivar_cmap_from_image.png"])
+def test_bivar_cmap_from_image():
+    """
+    This tests the creation and use of a bivariate colormap
+    generated from an image
+    """
+    # create bivariate colormap
+    im = np.ones((10, 12, 4))
+    im[:, :, 0] = np.arange(10)[:, np.newaxis]/10
+    im[:, :, 1] = np.arange(12)[np.newaxis, :]/12
+    fig, axes = plt.subplots(1, 2)
+    axes[0].imshow(im, interpolation='nearest')
+
+    # use bivariate colormap
+    data_0 = np.arange(12).reshape((3, 4))
+    data_1 = np.arange(12).reshape((4, 3)).T
+    cmap = mpl.colors.BivarColormapFromImage(im, 'custom')
+    axes[1].imshow((data_0, data_1), cmap=cmap,
+                   interpolation='nearest')
+
+    remove_ticks_and_titles(fig)
 
 
 def test_wrong_multivar_clim_shape():

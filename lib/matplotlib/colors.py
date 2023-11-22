@@ -1024,6 +1024,7 @@ class MultivarColormap:
         cmapobject = cls.__new__(cls)
         cmapobject.__dict__.update(self.__dict__)
         cmapobject.colormaps = [cm.copy() for cm in self.colormaps]
+        cmapobject._rgba_bad = np.copy(self._rgba_bad)
         return cmapobject
 
     def __getitem__(self, item):
@@ -1432,10 +1433,10 @@ class BivarColormap:
             alpha = np.clip(alpha, 0, 1)
             if bytes:
                 alpha *= 255  # Will be cast to uint8 upon assignment.
-            if alpha.shape not in [(), xa.shape]:
+            if alpha.shape not in [(), xa[0].shape]:
                 raise ValueError(
                     f"alpha is array-like but its shape {alpha.shape} does "
-                    f"not match that of X {xa.shape}")
+                    f"not match that of X {xa[0].shape}")
             rgba[..., -1] = alpha
             # If the "bad" color is all zeros, then ignore alpha input.
             if (np.array(self._rgba_bad) == 0).all():
@@ -1479,6 +1480,9 @@ class BivarColormap:
         cls = self.__class__
         cmapobject = cls.__new__(cls)
         cmapobject.__dict__.update(self.__dict__)
+
+        cmapobject._rgba_outside = np.copy(self._rgba_outside)
+        cmapobject._rgba_bad = np.copy(self._rgba_bad)
         if self._isinit:
             cmapobject._lut = np.copy(self._lut)
         return cmapobject
@@ -1546,6 +1550,7 @@ class BivarColormap:
             If 'ignore' the variates are not clipped, but instead assigned the
                 'outside' color
             If 'circleignore' a circular mask is applied, but the data is not clipped
+                and instead assigned the 'outside' color
         """
 
         if self.shape == 'square':
