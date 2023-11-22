@@ -286,11 +286,7 @@ jobs:
           # Set flag in a delayed manner to avoid issues with installing other
           # packages
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
-            if [[ "$(lsb_release -r -s)" == "20.04" ]]; then
-              export CPPFLAGS='--coverage -fprofile-abs-path'
-            else
-              export CPPFLAGS='--coverage'
-            fi
+            export CPPFLAGS='--coverage -fprofile-abs-path'
           fi
 
           python -m pip install --no-deps --no-build-isolation --verbose \
