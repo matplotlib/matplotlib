@@ -1035,14 +1035,11 @@ class Colorbar:
         except AttributeError:
             return
         try:
-            gs = ax.get_subplotspec().get_gridspec()
-            subplotspec = gs.get_topmost_subplotspec()
-        except AttributeError:
-            # use_gridspec was False
+            subplotspec = self.ax.get_subplotspec().get_gridspec()._subplot_spec
+        except AttributeError:  # use_gridspec was False
             pos = ax.get_position(original=True)
             ax._set_position(pos)
-        else:
-            # use_gridspec was True
+        else:  # use_gridspec was True
             ax.set_subplotspec(subplotspec)
 
     def _process_values(self):
