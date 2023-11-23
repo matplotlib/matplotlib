@@ -1482,6 +1482,13 @@ def test_subfigures_wspace_hspace():
     np.testing.assert_allclose(sub_figs[1, 2].bbox.max, [w, h * 0.4])
 
 
+def test_subfigure_remove():
+    fig = plt.figure()
+    sfs = fig.subfigures(2, 2)
+    sfs[1, 1].remove()
+    assert len(fig.subfigs) == 3
+
+
 def test_add_subplot_kwargs():
     # fig.add_subplot() always creates new axes, even if axes kwargs differ.
     fig = plt.figure()
