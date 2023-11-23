@@ -81,9 +81,7 @@ def test_blit():
 
     fig, ax = plt.subplots()
     photoimage = fig.canvas._tkphoto
-    data = np.ones((4, 4, 4))
-    height, width = data.shape[:2]
-    dataptr = (height, width, data.ctypes.data)
+    data = np.ones((4, 4, 4), dtype=np.uint8)
     # Test out of bounds blitting.
     bad_boxes = ((-1, 2, 0, 2),
                  (2, 0, 0, 2),
@@ -94,8 +92,8 @@ def test_blit():
     for bad_box in bad_boxes:
         try:
             _tkagg.blit(
-                photoimage.tk.interpaddr(), str(photoimage), dataptr, 0,
-                (0, 1, 2, 3), bad_box)
+                photoimage.tk.interpaddr(), str(photoimage), data,
+                _tkagg.TK_PHOTO_COMPOSITE_OVERLAY, (0, 1, 2, 3), bad_box)
         except ValueError:
             print("success")
 

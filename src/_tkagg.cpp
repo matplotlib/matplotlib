@@ -9,6 +9,13 @@
 // rewritten, we have removed the PIL licensing information.  If you want PIL,
 // you can get it at https://python-pillow.org/
 
+#include <memory>
+#include <new>
+#include <stdexcept>
+#include <string>
+#include <tuple>
+#include <vector>
+
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 // Windows 8.1
@@ -16,8 +23,10 @@
 #define _WIN32_WINNT 0x0603
 #endif
 
-#define PY_SSIZE_T_CLEAN
-#include <Python.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
+namespace py = pybind11;
+using namespace pybind11::literals;
 
 #ifdef _WIN32
 #define WIN32_DLL
@@ -38,24 +47,34 @@ static inline PyObject *PyErr_SetFromWindowsErr(int ierr) {
 #endif
 
 #ifdef WIN32_DLL
-#include <string>
 #include <windows.h>
 #include <commctrl.h>
 #define PSAPI_VERSION 1
 #include <psapi.h>  // Must be linked with 'psapi' library
 #define dlsym GetProcAddress
+#define UNUSED_ON_NON_WINDOWS(x) x
+// Check for old headers that do not defined HiDPI functions and constants.
+#if defined(__MINGW64_VERSION_MAJOR)
+static_assert(__MINGW64_VERSION_MAJOR >= 6,
+              "mingw-w64-x86_64-headers >= 6 are required when compiling with MinGW");
+#endif
 #else
 #include <dlfcn.h>
+#define UNUSED_ON_NON_WINDOWS Py_UNUSED
 #endif
 
 // Include our own excerpts from the Tcl / Tk headers
 #include "_tkmini.h"
 
-static int convert_voidptr(PyObject *obj, void *p)
+template <class T>
+static T
+convert_voidptr(const py::object &obj)
 {
-    void **val = (void **)p;
-    *val = PyLong_AsVoidPtr(obj);
-    return *val != NULL ? 1 : !PyErr_Occurred();
+    auto result = static_cast<T>(PyLong_AsVoidPtr(obj.ptr()));
+    if (PyErr_Occurred()) {
+        throw py::error_already_set();
+    }
+    return result;
 }
 
 // Global vars for Tk functions.  We load these symbols from the tkinter
@@ -66,61 +85,59 @@ static Tk_PhotoPutBlock_t TK_PHOTO_PUT_BLOCK;
 // extension module or loaded Tcl libraries at run-time.
 static Tcl_SetVar_t TCL_SETVAR;
 
-static PyObject *mpl_tk_blit(PyObject *self, PyObject *args)
+static void
+mpl_tk_blit(py::object interp_obj, const char *photo_name,
+            py::array_t<unsigned char> data, int comp_rule,
+            std::tuple<int, int, int, int> offset, std::tuple<int, int, int, int> bbox)
 {
-    Tcl_Interp *interp;
-    char const *photo_name;
-    int height, width;
-    unsigned char *data_ptr;
-    int comp_rule;
-    int put_retval;
-    int o0, o1, o2, o3;
-    int x1, x2, y1, y2;
+    auto interp = convert_voidptr<Tcl_Interp *>(interp_obj);
+
     Tk_PhotoHandle photo;
-    Tk_PhotoImageBlock block;
-    if (!PyArg_ParseTuple(args, "O&s(iiO&)i(iiii)(iiii):blit",
-                          convert_voidptr, &interp, &photo_name,
-                          &height, &width, convert_voidptr, &data_ptr,
-                          &comp_rule,
-                          &o0, &o1, &o2, &o3,
-                          &x1, &x2, &y1, &y2)) {
-        goto exit;
-    }
     if (!(photo = TK_FIND_PHOTO(interp, photo_name))) {
-        PyErr_SetString(PyExc_ValueError, "Failed to extract Tk_PhotoHandle");
-        goto exit;
-    }
-    if (0 > y1 || y1 > y2 || y2 > height || 0 > x1 || x1 > x2 || x2 > width) {
-        PyErr_SetString(PyExc_ValueError, "Attempting to draw out of bounds");
-        goto exit;
-    }
-    if (comp_rule != TK_PHOTO_COMPOSITE_OVERLAY && comp_rule != TK_PHOTO_COMPOSITE_SET) {
-        PyErr_SetString(PyExc_ValueError, "Invalid comp_rule argument");
-        goto exit;
+        throw py::value_error("Failed to extract Tk_PhotoHandle");
     }
 
-    Py_BEGIN_ALLOW_THREADS
-    block.pixelPtr = data_ptr + 4 * ((height - y2) * width + x1);
+    auto data_ptr = data.mutable_unchecked<3>();  // Checks ndim and writeable flag.
+    if (data.shape(2) != 4) {
+        throw py::value_error("Data pointer must be RGBA; last dimension is " +
+                              std::to_string(data.shape(2)) + ", not 4");
+    }
+    if (data.shape(0) > INT_MAX) {  // Limited by Tk_PhotoPutBlock argument type.
+        throw std::range_error(
+            "Height (" + std::to_string(data.shape(0)) +
+            ") exceeds maximum allowable size (" + std::to_string(INT_MAX) + ")");
+    }
+    if (data.shape(1) > INT_MAX / 4) {  // Limited by Tk_PhotoImageBlock.pitch field.
+        throw std::range_error(
+            "Width (" + std::to_string(data.shape(1)) +
+            ") exceeds maximum allowable size (" + std::to_string(INT_MAX / 4) + ")");
+    }
+    const auto height = static_cast<int>(data.shape(0));
+    const auto width = static_cast<int>(data.shape(1));
+    int x1, x2, y1, y2;
+    std::tie(x1, x2, y1, y2) = bbox;
+    if (0 > y1 || y1 > y2 || y2 > height || 0 > x1 || x1 > x2 || x2 > width) {
+        throw py::value_error("Attempting to draw out of bounds");
+    }
+    if (comp_rule != TK_PHOTO_COMPOSITE_OVERLAY && comp_rule != TK_PHOTO_COMPOSITE_SET) {
+        throw py::value_error("Invalid comp_rule argument");
+    }
+
+    int put_retval;
+    Tk_PhotoImageBlock block;
+    block.pixelPtr = data_ptr.mutable_data(height - y2, x1, 0);
     block.width = x2 - x1;
     block.height = y2 - y1;
     block.pitch = 4 * width;
     block.pixelSize = 4;
-    block.offset[0] = o0;
-    block.offset[1] = o1;
-    block.offset[2] = o2;
-    block.offset[3] = o3;
-    put_retval = TK_PHOTO_PUT_BLOCK(
-        interp, photo, &block, x1, height - y2, x2 - x1, y2 - y1, comp_rule);
-    Py_END_ALLOW_THREADS
-    if (put_retval == TCL_ERROR) {
-        return PyErr_NoMemory();
+    std::tie(block.offset[0], block.offset[1], block.offset[2], block.offset[3]) = offset;
+    {
+        py::gil_scoped_release release;
+        put_retval = TK_PHOTO_PUT_BLOCK(
+            interp, photo, &block, x1, height - y2, x2 - x1, y2 - y1, comp_rule);
     }
-
-exit:
-    if (PyErr_Occurred()) {
-        return NULL;
-    } else {
-        Py_RETURN_NONE;
+    if (put_retval == TCL_ERROR) {
+        throw std::bad_alloc();
     }
 }
 
@@ -159,27 +176,13 @@ DpiSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
 }
 #endif
 
-static PyObject*
-mpl_tk_enable_dpi_awareness(PyObject* self, PyObject*const* args,
-                            Py_ssize_t nargs)
+static py::object
+mpl_tk_enable_dpi_awareness(py::object UNUSED_ON_NON_WINDOWS(frame_handle_obj),
+                            py::object UNUSED_ON_NON_WINDOWS(interp_obj))
 {
-    if (nargs != 2) {
-        return PyErr_Format(PyExc_TypeError,
-                            "enable_dpi_awareness() takes 2 positional "
-                            "arguments but %zd were given",
-                            nargs);
-    }
-
 #ifdef WIN32_DLL
-    HWND frame_handle = NULL;
-    Tcl_Interp *interp = NULL;
-
-    if (!convert_voidptr(args[0], &frame_handle)) {
-        return NULL;
-    }
-    if (!convert_voidptr(args[1], &interp)) {
-        return NULL;
-    }
+    auto frame_handle = convert_voidptr<HWND>(frame_handle_obj);
+    auto interp = convert_voidptr<Tcl_Interp *>(interp_obj);
 
 #ifdef _DPI_AWARENESS_CONTEXTS_
     HMODULE user32 = LoadLibrary("user32.dll");
@@ -190,7 +193,7 @@ mpl_tk_enable_dpi_awareness(PyObject* self, PyObject*const* args,
             user32, "GetWindowDpiAwarenessContext");
     if (GetWindowDpiAwarenessContextPtr == NULL) {
         FreeLibrary(user32);
-        Py_RETURN_FALSE;
+        return py::cast(false);
     }
 
     typedef BOOL (WINAPI *AreDpiAwarenessContextsEqual_t)(DPI_AWARENESS_CONTEXT,
@@ -200,7 +203,7 @@ mpl_tk_enable_dpi_awareness(PyObject* self, PyObject*const* args,
             user32, "AreDpiAwarenessContextsEqual");
     if (AreDpiAwarenessContextsEqualPtr == NULL) {
         FreeLibrary(user32);
-        Py_RETURN_FALSE;
+        return py::cast(false);
     }
 
     DPI_AWARENESS_CONTEXT ctx = GetWindowDpiAwarenessContextPtr(frame_handle);
@@ -217,19 +220,12 @@ mpl_tk_enable_dpi_awareness(PyObject* self, PyObject*const* args,
         SetWindowSubclass(frame_handle, DpiSubclassProc, 0, (DWORD_PTR)interp);
     }
     FreeLibrary(user32);
-    return PyBool_FromLong(per_monitor);
+    return py::cast(per_monitor);
 #endif
 #endif
 
-    Py_RETURN_NONE;
+    return py::none();
 }
-
-static PyMethodDef functions[] = {
-    { "blit", (PyCFunction)mpl_tk_blit, METH_VARARGS },
-    { "enable_dpi_awareness", (PyCFunction)mpl_tk_enable_dpi_awareness,
-      METH_FASTCALL },
-    { NULL, NULL } /* sentinel */
-};
 
 // Functions to fill global Tcl/Tk function pointers by dynamic loading.
 
@@ -259,30 +255,26 @@ bool load_tcl_tk(T lib)
  * names.
  */
 
-void load_tkinter_funcs(void)
+static void
+load_tkinter_funcs()
 {
     HANDLE process = GetCurrentProcess();  // Pseudo-handle, doesn't need closing.
-    HMODULE* modules = NULL;
     DWORD size;
     if (!EnumProcessModules(process, NULL, 0, &size)) {
         PyErr_SetFromWindowsErr(0);
-        goto exit;
+        throw py::error_already_set();
     }
-    if (!(modules = static_cast<HMODULE*>(malloc(size)))) {
-        PyErr_NoMemory();
-        goto exit;
-    }
-    if (!EnumProcessModules(process, modules, size, &size)) {
+    auto count = size / sizeof(HMODULE);
+    auto modules = std::vector<HMODULE>(count);
+    if (!EnumProcessModules(process, modules.data(), size, &size)) {
         PyErr_SetFromWindowsErr(0);
-        goto exit;
+        throw py::error_already_set();
     }
-    for (unsigned i = 0; i < size / sizeof(HMODULE); ++i) {
-        if (load_tcl_tk(modules[i])) {
+    for (auto mod: modules) {
+        if (load_tcl_tk(mod)) {
             return;
         }
     }
-exit:
-    free(modules);
 }
 
 #else  // not Windows
@@ -293,85 +285,68 @@ exit:
  * dynamic library (module).
  */
 
-void load_tkinter_funcs(void)
+static void
+load_tkinter_funcs()
 {
     // Load tkinter global funcs from tkinter compiled module.
-    void *main_program = NULL, *tkinter_lib = NULL;
-    PyObject *module = NULL, *py_path = NULL, *py_path_b = NULL;
-    char *path;
 
     // Try loading from the main program namespace first.
-    main_program = dlopen(NULL, RTLD_LAZY);
-    if (load_tcl_tk(main_program)) {
-        goto exit;
+    auto main_program = dlopen(NULL, RTLD_LAZY);
+    auto success = load_tcl_tk(main_program);
+    // We don't need to keep a reference open as the main program always exists.
+    if (dlclose(main_program)) {
+        throw std::runtime_error(dlerror());
     }
-    // Clear exception triggered when we didn't find symbols above.
-    PyErr_Clear();
+    if (success) {
+        return;
+    }
 
+    py::object module;
     // Handle PyPy first, as that import will correctly fail on CPython.
-    module = PyImport_ImportModule("_tkinter.tklib_cffi");   // PyPy
-    if (!module) {
-        PyErr_Clear();
-        module = PyImport_ImportModule("_tkinter");  // CPython
+    try {
+        module = py::module_::import("_tkinter.tklib_cffi");  // PyPy
+    } catch (py::error_already_set &e) {
+        module = py::module_::import("_tkinter");  // CPython
     }
-    if (!(module &&
-          (py_path = PyObject_GetAttrString(module, "__file__")) &&
-          (py_path_b = PyUnicode_EncodeFSDefault(py_path)) &&
-          (path = PyBytes_AsString(py_path_b)))) {
-        goto exit;
-    }
-    tkinter_lib = dlopen(path, RTLD_LAZY);
+    auto py_path = module.attr("__file__");
+    py::bytes py_path_b = py_path.attr("encode")(
+        Py_FileSystemDefaultEncoding, Py_FileSystemDefaultEncodeErrors);
+    std::string path = py_path_b;
+    auto tkinter_lib = dlopen(path.c_str(), RTLD_LAZY);
     if (!tkinter_lib) {
-        PyErr_SetString(PyExc_RuntimeError, dlerror());
-        goto exit;
+        throw std::runtime_error(dlerror());
     }
-    if (load_tcl_tk(tkinter_lib)) {
-        goto exit;
+    load_tcl_tk(tkinter_lib);
+    // We don't need to keep a reference open as tkinter has been imported.
+    if (dlclose(tkinter_lib)) {
+        throw std::runtime_error(dlerror());
     }
-
-exit:
-    // We don't need to keep a reference open as the main program & tkinter
-    // have been imported.  Try to close each library separately (otherwise the
-    // second dlclose could clear a dlerror from the first dlclose).
-    bool raised_dlerror = false;
-    if (main_program && dlclose(main_program) && !raised_dlerror) {
-        PyErr_SetString(PyExc_RuntimeError, dlerror());
-        raised_dlerror = true;
-    }
-    if (tkinter_lib && dlclose(tkinter_lib) && !raised_dlerror) {
-        PyErr_SetString(PyExc_RuntimeError, dlerror());
-        raised_dlerror = true;
-    }
-    Py_XDECREF(module);
-    Py_XDECREF(py_path);
-    Py_XDECREF(py_path_b);
 }
 #endif // end not Windows
 
-static PyModuleDef _tkagg_module = {
-    PyModuleDef_HEAD_INIT, "_tkagg", NULL, -1, functions
-};
-
-PyMODINIT_FUNC PyInit__tkagg(void)
+PYBIND11_MODULE(_tkagg, m)
 {
-    load_tkinter_funcs();
-    PyObject *type, *value, *traceback;
-    PyErr_Fetch(&type, &value, &traceback);
-    // Always raise ImportError (normalizing a previously set exception if
-    // needed) to interact properly with backend auto-fallback.
-    if (value) {
-        PyErr_NormalizeException(&type, &value, &traceback);
-        PyErr_SetObject(PyExc_ImportError, value);
-        return NULL;
-    } else if (!TCL_SETVAR) {
-        PyErr_SetString(PyExc_ImportError, "Failed to load Tcl_SetVar");
-        return NULL;
-    } else if (!TK_FIND_PHOTO) {
-        PyErr_SetString(PyExc_ImportError, "Failed to load Tk_FindPhoto");
-        return NULL;
-    } else if (!TK_PHOTO_PUT_BLOCK) {
-        PyErr_SetString(PyExc_ImportError, "Failed to load Tk_PhotoPutBlock");
-        return NULL;
+    try {
+        load_tkinter_funcs();
+    } catch (py::error_already_set& e) {
+        // Always raise ImportError to interact properly with backend auto-fallback.
+        py::raise_from(e, PyExc_ImportError, "failed to load tkinter functions");
+        throw py::error_already_set();
     }
-    return PyModule_Create(&_tkagg_module);
+
+    if (!TCL_SETVAR) {
+        throw py::import_error("Failed to load Tcl_SetVar");
+    } else if (!TK_FIND_PHOTO) {
+        throw py::import_error("Failed to load Tk_FindPhoto");
+    } else if (!TK_PHOTO_PUT_BLOCK) {
+        throw py::import_error("Failed to load Tk_PhotoPutBlock");
+    }
+
+    m.def("blit", &mpl_tk_blit,
+          "interp"_a, "photo_name"_a, "data"_a, "comp_rule"_a, "offset"_a, "bbox"_a);
+    m.def("enable_dpi_awareness", &mpl_tk_enable_dpi_awareness,
+          "frame_handle"_a, "interp"_a);
+
+    m.attr("TK_PHOTO_COMPOSITE_OVERLAY") = TK_PHOTO_COMPOSITE_OVERLAY;
+    m.attr("TK_PHOTO_COMPOSITE_SET") = TK_PHOTO_COMPOSITE_SET;
 }
