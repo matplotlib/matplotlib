@@ -328,6 +328,8 @@ jobs:
           fi
       - name: Upload code coverage
         uses: codecov/codecov-action@v3
+        with:
+          name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }}"
 
       - uses: actions/upload-artifact@v3
         if: failure()

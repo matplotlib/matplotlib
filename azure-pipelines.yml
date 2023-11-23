@@ -157,7 +157,7 @@ stages:
         displayName: 'pytest'
 
       - bash: |
-          bash <(curl -s https://codecov.io/bash)  -f "!*.gcov" -X gcov
+          bash <(curl -s https://codecov.io/bash) -n "$PYTHON_VERSION $AGENT_OS" -f "!*.gcov" -X gcov
         displayName: 'Upload to codecov.io'
 
       - task: PublishTestResults@2
