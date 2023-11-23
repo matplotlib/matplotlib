@@ -994,7 +994,7 @@ class Text(Artist):
         self._color = color
         self.stale = True
 
-    def set_horizontalalignment(self, align="left"):
+    def set_horizontalalignment(self, align):
         """
         Set the horizontal alignment relative to the anchor point.
 
@@ -1002,7 +1002,7 @@ class Text(Artist):
 
         Parameters
         ----------
-        align : {'left', 'center', 'right'}, default: 'left'
+        align : {'left', 'center', 'right'}
         """
         _api.check_in_list(['center', 'right', 'left'], align=align)
         self._horizontalalignment = align
@@ -1243,7 +1243,7 @@ class Text(Artist):
         self._transform_rotates_text = t
         self.stale = True
 
-    def set_verticalalignment(self, align="baseline"):
+    def set_verticalalignment(self, align):
         """
         Set the vertical alignment relative to the anchor point.
 
@@ -1251,8 +1251,7 @@ class Text(Artist):
 
         Parameters
         ----------
-        align : {'bottom', 'baseline', 'center', 'center_baseline', 'top'}, \
-default: 'baseline'
+        align : {'baseline', 'bottom', 'center', 'center_baseline', 'top'}
         """
         _api.check_in_list(
             ['top', 'bottom', 'center', 'baseline', 'center_baseline'],
