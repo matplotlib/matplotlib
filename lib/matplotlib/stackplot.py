@@ -144,8 +144,10 @@ def stackplot(axes, x, *args,
         stack += first_line
 
     else:
-        # Here we are 100% certain that baseline is not a
-        #string and not date-time/timedelta
+        """
+        Here we are 100% certain that baseline is not a
+        string and not date-time/timedelta
+        """
         first_line = float(baseline)
 
     # Color between x = 0 and the first array.
