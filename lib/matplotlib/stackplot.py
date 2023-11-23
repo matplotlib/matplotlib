@@ -32,7 +32,8 @@ def stackplot(axes, x, *args,
             stackplot(x, y)           # where y has shape (M, N)
             stackplot(x, y1, y2, y3)  # where y1, y2, y3, y4 have length N
 
-    baseline : {'zero', 'sym', 'wiggle', 'weighted_wiggle', float}
+    baseline : {'zero', 'sym', 'wiggle', 'weighted_wiggle', float,
+            datetime, timedelta}
         Method used to calculate the baseline:
 
         - ``'zero'``: Constant zero baseline, i.e. a simple stacked plot.
@@ -143,7 +144,8 @@ def stackplot(axes, x, *args,
         stack += first_line
 
     else:
-        # Here we are 100% certain that baseline is not a string and not date-time/timedelta
+        # Here we are 100% certain that baseline is not a
+        #string and not date-time/timedelta
         first_line = float(baseline)
 
     # Color between x = 0 and the first array.
