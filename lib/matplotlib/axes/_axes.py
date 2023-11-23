@@ -633,7 +633,7 @@ class Axes(_AxesBase):
         Add text to the Axes.
 
         Add the text *s* to the Axes at location *x*, *y* in data coordinates,
-        with a default ``horizontalalignment`` on the ``left`` and 
+        with a default ``horizontalalignment`` on the ``left`` and
         ``verticalalignment`` at the ``baseline``. See
         :doc:`/gallery/text_labels_and_annotations/text_alignment`.
 
