@@ -3088,6 +3088,7 @@ def test_stackplot_baseline():
     axs[1, 0].stackplot(range(100), d.T, baseline='wiggle')
     axs[1, 1].stackplot(range(100), d.T, baseline='weighted_wiggle')
 
+
 @check_figures_equal()
 def test_stackplot_hatching(fig_ref, fig_test):
     x = np.linspace(0, 10, 10)
