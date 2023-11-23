@@ -3083,13 +3083,10 @@ def test_stackplot_baseline():
 
     # Attempt to use a float value for 'baseline'
     axs[0, 1].stackplot(range(100), d.T, baseline=2.5)
-
-
     axs[0, 0].stackplot(range(100), d.T, baseline='zero')
     axs[0, 1].stackplot(range(100), d.T, baseline='sym')
     axs[1, 0].stackplot(range(100), d.T, baseline='wiggle')
     axs[1, 1].stackplot(range(100), d.T, baseline='weighted_wiggle')
-
 
 @check_figures_equal()
 def test_stackplot_hatching(fig_ref, fig_test):
