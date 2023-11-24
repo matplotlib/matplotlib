@@ -3,13 +3,12 @@
 Menu
 ====
 
+Using texts to construct a simple menu.
 """
-
 import matplotlib.pyplot as plt
 
 import matplotlib.artist as artist
 import matplotlib.patches as patches
-from matplotlib.transforms import IdentityTransform
 
 
 class ItemProperties:
@@ -22,8 +21,8 @@ class ItemProperties:
 
 
 class MenuItem(artist.Artist):
-    padx = 5
-    pady = 5
+    padx = 0.05  # inches
+    pady = 0.05
 
     def __init__(self, fig, labelstr, props=None, hoverprops=None,
                  on_select=None):
@@ -41,14 +40,16 @@ class MenuItem(artist.Artist):
 
         self.on_select = on_select
 
-        # Setting the transform to IdentityTransform() lets us specify
-        # coordinates directly in pixels.
-        self.label = fig.text(0, 0, labelstr, transform=IdentityTransform(),
+        # specify coordinates in inches.
+        self.label = fig.text(0, 0, labelstr, transform=fig.dpi_scale_trans,
                               size=props.fontsize)
         self.text_bbox = self.label.get_window_extent(
             fig.canvas.get_renderer())
+        self.text_bbox = fig.dpi_scale_trans.inverted().transform_bbox(self.text_bbox)
 
-        self.rect = patches.Rectangle((0, 0), 1, 1)  # Will be updated later.
+        self.rect = patches.Rectangle(
+            (0, 0), 1, 1, transform=fig.dpi_scale_trans
+        )  # Will be updated later.
 
         self.set_hover_props(False)
 
@@ -63,7 +64,7 @@ class MenuItem(artist.Artist):
 
     def set_extent(self, x, y, w, h, depth):
         self.rect.set(x=x, y=y, width=w, height=h)
-        self.label.set(position=(x + self.padx, y + depth + self.pady/2))
+        self.label.set(position=(x + self.padx, y + depth + self.pady / 2))
         self.hover = False
 
     def draw(self, renderer):
@@ -97,10 +98,10 @@ class Menu:
         maxh = max(item.text_bbox.height for item in menuitems)
         depth = max(-item.text_bbox.y0 for item in menuitems)
 
-        x0 = 100
-        y0 = 400
+        x0 = 1
+        y0 = 4
 
-        width = maxw + 2*MenuItem.padx
+        width = maxw + 2 * MenuItem.padx
         height = maxh + MenuItem.pady
 
         for item in menuitems:
