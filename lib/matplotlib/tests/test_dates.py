@@ -1931,3 +1931,36 @@ def test_change_timedelta_converter():
     fig.canvas.draw()
     assert ax.get_xticklabels()[0].get_text() == '0 days'
     assert ax.get_xticklabels()[1].get_text() == '1 days'
+
+
+def test_concise_timedelta_convert_w_formatter_args():
+    td0 = datetime.timedelta(days=0)
+    td1 = datetime.timedelta(days=1)
+
+    # verify default first
+    conv = mdates.ConciseTimedeltaConverter()
+    axinfo = conv.axisinfo(None, None)
+    fmt = axinfo.majfmt
+    locator = axinfo.majloc
+    locator.create_dummy_axis()
+    # set a reasonable range and call locator to select correct tick frequency
+    locator.axis.set_view_interval(mdates.timedelta2num(td0),
+                                   mdates.timedelta2num(td1))
+    assert fmt.format_ticks(locator()) == ['-6:00', '0 d', '6:00', '12:00',
+                                           '18:00', '1 d', '6:00']
+    assert fmt.get_offset() == ''
+
+    # change 'show_offset_zero' to False and modify tick format strings
+    fmt_strings = ["%d days", "%H:%M:%S", "%H:%M:%S", "%S.f"]
+    conv = mdates.ConciseTimedeltaConverter(formats=fmt_strings)
+    axinfo = conv.axisinfo(None, None)
+    fmt = axinfo.majfmt
+    locator = axinfo.majloc
+    locator.create_dummy_axis()
+    # set a reasonable range and call locator to select correct tick frequency
+    locator.axis.set_view_interval(mdates.timedelta2num(td0),
+                                   mdates.timedelta2num(td1))
+    assert fmt.format_ticks(locator()) == ['-06:00:00', '0 days', '06:00:00',
+                                           '12:00:00', '18:00:00', '1 days',
+                                           '06:00:00']
+    assert fmt.get_offset() == ''

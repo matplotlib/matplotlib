@@ -2400,13 +2400,11 @@ class ConciseDateConverter(DateConverter):
 class TimedeltaConverter(units.ConversionInterface):
     """
     Converter for `datetime.timedelta` and `numpy.timedelta64` data,
-    or for date/time data represented as it would be converted by
-    `date2num`.
+    or for timedelta data represented as it would be converted by
+    `timedelta2num`.
 
     The 'unit' tag for such data is None.
     """
-    # TODO: add pass through for potential formatter arguments
-
     def axisinfo(self, unit, axis):
         """
         Return the `~matplotlib.units.AxisInfo` for *unit*.
@@ -2424,7 +2422,7 @@ class TimedeltaConverter(units.ConversionInterface):
     def convert(value, unit, axis):
         """
         If *value* is not already a number or sequence of numbers, convert it
-        with `date2num`.
+        with `timedelta2num`.
 
         The *unit* and *axis* arguments are not used.
         """
@@ -2433,13 +2431,23 @@ class TimedeltaConverter(units.ConversionInterface):
 
 class ConciseTimedeltaConverter(TimedeltaConverter):
     # docstring inherited
-    # TODO: add pass through for potential formatter arguments
+
+    def __init__(self, formats=None, zero_formats=None, offset_formats=None,
+                 show_offset=True, *, interval_multiples=True):
+        self._formats = formats
+        self._zero_formats = zero_formats
+        self._offset_formats = offset_formats
+        self._show_offset = show_offset
+        self._interval_multiples = interval_multiples
+        super().__init__()
 
     def axisinfo(self, unit, axis):
         # docstring inherited
-
         majloc = AutoTimedeltaLocator()
-        majfmt = ConciseTimedeltaFormatter(majloc)
+        majfmt = ConciseTimedeltaFormatter(majloc, formats=self._formats,
+                                           zero_formats=self._zero_formats,
+                                           offset_formats=self._offset_formats,
+                                           show_offset=self._show_offset)
 
         return units.AxisInfo(majloc=majloc, majfmt=majfmt, label='',
                               default_limits=majloc.default_range)
