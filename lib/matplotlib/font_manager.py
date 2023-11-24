@@ -1339,10 +1339,10 @@ class FontManager:
         -----
         This is an extension/wrapper of the original findfont API, which only
         returns a single font for given font properties. Instead, this API
-        returns a dict containing multiple fonts and their filepaths
-        which closely match the given font properties.  Since this internally
-        uses the original API, there's no change to the logic of performing the
-        nearest neighbor search.  See `findfont` for more details.
+        returns a list of filepaths of multiple fonts which closely match the
+        given font properties.  Since this internally uses the original API,
+        there's no change to the logic of performing the nearest neighbor
+        search.  See `findfont` for more details.
         """
 
         prop = FontProperties._from_any(prop)
