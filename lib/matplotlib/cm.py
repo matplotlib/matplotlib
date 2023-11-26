@@ -277,7 +277,7 @@ def _auto_norm_from_scale(scale_cls):
     return type(norm)
 
 
-def merge_signals(fn):
+def _merge_signals(fn):
     """
     If multiple ScalarMappables part of a VectorMappable emit 'changed' signals
     this decorator works to merge them into one so that only one  'changed'
@@ -286,12 +286,12 @@ def merge_signals(fn):
     @functools.wraps(fn)
     def wrapper(self, *args, **kwargs):
         # suspend signals
-        self.pause_signals = True
+        self._pause_signals = True
         self.intercepted_changed = False
         # run fn
         out = fn(self, *args, **kwargs)
         # resume signals
-        self.pause_signals = False
+        self._pause_signals = False
         # send 'changed' signal if any were intercepted
         if self.intercepted_changed:
             self.changed()
@@ -327,7 +327,7 @@ class VectorMappable:
             The colormap used to map normalized data values to RGBA colors.
 
         """
-        self.pause_signals = False
+        self._pause_signals = False
 
         cmap = ensure_cmap(cmap)
         norm = ensure_multivariate_norm(cmap.n_variates, norm)
@@ -340,9 +340,10 @@ class VectorMappable:
             else:
                 self.scalars = [ScalarMappable(n) for n in norm]
             for i, sca in enumerate(self.scalars):
-                sca.callbacks.connect('changed', self.on_changed)
+                sca.callbacks.connect('changed', self._on_changed)
             self._cmap = cmap
             self._multivar_A = None
+            self._colorbar = None
         else:
             # i.e type(cmap) is Str
             # or issubclass(type(cmap), colors.Colorbar)
@@ -352,7 +353,7 @@ class VectorMappable:
             # i.e. self.callbacks = self.scalars[0].callbacks
             # but this will require more reformating as it fails in cleanup
             # if a colorbar is removed
-            self.scalars[0].callbacks.connect('changed', self.on_changed)
+            self.scalars[0].callbacks.connect('changed', self._on_changed)
 
     @property
     def _A(self):
@@ -415,13 +416,27 @@ class VectorMappable:
     def cmap(self, cmap):
         self.set_cmap(cmap)
 
+    @property
+    def colorbar(self):
+        if len(self.scalars) == 1:
+            return self.scalars[0].colorbar
+        else:
+            return self._colorbar
+
+    @colorbar.setter
+    def colorbar(self, colorbar):
+        if len(self.scalars) == 1:
+            self.scalars[0].colorbar = colorbar
+        else:
+            self._colorbar = colorbar
+
     def get_cmap(self):
         if len(self.scalars) == 1:
             return self.scalars[0].get_cmap()
         else:
             return self._cmap
 
-    @merge_signals
+    @_merge_signals
     def set_cmap(self, cmap):
         """
         Set the colormaps for luminance data.
@@ -446,7 +461,7 @@ class VectorMappable:
                     s.set_cmap(cm)
             self._cmap = cmap
 
-    @merge_signals
+    @_merge_signals
     def _scale_norm(self, norm, vmin, vmax):
         """
         Helper for initial scaling.
@@ -464,7 +479,7 @@ class VectorMappable:
             for s, n, vm, vx in zip(self.scalars, norm, vmin, vmax):
                 s._scale_norm(n, vm, vx)
 
-    def to_rgba(self, arr, alpha=None, bytes=False, norm=True):
+    def to_rgba(self, x, alpha=None, bytes=False, norm=True):
         """
         Return a normalized RGBA array corresponding to *arr*.
 
@@ -485,24 +500,24 @@ class VectorMappable:
         (as is done in ScalarMappable.to_rgba) but prevents branching in the code.
         """
         if len(self.scalars) == 1:
-            rgba = self.scalars[0].to_rgba(arr, alpha=alpha, bytes=bytes, norm=norm)
+            rgba = self.scalars[0].to_rgba(x, alpha=alpha, bytes=bytes, norm=norm)
         else:  # multivariate
             if isinstance(self._cmap, colors.BivarColormap):
                 if norm:
-                    normed_0 = self.scalars[0].norm(arr[0])
-                    normed_1 = self.scalars[1].norm(arr[1])
+                    normed_0 = self.scalars[0].norm(x[0])
+                    normed_1 = self.scalars[1].norm(x[1])
                 else:
-                    normed_0 = arr[0].copy()
-                    normed_1 = arr[1].copy()
+                    normed_0 = x[0].copy()
+                    normed_1 = x[1].copy()
                 # in-place clip to shape of colormap: square, circle, etc.
                 self._cmap.clip(normed_0, normed_1)
                 rgba = self.cmap((normed_0, normed_1))
             else:  # i.e. isinstance(self._cmaps, colors.MultivarColormap)
                 # ignore alpha in LUTs
-                x = self.scalars[0]
-                rgba = x.to_rgba(arr[0], bytes=False, norm=norm, alpha=1)
-                for s, x in zip(self.scalars[1:], arr[1:]):
-                    sub_rgba = s.to_rgba(x, bytes=False, norm=norm, alpha=1)
+                s = self.scalars[0]
+                rgba = s.to_rgba(x[0], bytes=False, norm=norm, alpha=1)
+                for s, xx in zip(self.scalars[1:], x[1:]):
+                    sub_rgba = s.to_rgba(xx, bytes=False, norm=norm, alpha=1)
                     rgba[..., :3] += sub_rgba[..., :3]  # add colors
                     rgba[..., 3] *= sub_rgba[..., 3]  # multiply alpha
                 # MultivarColormap require alpha = 0 for bad values
@@ -521,10 +536,10 @@ class VectorMappable:
             #
             if alpha is not None:
                 alpha = np.clip(alpha, 0, 1)
-                if alpha.shape not in [(), arr[0].shape]:
+                if alpha.shape not in [(), x[0].shape]:
                     raise ValueError(
                         f"alpha is array-like but its shape {alpha.shape} does "
-                        f"not match that of the input {arr[0].shape}")
+                        f"not match that of the input {x[0].shape}")
                 rgba[..., -1] *= alpha
 
             if bytes:
@@ -532,6 +547,7 @@ class VectorMappable:
 
         return rgba
 
+    @_merge_signals
     def set_array(self, A):
         """
         Set the value array from array-like *A*.
@@ -574,7 +590,7 @@ class VectorMappable:
                 vmax.append(vx)
             return vmin, vmax
 
-    @merge_signals
+    @_merge_signals
     def set_clim(self, vmin=None, vmax=None):
         """
         Set the norm limits for image scaling.
@@ -592,10 +608,10 @@ class VectorMappable:
 
              .. ACCEPTS: (vmin: float, vmax: float)
         """
-        vmin, vmax = ensure_multivariate_clim(len(self.scalars), vmin, vmax)
         if len(self.scalars) == 1:
             self.scalars[0].set_clim(vmin=vmin, vmax=vmax)
         else:
+            vmin, vmax = ensure_multivariate_clim(len(self.scalars), vmin, vmax)
             for s, vm, vx in zip(self.scalars, vmin, vmax):
                 s.set_clim(vmin=vm, vmax=vx)
 
@@ -617,7 +633,7 @@ class VectorMappable:
             return ([s.norm for s in self.scalars])
 
     @norm.setter
-    @merge_signals
+    @_merge_signals
     def norm(self, norm):
         self.set_norm(norm)
 
@@ -642,7 +658,7 @@ class VectorMappable:
             for s, n in zip(self.scalars, norm):
                 s.set_norm(n)
 
-    @merge_signals
+    @_merge_signals
     def autoscale(self):
         """
         Autoscale the scalar limits on the norms using the current arrays
@@ -650,7 +666,7 @@ class VectorMappable:
         for s in self.scalars:
             s.autoscale()
 
-    @merge_signals
+    @_merge_signals
     def autoscale_None(self):
         """
         Autoscale the scalar limits on the norms using the
@@ -665,12 +681,12 @@ class VectorMappable:
         callbackSM listeners listening to the VectorMappable to the 'changed'
         signal.
         """
-        if not self.pause_signals:
+        if not self._pause_signals:
             self.callbacks.process('changed', self)
         else:
-            self.intercepted_changed = True  # for the merge_signals decorator
+            self.intercepted_changed = True  # for the _merge_signals decorator
 
-    def on_changed(self, obj=None):
+    def _on_changed(self, obj=None):
         """
         Called on the signal 'changed' from the ScalarMappables
 
@@ -1013,6 +1029,32 @@ vmin, vmax : float, optional
     *vmin*/*vmax* when a *norm* instance is given (but using a `str` *norm*
     name together with *vmin*/*vmax* is acceptable).""",
 )
+
+
+@_api.deprecated
+def _ensure_cmap(cmap):
+    """
+    Ensure that we have a `.Colormap` object.
+
+    For internal use to preserve type stability of errors.
+
+    This function is depreciated with the introduction of cm.ensure_cmap().
+    cm.ensure_cmap(cmap, multivariate = False) should be used instead.
+
+    Parameters
+    ----------
+    cmap : None, str, Colormap
+
+        - if a `Colormap`, return it
+        - if a string, look it up in mpl.colormaps
+        - if None, look up the default color map in mpl.colormaps
+
+    Returns
+    -------
+    Colormap
+
+    """
+    return ensure_cmap(cmap, accept_multivariate=False)
 
 
 def ensure_cmap(cmap, accept_multivariate=True):
