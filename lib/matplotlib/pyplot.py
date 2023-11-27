@@ -999,9 +999,13 @@ def gcf() -> Figure:
         return figure()
 
 
-def fignum_exists(num: int) -> bool:
+def fignum_exists(num: int | str) -> bool:
     """Return whether the figure with the given id exists."""
-    return _pylab_helpers.Gcf.has_fignum(num) or num in get_figlabels()
+    return (
+        _pylab_helpers.Gcf.has_fignum(num)
+        if isinstance(num, int)
+        else num in get_figlabels()
+    )
 
 
 def get_fignums() -> list[int]:
