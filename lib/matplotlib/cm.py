@@ -502,6 +502,7 @@ class VectorMappable:
         if len(self.scalars) == 1:
             rgba = self.scalars[0].to_rgba(x, alpha=alpha, bytes=bytes, norm=norm)
         else:  # multivariate
+            ensure_multivariate_data(len(self.scalars), x)
             if isinstance(self._cmap, colors.BivarColormap):
                 if norm:
                     normed_0 = self.scalars[0].norm(x[0])
@@ -513,7 +514,10 @@ class VectorMappable:
                 self._cmap.clip(normed_0, normed_1)
                 rgba = self.cmap((normed_0, normed_1))
             else:  # i.e. isinstance(self._cmaps, colors.MultivarColormap)
-                # ignore alpha in LUTs
+                # This loops through the data and does norm+cmap for each variate.
+                # The alternative is to first to do norm for all, then cmap for all.
+                # Looping norm+cmap for each variate has better memory utilization,
+                # but requires a separate implementation, rather than calling cmap().
                 s = self.scalars[0]
                 rgba = s.to_rgba(x[0], bytes=False, norm=norm, alpha=1)
                 for s, xx in zip(self.scalars[1:], x[1:]):

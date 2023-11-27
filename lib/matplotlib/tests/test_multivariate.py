@@ -262,6 +262,44 @@ def test_multivariate_figimage():
     fig.figimage(img[:, ::-1, ::-1], xo=100, yo=100, origin='lower', cmap='BiPeak')
 
 
+@image_comparison(["multivar_cmap_call.png"])
+def test_multivar_cmap_call():
+    """
+    This evaluates manual calls to a bivariate colormap
+    The figure exists because implementing an image comparison
+    is easier than anumeraical comparisons for mulitdimensional arrays
+    """
+    x_0 = np.arange(100, dtype='float32').reshape(10, 10) % 10
+    x_1 = np.arange(100, dtype='float32').reshape(10, 10).T % 10
+
+    fig, axes = plt.subplots(1, 5, figsize=(10, 2))
+
+    cmap = mpl.multivar_colormaps['2VarAddA']
+
+    # call with 1D
+    im = cmap((x_0[0]/9, x_1[::-1, 0]/9))
+    axes[0].scatter(np.arange(10), np.arange(10), c=im)
+
+    # call with 2D
+    im = cmap((x_0/9, x_1/9))
+    axes[1].imshow(im, interpolation='nearest')
+
+    # call with 3D array
+    im = cmap(((x_0/9, x_0/9),
+               (x_1/9, x_1/9)))
+    axes[2].imshow(im.reshape((20, 10, 4)), interpolation='nearest')
+
+    # call with constant alpha, and data of type int
+    im = cmap((x_0.astype('int')*25, x_1.astype('int')*25), alpha=0.5)
+    axes[3].imshow(im, interpolation='nearest')
+
+    # call with variable alpha
+    im = cmap((x_0/9, x_1/9), alpha=(x_0/9)**2, bytes=True)
+    axes[4].imshow(im, interpolation='nearest')
+
+    remove_ticks_and_titles(fig)
+
+
 @image_comparison(["bivariate_cmap_call.png"])
 def test_bivariate_cmap_call():
     """
@@ -289,8 +327,8 @@ def test_bivariate_cmap_call():
                (x_1/9, x_1/9)))
     axes[2].imshow(im.reshape((20, 10, 4)), interpolation='nearest')
 
-    # call with constant alpha
-    im = cmap((x_0/9, x_1/9), alpha=0.5)
+    # call with constant alpha, and data of type int
+    im = cmap((x_0.astype('int')*25, x_1.astype('int')*25), alpha=0.5)
     axes[3].imshow(im, interpolation='nearest')
 
     # call with variable alpha

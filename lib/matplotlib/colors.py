@@ -1273,6 +1273,68 @@ class MultivarColormap:
 
         self._rgba_bad = (0.0, 0.0, 0.0, 0.0)  # If bad, don't paint anything.
 
+    def __call__(self, X, alpha=None, bytes=False):
+        r"""
+        Parameters
+        ----------
+        X : tuple (X0, X1, ...) of length equal to the number of colormaps
+            X0, X1 ...:
+            float or int, `~numpy.ndarray` or scalar
+            The data value(s) to convert to RGBA.
+            For floats, *Xi...* should be in the interval ``[0.0, 1.0]`` to
+            return the RGBA values ``X*100`` percent along the Colormap line.
+            For integers, *Xi...*  should be in the interval ``[0, self[i].N)`` to
+            return RGBA values *indexed* from colormap [i] with index ``Xi``, where
+            self[i] is colormap i.
+        alpha : float or array-like or None
+            Alpha must be a scalar between 0 and 1, a sequence of such
+            floats with shape matching Xi, or None.
+        bytes : bool
+            If False (default), the returned RGBA values will be floats in the
+            interval ``[0, 1]`` otherwise they will be `numpy.uint8`\s in the
+            interval ``[0, 255]``.
+
+        Returns
+        -------
+        Tuple of RGBA values if X is scalar, otherwise an array of
+        RGBA values with a shape of ``X.shape + (4, )``.
+        """
+
+        if len(X) != len(self):
+            raise ValueError(
+                f'For the selected colormap the data must have a first dimension '
+                f'{len(self)}, not {len(X)}')
+        rgba = self[0](X[0], bytes=False, alpha=1)
+        for c, xx in zip(self[1:], X[1:]):
+            sub_rgba = c(xx, bytes=False, alpha=1)
+            rgba[..., :3] += sub_rgba[..., :3]  # add colors
+            rgba[..., 3] *= sub_rgba[..., 3]  # multiply alpha
+        # MultivarColormap require alpha = 0 for bad values
+        # giving the following condition to get the bad_mask
+        mask_bad = rgba[..., 3] == 0
+        rgba[mask_bad] = self.get_bad()
+
+        if self.combination_mode == 'Sub':
+            rgba[:, :, :3] -= len(self) - 1
+
+        rgba = np.clip(rgba, 0, 1)
+
+        # If manually specified alpha
+        # rgba[..., -1] is at this point determined by the multivariate
+        # colormaps. (typically 'bad' values set alpha = 0).
+
+        if alpha is not None:
+            alpha = np.clip(alpha, 0, 1)
+            if alpha.shape not in [(), X[0].shape]:
+                raise ValueError(
+                    f"alpha is array-like but its shape {alpha.shape} does "
+                    f"not match that of the input {X[0].shape}")
+            rgba[..., -1] *= alpha
+
+        if bytes:
+            rgba = (rgba * 255).astype('uint8')
+        return rgba
+
     def copy(self):
         """Return a copy of the multivarcolormap."""
         return self.__copy__()
@@ -1380,7 +1442,7 @@ class BivarColormap:
             return RGBA values *indexed* from the Colormap with index ``X``.
         alpha : float or array-like or None
             Alpha must be a scalar between 0 and 1, a sequence of such
-            floats with shape matching X, or None.
+            floats with shape matching X0, or None.
         bytes : bool
             If False (default), the returned RGBA values will be floats in the
             interval ``[0, 1]`` otherwise they will be `numpy.uint8`\s in the
