@@ -969,99 +969,6 @@ class Colormap:
         return self.__copy__()
 
 
-class MultivarColormap:
-    """
-    Class for holding multiple colormaps in VectorMappable before they are
-    passed to independent ScalarMappable objects
-
-    MultivarColormap does not support alpha in the look up tables (ignored).
-    """
-    def __init__(self, name, colormaps, combination_mode):
-        """
-        Parameters
-        ----------
-        name : str
-            The name of the colormap family.
-        colormaps: list or tuple of Colormap objects
-            The individual colormaps that are combined
-        combination_mode: str, 'Add' or 'Sub'
-            Describe how colormaps are combined in sRGB space
-            'Add' -> additive
-            'Sub' -> subtractive
-        """
-        self.name = name
-        if not np.iterable(colormaps) or not issubclass(type(colormaps[0]), Colormap):
-            raise ValueError("colormaps must be a list of objects that subclass"
-                             " Colormap, not strings or list of strings")
-
-        if len(colormaps) == 1:
-            raise ValueError("A MultivarColormap must have more than one colormap.")
-        self.colormaps = colormaps
-
-        for cm in self.colormaps:
-            if not cm._rgba_bad[3] == 0:
-                raise ValueError("The colormaps that combine in a MultivarColormap"
-                                 " must have alpha = 0 for 'bad' values."
-                                 " This requirement exists to allow simple detection"
-                                 " of bad values with the existing colormap pipeline."
-                                 )
-
-        if combination_mode not in ['Add', 'Sub']:
-            raise ValueError("combination_mode must be 'Add' or 'Sub',"
-                             f" {name!r} is not allowed.")
-        self.combination_mode = combination_mode
-
-        self.n_variates = len(colormaps)
-
-        self._rgba_bad = (0.0, 0.0, 0.0, 0.0)  # If bad, don't paint anything.
-
-    def copy(self):
-        """Return a copy of the multivarcolormap."""
-        return self.__copy__()
-
-    def __copy__(self):
-        cls = self.__class__
-        cmapobject = cls.__new__(cls)
-        cmapobject.__dict__.update(self.__dict__)
-        cmapobject.colormaps = [cm.copy() for cm in self.colormaps]
-        cmapobject._rgba_bad = np.copy(self._rgba_bad)
-        return cmapobject
-
-    def __getitem__(self, item):
-        try:
-            return self.colormaps[item]
-        except KeyError:
-            raise KeyError(f"only {[i for i in range(len(self.colormaps))]} are"
-                           f" valid keys for MultipleColormap, not {item!r}")
-
-    def __iter__(self):
-        for c in self.colormaps:
-            yield c
-
-    def __len__(self):
-        return len(self.colormaps)
-
-    def __str__(self):
-        return self.name
-
-    def get_bad(self):
-        """Get the color for masked values."""
-        return np.array(self._rgba_bad)
-
-    def set_bad(self, color='k', alpha=None):
-        """Set the color for masked values."""
-        self._rgba_bad = to_rgba(color, alpha)
-
-    def _repr_png_(self):
-        raise NotImplementedError("no png representation of MultivarColormap"
-                                  " but you may access png repreesntations of the"
-                                  " individual colorbars.")
-
-    def _repr_html_(self):
-        """Generate an HTML representation of the MultivarColormap."""
-        return ''.join([c._repr_html_() for c in self.colormaps])
-
-
 class LinearSegmentedColormap(Colormap):
     """
     Colormap objects based on lookup tables using linear segments.
@@ -1318,6 +1225,99 @@ class ListedColormap(Colormap):
         new_cmap._rgba_under = self._rgba_over
         new_cmap._rgba_bad = self._rgba_bad
         return new_cmap
+
+
+class MultivarColormap:
+    """
+    Class for holding multiple colormaps in VectorMappable before they are
+    passed to independent ScalarMappable objects
+
+    MultivarColormap does not support alpha in the look up tables (ignored).
+    """
+    def __init__(self, name, colormaps, combination_mode):
+        """
+        Parameters
+        ----------
+        name : str
+            The name of the colormap family.
+        colormaps: list or tuple of Colormap objects
+            The individual colormaps that are combined
+        combination_mode: str, 'Add' or 'Sub'
+            Describe how colormaps are combined in sRGB space
+            'Add' -> additive
+            'Sub' -> subtractive
+        """
+        self.name = name
+        if not np.iterable(colormaps) or not issubclass(type(colormaps[0]), Colormap):
+            raise ValueError("colormaps must be a list of objects that subclass"
+                             " Colormap, not strings or list of strings")
+
+        if len(colormaps) == 1:
+            raise ValueError("A MultivarColormap must have more than one colormap.")
+        self.colormaps = colormaps
+
+        for cm in self.colormaps:
+            if not cm._rgba_bad[3] == 0:
+                raise ValueError("The colormaps that combine in a MultivarColormap"
+                                 " must have alpha = 0 for 'bad' values."
+                                 " This requirement exists to allow simple detection"
+                                 " of bad values with the existing colormap pipeline."
+                                 )
+
+        if combination_mode not in ['Add', 'Sub']:
+            raise ValueError("combination_mode must be 'Add' or 'Sub',"
+                             f" {name!r} is not allowed.")
+        self.combination_mode = combination_mode
+
+        self.n_variates = len(colormaps)
+
+        self._rgba_bad = (0.0, 0.0, 0.0, 0.0)  # If bad, don't paint anything.
+
+    def copy(self):
+        """Return a copy of the multivarcolormap."""
+        return self.__copy__()
+
+    def __copy__(self):
+        cls = self.__class__
+        cmapobject = cls.__new__(cls)
+        cmapobject.__dict__.update(self.__dict__)
+        cmapobject.colormaps = [cm.copy() for cm in self.colormaps]
+        cmapobject._rgba_bad = np.copy(self._rgba_bad)
+        return cmapobject
+
+    def __getitem__(self, item):
+        try:
+            return self.colormaps[item]
+        except KeyError:
+            raise KeyError(f"only {[i for i in range(len(self.colormaps))]} are"
+                           f" valid keys for MultipleColormap, not {item!r}")
+
+    def __iter__(self):
+        for c in self.colormaps:
+            yield c
+
+    def __len__(self):
+        return len(self.colormaps)
+
+    def __str__(self):
+        return self.name
+
+    def get_bad(self):
+        """Get the color for masked values."""
+        return np.array(self._rgba_bad)
+
+    def set_bad(self, color='k', alpha=None):
+        """Set the color for masked values."""
+        self._rgba_bad = to_rgba(color, alpha)
+
+    def _repr_png_(self):
+        raise NotImplementedError("no png representation of MultivarColormap"
+                                  " but you may access png repreesntations of the"
+                                  " individual colorbars.")
+
+    def _repr_html_(self):
+        """Generate an HTML representation of the MultivarColormap."""
+        return ''.join([c._repr_html_() for c in self.colormaps])
 
 
 class BivarColormap:
