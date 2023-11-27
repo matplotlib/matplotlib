@@ -305,6 +305,7 @@ def test_multivar_cmap_call_tuple():
     cmap = mpl.multivar_colormaps['2VarAddA']
     assert_array_equal(cmap((0.0, 0.0)), (0, 0, 0, 1))
     assert_array_equal(cmap((1.0, 1.0)), (1, 1, 1, 1))
+    assert_allclose(cmap((0.0, 0.0), alpha=0.1), (0, 0, 0, 0.1), atol=0.1)
 
     cmap = mpl.multivar_colormaps['2VarSubA']
     assert_array_equal(cmap((0.0, 0.0)), (1, 1, 1, 1))
@@ -338,6 +339,7 @@ def test_bivariate_cmap_call():
                (x_1/9, x_1/9)))
     axes[2].imshow(im.reshape((20, 10, 4)), interpolation='nearest')
 
+    cmap = mpl.bivar_colormaps['BiOrangeBlue']
     # call with constant alpha, and data of type int
     im = cmap((x_0.astype('int')*25, x_1.astype('int')*25), alpha=0.5)
     axes[3].imshow(im, interpolation='nearest')
@@ -353,6 +355,7 @@ def test_bivar_cmap_call_tuple():
     cmap = mpl.bivar_colormaps['BiOrangeBlue']
     assert_allclose(cmap((1.0, 1.0)), (1, 1, 1, 1), atol=0.01)
     assert_allclose(cmap((0.0, 0.0)), (0, 0, 0, 1), atol=0.1)
+    assert_allclose(cmap((0.0, 0.0), alpha=0.1), (0, 0, 0, 0.1), atol=0.1)
 
 
 @image_comparison(["bivar_cmap_from_image.png"])

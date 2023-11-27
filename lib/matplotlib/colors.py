@@ -1325,10 +1325,10 @@ class MultivarColormap:
 
         if alpha is not None:
             alpha = np.clip(alpha, 0, 1)
-            if alpha.shape not in [(), X[0].shape]:
+            if alpha.shape not in [(), np.array(X[0]).shape]:
                 raise ValueError(
                     f"alpha is array-like but its shape {alpha.shape} does "
-                    f"not match that of the input {X[0].shape}")
+                    f"not match that of the input {np.array(X[0]).shape}")
             rgba[..., -1] *= alpha
 
         if bytes:
@@ -1459,7 +1459,10 @@ class BivarColormap:
         """
         if not self._isinit:
             self._init()
+
         xa = np.ma.array(X, copy=True)
+        # clip to shape of colormap, circle square, etc.
+        self._clip(xa)
 
         if not xa.dtype.isnative:
             # Native byteorder is faster.
@@ -1505,10 +1508,10 @@ class BivarColormap:
             alpha = np.clip(alpha, 0, 1)
             if bytes:
                 alpha *= 255  # Will be cast to uint8 upon assignment.
-            if alpha.shape not in [(), xa[0].shape]:
+            if alpha.shape not in [(), np.array(xa[0]).shape]:
                 raise ValueError(
                     f"alpha is array-like but its shape {alpha.shape} does "
-                    f"not match that of X {xa[0].shape}")
+                    f"not match that of X {np.array(xa[0]).shape}")
             rgba[..., -1] = alpha
             # If the "bad" color is all zeros, then ignore alpha input.
             if (np.array(self._rgba_bad) == 0).all():
@@ -1542,12 +1545,6 @@ class BivarColormap:
             lut[mask_outside, 3] = 0
         return lut
 
-    @lut.setter
-    def lut(self):
-        raise AttributeError(
-            "You cannot set the lut of an already existing bivariate colormap"
-            " instead you should create a new colormap with the desired lut")
-
     def __copy__(self):
         cls = self.__class__
         cmapobject = cls.__new__(cls)
@@ -1555,6 +1552,7 @@ class BivarColormap:
 
         cmapobject._rgba_outside = np.copy(self._rgba_outside)
         cmapobject._rgba_bad = np.copy(self._rgba_bad)
+        cmapobject.shape = self.shape
         if self._isinit:
             cmapobject._lut = np.copy(self._lut)
         return cmapobject
@@ -1567,7 +1565,15 @@ class BivarColormap:
             self._init()
         if not other._isinit:
             other._init()
-        return np.array_equal(self._lut, other._lut)
+        if not np.array_equal(self._lut, other._lut):
+            return False
+        if not np.array_equal(self._rgba_bad, other._rgba_bad):
+            return False
+        if not np.array_equal(self._rgba_outside, other._rgba_outside):
+            return False
+        if not self.shape == other.shape:
+            return False
+        return True
 
     def get_bad(self):
         """Get the color for masked values."""
@@ -1589,30 +1595,17 @@ class BivarColormap:
         """Generate the lookup table, ``self._lut``."""
         raise NotImplementedError("Abstract class only")
 
-    def transform(self, rot=0, flip_0=False, flip_1=False, name=None):
+    def _clip(self, X):
         """
-        Return a rotated and/or flipped instance of the BivarColormap.
-
-        .. note:: This function is not implemented for the base class.
-
-        Parameters
-        ----------
-        name : str, optional
-            The name for the transformed colormap.
-        """
-        raise NotImplementedError()
-
-    def clip(self, x0, x1):
-        """
-        For use when displaying a BivarColormap.
+        For internal use when applying a BivarColormap to data.
         i.e. cm.VectorMappable().to_rgba()
-        Clips x0 and x1 according to 'self.shape'.
-        x0 and x1 are modified in-place.
+        Clips X[0] and X[1] according to 'self.shape'.
+        X is modified in-place.
 
         Parameters
         ----------
-        x0, x1: np.array
-            arrays of floats to be clipped
+        X: np.array
+            array of floats or ints to be clipped
         shape: str 'square' or 'circle' or 'ignore' or 'circleignore'
             If 'square' each variate is clipped to [0,1] independently
             If 'circle' the variates are clipped radially to the center
@@ -1626,29 +1619,60 @@ class BivarColormap:
         """
 
         if self.shape == 'square':
-            x0[x0 < 0] = 0
-            x0[x0 > 1] = 1
-            x1[x1 < 0] = 0
-            x1[x1 > 1] = 1
-
-        elif self.shape == 'circle':
-            radii_sqr = (x0 - 0.5)**2 + (x1 - 0.5)**2
-            mask_outside = radii_sqr > 0.25
-            overextend = 2 * np.sqrt(radii_sqr[mask_outside])
-            x0[mask_outside] = (x0[mask_outside] - 0.5) / overextend + 0.5
-            x1[mask_outside] = (x1[mask_outside] - 0.5) / overextend + 0.5
-
-        elif self.shape == 'circleignore':
-            radii_sqr = (x0 - 0.5)**2 + (x1 - 0.5)**2
-            mask_outside = radii_sqr > 0.25
-            x0[mask_outside] = -1
-            x1[mask_outside] = -1
+            if X.dtype.kind == "f":
+                X[X > 1] = 1
+                X[X < 0] = 0
+            else:
+                X[X < 0] = 0
+                if np.isscalar(X[0]):
+                    if X[0] >= self.N:
+                        X[0] = self.N - 1
+                    if X[1] >= self.M:
+                        X[1] = self.M - 1
+                else:
+                    X[0, X[0] >= self.N] = self.N - 1
+                    X[1, X[1] >= self.M] = self.M - 1
 
         elif self.shape == 'ignore':
-            x0[x0 < 0] = -1
-            x0[x0 > 1] = -1
-            x1[x1 < 0] = -1
-            x1[x1 > 1] = -1
+            if X.dtype.kind == "f":
+                X[X > 1] = -1
+                X[X < 0] = -1
+            else:
+                X[X < 0] = -1
+                if np.isscalar(X[0]):
+                    if X[0] >= self.N:
+                        X[0] = -1
+                    if X[1] >= self.M:
+                        X[1] = -1
+                else:
+                    X[0, X[0] >= self.N] = -1
+                    X[1, X[1] >= self.M] = -1
+
+        elif self.shape == 'circle' or self.shape == 'circleignore':
+            if not X.dtype.kind == "f":
+                raise NotImplementedError(
+                    "Circular bivariate colormaps are only"
+                    " implemented for use with with floats, not integers")
+            radii_sqr = (X[0] - 0.5)**2 + (X[1] - 0.5)**2
+            mask_outside = radii_sqr > 0.25
+            if np.isscalar(mask_outside):
+                if mask_outside:
+                    if self.shape == 'circle':
+                        overextend = 2 * np.sqrt(radii_sqr)
+                        X[0] = (X[0] - 0.5) / overextend + 0.5
+                        X[1] = (X[1] - 0.5) / overextend + 0.5
+                    else:
+                        X[0] = -1
+                        X[1] = -1
+
+            else:
+                if self.shape == 'circle':
+                    overextend = 2 * np.sqrt(radii_sqr[mask_outside])
+                    X[0, mask_outside] = (X[0, mask_outside] - 0.5) / overextend + 0.5
+                    X[1, mask_outside] = (X[1, mask_outside] - 0.5) / overextend + 0.5
+                else:
+                    X[0, mask_outside] = -1
+                    X[1, mask_outside] = -1
 
     def _repr_png_(self):
         """Generate a PNG representation of the BivarColormap."""

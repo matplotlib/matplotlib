@@ -511,7 +511,6 @@ class VectorMappable:
                     normed_0 = x[0].copy()
                     normed_1 = x[1].copy()
                 # in-place clip to shape of colormap: square, circle, etc.
-                self._cmap.clip(normed_0, normed_1)
                 rgba = self.cmap((normed_0, normed_1))
             else:  # i.e. isinstance(self._cmaps, colors.MultivarColormap)
                 # This loops through the data and does norm+cmap for each variate.
