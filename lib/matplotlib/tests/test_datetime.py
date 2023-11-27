@@ -20,11 +20,52 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.annotate(...)
 
-    @pytest.mark.xfail(reason="Test for arrow not written yet")
     @mpl.style.context("default")
     def test_arrow(self):
-        fig, ax = plt.subplots()
-        ax.arrow(...)
+        mpl.rcParams["date.converter"] = 'concise'
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1,
+                                            constrained_layout=True,
+                                            figsize=(10, 12))
+
+        start_date = datetime.datetime(2023, 1, 1)
+        dates = [start_date + datetime.timedelta(days=i) for i in range(31)]
+        y_values = range(31)
+
+        ax1.plot(dates, y_values, marker='o')
+        ax1.arrow(dates[10], 10, 10, 10,
+                  head_width=1,
+                  head_length=1,
+                  linewidth=3,
+                  facecolor='red',
+                  edgecolor='red',
+                  transform=ax1.transData)
+        ax1.set_title('Datetime vs. Number')
+        ax1.set_xlabel('Date')
+        ax1.set_ylabel('Number')
+
+        ax2.plot(y_values, dates, marker='o')
+        ax2.arrow(10, dates[10], 10, 10,
+                  head_width=1,
+                  head_length=1,
+                  linewidth=3,
+                  facecolor='red',
+                  edgecolor='red',
+                  transform=ax2.transData)
+        ax2.set_title('Number vs. Datetime')
+        ax2.set_xlabel('Number')
+        ax2.set_ylabel('Date')
+
+        ax3.plot(dates, dates, marker='o')
+        ax3.arrow(dates[10], dates[10], 10, 10,
+                  head_width=1,
+                  head_length=1,
+                  linewidth=3,
+                  facecolor='red',
+                  edgecolor='red',
+                  transform=ax3.transData)
+        ax3.set_title('Datetime vs. Datetime')
+        ax3.set_xlabel('Date')
+        ax3.set_ylabel('Date')
 
     @mpl.style.context("default")
     def test_axhline(self):
