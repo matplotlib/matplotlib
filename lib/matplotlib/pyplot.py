@@ -1010,7 +1010,7 @@ def fignum_exists(num: int | str) -> bool:
     Returns
     -------
     bool
-        Whether or not a figure with id `num` exists.
+        Whether or not a figure with id *num* exists.
     """
     return (
         _pylab_helpers.Gcf.has_fignum(num)
