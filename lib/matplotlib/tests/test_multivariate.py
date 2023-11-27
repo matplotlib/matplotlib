@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.testing import assert_array_equal, assert_allclose
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import (image_comparison,
                                            remove_ticks_and_titles)
@@ -300,6 +301,16 @@ def test_multivar_cmap_call():
     remove_ticks_and_titles(fig)
 
 
+def test_multivar_cmap_call_tuple():
+    cmap = mpl.multivar_colormaps['2VarAddA']
+    assert_array_equal(cmap((0.0, 0.0)), (0, 0, 0, 1))
+    assert_array_equal(cmap((1.0, 1.0)), (1, 1, 1, 1))
+
+    cmap = mpl.multivar_colormaps['2VarSubA']
+    assert_array_equal(cmap((0.0, 0.0)), (1, 1, 1, 1))
+    assert_allclose(cmap((1.0, 1.0)), (0, 0, 0, 1), atol=0.1)
+
+
 @image_comparison(["bivariate_cmap_call.png"])
 def test_bivariate_cmap_call():
     """
@@ -336,6 +347,12 @@ def test_bivariate_cmap_call():
     axes[4].imshow(im, interpolation='nearest')
 
     remove_ticks_and_titles(fig)
+
+
+def test_bivar_cmap_call_tuple():
+    cmap = mpl.bivar_colormaps['BiOrangeBlue']
+    assert_allclose(cmap((1.0, 1.0)), (1, 1, 1, 1), atol=0.01)
+    assert_allclose(cmap((0.0, 0.0)), (0, 0, 0, 1), atol=0.1)
 
 
 @image_comparison(["bivar_cmap_from_image.png"])

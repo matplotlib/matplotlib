@@ -519,9 +519,9 @@ class VectorMappable:
                 # Looping norm+cmap for each variate has better memory utilization,
                 # but requires a separate implementation, rather than calling cmap().
                 s = self.scalars[0]
-                rgba = s.to_rgba(x[0], bytes=False, norm=norm, alpha=1)
+                rgba = np.array(s.to_rgba(x[0], bytes=False, norm=norm, alpha=1))
                 for s, xx in zip(self.scalars[1:], x[1:]):
-                    sub_rgba = s.to_rgba(xx, bytes=False, norm=norm, alpha=1)
+                    sub_rgba = np.array(s.to_rgba(xx, bytes=False, norm=norm, alpha=1))
                     rgba[..., :3] += sub_rgba[..., :3]  # add colors
                     rgba[..., 3] *= sub_rgba[..., 3]  # multiply alpha
                 # MultivarColormap require alpha = 0 for bad values
@@ -530,7 +530,7 @@ class VectorMappable:
                 rgba[mask_bad] = self.cmap.get_bad()
 
                 if self._cmap.combination_mode == 'Sub':
-                    rgba[:, :, :3] -= len(self.scalars) - 1
+                    rgba[..., :3] -= len(self.scalars) - 1
 
             rgba = np.clip(rgba, 0, 1)
 

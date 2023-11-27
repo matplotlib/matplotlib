@@ -1296,7 +1296,7 @@ class MultivarColormap:
 
         Returns
         -------
-        Tuple of RGBA values if X is scalar, otherwise an array of
+        Tuple of RGBA values if X[0] is scalar, otherwise an array of
         RGBA values with a shape of ``X.shape + (4, )``.
         """
 
@@ -1304,9 +1304,9 @@ class MultivarColormap:
             raise ValueError(
                 f'For the selected colormap the data must have a first dimension '
                 f'{len(self)}, not {len(X)}')
-        rgba = self[0](X[0], bytes=False, alpha=1)
+        rgba = np.array(self[0](X[0], bytes=False, alpha=1))
         for c, xx in zip(self[1:], X[1:]):
-            sub_rgba = c(xx, bytes=False, alpha=1)
+            sub_rgba = np.array(c(xx, bytes=False, alpha=1))
             rgba[..., :3] += sub_rgba[..., :3]  # add colors
             rgba[..., 3] *= sub_rgba[..., 3]  # multiply alpha
         # MultivarColormap require alpha = 0 for bad values
@@ -1315,7 +1315,7 @@ class MultivarColormap:
         rgba[mask_bad] = self.get_bad()
 
         if self.combination_mode == 'Sub':
-            rgba[:, :, :3] -= len(self) - 1
+            rgba[..., :3] -= len(self) - 1
 
         rgba = np.clip(rgba, 0, 1)
 
@@ -1333,6 +1333,10 @@ class MultivarColormap:
 
         if bytes:
             rgba = (rgba * 255).astype('uint8')
+
+        if not np.iterable(X[0]):
+            rgba = tuple(rgba)
+
         return rgba
 
     def copy(self):
@@ -1463,11 +1467,17 @@ class BivarColormap:
 
         if xa.dtype.kind == "f":
             xa[0] *= self.N
-            # xa == 1 (== N after multiplication) is not out of range.
-            xa[0][xa[0] == self.N] = self.N - 1
             xa[1] *= self.M
-            # xa == 1 (== N after multiplication) is not out of range.
-            xa[1][xa[1] == self.M] = self.M - 1
+            if not np.iterable(xa[0]):
+                if xa[0] == self.N:
+                    xa[0] = self.N - 1
+                if xa[1] == self.M:
+                    xa[1] = self.M - 1
+            else:
+                # xa == 1 (== N after multiplication) is not out of range.
+                xa[0][xa[0] == self.N] = self.N - 1
+                # xa == 1 (== N after multiplication) is not out of range.
+                xa[1][xa[1] == self.M] = self.M - 1
         # Pre-compute the masks before casting to int (which can truncate)
         mask_outside = (xa[0] < 0) | (xa[1] < 0) \
                      | (xa[0] >= self.N) | (xa[1] >= self.M)
