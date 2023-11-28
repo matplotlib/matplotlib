@@ -2,7 +2,7 @@
 ``matplotlib.hatch``
 ********************
 
-.. image:: ../gallery/shapes_and_collections/images/sphx_glr_hatch_style_reference_001.png
+.. image:: /gallery/shapes_and_collections/images/sphx_glr_hatch_style_reference_001.png
    :align: center
    :alt: Example image showing hatching patterns with level 1 density.
 
