@@ -1229,10 +1229,11 @@ class ListedColormap(Colormap):
 
 class MultivarColormap:
     """
-    Class for holding multiple colormaps in VectorMappable before they are
-    passed to independent ScalarMappable objects
+    Class for holding multiple `~matplotlib.colors.Colormap` for use in a
+    `~matplotlib.cm.VectorMappable` object
 
-    MultivarColormap does not support alpha in the look up tables (ignored).
+    MultivarColormap does not support alpha in the constituent
+    look up tables (ignored).
     """
     def __init__(self, name, colormaps, combination_mode):
         """
@@ -1240,7 +1241,7 @@ class MultivarColormap:
         ----------
         name : str
             The name of the colormap family.
-        colormaps: list or tuple of Colormap objects
+        colormaps: list or tuple of `~matplotlib.colors.Colormap` objects
             The individual colormaps that are combined
         combination_mode: str, 'Add' or 'Sub'
             Describe how colormaps are combined in sRGB space
@@ -1328,7 +1329,7 @@ class MultivarColormap:
             if alpha.shape not in [(), np.array(X[0]).shape]:
                 raise ValueError(
                     f"alpha is array-like but its shape {alpha.shape} does "
-                    f"not match that of the input {np.array(X[0]).shape}")
+                    f"not match that of X[0] {np.array(X[0]).shape}")
             rgba[..., -1] *= alpha
 
         if bytes:
@@ -1350,6 +1351,20 @@ class MultivarColormap:
         cmapobject.colormaps = [cm.copy() for cm in self.colormaps]
         cmapobject._rgba_bad = np.copy(self._rgba_bad)
         return cmapobject
+
+    def __eq__(self, other):
+        if not isinstance(other, MultivarColormap):
+            return False
+        if not len(self) == len(other):
+            return False
+        for c0, c1 in zip(self, other):
+            if not c0 == c1:
+                return False
+        if not all(self._rgba_bad == other._rgba_bad):
+            return False
+        if not self.combination_mode == other.combination_mode:
+            return False
+        return True
 
     def __getitem__(self, item):
         try:
@@ -1391,8 +1406,9 @@ class BivarColormap:
     Baseclass for all bivarate to RGBA mappings.
 
     Designed as a drop-in replcement for Colormap when using a 2D
-    lookup table. To be used with VectorMappable.
+    lookup table. To be used with `~matplotlib.cm.VectorMappable`.
     """
+
     def __init__(self, name, N=256, M=None, shape='square'):
         """
         Parameters
@@ -1405,16 +1421,18 @@ class BivarColormap:
             The number of RGB quantization levels along the second axis.
             If None, M = N
         shape: str 'square' or 'circle' or 'ignore' or 'circleignore'
-            If 'square' each variate is clipped to [0,1] independently
-            If 'circle' the variates are clipped radially to the center
-                of the colormap, and a circular mask is applied when the colormap
-                is displayed
-            If 'ignore' the variates are not clipped, but instead assigned the
-                'outside' color
-            If 'circleignore' a circular mask is applied, but the data is not
-                clipped but instead assigned the 'outside' color
+
+            - If 'square' each variate is clipped to [0,1] independently
+            - If 'circle' the variates are clipped radially to the center
+              of the colormap, and a circular mask is applied when the colormap
+              is displayed
+            - If 'ignore' the variates are not clipped, but instead assigned the
+              'outside' color
+            - If  'circleignore' a circular mask is applied, but the data is not
+              clipped and instead assigned the 'outside' color
 
         """
+
         self.name = name
         self.N = int(N)  # ensure that N is always int
         if M is None:
@@ -1436,14 +1454,14 @@ class BivarColormap:
         r"""
         Parameters
         ----------
-        X : tuple (X0, X1)
-            X0 and X1:
-            float or int, `~numpy.ndarray` or scalar
+        X : tuple (X0, X1), X0 and X1: float or int `~numpy.ndarray` or scalar
             The data value(s) to convert to RGBA.
-            For floats, *X* should be in the interval ``[0.0, 1.0]`` to
-            return the RGBA values ``X*100`` percent along the Colormap line.
-            For integers, *X* should be in the interval ``[0, Colormap.N)`` to
-            return RGBA values *indexed* from the Colormap with index ``X``.
+
+            - For floats, *X* should be in the interval ``[0.0, 1.0]`` to
+              return the RGBA values ``X*100`` percent along the Colormap.
+            - For integers, *X* should be in the interval ``[0, Colormap.N)`` to
+              return RGBA values *indexed* from the Colormap with index ``X``.
+
         alpha : float or array-like or None
             Alpha must be a scalar between 0 and 1, a sequence of such
             floats with shape matching X0, or None.
@@ -1457,6 +1475,12 @@ class BivarColormap:
         Tuple of RGBA values if X is scalar, otherwise an array of
         RGBA values with a shape of ``X.shape + (4, )``.
         """
+
+        if len(X) != 2:
+            raise ValueError(
+                f'For a `BivarColormap` the data must have a first dimension '
+                f'{2}, not {len(X)}')
+
         if not self._isinit:
             self._init()
 
@@ -1511,7 +1535,7 @@ class BivarColormap:
             if alpha.shape not in [(), np.array(xa[0]).shape]:
                 raise ValueError(
                     f"alpha is array-like but its shape {alpha.shape} does "
-                    f"not match that of X {np.array(xa[0]).shape}")
+                    f"not match that of X[0] {np.array(xa[0]).shape}")
             rgba[..., -1] = alpha
             # If the "bad" color is all zeros, then ignore alpha input.
             if (np.array(self._rgba_bad) == 0).all():
@@ -1607,15 +1631,17 @@ class BivarColormap:
         X: np.array
             array of floats or ints to be clipped
         shape: str 'square' or 'circle' or 'ignore' or 'circleignore'
-            If 'square' each variate is clipped to [0,1] independently
-            If 'circle' the variates are clipped radially to the center
-                of the colormap.
-                It is assumed that a circular mask is applied when the colormap
-                is displayed
-            If 'ignore' the variates are not clipped, but instead assigned the
-                'outside' color
-            If 'circleignore' a circular mask is applied, but the data is not clipped
-                and instead assigned the 'outside' color
+
+            - If 'square' each variate is clipped to [0,1] independently
+            - If 'circle' the variates are clipped radially to the center
+              of the colormap.
+              It is assumed that a circular mask is applied when the colormap
+              is displayed
+            - If 'ignore' the variates are not clipped, but instead assigned the
+              'outside' color
+            - If 'circleignore' a circular mask is applied, but the data is not clipped
+              and instead assigned the 'outside' color
+
         """
 
         if self.shape == 'square':
@@ -1745,14 +1771,17 @@ class SegmentedBivarColormap(BivarColormap):
         The number of RGB quantization levels along the second axis.
         If None, M = N
     shape: str 'square' or 'circle' or 'ignore' or 'circleignore'
-        If 'square' each variate is clipped to [0,1] independently
-        If 'circle' the variates are clipped radially to the center
-            of the colormap, and a circular mask is applied when the colormap
-            is displayed
-        If 'ignore' the variates are not clipped, but instead assigned the
-            'outside' color
-        If 'circleignore' a circular mask is applied, but the data is not clipped
+
+        - If 'square' each variate is clipped to [0,1] independently
+        - If 'circle' the variates are clipped radially to the center
+          of the colormap, and a circular mask is applied when the colormap
+          is displayed
+        - If 'ignore' the variates are not clipped, but instead assigned the
+          'outside' color
+        - If 'circleignore' a circular mask is applied, but the data is not clipped
+
     """
+
     def __init__(self, patch, name, N=256, shape='square'):
         self.patch = patch
         super().__init__(name, N, N, shape)
@@ -1782,14 +1811,17 @@ class BivarColormapFromImage(BivarColormap):
     name : str
         The name of the colormap.
     shape: str 'square' or 'circle' or 'ignore' or 'circleignore'
-        If 'square' each variate is clipped to [0,1] independently
-        If 'circle' the variates are clipped radially to the center
-            of the colormap, and a circular mask is applied when the colormap
-            is displayed
-        If 'ignore' the variates are not clipped, but instead assigned the
-            'outside' color
-        If 'circleignore' a circular mask is applied, but the data is not clipped
+
+        - If 'square' each variate is clipped to [0,1] independently
+        - If 'circle' the variates are clipped radially to the center
+          of the colormap, and a circular mask is applied when the colormap
+          is displayed
+        - If 'ignore' the variates are not clipped, but instead assigned the
+          'outside' color
+        - If 'circleignore' a circular mask is applied, but the data is not clipped
+
     """
+
     def __init__(self, lut, name, shape='square'):
         self._lut = lut
         super().__init__(name, lut.shape[0], lut.shape[1], shape)

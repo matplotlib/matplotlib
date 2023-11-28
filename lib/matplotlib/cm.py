@@ -305,7 +305,7 @@ class VectorMappable:
     A mixin class to map multiple scalar data to RGBA.
 
     The VectorMappable applies data normalization before returning RGBA colors
-    from the given MultivareColormap or BivarColormap.
+    from the given MultivarColormap or BivarColormap.
     """
     def __init__(self, norm=None, cmap=None):
         """
@@ -322,11 +322,11 @@ class VectorMappable:
             If *None*, *norm* defaults to a *colors.Normalize* object which
             initializes its scaling based on the first data processed.
         cmap : str or `~matplotlib.colors.Colormap`,
-                   or `~matplotlib.colors.BivarColormap`
-                   or `~matplotlib.colors.MultivariateColormap`
+            or `~matplotlib.colors.BivarColormap`
+            or `~matplotlib.colors.MultivarColormap`
             The colormap used to map normalized data values to RGBA colors.
-
         """
+
         self._pause_signals = False
 
         cmap = ensure_cmap(cmap)
@@ -1055,16 +1055,17 @@ def _ensure_cmap(cmap):
     Returns
     -------
     Colormap
-
     """
+
     return ensure_cmap(cmap, accept_multivariate=False)
 
 
 def ensure_cmap(cmap, accept_multivariate=True):
     """
     For internal use to preserve type stability of errors, and
-    for external use to ensure that we have a `Colormap`,
-    `MultivarColormap` or `BivarColormap` object.
+    for external use to ensure that we have a `~matplotlib.colors.Colormap`,
+    `~matplotlib.colors.MultivarColormap` or
+    `~matplotlib.colors.BivarColormap` object.
     This is necessary in order to know the number of variates.
 
     objects, strings in mpl.colormaps, or None.
@@ -1073,8 +1074,10 @@ def ensure_cmap(cmap, accept_multivariate=True):
     ----------
     cmap : None, str, Colormap
 
-        - if a `Colormap`, `MultivarColormap` or `BivarColormap`,
-         return it
+        - if a `~matplotlib.colors.Colormap`,
+          `~matplotlib.colors.MultivarColormap` or
+          `~matplotlib.colors.BivarColormap`,
+          return it
         - if a string, look it up in three corresponding databases
           when not found: raise an error based on the expected shape
         - if None, look up the default color map in mpl.colormaps
@@ -1086,7 +1089,6 @@ def ensure_cmap(cmap, accept_multivariate=True):
     Returns
     -------
     Colormap, MultivarColormap or BivarColormap
-
     """
     if not accept_multivariate:
         if isinstance(cmap, colors.Colormap):
@@ -1134,6 +1136,7 @@ def ensure_multivariate_norm(n_variates, norm):
     n_variates : int
         -  number of variates in the data
     norm : `.Normalize` (or subclass thereof) or str or None or iterable
+
         - If iterable, the length must be equal to n_variates
 
     Returns

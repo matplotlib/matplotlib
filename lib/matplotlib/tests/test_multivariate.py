@@ -277,11 +277,15 @@ def test_multivar_cmap_call():
 
     cmap = mpl.multivar_colormaps['2VarAddA']
 
+    # call with 0D
+    axes[0].scatter(3, 6, c=[cmap((0.5, 0.5))])
+
     # call with 1D
     im = cmap((x_0[0]/9, x_1[::-1, 0]/9))
     axes[0].scatter(np.arange(10), np.arange(10), c=im)
 
     # call with 2D
+    cmap = mpl.multivar_colormaps['2VarSubA']
     im = cmap((x_0/9, x_1/9))
     axes[1].imshow(im, interpolation='nearest')
 
@@ -298,6 +302,14 @@ def test_multivar_cmap_call():
     im = cmap((x_0/9, x_1/9), alpha=(x_0/9)**2, bytes=True)
     axes[4].imshow(im, interpolation='nearest')
 
+    # call with wrong shape
+    with pytest.raises(ValueError, match="must have a first dimension 2"):
+        cmap((0, 0, 0))
+
+    # call with wrong shape of alpha
+    with pytest.raises(ValueError, match=r"shape \(2,\) does not match "
+                                         r"that of X\[0\] \(\)"):
+        cmap((0, 0), alpha=(1, 1))
     remove_ticks_and_titles(fig)
 
 
@@ -347,6 +359,15 @@ def test_bivariate_cmap_call():
     # call with variable alpha
     im = cmap((x_0/9, x_1/9), alpha=(x_0/9)**2, bytes=True)
     axes[4].imshow(im, interpolation='nearest')
+
+    # call with wrong shape
+    with pytest.raises(ValueError, match="must have a first dimension 2"):
+        cmap((0, 0, 0))
+
+    # call with wrong shape of alpha
+    with pytest.raises(ValueError, match=r"shape \(2,\) does not match "
+                                         r"that of X\[0\] \(\)"):
+        cmap((0, 0), alpha=(1, 1))
 
     remove_ticks_and_titles(fig)
 
@@ -522,3 +543,76 @@ def test_multivariate_repr_html():
     assert cmap.name in html
     assert html.startswith('<div')
     assert html.endswith('</div>')
+
+
+def test_bivar_eq():
+    """
+    Tests equality between bivariate colormaps
+    """
+    cmap_0 = mpl.bivar_colormaps['BiOrangeBlue']
+
+    cmap_1 = mpl.bivar_colormaps['BiOrangeBlue']
+    assert (cmap_0 == cmap_1) is True
+
+    cmap_1 = mpl.multivar_colormaps['2VarAddA']
+    assert (cmap_0 == cmap_1) is False
+
+    cmap_1 = mpl.bivar_colormaps['BiPeak']
+    assert (cmap_0 == cmap_1) is False
+
+    cmap_1 = mpl.bivar_colormaps['BiOrangeBlue']
+    cmap_1.set_bad('k')
+    assert (cmap_0 == cmap_1) is False
+
+    cmap_1 = mpl.bivar_colormaps['BiOrangeBlue']
+    cmap_1.set_outside('k')
+    assert (cmap_0 == cmap_1) is False
+
+    cmap_1 = mpl.bivar_colormaps['BiOrangeBlue']
+    cmap_1.shape = 'circle'
+    assert (cmap_0 == cmap_1) is False
+
+
+def test_multivar_eq():
+    """
+    Tests equality between multivariate colormaps
+    """
+    cmap_0 = mpl.multivar_colormaps['2VarAddA']
+
+    cmap_1 = mpl.multivar_colormaps['2VarAddA']
+    assert (cmap_0 == cmap_1) is True
+
+    cmap_1 = mpl.bivar_colormaps['BiPeak']
+    assert (cmap_0 == cmap_1) is False
+
+    cmap_1 = mpl.colors.MultivarColormap('2VarAddA',
+                                         [cmap_0[0]]*2,
+                                         'Add')
+    assert (cmap_0 == cmap_1) is False
+
+    cmap_1 = mpl.multivar_colormaps['3VarAddA']
+    assert (cmap_0 == cmap_1) is False
+
+    cmap_1 = mpl.multivar_colormaps['2VarAddA']
+    cmap_1.set_bad('k')
+    assert (cmap_0 == cmap_1) is False
+
+    cmap_1 = mpl.multivar_colormaps['2VarAddA']
+    cmap_1.combination_mode = 'Sub'
+    assert (cmap_0 == cmap_1) is False
+
+
+def test_cmap_error():
+    data = np.ones((2, 4, 4))
+    for call in (plt.imshow, plt.pcolor, plt.pcolormesh):
+        with pytest.raises(ValueError, match=re.escape(
+            "See matplotlib.bivar_colormaps() and matplotlib.multivar_colormaps()"
+            " for bivariate and multivariate colormaps."
+                                                       )):
+            call(data, cmap='not_a_cmap')
+
+    with pytest.raises(ValueError, match=re.escape(
+        "See matplotlib.bivar_colormaps() and matplotlib.multivar_colormaps()"
+        " for bivariate and multivariate colormaps."
+                                                   )):
+        mpl.collections.PatchCollection([], cmap='not_a_cmap')

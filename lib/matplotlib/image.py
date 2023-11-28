@@ -933,8 +933,8 @@ class AxesImage(_ImageBase):
     ----------
     ax : `~matplotlib.axes.Axes`
         The axes the image will belong to.
-    cmap : str or `~matplotlib.colors.Colormap`, or
-        `~matplotlib.colors.MultivarColormap` or
+    cmap : str or `~matplotlib.colors.Colormap`, or \
+        `~matplotlib.colors.MultivarColormap` or \
         `~matplotlib.colors.BivarColormap`, default: :rc:`image.cmap`
         The Colormap instance or registered colormap name used to map scalar
         or multivariate data to colors.
