@@ -267,7 +267,9 @@ class Line3D(lines.Line2D):
     @artist.allow_rasterization
     def draw(self, renderer):
         xs3d, ys3d, zs3d = self._verts3d
-        xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, self.axes.M)
+        xs, ys, zs, tis = proj3d._proj_transform_clip(xs3d, ys3d, zs3d,
+                                                      self.axes.M,
+                                                      self.axes._focal_length)
         self.set_data(xs, ys)
         super().draw(renderer)
         self.stale = False
@@ -458,8 +460,9 @@ class Patch3D(Patch):
     def do_3d_projection(self):
         s = self._segment3d
         xs, ys, zs = zip(*s)
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
-                                                        self.axes.M)
+        vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
+                                                         self.axes.M,
+                                                         self.axes._focal_length)
         self._path2d = mpath.Path(np.column_stack([vxs, vys]))
         return min(vzs)
 
@@ -505,8 +508,9 @@ class PathPatch3D(Patch3D):
     def do_3d_projection(self):
         s = self._segment3d
         xs, ys, zs = zip(*s)
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
-                                                        self.axes.M)
+        vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
+                                                         self.axes.M,
+                                                         self.axes._focal_length)
         self._path2d = mpath.Path(np.column_stack([vxs, vys]), self._code3d)
         return min(vzs)
 
@@ -611,8 +615,9 @@ class Patch3DCollection(PatchCollection):
 
     def do_3d_projection(self):
         xs, ys, zs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
-                                                        self.axes.M)
+        vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
+                                                         self.axes.M,
+                                                         self.axes._focal_length)
         self._vzs = vzs
         super().set_offsets(np.column_stack([vxs, vys]))
 
@@ -752,8 +757,9 @@ class Path3DCollection(PathCollection):
 
     def do_3d_projection(self):
         xs, ys, zs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
-                                                        self.axes.M)
+        vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
+                                                         self.axes.M,
+                                                         self.axes._focal_length)
         # Sort the points based on z coordinates
         # Performance optimization: Create a sorted index array and reorder
         # points and point properties according to the index array

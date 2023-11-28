@@ -129,7 +129,7 @@ class Path:
         vertices = _to_unmasked_float_array(vertices)
         _api.check_shape((None, 2), vertices=vertices)
 
-        if codes is not None:
+        if codes is not None and len(vertices):
             codes = np.asarray(codes, self.code_type)
             if codes.ndim != 1 or len(codes) != len(vertices):
                 raise ValueError("'codes' must be a 1D list or array with the "
