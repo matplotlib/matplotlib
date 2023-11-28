@@ -931,8 +931,7 @@ class Axis(martist.Artist):
         """
         Set appearance parameters for ticks, ticklabels, and gridlines.
 
-        For documentation of keyword arguments, see
-        :meth:`matplotlib.axes.Axes.tick_params`.
+        For documentation of keyword arguments, see `.Axes.tick_params`.
 
         See Also
         --------
@@ -976,6 +975,16 @@ class Axis(martist.Artist):
         """
         Get appearance parameters for ticks, ticklabels, and gridlines.
 
+        .. note::
+            This method only returns the values of the parameters *bottom*, *top*,
+            *labelbottom*, *labeltop* or *left*, *right*, *labelleft*, *labelright*,
+            respectively, and *girdOn* as well as all additional parameters that were
+            set with `.Axis.set_tick_params` or methods that use it internally, such
+            as `.Axes.tick_params`. The returned parameters may differ from the values
+            of the current elements if they have been set by any other means (e.g.
+            via set_* methods for individual tick objects, `.pyplot.xticks`/
+            `.pyplot.yticks` or `.rcParams`).
+
         .. versionadded:: 3.7
 
         Parameters
@@ -987,13 +996,6 @@ class Axis(martist.Artist):
         -------
         dict
             Properties for styling tick elements added to the axis.
-
-        Notes
-        -----
-        This method returns the appearance parameters for styling *new*
-        elements added to this axis and may be different from the values
-        on current elements if they were modified directly by the user
-        (e.g., via ``set_*`` methods on individual tick objects).
 
         Examples
         --------
@@ -1019,15 +1021,10 @@ class Axis(martist.Artist):
 
 
         """
-        _api.check_in_list(['major', 'minor'], which=which)
-        if which == 'major':
-            return self._translate_tick_params(
-                self._major_tick_kw, reverse=True
-            )
-        return self._translate_tick_params(self._minor_tick_kw, reverse=True)
+        raise NotImplementedError('Derived must override')
 
     @staticmethod
-    def _translate_tick_params(kw, reverse=False):
+    def _translate_tick_params(kw, reverse=False, reverse_exclude=[]):
         """
         Translate the kwargs supported by `.Axis.set_tick_params` to kwargs
         supported by `.Tick._apply_params`.
@@ -1036,11 +1033,22 @@ class Axis(martist.Artist):
         to the generic tick1, tick2 logic of the axis. Additionally, there
         are some other name translations.
 
-        Returns a new dict of translated kwargs.
+        Parameters
+        ----------
+        kw
+            kwargs dict to translate.
+        reverse
+            whether to translate from set_tick_params kwargs to
+            _apply_params kwargs or back.
+        reverse_exclude
+            list of keys to be removed from the keymap before reverse
+            translating. This is necessary because there are multiple keys
+            with the same value in keymap, depending on the axis.
 
-        Note: Use reverse=True to translate from those supported by
-        `.Tick._apply_params` back to those supported by
-        `.Axis.set_tick_params`.
+        Returns
+        -------
+        dict
+            new dict of translated kwargs
         """
         kw_ = {**kw}
 
@@ -1069,6 +1077,8 @@ class Axis(martist.Artist):
             'labeltop': 'label2On',
         }
         if reverse:
+            for key in reverse_exclude:
+                del keymap[key]
             kwtrans = {
                 oldkey: kw_.pop(newkey)
                 for oldkey, newkey in keymap.items() if newkey in kw_
@@ -2518,6 +2528,15 @@ class XAxis(Axis):
         else:
             return 2**31 - 1
 
+    def get_tick_params(self, which='major'):
+        # docstring inherited
+        _api.check_in_list(['major', 'minor'], which=which)
+        return self._translate_tick_params(
+            getattr(self, f'_{which}_tick_kw'),
+            reverse=True,
+            reverse_exclude=['left', 'right', 'labelleft', 'labelright'],
+        )
+
 
 class YAxis(Axis):
     __name__ = 'yaxis'
@@ -2759,3 +2778,12 @@ class YAxis(Axis):
             return int(np.floor(length / size))
         else:
             return 2**31 - 1
+
+    def get_tick_params(self, which='major'):
+        # docstring inherited
+        _api.check_in_list(['major', 'minor'], which=which)
+        return self._translate_tick_params(
+            getattr(self, f'_{which}_tick_kw'),
+            reverse=True,
+            reverse_exclude=['bottom', 'top', 'labelbottom', 'labeltop'],
+        )
