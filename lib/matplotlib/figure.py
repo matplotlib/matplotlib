@@ -1322,7 +1322,7 @@ default: %(va)s
             cbs.append(cb)
         return cbs
 
-    def colorbar_2D(self, mappable, shape=(-1, -1), fraction=0.25, pad=0.1):
+    def colorbar_2D(self, mappable, fraction=0.25, pad=0.1):
         """
         Absolute minimal implementation of colorbar option for bivariate data
         *** This should be remade from scratch ***
