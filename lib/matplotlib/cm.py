@@ -536,6 +536,8 @@ class ScalarMappable:
                             "converted to float")
 
         self._A = A
+        if not self.norm.scaled():
+            self.norm.autoscale_None(A)
 
     def get_array(self):
         """
