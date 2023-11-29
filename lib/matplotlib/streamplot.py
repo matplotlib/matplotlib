@@ -5,7 +5,7 @@ Streamline plotting for 2D vector fields.
 
 import numpy as np
 
-import matplotlib
+import matplotlib as mpl
 from matplotlib import _api, cm, patches
 import matplotlib.colors as mcolors
 import matplotlib.collections as mcollections
@@ -39,19 +39,17 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         For different densities in each direction, use a tuple
         (density_x, density_y).
     linewidth : float or 2D array
-        The width of the stream lines. With a 2D array the line width can be
+        The width of the streamlines. With a 2D array the line width can be
         varied across the grid. The array must have the same shape as *u*
         and *v*.
     color : color or 2D array
         The streamline color. If given an array, its values are converted to
         colors using *cmap* and *norm*.  The array must have the same shape
         as *u* and *v*.
-    cmap : `~matplotlib.colors.Colormap`
-        Colormap used to plot streamlines and arrows. This is only used if
-        *color* is an array.
-    norm : `~matplotlib.colors.Normalize`
-        Normalize object used to scale luminance data to 0, 1. If ``None``,
-        stretch (min, max) to (0, 1). This is only used if *color* is an array.
+    cmap, norm
+        Data normalization and colormapping parameters for *color*; only used
+        if *color* is an array of floats. See `~.Axes.imshow` for a detailed
+        description.
     arrowsize : float
         Scaling factor for the arrow size.
     arrowstyle : str
@@ -59,11 +57,11 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         See `~matplotlib.patches.FancyArrowPatch`.
     minlength : float
         Minimum length of streamline in axes coordinates.
-    start_points : Nx2 array
+    start_points : (N, 2) array
         Coordinates of starting points for the streamlines in data coordinates
         (the same coordinates as the *x* and *y* arrays).
-    zorder : int
-        The zorder of the stream lines and arrows.
+    zorder : float
+        The zorder of the streamlines and arrows.
         Artists with lower zorder values are drawn first.
     maxlength : float
         Maximum length of streamline in axes coordinates.
@@ -84,7 +82,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         - ``lines``: `.LineCollection` of streamlines
 
         - ``arrows``: `.PatchCollection` containing `.FancyArrowPatch`
-          objects representing the arrows half-way along stream lines.
+          objects representing the arrows half-way along streamlines.
 
         This container will probably change in the future to allow changes
         to the colormap, alpha, etc. for both lines and arrows, but these
@@ -105,7 +103,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         color = axes._get_lines.get_next_color()
 
     if linewidth is None:
-        linewidth = matplotlib.rcParams['lines.linewidth']
+        linewidth = mpl.rcParams['lines.linewidth']
 
     line_kw = {}
     arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10 * arrowsize)
@@ -164,8 +162,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         for xs, ys in sp2:
             if not (grid.x_origin <= xs <= grid.x_origin + grid.width and
                     grid.y_origin <= ys <= grid.y_origin + grid.height):
-                raise ValueError("Starting point ({}, {}) outside of data "
-                                 "boundaries".format(xs, ys))
+                raise ValueError(f"Starting point ({xs}, {ys}) outside of "
+                                 "data boundaries")
 
         # Convert start_points from data to array coords
         # Shift the seed points from the bottom left of the data so that
@@ -189,7 +187,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     if use_multicolor_lines:
         if norm is None:
             norm = mcolors.Normalize(color.min(), color.max())
-        cmap = cm.get_cmap(cmap)
+        cmap = cm._ensure_cmap(cmap)
 
     streamlines = []
     arrows = []
@@ -200,10 +198,15 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         tx += grid.x_origin
         ty += grid.y_origin
 
-        points = np.transpose([tx, ty]).reshape(-1, 1, 2)
-        streamlines.extend(np.hstack([points[:-1], points[1:]]))
+        # Create multiple tiny segments if varying width or color is given
+        if isinstance(linewidth, np.ndarray) or use_multicolor_lines:
+            points = np.transpose([tx, ty]).reshape(-1, 1, 2)
+            streamlines.extend(np.hstack([points[:-1], points[1:]]))
+        else:
+            points = np.transpose([tx, ty])
+            streamlines.append(points)
 
-        # Add arrows half way along each trajectory.
+        # Add arrows halfway along each trajectory.
         s = np.cumsum(np.hypot(np.diff(tx), np.diff(ty)))
         n = np.searchsorted(s, s[-1] / 2.)
         arrow_tail = (tx[n], ty[n])
@@ -233,7 +236,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         lc.set_norm(norm)
     axes.add_collection(lc)
 
-    ac = matplotlib.collections.PatchCollection(arrows)
+    ac = mcollections.PatchCollection(arrows)
     # Adding the collection itself is broken; see #2341.
     for p in arrows:
         axes.add_patch(p)
@@ -287,8 +290,7 @@ class DomainMap:
 
     def grid2mask(self, xi, yi):
         """Return nearest space in mask-coords from given grid-coords."""
-        return (int(xi * self.x_grid2mask + 0.5),
-                int(yi * self.y_grid2mask + 0.5))
+        return round(xi * self.x_grid2mask), round(yi * self.y_grid2mask)
 
     def mask2grid(self, xm, ym):
         return xm * self.x_mask2grid, ym * self.y_mask2grid
@@ -503,15 +505,6 @@ def _get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
             return None
 
     return integrate
-
-
-@_api.deprecated("3.5")
-def get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
-    xy_traj = _get_integrator(
-        u, v, dmap, minlength, maxlength, integration_direction)
-    return (None if xy_traj is None
-            else ([], []) if not len(xy_traj)
-            else [*zip(*xy_traj)])
 
 
 class OutOfBounds(IndexError):

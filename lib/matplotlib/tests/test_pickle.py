@@ -1,17 +1,21 @@
 from io import BytesIO
+import ast
 import pickle
+import pickletools
 
 import numpy as np
 import pytest
 
 import matplotlib as mpl
 from matplotlib import cm
+from matplotlib.testing import subprocess_run_helper
 from matplotlib.testing.decorators import check_figures_equal
 from matplotlib.dates import rrulewrapper
+from matplotlib.lines import VertexSelector
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import matplotlib.figure as mfigure
-from mpl_toolkits.axes_grid1 import parasite_axes
+from mpl_toolkits.axes_grid1 import parasite_axes  # type: ignore
 
 
 def test_simple():
@@ -41,9 +45,7 @@ def test_simple():
     pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
 
-@mpl.style.context("default")
-@check_figures_equal(extensions=["png"])
-def test_complete(fig_test, fig_ref):
+def _generate_complete_test_figure(fig_ref):
     fig_ref.set_size_inches((10, 6))
     plt.figure(fig_ref)
 
@@ -57,6 +59,7 @@ def test_complete(fig_test, fig_ref):
     # Ensure lists also pickle correctly.
     plt.subplot(3, 3, 1)
     plt.plot(list(range(10)))
+    plt.ylabel("hello")
 
     plt.subplot(3, 3, 2)
     plt.contourf(data, hatches=['//', 'ooo'])
@@ -67,6 +70,7 @@ def test_complete(fig_test, fig_ref):
 
     plt.subplot(3, 3, 4)
     plt.imshow(data)
+    plt.ylabel("hello\nworld!")
 
     plt.subplot(3, 3, 5)
     plt.pcolor(data)
@@ -82,22 +86,74 @@ def test_complete(fig_test, fig_ref):
     plt.quiver(x, y, u, v)
 
     plt.subplot(3, 3, 8)
-    plt.scatter(x, x**2, label='$x^2$')
+    plt.scatter(x, x ** 2, label='$x^2$')
     plt.legend(loc='upper left')
 
     plt.subplot(3, 3, 9)
     plt.errorbar(x, x * -0.5, xerr=0.2, yerr=0.4)
+    plt.legend(draggable=True)
 
+    fig_ref.align_ylabels()  # Test handling of _align_label_groups Groupers.
+
+
+@mpl.style.context("default")
+@check_figures_equal(extensions=["png"])
+def test_complete(fig_test, fig_ref):
+    _generate_complete_test_figure(fig_ref)
     # plotting is done, now test its pickle-ability
-    pkl = BytesIO()
-    pickle.dump(fig_ref, pkl, pickle.HIGHEST_PROTOCOL)
-    loaded = pickle.loads(pkl.getbuffer())
+    pkl = pickle.dumps(fig_ref, pickle.HIGHEST_PROTOCOL)
+    # FigureCanvasAgg is picklable and GUI canvases are generally not, but there should
+    # be no reference to the canvas in the pickle stream in either case.  In order to
+    # keep the test independent of GUI toolkits, run it with Agg and check that there's
+    # no reference to FigureCanvasAgg in the pickle stream.
+    assert "FigureCanvasAgg" not in [arg for op, arg, pos in pickletools.genops(pkl)]
+    loaded = pickle.loads(pkl)
     loaded.canvas.draw()
 
     fig_test.set_size_inches(loaded.get_size_inches())
     fig_test.figimage(loaded.canvas.renderer.buffer_rgba())
 
     plt.close(loaded)
+
+
+def _pickle_load_subprocess():
+    import os
+    import pickle
+
+    path = os.environ['PICKLE_FILE_PATH']
+
+    with open(path, 'rb') as blob:
+        fig = pickle.load(blob)
+
+    print(str(pickle.dumps(fig)))
+
+
+@mpl.style.context("default")
+@check_figures_equal(extensions=['png'])
+def test_pickle_load_from_subprocess(fig_test, fig_ref, tmp_path):
+    _generate_complete_test_figure(fig_ref)
+
+    fp = tmp_path / 'sinus.pickle'
+    assert not fp.exists()
+
+    with fp.open('wb') as file:
+        pickle.dump(fig_ref, file, pickle.HIGHEST_PROTOCOL)
+    assert fp.exists()
+
+    proc = subprocess_run_helper(
+        _pickle_load_subprocess,
+        timeout=60,
+        extra_env={'PICKLE_FILE_PATH': str(fp), 'MPLBACKEND': 'Agg'}
+    )
+
+    loaded_fig = pickle.loads(ast.literal_eval(proc.stdout))
+
+    loaded_fig.canvas.draw()
+
+    fig_test.set_size_inches(loaded_fig.get_size_inches())
+    fig_test.figimage(loaded_fig.canvas.renderer.buffer_rgba())
+
+    plt.close(loaded_fig)
 
 
 def test_gcf():
@@ -231,3 +287,17 @@ def test_dynamic_norm():
         mpl.scale.LogitScale, mpl.colors.Normalize)()
     assert type(pickle.loads(pickle.dumps(logit_norm_instance))) \
         == type(logit_norm_instance)
+
+
+def test_vertexselector():
+    line, = plt.plot([0, 1], picker=True)
+    pickle.loads(pickle.dumps(VertexSelector(line)))
+
+
+def test_cycler():
+    ax = plt.figure().add_subplot()
+    ax.set_prop_cycle(c=["c", "m", "y", "k"])
+    ax.plot([1, 2])
+    ax = pickle.loads(pickle.dumps(ax))
+    l, = ax.plot([3, 4])
+    assert l.get_color() == "m"

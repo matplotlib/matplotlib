@@ -1,9 +1,12 @@
-import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.testing.decorators import image_comparison
+import pytest
 
-from matplotlib.table import CustomCell, Table
+import matplotlib.pyplot as plt
+import matplotlib as mpl
 from matplotlib.path import Path
+from matplotlib.table import CustomCell, Table
+from matplotlib.testing.decorators import image_comparison, check_figures_equal
+from matplotlib.transforms import Bbox
 
 
 def test_non_square():
@@ -175,7 +178,12 @@ def test_auto_column():
         loc="center")
     tb4.auto_set_font_size(False)
     tb4.set_fontsize(12)
-    tb4.auto_set_column_width("-101")
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match="'col' must be an int or sequence of ints"):
+        tb4.auto_set_column_width("-101")  # type: ignore [arg-type]
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match="'col' must be an int or sequence of ints"):
+        tb4.auto_set_column_width(["-101"])  # type: ignore [list-item]
 
 
 def test_table_cells():
@@ -194,3 +202,30 @@ def test_table_cells():
     # properties and setp
     table.properties()
     plt.setp(table)
+
+
+@check_figures_equal(extensions=["png"])
+def test_table_bbox(fig_test, fig_ref):
+    data = [[2, 3],
+            [4, 5]]
+
+    col_labels = ('Foo', 'Bar')
+    row_labels = ('Ada', 'Bob')
+
+    cell_text = [[f"{x}" for x in row] for row in data]
+
+    ax_list = fig_test.subplots()
+    ax_list.table(cellText=cell_text,
+                  rowLabels=row_labels,
+                  colLabels=col_labels,
+                  loc='center',
+                  bbox=[0.1, 0.2, 0.8, 0.6]
+                  )
+
+    ax_bbox = fig_ref.subplots()
+    ax_bbox.table(cellText=cell_text,
+                  rowLabels=row_labels,
+                  colLabels=col_labels,
+                  loc='center',
+                  bbox=Bbox.from_extents(0.1, 0.2, 0.9, 0.8)
+                  )

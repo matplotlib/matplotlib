@@ -63,7 +63,8 @@
 #ifndef MPL_TRI_H
 #define MPL_TRI_H
 
-#include "../numpy_cpp.h"
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
 
 #include <iostream>
 #include <list>
@@ -71,6 +72,7 @@
 #include <set>
 #include <vector>
 
+namespace py = pybind11;
 
 
 /* An edge of a triangle consisting of an triangle index in the range 0 to
@@ -114,7 +116,6 @@ struct XYZ
     XYZ(const double& x_, const double& y_, const double& z_);
     XYZ cross(const XYZ& other) const;
     double dot(const XYZ& other) const;
-    double length_squared() const;
     XYZ operator-(const XYZ& other) const;
     friend std::ostream& operator<<(std::ostream& os, const XYZ& xyz);
 
@@ -135,14 +136,12 @@ public:
 };
 
 /* A single line of a contour, which may be a closed line loop or an open line
- * strip.  Identical adjacent points are avoided using insert_unique() and
- * push_back(), and a closed line loop should also not have identical first and
- * last points. */
+ * strip.  Identical adjacent points are avoided using push_back(), and a closed
+ * line loop should also not have identical first and last points. */
 class ContourLine : public std::vector<XY>
 {
 public:
     ContourLine();
-    void insert_unique(iterator pos, const XY& point);
     void push_back(const XY& point);
     void write() const;
 };
@@ -161,12 +160,12 @@ void write_contour(const Contour& contour);
 class Triangulation
 {
 public:
-    typedef numpy::array_view<const double, 1> CoordinateArray;
-    typedef numpy::array_view<double, 2> TwoCoordinateArray;
-    typedef numpy::array_view<int, 2> TriangleArray;
-    typedef numpy::array_view<const bool, 1> MaskArray;
-    typedef numpy::array_view<int, 2> EdgeArray;
-    typedef numpy::array_view<int, 2> NeighborArray;
+    typedef py::array_t<double, py::array::c_style | py::array::forcecast> CoordinateArray;
+    typedef py::array_t<double, py::array::c_style | py::array::forcecast> TwoCoordinateArray;
+    typedef py::array_t<int,    py::array::c_style | py::array::forcecast> TriangleArray;
+    typedef py::array_t<bool,   py::array::c_style | py::array::forcecast> MaskArray;
+    typedef py::array_t<int,    py::array::c_style | py::array::forcecast> EdgeArray;
+    typedef py::array_t<int,    py::array::c_style | py::array::forcecast> NeighborArray;
 
     /* A single boundary is a vector of the TriEdges that make up that boundary
      * following it around with unmasked triangles on the left. */
@@ -196,7 +195,7 @@ public:
                   const MaskArray& mask,
                   const EdgeArray& edges,
                   const NeighborArray& neighbors,
-                  int correct_triangle_orientations);
+                  bool correct_triangle_orientations);
 
     /* Calculate plane equation coefficients for all unmasked triangles from
      * the point (x,y) coordinates and point z-array of shape (npoints) passed
@@ -296,7 +295,11 @@ private:
      * the specified triangle, or -1 if the point is not in the triangle. */
     int get_edge_in_triangle(int tri, int point) const;
 
+    bool has_edges() const;
 
+    bool has_mask() const;
+
+    bool has_neighbors() const;
 
 
     // Variables shared with python, always set.
@@ -304,11 +307,11 @@ private:
     TriangleArray _triangles;  // int array (ntri,3) of triangle point indices,
                                //     ordered anticlockwise.
 
-    // Variables shared with python, may be zero.
+    // Variables shared with python, may be unset (size == 0).
     MaskArray _mask;           // bool array (ntri).
 
-    // Derived variables shared with python, may be zero.  If zero, are
-    // recalculated when needed.
+    // Derived variables shared with python, may be unset (size == 0).
+    // If unset, are recalculated when needed.
     EdgeArray _edges;          // int array (?,2) of start & end point indices.
     NeighborArray _neighbors;  // int array (ntri,3), neighbor triangle indices
                                //     or -1 if no neighbor.
@@ -329,6 +332,8 @@ class TriContourGenerator
 {
 public:
     typedef Triangulation::CoordinateArray CoordinateArray;
+    typedef Triangulation::TwoCoordinateArray TwoCoordinateArray;
+    typedef py::array_t<unsigned char> CodeArray;
 
     /* Constructor.
      *   triangulation: Triangulation to generate contours for.
@@ -342,7 +347,7 @@ public:
      * Returns new python list [segs0, segs1, ...] where
      *   segs0: double array of shape (?,2) of point coordinates of first
      *   contour line, etc. */
-    PyObject* create_contour(const double& level);
+    py::tuple create_contour(const double& level);
 
     /* Create and return a filled contour.
      *   lower_level: Lower contour level.
@@ -350,7 +355,7 @@ public:
      * Returns new python tuple (segs, kinds) where
      *   segs: double array of shape (n_points,2) of all point coordinates,
      *   kinds: ubyte array of shape (n_points) of all point code types. */
-    PyObject* create_filled_contour(const double& lower_level,
+    py::tuple create_filled_contour(const double& lower_level,
                                     const double& upper_level);
 
 private:
@@ -369,13 +374,13 @@ private:
      *   contour line, etc.
      *   kinds0: ubyte array of shape (n_points) of kinds codes of first contour
      *   line, etc. */
-    PyObject* contour_line_to_segs_and_kinds(const Contour& contour);
+    py::tuple contour_line_to_segs_and_kinds(const Contour& contour);
 
     /* Convert a filled Contour from C++ to Python.
      * Returns new python tuple ([segs], [kinds]) where
      *   segs: double array of shape (n_points,2) of all point coordinates,
      *   kinds: ubyte array of shape (n_points) of all point code types. */
-    PyObject* contour_to_segs_and_kinds(const Contour& contour);
+    py::tuple contour_to_segs_and_kinds(const Contour& contour);
 
     /* Return the point on the specified TriEdge that intersects the specified
      * level. */
@@ -460,7 +465,7 @@ private:
 
 
     // Variables shared with python, always set.
-    Triangulation& _triangulation;
+    Triangulation _triangulation;
     CoordinateArray _z;        // double array (npoints).
 
     // Variables internal to C++ only.
@@ -507,7 +512,7 @@ class TrapezoidMapTriFinder
 {
 public:
     typedef Triangulation::CoordinateArray CoordinateArray;
-    typedef numpy::array_view<int, 1> TriIndexArray;
+    typedef py::array_t<int, py::array::c_style | py::array::forcecast> TriIndexArray;
 
     /* Constructor.  A separate call to initialize() is required to initialize
      * the object before use.
@@ -533,7 +538,7 @@ public:
      *          comparisons needed to search through the tree)
      *   6: mean of all trapezoid depths (one more than the average number of
      *          comparisons needed to search through the tree) */
-    PyObject* get_tree_stats();
+    py::list get_tree_stats();
 
     /* Initialize this object before use.  May be called multiple times, if,
      * for example, the triangulation is changed by setting the mask. */
@@ -789,30 +794,6 @@ private:
                     // enclosing rectangle.
 
     Node* _tree;    // Root node of the trapezoid map search tree.  Owned.
-};
-
-
-
-/* Linear congruential random number generator.  Edges in the triangulation are
- * randomly shuffled before being added to the trapezoid map.  Want the
- * shuffling to be identical across different operating systems and the same
- * regardless of previous random number use.  Would prefer to use a STL or
- * Boost random number generator, but support is not consistent across
- * different operating systems so implementing own here.
- *
- * This is not particularly random, but is perfectly adequate for the use here.
- * Coefficients taken from Numerical Recipes in C. */
-class RandomNumberGenerator
-{
-public:
-    RandomNumberGenerator(unsigned long seed);
-
-    // Return random integer in the range 0 to max_value-1.
-    unsigned long operator()(unsigned long max_value);
-
-private:
-    const unsigned long _m, _a, _c;
-    unsigned long _seed;
 };
 
 #endif

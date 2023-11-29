@@ -337,7 +337,7 @@ match the array value type of the ``Path.codes`` array.
 LaTeX code in matplotlibrc file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Previously, the rc file keys ``pgf.preamble`` and ``text.latex.preamble`` were
-parsed using commmas as separators. This would break valid LaTeX code, such as::
+parsed using commas as separators. This would break valid LaTeX code, such as::
 
   \usepackage[protrusion=true, expansion=false]{microtype}
 
@@ -389,9 +389,9 @@ consistent with the behavior on Py2, where a buffer object was
 returned.
 
 
-`matplotlib.font_manager.win32InstalledFonts` return type
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-`matplotlib.font_manager.win32InstalledFonts` returns an empty list instead
+``matplotlib.font_manager.win32InstalledFonts`` return type
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``matplotlib.font_manager.win32InstalledFonts`` returns an empty list instead
 of None if no fonts are found.
 
 ``Axes.fmt_xdata`` and ``Axes.fmt_ydata`` error handling
@@ -463,7 +463,7 @@ instead of ``\usepackage{ucs}\usepackage[utf8x]{inputenc}``.
 
 Exception changes
 -----------------
-- `mpl_toolkits.axes_grid1.axes_size.GetExtentHelper` now raises `ValueError`
+- ``mpl_toolkits.axes_grid1.axes_size.GetExtentHelper`` now raises `ValueError`
   for invalid directions instead of `KeyError`.
 - Previously, subprocess failures in the animation framework would raise either
   in a `RuntimeError` or a `ValueError` depending on when the error occurred.
@@ -932,9 +932,9 @@ internal datetime representation; or use ``dates.datestr2num``.
 Axes3D
 ~~~~~~
 
-- `.axes3d.Axes3D.w_xaxis`
-- `.axes3d.Axes3D.w_yaxis`
-- `.axes3d.Axes3D.w_zaxis`
+- ``.axes3d.Axes3D.w_xaxis``
+- ``.axes3d.Axes3D.w_yaxis``
+- ``.axes3d.Axes3D.w_zaxis``
 
 Use ``axes3d.Axes3D.xaxis``, ``axes3d.Axes3D.yaxis`` and
 ``axes3d.Axes3D.zaxis`` instead.

@@ -16,11 +16,11 @@ def test_cached_renderer():
     # a fig.canvas.draw() call
     fig = plt.figure(1)
     fig.canvas.draw()
-    assert fig._cachedRenderer is not None
+    assert fig.canvas.get_renderer()._renderer is not None
 
     fig = plt.figure(2)
     fig.draw_without_rendering()
-    assert fig._cachedRenderer is not None
+    assert fig.canvas.get_renderer()._renderer is not None
 
 
 @pytest.mark.backend('macosx')

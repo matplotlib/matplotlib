@@ -15,8 +15,9 @@ body:
     id: reproduction
     attributes:
       label: Code for reproduction
-      description: If possible, please provide a minimum self-contained example.
-      placeholder: Paste your code here
+      description: |
+        If possible, please provide a minimum self-contained example.
+      placeholder: Paste your code here. This field is automatically formatted as Python code.
       render: python
     validations:
       required: true

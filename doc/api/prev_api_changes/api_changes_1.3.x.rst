@@ -24,52 +24,52 @@ Code removal
 * The following items that were deprecated in version 1.2 or earlier
   have now been removed completely.
 
-    - The Qt 3.x backends (``qt`` and ``qtagg``) have been removed in
-      favor of the Qt 4.x backends (``qt4`` and ``qt4agg``).
+  - The Qt 3.x backends (``qt`` and ``qtagg``) have been removed in
+    favor of the Qt 4.x backends (``qt4`` and ``qt4agg``).
 
-    - The FltkAgg and Emf backends have been removed.
+  - The FltkAgg and Emf backends have been removed.
 
-    - The ``matplotlib.nxutils`` module has been removed.  Use the
-      functionality on `matplotlib.path.Path.contains_point` and
-      friends instead.
+  - The ``matplotlib.nxutils`` module has been removed.  Use the
+    functionality on `matplotlib.path.Path.contains_point` and
+    friends instead.
 
-    - Instead of ``axes.Axes.get_frame``, use ``axes.Axes.patch``.
+  - Instead of ``axes.Axes.get_frame``, use ``axes.Axes.patch``.
 
-    - The following keyword arguments to the `~.axes.Axes.legend` function have
-      been renamed:
+  - The following keyword arguments to the `~.axes.Axes.legend` function have
+    been renamed:
 
-      - *pad* -> *borderpad*
-      - *labelsep* -> *labelspacing*
-      - *handlelen* -> *handlelength*
-      - *handletextsep* -> *handletextpad*
-      - *axespad* -> *borderaxespad*
+    - *pad* -> *borderpad*
+    - *labelsep* -> *labelspacing*
+    - *handlelen* -> *handlelength*
+    - *handletextsep* -> *handletextpad*
+    - *axespad* -> *borderaxespad*
 
-      Related to this, the following rcParams have been removed:
+    Related to this, the following rcParams have been removed:
 
-      - ``legend.pad``,
-      - ``legend.labelsep``,
-      - ``legend.handlelen``,
-      - ``legend.handletextsep`` and
-      - ``legend.axespad``
+    - ``legend.pad``,
+    - ``legend.labelsep``,
+    - ``legend.handlelen``,
+    - ``legend.handletextsep`` and
+    - ``legend.axespad``
 
-    - For the `~.axes.Axes.hist` function, instead of *width*, use *rwidth*
-      (relative width).
+  - For the `~.axes.Axes.hist` function, instead of *width*, use *rwidth*
+    (relative width).
 
-    - On `.patches.Circle`, the *resolution* keyword argument has been removed.
-      For a circle made up of line segments, use
-      `.patches.CirclePolygon`.
+  - On `.patches.Circle`, the *resolution* keyword argument has been removed.
+    For a circle made up of line segments, use
+    `.patches.CirclePolygon`.
 
-    - The printing functions in the Wx backend have been removed due
-      to the burden of keeping them up-to-date.
+  - The printing functions in the Wx backend have been removed due
+    to the burden of keeping them up-to-date.
 
-    - ``mlab.liaupunov`` has been removed.
+  - ``mlab.liaupunov`` has been removed.
 
-    - ``mlab.save``, ``mlab.load``, ``pylab.save`` and ``pylab.load`` have
-      been removed.  We recommend using `numpy.savetxt` and
-      `numpy.loadtxt` instead.
+  - ``mlab.save``, ``mlab.load``, ``pylab.save`` and ``pylab.load`` have
+    been removed.  We recommend using `numpy.savetxt` and
+    `numpy.loadtxt` instead.
 
-    - ``widgets.HorizontalSpanSelector`` has been removed.  Use
-      `.widgets.SpanSelector` instead.
+  - ``widgets.HorizontalSpanSelector`` has been removed.  Use
+    `.widgets.SpanSelector` instead.
 
 Code deprecation
 ----------------
@@ -83,15 +83,15 @@ Code deprecation
   `.collections.Collection` classes.  Use the following mapping to update
   your code:
 
-    - ``point_in_path`` -> `.path.Path.contains_point`
-    - ``get_path_extents`` -> `.path.Path.get_extents`
-    - ``point_in_path_collection`` -> `.collections.Collection.contains`
-    - ``path_in_path`` -> `.path.Path.contains_path`
-    - ``path_intersects_path`` -> `.path.Path.intersects_path`
-    - ``convert_path_to_polygons`` -> `.path.Path.to_polygons`
-    - ``cleanup_path`` -> `.path.Path.cleaned`
-    - ``points_in_path`` -> `.path.Path.contains_points`
-    - ``clip_path_to_rect`` -> `.path.Path.clip_to_bbox`
+  - ``point_in_path`` -> `.path.Path.contains_point`
+  - ``get_path_extents`` -> `.path.Path.get_extents`
+  - ``point_in_path_collection`` -> `.collections.Collection.contains`
+  - ``path_in_path`` -> `.path.Path.contains_path`
+  - ``path_intersects_path`` -> `.path.Path.intersects_path`
+  - ``convert_path_to_polygons`` -> `.path.Path.to_polygons`
+  - ``cleanup_path`` -> `.path.Path.cleaned`
+  - ``points_in_path`` -> `.path.Path.contains_points`
+  - ``clip_path_to_rect`` -> `.path.Path.clip_to_bbox`
 
 * ``matplotlib.colors.normalize`` and ``matplotlib.colors.no_norm`` have
   been deprecated in favour of `matplotlib.colors.Normalize` and
@@ -192,7 +192,7 @@ Code changes
   by ``self.vline`` for vertical cursors lines and ``self.hline`` is added
   for the horizontal cursors lines.
 
-* On POSIX platforms, the :func:`~matplotlib.cbook.report_memory` function
+* On POSIX platforms, the ``matplotlib.cbook.report_memory`` function
   raises :class:`NotImplementedError` instead of :class:`OSError` if the
   :command:`ps` command cannot be run.
 

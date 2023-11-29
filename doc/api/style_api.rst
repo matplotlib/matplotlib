@@ -5,7 +5,7 @@
 Styles are predefined sets of `.rcParams` that define the visual appearance of
 a plot.
 
-:doc:`/tutorials/introductory/customizing` describes the mechanism and usage
+:ref:`customizing` describes the mechanism and usage
 of styles.
 
 The :doc:`/gallery/style_sheets/style_sheets_reference` gives an overview of
@@ -20,13 +20,13 @@ the builtin styles.
 .. imported variables have to be specified explicitly due to
    https://github.com/sphinx-doc/sphinx/issues/6607
 
-.. data:: matplotlib.style.library
+.. data:: library
 
-   A dict mapping from style name to `.RcParams` defining that style.
+   A dict mapping from style name to `.rcParams` defining that style.
 
    This is meant to be read-only. Use `.reload_library` to update.
 
-.. data:: matplotlib.style.available
+.. data:: available
 
    List of the names of the available styles.
 

@@ -6,7 +6,7 @@ import functools
 import numpy as np
 import pytest
 
-from matplotlib import _api, rc_context, style
+from matplotlib import rc_context, style
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
@@ -69,6 +69,26 @@ def test_date2num_NaT_scalar(units):
     assert np.isnan(tmpl)
 
 
+def test_date2num_masked():
+    # Without tzinfo
+    base = datetime.datetime(2022, 12, 15)
+    dates = np.ma.array([base + datetime.timedelta(days=(2 * i))
+                         for i in range(7)], mask=[0, 1, 1, 0, 0, 0, 1])
+    npdates = mdates.date2num(dates)
+    np.testing.assert_array_equal(np.ma.getmask(npdates),
+                                  (False, True, True, False, False, False,
+                                   True))
+
+    # With tzinfo
+    base = datetime.datetime(2022, 12, 15, tzinfo=mdates.UTC)
+    dates = np.ma.array([base + datetime.timedelta(days=(2 * i))
+                         for i in range(7)], mask=[0, 1, 1, 0, 0, 0, 1])
+    npdates = mdates.date2num(dates)
+    np.testing.assert_array_equal(np.ma.getmask(npdates),
+                                  (False, True, True, False, False, False,
+                                   True))
+
+
 def test_date_empty():
     # make sure we do the right thing when told to plot dates even
     # if no date data has been presented, cf
@@ -77,8 +97,8 @@ def test_date_empty():
     ax.xaxis_date()
     fig.draw_without_rendering()
     np.testing.assert_allclose(ax.get_xlim(),
-                               [mdates.date2num(np.datetime64('2000-01-01')),
-                                mdates.date2num(np.datetime64('2010-01-01'))])
+                               [mdates.date2num(np.datetime64('1970-01-01')),
+                                mdates.date2num(np.datetime64('1970-01-02'))])
 
     mdates._reset_epoch_test_example()
     mdates.set_epoch('0000-12-31')
@@ -86,8 +106,8 @@ def test_date_empty():
     ax.xaxis_date()
     fig.draw_without_rendering()
     np.testing.assert_allclose(ax.get_xlim(),
-                               [mdates.date2num(np.datetime64('2000-01-01')),
-                                mdates.date2num(np.datetime64('2010-01-01'))])
+                               [mdates.date2num(np.datetime64('1970-01-01')),
+                                mdates.date2num(np.datetime64('1970-01-02'))])
     mdates._reset_epoch_test_example()
 
 
@@ -322,13 +342,13 @@ def test_date_formatter_callable():
 
 @pytest.mark.parametrize('delta, expected', [
     (datetime.timedelta(weeks=52 * 200),
-     range(1990, 2171, 20)),
+     [r'$\mathdefault{%d}$' % year for year in range(1990, 2171, 20)]),
     (datetime.timedelta(days=30),
-     ['1990-01-%02d' % day for day in range(1, 32, 3)]),
+     [r'$\mathdefault{1990{-}01{-}%02d}$' % day for day in range(1, 32, 3)]),
     (datetime.timedelta(hours=20),
-     ['01-01 %02d' % hour for hour in range(0, 21, 2)]),
+     [r'$\mathdefault{01{-}01\;%02d}$' % hour for hour in range(0, 21, 2)]),
     (datetime.timedelta(minutes=10),
-     ['01 00:%02d' % minu for minu in range(0, 11)]),
+     [r'$\mathdefault{01\;00{:}%02d}$' % minu for minu in range(0, 11)]),
 ])
 def test_date_formatter_usetex(delta, expected):
     style.use("default")
@@ -341,8 +361,7 @@ def test_date_formatter_usetex(delta, expected):
     locator.axis.set_view_interval(mdates.date2num(d1), mdates.date2num(d2))
 
     formatter = mdates.AutoDateFormatter(locator, usetex=True)
-    assert [formatter(loc) for loc in locator()] == [
-        r'{\fontfamily{\familydefault}\selectfont %s}' % s for s in expected]
+    assert [formatter(loc) for loc in locator()] == expected
 
 
 def test_drange():
@@ -357,9 +376,13 @@ def test_drange():
     # dates from an half open interval [start, end)
     assert len(mdates.drange(start, end, delta)) == 24
 
+    # Same if interval ends slightly earlier
+    end = end - datetime.timedelta(microseconds=1)
+    assert len(mdates.drange(start, end, delta)) == 24
+
     # if end is a little bit later, we expect the range to contain one element
     # more
-    end = end + datetime.timedelta(microseconds=1)
+    end = end + datetime.timedelta(microseconds=2)
     assert len(mdates.drange(start, end, delta)) == 25
 
     # reset end
@@ -613,6 +636,27 @@ def test_concise_formatter_show_offset(t_delta, expected):
     assert formatter.get_offset() == expected
 
 
+def test_concise_converter_stays():
+    # This test demonstrates problems introduced by gh-23417 (reverted in gh-25278)
+    # In particular, downstream libraries like Pandas had their designated converters
+    # overridden by actions like setting xlim (or plotting additional points using
+    # stdlib/numpy dates and string date representation, which otherwise work fine with
+    # their date converters)
+    # While this is a bit of a toy example that would be unusual to see it demonstrates
+    # the same ideas (namely having a valid converter already applied that is desired)
+    # without introducing additional subclasses.
+    # See also discussion at gh-25219 for how Pandas was affected
+    x = [datetime.datetime(2000, 1, 1), datetime.datetime(2020, 2, 20)]
+    y = [0, 1]
+    fig, ax = plt.subplots()
+    ax.plot(x, y)
+    # Bypass Switchable date converter
+    ax.xaxis.converter = conv = mdates.ConciseDateConverter()
+    assert ax.xaxis.units is None
+    ax.set_xlim(*x)
+    assert ax.xaxis.converter == conv
+
+
 def test_offset_changes():
     fig, ax = plt.subplots()
 
@@ -641,14 +685,24 @@ def test_offset_changes():
 
 @pytest.mark.parametrize('t_delta, expected', [
     (datetime.timedelta(weeks=52 * 200),
-     range(1980, 2201, 20)),
+     ['$\\mathdefault{%d}$' % (t, ) for t in range(1980, 2201, 20)]),
     (datetime.timedelta(days=40),
-     ['Jan', '05', '09', '13', '17', '21', '25', '29', 'Feb', '05', '09']),
+     ['Jan', '$\\mathdefault{05}$', '$\\mathdefault{09}$',
+      '$\\mathdefault{13}$', '$\\mathdefault{17}$', '$\\mathdefault{21}$',
+      '$\\mathdefault{25}$', '$\\mathdefault{29}$', 'Feb',
+      '$\\mathdefault{05}$', '$\\mathdefault{09}$']),
     (datetime.timedelta(hours=40),
-     ['Jan-01', '04:00', '08:00', '12:00', '16:00', '20:00',
-      'Jan-02', '04:00', '08:00', '12:00', '16:00']),
+     ['Jan$\\mathdefault{{-}01}$', '$\\mathdefault{04{:}00}$',
+      '$\\mathdefault{08{:}00}$', '$\\mathdefault{12{:}00}$',
+      '$\\mathdefault{16{:}00}$', '$\\mathdefault{20{:}00}$',
+      'Jan$\\mathdefault{{-}02}$', '$\\mathdefault{04{:}00}$',
+      '$\\mathdefault{08{:}00}$', '$\\mathdefault{12{:}00}$',
+      '$\\mathdefault{16{:}00}$']),
     (datetime.timedelta(seconds=2),
-     ['59.5', '00:00', '00.5', '01.0', '01.5', '02.0', '02.5']),
+     ['$\\mathdefault{59.5}$', '$\\mathdefault{00{:}00}$',
+      '$\\mathdefault{00.5}$', '$\\mathdefault{01.0}$',
+      '$\\mathdefault{01.5}$', '$\\mathdefault{02.0}$',
+      '$\\mathdefault{02.5}$']),
 ])
 def test_concise_formatter_usetex(t_delta, expected):
     d1 = datetime.datetime(1997, 1, 1)
@@ -659,8 +713,7 @@ def test_concise_formatter_usetex(t_delta, expected):
     locator.axis.set_view_interval(mdates.date2num(d1), mdates.date2num(d2))
 
     formatter = mdates.ConciseDateFormatter(locator, usetex=True)
-    assert formatter.format_ticks(locator()) == [
-        r'{\fontfamily{\familydefault}\selectfont %s}' % s for s in expected]
+    assert formatter.format_ticks(locator()) == expected
 
 
 def test_concise_formatter_formats():
@@ -1012,6 +1065,20 @@ def test_rrulewrapper():
 
     _test_rrulewrapper(attach_tz, dateutil.tz.gettz)
 
+    SYD = dateutil.tz.gettz('Australia/Sydney')
+    dtstart = datetime.datetime(2017, 4, 1, 0)
+    dtend = datetime.datetime(2017, 4, 4, 0)
+    rule = mdates.rrulewrapper(freq=dateutil.rrule.DAILY, dtstart=dtstart,
+                               tzinfo=SYD, until=dtend)
+    assert rule.after(dtstart) == datetime.datetime(2017, 4, 2, 0, 0,
+                                                    tzinfo=SYD)
+    assert rule.before(dtend) == datetime.datetime(2017, 4, 3, 0, 0,
+                                                   tzinfo=SYD)
+
+    # Test parts of __getattr__
+    assert rule._base_tzinfo == SYD
+    assert rule._interval == 1
+
 
 @pytest.mark.pytz
 def test_rrulewrapper_pytz():
@@ -1046,6 +1113,15 @@ def test_yearlocator_pytz():
                 '2014-01-01 00:00:00-05:00', '2015-01-01 00:00:00-05:00']
     st = list(map(str, mdates.num2date(locator(), tz=tz)))
     assert st == expected
+    assert np.allclose(locator.tick_values(x[0], x[1]), np.array(
+        [14610.20833333, 14610.33333333, 14610.45833333, 14610.58333333,
+         14610.70833333, 14610.83333333, 14610.95833333, 14611.08333333,
+         14611.20833333]))
+    assert np.allclose(locator.get_locator(x[1], x[0]).tick_values(x[0], x[1]),
+                       np.array(
+        [14610.20833333, 14610.33333333, 14610.45833333, 14610.58333333,
+         14610.70833333, 14610.83333333, 14610.95833333, 14611.08333333,
+         14611.20833333]))
 
 
 def test_YearLocator():
@@ -1161,7 +1237,7 @@ def test_warn_notintervals():
     locator.create_dummy_axis()
     locator.axis.set_view_interval(mdates.date2num(dates[0]),
                                    mdates.date2num(dates[-1]))
-    with pytest.warns(UserWarning, match="AutoDateLocator was unable") as rec:
+    with pytest.warns(UserWarning, match="AutoDateLocator was unable"):
         locs = locator()
 
 
@@ -1205,37 +1281,10 @@ def test_change_interval_multiples():
     assert ax.get_xticklabels()[1].get_text() == 'Feb 01 2020'
 
 
-def test_epoch2num():
-    with _api.suppress_matplotlib_deprecation_warning():
-        mdates._reset_epoch_test_example()
-        mdates.set_epoch('0000-12-31')
-        assert mdates.epoch2num(86400) == 719164.0
-        assert mdates.num2epoch(719165.0) == 86400 * 2
-        # set back to the default
-        mdates._reset_epoch_test_example()
-        mdates.set_epoch('1970-01-01T00:00:00')
-        assert mdates.epoch2num(86400) == 1.0
-        assert mdates.num2epoch(2.0) == 86400 * 2
-
-
-def test_julian2num():
-    mdates._reset_epoch_test_example()
-    mdates.set_epoch('0000-12-31')
-    # 2440587.5 is julian date for 1970-01-01T00:00:00
-    # https://en.wikipedia.org/wiki/Julian_day
-    assert mdates.julian2num(2440588.5) == 719164.0
-    assert mdates.num2julian(719165.0) == 2440589.5
-    # set back to the default
-    mdates._reset_epoch_test_example()
-    mdates.set_epoch('1970-01-01T00:00:00')
-    assert mdates.julian2num(2440588.5) == 1.0
-    assert mdates.num2julian(2.0) == 2440589.5
-
-
 def test_DateLocator():
     locator = mdates.DateLocator()
     # Test nonsingular
-    assert locator.nonsingular(0, np.inf) == (10957.0, 14610.0)
+    assert locator.nonsingular(0, np.inf) == (0, 1)
     assert locator.nonsingular(0, 1) == (0, 1)
     assert locator.nonsingular(1, 0) == (0, 1)
     assert locator.nonsingular(0, 0) == (-2, 2)
@@ -1251,7 +1300,7 @@ def test_DateLocator():
     iceland_tz = dateutil.tz.gettz(tz_str)
     # Check not Iceland
     assert locator.tz != iceland_tz
-    # Set it to to Iceland
+    # Set it to Iceland
     locator.set_tzinfo('Iceland')
     # Check now it is Iceland
     assert locator.tz == iceland_tz
@@ -1290,18 +1339,14 @@ def test_datestr2num():
                                                 month=1, day=10)).size == 0
 
 
-def test_concise_formatter_exceptions():
+@pytest.mark.parametrize('kwarg',
+                         ('formats', 'zero_formats', 'offset_formats'))
+def test_concise_formatter_exceptions(kwarg):
     locator = mdates.AutoDateLocator()
-    with pytest.raises(ValueError, match="formats argument must be a list"):
-        mdates.ConciseDateFormatter(locator, formats=['', '%Y'])
-
-    with pytest.raises(ValueError,
-                       match="zero_formats argument must be a list"):
-        mdates.ConciseDateFormatter(locator, zero_formats=['', '%Y'])
-
-    with pytest.raises(ValueError,
-                       match="offset_formats argument must be a list"):
-        mdates.ConciseDateFormatter(locator, offset_formats=['', '%Y'])
+    kwargs = {kwarg: ['', '%Y']}
+    match = f"{kwarg} argument must be a list"
+    with pytest.raises(ValueError, match=match):
+        mdates.ConciseDateFormatter(locator, **kwargs)
 
 
 def test_concise_formatter_call():
@@ -1311,19 +1356,39 @@ def test_concise_formatter_call():
     assert formatter.format_data_short(19002.0) == '2022-01-10 00:00:00'
 
 
-@pytest.mark.parametrize('span, expected_locator',
-                         ((0.02, mdates.MinuteLocator),
-                          (1, mdates.HourLocator),
-                          (19, mdates.DayLocator),
-                          (40, mdates.WeekdayLocator),
-                          (200, mdates.MonthLocator),
-                          (2000, mdates.YearLocator)))
-def test_date_ticker_factory(span, expected_locator):
-    locator, _ = mdates.date_ticker_factory(span)
-    assert isinstance(locator, expected_locator)
+def test_datetime_masked():
+    # make sure that all-masked data falls back to the viewlim
+    # set in convert.axisinfo....
+    x = np.array([datetime.datetime(2017, 1, n) for n in range(1, 6)])
+    y = np.array([1, 2, 3, 4, 5])
+    m = np.ma.masked_greater(y, 0)
 
-
-def test_usetex_newline():
     fig, ax = plt.subplots()
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m\n%Y'))
-    fig.canvas.draw()
+    ax.plot(x, m)
+    assert ax.get_xlim() == (0, 1)
+
+
+@pytest.mark.parametrize('val', (-1000000, 10000000))
+def test_num2date_error(val):
+    with pytest.raises(ValueError, match=f"Date ordinal {val} converts"):
+        mdates.num2date(val)
+
+
+def test_num2date_roundoff():
+    assert mdates.num2date(100000.0000578702) == datetime.datetime(
+        2243, 10, 17, 0, 0, 4, 999980, tzinfo=datetime.timezone.utc)
+    # Slightly larger, steps of 20 microseconds
+    assert mdates.num2date(100000.0000578703) == datetime.datetime(
+        2243, 10, 17, 0, 0, 5, tzinfo=datetime.timezone.utc)
+
+
+def test_DateFormatter_settz():
+    time = mdates.date2num(datetime.datetime(2011, 1, 1, 0, 0,
+                                             tzinfo=mdates.UTC))
+    formatter = mdates.DateFormatter('%Y-%b-%d %H:%M')
+    # Default UTC
+    assert formatter(time) == '2011-Jan-01 00:00'
+
+    # Set tzinfo
+    formatter.set_tzinfo('Pacific/Kiritimati')
+    assert formatter(time) == '2011-Jan-01 14:00'

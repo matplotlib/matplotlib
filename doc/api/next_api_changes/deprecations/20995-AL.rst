@@ -1,3 +1,0 @@
-``backend_gtk3.icon_filename`` and ``backend_gtk3.window_icon``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... are deprecated with no replacement.

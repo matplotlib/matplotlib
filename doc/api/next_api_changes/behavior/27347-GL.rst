@@ -1,0 +1,7 @@
+ScalarMappables auto-scale their norm when an array is set
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Collections previously deferred auto-scaling of the norm until draw time.
+This has been changed to scale the norm whenever the first array is set
+to align with the docstring and reduce unexpected behavior when
+accessing the norm before drawing.

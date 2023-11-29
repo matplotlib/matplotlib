@@ -1,4 +1,0 @@
-Passing positional arguments to LineCollection has been removed
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Use specific keyword argument names now.

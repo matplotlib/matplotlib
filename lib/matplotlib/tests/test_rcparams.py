@@ -27,6 +27,7 @@ from matplotlib.rcsetup import (
     validate_int,
     validate_markevery,
     validate_stringlist,
+    validate_sketch,
     _validate_linestyle,
     _listify_validator)
 
@@ -115,6 +116,13 @@ def test_rcparams_init():
     with pytest.raises(ValueError), \
          pytest.warns(UserWarning, match="validate"):
         mpl.RcParams({'figure.figsize': (3.5, 42, 1)})
+
+
+def test_nargs_cycler():
+    from matplotlib.rcsetup import cycler as ccl
+    with pytest.raises(TypeError, match='3 were given'):
+        # cycler() takes 0-2 arguments.
+        ccl(ccl(color=list('rgb')), 2, 3)
 
 
 def test_Bug_2543():
@@ -229,8 +237,6 @@ def generate_validator_testcases(valid):
                      ),
          'fail': ((set(), ValueError),
                   (1, ValueError),
-                  ((1, 2), _api.MatplotlibDeprecationWarning),
-                  (np.array([1, 2]), _api.MatplotlibDeprecationWarning),
                   )
          },
         {'validator': _listify_validator(validate_int, n=2),
@@ -496,6 +502,13 @@ def test_keymaps():
         assert isinstance(mpl.rcParams[k], list)
 
 
+def test_no_backend_reset_rccontext():
+    assert mpl.rcParams['backend'] != 'module://aardvark'
+    with mpl.rc_context():
+        mpl.rcParams['backend'] = 'module://aardvark'
+    assert mpl.rcParams['backend'] == 'module://aardvark'
+
+
 def test_rcparams_reset_after_fail():
     # There was previously a bug that meant that if rc_context failed and
     # raised an exception due to issues in the supplied rc parameters, the
@@ -536,10 +549,10 @@ def test_backend_fallback_headful(tmpdir):
          "sentinel = mpl.rcsetup._auto_backend_sentinel; "
          # Check that access on another instance does not resolve the sentinel.
          "assert mpl.RcParams({'backend': sentinel})['backend'] == sentinel; "
-         "assert dict.__getitem__(mpl.rcParams, 'backend') == sentinel; "
+         "assert mpl.rcParams._get('backend') == sentinel; "
          "import matplotlib.pyplot; "
          "print(matplotlib.get_backend())"],
-        env=env, universal_newlines=True)
+        env=env, text=True)
     # The actual backend will depend on what's installed, but at least tkagg is
     # present.
     assert backend.strip().lower() != "agg"
@@ -549,33 +562,33 @@ def test_deprecation(monkeypatch):
     monkeypatch.setitem(
         mpl._deprecated_map, "patch.linewidth",
         ("0.0", "axes.linewidth", lambda old: 2 * old, lambda new: new / 2))
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         assert mpl.rcParams["patch.linewidth"] \
             == mpl.rcParams["axes.linewidth"] / 2
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         mpl.rcParams["patch.linewidth"] = 1
     assert mpl.rcParams["axes.linewidth"] == 2
 
     monkeypatch.setitem(
         mpl._deprecated_ignore_map, "patch.edgecolor",
         ("0.0", "axes.edgecolor"))
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         assert mpl.rcParams["patch.edgecolor"] \
             == mpl.rcParams["axes.edgecolor"]
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         mpl.rcParams["patch.edgecolor"] = "#abcd"
     assert mpl.rcParams["axes.edgecolor"] != "#abcd"
 
     monkeypatch.setitem(
         mpl._deprecated_ignore_map, "patch.force_edgecolor",
         ("0.0", None))
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         assert mpl.rcParams["patch.force_edgecolor"] is None
 
     monkeypatch.setitem(
         mpl._deprecated_remain_as_none, "svg.hashsalt",
         ("0.0",))
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         mpl.rcParams["svg.hashsalt"] = "foobar"
     assert mpl.rcParams["svg.hashsalt"] == "foobar"  # Doesn't warn.
     mpl.rcParams["svg.hashsalt"] = None  # Doesn't warn.
@@ -584,3 +597,58 @@ def test_deprecation(monkeypatch):
     # Note that the warning suppression actually arises from the
     # iteration over the updater rcParams being protected by
     # suppress_matplotlib_deprecation_warning, rather than any explicit check.
+
+
+@pytest.mark.parametrize("value", [
+    "best",
+    1,
+    "1",
+    (0.9, .7),
+    (-0.9, .7),
+    "(0.9, .7)"
+])
+def test_rcparams_legend_loc(value):
+    # rcParams['legend.loc'] should allow any of the following formats.
+    # if any of these are not allowed, an exception will be raised
+    # test for gh issue #22338
+    mpl.rcParams["legend.loc"] = value
+
+
+@pytest.mark.parametrize("value", [
+    "best",
+    1,
+    (0.9, .7),
+    (-0.9, .7),
+])
+def test_rcparams_legend_loc_from_file(tmpdir, value):
+    # rcParams['legend.loc'] should be settable from matplotlibrc.
+    # if any of these are not allowed, an exception will be raised.
+    # test for gh issue #22338
+    rc_path = tmpdir.join("matplotlibrc")
+    rc_path.write(f"legend.loc: {value}")
+
+    with mpl.rc_context(fname=rc_path):
+        assert mpl.rcParams["legend.loc"] == value
+
+
+@pytest.mark.parametrize("value", [(1, 2, 3), '1, 2, 3', '(1, 2, 3)'])
+def test_validate_sketch(value):
+    mpl.rcParams["path.sketch"] = value
+    assert mpl.rcParams["path.sketch"] == (1, 2, 3)
+    assert validate_sketch(value) == (1, 2, 3)
+
+
+@pytest.mark.parametrize("value", [1, '1', '1 2 3'])
+def test_validate_sketch_error(value):
+    with pytest.raises(ValueError, match="scale, length, randomness"):
+        validate_sketch(value)
+    with pytest.raises(ValueError, match="scale, length, randomness"):
+        mpl.rcParams["path.sketch"] = value
+
+
+@pytest.mark.parametrize("value", ['1, 2, 3', '(1,2,3)'])
+def test_rcparams_path_sketch_from_file(tmpdir, value):
+    rc_path = tmpdir.join("matplotlibrc")
+    rc_path.write(f"path.sketch: {value}")
+    with mpl.rc_context(fname=rc_path):
+        assert mpl.rcParams["path.sketch"] == (1, 2, 3)

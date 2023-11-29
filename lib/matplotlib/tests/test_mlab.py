@@ -3,86 +3,7 @@ from numpy.testing import (assert_allclose, assert_almost_equal,
 import numpy as np
 import pytest
 
-from matplotlib import mlab, _api
-
-
-class TestStride:
-    def get_base(self, x):
-        y = x
-        while y.base is not None:
-            y = y.base
-        return y
-
-    @pytest.fixture(autouse=True)
-    def stride_is_deprecated(self):
-        with _api.suppress_matplotlib_deprecation_warning():
-            yield
-
-    def calc_window_target(self, x, NFFT, noverlap=0, axis=0):
-        """
-        This is an adaptation of the original window extraction algorithm.
-        This is here to test to make sure the new implementation has the same
-        result.
-        """
-        step = NFFT - noverlap
-        ind = np.arange(0, len(x) - NFFT + 1, step)
-        n = len(ind)
-        result = np.zeros((NFFT, n))
-
-        # do the ffts of the slices
-        for i in range(n):
-            result[:, i] = x[ind[i]:ind[i]+NFFT]
-        if axis == 1:
-            result = result.T
-        return result
-
-    @pytest.mark.parametrize('shape', [(), (10, 1)], ids=['0D', '2D'])
-    def test_stride_windows_invalid_input_shape(self, shape):
-        x = np.arange(np.prod(shape)).reshape(shape)
-        with pytest.raises(ValueError):
-            mlab.stride_windows(x, 5)
-
-    @pytest.mark.parametrize('n, noverlap',
-                             [(0, None), (11, None), (2, 2), (2, 3)],
-                             ids=['n less than 1', 'n greater than input',
-                                  'noverlap greater than n',
-                                  'noverlap equal to n'])
-    def test_stride_windows_invalid_params(self, n, noverlap):
-        x = np.arange(10)
-        with pytest.raises(ValueError):
-            mlab.stride_windows(x, n, noverlap)
-
-    @pytest.mark.parametrize('axis', [0, 1], ids=['axis0', 'axis1'])
-    @pytest.mark.parametrize('n, noverlap',
-                             [(1, 0), (5, 0), (15, 2), (13, -3)],
-                             ids=['n1-noverlap0', 'n5-noverlap0',
-                                  'n15-noverlap2', 'n13-noverlapn3'])
-    def test_stride_windows(self, n, noverlap, axis):
-        x = np.arange(100)
-        y = mlab.stride_windows(x, n, noverlap=noverlap, axis=axis)
-
-        expected_shape = [0, 0]
-        expected_shape[axis] = n
-        expected_shape[1 - axis] = 100 // (n - noverlap)
-        yt = self.calc_window_target(x, n, noverlap=noverlap, axis=axis)
-
-        assert yt.shape == y.shape
-        assert_array_equal(yt, y)
-        assert tuple(expected_shape) == y.shape
-        assert self.get_base(y) is x
-
-    @pytest.mark.parametrize('axis', [0, 1], ids=['axis0', 'axis1'])
-    def test_stride_windows_n32_noverlap0_unflatten(self, axis):
-        n = 32
-        x = np.arange(n)[np.newaxis]
-        x1 = np.tile(x, (21, 1))
-        x2 = x1.flatten()
-        y = mlab.stride_windows(x2, n, axis=axis)
-
-        if axis == 0:
-            x1 = x1.T
-        assert y.shape == x1.shape
-        assert_array_equal(y, x1)
+from matplotlib import mlab
 
 
 def test_window():
@@ -97,7 +18,7 @@ def test_window():
 
 
 class TestDetrend:
-    def setup(self):
+    def setup_method(self):
         np.random.seed(0)
         n = 1000
         x = np.linspace(0., 100, n)
@@ -615,7 +536,7 @@ class TestSpectral:
                                  noverlap=0,
                                  sides=self.sides,
                                  window=mlab.window_none)
-        spec_c *= len(ycontrol1)/(np.abs(windowVals)**2).sum()
+        spec_c *= len(ycontrol1)/(windowVals**2).sum()
         assert_array_equal(fsp_g, fsp_c)
         assert_array_equal(fsp_b, fsp_c)
         assert_allclose(spec_g, spec_c, atol=1e-08)
@@ -662,13 +583,40 @@ class TestSpectral:
                                  noverlap=0,
                                  sides=self.sides,
                                  window=mlab.window_none)
-        spec_c *= len(ycontrol1)/(np.abs(windowVals)**2).sum()
+        spec_c *= len(ycontrol1)/(windowVals**2).sum()
         assert_array_equal(fsp_g, fsp_c)
         assert_array_equal(fsp_b, fsp_c)
         assert_allclose(spec_g, spec_c, atol=1e-08)
         # these should not be almost equal
         with pytest.raises(AssertionError):
             assert_allclose(spec_b, spec_c, atol=1e-08)
+
+    def test_psd_window_flattop(self):
+        # flattop window
+        # adaption from https://github.com/scipy/scipy/blob\
+        # /v1.10.0/scipy/signal/windows/_windows.py#L562-L622
+        a = [0.21557895, 0.41663158, 0.277263158, 0.083578947, 0.006947368]
+        fac = np.linspace(-np.pi, np.pi, self.NFFT_density_real)
+        win = np.zeros(self.NFFT_density_real)
+        for k in range(len(a)):
+            win += a[k] * np.cos(k * fac)
+
+        spec, fsp = mlab.psd(x=self.y,
+                             NFFT=self.NFFT_density,
+                             Fs=self.Fs,
+                             noverlap=0,
+                             sides=self.sides,
+                             window=win,
+                             scale_by_freq=False)
+        spec_a, fsp_a = mlab.psd(x=self.y,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=0,
+                                 sides=self.sides,
+                                 window=win)
+        assert_allclose(spec*win.sum()**2,
+                        spec_a*self.Fs*(win**2).sum(),
+                        atol=1e-08)
 
     def test_psd_windowarray(self):
         freqs = self.freqs_density

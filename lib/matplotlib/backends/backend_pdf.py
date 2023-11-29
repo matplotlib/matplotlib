@@ -5,6 +5,7 @@ Author: Jouni K Seppänen <jks@iki.fi> and others.
 """
 
 import codecs
+from datetime import timezone
 from datetime import datetime
 from enum import Enum
 from functools import total_ordering
@@ -13,7 +14,6 @@ import itertools
 import logging
 import math
 import os
-import re
 import string
 import struct
 import sys
@@ -33,7 +33,7 @@ from matplotlib.backend_bases import (
     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
-from matplotlib.font_manager import findfont, get_font
+from matplotlib.font_manager import get_font, fontManager as _fontManager
 from matplotlib._afm import AFM
 from matplotlib.ft2font import (FIXED_WIDTH, ITALIC, LOAD_NO_SCALE,
                                 LOAD_NO_HINTING, KERNING_UNFITTED, FT2Font)
@@ -93,11 +93,6 @@ _log = logging.getLogger(__name__)
 # * draw_quad_mesh
 
 
-@_api.deprecated("3.6", alternative="Vendor the code")
-def fill(strings, linelen=75):
-    return _fill(strings, linelen=linelen)
-
-
 def _fill(strings, linelen=75):
     """
     Make one string from sequence of strings, with whitespace in between.
@@ -118,25 +113,6 @@ def _fill(strings, linelen=75):
             currpos = length
     result.append(b' '.join(strings[lasti:]))
     return b'\n'.join(result)
-
-# PDF strings are supposed to be able to include any eight-bit data,
-# except that unbalanced parens and backslashes must be escaped by a
-# backslash. However, sf bug #2708559 shows that the carriage return
-# character may get read as a newline; these characters correspond to
-# \gamma and \Omega in TeX's math font encoding. Escaping them fixes
-# the bug.
-_string_escape_regex = re.compile(br'([\\()\r\n])')
-
-
-def _string_escape(match):
-    m = match.group(0)
-    if m in br'\()':
-        return b'\\' + m
-    elif m == b'\n':
-        return br'\n'
-    elif m == b'\r':
-        return br'\r'
-    assert False
 
 
 def _create_pdf_info_dict(backend, metadata):
@@ -173,7 +149,7 @@ def _create_pdf_info_dict(backend, metadata):
     # See https://reproducible-builds.org/specs/source-date-epoch/
     source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
     if source_date_epoch:
-        source_date = datetime.utcfromtimestamp(int(source_date_epoch))
+        source_date = datetime.fromtimestamp(int(source_date_epoch), timezone.utc)
         source_date = source_date.replace(tzinfo=UTC)
     else:
         source_date = datetime.today()
@@ -250,6 +226,77 @@ def _datetime_to_pdf(d):
     return r
 
 
+def _calculate_quad_point_coordinates(x, y, width, height, angle=0):
+    """
+    Calculate the coordinates of rectangle when rotated by angle around x, y
+    """
+
+    angle = math.radians(-angle)
+    sin_angle = math.sin(angle)
+    cos_angle = math.cos(angle)
+    a = x + height * sin_angle
+    b = y + height * cos_angle
+    c = x + width * cos_angle + height * sin_angle
+    d = y - width * sin_angle + height * cos_angle
+    e = x + width * cos_angle
+    f = y - width * sin_angle
+    return ((x, y), (e, f), (c, d), (a, b))
+
+
+def _get_coordinates_of_block(x, y, width, height, angle=0):
+    """
+    Get the coordinates of rotated rectangle and rectangle that covers the
+    rotated rectangle.
+    """
+
+    vertices = _calculate_quad_point_coordinates(x, y, width,
+                                                 height, angle)
+
+    # Find min and max values for rectangle
+    # adjust so that QuadPoints is inside Rect
+    # PDF docs says that QuadPoints should be ignored if any point lies
+    # outside Rect, but for Acrobat it is enough that QuadPoints is on the
+    # border of Rect.
+
+    pad = 0.00001 if angle % 90 else 0
+    min_x = min(v[0] for v in vertices) - pad
+    min_y = min(v[1] for v in vertices) - pad
+    max_x = max(v[0] for v in vertices) + pad
+    max_y = max(v[1] for v in vertices) + pad
+    return (tuple(itertools.chain.from_iterable(vertices)),
+            (min_x, min_y, max_x, max_y))
+
+
+def _get_link_annotation(gc, x, y, width, height, angle=0):
+    """
+    Create a link annotation object for embedding URLs.
+    """
+    quadpoints, rect = _get_coordinates_of_block(x, y, width, height, angle)
+    link_annotation = {
+        'Type': Name('Annot'),
+        'Subtype': Name('Link'),
+        'Rect': rect,
+        'Border': [0, 0, 0],
+        'A': {
+            'S': Name('URI'),
+            'URI': gc.get_url(),
+        },
+    }
+    if angle % 90:
+        # Add QuadPoints
+        link_annotation['QuadPoints'] = quadpoints
+    return link_annotation
+
+
+# PDF strings are supposed to be able to include any eight-bit data, except
+# that unbalanced parens and backslashes must be escaped by a backslash.
+# However, sf bug #2708559 shows that the carriage return character may get
+# read as a newline; these characters correspond to \gamma and \Omega in TeX's
+# math font encoding. Escaping them fixes the bug.
+_str_escapes = str.maketrans({
+    '\\': '\\\\', '(': '\\(', ')': '\\)', '\n': '\\n', '\r': '\\r'})
+
+
 def pdfRepr(obj):
     """Map Python objects to PDF syntax."""
 
@@ -275,22 +322,21 @@ def pdfRepr(obj):
     elif isinstance(obj, (int, np.integer)):
         return b"%d" % obj
 
-    # Unicode strings are encoded in UTF-16BE with byte-order mark.
+    # Non-ASCII Unicode strings are encoded in UTF-16BE with byte-order mark.
     elif isinstance(obj, str):
-        try:
-            # But maybe it's really ASCII?
-            s = obj.encode('ASCII')
-            return pdfRepr(s)
-        except UnicodeEncodeError:
-            s = codecs.BOM_UTF16_BE + obj.encode('UTF-16BE')
-            return pdfRepr(s)
+        return pdfRepr(obj.encode('ascii') if obj.isascii()
+                       else codecs.BOM_UTF16_BE + obj.encode('UTF-16BE'))
 
     # Strings are written in parentheses, with backslashes and parens
     # escaped. Actually balanced parens are allowed, but it is
     # simpler to escape them all. TODO: cut long strings into lines;
     # I believe there is some maximum line length in PDF.
+    # Despite the extra decode/encode, translate is faster than regex.
     elif isinstance(obj, bytes):
-        return b'(' + _string_escape_regex.sub(_string_escape, obj) + b')'
+        return (
+            b'(' +
+            obj.decode('latin-1').translate(_str_escapes).encode('latin-1')
+            + b')')
 
     # Dictionaries. The keys must be PDF names, so if we find strings
     # there, we make Name objects from them. The values may be
@@ -320,8 +366,8 @@ def pdfRepr(obj):
         return _fill([pdfRepr(val) for val in obj.bounds])
 
     else:
-        raise TypeError("Don't know a PDF representation for {} objects"
-                        .format(type(obj)))
+        raise TypeError(f"Don't know a PDF representation for {type(obj)} "
+                        "objects")
 
 
 def _font_supports_glyph(fonttype, glyph):
@@ -366,7 +412,8 @@ class Reference:
 class Name:
     """PDF name object."""
     __slots__ = ('name',)
-    _regex = re.compile(r'[^!-~]')
+    _hexify = {c: '#%02x' % c
+               for c in {*range(256)} - {*range(ord('!'), ord('~') + 1)}}
 
     def __init__(self, name):
         if isinstance(name, Name):
@@ -374,13 +421,13 @@ class Name:
         else:
             if isinstance(name, bytes):
                 name = name.decode('ascii')
-            self.name = self._regex.sub(Name.hexify, name).encode('ascii')
+            self.name = name.translate(self._hexify).encode('ascii')
 
     def __repr__(self):
         return "<Name %s>" % self.name
 
     def __str__(self):
-        return '/' + str(self.name)
+        return '/' + self.name.decode('ascii')
 
     def __eq__(self, other):
         return isinstance(other, Name) and self.name == other.name
@@ -391,26 +438,8 @@ class Name:
     def __hash__(self):
         return hash(self.name)
 
-    @staticmethod
-    def hexify(match):
-        return '#%02x' % ord(match.group())
-
     def pdfRepr(self):
         return b'/' + self.name
-
-
-@_api.deprecated("3.6")
-class Operator:
-    __slots__ = ('op',)
-
-    def __init__(self, op):
-        self.op = op
-
-    def __repr__(self):
-        return '<Operator %s>' % self.op
-
-    def pdfRepr(self):
-        return self.op
 
 
 class Verbatim:
@@ -462,8 +491,6 @@ class Op(Enum):
     setlinewidth = b'w'
     clip = b'W'
     shading = b'sh'
-
-    op = _api.deprecated('3.6')(property(lambda self: self.value))
 
     def pdfRepr(self):
         return self.value
@@ -662,7 +689,7 @@ class PdfFile:
         if not opened:
             try:
                 self.tell_base = filename.tell()
-            except IOError:
+            except OSError:
                 fh = BytesIO()
                 self.original_file_like = filename
             else:
@@ -873,20 +900,28 @@ class PdfFile:
         """
 
         if isinstance(fontprop, str):
-            filename = fontprop
+            filenames = [fontprop]
         elif mpl.rcParams['pdf.use14corefonts']:
-            filename = findfont(
-                fontprop, fontext='afm', directory=RendererPdf._afm_font_dir)
+            filenames = _fontManager._find_fonts_by_props(
+                fontprop, fontext='afm', directory=RendererPdf._afm_font_dir
+            )
         else:
-            filename = findfont(fontprop)
+            filenames = _fontManager._find_fonts_by_props(fontprop)
+        first_Fx = None
+        for fname in filenames:
+            Fx = self.fontNames.get(fname)
+            if not first_Fx:
+                first_Fx = Fx
+            if Fx is None:
+                Fx = next(self._internal_font_seq)
+                self.fontNames[fname] = Fx
+                _log.debug('Assigning font %s = %r', Fx, fname)
+                if not first_Fx:
+                    first_Fx = Fx
 
-        Fx = self.fontNames.get(filename)
-        if Fx is None:
-            Fx = next(self._internal_font_seq)
-            self.fontNames[filename] = Fx
-            _log.debug('Assigning font %s = %r', Fx, filename)
-
-        return Fx
+        # find_fontsprop's first value always adheres to
+        # findfont's value, so technically no behaviour change
+        return first_Fx
 
     def dviFontName(self, dvifont):
         """
@@ -899,7 +934,7 @@ class PdfFile:
         if dvi_info is not None:
             return dvi_info.pdfname
 
-        tex_font_map = dviread.PsfontsMap(dviread._find_tex_file('pdftex.map'))
+        tex_font_map = dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
         psfont = tex_font_map[dvifont.texname]
         if psfont.filename is None:
             raise ValueError(
@@ -1152,7 +1187,6 @@ end"""
                 width = font.load_char(
                     s, flags=LOAD_NO_SCALE | LOAD_NO_HINTING).horiAdvance
                 return cvt(width)
-
             with warnings.catch_warnings():
                 # Ignore 'Required glyph missing from current font' warning
                 # from ft2font: here we're just building the widths table, but
@@ -1697,39 +1731,43 @@ end"""
                'Subtype': Name('Image'),
                'Width': width,
                'Height': height,
-               'ColorSpace': Name({1: 'DeviceGray',
-                                   3: 'DeviceRGB'}[color_channels]),
+               'ColorSpace': Name({1: 'DeviceGray', 3: 'DeviceRGB'}[color_channels]),
                'BitsPerComponent': 8}
         if smask:
             obj['SMask'] = smask
         if mpl.rcParams['pdf.compression']:
             if data.shape[-1] == 1:
                 data = data.squeeze(axis=-1)
+            png = {'Predictor': 10, 'Colors': color_channels, 'Columns': width}
             img = Image.fromarray(data)
             img_colors = img.getcolors(maxcolors=256)
             if color_channels == 3 and img_colors is not None:
-                # Convert to indexed color if there are 256 colors or fewer
-                # This can significantly reduce the file size
+                # Convert to indexed color if there are 256 colors or fewer. This can
+                # significantly reduce the file size.
                 num_colors = len(img_colors)
-                # These constants were converted to IntEnums and deprecated in
-                # Pillow 9.2
-                dither = getattr(Image, 'Dither', Image).NONE
-                pmode = getattr(Image, 'Palette', Image).ADAPTIVE
-                img = img.convert(
-                    mode='P', dither=dither, palette=pmode, colors=num_colors
-                )
+                palette = np.array([comp for _, color in img_colors for comp in color],
+                                   dtype=np.uint8)
+                palette24 = ((palette[0::3].astype(np.uint32) << 16) |
+                             (palette[1::3].astype(np.uint32) << 8) |
+                             palette[2::3])
+                rgb24 = ((data[:, :, 0].astype(np.uint32) << 16) |
+                         (data[:, :, 1].astype(np.uint32) << 8) |
+                         data[:, :, 2])
+                indices = np.argsort(palette24).astype(np.uint8)
+                rgb8 = indices[np.searchsorted(palette24, rgb24, sorter=indices)]
+                img = Image.fromarray(rgb8, mode='P')
+                img.putpalette(palette)
                 png_data, bit_depth, palette = self._writePng(img)
                 if bit_depth is None or palette is None:
                     raise RuntimeError("invalid PNG header")
-                palette = palette[:num_colors * 3]  # Trim padding
-                obj['ColorSpace'] = Verbatim(
-                    b'[/Indexed /DeviceRGB %d %s]'
-                    % (num_colors - 1, pdfRepr(palette)))
+                palette = palette[:num_colors * 3]  # Trim padding; remove for Pillow>=9
+                obj['ColorSpace'] = [Name('Indexed'), Name('DeviceRGB'),
+                                     num_colors - 1, palette]
                 obj['BitsPerComponent'] = bit_depth
-                color_channels = 1
+                png['Colors'] = 1
+                png['BitsPerComponent'] = bit_depth
             else:
                 png_data, _, _ = self._writePng(img)
-            png = {'Predictor': 10, 'Colors': color_channels, 'Columns': width}
         else:
             png = None
         self.beginStream(
@@ -1987,7 +2025,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         self.file.output(self.gc.paint())
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
-                             offsets, offsetTrans, facecolors, edgecolors,
+                             offsets, offset_trans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
                              offset_position):
         # We can only reuse the objects if the presence of fill and
@@ -2029,7 +2067,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         if (not can_do_optimization) or (not should_do_optimization):
             return RendererBase.draw_path_collection(
                 self, gc, master_transform, paths, all_transforms,
-                offsets, offsetTrans, facecolors, edgecolors,
+                offsets, offset_trans, facecolors, edgecolors,
                 linewidths, linestyles, antialiaseds, urls,
                 offset_position)
 
@@ -2045,8 +2083,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         output(*self.gc.push())
         lastx, lasty = 0, 0
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
-                gc, master_transform, all_transforms, path_codes, offsets,
-                offsetTrans, facecolors, edgecolors, linewidths, linestyles,
+                gc, path_codes, offsets, offset_trans,
+                facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position):
 
             self.check_gc(gc0, rgbFace)
@@ -2093,10 +2131,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                        marker, Op.use_xobject)
                 lastx, lasty = x, y
         output(Op.grestore)
-
-    def draw_gouraud_triangle(self, gc, points, colors, trans):
-        self.draw_gouraud_triangles(gc, points.reshape((1, 3, 2)),
-                                    colors.reshape((1, 3, 4)), trans)
 
     def draw_gouraud_triangles(self, gc, points, colors, trans):
         assert len(points) == len(colors)
@@ -2154,17 +2188,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             self._text2path.mathtext_parser.parse(s, 72, prop)
 
         if gc.get_url() is not None:
-            link_annotation = {
-                'Type': Name('Annot'),
-                'Subtype': Name('Link'),
-                'Rect': (x, y, x + width, y + height),
-                'Border': [0, 0, 0],
-                'A': {
-                    'S': Name('URI'),
-                    'URI': gc.get_url(),
-                },
-            }
-            self.file._annotations[-1][1].append(link_annotation)
+            self.file._annotations[-1][1].append(_get_link_annotation(
+                gc, x, y, width, height, angle))
 
         fonttype = mpl.rcParams['pdf.fonttype']
 
@@ -2220,17 +2245,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             page, = dvi
 
         if gc.get_url() is not None:
-            link_annotation = {
-                'Type': Name('Annot'),
-                'Subtype': Name('Link'),
-                'Rect': (x, y, x + page.width, y + page.height),
-                'Border': [0, 0, 0],
-                'A': {
-                    'S': Name('URI'),
-                    'URI': gc.get_url(),
-                },
-            }
-            self.file._annotations[-1][1].append(link_annotation)
+            self.file._annotations[-1][1].append(_get_link_annotation(
+                gc, x, y, page.width, page.height, angle))
 
         # Gather font information and do some setup for combining
         # characters into strings. The variable seq will contain a
@@ -2239,7 +2255,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # font. A text entry is ['text', x, y, glyphs, x+w] where x
         # and y are the starting coordinates, w is the width, and
         # glyphs is a list; in this phase it will always contain just
-        # one one-character string, but later it may have longer
+        # one single-character string, but later it may have longer
         # strings interspersed with kern amounts.
         oldfont, seq = None, []
         for x1, y1, dvifont, glyph, width in page.text:
@@ -2330,17 +2346,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         if gc.get_url() is not None:
             font.set_text(s)
             width, height = font.get_width_height()
-            link_annotation = {
-                'Type': Name('Annot'),
-                'Subtype': Name('Link'),
-                'Rect': (x, y, x + width / 64, y + height / 64),
-                'Border': [0, 0, 0],
-                'A': {
-                    'S': Name('URI'),
-                    'URI': gc.get_url(),
-                },
-            }
-            self.file._annotations[-1][1].append(link_annotation)
+            self.file._annotations[-1][1].append(_get_link_annotation(
+                gc, x, y, width / 64, height / 64, angle))
 
         # If fonttype is neither 3 nor 42, emit the whole string at once
         # without manual kerning.
@@ -2364,22 +2371,27 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # the regular text show command (TJ) with appropriate kerning between
         # chunks, whereas multibyte characters use the XObject command (Do).
         else:
-            # List of (start_x, [prev_kern, char, char, ...]), w/o zero kerns.
+            # List of (ft_object, start_x, [prev_kern, char, char, ...]),
+            # w/o zero kerns.
             singlebyte_chunks = []
-            # List of (start_x, glyph_index).
+            # List of (ft_object, start_x, glyph_index).
             multibyte_glyphs = []
             prev_was_multibyte = True
+            prev_font = font
             for item in _text_helpers.layout(
                     s, font, kern_mode=KERNING_UNFITTED):
                 if _font_supports_glyph(fonttype, ord(item.char)):
-                    if prev_was_multibyte:
-                        singlebyte_chunks.append((item.x, []))
+                    if prev_was_multibyte or item.ft_object != prev_font:
+                        singlebyte_chunks.append((item.ft_object, item.x, []))
+                        prev_font = item.ft_object
                     if item.prev_kern:
-                        singlebyte_chunks[-1][1].append(item.prev_kern)
-                    singlebyte_chunks[-1][1].append(item.char)
+                        singlebyte_chunks[-1][2].append(item.prev_kern)
+                    singlebyte_chunks[-1][2].append(item.char)
                     prev_was_multibyte = False
                 else:
-                    multibyte_glyphs.append((item.x, item.glyph_idx))
+                    multibyte_glyphs.append(
+                        (item.ft_object, item.x, item.glyph_idx)
+                    )
                     prev_was_multibyte = True
             # Do the rotation and global translation as a single matrix
             # concatenation up front
@@ -2389,10 +2401,12 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                              -math.sin(a), math.cos(a),
                              x, y, Op.concat_matrix)
             # Emit all the 1-byte characters in a BT/ET group.
-            self.file.output(Op.begin_text,
-                             self.file.fontName(prop), fontsize, Op.selectfont)
+
+            self.file.output(Op.begin_text)
             prev_start_x = 0
-            for start_x, kerns_or_chars in singlebyte_chunks:
+            for ft_object, start_x, kerns_or_chars in singlebyte_chunks:
+                ft_name = self.file.fontName(ft_object.fname)
+                self.file.output(ft_name, fontsize, Op.selectfont)
                 self._setup_textpos(start_x, 0, 0, prev_start_x, 0, 0)
                 self.file.output(
                     # See pdf spec "Text space details" for the 1000/fontsize
@@ -2404,8 +2418,10 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 prev_start_x = start_x
             self.file.output(Op.end_text)
             # Then emit all the multibyte characters, one at a time.
-            for start_x, glyph_idx in multibyte_glyphs:
-                self._draw_xobject_glyph(font, fontsize, glyph_idx, start_x, 0)
+            for ft_object, start_x, glyph_idx in multibyte_glyphs:
+                self._draw_xobject_glyph(
+                    ft_object, fontsize, glyph_idx, start_x, 0
+                )
             self.file.output(Op.grestore)
 
     def _draw_xobject_glyph(self, font, fontsize, glyph_idx, x, y):
@@ -2573,7 +2589,7 @@ class GraphicsContextPdf(GraphicsContextBase):
     def delta(self, other):
         """
         Copy properties of other into self and return PDF commands
-        needed to transform self into other.
+        needed to transform *self* into *other*.
         """
         cmds = []
         fill_performed = False
@@ -2649,18 +2665,19 @@ class PdfPages:
     In reality `PdfPages` is a thin wrapper around `PdfFile`, in order to avoid
     confusion when using `~.pyplot.savefig` and forgetting the format argument.
     """
-    __slots__ = ('_file', 'keep_empty')
 
-    def __init__(self, filename, keep_empty=True, metadata=None):
+    _UNSET = object()
+
+    def __init__(self, filename, keep_empty=_UNSET, metadata=None):
         """
         Create a new PdfPages object.
 
         Parameters
         ----------
         filename : str or path-like or file-like
-            Plots using `PdfPages.savefig` will be written to a file at this
-            location. The file is opened at once and any older file with the
-            same name is overwritten.
+            Plots using `PdfPages.savefig` will be written to a file at this location.
+            The file is opened when a figure is saved for the first time (overwriting
+            any older file with the same name).
 
         keep_empty : bool, optional
             If set to False, then empty pdf files will be deleted automatically
@@ -2676,8 +2693,16 @@ class PdfPages:
             'Trapped'. Values have been predefined for 'Creator', 'Producer'
             and 'CreationDate'. They can be removed by setting them to `None`.
         """
-        self._file = PdfFile(filename, metadata=metadata)
-        self.keep_empty = keep_empty
+        self._filename = filename
+        self._metadata = metadata
+        self._file = None
+        if keep_empty and keep_empty is not self._UNSET:
+            _api.warn_deprecated("3.8", message=(
+                "Keeping empty pdf files is deprecated since %(since)s and support "
+                "will be removed %(removal)s."))
+        self._keep_empty = keep_empty
+
+    keep_empty = _api.deprecate_privatize_attribute("3.8")
 
     def __enter__(self):
         return self
@@ -2685,17 +2710,25 @@ class PdfPages:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
+    def _ensure_file(self):
+        if self._file is None:
+            self._file = PdfFile(self._filename, metadata=self._metadata)  # init.
+        return self._file
+
     def close(self):
         """
         Finalize this object, making the underlying file a complete
         PDF file.
         """
-        self._file.finalize()
-        self._file.close()
-        if (self.get_pagecount() == 0 and not self.keep_empty and
-                not self._file.passed_in_file_object):
-            os.remove(self._file.fh.name)
-        self._file = None
+        if self._file is not None:
+            self._file.finalize()
+            self._file.close()
+            self._file = None
+        elif self._keep_empty:  # True *or* UNSET.
+            _api.warn_deprecated("3.8", message=(
+                "Keeping empty pdf files is deprecated since %(since)s and support "
+                "will be removed %(removal)s."))
+            PdfFile(self._filename, metadata=self._metadata)  # touch the file.
 
     def infodict(self):
         """
@@ -2703,7 +2736,7 @@ class PdfPages:
         (see PDF reference section 10.2.1 'Document Information
         Dictionary').
         """
-        return self._file.infoDict
+        return self._ensure_file().infoDict
 
     def savefig(self, figure=None, **kwargs):
         """
@@ -2722,19 +2755,15 @@ class PdfPages:
             else:
                 manager = Gcf.get_fig_manager(figure)
             if manager is None:
-                raise ValueError("No figure {}".format(figure))
+                raise ValueError(f"No figure {figure}")
             figure = manager.canvas.figure
         # Force use of pdf backend, as PdfPages is tightly coupled with it.
-        try:
-            orig_canvas = figure.canvas
-            figure.canvas = FigureCanvasPdf(figure)
+        with cbook._setattr_cm(figure, canvas=FigureCanvasPdf(figure)):
             figure.savefig(self, format="pdf", **kwargs)
-        finally:
-            figure.canvas = orig_canvas
 
     def get_pagecount(self):
         """Return the current number of pages in the multipage pdf file."""
-        return len(self._file.pageList)
+        return len(self._ensure_file().pageList)
 
     def attach_note(self, text, positionRect=[-100, -100, 0, 0]):
         """
@@ -2743,7 +2772,7 @@ class PdfPages:
         page. It is outside the page per default to make sure it is
         invisible on printouts.
         """
-        self._file.newTextnote(text, positionRect)
+        self._ensure_file().newTextnote(text, positionRect)
 
 
 class FigureCanvasPdf(FigureCanvasBase):
@@ -2758,11 +2787,11 @@ class FigureCanvasPdf(FigureCanvasBase):
     def print_pdf(self, filename, *,
                   bbox_inches_restore=None, metadata=None):
 
-        dpi = self.figure.get_dpi()
-        self.figure.set_dpi(72)            # there are 72 pdf points to an inch
+        dpi = self.figure.dpi
+        self.figure.dpi = 72  # there are 72 pdf points to an inch
         width, height = self.figure.get_size_inches()
         if isinstance(filename, PdfPages):
-            file = filename._file
+            file = filename._ensure_file()
         else:
             file = PdfFile(filename, metadata=metadata)
         try:

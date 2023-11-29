@@ -10,23 +10,17 @@ import pytest
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.testing import _has_tex_package, _check_for_pgf
-from matplotlib.testing.compare import compare_images, ImageComparisonFailure
-from matplotlib.backends.backend_pgf import PdfPages, _tex_escape
-from matplotlib.testing.decorators import (_image_directories,
-                                           check_figures_equal,
-                                           image_comparison)
+from matplotlib.testing.exceptions import ImageComparisonFailure
+from matplotlib.testing.compare import compare_images
+from matplotlib.backends.backend_pgf import PdfPages
+from matplotlib.testing.decorators import (
+    _image_directories, check_figures_equal, image_comparison)
+from matplotlib.testing._markers import (
+    needs_ghostscript, needs_pgf_lualatex, needs_pgf_pdflatex,
+    needs_pgf_xelatex)
+
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
-
-needs_xelatex = pytest.mark.skipif(not _check_for_pgf('xelatex'),
-                                   reason='xelatex + pgf is required')
-needs_pdflatex = pytest.mark.skipif(not _check_for_pgf('pdflatex'),
-                                    reason='pdflatex + pgf is required')
-needs_lualatex = pytest.mark.skipif(not _check_for_pgf('lualatex'),
-                                    reason='lualatex + pgf is required')
-needs_ghostscript = pytest.mark.skipif(
-    "eps" not in mpl.testing.compare.converter,
-    reason="This test needs a ghostscript installation")
 
 
 def compare_figure(fname, savefig_kwargs={}, tol=0):
@@ -38,6 +32,19 @@ def compare_figure(fname, savefig_kwargs={}, tol=0):
     err = compare_images(expected, actual, tol=tol)
     if err:
         raise ImageComparisonFailure(err)
+
+
+@needs_pgf_xelatex
+@needs_ghostscript
+@pytest.mark.backend('pgf')
+def test_tex_special_chars(tmp_path):
+    fig = plt.figure()
+    fig.text(.5, .5, "%_^ $a_b^c$")
+    buf = BytesIO()
+    fig.savefig(buf, format="png", backend="pgf")
+    buf.seek(0)
+    t = plt.imread(buf)
+    assert not (t == 1).all()  # The leading "%" didn't eat up everything.
 
 
 def create_figure():
@@ -57,28 +64,19 @@ def create_figure():
 
     # text and typesetting
     plt.plot([0.9], [0.5], "ro", markersize=3)
-    plt.text(0.9, 0.5, 'unicode (ü, °, µ) and math ($\\mu_i = x_i^2$)',
+    plt.text(0.9, 0.5, 'unicode (ü, °, \N{Section Sign}) and math ($\\mu_i = x_i^2$)',
              ha='right', fontsize=20)
     plt.ylabel('sans-serif, blue, $\\frac{\\sqrt{x}}{y^2}$..',
                family='sans-serif', color='blue')
+    plt.text(1, 1, 'should be clipped as default clip_box is Axes bbox',
+             fontsize=20, clip_on=True)
 
     plt.xlim(0, 1)
     plt.ylim(0, 1)
 
 
-@pytest.mark.parametrize('plain_text, escaped_text', [
-    (r'quad_sum: $\sum x_i^2$', r'quad\_sum: \(\displaystyle \sum x_i^2\)'),
-    (r'no \$splits \$ here', r'no \$splits \$ here'),
-    ('with_underscores', r'with\_underscores'),
-    ('% not a comment', r'\% not a comment'),
-    ('^not', r'\^not'),
-])
-def test_tex_escape(plain_text, escaped_text):
-    assert _tex_escape(plain_text) == escaped_text
-
-
 # test compiling a figure to pdf with xelatex
-@needs_xelatex
+@needs_pgf_xelatex
 @pytest.mark.backend('pgf')
 @image_comparison(['pgf_xelatex.pdf'], style='default')
 def test_xelatex():
@@ -96,16 +94,13 @@ except mpl.ExecutableNotFoundError:
 
 
 # test compiling a figure to pdf with pdflatex
-@needs_pdflatex
+@needs_pgf_pdflatex
+@pytest.mark.skipif(not _has_tex_package('type1ec'), reason='needs type1ec.sty')
 @pytest.mark.skipif(not _has_tex_package('ucs'), reason='needs ucs.sty')
 @pytest.mark.backend('pgf')
 @image_comparison(['pgf_pdflatex.pdf'], style='default',
-                  tol=11.7 if _old_gs_version else 0)
+                  tol=11.71 if _old_gs_version else 0)
 def test_pdflatex():
-    if os.environ.get('APPVEYOR'):
-        pytest.xfail("pdflatex test does not work on appveyor due to missing "
-                     "LaTeX fonts")
-
     rc_pdflatex = {'font.family': 'serif',
                    'pgf.rcfonts': False,
                    'pgf.texsystem': 'pdflatex',
@@ -116,8 +111,8 @@ def test_pdflatex():
 
 
 # test updating the rc parameters for each figure
-@needs_xelatex
-@needs_pdflatex
+@needs_pgf_xelatex
+@needs_pgf_pdflatex
 @mpl.style.context('default')
 @pytest.mark.backend('pgf')
 def test_rcupdate():
@@ -148,7 +143,7 @@ def test_rcupdate():
 
 
 # test backend-side clipping, since large numbers are not supported by TeX
-@needs_xelatex
+@needs_pgf_xelatex
 @mpl.style.context('default')
 @pytest.mark.backend('pgf')
 def test_pathclip():
@@ -168,7 +163,7 @@ def test_pathclip():
 
 
 # test mixed mode rendering
-@needs_xelatex
+@needs_pgf_xelatex
 @pytest.mark.backend('pgf')
 @image_comparison(['pgf_mixedmode.pdf'], style='default')
 def test_mixedmode():
@@ -178,7 +173,7 @@ def test_mixedmode():
 
 
 # test bbox_inches clipping
-@needs_xelatex
+@needs_pgf_xelatex
 @mpl.style.context('default')
 @pytest.mark.backend('pgf')
 def test_bbox_inches():
@@ -195,9 +190,9 @@ def test_bbox_inches():
 @mpl.style.context('default')
 @pytest.mark.backend('pgf')
 @pytest.mark.parametrize('system', [
-    pytest.param('lualatex', marks=[needs_lualatex]),
-    pytest.param('pdflatex', marks=[needs_pdflatex]),
-    pytest.param('xelatex', marks=[needs_xelatex]),
+    pytest.param('lualatex', marks=[needs_pgf_lualatex]),
+    pytest.param('pdflatex', marks=[needs_pgf_pdflatex]),
+    pytest.param('xelatex', marks=[needs_pgf_xelatex]),
 ])
 def test_pdf_pages(system):
     rc_pdflatex = {
@@ -237,9 +232,9 @@ def test_pdf_pages(system):
 @mpl.style.context('default')
 @pytest.mark.backend('pgf')
 @pytest.mark.parametrize('system', [
-    pytest.param('lualatex', marks=[needs_lualatex]),
-    pytest.param('pdflatex', marks=[needs_pdflatex]),
-    pytest.param('xelatex', marks=[needs_xelatex]),
+    pytest.param('lualatex', marks=[needs_pgf_lualatex]),
+    pytest.param('pdflatex', marks=[needs_pgf_pdflatex]),
+    pytest.param('xelatex', marks=[needs_pgf_xelatex]),
 ])
 def test_pdf_pages_metadata_check(monkeypatch, system):
     # Basically the same as test_pdf_pages, but we keep it separate to leave
@@ -291,7 +286,48 @@ def test_pdf_pages_metadata_check(monkeypatch, system):
     }
 
 
-@needs_xelatex
+@needs_pgf_xelatex
+def test_multipage_keep_empty(tmp_path):
+    os.chdir(tmp_path)
+
+    # test empty pdf files
+
+    # an empty pdf is left behind with keep_empty unset
+    with pytest.warns(mpl.MatplotlibDeprecationWarning), PdfPages("a.pdf") as pdf:
+        pass
+    assert os.path.exists("a.pdf")
+
+    # an empty pdf is left behind with keep_empty=True
+    with pytest.warns(mpl.MatplotlibDeprecationWarning), \
+            PdfPages("b.pdf", keep_empty=True) as pdf:
+        pass
+    assert os.path.exists("b.pdf")
+
+    # an empty pdf deletes itself afterwards with keep_empty=False
+    with PdfPages("c.pdf", keep_empty=False) as pdf:
+        pass
+    assert not os.path.exists("c.pdf")
+
+    # test pdf files with content, they should never be deleted
+
+    # a non-empty pdf is left behind with keep_empty unset
+    with PdfPages("d.pdf") as pdf:
+        pdf.savefig(plt.figure())
+    assert os.path.exists("d.pdf")
+
+    # a non-empty pdf is left behind with keep_empty=True
+    with pytest.warns(mpl.MatplotlibDeprecationWarning), \
+            PdfPages("e.pdf", keep_empty=True) as pdf:
+        pdf.savefig(plt.figure())
+    assert os.path.exists("e.pdf")
+
+    # a non-empty pdf is left behind with keep_empty=False
+    with PdfPages("f.pdf", keep_empty=False) as pdf:
+        pdf.savefig(plt.figure())
+    assert os.path.exists("f.pdf")
+
+
+@needs_pgf_xelatex
 def test_tex_restart_after_error():
     fig = plt.figure()
     fig.suptitle(r"\oops")
@@ -303,14 +339,14 @@ def test_tex_restart_after_error():
     fig.savefig(BytesIO(), format="pgf")
 
 
-@needs_xelatex
+@needs_pgf_xelatex
 def test_bbox_inches_tight():
     fig, ax = plt.subplots()
     ax.imshow([[0, 1], [2, 3]])
     fig.savefig(BytesIO(), format="pdf", backend="pgf", bbox_inches="tight")
 
 
-@needs_xelatex
+@needs_pgf_xelatex
 @needs_ghostscript
 def test_png_transparency():  # Actually, also just testing that png works.
     buf = BytesIO()
@@ -320,7 +356,7 @@ def test_png_transparency():  # Actually, also just testing that png works.
     assert (t[..., 3] == 0).all()  # fully transparent.
 
 
-@needs_xelatex
+@needs_pgf_xelatex
 def test_unknown_font(caplog):
     with caplog.at_level("WARNING"):
         mpl.rcParams["font.family"] = "this-font-does-not-exist"

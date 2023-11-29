@@ -1,5 +1,6 @@
 from numbers import Number
 import functools
+from types import MethodType
 
 import numpy as np
 
@@ -7,45 +8,22 @@ from matplotlib import _api, cbook
 from matplotlib.gridspec import SubplotSpec
 
 from .axes_divider import Size, SubplotDivider, Divider
-from .mpl_axes import Axes
-
-
-def _tick_only(ax, bottom_on, left_on):
-    bottom_off = not bottom_on
-    left_off = not left_on
-    ax.axis["bottom"].toggle(ticklabels=bottom_off, label=bottom_off)
-    ax.axis["left"].toggle(ticklabels=left_off, label=left_off)
+from .mpl_axes import Axes, SimpleAxisArtist
 
 
 class CbarAxesBase:
     def __init__(self, *args, orientation, **kwargs):
         self.orientation = orientation
-        self._default_label_on = True
-        self._locator = None  # deprecated.
         super().__init__(*args, **kwargs)
 
-    def colorbar(self, mappable, *, ticks=None, **kwargs):
-        orientation = (
-            "horizontal" if self.orientation in ["top", "bottom"] else
-            "vertical")
-        cb = self.figure.colorbar(mappable, cax=self, orientation=orientation,
-                                  ticks=ticks, **kwargs)
-        return cb
+    def colorbar(self, mappable, **kwargs):
+        return self.figure.colorbar(
+            mappable, cax=self, location=self.orientation, **kwargs)
 
+    @_api.deprecated("3.8", alternative="ax.tick_params and colorbar.set_label")
     def toggle_label(self, b):
-        self._default_label_on = b
         axis = self.axis[self.orientation]
         axis.toggle(ticklabels=b, label=b)
-
-    def cla(self):
-        orientation = self.orientation
-        super().cla()
-        self.orientation = orientation
-
-
-@_api.deprecated("3.5")
-class CbarAxes(CbarAxesBase, Axes):
-    pass
 
 
 _cbaraxes_class_factory = cbook._make_class_factory(CbarAxesBase, "Cbar{}")
@@ -55,7 +33,7 @@ class Grid:
     """
     A grid of Axes.
 
-    In Matplotlib, the axes location (and size) is specified in normalized
+    In Matplotlib, the Axes location (and size) is specified in normalized
     figure coordinates. This may not be ideal for images that needs to be
     displayed with a given aspect ratio; for example, it is difficult to
     display multiple images of a same size with some fixed padding between
@@ -83,9 +61,11 @@ class Grid:
         ----------
         fig : `.Figure`
             The parent figure.
-        rect : (float, float, float, float) or int
-            The axes position, as a ``(left, bottom, width, height)`` tuple or
-            as a three-digit subplot position code (e.g., "121").
+        rect : (float, float, float, float), (int, int, int), int, or \
+    `~.SubplotSpec`
+            The axes position, as a ``(left, bottom, width, height)`` tuple,
+            as a three-digit subplot position code (e.g., ``(1, 2, 1)`` or
+            ``121``), or as a `~.SubplotSpec`.
         nrows_ncols : (int, int)
             Number of rows and columns in the grid.
         ngrids : int or None, default: None
@@ -104,13 +84,14 @@ class Grid:
             Whether all axes of a column share their x-axis.
         share_y : bool, default: True
             Whether all axes of a row share their y-axis.
-        label_mode : {"L", "1", "all"}, default: "L"
+        label_mode : {"L", "1", "all", "keep"}, default: "L"
             Determines which axes will get tick labels:
 
             - "L": All axes on the left column get vertical tick labels;
               all axes on the bottom row get horizontal tick labels.
             - "1": Only the bottom left axes is labelled.
-            - "all": all axes are labelled.
+            - "all": All axes are labelled.
+            - "keep": Do not do anything.
 
         axes_class : subclass of `matplotlib.axes.Axes`, default: None
         aspect : bool, default: False
@@ -123,7 +104,8 @@ class Grid:
             ngrids = self._nrows * self._ncols
         else:
             if not 0 < ngrids <= self._nrows * self._ncols:
-                raise Exception("")
+                raise ValueError(
+                    "ngrids must be positive and not larger than nrows*ncols")
 
         self.ngrids = ngrids
 
@@ -140,14 +122,14 @@ class Grid:
             axes_class = functools.partial(cls, **kwargs)
 
         kw = dict(horizontal=[], vertical=[], aspect=aspect)
-        if isinstance(rect, (str, Number, SubplotSpec)):
+        if isinstance(rect, (Number, SubplotSpec)):
             self._divider = SubplotDivider(fig, rect, **kw)
         elif len(rect) == 3:
             self._divider = SubplotDivider(fig, *rect, **kw)
         elif len(rect) == 4:
             self._divider = Divider(fig, rect, **kw)
         else:
-            raise Exception("")
+            raise TypeError("Incorrect rect format")
 
         rect = self._divider.get_position()
 
@@ -175,33 +157,14 @@ class Grid:
         self.set_label_mode(label_mode)
 
     def _init_locators(self):
-
-        h = []
-        h_ax_pos = []
-        for _ in range(self._ncols):
-            if h:
-                h.append(self._horiz_pad_size)
-            h_ax_pos.append(len(h))
-            sz = Size.Scaled(1)
-            h.append(sz)
-
-        v = []
-        v_ax_pos = []
-        for _ in range(self._nrows):
-            if v:
-                v.append(self._vert_pad_size)
-            v_ax_pos.append(len(v))
-            sz = Size.Scaled(1)
-            v.append(sz)
-
+        self._divider.set_horizontal(
+            [Size.Scaled(1), self._horiz_pad_size] * (self._ncols-1) + [Size.Scaled(1)])
+        self._divider.set_vertical(
+            [Size.Scaled(1), self._vert_pad_size] * (self._nrows-1) + [Size.Scaled(1)])
         for i in range(self.ngrids):
             col, row = self._get_col_row(i)
-            locator = self._divider.new_locator(
-                nx=h_ax_pos[col], ny=v_ax_pos[self._nrows - 1 - row])
-            self.axes_all[i].set_axes_locator(locator)
-
-        self._divider.set_horizontal(h)
-        self._divider.set_vertical(v)
+            self.axes_all[i].set_axes_locator(
+                self._divider.new_locator(nx=2 * col, ny=2 * (self._nrows - 1 - row)))
 
     def _get_col_row(self, n):
         if self._direction == "column":
@@ -262,40 +225,46 @@ class Grid:
 
         Parameters
         ----------
-        mode : {"L", "1", "all"}
+        mode : {"L", "1", "all", "keep"}
             The label mode:
 
             - "L": All axes on the left column get vertical tick labels;
               all axes on the bottom row get horizontal tick labels.
             - "1": Only the bottom left axes is labelled.
-            - "all": all axes are labelled.
+            - "all": All axes are labelled.
+            - "keep": Do not do anything.
         """
+        is_last_row, is_first_col = (
+            np.mgrid[:self._nrows, :self._ncols] == [[[self._nrows - 1]], [[0]]])
         if mode == "all":
-            for ax in self.axes_all:
-                _tick_only(ax, False, False)
+            bottom = left = np.full((self._nrows, self._ncols), True)
         elif mode == "L":
-            # left-most axes
-            for ax in self.axes_column[0][:-1]:
-                _tick_only(ax, bottom_on=True, left_on=False)
-            # lower-left axes
-            ax = self.axes_column[0][-1]
-            _tick_only(ax, bottom_on=False, left_on=False)
-
-            for col in self.axes_column[1:]:
-                # axes with no labels
-                for ax in col[:-1]:
-                    _tick_only(ax, bottom_on=True, left_on=True)
-
-                # bottom
-                ax = col[-1]
-                _tick_only(ax, bottom_on=False, left_on=True)
-
+            bottom = is_last_row
+            left = is_first_col
         elif mode == "1":
-            for ax in self.axes_all:
-                _tick_only(ax, bottom_on=True, left_on=True)
-
-            ax = self.axes_llc
-            _tick_only(ax, bottom_on=False, left_on=False)
+            bottom = left = is_last_row & is_first_col
+        else:
+            # Use _api.check_in_list at the top of the method when deprecation
+            # period expires
+            if mode != 'keep':
+                _api.warn_deprecated(
+                    '3.7', name="Grid label_mode",
+                    message='Passing an undefined label_mode is deprecated '
+                            'since %(since)s and will become an error '
+                            '%(removal)s. To silence this warning, pass '
+                            '"keep", which gives the same behaviour.')
+            return
+        for i in range(self._nrows):
+            for j in range(self._ncols):
+                ax = self.axes_row[i][j]
+                if isinstance(ax.axis, MethodType):
+                    bottom_axis = SimpleAxisArtist(ax.xaxis, 1, ax.spines["bottom"])
+                    left_axis = SimpleAxisArtist(ax.yaxis, 1, ax.spines["left"])
+                else:
+                    bottom_axis = ax.axis["bottom"]
+                    left_axis = ax.axis["left"]
+                bottom_axis.toggle(ticklabels=bottom[i, j], label=bottom[i, j])
+                left_axis.toggle(ticklabels=left[i, j], label=left[i, j])
 
     def get_divider(self):
         return self._divider
@@ -306,13 +275,16 @@ class Grid:
     def get_axes_locator(self):
         return self._divider.get_locator()
 
-    @_api.deprecated("3.5")
-    def get_vsize_hsize(self):
-        return self._divider.get_vsize_hsize()
-
 
 class ImageGrid(Grid):
-    # docstring inherited
+    """
+    A grid of Axes for Image display.
+
+    This class is a specialization of `~.axes_grid1.axes_grid.Grid` for displaying a
+    grid of images.  In particular, it forces all axes in a column to share their x-axis
+    and all axes in a row to share their y-axis.  It further provides helpers to add
+    colorbars to some or all axes.
+    """
 
     def __init__(self, fig,
                  rect,
@@ -351,7 +323,9 @@ class ImageGrid(Grid):
             Padding or (horizontal padding, vertical padding) between axes, in
             inches.
         share_all : bool, default: False
-            Whether all axes share their x- and y-axis.
+            Whether all axes share their x- and y-axis.  Note that in any case,
+            all axes in a column share their x-axis and all axes in a row share
+            their y-axis.
         aspect : bool, default: True
             Whether the axes aspect ratio follows the aspect ratio of the data
             limits.
@@ -378,6 +352,10 @@ class ImageGrid(Grid):
             to associated *cbar_axes*.
         axes_class : subclass of `matplotlib.axes.Axes`, default: None
         """
+        _api.check_in_list(["each", "single", "edge", None],
+                           cbar_mode=cbar_mode)
+        _api.check_in_list(["left", "right", "bottom", "top"],
+                           cbar_location=cbar_location)
         self._colorbar_mode = cbar_mode
         self._colorbar_location = cbar_location
         self._colorbar_pad = cbar_pad

@@ -100,6 +100,7 @@ Ticks, tick labels and Offset text
    Axis.get_offset_text
 
    Axis.get_tick_padding
+   Axis.get_tick_params
    Axis.get_ticklabels
    Axis.get_ticklines
    Axis.get_ticklocs
@@ -137,7 +138,6 @@ Rendering helpers
 
    Axis.get_minpos
    Axis.get_tick_space
-   Axis.get_ticklabel_extents
    Axis.get_tightbbox
 
 
@@ -150,6 +150,7 @@ Interactive
    :nosignatures:
 
    Axis.contains
+   Axis.pickradius
    Axis.get_pickradius
    Axis.set_pickradius
 
@@ -177,7 +178,6 @@ XAxis Specific
    :nosignatures:
 
    XAxis.axis_name
-   XAxis.get_text_heights
    XAxis.get_ticks_position
    XAxis.set_ticks_position
    XAxis.set_label_position
@@ -193,7 +193,6 @@ YAxis Specific
    :nosignatures:
 
    YAxis.axis_name
-   YAxis.get_text_widths
    YAxis.get_ticks_position
    YAxis.set_offset_position
    YAxis.set_ticks_position
@@ -258,7 +257,6 @@ specify a matching series of labels.  Calling ``set_ticks`` makes a
 
    Tick.get_loc
    Tick.get_pad
-   Tick.get_pad_pixels
    Tick.get_tick_padding
    Tick.get_tickdir
    Tick.get_view_interval

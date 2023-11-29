@@ -141,13 +141,13 @@ independent on the axes size or units. To revert to the previous behaviour
 set the axes' aspect ratio to automatic by using ``ax.set_aspect("auto")`` or
 ``plt.axis("auto")``.
 
-Add ``ax.get_gridspec`` to `.SubplotBase`
------------------------------------------
+Add ``ax.get_gridspec`` to ``SubplotBase``
+------------------------------------------
 
-New method `.SubplotBase.get_gridspec` is added so that users can
+New method ``SubplotBase.get_gridspec`` is added so that users can
 easily get the gridspec that went into making an axes:
 
-  .. code::
+.. code-block:: python
 
     import matplotlib.pyplot as plt
 

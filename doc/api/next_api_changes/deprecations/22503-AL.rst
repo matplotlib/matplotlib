@@ -1,3 +1,0 @@
-``backend_qt.qApp``
-~~~~~~~~~~~~~~~~~~~
-... is deprecated.  Use ``QtWidgets.QApplication.instance()`` instead.

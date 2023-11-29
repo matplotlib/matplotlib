@@ -35,20 +35,21 @@ import sys
 import fontforge
 
 
-def log_namelist(nam, unicode):
-    if nam and isinstance(unicode, int):
-        print(f"0x{unicode:04X}", fontforge.nameFromUnicode(unicode), file=nam)
+def log_namelist(name, unicode):
+    if name and isinstance(unicode, int):
+        print(f"0x{unicode:04X}", fontforge.nameeFromUnicode(unicode),
+              file=name)
 
 
-def select_with_refs(font, unicode, newfont, pe=None, nam=None):
+def select_with_refs(font, unicode, newfont, pe=None, name=None):
     newfont.selection.select(('more', 'unicode'), unicode)
-    log_namelist(nam, unicode)
+    log_namelist(name, unicode)
     if pe:
         print(f"SelectMore({unicode})", file=pe)
     try:
         for ref in font[unicode].references:
             newfont.selection.select(('more',), ref[0])
-            log_namelist(nam, ref[0])
+            log_namelist(name, ref[0])
             if pe:
                 print(f'SelectMore("{ref[0]}")', file=pe)
     except Exception:
@@ -60,11 +61,11 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
         # 2010-12-06 DC To allow setting namelist filenames,
         # change getopt.gnu_getopt from namelist to namelist=
         # and invert comments on following 2 lines
-        # nam_fn = opts['--namelist']
-        nam_fn = f'{font_out}.nam'
-        nam = open(nam_fn, 'w')
+        # name_fn = opts['--namelist']
+        name_fn = f'{font_out}.name'
+        name = open(name_fn, 'w')
     else:
-        nam = None
+        name = None
     if '--script' in opts:
         pe_fn = "/tmp/script.pe"
         pe = open(pe_fn, 'w')
@@ -75,7 +76,7 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
         print(f'Open("{font_in}")', file=pe)
         extract_vert_to_script(font_in, pe)
     for i in unicodes:
-        select_with_refs(font, i, font, pe, nam)
+        select_with_refs(font, i, font, pe, name)
 
     addl_glyphs = []
     if '--nmr' in opts:
@@ -86,9 +87,9 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
         addl_glyphs.append('.notdef')
     for glyph in addl_glyphs:
         font.selection.select(('more',), glyph)
-        if nam:
+        if name:
             print(f"0x{fontforge.unicodeFromName(glyph):0.4X}", glyph,
-                  file=nam)
+                  file=name)
         if pe:
             print(f'SelectMore("{glyph}")', file=pe)
 
@@ -112,7 +113,7 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
         new.em = font.em
         new.layers['Fore'].is_quadratic = font.layers['Fore'].is_quadratic
         for i in unicodes:
-            select_with_refs(font, i, new, pe, nam)
+            select_with_refs(font, i, new, pe, name)
         new.paste()
         # This is a hack - it should have been taken care of above.
         font.selection.select('space')
@@ -149,9 +150,9 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
                 font.selection.select(glname)
                 font.cut()
 
-    if nam:
+    if name:
         print("Writing NameList", end="")
-        nam.close()
+        name.close()
 
     if pe:
         print(f'Generate("{font_out}")', file=pe)
@@ -177,7 +178,7 @@ def subset_font(font_in, font_out, unicodes, opts):
     if font_out != font_out_raw:
         os.rename(font_out_raw, font_out)
 # 2011-02-14 DC this needs to only happen with --namelist is used
-#        os.rename(font_out_raw + '.nam', font_out + '.nam')
+#        os.rename(font_out_raw + '.name', font_out + '.name')
 
 
 def getsubset(subset, font_in):

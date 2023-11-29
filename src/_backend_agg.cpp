@@ -11,7 +11,7 @@ void BufferRegion::to_string_argb(uint8_t *buf)
     unsigned char tmp;
     size_t i, j;
 
-    memcpy(buf, data, height * stride);
+    memcpy(buf, data, (size_t) height * stride);
 
     for (i = 0; i < (size_t)height; ++i) {
         pix = buf + i * stride;
@@ -128,11 +128,11 @@ RendererAgg::restore_region(BufferRegion &region, int xx1, int yy1, int xx2, int
     rendererBase.copy_from(rbuf, &rect, x, y);
 }
 
-bool RendererAgg::render_clippath(py::PathIterator &clippath,
+bool RendererAgg::render_clippath(mpl::PathIterator &clippath,
                                   const agg::trans_affine &clippath_trans,
                                   e_snap_mode snap_mode)
 {
-    typedef agg::conv_transform<py::PathIterator> transformed_path_t;
+    typedef agg::conv_transform<mpl::PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removed_t;
     /* Unlike normal Paths, the clip path cannot be clipped to the Figure bbox,
      * because it needs to remain a complete closed path, so there is no

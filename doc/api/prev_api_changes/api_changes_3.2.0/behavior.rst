@@ -88,16 +88,16 @@ enough to be accommodated by the default data limit margins.
 While the new behavior is algorithmically simpler, it is conditional on
 properties of the `.Collection` object:
 
-  1. ``offsets = None``, ``transform`` is a child of ``Axes.transData``: use the paths
-     for the automatic limits (i.e. for `.LineCollection` in `.Axes.streamplot`).
-  2.  ``offsets != None``, and ``offset_transform`` is child of ``Axes.transData``:
+1. ``offsets = None``, ``transform`` is a child of ``Axes.transData``: use the paths
+   for the automatic limits (i.e. for `.LineCollection` in `.Axes.streamplot`).
+2. ``offsets != None``, and ``offset_transform`` is child of ``Axes.transData``:
 
-    a) ``transform`` is child of ``Axes.transData``: use the ``path + offset`` for
-        limits (i.e., for `.Axes.bar`).
-    b) ``transform`` is not a child of ``Axes.transData``: just use the offsets
-        for the limits (i.e. for scatter)
+   a) ``transform`` is child of ``Axes.transData``: use the ``path + offset`` for
+      limits (i.e., for `.Axes.bar`).
+   b) ``transform`` is not a child of ``Axes.transData``: just use the offsets
+      for the limits (i.e. for scatter)
 
-  3. otherwise return a null `.Bbox`.
+3. otherwise return a null `.Bbox`.
 
 While this seems complicated, the logic is simply to use the information from
 the object that are in data space for the limits, but not information that is

@@ -61,7 +61,7 @@ def record_missing_reference(app, record, node):
     target = node["reftarget"]
     location = get_location(node, app)
 
-    domain_type = "{}:{}".format(domain, typ)
+    domain_type = f"{domain}:{typ}"
 
     record[(domain_type, target)].add(location)
 
@@ -90,7 +90,7 @@ def get_location(node, app):
     Usually, this will be of the form "path/to/file:linenumber". Two
     special values can be emitted, "<external>" for paths which are
     not contained in this source tree (e.g. docstrings included from
-    other modules) or "<unknown>", inidcating that the sphinx application
+    other modules) or "<unknown>", indicating that the sphinx application
     cannot locate the original source file (usually because an extension
     has injected text into the sphinx parsing engine).
     """
@@ -99,8 +99,12 @@ def get_location(node, app):
     if source:
         # 'source' can have the form '/some/path:docstring of some.api' but the
         # colons are forbidden on windows, but on posix just passes through.
-        path, *post = source.partition(':')
-        post = ''.join(post)
+        if ':docstring of' in source:
+            path, *post = source.rpartition(':docstring of')
+            post = ''.join(post)
+        else:
+            path = source
+            post = ''
         # We locate references relative to the parent of the doc
         # directory, which for matplotlib, will be the root of the
         # matplotlib repo. When matplotlib is not an editable install
@@ -194,8 +198,7 @@ def save_missing_references_handler(app, exc):
 
     _warn_unused_missing_references(app)
 
-    json_path = (Path(app.confdir) /
-                 app.config.missing_references_filename)
+    json_path = Path(app.confdir) / app.config.missing_references_filename
 
     references_warnings = getattr(app.env, 'missing_references_warnings', {})
 
@@ -264,8 +267,7 @@ def prepare_missing_references_handler(app):
 
     app.env.missing_references_ignored_references = {}
 
-    json_path = (Path(app.confdir) /
-                    app.config.missing_references_filename)
+    json_path = Path(app.confdir) / app.config.missing_references_filename
     if not json_path.exists():
         return
 
@@ -278,6 +280,10 @@ def prepare_missing_references_handler(app):
     # for use later. Otherwise, add all known missing references to
     # ``nitpick_ignore```
     if not app.config.missing_references_write_json:
+        # Since Sphinx v6.2, nitpick_ignore may be a list, set or tuple, and
+        # defaults to set.  Previously it was always a list.  Cast to list for
+        # consistency across versions.
+        app.config.nitpick_ignore = list(app.config.nitpick_ignore)
         app.config.nitpick_ignore.extend(ignored_references.keys())
 
 

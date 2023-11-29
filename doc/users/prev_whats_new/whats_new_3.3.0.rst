@@ -24,7 +24,7 @@ The `.Figure` class has a provisional method to generate complex grids of named
 `.axes.Axes` based on nested list input or ASCII art:
 
 .. plot::
-   :include-source: True
+   :include-source:
 
    axd = plt.figure(constrained_layout=True).subplot_mosaic(
        [['.', 'histx'],
@@ -38,7 +38,7 @@ The `.Figure` class has a provisional method to generate complex grids of named
 or as a string (with single-character Axes labels):
 
 .. plot::
-   :include-source: True
+   :include-source:
 
    axd = plt.figure(constrained_layout=True).subplot_mosaic(
        """
@@ -50,7 +50,7 @@ or as a string (with single-character Axes labels):
                ha='center', va='center', fontsize=36,
                color='darkgrey')
 
-See :doc:`/tutorials/provisional/mosaic` for more details and examples.
+See :ref:`mosaic` for more details and examples.
 
 ``GridSpec.subplots()``
 -----------------------
@@ -183,7 +183,7 @@ colorbar inherits the *extend* argument from the norm, so with
 ``extend='both'``, for example, the colorbar will have triangular extensions
 for out-of-range values with colors that differ from adjacent in-range colors.
 
-  .. plot::
+.. plot::
 
     import matplotlib.pyplot as plt
     from matplotlib.colors import BoundaryNorm
@@ -373,8 +373,8 @@ set with the new rcParameter :rc:`axes.titley`.
 .. plot::
 
     fig, axs = plt.subplots(1, 2, constrained_layout=True, figsize=(5, 2))
-    axs[0].set_title('y=0.7\n$\sum_{j_n} x_j$', y=0.7)
-    axs[1].set_title('y=None\n$\sum_{j_n} x_j$')
+    axs[0].set_title('y=0.7\n$\\sum_{j_n} x_j$', y=0.7)
+    axs[1].set_title('y=None\n$\\sum_{j_n} x_j$')
     plt.show()
 
 Offset text is now set to the top when using ``axis.tick_top()``

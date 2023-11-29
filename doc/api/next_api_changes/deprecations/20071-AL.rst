@@ -1,5 +1,0 @@
-``axes_size`` internal helpers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The following APIs are deprecated: ``axes_size.Padded`` (use ``size + pad``
-instead), ``axes_size.SizeFromFunc``, ``axes_size.GetExtentHelper``.

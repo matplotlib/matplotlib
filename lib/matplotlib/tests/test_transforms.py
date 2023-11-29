@@ -9,8 +9,9 @@ from matplotlib import scale
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.transforms as mtransforms
+from matplotlib.transforms import Affine2D, Bbox, TransformedBbox
 from matplotlib.path import Path
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
 def test_non_affine_caching():
@@ -141,6 +142,25 @@ def test_pcolormesh_pre_transform_limits():
     assert_almost_equal(expected, ax.dataLim.get_points())
 
 
+def test_pcolormesh_gouraud_nans():
+    np.random.seed(19680801)
+
+    values = np.linspace(0, 180, 3)
+    radii = np.linspace(100, 1000, 10)
+    z, y = np.meshgrid(values, radii)
+    x = np.radians(np.random.rand(*z.shape) * 100)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="polar")
+    # Setting the limit to cause clipping of the r values causes NaN to be
+    # introduced; these should not crash but be ignored as in other path
+    # operations.
+    ax.set_rlim(101, 1000)
+    ax.pcolormesh(x, y, z, shading="gouraud")
+
+    fig.canvas.draw()
+
+
 def test_Affine2D_from_values():
     points = np.array([[0, 0],
                        [10, 20],
@@ -191,8 +211,7 @@ def test_affine_inverted_invalidated():
 
 def test_clipping_of_log():
     # issue 804
-    path = Path([(0.2, -99), (0.4, -99), (0.4, 20), (0.2, 20), (0.2, -99)],
-                closed=True)
+    path = Path._create_closed([(0.2, -99), (0.4, -99), (0.4, 20), (0.2, 20)])
     # something like this happens in plotting logarithmic histograms
     trans = mtransforms.BlendedGenericTransform(
         mtransforms.Affine2D(), scale.LogTransform(10, 'clip'))
@@ -423,7 +442,7 @@ class TestTransformPlotInterface:
         ax = plt.axes()
         offset = mtransforms.Affine2D().translate(10, 10)
         na_offset = NonAffineForTest(mtransforms.Affine2D().translate(10, 10))
-        pth = Path(np.array([[0, 0], [0, 10], [10, 10], [10, 0]]))
+        pth = Path([[0, 0], [0, 10], [10, 10], [10, 0]])
         patch = mpatches.PathPatch(pth,
                                    transform=offset + na_offset + ax.transData)
         ax.add_patch(patch)
@@ -433,7 +452,7 @@ class TestTransformPlotInterface:
     def test_pathc_extents_affine(self):
         ax = plt.axes()
         offset = mtransforms.Affine2D().translate(10, 10)
-        pth = Path(np.array([[0, 0], [0, 10], [10, 10], [10, 0]]))
+        pth = Path([[0, 0], [0, 10], [10, 10], [10, 0]])
         patch = mpatches.PathPatch(pth, transform=offset + ax.transData)
         ax.add_patch(patch)
         expected_data_lim = np.array([[0., 0.], [10.,  10.]]) + 10
@@ -511,7 +530,7 @@ CompositeGenericTransform(
                 Affine2D().scale(1.0),
                 Affine2D().scale(1.0))),
         PolarTransform(
-            PolarAxesSubplot(0.125,0.1;0.775x0.8),
+            PolarAxes(0.125,0.1;0.775x0.8),
             use_rmin=True,
             _apply_theta_transforms=False)),
     CompositeGenericTransform(
@@ -608,9 +627,9 @@ def test_invalid_arguments():
         t.transform([])
     with pytest.raises(RuntimeError):
         t.transform([1])
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ValueError):
         t.transform([[1]])
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ValueError):
         t.transform([[1, 2, 3]])
 
 
@@ -723,3 +742,47 @@ def test_deepcopy():
     b1.translate(3, 4)
     assert not s._invalid
     assert (s.get_matrix() == a.get_matrix()).all()
+
+
+def test_transformwrapper():
+    t = mtransforms.TransformWrapper(mtransforms.Affine2D())
+    with pytest.raises(ValueError, match=(
+            r"The input and output dims of the new child \(1, 1\) "
+            r"do not match those of current child \(2, 2\)")):
+        t.set(scale.LogTransform(10))
+
+
+@check_figures_equal(extensions=["png"])
+def test_scale_swapping(fig_test, fig_ref):
+    np.random.seed(19680801)
+    samples = np.random.normal(size=10)
+    x = np.linspace(-5, 5, 10)
+
+    for fig, log_state in zip([fig_test, fig_ref], [True, False]):
+        ax = fig.subplots()
+        ax.hist(samples, log=log_state, density=True)
+        ax.plot(x, np.exp(-(x**2) / 2) / np.sqrt(2 * np.pi))
+        fig.canvas.draw()
+        ax.set_yscale('linear')
+
+
+def test_offset_copy_errors():
+    with pytest.raises(ValueError,
+                       match="'fontsize' is not a valid value for units;"
+                             " supported values are 'dots', 'points', 'inches'"):
+        mtransforms.offset_copy(None, units='fontsize')
+
+    with pytest.raises(ValueError,
+                       match='For units of inches or points a fig kwarg is needed'):
+        mtransforms.offset_copy(None, units='inches')
+
+
+def test_transformedbbox_contains():
+    bb = TransformedBbox(Bbox.unit(), Affine2D().rotate_deg(30))
+    assert bb.contains(.8, .5)
+    assert bb.contains(-.4, .85)
+    assert not bb.contains(.9, .5)
+    bb = TransformedBbox(Bbox.unit(), Affine2D().translate(.25, .5))
+    assert bb.contains(1.25, 1.5)
+    assert not bb.fully_contains(1.25, 1.5)
+    assert not bb.fully_contains(.1, .1)

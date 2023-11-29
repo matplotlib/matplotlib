@@ -11,7 +11,7 @@
 Inheritance Diagrams
 ====================
 
-.. inheritance-diagram:: matplotlib.axes._axes.Axes matplotlib.axes._base._AxesBase matplotlib.axis.Axis matplotlib.axis.Tick matplotlib.axis.XAxis matplotlib.axis.XTick matplotlib.axis.YAxis matplotlib.axis.YTick matplotlib.collections.AsteriskPolygonCollection matplotlib.collections.BrokenBarHCollection matplotlib.collections.CircleCollection matplotlib.collections.Collection matplotlib.collections.EllipseCollection matplotlib.collections.EventCollection matplotlib.collections.LineCollection matplotlib.collections.PatchCollection matplotlib.collections.PathCollection matplotlib.collections.PolyCollection matplotlib.collections.QuadMesh matplotlib.collections.RegularPolyCollection matplotlib.collections.StarPolygonCollection matplotlib.collections.TriMesh matplotlib.collections._CollectionWithSizes matplotlib.contour.ClabelText matplotlib.figure.Figure matplotlib.image.AxesImage matplotlib.image.BboxImage matplotlib.image.FigureImage matplotlib.image.NonUniformImage matplotlib.image.PcolorImage matplotlib.image._ImageBase matplotlib.legend.Legend matplotlib.lines.Line2D matplotlib.offsetbox.AnchoredOffsetbox matplotlib.offsetbox.AnchoredText matplotlib.offsetbox.AnnotationBbox matplotlib.offsetbox.AuxTransformBox matplotlib.offsetbox.DrawingArea matplotlib.offsetbox.HPacker matplotlib.offsetbox.OffsetBox matplotlib.offsetbox.OffsetImage matplotlib.offsetbox.PackerBase matplotlib.offsetbox.PaddedBox matplotlib.offsetbox.TextArea matplotlib.offsetbox.VPacker matplotlib.patches.Arc matplotlib.patches.Arrow matplotlib.patches.Circle matplotlib.patches.CirclePolygon matplotlib.patches.ConnectionPatch matplotlib.patches.Ellipse matplotlib.patches.FancyArrow matplotlib.patches.FancyArrowPatch matplotlib.patches.FancyBboxPatch matplotlib.patches.Patch matplotlib.patches.PathPatch matplotlib.patches.StepPatch matplotlib.patches.Polygon matplotlib.patches.Rectangle matplotlib.patches.RegularPolygon matplotlib.patches.Shadow matplotlib.patches.Wedge matplotlib.projections.geo.AitoffAxes matplotlib.projections.geo.GeoAxes matplotlib.projections.geo.HammerAxes matplotlib.projections.geo.LambertAxes matplotlib.projections.geo.MollweideAxes matplotlib.projections.polar.PolarAxes matplotlib.quiver.Barbs matplotlib.quiver.Quiver matplotlib.quiver.QuiverKey matplotlib.spines.Spine matplotlib.table.Cell matplotlib.table.CustomCell matplotlib.table.Table matplotlib.text.Annotation matplotlib.text.Text
+.. inheritance-diagram:: matplotlib.axes._axes.Axes matplotlib.axes._base._AxesBase matplotlib.axis.Axis matplotlib.axis.Tick matplotlib.axis.XAxis matplotlib.axis.XTick matplotlib.axis.YAxis matplotlib.axis.YTick matplotlib.collections.AsteriskPolygonCollection matplotlib.collections.CircleCollection matplotlib.collections.Collection matplotlib.collections.EllipseCollection matplotlib.collections.EventCollection matplotlib.collections.LineCollection matplotlib.collections.PatchCollection matplotlib.collections.PathCollection matplotlib.collections.PolyCollection matplotlib.collections.QuadMesh matplotlib.collections.RegularPolyCollection matplotlib.collections.StarPolygonCollection matplotlib.collections.TriMesh matplotlib.collections._CollectionWithSizes matplotlib.contour.ContourSet matplotlib.contour.QuadContourSet matplotlib.figure.FigureBase matplotlib.figure.Figure matplotlib.figure.SubFigure matplotlib.image.AxesImage matplotlib.image.BboxImage matplotlib.image.FigureImage matplotlib.image.NonUniformImage matplotlib.image.PcolorImage matplotlib.image._ImageBase matplotlib.legend.Legend matplotlib.lines.Line2D matplotlib.offsetbox.AnchoredOffsetbox matplotlib.offsetbox.AnchoredText matplotlib.offsetbox.AnnotationBbox matplotlib.offsetbox.AuxTransformBox matplotlib.offsetbox.DrawingArea matplotlib.offsetbox.HPacker matplotlib.offsetbox.OffsetBox matplotlib.offsetbox.OffsetImage matplotlib.offsetbox.PackerBase matplotlib.offsetbox.PaddedBox matplotlib.offsetbox.TextArea matplotlib.offsetbox.VPacker matplotlib.patches.Annulus matplotlib.patches.Arc matplotlib.patches.Arrow matplotlib.patches.Circle matplotlib.patches.CirclePolygon matplotlib.patches.ConnectionPatch matplotlib.patches.Ellipse matplotlib.patches.FancyArrow matplotlib.patches.FancyArrowPatch matplotlib.patches.FancyBboxPatch matplotlib.patches.Patch matplotlib.patches.PathPatch matplotlib.patches.Polygon matplotlib.patches.Rectangle matplotlib.patches.RegularPolygon matplotlib.patches.Shadow matplotlib.patches.StepPatch matplotlib.patches.Wedge matplotlib.projections.geo.AitoffAxes matplotlib.projections.geo.GeoAxes matplotlib.projections.geo.HammerAxes matplotlib.projections.geo.LambertAxes matplotlib.projections.geo.MollweideAxes matplotlib.projections.polar.PolarAxes matplotlib.projections.polar.RadialAxis matplotlib.projections.polar.RadialTick matplotlib.projections.polar.ThetaAxis matplotlib.projections.polar.ThetaTick matplotlib.quiver.Barbs matplotlib.quiver.Quiver matplotlib.quiver.QuiverKey matplotlib.spines.Spine matplotlib.table.Cell matplotlib.table.Table matplotlib.text.Annotation matplotlib.text.Text matplotlib.tri.TriContourSet
    :parts: 1
    :private-bases:
 
@@ -27,6 +27,7 @@ Interactive
 -----------
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
@@ -48,6 +49,7 @@ Clipping
 --------
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
@@ -62,6 +64,7 @@ Bulk Properties
 ---------------
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
@@ -74,6 +77,7 @@ Drawing
 -------
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
@@ -101,12 +105,14 @@ Drawing
 
    Artist.get_agg_filter
    Artist.get_window_extent
+   Artist.get_tightbbox
    Artist.get_transformed_clip_path_and_affine
 
 Figure and Axes
 ---------------
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
@@ -121,6 +127,7 @@ Children
 --------
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
@@ -131,6 +138,7 @@ Transform
 ---------
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
@@ -142,6 +150,7 @@ Units
 -----
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
@@ -153,6 +162,7 @@ Metadata
 --------
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
@@ -167,6 +177,7 @@ Miscellaneous
 -------------
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
@@ -179,6 +190,7 @@ Functions
 =========
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 

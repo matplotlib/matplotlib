@@ -1,3 +1,0 @@
-``AxisArtistHelper.delta1`` and ``AxisArtistHelper.delta2``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... are deprecated with no replacement.

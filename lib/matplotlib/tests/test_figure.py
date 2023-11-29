@@ -2,6 +2,7 @@ import copy
 from datetime import datetime
 import io
 from pathlib import Path
+import pickle
 import platform
 from threading import Timer
 from types import SimpleNamespace
@@ -12,13 +13,14 @@ import pytest
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import gridspec, rcParams
-from matplotlib._api.deprecation import MatplotlibDeprecationWarning
+from matplotlib import gridspec
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
+from matplotlib.backend_bases import KeyEvent, MouseEvent
 from matplotlib.figure import Figure, FigureBase
 from matplotlib.layout_engine import (ConstrainedLayoutEngine,
-                                      TightLayoutEngine)
+                                      TightLayoutEngine,
+                                      PlaceHolderLayoutEngine)
 from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -189,64 +191,29 @@ def test_figure_legend():
 def test_gca():
     fig = plt.figure()
 
-    with pytest.raises(TypeError):
-        assert fig.add_axes() is None
-
+    # test that gca() picks up Axes created via add_axes()
     ax0 = fig.add_axes([0, 0, 1, 1])
-    with pytest.warns(
-            MatplotlibDeprecationWarning,
-            match=r'Calling gca\(\) with keyword arguments was deprecated'):
-        assert fig.gca(projection='rectilinear') is ax0
     assert fig.gca() is ax0
 
-    ax1 = fig.add_axes(rect=[0.1, 0.1, 0.8, 0.8])
-    with pytest.warns(
-            MatplotlibDeprecationWarning,
-            match=r'Calling gca\(\) with keyword arguments was deprecated'):
-        assert fig.gca(projection='rectilinear') is ax1
+    # test that gca() picks up Axes created via add_subplot()
+    ax1 = fig.add_subplot(111)
     assert fig.gca() is ax1
-
-    ax2 = fig.add_subplot(121, projection='polar')
-    assert fig.gca() is ax2
-    with pytest.warns(
-            MatplotlibDeprecationWarning,
-            match=r'Calling gca\(\) with keyword arguments was deprecated'):
-        assert fig.gca(polar=True) is ax2
-
-    ax3 = fig.add_subplot(122)
-    assert fig.gca() is ax3
-
-    with pytest.warns(
-            MatplotlibDeprecationWarning,
-            match=r'Calling gca\(\) with keyword arguments was deprecated'):
-        assert fig.gca(polar=True) is ax3
-    with pytest.warns(
-            MatplotlibDeprecationWarning,
-            match=r'Calling gca\(\) with keyword arguments was deprecated'):
-        assert fig.gca(polar=True) is not ax2
-    assert fig.gca().get_subplotspec().get_geometry() == (1, 2, 1, 1)
 
     # add_axes on an existing Axes should not change stored order, but will
     # make it current.
     fig.add_axes(ax0)
-    assert fig.axes == [ax0, ax1, ax2, ax3]
+    assert fig.axes == [ax0, ax1]
     assert fig.gca() is ax0
+
+    # sca() should not change stored order of Axes, which is order added.
+    fig.sca(ax0)
+    assert fig.axes == [ax0, ax1]
 
     # add_subplot on an existing Axes should not change stored order, but will
     # make it current.
-    fig.add_subplot(ax2)
-    assert fig.axes == [ax0, ax1, ax2, ax3]
-    assert fig.gca() is ax2
-
-    fig.sca(ax1)
-    with pytest.warns(
-            MatplotlibDeprecationWarning,
-            match=r'Calling gca\(\) with keyword arguments was deprecated'):
-        assert fig.gca(projection='rectilinear') is ax1
+    fig.add_subplot(ax1)
+    assert fig.axes == [ax0, ax1]
     assert fig.gca() is ax1
-
-    # sca() should not change stored order of Axes, which is order added.
-    assert fig.axes == [ax0, ax1, ax2, ax3]
 
 
 def test_add_subplot_subclass():
@@ -270,10 +237,15 @@ def test_add_subplot_invalid():
     with pytest.raises(ValueError,
                        match='Number of rows must be a positive integer'):
         fig.add_subplot(0, 2, 1)
-    with pytest.raises(ValueError, match='num must be 1 <= num <= 4'):
+    with pytest.raises(ValueError, match='num must be an integer with '
+                                         '1 <= num <= 4'):
         fig.add_subplot(2, 2, 0)
-    with pytest.raises(ValueError, match='num must be 1 <= num <= 4'):
+    with pytest.raises(ValueError, match='num must be an integer with '
+                                         '1 <= num <= 4'):
         fig.add_subplot(2, 2, 5)
+    with pytest.raises(ValueError, match='num must be an integer with '
+                                         '1 <= num <= 4'):
+        fig.add_subplot(2, 2, 0.5)
 
     with pytest.raises(ValueError, match='must be a three-digit integer'):
         fig.add_subplot(42)
@@ -296,7 +268,7 @@ def test_add_subplot_invalid():
         fig.add_subplot(2, 2.0, 1)
     _, ax = plt.subplots()
     with pytest.raises(ValueError,
-                       match='The Subplot must have been created in the '
+                       match='The Axes must have been created in the '
                              'present figure'):
         fig.add_subplot(ax)
 
@@ -316,6 +288,33 @@ def test_suptitle_fontproperties():
     assert txt.get_weight() == fps.get_weight()
 
 
+def test_suptitle_subfigures():
+    fig = plt.figure(figsize=(4, 3))
+    sf1, sf2 = fig.subfigures(1, 2)
+    sf2.set_facecolor('white')
+    sf1.subplots()
+    sf2.subplots()
+    fig.suptitle("This is a visible suptitle.")
+
+    # verify the first subfigure facecolor is the default transparent
+    assert sf1.get_facecolor() == (0.0, 0.0, 0.0, 0.0)
+    # verify the second subfigure facecolor is white
+    assert sf2.get_facecolor() == (1.0, 1.0, 1.0, 1.0)
+
+
+def test_get_suptitle_supxlabel_supylabel():
+    fig, ax = plt.subplots()
+    assert fig.get_suptitle() == ""
+    assert fig.get_supxlabel() == ""
+    assert fig.get_supylabel() == ""
+    fig.suptitle('suptitle')
+    assert fig.get_suptitle() == 'suptitle'
+    fig.supxlabel('supxlabel')
+    assert fig.get_supxlabel() == 'supxlabel'
+    fig.supylabel('supylabel')
+    assert fig.get_supylabel() == 'supylabel'
+
+
 @image_comparison(['alpha_background'],
                   # only test png and svg. The PDF output appears correct,
                   # but Ghostscript does not preserve the background color.
@@ -333,7 +332,7 @@ def test_alpha():
 
 def test_too_many_figures():
     with pytest.warns(RuntimeWarning):
-        for i in range(rcParams['figure.max_open_warning'] + 1):
+        for i in range(mpl.rcParams['figure.max_open_warning'] + 1):
             plt.figure()
 
 
@@ -350,7 +349,7 @@ def test_iterability_axes_argument():
 
     class MyAxes(Axes):
         def __init__(self, *args, myclass=None, **kwargs):
-            return Axes.__init__(self, *args, **kwargs)
+            Axes.__init__(self, *args, **kwargs)
 
     class MyClass:
 
@@ -476,17 +475,30 @@ def test_invalid_figure_size(width, height):
 
 def test_invalid_figure_add_axes():
     fig = plt.figure()
+    with pytest.raises(TypeError,
+                       match="missing 1 required positional argument: 'rect'"):
+        fig.add_axes()
+
     with pytest.raises(ValueError):
         fig.add_axes((.1, .1, .5, np.nan))
 
     with pytest.raises(TypeError, match="multiple values for argument 'rect'"):
         fig.add_axes([0, 0, 1, 1], rect=[0, 0, 1, 1])
 
-    _, ax = plt.subplots()
+    fig2, ax = plt.subplots()
     with pytest.raises(ValueError,
                        match="The Axes must have been created in the present "
                              "figure"):
         fig.add_axes(ax)
+
+    fig2.delaxes(ax)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match="Passing more than one positional argument"):
+        fig2.add_axes(ax, "extra positional argument")
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match="Passing more than one positional argument"):
+        fig.add_axes([0, 0, 1, 1], "extra positional argument")
 
 
 def test_subplots_shareax_loglabels():
@@ -557,6 +569,47 @@ def test_savefig_pixel_ratio(backend):
     assert ratio1 == ratio2
 
 
+def test_savefig_preserve_layout_engine():
+    fig = plt.figure(layout='compressed')
+    fig.savefig(io.BytesIO(), bbox_inches='tight')
+
+    assert fig.get_layout_engine()._compress
+
+
+def test_savefig_locate_colorbar():
+    fig, ax = plt.subplots()
+    pc = ax.pcolormesh(np.random.randn(2, 2))
+    cbar = fig.colorbar(pc, aspect=40)
+    fig.savefig(io.BytesIO(), bbox_inches=mpl.transforms.Bbox([[0, 0], [4, 4]]))
+
+    # Check that an aspect ratio has been applied.
+    assert (cbar.ax.get_position(original=True).bounds !=
+            cbar.ax.get_position(original=False).bounds)
+
+
+@mpl.rc_context({"savefig.transparent": True})
+@check_figures_equal(extensions=["png"])
+def test_savefig_transparent(fig_test, fig_ref):
+    # create two transparent subfigures with corresponding transparent inset
+    # axes. the entire background of the image should be transparent.
+    gs1 = fig_test.add_gridspec(3, 3, left=0.05, wspace=0.05)
+    f1 = fig_test.add_subfigure(gs1[:, :])
+    f2 = f1.add_subfigure(gs1[0, 0])
+
+    ax12 = f2.add_subplot(gs1[:, :])
+
+    ax1 = f1.add_subplot(gs1[:-1, :])
+    iax1 = ax1.inset_axes([.1, .2, .3, .4])
+    iax2 = iax1.inset_axes([.1, .2, .3, .4])
+
+    ax2 = fig_test.add_subplot(gs1[-1, :-1])
+    ax3 = fig_test.add_subplot(gs1[-1, -1])
+
+    for ax in [ax12, ax1, iax1, iax2, ax2, ax3]:
+        ax.set(xticks=[], yticks=[])
+        ax.spines[:].set_visible(False)
+
+
 def test_figure_repr():
     fig = plt.figure(figsize=(10, 20), dpi=10)
     assert repr(fig) == "<Figure size 100x200 with 0 Axes>"
@@ -612,18 +665,54 @@ def test_invalid_layouts():
     fig.colorbar(pc)
     with pytest.raises(RuntimeError, match='Colorbar layout of new layout'):
         fig.set_layout_engine("tight")
+    fig.set_layout_engine("none")
+    with pytest.raises(RuntimeError, match='Colorbar layout of new layout'):
+        fig.set_layout_engine("tight")
 
     fig, ax = plt.subplots(layout="tight")
     pc = ax.pcolormesh(np.random.randn(2, 2))
     fig.colorbar(pc)
     with pytest.raises(RuntimeError, match='Colorbar layout of new layout'):
         fig.set_layout_engine("constrained")
+    fig.set_layout_engine("none")
+    assert isinstance(fig.get_layout_engine(), PlaceHolderLayoutEngine)
+
+    with pytest.raises(RuntimeError, match='Colorbar layout of new layout'):
+        fig.set_layout_engine("constrained")
+
+
+@check_figures_equal(extensions=["png"])
+def test_tightlayout_autolayout_deconflict(fig_test, fig_ref):
+    for fig, autolayout in zip([fig_ref, fig_test], [False, True]):
+        with mpl.rc_context({'figure.autolayout': autolayout}):
+            axes = fig.subplots(ncols=2)
+            fig.tight_layout(w_pad=10)
+        assert isinstance(fig.get_layout_engine(), PlaceHolderLayoutEngine)
+
+
+@pytest.mark.parametrize('layout', ['constrained', 'compressed'])
+def test_layout_change_warning(layout):
+    """
+    Raise a warning when a previously assigned layout changes to tight using
+    plt.tight_layout().
+    """
+    fig, ax = plt.subplots(layout=layout)
+    with pytest.warns(UserWarning, match='The figure layout has changed to'):
+        plt.tight_layout()
+
+
+def test_repeated_tightlayout():
+    fig = Figure()
+    fig.tight_layout()
+    # subsequent calls should not warn
+    fig.tight_layout()
+    fig.tight_layout()
 
 
 @check_figures_equal(extensions=["png", "pdf"])
 def test_add_artist(fig_test, fig_ref):
-    fig_test.set_dpi(100)
-    fig_ref.set_dpi(100)
+    fig_test.dpi = 100
+    fig_ref.dpi = 100
 
     fig_test.subplots()
     l1 = plt.Line2D([.2, .7], [.7, .7], gid='l1')
@@ -651,7 +740,7 @@ def test_add_artist(fig_test, fig_ref):
 
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
 def test_fspath(fmt, tmpdir):
-    out = Path(tmpdir, "test.{}".format(fmt))
+    out = Path(tmpdir, f"test.{fmt}")
     plt.savefig(out)
     with out.open("rb") as file:
         # All the supported formats include the format name (case-insensitive)
@@ -791,7 +880,7 @@ def test_figure_clear(clear_meth):
     assert fig.axes == []
 
 
-def test_clf_not_refedined():
+def test_clf_not_redefined():
     for klass in FigureBase.__subclasses__():
         # check that subclasses do not get redefined in our Figure subclasses
         assert 'clf' not in klass.__dict__
@@ -800,7 +889,7 @@ def test_clf_not_refedined():
 @mpl.style.context('mpl20')
 def test_picking_does_not_stale():
     fig, ax = plt.subplots()
-    col = ax.scatter([0], [0], [1000], picker=True)
+    ax.scatter([0], [0], [1000], picker=True)
     fig.canvas.draw()
     assert not fig.stale
 
@@ -854,7 +943,12 @@ def test_animated_with_canvas_change(fig_test, fig_ref):
 class TestSubplotMosaic:
     @check_figures_equal(extensions=["png"])
     @pytest.mark.parametrize(
-        "x", [[["A", "A", "B"], ["C", "D", "B"]], [[1, 1, 2], [3, 4, 2]]]
+        "x", [
+            [["A", "A", "B"], ["C", "D", "B"]],
+            [[1, 1, 2], [3, 4, 2]],
+            (("A", "A", "B"), ("C", "D", "B")),
+            ((1, 1, 2), (3, 4, 2))
+        ]
     )
     def test_basic(self, fig_test, fig_ref, x):
         grid_axes = fig_test.subplot_mosaic(x)
@@ -944,6 +1038,26 @@ class TestSubplotMosaic:
         fig_ref.subplot_mosaic([["F"], [x]])
         fig_test.subplot_mosaic([["F"], [xt]])
 
+    def test_nested_width_ratios(self):
+        x = [["A", [["B"],
+                    ["C"]]]]
+        width_ratios = [2, 1]
+
+        fig, axd = plt.subplot_mosaic(x, width_ratios=width_ratios)
+
+        assert axd["A"].get_gridspec().get_width_ratios() == width_ratios
+        assert axd["B"].get_gridspec().get_width_ratios() != width_ratios
+
+    def test_nested_height_ratios(self):
+        x = [["A", [["B"],
+                    ["C"]]], ["D", "D"]]
+        height_ratios = [1, 2]
+
+        fig, axd = plt.subplot_mosaic(x, height_ratios=height_ratios)
+
+        assert axd["D"].get_gridspec().get_height_ratios() == height_ratios
+        assert axd["B"].get_gridspec().get_height_ratios() != height_ratios
+
     @check_figures_equal(extensions=["png"])
     @pytest.mark.parametrize(
         "x, empty_sentinel",
@@ -984,6 +1098,10 @@ class TestSubplotMosaic:
             plt.subplot_mosaic(['foo', 'bar'])
         with pytest.raises(ValueError, match='must be 2D'):
             plt.subplot_mosaic(['foo'])
+        with pytest.raises(ValueError, match='must be 2D'):
+            plt.subplot_mosaic([['foo', ('bar',)]])
+        with pytest.raises(ValueError, match='must be 2D'):
+            plt.subplot_mosaic([['a', 'b'], [('a', 'b'), 'c']])
 
     @check_figures_equal(extensions=["png"])
     @pytest.mark.parametrize("subplot_kw", [{}, {"projection": "polar"}, None])
@@ -997,8 +1115,26 @@ class TestSubplotMosaic:
 
         axB = fig_ref.add_subplot(gs[0, 1], **subplot_kw)
 
+    @check_figures_equal(extensions=["png"])
+    @pytest.mark.parametrize("multi_value", ['BC', tuple('BC')])
+    def test_per_subplot_kw(self, fig_test, fig_ref, multi_value):
+        x = 'AB;CD'
+        grid_axes = fig_test.subplot_mosaic(
+            x,
+            subplot_kw={'facecolor': 'red'},
+            per_subplot_kw={
+                'D': {'facecolor': 'blue'},
+                multi_value: {'facecolor': 'green'},
+            }
+        )
+
+        gs = fig_ref.add_gridspec(2, 2)
+        for color, spec in zip(['red', 'green', 'green', 'blue'], gs):
+            fig_ref.add_subplot(spec, facecolor=color)
+
     def test_string_parser(self):
         normalize = Figure._normalize_grid_string
+
         assert normalize('ABC') == [['A', 'B', 'C']]
         assert normalize('AB;CC') == [['A', 'B'], ['C', 'C']]
         assert normalize('AB;CC;DE') == [['A', 'B'], ['C', 'C'], ['D', 'E']]
@@ -1014,6 +1150,25 @@ class TestSubplotMosaic:
                          CC
                          DE
                          """) == [['A', 'B'], ['C', 'C'], ['D', 'E']]
+
+    def test_per_subplot_kw_expander(self):
+        normalize = Figure._norm_per_subplot_kw
+        assert normalize({"A": {}, "B": {}}) == {"A": {}, "B": {}}
+        assert normalize({("A", "B"): {}}) == {"A": {}, "B": {}}
+        with pytest.raises(
+                ValueError, match=f'The key {"B"!r} appears multiple times'
+        ):
+            normalize({("A", "B"): {}, "B": {}})
+        with pytest.raises(
+                ValueError, match=f'The key {"B"!r} appears multiple times'
+        ):
+            normalize({"B": {}, ("A", "B"): {}})
+
+    def test_extra_per_subplot_kw(self):
+        with pytest.raises(
+                ValueError, match=f'The keys {set("B")!r} are in'
+        ):
+            Figure().subplot_mosaic("A", per_subplot_kw={"B": {}})
 
     @check_figures_equal(extensions=["png"])
     @pytest.mark.parametrize("str_pattern",
@@ -1121,12 +1276,14 @@ def test_subfigure():
         pc = ax.pcolormesh(np.random.randn(30, 30), vmin=-2, vmax=2)
     sub[0].colorbar(pc, ax=axs)
     sub[0].suptitle('Left Side')
+    sub[0].set_facecolor('white')
 
     axs = sub[1].subplots(1, 3)
     for ax in axs.flat:
         pc = ax.pcolormesh(np.random.randn(30, 30), vmin=-2, vmax=2)
     sub[1].colorbar(pc, ax=axs, location='bottom')
     sub[1].suptitle('Right Side')
+    sub[1].set_facecolor('white')
 
     fig.suptitle('Figure suptitle', fontsize='xx-large')
 
@@ -1141,8 +1298,18 @@ def test_subfigure_tightbbox():
             8.0)
 
 
+def test_subfigure_dpi():
+    fig = plt.figure(dpi=100)
+    sub_fig = fig.subfigures()
+    assert sub_fig.get_dpi() == fig.get_dpi()
+
+    sub_fig.set_dpi(200)
+    assert sub_fig.get_dpi() == 200
+    assert fig.get_dpi() == 200
+
+
 @image_comparison(['test_subfigure_ss.png'], style='mpl20',
-                  savefig_kwarg={'facecolor': 'teal'})
+                  savefig_kwarg={'facecolor': 'teal'}, tol=0.02)
 def test_subfigure_ss():
     # test assigning the subfigure via subplotspec
     np.random.seed(19680801)
@@ -1254,10 +1421,10 @@ def test_subfigure_ticks():
     ax2.scatter(x=[-126.5357270050049, 94.68456736755368], y=[1500, 3600])
     ax3 = subfig_bl.add_subplot(gs[0, 3:14], sharey=ax1)
 
-    fig.set_dpi(120)
+    fig.dpi = 120
     fig.draw_without_rendering()
     ticks120 = ax2.get_xticks()
-    fig.set_dpi(300)
+    fig.dpi = 300
     fig.draw_without_rendering()
     ticks300 = ax2.get_xticks()
     np.testing.assert_allclose(ticks120, ticks300)
@@ -1278,6 +1445,48 @@ def test_subfigure_scatter_size():
     for ax in [ax0, axs[0]]:
         ax.scatter([1, 2, 3], [1, 2, 3], s=30, marker='s', color='r')
         ax.scatter([3, 4, 5], [1, 2, 3], s=[20, 30, 40], marker='s', color='g')
+
+
+def test_subfigure_pdf():
+    fig = plt.figure(layout='constrained')
+    sub_fig = fig.subfigures()
+    ax = sub_fig.add_subplot(111)
+    b = ax.bar(1, 1)
+    ax.bar_label(b)
+    buffer = io.BytesIO()
+    fig.savefig(buffer, format='pdf')
+
+
+def test_subfigures_wspace_hspace():
+    sub_figs = plt.figure().subfigures(2, 3, hspace=0.5, wspace=1/6.)
+
+    w = 640
+    h = 480
+
+    np.testing.assert_allclose(sub_figs[0, 0].bbox.min, [0., h * 0.6])
+    np.testing.assert_allclose(sub_figs[0, 0].bbox.max, [w * 0.3, h])
+
+    np.testing.assert_allclose(sub_figs[0, 1].bbox.min, [w * 0.35, h * 0.6])
+    np.testing.assert_allclose(sub_figs[0, 1].bbox.max, [w * 0.65, h])
+
+    np.testing.assert_allclose(sub_figs[0, 2].bbox.min, [w * 0.7, h * 0.6])
+    np.testing.assert_allclose(sub_figs[0, 2].bbox.max, [w, h])
+
+    np.testing.assert_allclose(sub_figs[1, 0].bbox.min, [0, 0])
+    np.testing.assert_allclose(sub_figs[1, 0].bbox.max, [w * 0.3, h * 0.4])
+
+    np.testing.assert_allclose(sub_figs[1, 1].bbox.min, [w * 0.35, 0])
+    np.testing.assert_allclose(sub_figs[1, 1].bbox.max, [w * 0.65, h * 0.4])
+
+    np.testing.assert_allclose(sub_figs[1, 2].bbox.min, [w * 0.7, 0])
+    np.testing.assert_allclose(sub_figs[1, 2].bbox.max, [w, h * 0.4])
+
+
+def test_subfigure_remove():
+    fig = plt.figure()
+    sfs = fig.subfigures(2, 2)
+    sfs[1, 1].remove()
+    assert len(fig.subfigs) == 3
 
 
 def test_add_subplot_kwargs():
@@ -1333,19 +1542,20 @@ def test_add_axes_kwargs():
 def test_ginput(recwarn):  # recwarn undoes warn filters at exit.
     warnings.filterwarnings("ignore", "cannot show the figure")
     fig, ax = plt.subplots()
+    trans = ax.transData.transform
 
     def single_press():
-        fig.canvas.button_press_event(*ax.transData.transform((.1, .2)), 1)
+        MouseEvent("button_press_event", fig.canvas, *trans((.1, .2)), 1)._process()
 
     Timer(.1, single_press).start()
     assert fig.ginput() == [(.1, .2)]
 
     def multi_presses():
-        fig.canvas.button_press_event(*ax.transData.transform((.1, .2)), 1)
-        fig.canvas.key_press_event("backspace")
-        fig.canvas.button_press_event(*ax.transData.transform((.3, .4)), 1)
-        fig.canvas.button_press_event(*ax.transData.transform((.5, .6)), 1)
-        fig.canvas.button_press_event(*ax.transData.transform((0, 0)), 2)
+        MouseEvent("button_press_event", fig.canvas, *trans((.1, .2)), 1)._process()
+        KeyEvent("key_press_event", fig.canvas, "backspace")._process()
+        MouseEvent("button_press_event", fig.canvas, *trans((.3, .4)), 1)._process()
+        MouseEvent("button_press_event", fig.canvas, *trans((.5, .6)), 1)._process()
+        MouseEvent("button_press_event", fig.canvas, *trans((0, 0)), 2)._process()
 
     Timer(.1, multi_presses).start()
     np.testing.assert_allclose(fig.ginput(3), [(.3, .4), (.5, .6)])
@@ -1355,9 +1565,9 @@ def test_waitforbuttonpress(recwarn):  # recwarn undoes warn filters at exit.
     warnings.filterwarnings("ignore", "cannot show the figure")
     fig = plt.figure()
     assert fig.waitforbuttonpress(timeout=.1) is None
-    Timer(.1, fig.canvas.key_press_event, ("z",)).start()
+    Timer(.1, KeyEvent("key_press_event", fig.canvas, "z")._process).start()
     assert fig.waitforbuttonpress() is True
-    Timer(.1, fig.canvas.button_press_event, (0, 0, 1)).start()
+    Timer(.1, MouseEvent("button_press_event", fig.canvas, 0, 0, 1)._process).start()
     assert fig.waitforbuttonpress() is False
 
 
@@ -1367,6 +1577,20 @@ def test_kwargs_pass():
 
     assert fig.get_label() == 'whole Figure'
     assert sub_fig.get_label() == 'sub figure'
+
+
+@check_figures_equal(extensions=["png"])
+def test_rcparams(fig_test, fig_ref):
+    fig_ref.supxlabel("xlabel", weight='bold', size=15)
+    fig_ref.supylabel("ylabel", weight='bold', size=15)
+    fig_ref.suptitle("Title", weight='light', size=20)
+    with mpl.rc_context({'figure.labelweight': 'bold',
+                         'figure.labelsize': 15,
+                         'figure.titleweight': 'light',
+                         'figure.titlesize': 20}):
+        fig_test.supxlabel("xlabel")
+        fig_test.supylabel("ylabel")
+        fig_test.suptitle("Title")
 
 
 def test_deepcopy():
@@ -1392,3 +1616,53 @@ def test_deepcopy():
 
     assert ax.get_xlim() == (1e-1, 1e2)
     assert fig2.axes[0].get_xlim() == (0, 1)
+
+
+def test_unpickle_with_device_pixel_ratio():
+    fig = Figure(dpi=42)
+    fig.canvas._set_device_pixel_ratio(7)
+    assert fig.dpi == 42*7
+    fig2 = pickle.loads(pickle.dumps(fig))
+    assert fig2.dpi == 42
+
+
+def test_gridspec_no_mutate_input():
+    gs = {'left': .1}
+    gs_orig = dict(gs)
+    plt.subplots(1, 2, width_ratios=[1, 2], gridspec_kw=gs)
+    assert gs == gs_orig
+    plt.subplot_mosaic('AB', width_ratios=[1, 2], gridspec_kw=gs)
+
+
+@pytest.mark.parametrize('fmt', ['eps', 'pdf', 'png', 'ps', 'svg', 'svgz'])
+def test_savefig_metadata(fmt):
+    Figure().savefig(io.BytesIO(), format=fmt, metadata={})
+
+
+@pytest.mark.parametrize('fmt', ['jpeg', 'jpg', 'tif', 'tiff', 'webp', "raw", "rgba"])
+def test_savefig_metadata_error(fmt):
+    with pytest.raises(ValueError, match="metadata not supported"):
+        Figure().savefig(io.BytesIO(), format=fmt, metadata={})
+
+
+def test_get_constrained_layout_pads():
+    params = {'w_pad': 0.01, 'h_pad': 0.02, 'wspace': 0.03, 'hspace': 0.04}
+    expected = tuple([*params.values()])
+    fig = plt.figure(layout=mpl.layout_engine.ConstrainedLayoutEngine(**params))
+    with pytest.warns(PendingDeprecationWarning, match="will be deprecated"):
+        assert fig.get_constrained_layout_pads() == expected
+
+
+def test_not_visible_figure():
+    fig = Figure()
+
+    buf = io.StringIO()
+    fig.savefig(buf, format='svg')
+    buf.seek(0)
+    assert '<g ' in buf.read()
+
+    fig.set_visible(False)
+    buf = io.StringIO()
+    fig.savefig(buf, format='svg')
+    buf.seek(0)
+    assert '<g ' not in buf.read()

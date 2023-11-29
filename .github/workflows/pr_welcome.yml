@@ -1,6 +1,10 @@
+---
 name: PR Greetings
 
 on: [pull_request_target]
+
+permissions:
+  pull-requests: write
 
 jobs:
   greeting:
@@ -14,8 +18,8 @@ jobs:
             Thank you for opening your first PR into Matplotlib!
 
 
-            If you have not heard from us in a while, please feel free to ping
-            `@matplotlib/developers` or anyone who has commented on the PR.
+            If you have not heard from us in a week or so, please leave a new
+            comment below and that should bring it to our attention.
             Most of our reviewers are volunteers and sometimes things fall
             through the cracks.
 

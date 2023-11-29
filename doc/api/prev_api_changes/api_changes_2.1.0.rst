@@ -296,7 +296,7 @@ Third-party backends should also migrate to the ``*_dashes`` methods.
 ``NavigationToolbar2.dynamic_update``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Use :meth:`.draw_idle` method on the ``Canvas`` instance instead.
+Use `~.FigureCanvasBase.draw_idle` method on the ``Canvas`` instance instead.
 
 
 Testing
@@ -422,8 +422,8 @@ The ``shading`` kwarg to `~matplotlib.axes.Axes.pcolor` has been
 removed.  Set ``edgecolors`` appropriately instead.
 
 
-Functions removed from the `.lines` module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Functions removed from the ``lines`` module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The :mod:`matplotlib.lines` module no longer imports the
 ``pts_to_prestep``, ``pts_to_midstep`` and ``pts_to_poststep``

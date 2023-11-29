@@ -1,8 +1,0 @@
-``Type1Font`` objects include more properties
----------------------------------------------
-
-The ``matplotlib._type1font.Type1Font.prop`` dictionary now includes more keys,
-such as ``CharStrings`` and ``Subrs``. The value of the ``Encoding`` key is
-now a dictionary mapping codes to glyph names. The
-``matplotlib._type1font.Type1Font.transform`` method now correctly removes
-``UniqueID`` properties from the font.

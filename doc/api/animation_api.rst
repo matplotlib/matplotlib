@@ -97,13 +97,18 @@ this hopefully minimalist example gives a sense of how ``init_func``
 and ``func`` are used inside of `FuncAnimation` and the theory of how
 'blitting' works.
 
+.. note::
+
+    The zorder of artists is not taken into account when 'blitting'
+    because the 'blitted' artists are always drawn on top.
+
 The expected signature on ``func`` and ``init_func`` is very simple to
 keep `FuncAnimation` out of your book keeping and plotting logic, but
 this means that the callable objects you pass in must know what
 artists they should be working on.  There are several approaches to
 handling this, of varying complexity and encapsulation.  The simplest
 approach, which works quite well in the case of a script, is to define the
-artist at a global scope and let Python sort things out.  For example ::
+artist at a global scope and let Python sort things out.  For example::
 
    import numpy as np
    import matplotlib.pyplot as plt
@@ -111,7 +116,7 @@ artist at a global scope and let Python sort things out.  For example ::
 
    fig, ax = plt.subplots()
    xdata, ydata = [], []
-   ln, = plt.plot([], [], 'ro')
+   ln, = ax.plot([], [], 'ro')
 
    def init():
        ax.set_xlim(0, 2*np.pi)
@@ -128,36 +133,58 @@ artist at a global scope and let Python sort things out.  For example ::
                        init_func=init, blit=True)
    plt.show()
 
-The second method is to use `functools.partial` to 'bind' artists to
-function.  A third method is to use closures to build up the required
+The second method is to use `functools.partial` to pass arguments to the
+function::
+
+   import numpy as np
+   import matplotlib.pyplot as plt
+   from matplotlib.animation import FuncAnimation
+   from functools import partial
+
+   fig, ax = plt.subplots()
+   line1, = ax.plot([], [], 'ro')
+
+   def init():
+       ax.set_xlim(0, 2*np.pi)
+       ax.set_ylim(-1, 1)
+       return line1,
+
+   def update(frame, ln, x, y):
+       x.append(frame)
+       y.append(np.sin(frame))
+       ln.set_data(x, y)
+       return ln,
+
+   ani = FuncAnimation(
+       fig, partial(update, ln=line1, x=[], y=[]),
+       frames=np.linspace(0, 2*np.pi, 128),
+       init_func=init, blit=True)
+
+   plt.show()
+
+A third method is to use closures to build up the required
 artists and functions.  A fourth method is to create a class.
 
 Examples
-~~~~~~~~
+^^^^^^^^
 
-.. toctree::
-   :maxdepth: 1
-
-   ../gallery/animation/animate_decay
-   ../gallery/animation/bayes_update
-   ../gallery/animation/double_pendulum
-   ../gallery/animation/animated_histogram
-   ../gallery/animation/rain
-   ../gallery/animation/random_walk
-   ../gallery/animation/simple_anim
-   ../gallery/animation/strip_chart
-   ../gallery/animation/unchained
+* :doc:`../gallery/animation/animate_decay`
+* :doc:`../gallery/animation/bayes_update`
+* :doc:`../gallery/animation/double_pendulum`
+* :doc:`../gallery/animation/animated_histogram`
+* :doc:`../gallery/animation/rain`
+* :doc:`../gallery/animation/random_walk`
+* :doc:`../gallery/animation/simple_anim`
+* :doc:`../gallery/animation/strip_chart`
+* :doc:`../gallery/animation/unchained`
 
 ``ArtistAnimation``
 -------------------
 
 Examples
-~~~~~~~~
+^^^^^^^^
 
-.. toctree::
-   :maxdepth: 1
-
-   ../gallery/animation/dynamic_image
+* :doc:`../gallery/animation/dynamic_image`
 
 Writer Classes
 ==============
@@ -240,10 +267,7 @@ to ensure that setup and cleanup are performed as necessary.
 Examples
 --------
 
-.. toctree::
-   :maxdepth: 1
-
-   ../gallery/animation/frame_grabbing_sgskip
+* :doc:`../gallery/animation/frame_grabbing_sgskip`
 
 .. _ani_writer_classes:
 

@@ -1,8 +1,8 @@
 .. _min_deps_policy:
 
-======================================
-Minimum version of dependencies policy
-======================================
+=========================
+Dependency version policy
+=========================
 
 For the purpose of this document, 'minor version' is in the sense of
 SemVer (major, minor, patch) and includes both major and minor
@@ -22,7 +22,7 @@ Matplotlib supports:
 - All minor versions of ``numpy`` released in the 24 months prior
   to the project, and at minimum the last three minor versions.
 
-In ``setup.py``, the ``python_requires`` variable should be set to
+In :file:`pyproject.toml`, the ``requires-python`` variable should be set to
 the minimum supported version of Python.  All supported minor
 versions of Python should be in the test matrix and have binary
 artifacts built for the release.
@@ -71,6 +71,10 @@ Ghostscript, FFmpeg) support as old as practical.  These can be difficult to
 install for end-users and we want to be usable on as many systems as
 possible.  We will bump these on a case-by-case basis.
 
+In the case of GUI frameworks for which we rely on Python bindings being
+available, we will also drop support for bindings so old that they don't
+support any Python version that we support.
+
 .. _list-of-dependency-min-versions:
 
 List of dependency versions
@@ -83,6 +87,8 @@ specification of the dependencies.
 ==========  ========  ======
 Matplotlib  Python    NumPy
 ==========  ========  ======
+`3.8`_      3.9       1.21.0
+`3.7`_      3.8       1.20.0
 `3.6`_      3.8       1.19.0
 `3.5`_      3.7       1.17.0
 `3.4`_      3.7       1.16.0
@@ -101,6 +107,8 @@ Matplotlib  Python    NumPy
 1.0         2.4       1.1
 ==========  ========  ======
 
+.. _`3.8`: https://matplotlib.org/3.8.0/devel/dependencies.html
+.. _`3.7`: https://matplotlib.org/3.7.0/devel/dependencies.html
 .. _`3.6`: https://matplotlib.org/3.6.0/devel/dependencies.html
 .. _`3.5`: https://matplotlib.org/3.5.0/devel/dependencies.html
 .. _`3.4`: https://matplotlib.org/3.4.0/devel/dependencies.html

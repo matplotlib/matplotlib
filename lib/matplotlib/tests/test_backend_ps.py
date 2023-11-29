@@ -4,26 +4,23 @@ import io
 import re
 import tempfile
 
+import numpy as np
 import pytest
 
-from matplotlib import cbook, patheffects
-from matplotlib._api import MatplotlibDeprecationWarning
+from matplotlib import cbook, path, patheffects, font_manager as fm
 from matplotlib.figure import Figure
 from matplotlib.patches import Ellipse
+from matplotlib.testing._markers import needs_ghostscript, needs_usetex
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib as mpl
+import matplotlib.collections as mcollections
+import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
-
-needs_ghostscript = pytest.mark.skipif(
-    "eps" not in mpl.testing.compare.converter,
-    reason="This test needs a ghostscript installation")
-needs_usetex = pytest.mark.skipif(
-    not mpl.checkdep_usetex(True),
-    reason="This test needs a TeX installation")
 
 
 # This tests tends to hit a TeX cache lock on AppVeyor.
 @pytest.mark.flaky(reruns=3)
+@pytest.mark.parametrize('papersize', ['letter', 'figure'])
 @pytest.mark.parametrize('orientation', ['portrait', 'landscape'])
 @pytest.mark.parametrize('format, use_log, rcParams', [
     ('ps', False, {}),
@@ -42,8 +39,19 @@ needs_usetex = pytest.mark.skipif(
     'eps afm',
     'eps with usetex'
 ])
-def test_savefig_to_stringio(format, use_log, rcParams, orientation):
+def test_savefig_to_stringio(format, use_log, rcParams, orientation, papersize):
     mpl.rcParams.update(rcParams)
+    if mpl.rcParams["ps.usedistiller"] == "ghostscript":
+        try:
+            mpl._get_executable_info("gs")
+        except mpl.ExecutableNotFoundError as exc:
+            pytest.skip(str(exc))
+    elif mpl.rcParams["ps.usedistiller"] == "xpdf":
+        try:
+            mpl._get_executable_info("gs")  # Effectively checks for ps2pdf.
+            mpl._get_executable_info("pdftops")
+        except mpl.ExecutableNotFoundError as exc:
+            pytest.skip(str(exc))
 
     fig, ax = plt.subplots()
 
@@ -58,15 +66,15 @@ def test_savefig_to_stringio(format, use_log, rcParams, orientation):
             title += " \N{MINUS SIGN}\N{EURO SIGN}"
         ax.set_title(title)
         allowable_exceptions = []
-        if rcParams.get("ps.usedistiller"):
-            allowable_exceptions.append(mpl.ExecutableNotFoundError)
-        if rcParams.get("text.usetex"):
+        if mpl.rcParams["text.usetex"]:
             allowable_exceptions.append(RuntimeError)
-        if rcParams.get("ps.useafm"):
-            allowable_exceptions.append(MatplotlibDeprecationWarning)
+        if mpl.rcParams["ps.useafm"]:
+            allowable_exceptions.append(mpl.MatplotlibDeprecationWarning)
         try:
-            fig.savefig(s_buf, format=format, orientation=orientation)
-            fig.savefig(b_buf, format=format, orientation=orientation)
+            fig.savefig(s_buf, format=format, orientation=orientation,
+                        papertype=papersize)
+            fig.savefig(b_buf, format=format, orientation=orientation,
+                        papertype=papersize)
         except tuple(allowable_exceptions) as exc:
             pytest.skip(str(exc))
 
@@ -74,6 +82,27 @@ def test_savefig_to_stringio(format, use_log, rcParams, orientation):
         assert not b_buf.closed
         s_val = s_buf.getvalue().encode('ascii')
         b_val = b_buf.getvalue()
+
+        if format == 'ps':
+            # Default figsize = (8, 6) inches = (576, 432) points = (203.2, 152.4) mm.
+            # Landscape orientation will swap dimensions.
+            if mpl.rcParams["ps.usedistiller"] == "xpdf":
+                # Some versions specifically show letter/203x152, but not all,
+                # so we can only use this simpler test.
+                if papersize == 'figure':
+                    assert b'letter' not in s_val.lower()
+                else:
+                    assert b'letter' in s_val.lower()
+            elif mpl.rcParams["ps.usedistiller"] or mpl.rcParams["text.usetex"]:
+                width = b'432.0' if orientation == 'landscape' else b'576.0'
+                wanted = (b'-dDEVICEWIDTHPOINTS=' + width if papersize == 'figure'
+                          else b'-sPAPERSIZE')
+                assert wanted in s_val
+            else:
+                if papersize == 'figure':
+                    assert b'%%DocumentPaperSizes' not in s_val
+                else:
+                    assert b'%%DocumentPaperSizes' in s_val
 
         # Strip out CreationDate: ghostscript and cairo don't obey
         # SOURCE_DATE_EPOCH, and that environment variable is already tested in
@@ -260,6 +289,15 @@ def test_linedash():
     assert buf.tell() > 0
 
 
+def test_empty_line():
+    # Smoke-test for gh#23954
+    figure = Figure()
+    figure.text(0.5, 0.5, "\nfoo\n\n")
+    buf = io.BytesIO()
+    figure.savefig(buf, format='eps')
+    figure.savefig(buf, format='ps')
+
+
 def test_no_duplicate_definition():
 
     fig = Figure()
@@ -278,3 +316,65 @@ def test_no_duplicate_definition():
            if ln.startswith('/')]
 
     assert max(Counter(wds).values()) == 1
+
+
+@image_comparison(["multi_font_type3.eps"], tol=0.51)
+def test_multi_font_type3():
+    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
+        pytest.skip("Font may be missing")
+
+    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    plt.rc('ps', fonttype=3)
+
+    fig = plt.figure()
+    fig.text(0.15, 0.475, "There are 几个汉字 in between!")
+
+
+@image_comparison(["multi_font_type42.eps"], tol=1.6)
+def test_multi_font_type42():
+    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
+        pytest.skip("Font may be missing")
+
+    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    plt.rc('ps', fonttype=42)
+
+    fig = plt.figure()
+    fig.text(0.15, 0.475, "There are 几个汉字 in between!")
+
+
+@image_comparison(["scatter.eps"])
+def test_path_collection():
+    rng = np.random.default_rng(19680801)
+    xvals = rng.uniform(0, 1, 10)
+    yvals = rng.uniform(0, 1, 10)
+    sizes = rng.uniform(30, 100, 10)
+    fig, ax = plt.subplots()
+    ax.scatter(xvals, yvals, sizes, edgecolor=[0.9, 0.2, 0.1], marker='<')
+    ax.set_axis_off()
+    paths = [path.Path.unit_regular_polygon(i) for i in range(3, 7)]
+    offsets = rng.uniform(0, 200, 20).reshape(10, 2)
+    sizes = [0.02, 0.04]
+    pc = mcollections.PathCollection(paths, sizes, zorder=-1,
+                                     facecolors='yellow', offsets=offsets)
+    ax.add_collection(pc)
+    ax.set_xlim(0, 1)
+
+
+@image_comparison(["colorbar_shift.eps"], savefig_kwarg={"bbox_inches": "tight"},
+                  style="mpl20")
+def test_colorbar_shift(tmp_path):
+    cmap = mcolors.ListedColormap(["r", "g", "b"])
+    norm = mcolors.BoundaryNorm([-1, -0.5, 0.5, 1], cmap.N)
+    plt.scatter([0, 1], [1, 1], c=[0, 1], cmap=cmap, norm=norm)
+    plt.colorbar()
+
+
+def test_auto_papersize_deprecation():
+    fig = plt.figure()
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        fig.savefig(io.BytesIO(), format='eps', papertype='auto')
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        mpl.rcParams['ps.papersize'] = 'auto'

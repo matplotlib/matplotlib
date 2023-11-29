@@ -87,10 +87,12 @@ Random data in tests
 Random data is a very convenient way to generate data for examples,
 however the randomness is problematic for testing (as the tests
 must be deterministic!).  To work around this set the seed in each test.
-For numpy use::
+For numpy's default random number generator use::
 
   import numpy as np
-  np.random.seed(19680801)
+  rng = np.random.default_rng(19680801)
+
+and then use ``rng`` when generating the random numbers.
 
 The seed is John Hunter's birthday.
 
@@ -107,7 +109,7 @@ tests it::
    import matplotlib.pyplot as plt
 
    @image_comparison(baseline_images=['line_dashes'], remove_text=True,
-                     extensions=['png'])
+                     extensions=['png'], style='mpl20')
    def test_line_dashes():
        fig, ax = plt.subplots()
        ax.plot(range(10), linestyle=(0, (3, 3)), lw=5)
@@ -120,6 +122,12 @@ case :file:`lib/matplotlib/tests/baseline_images/test_lines`).  Put this new
 file under source code revision control (with ``git add``).  When rerunning
 the tests, they should now pass.
 
+It is preferred that new tests use ``style='mpl20'`` as this leads to smaller
+figures and reflects the newer look of default Matplotlib plots. Also, if the
+texts (labels, tick labels, etc) are not really part of what is tested, use
+``remove_text=True`` as this will lead to smaller figures and reduce possible
+issues with font mismatch on different platforms.
+
 Baseline images take a lot of space in the Matplotlib repository.
 An alternative approach for image comparison tests is to use the
 `~matplotlib.testing.decorators.check_figures_equal` decorator, which should be
@@ -127,6 +135,27 @@ used to decorate a function taking two `.Figure` parameters and draws the same
 images on the figures using two different methods (the tested method and the
 baseline method).  The decorator will arrange for setting up the figures and
 then collect the drawn results and compare them.
+
+For example, this test compares two different methods to draw the same
+circle: plotting a circle using a `matplotlib.patches.Circle` patch
+vs plotting the circle using the parametric equation of a circle ::
+
+   from matplotlib.testing.decorators import check_figures_equal
+   import matplotib.patches as mpatches
+   import matplotlib.pyplot as plt
+   import numpy as np
+
+   @check_figures_equal(extensions=['png'], tol=100)
+   def test_parametric_circle_plot(fig_test, fig_ref):
+       red_circle_ref = mpatches.Circle((0, 0), 0.2, color='r', clip_on=False)
+       fig_ref.add_artist(red_circle_ref)
+       theta = np.linspace(0, 2 * np.pi, 150)
+       radius = 0.4
+       fig_test.plot(radius * np.cos(theta), radius * np.sin(theta), color='r')
+
+Both comparison decorators have a tolerance argument ``tol`` that is used to specify the
+tolerance for difference in color value between the two images, where 255 is the maximal
+difference. The test fails if the average pixel difference is greater than this value.
 
 See the documentation of `~matplotlib.testing.decorators.image_comparison` and
 `~matplotlib.testing.decorators.check_figures_equal` for additional information
@@ -157,7 +186,9 @@ workflows
 GitHub Actions should be automatically enabled for your personal Matplotlib
 fork once the YAML workflow files are in it. It generally isn't necessary to
 look at these workflows, since any pull request submitted against the main
-Matplotlib repository will be tested.
+Matplotlib repository will be tested. The Tests workflow is skipped in forked
+repositories but you can trigger a run manually from the `GitHub web interface
+<https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow>`_.
 
 You can see the GitHub Actions results at
 https://github.com/your_GitHub_user_name/matplotlib/actions -- here's `an

@@ -51,12 +51,14 @@ Tight Layout
 A frequent issue raised by users of matplotlib is the lack of a layout
 engine to nicely space out elements of the plots. While matplotlib still
 adheres to the philosophy of giving users complete control over the placement
-of plot elements, Jae-Joon Lee created the :mod:`~matplotlib.tight_layout`
+of plot elements, Jae-Joon Lee created the ``matplotlib.tight_layout``
 module and introduced a new
 command :func:`~matplotlib.pyplot.tight_layout`
 to address the most common layout issues.
 
 .. plot::
+
+    plt.style.use('classic')
 
     plt.rcParams['savefig.facecolor'] = "0.8"
     plt.rcParams['figure.figsize'] = 4, 3
@@ -85,7 +87,7 @@ The usage of this functionality can be as simple as ::
 
 and it will adjust the spacing between subplots
 so that the axis labels do not overlap with neighboring subplots. A
-:doc:`/tutorials/intermediate/tight_layout_guide` has been created to show how to use
+:ref:`tight_layout_guide` has been created to show how to use
 this new tool.
 
 PyQT4, PySide, and IPython
@@ -114,7 +116,7 @@ legends for complex plots such as :meth:`~matplotlib.pyplot.stem` plots
 will now display correctly. Second, the 'best' placement of a legend has
 been improved in the presence of NANs.
 
-See the :doc:`/tutorials/intermediate/legend_guide` for more detailed explanation and
+See the :ref:`legend_guide` for more detailed explanation and
 examples.
 
 .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_legend_demo_004.png
@@ -133,7 +135,7 @@ as 2D plotting, Ben Root has made several improvements to the
   improved to bring the class towards feature-parity with regular
   Axes objects
 
-* Documentation for :doc:`/tutorials/toolkits/mplot3d` was significantly expanded
+* Documentation for :ref:`mplot3d` was significantly expanded
 
 * Axis labels and orientation improved
 

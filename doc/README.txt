@@ -14,7 +14,7 @@ documentation.  All of the documentation is written using sphinx, a
 python documentation system built on top of ReST.  This directory contains
 
 * users - the user documentation, e.g., installation, plotting tutorials,
-configuration tips, faq, explaations, etc.
+configuration tips, faq, explanations, etc.
 
 * devel - documentation for Matplotlib developers
 

@@ -4,7 +4,9 @@ import os
 
 import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook
-from matplotlib.backend_bases import FigureCanvasBase, ToolContainerBase
+from matplotlib.backend_bases import (
+    ToolContainerBase, KeyEvent, LocationEvent, MouseEvent, ResizeEvent,
+    CloseEvent)
 
 try:
     import gi
@@ -18,27 +20,25 @@ try:
 except ValueError as e:
     # in this case we want to re-raise as ImportError so the
     # auto-backend selection logic correctly skips.
-    raise ImportError from e
+    raise ImportError(e) from e
 
-from gi.repository import Gio, GLib, GObject, Gtk, Gdk, GdkPixbuf
+from gi.repository import Gio, GLib, Gtk, Gdk, GdkPixbuf
 from . import _backend_gtk
-from ._backend_gtk import (
-    _BackendGTK, _FigureManagerGTK, _NavigationToolbar2GTK,
+from ._backend_gtk import (  # noqa: F401 # pylint: disable=W0611
+    _BackendGTK, _FigureCanvasGTK, _FigureManagerGTK, _NavigationToolbar2GTK,
     TimerGTK as TimerGTK4,
 )
-from ._backend_gtk import backend_version  # noqa: F401 # pylint: disable=W0611
 
 
-class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
+class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
     required_interactive_framework = "gtk4"
     supports_blit = False
-    _timer_cls = TimerGTK4
     manager_class = _api.classproperty(lambda cls: FigureManagerGTK4)
     _context_is_scaled = False
 
     def __init__(self, figure=None):
-        FigureCanvasBase.__init__(self, figure)
-        GObject.GObject.__init__(self)
+        super().__init__(figure=figure)
+
         self.set_hexpand(True)
         self.set_vexpand(True)
 
@@ -74,26 +74,26 @@ class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
         self.set_focusable(True)
 
         css = Gtk.CssProvider()
-        css.load_from_data(b".matplotlib-canvas { background-color: white; }")
+        style = '.matplotlib-canvas { background-color: white; }'
+        if Gtk.check_version(4, 9, 3) is None:
+            css.load_from_data(style, -1)
+        else:
+            css.load_from_data(style.encode('utf-8'))
         style_ctx = self.get_style_context()
         style_ctx.add_provider(css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         style_ctx.add_class("matplotlib-canvas")
 
-    def pick(self, mouseevent):
-        # GtkWidget defines pick in GTK4, so we need to override here to work
-        # with the base implementation we want.
-        FigureCanvasBase.pick(self, mouseevent)
-
     def destroy(self):
-        self.close_event()
+        CloseEvent("close_event", self)._process()
 
     def set_cursor(self, cursor):
         # docstring inherited
         self.set_cursor_from_name(_backend_gtk.mpl_to_gtk_cursor_name(cursor))
 
-    def _mouse_event_coords(self, x, y):
+    def _mpl_coords(self, xy=None):
         """
-        Calculate mouse coordinates in physical pixels.
+        Convert the *xy* position of a GTK event, or of the current cursor
+        position if *xy* is None, to Matplotlib coordinates.
 
         GTK use logical pixels, but the figure is scaled to physical pixels for
         rendering.  Transform to physical pixels so that all of the down-stream
@@ -101,46 +101,70 @@ class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
 
         Also, the origin is different and needs to be corrected.
         """
+        if xy is None:
+            surface = self.get_native().get_surface()
+            is_over, x, y, mask = surface.get_device_position(
+                self.get_display().get_default_seat().get_pointer())
+        else:
+            x, y = xy
         x = x * self.device_pixel_ratio
         # flip y so y=0 is bottom of canvas
         y = self.figure.bbox.height - y * self.device_pixel_ratio
         return x, y
 
     def scroll_event(self, controller, dx, dy):
-        FigureCanvasBase.scroll_event(self, 0, 0, dy)
+        MouseEvent(
+            "scroll_event", self, *self._mpl_coords(), step=dy,
+            modifiers=self._mpl_modifiers(controller),
+        )._process()
         return True
 
     def button_press_event(self, controller, n_press, x, y):
-        x, y = self._mouse_event_coords(x, y)
-        FigureCanvasBase.button_press_event(self, x, y,
-                                            controller.get_current_button())
+        MouseEvent(
+            "button_press_event", self, *self._mpl_coords((x, y)),
+            controller.get_current_button(),
+            modifiers=self._mpl_modifiers(controller),
+        )._process()
         self.grab_focus()
 
     def button_release_event(self, controller, n_press, x, y):
-        x, y = self._mouse_event_coords(x, y)
-        FigureCanvasBase.button_release_event(self, x, y,
-                                              controller.get_current_button())
+        MouseEvent(
+            "button_release_event", self, *self._mpl_coords((x, y)),
+            controller.get_current_button(),
+            modifiers=self._mpl_modifiers(controller),
+        )._process()
 
     def key_press_event(self, controller, keyval, keycode, state):
-        key = self._get_key(keyval, keycode, state)
-        FigureCanvasBase.key_press_event(self, key)
+        KeyEvent(
+            "key_press_event", self, self._get_key(keyval, keycode, state),
+            *self._mpl_coords(),
+        )._process()
         return True
 
     def key_release_event(self, controller, keyval, keycode, state):
-        key = self._get_key(keyval, keycode, state)
-        FigureCanvasBase.key_release_event(self, key)
+        KeyEvent(
+            "key_release_event", self, self._get_key(keyval, keycode, state),
+            *self._mpl_coords(),
+        )._process()
         return True
 
     def motion_notify_event(self, controller, x, y):
-        x, y = self._mouse_event_coords(x, y)
-        FigureCanvasBase.motion_notify_event(self, x, y)
-
-    def leave_notify_event(self, controller):
-        FigureCanvasBase.leave_notify_event(self)
+        MouseEvent(
+            "motion_notify_event", self, *self._mpl_coords((x, y)),
+            modifiers=self._mpl_modifiers(controller),
+        )._process()
 
     def enter_notify_event(self, controller, x, y):
-        x, y = self._mouse_event_coords(x, y)
-        FigureCanvasBase.enter_notify_event(self, xy=(x, y))
+        LocationEvent(
+            "figure_enter_event", self, *self._mpl_coords((x, y)),
+            modifiers=self._mpl_modifiers(),
+        )._process()
+
+    def leave_notify_event(self, controller):
+        LocationEvent(
+            "figure_leave_event", self, *self._mpl_coords(),
+            modifiers=self._mpl_modifiers(),
+        )._process()
 
     def resize_event(self, area, width, height):
         self._update_device_pixel_ratio()
@@ -148,8 +172,23 @@ class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
         winch = width * self.device_pixel_ratio / dpi
         hinch = height * self.device_pixel_ratio / dpi
         self.figure.set_size_inches(winch, hinch, forward=False)
-        FigureCanvasBase.resize_event(self)
+        ResizeEvent("resize_event", self)._process()
         self.draw_idle()
+
+    def _mpl_modifiers(self, controller=None):
+        if controller is None:
+            surface = self.get_native().get_surface()
+            is_over, x, y, event_state = surface.get_device_position(
+                self.get_display().get_default_seat().get_pointer())
+        else:
+            event_state = controller.get_current_event_state()
+        mod_table = [
+            ("ctrl", Gdk.ModifierType.CONTROL_MASK),
+            ("alt", Gdk.ModifierType.ALT_MASK),
+            ("shift", Gdk.ModifierType.SHIFT_MASK),
+            ("super", Gdk.ModifierType.SUPER_MASK),
+        ]
+        return [name for name, mask in mod_table if event_state & mask]
 
     def _get_key(self, keyval, keycode, state):
         unikey = chr(Gdk.keyval_to_unicode(keyval))
@@ -157,16 +196,16 @@ class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
             unikey,
             Gdk.keyval_name(keyval))
         modifiers = [
-            (Gdk.ModifierType.CONTROL_MASK, 'ctrl'),
-            (Gdk.ModifierType.ALT_MASK, 'alt'),
-            (Gdk.ModifierType.SHIFT_MASK, 'shift'),
-            (Gdk.ModifierType.SUPER_MASK, 'super'),
+            ("ctrl", Gdk.ModifierType.CONTROL_MASK, "control"),
+            ("alt", Gdk.ModifierType.ALT_MASK, "alt"),
+            ("shift", Gdk.ModifierType.SHIFT_MASK, "shift"),
+            ("super", Gdk.ModifierType.SUPER_MASK, "super"),
         ]
-        for key_mask, prefix in modifiers:
-            if state & key_mask:
-                if not (prefix == 'shift' and unikey.isprintable()):
-                    key = f'{prefix}+{key}'
-        return key
+        mods = [
+            mod for mod, mask, mod_key in modifiers
+            if (mod_key != key and state & mask
+                and not (mod == "shift" and unikey.isprintable()))]
+        return "+".join([*mods, key])
 
     def _update_device_pixel_ratio(self, *args, **kwargs):
         # We need to be careful in cases with mixed resolution displays if
@@ -249,9 +288,7 @@ class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
 
 
 class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
-    @_api.delete_parameter("3.6", "window")
-    def __init__(self, canvas, window=None):
-        self._win = window
+    def __init__(self, canvas):
         Gtk.Box.__init__(self)
 
         self.add_css_class('toolbar')
@@ -292,8 +329,6 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
         self.append(self.message)
 
         _NavigationToolbar2GTK.__init__(self, canvas)
-
-    win = _api.deprecated("3.6")(property(lambda self: self._win))
 
     def save_figure(self, *args):
         dialog = Gtk.FileChooserNative(

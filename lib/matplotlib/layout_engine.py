@@ -5,9 +5,10 @@ Figures have a ``layout_engine`` property that holds a subclass of
 `~.LayoutEngine` defined here (or *None* for no layout).  At draw time
 ``figure.get_layout_engine().execute()`` is called, the goal of which is
 usually to rearrange Axes on the figure to produce a pleasing layout. This is
-like a ``draw`` callback, however when printing we disable the layout engine
-for the final draw and it is useful to know the layout engine while the figure
-is being created, in particular to deal with colorbars.
+like a ``draw`` callback but with two differences.  First, when printing we
+disable the layout engine for the final draw. Second, it is useful to know the
+layout engine while the figure is being created.  In particular, colorbars are
+made differently with different layout engines (for historical reasons).
 
 Matplotlib supplies two layout engines, `.TightLayoutEngine` and
 `.ConstrainedLayoutEngine`.  Third parties can create their own layout engine
@@ -17,13 +18,10 @@ by subclassing `.LayoutEngine`.
 from contextlib import nullcontext
 
 import matplotlib as mpl
-import matplotlib._api as _api
 
 from matplotlib._constrained_layout import do_constrained_layout
 from matplotlib._tight_layout import (get_subplotspec_list,
                                       get_tight_layout_figure)
-# from matplotlib.backend_bases import _get_renderer
-from matplotlib._tight_layout import get_renderer
 
 
 class LayoutEngine:
@@ -57,7 +55,7 @@ class LayoutEngine:
     3. override `LayoutEngine.execute` with your implementation
 
     """
-    # override these is sub-class
+    # override these in subclass
     _adjust_compatible = None
     _colorbar_gridspec = None
 
@@ -66,6 +64,9 @@ class LayoutEngine:
         self._params = {}
 
     def set(self, **kwargs):
+        """
+        Set the parameters for the layout engine.
+        """
         raise NotImplementedError
 
     @property
@@ -102,10 +103,36 @@ class LayoutEngine:
         raise NotImplementedError
 
 
+class PlaceHolderLayoutEngine(LayoutEngine):
+    """
+    This layout engine does not adjust the figure layout at all.
+
+    The purpose of this `.LayoutEngine` is to act as a placeholder when the user removes
+    a layout engine to ensure an incompatible `.LayoutEngine` cannot be set later.
+
+    Parameters
+    ----------
+    adjust_compatible, colorbar_gridspec : bool
+        Allow the PlaceHolderLayoutEngine to mirror the behavior of whatever
+        layout engine it is replacing.
+
+    """
+    def __init__(self, adjust_compatible, colorbar_gridspec, **kwargs):
+        self._adjust_compatible = adjust_compatible
+        self._colorbar_gridspec = colorbar_gridspec
+        super().__init__(**kwargs)
+
+    def execute(self, fig):
+        """
+        Do nothing.
+        """
+        return
+
+
 class TightLayoutEngine(LayoutEngine):
     """
     Implements the ``tight_layout`` geometry management.  See
-    :doc:`/tutorials/intermediate/tight_layout_guide` for details.
+    :ref:`tight_layout_guide` for details.
     """
     _adjust_compatible = True
     _colorbar_gridspec = True
@@ -117,16 +144,15 @@ class TightLayoutEngine(LayoutEngine):
 
         Parameters
         ----------
-        pad : float, 1.08
+        pad : float, default: 1.08
             Padding between the figure edge and the edges of subplots, as a
             fraction of the font size.
         h_pad, w_pad : float
             Padding (height/width) between edges of adjacent subplots.
             Defaults to *pad*.
-        rect : tuple of 4 floats, optional
-            (left, bottom, right, top) rectangle in normalized figure
-            coordinates that the subplots (including labels)
-            will fit into. Defaults to using the entire figure.
+        rect : tuple (left, bottom, right, top), default: (0, 0, 1, 1).
+            rectangle in normalized figure coordinates that the subplots
+            (including labels) will fit into.
         """
         super().__init__(**kwargs)
         for td in ['pad', 'h_pad', 'w_pad', 'rect']:
@@ -146,24 +172,37 @@ class TightLayoutEngine(LayoutEngine):
         ----------
         fig : `.Figure` to perform layout on.
 
-        See also: `.figure.Figure.tight_layout` and `.pyplot.tight_layout`.
+        See Also
+        --------
+        .figure.Figure.tight_layout
+        .pyplot.tight_layout
         """
         info = self._params
-        subplotspec_list = get_subplotspec_list(fig.axes)
-        if None in subplotspec_list:
-            _api.warn_external("This figure includes Axes that are not "
-                               "compatible with tight_layout, so results "
-                               "might be incorrect.")
-        renderer = get_renderer(fig)
+        renderer = fig._get_renderer()
         with getattr(renderer, "_draw_disabled", nullcontext)():
             kwargs = get_tight_layout_figure(
-                fig, fig.axes, subplotspec_list, renderer,
+                fig, fig.axes, get_subplotspec_list(fig.axes), renderer,
                 pad=info['pad'], h_pad=info['h_pad'], w_pad=info['w_pad'],
                 rect=info['rect'])
         if kwargs:
             fig.subplots_adjust(**kwargs)
 
     def set(self, *, pad=None, w_pad=None, h_pad=None, rect=None):
+        """
+        Set the pads for tight_layout.
+
+        Parameters
+        ----------
+        pad : float
+            Padding between the figure edge and the edges of subplots, as a
+            fraction of the font size.
+        w_pad, h_pad : float
+            Padding (width/height) between edges of adjacent subplots.
+            Defaults to *pad*.
+        rect : tuple (left, bottom, right, top)
+            rectangle in normalized figure coordinates that the subplots
+            (including labels) will fit into.
+        """
         for td in self.set.__kwdefaults__:
             if locals()[td] is not None:
                 self._params[td] = locals()[td]
@@ -172,7 +211,7 @@ class TightLayoutEngine(LayoutEngine):
 class ConstrainedLayoutEngine(LayoutEngine):
     """
     Implements the ``constrained_layout`` geometry management.  See
-    :doc:`/tutorials/intermediate/constrainedlayout_guide` for details.
+    :ref:`constrainedlayout_guide` for details.
     """
 
     _adjust_compatible = False
@@ -180,14 +219,14 @@ class ConstrainedLayoutEngine(LayoutEngine):
 
     def __init__(self, *, h_pad=None, w_pad=None,
                  hspace=None, wspace=None, rect=(0, 0, 1, 1),
-                 **kwargs):
+                 compress=False, **kwargs):
         """
         Initialize ``constrained_layout`` settings.
 
         Parameters
         ----------
         h_pad, w_pad : float
-            Padding around the axes elements in figure-normalized units.
+            Padding around the axes elements in inches.
             Default to :rc:`figure.constrained_layout.h_pad` and
             :rc:`figure.constrained_layout.w_pad`.
         hspace, wspace : float
@@ -201,6 +240,10 @@ class ConstrainedLayoutEngine(LayoutEngine):
         rect : tuple of 4 floats
             Rectangle in figure coordinates to perform constrained layout in
             (left, bottom, width, height), each from 0-1.
+        compress : bool
+            Whether to shift Axes so that white space in between them is
+            removed. This is useful for simple grids of fixed-aspect Axes (e.g.
+            a grid of images).  See :ref:`compressed_layout`.
         """
         super().__init__(**kwargs)
         # set the defaults:
@@ -212,6 +255,7 @@ class ConstrainedLayoutEngine(LayoutEngine):
         # set anything that was passed in (None will be ignored):
         self.set(w_pad=w_pad, h_pad=h_pad, wspace=wspace, hspace=hspace,
                  rect=rect)
+        self._compress = compress
 
     def execute(self, fig):
         """
@@ -229,7 +273,8 @@ class ConstrainedLayoutEngine(LayoutEngine):
         return do_constrained_layout(fig, w_pad=w_pad, h_pad=h_pad,
                                      wspace=self._params['wspace'],
                                      hspace=self._params['hspace'],
-                                     rect=self._params['rect'])
+                                     rect=self._params['rect'],
+                                     compress=self._compress)
 
     def set(self, *, h_pad=None, w_pad=None,
             hspace=None, wspace=None, rect=None):
@@ -239,7 +284,7 @@ class ConstrainedLayoutEngine(LayoutEngine):
         Parameters
         ----------
         h_pad, w_pad : float
-            Padding around the axes elements in figure-normalized units.
+            Padding around the axes elements in inches.
             Default to :rc:`figure.constrained_layout.h_pad` and
             :rc:`figure.constrained_layout.w_pad`.
         hspace, wspace : float

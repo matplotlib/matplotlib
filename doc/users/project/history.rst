@@ -1,5 +1,7 @@
 .. redirect-from:: /users/history
 
+.. _project_history:
+
 History
 =======
 
@@ -66,10 +68,10 @@ The Matplotlib code is conceptually divided into three parts: the
 *pylab interface* is the set of functions provided by
 :mod:`pylab` which allow the user to create plots with code
 quite similar to MATLAB figure generating code
-(:doc:`/tutorials/introductory/pyplot`).  The *Matplotlib frontend* or *Matplotlib
+(:ref:`pyplot_tutorial`).  The *Matplotlib frontend* or *Matplotlib
 API* is the set of classes that do the heavy lifting, creating and
 managing figures, text, lines, plots and so on
-(:doc:`/tutorials/intermediate/artists`).  This is an abstract interface that knows
+(:ref:`artists_tutorial`).  This is an abstract interface that knows
 nothing about output.  The *backends* are device-dependent drawing
 devices, aka renderers, that transform the frontend representation to
 hardcopy or a display device (:ref:`what-is-a-backend`).  Example

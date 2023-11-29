@@ -260,7 +260,7 @@ Arguments
 
 - The *s* parameter to `.Axes.annotate` and  `.pyplot.annotate` is no longer
   supported; use the new name *text*.
-- The *inframe* parameter to `.Axes.draw` has been removed; use
+- The *inframe* parameter to `matplotlib.axes.Axes.draw` has been removed; use
   `.Axes.redraw_in_frame` instead.
 - The *required*, *forbidden* and *allowed* parameters of
   `.cbook.normalize_kwargs` have been removed.
@@ -282,7 +282,7 @@ Arguments
 - The *dummy* parameter of `.RendererPgf` has been removed.
 - The *props* parameter of `.Shadow` has been removed; use keyword arguments
   instead.
-- The *recursionlimit* parameter of `matplotlib.test` has been removed.
+- The *recursionlimit* parameter of ``matplotlib.test`` has been removed.
 - The *label* parameter of `.Tick` has no effect and has been removed.
 - `~.ticker.MaxNLocator` no longer accepts a positional parameter and the
   keyword argument *nbins* simultaneously because they specify the same
@@ -312,13 +312,13 @@ Arguments
   warning for keyword arguments that were overridden by the mappable is now
   removed.
 
-- Omitting the *renderer* parameter to `.Axes.draw` is no longer supported; use
-  ``axes.draw_artist(axes)`` instead.
+- Omitting the *renderer* parameter to `matplotlib.axes.Axes.draw` is no longer
+  supported; use ``axes.draw_artist(axes)`` instead.
 - Passing ``ismath="TeX!"`` to `.RendererAgg.get_text_width_height_descent` is
   no longer supported; pass ``ismath="TeX"`` instead,
-- Changes to the signature of the `.Axes.draw` method make it consistent with
-  all other artists; thus additional parameters to `.Artist.draw` have also
-  been removed.
+- Changes to the signature of the `matplotlib.axes.Axes.draw` method make it
+  consistent with all other artists; thus additional parameters to
+  `.Artist.draw` have also been removed.
 
 rcParams
 ~~~~~~~~
@@ -351,7 +351,7 @@ rcParams
   - ``validate_orientation``
   - ``validate_pgf_texsystem``
   - ``validate_ps_papersize``
-  - ``validate_svg_fontset``
+  - ``validate_svg_fonttype``
   - ``validate_toolbar``
   - ``validate_webagg_address``
 

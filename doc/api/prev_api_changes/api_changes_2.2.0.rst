@@ -9,7 +9,7 @@ New dependency
 
 `kiwisolver <https://github.com/nucleic/kiwi>`__ is now a required
 dependency to support the new constrained_layout,  see
-:doc:`/tutorials/intermediate/constrainedlayout_guide` for
+:ref:`constrainedlayout_guide` for
 more details.
 
 
@@ -169,7 +169,7 @@ instead of `RuntimeError` when sizes of input lists don't match
 `matplotlib.figure.Figure.set_figwidth` and
 `matplotlib.figure.Figure.set_figheight` had the keyword argument
 ``forward=False`` by default, but `.figure.Figure.set_size_inches` now defaults
-to ``forward=True``.  This makes these functions conistent.
+to ``forward=True``.  This makes these functions consistent.
 
 
 Do not truncate svg sizes to nearest point

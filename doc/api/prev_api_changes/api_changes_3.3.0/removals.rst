@@ -202,7 +202,7 @@ Arguments
   renamed to ``manage_ticks``.
 - The ``normed`` parameter of `~.Axes.hist2d` has been renamed to ``density``.
 - The ``s`` parameter of `.Annotation` has been renamed to ``text``.
-- For all functions in `.bezier` that supported a ``tolerence`` parameter, this
+- For all functions in `.bezier` that supported a ``tolerance`` parameter, this
   parameter has been renamed to ``tolerance``.
 - ``axis("normal")`` is not supported anymore. Use the equivalent
   ``axis("auto")`` instead.

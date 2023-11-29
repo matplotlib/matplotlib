@@ -1,8 +1,12 @@
+import os
 from pathlib import Path
 import re
+import subprocess
+import sys
 
 import matplotlib.pyplot as plt
 from matplotlib.texmanager import TexManager
+from matplotlib.testing._markers import needs_usetex
 import pytest
 
 
@@ -39,3 +43,32 @@ def test_font_selection(rc, preamble, family):
     src = Path(tm.make_tex("hello, world", fontsize=12)).read_text()
     assert preamble in src
     assert [*re.findall(r"\\\w+family", src)] == [family]
+
+
+@needs_usetex
+def test_unicode_characters():
+    # Smoke test to see that Unicode characters does not cause issues
+    # See #23019
+    plt.rcParams['text.usetex'] = True
+    fig, ax = plt.subplots()
+    ax.set_ylabel('\\textit{Velocity (\N{DEGREE SIGN}/sec)}')
+    ax.set_xlabel('\N{VULGAR FRACTION ONE QUARTER}Öøæ')
+    fig.canvas.draw()
+
+    # But not all characters.
+    # Should raise RuntimeError, not UnicodeDecodeError
+    with pytest.raises(RuntimeError):
+        ax.set_title('\N{SNOWMAN}')
+        fig.canvas.draw()
+
+
+@needs_usetex
+def test_openin_any_paranoid():
+    completed = subprocess.run(
+        [sys.executable, "-c",
+         'import matplotlib.pyplot as plt;'
+         'plt.rcParams.update({"text.usetex": True});'
+         'plt.title("paranoid");'
+         'plt.show(block=False);'],
+        env={**os.environ, 'openin_any': 'p'}, check=True, capture_output=True)
+    assert completed.stderr == b""

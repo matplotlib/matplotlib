@@ -4,8 +4,10 @@ import urllib.parse
 
 import numpy as np
 
-from matplotlib import _api, _text_helpers, dviread, font_manager
-from matplotlib.font_manager import FontProperties, get_font
+from matplotlib import _text_helpers, dviread
+from matplotlib.font_manager import (
+    FontProperties, get_font, fontManager as _fontManager
+)
 from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_TARGET_LIGHT
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
@@ -29,8 +31,8 @@ class TextToPath:
         """
         Find the `FT2Font` matching font properties *prop*, with its size set.
         """
-        fname = font_manager.findfont(prop)
-        font = get_font(fname)
+        filenames = _fontManager._find_fonts_by_props(prop)
+        font = get_font(filenames)
         font.set_size(self.FONT_SCALE, self.DPI)
         return font
 
@@ -76,19 +78,15 @@ class TextToPath:
         ----------
         prop : `~matplotlib.font_manager.FontProperties`
             The font properties for the text.
-
         s : str
             The text to be converted.
-
         ismath : {False, True, "TeX"}
             If True, use mathtext parser.  If "TeX", use tex for rendering.
 
         Returns
         -------
         verts : list
-            A list of numpy arrays containing the x and y coordinates of the
-            vertices.
-
+            A list of arrays containing the (x, y) coordinates of the vertices.
         codes : list
             A list of path codes.
 
@@ -98,10 +96,10 @@ class TextToPath:
         from those::
 
             from matplotlib.path import Path
-            from matplotlib.textpath import TextToPath
+            from matplotlib.text import TextToPath
             from matplotlib.font_manager import FontProperties
 
-            fp = FontProperties(family="Humor Sans", style="italic")
+            fp = FontProperties(family="Comic Neue", style="italic")
             verts, codes = TextToPath().get_text_path(fp, "ABC")
             path = Path(verts, codes, closed=False)
 
@@ -148,11 +146,11 @@ class TextToPath:
         xpositions = []
         glyph_ids = []
         for item in _text_helpers.layout(s, font):
-            char_id = self._get_char_id(font, ord(item.char))
+            char_id = self._get_char_id(item.ft_object, ord(item.char))
             glyph_ids.append(char_id)
             xpositions.append(item.x)
             if char_id not in glyph_map:
-                glyph_map_new[char_id] = font.get_path()
+                glyph_map_new[char_id] = item.ft_object.get_path()
 
         ypositions = [0] * len(xpositions)
         sizes = [1.] * len(xpositions)
@@ -212,13 +210,6 @@ class TextToPath:
 
         return (list(zip(glyph_ids, xpositions, ypositions, sizes)),
                 glyph_map_new, myrects)
-
-    @_api.deprecated("3.6", alternative="TexManager()")
-    def get_texmanager(self):
-        """Return the cached `~.texmanager.TexManager` instance."""
-        if self._texmanager is None:
-            self._texmanager = TexManager()
-        return self._texmanager
 
     def get_glyphs_tex(self, prop, s, glyph_map=None,
                        return_new_glyphs_only=False):
@@ -323,9 +314,9 @@ class TextPath(Path):
             Font size in points. Defaults to the size specified via the font
             properties *prop*.
 
-        prop : `matplotlib.font_manager.FontProperties`, optional
+        prop : `~matplotlib.font_manager.FontProperties`, optional
             Font property. If not provided, will use a default
-            ``FontProperties`` with parameters from the
+            `.FontProperties` with parameters from the
             :ref:`rcParams<customizing-with-dynamic-rc-settings>`.
 
         _interpolation_steps : int, optional
@@ -339,7 +330,7 @@ class TextPath(Path):
         The following creates a path from the string "ABC" with Helvetica
         font face; and another path from the latex fraction 1/2::
 
-            from matplotlib.textpath import TextPath
+            from matplotlib.text import TextPath
             from matplotlib.font_manager import FontProperties
 
             fp = FontProperties(family="Helvetica", style="italic")

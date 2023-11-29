@@ -119,7 +119,7 @@ The following 164 authors contributed 3455 commits.
 * Nicolas Courtemanche
 * Nikita Kniazev
 * njwhite
-* O. Castany
+* O\. Castany
 * Oliver Natt
 * Olivier
 * Om Sitapara
@@ -142,7 +142,7 @@ The following 164 authors contributed 3455 commits.
 * Richard Ji-Cathriner
 * RoryIAngus
 * Ryan May
-* S. Fukuda
+* S\. Fukuda
 * Samesh
 * Samesh Lakhotia
 * sasoripathos
@@ -164,7 +164,7 @@ The following 164 authors contributed 3455 commits.
 * Tim Hoffmann
 * Tom Flannaghan
 * Travis CI
-* V. Armando Solé
+* V\. Armando Solé
 * Vincent L.M. Mazoyer
 * Viraj Mohile
 * Wafa Soofi

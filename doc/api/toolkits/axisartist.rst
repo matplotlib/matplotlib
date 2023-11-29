@@ -17,6 +17,13 @@ You can find a tutorial describing usage of axisartist at the
    :align: center
    :scale: 50
 
+.. note::
+
+   This module contains classes and function that were formerly part of the
+   ``mpl_toolkits.axes_grid`` module that was removed in 3.6. Additional
+   classes from that older module may also be found in
+   `mpl_toolkits.axes_grid1`.
+
 .. currentmodule:: mpl_toolkits
 
 **The submodules of the axisartist API are:**
@@ -32,7 +39,6 @@ You can find a tutorial describing usage of axisartist at the
    axisartist.axis_artist
    axisartist.axisline_style
    axisartist.axislines
-   axisartist.clip_path
    axisartist.floating_axes
    axisartist.grid_finder
    axisartist.grid_helper_curvelinear

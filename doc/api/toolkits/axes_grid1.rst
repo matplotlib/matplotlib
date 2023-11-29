@@ -1,5 +1,7 @@
 .. module:: mpl_toolkits.axes_grid1
 
+.. redirect-from:: /api/toolkits/axes_grid
+
 ``mpl_toolkits.axes_grid1``
 ===========================
 
@@ -14,6 +16,13 @@ See :ref:`axes_grid1_users-guide-index` for a guide on the usage of axes_grid1.
    :target: ../../gallery/axes_grid1/demo_axes_grid.html
    :align: center
    :scale: 50
+
+.. note::
+
+   This module contains classes and function that were formerly part of the
+   ``mpl_toolkits.axes_grid`` module that was removed in 3.6. Additional
+   classes from that older module may also be found in
+   `mpl_toolkits.axisartist`.
 
 .. currentmodule:: mpl_toolkits
 

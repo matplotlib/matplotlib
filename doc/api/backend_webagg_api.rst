@@ -1,5 +1,6 @@
-:mod:`.backend_webagg`
-======================
+**************************************
+``matplotlib.backends.backend_webagg``
+**************************************
 
 .. automodule:: matplotlib.backends.backend_webagg
    :members:

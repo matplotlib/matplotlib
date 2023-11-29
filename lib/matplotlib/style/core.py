@@ -15,21 +15,22 @@ import contextlib
 import logging
 import os
 from pathlib import Path
-import re
+import sys
 import warnings
 
+if sys.version_info >= (3, 10):
+    import importlib.resources as importlib_resources
+else:
+    # Even though Py3.9 has importlib.resources, it doesn't properly handle
+    # modules added in sys.path.
+    import importlib_resources
+
 import matplotlib as mpl
-from matplotlib import _api, _docstring, rc_params_from_file, rcParamsDefault
+from matplotlib import _api, _docstring, _rc_params_in_file, rcParamsDefault
 
 _log = logging.getLogger(__name__)
 
 __all__ = ['use', 'context', 'available', 'library', 'reload_library']
-
-
-@_api.caching_module_getattr  # module-level deprecations
-class __getattr__:
-    STYLE_FILE_PATTERN = _api.deprecated("3.5", obj_type="")(property(
-        lambda self: re.compile(r'([\S]+).%s$' % STYLE_EXTENSION)))
 
 
 BASE_LIBRARY_PATH = os.path.join(mpl.get_data_path(), 'stylelib')
@@ -40,26 +41,9 @@ STYLE_EXTENSION = 'mplstyle'
 STYLE_BLACKLIST = {
     'interactive', 'backend', 'webagg.port', 'webagg.address',
     'webagg.port_retries', 'webagg.open_in_browser', 'backend_fallback',
-    'toolbar', 'timezone', 'datapath', 'figure.max_open_warning',
+    'toolbar', 'timezone', 'figure.max_open_warning',
     'figure.raise_window', 'savefig.directory', 'tk.window_focus',
     'docstring.hardcopy', 'date.epoch'}
-
-
-def _remove_blacklisted_style_params(d, warn=True):
-    o = {}
-    for key in d:  # prevent triggering RcParams.__getitem__('backend')
-        if key in STYLE_BLACKLIST:
-            if warn:
-                _api.warn_external(
-                    f"Style includes a parameter, {key!r}, that is not "
-                    "related to style.  Ignoring this parameter.")
-        else:
-            o[key] = d[key]
-    return o
-
-
-def _apply_style(d, warn=True):
-    mpl.rcParams.update(_remove_blacklisted_style_params(d, warn=warn))
 
 
 @_docstring.Substitution(
@@ -80,20 +64,32 @@ def use(style):
     Parameters
     ----------
     style : str, dict, Path or list
+
         A style specification. Valid options are:
 
-        +------+-------------------------------------------------------------+
-        | str  | The name of a style or a path/URL to a style file. For a    |
-        |      | list of available style names, see `.style.available`.      |
-        +------+-------------------------------------------------------------+
-        | dict | Dictionary with valid key/value pairs for                   |
-        |      | `matplotlib.rcParams`.                                      |
-        +------+-------------------------------------------------------------+
-        | Path | A path-like object which is a path to a style file.         |
-        +------+-------------------------------------------------------------+
-        | list | A list of style specifiers (str, Path or dict) applied from |
-        |      | first to last in the list.                                  |
-        +------+-------------------------------------------------------------+
+        str
+            - One of the style names in `.style.available` (a builtin style or
+              a style installed in the user library path).
+
+            - A dotted name of the form "package.style_name"; in that case,
+              "package" should be an importable Python package name, e.g. at
+              ``/path/to/package/__init__.py``; the loaded style file is
+              ``/path/to/package/style_name.mplstyle``.  (Style files in
+              subpackages are likewise supported.)
+
+            - The path or URL to a style file, which gets loaded by
+              `.rc_params_from_file`.
+
+        dict
+            A mapping of key/value pairs for `matplotlib.rcParams`.
+
+        Path
+            The path to a style file, which gets loaded by
+            `.rc_params_from_file`.
+
+        list
+            A list of style specifiers (str, Path or dict), which are applied
+            from first to last in the list.
 
     Notes
     -----
@@ -110,55 +106,49 @@ def use(style):
 
     style_alias = {'mpl20': 'default', 'mpl15': 'classic'}
 
-    def fix_style(s):
-        if isinstance(s, str):
-            s = style_alias.get(s, s)
-            if s in [
-                "seaborn",
-                "seaborn-bright",
-                "seaborn-colorblind",
-                "seaborn-dark",
-                "seaborn-darkgrid",
-                "seaborn-dark-palette",
-                "seaborn-deep",
-                "seaborn-muted",
-                "seaborn-notebook",
-                "seaborn-paper",
-                "seaborn-pastel",
-                "seaborn-poster",
-                "seaborn-talk",
-                "seaborn-ticks",
-                "seaborn-white",
-                "seaborn-whitegrid",
-            ]:
-                _api.warn_deprecated(
-                    "3.6", message="The seaborn styles shipped by Matplotlib "
-                    "are deprecated since %(since)s, as they no longer "
-                    "correspond to the styles shipped by seaborn. However, "
-                    "they will remain available as 'seaborn0.8-<style>'. "
-                    "Alternatively, directly use the seaborn API instead.")
-                s = s.replace("seaborn", "seaborn0.8")
-        return s
-
-    for style in map(fix_style, styles):
-        if not isinstance(style, (str, Path)):
-            _apply_style(style)
-        elif style == 'default':
-            # Deprecation warnings were already handled when creating
-            # rcParamsDefault, no need to reemit them here.
-            with _api.suppress_matplotlib_deprecation_warning():
-                _apply_style(rcParamsDefault, warn=False)
-        elif style in library:
-            _apply_style(library[style])
-        else:
+    for style in styles:
+        if isinstance(style, str):
+            style = style_alias.get(style, style)
+            if style == "default":
+                # Deprecation warnings were already handled when creating
+                # rcParamsDefault, no need to reemit them here.
+                with _api.suppress_matplotlib_deprecation_warning():
+                    # don't trigger RcParams.__getitem__('backend')
+                    style = {k: rcParamsDefault[k] for k in rcParamsDefault
+                             if k not in STYLE_BLACKLIST}
+            elif style in library:
+                style = library[style]
+            elif "." in style:
+                pkg, _, name = style.rpartition(".")
+                try:
+                    path = (importlib_resources.files(pkg)
+                            / f"{name}.{STYLE_EXTENSION}")
+                    style = _rc_params_in_file(path)
+                except (ModuleNotFoundError, OSError, TypeError) as exc:
+                    # There is an ambiguity whether a dotted name refers to a
+                    # package.style_name or to a dotted file path.  Currently,
+                    # we silently try the first form and then the second one;
+                    # in the future, we may consider forcing file paths to
+                    # either use Path objects or be prepended with "./" and use
+                    # the slash as marker for file paths.
+                    pass
+        if isinstance(style, (str, Path)):
             try:
-                rc = rc_params_from_file(style, use_default_template=False)
-                _apply_style(rc)
-            except IOError as err:
-                raise IOError(
-                    "{!r} not found in the style library and input is not a "
-                    "valid URL or path; see `style.available` for list of "
-                    "available styles".format(style)) from err
+                style = _rc_params_in_file(style)
+            except OSError as err:
+                raise OSError(
+                    f"{style!r} is not a valid package style, path of style "
+                    f"file, URL of style file, or library style name (library "
+                    f"styles are listed in `style.available`)") from err
+        filtered = {}
+        for k in style:  # don't trigger RcParams.__getitem__('backend')
+            if k in STYLE_BLACKLIST:
+                _api.warn_external(
+                    f"Style includes a parameter, {k!r}, that is not "
+                    f"related to style.  Ignoring this parameter.")
+            else:
+                filtered[k] = style[k]
+        mpl.rcParams.update(filtered)
 
 
 @contextlib.contextmanager
@@ -171,18 +161,28 @@ def context(style, after_reset=False):
     style : str, dict, Path or list
         A style specification. Valid options are:
 
-        +------+-------------------------------------------------------------+
-        | str  | The name of a style or a path/URL to a style file. For a    |
-        |      | list of available style names, see `.style.available`.      |
-        +------+-------------------------------------------------------------+
-        | dict | Dictionary with valid key/value pairs for                   |
-        |      | `matplotlib.rcParams`.                                      |
-        +------+-------------------------------------------------------------+
-        | Path | A path-like object which is a path to a style file.         |
-        +------+-------------------------------------------------------------+
-        | list | A list of style specifiers (str, Path or dict) applied from |
-        |      | first to last in the list.                                  |
-        +------+-------------------------------------------------------------+
+        str
+            - One of the style names in `.style.available` (a builtin style or
+              a style installed in the user library path).
+
+            - A dotted name of the form "package.style_name"; in that case,
+              "package" should be an importable Python package name, e.g. at
+              ``/path/to/package/__init__.py``; the loaded style file is
+              ``/path/to/package/style_name.mplstyle``.  (Style files in
+              subpackages are likewise supported.)
+
+            - The path or URL to a style file, which gets loaded by
+              `.rc_params_from_file`.
+        dict
+            A mapping of key/value pairs for `matplotlib.rcParams`.
+
+        Path
+            The path to a style file, which gets loaded by
+            `.rc_params_from_file`.
+
+        list
+            A list of style specifiers (str, Path or dict), which are applied
+            from first to last in the list.
 
     after_reset : bool
         If True, apply style after resetting settings to their defaults;
@@ -193,21 +193,6 @@ def context(style, after_reset=False):
             mpl.rcdefaults()
         use(style)
         yield
-
-
-@_api.deprecated("3.5")
-def load_base_library():
-    """Load style library defined in this package."""
-    library = read_style_directory(BASE_LIBRARY_PATH)
-    return library
-
-
-@_api.deprecated("3.5")
-def iter_user_libraries():
-    for stylelib_path in USER_LIBRARY_PATHS:
-        stylelib_path = os.path.expanduser(stylelib_path)
-        if os.path.exists(stylelib_path) and os.path.isdir(stylelib_path):
-            yield stylelib_path
 
 
 def update_user_library(library):
@@ -223,8 +208,7 @@ def read_style_directory(style_dir):
     styles = dict()
     for path in Path(style_dir).glob(f"*.{STYLE_EXTENSION}"):
         with warnings.catch_warnings(record=True) as warns:
-            styles[path.stem] = rc_params_from_file(
-                path, use_default_template=False)
+            styles[path.stem] = _rc_params_in_file(path)
         for w in warns:
             _log.warning('In %s: %s', path, w.message)
     return styles
@@ -247,14 +231,14 @@ def update_nested_dict(main_dict, new_dict):
 # Load style library
 # ==================
 _base_library = read_style_directory(BASE_LIBRARY_PATH)
-library = None
+library = {}
 available = []
 
 
 def reload_library():
     """Reload the style library."""
-    global library
-    library = update_user_library(_base_library)
+    library.clear()
+    library.update(update_user_library(_base_library))
     available[:] = sorted(library.keys())
 
 

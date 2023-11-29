@@ -5,15 +5,15 @@ import numpy as np
 from numpy.testing import assert_allclose
 import pytest
 
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
-from matplotlib.backend_bases import MouseButton
+from matplotlib.backend_bases import MouseButton, MouseEvent
 
 from matplotlib.offsetbox import (
-    AnchoredOffsetbox, AnnotationBbox, AnchoredText, DrawingArea, OffsetBox,
-    OffsetImage, TextArea, _get_packed_offsets)
+    AnchoredOffsetbox, AnnotationBbox, AnchoredText, DrawingArea, HPacker,
+    OffsetBox, OffsetImage, PaddedBox, TextArea, VPacker, _get_packed_offsets)
 
 
 @image_comparison(['offsetbox_clipping'], remove_text=True)
@@ -28,6 +28,7 @@ def test_offsetbox_clipping():
     fig, ax = plt.subplots()
     size = 100
     da = DrawingArea(size, size, clip=True)
+    assert da.clip_children
     bg = mpatches.Rectangle((0, 0), size, size,
                             facecolor='#CCCCCC',
                             edgecolor='None',
@@ -117,76 +118,74 @@ def test_expand_with_tight_layout():
     d2 = [2, 1]
     ax.plot(d1, label='series 1')
     ax.plot(d2, label='series 2')
-    ax.legend(ncol=2, mode='expand')
+    ax.legend(ncols=2, mode='expand')
 
     fig.tight_layout()  # where the crash used to happen
 
 
-@pytest.mark.parametrize('wd_list',
-                         ([(150, 1)], [(150, 1)]*3, [(0.1, 1)], [(0.1, 1)]*2))
+@pytest.mark.parametrize('widths',
+                         ([150], [150, 150, 150], [0.1], [0.1, 0.1]))
 @pytest.mark.parametrize('total', (250, 100, 0, -1, None))
 @pytest.mark.parametrize('sep', (250, 1, 0, -1))
 @pytest.mark.parametrize('mode', ("expand", "fixed", "equal"))
-def test_get_packed_offsets(wd_list, total, sep, mode):
+def test_get_packed_offsets(widths, total, sep, mode):
     # Check a (rather arbitrary) set of parameters due to successive similar
     # issue tickets (at least #10476 and #10784) related to corner cases
     # triggered inside this function when calling higher-level functions
     # (e.g. `Axes.legend`).
     # These are just some additional smoke tests. The output is untested.
-    _get_packed_offsets(wd_list, total, sep, mode=mode)
+    _get_packed_offsets(widths, total, sep, mode=mode)
 
 
-_Params = namedtuple('_params', 'wd_list, total, sep, expected')
+_Params = namedtuple('_Params', 'wd_list, total, sep, expected')
 
 
-@pytest.mark.parametrize('wd_list, total, sep, expected', [
+@pytest.mark.parametrize('widths, total, sep, expected', [
     _Params(  # total=None
-        [(3, 0), (1, 0), (2, 0)], total=None, sep=1, expected=(8, [0, 4, 6])),
+        [3, 1, 2], total=None, sep=1, expected=(8, [0, 4, 6])),
     _Params(  # total larger than required
-        [(3, 0), (1, 0), (2, 0)], total=10, sep=1, expected=(10, [0, 4, 6])),
+        [3, 1, 2], total=10, sep=1, expected=(10, [0, 4, 6])),
     _Params(  # total smaller than required
-        [(3, 0), (1, 0), (2, 0)], total=5, sep=1, expected=(5, [0, 4, 6])),
+        [3, 1, 2], total=5, sep=1, expected=(5, [0, 4, 6])),
 ])
-def test_get_packed_offsets_fixed(wd_list, total, sep, expected):
-    result = _get_packed_offsets(wd_list, total, sep, mode='fixed')
+def test_get_packed_offsets_fixed(widths, total, sep, expected):
+    result = _get_packed_offsets(widths, total, sep, mode='fixed')
     assert result[0] == expected[0]
     assert_allclose(result[1], expected[1])
 
 
-@pytest.mark.parametrize('wd_list, total, sep, expected', [
+@pytest.mark.parametrize('widths, total, sep, expected', [
     _Params(  # total=None (implicit 1)
-        [(.1, 0)] * 3, total=None, sep=None, expected=(1, [0, .45, .9])),
+        [.1, .1, .1], total=None, sep=None, expected=(1, [0, .45, .9])),
     _Params(  # total larger than sum of widths
-        [(3, 0), (1, 0), (2, 0)], total=10, sep=1, expected=(10, [0, 5, 8])),
+        [3, 1, 2], total=10, sep=1, expected=(10, [0, 5, 8])),
     _Params(  # total smaller sum of widths: overlapping boxes
-        [(3, 0), (1, 0), (2, 0)], total=5, sep=1, expected=(5, [0, 2.5, 3])),
+        [3, 1, 2], total=5, sep=1, expected=(5, [0, 2.5, 3])),
 ])
-def test_get_packed_offsets_expand(wd_list, total, sep, expected):
-    result = _get_packed_offsets(wd_list, total, sep, mode='expand')
+def test_get_packed_offsets_expand(widths, total, sep, expected):
+    result = _get_packed_offsets(widths, total, sep, mode='expand')
     assert result[0] == expected[0]
     assert_allclose(result[1], expected[1])
 
 
-@pytest.mark.parametrize('wd_list, total, sep, expected', [
+@pytest.mark.parametrize('widths, total, sep, expected', [
     _Params(  # total larger than required
-        [(3, 0), (2, 0), (1, 0)], total=6, sep=None, expected=(6, [0, 2, 4])),
+        [3, 2, 1], total=6, sep=None, expected=(6, [0, 2, 4])),
     _Params(  # total smaller sum of widths: overlapping boxes
-        [(3, 0), (2, 0), (1, 0), (.5, 0)], total=2, sep=None,
-        expected=(2, [0, 0.5, 1, 1.5])),
+        [3, 2, 1, .5], total=2, sep=None, expected=(2, [0, 0.5, 1, 1.5])),
     _Params(  # total larger than required
-        [(.5, 0), (1, 0), (.2, 0)], total=None, sep=1,
-        expected=(6, [0, 2, 4])),
+        [.5, 1, .2], total=None, sep=1, expected=(6, [0, 2, 4])),
     # the case total=None, sep=None is tested separately below
 ])
-def test_get_packed_offsets_equal(wd_list, total, sep, expected):
-    result = _get_packed_offsets(wd_list, total, sep, mode='equal')
+def test_get_packed_offsets_equal(widths, total, sep, expected):
+    result = _get_packed_offsets(widths, total, sep, mode='equal')
     assert result[0] == expected[0]
     assert_allclose(result[1], expected[1])
 
 
 def test_get_packed_offsets_equal_total_none_sep_none():
     with pytest.raises(ValueError):
-        _get_packed_offsets([(1, 0)] * 3, total=None, sep=None, mode='equal')
+        _get_packed_offsets([1, 1, 1], total=None, sep=None, mode='equal')
 
 
 @pytest.mark.parametrize('child_type', ['draw', 'image', 'text'])
@@ -228,7 +227,8 @@ def test_picking(child_type, boxcoords):
         x, y = ax.transAxes.transform_point((0.5, 0.5))
     fig.canvas.draw()
     calls.clear()
-    fig.canvas.button_press_event(x, y, MouseButton.LEFT)
+    MouseEvent(
+        "button_press_event", fig.canvas, x, y, MouseButton.LEFT)._process()
     assert len(calls) == 1 and calls[0].artist == ab
 
     # Annotation should *not* be picked by an event at its original center
@@ -237,7 +237,8 @@ def test_picking(child_type, boxcoords):
     ax.set_ylim(-1, 0)
     fig.canvas.draw()
     calls.clear()
-    fig.canvas.button_press_event(x, y, MouseButton.LEFT)
+    MouseEvent(
+        "button_press_event", fig.canvas, x, y, MouseButton.LEFT)._process()
     assert len(calls) == 0
 
 
@@ -256,7 +257,8 @@ def test_anchoredtext_horizontal_alignment():
     ax.add_artist(text2)
 
 
-def test_annotationbbox_extents():
+@pytest.mark.parametrize("extent_kind", ["window_extent", "tightbbox"])
+def test_annotationbbox_extents(extent_kind):
     plt.rcParams.update(plt.rcParamsDefault)
     fig, ax = plt.subplots(figsize=(4, 3), dpi=100)
 
@@ -283,31 +285,22 @@ def test_annotationbbox_extents():
                          arrowprops=dict(arrowstyle="->"))
     ax.add_artist(ab6)
 
-    fig.canvas.draw()
-    renderer = fig.canvas.get_renderer()
-
     # Test Annotation
-    bb1w = an1.get_window_extent(renderer)
-    bb1e = an1.get_tightbbox(renderer)
+    bb1 = getattr(an1, f"get_{extent_kind}")()
 
     target1 = [332.9, 242.8, 467.0, 298.9]
-    assert_allclose(bb1w.extents, target1, atol=2)
-    assert_allclose(bb1e.extents, target1, atol=2)
+    assert_allclose(bb1.extents, target1, atol=2)
 
     # Test AnnotationBbox
-    bb3w = ab3.get_window_extent(renderer)
-    bb3e = ab3.get_tightbbox(renderer)
+    bb3 = getattr(ab3, f"get_{extent_kind}")()
 
     target3 = [-17.6, 129.0, 200.7, 167.9]
-    assert_allclose(bb3w.extents, target3, atol=2)
-    assert_allclose(bb3e.extents, target3, atol=2)
+    assert_allclose(bb3.extents, target3, atol=2)
 
-    bb6w = ab6.get_window_extent(renderer)
-    bb6e = ab6.get_tightbbox(renderer)
+    bb6 = getattr(ab6, f"get_{extent_kind}")()
 
     target6 = [180.0, -32.0, 230.0, 92.9]
-    assert_allclose(bb6w.extents, target6, atol=2)
-    assert_allclose(bb6e.extents, target6, atol=2)
+    assert_allclose(bb6.extents, target6, atol=2)
 
     # Test bbox_inches='tight'
     buf = io.BytesIO()
@@ -335,3 +328,125 @@ def test_arrowprops_copied():
                         arrowprops=arrowprops)
     assert ab.arrowprops is not ab
     assert arrowprops["relpos"] == (.3, .7)
+
+
+@pytest.mark.parametrize("align", ["baseline", "bottom", "top",
+                                   "left", "right", "center"])
+def test_packers(align):
+    # set the DPI to match points to make the math easier below
+    fig = plt.figure(dpi=72)
+    renderer = fig.canvas.get_renderer()
+
+    x1, y1 = 10, 30
+    x2, y2 = 20, 60
+    r1 = DrawingArea(x1, y1)
+    r2 = DrawingArea(x2, y2)
+
+    # HPacker
+    hpacker = HPacker(children=[r1, r2], align=align)
+    hpacker.draw(renderer)
+    bbox = hpacker.get_bbox(renderer)
+    px, py = hpacker.get_offset(bbox, renderer)
+    # width, height, xdescent, ydescent
+    assert_allclose(bbox.bounds, (0, 0, x1 + x2, max(y1, y2)))
+    # internal element placement
+    if align in ("baseline", "left", "bottom"):
+        y_height = 0
+    elif align in ("right", "top"):
+        y_height = y2 - y1
+    elif align == "center":
+        y_height = (y2 - y1) / 2
+    # x-offsets, y-offsets
+    assert_allclose([child.get_offset() for child in hpacker.get_children()],
+                    [(px, py + y_height), (px + x1, py)])
+
+    # VPacker
+    vpacker = VPacker(children=[r1, r2], align=align)
+    vpacker.draw(renderer)
+    bbox = vpacker.get_bbox(renderer)
+    px, py = vpacker.get_offset(bbox, renderer)
+    # width, height, xdescent, ydescent
+    assert_allclose(bbox.bounds, (0, -max(y1, y2), max(x1, x2), y1 + y2))
+    # internal element placement
+    if align in ("baseline", "left", "bottom"):
+        x_height = 0
+    elif align in ("right", "top"):
+        x_height = x2 - x1
+    elif align == "center":
+        x_height = (x2 - x1) / 2
+    # x-offsets, y-offsets
+    assert_allclose([child.get_offset() for child in vpacker.get_children()],
+                    [(px + x_height, py), (px, py - y2)])
+
+
+def test_paddedbox_default_values():
+    # smoke test paddedbox for correct default value
+    fig, ax = plt.subplots()
+    at = AnchoredText("foo",  'upper left')
+    pb = PaddedBox(at, patch_attrs={'facecolor': 'r'}, draw_frame=True)
+    ax.add_artist(pb)
+    fig.draw_without_rendering()
+
+
+def test_annotationbbox_properties():
+    ab = AnnotationBbox(DrawingArea(20, 20, 0, 0, clip=True), (0.5, 0.5),
+                        xycoords='data')
+    assert ab.xyann == (0.5, 0.5)  # xy if xybox not given
+    assert ab.anncoords == 'data'  # xycoords if boxcoords not given
+
+    ab = AnnotationBbox(DrawingArea(20, 20, 0, 0, clip=True), (0.5, 0.5),
+                        xybox=(-0.2, 0.4), xycoords='data',
+                        boxcoords='axes fraction')
+    assert ab.xyann == (-0.2, 0.4)  # xybox if given
+    assert ab.anncoords == 'axes fraction'  # boxcoords if given
+
+
+def test_textarea_properties():
+    ta = TextArea('Foo')
+    assert ta.get_text() == 'Foo'
+    assert not ta.get_multilinebaseline()
+
+    ta.set_text('Bar')
+    ta.set_multilinebaseline(True)
+    assert ta.get_text() == 'Bar'
+    assert ta.get_multilinebaseline()
+
+
+@check_figures_equal()
+def test_textarea_set_text(fig_test, fig_ref):
+    ax_ref = fig_ref.add_subplot()
+    text0 = AnchoredText("Foo", "upper left")
+    ax_ref.add_artist(text0)
+
+    ax_test = fig_test.add_subplot()
+    text1 = AnchoredText("Bar", "upper left")
+    ax_test.add_artist(text1)
+    text1.txt.set_text("Foo")
+
+
+@image_comparison(['paddedbox.png'], remove_text=True, style='mpl20')
+def test_paddedbox():
+    fig, ax = plt.subplots()
+
+    ta = TextArea("foo")
+    pb = PaddedBox(ta, pad=5, patch_attrs={'facecolor': 'r'}, draw_frame=True)
+    ab = AnchoredOffsetbox('upper left', child=pb)
+    ax.add_artist(ab)
+
+    ta = TextArea("bar")
+    pb = PaddedBox(ta, pad=10, patch_attrs={'facecolor': 'b'})
+    ab = AnchoredOffsetbox('upper right', child=pb)
+    ax.add_artist(ab)
+
+    ta = TextArea("foobar")
+    pb = PaddedBox(ta, pad=15, draw_frame=True)
+    ab = AnchoredOffsetbox('lower right', child=pb)
+    ax.add_artist(ab)
+
+
+def test_remove_draggable():
+    fig, ax = plt.subplots()
+    an = ax.annotate("foo", (.5, .5))
+    an.draggable(True)
+    an.remove()
+    MouseEvent("button_release_event", fig.canvas, 1, 1)._process()

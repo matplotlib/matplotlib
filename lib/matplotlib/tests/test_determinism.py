@@ -11,14 +11,7 @@ import pytest
 import matplotlib as mpl
 import matplotlib.testing.compare
 from matplotlib import pyplot as plt
-
-
-needs_ghostscript = pytest.mark.skipif(
-    "eps" not in mpl.testing.compare.converter,
-    reason="This test needs a ghostscript installation")
-needs_usetex = pytest.mark.skipif(
-    not mpl.checkdep_usetex(True),
-    reason="This test needs a TeX installation")
+from matplotlib.testing._markers import needs_ghostscript, needs_usetex
 
 
 def _save_figure(objects='mhi', fmt="pdf", usetex=False):

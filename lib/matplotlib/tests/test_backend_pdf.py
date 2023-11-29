@@ -3,13 +3,14 @@ import decimal
 import io
 import os
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 
 import numpy as np
 import pytest
 
 import matplotlib as mpl
-from matplotlib import pyplot as plt, checkdep_usetex, rcParams
+from matplotlib import (
+    pyplot as plt, rcParams, font_manager as fm
+)
 from matplotlib.cbook import _get_data_path
 from matplotlib.ft2font import FT2Font
 from matplotlib.font_manager import findfont, FontProperties
@@ -17,11 +18,7 @@ from matplotlib.backends._backend_pdf_ps import get_glyphs_subset
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.patches import Rectangle
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
-
-
-needs_usetex = pytest.mark.skipif(
-    not checkdep_usetex(True),
-    reason="This test needs a TeX installation")
+from matplotlib.testing._markers import needs_usetex
 
 
 @image_comparison(['pdf_use14corefonts.pdf'])
@@ -83,35 +80,44 @@ def test_multipage_properfinalize():
     assert len(s) < 40000
 
 
-def test_multipage_keep_empty():
+def test_multipage_keep_empty(tmp_path):
+    os.chdir(tmp_path)
+
     # test empty pdf files
-    # test that an empty pdf is left behind with keep_empty=True (default)
-    with NamedTemporaryFile(delete=False) as tmp:
-        with PdfPages(tmp) as pdf:
-            filename = pdf._file.fh.name
-        assert os.path.exists(filename)
-    os.remove(filename)
-    # test if an empty pdf is deleting itself afterwards with keep_empty=False
-    with PdfPages(filename, keep_empty=False) as pdf:
+
+    # an empty pdf is left behind with keep_empty unset
+    with pytest.warns(mpl.MatplotlibDeprecationWarning), PdfPages("a.pdf") as pdf:
         pass
-    assert not os.path.exists(filename)
+    assert os.path.exists("a.pdf")
+
+    # an empty pdf is left behind with keep_empty=True
+    with pytest.warns(mpl.MatplotlibDeprecationWarning), \
+            PdfPages("b.pdf", keep_empty=True) as pdf:
+        pass
+    assert os.path.exists("b.pdf")
+
+    # an empty pdf deletes itself afterwards with keep_empty=False
+    with PdfPages("c.pdf", keep_empty=False) as pdf:
+        pass
+    assert not os.path.exists("c.pdf")
+
     # test pdf files with content, they should never be deleted
-    fig, ax = plt.subplots()
-    ax.plot([1, 2, 3])
-    # test that a non-empty pdf is left behind with keep_empty=True (default)
-    with NamedTemporaryFile(delete=False) as tmp:
-        with PdfPages(tmp) as pdf:
-            filename = pdf._file.fh.name
-            pdf.savefig()
-        assert os.path.exists(filename)
-    os.remove(filename)
-    # test that a non-empty pdf is left behind with keep_empty=False
-    with NamedTemporaryFile(delete=False) as tmp:
-        with PdfPages(tmp, keep_empty=False) as pdf:
-            filename = pdf._file.fh.name
-            pdf.savefig()
-        assert os.path.exists(filename)
-    os.remove(filename)
+
+    # a non-empty pdf is left behind with keep_empty unset
+    with PdfPages("d.pdf") as pdf:
+        pdf.savefig(plt.figure())
+    assert os.path.exists("d.pdf")
+
+    # a non-empty pdf is left behind with keep_empty=True
+    with pytest.warns(mpl.MatplotlibDeprecationWarning), \
+            PdfPages("e.pdf", keep_empty=True) as pdf:
+        pdf.savefig(plt.figure())
+    assert os.path.exists("e.pdf")
+
+    # a non-empty pdf is left behind with keep_empty=False
+    with PdfPages("f.pdf", keep_empty=False) as pdf:
+        pdf.savefig(plt.figure())
+    assert os.path.exists("f.pdf")
 
 
 def test_composite_image():
@@ -131,6 +137,30 @@ def test_composite_image():
     with PdfPages(io.BytesIO()) as pdf:
         fig.savefig(pdf, format="pdf")
         assert len(pdf._file._images) == 2
+
+
+def test_indexed_image():
+    # An image with low color count should compress to a palette-indexed format.
+    pikepdf = pytest.importorskip('pikepdf')
+
+    data = np.zeros((256, 1, 3), dtype=np.uint8)
+    data[:, 0, 0] = np.arange(256)  # Maximum unique colours for an indexed image.
+
+    rcParams['pdf.compression'] = True
+    fig = plt.figure()
+    fig.figimage(data, resize=True)
+    buf = io.BytesIO()
+    fig.savefig(buf, format='pdf', dpi='figure')
+
+    with pikepdf.Pdf.open(buf) as pdf:
+        page, = pdf.pages
+        image, = page.images.values()
+        pdf_image = pikepdf.PdfImage(image)
+        assert pdf_image.indexed
+        pil_image = pdf_image.as_pil_image()
+        rgb = np.asarray(pil_image.convert('RGB'))
+
+    np.testing.assert_array_equal(data, rgb)
 
 
 def test_savefig_metadata(monkeypatch):
@@ -247,8 +277,35 @@ def test_text_urls():
                     (a for a in annots if a.A.URI == f'{test_url}{fragment}'),
                     None)
                 assert annot is not None
+                assert getattr(annot, 'QuadPoints', None) is None
                 # Positions in points (72 per inch.)
                 assert annot.Rect[1] == decimal.Decimal(y) * 72
+
+
+def test_text_rotated_urls():
+    pikepdf = pytest.importorskip('pikepdf')
+
+    test_url = 'https://test_text_urls.matplotlib.org/'
+
+    fig = plt.figure(figsize=(1, 1))
+    fig.text(0.1, 0.1, 'N', rotation=45, url=f'{test_url}')
+
+    with io.BytesIO() as fd:
+        fig.savefig(fd, format='pdf')
+
+        with pikepdf.Pdf.open(fd) as pdf:
+            annots = pdf.pages[0].Annots
+
+            # Iteration over Annots must occur within the context manager,
+            # otherwise it may fail depending on the pdf structure.
+            annot = next(
+                (a for a in annots if a.A.URI == f'{test_url}'),
+                None)
+            assert annot is not None
+            assert getattr(annot, 'QuadPoints', None) is not None
+            # Positions in points (72 per inch)
+            assert annot.Rect[0] == \
+               annot.QuadPoints[6] - decimal.Decimal('0.00001')
 
 
 @needs_usetex
@@ -353,10 +410,52 @@ def test_glyphs_subset():
     subcmap = subfont.get_charmap()
 
     # all unique chars must be available in subsetted font
-    assert set(chars) == set(chr(key) for key in subcmap.keys())
+    assert {*chars} == {chr(key) for key in subcmap}
 
     # subsetted font's charmap should have less entries
     assert len(subcmap) < len(nosubcmap)
 
     # since both objects are assigned same characters
     assert subfont.get_num_glyphs() == nosubfont.get_num_glyphs()
+
+
+@image_comparison(["multi_font_type3.pdf"], tol=4.6)
+def test_multi_font_type3():
+    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
+        pytest.skip("Font may be missing")
+
+    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    plt.rc('pdf', fonttype=3)
+
+    fig = plt.figure()
+    fig.text(0.15, 0.475, "There are 几个汉字 in between!")
+
+
+@image_comparison(["multi_font_type42.pdf"], tol=2.2)
+def test_multi_font_type42():
+    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
+        pytest.skip("Font may be missing")
+
+    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    plt.rc('pdf', fonttype=42)
+
+    fig = plt.figure()
+    fig.text(0.15, 0.475, "There are 几个汉字 in between!")
+
+
+@pytest.mark.parametrize('family_name, file_name',
+                         [("Noto Sans", "NotoSans-Regular.otf"),
+                          ("FreeMono", "FreeMono.otf")])
+def test_otf_font_smoke(family_name, file_name):
+    # checks that there's no segfault
+    fp = fm.FontProperties(family=[family_name])
+    if Path(fm.findfont(fp)).name != file_name:
+        pytest.skip(f"Font {family_name} may be missing")
+
+    plt.rc('font', family=[family_name], size=27)
+
+    fig = plt.figure()
+    fig.text(0.15, 0.475, "Привет мир!")
+    fig.savefig(io.BytesIO(), format="pdf")

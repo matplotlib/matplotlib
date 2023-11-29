@@ -3,7 +3,7 @@
 # Subsetting DejaVu fonts to create a display-math-only font
 
 # The DejaVu fonts include math display variants outside of the Unicode range,
-# and it is currently hard to access them from matploltib. The subset.py script
+# and it is currently hard to access them from matplotlib. The subset.py script
 # in `tools` has been modified to move the math display variants found in DejaVu
 # fonts into a new TTF font with these variants in the Unicode range.
 

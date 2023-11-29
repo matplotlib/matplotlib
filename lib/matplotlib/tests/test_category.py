@@ -1,9 +1,10 @@
 """Catch all for categorical functions"""
+import warnings
+
 import pytest
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib._api import MatplotlibDeprecationWarning
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import matplotlib.category as cat
@@ -100,17 +101,6 @@ class TestStrCategoryConverter:
     @pytest.mark.parametrize("value", ["hi", "мир"], ids=["ascii", "unicode"])
     def test_convert_one_string(self, value):
         assert self.cc.convert(value, self.unit, self.ax) == 0
-
-    def test_convert_one_number(self):
-        with pytest.warns(MatplotlibDeprecationWarning):
-            actual = self.cc.convert(0.0, self.unit, self.ax)
-        np.testing.assert_allclose(actual, np.array([0.]))
-
-    def test_convert_float_array(self):
-        data = np.array([1, 2, 3], dtype=float)
-        with pytest.warns(MatplotlibDeprecationWarning):
-            actual = self.cc.convert(data, self.unit, self.ax)
-        np.testing.assert_allclose(actual, np.array([1., 2., 3.]))
 
     @pytest.mark.parametrize("fvals", fvalues, ids=fids)
     def test_convert_fail(self, fvals):
@@ -321,3 +311,13 @@ def test_hist():
     n, bins, patches = ax.hist(['a', 'b', 'a', 'c', 'ff'])
     assert n.shape == (10,)
     np.testing.assert_allclose(n, [2., 0., 0., 1., 0., 0., 1., 0., 0., 1.])
+
+
+def test_set_lim():
+    # Numpy 1.25 deprecated casting [2.] to float, catch_warnings added to error
+    # with numpy 1.25 and prior to the change from gh-26597
+    # can be removed once the minimum numpy version has expired the warning
+    f, ax = plt.subplots()
+    ax.plot(["a", "b", "c", "d"], [1, 2, 3, 4])
+    with warnings.catch_warnings():
+        ax.set_xlim("b", "c")

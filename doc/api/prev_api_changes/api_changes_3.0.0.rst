@@ -106,7 +106,7 @@ Different exception types for undocumented options
 - Passing the undocumented ``xmin`` or ``xmax`` arguments to
   :meth:`~matplotlib.axes.Axes.set_xlim` would silently override the ``left``
   and ``right`` arguments.  :meth:`~matplotlib.axes.Axes.set_ylim` and the
-  3D equivalents (e.g. `~.Axes3D.set_zlim3d`) had a
+  3D equivalents (e.g. `~.Axes3D.set_zlim`) had a
   corresponding problem.
   A ``TypeError`` will be raised if they would override the earlier
   limit arguments.  In 3.0 these were kwargs were deprecated, but in 3.1
@@ -225,7 +225,7 @@ looking automatic ticks in many instances.  The much nicer
 ``interval_multiples=True`` is the new default.  See below to get the
 old behavior back:
 
-  .. plot::
+.. plot::
 
     import matplotlib.pyplot as plt
     import datetime

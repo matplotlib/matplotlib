@@ -31,7 +31,7 @@ from tempfile import TemporaryDirectory
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, dviread, rcParams
+from matplotlib import _api, cbook, dviread
 
 _log = logging.getLogger(__name__)
 
@@ -57,10 +57,14 @@ class TexManager:
     """
     Convert strings to dvi files using TeX, caching the results to a directory.
 
+    The cache directory is called ``tex.cache`` and is located in the directory
+    returned by `.get_cachedir`.
+
     Repeated calls to this constructor always return the same instance.
     """
 
-    texcache = os.path.join(mpl.get_cachedir(), 'tex.cache')
+    texcache = _api.deprecate_privatize_attribute("3.8")
+    _texcache = os.path.join(mpl.get_cachedir(), 'tex.cache')
     _grey_arrayd = {}
 
     _font_families = ('serif', 'sans-serif', 'cursive', 'monospace')
@@ -100,29 +104,15 @@ class TexManager:
         'computer modern typewriter': 'monospace',
     }
 
-    grey_arrayd = _api.deprecate_privatize_attribute("3.5")
-    font_family = _api.deprecate_privatize_attribute("3.5")
-    font_families = _api.deprecate_privatize_attribute("3.5")
-    font_info = _api.deprecate_privatize_attribute("3.5")
-
-    @functools.lru_cache()  # Always return the same instance.
+    @functools.lru_cache  # Always return the same instance.
     def __new__(cls):
-        Path(cls.texcache).mkdir(parents=True, exist_ok=True)
+        Path(cls._texcache).mkdir(parents=True, exist_ok=True)
         return object.__new__(cls)
-
-    @_api.deprecated("3.6")
-    def get_font_config(self):
-        preamble, font_cmd = self._get_font_preamble_and_command()
-        # Add a hash of the latex preamble to fontconfig so that the
-        # correct png is selected for strings rendered with same font and dpi
-        # even if the latex preamble changes within the session
-        preambles = preamble + font_cmd + self.get_custom_preamble()
-        return hashlib.md5(preambles.encode('utf-8')).hexdigest()
 
     @classmethod
     def _get_font_family_and_reduced(cls):
         """Return the font family name and whether the font is reduced."""
-        ff = rcParams['font.family']
+        ff = mpl.rcParams['font.family']
         ff_val = ff[0].lower() if len(ff) == 1 else None
         if len(ff) == 1 and ff_val in cls._font_families:
             return ff_val, False
@@ -142,9 +132,9 @@ class TexManager:
         for font_family in cls._font_families:
             if is_reduced_font and font_family == requested_family:
                 preambles[font_family] = cls._font_preambles[
-                    rcParams['font.family'][0].lower()]
+                    mpl.rcParams['font.family'][0].lower()]
             else:
-                for font in rcParams['font.' + font_family]:
+                for font in mpl.rcParams['font.' + font_family]:
                     if font.lower() in cls._font_preambles:
                         preambles[font_family] = \
                             cls._font_preambles[font.lower()]
@@ -181,8 +171,15 @@ class TexManager:
         Return a filename based on a hash of the string, fontsize, and dpi.
         """
         src = cls._get_tex_source(tex, fontsize) + str(dpi)
-        return os.path.join(
-            cls.texcache, hashlib.md5(src.encode('utf-8')).hexdigest())
+        filehash = hashlib.md5(src.encode('utf-8')).hexdigest()
+        filepath = Path(cls._texcache)
+
+        num_letters, num_levels = 2, 2
+        for i in range(0, num_letters*num_levels, num_letters):
+            filepath = filepath / Path(filehash[i:i+2])
+
+        filepath.mkdir(parents=True, exist_ok=True)
+        return os.path.join(filepath, filehash)
 
     @classmethod
     def get_font_preamble(cls):
@@ -195,7 +192,7 @@ class TexManager:
     @classmethod
     def get_custom_preamble(cls):
         """Return a string containing user additions to the tex preamble."""
-        return rcParams['text.latex.preamble']
+        return mpl.rcParams['text.latex.preamble']
 
     @classmethod
     def _get_tex_source(cls, tex, fontsize):
@@ -230,8 +227,7 @@ class TexManager:
             r"% last line's baseline.",
             rf"\fontsize{{{fontsize}}}{{{baselineskip}}}%",
             r"\ifdefined\psfrag\else\hbox{}\fi%",
-            rf"{{\obeylines{fontcmd} {tex}}}%",
-            r"\special{matplotlibbaselinemarker}%",
+            rf"{{{fontcmd} {tex}}}%",
             r"\end{document}",
         ])
 
@@ -243,7 +239,8 @@ class TexManager:
         Return the file name.
         """
         texfile = cls.get_basefile(tex, fontsize) + ".tex"
-        Path(texfile).write_text(cls._get_tex_source(tex, fontsize))
+        Path(texfile).write_text(cls._get_tex_source(tex, fontsize),
+                                 encoding='utf-8')
         return texfile
 
     @classmethod
@@ -251,12 +248,12 @@ class TexManager:
         _log.debug(cbook._pformat_subprocess(command))
         try:
             report = subprocess.check_output(
-                command, cwd=cwd if cwd is not None else cls.texcache,
+                command, cwd=cwd if cwd is not None else cls._texcache,
                 stderr=subprocess.STDOUT)
         except FileNotFoundError as exc:
             raise RuntimeError(
-                'Failed to process string with tex because {} could not be '
-                'found'.format(command[0])) from exc
+                f'Failed to process string with tex because {command[0]} '
+                'could not be found') from exc
         except subprocess.CalledProcessError as exc:
             raise RuntimeError(
                 '{prog} was not able to process the following string:\n'
@@ -267,7 +264,8 @@ class TexManager:
                     prog=command[0],
                     format_command=cbook._pformat_subprocess(command),
                     tex=tex.encode('unicode_escape'),
-                    exc=exc.output.decode('utf-8'))) from None
+                    exc=exc.output.decode('utf-8', 'backslashreplace'))
+                ) from None
         _log.debug(report)
         return report
 
@@ -289,12 +287,16 @@ class TexManager:
             # and thus replace() works atomically.  It also allows referring to
             # the texfile with a relative path (for pathological MPLCONFIGDIRs,
             # the absolute path may contain characters (e.g. ~) that TeX does
-            # not support.)
-            with TemporaryDirectory(dir=Path(dvifile).parent) as tmpdir:
+            # not support; n.b. relative paths cannot traverse parents, or it
+            # will be blocked when `openin_any = p` in texmf.cnf).
+            cwd = Path(dvifile).parent
+            with TemporaryDirectory(dir=cwd) as tmpdir:
+                tmppath = Path(tmpdir)
                 cls._run_checked_subprocess(
                     ["latex", "-interaction=nonstopmode", "--halt-on-error",
-                     f"../{texfile.name}"], tex, cwd=tmpdir)
-                (Path(tmpdir) / Path(dvifile).name).replace(dvifile)
+                     f"--output-directory={tmppath.name}",
+                     f"{texfile.name}"], tex, cwd=cwd)
+                (tmppath / Path(dvifile).name).replace(dvifile)
         return dvifile
 
     @classmethod
@@ -325,21 +327,21 @@ class TexManager:
     def get_grey(cls, tex, fontsize=None, dpi=None):
         """Return the alpha channel."""
         if not fontsize:
-            fontsize = rcParams['font.size']
+            fontsize = mpl.rcParams['font.size']
         if not dpi:
-            dpi = rcParams['savefig.dpi']
+            dpi = mpl.rcParams['savefig.dpi']
         key = cls._get_tex_source(tex, fontsize), dpi
         alpha = cls._grey_arrayd.get(key)
         if alpha is None:
             pngfile = cls.make_png(tex, fontsize, dpi)
-            rgba = mpl.image.imread(os.path.join(cls.texcache, pngfile))
+            rgba = mpl.image.imread(os.path.join(cls._texcache, pngfile))
             cls._grey_arrayd[key] = alpha = rgba[:, :, -1]
         return alpha
 
     @classmethod
     def get_rgba(cls, tex, fontsize=None, dpi=None, rgb=(0, 0, 0)):
         r"""
-        Return latex's rendering of the tex string as an rgba array.
+        Return latex's rendering of the tex string as an RGBA array.
 
         Examples
         --------

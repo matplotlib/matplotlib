@@ -3,8 +3,8 @@ import functools
 
 import numpy as np
 
-import matplotlib
-from matplotlib import _api, _docstring, rcParams
+import matplotlib as mpl
+from matplotlib import _api, _docstring
 from matplotlib.artist import allow_rasterization
 import matplotlib.transforms as mtransforms
 import matplotlib.patches as mpatches
@@ -23,10 +23,11 @@ class Spine(mpatches.Patch):
 
     Spines are subclasses of `.Patch`, and inherit much of their behavior.
 
-    Spines draw a line, a circle, or an arc depending if
+    Spines draw a line, a circle, or an arc depending on if
     `~.Spine.set_patch_line`, `~.Spine.set_patch_circle`, or
     `~.Spine.set_patch_arc` has been called. Line-like is the default.
 
+    For examples see :ref:`spines_examples`.
     """
     def __str__(self):
         return "Spine"
@@ -55,8 +56,8 @@ class Spine(mpatches.Patch):
         self.set_figure(self.axes.figure)
         self.spine_type = spine_type
         self.set_facecolor('none')
-        self.set_edgecolor(rcParams['axes.edgecolor'])
-        self.set_linewidth(rcParams['axes.linewidth'])
+        self.set_edgecolor(mpl.rcParams['axes.edgecolor'])
+        self.set_linewidth(mpl.rcParams['axes.linewidth'])
         self.set_capstyle('projecting')
         self.axis = None
 
@@ -69,7 +70,7 @@ class Spine(mpatches.Patch):
         # non-rectangular axes is currently implemented, and this lets
         # them pass through the spines machinery without errors.)
         self._position = None
-        _api.check_isinstance(matplotlib.path.Path, path=path)
+        _api.check_isinstance(mpath.Path, path=path)
         self._path = path
 
         # To support drawing both linear and circular spines, this
@@ -151,15 +152,16 @@ class Spine(mpatches.Patch):
         # make sure the location is updated so that transforms etc are correct:
         self._adjust_location()
         bb = super().get_window_extent(renderer=renderer)
-        if self.axis is None:
+        if self.axis is None or not self.axis.get_visible():
             return bb
         bboxes = [bb]
-        tickstocheck = [self.axis.majorTicks[0]]
-        if len(self.axis.minorTicks) > 1:
-            # only pad for minor ticks if there are more than one
-            # of them.  There is always one...
-            tickstocheck.append(self.axis.minorTicks[1])
-        for tick in tickstocheck:
+        drawn_ticks = self.axis._update_ticks()
+
+        major_tick = next(iter({*drawn_ticks} & {*self.axis.majorTicks}), None)
+        minor_tick = next(iter({*drawn_ticks} & {*self.axis.minorTicks}), None)
+        for tick in [major_tick, minor_tick]:
+            if tick is None:
+                continue
             bb0 = bb.frozen()
             tickl = tick._size
             tickdir = tick._tickdir
@@ -212,15 +214,22 @@ class Spine(mpatches.Patch):
         properties when needed.
         """
         self.axis = axis
-        if self.axis is not None:
-            self.axis.clear()
         self.stale = True
 
     def clear(self):
         """Clear the current spine."""
-        self._position = None  # clear position
+        self._clear()
         if self.axis is not None:
             self.axis.clear()
+
+    def _clear(self):
+        """
+        Clear things directly related to the spine.
+
+        In this way it is possible to avoid clearing the Axis as well when calling
+        from library code where it is known that the Axis is cleared separately.
+        """
+        self._position = None  # clear position
 
     def _adjust_location(self):
         """Automatically set spine bounds to the view interval."""
@@ -301,8 +310,12 @@ class Spine(mpatches.Patch):
 
         Additionally, shorthand notations define a special positions:
 
-        * 'center' -> ('axes', 0.5)
-        * 'zero' -> ('data', 0.0)
+        * 'center' -> ``('axes', 0.5)``
+        * 'zero' -> ``('data', 0.0)``
+
+        Examples
+        --------
+        :doc:`/gallery/spines/spine_placement_demo`
         """
         if position in ('center', 'zero'):  # special positions
             pass
@@ -431,7 +444,7 @@ class Spine(mpatches.Patch):
         else:
             raise ValueError('unable to make path for spine "%s"' % spine_type)
         result = cls(axes, spine_type, path, **kwargs)
-        result.set_visible(rcParams['axes.spines.{0}'.format(spine_type)])
+        result.set_visible(mpl.rcParams[f'axes.spines.{spine_type}'])
 
         return result
 
@@ -473,7 +486,7 @@ class Spine(mpatches.Patch):
 
 class SpinesProxy:
     """
-    A proxy to broadcast ``set_*`` method calls to all contained `.Spines`.
+    A proxy to broadcast ``set_*()`` and ``set()`` method calls to contained `.Spines`.
 
     The proxy cannot be used for any other operations on its members.
 
@@ -487,7 +500,7 @@ class SpinesProxy:
     def __getattr__(self, name):
         broadcast_targets = [spine for spine in self._spine_dict.values()
                              if hasattr(spine, name)]
-        if not name.startswith('set_') or not broadcast_targets:
+        if (name != 'set' and not name.startswith('set_')) or not broadcast_targets:
             raise AttributeError(
                 f"'SpinesProxy' object has no attribute '{name}'")
 
@@ -511,7 +524,7 @@ class Spines(MutableMapping):
     The container of all `.Spine`\s in an Axes.
 
     The interface is dict-like mapping names (e.g. 'left') to `.Spine` objects.
-    Additionally it implements some pandas.Series-like features like accessing
+    Additionally, it implements some pandas.Series-like features like accessing
     elements by attribute::
 
         spines['top'].set_visible(False)
@@ -525,8 +538,8 @@ class Spines(MutableMapping):
 
         spines[:].set_visible(False)
 
-    The latter two indexing methods will return a `SpinesProxy` that broadcasts
-    all ``set_*`` calls to its members, but cannot be used for any other
+    The latter two indexing methods will return a `SpinesProxy` that broadcasts all
+    ``set_*()`` and ``set()`` calls to its members, but cannot be used for any other
     operation.
     """
     def __init__(self, **kwargs):

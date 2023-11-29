@@ -1,10 +1,12 @@
+import gc
 import numpy as np
 import pytest
 
+import matplotlib as mpl
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
-from matplotlib import gridspec, ticker, rcParams
+from matplotlib import gridspec, ticker
 
 
 def example_plot(ax, fontsize=12, nodec=False):
@@ -165,7 +167,7 @@ def test_constrained_layout8():
         for i in ilist:
             ax = fig.add_subplot(gs[j, i])
             axs += [ax]
-            pcm = example_pcolor(ax, fontsize=9)
+            example_pcolor(ax, fontsize=9)
             if i > 0:
                 ax.set_ylabel('')
             if j < 1:
@@ -291,7 +293,7 @@ def test_constrained_layout14():
 @image_comparison(['constrained_layout15.png'])
 def test_constrained_layout15():
     """Test that rcparams work."""
-    rcParams['figure.constrained_layout.use'] = True
+    mpl.rcParams['figure.constrained_layout.use'] = True
     fig, axs = plt.subplots(2, 2)
     for ax in axs.flat:
         example_plot(ax, fontsize=12)
@@ -394,7 +396,7 @@ def test_constrained_layout23():
         fig = plt.figure(layout="constrained", clear=True, num="123")
         gs = fig.add_gridspec(1, 2)
         sub = gs[0].subgridspec(2, 2)
-        fig.suptitle("Suptitle{}".format(i))
+        fig.suptitle(f"Suptitle{i}")
 
 
 @image_comparison(['test_colorbar_location.png'],
@@ -624,3 +626,69 @@ def test_rect():
     assert ppos.y1 < 0.5
     assert ppos.x0 > 0.2
     assert ppos.y0 > 0.2
+
+
+def test_compressed1():
+    fig, axs = plt.subplots(3, 2, layout='compressed',
+                            sharex=True, sharey=True)
+    for ax in axs.flat:
+        pc = ax.imshow(np.random.randn(20, 20))
+
+    fig.colorbar(pc, ax=axs)
+    fig.draw_without_rendering()
+
+    pos = axs[0, 0].get_position()
+    np.testing.assert_allclose(pos.x0, 0.2344, atol=1e-3)
+    pos = axs[0, 1].get_position()
+    np.testing.assert_allclose(pos.x1, 0.7024, atol=1e-3)
+
+    # wider than tall
+    fig, axs = plt.subplots(2, 3, layout='compressed',
+                            sharex=True, sharey=True, figsize=(5, 4))
+    for ax in axs.flat:
+        pc = ax.imshow(np.random.randn(20, 20))
+
+    fig.colorbar(pc, ax=axs)
+    fig.draw_without_rendering()
+
+    pos = axs[0, 0].get_position()
+    np.testing.assert_allclose(pos.x0, 0.06195, atol=1e-3)
+    np.testing.assert_allclose(pos.y1, 0.8537, atol=1e-3)
+    pos = axs[1, 2].get_position()
+    np.testing.assert_allclose(pos.x1, 0.8618, atol=1e-3)
+    np.testing.assert_allclose(pos.y0, 0.1934, atol=1e-3)
+
+
+@pytest.mark.parametrize('arg, state', [
+    (True, True),
+    (False, False),
+    ({}, True),
+    ({'rect': None}, True)
+])
+def test_set_constrained_layout(arg, state):
+    fig, ax = plt.subplots(constrained_layout=arg)
+    assert fig.get_constrained_layout() is state
+
+
+def test_constrained_toggle():
+    fig, ax = plt.subplots()
+    with pytest.warns(PendingDeprecationWarning):
+        fig.set_constrained_layout(True)
+        assert fig.get_constrained_layout()
+        fig.set_constrained_layout(False)
+        assert not fig.get_constrained_layout()
+        fig.set_constrained_layout(True)
+        assert fig.get_constrained_layout()
+
+
+def test_layout_leak():
+    # Make sure there aren't any cyclic references when using LayoutGrid
+    # GH #25853
+    fig = plt.figure(constrained_layout=True, figsize=(10, 10))
+    fig.add_subplot()
+    fig.draw_without_rendering()
+    plt.close("all")
+    del fig
+    gc.collect()
+    assert not any(isinstance(obj, mpl._layoutgrid.LayoutGrid)
+                   for obj in gc.get_objects())

@@ -91,7 +91,7 @@ font.size           : 12.0
 font.serif     : DejaVu Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
 font.sans-serif: DejaVu Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
 font.cursive   : Apple Chancery, Textile, Zapf Chancery, Sand, Script MT, Felipa, cursive
-font.fantasy   : Comic Sans MS, Chicago, Charcoal, ImpactWestern, Humor Sans, fantasy
+font.fantasy   : Comic Sans MS, Chicago, Charcoal, ImpactWestern, xkcd script, fantasy
 font.monospace : DejaVu Sans Mono, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
 
 ### TEXT
@@ -158,7 +158,7 @@ mathtext.sf  : sans\-serif
 mathtext.fontset : cm # Should be 'cm' (Computer Modern), 'stix',
                       # 'stixsans' or 'custom'
 mathtext.fallback: cm  # Select fallback font from ['cm' (Computer Modern), 'stix'
-                       # 'stixsans'] when a symbol can not be found in one of the
+                       # 'stixsans'] when a symbol cannot be found in one of the
                        # custom math fonts. Select 'None' to not perform fallback
                        # and replace the missing character by a dummy.
 
@@ -223,7 +223,8 @@ axes.spines.left    : True
 axes.spines.right   : True
 axes.spines.top     : True
 polaraxes.grid      : True    # display grid on polar axes
-axes3d.grid         : True    # display grid on 3d axes
+axes3d.grid         : True    # display grid on 3D axes
+axes3d.automargin   : False   # automatically add margin when manually setting 3D axis limits
 
 date.autoformatter.year   : %Y
 date.autoformatter.month  : %b %Y
@@ -307,6 +308,8 @@ legend.edgecolor     : inherit   # legend edge color (when 'inherit' uses axes.e
 # See https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
 figure.titlesize : medium     # size of the figure title
 figure.titleweight : normal   # weight of the figure title
+figure.labelsize:   medium    # size of the figure label
+figure.labelweight: normal    # weight of the figure label
 figure.figsize   : 8, 6    # figure size in inches
 figure.dpi       : 80      # figure dots per inch
 figure.facecolor : 0.75    # figure facecolor; 0.75 is scalar gray

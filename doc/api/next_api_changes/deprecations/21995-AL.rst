@@ -1,3 +1,0 @@
-``ImageMagickBase.delay`` and ``ImageMagickBase.output_args``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-are deprecated with no replacement.

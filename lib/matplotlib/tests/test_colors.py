@@ -10,12 +10,14 @@ import base64
 
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
-from matplotlib import cbook, cm, cycler
+from matplotlib import cbook, cm
 import matplotlib
+import matplotlib as mpl
 import matplotlib.colors as mcolors
 import matplotlib.colorbar as mcolorbar
 import matplotlib.pyplot as plt
 import matplotlib.scale as mscale
+from matplotlib.rcsetup import cycler
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
@@ -29,9 +31,16 @@ def test_create_lookup_table(N, result):
     assert_array_almost_equal(mcolors._create_lookup_table(N, data), result)
 
 
-def test_resample():
+@pytest.mark.parametrize("dtype", [np.uint8, int, np.float16, float])
+def test_index_dtype(dtype):
+    # We use subtraction in the indexing, so need to verify that uint8 works
+    cm = mpl.colormaps["viridis"]
+    assert_array_equal(cm(dtype(0)), cm(0))
+
+
+def test_resampled():
     """
-    GitHub issue #6025 pointed to incorrect ListedColormap._resample;
+    GitHub issue #6025 pointed to incorrect ListedColormap.resampled;
     here we test the method for LinearSegmentedColormap as well.
     """
     n = 101
@@ -47,8 +56,8 @@ def test_resample():
         cmap.set_under('r')
         cmap.set_over('g')
         cmap.set_bad('b')
-    lsc3 = lsc._resample(3)
-    lc3 = lc._resample(3)
+    lsc3 = lsc.resampled(3)
+    lc3 = lc.resampled(3)
     expected = np.array([[0.0, 0.2, 1.0, 0.7],
                          [0.5, 0.2, 0.5, 0.7],
                          [1.0, 0.2, 0.0, 0.7]], float)
@@ -64,24 +73,68 @@ def test_resample():
 
 
 def test_register_cmap():
-    new_cm = cm.get_cmap("viridis")
+    new_cm = mpl.colormaps["viridis"]
     target = "viridis2"
-    cm.register_cmap(target, new_cm)
-    assert plt.get_cmap(target) == new_cm
+    with pytest.warns(
+            mpl.MatplotlibDeprecationWarning,
+            match=r"matplotlib\.colormaps\.register\(name\)"
+    ):
+        cm.register_cmap(target, new_cm)
+    assert mpl.colormaps[target] == new_cm
 
     with pytest.raises(ValueError,
                        match="Arguments must include a name or a Colormap"):
-        cm.register_cmap()
+        with pytest.warns(
+            mpl.MatplotlibDeprecationWarning,
+            match=r"matplotlib\.colormaps\.register\(name\)"
+        ):
+            cm.register_cmap()
 
-    cm.unregister_cmap(target)
+    with pytest.warns(
+            mpl.MatplotlibDeprecationWarning,
+            match=r"matplotlib\.colormaps\.unregister\(name\)"
+    ):
+        cm.unregister_cmap(target)
     with pytest.raises(ValueError,
                        match=f'{target!r} is not a valid value for name;'):
-        cm.get_cmap(target)
-    # test that second time is error free
-    cm.unregister_cmap(target)
+        with pytest.warns(
+                mpl.MatplotlibDeprecationWarning,
+                match=r"matplotlib\.colormaps\[name\]"
+        ):
+            cm.get_cmap(target)
+    with pytest.warns(
+            mpl.MatplotlibDeprecationWarning,
+            match=r"matplotlib\.colormaps\.unregister\(name\)"
+    ):
+        # test that second time is error free
+        cm.unregister_cmap(target)
 
     with pytest.raises(TypeError, match="'cmap' must be"):
-        cm.register_cmap('nome', cmap='not a cmap')
+        with pytest.warns(
+            mpl.MatplotlibDeprecationWarning,
+            match=r"matplotlib\.colormaps\.register\(name\)"
+        ):
+            cm.register_cmap('nome', cmap='not a cmap')
+
+
+def test_colormaps_get_cmap():
+    cr = mpl.colormaps
+
+    # check str, and Colormap pass
+    assert cr.get_cmap('plasma') == cr["plasma"]
+    assert cr.get_cmap(cr["magma"]) == cr["magma"]
+
+    # check default
+    assert cr.get_cmap(None) == cr[mpl.rcParams['image.cmap']]
+
+    # check ValueError on bad name
+    bad_cmap = 'AardvarksAreAwkward'
+    with pytest.raises(ValueError, match=bad_cmap):
+        cr.get_cmap(bad_cmap)
+
+    # check TypeError on bad type
+    with pytest.raises(TypeError, match='object'):
+        cr.get_cmap(object())
 
 
 def test_double_register_builtin_cmap():
@@ -89,19 +142,22 @@ def test_double_register_builtin_cmap():
     match = f"Re-registering the builtin cmap {name!r}."
     with pytest.raises(ValueError, match=match):
         matplotlib.colormaps.register(
-            cm.get_cmap(name), name=name, force=True
+            mpl.colormaps[name], name=name, force=True
         )
     with pytest.raises(ValueError, match='A colormap named "viridis"'):
-        cm.register_cmap(name, cm.get_cmap(name))
+        with pytest.warns(mpl.MatplotlibDeprecationWarning):
+            cm.register_cmap(name, mpl.colormaps[name])
     with pytest.warns(UserWarning):
-        cm.register_cmap(name, cm.get_cmap(name), override_builtin=True)
+        # TODO is warning more than once!
+        cm.register_cmap(name, mpl.colormaps[name], override_builtin=True)
 
 
 def test_unregister_builtin_cmap():
     name = "viridis"
     match = f'cannot unregister {name!r} which is a builtin colormap.'
     with pytest.raises(ValueError, match=match):
-        cm.unregister_cmap(name)
+        with pytest.warns(mpl.MatplotlibDeprecationWarning):
+            cm.unregister_cmap(name)
 
 
 def test_colormap_copy():
@@ -127,7 +183,7 @@ def test_colormap_copy():
 
 
 def test_colormap_equals():
-    cmap = plt.get_cmap("plasma")
+    cmap = mpl.colormaps["plasma"]
     cm_copy = cmap.copy()
     # different object id's
     assert cm_copy is not cmap
@@ -139,10 +195,10 @@ def test_colormap_equals():
     # Make sure we can compare different sizes without failure
     cm_copy._lut = cm_copy._lut[:10, :]
     assert cm_copy != cmap
-    # Test different names are not equal
+    # Test different names are equal if the lookup table is the same
     cm_copy = cmap.copy()
     cm_copy.name = "Test"
-    assert cm_copy != cmap
+    assert cm_copy == cmap
     # Test colorbar extends
     cm_copy = cmap.copy()
     cm_copy.colorbar_extend = not cmap.colorbar_extend
@@ -155,12 +211,12 @@ def test_colormap_endian():
     mapping of 1.0 when input from a non-native-byteorder
     array.
     """
-    cmap = cm.get_cmap("jet")
+    cmap = mpl.colormaps["jet"]
     # Test under, over, and invalid along with values 0 and 1.
     a = [-0.5, 0, 0.5, 1, 1.5, np.nan]
     for dt in ["f2", "f4", "f8"]:
         anative = np.ma.masked_invalid(np.array(a, dtype=dt))
-        aforeign = anative.byteswap().newbyteorder()
+        aforeign = anative.byteswap().view(anative.dtype.newbyteorder())
         assert_array_equal(cmap(anative), cmap(aforeign))
 
 
@@ -170,7 +226,7 @@ def test_colormap_invalid():
     rather than bad. This tests to make sure all invalid values
     (-inf, nan, inf) are mapped respectively to (under, bad, over).
     """
-    cmap = cm.get_cmap("plasma")
+    cmap = mpl.colormaps["plasma"]
     x = np.array([-np.inf, -1, 0, np.nan, .7, 2, np.inf])
 
     expected = np.array([[0.050383, 0.029803, 0.527975, 1.],
@@ -195,7 +251,7 @@ def test_colormap_invalid():
     # Test scalar representations
     assert_array_equal(cmap(-np.inf), cmap(0))
     assert_array_equal(cmap(np.inf), cmap(1.0))
-    assert_array_equal(cmap(np.nan), np.array([0., 0., 0., 0.]))
+    assert_array_equal(cmap(np.nan), [0., 0., 0., 0.])
 
 
 def test_colormap_return_types():
@@ -203,7 +259,7 @@ def test_colormap_return_types():
     Make sure that tuples are returned for scalar input and
     that the proper shapes are returned for ndarrays.
     """
-    cmap = cm.get_cmap("plasma")
+    cmap = mpl.colormaps["plasma"]
     # Test return types and shapes
     # scalar input needs to return a tuple of length 4
     assert isinstance(cmap(0.5), tuple)
@@ -283,7 +339,7 @@ def test_BoundaryNorm():
 
     # Masked arrays
     boundaries = [0, 1.1, 2.2]
-    vals = np.ma.masked_invalid([-1., np.NaN, 0, 1.4, 9])
+    vals = np.ma.masked_invalid([-1., np.nan, 0, 1.4, 9])
 
     # Without interpolation
     ncolors = len(boundaries) - 1
@@ -297,9 +353,9 @@ def test_BoundaryNorm():
     assert_array_equal(bn(vals), expected)
 
     # Non-trivial masked arrays
-    vals = np.ma.masked_invalid([np.Inf, np.NaN])
+    vals = np.ma.masked_invalid([np.inf, np.nan])
     assert np.all(bn(vals).mask)
-    vals = np.ma.masked_invalid([np.Inf])
+    vals = np.ma.masked_invalid([np.inf])
     assert np.all(bn(vals).mask)
 
     # Incompatible extend and clip
@@ -318,7 +374,7 @@ def test_BoundaryNorm():
 
     # Testing extend keyword, with interpolation (large cmap)
     bounds = [1, 2, 3]
-    cmap = cm.get_cmap('viridis')
+    cmap = mpl.colormaps['viridis']
     mynorm = mcolors.BoundaryNorm(bounds, cmap.N, extend='both')
     refnorm = mcolors.BoundaryNorm([0] + bounds + [4], cmap.N)
     x = np.random.randn(100) * 10 + 2
@@ -437,11 +493,25 @@ def test_CenteredNorm():
     norm(np.linspace(-1.0, 0.0, 10))
     assert norm.vmax == 1.0
     assert norm.halfrange == 1.0
-    # set vcenter to 1, which should double halfrange
+    # set vcenter to 1, which should move the center but leave the
+    # halfrange unchanged
     norm.vcenter = 1
-    assert norm.vmin == -1.0
-    assert norm.vmax == 3.0
-    assert norm.halfrange == 2.0
+    assert norm.vmin == 0
+    assert norm.vmax == 2
+    assert norm.halfrange == 1
+
+    # Check setting vmin directly updates the halfrange and vmax, but
+    # leaves vcenter alone
+    norm.vmin = -1
+    assert norm.halfrange == 2
+    assert norm.vmax == 3
+    assert norm.vcenter == 1
+
+    # also check vmax updates
+    norm.vmax = 2
+    assert norm.halfrange == 1
+    assert norm.vmin == 0
+    assert norm.vcenter == 1
 
 
 @pytest.mark.parametrize("vmin,vmax", [[-1, 2], [3, 1]])
@@ -476,6 +546,9 @@ def test_LogNorm_inverse():
 
 
 def test_PowerNorm():
+    # Check an exponent of 1 gives same results as a normal linear
+    # normalization. Also implicitly checks that vmin/vmax are
+    # automatically initialized from first array input.
     a = np.array([0, 0.5, 1, 1.5], dtype=float)
     pnorm = mcolors.PowerNorm(1)
     norm = mcolors.Normalize()
@@ -492,18 +565,21 @@ def test_PowerNorm():
     # Clip = True
     a = np.array([-0.5, 0, 1, 8, 16], dtype=float)
     expected = [0, 0, 0, 1, 1]
+    # Clip = True when creating the norm
     pnorm = mcolors.PowerNorm(2, vmin=2, vmax=8, clip=True)
     assert_array_almost_equal(pnorm(a), expected)
     assert pnorm(a[0]) == expected[0]
     assert pnorm(a[-1]) == expected[-1]
-
     # Clip = True at call time
-    a = np.array([-0.5, 0, 1, 8, 16], dtype=float)
-    expected = [0, 0, 0, 1, 1]
     pnorm = mcolors.PowerNorm(2, vmin=2, vmax=8, clip=False)
     assert_array_almost_equal(pnorm(a, clip=True), expected)
     assert pnorm(a[0], clip=True) == expected[0]
     assert pnorm(a[-1], clip=True) == expected[-1]
+
+    # Check clip=True preserves masked values
+    a = np.ma.array([5, 2], mask=[True, False])
+    out = pnorm(a, clip=True)
+    assert_array_equal(out.mask, [True, False])
 
 
 def test_PowerNorm_translation_invariance():
@@ -526,7 +602,7 @@ def test_Normalize():
     # i.e. 127-(-128) here).
     vals = np.array([-128, 127], dtype=np.int8)
     norm = mcolors.Normalize(vals.min(), vals.max())
-    assert_array_equal(np.asarray(norm(vals)), [0, 1])
+    assert_array_equal(norm(vals), [0, 1])
 
     # Don't lose precision on longdoubles (float128 on Linux):
     # for array inputs...
@@ -539,7 +615,7 @@ def test_Normalize():
     norm = plt.Normalize(1, 1 + 100 * eps)
     # This returns exactly 0.5 when longdouble is extended precision (80-bit),
     # but only a value close to it when it is quadruple precision (128-bit).
-    np.testing.assert_array_almost_equal_nulp(norm(1 + 50 * eps), 0.5)
+    assert_array_almost_equal(norm(1 + 50 * eps), 0.5, decimal=3)
 
 
 def test_FuncNorm():
@@ -596,16 +672,16 @@ def test_TwoSlopeNorm_scale():
 def test_TwoSlopeNorm_scaleout_center():
     # test the vmin never goes above vcenter
     norm = mcolors.TwoSlopeNorm(vcenter=0)
-    norm([1, 2, 3, 5])
-    assert norm.vmin == 0
+    norm([0, 1, 2, 3, 5])
+    assert norm.vmin == -5
     assert norm.vmax == 5
 
 
 def test_TwoSlopeNorm_scaleout_center_max():
     # test the vmax never goes below vcenter
     norm = mcolors.TwoSlopeNorm(vcenter=0)
-    norm([-1, -2, -3, -5])
-    assert norm.vmax == 0
+    norm([0, -1, -2, -3, -5])
+    assert norm.vmax == 5
     assert norm.vmin == -5
 
 
@@ -789,7 +865,7 @@ def test_boundarynorm_and_colorbarbase():
 
     # Set the colormap and bounds
     bounds = [-1, 2, 5, 7, 12, 15]
-    cmap = cm.get_cmap('viridis')
+    cmap = mpl.colormaps['viridis']
 
     # Default behavior
     norm = mcolors.BoundaryNorm(bounds, cmap.N)
@@ -859,8 +935,8 @@ def test_cmap_and_norm_from_levels_and_colors2():
             else:
                 d_val = [d_val]
             assert_array_equal(expected_color, cmap(norm(d_val))[0],
-                               'Wih extend={0!r} and data '
-                               'value={1!r}'.format(extend, d_val))
+                               f'With extend={extend!r} and data '
+                               f'value={d_val!r}')
 
     with pytest.raises(ValueError):
         mcolors.from_levels_and_colors(levels, colors)
@@ -886,7 +962,7 @@ def test_autoscale_masked():
 @image_comparison(['light_source_shading_topo.png'])
 def test_light_source_topo_surface():
     """Shades a DEM using different v.e.'s and blend modes."""
-    dem = cbook.get_sample_data('jacksboro_fault_dem.npz', np_load=True)
+    dem = cbook.get_sample_data('jacksboro_fault_dem.npz')
     elev = dem['elevation']
     dx, dy = dem['dx'], dem['dy']
     # Get the true cellsize in meters for accurate vertical exaggeration
@@ -1050,7 +1126,7 @@ def test_light_source_hillshading():
 
         intensity = np.tensordot(normals, illum, axes=(2, 0))
         intensity -= intensity.min()
-        intensity /= intensity.ptp()
+        intensity /= np.ptp(intensity)
         return intensity
 
     y, x = np.mgrid[5:0:-1, :5]
@@ -1134,13 +1210,13 @@ def test_pandas_iterable(pd):
     assert_array_equal(cm1.colors, cm2.colors)
 
 
-@pytest.mark.parametrize('name', sorted(plt.colormaps()))
+@pytest.mark.parametrize('name', sorted(mpl.colormaps()))
 def test_colormap_reversing(name):
     """
     Check the generated _lut data of a colormap and corresponding reversed
     colormap if they are almost the same.
     """
-    cmap = plt.get_cmap(name)
+    cmap = mpl.colormaps[name]
     cmap_r = cmap.reversed()
     if not cmap_r._isinit:
         cmap._init()
@@ -1222,6 +1298,11 @@ def test_to_rgba_array_single_str():
         array = mcolors.to_rgba_array("rgb")
 
 
+def test_to_rgba_array_2tuple_str():
+    expected = np.array([[0, 0, 0, 1], [1, 1, 1, 1]])
+    assert_array_equal(mcolors.to_rgba_array(("k", "w")), expected)
+
+
 def test_to_rgba_array_alpha_array():
     with pytest.raises(ValueError, match="The number of colors must match"):
         mcolors.to_rgba_array(np.ones((5, 3), float), alpha=np.ones((2,)))
@@ -1230,6 +1311,93 @@ def test_to_rgba_array_alpha_array():
     assert_array_equal(c[:, 3], alpha)
     c = mcolors.to_rgba_array(['r', 'g'], alpha=alpha)
     assert_array_equal(c[:, 3], alpha)
+
+
+def test_to_rgba_array_accepts_color_alpha_tuple():
+    assert_array_equal(
+        mcolors.to_rgba_array(('black', 0.9)),
+        [[0, 0, 0, 0.9]])
+
+
+def test_to_rgba_array_explicit_alpha_overrides_tuple_alpha():
+    assert_array_equal(
+        mcolors.to_rgba_array(('black', 0.9), alpha=0.5),
+        [[0, 0, 0, 0.5]])
+
+
+def test_to_rgba_array_accepts_color_alpha_tuple_with_multiple_colors():
+    color_array = np.array([[1., 1., 1., 1.], [0., 0., 1., 0.]])
+    assert_array_equal(
+        mcolors.to_rgba_array((color_array, 0.2)),
+        [[1., 1., 1., 0.2], [0., 0., 1., 0.2]])
+
+    color_sequence = [[1., 1., 1., 1.], [0., 0., 1., 0.]]
+    assert_array_equal(
+        mcolors.to_rgba_array((color_sequence, 0.4)),
+        [[1., 1., 1., 0.4], [0., 0., 1., 0.4]])
+
+
+def test_to_rgba_array_error_with_color_invalid_alpha_tuple():
+    with pytest.raises(ValueError, match="'alpha' must be between 0 and 1,"):
+        mcolors.to_rgba_array(('black', 2.0))
+
+
+@pytest.mark.parametrize('rgba_alpha',
+                         [('white', 0.5), ('#ffffff', 0.5), ('#ffffff00', 0.5),
+                          ((1.0, 1.0, 1.0, 1.0), 0.5)])
+def test_to_rgba_accepts_color_alpha_tuple(rgba_alpha):
+    assert mcolors.to_rgba(rgba_alpha) == (1, 1, 1, 0.5)
+
+
+def test_to_rgba_explicit_alpha_overrides_tuple_alpha():
+    assert mcolors.to_rgba(('red', 0.1), alpha=0.9) == (1, 0, 0, 0.9)
+
+
+def test_to_rgba_error_with_color_invalid_alpha_tuple():
+    with pytest.raises(ValueError, match="'alpha' must be between 0 and 1"):
+        mcolors.to_rgba(('blue', 2.0))
+
+
+@pytest.mark.parametrize("bytes", (True, False))
+def test_scalarmappable_to_rgba(bytes):
+    sm = cm.ScalarMappable()
+    alpha_1 = 255 if bytes else 1
+
+    # uint8 RGBA
+    x = np.ones((2, 3, 4), dtype=np.uint8)
+    expected = x.copy() if bytes else x.astype(np.float32)/255
+    np.testing.assert_array_equal(sm.to_rgba(x, bytes=bytes), expected)
+    # uint8 RGB
+    expected[..., 3] = alpha_1
+    np.testing.assert_array_equal(sm.to_rgba(x[..., :3], bytes=bytes), expected)
+    # uint8 masked RGBA
+    xm = np.ma.masked_array(x, mask=np.zeros_like(x))
+    xm.mask[0, 0, 0] = True
+    expected = x.copy() if bytes else x.astype(np.float32)/255
+    expected[0, 0, 3] = 0
+    np.testing.assert_array_equal(sm.to_rgba(xm, bytes=bytes), expected)
+    # uint8 masked RGB
+    expected[..., 3] = alpha_1
+    expected[0, 0, 3] = 0
+    np.testing.assert_array_equal(sm.to_rgba(xm[..., :3], bytes=bytes), expected)
+
+    # float RGBA
+    x = np.ones((2, 3, 4), dtype=float) * 0.5
+    expected = (x * 255).astype(np.uint8) if bytes else x.copy()
+    np.testing.assert_array_equal(sm.to_rgba(x, bytes=bytes), expected)
+    # float RGB
+    expected[..., 3] = alpha_1
+    np.testing.assert_array_equal(sm.to_rgba(x[..., :3], bytes=bytes), expected)
+    # float masked RGBA
+    xm = np.ma.masked_array(x, mask=np.zeros_like(x))
+    xm.mask[0, 0, 0] = True
+    expected = (x * 255).astype(np.uint8) if bytes else x.copy()
+    expected[0, 0, 3] = 0
+    np.testing.assert_array_equal(sm.to_rgba(xm, bytes=bytes), expected)
+    # float masked RGB
+    expected[..., 3] = alpha_1
+    expected[0, 0, 3] = 0
+    np.testing.assert_array_equal(sm.to_rgba(xm[..., :3], bytes=bytes), expected)
 
 
 def test_failed_conversions():
@@ -1268,7 +1436,7 @@ def test_ndarray_subclass_norm():
     # which objects when adding or subtracting with other
     # arrays. See #6622 and #8696
     class MyArray(np.ndarray):
-        def __isub__(self, other):
+        def __isub__(self, other):  # type: ignore
             raise RuntimeError
 
         def __add__(self, other):
@@ -1307,7 +1475,7 @@ def test_hex_shorthand_notation():
 
 
 def test_repr_png():
-    cmap = plt.get_cmap('viridis')
+    cmap = mpl.colormaps['viridis']
     png = cmap._repr_png_()
     assert len(png) > 0
     img = Image.open(BytesIO(png))
@@ -1320,7 +1488,7 @@ def test_repr_png():
 
 
 def test_repr_html():
-    cmap = plt.get_cmap('viridis')
+    cmap = mpl.colormaps['viridis']
     html = cmap._repr_html_()
     assert len(html) > 0
     png = cmap._repr_png_()
@@ -1331,7 +1499,7 @@ def test_repr_html():
 
 
 def test_get_under_over_bad():
-    cmap = plt.get_cmap('viridis')
+    cmap = mpl.colormaps['viridis']
     assert_array_equal(cmap.get_under(), cmap(-np.inf))
     assert_array_equal(cmap.get_over(), cmap(np.inf))
     assert_array_equal(cmap.get_bad(), cmap(np.nan))
@@ -1339,7 +1507,7 @@ def test_get_under_over_bad():
 
 @pytest.mark.parametrize('kind', ('over', 'under', 'bad'))
 def test_non_mutable_get_values(kind):
-    cmap = copy.copy(plt.get_cmap('viridis'))
+    cmap = copy.copy(mpl.colormaps['viridis'])
     init_value = getattr(cmap, f'get_{kind}')()
     getattr(cmap, f'set_{kind}')('k')
     black_value = getattr(cmap, f'get_{kind}')()
@@ -1348,7 +1516,7 @@ def test_non_mutable_get_values(kind):
 
 
 def test_colormap_alpha_array():
-    cmap = plt.get_cmap('viridis')
+    cmap = mpl.colormaps['viridis']
     vals = [-1, 0.5, 2]  # under, valid, over
     with pytest.raises(ValueError, match="alpha is array-like but"):
         cmap(vals, alpha=[1, 1, 1, 1])
@@ -1360,7 +1528,7 @@ def test_colormap_alpha_array():
 
 
 def test_colormap_bad_data_with_alpha():
-    cmap = plt.get_cmap('viridis')
+    cmap = mpl.colormaps['viridis']
     c = cmap(np.nan, alpha=0.5)
     assert c == (0, 0, 0, 0)
     c = cmap([0.5, np.nan], alpha=0.5)
@@ -1384,7 +1552,7 @@ def test_set_dict_to_rgba():
     # downstream libraries do this...
     # note we can't test this because it is not well-ordered
     # so just smoketest:
-    colors = set([(0, .5, 1), (1, .2, .5), (.4, 1, .2)])
+    colors = {(0, .5, 1), (1, .2, .5), (.4, 1, .2)}
     res = mcolors.to_rgba_array(colors)
     palette = {"red": (1, 0, 0), "green": (0, 1, 0), "blue": (0, 0, 1)}
     res = mcolors.to_rgba_array(palette.values())
@@ -1423,6 +1591,11 @@ def test_norm_callback():
     assert increment.call_count == 2
     norm.vmax = 5
     assert increment.call_count == 2
+
+    # We only want autoscale() calls to send out one update signal
+    increment.call_count = 0
+    norm.autoscale([0, 1, 2])
+    assert increment.call_count == 1
 
 
 def test_scalarmappable_norm_update():
@@ -1515,3 +1688,23 @@ def test_color_sequences():
     plt.color_sequences.unregister('rgb')  # multiple unregisters are ok
     with pytest.raises(ValueError, match="Cannot unregister builtin"):
         plt.color_sequences.unregister('tab10')
+
+
+def test_cm_set_cmap_error():
+    sm = cm.ScalarMappable()
+    # Pick a name we are pretty sure will never be a colormap name
+    bad_cmap = 'AardvarksAreAwkward'
+    with pytest.raises(ValueError, match=bad_cmap):
+        sm.set_cmap(bad_cmap)
+
+
+def test_set_cmap_mismatched_name():
+    cmap = matplotlib.colormaps["viridis"].with_extremes(over='r')
+    # register it with different names
+    cmap.name = "test-cmap"
+    matplotlib.colormaps.register(name='wrong-cmap', cmap=cmap)
+
+    plt.set_cmap("wrong-cmap")
+    cmap_returned = plt.get_cmap("wrong-cmap")
+    assert cmap_returned == cmap
+    assert cmap_returned.name == "wrong-cmap"

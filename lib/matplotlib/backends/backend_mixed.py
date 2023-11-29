@@ -19,7 +19,7 @@ class MixedModeRenderer:
         """
         Parameters
         ----------
-        figure : `matplotlib.figure.Figure`
+        figure : `~matplotlib.figure.Figure`
             The figure instance.
         width : scalar
             The width of the canvas in logical units
@@ -27,11 +27,11 @@ class MixedModeRenderer:
             The height of the canvas in logical units
         dpi : float
             The dpi of the canvas
-        vector_renderer : `matplotlib.backend_bases.RendererBase`
+        vector_renderer : `~matplotlib.backend_bases.RendererBase`
             An instance of a subclass of
             `~matplotlib.backend_bases.RendererBase` that will be used for the
             vector drawing.
-        raster_renderer_class : `matplotlib.backend_bases.RendererBase`
+        raster_renderer_class : `~matplotlib.backend_bases.RendererBase`
             The renderer class to use for the raster drawing.  If not provided,
             this will use the Agg backend (which is currently the only viable
             option anyway.)
@@ -53,7 +53,7 @@ class MixedModeRenderer:
         # the figure dpi before and after the rasterization. Although
         # this looks ugly, I couldn't find a better solution. -JJL
         self.figure = figure
-        self._figdpi = figure.get_dpi()
+        self._figdpi = figure.dpi
 
         self._bbox_inches_restore = bbox_inches_restore
 
@@ -74,7 +74,7 @@ class MixedModeRenderer:
         `stop_rasterizing` is called) will be drawn with the raster backend.
         """
         # change the dpi of the figure temporarily.
-        self.figure.set_dpi(self.dpi)
+        self.figure.dpi = self.dpi
         if self._bbox_inches_restore:  # when tight bbox is used
             r = process_figure_for_rasterizing(self.figure,
                                                self._bbox_inches_restore)
@@ -110,7 +110,7 @@ class MixedModeRenderer:
         self._raster_renderer = None
 
         # restore the figure dpi.
-        self.figure.set_dpi(self._figdpi)
+        self.figure.dpi = self._figdpi
 
         if self._bbox_inches_restore:  # when tight bbox is used
             r = process_figure_for_rasterizing(self.figure,

@@ -1,11 +1,11 @@
 import ctypes
 
 from .backend_cairo import cairo, FigureCanvasCairo
-from .backend_qt import QtCore, QtGui, _BackendQT, FigureCanvasQT
-from .qt_compat import QT_API, _enum, _setDevicePixelRatio
+from .backend_qt import _BackendQT, FigureCanvasQT
+from .qt_compat import QT_API, QtCore, QtGui
 
 
-class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
+class FigureCanvasQTCairo(FigureCanvasCairo, FigureCanvasQT):
     def draw(self):
         if hasattr(self._renderer.gc, "ctx"):
             self._renderer.dpi = self.figure.dpi
@@ -17,8 +17,7 @@ class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
         height = int(self.device_pixel_ratio * self.height())
         if (width, height) != self._renderer.get_canvas_width_height():
             surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-            self._renderer.set_ctx_from_surface(surface)
-            self._renderer.set_width_height(width, height)
+            self._renderer.set_context(cairo.Context(surface))
             self._renderer.dpi = self.figure.dpi
             self.figure.draw(self._renderer)
         buf = self._renderer.gc.ctx.get_target().get_data()
@@ -29,13 +28,12 @@ class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
             ptr = buf
         qimage = QtGui.QImage(
             ptr, width, height,
-            _enum("QtGui.QImage.Format").Format_ARGB32_Premultiplied)
+            QtGui.QImage.Format.Format_ARGB32_Premultiplied)
         # Adjust the buf reference count to work around a memory leak bug in
         # QImage under PySide.
-        if QT_API in ('PySide', 'PySide2'):
-            if QtCore.__version_info__ < (5, 12):
-                ctypes.c_long.from_address(id(buf)).value = 1
-        _setDevicePixelRatio(qimage, self.device_pixel_ratio)
+        if QT_API == "PySide2" and QtCore.__version_info__ < (5, 12):
+            ctypes.c_long.from_address(id(buf)).value = 1
+        qimage.setDevicePixelRatio(self.device_pixel_ratio)
         painter = QtGui.QPainter(self)
         painter.eraseRect(event.rect())
         painter.drawImage(0, 0, qimage)

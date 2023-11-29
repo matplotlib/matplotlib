@@ -7,9 +7,9 @@
    :undoc-members:
    :show-inheritance:
 
-    .. data:: fontManager
+.. data:: fontManager
 
-        The global instance of `FontManager`.
+   The global instance of `FontManager`.
 
 .. autoclass:: FontEntry
    :no-undoc-members:

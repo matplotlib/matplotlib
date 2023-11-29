@@ -8,5 +8,5 @@ Changes for 0.65
   connect and disconnect
 
   Did away with the text methods for angle since they were ambiguous.
-  fontangle could mean fontstyle (obligue, etc) or the rotation of the
+  fontangle could mean fontstyle (oblique, etc) or the rotation of the
   text.  Use style and rotation instead.

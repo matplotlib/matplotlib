@@ -1,17 +1,19 @@
 import difflib
+
 import numpy as np
-import subprocess
 import sys
 from pathlib import Path
 
 import pytest
 
 import matplotlib as mpl
+from matplotlib.testing import subprocess_run_for_testing
 from matplotlib import pyplot as plt
-from matplotlib._api import MatplotlibDeprecationWarning
 
 
 def test_pyplot_up_to_date(tmpdir):
+    pytest.importorskip("black")
+
     gen_script = Path(mpl.__file__).parents[2] / "tools/boilerplate.py"
     if not gen_script.exists():
         pytest.skip("boilerplate.py not found")
@@ -19,8 +21,9 @@ def test_pyplot_up_to_date(tmpdir):
     plt_file = tmpdir.join('pyplot.py')
     plt_file.write_text(orig_contents, 'utf-8')
 
-    subprocess.run([sys.executable, str(gen_script), str(plt_file)],
-                   check=True)
+    subprocess_run_for_testing(
+        [sys.executable, str(gen_script), str(plt_file)],
+        check=True)
     new_contents = plt_file.read_text('utf-8')
 
     if orig_contents != new_contents:
@@ -54,9 +57,9 @@ def test_copy_docstring_and_deprecators(recwarn):
     wrapper_func(None, kwo=None)
     wrapper_func(new=None, kwo=None)
     assert not recwarn
-    with pytest.warns(MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         wrapper_func(old=None)
-    with pytest.warns(MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         wrapper_func(None, None)
 
 
@@ -206,8 +209,7 @@ def test_subplot_replace_projection():
     ax = plt.subplot(1, 2, 1)
     ax1 = plt.subplot(1, 2, 1)
     ax2 = plt.subplot(1, 2, 2)
-    with pytest.warns(MatplotlibDeprecationWarning):
-        ax3 = plt.subplot(1, 2, 1, projection='polar')
+    ax3 = plt.subplot(1, 2, 1, projection='polar')
     ax4 = plt.subplot(1, 2, 1, projection='polar')
     assert ax is not None
     assert ax1 is ax
@@ -215,7 +217,7 @@ def test_subplot_replace_projection():
     assert ax3 is not ax
     assert ax3 is ax4
 
-    assert ax not in fig.axes
+    assert ax in fig.axes
     assert ax2 in fig.axes
     assert ax3 in fig.axes
 
@@ -234,37 +236,13 @@ def test_subplot_kwarg_collision():
     assert ax1 not in plt.gcf().axes
 
 
-def test_gca_kwargs():
+def test_gca():
     # plt.gca() returns an existing axes, unless there were no axes.
     plt.figure()
     ax = plt.gca()
     ax1 = plt.gca()
     assert ax is not None
     assert ax1 is ax
-    plt.close()
-
-    # plt.gca() raises a DeprecationWarning if called with kwargs.
-    plt.figure()
-    with pytest.warns(
-            MatplotlibDeprecationWarning,
-            match=r'Calling gca\(\) with keyword arguments was deprecated'):
-        ax = plt.gca(projection='polar')
-    ax1 = plt.gca()
-    assert ax is not None
-    assert ax1 is ax
-    assert ax1.name == 'polar'
-    plt.close()
-
-    # plt.gca() ignores keyword arguments if an Axes already exists.
-    plt.figure()
-    ax = plt.gca()
-    with pytest.warns(
-            MatplotlibDeprecationWarning,
-            match=r'Calling gca\(\) with keyword arguments was deprecated'):
-        ax1 = plt.gca(projection='polar')
-    assert ax is not None
-    assert ax1 is ax
-    assert ax1.name == 'rectilinear'
     plt.close()
 
 
@@ -367,3 +345,115 @@ def test_set_current_axes_on_subfigure():
     assert plt.gca() != ax
     plt.sca(ax)
     assert plt.gca() == ax
+
+
+def test_pylab_integration():
+    IPython = pytest.importorskip("IPython")
+    mpl.testing.subprocess_run_helper(
+        IPython.start_ipython,
+        "--pylab",
+        "-c",
+        ";".join((
+            "import matplotlib.pyplot as plt",
+            "assert plt._REPL_DISPLAYHOOK == plt._ReplDisplayHook.IPYTHON",
+        )),
+        timeout=60,
+    )
+
+
+def test_doc_pyplot_summary():
+    """Test that pyplot_summary lists all the plot functions."""
+    pyplot_docs = Path(__file__).parent / '../../../doc/api/pyplot_summary.rst'
+    if not pyplot_docs.exists():
+        pytest.skip("Documentation sources not available")
+
+    def extract_documented_functions(lines):
+        """
+        Return a list of all the functions that are mentioned in the
+        autosummary blocks contained in *lines*.
+
+        An autosummary block looks like this::
+
+            .. autosummary::
+               :toctree: _as_gen
+               :template: autosummary.rst
+               :nosignatures:
+
+               plot
+               plot_date
+
+        """
+        functions = []
+        in_autosummary = False
+        for line in lines:
+            if not in_autosummary:
+                if line.startswith(".. autosummary::"):
+                    in_autosummary = True
+            else:
+                if not line or line.startswith("   :"):
+                    # empty line or autosummary parameter
+                    continue
+                if not line[0].isspace():
+                    # no more indentation: end of autosummary block
+                    in_autosummary = False
+                    continue
+                functions.append(line.strip())
+        return functions
+
+    lines = pyplot_docs.read_text().split("\n")
+    doc_functions = set(extract_documented_functions(lines))
+    plot_commands = set(plt._get_pyplot_commands())
+    missing = plot_commands.difference(doc_functions)
+    if missing:
+        raise AssertionError(
+            f"The following pyplot functions are not listed in the "
+            f"documentation. Please add them to doc/api/pyplot_summary.rst: "
+            f"{missing!r}")
+    extra = doc_functions.difference(plot_commands)
+    if extra:
+        raise AssertionError(
+            f"The following functions are listed in the pyplot documentation, "
+            f"but they do not exist in pyplot. "
+            f"Please remove them from doc/api/pyplot_summary.rst: {extra!r}")
+
+
+def test_minor_ticks():
+    plt.figure()
+    plt.plot(np.arange(1, 10))
+    tick_pos, tick_labels = plt.xticks(minor=True)
+    assert np.all(tick_labels == np.array([], dtype=np.float64))
+    assert tick_labels == []
+
+    plt.yticks(ticks=[3.5, 6.5], labels=["a", "b"], minor=True)
+    ax = plt.gca()
+    tick_pos = ax.get_yticks(minor=True)
+    tick_labels = ax.get_yticklabels(minor=True)
+    assert np.all(tick_pos == np.array([3.5, 6.5]))
+    assert [l.get_text() for l in tick_labels] == ['a', 'b']
+
+
+def test_switch_backend_no_close():
+    plt.switch_backend('agg')
+    fig = plt.figure()
+    fig = plt.figure()
+    assert len(plt.get_fignums()) == 2
+    plt.switch_backend('agg')
+    assert len(plt.get_fignums()) == 2
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.switch_backend('svg')
+    assert len(plt.get_fignums()) == 0
+
+
+def figure_hook_example(figure):
+    figure._test_was_here = True
+
+
+def test_figure_hook():
+
+    test_rc = {
+        'figure.hooks': ['matplotlib.tests.test_pyplot:figure_hook_example']
+    }
+    with mpl.rc_context(test_rc):
+        fig = plt.figure()
+
+    assert fig._test_was_here

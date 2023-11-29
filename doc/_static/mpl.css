@@ -1,151 +1,43 @@
-a {
-    color: #11557C;
-    text-decoration: none;
-}
-
-a:hover {
-    color:  #CA7900;
-}
-
-table.highlighttable {
-    margin-left: 0.5em;
-}
-
-table.highlighttable td {
-    padding: 0 0.5em 0 0.5em;
+:root {
+    --pst-color-link: var(--pst-color-primary);
+    --pst-color-link-hover: var(--pst-color-secondary);
+    --sd-color-primary: var(--pst-color-primary);
+    --sd-color-primary-text: var(--pst-color-text-base);
+    --sd-color-secondary: #ee9040;
+    --sd-color-success: #28a745;
+    --sd-color-dark: #323232;
+    --sd-color-danger: #dc3545;
+    --sd-color-light: #c9c9c9;
 }
 
 .simple li>p {
     margin: 0;
 }
 
-div.responsive_screenshots {
-    /* Horizontally centered */
-    display: block;
-    margin: auto;
-
-    /* Do not go beyond 1:1 scale (and ensure a 1x4 tight layout) */
-    max-width: 640px;  /* at most 4 x 1:1 subfig width  */
-    max-height: 120px; /* at most 1 x 1:1 subfig height */
+/* Make announcement an error colour for unreleased documentation, and sticky. */
+#unreleased-message.bd-header-announcement {
+    border-bottom: solid var(--pst-color-danger-highlight);
+    color: var(--pst-color-danger-text);
+    font-weight: var(--pst-admonition-font-weight-heading);
+    position: sticky;
+    top: 0;
+    z-index: 1050;
 }
 
-/* To avoid subfigure parts outside of the responsive_screenshots  */
-/* element (see <https://stackoverflow.com/q/2062258/>)            */
-span.clear_screenshots { clear: left; display: block; }
-
-div.responsive_subfig{
-    float: left;
-    width: 25%;  /* we want 4 subfigs in a row */
-
-    /* Include content, padding and border in width. This should */
-    /* avoid having to use tricks like "width: 24.9999%"         */
-    box-sizing: border-box;
+#unreleased-message.bd-header-announcement:after {
+    background-color: var(--pst-color-danger);
+    opacity: 1;
 }
 
-div.responsive_subfig img {
-    /* Horizontally centered */
-    display: block;
-    margin: auto;
-
-    /* Possible downscaling */
-    max-width: 162px;  /* at most 1 x 1:1 subfig width  */
-    max-height: 139px; /* at most 1 x 1:1 subfig height */
-
-    width: 100%;
+#unreleased-message.bd-header-announcement a {
+    color: var(--pst-color-danger-text);
 }
 
-@media only screen and (max-width: 930px){
-    /* The value of 1000px was handcrafted to provide a more or less */
-    /* smooth transition between the 1x4 and the 2x2 layouts. It is  */
-    /* NB: it is slightly below 1024px: so one should still have a   */
-    /* row in a 1024x768 window                                      */
-
-    div.responsive_screenshots {
-        /* Do not go beyond 1:1 scale (and ensure a 2x2 tight layout) */
-        max-width: 324px;  /* at most 2 x 1:1 subfig width  */
-        max-height: 278px; /* at most 2 x 1:1 subfig height */
-    }
-
-    div.responsive_subfig {
-        width: 50%;  /* we want 2 subfigs in a row */
-    }
+#unreleased-message.bd-header-announcement + .bd-navbar {
+    top: 3rem;  /* Minimum height of announcement header. */
 }
 
-/* bullet boxes on main page */
-div.bullet-box-container {
-    display: flex;
-    flex-wrap: wrap;
-    margin: 1em 0;
-}
-
-div.bullet-box {
-    flex-grow: 1;
-    width: 28%;
-    margin: 0.4em;
-    padding: 0 1em;
-    background: #eff9ff;
-}
-
-div.bullet-box p:first-of-type {
-    font-size: 1.4em;
-    text-align: center;
-}
-
-div.bullet-box ul {
-    padding-left: 1.2em;
-}
-
-div.bullet-box li {
-    padding-left: 0.3em;
-    margin-bottom: 0.3em;
-}
-
-@media only screen and (max-width: 930px){
-    div.bullet-box {
-        flex: 0 0 90%;
-    }
-}
-
-/* community items on main page */
-div.box {
-    display: flex;
-    flex-flow: row wrap;
-}
-
-div.box-item {
-    flex: 0 0 45%;
-    padding: 4px;
-    margin: 8px 12px;
-}
-
-div.box-item img {
-    float: left;
-    width: 30px;
-    height: 30px;
-    fill: #888;
-
-}
-div.box-item p {
-    margin: 0 0 0 50px;
-}
-
-div.box-item ul {
-    margin: 0 0 0 50px;
-    padding-left: 20px;
-}
-
-hr.box-sep {
-    margin: 1em 2em;
-}
-
-@media only screen and (max-width: 930px){
-    div.box-item {
-        flex: 0 0 90%;
-    }
-}
-
-
-/* multi colunm TOC */
+/* multi column TOC */
 .contents ul {
     list-style-type: none;
     padding-left: 2em;
@@ -174,29 +66,6 @@ hr.box-sep {
     font-size: 1.0em;
 }
 
-
-.mpl-button {
-    background: #11557C;
-    font-weight: normal;
-    display: inline-block;
-    padding: 0 1em;
-    line-height: 2.8;
-    font-size: 16px;
-    text-align: center;
-    cursor: pointer;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 6px;
-    z-index: 1;
-    transition: background .25s ease;
-}
-
-.mpl-button:hover, .mpl-button:active, .mpl-button:focus {
-    background: #003c63;
-    outline-color: #003c63;
-}
-
-
 /* Hide red ¶ between the thumbnail and caption in gallery
 
 Due the way that sphinx-gallery floats its captions the perma-link
@@ -212,17 +81,20 @@ does not float with it.
     margin: 5px 2px;
 }
 
+html[data-theme="dark"] .sphx-glr-thumbcontainer {
+    background-color: rgb(63, 63, 63);
+}
+
 /* workaround: the default padding decenters the image inside the frame */
 .sphx-glr-thumbcontainer .figure {
     padding: 0;
 }
 
-/* hide note linking to the download section at the bottom of galleries
- * as suggested in https://github.com/sphinx-gallery/sphinx-gallery/issues/760
+/* hide download buttons in example headers
+ * https://sphinx-gallery.github.io/stable/advanced.html#hide-the-download-buttons-in-the-example-headers
  */
 div.sphx-glr-download-link-note {
-    height: 0px;
-    visibility: hidden;
+    display: none;
 }
 
 /* re-style the download button */
@@ -247,33 +119,88 @@ table.property-table td {
     padding: 4px 10px;
 }
 
-.sidebar-cheatsheets, .sidebar-donate {
-    margin: 2.75rem 0;
-}
-
-.sidebar-donate .mpl-button {
-    /* fix width to width of cheatsheet */
-    width: 210px;
-}
-
-/* Two columns for install code blocks */
-div.twocol {
-    padding-left: 0;
-    padding-right: 0;
-    display: flex;
-    gap: 20px;
-}
-
-div.twocol > div {
-    flex-grow: 1;
-    padding: 0;
-    margin: 0;
-}
-
 /* Fix selection of parameter names; remove when fixed in the theme
  * https://github.com/sphinx-doc/sphinx/pull/9763
  */
 .classifier:before {
     display: inline-block;
     margin: 0 0.5em;
+}
+
+/* Make the code examples in the API reference index the same height. */
+.api-interface-example pre {
+    min-height: 6.5rem;
+}
+
+/* Make inheritance images have a scroll bar if necessary. */
+div.graphviz {
+    border: 1px solid lightgrey;
+    max-height: 50em;
+    overflow: auto;
+}
+img.graphviz.inheritance {
+    max-width: none;
+}
+
+/* Make tables in notes horizontally scrollable if too large. */
+div.wide-table {
+    overflow-x: auto;
+}
+
+div.wide-table table th.stub {
+    background-color: var(--pst-color-background);
+    background-clip: padding-box;
+    left: 0;
+    position: sticky;
+}
+
+.imrot-img {
+    display: flex;
+    margin: auto;
+    max-width:15em;
+    align-self: center;
+  }
+
+  .imrot-cap {
+    text-align: center;
+    font-style: italic;
+    font-size:  large;
+  }
+
+
+.checklist {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.checklist li {
+    margin-left: 24px;
+    padding-left: 23px;
+    margin-right: 6px;
+}
+.checklist li:before {
+    content: "\2610\2001";
+    margin-left: -24px;
+}
+.checklist li p {
+    display: inline;
+}
+
+.sdd.sd-dropdown {
+    box-shadow: none!important;
+}
+
+.sdd.sd-dropdown.sd-card{
+    border-style: solid !important;
+    border-color: var(--pst-color-border) !important;
+    border-width: thin !important;
+    border-radius: .05
+}
+
+.sdd.sd-dropdown .sd-card-header{
+    --pst-sd-dropdown-color: none;
+}
+
+.sdd.sd-dropdown .sd-card-header +.sd-card-body{
+    --pst-sd-dropdown-color: none;
 }

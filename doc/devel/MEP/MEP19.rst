@@ -36,7 +36,7 @@ has a number of shortcomings:
 - build or test products can only be saved from build off of branches
   on the main repo, not pull requests, so it is often difficult to
   "post mortem" analyse what went wrong.  This is particularly
-  frustrating when the failure can not be subsequently reproduced
+  frustrating when the failure cannot be subsequently reproduced
   locally.
 
 - It is not extremely fast.  matplotlib's cpu and memory requirements
@@ -184,9 +184,9 @@ The test framework itself
 
 - We should investigate ways to make it take less time
 
-   - Eliminating redundant tests, if possible
+  - Eliminating redundant tests, if possible
 
-   - General performance improvements to matplotlib will help
+  - General performance improvements to matplotlib will help
 
 - We should be covering more things, particularly more backends
 

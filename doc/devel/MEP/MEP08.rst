@@ -9,7 +9,10 @@
 Status
 ======
 
-**Completed**
+**Superseded**
+
+Current guidelines for style, including usage of pep8 are maintained
+in `our pull request guidelines <https://matplotlib.org/devdocs/devel/coding_guide.html>`_.
 
 We are currently enforcing a sub-set of pep8 on new code contributions.
 

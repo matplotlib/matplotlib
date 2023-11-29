@@ -10,9 +10,9 @@ and your program will (should!) run without error, though no output is
 produced.  This provides a starting point for backend writers; you can
 selectively implement drawing methods (`~.RendererTemplate.draw_path`,
 `~.RendererTemplate.draw_image`, etc.) and slowly see your figure come to life
-instead having to have a full blown implementation before getting any results.
+instead having to have a full-blown implementation before getting any results.
 
-Copy this file to a directory outside of the Matplotlib source tree, somewhere
+Copy this file to a directory outside the Matplotlib source tree, somewhere
 where Python can import it (by adding the directory to your ``sys.path`` or by
 packaging it as a normal Python package); if the backend is importable as
 ``import my.backend`` you can then select it using ::
@@ -63,7 +63,7 @@ class RendererTemplate(RendererBase):
     # relative timings by leaving it out. backend implementers concerned with
     # performance will probably want to implement it
 #     def draw_path_collection(self, gc, master_transform, paths,
-#                              all_transforms, offsets, offsetTrans,
+#                              all_transforms, offsets, offset_trans,
 #                              facecolors, edgecolors, linewidths, linestyles,
 #                              antialiaseds):
 #         pass
@@ -122,7 +122,7 @@ class GraphicsContextTemplate(GraphicsContextBase):
     do the mapping here, you'll need to override several of the setter
     methods.
 
-    The base GraphicsContext stores colors as a RGB tuple on the unit
+    The base GraphicsContext stores colors as an RGB tuple on the unit
     interval, e.g., (0.5, 0.0, 1.0). You may need to map this to colors
     appropriate for your backend.
     """
@@ -136,49 +136,13 @@ class GraphicsContextTemplate(GraphicsContextBase):
 ########################################################################
 
 
-def draw_if_interactive():
-    """
-    For image backends - is not required.
-    For GUI backends - this should be overridden if drawing should be done in
-    interactive python mode.
-    """
-
-
-def show(*, block=None):
-    """
-    For image backends - is not required.
-    For GUI backends - show() is usually the last line of a pyplot script and
-    tells the backend that it is time to draw.  In interactive mode, this
-    should do nothing.
-    """
-    for manager in Gcf.get_all_fig_managers():
-        # do something to display the GUI
-        pass
-
-
-def new_figure_manager(num, *args, FigureClass=Figure, **kwargs):
-    """Create a new figure manager instance."""
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """Create a new figure manager instance for the given figure."""
-    # If a main-level app must be created, this is the usual place to do it
-    # -- see the wx and tk backends for examples (the default implementation
-    # of new_figure_manager defers to new_figure_manager_given_figure, so it
-    # also benefits from this instantiation).  Not all GUIs require explicit
-    # instantiation of a main-level app (e.g., backend_gtk3) for pylab.
-    canvas = FigureCanvasTemplate(figure)
-    manager = FigureManagerTemplate(canvas, num)
-    return manager
-
-
 class FigureManagerTemplate(FigureManagerBase):
     """
     Helper class for pyplot mode, wraps everything up into a neat bundle.
 
-    For non-interactive backends, the base class is sufficient.
+    For non-interactive backends, the base class is sufficient.  For
+    interactive backends, see the documentation of the `.FigureManagerBase`
+    class for the list of methods that can/should be overridden.
     """
 
 
@@ -195,10 +159,13 @@ class FigureCanvasTemplate(FigureCanvasBase):
 
     Attributes
     ----------
-    figure : `matplotlib.figure.Figure`
+    figure : `~matplotlib.figure.Figure`
         A high-level Figure instance
     """
 
+    # The instantiated manager class.  For further customization,
+    # ``FigureManager.create_with_canvas`` can also be overridden; see the
+    # wx-based backends for an example.
     manager_class = FigureManagerTemplate
 
     def draw(self):
@@ -220,8 +187,7 @@ class FigureCanvasTemplate(FigureCanvasBase):
     # you should add it to the class-scope filetypes dictionary as follows:
     filetypes = {**FigureCanvasBase.filetypes, 'foo': 'My magic Foo format'}
 
-    @_api.delete_parameter("3.5", "args")
-    def print_foo(self, filename, *args, **kwargs):
+    def print_foo(self, filename, **kwargs):
         """
         Write out format foo.
 

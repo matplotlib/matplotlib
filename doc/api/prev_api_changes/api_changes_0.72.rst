@@ -6,7 +6,7 @@ Changes for 0.72
   - Line2D, Text, and Patch copy_properties renamed update_from and
     moved into artist base class
 
-  - LineCollecitons.color renamed to LineCollections.set_color for
+  - LineCollections.color renamed to LineCollections.set_color for
     consistency with set/get introspection mechanism,
 
   - pylab figure now defaults to num=None, which creates a new figure

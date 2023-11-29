@@ -1,6 +1,4 @@
-"""
-Displays Agg images in the browser, with interactivity
-"""
+"""Displays Agg images in the browser, with interactivity."""
 # The WebAgg backend is divided into two modules:
 #
 # - `backend_webagg_core.py` contains code necessary to embed a WebAgg
@@ -23,7 +21,8 @@ from PIL import Image
 
 from matplotlib import _api, backend_bases, backend_tools
 from matplotlib.backends import backend_agg
-from matplotlib.backend_bases import _Backend
+from matplotlib.backend_bases import (
+    _Backend, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 
 _log = logging.getLogger(__name__)
 
@@ -154,6 +153,7 @@ class TimerAsyncio(backend_bases.TimerBase):
 
 
 class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
+    manager_class = _api.classproperty(lambda cls: FigureManagerWebAgg)
     _timer_cls = TimerAsyncio
     # Webagg and friends having the right methods, but still
     # having bugs in practice.  Do not advertise that it works until
@@ -162,20 +162,21 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         # Set to True when the renderer contains data that is newer
         # than the PNG buffer.
         self._png_is_old = True
-
         # Set to True by the `refresh` message so that the next frame
         # sent to the clients will be a full frame.
         self._force_full = True
-
+        # The last buffer, for diff mode.
+        self._last_buff = np.empty((0, 0))
         # Store the current image mode so that at any point, clients can
         # request the information. This should be changed by calling
         # self.set_image_mode(mode) so that the notification can be given
         # to the connected clients.
         self._current_image_mode = 'full'
+        # Track mouse events to fill in the x, y position of key events.
+        self._last_mouse_xy = (None, None)
 
     def show(self):
         # show the figure window
@@ -227,17 +228,18 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         if self._png_is_old:
             renderer = self.get_renderer()
 
+            pixels = np.asarray(renderer.buffer_rgba())
             # The buffer is created as type uint32 so that entire
             # pixels can be compared in one numpy call, rather than
             # needing to compare each plane separately.
-            buff = (np.frombuffer(renderer.buffer_rgba(), dtype=np.uint32)
-                    .reshape((renderer.height, renderer.width)))
+            buff = pixels.view(np.uint32).squeeze(2)
 
-            # If any pixels have transparency, we need to force a full
-            # draw as we cannot overlay new on top of old.
-            pixels = buff.view(dtype=np.uint8).reshape(buff.shape + (4,))
-
-            if self._force_full or np.any(pixels[:, :, 3] != 255):
+            if (self._force_full
+                    # If the buffer has changed size we need to do a full draw.
+                    or buff.shape != self._last_buff.shape
+                    # If any pixels have transparency, we need to force a full
+                    # draw as we cannot overlay new on top of old.
+                    or (pixels[:, :, 3] != 255).any()):
                 self.set_image_mode('full')
                 output = buff
             else:
@@ -246,7 +248,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                 output = np.where(diff, buff, 0)
 
             # Store the current buffer so we can compute the next diff.
-            np.copyto(self._last_buff, buff)
+            self._last_buff = buff.copy()
             self._force_full = False
             self._png_is_old = False
 
@@ -255,41 +257,14 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                 Image.fromarray(data).save(png, format="png")
                 return png.getvalue()
 
-    @_api.delete_parameter("3.6", "cleared", alternative="renderer.clear()")
-    def get_renderer(self, cleared=None):
-        # Mirrors super.get_renderer, but caches the old one so that we can do
-        # things such as produce a diff image in get_diff_image.
-        w, h = self.figure.bbox.size.astype(int)
-        key = w, h, self.figure.dpi
-        try:
-            self._lastKey, self._renderer
-        except AttributeError:
-            need_new_renderer = True
-        else:
-            need_new_renderer = (self._lastKey != key)
-
-        if need_new_renderer:
-            self._renderer = backend_agg.RendererAgg(
-                w, h, self.figure.dpi)
-            self._lastKey = key
-            self._last_buff = np.copy(np.frombuffer(
-                self._renderer.buffer_rgba(), dtype=np.uint32
-            ).reshape((self._renderer.height, self._renderer.width)))
-
-        elif cleared:
-            self._renderer.clear()
-
-        return self._renderer
-
     def handle_event(self, event):
         e_type = event['type']
-        handler = getattr(self, 'handle_{0}'.format(e_type),
+        handler = getattr(self, f'handle_{e_type}',
                           self.handle_unknown_event)
         return handler(event)
 
     def handle_unknown_event(self, event):
-        _log.warning('Unhandled message type {0}. {1}'.format(
-                     event['type'], event))
+        _log.warning('Unhandled message type %s. %s', event["type"], event)
 
     def handle_ack(self, event):
         # Network latency tends to decrease if traffic is flowing
@@ -307,40 +282,36 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         x = event['x']
         y = event['y']
         y = self.get_renderer().height - y
-
-        # Javascript button numbers and matplotlib button numbers are
-        # off by 1
+        self._last_mouse_xy = x, y
+        # JavaScript button numbers and Matplotlib button numbers are off by 1.
         button = event['button'] + 1
 
         e_type = event['type']
-        guiEvent = event.get('guiEvent', None)
-        if e_type == 'button_press':
-            self.button_press_event(x, y, button, guiEvent=guiEvent)
+        modifiers = event['modifiers']
+        guiEvent = event.get('guiEvent')
+        if e_type in ['button_press', 'button_release']:
+            MouseEvent(e_type + '_event', self, x, y, button,
+                       modifiers=modifiers, guiEvent=guiEvent)._process()
         elif e_type == 'dblclick':
-            self.button_press_event(x, y, button, dblclick=True,
-                                    guiEvent=guiEvent)
-        elif e_type == 'button_release':
-            self.button_release_event(x, y, button, guiEvent=guiEvent)
-        elif e_type == 'motion_notify':
-            self.motion_notify_event(x, y, guiEvent=guiEvent)
-        elif e_type == 'figure_enter':
-            self.enter_notify_event(xy=(x, y), guiEvent=guiEvent)
-        elif e_type == 'figure_leave':
-            self.leave_notify_event()
+            MouseEvent('button_press_event', self, x, y, button, dblclick=True,
+                       modifiers=modifiers, guiEvent=guiEvent)._process()
         elif e_type == 'scroll':
-            self.scroll_event(x, y, event['step'], guiEvent=guiEvent)
+            MouseEvent('scroll_event', self, x, y, step=event['step'],
+                       modifiers=modifiers, guiEvent=guiEvent)._process()
+        elif e_type == 'motion_notify':
+            MouseEvent(e_type + '_event', self, x, y,
+                       modifiers=modifiers, guiEvent=guiEvent)._process()
+        elif e_type in ['figure_enter', 'figure_leave']:
+            LocationEvent(e_type + '_event', self, x, y,
+                          modifiers=modifiers, guiEvent=guiEvent)._process()
     handle_button_press = handle_button_release = handle_dblclick = \
         handle_figure_enter = handle_figure_leave = handle_motion_notify = \
         handle_scroll = _handle_mouse
 
     def _handle_key(self, event):
-        key = _handle_key(event['key'])
-        e_type = event['type']
-        guiEvent = event.get('guiEvent', None)
-        if e_type == 'key_press':
-            self.key_press_event(key, guiEvent=guiEvent)
-        elif e_type == 'key_release':
-            self.key_release_event(key, guiEvent=guiEvent)
+        KeyEvent(event['type'] + '_event', self,
+                 _handle_key(event['key']), *self._last_mouse_xy,
+                 guiEvent=event.get('guiEvent'))._process()
     handle_key_press = handle_key_release = _handle_key
 
     def handle_toolbar_button(self, event):
@@ -350,7 +321,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     def handle_refresh(self, event):
         figure_label = self.figure.get_label()
         if not figure_label:
-            figure_label = "Figure {0}".format(self.manager.num)
+            figure_label = f"Figure {self.manager.num}"
         self.send_event('figure_label', label=figure_label)
         self._force_full = True
         if self.toolbar:
@@ -370,7 +341,8 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # identical or within a pixel or so).
         self._png_is_old = True
         self.manager.resize(*fig.bbox.size, forward=False)
-        self.resize_event()
+        ResizeEvent('resize_event', self)._process()
+        self.draw_idle()
 
     def handle_send_image_mode(self, event):
         # The client requests notification of what the current image mode is.
@@ -415,11 +387,8 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
         if name_of_method in _ALLOWED_TOOL_ITEMS
     ]
 
-    cursor = _api.deprecate_privatize_attribute("3.5")
-
     def __init__(self, canvas):
         self.message = ''
-        self._cursor = None  # Remove with deprecation.
         super().__init__(canvas)
 
     def set_message(self, message):
@@ -447,13 +416,16 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
 
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0
-        can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
+        can_forward = self._nav_stack._pos < len(self._nav_stack) - 1
         self.canvas.send_event('history_buttons',
                                Back=can_backward, Forward=can_forward)
 
 
 class FigureManagerWebAgg(backend_bases.FigureManagerBase):
+    # This must be None to not break ipympl
+    _toolbar2_class = None
     ToolbarCls = NavigationToolbar2WebAgg
+    _window_title = "Matplotlib"
 
     def __init__(self, canvas, num):
         self.web_sockets = set()
@@ -471,6 +443,10 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
 
     def set_window_title(self, title):
         self._send_event('figure_label', label=title)
+        self._window_title = title
+
+    def get_window_title(self):
+        return self._window_title
 
     # The following methods are specific to FigureManagerWebAgg
 
@@ -510,18 +486,16 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
                 toolitems.append(['', '', '', ''])
             else:
                 toolitems.append([name, tooltip, image, method])
-        output.write("mpl.toolbar_items = {0};\n\n".format(
-            json.dumps(toolitems)))
+        output.write(f"mpl.toolbar_items = {json.dumps(toolitems)};\n\n")
 
         extensions = []
         for filetype, ext in sorted(FigureCanvasWebAggCore.
                                     get_supported_filetypes_grouped().
                                     items()):
             extensions.append(ext[0])
-        output.write("mpl.extensions = {0};\n\n".format(
-            json.dumps(extensions)))
+        output.write(f"mpl.extensions = {json.dumps(extensions)};\n\n")
 
-        output.write("mpl.default_extension = {0};".format(
+        output.write("mpl.default_extension = {};".format(
             json.dumps(FigureCanvasWebAggCore.get_default_filetype())))
 
         if stream is None:

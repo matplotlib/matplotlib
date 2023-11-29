@@ -3,6 +3,7 @@ Tests specific to the lines module.
 """
 
 import itertools
+import platform
 import timeit
 from types import SimpleNamespace
 
@@ -12,6 +13,8 @@ from numpy.testing import assert_array_equal
 import pytest
 
 import matplotlib
+import matplotlib as mpl
+from matplotlib import _path
 import matplotlib.lines as mlines
 from matplotlib.markers import MarkerStyle
 from matplotlib.path import Path
@@ -82,8 +85,23 @@ def test_set_line_coll_dash():
     ax.contour(np.random.randn(20, 30), linestyles=[(0, (3, 3))])
 
 
-@image_comparison(['line_dashes'], remove_text=True)
+def test_invalid_line_data():
+    with pytest.raises(RuntimeError, match='xdata must be'):
+        mlines.Line2D(0, [])
+    with pytest.raises(RuntimeError, match='ydata must be'):
+        mlines.Line2D([], 1)
+
+    line = mlines.Line2D([], [])
+    with pytest.raises(RuntimeError, match='x must be'):
+        line.set_xdata(0)
+    with pytest.raises(RuntimeError, match='y must be'):
+        line.set_ydata(0)
+
+
+@image_comparison(['line_dashes'], remove_text=True, tol=0.002)
 def test_line_dashes():
+    # Tolerance introduced after reordering of floating-point operations
+    # Remove when regenerating the images
     fig, ax = plt.subplots()
 
     ax.plot(range(10), linestyle=(0, (3, 3)), lw=5)
@@ -164,7 +182,9 @@ def test_set_drawstyle():
     assert len(line.get_path().vertices) == len(x)
 
 
-@image_comparison(['line_collection_dashes'], remove_text=True, style='mpl20')
+@image_comparison(
+    ['line_collection_dashes'], remove_text=True, style='mpl20',
+    tol=0.65 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
 def test_set_line_coll_dash_image():
     fig, ax = plt.subplots()
     np.random.seed(0)
@@ -181,7 +201,11 @@ def test_marker_fill_styles():
     x = np.array([0, 9])
     fig, ax = plt.subplots()
 
-    for j, marker in enumerate(mlines.Line2D.filled_markers):
+    # This hard-coded list of markers correspond to an earlier iteration of
+    # MarkerStyle.filled_markers; the value of that attribute has changed but
+    # we kept the old value here to not regenerate the baseline image.
+    # Replace with mlines.Line2D.filled_markers when the image is regenerated.
+    for j, marker in enumerate("ov^<>8sp*hHDdPX"):
         for i, fs in enumerate(mlines.Line2D.fillStyles):
             color = next(colors)
             ax.plot(j * 10 + x, y + i + .5 * (j % 2),
@@ -218,11 +242,12 @@ def test_lw_scaling():
             ax.plot(th, j*np.ones(50) + .1 * lw, linestyle=ls, lw=lw, **sty)
 
 
-def test_nan_is_sorted():
-    line = mlines.Line2D([], [])
-    assert line._is_sorted(np.array([1, 2, 3]))
-    assert line._is_sorted(np.array([1, np.nan, 3]))
-    assert not line._is_sorted([3, 5] + [np.nan] * 100 + [0, 2])
+def test_is_sorted_and_has_non_nan():
+    assert _path.is_sorted_and_has_non_nan(np.array([1, 2, 3]))
+    assert _path.is_sorted_and_has_non_nan(np.array([1, np.nan, 3]))
+    assert not _path.is_sorted_and_has_non_nan([3, 5] + [np.nan] * 100 + [0, 2])
+    n = 2 * mlines.Line2D._subslice_optim_min_size
+    plt.plot([np.nan] * n, range(n))
 
 
 @check_figures_equal()
@@ -296,12 +321,23 @@ def test_marker_as_markerstyle():
     line.set_marker(MarkerStyle("o"))
     fig.canvas.draw()
     # test Path roundtrip
-    triangle1 = Path([[-1., -1.], [1., -1.], [0., 2.], [0., 0.]], closed=True)
+    triangle1 = Path._create_closed([[-1, -1], [1, -1], [0, 2]])
     line2, = ax.plot([1, 3, 2], marker=MarkerStyle(triangle1), ms=22)
     line3, = ax.plot([0, 2, 1], marker=triangle1, ms=22)
 
     assert_array_equal(line2.get_marker().vertices, triangle1.vertices)
     assert_array_equal(line3.get_marker().vertices, triangle1.vertices)
+
+
+@image_comparison(['striped_line.png'], remove_text=True, style='mpl20')
+def test_striped_lines():
+    rng = np.random.default_rng(19680801)
+    _, ax = plt.subplots()
+    ax.plot(rng.uniform(size=12), color='orange', gapcolor='blue',
+            linestyle='--', lw=5, label=' ')
+    ax.plot(rng.uniform(size=12), color='red', gapcolor='black',
+            linestyle=(0, (2, 5, 4, 2)), lw=5, label=' ', alpha=0.5)
+    ax.legend(handlelength=5)
 
 
 @check_figures_equal()
@@ -354,7 +390,7 @@ def test_markevery_prop_cycle(fig_test, fig_ref):
              slice(100, 200, 3), 0.1, 0.3, 1.5,
              (0.0, 0.1), (0.45, 0.1)]
 
-    cmap = plt.get_cmap('jet')
+    cmap = mpl.colormaps['jet']
     colors = cmap(np.linspace(0.2, 0.8, len(cases)))
 
     x = np.linspace(-1, 1)
@@ -370,3 +406,30 @@ def test_markevery_prop_cycle(fig_test, fig_ref):
     ax = fig_test.add_subplot()
     for i, _ in enumerate(cases):
         ax.plot(y - i, 'o-')
+
+
+def test_axline_setters():
+    fig, ax = plt.subplots()
+    line1 = ax.axline((.1, .1), slope=0.6)
+    line2 = ax.axline((.1, .1), (.8, .4))
+    # Testing xy1, xy2 and slope setters.
+    # This should not produce an error.
+    line1.set_xy1(.2, .3)
+    line1.set_slope(2.4)
+    line2.set_xy1(.3, .2)
+    line2.set_xy2(.6, .8)
+    # Testing xy1, xy2 and slope getters.
+    # Should return the modified values.
+    assert line1.get_xy1() == (.2, .3)
+    assert line1.get_slope() == 2.4
+    assert line2.get_xy1() == (.3, .2)
+    assert line2.get_xy2() == (.6, .8)
+    # Testing setting xy2 and slope together.
+    # These test should raise a ValueError
+    with pytest.raises(ValueError,
+                       match="Cannot set an 'xy2' value while 'slope' is set"):
+        line1.set_xy2(.2, .3)
+
+    with pytest.raises(ValueError,
+                       match="Cannot set a 'slope' value while 'xy2' is set"):
+        line2.set_slope(3)

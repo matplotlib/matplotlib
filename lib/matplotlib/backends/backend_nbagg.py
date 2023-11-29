@@ -14,7 +14,7 @@ from IPython.display import display, Javascript, HTML
 
 from matplotlib import is_interactive
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import _Backend, NavigationToolbar2
+from matplotlib.backend_bases import _Backend, CloseEvent, NavigationToolbar2
 from .backend_webagg_core import (
     FigureCanvasWebAggCore, FigureManagerWebAgg, NavigationToolbar2WebAgg)
 from .backend_webagg_core import (  # noqa: F401 # pylint: disable=W0611
@@ -30,7 +30,7 @@ def connection_info():
     result = [
         '{fig} - {socket}'.format(
             fig=(manager.canvas.figure.get_label()
-                 or "Figure {}".format(manager.num)),
+                 or f"Figure {manager.num}"),
             socket=manager.web_sockets)
         for manager in Gcf.get_all_fig_managers()
     ]
@@ -96,6 +96,15 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
         else:
             self.canvas.draw_idle()
         self._shown = True
+        # plt.figure adds an event which makes the figure in focus the active
+        # one. Disable this behaviour, as it results in figures being put as
+        # the active figure after they have been shown, even in non-interactive
+        # mode.
+        if hasattr(self, '_cidgcf'):
+            self.canvas.mpl_disconnect(self._cidgcf)
+        if not is_interactive():
+            from matplotlib._pylab_helpers import Gcf
+            Gcf.figs.pop(self.num, None)
 
     def reshow(self):
         """
@@ -140,7 +149,7 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
                             if socket.is_open()}
 
         if len(self.web_sockets) == 0:
-            self.canvas.close_event()
+            CloseEvent("close_event", self.canvas)._process()
 
     def remove_comm(self, comm_id):
         self.web_sockets = {socket for socket in self.web_sockets
@@ -209,7 +218,7 @@ class CommSocket:
             # The comm is ASCII, so we send the image in base64 encoded data
             # URL form.
             data = b64encode(blob).decode('ascii')
-            data_uri = "data:image/png;base64,{0}".format(data)
+            data_uri = f"data:image/png;base64,{data}"
             self.comm.send({'data': data_uri})
 
     def on_message(self, message):
@@ -232,27 +241,3 @@ class CommSocket:
 class _BackendNbAgg(_Backend):
     FigureCanvas = FigureCanvasNbAgg
     FigureManager = FigureManagerNbAgg
-
-    @staticmethod
-    def show(block=None):
-        ## TODO: something to do when keyword block==False ?
-        from matplotlib._pylab_helpers import Gcf
-
-        managers = Gcf.get_all_fig_managers()
-        if not managers:
-            return
-
-        interactive = is_interactive()
-
-        for manager in managers:
-            manager.show()
-
-            # plt.figure adds an event which makes the figure in focus the
-            # active one. Disable this behaviour, as it results in
-            # figures being put as the active figure after they have been
-            # shown, even in non-interactive mode.
-            if hasattr(manager, '_cidgcf'):
-                manager.canvas.mpl_disconnect(manager._cidgcf)
-
-            if not interactive:
-                Gcf.figs.pop(manager.num, None)

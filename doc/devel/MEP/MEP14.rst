@@ -62,7 +62,7 @@ has a number of shortcomings.
 - It only handles right-to-left languages, and doesn't handle many
   special features of Unicode, such as combining diacriticals.
 - The multiline support is imperfect and only supports manual
-  line-breaking -- it can not break up a paragraph into lines of a
+  line-breaking -- it cannot break up a paragraph into lines of a
   certain length.
 - It also does not handle inline formatting changes in order to
   support something like Markdown, reStructuredText or HTML.  (Though
@@ -78,8 +78,8 @@ number of other projects:
 - `Microsoft DirectWrite`_
 - `Apple Core Text`_
 
-.. _pango: https://www.pango.org/
-.. _harfbuzz: https://www.freedesktop.org/wiki/Software/HarfBuzz/
+.. _pango: https://pango.gnome.org
+.. _harfbuzz: https://github.com/harfbuzz/harfbuzz
 .. _QtTextLayout: https://doc.qt.io/archives/qt-4.8/qtextlayout.html
 .. _Microsoft DirectWrite: https://docs.microsoft.com/en-ca/windows/win32/directwrite/introducing-directwrite
 .. _Apple Core Text: https://developer.apple.com/library/archive/documentation/StringsTextFonts/Conceptual/CoreText_Programming/Overview/Overview.html
@@ -112,7 +112,7 @@ complicated than it seems at first.
 The "built-in" and "usetex" renderers have very different ways of
 handling font selection, given their different technologies.  TeX
 requires the installation of TeX-specific font packages, for example,
-and can not use TrueType fonts directly.  Unfortunately, despite the
+and cannot use TrueType fonts directly.  Unfortunately, despite the
 different semantics for font selection, the same set of font
 properties are used for each.  This is true of both the
 `.FontProperties` class and the font-related `.rcParams` (which
@@ -388,10 +388,10 @@ There are three main pieces to the implementation:
 
 1) Rewriting the freetype wrapper, and removing ttconv.
 
- a) Once (1) is done, as a proof of concept, we can move to the
-    upstream STIX .otf fonts
+   a) Once (1) is done, as a proof of concept, we can move to the
+      upstream STIX .otf fonts
 
- b) Add support for web fonts loaded from a remote URL.  (Enabled by using freetype for font subsetting).
+   b) Add support for web fonts loaded from a remote URL.  (Enabled by using freetype for font subsetting).
 
 2) Refactoring the existing "builtin" and "usetex" code into separate text engines and to follow the API outlined above.
 

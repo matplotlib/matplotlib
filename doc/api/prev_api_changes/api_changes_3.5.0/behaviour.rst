@@ -4,7 +4,7 @@ Behaviour changes
 First argument to ``subplot_mosaic`` renamed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Both `.FigureBase.subplot_mosaic`, and `.pyplot.subplot_mosaic` have had the
+Both `.Figure.subplot_mosaic`, and `.pyplot.subplot_mosaic` have had the
 first positional argument renamed from *layout* to *mosaic*. As we have
 consolidated the *constrained_layout* and *tight_layout* keyword arguments in
 the Figure creation functions of `.pyplot` into a single *layout* keyword
@@ -47,16 +47,16 @@ corresponding ``Axes.add_*`` method.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Historically, it has not been possible to filter
-`.MatplotlibDeprecationWarning`\s by checking for `DeprecationWarning`, since we
-subclass `UserWarning` directly.
+`~matplotlib.MatplotlibDeprecationWarning`\s by checking for
+`DeprecationWarning`, since we subclass `UserWarning` directly.
 
 The decision to not subclass `DeprecationWarning` has to do with a decision
 from core Python in the 2.x days to not show `DeprecationWarning`\s to users.
 However, there is now a more sophisticated filter in place (see
 https://www.python.org/dev/peps/pep-0565/).
 
-Users will now see `.MatplotlibDeprecationWarning` only during interactive
-sessions, and these can be silenced by the standard mechanism:
+Users will now see `~matplotlib.MatplotlibDeprecationWarning` only during
+interactive sessions, and these can be silenced by the standard mechanism:
 
 .. code:: python
 
@@ -132,7 +132,7 @@ consistently exposes all the attributes and methods related to the line marker
 (:ghissue:`11358`). This makes it easy to change the marker features after
 instantiating a legend.
 
-.. code::
+.. code-block:: python
 
     import matplotlib.pyplot as plt
 
@@ -147,7 +147,7 @@ instantiating a legend.
 The former legend handler for Line2D objects has been renamed
 `.HandlerLine2DCompound`. To revert to the previous behaviour, one can use
 
-.. code::
+.. code-block:: python
 
     import matplotlib.legend as mlegend
     from matplotlib.legend_handler import HandlerLine2DCompound

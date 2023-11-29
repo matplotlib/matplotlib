@@ -2,11 +2,12 @@
 Helper classes to adjust the positions of multiple axes at drawing time.
 """
 
+import functools
+
 import numpy as np
 
 import matplotlib as mpl
 from matplotlib import _api
-from matplotlib.axes import SubplotBase
 from matplotlib.gridspec import SubplotSpec
 import matplotlib.transforms as mtransforms
 from . import axes_size as Size
@@ -36,10 +37,11 @@ class Divider:
             Sizes for horizontal division.
         vertical : list of :mod:`~mpl_toolkits.axes_grid1.axes_size`
             Sizes for vertical division.
-        aspect : bool
+        aspect : bool, optional
             Whether overall rectangular area is reduced so that the relative
             part of the horizontal and vertical scales have the same scale.
-        anchor : {'C', 'SW', 'S', 'SE', 'E', 'NE', 'N', 'NW', 'W'}
+        anchor : (float, float) or {'C', 'SW', 'S', 'SE', 'E', 'NE', 'N', \
+'NW', 'W'}, default: 'C'
             Placement of the reduced rectangle, when *aspect* is True.
         """
 
@@ -48,44 +50,17 @@ class Divider:
         self._horizontal = horizontal
         self._vertical = vertical
         self._anchor = anchor
+        self.set_anchor(anchor)
         self._aspect = aspect
         self._xrefindex = 0
         self._yrefindex = 0
         self._locator = None
 
     def get_horizontal_sizes(self, renderer):
-        return [s.get_size(renderer) for s in self.get_horizontal()]
+        return np.array([s.get_size(renderer) for s in self.get_horizontal()])
 
     def get_vertical_sizes(self, renderer):
-        return [s.get_size(renderer) for s in self.get_vertical()]
-
-    @_api.deprecated("3.5")
-    def get_vsize_hsize(self):
-        vsize = Size.AddList(self.get_vertical())
-        hsize = Size.AddList(self.get_horizontal())
-        return vsize, hsize
-
-    @staticmethod
-    def _calc_k(l, total_size):
-
-        rs_sum, as_sum = 0., 0.
-
-        for _rs, _as in l:
-            rs_sum += _rs
-            as_sum += _as
-
-        if rs_sum != 0.:
-            k = (total_size - as_sum) / rs_sum
-            return k
-        else:
-            return 0.
-
-    @staticmethod
-    def _calc_offsets(l, k):
-        offsets = [0.]
-        for _rs, _as in l:
-            offsets.append(offsets[-1] + _rs*k + _as)
-        return offsets
+        return np.array([s.get_size(renderer) for s in self.get_vertical()])
 
     def set_position(self, pos):
         """
@@ -106,7 +81,8 @@ class Divider:
         """
         Parameters
         ----------
-        anchor : (float, float) or {'C', 'SW', 'S', 'SE', 'E', 'NE', ...}
+        anchor : (float, float) or {'C', 'SW', 'S', 'SE', 'E', 'NE', 'N', \
+'NW', 'W'}
             Either an (*x*, *y*) pair of relative coordinates (0 is left or
             bottom, 1 is right or top), 'C' (center), or a cardinal direction
             ('SW', southwest, is bottom left, etc.).
@@ -115,13 +91,18 @@ class Divider:
         --------
         .Axes.set_anchor
         """
-        if len(anchor) != 2:
+        if isinstance(anchor, str):
             _api.check_in_list(mtransforms.Bbox.coefs, anchor=anchor)
+        elif not isinstance(anchor, (tuple, list)) or len(anchor) != 2:
+            raise TypeError("anchor must be str or 2-tuple")
         self._anchor = anchor
 
     def get_anchor(self):
         """Return the anchor."""
         return self._anchor
+
+    def get_subplotspec(self):
+        return None
 
     def set_horizontal(self, h):
         """
@@ -173,20 +154,88 @@ class Divider:
         else:
             return self._locator(ax, renderer).bounds
 
-    def locate(self, nx, ny, nx1=None, ny1=None, axes=None, renderer=None):
+    @staticmethod
+    def _calc_k(sizes, total):
+        # sizes is a (n, 2) array of (rel_size, abs_size); this method finds
+        # the k factor such that sum(rel_size * k + abs_size) == total.
+        rel_sum, abs_sum = sizes.sum(0)
+        return (total - abs_sum) / rel_sum if rel_sum else 0
+
+    @staticmethod
+    def _calc_offsets(sizes, k):
+        # Apply k factors to (n, 2) sizes array of (rel_size, abs_size); return
+        # the resulting cumulative offset positions.
+        return np.cumsum([0, *(sizes @ [k, 1])])
+
+    def new_locator(self, nx, ny, nx1=None, ny1=None):
         """
+        Return an axes locator callable for the specified cell.
+
         Parameters
         ----------
         nx, nx1 : int
             Integers specifying the column-position of the
             cell. When *nx1* is None, a single *nx*-th column is
-            specified. Otherwise location of columns spanning between *nx*
+            specified. Otherwise, location of columns spanning between *nx*
             to *nx1* (but excluding *nx1*-th column) is specified.
+        ny, ny1 : int
+            Same as *nx* and *nx1*, but for row positions.
+        """
+        if nx1 is None:
+            nx1 = nx + 1
+        if ny1 is None:
+            ny1 = ny + 1
+        # append_size("left") adds a new size at the beginning of the
+        # horizontal size lists; this shift transforms e.g.
+        # new_locator(nx=2, ...) into effectively new_locator(nx=3, ...).  To
+        # take that into account, instead of recording nx, we record
+        # nx-self._xrefindex, where _xrefindex is shifted by 1 by each
+        # append_size("left"), and re-add self._xrefindex back to nx in
+        # _locate, when the actual axes position is computed.  Ditto for y.
+        xref = self._xrefindex
+        yref = self._yrefindex
+        locator = functools.partial(
+            self._locate, nx - xref, ny - yref, nx1 - xref, ny1 - yref)
+        locator.get_subplotspec = self.get_subplotspec
+        return locator
+
+    @_api.deprecated(
+        "3.8", alternative="divider.new_locator(...)(ax, renderer)")
+    def locate(self, nx, ny, nx1=None, ny1=None, axes=None, renderer=None):
+        """
+        Implementation of ``divider.new_locator().__call__``.
+
+        Parameters
+        ----------
+        nx, nx1 : int
+            Integers specifying the column-position of the cell. When *nx1* is
+            None, a single *nx*-th column is specified. Otherwise, the
+            location of columns spanning between *nx* to *nx1* (but excluding
+            *nx1*-th column) is specified.
         ny, ny1 : int
             Same as *nx* and *nx1*, but for row positions.
         axes
         renderer
         """
+        xref = self._xrefindex
+        yref = self._yrefindex
+        return self._locate(
+            nx - xref, (nx + 1 if nx1 is None else nx1) - xref,
+            ny - yref, (ny + 1 if ny1 is None else ny1) - yref,
+            axes, renderer)
+
+    def _locate(self, nx, ny, nx1, ny1, axes, renderer):
+        """
+        Implementation of ``divider.new_locator().__call__``.
+
+        The axes locator callable returned by ``new_locator()`` is created as
+        a `functools.partial` of this method with *nx*, *ny*, *nx1*, and *ny1*
+        specifying the requested cell.
+        """
+        nx += self._xrefindex
+        nx1 += self._xrefindex
+        ny += self._yrefindex
+        ny1 += self._yrefindex
 
         fig_w, fig_h = self._fig.bbox.size / self._fig.dpi
         x, y, w, h = self.get_position_runtime(axes, renderer)
@@ -213,43 +262,18 @@ class Divider:
             x0, y0 = x, y
 
         if nx1 is None:
-            _api.warn_deprecated(
-                "3.5", message="Support for passing nx1=None to mean nx+1 is "
-                "deprecated since %(since)s; in a future version, nx1=None "
-                "will mean 'up to the last cell'.")
-            nx1 = nx + 1
+            nx1 = -1
         if ny1 is None:
-            _api.warn_deprecated(
-                "3.5", message="Support for passing ny1=None to mean ny+1 is "
-                "deprecated since %(since)s; in a future version, ny1=None "
-                "will mean 'up to the last cell'.")
-            ny1 = ny + 1
+            ny1 = -1
 
         x1, w1 = x0 + ox[nx] / fig_w, (ox[nx1] - ox[nx]) / fig_w
         y1, h1 = y0 + oy[ny] / fig_h, (oy[ny1] - oy[ny]) / fig_h
 
         return mtransforms.Bbox.from_bounds(x1, y1, w1, h1)
 
-    def new_locator(self, nx, ny, nx1=None, ny1=None):
-        """
-        Return a new `AxesLocator` for the specified cell.
-
-        Parameters
-        ----------
-        nx, nx1 : int
-            Integers specifying the column-position of the
-            cell. When *nx1* is None, a single *nx*-th column is
-            specified. Otherwise location of columns spanning between *nx*
-            to *nx1* (but excluding *nx1*-th column) is specified.
-        ny, ny1 : int
-            Same as *nx* and *nx1*, but for row positions.
-        """
-        return AxesLocator(
-            self, nx, ny,
-            nx1 if nx1 is not None else nx + 1,
-            ny1 if ny1 is not None else ny + 1)
-
     def append_size(self, position, size):
+        _api.check_in_list(["left", "right", "bottom", "top"],
+                           position=position)
         if position == "left":
             self._horizontal.insert(0, size)
             self._xrefindex += 1
@@ -258,11 +282,8 @@ class Divider:
         elif position == "bottom":
             self._vertical.insert(0, size)
             self._yrefindex += 1
-        elif position == "top":
+        else:  # 'top'
             self._vertical.append(size)
-        else:
-            _api.check_in_list(["left", "right", "bottom", "top"],
-                               position=position)
 
     def add_auto_adjustable_area(self, use_axes, pad=0.1, adjust_dirs=None):
         """
@@ -271,9 +292,9 @@ class Divider:
 
         Parameters
         ----------
-        use_axes : `~.axes.Axes` or list of `~.axes.Axes`
+        use_axes : `~matplotlib.axes.Axes` or list of `~matplotlib.axes.Axes`
             The Axes whose decorations are taken into account.
-        pad : float, optional
+        pad : float, default: 0.1
             Additional padding in inches.
         adjust_dirs : list of {"left", "right", "bottom", "top"}, optional
             The sides where padding is added; defaults to all four sides.
@@ -284,21 +305,22 @@ class Divider:
             self.append_size(d, Size._AxesDecorationsSize(use_axes, d) + pad)
 
 
+@_api.deprecated("3.8")
 class AxesLocator:
     """
     A callable object which returns the position and size of a given
-    AxesDivider cell.
+    `.AxesDivider` cell.
     """
 
     def __init__(self, axes_divider, nx, ny, nx1=None, ny1=None):
         """
         Parameters
         ----------
-        axes_divider : AxesDivider
+        axes_divider : `~mpl_toolkits.axes_grid1.axes_divider.AxesDivider`
         nx, nx1 : int
             Integers specifying the column-position of the
             cell. When *nx1* is None, a single *nx*-th column is
-            specified. Otherwise location of columns spanning between *nx*
+            specified. Otherwise, location of columns spanning between *nx*
             to *nx1* (but excluding *nx1*-th column) is specified.
         ny, ny1 : int
             Same as *nx* and *nx1*, but for row positions.
@@ -311,17 +333,9 @@ class AxesLocator:
         self._nx, self._ny = nx - _xrefindex, ny - _yrefindex
 
         if nx1 is None:
-            _api.warn_deprecated(
-                "3.5", message="Support for passing nx1=None to mean nx+1 is "
-                "deprecated since %(since)s; in a future version, nx1=None "
-                "will mean 'up to the last cell'.")
-            nx1 = nx + 1
+            nx1 = len(self._axes_divider)
         if ny1 is None:
-            _api.warn_deprecated(
-                "3.5", message="Support for passing ny1=None to mean ny+1 is "
-                "deprecated since %(since)s; in a future version, ny1=None "
-                "will mean 'up to the last cell'.")
-            ny1 = ny + 1
+            ny1 = len(self._axes_divider[0])
 
         self._nx1 = nx1 - _xrefindex
         self._ny1 = ny1 - _yrefindex
@@ -339,10 +353,7 @@ class AxesLocator:
                                          renderer)
 
     def get_subplotspec(self):
-        if hasattr(self._axes_divider, "get_subplotspec"):
-            return self._axes_divider.get_subplotspec()
-        else:
-            return None
+        return self._axes_divider.get_subplotspec()
 
 
 class SubplotDivider(Divider):
@@ -355,7 +366,7 @@ class SubplotDivider(Divider):
         """
         Parameters
         ----------
-        fig : `matplotlib.figure.Figure`
+        fig : `~matplotlib.figure.Figure`
 
         *args : tuple (*nrows*, *ncols*, *index*) or int
             The array of subplots in the figure has dimensions ``(nrows,
@@ -366,6 +377,16 @@ class SubplotDivider(Divider):
             If *nrows*, *ncols*, and *index* are all single digit numbers, then
             *args* can be passed as a single 3-digit number (e.g. 234 for
             (2, 3, 4)).
+        horizontal : list of :mod:`~mpl_toolkits.axes_grid1.axes_size`, optional
+            Sizes for horizontal division.
+        vertical : list of :mod:`~mpl_toolkits.axes_grid1.axes_size`, optional
+            Sizes for vertical division.
+        aspect : bool, optional
+            Whether overall rectangular area is reduced so that the relative
+            part of the horizontal and vertical scales have the same scale.
+        anchor : (float, float) or {'C', 'SW', 'S', 'SE', 'E', 'NE', 'N', \
+'NW', 'W'}, default: 'C'
+            Placement of the reduced rectangle, when *aspect* is True.
         """
         self.figure = fig
         super().__init__(fig, [0, 0, 1, 1],
@@ -389,7 +410,7 @@ class SubplotDivider(Divider):
 
 class AxesDivider(Divider):
     """
-    Divider based on the pre-existing axes.
+    Divider based on the preexisting axes.
     """
 
     def __init__(self, axes, xref=None, yref=None):
@@ -417,10 +438,7 @@ class AxesDivider(Divider):
     def _get_new_axes(self, *, axes_class=None, **kwargs):
         axes = self._axes
         if axes_class is None:
-            if isinstance(axes, SubplotBase):
-                axes_class = axes._axes_class
-            else:
-                axes_class = type(axes)
+            axes_class = type(axes)
         return axes_class(axes.get_figure(), axes.get_position(original=True),
                           **kwargs)
 
@@ -434,24 +452,17 @@ class AxesDivider(Divider):
         """
         if pad is None:
             pad = mpl.rcParams["figure.subplot.wspace"] * self._xref
+        pos = "left" if pack_start else "right"
         if pad:
             if not isinstance(pad, Size._Base):
                 pad = Size.from_any(pad, fraction_ref=self._xref)
-            if pack_start:
-                self._horizontal.insert(0, pad)
-                self._xrefindex += 1
-            else:
-                self._horizontal.append(pad)
+            self.append_size(pos, pad)
         if not isinstance(size, Size._Base):
             size = Size.from_any(size, fraction_ref=self._xref)
-        if pack_start:
-            self._horizontal.insert(0, size)
-            self._xrefindex += 1
-            locator = self.new_locator(nx=0, ny=self._yrefindex)
-        else:
-            self._horizontal.append(size)
-            locator = self.new_locator(
-                nx=len(self._horizontal) - 1, ny=self._yrefindex)
+        self.append_size(pos, size)
+        locator = self.new_locator(
+            nx=0 if pack_start else len(self._horizontal) - 1,
+            ny=self._yrefindex)
         ax = self._get_new_axes(**kwargs)
         ax.set_axes_locator(locator)
         return ax
@@ -466,31 +477,23 @@ class AxesDivider(Divider):
         """
         if pad is None:
             pad = mpl.rcParams["figure.subplot.hspace"] * self._yref
+        pos = "bottom" if pack_start else "top"
         if pad:
             if not isinstance(pad, Size._Base):
                 pad = Size.from_any(pad, fraction_ref=self._yref)
-            if pack_start:
-                self._vertical.insert(0, pad)
-                self._yrefindex += 1
-            else:
-                self._vertical.append(pad)
+            self.append_size(pos, pad)
         if not isinstance(size, Size._Base):
             size = Size.from_any(size, fraction_ref=self._yref)
-        if pack_start:
-            self._vertical.insert(0, size)
-            self._yrefindex += 1
-            locator = self.new_locator(nx=self._xrefindex, ny=0)
-        else:
-            self._vertical.append(size)
-            locator = self.new_locator(
-                nx=self._xrefindex, ny=len(self._vertical) - 1)
+        self.append_size(pos, size)
+        locator = self.new_locator(
+            nx=self._xrefindex,
+            ny=0 if pack_start else len(self._vertical) - 1)
         ax = self._get_new_axes(**kwargs)
         ax.set_axes_locator(locator)
         return ax
 
-    @_api.delete_parameter("3.5", "add_to_figure", alternative="ax.remove()")
-    def append_axes(self, position, size, pad=None, add_to_figure=True, *,
-                    axes_class=None, **kwargs):
+    def append_axes(self, position, size, pad=None, *, axes_class=None,
+                    **kwargs):
         """
         Add a new axes on a given side of the main axes.
 
@@ -505,30 +508,22 @@ class AxesDivider(Divider):
         pad : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str
             Padding between the axes.  float or str arguments are interpreted
             as for *size*.  Defaults to :rc:`figure.subplot.wspace` times the
-            main axes width (left or right axes) or :rc:`figure.subplot.hspace`
-            times the main axes height (bottom or top axes).
+            main Axes width (left or right axes) or :rc:`figure.subplot.hspace`
+            times the main Axes height (bottom or top axes).
         axes_class : subclass type of `~.axes.Axes`, optional
             The type of the new axes.  Defaults to the type of the main axes.
         **kwargs
             All extra keywords arguments are passed to the created axes.
         """
-        if position == "left":
-            ax = self.new_horizontal(
-                size, pad, pack_start=True, axes_class=axes_class, **kwargs)
-        elif position == "right":
-            ax = self.new_horizontal(
-                size, pad, pack_start=False, axes_class=axes_class, **kwargs)
-        elif position == "bottom":
-            ax = self.new_vertical(
-                size, pad, pack_start=True, axes_class=axes_class, **kwargs)
-        elif position == "top":
-            ax = self.new_vertical(
-                size, pad, pack_start=False, axes_class=axes_class, **kwargs)
-        else:
-            _api.check_in_list(["left", "right", "bottom", "top"],
-                               position=position)
-        if add_to_figure:
-            self._fig.add_axes(ax)
+        create_axes, pack_start = _api.check_getitem({
+            "left": (self.new_horizontal, True),
+            "right": (self.new_horizontal, False),
+            "bottom": (self.new_vertical, True),
+            "top": (self.new_vertical, False),
+        }, position=position)
+        ax = create_axes(
+            size, pad, pack_start=pack_start, axes_class=axes_class, **kwargs)
+        self._fig.add_axes(ax)
         return ax
 
     def get_aspect(self):
@@ -555,56 +550,38 @@ class AxesDivider(Divider):
             return self._anchor
 
     def get_subplotspec(self):
-        if hasattr(self._axes, "get_subplotspec"):
-            return self._axes.get_subplotspec()
-        else:
-            return None
+        return self._axes.get_subplotspec()
 
 
 # Helper for HBoxDivider/VBoxDivider.
 # The variable names are written for a horizontal layout, but the calculations
-# work identically for vertical layouts (and likewise for the helpers below).
-def _determine_karray(summed_widths, equal_heights, total_width, max_height):
-    n = len(equal_heights)
-    eq_rs, eq_as = np.asarray(equal_heights).T
-    sm_rs, sm_as = np.asarray(summed_widths).T
-    A = np.zeros((n + 1, n + 1))
-    B = np.zeros(n + 1)
-    np.fill_diagonal(A[:n, :n], eq_rs)
-    A[:n, -1] = -1
-    A[-1, :-1] = sm_rs
-    B[:n] = -eq_as
-    B[-1] = total_width - sum(sm_as)
-    # A @ K = B: This solves for {k_0, ..., k_{N-1}, H} so that
-    #   eq_r_i * k_i + eq_a_i = H for all i: all axes have the same height
-    #   sum(sm_r_i * k_i + sm_a_i) = total_summed_width: fixed total width
-    # (foo_r_i * k_i + foo_a_i will end up being the size of foo.)
-    karray_and_height = np.linalg.solve(A, B)
-    karray = karray_and_height[:-1]
-    height = karray_and_height[-1]
-    if height > max_height:  # Additionally, upper-bound the height.
-        karray = (max_height - eq_as) / eq_rs
-    return karray
-
-
-# Helper for HBoxDivider/VBoxDivider (see above re: variable naming).
-def _calc_offsets(summed_sizes, karray):
-    offsets = [0.]
-    for (r, a), k in zip(summed_sizes, karray):
-        offsets.append(offsets[-1] + r*k + a)
-    return offsets
-
-
-# Helper for HBoxDivider/VBoxDivider (see above re: variable naming).
+# work identically for vertical layouts.
 def _locate(x, y, w, h, summed_widths, equal_heights, fig_w, fig_h, anchor):
-    karray = _determine_karray(
-        summed_widths, equal_heights,
-        total_width=fig_w * w, max_height=fig_h * h)
-    ox = _calc_offsets(summed_widths, karray)
 
+    total_width = fig_w * w
+    max_height = fig_h * h
+
+    # Determine the k factors.
+    n = len(equal_heights)
+    eq_rels, eq_abss = equal_heights.T
+    sm_rels, sm_abss = summed_widths.T
+    A = np.diag([*eq_rels, 0])
+    A[:n, -1] = -1
+    A[-1, :-1] = sm_rels
+    B = [*(-eq_abss), total_width - sm_abss.sum()]
+    # A @ K = B: This finds factors {k_0, ..., k_{N-1}, H} so that
+    #   eq_rel_i * k_i + eq_abs_i = H for all i: all axes have the same height
+    #   sum(sm_rel_i * k_i + sm_abs_i) = total_width: fixed total width
+    # (foo_rel_i * k_i + foo_abs_i will end up being the size of foo.)
+    *karray, height = np.linalg.solve(A, B)
+    if height > max_height:  # Additionally, upper-bound the height.
+        karray = (max_height - eq_abss) / eq_rels
+
+    # Compute the offsets corresponding to these factors.
+    ox = np.cumsum([0, *(sm_rels * karray + sm_abss)])
     ww = (ox[-1] - ox[0]) / fig_w
-    h0_r, h0_a = equal_heights[0]
-    hh = (karray[0]*h0_r + h0_a) / fig_h
+    h0_rel, h0_abs = equal_heights[0]
+    hh = (karray[0]*h0_rel + h0_abs) / fig_h
     pb = mtransforms.Bbox.from_bounds(x, y, w, h)
     pb1 = mtransforms.Bbox.from_bounds(x, y, ww, hh)
     x0, y0 = pb1.anchored(anchor, pb).p0
@@ -614,7 +591,7 @@ def _locate(x, y, w, h, summed_widths, equal_heights, fig_w, fig_h, anchor):
 
 class HBoxDivider(SubplotDivider):
     """
-    A `SubplotDivider` for laying out axes horizontally, while ensuring that
+    A `.SubplotDivider` for laying out axes horizontally, while ensuring that
     they have equal heights.
 
     Examples
@@ -624,20 +601,22 @@ class HBoxDivider(SubplotDivider):
 
     def new_locator(self, nx, nx1=None):
         """
-        Create a new `AxesLocator` for the specified cell.
+        Create an axes locator callable for the specified cell.
 
         Parameters
         ----------
         nx, nx1 : int
             Integers specifying the column-position of the
             cell. When *nx1* is None, a single *nx*-th column is
-            specified. Otherwise location of columns spanning between *nx*
+            specified. Otherwise, location of columns spanning between *nx*
             to *nx1* (but excluding *nx1*-th column) is specified.
         """
-        return AxesLocator(self, nx, 0, nx1 if nx1 is not None else nx + 1, 1)
+        return super().new_locator(nx, 0, nx1, 0)
 
-    def locate(self, nx, ny, nx1=None, ny1=None, axes=None, renderer=None):
+    def _locate(self, nx, ny, nx1, ny1, axes, renderer):
         # docstring inherited
+        nx += self._xrefindex
+        nx1 += self._xrefindex
         fig_w, fig_h = self._fig.bbox.size / self._fig.dpi
         x, y, w, h = self.get_position_runtime(axes, renderer)
         summed_ws = self.get_horizontal_sizes(renderer)
@@ -645,11 +624,7 @@ class HBoxDivider(SubplotDivider):
         x0, y0, ox, hh = _locate(
             x, y, w, h, summed_ws, equal_hs, fig_w, fig_h, self.get_anchor())
         if nx1 is None:
-            _api.warn_deprecated(
-                "3.5", message="Support for passing nx1=None to mean nx+1 is "
-                "deprecated since %(since)s; in a future version, nx1=None "
-                "will mean 'up to the last cell'.")
-            nx1 = nx + 1
+            nx1 = -1
         x1, w1 = x0 + ox[nx] / fig_w, (ox[nx1] - ox[nx]) / fig_w
         y1, h1 = y0, hh
         return mtransforms.Bbox.from_bounds(x1, y1, w1, h1)
@@ -657,26 +632,28 @@ class HBoxDivider(SubplotDivider):
 
 class VBoxDivider(SubplotDivider):
     """
-    A `SubplotDivider` for laying out axes vertically, while ensuring that they
-    have equal widths.
+    A `.SubplotDivider` for laying out axes vertically, while ensuring that
+    they have equal widths.
     """
 
     def new_locator(self, ny, ny1=None):
         """
-        Create a new `AxesLocator` for the specified cell.
+        Create an axes locator callable for the specified cell.
 
         Parameters
         ----------
         ny, ny1 : int
             Integers specifying the row-position of the
             cell. When *ny1* is None, a single *ny*-th row is
-            specified. Otherwise location of rows spanning between *ny*
+            specified. Otherwise, location of rows spanning between *ny*
             to *ny1* (but excluding *ny1*-th row) is specified.
         """
-        return AxesLocator(self, 0, ny, 1, ny1 if ny1 is not None else ny + 1)
+        return super().new_locator(0, ny, 0, ny1)
 
-    def locate(self, nx, ny, nx1=None, ny1=None, axes=None, renderer=None):
+    def _locate(self, nx, ny, nx1, ny1, axes, renderer):
         # docstring inherited
+        ny += self._yrefindex
+        ny1 += self._yrefindex
         fig_w, fig_h = self._fig.bbox.size / self._fig.dpi
         x, y, w, h = self.get_position_runtime(axes, renderer)
         summed_hs = self.get_vertical_sizes(renderer)
@@ -684,11 +661,7 @@ class VBoxDivider(SubplotDivider):
         y0, x0, oy, ww = _locate(
             y, x, h, w, summed_hs, equal_ws, fig_h, fig_w, self.get_anchor())
         if ny1 is None:
-            _api.warn_deprecated(
-                "3.5", message="Support for passing ny1=None to mean ny+1 is "
-                "deprecated since %(since)s; in a future version, ny1=None "
-                "will mean 'up to the last cell'.")
-            ny1 = ny + 1
+            ny1 = -1
         x1, w1 = x0, ww
         y1, h1 = y0 + oy[ny] / fig_h, (oy[ny1] - oy[ny]) / fig_h
         return mtransforms.Bbox.from_bounds(x1, y1, w1, h1)
@@ -707,7 +680,7 @@ def make_axes_area_auto_adjustable(
     """
     Add auto-adjustable padding around *ax* to take its decorations (title,
     labels, ticks, ticklabels) into account during layout, using
-    `Divider.add_auto_adjustable_area`.
+    `.Divider.add_auto_adjustable_area`.
 
     By default, padding is determined from the decorations of *ax*.
     Pass *use_axes* to consider the decorations of other Axes instead.

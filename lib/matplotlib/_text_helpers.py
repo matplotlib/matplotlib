@@ -9,14 +9,15 @@ from .ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
 
 
 LayoutItem = dataclasses.make_dataclass(
-    "LayoutItem", ["char", "glyph_idx", "x", "prev_kern"])
+    "LayoutItem", ["ft_object", "char", "glyph_idx", "x", "prev_kern"])
 
 
-def warn_on_missing_glyph(codepoint):
+def warn_on_missing_glyph(codepoint, fontnames):
     _api.warn_external(
-        "Glyph {} ({}) missing from current font.".format(
-            codepoint,
-            chr(codepoint).encode("ascii", "namereplace").decode("ascii")))
+        f"Glyph {codepoint} "
+        f"({chr(codepoint).encode('ascii', 'namereplace').decode('ascii')}) "
+        f"missing from font(s) {fontnames}.")
+
     block = ("Hebrew" if 0x0590 <= codepoint <= 0x05ff else
              "Arabic" if 0x0600 <= codepoint <= 0x06ff else
              "Devanagari" if 0x0900 <= codepoint <= 0x097f else
@@ -57,12 +58,18 @@ def layout(string, font, *, kern_mode=KERNING_DEFAULT):
     """
     x = 0
     prev_glyph_idx = None
+    char_to_font = font._get_fontmap(string)
+    base_font = font
     for char in string:
+        # This has done the fallback logic
+        font = char_to_font.get(char, base_font)
         glyph_idx = font.get_char_index(ord(char))
-        kern = (font.get_kerning(prev_glyph_idx, glyph_idx, kern_mode) / 64
-                if prev_glyph_idx is not None else 0.)
+        kern = (
+            base_font.get_kerning(prev_glyph_idx, glyph_idx, kern_mode) / 64
+            if prev_glyph_idx is not None else 0.
+        )
         x += kern
         glyph = font.load_glyph(glyph_idx, flags=LOAD_NO_HINTING)
-        yield LayoutItem(char, glyph_idx, x, kern)
+        yield LayoutItem(font, char, glyph_idx, x, kern)
         x += glyph.linearHoriAdvance / 65536
         prev_glyph_idx = glyph_idx

@@ -232,7 +232,7 @@ Deprecated rcParams validators
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The following validators, defined in `.rcsetup`, are deprecated:
 ``validate_fontset``, ``validate_mathtext_default``, ``validate_alignment``,
-``validate_svg_fontset``, ``validate_pgf_texsystem``,
+``validate_svg_fonttype``, ``validate_pgf_texsystem``,
 ``validate_movie_frame_fmt``, ``validate_axis_locator``,
 ``validate_movie_html_fmt``, ``validate_grid_axis``,
 ``validate_axes_titlelocation``, ``validate_toolbar``,
@@ -273,13 +273,13 @@ mathtext glues
 The *copy* parameter of ``mathtext.Glue`` is deprecated (the underlying glue
 spec is now immutable).  ``mathtext.GlueSpec`` is deprecated.
 
-Signatures of `.Artist.draw` and `.Axes.draw`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The *inframe* parameter to `.Axes.draw` is deprecated.  Use
+Signatures of `.Artist.draw` and `matplotlib.axes.Axes.draw`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The *inframe* parameter to `matplotlib.axes.Axes.draw` is deprecated.  Use
 `.Axes.redraw_in_frame` instead.
 
-Not passing the *renderer* parameter to `.Axes.draw` is deprecated.  Use
-``axes.draw_artist(axes)`` instead.
+Not passing the *renderer* parameter to `matplotlib.axes.Axes.draw` is
+deprecated. Use ``axes.draw_artist(axes)`` instead.
 
 These changes make the signature of the ``draw`` (``artist.draw(renderer)``)
 method consistent across all artists; thus, additional parameters to
@@ -328,7 +328,7 @@ are deprecated.  Panning and zooming are now implemented using the
 
 Passing None to various Axes subclass factories
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Support for passing ``None`` as base class to `.axes.subplot_class_factory`,
+Support for passing ``None`` as base class to ``axes.subplot_class_factory``,
 ``axes_grid1.parasite_axes.host_axes_class_factory``,
 ``axes_grid1.parasite_axes.host_subplot_class_factory``,
 ``axes_grid1.parasite_axes.parasite_axes_class_factory``, and
@@ -545,8 +545,8 @@ experimental and may change in the future.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ... is deprecated.
 
-`.epoch2num` and `.num2epoch` are deprecated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``epoch2num`` and ``num2epoch`` are deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 These are unused and can be easily reproduced by other date tools.
 `.get_epoch` will return Matplotlib's epoch.
 

@@ -2,12 +2,12 @@ import functools
 import logging
 import os
 from pathlib import Path
-import sys
 
 import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook
-from matplotlib.backend_bases import FigureCanvasBase, ToolContainerBase
-from matplotlib.backend_tools import Cursors
+from matplotlib.backend_bases import (
+    ToolContainerBase, CloseEvent, KeyEvent, LocationEvent, MouseEvent,
+    ResizeEvent)
 
 try:
     import gi
@@ -21,56 +21,28 @@ try:
 except ValueError as e:
     # in this case we want to re-raise as ImportError so the
     # auto-backend selection logic correctly skips.
-    raise ImportError from e
+    raise ImportError(e) from e
 
 from gi.repository import Gio, GLib, GObject, Gtk, Gdk
 from . import _backend_gtk
-from ._backend_gtk import (
-    _BackendGTK, _FigureManagerGTK, _NavigationToolbar2GTK,
+from ._backend_gtk import (  # noqa: F401 # pylint: disable=W0611
+    _BackendGTK, _FigureCanvasGTK, _FigureManagerGTK, _NavigationToolbar2GTK,
     TimerGTK as TimerGTK3,
 )
-from ._backend_gtk import backend_version  # noqa: F401 # pylint: disable=W0611
 
 
 _log = logging.getLogger(__name__)
 
 
-@_api.caching_module_getattr  # module-level deprecations
-class __getattr__:
-    @_api.deprecated("3.5", obj_type="")
-    @property
-    def cursord(self):
-        try:
-            new_cursor = functools.partial(
-                Gdk.Cursor.new_from_name, Gdk.Display.get_default())
-            return {
-                Cursors.MOVE:          new_cursor("move"),
-                Cursors.HAND:          new_cursor("pointer"),
-                Cursors.POINTER:       new_cursor("default"),
-                Cursors.SELECT_REGION: new_cursor("crosshair"),
-                Cursors.WAIT:          new_cursor("wait"),
-            }
-        except TypeError:
-            return {}
-
-    icon_filename = _api.deprecated("3.6", obj_type="")(property(
-        lambda self:
-        "matplotlib.png" if sys.platform == "win32" else "matplotlib.svg"))
-    window_icon = _api.deprecated("3.6", obj_type="")(property(
-        lambda self:
-        str(cbook._get_data_path("images", __getattr__("icon_filename")))))
-
-
-@functools.lru_cache()
+@functools.cache
 def _mpl_to_gtk_cursor(mpl_cursor):
     return Gdk.Cursor.new_from_name(
         Gdk.Display.get_default(),
         _backend_gtk.mpl_to_gtk_cursor_name(mpl_cursor))
 
 
-class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
+class FigureCanvasGTK3(_FigureCanvasGTK, Gtk.DrawingArea):
     required_interactive_framework = "gtk3"
-    _timer_cls = TimerGTK3
     manager_class = _api.classproperty(lambda cls: FigureManagerGTK3)
     # Setting this as a static constant prevents
     # this resulting expression from leaking
@@ -85,8 +57,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
                   | Gdk.EventMask.SCROLL_MASK)
 
     def __init__(self, figure=None):
-        FigureCanvasBase.__init__(self, figure)
-        GObject.GObject.__init__(self)
+        super().__init__(figure=figure)
 
         self._idle_draw_id = 0
         self._rubberband_rect = None
@@ -102,8 +73,8 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         self.connect('key_press_event',      self.key_press_event)
         self.connect('key_release_event',    self.key_release_event)
         self.connect('motion_notify_event',  self.motion_notify_event)
-        self.connect('leave_notify_event',   self.leave_notify_event)
         self.connect('enter_notify_event',   self.enter_notify_event)
+        self.connect('leave_notify_event',   self.leave_notify_event)
         self.connect('size_allocate',        self.size_allocate)
 
         self.set_events(self.__class__.event_mask)
@@ -117,7 +88,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         style_ctx.add_class("matplotlib-canvas")
 
     def destroy(self):
-        self.close_event()
+        CloseEvent("close_event", self)._process()
 
     def set_cursor(self, cursor):
         # docstring inherited
@@ -127,9 +98,10 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
             context = GLib.MainContext.default()
             context.iteration(True)
 
-    def _mouse_event_coords(self, event):
+    def _mpl_coords(self, event=None):
         """
-        Calculate mouse coordinates in physical pixels.
+        Convert the position of a GTK event, or of the current cursor position
+        if *event* is None, to Matplotlib coordinates.
 
         GTK use logical pixels, but the figure is scaled to physical pixels for
         rendering.  Transform to physical pixels so that all of the down-stream
@@ -137,75 +109,98 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
 
         Also, the origin is different and needs to be corrected.
         """
-        x = event.x * self.device_pixel_ratio
+        if event is None:
+            window = self.get_window()
+            t, x, y, state = window.get_device_position(
+                window.get_display().get_device_manager().get_client_pointer())
+        else:
+            x, y = event.x, event.y
+        x = x * self.device_pixel_ratio
         # flip y so y=0 is bottom of canvas
-        y = self.figure.bbox.height - event.y * self.device_pixel_ratio
+        y = self.figure.bbox.height - y * self.device_pixel_ratio
         return x, y
 
     def scroll_event(self, widget, event):
-        x, y = self._mouse_event_coords(event)
         step = 1 if event.direction == Gdk.ScrollDirection.UP else -1
-        FigureCanvasBase.scroll_event(self, x, y, step, guiEvent=event)
+        MouseEvent("scroll_event", self,
+                   *self._mpl_coords(event), step=step,
+                   modifiers=self._mpl_modifiers(event.state),
+                   guiEvent=event)._process()
         return False  # finish event propagation?
 
     def button_press_event(self, widget, event):
-        x, y = self._mouse_event_coords(event)
-        FigureCanvasBase.button_press_event(
-            self, x, y, event.button, guiEvent=event)
+        MouseEvent("button_press_event", self,
+                   *self._mpl_coords(event), event.button,
+                   modifiers=self._mpl_modifiers(event.state),
+                   guiEvent=event)._process()
         return False  # finish event propagation?
 
     def button_release_event(self, widget, event):
-        x, y = self._mouse_event_coords(event)
-        FigureCanvasBase.button_release_event(
-            self, x, y, event.button, guiEvent=event)
+        MouseEvent("button_release_event", self,
+                   *self._mpl_coords(event), event.button,
+                   modifiers=self._mpl_modifiers(event.state),
+                   guiEvent=event)._process()
         return False  # finish event propagation?
 
     def key_press_event(self, widget, event):
-        key = self._get_key(event)
-        FigureCanvasBase.key_press_event(self, key, guiEvent=event)
+        KeyEvent("key_press_event", self,
+                 self._get_key(event), *self._mpl_coords(),
+                 guiEvent=event)._process()
         return True  # stop event propagation
 
     def key_release_event(self, widget, event):
-        key = self._get_key(event)
-        FigureCanvasBase.key_release_event(self, key, guiEvent=event)
+        KeyEvent("key_release_event", self,
+                 self._get_key(event), *self._mpl_coords(),
+                 guiEvent=event)._process()
         return True  # stop event propagation
 
     def motion_notify_event(self, widget, event):
-        x, y = self._mouse_event_coords(event)
-        FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
+        MouseEvent("motion_notify_event", self, *self._mpl_coords(event),
+                   modifiers=self._mpl_modifiers(event.state),
+                   guiEvent=event)._process()
         return False  # finish event propagation?
 
-    def leave_notify_event(self, widget, event):
-        FigureCanvasBase.leave_notify_event(self, event)
-
     def enter_notify_event(self, widget, event):
-        x, y = self._mouse_event_coords(event)
-        FigureCanvasBase.enter_notify_event(self, guiEvent=event, xy=(x, y))
+        gtk_mods = Gdk.Keymap.get_for_display(
+            self.get_display()).get_modifier_state()
+        LocationEvent("figure_enter_event", self, *self._mpl_coords(event),
+                      modifiers=self._mpl_modifiers(gtk_mods),
+                      guiEvent=event)._process()
+
+    def leave_notify_event(self, widget, event):
+        gtk_mods = Gdk.Keymap.get_for_display(
+            self.get_display()).get_modifier_state()
+        LocationEvent("figure_leave_event", self, *self._mpl_coords(event),
+                      modifiers=self._mpl_modifiers(gtk_mods),
+                      guiEvent=event)._process()
 
     def size_allocate(self, widget, allocation):
         dpival = self.figure.dpi
         winch = allocation.width * self.device_pixel_ratio / dpival
         hinch = allocation.height * self.device_pixel_ratio / dpival
         self.figure.set_size_inches(winch, hinch, forward=False)
-        FigureCanvasBase.resize_event(self)
+        ResizeEvent("resize_event", self)._process()
         self.draw_idle()
+
+    @staticmethod
+    def _mpl_modifiers(event_state, *, exclude=None):
+        modifiers = [
+            ("ctrl", Gdk.ModifierType.CONTROL_MASK, "control"),
+            ("alt", Gdk.ModifierType.MOD1_MASK, "alt"),
+            ("shift", Gdk.ModifierType.SHIFT_MASK, "shift"),
+            ("super", Gdk.ModifierType.MOD4_MASK, "super"),
+        ]
+        return [name for name, mask, key in modifiers
+                if exclude != key and event_state & mask]
 
     def _get_key(self, event):
         unikey = chr(Gdk.keyval_to_unicode(event.keyval))
         key = cbook._unikey_or_keysym_to_mplkey(
-            unikey,
-            Gdk.keyval_name(event.keyval))
-        modifiers = [
-            (Gdk.ModifierType.CONTROL_MASK, 'ctrl'),
-            (Gdk.ModifierType.MOD1_MASK, 'alt'),
-            (Gdk.ModifierType.SHIFT_MASK, 'shift'),
-            (Gdk.ModifierType.MOD4_MASK, 'super'),
-        ]
-        for key_mask, prefix in modifiers:
-            if event.state & key_mask:
-                if not (prefix == 'shift' and unikey.isprintable()):
-                    key = f'{prefix}+{key}'
-        return key
+            unikey, Gdk.keyval_name(event.keyval))
+        mods = self._mpl_modifiers(event.state, exclude=key)
+        if "shift" in mods and unikey.isprintable():
+            mods.remove("shift")
+        return "+".join([*mods, key])
 
     def _update_device_pixel_ratio(self, *args, **kwargs):
         # We need to be careful in cases with mixed resolution displays if
@@ -293,9 +288,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
 
 
 class NavigationToolbar2GTK3(_NavigationToolbar2GTK, Gtk.Toolbar):
-    @_api.delete_parameter("3.6", "window")
-    def __init__(self, canvas, window=None):
-        self._win = window
+    def __init__(self, canvas):
         GObject.GObject.__init__(self)
 
         self.set_style(Gtk.ToolbarStyle.ICONS)
@@ -342,8 +335,6 @@ class NavigationToolbar2GTK3(_NavigationToolbar2GTK, Gtk.Toolbar):
         self.show_all()
 
         _NavigationToolbar2GTK.__init__(self, canvas)
-
-    win = _api.deprecated("3.6")(property(lambda self: self._win))
 
     def save_figure(self, *args):
         dialog = Gtk.FileChooserDialog(
@@ -482,13 +473,6 @@ class SaveFigureGTK3(backend_tools.SaveFigureBase):
             self._make_classic_style_pseudo_toolbar())
 
 
-@_api.deprecated("3.5", alternative="ToolSetCursor")
-class SetCursorGTK3(backend_tools.SetCursorBase):
-    def set_cursor(self, cursor):
-        NavigationToolbar2GTK3.set_cursor(
-            self._make_classic_style_pseudo_toolbar(), cursor)
-
-
 @backend_tools._register_tool_class(FigureCanvasGTK3)
 class HelpGTK3(backend_tools.ToolHelpBase):
     def _normalize_shortcut(self, key):
@@ -583,21 +567,6 @@ class ToolCopyToClipboardGTK3(backend_tools.ToolCopyToClipboardBase):
         x, y, width, height = window.get_geometry()
         pb = Gdk.pixbuf_get_from_window(window, x, y, width, height)
         clipboard.set_image(pb)
-
-
-@_api.deprecated("3.6")
-def error_msg_gtk(msg, parent=None):
-    if parent is not None:  # find the toplevel Gtk.Window
-        parent = parent.get_toplevel()
-        if not parent.is_toplevel():
-            parent = None
-    if not isinstance(msg, str):
-        msg = ','.join(map(str, msg))
-    dialog = Gtk.MessageDialog(
-        parent=parent, type=Gtk.MessageType.ERROR, buttons=Gtk.ButtonsType.OK,
-        message_format=msg)
-    dialog.run()
-    dialog.destroy()
 
 
 Toolbar = ToolbarGTK3

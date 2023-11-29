@@ -4,8 +4,7 @@ List of changes to Matplotlib prior to 2015
 ===========================================
 
 This is a list of the changes made to Matplotlib from 2003 to 2015. For more
-recent changes, please refer to the `what's new <../whats_new.html>`_ or
-the `API changes <../../api/api_changes.html>`_.
+recent changes, please refer to the :doc:`/users/release_notes`.
 
 2015-11-16
     Levels passed to contour(f) and tricontour(f) must be in increasing order.
@@ -49,7 +48,7 @@ the `API changes <../../api/api_changes.html>`_.
     Fixed bug so radial plots can be saved as ps in py3k.
 
 2014-06-01
-    Changed the fmt kwarg of errorbar to support the the mpl convention that
+    Changed the fmt kwarg of errorbar to support the mpl convention that
     "none" means "don't draw it", and to default to the empty string, so that
     plotting of data points is done with the plot() function defaults.
     Deprecated use of the None object in place "none".
@@ -59,8 +58,8 @@ the `API changes <../../api/api_changes.html>`_.
     one.
 
 2014-05-20
-    Added logic to in FontManager to invalidate font-cache if if font-family
-    rcparams have changed.
+    Added logic in FontManager to invalidate font-cache if font-family rcparams
+    have changed.
 
 2014-05-16
     Fixed the positioning of multi-line text in the PGF backend.
@@ -125,7 +124,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2014-03-24
     Added bool kwarg (manage_xticks) to boxplot to enable/disable the
-    managemnet of the xlimits and ticks when making a boxplot.  Default in True
+    management of the xlimits and ticks when making a boxplot.  Default in True
     which maintains current behavior by default.
 
 2014-03-23
@@ -194,7 +193,7 @@ the `API changes <../../api/api_changes.html>`_.
     memory.
 
 2013-10-06
-    Improve window and detrend functions in mlab, particulart support for 2D
+    Improve window and detrend functions in mlab, particular support for 2D
     arrays.
 
 2013-10-06
@@ -262,7 +261,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2013-04-15
     Added 'axes.xmargin' and 'axes.ymargin' to rpParams to set default margins
-    on auto-scaleing. - TAC
+    on auto-scaling. - TAC
 
 2013-04-16
     Added patheffect support for Line2D objects.  -JJL
@@ -331,7 +330,7 @@ the `API changes <../../api/api_changes.html>`_.
     from that point forward. - PI
 
 2012-11-16
-    Added the funcction _get_rbga_face, which is identical to _get_rbg_face
+    Added the function _get_rbga_face, which is identical to _get_rbg_face
     except it return a (r,g,b,a) tuble, to line2D.  Modified Line2D.draw to use
     _get_rbga_face to get the markerface color so that any alpha set by
     markerfacecolor will respected.  - Thomas Caswell
@@ -1488,7 +1487,7 @@ the `API changes <../../api/api_changes.html>`_.
     interface - GR
 
 2009-02-04
-    Some reorgnization of the legend code. anchored_text.py added as an
+    Some reorganization of the legend code. anchored_text.py added as an
     example. - JJL
 
 2009-02-04
@@ -1675,7 +1674,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2008-12-12
     Preparations to eliminate maskedarray rcParams key: its use will now
-    generate a warning.  Similarly, importing the obsolote numerix.npyma will
+    generate a warning.  Similarly, importing the obsolete numerix.npyma will
     generate a warning. - EF
 
 2008-12-12
@@ -1806,7 +1805,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2008-11-11
     Add 'pad_to' and 'sides' parameters to mlab.psd() to allow controlling of
-    zero padding and returning of negative frequency components, respecitively.
+    zero padding and returning of negative frequency components, respectively.
     These are added in a way that does not change the API. - RM
 
 2008-11-10
@@ -2258,7 +2257,7 @@ the `API changes <../../api/api_changes.html>`_.
     align='edge' changed to center of bin - MM
 
 2008-05-22
-    Added support for ReST-based doumentation using Sphinx.  Documents are
+    Added support for ReST-based documentation using Sphinx.  Documents are
     located in doc/, and are broken up into a users guide and an API reference.
     To build, run the make.py files. Sphinx-0.4 is needed to build generate
     xml, which will be useful for rendering equations with mathml, use sphinx
@@ -2271,7 +2270,7 @@ the `API changes <../../api/api_changes.html>`_.
     Fix a "local variable unreferenced" bug in plotfile - MM
 
 2008-05-19
-    Fix crash when Windows can not access the registry to determine font path
+    Fix crash when Windows cannot access the registry to determine font path
     [Bug 1966974, thanks Patrik Simons] - MGD
 
 2008-05-16
@@ -2494,7 +2493,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2008-01-10
     Fix bug when displaying a tick value offset with scientific notation.
-    (Manifests itself as a warning that the \times symbol can not be found). -
+    (Manifests itself as a warning that the \times symbol cannot be found). -
     MGD
 
 2008-01-10
@@ -2737,7 +2736,7 @@ the `API changes <../../api/api_changes.html>`_.
     Fixed a bug in patches.Ellipse that was broken for aspect='auto'.  Scale
     free ellipses now work properly for equal and auto on Agg and PS, and they
     fall back on a polygonal approximation for nonlinear transformations until
-    we convince oursleves that the spline approximation holds for nonlinear
+    we convince ourselves that the spline approximation holds for nonlinear
     transformations. Added unit/ellipse_compare.py to compare spline with
     vertex approx for both aspects. JDH
 
@@ -3218,7 +3217,7 @@ the `API changes <../../api/api_changes.html>`_.
 
     The backend has been updated to use new wxPython functionality to provide
     fast blit() animation without the C++ accelerator.  This requires wxPython
-    2.8 or later.  Previous versions of wxPython can use the C++ acclerator or
+    2.8 or later.  Previous versions of wxPython can use the C++ accelerator or
     the old pure Python routines.
 
     setup.py no longer builds the C++ accelerator when wxPython >= 2.8 is
@@ -3293,7 +3292,7 @@ the `API changes <../../api/api_changes.html>`_.
     PickEvent - Details and examples in examples/pick_event_demo.py - JDH
 
 2007-01-16
-    Begun work on a new pick API using the mpl event handling frameowrk.
+    Begun work on a new pick API using the mpl event handling framework.
     Artists will define their own pick method with a configurable epsilon
     tolerance and return pick attrs.  All artists that meet the tolerance
     threshold will fire a PickEvent with artist dependent attrs; e.g., a Line2D
@@ -3450,7 +3449,7 @@ the `API changes <../../api/api_changes.html>`_.
     specified as a kwarg. - EF
 
 2006-11-05
-    Added broken_barh function for makring a sequence of horizontal bars broken
+    Added broken_barh function for making a sequence of horizontal bars broken
     by gaps -- see examples/broken_barh.py
 
 2006-11-05
@@ -4386,7 +4385,7 @@ the `API changes <../../api/api_changes.html>`_.
     Released 0.85
 
 2005-11-16
-    Changed the default default linewidth in rc to 1.0
+    Changed the default linewidth in rc to 1.0
 
 2005-11-16
     Replaced agg_to_gtk_drawable with pure pygtk pixbuf code in backend_gtkagg.
@@ -4824,7 +4823,7 @@ the `API changes <../../api/api_changes.html>`_.
 2005-05-27
     Finally found the pesky agg bug (which Maxim was kind enough to fix within
     hours) that was causing a segfault in the win32 cached marker drawing.  Now
-    windows users can get the enormouse performance benefits of caced markers
+    windows users can get the enormous performance benefits of cached markers
     w/o those occasional pesy screenshots. - JDH
 
 2005-05-27
@@ -4851,7 +4850,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2005-05-21
     Fixed raster problem for small rasters with dvipng -- looks like it was a
-    premultipled alpha problem - JDH
+    premultiplied alpha problem - JDH
 
 2005-05-20
     Added linewidth and faceted kwarg to scatter to control edgewidth and
@@ -4879,7 +4878,7 @@ the `API changes <../../api/api_changes.html>`_.
 2005-05-12
     Started work on TeX text for antigrain using pngdvi -- see
     examples/tex_demo.py and the new module matplotlib.texmanager.  Rotated
-    text not supported and rendering small glyps is not working right yet.  BUt
+    text not supported and rendering small glyphs is not working right yet.  But
     large fontsizes and/or high dpi saved figs work great.
 
 2005-05-10
@@ -4917,7 +4916,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2005-05-04
     Added NewScalarFormatter. Improved formatting of ticklabels, scientific
-    notation, and the ability to plot large large numbers with small ranges, by
+    notation, and the ability to plot large numbers with small ranges, by
     determining a numerical offset.  See ticker.NewScalarFormatter for more
     details. -DSD
 
@@ -5009,7 +5008,7 @@ the `API changes <../../api/api_changes.html>`_.
     Applied boxplot and OSX font search patches
 
 2005-03-27
-    Added ft2font NULL check to fix Japanase font bug - JDH
+    Added ft2font NULL check to fix Japanese font bug - JDH
 
 2005-03-27
     Added sprint legend patch plus John Gill's tests and fix -- see
@@ -5164,7 +5163,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2005-02-09
     backend renderer draw_lines now has transform in backend, as in
-    draw_markers; use numerix in _backend_agg, aded small line optimization to
+    draw_markers; use numerix in _backend_agg, added small line optimization to
     agg
 
 2005-02-09
@@ -5588,7 +5587,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2004-10-31
     backend_ps.py: clean up the generated PostScript code, use the PostScript
-    stack to hold itermediate values instead of storing them in the dictionary.
+    stack to hold intermediate values instead of storing them in the dictionary.
     - JV
 
 2004-10-30
@@ -5892,7 +5891,7 @@ the `API changes <../../api/api_changes.html>`_.
     Use imshow(blah, blah, extent=(xmin, xmax, ymin, ymax) instead  - JDH
 
 2004-07-12
-    Added prototype for new nav bar with codifed event handling.  Use
+    Added prototype for new nav bar with codified event handling.  Use
     mpl_connect rather than connect for matplotlib event handling.  toolbar
     style determined by rc toolbar param.  backend status: gtk: prototype, wx:
     in progress, tk: not started - JDH
@@ -6104,7 +6103,7 @@ the `API changes <../../api/api_changes.html>`_.
     5X speedup for ps. - JDH
 
 2004-05-14
-    On second thought... created an "nx" namespace in in numerix which maps
+    On second thought... created an "nx" namespace in numerix which maps
     type names onto typecodes the same way for both numarray and Numeric.  This
     undoes my previous change immediately below. To get a typename for Int16
     usable in a Numeric extension: say nx.Int16. - JTM
@@ -6200,7 +6199,7 @@ the `API changes <../../api/api_changes.html>`_.
     WX backends. - PEB
 
 2004-04-16
-    Added get- and set_fontstyle msethods. - PEB
+    Added get- and set_fontstyle methods. - PEB
 
 2004-04-10
     Mathtext fixes: scaling with dpi,  - JDH
@@ -6285,7 +6284,7 @@ This is the Old, stale, never used changelog
     Added a new line type '|' which is a vline.  syntax is plot(x, Y, '|')
     where y.shape = len(x),2 and each row gives the ymin,ymax for the
     respective values of x.  Previously I had implemented vlines as a list of
-    lines, but I needed the efficientcy of the numeric clipping for large
+    lines, but I needed the efficiency of the numeric clipping for large
     numbers of vlines outside the viewport, so I wrote a dedicated class
     Vline2D which derives from Line2D
 
@@ -6298,7 +6297,7 @@ This is the Old, stale, never used changelog
 
 2003-05-28
     Changed figure rendering to draw form a pixmap to reduce flicker.  See
-    examples/system_monitor.py for an example where the plot is continusouly
+    examples/system_monitor.py for an example where the plot is continuously
     updated w/o flicker.  This example is meant to simulate a system monitor
     that shows free CPU, RAM, etc...
 
@@ -6313,7 +6312,7 @@ This is the Old, stale, never used changelog
     Added figure text with new example examples/figtext.py
 
 2003-08-27
-    Fixed bugs i figure text with font override dictionairies and fig text that
+    Fixed bugs in figure text with font override dictionaries and fig text that
     was placed outside the window bounding box
 
 2003-09-01 through 2003-09-15

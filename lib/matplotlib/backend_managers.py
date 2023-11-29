@@ -185,7 +185,7 @@ class ToolManager:
             Keys to associate with the tool.
         """
         if name not in self._tools:
-            raise KeyError(f'{name} not in Tools')
+            raise KeyError(f'{name!r} not in Tools')
         self._remove_keys(name)
         if isinstance(key, str):
             key = [key]
@@ -204,23 +204,12 @@ class ToolManager:
         name : str
             Name of the tool.
         """
-
         tool = self.get_tool(name)
-        destroy = _api.deprecate_method_override(
-            backend_tools.ToolBase.destroy, tool, since="3.6",
-            alternative="tool_removed_event")
-        if destroy is not None:
-            destroy()
-
-        # If it's a toggle tool and toggled, untoggle
-        if getattr(tool, 'toggled', False):
+        if getattr(tool, 'toggled', False):  # If it's a toggled toggle tool, untoggle
             self.trigger_tool(tool, 'toolmanager')
-
         self._remove_keys(name)
-
         event = ToolEvent('tool_removed_event', self, tool)
         self._callbacks.process(event.name, event)
-
         del self._tools[name]
 
     def add_tool(self, name, tool, *args, **kwargs):
@@ -238,10 +227,8 @@ class ToolManager:
         tool : type
             Class of the tool to be added.  A subclass will be used
             instead if one was registered for the current canvas class.
-
-        Notes
-        -----
-        args and kwargs get passed directly to the tools constructor.
+        *args, **kwargs
+            Passed to the *tool*'s constructor.
 
         See Also
         --------
@@ -256,16 +243,6 @@ class ToolManager:
             _api.warn_external('A "Tool class" with the same name already '
                                'exists, not added')
             return self._tools[name]
-
-        if name == 'cursor' and tool_cls != backend_tools.SetCursorBase:
-            _api.warn_deprecated("3.5",
-                                 message="Overriding ToolSetCursor with "
-                                 f"{tool_cls.__qualname__} was only "
-                                 "necessary to provide the .set_cursor() "
-                                 "method, which is deprecated since "
-                                 "%(since)s and will be removed "
-                                 "%(removal)s. Please report this to the "
-                                 f"{tool_cls.__module__} author.")
 
         tool_obj = tool_cls(self, name, *args, **kwargs)
         self._tools[name] = tool_obj
@@ -284,7 +261,7 @@ class ToolManager:
 
             # If initially toggled
             if tool_obj.toggled:
-                self._handle_toggle(tool_obj, None, None, None)
+                self._handle_toggle(tool_obj, None, None)
         tool_obj.set_figure(self.figure)
 
         event = ToolEvent('tool_added_event', self, tool_obj)
@@ -292,7 +269,7 @@ class ToolManager:
 
         return tool_obj
 
-    def _handle_toggle(self, tool, sender, canvasevent, data):
+    def _handle_toggle(self, tool, canvasevent, data):
         """
         Toggle tools, need to untoggle prior to using other Toggle tool.
         Called from trigger_tool.
@@ -300,8 +277,6 @@ class ToolManager:
         Parameters
         ----------
         tool : `.ToolBase`
-        sender : object
-            Object that wishes to trigger the tool.
         canvasevent : Event
             Original Canvas event or None.
         data : object
@@ -360,7 +335,7 @@ class ToolManager:
             sender = self
 
         if isinstance(tool, backend_tools.ToolToggleBase):
-            self._handle_toggle(tool, sender, canvasevent, data)
+            self._handle_toggle(tool, canvasevent, data)
 
         tool.trigger(sender, canvasevent, data)  # Actually trigger Tool.
 
@@ -406,6 +381,7 @@ class ToolManager:
             return name
         if name not in self._tools:
             if warn:
-                _api.warn_external(f"ToolManager does not control tool {name}")
+                _api.warn_external(
+                    f"ToolManager does not control tool {name!r}")
             return None
         return self._tools[name]

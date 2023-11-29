@@ -1,6 +1,6 @@
 import numpy as np
 
-from matplotlib import ticker as mticker
+from matplotlib import ticker as mticker, _api
 from matplotlib.transforms import Bbox, Transform
 
 
@@ -121,6 +121,11 @@ class _User2DTransform(Transform):
 
 
 class GridFinder:
+    """
+    Internal helper for `~.grid_helper_curvelinear.GridHelperCurveLinear`, with
+    the same constructor parameters; should not be directly instantiated.
+    """
+
     def __init__(self,
                  transform,
                  extreme_finder=None,
@@ -128,14 +133,6 @@ class GridFinder:
                  grid_locator2=None,
                  tick_formatter1=None,
                  tick_formatter2=None):
-        """
-        transform : transform from the image coordinate (which will be
-        the transData of the axes to the world coordinate.
-
-        or transform = (transform_xy, inv_transform_xy)
-
-        locator1, locator2 : grid locator for 1st and 2nd axis.
-        """
         if extreme_finder is None:
             extreme_finder = ExtremeFinderSimple(20, 20)
         if grid_locator1 is None:
@@ -153,6 +150,19 @@ class GridFinder:
         self.tick_formatter2 = tick_formatter2
         self.set_transform(transform)
 
+    def _format_ticks(self, idx, direction, factor, levels):
+        """
+        Helper to support both standard formatters (inheriting from
+        `.mticker.Formatter`) and axisartist-specific ones; should be called instead of
+        directly calling ``self.tick_formatter1`` and ``self.tick_formatter2``.  This
+        method should be considered as a temporary workaround which will be removed in
+        the future at the same time as axisartist-specific formatters.
+        """
+        fmt = _api.check_getitem(
+            {1: self.tick_formatter1, 2: self.tick_formatter2}, idx=idx)
+        return (fmt.format_ticks(levels) if isinstance(fmt, mticker.Formatter)
+                else fmt(direction, factor, levels))
+
     def get_grid_info(self, x1, y1, x2, y2):
         """
         lon_values, lat_values : list of grid values. if integer is given,
@@ -166,7 +176,9 @@ class GridFinder:
 
         lon_min, lon_max, lat_min, lat_max = extremes
         lon_levs, lon_n, lon_factor = self.grid_locator1(lon_min, lon_max)
+        lon_levs = np.asarray(lon_levs)
         lat_levs, lat_n, lat_factor = self.grid_locator2(lat_min, lat_max)
+        lat_levs = np.asarray(lat_levs)
 
         lon_values = lon_levs[:lon_n] / lon_factor
         lat_values = lat_levs[:lat_n] / lat_factor
@@ -176,9 +188,7 @@ class GridFinder:
                                                         lon_min, lon_max,
                                                         lat_min, lat_max)
 
-        ddx = (x2-x1)*1.e-10
-        ddy = (y2-y1)*1.e-10
-        bb = Bbox.from_extents(x1-ddx, y1-ddy, x2+ddx, y2+ddy)
+        bb = Bbox.from_extents(x1, y1, x2, y2).expanded(1 + 2e-10, 1 + 2e-10)
 
         grid_info = {
             "extremes": extremes,
@@ -193,14 +203,14 @@ class GridFinder:
         tck_labels = grid_info["lon"]["tick_labels"] = {}
         for direction in ["left", "bottom", "right", "top"]:
             levs = grid_info["lon"]["tick_levels"][direction]
-            tck_labels[direction] = self.tick_formatter1(
-                direction, lon_factor, levs)
+            tck_labels[direction] = self._format_ticks(
+                1, direction, lon_factor, levs)
 
         tck_labels = grid_info["lat"]["tick_labels"] = {}
         for direction in ["left", "bottom", "right", "top"]:
             levs = grid_info["lat"]["tick_levels"][direction]
-            tck_labels[direction] = self.tick_formatter2(
-                direction, lat_factor, levs)
+            tck_labels[direction] = self._format_ticks(
+                2, direction, lat_factor, levs)
 
         return grid_info
 

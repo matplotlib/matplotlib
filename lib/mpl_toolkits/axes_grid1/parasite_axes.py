@@ -1,8 +1,6 @@
 from matplotlib import _api, cbook
 import matplotlib.artist as martist
-import matplotlib.image as mimage
 import matplotlib.transforms as mtransforms
-from matplotlib.axes import subplot_class_factory
 from matplotlib.transforms import Bbox
 from .mpl_axes import Axes
 
@@ -21,21 +19,10 @@ class ParasiteAxesBase:
         super().clear()
         martist.setp(self.get_children(), visible=False)
         self._get_lines = self._parent_axes._get_lines
-
-    @_api.deprecated("3.5")
-    def get_images_artists(self):
-        artists = []
-        images = []
-
-        for a in self.get_children():
-            if not a.get_visible():
-                continue
-            if isinstance(a, mimage.AxesImage):
-                images.append(a)
-            else:
-                artists.append(a)
-
-        return images, artists
+        self._parent_axes.callbacks._connect_picklable(
+            "xlim_changed", self._sync_lims)
+        self._parent_axes.callbacks._connect_picklable(
+            "ylim_changed", self._sync_lims)
 
     def pick(self, mouseevent):
         # This most likely goes to Artist.pick (depending on axes_class given
@@ -69,22 +56,17 @@ class ParasiteAxesBase:
     def get_viewlim_mode(self):
         return self._viewlim_mode
 
-    def _update_viewlim(self):  # Inline after deprecation elapses.
-        viewlim = self._parent_axes.viewLim.frozen()
+    def _sync_lims(self, parent):
+        viewlim = parent.viewLim.frozen()
         mode = self.get_viewlim_mode()
         if mode is None:
             pass
         elif mode == "equal":
-            self.axes.viewLim.set(viewlim)
+            self.viewLim.set(viewlim)
         elif mode == "transform":
-            self.axes.viewLim.set(
-                viewlim.transformed(self.transAux.inverted()))
+            self.viewLim.set(viewlim.transformed(self.transAux.inverted()))
         else:
             _api.check_in_list([None, "equal", "transform"], mode=mode)
-
-    def apply_aspect(self, position=None):
-        self._update_viewlim()
-        super().apply_aspect()
 
     # end of aux_transform support
 
@@ -99,20 +81,38 @@ class HostAxesBase:
         self.parasites = []
         super().__init__(*args, **kwargs)
 
-    def get_aux_axes(self, tr=None, viewlim_mode="equal", axes_class=Axes):
+    def get_aux_axes(
+            self, tr=None, viewlim_mode="equal", axes_class=None, **kwargs):
         """
         Add a parasite axes to this host.
 
         Despite this method's name, this should actually be thought of as an
         ``add_parasite_axes`` method.
 
-        *tr* may be `.Transform`, in which case the following relation will
-        hold: ``parasite.transData = tr + host.transData``.  Alternatively, it
-        may be None (the default), no special relationship will hold between
-        the parasite's and the host's ``transData``.
+        .. versionchanged:: 3.7
+           Defaults to same base axes class as host axes.
+
+        Parameters
+        ----------
+        tr : `~matplotlib.transforms.Transform` or None, default: None
+            If a `.Transform`, the following relation will hold:
+            ``parasite.transData = tr + host.transData``.
+            If None, the parasite's and the host's ``transData`` are unrelated.
+        viewlim_mode : {"equal", "transform", None}, default: "equal"
+            How the parasite's view limits are set: directly equal to the
+            parent axes ("equal"), equal after application of *tr*
+            ("transform"), or independently (None).
+        axes_class : subclass type of `~matplotlib.axes.Axes`, optional
+            The `~.axes.Axes` subclass that is instantiated.  If None, the base
+            class of the host axes is used.
+        **kwargs
+            Other parameters are forwarded to the parasite axes constructor.
         """
+        if axes_class is None:
+            axes_class = self._base_axes_class
         parasite_axes_class = parasite_axes_class_factory(axes_class)
-        ax2 = parasite_axes_class(self, tr, viewlim_mode=viewlim_mode)
+        ax2 = parasite_axes_class(
+            self, tr, viewlim_mode=viewlim_mode, **kwargs)
         # note that ax2.transData == tr + ax1.transData
         # Anything you draw in ax2 will match the ticks and grids of ax1.
         self.parasites.append(ax2)
@@ -136,12 +136,12 @@ class HostAxesBase:
             self._children.extend(ax.get_children())
 
         super().draw(renderer)
-        self._children = self._children[:orig_children_len]
+        del self._children[orig_children_len:]
 
     def clear(self):
+        super().clear()
         for ax in self.parasites:
             ax.clear()
-        super().clear()
 
     def pick(self, mouseevent):
         super().pick(mouseevent)
@@ -215,7 +215,8 @@ class HostAxesBase:
         self.axis[tuple(restore)].set_visible(True)
         self.axis[tuple(restore)].toggle(ticklabels=False, label=False)
 
-    def get_tightbbox(self, renderer, call_axes_locator=True,
+    @_api.make_keyword_only("3.8", "call_axes_locator")
+    def get_tightbbox(self, renderer=None, call_axes_locator=True,
                       bbox_extra_artists=None):
         bbs = [
             *[ax.get_tightbbox(renderer, call_axes_locator=call_axes_locator)
@@ -226,16 +227,9 @@ class HostAxesBase:
         return Bbox.union([b for b in bbs if b.width != 0 or b.height != 0])
 
 
-host_axes_class_factory = cbook._make_class_factory(
-    HostAxesBase, "{}HostAxes", "_base_axes_class")
-HostAxes = host_axes_class_factory(Axes)
-SubplotHost = subplot_class_factory(HostAxes)
-
-
-def host_subplot_class_factory(axes_class):
-    host_axes_class = host_axes_class_factory(axes_class)
-    subplot_host_class = subplot_class_factory(host_axes_class)
-    return subplot_host_class
+host_axes_class_factory = host_subplot_class_factory = \
+    cbook._make_class_factory(HostAxesBase, "{}HostAxes", "_base_axes_class")
+HostAxes = SubplotHost = host_axes_class_factory(Axes)
 
 
 def host_axes(*args, axes_class=Axes, figure=None, **kwargs):
@@ -244,12 +238,12 @@ def host_axes(*args, axes_class=Axes, figure=None, **kwargs):
 
     Parameters
     ----------
-    figure : `matplotlib.figure.Figure`
+    figure : `~matplotlib.figure.Figure`
         Figure to which the axes will be added. Defaults to the current figure
         `.pyplot.gcf()`.
 
     *args, **kwargs
-        Will be passed on to the underlying ``Axes`` object creation.
+        Will be passed on to the underlying `~.axes.Axes` object creation.
     """
     import matplotlib.pyplot as plt
     host_axes_class = host_axes_class_factory(axes_class)
@@ -257,28 +251,7 @@ def host_axes(*args, axes_class=Axes, figure=None, **kwargs):
         figure = plt.gcf()
     ax = host_axes_class(figure, *args, **kwargs)
     figure.add_axes(ax)
-    plt.draw_if_interactive()
     return ax
 
 
-def host_subplot(*args, axes_class=Axes, figure=None, **kwargs):
-    """
-    Create a subplot that can act as a host to parasitic axes.
-
-    Parameters
-    ----------
-    figure : `matplotlib.figure.Figure`
-        Figure to which the subplot will be added. Defaults to the current
-        figure `.pyplot.gcf()`.
-
-    *args, **kwargs
-        Will be passed on to the underlying ``Axes`` object creation.
-    """
-    import matplotlib.pyplot as plt
-    host_subplot_class = host_subplot_class_factory(axes_class)
-    if figure is None:
-        figure = plt.gcf()
-    ax = host_subplot_class(figure, *args, **kwargs)
-    figure.add_subplot(ax)
-    plt.draw_if_interactive()
-    return ax
+host_subplot = host_axes

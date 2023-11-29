@@ -25,7 +25,7 @@ Changes for 0.91.0
 * The :mod:`matplotlib.dviread` file now has a parser for files like
   psfonts.map and pdftex.map, to map TeX font names to external files.
 
-* The file :mod:`matplotlib.type1font` contains a new class for Type 1
+* The file ``matplotlib.type1font`` contains a new class for Type 1
   fonts.  Currently it simply reads pfa and pfb format files and
   stores the data in a way that is suitable for embedding in pdf
   files. In the future the class might actually parse the font to

@@ -50,43 +50,96 @@ def setup():
     set_reproducibility_for_testing()
 
 
-def subprocess_run_helper(func, *args, timeout, **extra_env):
+def subprocess_run_for_testing(command, env=None, timeout=None, stdout=None,
+                               stderr=None, check=False, text=True,
+                               capture_output=False):
     """
-    Run a function in a sub-process
+    Create and run a subprocess.
+
+    Thin wrapper around `subprocess.run`, intended for testing.  Will
+    mark fork() failures on Cygwin as expected failures: not a
+    success, but not indicating a problem with the code either.
+
+    Parameters
+    ----------
+    args : list of str
+    env : dict[str, str]
+    timeout : float
+    stdout, stderr
+    check : bool
+    text : bool
+        Also called ``universal_newlines`` in subprocess.  I chose this
+        name since the main effect is returning bytes (`False`) vs. str
+        (`True`), though it also tries to normalize newlines across
+        platforms.
+    capture_output : bool
+        Set stdout and stderr to subprocess.PIPE
+
+    Returns
+    -------
+    proc : subprocess.Popen
+
+    See Also
+    --------
+    subprocess.run
+
+    Raises
+    ------
+    pytest.xfail
+        If platform is Cygwin and subprocess reports a fork() failure.
+    """
+    if capture_output:
+        stdout = stderr = subprocess.PIPE
+    try:
+        proc = subprocess.run(
+            command, env=env,
+            timeout=timeout, check=check,
+            stdout=stdout, stderr=stderr,
+            text=text
+        )
+    except BlockingIOError:
+        if sys.platform == "cygwin":
+            # Might want to make this more specific
+            import pytest
+            pytest.xfail("Fork failure")
+        raise
+    return proc
+
+
+def subprocess_run_helper(func, *args, timeout, extra_env=None):
+    """
+    Run a function in a sub-process.
 
     Parameters
     ----------
     func : function
         The function to be run.  It must be in a module that is importable.
-
     *args : str
         Any additional command line arguments to be passed in
-        the first argument to subprocess.run
-
-    **extra_env : Dict[str, str]
-        Any additional envromental variables to be set for
-        the subprocess.
-
+        the first argument to ``subprocess.run``.
+    extra_env : dict[str, str]
+        Any additional environment variables to be set for the subprocess.
     """
     target = func.__name__
     module = func.__module__
-    proc = subprocess.run(
-        [sys.executable,
-         "-c",
-         f"""
-from {module} import {target}
-{target}()
-""",
-         *args],
-        env={
-            **os.environ,
-            "SOURCE_DATE_EPOCH": "0",
-            **extra_env
-        },
+    file = func.__code__.co_filename
+    proc = subprocess_run_for_testing(
+        [
+            sys.executable,
+            "-c",
+            f"import importlib.util;"
+            f"_spec = importlib.util.spec_from_file_location({module!r}, {file!r});"
+            f"_module = importlib.util.module_from_spec(_spec);"
+            f"_spec.loader.exec_module(_module);"
+            f"_module.{target}()",
+            *args
+        ],
+        env={**os.environ, "SOURCE_DATE_EPOCH": "0", **(extra_env or {})},
         timeout=timeout, check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        universal_newlines=True)
+        text=True
+    )
     return proc
 
 
@@ -102,7 +155,7 @@ def _check_for_pgf(texsystem):
     with TemporaryDirectory() as tmpdir:
         tex_path = Path(tmpdir, "test.tex")
         tex_path.write_text(r"""
-            \documentclass{minimal}
+            \documentclass{article}
             \usepackage{pgf}
             \begin{document}
             \typeout{pgfversion=\pgfversion}
@@ -120,7 +173,7 @@ def _check_for_pgf(texsystem):
 
 def _has_tex_package(package):
     try:
-        mpl.dviread._find_tex_file(f"{package}.sty")
+        mpl.dviread.find_tex_file(f"{package}.sty")
         return True
     except FileNotFoundError:
         return False

@@ -1,68 +1,89 @@
-.. raw:: html
-
-   <style>
-   .checklist { list-style: none; padding: 0; margin: 0; }
-   .checklist li { margin-left: 24px; padding-left: 23px;  margin-right: 6px; }
-   .checklist li:before { content: "\2610\2001"; margin-left: -24px; }
-   .checklist li p {display: inline; }
-   </style>
-
 .. _pr-guidelines:
 
 ***********************
 Pull request guidelines
 ***********************
 
-Pull requests (PRs) are the mechanism for contributing to Matplotlibs code and
-documentation.
+`Pull requests (PRs) on GitHub
+<https://docs.github.com/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests>`__
+are the mechanism for contributing to Matplotlib's code and documentation.
+
+We value contributions from people with all levels of experience. In particular,
+if this is your first PR not everything has to be perfect. We'll guide you
+through the PR process. Nevertheless, please try to follow our guidelines as well
+as you can to help make the PR process quick and smooth. If your pull request is
+incomplete or a work-in-progress, please mark it as a `draft pull requests <https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests>`_
+on GitHub and specify what feedback from the developers would be helpful.
+
+Please be patient with reviewers. We try our best to respond quickly, but we have
+limited bandwidth. If there is no feedback within a couple of days, please ping
+us by posting a comment to your PR or reaching out on a :ref:`communication channel <communication-channels>`
+
 
 Summary for pull request authors
 ================================
 
-.. note::
-
-   * We value contributions from people with all levels of experience. In
-     particular if this is your first PR not everything has to be perfect.
-     We'll guide you through the PR process.
-   * Nevertheless, please try to follow the guidelines below as well as you can to
-     help make the PR process quick and smooth.
-   * Be patient with reviewers. We try our best to respond quickly, but we
-     have limited bandwidth. If there is no feedback within a couple of days,
-     please ping us by posting a comment to your PR.
-
-When making a PR, pay attention to:
+We recommend that you check that your contribution complies with the following
+guidelines before submitting a pull request:
 
 .. rst-class:: checklist
 
-* :ref:`Target the main branch <pr-branch-selection>`.
-* Adhere to the :ref:`coding_guidelines`.
+* Changes, both new features and bugfixes, should have good test coverage. See
+  :ref:`testing` for more details.
+
 * Update the :ref:`documentation <pr-documentation>` if necessary.
-* Aim at making the PR as "ready-to-go" as you can. This helps to speed up
-  the review process.
-* It is ok to open incomplete or work-in-progress PRs if you need help or
-  feedback from the developers. You may mark these as
-  `draft pull requests <https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests>`_
-  on GitHub.
-* When updating your PR, instead of adding new commits to fix something, please
-  consider amending your initial commit(s) to keep the history clean.
-  You can achieve this using
 
-  .. code-block:: bash
+* All public methods should have informative docstrings with sample usage when
+  appropriate. Use the :ref:`docstring standards <writing-docstrings>`.
 
-     git commit --amend --no-edit
-     git push [your-remote-repo] [your-branch] --force-with-lease
+* For high-level plotting functions, consider adding a small example to the
+  :ref:`examples gallery <gallery>`.
 
-See also :ref:`contributing` for how to make a PR.
+* If you add a major new feature or change the API in a backward-incompatible
+  way, please document it as described in :ref:`new-changed-api`
+
+* Code should follow our conventions as documented in our :ref:`coding_guidelines`
+
+* When adding or changing public function signatures, add :ref:`type hints <type-hints>`
+
+* When adding keyword arguments, see our guide to :ref:`keyword-argument-processing`.
+
+When opening a pull request on Github, please ensure that:
+
+.. rst-class:: checklist
+
+* Changes were made on a :ref:`feature branch <make-feature-branch>`.
+
+* :ref:`pre-commit <pre-commit-hooks>` checks for spelling, formatting, etc pass
+
+* The pull request targets the :ref:`main branch <pr-branch-selection>`
+
+* If your pull request addresses an issue, please use the title to describe the
+  issue (e.g. "Add ability to plot timedeltas") and mention the issue number
+  in the pull request description to ensure that a link is created to the
+  original issue (e.g. "Closes #8869" or "Fixes #8869"). This will ensure the
+  original issue mentioned is automatically closed when your PR is merged. For more
+  details, see `linking an issue and pull request <https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue>`__.
+
+* :ref:`pr-automated-tests` pass
+
+For guidance on creating and managing a pull request, please see our
+:ref:`contributing <contributing>` and :ref:`pull request workflow <edit-flow>`
+guides.
+
 
 Summary for pull request reviewers
 ==================================
 
-.. note::
+.. redirect-from:: /devel/maintainer_workflow
 
-   * If you have commit rights, then you are trusted to use them.
-     **Please help review and merge PRs!**
-   * Be patient and `kind <https://youtu.be/tzFWz5fiVKU?t=49m30s>`__ with
-     contributors.
+**Please help review and merge PRs!**
+
+If you have commit rights, then you are trusted to use them. Please be patient
+and `kind <https://youtu.be/tzFWz5fiVKU?t=49m30s>`__ with contributors.
+
+When reviewing, please ensure that the pull request satisfies the following
+requirements before merging it:
 
 Content topics:
 
@@ -72,6 +93,11 @@ Content topics:
 * Does the PR conform with the :ref:`coding_guidelines`?
 * Is the :ref:`documentation <pr-documentation>` (docstrings, examples,
   what's new, API changes) updated?
+* Is the change purely stylistic? Generally, such changes are discouraged when
+  not part of other non-stylistic work because it obscures the git history of
+  functional changes to the code. Reflowing a method or docstring as part of a
+  larger refactor/rewrite is acceptable.
+
 
 Organizational topics:
 
@@ -108,14 +134,6 @@ Documentation
 
 * See :ref:`documenting-matplotlib` for our documentation style guide.
 
-* If your change is a major new feature, add an entry to
-  :file:`doc/users/whats_new.rst`.
-
-* If you change the API in a backward-incompatible way, please
-  document it by adding a file in the relevant subdirectory of
-  :file:`doc/api/next_api_changes/`, probably in the ``behavior/``
-  subdirectory.
-
 .. _pr-labels:
 
 Labels
@@ -131,25 +149,28 @@ Labels
 Milestones
 ----------
 
-* Set the milestone according to these rules:
+Set the milestone according to these guidelines:
 
-  * *New features and API changes* are milestoned for the next minor release
-    ``v3.X.0``.
+* *New features and API changes* are milestoned for the next minor release
+  ``v3.N.0``.
 
-  * *Bugfixes and docstring changes* are milestoned for the next patch
-    release ``v3.X.Y``
+* *Bugfixes, tests for released code, and docstring changes* may be milestoned
+  for the next patch release ``v3.N.M``.
 
-  * *Documentation changes* (all .rst files and examples) are milestoned
-    ``v3.X-doc``
+* *Documentation changes* (only .rst files and examples) may be milestoned
+  ``v3.N-doc``.
 
-  If multiple rules apply, choose the first matching from the above list.
+If multiple rules apply, choose the first matching from the above list.  See
+:ref:`backport-strategy` for detailed guidance on what should or should not be
+backported.
 
-  Setting a milestone does not imply or guarantee that a PR will be merged for that
-  release, but if it were to be merged what release it would be in.
+The milestone marks the release a PR should go into.  It states intent, but can
+be changed because of release planning or re-evaluation of the PR scope and
+maturity.
 
-  All of these PRs should target the main branch. The milestone tag triggers
-  an :ref:`automatic backport <automated-backports>` for milestones which have
-  a corresponding branch.
+All Pull Requests should target the main branch. The milestone tag triggers
+an :ref:`automatic backport <automated-backports>` for milestones which have
+a corresponding branch.
 
 .. _pr-merging:
 
@@ -192,49 +213,8 @@ Merging
 
 Automated tests
 ---------------
-
-Whenever a pull request is created or updated, various automated test tools
-will run on all supported platforms and versions of Python.
-
-* Make sure the Linting, GitHub Actions, AppVeyor, CircleCI, and Azure
-  pipelines are passing before merging (All checks are listed at the bottom of
-  the GitHub page of your pull request). Here are some tips for finding the
-  cause of the test failure:
-
-  - If *Linting* fails, you have a code style issue, which will be listed
-    as annotations on the pull request's diff.
-  - If a GitHub Actions or AppVeyor run fails, search the log for ``FAILURES``.
-    The subsequent section will contain information on the failed tests.
-  - If CircleCI fails, likely you have some reStructuredText style issue in
-    the docs. Search the CircleCI log for ``WARNING``.
-  - If Azure pipelines fail with an image comparison error, you can find the
-    images as *artifacts* of the Azure job:
-
-    - Click *Details* on the check on the GitHub PR page.
-    - Click *View more details on Azure Pipelines* to go to Azure.
-    - On the overview page *artifacts* are listed in the section *Related*.
-
-
-* Codecov and LGTM are currently for information only. Their failure is not
-  necessarily a blocker.
-
-* tox_ is not used in the automated testing. It is supported for testing
-  locally.
-
-  .. _tox: https://tox.readthedocs.io/
-
-* If you know your changes do not need to be tested (this is very rare!), all
-  CIs can be skipped for a given commit by including ``[ci skip]`` or
-  ``[skip ci]`` in the commit message. If you know only a subset of CIs need
-  to be run (e.g., if you are changing some block of plain reStructuredText and
-  want only CircleCI to run to render the result), individual CIs can be
-  skipped on individual commits as well by using the following substrings
-  in commit messages:
-
-  - GitHub Actions: ``[skip actions]``
-  - AppVeyor: ``[skip appveyor]`` (must be in the first line of the commit)
-  - Azure Pipelines: ``[skip azp]``
-  - CircleCI: ``[skip circle]``
+Before being merged, a PR should pass the :ref:`automated-tests`. If you are
+unsure why a test is failing, ask on the PR or in our :ref:`communication-channels`
 
 .. _pr-squashing:
 
@@ -294,26 +274,34 @@ Other branches are fed through :ref:`automatic <automated-backports>` or
 targeting other branches is only rarely necessary for special maintenance
 work.
 
-.. backport_strategy:
+.. _backport-strategy:
 
 Backport strategy
 -----------------
 
-We will always backport to the patch release branch (*v3.N.x*):
+Backports to the patch release branch (*v3.N.x*) are the changes that will be
+included in the next patch (aka bug-fix) release.  The goal of the patch
+releases is to fix bugs without adding any new regressions or behavior changes.
+We will always attempt to backport:
 
 - critical bug fixes (segfault, failure to import, things that the
-  user can not work around)
-- fixes for regressions against the last two releases.
+  user cannot work around)
+- fixes for regressions introduced in the last two minor releases
 
-Everything else (regressions against older releases, bugs/api
-inconsistencies the user can work around in their code) are on a
-case-by-case basis, should be low-risk, and need someone to advocate
-for and shepherd through the backport.
+and may attempt to backport fixes for regressions introduced in older releases.
 
-The only changes to be backported to the documentation branch (*v3.N.M-doc*)
-are changes to :file:`doc`, :file:`examples`, or :file:`tutorials`.
-Any changes to :file:`lib` or :file:`src` including docstring-only changes
-should not be backported to this branch.
+In the case where the backport is not clean, for example if the bug fix is
+built on top of other code changes we do not want to backport, balance the
+effort and risk of re-implementing the bug fix vs the severity of the bug.
+When in doubt, err on the side of not backporting.
+
+When backporting a Pull Request fails or is declined, re-milestone the original
+PR to the next minor release and leave a comment explaining why.
+
+The only changes backported to the documentation branch (*v3.N.M-doc*)
+are changes to :file:`doc` or :file:`galleries`.  Any changes to :file:`lib`
+or :file:`src`, including docstring-only changes, must not be backported to
+this branch.
 
 
 .. _automated-backports:
@@ -321,19 +309,19 @@ should not be backported to this branch.
 Automated backports
 -------------------
 
-We use meeseeksdev bot to automatically backport merges to the correct
+We use MeeseeksDev bot to automatically backport merges to the correct
 maintenance branch base on the milestone.  To work properly the
 milestone must be set before merging.  If you have commit rights, the
 bot can also be manually triggered after a merge by leaving a message
 ``@meeseeksdev backport to BRANCH`` on the PR.  If there are conflicts
-meeseekdevs will inform you that the backport needs to be done
+MeeseeksDev will inform you that the backport needs to be done
 manually.
 
 The target branch is configured by putting ``on-merge: backport to
 TARGETBRANCH`` in the milestone description on it's own line.
 
 If the bot is not working as expected, please report issues to
-`Meeseeksdev <https://github.com/MeeseeksBox/MeeseeksDev>`__.
+`MeeseeksDev <https://github.com/MeeseeksBox/MeeseeksDev>`__.
 
 
 .. _manual-backports:
@@ -341,7 +329,7 @@ If the bot is not working as expected, please report issues to
 Manual backports
 ----------------
 
-When doing backports please copy the form used by meeseekdev,
+When doing backports please copy the form used by MeeseeksDev,
 ``Backport PR #XXXX: TITLE OF PR``.  If you need to manually resolve
 conflicts make note of them and how you resolved them in the commit
 message.

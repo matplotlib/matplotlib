@@ -1,22 +1,31 @@
+from __future__ import annotations
+
 import io
 from pathlib import Path
+import platform
 import re
 import shlex
 from xml.etree import ElementTree as ET
+from typing import Any
 
 import numpy as np
+from packaging.version import parse as parse_version
+import pyparsing
 import pytest
+
 
 import matplotlib as mpl
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
 from matplotlib import mathtext, _mathtext
 
+pyparsing_version = parse_version(pyparsing.__version__)
+
 
 # If test is removed, use None as placeholder
 math_tests = [
     r'$a+b+\dot s+\dot{s}+\ldots$',
-    r'$x \doteq y$',
+    r'$x\hspace{-0.2}\doteq\hspace{-0.2}y$',
     r'\$100.00 $\alpha \_$',
     r'$\frac{\$100.00}{y}$',
     r'$x   y$',
@@ -47,7 +56,7 @@ math_tests = [
     r"$\arccos((x^i))$",
     r"$\gamma = \frac{x=\frac{6}{8}}{y} \delta$",
     r'$\limsup_{x\to\infty}$',
-    r'$\oint^\infty_0$',
+    None,
     r"$f'\quad f'''(x)\quad ''/\mathrm{yr}$",
     r'$\frac{x_2888}{y}$',
     r"$\sqrt[3]{\frac{X_2}{Y}}=5$",
@@ -60,8 +69,8 @@ math_tests = [
     '$\\Gamma \\Delta \\Theta \\Lambda \\Xi \\Pi \\Sigma \\Upsilon \\Phi \\Psi \\Omega$',
     '$\\alpha \\beta \\gamma \\delta \\epsilon \\zeta \\eta \\theta \\iota \\lambda \\mu \\nu \\xi \\pi \\kappa \\rho \\sigma \\tau \\upsilon \\phi \\chi \\psi$',
 
-    # The examples prefixed by 'mmltt' are from the MathML torture test here:
-    # https://developer.mozilla.org/en-US/docs/Mozilla/MathML_Project/MathML_Torture_Test
+    # The following examples are from the MathML torture test here:
+    # https://www-archive.mozilla.org/projects/mathml/demo/texvsmml.xhtml
     r'${x}^{2}{y}^{2}$',
     r'${}_{2}F_{3}$',
     r'$\frac{x+{y}^{2}}{k+1}$',
@@ -100,28 +109,40 @@ math_tests = [
     r"$? ! &$",  # github issue #466
     None,
     None,
-    r"$\left\Vert a \right\Vert \left\vert b \right\vert \left| a \right| \left\| b\right\| \Vert a \Vert \vert b \vert$",
+    r"$\left\Vert \frac{a}{b} \right\Vert \left\vert \frac{a}{b} \right\vert \left\| \frac{a}{b}\right\| \left| \frac{a}{b} \right| \Vert a \Vert \vert b \vert \| a \| | b |$",
     r'$\mathring{A}  \AA$',
     r'$M \, M \thinspace M \/ M \> M \: M \; M \ M \enspace M \quad M \qquad M \! M$',
     r'$\Cap$ $\Cup$ $\leftharpoonup$ $\barwedge$ $\rightharpoonup$',
-    r'$\dotplus$ $\doteq$ $\doteqdot$ $\ddots$',
+    r'$\hspace{-0.2}\dotplus\hspace{-0.2}$ $\hspace{-0.2}\doteq\hspace{-0.2}$ $\hspace{-0.2}\doteqdot\hspace{-0.2}$ $\ddots$',
     r'$xyz^kx_kx^py^{p-2} d_i^jb_jc_kd x^j_i E^0 E^0_u$',  # github issue #4873
     r'${xyz}^k{x}_{k}{x}^{p}{y}^{p-2} {d}_{i}^{j}{b}_{j}{c}_{k}{d} {x}^{j}_{i}{E}^{0}{E}^0_u$',
     r'${\int}_x^x x\oint_x^x x\int_{X}^{X}x\int_x x \int^x x \int_{x} x\int^{x}{\int}_{x} x{\int}^{x}_{x}x$',
     r'testing$^{123}$',
-    ' '.join('$\\' + p + '$' for p in sorted(_mathtext.Parser._accentprefixed)),
+    None,
     r'$6-2$; $-2$; $ -2$; ${-2}$; ${  -2}$; $20^{+3}_{-2}$',
     r'$\overline{\omega}^x \frac{1}{2}_0^x$',  # github issue #5444
     r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$',  # github issue 5799
     r'$\left(X\right)_{a}^{b}$',  # github issue 7615
     r'$\dfrac{\$100.00}{y}$',  # github issue #1888
 ]
-# 'Lightweight' tests test only a single fontset (dejavusans, which is the
+# 'svgastext' tests switch svg output to embed text as text (rather than as
+# paths).
+svgastext_math_tests = [
+    r'$-$-',
+]
+# 'lightweight' tests test only a single fontset (dejavusans, which is the
 # default) and only png outputs, in order to minimize the size of baseline
 # images.
 lightweight_math_tests = [
     r'$\sqrt[ab]{123}$',  # github issue #8665
     r'$x \overset{f}{\rightarrow} \overset{f}{x} \underset{xx}{ff} \overset{xx}{ff} \underset{f}{x} \underset{f}{\leftarrow} x$',  # github issue #18241
+    r'$\sum x\quad\sum^nx\quad\sum_nx\quad\sum_n^nx\quad\prod x\quad\prod^nx\quad\prod_nx\quad\prod_n^nx$',  # GitHub issue 18085
+    r'$1.$ $2.$ $19680801.$ $a.$ $b.$ $mpl.$',
+    r'$\text{text}_{\text{sub}}^{\text{sup}} + \text{\$foo\$} + \frac{\text{num}}{\mathbf{\text{den}}}\text{with space, curly brackets \{\}, and dash -}$',
+    r'$\boldsymbol{abcde} \boldsymbol{+} \boldsymbol{\Gamma + \Omega} \boldsymbol{01234} \boldsymbol{\alpha * \beta}$',
+    r'$\left\lbrace\frac{\left\lbrack A^b_c\right\rbrace}{\left\leftbrace D^e_f \right\rbrack}\right\rightbrace\ \left\leftparen\max_{x} \left\lgroup \frac{A}{B}\right\rgroup \right\rightparen$',
+    r'$\left( a\middle. b \right)$ $\left( \frac{a}{b} \middle\vert x_i \in P^S \right)$ $\left[ 1 - \middle| a\middle| + \left( x  - \left\lfloor \dfrac{a}{b}\right\rfloor \right)  \right]$',
+    r'$\sum_{\substack{k = 1\\ k \neq \lfloor n/2\rfloor}}^{n}P(i,j) \sum_{\substack{i \neq 0\\ -1 \leq i \leq 3\\ 1 \leq j \leq 5}} F^i(x,y) \sum_{\substack{\left \lfloor \frac{n}{2} \right\rfloor}} F(n)$',
 ]
 
 digits = "0123456789"
@@ -138,7 +159,7 @@ all = [digits, uppercase, lowercase, uppergreek, lowergreek]
 # stub should be of the form (None, N) where N is the number of strings that
 # used to be tested
 # Add new tests at the end.
-font_test_specs = [
+font_test_specs: list[tuple[None | list[str], Any]] = [
     ([], all),
     (['mathrm'], all),
     (['mathbf'], all),
@@ -159,10 +180,11 @@ font_test_specs = [
     (['mathscr'], [uppercase, lowercase]),
     (['mathsf'], [digits, uppercase, lowercase]),
     (['mathrm', 'mathsf'], [digits, uppercase, lowercase]),
-    (['mathbf', 'mathsf'], [digits, uppercase, lowercase])
+    (['mathbf', 'mathsf'], [digits, uppercase, lowercase]),
+    (['mathbfit'], all),
     ]
 
-font_tests = []
+font_tests: list[None | str] = []
 for fonts, chars in font_test_specs:
     if fonts is None:
         font_tests.extend([None] * chars)
@@ -191,10 +213,28 @@ def baseline_images(request, fontset, index, text):
 @pytest.mark.parametrize(
     'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathtext'], indirect=True)
-@image_comparison(baseline_images=None)
+@image_comparison(baseline_images=None,
+                  tol=0.011 if platform.machine() in ('ppc64le', 's390x') else 0)
 def test_mathtext_rendering(baseline_images, fontset, index, text):
     mpl.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
+    fig.text(0.5, 0.5, text,
+             horizontalalignment='center', verticalalignment='center')
+
+
+@pytest.mark.parametrize('index, text', enumerate(svgastext_math_tests),
+                         ids=range(len(svgastext_math_tests)))
+@pytest.mark.parametrize('fontset', ['cm', 'dejavusans'])
+@pytest.mark.parametrize('baseline_images', ['mathtext0'], indirect=True)
+@image_comparison(
+    baseline_images=None, extensions=['svg'],
+    savefig_kwarg={'metadata': {  # Minimize image size.
+        'Creator': None, 'Date': None, 'Format': None, 'Type': None}})
+def test_mathtext_rendering_svgastext(baseline_images, fontset, index, text):
+    mpl.rcParams['mathtext.fontset'] = fontset
+    mpl.rcParams['svg.fonttype'] = 'none'  # Minimize image size.
+    fig = plt.figure(figsize=(5.25, 0.75))
+    fig.patch.set(visible=False)  # Minimize image size.
     fig.text(0.5, 0.5, text,
              horizontalalignment='center', verticalalignment='center')
 
@@ -215,7 +255,8 @@ def test_mathtext_rendering_lightweight(baseline_images, fontset, index, text):
 @pytest.mark.parametrize(
     'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathfont'], indirect=True)
-@image_comparison(baseline_images=None, extensions=['png'])
+@image_comparison(baseline_images=None, extensions=['png'],
+                  tol=0.011 if platform.machine() in ('ppc64le', 's390x') else 0)
 def test_mathfont_rendering(baseline_images, fontset, index, text):
     mpl.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
@@ -223,18 +264,37 @@ def test_mathfont_rendering(baseline_images, fontset, index, text):
              horizontalalignment='center', verticalalignment='center')
 
 
+@check_figures_equal(extensions=["png"])
+def test_short_long_accents(fig_test, fig_ref):
+    acc_map = _mathtext.Parser._accent_map
+    short_accs = [s for s in acc_map if len(s) == 1]
+    corresponding_long_accs = []
+    for s in short_accs:
+        l, = [l for l in acc_map if len(l) > 1 and acc_map[l] == acc_map[s]]
+        corresponding_long_accs.append(l)
+    fig_test.text(0, .5, "$" + "".join(rf"\{s}a" for s in short_accs) + "$")
+    fig_ref.text(
+        0, .5, "$" + "".join(fr"\{l} a" for l in corresponding_long_accs) + "$")
+
+
 def test_fontinfo():
     fontpath = mpl.font_manager.findfont("DejaVu Sans")
     font = mpl.ft2font.FT2Font(fontpath)
     table = font.get_sfnt_table("head")
+    assert table is not None
     assert table['version'] == (1, 0)
 
 
+# See gh-26152 for more context on this xfail
+@pytest.mark.xfail(pyparsing_version.release == (3, 1, 0),
+                   reason="Error messages are incorrect for this version")
 @pytest.mark.parametrize(
     'math, msg',
     [
-        (r'$\hspace{}$', r'Expected \hspace{n}'),
-        (r'$\hspace{foo}$', r'Expected \hspace{n}'),
+        (r'$\hspace{}$', r'Expected \hspace{space}'),
+        (r'$\hspace{foo}$', r'Expected \hspace{space}'),
+        (r'$\sinx$', r'Unknown symbol: \sinx'),
+        (r'$\dotx$', r'Unknown symbol: \dotx'),
         (r'$\frac$', r'Expected \frac{num}{den}'),
         (r'$\frac{}{}$', r'Expected \frac{num}{den}'),
         (r'$\binom$', r'Expected \binom{num}{den}'),
@@ -245,8 +305,8 @@ def test_fontinfo():
          r'Expected \genfrac{ldelim}{rdelim}{rulesize}{style}{num}{den}'),
         (r'$\sqrt$', r'Expected \sqrt{value}'),
         (r'$\sqrt f$', r'Expected \sqrt{value}'),
-        (r'$\overline$', r'Expected \overline{value}'),
-        (r'$\overline{}$', r'Expected \overline{value}'),
+        (r'$\overline$', r'Expected \overline{body}'),
+        (r'$\overline{}$', r'Expected \overline{body}'),
         (r'$\leftF$', r'Expected a delimiter'),
         (r'$\rightF$', r'Unknown symbol: \rightF'),
         (r'$\left(\right$', r'Expected a delimiter'),
@@ -261,10 +321,13 @@ def test_fontinfo():
         (r'$a^2^2$', r'Double superscript'),
         (r'$a_2_2$', r'Double subscript'),
         (r'$a^2_a^2$', r'Double superscript'),
+        (r'$a = {b$', r"Expected '}'"),
     ],
     ids=[
         'hspace without value',
         'hspace with invalid value',
+        'function without space',
+        'accent without space',
         'frac without parameters',
         'frac with empty parameters',
         'binom without parameters',
@@ -286,7 +349,8 @@ def test_fontinfo():
         'unknown symbol',
         'double superscript',
         'double subscript',
-        'super on sub without braces'
+        'super on sub without braces',
+        'unclosed group',
     ]
 )
 def test_mathtext_exceptions(math, msg):
@@ -302,24 +366,17 @@ def test_get_unicode_index_exception():
 
 
 def test_single_minus_sign():
-    plt.figure(figsize=(0.3, 0.3))
-    plt.text(0.5, 0.5, '$-$')
-    plt.gca().spines[:].set_visible(False)
-    plt.gca().set_xticks([])
-    plt.gca().set_yticks([])
-
-    buff = io.BytesIO()
-    plt.savefig(buff, format="rgba", dpi=1000)
-    array = np.frombuffer(buff.getvalue(), dtype=np.uint8)
-
-    # If this fails, it would be all white
-    assert not np.all(array == 0xff)
+    fig = plt.figure()
+    fig.text(0.5, 0.5, '$-$')
+    fig.canvas.draw()
+    t = np.asarray(fig.canvas.renderer.buffer_rgba())
+    assert (t != 0xff).any()  # assert that canvas is not all white.
 
 
 @check_figures_equal(extensions=["png"])
 def test_spaces(fig_test, fig_ref):
-    fig_test.subplots().set_title(r"$1\,2\>3\ 4$")
-    fig_ref.subplots().set_title(r"$1\/2\:3~4$")
+    fig_test.text(.5, .5, r"$1\,2\>3\ 4$")
+    fig_ref.text(.5, .5, r"$1\/2\:3~4$")
 
 
 @check_figures_equal(extensions=["png"])
@@ -332,6 +389,7 @@ def test_operator_space(fig_test, fig_ref):
     fig_test.text(0.1, 0.6, r"$\operatorname{op}[6]$")
     fig_test.text(0.1, 0.7, r"$\cos^2$")
     fig_test.text(0.1, 0.8, r"$\log_2$")
+    fig_test.text(0.1, 0.9, r"$\sin^2 \cos$")  # GitHub issue #17852
 
     fig_ref.text(0.1, 0.1, r"$\mathrm{log\,}6$")
     fig_ref.text(0.1, 0.2, r"$\mathrm{log}(6)$")
@@ -341,6 +399,23 @@ def test_operator_space(fig_test, fig_ref):
     fig_ref.text(0.1, 0.6, r"$\mathrm{op}[6]$")
     fig_ref.text(0.1, 0.7, r"$\mathrm{cos}^2$")
     fig_ref.text(0.1, 0.8, r"$\mathrm{log}_2$")
+    fig_ref.text(0.1, 0.9, r"$\mathrm{sin}^2 \mathrm{\,cos}$")
+
+
+@check_figures_equal(extensions=["png"])
+def test_inverted_delimiters(fig_test, fig_ref):
+    fig_test.text(.5, .5, r"$\left)\right($", math_fontfamily="dejavusans")
+    fig_ref.text(.5, .5, r"$)($", math_fontfamily="dejavusans")
+
+
+@check_figures_equal(extensions=["png"])
+def test_genfrac_displaystyle(fig_test, fig_ref):
+    fig_test.text(0.1, 0.1, r"$\dfrac{2x}{3y}$")
+
+    thickness = _mathtext.TruetypeFonts.get_underline_thickness(
+        None, None, fontsize=mpl.rcParams["font.size"],
+        dpi=mpl.rcParams["savefig.dpi"])
+    fig_ref.text(0.1, 0.1, r"$\genfrac{}{}{%f}{0}{2x}{3y}$" % thickness)
 
 
 def test_mathtext_fallback_valid():
@@ -366,6 +441,7 @@ def test_mathtext_fallback(fallback, fontlist):
     mpl.rcParams['mathtext.rm'] = 'mpltest'
     mpl.rcParams['mathtext.it'] = 'mpltest:italic'
     mpl.rcParams['mathtext.bf'] = 'mpltest:bold'
+    mpl.rcParams['mathtext.bfit'] = 'mpltest:italic:bold'
     mpl.rcParams['mathtext.fallback'] = fallback
 
     test_str = r'a$A\AA\breve\gimel$'
@@ -448,3 +524,37 @@ def test_mathtext_cmr10_minus_sign():
     ax.plot(range(-1, 1), range(-1, 1))
     # draw to make sure we have no warnings
     fig.canvas.draw()
+
+
+def test_mathtext_operators():
+    test_str = r'''
+    \increment \smallin \notsmallowns
+    \smallowns \QED \rightangle
+    \smallintclockwise \smallvarointclockwise
+    \smallointctrcclockwise
+    \ratio \minuscolon \dotsminusdots
+    \sinewave \simneqq \nlesssim
+    \ngtrsim \nlessgtr \ngtrless
+    \cupleftarrow \oequal \rightassert
+    \rightModels \hermitmatrix \barvee
+    \measuredrightangle \varlrtriangle
+    \equalparallel \npreccurlyeq \nsucccurlyeq
+    \nsqsubseteq \nsqsupseteq \sqsubsetneq
+    \sqsupsetneq  \disin \varisins
+    \isins \isindot \varisinobar
+    \isinobar \isinvb \isinE
+    \nisd \varnis \nis
+    \varniobar \niobar \bagmember
+    \triangle'''.split()
+
+    fig = plt.figure()
+    for x, i in enumerate(test_str):
+        fig.text(0.5, (x + 0.5)/len(test_str), r'${%s}$' % i)
+
+    fig.draw_without_rendering()
+
+
+@check_figures_equal(extensions=["png"])
+def test_boldsymbol(fig_test, fig_ref):
+    fig_test.text(0.1, 0.2, r"$\boldsymbol{\mathrm{abc0123\alpha}}$")
+    fig_ref.text(0.1, 0.2, r"$\mathrm{abc0123\alpha}$")

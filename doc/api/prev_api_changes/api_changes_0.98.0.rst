@@ -12,7 +12,7 @@ Changes for 0.98.0
   rather than custom callback handling.  Any users of
   ``matplotlib.cm.ScalarMappable.add_observer`` of the
   :class:`~matplotlib.cm.ScalarMappable` should use the
-  :attr:`matplotlib.cm.ScalarMappable.callbacksSM`
+  ``matplotlib.cm.ScalarMappable.callbacksSM``
   :class:`~matplotlib.cbook.CallbackRegistry` instead.
 
 * New axes function and Axes method provide control over the plot
@@ -181,7 +181,7 @@ The ``Polar`` class has moved to :mod:`matplotlib.projections.polar`.
 .. [3] :meth:`matplotlib.axes.Axes.set_position` now accepts either
    four scalars or a :class:`matplotlib.transforms.Bbox` instance.
 
-.. [4] Since the recfactoring allows for more than two scale types
+.. [4] Since the refactoring allows for more than two scale types
    ('log' or 'linear'), it no longer makes sense to have a toggle.
    ``Axes.toggle_log_lineary()`` has been removed.
 
@@ -282,44 +282,33 @@ Old method                                    New method
 
 New methods:
 
-  * :meth:`draw_path(self, gc, path, transform, rgbFace)
-    <matplotlib.backend_bases.RendererBase.draw_path>`
-
-  * :meth:`draw_markers(self, gc, marker_path, marker_trans, path,
-    trans, rgbFace)
-    <matplotlib.backend_bases.RendererBase.draw_markers>`
-
-  * :meth:`draw_path_collection(self, master_transform, cliprect,
-    clippath, clippath_trans, paths, all_transforms, offsets,
-    offsetTrans, facecolors, edgecolors, linewidths, linestyles,
-    antialiaseds)
-    <matplotlib.backend_bases.RendererBase.draw_path_collection>`
-    *[optional]*
+* :meth:`draw_path(self, gc, path, transform, rgbFace)
+  <matplotlib.backend_bases.RendererBase.draw_path>`
+* :meth:`draw_markers(self, gc, marker_path, marker_trans, path,
+  trans, rgbFace)
+  <matplotlib.backend_bases.RendererBase.draw_markers>`
+* :meth:`draw_path_collection(self, master_transform, cliprect,
+  clippath, clippath_trans, paths, all_transforms, offsets,
+  offsetTrans, facecolors, edgecolors, linewidths, linestyles,
+  antialiaseds)
+  <matplotlib.backend_bases.RendererBase.draw_path_collection>`
+  *[optional]*
 
 Changed methods:
 
-  * ``draw_image(self, x, y, im, bbox)`` is now
-    :meth:`draw_image(self, x, y, im, bbox, clippath, clippath_trans)
-    <matplotlib.backend_bases.RendererBase.draw_image>`
+* ``draw_image(self, x, y, im, bbox)`` is now
+  :meth:`draw_image(self, x, y, im, bbox, clippath, clippath_trans)
+  <matplotlib.backend_bases.RendererBase.draw_image>`
 
 Removed methods:
 
-  * ``draw_arc``
-
-  * ``draw_line_collection``
-
-  * ``draw_line``
-
-  * ``draw_lines``
-
-  * ``draw_point``
-
-  * ``draw_quad_mesh``
-
-  * ``draw_poly_collection``
-
-  * ``draw_polygon``
-
-  * ``draw_rectangle``
-
-  * ``draw_regpoly_collection``
+* ``draw_arc``
+* ``draw_line_collection``
+* ``draw_line``
+* ``draw_lines``
+* ``draw_point``
+* ``draw_quad_mesh``
+* ``draw_poly_collection``
+* ``draw_polygon``
+* ``draw_rectangle``
+* ``draw_regpoly_collection``

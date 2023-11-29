@@ -49,7 +49,7 @@ class Sankey:
         that there is consistent alignment and formatting.
 
         In order to draw a complex Sankey diagram, create an instance of
-        :class:`Sankey` by calling it without any kwargs::
+        `Sankey` by calling it without any kwargs::
 
             sankey = Sankey()
 
@@ -70,7 +70,7 @@ class Sankey:
 
         Other Parameters
         ----------------
-        ax : `~.axes.Axes`
+        ax : `~matplotlib.axes.Axes`
             Axes onto which the data should be plotted.  If *ax* isn't
             provided, new Axes will be created.
         scale : float
@@ -109,8 +109,8 @@ class Sankey:
             magnitude of the sum of connected flows cannot be greater than
             *tolerance*.
         **kwargs
-            Any additional keyword arguments will be passed to :meth:`add`,
-            which will create the first subdiagram.
+            Any additional keyword arguments will be passed to `add`, which
+            will create the first subdiagram.
 
         See Also
         --------
@@ -204,12 +204,12 @@ class Sankey:
                                  # Insignificant
                                  # [6.12303177e-17, 1.00000000e+00]])
                                  [0.00000000e+00, 1.00000000e+00]])
-        if quadrant == 0 or quadrant == 2:
+        if quadrant in (0, 2):
             if cw:
                 vertices = ARC_VERTICES
             else:
                 vertices = ARC_VERTICES[:, ::-1]  # Swap x and y.
-        elif quadrant == 1 or quadrant == 3:
+        else:  # 1, 3
             # Negate x.
             if cw:
                 # Swap x and y.
@@ -299,15 +299,11 @@ class Sankey:
             else:  # Vertical
                 x += self.gap
                 if angle == UP:
-                    sign = 1
+                    sign, quadrant = 1, 3
                 else:
-                    sign = -1
+                    sign, quadrant = -1, 0
 
                 tip = [x - flow / 2.0, y + sign * (length + tipheight)]
-                if angle == UP:
-                    quadrant = 3
-                else:
-                    quadrant = 0
                 # Inner arc isn't needed if inner radius is zero
                 if self.radius:
                     path.extend(self._arc(quadrant=quadrant,
@@ -375,7 +371,7 @@ class Sankey:
             the outside in.
 
             If the sum of the inputs and outputs is
-            nonzero, the discrepancy will appear as a cubic Bezier curve along
+            nonzero, the discrepancy will appear as a cubic Bézier curve along
             the top and bottom edges of the trunk.
 
         orientations : list of {-1, 0, 1}
@@ -438,10 +434,7 @@ class Sankey:
         Sankey.finish
         """
         # Check and preprocess the arguments.
-        if flows is None:
-            flows = np.array([1.0, -1.0])
-        else:
-            flows = np.array(flows)
+        flows = np.array([1.0, -1.0]) if flows is None else np.array(flows)
         n = flows.shape[0]  # Number of flows
         if rotation is None:
             rotation = 0
@@ -525,7 +518,7 @@ class Sankey:
             if orient == 1:
                 if is_input:
                     angles[i] = DOWN
-                elif not is_input:
+                elif is_input is False:
                     # Be specific since is_input can be None.
                     angles[i] = UP
             elif orient == 0:
@@ -538,7 +531,7 @@ class Sankey:
                         f"but it must be -1, 0, or 1")
                 if is_input:
                     angles[i] = UP
-                elif not is_input:
+                elif is_input is False:
                     angles[i] = DOWN
 
         # Justify the lengths of the paths.
@@ -561,7 +554,7 @@ class Sankey:
                 if angle == DOWN and is_input:
                     pathlengths[i] = ullength
                     ullength += flow
-                elif angle == UP and not is_input:
+                elif angle == UP and is_input is False:
                     pathlengths[i] = urlength
                     urlength -= flow  # Flow is negative for outputs.
             # Determine the lengths of the bottom-side arrows
@@ -571,7 +564,7 @@ class Sankey:
                 if angle == UP and is_input:
                     pathlengths[n - i - 1] = lllength
                     lllength += flow
-                elif angle == DOWN and not is_input:
+                elif angle == DOWN and is_input is False:
                     pathlengths[n - i - 1] = lrlength
                     lrlength -= flow
             # Determine the lengths of the left-side arrows
@@ -591,7 +584,7 @@ class Sankey:
             for i, (angle, is_input, spec) in enumerate(zip(
                   angles, are_inputs, list(zip(scaled_flows, pathlengths)))):
                 if angle == RIGHT:
-                    if not is_input:
+                    if is_input is False:
                         if has_right_output:
                             pathlengths[i] = 0
                         else:
@@ -637,7 +630,7 @@ class Sankey:
             if angle == DOWN and is_input:
                 tips[i, :], label_locations[i, :] = self._add_input(
                     ulpath, angle, *spec)
-            elif angle == UP and not is_input:
+            elif angle == UP and is_input is False:
                 tips[i, :], label_locations[i, :] = self._add_output(
                     urpath, angle, *spec)
         # Add the bottom-side inputs and outputs from the middle outwards.
@@ -647,7 +640,7 @@ class Sankey:
                 tip, label_location = self._add_input(llpath, angle, *spec)
                 tips[n - i - 1, :] = tip
                 label_locations[n - i - 1, :] = label_location
-            elif angle == DOWN and not is_input:
+            elif angle == DOWN and is_input is False:
                 tip, label_location = self._add_output(lrpath, angle, *spec)
                 tips[n - i - 1, :] = tip
                 label_locations[n - i - 1, :] = label_location
@@ -670,7 +663,7 @@ class Sankey:
         has_right_output = False
         for i, (angle, is_input, spec) in enumerate(zip(
               angles, are_inputs, list(zip(scaled_flows, pathlengths)))):
-            if angle == RIGHT and not is_input:
+            if angle == RIGHT and is_input is False:
                 if not has_right_output:
                     # Make sure the upper path extends
                     # at least as far as the lower one.
@@ -730,7 +723,7 @@ class Sankey:
             fc = kwargs.pop('fc', kwargs.pop('facecolor', None))
             lw = kwargs.pop('lw', kwargs.pop('linewidth', None))
         if fc is None:
-            fc = next(self.ax._get_patches_for_fill.prop_cycler)['color']
+            fc = self.ax._get_patches_for_fill.get_next_color()
         patch = PathPatch(Path(vertices, codes), fc=fc, lw=lw, **kwargs)
         self.ax.add_patch(patch)
 
@@ -787,35 +780,27 @@ class Sankey:
         Adjust the axes and return a list of information about the Sankey
         subdiagram(s).
 
-        Return value is a list of subdiagrams represented with the following
-        fields:
+        Returns a list of subdiagrams with the following fields:
 
-          ===============   ===================================================
-          Field             Description
-          ===============   ===================================================
-          *patch*           Sankey outline (an instance of
-                            :class:`~matplotlib.patches.PathPatch`)
-          *flows*           values of the flows (positive for input, negative
-                            for output)
-          *angles*          list of angles of the arrows [deg/90]
-                            For example, if the diagram has not been rotated,
-                            an input to the top side will have an angle of 3
-                            (DOWN), and an output from the top side will have
-                            an angle of 1 (UP).  If a flow has been skipped
-                            (because its magnitude is less than *tolerance*),
-                            then its angle will be *None*.
-          *tips*            array in which each row is an [x, y] pair
-                            indicating the positions of the tips (or "dips") of
-                            the flow paths
-                            If the magnitude of a flow is less the *tolerance*
-                            for the instance of :class:`Sankey`, the flow is
-                            skipped and its tip will be at the center of the
-                            diagram.
-          *text*            :class:`~matplotlib.text.Text` instance for the
-                            label of the diagram
-          *texts*           list of :class:`~matplotlib.text.Text` instances
-                            for the labels of flows
-          ===============   ===================================================
+        ========  =============================================================
+        Field     Description
+        ========  =============================================================
+        *patch*   Sankey outline (a `~matplotlib.patches.PathPatch`).
+        *flows*   Flow values (positive for input, negative for output).
+        *angles*  List of angles of the arrows [deg/90].
+                  For example, if the diagram has not been rotated,
+                  an input to the top side has an angle of 3 (DOWN),
+                  and an output from the top side has an angle of 1 (UP).
+                  If a flow has been skipped (because its magnitude is less
+                  than *tolerance*), then its angle will be *None*.
+        *tips*    (N, 2)-array of the (x, y) positions of the tips (or "dips")
+                  of the flow paths.
+                  If the magnitude of a flow is less the *tolerance* of this
+                  `Sankey` instance, the flow is skipped and its tip will be at
+                  the center of the diagram.
+        *text*    `.Text` instance for the diagram label.
+        *texts*   List of `.Text` instances for the flow labels.
+        ========  =============================================================
 
         See Also
         --------

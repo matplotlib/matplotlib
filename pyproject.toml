@@ -1,0 +1,300 @@
+[project]
+name = "matplotlib"
+authors = [
+  {email = "matplotlib-users@python.org"},
+  {name = "John D. Hunter, Michael Droettboom"}
+]
+description = "Python plotting package"
+readme = "README.md"
+license = { file = "LICENSE/LICENSE" }
+dynamic = ["version"]
+classifiers=[
+    "Development Status :: 5 - Production/Stable",
+    "Framework :: Matplotlib",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: Python Software Foundation License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
+
+# When updating the list of dependencies, add an api_changes/development
+# entry and also update the following places:
+# - lib/matplotlib/__init__.py (matplotlib._check_versions())
+# - requirements/testing/minver.txt
+# - doc/devel/dependencies.rst
+# - .github/workflows/tests.yml
+# - environment.yml
+dependencies = [
+    "contourpy >= 1.0.1",
+    "cycler >= 0.10",
+    "fonttools >= 4.22.0",
+    "kiwisolver >= 1.3.1",
+    "numpy >= 1.21",
+    "packaging >= 20.0",
+    "pillow >= 8",
+    "pyparsing >= 2.3.1",
+    "python-dateutil >= 2.7",
+    "importlib-resources >= 3.2.0; python_version < '3.10'",
+]
+requires-python = ">=3.9"
+
+[project.optional-dependencies]
+# Should be a copy of the build dependencies below.
+dev = [
+    "meson-python>=0.13.1",
+    "numpy>=1.25",
+    "pybind11>=2.6",
+    "setuptools_scm>=7",
+    # Not required by us but setuptools_scm without a version, cso _if_
+    # installed, then setuptools_scm 8 requires at least this version.
+    # Unfortunately, we can't do a sort of minimum-if-instaled dependency, so
+    # we need to keep this for now until setuptools_scm _fully_ drops
+    # setuptools.
+    "setuptools>=64",
+]
+
+[project.urls]
+"Homepage" = "https://matplotlib.org"
+"Download" = "https://matplotlib.org/stable/users/installing/index.html"
+"Documentation" = "https://matplotlib.org"
+"Source Code" = "https://github.com/matplotlib/matplotlib"
+"Bug Tracker" = "https://github.com/matplotlib/matplotlib/issues"
+"Forum" = "https://discourse.matplotlib.org/"
+"Donate" = "https://numfocus.org/donate-to-matplotlib"
+
+[build-system]
+build-backend = "mesonpy"
+# Also keep in sync with optional dependencies above.
+requires = [
+    "meson-python>=0.13.1",
+    "numpy>=1.25",
+    "pybind11>=2.6",
+    "setuptools_scm>=7",
+]
+
+[tool.meson-python.args]
+install = ['--tags=data,python-runtime,runtime']
+
+[tool.setuptools_scm]
+version_scheme = "release-branch-semver"
+local_scheme = "node-and-date"
+write_to = "lib/matplotlib/_version.py"
+parentdir_prefix_version = "matplotlib-"
+fallback_version = "0.0+UNKNOWN"
+
+[tool.isort]
+known_pydata = "numpy, matplotlib.pyplot"
+known_firstparty = "matplotlib,mpl_toolkits"
+sections = "FUTURE,STDLIB,THIRDPARTY,PYDATA,FIRSTPARTY,LOCALFOLDER"
+force_sort_within_sections = true
+
+[tool.ruff]
+exclude = [
+    ".git",
+    "build",
+    "doc/gallery",
+    "doc/tutorials",
+    "tools/gh_api.py",
+    ".tox",
+    ".eggs",
+]
+ignore = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D106",
+    "D200",
+    "D202",
+    "D204",
+    "D205",
+    "D301",
+    "D400",
+    "D401",
+    "D403",
+    "D404",
+    "E741",
+    "F841",
+]
+line-length = 88
+select = [
+    "D",
+    "E",
+    "F",
+    "W",
+]
+
+# The following error codes are not supported by ruff v0.0.240
+# They are planned and should be selected once implemented
+# even if they are deselected by default.
+# These are primarily whitespace/corrected by autoformatters (which we don't use).
+# See https://github.com/charliermarsh/ruff/issues/2402 for status on implementation
+external = [
+  "E122",
+  "E201",
+  "E202",
+  "E203",
+  "E221",
+  "E251",
+  "E261",
+  "E272",
+  "E302",
+  "E703",
+]
+
+target-version = "py39"
+
+[tool.ruff.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.per-file-ignores]
+"doc/conf.py" = ["E402"]
+"galleries/examples/animation/frame_grabbing_sgskip.py" = ["E402"]
+"galleries/examples/lines_bars_and_markers/marker_reference.py" = ["E402"]
+"galleries/examples/misc/print_stdout_sgskip.py" = ["E402"]
+"galleries/examples/style_sheets/bmh.py" = ["E501"]
+"galleries/examples/subplots_axes_and_figures/demo_constrained_layout.py" = ["E402"]
+"galleries/examples/text_labels_and_annotations/custom_legends.py" = ["E402"]
+"galleries/examples/ticks/date_concise_formatter.py" = ["E402"]
+"galleries/examples/ticks/date_formatters_locators.py" = ["F401"]
+"galleries/examples/user_interfaces/embedding_in_gtk3_panzoom_sgskip.py" = ["E402"]
+"galleries/examples/user_interfaces/embedding_in_gtk3_sgskip.py" = ["E402"]
+"galleries/examples/user_interfaces/embedding_in_gtk4_panzoom_sgskip.py" = ["E402"]
+"galleries/examples/user_interfaces/embedding_in_gtk4_sgskip.py" = ["E402"]
+"galleries/examples/user_interfaces/gtk3_spreadsheet_sgskip.py" = ["E402"]
+"galleries/examples/user_interfaces/gtk4_spreadsheet_sgskip.py" = ["E402"]
+"galleries/examples/user_interfaces/mpl_with_glade3_sgskip.py" = ["E402"]
+"galleries/examples/user_interfaces/pylab_with_gtk3_sgskip.py" = ["E402"]
+"galleries/examples/user_interfaces/pylab_with_gtk4_sgskip.py" = ["E402"]
+"galleries/examples/userdemo/pgf_preamble_sgskip.py" = ["E402"]
+
+"lib/matplotlib/__init__.py" = ["E402", "F401"]
+"lib/matplotlib/_animation_data.py" = ["E501"]
+"lib/matplotlib/_api/__init__.py" = ["F401"]
+"lib/matplotlib/axes/__init__.py" = ["F401", "F403"]
+"lib/matplotlib/backends/backend_template.py" = ["F401"]
+"lib/matplotlib/font_manager.py" = ["E501"]
+"lib/matplotlib/image.py" = ["F401", "F403"]
+"lib/matplotlib/pylab.py" = ["F401", "F403"]
+"lib/matplotlib/pyplot.py" = ["F401", "F811"]
+"lib/matplotlib/tests/test_mathtext.py" = ["E501"]
+"lib/mpl_toolkits/axisartist/__init__.py" = ["F401"]
+"lib/pylab.py" = ["F401", "F403"]
+
+"galleries/users_explain/artists/paths.py" = ["E402"]
+"galleries/users_explain/artists/patheffects_guide.py" = ["E402"]
+"galleries/users_explain/artists/transforms_tutorial.py" = ["E402", "E501"]
+"galleries/users_explain/colors/colormaps.py" = ["E501"]
+"galleries/users_explain/colors/colors.py" = ["E402"]
+"galleries/tutorials/artists.py" = ["E402"]
+"galleries/users_explain/axes/constrainedlayout_guide.py" = ["E402"]
+"galleries/users_explain/axes/legend_guide.py" = ["E402"]
+"galleries/users_explain/axes/tight_layout_guide.py" = ["E402"]
+"galleries/users_explain/animations/animations.py" = ["E501"]
+"galleries/tutorials/images.py" = ["E501"]
+"galleries/tutorials/pyplot.py" = ["E402", "E501"]
+"galleries/users_explain/text/annotations.py" = ["E402", "E501"]
+"galleries/users_explain/text/mathtext.py" = ["E501"]
+"galleries/users_explain/text/text_intro.py" = ["E402"]
+"galleries/users_explain/text/text_props.py" = ["E501"]
+
+[tool.mypy]
+ignore_missing_imports = true
+enable_incomplete_feature = [
+  "Unpack",
+]
+exclude = [
+  #stubtest
+  ".*/matplotlib/(sphinxext|backends|testing/jpl_units)",
+  #mypy precommit
+  "galleries/",
+  "doc/",
+  "lib/matplotlib/backends/",
+  "lib/matplotlib/sphinxext",
+  "lib/matplotlib/testing/jpl_units",
+  "lib/mpl_toolkits/",
+  #removing tests causes errors in backends
+  "lib/matplotlib/tests/",
+  # tinypages is used for testing the sphinx ext,
+  # stubtest will import and run, opening a figure if not excluded
+  ".*/tinypages"
+]
+
+[tool.rstcheck]
+ignore_directives = [
+    # matplotlib.sphinxext.mathmpl
+    "mathmpl",
+    # matplotlib.sphinxext.plot_directive
+    "plot",
+    # sphinxext.math_symbol_table
+    "math_symbol_table",
+    # sphinxext.redirect_from
+    "redirect-from",
+    # sphinx-design
+    "dropdown",
+    "grid",
+    "tab-set",
+    # sphinx-gallery
+    "minigallery",
+    "image-sg",
+    # sphinx.ext.autodoc
+    "automodule",
+    "autoclass",
+    "autofunction",
+    "autodata",
+    "automethod",
+    "autoattribute",
+    "autoproperty",
+    # sphinx.ext.autosummary
+    "autosummary",
+    # sphinx.ext.ifconfig
+    "ifconfig",
+    # sphinx.ext.inheritance_diagram
+    "inheritance-diagram",
+    # include directive is causing attribute errors
+    "include"
+]
+ignore_roles = [
+    # sphinxext.custom_roles
+    "rc",
+    # matplotlib.sphinxext.mathmpl
+    "mathmpl",
+    "math-stix",
+    # sphinxext.github
+    "ghissue",
+    "ghpull",
+    "ghuser",
+    # sphinx-design
+    "octicon",
+]
+ignore_substitutions = [
+    "Artist",
+    "Axes",
+    "Axis",
+    "Figure",
+    "release"
+]
+
+ignore_messages = [
+    "Hyperlink target \".*\" is not referenced.",
+    "Duplicate implicit target name: \".*\".",
+    "Duplicate explicit target name: \".*\".",
+    # sphinx.ext.intersphinx directives
+    "No role entry for \"external+.*\".",
+    "Unknown interpreted text role \"external+.*\"."
+]
+
+[tool.pytest.ini_options]
+# Because tests can be run from an installed copy, most of our Pytest
+# configuration is in the `pytest_configure` function in
+# `lib/matplotlib/testing/conftest.py`.
+minversion = "7.0"
+testpaths = ["lib"]

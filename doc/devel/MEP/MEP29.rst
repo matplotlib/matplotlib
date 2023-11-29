@@ -34,7 +34,7 @@ one has to look at the gallery where one such example is provided:
 This example takes a list of strings as well as a list of colors which makes it
 cumbersome to use. An alternative would be to use a restricted set of pango_-like markup and to interpret this markup.
 
-.. _pango: https://developer.gnome.org/pygtk/stable/pango-markup-language.html
+.. _pango: https://docs.gtk.org/Pango/pango_markup.html#pango-markup
 
 Some markup examples::
 
@@ -54,7 +54,7 @@ Improvements
   to use the html.parser from the standard library.
 
 * Computation of text fragment positions could benefit from the OffsetFrom
-  class. See for example item 5 in `Using Complex Coordinates with Annotations <https://matplotlib.org/devdocs/tutorials/text/annotations.html#using-complex-coordinates-with-annotations>`_
+  class. See for example item 5 in `Using Complex Coordinates with Annotations <https://matplotlib.org/devdocs/users/explain/text/annotations.html#using-complex-coordinates-with-annotations>`_
 
 Problems
 --------

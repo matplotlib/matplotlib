@@ -5,6 +5,7 @@ import numpy as np
 
 import pytest
 
+import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
@@ -12,6 +13,8 @@ import matplotlib.path as mpath
 import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
 import matplotlib.artist as martist
+import matplotlib.backend_bases as mbackend_bases
+import matplotlib as mpl
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 
@@ -20,8 +23,8 @@ def test_patch_transform_of_none():
     # specifications
 
     ax = plt.axes()
-    ax.set_xlim([1, 3])
-    ax.set_ylim([1, 3])
+    ax.set_xlim(1, 3)
+    ax.set_ylim(1, 3)
 
     # Draw an ellipse over data coord (2, 2) by specifying device coords.
     xy_data = (2, 2)
@@ -62,8 +65,8 @@ def test_collection_transform_of_none():
     # transform specifications
 
     ax = plt.axes()
-    ax.set_xlim([1, 3])
-    ax.set_ylim([1, 3])
+    ax.set_xlim(1, 3)
+    ax.set_ylim(1, 3)
 
     # draw an ellipse over data coord (2, 2) by specifying device coords
     xy_data = (2, 2)
@@ -372,3 +375,190 @@ def test_set_is_overwritten():
         pass
 
     assert MyArtist4.set is MyArtist3.set
+
+
+def test_format_cursor_data_BoundaryNorm():
+    """Test if cursor data is correct when using BoundaryNorm."""
+    X = np.empty((3, 3))
+    X[0, 0] = 0.9
+    X[0, 1] = 0.99
+    X[0, 2] = 0.999
+    X[1, 0] = -1
+    X[1, 1] = 0
+    X[1, 2] = 1
+    X[2, 0] = 0.09
+    X[2, 1] = 0.009
+    X[2, 2] = 0.0009
+
+    # map range -1..1 to 0..256 in 0.1 steps
+    fig, ax = plt.subplots()
+    fig.suptitle("-1..1 to 0..256 in 0.1")
+    norm = mcolors.BoundaryNorm(np.linspace(-1, 1, 20), 256)
+    img = ax.imshow(X, cmap='RdBu_r', norm=norm)
+
+    labels_list = [
+        "[0.9]",
+        "[1.]",
+        "[1.]",
+        "[-1.0]",
+        "[0.0]",
+        "[1.0]",
+        "[0.09]",
+        "[0.009]",
+        "[0.0009]",
+    ]
+    for v, label in zip(X.flat, labels_list):
+        # label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.1))
+        assert img.format_cursor_data(v) == label
+
+    plt.close()
+
+    # map range -1..1 to 0..256 in 0.01 steps
+    fig, ax = plt.subplots()
+    fig.suptitle("-1..1 to 0..256 in 0.01")
+    cmap = mpl.colormaps['RdBu_r'].resampled(200)
+    norm = mcolors.BoundaryNorm(np.linspace(-1, 1, 200), 200)
+    img = ax.imshow(X, cmap=cmap, norm=norm)
+
+    labels_list = [
+        "[0.90]",
+        "[0.99]",
+        "[1.0]",
+        "[-1.00]",
+        "[0.00]",
+        "[1.00]",
+        "[0.09]",
+        "[0.009]",
+        "[0.0009]",
+    ]
+    for v, label in zip(X.flat, labels_list):
+        # label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.01))
+        assert img.format_cursor_data(v) == label
+
+    plt.close()
+
+    # map range -1..1 to 0..256 in 0.01 steps
+    fig, ax = plt.subplots()
+    fig.suptitle("-1..1 to 0..256 in 0.001")
+    cmap = mpl.colormaps['RdBu_r'].resampled(2000)
+    norm = mcolors.BoundaryNorm(np.linspace(-1, 1, 2000), 2000)
+    img = ax.imshow(X, cmap=cmap, norm=norm)
+
+    labels_list = [
+        "[0.900]",
+        "[0.990]",
+        "[0.999]",
+        "[-1.000]",
+        "[0.000]",
+        "[1.000]",
+        "[0.090]",
+        "[0.009]",
+        "[0.0009]",
+    ]
+    for v, label in zip(X.flat, labels_list):
+        # label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.001))
+        assert img.format_cursor_data(v) == label
+
+    plt.close()
+
+    # different testing data set with
+    # out of bounds values for 0..1 range
+    X = np.empty((7, 1))
+    X[0] = -1.0
+    X[1] = 0.0
+    X[2] = 0.1
+    X[3] = 0.5
+    X[4] = 0.9
+    X[5] = 1.0
+    X[6] = 2.0
+
+    labels_list = [
+        "[-1.0]",
+        "[0.0]",
+        "[0.1]",
+        "[0.5]",
+        "[0.9]",
+        "[1.0]",
+        "[2.0]",
+    ]
+
+    fig, ax = plt.subplots()
+    fig.suptitle("noclip, neither")
+    norm = mcolors.BoundaryNorm(
+        np.linspace(0, 1, 4, endpoint=True), 256, clip=False, extend='neither')
+    img = ax.imshow(X, cmap='RdBu_r', norm=norm)
+    for v, label in zip(X.flat, labels_list):
+        # label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.33))
+        assert img.format_cursor_data(v) == label
+
+    plt.close()
+
+    fig, ax = plt.subplots()
+    fig.suptitle("noclip, min")
+    norm = mcolors.BoundaryNorm(
+        np.linspace(0, 1, 4, endpoint=True), 256, clip=False, extend='min')
+    img = ax.imshow(X, cmap='RdBu_r', norm=norm)
+    for v, label in zip(X.flat, labels_list):
+        # label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.33))
+        assert img.format_cursor_data(v) == label
+
+    plt.close()
+
+    fig, ax = plt.subplots()
+    fig.suptitle("noclip, max")
+    norm = mcolors.BoundaryNorm(
+        np.linspace(0, 1, 4, endpoint=True), 256, clip=False, extend='max')
+    img = ax.imshow(X, cmap='RdBu_r', norm=norm)
+    for v, label in zip(X.flat, labels_list):
+        # label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.33))
+        assert img.format_cursor_data(v) == label
+
+    plt.close()
+
+    fig, ax = plt.subplots()
+    fig.suptitle("noclip, both")
+    norm = mcolors.BoundaryNorm(
+        np.linspace(0, 1, 4, endpoint=True), 256, clip=False, extend='both')
+    img = ax.imshow(X, cmap='RdBu_r', norm=norm)
+    for v, label in zip(X.flat, labels_list):
+        # label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.33))
+        assert img.format_cursor_data(v) == label
+
+    plt.close()
+
+    fig, ax = plt.subplots()
+    fig.suptitle("clip, neither")
+    norm = mcolors.BoundaryNorm(
+        np.linspace(0, 1, 4, endpoint=True), 256, clip=True, extend='neither')
+    img = ax.imshow(X, cmap='RdBu_r', norm=norm)
+    for v, label in zip(X.flat, labels_list):
+        # label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.33))
+        assert img.format_cursor_data(v) == label
+
+    plt.close()
+
+
+def test_auto_no_rasterize():
+    class Gen1(martist.Artist):
+        ...
+
+    assert 'draw' in Gen1.__dict__
+    assert Gen1.__dict__['draw'] is Gen1.draw
+
+    class Gen2(Gen1):
+        ...
+
+    assert 'draw' not in Gen2.__dict__
+    assert Gen2.draw is Gen1.draw
+
+
+def test_draw_wraper_forward_input():
+    class TestKlass(martist.Artist):
+        def draw(self, renderer, extra):
+            return extra
+
+    art = TestKlass()
+    renderer = mbackend_bases.RendererBase()
+
+    assert 'aardvark' == art.draw(renderer, 'aardvark')
+    assert 'aardvark' == art.draw(renderer, extra='aardvark')

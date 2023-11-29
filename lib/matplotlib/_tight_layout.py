@@ -11,7 +11,8 @@ such cases as when left or right margin are affected by xlabel.
 
 import numpy as np
 
-from matplotlib import _api, artist as martist, rcParams
+import matplotlib as mpl
+from matplotlib import _api, artist as martist
 from matplotlib.font_manager import FontProperties
 from matplotlib.transforms import Bbox
 
@@ -41,13 +42,13 @@ def _auto_adjust_subplotpars(
     h_pad, w_pad : float
         Padding (height/width) between edges of adjacent subplots, as a
         fraction of the font size.  Defaults to *pad*.
-    rect : tuple[float, float, float, float]
-        [left, bottom, right, top] in normalized (0, 1) figure coordinates.
+    rect : tuple
+        (left, bottom, right, top), default: None.
     """
     rows, cols = shape
 
-    font_size_inch = (
-        FontProperties(size=rcParams["font.size"]).get_size_in_points() / 72)
+    font_size_inch = (FontProperties(
+        size=mpl.rcParams["font.size"]).get_size_in_points() / 72)
     pad_inch = pad * font_size_inch
     vpad_inch = h_pad * font_size_inch if h_pad is not None else pad_inch
     hpad_inch = w_pad * font_size_inch if w_pad is not None else pad_inch
@@ -156,60 +157,6 @@ def _auto_adjust_subplotpars(
     return kwargs
 
 
-@_api.deprecated("3.5")
-def auto_adjust_subplotpars(
-        fig, renderer, nrows_ncols, num1num2_list, subplot_list,
-        ax_bbox_list=None, pad=1.08, h_pad=None, w_pad=None, rect=None):
-    """
-    Return a dict of subplot parameters to adjust spacing between subplots
-    or ``None`` if resulting axes would have zero height or width.
-
-    Note that this function ignores geometry information of subplot
-    itself, but uses what is given by the *nrows_ncols* and *num1num2_list*
-    parameters.  Also, the results could be incorrect if some subplots have
-    ``adjustable=datalim``.
-
-    Parameters
-    ----------
-    nrows_ncols : tuple[int, int]
-        Number of rows and number of columns of the grid.
-    num1num2_list : list[tuple[int, int]]
-        List of numbers specifying the area occupied by the subplot
-    subplot_list : list of subplots
-        List of subplots that will be used to calculate optimal subplot_params.
-    pad : float
-        Padding between the figure edge and the edges of subplots, as a
-        fraction of the font size.
-    h_pad, w_pad : float
-        Padding (height/width) between edges of adjacent subplots, as a
-        fraction of the font size.  Defaults to *pad*.
-    rect : tuple[float, float, float, float]
-        [left, bottom, right, top] in normalized (0, 1) figure coordinates.
-    """
-    nrows, ncols = nrows_ncols
-    span_pairs = []
-    for n1, n2 in num1num2_list:
-        if n2 is None:
-            n2 = n1
-        span_pairs.append((slice(n1 // ncols, n2 // ncols + 1),
-                           slice(n1 % ncols, n2 % ncols + 1)))
-    return _auto_adjust_subplotpars(
-        fig, renderer, nrows_ncols, num1num2_list, subplot_list,
-        ax_bbox_list, pad, h_pad, w_pad, rect)
-
-
-def get_renderer(fig):
-    if fig._cachedRenderer:
-        return fig._cachedRenderer
-    else:
-        canvas = fig.canvas
-        if canvas and hasattr(canvas, "get_renderer"):
-            return canvas.get_renderer()
-        else:
-            from . import backend_bases
-            return backend_bases._get_renderer(fig)
-
-
 def get_subplotspec_list(axes_list, grid_spec=None):
     """
     Return a list of subplotspec from the given list of axes.
@@ -262,8 +209,8 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
     h_pad, w_pad : float
         Padding (height/width) between edges of adjacent subplots.  Defaults to
         *pad*.
-    rect : tuple[float, float, float, float], optional
-        (left, bottom, right, top) rectangle in normalized figure coordinates
+    rect : tuple (left, bottom, right, top), default: None.
+        rectangle in normalized figure coordinates
         that the whole subplots area (including labels) will fit into.
         Defaults to using the entire figure.
 
@@ -279,7 +226,10 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
     ss_to_subplots = {ss: [] for ss in subplotspec_list}
     for ax, ss in zip(axes_list, subplotspec_list):
         ss_to_subplots[ss].append(ax)
-    ss_to_subplots.pop(None, None)  # Skip subplotspec == None.
+    if ss_to_subplots.pop(None, None):
+        _api.warn_external(
+            "This figure includes Axes that are not compatible with "
+            "tight_layout, so results might be incorrect.")
     if not ss_to_subplots:
         return {}
     subplot_list = list(ss_to_subplots.values())

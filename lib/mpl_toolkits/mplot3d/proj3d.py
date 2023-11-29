@@ -3,34 +3,8 @@ Various transforms used for by the 3D code
 """
 
 import numpy as np
-import numpy.linalg as linalg
 
-
-def _line2d_seg_dist(p1, p2, p0):
-    """
-    Return the distance(s) from line defined by p1 - p2 to point(s) p0.
-
-    p0[0] = x(s)
-    p0[1] = y(s)
-
-    intersection point p = p1 + u*(p2-p1)
-    and intersection point lies within segment if u is between 0 and 1.
-
-    If p1 and p2 are identical, the distance between them and p0 is returned.
-    """
-
-    x01 = np.asarray(p0[0]) - p1[0]
-    y01 = np.asarray(p0[1]) - p1[1]
-    if np.all(p1 == p2):
-        return np.hypot(x01, y01)
-
-    x21 = p2[0] - p1[0]
-    y21 = p2[1] - p1[1]
-    u = (x01*x21 + y01*y21) / (x21**2 + y21**2)
-    u = np.clip(u, 0, 1)
-    d = np.hypot(x01 - u*x21, y01 - u*y21)
-
-    return d
+from matplotlib import _api
 
 
 def world_transformation(xmin, xmax,
@@ -55,7 +29,15 @@ def world_transformation(xmin, xmax,
                      [0,    0,    0,    1]])
 
 
+@_api.deprecated("3.8")
 def rotation_about_vector(v, angle):
+    """
+    Produce a rotation matrix for an angle in radians about a vector.
+    """
+    return _rotation_about_vector(v, angle)
+
+
+def _rotation_about_vector(v, angle):
     """
     Produce a rotation matrix for an angle in radians about a vector.
     """
@@ -72,29 +54,95 @@ def rotation_about_vector(v, angle):
     return R
 
 
-def view_transformation(E, R, V, roll):
-    n = (E - R)
-    n = n/np.linalg.norm(n)
-    u = np.cross(V, n)
+def _view_axes(E, R, V, roll):
+    """
+    Get the unit viewing axes in data coordinates.
+
+    Parameters
+    ----------
+    E : 3-element numpy array
+        The coordinates of the eye/camera.
+    R : 3-element numpy array
+        The coordinates of the center of the view box.
+    V : 3-element numpy array
+        Unit vector in the direction of the vertical axis.
+    roll : float
+        The roll angle in radians.
+
+    Returns
+    -------
+    u : 3-element numpy array
+        Unit vector pointing towards the right of the screen.
+    v : 3-element numpy array
+        Unit vector pointing towards the top of the screen.
+    w : 3-element numpy array
+        Unit vector pointing out of the screen.
+    """
+    w = (E - R)
+    w = w/np.linalg.norm(w)
+    u = np.cross(V, w)
     u = u/np.linalg.norm(u)
-    v = np.cross(n, u)  # Will be a unit vector
+    v = np.cross(w, u)  # Will be a unit vector
 
     # Save some computation for the default roll=0
     if roll != 0:
         # A positive rotation of the camera is a negative rotation of the world
-        Rroll = rotation_about_vector(n, -roll)
+        Rroll = _rotation_about_vector(w, -roll)
         u = np.dot(Rroll, u)
         v = np.dot(Rroll, v)
+    return u, v, w
 
+
+def _view_transformation_uvw(u, v, w, E):
+    """
+    Return the view transformation matrix.
+
+    Parameters
+    ----------
+    u : 3-element numpy array
+        Unit vector pointing towards the right of the screen.
+    v : 3-element numpy array
+        Unit vector pointing towards the top of the screen.
+    w : 3-element numpy array
+        Unit vector pointing out of the screen.
+    E : 3-element numpy array
+        The coordinates of the eye/camera.
+    """
     Mr = np.eye(4)
     Mt = np.eye(4)
-    Mr[:3, :3] = [u, v, n]
+    Mr[:3, :3] = [u, v, w]
     Mt[:3, -1] = -E
+    M = np.dot(Mr, Mt)
+    return M
 
-    return np.dot(Mr, Mt)
+
+@_api.deprecated("3.8")
+def view_transformation(E, R, V, roll):
+    """
+    Return the view transformation matrix.
+
+    Parameters
+    ----------
+    E : 3-element numpy array
+        The coordinates of the eye/camera.
+    R : 3-element numpy array
+        The coordinates of the center of the view box.
+    V : 3-element numpy array
+        Unit vector in the direction of the vertical axis.
+    roll : float
+        The roll angle in radians.
+    """
+    u, v, w = _view_axes(E, R, V, roll)
+    M = _view_transformation_uvw(u, v, w, E)
+    return M
 
 
+@_api.deprecated("3.8")
 def persp_transformation(zfront, zback, focal_length):
+    return _persp_transformation(zfront, zback, focal_length)
+
+
+def _persp_transformation(zfront, zback, focal_length):
     e = focal_length
     a = 1  # aspect ratio
     b = (zfront+zback)/(zfront-zback)
@@ -106,7 +154,12 @@ def persp_transformation(zfront, zback, focal_length):
     return proj_matrix
 
 
+@_api.deprecated("3.8")
 def ortho_transformation(zfront, zback):
+    return _ortho_transformation(zfront, zback)
+
+
+def _ortho_transformation(zfront, zback):
     # note: w component in the resulting vector will be (zback-zfront), not 1
     a = -(zfront + zback)
     b = -(zfront - zback)
@@ -136,14 +189,17 @@ def _proj_transform_vec_clip(vec, M):
     return txs, tys, tzs, tis
 
 
-def inv_transform(xs, ys, zs, M):
-    iM = linalg.inv(M)
+def inv_transform(xs, ys, zs, invM):
+    """
+    Transform the points by the inverse of the projection matrix, *invM*.
+    """
     vec = _vec_pad_ones(xs, ys, zs)
-    vecr = np.dot(iM, vec)
-    try:
-        vecr = vecr / vecr[3]
-    except OverflowError:
-        pass
+    vecr = np.dot(invM, vec)
+    if vecr.shape == (4,):
+        vecr = vecr.reshape((4, 1))
+    for i in range(vecr.shape[1]):
+        if vecr[3][i] != 0:
+            vecr[:, i] = vecr[:, i] / vecr[3][i]
     return vecr[0], vecr[1], vecr[2]
 
 
@@ -153,13 +209,15 @@ def _vec_pad_ones(xs, ys, zs):
 
 def proj_transform(xs, ys, zs, M):
     """
-    Transform the points by the projection matrix
+    Transform the points by the projection matrix *M*.
     """
     vec = _vec_pad_ones(xs, ys, zs)
     return _proj_transform_vec(vec, M)
 
 
-transform = proj_transform
+transform = _api.deprecated(
+    "3.8", obj_type="function", name="transform",
+    alternative="proj_transform")(proj_transform)
 
 
 def proj_transform_clip(xs, ys, zs, M):
@@ -172,15 +230,26 @@ def proj_transform_clip(xs, ys, zs, M):
     return _proj_transform_vec_clip(vec, M)
 
 
+@_api.deprecated("3.8")
 def proj_points(points, M):
-    return np.column_stack(proj_trans_points(points, M))
+    return _proj_points(points, M)
 
 
+def _proj_points(points, M):
+    return np.column_stack(_proj_trans_points(points, M))
+
+
+@_api.deprecated("3.8")
 def proj_trans_points(points, M):
+    return _proj_trans_points(points, M)
+
+
+def _proj_trans_points(points, M):
     xs, ys, zs = zip(*points)
     return proj_transform(xs, ys, zs, M)
 
 
+@_api.deprecated("3.8")
 def rot_x(V, alpha):
     cosa, sina = np.cos(alpha), np.sin(alpha)
     M1 = np.array([[1, 0, 0, 0],

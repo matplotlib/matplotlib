@@ -14,7 +14,7 @@
 
 struct ClipPath
 {
-    py::PathIterator path;
+    mpl::PathIterator path;
     agg::trans_affine trans;
 };
 
@@ -52,18 +52,19 @@ class Dashes
     template <class T>
     void dash_to_stroke(T &stroke, double dpi, bool isaa)
     {
+        double scaleddpi = dpi / 72.0;
         for (dash_t::const_iterator i = dashes.begin(); i != dashes.end(); ++i) {
             double val0 = i->first;
             double val1 = i->second;
-            val0 = val0 * dpi / 72.0;
-            val1 = val1 * dpi / 72.0;
+            val0 = val0 * scaleddpi;
+            val1 = val1 * scaleddpi;
             if (!isaa) {
                 val0 = (int)val0 + 0.5;
                 val1 = (int)val1 + 0.5;
             }
             stroke.add_dash(val0, val1);
         }
-        stroke.dash_start(get_dash_offset() * dpi / 72.0);
+        stroke.dash_start(get_dash_offset() * scaleddpi);
     }
 };
 
@@ -102,7 +103,7 @@ class GCAgg
 
     e_snap_mode snap_mode;
 
-    py::PathIterator hatchpath;
+    mpl::PathIterator hatchpath;
     agg::rgba hatch_color;
     double hatch_linewidth;
 

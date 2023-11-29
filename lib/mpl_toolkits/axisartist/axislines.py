@@ -20,8 +20,8 @@ a dictionary of these artists, i.e., ax.axis["left"] is a AxisArtist
 instance responsible to draw left y-axis. The default Axes.axis contains
 "bottom", "left", "top" and "right".
 
-AxisArtist can be considered as a container artist and
-has following children artists which will draw ticks, labels, etc.
+AxisArtist can be considered as a container artist and has the following
+children artists which will draw ticks, labels, etc.
 
 * line
 * major_ticks, major_ticklabels
@@ -42,269 +42,237 @@ from the axis as some gridlines can never pass any axis.
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, rcParams
+from matplotlib import _api
 import matplotlib.axes as maxes
 from matplotlib.path import Path
 from mpl_toolkits.axes_grid1 import mpl_axes
-from .axisline_style import AxislineStyle
+from .axisline_style import AxislineStyle  # noqa
 from .axis_artist import AxisArtist, GridlinesCollection
 
 
-class AxisArtistHelper:
+class _AxisArtistHelperBase:
     """
-    AxisArtistHelper should define
-    following method with given APIs. Note that the first axes argument
-    will be axes attribute of the caller artist.::
+    Base class for axis helper.
 
+    Subclasses should define the methods listed below.  The *axes*
+    argument will be the ``.axes`` attribute of the caller artist. ::
 
-        # LINE (spinal line?)
-
-        def get_line(self, axes):
-            # path : Path
-            return path
+        # Construct the spine.
 
         def get_line_transform(self, axes):
-            # ...
-            # trans : transform
-            return trans
+            return transform
 
-        # LABEL
+        def get_line(self, axes):
+            return path
 
-        def get_label_pos(self, axes):
-            # x, y : position
-            return (x, y), trans
+        # Construct the label.
 
+        def get_axislabel_transform(self, axes):
+            return transform
 
-        def get_label_offset_transform(self,
-                axes,
-                pad_points, fontprops, renderer,
-                bboxes,
-                ):
-            # va : vertical alignment
-            # ha : horizontal alignment
-            # a : angle
-            return trans, va, ha, a
+        def get_axislabel_pos_angle(self, axes):
+            return (x, y), angle
 
-        # TICK
+        # Construct the ticks.
 
         def get_tick_transform(self, axes):
-            return trans
+            return transform
 
         def get_tick_iterators(self, axes):
-            # iter : iterable object that yields (c, angle, l) where
-            # c, angle, l is position, tick angle, and label
-
+            # A pair of iterables (one for major ticks, one for minor ticks)
+            # that yield (tick_position, tick_angle, tick_label).
             return iter_major, iter_minor
     """
 
-    class _Base:
-        """Base class for axis helper."""
+    def __init__(self, nth_coord):
+        self.nth_coord = nth_coord
 
-        def update_lim(self, axes):
-            pass
+    def update_lim(self, axes):
+        pass
 
-        delta1 = _api.deprecated("3.6")(
-            property(lambda self: 0.00001, lambda self, value: None))
-        delta2 = _api.deprecated("3.6")(
-            property(lambda self: 0.00001, lambda self, value: None))
+    def get_nth_coord(self):
+        return self.nth_coord
 
-    class Fixed(_Base):
-        """Helper class for a fixed (in the axes coordinate) axis."""
+    def _to_xy(self, values, const):
+        """
+        Create a (*values.shape, 2)-shape array representing (x, y) pairs.
 
-        _default_passthru_pt = dict(left=(0, 0),
-                                    right=(1, 0),
-                                    bottom=(0, 0),
-                                    top=(0, 1))
+        The other coordinate is filled with the constant *const*.
 
-        def __init__(self, loc, nth_coord=None):
-            """
-            nth_coord = along which coordinate value varies
-            in 2D, nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
-            """
-            _api.check_in_list(["left", "right", "bottom", "top"], loc=loc)
-            self._loc = loc
+        Example::
 
-            if nth_coord is None:
-                if loc in ["left", "right"]:
-                    nth_coord = 1
-                elif loc in ["bottom", "top"]:
-                    nth_coord = 0
-
-            self.nth_coord = nth_coord
-
-            super().__init__()
-
-            self.passthru_pt = self._default_passthru_pt[loc]
-
-            _verts = np.array([[0., 0.],
-                               [1., 1.]])
-            fixed_coord = 1 - nth_coord
-            _verts[:, fixed_coord] = self.passthru_pt[fixed_coord]
-
-            # axis line in transAxes
-            self._path = Path(_verts)
-
-        def get_nth_coord(self):
-            return self.nth_coord
-
-        # LINE
-
-        def get_line(self, axes):
-            return self._path
-
-        def get_line_transform(self, axes):
-            return axes.transAxes
-
-        # LABEL
-
-        def get_axislabel_transform(self, axes):
-            return axes.transAxes
-
-        def get_axislabel_pos_angle(self, axes):
-            """
-            Return the label reference position in transAxes.
-
-            get_label_transform() returns a transform of (transAxes+offset)
-            """
-            return dict(left=((0., 0.5), 90),  # (position, angle_tangent)
-                        right=((1., 0.5), 90),
-                        bottom=((0.5, 0.), 0),
-                        top=((0.5, 1.), 0))[self._loc]
-
-        # TICK
-
-        def get_tick_transform(self, axes):
-            return [axes.get_xaxis_transform(),
-                    axes.get_yaxis_transform()][self.nth_coord]
-
-    class Floating(_Base):
-
-        def __init__(self, nth_coord, value):
-            self.nth_coord = nth_coord
-            self._value = value
-            super().__init__()
-
-        def get_nth_coord(self):
-            return self.nth_coord
-
-        def get_line(self, axes):
-            raise RuntimeError(
-                "get_line method should be defined by the derived class")
+            >>> self.nth_coord = 0
+            >>> self._to_xy([1, 2, 3], const=0)
+            array([[1, 0],
+                   [2, 0],
+                   [3, 0]])
+        """
+        if self.nth_coord == 0:
+            return np.stack(np.broadcast_arrays(values, const), axis=-1)
+        elif self.nth_coord == 1:
+            return np.stack(np.broadcast_arrays(const, values), axis=-1)
+        else:
+            raise ValueError("Unexpected nth_coord")
 
 
-class AxisArtistHelperRectlinear:
+class _FixedAxisArtistHelperBase(_AxisArtistHelperBase):
+    """Helper class for a fixed (in the axes coordinate) axis."""
 
-    class Fixed(AxisArtistHelper.Fixed):
+    @_api.delete_parameter("3.9", "nth_coord")
+    def __init__(self, loc, nth_coord=None):
+        """``nth_coord = 0``: x-axis; ``nth_coord = 1``: y-axis."""
+        super().__init__(_api.check_getitem(
+            {"bottom": 0, "top": 0, "left": 1, "right": 1}, loc=loc))
+        self._loc = loc
+        self._pos = {"bottom": 0, "top": 1, "left": 0, "right": 1}[loc]
+        # axis line in transAxes
+        self._path = Path(self._to_xy((0, 1), const=self._pos))
 
-        def __init__(self, axes, loc, nth_coord=None):
-            """
-            nth_coord = along which coordinate value varies
-            in 2D, nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
-            """
-            super().__init__(loc, nth_coord)
-            self.axis = [axes.xaxis, axes.yaxis][self.nth_coord]
+    # LINE
 
-        # TICK
+    def get_line(self, axes):
+        return self._path
 
-        def get_tick_iterators(self, axes):
-            """tick_loc, tick_angle, tick_label"""
-            if self._loc in ["bottom", "top"]:
-                angle_normal, angle_tangent = 90, 0
-            else:
-                angle_normal, angle_tangent = 0, 90
+    def get_line_transform(self, axes):
+        return axes.transAxes
 
-            major = self.axis.major
-            major_locs = major.locator()
-            major_labels = major.formatter.format_ticks(major_locs)
+    # LABEL
 
-            minor = self.axis.minor
-            minor_locs = minor.locator()
-            minor_labels = minor.formatter.format_ticks(minor_locs)
+    def get_axislabel_transform(self, axes):
+        return axes.transAxes
 
-            tick_to_axes = self.get_tick_transform(axes) - axes.transAxes
+    def get_axislabel_pos_angle(self, axes):
+        """
+        Return the label reference position in transAxes.
 
-            def _f(locs, labels):
-                for x, l in zip(locs, labels):
-                    c = list(self.passthru_pt)  # copy
-                    c[self.nth_coord] = x
-                    # check if the tick point is inside axes
-                    c2 = tick_to_axes.transform(c)
-                    if mpl.transforms._interval_contains_close(
-                            (0, 1), c2[self.nth_coord]):
-                        yield c, angle_normal, angle_tangent, l
+        get_label_transform() returns a transform of (transAxes+offset)
+        """
+        return dict(left=((0., 0.5), 90),  # (position, angle_tangent)
+                    right=((1., 0.5), 90),
+                    bottom=((0.5, 0.), 0),
+                    top=((0.5, 1.), 0))[self._loc]
 
-            return _f(major_locs, major_labels), _f(minor_locs, minor_labels)
+    # TICK
 
-    class Floating(AxisArtistHelper.Floating):
-        def __init__(self, axes, nth_coord,
-                     passingthrough_point, axis_direction="bottom"):
-            super().__init__(nth_coord, passingthrough_point)
-            self._axis_direction = axis_direction
-            self.axis = [axes.xaxis, axes.yaxis][self.nth_coord]
+    def get_tick_transform(self, axes):
+        return [axes.get_xaxis_transform(), axes.get_yaxis_transform()][self.nth_coord]
 
-        def get_line(self, axes):
-            _verts = np.array([[0., 0.],
-                               [1., 1.]])
 
-            fixed_coord = 1 - self.nth_coord
-            data_to_axes = axes.transData - axes.transAxes
-            p = data_to_axes.transform([self._value, self._value])
-            _verts[:, fixed_coord] = p[fixed_coord]
+class _FloatingAxisArtistHelperBase(_AxisArtistHelperBase):
+    def __init__(self, nth_coord, value):
+        self._value = value
+        super().__init__(nth_coord)
 
-            return Path(_verts)
+    def get_line(self, axes):
+        raise RuntimeError("get_line method should be defined by the derived class")
 
-        def get_line_transform(self, axes):
-            return axes.transAxes
 
-        def get_axislabel_transform(self, axes):
-            return axes.transAxes
+class FixedAxisArtistHelperRectilinear(_FixedAxisArtistHelperBase):
 
-        def get_axislabel_pos_angle(self, axes):
-            """
-            Return the label reference position in transAxes.
+    @_api.delete_parameter("3.9", "nth_coord")
+    def __init__(self, axes, loc, nth_coord=None):
+        """
+        nth_coord = along which coordinate value varies
+        in 2D, nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
+        """
+        super().__init__(loc)
+        self.axis = [axes.xaxis, axes.yaxis][self.nth_coord]
 
-            get_label_transform() returns a transform of (transAxes+offset)
-            """
-            angle = [0, 90][self.nth_coord]
-            _verts = [0.5, 0.5]
-            fixed_coord = 1 - self.nth_coord
-            data_to_axes = axes.transData - axes.transAxes
-            p = data_to_axes.transform([self._value, self._value])
-            _verts[fixed_coord] = p[fixed_coord]
-            if 0 <= _verts[fixed_coord] <= 1:
-                return _verts, angle
-            else:
-                return None, None
+    # TICK
 
-        def get_tick_transform(self, axes):
-            return axes.transData
+    def get_tick_iterators(self, axes):
+        """tick_loc, tick_angle, tick_label"""
+        angle_normal, angle_tangent = {0: (90, 0), 1: (0, 90)}[self.nth_coord]
 
-        def get_tick_iterators(self, axes):
-            """tick_loc, tick_angle, tick_label"""
-            if self.nth_coord == 0:
-                angle_normal, angle_tangent = 90, 0
-            else:
-                angle_normal, angle_tangent = 0, 90
+        major = self.axis.major
+        major_locs = major.locator()
+        major_labels = major.formatter.format_ticks(major_locs)
 
-            major = self.axis.major
-            major_locs = major.locator()
-            major_labels = major.formatter.format_ticks(major_locs)
+        minor = self.axis.minor
+        minor_locs = minor.locator()
+        minor_labels = minor.formatter.format_ticks(minor_locs)
 
-            minor = self.axis.minor
-            minor_locs = minor.locator()
-            minor_labels = minor.formatter.format_ticks(minor_locs)
+        tick_to_axes = self.get_tick_transform(axes) - axes.transAxes
 
-            data_to_axes = axes.transData - axes.transAxes
+        def _f(locs, labels):
+            for loc, label in zip(locs, labels):
+                c = self._to_xy(loc, const=self._pos)
+                # check if the tick point is inside axes
+                c2 = tick_to_axes.transform(c)
+                if mpl.transforms._interval_contains_close((0, 1), c2[self.nth_coord]):
+                    yield c, angle_normal, angle_tangent, label
 
-            def _f(locs, labels):
-                for x, l in zip(locs, labels):
-                    c = [self._value, self._value]
-                    c[self.nth_coord] = x
-                    c1, c2 = data_to_axes.transform(c)
-                    if 0 <= c1 <= 1 and 0 <= c2 <= 1:
-                        yield c, angle_normal, angle_tangent, l
+        return _f(major_locs, major_labels), _f(minor_locs, minor_labels)
 
-            return _f(major_locs, major_labels), _f(minor_locs, minor_labels)
+
+class FloatingAxisArtistHelperRectilinear(_FloatingAxisArtistHelperBase):
+
+    def __init__(self, axes, nth_coord,
+                 passingthrough_point, axis_direction="bottom"):
+        super().__init__(nth_coord, passingthrough_point)
+        self._axis_direction = axis_direction
+        self.axis = [axes.xaxis, axes.yaxis][self.nth_coord]
+
+    def get_line(self, axes):
+        fixed_coord = 1 - self.nth_coord
+        data_to_axes = axes.transData - axes.transAxes
+        p = data_to_axes.transform([self._value, self._value])
+        return Path(self._to_xy((0, 1), const=p[fixed_coord]))
+
+    def get_line_transform(self, axes):
+        return axes.transAxes
+
+    def get_axislabel_transform(self, axes):
+        return axes.transAxes
+
+    def get_axislabel_pos_angle(self, axes):
+        """
+        Return the label reference position in transAxes.
+
+        get_label_transform() returns a transform of (transAxes+offset)
+        """
+        angle = [0, 90][self.nth_coord]
+        fixed_coord = 1 - self.nth_coord
+        data_to_axes = axes.transData - axes.transAxes
+        p = data_to_axes.transform([self._value, self._value])
+        verts = self._to_xy(0.5, const=p[fixed_coord])
+        return (verts, angle) if 0 <= verts[fixed_coord] <= 1 else (None, None)
+
+    def get_tick_transform(self, axes):
+        return axes.transData
+
+    def get_tick_iterators(self, axes):
+        """tick_loc, tick_angle, tick_label"""
+        angle_normal, angle_tangent = {0: (90, 0), 1: (0, 90)}[self.nth_coord]
+
+        major = self.axis.major
+        major_locs = major.locator()
+        major_labels = major.formatter.format_ticks(major_locs)
+
+        minor = self.axis.minor
+        minor_locs = minor.locator()
+        minor_labels = minor.formatter.format_ticks(minor_locs)
+
+        data_to_axes = axes.transData - axes.transAxes
+
+        def _f(locs, labels):
+            for loc, label in zip(locs, labels):
+                c = self._to_xy(loc, const=self._value)
+                c1, c2 = data_to_axes.transform(c)
+                if 0 <= c1 <= 1 and 0 <= c2 <= 1:
+                    yield c, angle_normal, angle_tangent, label
+
+        return _f(major_locs, major_labels), _f(minor_locs, minor_labels)
+
+
+class AxisArtistHelper:  # Backcompat.
+    Fixed = _FixedAxisArtistHelperBase
+    Floating = _FloatingAxisArtistHelperBase
+
+
+class AxisArtistHelperRectlinear:  # Backcompat.
+    Fixed = FixedAxisArtistHelperRectilinear
+    Floating = FloatingAxisArtistHelperRectilinear
 
 
 class GridHelperBase:
@@ -327,32 +295,12 @@ class GridHelperBase:
         """
         Return list of grid lines as a list of paths (list of points).
 
-        *which* : "major" or "minor"
-        *axis* : "both", "x" or "y"
+        Parameters
+        ----------
+        which : {"both", "major", "minor"}
+        axis : {"both", "x", "y"}
         """
         return []
-
-    def new_gridlines(self, ax):
-        """
-        Create and return a new GridlineCollection instance.
-
-        *which* : "major" or "minor"
-        *axis* : "both", "x" or "y"
-
-        """
-        gridlines = GridlinesCollection(None, transform=ax.transData,
-                                        colors=rcParams['grid.color'],
-                                        linestyles=rcParams['grid.linestyle'],
-                                        linewidths=rcParams['grid.linewidth'])
-        ax._set_artist_props(gridlines)
-        gridlines.set_grid_helper(self)
-
-        ax.axes._set_artist_props(gridlines)
-        # gridlines.set_clip_path(self.axes.patch)
-        # set_clip_path need to be deferred after Axes.cla is completed.
-        # It is done inside the cla.
-
-        return gridlines
 
 
 class GridHelperRectlinear(GridHelperBase):
@@ -361,43 +309,27 @@ class GridHelperRectlinear(GridHelperBase):
         super().__init__()
         self.axes = axes
 
-    def new_fixed_axis(self, loc,
-                       nth_coord=None,
-                       axis_direction=None,
-                       offset=None,
-                       axes=None,
-                       ):
-
+    @_api.delete_parameter(
+        "3.9", "nth_coord", addendum="'nth_coord' is now inferred from 'loc'.")
+    def new_fixed_axis(
+            self, loc, nth_coord=None, axis_direction=None, offset=None, axes=None):
         if axes is None:
             _api.warn_external(
                 "'new_fixed_axis' explicitly requires the axes keyword.")
             axes = self.axes
-
-        _helper = AxisArtistHelperRectlinear.Fixed(axes, loc, nth_coord)
-
         if axis_direction is None:
             axis_direction = loc
-        axisline = AxisArtist(axes, _helper, offset=offset,
-                              axis_direction=axis_direction,
-                              )
+        return AxisArtist(axes, FixedAxisArtistHelperRectilinear(axes, loc),
+                          offset=offset, axis_direction=axis_direction)
 
-        return axisline
-
-    def new_floating_axis(self, nth_coord, value,
-                          axis_direction="bottom",
-                          axes=None,
-                          ):
-
+    def new_floating_axis(self, nth_coord, value, axis_direction="bottom", axes=None):
         if axes is None:
             _api.warn_external(
                 "'new_floating_axis' explicitly requires the axes keyword.")
             axes = self.axes
-
-        _helper = AxisArtistHelperRectlinear.Floating(
+        helper = FloatingAxisArtistHelperRectilinear(
             axes, nth_coord, value, axis_direction)
-
-        axisline = AxisArtist(axes, _helper, axis_direction=axis_direction)
-
+        axisline = AxisArtist(axes, helper, axis_direction=axis_direction)
         axisline.line.set_clip_on(True)
         axisline.line.set_clip_box(axisline.axes.bbox)
         return axisline
@@ -406,23 +338,27 @@ class GridHelperRectlinear(GridHelperBase):
         """
         Return list of gridline coordinates in data coordinates.
 
-        *which* : "major" or "minor"
-        *axis* : "both", "x" or "y"
+        Parameters
+        ----------
+        which : {"both", "major", "minor"}
+        axis : {"both", "x", "y"}
         """
+        _api.check_in_list(["both", "major", "minor"], which=which)
+        _api.check_in_list(["both", "x", "y"], axis=axis)
         gridlines = []
 
-        if axis in ["both", "x"]:
+        if axis in ("both", "x"):
             locs = []
             y1, y2 = self.axes.get_ylim()
-            if which in ["both", "major"]:
+            if which in ("both", "major"):
                 locs.extend(self.axes.xaxis.major.locator())
-            if which in ["both", "minor"]:
+            if which in ("both", "minor"):
                 locs.extend(self.axes.xaxis.minor.locator())
 
             for x in locs:
                 gridlines.append([[x, x], [y1, y2]])
 
-        if axis in ["both", "y"]:
+        if axis in ("both", "y"):
             x1, x2 = self.axes.get_xlim()
             locs = []
             if self.axes.yaxis._major_tick_kw["gridOn"]:
@@ -438,13 +374,13 @@ class GridHelperRectlinear(GridHelperBase):
 
 class Axes(maxes.Axes):
 
+    @_api.deprecated("3.8", alternative="ax.axis")
     def __call__(self, *args, **kwargs):
         return maxes.Axes.axis(self.axes, *args, **kwargs)
 
     def __init__(self, *args, grid_helper=None, **kwargs):
         self._axisline_on = True
-        self._grid_helper = (grid_helper if grid_helper
-                             else GridHelperRectlinear(self))
+        self._grid_helper = grid_helper if grid_helper else GridHelperRectlinear(self)
         super().__init__(*args, **kwargs)
         self.toggle_axisline(True)
 
@@ -462,59 +398,41 @@ class Axes(maxes.Axes):
             self.xaxis.set_visible(True)
             self.yaxis.set_visible(True)
 
-    def _init_axis_artists(self, axes=None):
-        if axes is None:
-            axes = self
+    @property
+    def axis(self):
+        return self._axislines
 
+    def clear(self):
+        # docstring inherited
+
+        # Init gridlines before clear() as clear() calls grid().
+        self.gridlines = gridlines = GridlinesCollection(
+            [],
+            colors=mpl.rcParams['grid.color'],
+            linestyles=mpl.rcParams['grid.linestyle'],
+            linewidths=mpl.rcParams['grid.linewidth'])
+        self._set_artist_props(gridlines)
+        gridlines.set_grid_helper(self.get_grid_helper())
+
+        super().clear()
+
+        # clip_path is set after Axes.clear(): that's when a patch is created.
+        gridlines.set_clip_path(self.axes.patch)
+
+        # Init axis artists.
         self._axislines = mpl_axes.Axes.AxisDict(self)
         new_fixed_axis = self.get_grid_helper().new_fixed_axis
-        for loc in ["bottom", "top", "left", "right"]:
-            self._axislines[loc] = new_fixed_axis(loc=loc, axes=axes,
-                                                  axis_direction=loc)
-
+        self._axislines.update({
+            loc: new_fixed_axis(loc=loc, axes=self, axis_direction=loc)
+            for loc in ["bottom", "top", "left", "right"]})
         for axisline in [self._axislines["top"], self._axislines["right"]]:
             axisline.label.set_visible(False)
             axisline.major_ticklabels.set_visible(False)
             axisline.minor_ticklabels.set_visible(False)
 
-    @property
-    def axis(self):
-        return self._axislines
-
-    def new_gridlines(self, grid_helper=None):
-        """
-        Create and return a new GridlineCollection instance.
-
-        *which* : "major" or "minor"
-        *axis* : "both", "x" or "y"
-
-        """
-        if grid_helper is None:
-            grid_helper = self.get_grid_helper()
-
-        gridlines = grid_helper.new_gridlines(self)
-        return gridlines
-
-    def _init_gridlines(self, grid_helper=None):
-        # It is done inside the cla.
-        self.gridlines = self.new_gridlines(grid_helper)
-
-    def clear(self):
-        # docstring inherited
-        # gridlines need to be created before clear() since clear calls grid()
-        self._init_gridlines()
-        super().clear()
-
-        # the clip_path should be set after Axes.clear() since that's
-        # when a patch is created.
-        self.gridlines.set_clip_path(self.axes.patch)
-
-        self._init_axis_artists()
-
     def get_grid_helper(self):
         return self._grid_helper
 
-    @_api.rename_parameter("3.5", "b", "visible")
     def grid(self, visible=None, which='major', axis="both", **kwargs):
         """
         Toggle the gridlines, and optionally set the properties of the lines.
@@ -542,49 +460,28 @@ class Axes(maxes.Axes):
         return children
 
     def new_fixed_axis(self, loc, offset=None):
-        gh = self.get_grid_helper()
-        axis = gh.new_fixed_axis(loc,
-                                 nth_coord=None,
-                                 axis_direction=None,
-                                 offset=offset,
-                                 axes=self,
-                                 )
-        return axis
+        return self.get_grid_helper().new_fixed_axis(loc, offset=offset, axes=self)
 
     def new_floating_axis(self, nth_coord, value, axis_direction="bottom"):
-        gh = self.get_grid_helper()
-        axis = gh.new_floating_axis(nth_coord, value,
-                                    axis_direction=axis_direction,
-                                    axes=self)
-        return axis
-
-
-Subplot = maxes.subplot_class_factory(Axes)
+        return self.get_grid_helper().new_floating_axis(
+            nth_coord, value, axis_direction=axis_direction, axes=self)
 
 
 class AxesZero(Axes):
 
-    def _init_axis_artists(self):
-        super()._init_axis_artists()
-
-        new_floating_axis = self._grid_helper.new_floating_axis
-        xaxis_zero = new_floating_axis(nth_coord=0,
-                                       value=0.,
-                                       axis_direction="bottom",
-                                       axes=self)
-
-        xaxis_zero.line.set_clip_path(self.patch)
-        xaxis_zero.set_visible(False)
-        self._axislines["xzero"] = xaxis_zero
-
-        yaxis_zero = new_floating_axis(nth_coord=1,
-                                       value=0.,
-                                       axis_direction="left",
-                                       axes=self)
-
-        yaxis_zero.line.set_clip_path(self.patch)
-        yaxis_zero.set_visible(False)
-        self._axislines["yzero"] = yaxis_zero
+    def clear(self):
+        super().clear()
+        new_floating_axis = self.get_grid_helper().new_floating_axis
+        self._axislines.update(
+            xzero=new_floating_axis(
+                nth_coord=0, value=0., axis_direction="bottom", axes=self),
+            yzero=new_floating_axis(
+                nth_coord=1, value=0., axis_direction="left", axes=self),
+        )
+        for k in ["xzero", "yzero"]:
+            self._axislines[k].line.set_clip_path(self.patch)
+            self._axislines[k].set_visible(False)
 
 
-SubplotZero = maxes.subplot_class_factory(AxesZero)
+Subplot = Axes
+SubplotZero = AxesZero

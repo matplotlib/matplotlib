@@ -1,4 +1,0 @@
-Support for passing tool names to ``ToolManager.add_tool``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... has been removed.  The second parameter to add_tool must now always be a
-tool class.

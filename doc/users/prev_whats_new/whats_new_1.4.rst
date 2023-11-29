@@ -46,7 +46,7 @@ same way as any other matplotlib backend. Because figures require a connection
 to the IPython notebook server for their interactivity, once the notebook is
 saved, each figure will be rendered as a static image - thus allowing
 non-interactive viewing of figures on services such as
-`nbviewer <https://nbviewer.ipython.org/>`__.
+`nbviewer <https://nbviewer.jupyter.org/>`__.
 
 
 
@@ -121,7 +121,7 @@ Support for strides in mlab
 Todd Jennings added some functions to mlab to make it easier to use NumPy
 strides to create memory-efficient 2D arrays.  This includes
 ``matplotlib.mlab.stride_repeat``, which repeats an array to create a 2D
-array, and :func:`~matplotlib.mlab.stride_windows`, which uses a moving window
+array, and ``matplotlib.mlab.stride_windows``, which uses a moving window
 to create a 2D array from a 1D array.
 
 Formatter for new-style formatting strings
@@ -221,7 +221,7 @@ Added size related functions to specialized `.Collection`\s
 Added the ``get_size`` and ``set_size`` functions to control the size of
 elements of specialized collections (
 :class:`~matplotlib.collections.AsteriskPolygonCollection`
-:class:`~matplotlib.collections.BrokenBarHCollection`
+``matplotlib.collections.BrokenBarHCollection``
 :class:`~matplotlib.collections.CircleCollection`
 :class:`~matplotlib.collections.PathCollection`
 :class:`~matplotlib.collections.PolyCollection`
@@ -406,7 +406,7 @@ instead of ``:context:`` any time you want to reset the context.
 
 Legend and PathEffects documentation
 ------------------------------------
-The :doc:`/tutorials/intermediate/legend_guide` and :doc:`/tutorials/advanced/patheffects_guide` have both been
+The :ref:`legend_guide` and :ref:`patheffects_guide` have both been
 updated to better reflect the full potential of each of these powerful
 features.
 

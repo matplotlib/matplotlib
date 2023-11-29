@@ -24,15 +24,15 @@ more finely tuned with the new `~.set_constrained_layout_pads`.
 
 Features include:
 
-  - Automatic spacing for subplots with a fixed-size padding in inches around
-    subplots and all their decorators, and space between as a fraction
-    of subplot size between subplots.
-  - Spacing for `~.Figure.suptitle`, and colorbars that are attached to
-    more than one axes.
-  - Nested `~.GridSpec` layouts using `~.GridSpecFromSubplotSpec`.
+- Automatic spacing for subplots with a fixed-size padding in inches around
+  subplots and all their decorators, and space between as a fraction
+  of subplot size between subplots.
+- Spacing for `~.Figure.suptitle`, and colorbars that are attached to
+  more than one axes.
+- Nested `~.GridSpec` layouts using `~.GridSpecFromSubplotSpec`.
 
-  For more details and capabilities please see the new tutorial:
-  :doc:`/tutorials/intermediate/constrainedlayout_guide`
+For more details and capabilities please see the new tutorial:
+:ref:`constrainedlayout_guide`
 
 Note the new API to access this:
 
@@ -60,7 +60,7 @@ New ``figure`` kwarg for ``GridSpec``
 In order to facilitate ``constrained_layout``, ``GridSpec`` now accepts a
 ``figure`` keyword.  This is backwards compatible, in that not supplying this
 will simply cause ``constrained_layout`` to not operate on the subplots
-orgainzed by this ``GridSpec`` instance.  Routines that use ``GridSpec`` (e.g.
+organized by this ``GridSpec`` instance.  Routines that use ``GridSpec`` (e.g.
 ``fig.subplots``) have been modified to pass the figure to ``GridSpec``.
 
 
@@ -300,7 +300,7 @@ Added support for QT in new ToolManager
 ---------------------------------------
 
 Now it is possible to use the ToolManager with Qt5
-For example
+For example::
 
   import matplotlib
 

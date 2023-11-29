@@ -14,18 +14,17 @@ import numpy as np
 
 try:
     import cairo
-    if cairo.version_info < (1, 11, 0):
-        # Introduced create_for_data for Py3.
-        raise ImportError
+    if cairo.version_info < (1, 14, 0):  # Introduced set_device_scale.
+        raise ImportError(f"Cairo backend requires cairo>=1.14.0, "
+                          f"but only {cairo.version_info} is available")
 except ImportError:
     try:
         import cairocffi as cairo
     except ImportError as err:
         raise ImportError(
-            "cairo backend requires that pycairo>=1.11.0 or cairocffi "
+            "cairo backend requires that pycairo>=1.14.0 or cairocffi "
             "is installed") from err
 
-import matplotlib as mpl
 from .. import _api, cbook, font_manager
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
@@ -33,25 +32,6 @@ from matplotlib.backend_bases import (
 from matplotlib.font_manager import ttfFontProperty
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
-
-
-backend_version = cairo.version
-
-
-if cairo.__name__ == "cairocffi":
-    # Convert a pycairo context to a cairocffi one.
-    def _to_context(ctx):
-        if not isinstance(ctx, cairo.Context):
-            ctx = cairo.Context._from_pointer(
-                cairo.ffi.cast(
-                    'cairo_t **',
-                    id(ctx) + object.__basicsize__)[0],
-                incref=True)
-        return ctx
-else:
-    # Pass-through a pycairo context.
-    def _to_context(ctx):
-        return ctx
 
 
 def _append_path(ctx, path, transform, clip=None):
@@ -92,35 +72,6 @@ def _cairo_font_args_from_font_prop(prop):
     return name, slant, weight
 
 
-# Mappings used for deprecated properties in RendererCairo, see below.
-_f_weights = {
-    100:          cairo.FONT_WEIGHT_NORMAL,
-    200:          cairo.FONT_WEIGHT_NORMAL,
-    300:          cairo.FONT_WEIGHT_NORMAL,
-    400:          cairo.FONT_WEIGHT_NORMAL,
-    500:          cairo.FONT_WEIGHT_NORMAL,
-    600:          cairo.FONT_WEIGHT_BOLD,
-    700:          cairo.FONT_WEIGHT_BOLD,
-    800:          cairo.FONT_WEIGHT_BOLD,
-    900:          cairo.FONT_WEIGHT_BOLD,
-    'ultralight': cairo.FONT_WEIGHT_NORMAL,
-    'light':      cairo.FONT_WEIGHT_NORMAL,
-    'normal':     cairo.FONT_WEIGHT_NORMAL,
-    'medium':     cairo.FONT_WEIGHT_NORMAL,
-    'regular':    cairo.FONT_WEIGHT_NORMAL,
-    'semibold':   cairo.FONT_WEIGHT_BOLD,
-    'bold':       cairo.FONT_WEIGHT_BOLD,
-    'heavy':      cairo.FONT_WEIGHT_BOLD,
-    'ultrabold':  cairo.FONT_WEIGHT_BOLD,
-    'black':      cairo.FONT_WEIGHT_BOLD,
-}
-_f_angles = {
-    'italic':  cairo.FONT_SLANT_ITALIC,
-    'normal':  cairo.FONT_SLANT_NORMAL,
-    'oblique': cairo.FONT_SLANT_OBLIQUE,
-}
-
-
 class RendererCairo(RendererBase):
     def __init__(self, dpi):
         self.dpi = dpi
@@ -132,18 +83,22 @@ class RendererCairo(RendererBase):
         super().__init__()
 
     def set_context(self, ctx):
-        self.gc.ctx = _to_context(ctx)
-
-    def set_ctx_from_surface(self, surface):
-        self.gc.ctx = cairo.Context(surface)
-        # Although it may appear natural to automatically call
-        # `self.set_width_height(surface.get_width(), surface.get_height())`
-        # here (instead of having the caller do so separately), this would fail
-        # for PDF/PS/SVG surfaces, which have no way to report their extents.
-
-    def set_width_height(self, width, height):
-        self.width = width
-        self.height = height
+        surface = ctx.get_target()
+        if hasattr(surface, "get_width") and hasattr(surface, "get_height"):
+            size = surface.get_width(), surface.get_height()
+        elif hasattr(surface, "get_extents"):  # GTK4 RecordingSurface.
+            ext = surface.get_extents()
+            size = ext.width, ext.height
+        else:  # vector surfaces.
+            ctx.save()
+            ctx.reset_clip()
+            rect, *rest = ctx.copy_clip_rectangle_list()
+            if rest:
+                raise TypeError("Cannot infer surface size")
+            _, _, *size = rect
+            ctx.restore()
+        self.gc.ctx = ctx
+        self.width, self.height = size
 
     def _fill_and_stroke(self, ctx, fill_c, alpha, alpha_overrides):
         if fill_c is not None:
@@ -248,9 +203,7 @@ class RendererCairo(RendererBase):
             ctx.select_font_face(*_cairo_font_args_from_font_prop(prop))
             ctx.set_font_size(self.points_to_pixels(prop.get_size_in_points()))
             opts = cairo.FontOptions()
-            opts.set_antialias(
-                cairo.ANTIALIAS_DEFAULT if mpl.rcParams["text.antialiased"]
-                else cairo.ANTIALIAS_NONE)
+            opts.set_antialias(gc.get_antialiased())
             ctx.set_font_options(opts)
             if angle:
                 ctx.rotate(np.deg2rad(-angle))
@@ -356,6 +309,9 @@ class GraphicsContextCairo(GraphicsContextBase):
         self.ctx.set_antialias(
             cairo.ANTIALIAS_DEFAULT if b else cairo.ANTIALIAS_NONE)
 
+    def get_antialiased(self):
+        return self.ctx.get_antialias()
+
     def set_capstyle(self, cs):
         self.ctx.set_line_cap(_api.check_getitem(self._capd, capstyle=cs))
         self._capstyle = cs
@@ -425,6 +381,9 @@ class FigureCanvasCairo(FigureCanvasBase):
             self._cached_renderer = RendererCairo(self.figure.dpi)
         return self._cached_renderer
 
+    def get_renderer(self):
+        return self._renderer
+
     def copy_from_bbox(self, bbox):
         surface = self._renderer.gc.ctx.get_target()
         if not isinstance(surface, cairo.ImageSurface):
@@ -472,9 +431,8 @@ class FigureCanvasCairo(FigureCanvasBase):
     def _get_printed_image_surface(self):
         self._renderer.dpi = self.figure.dpi
         width, height = self.get_width_height()
-        self._renderer.set_width_height(width, height)
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-        self._renderer.set_ctx_from_surface(surface)
+        self._renderer.set_context(cairo.Context(surface))
         self.figure.draw(self._renderer)
         return surface
 
@@ -511,11 +469,10 @@ class FigureCanvasCairo(FigureCanvasBase):
                     fobj = gzip.GzipFile(None, 'wb', fileobj=fobj)
             surface = cairo.SVGSurface(fobj, width_in_points, height_in_points)
         else:
-            raise ValueError("Unknown format: {!r}".format(fmt))
+            raise ValueError(f"Unknown format: {fmt!r}")
 
         self._renderer.dpi = self.figure.dpi
-        self._renderer.set_width_height(width_in_points, height_in_points)
-        self._renderer.set_ctx_from_surface(surface)
+        self._renderer.set_context(cairo.Context(surface))
         ctx = self._renderer.gc.ctx
 
         if orientation == 'landscape':
@@ -538,5 +495,6 @@ class FigureCanvasCairo(FigureCanvasBase):
 
 @_Backend.export
 class _BackendCairo(_Backend):
+    backend_version = cairo.version
     FigureCanvas = FigureCanvasCairo
     FigureManager = FigureManagerBase

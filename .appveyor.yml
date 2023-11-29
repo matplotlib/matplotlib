@@ -9,7 +9,15 @@ branches:
     - /auto-backport-.*/
     - /^v\d+\.\d+\.[\dx]+-doc$/
 
+skip_commits:
+  message: /\[ci doc\]/
+  files:
+    - doc/
+    - galleries/
+
 clone_depth: 50
+
+image: Visual Studio 2017
 
 environment:
 
@@ -18,17 +26,14 @@ environment:
     PYTHONIOENCODING: UTF-8
     PYTEST_ARGS: -raR --numprocesses=auto --timeout=300 --durations=25
                  --cov-report= --cov=lib --log-level=DEBUG
-    PINNEDVERS: "pyzmq!=21.0.0,!=22.0.0"
 
   matrix:
-    - PYTHON_VERSION: "3.8"
-      CONDA_INSTALL_LOCN: "C:\\Miniconda3-x64"
-      TEST_ALL: "no"
-      EXTRAREQS: "-r requirements/testing/extra.txt"
     - PYTHON_VERSION: "3.9"
       CONDA_INSTALL_LOCN: "C:\\Miniconda3-x64"
       TEST_ALL: "no"
-      EXTRAREQS: "-r requirements/testing/extra.txt"
+    - PYTHON_VERSION: "3.10"
+      CONDA_INSTALL_LOCN: "C:\\Miniconda3-x64"
+      TEST_ALL: "no"
 
 # We always use a 64-bit machine, but can build x86 distributions
 # with the PYTHON_ARCH variable
@@ -52,26 +57,20 @@ install:
   - conda config --prepend channels conda-forge
 
   # For building, use a new environment
-  - conda create -q -n test-environment python=%PYTHON_VERSION% tk "pip<22.0"
-  - activate test-environment
-  # pull pywin32 from conda because on py38 there is something wrong with finding
-  # the dlls when insalled from pip
+  # Add python version to environment
+  # `^ ` escapes spaces for indentation
+  - echo ^ ^ - python=%PYTHON_VERSION% >> environment.yml
+  - conda env create -f environment.yml
+  - activate mpl-dev
   - conda install -c conda-forge pywin32
-  # install pyqt from conda-forge
-  - conda install -c conda-forge pyqt
   - echo %PYTHON_VERSION% %TARGET_ARCH%
-  # Install dependencies from PyPI.
-  - python -m pip install --upgrade -r requirements/testing/all.txt %EXTRAREQS% %PINNEDVERS%
-  # Install optional dependencies from PyPI.
-  # Sphinx is needed to run sphinxext tests
-  - python -m pip install --upgrade sphinx
   # Show the installed packages + versions
   - conda list
 
 test_script:
   # Now build the thing..
   - set LINK=/LIBPATH:%cd%\lib
-  - pip install -ve .
+  - pip install -v --no-build-isolation --config-settings=setup-args="--vsenv" --editable .[dev]
   # this should show no freetype dll...
   - set "DUMPBIN=%VS140COMNTOOLS%\..\..\VC\bin\dumpbin.exe"
   - '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd | findstr freetype.*.dll && exit /b 1 || exit /b 0'
@@ -88,23 +87,13 @@ test_script:
   - echo The following args are passed to pytest %PYTEST_ARGS%
   - pytest %PYTEST_ARGS%
 
-after_test:
-  # After the tests were a success, build wheels.
-  # Hide the output, the copied files really clutter the build log...
-  - 'python setup.py bdist_wheel > NUL:'
-  - dir dist\
-  - echo finished...
-
 artifacts:
-  - path: dist\*
-    name: packages
-
   - path: result_images\*
     name: result_images
     type: zip
 
 on_finish:
-  - pip install codecov
+  - conda install codecov
   - codecov -e PYTHON_VERSION PLATFORM
 
 on_failure:

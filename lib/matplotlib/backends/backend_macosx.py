@@ -7,9 +7,7 @@ from . import _macosx
 from .backend_agg import FigureCanvasAgg
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    TimerBase)
-from matplotlib.figure import Figure
-from matplotlib.widgets import SubplotTool
+    ResizeEvent, TimerBase, _allow_interrupt)
 
 
 class TimerMac(_macosx.Timer, TimerBase):
@@ -17,24 +15,36 @@ class TimerMac(_macosx.Timer, TimerBase):
     # completely implemented at the C-level (in _macosx.Timer)
 
 
-class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
+def _allow_interrupt_macos():
+    """A context manager that allows terminating a plot by sending a SIGINT."""
+    return _allow_interrupt(
+        lambda rsock: _macosx.wake_on_fd_write(rsock.fileno()), _macosx.stop)
+
+
+class FigureCanvasMac(FigureCanvasAgg, _macosx.FigureCanvas, FigureCanvasBase):
     # docstring inherited
 
-    # Events such as button presses, mouse movements, and key presses
-    # are handled in the C code and the base class methods
-    # button_press_event, button_release_event, motion_notify_event,
-    # key_press_event, and key_release_event are called from there.
+    # Ideally this class would be `class FCMacAgg(FCAgg, FCMac)`
+    # (FC=FigureCanvas) where FCMac would be an ObjC-implemented mac-specific
+    # class also inheriting from FCBase (this is the approach with other GUI
+    # toolkits).  However, writing an extension type inheriting from a Python
+    # base class is slightly tricky (the extension type must be a heap type),
+    # and we can just as well lift the FCBase base up one level, keeping it *at
+    # the end* to have the right method resolution order.
+
+    # Events such as button presses, mouse movements, and key presses are
+    # handled in C and events (MouseEvent, etc.) are triggered from there.
 
     required_interactive_framework = "macosx"
     _timer_cls = TimerMac
     manager_class = _api.classproperty(lambda cls: FigureManagerMac)
 
     def __init__(self, figure):
-        FigureCanvasBase.__init__(self, figure)
-        width, height = self.get_width_height()
-        _macosx.FigureCanvas.__init__(self, width, height)
+        super().__init__(figure=figure)
         self._draw_pending = False
         self._is_drawing = False
+        # Keep track of the timers that are alive
+        self._timers = set()
 
     def draw(self):
         """Render the figure and update the macosx canvas."""
@@ -57,14 +67,17 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
 
     def _single_shot_timer(self, callback):
         """Add a single shot timer with the given callback"""
-        # We need to explicitly stop (called from delete) the timer after
+        # We need to explicitly stop and remove the timer after
         # firing, otherwise segfaults will occur when trying to deallocate
         # the singleshot timers.
         def callback_func(callback, timer):
             callback()
-            del timer
+            self._timers.remove(timer)
+            timer.stop()
         timer = self.new_timer(interval=0)
+        timer.single_shot = True
         timer.add_callback(callback_func, callback, timer)
+        self._timers.add(timer)
         timer.start()
 
     def _draw_idle(self):
@@ -94,8 +107,14 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         width /= scale
         height /= scale
         self.figure.set_size_inches(width, height, forward=False)
-        FigureCanvasBase.resize_event(self)
+        ResizeEvent("resize_event", self)._process()
         self.draw_idle()
+
+    def start_event_loop(self, timeout=0):
+        # docstring inherited
+        # Set up a SIGINT handler to allow terminating a plot via CTRL-C.
+        with _allow_interrupt_macos():
+            self._start_event_loop(timeout=timeout)  # Forward to ObjC implementation.
 
 
 class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
@@ -128,17 +147,6 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
             mpl.rcParams['savefig.directory'] = os.path.dirname(filename)
         self.canvas.figure.savefig(filename)
 
-    def prepare_configure_subplots(self):
-        toolfig = Figure(figsize=(6, 3))
-        canvas = FigureCanvasMac(toolfig)
-        toolfig.subplots_adjust(top=0.9)
-        # Need to keep a reference to the tool.
-        _tool = SubplotTool(self.canvas.figure, toolfig)
-        return canvas
-
-    def set_message(self, message):
-        _macosx.NavigationToolbar2.set_message(self, message.encode('utf-8'))
-
 
 class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     _toolbar2_class = NavigationToolbar2Mac
@@ -149,15 +157,30 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
         icon_path = str(cbook._get_data_path('images/matplotlib.pdf'))
         _macosx.FigureManager.set_icon(icon_path)
         FigureManagerBase.__init__(self, canvas, num)
+        self._set_window_mode(mpl.rcParams["macosx.window_mode"])
         if self.toolbar is not None:
             self.toolbar.update()
         if mpl.is_interactive():
             self.show()
             self.canvas.draw_idle()
 
-    def close(self):
+    def _close_button_pressed(self):
         Gcf.destroy(self)
         self.canvas.flush_events()
+
+    def destroy(self):
+        # We need to clear any pending timers that never fired, otherwise
+        # we get a memory leak from the timer callbacks holding a reference
+        while self.canvas._timers:
+            timer = self.canvas._timers.pop()
+            timer.stop()
+        super().destroy()
+
+    @classmethod
+    def start_main_loop(cls):
+        # Set up a SIGINT handler to allow terminating a plot via CTRL-C.
+        with _allow_interrupt_macos():
+            _macosx.show()
 
     def show(self):
         if not self._shown:
@@ -171,7 +194,4 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
 class _BackendMac(_Backend):
     FigureCanvas = FigureCanvasMac
     FigureManager = FigureManagerMac
-
-    @staticmethod
-    def mainloop():
-        _macosx.show()
+    mainloop = FigureManagerMac.start_main_loop

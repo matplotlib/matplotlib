@@ -1,3 +1,0 @@
-Passing too many positional arguments to ``tripcolor``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... is now deprecated (extra arguments were previously silently ignored).

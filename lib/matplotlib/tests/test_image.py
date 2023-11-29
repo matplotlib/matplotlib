@@ -1,5 +1,6 @@
 from contextlib import ExitStack
 from copy import copy
+import functools
 import io
 import os
 from pathlib import Path
@@ -13,7 +14,7 @@ from PIL import Image
 
 import matplotlib as mpl
 from matplotlib import (
-    _api, colors, image as mimage, patches, pyplot as plt, style, rcParams)
+    colors, image as mimage, patches, pyplot as plt, style, rcParams)
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
@@ -26,6 +27,7 @@ import pytest
 @image_comparison(['image_interps'], style='mpl20')
 def test_image_interps():
     """Make the basic nearest, bilinear and bicubic interps."""
+    # Remove texts when this image is regenerated.
     # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
 
@@ -249,6 +251,7 @@ def test_imsave_pil_kwargs_tiff():
     buf = io.BytesIO()
     pil_kwargs = {"description": "test image"}
     plt.imsave(buf, [[0, 1], [2, 3]], format="tiff", pil_kwargs=pil_kwargs)
+    assert len(pil_kwargs) == 1
     im = Image.open(buf)
     tags = {TAGS[k].name: v for k, v in im.tag_v2.items()}
     assert tags["ImageDescription"] == "test image"
@@ -342,6 +345,7 @@ def test_cursor_data():
         ([[.123, .987]], "[0.123]"),
         ([[np.nan, 1, 2]], "[]"),
         ([[1, 1+1e-15]], "[1.0000000000000000]"),
+        ([[-1, -1]], "[-1.0000000000000000]"),
     ])
 def test_format_cursor_data(data, text):
     from matplotlib.backend_bases import MouseEvent
@@ -588,6 +592,20 @@ def test_get_window_extent_for_AxisImage():
 
     assert_array_equal(im_bbox.get_points(), [[400, 200], [700, 900]])
 
+    fig, ax = plt.subplots(figsize=(10, 10), dpi=100)
+    ax.set_position([0, 0, 1, 1])
+    ax.set_xlim(1, 2)
+    ax.set_ylim(0, 1)
+    im_obj = ax.imshow(
+        im, extent=[0.4, 0.7, 0.2, 0.9], interpolation='nearest',
+        transform=ax.transAxes)
+
+    fig.canvas.draw()
+    renderer = fig.canvas.renderer
+    im_bbox = im_obj.get_window_extent(renderer)
+
+    assert_array_equal(im_bbox.get_points(), [[400, 200], [700, 900]])
+
 
 @image_comparison(['zoom_and_clip_upper_origin.png'],
                   remove_text=True, style='mpl20')
@@ -720,7 +738,7 @@ def test_load_from_url():
     url = ('file:'
            + ('///' if sys.platform == 'win32' else '')
            + path.resolve().as_posix())
-    with _api.suppress_matplotlib_deprecation_warning():
+    with pytest.raises(ValueError, match="Please open the URL"):
         plt.imread(url)
     with urllib.request.urlopen(url) as file:
         plt.imread(file)
@@ -737,11 +755,7 @@ def test_log_scale_image():
     ax.set(yscale='log')
 
 
-# Increased tolerance is needed for PDF test to avoid failure. After the PDF
-# backend was modified to use indexed color, there are ten pixels that differ
-# due to how the subpixel calculation is done when converting the PDF files to
-# PNG images.
-@image_comparison(['rotate_image'], remove_text=True, tol=0.35)
+@image_comparison(['rotate_image'], remove_text=True)
 def test_rotate_image():
     delta = 0.25
     x = y = np.arange(-3.0, 3.0, delta)
@@ -786,10 +800,8 @@ def test_image_preserve_size2():
     data = np.identity(n, float)
 
     fig = plt.figure(figsize=(n, n), frameon=False)
-
-    ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
+    ax = fig.add_axes((0.0, 0.0, 1.0, 1.0))
     ax.set_axis_off()
-    fig.add_axes(ax)
     ax.imshow(data, interpolation='nearest', origin='lower', aspect='auto')
     buff = io.BytesIO()
     fig.savefig(buff, dpi=1)
@@ -882,7 +894,7 @@ def test_imshow_endianess():
                   remove_text=True, style='mpl20')
 def test_imshow_masked_interpolation():
 
-    cmap = plt.get_cmap('viridis').with_extremes(over='r', under='b', bad='k')
+    cmap = mpl.colormaps['viridis'].with_extremes(over='r', under='b', bad='k')
 
     N = 20
     n = colors.Normalize(vmin=0, vmax=N*N-1)
@@ -983,7 +995,7 @@ def test_empty_imshow(make_norm):
     fig.canvas.draw()
 
     with pytest.raises(RuntimeError):
-        im.make_image(fig._cachedRenderer)
+        im.make_image(fig.canvas.get_renderer())
 
 
 def test_imshow_float16():
@@ -1095,7 +1107,7 @@ def test_image_array_alpha(fig_test, fig_ref):
     zz = np.exp(- 3 * ((xx - 0.5) ** 2) + (yy - 0.7 ** 2))
     alpha = zz / zz.max()
 
-    cmap = plt.get_cmap('viridis')
+    cmap = mpl.colormaps['viridis']
     ax = fig_test.add_subplot()
     ax.imshow(zz, alpha=alpha, cmap=cmap, interpolation='nearest')
 
@@ -1112,7 +1124,7 @@ def test_image_array_alpha_validation():
 
 @mpl.style.context('mpl20')
 def test_exact_vmin():
-    cmap = copy(plt.cm.get_cmap("autumn_r"))
+    cmap = copy(mpl.colormaps["autumn_r"])
     cmap.set_under(color="lightgrey")
 
     # make the image exactly 190 pixels wide
@@ -1139,11 +1151,19 @@ def test_exact_vmin():
     assert np.all(from_image == direct_computation)
 
 
-@pytest.mark.network
-@pytest.mark.flaky
-def test_https_imread_smoketest():
-    with _api.suppress_matplotlib_deprecation_warning():
-        v = mimage.imread('https://matplotlib.org/1.5.0/_static/logo2.png')
+@image_comparison(['image_placement'], extensions=['svg', 'pdf'],
+                  remove_text=True, style='mpl20')
+def test_image_placement():
+    """
+    The red box should line up exactly with the outside of the image.
+    """
+    fig, ax = plt.subplots()
+    ax.plot([0, 0, 1, 1, 0], [0, 1, 1, 0, 0], color='r', lw=0.1)
+    np.random.seed(19680801)
+    ax.imshow(np.random.randn(16, 16), cmap='Blues', extent=(0, 1, 0, 1),
+              interpolation='none', vmin=-1, vmax=1)
+    ax.set_xlim(-0.1, 1+0.1)
+    ax.set_ylim(-0.1, 1+0.1)
 
 
 # A basic ndarray subclass that implements a quantity
@@ -1161,7 +1181,7 @@ class QuantityND(np.ndarray):
 
     def __getitem__(self, item):
         units = getattr(self, "units", None)
-        ret = super(QuantityND, self).__getitem__(item)
+        ret = super().__getitem__(item)
         if isinstance(ret, QuantityND) or units is not None:
             ret = QuantityND(ret, units)
         return ret
@@ -1169,7 +1189,7 @@ class QuantityND(np.ndarray):
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
         func = getattr(ufunc, method)
         if "out" in kwargs:
-            raise NotImplementedError
+            return NotImplemented
         if len(inputs) == 1:
             i0 = inputs[0]
             unit = getattr(i0, "units", "dimensionless")
@@ -1189,11 +1209,16 @@ class QuantityND(np.ndarray):
                 unit = f"{u0}*{u1}"
             elif ufunc == np.divide:
                 unit = f"{u0}/({u1})"
+            elif ufunc in (np.greater, np.greater_equal,
+                           np.equal, np.not_equal,
+                           np.less, np.less_equal):
+                # Comparisons produce unitless booleans for output
+                unit = None
             else:
-                raise NotImplementedError
+                return NotImplemented
             out_arr = func(i0.view(np.ndarray), i1.view(np.ndarray), **kwargs)
         else:
-            raise NotImplementedError
+            return NotImplemented
         if unit is None:
             out_arr = np.array(out_arr)
         else:
@@ -1235,7 +1260,7 @@ def test_norm_change(fig_test, fig_ref):
     masked_data = np.ma.array(data, mask=False)
     masked_data.mask[0:2, 0:2] = True
 
-    cmap = plt.get_cmap('viridis').with_extremes(under='w')
+    cmap = mpl.colormaps['viridis'].with_extremes(under='w')
 
     ax = fig_test.subplots()
     im = ax.imshow(data, norm=colors.LogNorm(vmin=0.5, vmax=1),
@@ -1269,7 +1294,7 @@ def test_huge_range_log(fig_test, fig_ref, x):
     data[0:2, :] = 1000
 
     ax = fig_ref.subplots()
-    cmap = plt.get_cmap('viridis').with_extremes(under='w')
+    cmap = mpl.colormaps['viridis'].with_extremes(under='w')
     ax.imshow(data, norm=colors.Normalize(vmin=1, vmax=data.max()),
               interpolation='nearest', cmap=cmap)
 
@@ -1323,8 +1348,9 @@ def test_nonuniform_and_pcolor():
         ax.set(xlim=(0, 10))
 
 
-@image_comparison(["rgba_antialias.png"], style="mpl20",
-                  remove_text=True)
+@image_comparison(
+    ['rgba_antialias.png'], style='mpl20', remove_text=True,
+    tol=0.007 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
 def test_rgba_antialias():
     fig, axs = plt.subplots(2, 2, figsize=(3.5, 3.5), sharex=False,
                             sharey=False, constrained_layout=True)
@@ -1348,7 +1374,7 @@ def test_rgba_antialias():
     aa[:, int(N/2):] = a[:, int(N/2):]
 
     # set some over/unders and NaNs
-    aa[20:50, 20:50] = np.NaN
+    aa[20:50, 20:50] = np.nan
     aa[70:90, 70:90] = 1e6
     aa[70:90, 20:30] = -1e6
     aa[70:90, 195:215] = 1e6
@@ -1416,3 +1442,71 @@ def test_large_image(fig_test, fig_ref, dim, size, msg, origin):
                        extent=(0, 1, 0, 1),
                        interpolation='none',
                        origin=origin)
+
+
+@check_figures_equal(extensions=["png"])
+def test_str_norms(fig_test, fig_ref):
+    t = np.random.rand(10, 10) * .8 + .1  # between 0 and 1
+    axts = fig_test.subplots(1, 5)
+    axts[0].imshow(t, norm="log")
+    axts[1].imshow(t, norm="log", vmin=.2)
+    axts[2].imshow(t, norm="symlog")
+    axts[3].imshow(t, norm="symlog", vmin=.3, vmax=.7)
+    axts[4].imshow(t, norm="logit", vmin=.3, vmax=.7)
+    axrs = fig_ref.subplots(1, 5)
+    axrs[0].imshow(t, norm=colors.LogNorm())
+    axrs[1].imshow(t, norm=colors.LogNorm(vmin=.2))
+    # same linthresh as SymmetricalLogScale's default.
+    axrs[2].imshow(t, norm=colors.SymLogNorm(linthresh=2))
+    axrs[3].imshow(t, norm=colors.SymLogNorm(linthresh=2, vmin=.3, vmax=.7))
+    axrs[4].imshow(t, norm="logit", clim=(.3, .7))
+
+    assert type(axts[0].images[0].norm) is colors.LogNorm  # Exactly that class
+    with pytest.raises(ValueError):
+        axts[0].imshow(t, norm="foobar")
+
+
+def test__resample_valid_output():
+    resample = functools.partial(mpl._image.resample, transform=Affine2D())
+    with pytest.raises(TypeError, match="incompatible function arguments"):
+        resample(np.zeros((9, 9)), None)
+    with pytest.raises(ValueError, match="different dimensionalities"):
+        resample(np.zeros((9, 9)), np.zeros((9, 9, 4)))
+    with pytest.raises(ValueError, match="different dimensionalities"):
+        resample(np.zeros((9, 9, 4)), np.zeros((9, 9)))
+    with pytest.raises(ValueError, match="3D input array must be RGBA"):
+        resample(np.zeros((9, 9, 3)), np.zeros((9, 9, 4)))
+    with pytest.raises(ValueError, match="3D output array must be RGBA"):
+        resample(np.zeros((9, 9, 4)), np.zeros((9, 9, 3)))
+    with pytest.raises(ValueError, match="mismatched types"):
+        resample(np.zeros((9, 9), np.uint8), np.zeros((9, 9)))
+    with pytest.raises(ValueError, match="must be C-contiguous"):
+        resample(np.zeros((9, 9)), np.zeros((9, 9)).T)
+
+    out = np.zeros((9, 9))
+    out.flags.writeable = False
+    with pytest.raises(ValueError, match="Output array must be writeable"):
+        resample(np.zeros((9, 9)), out)
+
+
+def test_axesimage_get_shape():
+    # generate dummy image to test get_shape method
+    ax = plt.gca()
+    im = AxesImage(ax)
+    with pytest.raises(RuntimeError, match="You must first set the image array"):
+        im.get_shape()
+    z = np.arange(12, dtype=float).reshape((4, 3))
+    im.set_data(z)
+    assert im.get_shape() == (4, 3)
+    assert im.get_size() == im.get_shape()
+
+
+def test_non_transdata_image_does_not_touch_aspect():
+    ax = plt.figure().add_subplot()
+    im = np.arange(4).reshape((2, 2))
+    ax.imshow(im, transform=ax.transAxes)
+    assert ax.get_aspect() == "auto"
+    ax.imshow(im, transform=Affine2D().scale(2) + ax.transData)
+    assert ax.get_aspect() == 1
+    ax.imshow(im, transform=ax.transAxes, aspect=2)
+    assert ax.get_aspect() == 2

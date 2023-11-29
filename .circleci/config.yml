@@ -42,38 +42,40 @@ commands:
       - run:
           name: Install apt packages
           command: |
-            sudo apt -qq update
-            sudo apt install -y \
-              inkscape \
-              ffmpeg \
-              dvipng \
-              lmodern \
+            sudo apt-get -qq update
+            sudo apt-get install -yy --no-install-recommends \
               cm-super \
-              texlive-latex-base \
-              texlive-latex-extra \
-              texlive-fonts-recommended \
-              texlive-latex-recommended \
-              texlive-pictures \
-              texlive-xetex \
-              graphviz \
+              dvipng \
+              ffmpeg \
               fonts-crosextra-carlito \
               fonts-freefont-otf \
-              fonts-humor-sans \
               fonts-noto-cjk \
-              optipng
+              fonts-wqy-zenhei \
+              graphviz \
+              inkscape \
+              lmodern \
+              ninja-build \
+              optipng \
+              texlive-fonts-recommended \
+              texlive-latex-base \
+              texlive-latex-extra \
+              texlive-latex-recommended \
+              texlive-pictures \
+              texlive-xetex
 
   fonts-install:
     steps:
       - restore_cache:
-          key: fonts-2
+          key: fonts-4
       - run:
           name: Install custom fonts
           command: |
             mkdir -p ~/.local/share/fonts
             wget -nc https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O ~/.local/share/fonts/Felipa-Regular.ttf || true
+            wget -nc https://github.com/ipython/xkcd-font/blob/master/xkcd-script/font/xkcd-script.ttf?raw=true -O ~/.local/share/fonts/xkcd-Script.ttf || true
             fc-cache -f -v
       - save_cache:
-          key: fonts-2
+          key: fonts-4
           paths:
             - ~/.local/share/fonts/
 
@@ -87,7 +89,7 @@ commands:
             python -m pip install --upgrade --user wheel
             python -m pip install --upgrade --user 'setuptools!=60.6.0'
 
-  deps-install:
+  doc-deps-install:
     parameters:
       numpy_version:
         type: string
@@ -96,9 +98,12 @@ commands:
       - run:
           name: Install Python dependencies
           command: |
+            python -m pip install --user meson-python pybind11
             python -m pip install --user \
-                numpy<< parameters.numpy_version >> codecov coverage \
+                numpy<< parameters.numpy_version >> \
                 -r requirements/doc/doc-requirements.txt
+            python -m pip install --no-deps --user \
+                git+https://github.com/matplotlib/mpl-sphinx-theme.git
 
   mpl-install:
     steps:
@@ -111,15 +116,13 @@ commands:
               version=${version#v}
               python -m pip install matplotlib==${version}
             else
-              python -m pip install --user -ve .
+              python -m pip install --user --verbose \
+                --no-build-isolation --editable .[dev]
             fi
       - save_cache:
-          key: build-deps-1
+          key: build-deps-2
           paths:
-            # FreeType 2.6.1 tarball.
-            - ~/.cache/matplotlib/0a3c7dfbda6da1e8fce29232e8e96d987ababbbf71ebc8c75659e4132c367014
-            # Qhull 2020.2 tarball.
-            - ~/.cache/matplotlib/b5c2d7eb833278881b952c8a52d20179eab87766b00b865000469a45c1838b7e
+            - subprojects/packagecache
 
   doc-build:
     steps:
@@ -138,7 +141,8 @@ commands:
                [ "$CIRCLE_PR_NUMBER" = "" ]; then
               export RELEASE_TAG='-t release'
             fi
-            make html O="-T $RELEASE_TAG"
+            mkdir -p logs
+            make html O="-T $RELEASE_TAG -j4 -w /tmp/sphinxerrorswarnings.log"
             rm -r build/html/_sources
           working_directory: doc
       - save_cache:
@@ -146,11 +150,51 @@ commands:
           paths:
             - doc/build/doctrees
 
+  doc-show-errors-warnings:
+    steps:
+      - run:
+          name: Extract possible build errors and warnings
+          command: |
+            (grep "WARNING\|ERROR" /tmp/sphinxerrorswarnings.log ||
+             echo "No errors or warnings")
+            # Save logs as an artifact, and convert from absolute paths to
+            # repository-relative paths.
+            sed "s~$PWD/~~" /tmp/sphinxerrorswarnings.log > \
+              doc/logs/sphinx-errors-warnings.log
+          when: always
+      - store_artifacts:
+          path: doc/logs/sphinx-errors-warnings.log
+
+  doc-show-deprecations:
+    steps:
+      - run:
+          name: Extract possible deprecation warnings in examples and tutorials
+          command: |
+            (grep -rl DeprecationWarning doc/build/html/gallery ||
+             echo "No deprecation warnings in gallery")
+            (grep -rl DeprecationWarning doc/build/html/plot_types ||
+             echo "No deprecation warnings in plot_types")
+            (grep -rl DeprecationWarning doc/build/html/tutorials ||
+             echo "No deprecation warnings in tutorials")
+            # Save deprecations that are from this absolute directory, and
+            # convert to repository-relative paths.
+            (grep -Ero --no-filename "$PWD/.+DeprecationWarning.+$" \
+             doc/build/html/{gallery,plot_types,tutorials} || echo) | \
+              sed "s~$PWD/~~" > doc/logs/sphinx-deprecations.log
+          when: always
+      - store_artifacts:
+          path: doc/logs/sphinx-deprecations.log
+
   doc-bundle:
     steps:
       - run:
           name: Bundle sphinx-gallery documentation artifacts
-          command: tar cf doc/build/sphinx-gallery-files.tar.gz doc/api/_as_gen doc/gallery doc/tutorials
+          command: >
+            tar cf doc/build/sphinx-gallery-files.tar.gz
+            doc/api/_as_gen
+            doc/gallery
+            doc/plot_types
+            doc/tutorials
           when: always
       - store_artifacts:
           path: doc/build/sphinx-gallery-files.tar.gz
@@ -161,9 +205,10 @@ commands:
 #
 
 jobs:
-  docs-python38:
+  docs-python39:
     docker:
-      - image: cimg/python:3.8
+      - image: cimg/python:3.9
+    resource_class: large
     steps:
       - checkout
       - check-skip
@@ -173,10 +218,12 @@ jobs:
       - fonts-install
       - pip-install
 
-      - deps-install
+      - doc-deps-install
       - mpl-install
 
       - doc-build
+      - doc-show-errors-warnings
+      - doc-show-deprecations
 
       - doc-bundle
 
@@ -187,7 +234,8 @@ jobs:
 
       - add_ssh_keys:
           fingerprints:
-            - "6b:83:76:a5:7d:bd:ce:19:a4:e3:81:e0:80:16:a4:fe"
+            - "be:c3:c1:d8:fb:a1:0e:37:71:72:d7:a3:40:13:8f:14"
+
       - deploy:
           name: "Deploy new docs"
           command: ./.circleci/deploy-docs.sh
@@ -200,4 +248,6 @@ workflows:
   version: 2
   build:
     jobs:
-      - docs-python38
+      # NOTE: If you rename this job, then you must update the `if` condition
+      # and `circleci-jobs` option in `.github/workflows/circleci.yml`.
+      - docs-python39

@@ -1,12 +1,16 @@
+---
 name: PR cleanliness
 on: [pull_request]
+
+permissions:
+  contents: read
 
 jobs:
   pr_clean:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: '0'
       - name: Check for added-and-deleted files
@@ -41,3 +45,8 @@ jobs:
             printf 'Changes to the following files have no effect and should not be backported:\n%s\n' "$lib"
             exit 1
           fi
+      - name: Check for branches opened against main
+        if: github.ref_name == 'main'
+        run: |
+          printf 'PR branch should not be main. See https://matplotlib.org/devdocs/devel/development_workflow.html#make-a-new-feature-branch'
+          exit 1
