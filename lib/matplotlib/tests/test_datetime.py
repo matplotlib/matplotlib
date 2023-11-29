@@ -503,7 +503,6 @@ class TestDatetimePlotting:
         plt.figure()
         plt.spy(data)
         plt.xticks(range(10), formatted_dates, rotation=45)
-        plt.show()
         assert plt.gcf() is not None
 
     @mpl.style.context("default")
