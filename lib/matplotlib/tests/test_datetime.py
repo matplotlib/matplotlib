@@ -187,21 +187,21 @@ class TestDatetimePlotting:
     def test_bxp(self):
         mpl.rcParams["date.converter"] = 'concise'
         fig, ax = plt.subplots()
-        to_mpl_date = mpl.dates.date2num
         data = [{
-            "med": to_mpl_date(datetime.datetime(2020, 1, 15)),
-            "q1": to_mpl_date(datetime.datetime(2020, 1, 10)),
-            "q3": to_mpl_date(datetime.datetime(2020, 1, 20)),
-            "whislo": to_mpl_date(datetime.datetime(2020, 1, 5)),
-            "whishi": to_mpl_date(datetime.datetime(2020, 1, 25)),
+            "med": datetime.datetime(2020, 1, 15),
+            "q1": datetime.datetime(2020, 1, 10),
+            "q3": datetime.datetime(2020, 1, 20),
+            "whislo": datetime.datetime(2020, 1, 5),
+            "whishi": datetime.datetime(2020, 1, 25),
             "fliers": [
-                to_mpl_date(datetime.datetime(2020, 1, 3)),
-                to_mpl_date(datetime.datetime(2020, 1, 27))
+                datetime.datetime(2020, 1, 3),
+                datetime.datetime(2020, 1, 27)
             ]
         }]
-        ax.bxp(data)
-        ax.yaxis.set_major_formatter(mpl.dates.DateFormatter("%Y-%m-%d"))
+        ax.bxp(data, vert=False)
+        ax.xaxis.set_major_formatter(mpl.dates.DateFormatter("%Y-%m-%d"))
         ax.set_title('Box plot with datetime data')
+        plt.show()
 
     @pytest.mark.xfail(reason="Test for clabel not written yet")
     @mpl.style.context("default")
