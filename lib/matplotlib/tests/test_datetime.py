@@ -494,15 +494,17 @@ class TestDatetimePlotting:
 
     @mpl.style.context("default")
     def test_spy(self):
+        dates = [datetime.datetime.today() -
+                 datetime.timedelta(days=i) for i in range(10)]
+        formatted_dates = [date.strftime("%Y-%m-%d") for date in dates]
         data = np.random.rand(10, 10)
-        data[data < 0.9] = 0
-        fig, ax = plt.subplots()
-        sp = ax.spy(data)
-        ax.set_title('Spy Plot Test')
-        ax.set_xlabel('Column Index')
-        ax.set_ylabel('Row Index')
-        assert sp is not None, "Failed to create spy plot"
-        plt.close(fig)
+        threshold = 0.7
+        data = np.where(data > threshold, 1, 0)
+        plt.figure()
+        plt.spy(data)
+        plt.xticks(range(10), formatted_dates, rotation=45)
+        plt.show()
+        assert plt.gcf() is not None
 
     @mpl.style.context("default")
     def test_stackplot(self):
