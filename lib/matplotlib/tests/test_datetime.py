@@ -399,11 +399,15 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.matshow(...)
 
-    @pytest.mark.xfail(reason="Test for pcolor not written yet")
     @mpl.style.context("default")
     def test_pcolor(self):
+        data = np.random.rand(10, 10)
         fig, ax = plt.subplots()
-        ax.pcolor(...)
+        c = ax.pcolor(data)
+        fig.colorbar(c, ax=ax)
+        ax.set_title('Pseudocolor Plot Test')
+        assert c is not None, "Failed to create pcolor plot"
+        plt.close(fig)
 
     @pytest.mark.xfail(reason="Test for pcolorfast not written yet")
     @mpl.style.context("default")
