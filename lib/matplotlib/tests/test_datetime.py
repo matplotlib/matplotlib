@@ -183,11 +183,25 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.broken_barh(...)
 
-    @pytest.mark.xfail(reason="Test for bxp not written yet")
     @mpl.style.context("default")
     def test_bxp(self):
+        mpl.rcParams["date.converter"] = 'concise'
         fig, ax = plt.subplots()
-        ax.bxp(...)
+        to_mpl_date = mpl.dates.date2num
+        data = [{
+            "med": to_mpl_date(datetime.datetime(2020, 1, 15)),
+            "q1": to_mpl_date(datetime.datetime(2020, 1, 10)),
+            "q3": to_mpl_date(datetime.datetime(2020, 1, 20)),
+            "whislo": to_mpl_date(datetime.datetime(2020, 1, 5)),
+            "whishi": to_mpl_date(datetime.datetime(2020, 1, 25)),
+            "fliers": [
+                to_mpl_date(datetime.datetime(2020, 1, 3)),
+                to_mpl_date(datetime.datetime(2020, 1, 27))
+            ]
+        }]
+        ax.bxp(data)
+        ax.yaxis.set_major_formatter(mpl.dates.DateFormatter("%Y-%m-%d"))
+        ax.set_title('Box plot with datetime data')
 
     @pytest.mark.xfail(reason="Test for clabel not written yet")
     @mpl.style.context("default")
