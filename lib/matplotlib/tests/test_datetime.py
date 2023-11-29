@@ -492,11 +492,17 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.semilogy(...)
 
-    @pytest.mark.xfail(reason="Test for spy not written yet")
     @mpl.style.context("default")
     def test_spy(self):
+        data = np.random.rand(10, 10)
+        data[data < 0.9] = 0
         fig, ax = plt.subplots()
-        ax.spy(...)
+        sp = ax.spy(data)
+        ax.set_title('Spy Plot Test')
+        ax.set_xlabel('Column Index')
+        ax.set_ylabel('Row Index')
+        assert sp is not None, "Failed to create spy plot"
+        plt.close(fig)
 
     @mpl.style.context("default")
     def test_stackplot(self):
