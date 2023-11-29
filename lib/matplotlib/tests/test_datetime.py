@@ -401,12 +401,32 @@ class TestDatetimePlotting:
 
     @mpl.style.context("default")
     def test_pcolor(self):
+        # Generate a range of dates
+        base_date = datetime.date(2020, 1, 1)
+        dates = [base_date + datetime.timedelta(days=i) for i in range(10)]
+
+        # Convert dates to Matplotlib date numbers
+        mpl_dates = mpl.dates.date2num(dates)
+
+        # Create a 2D array with date numbers in one axis
         data = np.random.rand(10, 10)
+        data[0, :] = mpl_dates  # Assuming dates are in the first row for example
+
+        # Create the pcolor plot
         fig, ax = plt.subplots()
         c = ax.pcolor(data)
         fig.colorbar(c, ax=ax)
-        ax.set_title('Pseudocolor Plot Test')
-        assert c is not None, "Failed to create pcolor plot"
+
+        # Format the axis to interpret the first row as dates
+        ax.set_yticks(np.arange(0.5, len(dates), 1))
+        ax.set_yticklabels([d.strftime('%Y-%m-%d') for d in dates])
+
+        ax.set_title('Pseudocolor Plot with Datetime Data')
+
+        # Assert that the pcolor plot is created
+        assert c is not None, "Failed to create pcolor plot with datetime data"
+        plt.show()
+        # Close the plot to free up resources
         plt.close(fig)
 
     @pytest.mark.xfail(reason="Test for pcolorfast not written yet")
