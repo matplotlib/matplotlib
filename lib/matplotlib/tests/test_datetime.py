@@ -201,7 +201,6 @@ class TestDatetimePlotting:
         ax.bxp(data, vert=False)
         ax.xaxis.set_major_formatter(mpl.dates.DateFormatter("%Y-%m-%d"))
         ax.set_title('Box plot with datetime data')
-        plt.show()
 
     @pytest.mark.xfail(reason="Test for clabel not written yet")
     @mpl.style.context("default")
