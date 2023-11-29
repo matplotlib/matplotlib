@@ -2857,7 +2857,7 @@ class SpanSelector(_SelectorWidget):
     def extents(self):
         """
         (float, float)
-            The axis values for the start and end points of the current selection.
+            The values, in data coordinates, for the start and end points of the current selection.
             If there is no selection then the start and end values will be the same.
             Writable.
         """
