@@ -266,11 +266,35 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.eventplot(...)
 
-    @pytest.mark.xfail(reason="Test for fill not written yet")
     @mpl.style.context("default")
     def test_fill(self):
-        fig, ax = plt.subplots()
-        ax.fill(...)
+        mpl.rcParams["date.converter"] = "concise"
+        fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, layout="constrained")
+
+        # Generate datetime for x-axis
+        x_base_date = datetime.datetime(2023, 1, 1)
+        x_dates = [x_base_date]
+        for _ in range(1, 5):
+            x_base_date += datetime.timedelta(days=np.random.randint(1, 5))
+            x_dates.append(x_base_date)
+
+        # Generate datetime for y-axis
+        y_base_date = datetime.datetime(2023, 1, 1)
+        y_dates = [y_base_date]
+        for _ in range(1, 5):
+            y_base_date += datetime.timedelta(days=np.random.randint(1, 5))
+            y_dates.append(y_base_date)
+
+        x_values = np.random.rand(5) * 5
+        y_values = np.random.rand(5) * 5 - 2  # Random y-values between -2 and 3
+
+        # Plot filled polygons on each subplot
+        ax1.fill(x_dates, y_values)
+        ax2.fill(x_values, y_dates)
+        ax3.fill(x_values, y_values)
+        ax4.fill(x_dates, y_dates)
+
+        plt.savefig("test_fill_output.png")
 
     @pytest.mark.xfail(reason="Test for fill_between not written yet")
     @mpl.style.context("default")
