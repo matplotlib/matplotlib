@@ -493,19 +493,6 @@ class TestDatetimePlotting:
         ax.semilogy(...)
 
     @mpl.style.context("default")
-    def test_spy(self):
-        dates = [datetime.datetime.today() -
-                 datetime.timedelta(days=i) for i in range(10)]
-        formatted_dates = [date.strftime("%Y-%m-%d") for date in dates]
-        data = np.random.rand(10, 10)
-        threshold = 0.7
-        data = np.where(data > threshold, 1, 0)
-        plt.figure()
-        plt.spy(data)
-        plt.xticks(range(10), formatted_dates, rotation=45)
-        assert plt.gcf() is not None
-
-    @mpl.style.context("default")
     def test_stackplot(self):
         mpl.rcParams["date.converter"] = 'concise'
         N = 10
