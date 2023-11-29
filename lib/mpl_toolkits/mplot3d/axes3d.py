@@ -2907,9 +2907,13 @@ class Axes3D(Axes):
     @_preprocess_data(replace_names=["xs", "ys", "zs", "s",
                                      "edgecolors", "c", "facecolor",
                                      "facecolors", "color"])
-    def scatter(self, xs, ys,
-                zs=0, zdir='z', s=20, c=None, depthshade=True, *args,
-                axlim_clip=False, **kwargs):
+    def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=True,
+                depthshade_inverted=False,
+                depthshade_minalpha=0.3,
+                depthshade_legacy=False,
+                *args, 
+                axlim_clip=False,
+                **kwargs):
         """
         Create a scatter plot.
 
@@ -2945,12 +2949,24 @@ class Axes3D(Axes):
             Whether to shade the scatter markers to give the appearance of
             depth. Each call to ``scatter()`` will perform its depthshading
             independently.
+
+        depthshade_inverted : bool, default: False
+            Whether to reverse the order of depth-shading transparency.
+
+        depthshade_minalpha : float, default: 0.3
+            The lowest alpha value applied by depth-shading.
+
+        depthshade_legacy : bool, default: False
+            Whether to use the legacy algorithm for depth-shading.
+
         axlim_clip : bool, default: False
             Whether to hide the scatter points outside the axes view limits.
 
             .. versionadded:: 3.10
+
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             All other keyword arguments are passed on to `~.axes.Axes.scatter`.
 
@@ -2976,9 +2992,16 @@ class Axes3D(Axes):
             zs = zs.copy()
 
         patches = super().scatter(xs, ys, s=s, c=c, *args, **kwargs)
-        art3d.patch_collection_2d_to_3d(patches, zs=zs, zdir=zdir,
-                                        depthshade=depthshade,
-                                        axlim_clip=axlim_clip)
+        art3d.patch_collection_2d_to_3d(
+            patches,
+            zs=zs,
+            zdir=zdir,
+            depthshade=depthshade,
+            depthshade_inverted=depthshade_inverted,
+            depthshade_minalpha=depthshade_minalpha,
+            depthshade_legacy=depthshade_legacy,
+            axlim_clip=axlim_clip,
+       )
 
         if self._zmargin < 0.05 and xs.size > 0:
             self.set_zmargin(0.05)
