@@ -271,6 +271,8 @@ class TestDatetimePlotting:
         mpl.rcParams["date.converter"] = "concise"
         fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, layout="constrained")
 
+        np.random.seed(19680801)
+
         x_base_date = datetime.datetime(2023, 1, 1)
         x_dates = [x_base_date]
         for _ in range(1, 5):
