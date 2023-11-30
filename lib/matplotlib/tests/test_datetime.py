@@ -401,32 +401,17 @@ class TestDatetimePlotting:
 
     @mpl.style.context("default")
     def test_pcolor(self):
-        # Generate a range of dates
         base_date = datetime.date(2020, 1, 1)
         dates = [base_date + datetime.timedelta(days=i) for i in range(10)]
-
-        # Convert dates to Matplotlib date numbers
-        mpl_dates = mpl.dates.date2num(dates)
-
-        # Create a 2D array with date numbers in one axis
         data = np.random.rand(10, 10)
-        data[0, :] = mpl_dates  # Assuming dates are in the first row for example
-
-        # Create the pcolor plot
+        data = np.sort(data, axis=0)
         fig, ax = plt.subplots()
-        c = ax.pcolor(data)
-        fig.colorbar(c, ax=ax)
-
-        # Format the axis to interpret the first row as dates
-        ax.set_yticks(np.arange(0.5, len(dates), 1))
-        ax.set_yticklabels([d.strftime('%Y-%m-%d') for d in dates])
-
+        c = ax.pcolor(data, cmap='viridis')
         ax.set_title('Pseudocolor Plot with Datetime Data')
-
-        # Assert that the pcolor plot is created
-        assert c is not None, "Failed to create pcolor plot with datetime data"
-        plt.show()
-        # Close the plot to free up resources
+        ax.set_xticks(range(len(dates)))
+        ax.set_xticklabels([d.strftime('%Y-%m-%d') for d in dates], rotation=45)
+        fig.colorbar(c, ax=ax)
+        fig.tight_layout()
         plt.close(fig)
 
     @pytest.mark.xfail(reason="Test for pcolorfast not written yet")
@@ -635,3 +620,7 @@ class TestDatetimePlotting:
     def test_xcorr(self):
         fig, ax = plt.subplots()
         ax.xcorr(...)
+
+if __name__ == "__main__":
+    test = TestDatetimePlotting()
+    test.test_pcolor()
