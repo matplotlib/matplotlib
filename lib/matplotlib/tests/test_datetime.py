@@ -620,7 +620,3 @@ class TestDatetimePlotting:
     def test_xcorr(self):
         fig, ax = plt.subplots()
         ax.xcorr(...)
-
-if __name__ == "__main__":
-    test = TestDatetimePlotting()
-    test.test_pcolor()
