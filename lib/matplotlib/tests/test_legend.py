@@ -1072,8 +1072,9 @@ def test_legend_labelcolor_rcparam_markerfacecolor_short():
         assert mpl.colors.same_color(text.get_color(), color)
 
 
+@pytest.mark.filterwarnings("ignore:No artists with labels found to put in legend")
 def test_get_set_draggable():
-    legend = plt.legend(labels=["mock data"])
+    legend = plt.legend()
     assert not legend.get_draggable()
     legend.set_draggable(True)
     assert legend.get_draggable()
@@ -1385,8 +1386,8 @@ def test_legend_nolabels_warning():
         plt.legend()
 
 
+@pytest.mark.filterwarnings("ignore:No artists with labels found to put in legend")
 def test_legend_nolabels_draw():
     plt.plot([1, 2, 3])
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        plt.legend()
+    plt.legend()
+    assert plt.gca().get_legend() is not None
