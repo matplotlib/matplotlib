@@ -510,12 +510,6 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.semilogy(...)
 
-    @pytest.mark.xfail(reason="Test for spy not written yet")
-    @mpl.style.context("default")
-    def test_spy(self):
-        fig, ax = plt.subplots()
-        ax.spy(...)
-
     @mpl.style.context("default")
     def test_stackplot(self):
         mpl.rcParams["date.converter"] = 'concise'
