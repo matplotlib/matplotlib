@@ -355,12 +355,47 @@ class TestDatetimePlotting:
             weights=values3
         )
 
-    @pytest.mark.xfail(reason="Test for hist2d not written yet")
     @mpl.style.context("default")
     def test_hist2d(self):
-        fig, ax = plt.subplots()
-        ax.hist2d(...)
+        mpl.rcParams["date.converter"] = 'concise'
 
+        start_date = datetime.datetime(2023, 10, 1)
+        time_delta = datetime.timedelta(days=1)
+
+        values1 = np.random.randint(1, 10, 30)
+        values2 = np.random.randint(1, 10, 30)
+        values3 = np.random.randint(1, 10, 30)
+
+        x_values = mpl.dates.date2num([start_date + i * time_delta for i in range(30)])
+
+        # Using Axes.hist2d
+        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, constrained_layout=True)
+
+        # Testing with Axes.hist2d
+        hist2d1 = ax1.hist2d(
+            x_values,
+            values1,
+            bins=10,
+            cmap='Blues'
+        )
+        ax1.set_title('Axes.hist2d - Data 1')
+
+        hist2d2 = ax2.hist2d(
+            x_values,
+            values2,
+            bins=10,
+            cmap='Greens'
+        )
+        ax2.set_title('Axes.hist2d - Data 2')
+
+        hist2d3 = ax3.hist2d(
+            x_values,
+            values3,
+            bins=10,
+            cmap='Reds'
+        )
+        ax3.set_title('Axes.hist2d - Data 3')
+        
     @mpl.style.context("default")
     def test_hlines(self):
         mpl.rcParams["date.converter"] = 'concise'
