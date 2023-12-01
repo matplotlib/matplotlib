@@ -62,23 +62,30 @@ jobs:
             extra-requirements: '-r requirements/testing/extra.txt'
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
             # https://github.com/matplotlib/matplotlib/pull/26052#issuecomment-1574595954
-            pyqt6-ver: '!=6.5.1'
+            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
+            pyqt6-ver: '!=6.5.1,!=6.6.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
           - os: ubuntu-20.04
             python-version: '3.10'
             extra-requirements: '-r requirements/testing/extra.txt'
             # https://github.com/matplotlib/matplotlib/pull/26052#issuecomment-1574595954
-            pyqt6-ver: '!=6.5.1'
+            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
+            pyqt6-ver: '!=6.5.1,!=6.6.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
           - os: ubuntu-22.04
             python-version: '3.11'
+            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
+            pyqt6-ver: '!=6.6.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
             extra-requirements: '-r requirements/testing/extra.txt'
           - os: ubuntu-22.04
             python-version: '3.12'
+            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
+            pyqt6-ver: '!=6.6.0'
+            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
           - os: macos-latest
             python-version: 3.9
