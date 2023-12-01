@@ -1,7 +1,6 @@
 import copy
 from datetime import datetime
 import io
-from pathlib import Path
 import pickle
 import platform
 from threading import Timer
@@ -739,8 +738,8 @@ def test_add_artist(fig_test, fig_ref):
 
 
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
-def test_fspath(fmt, tmpdir):
-    out = Path(tmpdir, f"test.{fmt}")
+def test_fspath(fmt, tmp_path):
+    out = tmp_path / f"test.{fmt}"
     plt.savefig(out)
     with out.open("rb") as file:
         # All the supported formats include the format name (case-insensitive)

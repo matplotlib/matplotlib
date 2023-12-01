@@ -46,12 +46,11 @@ def test_score_weight():
             fontManager.score_weight(400, 400))
 
 
-def test_json_serialization(tmpdir):
+def test_json_serialization(tmp_path):
     # Can't open a NamedTemporaryFile twice on Windows, so use a temporary
     # directory instead.
-    path = Path(tmpdir, "fontlist.json")
-    json_dump(fontManager, path)
-    copy = json_load(path)
+    json_dump(fontManager, tmp_path / "fontlist.json")
+    copy = json_load(tmp_path / "fontlist.json")
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore', 'findfont: Font family.*not found')
         for prop in ({'family': 'STIXGeneral'},
@@ -133,8 +132,7 @@ def test_find_noto():
         fig.savefig(BytesIO(), format=fmt)
 
 
-def test_find_invalid(tmpdir):
-    tmp_path = Path(tmpdir)
+def test_find_invalid(tmp_path):
 
     with pytest.raises(FileNotFoundError):
         get_font(tmp_path / 'non-existent-font-name.ttf')
