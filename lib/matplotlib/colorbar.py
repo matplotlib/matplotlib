@@ -998,6 +998,7 @@ class Colorbar:
             - `matplotlib.scale.SymmetricalLogScale`
             - `matplotlib.scale.LogitScale`
             - `matplotlib.scale.FuncScale`
+            - `matplotlib.scale.AsinhScale`
 
         Notes
         -----
