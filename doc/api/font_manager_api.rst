@@ -4,6 +4,7 @@
 
 .. automodule:: matplotlib.font_manager
    :members:
+   :exclude-members: FontEntry
    :undoc-members:
    :show-inheritance:
 
