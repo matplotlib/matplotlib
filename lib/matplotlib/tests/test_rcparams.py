@@ -1,6 +1,5 @@
 import copy
 import os
-from pathlib import Path
 import subprocess
 import sys
 from unittest import mock
@@ -32,14 +31,14 @@ from matplotlib.rcsetup import (
     _listify_validator)
 
 
-def test_rcparams(tmpdir):
+def test_rcparams(tmp_path):
     mpl.rc('text', usetex=False)
     mpl.rc('lines', linewidth=22)
 
     usetex = mpl.rcParams['text.usetex']
     linewidth = mpl.rcParams['lines.linewidth']
 
-    rcpath = Path(tmpdir) / 'test_rcparams.rc'
+    rcpath = tmp_path / 'test_rcparams.rc'
     rcpath.write_text('lines.linewidth: 33', encoding='utf-8')
 
     # test context given dictionary
@@ -197,8 +196,8 @@ def test_axes_titlecolor_rcparams():
     assert title.get_color() == 'r'
 
 
-def test_Issue_1713(tmpdir):
-    rcpath = Path(tmpdir) / 'test_rcparams.rc'
+def test_Issue_1713(tmp_path):
+    rcpath = tmp_path / 'test_rcparams.rc'
     rcpath.write_text('timezone: UTC', encoding='utf-8')
     with mock.patch('locale.getpreferredencoding', return_value='UTF-32-BE'):
         rc = mpl.rc_params_from_file(rcpath, True, False)
@@ -522,10 +521,10 @@ def test_rcparams_reset_after_fail():
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
-def test_backend_fallback_headless(tmpdir):
+def test_backend_fallback_headless(tmp_path):
     env = {**os.environ,
            "DISPLAY": "", "WAYLAND_DISPLAY": "",
-           "MPLBACKEND": "", "MPLCONFIGDIR": str(tmpdir)}
+           "MPLBACKEND": "", "MPLCONFIGDIR": str(tmp_path)}
     with pytest.raises(subprocess.CalledProcessError):
         subprocess.run(
             [sys.executable, "-c",
@@ -540,9 +539,9 @@ def test_backend_fallback_headless(tmpdir):
 @pytest.mark.skipif(
     sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
     reason="headless")
-def test_backend_fallback_headful(tmpdir):
+def test_backend_fallback_headful(tmp_path):
     pytest.importorskip("tkinter")
-    env = {**os.environ, "MPLBACKEND": "", "MPLCONFIGDIR": str(tmpdir)}
+    env = {**os.environ, "MPLBACKEND": "", "MPLCONFIGDIR": str(tmp_path)}
     backend = subprocess.check_output(
         [sys.executable, "-c",
          "import matplotlib as mpl; "
@@ -620,12 +619,12 @@ def test_rcparams_legend_loc(value):
     (0.9, .7),
     (-0.9, .7),
 ])
-def test_rcparams_legend_loc_from_file(tmpdir, value):
+def test_rcparams_legend_loc_from_file(tmp_path, value):
     # rcParams['legend.loc'] should be settable from matplotlibrc.
     # if any of these are not allowed, an exception will be raised.
     # test for gh issue #22338
-    rc_path = tmpdir.join("matplotlibrc")
-    rc_path.write(f"legend.loc: {value}")
+    rc_path = tmp_path / "matplotlibrc"
+    rc_path.write_text(f"legend.loc: {value}")
 
     with mpl.rc_context(fname=rc_path):
         assert mpl.rcParams["legend.loc"] == value
@@ -647,8 +646,8 @@ def test_validate_sketch_error(value):
 
 
 @pytest.mark.parametrize("value", ['1, 2, 3', '(1,2,3)'])
-def test_rcparams_path_sketch_from_file(tmpdir, value):
-    rc_path = tmpdir.join("matplotlibrc")
-    rc_path.write(f"path.sketch: {value}")
+def test_rcparams_path_sketch_from_file(tmp_path, value):
+    rc_path = tmp_path / "matplotlibrc"
+    rc_path.write_text(f"path.sketch: {value}")
     with mpl.rc_context(fname=rc_path):
         assert mpl.rcParams["path.sketch"] == (1, 2, 3)
