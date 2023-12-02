@@ -15,7 +15,7 @@ does the grouping if we want.
 
 This first example creates a secondary xaxis and manually adds the ticks and
 labels using `.Axes.set_xticks`.  Note that the tick labels have a newline
-(e.g. `"\nOughts"`) at the beginning of them to put the second-level tick
+(e.g. ``"\nOughts"``) at the beginning of them to put the second-level tick
 labels below the main tick labels.
 """
 
