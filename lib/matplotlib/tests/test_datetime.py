@@ -331,10 +331,12 @@ class TestDatetimePlotting:
 
         y_values1 = np.random.rand(10) * 10
         y_values2 = y_values1 + np.random.rand(10) * 10
+        y_values1.sort()
+        y_values2.sort()
 
         x_base_date = datetime.datetime(2023, 1, 1)
         x_dates = [x_base_date]
-        for _ in range(1, 10):
+        for i in range(1, 10):
             x_base_date += datetime.timedelta(days=np.random.randint(1, 10))
             x_dates.append(x_base_date)
 
