@@ -2,7 +2,7 @@
 .. _user_axes_ticks:
 
 ==========
-Axis Ticks
+Axis ticks
 ==========
 
 The x and y Axis on each Axes have default tick "locators" and "formatters"
