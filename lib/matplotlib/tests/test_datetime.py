@@ -336,8 +336,8 @@ class TestDatetimePlotting:
         y_values.sort()
 
         x_values1 = np.random.rand(10) * 10
-        x_values1.sort()
         x_values2 = x_values1 + np.random.rand(10) * 10
+        x_values1.sort()
         x_values2.sort()
 
         y_base_date = datetime.datetime(2023, 1, 1)
