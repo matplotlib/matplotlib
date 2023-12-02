@@ -516,7 +516,7 @@ class TestDatetimePlotting:
         time_delta = datetime.timedelta(days=1)
 
         bin_edges = [start_date + i * time_delta for i in range(31)]
-        np.random.seed(1234567)
+        np.random.seed(123456)
         values1 = np.random.randint(1, 100, 30)
         values2 = np.random.randint(1, 100, 30)
         values3 = np.random.randint(1, 100, 30)
