@@ -448,8 +448,8 @@ class TestDatetimePlotting:
 
     @mpl.style.context("default")
     def test_quiver(self):
-        dates = [datetime.datetime(2023, 1, 1) +
-                    datetime.timedelta(days=i) for i in range(5)]
+        dates = [datetime.datetime(2023, 1, 1) + datetime.timedelta(days=i)
+                 for i in range(5)]
         x = dates
         y = np.zeros_like(x, dtype=float)
         u = np.sin(np.arange(len(x)))
