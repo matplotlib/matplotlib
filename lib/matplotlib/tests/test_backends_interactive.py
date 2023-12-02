@@ -1,3 +1,4 @@
+import functools
 import importlib
 import importlib.util
 import inspect
@@ -52,7 +53,10 @@ class _WaitForStringPopen(subprocess.Popen):
 # PyPI-installable on CI.  They are not available for all tested Python
 # versions so we don't fail on missing backends.
 
-def _get_testable_interactive_backends():
+@functools.lru_cache
+def _get_available_interactive_backends():
+    _is_linux_and_display_invalid = (sys.platform == "linux" and
+                                     not _c_internal_utils.display_is_valid())
     envs = []
     for deps, env in [
             *[([qt_api],
@@ -70,8 +74,7 @@ def _get_testable_interactive_backends():
     ]:
         reason = None
         missing = [dep for dep in deps if not importlib.util.find_spec(dep)]
-        if (sys.platform == "linux" and
-                not _c_internal_utils.display_is_valid()):
+        if _is_linux_and_display_invalid:
             reason = "$DISPLAY and $WAYLAND_DISPLAY are unset"
         elif missing:
             reason = "{} cannot be imported".format(", ".join(missing))
@@ -85,8 +88,7 @@ def _get_testable_interactive_backends():
                 reason = "no usable GTK bindings"
         marks = []
         if reason:
-            marks.append(pytest.mark.skip(
-                reason=f"Skipping {env} because {reason}"))
+            marks.append(pytest.mark.skip(reason=f"Skipping {env} because {reason}"))
         elif env["MPLBACKEND"].startswith('wx') and sys.platform == 'darwin':
             # ignore on OSX because that's currently broken (github #16849)
             marks.append(pytest.mark.xfail(reason='github #16849'))
@@ -97,13 +99,15 @@ def _get_testable_interactive_backends():
               ):
             marks.append(  # https://github.com/actions/setup-python/issues/649
                 pytest.mark.xfail(reason='Tk version mismatch on Azure macOS CI'))
-        envs.append(
-            pytest.param(
-                {**env, 'BACKEND_DEPS': ','.join(deps)},
-                marks=marks, id=str(env)
-            )
-        )
+        envs.append(({**env, 'BACKEND_DEPS': ','.join(deps)}, marks))
     return envs
+
+
+def _get_testable_interactive_backends():
+    # We re-create this because some of the callers below might modify the markers.
+    return [pytest.param({**env}, marks=[*marks],
+                         id='-'.join(f'{k}={v}' for k, v in env.items()))
+            for env, marks in _get_available_interactive_backends()]
 
 
 def is_ci_environment():
