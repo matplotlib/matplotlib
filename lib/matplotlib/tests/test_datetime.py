@@ -508,11 +508,23 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots(layout='constrained')
         ax.stackplot(dates, stacked_nums)
 
-    @pytest.mark.xfail(reason="Test for stairs not written yet")
     @mpl.style.context("default")
     def test_stairs(self):
-        fig, ax = plt.subplots()
-        ax.stairs(...)
+        mpl.rcParams["date.converter"] = 'concise'
+
+        start_date = datetime.datetime(2023, 12, 1)
+        time_delta = datetime.timedelta(days=1)
+
+        bin_edges = [start_date + i * time_delta for i in range(31)]
+        np.random.seed(123456)
+        values1 = np.random.randint(1, 100, 30)
+        values2 = np.random.randint(1, 100, 30)
+        values3 = np.random.randint(1, 100, 30)
+
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, constrained_layout=True)
+        ax1.stairs(values1, edges=bin_edges)
+        ax2.stairs(values2, edges=bin_edges)
+        ax3.stairs(values3, edges=bin_edges)
 
     @pytest.mark.xfail(reason="Test for stem not written yet")
     @mpl.style.context("default")
