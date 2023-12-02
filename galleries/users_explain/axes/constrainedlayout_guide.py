@@ -5,7 +5,7 @@
 .. _constrainedlayout_guide:
 
 ========================
-Constrained Layout Guide
+Constrained layout guide
 ========================
 
 Use *constrained layout* to fit plots within your figure cleanly.

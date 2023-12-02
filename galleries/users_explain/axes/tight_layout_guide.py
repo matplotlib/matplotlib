@@ -4,7 +4,7 @@
 .. _tight_layout_guide:
 
 ==================
-Tight Layout guide
+Tight layout guide
 ==================
 
 How to use tight-layout to fit plots within your figure cleanly.
@@ -16,6 +16,7 @@ of ticklabels, axis labels, and titles.
 
 An alternative to *tight_layout* is :ref:`constrained_layout
 <constrainedlayout_guide>`.
+
 
 Simple example
 ==============
@@ -209,7 +210,7 @@ gs1.tight_layout(fig, rect=[0, 0, 0.5, 1.0])
 
 
 # %%
-# Legends and Annotations
+# Legends and annotations
 # =======================
 #
 # Pre Matplotlib 2.2, legends and annotations were excluded from the bounding

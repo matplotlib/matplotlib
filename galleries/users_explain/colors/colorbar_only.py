@@ -1,9 +1,9 @@
 """
 .. redirect-from:: /tutorials/colors/colorbar_only
 
-====================
-Standalone colorbars
-====================
+=============================
+Customized Colorbars Tutorial
+=============================
 
 This tutorial shows how to build and customize standalone colorbars, i.e.
 without an attached plot.
