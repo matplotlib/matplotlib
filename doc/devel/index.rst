@@ -4,6 +4,15 @@
 Contribute
 ##########
 
+.. ifconfig:: releaselevel != 'dev'
+
+   .. important::
+
+      If you plan to contribute to Matplotlib, please read the
+      `development version <https://matplotlib.org/devdocs/devel/index.html>`_
+      of this document as it will have the most up to date installation
+      instructions, workflow process, and contributing guidelines.
+
 Thank you for your interest in helping to improve Matplotlib! There are various
 ways to contribute: optimizing and refactoring code, detailing unclear
 documentation and writing new examples, reporting and fixing bugs and requesting
