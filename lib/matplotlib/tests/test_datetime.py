@@ -430,11 +430,27 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.pcolorfast(...)
 
-    @pytest.mark.xfail(reason="Test for pcolormesh not written yet")
     @mpl.style.context("default")
     def test_pcolormesh(self):
-        fig, ax = plt.subplots()
-        ax.pcolormesh(...)
+        fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, layout="constrained")
+
+        np.random.seed(19680801)
+
+        x_base_date = datetime.datetime(2023, 1, 1)
+        x_dates = [x_base_date + datetime.timedelta(days=i) for i in range(5)]
+
+        y_base_date = datetime.datetime(2023, 1, 1)
+        y_dates = [y_base_date + datetime.timedelta(days=i) for i in range(5)]
+
+        x_timestamps = [date.timestamp() for date in x_dates]
+        y_timestamps = [date.timestamp() for date in y_dates]
+
+        data = np.random.rand(len(x_dates), len(y_dates))
+
+        ax1.pcolormesh(x_dates, y_dates, data, cmap='viridis')
+        ax2.pcolormesh(x_dates, y_timestamps, data, cmap='viridis')
+        ax3.pcolormesh(x_timestamps, y_dates, data, cmap='viridis')
+        ax4.pcolormesh(x_timestamps, y_timestamps, data, cmap='viridis')
 
     @mpl.style.context("default")
     def test_plot(self):
