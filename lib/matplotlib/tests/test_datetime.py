@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 
-
 class TestDatetimePlotting:
     @pytest.mark.xfail(reason="Test for acorr not written yet")
     @mpl.style.context("default")
@@ -143,13 +142,10 @@ class TestDatetimePlotting:
 
     @mpl.style.context("default")
     def test_bar_label(self):
-        """
-        import matplotlib.pyplot as plt
-        import matplotlib.dates as mdates
-        from datetime import datetime, timedelta
-        """
+       
         # Generate some example data with dateTime inputs
-        date_list = [datetime.datetime(2023, 1, 1) + datetime.timedelta(days=i) for i in range(5)]
+        date_list = [datetime.datetime(2023, 1, 1) +
+                      datetime.timedelta(days=i) for i in range(5)]
         values = [10, 20, 15, 25, 30]
 
         # Create a bar plot
@@ -166,28 +162,28 @@ class TestDatetimePlotting:
         axs[0, 1].bar(date_list, values)
         axs[0, 1].xaxis_date()
         axs[0, 1].xaxis.set_major_formatter(mpl.dates.DateFormatter('%Y-%m-%d'))
-        axs[0, 1].bar_label(axs[0, 1].containers[0], fmt='%.1f%%', label_type='center', color='blue')
+        axs[0, 1].bar_label(axs[0, 1].containers[0],
+                             fmt='%.1f%%', label_type='center', color='blue')
 
         # Variation 3: Label inside, with custom formatting
         axs[1, 0].bar(date_list, values)
         axs[1, 0].xaxis_date()
         axs[1, 0].xaxis.set_major_formatter(mpl.dates.DateFormatter('%Y-%m-%d'))
-        axs[1, 0].bar_label(axs[1, 0].containers[0], fmt='%d', label_type='center', color='white')
+        axs[1, 0].bar_label(axs[1, 0].containers[0], fmt='%d',
+                             label_type='center', color='white')
 
         # Variation 4: Label outside, with rotated text
         axs[1, 1].bar(date_list, values)
         axs[1, 1].xaxis_date()
         axs[1, 1].xaxis.set_major_formatter(mpl.dates.DateFormatter('%Y-%m-%d'))
-        axs[1, 1].bar_label(axs[1, 1].containers[0], fmt='%d', label_type='edge', color='red', rotation=45)
+        axs[1, 1].bar_label(axs[1, 1].containers[0], fmt='%d',
+                             label_type='edge', color='red', rotation=45)
 
         # Adjust layout
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
 
         # Show the plot
         plt.show()
-
-            
-
 
     @mpl.style.context("default")
     def test_barbs(self): 
