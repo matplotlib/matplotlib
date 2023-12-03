@@ -142,7 +142,6 @@ class TestDatetimePlotting:
 
     @mpl.style.context("default")
     def test_bar_label(self):
-       
         # Generate some example data with dateTime inputs
         date_list = [datetime.datetime(2023, 1, 1) +
                       datetime.timedelta(days=i) for i in range(5)]
@@ -186,7 +185,7 @@ class TestDatetimePlotting:
         plt.show()
 
     @mpl.style.context("default")
-    def test_barbs(self): 
+    def test_barbs(self):
         plt.rcParams["date.converter"] = 'concise'
 
         start_date = datetime.datetime(2022, 2, 8, 22)
