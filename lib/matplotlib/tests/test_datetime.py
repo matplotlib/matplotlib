@@ -140,11 +140,48 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.bar(...)
 
-    @pytest.mark.xfail(reason="Test for bar_label not written yet")
     @mpl.style.context("default")
     def test_bar_label(self):
-        fig, ax = plt.subplots()
-        ax.bar_label(...)
+        # Generate some example data with dateTime inputs
+        date_list = [datetime(2023, 1, 1) + timedelta(days=i) for i in range(5)]
+        values = [10, 20, 15, 25, 30]
+
+        # Create a bar plot
+        fig, axs = plt.subplots(2, 2, figsize=(10, 8))
+        fig.suptitle('Variations of ax.bar_label', fontsize=16)
+
+        # Variation 1: Default settings
+        axs[0, 0].bar(date_list, values)
+        axs[0, 0].xaxis_date()
+        axs[0, 0].xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+        axs[0, 0].bar_label(axs[0, 0].containers[0])  # Using default settings
+
+        # Variation 2: Label on top, with percentage formatting
+        axs[0, 1].bar(date_list, values)
+        axs[0, 1].xaxis_date()
+        axs[0, 1].xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+        axs[0, 1].bar_label(axs[0, 1].containers[0], fmt='%.1f%%', label_type='center', color='blue')
+
+        # Variation 3: Label inside, with custom formatting
+        axs[1, 0].bar(date_list, values)
+        axs[1, 0].xaxis_date()
+        axs[1, 0].xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+        axs[1, 0].bar_label(axs[1, 0].containers[0], fmt='%d', label_type='center', color='white')
+
+        # Variation 4: Label outside, with rotated text
+        axs[1, 1].bar(date_list, values)
+        axs[1, 1].xaxis_date()
+        axs[1, 1].xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+        axs[1, 1].bar_label(axs[1, 1].containers[0], fmt='%d', label_type='edge', color='red', rotation=45)
+
+        # Adjust layout
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+
+        # Show the plot
+        plt.show()
+
+            
+
 
     @mpl.style.context("default")
     def test_barbs(self):
