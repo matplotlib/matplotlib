@@ -460,7 +460,7 @@ def test_polar_rc_params():
 
     plt.subplot(132)
     plt.scatter(["1", "2"], [3,4])
-    
+
     # Control
     fig.suptitle("First Title", x=0.1, y=0.2, ha="right", va="bottom")
 
@@ -470,5 +470,5 @@ def test_polar_rc_params():
                          'figure.title_ha': "right",
                          'figure.title_va': "bottom",
                         })
-    
+
     fig.suptitle("First Title")
