@@ -449,7 +449,7 @@ def test_polar_log():
 
 
 def test_polar_rc_params():
-    fig = plt.figure(figsize=(9,3))
+    fig = plt.figure(figsize=(9, 3))
     ax = fig.add_subplot(polar=True)
 
     ax.set_rscale('log')
@@ -469,6 +469,6 @@ def test_polar_rc_params():
                          'figure.title_y': 0.2,
                          'figure.title_ha': "right",
                          'figure.title_va': "bottom",
-                        })
+                         })
 
     fig.suptitle("First Title")
