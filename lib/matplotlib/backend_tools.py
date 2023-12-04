@@ -97,10 +97,14 @@ class ToolBase:
 
     image = None
     """
-    Filename of the image.
+    Icon filename.
 
-    `str`: Filename of the image to use in a Toolbar.  If None, the *name* is
-    used as a label in the toolbar button.
+    ``str | None``: Filename of the Toolbar icon; either absolute, or
+    relative to the directory containing the Python source file where the
+    ``Tool.image``class attribute is defined (in the latter case, this cannot
+    be defined as an instance attribute).  In either case, the extension is
+    optional; leaving it off lets individual backends select the icon format
+    they prefer.  If None, the *name* is used as a label in the toolbar button.
     """
 
     def __init__(self, toolmanager, name):
@@ -601,7 +605,7 @@ class ToolHome(ViewsPositionsBase):
     """Restore the original view limits."""
 
     description = 'Reset original view'
-    image = 'home'
+    image = 'mpl-data/images/home'
     default_keymap = property(lambda self: mpl.rcParams['keymap.home'])
     _on_trigger = 'home'
 
@@ -610,7 +614,7 @@ class ToolBack(ViewsPositionsBase):
     """Move back up the view limits stack."""
 
     description = 'Back to previous view'
-    image = 'back'
+    image = 'mpl-data/images/back'
     default_keymap = property(lambda self: mpl.rcParams['keymap.back'])
     _on_trigger = 'back'
 
@@ -619,7 +623,7 @@ class ToolForward(ViewsPositionsBase):
     """Move forward in the view lim stack."""
 
     description = 'Forward to next view'
-    image = 'forward'
+    image = 'mpl-data/images/forward'
     default_keymap = property(lambda self: mpl.rcParams['keymap.forward'])
     _on_trigger = 'forward'
 
@@ -628,14 +632,14 @@ class ConfigureSubplotsBase(ToolBase):
     """Base tool for the configuration of subplots."""
 
     description = 'Configure subplots'
-    image = 'subplots'
+    image = 'mpl-data/images/subplots'
 
 
 class SaveFigureBase(ToolBase):
     """Base tool for figure saving."""
 
     description = 'Save the figure'
-    image = 'filesave'
+    image = 'mpl-data/images/filesave'
     default_keymap = property(lambda self: mpl.rcParams['keymap.save'])
 
 
@@ -710,7 +714,7 @@ class ToolZoom(ZoomPanBase):
     """A Tool for zooming using a rectangle selector."""
 
     description = 'Zoom to rectangle'
-    image = 'zoom_to_rect'
+    image = 'mpl-data/images/zoom_to_rect'
     default_keymap = property(lambda self: mpl.rcParams['keymap.zoom'])
     cursor = cursors.SELECT_REGION
     radio_group = 'default'
@@ -832,7 +836,7 @@ class ToolPan(ZoomPanBase):
 
     default_keymap = property(lambda self: mpl.rcParams['keymap.pan'])
     description = 'Pan axes with left mouse, zoom with right'
-    image = 'move'
+    image = 'mpl-data/images/move'
     cursor = cursors.MOVE
     radio_group = 'default'
 
@@ -896,7 +900,7 @@ class ToolPan(ZoomPanBase):
 class ToolHelpBase(ToolBase):
     description = 'Print tool list, shortcuts and description'
     default_keymap = property(lambda self: mpl.rcParams['keymap.help'])
-    image = 'help'
+    image = 'mpl-data/images/help'
 
     @staticmethod
     def format_shortcut(key_sequence):
