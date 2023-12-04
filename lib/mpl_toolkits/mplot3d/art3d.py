@@ -448,6 +448,11 @@ class Patch3D(Patch):
                            for ((x, y), z) in zip(verts, zs)]
 
     def get_path(self):
+        # docstring inherited
+        # self._path2d is not initialized until do_3d_projection
+        if not hasattr(self, '_path2d'):
+            self.axes.M = self.axes.get_proj()
+            self.do_3d_projection()
         return self._path2d
 
     def do_3d_projection(self):
