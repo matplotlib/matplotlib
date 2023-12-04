@@ -144,11 +144,11 @@ class TestDatetimePlotting:
     def test_bar_label(self):
         # Generate some example data with dateTime inputs
         date_list = [datetime.datetime(2023, 1, 1) +
-                    datetime.timedelta(days=i) for i in range(5)]
+                     datetime.timedelta(days=i) for i in range(5)]
         values = [10, 20, 15, 25, 30]
 
         # Creating the plot
-        fig, axs = plt.subplots(1,1, figsize=(10, 8), layout='constrained')
+        fig, axs = plt.subplots(1, 1, figsize=(10, 8), layout='constrained')
         axs.bar(date_list, values)
 
         plt.show()
