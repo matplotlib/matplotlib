@@ -459,7 +459,7 @@ def test_polar_rc_params():
     ax.plot(np.linspace(0, 2 * np.pi, n), np.logspace(0, 2, n))
 
     plt.subplot(132)
-    plt.scatter(["1", "2"], [3,4])
+    plt.scatter(["1", "2"], [3, 4])
 
     # Control
     fig.suptitle("First Title", x=0.1, y=0.2, ha="right", va="bottom")
