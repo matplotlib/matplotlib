@@ -462,13 +462,15 @@ def test_polar_rc_params():
     plt.scatter(["1", "2"], [3, 4])
 
     # Control
-    fig.suptitle("First Title", x=0.1, y=0.2, ha="right", va="bottom")
+    fig.suptitle("First Title", x=0.1, y=0.2, ha="right", va="bottom",
+                 weight='light', size=20)
 
     # Test suptitle
     with mpl.rc_context({'figure.title_x': 0.1,
                          'figure.title_y': 0.2,
                          'figure.title_ha': "right",
                          'figure.title_va': "bottom",
-                         })
-
-    fig.suptitle("First Title")
+                         'figure.titleweight': 'light',
+                         'figure.titlesize': 20
+                         }):
+        fig.suptitle("First Title")
