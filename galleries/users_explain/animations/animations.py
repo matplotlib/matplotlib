@@ -20,7 +20,7 @@ import numpy as np
 import matplotlib.animation as animation
 
 # %%
-# Animation Classes
+# Animation classes
 # =================
 #
 # The animation process in Matplotlib can be thought of in 2 different ways:
@@ -158,7 +158,7 @@ ani = animation.ArtistAnimation(fig=fig, artists=artists, interval=400)
 plt.show()
 
 # %%
-# Animation Writers
+# Animation writers
 # =================
 #
 # Animation objects can be saved to disk using various multimedia writers

@@ -11,14 +11,14 @@ from matplotlib.testing import subprocess_run_for_testing
 from matplotlib import pyplot as plt
 
 
-def test_pyplot_up_to_date(tmpdir):
+def test_pyplot_up_to_date(tmp_path):
     pytest.importorskip("black")
 
     gen_script = Path(mpl.__file__).parents[2] / "tools/boilerplate.py"
     if not gen_script.exists():
         pytest.skip("boilerplate.py not found")
     orig_contents = Path(plt.__file__).read_text()
-    plt_file = tmpdir.join('pyplot.py')
+    plt_file = tmp_path / 'pyplot.py'
     plt_file.write_text(orig_contents, 'utf-8')
 
     subprocess_run_for_testing(
