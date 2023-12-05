@@ -125,27 +125,33 @@ sectionorder = MplExplicitOrder(explicit_order_folders)
 subsectionorder = MplExplicitSubOrder
 
 # README file types
-READMES_FILES = ["README.txt"] #, "README.rst"] 
+READMES_FILES = ["README.txt"]  # , "README.rst"]
 ORDER_TYPE = ["example", "tutorial", "plot", UNSORTED]
+
 
 def parse_readme(file_to_read):
     file = open(file_to_read)
     for line in file:
         if line in ["example", "tutorial", "plots"]:
             return True
-    
+
     return False
 
-DIRECTORIES = ["../galleries/examples", "../galleries/tutorials", "../galleries/plot_types"]
+
+DIRECTORIES = ["../galleries/examples", "../galleries/tutorials", 
+               "../galleries/plot_types"]
+
+
 def follow_directory():
     new_folder_list = []
     for parent_folder in DIRECTORIES:
         directory_list = [UNSORTED]
         items = os.listdir(parent_folder)
-        folders = [item for item in items if os.path.isdir(os.path.join(directory, item))]
+        folders = [item for item in items
+                   if os.path.isdir(os.path.join(directory, item))]
 
         for folder in folders:
-            folder_to_parse = parent_folder "/" + folder + "/"
+            folder_to_parse = parent_folder + "/" + folder + "/"
             file_to_parse = folder_to_parse + "README.txt"
             file_type = parse_readme(file_to_parse)
 
