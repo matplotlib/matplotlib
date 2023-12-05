@@ -123,3 +123,43 @@ class MplExplicitSubOrder:
 # Provide the above classes for use in conf.py
 sectionorder = MplExplicitOrder(explicit_order_folders)
 subsectionorder = MplExplicitSubOrder
+
+# README file types
+READMES_FILES = ["README.txt"] #, "README.rst"] 
+ORDER_TYPE = ["example", "tutorial", "plot", UNSORTED]
+
+def parse_readme(file_to_read):
+    file = open(file_to_read)
+    for line in file:
+        if line in ["example", "tutorial", "plots"]:
+            return True
+    
+    return False
+
+DIRECTORIES = ["../galleries/examples", "../galleries/tutorials", "../galleries/plot_types"]
+def follow_directory():
+    new_folder_list = []
+    for parent_folder in DIRECTORIES:
+        directory_list = [UNSORTED]
+        items = os.listdir(parent_folder)
+        folders = [item for item in items if os.path.isdir(os.path.join(directory, item))]
+
+        for folder in folders:
+            folder_to_parse = parent_folder "/" + folder + "/"
+            file_to_parse = folder_to_parse + "README.txt"
+            file_type = parse_readme(file_to_parse)
+
+            if file_type:
+                directory_list = [folder_to_parse] + directory_list
+            else:
+                directory_list.append(folder_to_parse)
+
+        new_folder_list.append(directory_list)
+
+    print(folder_list)
+    print("-------------------------")
+    print(new_folder_list)
+
+    return new_folder_list
+    # folder_list = new_folder_list
+
