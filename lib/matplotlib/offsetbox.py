@@ -1458,7 +1458,7 @@ class DraggableBase:
             ref_artist.set_picker(True)
         self.got_artist = False
         self._use_blit = use_blit and self.canvas.supports_blit
-        callbacks = ref_artist.figure._canvas_callbacks
+        callbacks = self.canvas.callbacks
         self._disconnectors = [
             functools.partial(
                 callbacks.disconnect, callbacks._connect_picklable(name, func))
@@ -1471,7 +1471,6 @@ class DraggableBase:
 
     # A property, not an attribute, to maintain picklability.
     canvas = property(lambda self: self.ref_artist.figure.canvas)
-
     cids = property(lambda self: [
         disconnect.args[0] for disconnect in self._disconnectors[:2]])
 
