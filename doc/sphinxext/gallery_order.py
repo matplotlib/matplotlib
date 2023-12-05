@@ -4,6 +4,7 @@ Paths are relative to the conf.py file.
 """
 
 from sphinx_gallery.sorting import ExplicitOrder
+import os
 
 # Gallery sections shall be displayed in the following order.
 # Non-matching sections are inserted at the unsorted position
@@ -138,7 +139,7 @@ def parse_readme(file_to_read):
     return False
 
 
-DIRECTORIES = ["../galleries/examples", "../galleries/tutorials", 
+DIRECTORIES = ["../galleries/examples", "../galleries/tutorials",
                "../galleries/plot_types"]
 
 
@@ -162,10 +163,9 @@ def follow_directory():
 
         new_folder_list.append(directory_list)
 
-    print(folder_list)
+    print(folder_lists)
     print("-------------------------")
     print(new_folder_list)
 
     return new_folder_list
-    # folder_list = new_folder_list
-
+    # folder_lists = new_folder_list
