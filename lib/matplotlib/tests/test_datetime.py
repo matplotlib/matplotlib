@@ -148,11 +148,12 @@ class TestDatetimePlotting:
         values = [10, 20, 15, 25, 30]
 
         # Creating the plot
-        fig, axs = plt.subplots(1,1, figsize=(10, 8), layout='constrained')
+        fig, axs = plt.subplots(1, 1, figsize=(10, 8), layout='constrained')
         bars = axs.bar(date_list, values)
 
         # Add labels to the bars using bar_label
-        axs.bar_label(bars, labels=[f'{val}%' for val in values], label_type='edge', color='black')
+        axs.bar_label(bars, labels=[f'{val}%' for val in values],
+                       label_type='edge', color='black')
 
     @mpl.style.context("default")
     def test_barbs(self):
