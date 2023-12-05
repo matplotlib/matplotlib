@@ -340,7 +340,7 @@ class TestDatetimePlotting:
     @mpl.style.context("default")
     def test_stem(self):
         mpl.rcParams["date.converter"] = "concise"
-        range_threshold = 10
+
         fig, (ax1, ax2, ax3, ax4, ax5, ax6) = plt.subplots(6, 1, layout="constrained")
 
         limit_value = 10
