@@ -340,12 +340,13 @@ class TestDatetimePlotting:
             x_base_date += datetime.timedelta(days=np.random.randint(1, 10))
             x_dates.append(x_base_date)
 
-        fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, layout="constrained")
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
 
         ax1.fill_between(x_values, y_dates1, y_dates2)
-        ax2.fill_between(x_values, y_values1, y_values2)
-        ax3.fill_between(x_dates, y_values1, y_values2)
-        ax4.fill_between(x_dates, y_dates1, y_dates2)
+        ax2.fill_between(x_dates, y_values1, y_values2)
+        ax3.fill_between(x_dates, y_dates1, y_dates2)
+
+        plt.savefig("fill_between2.png")
 
     @pytest.mark.xfail(reason="Test for fill_betweenx not written yet")
     @mpl.style.context("default")
