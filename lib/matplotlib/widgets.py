@@ -2695,7 +2695,7 @@ class SpanSelector(_SelectorWidget):
 
     @property
     def direction(self):
-        """Direction of the span selector: 'vertical' or 'horizontal'. Writable."""
+        """Direction of the span selector: 'vertical' or 'horizontal'."""
         return self._direction
 
     @direction.setter
@@ -2859,7 +2859,7 @@ class SpanSelector(_SelectorWidget):
         (float, float)
             The values, in data coordinates, for the start and end points of the current
             selection. If there is no selection then the start and end values will be
-            the same. Writable.
+            the same.
         """
         if self.direction == 'horizontal':
             vmin = self._selection_artist.get_x()
