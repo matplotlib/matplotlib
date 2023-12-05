@@ -346,8 +346,6 @@ class TestDatetimePlotting:
         ax2.fill_between(x_dates, y_values1, y_values2)
         ax3.fill_between(x_dates, y_dates1, y_dates2)
 
-        plt.savefig("fill_between2.png")
-
     @pytest.mark.xfail(reason="Test for fill_betweenx not written yet")
     @mpl.style.context("default")
     def test_fill_betweenx(self):
