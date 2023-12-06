@@ -522,13 +522,15 @@ class TestDatetimePlotting:
         np.random.seed(19680801)
 
         '''
-        Directly inputting either datetime.datetime or numpy.datetime64 without using date2num() seems to always generate compile errors for pcolorfast(). 
-        I have used date2num() to ensure that the graph prints correctly despite that such operations may defy the purpose of conducting such tests.
+        Directly inputting either datetime.datetime or numpy.datetime64
+            without using date2num() seems to always generate compile errors for pcolorfast().
+        I have used date2num() to ensure that the graph prints correctly
+            despite that such operations may defy the purpose of conducting such tests.
         '''
         basedate_x = datetime.datetime(2023, 12, 6, 1, 30, 30)
         basedate_y = datetime.datetime(2024, 5, 5, 12, 15, 45)
-        dates_x = [dt.date2num(basedate_x + datetime.timedelta(days=1*i, hours=6*i, minutes=20*i,seconds=0)) for i in range(10)]
-        dates_y = [dt.date2num(basedate_y + datetime.timedelta(days=1*i, hours=8*i, minutes=30*i,seconds=0)) for i in range(10)]
+        dates_x = [dt.date2num(basedate_x + datetime.timedelta(days=1*i, hours=6*i, minutes=20*i)) for i in range(10)]
+        dates_y = [dt.date2num(basedate_y + datetime.timedelta(days=1*i, hours=8*i, minutes=30*i)) for i in range(10)]
         data = np.random.rand(0, 100)
 
         fig, ax = plt.subplots()
