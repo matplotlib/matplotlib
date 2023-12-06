@@ -86,8 +86,6 @@ class BufferRegion
         return stride;
     }
 
-    void to_string_argb(uint8_t *buf);
-
   private:
     agg::int8u *data;
     agg::rect_i rect;
