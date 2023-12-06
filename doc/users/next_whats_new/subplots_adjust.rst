@@ -7,6 +7,6 @@ subplots_adjust has a new ``kwarg``: ``rc_default``
 The `.gridspec.SubplotParams` object has a new get method
 :meth:`~.SubplotParams.get_subplot_params`
 
-When calling `.Figure.clear()` the settings for `SubplotParams` are restored to the default values.
+When calling `.Figure.clear()` the settings for `.gridspec.SubplotParams` are restored to the default values.
 
 (code based on work by @fredrik-1)
