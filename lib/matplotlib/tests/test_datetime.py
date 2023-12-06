@@ -346,12 +346,11 @@ class TestDatetimePlotting:
             y_base_date += datetime.timedelta(days=np.random.randint(1, 10))
             y_dates.append(y_base_date)
 
-        fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, layout="constrained")
+        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, layout="constrained")
 
         ax1.fill_betweenx(y_values, x_dates1, x_dates2)
-        ax2.fill_betweenx(y_values, x_values1, x_values2)
-        ax3.fill_betweenx(y_dates, x_values1, x_values2)
-        ax4.fill_betweenx(y_dates, x_dates1, x_dates2)
+        ax2.fill_betweenx(y_dates, x_values1, x_values2)
+        ax3.fill_betweenx(y_dates, x_dates1, x_dates2)
 
     @pytest.mark.xfail(reason="Test for hexbin not written yet")
     @mpl.style.context("default")
