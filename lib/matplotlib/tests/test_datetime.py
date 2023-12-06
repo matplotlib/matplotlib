@@ -532,7 +532,6 @@ class TestDatetimePlotting:
         data = np.random.rand(0, 100)
 
         fig, ax = plt.subplots()
-        ax.pcolorfast(...)
         pc = ax.pcolorfast(dates_x, dates_y, data)
 
         ax.set_xlabel('Sample datetime')
