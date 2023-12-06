@@ -10,6 +10,16 @@ def test_equal():
     assert gs[:, 0] == gs[:, 0]
 
 
+def test_update():
+    gs = gridspec.GridSpec(2, 1)
+
+    gs.update(left=.1)
+    assert gs.left == .1
+
+    with pytest.raises(AttributeError):
+        gs.update(lleft=.1)
+
+
 def test_width_ratios():
     """
     Addresses issue #5835.
