@@ -8898,3 +8898,43 @@ def test_axhvlinespan_interpolation():
     ax.axhline(1, c="C0", alpha=.5)
     ax.axhspan(.8, .9, fc="C1", alpha=.5)
     ax.axhspan(.6, .7, .8, .9, fc="C2", alpha=.5)
+
+
+@check_figures_equal(extensions=["png"])
+@pytest.mark.parametrize("which", ("x", "y"))
+def test_axes_clear_behavior(fig_ref, fig_test, which):
+    ax_test = fig_test.subplots()
+    ax_ref = fig_ref.subplots()
+    target = {
+        "direction": "in",
+        "length": 10,
+        "width": 10,
+        "color": "xkcd:wine red",
+        "pad": 0,
+        "labelfontfamily": "serif",
+        "zorder": 7,
+        "labelrotation": 45,
+        "labelcolor": "xkcd:shocking pink",
+        # this overrides color + labelcolor, skip
+        # colors: ,
+        "grid_color": "xkcd:fluorescent green",
+        "grid_alpha": 0.5,
+        "grid_linewidth": 3,
+        "grid_linestyle": ":",
+        "bottom": False,
+        "top": True,
+        "left": False,
+        "right": True,
+        "labelbottom": True,
+        "labeltop": True,
+        "labelleft": True,
+        "labelright": True,
+    }
+
+    ax_ref.tick_params(axis=which, **target)
+
+    ax_test.tick_params(axis=which, **target)
+    ax_test.clear()
+
+    ax_ref.grid(True)
+    ax_test.grid(True)
