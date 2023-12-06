@@ -8,16 +8,6 @@ import matplotlib as mpl
 
 
 class TestDatetimePlotting:
-<<<<<<< HEAD
-    @pytest.mark.xfail(reason="Test for acorr not written yet")
-    @mpl.style.context("default")
-    def test_acorr(self):
-        fig, ax = plt.subplots()
-        ax.acorr(...)
-
-=======
-    @pytest.mark.xfail(reason="Test for annotate not written yet")
->>>>>>> 151199a8ef (MNT: remove xcorr and acorr from test_datetime)
     @mpl.style.context("default")
     def test_annotate(self):
         mpl.rcParams["date.converter"] = 'concise'
