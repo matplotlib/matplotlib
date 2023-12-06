@@ -520,12 +520,6 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.quiver(...)
 
-    @pytest.mark.xfail(reason="Test for quiverkey not written yet")
-    @mpl.style.context("default")
-    def test_quiverkey(self):
-        fig, ax = plt.subplots()
-        ax.quiverkey(...)
-
     @mpl.style.context("default")
     def test_scatter(self):
         mpl.rcParams["date.converter"] = 'concise'
