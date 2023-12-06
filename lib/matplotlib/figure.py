@@ -331,8 +331,8 @@ default: %(va)s
     @_docstring.copy(_suplabels)
     def suptitle(self, t, **kwargs):
         # docstring from _suplabels...
-        info = {'name': '_suptitle', 'x0': 'figure.title_locx',
-                'y0': 'figure.title_locy', 'ha': 'figure.title_ha',
+        info = {'name': '_suptitle', 'x0': 'figure.title_x',
+                'y0': 'figure.title_y', 'ha': 'figure.title_ha',
                 'va': 'figure.title_va', 'rotation': 0,
                 'size': 'figure.titlesize', 'weight': 'figure.titleweight'}
         return self._suplabels(t, info, **kwargs)

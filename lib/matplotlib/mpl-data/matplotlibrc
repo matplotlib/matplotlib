@@ -557,8 +557,8 @@
 ## * FIGURE                                                                  *
 ## ***************************************************************************
 ## See https://matplotlib.org/stable/api/figure_api.html#matplotlib.figure.Figure
-#figure.titleloc_x:  0.5
-#figure.titleloc_y:  0.98
+#figure.title_x:  0.5
+#figure.title_y:  0.98
 #figure.titleha:     center
 #figure.titleva:     center
 #figure.titlesize:   large     # size of the figure title (``Figure.suptitle()``)
