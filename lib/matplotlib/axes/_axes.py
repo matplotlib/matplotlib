@@ -1979,6 +1979,8 @@ class Axes(_AxesBase):
         Parameters
         ----------
         x : array-like
+            Not run through Matplotlib's unit conversion, so this should
+            be a unit-less array.
 
         detrend : callable, default: `.mlab.detrend_none` (no detrending)
             A detrending function applied to *x*.  It must have the
@@ -2056,6 +2058,8 @@ class Axes(_AxesBase):
         Parameters
         ----------
         x, y : array-like of length n
+            Neither *x* nor *y* are run through Matplotlib's unit conversion, so
+            these should be unit-less arrays.
 
         detrend : callable, default: `.mlab.detrend_none` (no detrending)
             A detrending function applied to *x* and *y*.  It must have the

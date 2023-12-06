@@ -8,12 +8,6 @@ import matplotlib as mpl
 
 
 class TestDatetimePlotting:
-    @pytest.mark.xfail(reason="Test for acorr not written yet")
-    @mpl.style.context("default")
-    def test_acorr(self):
-        fig, ax = plt.subplots()
-        ax.acorr(...)
-
     @mpl.style.context("default")
     def test_annotate(self):
         mpl.rcParams["date.converter"] = 'concise'
@@ -738,9 +732,3 @@ class TestDatetimePlotting:
     def test_vlines(self):
         fig, ax = plt.subplots()
         ax.vlines(...)
-
-    @pytest.mark.xfail(reason="Test for xcorr not written yet")
-    @mpl.style.context("default")
-    def test_xcorr(self):
-        fig, ax = plt.subplots()
-        ax.xcorr(...)
