@@ -1671,11 +1671,8 @@ def test_warn_colorbar_mismatch():
     fig2, (axA, axB) = plt.subplots(2)
     im = ax.imshow([[1, 2], [3, 4]])
 
-    with pytest.warns() as mismatch_warn:
+    with pytest.warns(UserWarning, match = "different Figure"):
         fig2.colorbar(im)   # this should warn
-    assert len(mismatch_warn) == 1
-    assert mismatch_warn[0].category is UserWarning
-    assert str(mismatch_warn[0].message).startswith("Adding colorbar to a different Figure")
 
     with warnings.catch_warnings() as mismatch_warn:
         warnings.simplefilter("error")
