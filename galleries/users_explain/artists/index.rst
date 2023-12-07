@@ -20,4 +20,5 @@ and :doc:`Axes <../axes/index>` are Artists, and generally contain
     Paths <paths>
     Path effects guide <patheffects_guide>
     Understanding the extent keyword argument of imshow <imshow_extent>
+    Understanding bin edges and values in histogram <histogram_features>
     transforms_tutorial
