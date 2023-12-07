@@ -3,7 +3,9 @@
 stairs(values)
 ==============
 
-See `~matplotlib.axes.Axes.stairs`.
+See `~matplotlib.axes.Axes.stairs` when plotting :math:`y` between
+:math:`(x_i, x_{i+1})`. For plotting :math:`y` at :math:`x`, see
+`~matplotlib.axes.Axes.step`.
 
 .. redirect-from:: /plot_types/basic/step
 """
