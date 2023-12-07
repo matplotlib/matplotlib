@@ -1,0 +1,2 @@
+[flake8.extension]
+D = flake8_docstrings:pep257Checker

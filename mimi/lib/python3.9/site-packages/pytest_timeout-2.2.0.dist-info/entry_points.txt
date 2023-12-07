@@ -1,0 +1,2 @@
+[pytest11]
+timeout = pytest_timeout

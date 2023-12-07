@@ -1,0 +1,29 @@
+.bd-footer {
+  width: 100%;
+  border-top: 1px solid var(--pst-color-border);
+
+  .bd-footer__inner {
+    display: flex;
+    flex-grow: 1;
+    padding: 1rem;
+    margin: auto;
+  }
+
+  .footer-items__start,
+  .footer-items__end {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  .footer-items__end {
+    margin-left: auto;
+    text-align: end;
+  }
+
+  // So that paragraphs don't take up extra room
+  .footer-item p {
+    margin-bottom: 0;
+  }
+}

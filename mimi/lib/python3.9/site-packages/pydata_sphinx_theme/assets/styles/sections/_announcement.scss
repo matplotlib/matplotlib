@@ -1,0 +1,37 @@
+.bd-header-announcement {
+  min-height: 3rem;
+  width: 100%;
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.5rem 12.5%; // Horizontal padding so the width is 75%
+  // One breakpoint less than $breakpoint-sidebar-primary. See variables/_layout.scss for more info.
+  @include media-breakpoint-down(lg) {
+    // Announcements can take a bit more width on mobile
+    padding: 0.5rem 2%;
+  }
+
+  p {
+    font-weight: bold;
+    margin: 0;
+  }
+
+  // The same background color transparency hack we use in admonitions
+  &:after {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    background-color: var(--pst-color-info);
+    opacity: 0.2;
+    content: "";
+    z-index: -1; // So it doesn't hover over the content
+  }
+
+  &:empty {
+    display: none;
+  }
+}

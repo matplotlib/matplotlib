@@ -1,0 +1,2 @@
+[pytest11]
+xvfb = pytest_xvfb

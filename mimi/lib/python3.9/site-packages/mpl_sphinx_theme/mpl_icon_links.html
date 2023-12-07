@@ -1,0 +1,9 @@
+{%- if not theme_icon_links -%}
+  {%- set theme_icon_links = [
+    { "url": "https://gitter.im/matplotlib/matplotlib", "icon": "fa-brands fa-gitter", "name": "Gitter" },
+    { "url": "https://discourse.matplotlib.org", "icon": "fa-brands fa-discourse", "name": "Discourse" },
+    { "url": "https://github.com/matplotlib/matplotlib", "icon": "fa-brands fa-github", "name": "GitHub" },
+    { "url": "https://twitter.com/matplotlib/", "icon": "fa-brands fa-twitter", "name": "Twitter" },
+  ] -%}
+{%- endif -%}
+{% extends "navbar-icon-links.html" %}

@@ -1,0 +1,83 @@
+/*********************************************
+* SASS Mixins
+*********************************************/
+
+/**
+* Scrollbars should be thinner and slightly rounded, with a grey background
+* ref: https://www.nngroup.com/articles/scrolling-and-scrollbars/
+*/
+@mixin scrollbar-style() {
+  &::-webkit-scrollbar {
+    width: 0.5rem;
+    height: 0.5rem;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--pst-color-text-muted);
+    border-radius: 0.25rem;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--pst-color-on-surface);
+  }
+
+  // Hovering behavior for the scrollbar
+  // Include both hovering on the parent and on the thumb in case thumb is outside parent
+  &:hover {
+    &::-webkit-scrollbar-thumb {
+      background: var(--pst-color-text-muted);
+    }
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--pst-color-text-muted);
+  }
+}
+
+/**
+ * A consistent box shadow style we apply across elements.
+ */
+@mixin box-shadow() {
+  box-shadow: 0 0.2rem 0.5rem var(--pst-color-shadow),
+    0 0 0.0625rem var(--pst-color-shadow) !important;
+}
+
+/**
+ * create a low opacity background behind object using our variable colors
+ */
+@mixin background-from-color-variable($color-variable, $opacity: 0.1) {
+  // This is a hack to create a light background with controlled opacity
+  // using our css color variables
+  // ref: https://stackoverflow.com/a/56951626/6734243
+
+  &:before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background-color: var(#{$color-variable});
+    opacity: $opacity;
+
+    // So that hovering over the text within background is still possible.
+    // Otherwise the background overlays the text and you cannot click or select easily.
+    // ref: https://developer.mozilla.org/en-US/docs/Web/CSS/pointer-events
+    pointer-events: none;
+  }
+}
+
+/**
+ * Set background of some cell outputs to white-ish to make sure colors work
+ * This is because many libraries make output that only looks good on white
+ */
+@mixin cell-output-background {
+  color: var(--pst-color-on-background);
+  background-color: var(--pst-color-text-base);
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+}

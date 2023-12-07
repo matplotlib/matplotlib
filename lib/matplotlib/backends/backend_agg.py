@@ -67,7 +67,7 @@ class RendererAgg(RendererBase):
         self.dpi = dpi
         self.width = width
         self.height = height
-        self._renderer = _RendererAgg(int(width), int(height), dpi)
+        self._renderer = _RendererAgg(round(width), round(height), dpi)
         self._filter_renderers = []
 
         self._update_methods()
@@ -99,7 +99,7 @@ class RendererAgg(RendererBase):
         if (npts > nmax > 100 and path.should_simplify and
                 rgbFace is None and gc.get_hatch() is None):
             nch = np.ceil(npts / nmax)
-            chsize = int(np.ceil(npts / nch))
+            chsize = round(np.ceil(npts / nch))
             i0 = np.arange(0, npts, chsize)
             i1 = np.zeros_like(i0)
             i1[:-1] = i0[1:] - 1
@@ -314,8 +314,8 @@ class RendererAgg(RendererBase):
 
             # The incoming data is float, but the _renderer type-checking wants
             # to see integers.
-            self._renderer.restore_region(region, int(x1), int(y1),
-                                          int(x2), int(y2), int(ox), int(oy))
+            self._renderer.restore_region(region, round(x1), round(y1),
+                                          round(x2), round(y2), round(ox), round(oy))
 
         else:
             self._renderer.restore_region(region)
@@ -325,7 +325,7 @@ class RendererAgg(RendererBase):
         Start filtering. It simply creates a new canvas (the old one is saved).
         """
         self._filter_renderers.append(self._renderer)
-        self._renderer = _RendererAgg(int(self.width), int(self.height),
+        self._renderer = _RendererAgg(round(self.width), round(self.height),
                                       self.dpi)
         self._update_methods()
 
@@ -360,7 +360,7 @@ class RendererAgg(RendererBase):
             if img.dtype.kind == 'f':
                 img = np.asarray(img * 255., np.uint8)
             self._renderer.draw_image(
-                gc, slice_x.start + ox, int(self.height) - slice_y.stop + oy,
+                gc, slice_x.start + ox, round(self.height) - slice_y.stop + oy,
                 img[::-1])
 
 
@@ -499,7 +499,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         FigureCanvasAgg.draw(self)
         renderer = self.get_renderer()
         return (bytes(renderer.buffer_rgba()),
-                (int(renderer.width), int(renderer.height)))
+                (round(renderer.width), round(renderer.height)))
 
     # Note that these methods should typically be called via savefig() and
     # print_figure(), and the latter ensures that `self.figure.dpi` already

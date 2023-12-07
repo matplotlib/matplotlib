@@ -1,0 +1,121 @@
+/*************************
+ * Search field
+ */
+.bd-search {
+  position: relative;
+  padding: 1rem 15px;
+  margin-right: -15px;
+  margin-left: -15px;
+
+  .icon {
+    position: absolute;
+    color: var(--pst-color-border);
+    left: 25px;
+  }
+
+  i.fa-solid.fa-magnifying-glass {
+    position: absolute;
+    left: 1.6rem;
+    color: var(--pst-color-text-muted);
+  }
+
+  input {
+    background-color: var(--pst-color-background);
+    border-radius: $admonition-border-radius;
+    border: 1px solid var(--pst-color-border);
+    padding-left: 2.5rem;
+    color: var(--pst-color-text-base);
+
+    // Inner-text of the search bar
+    &::placeholder {
+      color: var(--pst-color-border);
+    }
+
+    // Background should always be same color regardless of active or not
+    &:active,
+    &:focus {
+      background-color: var(--pst-color-background);
+      color: var(--pst-color-text-base);
+    }
+
+    // Remove the little "x" that pops up when you start typing
+    &::-webkit-search-cancel-button,
+    &::-webkit-search-decoration {
+      -webkit-appearance: none;
+      appearance: none;
+    }
+  }
+
+  // Shows off the keyboard shortcuts for the button
+  .search-button__kbd-shortcut {
+    display: flex;
+    position: absolute;
+    right: 2em;
+    color: var(--pst-color-border);
+  }
+}
+
+/*************************
+ * Search button
+ */
+// Search link icon should be a bit bigger since it is separate from icon links
+.search-button {
+  display: flex;
+  align-items: center;
+  align-content: center;
+  padding: 0;
+  color: var(--pst-color-text-muted);
+
+  &:hover {
+    color: var(--pst-color-primary);
+  }
+
+  i {
+    font-size: 1.3rem;
+  }
+}
+
+// __search-container will only show up when we use the search pop-up bar
+.search-button__search-container,
+.search-button__overlay {
+  display: none;
+}
+.search-button__wrapper.show {
+  .search-button__search-container {
+    display: flex;
+    // Center in middle of screen just underneath header
+    position: fixed;
+    z-index: $zindex-modal;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    right: 1rem;
+    margin-top: 0.5rem;
+    width: 90%;
+    max-width: 800px;
+  }
+
+  .search-button__overlay {
+    display: flex;
+    position: fixed;
+    z-index: $zindex-modal-backdrop;
+    background-color: black;
+    opacity: 0.5;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+  }
+
+  form.bd-search {
+    flex-grow: 1;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  // Font and input text a bit bigger
+  i,
+  input {
+    font-size: var(--pst-font-size-icon);
+  }
+}

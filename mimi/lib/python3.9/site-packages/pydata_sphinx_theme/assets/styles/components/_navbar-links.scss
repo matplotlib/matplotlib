@@ -1,0 +1,75 @@
+/**
+ * Navigation links within a navbar
+ */
+.navbar-nav {
+  ul {
+    display: block;
+    list-style: none;
+
+    // Reduce padding of nested `ul` items a bit
+    ul {
+      padding: 0 0 0 1rem;
+    }
+  }
+
+  // Default link styles
+  li {
+    display: flex;
+    flex-direction: column;
+
+    a {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      color: var(--pst-color-text-muted);
+      padding-top: 0.25rem;
+      padding-bottom: 0.25rem;
+      &:hover {
+        color: var(--pst-color-primary);
+        border-style: none;
+        text-decoration-line: none;
+      }
+
+      &:focus {
+        color: var(--pst-color-primary);
+      }
+    }
+
+    // Active page is always highlighted
+    &.current > a {
+      font-weight: 600;
+      color: var(--pst-color-primary);
+    }
+  }
+
+  /**
+   * Togglable expand/collapse
+   * This is only applicable to the primary sidebar which has these checkboxes
+   */
+  .toctree-checkbox {
+    position: absolute;
+    display: none;
+  }
+
+  .toctree-checkbox {
+    ~ ul {
+      display: none;
+    }
+    ~ label i {
+      transform: rotate(0deg);
+    }
+  }
+  .toctree-checkbox:checked {
+    ~ ul {
+      display: block;
+    }
+    ~ label i {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+// Don't display the `site navigation` in the header menu
+.bd-header .navbar-nav > p.sidebar-header-items__title {
+  display: none;
+}

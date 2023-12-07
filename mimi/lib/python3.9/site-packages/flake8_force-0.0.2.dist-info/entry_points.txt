@@ -1,0 +1,2 @@
+[flake8.extension]
+FRC000 = flake8_force:Flake8Force
