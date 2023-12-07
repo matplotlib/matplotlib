@@ -395,7 +395,6 @@ class TestDatetimePlotting:
             cmap='Reds'
         )
         ax3.set_title('Axes.hist2d - Data 3')
-        
     @mpl.style.context("default")
     def test_hlines(self):
         mpl.rcParams["date.converter"] = 'concise'
