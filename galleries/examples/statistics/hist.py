@@ -36,6 +36,8 @@ fig, axs = plt.subplots(1, 2, sharey=True, tight_layout=True)
 axs[0].hist(dist1, bins=n_bins)
 axs[1].hist(dist2, bins=n_bins)
 
+plt.show()
+
 
 # %%
 # Updating histogram colors
@@ -98,8 +100,6 @@ axs[1].hist2d(dist1, dist2, bins=40, norm=colors.LogNorm())
 
 # We can also define custom numbers of bins for each axis
 axs[2].hist2d(dist1, dist2, bins=(80, 10), norm=colors.LogNorm())
-
-plt.show()
 
 # %%
 #
