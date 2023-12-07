@@ -225,9 +225,10 @@ class Axes3D(Axes):
     get_zgridlines = _axis_method_wrapper("zaxis", "get_gridlines")
     get_zticklines = _axis_method_wrapper("zaxis", "get_ticklines")
 
-    def _unit_cube(self, vals=None):
-        minx, maxx, miny, maxy, minz, maxz = vals or self.get_w_lims()
-        return [(minx, miny, minz),
+    def _transformed_cube(self, vals):
+        """Return cube with limits from *vals* transformed by self.M."""
+        minx, maxx, miny, maxy, minz, maxz = vals
+        xyzs = [(minx, miny, minz),
                 (maxx, miny, minz),
                 (maxx, maxy, minz),
                 (minx, maxy, minz),
@@ -235,31 +236,7 @@ class Axes3D(Axes):
                 (maxx, miny, maxz),
                 (maxx, maxy, maxz),
                 (minx, maxy, maxz)]
-
-    def _tunit_cube(self, vals=None, M=None):
-        if M is None:
-            M = self.M
-        xyzs = self._unit_cube(vals)
-        tcube = proj3d._proj_points(xyzs, M)
-        return tcube
-
-    def _tunit_edges(self, vals=None, M=None):
-        tc = self._tunit_cube(vals, M)
-        edges = [(tc[0], tc[1]),
-                 (tc[1], tc[2]),
-                 (tc[2], tc[3]),
-                 (tc[3], tc[0]),
-
-                 (tc[0], tc[4]),
-                 (tc[1], tc[5]),
-                 (tc[2], tc[6]),
-                 (tc[3], tc[7]),
-
-                 (tc[4], tc[5]),
-                 (tc[5], tc[6]),
-                 (tc[6], tc[7]),
-                 (tc[7], tc[4])]
-        return edges
+        return proj3d._proj_points(xyzs, self.M)
 
     def set_aspect(self, aspect, adjustable=None, anchor=None, share=False):
         """
@@ -487,8 +464,7 @@ class Axes3D(Axes):
         super().draw(renderer)
 
     def get_axis_position(self):
-        vals = self.get_w_lims()
-        tc = self._tunit_cube(vals, self.M)
+        tc = self._transformed_cube(self.get_w_lims())
         xhigh = tc[1][2] > tc[2][2]
         yhigh = tc[3][2] > tc[2][2]
         zhigh = tc[0][2] > tc[2][2]
