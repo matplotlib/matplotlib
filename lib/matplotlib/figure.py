@@ -1244,8 +1244,9 @@ default: %(va)s
 
         if hasattr(mappable, "figure") and mappable.figure is not self.figure:
             _log.warning(
-                    'Trying to add colorbar to a Figure different '
-                    'than the one fig.colorbar is called on.')
+                    'Adding colorbar to a different Figure %s'
+                    ' than %s which fig.colorbar is called on.',
+                    repr(mappable.figure), repr(self.figure))
 
         NON_COLORBAR_KEYS = [  # remove kws that cannot be passed to Colorbar
             'fraction', 'pad', 'shrink', 'aspect', 'anchor', 'panchor']
