@@ -1,3 +1,5 @@
+.. redirect-from: /devel/dependencies
+
 .. _dependencies:
 
 ************
@@ -387,7 +389,7 @@ The additional Python packages required to build the
 
 The content of :file:`doc-requirements.txt` is also shown below:
 
-.. include:: ../../requirements/doc/doc-requirements.txt
+.. include:: ../../../requirements/doc/doc-requirements.txt
    :literal:
 
 

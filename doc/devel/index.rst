@@ -97,12 +97,6 @@ Development environment
 
          development_setup
 
-      .. toctree::
-         :maxdepth: 1
-
-         dependencies
-         ../users/installing/environment_variables_faq.rst
-
 
    .. grid-item-card::
       :shadow: none
