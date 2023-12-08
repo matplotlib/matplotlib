@@ -41,6 +41,8 @@ Optional
 The following packages and tools are not required but extend the capabilities
 of Matplotlib.
 
+.. _backend_dependencies:
+
 Backends
 ^^^^^^^^
 
