@@ -1,8 +1,0 @@
-# -*- coding: iso-8859-5 -*-
-
-# ∆≤≥¥µ∂
-class Dummy∆≤≥¥µ∂(object):
-    def Print(self):
-        print ('∆≤≥¥µ∂')
-
-Dummy∆≤≥¥µ∂().Print()

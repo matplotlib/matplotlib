@@ -1,2 +1,0 @@
-class ClassToBeImported(object):
-    pass

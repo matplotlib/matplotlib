@@ -1,8 +1,0 @@
-# -*- coding: iso-8859-5 -*-
-
-# Æ²³´µ¶
-class Dummy(object):
-    def Print(self)
-        print ('Æ²³´µ¶')
-
-Dummy().Print()
