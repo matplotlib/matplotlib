@@ -1241,7 +1241,7 @@ default: %(va)s
             # make_axes calls add_{axes,subplot} which changes gca; undo that.
             fig.sca(current_ax)
             cax.grid(visible=False, which='both', axis='both')
-        
+
         if hasattr(mappable, "figure"):
             # Get top level artists
             mappable_host_fig = mappable.figure
