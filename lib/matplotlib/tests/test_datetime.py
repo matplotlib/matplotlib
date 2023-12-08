@@ -264,7 +264,7 @@ class TestDatetimePlotting:
     def test_eventplot(self):
         mpl.rcParams["date.converter"] = "concise"
 
-        fig, (ax1, ax2) = plt.subplots(2, 1, layout="constrained")
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
 
         x_dates1 = np.array([datetime.datetime(2020, 6, 30),
                              datetime.datetime(2020, 7, 22),
@@ -292,6 +292,17 @@ class TestDatetimePlotting:
         ax2.eventplot([dates1, dates2, dates3],
                       colors=colors1,
                       lineoffsets=lineoffsets1,
+                      linelengths=linelengths1)
+
+        lineoffsets2 = np.array([
+            datetime.datetime(2020, 7, 1),
+            datetime.datetime(2020, 7, 15),
+            datetime.datetime(2020, 8, 1)
+        ], dtype=np.datetime64)
+
+        ax3.eventplot([dates1, dates2, dates3],
+                      colors=colors1,
+                      lineoffsets=lineoffsets2,
                       linelengths=linelengths1)
 
     @pytest.mark.xfail(reason="Test for fill not written yet")
