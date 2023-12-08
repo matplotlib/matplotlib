@@ -8911,4 +8911,3 @@ def test_log_scale_axis():
     plt.xscale('log', nonpositive='clip')
     ax = plt.gca()
     assert ax.get_ylim()[0] == 357
-    
