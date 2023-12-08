@@ -1280,7 +1280,8 @@ def test_subfigure():
     axs = sub[1].subplots(1, 3)
     for ax in axs.flat:
         pc = ax.pcolormesh(np.random.randn(30, 30), vmin=-2, vmax=2)
-    sub[1].colorbar(pc, ax=axs, location='bottom')
+    with pytest.warns(UserWarning, match="different Figure"):
+        sub[1].colorbar(pc, ax=axs, location='bottom')
     sub[1].suptitle('Right Side')
     sub[1].set_facecolor('white')
 
@@ -1320,7 +1321,8 @@ def test_subfigure_ss():
     axs = sub.subplots(2, 2)
     for ax in axs.flat:
         pc = ax.pcolormesh(np.random.randn(30, 30), vmin=-2, vmax=2)
-    sub.colorbar(pc, ax=axs)
+    with pytest.warns(UserWarning, match="different Figure"):
+        sub.colorbar(pc, ax=axs)
     sub.suptitle('Left Side')
 
     ax = fig.add_subplot(gs[1])
@@ -1358,8 +1360,8 @@ def test_subfigure_double():
         ax.set_xlabel('x-label', fontsize=fontsize)
         ax.set_ylabel('y-label', fontsize=fontsize)
         ax.set_title('Title', fontsize=fontsize)
-
-    subfigsnest[0].colorbar(pc, ax=axsnest0)
+    with pytest.warns(UserWarning, match="different Figure"):
+        subfigsnest[0].colorbar(pc, ax=axsnest0)
 
     subfigsnest[1].suptitle('subfigsnest[1]')
     subfigsnest[1].set_facecolor('g')
@@ -1672,9 +1674,12 @@ def test_warn_colorbar_mismatch():
     fig2, (axA, axB) = plt.subplots(2)
     im = ax.imshow([[1, 2], [3, 4]])
 
+    # this should not warn
+    fig.colorbar(im)
+    # warn on an inferred mismatch
     with pytest.warns(UserWarning, match="different Figure"):
         fig2.colorbar(im)
-    # warn even when the host figure is not inferred
+    # warn mismatch even when the host figure is not inferred
     with pytest.warns(UserWarning, match="different Figure"):
         fig2.colorbar(im, ax=ax)
     with pytest.warns(UserWarning, match="different Figure"):

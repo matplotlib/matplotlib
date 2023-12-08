@@ -1034,8 +1034,9 @@ def test_colorbar_contourf_extend_patches():
         for ax, (extend, levels, hatches) in zip(axs, params):
             cs = ax.contourf(x, y, z, levels, hatches=hatches,
                              cmap=cmap, extend=extend)
-            subfig.colorbar(cs, ax=ax, orientation=orientation, fraction=0.4,
-                            extendfrac=0.2, aspect=5)
+            with pytest.warns(UserWarning, match="different Figure"):
+                subfig.colorbar(cs, ax=ax, orientation=orientation, fraction=0.4,
+                                extendfrac=0.2, aspect=5)
 
 
 def test_negative_boundarynorm():
