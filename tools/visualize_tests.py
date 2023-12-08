@@ -13,7 +13,11 @@ from collections import defaultdict
 # Non-png image extensions
 NON_PNG_EXTENSIONS = ['pdf', 'svg', 'eps']
 
-html_template = """<html><head><style media="screen" type="text/css">
+html_template = """<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Matplotlib test result visualization</title>
+<style media="screen">
 img{{
   width:100%;
   max-width:800px;
@@ -26,14 +30,18 @@ img{{
 """
 
 subdir_template = """<h2>{subdir}</h2><table>
-<thead><td>name</td><td>actual</td><td>expected</td><td>diff</td></thead>
+<thead><tr><th>name</th><th>actual</th><th>expected</th><th>diff</th></tr></thead>
+<tbody>
 {rows}
+</tbody>
 </table>
 """
 
 failed_template = """<h2>Only Failed</h2><table>
-<thead><td>name</td><td>actual</td><td>expected</td><td>diff</td></thead>
+<thead><tr><th>name</th><th>actual</th><th>expected</th><th>diff</th></tr></thead>
+<tbody>
 {rows}
+</tbody>
 </table>
 """
 
