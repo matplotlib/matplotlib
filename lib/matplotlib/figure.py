@@ -1241,13 +1241,22 @@ default: %(va)s
             # make_axes calls add_{axes,subplot} which changes gca; undo that.
             fig.sca(current_ax)
             cax.grid(visible=False, which='both', axis='both')
-
-        if hasattr(mappable, "figure") and mappable.figure is not self.figure:
-            _api.warn_external(
-                    f'Adding colorbar to a different Figure '
-                    f'{repr(mappable.figure)} than '
-                    f'{repr(self.figure)} which '
-                    f'fig.colorbar is called on.')
+        
+        if hasattr(mappable, "figure"):
+            # Get top level artists
+            mappable_host_fig = mappable.figure
+            self_host_fig = self.figure
+            if isinstance(mappable_host_fig, mpl.figure.SubFigure):
+                mappable_host_fig = mappable_host_fig.figure
+            if isinstance(self_host_fig, mpl.figure.SubFigure):
+                self_host_fig = self_host_fig.figure
+            # Warn in case of mismatch
+            if mappable_host_fig is not self_host_fig:
+                _api.warn_external(
+                        f'Adding colorbar to a different Figure '
+                        f'{repr(mappable.figure)} than '
+                        f'{repr(self.figure)} which '
+                        f'fig.colorbar is called on.')
 
         NON_COLORBAR_KEYS = [  # remove kws that cannot be passed to Colorbar
             'fraction', 'pad', 'shrink', 'aspect', 'anchor', 'panchor']
