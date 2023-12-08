@@ -53,7 +53,7 @@ for col in range(2):
 fig, axs = plt.subplots(2, 1, figsize=(4, 5), sharex=True)
 X = np.random.randn(20, 20)
 axs[0].plot(np.sum(X, axis=0))
-axs[1].pcolormesh(X)
+pcm = axs[1].pcolormesh(X)
 fig.colorbar(pcm, ax=axs[1], shrink=0.6)
 
 # %%
@@ -63,7 +63,7 @@ fig.colorbar(pcm, ax=axs[1], shrink=0.6)
 
 fig, axs = plt.subplots(2, 1, figsize=(4, 5), sharex=True, layout='constrained')
 axs[0].plot(np.sum(X, axis=0))
-axs[1].pcolormesh(X)
+pcm = axs[1].pcolormesh(X)
 fig.colorbar(pcm, ax=axs[1], shrink=0.6)
 
 # %%

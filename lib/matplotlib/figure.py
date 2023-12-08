@@ -1242,7 +1242,7 @@ default: %(va)s
             fig.sca(current_ax)
             cax.grid(visible=False, which='both', axis='both')
 
-        if hasattr(mappable, "figure"):
+        if hasattr(mappable, "figure") and mappable.figure is not None:
             # Get top level artists
             mappable_host_fig = mappable.figure
             self_host_fig = self.figure
