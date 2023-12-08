@@ -1678,6 +1678,6 @@ def test_warn_colorbar_mismatch():
     with pytest.warns(UserWarning, match="different Figure"):
         fig2.colorbar(im, ax=ax)
     with pytest.warns(UserWarning, match="different Figure"):
-        fig2.colorbar(im, ax=axA) 
+        fig2.colorbar(im, ax=axA)
     with pytest.warns(UserWarning, match="different Figure"):
         fig2.colorbar(im, cax=axB)

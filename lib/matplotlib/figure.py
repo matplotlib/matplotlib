@@ -1242,7 +1242,6 @@ default: %(va)s
             fig.sca(current_ax)
             cax.grid(visible=False, which='both', axis='both')
 
-
         if hasattr(mappable, "figure") and mappable.figure is not self.figure:
             _api.warn_external(
                     f'Adding colorbar to a different Figure '
