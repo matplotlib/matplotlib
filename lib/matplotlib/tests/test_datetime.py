@@ -438,11 +438,13 @@ class TestDatetimePlotting:
         np.random.seed(19680801)
         dates = np.arange(np.datetime64('2022-01-01'), np.datetime64('2023-12-31'),
                           np.timedelta64(1, 'D'))
-        fig, ax = plt.subplots()
+        fig, (ax0, ax1, ax2) = plt.subplots(3, 1, constrained_layout=True)
 
         n = dates.shape
         y = np.random.standard_normal(n)
-        ax.hexbin(dates, y, gridsize=10)
+        ax0.hexbin(dates, y, gridsize=10)
+        ax1.hexbin(dates, y, gridsize=10)
+        ax2.hexbin(dates, y, gridsize=10)
 
     @mpl.style.context("default")
     def test_hist(self):
