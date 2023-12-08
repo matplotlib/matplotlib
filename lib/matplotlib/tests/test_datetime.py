@@ -551,7 +551,7 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.matshow(a, extent=extent)
         for label in ax.get_xticklabels():
-                    label.set_rotation(90)
+            label.set_rotation(90)
 
     @pytest.mark.xfail(reason="Test for pcolor not written yet")
     @mpl.style.context("default")
