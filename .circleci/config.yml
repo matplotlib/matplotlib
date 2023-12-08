@@ -61,7 +61,8 @@ commands:
               texlive-latex-extra \
               texlive-latex-recommended \
               texlive-pictures \
-              texlive-xetex
+              texlive-xetex \
+              ttf-mscorefonts-installer
 
   fonts-install:
     steps:
