@@ -1273,7 +1273,8 @@ def test_subfigure():
     axs = sub[0].subplots(2, 2)
     for ax in axs.flat:
         pc = ax.pcolormesh(np.random.randn(30, 30), vmin=-2, vmax=2)
-    sub[0].colorbar(pc, ax=axs)
+    with pytest.warns(UserWarning, match="different Figure"):
+        sub[0].colorbar(pc, ax=axs)
     sub[0].suptitle('Left Side')
     sub[0].set_facecolor('white')
 
