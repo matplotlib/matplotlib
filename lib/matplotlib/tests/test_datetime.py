@@ -435,8 +435,7 @@ class TestDatetimePlotting:
 
     @mpl.style.context("default")
     def test_hexbin(self):
-
-        mpl.rcParams["date.converter"] = 'concise'
+        mpl.rcParams["date.converter"] = "concise"
         np.random.seed(19680801)
 
         dates = np.arange(np.datetime64('2022-01-01'), np.datetime64('2023-12-31'),
