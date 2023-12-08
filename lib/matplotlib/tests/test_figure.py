@@ -1694,9 +1694,9 @@ def test_warn_colorbar_mismatch():
     ax3_1 = subfig3_1.subplots()
     ax3_2 = subfig3_1.subplots()
     ax4_1 = subfig4_1.subplots()
-    im3_1 = ax3_1.imshow([[1,2],[3,4]])
-    im3_2 = ax3_2.imshow([[1,2],[3,4]])
-    im4_1 = ax4_1.imshow([[1,2],[3,4]])
+    im3_1 = ax3_1.imshow([[1, 2], [3, 4]])
+    im3_2 = ax3_2.imshow([[1, 2], [3, 4]])
+    im4_1 = ax4_1.imshow([[1, 2], [3, 4]])
 
     fig3.colorbar(im3_1)   # should not warn
     subfig3_1.colorbar(im3_1)   # should not warn
