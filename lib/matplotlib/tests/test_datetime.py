@@ -275,6 +275,8 @@ class TestDatetimePlotting:
 
         ax1.eventplot(x_dates1)
 
+        np.random.seed(19680801)
+
         start_date = datetime.datetime(2020, 7, 1)
         end_date = datetime.datetime(2020, 10, 15)
         date_range = end_date - start_date
