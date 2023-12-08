@@ -8899,3 +8899,16 @@ def test_axhvlinespan_interpolation():
     ax.axhline(1, c="C0", alpha=.5)
     ax.axhspan(.8, .9, fc="C1", alpha=.5)
     ax.axhspan(.6, .7, .8, .9, fc="C2", alpha=.5)
+
+
+def test_log_scale_axis():
+    x = [-10, -5, 0, 5, 10, 15]
+    y1 = [10, 130, 260, 420, 600, 810]
+    y2 = [10, 130, 270, 430, 630, 850]
+
+    plt.plot(x, y1, label='y1')
+    plt.plot(x, y2, '-.', label='y2')
+    plt.xscale('log', nonpositive='clip')
+    ax = plt.gca()
+    assert ax.get_ylim()[0] == 357
+    
