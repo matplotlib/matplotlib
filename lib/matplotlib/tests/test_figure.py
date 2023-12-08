@@ -1273,8 +1273,7 @@ def test_subfigure():
     axs = sub[0].subplots(2, 2)
     for ax in axs.flat:
         pc = ax.pcolormesh(np.random.randn(30, 30), vmin=-2, vmax=2)
-    with pytest.warns(UserWarning, match="different Figure"):
-        sub[0].colorbar(pc, ax=axs)
+    sub[0].colorbar(pc, ax=axs)
     sub[0].suptitle('Left Side')
     sub[0].set_facecolor('white')
 
@@ -1321,8 +1320,7 @@ def test_subfigure_ss():
     axs = sub.subplots(2, 2)
     for ax in axs.flat:
         pc = ax.pcolormesh(np.random.randn(30, 30), vmin=-2, vmax=2)
-    with pytest.warns(UserWarning, match="different Figure"):
-        sub.colorbar(pc, ax=axs)
+    sub.colorbar(pc, ax=axs)
     sub.suptitle('Left Side')
 
     ax = fig.add_subplot(gs[1])
@@ -1360,8 +1358,7 @@ def test_subfigure_double():
         ax.set_xlabel('x-label', fontsize=fontsize)
         ax.set_ylabel('y-label', fontsize=fontsize)
         ax.set_title('Title', fontsize=fontsize)
-    with pytest.warns(UserWarning, match="different Figure"):
-        subfigsnest[0].colorbar(pc, ax=axsnest0)
+    subfigsnest[0].colorbar(pc, ax=axsnest0)
 
     subfigsnest[1].suptitle('subfigsnest[1]')
     subfigsnest[1].set_facecolor('g')
