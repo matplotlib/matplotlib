@@ -436,15 +436,18 @@ class TestDatetimePlotting:
     @mpl.style.context("default")
     def test_hexbin(self):
         np.random.seed(19680801)
+
         dates = np.arange(np.datetime64('2022-01-01'), np.datetime64('2023-12-31'),
                           np.timedelta64(1, 'D'))
-        fig, (ax0, ax1, ax2) = plt.subplots(3, 1, constrained_layout=True)
+        fig, (ax0, ax1, ax2) = plt.subplots(3, 1)
+        fig.set_size_inches(4, 8)
 
         n = dates.shape
+        x = np.random.standard_normal(n)
         y = np.random.standard_normal(n)
-        ax0.hexbin(dates, y, gridsize=10)
-        ax1.hexbin(dates, y, gridsize=10)
-        ax2.hexbin(dates, y, gridsize=10)
+        ax0.hexbin(dates, y, gridsize=(5, 3))
+        ax1.hexbin(x, dates, gridsize=(5, 3))
+        ax2.hexbin(dates, dates, gridsize=(5, 3))
 
     @mpl.style.context("default")
     def test_hist(self):
