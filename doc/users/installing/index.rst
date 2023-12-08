@@ -1,8 +1,8 @@
 .. redirect-from:: /users/installing
 
-============
+************
 Installation
-============
+************
 
 
 Install an official release
@@ -135,25 +135,42 @@ Configure build and behavior defaults
 =====================================
 
 Aspects of the build and install process and some behaviorial defaults of the
-library can be configured via :ref:`environment-variables`. Default plotting
-appearance and behavior can be configured via the
+library can be configured via:
+
+.. toctree::
+  :maxdepth: 2
+
+  environment_variables_faq.rst
+
+Default plotting appearance and behavior can be configured via the
 :ref:`rcParams file <customizing-with-matplotlibrc-files>`
 
+
+Dependencies
+============
+
+Mandatory dependencies should be installed automatically if you install Matplotlib using
+a package manager such as ``pip`` or ``conda``; therefore this list is primarily for
+reference and troubleshooting.
+
+.. toctree::
+  :maxdepth: 2
+
+  dependencies
 
 
 .. _installing-faq:
 
-==========================
 Frequently asked questions
-==========================
+===========================
 
 Report a compilation problem
-============================
+----------------------------
 
 See :ref:`reporting-problems`.
 
 Matplotlib compiled fine, but nothing shows up when I use it
-============================================================
+------------------------------------------------------------
 
 The first thing to try is a :ref:`clean install <clean-install>` and see if
 that helps.  If not, the best way to test your install is by running a script,
@@ -175,7 +192,7 @@ If you are still having trouble, see :ref:`reporting-problems`.
 .. _clean-install:
 
 How to completely remove Matplotlib
-===================================
+-----------------------------------
 
 Occasionally, problems with Matplotlib can be solved with a clean
 installation of the package.  In order to fully remove an installed Matplotlib:
@@ -187,12 +204,12 @@ installation of the package.  In order to fully remove an installed Matplotlib:
    directory <locating-matplotlib-install>`.
 
 OSX Notes
-=========
+---------
 
 .. _which-python-for-osx:
 
 Which python for OSX?
----------------------
+^^^^^^^^^^^^^^^^^^^^^
 
 Apple ships OSX with its own Python, in ``/usr/bin/python``, and its own copy
 of Matplotlib. Unfortunately, the way Apple currently installs its own copies
@@ -222,7 +239,7 @@ or Python.org Python.
 .. _install_osx_binaries:
 
 Installing OSX binary wheels
-----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you are using Python from https://www.python.org, Homebrew, or Macports,
 then you can use the standard pip installer to install Matplotlib binaries in
@@ -242,7 +259,7 @@ You might also want to install IPython or the Jupyter notebook (``python3 -m pip
 install ipython notebook``).
 
 Checking your installation
---------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The new version of Matplotlib should now be on your Python "path".  Check this
 at the Terminal.app command line::

@@ -155,9 +155,18 @@ Remember to activate the environment whenever you start working on Matplotlib.
 
 Install Dependencies
 ====================
+
 Most Python dependencies will be installed when :ref:`setting up the environment <dev-environment>`
 but non-Python dependencies like C++ compilers, LaTeX, and other system applications
-must be installed separately. For a full list, see :ref:`dependencies`.
+must be installed separately.
+
+.. toctree::
+  :maxdepth: 2
+
+  ../users/installing/dependencies
+
+
+.. _development-install:
 
 Install Matplotlib in editable mode
 ===================================
@@ -178,7 +187,9 @@ also happen if you change branches) you will have to re-run
 
 If the installation is not working, please consult the :ref:`troubleshooting guide <troubleshooting-faq>`.
 If the guide does not offer a solution, please reach out via `chat <https://gitter.im/matplotlib/matplotlib>`_
-or :ref:`open an issue <submitting-a-bug-report>`.
+or :ref:`open an issue <submitting-a-bug-report>`. For a list of the environment
+variables you can set before install, see :ref:`environment-variables`.
+
 
 Verify the Installation
 =======================
