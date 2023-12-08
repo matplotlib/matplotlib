@@ -2955,8 +2955,8 @@ class _AxesBase(martist.Artist):
 
             if not self._tight:
                 x0, x1 = locator.view_limits(x0, x1)
-            
-            if self.get_xscale() == 'log' and name == 'y':                
+
+            if self.get_xscale() == 'log' and name == 'y':
                 x_value, y_value = np.concatenate([np.column_stack(
                     line.get_data()) for line in self.get_lines()]).T
                 if len(x_value[x_value < 0]) != 0:
