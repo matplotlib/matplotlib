@@ -738,7 +738,7 @@ class TestDatetimePlotting:
     def test_tricontourf(self):
         mpl.rcParams["date.converter"] = "concise"
         fig, ax = plt.subplots()
-        
+
         np.random.seed(11)
         limit_value = 30
         test_date = datetime.datetime(2023, 10, 1)
@@ -753,7 +753,7 @@ class TestDatetimePlotting:
 
         z_data = np.sin(x_dates_converted) + np.cos(y_data)
 
-        triangulation = mpl.tri.Triangulation(x_dates_converted, y_data)   
+        triangulation = mpl.tri.Triangulation(x_dates_converted, y_data)
 
         ax.tricontourf(triangulation, z_data)
 
