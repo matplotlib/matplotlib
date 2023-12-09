@@ -529,8 +529,8 @@ class TestDatetimePlotting:
 
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, constrained_layout=True)
         ax1.stairs(values1, edges=bin_edges)
-        ax2.stairs(values2, edges=edge_int, baseline = baseline_date)
-        ax3.stairs(values3, edges=bin_edges, baseline = baseline_date)
+        ax2.stairs(values2, edges=edge_int, baseline=baseline_date)
+        ax3.stairs(values3, edges=bin_edges, baseline=baseline_date)
 
     @pytest.mark.xfail(reason="Test for stem not written yet")
     @mpl.style.context("default")
