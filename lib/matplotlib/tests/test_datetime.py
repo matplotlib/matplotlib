@@ -734,7 +734,6 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.tricontour(...)
 
-    @pytest.mark.xfail(reason="Test for tricontourf not written yet")
     @mpl.style.context("default")
     def test_tricontourf(self):
         mpl.rcParams["date.converter"] = "concise"
