@@ -753,7 +753,9 @@ class TestDatetimePlotting:
         np.random.seed(19680801)
 
         limit_value = 30
-        x_dates = np.array([datetime.datetime(2023, 12, n) for n in range(1, limit_value)])
+        x_dates = np.array(
+            [datetime.datetime(2023, 12, n) for n in range(1, limit_value)]
+        )
         x_dates_converted = mpl.dates.date2num(x_dates)
         y_data = np.random.rand(limit_value - 1)
 
