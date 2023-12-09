@@ -12,6 +12,7 @@ colorspacious
 ipython
 ipywidgets
 ipykernel
+networkx>=3.2.1
 numpydoc>=1.0
 packaging>=20
 pydata-sphinx-theme~=0.13.1
