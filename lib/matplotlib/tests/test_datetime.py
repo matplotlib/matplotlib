@@ -752,9 +752,7 @@ class TestDatetimePlotting:
 
         z_data = np.sin(x_dates_converted) + np.cos(y_data)
 
-        triangulation = mpl.tri.Triangulation(x_dates_converted, y_data)
-
-        ax.tricontourf(triangulation, z_data)
+        ax.tricontourf(x_dates_converted, y_data, z_data)
 
     @pytest.mark.xfail(reason="Test for tripcolor not written yet")
     @mpl.style.context("default")
