@@ -10,7 +10,7 @@ import matplotlib as mpl
 class TestDatetimePlotting:
     @mpl.style.context("default")
     def test_annotate(self):
-        mpl.rcParams["date.converter"] = 'concise'
+        mpl.rcParams["date.converter"] = "concise"
         fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, layout="constrained")
 
         start_date = datetime.datetime(2023, 10, 1)
@@ -25,8 +25,12 @@ class TestDatetimePlotting:
         ax3.plot(dates, dates)
         ax3.annotate(text=test_text, xy=(dates[15], dates[3]))
         ax4.plot(dates, dates)
-        ax4.annotate(text=test_text, xy=(dates[5], dates[30]),
-                        xytext=(dates[1], dates[7]), arrowprops=dict(facecolor='red'))
+        ax4.annotate(
+            text=test_text,
+            xy=(dates[5], dates[30]),
+            xytext=(dates[1], dates[7]),
+            arrowprops=dict(facecolor="red"),
+        )
 
     @pytest.mark.xfail(reason="Test for arrow not written yet")
     @mpl.style.context("default")
@@ -36,54 +40,57 @@ class TestDatetimePlotting:
 
     @mpl.style.context("default")
     def test_axhline(self):
-        mpl.rcParams["date.converter"] = 'concise'
-        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout='constrained')
-        ax1.set_ylim(bottom=datetime.datetime(2020, 4, 1),
-                     top=datetime.datetime(2020, 8, 1))
-        ax2.set_ylim(bottom=np.datetime64('2005-01-01'),
-                     top=np.datetime64('2005-04-01'))
-        ax3.set_ylim(bottom=datetime.datetime(2023, 9, 1),
-                     top=datetime.datetime(2023, 11, 1))
+        mpl.rcParams["date.converter"] = "concise"
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
+        ax1.set_ylim(
+            bottom=datetime.datetime(2020, 4, 1), top=datetime.datetime(2020, 8, 1)
+        )
+        ax2.set_ylim(
+            bottom=np.datetime64("2005-01-01"), top=np.datetime64("2005-04-01")
+        )
+        ax3.set_ylim(
+            bottom=datetime.datetime(2023, 9, 1), top=datetime.datetime(2023, 11, 1)
+        )
         ax1.axhline(y=datetime.datetime(2020, 6, 3), xmin=0.5, xmax=0.7)
-        ax2.axhline(np.datetime64('2005-02-25T03:30'), xmin=0.1, xmax=0.9)
+        ax2.axhline(np.datetime64("2005-02-25T03:30"), xmin=0.1, xmax=0.9)
         ax3.axhline(y=datetime.datetime(2023, 10, 24), xmin=0.4, xmax=0.7)
 
     @mpl.style.context("default")
     def test_axhspan(self):
-        mpl.rcParams["date.converter"] = 'concise'
+        mpl.rcParams["date.converter"] = "concise"
 
         start_date = datetime.datetime(2023, 1, 1)
         dates = [start_date + datetime.timedelta(days=i) for i in range(31)]
         numbers = list(range(1, 32))
 
-        fig, (ax1, ax2, ax3) = plt.subplots(3, 1,
-                                            constrained_layout=True,
-                                            figsize=(10, 12))
+        fig, (ax1, ax2, ax3) = plt.subplots(
+            3, 1, constrained_layout=True, figsize=(10, 12)
+        )
 
-        ax1.plot(dates, numbers, marker='o', color='blue')
+        ax1.plot(dates, numbers, marker="o", color="blue")
         for i in range(0, 31, 2):
-            ax1.axhspan(ymin=i+1, ymax=i+2, facecolor='green', alpha=0.5)
-        ax1.set_title('Datetime vs. Number')
-        ax1.set_xlabel('Date')
-        ax1.set_ylabel('Number')
+            ax1.axhspan(ymin=i + 1, ymax=i + 2, facecolor="green", alpha=0.5)
+        ax1.set_title("Datetime vs. Number")
+        ax1.set_xlabel("Date")
+        ax1.set_ylabel("Number")
 
-        ax2.plot(numbers, dates, marker='o', color='blue')
-        for i in range(0, 31, 2):
-            ymin = start_date + datetime.timedelta(days=i)
-            ymax = ymin + datetime.timedelta(days=1)
-            ax2.axhspan(ymin=ymin, ymax=ymax, facecolor='green', alpha=0.5)
-        ax2.set_title('Number vs. Datetime')
-        ax2.set_xlabel('Number')
-        ax2.set_ylabel('Date')
-
-        ax3.plot(dates, dates, marker='o', color='blue')
+        ax2.plot(numbers, dates, marker="o", color="blue")
         for i in range(0, 31, 2):
             ymin = start_date + datetime.timedelta(days=i)
             ymax = ymin + datetime.timedelta(days=1)
-            ax3.axhspan(ymin=ymin, ymax=ymax, facecolor='green', alpha=0.5)
-        ax3.set_title('Datetime vs. Datetime')
-        ax3.set_xlabel('Date')
-        ax3.set_ylabel('Date')
+            ax2.axhspan(ymin=ymin, ymax=ymax, facecolor="green", alpha=0.5)
+        ax2.set_title("Number vs. Datetime")
+        ax2.set_xlabel("Number")
+        ax2.set_ylabel("Date")
+
+        ax3.plot(dates, dates, marker="o", color="blue")
+        for i in range(0, 31, 2):
+            ymin = start_date + datetime.timedelta(days=i)
+            ymax = ymin + datetime.timedelta(days=1)
+            ax3.axhspan(ymin=ymin, ymax=ymax, facecolor="green", alpha=0.5)
+        ax3.set_title("Datetime vs. Datetime")
+        ax3.set_xlabel("Date")
+        ax3.set_ylabel("Date")
 
     @pytest.mark.xfail(reason="Test for axline not written yet")
     @mpl.style.context("default")
@@ -93,54 +100,57 @@ class TestDatetimePlotting:
 
     @mpl.style.context("default")
     def test_axvline(self):
-        mpl.rcParams["date.converter"] = 'concise'
-        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout='constrained')
-        ax1.set_xlim(left=datetime.datetime(2020, 4, 1),
-                     right=datetime.datetime(2020, 8, 1))
-        ax2.set_xlim(left=np.datetime64('2005-01-01'),
-                     right=np.datetime64('2005-04-01'))
-        ax3.set_xlim(left=datetime.datetime(2023, 9, 1),
-                     right=datetime.datetime(2023, 11, 1))
+        mpl.rcParams["date.converter"] = "concise"
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
+        ax1.set_xlim(
+            left=datetime.datetime(2020, 4, 1), right=datetime.datetime(2020, 8, 1)
+        )
+        ax2.set_xlim(
+            left=np.datetime64("2005-01-01"), right=np.datetime64("2005-04-01")
+        )
+        ax3.set_xlim(
+            left=datetime.datetime(2023, 9, 1), right=datetime.datetime(2023, 11, 1)
+        )
         ax1.axvline(x=datetime.datetime(2020, 6, 3), ymin=0.5, ymax=0.7)
-        ax2.axvline(np.datetime64('2005-02-25T03:30'), ymin=0.1, ymax=0.9)
+        ax2.axvline(np.datetime64("2005-02-25T03:30"), ymin=0.1, ymax=0.9)
         ax3.axvline(x=datetime.datetime(2023, 10, 24), ymin=0.4, ymax=0.7)
 
     @mpl.style.context("default")
     def test_axvspan(self):
-        mpl.rcParams["date.converter"] = 'concise'
+        mpl.rcParams["date.converter"] = "concise"
 
         start_date = datetime.datetime(2023, 1, 1)
         dates = [start_date + datetime.timedelta(days=i) for i in range(31)]
         numbers = list(range(1, 32))
 
-        fig, (ax1, ax2, ax3) = plt.subplots(3, 1,
-                                            constrained_layout=True,
-                                            figsize=(10, 12))
+        fig, (ax1, ax2, ax3) = plt.subplots(
+            3, 1, constrained_layout=True, figsize=(10, 12)
+        )
 
-        ax1.plot(dates, numbers, marker='o', color='blue')
+        ax1.plot(dates, numbers, marker="o", color="blue")
         for i in range(0, 31, 2):
             xmin = start_date + datetime.timedelta(days=i)
             xmax = xmin + datetime.timedelta(days=1)
-            ax1.axvspan(xmin=xmin, xmax=xmax, facecolor='red', alpha=0.5)
-        ax1.set_title('Datetime vs. Number')
-        ax1.set_xlabel('Date')
-        ax1.set_ylabel('Number')
+            ax1.axvspan(xmin=xmin, xmax=xmax, facecolor="red", alpha=0.5)
+        ax1.set_title("Datetime vs. Number")
+        ax1.set_xlabel("Date")
+        ax1.set_ylabel("Number")
 
-        ax2.plot(numbers, dates, marker='o', color='blue')
+        ax2.plot(numbers, dates, marker="o", color="blue")
         for i in range(0, 31, 2):
-            ax2.axvspan(xmin=i+1, xmax=i+2, facecolor='red', alpha=0.5)
-        ax2.set_title('Number vs. Datetime')
-        ax2.set_xlabel('Number')
-        ax2.set_ylabel('Date')
+            ax2.axvspan(xmin=i + 1, xmax=i + 2, facecolor="red", alpha=0.5)
+        ax2.set_title("Number vs. Datetime")
+        ax2.set_xlabel("Number")
+        ax2.set_ylabel("Date")
 
-        ax3.plot(dates, dates, marker='o', color='blue')
+        ax3.plot(dates, dates, marker="o", color="blue")
         for i in range(0, 31, 2):
             xmin = start_date + datetime.timedelta(days=i)
             xmax = xmin + datetime.timedelta(days=1)
-            ax3.axvspan(xmin=xmin, xmax=xmax, facecolor='red', alpha=0.5)
-        ax3.set_title('Datetime vs. Datetime')
-        ax3.set_xlabel('Date')
-        ax3.set_ylabel('Date')
+            ax3.axvspan(xmin=xmin, xmax=xmax, facecolor="red", alpha=0.5)
+        ax3.set_title("Datetime vs. Datetime")
+        ax3.set_xlabel("Date")
+        ax3.set_ylabel("Date")
 
     @mpl.style.context("default")
     def test_bar(self):
@@ -166,21 +176,23 @@ class TestDatetimePlotting:
     @mpl.style.context("default")
     def test_bar_label(self):
         # Generate some example data with dateTime inputs
-        date_list = [datetime.datetime(2023, 1, 1) +
-                     datetime.timedelta(days=i) for i in range(5)]
+        date_list = [
+            datetime.datetime(2023, 1, 1) + datetime.timedelta(days=i) for i in range(5)
+        ]
         values = [10, 20, 15, 25, 30]
 
         # Creating the plot
-        fig, ax = plt.subplots(1, 1, figsize=(10, 8), layout='constrained')
+        fig, ax = plt.subplots(1, 1, figsize=(10, 8), layout="constrained")
         bars = ax.bar(date_list, values)
 
         # Add labels to the bars using bar_label
-        ax.bar_label(bars, labels=[f'{val}%' for val in values],
-                     label_type='edge', color='black')
+        ax.bar_label(
+            bars, labels=[f"{val}%" for val in values], label_type="edge", color="black"
+        )
 
     @mpl.style.context("default")
     def test_barbs(self):
-        plt.rcParams["date.converter"] = 'concise'
+        plt.rcParams["date.converter"] = "concise"
 
         start_date = datetime.datetime(2022, 2, 8, 22)
         dates = [start_date + datetime.timedelta(hours=i) for i in range(12)]
@@ -193,33 +205,37 @@ class TestDatetimePlotting:
         fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 6))
 
         axes[0].barbs(dates, numbers, u, v, length=7)
-        axes[0].set_title('Datetime vs. Numeric Data')
-        axes[0].set_xlabel('Datetime')
-        axes[0].set_ylabel('Numeric Data')
+        axes[0].set_title("Datetime vs. Numeric Data")
+        axes[0].set_xlabel("Datetime")
+        axes[0].set_ylabel("Numeric Data")
 
         axes[1].barbs(numbers, dates, u, v, length=7)
-        axes[1].set_title('Numeric vs. Datetime Data')
-        axes[1].set_xlabel('Numeric Data')
-        axes[1].set_ylabel('Datetime')
+        axes[1].set_title("Numeric vs. Datetime Data")
+        axes[1].set_xlabel("Numeric Data")
+        axes[1].set_ylabel("Datetime")
 
     @mpl.style.context("default")
     def test_barh(self):
-        mpl.rcParams["date.converter"] = 'concise'
-        fig, (ax1, ax2) = plt.subplots(2, 1, layout='constrained')
-        birth_date = np.array([datetime.datetime(2020, 4, 10),
-                               datetime.datetime(2020, 5, 30),
-                               datetime.datetime(2020, 10, 12),
-                               datetime.datetime(2020, 11, 15)])
+        mpl.rcParams["date.converter"] = "concise"
+        fig, (ax1, ax2) = plt.subplots(2, 1, layout="constrained")
+        birth_date = np.array(
+            [
+                datetime.datetime(2020, 4, 10),
+                datetime.datetime(2020, 5, 30),
+                datetime.datetime(2020, 10, 12),
+                datetime.datetime(2020, 11, 15),
+            ]
+        )
         year_start = datetime.datetime(2020, 1, 1)
         year_end = datetime.datetime(2020, 12, 31)
         age = [21, 53, 20, 24]
-        ax1.set_xlabel('Age')
-        ax1.set_ylabel('Birth Date')
+        ax1.set_xlabel("Age")
+        ax1.set_ylabel("Birth Date")
         ax1.barh(birth_date, width=age, height=datetime.timedelta(days=10))
         ax2.set_xlim(left=year_start, right=year_end)
-        ax2.set_xlabel('Birth Date')
-        ax2.set_ylabel('Order of Birth Dates')
-        ax2.barh(np.arange(4), birth_date-year_start, left=year_start)
+        ax2.set_xlabel("Birth Date")
+        ax2.set_ylabel("Order of Birth Dates")
+        ax2.barh(np.arange(4), birth_date - year_start, left=year_start)
 
     @pytest.mark.xfail(reason="Test for boxplot not written yet")
     @mpl.style.context("default")
@@ -230,34 +246,46 @@ class TestDatetimePlotting:
     @mpl.style.context("default")
     def test_broken_barh(self):
         # Horizontal bar plot with gaps
-        mpl.rcParams["date.converter"] = 'concise'
+        mpl.rcParams["date.converter"] = "concise"
         fig, ax = plt.subplots()
 
-        ax.broken_barh([(datetime.datetime(2023, 1, 4), datetime.timedelta(days=2)),
-                        (datetime.datetime(2023, 1, 8), datetime.timedelta(days=3))],
-                        (10, 9), facecolors='tab:blue')
-        ax.broken_barh([(datetime.datetime(2023, 1, 2), datetime.timedelta(days=1)),
-                         (datetime.datetime(2023, 1, 4), datetime.timedelta(days=4))],
-                         (20, 9), facecolors=('tab:red'))
+        ax.broken_barh(
+            [
+                (datetime.datetime(2023, 1, 4), datetime.timedelta(days=2)),
+                (datetime.datetime(2023, 1, 8), datetime.timedelta(days=3)),
+            ],
+            (10, 9),
+            facecolors="tab:blue",
+        )
+        ax.broken_barh(
+            [
+                (datetime.datetime(2023, 1, 2), datetime.timedelta(days=1)),
+                (datetime.datetime(2023, 1, 4), datetime.timedelta(days=4)),
+            ],
+            (20, 9),
+            facecolors=("tab:red"),
+        )
 
     @mpl.style.context("default")
     def test_bxp(self):
-        mpl.rcParams["date.converter"] = 'concise'
+        mpl.rcParams["date.converter"] = "concise"
         fig, ax = plt.subplots()
-        data = [{
-            "med": datetime.datetime(2020, 1, 15),
-            "q1": datetime.datetime(2020, 1, 10),
-            "q3": datetime.datetime(2020, 1, 20),
-            "whislo": datetime.datetime(2020, 1, 5),
-            "whishi": datetime.datetime(2020, 1, 25),
-            "fliers": [
-                datetime.datetime(2020, 1, 3),
-                datetime.datetime(2020, 1, 27)
-            ]
-        }]
+        data = [
+            {
+                "med": datetime.datetime(2020, 1, 15),
+                "q1": datetime.datetime(2020, 1, 10),
+                "q3": datetime.datetime(2020, 1, 20),
+                "whislo": datetime.datetime(2020, 1, 5),
+                "whishi": datetime.datetime(2020, 1, 25),
+                "fliers": [
+                    datetime.datetime(2020, 1, 3),
+                    datetime.datetime(2020, 1, 27),
+                ],
+            }
+        ]
         ax.bxp(data, vert=False)
         ax.xaxis.set_major_formatter(mpl.dates.DateFormatter("%Y-%m-%d"))
-        ax.set_title('Box plot with datetime data')
+        ax.set_title("Box plot with datetime data")
 
     @pytest.mark.xfail(reason="Test for clabel not written yet")
     @mpl.style.context("default")
@@ -312,23 +340,41 @@ class TestDatetimePlotting:
         x_value_error = 0.5
         y_value_error = 0.5
 
-        ax1.errorbar(x_dates, y_values,
-                     yerr=y_value_error,
-                     capsize=10,
-                     barsabove=True,
-                     label='Data')
-        ax2.errorbar(x_values, y_dates,
-                     xerr=x_value_error, yerr=y_date_error,
-                     errorevery=(1, 2),
-                     fmt='-o', label='Data')
-        ax3.errorbar(x_dates, y_dates,
-                     xerr=x_date_error, yerr=y_date_error,
-                     lolims=True, xlolims=True,
-                     label='Data')
-        ax4.errorbar(x_dates, y_values,
-                     xerr=x_date_error, yerr=y_value_error,
-                     uplims=True, xuplims=True,
-                     label='Data')
+        ax1.errorbar(
+            x_dates,
+            y_values,
+            yerr=y_value_error,
+            capsize=10,
+            barsabove=True,
+            label="Data",
+        )
+        ax2.errorbar(
+            x_values,
+            y_dates,
+            xerr=x_value_error,
+            yerr=y_date_error,
+            errorevery=(1, 2),
+            fmt="-o",
+            label="Data",
+        )
+        ax3.errorbar(
+            x_dates,
+            y_dates,
+            xerr=x_date_error,
+            yerr=y_date_error,
+            lolims=True,
+            xlolims=True,
+            label="Data",
+        )
+        ax4.errorbar(
+            x_dates,
+            y_values,
+            xerr=x_date_error,
+            yerr=y_value_error,
+            uplims=True,
+            xuplims=True,
+            label="Data",
+        )
 
     @pytest.mark.xfail(reason="Test for eventplot not written yet")
     @mpl.style.context("default")
@@ -441,7 +487,7 @@ class TestDatetimePlotting:
 
     @mpl.style.context("default")
     def test_hist(self):
-        mpl.rcParams["date.converter"] = 'concise'
+        mpl.rcParams["date.converter"] = "concise"
 
         start_date = datetime.datetime(2023, 10, 1)
         time_delta = datetime.timedelta(days=1)
@@ -454,36 +500,30 @@ class TestDatetimePlotting:
 
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, constrained_layout=True)
         ax1.hist(
-            [start_date + i * time_delta for i in range(30)],
-            bins=10,
-            weights=values1
+            [start_date + i * time_delta for i in range(30)], bins=10, weights=values1
         )
         ax2.hist(
-            [start_date + i * time_delta for i in range(30)],
-            bins=10,
-            weights=values2
+            [start_date + i * time_delta for i in range(30)], bins=10, weights=values2
         )
         ax3.hist(
-            [start_date + i * time_delta for i in range(30)],
-            bins=10,
-            weights=values3
+            [start_date + i * time_delta for i in range(30)], bins=10, weights=values3
         )
 
         fig, (ax4, ax5, ax6) = plt.subplots(3, 1, constrained_layout=True)
         ax4.hist(
             [start_date + i * time_delta for i in range(30)],
             bins=bin_edges,
-            weights=values1
+            weights=values1,
         )
         ax5.hist(
             [start_date + i * time_delta for i in range(30)],
             bins=bin_edges,
-            weights=values2
+            weights=values2,
         )
         ax6.hist(
             [start_date + i * time_delta for i in range(30)],
             bins=bin_edges,
-            weights=values3
+            weights=values3,
         )
 
     @pytest.mark.xfail(reason="Test for hist2d not written yet")
@@ -494,41 +534,39 @@ class TestDatetimePlotting:
 
     @mpl.style.context("default")
     def test_hlines(self):
-        mpl.rcParams["date.converter"] = 'concise'
-        fig, axs = plt.subplots(2, 4, layout='constrained')
-        dateStrs = ['2023-03-08',
-                    '2023-04-09',
-                    '2023-05-13',
-                    '2023-07-28',
-                    '2023-12-24']
-        dates = [datetime.datetime(2023, m*2, 10) for m in range(1, 6)]
+        mpl.rcParams["date.converter"] = "concise"
+        fig, axs = plt.subplots(2, 4, layout="constrained")
+        dateStrs = [
+            "2023-03-08",
+            "2023-04-09",
+            "2023-05-13",
+            "2023-07-28",
+            "2023-12-24",
+        ]
+        dates = [datetime.datetime(2023, m * 2, 10) for m in range(1, 6)]
         date_start = [datetime.datetime(2023, 6, d) for d in range(5, 30, 5)]
         date_end = [datetime.datetime(2023, 7, d) for d in range(5, 30, 5)]
         npDates = [np.datetime64(s) for s in dateStrs]
-        axs[0, 0].hlines(y=dates,
-                         xmin=[0.1, 0.2, 0.3, 0.4, 0.5],
-                         xmax=[0.5, 0.6, 0.7, 0.8, 0.9])
-        axs[0, 1].hlines(dates,
-                         xmin=datetime.datetime(2020, 5, 10),
-                         xmax=datetime.datetime(2020, 5, 31))
-        axs[0, 2].hlines(dates,
-                         xmin=date_start,
-                         xmax=date_end)
-        axs[0, 3].hlines(dates,
-                         xmin=0.45,
-                         xmax=0.65)
-        axs[1, 0].hlines(y=npDates,
-                         xmin=[0.5, 0.6, 0.7, 0.8, 0.9],
-                         xmax=[0.1, 0.2, 0.3, 0.4, 0.5])
-        axs[1, 2].hlines(y=npDates,
-                         xmin=date_start,
-                         xmax=date_end)
-        axs[1, 1].hlines(npDates,
-                         xmin=datetime.datetime(2020, 5, 10),
-                         xmax=datetime.datetime(2020, 5, 31))
-        axs[1, 3].hlines(npDates,
-                         xmin=0.45,
-                         xmax=0.65)
+        axs[0, 0].hlines(
+            y=dates, xmin=[0.1, 0.2, 0.3, 0.4, 0.5], xmax=[0.5, 0.6, 0.7, 0.8, 0.9]
+        )
+        axs[0, 1].hlines(
+            dates,
+            xmin=datetime.datetime(2020, 5, 10),
+            xmax=datetime.datetime(2020, 5, 31),
+        )
+        axs[0, 2].hlines(dates, xmin=date_start, xmax=date_end)
+        axs[0, 3].hlines(dates, xmin=0.45, xmax=0.65)
+        axs[1, 0].hlines(
+            y=npDates, xmin=[0.5, 0.6, 0.7, 0.8, 0.9], xmax=[0.1, 0.2, 0.3, 0.4, 0.5]
+        )
+        axs[1, 2].hlines(y=npDates, xmin=date_start, xmax=date_end)
+        axs[1, 1].hlines(
+            npDates,
+            xmin=datetime.datetime(2020, 5, 10),
+            xmax=datetime.datetime(2020, 5, 31),
+        )
+        axs[1, 3].hlines(npDates, xmin=0.45, xmax=0.65)
 
     @pytest.mark.xfail(reason="Test for imshow not written yet")
     @mpl.style.context("default")
@@ -573,9 +611,9 @@ class TestDatetimePlotting:
 
     @mpl.style.context("default")
     def test_plot(self):
-        mpl.rcParams["date.converter"] = 'concise'
+        mpl.rcParams["date.converter"] = "concise"
         N = 6
-        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout='constrained')
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
         x = np.array([datetime.datetime(2023, 9, n) for n in range(1, N)])
         ax1.plot(x, range(1, N))
         ax2.plot(range(1, N), x)
@@ -608,25 +646,25 @@ class TestDatetimePlotting:
 
     @mpl.style.context("default")
     def test_scatter(self):
-        mpl.rcParams["date.converter"] = 'concise'
+        mpl.rcParams["date.converter"] = "concise"
         base = datetime.datetime(2005, 2, 1)
         dates = [base + datetime.timedelta(hours=(2 * i)) for i in range(10)]
         N = len(dates)
         np.random.seed(19680801)
         y = np.cumsum(np.random.randn(N))
-        fig, axs = plt.subplots(3, 1, layout='constrained', figsize=(6, 6))
+        fig, axs = plt.subplots(3, 1, layout="constrained", figsize=(6, 6))
         # datetime array on x axis
         axs[0].scatter(dates, y)
         for label in axs[0].get_xticklabels():
             label.set_rotation(40)
-            label.set_horizontalalignment('right')
+            label.set_horizontalalignment("right")
         # datetime on y axis
         axs[1].scatter(y, dates)
         # datetime on both x, y axes
         axs[2].scatter(dates, dates)
         for label in axs[2].get_xticklabels():
             label.set_rotation(40)
-            label.set_horizontalalignment('right')
+            label.set_horizontalalignment("right")
 
     @pytest.mark.xfail(reason="Test for semilogx not written yet")
     @mpl.style.context("default")
@@ -642,12 +680,12 @@ class TestDatetimePlotting:
 
     @mpl.style.context("default")
     def test_stackplot(self):
-        mpl.rcParams["date.converter"] = 'concise'
+        mpl.rcParams["date.converter"] = "concise"
         N = 10
         stacked_nums = np.tile(np.arange(1, N), (4, 1))
         dates = np.array([datetime.datetime(2020 + i, 1, 1) for i in range(N - 1)])
 
-        fig, ax = plt.subplots(layout='constrained')
+        fig, ax = plt.subplots(layout="constrained")
         ax.stackplot(dates, stacked_nums)
 
     @pytest.mark.xfail(reason="Test for stairs not written yet")
@@ -688,7 +726,7 @@ class TestDatetimePlotting:
     def test_step(self):
         mpl.rcParams["date.converter"] = "concise"
         N = 6
-        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout='constrained')
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
         x = np.array([datetime.datetime(2023, 9, n) for n in range(1, N)])
         ax1.step(x, range(1, N))
         ax2.step(range(1, N), x)
@@ -702,11 +740,11 @@ class TestDatetimePlotting:
 
     @mpl.style.context("default")
     def test_text(self):
-        mpl.rcParams["date.converter"] = 'concise'
+        mpl.rcParams["date.converter"] = "concise"
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
 
         limit_value = 10
-        font_properties = {'family': 'serif', 'size': 12, 'weight': 'bold'}
+        font_properties = {"family": "serif", "size": 12, "weight": "bold"}
         test_date = datetime.datetime(2023, 10, 1)
 
         x_data = np.array(range(1, limit_value))
@@ -755,8 +793,32 @@ class TestDatetimePlotting:
     @pytest.mark.xfail(reason="Test for violin not written yet")
     @mpl.style.context("default")
     def test_violin(self):
-        fig, ax = plt.subplots()
-        ax.violin(...)
+        plt, ax = plt.subplots(1, 1)
+        np.random.seed(5)
+        data = np.random.normal(0, 5, 100)
+
+        np.random.seed(10**5)
+        data2 = np.random.normal(-10, 10, 100)
+        vpstats = [
+            {
+                "coords": np.linspace(np.min(data), np.max(data), 100),
+                "vals": data,
+                "mean": np.mean(data),
+                "median": np.median(data),
+                "min": np.min(data),
+                "max": np.max(data),
+            },
+            {
+                "coords": np.linspace(np.min(data2), np.max(data), 100),
+                "vals": data,
+                "mean": np.mean(data2),
+                "median": np.median(data2),
+                "min": np.min(data2),
+                "max": np.max(data2),
+            },
+        ]
+
+        ax.violin(vpstats, positions=[1, 2], showmeans=True, showmedians=True)
 
     @pytest.mark.xfail(reason="Test for violinplot not written yet")
     @mpl.style.context("default")
@@ -766,22 +828,31 @@ class TestDatetimePlotting:
 
     @mpl.style.context("default")
     def test_vlines(self):
-        mpl.rcParams["date.converter"] = 'concise'
-        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout='constrained')
-        ax1.set_xlim(left=datetime.datetime(2023, 1, 1),
-                     right=datetime.datetime(2023, 6, 30))
-        ax1.vlines(x=[datetime.datetime(2023, 2, 10),
-                      datetime.datetime(2023, 5, 18),
-                      datetime.datetime(2023, 6, 6)],
-                   ymin=[0, 0.25, 0.5],
-                   ymax=[0.25, 0.5, 0.75])
-        ax2.set_xlim(left=0,
-                     right=0.5)
-        ax2.vlines(x=[0.3, 0.35],
-                   ymin=[np.datetime64('2023-03-20'), np.datetime64('2023-03-31')],
-                   ymax=[np.datetime64('2023-05-01'), np.datetime64('2023-05-16')])
-        ax3.set_xlim(left=datetime.datetime(2023, 7, 1),
-                     right=datetime.datetime(2023, 12, 31))
-        ax3.vlines(x=[datetime.datetime(2023, 9, 1), datetime.datetime(2023, 12, 10)],
-                   ymin=datetime.datetime(2023, 1, 15),
-                   ymax=datetime.datetime(2023, 1, 30))
+        mpl.rcParams["date.converter"] = "concise"
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
+        ax1.set_xlim(
+            left=datetime.datetime(2023, 1, 1), right=datetime.datetime(2023, 6, 30)
+        )
+        ax1.vlines(
+            x=[
+                datetime.datetime(2023, 2, 10),
+                datetime.datetime(2023, 5, 18),
+                datetime.datetime(2023, 6, 6),
+            ],
+            ymin=[0, 0.25, 0.5],
+            ymax=[0.25, 0.5, 0.75],
+        )
+        ax2.set_xlim(left=0, right=0.5)
+        ax2.vlines(
+            x=[0.3, 0.35],
+            ymin=[np.datetime64("2023-03-20"), np.datetime64("2023-03-31")],
+            ymax=[np.datetime64("2023-05-01"), np.datetime64("2023-05-16")],
+        )
+        ax3.set_xlim(
+            left=datetime.datetime(2023, 7, 1), right=datetime.datetime(2023, 12, 31)
+        )
+        ax3.vlines(
+            x=[datetime.datetime(2023, 9, 1), datetime.datetime(2023, 12, 10)],
+            ymin=datetime.datetime(2023, 1, 15),
+            ymax=datetime.datetime(2023, 1, 30),
+        )
