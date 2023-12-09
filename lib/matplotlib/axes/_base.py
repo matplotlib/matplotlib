@@ -2959,7 +2959,6 @@ class _AxesBase(martist.Artist):
             if self.get_xscale() == 'log' and name == 'y':
                 line_points = [np.stack(
                     line.get_data(), axis=-1)for line in self.get_lines()]
-                
                 if len(line_points) > 0:
                     x_value, y_value = np.concatenate(line_points).T
                     if len(x_value[x_value < 0]) != 0:
