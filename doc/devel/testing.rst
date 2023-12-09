@@ -59,6 +59,23 @@ not need to be installed, but Matplotlib should be)::
 
 .. _command-line parameters: http://doc.pytest.org/en/latest/usage.html
 
+Viewing image test output
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The output of :ref:`image-based <image-comparison>` tests is stored in a
+``result_images`` directory. These images can be compiled into one HTML page, containing
+hundreds of images, using the ``visualize_tests`` tool::
+
+    python tools/visualize_tests.py
+
+Image test failures can also be analysed using the ``triage_tests`` tool::
+
+    python tools/triage_tests.py
+
+The triage tool allows you to accept or reject test failures and will copy the new image
+to the folder where the baseline test images are stored. The triage tool requires that
+:ref:`QT <backend_dependencies>` is installed.
+
 
 Writing a simple test
 ---------------------
@@ -94,7 +111,9 @@ For numpy's default random number generator use::
 
 and then use ``rng`` when generating the random numbers.
 
-The seed is John Hunter's birthday.
+The seed is :ref:`John Hunter's <project_history>` birthday.
+
+.. _image-comparison:
 
 Writing an image comparison test
 --------------------------------
@@ -127,6 +146,10 @@ figures and reflects the newer look of default Matplotlib plots. Also, if the
 texts (labels, tick labels, etc) are not really part of what is tested, use
 ``remove_text=True`` as this will lead to smaller figures and reduce possible
 issues with font mismatch on different platforms.
+
+
+Compare two methods of creating an image
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Baseline images take a lot of space in the Matplotlib repository.
 An alternative approach for image comparison tests is to use the
