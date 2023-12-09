@@ -514,6 +514,7 @@ class TestDatetimePlotting:
 
         start_date = datetime.datetime(2023, 12, 1)
         time_delta = datetime.timedelta(days=1)
+        baseline_date = datetime.datetime(1980, 1, 1)
 
         bin_edges = [start_date + i * time_delta for i in range(31)]
         edge_int = [0 + i * 1 for i in range(31)]
@@ -528,8 +529,8 @@ class TestDatetimePlotting:
 
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, constrained_layout=True)
         ax1.stairs(values1, edges=bin_edges)
-        ax2.stairs(values2, edges=edge_int)
-        ax3.stairs(values3, edges=bin_edges)
+        ax2.stairs(values2, edges=edge_int, baseline = baseline_date)
+        ax3.stairs(values3, edges=bin_edges, baseline = baseline_date)
 
     @pytest.mark.xfail(reason="Test for stem not written yet")
     @mpl.style.context("default")
