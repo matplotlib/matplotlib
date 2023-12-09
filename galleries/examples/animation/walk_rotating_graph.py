@@ -40,6 +40,7 @@ def init():
     ax.grid(False)
     ax.set_axis_off()
 
+
 # %%
 # Update the plot with the the "walking" node travalling
 # to a new neighbor every 5 frames and rotate the view every frame.
@@ -58,6 +59,7 @@ def _frame_update(index):
     # Update view
     ax.view_init(index * 0.2, index * 0.5)
 
+
 fig = plt.figure(layout='tight')
 ax = fig.add_subplot(111, projection="3d")
 node = 0  # Initialize the walking node
@@ -71,14 +73,14 @@ ani = animation.FuncAnimation(
 )
 
 # %%
-## To save the animation to a local file, comment in the following for GIF:
+# # To save the animation to a local file, comment in the following for GIF:
 # ani.save(
 #     "walk_rotating_graph.gif",
 #     writer="imagemagick",
 #     savefig_kwargs={"facecolor": "white"},
 #     fps=20,
 # )
-## Or/end the following for MP4 in AV1 coding:
+# # Or/and the following for MP4 in AV1 coding:
 # Writer = animation.writers["ffmpeg"]
 # writer = Writer(
 #     fps=20,
