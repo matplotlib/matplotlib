@@ -2964,9 +2964,13 @@ class _AxesBase(martist.Artist):
                     if len(x_value[x_value < 0]) != 0:
                         margin = 0.15
                         lower = np.min(y_value[np.where(x_value > 0)])
-                        lower -= (margin * lower)
-                        if lower > 0:
-                            x0 = min(lower, x0)
+                        upper = np.max(y_value[np.where(x_value > 0)])
+                        if np.any(y_value < lower):
+                            lower -= (margin * lower)
+                            x0 = lower
+                        if np.any(y_value > upper):
+                            upper += (margin * upper)
+                            x1 = upper
 
             set_bound(x0, x1)
             # End of definition of internal function 'handle_single_axis'.
