@@ -746,11 +746,18 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.tripcolor(...)
 
-    @pytest.mark.xfail(reason="Test for triplot not written yet")
     @mpl.style.context("default")
     def test_triplot(self):
+        mpl.rcParams["date.converter"] = "concise"
         fig, ax = plt.subplots()
-        ax.triplot(...)
+        np.random.seed(19680801)
+
+        limit_value = 30
+        x_dates = np.array([datetime.datetime(2023, 12, n) for n in range(1, limit_value)])
+        x_dates_converted = mpl.dates.date2num(x_dates)
+        y_data = np.random.rand(limit_value - 1)
+
+        ax.triplot(x_dates_converted, y_data)
 
     @pytest.mark.xfail(reason="Test for violin not written yet")
     @mpl.style.context("default")
