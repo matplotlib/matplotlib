@@ -3032,6 +3032,14 @@ class NavigationToolbar2:
 
     _PanInfo = namedtuple("_PanInfo", "button axes cid")
 
+    def _maybe_push_current(self, axes, allow_empty=True):
+        figs = {sa.figure for a in axes
+                for sa in itertools.chain(*(
+                    a._shared_axes[name].get_siblings(a) for name in a._axis_names))}
+        for fig in figs:
+            if allow_empty or fig.canvas.toolbar._nav_stack() is None:
+                fig.canvas.toolbar.push_current()
+
     def press_pan(self, event):
         """Callback for mouse button press in pan/zoom mode."""
         if (event.button not in [MouseButton.LEFT, MouseButton.RIGHT]
@@ -3041,8 +3049,7 @@ class NavigationToolbar2:
                 if a.in_axes(event) and a.get_navigate() and a.can_pan()]
         if not axes:
             return
-        if self._nav_stack() is None:
-            self.push_current()  # set the home button to this view
+        self._maybe_push_current(axes, False)  # set the home button to this view
         for ax in axes:
             ax.start_pan(event.x, event.y, event.button)
         self.canvas.mpl_disconnect(self._id_drag)
@@ -3068,8 +3075,8 @@ class NavigationToolbar2:
         for ax in self._pan_info.axes:
             ax.end_pan()
         self.canvas.draw_idle()
+        self._maybe_push_current(self._pan_info.axes)
         self._pan_info = None
-        self.push_current()
 
     def zoom(self, *args):
         if not self.canvas.widgetlock.available(self):
@@ -3096,8 +3103,7 @@ class NavigationToolbar2:
                 if a.in_axes(event) and a.get_navigate() and a.can_zoom()]
         if not axes:
             return
-        if self._nav_stack() is None:
-            self.push_current()  # set the home button to this view
+        self._maybe_push_current(axes, False)  # set the home button to this view
         id_zoom = self.canvas.mpl_connect(
             "motion_notify_event", self.drag_zoom)
         # A colorbar is one-dimensional, so we extend the zoom rectangle out
@@ -3168,8 +3174,8 @@ class NavigationToolbar2:
                 self._zoom_info.direction, key, twinx, twiny)
 
         self.canvas.draw_idle()
+        self._maybe_push_current(self._zoom_info.axes)
         self._zoom_info = None
-        self.push_current()
 
     def push_current(self):
         """Push the current view limits and position onto the stack."""
