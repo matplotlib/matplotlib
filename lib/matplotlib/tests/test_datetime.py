@@ -435,7 +435,7 @@ class TestDatetimePlotting:
 
     @mpl.style.context("default")
     def test_hexbin(self):
-        mpl.rcParams["date.converter"] = "concise"
+        mpl.rcParams["date.converter"] = 'concise'
         np.random.seed(19680801)
 
         dates = np.arange(np.datetime64('2022-01-01'), np.datetime64('2023-12-31'),
@@ -443,12 +443,15 @@ class TestDatetimePlotting:
         fig, (ax0, ax1, ax2) = plt.subplots(3, 1)
         fig.set_size_inches(4, 8)
 
-        n = dates.shape
+        n = dates.shape[0]
         x = np.random.standard_normal(n)
         y = np.random.standard_normal(n)
-        ax0.hexbin(dates, y, gridsize=(5, 3))
-        ax1.hexbin(x, dates, gridsize=(5, 3))
-        ax2.hexbin(dates, dates, gridsize=(5, 3))
+        ax0.hexbin(dates, y, marginals=True, gridsize=(10, 6),
+                   extent=[19030, 19680, min(y), max(y)])
+        ax1.hexbin(x, dates, marginals=True, gridsize=(10, 6),
+                   extent=[min(x), max(x), 19030, 19680])
+        ax2.hexbin(dates, dates, marginals=True, gridsize=(10, 6),
+                   extent=[19030, 19900, 19030, 19680])
 
     @mpl.style.context("default")
     def test_hist(self):
