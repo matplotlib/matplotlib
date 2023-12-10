@@ -1,6 +1,6 @@
 import datetime
+import math
 import numpy as np
-
 import pytest
 
 import matplotlib.pyplot as plt
@@ -265,9 +265,9 @@ class TestDatetimePlotting:
         x_start, x_end, x_step = -10.0, 5.0, 0.5
         y_start, y_end, y_step = -10.0, 5.0, 0.5
 
+        # Trying to generate a contour using dates will either 
         x = np.arange(x_start, x_end, x_step)
         y = np.arange(y_start, y_end, y_step)
-
         X, Y = np.meshgrid(x, y)
         Z = np.sqrt(X**2 + Y**2)
 
@@ -278,7 +278,21 @@ class TestDatetimePlotting:
         dates = [datetime.datetime(2023, 10, 1) + datetime.timedelta(days=i)
             for i in range(len(CS.levels))]
 
+        # Passing dates to label the contours directly works as expected
         ax.clabel(CS, CS.levels, inline=True, fmt=dict(zip(CS.levels, dates)))
+        xinterval = math.floor(len(x)/len(dates)) + 3
+        numXlabels = math.floor(len(x)/xinterval)
+
+        ax.set_xticks(x[::xinterval])  # Set ticks at regular intervals
+        str_dates = []
+
+        for i in range(numXlabels):
+            str_dates.append(dates[i].strftime('%Y-%m-%d'))
+
+        # Works, but not readable
+        #labels = dates[:numXlabels:]
+        labels = str_dates
+        ax.set_xticklabels(labels)  # Format labels as dates
 
     @pytest.mark.xfail(reason="Test for contour not written yet")
     @mpl.style.context("default")
