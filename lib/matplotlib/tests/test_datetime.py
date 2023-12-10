@@ -262,39 +262,31 @@ class TestDatetimePlotting:
     @mpl.style.context("default")
     def test_clabel(self):
         # Sample data for contour plot
-        x_start, x_end, x_step = -10.0, 5.0, 0.5
-        y_start, y_end, y_step = -10.0, 5.0, 0.5
+        dates = [datetime.datetime(2023, 10, 1) + datetime.timedelta(days=i)
+                for i in range(10)]
 
-        # Trying to generate a contour using dates will either fail when you
-        # do math or fail when generating the contour
+        x_start, x_end, x_step = -10.0, 5.0, 0.5
+        y_start, y_end, y_step = 0, 10, 1
+
         x = np.arange(x_start, x_end, x_step)
         y = np.arange(y_start, y_end, y_step)
-        X, Y = np.meshgrid(x, y)
-        Z = np.sqrt(X**2 + Y**2)
+
+        # In this case, Y axis has dates
+        X, Y = np.meshgrid(x, dates)
+
+        # In this case, X axis has dates
+        #X, Y = np.meshgrid(dates, y)
+
+        rows = len(X)
+        cols = len(X[0])
+
+        z1D = np.arange(rows * cols)
+        Z = z1D.reshape((rows, cols))
 
         fig, ax = plt.subplots()
         CS = ax.contour(X, Y, Z)
 
-        # Input date object to be used as test
-        dates = [datetime.datetime(2023, 10, 1) + datetime.timedelta(days=i)
-            for i in range(len(CS.levels))]
-
-        # Passing dates to label the contours directly works as expected
         ax.clabel(CS, CS.levels, inline=True, fmt=dict(zip(CS.levels, dates)))
-        
-        # Set ticks at regular intervals to manually set x axis via dates
-        xinterval = math.floor(len(x)/len(dates)) + 3
-        numXlabels = math.floor(len(x)/xinterval)
-        ax.set_xticks(x[::xinterval])
-
-        # Works, but not readable
-        #labels = dates[:numXlabels:]
-        str_dates = []
-        for i in range(numXlabels):
-            str_dates.append(dates[i].strftime('%Y-%m-%d'))
-        
-        labels = str_dates
-        ax.set_xticklabels(labels)  # Format labels as dates
 
     @pytest.mark.xfail(reason="Test for contour not written yet")
     @mpl.style.context("default")
