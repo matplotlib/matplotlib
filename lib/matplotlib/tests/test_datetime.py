@@ -735,11 +735,40 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.tricontourf(...)
 
-    @pytest.mark.xfail(reason="Test for tripcolor not written yet")
     @mpl.style.context("default")
     def test_tripcolor(self):
-        fig, ax = plt.subplots()
-        ax.tripcolor(...)
+        mpl.rcParams["date.converter"] = 'concise'
+        plt.style.use('_mpl-gallery-nogrid')
+
+        fig, (ax, ax1, ax2) = plt.subplots(3, 1, figsize=(6, 4))
+        dates = np.arange(np.datetime64('2022-01-01'), np.datetime64('2023-12-31'),
+                          np.timedelta64(1, 'D'))
+        n = 256
+        np.random.seed(19680801)
+        xz = np.random.uniform(-3, 3, n)
+        yz = np.random.uniform(-3, 3, n)
+        zz = (1 - xz / 2 + xz ** 5 + yz ** 3) * np.exp(-xz ** 2 - yz ** 2)
+
+        # Randomly sample n dates for x-axis and different y values than above
+        x_rand_dates = np.random.choice(dates, n, replace=False)
+        y = np.random.uniform(-3, 3, n)
+
+        # Randomly sample n dates for the y-axis and different x values than above
+        x = np.random.uniform(-3, 3, n)
+        y_rand_dates = np.random.choice(dates, n, replace=False)
+
+        # plot:
+        ax.plot(x_rand_dates, y, 'o', markersize=2, color='grey')
+        ax.tripcolor(x_rand_dates, y, zz)
+        ax1.plot(x, y_rand_dates, 'o', markersize=2, color='grey')
+        ax1.tripcolor(x, y_rand_dates, zz)
+        ax2.plot(x_rand_dates, y_rand_dates, 'o', markersize=2, color='grey')
+        ax2.tripcolor(x_rand_dates, y_rand_dates, zz)
+        ax.set(xlim=(min(x_rand_dates), max(x_rand_dates)), ylim=(min(y), max(y)))
+        ax1.set(xlim=(min(x), max(x)), ylim=(min(y_rand_dates), max(y_rand_dates)))
+        ax2.set(xlim=(min(x_rand_dates), max(x_rand_dates)), ylim=(min(y_rand_dates),
+                                                                   max(y_rand_dates)))
+        fig.tight_layout()
 
     @pytest.mark.xfail(reason="Test for triplot not written yet")
     @mpl.style.context("default")
