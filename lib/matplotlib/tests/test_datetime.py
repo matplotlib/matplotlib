@@ -265,7 +265,8 @@ class TestDatetimePlotting:
         x_start, x_end, x_step = -10.0, 5.0, 0.5
         y_start, y_end, y_step = -10.0, 5.0, 0.5
 
-        # Trying to generate a contour using dates will either 
+        # Trying to generate a contour using dates will either fail when you
+        # do math or fail when generating the contour
         x = np.arange(x_start, x_end, x_step)
         y = np.arange(y_start, y_end, y_step)
         X, Y = np.meshgrid(x, y)
@@ -280,17 +281,18 @@ class TestDatetimePlotting:
 
         # Passing dates to label the contours directly works as expected
         ax.clabel(CS, CS.levels, inline=True, fmt=dict(zip(CS.levels, dates)))
+        
+        # Set ticks at regular intervals to manually set x axis via dates
         xinterval = math.floor(len(x)/len(dates)) + 3
         numXlabels = math.floor(len(x)/xinterval)
-
-        ax.set_xticks(x[::xinterval])  # Set ticks at regular intervals
-        str_dates = []
-
-        for i in range(numXlabels):
-            str_dates.append(dates[i].strftime('%Y-%m-%d'))
+        ax.set_xticks(x[::xinterval])
 
         # Works, but not readable
         #labels = dates[:numXlabels:]
+        str_dates = []
+        for i in range(numXlabels):
+            str_dates.append(dates[i].strftime('%Y-%m-%d'))
+        
         labels = str_dates
         ax.set_xticklabels(labels)  # Format labels as dates
 
