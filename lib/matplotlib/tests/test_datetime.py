@@ -275,7 +275,8 @@ class TestDatetimePlotting:
         CS = ax.contour(X, Y, Z)
 
         # Input date object to be used as test
-        dates = [datetime.datetime(2023, 10, 1) + datetime.timedelta(days=i) for i in range(len(CS.levels))]
+        dates = [datetime.datetime(2023, 10, 1) + datetime.timedelta(days=i)
+            for i in range(len(CS.levels))]
 
         ax.clabel(CS, CS.levels, inline=True, fmt=dict(zip(CS.levels, dates)))
 
