@@ -259,11 +259,26 @@ class TestDatetimePlotting:
         ax.xaxis.set_major_formatter(mpl.dates.DateFormatter("%Y-%m-%d"))
         ax.set_title('Box plot with datetime data')
 
-    @pytest.mark.xfail(reason="Test for clabel not written yet")
     @mpl.style.context("default")
     def test_clabel(self):
+        # Sample data for contour plot
+        x_start, x_end, x_step = -10.0, 5.0, 0.5
+        y_start, y_end, y_step = -10.0, 5.0, 0.5
+
+        x = np.arange(x_start, x_end, x_step)
+        y = np.arange(y_start, y_end, y_step)
+
+        X, Y = np.meshgrid(x, y)
+        Z = np.sqrt(X**2 + Y**2)
+
         fig, ax = plt.subplots()
-        ax.clabel(...)
+        CS = ax.contour(X, Y, Z)
+
+        # Input date object to be used as test
+        dates = [datetime.datetime(2023, 10, 1) + datetime.timedelta(days=i) for i in range(len(CS.levels))]
+
+        ax.clabel(CS, CS.levels, inline=True, fmt=dict(zip(CS.levels, dates)))
+        plt.show()
 
     @pytest.mark.xfail(reason="Test for contour not written yet")
     @mpl.style.context("default")
