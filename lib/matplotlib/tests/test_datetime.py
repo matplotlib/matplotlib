@@ -278,7 +278,6 @@ class TestDatetimePlotting:
         dates = [datetime.datetime(2023, 10, 1) + datetime.timedelta(days=i) for i in range(len(CS.levels))]
 
         ax.clabel(CS, CS.levels, inline=True, fmt=dict(zip(CS.levels, dates)))
-        plt.show()
 
     @pytest.mark.xfail(reason="Test for contour not written yet")
     @mpl.style.context("default")
