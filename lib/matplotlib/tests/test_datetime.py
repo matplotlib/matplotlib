@@ -694,11 +694,23 @@ class TestDatetimePlotting:
         ax2.step(range(1, N), x)
         ax3.step(x, x)
 
-    @pytest.mark.xfail(reason="Test for streamplot not written yet")
     @mpl.style.context("default")
     def test_streamplot(self):
+        mpl.rcParams["date.converter"] = "concise"
         fig, ax = plt.subplots()
-        ax.streamplot(...)
+
+        np.random.seed(19680801)
+        limit_value = 30
+
+        date_array = np.array(
+                    [datetime.datetime(2023, 12, n) for n in range(1, limit_value)]
+                )
+        date_array_converted = mpl.dates.date2num(date_array)
+        X, Y = np.meshgrid(date_array_converted, np.arange(0, limit_value-1))
+        U = np.random.rand(limit_value-1, limit_value-1)
+        V = np.random.rand(limit_value-1, limit_value-1)
+
+        ax.streamplot(X, Y, U, V)
 
     @mpl.style.context("default")
     def test_text(self):
