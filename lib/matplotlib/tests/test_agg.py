@@ -343,6 +343,6 @@ def test_round_function():
     h = 1708
     w = 2560
     ra = RendererAgg(w, h, dpi)
-    ra2 = ra.get_renderer()
+    ra2 = ra._renderer()
     assert ra2.w == w
     assert ra2.h == h
