@@ -8,7 +8,7 @@ jobs:
     if: github.repository == 'matplotlib/matplotlib'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v8
+      - uses: actions/stale@v9
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           operations-per-run: 150
