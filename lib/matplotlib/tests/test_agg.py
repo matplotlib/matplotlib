@@ -336,3 +336,13 @@ def test_non_tuple_rgbaface():
     fig.add_subplot(projection="3d").scatter(
         [0, 1, 2], [0, 1, 2], path_effects=[patheffects.Stroke(linewidth=4)])
     fig.canvas.draw()
+
+
+def test_round_function():
+    dpi = 100
+    h = 1708
+    w = 2560
+    ra = RendererAgg(w, h, dpi)
+    ra2 = ra.get_renderer()
+    assert ra2.w == w
+    assert ra2.h == h
