@@ -315,7 +315,8 @@ class RendererAgg(RendererBase):
             # The incoming data is float, but the _renderer type-checking wants
             # to see integers.
             self._renderer.restore_region(region, int(round(x1)), int(round(y1)),
-                                          int(round(x2)), int(round(y2)), int(round(ox)), int(round(oy)))
+                                          int(round(x2)), int(round(y2)), 
+                                          int(round(ox)), int(round(oy)))
 
         else:
             self._renderer.restore_region(region)
