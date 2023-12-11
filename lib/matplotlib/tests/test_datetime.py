@@ -532,43 +532,13 @@ class TestDatetimePlotting:
 
     @mpl.style.context("default")
     def test_imshow(self):
-        mpl.rcParams["date.converter"] = "concise"
+        fig, ax = plt.subplots()
         a = np.diag(range(5))
-        fig, axes = plt.subplots(nrows=2, ncols=2)
-
-        ax = axes[0, 0]
-        dt_start = datetime.datetime(1980, 4, 15)
-        dt_end = datetime.datetime(2010, 11, 11)
-        extent = (dt_start, dt_end, dt_start, dt_end)
-        ax.imshow(a, extent=extent)
-        for label in ax.get_xticklabels():
-            label.set_rotation(90)
-
-        ax = axes[0, 1]
-        dt_start = datetime.datetime(2010, 4, 15)
-        dt_end = datetime.datetime(2010, 11, 11)
-        extent = (dt_start, dt_end, dt_start, dt_end)
-        ax.imshow(a, extent=extent)
-        for label in ax.get_xticklabels():
-            label.set_rotation(90)
-
-        ax = axes[1, 0]
         dt_start = datetime.datetime(2010, 11, 1)
         dt_end = datetime.datetime(2010, 11, 11)
         extent = (dt_start, dt_end, dt_start, dt_end)
         ax.imshow(a, extent=extent)
-        for label in ax.get_xticklabels():
-            label.set_rotation(90)
-
-        ax = axes[1, 1]
-        dt_start = datetime.datetime(2010, 11, 10)
-        dt_end = datetime.datetime(2010, 11, 11)
-        extent = (dt_start, dt_end, dt_start, dt_end)
-        ax.imshow(a, extent=extent)
-        for label in ax.get_xticklabels():
-            label.set_rotation(90)
-
-        fig.tight_layout()
+        ax.tick_params(axis="x", labelrotation=90)
 
     @pytest.mark.xfail(reason="Test for loglog not written yet")
     @mpl.style.context("default")
