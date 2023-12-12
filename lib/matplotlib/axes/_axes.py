@@ -893,7 +893,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        `.Line2D`
+        `.AxLine`
 
         Other Parameters
         ----------------

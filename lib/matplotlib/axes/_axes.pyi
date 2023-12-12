@@ -18,7 +18,7 @@ from matplotlib.contour import ContourSet, QuadContourSet
 from matplotlib.image import AxesImage, PcolorImage
 from matplotlib.legend import Legend
 from matplotlib.legend_handler import HandlerBase
-from matplotlib.lines import Line2D
+from matplotlib.lines import Line2D, AxLine
 from matplotlib.mlab import GaussianKDE
 from matplotlib.patches import Rectangle, FancyArrow, Polygon, StepPatch, Wedge
 from matplotlib.quiver import Quiver, QuiverKey, Barbs
@@ -151,7 +151,7 @@ class Axes(_AxesBase):
         *,
         slope: float | None = ...,
         **kwargs
-    ) -> Line2D: ...
+    ) -> AxLine: ...
     def axhspan(
         self, ymin: float, ymax: float, xmin: float = ..., xmax: float = ..., **kwargs
     ) -> Polygon: ...
