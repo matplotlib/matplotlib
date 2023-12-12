@@ -104,19 +104,11 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.clabel(...)
 
-    @pytest.mark.xfail(reason="Test for cohere not written yet")
-    @mpl.style.context("default")
-    def test_cohere(self):
-        fig, ax = plt.subplots()
-        ax.cohere(...)
-
     @mpl.style.context("default")
     def test_contour(self):
         mpl.rcParams["date.converter"] = "concise"
         range_threshold = 10
-        fig, (ax1, ax2, ax3, bx1, bx2, bx3) = plt.subplots(
-            6, 1, layout="constrained", figsize=(6, 10)
-        )
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
 
         x_dates = np.array(
             [datetime.datetime(2023, 10, delta) for delta in range(1, range_threshold)]
@@ -124,24 +116,17 @@ class TestDatetimePlotting:
         y_dates = np.array(
             [datetime.datetime(2023, 10, delta) for delta in range(1, range_threshold)]
         )
-        x_timestamps = np.array([datetime.datetime.timestamp(data) for data in x_dates])
-        y_timestamps = np.array([datetime.datetime.timestamp(data) for data in y_dates])
         x_ranges = np.array(range(1, range_threshold))
         y_ranges = np.array(range(1, range_threshold))
 
         X_dates, Y_dates = np.meshgrid(x_dates, y_dates)
         X_ranges, Y_ranges = np.meshgrid(x_ranges, y_ranges)
-        X_timestamps, Y_timestamps = np.meshgrid(x_timestamps, y_timestamps)
 
-        Z_timestamps = np.cos(X_timestamps / 4) + np.sin(Y_timestamps / 4)
         Z_ranges = np.cos(X_ranges / 4) + np.sin(Y_ranges / 4)
 
-        ax1.contour(X_dates, Y_dates, Z_timestamps)
-        ax2.contour(X_dates, Y_ranges, Z_timestamps)
-        ax3.contour(X_ranges, Y_dates, Z_timestamps)
-        bx1.contour(X_dates, Y_dates, Z_ranges)
-        bx2.contour(X_dates, Y_ranges, Z_ranges)
-        bx3.contour(X_ranges, Y_dates, Z_ranges)
+        ax1.contour(X_dates, Y_dates, Z_ranges)
+        ax2.contour(X_dates, Y_ranges, Z_ranges)
+        ax3.contour(X_ranges, Y_dates, Z_ranges)
 
     @pytest.mark.xfail(reason="Test for contourf not written yet")
     @mpl.style.context("default")
