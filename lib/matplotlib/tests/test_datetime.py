@@ -520,12 +520,10 @@ class TestDatetimePlotting:
         edge_int = np.arange(31)
         np.random.seed(123456)
         values1 = np.random.randint(1, 100, 30)
-        random_day = np.random.randint(1, 10000, 30)
-        values2 = [start_date +
-                   datetime.timedelta(days=int(random_day[i])) for i in range(30)]
-        random_day = np.random.randint(-10000, 10000, 30)
-        values3 = [start_date +
-                   datetime.timedelta(days=int(random_day[i])) for i in range(30)]
+        values2 = [start_date + datetime.timedelta(days=int(i))
+                   for i in np.random.randint(1, 10000, 30)]
+        values3 = [start_date + datetime.timedelta(days=int(i))
+                   for i in np.random.randint(-10000, 10000, 30)]
 
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, constrained_layout=True)
         ax1.stairs(values1, edges=bin_edges)
