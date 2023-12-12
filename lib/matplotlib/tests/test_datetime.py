@@ -517,7 +517,7 @@ class TestDatetimePlotting:
         baseline_date = datetime.datetime(1980, 1, 1)
 
         bin_edges = [start_date + i * time_delta for i in range(31)]
-        edge_int = [0 + i * 1 for i in range(31)]
+        edge_int = np.arange(31)
         np.random.seed(123456)
         values1 = np.random.randint(1, 100, 30)
         random_day = np.random.randint(1, 10000, 30)
