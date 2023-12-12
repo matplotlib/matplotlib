@@ -569,11 +569,15 @@ class TestDatetimePlotting:
                          xmin=0.45,
                          xmax=0.65)
 
-    @pytest.mark.xfail(reason="Test for imshow not written yet")
     @mpl.style.context("default")
     def test_imshow(self):
         fig, ax = plt.subplots()
-        ax.imshow(...)
+        a = np.diag(range(5))
+        dt_start = datetime.datetime(2010, 11, 1)
+        dt_end = datetime.datetime(2010, 11, 11)
+        extent = (dt_start, dt_end, dt_start, dt_end)
+        ax.imshow(a, extent=extent)
+        ax.tick_params(axis="x", labelrotation=90)
 
     @pytest.mark.xfail(reason="Test for loglog not written yet")
     @mpl.style.context("default")
