@@ -129,7 +129,7 @@ if TYPE_CHECKING:
 
 # We may not need the following imports here:
 from matplotlib.colors import Normalize
-from matplotlib.lines import Line2D
+from matplotlib.lines import Line2D, AxLine
 from matplotlib.text import Text, Annotation
 from matplotlib.patches import Polygon, Rectangle, Circle, Arrow
 from matplotlib.widgets import Button, Slider, Widget
@@ -2720,7 +2720,7 @@ def axline(
     *,
     slope: float | None = None,
     **kwargs,
-) -> Line2D:
+) -> AxLine:
     return gca().axline(xy1, xy2=xy2, slope=slope, **kwargs)
 
 
