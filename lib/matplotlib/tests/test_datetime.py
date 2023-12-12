@@ -171,11 +171,32 @@ class TestDatetimePlotting:
         ax2.set_ylabel('Order of Birth Dates')
         ax2.barh(np.arange(4), birth_date-year_start, left=year_start)
 
-    @pytest.mark.xfail(reason="Test for boxplot not written yet")
     @mpl.style.context("default")
     def test_boxplot(self):
-        fig, ax = plt.subplots()
-        ax.boxplot(...)
+        mpl.rcParams["date.converter"] = "concise"
+
+        fig, (ax1, ax2) = plt.subplots(2, 1, layout="constrained")
+
+        dates1 = [
+            datetime(2023, 1, 1),
+            datetime(2023, 1, 10),
+            datetime(2023, 1, 15),
+            datetime(2023, 1, 20)
+        ]
+
+        time_diffs = [(date - min(dates1)).total_seconds() for date in dates1]
+
+        ax1.boxplot(time_diffs)
+
+        np.random.seed(19680801)
+
+        dates2 = [datetime(2023, 1, 1) +
+                  datetime.timedelta(days=np.random.randint(1, 365))
+                  for _ in range(100)]
+
+        timestamps = [(date - datetime(1970, 1, 1)).total_seconds() for date in dates2]
+
+        ax2.boxplot(timestamps)
 
     @pytest.mark.xfail(reason="Test for broken_barh not written yet")
     @mpl.style.context("default")
