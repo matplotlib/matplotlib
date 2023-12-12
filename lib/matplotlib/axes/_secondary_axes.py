@@ -153,7 +153,9 @@ class SecondaryAxis(_AxesBase):
             self._functions = functions
         elif isinstance(functions, Transform):
             self._functions = (
-                    functions.transform, functions.inverted().transform)
+                 functions.transform,
+                 lambda x: functions.inverted().transform(x)
+            )
         elif functions is None:
             self._functions = (lambda x: x, lambda x: x)
         else:
