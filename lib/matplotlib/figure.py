@@ -1248,8 +1248,6 @@ default: %(va)s
             self_host_fig = self.figure
             if isinstance(mappable_host_fig, mpl.figure.SubFigure):
                 mappable_host_fig = mappable_host_fig.figure
-            if isinstance(self_host_fig, mpl.figure.SubFigure):
-                self_host_fig = self_host_fig.figure
             # Warn in case of mismatch
             if mappable_host_fig is not self_host_fig:
                 _api.warn_external(
