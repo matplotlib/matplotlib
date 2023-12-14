@@ -2617,6 +2617,7 @@ class BboxTransformTo(Affine2DBase):
         return self._mtx
 
 
+@_api.deprecated("3.9")
 class BboxTransformToMaxOnly(BboxTransformTo):
     """
     `BboxTransformToMaxOnly` is a transformation that linearly transforms points from
