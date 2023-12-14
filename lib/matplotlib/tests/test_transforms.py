@@ -1054,3 +1054,21 @@ def test_transformedbbox_contains():
     assert bb.contains(1.25, 1.5)
     assert not bb.fully_contains(1.25, 1.5)
     assert not bb.fully_contains(.1, .1)
+
+
+def test_interval_contains():
+    assert mtransforms.interval_contains((0, 1), 0.5)
+    assert mtransforms.interval_contains((0, 1), 0)
+    assert mtransforms.interval_contains((0, 1), 1)
+    assert not mtransforms.interval_contains((0, 1), -1)
+    assert not mtransforms.interval_contains((0, 1), 2)
+    assert mtransforms.interval_contains((1, 0), 0.5)
+
+
+def test_interval_contains_open():
+    assert mtransforms.interval_contains_open((0, 1), 0.5)
+    assert not mtransforms.interval_contains_open((0, 1), 0)
+    assert not mtransforms.interval_contains_open((0, 1), 1)
+    assert not mtransforms.interval_contains_open((0, 1), -1)
+    assert not mtransforms.interval_contains_open((0, 1), 2)
+    assert mtransforms.interval_contains_open((1, 0), 0.5)
