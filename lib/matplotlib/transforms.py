@@ -1101,7 +1101,7 @@ class TransformedBbox(BboxBase):
         bbox : `Bbox`
         transform : `Transform`
         """
-        if not bbox.is_bbox:
+        if not getattr(bbox, 'is_bbox', False):
             raise ValueError("'bbox' is not a bbox")
         _api.check_isinstance(Transform, transform=transform)
         if transform.input_dims != 2 or transform.output_dims != 2:
@@ -1190,7 +1190,7 @@ class LockableBbox(BboxBase):
             The locked value for y1, or None to leave unlocked.
 
         """
-        if not bbox.is_bbox:
+        if not getattr(bbox, 'is_bbox', False):
             raise ValueError("'bbox' is not a bbox")
 
         super().__init__(**kwargs)
@@ -2547,7 +2547,8 @@ class BboxTransform(Affine2DBase):
         Create a new `BboxTransform` that linearly transforms
         points from *boxin* to *boxout*.
         """
-        if not boxin.is_bbox or not boxout.is_bbox:
+        if (not getattr(boxin, 'is_bbox', False) or
+                not getattr(boxout, 'is_bbox', False)):
             raise ValueError("'boxin' and 'boxout' must be bbox")
 
         super().__init__(**kwargs)
@@ -2591,7 +2592,7 @@ class BboxTransformTo(Affine2DBase):
         Create a new `BboxTransformTo` that linearly transforms
         points from the unit bounding box to *boxout*.
         """
-        if not boxout.is_bbox:
+        if not getattr(boxout, 'is_bbox', False):
             raise ValueError("'boxout' must be bbox")
 
         super().__init__(**kwargs)
@@ -2645,7 +2646,7 @@ class BboxTransformFrom(Affine2DBase):
     is_separable = True
 
     def __init__(self, boxin, **kwargs):
-        if not boxin.is_bbox:
+        if not getattr(boxin, 'is_bbox', False):
             raise ValueError("'boxin' must be bbox")
 
         super().__init__(**kwargs)
