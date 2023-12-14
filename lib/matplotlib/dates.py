@@ -1,176 +1,5 @@
 """
-Matplotlib provides sophisticated date plotting capabilities, standing on the
-shoulders of python :mod:`datetime` and the add-on module dateutil_.
-
-By default, Matplotlib uses the units machinery described in
-`~matplotlib.units` to convert `datetime.datetime`, and `numpy.datetime64`
-objects when plotted on an x- or y-axis. The user does not
-need to do anything for dates to be formatted, but dates often have strict
-formatting needs, so this module provides many tick locators and formatters.
-A basic example using `numpy.datetime64` is::
-
-    import numpy as np
-
-    times = np.arange(np.datetime64('2001-01-02'),
-                      np.datetime64('2002-02-03'), np.timedelta64(75, 'm'))
-    y = np.random.randn(len(times))
-
-    fig, ax = plt.subplots()
-    ax.plot(times, y)
-
-.. seealso::
-
-    - :doc:`/gallery/text_labels_and_annotations/date`
-    - :doc:`/gallery/ticks/date_concise_formatter`
-    - :doc:`/gallery/ticks/date_demo_convert`
-
-.. _date-format:
-
-Matplotlib date format
-----------------------
-
-Matplotlib represents dates using floating point numbers specifying the number
-of days since a default epoch of 1970-01-01 UTC; for example,
-1970-01-01, 06:00 is the floating point number 0.25. The formatters and
-locators require the use of `datetime.datetime` objects, so only dates between
-year 0001 and 9999 can be represented.  Microsecond precision
-is achievable for (approximately) 70 years on either side of the epoch, and
-20 microseconds for the rest of the allowable range of dates (year 0001 to
-9999). The epoch can be changed at import time via `.dates.set_epoch` or
-:rc:`dates.epoch` to other dates if necessary; see
-:doc:`/gallery/ticks/date_precision_and_epochs` for a discussion.
-
-.. note::
-
-   Before Matplotlib 3.3, the epoch was 0000-12-31 which lost modern
-   microsecond precision and also made the default axis limit of 0 an invalid
-   datetime.  In 3.3 the epoch was changed as above.  To convert old
-   ordinal floats to the new epoch, users can do::
-
-     new_ordinal = old_ordinal + mdates.date2num(np.datetime64('0000-12-31'))
-
-
-There are a number of helper functions to convert between :mod:`datetime`
-objects and Matplotlib dates:
-
-.. currentmodule:: matplotlib.dates
-
-.. autosummary::
-   :nosignatures:
-
-   datestr2num
-   date2num
-   num2date
-   num2timedelta
-   drange
-   set_epoch
-   get_epoch
-
-.. note::
-
-   Like Python's `datetime.datetime`, Matplotlib uses the Gregorian calendar
-   for all conversions between dates and floating point numbers. This practice
-   is not universal, and calendar differences can cause confusing
-   differences between what Python and Matplotlib give as the number of days
-   since 0001-01-01 and what other software and databases yield.  For
-   example, the US Naval Observatory uses a calendar that switches
-   from Julian to Gregorian in October, 1582.  Hence, using their
-   calculator, the number of days between 0001-01-01 and 2006-04-01 is
-   732403, whereas using the Gregorian calendar via the datetime
-   module we find::
-
-     In [1]: date(2006, 4, 1).toordinal() - date(1, 1, 1).toordinal()
-     Out[1]: 732401
-
-All the Matplotlib date converters, locators and formatters are timezone aware.
-If no explicit timezone is provided, :rc:`timezone` is assumed, provided as a
-string.  If you want to use a different timezone, pass the *tz* keyword
-argument of `num2date` to any date tick locators or formatters you create. This
-can be either a `datetime.tzinfo` instance or a string with the timezone name
-that can be parsed by `~dateutil.tz.gettz`.
-
-A wide range of specific and general purpose date tick locators and
-formatters are provided in this module.  See
-:mod:`matplotlib.ticker` for general information on tick locators
-and formatters.  These are described below.
-
-The dateutil_ module provides additional code to handle date ticking, making it
-easy to place ticks on any kinds of dates.  See examples below.
-
-.. _dateutil: https://dateutil.readthedocs.io
-
-.. _date-locators:
-
-Date tick locators
-------------------
-
-Most of the date tick locators can locate single or multiple ticks. For example::
-
-    # import constants for the days of the week
-    from matplotlib.dates import MO, TU, WE, TH, FR, SA, SU
-
-    # tick on Mondays every week
-    loc = WeekdayLocator(byweekday=MO, tz=tz)
-
-    # tick on Mondays and Saturdays
-    loc = WeekdayLocator(byweekday=(MO, SA))
-
-In addition, most of the constructors take an interval argument::
-
-    # tick on Mondays every second week
-    loc = WeekdayLocator(byweekday=MO, interval=2)
-
-The rrule locator allows completely general date ticking::
-
-    # tick every 5th easter
-    rule = rrulewrapper(YEARLY, byeaster=1, interval=5)
-    loc = RRuleLocator(rule)
-
-The available date tick locators are:
-
-* `MicrosecondLocator`: Locate microseconds.
-
-* `SecondLocator`: Locate seconds.
-
-* `MinuteLocator`: Locate minutes.
-
-* `HourLocator`: Locate hours.
-
-* `DayLocator`: Locate specified days of the month.
-
-* `WeekdayLocator`: Locate days of the week, e.g., MO, TU.
-
-* `MonthLocator`: Locate months, e.g., 7 for July.
-
-* `YearLocator`: Locate years that are multiples of base.
-
-* `RRuleLocator`: Locate using a `rrulewrapper`.
-  `rrulewrapper` is a simple wrapper around dateutil_'s `dateutil.rrule`
-  which allow almost arbitrary date tick specifications.
-  See :doc:`rrule example </gallery/ticks/date_demo_rrule>`.
-
-* `AutoDateLocator`: On autoscale, this class picks the best `DateLocator`
-  (e.g., `RRuleLocator`) to set the view limits and the tick locations.  If
-  called with ``interval_multiples=True`` it will make ticks line up with
-  sensible multiples of the tick intervals.  For example, if the interval is
-  4 hours, it will pick hours 0, 4, 8, etc. as ticks.  This behaviour is not
-  guaranteed by default.
-
-.. _date-formatters:
-
-Date formatters
----------------
-
-The available date formatters are:
-
-* `AutoDateFormatter`: attempts to figure out the best format to use.  This is
-  most useful when used with the `AutoDateLocator`.
-
-* `ConciseDateFormatter`: also attempts to figure out the best format to use,
-  and to make the format as compact as possible while still having complete
-  date information.  This is most useful when used with the `AutoDateLocator`.
-
-* `DateFormatter`: use `~datetime.datetime.strftime` format strings.
+Date and timedelta locators and formatters.
 """
 
 import datetime
@@ -295,7 +124,7 @@ def set_epoch(epoch):
 
 def get_epoch():
     """
-    Get the epoch used by `.dates`.
+    Get the epoch used by `matplotlib.dates`.
 
     Returns
     -------
@@ -629,7 +458,7 @@ def strftimedelta(td, fmt_str):
     +-----------+---------------------------------------+---------------------+
     | Code      | Meaning                               | Example             |
     +-----------+---------------------------------------+---------------------+
-    | %d        | Days (*)                              | 0, 1, 2, ...        |
+    | %d        | Days (1)                              | 0, 1, 2, ...        |
     +-----------+---------------------------------------+---------------------+
     | %H        | Hours as zero-padded decimal number   | 00, 01, ..., 23     |
     +-----------+---------------------------------------+---------------------+
@@ -637,36 +466,35 @@ def strftimedelta(td, fmt_str):
     +-----------+---------------------------------------+---------------------+
     | %S        | Seconds as zero-padded decimal number | 00, 01, ..., 59     |
     +-----------+---------------------------------------+---------------------+
-    | %-H       | Hours as decimal number (**)          | 0, 1, ..., 23       |
+    | %-H       | Hours as decimal number (2)           | 0, 1, ..., 23       |
     +-----------+---------------------------------------+---------------------+
-    | %-M       | Minutes as decimal number (**)        | 0, 1, ..., 59       |
+    | %-M       | Minutes as decimal number (2)         | 0, 1, ..., 59       |
     +-----------+---------------------------------------+---------------------+
-    | %-S       | Seconds as decimal number (**)        | 0, 1, ..., 59       |
+    | %-S       | Seconds as decimal number (2)         | 0, 1, ..., 59       |
     +-----------+---------------------------------------+---------------------+
     | %>H       | Total number of hours including days  | 0, 1, ..., 100, ... |
-    |           | (***)                                 |                     |
+    |           | (3)                                   |                     |
     +-----------+---------------------------------------+---------------------+
     | %>M       | Total number of minutes including     | 0, 1, ..., 100, ... |
-    |           | days and hours (***)                  |                     |
+    |           | days and hours (3)                    |                     |
     +-----------+---------------------------------------+---------------------+
     | %>S       | Total number of seconds including     | 0, 1, ..., 100, ... |
-    |           | days, hours and minutes (***)         |                     |
+    |           | days, hours and minutes (3)           |                     |
     +-----------+---------------------------------------+---------------------+
     | %f        | Microseconds as a decimal number,     | 000000, 000001, ... |
     |           | zero-padded to 6 digits               | 999999              |
     +-----------+---------------------------------------+---------------------+
 
-    - (*): Days are zero-padded to two digits in the C standard. Zero-padding
+    - (1): Days are zero-padded to two digits in the C standard. Zero-padding
       is not used here, because there is no maximum number of digits
-    - (**): Support for %-H, %-M, %-S is platform specific in ``strftime``, but
-      they are always supported in :func:`strftimedelta`.
-    - (***): %>H, %>M, %>S are extensions to the C standard to support
-      representations like 3 days as 72 hours, for example.
+    - (2): Support for the %-H, %-M, %-S format codes may be platform specific
+      in `datetime.datetime.strftime`, but these are always supported in
+      `strftimedelta`.
+    - (3): %>H, %>M, %>S are extensions to the C standard to support
+      representing 3 days as 72 hours, for example.
 
-    # TODO: move format code docs to general section at the top
-
-    Arguments
-    ---------
+    Parameters
+    ----------
     td : datetime.timedelta
     fmt_str : str
         format string
@@ -714,8 +542,8 @@ def strftdnum(td_num, fmt_str):
 
     # TODO: reference table of format codes
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     td_num : float
         timedelta in matplotlib float representation
     fmt_str : str
@@ -729,12 +557,16 @@ def strftdnum(td_num, fmt_str):
 
 
 class TimedeltaFormatter(ticker.Formatter):
+    """
+    Format a tick with a `strftimedelta` format string.
+    """
+
     def __init__(self, fmt, *, usetex=None):
         """
         Parameters
         ----------
         fmt : str
-            `strftimedelta` format string
+            `~matplotlib.dates.strftimedelta` format string
         usetex : bool, default: :rc:`text.usetex`
             To enable/disable the use of TeX's math mode for rendering the
             results of the formatter.
@@ -887,7 +719,7 @@ class ConciseDateFormatter(_ConciseTimevalueFormatter):
     """
     A `.Formatter` which attempts to figure out the best format to use for the
     date, and to make it as compact as possible, but still be complete. This is
-    most useful when used with the `AutoDateLocator`::
+    most useful when used with the `AutoDateLocator`.
 
     >>> locator = AutoDateLocator()
     >>> formatter = ConciseDateFormatter(locator)
@@ -1030,13 +862,48 @@ class ConciseDateFormatter(_ConciseTimevalueFormatter):
 
 
 class ConciseTimedeltaFormatter(_ConciseTimevalueFormatter):
-    # TODO: add docs
+    """
+    A `.Formatter` which attempts to figure out the best format to use for the
+    timedelta, and to make it as compact as possible, but still be complete.
+    This is most useful when used with the `AutoDateLocator`.
+    """
 
     def __init__(self, locator, formats=None, offset_formats=None,
                  zero_formats=None, show_offset=True, *, usetex=None):
         """
-        Autoformat the date labels.  The default format is used to form an
+        Autoformat the timedelta labels.  The default format is used to form an
         initial string, and then redundant elements are removed.
+
+        Parameters
+        ----------
+        locator : `.ticker.Locator`
+            Locator that this axis is using.
+
+        formats : list of 4 strings, optional
+            Format strings for 4 levels of tick labelling: mostly days, hours,
+            minutes, and seconds. Strings use the same format codes specified
+            described in `strftimedelta`.  Default is
+            ``['%d d', '%-H:%M', '%-H:%M' '%-S.%f']``
+
+        zero_formats : list of 4 strings, optional
+            Format strings for tick labels that are "zeros" for a given tick
+            level.  For instance, if most ticks are hours, ticks around 48:00
+            will be labeled "2 d". The default is
+            ``['%d d', '%d d', '%-H:%M', '%-H:%M']``
+
+        offset_formats : list of 4 strings, optional
+            Format strings for the 4 levels that is applied to the "offset"
+            string found on the right side of an x-axis, or top of a y-axis.
+            Combined with the tick labels this should completely specify the
+            date.  The default is
+            ``['', '', '%d days', '%d days %-H:%M']``
+
+        show_offset : bool, default: True
+            Whether to show the offset or not.
+
+        usetex : bool, default: :rc:`text.usetex`
+            To enable/disable the use of TeX's math mode for rendering the results
+            of the formatter.
         """
         super().__init__(locator, show_offset=show_offset, usetex=usetex)
         # zerovals are values that are zeros for a given tick level. For
@@ -1171,8 +1038,10 @@ class _AutoTimevalueFormatter(ticker.Formatter):
 
 class AutoTimedeltaFormatter(_AutoTimevalueFormatter):
     """
-    A `.Formatter` which attempts to figure out the best format to use.  This
-    is most useful when used with the `AutoTimedeltaLocator`.
+    A `.Formatter` which attempts to figure out the best format to use by
+    choosing a label format that only includes relevant information but is
+    still easily readable. This is most useful when used with the
+    `AutoTimedeltaLocator`.
 
     `.AutoTimedeltaFormatter` has a ``.scale`` dictionary that maps tick scales
     (the interval in days between one major tick) to format strings; this
@@ -1241,8 +1110,10 @@ class AutoTimedeltaFormatter(_AutoTimevalueFormatter):
 
 class AutoDateFormatter(_AutoTimevalueFormatter):
     """
-    A `.Formatter` which attempts to figure out the best format to use.  This
-    is most useful when used with the `AutoDateLocator`.
+    A `.Formatter` which attempts to figure out the best format to use by
+    choosing a label format that only includes relevant information but is
+    still easily readable. This is most useful when used with the
+    `AutoDateLocator`.
 
     `.AutoDateFormatter` has a ``.scale`` dictionary that maps tick scales (the
     interval in days between one major tick) to format strings; this dictionary
@@ -1446,7 +1317,8 @@ class rrulewrapper:
 
 class DateLocator(ticker.Locator):
     """
-    Determines the tick locations when plotting dates.
+    Base class for date tick locators that determine the tick locations
+    when plotting dates.
 
     This class is subclassed by other Locators and
     is not meant to be used on its own.
@@ -1528,6 +1400,10 @@ class DateLocator(ticker.Locator):
 
 
 class RRuleLocator(DateLocator):
+    """
+    Make ticks using `rrulewrapper` which allows almost arbitrary date tick
+    specifications, see :doc:`rrule example </gallery/ticks/date_demo_rrule>`.
+    """
     # use the dateutil rrule instance
 
     def __init__(self, o, tz=None):
@@ -1837,7 +1713,8 @@ class AutoDateLocator(DateLocator):
 
 class YearLocator(RRuleLocator):
     """
-    Make ticks on a given day of each year that is a multiple of base.
+    Make ticks on a given day of each year in regular intervals of one or
+    multiple years.
 
     Examples::
 
@@ -1887,7 +1764,7 @@ class YearLocator(RRuleLocator):
 
 class MonthLocator(RRuleLocator):
     """
-    Make ticks on occurrences of each month, e.g., 1, 3, 12.
+    Make ticks on occurrences of specific months, for example, 1, 3, 12.
     """
     def __init__(self, bymonth=None, bymonthday=1, interval=1, tz=None):
         """
@@ -1914,7 +1791,8 @@ class MonthLocator(RRuleLocator):
 
 class WeekdayLocator(RRuleLocator):
     """
-    Make ticks on occurrences of each weekday.
+    Make ticks on occurrences of specific weekdays, for example, *MO*, *MI*,
+    *FR*.
     """
 
     def __init__(self, byweekday=1, interval=1, tz=None):
@@ -1941,7 +1819,7 @@ class WeekdayLocator(RRuleLocator):
 
 class DayLocator(RRuleLocator):
     """
-    Make ticks on occurrences of each day of the month.  For example,
+    Make ticks on occurrences of specific days of the month, for example,
     1, 15, 30.
     """
     def __init__(self, bymonthday=None, interval=1, tz=None):
@@ -1969,7 +1847,7 @@ class DayLocator(RRuleLocator):
 
 class HourLocator(RRuleLocator):
     """
-    Make ticks on occurrences of each hour.
+    Make ticks on occurrences of specific hours, for example, 0, 6, 12, 18.
     """
     def __init__(self, byhour=None, interval=1, tz=None):
         """
@@ -1994,7 +1872,7 @@ class HourLocator(RRuleLocator):
 
 class MinuteLocator(RRuleLocator):
     """
-    Make ticks on occurrences of each minute.
+    Make ticks on occurrences of specific minutes, for example, 0, 15, 30, 45.
     """
     def __init__(self, byminute=None, interval=1, tz=None):
         """
@@ -2019,7 +1897,7 @@ class MinuteLocator(RRuleLocator):
 
 class SecondLocator(RRuleLocator):
     """
-    Make ticks on occurrences of each second.
+    Make ticks on occurrences of specific seconds, for example, 0, 15, 30, 45.
     """
     def __init__(self, bysecond=None, interval=1, tz=None):
         """
@@ -2114,7 +1992,7 @@ class MicrosecondLocator(DateLocator):
 
 class TimedeltaLocator(ticker.MultipleLocator):
     """
-    Determines the tick locations when plotting dates.
+    Make ticks in regular timedelta intervals, for example every 15 minutes.
 
     Examples::
 
@@ -2401,7 +2279,7 @@ class TimedeltaConverter(units.ConversionInterface):
     """
     Converter for `datetime.timedelta` and `numpy.timedelta64` data,
     or for timedelta data represented as it would be converted by
-    `timedelta2num`.
+    `~matplotlib.dates.timedelta2num`.
 
     The 'unit' tag for such data is None.
     """
