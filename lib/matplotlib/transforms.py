@@ -2544,8 +2544,7 @@ class BboxTransform(Affine2DBase):
         Create a new `BboxTransform` that linearly transforms
         points from *boxin* to *boxout*.
         """
-        _api.check_isinstance(BboxBase, boxin=boxin)
-        _api.check_isinstance(BboxBase, boxout=boxout)
+        _api.check_isinstance(BboxBase, boxin=boxin, boxout=boxout)
 
         super().__init__(**kwargs)
         self._boxin = boxin
