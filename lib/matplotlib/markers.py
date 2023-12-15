@@ -47,7 +47,7 @@ marker                         symbol description
 ``11`` (``CARETDOWNBASE``)     |m36|  caretdown (centered at base)
 ``"none"`` or ``"None"``              nothing
 ``" "`` or  ``""``                    nothing
-``'$...$'``                    |m37|  Render the string using mathtext.
+``"$...$"``                    |m37|  Render the string using mathtext.
                                       E.g ``"$f$"`` for marker showing the
                                       letter ``f``.
 ``verts``                             A list of (x, y) pairs used for Path
@@ -55,7 +55,7 @@ marker                         symbol description
                                       located at (0, 0) and the size is
                                       normalized, such that the created path
                                       is encapsulated inside the unit cell.
-path                                  A `~matplotlib.path.Path` instance.
+``path``                              A `~matplotlib.path.Path` instance.
 ``(numsides, 0, angle)``              A regular polygon with ``numsides``
                                       sides, rotated by ``angle``.
 ``(numsides, 1, angle)``              A star-like symbol with ``numsides``
