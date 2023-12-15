@@ -981,8 +981,7 @@ class Legend(Artist):
             elif isinstance(artist, Collection):
                 transform, transOffset, hoffsets, _ = artist._prepare_points()
                 if len(hoffsets):
-                    for offset in transOffset.transform(hoffsets):
-                        offsets.append(offset)
+                    offsets.extend(transOffset.transform(hoffsets))
 
         return bboxes, lines, offsets
 
