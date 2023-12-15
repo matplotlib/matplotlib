@@ -34,7 +34,7 @@ def _find_line_box_crossings(xys, bbox):
         umin, vmin = bbox.min[sl]
         umax, vmax = bbox.max[sl]
         for u0, inside in [(umin, us > umin), (umax, us < umax)]:
-            crossings.append([])
+            cross = []
             idxs, = (inside[:-1] ^ inside[1:]).nonzero()
             for idx in idxs:
                 v = vs[idx] + (u0 - us[idx]) * dvs[idx] / dus[idx]
@@ -42,7 +42,8 @@ def _find_line_box_crossings(xys, bbox):
                     continue
                 crossing = (u0, v)[sl]
                 theta = np.degrees(np.arctan2(*dxys[idx][::-1]))
-                crossings[-1].append((crossing, theta))
+                cross.append((crossing, theta))
+            crossings.append(cross)
     return crossings
 
 
