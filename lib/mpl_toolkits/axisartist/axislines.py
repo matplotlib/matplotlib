@@ -354,9 +354,7 @@ class GridHelperRectlinear(GridHelperBase):
                 locs.extend(self.axes.xaxis.major.locator())
             if which in ("both", "minor"):
                 locs.extend(self.axes.xaxis.minor.locator())
-
-            for x in locs:
-                gridlines.append([[x, x], [y1, y2]])
+            gridlines.extend([[x, x], [y1, y2]] for x in locs)
 
         if axis in ("both", "y"):
             x1, x2 = self.axes.get_xlim()
@@ -365,9 +363,7 @@ class GridHelperRectlinear(GridHelperBase):
                 locs.extend(self.axes.yaxis.major.locator())
             if self.axes.yaxis._minor_tick_kw["gridOn"]:
                 locs.extend(self.axes.yaxis.minor.locator())
-
-            for y in locs:
-                gridlines.append([[x1, x2], [y, y]])
+            gridlines.extend([[x1, x2], [y, y]] for y in locs)
 
         return gridlines
 
