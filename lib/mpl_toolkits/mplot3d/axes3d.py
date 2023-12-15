@@ -1880,7 +1880,7 @@ class Axes3D(Axes):
         if args and not isinstance(args[0], str):
             zs, *args = args
             if 'zs' in kwargs:
-                raise TypeError("plot() for multiple values for argument 'z'")
+                raise TypeError("plot() for multiple values for argument 'zs'")
         else:
             zs = kwargs.pop('zs', 0)
 
@@ -1943,23 +1943,23 @@ class Axes3D(Axes):
         color : color-like
             Color of the surface patches.
 
-        cmap : Colormap
+        cmap : Colormap, optional
             Colormap of the surface patches.
 
-        facecolors : array-like of colors.
+        facecolors : array-like of colors
             Colors of each individual patch.
 
-        norm : Normalize
+        norm : `~matplotlib.colors.Normalize`, optional
             Normalization for the colormap.
 
-        vmin, vmax : float
+        vmin, vmax : float, optional
             Bounds for the normalization.
 
         shade : bool, default: True
             Whether to shade the facecolors.  Shading is always disabled when
             *cmap* is specified.
 
-        lightsource : `~matplotlib.colors.LightSource`
+        lightsource : `~matplotlib.colors.LightSource`, optional
             The lightsource to use when *shade* is True.
 
         **kwargs
@@ -2242,14 +2242,14 @@ class Axes3D(Axes):
             Color of the surface patches.
         cmap
             A colormap for the surface patches.
-        norm : Normalize
+        norm : `~matplotlib.colors.Normalize`, optional
             An instance of Normalize to map values to colors.
-        vmin, vmax : float, default: None
+        vmin, vmax : float, optional
             Minimum and maximum value to map.
         shade : bool, default: True
             Whether to shade the facecolors.  Shading is always disabled when
             *cmap* is specified.
-        lightsource : `~matplotlib.colors.LightSource`
+        lightsource : `~matplotlib.colors.LightSource`, optional
             The lightsource to use when *shade* is True.
         **kwargs
             All other keyword arguments are passed on to
@@ -2379,7 +2379,7 @@ class Axes3D(Axes):
             Input data. See `.Axes.contour` for supported data shapes.
         extend3d : bool, default: False
             Whether to extend contour in 3D.
-        stride : int
+        stride : int, default: 5
             Step size for extending contour.
         zdir : {'x', 'y', 'z'}, default: 'z'
             The direction to use.
@@ -2423,7 +2423,7 @@ class Axes3D(Axes):
             Input data. See `.Axes.tricontour` for supported data shapes.
         extend3d : bool, default: False
             Whether to extend contour in 3D.
-        stride : int
+        stride : int, default: 5
             Step size for extending contour.
         zdir : {'x', 'y', 'z'}, default: 'z'
             The direction to use.
@@ -2558,13 +2558,14 @@ class Axes3D(Axes):
         Add a 3D collection object to the plot.
 
         2D collection types are converted to a 3D version by
-        modifying the object and adding z coordinate information.
+        modifying the object and adding z coordinate information,
+        *zs* and *zdir*.
 
-        Supported are:
+        Supported 2D collection types are:
 
-        - PolyCollection
-        - LineCollection
-        - PatchCollection
+        - `.PolyCollection`
+        - `.LineCollection`
+        - `.PatchCollection`
         """
         zvals = np.atleast_1d(zs)
         zsortval = (np.min(zvals) if zvals.size
@@ -2676,7 +2677,7 @@ class Axes3D(Axes):
             The x coordinates of the left sides of the bars.
         height : 1D array-like
             The height of the bars.
-        zs : float or 1D array-like
+        zs : float or 1D array-like, default: 0
             Z coordinate of bars; if a single value is specified, it will be
             used for all bars.
         zdir : {'x', 'y', 'z'}, default: 'z'
@@ -2759,14 +2760,14 @@ class Axes3D(Axes):
             5. -X
             6. +X
 
-        zsort : str, optional
+        zsort : {'average', 'min', 'max'}, default: 'average'
             The z-axis sorting scheme passed onto `~.art3d.Poly3DCollection`
 
         shade : bool, default: True
             When true, this shades the dark sides of the bars (relative
             to the plot's source of light).
 
-        lightsource : `~matplotlib.colors.LightSource`
+        lightsource : `~matplotlib.colors.LightSource`, optional
             The lightsource to use when *shade* is True.
 
         data : indexable object, optional
@@ -3063,7 +3064,7 @@ class Axes3D(Axes):
         shade : bool, default: True
             Whether to shade the facecolors.
 
-        lightsource : `~matplotlib.colors.LightSource`
+        lightsource : `~matplotlib.colors.LightSource`, optional
             The lightsource to use when *shade* is True.
 
         **kwargs
