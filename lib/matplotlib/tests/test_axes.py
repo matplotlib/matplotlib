@@ -6933,6 +6933,7 @@ def test_titlesetpos():
 def test_title_xticks_top():
     # Test that title moves if xticks on top of axes.
     mpl.rcParams['axes.titley'] = None
+    mpl.rcParams['axes.titlex'] = None
     fig, ax = plt.subplots()
     ax.xaxis.set_ticks_position('top')
     ax.set_title('xlabel top')
@@ -6943,6 +6944,7 @@ def test_title_xticks_top():
 def test_title_xticks_top_both():
     # Test that title moves if xticks on top of axes.
     mpl.rcParams['axes.titley'] = None
+    mpl.rcParams['axes.titlex'] = None
     fig, ax = plt.subplots()
     ax.tick_params(axis="x",
                    bottom=True, top=True, labelbottom=True, labeltop=True)
@@ -6965,6 +6967,7 @@ def test_title_xticks_top_both():
 def test_title_above_offset(left, center):
     # Test that title moves if overlaps with yaxis offset text.
     mpl.rcParams['axes.titley'] = None
+    mpl.rcParams['axes.titlex'] = None
     fig, ax = plt.subplots()
     ax.set_ylim(1e11)
     ax.set_title(left, loc='left')
@@ -6985,6 +6988,7 @@ def test_title_no_move_off_page():
     # If an Axes is off the figure (ie. if it is cropped during a save)
     # make sure that the automatic title repositioning does not get done.
     mpl.rcParams['axes.titley'] = None
+    mpl.rcParams['axes.titlex'] = None
     fig = plt.figure()
     ax = fig.add_axes([0.1, -0.5, 0.8, 0.2])
     ax.tick_params(axis="x",

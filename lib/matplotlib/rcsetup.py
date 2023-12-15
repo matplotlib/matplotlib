@@ -1067,6 +1067,7 @@ _validators = {
     "axes.titlecolor":    validate_color_or_auto,  # axes title font color
     # title location, axes units, None means auto
     "axes.titley":        validate_float_or_None,
+    "axes.titlex":        validate_float_or_None,
     # pad from axes top decoration to title in points
     "axes.titlepad":      validate_float,
     "axes.grid":          validate_bool,  # display grid or not

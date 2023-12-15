@@ -101,7 +101,7 @@ class Axes(_AxesBase):
         title = _api.check_getitem(titles, loc=loc.lower())
         return title.get_text()
 
-    def set_title(self, label, fontdict=None, loc=None, pad=None, *, y=None,
+    def set_title(self, label, fontdict=None, loc=None, pad=None, *, y=None, x=None,
                   **kwargs):
         """
         Set a title for the Axes.
@@ -140,6 +140,11 @@ class Axes(_AxesBase):
             None (the default) and :rc:`axes.titley` is also None, y is
             determined automatically to avoid decorators on the Axes.
 
+        x : float, default: :rc:`axes.titlex`
+            Horizontal Axes location for the title. If
+            None (the default) and :rc:`axes.titlex` is also None, x is
+            determined automatically to avoid decorators on the Axes.
+
         pad : float, default: :rc:`axes.titlepad`
             The offset of the title from the top of the Axes, in points.
 
@@ -164,6 +169,13 @@ class Axes(_AxesBase):
         else:
             self._autotitlepos = False
         kwargs['y'] = y
+        if x is None:
+            x = mpl.rcParams['axes.titlex']
+        if x is None:
+            x = 1.0
+        else:
+            self._autotitlepos = False
+        kwargs['x'] = x
 
         titles = {'left': self._left_title,
                   'center': self.title,
