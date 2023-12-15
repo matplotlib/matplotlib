@@ -835,12 +835,6 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.violin(...)
 
-    @pytest.mark.xfail(reason="Test for violinplot not written yet")
-    @mpl.style.context("default")
-    def test_violinplot(self):
-        fig, ax = plt.subplots()
-        ax.violinplot(...)
-
     @mpl.style.context("default")
     def test_vlines(self):
         mpl.rcParams["date.converter"] = 'concise'
