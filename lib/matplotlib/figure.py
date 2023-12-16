@@ -51,7 +51,7 @@ import matplotlib.colorbar as cbar
 import matplotlib.image as mimage
 
 from matplotlib.axes import Axes
-from matplotlib.gridspec import GridSpec, SubplotParams
+from matplotlib.gridspec import GridSpec, SubplotParams as SubplotParams
 from matplotlib.layout_engine import (
     ConstrainedLayoutEngine, TightLayoutEngine, LayoutEngine,
     PlaceHolderLayoutEngine
@@ -1306,14 +1306,16 @@ default: %(va)s
         parameters are copied, or a dictionary of subplot layout parameters.
         If a dictionary is provided, this function is a convenience wrapper for
         `matplotlib.figure.Figure.subplots_adjust`
+
         Parameters
         ----------
-        subplotparams : `~matplotlib.figure.SubplotParams` or dict with keys \
+        subplotparams : `~matplotlib.figure.SubplotParams` or dict with keys
         "left", "bottom", "right", 'top", "wspace", "hspace"] , optional
             SubplotParams object to copy new subplot parameters from, or a dict
-             of SubplotParams constructor arguments.
+            of SubplotParams constructor arguments.
             By default, an empty dictionary is passed, which maintains the
-             current state of the figure's `.SubplotParams`
+            current state of the figure's `.SubplotParams`
+
         See Also
         --------
         matplotlib.figure.Figure.subplots_adjust

@@ -28,6 +28,7 @@ from .typing import ColorType, HashableList
 
 _T = TypeVar("_T")
 
+
 class FigureBase(Artist):
     artists: list[Artist]
     lines: list[Line2D]
