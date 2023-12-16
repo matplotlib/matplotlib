@@ -2507,7 +2507,7 @@ class Figure(FigureBase):
         frameon : bool, default: :rc:`figure.frameon`
             If ``False``, suppress drawing the figure background patch.
 
-        subplotpars : `~matplotlib.gridspec.SubplotParams`
+        subplotpars : `SubplotParams`
             Subplot parameters. If not given, the default subplot
             parameters :rc:`figure.subplot.*` are used.
 
