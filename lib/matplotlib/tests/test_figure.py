@@ -1655,30 +1655,30 @@ def test_get_constrained_layout_pads():
 def test_get_subplot_params():
     fig = plt.figure()
     subplotparams_keys = ["left", "bottom", "right", "top", "wspace", "hspace"]
-    subplotparams = fig.get_subplotparams()
+    subplotparams = fig.get_subplotpars()
     test_dict = {}
     for key in subplotparams_keys:
         attr = getattr(subplotparams, key)
         assert attr == mpl.rcParams[f"figure.subplot.{key}"]
         test_dict[key] = attr * 2
 
-    fig.set_subplotparams(test_dict)
+    fig.set_subplotpars(test_dict)
     for key, value in test_dict.items():
-        assert getattr(fig.get_subplotparams(), key) == value
+        assert getattr(fig.get_subplotpars(), key) == value
 
     test_dict['foo'] = 'bar'
     with pytest.warns(UserWarning,
-                      match="'foo' is not a valid key for set_subplotparams;"
+                      match="'foo' is not a valid key for set_subplotpars;"
                       " this key was ignored"):
-        fig.set_subplotparams(test_dict)
+        fig.set_subplotpars(test_dict)
 
     with pytest.raises(TypeError,
-                       match="subplotparams must be a dictionary of "
+                       match="subplotpars must be a dictionary of "
                        "keyword-argument pairs or "
                        "an instance of SubplotParams()"):
-        fig.set_subplotparams(['foo'])
+        fig.set_subplotpars(['foo'])
 
-    assert fig.subplotpars == fig.get_subplotparams()
+    assert fig.subplotpars == fig.get_subplotpars()
 
 
 def test_fig_get_set():

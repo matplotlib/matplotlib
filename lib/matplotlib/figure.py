@@ -1348,8 +1348,8 @@ default: %(va)s
 
         See Also
         --------
-        matplotlib.figure.Figure.set_subplotparams
-        matplotlib.figure.Figure.get_subplotparams
+        matplotlib.figure.Figure.set_subplotpars
+        matplotlib.figure.Figure.get_subplotpars
         """
         if (self.get_layout_engine() is not None and
                 not self.get_layout_engine().adjust_compatible):
@@ -1364,7 +1364,7 @@ default: %(va)s
                 ax._set_position(ax.get_subplotspec().get_position(self))
         self.stale = True
 
-    def set_subplotparams(self, subplotparams={}):
+    def set_subplotpars(self, subplotparams={}):
         """
         Set the subplot layout parameters.
         Accepts either a `.SubplotParams` object, from which the relevant
@@ -1374,7 +1374,7 @@ default: %(va)s
         Parameters
         ----------
         subplotparams : `~matplotlib.figure.SubplotParams` or dict with keys \
-"left", "bottom", "right", 'top", "wspace", "hspace"] , optional
+        "left", "bottom", "right", 'top", "wspace", "hspace"] , optional
             SubplotParams object to copy new subplot parameters from, or a dict
              of SubplotParams constructor arguments.
             By default, an empty dictionary is passed, which maintains the
@@ -1382,7 +1382,7 @@ default: %(va)s
         See Also
         --------
         matplotlib.figure.Figure.subplots_adjust
-        matplotlib.figure.Figure.get_subplotparams
+        matplotlib.figure.Figure.get_subplotpars
         """
         subplotparams_args = ["left", "bottom", "right",
                               "top", "wspace", "hspace"]
@@ -1396,17 +1396,17 @@ default: %(va)s
                     kwargs[key] = subplotparams[key]
                 else:
                     _api.warn_external(
-                        f"'{key}' is not a valid key for set_subplotparams;"
+                        f"'{key}' is not a valid key for set_subplotpars;"
                         " this key was ignored.")
         else:
             raise TypeError(
                 "subplotpars must be a dictionary of keyword-argument pairs or"
                 " an instance of SubplotParams()")
         if kwargs == {}:
-            self.set_subplotparams(self.get_subplotparams())
+            self.set_subplotpars(self.get_subplotpars())
         self.subplots_adjust(**kwargs)
 
-    def get_subplotparams(self):
+    def get_subplotpars(self):
         """
         Return the `.SubplotParams` object associated with the Figure.
 
@@ -1416,7 +1416,7 @@ default: %(va)s
         See Also
         --------
         matplotlib.figure.Figure.subplots_adjust
-        matplotlib.figure.Figure.get_subplotparams
+        matplotlib.figure.Figure.get_subplotpars
         """
         return self.subplotpars
 
