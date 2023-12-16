@@ -46,6 +46,7 @@ class Axes(_AxesBase):
         pad: float | None = ...,
         *,
         y: float | None = ...,
+        x: float | None = ...,
         **kwargs
     ) -> Text: ...
     def get_legend_handles_labels(

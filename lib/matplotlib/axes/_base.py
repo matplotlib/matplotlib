@@ -1307,20 +1307,26 @@ class _AxesBase(martist.Artist):
             self._autotitlepos = True
         else:
             self._autotitlepos = False
+        x = mpl.rcParams['axes.titlex']
+        if x is None:
+            x = 1.0
+            self._autotitlepos = True
+        else:
+            self._autotitlepos = False
 
         self.title = mtext.Text(
-            x=0.5, y=y, text='',
+            x=x, y=y, text='',
             fontproperties=props,
             verticalalignment='baseline',
             horizontalalignment='center',
             )
         self._left_title = mtext.Text(
-            x=0.0, y=y, text='',
+            x=x, y=y, text='',
             fontproperties=props.copy(),
             verticalalignment='baseline',
             horizontalalignment='left', )
         self._right_title = mtext.Text(
-            x=1.0, y=y, text='',
+            x=x, y=y, text='',
             fontproperties=props.copy(),
             verticalalignment='baseline',
             horizontalalignment='right',
