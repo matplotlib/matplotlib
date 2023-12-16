@@ -171,8 +171,6 @@ class Axes(_AxesBase):
         kwargs['y'] = y
         if x is None:
             x = mpl.rcParams['axes.titlex']
-        if x is None:
-            x = 1.0
         else:
             self._autotitlepos = False
         kwargs['x'] = x
