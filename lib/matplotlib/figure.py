@@ -1350,6 +1350,7 @@ default: %(va)s
         Returns
         -------
         `.SubplotParams`
+
         See Also
         --------
         matplotlib.figure.Figure.subplots_adjust
