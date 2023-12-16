@@ -685,7 +685,6 @@ def test_large_subscript_title():
     # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
     plt.rcParams['axes.titley'] = None
-    plt.rcParams['axes.titlex'] = None
 
     fig, axs = plt.subplots(1, 2, figsize=(9, 2.5), constrained_layout=True)
     ax = axs[0]
