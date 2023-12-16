@@ -1682,7 +1682,7 @@ def test_get_subplot_params():
 
 
 def test_fig_get_set():
-    varnames = filter(lambda var: var not in ['self', 'kwargs', 'args'],
+    varnames = filter(lambda var: var not in ['self', 'kwargs', 'args', 'connect'],
                       Figure.__init__.__code__.co_varnames)
     fig = plt.figure()
     for var in varnames:
