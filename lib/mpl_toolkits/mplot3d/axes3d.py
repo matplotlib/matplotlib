@@ -2591,9 +2591,9 @@ class Axes3D(Axes):
                                      "edgecolors", "c", "facecolor",
                                      "facecolors", "color"])
     def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=True,
-        depthshade_inverted=False,
-        depthshade_minalpha=0.3,
-        depthshade_legacy=False,
+                depthshade_inverted=False,
+                depthshade_minalpha=0.3,
+                depthshade_legacy=False,
                 *args, **kwargs):
         """
         Create a scatter plot.
@@ -2639,7 +2639,7 @@ class Axes3D(Axes):
 
         depthshade_legacy : bool, default: False
             Whether to use the legacy algorithm for depth-shading.
-            
+
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
         **kwargs
@@ -2675,7 +2675,7 @@ class Axes3D(Axes):
             depthshade_inverted=depthshade_inverted,
             depthshade_minalpha=depthshade_minalpha,
             depthshade_legacy=depthshade_legacy,
-       )
+            )
 
         if self._zmargin < 0.05 and xs.size > 0:
             self.set_zmargin(0.05)
