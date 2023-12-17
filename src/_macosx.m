@@ -89,9 +89,6 @@ static int wait_for_stdin() {
                 if (!event) { break; }
                 [NSApp sendEvent: event];
             }
-            // We need to run the run loop for a short time to allow the
-            // events to be processed and keep flushing them while we wait for stdin
-            [[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 0.01]];
         }
         // Remove the input handler as an observer
         [[NSNotificationCenter defaultCenter] removeObserver: stdinHandle];

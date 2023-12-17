@@ -3157,12 +3157,17 @@ class _AxesBase(martist.Artist):
         b : bool or 'line'
             Possible values:
 
-            - *True* (zorder = 0.5): Ticks and gridlines are below all Artists.
+            - *True* (zorder = 0.5): Ticks and gridlines are below patches and
+              lines, though still above images.
             - 'line' (zorder = 1.5): Ticks and gridlines are above patches
               (e.g. rectangles, with default zorder = 1) but still below lines
               and markers (with their default zorder = 2).
             - *False* (zorder = 2.5): Ticks and gridlines are above patches
               and lines / markers.
+
+        Notes
+        -----
+        For more control, call the `~.Artist.set_zorder` method of each axis.
 
         See Also
         --------

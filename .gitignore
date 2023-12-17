@@ -83,6 +83,7 @@ result_images
 doc/_static/constrained_layout*.png
 doc/.mpl_skip_subdirs.yaml
 doc/_tags
+sg_execution_times.rst
 
 # Nose/Pytest generated files #
 ###############################

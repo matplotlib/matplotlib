@@ -1,3 +1,5 @@
+.. redirect-from: /devel/dependencies
+
 .. _dependencies:
 
 ************
@@ -38,6 +40,8 @@ Optional
 
 The following packages and tools are not required but extend the capabilities
 of Matplotlib.
+
+.. _backend_dependencies:
 
 Backends
 ^^^^^^^^
@@ -387,7 +391,7 @@ The additional Python packages required to build the
 
 The content of :file:`doc-requirements.txt` is also shown below:
 
-.. include:: ../../requirements/doc/doc-requirements.txt
+.. include:: ../../../requirements/doc/doc-requirements.txt
    :literal:
 
 
@@ -395,27 +399,31 @@ External tools
 --------------
 
 The documentation requires LaTeX and Graphviz.  These are not
-Python packages and must be installed separately. The documentation can be
-built without Inkscape and optipng, but the build process will raise various
-warnings. If the build process warns that you are missing fonts, make sure
-your LaTeX distribution bundles cm-super or install it separately.
+Python packages and must be installed separately.
 
 Required
 ^^^^^^^^
 
 * `Graphviz <http://www.graphviz.org/download>`_
-* a minimal working LaTeX distribution, e.g., `TeX Live <https://www.tug.org/texlive/>`_ or
+* a minimal working LaTeX distribution, e.g. `TeX Live <https://www.tug.org/texlive/>`_ or
   `MikTeX <https://miktex.org/>`_
-* the following LaTeX packages (if your OS bundles TeX Live, the
-  "complete" version of the installer, e.g. "texlive-full" or "texlive-all",
-  will often automatically include these packages):
 
-  * `cm-super <https://ctan.org/pkg/cm-super>`_
+The following LaTeX packages:
+
   * `dvipng <https://ctan.org/pkg/dvipng>`_
   * `underscore <https://ctan.org/pkg/underscore>`_
+  * `cm-super <https://ctan.org/pkg/cm-super>`_
+  * ``collection-fontsrecommended``
+
+The complete version of many LaTex distribution installers, e.g.
+"texlive-full" or "texlive-all", will often automatically include these packages.
+
 
 Optional
 ^^^^^^^^
+
+The documentation can be built without Inkscape and optipng, but the build
+process will raise various warnings.
 
 * `Inkscape <https://inkscape.org>`_
 * `optipng <http://optipng.sourceforge.net>`_

@@ -3,46 +3,51 @@
 Labelling subplots
 ==================
 
-Labelling subplots is relatively straightforward, and varies,
-so Matplotlib does not have a general method for doing this.
+Labelling subplots is relatively straightforward, and varies, so Matplotlib
+does not have a general method for doing this.
 
-Simplest is putting the label inside the axes.  Note, here
-we use `.pyplot.subplot_mosaic`, and use the subplot labels
-as keys for the subplots, which is a nice convenience.  However,
-the same method works with `.pyplot.subplots` or keys that are
-different than what you want to label the subplot with.
+We showcase two methods to position text at a given physical offset (in
+fontsize units or in points) away from a corner of the Axes: one using
+`~.Axes.annotate`, and one using `.ScaledTranslation`.
+
+For convenience, this example uses `.pyplot.subplot_mosaic` and subplot
+labels as keys for the subplots.  However, the approach also works with
+`.pyplot.subplots` or keys that are different than what you want to label the
+subplot with.
 """
 
 import matplotlib.pyplot as plt
 
-import matplotlib.transforms as mtransforms
-
-fig, axs = plt.subplot_mosaic([['a)', 'c)'], ['b)', 'c)'], ['d)', 'd)']],
-                              layout='constrained')
-
-for label, ax in axs.items():
-    # label physical distance in and down:
-    trans = mtransforms.ScaledTranslation(10/72, -5/72, fig.dpi_scale_trans)
-    ax.text(0.0, 1.0, label, transform=ax.transAxes + trans,
-            fontsize='medium', verticalalignment='top', fontfamily='serif',
-            bbox=dict(facecolor='0.7', edgecolor='none', pad=3.0))
-
-plt.show()
+from matplotlib.transforms import ScaledTranslation
 
 # %%
-# We may prefer the labels outside the axes, but still aligned
-# with each other, in which case we use a slightly different transform:
-
 fig, axs = plt.subplot_mosaic([['a)', 'c)'], ['b)', 'c)'], ['d)', 'd)']],
                               layout='constrained')
-
 for label, ax in axs.items():
-    # label physical distance to the left and up:
-    trans = mtransforms.ScaledTranslation(-20/72, 7/72, fig.dpi_scale_trans)
-    ax.text(0.0, 1.0, label, transform=ax.transAxes + trans,
-            fontsize='medium', va='bottom', fontfamily='serif')
+    # Use Axes.annotate to put the label
+    # - at the top left corner (axes fraction (0, 1)),
+    # - offset half-a-fontsize right and half-a-fontsize down
+    #   (offset fontsize (+0.5, -0.5)),
+    # i.e. just inside the axes.
+    ax.annotate(
+        label,
+        xy=(0, 1), xycoords='axes fraction',
+        xytext=(+0.5, -0.5), textcoords='offset fontsize',
+        fontsize='medium', verticalalignment='top', fontfamily='serif',
+        bbox=dict(facecolor='0.7', edgecolor='none', pad=3.0))
 
-plt.show()
+# %%
+fig, axs = plt.subplot_mosaic([['a)', 'c)'], ['b)', 'c)'], ['d)', 'd)']],
+                              layout='constrained')
+for label, ax in axs.items():
+    # Use ScaledTranslation to put the label
+    # - at the top left corner (axes fraction (0, 1)),
+    # - offset 20 pixels left and 7 pixels up (offset points (-20, +7)),
+    # i.e. just outside the axes.
+    ax.text(
+        0.0, 1.0, label, transform=(
+            ax.transAxes + ScaledTranslation(-20/72, +7/72, fig.dpi_scale_trans)),
+        fontsize='medium', va='bottom', fontfamily='serif')
 
 # %%
 # If we want it aligned with the title, either incorporate in the title or
@@ -50,7 +55,6 @@ plt.show()
 
 fig, axs = plt.subplot_mosaic([['a)', 'c)'], ['b)', 'c)'], ['d)', 'd)']],
                               layout='constrained')
-
 for label, ax in axs.items():
     ax.set_title('Normal Title', fontstyle='italic')
     ax.set_title(label, fontfamily='serif', loc='left', fontsize='medium')
@@ -67,5 +71,4 @@ plt.show()
 #    - `matplotlib.figure.Figure.subplot_mosaic` /
 #      `matplotlib.pyplot.subplot_mosaic`
 #    - `matplotlib.axes.Axes.set_title`
-#    - `matplotlib.axes.Axes.text`
-#    - `matplotlib.transforms.ScaledTranslation`
+#    - `matplotlib.axes.Axes.annotate`

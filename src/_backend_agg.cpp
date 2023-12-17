@@ -5,26 +5,6 @@
 #include "_backend_agg.h"
 #include "mplutils.h"
 
-void BufferRegion::to_string_argb(uint8_t *buf)
-{
-    unsigned char *pix;
-    unsigned char tmp;
-    size_t i, j;
-
-    memcpy(buf, data, (size_t) height * stride);
-
-    for (i = 0; i < (size_t)height; ++i) {
-        pix = buf + i * stride;
-        for (j = 0; j < (size_t)width; ++j) {
-            // Convert rgba to argb
-            tmp = pix[2];
-            pix[2] = pix[0];
-            pix[0] = tmp;
-            pix += 4;
-        }
-    }
-}
-
 RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi)
     : width(width),
       height(height),

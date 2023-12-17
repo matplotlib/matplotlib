@@ -239,8 +239,8 @@ class Axes(_AxesBase):
             selection by using a label starting with an underscore, "_".
             A string starting with an underscore is the default label for all
             artists, so calling `.Axes.legend` without any arguments and
-            without setting the labels manually will result in no legend being
-            drawn.
+            without setting the labels manually will result in a ``UserWarning``
+            and an empty legend being drawn.
 
 
         **2. Explicitly listing the artists and labels in the legend**
@@ -632,7 +632,10 @@ class Axes(_AxesBase):
         """
         Add text to the Axes.
 
-        Add the text *s* to the Axes at location *x*, *y* in data coordinates.
+        Add the text *s* to the Axes at location *x*, *y* in data coordinates,
+        with a default ``horizontalalignment`` on the ``left`` and
+        ``verticalalignment`` at the ``baseline``. See
+        :doc:`/gallery/text_labels_and_annotations/text_alignment`.
 
         Parameters
         ----------
@@ -895,7 +898,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        `.Line2D`
+        `.AxLine`
 
         Other Parameters
         ----------------
@@ -1979,6 +1982,8 @@ class Axes(_AxesBase):
         Parameters
         ----------
         x : array-like
+            Not run through Matplotlib's unit conversion, so this should
+            be a unit-less array.
 
         detrend : callable, default: `.mlab.detrend_none` (no detrending)
             A detrending function applied to *x*.  It must have the
@@ -2056,6 +2061,8 @@ class Axes(_AxesBase):
         Parameters
         ----------
         x, y : array-like of length n
+            Neither *x* nor *y* are run through Matplotlib's unit conversion, so
+            these should be unit-less arrays.
 
         detrend : callable, default: `.mlab.detrend_none` (no detrending)
             A detrending function applied to *x* and *y*.  It must have the
@@ -3682,6 +3689,11 @@ class Axes(_AxesBase):
                     f"'{dep_axis}err' (shape: {np.shape(err)}) must be a "
                     f"scalar or a 1D or (2, n) array-like whose shape matches "
                     f"'{dep_axis}' (shape: {np.shape(dep)})") from None
+            if err.dtype is np.dtype(object) and np.any(err == None):  # noqa: E711
+                raise ValueError(
+                    f"'{dep_axis}err' must not contain None. "
+                    "Use NaN if you want to skip a value.")
+
             res = np.zeros(err.shape, dtype=bool)  # Default in case of nan
             if np.any(np.less(err, -err, out=res, where=(err == err))):
                 # like err<0, but also works for timedelta and nan.
@@ -5098,10 +5110,10 @@ default: :rc:`scatter.edgecolors`
             )
 
         # Set normalizer if bins is 'log'
-        if bins == 'log':
+        if cbook._str_equal(bins, 'log'):
             if norm is not None:
                 _api.warn_external("Only one of 'bins' and 'norm' arguments "
-                                   f"can be supplied, ignoring bins={bins}")
+                                   f"can be supplied, ignoring {bins=}")
             else:
                 norm = mcolors.LogNorm(vmin=vmin, vmax=vmax)
                 vmin = vmax = None

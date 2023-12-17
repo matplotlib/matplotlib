@@ -6,6 +6,7 @@ from matplotlib import _api, _docstring
 import matplotlib.ticker as mticker
 from matplotlib.axes._base import _AxesBase, _TransformedBoundsLocator
 from matplotlib.axis import Axis
+from matplotlib.transforms import Transform
 
 
 class SecondaryAxis(_AxesBase):
@@ -144,11 +145,17 @@ class SecondaryAxis(_AxesBase):
             If a transform is supplied, then the transform must have an
             inverse.
         """
+
         if (isinstance(functions, tuple) and len(functions) == 2 and
                 callable(functions[0]) and callable(functions[1])):
             # make an arbitrary convert from a two-tuple of functions
             # forward and inverse.
             self._functions = functions
+        elif isinstance(functions, Transform):
+            self._functions = (
+                 functions.transform,
+                 lambda x: functions.inverted().transform(x)
+            )
         elif functions is None:
             self._functions = (lambda x: x, lambda x: x)
         else:

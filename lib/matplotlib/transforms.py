@@ -2617,9 +2617,10 @@ class BboxTransformTo(Affine2DBase):
         return self._mtx
 
 
+@_api.deprecated("3.9")
 class BboxTransformToMaxOnly(BboxTransformTo):
     """
-    `BboxTransformTo` is a transformation that linearly transforms points from
+    `BboxTransformToMaxOnly` is a transformation that linearly transforms points from
     the unit bounding box to a given `Bbox` with a fixed upper left of (0, 0).
     """
     def get_matrix(self):

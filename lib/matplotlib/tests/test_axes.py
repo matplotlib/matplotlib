@@ -962,17 +962,18 @@ def test_hexbin_extent():
     ax.hexbin("x", "y", extent=[.1, .3, .6, .7], data=data)
 
 
-@image_comparison(['hexbin_empty.png', 'hexbin_empty.png'], remove_text=True)
+@image_comparison(['hexbin_empty.png'], remove_text=True)
 def test_hexbin_empty():
     # From #3886: creating hexbin from empty dataset raises ValueError
     fig, ax = plt.subplots()
     ax.hexbin([], [])
-    fig, ax = plt.subplots()
     # From #23922: creating hexbin with log scaling from empty
     # dataset raises ValueError
     ax.hexbin([], [], bins='log')
     # From #27103: np.max errors when handed empty data
     ax.hexbin([], [], C=[], reduce_C_function=np.max)
+    # No string-comparison warning from NumPy.
+    ax.hexbin([], [], bins=np.arange(10))
 
 
 def test_hexbin_pickable():
@@ -4127,6 +4128,20 @@ def test_xerr_yerr_not_negative():
                     yerr=datetime.timedelta(days=-10))
 
 
+def test_xerr_yerr_not_none():
+    ax = plt.figure().subplots()
+
+    with pytest.raises(ValueError,
+                       match="'xerr' must not contain None"):
+        ax.errorbar(x=[0], y=[0], xerr=[[None], [1]], yerr=[[None], [1]])
+    with pytest.raises(ValueError,
+                       match="'xerr' must not contain None"):
+        ax.errorbar(x=[0], y=[0], xerr=[[None], [1]])
+    with pytest.raises(ValueError,
+                       match="'yerr' must not contain None"):
+        ax.errorbar(x=[0], y=[0], yerr=[[None], [1]])
+
+
 @check_figures_equal()
 def test_errorbar_every(fig_test, fig_ref):
     x = np.linspace(0, 1, 15)
@@ -4396,134 +4411,75 @@ def test_hist_step_bottom():
     ax.hist(d1, bottom=np.arange(10), histtype="stepfilled")
 
 
-def test_hist_stepfilled_geometry():
-    bins = [0, 1, 2, 3]
-    data = [0, 0, 1, 1, 1, 2]
-    _, _, (polygon, ) = plt.hist(data,
-                                 bins=bins,
-                                 histtype='stepfilled')
-    xy = [[0, 0], [0, 2], [1, 2], [1, 3], [2, 3], [2, 1], [3, 1],
-          [3, 0], [2, 0], [2, 0], [1, 0], [1, 0], [0, 0]]
-    assert_array_equal(polygon.get_xy(), xy)
-
-
 def test_hist_step_geometry():
     bins = [0, 1, 2, 3]
     data = [0, 0, 1, 1, 1, 2]
-    _, _, (polygon, ) = plt.hist(data,
-                                 bins=bins,
-                                 histtype='step')
-    xy = [[0, 0], [0, 2], [1, 2], [1, 3], [2, 3], [2, 1], [3, 1], [3, 0]]
-    assert_array_equal(polygon.get_xy(), xy)
+    top = [[0, 0], [0, 2], [1, 2], [1, 3], [2, 3], [2, 1], [3, 1], [3, 0]]
+    bottom = [[2, 0], [2, 0], [1, 0], [1, 0], [0, 0]]
 
-
-def test_hist_stepfilled_bottom_geometry():
-    bins = [0, 1, 2, 3]
-    data = [0, 0, 1, 1, 1, 2]
-    _, _, (polygon, ) = plt.hist(data,
-                                 bins=bins,
-                                 bottom=[1, 2, 1.5],
-                                 histtype='stepfilled')
-    xy = [[0, 1], [0, 3], [1, 3], [1, 5], [2, 5], [2, 2.5], [3, 2.5],
-          [3, 1.5], [2, 1.5], [2, 2], [1, 2], [1, 1], [0, 1]]
-    assert_array_equal(polygon.get_xy(), xy)
+    for histtype, xy in [('step', top), ('stepfilled', top + bottom)]:
+        _, _, (polygon, ) = plt.hist(data, bins=bins, histtype=histtype)
+        assert_array_equal(polygon.get_xy(), xy)
 
 
 def test_hist_step_bottom_geometry():
     bins = [0, 1, 2, 3]
     data = [0, 0, 1, 1, 1, 2]
-    _, _, (polygon, ) = plt.hist(data,
-                                 bins=bins,
-                                 bottom=[1, 2, 1.5],
-                                 histtype='step')
-    xy = [[0, 1], [0, 3], [1, 3], [1, 5], [2, 5], [2, 2.5], [3, 2.5], [3, 1.5]]
-    assert_array_equal(polygon.get_xy(), xy)
+    top = [[0, 1], [0, 3], [1, 3], [1, 5], [2, 5], [2, 2.5], [3, 2.5], [3, 1.5]]
+    bottom = [[2, 1.5], [2, 2], [1, 2], [1, 1], [0, 1]]
 
-
-def test_hist_stacked_stepfilled_geometry():
-    bins = [0, 1, 2, 3]
-    data_1 = [0, 0, 1, 1, 1, 2]
-    data_2 = [0, 1, 2]
-    _, _, patches = plt.hist([data_1, data_2],
-                             bins=bins,
-                             stacked=True,
-                             histtype='stepfilled')
-
-    assert len(patches) == 2
-
-    polygon,  = patches[0]
-    xy = [[0, 0], [0, 2], [1, 2], [1, 3], [2, 3], [2, 1], [3, 1],
-          [3, 0], [2, 0], [2, 0], [1, 0], [1, 0], [0, 0]]
-    assert_array_equal(polygon.get_xy(), xy)
-
-    polygon,  = patches[1]
-    xy = [[0, 2], [0, 3], [1, 3], [1, 4], [2, 4], [2, 2], [3, 2],
-          [3, 1], [2, 1], [2, 3], [1, 3], [1, 2], [0, 2]]
-    assert_array_equal(polygon.get_xy(), xy)
+    for histtype, xy in [('step', top), ('stepfilled', top + bottom)]:
+        _, _, (polygon, ) = plt.hist(data, bins=bins, bottom=[1, 2, 1.5],
+                                     histtype=histtype)
+        assert_array_equal(polygon.get_xy(), xy)
 
 
 def test_hist_stacked_step_geometry():
     bins = [0, 1, 2, 3]
     data_1 = [0, 0, 1, 1, 1, 2]
     data_2 = [0, 1, 2]
-    _, _, patches = plt.hist([data_1, data_2],
-                             bins=bins,
-                             stacked=True,
-                             histtype='step')
+    tops = [
+        [[0, 0], [0, 2], [1, 2], [1, 3], [2, 3], [2, 1], [3, 1], [3, 0]],
+        [[0, 2], [0, 3], [1, 3], [1, 4], [2, 4], [2, 2], [3, 2], [3, 1]],
+    ]
+    bottoms = [
+        [[2, 0], [2, 0], [1, 0], [1, 0], [0, 0]],
+        [[2, 1], [2, 3], [1, 3], [1, 2], [0, 2]],
+    ]
+    combined = [t + b for t, b in zip(tops, bottoms)]
 
-    assert len(patches) == 2
-
-    polygon,  = patches[0]
-    xy = [[0, 0], [0, 2], [1, 2], [1, 3], [2, 3], [2, 1], [3, 1], [3, 0]]
-    assert_array_equal(polygon.get_xy(), xy)
-
-    polygon,  = patches[1]
-    xy = [[0, 2], [0, 3], [1, 3], [1, 4], [2, 4], [2, 2], [3, 2], [3, 1]]
-    assert_array_equal(polygon.get_xy(), xy)
-
-
-def test_hist_stacked_stepfilled_bottom_geometry():
-    bins = [0, 1, 2, 3]
-    data_1 = [0, 0, 1, 1, 1, 2]
-    data_2 = [0, 1, 2]
-    _, _, patches = plt.hist([data_1, data_2],
-                             bins=bins,
-                             stacked=True,
-                             bottom=[1, 2, 1.5],
-                             histtype='stepfilled')
-
-    assert len(patches) == 2
-
-    polygon,  = patches[0]
-    xy = [[0, 1], [0, 3], [1, 3], [1, 5], [2, 5], [2, 2.5], [3, 2.5],
-          [3, 1.5], [2, 1.5], [2, 2], [1, 2], [1, 1], [0, 1]]
-    assert_array_equal(polygon.get_xy(), xy)
-
-    polygon,  = patches[1]
-    xy = [[0, 3], [0, 4], [1, 4], [1, 6], [2, 6], [2, 3.5], [3, 3.5],
-          [3, 2.5], [2, 2.5], [2, 5], [1, 5], [1, 3], [0, 3]]
-    assert_array_equal(polygon.get_xy(), xy)
+    for histtype, xy in [('step', tops), ('stepfilled', combined)]:
+        _, _, patches = plt.hist([data_1, data_2], bins=bins, stacked=True,
+                                 histtype=histtype)
+        assert len(patches) == 2
+        polygon, = patches[0]
+        assert_array_equal(polygon.get_xy(), xy[0])
+        polygon, = patches[1]
+        assert_array_equal(polygon.get_xy(), xy[1])
 
 
 def test_hist_stacked_step_bottom_geometry():
     bins = [0, 1, 2, 3]
     data_1 = [0, 0, 1, 1, 1, 2]
     data_2 = [0, 1, 2]
-    _, _, patches = plt.hist([data_1, data_2],
-                             bins=bins,
-                             stacked=True,
-                             bottom=[1, 2, 1.5],
-                             histtype='step')
+    tops = [
+        [[0, 1], [0, 3], [1, 3], [1, 5], [2, 5], [2, 2.5], [3, 2.5], [3, 1.5]],
+        [[0, 3], [0, 4], [1, 4], [1, 6], [2, 6], [2, 3.5], [3, 3.5], [3, 2.5]],
+    ]
+    bottoms = [
+        [[2, 1.5], [2, 2], [1, 2], [1, 1], [0, 1]],
+        [[2, 2.5], [2, 5], [1, 5], [1, 3], [0, 3]],
+    ]
+    combined = [t + b for t, b in zip(tops, bottoms)]
 
-    assert len(patches) == 2
-
-    polygon,  = patches[0]
-    xy = [[0, 1], [0, 3], [1, 3], [1, 5], [2, 5], [2, 2.5], [3, 2.5], [3, 1.5]]
-    assert_array_equal(polygon.get_xy(), xy)
-
-    polygon,  = patches[1]
-    xy = [[0, 3], [0, 4], [1, 4], [1, 6], [2, 6], [2, 3.5], [3, 3.5], [3, 2.5]]
-    assert_array_equal(polygon.get_xy(), xy)
+    for histtype, xy in [('step', tops), ('stepfilled', combined)]:
+        _, _, patches = plt.hist([data_1, data_2], bins=bins, stacked=True,
+                                 bottom=[1, 2, 1.5], histtype=histtype)
+        assert len(patches) == 2
+        polygon, = patches[0]
+        assert_array_equal(polygon.get_xy(), xy[0])
+        polygon, = patches[1]
+        assert_array_equal(polygon.get_xy(), xy[1])
 
 
 @image_comparison(['hist_stacked_bar'])
@@ -7494,6 +7450,20 @@ def test_annotate_across_transforms():
                 arrowprops=dict(arrowstyle="->"))
 
 
+class _Translation(mtransforms.Transform):
+    input_dims = 1
+    output_dims = 1
+
+    def __init__(self, dx):
+        self.dx = dx
+
+    def transform(self, values):
+        return values + self.dx
+
+    def inverted(self):
+        return _Translation(-self.dx)
+
+
 @image_comparison(['secondary_xy.png'], style='mpl20')
 def test_secondary_xy():
     fig, axs = plt.subplots(1, 2, figsize=(10, 5), constrained_layout=True)
@@ -7513,6 +7483,7 @@ def test_secondary_xy():
         secax(0.4, functions=(lambda x: 2 * x, lambda x: x / 2))
         secax(0.6, functions=(lambda x: x**2, lambda x: x**(1/2)))
         secax(0.8)
+        secax("top" if nn == 0 else "right", functions=_Translation(2))
 
 
 def test_secondary_fail():

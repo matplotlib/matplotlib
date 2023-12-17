@@ -40,8 +40,11 @@ if "%1" == "clean" (
 	rmdir /s /q "%SOURCEDIR%\gallery"
 	rmdir /s /q "%SOURCEDIR%\plot_types"
 	rmdir /s /q "%SOURCEDIR%\tutorials"
+	rmdir /s /q "%SOURCEDIR%\users\explain"
 	rmdir /s /q "%SOURCEDIR%\savefig"
 	rmdir /s /q "%SOURCEDIR%\sphinxext\__pycache__"
+	del /q "%SOURCEDIR%\_static\constrained_layout*.png"
+	del /q "%SOURCEDIR%\sg_execution_times.rst"
 )
 goto end
 

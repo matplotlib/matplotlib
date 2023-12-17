@@ -8,17 +8,25 @@ import matplotlib as mpl
 
 
 class TestDatetimePlotting:
-    @pytest.mark.xfail(reason="Test for acorr not written yet")
-    @mpl.style.context("default")
-    def test_acorr(self):
-        fig, ax = plt.subplots()
-        ax.acorr(...)
-
-    @pytest.mark.xfail(reason="Test for annotate not written yet")
     @mpl.style.context("default")
     def test_annotate(self):
-        fig, ax = plt.subplots()
-        ax.annotate(...)
+        mpl.rcParams["date.converter"] = 'concise'
+        fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, layout="constrained")
+
+        start_date = datetime.datetime(2023, 10, 1)
+        dates = [start_date + datetime.timedelta(days=i) for i in range(31)]
+        data = list(range(1, 32))
+        test_text = "Test Text"
+
+        ax1.plot(dates, data)
+        ax1.annotate(text=test_text, xy=(dates[15], data[15]))
+        ax2.plot(data, dates)
+        ax2.annotate(text=test_text, xy=(data[5], dates[26]))
+        ax3.plot(dates, dates)
+        ax3.annotate(text=test_text, xy=(dates[15], dates[3]))
+        ax4.plot(dates, dates)
+        ax4.annotate(text=test_text, xy=(dates[5], dates[30]),
+                        xytext=(dates[1], dates[7]), arrowprops=dict(facecolor='red'))
 
     @pytest.mark.xfail(reason="Test for arrow not written yet")
     @mpl.style.context("default")
@@ -134,23 +142,65 @@ class TestDatetimePlotting:
         ax3.set_xlabel('Date')
         ax3.set_ylabel('Date')
 
-    @pytest.mark.xfail(reason="Test for bar not written yet")
     @mpl.style.context("default")
     def test_bar(self):
-        fig, ax = plt.subplots()
-        ax.bar(...)
+        mpl.rcParams["date.converter"] = "concise"
 
-    @pytest.mark.xfail(reason="Test for bar_label not written yet")
+        fig, (ax1, ax2) = plt.subplots(2, 1, layout="constrained")
+
+        x_dates = np.array(
+            [
+                datetime.datetime(2020, 6, 30),
+                datetime.datetime(2020, 7, 22),
+                datetime.datetime(2020, 8, 3),
+                datetime.datetime(2020, 9, 14),
+            ],
+            dtype=np.datetime64,
+        )
+        x_ranges = [8800, 2600, 8500, 7400]
+
+        x = np.datetime64(datetime.datetime(2020, 6, 1))
+        ax1.bar(x_dates, x_ranges, width=np.timedelta64(4, "D"))
+        ax2.bar(np.arange(4), x_dates - x, bottom=x)
+
     @mpl.style.context("default")
     def test_bar_label(self):
-        fig, ax = plt.subplots()
-        ax.bar_label(...)
+        # Generate some example data with dateTime inputs
+        date_list = [datetime.datetime(2023, 1, 1) +
+                     datetime.timedelta(days=i) for i in range(5)]
+        values = [10, 20, 15, 25, 30]
 
-    @pytest.mark.xfail(reason="Test for barbs not written yet")
+        # Creating the plot
+        fig, ax = plt.subplots(1, 1, figsize=(10, 8), layout='constrained')
+        bars = ax.bar(date_list, values)
+
+        # Add labels to the bars using bar_label
+        ax.bar_label(bars, labels=[f'{val}%' for val in values],
+                     label_type='edge', color='black')
+
     @mpl.style.context("default")
     def test_barbs(self):
-        fig, ax = plt.subplots()
-        ax.barbs(...)
+        plt.rcParams["date.converter"] = 'concise'
+
+        start_date = datetime.datetime(2022, 2, 8, 22)
+        dates = [start_date + datetime.timedelta(hours=i) for i in range(12)]
+
+        numbers = np.sin(np.linspace(0, 2 * np.pi, 12))
+
+        u = np.ones(12) * 10
+        v = np.arange(0, 120, 10)
+
+        fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 6))
+
+        axes[0].barbs(dates, numbers, u, v, length=7)
+        axes[0].set_title('Datetime vs. Numeric Data')
+        axes[0].set_xlabel('Datetime')
+        axes[0].set_ylabel('Numeric Data')
+
+        axes[1].barbs(numbers, dates, u, v, length=7)
+        axes[1].set_title('Numeric vs. Datetime Data')
+        axes[1].set_xlabel('Numeric Data')
+        axes[1].set_ylabel('Datetime')
 
     @mpl.style.context("default")
     def test_barh(self):
@@ -177,17 +227,37 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.boxplot(...)
 
-    @pytest.mark.xfail(reason="Test for broken_barh not written yet")
     @mpl.style.context("default")
     def test_broken_barh(self):
+        # Horizontal bar plot with gaps
+        mpl.rcParams["date.converter"] = 'concise'
         fig, ax = plt.subplots()
-        ax.broken_barh(...)
 
-    @pytest.mark.xfail(reason="Test for bxp not written yet")
+        ax.broken_barh([(datetime.datetime(2023, 1, 4), datetime.timedelta(days=2)),
+                        (datetime.datetime(2023, 1, 8), datetime.timedelta(days=3))],
+                        (10, 9), facecolors='tab:blue')
+        ax.broken_barh([(datetime.datetime(2023, 1, 2), datetime.timedelta(days=1)),
+                         (datetime.datetime(2023, 1, 4), datetime.timedelta(days=4))],
+                         (20, 9), facecolors=('tab:red'))
+
     @mpl.style.context("default")
     def test_bxp(self):
+        mpl.rcParams["date.converter"] = 'concise'
         fig, ax = plt.subplots()
-        ax.bxp(...)
+        data = [{
+            "med": datetime.datetime(2020, 1, 15),
+            "q1": datetime.datetime(2020, 1, 10),
+            "q3": datetime.datetime(2020, 1, 20),
+            "whislo": datetime.datetime(2020, 1, 5),
+            "whishi": datetime.datetime(2020, 1, 25),
+            "fliers": [
+                datetime.datetime(2020, 1, 3),
+                datetime.datetime(2020, 1, 27)
+            ]
+        }]
+        ax.bxp(data, vert=False)
+        ax.xaxis.set_major_formatter(mpl.dates.DateFormatter("%Y-%m-%d"))
+        ax.set_title('Box plot with datetime data')
 
     @pytest.mark.xfail(reason="Test for clabel not written yet")
     @mpl.style.context("default")
@@ -195,11 +265,29 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.clabel(...)
 
-    @pytest.mark.xfail(reason="Test for contour not written yet")
     @mpl.style.context("default")
     def test_contour(self):
-        fig, ax = plt.subplots()
-        ax.contour(...)
+        mpl.rcParams["date.converter"] = "concise"
+        range_threshold = 10
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
+
+        x_dates = np.array(
+            [datetime.datetime(2023, 10, delta) for delta in range(1, range_threshold)]
+        )
+        y_dates = np.array(
+            [datetime.datetime(2023, 10, delta) for delta in range(1, range_threshold)]
+        )
+        x_ranges = np.array(range(1, range_threshold))
+        y_ranges = np.array(range(1, range_threshold))
+
+        X_dates, Y_dates = np.meshgrid(x_dates, y_dates)
+        X_ranges, Y_ranges = np.meshgrid(x_ranges, y_ranges)
+
+        Z_ranges = np.cos(X_ranges / 4) + np.sin(Y_ranges / 4)
+
+        ax1.contour(X_dates, Y_dates, Z_ranges)
+        ax2.contour(X_dates, Y_ranges, Z_ranges)
+        ax3.contour(X_ranges, Y_dates, Z_ranges)
 
     @mpl.style.context("default")
     def test_contourf(self):
@@ -260,29 +348,147 @@ class TestDatetimePlotting:
                      uplims=True, xuplims=True,
                      label='Data')
 
-    @pytest.mark.xfail(reason="Test for eventplot not written yet")
     @mpl.style.context("default")
     def test_eventplot(self):
-        fig, ax = plt.subplots()
-        ax.eventplot(...)
+        mpl.rcParams["date.converter"] = "concise"
 
-    @pytest.mark.xfail(reason="Test for fill not written yet")
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
+
+        x_dates1 = np.array([datetime.datetime(2020, 6, 30),
+                             datetime.datetime(2020, 7, 22),
+                             datetime.datetime(2020, 8, 3),
+                             datetime.datetime(2020, 9, 14),],
+                            dtype=np.datetime64,
+                            )
+
+        ax1.eventplot(x_dates1)
+
+        np.random.seed(19680801)
+
+        start_date = datetime.datetime(2020, 7, 1)
+        end_date = datetime.datetime(2020, 10, 15)
+        date_range = end_date - start_date
+
+        dates1 = start_date + np.random.rand(30) * date_range
+        dates2 = start_date + np.random.rand(10) * date_range
+        dates3 = start_date + np.random.rand(50) * date_range
+
+        colors1 = ['C1', 'C2', 'C3']
+        lineoffsets1 = np.array([1, 6, 8])
+        linelengths1 = [5, 2, 3]
+
+        ax2.eventplot([dates1, dates2, dates3],
+                      colors=colors1,
+                      lineoffsets=lineoffsets1,
+                      linelengths=linelengths1)
+
+        lineoffsets2 = np.array([
+            datetime.datetime(2020, 7, 1),
+            datetime.datetime(2020, 7, 15),
+            datetime.datetime(2020, 8, 1)
+        ], dtype=np.datetime64)
+
+        ax3.eventplot([dates1, dates2, dates3],
+                      colors=colors1,
+                      lineoffsets=lineoffsets2,
+                      linelengths=linelengths1)
+
     @mpl.style.context("default")
     def test_fill(self):
-        fig, ax = plt.subplots()
-        ax.fill(...)
+        mpl.rcParams["date.converter"] = "concise"
+        fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, layout="constrained")
 
-    @pytest.mark.xfail(reason="Test for fill_between not written yet")
+        np.random.seed(19680801)
+
+        x_base_date = datetime.datetime(2023, 1, 1)
+        x_dates = [x_base_date]
+        for _ in range(1, 5):
+            x_base_date += datetime.timedelta(days=np.random.randint(1, 5))
+            x_dates.append(x_base_date)
+
+        y_base_date = datetime.datetime(2023, 1, 1)
+        y_dates = [y_base_date]
+        for _ in range(1, 5):
+            y_base_date += datetime.timedelta(days=np.random.randint(1, 5))
+            y_dates.append(y_base_date)
+
+        x_values = np.random.rand(5) * 5
+        y_values = np.random.rand(5) * 5 - 2
+
+        ax1.fill(x_dates, y_values)
+        ax2.fill(x_values, y_dates)
+        ax3.fill(x_values, y_values)
+        ax4.fill(x_dates, y_dates)
+
     @mpl.style.context("default")
     def test_fill_between(self):
-        fig, ax = plt.subplots()
-        ax.fill_between(...)
+        mpl.rcParams["date.converter"] = "concise"
+        np.random.seed(19680801)
 
-    @pytest.mark.xfail(reason="Test for fill_betweenx not written yet")
+        y_base_date = datetime.datetime(2023, 1, 1)
+        y_dates1 = [y_base_date]
+        for i in range(1, 10):
+            y_base_date += datetime.timedelta(days=np.random.randint(1, 5))
+            y_dates1.append(y_base_date)
+
+        y_dates2 = [y_base_date]
+        for i in range(1, 10):
+            y_base_date += datetime.timedelta(days=np.random.randint(1, 5))
+            y_dates2.append(y_base_date)
+        x_values = np.random.rand(10) * 10
+        x_values.sort()
+
+        y_values1 = np.random.rand(10) * 10
+        y_values2 = y_values1 + np.random.rand(10) * 10
+        y_values1.sort()
+        y_values2.sort()
+
+        x_base_date = datetime.datetime(2023, 1, 1)
+        x_dates = [x_base_date]
+        for i in range(1, 10):
+            x_base_date += datetime.timedelta(days=np.random.randint(1, 10))
+            x_dates.append(x_base_date)
+
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
+
+        ax1.fill_between(x_values, y_dates1, y_dates2)
+        ax2.fill_between(x_dates, y_values1, y_values2)
+        ax3.fill_between(x_dates, y_dates1, y_dates2)
+
     @mpl.style.context("default")
     def test_fill_betweenx(self):
-        fig, ax = plt.subplots()
-        ax.fill_betweenx(...)
+        mpl.rcParams["date.converter"] = "concise"
+        np.random.seed(19680801)
+
+        x_base_date = datetime.datetime(2023, 1, 1)
+        x_dates1 = [x_base_date]
+        for i in range(1, 10):
+            x_base_date += datetime.timedelta(days=np.random.randint(1, 5))
+            x_dates1.append(x_base_date)
+
+        x_dates2 = [x_base_date]
+        for i in range(1, 10):
+            x_base_date += datetime.timedelta(days=np.random.randint(1, 5))
+            x_dates2.append(x_base_date)
+        y_values = np.random.rand(10) * 10
+        y_values.sort()
+
+        x_values1 = np.random.rand(10) * 10
+        x_values2 = x_values1 + np.random.rand(10) * 10
+        x_values1.sort()
+        x_values2.sort()
+
+        y_base_date = datetime.datetime(2023, 1, 1)
+        y_dates = [y_base_date]
+        for i in range(1, 10):
+            y_base_date += datetime.timedelta(days=np.random.randint(1, 10))
+            y_dates.append(y_base_date)
+
+        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, layout="constrained")
+
+        ax1.fill_betweenx(y_values, x_dates1, x_dates2)
+        ax2.fill_betweenx(y_dates, x_values1, x_values2)
+        ax3.fill_betweenx(y_dates, x_dates1, x_dates2)
 
     @pytest.mark.xfail(reason="Test for hexbin not written yet")
     @mpl.style.context("default")
@@ -381,11 +587,15 @@ class TestDatetimePlotting:
                          xmin=0.45,
                          xmax=0.65)
 
-    @pytest.mark.xfail(reason="Test for imshow not written yet")
     @mpl.style.context("default")
     def test_imshow(self):
         fig, ax = plt.subplots()
-        ax.imshow(...)
+        a = np.diag(range(5))
+        dt_start = datetime.datetime(2010, 11, 1)
+        dt_end = datetime.datetime(2010, 11, 11)
+        extent = (dt_start, dt_end, dt_start, dt_end)
+        ax.imshow(a, extent=extent)
+        ax.tick_params(axis="x", labelrotation=90)
 
     @pytest.mark.xfail(reason="Test for loglog not written yet")
     @mpl.style.context("default")
@@ -393,11 +603,16 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.loglog(...)
 
-    @pytest.mark.xfail(reason="Test for matshow not written yet")
     @mpl.style.context("default")
     def test_matshow(self):
+        a = np.diag(range(5))
+        dt_start = datetime.datetime(1980, 4, 15)
+        dt_end = datetime.datetime(2020, 11, 11)
+        extent = (dt_start, dt_end, dt_start, dt_end)
         fig, ax = plt.subplots()
-        ax.matshow(...)
+        ax.matshow(a, extent=extent)
+        for label in ax.get_xticklabels():
+            label.set_rotation(90)
 
     @pytest.mark.xfail(reason="Test for pcolor not written yet")
     @mpl.style.context("default")
@@ -452,12 +667,6 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.quiver(...)
 
-    @pytest.mark.xfail(reason="Test for quiverkey not written yet")
-    @mpl.style.context("default")
-    def test_quiverkey(self):
-        fig, ax = plt.subplots()
-        ax.quiverkey(...)
-
     @mpl.style.context("default")
     def test_scatter(self):
         mpl.rcParams["date.converter"] = 'concise'
@@ -492,12 +701,6 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.semilogy(...)
 
-    @pytest.mark.xfail(reason="Test for spy not written yet")
-    @mpl.style.context("default")
-    def test_spy(self):
-        fig, ax = plt.subplots()
-        ax.spy(...)
-
     @mpl.style.context("default")
     def test_stackplot(self):
         mpl.rcParams["date.converter"] = 'concise'
@@ -508,17 +711,55 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots(layout='constrained')
         ax.stackplot(dates, stacked_nums)
 
-    @pytest.mark.xfail(reason="Test for stairs not written yet")
     @mpl.style.context("default")
     def test_stairs(self):
-        fig, ax = plt.subplots()
-        ax.stairs(...)
+        mpl.rcParams["date.converter"] = 'concise'
 
-    @pytest.mark.xfail(reason="Test for stem not written yet")
+        start_date = datetime.datetime(2023, 12, 1)
+        time_delta = datetime.timedelta(days=1)
+        baseline_date = datetime.datetime(1980, 1, 1)
+
+        bin_edges = [start_date + i * time_delta for i in range(31)]
+        edge_int = np.arange(31)
+        np.random.seed(123456)
+        values1 = np.random.randint(1, 100, 30)
+        values2 = [start_date + datetime.timedelta(days=int(i))
+                   for i in np.random.randint(1, 10000, 30)]
+        values3 = [start_date + datetime.timedelta(days=int(i))
+                   for i in np.random.randint(-10000, 10000, 30)]
+
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, constrained_layout=True)
+        ax1.stairs(values1, edges=bin_edges)
+        ax2.stairs(values2, edges=edge_int, baseline=baseline_date)
+        ax3.stairs(values3, edges=bin_edges, baseline=baseline_date)
+
     @mpl.style.context("default")
     def test_stem(self):
-        fig, ax = plt.subplots()
-        ax.stem(...)
+        mpl.rcParams["date.converter"] = "concise"
+
+        fig, (ax1, ax2, ax3, ax4, ax5, ax6) = plt.subplots(6, 1, layout="constrained")
+
+        limit_value = 10
+        above = datetime.datetime(2023, 9, 18)
+        below = datetime.datetime(2023, 11, 18)
+
+        x_ranges = np.arange(1, limit_value)
+        y_ranges = np.arange(1, limit_value)
+
+        x_dates = np.array(
+            [datetime.datetime(2023, 10, n) for n in range(1, limit_value)]
+        )
+        y_dates = np.array(
+            [datetime.datetime(2023, 10, n) for n in range(1, limit_value)]
+        )
+
+        ax1.stem(x_dates, y_dates, bottom=above)
+        ax2.stem(x_dates, y_ranges, bottom=5)
+        ax3.stem(x_ranges, y_dates, bottom=below)
+
+        ax4.stem(x_ranges, y_dates, orientation="horizontal", bottom=above)
+        ax5.stem(x_dates, y_ranges, orientation="horizontal", bottom=5)
+        ax6.stem(x_ranges, y_dates, orientation="horizontal", bottom=below)
 
     @mpl.style.context("default")
     def test_step(self):
@@ -600,14 +841,24 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.violinplot(...)
 
-    @pytest.mark.xfail(reason="Test for vlines not written yet")
     @mpl.style.context("default")
     def test_vlines(self):
-        fig, ax = plt.subplots()
-        ax.vlines(...)
-
-    @pytest.mark.xfail(reason="Test for xcorr not written yet")
-    @mpl.style.context("default")
-    def test_xcorr(self):
-        fig, ax = plt.subplots()
-        ax.xcorr(...)
+        mpl.rcParams["date.converter"] = 'concise'
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout='constrained')
+        ax1.set_xlim(left=datetime.datetime(2023, 1, 1),
+                     right=datetime.datetime(2023, 6, 30))
+        ax1.vlines(x=[datetime.datetime(2023, 2, 10),
+                      datetime.datetime(2023, 5, 18),
+                      datetime.datetime(2023, 6, 6)],
+                   ymin=[0, 0.25, 0.5],
+                   ymax=[0.25, 0.5, 0.75])
+        ax2.set_xlim(left=0,
+                     right=0.5)
+        ax2.vlines(x=[0.3, 0.35],
+                   ymin=[np.datetime64('2023-03-20'), np.datetime64('2023-03-31')],
+                   ymax=[np.datetime64('2023-05-01'), np.datetime64('2023-05-16')])
+        ax3.set_xlim(left=datetime.datetime(2023, 7, 1),
+                     right=datetime.datetime(2023, 12, 31))
+        ax3.vlines(x=[datetime.datetime(2023, 9, 1), datetime.datetime(2023, 12, 10)],
+                   ymin=datetime.datetime(2023, 1, 15),
+                   ymax=datetime.datetime(2023, 1, 30))

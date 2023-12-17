@@ -155,9 +155,16 @@ Remember to activate the environment whenever you start working on Matplotlib.
 
 Install Dependencies
 ====================
+
 Most Python dependencies will be installed when :ref:`setting up the environment <dev-environment>`
 but non-Python dependencies like C++ compilers, LaTeX, and other system applications
-must be installed separately. For a full list, see :ref:`dependencies`.
+must be installed separately.
+
+.. toctree::
+  :maxdepth: 2
+
+  ../users/installing/dependencies
+
 
 .. _development-install:
 
@@ -194,6 +201,9 @@ config during installation ::
 
 For more information on installation and other configuration options, see the
 Meson Python :external+meson-python:ref:`editable installs guide <how-to-guides-editable-installs>`.
+
+For a list of the other environment variables you can set before install, see :ref:`environment-variables`.
+
 
 Verify the Installation
 =======================
