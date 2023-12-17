@@ -51,4 +51,3 @@ A simple example:
     )
 
     plt.show()
-
