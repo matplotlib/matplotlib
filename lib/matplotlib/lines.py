@@ -1478,9 +1478,10 @@ class AxLine(Line2D):
             The first set of (x, y) coordinates for the line to pass through.
         xy2 : (float, float) or None
             The second set of (x, y) coordinates for the line to pass through.
-            Either *xy2* or *slope* has to be given.
+            Both *xy2* and *slope* must be passed, but one of them must be None.
         slope : float or None
-            The slope of the line. Either *xy2* or *slope* has to be given.
+            The slope of the line. Both *xy2* and *slope* must be passed, but one of
+            them must be None.
         """
         super().__init__([0, 1], [0, 1], **kwargs)
 
