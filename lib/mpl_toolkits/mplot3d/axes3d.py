@@ -2904,9 +2904,9 @@ class Axes3D(Axes):
                                      "edgecolors", "c", "facecolor",
                                      "facecolors", "color"])
     def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=True,
-        depthshade_inverted=False,
-        depthshade_minalpha=0.3,
-        depthshade_legacy=False,
+                depthshade_inverted=False,
+                depthshade_minalpha=0.3,
+                depthshade_legacy=False,
                 *args, 
                 axlim_clip=False,
                 **kwargs):
