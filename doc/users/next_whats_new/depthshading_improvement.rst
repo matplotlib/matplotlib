@@ -26,6 +26,9 @@ Note 2: "depthshade=True" must still be used to enable depth-shading
 A simple example:
 
 .. plot::
+    :include-source: true
+    :alt: A simple example showing different behavior of depthshading, which can be modified using the provided kwargs.
+
     import matplotlib.pyplot as plt
 
     fig = plt.figure()
