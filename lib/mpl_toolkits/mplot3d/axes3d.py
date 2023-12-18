@@ -2590,8 +2590,8 @@ class Axes3D(Axes):
     @_preprocess_data(replace_names=["xs", "ys", "zs", "s",
                                      "edgecolors", "c", "facecolor",
                                      "facecolors", "color"])
-    def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=True,
-                *args, **kwargs):
+    @_api.make_keyword_only("3.9", "zdir")
+    def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=True, **kwargs):
         """
         Create a scatter plot.
 
@@ -2653,7 +2653,7 @@ class Axes3D(Axes):
         if np.may_share_memory(zs_orig, zs):  # Avoid unnecessary copies.
             zs = zs.copy()
 
-        patches = super().scatter(xs, ys, s=s, c=c, *args, **kwargs)
+        patches = super().scatter(xs, ys, s=s, c=c, **kwargs)
         art3d.patch_collection_2d_to_3d(patches, zs=zs, zdir=zdir,
                                         depthshade=depthshade)
 
@@ -2667,7 +2667,8 @@ class Axes3D(Axes):
     scatter3D = scatter
 
     @_preprocess_data()
-    def bar(self, left, height, zs=0, zdir='z', *args, **kwargs):
+    @_api.make_keyword_only("3.9", "zdir")
+    def bar(self, left, height, zs=0, zdir='z', **kwargs):
         """
         Add 2D bar(s).
 
@@ -2694,7 +2695,7 @@ class Axes3D(Axes):
         """
         had_data = self.has_data()
 
-        patches = super().bar(left, height, *args, **kwargs)
+        patches = super().bar(left, height, **kwargs)
 
         zs = np.broadcast_to(zs, len(left), subok=True)
 
