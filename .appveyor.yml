@@ -55,6 +55,7 @@ install:
   - conda config --set always_yes true
   - conda config --set show_channel_urls yes
   - conda config --prepend channels conda-forge
+  - conda update -n base -q conda
 
   # For building, use a new environment
   # Add python version to environment
