@@ -85,7 +85,8 @@ and `kind <https://youtu.be/tzFWz5fiVKU?t=49m30s>`__ with contributors.
 When reviewing, please ensure that the pull request satisfies the following
 requirements before merging it:
 
-Content topics:
+Content
+-------
 
 .. rst-class:: checklist
 
@@ -98,9 +99,8 @@ Content topics:
   functional changes to the code. Reflowing a method or docstring as part of a
   larger refactor/rewrite is acceptable.
 
-
-Organizational topics:
-
+Workflow
+--------
 .. rst-class:: checklist
 
 * Make sure all :ref:`automated tests <pr-automated-tests>` pass.
