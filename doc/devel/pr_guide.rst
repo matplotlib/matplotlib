@@ -40,11 +40,11 @@ guidelines before submitting a pull request:
   :ref:`examples gallery <gallery>`.
 
 * If you add a major new feature or change the API in a backward-incompatible
-  way, please document it as described in :ref:`new-changed-api`
+  way, please document it as described in :ref:`api_changes`.
 
-* Code should follow our conventions as documented in our :ref:`coding_guidelines`
+* Code should follow our conventions as documented in our :ref:`coding_guidelines`.
 
-* When adding or changing public function signatures, add :ref:`type hints <type-hints>`
+* When adding or changing public function signatures, add :ref:`type hints <type-hints>`.
 
 * When adding keyword arguments, see our guide to :ref:`keyword-argument-processing`.
 

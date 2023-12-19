@@ -1,8 +1,9 @@
 
 .. _bug_triaging:
 
+*******************************
 Bug triaging and issue curation
-===============================
+*******************************
 
 The `issue tracker <https://github.com/matplotlib/matplotlib/issues>`_
 is important to communication in the project because it serves as the
@@ -11,24 +12,28 @@ identifying major projects to work on, and discussing priorities.  For
 this reason, it is important to curate the issue list, adding labels
 to issues and closing issues that are resolved or unresolvable.
 
+Writing well defined issues increases their chances of being successfully
+resolved. Guidelines on writing a good issue can be found in :ref:`here
+<submitting-a-bug-report>`. The recommendations in this page are adapted from
+the `scikit learn <https://scikit-learn.org/stable/developers/bug_triaging.html>`_
+and `Pandas <https://pandas.pydata.org/docs/development/maintaining.html>`_
+contributing guides.
+
+
+Improve issue reports
+=====================
+
 Triaging issues does not require any particular expertise in the
 internals of Matplotlib, is extremely valuable to the project, and we
 welcome anyone to participate in issue triage!  However, people who
 are not part of the Matplotlib organization do not have `permissions
 to change milestones, add labels, or close issue
 <https://docs.github.com/en/organizations/managing-access-to-your-organizations-repositories/repository-permission-levels-for-an-organization>`_.
+
 If you do not have enough GitHub permissions do something (e.g. add a
 label, close an issue), please leave a comment with your
 recommendations!
 
-Working on issues to improve them
----------------------------------
-
-Improving issues increases their chances of being successfully resolved.
-Guidelines on submitting good issues can be found :ref:`here
-<submitting-a-bug-report>`.
-A third party can give useful feedback or even add
-comments on the issue.
 The following actions are typically useful:
 
 - documenting issues that are missing elements to reproduce the problem
@@ -62,30 +67,11 @@ The following actions are typically useful:
    explores how to lead online discussions in the context of open source.
 
 
-.. _triage_team:
+Maintainers and triage team members
+-----------------------------------
 
-Triage team
------------
-
-
-If you would like to join the triage team:
-
-1. Correctly triage 2-3 issues.
-2. Ask someone on in the Matplotlib organization (publicly or privately) to
-   recommend you to the triage team (look for "Member" on the top-right of
-   comments on GitHub).  If you worked with someone on the issues triaged, they
-   would be a good person to ask.
-3. Responsibly exercise your new power!
-
-Anyone with commit or triage rights may nominate a user to be invited to join
-the triage team by emailing matplotlib-steering-council@numfocus.org .
-
-
-Triaging operations for members of the core and triage teams
-------------------------------------------------------------
-
-In addition to the above, members of the core team and the triage team
-can do the following important tasks:
+In addition to the above, maintainers and the triage team can do the following
+important tasks:
 
 - Update labels for issues and PRs: see the list of `available GitHub
   labels <https://github.com/matplotlib/matplotlib/labels>`_.
@@ -113,7 +99,6 @@ can do the following important tasks:
     least a week) to add extra information
 
 
-
 .. topic:: Closing issues: a tough call
 
     When uncertain on whether an issue should be closed or not, it is
@@ -122,13 +107,19 @@ can do the following important tasks:
     question or has been considered as unclear for many years, then it
     should be closed.
 
+Preparing PRs for review
+========================
+
+Reviewing code is also encouraged. Contributors and users are welcome to
+participate to the review process following our :ref:`review guidelines
+<pr-guidelines>`.
 
 .. _triage_workflow:
 
-A typical workflow for triaging issues
---------------------------------------
+Triage workflow
+===============
 
-The following workflow [1]_ is a good way to approach issue triaging:
+The following workflow is a good way to approach issue triaging:
 
 #. Thank the reporter for opening an issue
 
@@ -208,22 +199,20 @@ The following workflow [1]_ is a good way to approach issue triaging:
    An additional useful step can be to tag the corresponding module e.g.
    the "GUI/Qt" label when relevant.
 
+.. _triage_team:
 
-.. [1] Adapted from the pandas project `maintainers guide
-       <https://pandas.pydata.org/docs/development/maintaining.html>`_ and
-       `the scikit-learn project
-       <https://scikit-learn.org/dev/developers/bug_triaging.html>`_ .
+Triage team
+===========
 
 
-Working on PRs to help review
-------------------------------
+If you would like to join the triage team:
 
-Reviewing code is also encouraged. Contributors and users are welcome to
-participate to the review process following our :ref:`review guidelines
-<pr-guidelines>`.
+1. Correctly triage 2-3 issues.
+2. Ask someone on in the Matplotlib organization (publicly or privately) to
+   recommend you to the triage team (look for "Member" on the top-right of
+   comments on GitHub).  If you worked with someone on the issues triaged, they
+   would be a good person to ask.
+3. Responsibly exercise your new power!
 
-Acknowledgments
----------------
-
-This page is lightly adapted from `the scikit-learn project
-<https://scikit-learn.org/dev/developers/bug_triaging.html>`_ .
+Anyone with commit or triage rights may nominate a user to be invited to join
+the triage team by emailing matplotlib-steering-council@numfocus.org .

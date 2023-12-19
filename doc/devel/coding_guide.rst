@@ -4,10 +4,8 @@
 Coding guidelines
 *****************
 
-While the current state of the Matplotlib code base is not compliant with all
-of these guidelines, our goal in enforcing these constraints on new
-contributions is that it improves the readability and consistency of the code base
-going forward.
+We appreciate these guidelines being followed because it improves the readability,
+consistency, and maintainability of the code base.
 
 API changes
 ===========
