@@ -21,6 +21,19 @@ If you do not have enough GitHub permissions do something (e.g. add a
 label, close an issue), please leave a comment with your
 recommendations!
 
+Follow the saved replies guide for detailed instructions on how to
+use and contribute to our communication repository. The git workflows has a few detailed workflows which we often link
+to while reviewing code.
+=======
+use and contribute to our communication repository.
+
+.. toctree::
+   :maxdepth: 2
+
+   saved_replies.rst
+   git_workflows.rst
+
+
 Working on issues to improve them
 ---------------------------------
 
