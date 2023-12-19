@@ -1723,11 +1723,15 @@ Timer__timer_start(Timer* self, PyObject* args)
     }
 
     // hold a reference to the timer so we can invalidate/stop it later
-    self->timer = [NSTimer scheduledTimerWithTimeInterval: interval
-                                            repeats: !single
-                                              block: ^(NSTimer *timer) {
+    self->timer = [NSTimer timerWithTimeInterval: interval
+                                         repeats: !single
+                                           block: ^(NSTimer *timer) {
         gil_call_method((PyObject*)self, "_on_timer");
     }];
+    // Schedule the timer on the main run loop which is needed
+    // when updating the UI from a background thread
+    [[NSRunLoop mainRunLoop] addTimer: self->timer forMode: NSRunLoopCommonModes];
+
 exit:
     Py_XDECREF(py_interval);
     Py_XDECREF(py_single);
