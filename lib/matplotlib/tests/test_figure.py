@@ -1665,3 +1665,12 @@ def test_not_visible_figure():
     fig.savefig(buf, format='svg')
     buf.seek(0)
     assert '<g ' not in buf.read()
+
+def test_fig_get_set():
+    varnames = filter(lambda var: var not in ['self', 'kwargs', 'args'],
+                      Figure.__init__.__code__.co_varnames)
+    fig = plt.figure()
+    for var in varnames:
+        # if getattr fails then the getter and setter does not exist
+        getfunc = getattr(fig, f"get_{var}")
+        setfunc = getattr(fig, f"set_{var}")
