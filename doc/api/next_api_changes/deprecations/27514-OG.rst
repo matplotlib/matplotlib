@@ -1,0 +1,4 @@
+``TransformNode.is_bbox``
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... is deprecated. Instead check the object using ``isinstance(..., BboxBase)``.
