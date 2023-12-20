@@ -31,9 +31,9 @@ exclude =
     .eggs
 
 per-file-ignores =
-    lib/matplotlib/_cm.py: E122, E202, E203, E302
+    lib/matplotlib/_cm.py: E202, E203, E302
     lib/matplotlib/_mathtext.py: E221, E251
-    lib/matplotlib/_mathtext_data.py: E122, E203, E261
+    lib/matplotlib/_mathtext_data.py: E203, E261
     lib/matplotlib/backends/backend_template.py: F401
     lib/matplotlib/mathtext.py: E221
     lib/matplotlib/pylab.py: F401, F403
