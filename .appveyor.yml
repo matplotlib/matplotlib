@@ -64,6 +64,8 @@ install:
   - activate mpl-dev
   - conda install -c conda-forge pywin32
   - echo %PYTHON_VERSION% %TARGET_ARCH%
+  # Install browsers for testing
+  - playwright install --with-deps
   # Show the installed packages + versions
   - conda list
 
