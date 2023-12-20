@@ -861,7 +861,7 @@ class TestDatetimePlotting:
         assert isinstance(result2, dict)
         assert isinstance(result3, dict)
         assert result is not None, "Failed to create violin plot"
-    
+
     @mpl.style.context("default")
     def test_vlines(self):
         mpl.rcParams["date.converter"] = 'concise'
