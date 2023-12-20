@@ -31,26 +31,20 @@ exclude =
     .eggs
 
 per-file-ignores =
-    lib/matplotlib/__init__.py: E402, F401
     lib/matplotlib/_animation_data.py: E501
-    lib/matplotlib/_api/__init__.py: F401
     lib/matplotlib/_cm.py: E122, E202, E203, E302
     lib/matplotlib/_mathtext.py: E221, E251
     lib/matplotlib/_mathtext_data.py: E122, E203, E261
-    lib/matplotlib/axes/__init__.py: F401, F403
     lib/matplotlib/backends/backend_template.py: F401
     lib/matplotlib/font_manager.py: E501
-    lib/matplotlib/image.py: F401, F403
     lib/matplotlib/mathtext.py: E221
     lib/matplotlib/pylab.py: F401, F403
-    lib/matplotlib/pyplot.py: F401, F811
+    lib/matplotlib/pyplot.py: F811
     lib/matplotlib/tests/test_mathtext.py: E501
     lib/matplotlib/transforms.py: E201, E202, E203
     lib/matplotlib/tri/_triinterpolate.py: E201, E221
     lib/mpl_toolkits/axes_grid1/axes_size.py: E272
-    lib/mpl_toolkits/axisartist/__init__.py: F401
     lib/mpl_toolkits/axisartist/angle_helper.py: E221
-    lib/pylab.py: F401, F403
 
     doc/conf.py: E402
     galleries/users_explain/artists/paths.py: E402
