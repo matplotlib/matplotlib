@@ -212,6 +212,33 @@ class CallbackRegistry:
             for s, d in self.callbacks.items()}
         self._cid_gen = itertools.count(cid_count)
 
+    @property
+    def known_cid(self):
+        """
+        Return set of currently known cid.
+
+        Returns
+        -------
+        set[int]
+        """
+        return set(
+            cid
+            for key, inner in self.callbacks.items()
+            for cid, func in inner.items()
+            if (ref := func())
+        )
+
+    def clear_above(self, threshold=-1):
+        """
+        Clears all cids greater than a given threshold.
+
+        This is useful if you want to remove all user-added callbacks.
+
+        """
+        for cid in list(self.by_cid):
+            if cid > threshold:
+                self.disconnect(cid)
+
     def connect(self, signal, func):
         """Register *func* to be called when signal *signal* is generated."""
         if self._signals is not None:
