@@ -466,16 +466,19 @@ class TestDatetimePlotting:
 
     @mpl.style.context("default")
     def test_quiver(self):
-        range_threshold = 10
+        threshold = 10
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
 
-        x_dates = [datetime.datetime(2023, 11, 1) + datetime.timedelta(days=i) 
-                   for i in range(range_threshold)]
-
-        y_dates = [datetime.datetime(2023, 12, 1) + datetime.timedelta(days=i) 
-                   for i in range(range_threshold)]
-        x_ranges = np.array(range(range_threshold))
-        y_ranges = np.array(range(range_threshold))
+        x_dates = np.array(
+                    [datetime.datetime(2023, 11, 1+delta) for delta in range(threshold)]
+                )
+        y_dates = np.array(
+                    [datetime.datetime(2023, 12, 1+delta) for delta in range(threshold)]
+                )
+        x_ranges = np.array(range(threshold))
+        y_ranges = np.array(range(threshold))
+        x_ranges = np.array(range(threshold))
+        y_ranges = np.array(range(threshold))
 
         U = np.sin(np.arange(len(x_dates)))
         V = np.cos(np.arange(len(y_dates)))
