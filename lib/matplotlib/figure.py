@@ -1245,11 +1245,10 @@ default: %(va)s
         if hasattr(mappable, "figure") and mappable.figure is not None:
             # Get top level artists
             mappable_host_fig = mappable.figure
-            self_host_fig = self.figure
             if isinstance(mappable_host_fig, mpl.figure.SubFigure):
                 mappable_host_fig = mappable_host_fig.figure
             # Warn in case of mismatch
-            if mappable_host_fig is not self_host_fig:
+            if mappable_host_fig is not self.figure:
                 _api.warn_external(
                         f'Adding colorbar to a different Figure '
                         f'{repr(mappable.figure)} than '
