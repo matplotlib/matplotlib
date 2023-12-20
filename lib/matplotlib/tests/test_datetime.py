@@ -835,6 +835,32 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.violin(...)
 
+    @pytest.mark.xfail(reason="Test for violinplot not written yet")
+    @mpl.style.context("default")
+    def test_violinplot(self):
+        np.random.seed(19680801)
+        n_samples = 100
+        values = np.random.randn(n_samples)
+        fig, ax = plt.subplots()
+        result = ax.violinplot(values, positions=[datetime(2023, 1, 10)], widths=[
+                               timedelta(days=10)], showmeans=True, showextrema=True)
+        result1 = ax.violinplot(values, positions=[datetime(2023, 1, 15)], widths=[
+                                timedelta(days=6)], showmeans=True, showextrema=True)
+        result2 = ax.violinplot(values, positions=[datetime(2023, 1, 25)], widths=[
+                                timedelta(days=12)], showmeans=True, showextrema=True)
+        result3 = ax.violinplot(values, positions=[datetime(2023, 2, 5)], widths=[
+                                timedelta(days=8)], showmeans=True, showextrema=True)
+        ax.set_title(
+            'Violin Plot with DateTime Positions and Timedelta Widths')
+        ax.set_xlabel('Dates')
+        ax.set_ylabel('Values')
+        plt.xticks(rotation=90)
+        assert isinstance(result, dict)
+        assert isinstance(result1, dict)
+        assert isinstance(result2, dict)
+        assert isinstance(result3, dict)
+        assert result is not None, "Failed to create violin plot"
+    
     @mpl.style.context("default")
     def test_vlines(self):
         mpl.rcParams["date.converter"] = 'concise'
