@@ -464,11 +464,23 @@ class TestDatetimePlotting:
         ax2.plot_date(x_dates, y_ranges)
         ax3.plot_date(x_ranges, y_dates)
 
-    @pytest.mark.xfail(reason="Test for quiver not written yet")
     @mpl.style.context("default")
     def test_quiver(self):
-        fig, ax = plt.subplots()
-        ax.quiver(...)
+        range_threshold = 10
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
+
+        x_dates = [datetime.datetime(2023, 11, 1) + datetime.timedelta(days=i) for i in range(range_threshold)]
+
+        y_dates = [datetime.datetime(2023, 12, 1) + datetime.timedelta(days=i) for i in range(range_threshold)]
+        x_ranges = np.array(range(range_threshold))
+        y_ranges = np.array(range(range_threshold))
+
+        U = np.sin(np.arange(len(x_dates)))
+        V = np.cos(np.arange(len(y_dates)))
+
+        ax1.quiver(x_dates, y_ranges, U, V, scale=20)
+        ax2.quiver(x_ranges, y_dates, U, V, scale=20)
+        ax3.quiver(x_dates, y_dates, U, V, scale=20)
 
     @pytest.mark.xfail(reason="Test for quiverkey not written yet")
     @mpl.style.context("default")
