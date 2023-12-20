@@ -206,7 +206,7 @@ def win32FontDirectory():
       \\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\Fonts
 
     If the key is not found, ``%WINDIR%\Fonts`` will be returned.
-    """
+    """  # noqa: E501
     import winreg
     try:
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER, MSFolders) as user:
