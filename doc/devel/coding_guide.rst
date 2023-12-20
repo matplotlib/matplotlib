@@ -1,369 +1,310 @@
-.. _pr-guidelines:
+.. _coding_guidelines:
 
-***********************
-Pull request guidelines
-***********************
+*****************
+Coding guidelines
+*****************
 
-`Pull requests (PRs) on GitHub
-<https://docs.github.com/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests>`__
-are the mechanism for contributing to Matplotlib's code and documentation.
+We appreciate these guidelines being followed because it improves the readability,
+consistency, and maintainability of the code base.
 
-We value contributions from people with all levels of experience. In particular,
-if this is your first PR not everything has to be perfect. We'll guide you
-through the PR process. Nevertheless, please try to follow our guidelines as well
-as you can to help make the PR process quick and smooth. If your pull request is
-incomplete or a work-in-progress, please mark it as a `draft pull requests <https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests>`_
-on GitHub and specify what feedback from the developers would be helpful.
+API changes
+===========
 
-Please be patient with reviewers. We try our best to respond quickly, but we have
-limited bandwidth. If there is no feedback within a couple of days, please ping
-us by posting a comment to your PR or reaching out on a :ref:`communication channel <communication-channels>`
+If you are adding new features, changing behavior or function signatures, or
+removing classes, functions, methods, or properties, please see the :ref:`api_changes`
+guide.
+
+PEP8, as enforced by flake8
+===========================
+
+Formatting should follow the recommendations of PEP8_, as enforced by flake8_.
+Matplotlib modifies PEP8 to extend the maximum line length to 88
+characters. You can check flake8 compliance from the command line with ::
+
+    python -m pip install flake8
+    flake8 /path/to/module.py
+
+or your editor may provide integration with it.  Note that Matplotlib intentionally
+does not use the black_ auto-formatter (1__), in particular due to its inability
+to understand the semantics of mathematical expressions (2__, 3__).
+
+.. _PEP8: https://www.python.org/dev/peps/pep-0008/
+.. _flake8: https://flake8.pycqa.org/
+.. _black: https://black.readthedocs.io/
+.. __: https://github.com/matplotlib/matplotlib/issues/18796
+.. __: https://github.com/psf/black/issues/148
+.. __: https://github.com/psf/black/issues/1984
 
 
-Summary for pull request authors
+Package imports
+===============
+
+Import the following modules using the standard scipy conventions::
+
+  import numpy as np
+  import numpy.ma as ma
+  import matplotlib as mpl
+  import matplotlib.pyplot as plt
+  import matplotlib.cbook as cbook
+  import matplotlib.patches as mpatches
+
+In general, Matplotlib modules should **not** import `.rcParams` using ``from
+matplotlib import rcParams``, but rather access it as ``mpl.rcParams``.  This
+is because some modules are imported very early, before the `.rcParams`
+singleton is constructed.
+
+Variable names
+==============
+
+When feasible, please use our internal variable naming convention for objects
+of a given class and objects of any child class:
+
++------------------------------------+---------------+------------------------------------------+
+|             base class             | variable      |                multiples                 |
++====================================+===============+==========================================+
+| `~matplotlib.figure.FigureBase`    | ``fig``       |                                          |
++------------------------------------+---------------+------------------------------------------+
+| `~matplotlib.axes.Axes`            | ``ax``        |                                          |
++------------------------------------+---------------+------------------------------------------+
+| `~matplotlib.transforms.Transform` | ``trans``     | ``trans_<source>_<target>``              |
++                                    +               +                                          +
+|                                    |               | ``trans_<source>`` when target is screen |
++------------------------------------+---------------+------------------------------------------+
+
+Generally, denote more than one instance of the same class by adding suffixes to
+the variable names. If a format isn't specified in the table, use numbers or
+letters as appropriate.
+
+.. _type-hints:
+
+Type hints
+==========
+
+If you add new public API or change public API, update or add the
+corresponding `mypy <https://mypy.readthedocs.io/en/latest/>`_ type hints.
+We generally use `stub files
+<https://typing.readthedocs.io/en/latest/source/stubs.html#type-stubs>`_
+(``*.pyi``) to store the type information; for example ``colors.pyi`` contains
+the type information for ``colors.py``. A notable exception is ``pyplot.py``,
+which is type hinted inline.
+
+Type hints are checked by the mypy :ref:`pre-commit hook <pre-commit-hooks>`
+and can often be verified using ``tools\stubtest.py`` and occasionally may
+require the use of ``tools\check_typehints.py``.
+
+New modules and files: installation
+===================================
+
+* If you have added new files or directories, or reorganized existing ones, make sure the
+  new files are included in the :file:`meson.build` in the corresponding directories.
+* New modules *may* be typed inline or using parallel stub file like existing modules.
+
+C/C++ extensions
+================
+
+* Extensions may be written in C or C++.
+
+* Code style should conform to PEP7 (understanding that PEP7 doesn't
+  address C++, but most of its admonitions still apply).
+
+* Python/C interface code should be kept separate from the core C/C++
+  code.  The interface code should be named :file:`FOO_wrap.cpp` or
+  :file:`FOO_wrapper.cpp`.
+
+* Header file documentation (aka docstrings) should be in Numpydoc
+  format.  We don't plan on using automated tools for these
+  docstrings, and the Numpydoc format is well understood in the
+  scientific Python community.
+
+* C/C++ code in the :file:`extern/` directory is vendored, and should be kept
+  close to upstream whenever possible.  It can be modified to fix bugs or
+  implement new features only if the required changes cannot be made elsewhere
+  in the codebase.  In particular, avoid making style fixes to it.
+
+.. _keyword-argument-processing:
+
+Keyword argument processing
+===========================
+
+Matplotlib makes extensive use of ``**kwargs`` for pass-through customizations
+from one function to another.  A typical example is
+`~matplotlib.axes.Axes.text`.  The definition of `matplotlib.pyplot.text` is a
+simple pass-through to `matplotlib.axes.Axes.text`::
+
+  # in pyplot.py
+  def text(x, y, s, fontdict=None, **kwargs):
+      return gca().text(x, y, s, fontdict=fontdict, **kwargs)
+
+`matplotlib.axes.Axes.text` (simplified for illustration) just
+passes all ``args`` and ``kwargs`` on to ``matplotlib.text.Text.__init__``::
+
+  # in axes/_axes.py
+  def text(self, x, y, s, fontdict=None, **kwargs):
+      t = Text(x=x, y=y, text=s, **kwargs)
+
+and ``matplotlib.text.Text.__init__`` (again, simplified)
+just passes them on to the `matplotlib.artist.Artist.update` method::
+
+  # in text.py
+  def __init__(self, x=0, y=0, text='', **kwargs):
+      super().__init__()
+      self.update(kwargs)
+
+``update`` does the work looking for methods named like
+``set_property`` if ``property`` is a keyword argument.  i.e., no one
+looks at the keywords, they just get passed through the API to the
+artist constructor which looks for suitably named methods and calls
+them with the value.
+
+As a general rule, the use of ``**kwargs`` should be reserved for
+pass-through keyword arguments, as in the example above.  If all the
+keyword args are to be used in the function, and not passed
+on, use the key/value keyword args in the function definition rather
+than the ``**kwargs`` idiom.
+
+In some cases, you may want to consume some keys in the local
+function, and let others pass through.  Instead of popping arguments to
+use off ``**kwargs``, specify them as keyword-only arguments to the local
+function.  This makes it obvious at a glance which arguments will be
+consumed in the function.  For example, in
+:meth:`~matplotlib.axes.Axes.plot`, ``scalex`` and ``scaley`` are
+local arguments and the rest are passed on as
+:meth:`~matplotlib.lines.Line2D` keyword arguments::
+
+  # in axes/_axes.py
+  def plot(self, *args, scalex=True, scaley=True, **kwargs):
+      lines = []
+      for line in self._get_lines(*args, **kwargs):
+          self.add_line(line)
+          lines.append(line)
+
+.. _using_logging:
+
+Using logging for debug messages
 ================================
 
-We recommend that you check that your contribution complies with the following
-guidelines before submitting a pull request:
+Matplotlib uses the standard Python `logging` library to write verbose
+warnings, information, and debug messages. Please use it! In all those places
+you write `print` calls to do your debugging, try using `logging.debug`
+instead!
 
-.. rst-class:: checklist
 
-* Changes, both new features and bugfixes, should have good test coverage. See
-  :ref:`testing` for more details.
+To include `logging` in your module, at the top of the module, you need to
+``import logging``.  Then calls in your code like::
 
-* Update the :ref:`documentation <pr-documentation>` if necessary.
+  _log = logging.getLogger(__name__)  # right after the imports
 
-* All public methods should have informative docstrings with sample usage when
-  appropriate. Use the :ref:`docstring standards <writing-docstrings>`.
+  # code
+  # more code
+  _log.info('Here is some information')
+  _log.debug('Here is some more detailed information')
 
-* For high-level plotting functions, consider adding a small example to the
-  :ref:`examples gallery <gallery>`.
+will log to a logger named ``matplotlib.yourmodulename``.
 
-* If you add a major new feature or change the API in a backward-incompatible
-  way, please document it as described in :ref:`new-changed-api`
+If an end-user of Matplotlib sets up `logging` to display at levels more
+verbose than ``logging.WARNING`` in their code with the Matplotlib-provided
+helper::
 
-* Code should follow our conventions as documented in our :ref:`coding_guidelines`
+  plt.set_loglevel("debug")
 
-* When adding or changing public function signatures, add :ref:`type hints <type-hints>`
+or manually with ::
 
-* When adding keyword arguments, see our guide to :ref:`keyword-argument-processing`.
+  import logging
+  logging.basicConfig(level=logging.DEBUG)
+  import matplotlib.pyplot as plt
 
-When opening a pull request on Github, please ensure that:
+Then they will receive messages like
 
-.. rst-class:: checklist
+.. code-block:: none
 
-* Changes were made on a :ref:`feature branch <make-feature-branch>`.
+   DEBUG:matplotlib.backends:backend MacOSX version unknown
+   DEBUG:matplotlib.yourmodulename:Here is some information
+   DEBUG:matplotlib.yourmodulename:Here is some more detailed information
 
-* :ref:`pre-commit <pre-commit-hooks>` checks for spelling, formatting, etc pass
+Avoid using pre-computed strings (``f-strings``, ``str.format``,etc.) for logging because
+of security and performance issues, and because they interfere with style handlers. For
+example, use ``_log.error('hello %s', 'world')``  rather than ``_log.error('hello
+{}'.format('world'))`` or ``_log.error(f'hello {s}')``.
 
-* The pull request targets the :ref:`main branch <pr-branch-selection>`
+Which logging level to use?
+---------------------------
 
-* If your pull request addresses an issue, please use the title to describe the
-  issue (e.g. "Add ability to plot timedeltas") and mention the issue number
-  in the pull request description to ensure that a link is created to the
-  original issue (e.g. "Closes #8869" or "Fixes #8869"). This will ensure the
-  original issue mentioned is automatically closed when your PR is merged. For more
-  details, see `linking an issue and pull request <https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue>`__.
+There are five levels at which you can emit messages.
 
-* :ref:`pr-automated-tests` pass
+- `logging.critical` and `logging.error` are really only there for errors that
+  will end the use of the library but not kill the interpreter.
+- `logging.warning` and `._api.warn_external` are used to warn the user,
+  see below.
+- `logging.info` is for information that the user may want to know if the
+  program behaves oddly. They are not displayed by default. For instance, if
+  an object isn't drawn because its position is ``NaN``, that can usually
+  be ignored, but a mystified user could call
+  ``logging.basicConfig(level=logging.INFO)`` and get an error message that
+  says why.
+- `logging.debug` is the least likely to be displayed, and hence can be the
+  most verbose.  "Expected" code paths (e.g., reporting normal intermediate
+  steps of layouting or rendering) should only log at this level.
 
-For guidance on creating and managing a pull request, please see our
-:ref:`contributing <contributing>` and :ref:`pull request workflow <edit-flow>`
-guides.
+By default, `logging` displays all log messages at levels higher than
+``logging.WARNING`` to `sys.stderr`.
 
+The `logging tutorial`_ suggests that the difference between `logging.warning`
+and `._api.warn_external` (which uses `warnings.warn`) is that
+`._api.warn_external` should be used for things the user must change to stop
+the warning (typically in the source), whereas `logging.warning` can be more
+persistent. Moreover, note that `._api.warn_external` will by default only
+emit a given warning *once* for each line of user code, whereas
+`logging.warning` will display the message every time it is called.
 
-Summary for pull request reviewers
-==================================
+By default, `warnings.warn` displays the line of code that has the ``warn``
+call. This usually isn't more informative than the warning message itself.
+Therefore, Matplotlib uses `._api.warn_external` which uses `warnings.warn`,
+but goes up the stack and displays the first line of code outside of
+Matplotlib. For example, for the module::
 
-.. redirect-from:: /devel/maintainer_workflow
+    # in my_matplotlib_module.py
+    import warnings
 
-**Please help review and merge PRs!**
+    def set_range(bottom, top):
+        if bottom == top:
+            warnings.warn('Attempting to set identical bottom==top')
 
-If you have commit rights, then you are trusted to use them. Please be patient
-and `kind <https://youtu.be/tzFWz5fiVKU?t=49m30s>`__ with contributors.
+running the script::
 
-When reviewing, please ensure that the pull request satisfies the following
-requirements before merging it:
+    from matplotlib import my_matplotlib_module
+    my_matplotlib_module.set_range(0, 0)  # set range
 
-Content topics:
+will display
 
-.. rst-class:: checklist
+.. code-block:: none
 
-* Is the feature / bugfix reasonable?
-* Does the PR conform with the :ref:`coding_guidelines`?
-* Is the :ref:`documentation <pr-documentation>` (docstrings, examples,
-  what's new, API changes) updated?
-* Is the change purely stylistic? Generally, such changes are discouraged when
-  not part of other non-stylistic work because it obscures the git history of
-  functional changes to the code. Reflowing a method or docstring as part of a
-  larger refactor/rewrite is acceptable.
+    UserWarning: Attempting to set identical bottom==top
+    warnings.warn('Attempting to set identical bottom==top')
 
+Modifying the module to use `._api.warn_external`::
 
-Organizational topics:
+    from matplotlib import _api
 
-.. rst-class:: checklist
+    def set_range(bottom, top):
+        if bottom == top:
+            _api.warn_external('Attempting to set identical bottom==top')
 
-* Make sure all :ref:`automated tests <pr-automated-tests>` pass.
-* The PR should :ref:`target the main branch <pr-branch-selection>`.
-* Tag with descriptive :ref:`labels <pr-labels>`.
-* Set the :ref:`milestone <pr-milestones>`.
-* Keep an eye on the :ref:`number of commits <pr-squashing>`.
-* Approve if all of the above topics are handled.
-* :ref:`Merge  <pr-merging>` if a sufficient number of approvals is reached.
+and running the same script will display
 
-.. _pr-guidelines-details:
+.. code-block:: none
 
-Detailed guidelines
-===================
+   UserWarning: Attempting to set identical bottom==top
+   my_matplotlib_module.set_range(0, 0)  # set range
 
-.. _pr-documentation:
+.. _logging tutorial: https://docs.python.org/3/howto/logging.html#logging-basic-tutorial
 
-Documentation
--------------
 
-* Every new feature should be documented.  If it's a new module, don't
-  forget to add a new rst file to the API docs.
+.. _licence-coding-guide:
 
-* Each high-level plotting function should have a small example in
-  the ``Examples`` section of the docstring.  This should be as simple as
-  possible to demonstrate the method.  More complex examples should go into
-  a dedicated example file in the :file:`examples` directory, which will be
-  rendered to the examples gallery in the documentation.
+.. include:: license.rst
+  :start-line: 2
 
-* Build the docs and make sure all formatting warnings are addressed.
+.. toctree::
+   :hidden:
 
-* See :ref:`documenting-matplotlib` for our documentation style guide.
-
-.. _pr-labels:
-
-Labels
-------
-
-* If you have the rights to set labels, tag the PR with descriptive labels.
-  See the `list of labels <https://github.com/matplotlib/matplotlib/labels>`__.
-* If the PR makes changes to the wheel building Action, add the
-  "Run cibuildwheel" label to enable testing wheels.
-
-.. _pr-milestones:
-
-Milestones
-----------
-
-Set the milestone according to these guidelines:
-
-* *New features and API changes* are milestoned for the next minor release
-  ``v3.N.0``.
-
-* *Bugfixes, tests for released code, and docstring changes* may be milestoned
-  for the next patch release ``v3.N.M``.
-
-* *Documentation changes* (only .rst files and examples) may be milestoned
-  ``v3.N-doc``.
-
-If multiple rules apply, choose the first matching from the above list.  See
-:ref:`backport-strategy` for detailed guidance on what should or should not be
-backported.
-
-The milestone marks the release a PR should go into.  It states intent, but can
-be changed because of release planning or re-evaluation of the PR scope and
-maturity.
-
-All Pull Requests should target the main branch. The milestone tag triggers
-an :ref:`automatic backport <automated-backports>` for milestones which have
-a corresponding branch.
-
-.. _pr-merging:
-
-Merging
--------
-
-* Documentation and examples may be merged by the first reviewer.  Use
-  the threshold "is this better than it was?" as the review criteria.
-
-* For code changes (anything in ``src`` or ``lib``) at least two
-  core developers (those with commit rights) should review all pull
-  requests.  If you are the first to review a PR and approve of the
-  changes use the GitHub `'approve review'
-  <https://docs.github.com/en/github/collaborating-with-pull-requests/reviewing-changes-in-pull-requests>`__
-  tool to mark it as such.  If you are a subsequent reviewer please
-  approve the review and if you think no more review is needed, merge
-  the PR.
-
-  Ensure that all API changes are documented in a file in one of the
-  subdirectories of :file:`doc/api/next_api_changes`, and significant new
-  features have an entry in :file:`doc/user/whats_new`.
-
-  - If a PR already has a positive review, a core developer (e.g. the first
-    reviewer, but not necessarily) may champion that PR for merging.  In order
-    to do so, they should ping all core devs both on GitHub and on the dev
-    mailing list, and label the PR with the "Merge with single review?" label.
-    Other core devs can then either review the PR and merge or reject it, or
-    simply request that it gets a second review before being merged.  If no one
-    asks for such a second review within a week, the PR can then be merged on
-    the basis of that single review.
-
-    A core dev should only champion one PR at a time and we should try to keep
-    the flow of championed PRs reasonable.
-
-* Do not self merge, except for 'small' patches to un-break the CI or
-  when another reviewer explicitly allows it (ex, "Approve modulo CI
-  passing, may self merge when green").
-
-.. _pr-automated-tests:
-
-Automated tests
----------------
-Before being merged, a PR should pass the :ref:`automated-tests`. If you are
-unsure why a test is failing, ask on the PR or in our :ref:`communication-channels`
-
-.. _pr-squashing:
-
-Number of commits and squashing
--------------------------------
-
-* Squashing is case-by-case.  The balance is between burden on the
-  contributor, keeping a relatively clean history, and keeping a
-  history usable for bisecting.  The only time we are really strict
-  about it is to eliminate binary files (ex multiple test image
-  re-generations) and to remove upstream merges.
-
-* Do not let perfect be the enemy of the good, particularly for
-  documentation or example PRs.  If you find yourself making many
-  small suggestions, either open a PR against the original branch,
-  push changes to the contributor branch, or merge the PR and then
-  open a new PR against upstream.
-
-* If you push to a contributor branch leave a comment explaining what
-  you did, ex "I took the liberty of pushing a small clean-up PR to
-  your branch, thanks for your work.".  If you are going to make
-  substantial changes to the code or intent of the PR please check
-  with the contributor first.
-
-
-.. _branches_and_backports:
-
-Branches and backports
-======================
-
-Current branches
-----------------
-The current active branches are
-
-*main*
-  The current development version. Future minor releases (*v3.N.0*) will be
-  branched from this.
-
-*v3.N.x*
-  Maintenance branch for Matplotlib 3.N. Future patch releases will be
-  branched from this.
-
-*v3.N.M-doc*
-  Documentation for the current release.  On a patch release, this will be
-  replaced by a properly named branch for the new release.
-
-
-.. _pr-branch-selection:
-
-Branch selection for pull requests
-----------------------------------
-
-Generally, all pull requests should target the main branch.
-
-Other branches are fed through :ref:`automatic <automated-backports>` or
-:ref:`manual <manual-backports>`. Directly
-targeting other branches is only rarely necessary for special maintenance
-work.
-
-.. _backport-strategy:
-
-Backport strategy
------------------
-
-Backports to the patch release branch (*v3.N.x*) are the changes that will be
-included in the next patch (aka bug-fix) release.  The goal of the patch
-releases is to fix bugs without adding any new regressions or behavior changes.
-We will always attempt to backport:
-
-- critical bug fixes (segfault, failure to import, things that the
-  user cannot work around)
-- fixes for regressions introduced in the last two minor releases
-
-and may attempt to backport fixes for regressions introduced in older releases.
-
-In the case where the backport is not clean, for example if the bug fix is
-built on top of other code changes we do not want to backport, balance the
-effort and risk of re-implementing the bug fix vs the severity of the bug.
-When in doubt, err on the side of not backporting.
-
-When backporting a Pull Request fails or is declined, re-milestone the original
-PR to the next minor release and leave a comment explaining why.
-
-The only changes backported to the documentation branch (*v3.N.M-doc*)
-are changes to :file:`doc` or :file:`galleries`.  Any changes to :file:`lib`
-or :file:`src`, including docstring-only changes, must not be backported to
-this branch.
-
-
-.. _automated-backports:
-
-Automated backports
--------------------
-
-We use MeeseeksDev bot to automatically backport merges to the correct
-maintenance branch base on the milestone.  To work properly the
-milestone must be set before merging.  If you have commit rights, the
-bot can also be manually triggered after a merge by leaving a message
-``@meeseeksdev backport to BRANCH`` on the PR.  If there are conflicts
-MeeseeksDev will inform you that the backport needs to be done
-manually.
-
-The target branch is configured by putting ``on-merge: backport to
-TARGETBRANCH`` in the milestone description on it's own line.
-
-If the bot is not working as expected, please report issues to
-`MeeseeksDev <https://github.com/MeeseeksBox/MeeseeksDev>`__.
-
-
-.. _manual-backports:
-
-Manual backports
-----------------
-
-When doing backports please copy the form used by MeeseeksDev,
-``Backport PR #XXXX: TITLE OF PR``.  If you need to manually resolve
-conflicts make note of them and how you resolved them in the commit
-message.
-
-We do a backport from main to v2.2.x assuming:
-
-* ``matplotlib`` is a read-only remote branch of the matplotlib/matplotlib repo
-
-The ``TARGET_SHA`` is the hash of the merge commit you would like to
-backport.  This can be read off of the GitHub PR page (in the UI with
-the merge notification) or through the git CLI tools.
-
-Assuming that you already have a local branch ``v2.2.x`` (if not, then
-``git checkout -b v2.2.x``), and that your remote pointing to
-``https://github.com/matplotlib/matplotlib`` is called ``upstream``:
-
-.. code-block:: bash
-
-   git fetch upstream
-   git checkout v2.2.x  # or include -b if you don't already have this.
-   git reset --hard upstream/v2.2.x
-   git cherry-pick -m 1 TARGET_SHA
-   # resolve conflicts and commit if required
-
-Files with conflicts can be listed by ``git status``,
-and will have to be fixed by hand (search on ``>>>>>``).  Once
-the conflict is resolved, you will have to re-add the file(s) to the branch
-and then continue the cherry pick:
-
-.. code-block:: bash
-
-   git add lib/matplotlib/conflicted_file.py
-   git add lib/matplotlib/conflicted_file2.py
-   git cherry-pick --continue
-
-Use your discretion to push directly to upstream or to open a PR; be
-sure to push or PR against the ``v2.2.x`` upstream branch, not ``main``!
+   license.rst
