@@ -845,21 +845,29 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         result = ax.violinplot(values, positions=[datetime(2023, 1, 10)], widths=[
                                timedelta(days=10)], showmeans=True, showextrema=True)
+        assert isinstance(result, dict), "Failed to create violin plot"
+        assert 'bodies' in result, "Violin plot bodies are missing"
+        assert len(result['bodies']) > 0, "Violin plot bodies are empty"
         result1 = ax.violinplot(values, positions=[datetime(2023, 1, 15)], widths=[
                                 timedelta(days=6)], showmeans=True, showextrema=True)
+        assert isinstance(result1, dict), "Failed to create violin plot"
+        assert 'bodies' in result1, "Violin plot bodies are missing"
+        assert len(result1['bodies']) > 0, "Violin plot bodies are empty"
         result2 = ax.violinplot(values, positions=[datetime(2023, 1, 25)], widths=[
                                 timedelta(days=12)], showmeans=True, showextrema=True)
+        assert isinstance(result2, dict), "Failed to create violin plot"
+        assert 'bodies' in result2, "Violin plot bodies are missing"
+        assert len(result2['bodies']) > 0, "Violin plot bodies are empty"
         result3 = ax.violinplot(values, positions=[datetime(2023, 2, 5)], widths=[
                                 timedelta(days=8)], showmeans=True, showextrema=True)
+        assert isinstance(result3, dict), "Failed to create violin plot"
+        assert 'bodies' in result3, "Violin plot bodies are missing"
+        assert len(result3['bodies']) > 0, "Violin plot bodies are empty"
         ax.set_title(
             'Violin Plot with DateTime Positions and Timedelta Widths')
         ax.set_xlabel('Dates')
         ax.set_ylabel('Values')
         plt.xticks(rotation=90)
-        assert isinstance(result, dict)
-        assert isinstance(result1, dict)
-        assert isinstance(result2, dict)
-        assert isinstance(result3, dict)
         assert result is not None, "Failed to create violin plot"
 
     @mpl.style.context("default")
