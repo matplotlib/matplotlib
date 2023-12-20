@@ -191,7 +191,7 @@ class Button(AxesWidget):
         image : array-like or PIL Image
             The image to place in the button, if not *None*.  The parameter is
             directly forwarded to `~.axes.Axes.imshow`.
-        color : color
+        color : :mpltype:`color`
             The color of the button when not activated.
         hovercolor : color
             The color of the button when the mouse is over it.
