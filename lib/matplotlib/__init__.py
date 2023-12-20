@@ -151,9 +151,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import warnings
 
-import numpy
 from packaging.version import parse as parse_version
 
 # cbook must import matplotlib only within function
@@ -161,7 +159,8 @@ from packaging.version import parse as parse_version
 from . import _api, _version, cbook, _docstring, rcsetup
 from matplotlib.cbook import sanitize_sequence
 from matplotlib._api import MatplotlibDeprecationWarning
-from matplotlib.rcsetup import validate_backend, cycler
+from matplotlib.rcsetup import cycler  # noqa: F401
+from matplotlib.rcsetup import validate_backend
 
 
 _log = logging.getLogger(__name__)
@@ -246,7 +245,7 @@ def _check_versions():
 
     # Quickfix to ensure Microsoft Visual C++ redistributable
     # DLLs are loaded before importing kiwisolver
-    from . import ft2font
+    from . import ft2font  # noqa: F401
 
     for modname, minver in [
             ("cycler", "0.10"),
@@ -1511,5 +1510,5 @@ _log.debug('platform is %s', sys.platform)
 
 # workaround: we must defer colormaps import to after loading rcParams, because
 # colormap creation depends on rcParams
-from matplotlib.cm import _colormaps as colormaps
-from matplotlib.colors import _color_sequences as color_sequences
+from matplotlib.cm import _colormaps as colormaps  # noqa: E402
+from matplotlib.colors import _color_sequences as color_sequences  # noqa: E402

@@ -19,7 +19,7 @@ from matplotlib import _api, cbook, cm
 from matplotlib import _image
 # For user convenience, the names from _image are also imported into
 # the image namespace
-from matplotlib._image import *
+from matplotlib._image import *  # noqa: F401, F403
 import matplotlib.artist as martist
 from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.colors as mcolors

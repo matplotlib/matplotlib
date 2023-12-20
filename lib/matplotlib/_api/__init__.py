@@ -16,7 +16,7 @@ import re
 import sys
 import warnings
 
-from .deprecation import (
+from .deprecation import (  # noqa: F401
     deprecated, warn_deprecated,
     rename_parameter, delete_parameter, make_keyword_only,
     deprecate_method_override, deprecate_privatize_attribute,
