@@ -1228,7 +1228,8 @@ def test_colorbar_wrong_figure():
     im = fig_cl.add_subplot().imshow([[0, 1]])
     # Make sure this doesn't try to setup a gridspec-controlled colorbar on fig_cl,
     # which would crash CL.
-    fig_tl.colorbar(im)
+    with pytest.warns(UserWarning, match="different Figure"):
+        fig_tl.colorbar(im)
     fig_tl.draw_without_rendering()
     fig_cl.draw_without_rendering()
 

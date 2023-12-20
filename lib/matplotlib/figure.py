@@ -1242,6 +1242,19 @@ default: %(va)s
             fig.sca(current_ax)
             cax.grid(visible=False, which='both', axis='both')
 
+        if hasattr(mappable, "figure") and mappable.figure is not None:
+            # Get top level artists
+            mappable_host_fig = mappable.figure
+            if isinstance(mappable_host_fig, mpl.figure.SubFigure):
+                mappable_host_fig = mappable_host_fig.figure
+            # Warn in case of mismatch
+            if mappable_host_fig is not self.figure:
+                _api.warn_external(
+                        f'Adding colorbar to a different Figure '
+                        f'{repr(mappable.figure)} than '
+                        f'{repr(self.figure)} which '
+                        f'fig.colorbar is called on.')
+
         NON_COLORBAR_KEYS = [  # remove kws that cannot be passed to Colorbar
             'fraction', 'pad', 'shrink', 'aspect', 'anchor', 'panchor']
         cb = cbar.Colorbar(cax, mappable, **{
