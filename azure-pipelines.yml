@@ -225,7 +225,7 @@ stages:
             fi
             echo "##vso[task.setvariable variable=VS_COVERAGE_TOOL]$TOOL"
           fi
-          PYTHONFAULTHANDLER=1 python -m pytest -raR -n 2 \
+          PYTHONFAULTHANDLER=1 pytest -raR -n 2 \
               --maxfail=50 --timeout=300 --durations=25 \
               --junitxml=junit/test-results.xml --cov-report=xml --cov=lib ||
             [[ "$PYTHON_VERSION" = 'Pre' ]]

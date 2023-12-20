@@ -298,3 +298,6 @@ ignore_messages = [
 # `lib/matplotlib/testing/conftest.py`.
 minversion = "7.0"
 testpaths = ["lib"]
+addopts = [
+    "--import-mode=importlib",
+]
