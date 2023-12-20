@@ -249,7 +249,7 @@ you can:
 - Write or update an :ref:`example plot <gallery>`
 - Write or update a comprehensive :ref:`tutorial <tutorials>`
 
-Our code is documented inline in the source code files in :file:`matplotlib\lib`.
+Our code is documented inline in the source code files in :file:`matplotlib/lib`.
 Our website structure mirrors our folder structure, meaning that a narrative
 document's URL roughly corresponds to its location in our folder structure:
 
