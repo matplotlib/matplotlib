@@ -152,12 +152,6 @@ class FigureBase(Artist):
     def _get_draw_artists(self, renderer):
         """Also runs apply_aspect"""
         artists = self.get_children()
-        for sfig in self.subfigs:
-            artists.remove(sfig)
-            childa = sfig.get_children()
-            for child in childa:
-                if child in artists:
-                    artists.remove(child)
 
         artists.remove(self.patch)
         artists = sorted(
@@ -2310,8 +2304,6 @@ class SubFigure(FigureBase):
             self.patch.draw(renderer)
             mimage._draw_list_compositing_images(
                 renderer, self, artists, self.figure.suppressComposite)
-            for sfig in self.subfigs:
-                sfig.draw(renderer)
             renderer.close_group('subfigure')
 
         finally:
@@ -3116,9 +3108,6 @@ None}, default: None
                 self.patch.draw(renderer)
                 mimage._draw_list_compositing_images(
                     renderer, self, artists, self.suppressComposite)
-
-                for sfig in self.subfigs:
-                    sfig.draw(renderer)
 
                 renderer.close_group('figure')
             finally:
