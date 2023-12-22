@@ -1,6 +1,7 @@
 .. _license:
 
 .. redirect-from:: /users/license
+.. redirect-from:: /users/project/license
 
 *******
 License

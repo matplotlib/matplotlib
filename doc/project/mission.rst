@@ -1,4 +1,5 @@
 .. _mission-statement:
+.. redirect-from:: /users/project/mission
 
 Mission Statement
 =================
