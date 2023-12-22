@@ -568,7 +568,6 @@ class TestDatetimePlotting:
         ax.set_xlabel('Sample datetime')
         ax.set_ylabel('Sample data')
         ax.set_title('Sample test case for pcolorfast()')
-        plt.show()
 
     @pytest.mark.xfail(reason="Test for pcolormesh not written yet")
     @mpl.style.context("default")
