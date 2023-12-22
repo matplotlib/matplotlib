@@ -1286,6 +1286,12 @@ def test_subfigure():
 
     fig.suptitle('Figure suptitle', fontsize='xx-large')
 
+    # below tests for the draw zorder of subfigures.
+    leg = fig.legend(handles=[plt.Line2D([0], [0], label='Line{}'.format(i))
+                     for i in range(5)], loc='center')
+    sub[0].set_zorder(leg.get_zorder() - 1)
+    sub[1].set_zorder(leg.get_zorder() + 1)
+
 
 def test_subfigure_tightbbox():
     # test that we can get the tightbbox with a subfigure...
