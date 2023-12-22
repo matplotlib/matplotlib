@@ -7,7 +7,7 @@ This example illustrates the effect of ``rotation_mode`` on the positioning
 of rotated text.
 
 Rotated `.Text`\s are created by passing the parameter ``rotation`` to
-the constructor or the axes' method `~.axes.Axes.text`.
+the constructor or the Axes' method `~.axes.Axes.text`.
 
 The actual positioning depends on the additional parameters
 ``horizontalalignment``, ``verticalalignment`` and ``rotation_mode``.
@@ -45,11 +45,11 @@ def test_rotation_mode(fig, mode):
 
     texts = {}
 
-    # use a different text alignment in each axes
+    # use a different text alignment in each Axes
     for i, va in enumerate(va_list):
         for j, ha in enumerate(ha_list):
             ax = axs[i, j]
-            # prepare axes layout
+            # prepare Axes layout
             ax.set(xticks=[], yticks=[])
             ax.axvline(0.5, color="skyblue", zorder=0)
             ax.axhline(0.5, color="skyblue", zorder=0)

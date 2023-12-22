@@ -9,7 +9,7 @@ at the cost of a fixed resolution.
 
 Whether rasterization should be used can be specified per artist.  This can be
 useful to reduce the file size of large artists, while maintaining the
-advantages of vector graphics for other artists such as the axes
+advantages of vector graphics for other artists such as the Axes
 and text.  For instance a complicated `~.Axes.pcolormesh` or
 `~.Axes.contourf` can be made significantly simpler by rasterizing.
 Setting rasterization only affects vector backends such as PDF, SVG, or PS.

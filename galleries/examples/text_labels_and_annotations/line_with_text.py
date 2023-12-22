@@ -28,7 +28,7 @@ class MyLine(lines.Line2D):
         self.text.set_figure(figure)
         super().set_figure(figure)
 
-    # Override the axes property setter to set Axes on our children as well.
+    # Override the Axes property setter to set Axes on our children as well.
     @lines.Line2D.axes.setter
     def axes(self, new_axes):
         self.text.axes = new_axes

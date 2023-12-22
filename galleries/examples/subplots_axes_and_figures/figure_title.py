@@ -3,7 +3,7 @@
 Figure labels: suptitle, supxlabel, supylabel
 =============================================
 
-Each axes can have a title (or actually three - one each with *loc* "left",
+Each Axes can have a title (or actually three - one each with *loc* "left",
 "center", and "right"), but is sometimes desirable to give a whole figure
 (or `.SubFigure`) an overall title, using `.Figure.suptitle`.
 

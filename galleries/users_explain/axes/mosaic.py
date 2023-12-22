@@ -13,11 +13,11 @@ and verbose.  For dense, even grids we have `.Figure.subplots` but for
 more complex layouts, such as Axes that span multiple columns / rows
 of the layout or leave some areas of the Figure blank, you can use
 `.gridspec.GridSpec` (see :ref:`arranging_axes`) or
-manually place your axes.  `.Figure.subplot_mosaic` aims to provide an
-interface to visually lay out your axes (as either ASCII art or nested
+manually place your Axes.  `.Figure.subplot_mosaic` aims to provide an
+interface to visually lay out your Axes (as either ASCII art or nested
 lists) to streamline this process.
 
-This interface naturally supports naming your axes.
+This interface naturally supports naming your Axes.
 `.Figure.subplot_mosaic` returns a dictionary keyed on the
 labels used to lay out the Figure.  By returning data structures with
 names, it is easier to write plotting code that is independent of the
@@ -75,7 +75,7 @@ identify_axes(
 
 # %%
 # Using `.Figure.subplot_mosaic` we can produce the same mosaic but give the
-# axes semantic names
+# Axes semantic names
 
 fig = plt.figure(layout="constrained")
 ax_dict = fig.subplot_mosaic(
@@ -103,7 +103,7 @@ print(ax_dict)
 # String short-hand
 # =================
 #
-# By restricting our axes labels to single characters we can
+# By restricting our Axes labels to single characters we can
 # "draw" the Axes we want as "ASCII art".  The following
 
 

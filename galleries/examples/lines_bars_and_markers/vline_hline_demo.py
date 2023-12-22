@@ -21,7 +21,7 @@ fig, (vax, hax) = plt.subplots(1, 2, figsize=(12, 6))
 vax.plot(t, s + nse, '^')
 vax.vlines(t, [0], s)
 # By using ``transform=vax.get_xaxis_transform()`` the y coordinates are scaled
-# such that 0 maps to the bottom of the axes and 1 to the top.
+# such that 0 maps to the bottom of the Axes and 1 to the top.
 vax.vlines([1, 2], 0, 1, transform=vax.get_xaxis_transform(), colors='r')
 vax.set_xlabel('time (s)')
 vax.set_title('Vertical lines demo')

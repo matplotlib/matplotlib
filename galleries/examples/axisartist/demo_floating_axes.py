@@ -76,7 +76,7 @@ def setup_axes2(fig, rect):
         rect, axes_class=floating_axes.FloatingAxes, grid_helper=grid_helper)
     ax1.grid()
 
-    # create a parasite axes whose transData in RA, cz
+    # create a parasite Axes whose transData in RA, cz
     aux_ax = ax1.get_aux_axes(tr)
 
     aux_ax.patch = ax1.patch  # for aux_ax to have a clip path as in ax
@@ -134,7 +134,7 @@ def setup_axes3(fig, rect):
     ax1.axis["top"].label.set_text(r"$\alpha_{1950}$")
     ax1.grid()
 
-    # create a parasite axes whose transData in RA, cz
+    # create a parasite Axes whose transData in RA, cz
     aux_ax = ax1.get_aux_axes(tr)
 
     aux_ax.patch = ax1.patch  # for aux_ax to have a clip path as in ax

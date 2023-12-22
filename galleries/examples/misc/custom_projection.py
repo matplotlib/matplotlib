@@ -90,7 +90,7 @@ class GeoAxes(Axes):
         # the inline documentation there.
 
         # The goal of the first two transformations is to get from the
-        # data space (in this case longitude and latitude) to axes
+        # data space (in this case longitude and latitude) to Axes
         # space.  It is separated into a non-affine and affine part so
         # that the non-affine part does not have to be recomputed when
         # a simple affine change to the figure has been made (such as
@@ -102,12 +102,12 @@ class GeoAxes(Axes):
 
         # 2) The above has an output range that is not in the unit
         # rectangle, so scale and translate it so it fits correctly
-        # within the axes.  The peculiar calculations of xscale and
+        # within the Axes.  The peculiar calculations of xscale and
         # yscale are specific to an Aitoff-Hammer projection, so don't
         # worry about them too much.
         self.transAffine = self._get_affine_transform()
 
-        # 3) This is the transformation from axes space to display
+        # 3) This is the transformation from Axes space to display
         # space.
         self.transAxes = BboxTransformTo(self.bbox)
 
@@ -125,7 +125,7 @@ class GeoAxes(Axes):
         # gridlines and tick labels.
 
         # Longitude gridlines and ticklabels.  The input to these
-        # transforms are in display space in x and axes space in y.
+        # transforms are in display space in x and Axes space in y.
         # Therefore, the input values will be in range (-xmin, 0),
         # (xmax, 1).  The goal of these transforms is to go from that
         # space to display space.  The tick labels will be offset 4
@@ -147,11 +147,11 @@ class GeoAxes(Axes):
             Affine2D().translate(0.0, -4.0)
 
         # Now set up the transforms for the latitude ticks.  The input to
-        # these transforms are in axes space in x and display space in
+        # these transforms are in Axes space in x and display space in
         # y.  Therefore, the input values will be in range (0, -ymin),
         # (1, ymax).  The goal of these transforms is to go from that
         # space to display space.  The tick labels will be offset 4
-        # pixels from the edge of the axes ellipse.
+        # pixels from the edge of the Axes ellipse.
         yaxis_stretch = Affine2D().scale(np.pi*2, 1).translate(-np.pi, 0)
         yaxis_space = Affine2D().scale(1.0, 1.1)
         self._yaxis_transform = \
@@ -235,7 +235,7 @@ class GeoAxes(Axes):
         Override this method to define the shape that is used for the
         background of the plot.  It should be a subclass of Patch.
 
-        In this case, it is a Circle (that may be warped by the axes
+        In this case, it is a Circle (that may be warped by the Axes
         transform into an ellipse).  Any data and gridlines will be
         clipped to this shape.
         """

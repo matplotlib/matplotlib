@@ -3,8 +3,8 @@
 Axes divider
 ============
 
-Axes divider to calculate location of axes and
-create a divider for them using existing axes instances.
+Axes divider to calculate location of Axes and
+create a divider for them using existing Axes instances.
 """
 
 import matplotlib.pyplot as plt
@@ -30,13 +30,13 @@ def demo_locatable_axes_hard(fig):
 
     divider = SubplotDivider(fig, 2, 2, 2, aspect=True)
 
-    # axes for image
+    # Axes for image
     ax = fig.add_subplot(axes_locator=divider.new_locator(nx=0, ny=0))
-    # axes for colorbar
+    # Axes for colorbar
     ax_cb = fig.add_subplot(axes_locator=divider.new_locator(nx=2, ny=0))
 
     divider.set_horizontal([
-        Size.AxesX(ax),  # main axes
+        Size.AxesX(ax),  # main Axes
         Size.Fixed(0.05),  # padding, 0.1 inch
         Size.Fixed(0.2),  # colorbar, 0.3 inch
     ])

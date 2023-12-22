@@ -25,7 +25,7 @@ def filled_hist(ax, edges, values, bottoms=None, orientation='v',
     Parameters
     ----------
     ax : Axes
-        The axes to plot to
+        The Axes to plot to.
 
     edges : array
         A length n+1 array giving the left edges of each bin and the
@@ -85,7 +85,7 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
     Parameters
     ----------
     ax : axes.Axes
-        The axes to add artists too
+        The Axes to add artists to.
 
     stacked_data : array or Mapping
         A (M, N) shaped array.  The first dimension will be iterated over to
