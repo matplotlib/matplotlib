@@ -397,7 +397,7 @@ default: %(va)s
 
         Parameters
         ----------
-        color : color; see :ref:`colors_def`
+        color : :mpltype:`color`
         """
         self.patch.set_edgecolor(color)
 
@@ -407,7 +407,7 @@ default: %(va)s
 
         Parameters
         ----------
-        color : color; see :ref:`colors_def`
+        color : :mpltype:`color`
         """
         self.patch.set_facecolor(color)
 
@@ -3261,11 +3261,11 @@ None}, default: None
             compressed layout engine; ignored if one of those engines is not in
             use.
 
-        facecolor : color or 'auto', default: :rc:`savefig.facecolor`
+        facecolor : :mpltype:`color` or 'auto', default: :rc:`savefig.facecolor`
             The facecolor of the figure.  If 'auto', use the current figure
             facecolor.
 
-        edgecolor : color or 'auto', default: :rc:`savefig.edgecolor`
+        edgecolor : :mpltype:`color` or 'auto', default: :rc:`savefig.edgecolor`
             The edgecolor of the figure.  If 'auto', use the current figure
             edgecolor.
 

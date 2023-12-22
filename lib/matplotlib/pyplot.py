@@ -822,10 +822,10 @@ def figure(
     dpi : float, default: :rc:`figure.dpi`
         The resolution of the figure in dots-per-inch.
 
-    facecolor : color, default: :rc:`figure.facecolor`
+    facecolor : :mpltype:`color`, default: :rc:`figure.facecolor`
         The background color.
 
-    edgecolor : color, default: :rc:`figure.edgecolor`
+    edgecolor : :mpltype:`color`, default: :rc:`figure.edgecolor`
         The border color.
 
     frameon : bool, default: True

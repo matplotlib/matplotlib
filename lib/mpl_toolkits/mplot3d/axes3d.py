@@ -1940,13 +1940,13 @@ class Axes3D(Axes):
             'classic' mode uses a default of ``rstride = cstride = 10`` instead
             of the new default of ``rcount = ccount = 50``.
 
-        color : color-like
+        color : :mpltype:`color`
             Color of the surface patches.
 
         cmap : Colormap, optional
             Colormap of the surface patches.
 
-        facecolors : array-like of colors
+        facecolors : list of :mpltype:`color`
             Colors of each individual patch.
 
         norm : `~matplotlib.colors.Normalize`, optional
@@ -2613,7 +2613,7 @@ class Axes3D(Axes):
             The marker size in points**2. Either an array of the same length
             as *xs* and *ys* or a single value to make all markers the same
             size.
-        c : color, sequence, or sequence of colors, optional
+        c : :mpltype:`color`, sequence, or sequence of colors, optional
             The marker color. Possible values:
 
             - A single color format string.
@@ -3260,7 +3260,7 @@ class Axes3D(Axes):
             Use 'none' (case-insensitive) to plot errorbars without any data
             markers.
 
-        ecolor : color, default: None
+        ecolor : :mpltype:`color`, default: None
             The color of the errorbar lines.  If None, use the color of the
             line connecting the markers.
 

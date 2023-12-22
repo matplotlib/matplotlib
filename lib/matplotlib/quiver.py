@@ -179,7 +179,7 @@ minlength : float, default: 1
     Minimum length as a multiple of shaft width; if an arrow length
     is less than this, plot a dot (hexagon) of this diameter instead.
 
-color : color or color sequence, optional
+color : :mpltype:`color` or list :mpltype:`color`, optional
     Explicit color(s) for the arrows. If *C* has been set, *color* has no
     effect.
 
@@ -271,14 +271,14 @@ class QuiverKey(martist.Artist):
             (used for the locations of the vectors in the quiver plot itself);
             'inches' is position in the figure in inches, with (0, 0) at the
             lower left corner.
-        color : color
+        color : :mpltype:`color`
             Overrides face and edge colors from *Q*.
         labelpos : {'N', 'S', 'E', 'W'}
             Position the label above, below, to the right, to the left of the
             arrow, respectively.
         labelsep : float, default: 0.1
             Distance in inches between the arrow and the label.
-        labelcolor : color, default: :rc:`text.color`
+        labelcolor : :mpltype:`color`, default: :rc:`text.color`
             Label color.
         fontproperties : dict, optional
             A dictionary with keyword arguments accepted by the
@@ -796,12 +796,12 @@ pivot : {'tip', 'middle'} or float, default: 'tip'
     rotates about this point. This can also be a number, which shifts the
     start of the barb that many points away from grid point.
 
-barbcolor : color or color sequence
+barbcolor : :mpltype:`color` or color sequence
     The color of all parts of the barb except for the flags.  This parameter
     is analogous to the *edgecolor* parameter for polygons, which can be used
     instead. However this parameter will override facecolor.
 
-flagcolor : color or color sequence
+flagcolor : :mpltype:`color` or color sequence
     The color of any flags on the barb.  This parameter is analogous to the
     *facecolor* parameter for polygons, which can be used instead. However,
     this parameter will override facecolor.  If this is not set (and *C* has

@@ -193,7 +193,7 @@ class Button(AxesWidget):
             directly forwarded to `~.axes.Axes.imshow`.
         color : :mpltype:`color`
             The color of the button when not activated.
-        hovercolor : color
+        hovercolor : :mpltype:`color`
             The color of the button when the mouse is over it.
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
@@ -406,11 +406,11 @@ class Slider(SliderBase):
         orientation : {'horizontal', 'vertical'}, default: 'horizontal'
             The orientation of the slider.
 
-        initcolor : color, default: 'r'
+        initcolor : :mpltype:`color`, default: 'r'
             The color of the line at the *valinit* position. Set to ``'none'``
             for no line.
 
-        track_color : color, default: 'lightgrey'
+        track_color : :mpltype:`color`, default: 'lightgrey'
             The color of the background track. The track is accessible for
             further styling via the *track* attribute.
 
@@ -678,7 +678,7 @@ class RangeSlider(SliderBase):
         orientation : {'horizontal', 'vertical'}, default: 'horizontal'
             The orientation of the slider.
 
-        track_color : color, default: 'lightgrey'
+        track_color : :mpltype:`color`, default: 'lightgrey'
             The color of the background track. The track is accessible for
             further styling via the *track* attribute.
 
@@ -1312,9 +1312,9 @@ class TextBox(AxesWidget):
         The parent Axes for the widget.
     label : `~matplotlib.text.Text`
 
-    color : color
+    color : :mpltype:`color`
         The color of the text box when not hovering.
-    hovercolor : color
+    hovercolor : :mpltype:`color`
         The color of the text box when hovering.
     """
 
@@ -1330,9 +1330,9 @@ class TextBox(AxesWidget):
             Label for this text box.
         initial : str
             Initial value in the text box.
-        color : color
+        color : :mpltype:`color`
             The color of the box.
-        hovercolor : color
+        hovercolor : :mpltype:`color`
             The color of the box when the mouse is over it.
         label_pad : float
             The distance between the label and the right side of the textbox.
@@ -1567,7 +1567,7 @@ class RadioButtons(AxesWidget):
     ----------
     ax : `~matplotlib.axes.Axes`
         The parent Axes for the widget.
-    activecolor : color
+    activecolor : :mpltype:`color`
         The color of the selected button.
     labels : list of `.Text`
         The button labels.
@@ -1592,7 +1592,7 @@ class RadioButtons(AxesWidget):
             The button labels.
         active : int
             The index of the initially selected button.
-        activecolor : color
+        activecolor : :mpltype:`color`
             The color of the selected button. The default is ``'blue'`` if not
             specified here or in *radio_props*.
         useblit : bool, default: True

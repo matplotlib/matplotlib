@@ -1056,7 +1056,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        color : color; see :ref:`colors_def`
+        color : :mpltype:`color`
         """
         mcolors._check_color_like(color=color)
         self._color = color
@@ -1111,7 +1111,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        gapcolor : color or None
+        gapcolor : :mpltype:`color` or None
             The color with which to fill the gaps. If None, the gaps are
             unfilled.
         """
@@ -1214,7 +1214,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        ec : color
+        ec : :mpltype:`color`
         """
         self._set_markercolor("markeredgecolor", True, ec)
 
@@ -1224,7 +1224,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        fc : color
+        fc : :mpltype:`color`
         """
         self._set_markercolor("markerfacecolor", True, fc)
 
@@ -1234,7 +1234,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        fc : color
+        fc : :mpltype:`color`
         """
         self._set_markercolor("markerfacecoloralt", False, fc)
 

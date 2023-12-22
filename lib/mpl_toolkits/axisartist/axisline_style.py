@@ -171,7 +171,7 @@ class AxislineStyle(_Style):
             ----------
             size : float
                 Size of the arrow as a fraction of the ticklabel size.
-            facecolor : color, default: :rc:`axes.edgecolor`
+            facecolor : :mpltype:`color`, default: :rc:`axes.edgecolor`
                 Fill color.
 
                 .. versionadded:: 3.7
