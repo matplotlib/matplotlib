@@ -69,9 +69,9 @@ jobs:
         run: twine check dist/*
 
       - name: Upload sdist result
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: sdist
+          name: cibw-sdist
           path: dist/*.tar.gz
           if-no-files-found: error
 
@@ -140,9 +140,9 @@ jobs:
           platforms: arm64
 
       - name: Download sdist
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: sdist
+          name: cibw-sdist
           path: dist/
 
       - name: Build wheels for CPython 3.12
@@ -186,8 +186,8 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
         if: matrix.cibw_archs != 'aarch64'
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: cibw-wheels-${{ runner.os }}-${{ matrix.cibw_archs }}
           path: ./wheelhouse/*.whl
           if-no-files-found: error
