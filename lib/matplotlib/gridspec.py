@@ -484,7 +484,12 @@ class GridSpecFromSubplotSpec(GridSpecBase):
         """
         self._wspace = wspace
         self._hspace = hspace
-        self._subplot_spec = subplot_spec
+        if isinstance(subplot_spec, SubplotSpec):
+            self._subplot_spec = subplot_spec
+        else:
+            raise TypeError(
+                            "subplot_spec must be type SubplotSpec, "
+                            "usually from GridSpec, or axes.get_subplotspec.")
         self.figure = self._subplot_spec.get_gridspec().figure
         super().__init__(nrows, ncols,
                          width_ratios=width_ratios,
