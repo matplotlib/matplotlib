@@ -1427,3 +1427,35 @@ def test_legend_text():
         leg_bboxes.append(
             leg.get_window_extent().transformed(ax.transAxes.inverted()))
     assert_allclose(leg_bboxes[1].bounds, leg_bboxes[0].bounds)
+
+
+def test_boxplot_legend():
+    # Test that boxplot legends handles are patches
+    # and labels are generated from boxplot's labels parameter.
+    fig, axs = plt.subplots()
+    A = 5*np.random.rand(100, 1)
+    B = 10*np.random.rand(100, 1) - 5
+    C = 7*np.random.rand(100, 1) - 5
+    labels = ['a', 'b', 'c']
+
+    bp0 = axs.boxplot(A, positions=[0], patch_artist=True, labels=labels[0])
+    bp1 = axs.boxplot(B, positions=[1], patch_artist=True, labels=labels[1])
+    bp2 = axs.boxplot(C, positions=[2], patch_artist=True, labels=labels[2])
+    # red, blue, green
+    colors = [(1.0, 0.0, 0.0, 1), (0.0, 0.0, 1.0, 1), (0.0, 0.5, 0.0, 1)]
+    box_list = [bp0, bp1, bp2]
+    # Set colors to the boxes
+    lbl_index = 0
+    for b_plot, color in zip(box_list, colors):
+        for patch in b_plot['boxes']:
+            patch.set_color(color)
+            lbl_index += 1
+
+    legend = axs.legend()
+    index = 0
+    for i in legend.legend_handles:
+        assert isinstance(i, mpl.patches.Rectangle)
+        assert i.get_facecolor() == colors[index]
+        assert i.get_edgecolor() == colors[index]
+        assert i.get_label() == labels[index]
+        index += 1
