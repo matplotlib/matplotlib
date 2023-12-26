@@ -40,3 +40,6 @@ plt.title("Mollweide")
 plt.grid(True)
 
 plt.show()
+
+## %%
+# .. tags:: component: projection, domain: cartography,
