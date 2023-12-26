@@ -73,6 +73,8 @@ plt.show()
 
 # %%
 #
+# .. tags:: plot-type: violin, domain:statistics
+#
 # .. admonition:: References
 #
 #    The use of the following functions, methods, classes and modules is shown
@@ -80,3 +82,7 @@ plt.show()
 #
 #    - `matplotlib.axes.Axes.violinplot` / `matplotlib.pyplot.violinplot`
 #    - `matplotlib.axes.Axes.vlines` / `matplotlib.pyplot.vlines`
+#
+# .. ifconfig:: releaselevel == 'dev'
+#
+#    .. tags::  internal: too-much

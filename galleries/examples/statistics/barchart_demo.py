@@ -101,6 +101,8 @@ plt.show()
 
 # %%
 #
+# ..tags:: purpose:storytelling, domain: statistics, plot-type: bar
+#
 # .. admonition:: References
 #
 #    The use of the following functions, methods, classes and modules is shown

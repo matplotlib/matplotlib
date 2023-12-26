@@ -67,6 +67,8 @@ plt.show()
 
 # %%
 #
+# ..tags:: plot-type: ecdf, plot-type: histogram, domain:statistics
+#
 # .. admonition:: References
 #
 #    The use of the following functions, methods, classes and modules is shown

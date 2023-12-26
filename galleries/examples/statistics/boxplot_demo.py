@@ -247,6 +247,8 @@ plt.show()
 
 # %%
 #
+# .. tags:: domain: statistics, plot-type: boxplot
+#
 # .. admonition:: References
 #
 #    The use of the following functions, methods, classes and modules is shown
@@ -254,3 +256,7 @@ plt.show()
 #
 #    - `matplotlib.axes.Axes.boxplot` / `matplotlib.pyplot.boxplot`
 #    - `matplotlib.artist.Artist.set` / `matplotlib.pyplot.setp`
+#
+# .. ifconfig:: releaselevel == 'dev'
+#
+#    .. tags::  internal: too-much
