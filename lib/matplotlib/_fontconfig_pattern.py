@@ -15,8 +15,6 @@ import re
 from pyparsing import (
     Group, Optional, ParseException, Regex, StringEnd, Suppress, ZeroOrMore)
 
-from matplotlib import _api
-
 
 _family_punc = r'\\\-:,'
 _family_unescape = partial(re.compile(r'\\(?=[%s])' % _family_punc).sub, '')
