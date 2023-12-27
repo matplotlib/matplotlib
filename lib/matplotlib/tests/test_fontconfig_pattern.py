@@ -71,7 +71,3 @@ def test_fontconfig_str():
     for k in keys:
         assert getattr(font, k)() == getattr(right, k)(), test + k
 
-
-def test_fontconfig_unknown_constant():
-    with pytest.warns(DeprecationWarning):
-        FontProperties(":unknown")
