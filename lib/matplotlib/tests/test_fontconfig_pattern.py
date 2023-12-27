@@ -1,4 +1,3 @@
-import pytest
 
 from matplotlib.font_manager import FontProperties
 
@@ -70,4 +69,3 @@ def test_fontconfig_str():
                            stretch="expanded")
     for k in keys:
         assert getattr(font, k)() == getattr(right, k)(), test + k
-
