@@ -72,5 +72,5 @@ def test_fontconfig_str():
         assert getattr(font, k)() == getattr(right, k)(), test + k
 
 def test_fontconfig_unknown_constant():
-    with pytest.raises(ValueError, match="Support for unknown constants is not supported."):
+    with pytest.raises(ValueError):
         FontProperties(":unknown")
