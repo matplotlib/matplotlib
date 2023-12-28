@@ -2,6 +2,7 @@ name: 'Label inactive PRs'
 on:
   schedule:
     - cron: '30 1 * * 1,3,5'
+  workflow_dispatch:
 
 jobs:
   stale:

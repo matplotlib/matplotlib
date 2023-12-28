@@ -2,13 +2,15 @@ name: 'Close inactive issues'
 on:
   schedule:
     - cron: '30 1 * * 2,4,6'
+  workflow_dispatch:
 
 jobs:
   stale:
     if: github.repository == 'matplotlib/matplotlib'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v9
+      # pin back to v8 till https://github.com/actions/stale/issues/1124 is resolved.
+      - uses: actions/stale@v8
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           operations-per-run: 300
