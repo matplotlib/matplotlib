@@ -103,6 +103,7 @@ stages:
               gir1.2-gtk-3.0 \
               graphviz \
               inkscape \
+              language-pack-de \
               lcov \
               libcairo2 \
               libgirepository-1.0-1 \
