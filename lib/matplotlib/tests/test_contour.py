@@ -214,6 +214,24 @@ def test_log_locator_levels():
     assert_array_almost_equal(cb.ax.get_yticks(), c.levels)
 
 
+
+@pytest.mark.parametrize("n_levels", [2, 3, 4, 5, 6])
+def test_lognorm_levels(n_levels):
+    x = np.arange(100) + 1
+    y = np.arange(100) + 1
+    x, y = np.meshgrid(x, y)
+    data = x**2 + y**2
+
+    fig, ax = plt.subplots()
+    im = ax.contour(x, y, data, norm=LogNorm(), levels=n_levels)
+    cbar = fig.colorbar(im, ax=ax)
+
+    levels = im.levels
+    visible_levels = levels[(levels <= data.max()) & (levels >= data.min())]
+    # levels parameter promises "no more than n+1 "nice" contour levels "
+    assert len(visible_levels) <= n_levels + 1
+
+
 @image_comparison(['contour_datetime_axis.png'], style='mpl20')
 def test_contour_datetime_axis():
     fig = plt.figure()
