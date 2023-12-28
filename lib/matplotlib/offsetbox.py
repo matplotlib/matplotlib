@@ -877,7 +877,7 @@ class AnchoredOffsetbox(OffsetBox):
 
     AnchoredOffsetbox has a single child.  When multiple children are needed,
     use an extra OffsetBox to enclose them.  By default, the offset box is
-    anchored against its parent axes. You may explicitly specify the
+    anchored against its parent Axes. You may explicitly specify the
     *bbox_to_anchor*.
     """
     zorder = 5  # zorder of the legend
@@ -1230,13 +1230,13 @@ or callable, default: value of *xycoords*
 
         annotation_clip: bool or None, default: None
             Whether to clip (i.e. not draw) the annotation when the annotation
-            point *xy* is outside the axes area.
+            point *xy* is outside the Axes area.
 
             - If *True*, the annotation will be clipped when *xy* is outside
-              the axes.
+              the Axes.
             - If *False*, the annotation will always be drawn.
             - If *None*, the annotation will be clipped when *xy* is outside
-              the axes and *xycoords* is 'data'.
+              the Axes and *xycoords* is 'data'.
 
         pad : float, default: 0.4
             Padding around the offsetbox.

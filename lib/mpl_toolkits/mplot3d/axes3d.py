@@ -68,7 +68,7 @@ class Axes3D(Axes):
         fig : Figure
             The parent figure.
         rect : tuple (left, bottom, width, height), default: None.
-            The ``(left, bottom, width, height)`` axes position.
+            The ``(left, bottom, width, height)`` Axes position.
         elev : float, default: 30
             The elevation angle in degrees rotates the camera above and below
             the x-y plane, with a positive angle corresponding to a location
@@ -213,7 +213,7 @@ class Axes3D(Axes):
         self.stale = True
 
     def _init_axis(self):
-        """Init 3D axes; overrides creation of regular X/Y axes."""
+        """Init 3D Axes; overrides creation of regular X/Y Axes."""
         self.xaxis = axis3d.XAxis(self)
         self.yaxis = axis3d.YAxis(self)
         self.zaxis = axis3d.ZAxis(self)
@@ -1054,7 +1054,7 @@ class Axes3D(Axes):
         Parameters
         ----------
         value : {{"linear"}}
-            The axis scale type to apply.  3D axes currently only support
+            The axis scale type to apply.  3D Axes currently only support
             linear scales; other scales yield nonsensical results.
 
         **kwargs
@@ -1078,20 +1078,20 @@ class Axes3D(Axes):
 
         Notes
         -----
-        This function is merely provided for completeness, but 3D axes do not
+        This function is merely provided for completeness, but 3D Axes do not
         support dates for ticks, and so this may not work as expected.
         """)
 
     def clabel(self, *args, **kwargs):
-        """Currently not implemented for 3D axes, and returns *None*."""
+        """Currently not implemented for 3D Axes, and returns *None*."""
         return None
 
     def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z",
                   share=False):
         """
-        Set the elevation and azimuth of the axes in degrees (not radians).
+        Set the elevation and azimuth of the Axes in degrees (not radians).
 
-        This can be used to rotate the axes programmatically.
+        This can be used to rotate the Axes programmatically.
 
         To look normal to the primary planes, the following elevation and
         azimuth angles can be used. A roll angle of 0, 90, 180, or 270 deg
@@ -1260,11 +1260,11 @@ class Axes3D(Axes):
         Parameters
         ----------
         rotate_btn : int or list of int, default: 1
-            The mouse button or buttons to use for 3D rotation of the axes.
+            The mouse button or buttons to use for 3D rotation of the Axes.
         pan_btn : int or list of int, default: 2
-            The mouse button or buttons to use to pan the 3D axes.
+            The mouse button or buttons to use to pan the 3D Axes.
         zoom_btn : int or list of int, default: 3
-            The mouse button or buttons to use to zoom the 3D axes.
+            The mouse button or buttons to use to zoom the 3D Axes.
         """
         self.button_pressed = None
         # coerce scalars into array-like, then convert into
@@ -1660,7 +1660,7 @@ class Axes3D(Axes):
         transformed to the x, y, z data axes based on the current view angles.
         A scale factor > 1 zooms out and a scale factor < 1 zooms in.
 
-        For an axes that has had its aspect ratio set to 'equal', 'equalxy',
+        For an Axes that has had its aspect ratio set to 'equal', 'equalxy',
         'equalyz', or 'equalxz', the relevant axes are constrained to zoom
         equally.
 
@@ -1775,7 +1775,7 @@ class Axes3D(Axes):
         to 'both' autoscales all three axes.
 
         Also, because of how Axes3D objects are drawn very differently
-        from regular 2D axes, some of these settings may have
+        from regular 2D Axes, some of these settings may have
         ambiguous meaning.  For simplicity, the 'z' axis will
         accept settings as if it was like the 'y' axis.
 

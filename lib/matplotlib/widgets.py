@@ -152,7 +152,7 @@ class AxesWidget(Widget):
     def _get_data_coords(self, event):
         """Return *event*'s data coordinates in this widget's Axes."""
         # This method handles the possibility that event.inaxes != self.ax (which may
-        # occur if multiple axes are overlaid), in which case event.xdata/.ydata will
+        # occur if multiple Axes are overlaid), in which case event.xdata/.ydata will
         # be wrong.  Note that we still special-case the common case where
         # event.inaxes == self.ax and avoid re-running the inverse data transform,
         # because that can introduce floating point errors for synthetic events.
@@ -2261,7 +2261,7 @@ class _SelectorWidget(AxesWidget):
         Preprocess an event:
 
         - Replace *event* by the previous event if *event* has no ``xdata``.
-        - Get ``xdata`` and ``ydata`` from this widget's axes, and clip them to the axes
+        - Get ``xdata`` and ``ydata`` from this widget's Axes, and clip them to the axes
           limits.
         - Update the previous event.
         """
@@ -3066,7 +3066,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
     Parameters
     ----------
     ax : `~matplotlib.axes.Axes`
-        The parent axes for the widget.
+        The parent Axes for the widget.
 
     onselect : function
         A callback function that is called after a release event and the

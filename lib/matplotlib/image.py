@@ -350,7 +350,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         If *round_to_pixel_border* is True, the output image size will be
         rounded to the nearest pixel boundary.  This makes the images align
-        correctly with the axes.  It should not be used if exact scaling is
+        correctly with the Axes.  It should not be used if exact scaling is
         needed, such as for `FigureImage`.
 
         Returns
@@ -403,7 +403,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 .translate(-clipped_bbox.x0, -clipped_bbox.y0)
                 .scale(magnification)))
 
-        # So that the image is aligned with the edge of the axes, we want to
+        # So that the image is aligned with the edge of the Axes, we want to
         # round up the output width to the next integer.  This also means
         # scaling the transform slightly to account for the extra subpixel.
         if ((not unsampled) and t.is_affine and round_to_pixel_border and
@@ -854,7 +854,7 @@ class AxesImage(_ImageBase):
     Parameters
     ----------
     ax : `~matplotlib.axes.Axes`
-        The axes the image will belong to.
+        The Axes the image will belong to.
     cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
         The Colormap instance or registered colormap name used to map scalar
         data to colors.
@@ -872,7 +872,7 @@ class AxesImage(_ImageBase):
         applied (visual interpolation).
     origin : {'upper', 'lower'}, default: :rc:`image.origin`
         Place the [0, 0] index of the array in the upper left or lower left
-        corner of the axes. The convention 'upper' is typically used for
+        corner of the Axes. The convention 'upper' is typically used for
         matrices and images.
     extent : tuple, optional
         The data axes (left, right, bottom, top) for making image plots
@@ -956,8 +956,8 @@ class AxesImage(_ImageBase):
             ``(left, right, bottom, top)`` in data coordinates.
         **kwargs
             Other parameters from which unit info (i.e., the *xunits*,
-            *yunits*, *zunits* (for 3D axes), *runits* and *thetaunits* (for
-            polar axes) entries are applied, if present.
+            *yunits*, *zunits* (for 3D Axes), *runits* and *thetaunits* (for
+            polar Axes) entries are applied, if present.
 
         Notes
         -----
@@ -1041,7 +1041,7 @@ class NonUniformImage(AxesImage):
         Parameters
         ----------
         ax : `~matplotlib.axes.Axes`
-            The axes the image will belong to.
+            The Axes the image will belong to.
         interpolation : {'nearest', 'bilinear'}, default: 'nearest'
             The interpolation scheme used in the resampling.
         **kwargs
@@ -1208,7 +1208,7 @@ class PcolorImage(AxesImage):
         Parameters
         ----------
         ax : `~matplotlib.axes.Axes`
-            The axes the image will belong to.
+            The Axes the image will belong to.
         x, y : 1D array-like, optional
             Monotonic arrays of length N+1 and M+1, respectively, specifying
             rectangle boundaries.  If not given, will default to
@@ -1566,7 +1566,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         is unset is documented under *fname*.
     origin : {'upper', 'lower'}, default: :rc:`image.origin`
         Indicates whether the ``(0, 0)`` index of the array is in the upper
-        left or lower left corner of the axes.
+        left or lower left corner of the Axes.
     dpi : float
         The DPI to store in the metadata of the file.  This does not affect the
         resolution of the output image.  Depending on file format, this may be

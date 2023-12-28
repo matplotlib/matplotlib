@@ -165,8 +165,8 @@ class TightLayoutEngine(LayoutEngine):
         Execute tight_layout.
 
         This decides the subplot parameters given the padding that
-        will allow the axes labels to not be covered by other labels
-        and axes.
+        will allow the Axes labels to not be covered by other labels
+        and Axes.
 
         Parameters
         ----------
@@ -226,12 +226,12 @@ class ConstrainedLayoutEngine(LayoutEngine):
         Parameters
         ----------
         h_pad, w_pad : float
-            Padding around the axes elements in inches.
+            Padding around the Axes elements in inches.
             Default to :rc:`figure.constrained_layout.h_pad` and
             :rc:`figure.constrained_layout.w_pad`.
         hspace, wspace : float
             Fraction of the figure to dedicate to space between the
-            axes.  These are evenly spread between the gaps between the axes.
+            axes.  These are evenly spread between the gaps between the Axes.
             A value of 0.2 for a three-column layout would have a space
             of 0.1 of the figure width between each column.
             If h/wspace < h/w_pad, then the pads are used instead.
@@ -259,7 +259,7 @@ class ConstrainedLayoutEngine(LayoutEngine):
 
     def execute(self, fig):
         """
-        Perform constrained_layout and move and resize axes accordingly.
+        Perform constrained_layout and move and resize Axes accordingly.
 
         Parameters
         ----------
@@ -284,12 +284,12 @@ class ConstrainedLayoutEngine(LayoutEngine):
         Parameters
         ----------
         h_pad, w_pad : float
-            Padding around the axes elements in inches.
+            Padding around the Axes elements in inches.
             Default to :rc:`figure.constrained_layout.h_pad` and
             :rc:`figure.constrained_layout.w_pad`.
         hspace, wspace : float
             Fraction of the figure to dedicate to space between the
-            axes.  These are evenly spread between the gaps between the axes.
+            axes.  These are evenly spread between the gaps between the Axes.
             A value of 0.2 for a three-column layout would have a space
             of 0.1 of the figure width between each column.
             If h/wspace < h/w_pad, then the pads are used instead.

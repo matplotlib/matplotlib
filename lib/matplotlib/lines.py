@@ -168,7 +168,7 @@ def _mark_every_path(markevery, tpath, affine, ax):
                     f'markevery={markevery}')
             if ax is None:
                 raise ValueError(
-                    "markevery is specified relative to the axes size, but "
+                    "markevery is specified relative to the Axes size, but "
                     "the line does not have a Axes as parent")
 
             # calc cumulative distance along path (in display coords):
@@ -180,7 +180,7 @@ def _mark_every_path(markevery, tpath, affine, ax):
             delta[0, :] = 0
             delta[1:, :] = disp_coords[1:, :] - disp_coords[:-1, :]
             delta = np.hypot(*delta.T).cumsum()
-            # calc distance between markers along path based on the axes
+            # calc distance between markers along path based on the Axes
             # bounding box diagonal being a distance of unity:
             (x0, y0), (x1, y1) = ax.transAxes.transform([[0, 0], [1, 1]])
             scale = np.hypot(x1 - x0, y1 - y0)
@@ -575,7 +575,7 @@ class Line2D(Artist):
             - ``every=0.1``, (i.e. a float): markers will be spaced at
               approximately equal visual distances along the line; the distance
               along the line between markers is determined by multiplying the
-              display-coordinate distance of the axes bounding-box diagonal
+              display-coordinate distance of the Axes bounding-box diagonal
               by the value of *every*.
             - ``every=(0.5, 0.1)`` (i.e. a length-2 tuple of float): similar
               to ``every=0.1`` but the first marker will be offset along the
