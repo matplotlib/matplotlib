@@ -3168,8 +3168,8 @@ None}, default: None
         if version != mpl.__version__:
             _api.warn_external(
                 f"This figure was saved with matplotlib version {version} and "
-                f"is unlikely to function correctly.")
-
+                f"loaded with {mpl.__version__} so is unlikely to function correctly."
+            )
         self.__dict__ = state
 
         # re-initialise some of the unstored state information
