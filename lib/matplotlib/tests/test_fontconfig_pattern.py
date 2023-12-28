@@ -1,6 +1,7 @@
 
 from matplotlib.font_manager import FontProperties
 
+import pytest
 
 # Attributes on FontProperties object to check for consistency
 keys = [
@@ -69,3 +70,7 @@ def test_fontconfig_str():
                            stretch="expanded")
     for k in keys:
         assert getattr(font, k)() == getattr(right, k)(), test + k
+
+def test_fontconfig_unknown_constant():
+    with pytest.raises(ValueError, match="Support for unknown constants is not supported."):
+        FontProperties(":unknown")
