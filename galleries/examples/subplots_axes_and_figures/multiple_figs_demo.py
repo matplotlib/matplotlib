@@ -51,4 +51,4 @@ ax.set_xticklabels([])
 plt.show()
 
 # %%
-# .. tags:: component: figure, plot type: line
+# .. tags:: component: figure, plot-type: line
