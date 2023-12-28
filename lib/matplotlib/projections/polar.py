@@ -17,13 +17,14 @@ from matplotlib.spines import Spine
 
 def _apply_theta_transforms_warn():
     _api.warn_deprecated(
-                "3.7",
+                "3.9",
                 message=(
                     "Passing `apply_theta_transforms=True` (the default) "
-                    "is deprecated. Support for this will be removed in "
-                    "Matplotlib %(removal)s. To prevent this warning, "
-                    "set `apply_theta_transforms=False`, and make sure to "
-                    "shift theta values before being passed to this transform."
+                    "is deprecated since Matplotlib %(since)s. "
+                    "Support for this will be removed in Matplotlib %(removal)s. "
+                    "To prevent this warning, set `apply_theta_transforms=False`, "
+                    "and make sure to shift theta values before being passed to "
+                    "this transform."
                 )
             )
 
