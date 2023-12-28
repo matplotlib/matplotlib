@@ -13,4 +13,5 @@ but only takes affect when:
 To silence this warning and adopt future behaviour,
 set ``apply_theta_transforms=False``. If you need to retain the behaviour
 where theta values are transformed, chain the ``PolarTransform`` with
-another transform that performs the theta shift and/or sign shift.
+a `~matplotlib.transforms.Affine2D` transform that performs the theta shift
+and/or sign shift.
