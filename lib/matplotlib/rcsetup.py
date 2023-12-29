@@ -1218,6 +1218,10 @@ _validators = {
     # figure title
     "figure.titlesize":   validate_fontsize,
     "figure.titleweight": validate_fontweight,
+    "figure.title_x":     validate_float,
+    "figure.title_y":     validate_float,
+    "figure.title_ha":    ["center", "left", "right"],
+    "figure.title_va":    ["top", "center", "bottom", "baseline"],
 
     # figure labels
     "figure.labelsize":   validate_fontsize,

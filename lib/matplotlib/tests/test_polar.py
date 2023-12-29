@@ -446,3 +446,31 @@ def test_polar_log():
 
     n = 100
     ax.plot(np.linspace(0, 2 * np.pi, n), np.logspace(0, 2, n))
+
+
+def test_polar_rc_params():
+    fig = plt.figure(figsize=(9, 3))
+    ax = fig.add_subplot(polar=True)
+
+    ax.set_rscale('log')
+    ax.set_rlim(1, 1000)
+
+    n = 100
+    ax.plot(np.linspace(0, 2 * np.pi, n), np.logspace(0, 2, n))
+
+    plt.subplot(132)
+    plt.scatter(["1", "2"], [3, 4])
+
+    # Control
+    fig.suptitle("First Title", x=0.1, y=0.2, ha="right", va="bottom",
+                 weight='light', size=20)
+
+    # Test suptitle
+    with mpl.rc_context({'figure.title_x': 0.1,
+                         'figure.title_y': 0.2,
+                         'figure.title_ha': "right",
+                         'figure.title_va': "bottom",
+                         'figure.titleweight': 'light',
+                         'figure.titlesize': 20
+                         }):
+        fig.suptitle("First Title")
