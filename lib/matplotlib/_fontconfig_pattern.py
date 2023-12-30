@@ -96,7 +96,7 @@ def parse_fontconfig_pattern(pattern):
     for prop in parse.get("properties", []):
         if len(prop) == 1:
             if prop[0] not in _CONSTANTS:
-                raise ValueError("Support for unknown constants is not supported.")
+                raise ValueError(f"Unknown constants ({prop[0]!r}) are not supported.")
             prop = _CONSTANTS[prop[0]]
         k, *v = prop
         props.setdefault(k, []).extend(map(_value_unescape, v))
