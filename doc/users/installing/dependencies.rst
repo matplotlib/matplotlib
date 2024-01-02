@@ -167,7 +167,7 @@ tool for locating FreeType:
 If not using pkg-config (in particular on Windows), you may need to set the
 include path (to the library headers) and link path (to the libraries)
 explicitly, if they are not in standard locations.  This can be done using
-standard environment variables -- on Linux and OSX:
+standard environment variables -- on Linux and macOS:
 
 .. code-block:: sh
 

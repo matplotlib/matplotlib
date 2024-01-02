@@ -90,7 +90,7 @@ def _get_available_interactive_backends():
         if reason:
             marks.append(pytest.mark.skip(reason=f"Skipping {env} because {reason}"))
         elif env["MPLBACKEND"].startswith('wx') and sys.platform == 'darwin':
-            # ignore on OSX because that's currently broken (github #16849)
+            # ignore on macosx because that's currently broken (github #16849)
             marks.append(pytest.mark.xfail(reason='github #16849'))
         elif (env['MPLBACKEND'] == 'tkagg' and
               ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and

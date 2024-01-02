@@ -203,15 +203,15 @@ installation of the package.  In order to fully remove an installed Matplotlib:
 2. Delete any Matplotlib directories or eggs from your :ref:`installation
    directory <locating-matplotlib-install>`.
 
-OSX Notes
----------
+macOS Notes
+-----------
 
-.. _which-python-for-osx:
+.. _which-python-for-macos:
 
-Which python for OSX?
-^^^^^^^^^^^^^^^^^^^^^
+Which python for macOS?
+^^^^^^^^^^^^^^^^^^^^^^^
 
-Apple ships OSX with its own Python, in ``/usr/bin/python``, and its own copy
+Apple ships macOS with its own Python, in ``/usr/bin/python``, and its own copy
 of Matplotlib. Unfortunately, the way Apple currently installs its own copies
 of NumPy, Scipy and Matplotlib means that these packages are difficult to
 upgrade (see `system python packages`_).  For that reason we strongly suggest
@@ -228,18 +228,18 @@ See the Anaconda web page for installation support.
 .. _Anaconda: https://www.anaconda.com/
 
 Other options for a fresh Python install are the standard installer from
-`python.org <https://www.python.org/downloads/mac-osx/>`_, or installing
-Python using a general OSX package management system such as `homebrew
+`python.org <https://www.python.org/downloads/macos/>`_, or installing
+Python using a general macOS package management system such as `homebrew
 <https://brew.sh/>`_ or `macports <https://www.macports.org>`_.  Power users on
-OSX will likely want one of homebrew or macports on their system to install
+macOS will likely want one of homebrew or macports on their system to install
 open source software packages, but it is perfectly possible to use these
 systems with another source for your Python binary, such as Anaconda
 or Python.org Python.
 
-.. _install_osx_binaries:
+.. _install_macos_binaries:
 
-Installing OSX binary wheels
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Installing macOS binary wheels
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you are using Python from https://www.python.org, Homebrew, or Macports,
 then you can use the standard pip installer to install Matplotlib binaries in
@@ -283,7 +283,7 @@ then check that the Python binary is the one you expected by running ::
   which python3
 
 If you get a result like ``/usr/bin/python...``, then you are getting the
-Python installed with OSX, which is probably not what you want.  Try closing
+Python installed with macOS, which is probably not what you want.  Try closing
 and restarting Terminal.app before running the check again. If that doesn't fix
 the problem, depending on which Python you wanted to use, consider reinstalling
 Python.org Python, or check your homebrew or macports setup.  Remember that
