@@ -541,8 +541,8 @@ class FFMpegBase:
                       else mpl.rcParams[self._args_key])
         # For h264, the default format is yuv444p, which is not compatible
         # with quicktime (and others). Specifying yuv420p fixes playback on
-        # iOS, as well as HTML5 video in firefox and safari (on both Win and
-        # OSX). Also fixes internet explorer. This is as of 2015/10/29.
+        # iOS, as well as HTML5 video in firefox and safari (on both Windows and
+        # macOS). Also fixes internet explorer. This is as of 2015/10/29.
         if self.codec == 'h264' and '-pix_fmt' not in extra_args:
             args.extend(['-pix_fmt', 'yuv420p'])
         # For GIF, we're telling FFMPEG to split the video stream, to generate

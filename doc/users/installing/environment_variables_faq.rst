@@ -49,7 +49,7 @@ Environment variables
    The Python Qt wrapper to prefer when using Qt-based backends. See :ref:`the
    entry in the usage guide <QT_bindings>` for more information.
 
-.. _setting-linux-osx-environment-variables:
+.. _setting-linux-macos-environment-variables:
 
 Setting environment variables in Linux and macOS
 ================================================

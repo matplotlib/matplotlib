@@ -58,7 +58,7 @@ depending on the library, by methods with names like ``_exec``,
 ``run``, or ``start``.
 
 
-All GUI frameworks (Qt, Wx, Gtk, tk, OSX, or web) have some method of
+All GUI frameworks (Qt, Wx, Gtk, tk, macOS, or web) have some method of
 capturing user interactions and passing them back to the application
 (for example ``Signal`` / ``Slot`` framework in Qt) but the exact
 details depend on the toolkit.  Matplotlib has a :ref:`backend

@@ -409,7 +409,7 @@ FigureCanvas_set_cursor(PyObject* unused, PyObject* args)
             [[NSCursor openHandCursor] set];
         }
         break;
-      /* OSX handles busy state itself so no need to set a cursor here */
+      /* macOS handles busy state itself so no need to set a cursor here */
       case 5: break;
       case 6: [[NSCursor resizeLeftRightCursor] set]; break;
       case 7: [[NSCursor resizeUpDownCursor] set]; break;
@@ -1792,7 +1792,7 @@ static struct PyModuleDef moduledef = {
         {"event_loop_is_running",
          (PyCFunction)event_loop_is_running,
          METH_NOARGS,
-         "Return whether the OSX backend has set up the NSApp main event loop."},
+         "Return whether the macosx backend has set up the NSApp main event loop."},
         {"wake_on_fd_write",
          (PyCFunction)wake_on_fd_write,
          METH_VARARGS,

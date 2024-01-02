@@ -40,7 +40,7 @@ SPECIAL_KEYS = {
         ("Key_PageUp", "pageup"),
         ("Key_PageDown", "pagedown"),
         ("Key_Shift", "shift"),
-        # In OSX, the control and super (aka cmd/apple) keys are switched.
+        # In macOS, the control and super (aka cmd/apple) keys are switched.
         ("Key_Control", "control" if sys.platform != "darwin" else "cmd"),
         ("Key_Meta", "meta" if sys.platform != "darwin" else "control"),
         ("Key_Alt", "alt"),
