@@ -1,0 +1,17 @@
+Applying theta transforms in ``PolarTransform``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Applying theta transforms in `~matplotlib.projections.polar.PolarTransform`
+and `~matplotlib.projections.polar.InvertedPolarTransform`
+is deprecated, and will be removed in a future version of Matplotlib. This
+is currently the default behaviour when these transforms are used externally,
+but only takes affect when:
+
+- An axis is associated with the transform.
+- The axis has a non-zero theta offset or has theta values increasing in
+  a clockwise direction.
+
+To silence this warning and adopt future behaviour,
+set ``apply_theta_transforms=False``. If you need to retain the behaviour
+where theta values are transformed, chain the ``PolarTransform`` with
+a `~matplotlib.transforms.Affine2D` transform that performs the theta shift
+and/or sign shift.
