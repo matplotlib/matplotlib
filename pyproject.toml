@@ -227,6 +227,7 @@ exclude = [
   # stubtest will import and run, opening a figure if not excluded
   ".*/tinypages"
 ]
+warn_unreachable = true
 
 [tool.rstcheck]
 ignore_directives = [

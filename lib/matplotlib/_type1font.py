@@ -21,12 +21,15 @@ Sources:
   v1.1, 1993. ISBN 0-201-57044-0.
 """
 
+from __future__ import annotations
+
 import binascii
 import functools
 import logging
 import re
 import string
 import struct
+import typing as T
 
 import numpy as np
 
@@ -171,7 +174,7 @@ class _NumberToken(_Token):
             return float(self.raw)
 
 
-def _tokenize(data: bytes, skip_ws: bool):
+def _tokenize(data: bytes, skip_ws: bool) -> T.Generator[_Token, int, None]:
     """
     A generator that produces _Token instances from Type-1 font code.
 
@@ -194,7 +197,7 @@ def _tokenize(data: bytes, skip_ws: bool):
     hex_re = re.compile(r'^<[0-9a-fA-F\0\t\r\f\n ]*>$')
     oct_re = re.compile(r'[0-7]{1,3}')
     pos = 0
-    next_binary = None
+    next_binary: int | None = None
 
     while pos < len(text):
         if next_binary is not None:
