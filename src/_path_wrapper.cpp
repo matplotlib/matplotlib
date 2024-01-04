@@ -699,8 +699,8 @@ static PyObject *Py_is_sorted_and_has_non_nan(PyObject *self, PyObject *obj)
 {
     bool result;
 
-    PyArrayObject *array = (PyArrayObject *)PyArray_FromAny(
-        obj, NULL, 1, 1, 0, NULL);
+    PyArrayObject *array = (PyArrayObject *)PyArray_CheckFromAny(
+        obj, NULL, 1, 1, NPY_ARRAY_NOTSWAPPED, NULL);
 
     if (array == NULL) {
         return NULL;
