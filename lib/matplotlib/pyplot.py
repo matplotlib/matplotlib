@@ -69,7 +69,7 @@ from matplotlib import rcsetup, rcParamsDefault, rcParamsOrig
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 from matplotlib.axes import Subplot  # noqa: F401
-from matplotlib.projections import PolarAxes  # type: ignore
+from matplotlib.projections import PolarAxes
 from matplotlib import mlab  # for detrend_none, window_hanning
 from matplotlib.scale import get_scale_names  # noqa: F401
 
@@ -274,7 +274,7 @@ def _get_backend_mod() -> type[matplotlib.backend_bases._Backend]:
         # Use rcParams._get("backend") to avoid going through the fallback
         # logic (which will (re)import pyplot and then call switch_backend if
         # we need to resolve the auto sentinel)
-        switch_backend(rcParams._get("backend"))  # type: ignore[attr-defined]
+        switch_backend(rcParams._get("backend"))
     return cast(type[matplotlib.backend_bases._Backend], _backend_mod)
 
 
@@ -2504,7 +2504,7 @@ if (rcParams["backend_fallback"]
         and rcParams._get_backend_or_none() in (  # type: ignore
             set(rcsetup.interactive_bk) - {'WebAgg', 'nbAgg'})
         and cbook._get_running_interactive_framework()):  # type: ignore
-    rcParams._set("backend", rcsetup._auto_backend_sentinel)  # type: ignore
+    rcParams._set("backend", rcsetup._auto_backend_sentinel)
 
 # fmt: on
 
