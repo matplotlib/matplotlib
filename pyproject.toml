@@ -208,6 +208,11 @@ convention = "numpy"
 
 [tool.mypy]
 ignore_missing_imports = true
+enable_error_code = [
+  "ignore-without-code",
+  "redundant-expr",
+  "truthy-bool",
+]
 enable_incomplete_feature = [
   "Unpack",
 ]
