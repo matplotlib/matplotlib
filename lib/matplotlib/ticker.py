@@ -336,10 +336,11 @@ class FormatStrFormatter(Formatter):
     The format string should have a single variable format (%) in it.
     It will be applied to the value (not the position) of the tick.
 
-    Negative numeric values will use a dash, not a Unicode minus; use mathtext
-    to get a Unicode minus by wrapping the format specifier with $ (e.g.
-    "$%g$").
+    Negative numeric values (e.g., -1) will use a dash, not a Unicode minus;
+    use mathtext to get a Unicode minus by wrapping the format specifier with $
+    (e.g. "$%g$").
     """
+
     def __init__(self, fmt):
         self.fmt = fmt
 
@@ -358,7 +359,16 @@ class StrMethodFormatter(Formatter):
 
     The field used for the tick value must be labeled *x* and the field used
     for the tick position must be labeled *pos*.
+
+    Negative numeric values (e.g., -1) will use a dash, not a Unicode minus;
+    use mathtext to get a Unicode minus by wrapping the format specifier with $
+    (e.g. "${x}$").
+
+    It is typically unnecessary to explicitly construct `.StrMethodFormatter`
+    objects, as `~.Axis.set_major_formatter` directly accepts the format string
+    itself.
     """
+
     def __init__(self, fmt):
         self.fmt = fmt
 
