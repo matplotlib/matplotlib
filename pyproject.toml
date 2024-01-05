@@ -232,6 +232,10 @@ exclude = [
   # stubtest will import and run, opening a figure if not excluded
   ".*/tinypages"
 ]
+files = [
+  "lib/matplotlib",
+]
+follow_imports = "silent"
 warn_unreachable = true
 
 [tool.rstcheck]

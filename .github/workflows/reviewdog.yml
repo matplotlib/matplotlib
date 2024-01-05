@@ -55,8 +55,7 @@ jobs:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -o pipefail
-          mypy --config pyproject.toml lib/matplotlib \
-             --follow-imports silent | \
+          mypy --config pyproject.toml | \
             reviewdog -f=mypy -name=mypy \
               -tee -reporter=github-check -filter-mode nofilter
 
