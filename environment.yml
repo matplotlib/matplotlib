@@ -64,4 +64,4 @@ dependencies:
   - pytest-xdist
   - tornado
   - pytz
-  - black
+  - black~=23.0
