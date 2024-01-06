@@ -555,12 +555,16 @@ def test_PowerNorm():
     assert_array_almost_equal(norm(a), pnorm(a))
 
     a = np.array([-0.5, 0, 2, 4, 8], dtype=float)
-    expected = [0, 0, 1/16, 1/4, 1]
+    expected = [-1/16, 0, 1/16, 1/4, 1]
     pnorm = mcolors.PowerNorm(2, vmin=0, vmax=8)
     assert_array_almost_equal(pnorm(a), expected)
     assert pnorm(a[0]) == expected[0]
     assert pnorm(a[2]) == expected[2]
-    assert_array_almost_equal(a[1:], pnorm.inverse(pnorm(a))[1:])
+    # Check inverse
+    a_roundtrip = pnorm.inverse(pnorm(a))
+    assert_array_almost_equal(a, a_roundtrip)
+    # PowerNorm inverse adds a mask, so check that is correct too
+    assert_array_equal(a_roundtrip.mask, np.zeros(a.shape, dtype=bool))
 
     # Clip = True
     a = np.array([-0.5, 0, 1, 8, 16], dtype=float)
@@ -589,6 +593,15 @@ def test_PowerNorm_translation_invariance():
     assert_array_almost_equal(pnorm(a), expected)
     pnorm = mcolors.PowerNorm(vmin=-2, vmax=-1, gamma=3)
     assert_array_almost_equal(pnorm(a - 2), expected)
+
+
+def test_powernorm_cbar_limits():
+    fig, ax = plt.subplots()
+    vmin, vmax = 300, 1000
+    data = np.arange(100*100).reshape(100, 100) + vmin
+    im = ax.imshow(data, norm=mcolors.PowerNorm(gamma=0.2, vmin=vmin, vmax=vmax))
+    cbar = fig.colorbar(im)
+    assert cbar.ax.get_ylim() == (vmin, vmax)
 
 
 def test_Normalize():
