@@ -1799,7 +1799,7 @@ or callable, default: value of *xycoords*
 
         See Also
         --------
-        :ref:`plotting-guide-annotation`
+        :ref:`annotations`
 
         """
         _AnnotationBase.__init__(self,
