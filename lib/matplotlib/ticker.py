@@ -135,6 +135,7 @@ import logging
 import locale
 import math
 from numbers import Integral
+import string
 
 import numpy as np
 
@@ -353,6 +354,18 @@ class FormatStrFormatter(Formatter):
         return self.fmt % x
 
 
+class _UnicodeMinusFormat(string.Formatter):
+    """
+    A specialized string formatter so that `.StrMethodFormatter` respects
+    :rc:`axes.unicode_minus`.  This implementation relies on the fact that the
+    format string is only ever called with kwargs *x* and *pos*, so it blindly
+    replaces dashes by unicode minuses without further checking.
+    """
+
+    def format_field(self, value, format_spec):
+        return Formatter.fix_minus(super().format_field(value, format_spec))
+
+
 class StrMethodFormatter(Formatter):
     """
     Use a new-style format string (as used by `str.format`) to format the tick.
@@ -360,9 +373,8 @@ class StrMethodFormatter(Formatter):
     The field used for the tick value must be labeled *x* and the field used
     for the tick position must be labeled *pos*.
 
-    Negative numeric values (e.g., -1) will use a dash, not a Unicode minus;
-    use mathtext to get a Unicode minus by wrapping the format specifier with $
-    (e.g. "${x}$").
+    The formatter will respect :rc:`axes.unicode_minus` when formatting
+    negative numeric values.
 
     It is typically unnecessary to explicitly construct `.StrMethodFormatter`
     objects, as `~.Axis.set_major_formatter` directly accepts the format string
@@ -379,7 +391,7 @@ class StrMethodFormatter(Formatter):
         *x* and *pos* are passed to `str.format` as keyword arguments
         with those exact names.
         """
-        return self.fmt.format(x=x, pos=pos)
+        return _UnicodeMinusFormat().format(self.fmt, x=x, pos=pos)
 
 
 class ScalarFormatter(Formatter):

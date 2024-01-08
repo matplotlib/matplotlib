@@ -1434,14 +1434,21 @@ class TestFormatStrFormatter:
 
 class TestStrMethodFormatter:
     test_data = [
-        ('{x:05d}', (2,), '00002'),
-        ('{x:03d}-{pos:02d}', (2, 1), '002-01'),
+        ('{x:05d}', (2,), False, '00002'),
+        ('{x:05d}', (2,), True, '00002'),
+        ('{x:05d}', (-2,), False, '-0002'),
+        ('{x:05d}', (-2,), True, '\N{MINUS SIGN}0002'),
+        ('{x:03d}-{pos:02d}', (2, 1), False, '002-01'),
+        ('{x:03d}-{pos:02d}', (2, 1), True, '002-01'),
+        ('{x:03d}-{pos:02d}', (-2, 1), False, '-02-01'),
+        ('{x:03d}-{pos:02d}', (-2, 1), True, '\N{MINUS SIGN}02-01'),
     ]
 
-    @pytest.mark.parametrize('format, input, expected', test_data)
-    def test_basic(self, format, input, expected):
-        fmt = mticker.StrMethodFormatter(format)
-        assert fmt(*input) == expected
+    @pytest.mark.parametrize('format, input, unicode_minus, expected', test_data)
+    def test_basic(self, format, input, unicode_minus, expected):
+        with mpl.rc_context({"axes.unicode_minus": unicode_minus}):
+            fmt = mticker.StrMethodFormatter(format)
+            assert fmt(*input) == expected
 
 
 class TestEngFormatter:
