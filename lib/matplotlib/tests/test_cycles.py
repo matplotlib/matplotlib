@@ -27,6 +27,11 @@ def test_marker_cycle():
     assert [l.get_marker() for l in ax.lines] == ['.', '*', 'x', '.']
 
 
+def test_valid_marker_cycles():
+    fig, ax = plt.subplots()
+    ax.set_prop_cycle(cycler(marker=[1, "+", ".", 4]))
+
+
 def test_marker_cycle_kwargs_arrays_iterators():
     fig, ax = plt.subplots()
     ax.set_prop_cycle(c=np.array(['r', 'g', 'y']),
