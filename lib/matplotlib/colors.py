@@ -1970,7 +1970,7 @@ class PowerNorm(Normalize):
 
         \left ( \frac{x - v_{min}}{v_{max}  - v_{min}} \right )^{\gamma}
 
-    For input values below *vmin*, gamma is set to zero.
+    For input values below *vmin*, gamma is set to one.
     """
     def __init__(self, gamma, vmin=None, vmax=None, clip=False):
         super().__init__(vmin, vmax, clip)
