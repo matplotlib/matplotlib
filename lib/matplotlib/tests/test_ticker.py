@@ -3,6 +3,7 @@ import itertools
 import locale
 import logging
 import re
+import warnings
 
 import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
@@ -913,6 +914,9 @@ class TestScalarFormatter:
             'font.serif': 'cmr10',
             'axes.formatter.use_mathtext': False
         })
+
+        # Glyph warning unrelated
+        warnings.filterwarnings("ignore", category=UserWarning, message="Glyph 8722")
 
         with pytest.warns(UserWarning, match='cmr10 font should ideally'):
             fig, ax = plt.subplots()

@@ -147,8 +147,7 @@ def test_double_register_builtin_cmap():
     with pytest.raises(ValueError, match='A colormap named "viridis"'):
         with pytest.warns(mpl.MatplotlibDeprecationWarning):
             cm.register_cmap(name, mpl.colormaps[name])
-    with pytest.warns(UserWarning):
-        # TODO is warning more than once!
+    with pytest.warns(UserWarning), pytest.warns(mpl.MatplotlibDeprecationWarning):
         cm.register_cmap(name, mpl.colormaps[name], override_builtin=True)
 
 

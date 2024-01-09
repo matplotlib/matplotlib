@@ -3,6 +3,7 @@ import decimal
 import io
 import os
 from pathlib import Path
+import warnings
 
 import numpy as np
 import pytest
@@ -84,6 +85,9 @@ def test_multipage_keep_empty(tmp_path):
     os.chdir(tmp_path)
 
     # test empty pdf files
+    # Due to order of `with` block execution, a warning for unclosed file is raised
+    # but the pytest.warns must happen before the PdfPages is created
+    warnings.filterwarnings("ignore", category=ResourceWarning)
 
     # an empty pdf is left behind with keep_empty unset
     with pytest.warns(mpl.MatplotlibDeprecationWarning), PdfPages("a.pdf") as pdf:
