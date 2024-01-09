@@ -4999,6 +4999,10 @@ default: :rc:`scatter.edgecolors`
             ty = np.log10(ty)
         if extent is not None:
             xmin, xmax, ymin, ymax = extent
+            if xmin > xmax:
+                raise ValueError("In extent, xmax must be greater than xmin")
+            if ymin > ymax:
+                raise ValueError("In extent, ymax must be greater than ymin")
         else:
             xmin, xmax = (tx.min(), tx.max()) if len(x) else (0, 1)
             ymin, ymax = (ty.min(), ty.max()) if len(y) else (0, 1)
