@@ -19,12 +19,7 @@ jobs:
           python-version: 3.9
 
       - name: Set up reviewdog
-        run: |
-          mkdir -p "$HOME/bin"
-          curl -sfL \
-            https://github.com/reviewdog/reviewdog/raw/master/install.sh | \
-              sh -s -- -b "$HOME/bin"
-          echo "$HOME/bin" >> $GITHUB_PATH
+        uses: reviewdog/action-setup@v1
 
       - name: Install tox
         run: python -m pip install tox
