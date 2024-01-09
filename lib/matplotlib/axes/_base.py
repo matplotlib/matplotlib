@@ -4632,7 +4632,7 @@ def _draw_rasterized(figure, artists, renderer):
     shim class to be compatible with that decorator and then uses it to
     rasterize the list of artists.
 
-    This is maybe too-clever, but allows us to re-use the same code that is
+    This is maybe too-clever, but allows us to reuse the same code that is
     used on normal artists to participate in the "are we rasterizing"
     accounting.
 

@@ -1032,7 +1032,7 @@ class Animation:
             # Convert interval in ms to frames per second
             fps = 1000. / self._interval
 
-        # Re-use the savefig DPI for ours if none is given
+        # Reuse the savefig DPI for ours if none is given.
         dpi = mpl._val_or_rc(dpi, 'savefig.dpi')
         if dpi == 'figure':
             dpi = self._fig.dpi
