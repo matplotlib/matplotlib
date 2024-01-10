@@ -555,11 +555,15 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 if A.ndim == 2:  # _interpolation_stage == 'rgba'
                     self.norm.autoscale_None(A)
                     A = self.to_rgba(A)
-                if A.shape[2] == 3:
-                    A = _rgb_to_rgba(A)
                 alpha = self._get_scalar_alpha()
-                output_alpha = _resample(  # resample alpha channel
-                    self, A[..., 3], out_shape, t, alpha=alpha)
+                if A.shape[2] == 3:
+                    # No need to resample alpha or make a full array; NumPy will expand
+                    # this out and cast to uint8 if necessary when it's assigned to the
+                    # alpha channel below.
+                    output_alpha = (255 * alpha) if A.dtype == np.uint8 else alpha
+                else:
+                    output_alpha = _resample(  # resample alpha channel
+                        self, A[..., 3], out_shape, t, alpha=alpha)
                 output = _resample(  # resample rgb channels
                     self, _rgb_to_rgba(A[..., :3]), out_shape, t, alpha=alpha)
                 output[..., 3] = output_alpha  # recombine rgb and alpha
