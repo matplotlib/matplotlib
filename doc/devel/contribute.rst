@@ -267,7 +267,7 @@ document's URL roughly corresponds to its location in our folder structure:
   .. grid-item:: information about the library
 
       * :file:`doc/users/installing/`
-      * :file:`doc/users/project/`
+      * :file:`doc/project/`
       * :file:`doc/users/resources/`
       * :file:`doc/users/faq.rst`
       * :file:`doc/devel/`
