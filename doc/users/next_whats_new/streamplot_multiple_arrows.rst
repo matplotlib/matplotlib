@@ -6,8 +6,7 @@ allows more than one arrow to be added to each streamline:
 
 .. plot::
     :include-source: true
-    :alt: One charts, identified as ax and ax2, showing a streamplot. Each streamline
-        has a three arrows.
+    :alt: One chart showing a streamplot. Each streamline has a three arrows.
 
     import matplotlib.pyplot as plt
     import numpy as np
