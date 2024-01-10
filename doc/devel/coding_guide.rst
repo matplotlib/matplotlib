@@ -88,9 +88,8 @@ We generally use `stub files
 the type information for ``colors.py``. A notable exception is ``pyplot.py``,
 which is type hinted inline.
 
-Type hints are checked by the mypy :ref:`pre-commit hook <pre-commit-hooks>`
-and can often be verified using ``tools\stubtest.py`` and occasionally may
-require the use of ``tools\check_typehints.py``.
+Type hints are checked by the mypy :ref:`pre-commit hook <pre-commit-hooks>`,
+can often be verified by running ``tox -e stubtest``.
 
 New modules and files: installation
 ===================================
