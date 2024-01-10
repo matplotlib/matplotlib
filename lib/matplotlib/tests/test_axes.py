@@ -964,7 +964,7 @@ def test_hexbin_extent():
 
 def test_hexbin_bad_extents():
     fig, ax = plt.subplots()
-    data = (np.arange(2000) / 2000).reshape((2, 1000))
+    data = (np.arange(20) / 20).reshape((2, 10))
     x, y = data
 
     with pytest.raises(ValueError, match="In extent, xmax must be greater than xmin"):
