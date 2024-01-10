@@ -29,7 +29,7 @@ def streamplot(
     integration_direction: Literal["forward", "backward", "both"] = ...,
     broken_streamlines: bool = ...,
     *,
-    narrows: int = 1
+    n_arrows: int = 1
 ) -> StreamplotSet: ...
 
 class StreamplotSet:

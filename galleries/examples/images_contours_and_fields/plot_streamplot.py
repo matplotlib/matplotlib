@@ -53,7 +53,7 @@ axs[3].plot(seed_points[0], seed_points[1], 'bo')
 axs[3].set(xlim=(-w, w), ylim=(-w, w))
 
 # Adding more than one arrow to each streamline
-axs[4].streamplot(X, Y, U, V, narrows=3)
+axs[4].streamplot(X, Y, U, V, n_arrows=3)
 axs[4].set_title('Multiple arrows')
 
 axs[5].axis("off")
