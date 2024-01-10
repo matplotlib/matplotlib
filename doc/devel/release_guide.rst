@@ -315,8 +315,8 @@ automatically produce one once the tag is pushed). Add the DOI post-fix and vers
 the dictionary in :file:`tools/cache_zenodo_svg.py` and run the script.
 
 This will download the new SVG to :file:`doc/_static/zenodo_cache/{postfix}.svg` and
-edit :file:`doc/users/project/citing.rst`. Commit the new SVG, the change to
-:file:`tools/cache_zenodo_svg.py`, and the changes to :file:`doc/users/project/citing.rst`
+edit :file:`doc/project/citing.rst`. Commit the new SVG, the change to
+:file:`tools/cache_zenodo_svg.py`, and the changes to :file:`doc/project/citing.rst`
 to the VER-doc branch and push to GitHub. ::
 
   git checkout v3.7.0-doc
