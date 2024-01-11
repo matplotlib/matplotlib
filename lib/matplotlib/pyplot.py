@@ -1439,7 +1439,7 @@ def subplot(*args, **kwargs) -> Axes:
     key = SubplotSpec._from_subplot_args(fig, args)
 
     for ax in fig.axes:
-        # If we found an Axes at the position, we can re-use it if the user passed no
+        # If we found an Axes at the position, we can reuse it if the user passed no
         # kwargs or if the Axes class and kwargs are identical.
         if (ax.get_subplotspec() == key
             and (kwargs == {}

@@ -13,7 +13,7 @@ exclude: |
     )
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: check-added-large-files
       - id: check-docstring-first
@@ -27,7 +27,7 @@ repos:
       - id: trailing-whitespace
         exclude_types: [svg]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.1.1
+    rev: v1.8.0
     hooks:
       - id: mypy
         additional_dependencies: [
@@ -44,13 +44,13 @@ repos:
         files: lib/matplotlib #only run when files in lib/matplotlib are changed
         pass_filenames: false
   - repo: https://github.com/pycqa/flake8
-    rev: 6.0.0
+    rev: 6.1.0
     hooks:
       - id: flake8
         additional_dependencies: [pydocstyle>5.1.0, flake8-docstrings>1.4.0, flake8-force]
         args: ["--docstring-convention=all"]
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.5
+    rev: v2.2.6
     hooks:
       - id: codespell
         files: ^.*\.(py|c|cpp|h|m|md|rst|yml)$
@@ -61,7 +61,7 @@ repos:
           "doc/users/project/credits.rst"
           ]
   - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
+    rev: 5.13.2
     hooks:
       - id: isort
         name: isort (python)

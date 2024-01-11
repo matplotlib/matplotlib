@@ -6183,7 +6183,7 @@ default: :rc:`scatter.edgecolors`
             and *Y* should be the same as those of *C* (if not, a ValueError
             will be raised).  For ``'nearest'`` the color ``C[i, j]`` is
             centered on ``(X[i, j], Y[i, j])``.  For ``'gouraud'``, a smooth
-            interpolation is caried out between the quadrilateral corners.
+            interpolation is carried out between the quadrilateral corners.
 
             If *X* and/or *Y* are 1-D arrays or column vectors they will be
             expanded as needed into the appropriate 2D arrays, making a
