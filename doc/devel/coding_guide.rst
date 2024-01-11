@@ -7,12 +7,11 @@ Coding guidelines
 We appreciate these guidelines being followed because it improves the readability,
 consistency, and maintainability of the code base.
 
-API changes
-===========
+.. admonition:: API guidelines
+    :class: seealso
 
-If you are adding new features, changing behavior or function signatures, or
-removing classes, functions, methods, or properties, please see the :ref:`api_changes`
-guide.
+    If adding new features, changing behavior or function signatures, or removing
+    public interfaces, please consult the :ref:`api_changes`.
 
 PEP8, as enforced by flake8
 ===========================
