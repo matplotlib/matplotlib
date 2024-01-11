@@ -9,6 +9,7 @@ on:
     branches-ignore:
       - auto-backport-of-pr-[0-9]+
       - v[0-9]+.[0-9]+.[0-9x]+-doc
+      - dependabot/**
   pull_request:
     branches-ignore:
       - v[0-9]+.[0-9]+.[0-9x]+-doc
