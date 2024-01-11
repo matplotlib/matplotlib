@@ -916,12 +916,15 @@ class TestScalarFormatter:
         })
 
         # Glyph warning unrelated
-        warnings.filterwarnings("ignore", category=UserWarning, message="Glyph 8722")
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore", category=UserWarning, message="Glyph 8722"
+            )
 
-        with pytest.warns(UserWarning, match='cmr10 font should ideally'):
-            fig, ax = plt.subplots()
-            ax.set_xticks([-1, 0, 1])
-            fig.canvas.draw()
+            with pytest.warns(UserWarning, match='cmr10 font should ideally'):
+                fig, ax = plt.subplots()
+                ax.set_xticks([-1, 0, 1])
+                fig.canvas.draw()
 
     def test_cmr10_substitutions(self, caplog):
         mpl.rcParams.update({
