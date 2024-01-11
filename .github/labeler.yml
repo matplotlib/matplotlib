@@ -3,3 +3,58 @@
   - any-glob-to-any-file: ['.github/workflows/cibuildwheel.yml']
 "CI: Run cygwin":
   - any-glob-to-any-file: ['.github/workflows/cygwin.yml']
+
+"backend: agg":
+  - any-glob-to-any-file:
+      - 'extern/agg24-svn/'
+      - 'lib/matplotlib/backends/_backend_agg.pyi'
+      - 'lib/matplotlib/backends/backend_agg.py*'
+      - 'src/_backend_agg*'
+"backend: cairo":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/backends/backend_*cairo.py*'
+"backend: pdf":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/backends/_backend_pdf_ps.py'
+      - 'lib/matplotlib/backends/backend_pdf.py'
+"backend: pgf":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/backends/backend_pgf.py'
+"backend: ps":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/backends/_backend_pdf_ps.py'
+      - 'lib/matplotlib/backends/backend_ps.py'
+"backend: svg":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/backends/backend_svg.py'
+
+"GUI: gtk":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/backends/_backend_gtk.py*'
+      - 'lib/matplotlib/backends/backend_gtk*'
+"GUI: MacOSX":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/backends/*_macosx.py*'
+      - 'src/_macosx.m'
+"GUI: nbagg":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/backends/*_nbagg*.py*'
+      - 'lib/matplotlib/backends/web_backend/js/nbagg_mpl.js'
+"GUI: Qt":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/backends/backend_qt*'
+      - 'lib/matplotlib/backends/qt_compat.py'
+      - 'lib/matplotlib/backends/qt_editor/**'
+"GUI: tk":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/backends/*backend_tk*'
+      - 'lib/matplotlib/backends/_tkagg.pyi'
+      - 'src/_tkagg.cpp'
+      - 'src/_tkmini.h'
+"GUI: webagg":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/backends/*_webagg*.py*'
+      - 'lib/matplotlib/backends/web_backend/**'
+"GUI: wx":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/backends/backend_wx*.py*'
