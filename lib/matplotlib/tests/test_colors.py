@@ -1,7 +1,7 @@
 import copy
 import itertools
 import unittest.mock
-import warnings
+from packaging.version import parse as parse_version
 
 from io import BytesIO
 import numpy as np
@@ -149,9 +149,11 @@ def test_double_register_builtin_cmap():
         with pytest.warns(mpl.MatplotlibDeprecationWarning):
             cm.register_cmap(name, mpl.colormaps[name])
 
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=mpl.MatplotlibDeprecationWarning)
+    if parse_version(pytest.__version__).major < 8:
         with pytest.warns(UserWarning):
+            cm.register_cmap(name, mpl.colormaps[name], override_builtin=True)
+    else:
+        with pytest.warns(UserWarning), pytest.warns(mpl.MatplotlibDeprecationWarning):
             cm.register_cmap(name, mpl.colormaps[name], override_builtin=True)
 
 

@@ -3,7 +3,7 @@ import itertools
 import locale
 import logging
 import re
-import warnings
+from packaging.version import parse as parse_version
 
 import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
@@ -915,13 +915,14 @@ class TestScalarFormatter:
             'axes.formatter.use_mathtext': False
         })
 
-        # Glyph warning unrelated
-        with warnings.catch_warnings():
-            warnings.filterwarnings(
-                "ignore", category=UserWarning, message="Glyph 8722"
-            )
-
+        if parse_version(pytest.__version__).major < 8:
             with pytest.warns(UserWarning, match='cmr10 font should ideally'):
+                fig, ax = plt.subplots()
+                ax.set_xticks([-1, 0, 1])
+                fig.canvas.draw()
+        else:
+            with (pytest.warns(UserWarning, match="Glyph 8722"),
+                  pytest.warns(UserWarning, match='cmr10 font should ideally')):
                 fig, ax = plt.subplots()
                 ax.set_xticks([-1, 0, 1])
                 fig.canvas.draw()
