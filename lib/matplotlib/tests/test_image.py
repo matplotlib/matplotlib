@@ -366,6 +366,7 @@ def test_cursor_data():
 
 
 @pytest.mark.parametrize("xy, data", [
+    # x/y coords chosen to be 0.5 above boundaries so they lie within image pixels
     [[0.5, 0.5], 0 + 0],
     [[0.5, 1.5], 0 + 1],
     [[4.5, 0.5], 16 + 0],
