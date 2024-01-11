@@ -59,6 +59,32 @@
   - any-glob-to-any-file:
       - 'lib/matplotlib/backends/backend_wx*.py*'
 
+"Documentation: API":
+  - any-glob-to-any-file:
+      # Also files in lib/**, but we can't be sure those are only documentation.
+      - 'doc/api/**'
+"Documentation: build":
+  - any-glob-to-any-file:
+      - 'doc/conf.py'
+      - 'doc/Makefile'
+      - 'doc/make.bat'
+"Documentation: devdocs":
+  - any-glob-to-any-file:
+      - 'doc/devel/**'
+"Documentation: examples":
+  - any-glob-to-any-file:
+      - 'galleries/examples/**'
+"Documentation: plot types":
+  - any-glob-to-any-file:
+      - 'galleries/plot_types/**'
+"Documentation: tutorials":
+  - any-glob-to-any-file:
+      - 'galleries/tutorials/**'
+"Documentation: user guide":
+  - any-glob-to-any-file:
+      - 'doc/users/**'
+      - 'galleries/users_explain/**'
+
 "topic: animation":
   - any-glob-to-any-file:
       - 'lib/matplotlib/animation.py*'
