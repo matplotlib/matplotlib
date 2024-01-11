@@ -1,0 +1,5 @@
+---
+"CI: Run cibuildwheel":
+  - any-glob-to-any-file: ['.github/workflows/cibuildwheel.yml']
+"CI: Run cygwin":
+  - any-glob-to-any-file: ['.github/workflows/cygwin.yml']
