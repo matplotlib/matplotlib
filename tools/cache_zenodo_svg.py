@@ -148,7 +148,7 @@ if __name__ == "__main__":
             fout.write(
                 f"""
 {version}
-   .. image:: ../../doc/_static/zenodo_cache/{doi}.svg
+   .. image:: ../_static/zenodo_cache/{doi}.svg
       :target:  https://doi.org/10.5281/zenodo.{doi}"""
             )
         fout.write("\n\n")
