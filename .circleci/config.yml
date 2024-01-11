@@ -199,7 +199,6 @@ commands:
       - store_artifacts:
           path: doc/build/sphinx-gallery-files.tar.gz
 
-
 ##########################################
 # Here is where the real jobs are defined.
 #
