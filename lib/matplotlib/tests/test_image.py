@@ -365,6 +365,33 @@ def test_cursor_data():
     assert im.get_cursor_data(event) == 44
 
 
+@pytest.mark.parametrize("xy, data", [
+    [[0.5, 0.5], 0 + 0],
+    [[0.5, 1.5], 0 + 1],
+    [[4.5, 0.5], 16 + 0],
+    [[9.5, 2.5], 81 + 4]
+    ]
+)
+def test_cursor_data_nonuniform(xy, data):
+    from matplotlib.backend_bases import MouseEvent
+
+    # Non-linear set of x-values
+    x = np.array([0, 1, 4, 9, 16])
+    y = np.array([0, 1, 2, 3, 4])
+    z = x[np.newaxis, :]**2 + y[:, np.newaxis]**2
+
+    fig, ax = plt.subplots()
+    im = NonUniformImage(ax, extent=(x.min(), x.max(), y.min(), y.max()))
+    im.set_data(x, y, z)
+    ax.add_image(im)
+    ax.set_xlim(x.min(), x.max())
+    ax.set_ylim(y.min(), y.max())
+
+    xdisp, ydisp = ax.transData.transform(xy)
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    assert im.get_cursor_data(event) == data, (im.get_cursor_data(event), data)
+
+
 @pytest.mark.parametrize(
     "data, text", [
         ([[10001, 10000]], "[10001.000]"),
