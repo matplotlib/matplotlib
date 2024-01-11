@@ -58,3 +58,135 @@
 "GUI: wx":
   - any-glob-to-any-file:
       - 'lib/matplotlib/backends/backend_wx*.py*'
+
+"topic: animation":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/animation.py*'
+      - 'lib/matplotlib/_animation_data.py*'
+"topic: axes":
+  - any-glob-to-any-file:
+      # Note, axes.py is not included here because it contains many plotting
+      # methods, for which changes would not be considered on topic.
+      - 'lib/matplotlib/axes/_base.py*'
+"topic: canvas and figure manager":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/backend_bases.py*'
+"topic: categorical":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/category.py*'
+"topic: collections and mappables":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/collections.py*'
+"topic: color/color & colormaps":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/colorbar.py*'
+      - 'lib/matplotlib/colors.py*'
+      - 'lib/matplotlib/_color_data.py*'
+      - 'lib/matplotlib/cm.py*'
+      - 'lib/matplotlib/_cm.py*'
+      - 'lib/matplotlib/_cm_listed.py*'
+"topic: contour":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/contour.py*'
+      - 'src/_qhull_wrapper.cpp'
+"topic: date handling":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/dates.py*'
+"topic: figures and subfigures":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/figure.py*'
+"topic: geometry manager":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/_constrained_layout.py*'
+      - 'lib/matplotlib/_layoutgrid.py*'
+      - 'lib/matplotlib/_tight_bbox.py*'
+      - 'lib/matplotlib/_tight_layout.py*'
+      - 'lib/matplotlib/gridspec.py*'
+      - 'lib/matplotlib/layout_engine.py*'
+"topic: hatch":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/hatch.py*'
+"topic: images":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/image.py*'
+      - 'lib/matplotlib/_image.pyi'
+      - 'src/_image_*'
+"topic: legend":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/legend.py*'
+      - 'lib/matplotlib/legend_handler.py*'
+"topic: markers":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/markers.py*'
+"topic: mpl_toolkit":
+  - any-glob-to-any-file:
+      - 'lib/mpl_toolkits/**'
+  - all-globs-to-all-files:
+      - '!lib/mpl_toolkits/mplot3d/**'
+"topic: mplot3d":
+  - any-glob-to-any-file:
+      - 'lib/mpl_toolkits/mplot3d/**'
+"topic: path handling":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/path.py*'
+      - 'lib/matplotlib/patheffects.py*'
+      - 'lib/matplotlib/_path.pyi'
+      - 'src/*path*'
+"topic: polar":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/projections/polar.py*'
+"topic: pyplot API":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/pyplot.py'
+      - 'lib/matplotlib/_pylab_helpers.py*'
+"topic: rcparams":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/rcsetup.py*'
+"topic: sankey":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/sankey.py*'
+"topic: sphinx extension":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/sphinxext/**'
+"topic: styles":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/mpl-data/stylelib/**'
+      - 'lib/matplotlib/style/**'
+"topic: table":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/table.py*'
+"topic: text":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/text.py*'
+      - 'lib/matplotlib/textpath.py*'
+"topic: text/fonts":
+  - any-glob-to-any-file:
+      - 'src/checkdep_freetype2.c'
+      - 'src/ft2font*'
+"topic: text/mathtext":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/mathtext.py*'
+      - 'lib/matplotlib/_mathtext.py*'
+      - 'lib/matplotlib/_mathtext_data.py*'
+"topic: ticks axis labels":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/axis.py*'
+      - 'lib/matplotlib/ticker.py*'
+"topic: toolbar":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/backend_managers.py*'
+      - 'lib/matplotlib/backend_tools.py*'
+"topic: transforms and scales":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/scale.py*'
+      - 'lib/matplotlib/transforms.py*'
+"topic: tri":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/tri/**'
+      - 'src/tri/**'
+"topic: units and array ducktypes":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/units.py*'
+"topic: widgets/UI":
+  - any-glob-to-any-file:
+      - 'lib/matplotlib/widgets.py*'
