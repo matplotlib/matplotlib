@@ -14,7 +14,7 @@ import pytest
 
 from matplotlib.font_manager import (
     findfont, findSystemFonts, FontEntry, FontProperties, fontManager,
-    json_dump, json_load, get_font, is_opentype_cff_font,
+    _findfontFilter, json_dump, json_load, get_font, is_opentype_cff_font,
     MSUserFontDirectories, _get_fontconfig_fonts, ttfFontProperty)
 from matplotlib import cbook, ft2font, pyplot as plt, rc_context, figure as mfigure
 
@@ -239,12 +239,27 @@ def test_missing_family(caplog):
     plt.rcParams["font.sans-serif"] = ["this-font-does-not-exist"]
     with caplog.at_level("WARNING"):
         findfont("sans")
-    assert [rec.getMessage() for rec in caplog.records] == [
+    assert [rec.getMessage() in [
         "findfont: Font family ['sans'] not found. "
         "Falling back to DejaVu Sans.",
         "findfont: Generic family 'sans' not found because none of the "
         "following families were found: this-font-does-not-exist",
-    ]
+    ] for rec in caplog.records]
+    _findfontFilter.clear_cache()
+
+
+def test_not_found_filter(caplog):
+    plt.rcParams["font.sans-serif"] = ["this-font-does-not-exist"]
+
+    _findfontFilter.clear_cache()
+    _findfontFilter._msg_cache.add("findfont: Font family ['sans'] not found. "
+                                    "Falling back to DejaVu Sans.")
+    _findfontFilter._msg_cache.add("findfont: Generic family 'sans' not found "
+                                    "because none of the following families "
+                                    "were found: this-font-does-not-exist")
+    with caplog.at_level("WARNING"):
+        findfont("sans")
+    assert len(caplog.records) == 0
 
 
 def _test_threading():
