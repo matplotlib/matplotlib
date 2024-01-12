@@ -32,7 +32,7 @@ jobs:
           PROJECT_REPO="matplotlib/matplotlib"
           BRANCH="main"
           WORKFLOW_NAME="cibuildwheel.yml"
-          ARTIFACT_NAME="wheels"
+          ARTIFACT_PATTERN="cibw-wheels-*"
 
           gh run --repo "${PROJECT_REPO}" \
              list --branch "${BRANCH}" \
@@ -52,10 +52,10 @@ jobs:
           )
           gh run --repo "${PROJECT_REPO}" view "${RUN_ID}"
           gh run --repo "${PROJECT_REPO}" \
-             download "${RUN_ID}" --name "${ARTIFACT_NAME}"
+             download "${RUN_ID}" --pattern "${ARTIFACT_PATTERN}"
 
           mkdir dist
-          mv *.whl dist/
+          mv ${ARTIFACT_PATTERN}/*.whl dist/
           ls -l dist/
 
       - name: Upload wheels to Anaconda Cloud as nightlies
