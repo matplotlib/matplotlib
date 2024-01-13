@@ -181,11 +181,12 @@
       - any-glob-to-any-file:
           - 'lib/matplotlib/markers.py*'
 "topic: mpl_toolkit":
-  - changed-files:
-      - any-glob-to-any-file:
-          - 'lib/mpl_toolkits/**'
-      - all-globs-to-all-files:
-          - '!lib/mpl_toolkits/mplot3d/**'
+  - all:
+      - changed-files:
+          - any-glob-to-any-file:
+              - 'lib/mpl_toolkits/**'
+          - all-globs-to-all-files:
+              - '!lib/mpl_toolkits/mplot3d/**'
 "topic: mplot3d":
   - changed-files:
       - any-glob-to-any-file:
