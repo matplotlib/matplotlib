@@ -684,7 +684,11 @@ def test_figure_leak_20490(env, time_mem, request):
         timeout=_test_timeout, extra_env=env)
 
     growth = int(result.stdout)
-    assert growth <= acceptable_memory_leakage
+    if growth > acceptable_memory_leakage:
+        raise RuntimeError(
+            f"Memory growth larger than acceptable ({growth} > "
+            f"{acceptable_memory_leakage})"
+        )
 
 
 def _impl_test_interactive_timers():
