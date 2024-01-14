@@ -371,7 +371,9 @@ def test_cursor_data():
     [[0.5, 1.5], 0 + 1],
     [[4.5, 0.5], 16 + 0],
     [[8.5, 0.5], 16 + 0],
-    [[9.5, 2.5], 81 + 4]
+    [[9.5, 2.5], 81 + 4],
+    [[-1, 0.5], None],
+    [[0.5, -1], None],
     ]
 )
 def test_cursor_data_nonuniform(xy, data):
@@ -386,8 +388,9 @@ def test_cursor_data_nonuniform(xy, data):
     im = NonUniformImage(ax, extent=(x.min(), x.max(), y.min(), y.max()))
     im.set_data(x, y, z)
     ax.add_image(im)
-    ax.set_xlim(x.min(), x.max())
-    ax.set_ylim(y.min(), y.max())
+    # Set lower min lim so we can test cursor outside image
+    ax.set_xlim(x.min() - 2, x.max())
+    ax.set_ylim(y.min() - 2, y.max())
 
     xdisp, ydisp = ax.transData.transform(xy)
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
