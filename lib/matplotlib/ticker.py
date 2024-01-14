@@ -2903,7 +2903,7 @@ class AutoMinorLocator(Locator):
             _api.warn_external('AutoMinorLocator does not work on logarithmic scales')
             return []
 
-        majorlocs = self.axis.get_majorticklocs()
+        majorlocs = np.unique(self.axis.get_majorticklocs())
         if len(majorlocs) < 2:
             # Need at least two major ticks to find minor tick locations.
             # TODO: Figure out a way to still be able to display minor ticks with less

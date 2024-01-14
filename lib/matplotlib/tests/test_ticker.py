@@ -12,6 +12,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 
+import random
+
 
 class TestMaxNLocator:
     basic_data = [
@@ -1796,3 +1798,31 @@ def test_set_offset_string(formatter):
     assert formatter.get_offset() == ''
     formatter.set_offset_string('mpl')
     assert formatter.get_offset() == 'mpl'
+
+
+def test_minorticks_on_multi_fig():
+    """
+    Turning on minor gridlines in a multi-Axes Figure
+    that contains more than one boxplot and shares the x-axis
+    should not raise an exception.
+    """
+    fig, ax = plt.subplots(sharex=True, ncols=2, nrows=2)
+
+    def values():
+        return [random.random() for _ in range(9)]
+
+    for x in range(3):
+        ax[0, 0].boxplot(values(), positions=[x])
+        ax[0, 1].boxplot(values(), positions=[x])
+        ax[1, 0].boxplot(values(), positions=[x])
+        ax[1, 1].boxplot(values(), positions=[x])
+
+    for a in ax.flatten():
+        a.grid(which="major")
+        a.grid(which="minor", linestyle="--")
+        a.minorticks_on()
+    fig.canvas.draw()
+
+    assert all(a.get_xgridlines() for a in ax.flatten())
+    assert all((isinstance(a.xaxis.get_minor_locator(), mpl.ticker.AutoMinorLocator)
+                for a in ax.flatten()))
