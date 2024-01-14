@@ -158,6 +158,10 @@ def _check_dependencies():
         raise OSError(
             "No binary named dot - graphviz must be installed to build the "
             "documentation")
+    if shutil.which('latex') is None:
+        raise OSError(
+            "No binary named latex - latex must be installed to build the "
+            "documentation")
 
 _check_dependencies()
 
