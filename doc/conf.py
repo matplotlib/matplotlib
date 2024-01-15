@@ -160,8 +160,8 @@ def _check_dependencies():
             "documentation")
     if shutil.which('latex') is None:
         raise OSError(
-            "No binary named latex - latex must be installed to build the "
-            "documentation")
+            "No binary named latex - a LaTeX distribution must be installed to build "
+            "the documentation")
 
 _check_dependencies()
 
