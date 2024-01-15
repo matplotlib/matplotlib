@@ -33,7 +33,7 @@ dependencies:
   - ipywidgets
   - numpydoc>=1.0
   - packaging>=20
-  - pydata-sphinx-theme~=0.13.1
+  - pydata-sphinx-theme~=0.14.4
   - pyyaml
   - sphinx>=3.0.0,!=6.1.2
   - sphinx-copybutton

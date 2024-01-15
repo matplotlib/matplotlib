@@ -14,7 +14,7 @@ ipywidgets
 ipykernel
 numpydoc>=1.0
 packaging>=20
-pydata-sphinx-theme~=0.13.1
+pydata-sphinx-theme~=0.14.4
 mpl-sphinx-theme~=3.8.0
 pyyaml
 sphinxcontrib-svg2pdfconverter>=1.1.0
