@@ -1748,3 +1748,5 @@ def test_suplots_adjust_plt():
     inDict['wspace'] = plt.rcParams['figure.subplot.wspace']
     del inDict['rc_default']
     assert plt.gcf().subplotpars.get_subplot_params() == inDict
+
+
