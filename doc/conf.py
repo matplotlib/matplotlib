@@ -493,7 +493,6 @@ html_theme_options = {
     },
     "navbar_end": ["theme-switcher", "version-switcher", "mpl_icon_links"],
     "navbar_persistent": ["search-button"],
-    "secondary_sidebar_items": "page-toc.html",
     "footer_start": ["copyright", "sphinx-version", "doc_version"],
     # We override the announcement template from pydata-sphinx-theme, where
     # this special value indicates the use of the unreleased banner. If we need
