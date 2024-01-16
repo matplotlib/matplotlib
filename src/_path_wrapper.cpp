@@ -25,9 +25,9 @@ convert_polygon_vector(std::vector<Polygon> &polygons)
     auto result = py::list(polygons.size());
 
     for (size_t i = 0; i < polygons.size(); ++i) {
-        Polygon poly = polygons[i];
+        const auto& poly = polygons[i];
         py::ssize_t dims[] = { static_cast<py::ssize_t>(poly.size()), 2 };
-        result[i] = py::array(dims, reinterpret_cast<double *>(poly.data()));
+        result[i] = py::array(dims, reinterpret_cast<const double *>(poly.data()));
     }
 
     return result;
