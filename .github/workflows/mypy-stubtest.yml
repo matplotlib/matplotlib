@@ -35,7 +35,7 @@ jobs:
         run: |
           set -o pipefail
           tox -e stubtest | \
-              sed -e "s!.tox/stubtest/lib/python3.11/site-packages!lib!g" | \
+              sed -e "s!.tox/stubtest/lib/python3.9/site-packages!lib!g" | \
               reviewdog \
                 -efm '%Eerror: %m' \
                 -efm '%CStub: in file %f:%l' \
