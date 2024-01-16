@@ -2708,7 +2708,6 @@ class PdfPages:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        print(f"Closing file {self._filename}")
         self.close()
 
     def _ensure_file(self):
