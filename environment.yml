@@ -46,6 +46,7 @@ dependencies:
       - sphinxcontrib-svg2pdfconverter>=1.1.0
       - pikepdf
   # testing
+  - black<24
   - coverage
   - flake8>=3.8
   - flake8-docstrings>=1.4.0
@@ -64,4 +65,4 @@ dependencies:
   - pytest-xdist
   - tornado
   - pytz
-  - black<24
+  - tox
