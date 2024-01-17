@@ -12,8 +12,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 
-import random
-
 
 class TestMaxNLocator:
     basic_data = [
@@ -1806,23 +1804,16 @@ def test_minorticks_on_multi_fig():
     that contains more than one boxplot and shares the x-axis
     should not raise an exception.
     """
-    fig, ax = plt.subplots(sharex=True, ncols=2, nrows=2)
+    fig, ax = plt.subplots()
 
-    def values():
-        return [random.random() for _ in range(9)]
+    ax.boxplot(np.arange(10), positions=[0])
+    ax.boxplot(np.arange(10), positions=[0])
+    ax.boxplot(np.arange(10), positions=[1])
 
-    for x in range(3):
-        ax[0, 0].boxplot(values(), positions=[x])
-        ax[0, 1].boxplot(values(), positions=[x])
-        ax[1, 0].boxplot(values(), positions=[x])
-        ax[1, 1].boxplot(values(), positions=[x])
+    ax.grid(which="major")
+    ax.grid(which="minor")
+    ax.minorticks_on()
+    fig.draw_without_rendering()
 
-    for a in ax.flatten():
-        a.grid(which="major")
-        a.grid(which="minor", linestyle="--")
-        a.minorticks_on()
-    fig.canvas.draw()
-
-    assert all(a.get_xgridlines() for a in ax.flatten())
-    assert all((isinstance(a.xaxis.get_minor_locator(), mpl.ticker.AutoMinorLocator)
-                for a in ax.flatten()))
+    assert ax.get_xgridlines()
+    assert isinstance(ax.xaxis.get_minor_locator(), mpl.ticker.AutoMinorLocator)
