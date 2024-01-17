@@ -60,6 +60,8 @@ import datetime
 bytes = __import__("builtins").bytes
 # We also don't want the numpy version of these functions
 abs = __import__("builtins").abs
+bool = __import__("builtins").bool
 max = __import__("builtins").max
 min = __import__("builtins").min
+pow = __import__("builtins").pow
 round = __import__("builtins").round

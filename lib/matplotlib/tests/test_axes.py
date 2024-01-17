@@ -5743,7 +5743,12 @@ def test_text_labelsize():
     ax.tick_params(direction='out')
 
 
-@image_comparison(['pie_default.png'])
+# Note: The `pie` image tests were affected by Numpy 2.0 changing promotions
+# (NEP 50). While the changes were only marginal, tolerances were introduced.
+# These tolerances could likely go away when numpy 2.0 is the minimum supported
+# numpy and the images are regenerated.
+
+@image_comparison(['pie_default.png'], tol=0.01)
 def test_pie_default():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -5756,7 +5761,7 @@ def test_pie_default():
 
 
 @image_comparison(['pie_linewidth_0', 'pie_linewidth_0', 'pie_linewidth_0'],
-                  extensions=['png'], style='mpl20')
+                  extensions=['png'], style='mpl20', tol=0.01)
 def test_pie_linewidth_0():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -5788,7 +5793,7 @@ def test_pie_linewidth_0():
     plt.axis('equal')
 
 
-@image_comparison(['pie_center_radius.png'], style='mpl20')
+@image_comparison(['pie_center_radius.png'], style='mpl20', tol=0.005)
 def test_pie_center_radius():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -5808,7 +5813,7 @@ def test_pie_center_radius():
     plt.axis('equal')
 
 
-@image_comparison(['pie_linewidth_2.png'], style='mpl20')
+@image_comparison(['pie_linewidth_2.png'], style='mpl20', tol=0.01)
 def test_pie_linewidth_2():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -5823,7 +5828,7 @@ def test_pie_linewidth_2():
     plt.axis('equal')
 
 
-@image_comparison(['pie_ccw_true.png'], style='mpl20')
+@image_comparison(['pie_ccw_true.png'], style='mpl20', tol=0.01)
 def test_pie_ccw_true():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -5838,7 +5843,7 @@ def test_pie_ccw_true():
     plt.axis('equal')
 
 
-@image_comparison(['pie_frame_grid.png'], style='mpl20')
+@image_comparison(['pie_frame_grid.png'], style='mpl20', tol=0.002)
 def test_pie_frame_grid():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -5865,7 +5870,7 @@ def test_pie_frame_grid():
     plt.axis('equal')
 
 
-@image_comparison(['pie_rotatelabels_true.png'], style='mpl20')
+@image_comparison(['pie_rotatelabels_true.png'], style='mpl20', tol=0.009)
 def test_pie_rotatelabels_true():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Hogwarts', 'Frogs', 'Dogs', 'Logs'
@@ -5880,7 +5885,7 @@ def test_pie_rotatelabels_true():
     plt.axis('equal')
 
 
-@image_comparison(['pie_no_label.png'])
+@image_comparison(['pie_no_label.png'], tol=0.01)
 def test_pie_nolabel_but_legend():
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
     sizes = [15, 30, 45, 10]
@@ -5894,7 +5899,7 @@ def test_pie_nolabel_but_legend():
     plt.legend()
 
 
-@image_comparison(['pie_shadow.png'], style='mpl20')
+@image_comparison(['pie_shadow.png'], style='mpl20', tol=0.002)
 def test_pie_shadow():
     # Also acts as a test for the shade argument of Shadow
     sizes = [15, 30, 45, 10]
