@@ -1,7 +1,7 @@
 .. _api_changes:
 
-API changes
-===========
+API guidelines
+==============
 
 API consistency and stability are of great value; Therefore, API changes
 (e.g. signature changes, behavior changes, removals) will only be conducted
@@ -17,67 +17,45 @@ are backwards-incompatible API changes.
 
    color_changes.rst
 
-.. _api_whats_new:
 
-Announce changes, deprecations, and new features
-------------------------------------------------
+Add new API and features
+------------------------
 
-When adding or changing the API in a backward in-compatible way, please add the
-appropriate :ref:`versioning directive <versioning-directives>` and document it
-for the release notes and add the entry to the appropriate folder:
+Every new function, parameter and attribute that is not explicitly marked as
+private (i.e., starts with an underscore) becomes part of Matplotlib's public
+API. As discussed above, changing the existing API is cumbersome. Therefore,
+take particular care when adding new API:
 
-+-------------------+-----------------------------+----------------------------------------------+
-| addition          |   versioning directive      |  announcement folder                         |
-+===================+=============================+==============================================+
-| new feature       | ``.. versionadded:: 3.N``   | :file:`doc/users/next_whats_new/`            |
-+-------------------+-----------------------------+----------------------------------------------+
-| API change        | ``.. versionchanged:: 3.N`` | :file:`doc/api/next_api_changes/[kind]`      |
-+-------------------+-----------------------------+----------------------------------------------+
+- Mark helper functions and internal attributes as private by prefixing them
+  with an underscore.
+- Carefully think about good names for your functions and variables.
+- Try to adopt patterns and naming conventions from existing parts of the
+  Matplotlib API.
+- Consider making as many arguments keyword-only as possible. See also
+  `API Evolution the Right Way -- Add Parameters Compatibly`__.
 
-API deprecations are first introduced and then expired. During the introduction
-period, users are warned that the API *will* change in the future.
-During the expiration period, code is changed as described in the notice posted
-during the introductory period.
-
-+-----------+--------------------------------------------------+----------------------------------------------+
-|   stage   |                 required changes                 |             announcement folder              |
-+===========+==================================================+==============================================+
-| introduce | :ref:`introduce deprecation <intro-deprecation>` | :file:`doc/api/next_api_changes/deprecation` |
-+-----------+--------------------------------------------------+----------------------------------------------+
-| expire    | :ref:`expire deprecation <expire-deprecation>`   | :file:`doc/api/next_api_changes/[kind]`      |
-+-----------+--------------------------------------------------+----------------------------------------------+
-
-For both change notes and what's new, please avoid using references in section
-titles, as it causes links to be confusing in the table of contents. Instead,
-ensure that a reference is included in the descriptive text.
-
-API Change Notes
-^^^^^^^^^^^^^^^^
-
-.. include:: ../api/next_api_changes/README.rst
-   :start-line: 5
-   :end-line: 31
-
-What's new
-^^^^^^^^^^
-
-.. include:: ../users/next_whats_new/README.rst
-   :start-line: 5
-   :end-line: 24
+  __ https://emptysqua.re/blog/api-evolution-the-right-way/#adding-parameters
 
 
-Deprecation
------------
+.. _deprecation-guidelines:
+
+Deprecate API
+-------------
 
 API changes in Matplotlib have to be performed following the deprecation process
 below, except in very rare circumstances as deemed necessary by the development
-team. This ensures that users are notified before the change will take effect
-and thus prevents unexpected breaking of code.
+team. Generally API deprecation happens in two stages:
+
+* **introduce:** warn users that the API *will* change
+* **expire:** API *is* changed as described in the introduction period
+
+This ensures that users are notified before the change will take effect and thus
+prevents unexpected breaking of code.
 
 Rules
 ^^^^^
-- Deprecations are targeted at the next point.release (e.g. 3.x)
-- Deprecated API is generally removed two point-releases after introduction
+- Deprecations are targeted at the next :ref:`minor release <pr-milestones>` (e.g. 3.x)
+- Deprecated API is generally removed (expired) two point-releases after introduction
   of the deprecation. Longer deprecations can be imposed by core developers on
   a case-by-case basis to give more time for the transition
 - The old API must remain fully functional during the deprecation period
@@ -147,29 +125,44 @@ Expire deprecation
      instead. For removed items that were not in the stub file, only deleting from the
      allowlist is required.
 
-Adding new API and features
----------------------------
 
-Every new function, parameter and attribute that is not explicitly marked as
-private (i.e., starts with an underscore) becomes part of Matplotlib's public
-API. As discussed above, changing the existing API is cumbersome. Therefore,
-take particular care when adding new API:
+.. redirect-from:: /devel/coding_guide#new-features-and-api-changes
 
-- Mark helper functions and internal attributes as private by prefixing them
-  with an underscore.
-- Carefully think about good names for your functions and variables.
-- Try to adopt patterns and naming conventions from existing parts of the
-  Matplotlib API.
-- Consider making as many arguments keyword-only as possible. See also
-  `API Evolution the Right Way -- Add Parameters Compatibly`__.
+.. _api_whats_new:
 
-  __ https://emptysqua.re/blog/api-evolution-the-right-way/#adding-parameters
+Announce new and deprecated API
+-------------------------------
 
+When adding or changing the API in a backward in-compatible way, please add the
+appropriate :ref:`versioning directive <versioning-directives>` and document it
+for the release notes and add the entry to the appropriate folder:
+
++-------------------+-----------------------------+----------------------------------------------+
+|                   |   versioning directive      |  announcement folder                         |
++===================+=============================+==============================================+
+| new feature       | ``.. versionadded:: 3.N``   | :file:`doc/users/next_whats_new/`            |
++-------------------+-----------------------------+----------------------------------------------+
+| API change        | ``.. versionchanged:: 3.N`` | :file:`doc/api/next_api_changes/[kind]`      |
++-------------------+-----------------------------+----------------------------------------------+
+
+When deprecating API, please add a notice as described in the
+:ref:`deprecation guidelines <deprecation-guidelines>` and summarized here:
+
++--------------------------------------------------+----------------------------------------------+
+|   stage                                          |             announcement folder              |
++===========+======================================+==============================================+
+| :ref:`introduce deprecation <intro-deprecation>` | :file:`doc/api/next_api_changes/deprecation` |
++-----------+--------------------------------------+----------------------------------------------+
+| :ref:`expire deprecation <expire-deprecation>`   | :file:`doc/api/next_api_changes/[kind]`      |
++-----------+--------------------------------------+----------------------------------------------+
+
+Generally the introduction notices can be repurposed for the expiration notice as they
+are expected to be describing the same API changes and removals.
 
 .. _versioning-directives:
 
 Versioning directives
----------------------
+^^^^^^^^^^^^^^^^^^^^^
 
 When making a backward incompatible change, please add a versioning directive in
 the docstring. The directives should be placed at the end of a description block.
@@ -209,3 +202,28 @@ For classes and functions, the directive should be placed before the
 *Parameters* section. For parameters, the directive should be placed at the
 end of the parameter description. The patch release version is omitted and
 the directive should not be added to entire modules.
+
+Release notes
+^^^^^^^^^^^^^
+
+For both change notes and what's new, please avoid using cross-references in section
+titles as it causes links to be confusing in the table of contents. Instead, ensure that
+a cross-reference is included in the descriptive text.
+
+.. _api-change-notes:
+
+API change notes
+""""""""""""""""
+
+.. include:: ../api/next_api_changes/README.rst
+   :start-line: 5
+   :end-line: 31
+
+.. _whats-new-notes:
+
+What's new notes
+""""""""""""""""
+
+.. include:: ../users/next_whats_new/README.rst
+   :start-line: 5
+   :end-line: 24
