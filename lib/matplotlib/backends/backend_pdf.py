@@ -2732,7 +2732,7 @@ class PdfPages:
             _api.warn_deprecated("3.8", message=(
                 "Keeping empty pdf files is deprecated since %(since)s and support "
                 "will be removed %(removal)s."))
-            PdfFile(self._filename, metadata=self._metadata)  # touch the file.
+            PdfFile(self._filename, metadata=self._metadata).close()  # touch the file.
 
     def infodict(self):
         """
