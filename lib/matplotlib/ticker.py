@@ -2895,7 +2895,7 @@ class AutoMinorLocator(Locator):
                                'logarithmic scale')
             return []
 
-        majorlocs = self.axis.get_majorticklocs()
+        majorlocs = np.unique(self.axis.get_majorticklocs())
         try:
             majorstep = majorlocs[1] - majorlocs[0]
         except IndexError:
