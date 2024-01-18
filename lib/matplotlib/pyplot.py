@@ -556,7 +556,7 @@ def isinteractive() -> bool:
     return matplotlib.is_interactive()
 
 
-def ioff() -> ExitStack:
+def ioff() -> AbstractContextManager:
     """
     Disable interactive mode.
 
@@ -586,7 +586,7 @@ def ioff() -> ExitStack:
             # ...
 
     To enable optional usage as a context manager, this function returns a
-    `~contextlib.ExitStack` object, which is not intended to be stored or
+    context manager object, which is not intended to be stored or
     accessed by the user.
     """
     stack = ExitStack()
@@ -596,7 +596,7 @@ def ioff() -> ExitStack:
     return stack
 
 
-def ion() -> ExitStack:
+def ion() -> AbstractContextManager:
     """
     Enable interactive mode.
 
@@ -626,7 +626,7 @@ def ion() -> ExitStack:
             # ...
 
     To enable optional usage as a context manager, this function returns a
-    `~contextlib.ExitStack` object, which is not intended to be stored or
+    context manager object, which is not intended to be stored or
     accessed by the user.
     """
     stack = ExitStack()
