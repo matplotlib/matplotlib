@@ -305,7 +305,6 @@ def select_matching_signature(funcs, *args, **kwargs):
                 [lambda old1, old2: locals(), lambda new: locals()],
                 *args, **kwargs)
             if "old1" in params:
-                warn_deprecated(...)
                 old1, old2 = params.values()  # note that locals() is ordered.
             else:
                 new, = params.values()
