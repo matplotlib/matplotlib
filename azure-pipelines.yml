@@ -101,6 +101,7 @@ stages:
               gir1.2-gtk-3.0 \
               graphviz \
               inkscape \
+              language-pack-de \
               libcairo2 \
               libgirepository-1.0-1 \
               lmodern \
