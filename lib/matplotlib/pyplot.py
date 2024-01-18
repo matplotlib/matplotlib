@@ -556,6 +556,9 @@ def isinteractive() -> bool:
     return matplotlib.is_interactive()
 
 
+# Note: The return type of ioff being AbstractContextManager instead of ExitStack is deliberate.
+# See https://github.com/matplotlib/matplotlib/issues/27659 
+# and https://github.com/matplotlib/matplotlib/pull/27667 for more info.
 def ioff() -> AbstractContextManager:
     """
     Disable interactive mode.
@@ -596,6 +599,9 @@ def ioff() -> AbstractContextManager:
     return stack
 
 
+# Note: The return type of ion being AbstractContextManager instead of ExitStack is deliberate.
+# See https://github.com/matplotlib/matplotlib/issues/27659 
+# and https://github.com/matplotlib/matplotlib/pull/27667 for more info.
 def ion() -> AbstractContextManager:
     """
     Enable interactive mode.
