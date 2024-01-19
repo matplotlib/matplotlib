@@ -417,17 +417,18 @@ class Slider(SliderBase):
         handle_style : dict
             Properties of the slider handle. Default values are
 
-            ========= ===== ======= ========================================
-            Key       Value Default Description
-            ========= ===== ======= ========================================
-            facecolor color 'white' The facecolor of the slider handle.
-            edgecolor color '.75'   The edgecolor of the slider handle.
-            size      int   10      The size of the slider handle in points.
-            ========= ===== ======= ========================================
+            =============== ======= ========================================
+            Key             Default Description
+            =============== ======= ========================================
+            marker          'o'     The style of the slider handle.
+            facecolor       'white' The facecolor of the slider handle.
+            edgecolor       '.75'   The edgecolor of the slider handle.
+            size            10      The size of the slider handle in points.
+            =============== ======= ========================================
 
-            Other values will be transformed as marker{foo} and passed to the
-            `~.Line2D` constructor. e.g. ``handle_style = {'style'='x'}`` will
-            result in ``markerstyle = 'x'``.
+            Please refer to:
+            https://matplotlib.org/stable/gallery/lines_bars_and_markers/marker_reference.html
+            for more information on styling.
 
         Notes
         -----
@@ -453,10 +454,12 @@ class Slider(SliderBase):
         self.val = valinit
         self.valinit = valinit
 
-        defaults = {'facecolor': 'white', 'edgecolor': '.75', 'size': 10}
+        defaults = {'marker': 'o', 'facecolor': 'white',
+                    'edgecolor': '.75', 'size': 10}
         handle_style = {} if handle_style is None else handle_style
         marker_props = {
-            f'marker{k}': v for k, v in {**defaults, **handle_style}.items()
+            f'{"marker" * (not k.startswith("marker")) + k}': v \
+                    for k, v in {**defaults, **handle_style}.items()
         }
 
         if orientation == 'vertical':
@@ -485,7 +488,6 @@ class Slider(SliderBase):
             handleXY = [[valinit], [0.5]]
         self._handle, = ax.plot(
             *handleXY,
-            "o",
             **marker_props,
             clip_on=False
         )
