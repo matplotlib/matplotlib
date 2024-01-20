@@ -2,4 +2,3 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Axes.inset_axes is cosidered stable for use.
-
