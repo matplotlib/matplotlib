@@ -2235,6 +2235,7 @@ def _picklable_class_constructor(mixin_class, fmt, attr_name, base_class):
 
 
 def _is_torch_array(x):
+    """Check if 'x' is a PyTorch Tensor."""
     try:
         return isinstance(x, sys.modules['torch'].Tensor)
     except Exception as e:  # not using bare `except` to bypass flake8
@@ -2242,6 +2243,7 @@ def _is_torch_array(x):
 
 
 def _is_jax_array(x):
+    """Check if 'x' is a JAX Array."""
     try:
         return isinstance(x, sys.modules['jax'].Array)
     except Exception as e:  # not using bare `except` to bypass flake8
