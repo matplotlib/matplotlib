@@ -19,6 +19,7 @@ import sys
 import time
 import traceback
 import types
+import warnings
 import weakref
 
 import numpy as np
@@ -2234,13 +2235,32 @@ def _picklable_class_constructor(mixin_class, fmt, attr_name, base_class):
     return cls.__new__(cls)
 
 
+def _is_torch_array(x):
+    try:
+        return isinstance(x, sys.modules['torch'].Tensor)
+    except (KeyError, AttributeError, TypeError):
+        return False
+    except Exception as e:
+        warnings.warn(f"Error checking if {x} is a PyTorch Tensor: \n {e} \
+                      \n Please report this issue to the developers.")
+        return False
+
+
+def _is_jax_array(x):
+    try:
+        return isinstance(x, sys.modules['jax'].Array)
+    except (KeyError, AttributeError, TypeError):
+        return False
+    except Exception as e:
+        warnings.warn(f"Error checking if {x} is a JAX Array: \n {e} \
+                      \n Please report this issue to the developers.")
+        return False
+
+
 def _unpack_to_numpy(x):
     """Internal helper to extract data from e.g. pandas and xarray objects."""
     if isinstance(x, np.ndarray):
-        # If numpy array, return directly
-        return x
-    if isinstance(x, np.generic):
-        # If numpy scalar, return directly
+        # If numpy, return directly
         return x
     if hasattr(x, 'to_numpy'):
         # Assume that any to_numpy() method actually returns a numpy array
@@ -2251,12 +2271,10 @@ def _unpack_to_numpy(x):
         # so in this case we do not want to return a function
         if isinstance(xtmp, np.ndarray):
             return xtmp
-    if hasattr(x, '__array__'):
-        # Assume that any to __array__() method returns a numpy array
-        # (e.g. TensorFlow, JAX or PyTorch arrays)
+    if _is_torch_array(x) or _is_jax_array(x):
         xtmp = x.__array__()
-        # Anything that doesn't return ndarray via __array__() method
-        # will be filtered by the following check
+
+        # In case __array__() method does not return a numpy array in future
         if isinstance(xtmp, np.ndarray):
             return xtmp
     return x
