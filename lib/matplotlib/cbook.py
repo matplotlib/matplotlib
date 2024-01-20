@@ -19,7 +19,6 @@ import sys
 import time
 import traceback
 import types
-import warnings
 import weakref
 
 import numpy as np
@@ -2238,22 +2237,14 @@ def _picklable_class_constructor(mixin_class, fmt, attr_name, base_class):
 def _is_torch_array(x):
     try:
         return isinstance(x, sys.modules['torch'].Tensor)
-    except (KeyError, AttributeError, TypeError):
-        return False
-    except Exception as e:
-        warnings.warn(f"Error checking if {x} is a PyTorch Tensor: \n {e} \
-                      \n Please report this issue to the developers.")
+    except Exception as e:  # not using bare `except` to bypass flake8
         return False
 
 
 def _is_jax_array(x):
     try:
         return isinstance(x, sys.modules['jax'].Array)
-    except (KeyError, AttributeError, TypeError):
-        return False
-    except Exception as e:
-        warnings.warn(f"Error checking if {x} is a JAX Array: \n {e} \
-                      \n Please report this issue to the developers.")
+    except Exception as e:  # not using bare `except` to bypass flake8
         return False
 
 
