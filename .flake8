@@ -73,6 +73,7 @@ per-file-ignores =
     galleries/users_explain/text/text_props.py: E501
 
     galleries/examples/animation/frame_grabbing_sgskip.py: E402
+    galleries/examples/color/individual_colors_from_cmap.py: E402
     galleries/examples/images_contours_and_fields/tricontour_demo.py: E201
     galleries/examples/images_contours_and_fields/tripcolor_demo.py: E201
     galleries/examples/images_contours_and_fields/triplot_demo.py: E201
