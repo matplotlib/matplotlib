@@ -332,7 +332,6 @@ class Axes(_AxesBase):
         Add a child inset Axes to this existing Axes.
 
 
-
         Parameters
         ----------
         bounds : [x0, y0, width, height]
