@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 import itertools
 import pickle
 
@@ -16,6 +17,7 @@ import pytest
 from matplotlib import _api, cbook
 import matplotlib.colors as mcolors
 from matplotlib.cbook import delete_masked_points
+from types import ModuleType
 
 
 class Test_delete_masked_points:
@@ -925,3 +927,45 @@ def test_auto_format_str(fmt, value, result):
     """Apply *value* to the format string *fmt*."""
     assert cbook._auto_format_str(fmt, value) == result
     assert cbook._auto_format_str(fmt, np.float64(value)) == result
+
+
+def test_unpack_to_numpy_from_torch():
+    """Test that torch tensors are converted to numpy arrays.
+    We don't want to create a dependency on torch in the test suite, so we mock it.
+    """
+    class Tensor:
+        def __init__(self, data):
+            self.data = data
+        def __array__(self):
+            return self.data
+    torch = ModuleType('torch')
+    torch.Tensor = Tensor
+    sys.modules['torch'] = torch
+
+    data = np.arange(10)
+    torch_tensor = torch.Tensor(data)
+
+    result = cbook._unpack_to_numpy(torch_tensor)
+    assert isinstance(result, np.ndarray)
+
+
+def test_unpack_to_numpy_from_jax():
+    """Test that jax arrays are converted to numpy arrays.
+    We don't want to create a dependency on jax in the test suite, so we mock it.
+    """
+    class Array:
+        def __init__(self, data):
+            self.data = data
+        def __array__(self):
+            return self.data
+
+    jax = ModuleType('jax')
+    jax.Array = Array
+
+    sys.modules['jax'] = jax
+
+    data = np.arange(10)
+    jax_array = jax.Array(data)
+
+    result = cbook._unpack_to_numpy(jax_array)
+    assert isinstance(result, np.ndarray)
