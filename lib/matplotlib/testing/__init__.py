@@ -50,16 +50,9 @@ def setup():
     set_reproducibility_for_testing()
 
 
-def subprocess_run_for_testing(
-        command: "list[str]",
-        env: "dict[str, str]" = None,
-        timeout: float = None,
-        stdout=None,
-        stderr=None,
-        check: bool = False,
-        text: bool = True,
-        capture_output: bool = False
-) -> "subprocess.Popen":
+def subprocess_run_for_testing(command, env=None, timeout=None, stdout=None,
+                               stderr=None, check=False, text=True,
+                               capture_output=False):
     """
     Create and run a subprocess.
 
@@ -129,11 +122,16 @@ def subprocess_run_helper(func, *args, timeout, extra_env=None):
     """
     target = func.__name__
     module = func.__module__
+    file = func.__code__.co_filename
     proc = subprocess_run_for_testing(
         [
             sys.executable,
             "-c",
-            f"from {module} import {target}; {target}()",
+            f"import importlib.util;"
+            f"_spec = importlib.util.spec_from_file_location({module!r}, {file!r});"
+            f"_module = importlib.util.module_from_spec(_spec);"
+            f"_spec.loader.exec_module(_module);"
+            f"_module.{target}()",
             *args
         ],
         env={**os.environ, "SOURCE_DATE_EPOCH": "0", **(extra_env or {})},

@@ -9,6 +9,7 @@ import functools
 from io import StringIO
 import itertools
 import logging
+import math
 import os
 import pathlib
 import shutil
@@ -38,17 +39,9 @@ _log = logging.getLogger(__name__)
 debugPS = False
 
 
-@_api.deprecated("3.7")
-class PsBackendHelper:
-    def __init__(self):
-        self._cached = {}
-
-
 @_api.caching_module_getattr
 class __getattr__:
     # module-level deprecations
-    ps_backend_helper = _api.deprecated("3.7", obj_type="")(
-        property(lambda self: PsBackendHelper()))
     psDefs = _api.deprecated("3.8", obj_type="")(property(lambda self: _psDefs))
 
 
@@ -588,8 +581,10 @@ translate
         s = fontcmd % s
         tex = r'\color[rgb]{%s} %s' % (color, s)
 
-        # Stick to the bottom alignment.
-        pos = _nums_to_str(x, y-bl)
+        # Stick to bottom-left alignment, so subtract descent from the text-normal
+        # direction since text is normally positioned by its baseline.
+        rangle = np.radians(angle + 90)
+        pos = _nums_to_str(x - bl * np.cos(rangle), y - bl * np.sin(rangle))
         self.psfrag.append(
             r'\psfrag{%s}[bl][bl][1][%f]{\fontsize{%f}{%f}%s}' % (
                 thetext, angle, fontsize, fontsize*1.25, tex))
@@ -690,13 +685,10 @@ grestore
         self._pswriter.write("grestore\n")
 
     @_log_if_debug_on
-    def draw_gouraud_triangle(self, gc, points, colors, trans):
-        self.draw_gouraud_triangles(gc, points.reshape((1, 3, 2)),
-                                    colors.reshape((1, 3, 4)), trans)
-
-    @_log_if_debug_on
     def draw_gouraud_triangles(self, gc, points, colors, trans):
         assert len(points) == len(colors)
+        if len(points) == 0:
+            return
         assert points.ndim == 3
         assert points.shape[1] == 3
         assert points.shape[2] == 2
@@ -826,8 +818,9 @@ class FigureCanvasPS(FigureCanvasBase):
         # See https://reproducible-builds.org/specs/source-date-epoch/
         source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
         dsc_comments["CreationDate"] = (
-            datetime.datetime.utcfromtimestamp(
-                int(source_date_epoch)).strftime("%a %b %d %H:%M:%S %Y")
+            datetime.datetime.fromtimestamp(
+                int(source_date_epoch),
+                datetime.timezone.utc).strftime("%a %b %d %H:%M:%S %Y")
             if source_date_epoch
             else time.ctime())
         dsc_comments = "\n".join(
@@ -836,7 +829,7 @@ class FigureCanvasPS(FigureCanvasBase):
         if papertype is None:
             papertype = mpl.rcParams['ps.papersize']
         papertype = papertype.lower()
-        _api.check_in_list(['auto', *papersize], papertype=papertype)
+        _api.check_in_list(['figure', 'auto', *papersize], papertype=papertype)
 
         orientation = _api.check_getitem(
             _Orientation, orientation=orientation.lower())
@@ -867,18 +860,13 @@ class FigureCanvasPS(FigureCanvasBase):
         # find the appropriate papertype
         width, height = self.figure.get_size_inches()
         if papertype == 'auto':
-            papertype = _get_papertype(
-                *orientation.swap_if_landscape((width, height)))
-        paper_width, paper_height = orientation.swap_if_landscape(
-            papersize[papertype])
+            papertype = _get_papertype(*orientation.swap_if_landscape((width, height)))
 
-        if mpl.rcParams['ps.usedistiller']:
-            # distillers improperly clip eps files if pagesize is too small
-            if width > paper_width or height > paper_height:
-                papertype = _get_papertype(
-                    *orientation.swap_if_landscape((width, height)))
-                paper_width, paper_height = orientation.swap_if_landscape(
-                    papersize[papertype])
+        if is_eps or papertype == 'figure':
+            paper_width, paper_height = width, height
+        else:
+            paper_width, paper_height = orientation.swap_if_landscape(
+                papersize[papertype])
 
         # center the figure on the paper
         xo = 72 * 0.5 * (paper_width - width)
@@ -910,14 +898,14 @@ class FigureCanvasPS(FigureCanvasBase):
             if is_eps:
                 print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
             else:
-                print(f"%!PS-Adobe-3.0\n"
-                      f"%%DocumentPaperSizes: {papertype}\n"
-                      f"%%Pages: 1\n",
-                      end="", file=fh)
+                print("%!PS-Adobe-3.0", file=fh)
+                if papertype != 'figure':
+                    print(f"%%DocumentPaperSizes: {papertype}", file=fh)
+                print("%%Pages: 1", file=fh)
             print(f"%%LanguageLevel: 3\n"
                   f"{dsc_comments}\n"
                   f"%%Orientation: {orientation.name}\n"
-                  f"{get_bbox_header(bbox)[0]}\n"
+                  f"{_get_bbox_header(bbox)}\n"
                   f"%%EndComments\n",
                   end="", file=fh)
 
@@ -1026,7 +1014,7 @@ class FigureCanvasPS(FigureCanvasBase):
 %!PS-Adobe-3.0 EPSF-3.0
 %%LanguageLevel: 3
 {dsc_comments}
-{get_bbox_header(bbox)[0]}
+{_get_bbox_header(bbox)}
 %%EndComments
 %%BeginProlog
 /mpldict {len(_psDefs)} dict def
@@ -1050,7 +1038,7 @@ showpage
             # set the paper size to the figure size if is_eps. The
             # resulting ps file has the given size with correct bounding
             # box so that there is no need to call 'pstoeps'
-            if is_eps:
+            if is_eps or papertype == 'figure':
                 paper_width, paper_height = orientation.swap_if_landscape(
                     self.figure.get_size_inches())
             else:
@@ -1146,9 +1134,14 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     """
 
     if eps:
-        paper_option = "-dEPSCrop"
+        paper_option = ["-dEPSCrop"]
+    elif ptype == "figure":
+        # The bbox will have its lower-left corner at (0, 0), so upper-right
+        # corner corresponds with paper size.
+        paper_option = [f"-dDEVICEWIDTHPOINTS={bbox[2]}",
+                        f"-dDEVICEHEIGHTPOINTS={bbox[3]}"]
     else:
-        paper_option = "-sPAPERSIZE=%s" % ptype
+        paper_option = [f"-sPAPERSIZE={ptype}"]
 
     psfile = tmpfile + '.ps'
     dpi = mpl.rcParams['ps.distiller.res']
@@ -1156,7 +1149,7 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     cbook._check_and_log_subprocess(
         [mpl._get_executable_info("gs").executable,
          "-dBATCH", "-dNOPAUSE", "-r%d" % dpi, "-sDEVICE=ps2write",
-         paper_option, "-sOutputFile=%s" % psfile, tmpfile],
+         *paper_option, f"-sOutputFile={psfile}", tmpfile],
         _log)
 
     os.remove(tmpfile)
@@ -1182,6 +1175,16 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     mpl._get_executable_info("gs")  # Effectively checks for ps2pdf.
     mpl._get_executable_info("pdftops")
 
+    if eps:
+        paper_option = ["-dEPSCrop"]
+    elif ptype == "figure":
+        # The bbox will have its lower-left corner at (0, 0), so upper-right
+        # corner corresponds with paper size.
+        paper_option = [f"-dDEVICEWIDTHPOINTS#{bbox[2]}",
+                        f"-dDEVICEHEIGHTPOINTS#{bbox[3]}"]
+    else:
+        paper_option = [f"-sPAPERSIZE#{ptype}"]
+
     with TemporaryDirectory() as tmpdir:
         tmppdf = pathlib.Path(tmpdir, "tmp.pdf")
         tmpps = pathlib.Path(tmpdir, "tmp.ps")
@@ -1194,7 +1197,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
              "-sAutoRotatePages#None",
              "-sGrayImageFilter#FlateEncode",
              "-sColorImageFilter#FlateEncode",
-             "-dEPSCrop" if eps else "-sPAPERSIZE#%s" % ptype,
+             *paper_option,
              tmpfile, tmppdf], _log)
         cbook._check_and_log_subprocess(
             ["pdftops", "-paper", "match", "-level3", tmppdf, tmpps], _log)
@@ -1203,21 +1206,26 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
         pstoeps(tmpfile)
 
 
+@_api.deprecated("3.9")
 def get_bbox_header(lbrt, rotated=False):
     """
     Return a postscript header string for the given bbox lbrt=(l, b, r, t).
     Optionally, return rotate command.
     """
+    return _get_bbox_header(lbrt), (_get_rotate_command(lbrt) if rotated else "")
 
+
+def _get_bbox_header(lbrt):
+    """Return a PostScript header string for bounding box *lbrt*=(l, b, r, t)."""
     l, b, r, t = lbrt
-    if rotated:
-        rotate = f"{l+r:.2f} {0:.2f} translate\n90 rotate"
-    else:
-        rotate = ""
-    bbox_info = '%%%%BoundingBox: %d %d %d %d' % (l, b, np.ceil(r), np.ceil(t))
-    hires_bbox_info = f'%%HiResBoundingBox: {l:.6f} {b:.6f} {r:.6f} {t:.6f}'
+    return (f"%%BoundingBox: {int(l)} {int(b)} {math.ceil(r)} {math.ceil(t)}\n"
+            f"%%HiResBoundingBox: {l:.6f} {b:.6f} {r:.6f} {t:.6f}")
 
-    return '\n'.join([bbox_info, hires_bbox_info]), rotate
+
+def _get_rotate_command(lbrt):
+    """Return a PostScript 90° rotation command for bounding box *lbrt*=(l, b, r, t)."""
+    l, b, r, t = lbrt
+    return f"{l+r:.2f} {0:.2f} translate\n90 rotate"
 
 
 def pstoeps(tmpfile, bbox=None, rotated=False):
@@ -1227,12 +1235,6 @@ def pstoeps(tmpfile, bbox=None, rotated=False):
     None, original bbox will be used.
     """
 
-    # if rotated==True, the output eps file need to be rotated
-    if bbox:
-        bbox_info, rotate = get_bbox_header(bbox, rotated=rotated)
-    else:
-        bbox_info, rotate = None, None
-
     epsfile = tmpfile + '.eps'
     with open(epsfile, 'wb') as epsh, open(tmpfile, 'rb') as tmph:
         write = epsh.write
@@ -1241,7 +1243,7 @@ def pstoeps(tmpfile, bbox=None, rotated=False):
             if line.startswith(b'%!PS'):
                 write(b"%!PS-Adobe-3.0 EPSF-3.0\n")
                 if bbox:
-                    write(bbox_info.encode('ascii') + b'\n')
+                    write(_get_bbox_header(bbox).encode('ascii') + b'\n')
             elif line.startswith(b'%%EndComments'):
                 write(line)
                 write(b'%%BeginProlog\n'
@@ -1253,8 +1255,8 @@ def pstoeps(tmpfile, bbox=None, rotated=False):
                       b'/setpagedevice {pop} def\n'
                       b'%%EndProlog\n'
                       b'%%Page 1 1\n')
-                if rotate:
-                    write(rotate.encode('ascii') + b'\n')
+                if rotated:  # The output eps file need to be rotated.
+                    write(_get_rotate_command(bbox).encode('ascii') + b'\n')
                 break
             elif bbox and line.startswith((b'%%Bound', b'%%HiResBound',
                                            b'%%DocumentMedia', b'%%Pages')):

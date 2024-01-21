@@ -1,5 +1,3 @@
-:orphan:
-
 .. title:: Matplotlib documentation
 
 .. module:: matplotlib
@@ -9,100 +7,169 @@
 Matplotlib |release| documentation
 ##################################
 
+
 Matplotlib is a comprehensive library for creating static, animated,
-and interactive visualizations in Python.
+and interactive visualizations.
 
-************
-Installation
-************
+Install
+=======
 
-.. grid:: 1 1 2 2
+.. tab-set::
+    :class: sd-width-content-min
 
-    .. grid-item::
-
-        Install using `pip <https://pypi.org/project/matplotlib>`__:
+    .. tab-item:: pip
 
         .. code-block:: bash
 
             pip install matplotlib
 
-    .. grid-item::
-
-        Install using `conda <https://docs.continuum.io/anaconda/>`__:
+    .. tab-item:: conda
 
         .. code-block:: bash
 
             conda install -c conda-forge matplotlib
 
-Further details are available in the :doc:`Installation Guide <users/installing/index>`.
+    .. tab-item:: other
 
+        .. toctree::
+            :maxdepth: 2
 
-******************
-Learning resources
-******************
+            users/installing/index
+
+For more detailed instructions, see the
+:doc:`installation guide <users/installing/index>`.
+
+Learn
+=====
 
 .. grid:: 1 1 2 2
 
     .. grid-item-card::
         :padding: 2
+        :columns: 6
 
-        Tutorials
+        **How to use Matplotlib?**
         ^^^
+        .. toctree::
+            :maxdepth: 1
 
-        - :ref:`Quick-start guide <quick_start>`
-        - :doc:`Plot types <plot_types/index>`
-        - :ref:`users-guide-using`
-        - :doc:`External learning resources <users/resources/index>`
+            users/explain/quick_start
+            User guide <users/index.rst>
+            tutorials/index.rst
+            users/faq.rst
 
     .. grid-item-card::
         :padding: 2
+        :columns: 6
 
-        How-tos
+        **What can Matplotlib do?**
         ^^^
+        .. toctree::
+            :maxdepth: 1
 
-        - :doc:`Example gallery <gallery/index>`
-        - :doc:`Matplotlib FAQ <users/faq/index>`
+            plot_types/index.rst
+            gallery/index.rst
+
 
     .. grid-item-card::
         :padding: 2
+        :columns: 12
 
-        Understand how Matplotlib works
+        **Reference**
         ^^^
 
-        - :ref:`users-guide-explain` in the :doc:`Users guide
-          <users/index>` has a number of advanced topics.
+        .. grid:: 1 1 2 2
+            :class-row: sd-align-minor-center
 
-    .. grid-item-card::
-        :padding: 2
+            .. grid-item::
 
-        Reference
-        ^^^
+                .. toctree::
+                    :maxdepth: 1
 
-        - :doc:`API Reference <api/index>`
-        - :doc:`Axes API <api/axes_api>` for most plotting methods
-        - :doc:`Figure API <api/figure_api>` for figure-level methods
-        - Top-level interfaces to create:
-
-          - Figures (`.pyplot.figure`)
-          - Subplots (`.pyplot.subplots`, `.pyplot.subplot_mosaic`)
+                    API reference <api/index>
+                    Figure methods <api/figure_api>
+                    Plotting methods <api/axes_api>
 
 
-********************
-Third-party packages
-********************
+            .. grid-item::
 
-There are many `Third-party packages
-<https://matplotlib.org/mpl-third-party/>`_ built on top of and extending
-Matplotlib.
+                Top-level interfaces to create:
+
+                - figures: `.pyplot.figure`
+                - subplots: `.pyplot.subplots`, `.pyplot.subplot_mosaic`
+
+Community
+=========
+
+.. grid:: 1 1 2 2
+    :class-row: sd-align-minor-center
+
+    .. grid-item::
+
+        .. toctree::
+            :maxdepth: 2
+
+            users/resources/index.rst
+
+    .. grid-item::
+
+        :octicon:`link-external;1em;sd-text-info` `Third-party packages <https://matplotlib.org/mpl-third-party/>`_,
+
+        provide custom, domain specific, and experimental features, including
+        styles, colors, more plot types and backends, and alternative
+        interfaces.
+
+What's new
+==========
+
+.. grid:: 1 1 2 2
+
+    .. grid-item::
+
+       Learn about new features and API changes.
+
+    .. grid-item::
+
+        .. toctree::
+            :maxdepth: 1
+
+            users/release_notes.rst
 
 
-************
-Contributing
-************
+Contribute
+==========
 
-Matplotlib is a community project maintained for and by its users.  There are many ways
-you can help!
+.. grid:: 1 1 2 2
+    :class-row: sd-align-minor-center
 
-- Help other users `on discourse <https://discourse.matplotlib.org>`__
-- report a bug or request a feature `on GitHub <https://github.com/matplotlib/matplotlib/issues>`__
-- or improve the :ref:`documentation and code <developers-guide-index>`
+    .. grid-item::
+
+        Matplotlib is a community project maintained for and by its users.
+
+        There are many ways you can help!
+
+    .. grid-item::
+        .. toctree::
+            :maxdepth: 2
+
+            devel/index.rst
+
+About us
+========
+
+.. grid:: 1 1 2 2
+    :class-row: sd-align-minor-center
+
+    .. grid-item::
+
+        Matplotlib was created by neurobiologist John Hunter to work with EEG
+        data. It grew to be used and developed by many people in many
+        different fields. John's goal was that Matplotlib make easy things easy
+        and hard things possible.
+
+    .. grid-item::
+
+        .. toctree::
+            :maxdepth: 2
+
+            users/project/index.rst

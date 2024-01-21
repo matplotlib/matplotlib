@@ -75,7 +75,7 @@ sometimes useful for interactive work or to place an Axes in a custom
 location:
 
 `~matplotlib.figure.Figure.add_axes`
-    Adds a single axes at a location specified by
+    Adds a single Axes at a location specified by
     ``[left, bottom, width, height]`` in fractions of figure width or height.
 
 `~matplotlib.pyplot.subplot` or `.Figure.add_subplot`
@@ -91,7 +91,7 @@ location:
 
 # %%
 #
-# As a simple example of manually adding an axes a, lets add a 3 inch x 2 inch
+# As a simple example of manually adding an Axes *ax*, lets add a 3 inch x 2 inch
 # Axes to a 4 inch x 3 inch figure.  Note that the location of the subplot is
 # defined as [left, bottom, width, height] in figure-normalized units:
 
@@ -152,8 +152,8 @@ def annotate_axes(ax, text, fontsize=18):
 fig, axd = plt.subplot_mosaic([['upper left', 'upper right'],
                                ['lower left', 'lower right']],
                               figsize=(5.5, 3.5), layout="constrained")
-for k in axd:
-    annotate_axes(axd[k], f'axd["{k}"]', fontsize=14)
+for k, ax in axd.items():
+    annotate_axes(ax, f'axd[{k!r}]', fontsize=14)
 fig.suptitle('plt.subplot_mosaic()')
 
 # %%
@@ -161,7 +161,7 @@ fig.suptitle('plt.subplot_mosaic()')
 # Grids of fixed-aspect ratio Axes
 # --------------------------------
 #
-# Fixed-aspect ratio axes are common for images or maps.  However, they
+# Fixed-aspect ratio Axes are common for images or maps.  However, they
 # present a challenge to layout because two sets of constraints are being
 # imposed on the size of the Axes - that they fit in the figure and that they
 # have a set aspect ratio.  This leads to large gaps between Axes by default:
@@ -200,8 +200,8 @@ fig.suptitle('Fixed aspect Axes: compressed')
 fig, axd = plt.subplot_mosaic([['upper left', 'right'],
                                ['lower left', 'right']],
                               figsize=(5.5, 3.5), layout="constrained")
-for k in axd:
-    annotate_axes(axd[k], f'axd["{k}"]', fontsize=14)
+for k, ax in axd.items():
+    annotate_axes(ax, f'axd[{k!r}]', fontsize=14)
 fig.suptitle('plt.subplot_mosaic()')
 
 # %%
@@ -223,11 +223,13 @@ fig, axd = plt.subplot_mosaic([['upper left', 'right'],
                                ['lower left', 'right']],
                               gridspec_kw=gs_kw, figsize=(5.5, 3.5),
                               layout="constrained")
-for k in axd:
-    annotate_axes(axd[k], f'axd["{k}"]', fontsize=14)
+for k, ax in axd.items():
+    annotate_axes(ax, f'axd[{k!r}]', fontsize=14)
 fig.suptitle('plt.subplot_mosaic()')
 
 # %%
+# .. _nested_axes_layouts:
+#
 # Nested Axes layouts
 # -------------------
 #
@@ -262,8 +264,8 @@ outer = [['upper left',  inner],
           ['lower left', 'lower right']]
 
 fig, axd = plt.subplot_mosaic(outer, layout="constrained")
-for k in axd:
-    annotate_axes(axd[k], f'axd["{k}"]')
+for k, ax in axd.items():
+    annotate_axes(ax, f'axd[{k!r}]')
 
 # %%
 # Low-level and advanced grid methods
@@ -417,10 +419,10 @@ plt.show()
 # More reading
 # ============
 #
-#  - More details about :ref:`subplot mosaic <mosaic>`.
-#  - More details about :ref:`constrained layout
-#    <constrainedlayout_guide>`, used to align
-#    spacing in most of these examples.
+# - More details about :ref:`subplot mosaic <mosaic>`.
+# - More details about :ref:`constrained layout
+#   <constrainedlayout_guide>`, used to align
+#   spacing in most of these examples.
 #
 # .. admonition:: References
 #

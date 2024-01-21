@@ -1,72 +1,32 @@
+from collections.abc import Callable, Hashable, Iterable
 import os
+from typing import Any, IO, Literal, TypeVar, overload
 
-from matplotlib import backend_bases, projections
-from matplotlib.artist import Artist, allow_rasterization
+import numpy as np
+from numpy.typing import ArrayLike
+
+from matplotlib.artist import Artist
 from matplotlib.axes import Axes, SubplotBase
 from matplotlib.backend_bases import (
-    DrawEvent,
     FigureCanvasBase,
     MouseButton,
     MouseEvent,
-    NonGuiException,
     RendererBase,
 )
 from matplotlib.colors import Colormap, Normalize
 from matplotlib.colorbar import Colorbar
 from matplotlib.cm import ScalarMappable
-from matplotlib.gridspec import GridSpec, SubplotSpec
+from matplotlib.gridspec import GridSpec, SubplotSpec, SubplotParams as SubplotParams
 from matplotlib.image import _ImageBase, FigureImage
-from matplotlib.layout_engine import (
-    ConstrainedLayoutEngine,
-    LayoutEngine,
-    PlaceHolderLayoutEngine,
-    TightLayoutEngine,
-)
+from matplotlib.layout_engine import LayoutEngine
 from matplotlib.legend import Legend
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle, Patch
 from matplotlib.text import Text
-from matplotlib.transforms import (
-    Affine2D,
-    Bbox,
-    BboxBase,
-    BboxTransformTo,
-    TransformedBbox,
-    Transform,
-)
-
-import numpy as np
-from numpy.typing import ArrayLike
-
-from collections.abc import Callable, Iterable
-from typing import Any, IO, Literal, overload
+from matplotlib.transforms import Affine2D, Bbox, BboxBase, Transform
 from .typing import ColorType, HashableList
 
-class SubplotParams:
-    def __init__(
-        self,
-        left: float | None = ...,
-        bottom: float | None = ...,
-        right: float | None = ...,
-        top: float | None = ...,
-        wspace: float | None = ...,
-        hspace: float | None = ...,
-    ) -> None: ...
-    left: float
-    right: float
-    bottom: float
-    top: float
-    wspace: float
-    hspace: float
-    def update(
-        self,
-        left: float | None = ...,
-        bottom: float | None = ...,
-        right: float | None = ...,
-        top: float | None = ...,
-        wspace: float | None = ...,
-        hspace: float | None = ...,
-    ) -> None: ...
+_T = TypeVar("_T")
 
 class FigureBase(Artist):
     artists: list[Artist]
@@ -238,13 +198,41 @@ class FigureBase(Artist):
     def get_tightbbox(
         self,
         renderer: RendererBase | None = ...,
+        *,
         bbox_extra_artists: Iterable[Artist] | None = ...,
     ) -> Bbox: ...
-
-    # Any in list of list is recursive list[list[Hashable | list[Hashable | ...]]] but that can't really be type checked
+    @overload
     def subplot_mosaic(
         self,
-        mosaic: str | HashableList,
+        mosaic: str,
+        *,
+        sharex: bool = ...,
+        sharey: bool = ...,
+        width_ratios: ArrayLike | None = ...,
+        height_ratios: ArrayLike | None = ...,
+        empty_sentinel: str = ...,
+        subplot_kw: dict[str, Any] | None = ...,
+        per_subplot_kw: dict[str | tuple[str, ...], dict[str, Any]] | None = ...,
+        gridspec_kw: dict[str, Any] | None = ...,
+    ) -> dict[str, Axes]: ...
+    @overload
+    def subplot_mosaic(
+        self,
+        mosaic: list[HashableList[_T]],
+        *,
+        sharex: bool = ...,
+        sharey: bool = ...,
+        width_ratios: ArrayLike | None = ...,
+        height_ratios: ArrayLike | None = ...,
+        empty_sentinel: _T = ...,
+        subplot_kw: dict[str, Any] | None = ...,
+        per_subplot_kw: dict[_T | tuple[_T, ...], dict[str, Any]] | None = ...,
+        gridspec_kw: dict[str, Any] | None = ...,
+    ) -> dict[_T, Axes]: ...
+    @overload
+    def subplot_mosaic(
+        self,
+        mosaic: list[HashableList[Hashable]],
         *,
         sharex: bool = ...,
         sharey: bool = ...,
@@ -252,9 +240,9 @@ class FigureBase(Artist):
         height_ratios: ArrayLike | None = ...,
         empty_sentinel: Any = ...,
         subplot_kw: dict[str, Any] | None = ...,
-        per_subplot_kw: dict[Any, dict[str, Any]] | None = ...,
-        gridspec_kw: dict[str, Any] | None = ...
-    ) -> dict[Any, Axes]: ...
+        per_subplot_kw: dict[Hashable | tuple[Hashable, ...], dict[str, Any]] | None = ...,
+        gridspec_kw: dict[str, Any] | None = ...,
+    ) -> dict[Hashable, Axes]: ...
 
 class SubFigure(FigureBase):
     figure: Figure
@@ -263,8 +251,8 @@ class SubFigure(FigureBase):
     canvas: FigureCanvasBase
     transFigure: Transform
     bbox_relative: Bbox
-    figbbox: Bbox
-    bbox: Bbox
+    figbbox: BboxBase
+    bbox: BboxBase
     transSubfigure: Transform
     patch: Rectangle
     def __init__(
@@ -297,8 +285,8 @@ class Figure(FigureBase):
     figure: Figure
     bbox_inches: Bbox
     dpi_scale_trans: Affine2D
-    bbox: Bbox
-    figbbox: Bbox
+    bbox: BboxBase
+    figbbox: BboxBase
     transFigure: Transform
     transSubfigure: Transform
     patch: Rectangle
@@ -329,6 +317,7 @@ class Figure(FigureBase):
         **kwargs
     ) -> None: ...
     def get_layout_engine(self) -> LayoutEngine | None: ...
+    def _repr_html_(self) -> str | None: ...
     def show(self, warn: bool = ...) -> None: ...
     @property  # type: ignore[misc]
     def axes(self) -> list[Axes]: ...  # type: ignore[override]

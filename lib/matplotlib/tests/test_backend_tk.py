@@ -38,6 +38,11 @@ def _isolated_tk_test(success_count, func=None):
         sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
         reason="$DISPLAY and $WAYLAND_DISPLAY are unset"
     )
+    @pytest.mark.xfail(  # https://github.com/actions/setup-python/issues/649
+        ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
+        sys.platform == 'darwin' and sys.version_info[:2] < (3, 11),
+        reason='Tk version mismatch on Azure macOS CI'
+    )
     @functools.wraps(func)
     def test_func():
         # even if the package exists, may not actually be importable this can
@@ -76,9 +81,7 @@ def test_blit():
 
     fig, ax = plt.subplots()
     photoimage = fig.canvas._tkphoto
-    data = np.ones((4, 4, 4))
-    height, width = data.shape[:2]
-    dataptr = (height, width, data.ctypes.data)
+    data = np.ones((4, 4, 4), dtype=np.uint8)
     # Test out of bounds blitting.
     bad_boxes = ((-1, 2, 0, 2),
                  (2, 0, 0, 2),
@@ -89,8 +92,8 @@ def test_blit():
     for bad_box in bad_boxes:
         try:
             _tkagg.blit(
-                photoimage.tk.interpaddr(), str(photoimage), dataptr, 0,
-                (0, 1, 2, 3), bad_box)
+                photoimage.tk.interpaddr(), str(photoimage), data,
+                _tkagg.TK_PHOTO_COMPOSITE_OVERLAY, (0, 1, 2, 3), bad_box)
         except ValueError:
             print("success")
 
@@ -153,7 +156,6 @@ def test_figuremanager_cleans_own_mainloop():
     thread.join()
 
 
-@pytest.mark.backend('TkAgg', skip_on_importerror=True)
 @pytest.mark.flaky(reruns=3)
 @_isolated_tk_test(success_count=0)
 def test_never_update():
@@ -194,7 +196,6 @@ def test_missing_back_button():
     print("success")
 
 
-@pytest.mark.backend('TkAgg', skip_on_importerror=True)
 @_isolated_tk_test(success_count=1)
 def test_canvas_focus():
     import tkinter as tk

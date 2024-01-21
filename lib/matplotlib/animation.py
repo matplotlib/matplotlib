@@ -173,10 +173,8 @@ class AbstractMovieWriter(abc.ABC):
     def __init__(self, fps=5, metadata=None, codec=None, bitrate=None):
         self.fps = fps
         self.metadata = metadata if metadata is not None else {}
-        self.codec = (
-            mpl.rcParams['animation.codec'] if codec is None else codec)
-        self.bitrate = (
-            mpl.rcParams['animation.bitrate'] if bitrate is None else bitrate)
+        self.codec = mpl._val_or_rc(codec, 'animation.codec')
+        self.bitrate = mpl._val_or_rc(bitrate, 'animation.bitrate')
 
     @abc.abstractmethod
     def setup(self, fig, outfile, dpi=None):
@@ -213,7 +211,13 @@ class AbstractMovieWriter(abc.ABC):
         Grab the image information from the figure and save as a movie frame.
 
         All keyword arguments in *savefig_kwargs* are passed on to the
-        `~.Figure.savefig` call that saves the figure.
+        `~.Figure.savefig` call that saves the figure.  However, several
+        keyword arguments that are supported by `~.Figure.savefig` may not be
+        passed as they are controlled by the MovieWriter:
+
+        - *dpi*, *bbox_inches*:  These may not be passed because each frame of the
+           animation much be exactly the same size in pixels.
+        - *format*: This is controlled by the MovieWriter.
         """
 
     @abc.abstractmethod
@@ -227,12 +231,18 @@ class AbstractMovieWriter(abc.ABC):
 
         ``*args, **kw`` are any parameters that should be passed to `setup`.
         """
+        if mpl.rcParams['savefig.bbox'] == 'tight':
+            _log.info("Disabling savefig.bbox = 'tight', as it may cause "
+                      "frame size to vary, which is inappropriate for "
+                      "animation.")
+
         # This particular sequence is what contextlib.contextmanager wants
         self.setup(fig, outfile, dpi, *args, **kwargs)
-        try:
-            yield self
-        finally:
-            self.finish()
+        with mpl.rc_context({'savefig.bbox': None}):
+            try:
+                yield self
+            finally:
+                self.finish()
 
 
 class MovieWriter(AbstractMovieWriter):
@@ -276,9 +286,10 @@ class MovieWriter(AbstractMovieWriter):
             means higher quality movies, but increase the file size.  A value
             of -1 lets the underlying movie encoder select the bitrate.
         extra_args : list of str or None, optional
-            Extra command-line arguments passed to the underlying movie
-            encoder.  The default, None, means to use
-            :rc:`animation.[name-of-encoder]_args` for the builtin writers.
+            Extra command-line arguments passed to the underlying movie encoder. These
+            arguments are passed last to the encoder, just before the filename. The
+            default, None, means to use :rc:`animation.[name-of-encoder]_args` for the
+            builtin writers.
         metadata : dict[str, str], default: {}
             A dictionary of keys and values for metadata to include in the
             output file. Some keys that may be of use include:
@@ -351,6 +362,7 @@ class MovieWriter(AbstractMovieWriter):
 
     def grab_frame(self, **savefig_kwargs):
         # docstring inherited
+        _validate_grabframe_kwargs(savefig_kwargs)
         _log.debug('MovieWriter.grab_frame: Grabbing frame.')
         # Readjust the figure size in case it has been changed by the user.
         # All frames must have the same size to save the movie correctly.
@@ -457,6 +469,7 @@ class FileMovieWriter(MovieWriter):
     def grab_frame(self, **savefig_kwargs):
         # docstring inherited
         # Creates a filename for saving using basename and counter.
+        _validate_grabframe_kwargs(savefig_kwargs)
         path = Path(self._base_temp_name() % self._frame_counter)
         self._temp_paths.append(path)  # Record the filename for later use.
         self._frame_counter += 1  # Ensures each created name is unique.
@@ -491,6 +504,7 @@ class PillowWriter(AbstractMovieWriter):
         self._frames = []
 
     def grab_frame(self, **savefig_kwargs):
+        _validate_grabframe_kwargs(savefig_kwargs)
         buf = BytesIO()
         self.fig.savefig(
             buf, **{**savefig_kwargs, "format": "rgba", "dpi": self.dpi})
@@ -527,8 +541,8 @@ class FFMpegBase:
                       else mpl.rcParams[self._args_key])
         # For h264, the default format is yuv444p, which is not compatible
         # with quicktime (and others). Specifying yuv420p fixes playback on
-        # iOS, as well as HTML5 video in firefox and safari (on both Win and
-        # OSX). Also fixes internet explorer. This is as of 2015/10/29.
+        # iOS, as well as HTML5 video in firefox and safari (on both Windows and
+        # macOS). Also fixes internet explorer. This is as of 2015/10/29.
         if self.codec == 'h264' and '-pix_fmt' not in extra_args:
             args.extend(['-pix_fmt', 'yuv420p'])
         # For GIF, we're telling FFMPEG to split the video stream, to generate
@@ -538,9 +552,9 @@ class FFMpegBase:
                          'split [a][b];[a] palettegen [p];[b][p] paletteuse'])
         if self.bitrate > 0:
             args.extend(['-b', '%dk' % self.bitrate])  # %dk: bitrate in kbps.
-        args.extend(extra_args)
         for k, v in self.metadata.items():
             args.extend(['-metadata', f'{k}={v}'])
+        args.extend(extra_args)
 
         return args + ['-y', self.outfile]
 
@@ -551,15 +565,19 @@ class FFMpegWriter(FFMpegBase, MovieWriter):
     """
     Pipe-based ffmpeg writer.
 
-    Frames are streamed directly to ffmpeg via a pipe and written in a single
-    pass.
+    Frames are streamed directly to ffmpeg via a pipe and written in a single pass.
+
+    This effectively works as a slideshow input to ffmpeg with the fps passed as
+    ``-framerate``, so see also `their notes on frame rates`_ for further details.
+
+    .. _their notes on frame rates: https://trac.ffmpeg.org/wiki/Slideshow#Framerates
     """
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a pipe.
         args = [self.bin_path(), '-f', 'rawvideo', '-vcodec', 'rawvideo',
                 '-s', '%dx%d' % self.frame_size, '-pix_fmt', self.frame_format,
-                '-r', str(self.fps)]
+                '-framerate', str(self.fps)]
         # Logging is quieted because subprocess.PIPE has limited buffer size.
         # If you have a lot of frames in your animation and set logging to
         # DEBUG, you will have a buffer overrun.
@@ -575,8 +593,12 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
     """
     File-based ffmpeg writer.
 
-    Frames are written to temporary files on disk and then stitched
-    together at the end.
+    Frames are written to temporary files on disk and then stitched together at the end.
+
+    This effectively works as a slideshow input to ffmpeg with the fps passed as
+    ``-framerate``, so see also `their notes on frame rates`_ for further details.
+
+    .. _their notes on frame rates: https://trac.ffmpeg.org/wiki/Slideshow#Framerates
     """
     supported_formats = ['png', 'jpeg', 'tiff', 'raw', 'rgba']
 
@@ -590,10 +612,10 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
                 '-f', 'image2', '-vcodec', 'rawvideo',
                 '-video_size', '%dx%d' % self.frame_size,
                 '-pixel_format', 'rgba',
-                '-framerate', str(self.fps),
             ]
-        args += ['-r', str(self.fps), '-i', self._base_temp_name(),
-                 '-vframes', str(self._frame_counter)]
+        args += ['-framerate', str(self.fps), '-i', self._base_temp_name()]
+        if not self._tmpdir:
+            args += ['-frames:v', str(self._frame_counter)]
         # Logging is quieted because subprocess.PIPE has limited buffer size.
         # If you have a lot of frames in your animation and set logging to
         # DEBUG, you will have a buffer overrun.
@@ -718,10 +740,7 @@ class HTMLWriter(FileMovieWriter):
                            default_mode=self.default_mode)
 
         # Save embed limit, which is given in MB
-        if embed_limit is None:
-            self._bytes_limit = mpl.rcParams['animation.embed_limit']
-        else:
-            self._bytes_limit = embed_limit
+        self._bytes_limit = mpl._val_or_rc(embed_limit, 'animation.embed_limit')
         # Convert from MB to bytes
         self._bytes_limit *= 1024 * 1024
 
@@ -747,6 +766,7 @@ class HTMLWriter(FileMovieWriter):
         self._clear_temp = False
 
     def grab_frame(self, **savefig_kwargs):
+        _validate_grabframe_kwargs(savefig_kwargs)
         if self.embed_frames:
             # Just stop processing if we hit the limit
             if self._hit_limit:
@@ -937,9 +957,10 @@ class Animation:
             of -1 lets the underlying movie encoder select the bitrate.
 
         extra_args : list of str or None, optional
-            Extra command-line arguments passed to the underlying movie
-            encoder.  The default, None, means to use
-            :rc:`animation.[name-of-encoder]_args` for the builtin writers.
+            Extra command-line arguments passed to the underlying movie encoder. These
+            arguments are passed last to the encoder, just before the output filename.
+            The default, None, means to use :rc:`animation.[name-of-encoder]_args` for
+            the builtin writers.
 
         metadata : dict[str, str], default: {}
             Dictionary of keys and values for metadata to include in
@@ -1011,9 +1032,8 @@ class Animation:
             # Convert interval in ms to frames per second
             fps = 1000. / self._interval
 
-        # Re-use the savefig DPI for ours if none is given
-        if dpi is None:
-            dpi = mpl.rcParams['savefig.dpi']
+        # Reuse the savefig DPI for ours if none is given.
+        dpi = mpl._val_or_rc(dpi, 'savefig.dpi')
         if dpi == 'figure':
             dpi = self._fig.dpi
 
@@ -1051,10 +1071,6 @@ class Animation:
         # TODO: Right now, after closing the figure, saving a movie won't work
         # since GUI widgets are gone. Either need to remove extra code to
         # allow for this non-existent use case or find a way to make it work.
-        if mpl.rcParams['savefig.bbox'] == 'tight':
-            _log.info("Disabling savefig.bbox = 'tight', as it may cause "
-                      "frame size to vary, which is inappropriate for "
-                      "animation.")
 
         facecolor = savefig_kwargs.get('facecolor',
                                        mpl.rcParams['savefig.facecolor'])
@@ -1070,10 +1086,8 @@ class Animation:
         # canvas._is_saving = True makes the draw_event animation-starting
         # callback a no-op; canvas.manager = None prevents resizing the GUI
         # widget (both are likewise done in savefig()).
-        with mpl.rc_context({'savefig.bbox': None}), \
-             writer.saving(self._fig, filename, dpi), \
-             cbook._setattr_cm(self._fig.canvas,
-                               _is_saving=True, manager=None):
+        with writer.saving(self._fig, filename, dpi), \
+             cbook._setattr_cm(self._fig.canvas, _is_saving=True, manager=None):
             for anim in all_anim:
                 anim._init_draw()  # Clear the initial frame
             frame_number = 0
@@ -1157,7 +1171,7 @@ class Animation:
         # of the entire figure.
         updated_ax = {a.axes for a in artists}
         # Enumerate artists to cache Axes backgrounds. We do not draw
-        # artists yet to not cache foreground from plots with shared axes
+        # artists yet to not cache foreground from plots with shared Axes
         for ax in updated_ax:
             # If we haven't cached the background for the current view of this
             # Axes object, do so now. This might not always be reliable, but
@@ -1257,8 +1271,7 @@ class Animation:
         # Cache the rendering of the video as HTML
         if not hasattr(self, '_base64_video'):
             # Save embed limit, which is given in MB
-            if embed_limit is None:
-                embed_limit = mpl.rcParams['animation.embed_limit']
+            embed_limit = mpl._val_or_rc(embed_limit, 'animation.embed_limit')
 
             # Convert from MB to bytes
             embed_limit *= 1024 * 1024
@@ -1432,8 +1445,6 @@ class TimedAnimation(Animation):
 
         self.event_source.interval = self._interval
         return True
-
-    repeat = _api.deprecate_privatize_attribute("3.7")
 
 
 class ArtistAnimation(TimedAnimation):
@@ -1775,4 +1786,15 @@ class FuncAnimation(TimedAnimation):
             for a in self._drawn_artists:
                 a.set_animated(self._blit)
 
-    save_count = _api.deprecate_privatize_attribute("3.7")
+
+def _validate_grabframe_kwargs(savefig_kwargs):
+    if mpl.rcParams['savefig.bbox'] == 'tight':
+        raise ValueError(
+            f"{mpl.rcParams['savefig.bbox']=} must not be 'tight' as it "
+            "may cause frame size to vary, which is inappropriate for animation."
+        )
+    for k in ('dpi', 'bbox_inches', 'format'):
+        if k in savefig_kwargs:
+            raise TypeError(
+                f"grab_frame got an unexpected keyword argument {k!r}"
+            )

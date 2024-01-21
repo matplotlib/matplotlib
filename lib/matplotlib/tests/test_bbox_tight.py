@@ -92,8 +92,8 @@ def test_bbox_inches_tight_clipping():
     # to generate an appropriately tight bbox
     plt.scatter(np.arange(10), np.arange(10))
     ax = plt.gca()
-    ax.set_xlim([0, 5])
-    ax.set_ylim([0, 5])
+    ax.set_xlim(0, 5)
+    ax.set_ylim(0, 5)
 
     # make a massive rectangle and clip it with a path
     patch = mpatches.Rectangle([-50, -50], 100, 100,
@@ -141,8 +141,7 @@ def test_noop_tight_bbox():
     dpi = 100
     # make the figure just the right size up front
     fig = plt.figure(frameon=False, dpi=dpi, figsize=(x_size/dpi, y_size/dpi))
-    ax = plt.Axes(fig, [0., 0., 1., 1.])
-    fig.add_axes(ax)
+    ax = fig.add_axes((0, 0, 1, 1))
     ax.set_axis_off()
     ax.xaxis.set_visible(False)
     ax.yaxis.set_visible(False)

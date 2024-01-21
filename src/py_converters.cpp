@@ -343,7 +343,7 @@ int convert_trans_affine(PyObject *obj, void *transp)
 
 int convert_path(PyObject *obj, void *pathp)
 {
-    py::PathIterator *path = (py::PathIterator *)pathp;
+    mpl::PathIterator *path = (mpl::PathIterator *)pathp;
 
     PyObject *vertices_obj = NULL;
     PyObject *codes_obj = NULL;
@@ -404,7 +404,7 @@ exit:
 
 int convert_pathgen(PyObject *obj, void *pathgenp)
 {
-    py::PathGenerator *paths = (py::PathGenerator *)pathgenp;
+    mpl::PathGenerator *paths = (mpl::PathGenerator *)pathgenp;
     if (!paths->set(obj)) {
         PyErr_SetString(PyExc_TypeError, "Not an iterable of paths");
         return 0;
@@ -415,7 +415,7 @@ int convert_pathgen(PyObject *obj, void *pathgenp)
 int convert_clippath(PyObject *clippath_tuple, void *clippathp)
 {
     ClipPath *clippath = (ClipPath *)clippathp;
-    py::PathIterator path;
+    mpl::PathIterator path;
     agg::trans_affine trans;
 
     if (clippath_tuple != NULL && clippath_tuple != Py_None) {
@@ -510,8 +510,8 @@ int convert_points(PyObject *obj, void *pointsp)
     if (obj == NULL || obj == Py_None) {
         return 1;
     }
-    points->set(obj);
-    if (points->size() && !check_trailing_shape(*points, "points", 2)) {
+    if (!points->set(obj)
+        || (points->size() && !check_trailing_shape(*points, "points", 2))) {
         return 0;
     }
     return 1;
@@ -523,8 +523,8 @@ int convert_transforms(PyObject *obj, void *transp)
     if (obj == NULL || obj == Py_None) {
         return 1;
     }
-    trans->set(obj);
-    if (trans->size() && !check_trailing_shape(*trans, "transforms", 3, 3)) {
+    if (!trans->set(obj)
+        || (trans->size() && !check_trailing_shape(*trans, "transforms", 3, 3))) {
         return 0;
     }
     return 1;
@@ -536,8 +536,8 @@ int convert_bboxes(PyObject *obj, void *bboxp)
     if (obj == NULL || obj == Py_None) {
         return 1;
     }
-    bbox->set(obj);
-    if (bbox->size() && !check_trailing_shape(*bbox, "bbox array", 2, 2)) {
+    if (!bbox->set(obj)
+        || (bbox->size() && !check_trailing_shape(*bbox, "bbox array", 2, 2))) {
         return 0;
     }
     return 1;
@@ -549,8 +549,8 @@ int convert_colors(PyObject *obj, void *colorsp)
     if (obj == NULL || obj == Py_None) {
         return 1;
     }
-    colors->set(obj);
-    if (colors->size() && !check_trailing_shape(*colors, "colors", 4)) {
+    if (!colors->set(obj)
+        || (colors->size() && !check_trailing_shape(*colors, "colors", 4))) {
         return 0;
     }
     return 1;

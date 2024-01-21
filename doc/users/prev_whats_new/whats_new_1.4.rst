@@ -46,7 +46,7 @@ same way as any other matplotlib backend. Because figures require a connection
 to the IPython notebook server for their interactivity, once the notebook is
 saved, each figure will be rendered as a static image - thus allowing
 non-interactive viewing of figures on services such as
-`nbviewer <https://nbviewer.ipython.org/>`__.
+`nbviewer <https://nbviewer.jupyter.org/>`__.
 
 
 
@@ -221,7 +221,7 @@ Added size related functions to specialized `.Collection`\s
 Added the ``get_size`` and ``set_size`` functions to control the size of
 elements of specialized collections (
 :class:`~matplotlib.collections.AsteriskPolygonCollection`
-:class:`~matplotlib.collections.BrokenBarHCollection`
+``matplotlib.collections.BrokenBarHCollection``
 :class:`~matplotlib.collections.CircleCollection`
 :class:`~matplotlib.collections.PathCollection`
 :class:`~matplotlib.collections.PolyCollection`

@@ -24,6 +24,8 @@ The cell (0, 0) is positioned at the top left.
 Thanks to John Gill for providing the class and table.
 """
 
+import numpy as np
+
 from . import _api, _docstring
 from .artist import Artist, allow_rasterization
 from .patches import Rectangle
@@ -55,7 +57,7 @@ class Cell(Rectangle):
                  edgecolor='k', facecolor='w',
                  fill=True,
                  text='',
-                 loc=None,
+                 loc='right',
                  fontproperties=None,
                  visible_edges='closed',
                  ):
@@ -68,20 +70,21 @@ class Cell(Rectangle):
             The cell width.
         height : float
             The cell height.
-        edgecolor : color
+        edgecolor : color, default: 'k'
             The color of the cell border.
-        facecolor : color
+        facecolor : color, default: 'w'
             The cell facecolor.
-        fill : bool
+        fill : bool, default: True
             Whether the cell background is filled.
-        text : str
+        text : str, optional
             The cell text.
-        loc : {'left', 'center', 'right'}, default: 'right'
+        loc : {'right', 'center', 'left'}
             The alignment of the text within the cell.
-        fontproperties : dict
+        fontproperties : dict, optional
             A dict defining the font properties of the text. Supported keys and
             values are the keyword arguments accepted by `.FontProperties`.
-        visible_edges : str, default: 'closed'
+        visible_edges : {'closed', 'open', 'horizontal', 'vertical'} or \
+substring of 'BRTL'
             The cell edges to be drawn with a line: a substring of 'BRTL'
             (bottom, right, top, left), or one of 'open' (no edges drawn),
             'closed' (all edges drawn), 'horizontal' (bottom and top),
@@ -95,8 +98,6 @@ class Cell(Rectangle):
         self.visible_edges = visible_edges
 
         # Create text object
-        if loc is None:
-            loc = 'right'
         self._loc = loc
         self._text = Text(x=xy[0], y=xy[1], clip_on=False,
                           text=text, fontproperties=fontproperties,
@@ -279,9 +280,9 @@ class Table(Artist):
         """
         Parameters
         ----------
-        ax : `matplotlib.axes.Axes`
+        ax : `~matplotlib.axes.Axes`
             The `~.axes.Axes` to plot the table into.
-        loc : str
+        loc : str, optional
             The position of the cell with respect to *ax*. This must be one of
             the `~.Table.codes`.
         bbox : `.Bbox` or [xmin, ymin, width, height], optional
@@ -494,14 +495,15 @@ class Table(Artist):
         col : int or sequence of ints
             The indices of the columns to auto-scale.
         """
-        # check for col possibility on iteration
-        try:
-            iter(col)
-        except (TypeError, AttributeError):
-            self._autoColumns.append(col)
-        else:
-            for cell in col:
-                self._autoColumns.append(cell)
+        col1d = np.atleast_1d(col)
+        if not np.issubdtype(col1d.dtype, np.integer):
+            _api.warn_deprecated("3.8", name="col",
+                                 message="%(name)r must be an int or sequence of ints. "
+                                 "Passing other types is deprecated since %(since)s "
+                                 "and will be removed %(removal)s.")
+            return
+        for cell in col1d:
+            self._autoColumns.append(cell)
 
         self.stale = True
 
@@ -669,7 +671,7 @@ def table(ax,
     *colLoc* respectively.
 
     For finer grained control over tables, use the `.Table` class and add it to
-    the axes with `.Axes.add_table`.
+    the Axes with `.Axes.add_table`.
 
     Parameters
     ----------
@@ -682,7 +684,7 @@ def table(ax,
     cellColours : 2D list of colors, optional
         The background colors of the cells.
 
-    cellLoc : {'left', 'center', 'right'}, default: 'right'
+    cellLoc : {'right', 'center', 'left'}
         The alignment of the text within the cells.
 
     colWidths : list of float, optional
@@ -695,7 +697,7 @@ def table(ax,
     rowColours : list of colors, optional
         The colors of the row header cells.
 
-    rowLoc : {'left', 'center', 'right'}, default: 'left'
+    rowLoc : {'left', 'center', 'right'}
         The text alignment of the row header cells.
 
     colLabels : list of str, optional
@@ -704,10 +706,10 @@ def table(ax,
     colColours : list of colors, optional
         The colors of the column header cells.
 
-    colLoc : {'left', 'center', 'right'}, default: 'left'
+    colLoc : {'center', 'left', 'right'}
         The text alignment of the column header cells.
 
-    loc : str, optional
+    loc : str, default: 'bottom'
         The position of the cell with respect to *ax*. This must be one of
         the `~.Table.codes`.
 
@@ -715,7 +717,7 @@ def table(ax,
         A bounding box to draw the table into. If this is not *None*, this
         overrides *loc*.
 
-    edges : substring of 'BRTL' or {'open', 'closed', 'horizontal', 'vertical'}
+    edges : {'closed', 'open', 'horizontal', 'vertical'} or substring of 'BRTL'
         The cell edges to be drawn with a line. See also
         `~.Cell.visible_edges`.
 

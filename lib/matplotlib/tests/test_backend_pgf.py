@@ -10,7 +10,8 @@ import pytest
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.testing import _has_tex_package, _check_for_pgf
-from matplotlib.testing.compare import compare_images, ImageComparisonFailure
+from matplotlib.testing.exceptions import ImageComparisonFailure
+from matplotlib.testing.compare import compare_images
 from matplotlib.backends.backend_pgf import PdfPages
 from matplotlib.testing.decorators import (
     _image_directories, check_figures_equal, image_comparison)
@@ -63,7 +64,7 @@ def create_figure():
 
     # text and typesetting
     plt.plot([0.9], [0.5], "ro", markersize=3)
-    plt.text(0.9, 0.5, 'unicode (ü, °, µ) and math ($\\mu_i = x_i^2$)',
+    plt.text(0.9, 0.5, 'unicode (ü, °, \N{Section Sign}) and math ($\\mu_i = x_i^2$)',
              ha='right', fontsize=20)
     plt.ylabel('sans-serif, blue, $\\frac{\\sqrt{x}}{y^2}$..',
                family='sans-serif', color='blue')
@@ -283,6 +284,47 @@ def test_pdf_pages_metadata_check(monkeypatch, system):
         '/Title': 'Multipage PDF with pgf',
         '/Trapped': '/True',
     }
+
+
+@needs_pgf_xelatex
+def test_multipage_keep_empty(tmp_path):
+    os.chdir(tmp_path)
+
+    # test empty pdf files
+
+    # an empty pdf is left behind with keep_empty unset
+    with pytest.warns(mpl.MatplotlibDeprecationWarning), PdfPages("a.pdf") as pdf:
+        pass
+    assert os.path.exists("a.pdf")
+
+    # an empty pdf is left behind with keep_empty=True
+    with pytest.warns(mpl.MatplotlibDeprecationWarning), \
+            PdfPages("b.pdf", keep_empty=True) as pdf:
+        pass
+    assert os.path.exists("b.pdf")
+
+    # an empty pdf deletes itself afterwards with keep_empty=False
+    with PdfPages("c.pdf", keep_empty=False) as pdf:
+        pass
+    assert not os.path.exists("c.pdf")
+
+    # test pdf files with content, they should never be deleted
+
+    # a non-empty pdf is left behind with keep_empty unset
+    with PdfPages("d.pdf") as pdf:
+        pdf.savefig(plt.figure())
+    assert os.path.exists("d.pdf")
+
+    # a non-empty pdf is left behind with keep_empty=True
+    with pytest.warns(mpl.MatplotlibDeprecationWarning), \
+            PdfPages("e.pdf", keep_empty=True) as pdf:
+        pdf.savefig(plt.figure())
+    assert os.path.exists("e.pdf")
+
+    # a non-empty pdf is left behind with keep_empty=False
+    with PdfPages("f.pdf", keep_empty=False) as pdf:
+        pdf.savefig(plt.figure())
+    assert os.path.exists("f.pdf")
 
 
 @needs_pgf_xelatex

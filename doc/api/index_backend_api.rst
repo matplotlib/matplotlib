@@ -20,5 +20,6 @@
    backend_qt_api.rst
    backend_svg_api.rst
    backend_tk_api.rst
+   backend_webagg_core_api.rst
    backend_webagg_api.rst
    backend_wx_api.rst

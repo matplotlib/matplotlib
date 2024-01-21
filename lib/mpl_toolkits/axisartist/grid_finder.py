@@ -1,6 +1,6 @@
 import numpy as np
 
-from matplotlib import ticker as mticker
+from matplotlib import ticker as mticker, _api
 from matplotlib.transforms import Bbox, Transform
 
 
@@ -34,7 +34,7 @@ def _find_line_box_crossings(xys, bbox):
         umin, vmin = bbox.min[sl]
         umax, vmax = bbox.max[sl]
         for u0, inside in [(umin, us > umin), (umax, us < umax)]:
-            crossings.append([])
+            cross = []
             idxs, = (inside[:-1] ^ inside[1:]).nonzero()
             for idx in idxs:
                 v = vs[idx] + (u0 - us[idx]) * dvs[idx] / dus[idx]
@@ -42,7 +42,8 @@ def _find_line_box_crossings(xys, bbox):
                     continue
                 crossing = (u0, v)[sl]
                 theta = np.degrees(np.arctan2(*dxys[idx][::-1]))
-                crossings[-1].append((crossing, theta))
+                cross.append((crossing, theta))
+            crossings.append(cross)
     return crossings
 
 
@@ -150,6 +151,19 @@ class GridFinder:
         self.tick_formatter2 = tick_formatter2
         self.set_transform(transform)
 
+    def _format_ticks(self, idx, direction, factor, levels):
+        """
+        Helper to support both standard formatters (inheriting from
+        `.mticker.Formatter`) and axisartist-specific ones; should be called instead of
+        directly calling ``self.tick_formatter1`` and ``self.tick_formatter2``.  This
+        method should be considered as a temporary workaround which will be removed in
+        the future at the same time as axisartist-specific formatters.
+        """
+        fmt = _api.check_getitem(
+            {1: self.tick_formatter1, 2: self.tick_formatter2}, idx=idx)
+        return (fmt.format_ticks(levels) if isinstance(fmt, mticker.Formatter)
+                else fmt(direction, factor, levels))
+
     def get_grid_info(self, x1, y1, x2, y2):
         """
         lon_values, lat_values : list of grid values. if integer is given,
@@ -175,31 +189,32 @@ class GridFinder:
                                                         lon_min, lon_max,
                                                         lat_min, lat_max)
 
-        ddx = (x2-x1)*1.e-10
-        ddy = (y2-y1)*1.e-10
-        bb = Bbox.from_extents(x1-ddx, y1-ddy, x2+ddx, y2+ddy)
+        bb = Bbox.from_extents(x1, y1, x2, y2).expanded(1 + 2e-10, 1 + 2e-10)
 
         grid_info = {
             "extremes": extremes,
-            "lon_lines": lon_lines,
-            "lat_lines": lat_lines,
-            "lon": self._clip_grid_lines_and_find_ticks(
-                lon_lines, lon_values, lon_levs, bb),
-            "lat": self._clip_grid_lines_and_find_ticks(
-                lat_lines, lat_values, lat_levs, bb),
+            # "lon", "lat", filled below.
         }
 
-        tck_labels = grid_info["lon"]["tick_labels"] = {}
-        for direction in ["left", "bottom", "right", "top"]:
-            levs = grid_info["lon"]["tick_levels"][direction]
-            tck_labels[direction] = self.tick_formatter1(
-                direction, lon_factor, levs)
-
-        tck_labels = grid_info["lat"]["tick_labels"] = {}
-        for direction in ["left", "bottom", "right", "top"]:
-            levs = grid_info["lat"]["tick_levels"][direction]
-            tck_labels[direction] = self.tick_formatter2(
-                direction, lat_factor, levs)
+        for idx, lon_or_lat, levs, factor, values, lines in [
+                (1, "lon", lon_levs, lon_factor, lon_values, lon_lines),
+                (2, "lat", lat_levs, lat_factor, lat_values, lat_lines),
+        ]:
+            grid_info[lon_or_lat] = gi = {
+                "lines": [[l] for l in lines],
+                "ticks": {"left": [], "right": [], "bottom": [], "top": []},
+            }
+            for (lx, ly), v, level in zip(lines, values, levs):
+                all_crossings = _find_line_box_crossings(np.column_stack([lx, ly]), bb)
+                for side, crossings in zip(
+                        ["left", "right", "bottom", "top"], all_crossings):
+                    for crossing in crossings:
+                        gi["ticks"][side].append({"level": level, "loc": crossing})
+            for side in gi["ticks"]:
+                levs = [tick["level"] for tick in gi["ticks"][side]]
+                labels = self._format_ticks(idx, side, factor, levs)
+                for tick, label in zip(gi["ticks"][side], labels):
+                    tick["label"] = label
 
         return grid_info
 
@@ -216,30 +231,6 @@ class GridFinder:
                      for lat in lat_values]
 
         return lon_lines, lat_lines
-
-    def _clip_grid_lines_and_find_ticks(self, lines, values, levs, bb):
-        gi = {
-            "values": [],
-            "levels": [],
-            "tick_levels": dict(left=[], bottom=[], right=[], top=[]),
-            "tick_locs": dict(left=[], bottom=[], right=[], top=[]),
-            "lines": [],
-        }
-
-        tck_levels = gi["tick_levels"]
-        tck_locs = gi["tick_locs"]
-        for (lx, ly), v, lev in zip(lines, values, levs):
-            tcks = _find_line_box_crossings(np.column_stack([lx, ly]), bb)
-            gi["levels"].append(v)
-            gi["lines"].append([(lx, ly)])
-
-            for tck, direction in zip(tcks,
-                                      ["left", "right", "bottom", "top"]):
-                for t in tck:
-                    tck_levels[direction].append(lev)
-                    tck_locs[direction].append(t)
-
-        return gi
 
     def set_transform(self, aux_trans):
         if isinstance(aux_trans, Transform):

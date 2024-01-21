@@ -24,7 +24,7 @@ The `.Figure` class has a provisional method to generate complex grids of named
 `.axes.Axes` based on nested list input or ASCII art:
 
 .. plot::
-   :include-source: True
+   :include-source:
 
    axd = plt.figure(constrained_layout=True).subplot_mosaic(
        [['.', 'histx'],
@@ -38,7 +38,7 @@ The `.Figure` class has a provisional method to generate complex grids of named
 or as a string (with single-character Axes labels):
 
 .. plot::
-   :include-source: True
+   :include-source:
 
    axd = plt.figure(constrained_layout=True).subplot_mosaic(
        """
@@ -183,7 +183,7 @@ colorbar inherits the *extend* argument from the norm, so with
 ``extend='both'``, for example, the colorbar will have triangular extensions
 for out-of-range values with colors that differ from adjacent in-range colors.
 
-  .. plot::
+.. plot::
 
     import matplotlib.pyplot as plt
     from matplotlib.colors import BoundaryNorm

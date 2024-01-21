@@ -1,14 +1,8 @@
 #define PY_SSIZE_T_CLEAN
 #include <Cocoa/Cocoa.h>
 #include <ApplicationServices/ApplicationServices.h>
-#include <sys/socket.h>
 #include <Python.h>
 #include "mplutils.h"
-
-#ifndef PYPY
-/* Remove this once Python is fixed: https://bugs.python.org/issue23237 */
-#define PYOSINPUTHOOK_REPETITIVE 1
-#endif
 
 /* Proper way to check for the OS X version we are compiling for, from
  * https://developer.apple.com/library/archive/documentation/DeveloperTools/Conceptual/cross_development/Using/using.html
@@ -45,147 +39,67 @@ static bool keyChangeControl = false;
 static bool keyChangeShift = false;
 static bool keyChangeOption = false;
 static bool keyChangeCapsLock = false;
+/* Keep track of the current mouse up/down state for open/closed cursor hand */
+static bool leftMouseGrabbing = false;
+/* Keep track of whether stdin has been received */
+static bool stdin_received = false;
+static bool stdin_sigint = false;
+// Global variable to store the original SIGINT handler
+static struct sigaction originalSigintAction = {0};
 
-/* -------------------------- Helper function ---------------------------- */
-
-static void
-_stdin_callback(CFReadStreamRef stream, CFStreamEventType eventType, void* info)
-{
-    CFRunLoopRef runloop = info;
-    CFRunLoopStop(runloop);
+// Signal handler for SIGINT, only sets a flag to exit the run loop
+static void handleSigint(int signal) {
+    stdin_sigint = true;
 }
 
-static int sigint_fd = -1;
+static int wait_for_stdin() {
+    @autoreleasepool {
+        stdin_received = false;
+        stdin_sigint = false;
 
-static void _sigint_handler(int sig)
-{
-    const char c = 'i';
-    write(sigint_fd, &c, 1);
-}
+        // Set up a SIGINT handler to interrupt the event loop if ctrl+c comes in too
+        struct sigaction customAction = {0};
+        customAction.sa_handler = handleSigint;
+        // Set the new handler and store the old one
+        sigaction(SIGINT, &customAction, &originalSigintAction);
 
-static void _sigint_callback(CFSocketRef s,
-                             CFSocketCallBackType type,
-                             CFDataRef address,
-                             const void * data,
-                             void *info)
-{
-    char c;
-    int* interrupted = info;
-    CFSocketNativeHandle handle = CFSocketGetNative(s);
-    CFRunLoopRef runloop = CFRunLoopGetCurrent();
-    read(handle, &c, 1);
-    *interrupted = 1;
-    CFRunLoopStop(runloop);
-}
+        // Create an NSFileHandle for standard input
+        NSFileHandle *stdinHandle = [NSFileHandle fileHandleWithStandardInput];
 
-static CGEventRef _eventtap_callback(
-    CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon)
-{
-    CFRunLoopRef runloop = refcon;
-    CFRunLoopStop(runloop);
-    return event;
-}
+        // Register for data available notifications on standard input
+        [[NSNotificationCenter defaultCenter] addObserverForName: NSFileHandleDataAvailableNotification
+                                                          object: stdinHandle
+                                                           queue: [NSOperationQueue mainQueue] // Use the main queue
+                                                      usingBlock: ^(NSNotification *notification) {
+                                                                    // Mark that input has been received
+                                                                    stdin_received = true;
+                                                                    }
+        ];
 
-static int wait_for_stdin(void)
-{
-    int interrupted = 0;
-    const UInt8 buffer[] = "/dev/fd/0";
-    const CFIndex n = (CFIndex)strlen((char*)buffer);
-    CFRunLoopRef runloop = CFRunLoopGetCurrent();
-    CFURLRef url = CFURLCreateFromFileSystemRepresentation(kCFAllocatorDefault,
-                                                           buffer,
-                                                           n,
-                                                           false);
-    CFReadStreamRef stream = CFReadStreamCreateWithFile(kCFAllocatorDefault,
-                                                        url);
-    CFRelease(url);
+        // Wait in the background for anything that happens to stdin
+        [stdinHandle waitForDataInBackgroundAndNotify];
 
-    CFReadStreamOpen(stream);
-#ifdef PYOSINPUTHOOK_REPETITIVE
-    if (!CFReadStreamHasBytesAvailable(stream))
-    /* This is possible because of how PyOS_InputHook is called from Python */
-#endif
-    {
-        int error;
-        int channel[2];
-        CFSocketRef sigint_socket = NULL;
-        PyOS_sighandler_t py_sigint_handler = NULL;
-        CFStreamClientContext clientContext = {0, NULL, NULL, NULL, NULL};
-        clientContext.info = runloop;
-        CFReadStreamSetClient(stream,
-                              kCFStreamEventHasBytesAvailable,
-                              _stdin_callback,
-                              &clientContext);
-        CFReadStreamScheduleWithRunLoop(stream, runloop, kCFRunLoopDefaultMode);
-        error = socketpair(AF_UNIX, SOCK_STREAM, 0, channel);
-        if (!error) {
-            CFSocketContext context;
-            context.version = 0;
-            context.info = &interrupted;
-            context.retain = NULL;
-            context.release = NULL;
-            context.copyDescription = NULL;
-            fcntl(channel[0], F_SETFL, O_WRONLY | O_NONBLOCK);
-            sigint_socket = CFSocketCreateWithNative(
-                kCFAllocatorDefault,
-                channel[1],
-                kCFSocketReadCallBack,
-                _sigint_callback,
-                &context);
-            if (sigint_socket) {
-                CFRunLoopSourceRef source = CFSocketCreateRunLoopSource(
-                    kCFAllocatorDefault, sigint_socket, 0);
-                CFRelease(sigint_socket);
-                if (source) {
-                    CFRunLoopAddSource(runloop, source, kCFRunLoopDefaultMode);
-                    CFRelease(source);
-                    sigint_fd = channel[0];
-                    py_sigint_handler = PyOS_setsig(SIGINT, _sigint_handler);
-                }
-            }
-        }
-
-        NSEvent* event;
-        while (true) {
+        // continuously run an event loop until the stdin_received flag is set to exit
+        while (!stdin_received && !stdin_sigint) {
             while (true) {
-                event = [NSApp nextEventMatchingMask: NSEventMaskAny
-                                           untilDate: [NSDate distantPast]
-                                              inMode: NSDefaultRunLoopMode
-                                             dequeue: YES];
+                NSEvent *event = [NSApp nextEventMatchingMask: NSEventMaskAny
+                                                    untilDate: [NSDate distantPast]
+                                                       inMode: NSDefaultRunLoopMode
+                                                      dequeue: YES];
                 if (!event) { break; }
                 [NSApp sendEvent: event];
             }
-            CFRunLoopRun();
-            if (interrupted || CFReadStreamHasBytesAvailable(stream)) { break; }
         }
+        // Remove the input handler as an observer
+        [[NSNotificationCenter defaultCenter] removeObserver: stdinHandle];
 
-        if (py_sigint_handler) { PyOS_setsig(SIGINT, py_sigint_handler); }
-        CFReadStreamUnscheduleFromRunLoop(
-            stream, runloop, kCFRunLoopCommonModes);
-        if (sigint_socket) { CFSocketInvalidate(sigint_socket); }
-        if (!error) {
-            close(channel[0]);
-            close(channel[1]);
-        }
+        // Restore the original SIGINT handler upon exiting the function
+        sigaction(SIGINT, &originalSigintAction, NULL);
+        return 1;
     }
-    CFReadStreamClose(stream);
-    CFRelease(stream);
-    if (interrupted) {
-        errno = EINTR;
-        raise(SIGINT);
-        return -1;
-    }
-    return 1;
 }
 
 /* ---------------------------- Cocoa classes ---------------------------- */
-
-@interface WindowServerConnectionManager : NSObject
-{
-}
-+ (WindowServerConnectionManager*)sharedManager;
-- (void)launch:(NSNotification*)notification;
-@end
 
 @interface Window : NSWindow
 {   PyObject* manager;
@@ -198,7 +112,6 @@ static int wait_for_stdin(void)
 @interface View : NSView <NSWindowDelegate>
 {   PyObject* canvas;
     NSRect rubberband;
-    NSTrackingRectTag tracking;
     @public double device_scale;
 }
 - (void)dealloc;
@@ -210,7 +123,6 @@ static int wait_for_stdin(void)
 - (void)setCanvas: (PyObject*)newCanvas;
 - (void)windowWillClose:(NSNotification*)notification;
 - (BOOL)windowShouldClose:(NSNotification*)notification;
-- (BOOL)isFlipped;
 - (void)mouseEntered:(NSEvent*)event;
 - (void)mouseExited:(NSEvent*)event;
 - (void)mouseDown:(NSEvent*)event;
@@ -284,15 +196,9 @@ static void lazy_init(void) {
     NSApp = [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 
+    // Run our own event loop while waiting for stdin on the Python side
+    // this is needed to keep the application responsive while waiting for input
     PyOS_InputHook = wait_for_stdin;
-
-    WindowServerConnectionManager* connectionManager = [WindowServerConnectionManager sharedManager];
-    NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
-    NSNotificationCenter* notificationCenter = [workspace notificationCenter];
-    [notificationCenter addObserver: connectionManager
-                           selector: @selector(launch:)
-                               name: NSWorkspaceDidLaunchApplicationNotification
-                             object: nil];
 }
 
 static PyObject*
@@ -303,6 +209,43 @@ event_loop_is_running(PyObject* self)
     } else {
         Py_RETURN_FALSE;
     }
+}
+
+static PyObject*
+wake_on_fd_write(PyObject* unused, PyObject* args)
+{
+    int fd;
+    if (!PyArg_ParseTuple(args, "i", &fd)) { return NULL; }
+    NSFileHandle* fh = [[NSFileHandle alloc] initWithFileDescriptor: fd];
+    [fh waitForDataInBackgroundAndNotify];
+    [[NSNotificationCenter defaultCenter]
+        addObserverForName: NSFileHandleDataAvailableNotification
+                    object: fh
+                     queue: nil
+                usingBlock: ^(NSNotification* note) {
+                    PyGILState_STATE gstate = PyGILState_Ensure();
+                    PyErr_CheckSignals();
+                    PyGILState_Release(gstate);
+                }];
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+stop(PyObject* self)
+{
+    [NSApp stop: nil];
+    // Post an event to trigger the actual stopping.
+    [NSApp postEvent: [NSEvent otherEventWithType: NSEventTypeApplicationDefined
+                                         location: NSZeroPoint
+                                    modifierFlags: 0
+                                        timestamp: 0
+                                     windowNumber: 0
+                                          context: nil
+                                          subtype: 0
+                                            data1: 0
+                                            data2: 0]
+             atStart: YES];
+    Py_RETURN_NONE;
 }
 
 static CGFloat _get_device_scale(CGContextRef cr)
@@ -459,8 +402,14 @@ FigureCanvas_set_cursor(PyObject* unused, PyObject* args)
       case 1: [[NSCursor arrowCursor] set]; break;
       case 2: [[NSCursor pointingHandCursor] set]; break;
       case 3: [[NSCursor crosshairCursor] set]; break;
-      case 4: [[NSCursor openHandCursor] set]; break;
-      /* OSX handles busy state itself so no need to set a cursor here */
+      case 4:
+        if (leftMouseGrabbing) {
+            [[NSCursor closedHandCursor] set];
+        } else {
+            [[NSCursor openHandCursor] set];
+        }
+        break;
+      /* macOS handles busy state itself so no need to set a cursor here */
       case 5: break;
       case 6: [[NSCursor resizeLeftRightCursor] set]; break;
       case 7: [[NSCursor resizeUpDownCursor] set]; break;
@@ -499,47 +448,13 @@ FigureCanvas_remove_rubberband(FigureCanvas* self)
 }
 
 static PyObject*
-FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keywords)
+FigureCanvas__start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keywords)
 {
     float timeout = 0.0;
 
     static char* kwlist[] = {"timeout", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, keywords, "f", kwlist, &timeout)) {
         return NULL;
-    }
-
-    int error;
-    int interrupted = 0;
-    int channel[2];
-    CFSocketRef sigint_socket = NULL;
-    PyOS_sighandler_t py_sigint_handler = NULL;
-
-    CFRunLoopRef runloop = CFRunLoopGetCurrent();
-
-    error = pipe(channel);
-    if (!error) {
-        CFSocketContext context = {0, NULL, NULL, NULL, NULL};
-        fcntl(channel[1], F_SETFL, O_WRONLY | O_NONBLOCK);
-
-        context.info = &interrupted;
-        sigint_socket = CFSocketCreateWithNative(kCFAllocatorDefault,
-                                                 channel[0],
-                                                 kCFSocketReadCallBack,
-                                                 _sigint_callback,
-                                                 &context);
-        if (sigint_socket) {
-            CFRunLoopSourceRef source = CFSocketCreateRunLoopSource(
-                kCFAllocatorDefault, sigint_socket, 0);
-            CFRelease(sigint_socket);
-            if (source) {
-                CFRunLoopAddSource(runloop, source, kCFRunLoopDefaultMode);
-                CFRelease(source);
-                sigint_fd = channel[1];
-                py_sigint_handler = PyOS_setsig(SIGINT, _sigint_handler);
-            }
-        }
-        else
-            close(channel[0]);
     }
 
     NSDate* date =
@@ -553,11 +468,6 @@ FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keyw
        if (!event || [event type]==NSEventTypeApplicationDefined) { break; }
        [NSApp sendEvent: event];
     }
-
-    if (py_sigint_handler) { PyOS_setsig(SIGINT, py_sigint_handler); }
-    if (sigint_socket) { CFSocketInvalidate(sigint_socket); }
-    if (!error) { close(channel[1]); }
-    if (interrupted) { raise(SIGINT); }
 
     Py_RETURN_NONE;
 }
@@ -609,8 +519,8 @@ static PyTypeObject FigureCanvasType = {
          (PyCFunction)FigureCanvas_remove_rubberband,
          METH_NOARGS,
          "Remove the current rubberband rectangle."},
-        {"start_event_loop",
-         (PyCFunction)FigureCanvas_start_event_loop,
+        {"_start_event_loop",
+         (PyCFunction)FigureCanvas__start_event_loop,
          METH_KEYWORDS | METH_VARARGS,
          NULL},  // docstring inherited
         {"stop_event_loop",
@@ -681,6 +591,25 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     [view updateDevicePixelRatio: [window backingScaleFactor]];
 
     return 0;
+}
+
+static PyObject*
+FigureManager__set_window_mode(FigureManager* self, PyObject* args)
+{
+    const char* window_mode;
+    if (!PyArg_ParseTuple(args, "s", &window_mode) || !self->window) {
+        return NULL;
+    }
+
+    NSString* window_mode_str = [NSString stringWithUTF8String: window_mode];
+    if ([window_mode_str isEqualToString: @"tab"]) {
+        [self->window setTabbingMode: NSWindowTabbingModePreferred];
+    } else if ([window_mode_str isEqualToString: @"window"]) {
+        [self->window setTabbingMode: NSWindowTabbingModeDisallowed];
+    } else { // system settings
+        [self->window setTabbingMode: NSWindowTabbingModeAutomatic];
+    }
+    Py_RETURN_NONE;
 }
 
 static PyObject*
@@ -826,6 +755,10 @@ static PyTypeObject FigureManagerType = {
         {"destroy",
          (PyCFunction)FigureManager_destroy,
          METH_NOARGS},
+        {"_set_window_mode",
+         (PyCFunction)FigureManager__set_window_mode,
+         METH_VARARGS,
+         "Set the window open mode (system, tab, window)"},
         {"set_icon",
          (PyCFunction)FigureManager_set_icon,
          METH_STATIC | METH_VARARGS,
@@ -1132,76 +1065,6 @@ choose_save_file(PyObject* unused, PyObject* args)
     Py_RETURN_NONE;
 }
 
-@implementation WindowServerConnectionManager
-static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
-
-+ (WindowServerConnectionManager *)sharedManager
-{
-    if (sharedWindowServerConnectionManager == nil) {
-        sharedWindowServerConnectionManager = [[super allocWithZone:NULL] init];
-    }
-    return sharedWindowServerConnectionManager;
-}
-
-+ (id)allocWithZone:(NSZone *)zone
-{
-    return [[self sharedManager] retain];
-}
-
-+ (id)copyWithZone:(NSZone *)zone
-{
-    return self;
-}
-
-+ (id)retain
-{
-    return self;
-}
-
-- (NSUInteger)retainCount
-{
-    return NSUIntegerMax;  //denotes an object that cannot be released
-}
-
-- (oneway void)release
-{
-    // Don't release a singleton object
-}
-
-- (id)autorelease
-{
-    return self;
-}
-
-- (void)launch:(NSNotification*)notification
-{
-    CFRunLoopRef runloop;
-    CFMachPortRef port;
-    CFRunLoopSourceRef source;
-    NSDictionary* dictionary = [notification userInfo];
-    if (![[dictionary valueForKey:@"NSApplicationName"]
-            localizedCaseInsensitiveContainsString:@"python"])
-        return;
-    NSNumber* psnLow = [dictionary valueForKey: @"NSApplicationProcessSerialNumberLow"];
-    NSNumber* psnHigh = [dictionary valueForKey: @"NSApplicationProcessSerialNumberHigh"];
-    ProcessSerialNumber psn;
-    psn.highLongOfPSN = [psnHigh intValue];
-    psn.lowLongOfPSN = [psnLow intValue];
-    runloop = CFRunLoopGetCurrent();
-    port = CGEventTapCreateForPSN(&psn,
-                                  kCGHeadInsertEventTap,
-                                  kCGEventTapOptionListenOnly,
-                                  kCGEventMaskForAllEvents,
-                                  &_eventtap_callback,
-                                  runloop);
-    source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault,
-                                           port,
-                                           0);
-    CFRunLoopAddSource(runloop, source, kCFRunLoopDefaultMode);
-    CFRelease(port);
-}
-@end
-
 @implementation Window
 - (Window*)initWithContentRect:(NSRect)rect styleMask:(unsigned int)mask backing:(NSBackingStoreType)bufferingType defer:(BOOL)deferCreation withManager: (PyObject*)theManager
 {
@@ -1245,11 +1108,6 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
 @end
 
 @implementation View
-- (BOOL)isFlipped
-{
-    return NO;
-}
-
 - (View*)initWithFrame:(NSRect)rect
 {
     self = [super initWithFrame: rect];
@@ -1271,8 +1129,10 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
 }
 
 static void _buffer_release(void* info, const void* data, size_t size) {
+    PyGILState_STATE gstate = PyGILState_Ensure();
     PyBuffer_Release((Py_buffer *)info);
     free(info);
+    PyGILState_Release(gstate);
 }
 
 static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
@@ -1510,8 +1370,10 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
              else
              {
                  button = 1;
-                 if ([NSCursor currentCursor]==[NSCursor openHandCursor])
+                 if ([NSCursor currentCursor]==[NSCursor openHandCursor]) {
+                     leftMouseGrabbing = true;
                      [[NSCursor closedHandCursor] set];
+                 }
              }
              break;
          }
@@ -1538,6 +1400,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     y = location.y * device_scale;
     switch ([event type])
     {    case NSEventTypeLeftMouseUp:
+             leftMouseGrabbing = false;
              button = 1;
              if ([NSCursor currentCursor]==[NSCursor closedHandCursor])
                  [[NSCursor openHandCursor] set];
@@ -1818,7 +1681,8 @@ show(PyObject* self)
 
 typedef struct {
     PyObject_HEAD
-    CFRunLoopTimerRef timer;
+    NSTimer* timer;
+
 } Timer;
 
 static PyObject*
@@ -1826,7 +1690,9 @@ Timer_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
 {
     lazy_init();
     Timer* self = (Timer*)type->tp_alloc(type, 0);
-    if (!self) { return NULL; }
+    if (!self) {
+        return NULL;
+    }
     self->timer = NULL;
     return (PyObject*) self;
 }
@@ -1834,35 +1700,16 @@ Timer_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
 static PyObject*
 Timer_repr(Timer* self)
 {
-    return PyUnicode_FromFormat("Timer object %p wrapping CFRunLoopTimerRef %p",
+    return PyUnicode_FromFormat("Timer object %p wrapping NSTimer %p",
                                (void*) self, (void*)(self->timer));
-}
-
-static void timer_callback(CFRunLoopTimerRef timer, void* info)
-{
-    gil_call_method(info, "_on_timer");
-}
-
-static void context_cleanup(const void* info)
-{
-    Py_DECREF((PyObject*)info);
 }
 
 static PyObject*
 Timer__timer_start(Timer* self, PyObject* args)
 {
-    CFRunLoopRef runloop;
-    CFRunLoopTimerRef timer;
-    CFRunLoopTimerContext context;
-    CFAbsoluteTime firstFire;
-    CFTimeInterval interval;
+    NSTimeInterval interval;
     PyObject* py_interval = NULL, * py_single = NULL, * py_on_timer = NULL;
     int single;
-    runloop = CFRunLoopGetMain();
-    if (!runloop) {
-        PyErr_SetString(PyExc_RuntimeError, "Failed to obtain run loop");
-        return NULL;
-    }
     if (!(py_interval = PyObject_GetAttrString((PyObject*)self, "_interval"))
         || ((interval = PyFloat_AsDouble(py_interval) / 1000.), PyErr_Occurred())
         || !(py_single = PyObject_GetAttrString((PyObject*)self, "_single"))
@@ -1870,41 +1717,21 @@ Timer__timer_start(Timer* self, PyObject* args)
         || !(py_on_timer = PyObject_GetAttrString((PyObject*)self, "_on_timer"))) {
         goto exit;
     }
-    // (current time + interval) is time of first fire.
-    firstFire = CFAbsoluteTimeGetCurrent() + interval;
-    if (single) {
-        interval = 0;
-    }
     if (!PyMethod_Check(py_on_timer)) {
         PyErr_SetString(PyExc_RuntimeError, "_on_timer should be a Python method");
         goto exit;
     }
-    Py_INCREF(self);
-    context.version = 0;
-    context.retain = NULL;
-    context.release = context_cleanup;
-    context.copyDescription = NULL;
-    context.info = self;
-    timer = CFRunLoopTimerCreate(kCFAllocatorDefault,
-                                 firstFire,
-                                 interval,
-                                 0,
-                                 0,
-                                 timer_callback,
-                                 &context);
-    if (!timer) {
-        PyErr_SetString(PyExc_RuntimeError, "Failed to create timer");
-        goto exit;
-    }
-    if (self->timer) {
-        CFRunLoopTimerInvalidate(self->timer);
-        CFRelease(self->timer);
-    }
-    CFRunLoopAddTimer(runloop, timer, kCFRunLoopCommonModes);
-    /* Don't release the timer here, since the run loop may be destroyed and
-     * the timer lost before we have a chance to decrease the reference count
-     * of the attribute */
-    self->timer = timer;
+
+    // hold a reference to the timer so we can invalidate/stop it later
+    self->timer = [NSTimer timerWithTimeInterval: interval
+                                         repeats: !single
+                                           block: ^(NSTimer *timer) {
+        gil_call_method((PyObject*)self, "_on_timer");
+    }];
+    // Schedule the timer on the main run loop which is needed
+    // when updating the UI from a background thread
+    [[NSRunLoop mainRunLoop] addTimer: self->timer forMode: NSRunLoopCommonModes];
+
 exit:
     Py_XDECREF(py_interval);
     Py_XDECREF(py_single);
@@ -1916,21 +1743,26 @@ exit:
     }
 }
 
+static void
+Timer__timer_stop_impl(Timer* self)
+{
+    if (self->timer) {
+        [self->timer invalidate];
+        self->timer = NULL;
+    }
+}
+
 static PyObject*
 Timer__timer_stop(Timer* self)
 {
-    if (self->timer) {
-        CFRunLoopTimerInvalidate(self->timer);
-        CFRelease(self->timer);
-        self->timer = NULL;
-    }
+    Timer__timer_stop_impl(self);
     Py_RETURN_NONE;
 }
 
 static void
 Timer_dealloc(Timer* self)
 {
-    Timer__timer_stop(self);
+    Timer__timer_stop_impl(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1942,7 +1774,7 @@ static PyTypeObject TimerType = {
     .tp_repr = (reprfunc)Timer_repr,
     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     .tp_new = (newfunc)Timer_new,
-    .tp_doc = "A Timer object wraps a CFRunLoopTimerRef and can add it to the event loop.",
+    .tp_doc = "A Timer object that contains an NSTimer that gets added to the event loop when started.",
     .tp_methods = (PyMethodDef[]){  // All docstrings are inherited.
         {"_timer_start",
          (PyCFunction)Timer__timer_start,
@@ -1960,7 +1792,16 @@ static struct PyModuleDef moduledef = {
         {"event_loop_is_running",
          (PyCFunction)event_loop_is_running,
          METH_NOARGS,
-         "Return whether the OSX backend has set up the NSApp main event loop."},
+         "Return whether the macosx backend has set up the NSApp main event loop."},
+        {"wake_on_fd_write",
+         (PyCFunction)wake_on_fd_write,
+         METH_VARARGS,
+         "Arrange for Python to invoke its signal handlers when (any) data is\n"
+         "written on the file descriptor given as argument."},
+        {"stop",
+         (PyCFunction)stop,
+         METH_NOARGS,
+         "Stop the NSApp."},
         {"show",
          (PyCFunction)show,
          METH_NOARGS,

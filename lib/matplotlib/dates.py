@@ -6,7 +6,7 @@ By default, Matplotlib uses the units machinery described in
 `~matplotlib.units` to convert `datetime.datetime`, and `numpy.datetime64`
 objects when plotted on an x- or y-axis. The user does not
 need to do anything for dates to be formatted, but dates often have strict
-formatting needs, so this module provides many axis locators and formatters.
+formatting needs, so this module provides many tick locators and formatters.
 A basic example using `numpy.datetime64` is::
 
     import numpy as np
@@ -82,12 +82,12 @@ objects and Matplotlib dates:
      In [1]: date(2006, 4, 1).toordinal() - date(1, 1, 1).toordinal()
      Out[1]: 732401
 
-All the Matplotlib date converters, tickers and formatters are timezone aware.
+All the Matplotlib date converters, locators and formatters are timezone aware.
 If no explicit timezone is provided, :rc:`timezone` is assumed, provided as a
 string.  If you want to use a different timezone, pass the *tz* keyword
-argument of `num2date` to any date tickers or locators you create.  This can
-be either a `datetime.tzinfo` instance or a string with the timezone name that
-can be parsed by `~dateutil.tz.gettz`.
+argument of `num2date` to any date tick locators or formatters you create. This
+can be either a `datetime.tzinfo` instance or a string with the timezone name
+that can be parsed by `~dateutil.tz.gettz`.
 
 A wide range of specific and general purpose date tick locators and
 formatters are provided in this module.  See
@@ -99,10 +99,12 @@ easy to place ticks on any kinds of dates.  See examples below.
 
 .. _dateutil: https://dateutil.readthedocs.io
 
-Date tickers
-------------
+.. _date-locators:
 
-Most of the date tickers can locate single or multiple values.  For example::
+Date tick locators
+------------------
+
+Most of the date tick locators can locate single or multiple ticks. For example::
 
     # import constants for the days of the week
     from matplotlib.dates import MO, TU, WE, TH, FR, SA, SU
@@ -124,7 +126,7 @@ The rrule locator allows completely general date ticking::
     rule = rrulewrapper(YEARLY, byeaster=1, interval=5)
     loc = RRuleLocator(rule)
 
-The available date tickers are:
+The available date tick locators are:
 
 * `MicrosecondLocator`: Locate microseconds.
 
@@ -153,6 +155,8 @@ The available date tickers are:
   sensible multiples of the tick intervals.  For example, if the interval is
   4 hours, it will pick hours 0, 4, 8, etc. as ticks.  This behaviour is not
   guaranteed by default.
+
+.. _date-formatters:
 
 Date formatters
 ---------------
@@ -201,27 +205,14 @@ _log = logging.getLogger(__name__)
 UTC = datetime.timezone.utc
 
 
-@_api.caching_module_getattr
-class __getattr__:
-    JULIAN_OFFSET = _api.deprecated("3.7")(property(lambda self: 1721424.5))
-    # Julian date at 0000-12-31
-    # note that the Julian day epoch is achievable w/
-    # np.datetime64('-4713-11-24T12:00:00'); datetime64 is proleptic
-    # Gregorian and BC has a one-year offset.  So
-    # np.datetime64('0000-12-31') - np.datetime64('-4713-11-24T12:00') =
-    # 1721424.5
-    # Ref: https://en.wikipedia.org/wiki/Julian_day
-
-
 def _get_tzinfo(tz=None):
     """
     Generate `~datetime.tzinfo` from a string or return `~datetime.tzinfo`.
     If None, retrieve the preferred timezone from the rcParams dictionary.
     """
-    if tz is None:
-        tz = mpl.rcParams['timezone']
-        if tz == 'UTC':
-            return UTC
+    tz = mpl._val_or_rc(tz, 'timezone')
+    if tz == 'UTC':
+        return UTC
     if isinstance(tz, str):
         tzinfo = dateutil.tz.gettz(tz)
         if tzinfo is None:
@@ -312,8 +303,7 @@ def get_epoch():
     """
     global _epoch
 
-    if _epoch is None:
-        _epoch = mpl.rcParams['date.epoch']
+    _epoch = mpl._val_or_rc(_epoch, 'date.epoch')
     return _epoch
 
 
@@ -464,53 +454,6 @@ def date2num(d):
     return d if iterable else d[0]
 
 
-@_api.deprecated("3.7")
-def julian2num(j):
-    """
-    Convert a Julian date (or sequence) to a Matplotlib date (or sequence).
-
-    Parameters
-    ----------
-    j : float or sequence of floats
-        Julian dates (days relative to 4713 BC Jan 1, 12:00:00 Julian
-        calendar or 4714 BC Nov 24, 12:00:00, proleptic Gregorian calendar).
-
-    Returns
-    -------
-    float or sequence of floats
-        Matplotlib dates (days relative to `.get_epoch`).
-    """
-    ep = np.datetime64(get_epoch(), 'h').astype(float) / 24.
-    ep0 = np.datetime64('0000-12-31T00:00:00', 'h').astype(float) / 24.
-    # Julian offset defined above is relative to 0000-12-31, but we need
-    # relative to our current epoch:
-    dt = __getattr__("JULIAN_OFFSET") - ep0 + ep
-    return np.subtract(j, dt)  # Handles both scalar & nonscalar j.
-
-
-@_api.deprecated("3.7")
-def num2julian(n):
-    """
-    Convert a Matplotlib date (or sequence) to a Julian date (or sequence).
-
-    Parameters
-    ----------
-    n : float or sequence of floats
-        Matplotlib dates (days relative to `.get_epoch`).
-
-    Returns
-    -------
-    float or sequence of floats
-        Julian dates (days relative to 4713 BC Jan 1, 12:00:00).
-    """
-    ep = np.datetime64(get_epoch(), 'h').astype(float) / 24.
-    ep0 = np.datetime64('0000-12-31T00:00:00', 'h').astype(float) / 24.
-    # Julian offset defined above is relative to 0000-12-31, but we need
-    # relative to our current epoch:
-    dt = __getattr__("JULIAN_OFFSET") - ep0 + ep
-    return np.add(n, dt)  # Handles both scalar & nonscalar j.
-
-
 def num2date(x, tz=None):
     """
     Convert Matplotlib dates to `~datetime.datetime` objects.
@@ -618,7 +561,7 @@ def _wrap_in_tex(text):
     return ret_text
 
 
-## date tickers and formatters ###
+## date tick locators and formatters ###
 
 
 class DateFormatter(ticker.Formatter):
@@ -641,8 +584,7 @@ class DateFormatter(ticker.Formatter):
         """
         self.tz = _get_tzinfo(tz)
         self.fmt = fmt
-        self._usetex = (usetex if usetex is not None else
-                        mpl.rcParams['text.usetex'])
+        self._usetex = mpl._val_or_rc(usetex, 'text.usetex')
 
     def __call__(self, x, pos=0):
         result = num2date(x, self.tz).strftime(self.fmt)
@@ -779,8 +721,7 @@ class ConciseDateFormatter(ticker.Formatter):
                                    '%Y-%b-%d %H:%M']
         self.offset_string = ''
         self.show_offset = show_offset
-        self._usetex = (usetex if usetex is not None else
-                        mpl.rcParams['text.usetex'])
+        self._usetex = mpl._val_or_rc(usetex, 'text.usetex')
 
     def __call__(self, x, pos=None):
         formatter = DateFormatter(self.defaultfmt, self._tz,
@@ -957,8 +898,7 @@ class AutoDateFormatter(ticker.Formatter):
         self.defaultfmt = defaultfmt
         self._formatter = DateFormatter(self.defaultfmt, tz)
         rcParams = mpl.rcParams
-        self._usetex = (usetex if usetex is not None else
-                        mpl.rcParams['text.usetex'])
+        self._usetex = mpl._val_or_rc(usetex, 'text.usetex')
         self.scaled = {
             DAYS_PER_YEAR: rcParams['date.autoformatter.year'],
             DAYS_PER_MONTH: rcParams['date.autoformatter.month'],

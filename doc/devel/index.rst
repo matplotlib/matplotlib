@@ -1,75 +1,181 @@
 .. _developers-guide-index:
 
-############
-Contributing
-############
+##########
+Contribute
+##########
+
+.. ifconfig:: releaselevel != 'dev'
+
+   .. important::
+
+      If you plan to contribute to Matplotlib, please read the
+      `development version <https://matplotlib.org/devdocs/devel/index.html>`_
+      of this document as it will have the most up to date installation
+      instructions, workflow process, and contributing guidelines.
 
 Thank you for your interest in helping to improve Matplotlib! There are various
-ways to contribute to Matplotlib. All of them are super valuable but don't necessarily
-require writing code at all. For example:
+ways to contribute: optimizing and refactoring code, detailing unclear
+documentation and writing new examples, reporting and fixing bugs and requesting
+and implementing new features, helping the community...
 
-- contributing to the documentation
-- opening new issues for bugs
-- requesting new features
-- asking for clarification on things you find unclear
-- fixing bugs
-
-If you have any questions on the
-process or how to fix something feel free to ask on `gitter
-<https://gitter.im/matplotlib/matplotlib>`_ for short questions and on
-`discourse <https://discourse.matplotlib.org>`_ for longer questions.
-
-.. rst-class:: sd-d-inline-block
-
-    .. button-ref:: submitting-a-bug-report
-        :class: sd-fs-6
-        :color: primary
-
-        Report a bug
-
-.. rst-class:: sd-d-inline-block
-
-    .. button-ref:: request-a-new-feature
-        :class: sd-fs-6
-        :color: primary
-
-        Request a feature
-
-.. rst-class:: sd-d-inline-block
-
-    .. button-ref:: contributing-code
-        :class: sd-fs-6
-        :color: primary
-
-        Contribute code
-
-.. rst-class:: sd-d-inline-block
-
-    .. button-ref:: documenting-matplotlib
-        :class: sd-fs-6
-        :color: primary
-
-        Write documentation
-
-.. toctree::
-   :maxdepth: 2
-
-   contributing.rst
-   triage.rst
-   development_setup.rst
-   development_workflow.rst
-   testing.rst
-   documenting_mpl.rst
-   style_guide.rst
-   coding_guide.rst
-   release_guide.rst
-   dependencies.rst
-   min_dep_policy.rst
-   maintainer_workflow.rst
-   MEP/index
-
+New contributors
+================
 .. toctree::
    :hidden:
 
-   license.rst
-   color_changes
+   contribute
+
+.. grid:: 1 1 2 2
+   :class-row: sd-align-minor-center
+
+   .. grid-item::
+      :class: sd-fs-5
+
+      :octicon:`info;1em;sd-text-info` :ref:`Where should I start? <start-contributing>`
+
+      :octicon:`question;1em;sd-text-info` :ref:`Where should I ask questions? <get_connected>`
+
+      :octicon:`issue-opened;1em;sd-text-info` :ref:`What are "good-first-issues"? <new_contributors>`
+
+      :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I claim an issue? <managing_issues_prs>`
+
+      :octicon:`codespaces;1em;sd-text-info` :ref:`How do I start a pull request? <how-to-contribute>`
+
+   .. grid-item::
+
+      .. grid:: 1
+         :gutter: 1
+         :class-row: sd-fs-5
+
+         .. grid-item-card::
+            :link: request-a-new-feature
+            :link-type: ref
+            :shadow: none
+
+            :octicon:`light-bulb;1em;sd-text-info` Request new feature
+
+         .. grid-item-card::
+            :link: submitting-a-bug-report
+            :link-type: ref
+            :shadow: none
+
+            :octicon:`bug;1em;sd-text-info` Submit bug report
+
+         .. grid-item-card::
+            :link: contribute_code
+            :link-type: ref
+            :shadow: none
+
+            :octicon:`code;1em;sd-text-info` Contribute code
+
+         .. grid-item-card::
+            :link: contribute_documentation
+            :link-type: ref
+            :shadow: none
+
+            :octicon:`note;1em;sd-text-info` Write documentation
+
+If you are new to contributing, we recommend that you first read our
+:ref:`contributing guide<contributing>`. If you are contributing code or
+documentation, please follow our guides for setting up and managing a
+:ref:`development environment and workflow<development_environment>`.
+For code, documentation, or triage, please follow the corresponding
+:ref:`contribution guidelines <contribution_guideline>`.
+
+
+.. _development_environment:
+
+Development environment
+=======================
+
+.. grid:: 1 1 2 2
+
+   .. grid-item-card::
+      :shadow: none
+
+      **Install**
+      ^^^
+
+      .. toctree::
+         :maxdepth: 2
+
+         development_setup
+
+
+   .. grid-item-card::
+      :shadow: none
+
+      **Workflow**
+      ^^^^
+
+      .. toctree::
+         :maxdepth: 2
+
+         development_workflow
+
+      .. toctree::
+         :maxdepth: 1
+
+         troubleshooting.rst
+
+
+.. _contribution_guideline:
+
+Policies and guidelines
+=======================
+
+.. grid:: 1 1 2 2
+   :class-row: sf-fs-1
+   :gutter: 2
+
+   .. grid-item-card::
+      :shadow: none
+
+      **Code**
+      ^^^
+
+      .. toctree::
+         :maxdepth: 1
+
+         coding_guide
+         api_changes
+         testing
+
+   .. grid-item-card::
+      :shadow: none
+
+      **Documentation**
+      ^^^
+
+      .. toctree::
+         :maxdepth: 1
+
+         document
+         style_guide
+         tag_guidelines
+
+   .. grid-item-card::
+      :shadow: none
+
+      **Triage And Review**
+      ^^^
+
+      .. toctree::
+         :maxdepth: 1
+
+         triage
+         pr_guide
+
+   .. grid-item-card::
+      :shadow: none
+
+      **Maintenance**
+      ^^^
+
+      .. toctree::
+         :maxdepth: 1
+
+         release_guide
+         communication_guide
+         min_dep_policy
+         MEP/index

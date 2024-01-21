@@ -3,7 +3,7 @@
 List of named colors
 ====================
 
-This plots a list of the named colors supported in matplotlib.
+This plots a list of the named colors supported by Matplotlib.
 For more information on colors in matplotlib see
 
 * the :ref:`colors_def` tutorial;
@@ -42,14 +42,14 @@ def plot_colortable(colors, *, ncols=4, sort_colors=True):
     n = len(names)
     nrows = math.ceil(n / ncols)
 
-    width = cell_width * 4 + 2 * margin
+    width = cell_width * ncols + 2 * margin
     height = cell_height * nrows + 2 * margin
     dpi = 72
 
     fig, ax = plt.subplots(figsize=(width / dpi, height / dpi), dpi=dpi)
     fig.subplots_adjust(margin/width, margin/height,
                         (width-margin)/width, (height-margin)/height)
-    ax.set_xlim(0, cell_width * 4)
+    ax.set_xlim(0, cell_width * ncols)
     ax.set_ylim(cell_height * (nrows-0.5), -cell_height/2.)
     ax.yaxis.set_visible(False)
     ax.xaxis.set_visible(False)
@@ -101,8 +101,10 @@ plt.show()
 # -----------
 # XKCD Colors
 # -----------
-# XKCD colors are supported, but they produce a large figure, so we skip them
-# for now. You can use the following code if desired::
+# Matplotlib supports colors from the
+# `xkcd color survey <https://xkcd.com/color/rgb/>`_, e.g. ``"xkcd:sky blue"``. Since
+# this contains almost 1000 colors, a figure of this would be very large and is thus
+# omitted here. You can use the following code to generate the overview yourself ::
 #
 #     xkcd_fig = plot_colortable(mcolors.XKCD_COLORS)
 #     xkcd_fig.savefig("XKCD_Colors.png")

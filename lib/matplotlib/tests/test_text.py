@@ -4,6 +4,8 @@ import warnings
 
 import numpy as np
 from numpy.testing import assert_almost_equal
+from packaging.version import parse as parse_version
+import pyparsing
 import pytest
 
 import matplotlib as mpl
@@ -14,7 +16,9 @@ import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing._markers import needs_usetex
-from matplotlib.text import Text
+from matplotlib.text import Text, Annotation, OffsetFrom
+
+pyparsing_version = parse_version(pyparsing.__version__)
 
 
 @image_comparison(['font_styles'])
@@ -182,19 +186,23 @@ def test_multiline2():
     ax.text(1.2, 0.1, 'Bot align, rot20', color='C2')
 
 
-@image_comparison(['antialiased.png'])
+@image_comparison(['antialiased.png'], style='mpl20')
 def test_antialiasing():
-    mpl.rcParams['text.antialiased'] = True
+    mpl.rcParams['text.antialiased'] = False  # Passed arguments should override.
 
     fig = plt.figure(figsize=(5.25, 0.75))
-    fig.text(0.5, 0.75, "antialiased", horizontalalignment='center',
-             verticalalignment='center')
-    fig.text(0.5, 0.25, r"$\sqrt{x}$", horizontalalignment='center',
-             verticalalignment='center')
-    # NOTE: We don't need to restore the rcParams here, because the
-    # test cleanup will do it for us.  In fact, if we do it here, it
-    # will turn antialiasing back off before the images are actually
-    # rendered.
+    fig.text(0.3, 0.75, "antialiased", horizontalalignment='center',
+             verticalalignment='center', antialiased=True)
+    fig.text(0.3, 0.25, r"$\sqrt{x}$", horizontalalignment='center',
+             verticalalignment='center', antialiased=True)
+
+    mpl.rcParams['text.antialiased'] = True  # Passed arguments should override.
+    fig.text(0.7, 0.75, "not antialiased", horizontalalignment='center',
+             verticalalignment='center', antialiased=False)
+    fig.text(0.7, 0.25, r"$\sqrt{x}$", horizontalalignment='center',
+             verticalalignment='center', antialiased=False)
+
+    mpl.rcParams['text.antialiased'] = False  # Should not affect existing text.
 
 
 def test_afm_kerning():
@@ -291,8 +299,8 @@ def test_alignment():
     ax.plot([0, 1], [0.5, 0.5])
     ax.plot([0, 1], [1.0, 1.0])
 
-    ax.set_xlim([0, 1])
-    ax.set_ylim([0, 1.5])
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1.5)
     ax.set_xticks([])
     ax.set_yticks([])
 
@@ -809,15 +817,19 @@ def test_pdf_kerning():
 
 def test_unsupported_script(recwarn):
     fig = plt.figure()
-    fig.text(.5, .5, "\N{BENGALI DIGIT ZERO}")
+    t = fig.text(.5, .5, "\N{BENGALI DIGIT ZERO}")
     fig.canvas.draw()
     assert all(isinstance(warn.message, UserWarning) for warn in recwarn)
     assert (
         [warn.message.args for warn in recwarn] ==
-        [(r"Glyph 2534 (\N{BENGALI DIGIT ZERO}) missing from current font.",),
+        [(r"Glyph 2534 (\N{BENGALI DIGIT ZERO}) missing from font(s) "
+            + f"{t.get_fontname()}.",),
          (r"Matplotlib currently does not support Bengali natively.",)])
 
 
+# See gh-26152 for more information on this xfail
+@pytest.mark.xfail(pyparsing_version.release == (3, 1, 0),
+                   reason="Error messages are incorrect with pyparsing 3.1.0")
 def test_parse_math():
     fig, ax = plt.subplots()
     ax.text(0, 0, r"$ \wrong{math} $", parse_math=False)
@@ -828,6 +840,9 @@ def test_parse_math():
         fig.canvas.draw()
 
 
+# See gh-26152 for more information on this xfail
+@pytest.mark.xfail(pyparsing_version.release == (3, 1, 0),
+                   reason="Error messages are incorrect with pyparsing 3.1.0")
 def test_parse_math_rcparams():
     # Default is True
     fig, ax = plt.subplots()
@@ -886,3 +901,67 @@ def test_metrics_cache():
     # Every string gets a miss for the first layouting (extents), then a hit
     # when drawing, but "foo\nbar" gets two hits as it's drawn twice.
     assert info.hits > info.misses
+
+
+def test_annotate_offset_fontsize():
+    # Test that offset_fontsize parameter works and uses accurate values
+    fig, ax = plt.subplots()
+    text_coords = ['offset points', 'offset fontsize']
+    # 10 points should be equal to 1 fontsize unit at fontsize=10
+    xy_text = [(10, 10), (1, 1)]
+    anns = [ax.annotate('test', xy=(0.5, 0.5),
+                        xytext=xy_text[i],
+                        fontsize='10',
+                        xycoords='data',
+                        textcoords=text_coords[i]) for i in range(2)]
+    points_coords, fontsize_coords = [ann.get_window_extent() for ann in anns]
+    fig.canvas.draw()
+    assert str(points_coords) == str(fontsize_coords)
+
+
+def test_get_set_antialiased():
+    txt = Text(.5, .5, "foo\nbar")
+    assert txt._antialiased == mpl.rcParams['text.antialiased']
+    assert txt.get_antialiased() == mpl.rcParams['text.antialiased']
+
+    txt.set_antialiased(True)
+    assert txt._antialiased is True
+    assert txt.get_antialiased() == txt._antialiased
+
+    txt.set_antialiased(False)
+    assert txt._antialiased is False
+    assert txt.get_antialiased() == txt._antialiased
+
+
+def test_annotation_antialiased():
+    annot = Annotation("foo\nbar", (.5, .5), antialiased=True)
+    assert annot._antialiased is True
+    assert annot.get_antialiased() == annot._antialiased
+
+    annot2 = Annotation("foo\nbar", (.5, .5), antialiased=False)
+    assert annot2._antialiased is False
+    assert annot2.get_antialiased() == annot2._antialiased
+
+    annot3 = Annotation("foo\nbar", (.5, .5), antialiased=False)
+    annot3.set_antialiased(True)
+    assert annot3.get_antialiased() is True
+    assert annot3._antialiased is True
+
+    annot4 = Annotation("foo\nbar", (.5, .5))
+    assert annot4._antialiased == mpl.rcParams['text.antialiased']
+
+
+@check_figures_equal(extensions=["png"])
+def test_annotate_and_offsetfrom_copy_input(fig_test, fig_ref):
+    # Both approaches place the text (10, 0) pixels away from the center of the line.
+    ax = fig_test.add_subplot()
+    l, = ax.plot([0, 2], [0, 2])
+    of_xy = np.array([.5, .5])
+    ax.annotate("foo", textcoords=OffsetFrom(l, of_xy), xytext=(10, 0),
+                xy=(0, 0))  # xy is unused.
+    of_xy[:] = 1
+    ax = fig_ref.add_subplot()
+    l, = ax.plot([0, 2], [0, 2])
+    an_xy = np.array([.5, .5])
+    ax.annotate("foo", xy=an_xy, xycoords=l, xytext=(10, 0), textcoords="offset points")
+    an_xy[:] = 2

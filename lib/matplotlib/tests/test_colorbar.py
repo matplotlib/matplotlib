@@ -15,7 +15,7 @@ from matplotlib.colors import (
     BoundaryNorm, LogNorm, PowerNorm, Normalize, NoNorm
 )
 from matplotlib.colorbar import Colorbar
-from matplotlib.ticker import FixedLocator, LogFormatter
+from matplotlib.ticker import FixedLocator, LogFormatter, StrMethodFormatter
 from matplotlib.testing.decorators import check_figures_equal
 
 
@@ -279,13 +279,16 @@ def test_colorbar_single_scatter():
     plt.colorbar(cs)
 
 
-@pytest.mark.parametrize('use_gridspec', [False, True],
-                         ids=['no gridspec', 'with gridspec'])
-def test_remove_from_figure(use_gridspec):
-    """
-    Test `remove` with the specified ``use_gridspec`` setting
-    """
-    fig, ax = plt.subplots()
+@pytest.mark.parametrize('use_gridspec', [True, False])
+@pytest.mark.parametrize('nested_gridspecs', [True, False])
+def test_remove_from_figure(nested_gridspecs, use_gridspec):
+    """Test `remove` with the specified ``use_gridspec`` setting."""
+    fig = plt.figure()
+    if nested_gridspecs:
+        gs = fig.add_gridspec(2, 2)[1, 1].subgridspec(2, 2)
+        ax = fig.add_subplot(gs[1, 1])
+    else:
+        ax = fig.add_subplot()
     sc = ax.scatter([1, 2], [3, 4])
     sc.set_array(np.array([5, 6]))
     pre_position = ax.get_position()
@@ -298,9 +301,7 @@ def test_remove_from_figure(use_gridspec):
 
 
 def test_remove_from_figure_cl():
-    """
-    Test `remove` with constrained_layout
-    """
+    """Test `remove` with constrained_layout."""
     fig, ax = plt.subplots(constrained_layout=True)
     sc = ax.scatter([1, 2], [3, 4])
     sc.set_array(np.array([5, 6]))
@@ -551,10 +552,10 @@ def test_colorbar_lognorm_extension(extend):
 
 def test_colorbar_powernorm_extension():
     # Test that colorbar with powernorm is extended correctly
-    f, ax = plt.subplots()
-    cb = Colorbar(ax, norm=PowerNorm(gamma=0.5, vmin=0.0, vmax=1.0),
-                  orientation='vertical', extend='both')
-    assert cb._values[0] >= 0.0
+    # Just a smoke test that adding the colorbar doesn't raise an error or warning
+    fig, ax = plt.subplots()
+    Colorbar(ax, norm=PowerNorm(gamma=0.5, vmin=0.0, vmax=1.0),
+             orientation='vertical', extend='both')
 
 
 def test_colorbar_axes_kw():
@@ -1217,3 +1218,23 @@ def test_colorbar_axes_parmeters():
     fig.colorbar(im, ax=(ax[0], ax[1]))
     fig.colorbar(im, ax={i: _ax for i, _ax in enumerate(ax)}.values())
     fig.draw_without_rendering()
+
+
+def test_colorbar_wrong_figure():
+    # If we decide in the future to disallow calling colorbar() on the "wrong" figure,
+    # just delete this test.
+    fig_tl = plt.figure(layout="tight")
+    fig_cl = plt.figure(layout="constrained")
+    im = fig_cl.add_subplot().imshow([[0, 1]])
+    # Make sure this doesn't try to setup a gridspec-controlled colorbar on fig_cl,
+    # which would crash CL.
+    with pytest.warns(UserWarning, match="different Figure"):
+        fig_tl.colorbar(im)
+    fig_tl.draw_without_rendering()
+    fig_cl.draw_without_rendering()
+
+
+def test_colorbar_format_string_and_old():
+    plt.imshow([[0, 1]])
+    cb = plt.colorbar(format="{x}%")
+    assert isinstance(cb._formatter, StrMethodFormatter)

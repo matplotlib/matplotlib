@@ -14,7 +14,7 @@ Matplotlib also has "subfigures", accessed by calling
 that subfigures can also have their own child subfigures.
 
 .. note::
-    ``subfigure`` is new in v3.4, and the API is still provisional.
+    The *subfigure* concept is new in v3.4, and the API is still provisional.
 
 """
 import matplotlib.pyplot as plt
@@ -69,7 +69,7 @@ gridspec = axs[0, 0].get_subplotspec().get_gridspec()
 for a in axs[:, 0]:
     a.remove()
 
-# plot data in remaining axes:
+# plot data in remaining Axes:
 for a in axs[:, 1:].flat:
     a.plot(np.arange(10))
 

@@ -1,9 +1,7 @@
 import matplotlib.artist as martist
 import matplotlib.collections as mcollections
-from matplotlib import cbook
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
-from matplotlib.patches import CirclePolygon
 from matplotlib.text import Text
 from matplotlib.transforms import Transform, Bbox
 
@@ -127,8 +125,6 @@ class Quiver(mcollections.PolyCollection):
     def set_UVC(
         self, U: ArrayLike, V: ArrayLike, C: ArrayLike | None = ...
     ) -> None: ...
-    @property
-    def quiver_doc(self) -> str: ...
 
 class Barbs(mcollections.PolyCollection):
     sizes: dict[str, float]
@@ -185,5 +181,3 @@ class Barbs(mcollections.PolyCollection):
         self, U: ArrayLike, V: ArrayLike, C: ArrayLike | None = ...
     ) -> None: ...
     def set_offsets(self, xy: ArrayLike) -> None: ...
-    @property
-    def barbs_doc(self) -> str: ...

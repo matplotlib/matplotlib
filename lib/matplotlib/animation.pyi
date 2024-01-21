@@ -2,13 +2,6 @@ import abc
 from collections.abc import Callable, Collection, Iterable, Sequence, Generator
 import contextlib
 from pathlib import Path
-from matplotlib import cbook
-from matplotlib._animation_data import (
-    DISPLAY_TEMPLATE,
-    INCLUDED_FRAMES,
-    JS_INCLUDE,
-    STYLE_INCLUDE,
-)
 from matplotlib.artist import Artist
 from matplotlib.backend_bases import TimerBase
 from matplotlib.figure import Figure
@@ -48,7 +41,7 @@ class AbstractMovieWriter(abc.ABC, metaclass=abc.ABCMeta):
     dpi: float
 
     @abc.abstractmethod
-    def setup(self, fig: Figure, outfile: str | Path, dpi: float | None = ...): ...
+    def setup(self, fig: Figure, outfile: str | Path, dpi: float | None = ...) -> None: ...
     @property
     def frame_size(self) -> tuple[int, int]: ...
     @abc.abstractmethod
@@ -72,7 +65,7 @@ class MovieWriter(AbstractMovieWriter):
         extra_args: list[str] | None = ...,
         metadata: dict[str, str] | None = ...,
     ) -> None: ...
-    def setup(self, fig: Figure, outfile: str | Path, dpi: float | None = ...): ...
+    def setup(self, fig: Figure, outfile: str | Path, dpi: float | None = ...) -> None: ...
     def grab_frame(self, **savefig_kwargs) -> None: ...
     def finish(self) -> None: ...
     @classmethod
@@ -169,7 +162,7 @@ class Animation:
     def save(
         self,
         filename: str | Path,
-        writer: MovieWriter | str | None = ...,
+        writer: AbstractMovieWriter | str | None = ...,
         fps: int | None = ...,
         dpi: float | None = ...,
         codec: str | None = ...,
@@ -190,11 +183,11 @@ class Animation:
         embed_frames: bool = ...,
         default_mode: str | None = ...,
     ) -> str: ...
+    def _repr_html_(self) -> str: ...
     def pause(self) -> None: ...
     def resume(self) -> None: ...
 
 class TimedAnimation(Animation):
-    repeat: bool
     def __init__(
         self,
         fig: Figure,
@@ -210,7 +203,6 @@ class ArtistAnimation(TimedAnimation):
     def __init__(self, fig: Figure, artists: Sequence[Collection[Artist]], *args, **kwargs) -> None: ...
 
 class FuncAnimation(TimedAnimation):
-    save_count: int
     def __init__(
         self,
         fig: Figure,

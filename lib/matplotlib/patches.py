@@ -72,7 +72,7 @@ class Patch(artist.Artist):
             joinstyle = JoinStyle.miter
 
         self._hatch_color = colors.to_rgba(mpl.rcParams['hatch.color'])
-        self._fill = True  # needed for set_facecolor call
+        self._fill = bool(fill)  # needed for set_facecolor call
         if color is not None:
             if edgecolor is not None or facecolor is not None:
                 _api.warn_external(
@@ -87,7 +87,6 @@ class Patch(artist.Artist):
         self._unscaled_dash_pattern = (0, None)  # offset, dash
         self._dash_pattern = (0, None)  # offset, dash (scaled by linewidth)
 
-        self.set_fill(fill)
         self.set_linestyle(linestyle)
         self.set_linewidth(linewidth)
         self.set_antialiased(antialiased)
@@ -162,7 +161,7 @@ class Patch(artist.Artist):
         point : (float, float)
             The point (x, y) to check, in target coordinates of
             ``self.get_transform()``. These are display coordinates for patches
-            that are added to a figure or axes.
+            that are added to a figure or Axes.
         radius : float, optional
             Additional margin on the patch in target coordinates of
             ``self.get_transform()``. See `.Path.contains_point` for further
@@ -212,7 +211,7 @@ class Patch(artist.Artist):
         points : (N, 2) array
             The points to check, in target coordinates of
             ``self.get_transform()``. These are display coordinates for patches
-            that are added to a figure or axes. Columns contain x and y values.
+            that are added to a figure or Axes. Columns contain x and y values.
         radius : float, optional
             Additional margin on the patch in target coordinates of
             ``self.get_transform()``. See `.Path.contains_point` for further
@@ -333,7 +332,7 @@ class Patch(artist.Artist):
 
         Parameters
         ----------
-        color : color or None
+        color : color or None; see :ref:`colors_def`
         """
         self._original_edgecolor = color
         self._set_edgecolor(color)
@@ -351,7 +350,7 @@ class Patch(artist.Artist):
 
         Parameters
         ----------
-        color : color or None
+        color : color or None; see :ref:`colors_def`
         """
         self._original_facecolor = color
         self._set_facecolor(color)
@@ -622,7 +621,7 @@ class Shadow(Patch):
 
         Parameters
         ----------
-        patch : `.Patch`
+        patch : `~matplotlib.patches.Patch`
             The patch to create the shadow for.
         ox, oy : float
             The shift of the shadow in data coordinates, scaled by a factor
@@ -713,7 +712,7 @@ class Rectangle(Patch):
 
         Other Parameters
         ----------------
-        **kwargs : `.Patch` properties
+        **kwargs : `~matplotlib.patches.Patch` properties
             %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
@@ -880,8 +879,7 @@ class Rectangle(Patch):
 
     def get_bbox(self):
         """Return the `.Bbox`."""
-        x0, y0, x1, y1 = self._convert_units()
-        return transforms.Bbox.from_extents(x0, y0, x1, y1)
+        return transforms.Bbox.from_extents(*self._convert_units())
 
     xy = property(get_xy, set_xy)
 
@@ -996,9 +994,10 @@ class StepPatch(PathPatch):
             True or an array is passed to *baseline*, a closed
             path is drawn.
 
-        Other valid keyword arguments are:
+        **kwargs
+            `Patch` properties:
 
-        %(Patch:kwdoc)s
+            %(Patch:kwdoc)s
         """
         self.orientation = orientation
         self._edges = np.asarray(edges)
@@ -1114,7 +1113,7 @@ class Polygon(Patch):
         Parameters
         ----------
         closed : bool
-           True if the polygon is closed
+            True if the polygon is closed
         """
         if self._closed == bool(closed):
             return
@@ -1662,6 +1661,34 @@ class Ellipse(Patch):
         return self.get_patch_transform().transform(
             [(-1, -1), (1, -1), (1, 1), (-1, 1)])
 
+    def get_vertices(self):
+        """
+        Return the vertices coordinates of the ellipse.
+
+        The definition can be found `here <https://en.wikipedia.org/wiki/Ellipse>`_
+
+        .. versionadded:: 3.8
+        """
+        if self.width < self.height:
+            ret = self.get_patch_transform().transform([(0, 1), (0, -1)])
+        else:
+            ret = self.get_patch_transform().transform([(1, 0), (-1, 0)])
+        return [tuple(x) for x in ret]
+
+    def get_co_vertices(self):
+        """
+        Return the co-vertices coordinates of the ellipse.
+
+        The definition can be found `here <https://en.wikipedia.org/wiki/Ellipse>`_
+
+        .. versionadded:: 3.8
+        """
+        if self.width < self.height:
+            ret = self.get_patch_transform().transform([(1, 0), (-1, 0)])
+        else:
+            ret = self.get_patch_transform().transform([(0, 1), (0, -1)])
+        return [tuple(x) for x in ret]
+
 
 class Annulus(Patch):
     """
@@ -1936,7 +1963,7 @@ class Arc(Ellipse):
 
         Other Parameters
         ----------------
-        **kwargs : `.Patch` properties
+        **kwargs : `~matplotlib.patches.Patch` properties
             Most `.Patch` properties are supported as keyword arguments,
             except *fill* and *facecolor* because filling is not supported.
 
@@ -2058,7 +2085,7 @@ class Arc(Ellipse):
                 & (y0e - epsilon < ys) & (ys < y1e + epsilon)
             ]
 
-        # Transform the axes (or figure) box_path so that it is relative to
+        # Transform the Axes (or figure) box_path so that it is relative to
         # the unit circle in the same way that it is relative to the desired
         # ellipse.
         box_path_transform = (
@@ -2587,9 +2614,7 @@ class BoxStyle(_Style):
             # the sizes of the vertical and horizontal sawtooth are
             # separately adjusted to fit the given box size.
             dsx_n = round((width - tooth_size) / (tooth_size * 2)) * 2
-            dsx = (width - tooth_size) / dsx_n
             dsy_n = round((height - tooth_size) / (tooth_size * 2)) * 2
-            dsy = (height - tooth_size) / dsy_n
 
             x0, y0 = x0 - pad + hsz, y0 - pad + hsz
             x1, y1 = x0 + width, y0 + height
@@ -2682,12 +2707,6 @@ class ConnectionStyle(_Style):
         points. This base class defines a __call__ method, and a few
         helper methods.
         """
-
-        @_api.deprecated("3.7")
-        class SimpleEvent:
-            def __init__(self, xy):
-                self.x, self.y = xy
-
         def _in_patch(self, patch):
             """
             Return a predicate function testing whether a point *xy* is
@@ -3801,7 +3820,7 @@ class FancyBboxPatch(Patch):
         """
         Parameters
         ----------
-        xy : float, float
+        xy : (float, float)
           The lower left corner of the box.
 
         width : float
@@ -3810,7 +3829,7 @@ class FancyBboxPatch(Patch):
         height : float
             The height of the box.
 
-        boxstyle : str or `matplotlib.patches.BoxStyle`
+        boxstyle : str or `~matplotlib.patches.BoxStyle`
             The style of the fancy box. This can either be a `.BoxStyle`
             instance or a string of the style name and optionally comma
             separated attributes (e.g. "Round, pad=0.2"). This string is
@@ -3833,7 +3852,7 @@ class FancyBboxPatch(Patch):
 
         Other Parameters
         ----------------
-        **kwargs : `.Patch` properties
+        **kwargs : `~matplotlib.patches.Patch` properties
 
         %(Patch:kwdoc)s
         """
@@ -3859,7 +3878,7 @@ class FancyBboxPatch(Patch):
 
         Parameters
         ----------
-        boxstyle : str or `matplotlib.patches.BoxStyle`
+        boxstyle : str or `~matplotlib.patches.BoxStyle`
             The style of the box: either a `.BoxStyle` instance, or a string,
             which is the style name and optionally comma separated attributes
             (e.g. "Round,pad=0.2"). Such a string is used to construct a
@@ -4028,7 +4047,11 @@ class FancyBboxPatch(Patch):
 
 class FancyArrowPatch(Patch):
     """
-    A fancy arrow patch. It draws an arrow using the `ArrowStyle`.
+    A fancy arrow patch.
+
+    It draws an arrow using the `ArrowStyle`. It is primarily used by the
+    `~.axes.Axes.annotate` method.  For most purposes, use the annotate method for
+    drawing arrows.
 
     The head and tail positions are fixed at the specified start and end points
     of the arrow, but the size and shape (in display coordinates) of the arrow
@@ -4087,7 +4110,7 @@ default: 'arc3'
 
             %(ConnectionStyle:table)s
 
-        patchA, patchB : `.Patch`, default: None
+        patchA, patchB : `~matplotlib.patches.Patch`, default: None
             Head and tail patches, respectively.
 
         shrinkA, shrinkB : float, default: 2
@@ -4104,7 +4127,7 @@ default: 'arc3'
 
         Other Parameters
         ----------------
-        **kwargs : `.Patch` properties, optional
+        **kwargs : `~matplotlib.patches.Patch` properties, optional
             Here is a list of available `.Patch` properties:
 
         %(Patch:kwdoc)s
@@ -4194,7 +4217,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        connectionstyle : str or `matplotlib.patches.ConnectionStyle`
+        connectionstyle : str or `~matplotlib.patches.ConnectionStyle`
             The style of the connection: either a `.ConnectionStyle` instance,
             or a string, which is the style name and optionally comma separated
             attributes (e.g. "Arc,armA=30,rad=10"). Such a string is used to
@@ -4237,7 +4260,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        arrowstyle : str or `matplotlib.patches.ArrowStyle`
+        arrowstyle : str or `~matplotlib.patches.ArrowStyle`
             The style of the arrow: either a `.ArrowStyle` instance, or a
             string, which is the style name and optionally comma separated
             attributes (e.g. "Fancy,head_length=0.2"). Such a string is used to
@@ -4363,7 +4386,7 @@ default: 'arc3'
 
 
 class ConnectionPatch(FancyArrowPatch):
-    """A patch that connects two points (possibly in different axes)."""
+    """A patch that connects two points (possibly in different Axes)."""
 
     def __str__(self):
         return "ConnectionPatch((%g, %g), (%g, %g))" % \
@@ -4415,15 +4438,15 @@ class ConnectionPatch(FancyArrowPatch):
         'subfigure points'   points from the lower left corner of the subfigure
         'subfigure pixels'   pixels from the lower left corner of the subfigure
         'subfigure fraction' fraction of the subfigure, 0, 0 is lower left.
-        'axes points'        points from lower left corner of axes
-        'axes pixels'        pixels from lower left corner of axes
-        'axes fraction'      0, 0 is lower left of axes and 1, 1 is upper right
+        'axes points'        points from lower left corner of the Axes
+        'axes pixels'        pixels from lower left corner of the Axes
+        'axes fraction'      0, 0 is lower left of Axes and 1, 1 is upper right
         'data'               use the coordinate system of the object being
                              annotated (default)
         'offset points'      offset (in points) from the *xy* value
         'polar'              you can specify *theta*, *r* for the annotation,
                              even in cartesian plots.  Note that if you are
-                             using a polar axes, you do not need to specify
+                             using a polar Axes, you do not need to specify
                              polar for the coordinate system since that is the
                              native "data" coordinate system.
         ==================== ==================================================
@@ -4470,7 +4493,7 @@ class ConnectionPatch(FancyArrowPatch):
                          mutation_aspect=mutation_aspect,
                          clip_on=clip_on,
                          **kwargs)
-        # if True, draw annotation only if self.xy is inside the axes
+        # if True, draw annotation only if self.xy is inside the Axes
         self._annotation_clip = None
 
     def _get_xy(self, xy, s, axes=None):
@@ -4520,7 +4543,7 @@ class ConnectionPatch(FancyArrowPatch):
             y = bb.y0 + y if y >= 0 else bb.y1 + y
             return x, y
         elif s == 'axes pixels':
-            # pixels from the lower left corner of the axes
+            # pixels from the lower left corner of the Axes
             bb = axes.bbox
             x = bb.x0 + x if x >= 0 else bb.x1 + x
             y = bb.y0 + y if y >= 0 else bb.y1 + y
@@ -4538,10 +4561,10 @@ class ConnectionPatch(FancyArrowPatch):
         ----------
         b : bool or None
             - True: The annotation will be clipped when ``self.xy`` is
-              outside the axes.
+              outside the Axes.
             - False: The annotation will always be drawn.
             - None: The annotation will be clipped when ``self.xy`` is
-              outside the axes and ``self.xycoords == "data"``.
+              outside the Axes and ``self.xycoords == "data"``.
         """
         self._annotation_clip = b
         self.stale = True

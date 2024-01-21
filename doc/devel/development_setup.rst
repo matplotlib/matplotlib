@@ -25,11 +25,12 @@ Fork the Matplotlib repository
 ==============================
 
 Matplotlib is hosted at https://github.com/matplotlib/matplotlib.git. If you
-plan on solving issues or submit pull requests to the main Matplotlib
+plan on solving issues or submitting pull requests to the main Matplotlib
 repository, you should first *fork* this repository by visiting
 https://github.com/matplotlib/matplotlib.git and clicking on the
-``Fork`` button on the top right of the page (see
-`the GitHub documentation <https://docs.github.com/get-started/quickstart/fork-a-repo>`__ for more details.)
+``Fork`` :octicon:`repo-forked` button on the top right of the page. See
+`the GitHub documentation <https://docs.github.com/get-started/quickstart/fork-a-repo>`__
+for more details.
 
 Retrieve the latest version of the code
 =======================================
@@ -90,15 +91,16 @@ code, as described in :ref:`development-workflow`.
    For more information on ``git`` and ``GitHub``, see:
 
    * `Git documentation <https://git-scm.com/doc>`_
-   * `GitHub-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
+   * `GitHub-Contributing to a Project
+     <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
    * `GitHub Skills <https://skills.github.com/>`_
    * :ref:`using-git`
    * :ref:`git-resources`
    * `Installing git <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_
-   * `Managing remote repositories <https://docs.github.com/en/get-started/getting-started-with-git/managing-remote-repositories>`_
+   * `Managing remote repositories
+     <https://docs.github.com/en/get-started/getting-started-with-git/managing-remote-repositories>`_
    * https://tacaswell.github.io/think-like-git.html
    * https://tom.preston-werner.com/2009/05/19/the-git-parable.html
-
 
 .. _dev-environment:
 
@@ -127,9 +129,16 @@ The simplest way to do this is to use either Python's virtual environment
         <file folder location>\Scripts\activate.bat  # Windows cmd.exe
         <file folder location>\Scripts\Activate.ps1  # Windows PowerShell
 
+      On some systems, you may need to type ``python3`` instead of ``python``.
+      For a discussion of the technical reasons, see `PEP-394 <https://peps.python.org/pep-0394>`_.
+
+      Install the Python dependencies with ::
+
+        pip install -r requirements/dev/dev-requirements.txt
+
    .. tab-item:: conda environment
 
-      Create a new `conda`_ environment with ::
+      Create a new `conda`_ environment and install the Python dependencies with ::
 
         conda env create -f environment.yml
 
@@ -144,31 +153,98 @@ The simplest way to do this is to use either Python's virtual environment
 
 Remember to activate the environment whenever you start working on Matplotlib.
 
-Installing Matplotlib in editable mode
-======================================
-Install Matplotlib in editable mode from the :file:`matplotlib` directory
-using the command ::
+Install Dependencies
+====================
 
-    python -m pip install -ve .
+Most Python dependencies will be installed when :ref:`setting up the environment <dev-environment>`
+but non-Python dependencies like C++ compilers, LaTeX, and other system applications
+must be installed separately.
 
-The 'editable/develop mode', builds everything and places links in your Python
-environment so that Python will be able to import Matplotlib from your
-development source directory.  This allows you to import your modified version
-of Matplotlib without re-installing after every change. Note that this is only
-true for ``*.py`` files.  If you change the C-extension source (which might
-also happen if you change branches) you will have to re-run
-``python -m pip install -ve .``
+.. toctree::
+  :maxdepth: 2
 
-Install pre-commit hooks (optional)
+  ../users/installing/dependencies
+
+
+.. _development-install:
+
+Install Matplotlib in editable mode
 ===================================
-`pre-commit <https://pre-commit.com/>`_ hooks automatically check flake8 and
-other style issues when you run ``git commit``. The hooks are defined in the
-top level ``.pre-commit-config.yaml`` file. To install the hooks ::
+
+Install Matplotlib in editable mode from the :file:`matplotlib` directory using the
+command ::
+
+    python -m pip install --verbose --no-build-isolation --editable ".[dev]"
+
+The 'editable/develop mode' builds everything and places links in your Python environment
+so that Python will be able to import Matplotlib from your development source directory.
+This allows you to import your modified version of Matplotlib without having to
+re-install after changing a ``.py`` or compiled extension file.
+
+When working on a branch that does not have Meson enabled, meaning it does not
+have :ghpull:`26621` in its history (log), you will have to reinstall from source
+each time you change any compiled extension code.
+
+If the installation is not working, please consult the :ref:`troubleshooting guide <troubleshooting-faq>`.
+If the guide does not offer a solution, please reach out via `chat <https://gitter.im/matplotlib/matplotlib>`_
+or :ref:`open an issue <submitting-a-bug-report>`.
+
+
+Build options
+-------------
+If you are working heavily with files that need to be compiled, you may want to
+inspect the compilation log. This can be enabled by setting the environment
+variable :envvar:`MESONPY_EDITABLE_VERBOSE` or by setting the ``editable-verbose``
+config during installation ::
+
+   python -m pip install --no-build-isolation --config-settings=editable-verbose=true --editable .
+
+For more information on installation and other configuration options, see the
+Meson Python :external+meson-python:ref:`editable installs guide <how-to-guides-editable-installs>`.
+
+For a list of the other environment variables you can set before install, see :ref:`environment-variables`.
+
+
+Verify the Installation
+=======================
+
+Run the following command to make sure you have correctly installed Matplotlib in
+editable mode. The command should be run when the virtual environment is activated::
+
+    python -c "import matplotlib; print(matplotlib.__file__)"
+
+This command should return : ``<matplotlib_local_repo>\lib\matplotlib\__init__.py``
+
+We encourage you to run tests and build docs to verify that the code installed correctly
+and that the docs build cleanly, so that when you make code or document related changes
+you are aware of the existing issues beforehand.
+
+* Run test cases to verify installation :ref:`testing`
+* Verify documentation build :ref:`documenting-matplotlib`
+
+.. _pre-commit-hooks:
+
+Install pre-commit hooks
+========================
+`pre-commit <https://pre-commit.com/>`_ hooks save time in the review process by
+identifying issues with the code before a pull request is formally opened. Most
+hooks can also aide in fixing the errors, and the checks should have
+corresponding :ref:`development workflow <development-workflow>` and
+:ref:`pull request <pr-guidelines>` guidelines. Hooks are configured in
+`.pre-commit-config.yaml <https://github.com/matplotlib/matplotlib/blob/main/.pre-commit-config.yaml?>`_
+and include checks for spelling and formatting, flake 8 conformity, accidentally
+committed files, import order, and incorrect branching.
+
+Install pre-commit hooks ::
 
     python -m pip install pre-commit
     pre-commit install
 
-The hooks can also be run manually. All the hooks can be run, in order as
+Hooks are run automatically after the ``git commit`` stage of the
+:ref:`editing workflow<edit-flow>`. When a hook has found and fixed an error in a
+file, that file must be *staged and committed* again.
+
+Hooks can also be run manually. All the hooks can be run, in order as
 listed in ``.pre-commit-config.yaml``, against the full codebase with ::
 
     pre-commit run --all-files

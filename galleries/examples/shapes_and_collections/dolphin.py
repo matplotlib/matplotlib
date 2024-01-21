@@ -33,7 +33,7 @@ ax.add_patch(circle)
 im = plt.imshow(np.random.random((100, 100)),
                 origin='lower', cmap=cm.winter,
                 interpolation='spline36',
-                extent=([-1, 1, -1, 1]))
+                extent=(-1, 1, -1, 1))
 im.set_clip_path(circle)
 
 plt.plot(x, y, 'o', color=(0.9, 0.9, 1.0), alpha=0.8)

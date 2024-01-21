@@ -20,9 +20,9 @@ pts[[3, 14]] += .8
 # into two portions - use the top (ax1) for the outliers, and the bottom
 # (ax2) for the details of the majority of our data
 fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
-fig.subplots_adjust(hspace=0.05)  # adjust space between axes
+fig.subplots_adjust(hspace=0.05)  # adjust space between Axes
 
-# plot the same data on both axes
+# plot the same data on both Axes
 ax1.plot(pts)
 ax2.plot(pts)
 
@@ -39,9 +39,9 @@ ax2.xaxis.tick_bottom()
 
 # Now, let's turn towards the cut-out slanted lines.
 # We create line objects in axes coordinates, in which (0,0), (0,1),
-# (1,0), and (1,1) are the four corners of the axes.
+# (1,0), and (1,1) are the four corners of the Axes.
 # The slanted lines themselves are markers at those locations, such that the
-# lines keep their angle and position, independent of the axes size or scale
+# lines keep their angle and position, independent of the Axes size or scale
 # Finally, we need to disable clipping.
 
 d = .5  # proportion of vertical to horizontal extent of the slanted line

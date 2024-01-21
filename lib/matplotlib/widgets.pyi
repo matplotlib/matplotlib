@@ -1,15 +1,13 @@
-from . import backend_tools, cbook, colors, ticker, transforms
 from .artist import Artist
 from .axes import Axes
 from .backend_bases import FigureCanvasBase, Event, MouseEvent, MouseButton
 from .collections import LineCollection
 from .figure import Figure
 from .lines import Line2D
-from .patches import Circle, Ellipse, Polygon, Rectangle
+from .patches import Circle, Polygon, Rectangle
 from .text import Text
-from .transforms import Affine2D, TransformedPatchPath
 
-import PIL
+import PIL.Image
 
 from collections.abc import Callable, Collection, Iterable, Sequence
 from typing import Any, Literal
@@ -54,7 +52,7 @@ class Button(AxesWidget):
         *,
         useblit: bool = ...
     ) -> None: ...
-    def on_clicked(self, func: Callable[[Event], Any]): ...
+    def on_clicked(self, func: Callable[[Event], Any]) -> int: ...
     def disconnect(self, cid: int) -> None: ...
 
 class SliderBase(AxesWidget):
@@ -98,6 +96,7 @@ class Slider(SliderBase):
         label: str,
         valmin: float,
         valmax: float,
+        *,
         valinit: float = ...,
         valfmt: str | None = ...,
         closedmin: bool = ...,
@@ -107,7 +106,6 @@ class Slider(SliderBase):
         dragging: bool = ...,
         valstep: float | ArrayLike | None = ...,
         orientation: Literal["horizontal", "vertical"] = ...,
-        *,
         initcolor: ColorType = ...,
         track_color: ColorType = ...,
         handle_style: dict[str, Any] | None = ...,
@@ -129,6 +127,7 @@ class RangeSlider(SliderBase):
         label: str,
         valmin: float,
         valmax: float,
+        *,
         valinit: tuple[float, float] | None = ...,
         valfmt: str | None = ...,
         closedmin: bool = ...,
@@ -161,14 +160,12 @@ class CheckButtons(AxesWidget):
     def set_label_props(self, props: dict[str, Any]) -> None: ...
     def set_frame_props(self, props: dict[str, Any]) -> None: ...
     def set_check_props(self, props: dict[str, Any]) -> None: ...
-    def set_active(self, index: int) -> None: ...
+    def set_active(self, index: int, state: bool | None = ...) -> None: ...  # type: ignore[override]
+    def clear(self) -> None: ...
     def get_status(self) -> list[bool]: ...
-    def on_clicked(self, func: Callable[[str], Any]) -> int: ...
+    def get_checked_labels(self) -> list[str]: ...
+    def on_clicked(self, func: Callable[[str | None], Any]) -> int: ...
     def disconnect(self, cid: int) -> None: ...
-    @property
-    def lines(self) -> list[tuple[Line2D, Line2D]]: ...
-    @property
-    def rectangles(self) -> list[Rectangle]: ...
 
 class TextBox(AxesWidget):
     label: Text
@@ -183,6 +180,7 @@ class TextBox(AxesWidget):
         ax: Axes,
         label: str,
         initial: str = ...,
+        *,
         color: ColorType = ...,
         hovercolor: ColorType = ...,
         label_pad: float = ...,
@@ -191,7 +189,7 @@ class TextBox(AxesWidget):
     @property
     def text(self) -> str: ...
     def set_val(self, val: str) -> None: ...
-    def begin_typing(self, x = ...) -> None: ...
+    def begin_typing(self) -> None: ...
     def stop_typing(self) -> None: ...
     def on_text_change(self, func: Callable[[str], Any]) -> int: ...
     def on_submit(self, func: Callable[[str], Any]) -> int: ...
@@ -215,10 +213,9 @@ class RadioButtons(AxesWidget):
     def set_label_props(self, props: dict[str, Any]) -> None: ...
     def set_radio_props(self, props: dict[str, Any]) -> None: ...
     def set_active(self, index: int) -> None: ...
-    def on_clicked(self, func: Callable[[str], Any]) -> int: ...
+    def clear(self) -> None: ...
+    def on_clicked(self, func: Callable[[str | None], Any]) -> int: ...
     def disconnect(self, cid: int) -> None: ...
-    @property
-    def circles(self) -> list[Circle]: ...
 
 class SubplotTool(Widget):
     figure: Figure
@@ -238,6 +235,7 @@ class Cursor(AxesWidget):
     def __init__(
         self,
         ax: Axes,
+        *,
         horizOn: bool = ...,
         vertOn: bool = ...,
         useblit: bool = ...,
@@ -252,7 +250,6 @@ class MultiCursor(Widget):
     vertOn: bool
     visible: bool
     useblit: bool
-    needclear: bool
     vlines: list[Line2D]
     hlines: list[Line2D]
     def __init__(
@@ -319,6 +316,7 @@ class SpanSelector(_SelectorWidget):
         ax: Axes,
         onselect: Callable[[float, float], Any],
         direction: Literal["horizontal", "vertical"],
+        *,
         minspan: float = ...,
         useblit: bool = ...,
         props: dict[str, Any] | None = ...,
@@ -350,6 +348,7 @@ class ToolLineHandles:
         ax: Axes,
         positions: ArrayLike,
         direction: Literal["horizontal", "vertical"],
+        *,
         line_props: dict[str, Any] | None = ...,
         useblit: bool = ...,
     ) -> None: ...
@@ -372,6 +371,7 @@ class ToolHandles:
         ax: Axes,
         x: ArrayLike,
         y: ArrayLike,
+        *,
         marker: str = ...,
         marker_props: dict[str, Any] | None = ...,
         useblit: bool = ...,
@@ -438,6 +438,7 @@ class LassoSelector(_SelectorWidget):
         self,
         ax: Axes,
         onselect: Callable[[list[tuple[float, float]]], Any],
+        *,
         useblit: bool = ...,
         props: dict[str, Any] | None = ...,
         button: MouseButton | Collection[MouseButton] | None = ...,
@@ -449,11 +450,11 @@ class PolygonSelector(_SelectorWidget):
         self,
         ax: Axes,
         onselect: Callable[[ArrayLike, ArrayLike], Any],
+        *,
         useblit: bool = ...,
         props: dict[str, Any] | None = ...,
         handle_props: dict[str, Any] | None = ...,
         grab_range: float = ...,
-        *,
         draw_bounding_box: bool = ...,
         box_handle_props: dict[str, Any] | None = ...,
         box_props: dict[str, Any] | None = ...
@@ -475,6 +476,7 @@ class Lasso(AxesWidget):
         ax: Axes,
         xy: tuple[float, float],
         callback: Callable[[list[tuple[float, float]]], Any],
+        *,
         useblit: bool = ...,
     ) -> None: ...
     def onrelease(self, event: Event) -> None: ...

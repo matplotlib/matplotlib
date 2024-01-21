@@ -1,0 +1,9 @@
+[wrap-file]
+# Also bump the cache key in `.circleci/config.yml`.
+# Also update the docs in `docs/devel/dependencies.rst`.
+directory = qhull-8.0.2
+source_url = https://github.com/qhull/qhull/archive/v8.0.2/qhull-8.0.2.tar.gz
+source_filename = qhull-8.0.2.tgz
+source_hash = 8774e9a12c70b0180b95d6b0b563c5aa4bea8d5960c15e18ae3b6d2521d64f8b
+
+patch_directory = qhull-8.0.2

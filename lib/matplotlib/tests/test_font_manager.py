@@ -25,11 +25,11 @@ def test_font_priority():
     with rc_context(rc={
             'font.sans-serif':
             ['cmmi10', 'Bitstream Vera Sans']}):
-        font = findfont(FontProperties(family=["sans-serif"]))
-    assert Path(font).name == 'cmmi10.ttf'
+        fontfile = findfont(FontProperties(family=["sans-serif"]))
+    assert Path(fontfile).name == 'cmmi10.ttf'
 
     # Smoketest get_charmap, which isn't used internally anymore
-    font = get_font(font)
+    font = get_font(fontfile)
     cmap = font.get_charmap()
     assert len(cmap) == 131
     assert cmap[8729] == 30
@@ -46,12 +46,11 @@ def test_score_weight():
             fontManager.score_weight(400, 400))
 
 
-def test_json_serialization(tmpdir):
+def test_json_serialization(tmp_path):
     # Can't open a NamedTemporaryFile twice on Windows, so use a temporary
     # directory instead.
-    path = Path(tmpdir, "fontlist.json")
-    json_dump(fontManager, path)
-    copy = json_load(path)
+    json_dump(fontManager, tmp_path / "fontlist.json")
+    copy = json_load(tmp_path / "fontlist.json")
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore', 'findfont: Font family.*not found')
         for prop in ({'family': 'STIXGeneral'},
@@ -133,8 +132,7 @@ def test_find_noto():
         fig.savefig(BytesIO(), format=fmt)
 
 
-def test_find_invalid(tmpdir):
-    tmp_path = Path(tmpdir)
+def test_find_invalid(tmp_path):
 
     with pytest.raises(FileNotFoundError):
         get_font(tmp_path / 'non-existent-font-name.ttf')
@@ -148,7 +146,7 @@ def test_find_invalid(tmpdir):
     # Not really public, but get_font doesn't expose non-filename constructor.
     from matplotlib.ft2font import FT2Font
     with pytest.raises(TypeError, match='font file or a binary-mode file'):
-        FT2Font(StringIO())
+        FT2Font(StringIO())  # type: ignore[arg-type]
 
 
 @pytest.mark.skipif(sys.platform != 'linux' or not has_fclist,

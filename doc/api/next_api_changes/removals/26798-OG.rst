@@ -1,0 +1,9 @@
+``unit_cube``, ``tunit_cube``, and ``tunit_edges``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... of `.Axes3D` are removed without replacements.
+
+``axes3d.vvec``, ``axes3d.eye``, ``axes3d.sx``, and ``axes3d.sy``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... are removed without replacement.

@@ -32,17 +32,12 @@ __all__ = [
 import os
 from pathlib import Path
 
-from . import cbook, rcsetup
-from collections.abc import Callable, Generator, MutableMapping
+from collections.abc import Callable, Generator
 import contextlib
 from packaging.version import Version
 
 from matplotlib._api import MatplotlibDeprecationWarning
-from matplotlib.cbook import sanitize_sequence
-from matplotlib.rcsetup import cycler, validate_backend
 from typing import Any, NamedTuple
-
-__bibtex__: str
 
 class _VersionInfo(NamedTuple):
     major: int
@@ -51,9 +46,9 @@ class _VersionInfo(NamedTuple):
     releaselevel: str
     serial: int
 
-class __getattr__:
-    __version__: str
-    __version_info__: _VersionInfo
+__bibtex__: str
+__version__: str
+__version_info__: _VersionInfo
 
 def set_loglevel(level: str) -> None: ...
 
@@ -77,7 +72,7 @@ class RcParams(dict[str, Any]):
     def __getitem__(self, key: str) -> Any: ...
     def __iter__(self) -> Generator[str, None, None]: ...
     def __len__(self) -> int: ...
-    def find_all(self, pattern: str): ...
+    def find_all(self, pattern: str) -> RcParams: ...
     def copy(self) -> RcParams: ...
 
 def rc_params(fail_on_error: bool = ...) -> RcParams: ...
@@ -101,7 +96,7 @@ def rc_file(
 @contextlib.contextmanager
 def rc_context(
     rc: dict[str, Any] | None = ..., fname: str | Path | os.PathLike | None = ...
-): ...
+) -> Generator[None, None, None]: ...
 def use(backend: str, *, force: bool = ...) -> None: ...
 def get_backend() -> str: ...
 def interactive(b: bool) -> None: ...

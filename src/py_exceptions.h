@@ -6,8 +6,8 @@
 #include <exception>
 #include <stdexcept>
 
-namespace py
-{
+namespace mpl {
+
 class exception : public std::exception
 {
   public:
@@ -23,7 +23,7 @@ class exception : public std::exception
     {                                                                        \
         a;                                                                   \
     }                                                                        \
-    catch (const py::exception &)                                            \
+    catch (const mpl::exception &)                                           \
     {                                                                        \
         {                                                                    \
             cleanup;                                                         \

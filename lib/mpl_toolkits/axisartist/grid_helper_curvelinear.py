@@ -3,11 +3,11 @@ An experimental support for curvilinear grid.
 """
 
 import functools
-from itertools import chain
 
 import numpy as np
 
 import matplotlib as mpl
+from matplotlib import _api
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D, IdentityTransform
 from .axislines import (
@@ -75,10 +75,18 @@ class FixedAxisArtistHelper(_FixedAxisArtistHelperBase):
                     "top": "bottom", "bottom": "top"}[self.side]
         else:
             side = self.side
-        g = self.grid_helper
-        ti1 = g.get_tick_iterator(self.nth_coord_ticks, side)
-        ti2 = g.get_tick_iterator(1-self.nth_coord_ticks, side, minor=True)
-        return chain(ti1, ti2), iter([])
+
+        angle_tangent = dict(left=90, right=90, bottom=0, top=0)[side]
+
+        def iter_major():
+            for nth_coord, show_labels in [
+                    (self.nth_coord_ticks, True), (1 - self.nth_coord_ticks, False)]:
+                gi = self.grid_helper._grid_info[["lon", "lat"][nth_coord]]
+                for tick in gi["ticks"][side]:
+                    yield (*tick["loc"], angle_tangent,
+                           (tick["label"] if show_labels else ""))
+
+        return iter_major(), iter([])
 
 
 class FloatingAxisArtistHelper(_FloatingAxisArtistHelperBase):
@@ -137,10 +145,10 @@ class FloatingAxisArtistHelper(_FloatingAxisArtistHelperBase):
             "extremes": (lon_min, lon_max, lat_min, lat_max),
             "lon_info": (lon_levs, lon_n, np.asarray(lon_factor)),
             "lat_info": (lat_levs, lat_n, np.asarray(lat_factor)),
-            "lon_labels": grid_finder.tick_formatter1(
-                "bottom", lon_factor, lon_levs),
-            "lat_labels": grid_finder.tick_formatter2(
-                "bottom", lat_factor, lat_levs),
+            "lon_labels": grid_finder._format_ticks(
+                1, "bottom", lon_factor, lon_levs),
+            "lat_labels": grid_finder._format_ticks(
+                2, "bottom", lat_factor, lat_levs),
             "line_xy": (xx, yy),
         }
 
@@ -210,14 +218,14 @@ class FloatingAxisArtistHelper(_FloatingAxisArtistHelperBase):
         in_01 = functools.partial(
             mpl.transforms._interval_contains_close, (0, 1))
 
-        def f1():
+        def iter_major():
             for x, y, normal, tangent, lab \
                     in zip(xx1, yy1, angle_normal, angle_tangent, labels):
                 c2 = tick_to_axes.transform((x, y))
                 if in_01(c2[0]) and in_01(c2[1]):
                     yield [x, y], *np.rad2deg([normal, tangent]), lab
 
-        return f1(), iter([])
+        return iter_major(), iter([])
 
     def get_line_transform(self, axes):
         return axes.transData
@@ -270,11 +278,9 @@ class GridHelperCurveLinear(GridHelperBase):
         self.grid_finder.update(**kwargs)
         self._old_limits = None  # Force revalidation.
 
-    def new_fixed_axis(self, loc,
-                       nth_coord=None,
-                       axis_direction=None,
-                       offset=None,
-                       axes=None):
+    @_api.make_keyword_only("3.9", "nth_coord")
+    def new_fixed_axis(
+            self, loc, nth_coord=None, axis_direction=None, offset=None, axes=None):
         if axes is None:
             axes = self.axes
         if axis_direction is None:
@@ -285,11 +291,7 @@ class GridHelperCurveLinear(GridHelperBase):
         # the floating_axig.GridHelperCurveLinear subclass?
         return axisline
 
-    def new_floating_axis(self, nth_coord,
-                          value,
-                          axes=None,
-                          axis_direction="bottom"
-                          ):
+    def new_floating_axis(self, nth_coord, value, axes=None, axis_direction="bottom"):
         if axes is None:
             axes = self.axes
         helper = FloatingAxisArtistHelper(
@@ -314,23 +316,13 @@ class GridHelperCurveLinear(GridHelperBase):
                 grid_lines.extend(gl)
         return grid_lines
 
+    @_api.deprecated("3.9")
     def get_tick_iterator(self, nth_coord, axis_side, minor=False):
-
-        # axisnr = dict(left=0, bottom=1, right=2, top=3)[axis_side]
         angle_tangent = dict(left=90, right=90, bottom=0, top=0)[axis_side]
-        # angle = [0, 90, 180, 270][axisnr]
         lon_or_lat = ["lon", "lat"][nth_coord]
         if not minor:  # major ticks
-            for (xy, a), l in zip(
-                    self._grid_info[lon_or_lat]["tick_locs"][axis_side],
-                    self._grid_info[lon_or_lat]["tick_labels"][axis_side]):
-                angle_normal = a
-                yield xy, angle_normal, angle_tangent, l
+            for tick in self._grid_info[lon_or_lat]["ticks"][axis_side]:
+                yield *tick["loc"], angle_tangent, tick["label"]
         else:
-            for (xy, a), l in zip(
-                    self._grid_info[lon_or_lat]["tick_locs"][axis_side],
-                    self._grid_info[lon_or_lat]["tick_labels"][axis_side]):
-                angle_normal = a
-                yield xy, angle_normal, angle_tangent, ""
-            # for xy, a, l in self._grid_info[lon_or_lat]["ticks"][axis_side]:
-            #     yield xy, a, ""
+            for tick in self._grid_info[lon_or_lat]["ticks"][axis_side]:
+                yield *tick["loc"], angle_tangent, ""

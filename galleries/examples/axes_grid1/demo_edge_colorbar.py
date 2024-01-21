@@ -44,7 +44,7 @@ def demo_bottom_cbar(fig):
     for cax in grid.cbar_axes:
         cax.axis[cax.orientation].set_label("Bar")
 
-    # This affects all axes as share_all = True.
+    # This affects all Axes as share_all = True.
     grid.axes_llc.set_xticks([-2, 0, 2])
     grid.axes_llc.set_yticks([-2, 0, 2])
 
@@ -73,7 +73,7 @@ def demo_right_cbar(fig):
     for cax in grid.cbar_axes:
         cax.axis[cax.orientation].set_label('Foo')
 
-    # This affects all axes because we set share_all = True.
+    # This affects all Axes because we set share_all = True.
     grid.axes_llc.set_xticks([-2, 0, 2])
     grid.axes_llc.set_yticks([-2, 0, 2])
 

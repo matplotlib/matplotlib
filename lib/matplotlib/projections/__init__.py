@@ -14,9 +14,9 @@ following elements:
   has a facility to help with doing so.
 
 - Setting up default values (overriding `~.axes.Axes.cla`), since the defaults
-  for a rectilinear axes may not be appropriate.
+  for a rectilinear Axes may not be appropriate.
 
-- Defining the shape of the axes, for example, an elliptical axes, that will be
+- Defining the shape of the Axes, for example, an elliptical Axes, that will be
   used to draw the background of the plot and for clipping any data elements.
 
 - Defining custom locators and formatters for the projection.  For example, in
@@ -29,9 +29,9 @@ following elements:
 
 - Any additional methods for additional convenience or features.
 
-Once the projection axes is defined, it can be used in one of two ways:
+Once the projection Axes is defined, it can be used in one of two ways:
 
-- By defining the class attribute ``name``, the projection axes can be
+- By defining the class attribute ``name``, the projection Axes can be
   registered with `matplotlib.projections.register_projection` and subsequently
   simply invoked by name::
 
@@ -39,7 +39,7 @@ Once the projection axes is defined, it can be used in one of two ways:
 
 - For more complex, parameterisable projections, a generic "projection" object
   may be defined which includes the method ``_as_mpl_axes``. ``_as_mpl_axes``
-  should take no arguments and return the projection's axes subclass and a
+  should take no arguments and return the projection's Axes subclass and a
   dictionary of additional arguments to pass to the subclass' ``__init__``
   method.  Subsequently a parameterised projection can be initialised with::
 
@@ -55,7 +55,15 @@ A full-fledged and heavily annotated example is in
 from .. import axes, _docstring
 from .geo import AitoffAxes, HammerAxes, LambertAxes, MollweideAxes
 from .polar import PolarAxes
-from mpl_toolkits.mplot3d import Axes3D
+
+try:
+    from mpl_toolkits.mplot3d import Axes3D
+except Exception:
+    import warnings
+    warnings.warn("Unable to import Axes3D. This may be due to multiple versions of "
+                  "Matplotlib being installed (e.g. as a system package and as a pip "
+                  "package). As a result, the 3D projection is not available.")
+    Axes3D = None
 
 
 class ProjectionRegistry:
@@ -87,8 +95,12 @@ projection_registry.register(
     HammerAxes,
     LambertAxes,
     MollweideAxes,
-    Axes3D,
 )
+if Axes3D is not None:
+    projection_registry.register(Axes3D)
+else:
+    # remove from namespace if not importable
+    del Axes3D
 
 
 def register_projection(cls):

@@ -9,19 +9,18 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     TimerBase, cursors, ToolContainerBase, MouseButton,
-    CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
+    CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent,
+    _allow_interrupt)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from . import qt_compat
 from .qt_compat import (
-    QtCore, QtGui, QtWidgets, __version__, QT_API,
-    _enum, _to_int, _isdeleted, _maybe_allow_interrupt
-)
+    QtCore, QtGui, QtWidgets, __version__, QT_API, _to_int, _isdeleted)
 
 
 # SPECIAL_KEYS are Qt::Key that do *not* return their Unicode name
 # instead they have manually specified names.
 SPECIAL_KEYS = {
-    _to_int(getattr(_enum("QtCore.Qt.Key"), k)): v for k, v in [
+    _to_int(getattr(QtCore.Qt.Key, k)): v for k, v in [
         ("Key_Escape", "escape"),
         ("Key_Tab", "tab"),
         ("Key_Backspace", "backspace"),
@@ -41,7 +40,7 @@ SPECIAL_KEYS = {
         ("Key_PageUp", "pageup"),
         ("Key_PageDown", "pagedown"),
         ("Key_Shift", "shift"),
-        # In OSX, the control and super (aka cmd/apple) keys are switched.
+        # In macOS, the control and super (aka cmd/apple) keys are switched.
         ("Key_Control", "control" if sys.platform != "darwin" else "cmd"),
         ("Key_Meta", "meta" if sys.platform != "darwin" else "control"),
         ("Key_Alt", "alt"),
@@ -66,8 +65,8 @@ SPECIAL_KEYS = {
 # Elements are (Qt::KeyboardModifiers, Qt::Key) tuples.
 # Order determines the modifier order (ctrl+alt+...) reported by Matplotlib.
 _MODIFIER_KEYS = [
-    (_to_int(getattr(_enum("QtCore.Qt.KeyboardModifier"), mod)),
-     _to_int(getattr(_enum("QtCore.Qt.Key"), key)))
+    (_to_int(getattr(QtCore.Qt.KeyboardModifier, mod)),
+     _to_int(getattr(QtCore.Qt.Key, key)))
     for mod, key in [
         ("ControlModifier", "Key_Control"),
         ("AltModifier", "Key_Alt"),
@@ -76,7 +75,7 @@ _MODIFIER_KEYS = [
     ]
 ]
 cursord = {
-    k: getattr(_enum("QtCore.Qt.CursorShape"), v) for k, v in [
+    k: getattr(QtCore.Qt.CursorShape, v) for k, v in [
         (cursors.MOVE, "SizeAllCursor"),
         (cursors.HAND, "PointingHandCursor"),
         (cursors.POINTER, "ArrowCursor"),
@@ -106,8 +105,10 @@ def _create_qApp():
         # of Qt is not instantiated in the process
         if QT_API in {'PyQt6', 'PySide6'}:
             other_bindings = ('PyQt5', 'PySide2')
+            qt_version = 6
         elif QT_API in {'PyQt5', 'PySide2'}:
             other_bindings = ('PyQt6', 'PySide6')
+            qt_version = 5
         else:
             raise RuntimeError("Should never be here")
 
@@ -123,11 +124,11 @@ def _create_qApp():
                     'versions may not work as expected.'
                 )
                 break
-        try:
-            QtWidgets.QApplication.setAttribute(
-                QtCore.Qt.AA_EnableHighDpiScaling)
-        except AttributeError:  # Only for Qt>=5.6, <6.
-            pass
+        if qt_version == 5:
+            try:
+                QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+            except AttributeError:  # Only for Qt>=5.6, <6.
+                pass
         try:
             QtWidgets.QApplication.setHighDpiScaleFactorRoundingPolicy(
                 QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
@@ -138,15 +139,44 @@ def _create_qApp():
             image = str(cbook._get_data_path('images/matplotlib.svg'))
             icon = QtGui.QIcon(image)
             app.setWindowIcon(icon)
-        app.lastWindowClosed.connect(app.quit)
+        app.setQuitOnLastWindowClosed(True)
         cbook._setup_new_guiapp()
-
-    try:
-        app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)  # Only for Qt<6.
-    except AttributeError:
-        pass
+        if qt_version == 5:
+            app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
 
     return app
+
+
+def _allow_interrupt_qt(qapp_or_eventloop):
+    """A context manager that allows terminating a plot by sending a SIGINT."""
+
+    # Use QSocketNotifier to read the socketpair while the Qt event loop runs.
+
+    def prepare_notifier(rsock):
+        sn = QtCore.QSocketNotifier(rsock.fileno(), QtCore.QSocketNotifier.Type.Read)
+
+        @sn.activated.connect
+        def _may_clear_sock():
+            # Running a Python function on socket activation gives the interpreter a
+            # chance to handle the signal in Python land.  We also need to drain the
+            # socket with recv() to re-arm it, because it will be written to as part of
+            # the wakeup.  (We need this in case set_wakeup_fd catches a signal other
+            # than SIGINT and we shall continue waiting.)
+            try:
+                rsock.recv(1)
+            except BlockingIOError:
+                # This may occasionally fire too soon or more than once on Windows, so
+                # be forgiving about reading an empty socket.
+                pass
+
+        return sn  # Actually keep the notifier alive.
+
+    def handle_sigint():
+        if hasattr(qapp_or_eventloop, 'closeAllWindows'):
+            qapp_or_eventloop.closeAllWindows()
+        qapp_or_eventloop.quit()
+
+    return _allow_interrupt(prepare_notifier, handle_sigint)
 
 
 class TimerQT(TimerBase):
@@ -184,7 +214,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
     manager_class = _api.classproperty(lambda cls: FigureManagerQT)
 
     buttond = {
-        getattr(_enum("QtCore.Qt.MouseButton"), k): v for k, v in [
+        getattr(QtCore.Qt.MouseButton, k): v for k, v in [
             ("LeftButton", MouseButton.LEFT),
             ("RightButton", MouseButton.RIGHT),
             ("MiddleButton", MouseButton.MIDDLE),
@@ -202,8 +232,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         self._draw_rect_callback = lambda painter: None
         self._in_resize_event = False
 
-        self.setAttribute(
-            _enum("QtCore.Qt.WidgetAttribute").WA_OpaquePaintEvent)
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_OpaquePaintEvent)
         self.setMouseTracking(True)
         self.resize(*self.get_width_height())
 
@@ -263,6 +292,8 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         # Force querying of the modifiers, as the cached modifier state can
         # have been invalidated while the window was out of focus.
         mods = QtWidgets.QApplication.instance().queryKeyboardModifiers()
+        if self.figure is None:
+            return
         LocationEvent("figure_enter_event", self,
                       *self.mouseEventCoords(event),
                       modifiers=self._mpl_modifiers(mods),
@@ -270,6 +301,8 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def leaveEvent(self, event):
         QtWidgets.QApplication.restoreOverrideCursor()
+        if self.figure is None:
+            return
         LocationEvent("figure_leave_event", self,
                       *self.mouseEventCoords(),
                       modifiers=self._mpl_modifiers(),
@@ -277,7 +310,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def mousePressEvent(self, event):
         button = self.buttond.get(event.button())
-        if button is not None:
+        if button is not None and self.figure is not None:
             MouseEvent("button_press_event", self,
                        *self.mouseEventCoords(event), button,
                        modifiers=self._mpl_modifiers(),
@@ -285,13 +318,15 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def mouseDoubleClickEvent(self, event):
         button = self.buttond.get(event.button())
-        if button is not None:
+        if button is not None and self.figure is not None:
             MouseEvent("button_press_event", self,
                        *self.mouseEventCoords(event), button, dblclick=True,
                        modifiers=self._mpl_modifiers(),
                        guiEvent=event)._process()
 
     def mouseMoveEvent(self, event):
+        if self.figure is None:
+            return
         MouseEvent("motion_notify_event", self,
                    *self.mouseEventCoords(event),
                    modifiers=self._mpl_modifiers(),
@@ -299,7 +334,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def mouseReleaseEvent(self, event):
         button = self.buttond.get(event.button())
-        if button is not None:
+        if button is not None and self.figure is not None:
             MouseEvent("button_release_event", self,
                        *self.mouseEventCoords(event), button,
                        modifiers=self._mpl_modifiers(),
@@ -313,7 +348,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             steps = event.angleDelta().y() / 120
         else:
             steps = event.pixelDelta().y()
-        if steps:
+        if steps and self.figure is not None:
             MouseEvent("scroll_event", self,
                        *self.mouseEventCoords(event), step=steps,
                        modifiers=self._mpl_modifiers(),
@@ -321,20 +356,22 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def keyPressEvent(self, event):
         key = self._get_key(event)
-        if key is not None:
+        if key is not None and self.figure is not None:
             KeyEvent("key_press_event", self,
                      key, *self.mouseEventCoords(),
                      guiEvent=event)._process()
 
     def keyReleaseEvent(self, event):
         key = self._get_key(event)
-        if key is not None:
+        if key is not None and self.figure is not None:
             KeyEvent("key_release_event", self,
                      key, *self.mouseEventCoords(),
                      guiEvent=event)._process()
 
     def resizeEvent(self, event):
         if self._in_resize_event:  # Prevent PyQt6 recursion
+            return
+        if self.figure is None:
             return
         self._in_resize_event = True
         try:
@@ -411,7 +448,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         if timeout > 0:
             _ = QtCore.QTimer.singleShot(int(timeout * 1000), event_loop.quit)
 
-        with _maybe_allow_interrupt(event_loop):
+        with _allow_interrupt_qt(event_loop):
             qt_compat._exec(event_loop)
 
     def stop_event_loop(self, event=None):
@@ -522,9 +559,6 @@ class FigureManagerQT(FigureManagerBase):
     def __init__(self, canvas, num):
         self.window = MainWindow()
         super().__init__(canvas, num)
-        self.window.closing.connect(
-            # The lambda prevents the event from being immediately gc'd.
-            lambda: CloseEvent("close_event", self.canvas)._process())
         self.window.closing.connect(self._widgetclosed)
 
         if sys.platform != "darwin":
@@ -557,7 +591,7 @@ class FigureManagerQT(FigureManagerBase):
         # StrongFocus accepts both tab and click to focus and will enable the
         # canvas to process event without clicking.
         # https://doc.qt.io/qt-5/qt.html#FocusPolicy-enum
-        self.canvas.setFocusPolicy(_enum("QtCore.Qt.FocusPolicy").StrongFocus)
+        self.canvas.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
         self.canvas.setFocus()
 
         self.window.raise_()
@@ -569,6 +603,7 @@ class FigureManagerQT(FigureManagerBase):
             self.window.showFullScreen()
 
     def _widgetclosed(self):
+        CloseEvent("close_event", self.canvas)._process()
         if self.window._destroying:
             return
         self.window._destroying = True
@@ -594,10 +629,11 @@ class FigureManagerQT(FigureManagerBase):
     def start_main_loop(cls):
         qapp = QtWidgets.QApplication.instance()
         if qapp:
-            with _maybe_allow_interrupt(qapp):
+            with _allow_interrupt_qt(qapp):
                 qt_compat._exec(qapp)
 
     def show(self):
+        self.window._destroying = False
         self.window.show()
         if mpl.rcParams['figure.raise_window']:
             self.window.activateWindow()
@@ -636,9 +672,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         """coordinates: should we show the coordinates on the right?"""
         QtWidgets.QToolBar.__init__(self, parent)
         self.setAllowedAreas(QtCore.Qt.ToolBarArea(
-            _to_int(_enum("QtCore.Qt.ToolBarArea").TopToolBarArea) |
-            _to_int(_enum("QtCore.Qt.ToolBarArea").BottomToolBarArea)))
-
+            _to_int(QtCore.Qt.ToolBarArea.TopToolBarArea) |
+            _to_int(QtCore.Qt.ToolBarArea.BottomToolBarArea)))
         self.coordinates = coordinates
         self._actions = {}  # mapping of toolitem method names to QActions.
         self._subplot_dialog = None
@@ -647,8 +682,13 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             if text is None:
                 self.addSeparator()
             else:
+                slot = getattr(self, callback)
+                # https://bugreports.qt.io/browse/PYSIDE-2512
+                slot = functools.wraps(slot)(functools.partial(slot))
+                slot = QtCore.Slot()(slot)
+
                 a = self.addAction(self._icon(image_file + '.png'),
-                                   text, getattr(self, callback))
+                                   text, slot)
                 self._actions[callback] = a
                 if callback in ['zoom', 'pan']:
                     a.setCheckable(True)
@@ -661,11 +701,12 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         if self.coordinates:
             self.locLabel = QtWidgets.QLabel("", self)
             self.locLabel.setAlignment(QtCore.Qt.AlignmentFlag(
-                _to_int(_enum("QtCore.Qt.AlignmentFlag").AlignRight) |
-                _to_int(_enum("QtCore.Qt.AlignmentFlag").AlignVCenter)))
+                _to_int(QtCore.Qt.AlignmentFlag.AlignRight) |
+                _to_int(QtCore.Qt.AlignmentFlag.AlignVCenter)))
+
             self.locLabel.setSizePolicy(QtWidgets.QSizePolicy(
-                _enum("QtWidgets.QSizePolicy.Policy").Expanding,
-                _enum("QtWidgets.QSizePolicy.Policy").Ignored,
+                QtWidgets.QSizePolicy.Policy.Expanding,
+                QtWidgets.QSizePolicy.Policy.Ignored,
             ))
             labelAction = self.addWidget(self.locLabel)
             labelAction.setVisible(True)
@@ -691,7 +732,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             icon_color = self.palette().color(self.foregroundRole())
             mask = pm.createMaskFromColor(
                 QtGui.QColor('black'),
-                _enum("QtCore.Qt.MaskMode").MaskOutColor)
+                QtCore.Qt.MaskMode.MaskOutColor)
             pm.fill(icon_color)
             pm.setMask(mask)
         return QtGui.QIcon(pm)
@@ -700,7 +741,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         axes = self.canvas.figure.get_axes()
         if not axes:
             QtWidgets.QMessageBox.warning(
-                self.canvas.parent(), "Error", "There are no axes to edit.")
+                self.canvas.parent(), "Error", "There are no Axes to edit.")
             return
         elif len(axes) == 1:
             ax, = axes
@@ -720,7 +761,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                     titles[i] += f" (id: {id(ax):#x})"  # Deduplicate titles.
             item, ok = QtWidgets.QInputDialog.getItem(
                 self.canvas.parent(),
-                'Customize', 'Select axes:', titles, 0, False)
+                'Customize', 'Select Axes:', titles, 0, False)
             if not ok:
                 return
             ax = axes[titles.index(item)]
@@ -763,6 +804,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             self.canvas.mpl_connect(
                 "close_event", lambda e: self._subplot_dialog.reject())
         self._subplot_dialog.update_from_current_subplotpars()
+        self._subplot_dialog.setModal(True)
         self._subplot_dialog.show()
         return self._subplot_dialog
 
@@ -795,12 +837,12 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             except Exception as e:
                 QtWidgets.QMessageBox.critical(
                     self, "Error saving file", str(e),
-                    _enum("QtWidgets.QMessageBox.StandardButton").Ok,
-                    _enum("QtWidgets.QMessageBox.StandardButton").NoButton)
+                    QtWidgets.QMessageBox.StandardButton.Ok,
+                    QtWidgets.QMessageBox.StandardButton.NoButton)
 
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0
-        can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
+        can_forward = self._nav_stack._pos < len(self._nav_stack) - 1
         if 'back' in self._actions:
             self._actions['back'].setEnabled(can_backward)
         if 'forward' in self._actions:
@@ -910,15 +952,15 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
         ToolContainerBase.__init__(self, toolmanager)
         QtWidgets.QToolBar.__init__(self, parent)
         self.setAllowedAreas(QtCore.Qt.ToolBarArea(
-            _to_int(_enum("QtCore.Qt.ToolBarArea").TopToolBarArea) |
-            _to_int(_enum("QtCore.Qt.ToolBarArea").BottomToolBarArea)))
+            _to_int(QtCore.Qt.ToolBarArea.TopToolBarArea) |
+            _to_int(QtCore.Qt.ToolBarArea.BottomToolBarArea)))
         message_label = QtWidgets.QLabel("")
         message_label.setAlignment(QtCore.Qt.AlignmentFlag(
-            _to_int(_enum("QtCore.Qt.AlignmentFlag").AlignRight) |
-            _to_int(_enum("QtCore.Qt.AlignmentFlag").AlignVCenter)))
+            _to_int(QtCore.Qt.AlignmentFlag.AlignRight) |
+            _to_int(QtCore.Qt.AlignmentFlag.AlignVCenter)))
         message_label.setSizePolicy(QtWidgets.QSizePolicy(
-            _enum("QtWidgets.QSizePolicy.Policy").Expanding,
-            _enum("QtWidgets.QSizePolicy.Policy").Ignored,
+            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Ignored,
         ))
         self._message_action = self.addWidget(message_label)
         self._toolitems = {}

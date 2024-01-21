@@ -269,7 +269,7 @@
 #font.serif:      DejaVu Serif, Bitstream Vera Serif, Computer Modern Roman, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
 #font.sans-serif: DejaVu Sans, Bitstream Vera Sans, Computer Modern Sans Serif, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
 #font.cursive:    Apple Chancery, Textile, Zapf Chancery, Sand, Script MT, Felipa, Comic Neue, Comic Sans MS, cursive
-#font.fantasy:    Chicago, Charcoal, Impact, Western, Humor Sans, xkcd, fantasy
+#font.fantasy:    Chicago, Charcoal, Impact, Western, xkcd script, fantasy
 #font.monospace:  DejaVu Sans Mono, Bitstream Vera Sans Mono, Computer Modern Typewriter, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
 
 
@@ -425,8 +425,9 @@
 #axes.autolimit_mode: data  # If "data", use axes.xmargin and axes.ymargin as is.
                             # If "round_numbers", after application of margins, axis
                             # limits are further expanded to the nearest "round" number.
-#polaraxes.grid: True  # display grid on polar axes
-#axes3d.grid:    True  # display grid on 3D axes
+#polaraxes.grid:    True   # display grid on polar axes
+#axes3d.grid:       True   # display grid on 3D axes
+#axes3d.automargin: False  # automatically add margin when manually setting 3D axis limits
 
 #axes3d.xaxis.panecolor:    (0.95, 0.95, 0.95, 0.5)  # background pane on 3D axes
 #axes3d.yaxis.panecolor:    (0.90, 0.90, 0.90, 0.5)  # background pane on 3D axes
@@ -489,6 +490,7 @@
 #xtick.major.bottom:  True    # draw x axis bottom major ticks
 #xtick.minor.top:     True    # draw x axis top minor ticks
 #xtick.minor.bottom:  True    # draw x axis bottom minor ticks
+#xtick.minor.ndivs:   auto    # number of minor ticks between the major ticks on x-axis
 #xtick.alignment:     center  # alignment of xticks
 
 #ytick.left:          True    # draw ticks on the left side
@@ -510,6 +512,7 @@
 #ytick.major.right:   True    # draw y axis right major ticks
 #ytick.minor.left:    True    # draw y axis left minor ticks
 #ytick.minor.right:   True    # draw y axis right minor ticks
+#ytick.minor.ndivs:   auto    # number of minor ticks between the major ticks on y-axis
 #ytick.alignment:     center_baseline  # alignment of yticks
 
 
@@ -666,14 +669,14 @@
 #path.snap: True  # When True, rectilinear axis-aligned paths will be snapped
                   # to the nearest pixel when certain criteria are met.
                   # When False, paths will never be snapped.
-#path.sketch: None  # May be None, or a 3-tuple of the form:
-                    # (scale, length, randomness).
-                    #     - *scale* is the amplitude of the wiggle
-                    #         perpendicular to the line (in pixels).
-                    #     - *length* is the length of the wiggle along the
-                    #         line (in pixels).
-                    #     - *randomness* is the factor by which the length is
-                    #         randomly scaled.
+#path.sketch: None  # May be None, or a tuple of the form:
+                    #  path.sketch: (scale, length, randomness) 
+                    # - *scale* is the amplitude of the wiggle
+                    #    perpendicular to the line (in pixels).
+                    # - *length* is the length of the wiggle along the
+                    #    line (in pixels).
+                    # - *randomness* is the factor by which the length is
+                    #    randomly scaled.
 #path.effects:
 
 
@@ -688,9 +691,8 @@
 #savefig.edgecolor: auto        # figure edge color when saving
 #savefig.format:    png         # {png, ps, pdf, svg}
 #savefig.bbox:      standard    # {tight, standard}
-                                # 'tight' is incompatible with pipe-based animation
-                                # backends (e.g. 'ffmpeg') but will work with those
-                                # based on temporary files (e.g. 'ffmpeg_file')
+                                # 'tight' is incompatible with generating frames
+                                # for animation
 #savefig.pad_inches:  0.1       # padding to be used, when bbox is set to 'tight'
 #savefig.directory:   ~         # default directory in savefig dialog, gets updated after
                                 # interactive saves, unless set to the empty string (i.e.
@@ -700,12 +702,16 @@
                                 # background by default
 #savefig.orientation: portrait  # orientation of saved figure, for PostScript output only
 
+### macosx backend params
+#macosx.window_mode : system   # How to open new figures (system, tab, window)
+                               # system uses the MacOS system preferences
+
 ### tk backend params
 #tk.window_focus:   False  # Maintain shell focus for TkAgg
 
 ### ps backend params
-#ps.papersize:      letter  # {auto, letter, legal, ledger, A0-A10, B0-B10}
-#ps.useafm:         False   # use of AFM fonts, results in small files
+#ps.papersize:      letter  # {figure, letter, legal, ledger, A0-A10, B0-B10}
+#ps.useafm:         False   # use AFM fonts, results in small files
 #ps.usedistiller:   False   # {ghostscript, xpdf, None}
                             # Experimental: may produce smaller files.
                             # xpdf intended for production of publication quality files,

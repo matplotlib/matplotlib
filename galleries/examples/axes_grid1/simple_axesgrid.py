@@ -18,8 +18,8 @@ im4 = np.fliplr(im2)
 
 fig = plt.figure(figsize=(4., 4.))
 grid = ImageGrid(fig, 111,  # similar to subplot(111)
-                 nrows_ncols=(2, 2),  # creates 2x2 grid of axes
-                 axes_pad=0.1,  # pad between axes in inch.
+                 nrows_ncols=(2, 2),  # creates 2x2 grid of Axes
+                 axes_pad=0.1,  # pad between Axes in inch.
                  )
 
 for ax, im in zip(grid, [im1, im2, im3, im4]):

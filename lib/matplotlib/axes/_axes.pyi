@@ -6,7 +6,6 @@ from matplotlib.backend_bases import RendererBase
 from matplotlib.collections import (
     Collection,
     LineCollection,
-    BrokenBarHCollection,
     PathCollection,
     PolyCollection,
     EventCollection,
@@ -18,9 +17,9 @@ from matplotlib.contour import ContourSet, QuadContourSet
 from matplotlib.image import AxesImage, PcolorImage
 from matplotlib.legend import Legend
 from matplotlib.legend_handler import HandlerBase
-from matplotlib.lines import Line2D
+from matplotlib.lines import Line2D, AxLine
 from matplotlib.mlab import GaussianKDE
-from matplotlib.patches import Rectangle, FancyArrow, Polygon, StepPatch
+from matplotlib.patches import Rectangle, FancyArrow, Polygon, StepPatch, Wedge
 from matplotlib.quiver import Quiver, QuiverKey, Barbs
 from matplotlib.text import Annotation, Text
 from matplotlib.transforms import Transform, Bbox
@@ -30,8 +29,8 @@ import matplotlib.stackplot as mstack
 import matplotlib.streamplot as mstream
 
 import datetime
-import PIL
-from collections.abc import Callable, Sequence
+import PIL.Image
+from collections.abc import Callable, Iterable, Sequence
 from typing import Any, Literal, overload
 import numpy as np
 from numpy.typing import ArrayLike
@@ -52,16 +51,16 @@ class Axes(_AxesBase):
     def get_legend_handles_labels(
         self, legend_handler_map: dict[type, HandlerBase] | None = ...
     ) -> tuple[list[Artist], list[Any]]: ...
-    legend_: Legend
+    legend_: Legend | None
 
     @overload
     def legend(self) -> Legend: ...
     @overload
-    def legend(self, handles: Sequence[Artist], labels: Sequence[str], **kwargs) -> Legend: ...
+    def legend(self, handles: Iterable[Artist | tuple[Artist, ...]], labels: Iterable[str], **kwargs) -> Legend: ...
     @overload
-    def legend(self, *, handles: Sequence[Artist], **kwargs) -> Legend: ...
+    def legend(self, *, handles: Iterable[Artist | tuple[Artist, ...]], **kwargs) -> Legend: ...
     @overload
-    def legend(self, labels: Sequence[str], **kwargs) -> Legend: ...
+    def legend(self, labels: Iterable[str], **kwargs) -> Legend: ...
     @overload
     def legend(self, **kwargs) -> Legend: ...
 
@@ -151,7 +150,7 @@ class Axes(_AxesBase):
         *,
         slope: float | None = ...,
         **kwargs
-    ) -> Line2D: ...
+    ) -> AxLine: ...
     def axhspan(
         self, ymin: float, ymax: float, xmin: float = ..., xmax: float = ..., **kwargs
     ) -> Polygon: ...
@@ -274,7 +273,7 @@ class Axes(_AxesBase):
         label_type: Literal["center", "edge"] = ...,
         padding: float = ...,
         **kwargs
-    ) -> list[Text]: ...
+    ) -> list[Annotation]: ...
     def broken_barh(
         self,
         xranges: Sequence[tuple[float, float]],
@@ -282,7 +281,7 @@ class Axes(_AxesBase):
         *,
         data=...,
         **kwargs
-    ) -> BrokenBarHCollection: ...
+    ) -> PolyCollection: ...
     def stem(
         self,
         *args: ArrayLike | str,
@@ -305,7 +304,7 @@ class Axes(_AxesBase):
         autopct: str | Callable[[float], str] | None = ...,
         pctdistance: float = ...,
         shadow: bool = ...,
-        labeldistance: float = ...,
+        labeldistance: float | None = ...,
         startangle: float = ...,
         radius: float = ...,
         counterclock: bool = ...,
@@ -318,7 +317,9 @@ class Axes(_AxesBase):
         normalize: bool = ...,
         hatch: str | Sequence[str] | None = ...,
         data=...,
-    ): ...
+    ) -> tuple[list[Wedge], list[Text]] | tuple[
+        list[Wedge], list[Text], list[Text]
+    ]: ...
     def errorbar(
         self,
         x: float | ArrayLike,
@@ -330,10 +331,10 @@ class Axes(_AxesBase):
         elinewidth: float | None = ...,
         capsize: float | None = ...,
         barsabove: bool = ...,
-        lolims: bool = ...,
-        uplims: bool = ...,
-        xlolims: bool = ...,
-        xuplims: bool = ...,
+        lolims: bool | ArrayLike = ...,
+        uplims: bool | ArrayLike = ...,
+        xlolims: bool | ArrayLike = ...,
+        xuplims: bool | ArrayLike = ...,
         errorevery: int | tuple[int, int] = ...,
         capthick: float | None = ...,
         *,
@@ -400,7 +401,7 @@ class Axes(_AxesBase):
         x: float | ArrayLike,
         y: float | ArrayLike,
         s: float | ArrayLike | None = ...,
-        c: Sequence[ColorType] | ColorType | None = ...,
+        c: ArrayLike | Sequence[ColorType] | ColorType | None = ...,
         marker: MarkerType | None = ...,
         cmap: str | Colormap | None = ...,
         norm: str | Normalize | None = ...,
@@ -431,7 +432,7 @@ class Axes(_AxesBase):
         alpha: float | None = ...,
         linewidths: float | None = ...,
         edgecolors: Literal["face", "none"] | ColorType = ...,
-        reduce_C_function: Callable[[np.ndarray], float] = ...,
+        reduce_C_function: Callable[[np.ndarray | list[float]], float] = ...,
         mincnt: int | None = ...,
         marginals: bool = ...,
         *,
@@ -564,7 +565,7 @@ class Axes(_AxesBase):
         edges: ArrayLike | None = ...,
         *,
         orientation: Literal["vertical", "horizontal"] = ...,
-        baseline: float | ArrayLike = ...,
+        baseline: float | ArrayLike | None = ...,
         fill: bool = ...,
         data=...,
         **kwargs
@@ -736,7 +737,7 @@ class Axes(_AxesBase):
         showmeans: bool = ...,
         showextrema: bool = ...,
         showmedians: bool = ...,
-        quantiles: Sequence[float] | None = ...,
+        quantiles: Sequence[float | Sequence[float]] | None = ...,
         points: int = ...,
         bw_method: Literal["scott", "silverman"]
         | float

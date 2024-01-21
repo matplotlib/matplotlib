@@ -5,7 +5,9 @@ r"""
 .. redirect-from:: /gallery/userdemo/annotate_simple04
 .. redirect-from:: /gallery/userdemo/anchored_box04
 .. redirect-from:: /gallery/userdemo/annotate_simple_coord01
+.. redirect-from:: /gallery/userdemo/annotate_simple_coord02
 .. redirect-from:: /gallery/userdemo/annotate_simple_coord03
+.. redirect-from:: /gallery/userdemo/connect_simple01
 .. redirect-from:: /tutorials/text/annotations
 
 .. _annotations:
@@ -61,9 +63,9 @@ ax.set_ylim(-2, 2)
 # 'figure points'     points from the lower left corner of the figure
 # 'figure pixels'     pixels from the lower left corner of the figure
 # 'figure fraction'   (0, 0) is lower left of figure and (1, 1) is upper right
-# 'axes points'       points from lower left corner of axes
-# 'axes pixels'       pixels from lower left corner of axes
-# 'axes fraction'     (0, 0) is lower left of axes and (1, 1) is upper right
+# 'axes points'       points from lower left corner of the Axes
+# 'axes pixels'       pixels from lower left corner of the Axes
+# 'axes fraction'     (0, 0) is lower left of Axes and (1, 1) is upper right
 # 'data'              use the axes data coordinate system
 # ==================  ========================================================
 #
@@ -77,7 +79,7 @@ ax.set_ylim(-2, 2)
 # ==================  ========================================================
 #
 # For physical coordinate systems (points or pixels) the origin is the
-# bottom-left of the figure or axes. Points are
+# bottom-left of the figure or Axes. Points are
 # `typographic points <https://en.wikipedia.org/wiki/Point_(typography)>`_
 # meaning that they are a physical unit measuring 1/72 of an inch. Points and
 # pixels are discussed in further detail in :ref:`transforms-fig-scale-dpi`.
@@ -85,7 +87,7 @@ ax.set_ylim(-2, 2)
 # .. _annotation-data:
 #
 # Annotating data
-# ~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^
 #
 # This example places the text coordinates in fractional axes coordinates:
 
@@ -104,7 +106,7 @@ ax.set_ylim(-2, 2)
 # %%
 #
 # Annotating an Artist
-# ~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^
 #
 # Annotations can be positioned relative to an `.Artist` instance by passing
 # that Artist in as *xycoords*. Then *xy* is interpreted as a fraction of the
@@ -131,7 +133,7 @@ ax.set(xlim=(1, 2), ylim=(1, 2))
 # .. _annotation-with-arrow:
 #
 # Annotating with arrows
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^^
 #
 # You can enable drawing of an arrow from the text to the annotated point
 # by giving a dictionary of arrow properties in the optional keyword
@@ -151,7 +153,7 @@ ax.set(xlim=(1, 2), ylim=(1, 2))
 # ==================== =====================================================
 #
 # In the example below, the *xy* point is in the data coordinate system
-# since *xycoords* defaults to 'data'. For a polar axes, this is in
+# since *xycoords* defaults to 'data'. For a polar Axes, this is in
 # (theta, radius) space. The text in this example is placed in the
 # fractional figure coordinate system. :class:`matplotlib.text.Text`
 # keyword arguments like *horizontalalignment*, *verticalalignment* and
@@ -181,7 +183,7 @@ ax.annotate('a polar annotation',
 # .. _annotations-offset-text:
 #
 # Placing text annotations relative to data
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # Annotations can be positioned at a relative offset to the *xy* input to
 # annotation by setting the *textcoords* keyword argument to ``'offset points'``
@@ -210,7 +212,7 @@ for xi, yi, text in zip(x, y, annotations):
 # and :func:`~matplotlib.pyplot.annotate` before reading this section.
 #
 # Annotating with boxed text
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # `~.Axes.text` takes a *bbox* keyword argument, which draws a box around the
 # text:
@@ -223,22 +225,22 @@ t = ax.text(0.5, 0.5, "Direction",
 
 # %%
 # The arguments are the name of the box style with its attributes as
-# keyword arguments. Currently, following box styles are implemented.
+# keyword arguments. Currently, following box styles are implemented:
 #
-#   ==========   ==============   ==========================
-#   Class        Name             Attrs
-#   ==========   ==============   ==========================
-#   Circle       ``circle``       pad=0.3
-#   DArrow       ``darrow``       pad=0.3
-#   Ellipse      ``ellipse``      pad=0.3
-#   LArrow       ``larrow``       pad=0.3
-#   RArrow       ``rarrow``       pad=0.3
-#   Round        ``round``        pad=0.3,rounding_size=None
-#   Round4       ``round4``       pad=0.3,rounding_size=None
-#   Roundtooth   ``roundtooth``   pad=0.3,tooth_size=None
-#   Sawtooth     ``sawtooth``     pad=0.3,tooth_size=None
-#   Square       ``square``       pad=0.3
-#   ==========   ==============   ==========================
+# ==========   ==============   ==========================
+# Class        Name             Attrs
+# ==========   ==============   ==========================
+# Circle       ``circle``       pad=0.3
+# DArrow       ``darrow``       pad=0.3
+# Ellipse      ``ellipse``      pad=0.3
+# LArrow       ``larrow``       pad=0.3
+# RArrow       ``rarrow``       pad=0.3
+# Round        ``round``        pad=0.3,rounding_size=None
+# Round4       ``round4``       pad=0.3,rounding_size=None
+# Roundtooth   ``roundtooth``   pad=0.3,tooth_size=None
+# Sawtooth     ``sawtooth``     pad=0.3,tooth_size=None
+# Square       ``square``       pad=0.3
+# ==========   ==============   ==========================
 #
 # .. figure:: /gallery/shapes_and_collections/images/sphx_glr_fancybox_demo_001.png
 #    :target: /gallery/shapes_and_collections/fancybox_demo.html
@@ -261,7 +263,7 @@ t = ax.text(0.5, 0.5, "Direction",
 #
 #
 # Defining custom box styles
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # You can use a custom box style. The value for the ``boxstyle`` can be a
 # callable object in the following forms:
@@ -307,7 +309,7 @@ ax.text(0.5, 0.5, "Test", size=30, va="center", ha="center", rotation=30,
 # .. _annotation_with_custom_arrow:
 #
 # Customizing annotation arrows
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # An arrow connecting *xy* to *xytext* can be optionally drawn by
 # specifying the *arrowprops* argument. To draw only an arrow, use
@@ -335,17 +337,17 @@ ax.annotate("",
 #    :align: center
 #
 # The creation of the connecting path between two points is controlled by
-# ``connectionstyle`` key and the following styles are available.
+# ``connectionstyle`` key and the following styles are available:
 #
-#    ==========   =============================================
-#    Name         Attrs
-#    ==========   =============================================
-#    ``angle``    angleA=90,angleB=0,rad=0.0
-#    ``angle3``   angleA=90,angleB=0
-#    ``arc``      angleA=0,angleB=0,armA=None,armB=None,rad=0.0
-#    ``arc3``     rad=0.0
-#    ``bar``      armA=0.0,armB=0.0,fraction=0.3,angle=None
-#    ==========   =============================================
+# ==========   =============================================
+# Name         Attrs
+# ==========   =============================================
+# ``angle``    angleA=90,angleB=0,rad=0.0
+# ``angle3``   angleA=90,angleB=0
+# ``arc``      angleA=0,angleB=0,armA=None,armB=None,rad=0.0
+# ``arc3``     rad=0.0
+# ``bar``      armA=0.0,armB=0.0,fraction=0.3,angle=None
+# ==========   =============================================
 #
 # Note that "3" in ``angle3`` and ``arc3`` is meant to indicate that the
 # resulting path is a quadratic spline segment (three control
@@ -361,24 +363,24 @@ ax.annotate("",
 #    :align: center
 #
 # The connecting path (after clipping and shrinking) is then mutated to
-# an arrow patch, according to the given ``arrowstyle``.
+# an arrow patch, according to the given ``arrowstyle``:
 #
-#     ==========   =============================================
-#     Name         Attrs
-#     ==========   =============================================
-#     ``-``        None
-#     ``->``       head_length=0.4,head_width=0.2
-#     ``-[``       widthB=1.0,lengthB=0.2,angleB=None
-#     ``|-|``      widthA=1.0,widthB=1.0
-#     ``-|>``      head_length=0.4,head_width=0.2
-#     ``<-``       head_length=0.4,head_width=0.2
-#     ``<->``      head_length=0.4,head_width=0.2
-#     ``<|-``      head_length=0.4,head_width=0.2
-#     ``<|-|>``    head_length=0.4,head_width=0.2
-#     ``fancy``    head_length=0.4,head_width=0.4,tail_width=0.4
-#     ``simple``   head_length=0.5,head_width=0.5,tail_width=0.2
-#     ``wedge``    tail_width=0.3,shrink_factor=0.5
-#     ==========   =============================================
+# ==========   =============================================
+# Name         Attrs
+# ==========   =============================================
+# ``-``        None
+# ``->``       head_length=0.4,head_width=0.2
+# ``-[``       widthB=1.0,lengthB=0.2,angleB=None
+# ``|-|``      widthA=1.0,widthB=1.0
+# ``-|>``      head_length=0.4,head_width=0.2
+# ``<-``       head_length=0.4,head_width=0.2
+# ``<->``      head_length=0.4,head_width=0.2
+# ``<|-``      head_length=0.4,head_width=0.2
+# ``<|-|>``    head_length=0.4,head_width=0.2
+# ``fancy``    head_length=0.4,head_width=0.4,tail_width=0.4
+# ``simple``   head_length=0.5,head_width=0.5,tail_width=0.2
+# ``wedge``    tail_width=0.3,shrink_factor=0.5
+# ==========   =============================================
 #
 # .. figure:: /gallery/text_labels_and_annotations/images/sphx_glr_fancyarrow_demo_001.png
 #    :target: /gallery/text_labels_and_annotations/fancyarrow_demo.html
@@ -446,7 +448,7 @@ ann = ax.annotate("Test",
 
 # %%
 # Placing Artist at anchored Axes locations
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # There are classes of artists that can be placed at an anchored
 # location in the Axes.  A common example is the legend.  This type
@@ -503,7 +505,7 @@ ax.add_artist(ada)
 #
 # The ellipse in the example below will have width and height
 # corresponding to 0.1 and 0.4 in data coordinates and will be
-# automatically scaled when the view limits of the axes change.
+# automatically scaled when the view limits of the Axes change.
 
 from matplotlib.patches import Ellipse
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredAuxTransformBox
@@ -515,7 +517,7 @@ box.drawing_area.add_artist(el)
 ax.add_artist(box)
 
 # %%
-# Another method of anchoring an artist relative to a parent axes or anchor
+# Another method of anchoring an artist relative to a parent Axes or anchor
 # point is via the *bbox_to_anchor* argument of `.AnchoredOffsetbox`. This
 # artist can then be automatically positioned relative to another artist using
 # `.HPacker` and `.VPacker`:
@@ -562,11 +564,15 @@ fig.subplots_adjust(top=0.8)
 # examples in :ref:`annotations-tutorial` used the ``data`` coordinate system;
 # Some others more advanced options are:
 #
-# 1. A `.Transform` instance. For more information on transforms, see the
-# :ref:`transforms_tutorial` For example, the
-# ``Axes.transAxes`` transform positions the annotation relative to the Axes
-# coordinates and using it is therefore identical to setting the
-# coordinate system to "axes fraction":
+# `.Transform` instance
+# ^^^^^^^^^^^^^^^^^^^^^
+#
+# Transforms map coordinates into different coordinate systems, usually the
+# display coordinate system. See :ref:`transforms_tutorial` for a detailed
+# explanation. Here Transform objects are used to identify the coordinate
+# system of the corresponding points. For example, the ``Axes.transAxes``
+# transform positions the annotation relative to the Axes coordinates; therefore
+# using it is identical to setting the coordinate system to "axes fraction":
 
 fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(6, 3))
 ax1.annotate("Test", xy=(0.2, 0.2), xycoords=ax1.transAxes)
@@ -574,7 +580,7 @@ ax2.annotate("Test", xy=(0.2, 0.2), xycoords="axes fraction")
 
 # %%
 # Another commonly used `.Transform` instance is ``Axes.transData``. This
-# transform  is the coordinate system of the data plotted in the axes. In this
+# transform  is the coordinate system of the data plotted in the Axes. In this
 # example, it is used to draw an arrow between related data points in two
 # Axes. We have passed an empty text because in this case, the annotation
 # connects data points.
@@ -592,8 +598,11 @@ ax2.annotate("",
 # %%
 # .. _artist_annotation_coord:
 #
-# 2. An `.Artist` instance. The *xy* value (or *xytext*) is interpreted as a
-# fractional coordinate of the bounding box (bbox) of the artist:
+# `.Artist` instance
+# ^^^^^^^^^^^^^^^^^^
+#
+# The *xy* value (or *xytext*) is interpreted as a fractional coordinate of the
+# bounding box (bbox) of the artist:
 
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(3, 3))
 an1 = ax.annotate("Test 1",
@@ -614,7 +623,10 @@ an2 = ax.annotate("Test 2",
 # that *an2* needs to be drawn after *an1*. The base class for all bounding
 # boxes is `.BboxBase`
 #
-# 3. A callable object that takes the renderer instance as single argument, and
+# Callable that returns `.Transform` of `.BboxBase`
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# A callable object that takes the renderer instance as single argument, and
 # returns either a `.Transform` or a `.BboxBase`. For example, the return
 # value of `.Artist.get_window_extent` is a bbox, so this method is identical
 # to (2) passing in the artist:
@@ -642,7 +654,10 @@ an1 = ax1.annotate("Test1", xy=(0.5, 0.5), xycoords="axes fraction")
 an2 = ax2.annotate("Test 2", xy=(0.5, 0.5), xycoords=ax2.get_window_extent)
 
 # %%
-# 4. A blended pair of coordinate specifications -- the first for the
+# Blended coordinate specification
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# A blended pair of coordinate specifications -- the first for the
 # x-coordinate, and the second is for the y-coordinate. For example, x=0.5 is
 # in data coordinates, and y=1 is in normalized axes coordinates:
 
@@ -652,7 +667,22 @@ ax.axvline(x=.5, color='lightgray')
 ax.set(xlim=(0, 2), ylim=(1, 2))
 
 # %%
-# 5. Sometimes, you want your annotation with some "offset points", not from the
+# Any of the supported coordinate systems can be used in a blended
+# specification. For example, the text "Anchored to 1 & 2" is positioned
+# relative to the two `.Text` Artists:
+
+fig, ax = plt.subplots(figsize=(3, 3))
+
+t1 = ax.text(0.05, .05, "Text 1", va='bottom', ha='left')
+t2 = ax.text(0.90, .90, "Text 2", ha='right')
+t3 = ax.annotate("Anchored to 1 & 2", xy=(0, 0), xycoords=(t1, t2),
+                 va='bottom', color='tab:orange',)
+
+# %%
+# `.text.OffsetFrom`
+# ^^^^^^^^^^^^^^^^^^
+#
+# Sometimes, you want your annotation with some "offset points", not from the
 # annotated point but from some other point or artist. `.text.OffsetFrom` is
 # a helper for such cases.
 
@@ -672,12 +702,17 @@ an2 = ax.annotate("Test 2", xy=(0.1, 0.1), xycoords="data",
                   arrowprops=dict(arrowstyle="->"))
 
 # %%
+# Non-text annotations
+# --------------------
+#
+# .. _using_connectionpatch:
+#
 # Using ConnectionPatch
-# ~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^
 #
 # `.ConnectionPatch` is like an annotation without text. While `~.Axes.annotate`
 # is sufficient in most situations, `.ConnectionPatch` is useful when you want
-# to connect points in different axes. For example, here we connect the point
+# to connect points in different Axes. For example, here we connect the point
 # *xy* in the data coordinates of ``ax1`` to point *xy* in the data coordinates
 # of ``ax2``:
 
@@ -692,16 +727,16 @@ fig.add_artist(con)
 
 # %%
 # Here, we added the `.ConnectionPatch` to the *figure*
-# (with `~.Figure.add_artist`) rather than to either axes. This ensures that
-# the ConnectionPatch artist is drawn on top of both axes, and is also necessary
+# (with `~.Figure.add_artist`) rather than to either Axes. This ensures that
+# the ConnectionPatch artist is drawn on top of both Axes, and is also necessary
 # when using :ref:`constrained_layout <constrainedlayout_guide>`
-# for positioning the axes.
+# for positioning the Axes.
 #
 # Zoom effect between Axes
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # `mpl_toolkits.axes_grid1.inset_locator` defines some patch classes useful for
-# interconnecting two axes.
+# interconnecting two Axes.
 #
 # .. figure:: /gallery/subplots_axes_and_figures/images/sphx_glr_axes_zoom_effect_001.png
 #    :target: /gallery/subplots_axes_and_figures/axes_zoom_effect.html

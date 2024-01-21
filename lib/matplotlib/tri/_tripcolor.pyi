@@ -18,10 +18,10 @@ def tripcolor(
     cmap: str | Colormap | None = ...,
     vmin: float | None = ...,
     vmax: float | None = ...,
-    shading: Literal["flat", "gouraud"] = ...,
+    shading: Literal["flat"] = ...,
     facecolors: ArrayLike | None = ...,
     **kwargs
-): ...
+) -> PolyCollection: ...
 @overload
 def tripcolor(
     ax: Axes,
@@ -34,7 +34,38 @@ def tripcolor(
     cmap: str | Colormap | None = ...,
     vmin: float | None = ...,
     vmax: float | None = ...,
-    shading: Literal["flat", "gouraud"] = ...,
+    shading: Literal["flat"] = ...,
     facecolors: ArrayLike | None = ...,
     **kwargs
-): ...
+) -> PolyCollection: ...
+@overload
+def tripcolor(
+    ax: Axes,
+    triangulation: Triangulation,
+    c: ArrayLike = ...,
+    *,
+    alpha: float = ...,
+    norm: str | Normalize | None = ...,
+    cmap: str | Colormap | None = ...,
+    vmin: float | None = ...,
+    vmax: float | None = ...,
+    shading: Literal["gouraud"],
+    facecolors: ArrayLike | None = ...,
+    **kwargs
+) -> TriMesh: ...
+@overload
+def tripcolor(
+    ax: Axes,
+    x: ArrayLike,
+    y: ArrayLike,
+    c: ArrayLike = ...,
+    *,
+    alpha: float = ...,
+    norm: str | Normalize | None = ...,
+    cmap: str | Colormap | None = ...,
+    vmin: float | None = ...,
+    vmax: float | None = ...,
+    shading: Literal["gouraud"],
+    facecolors: ArrayLike | None = ...,
+    **kwargs
+) -> TriMesh: ...

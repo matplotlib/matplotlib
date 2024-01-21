@@ -99,7 +99,7 @@ class TextToPath:
             from matplotlib.text import TextToPath
             from matplotlib.font_manager import FontProperties
 
-            fp = FontProperties(family="Humor Sans", style="italic")
+            fp = FontProperties(family="Comic Neue", style="italic")
             verts, codes = TextToPath().get_text_path(fp, "ABC")
             path = Path(verts, codes, closed=False)
 
@@ -314,9 +314,9 @@ class TextPath(Path):
             Font size in points. Defaults to the size specified via the font
             properties *prop*.
 
-        prop : `matplotlib.font_manager.FontProperties`, optional
+        prop : `~matplotlib.font_manager.FontProperties`, optional
             Font property. If not provided, will use a default
-            ``FontProperties`` with parameters from the
+            `.FontProperties` with parameters from the
             :ref:`rcParams<customizing-with-dynamic-rc-settings>`.
 
         _interpolation_steps : int, optional

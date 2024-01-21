@@ -200,6 +200,7 @@ class XMLWriter:
         tag
             Element tag.  If given, the tag must match the start tag.  If
             omitted, the current element is closed.
+        indent : bool, default: True
         """
         if tag:
             assert self.__tags, f"unbalanced end({tag})"
@@ -380,7 +381,7 @@ class RendererSVG(RendererBase):
             # See https://reproducible-builds.org/specs/source-date-epoch/
             date = os.getenv("SOURCE_DATE_EPOCH")
             if date:
-                date = datetime.datetime.utcfromtimestamp(int(date))
+                date = datetime.datetime.fromtimestamp(int(date), datetime.timezone.utc)
                 metadata['Date'] = date.replace(tzinfo=UTC).isoformat()
             else:
                 metadata['Date'] = datetime.datetime.today().isoformat()
@@ -769,11 +770,7 @@ class RendererSVG(RendererBase):
 
         self._path_collection_id += 1
 
-    def draw_gouraud_triangle(self, gc, points, colors, trans):
-        # docstring inherited
-        self._draw_gouraud_triangle(gc, points, colors, trans)
-
-    def _draw_gouraud_triangle(self, gc, points, colors, trans):
+    def _draw_gouraud_triangle(self, transformed_points, colors):
         # This uses a method described here:
         #
         #   http://www.svgopen.org/2005/papers/Converting3DFaceToSVG/index.html
@@ -785,43 +782,17 @@ class RendererSVG(RendererBase):
         # opposite edge.  Underlying these three gradients is a solid
         # triangle whose color is the average of all three points.
 
-        writer = self.writer
-        if not self._has_gouraud:
-            self._has_gouraud = True
-            writer.start(
-                'filter',
-                id='colorAdd')
-            writer.element(
-                'feComposite',
-                attrib={'in': 'SourceGraphic'},
-                in2='BackgroundImage',
-                operator='arithmetic',
-                k2="1", k3="1")
-            writer.end('filter')
-            # feColorMatrix filter to correct opacity
-            writer.start(
-                'filter',
-                id='colorMat')
-            writer.element(
-                'feColorMatrix',
-                attrib={'type': 'matrix'},
-                values='1 0 0 0 0 \n0 1 0 0 0 \n0 0 1 0 0' +
-                       ' \n1 1 1 1 0 \n0 0 0 0 1 ')
-            writer.end('filter')
-
         avg_color = np.average(colors, axis=0)
         if avg_color[-1] == 0:
             # Skip fully-transparent triangles
             return
 
-        trans_and_flip = self._make_flip_transform(trans)
-        tpoints = trans_and_flip.transform(points)
-
+        writer = self.writer
         writer.start('defs')
         for i in range(3):
-            x1, y1 = tpoints[i]
-            x2, y2 = tpoints[(i + 1) % 3]
-            x3, y3 = tpoints[(i + 2) % 3]
+            x1, y1 = transformed_points[i]
+            x2, y2 = transformed_points[(i + 1) % 3]
+            x3, y3 = transformed_points[(i + 2) % 3]
             rgba_color = colors[i]
 
             if x2 == x3:
@@ -861,9 +832,9 @@ class RendererSVG(RendererBase):
         writer.end('defs')
 
         # triangle formation using "path"
-        dpath = "M " + _short_float_fmt(x1)+',' + _short_float_fmt(y1)
-        dpath += " L " + _short_float_fmt(x2) + ',' + _short_float_fmt(y2)
-        dpath += " " + _short_float_fmt(x3) + ',' + _short_float_fmt(y3) + " Z"
+        dpath = (f"M {_short_float_fmt(x1)},{_short_float_fmt(y1)}"
+                 f" L {_short_float_fmt(x2)},{_short_float_fmt(y2)}"
+                 f" {_short_float_fmt(x3)},{_short_float_fmt(y3)} Z")
 
         writer.element(
             'path',
@@ -905,11 +876,36 @@ class RendererSVG(RendererBase):
 
     def draw_gouraud_triangles(self, gc, triangles_array, colors_array,
                                transform):
-        self.writer.start('g', **self._get_clip_attrs(gc))
+        writer = self.writer
+        writer.start('g', **self._get_clip_attrs(gc))
         transform = transform.frozen()
-        for tri, col in zip(triangles_array, colors_array):
-            self._draw_gouraud_triangle(gc, tri, col, transform)
-        self.writer.end('g')
+        trans_and_flip = self._make_flip_transform(transform)
+
+        if not self._has_gouraud:
+            self._has_gouraud = True
+            writer.start(
+                'filter',
+                id='colorAdd')
+            writer.element(
+                'feComposite',
+                attrib={'in': 'SourceGraphic'},
+                in2='BackgroundImage',
+                operator='arithmetic',
+                k2="1", k3="1")
+            writer.end('filter')
+            # feColorMatrix filter to correct opacity
+            writer.start(
+                'filter',
+                id='colorMat')
+            writer.element(
+                'feColorMatrix',
+                attrib={'type': 'matrix'},
+                values='1 0 0 0 0 \n0 1 0 0 0 \n0 0 1 0 0 \n1 1 1 1 0 \n0 0 0 0 1 ')
+            writer.end('filter')
+
+        for points, colors in zip(triangles_array, colors_array):
+            self._draw_gouraud_triangle(trans_and_flip.transform(points), colors)
+        writer.end('g')
 
     def option_scale_image(self):
         # docstring inherited

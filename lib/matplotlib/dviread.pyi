@@ -1,4 +1,3 @@
-from matplotlib import cbook as cbook
 from pathlib import Path
 import io
 import os
@@ -66,7 +65,7 @@ class DviFont:
 
 class Vf(Dvi):
     def __init__(self, filename: str | os.PathLike) -> None: ...
-    def __getitem__(self, code: int): ...
+    def __getitem__(self, code: int) -> Page: ...
 
 class Tfm:
     checksum: int

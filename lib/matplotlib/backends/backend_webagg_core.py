@@ -1,6 +1,4 @@
-"""
-Displays Agg images in the browser, with interactivity
-"""
+"""Displays Agg images in the browser, with interactivity."""
 # The WebAgg backend is divided into two modules:
 #
 # - `backend_webagg_core.py` contains code necessary to embed a WebAgg
@@ -418,7 +416,7 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
 
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0
-        can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
+        can_forward = self._nav_stack._pos < len(self._nav_stack) - 1
         self.canvas.send_event('history_buttons',
                                Back=can_backward, Forward=can_forward)
 
@@ -427,6 +425,7 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
     # This must be None to not break ipympl
     _toolbar2_class = None
     ToolbarCls = NavigationToolbar2WebAgg
+    _window_title = "Matplotlib"
 
     def __init__(self, canvas, num):
         self.web_sockets = set()
@@ -444,6 +443,10 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
 
     def set_window_title(self, title):
         self._send_event('figure_label', label=title)
+        self._window_title = title
+
+    def get_window_title(self):
+        return self._window_title
 
     # The following methods are specific to FigureManagerWebAgg
 

@@ -1,25 +1,8 @@
-from . import cbook
-from .artist import Artist, allow_rasterization
+from .artist import Artist
 from .axes import Axes
 from .backend_bases import MouseEvent, FigureCanvasBase
-from .cbook import STEP_LOOKUP_MAP, ls_mapper, ls_mapper_r
-from .markers import (
-    CARETDOWN,
-    CARETDOWNBASE,
-    CARETLEFT,
-    CARETLEFTBASE,
-    CARETRIGHT,
-    CARETRIGHTBASE,
-    CARETUP,
-    CARETUPBASE,
-    TICKDOWN,
-    TICKLEFT,
-    TICKRIGHT,
-    TICKUP,
-    MarkerStyle,
-)
 from .path import Path
-from .transforms import Bbox, BboxTransformTo, TransformedPath, Transform
+from .transforms import Bbox, Transform
 
 from collections.abc import Callable, Sequence
 from typing import Any, Literal, overload
@@ -93,7 +76,6 @@ class Line2D(Artist):
     def set_data(self, x: ArrayLike, y: ArrayLike) -> None: ...
     def recache_always(self) -> None: ...
     def recache(self, always: bool = ...) -> None: ...
-    def set_transform(self, t: Transform) -> None: ...
     def get_antialiased(self) -> bool: ...
     def get_color(self) -> ColorType: ...
     def get_drawstyle(self) -> DrawStyleType: ...
@@ -137,7 +119,7 @@ class Line2D(Artist):
     def get_solid_capstyle(self) -> Literal["butt", "projecting", "round"]: ...
     def is_dashed(self) -> bool: ...
 
-class _AxLine(Line2D):
+class AxLine(Line2D):
     def __init__(
         self,
         xy1: tuple[float, float],
@@ -145,6 +127,12 @@ class _AxLine(Line2D):
         slope: float | None,
         **kwargs
     ) -> None: ...
+    def get_xy1(self) -> tuple[float, float] | None: ...
+    def get_xy2(self) -> tuple[float, float] | None: ...
+    def get_slope(self) -> float: ...
+    def set_xy1(self, x: float, y: float) -> None: ...
+    def set_xy2(self, x: float, y: float) -> None: ...
+    def set_slope(self, slope: float) -> None: ...
 
 class VertexSelector:
     axes: Axes

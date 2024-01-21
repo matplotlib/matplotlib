@@ -42,6 +42,13 @@ def _gen_cmap_registry():
             colors.ListedColormap(spec['listed'], name)
             if 'listed' in spec else
             colors.LinearSegmentedColormap.from_list(name, spec, _LUTSIZE))
+
+    # Register colormap aliases for gray and grey.
+    cmap_d['grey'] = cmap_d['gray']
+    cmap_d['gist_grey'] = cmap_d['gist_gray']
+    cmap_d['gist_yerg'] = cmap_d['gist_yarg']
+    cmap_d['Grays'] = cmap_d['Greys']
+
     # Generate reversed cmaps.
     for cmap in list(cmap_d.values()):
         rmap = cmap.reversed()
@@ -67,6 +74,11 @@ class ColormapRegistry(Mapping):
     Additional colormaps can be added via `.ColormapRegistry.register`::
 
         mpl.colormaps.register(my_colormap)
+
+    To get a list of all registered colormaps, you can do::
+
+        from matplotlib import colormaps
+        list(colormaps)
     """
     def __init__(self, cmaps):
         self._cmaps = cmaps
@@ -274,7 +286,7 @@ def _get_cmap(name=None, lut=None):
 
     Parameters
     ----------
-    name : `matplotlib.colors.Colormap` or str or None, default: None
+    name : `~matplotlib.colors.Colormap` or str or None, default: None
         If a `.Colormap` instance, it will be returned. Otherwise, the name of
         a colormap known to Matplotlib, which will be resampled by *lut*. The
         default, None, means :rc:`image.cmap`.
@@ -443,7 +455,7 @@ class ScalarMappable:
         treated as an RGB or RGBA array, and no mapping will be done.
         The array can be `~numpy.uint8`, or it can be floats with
         values in the 0-1 range; otherwise a ValueError will be raised.
-        If it is a masked array, the mask will be ignored.
+        If it is a masked array, any masked elements will be set to 0 alpha.
         If the last dimension is 3, the *alpha* kwarg (defaulting to 1)
         will be used to fill in the transparency.  If the last dimension
         is 4, the *alpha* kwarg is ignored; it does not
@@ -486,6 +498,10 @@ class ScalarMappable:
                 else:
                     raise ValueError("Image RGB array must be uint8 or "
                                      "floating point; found %s" % xx.dtype)
+                # Account for any masked entries in the original array
+                # If any of R, G, B, or A are masked for an entry, we set alpha to 0
+                if np.ma.is_masked(x):
+                    xx[np.any(np.ma.getmaskarray(x), axis=2), 3] = 0
                 return xx
         except AttributeError:
             # e.g., x is not an ndarray; so try mapping it
@@ -520,6 +536,8 @@ class ScalarMappable:
                             "converted to float")
 
         self._A = A
+        if not self.norm.scaled():
+            self.norm.autoscale_None(A)
 
     def get_array(self):
         """
@@ -724,5 +742,6 @@ def _ensure_cmap(cmap):
     cmap_name = cmap if cmap is not None else mpl.rcParams["image.cmap"]
     # use check_in_list to ensure type stability of the exception raised by
     # the internal usage of this (ValueError vs KeyError)
-    _api.check_in_list(sorted(_colormaps), cmap=cmap_name)
+    if cmap_name not in _colormaps:
+        _api.check_in_list(sorted(_colormaps), cmap=cmap_name)
     return mpl.colormaps[cmap_name]

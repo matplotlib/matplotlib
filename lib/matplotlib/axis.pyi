@@ -1,3 +1,10 @@
+from collections.abc import Callable, Iterable, Sequence
+import datetime
+from typing import Any, Literal, overload
+
+import numpy as np
+from numpy.typing import ArrayLike
+
 import matplotlib.artist as martist
 from matplotlib import cbook
 from matplotlib.axes import Axes
@@ -6,12 +13,6 @@ from matplotlib.lines import Line2D
 from matplotlib.text import Text
 from matplotlib.ticker import Locator, Formatter
 from matplotlib.transforms import Transform, Bbox
-
-import datetime
-from collections.abc import Callable, Iterable
-from typing import Any, Literal
-import numpy as np
-from numpy.typing import ArrayLike
 from matplotlib.typing import ColorType
 
 
@@ -36,6 +37,7 @@ class Tick(martist.Artist):
         pad: float | None = ...,
         labelsize: float | None = ...,
         labelcolor: ColorType | None = ...,
+        labelfontfamily: str | Sequence[str] | None = ...,
         zorder: float | None = ...,
         gridOn: bool | None = ...,
         tick1On: bool = ...,
@@ -91,7 +93,11 @@ class Ticker:
 
 class _LazyTickList:
     def __init__(self, major: bool) -> None: ...
-    def __get__(self, instance: Axis, cls: type): ...
+    # Replace return with Self when py3.9 is dropped
+    @overload
+    def __get__(self, instance: None, owner: None) -> _LazyTickList: ...
+    @overload
+    def __get__(self, instance: Axis, owner: type[Axis]) -> list[Tick]: ...
 
 class Axis(martist.Artist):
     OFFSETTEXTPAD: int
@@ -104,7 +110,8 @@ class Axis(martist.Artist):
     offsetText: Text
     labelpad: float
     pickradius: float
-    def __init__(self, axes, *, pickradius: float = ...) -> None: ...
+    def __init__(self, axes, *, pickradius: float = ...,
+                 clear: bool = ...) -> None: ...
     @property
     def isDefault_majloc(self) -> bool: ...
     @isDefault_majloc.setter

@@ -5,7 +5,7 @@ import numpy as np
 
 from matplotlib.axes import Axes, SubplotBase
 from matplotlib.backend_bases import RendererBase
-from matplotlib.figure import Figure, SubplotParams
+from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
 
 class GridSpecBase:
@@ -30,11 +30,13 @@ class GridSpecBase:
     def set_height_ratios(self, height_ratios: ArrayLike | None) -> None: ...
     def get_height_ratios(self) -> ArrayLike: ...
     def get_grid_positions(
-        self, fig: Figure, raw: bool = ...
+        self, fig: Figure
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: ...
     @staticmethod
-    def _check_gridspec_exists(figure, nrows, ncols): ...
-    def __getitem__(self, key: tuple[int | slice, int | slice] | slice | int) -> SubplotSpec: ...
+    def _check_gridspec_exists(figure: Figure, nrows: int, ncols: int) -> GridSpec: ...
+    def __getitem__(
+        self, key: tuple[int | slice, int | slice] | slice | int
+    ) -> SubplotSpec: ...
     @overload
     def subplots(
         self,
@@ -105,7 +107,7 @@ class GridSpecFromSubplotSpec(GridSpecBase):
 class SubplotSpec:
     num1: int
     def __init__(
-        self, gridspec: GridSpec, num1: int, num2: int | None = ...
+        self, gridspec: GridSpecBase, num1: int, num2: int | None = ...
     ) -> None: ...
     @staticmethod
     def _from_subplot_args(figure, args): ...
@@ -130,3 +132,29 @@ class SubplotSpec:
     def subgridspec(
         self, nrows: int, ncols: int, **kwargs
     ) -> GridSpecFromSubplotSpec: ...
+
+class SubplotParams:
+    def __init__(
+        self,
+        left: float | None = ...,
+        bottom: float | None = ...,
+        right: float | None = ...,
+        top: float | None = ...,
+        wspace: float | None = ...,
+        hspace: float | None = ...,
+    ) -> None: ...
+    left: float
+    right: float
+    bottom: float
+    top: float
+    wspace: float
+    hspace: float
+    def update(
+        self,
+        left: float | None = ...,
+        bottom: float | None = ...,
+        right: float | None = ...,
+        top: float | None = ...,
+        wspace: float | None = ...,
+        hspace: float | None = ...,
+    ) -> None: ...

@@ -1,10 +1,7 @@
-from matplotlib import dviread
-from matplotlib.font_manager import FontProperties, get_font
-from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_TARGET_LIGHT, FT2Font
-from matplotlib.mathtext import MathTextParser
+from matplotlib.font_manager import FontProperties
+from matplotlib.ft2font import FT2Font
+from matplotlib.mathtext import MathTextParser, VectorParse
 from matplotlib.path import Path
-from matplotlib.texmanager import TexManager
-from matplotlib.transforms import Affine2D
 
 import numpy as np
 
@@ -13,7 +10,7 @@ from typing import Literal
 class TextToPath:
     FONT_SCALE: float
     DPI: float
-    mathtext_parser: MathTextParser
+    mathtext_parser: MathTextParser[VectorParse]
     def __init__(self) -> None: ...
     def get_text_width_height_descent(
         self, s: str, prop: FontProperties, ismath: bool | Literal["TeX"]

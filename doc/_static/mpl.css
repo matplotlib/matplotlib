@@ -3,10 +3,38 @@
     --pst-color-link-hover: var(--pst-color-secondary);
     --sd-color-primary: var(--pst-color-primary);
     --sd-color-primary-text: var(--pst-color-text-base);
+    --sd-color-secondary: #ee9040;
+    --sd-color-success: #28a745;
+    --sd-color-dark: #323232;
+    --sd-color-danger: #dc3545;
+    --sd-color-light: #c9c9c9;
 }
 
 .simple li>p {
     margin: 0;
+}
+
+/* Make announcement an error colour for unreleased documentation, and sticky. */
+#unreleased-message.bd-header-announcement {
+    border-bottom: solid var(--pst-color-danger-highlight);
+    color: var(--pst-color-danger-text);
+    font-weight: var(--pst-admonition-font-weight-heading);
+    position: sticky;
+    top: 0;
+    z-index: 1050;
+}
+
+#unreleased-message.bd-header-announcement:after {
+    background-color: var(--pst-color-danger);
+    opacity: 1;
+}
+
+#unreleased-message.bd-header-announcement a {
+    color: var(--pst-color-danger-text);
+}
+
+#unreleased-message.bd-header-announcement + .bd-navbar {
+    top: 3rem;  /* Minimum height of announcement header. */
 }
 
 /* multi column TOC */
@@ -99,6 +127,11 @@ table.property-table td {
     margin: 0 0.5em;
 }
 
+/* Make the code examples in the API reference index the same height. */
+.api-interface-example pre {
+    min-height: 6.5rem;
+}
+
 /* Make inheritance images have a scroll bar if necessary. */
 div.graphviz {
     border: 1px solid lightgrey;
@@ -119,4 +152,55 @@ div.wide-table table th.stub {
     background-clip: padding-box;
     left: 0;
     position: sticky;
+}
+
+.imrot-img {
+    display: flex;
+    margin: auto;
+    max-width:15em;
+    align-self: center;
+  }
+
+  .imrot-cap {
+    text-align: center;
+    font-style: italic;
+    font-size:  large;
+  }
+
+
+.checklist {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.checklist li {
+    margin-left: 24px;
+    padding-left: 23px;
+    margin-right: 6px;
+}
+.checklist li:before {
+    content: "\2610\2001";
+    margin-left: -24px;
+}
+.checklist li p {
+    display: inline;
+}
+
+.sdd.sd-dropdown {
+    box-shadow: none!important;
+}
+
+.sdd.sd-dropdown.sd-card{
+    border-style: solid !important;
+    border-color: var(--pst-color-border) !important;
+    border-width: thin !important;
+    border-radius: .05
+}
+
+.sdd.sd-dropdown .sd-card-header{
+    --pst-sd-dropdown-color: none;
+}
+
+.sdd.sd-dropdown .sd-card-header +.sd-card-body{
+    --pst-sd-dropdown-color: none;
 }

@@ -64,8 +64,23 @@ def rcparam_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
     return node_list, messages
 
 
+def mpltype_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
+    mpltype = text
+    type_to_link_target = {
+        'color': 'colors_def',
+    }
+    if mpltype not in type_to_link_target:
+        raise ValueError(f"Unknown mpltype: {mpltype!r}")
+
+    ref_nodes, messages = inliner.interpreted(
+        mpltype, f'{mpltype} <{type_to_link_target[mpltype]}>', 'ref', lineno)
+    node_list = [ref_nodes]
+    return node_list, messages
+
+
 def setup(app):
     app.add_role("rc", rcparam_role)
+    app.add_role("mpltype", mpltype_role)
     app.add_node(
         QueryReference,
         html=(visit_query_reference_node, depart_query_reference_node),

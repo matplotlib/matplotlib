@@ -7,8 +7,6 @@ from matplotlib.backend_bases import MouseEvent
 import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
-from matplotlib.lines import Line2D
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing.widgets import (click_and_drag, do_event, get_ax,
                                         mock_event, noop)
@@ -643,6 +641,13 @@ def test_span_selector(ax, orientation, onmove_callback, kwargs):
     if onmove_callback:
         kwargs['onmove_callback'] = onmove
 
+    # While at it, also test that span selectors work in the presence of twin axes on
+    # top of the axes that contain the selector.  Note that we need to unforce the axes
+    # aspect here, otherwise the twin axes forces the original axes' limits (to respect
+    # aspect=1) which makes some of the values below go out of bounds.
+    ax.set_aspect("auto")
+    tax = ax.twinx()
+
     tool = widgets.SpanSelector(ax, onselect, orientation, **kwargs)
     do_event(tool, 'press', xdata=100, ydata=100, button=1)
     # move outside of axis
@@ -868,8 +873,8 @@ def test_span_selector_bound(direction):
     bound = x_bound if direction == 'horizontal' else y_bound
     assert tool._edge_handles.positions == list(bound)
 
-    press_data = [10.5, 11.5]
-    move_data = [11, 13]  # Updating selector is done in onmove
+    press_data = (10.5, 11.5)
+    move_data = (11, 13)  # Updating selector is done in onmove
     release_data = move_data
     click_and_drag(tool, start=press_data, end=move_data)
 
@@ -925,7 +930,7 @@ def test_span_selector_animated_artists_callback():
 
     # Change span selector and check that the line is drawn/updated after its
     # value was updated by the callback
-    press_data = [4, 2]
+    press_data = [4, 0]
     move_data = [5, 2]
     release_data = [5, 2]
     do_event(span, 'press', xdata=press_data[0], ydata=press_data[1], button=1)
@@ -969,6 +974,23 @@ def test_span_selector_snap(ax):
     assert tool.extents == (17, 35)
 
 
+def test_span_selector_extents(ax):
+    tool = widgets.SpanSelector(
+        ax, lambda a, b: None, "horizontal", ignore_event_outside=True
+        )
+    tool.extents = (5, 10)
+
+    assert tool.extents == (5, 10)
+    assert tool._selection_completed
+
+    # Since `ignore_event_outside=True`, this event should be ignored
+    press_data = (12, 14)
+    release_data = (20, 14)
+    click_and_drag(tool, start=press_data, end=release_data)
+
+    assert tool.extents == (5, 10)
+
+
 @pytest.mark.parametrize('kwargs', [
     dict(),
     dict(useblit=False, props=dict(color='red')),
@@ -999,10 +1021,23 @@ def test_lasso_selector_set_props(ax):
 
 
 def test_CheckButtons(ax):
-    check = widgets.CheckButtons(ax, ('a', 'b', 'c'), (True, False, True))
+    labels = ('a', 'b', 'c')
+    check = widgets.CheckButtons(ax, labels, (True, False, True))
     assert check.get_status() == [True, False, True]
     check.set_active(0)
     assert check.get_status() == [False, False, True]
+    assert check.get_checked_labels() == ['c']
+    check.clear()
+    assert check.get_status() == [False, False, False]
+    assert check.get_checked_labels() == []
+
+    for invalid_index in [-1, len(labels), len(labels)+5]:
+        with pytest.raises(ValueError):
+            check.set_active(index=invalid_index)
+
+    for invalid_value in ['invalid', -1]:
+        with pytest.raises(TypeError):
+            check.set_active(1, state=invalid_value)
 
     cid = check.on_clicked(lambda: None)
     check.disconnect(cid)
@@ -1033,11 +1068,21 @@ def test_TextBox(ax, toolbar):
 
     assert submit_event.call_count == 2
 
-    do_event(tool, '_click')
+    do_event(tool, '_click', xdata=.5, ydata=.5)  # Ensure the click is in the axes.
     do_event(tool, '_keypress', key='+')
     do_event(tool, '_keypress', key='5')
 
     assert text_change_event.call_count == 3
+
+
+def test_RadioButtons(ax):
+    radio = widgets.RadioButtons(ax, ('Radio 1', 'Radio 2', 'Radio 3'))
+    radio.set_active(1)
+    assert radio.value_selected == 'Radio 2'
+    assert radio.index_selected == 1
+    radio.clear()
+    assert radio.value_selected == 'Radio 1'
+    assert radio.index_selected == 0
 
 
 @image_comparison(['check_radio_buttons.png'], style='mpl20', remove_text=True)
@@ -1046,20 +1091,14 @@ def test_check_radio_buttons_image():
     fig = ax.figure
     fig.subplots_adjust(left=0.3)
 
-    rax1 = fig.add_axes([0.05, 0.7, 0.2, 0.15])
+    rax1 = fig.add_axes((0.05, 0.7, 0.2, 0.15))
     rb1 = widgets.RadioButtons(rax1, ('Radio 1', 'Radio 2', 'Radio 3'))
-    with pytest.warns(DeprecationWarning,
-                      match='The circles attribute was deprecated'):
-        rb1.circles  # Trigger the old-style elliptic radiobuttons.
 
-    rax2 = fig.add_axes([0.05, 0.5, 0.2, 0.15])
+    rax2 = fig.add_axes((0.05, 0.5, 0.2, 0.15))
     cb1 = widgets.CheckButtons(rax2, ('Check 1', 'Check 2', 'Check 3'),
                                (False, True, True))
-    with pytest.warns(DeprecationWarning,
-                      match='The rectangles attribute was deprecated'):
-        cb1.rectangles  # Trigger old-style Rectangle check boxes
 
-    rax3 = fig.add_axes([0.05, 0.3, 0.2, 0.15])
+    rax3 = fig.add_axes((0.05, 0.3, 0.2, 0.15))
     rb3 = widgets.RadioButtons(
         rax3, ('Radio 1', 'Radio 2', 'Radio 3'),
         label_props={'fontsize': [8, 12, 16],
@@ -1067,7 +1106,7 @@ def test_check_radio_buttons_image():
         radio_props={'edgecolor': ['red', 'green', 'blue'],
                      'facecolor': ['mistyrose', 'palegreen', 'lightblue']})
 
-    rax4 = fig.add_axes([0.05, 0.1, 0.2, 0.15])
+    rax4 = fig.add_axes((0.05, 0.1, 0.2, 0.15))
     cb4 = widgets.CheckButtons(
         rax4, ('Check 1', 'Check 2', 'Check 3'), (False, True, True),
         label_props={'fontsize': [8, 12, 16],
@@ -1155,57 +1194,6 @@ def test_check_button_props(fig_test, fig_ref):
     # This means we cannot pass facecolor to both setters directly.
     check_props['edgecolor'] = check_props.pop('facecolor')
     cb.set_check_props({**check_props, 's': (24 / 2)**2})
-
-
-@check_figures_equal(extensions=["png"])
-def test_check_buttons_rectangles(fig_test, fig_ref):
-    # Test should be removed once .rectangles is removed
-    cb = widgets.CheckButtons(fig_test.subplots(), ["", ""],
-                              [False, False])
-    with pytest.warns(DeprecationWarning,
-                      match='The rectangles attribute was deprecated'):
-        cb.rectangles
-    ax = fig_ref.add_subplot(xticks=[], yticks=[])
-    ys = [2/3, 1/3]
-    dy = 1/3
-    w, h = dy / 2, dy / 2
-    rectangles = [
-        Rectangle(xy=(0.05, ys[i] - h / 2), width=w, height=h,
-                  edgecolor="black",
-                  facecolor="none",
-                  transform=ax.transAxes
-                  )
-        for i, y in enumerate(ys)
-    ]
-    for rectangle in rectangles:
-        ax.add_patch(rectangle)
-
-
-@check_figures_equal(extensions=["png"])
-def test_check_buttons_lines(fig_test, fig_ref):
-    # Test should be removed once .lines is removed
-    cb = widgets.CheckButtons(fig_test.subplots(), ["", ""], [True, True])
-    with pytest.warns(DeprecationWarning,
-                      match='The lines attribute was deprecated'):
-        cb.lines
-    for rectangle in cb._rectangles:
-        rectangle.set_visible(False)
-    ax = fig_ref.add_subplot(xticks=[], yticks=[])
-    ys = [2/3, 1/3]
-    dy = 1/3
-    w, h = dy / 2, dy / 2
-    lineparams = {'color': 'k', 'linewidth': 1.25,
-                    'transform': ax.transAxes,
-                    'solid_capstyle': 'butt'}
-    for i, y in enumerate(ys):
-        x, y = 0.05, y - h / 2
-        l1 = Line2D([x, x + w], [y + h, y], **lineparams)
-        l2 = Line2D([x, x + w], [y, y + h], **lineparams)
-
-        l1.set_visible(True)
-        l2.set_visible(True)
-        ax.add_line(l1)
-        ax.add_line(l2)
 
 
 def test_slider_slidermin_slidermax_invalid():
@@ -1632,7 +1620,8 @@ def test_polygon_selector_verts_setter(fig_test, fig_ref, draw_bounding_box):
 
 
 def test_polygon_selector_box(ax):
-    # Create a diamond shape
+    # Create a diamond (adjusting axes lims s.t. the diamond lies within axes limits).
+    ax.set(xlim=(-10, 50), ylim=(-10, 50))
     verts = [(20, 0), (0, 20), (20, 40), (40, 20)]
     event_sequence = [
         *polygon_place_vertex(*verts[0]),

@@ -1,6 +1,6 @@
 # Circle CI configuration file
 # https://circleci.com/docs/
-
+---
 version: 2.1
 
 
@@ -42,39 +42,40 @@ commands:
       - run:
           name: Install apt packages
           command: |
-            sudo apt -qq update
-            sudo apt install -y \
-              inkscape \
-              ffmpeg \
-              dvipng \
-              lmodern \
+            sudo apt-get -qq update
+            sudo apt-get install -yy --no-install-recommends \
               cm-super \
-              texlive-latex-base \
-              texlive-latex-extra \
-              texlive-fonts-recommended \
-              texlive-latex-recommended \
-              texlive-pictures \
-              texlive-xetex \
-              ttf-wqy-zenhei \
-              graphviz \
+              dvipng \
+              ffmpeg \
               fonts-crosextra-carlito \
               fonts-freefont-otf \
-              fonts-humor-sans \
               fonts-noto-cjk \
-              optipng
+              fonts-wqy-zenhei \
+              graphviz \
+              inkscape \
+              lmodern \
+              ninja-build \
+              optipng \
+              texlive-fonts-recommended \
+              texlive-latex-base \
+              texlive-latex-extra \
+              texlive-latex-recommended \
+              texlive-pictures \
+              texlive-xetex
 
   fonts-install:
     steps:
       - restore_cache:
-          key: fonts-2
+          key: fonts-4
       - run:
           name: Install custom fonts
           command: |
             mkdir -p ~/.local/share/fonts
             wget -nc https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O ~/.local/share/fonts/Felipa-Regular.ttf || true
+            wget -nc https://github.com/ipython/xkcd-font/blob/master/xkcd-script/font/xkcd-script.ttf?raw=true -O ~/.local/share/fonts/xkcd-Script.ttf || true
             fc-cache -f -v
       - save_cache:
-          key: fonts-2
+          key: fonts-4
           paths:
             - ~/.local/share/fonts/
 
@@ -97,6 +98,7 @@ commands:
       - run:
           name: Install Python dependencies
           command: |
+            python -m pip install --user meson-python pybind11
             python -m pip install --user \
                 numpy<< parameters.numpy_version >> \
                 -r requirements/doc/doc-requirements.txt
@@ -114,15 +116,13 @@ commands:
               version=${version#v}
               python -m pip install matplotlib==${version}
             else
-              python -m pip install --user -ve .
+              python -m pip install --user --verbose \
+                --no-build-isolation --editable .[dev]
             fi
       - save_cache:
-          key: build-deps-1
+          key: build-deps-2
           paths:
-            # FreeType 2.6.1 tarball.
-            - ~/.cache/matplotlib/0a3c7dfbda6da1e8fce29232e8e96d987ababbbf71ebc8c75659e4132c367014
-            # Qhull 2020.2 tarball.
-            - ~/.cache/matplotlib/b5c2d7eb833278881b952c8a52d20179eab87766b00b865000469a45c1838b7e
+            - subprojects/packagecache
 
   doc-build:
     steps:
@@ -199,6 +199,12 @@ commands:
       - store_artifacts:
           path: doc/build/sphinx-gallery-files.tar.gz
 
+  deploy-docs:
+    steps:
+      - run:
+          name: "Deploy new docs"
+          command: ./.circleci/deploy-docs.sh
+
 
 ##########################################
 # Here is where the real jobs are defined.
@@ -218,8 +224,8 @@ jobs:
       - fonts-install
       - pip-install
 
-      - mpl-install
       - doc-deps-install
+      - mpl-install
 
       - doc-build
       - doc-show-errors-warnings
@@ -236,9 +242,7 @@ jobs:
           fingerprints:
             - "be:c3:c1:d8:fb:a1:0e:37:71:72:d7:a3:40:13:8f:14"
 
-      - deploy:
-          name: "Deploy new docs"
-          command: ./.circleci/deploy-docs.sh
+      - deploy-docs
 
 #########################################
 # Defining workflows gets us parallelism.

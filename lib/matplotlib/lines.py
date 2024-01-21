@@ -168,7 +168,7 @@ def _mark_every_path(markevery, tpath, affine, ax):
                     f'markevery={markevery}')
             if ax is None:
                 raise ValueError(
-                    "markevery is specified relative to the axes size, but "
+                    "markevery is specified relative to the Axes size, but "
                     "the line does not have a Axes as parent")
 
             # calc cumulative distance along path (in display coords):
@@ -180,7 +180,7 @@ def _mark_every_path(markevery, tpath, affine, ax):
             delta[0, :] = 0
             delta[1:, :] = disp_coords[1:, :] - disp_coords[:-1, :]
             delta = np.hypot(*delta.T).cumsum()
-            # calc distance between markers along path based on the axes
+            # calc distance between markers along path based on the Axes
             # bounding box diagonal being a distance of unity:
             (x0, y0), (x1, y1) = ax.transAxes.transform([[0, 0], [1, 1]])
             scale = np.hypot(x1 - x0, y1 - y0)
@@ -267,6 +267,8 @@ class Line2D(Artist):
     fillStyles = MarkerStyle.fillstyles
 
     zorder = 2
+
+    _subslice_optim_min_size = 1000
 
     def __str__(self):
         if self._label != "":
@@ -434,7 +436,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        mouseevent : `matplotlib.backend_bases.MouseEvent`
+        mouseevent : `~matplotlib.backend_bases.MouseEvent`
 
         Returns
         -------
@@ -573,7 +575,7 @@ class Line2D(Artist):
             - ``every=0.1``, (i.e. a float): markers will be spaced at
               approximately equal visual distances along the line; the distance
               along the line between markers is determined by multiplying the
-              display-coordinate distance of the axes bounding-box diagonal
+              display-coordinate distance of the Axes bounding-box diagonal
               by the value of *every*.
             - ``every=(0.5, 0.1)`` (i.e. a length-2 tuple of float): similar
               to ``every=0.1`` but the first marker will be offset along the
@@ -677,12 +679,14 @@ class Line2D(Artist):
         self._x, self._y = self._xy.T  # views
 
         self._subslice = False
-        if (self.axes and len(x) > 1000 and self._is_sorted(x) and
-                self.axes.name == 'rectilinear' and
-                self.axes.get_xscale() == 'linear' and
-                self._markevery is None and
-                self.get_clip_on() and
-                self.get_transform() == self.axes.transData):
+        if (self.axes
+                and len(x) > self._subslice_optim_min_size
+                and _path.is_sorted_and_has_non_nan(x)
+                and self.axes.name == 'rectilinear'
+                and self.axes.get_xscale() == 'linear'
+                and self._markevery is None
+                and self.get_clip_on()
+                and self.get_transform() == self.axes.transData):
             self._subslice = True
             nanmask = np.isnan(x)
             if nanmask.any():
@@ -730,11 +734,6 @@ class Line2D(Artist):
         self._invalidx = True
         self._invalidy = True
         super().set_transform(t)
-
-    def _is_sorted(self, x):
-        """Return whether x is sorted in ascending order."""
-        # We don't handle the monotonically decreasing case.
-        return _path.is_sorted(x)
 
     @allow_rasterization
     def draw(self, renderer):
@@ -1057,7 +1056,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        color : color
+        color : color; see :ref:`colors_def`
         """
         mcolors._check_color_like(color=color)
         self._color = color
@@ -1277,14 +1276,7 @@ class Line2D(Artist):
         x : 1D array
         """
         if not np.iterable(x):
-            # When deprecation cycle is completed
-            # raise RuntimeError('x must be a sequence')
-            _api.warn_deprecated(
-                since=3.7,
-                message="Setting data with a non sequence type "
-                "is deprecated since %(since)s and will be "
-                "remove %(removal)s")
-            x = [x, ]
+            raise RuntimeError('x must be a sequence')
         self._xorig = copy.copy(x)
         self._invalidx = True
         self.stale = True
@@ -1298,14 +1290,7 @@ class Line2D(Artist):
         y : 1D array
         """
         if not np.iterable(y):
-            # When deprecation cycle is completed
-            # raise RuntimeError('y must be a sequence')
-            _api.warn_deprecated(
-                since=3.7,
-                message="Setting data with a non sequence type "
-                "is deprecated since %(since)s and will be "
-                "remove %(removal)s")
-            y = [y, ]
+            raise RuntimeError('y must be a sequence')
         self._yorig = copy.copy(y)
         self._invalidy = True
         self.stale = True
@@ -1465,13 +1450,25 @@ class Line2D(Artist):
         return self._linestyle in ('--', '-.', ':')
 
 
-class _AxLine(Line2D):
+class AxLine(Line2D):
     """
     A helper class that implements `~.Axes.axline`, by recomputing the artist
     transform at draw time.
     """
 
     def __init__(self, xy1, xy2, slope, **kwargs):
+        """
+        Parameters
+        ----------
+        xy1 : (float, float)
+            The first set of (x, y) coordinates for the line to pass through.
+        xy2 : (float, float) or None
+            The second set of (x, y) coordinates for the line to pass through.
+            Both *xy2* and *slope* must be passed, but one of them must be None.
+        slope : float or None
+            The slope of the line. Both *xy2* and *slope* must be passed, but one of
+            them must be None.
+        """
         super().__init__([0, 1], [0, 1], **kwargs)
 
         if (xy2 is None and slope is None or
@@ -1528,6 +1525,65 @@ class _AxLine(Line2D):
         self._transformed_path = None  # Force regen.
         super().draw(renderer)
 
+    def get_xy1(self):
+        """
+        Return the *xy1* value of the line.
+        """
+        return self._xy1
+
+    def get_xy2(self):
+        """
+        Return the *xy2* value of the line.
+        """
+        return self._xy2
+
+    def get_slope(self):
+        """
+        Return the *slope* value of the line.
+        """
+        return self._slope
+
+    def set_xy1(self, x, y):
+        """
+        Set the *xy1* value of the line.
+
+        Parameters
+        ----------
+        x, y : float
+            Points for the line to pass through.
+        """
+        self._xy1 = x, y
+
+    def set_xy2(self, x, y):
+        """
+        Set the *xy2* value of the line.
+
+        Parameters
+        ----------
+        x, y : float
+            Points for the line to pass through.
+        """
+        if self._slope is None:
+            self._xy2 = x, y
+        else:
+            raise ValueError("Cannot set an 'xy2' value while 'slope' is set;"
+                             " they differ but their functionalities overlap")
+
+    def set_slope(self, slope):
+        """
+        Set the *slope* value of the line.
+
+        Parameters
+        ----------
+        slope : float
+            The slope of the line.
+        """
+        if self._xy2 is None:
+            self._slope = slope
+        else:
+            raise ValueError("Cannot set a 'slope' value while 'xy2' is set;"
+                             " they differ but their functionalities overlap")
+
 
 class VertexSelector:
     """
@@ -1562,7 +1618,7 @@ class VertexSelector:
         """
         Parameters
         ----------
-        line : `.Line2D`
+        line : `~matplotlib.lines.Line2D`
             The line must already have been added to an `~.axes.Axes` and must
             have its picker property set.
         """

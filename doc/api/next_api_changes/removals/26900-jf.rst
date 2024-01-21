@@ -1,0 +1,4 @@
+``passthru_pt``
+~~~~~~~~~~~~~~~
+
+This attribute of ``AxisArtistHelper``\s has been removed.

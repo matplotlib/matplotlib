@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        # The login shell is necessary for the provision-with-micromamba setup
+        # The login shell is necessary for the setup-micromamba setup
         # to work in subsequent jobs.
-        # https://github.com/mamba-org/provision-with-micromamba#important
+        # https://github.com/mamba-org/setup-micromamba#about-login-shells
         shell: bash -e -l {0}
     if: github.repository_owner == 'matplotlib'
 
@@ -32,7 +32,7 @@ jobs:
           PROJECT_REPO="matplotlib/matplotlib"
           BRANCH="main"
           WORKFLOW_NAME="cibuildwheel.yml"
-          ARTIFACT_NAME="wheels"
+          ARTIFACT_PATTERN="cibw-wheels-*"
 
           gh run --repo "${PROJECT_REPO}" \
              list --branch "${BRANCH}" \
@@ -52,43 +52,14 @@ jobs:
           )
           gh run --repo "${PROJECT_REPO}" view "${RUN_ID}"
           gh run --repo "${PROJECT_REPO}" \
-             download "${RUN_ID}" --name "${ARTIFACT_NAME}"
+             download "${RUN_ID}" --pattern "${ARTIFACT_PATTERN}"
 
           mkdir dist
-          mv *.whl dist/
+          mv ${ARTIFACT_PATTERN}/*.whl dist/
           ls -l dist/
 
-        # N.B. anaconda-client is only maintained on the main channel
-      - name: Install anaconda-client
-        uses: mamba-org/provision-with-micromamba@v15
-        with:
-          environment-file: false
-          environment-name: nightlies
-          extra-specs: anaconda-client=1.10.0
-          channels: main
-
       - name: Upload wheels to Anaconda Cloud as nightlies
-        run: |
-          anaconda --token ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }} upload \
-            --user scipy-wheels-nightly \
-            --skip-existing \
-            dist/matplotlib-*.whl
-
-      - name: Remove old uploads to save space
-        run: |
-          N_LATEST_UPLOADS=5
-
-          # Remove all _but_ the last "${N_LATEST_UPLOADS}" package versions
-          # N.B.: `anaconda show` places the newest packages at the bottom of
-          # the output of the 'Versions' section and package versions are
-          # preceded with a '   + '.
-          anaconda show scipy-wheels-nightly/matplotlib &> >(grep '+') | \
-              sed 's/.* + //' | \
-              head --lines "-${N_LATEST_UPLOADS}" > remove-package-versions.txt
-
-          while LANG=C IFS= read -r package_version ; do
-              echo "Removing scipy-wheels-nightly/matplotlib/${package_version}"
-              anaconda --token ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }} remove \
-                --force \
-                "scipy-wheels-nightly/matplotlib/${package_version}"
-          done <remove-package-versions.txt
+        uses: scientific-python/upload-nightly-action@5fb764c5bce1ac2297084c0f7161b1919f17c74f # 0.2.0
+        with:
+          artifacts_path: dist
+          anaconda_nightly_upload_token: ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }}

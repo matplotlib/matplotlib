@@ -47,7 +47,7 @@ marker                         symbol description
 ``11`` (``CARETDOWNBASE``)     |m36|  caretdown (centered at base)
 ``"none"`` or ``"None"``              nothing
 ``" "`` or  ``""``                    nothing
-``'$...$'``                    |m37|  Render the string using mathtext.
+``"$...$"``                    |m37|  Render the string using mathtext.
                                       E.g ``"$f$"`` for marker showing the
                                       letter ``f``.
 ``verts``                             A list of (x, y) pairs used for Path
@@ -55,7 +55,7 @@ marker                         symbol description
                                       located at (0, 0) and the size is
                                       normalized, such that the created path
                                       is encapsulated inside the unit cell.
-path                                  A `~matplotlib.path.Path` instance.
+``path``                              A `~matplotlib.path.Path` instance.
 ``(numsides, 0, angle)``              A regular polygon with ``numsides``
                                       sides, rotated by ``angle``.
 ``(numsides, 1, angle)``              A star-like symbol with ``numsides``
@@ -63,11 +63,6 @@ path                                  A `~matplotlib.path.Path` instance.
 ``(numsides, 2, angle)``              An asterisk with ``numsides`` sides,
                                       rotated by ``angle``.
 ============================== ====== =========================================
-
-As a deprecated feature, ``None`` also means 'nothing' when directly
-constructing a `.MarkerStyle`, but note that there are other contexts where
-``marker=None`` instead means "the default marker" (e.g. :rc:`scatter.marker`
-for `.Axes.scatter`).
 
 Note that special symbols can be defined via the
 :ref:`STIX math font <mathtext>`,
@@ -161,11 +156,11 @@ class MarkerStyle:
 
     Attributes
     ----------
-    markers : list
+    markers : dict
         All known markers.
-    filled_markers : list
+    filled_markers : tuple
         All known filled markers. This is a subset of *markers*.
-    fillstyles : list
+    fillstyles : tuple
         The supported fillstyles.
     """
 
@@ -227,30 +222,28 @@ class MarkerStyle:
         """
         Parameters
         ----------
-        marker : str, array-like, Path, MarkerStyle, or None
-            - Another instance of *MarkerStyle* copies the details of that
-              ``marker``.
-            - *None* means no marker.  This is the deprecated default.
+        marker : str, array-like, Path, MarkerStyle
+            - Another instance of `MarkerStyle` copies the details of that *marker*.
             - For other possible marker values, see the module docstring
               `matplotlib.markers`.
 
         fillstyle : str, default: :rc:`markers.fillstyle`
             One of 'full', 'left', 'right', 'bottom', 'top', 'none'.
 
-        transform : transforms.Transform, default: None
+        transform : `~matplotlib.transforms.Transform`, optional
             Transform that will be combined with the native transform of the
             marker.
 
-        capstyle : CapStyle, default: None
+        capstyle : `.CapStyle` or %(CapStyle)s, optional
             Cap style that will override the default cap style of the marker.
 
-        joinstyle : JoinStyle, default: None
+        joinstyle : `.JoinStyle` or %(JoinStyle)s, optional
             Join style that will override the default join style of the marker.
         """
         self._marker_function = None
         self._user_transform = transform
-        self._user_capstyle = capstyle
-        self._user_joinstyle = joinstyle
+        self._user_capstyle = CapStyle(capstyle) if capstyle is not None else None
+        self._user_joinstyle = JoinStyle(joinstyle) if joinstyle is not None else None
         self._set_fillstyle(fillstyle)
         self._set_marker(marker)
 
@@ -293,7 +286,6 @@ class MarkerStyle:
             fillstyle = mpl.rcParams['markers.fillstyle']
         _api.check_in_list(self.fillstyles, fillstyle=fillstyle)
         self._fillstyle = fillstyle
-        self._recache()
 
     def get_joinstyle(self):
         return self._joinstyle.name
@@ -310,30 +302,25 @@ class MarkerStyle:
 
         Parameters
         ----------
-        marker : str, array-like, Path, MarkerStyle, or None, default: None
-            - Another instance of *MarkerStyle* copies the details of that
-              ``marker``.
-            - *None* means no marker.
+        marker : str, array-like, Path, MarkerStyle
+            - Another instance of `MarkerStyle` copies the details of that *marker*.
             - For other possible marker values see the module docstring
               `matplotlib.markers`.
         """
-        if (isinstance(marker, np.ndarray) and marker.ndim == 2 and
+        if isinstance(marker, str) and cbook.is_math_text(marker):
+            self._marker_function = self._set_mathtext_path
+        elif isinstance(marker, (int, str)) and marker in self.markers:
+            self._marker_function = getattr(self, '_set_' + self.markers[marker])
+        elif (isinstance(marker, np.ndarray) and marker.ndim == 2 and
                 marker.shape[1] == 2):
             self._marker_function = self._set_vertices
-        elif isinstance(marker, str) and cbook.is_math_text(marker):
-            self._marker_function = self._set_mathtext_path
         elif isinstance(marker, Path):
             self._marker_function = self._set_path_marker
         elif (isinstance(marker, Sized) and len(marker) in (2, 3) and
                 marker[1] in (0, 1, 2)):
             self._marker_function = self._set_tuple_marker
-        elif (not isinstance(marker, (np.ndarray, list)) and
-              marker in self.markers):
-            self._marker_function = getattr(
-                self, '_set_' + self.markers[marker])
         elif isinstance(marker, MarkerStyle):
             self.__dict__ = copy.deepcopy(marker.__dict__)
-
         else:
             try:
                 Path(marker)
@@ -392,13 +379,13 @@ class MarkerStyle:
         if self._user_transform is not None:
             return self._user_transform.frozen()
 
-    def transformed(self, transform: Affine2D):
+    def transformed(self, transform):
         """
         Return a new version of this marker with the transform applied.
 
         Parameters
         ----------
-        transform : `~matplotlib.transforms.Affine2D`, default: None
+        transform : `~matplotlib.transforms.Affine2D`
             Transform will be combined with current user supplied transform.
         """
         new_marker = MarkerStyle(self)
@@ -414,10 +401,10 @@ class MarkerStyle:
 
         Parameters
         ----------
-        deg : float, default: None
+        deg : float, optional
             Rotation angle in degrees.
 
-        rad : float, default: None
+        rad : float, optional
             Rotation angle in radians.
 
         .. note:: You must specify exactly one of deg or rad.
@@ -441,14 +428,14 @@ class MarkerStyle:
         """
         Return new marker scaled by specified scale factors.
 
-        If *sy* is None, the same scale is applied in both the *x*- and
+        If *sy* is not given, the same scale is applied in both the *x*- and
         *y*-directions.
 
         Parameters
         ----------
         sx : float
             *X*-direction scaling factor.
-        sy : float, default: None
+        sy : float, optional
             *Y*-direction scaling factor.
         """
         if sy is None:
@@ -509,14 +496,12 @@ class MarkerStyle:
         if len(text.vertices) == 0:
             return
 
-        xmin, ymin = text.vertices.min(axis=0)
-        xmax, ymax = text.vertices.max(axis=0)
-        width = xmax - xmin
-        height = ymax - ymin
-        max_dim = max(width, height)
-        self._transform = Affine2D() \
-            .translate(-xmin + 0.5 * -width, -ymin + 0.5 * -height) \
-            .scale(1.0 / max_dim)
+        bbox = text.get_extents()
+        max_dim = max(bbox.width, bbox.height)
+        self._transform = (
+            Affine2D()
+            .translate(-bbox.xmin + 0.5 * -bbox.width, -bbox.ymin + 0.5 * -bbox.height)
+            .scale(1.0 / max_dim))
         self._path = text
         self._snap = False
 

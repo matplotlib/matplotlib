@@ -5,6 +5,7 @@
 
 
 {% if objtype in ['class'] %}
+
 .. auto{{ objtype }}:: {{ objname }}
     :no-members:
 

@@ -1,5 +1,5 @@
 import matplotlib.spines as mspines
-from matplotlib import cbook, cm, collections, colors, contour, ticker
+from matplotlib import cm, collections, colors, contour
 from matplotlib.axes import Axes
 from matplotlib.backend_bases import RendererBase
 from matplotlib.patches import Patch
@@ -23,7 +23,7 @@ class Colorbar:
     n_rasterize: int
     mappable: cm.ScalarMappable
     ax: Axes
-    alpha: float
+    alpha: float | None
     cmap: colors.Colormap
     norm: colors.Normalize
     values: Sequence[float] | None
@@ -123,7 +123,7 @@ def make_axes(
     shrink: float = ...,
     aspect: float = ...,
     **kwargs
-): ...
+) -> tuple[Axes, dict[str, Any]]: ...
 def make_axes_gridspec(
     parent: Axes,
     *,
@@ -133,4 +133,4 @@ def make_axes_gridspec(
     shrink: float = ...,
     aspect: float = ...,
     **kwargs
-): ...
+) -> tuple[Axes, dict[str, Any]]: ...

@@ -102,7 +102,7 @@ class TransformNode:
     # Some metadata about the transform, used to determine whether an
     # invalidation is affine-only
     is_affine = False
-    is_bbox = False
+    is_bbox = _api.deprecated("3.9")(_api.classproperty(lambda cls: False))
 
     pass_through = False
     """
@@ -189,13 +189,14 @@ class TransformNode:
         # Parents are stored as weak references, so that if the
         # parents are destroyed, references from the children won't
         # keep them alive.
+        id_self = id(self)
         for child in children:
             # Use weak references so this dictionary won't keep obsolete nodes
             # alive; the callback deletes the dictionary entry. This is a
             # performance improvement over using WeakValueDictionary.
             ref = weakref.ref(
-                self, lambda _, pop=child._parents.pop, k=id(self): pop(k))
-            child._parents[id(self)] = ref
+                self, lambda _, pop=child._parents.pop, k=id_self: pop(k))
+            child._parents[id_self] = ref
 
     def frozen(self):
         """
@@ -219,7 +220,7 @@ class BboxBase(TransformNode):
     and height, but these are not stored explicitly.
     """
 
-    is_bbox = True
+    is_bbox = _api.deprecated("3.9")(_api.classproperty(lambda cls: True))
     is_affine = True
 
     if DEBUG:
@@ -671,6 +672,9 @@ class BboxBase(TransformNode):
         return Bbox([[x0, y0], [x1, y1]]) if x0 <= x1 and y0 <= y1 else None
 
 
+_default_minpos = np.array([np.inf, np.inf])
+
+
 class Bbox(BboxBase):
     """
     A mutable bounding box.
@@ -765,7 +769,7 @@ class Bbox(BboxBase):
             raise ValueError('Bbox points must be of the form '
                              '"[[x0, y0], [x1, y1]]".')
         self._points = points
-        self._minpos = np.array([np.inf, np.inf])
+        self._minpos = _default_minpos.copy()
         self._ignore = True
         # it is helpful in some contexts to know if the bbox is a
         # default or has been mutated; we store the orig points to
@@ -1008,6 +1012,10 @@ class Bbox(BboxBase):
         """
         return self._minpos
 
+    @minpos.setter
+    def minpos(self, val):
+        self._minpos[:] = val
+
     @property
     def minposx(self):
         """
@@ -1019,6 +1027,10 @@ class Bbox(BboxBase):
         """
         return self._minpos[0]
 
+    @minposx.setter
+    def minposx(self, val):
+        self._minpos[0] = val
+
     @property
     def minposy(self):
         """
@@ -1029,6 +1041,10 @@ class Bbox(BboxBase):
         as the minimum *y*-extent instead of *y0*.
         """
         return self._minpos[1]
+
+    @minposy.setter
+    def minposy(self, val):
+        self._minpos[1] = val
 
     def get_points(self):
         """
@@ -1085,8 +1101,7 @@ class TransformedBbox(BboxBase):
         bbox : `Bbox`
         transform : `Transform`
         """
-        if not bbox.is_bbox:
-            raise ValueError("'bbox' is not a bbox")
+        _api.check_isinstance(BboxBase, bbox=bbox)
         _api.check_isinstance(Transform, transform=transform)
         if transform.input_dims != 2 or transform.output_dims != 2:
             raise ValueError(
@@ -1138,6 +1153,14 @@ class TransformedBbox(BboxBase):
             self._check(points)
             return points
 
+    def contains(self, x, y):
+        # Docstring inherited.
+        return self._bbox.contains(*self._transform.inverted().transform((x, y)))
+
+    def fully_contains(self, x, y):
+        # Docstring inherited.
+        return self._bbox.fully_contains(*self._transform.inverted().transform((x, y)))
+
 
 class LockableBbox(BboxBase):
     """
@@ -1166,9 +1189,7 @@ class LockableBbox(BboxBase):
             The locked value for y1, or None to leave unlocked.
 
         """
-        if not bbox.is_bbox:
-            raise ValueError("'bbox' is not a bbox")
-
+        _api.check_isinstance(BboxBase, bbox=bbox)
         super().__init__(**kwargs)
         self._bbox = bbox
         self.set_children(bbox)
@@ -1765,7 +1786,7 @@ class AffineBase(Transform):
 
     def __eq__(self, other):
         if getattr(other, "is_affine", False) and hasattr(other, "get_matrix"):
-            return np.all(self.get_matrix() == other.get_matrix())
+            return (self.get_matrix() == other.get_matrix()).all()
         return NotImplemented
 
     def transform(self, values):
@@ -1814,7 +1835,7 @@ class Affine2DBase(AffineBase):
     affine transformation, use `Affine2D`.
 
     Subclasses of this class will generally only need to override a
-    constructor and :meth:`get_matrix` that generates a custom 3x3 matrix.
+    constructor and `~.Transform.get_matrix` that generates a custom 3x3 matrix.
     """
     input_dims = 2
     output_dims = 2
@@ -2523,8 +2544,7 @@ class BboxTransform(Affine2DBase):
         Create a new `BboxTransform` that linearly transforms
         points from *boxin* to *boxout*.
         """
-        if not boxin.is_bbox or not boxout.is_bbox:
-            raise ValueError("'boxin' and 'boxout' must be bbox")
+        _api.check_isinstance(BboxBase, boxin=boxin, boxout=boxout)
 
         super().__init__(**kwargs)
         self._boxin = boxin
@@ -2567,8 +2587,7 @@ class BboxTransformTo(Affine2DBase):
         Create a new `BboxTransformTo` that linearly transforms
         points from the unit bounding box to *boxout*.
         """
-        if not boxout.is_bbox:
-            raise ValueError("'boxout' must be bbox")
+        _api.check_isinstance(BboxBase, boxout=boxout)
 
         super().__init__(**kwargs)
         self._boxout = boxout
@@ -2593,9 +2612,10 @@ class BboxTransformTo(Affine2DBase):
         return self._mtx
 
 
+@_api.deprecated("3.9")
 class BboxTransformToMaxOnly(BboxTransformTo):
     """
-    `BboxTransformTo` is a transformation that linearly transforms points from
+    `BboxTransformToMaxOnly` is a transformation that linearly transforms points from
     the unit bounding box to a given `Bbox` with a fixed upper left of (0, 0).
     """
     def get_matrix(self):
@@ -2621,8 +2641,7 @@ class BboxTransformFrom(Affine2DBase):
     is_separable = True
 
     def __init__(self, boxin, **kwargs):
-        if not boxin.is_bbox:
-            raise ValueError("'boxin' must be bbox")
+        _api.check_isinstance(BboxBase, boxin=boxin)
 
         super().__init__(**kwargs)
         self._boxin = boxin
@@ -2952,6 +2971,7 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     `Transform` subclass
         Transform with applied offset.
     """
+    _api.check_in_list(['dots', 'points', 'inches'], units=units)
     if units == 'dots':
         return trans + Affine2D().translate(x, y)
     if fig is None:
@@ -2959,8 +2979,5 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     if units == 'points':
         x /= 72.0
         y /= 72.0
-    elif units == 'inches':
-        pass
-    else:
-        _api.check_in_list(['dots', 'points', 'inches'], units=units)
+    # Default units are 'inches'
     return trans + ScaledTranslation(x, y, fig.dpi_scale_trans)

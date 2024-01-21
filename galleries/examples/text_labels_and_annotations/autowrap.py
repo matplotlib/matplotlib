@@ -17,7 +17,7 @@ embed.
 import matplotlib.pyplot as plt
 
 fig = plt.figure()
-plt.axis([0, 10, 0, 10])
+plt.axis((0, 10, 0, 10))
 t = ("This is a really long string that I'd rather have wrapped so that it "
      "doesn't go outside of the figure, but if it's long enough it will go "
      "off the top or bottom!")

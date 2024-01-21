@@ -1,41 +1,106 @@
+
 .. _users-guide-index:
 
 .. redirect-from:: /contents
+.. redirect-from:: /users/explain
 
 
-##########
-User guide
-##########
+Using Matplotlib
+================
 
-General
-#######
+.. grid:: 1 1 2 2
+
+    .. grid-item-card::
+        :padding: 2
+
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
+
+            explain/quick_start
+
+        .. toctree::
+            :maxdepth: 1
+
+            faq.rst
+
+    .. grid-item-card::
+        :padding: 2
+
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
+
+            explain/figure/index
+
+    .. grid-item-card::
+        :padding: 2
+
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
+
+            explain/axes/index
+
+
+    .. grid-item-card::
+        :padding: 2
+
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
+
+            explain/artists/index
+
+    .. grid-item-card::
+        :padding: 2
+
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
+
+            explain/customizing
+
+    .. grid-item-card::
+        :padding: 2
+
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
+
+            explain/colors/index
+
+    .. grid-item-card::
+        :padding: 2
+
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
+
+            explain/text/index
+
+    .. grid-item-card::
+        :padding: 2
+
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
+
+            explain/animations/index
+
+    .. grid-item-card::
+        :padding: 2
+
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
+
+            explain/toolkits/index
+
 
 .. toctree::
-   :maxdepth: 2
+    :hidden:
 
-   getting_started/index.rst
-   installing/index.rst
-   explain/index.rst
-   faq/index.rst
-   resources/index.rst
-
-Tutorials and examples
-######################
-
-.. toctree::
-   :maxdepth: 1
-
-   ../plot_types/index.rst
-   ../tutorials/index.rst
-   ../gallery/index.rst
-
-Reference
-#########
-
-.. toctree::
-   :maxdepth: 2
-
-   ../api/index.rst
-   ../devel/index.rst
-   project/index.rst
-   release_notes.rst
+    explain/index
+    getting_started/index
+    installing/index

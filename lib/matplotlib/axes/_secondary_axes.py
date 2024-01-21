@@ -6,6 +6,7 @@ from matplotlib import _api, _docstring
 import matplotlib.ticker as mticker
 from matplotlib.axes._base import _AxesBase, _TransformedBoundsLocator
 from matplotlib.axis import Axis
+from matplotlib.transforms import Transform
 
 
 class SecondaryAxis(_AxesBase):
@@ -57,7 +58,7 @@ class SecondaryAxis(_AxesBase):
     def set_alignment(self, align):
         """
         Set if axes spine and labels are drawn at top or bottom (or left/right)
-        of the axes.
+        of the Axes.
 
         Parameters
         ----------
@@ -84,7 +85,7 @@ class SecondaryAxis(_AxesBase):
             The position to put the secondary axis.  Strings can be 'top' or
             'bottom' for orientation='x' and 'right' or 'left' for
             orientation='y'. A float indicates the relative position on the
-            parent axes to put the new axes, 0.0 being the bottom (or left)
+            parent Axes to put the new Axes, 0.0 being the bottom (or left)
             and 1.0 being the top (or right).
         """
 
@@ -129,7 +130,7 @@ class SecondaryAxis(_AxesBase):
 
     def set_functions(self, functions):
         """
-        Set how the secondary axis converts limits from the parent axes.
+        Set how the secondary axis converts limits from the parent Axes.
 
         Parameters
         ----------
@@ -144,15 +145,21 @@ class SecondaryAxis(_AxesBase):
             If a transform is supplied, then the transform must have an
             inverse.
         """
+
         if (isinstance(functions, tuple) and len(functions) == 2 and
                 callable(functions[0]) and callable(functions[1])):
             # make an arbitrary convert from a two-tuple of functions
             # forward and inverse.
             self._functions = functions
+        elif isinstance(functions, Transform):
+            self._functions = (
+                 functions.transform,
+                 lambda x: functions.inverted().transform(x)
+            )
         elif functions is None:
             self._functions = (lambda x: x, lambda x: x)
         else:
-            raise ValueError('functions argument of secondary axes '
+            raise ValueError('functions argument of secondary Axes '
                              'must be a two-tuple of callable functions '
                              'with the first function being the transform '
                              'and the second being the inverse')
@@ -160,12 +167,12 @@ class SecondaryAxis(_AxesBase):
 
     def draw(self, renderer):
         """
-        Draw the secondary axes.
+        Draw the secondary Axes.
 
-        Consults the parent axes for its limits and converts them
+        Consults the parent Axes for its limits and converts them
         using the converter specified by
         `~.axes._secondary_axes.set_functions` (or *functions*
-        parameter when axes initialized.)
+        parameter when Axes initialized.)
         """
         self._set_lims()
         # this sets the scale in case the parent has set its scale.
@@ -204,7 +211,7 @@ class SecondaryAxis(_AxesBase):
     def _set_lims(self):
         """
         Set the limits based on parent limits and the convert method
-        between the parent and this secondary axes.
+        between the parent and this secondary Axes.
         """
         if self._orientation == 'x':
             lims = self._parent.get_xlim()
@@ -222,29 +229,25 @@ class SecondaryAxis(_AxesBase):
 
     def set_aspect(self, *args, **kwargs):
         """
-        Secondary axes cannot set the aspect ratio, so calling this just
+        Secondary Axes cannot set the aspect ratio, so calling this just
         sets a warning.
         """
-        _api.warn_external("Secondary axes can't set the aspect ratio")
+        _api.warn_external("Secondary Axes can't set the aspect ratio")
 
     def set_color(self, color):
         """
-        Change the color of the secondary axes and all decorators.
+        Change the color of the secondary Axes and all decorators.
 
         Parameters
         ----------
-        color : color
+        color : color; see :ref:`colors_def`
         """
-        if self._orientation == 'x':
-            self.tick_params(axis='x', colors=color)
-            self.spines.bottom.set_color(color)
-            self.spines.top.set_color(color)
-            self.xaxis.label.set_color(color)
-        else:  # 'y'
-            self.tick_params(axis='y', colors=color)
-            self.spines.left.set_color(color)
-            self.spines.right.set_color(color)
-            self.yaxis.label.set_color(color)
+        axis = self._axis_map[self._orientation]
+        axis.set_tick_params(colors=color)
+        for spine in self.spines.values():
+            if spine.axis is axis:
+                spine.set_color(color)
+        axis.label.set_color(color)
 
 
 _secax_docstring = '''
@@ -258,7 +261,7 @@ location : {'top', 'bottom', 'left', 'right'} or float
     The position to put the secondary axis.  Strings can be 'top' or
     'bottom' for orientation='x' and 'right' or 'left' for
     orientation='y'. A float indicates the relative position on the
-    parent axes to put the new axes, 0.0 being the bottom (or left)
+    parent Axes to put the new Axes, 0.0 being the bottom (or left)
     and 1.0 being the top (or right).
 
 functions : 2-tuple of func, or Transform with an inverse
@@ -282,6 +285,6 @@ ax : axes._secondary_axes.SecondaryAxis
 Other Parameters
 ----------------
 **kwargs : `~matplotlib.axes.Axes` properties.
-    Other miscellaneous axes parameters.
+    Other miscellaneous Axes parameters.
 '''
 _docstring.interpd.update(_secax_docstring=_secax_docstring)

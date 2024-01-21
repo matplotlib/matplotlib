@@ -73,7 +73,7 @@ Other font specifications which Matplotlib supports:
   - Limited support with Matplotlib
 
 Font subsetting
-~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^
 
 The PDF and PostScript formats support embedding fonts in files, allowing the
 display program to correctly render the text, independent of what fonts are
@@ -93,7 +93,7 @@ of ttconv.
 Currently Type 3, Type 42, and TrueType fonts are subsetted.  Type 1 fonts are not.
 
 Core Fonts
-~~~~~~~~~~
+^^^^^^^^^^
 
 In addition to the ability to embed fonts, as part of the `PostScript
 <https://en.wikipedia.org/wiki/PostScript_fonts#Core_Font_Set>`_ and `PDF
@@ -115,7 +115,7 @@ This is especially helpful to generate *really lightweight* documents::
     ax.text(0.5, 0.5, chars)
 
     fig.savefig("AFM_PDF.pdf", format="pdf")
-    fig.savefig("AFM_PS.ps", format="ps)
+    fig.savefig("AFM_PS.ps", format="ps")
 
 Fonts in SVG
 ------------
@@ -185,7 +185,7 @@ SVG, PDF, and PS backends will "fallback" through multiple fonts in a single
    fig, ax = plt.subplots()
    ax.text(
        .5, .5, "There are 几个汉字 in between!",
-       family=['DejaVu Sans', 'Noto Sans CJK JP'],
+       family=['DejaVu Sans', 'Noto Sans CJK JP', 'Noto Sans TC'],
        ha='center'
    )
 

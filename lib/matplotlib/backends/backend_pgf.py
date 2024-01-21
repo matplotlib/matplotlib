@@ -14,7 +14,7 @@ import weakref
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import cbook, font_manager as fm
+from matplotlib import _api, cbook, font_manager as fm
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase
 )
@@ -34,7 +34,7 @@ _log = logging.getLogger(__name__)
 
 def _get_preamble():
     """Prepare a LaTeX preamble based on the rcParams configuration."""
-    preamble = [
+    return "\n".join([
         # Remove Matplotlib's custom command \mathdefault.  (Not using
         # \mathnormal instead since this looks odd with Computer Modern.)
         r"\def\mathdefault#1{#1}",
@@ -42,21 +42,21 @@ def _get_preamble():
         r"\everymath=\expandafter{\the\everymath\displaystyle}",
         # Allow pgf.preamble to override the above definitions.
         mpl.rcParams["pgf.preamble"],
-    ]
-    if mpl.rcParams["pgf.texsystem"] != "pdflatex":
-        preamble.append("\\usepackage{fontspec}")
-        if mpl.rcParams["pgf.rcfonts"]:
-            families = ["serif", "sans\\-serif", "monospace"]
-            commands = ["setmainfont", "setsansfont", "setmonofont"]
-            for family, command in zip(families, commands):
-                # 1) Forward slashes also work on Windows, so don't mess with
-                # backslashes.  2) The dirname needs to include a separator.
-                path = pathlib.Path(fm.findfont(family))
-                preamble.append(r"\%s{%s}[Path=\detokenize{%s/}]" % (
-                    command, path.name, path.parent.as_posix()))
-    preamble.append(mpl.texmanager._usepackage_if_not_loaded(
-        "underscore", option="strings"))  # Documented as "must come last".
-    return "\n".join(preamble)
+        r"\ifdefined\pdftexversion\else  % non-pdftex case.",
+        r"  \usepackage{fontspec}",
+        *([
+            r"  \%s{%s}[Path=\detokenize{%s/}]"
+            % (command, path.name, path.parent.as_posix())
+            for command, path in zip(
+                ["setmainfont", "setsansfont", "setmonofont"],
+                [pathlib.Path(fm.findfont(family))
+                 for family in ["serif", "sans\\-serif", "monospace"]]
+            )
+        ] if mpl.rcParams["pgf.rcfonts"] else []),
+        r"\fi",
+        # Documented as "must come last".
+        mpl.texmanager._usepackage_if_not_loaded("underscore", option="strings"),
+    ])
 
 
 # It's better to use only one unit for all coordinates, since the
@@ -94,9 +94,9 @@ def _escape_and_apply_props(s, prop):
     family = prop.get_family()[0]
     if family in families:
         commands.append(families[family])
-    elif (any(font.name == family for font in fm.fontManager.ttflist)
-          and mpl.rcParams["pgf.texsystem"] != "pdflatex"):
-        commands.append(r"\setmainfont{%s}\rmfamily" % family)
+    elif any(font.name == family for font in fm.fontManager.ttflist):
+        commands.append(
+            r"\ifdefined\pdftexversion\else\setmainfont{%s}\rmfamily\fi" % family)
     else:
         _log.warning("Ignoring unknown font: %s", family)
 
@@ -241,16 +241,7 @@ class LatexManager:
         self._finalize_tmpdir = weakref.finalize(self, self._tmpdir.cleanup)
 
         # test the LaTeX setup to ensure a clean startup of the subprocess
-        try:
-            self._setup_latex_process(expect_reply=False)
-        except FileNotFoundError as err:
-            raise RuntimeError(
-                f"{self.latex.args[0]!r} not found.  Install it or change "
-                f"rcParams['pgf.texsystem'] to an available TeX "
-                f"implementation.") from err
-        except OSError as err:
-            raise RuntimeError(
-                f"Error starting process {self.latex.args[0]!r}") from err
+        self._setup_latex_process(expect_reply=False)
         stdout, stderr = self.latex.communicate("\n\\makeatletter\\@@end\n")
         if self.latex.returncode != 0:
             raise LatexError(
@@ -258,7 +249,6 @@ class LatexManager:
                 f"while processing the following input:\n"
                 f"{self._build_latex_header()}",
                 stdout)
-
         self.latex = None  # Will be set up on first use.
         # Per-instance cache.
         self._get_box_metrics = functools.lru_cache(self._get_box_metrics)
@@ -268,10 +258,19 @@ class LatexManager:
         # Windows, we must ensure that the subprocess has quit before being
         # able to delete the tmpdir in which it runs; in order to do so, we
         # must first `kill()` it, and then `communicate()` with it.
-        self.latex = subprocess.Popen(
-            [mpl.rcParams["pgf.texsystem"], "-halt-on-error"],
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            encoding="utf-8", cwd=self.tmpdir)
+        try:
+            self.latex = subprocess.Popen(
+                [mpl.rcParams["pgf.texsystem"], "-halt-on-error"],
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                encoding="utf-8", cwd=self.tmpdir)
+        except FileNotFoundError as err:
+            raise RuntimeError(
+                f"{mpl.rcParams['pgf.texsystem']!r} not found; install it or change "
+                f"rcParams['pgf.texsystem'] to an available TeX implementation"
+            ) from err
+        except OSError as err:
+            raise RuntimeError(
+                f"Error starting {mpl.rcParams['pgf.texsystem']!r}") from err
 
         def finalize_latex(latex):
             latex.kill()
@@ -349,7 +348,7 @@ class RendererPgf(RendererBase):
 
         Attributes
         ----------
-        figure : `matplotlib.figure.Figure`
+        figure : `~matplotlib.figure.Figure`
             Matplotlib figure to initialize height, width and dpi from.
         fh : file-like
             File handle for the output of the drawing commands.
@@ -874,16 +873,10 @@ class PdfPages:
     ...     # When no figure is specified the current figure is saved
     ...     pdf.savefig()
     """
-    __slots__ = (
-        '_output_name',
-        'keep_empty',
-        '_n_figures',
-        '_file',
-        '_info_dict',
-        '_metadata',
-    )
 
-    def __init__(self, filename, *, keep_empty=True, metadata=None):
+    _UNSET = object()
+
+    def __init__(self, filename, *, keep_empty=_UNSET, metadata=None):
         """
         Create a new PdfPages object.
 
@@ -912,10 +905,16 @@ class PdfPages:
         """
         self._output_name = filename
         self._n_figures = 0
-        self.keep_empty = keep_empty
+        if keep_empty and keep_empty is not self._UNSET:
+            _api.warn_deprecated("3.8", message=(
+                "Keeping empty pdf files is deprecated since %(since)s and support "
+                "will be removed %(removal)s."))
+        self._keep_empty = keep_empty
         self._metadata = (metadata or {}).copy()
         self._info_dict = _create_pdf_info_dict('pgf', self._metadata)
         self._file = BytesIO()
+
+    keep_empty = _api.deprecate_privatize_attribute("3.8")
 
     def _write_header(self, width_inches, height_inches):
         pdfinfo = ','.join(
@@ -946,7 +945,10 @@ class PdfPages:
         self._file.write(rb'\end{document}\n')
         if self._n_figures > 0:
             self._run_latex()
-        elif self.keep_empty:
+        elif self._keep_empty:
+            _api.warn_deprecated("3.8", message=(
+                "Keeping empty pdf files is deprecated since %(since)s and support "
+                "will be removed %(removal)s."))
             open(self._output_name, 'wb').close()
         self._file.close()
 
@@ -990,12 +992,14 @@ class PdfPages:
                 # luatex<0.85; they were renamed to \pagewidth and \pageheight
                 # on luatex>=0.85.
                 self._file.write(
-                    br'\newpage'
-                    br'\ifdefined\pdfpagewidth\pdfpagewidth'
-                    br'\else\pagewidth\fi=%ain'
-                    br'\ifdefined\pdfpageheight\pdfpageheight'
-                    br'\else\pageheight\fi=%ain'
-                    b'%%\n' % (width, height)
+                    (
+                        r'\newpage'
+                        r'\ifdefined\pdfpagewidth\pdfpagewidth'
+                        fr'\else\pagewidth\fi={width}in'
+                        r'\ifdefined\pdfpageheight\pdfpageheight'
+                        fr'\else\pageheight\fi={height}in'
+                        '%%\n'
+                    ).encode("ascii")
                 )
             figure.savefig(self._file, format="pgf", **kwargs)
             self._n_figures += 1

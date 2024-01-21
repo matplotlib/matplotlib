@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 
 from matplotlib import _api
@@ -26,7 +28,7 @@ class Triangulation:
         For each triangle, the indices of the three points that make
         up the triangle, ordered in an anticlockwise manner. If you want to
         take the *mask* into account, use `get_masked_triangles` instead.
-    mask : (ntri, 3) array of bool
+    mask : (ntri, 3) array of bool or None
         Masked out triangles.
     is_delaunay : bool
         Whether the Triangulation is a calculated Delaunay
@@ -55,7 +57,7 @@ class Triangulation:
         if triangles is None:
             # No triangulation specified, so use matplotlib._qhull to obtain
             # Delaunay triangulation.
-            self.triangles, self._neighbors = _qhull.delaunay(x, y)
+            self.triangles, self._neighbors = _qhull.delaunay(x, y, sys.flags.verbose)
             self.is_delaunay = True
         else:
             # Triangulation specified. Copy, since we may correct triangle

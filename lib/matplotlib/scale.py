@@ -54,7 +54,7 @@ class ScaleBase:
 
         Notes
         -----
-        The following note is for scale implementors.
+        The following note is for scale implementers.
 
         For back-compatibility reasons, scales take an `~matplotlib.axis.Axis`
         object as first argument.  However, this argument should not
@@ -319,7 +319,7 @@ class FuncScaleLog(LogScale):
         """
         Parameters
         ----------
-        axis : `matplotlib.axis.Axis`
+        axis : `~matplotlib.axis.Axis`
             The axis for the scale.
         functions : (callable, callable)
             two-tuple of the forward and inverse functions for the scale.
@@ -393,11 +393,6 @@ class InvertedSymmetricalLogTransform(Transform):
     @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         abs_a = np.abs(values)
-        if (abs_a < self.linthresh).all():
-            _api.warn_external(
-                "All values for SymLogScale are below linthresh, making "
-                "it effectively linear. You likely should lower the value "
-                "of linthresh. ")
         with np.errstate(divide="ignore", invalid="ignore"):
             out = np.sign(values) * self.linthresh * (
                 np.power(self.base,
@@ -644,7 +639,7 @@ class LogitScale(ScaleBase):
         r"""
         Parameters
         ----------
-        axis : `matplotlib.axis.Axis`
+        axis : `~matplotlib.axis.Axis`
             Currently unused.
         nonpositive : {'mask', 'clip'}
             Determines the behavior for values beyond the open interval ]0, 1[.
@@ -716,7 +711,7 @@ def scale_factory(scale, axis, **kwargs):
     Parameters
     ----------
     scale : {%(names)s}
-    axis : `matplotlib.axis.Axis`
+    axis : `~matplotlib.axis.Axis`
     """
     scale_cls = _api.check_getitem(_scale_mapping, scale=scale)
     return scale_cls(axis, **kwargs)

@@ -1,18 +1,14 @@
 import matplotlib.axis as maxis
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
-from matplotlib import cbook
 from matplotlib.axes import Axes
 from matplotlib.lines import Line2D
-from matplotlib.path import Path
-from matplotlib.spines import Spine
 from matplotlib.text import Text
-from matplotlib.ticker import _DummyAxis
 
 import numpy as np
 from numpy.typing import ArrayLike
 from collections.abc import Sequence
-from typing import Any, Literal, overload
+from typing import Any, ClassVar, Literal, overload
 
 class PolarTransform(mtransforms.Transform):
     input_dims: int
@@ -21,8 +17,8 @@ class PolarTransform(mtransforms.Transform):
         self,
         axis: PolarAxes | None = ...,
         use_rmin: bool = ...,
-        _apply_theta_transforms: bool = ...,
         *,
+        apply_theta_transforms: bool = ...,
         scale_transform: mtransforms.Transform | None = ...,
     ) -> None: ...
     def inverted(self) -> InvertedPolarTransform: ...
@@ -39,7 +35,8 @@ class InvertedPolarTransform(mtransforms.Transform):
         self,
         axis: PolarAxes | None = ...,
         use_rmin: bool = ...,
-        _apply_theta_transforms: bool = ...,
+        *,
+        apply_theta_transforms: bool = ...,
     ) -> None: ...
     def inverted(self) -> PolarTransform: ...
 
@@ -84,6 +81,14 @@ class _WedgeBbox(mtransforms.Bbox):
     ) -> None: ...
 
 class PolarAxes(Axes):
+
+    PolarTransform: ClassVar[type] = PolarTransform
+    PolarAffine: ClassVar[type] = PolarAffine
+    InvertedPolarTransform: ClassVar[type] = InvertedPolarTransform
+    ThetaFormatter: ClassVar[type] = ThetaFormatter
+    RadialLocator: ClassVar[type] = RadialLocator
+    ThetaLocator: ClassVar[type] = ThetaLocator
+
     name: str
     use_sticky_edges: bool
     def __init__(
@@ -135,9 +140,7 @@ class PolarAxes(Axes):
     @overload
     def set_thetalim(self, minval: float, maxval: float, /) -> tuple[float, float]: ...
     @overload
-    def set_thetalim(
-        self, *, thetamin: float, thetamax: float
-    ) -> tuple[float, float]: ...
+    def set_thetalim(self, *, thetamin: float, thetamax: float) -> tuple[float, float]: ...
     def set_theta_offset(self, offset: float) -> None: ...
     def get_theta_offset(self) -> float: ...
     def set_theta_zero_location(
@@ -154,7 +157,7 @@ class PolarAxes(Axes):
     def get_rmax(self) -> float: ...
     def set_rmin(self, rmin: float) -> None: ...
     def get_rmin(self) -> float: ...
-    def set_rorigin(self, rorigin: float) -> None: ...
+    def set_rorigin(self, rorigin: float | None) -> None: ...
     def get_rorigin(self) -> float: ...
     def get_rsign(self) -> float: ...
     def set_rlim(
@@ -165,7 +168,7 @@ class PolarAxes(Axes):
         emit: bool = ...,
         auto: bool = ...,
         **kwargs,
-    ): ...
+    ) -> tuple[float, float]: ...
     def get_rlabel_position(self) -> float: ...
     def set_rlabel_position(self, value: float) -> None: ...
     def set_rscale(self, *args, **kwargs) -> None: ...

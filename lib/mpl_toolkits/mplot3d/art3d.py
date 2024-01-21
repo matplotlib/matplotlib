@@ -17,7 +17,7 @@ from matplotlib import (
     artist, cbook, colors as mcolors, lines, text as mtext,
     path as mpath)
 from matplotlib.collections import (
-    LineCollection, PolyCollection, PatchCollection, PathCollection)
+    Collection, LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.colors import Normalize
 from matplotlib.patches import Patch
 from . import proj3d
@@ -183,6 +183,12 @@ def text_2d_to_3d(obj, z=0, zdir='z'):
 class Line3D(lines.Line2D):
     """
     3D line object.
+
+    .. note:: Use `get_data_3d` to obtain the data associated with the line.
+            `~.Line2D.get_data`, `~.Line2D.get_xdata`, and `~.Line2D.get_ydata` return
+            the x- and y-coordinates of the projected 2D-line, not the x- and y-data of
+            the 3D-line. Similarly, use `set_data_3d` to set the data, not
+            `~.Line2D.set_data`, `~.Line2D.set_xdata`, and `~.Line2D.set_ydata`.
     """
 
     def __init__(self, xs, ys, zs, *args, **kwargs):
@@ -196,8 +202,8 @@ class Line3D(lines.Line2D):
             The y-data to be plotted.
         zs : array-like
             The z-data to be plotted.
-
-        Additional arguments are passed onto :func:`~matplotlib.lines.Line2D`.
+        *args, **kwargs
+            Additional arguments are passed to `~matplotlib.lines.Line2D`.
         """
         super().__init__([], [], *args, **kwargs)
         self.set_data_3d(xs, ys, zs)
@@ -338,6 +344,31 @@ def _paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
     return list(segments), list(codes)
 
 
+class Collection3D(Collection):
+    """A collection of 3D paths."""
+
+    def do_3d_projection(self):
+        """Project the points according to renderer matrix."""
+        xyzs_list = [proj3d.proj_transform(*vs.T, self.axes.M)
+                     for vs, _ in self._3dverts_codes]
+        self._paths = [mpath.Path(np.column_stack([xs, ys]), cs)
+                       for (xs, ys, _), (_, cs) in zip(xyzs_list, self._3dverts_codes)]
+        zs = np.concatenate([zs for _, _, zs in xyzs_list])
+        return zs.min() if len(zs) else 1e9
+
+
+def collection_2d_to_3d(col, zs=0, zdir='z'):
+    """Convert a `.Collection` to a `.Collection3D` object."""
+    zs = np.broadcast_to(zs, len(col.get_paths()))
+    col._3dverts_codes = [
+        (np.column_stack(juggle_axes(
+            *np.column_stack([p.vertices, np.broadcast_to(z, len(p.vertices))]).T,
+            zdir)),
+         p.codes)
+        for p, z in zip(col.get_paths(), zs)]
+    col.__class__ = cbook._make_class_factory(Collection3D, "{}3D")(type(col))
+
+
 class Line3DCollection(LineCollection):
     """
     A collection of 3D lines.
@@ -417,6 +448,11 @@ class Patch3D(Patch):
                            for ((x, y), z) in zip(verts, zs)]
 
     def get_path(self):
+        # docstring inherited
+        # self._path2d is not initialized until do_3d_projection
+        if not hasattr(self, '_path2d'):
+            self.axes.M = self.axes.get_proj()
+            self.do_3d_projection()
         return self._path2d
 
     def do_3d_projection(self):
@@ -790,18 +826,22 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
 
     Parameters
     ----------
+    col : `~matplotlib.collections.PatchCollection` or \
+`~matplotlib.collections.PathCollection`
+        The collection to convert.
     zs : float or array of floats
         The location or locations to place the patches in the collection along
         the *zdir* axis. Default: 0.
     zdir : {'x', 'y', 'z'}
         The axis in which to place the patches. Default: "z".
         See `.get_dir_vector` for a description of the values.
-    depthshade
-        Whether to shade the patches to give a sense of depth. Default: *True*.
+    depthshade : bool, default: True
+        Whether to shade the patches to give a sense of depth.
 
     """
     if isinstance(col, PathCollection):
         col.__class__ = Path3DCollection
+        col._offset_zordered = None
     elif isinstance(col, PatchCollection):
         col.__class__ = Patch3DCollection
     col._depthshade = depthshade
@@ -874,7 +914,7 @@ class Poly3DCollection(PolyCollection):
                 kwargs['edgecolors'] = _shade_colors(
                     edgecolors, normals, lightsource
                 )
-            if facecolors is None and edgecolors in None:
+            if facecolors is None and edgecolors is None:
                 raise ValueError(
                     "You must provide facecolors, edgecolors, or both for "
                     "shade to work.")
@@ -911,8 +951,8 @@ class Poly3DCollection(PolyCollection):
     def get_vector(self, segments3d):
         """Optimize points for projection."""
         if len(segments3d):
-            xs, ys, zs = np.row_stack(segments3d).T
-        else:  # row_stack can't stack zero arrays.
+            xs, ys, zs = np.vstack(segments3d).T
+        else:  # vstack can't stack zero arrays.
             xs, ys, zs = [], [], []
         ones = np.ones(len(xs))
         self._vec = np.array([xs, ys, zs, ones])
@@ -1080,6 +1120,8 @@ def poly_collection_2d_to_3d(col, zs=0, zdir='z'):
 
     Parameters
     ----------
+    col : `~matplotlib.collections.PolyCollection`
+        The collection to convert.
     zs : float or array of floats
         The location or locations to place the polygons in the collection along
         the *zdir* axis. Default: 0.

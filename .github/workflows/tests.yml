@@ -9,15 +9,14 @@ on:
     branches-ignore:
       - auto-backport-of-pr-[0-9]+
       - v[0-9]+.[0-9]+.[0-9x]+-doc
+      - dependabot/**
   pull_request:
     branches-ignore:
       - v[0-9]+.[0-9]+.[0-9x]+-doc
     paths-ignore:
       # Skip running tests if changes are only in documentation directories
       - 'doc/**'
-      - 'galleries/examples/**'
-      - 'galleries/plot_types/**'
-      - 'galleries/tutorials/**'
+      - 'galleries/**'
   schedule:
     # 5:47 UTC on Saturdays
     - cron: "47 5 * * 6"
@@ -62,21 +61,44 @@ jobs:
             python-version: 3.9
             extra-requirements: '-r requirements/testing/extra.txt'
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
+            # https://github.com/matplotlib/matplotlib/pull/26052#issuecomment-1574595954
+            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
+            pyqt6-ver: '!=6.5.1,!=6.6.0'
+            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
+            pyside6-ver: '!=6.5.1'
           - os: ubuntu-20.04
             python-version: '3.10'
             extra-requirements: '-r requirements/testing/extra.txt'
-          - os: ubuntu-20.04
+            # https://github.com/matplotlib/matplotlib/pull/26052#issuecomment-1574595954
+            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
+            pyqt6-ver: '!=6.5.1,!=6.6.0'
+            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
+            pyside6-ver: '!=6.5.1'
+          - os: ubuntu-22.04
             python-version: '3.11'
+            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
+            pyqt6-ver: '!=6.6.0'
+            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
+            pyside6-ver: '!=6.5.1'
+            extra-requirements: '-r requirements/testing/extra.txt'
+          - os: ubuntu-22.04
+            python-version: '3.12'
+            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
+            pyqt6-ver: '!=6.6.0'
+            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
+            pyside6-ver: '!=6.5.1'
           - os: macos-latest
             python-version: 3.9
+            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
+            pyside6-ver: '!=6.5.1'
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -86,16 +108,19 @@ jobs:
           Linux)
             echo 'Acquire::Retries "3";' | sudo tee /etc/apt/apt.conf.d/80-retries
             sudo apt-get update -yy
-            sudo apt-get install -yy \
+            sudo apt-get install -yy --no-install-recommends \
               ccache \
               cm-super \
               dvipng \
               ffmpeg \
+              fonts-freefont-otf \
               fonts-noto-cjk \
+              fonts-wqy-zenhei \
               gdb \
               gir1.2-gtk-3.0 \
               graphviz \
               inkscape \
+              language-pack-de \
               lcov \
               libcairo2 \
               libcairo2-dev \
@@ -112,8 +137,7 @@ jobs:
               libxcb-render-util0 \
               libxcb-xinerama0 \
               lmodern \
-              fonts-freefont-otf \
-              texlive-pictures \
+              ninja-build \
               pkg-config \
               qtbase5-dev \
               texlive-fonts-recommended \
@@ -121,16 +145,19 @@ jobs:
               texlive-latex-extra \
               texlive-latex-recommended \
               texlive-luatex \
-              texlive-xetex \
-              ttf-wqy-zenhei
+              texlive-pictures \
+              texlive-xetex
             if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
-              sudo apt install -yy libopengl0
+              sudo apt-get install -yy --no-install-recommends libopengl0
+            else  # ubuntu-22.04
+              sudo apt-get install -yy --no-install-recommends \
+                gir1.2-gtk-4.0 libnotify4
             fi
             ;;
           macOS)
             brew install ccache
             brew tap homebrew/cask-fonts
-            brew install font-noto-sans-cjk
+            brew install font-noto-sans-cjk gobject-introspection gtk4 ninja
             ;;
           esac
 
@@ -165,10 +192,10 @@ jobs:
             ~/.cache/matplotlib
             !~/.cache/matplotlib/tex.cache
             !~/.cache/matplotlib/test_cache
-          key: 2-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
+          key: 4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
           restore-keys: |
-            2-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
-            2-${{ runner.os }}-py${{ matrix.python-version }}-mpl-
+            4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
+            4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-
 
       - name: Install Python dependencies
         run: |
@@ -176,17 +203,20 @@ jobs:
           # possible.
           python -m pip install --upgrade pip setuptools wheel
 
+          # Install pre-release versions during our weekly upcoming dependency tests.
+          if [[ "${{ github.event_name }}" == 'schedule'
+                && "${{ matrix.name-suffix }}" != '(Minimum Versions)' ]]; then
+            PRE="--pre"
+          fi
+
           # Install dependencies from PyPI.
+          # Preinstall build requirements to enable no-build-isolation builds.
           python -m pip install --upgrade $PRE \
             'contourpy>=1.0.1' cycler fonttools kiwisolver importlib_resources \
-            numpy packaging pillow pyparsing python-dateutil setuptools-scm \
+            numpy packaging pillow 'pyparsing!=3.1.0' python-dateutil setuptools-scm \
+            'meson-python>=0.13.1' 'pybind11>=2.6' \
             -r requirements/testing/all.txt \
             ${{ matrix.extra-requirements }}
-
-          # Preinstall pybind11 on no-build-isolation builds.
-          if [[ "${{ matrix.name-suffix }}" == '(Minimum Versions)' ]]; then
-            python -m pip install 'pybind11>=2.6'
-          fi
 
           # Install optional dependencies from PyPI.
           # Sphinx is needed to run sphinxext tests
@@ -198,13 +228,17 @@ jobs:
           # (sometimes, the install appears to be successful but shared
           # libraries cannot be loaded at runtime, so an actual import is a
           # better check).
-          # PyGObject, pycairo, and cariocffi do not install on OSX 10.12.
-           python -m pip install --upgrade pycairo 'cairocffi>=0.8' PyGObject &&
-             python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
-             echo 'PyGObject is available' ||
-             echo 'PyGObject is not available'
+          # PyGObject, pycairo, and cariocffi do not install on macOS 10.12.
+          python -m pip install --upgrade pycairo 'cairocffi>=0.8' PyGObject &&
+            (
+              python -c 'import gi; gi.require_version("Gtk", "4.0"); from gi.repository import Gtk' &&
+              echo 'PyGObject 4 is available' || echo 'PyGObject 4 is not available'
+            ) && (
+              python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
+              echo 'PyGObject 3 is available' || echo 'PyGObject 3 is not available'
+            )
 
-          # There are no functioning wheels available for OSX 10.12 (as of
+          # There are no functioning wheels available for macOS 10.12 (as of
           # Sept 2020) for either pyqt5 (there are only wheels for 10.13+) or
           # pyside2 (the latest version (5.13.2) with 10.12 wheels has a
           # fatal to us bug, it was fixed in 5.14.0 which has 10.13 wheels)
@@ -212,29 +246,35 @@ jobs:
             python -c 'import PyQt5.QtCore' &&
             echo 'PyQt5 is available' ||
             echo 'PyQt5 is not available'
-          if [[ "${{ runner.os }}" != 'macOS' ]]; then
+          if [[ "${{ runner.os }}" != 'macOS'
+                && "${{ matrix.python-version }}" != '3.12' ]]; then
             python -mpip install --upgrade pyside2${{ matrix.pyside2-ver }} &&
               python -c 'import PySide2.QtCore' &&
               echo 'PySide2 is available' ||
               echo 'PySide2 is not available'
           fi
-          if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
+          if [[ "${{ runner.os }}" != 'macOS' ]]; then
             python -mpip install --upgrade pyqt6${{ matrix.pyqt6-ver }} &&
               python -c 'import PyQt6.QtCore' &&
               echo 'PyQt6 is available' ||
               echo 'PyQt6 is not available'
+          fi
+          if [[ "${{ runner.os }}" != 'macOS'
+                && "${{ matrix.python-version }}" != '3.12' ]]; then
             python -mpip install --upgrade pyside6${{ matrix.pyside6-ver }} &&
               python -c 'import PySide6.QtCore' &&
               echo 'PySide6 is available' ||
               echo 'PySide6 is not available'
           fi
 
-          python -mpip install --upgrade \
-            -f "https://extras.wxpython.org/wxPython4/extras/linux/gtk3/${{ matrix.os }}" \
-            wxPython &&
-            python -c 'import wx' &&
-            echo 'wxPython is available' ||
-            echo 'wxPython is not available'
+          if [[ "${{ matrix.python-version }}" != '3.12' ]]; then
+            python -mpip install --upgrade \
+              -f "https://extras.wxpython.org/wxPython4/extras/linux/gtk3/${{ matrix.os }}" \
+              wxPython &&
+              python -c 'import wx' &&
+              echo 'wxPython is available' ||
+              echo 'wxPython is not available'
+          fi
 
       - name: Install the nightly dependencies
         # Only install the nightly dependencies during the scheduled event
@@ -242,9 +282,9 @@ jobs:
           github.event_name == 'schedule' &&
           matrix.name-suffix != '(Minimum Versions)'
         run: |
-          python -m pip install pytz  # Must be installed for Pandas.
+          python -m pip install pytz tzdata  # Must be installed for Pandas.
           python -m pip install \
-            --index-url https://pypi.anaconda.org/scipy-wheels-nightly/simple \
+            --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
             --upgrade --only-binary=:all: numpy pandas
 
       - name: Install Matplotlib
@@ -254,28 +294,16 @@ jobs:
 
           # Set flag in a delayed manner to avoid issues with installing other
           # packages
-          if [[ "${{ runner.os }}" != 'macOS' ]]; then
-            if [[ "$(lsb_release -r -s)" == "20.04" ]]; then
-              export CPPFLAGS='--coverage -fprofile-abs-path'
-            else
-              export CPPFLAGS='--coverage'
-            fi
-          fi
-
-          cat <<EOT >> mplsetup.cfg
-          [rc_options]
-          backend=Agg
-          EOT
-
-          cat mplsetup.cfg
-
-          if [[ "${{ matrix.name-suffix }}" == '(Minimum Versions)' ]]; then
-            # Minimum versions run does not use build isolation so that it
-            # builds against the pre-installed minver dependencies.
-            python -m pip install --no-deps --no-build-isolation -ve .
+          if [[ "${{ runner.os }}" == 'macOS' ]]; then
+            export CPPFLAGS='-fprofile-instr-generate=default.%m.profraw'
+            export CPPFLAGS="$CPPFLAGS -fcoverage-mapping"
           else
-            python -m pip install --no-deps -ve .
+            export CPPFLAGS='--coverage -fprofile-abs-path'
           fi
+
+          python -m pip install --no-deps --no-build-isolation --verbose \
+            --config-settings=setup-args="-DrcParams-backend=Agg" \
+            --editable .[dev]
 
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
             unset CPPFLAGS
@@ -288,22 +316,31 @@ jobs:
 
       - name: Run pytest
         run: |
-          python -mpytest -raR -n auto \
+          pytest -raR -n auto \
             --maxfail=50 --timeout=300 --durations=25 \
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
 
       - name: Filter C coverage
         run: |
-          lcov --capture --directory . --output-file coverage.info
-          lcov --output-file coverage.info \
-            --extract coverage.info $PWD/src/'*' $PWD/lib/'*'
-          lcov --list coverage.info
-          find . -name '*.gc*' -delete
-        if: ${{ runner.os != 'macOS' }}
+          if [[ "${{ runner.os }}" != 'macOS' ]]; then
+            lcov --rc lcov_branch_coverage=1 --capture --directory . \
+              --output-file coverage.info
+            lcov --rc lcov_branch_coverage=1 --output-file coverage.info \
+              --extract coverage.info $PWD/src/'*' $PWD/lib/'*'
+            lcov --rc lcov_branch_coverage=1 --list coverage.info
+            find . -name '*.gc*' -delete
+          else
+            xcrun llvm-profdata merge -sparse default.*.profraw \
+              -o default.profdata
+            xcrun llvm-cov export -format="lcov" build/*/src/*.so \
+              -instr-profile default.profdata > info.lcov
+          fi
       - name: Upload code coverage
         uses: codecov/codecov-action@v3
+        with:
+          name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }}"
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }} result images"

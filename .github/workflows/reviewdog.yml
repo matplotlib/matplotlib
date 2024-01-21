@@ -12,10 +12,10 @@ jobs:
     name: flake8
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python 3
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: 3.9
 
@@ -23,12 +23,7 @@ jobs:
         run: pip3 install -r requirements/testing/flake8.txt
 
       - name: Set up reviewdog
-        run: |
-          mkdir -p "$HOME/bin"
-          curl -sfL \
-            https://github.com/reviewdog/reviewdog/raw/master/install.sh | \
-              sh -s -- -b "$HOME/bin"
-          echo "$HOME/bin" >> $GITHUB_PATH
+        uses: reviewdog/action-setup@v1
 
       - name: Run flake8
         env:
@@ -42,10 +37,10 @@ jobs:
     name: mypy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python 3
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: 3.9
 
@@ -53,21 +48,14 @@ jobs:
         run: pip3 install -r requirements/testing/mypy.txt -r requirements/testing/all.txt
 
       - name: Set up reviewdog
-        run: |
-          mkdir -p "$HOME/bin"
-          curl -sfL \
-            https://github.com/reviewdog/reviewdog/raw/master/install.sh | \
-              sh -s -- -b "$HOME/bin"
-          echo "$HOME/bin" >> $GITHUB_PATH
+        uses: reviewdog/action-setup@v1
 
       - name: Run mypy
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -o pipefail
-          # The --ignore-missing-imports can be removed when typed cycler is released and used
           mypy --config pyproject.toml lib/matplotlib \
-             --ignore-missing-imports \
              --follow-imports silent | \
             reviewdog -f=mypy -name=mypy \
               -tee -reporter=github-check -filter-mode nofilter
@@ -77,7 +65,7 @@ jobs:
     name: eslint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: eslint
         uses: reviewdog/action-eslint@v1

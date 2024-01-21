@@ -1,5 +1,3 @@
-from matplotlib import cbook
-
 from collections.abc import Callable
 import functools
 from typing import Literal
@@ -15,7 +13,7 @@ def detrend(
     | Callable[[ArrayLike, int | None], ArrayLike]
     | None = ...,
     axis: int | None = ...,
-): ...
+) -> ArrayLike: ...
 def detrend_mean(x: ArrayLike, axis: int | None = ...) -> ArrayLike: ...
 def detrend_none(x: ArrayLike, axis: int | None = ...) -> ArrayLike: ...
 def detrend_linear(y: ArrayLike) -> ArrayLike: ...
@@ -56,29 +54,26 @@ def specgram(
     x: ArrayLike,
     NFFT: int | None = ...,
     Fs: float | None = ...,
-    detrend: Literal["none", "mean", "linear"]
-    | Callable[[ArrayLike, int | None], ArrayLike]
-    | None = ...,
+    detrend: Literal["none", "mean", "linear"] | Callable[[ArrayLike, int | None], ArrayLike] | None = ...,
     window: Callable[[ArrayLike], ArrayLike] | ArrayLike | None = ...,
     noverlap: int | None = ...,
     pad_to: int | None = ...,
     sides: Literal["default", "onesided", "twosided"] | None = ...,
     scale_by_freq: bool | None = ...,
     mode: Literal["psd", "complex", "magnitude", "angle", "phase"] | None = ...,
-): ...
+) -> tuple[ArrayLike, ArrayLike, ArrayLike]: ...
 def cohere(
     x: ArrayLike,
     y: ArrayLike,
     NFFT: int = ...,
     Fs: float = ...,
-    detrend: Literal["none", "mean", "linear"]
-    | Callable[[ArrayLike, int | None], ArrayLike] = ...,
+    detrend: Literal["none", "mean", "linear"] | Callable[[ArrayLike, int | None], ArrayLike] = ...,
     window: Callable[[ArrayLike], ArrayLike] | ArrayLike = ...,
     noverlap: int = ...,
     pad_to: int | None = ...,
     sides: Literal["default", "onesided", "twosided"] = ...,
     scale_by_freq: bool | None = ...,
-): ...
+) -> tuple[ArrayLike, ArrayLike]: ...
 
 class GaussianKDE:
     dataset: ArrayLike

@@ -35,6 +35,8 @@ import io
 import itertools
 import logging
 import os
+import signal
+import socket
 import sys
 import time
 import weakref
@@ -45,7 +47,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import (
     _api, backend_tools as tools, cbook, colors, _docstring, text,
-    _tight_bbox, transforms, widgets, get_backend, is_interactive, rcParams)
+    _tight_bbox, transforms, widgets, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
 from matplotlib.cbook import _setattr_cm
@@ -170,7 +172,6 @@ class RendererBase:
     * `draw_path_collection`
     * `draw_quad_mesh`
     """
-
     def __init__(self):
         super().__init__()
         self._texmanager = None
@@ -209,10 +210,15 @@ class RendererBase:
         ----------
         gc : `.GraphicsContextBase`
             The graphics context.
-        marker_trans : `matplotlib.transforms.Transform`
+        marker_path : `~matplotlib.path.Path`
+            The path for the marker.
+        marker_trans : `~matplotlib.transforms.Transform`
             An affine transform applied to the marker.
-        trans : `matplotlib.transforms.Transform`
+        path : `~matplotlib.path.Path`
+            The locations to draw the markers.
+        trans : `~matplotlib.transforms.Transform`
             An affine transform applied to the path.
+        rgbFace : color, optional
         """
         for vertices, codes in path.iter_segments(trans, simplify=False):
             if len(vertices):
@@ -288,24 +294,6 @@ class RendererBase:
             gc, master_transform, paths, [], offsets, offsetTrans, facecolors,
             edgecolors, linewidths, [], [antialiased], [None], 'screen')
 
-    @_api.deprecated("3.7", alternative="draw_gouraud_triangles")
-    def draw_gouraud_triangle(self, gc, points, colors, transform):
-        """
-        Draw a Gouraud-shaded triangle.
-
-        Parameters
-        ----------
-        gc : `.GraphicsContextBase`
-            The graphics context.
-        points : (3, 2) array-like
-            Array of (x, y) points for the triangle.
-        colors : (3, 4) array-like
-            RGBA colors for each point of the triangle.
-        transform : `matplotlib.transforms.Transform`
-            An affine transform to apply to the points.
-        """
-        raise NotImplementedError
-
     def draw_gouraud_triangles(self, gc, triangles_array, colors_array,
                                transform):
         """
@@ -319,7 +307,7 @@ class RendererBase:
             Array of *N* (x, y) points for the triangles.
         colors_array : (N, 3, 4) array-like
             Array of *N* RGBA colors for each point of the triangles.
-        transform : `matplotlib.transforms.Transform`
+        transform : `~matplotlib.transforms.Transform`
             An affine transform to apply to the points.
         """
         raise NotImplementedError
@@ -523,7 +511,7 @@ class RendererBase:
             The font properties.
         angle : float
             The rotation angle in degrees anti-clockwise.
-        mtext : `matplotlib.text.Text`
+        mtext : `~matplotlib.text.Text`
             The original text object to be rendered.
         """
         self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
@@ -548,7 +536,7 @@ class RendererBase:
             The rotation angle in degrees anti-clockwise.
         ismath : bool or "TeX"
             If True, use mathtext parser. If "TeX", use tex for rendering.
-        mtext : `matplotlib.text.Text`
+        mtext : `~matplotlib.text.Text`
             The original text object to be rendered.
 
         Notes
@@ -636,9 +624,10 @@ class RendererBase:
 
     def get_text_width_height_descent(self, s, prop, ismath):
         """
-        Get the width, height, and descent (offset from the bottom
-        to the baseline), in display coords, of the string *s* with
-        `.FontProperties` *prop*.
+        Get the width, height, and descent (offset from the bottom to the baseline), in
+        display coords, of the string *s* with `.FontProperties` *prop*.
+
+        Whitespace at the start and the end of *s* is included in the reported width.
         """
         fontsize = prop.get_size_in_points()
 
@@ -1116,10 +1105,10 @@ class TimerBase:
             The time between timer events in milliseconds.  Will be stored as
             ``timer.interval``.
         callbacks : list[tuple[callable, tuple, dict]]
-            List of (func, args, kwargs) tuples that will be called upon
-            timer events.  This list is accessible as ``timer.callbacks`` and
-            can be manipulated directly, or the functions `add_callback` and
-            `remove_callback` can be used.
+            List of (func, args, kwargs) tuples that will be called upon timer
+            events.  This list is accessible as ``timer.callbacks`` and can be
+            manipulated directly, or the functions `~.TimerBase.add_callback`
+            and `~.TimerBase.remove_callback` can be used.
         """
         self.callbacks = [] if callbacks is None else callbacks.copy()
         # Set .interval and not ._interval to go through the property setter.
@@ -1130,6 +1119,7 @@ class TimerBase:
         """Need to stop timer and possibly disconnect timer."""
         self._timer_stop()
 
+    @_api.delete_parameter("3.9", "interval", alternative="timer.interval")
     def start(self, interval=None):
         """
         Start the timer object.
@@ -1163,7 +1153,8 @@ class TimerBase:
     def interval(self, interval):
         # Force to int since none of the backends actually support fractional
         # milliseconds, and some error or give warnings.
-        interval = int(interval)
+        # Some backends also fail when interval == 0, so ensure >= 1 msec
+        interval = max(int(interval), 1)
         self._interval = interval
         self._timer_set_interval()
 
@@ -1341,7 +1332,7 @@ class LocationEvent(Event):
     ----------
     x, y : int or None
         Event location in pixels from bottom left of canvas.
-    inaxes : `~.axes.Axes` or None
+    inaxes : `~matplotlib.axes.Axes` or None
         The `~.axes.Axes` instance over which the mouse is, if any.
     xdata, ydata : float or None
         Data coordinates of the mouse within *inaxes*, or *None* if the mouse
@@ -1490,7 +1481,7 @@ class PickEvent(Event):
     ----------
     mouseevent : `MouseEvent`
         The mouse event that generated the pick.
-    artist : `matplotlib.artist.Artist`
+    artist : `~matplotlib.artist.Artist`
         The picked artist.  Note that artists are not pickable by default
         (see `.Artist.set_picker`).
     other
@@ -1589,7 +1580,7 @@ def _mouse_handler(event):
             if last_axes is not None:
                 # Create a synthetic LocationEvent for the axes_leave_event.
                 # Its inaxes attribute needs to be manually set (because the
-                # cursor is actually *out* of that axes at that point); this is
+                # cursor is actually *out* of that Axes at that point); this is
                 # done with the internal _set_inaxes method which ensures that
                 # the xdata and ydata attributes are also correct.
                 try:
@@ -1662,13 +1653,71 @@ def _is_non_interactive_terminal_ipython(ip):
             and getattr(ip.parent, 'interact', None) is False)
 
 
+@contextmanager
+def _allow_interrupt(prepare_notifier, handle_sigint):
+    """
+    A context manager that allows terminating a plot by sending a SIGINT.  It
+    is necessary because the running backend prevents the Python interpreter
+    from running and processing signals (i.e., to raise a KeyboardInterrupt).
+    To solve this, one needs to somehow wake up the interpreter and make it
+    close the plot window.  We do this by using the signal.set_wakeup_fd()
+    function which organizes a write of the signal number into a socketpair.
+    A backend-specific function, *prepare_notifier*, arranges to listen to
+    the pair's read socket while the event loop is running.  (If it returns a
+    notifier object, that object is kept alive while the context manager runs.)
+
+    If SIGINT was indeed caught, after exiting the on_signal() function the
+    interpreter reacts to the signal according to the handler function which
+    had been set up by a signal.signal() call; here, we arrange to call the
+    backend-specific *handle_sigint* function.  Finally, we call the old SIGINT
+    handler with the same arguments that were given to our custom handler.
+
+    We do this only if the old handler for SIGINT was not None, which means
+    that a non-python handler was installed, i.e. in Julia, and not SIG_IGN
+    which means we should ignore the interrupts.
+
+    Parameters
+    ----------
+    prepare_notifier : Callable[[socket.socket], object]
+    handle_sigint : Callable[[], object]
+    """
+
+    old_sigint_handler = signal.getsignal(signal.SIGINT)
+    if old_sigint_handler in (None, signal.SIG_IGN, signal.SIG_DFL):
+        yield
+        return
+
+    handler_args = None
+    wsock, rsock = socket.socketpair()
+    wsock.setblocking(False)
+    rsock.setblocking(False)
+    old_wakeup_fd = signal.set_wakeup_fd(wsock.fileno())
+    notifier = prepare_notifier(rsock)
+
+    def save_args_and_handle_sigint(*args):
+        nonlocal handler_args
+        handler_args = args
+        handle_sigint()
+
+    signal.signal(signal.SIGINT, save_args_and_handle_sigint)
+    try:
+        yield
+    finally:
+        wsock.close()
+        rsock.close()
+        signal.set_wakeup_fd(old_wakeup_fd)
+        signal.signal(signal.SIGINT, old_sigint_handler)
+        if handler_args is not None:
+            old_sigint_handler(*handler_args)
+
+
 class FigureCanvasBase:
     """
     The canvas the figure renders into.
 
     Attributes
     ----------
-    figure : `matplotlib.figure.Figure`
+    figure : `~matplotlib.figure.Figure`
         A high-level figure instance.
     """
 
@@ -2012,19 +2061,19 @@ class FigureCanvasBase:
             if not hasattr(canvas_class, f"print_{fmt}"):
                 raise ValueError(
                     f"The {backend!r} backend does not support {fmt} output")
+            canvas = canvas_class(self.figure)
         elif hasattr(self, f"print_{fmt}"):
             # Return the current canvas if it supports the requested format.
             canvas = self
-            canvas_class = None  # Skip call to switch_backends.
         else:
             # Return a default canvas for the requested format, if it exists.
             canvas_class = get_registered_canvas_class(fmt)
-        if canvas_class:
-            canvas = self.switch_backends(canvas_class)
-        if canvas is None:
-            raise ValueError(
-                "Format {!r} is not supported (supported formats: {})".format(
-                    fmt, ", ".join(sorted(self.get_supported_filetypes()))))
+            if canvas_class is None:
+                raise ValueError(
+                    "Format {!r} is not supported (supported formats: {})".format(
+                        fmt, ", ".join(sorted(self.get_supported_filetypes()))))
+            canvas = canvas_class(self.figure)
+        canvas._is_saving = self._is_saving
         meth = getattr(canvas, f"print_{fmt}")
         mod = (meth.func.__module__
                if hasattr(meth, "func")  # partialmethod, e.g. backend_wx.
@@ -2117,6 +2166,12 @@ class FigureCanvasBase:
         if dpi == 'figure':
             dpi = getattr(self.figure, '_original_dpi', self.figure.dpi)
 
+        if kwargs.get("papertype") == 'auto':
+            # When deprecation elapses, remove backend_ps._get_papertype & its callers.
+            _api.warn_deprecated(
+                "3.8", name="papertype='auto'", addendum="Pass an explicit paper type, "
+                "'figure', or omit the *papertype* argument entirely.")
+
         # Remove the figure manager, if any, to avoid resizing the GUI widget.
         with cbook._setattr_cm(self, manager=None), \
              self._switch_canvas_and_return_print_method(format, backend) \
@@ -2146,9 +2201,10 @@ class FigureCanvasBase:
                     functools.partial(
                         print_method, orientation=orientation)
                 )
+                # we do this instead of `self.figure.draw_without_rendering`
+                # so that we can inject the orientation
                 with getattr(renderer, "_draw_disabled", nullcontext)():
                     self.figure.draw(renderer)
-
             if bbox_inches:
                 if bbox_inches == "tight":
                     bbox_inches = self.figure.get_tightbbox(
@@ -2213,6 +2269,7 @@ class FigureCanvasBase:
         filename = basename + '.' + filetype
         return filename
 
+    @_api.deprecated("3.8")
     def switch_backends(self, FigureCanvasClass):
         """
         Instantiate an instance of FigureCanvasClass
@@ -2301,7 +2358,7 @@ class FigureCanvasBase:
             # ... later
             canvas.mpl_disconnect(cid)
         """
-        return self.callbacks.disconnect(cid)
+        self.callbacks.disconnect(cid)
 
     # Internal subclasses can override _timer_cls instead of new_timer, though
     # this is not a public API for third-party subclasses.
@@ -2395,8 +2452,6 @@ def key_press_handler(event, canvas=None, toolbar=None):
         back-compatibility, but, if set, should always be equal to
         ``event.canvas.toolbar``.
     """
-    # these bindings happen whether you are over an Axes or not
-
     if event.key is None:
         return
     if canvas is None:
@@ -2404,55 +2459,40 @@ def key_press_handler(event, canvas=None, toolbar=None):
     if toolbar is None:
         toolbar = canvas.toolbar
 
-    # Load key-mappings from rcParams.
-    fullscreen_keys = rcParams['keymap.fullscreen']
-    home_keys = rcParams['keymap.home']
-    back_keys = rcParams['keymap.back']
-    forward_keys = rcParams['keymap.forward']
-    pan_keys = rcParams['keymap.pan']
-    zoom_keys = rcParams['keymap.zoom']
-    save_keys = rcParams['keymap.save']
-    quit_keys = rcParams['keymap.quit']
-    quit_all_keys = rcParams['keymap.quit_all']
-    grid_keys = rcParams['keymap.grid']
-    grid_minor_keys = rcParams['keymap.grid_minor']
-    toggle_yscale_keys = rcParams['keymap.yscale']
-    toggle_xscale_keys = rcParams['keymap.xscale']
-
-    # toggle fullscreen mode ('f', 'ctrl + f')
-    if event.key in fullscreen_keys:
+    # toggle fullscreen mode (default key 'f', 'ctrl + f')
+    if event.key in rcParams['keymap.fullscreen']:
         try:
             canvas.manager.full_screen_toggle()
         except AttributeError:
             pass
 
     # quit the figure (default key 'ctrl+w')
-    if event.key in quit_keys:
+    if event.key in rcParams['keymap.quit']:
         Gcf.destroy_fig(canvas.figure)
-    if event.key in quit_all_keys:
+    if event.key in rcParams['keymap.quit_all']:
         Gcf.destroy_all()
 
     if toolbar is not None:
         # home or reset mnemonic  (default key 'h', 'home' and 'r')
-        if event.key in home_keys:
+        if event.key in rcParams['keymap.home']:
             toolbar.home()
         # forward / backward keys to enable left handed quick navigation
         # (default key for backward: 'left', 'backspace' and 'c')
-        elif event.key in back_keys:
+        elif event.key in rcParams['keymap.back']:
             toolbar.back()
         # (default key for forward: 'right' and 'v')
-        elif event.key in forward_keys:
+        elif event.key in rcParams['keymap.forward']:
             toolbar.forward()
         # pan mnemonic (default key 'p')
-        elif event.key in pan_keys:
+        elif event.key in rcParams['keymap.pan']:
             toolbar.pan()
             toolbar._update_cursor(event)
         # zoom mnemonic (default key 'o')
-        elif event.key in zoom_keys:
+        elif event.key in rcParams['keymap.zoom']:
             toolbar.zoom()
             toolbar._update_cursor(event)
         # saving current figure (default key 's')
-        elif event.key in save_keys:
+        elif event.key in rcParams['keymap.save']:
             toolbar.save_figure()
 
     if event.inaxes is None:
@@ -2462,19 +2502,16 @@ def key_press_handler(event, canvas=None, toolbar=None):
     def _get_uniform_gridstate(ticks):
         # Return True/False if all grid lines are on or off, None if they are
         # not all in the same state.
-        if all(tick.gridline.get_visible() for tick in ticks):
-            return True
-        elif not any(tick.gridline.get_visible() for tick in ticks):
-            return False
-        else:
-            return None
+        return (True if all(tick.gridline.get_visible() for tick in ticks) else
+                False if not any(tick.gridline.get_visible() for tick in ticks) else
+                None)
 
     ax = event.inaxes
     # toggle major grids in current Axes (default key 'g')
     # Both here and below (for 'G'), we do nothing if *any* grid (major or
     # minor, x or y) is not in a uniform state, to avoid messing up user
     # customization.
-    if (event.key in grid_keys
+    if (event.key in rcParams['keymap.grid']
             # Exclude minor grids not in a uniform state.
             and None not in [_get_uniform_gridstate(ax.xaxis.minorTicks),
                              _get_uniform_gridstate(ax.yaxis.minorTicks)]):
@@ -2493,7 +2530,7 @@ def key_press_handler(event, canvas=None, toolbar=None):
             ax.grid(y_state, which="major" if y_state else "both", axis="y")
             canvas.draw_idle()
     # toggle major and minor grids in current Axes (default key 'G')
-    if (event.key in grid_minor_keys
+    if (event.key in rcParams['keymap.grid_minor']
             # Exclude major grids not in a uniform state.
             and None not in [_get_uniform_gridstate(ax.xaxis.majorTicks),
                              _get_uniform_gridstate(ax.yaxis.majorTicks)]):
@@ -2511,7 +2548,7 @@ def key_press_handler(event, canvas=None, toolbar=None):
             ax.grid(y_state, which="both", axis="y")
             canvas.draw_idle()
     # toggle scaling of y-axes between 'log and 'linear' (default key 'l')
-    elif event.key in toggle_yscale_keys:
+    elif event.key in rcParams['keymap.yscale']:
         scale = ax.get_yscale()
         if scale == 'log':
             ax.set_yscale('linear')
@@ -2524,7 +2561,7 @@ def key_press_handler(event, canvas=None, toolbar=None):
                 ax.set_yscale('linear')
             ax.figure.canvas.draw_idle()
     # toggle scaling of x-axes between 'log and 'linear' (default key 'k')
-    elif event.key in toggle_xscale_keys:
+    elif event.key in rcParams['keymap.xscale']:
         scalex = ax.get_xscale()
         if scalex == 'log':
             ax.set_xscale('linear')
@@ -2733,8 +2770,8 @@ class FigureManagerBase:
             # thus warrants a warning.
             return
         raise NonGuiException(
-            f"Matplotlib is currently using {get_backend()}, which is a "
-            f"non-GUI backend, so cannot show the figure.")
+            f"{type(self.canvas).__name__} is non-interactive, and thus cannot be "
+            f"shown")
 
     def destroy(self):
         pass
@@ -2786,18 +2823,18 @@ class NavigationToolbar2:
 
     They must also define
 
-      :meth:`save_figure`
-         save the current figure
+    :meth:`save_figure`
+        Save the current figure.
 
-      :meth:`draw_rubberband` (optional)
-         draw the zoom to rect "rubberband" rectangle
+    :meth:`draw_rubberband` (optional)
+        Draw the zoom to rect "rubberband" rectangle.
 
-      :meth:`set_message` (optional)
-         display message
+    :meth:`set_message` (optional)
+        Display message.
 
-      :meth:`set_history_buttons` (optional)
-         you can change the history back / forward buttons to
-         indicate disabled / enabled state.
+    :meth:`set_history_buttons` (optional)
+        You can change the history back / forward buttons to indicate disabled / enabled
+        state.
 
     and override ``__init__`` to set up the toolbar -- without forgetting to
     call the base-class init.  Typically, ``__init__`` needs to set up toolbar
@@ -2833,7 +2870,7 @@ class NavigationToolbar2:
     def __init__(self, canvas):
         self.canvas = canvas
         canvas.toolbar = self
-        self._nav_stack = cbook.Stack()
+        self._nav_stack = cbook._Stack()
         # This cursor will be set after the initial draw.
         self._last_cursor = tools.Cursors.POINTER
 
@@ -3409,9 +3446,9 @@ class _Backend:
         """
         Show all figures.
 
-        `show` blocks by calling `mainloop` if *block* is ``True``, or if it
-        is ``None`` and we are neither in IPython's ``%pylab`` mode, nor in
-        `interactive` mode.
+        `show` blocks by calling `mainloop` if *block* is ``True``, or if it is
+        ``None`` and we are not in `interactive` mode and if IPython's
+        ``%matplotlib`` integration has not been activated.
         """
         managers = Gcf.get_all_fig_managers()
         if not managers:
@@ -3424,9 +3461,9 @@ class _Backend:
         if cls.mainloop is None:
             return
         if block is None:
-            # Hack: Are we in IPython's %pylab mode?  In pylab mode, IPython
-            # (>= 0.10) tacks a _needmain attribute onto pyplot.show (always
-            # set to False).
+            # Hack: Is IPython's %matplotlib integration activated?  If so,
+            # IPython's activate_matplotlib (>= 0.10) tacks a _needmain
+            # attribute onto pyplot.show (always set to False).
             pyplot_show = getattr(sys.modules.get("matplotlib.pyplot"), "show", None)
             ipython_pylab = hasattr(pyplot_show, "_needmain")
             block = not ipython_pylab and not is_interactive()

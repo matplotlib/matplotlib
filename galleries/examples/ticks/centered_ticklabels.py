@@ -18,18 +18,17 @@ Here is an example that labels the months, centered between the ticks.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 import matplotlib.cbook as cbook
 import matplotlib.dates as dates
 import matplotlib.ticker as ticker
 
 # Load some financial data; Google's stock price
-r = cbook.get_sample_data('goog.npz')['price_data'].view(np.recarray)
+r = cbook.get_sample_data('goog.npz')['price_data']
 r = r[-250:]  # get the last 250 days
 
 fig, ax = plt.subplots()
-ax.plot(r.date, r.adj_close)
+ax.plot(r["date"], r["adj_close"])
 
 ax.xaxis.set_major_locator(dates.MonthLocator())
 # 16 is a slight approximation since months differ in number of days.
@@ -45,5 +44,5 @@ ax.tick_params(axis='x', which='minor', tick1On=False, tick2On=False)
 for label in ax.get_xticklabels(minor=True):
     label.set_horizontalalignment('center')
 imid = len(r) // 2
-ax.set_xlabel(str(r.date[imid].item().year))
+ax.set_xlabel(str(r["date"][imid].item().year))
 plt.show()

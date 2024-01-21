@@ -1,0 +1,5 @@
+``Line2D``
+~~~~~~~~~~
+
+When creating a Line2D or using `.Line2D.set_xdata` and `.Line2D.set_ydata`,
+passing x/y data as non sequence is now an error.

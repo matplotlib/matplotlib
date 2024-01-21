@@ -30,7 +30,7 @@ import matplotlib.transforms as transforms
 #
 # This function plots the confidence ellipse of the covariance of the given
 # array-like variables x and y. The ellipse is plotted into the given
-# axes-object ax.
+# Axes object *ax*.
 #
 # The radiuses of the ellipse can be controlled by n_std which is the number
 # of standard deviations. The default value is 3 which makes the ellipse
@@ -49,7 +49,7 @@ def confidence_ellipse(x, y, ax, n_std=3.0, facecolor='none', **kwargs):
         Input data.
 
     ax : matplotlib.axes.Axes
-        The axes object to draw the ellipse into.
+        The Axes object to draw the ellipse into.
 
     n_std : float
         The number of standard deviations to determine the ellipse's radiuses.

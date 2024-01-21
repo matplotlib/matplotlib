@@ -1,4 +1,5 @@
 from itertools import product
+import io
 import platform
 
 import matplotlib as mpl
@@ -27,7 +28,6 @@ from mpl_toolkits.axes_grid1.inset_locator import (
     zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch,
     InsetPosition)
 import mpl_toolkits.axes_grid1.mpl_axes
-
 import pytest
 
 import numpy as np
@@ -89,6 +89,15 @@ def test_twin_axes_empty_and_removed():
         h.text(0.5, 0.5, gen + ("\n" + mod if mod else ""),
                horizontalalignment="center", verticalalignment="center")
     plt.subplots_adjust(wspace=0.5, hspace=1)
+
+
+def test_twin_axes_both_with_units():
+    host = host_subplot(111)
+    host.plot_date([0, 1, 2], [0, 1, 2], xdate=False, ydate=True)
+    twin = host.twinx()
+    twin.plot(["a", "b", "c"])
+    assert host.get_yticklabels()[0].get_text() == "00:00:00"
+    assert twin.get_yticklabels()[0].get_text() == "a"
 
 
 def test_axesgrid_colorbar_log_smoketest():
@@ -245,6 +254,15 @@ def test_inset_axes_complete():
     with pytest.warns(UserWarning):
         ins = inset_axes(ax, width="40%", height="30%",
                          bbox_transform=ax.transAxes)
+
+
+def test_inset_axes_tight():
+    # gh-26287 found that inset_axes raised with bbox_inches=tight
+    fig, ax = plt.subplots()
+    inset_axes(ax, width=1.3, height=0.9)
+
+    f = io.BytesIO()
+    fig.savefig(f, bbox_inches="tight")
 
 
 @image_comparison(['fill_facecolor.png'], remove_text=True, style='mpl20')
@@ -691,7 +709,8 @@ def test_rgb_axes():
 def test_insetposition():
     fig, ax = plt.subplots(figsize=(2, 2))
     ax_ins = plt.axes([0, 0, 1, 1])
-    ip = InsetPosition(ax, [0.2, 0.25, 0.5, 0.4])
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        ip = InsetPosition(ax, [0.2, 0.25, 0.5, 0.4])
     ax_ins.set_axes_locator(ip)
 
 
@@ -701,11 +720,7 @@ def test_insetposition():
 @image_comparison(['imagegrid_cbar_mode.png'],
                   remove_text=True, style='mpl20', tol=0.3)
 def test_imagegrid_cbar_mode_edge():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
-
-    X, Y = np.meshgrid(np.linspace(0, 6, 30), np.linspace(0, 6, 30))
-    arr = np.sin(X) * np.cos(Y) + 1j*(np.sin(3*Y) * np.cos(Y/2.))
+    arr = np.arange(16).reshape((4, 4))
 
     fig = plt.figure(figsize=(18, 9))
 
@@ -721,12 +736,12 @@ def test_imagegrid_cbar_mode_edge():
                          cbar_location=location,
                          cbar_size='20%',
                          cbar_mode='edge')
-        ax1, ax2, ax3, ax4, = grid
+        ax1, ax2, ax3, ax4 = grid
 
-        ax1.imshow(arr.real, cmap='nipy_spectral')
-        ax2.imshow(arr.imag, cmap='hot')
-        ax3.imshow(np.abs(arr), cmap='jet')
-        ax4.imshow(np.arctan2(arr.imag, arr.real), cmap='hsv')
+        ax1.imshow(arr, cmap='nipy_spectral')
+        ax2.imshow(arr.T, cmap='hot')
+        ax3.imshow(np.hypot(arr, arr.T), cmap='jet')
+        ax4.imshow(np.arctan2(arr, arr.T), cmap='hsv')
 
         # In each row/column, the "first" colorbars must be overwritten by the
         # "second" ones.  To achieve this, clear out the axes first.
@@ -771,3 +786,8 @@ def test_anchored_locator_base_call():
     axins.set(xticks=[], yticks=[])
 
     axins.imshow(Z, extent=extent, origin="lower")
+
+
+def test_grid_with_axes_class_not_overriding_axis():
+    Grid(plt.figure(), 111, (2, 2), axes_class=mpl.axes.Axes)
+    RGBAxes(plt.figure(), 111, axes_class=mpl.axes.Axes)

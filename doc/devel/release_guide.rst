@@ -157,7 +157,7 @@ Update release notes
 --------------------
 
 What's new
-~~~~~~~~~~
+^^^^^^^^^^
 
 *Only needed for major and minor releases. Bugfix releases should not have new
 features.*
@@ -167,7 +167,7 @@ file :file:`doc/users/prev_whats_new/whats_new_{X}.{Y}.0.rst` and delete the ind
 files.
 
 API changes
-~~~~~~~~~~~
+^^^^^^^^^^^
 
 *Primarily needed for major and minor releases. We may sometimes have API
 changes in bugfix releases.*
@@ -177,7 +177,7 @@ file :file:`doc/api/prev_api_changes/api_changes_{X}.{Y}.{Z}.rst` and delete the
 individual files.
 
 Release notes TOC
-~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^
 
 Update :file:`doc/users/release_notes.rst`:
 
@@ -202,7 +202,7 @@ Update :file:`doc/users/release_notes.rst`:
      prev_whats_new/github_stats_X.Y.Z.rst
 
 Update version switcher
-~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Update ``doc/_static/switcher.json``:
 
@@ -455,22 +455,21 @@ Due to branch protections for the ``main`` branch, this is merged via a standard
 request, though the PR cleanliness status check is expected to fail. The PR should not
 be squashed because the intent is to merge the branch histories.
 
-Announcing
-==========
+Publicize this release
+======================
 
-The final step is to announce the release to the world.  A short
-version of the release notes along with acknowledgments should be sent to
+After the release is published to PyPI and conda, it should be announced
+through our communication channels:
 
-- matplotlib-users@python.org
-- matplotlib-devel@python.org
-- matplotlib-announce@python.org
+.. rst-class:: checklist
 
-In addition, announcements should be made on social networks (e.g., Twitter via the
-``@matplotlib`` account, any other via personal accounts).
-
-Add a release announcement to the ``mpl-brochure-site`` "News" section of
-``docs/body.html``, linking to the discourse page for the announcement.
-
+* Send a short version of the release notes and acknowledgments to all the :ref:`mailing-lists`
+* Post highlights and link to :ref:`What's new <release-notes>` on the
+  active :ref:`social media accounts <social-media>`
+* Add a release announcement to the  "News" section of
+  `matplotlib.org <https://github.com/matplotlib/mpl-brochure-site>`_ by editing
+  ``docs/body.html``. Link to the auto-generated announcement discourse post,
+  which is in `Announcements > matplotlib-announcements <https://discourse.matplotlib.org/c/announce/matplotlib-announce/10>`_.
 
 Conda packages
 ==============

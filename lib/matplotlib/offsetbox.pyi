@@ -1,5 +1,4 @@
 import matplotlib.artist as martist
-from matplotlib.axes import Axes
 from matplotlib.backend_bases import RendererBase, Event, FigureCanvasBase
 from matplotlib.colors import Colormap, Normalize
 import matplotlib.text as mtext
@@ -7,7 +6,7 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
 from matplotlib.image import BboxImage
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
-from matplotlib.transforms import Bbox, BboxBase, TransformedBbox, Transform
+from matplotlib.transforms import Bbox, BboxBase, Transform
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -16,11 +15,10 @@ from typing import Any, Literal, overload
 
 DEBUG: bool
 
-def bbox_artist(*args, **kwargs) -> None: ...
 def _get_packed_offsets(
     widths: Sequence[float],
     total: float | None,
-    sep: float,
+    sep: float | None,
     mode: Literal["fixed", "expand", "equal"] = ...,
 ) -> tuple[float, np.ndarray]: ...
 
@@ -52,12 +50,6 @@ class OffsetBox(martist.Artist):
     def get_visible_children(self) -> list[martist.Artist]: ...
     def get_children(self) -> list[martist.Artist]: ...
     def get_bbox(self, renderer: RendererBase) -> Bbox: ...
-    def get_extent_offsets(
-        self, renderer: RendererBase
-    ) -> tuple[float, float, float, float, list[tuple[float, float]]]: ...
-    def get_extent(
-        self, renderer: RendererBase
-    ) -> tuple[float, float, float, float]: ...
     def get_window_extent(self, renderer: RendererBase | None = ...) -> Bbox: ...
 
 class PackerBase(OffsetBox):
@@ -115,7 +107,6 @@ class DrawingArea(OffsetBox):
     @clip_children.setter
     def clip_children(self, val: bool) -> None: ...
     def get_transform(self) -> Transform: ...
-    def set_transform(self, t: Transform) -> None: ...
 
     # does not accept all options of superclass
     def set_offset(self, xy: tuple[float, float]) -> None: ...  # type: ignore[override]
@@ -135,7 +126,6 @@ class TextArea(OffsetBox):
     def get_text(self) -> str: ...
     def set_multilinebaseline(self, t: bool) -> None: ...
     def get_multilinebaseline(self) -> bool: ...
-    def set_transform(self, t: Transform) -> None: ...
 
     # does not accept all options of superclass
     def set_offset(self, xy: tuple[float, float]) -> None: ...  # type: ignore[override]
@@ -148,7 +138,6 @@ class AuxTransformBox(OffsetBox):
     def __init__(self, aux_transform: Transform) -> None: ...
     def add_artist(self, a: martist.Artist) -> None: ...
     def get_transform(self) -> Transform: ...
-    def set_transform(self, t: Transform) -> None: ...
 
     # does not accept all options of superclass
     def set_offset(self, xy: tuple[float, float]) -> None: ...  # type: ignore[override]
@@ -183,7 +172,7 @@ class AnchoredOffsetbox(OffsetBox):
     def get_children(self) -> list[martist.Artist]: ...
     def get_bbox_to_anchor(self) -> Bbox: ...
     def set_bbox_to_anchor(
-        self, bbox: Bbox, transform: Transform | None = ...
+        self, bbox: BboxBase, transform: Transform | None = ...
     ) -> None: ...
     def update_frame(self, bbox: Bbox, fontsize: float | None = ...) -> None: ...
 
@@ -241,7 +230,6 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         offsetbox: OffsetBox,
         xy: tuple[float, float],
         xybox: tuple[float, float] | None = ...,
-        *,
         xycoords: str
         | tuple[str, str]
         | martist.Artist
@@ -253,6 +241,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         | Transform
         | Callable[[RendererBase], Bbox | Transform]
         | None = ...,
+        *,
         frameon: bool = ...,
         pad: float = ...,
         annotation_clip: bool | None = ...,
@@ -291,11 +280,15 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
 class DraggableBase:
     ref_artist: martist.Artist
     got_artist: bool
-    canvas: FigureCanvasBase
-    cids: list[int]
     mouse_x: int
     mouse_y: int
     background: Any
+
+    @property
+    def canvas(self) -> FigureCanvasBase: ...
+    @property
+    def cids(self) -> list[int]: ...
+
     def __init__(self, ref_artist: martist.Artist, use_blit: bool = ...) -> None: ...
     def on_motion(self, evt: Event) -> None: ...
     def on_pick(self, evt: Event) -> None: ...

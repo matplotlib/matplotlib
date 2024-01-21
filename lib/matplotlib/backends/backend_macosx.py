@@ -7,12 +7,18 @@ from . import _macosx
 from .backend_agg import FigureCanvasAgg
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    ResizeEvent, TimerBase)
+    ResizeEvent, TimerBase, _allow_interrupt)
 
 
 class TimerMac(_macosx.Timer, TimerBase):
     """Subclass of `.TimerBase` using CFRunLoop timer events."""
     # completely implemented at the C-level (in _macosx.Timer)
+
+
+def _allow_interrupt_macos():
+    """A context manager that allows terminating a plot by sending a SIGINT."""
+    return _allow_interrupt(
+        lambda rsock: _macosx.wake_on_fd_write(rsock.fileno()), _macosx.stop)
 
 
 class FigureCanvasMac(FigureCanvasAgg, _macosx.FigureCanvas, FigureCanvasBase):
@@ -69,6 +75,7 @@ class FigureCanvasMac(FigureCanvasAgg, _macosx.FigureCanvas, FigureCanvasBase):
             self._timers.remove(timer)
             timer.stop()
         timer = self.new_timer(interval=0)
+        timer.single_shot = True
         timer.add_callback(callback_func, callback, timer)
         self._timers.add(timer)
         timer.start()
@@ -102,6 +109,12 @@ class FigureCanvasMac(FigureCanvasAgg, _macosx.FigureCanvas, FigureCanvasBase):
         self.figure.set_size_inches(width, height, forward=False)
         ResizeEvent("resize_event", self)._process()
         self.draw_idle()
+
+    def start_event_loop(self, timeout=0):
+        # docstring inherited
+        # Set up a SIGINT handler to allow terminating a plot via CTRL-C.
+        with _allow_interrupt_macos():
+            self._start_event_loop(timeout=timeout)  # Forward to ObjC implementation.
 
 
 class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
@@ -144,6 +157,7 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
         icon_path = str(cbook._get_data_path('images/matplotlib.pdf'))
         _macosx.FigureManager.set_icon(icon_path)
         FigureManagerBase.__init__(self, canvas, num)
+        self._set_window_mode(mpl.rcParams["macosx.window_mode"])
         if self.toolbar is not None:
             self.toolbar.update()
         if mpl.is_interactive():
@@ -164,7 +178,9 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
 
     @classmethod
     def start_main_loop(cls):
-        _macosx.show()
+        # Set up a SIGINT handler to allow terminating a plot via CTRL-C.
+        with _allow_interrupt_macos():
+            _macosx.show()
 
     def show(self):
         if not self._shown:

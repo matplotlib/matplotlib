@@ -1,7 +1,4 @@
 from matplotlib.axes import Axes
-from matplotlib.patches import PathPatch
-from matplotlib.path import Path
-from matplotlib.transforms import Affine2D
 
 from collections.abc import Callable, Iterable
 from typing import Any
@@ -59,5 +56,6 @@ class Sankey:
         connect: tuple[int, int] = ...,
         rotation: float = ...,
         **kwargs
-    ): ...
+        # Replace return with Self when py3.9 is dropped
+    ) -> Sankey: ...
     def finish(self) -> list[Any]: ...

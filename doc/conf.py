@@ -11,20 +11,22 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
+from datetime import datetime, timezone
 import logging
 import os
 from pathlib import Path
 import shutil
 import subprocess
 import sys
+import time
 from urllib.parse import urlsplit, urlunsplit
 import warnings
+
+import sphinx
 import yaml
 
 import matplotlib
 
-from datetime import datetime
-import time
 
 # debug that building expected version
 print(f"Building Documentation for Matplotlib: {matplotlib.__version__}")
@@ -45,8 +47,9 @@ def _parse_skip_subdirs_file():
     but you can skip subdirectories of 'users'.  Doing this
     can make partial builds very fast.
     """
-    default_skip_subdirs = ['users/prev_whats_new/*', 'api/*', 'gallery/*',
-                            'tutorials/*', 'plot_types/*', 'devel/*']
+    default_skip_subdirs = [
+        'users/prev_whats_new/*', 'users/explain/*', 'api/*', 'gallery/*',
+        'tutorials/*', 'plot_types/*', 'devel/*']
     try:
         with open(".mpl_skip_subdirs.yaml", 'r') as fin:
             print('Reading subdirectories to skip from',
@@ -73,8 +76,8 @@ if 'skip_sub_dirs=1' in sys.argv:
 
 # Parse year using SOURCE_DATE_EPOCH, falling back to current time.
 # https://reproducible-builds.org/specs/source-date-epoch/
-sourceyear = datetime.utcfromtimestamp(
-    int(os.environ.get('SOURCE_DATE_EPOCH', time.time()))).year
+sourceyear = datetime.fromtimestamp(
+    int(os.environ.get('SOURCE_DATE_EPOCH', time.time())), timezone.utc).year
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
@@ -104,6 +107,7 @@ extensions = [
     'sphinx_gallery.gen_gallery',
     'matplotlib.sphinxext.mathmpl',
     'matplotlib.sphinxext.plot_directive',
+    'matplotlib.sphinxext.figmpl_directive',
     'sphinxcontrib.inkscapeconverter',
     'sphinxext.custom_roles',
     'sphinxext.github',
@@ -114,11 +118,11 @@ extensions = [
     'sphinxext.redirect_from',
     'sphinx_copybutton',
     'sphinx_design',
+    'sphinx_tags',
 ]
 
 exclude_patterns = [
-    'api/prev_api_changes/api_changes_*/*'
-]
+    'api/prev_api_changes/api_changes_*/*', '**/*inc.rst']
 
 exclude_patterns += skip_subdirs
 
@@ -142,10 +146,22 @@ def _check_dependencies():
         raise ImportError(
             "The following dependencies are missing to build the "
             f"documentation: {', '.join(missing)}")
+
+    # debug sphinx-pydata-theme and mpl-theme-version
+    if 'mpl_sphinx_theme' not in missing:
+        import pydata_sphinx_theme
+        import mpl_sphinx_theme
+        print(f"pydata sphinx theme: {pydata_sphinx_theme.__version__}")
+        print(f"mpl sphinx theme: {mpl_sphinx_theme.__version__}")
+
     if shutil.which('dot') is None:
         raise OSError(
             "No binary named dot - graphviz must be installed to build the "
             "documentation")
+    if shutil.which('latex') is None:
+        raise OSError(
+            "No binary named latex - a LaTeX distribution must be installed to build "
+            "the documentation")
 
 _check_dependencies()
 
@@ -158,10 +174,12 @@ import sphinxext.gallery_order as gallery_order
 # The following import is only necessary to monkey patch the signature later on
 from sphinx_gallery import gen_rst
 
-# On Linux, prevent plt.show() from emitting a non-GUI backend warning.
-os.environ.pop("DISPLAY", None)
+# Prevent plt.show() from emitting a non-GUI backend warning.
+warnings.filterwarnings('ignore', category=UserWarning,
+                        message=r'(\n|.)*is non-interactive, and thus cannot be shown')
 
 autosummary_generate = True
+autodoc_typehints = "none"
 
 # we should ignore warnings coming from importing deprecated modules for
 # autodoc purposes, as this will disappear automatically when they are removed
@@ -194,6 +212,7 @@ intersphinx_mapping = {
     'scipy': ('https://docs.scipy.org/doc/scipy/', None),
     'tornado': ('https://www.tornadoweb.org/en/stable/', None),
     'xarray': ('https://docs.xarray.dev/en/stable/', None),
+    'meson-python': ('https://meson-python.readthedocs.io/en/stable/', None)
 }
 
 
@@ -269,6 +288,18 @@ if 'plot_gallery=0' in sys.argv:
     logger = logging.getLogger('sphinx')
     logger.addFilter(gallery_image_warning_filter)
 
+# Sphinx tags configuration
+tags_create_tags = True
+tags_page_title = "All tags"
+tags_create_badges = True
+tags_badge_colors = {
+    "animation": "primary",
+    "component:*": "secondary",
+    "event-handling": "success",
+    "interactivity:*": "dark",
+    "plot-type:*": "danger",
+    "*": "light"  # default value
+}
 
 mathmpl_fontsize = 11.0
 mathmpl_srcset = ['2x']
@@ -308,7 +339,7 @@ source_suffix = '.rst'
 source_encoding = "utf-8"
 
 # The toplevel toctree document (renamed to root_doc in Sphinx 4.0)
-root_doc = master_doc = 'users/index'
+root_doc = master_doc = 'index'
 
 # General substitutions.
 try:
@@ -378,7 +409,8 @@ default_role = 'obj'
 formats = {'html': ('png', 100), 'latex': ('pdf', 100)}
 plot_formats = [formats[target] for target in ['html', 'latex']
                 if target in sys.argv] or list(formats.values())
-
+# make 2x images for srcset argument to <img>
+plot_srcset = ['2x']
 
 # GitHub extension
 
@@ -395,6 +427,9 @@ def add_html_cache_busting(app, pagename, templatename, context, doctree):
     This adds the Matplotlib version as a query to the link reference in the
     HTML, if the path is not absolute (i.e., it comes from the `_static`
     directory) and doesn't already have a query.
+
+    .. note:: Sphinx 7.1 provides asset checksums; so this hook only runs on
+              Sphinx 7.0 and earlier.
     """
     from sphinx.builders.html import Stylesheet, JavaScript
 
@@ -458,11 +493,18 @@ html_theme_options = {
     },
     "navbar_end": ["theme-switcher", "version-switcher", "mpl_icon_links"],
     "secondary_sidebar_items": "page-toc.html",
-     "footer_start": ["copyright", "sphinx-version", "doc_version"],
+    "footer_start": ["copyright", "sphinx-version", "doc_version"],
+    # We override the announcement template from pydata-sphinx-theme, where
+    # this special value indicates the use of the unreleased banner. If we need
+    # an actual announcement, then just place the text here as usual.
+    "announcement": "unreleased" if not is_release_build else "",
 }
 include_analytics = is_release_build
 if include_analytics:
-    html_theme_options["analytics"] = {"google_analytics_id": "UA-55954603-1"}
+    html_theme_options["analytics"] = {
+        "plausible_analytics_domain": "matplotlib.org",
+        "plausible_analytics_url": "https://views.scientific-python.org/js/script.js"
+    }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -768,4 +810,5 @@ def setup(app):
         bld_type = 'rel'
     app.add_config_value('skip_sub_dirs', 0, '')
     app.add_config_value('releaselevel', bld_type, 'env')
-    app.connect('html-page-context', add_html_cache_busting, priority=1000)
+    if sphinx.version_info[:2] < (7, 1):
+        app.connect('html-page-context', add_html_cache_busting, priority=1000)

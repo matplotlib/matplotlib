@@ -90,7 +90,7 @@ def _generate_complete_test_figure(fig_ref):
     plt.legend(loc='upper left')
 
     plt.subplot(3, 3, 9)
-    plt.errorbar(x, x * -0.5, xerr=0.2, yerr=0.4)
+    plt.errorbar(x, x * -0.5, xerr=0.2, yerr=0.4, label='$-.5 x$')
     plt.legend(draggable=True)
 
     fig_ref.align_ylabels()  # Test handling of _align_label_groups Groupers.
@@ -143,7 +143,7 @@ def test_pickle_load_from_subprocess(fig_test, fig_ref, tmp_path):
     proc = subprocess_run_helper(
         _pickle_load_subprocess,
         timeout=60,
-        extra_env={'PICKLE_FILE_PATH': str(fp)}
+        extra_env={'PICKLE_FILE_PATH': str(fp), 'MPLBACKEND': 'Agg'}
     )
 
     loaded_fig = pickle.loads(ast.literal_eval(proc.stdout))
@@ -292,3 +292,12 @@ def test_dynamic_norm():
 def test_vertexselector():
     line, = plt.plot([0, 1], picker=True)
     pickle.loads(pickle.dumps(VertexSelector(line)))
+
+
+def test_cycler():
+    ax = plt.figure().add_subplot()
+    ax.set_prop_cycle(c=["c", "m", "y", "k"])
+    ax.plot([1, 2])
+    ax = pickle.loads(pickle.dumps(ax))
+    l, = ax.plot([3, 4])
+    assert l.get_color() == "m"

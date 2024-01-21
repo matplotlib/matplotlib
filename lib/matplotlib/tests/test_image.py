@@ -27,6 +27,7 @@ import pytest
 @image_comparison(['image_interps'], style='mpl20')
 def test_image_interps():
     """Make the basic nearest, bilinear and bicubic interps."""
+    # Remove texts when this image is regenerated.
     # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
 
@@ -265,6 +266,32 @@ def test_image_alpha():
     ax1.imshow(Z, alpha=1.0, interpolation='none')
     ax2.imshow(Z, alpha=0.5, interpolation='none')
     ax3.imshow(Z, alpha=0.5, interpolation='nearest')
+
+
+@mpl.style.context('mpl20')
+@check_figures_equal(extensions=['png'])
+def test_imshow_alpha(fig_test, fig_ref):
+    np.random.seed(19680801)
+
+    rgbf = np.random.rand(6, 6, 3)
+    rgbu = np.uint8(rgbf * 255)
+    ((ax0, ax1), (ax2, ax3)) = fig_test.subplots(2, 2)
+    ax0.imshow(rgbf, alpha=0.5)
+    ax1.imshow(rgbf, alpha=0.75)
+    ax2.imshow(rgbu, alpha=0.5)
+    ax3.imshow(rgbu, alpha=0.75)
+
+    rgbaf = np.concatenate((rgbf, np.ones((6, 6, 1))), axis=2)
+    rgbau = np.concatenate((rgbu, np.full((6, 6, 1), 255, np.uint8)), axis=2)
+    ((ax0, ax1), (ax2, ax3)) = fig_ref.subplots(2, 2)
+    rgbaf[:, :, 3] = 0.5
+    ax0.imshow(rgbaf)
+    rgbaf[:, :, 3] = 0.75
+    ax1.imshow(rgbaf)
+    rgbau[:, :, 3] = 127
+    ax2.imshow(rgbau)
+    rgbau[:, :, 3] = 191
+    ax3.imshow(rgbau)
 
 
 def test_cursor_data():
@@ -754,11 +781,7 @@ def test_log_scale_image():
     ax.set(yscale='log')
 
 
-# Increased tolerance is needed for PDF test to avoid failure. After the PDF
-# backend was modified to use indexed color, there are ten pixels that differ
-# due to how the subpixel calculation is done when converting the PDF files to
-# PNG images.
-@image_comparison(['rotate_image'], remove_text=True, tol=0.35)
+@image_comparison(['rotate_image'], remove_text=True)
 def test_rotate_image():
     delta = 0.25
     x = y = np.arange(-3.0, 3.0, delta)
@@ -803,10 +826,8 @@ def test_image_preserve_size2():
     data = np.identity(n, float)
 
     fig = plt.figure(figsize=(n, n), frameon=False)
-
-    ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
+    ax = fig.add_axes((0.0, 0.0, 1.0, 1.0))
     ax.set_axis_off()
-    fig.add_axes(ax)
     ax.imshow(data, interpolation='nearest', origin='lower', aspect='auto')
     buff = io.BytesIO()
     fig.savefig(buff, dpi=1)
@@ -1379,7 +1400,7 @@ def test_rgba_antialias():
     aa[:, int(N/2):] = a[:, int(N/2):]
 
     # set some over/unders and NaNs
-    aa[20:50, 20:50] = np.NaN
+    aa[20:50, 20:50] = np.nan
     aa[70:90, 70:90] = 1e6
     aa[70:90, 20:30] = -1e6
     aa[70:90, 195:215] = 1e6
@@ -1466,23 +1487,32 @@ def test_str_norms(fig_test, fig_ref):
     axrs[3].imshow(t, norm=colors.SymLogNorm(linthresh=2, vmin=.3, vmax=.7))
     axrs[4].imshow(t, norm="logit", clim=(.3, .7))
 
-    assert type(axts[0].images[0].norm) == colors.LogNorm  # Exactly that class
+    assert type(axts[0].images[0].norm) is colors.LogNorm  # Exactly that class
     with pytest.raises(ValueError):
         axts[0].imshow(t, norm="foobar")
 
 
 def test__resample_valid_output():
     resample = functools.partial(mpl._image.resample, transform=Affine2D())
-    with pytest.raises(ValueError, match="must be a NumPy array"):
+    with pytest.raises(TypeError, match="incompatible function arguments"):
         resample(np.zeros((9, 9)), None)
     with pytest.raises(ValueError, match="different dimensionalities"):
         resample(np.zeros((9, 9)), np.zeros((9, 9, 4)))
-    with pytest.raises(ValueError, match="must be RGBA"):
+    with pytest.raises(ValueError, match="different dimensionalities"):
+        resample(np.zeros((9, 9, 4)), np.zeros((9, 9)))
+    with pytest.raises(ValueError, match="3D input array must be RGBA"):
+        resample(np.zeros((9, 9, 3)), np.zeros((9, 9, 4)))
+    with pytest.raises(ValueError, match="3D output array must be RGBA"):
         resample(np.zeros((9, 9, 4)), np.zeros((9, 9, 3)))
-    with pytest.raises(ValueError, match="Mismatched types"):
+    with pytest.raises(ValueError, match="mismatched types"):
         resample(np.zeros((9, 9), np.uint8), np.zeros((9, 9)))
     with pytest.raises(ValueError, match="must be C-contiguous"):
         resample(np.zeros((9, 9)), np.zeros((9, 9)).T)
+
+    out = np.zeros((9, 9))
+    out.flags.writeable = False
+    with pytest.raises(ValueError, match="Output array must be writeable"):
+        resample(np.zeros((9, 9)), out)
 
 
 def test_axesimage_get_shape():
@@ -1495,3 +1525,14 @@ def test_axesimage_get_shape():
     im.set_data(z)
     assert im.get_shape() == (4, 3)
     assert im.get_size() == im.get_shape()
+
+
+def test_non_transdata_image_does_not_touch_aspect():
+    ax = plt.figure().add_subplot()
+    im = np.arange(4).reshape((2, 2))
+    ax.imshow(im, transform=ax.transAxes)
+    assert ax.get_aspect() == "auto"
+    ax.imshow(im, transform=Affine2D().scale(2) + ax.transData)
+    assert ax.get_aspect() == 1
+    ax.imshow(im, transform=ax.transAxes, aspect=2)
+    assert ax.get_aspect() == 2

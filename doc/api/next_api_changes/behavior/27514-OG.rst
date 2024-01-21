@@ -1,0 +1,5 @@
+Exception when not passing a Bbox to BboxTransform*-classes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The exception when not passing a Bbox to BboxTransform*-classes that expect one, e.g.,
+`~matplotlib.transforms.BboxTransform` has changed from ``ValueError`` to ``TypeError``.

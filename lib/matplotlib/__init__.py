@@ -27,71 +27,71 @@ and explicit interfaces.
 
 Modules include:
 
-    :mod:`matplotlib.axes`
-        The `~.axes.Axes` class.  Most pyplot functions are wrappers for
-        `~.axes.Axes` methods.  The axes module is the highest level of OO
-        access to the library.
+:mod:`matplotlib.axes`
+    The `~.axes.Axes` class.  Most pyplot functions are wrappers for
+    `~.axes.Axes` methods.  The axes module is the highest level of OO
+    access to the library.
 
-    :mod:`matplotlib.figure`
-        The `.Figure` class.
+:mod:`matplotlib.figure`
+    The `.Figure` class.
 
-    :mod:`matplotlib.artist`
-        The `.Artist` base class for all classes that draw things.
+:mod:`matplotlib.artist`
+    The `.Artist` base class for all classes that draw things.
 
-    :mod:`matplotlib.lines`
-        The `.Line2D` class for drawing lines and markers.
+:mod:`matplotlib.lines`
+    The `.Line2D` class for drawing lines and markers.
 
-    :mod:`matplotlib.patches`
-        Classes for drawing polygons.
+:mod:`matplotlib.patches`
+    Classes for drawing polygons.
 
-    :mod:`matplotlib.text`
-        The `.Text` and `.Annotation` classes.
+:mod:`matplotlib.text`
+    The `.Text` and `.Annotation` classes.
 
-    :mod:`matplotlib.image`
-        The `.AxesImage` and `.FigureImage` classes.
+:mod:`matplotlib.image`
+    The `.AxesImage` and `.FigureImage` classes.
 
-    :mod:`matplotlib.collections`
-        Classes for efficient drawing of groups of lines or polygons.
+:mod:`matplotlib.collections`
+    Classes for efficient drawing of groups of lines or polygons.
 
-    :mod:`matplotlib.colors`
-        Color specifications and making colormaps.
+:mod:`matplotlib.colors`
+    Color specifications and making colormaps.
 
-    :mod:`matplotlib.cm`
-        Colormaps, and the `.ScalarMappable` mixin class for providing color
-        mapping functionality to other classes.
+:mod:`matplotlib.cm`
+    Colormaps, and the `.ScalarMappable` mixin class for providing color
+    mapping functionality to other classes.
 
-    :mod:`matplotlib.ticker`
-        Calculation of tick mark locations and formatting of tick labels.
+:mod:`matplotlib.ticker`
+    Calculation of tick mark locations and formatting of tick labels.
 
-    :mod:`matplotlib.backends`
-        A subpackage with modules for various GUI libraries and output formats.
+:mod:`matplotlib.backends`
+    A subpackage with modules for various GUI libraries and output formats.
 
 The base matplotlib namespace includes:
 
-    `~matplotlib.rcParams`
-        Default configuration settings; their defaults may be overridden using
-        a :file:`matplotlibrc` file.
+`~matplotlib.rcParams`
+    Default configuration settings; their defaults may be overridden using
+    a :file:`matplotlibrc` file.
 
-    `~matplotlib.use`
-        Setting the Matplotlib backend.  This should be called before any
-        figure is created, because it is not possible to switch between
-        different GUI backends after that.
+`~matplotlib.use`
+    Setting the Matplotlib backend.  This should be called before any
+    figure is created, because it is not possible to switch between
+    different GUI backends after that.
 
 The following environment variables can be used to customize the behavior:
 
-    :envvar:`MPLBACKEND`
-        This optional variable can be set to choose the Matplotlib backend. See
-        :ref:`what-is-a-backend`.
+:envvar:`MPLBACKEND`
+    This optional variable can be set to choose the Matplotlib backend. See
+    :ref:`what-is-a-backend`.
 
-    :envvar:`MPLCONFIGDIR`
-        This is the directory used to store user customizations to
-        Matplotlib, as well as some caches to improve performance. If
-        :envvar:`MPLCONFIGDIR` is not defined, :file:`{HOME}/.config/matplotlib`
-        and :file:`{HOME}/.cache/matplotlib` are used on Linux, and
-        :file:`{HOME}/.matplotlib` on other platforms, if they are
-        writable. Otherwise, the Python standard library's `tempfile.gettempdir`
-        is used to find a base directory in which the :file:`matplotlib`
-        subdirectory is created.
+:envvar:`MPLCONFIGDIR`
+    This is the directory used to store user customizations to
+    Matplotlib, as well as some caches to improve performance. If
+    :envvar:`MPLCONFIGDIR` is not defined, :file:`{HOME}/.config/matplotlib`
+    and :file:`{HOME}/.cache/matplotlib` are used on Linux, and
+    :file:`{HOME}/.matplotlib` on other platforms, if they are
+    writable. Otherwise, the Python standard library's `tempfile.gettempdir`
+    is used to find a base directory in which the :file:`matplotlib`
+    subdirectory is created.
 
 Matplotlib was initially written by John D. Hunter (1968-2012) and is now
 developed and maintained by a host of others.
@@ -151,9 +151,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import warnings
 
-import numpy
 from packaging.version import parse as parse_version
 
 # cbook must import matplotlib only within function
@@ -161,7 +159,8 @@ from packaging.version import parse as parse_version
 from . import _api, _version, cbook, _docstring, rcsetup
 from matplotlib.cbook import sanitize_sequence
 from matplotlib._api import MatplotlibDeprecationWarning
-from matplotlib.rcsetup import validate_backend, cycler
+from matplotlib.rcsetup import cycler  # noqa: F401
+from matplotlib.rcsetup import validate_backend
 
 
 _log = logging.getLogger(__name__)
@@ -219,15 +218,20 @@ def _get_version():
     if ((root / ".matplotlib-repo").exists()
             and (root / ".git").exists()
             and not (root / ".git/shallow").exists()):
-        import setuptools_scm
-        return setuptools_scm.get_version(
-            root=root,
-            version_scheme="release-branch-semver",
-            local_scheme="node-and-date",
-            fallback_version=_version.version,
-        )
-    else:  # Get the version from the _version.py setuptools_scm file.
-        return _version.version
+        try:
+            import setuptools_scm
+        except ImportError:
+            pass
+        else:
+            return setuptools_scm.get_version(
+                root=root,
+                version_scheme="release-branch-semver",
+                local_scheme="node-and-date",
+                fallback_version=_version.version,
+            )
+    # Get the version from the _version.py file if not in repo or setuptools_scm is
+    # unavailable.
+    return _version.version
 
 
 @_api.caching_module_getattr
@@ -241,12 +245,12 @@ def _check_versions():
 
     # Quickfix to ensure Microsoft Visual C++ redistributable
     # DLLs are loaded before importing kiwisolver
-    from . import ft2font
+    from . import ft2font  # noqa: F401
 
     for modname, minver in [
             ("cycler", "0.10"),
             ("dateutil", "2.7"),
-            ("kiwisolver", "1.0.1"),
+            ("kiwisolver", "1.3.1"),
             ("numpy", "1.21"),
             ("pyparsing", "2.3.1"),
     ]:
@@ -574,7 +578,7 @@ def get_cachedir():
     Return the string path of the cache directory.
 
     The procedure used to find the directory is the same as for
-    _get_config_dir, except using ``$XDG_CACHE_HOME``/``$HOME/.cache`` instead.
+    `get_configdir`, except using ``$XDG_CACHE_HOME``/``$HOME/.cache`` instead.
     """
     return _get_config_or_cache_dir(_get_xdg_cache_dir)
 
@@ -1294,22 +1298,31 @@ def is_interactive():
     return rcParams['interactive']
 
 
+def _val_or_rc(val, rc_name):
+    """
+    If *val* is None, return ``mpl.rcParams[rc_name]``, otherwise return val.
+    """
+    return val if val is not None else rcParams[rc_name]
+
+
 def _init_tests():
-    # The version of FreeType to install locally for running the
-    # tests.  This must match the value in `setupext.py`
+    # The version of FreeType to install locally for running the tests. This must match
+    # the value in `meson.build`.
     LOCAL_FREETYPE_VERSION = '2.6.1'
 
     from matplotlib import ft2font
     if (ft2font.__freetype_version__ != LOCAL_FREETYPE_VERSION or
             ft2font.__freetype_build_type__ != 'local'):
         _log.warning(
-            f"Matplotlib is not built with the correct FreeType version to "
-            f"run tests.  Rebuild without setting system_freetype=1 in "
-            f"mplsetup.cfg.  Expect many image comparison failures below.  "
-            f"Expected freetype version {LOCAL_FREETYPE_VERSION}.  "
-            f"Found freetype version {ft2font.__freetype_version__}.  "
-            "Freetype build type is {}local".format(
-                "" if ft2font.__freetype_build_type__ == 'local' else "not "))
+            "Matplotlib is not built with the correct FreeType version to run tests.  "
+            "Rebuild without setting system-freetype=true in Meson setup options.  "
+            "Expect many image comparison failures below.  "
+            "Expected freetype version %s.  "
+            "Found freetype version %s.  "
+            "Freetype build type is %slocal.",
+            LOCAL_FREETYPE_VERSION,
+            ft2font.__freetype_version__,
+            "" if ft2font.__freetype_build_type__ == 'local' else "not ")
 
 
 def _replacer(data, value):
@@ -1455,7 +1468,10 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
     @functools.wraps(func)
     def inner(ax, *args, data=None, **kwargs):
         if data is None:
-            return func(ax, *map(sanitize_sequence, args), **kwargs)
+            return func(
+                ax,
+                *map(sanitize_sequence, args),
+                **{k: sanitize_sequence(v) for k, v in kwargs.items()})
 
         bound = new_sig.bind(ax, *args, **kwargs)
         auto_label = (bound.arguments.get(label_namer)
@@ -1494,5 +1510,5 @@ _log.debug('platform is %s', sys.platform)
 
 # workaround: we must defer colormaps import to after loading rcParams, because
 # colormap creation depends on rcParams
-from matplotlib.cm import _colormaps as colormaps
-from matplotlib.colors import _color_sequences as color_sequences
+from matplotlib.cm import _colormaps as colormaps  # noqa: E402
+from matplotlib.colors import _color_sequences as color_sequences  # noqa: E402

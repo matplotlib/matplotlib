@@ -115,7 +115,7 @@ class HandlerBase:
         fontsize : int
             The fontsize in pixels. The artists being created should
             be scaled according to the given fontsize.
-        handlebox : `matplotlib.offsetbox.OffsetBox`
+        handlebox : `~matplotlib.offsetbox.OffsetBox`
             The box which has been created to hold this legend entry's
             artists. Artists created in the `legend_artist` method must
             be added to this handlebox inside this method.
@@ -155,7 +155,7 @@ class HandlerBase:
         fontsize : int
             The fontsize in pixels. The legend artists being created should
             be scaled according to the given fontsize.
-        trans :  `~matplotlib.transforms.Transform`
+        trans : `~matplotlib.transforms.Transform`
             The transform that is applied to the legend artists being created.
             Typically from unit coordinates in the handler box to screen
             coordinates.

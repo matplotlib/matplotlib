@@ -44,18 +44,6 @@ static void PyBufferRegion_dealloc(PyBufferRegion *self)
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
-static PyObject *PyBufferRegion_to_string(PyBufferRegion *self, PyObject *args)
-{
-    char const* msg =
-        "BufferRegion.to_string is deprecated since Matplotlib 3.7 and will "
-        "be removed two minor releases later; use np.asarray(region) instead.";
-    if (PyErr_WarnEx(PyExc_DeprecationWarning, msg, 1)) {
-        return NULL;
-    }
-    return PyBytes_FromStringAndSize((const char *)self->x->get_data(),
-                                     (Py_ssize_t) self->x->get_height() * self->x->get_stride());
-}
-
 /* TODO: This doesn't seem to be used internally.  Remove? */
 
 static PyObject *PyBufferRegion_set_x(PyBufferRegion *self, PyObject *args)
@@ -87,28 +75,6 @@ static PyObject *PyBufferRegion_get_extents(PyBufferRegion *self, PyObject *args
     return Py_BuildValue("IIII", rect.x1, rect.y1, rect.x2, rect.y2);
 }
 
-static PyObject *PyBufferRegion_to_string_argb(PyBufferRegion *self, PyObject *args)
-{
-    char const* msg =
-        "BufferRegion.to_string_argb is deprecated since Matplotlib 3.7 and "
-        "will be removed two minor releases later; use "
-        "np.take(region, [2, 1, 0, 3], axis=2) instead.";
-    if (PyErr_WarnEx(PyExc_DeprecationWarning, msg, 1)) {
-        return NULL;
-    }
-    PyObject *bufobj;
-    uint8_t *buf;
-    Py_ssize_t height, stride;
-    height = self->x->get_height();
-    stride = self->x->get_stride();
-    bufobj = PyBytes_FromStringAndSize(NULL, height * stride);
-    buf = (uint8_t *)PyBytes_AS_STRING(bufobj);
-
-    CALL_CPP_CLEANUP("to_string_argb", (self->x->to_string_argb(buf)), Py_DECREF(bufobj));
-
-    return bufobj;
-}
-
 int PyBufferRegion_get_buffer(PyBufferRegion *self, Py_buffer *buf, int flags)
 {
     Py_INCREF(self);
@@ -136,8 +102,6 @@ int PyBufferRegion_get_buffer(PyBufferRegion *self, Py_buffer *buf, int flags)
 static PyTypeObject *PyBufferRegion_init_type()
 {
     static PyMethodDef methods[] = {
-        { "to_string", (PyCFunction)PyBufferRegion_to_string, METH_NOARGS, NULL },
-        { "to_string_argb", (PyCFunction)PyBufferRegion_to_string_argb, METH_NOARGS, NULL },
         { "set_x", (PyCFunction)PyBufferRegion_set_x, METH_VARARGS, NULL },
         { "set_y", (PyCFunction)PyBufferRegion_set_y, METH_VARARGS, NULL },
         { "get_extents", (PyCFunction)PyBufferRegion_get_extents, METH_NOARGS, NULL },
@@ -209,7 +173,7 @@ static void PyRendererAgg_dealloc(PyRendererAgg *self)
 static PyObject *PyRendererAgg_draw_path(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
-    py::PathIterator path;
+    mpl::PathIterator path;
     agg::trans_affine trans;
     PyObject *faceobj = NULL;
     agg::rgba face;
@@ -263,9 +227,9 @@ static PyObject *PyRendererAgg_draw_text_image(PyRendererAgg *self, PyObject *ar
 PyObject *PyRendererAgg_draw_markers(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
-    py::PathIterator marker_path;
+    mpl::PathIterator marker_path;
     agg::trans_affine marker_path_trans;
-    py::PathIterator path;
+    mpl::PathIterator path;
     agg::trans_affine trans;
     PyObject *faceobj = NULL;
     agg::rgba face;
@@ -328,7 +292,7 @@ PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
     agg::trans_affine master_transform;
-    py::PathGenerator paths;
+    mpl::PathGenerator paths;
     numpy::array_view<const double, 3> transforms;
     numpy::array_view<const double, 2> offsets;
     agg::trans_affine offset_trans;
@@ -437,49 +401,6 @@ static PyObject *PyRendererAgg_draw_quad_mesh(PyRendererAgg *self, PyObject *arg
 }
 
 static PyObject *
-PyRendererAgg_draw_gouraud_triangle(PyRendererAgg *self, PyObject *args)
-{
-    GCAgg gc;
-    numpy::array_view<const double, 2> points;
-    numpy::array_view<const double, 2> colors;
-    agg::trans_affine trans;
-
-    if (!PyArg_ParseTuple(args,
-                          "O&O&O&O&|O:draw_gouraud_triangle",
-                          &convert_gcagg,
-                          &gc,
-                          &points.converter,
-                          &points,
-                          &colors.converter,
-                          &colors,
-                          &convert_trans_affine,
-                          &trans)) {
-        return NULL;
-    }
-
-    if (points.dim(0) != 3 || points.dim(1) != 2) {
-        PyErr_Format(PyExc_ValueError,
-                     "points must have shape (3, 2), "
-                     "got (%" NPY_INTP_FMT ", %" NPY_INTP_FMT ")",
-                     points.dim(0), points.dim(1));
-        return NULL;
-    }
-
-    if (colors.dim(0) != 3 || colors.dim(1) != 4) {
-        PyErr_Format(PyExc_ValueError,
-                     "colors must have shape (3, 4), "
-                     "got (%" NPY_INTP_FMT ", %" NPY_INTP_FMT ")",
-                     colors.dim(0), colors.dim(1));
-        return NULL;
-    }
-
-
-    CALL_CPP("draw_gouraud_triangle", (self->x->draw_gouraud_triangle(gc, points, colors, trans)));
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
 PyRendererAgg_draw_gouraud_triangles(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
@@ -499,17 +420,17 @@ PyRendererAgg_draw_gouraud_triangles(PyRendererAgg *self, PyObject *args)
                           &trans)) {
         return NULL;
     }
-    if (points.size() && !check_trailing_shape(points, "points", 3, 2)) {
+    if (points.shape(0) && !check_trailing_shape(points, "points", 3, 2)) {
         return NULL;
     }
-    if (colors.size() && !check_trailing_shape(colors, "colors", 3, 4)) {
+    if (colors.shape(0) && !check_trailing_shape(colors, "colors", 3, 4)) {
         return NULL;
     }
-    if (points.size() != colors.size()) {
+    if (points.shape(0) != colors.shape(0)) {
         PyErr_Format(PyExc_ValueError,
                      "points and colors arrays must be the same length, got "
                      "%" NPY_INTP_FMT " points and %" NPY_INTP_FMT "colors",
-                     points.dim(0), colors.dim(0));
+                     points.shape(0), colors.shape(0));
         return NULL;
     }
 
@@ -603,7 +524,6 @@ static PyTypeObject *PyRendererAgg_init_type()
         {"draw_image", (PyCFunction)PyRendererAgg_draw_image, METH_VARARGS, NULL},
         {"draw_path_collection", (PyCFunction)PyRendererAgg_draw_path_collection, METH_VARARGS, NULL},
         {"draw_quad_mesh", (PyCFunction)PyRendererAgg_draw_quad_mesh, METH_VARARGS, NULL},
-        {"draw_gouraud_triangle", (PyCFunction)PyRendererAgg_draw_gouraud_triangle, METH_VARARGS, NULL},
         {"draw_gouraud_triangles", (PyCFunction)PyRendererAgg_draw_gouraud_triangles, METH_VARARGS, NULL},
 
         {"clear", (PyCFunction)PyRendererAgg_clear, METH_NOARGS, NULL},

@@ -118,16 +118,15 @@ class ToolBase:
         lambda self: self._figure.canvas if self._figure is not None else None,
         doc="The canvas of the figure affected by this tool, or None.")
 
-    @property
-    def figure(self):
-        """The Figure affected by this tool, or None."""
-        return self._figure
-
-    @figure.setter
-    def figure(self, figure):
+    def set_figure(self, figure):
         self._figure = figure
 
-    set_figure = figure.fset
+    figure = property(
+        lambda self: self._figure,
+        # The setter must explicitly call self.set_figure so that subclasses can
+        # meaningfully override it.
+        lambda self, figure: self.set_figure(figure),
+        doc="The Figure affected by this tool, or None.")
 
     def _make_classic_style_pseudo_toolbar(self):
         """
@@ -479,16 +478,16 @@ class ToolViewsPositions(ToolBase):
         """Add the current figure to the stack of views and positions."""
 
         if figure not in self.views:
-            self.views[figure] = cbook.Stack()
-            self.positions[figure] = cbook.Stack()
+            self.views[figure] = cbook._Stack()
+            self.positions[figure] = cbook._Stack()
             self.home_views[figure] = WeakKeyDictionary()
             # Define Home
             self.push_current(figure)
-            # Make sure we add a home view for new axes as they're added
+            # Make sure we add a home view for new Axes as they're added
             figure.add_axobserver(lambda fig: self.update_home_views(fig))
 
     def clear(self, figure):
-        """Reset the axes stack."""
+        """Reset the Axes stack."""
         if figure in self.views:
             self.views[figure].clear()
             self.positions[figure].clear()
@@ -497,9 +496,9 @@ class ToolViewsPositions(ToolBase):
 
     def update_view(self):
         """
-        Update the view limits and position for each axes from the current
-        stack position. If any axes are present in the figure that aren't in
-        the current stack position, use the home view limits for those axes and
+        Update the view limits and position for each Axes from the current
+        stack position. If any Axes are present in the figure that aren't in
+        the current stack position, use the home view limits for those Axes and
         don't update *any* positions.
         """
 
@@ -542,7 +541,7 @@ class ToolViewsPositions(ToolBase):
 
     def _axes_pos(self, ax):
         """
-        Return the original and modified positions for the specified axes.
+        Return the original and modified positions for the specified Axes.
 
         Parameters
         ----------
@@ -560,7 +559,7 @@ class ToolViewsPositions(ToolBase):
 
     def update_home_views(self, figure=None):
         """
-        Make sure that ``self.home_views`` has an entry for all axes present
+        Make sure that ``self.home_views`` has an entry for all Axes present
         in the figure.
         """
 
@@ -808,7 +807,7 @@ class ToolZoom(ZoomPanBase):
                 self._cancel_action()
                 return
 
-            # detect twinx, twiny axes and avoid double zooming
+            # detect twinx, twiny Axes and avoid double zooming
             twinx = any(a.get_shared_x_axes().joined(a, a1) for a1 in done_ax)
             twiny = any(a.get_shared_y_axes().joined(a, a1) for a1 in done_ax)
             done_ax.append(a)
@@ -829,7 +828,7 @@ class ToolZoom(ZoomPanBase):
 
 
 class ToolPan(ZoomPanBase):
-    """Pan axes with left mouse, zoom with right."""
+    """Pan Axes with left mouse, zoom with right."""
 
     default_keymap = property(lambda self: mpl.rcParams['keymap.pan'])
     description = 'Pan axes with left mouse, zoom with right'

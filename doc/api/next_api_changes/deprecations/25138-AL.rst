@@ -1,5 +1,0 @@
-``allsegs``, ``allkinds``, ``tcolors`` and ``tlinewidths`` attributes of `.ContourSet`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-These attributes are deprecated; if required, directly retrieve the vertices
-and codes of the Path objects in ``QuadContourSet.collections`` and the colors
-and the linewidths of these collections.

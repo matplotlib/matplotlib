@@ -82,7 +82,7 @@ The following 177 authors contributed 3852 commits.
 * ImportanceOfBeingErnest
 * Isuru Fernando
 * ItsRLuo
-* J. Scott Berg
+* J\. Scott Berg
 * Jae-Joon Lee
 * Jakub Klus
 * Janakarajan Natarajan

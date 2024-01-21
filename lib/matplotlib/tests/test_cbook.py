@@ -16,7 +16,7 @@ import pytest
 
 from matplotlib import _api, cbook
 import matplotlib.colors as mcolors
-from matplotlib.cbook import delete_masked_points
+from matplotlib.cbook import delete_masked_points, strip_math
 from types import ModuleType
 
 
@@ -211,6 +211,13 @@ class Test_callback_registry:
         assert self.callbacks._func_cid_map != {}
         assert self.callbacks.callbacks != {}
 
+    def test_cid_restore(self):
+        cb = cbook.CallbackRegistry()
+        cb.connect('a', lambda: None)
+        cb2 = pickle.loads(pickle.dumps(cb))
+        cid = cb2.connect('c', lambda: None)
+        assert cid == 1
+
     @pytest.mark.parametrize('pickle', [True, False])
     def test_callback_complete(self, pickle):
         # ensure we start with an empty registry
@@ -221,7 +228,7 @@ class Test_callback_registry:
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy, pickle)
-        assert type(cid1) == int
+        assert type(cid1) is int
         self.is_not_empty()
 
         # test that we don't add a second callback
@@ -246,7 +253,7 @@ class Test_callback_registry:
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy, pickle)
-        assert type(cid1) == int
+        assert type(cid1) is int
         self.is_not_empty()
 
         self.disconnect(cid1)
@@ -264,7 +271,7 @@ class Test_callback_registry:
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy, pickle)
-        assert type(cid1) == int
+        assert type(cid1) is int
         self.is_not_empty()
 
         self.disconnect("foo")
@@ -911,6 +918,12 @@ def test_safe_first_element_with_none():
     datetime_lst[0] = None
     actual = cbook._safe_first_finite(datetime_lst)
     assert actual is not None and actual == datetime_lst[1]
+
+
+def test_strip_math():
+    assert strip_math(r'1 \times 2') == r'1 \times 2'
+    assert strip_math(r'$1 \times 2$') == '1 x 2'
+    assert strip_math(r'$\rm{hi}$') == 'hi'
 
 
 @pytest.mark.parametrize('fmt, value, result', [

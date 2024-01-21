@@ -10,6 +10,7 @@ from pathlib import Path
 import warnings
 
 import numpy as np
+import PIL.Image
 import PIL.PngImagePlugin
 
 import matplotlib as mpl
@@ -18,7 +19,7 @@ from matplotlib import _api, cbook, cm
 from matplotlib import _image
 # For user convenience, the names from _image are also imported into
 # the image namespace
-from matplotlib._image import *
+from matplotlib._image import *  # noqa: F401, F403
 import matplotlib.artist as martist
 from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.colors as mcolors
@@ -349,7 +350,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         If *round_to_pixel_border* is True, the output image size will be
         rounded to the nearest pixel boundary.  This makes the images align
-        correctly with the axes.  It should not be used if exact scaling is
+        correctly with the Axes.  It should not be used if exact scaling is
         needed, such as for `FigureImage`.
 
         Returns
@@ -402,7 +403,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 .translate(-clipped_bbox.x0, -clipped_bbox.y0)
                 .scale(magnification)))
 
-        # So that the image is aligned with the edge of the axes, we want to
+        # So that the image is aligned with the edge of the Axes, we want to
         # round up the output width to the next integer.  This also means
         # scaling the transform slightly to account for the extra subpixel.
         if ((not unsampled) and t.is_affine and round_to_pixel_border and
@@ -554,11 +555,15 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 if A.ndim == 2:  # _interpolation_stage == 'rgba'
                     self.norm.autoscale_None(A)
                     A = self.to_rgba(A)
-                if A.shape[2] == 3:
-                    A = _rgb_to_rgba(A)
                 alpha = self._get_scalar_alpha()
-                output_alpha = _resample(  # resample alpha channel
-                    self, A[..., 3], out_shape, t, alpha=alpha)
+                if A.shape[2] == 3:
+                    # No need to resample alpha or make a full array; NumPy will expand
+                    # this out and cast to uint8 if necessary when it's assigned to the
+                    # alpha channel below.
+                    output_alpha = (255 * alpha) if A.dtype == np.uint8 else alpha
+                else:
+                    output_alpha = _resample(  # resample alpha channel
+                        self, A[..., 3], out_shape, t, alpha=alpha)
                 output = _resample(  # resample rgb channels
                     self, _rgb_to_rgba(A[..., :3]), out_shape, t, alpha=alpha)
                 output[..., 3] = output_alpha  # recombine rgb and alpha
@@ -654,14 +659,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred within the image."""
-        if self._different_canvas(mouseevent):
-            return False, {}
-        # 1) This doesn't work for figimage; but figimage also needs a fix
-        #    below (as the check cannot use x/ydata and extents).
-        # 2) As long as the check below uses x/ydata, we need to test axes
-        #    identity instead of `self.axes.contains(event)` because even if
-        #    axes overlap, x/ydata is only valid for event.inaxes anyways.
-        if self.axes is not mouseevent.inaxes:
+        if (self._different_canvas(mouseevent)
+                # This doesn't work for figimage.
+                or not self.axes.contains(mouseevent)[0]):
             return False, {}
         # TODO: make sure this is consistent with patch and patch
         # collection on nonlinear transformed coordinates.
@@ -670,16 +670,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         trans = self.get_transform().inverted()
         x, y = trans.transform([mouseevent.x, mouseevent.y])
         xmin, xmax, ymin, ymax = self.get_extent()
-        if xmin > xmax:
-            xmin, xmax = xmax, xmin
-        if ymin > ymax:
-            ymin, ymax = ymax, ymin
-
-        if x is not None and y is not None:
-            inside = (xmin <= x <= xmax) and (ymin <= y <= ymax)
-        else:
-            inside = False
-
+        # This checks xmin <= x <= xmax *or* xmax <= x <= xmin.
+        inside = (x is not None and (x - xmin) * (x - xmax) <= 0
+                  and y is not None and (y - ymin) * (y - ymax) <= 0)
         return inside, {}
 
     def write_png(self, fname):
@@ -687,6 +680,39 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         im = self.to_rgba(self._A[::-1] if self.origin == 'lower' else self._A,
                           bytes=True, norm=True)
         PIL.Image.fromarray(im).save(fname, format="png")
+
+    @staticmethod
+    def _normalize_image_array(A):
+        """
+        Check validity of image-like input *A* and normalize it to a format suitable for
+        Image subclasses.
+        """
+        A = cbook.safe_masked_invalid(A, copy=True)
+        if A.dtype != np.uint8 and not np.can_cast(A.dtype, float, "same_kind"):
+            raise TypeError(f"Image data of dtype {A.dtype} cannot be "
+                            f"converted to float")
+        if A.ndim == 3 and A.shape[-1] == 1:
+            A = A.squeeze(-1)  # If just (M, N, 1), assume scalar and apply colormap.
+        if not (A.ndim == 2 or A.ndim == 3 and A.shape[-1] in [3, 4]):
+            raise TypeError(f"Invalid shape {A.shape} for image data")
+        if A.ndim == 3:
+            # If the input data has values outside the valid range (after
+            # normalisation), we issue a warning and then clip X to the bounds
+            # - otherwise casting wraps extreme values, hiding outliers and
+            # making reliable interpretation impossible.
+            high = 255 if np.issubdtype(A.dtype, np.integer) else 1
+            if A.min() < 0 or high < A.max():
+                _log.warning(
+                    'Clipping input data to the valid range for imshow with '
+                    'RGB data ([0..1] for floats or [0..255] for integers). '
+                    'Got range [%s..%s].',
+                    A.min(), A.max()
+                )
+                A = np.clip(A, 0, high)
+            # Cast unsupported integer types to uint8
+            if A.dtype != np.uint8 and np.issubdtype(A.dtype, np.integer):
+                A = A.astype(np.uint8)
+        return A
 
     def set_data(self, A):
         """
@@ -700,38 +726,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         if isinstance(A, PIL.Image.Image):
             A = pil_to_array(A)  # Needed e.g. to apply png palette.
-        self._A = cbook.safe_masked_invalid(A, copy=True)
-
-        if (self._A.dtype != np.uint8 and
-                not np.can_cast(self._A.dtype, float, "same_kind")):
-            raise TypeError(f"Image data of dtype {self._A.dtype} cannot be "
-                            "converted to float")
-
-        if self._A.ndim == 3 and self._A.shape[-1] == 1:
-            # If just one dimension assume scalar and apply colormap
-            self._A = self._A[:, :, 0]
-
-        if not (self._A.ndim == 2
-                or self._A.ndim == 3 and self._A.shape[-1] in [3, 4]):
-            raise TypeError(f"Invalid shape {self._A.shape} for image data")
-
-        if self._A.ndim == 3:
-            # If the input data has values outside the valid range (after
-            # normalisation), we issue a warning and then clip X to the bounds
-            # - otherwise casting wraps extreme values, hiding outliers and
-            # making reliable interpretation impossible.
-            high = 255 if np.issubdtype(self._A.dtype, np.integer) else 1
-            if self._A.min() < 0 or high < self._A.max():
-                _log.warning(
-                    'Clipping input data to the valid range for imshow with '
-                    'RGB data ([0..1] for floats or [0..255] for integers).'
-                )
-                self._A = np.clip(self._A, 0, high)
-            # Cast unsupported integer types to uint8
-            if self._A.dtype != np.uint8 and np.issubdtype(self._A.dtype,
-                                                           np.integer):
-                self._A = self._A.astype(np.uint8)
-
+        self._A = self._normalize_image_array(A)
         self._imcache = None
         self.stale = True
 
@@ -773,10 +768,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', \
 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos', 'none'} or None
         """
-        if s is None:
-            s = mpl.rcParams['image.interpolation']
-        s = s.lower()
-        _api.check_in_list(_interpd_, interpolation=s)
+        s = mpl._val_or_rc(s, 'image.interpolation').lower()
+        _api.check_in_list(interpolations_names, interpolation=s)
         self._interpolation = s
         self.stale = True
 
@@ -813,8 +806,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         v : bool or None
             If None, use :rc:`image.resample`.
         """
-        if v is None:
-            v = mpl.rcParams['image.resample']
+        v = mpl._val_or_rc(v, 'image.resample')
         self._resample = v
         self.stale = True
 
@@ -865,8 +857,8 @@ class AxesImage(_ImageBase):
 
     Parameters
     ----------
-    ax : `~.axes.Axes`
-        The axes the image will belong to.
+    ax : `~matplotlib.axes.Axes`
+        The Axes the image will belong to.
     cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
         The Colormap instance or registered colormap name used to map scalar
         data to colors.
@@ -884,7 +876,7 @@ class AxesImage(_ImageBase):
         applied (visual interpolation).
     origin : {'upper', 'lower'}, default: :rc:`image.origin`
         Place the [0, 0] index of the array in the upper left or lower left
-        corner of the axes. The convention 'upper' is typically used for
+        corner of the Axes. The convention 'upper' is typically used for
         matrices and images.
     extent : tuple, optional
         The data axes (left, right, bottom, top) for making image plots
@@ -904,7 +896,7 @@ class AxesImage(_ImageBase):
     resample : bool, default: False
         When True, use a full resampling method. When False, only resample when
         the output image is larger than the input image.
-    **kwargs : `.Artist` properties
+    **kwargs : `~matplotlib.artist.Artist` properties
     """
 
     def __init__(self, ax,
@@ -968,8 +960,8 @@ class AxesImage(_ImageBase):
             ``(left, right, bottom, top)`` in data coordinates.
         **kwargs
             Other parameters from which unit info (i.e., the *xunits*,
-            *yunits*, *zunits* (for 3D axes), *runits* and *thetaunits* (for
-            polar axes) entries are applied, if present.
+            *yunits*, *zunits* (for 3D Axes), *runits* and *thetaunits* (for
+            polar Axes) entries are applied, if present.
 
         Notes
         -----
@@ -1052,8 +1044,8 @@ class NonUniformImage(AxesImage):
         """
         Parameters
         ----------
-        ax : `~.axes.Axes`
-            The axes the image will belong to.
+        ax : `~matplotlib.axes.Axes`
+            The Axes the image will belong to.
         interpolation : {'nearest', 'bilinear'}, default: 'nearest'
             The interpolation scheme used in the resampling.
         **kwargs
@@ -1149,23 +1141,15 @@ class NonUniformImage(AxesImage):
             (M, N) `~numpy.ndarray` or masked array of values to be
             colormapped, or (M, N, 3) RGB array, or (M, N, 4) RGBA array.
         """
+        A = self._normalize_image_array(A)
         x = np.array(x, np.float32)
         y = np.array(y, np.float32)
-        A = cbook.safe_masked_invalid(A, copy=True)
-        if not (x.ndim == y.ndim == 1 and A.shape[0:2] == y.shape + x.shape):
+        if not (x.ndim == y.ndim == 1 and A.shape[:2] == y.shape + x.shape):
             raise TypeError("Axes don't match array shape")
-        if A.ndim not in [2, 3]:
-            raise TypeError("Can only plot 2D or 3D data")
-        if A.ndim == 3 and A.shape[2] not in [1, 3, 4]:
-            raise TypeError("3D arrays must have three (RGB) "
-                            "or four (RGBA) color components")
-        if A.ndim == 3 and A.shape[2] == 1:
-            A = A.squeeze(axis=-1)
         self._A = A
         self._Ax = x
         self._Ay = y
         self._imcache = None
-
         self.stale = True
 
     def set_array(self, *args):
@@ -1227,8 +1211,8 @@ class PcolorImage(AxesImage):
         """
         Parameters
         ----------
-        ax : `~.axes.Axes`
-            The axes the image will belong to.
+        ax : `~matplotlib.axes.Axes`
+            The Axes the image will belong to.
         x, y : 1D array-like, optional
             Monotonic arrays of length N+1 and M+1, respectively, specifying
             rectangle boundaries.  If not given, will default to
@@ -1246,7 +1230,7 @@ class PcolorImage(AxesImage):
             scalar data to colors.
         norm : str or `~matplotlib.colors.Normalize`
             Maps luminance to 0-1.
-        **kwargs : `.Artist` properties
+        **kwargs : `~matplotlib.artist.Artist` properties
         """
         super().__init__(ax, norm=norm, cmap=cmap)
         self._internal_update(kwargs)
@@ -1307,28 +1291,13 @@ class PcolorImage(AxesImage):
             - (M, N, 3): RGB array
             - (M, N, 4): RGBA array
         """
-        A = cbook.safe_masked_invalid(A, copy=True)
-        if x is None:
-            x = np.arange(0, A.shape[1]+1, dtype=np.float64)
-        else:
-            x = np.array(x, np.float64).ravel()
-        if y is None:
-            y = np.arange(0, A.shape[0]+1, dtype=np.float64)
-        else:
-            y = np.array(y, np.float64).ravel()
-
-        if A.shape[:2] != (y.size-1, x.size-1):
+        A = self._normalize_image_array(A)
+        x = np.arange(0., A.shape[1] + 1) if x is None else np.array(x, float).ravel()
+        y = np.arange(0., A.shape[0] + 1) if y is None else np.array(y, float).ravel()
+        if A.shape[:2] != (y.size - 1, x.size - 1):
             raise ValueError(
                 "Axes don't match array shape. Got %s, expected %s." %
                 (A.shape[:2], (y.size - 1, x.size - 1)))
-        if A.ndim not in [2, 3]:
-            raise ValueError("A must be 2D or 3D")
-        if A.ndim == 3:
-            if A.shape[2] == 1:
-                A = A.squeeze(axis=-1)
-            elif A.shape[2] not in [3, 4]:
-                raise ValueError("3D arrays must have RGB or RGBA as last dim")
-
         # For efficient cursor readout, ensure x and y are increasing.
         if x[-1] < x[0]:
             x = x[::-1]
@@ -1336,7 +1305,6 @@ class PcolorImage(AxesImage):
         if y[-1] < y[0]:
             y = y[::-1]
             A = A[::-1]
-
         self._A = A
         self._Ax = x
         self._Ay = y
@@ -1602,7 +1570,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         is unset is documented under *fname*.
     origin : {'upper', 'lower'}, default: :rc:`image.origin`
         Indicates whether the ``(0, 0)`` index of the array is in the upper
-        left or lower left corner of the axes.
+        left or lower left corner of the Axes.
     dpi : float
         The DPI to store in the metadata of the file.  This does not affect the
         resolution of the output image.  Depending on file format, this may be
@@ -1638,6 +1606,8 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         # size when dividing and then multiplying by dpi.
         if origin is None:
             origin = mpl.rcParams["image.origin"]
+        else:
+            _api.check_in_list(('upper', 'lower'), origin=origin)
         if origin == "lower":
             arr = arr[::-1]
         if (isinstance(arr, memoryview) and arr.format == "B"

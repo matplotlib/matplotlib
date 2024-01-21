@@ -9,12 +9,17 @@ from xml.etree import ElementTree as ET
 from typing import Any
 
 import numpy as np
+from packaging.version import parse as parse_version
+import pyparsing
 import pytest
+
 
 import matplotlib as mpl
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
 from matplotlib import mathtext, _mathtext
+
+pyparsing_version = parse_version(pyparsing.__version__)
 
 
 # If test is removed, use None as placeholder
@@ -134,7 +139,10 @@ lightweight_math_tests = [
     r'$\sum x\quad\sum^nx\quad\sum_nx\quad\sum_n^nx\quad\prod x\quad\prod^nx\quad\prod_nx\quad\prod_n^nx$',  # GitHub issue 18085
     r'$1.$ $2.$ $19680801.$ $a.$ $b.$ $mpl.$',
     r'$\text{text}_{\text{sub}}^{\text{sup}} + \text{\$foo\$} + \frac{\text{num}}{\mathbf{\text{den}}}\text{with space, curly brackets \{\}, and dash -}$',
-
+    r'$\boldsymbol{abcde} \boldsymbol{+} \boldsymbol{\Gamma + \Omega} \boldsymbol{01234} \boldsymbol{\alpha * \beta}$',
+    r'$\left\lbrace\frac{\left\lbrack A^b_c\right\rbrace}{\left\leftbrace D^e_f \right\rbrack}\right\rightbrace\ \left\leftparen\max_{x} \left\lgroup \frac{A}{B}\right\rgroup \right\rightparen$',
+    r'$\left( a\middle. b \right)$ $\left( \frac{a}{b} \middle\vert x_i \in P^S \right)$ $\left[ 1 - \middle| a\middle| + \left( x  - \left\lfloor \dfrac{a}{b}\right\rfloor \right)  \right]$',
+    r'$\sum_{\substack{k = 1\\ k \neq \lfloor n/2\rfloor}}^{n}P(i,j) \sum_{\substack{i \neq 0\\ -1 \leq i \leq 3\\ 1 \leq j \leq 5}} F^i(x,y) \sum_{\substack{\left \lfloor \frac{n}{2} \right\rfloor}} F(n)$',
 ]
 
 digits = "0123456789"
@@ -179,7 +187,7 @@ font_test_specs: list[tuple[None | list[str], Any]] = [
 font_tests: list[None | str] = []
 for fonts, chars in font_test_specs:
     if fonts is None:
-        font_tests.extend([None] * chars)  # type: ignore
+        font_tests.extend([None] * chars)
     else:
         wrapper = ''.join([
             ' '.join(fonts),
@@ -273,9 +281,13 @@ def test_fontinfo():
     fontpath = mpl.font_manager.findfont("DejaVu Sans")
     font = mpl.ft2font.FT2Font(fontpath)
     table = font.get_sfnt_table("head")
+    assert table is not None
     assert table['version'] == (1, 0)
 
 
+# See gh-26152 for more context on this xfail
+@pytest.mark.xfail(pyparsing_version.release == (3, 1, 0),
+                   reason="Error messages are incorrect for this version")
 @pytest.mark.parametrize(
     'math, msg',
     [
@@ -309,6 +321,7 @@ def test_fontinfo():
         (r'$a^2^2$', r'Double superscript'),
         (r'$a_2_2$', r'Double subscript'),
         (r'$a^2_a^2$', r'Double superscript'),
+        (r'$a = {b$', r"Expected '}'"),
     ],
     ids=[
         'hspace without value',
@@ -336,7 +349,8 @@ def test_fontinfo():
         'unknown symbol',
         'double superscript',
         'double subscript',
-        'super on sub without braces'
+        'super on sub without braces',
+        'unclosed group',
     ]
 )
 def test_mathtext_exceptions(math, msg):
@@ -445,8 +459,8 @@ def test_mathtext_fallback(fallback, fontlist):
     mpl.font_manager.fontManager.ttflist.pop()
 
 
-def test_math_to_image(tmpdir):
-    mathtext.math_to_image('$x^2$', str(tmpdir.join('example.png')))
+def test_math_to_image(tmp_path):
+    mathtext.math_to_image('$x^2$', tmp_path / 'example.png')
     mathtext.math_to_image('$x^2$', io.BytesIO())
     mathtext.math_to_image('$x^2$', io.BytesIO(), color='Maroon')
 
@@ -510,3 +524,37 @@ def test_mathtext_cmr10_minus_sign():
     ax.plot(range(-1, 1), range(-1, 1))
     # draw to make sure we have no warnings
     fig.canvas.draw()
+
+
+def test_mathtext_operators():
+    test_str = r'''
+    \increment \smallin \notsmallowns
+    \smallowns \QED \rightangle
+    \smallintclockwise \smallvarointclockwise
+    \smallointctrcclockwise
+    \ratio \minuscolon \dotsminusdots
+    \sinewave \simneqq \nlesssim
+    \ngtrsim \nlessgtr \ngtrless
+    \cupleftarrow \oequal \rightassert
+    \rightModels \hermitmatrix \barvee
+    \measuredrightangle \varlrtriangle
+    \equalparallel \npreccurlyeq \nsucccurlyeq
+    \nsqsubseteq \nsqsupseteq \sqsubsetneq
+    \sqsupsetneq  \disin \varisins
+    \isins \isindot \varisinobar
+    \isinobar \isinvb \isinE
+    \nisd \varnis \nis
+    \varniobar \niobar \bagmember
+    \triangle'''.split()
+
+    fig = plt.figure()
+    for x, i in enumerate(test_str):
+        fig.text(0.5, (x + 0.5)/len(test_str), r'${%s}$' % i)
+
+    fig.draw_without_rendering()
+
+
+@check_figures_equal(extensions=["png"])
+def test_boldsymbol(fig_test, fig_ref):
+    fig_test.text(0.1, 0.2, r"$\boldsymbol{\mathrm{abc0123\alpha}}$")
+    fig_ref.text(0.1, 0.2, r"$\mathrm{abc0123\alpha}$")

@@ -1,7 +1,6 @@
 import copy
 from datetime import datetime
 import io
-from pathlib import Path
 import pickle
 import platform
 from threading import Timer
@@ -701,6 +700,14 @@ def test_layout_change_warning(layout):
         plt.tight_layout()
 
 
+def test_repeated_tightlayout():
+    fig = Figure()
+    fig.tight_layout()
+    # subsequent calls should not warn
+    fig.tight_layout()
+    fig.tight_layout()
+
+
 @check_figures_equal(extensions=["png", "pdf"])
 def test_add_artist(fig_test, fig_ref):
     fig_test.dpi = 100
@@ -731,8 +738,8 @@ def test_add_artist(fig_test, fig_ref):
 
 
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
-def test_fspath(fmt, tmpdir):
-    out = Path(tmpdir, f"test.{fmt}")
+def test_fspath(fmt, tmp_path):
+    out = tmp_path / f"test.{fmt}"
     plt.savefig(out)
     with out.open("rb") as file:
         # All the supported formats include the format name (case-insensitive)
@@ -1351,7 +1358,6 @@ def test_subfigure_double():
         ax.set_xlabel('x-label', fontsize=fontsize)
         ax.set_ylabel('y-label', fontsize=fontsize)
         ax.set_title('Title', fontsize=fontsize)
-
     subfigsnest[0].colorbar(pc, ax=axsnest0)
 
     subfigsnest[1].suptitle('subfigsnest[1]')
@@ -1447,6 +1453,38 @@ def test_subfigure_pdf():
     ax.bar_label(b)
     buffer = io.BytesIO()
     fig.savefig(buffer, format='pdf')
+
+
+def test_subfigures_wspace_hspace():
+    sub_figs = plt.figure().subfigures(2, 3, hspace=0.5, wspace=1/6.)
+
+    w = 640
+    h = 480
+
+    np.testing.assert_allclose(sub_figs[0, 0].bbox.min, [0., h * 0.6])
+    np.testing.assert_allclose(sub_figs[0, 0].bbox.max, [w * 0.3, h])
+
+    np.testing.assert_allclose(sub_figs[0, 1].bbox.min, [w * 0.35, h * 0.6])
+    np.testing.assert_allclose(sub_figs[0, 1].bbox.max, [w * 0.65, h])
+
+    np.testing.assert_allclose(sub_figs[0, 2].bbox.min, [w * 0.7, h * 0.6])
+    np.testing.assert_allclose(sub_figs[0, 2].bbox.max, [w, h])
+
+    np.testing.assert_allclose(sub_figs[1, 0].bbox.min, [0, 0])
+    np.testing.assert_allclose(sub_figs[1, 0].bbox.max, [w * 0.3, h * 0.4])
+
+    np.testing.assert_allclose(sub_figs[1, 1].bbox.min, [w * 0.35, 0])
+    np.testing.assert_allclose(sub_figs[1, 1].bbox.max, [w * 0.65, h * 0.4])
+
+    np.testing.assert_allclose(sub_figs[1, 2].bbox.min, [w * 0.7, 0])
+    np.testing.assert_allclose(sub_figs[1, 2].bbox.max, [w, h * 0.4])
+
+
+def test_subfigure_remove():
+    fig = plt.figure()
+    sfs = fig.subfigures(2, 2)
+    sfs[1, 1].remove()
+    assert len(fig.subfigs) == 3
 
 
 def test_add_subplot_kwargs():
@@ -1603,3 +1641,62 @@ def test_savefig_metadata(fmt):
 def test_savefig_metadata_error(fmt):
     with pytest.raises(ValueError, match="metadata not supported"):
         Figure().savefig(io.BytesIO(), format=fmt, metadata={})
+
+
+def test_get_constrained_layout_pads():
+    params = {'w_pad': 0.01, 'h_pad': 0.02, 'wspace': 0.03, 'hspace': 0.04}
+    expected = tuple([*params.values()])
+    fig = plt.figure(layout=mpl.layout_engine.ConstrainedLayoutEngine(**params))
+    with pytest.warns(PendingDeprecationWarning, match="will be deprecated"):
+        assert fig.get_constrained_layout_pads() == expected
+
+
+def test_not_visible_figure():
+    fig = Figure()
+
+    buf = io.StringIO()
+    fig.savefig(buf, format='svg')
+    buf.seek(0)
+    assert '<g ' in buf.read()
+
+    fig.set_visible(False)
+    buf = io.StringIO()
+    fig.savefig(buf, format='svg')
+    buf.seek(0)
+    assert '<g ' not in buf.read()
+
+
+def test_warn_colorbar_mismatch():
+    fig1, ax1 = plt.subplots()
+    fig2, (ax2_1, ax2_2) = plt.subplots(2)
+    im = ax1.imshow([[1, 2], [3, 4]])
+
+    fig1.colorbar(im)  # should not warn
+    with pytest.warns(UserWarning, match="different Figure"):
+        fig2.colorbar(im)
+    # warn mismatch even when the host figure is not inferred
+    with pytest.warns(UserWarning, match="different Figure"):
+        fig2.colorbar(im, ax=ax1)
+    with pytest.warns(UserWarning, match="different Figure"):
+        fig2.colorbar(im, ax=ax2_1)
+    with pytest.warns(UserWarning, match="different Figure"):
+        fig2.colorbar(im, cax=ax2_2)
+
+    # edge case: only compare top level artist in case of subfigure
+    fig3 = plt.figure()
+    fig4 = plt.figure()
+    subfig3_1 = fig3.subfigures()
+    subfig3_2 = fig3.subfigures()
+    subfig4_1 = fig4.subfigures()
+    ax3_1 = subfig3_1.subplots()
+    ax3_2 = subfig3_1.subplots()
+    ax4_1 = subfig4_1.subplots()
+    im3_1 = ax3_1.imshow([[1, 2], [3, 4]])
+    im3_2 = ax3_2.imshow([[1, 2], [3, 4]])
+    im4_1 = ax4_1.imshow([[1, 2], [3, 4]])
+
+    fig3.colorbar(im3_1)   # should not warn
+    subfig3_1.colorbar(im3_1)   # should not warn
+    subfig3_1.colorbar(im3_2)   # should not warn
+    with pytest.warns(UserWarning, match="different Figure"):
+        subfig3_1.colorbar(im4_1)

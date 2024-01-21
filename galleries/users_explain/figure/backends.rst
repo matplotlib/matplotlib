@@ -11,17 +11,17 @@ Backends
 What is a backend?
 ------------------
 
-A lot of documentation on the website and in the mailing lists refers
-to the "backend" and many new users are confused by this term.
-Matplotlib targets many different use cases and output formats.  Some
-people use Matplotlib interactively from the Python shell and have
-plotting windows pop up when they type commands.  Some people run
-`Jupyter <https://jupyter.org>`_ notebooks and draw inline plots for
-quick data analysis. Others embed Matplotlib into graphical user
-interfaces like PyQt or PyGObject to build rich applications.  Some
-people use Matplotlib in batch scripts to generate postscript images
-from numerical simulations, and still others run web application
-servers to dynamically serve up graphs.
+Backends are used for displaying Matplotlib figures (see :ref:`figure-intro`),
+on the screen, or for writing to files. A lot of documentation on the website
+and in the mailing lists refers to the "backend" and many new users are
+confused by this term. Matplotlib targets many different use cases and output
+formats. Some people use Matplotlib interactively from the Python shell and
+have plotting windows pop up when they type commands. Some people run `Jupyter
+<https://jupyter.org>`_ notebooks and draw inline plots for quick data
+analysis. Others embed Matplotlib into graphical user interfaces like PyQt or
+PyGObject to build rich applications. Some people use Matplotlib in batch
+scripts to generate postscript images from numerical simulations, and still
+others run web application servers to dynamically serve up graphs.
 
 To support all of these use cases, Matplotlib can target different
 outputs, and each of these capabilities is called a backend; the
@@ -133,6 +133,9 @@ point to this point" and hence are scale free. Raster backends
 generate a pixel representation of the line whose accuracy depends on a
 DPI setting.
 
+Static backends
+^^^^^^^^^^^^^^^
+
 Here is a summary of the Matplotlib renderers (there is an eponymous
 backend for each; these are *non-interactive backends*, capable of
 writing to a file):
@@ -152,6 +155,10 @@ Cairo     png, ps,   raster_ or vector_ graphics -- using the Cairo_ library
 
 To save plots using the non-interactive backends, use the
 ``matplotlib.pyplot.savefig('filename')`` method.
+
+
+Interactive backends
+^^^^^^^^^^^^^^^^^^^^
 
 These are the user interfaces and renderer combinations supported;
 these are *interactive backends*, capable of displaying to the screen
@@ -175,7 +182,7 @@ GTK3Agg   Agg rendering to a GTK_ 3.x canvas (requires PyGObject_ and
 GTK4Agg   Agg rendering to a GTK_ 4.x canvas (requires PyGObject_ and
           pycairo_).  This backend can be activated in IPython with
           ``%matplotlib gtk4``.
-macosx    Agg rendering into a Cocoa canvas in OSX.  This backend can be
+macosx    Agg rendering into a Cocoa canvas in macOS.  This backend can be
           activated in IPython with ``%matplotlib osx``.
 TkAgg     Agg rendering to a Tk_ canvas (requires TkInter_). This
           backend can be activated in IPython with ``%matplotlib tk``.
@@ -204,7 +211,7 @@ wxAgg     Agg rendering to a wxWidgets_ canvas (requires wxPython_ 4).
 .. _Cairo: https://www.cairographics.org
 .. _PyGObject: https://wiki.gnome.org/action/show/Projects/PyGObject
 .. _pycairo: https://www.cairographics.org/pycairo/
-.. _cairocffi: https://pythonhosted.org/cairocffi/
+.. _cairocffi: https://doc.courtbouillon.org/cairocffi/stable/
 .. _wxPython: https://www.wxpython.org/
 .. _TkInter: https://docs.python.org/3/library/tk.html
 .. _PyQt: https://riverbankcomputing.com/software/pyqt/intro
@@ -241,3 +248,87 @@ backend, use ``module://name.of.the.backend`` as the backend name, e.g.
 ``matplotlib.use('module://name.of.the.backend')``.
 
 Information for backend implementers is available at :ref:`writing_backend_interface`.
+
+.. _figures-not-showing:
+
+Debugging the figure windows not showing
+----------------------------------------
+
+Sometimes things do not work as expected, usually during an install.
+
+If you are using a Notebook or integrated development environment (see :ref:`notebooks-and-ides`),
+please consult their documentation for debugging figures not working in their
+environments.
+
+If you are using one of Matplotlib's graphics backends (see :ref:`standalone-scripts-and-interactive-use`), make sure you know which
+one is being used:
+
+.. code-block:: python3
+
+   import matplotlib
+
+   print(matplotlib.get_backend())
+
+Try a simple plot to see if the GUI opens:
+
+.. code-block:: python3
+
+   import matplotlib
+   import matplotlib.pyplot as plt
+
+   print(matplotlib.get_backend())
+   plt.plot((1, 4, 6))
+   plt.show()
+
+If it does not, you perhaps have an installation problem.  A good step at this
+point is to ensure that your GUI toolkit is installed properly, taking
+Matplotlib out of the testing.  Almost all GUI toolkits have a small test
+program that can be run to test basic functionality.  If this test fails, try re-installing.
+
+QtAgg, QtCairo, Qt5Agg, and Qt5Cairo
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Test ``PyQt5``.
+
+If you have ``PySide`` or ``PyQt6`` installed rather than ``PyQt5``, just change the import
+accordingly:
+
+.. code-block:: bash
+
+   python -c "from PyQt5.QtWidgets import *; app = QApplication([]); win = QMainWindow(); win.show(); app.exec()"
+
+
+TkAgg and TkCairo
+^^^^^^^^^^^^^^^^^
+
+Test ``tkinter``:
+
+.. code-block:: bash
+
+   python3 -c "from tkinter import Tk; Tk().mainloop()"
+
+GTK3Agg, GTK4Agg, GTK3Cairo, GTK4Cairo
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Test ``Gtk``:
+
+.. code-block:: bash
+
+   python3 -c "from gi.repository import Gtk; win = Gtk.Window(); win.connect('destroy', Gtk.main_quit); win.show(); Gtk.main()"
+
+wxAgg and wxCairo
+^^^^^^^^^^^^^^^^^
+
+Test ``wx``:
+
+.. code-block:: python3
+
+   import wx
+
+   app = wx.App(False)  # Create a new app, don't redirect stdout/stderr to a window.
+   frame = wx.Frame(None, wx.ID_ANY, "Hello World") # A Frame is a top-level window.
+   frame.Show(True)     # Show the frame.
+   app.MainLoop()
+
+If the test works for your desired backend but you still cannot get Matplotlib to display a figure, then contact us (see
+:ref:`get-help`).

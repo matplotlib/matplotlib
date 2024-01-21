@@ -181,7 +181,7 @@ for ax in fig.get_axes():
 
 # %%
 # If you want a more complex sharing structure, you can first create the
-# grid of axes with no sharing, and then call `.axes.Axes.sharex` or
+# grid of Axes with no sharing, and then call `.axes.Axes.sharex` or
 # `.axes.Axes.sharey` to add sharing info a posteriori.
 
 fig, axs = plt.subplots(2, 2)
@@ -197,7 +197,7 @@ axs[1, 1].set_title("also unrelated")
 fig.tight_layout()
 
 # %%
-# Polar axes
+# Polar Axes
 # """"""""""
 #
 # The parameter *subplot_kw* of `.pyplot.subplots` controls the subplot
