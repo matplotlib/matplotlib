@@ -452,6 +452,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
                 # Always copy, and don't allow array subtypes.
                 A_scaled = np.array(A, dtype=scaled_dtype)
+                a_min = np.float64(a_min)
+                a_max = np.float64(a_max)
                 # Clip scaled data around norm if necessary.  This is necessary
                 # for big numbers at the edge of float64's ability to represent
                 # changes.  Applying a norm first would be good, but ruins the
