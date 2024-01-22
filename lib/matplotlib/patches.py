@@ -190,10 +190,10 @@ class Patch(artist.Artist):
         transform them first:
 
         >>> center = 0, 0
-        >>> c = Circle(center, radius=1)
+        >>> c = Circle(center, radius=3)
         >>> plt.gca().add_patch(c)
-        >>> transformed_center = c.get_transform().transform(center)
-        >>> c.contains_point(transformed_center)
+        >>> transformed_interior_point = c.get_data_transform().transform((0, 2))
+        >>> c.contains_point(transformed_interior_point)
         True
 
         """
