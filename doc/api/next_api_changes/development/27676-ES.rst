@@ -1,0 +1,6 @@
+Windows on ARM64 support
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Windows on ARM64 bundles FreeType 2.6.1 instead of 2.11.1 when building from source.
+This may cause small changes to text rendering, but should become consistent with all
+other platforms.
