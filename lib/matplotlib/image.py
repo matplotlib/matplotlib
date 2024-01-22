@@ -1197,10 +1197,7 @@ class NonUniformImage(AxesImage):
             return None
         j = np.searchsorted(self._Ax, x) - 1
         i = np.searchsorted(self._Ay, y) - 1
-        try:
-            return self._A[i, j]
-        except IndexError:
-            return None
+        return self._A[i, j]
 
 
 class PcolorImage(AxesImage):
@@ -1334,10 +1331,7 @@ class PcolorImage(AxesImage):
             return None
         j = np.searchsorted(self._Ax, x) - 1
         i = np.searchsorted(self._Ay, y) - 1
-        try:
-            return self._A[i, j]
-        except IndexError:
-            return None
+        return self._A[i, j]
 
 
 class FigureImage(_ImageBase):
