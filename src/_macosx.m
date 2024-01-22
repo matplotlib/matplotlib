@@ -100,6 +100,9 @@ static int wait_for_stdin() {
 }
 
 /* ---------------------------- Cocoa classes ---------------------------- */
+@interface MatplotlibAppDelegate : NSObject <NSApplicationDelegate>
+- (BOOL)applicationSupportsSecureRestorableState:(NSApplication *)app;
+@end
 
 @interface Window : NSWindow
 {   PyObject* manager;
@@ -195,6 +198,7 @@ static void lazy_init(void) {
 
     NSApp = [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+    [NSApp setDelegate: [[[MatplotlibAppDelegate alloc] init] autorelease]];
 
     // Run our own event loop while waiting for stdin on the Python side
     // this is needed to keep the application responsive while waiting for input
@@ -778,6 +782,12 @@ static PyTypeObject FigureManagerType = {
         {}  // sentinel
     },
 };
+
+@implementation MatplotlibAppDelegate
+- (BOOL)applicationSupportsSecureRestorableState:(NSApplication *)app {
+    return YES;
+}
+@end
 
 @interface NavigationToolbar2Handler : NSObject
 {   PyObject* toolbar;
