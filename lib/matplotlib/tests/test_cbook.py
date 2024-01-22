@@ -959,7 +959,7 @@ def test_unpack_to_numpy_from_torch():
     torch_tensor = torch.Tensor(data)
 
     result = cbook._unpack_to_numpy(torch_tensor)
-    assert isinstance(result, np.ndarray)
+    assert result is torch_tensor.__array__()
 
 
 def test_unpack_to_numpy_from_jax():
@@ -981,4 +981,4 @@ def test_unpack_to_numpy_from_jax():
     jax_array = jax.Array(data)
 
     result = cbook._unpack_to_numpy(jax_array)
-    assert isinstance(result, np.ndarray)
+    assert result is jax_array.__array__()
