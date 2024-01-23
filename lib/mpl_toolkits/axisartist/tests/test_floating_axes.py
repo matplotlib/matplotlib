@@ -24,7 +24,7 @@ def test_curvelinear3():
     fig = plt.figure(figsize=(5, 5))
 
     tr = (mtransforms.Affine2D().scale(np.pi / 180, 1) +
-          mprojections.PolarAxes.PolarTransform())
+          mprojections.PolarAxes.PolarTransform(apply_theta_transforms=False))
     grid_helper = GridHelperCurveLinear(
         tr,
         extremes=(0, 360, 10, 3),
@@ -73,7 +73,7 @@ def test_curvelinear4():
     fig = plt.figure(figsize=(5, 5))
 
     tr = (mtransforms.Affine2D().scale(np.pi / 180, 1) +
-          mprojections.PolarAxes.PolarTransform())
+          mprojections.PolarAxes.PolarTransform(apply_theta_transforms=False))
     grid_helper = GridHelperCurveLinear(
         tr,
         extremes=(120, 30, 10, 0),

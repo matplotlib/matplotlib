@@ -353,7 +353,7 @@ is thus deprecated as well.
 To test an installed copy, be sure to specify both ``matplotlib`` and
 ``mpl_toolkits`` with ``--pyargs``::
 
-    python -m pytest --pyargs matplotlib.tests mpl_toolkits.tests
+    pytest --pyargs matplotlib.tests mpl_toolkits.tests
 
 See :ref:`testing` for more details.
 

@@ -135,6 +135,7 @@ import logging
 import locale
 import math
 from numbers import Integral
+import string
 
 import numpy as np
 
@@ -336,10 +337,11 @@ class FormatStrFormatter(Formatter):
     The format string should have a single variable format (%) in it.
     It will be applied to the value (not the position) of the tick.
 
-    Negative numeric values will use a dash, not a Unicode minus; use mathtext
-    to get a Unicode minus by wrapping the format specifier with $ (e.g.
-    "$%g$").
+    Negative numeric values (e.g., -1) will use a dash, not a Unicode minus;
+    use mathtext to get a Unicode minus by wrapping the format specifier with $
+    (e.g. "$%g$").
     """
+
     def __init__(self, fmt):
         self.fmt = fmt
 
@@ -352,13 +354,33 @@ class FormatStrFormatter(Formatter):
         return self.fmt % x
 
 
+class _UnicodeMinusFormat(string.Formatter):
+    """
+    A specialized string formatter so that `.StrMethodFormatter` respects
+    :rc:`axes.unicode_minus`.  This implementation relies on the fact that the
+    format string is only ever called with kwargs *x* and *pos*, so it blindly
+    replaces dashes by unicode minuses without further checking.
+    """
+
+    def format_field(self, value, format_spec):
+        return Formatter.fix_minus(super().format_field(value, format_spec))
+
+
 class StrMethodFormatter(Formatter):
     """
     Use a new-style format string (as used by `str.format`) to format the tick.
 
     The field used for the tick value must be labeled *x* and the field used
     for the tick position must be labeled *pos*.
+
+    The formatter will respect :rc:`axes.unicode_minus` when formatting
+    negative numeric values.
+
+    It is typically unnecessary to explicitly construct `.StrMethodFormatter`
+    objects, as `~.Axis.set_major_formatter` directly accepts the format string
+    itself.
     """
+
     def __init__(self, fmt):
         self.fmt = fmt
 
@@ -369,7 +391,7 @@ class StrMethodFormatter(Formatter):
         *x* and *pos* are passed to `str.format` as keyword arguments
         with those exact names.
         """
-        return self.fmt.format(x=x, pos=pos)
+        return _UnicodeMinusFormat().format(self.fmt, x=x, pos=pos)
 
 
 class ScalarFormatter(Formatter):
@@ -1635,7 +1657,7 @@ class Locator(TickHelper):
         Adjust a range as needed to avoid singularities.
 
         This method gets called during autoscaling, with ``(v0, v1)`` set to
-        the data limits on the axes if the axes contains any data, or
+        the data limits on the Axes if the Axes contains any data, or
         ``(-inf, +inf)`` if not.
 
         - If ``v0 == v1`` (possibly up to some floating point slop), this
@@ -2000,7 +2022,7 @@ class MaxNLocator(Locator):
             *if they fall exactly on an axis' edge* (this typically occurs when
             :rc:`axes.autolimit_mode` is 'round_numbers').  Removing such ticks
             is mostly useful for stacked or ganged plots, where the upper tick
-            of an axes overlaps with the lower tick of the axes above it.
+            of an Axes overlaps with the lower tick of the axes above it.
 
         min_n_ticks : int, default: 2
             Relax *nbins* and *integer* constraints if necessary to obtain
@@ -2881,7 +2903,7 @@ class AutoMinorLocator(Locator):
             _api.warn_external('AutoMinorLocator does not work on logarithmic scales')
             return []
 
-        majorlocs = self.axis.get_majorticklocs()
+        majorlocs = np.unique(self.axis.get_majorticklocs())
         if len(majorlocs) < 2:
             # Need at least two major ticks to find minor tick locations.
             # TODO: Figure out a way to still be able to display minor ticks with less

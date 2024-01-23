@@ -58,7 +58,7 @@ poly_coords = [
 ]
 fig, (ax1, ax2) = plt.subplots(ncols=2)
 
-# Here we set the stickiness of the axes object...
+# Here we set the stickiness of the Axes object...
 # ax1 we'll leave as the default, which uses sticky edges
 # and we'll turn off stickiness for ax2
 ax2.use_sticky_edges = False

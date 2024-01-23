@@ -40,7 +40,7 @@ SPECIAL_KEYS = {
         ("Key_PageUp", "pageup"),
         ("Key_PageDown", "pagedown"),
         ("Key_Shift", "shift"),
-        # In OSX, the control and super (aka cmd/apple) keys are switched.
+        # In macOS, the control and super (aka cmd/apple) keys are switched.
         ("Key_Control", "control" if sys.platform != "darwin" else "cmd"),
         ("Key_Meta", "meta" if sys.platform != "darwin" else "control"),
         ("Key_Alt", "alt"),
@@ -741,7 +741,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         axes = self.canvas.figure.get_axes()
         if not axes:
             QtWidgets.QMessageBox.warning(
-                self.canvas.parent(), "Error", "There are no axes to edit.")
+                self.canvas.parent(), "Error", "There are no Axes to edit.")
             return
         elif len(axes) == 1:
             ax, = axes
@@ -761,7 +761,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                     titles[i] += f" (id: {id(ax):#x})"  # Deduplicate titles.
             item, ok = QtWidgets.QInputDialog.getItem(
                 self.canvas.parent(),
-                'Customize', 'Select axes:', titles, 0, False)
+                'Customize', 'Select Axes:', titles, 0, False)
             if not ok:
                 return
             ax = axes[titles.index(item)]

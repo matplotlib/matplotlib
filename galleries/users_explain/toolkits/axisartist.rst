@@ -99,7 +99,7 @@ Here is an example that uses ParasiteAxes.
    :target: /gallery/axisartist/demo_parasite_axes2.html
    :align: center
 
-Curvilinear Grid
+Curvilinear grid
 ----------------
 
 The motivation behind the AxisArtist module is to support a curvilinear grid
@@ -298,7 +298,7 @@ HowTo
    To change the pad between ticklabels and axis label,
    axis.label.set_pad method.
 
-Rotation and Alignment of TickLabels
+Rotation and alignment of TickLabels
 ====================================
 
 This is also quite different from standard Matplotlib and can be
@@ -566,7 +566,7 @@ way is to add it as an item of Axes's axis attribute.::
 
 See the first example of this page.
 
-Current Limitations and TODO's
+Current limitations and TODO's
 ==============================
 
 The code need more refinement. Here is a incomplete list of issues and TODO's

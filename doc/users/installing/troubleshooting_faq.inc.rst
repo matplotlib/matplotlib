@@ -67,6 +67,6 @@ directory by default::
 If you would like to use a different configuration directory, you can
 do so by specifying the location in your :envvar:`MPLCONFIGDIR`
 environment variable -- see
-:ref:`setting-linux-osx-environment-variables`.  Note that
+:ref:`setting-linux-macos-environment-variables`.  Note that
 :envvar:`MPLCONFIGDIR` sets the location of both the configuration
 directory and the cache directory.

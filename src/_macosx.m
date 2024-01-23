@@ -89,9 +89,6 @@ static int wait_for_stdin() {
                 if (!event) { break; }
                 [NSApp sendEvent: event];
             }
-            // We need to run the run loop for a short time to allow the
-            // events to be processed and keep flushing them while we wait for stdin
-            [[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 0.01]];
         }
         // Remove the input handler as an observer
         [[NSNotificationCenter defaultCenter] removeObserver: stdinHandle];
@@ -103,6 +100,9 @@ static int wait_for_stdin() {
 }
 
 /* ---------------------------- Cocoa classes ---------------------------- */
+@interface MatplotlibAppDelegate : NSObject <NSApplicationDelegate>
+- (BOOL)applicationSupportsSecureRestorableState:(NSApplication *)app;
+@end
 
 @interface Window : NSWindow
 {   PyObject* manager;
@@ -198,6 +198,7 @@ static void lazy_init(void) {
 
     NSApp = [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+    [NSApp setDelegate: [[[MatplotlibAppDelegate alloc] init] autorelease]];
 
     // Run our own event loop while waiting for stdin on the Python side
     // this is needed to keep the application responsive while waiting for input
@@ -412,7 +413,7 @@ FigureCanvas_set_cursor(PyObject* unused, PyObject* args)
             [[NSCursor openHandCursor] set];
         }
         break;
-      /* OSX handles busy state itself so no need to set a cursor here */
+      /* macOS handles busy state itself so no need to set a cursor here */
       case 5: break;
       case 6: [[NSCursor resizeLeftRightCursor] set]; break;
       case 7: [[NSCursor resizeUpDownCursor] set]; break;
@@ -781,6 +782,12 @@ static PyTypeObject FigureManagerType = {
         {}  // sentinel
     },
 };
+
+@implementation MatplotlibAppDelegate
+- (BOOL)applicationSupportsSecureRestorableState:(NSApplication *)app {
+    return YES;
+}
+@end
 
 @interface NavigationToolbar2Handler : NSObject
 {   PyObject* toolbar;
@@ -1726,11 +1733,15 @@ Timer__timer_start(Timer* self, PyObject* args)
     }
 
     // hold a reference to the timer so we can invalidate/stop it later
-    self->timer = [NSTimer scheduledTimerWithTimeInterval: interval
-                                            repeats: !single
-                                              block: ^(NSTimer *timer) {
+    self->timer = [NSTimer timerWithTimeInterval: interval
+                                         repeats: !single
+                                           block: ^(NSTimer *timer) {
         gil_call_method((PyObject*)self, "_on_timer");
     }];
+    // Schedule the timer on the main run loop which is needed
+    // when updating the UI from a background thread
+    [[NSRunLoop mainRunLoop] addTimer: self->timer forMode: NSRunLoopCommonModes];
+
 exit:
     Py_XDECREF(py_interval);
     Py_XDECREF(py_single);
@@ -1791,7 +1802,7 @@ static struct PyModuleDef moduledef = {
         {"event_loop_is_running",
          (PyCFunction)event_loop_is_running,
          METH_NOARGS,
-         "Return whether the OSX backend has set up the NSApp main event loop."},
+         "Return whether the macosx backend has set up the NSApp main event loop."},
         {"wake_on_fd_write",
          (PyCFunction)wake_on_fd_write,
          METH_VARARGS,

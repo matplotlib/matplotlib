@@ -5,14 +5,14 @@
 Colorbar with AxesDivider
 =========================
 
-The `.axes_divider.make_axes_locatable` function takes an existing axes, adds
+The `.axes_divider.make_axes_locatable` function takes an existing Axes, adds
 it to a new `.AxesDivider` and returns the `.AxesDivider`.  The `.append_axes`
-method of the `.AxesDivider` can then be used to create a new axes on a given
-side ("top", "right", "bottom", or "left") of the original axes. This example
-uses `.append_axes` to add colorbars next to axes.
+method of the `.AxesDivider` can then be used to create a new Axes on a given
+side ("top", "right", "bottom", or "left") of the original Axes. This example
+uses `.append_axes` to add colorbars next to Axes.
 
-Users should consider simply passing the main axes to the *ax* keyword argument of
-`~.Figure.colorbar` instead of creating a locatable axes manually like this.
+Users should consider simply passing the main Axes to the *ax* keyword argument of
+`~.Figure.colorbar` instead of creating a locatable Axes manually like this.
 See :ref:`colorbar_placement`.
 
 .. redirect-from:: /gallery/axes_grid1/simple_colorbar

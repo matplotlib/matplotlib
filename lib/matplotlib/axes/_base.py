@@ -1595,7 +1595,7 @@ class _AxesBase(martist.Artist):
 
     def get_aspect(self):
         """
-        Return the aspect ratio of the axes scaling.
+        Return the aspect ratio of the Axes scaling.
 
         This is either "auto" or a float giving the ratio of y/x-scale.
         """
@@ -1603,7 +1603,7 @@ class _AxesBase(martist.Artist):
 
     def set_aspect(self, aspect, adjustable=None, anchor=None, share=False):
         """
-        Set the aspect ratio of the axes scaling, i.e. y/x-scale.
+        Set the aspect ratio of the Axes scaling, i.e. y/x-scale.
 
         Parameters
         ----------
@@ -2056,7 +2056,7 @@ class _AxesBase(martist.Artist):
 
         Notes
         -----
-        For 3D axes, this method additionally takes *zmin*, *zmax* as
+        For 3D Axes, this method additionally takes *zmin*, *zmax* as
         parameters and likewise returns them.
         """
         if isinstance(arg, (str, bool)):
@@ -2808,7 +2808,7 @@ class _AxesBase(martist.Artist):
             None leaves the autoscaling state unchanged.
         axis : {'both', 'x', 'y'}, default: 'both'
             The axis on which to operate.  (For 3D Axes, *axis* can also be set
-            to 'z', and 'both' refers to all three axes.)
+            to 'z', and 'both' refers to all three Axes.)
         tight : bool or None, default: None
             If True, first set the margins to zero.  Then, this argument is
             forwarded to `~.axes.Axes.autoscale_view` (regardless of
@@ -3157,12 +3157,17 @@ class _AxesBase(martist.Artist):
         b : bool or 'line'
             Possible values:
 
-            - *True* (zorder = 0.5): Ticks and gridlines are below all Artists.
+            - *True* (zorder = 0.5): Ticks and gridlines are below patches and
+              lines, though still above images.
             - 'line' (zorder = 1.5): Ticks and gridlines are above patches
               (e.g. rectangles, with default zorder = 1) but still below lines
               and markers (with their default zorder = 2).
             - *False* (zorder = 2.5): Ticks and gridlines are above patches
               and lines / markers.
+
+        Notes
+        -----
+        For more control, call the `~.Artist.set_zorder` method of each axis.
 
         See Also
         --------
@@ -4627,7 +4632,7 @@ def _draw_rasterized(figure, artists, renderer):
     shim class to be compatible with that decorator and then uses it to
     rasterize the list of artists.
 
-    This is maybe too-clever, but allows us to re-use the same code that is
+    This is maybe too-clever, but allows us to reuse the same code that is
     used on normal artists to participate in the "are we rasterizing"
     accounting.
 

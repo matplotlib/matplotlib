@@ -1,11 +1,11 @@
 """
 =====================================
-Resizing axes with constrained layout
+Resizing Axes with constrained layout
 =====================================
 
 *Constrained layout* attempts to resize subplots in
-a figure so that there are no overlaps between axes objects and labels
-on the axes.
+a figure so that there are no overlaps between Axes objects and labels
+on the Axes.
 
 See :ref:`constrainedlayout_guide` for more details and
 :ref:`tight_layout_guide` for an alternative.
@@ -23,7 +23,7 @@ def example_plot(ax):
 
 
 # %%
-# If we don't use *constrained layout*, then labels overlap the axes
+# If we don't use *constrained layout*, then labels overlap the Axes
 
 fig, axs = plt.subplots(nrows=2, ncols=2, layout=None)
 

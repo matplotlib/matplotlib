@@ -1,7 +1,7 @@
 .. _license-discussion:
 
-Licenses
-========
+Licenses for contributed code
+=============================
 
 Matplotlib only uses BSD compatible code.  If you bring in code from
 another project make sure it has a PSF, BSD, MIT or compatible license

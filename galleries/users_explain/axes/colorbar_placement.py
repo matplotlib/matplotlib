@@ -4,7 +4,7 @@
 .. redirect-from:: /gallery/subplots_axes_and_figures/colorbar_placement
 
 =================
-Placing Colorbars
+Placing colorbars
 =================
 
 Colorbars indicate the quantitative extent of image data.  Placing in
@@ -13,8 +13,8 @@ a figure is non-trivial because room needs to be made for them.
 Automatic placement of colorbars
 ================================
 
-The simplest case is just attaching a colorbar to each axes.  Note in this
-example that the colorbars steal some space from the parent axes.
+The simplest case is just attaching a colorbar to each Axes.  Note in this
+example that the colorbars steal some space from the parent Axes.
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -34,7 +34,7 @@ for col in range(2):
 # %%
 # The first column has the same type of data in both rows, so it may be
 # desirable to have just one colorbar. We do this by passing `.Figure.colorbar`
-# a list of axes with the *ax* kwarg.
+# a list of Axes with the *ax* kwarg.
 
 fig, axs = plt.subplots(2, 2)
 cmaps = ['RdBu_r', 'viridis']
@@ -46,24 +46,24 @@ for col in range(2):
     fig.colorbar(pcm, ax=axs[:, col], shrink=0.6)
 
 # %%
-# The stolen space can lead to axes in the same subplot layout
+# The stolen space can lead to Axes in the same subplot layout
 # being different sizes, which is often undesired if the the
 # x-axis on each plot is meant to be comparable as in the following:
 
 fig, axs = plt.subplots(2, 1, figsize=(4, 5), sharex=True)
 X = np.random.randn(20, 20)
 axs[0].plot(np.sum(X, axis=0))
-axs[1].pcolormesh(X)
+pcm = axs[1].pcolormesh(X)
 fig.colorbar(pcm, ax=axs[1], shrink=0.6)
 
 # %%
 # This is usually undesired, and can be worked around in various ways, e.g.
-# adding a colorbar to the other axes and then removing it.  However, the most
+# adding a colorbar to the other Axes and then removing it.  However, the most
 # straightforward is to use :ref:`constrained layout <constrainedlayout_guide>`:
 
 fig, axs = plt.subplots(2, 1, figsize=(4, 5), sharex=True, layout='constrained')
 axs[0].plot(np.sum(X, axis=0))
-axs[1].pcolormesh(X)
+pcm = axs[1].pcolormesh(X)
 fig.colorbar(pcm, ax=axs[1], shrink=0.6)
 
 # %%
@@ -81,13 +81,13 @@ fig.colorbar(pcm, ax=axs[1:, :], location='right', shrink=0.6)
 fig.colorbar(pcm, ax=[axs[2, 1]], location='left')
 
 # %%
-# Adjusting the spacing between colorbars and parent axes
+# Adjusting the spacing between colorbars and parent Axes
 # =======================================================
 #
-# The distance a colorbar is from the parent axes can be adjusted with the
-# *pad* keyword argument.  This is in units of fraction of the parent axes
-# width, and the default for a vertical axes is 0.05 (or 0.15 for a horizontal
-# axes).
+# The distance a colorbar is from the parent Axes can be adjusted with the
+# *pad* keyword argument.  This is in units of fraction of the parent Axes
+# width, and the default for a vertical Axes is 0.05 (or 0.15 for a horizontal
+# Axes).
 
 fig, axs = plt.subplots(3, 1, layout='constrained', figsize=(5, 5))
 for ax, pad in zip(axs, [0.025, 0.05, 0.1]):
@@ -97,7 +97,7 @@ fig.suptitle("layout='constrained'")
 
 # %%
 # Note that if you do not use constrained layout, the pad command makes the
-# parent axes shrink:
+# parent Axes shrink:
 
 fig, axs = plt.subplots(3, 1, figsize=(5, 5))
 for ax, pad in zip(axs, [0.025, 0.05, 0.1]):
@@ -110,17 +110,17 @@ fig.suptitle("No layout manager")
 # =============================
 #
 # Sometimes the automatic placement provided by ``colorbar`` does not
-# give the desired effect.  We can manually create an axes and tell
-# ``colorbar`` to use that axes by passing the axes to the *cax* keyword
+# give the desired effect.  We can manually create an Axes and tell
+# ``colorbar`` to use that Axes by passing the Axes to the *cax* keyword
 # argument.
 #
 # Using ``inset_axes``
 # --------------------
 #
-# We can manually create any type of axes for the colorbar to use, but an
-# `.Axes.inset_axes` is useful because it is a child of the parent axes and can
+# We can manually create any type of Axes for the colorbar to use, but an
+# `.Axes.inset_axes` is useful because it is a child of the parent Axes and can
 # be positioned relative to the parent.  Here we add a colorbar centered near
-# the bottom of the parent axes.
+# the bottom of the parent Axes.
 
 fig, ax = plt.subplots(layout='constrained', figsize=(4, 4))
 pcm = ax.pcolormesh(np.random.randn(20, 20), cmap='viridis')
@@ -130,7 +130,7 @@ fig.colorbar(pcm, cax=cax, orientation='horizontal')
 
 # %%
 # `.Axes.inset_axes` can also specify its position in data coordinates
-# using the *transform* keyword argument if you want your axes at a
+# using the *transform* keyword argument if you want your Axes at a
 # certain data position on the graph:
 
 fig, ax = plt.subplots(layout='constrained', figsize=(4, 4))
@@ -140,11 +140,11 @@ cax = ax.inset_axes([7.5, -1.7, 5, 1.2], transform=ax.transData)
 fig.colorbar(pcm, cax=cax, orientation='horizontal')
 
 # %%
-# Colorbars attached to fixed-aspect-ratio axes
+# Colorbars attached to fixed-aspect-ratio Axes
 # ---------------------------------------------
 #
-# Placing colorbars for axes with a fixed aspect ratio pose a particular
-# challenge as the parent axes changes size depending on the data view.
+# Placing colorbars for Axes with a fixed aspect ratio pose a particular
+# challenge as the parent Axes changes size depending on the data view.
 
 fig, axs = plt.subplots(2, 2,  layout='constrained')
 cmaps = ['RdBu_r', 'viridis']
@@ -161,9 +161,9 @@ for col in range(2):
             fig.colorbar(pcm, ax=ax, shrink=0.6)
 
 # %%
-# We solve this problem using `.Axes.inset_axes` to locate the axes in "axes
+# We solve this problem using `.Axes.inset_axes` to locate the Axes in "axes
 # coordinates" (see :ref:`transforms_tutorial`).  Note that if you zoom in on
-# the parent axes, and thus change the shape of it, the colorbar will also
+# the parent Axes, and thus change the shape of it, the colorbar will also
 # change position.
 
 fig, axs = plt.subplots(2, 2, layout='constrained')
@@ -184,7 +184,7 @@ for col in range(2):
 # %%
 # .. seealso::
 #
-#  :ref:`axes_grid` has methods for manually creating colorbar axes as well:
+#  :ref:`axes_grid` has methods for manually creating colorbar Axes as well:
 #
 #  - :ref:`demo-colorbar-with-inset-locator`
 #  - :ref:`demo-colorbar-with-axes-divider`

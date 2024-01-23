@@ -286,7 +286,7 @@ plt.show()
 # :class:`~matplotlib.patches.Rectangle` which is stored in
 # :attr:`Figure.patch <matplotlib.figure.Figure.patch>`.  As
 # you add subplots (:meth:`~matplotlib.figure.Figure.add_subplot`) and
-# axes (:meth:`~matplotlib.figure.Figure.add_axes`) to the figure
+# Axes (:meth:`~matplotlib.figure.Figure.add_axes`) to the figure
 # these will be appended to the :attr:`Figure.axes
 # <matplotlib.figure.Figure.axes>`.  These are also returned by the
 # methods that create them:
@@ -443,7 +443,7 @@ plt.show()
 #     # create a rectangle instance
 #     In [263]: rect = matplotlib.patches.Rectangle((1, 1), width=5, height=12)
 #
-#     # by default the axes instance is None
+#     # by default the Axes instance is None
 #     In [264]: print(rect.axes)
 #     None
 #
@@ -454,7 +454,7 @@ plt.show()
 #     # now we add the Rectangle to the Axes
 #     In [266]: ax.add_patch(rect)
 #
-#     # and notice that the ax.add_patch method has set the axes
+#     # and notice that the ax.add_patch method has set the Axes
 #     # instance
 #     In [267]: print(rect.axes)
 #     Axes(0.125,0.1;0.775x0.8)
@@ -485,7 +485,7 @@ plt.show()
 #                                  [  0. 100.   0.]
 #                                  [  0.   0.   1.]])))))))
 #
-#     # the default axes transformation is ax.transData
+#     # the default Axes transformation is ax.transData
 #     In [269]: print(ax.transData)
 #     CompositeGenericTransform(
 #         TransformWrapper(

@@ -37,11 +37,11 @@ Running the tests
 
 In the root directory of your development repository run::
 
-   python -m pytest
+   pytest
 
 
-pytest can be configured via a lot of `command-line parameters`_. Some
-particularly useful ones are:
+``pytest`` can be configured via many :external+pytest:doc:`command-line parameters
+<how-to/usage>`. Some particularly useful ones are:
 
 =============================  ===========
 ``-v`` or ``--verbose``        Be more verbose
@@ -50,14 +50,49 @@ particularly useful ones are:
 ``--capture=no`` or ``-s``     Do not capture stdout
 =============================  ===========
 
-To run a single test from the command line, you can provide a file path,
-optionally followed by the function separated by two colons, e.g., (tests do
-not need to be installed, but Matplotlib should be)::
+To run a single test from the command line, you can provide a file path, optionally
+followed by the function separated by two colons, e.g., (tests do not need to be
+installed, but Matplotlib should be)::
 
   pytest lib/matplotlib/tests/test_simplification.py::test_clipping
 
+If you want to use ``pytest`` as a module (via ``python -m pytest``), then you will need
+to avoid clashes between ``pytest``'s import mode and Python's search path:
 
-.. _command-line parameters: http://doc.pytest.org/en/latest/usage.html
+- On more recent Python, you may :external+python:std:option:`disable "unsafe import
+  paths" <-P>` (i.e., stop adding the current directory to the import path) with the
+  ``-P`` argument::
+
+      python -P -m pytest
+
+- On older Python, you may enable :external+python:std:option:`isolated mode <-I>`
+  (which stops adding the current directory to the import path, but has other
+  repercussions)::
+
+      python -I -m pytest
+
+- On any Python, set ``pytest``'s :external+pytest:doc:`import mode
+  <explanation/pythonpath>` to the older ``prepend`` mode (but note that this will break
+  ``pytest``'s assert rewriting)::
+
+      python -m pytest --import-mode prepend
+
+Viewing image test output
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The output of :ref:`image-based <image-comparison>` tests is stored in a
+``result_images`` directory. These images can be compiled into one HTML page, containing
+hundreds of images, using the ``visualize_tests`` tool::
+
+    python tools/visualize_tests.py
+
+Image test failures can also be analysed using the ``triage_tests`` tool::
+
+    python tools/triage_tests.py
+
+The triage tool allows you to accept or reject test failures and will copy the new image
+to the folder where the baseline test images are stored. The triage tool requires that
+:ref:`QT <backend_dependencies>` is installed.
 
 
 Writing a simple test
@@ -94,7 +129,9 @@ For numpy's default random number generator use::
 
 and then use ``rng`` when generating the random numbers.
 
-The seed is John Hunter's birthday.
+The seed is :ref:`John Hunter's <project_history>` birthday.
+
+.. _image-comparison:
 
 Writing an image comparison test
 --------------------------------
@@ -127,6 +164,10 @@ figures and reflects the newer look of default Matplotlib plots. Also, if the
 texts (labels, tick labels, etc) are not really part of what is tested, use
 ``remove_text=True`` as this will lead to smaller figures and reduce possible
 issues with font mismatch on different platforms.
+
+
+Compare two methods of creating an image
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Baseline images take a lot of space in the Matplotlib repository.
 An alternative approach for image comparison tests is to use the
@@ -279,11 +320,12 @@ is necessary for testing ``mpl_toolkits``.
 
 Run the tests
 ^^^^^^^^^^^^^
-To run the all the tests on your installed version of Matplotlib::
 
-    python -m pytest --pyargs matplotlib.tests
+To run all the tests on your installed version of Matplotlib::
+
+    pytest --pyargs matplotlib.tests
 
 The test discovery scope can be narrowed to single test modules or even single
 functions::
 
-    python -m pytest --pyargs matplotlib.tests.test_simplification.py::test_clipping
+    pytest --pyargs matplotlib.tests.test_simplification.py::test_clipping

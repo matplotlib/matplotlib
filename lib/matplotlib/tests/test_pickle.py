@@ -90,7 +90,7 @@ def _generate_complete_test_figure(fig_ref):
     plt.legend(loc='upper left')
 
     plt.subplot(3, 3, 9)
-    plt.errorbar(x, x * -0.5, xerr=0.2, yerr=0.4)
+    plt.errorbar(x, x * -0.5, xerr=0.2, yerr=0.4, label='$-.5 x$')
     plt.legend(draggable=True)
 
     fig_ref.align_ylabels()  # Test handling of _align_label_groups Groupers.

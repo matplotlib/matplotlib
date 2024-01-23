@@ -1118,10 +1118,8 @@ _EntryTypeOut = tuple[int, int, str, int]
 
 _stix_virtual_fonts: dict[str, Union[dict[
     str, list[_EntryTypeIn]], list[_EntryTypeIn]]] = {
-    'bb':
-        {
-        "rm":
-            [
+    'bb': {
+        "rm": [
             ("\N{DIGIT ZERO}",
              "\N{DIGIT NINE}",
              "rm",
@@ -1194,9 +1192,8 @@ _stix_virtual_fonts: dict[str, Union[dict[
              "\N{GREEK SMALL LETTER PI}",
              "rm",
              "\N{DOUBLE-STRUCK SMALL PI}"),
-            ],
-        "it":
-            [
+        ],
+        "it": [
             ("\N{DIGIT ZERO}",
              "\N{DIGIT NINE}",
              "rm",
@@ -1289,9 +1286,8 @@ _stix_virtual_fonts: dict[str, Union[dict[
              "\N{GREEK SMALL LETTER PI}",
              "it",
              "\N{DOUBLE-STRUCK SMALL PI}"),
-            ],
-        "bf":
-            [
+        ],
+        "bf": [
             ("\N{DIGIT ZERO}",
              "\N{DIGIT NINE}",
              "rm",
@@ -1384,19 +1380,16 @@ _stix_virtual_fonts: dict[str, Union[dict[
              "\N{GREEK SMALL LETTER PI}",
              "bf",
              "\N{DOUBLE-STRUCK SMALL PI}"),
-            ],
-        },
-    'cal':
-        [
+        ],
+    },
+    'cal': [
         ("\N{LATIN CAPITAL LETTER A}",
          "\N{LATIN CAPITAL LETTER Z}",
          "it",
          0xe22d),
-        ],
-    'frak':
-        {
-        "rm":
-            [
+    ],
+    'frak': {
+        "rm": [
             ("\N{LATIN CAPITAL LETTER A}",
              "\N{LATIN CAPITAL LETTER B}",
              "rm",
@@ -1438,8 +1431,7 @@ _stix_virtual_fonts: dict[str, Union[dict[
              "rm",
              "\N{MATHEMATICAL FRAKTUR SMALL A}"),
             ],
-        "bf":
-            [
+        "bf": [
             ("\N{LATIN CAPITAL LETTER A}",
              "\N{LATIN CAPITAL LETTER Z}",
              "bf",
@@ -1448,10 +1440,9 @@ _stix_virtual_fonts: dict[str, Union[dict[
              "\N{LATIN SMALL LETTER Z}",
              "bf",
              "\N{MATHEMATICAL BOLD FRAKTUR SMALL A}"),
-            ],
-        },
-    'scr':
-        [
+        ],
+    },
+    'scr': [
         ("\N{LATIN CAPITAL LETTER A}",
          "\N{LATIN CAPITAL LETTER A}",
          "it",
@@ -1532,11 +1523,9 @@ _stix_virtual_fonts: dict[str, Union[dict[
          "\N{LATIN SMALL LETTER Z}",
          "it",
          "\N{MATHEMATICAL SCRIPT SMALL P}"),
-        ],
-    'sf':
-        {
-        "rm":
-            [
+    ],
+    'sf': {
+        "rm": [
             ("\N{DIGIT ZERO}",
              "\N{DIGIT NINE}",
              "rm",
@@ -1581,9 +1570,8 @@ _stix_virtual_fonts: dict[str, Union[dict[
              "\N{PARTIAL DIFFERENTIAL}",
              "rm",
              0xe17c),
-            ],
-        "it":
-            [
+        ],
+        "it": [
             # These numerals are actually upright.  We don't actually
             # want italic numerals ever.
             ("\N{DIGIT ZERO}",
@@ -1626,9 +1614,8 @@ _stix_virtual_fonts: dict[str, Union[dict[
              "\N{GREEK LUNATE EPSILON SYMBOL}",
              "it",
              0xe1f1),
-            ],
-        "bf":
-            [
+        ],
+        "bf": [
             ("\N{DIGIT ZERO}",
              "\N{DIGIT NINE}",
              "bf",
@@ -1681,9 +1668,8 @@ _stix_virtual_fonts: dict[str, Union[dict[
              "\N{NABLA}",
              "bf",
              "\N{MATHEMATICAL SANS-SERIF BOLD NABLA}"),
-            ],
-        "bfit":
-            [
+        ],
+        "bfit": [
             ("\N{LATIN CAPITAL LETTER A}",
              "\N{LATIN CAPITAL LETTER Z}",
              "bfit",
@@ -1700,10 +1686,9 @@ _stix_virtual_fonts: dict[str, Union[dict[
              "\N{GREEK SMALL LETTER OMEGA}",
              "bfit",
              "\N{MATHEMATICAL BOLD ITALIC SMALL ALPHA}"),
-            ],
-        },
-    'tt':
-        [
+        ],
+    },
+    'tt': [
         ("\N{DIGIT ZERO}",
          "\N{DIGIT NINE}",
          "rm",
@@ -1716,8 +1701,8 @@ _stix_virtual_fonts: dict[str, Union[dict[
          "\N{LATIN SMALL LETTER Z}",
          "rm",
          "\N{MATHEMATICAL MONOSPACE SMALL A}")
-        ],
-    }
+    ],
+}
 
 
 @overload

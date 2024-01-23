@@ -17,7 +17,7 @@ programmatic plot generation::
     plt.plot(x, y)
 
 The explicit object-oriented API is recommended for complex plots, though
-pyplot is still usually used to create the figure and often the axes in the
+pyplot is still usually used to create the figure and often the Axes in the
 figure. See `.pyplot.figure`, `.pyplot.subplots`, and
 `.pyplot.subplot_mosaic` to create figures, and
 :doc:`Axes API </api/axes_api>` for the plotting methods on an Axes::
@@ -45,20 +45,20 @@ import functools
 import importlib
 import inspect
 import logging
-import re
 import sys
 import threading
 import time
-from typing import cast, overload
+from typing import TYPE_CHECKING, cast, overload
 
-from cycler import cycler
+from cycler import cycler  # noqa: F401
 import matplotlib
 import matplotlib.colorbar
 import matplotlib.image
 from matplotlib import _api
-from matplotlib import (  # Re-exported for typing.
+from matplotlib import (  # noqa: F401 Re-exported for typing.
     cm as cm, get_backend as get_backend, rcParams as rcParams, style as style)
-from matplotlib import _pylab_helpers, interactive
+from matplotlib import _pylab_helpers
+from matplotlib import interactive  # noqa: F401
 from matplotlib import cbook
 from matplotlib import _docstring
 from matplotlib.backend_bases import (
@@ -67,18 +67,17 @@ from matplotlib.figure import Figure, FigureBase, figaspect
 from matplotlib.gridspec import GridSpec, SubplotSpec
 from matplotlib import rcsetup, rcParamsDefault, rcParamsOrig
 from matplotlib.artist import Artist
-from matplotlib.axes import Axes, Subplot  # type: ignore
+from matplotlib.axes import Axes
+from matplotlib.axes import Subplot  # noqa: F401
 from matplotlib.projections import PolarAxes  # type: ignore
 from matplotlib import mlab  # for detrend_none, window_hanning
-from matplotlib.scale import get_scale_names
+from matplotlib.scale import get_scale_names  # noqa: F401
 
 from matplotlib.cm import _colormaps
-from matplotlib.cm import register_cmap  # type: ignore
+from matplotlib.cm import register_cmap  # type: ignore # noqa: F401
 from matplotlib.colors import _color_sequences
 
 import numpy as np
-
-from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Hashable, Iterable, Sequence
@@ -129,12 +128,13 @@ if TYPE_CHECKING:
 
 # We may not need the following imports here:
 from matplotlib.colors import Normalize
-from matplotlib.lines import Line2D
+from matplotlib.lines import Line2D, AxLine
 from matplotlib.text import Text, Annotation
-from matplotlib.patches import Polygon, Rectangle, Circle, Arrow
-from matplotlib.widgets import Button, Slider, Widget
+from matplotlib.patches import Arrow, Circle, Rectangle  # noqa: F401
+from matplotlib.patches import Polygon
+from matplotlib.widgets import Button, Slider, Widget  # noqa: F401
 
-from .ticker import (
+from .ticker import (  # noqa: F401
     TickHelper, Formatter, FixedFormatter, NullFormatter, FuncFormatter,
     FormatStrFormatter, ScalarFormatter, LogFormatter, LogFormatterExponent,
     LogFormatterMathtext, Locator, IndexLocator, FixedLocator, NullLocator,
@@ -838,8 +838,8 @@ default: None
         overlapping Axes decorations (labels, ticks, etc). Note that layout
         managers can measurably slow down figure display.
 
-        - 'constrained': The constrained layout solver adjusts axes sizes
-          to avoid overlapping axes decorations.  Can handle complex plot
+        - 'constrained': The constrained layout solver adjusts Axes sizes
+          to avoid overlapping Axes decorations.  Can handle complex plot
           layouts and colorbars, and is thus recommended.
 
           See :ref:`constrainedlayout_guide`
@@ -847,7 +847,7 @@ default: None
 
         - 'compressed': uses the same algorithm as 'constrained', but
           removes extra space between fixed-aspect-ratio Axes.  Best for
-          simple grids of axes.
+          simple grids of Axes.
 
         - 'tight': Use the tight layout mechanism. This is a relatively
           simple algorithm that adjusts the subplot parameters so that
@@ -1194,7 +1194,7 @@ def axes(
     Returns
     -------
     `~.axes.Axes`, or a subclass of `~.axes.Axes`
-        The returned axes class depends on the projection used. It is
+        The returned Axes class depends on the projection used. It is
         `~.axes.Axes` if rectilinear projection is used and
         `.projections.polar.PolarAxes` if polar projection is used.
 
@@ -1241,7 +1241,7 @@ def axes(
 
 def delaxes(ax: matplotlib.axes.Axes | None = None) -> None:
     """
-    Remove an `~.axes.Axes` (defaulting to the current axes) from its figure.
+    Remove an `~.axes.Axes` (defaulting to the current Axes) from its figure.
     """
     if ax is None:
         ax = gca()
@@ -1260,12 +1260,12 @@ def sca(ax: Axes) -> None:
 
 
 def cla() -> None:
-    """Clear the current axes."""
+    """Clear the current Axes."""
     # Not generated via boilerplate.py to allow a different docstring.
     return gca().cla()
 
 
-## More ways of creating axes ##
+## More ways of creating Axes ##
 
 @_docstring.dedent_interpd
 def subplot(*args, **kwargs) -> Axes:
@@ -1312,10 +1312,10 @@ def subplot(*args, **kwargs) -> Axes:
     sharex, sharey : `~matplotlib.axes.Axes`, optional
         Share the x or y `~matplotlib.axis` with sharex and/or sharey. The
         axis will have the same limits, ticks, and scale as the axis of the
-        shared axes.
+        shared Axes.
 
     label : str
-        A label for the returned axes.
+        A label for the returned Axes.
 
     Returns
     -------
@@ -1328,7 +1328,7 @@ def subplot(*args, **kwargs) -> Axes:
     Other Parameters
     ----------------
     **kwargs
-        This method also takes the keyword arguments for the returned axes
+        This method also takes the keyword arguments for the returned Axes
         base class; except for the *figure* argument. The keyword arguments
         for the rectilinear base class `~.axes.Axes` can be found in
         the following table but there might also be other keyword
@@ -1346,7 +1346,7 @@ def subplot(*args, **kwargs) -> Axes:
         plt.plot([1, 2, 3])
         # now create a subplot which represents the top plot of a grid
         # with 2 rows and 1 column. Since this subplot will overlap the
-        # first, the plot (and its axes) previously created, will be removed
+        # first, the plot (and its Axes) previously created, will be removed
         plt.subplot(211)
 
     If you do not want this behavior, use the `.Figure.add_subplot` method
@@ -1397,7 +1397,7 @@ def subplot(*args, **kwargs) -> Axes:
         # add ax2 to the figure again
         plt.subplot(ax2)
 
-        # make the first axes "current" again
+        # make the first Axes "current" again
         plt.subplot(221)
 
     """
@@ -1439,8 +1439,8 @@ def subplot(*args, **kwargs) -> Axes:
     key = SubplotSpec._from_subplot_args(fig, args)
 
     for ax in fig.axes:
-        # If we found an Axes at the position, we can re-use it if the user passed no
-        # kwargs or if the axes class and kwargs are identical.
+        # If we found an Axes at the position, we can reuse it if the user passed no
+        # kwargs or if the Axes class and kwargs are identical.
         if (ax.get_subplotspec() == key
             and (kwargs == {}
                  or (ax._projection_init
@@ -1587,7 +1587,7 @@ def subplots(
         ax1.set_title('Sharing Y axis')
         ax2.scatter(x, y)
 
-        # Create four polar axes and access them through the returned array
+        # Create four polar Axes and access them through the returned array
         fig, axs = plt.subplots(2, 2, subplot_kw=dict(projection="polar"))
         axs[0, 0].plot(x, y)
         axs[1, 1].scatter(x, y)
@@ -1700,7 +1700,7 @@ def subplot_mosaic(
            x = [['A panel', 'A panel', 'edge'],
                 ['C panel', '.',       'edge']]
 
-        produces 4 axes:
+        produces 4 Axes:
 
         - 'A panel' which is 1 row high and spans the first two columns
         - 'edge' which is 2 rows high and is on the right edge
@@ -1778,7 +1778,7 @@ def subplot_mosaic(
 
     dict[label, Axes]
        A dictionary mapping the labels to the Axes objects.  The order of
-       the axes is left-to-right and top-to-bottom of their position in the
+       the Axes is left-to-right and top-to-bottom of their position in the
        total layout.
 
     """
@@ -1848,8 +1848,8 @@ def subplot2grid(
 
 def twinx(ax: matplotlib.axes.Axes | None = None) -> _AxesBase:
     """
-    Make and return a second axes that shares the *x*-axis.  The new axes will
-    overlay *ax* (or the current axes if *ax* is *None*), and its ticks will be
+    Make and return a second Axes that shares the *x*-axis.  The new Axes will
+    overlay *ax* (or the current Axes if *ax* is *None*), and its ticks will be
     on the right.
 
     Examples
@@ -1864,8 +1864,8 @@ def twinx(ax: matplotlib.axes.Axes | None = None) -> _AxesBase:
 
 def twiny(ax: matplotlib.axes.Axes | None = None) -> _AxesBase:
     """
-    Make and return a second axes that shares the *y*-axis.  The new axes will
-    overlay *ax* (or the current axes if *ax* is *None*), and its ticks will be
+    Make and return a second Axes that shares the *y*-axis.  The new Axes will
+    overlay *ax* (or the current Axes if *ax* is *None*), and its ticks will be
     on the top.
 
     Examples
@@ -1903,7 +1903,7 @@ def subplot_tool(targetfig: Figure | None = None) -> SubplotTool | None:
 
 def box(on: bool | None = None) -> None:
     """
-    Turn the axes box on or off on the current axes.
+    Turn the Axes box on or off on the current Axes.
 
     Parameters
     ----------
@@ -1926,7 +1926,7 @@ def box(on: bool | None = None) -> None:
 
 def xlim(*args, **kwargs) -> tuple[float, float]:
     """
-    Get or set the x limits of the current axes.
+    Get or set the x limits of the current Axes.
 
     Call signatures::
 
@@ -1950,9 +1950,9 @@ def xlim(*args, **kwargs) -> tuple[float, float]:
     Notes
     -----
     Calling this function with no arguments (e.g. ``xlim()``) is the pyplot
-    equivalent of calling `~.Axes.get_xlim` on the current axes.
+    equivalent of calling `~.Axes.get_xlim` on the current Axes.
     Calling this function with arguments is the pyplot equivalent of calling
-    `~.Axes.set_xlim` on the current axes. All arguments are passed though.
+    `~.Axes.set_xlim` on the current Axes. All arguments are passed though.
     """
     ax = gca()
     if not args and not kwargs:
@@ -1963,7 +1963,7 @@ def xlim(*args, **kwargs) -> tuple[float, float]:
 
 def ylim(*args, **kwargs) -> tuple[float, float]:
     """
-    Get or set the y-limits of the current axes.
+    Get or set the y-limits of the current Axes.
 
     Call signatures::
 
@@ -1987,9 +1987,9 @@ def ylim(*args, **kwargs) -> tuple[float, float]:
     Notes
     -----
     Calling this function with no arguments (e.g. ``ylim()``) is the pyplot
-    equivalent of calling `~.Axes.get_ylim` on the current axes.
+    equivalent of calling `~.Axes.get_ylim` on the current Axes.
     Calling this function with arguments is the pyplot equivalent of calling
-    `~.Axes.set_ylim` on the current axes. All arguments are passed though.
+    `~.Axes.set_ylim` on the current Axes. All arguments are passed though.
     """
     ax = gca()
     if not args and not kwargs:
@@ -2034,9 +2034,9 @@ def xticks(
     -----
     Calling this function with no arguments (e.g. ``xticks()``) is the pyplot
     equivalent of calling `~.Axes.get_xticks` and `~.Axes.get_xticklabels` on
-    the current axes.
+    the current Axes.
     Calling this function with arguments is the pyplot equivalent of calling
-    `~.Axes.set_xticks` and `~.Axes.set_xticklabels` on the current axes.
+    `~.Axes.set_xticks` and `~.Axes.set_xticklabels` on the current Axes.
 
     Examples
     --------
@@ -2105,9 +2105,9 @@ def yticks(
     -----
     Calling this function with no arguments (e.g. ``yticks()``) is the pyplot
     equivalent of calling `~.Axes.get_yticks` and `~.Axes.get_yticklabels` on
-    the current axes.
+    the current Axes.
     Calling this function with arguments is the pyplot equivalent of calling
-    `~.Axes.set_yticks` and `~.Axes.set_yticklabels` on the current axes.
+    `~.Axes.set_yticks` and `~.Axes.set_yticklabels` on the current Axes.
 
     Examples
     --------
@@ -2207,7 +2207,7 @@ def rgrids(
     """
     ax = gca()
     if not isinstance(ax, PolarAxes):
-        raise RuntimeError('rgrids only defined for polar axes')
+        raise RuntimeError('rgrids only defined for polar Axes')
     if all(p is None for p in [radii, labels, angle, fmt]) and not kwargs:
         lines_out: list[Line2D] = ax.yaxis.get_gridlines()
         labels_out: list[Text] = ax.yaxis.get_ticklabels()
@@ -2282,7 +2282,7 @@ def thetagrids(
     """
     ax = gca()
     if not isinstance(ax, PolarAxes):
-        raise RuntimeError('thetagrids only defined for polar axes')
+        raise RuntimeError('thetagrids only defined for polar Axes')
     if all(param is None for param in [angles, labels, fmt]) and not kwargs:
         lines_out: list[Line2D] = ax.xaxis.get_ticklines()
         labels_out: list[Text] = ax.xaxis.get_ticklabels()
@@ -2720,7 +2720,7 @@ def axline(
     *,
     slope: float | None = None,
     **kwargs,
-) -> Line2D:
+) -> AxLine:
     return gca().axline(xy1, xy2=xy2, slope=slope, **kwargs)
 
 

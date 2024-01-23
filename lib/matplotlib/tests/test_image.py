@@ -268,6 +268,32 @@ def test_image_alpha():
     ax3.imshow(Z, alpha=0.5, interpolation='nearest')
 
 
+@mpl.style.context('mpl20')
+@check_figures_equal(extensions=['png'])
+def test_imshow_alpha(fig_test, fig_ref):
+    np.random.seed(19680801)
+
+    rgbf = np.random.rand(6, 6, 3)
+    rgbu = np.uint8(rgbf * 255)
+    ((ax0, ax1), (ax2, ax3)) = fig_test.subplots(2, 2)
+    ax0.imshow(rgbf, alpha=0.5)
+    ax1.imshow(rgbf, alpha=0.75)
+    ax2.imshow(rgbu, alpha=0.5)
+    ax3.imshow(rgbu, alpha=0.75)
+
+    rgbaf = np.concatenate((rgbf, np.ones((6, 6, 1))), axis=2)
+    rgbau = np.concatenate((rgbu, np.full((6, 6, 1), 255, np.uint8)), axis=2)
+    ((ax0, ax1), (ax2, ax3)) = fig_ref.subplots(2, 2)
+    rgbaf[:, :, 3] = 0.5
+    ax0.imshow(rgbaf)
+    rgbaf[:, :, 3] = 0.75
+    ax1.imshow(rgbaf)
+    rgbau[:, :, 3] = 127
+    ax2.imshow(rgbau)
+    rgbau[:, :, 3] = 191
+    ax3.imshow(rgbau)
+
+
 def test_cursor_data():
     from matplotlib.backend_bases import MouseEvent
 
@@ -337,6 +363,38 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform([x, y])
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
     assert im.get_cursor_data(event) == 44
+
+
+@pytest.mark.parametrize("xy, data", [
+    # x/y coords chosen to be 0.5 above boundaries so they lie within image pixels
+    [[0.5, 0.5], 0 + 0],
+    [[0.5, 1.5], 0 + 1],
+    [[4.5, 0.5], 16 + 0],
+    [[8.5, 0.5], 16 + 0],
+    [[9.5, 2.5], 81 + 4],
+    [[-1, 0.5], None],
+    [[0.5, -1], None],
+    ]
+)
+def test_cursor_data_nonuniform(xy, data):
+    from matplotlib.backend_bases import MouseEvent
+
+    # Non-linear set of x-values
+    x = np.array([0, 1, 4, 9, 16])
+    y = np.array([0, 1, 2, 3, 4])
+    z = x[np.newaxis, :]**2 + y[:, np.newaxis]**2
+
+    fig, ax = plt.subplots()
+    im = NonUniformImage(ax, extent=(x.min(), x.max(), y.min(), y.max()))
+    im.set_data(x, y, z)
+    ax.add_image(im)
+    # Set lower min lim so we can test cursor outside image
+    ax.set_xlim(x.min() - 2, x.max())
+    ax.set_ylim(y.min() - 2, y.max())
+
+    xdisp, ydisp = ax.transData.transform(xy)
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    assert im.get_cursor_data(event) == data, (im.get_cursor_data(event), data)
 
 
 @pytest.mark.parametrize(

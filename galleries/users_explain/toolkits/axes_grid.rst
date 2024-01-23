@@ -60,7 +60,7 @@ The examples below show what you can do with ImageGrid.
    :target: /gallery/axes_grid1/demo_axes_grid.html
    :align: center
 
-AxesDivider Class
+AxesDivider class
 -----------------
 
 Behind the scenes, ImageGrid (and RGBAxes, described below) rely on

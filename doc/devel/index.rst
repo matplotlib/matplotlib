@@ -20,6 +20,10 @@ and implementing new features, helping the community...
 
 New contributors
 ================
+.. toctree::
+   :hidden:
+
+   contribute
 
 .. grid:: 1 1 2 2
    :class-row: sd-align-minor-center
@@ -58,14 +62,14 @@ New contributors
             :octicon:`bug;1em;sd-text-info` Submit bug report
 
          .. grid-item-card::
-            :link: contributing-code
+            :link: contribute_code
             :link-type: ref
             :shadow: none
 
             :octicon:`code;1em;sd-text-info` Contribute code
 
          .. grid-item-card::
-            :link: documenting-matplotlib
+            :link: contribute_documentation
             :link-type: ref
             :shadow: none
 
@@ -96,12 +100,6 @@ Development environment
          :maxdepth: 2
 
          development_setup
-
-      .. toctree::
-         :maxdepth: 1
-
-         dependencies
-         ../users/installing/environment_variables_faq.rst
 
 
    .. grid-item-card::
@@ -136,12 +134,11 @@ Policies and guidelines
       **Code**
       ^^^
 
-      | :ref:`coding_guidelines`
-
       .. toctree::
          :maxdepth: 1
 
          coding_guide
+         api_changes
          testing
 
    .. grid-item-card::
@@ -160,12 +157,14 @@ Policies and guidelines
    .. grid-item-card::
       :shadow: none
 
-      **Triage**
+      **Triage And Review**
       ^^^
 
-      | :ref:`bug_triaging`
-      | :ref:`triage_team`
-      | :ref:`triage_workflow`
+      .. toctree::
+         :maxdepth: 1
+
+         triage
+         pr_guide
 
    .. grid-item-card::
       :shadow: none
@@ -180,11 +179,3 @@ Policies and guidelines
          communication_guide
          min_dep_policy
          MEP/index
-
-.. toctree::
-   :hidden:
-
-   contribute
-   triage
-   license
-   color_changes

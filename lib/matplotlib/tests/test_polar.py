@@ -95,7 +95,7 @@ def test_polar_twice():
     fig = plt.figure()
     plt.polar([1, 2], [.1, .2])
     plt.polar([3, 4], [.3, .4])
-    assert len(fig.axes) == 1, 'More than one polar axes created.'
+    assert len(fig.axes) == 1, 'More than one polar Axes created.'
 
 
 @check_figures_equal()
@@ -446,3 +446,11 @@ def test_polar_log():
 
     n = 100
     ax.plot(np.linspace(0, 2 * np.pi, n), np.logspace(0, 2, n))
+
+
+def test_polar_neg_theta_lims():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='polar')
+    ax.set_thetalim(-np.pi, np.pi)
+    labels = [l.get_text() for l in ax.xaxis.get_ticklabels()]
+    assert labels == ['-180°', '-135°', '-90°', '-45°', '0°', '45°', '90°', '135°']

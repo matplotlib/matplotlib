@@ -19,7 +19,7 @@ from matplotlib import _api, cbook, cm
 from matplotlib import _image
 # For user convenience, the names from _image are also imported into
 # the image namespace
-from matplotlib._image import *
+from matplotlib._image import *  # noqa: F401, F403
 import matplotlib.artist as martist
 from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.colors as mcolors
@@ -350,7 +350,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         If *round_to_pixel_border* is True, the output image size will be
         rounded to the nearest pixel boundary.  This makes the images align
-        correctly with the axes.  It should not be used if exact scaling is
+        correctly with the Axes.  It should not be used if exact scaling is
         needed, such as for `FigureImage`.
 
         Returns
@@ -403,7 +403,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 .translate(-clipped_bbox.x0, -clipped_bbox.y0)
                 .scale(magnification)))
 
-        # So that the image is aligned with the edge of the axes, we want to
+        # So that the image is aligned with the edge of the Axes, we want to
         # round up the output width to the next integer.  This also means
         # scaling the transform slightly to account for the extra subpixel.
         if ((not unsampled) and t.is_affine and round_to_pixel_border and
@@ -555,11 +555,15 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 if A.ndim == 2:  # _interpolation_stage == 'rgba'
                     self.norm.autoscale_None(A)
                     A = self.to_rgba(A)
-                if A.shape[2] == 3:
-                    A = _rgb_to_rgba(A)
                 alpha = self._get_scalar_alpha()
-                output_alpha = _resample(  # resample alpha channel
-                    self, A[..., 3], out_shape, t, alpha=alpha)
+                if A.shape[2] == 3:
+                    # No need to resample alpha or make a full array; NumPy will expand
+                    # this out and cast to uint8 if necessary when it's assigned to the
+                    # alpha channel below.
+                    output_alpha = (255 * alpha) if A.dtype == np.uint8 else alpha
+                else:
+                    output_alpha = _resample(  # resample alpha channel
+                        self, A[..., 3], out_shape, t, alpha=alpha)
                 output = _resample(  # resample rgb channels
                     self, _rgb_to_rgba(A[..., :3]), out_shape, t, alpha=alpha)
                 output[..., 3] = output_alpha  # recombine rgb and alpha
@@ -854,7 +858,7 @@ class AxesImage(_ImageBase):
     Parameters
     ----------
     ax : `~matplotlib.axes.Axes`
-        The axes the image will belong to.
+        The Axes the image will belong to.
     cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
         The Colormap instance or registered colormap name used to map scalar
         data to colors.
@@ -872,7 +876,7 @@ class AxesImage(_ImageBase):
         applied (visual interpolation).
     origin : {'upper', 'lower'}, default: :rc:`image.origin`
         Place the [0, 0] index of the array in the upper left or lower left
-        corner of the axes. The convention 'upper' is typically used for
+        corner of the Axes. The convention 'upper' is typically used for
         matrices and images.
     extent : tuple, optional
         The data axes (left, right, bottom, top) for making image plots
@@ -956,8 +960,8 @@ class AxesImage(_ImageBase):
             ``(left, right, bottom, top)`` in data coordinates.
         **kwargs
             Other parameters from which unit info (i.e., the *xunits*,
-            *yunits*, *zunits* (for 3D axes), *runits* and *thetaunits* (for
-            polar axes) entries are applied, if present.
+            *yunits*, *zunits* (for 3D Axes), *runits* and *thetaunits* (for
+            polar Axes) entries are applied, if present.
 
         Notes
         -----
@@ -1034,14 +1038,13 @@ class AxesImage(_ImageBase):
 
 
 class NonUniformImage(AxesImage):
-    mouseover = False  # This class still needs its own get_cursor_data impl.
 
     def __init__(self, ax, *, interpolation='nearest', **kwargs):
         """
         Parameters
         ----------
         ax : `~matplotlib.axes.Axes`
-            The axes the image will belong to.
+            The Axes the image will belong to.
         interpolation : {'nearest', 'bilinear'}, default: 'nearest'
             The interpolation scheme used in the resampling.
         **kwargs
@@ -1186,6 +1189,16 @@ class NonUniformImage(AxesImage):
             raise RuntimeError('Cannot change colors after loading data')
         super().set_cmap(cmap)
 
+    def get_cursor_data(self, event):
+        # docstring inherited
+        x, y = event.xdata, event.ydata
+        if (x < self._Ax[0] or x > self._Ax[-1] or
+                y < self._Ay[0] or y > self._Ay[-1]):
+            return None
+        j = np.searchsorted(self._Ax, x) - 1
+        i = np.searchsorted(self._Ay, y) - 1
+        return self._A[i, j]
+
 
 class PcolorImage(AxesImage):
     """
@@ -1208,7 +1221,7 @@ class PcolorImage(AxesImage):
         Parameters
         ----------
         ax : `~matplotlib.axes.Axes`
-            The axes the image will belong to.
+            The Axes the image will belong to.
         x, y : 1D array-like, optional
             Monotonic arrays of length N+1 and M+1, respectively, specifying
             rectangle boundaries.  If not given, will default to
@@ -1318,10 +1331,7 @@ class PcolorImage(AxesImage):
             return None
         j = np.searchsorted(self._Ax, x) - 1
         i = np.searchsorted(self._Ay, y) - 1
-        try:
-            return self._A[i, j]
-        except IndexError:
-            return None
+        return self._A[i, j]
 
 
 class FigureImage(_ImageBase):
@@ -1566,7 +1576,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         is unset is documented under *fname*.
     origin : {'upper', 'lower'}, default: :rc:`image.origin`
         Indicates whether the ``(0, 0)`` index of the array is in the upper
-        left or lower left corner of the axes.
+        left or lower left corner of the Axes.
     dpi : float
         The DPI to store in the metadata of the file.  This does not affect the
         resolution of the output image.  Depending on file format, this may be

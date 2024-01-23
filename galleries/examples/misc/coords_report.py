@@ -3,7 +3,7 @@
 Coords Report
 =============
 
-Override the default reporting of coords as the mouse moves over the axes
+Override the default reporting of coords as the mouse moves over the Axes
 in an interactive backend.
 """
 

@@ -1,0 +1,5 @@
+``parse_fontconfig_pattern`` raises on unknown constant names
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously, in a fontconfig pattern like ``DejaVu Sans:foo``, the unknown
+``foo`` constant name would be silently ignored.  This now raises an error.

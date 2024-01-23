@@ -671,7 +671,7 @@ def table(ax,
     *colLoc* respectively.
 
     For finer grained control over tables, use the `.Table` class and add it to
-    the axes with `.Axes.add_table`.
+    the Axes with `.Axes.add_table`.
 
     Parameters
     ----------

@@ -23,7 +23,7 @@ def make_arrow_graph(ax, data, size=4, display='length', shape='right',
     Parameters
     ----------
     ax
-        The axes where the graph is drawn.
+        The Axes where the graph is drawn.
     data
         Dict with probabilities for the bases and pair transitions.
     size

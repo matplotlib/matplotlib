@@ -82,9 +82,9 @@ class FixedAxisArtistHelper(_FixedAxisArtistHelperBase):
             for nth_coord, show_labels in [
                     (self.nth_coord_ticks, True), (1 - self.nth_coord_ticks, False)]:
                 gi = self.grid_helper._grid_info[["lon", "lat"][nth_coord]]
-                for (xy, angle_normal), l in zip(
-                        gi["tick_locs"][side], gi["tick_labels"][side]):
-                    yield xy, angle_normal, angle_tangent, (l if show_labels else "")
+                for tick in gi["ticks"][side]:
+                    yield (*tick["loc"], angle_tangent,
+                           (tick["label"] if show_labels else ""))
 
         return iter_major(), iter([])
 
@@ -321,12 +321,8 @@ class GridHelperCurveLinear(GridHelperBase):
         angle_tangent = dict(left=90, right=90, bottom=0, top=0)[axis_side]
         lon_or_lat = ["lon", "lat"][nth_coord]
         if not minor:  # major ticks
-            for (xy, angle_normal), l in zip(
-                    self._grid_info[lon_or_lat]["tick_locs"][axis_side],
-                    self._grid_info[lon_or_lat]["tick_labels"][axis_side]):
-                yield xy, angle_normal, angle_tangent, l
+            for tick in self._grid_info[lon_or_lat]["ticks"][axis_side]:
+                yield *tick["loc"], angle_tangent, tick["label"]
         else:
-            for (xy, angle_normal), l in zip(
-                    self._grid_info[lon_or_lat]["tick_locs"][axis_side],
-                    self._grid_info[lon_or_lat]["tick_labels"][axis_side]):
-                yield xy, angle_normal, angle_tangent, ""
+            for tick in self._grid_info[lon_or_lat]["ticks"][axis_side]:
+                yield *tick["loc"], angle_tangent, ""

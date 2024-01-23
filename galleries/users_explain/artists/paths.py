@@ -186,7 +186,7 @@ plt.show()
 #     verts[3::5, 1] = bottom
 #
 # All that remains is to create the path, attach it to a
-# :class:`~matplotlib.patches.PathPatch`, and add it to our axes::
+# :class:`~matplotlib.patches.PathPatch`, and add it to our Axes::
 #
 #     barpath = path.Path(verts, codes)
 #     patch = patches.PathPatch(barpath, facecolor='green',

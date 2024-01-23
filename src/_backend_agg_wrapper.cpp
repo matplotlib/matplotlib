@@ -44,18 +44,6 @@ static void PyBufferRegion_dealloc(PyBufferRegion *self)
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
-static PyObject *PyBufferRegion_to_string(PyBufferRegion *self, PyObject *args)
-{
-    char const* msg =
-        "BufferRegion.to_string is deprecated since Matplotlib 3.7 and will "
-        "be removed two minor releases later; use np.asarray(region) instead.";
-    if (PyErr_WarnEx(PyExc_DeprecationWarning, msg, 1)) {
-        return NULL;
-    }
-    return PyBytes_FromStringAndSize((const char *)self->x->get_data(),
-                                     (Py_ssize_t) self->x->get_height() * self->x->get_stride());
-}
-
 /* TODO: This doesn't seem to be used internally.  Remove? */
 
 static PyObject *PyBufferRegion_set_x(PyBufferRegion *self, PyObject *args)
@@ -87,28 +75,6 @@ static PyObject *PyBufferRegion_get_extents(PyBufferRegion *self, PyObject *args
     return Py_BuildValue("IIII", rect.x1, rect.y1, rect.x2, rect.y2);
 }
 
-static PyObject *PyBufferRegion_to_string_argb(PyBufferRegion *self, PyObject *args)
-{
-    char const* msg =
-        "BufferRegion.to_string_argb is deprecated since Matplotlib 3.7 and "
-        "will be removed two minor releases later; use "
-        "np.take(region, [2, 1, 0, 3], axis=2) instead.";
-    if (PyErr_WarnEx(PyExc_DeprecationWarning, msg, 1)) {
-        return NULL;
-    }
-    PyObject *bufobj;
-    uint8_t *buf;
-    Py_ssize_t height, stride;
-    height = self->x->get_height();
-    stride = self->x->get_stride();
-    bufobj = PyBytes_FromStringAndSize(NULL, height * stride);
-    buf = (uint8_t *)PyBytes_AS_STRING(bufobj);
-
-    CALL_CPP_CLEANUP("to_string_argb", (self->x->to_string_argb(buf)), Py_DECREF(bufobj));
-
-    return bufobj;
-}
-
 int PyBufferRegion_get_buffer(PyBufferRegion *self, Py_buffer *buf, int flags)
 {
     Py_INCREF(self);
@@ -136,8 +102,6 @@ int PyBufferRegion_get_buffer(PyBufferRegion *self, Py_buffer *buf, int flags)
 static PyTypeObject *PyBufferRegion_init_type()
 {
     static PyMethodDef methods[] = {
-        { "to_string", (PyCFunction)PyBufferRegion_to_string, METH_NOARGS, NULL },
-        { "to_string_argb", (PyCFunction)PyBufferRegion_to_string_argb, METH_NOARGS, NULL },
         { "set_x", (PyCFunction)PyBufferRegion_set_x, METH_VARARGS, NULL },
         { "set_y", (PyCFunction)PyBufferRegion_set_y, METH_VARARGS, NULL },
         { "get_extents", (PyCFunction)PyBufferRegion_get_extents, METH_NOARGS, NULL },

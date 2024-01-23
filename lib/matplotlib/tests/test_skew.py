@@ -1,5 +1,5 @@
 """
-Testing that skewed axes properly work.
+Testing that skewed Axes properly work.
 """
 
 from contextlib import ExitStack

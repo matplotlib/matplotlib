@@ -155,9 +155,16 @@ Remember to activate the environment whenever you start working on Matplotlib.
 
 Install Dependencies
 ====================
+
 Most Python dependencies will be installed when :ref:`setting up the environment <dev-environment>`
 but non-Python dependencies like C++ compilers, LaTeX, and other system applications
-must be installed separately. For a full list, see :ref:`dependencies`.
+must be installed separately.
+
+.. toctree::
+  :maxdepth: 2
+
+  ../users/installing/dependencies
+
 
 .. _development-install:
 
@@ -167,7 +174,7 @@ Install Matplotlib in editable mode
 Install Matplotlib in editable mode from the :file:`matplotlib` directory using the
 command ::
 
-    python -m pip install --verbose --no-build-isolation --editable .[dev]
+    python -m pip install --verbose --no-build-isolation --editable ".[dev]"
 
 The 'editable/develop mode' builds everything and places links in your Python environment
 so that Python will be able to import Matplotlib from your development source directory.
@@ -194,6 +201,9 @@ config during installation ::
 
 For more information on installation and other configuration options, see the
 Meson Python :external+meson-python:ref:`editable installs guide <how-to-guides-editable-installs>`.
+
+For a list of the other environment variables you can set before install, see :ref:`environment-variables`.
+
 
 Verify the Installation
 =======================

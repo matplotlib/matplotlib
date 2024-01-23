@@ -9,6 +9,7 @@ on:
     branches-ignore:
       - auto-backport-of-pr-[0-9]+
       - v[0-9]+.[0-9]+.[0-9x]+-doc
+      - dependabot/**
   pull_request:
     branches-ignore:
       - v[0-9]+.[0-9]+.[0-9x]+-doc
@@ -97,7 +98,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -119,6 +120,7 @@ jobs:
               gir1.2-gtk-3.0 \
               graphviz \
               inkscape \
+              language-pack-de \
               lcov \
               libcairo2 \
               libcairo2-dev \
@@ -226,7 +228,7 @@ jobs:
           # (sometimes, the install appears to be successful but shared
           # libraries cannot be loaded at runtime, so an actual import is a
           # better check).
-          # PyGObject, pycairo, and cariocffi do not install on OSX 10.12.
+          # PyGObject, pycairo, and cariocffi do not install on macOS 10.12.
           python -m pip install --upgrade pycairo 'cairocffi>=0.8' PyGObject &&
             (
               python -c 'import gi; gi.require_version("Gtk", "4.0"); from gi.repository import Gtk' &&
@@ -236,7 +238,7 @@ jobs:
               echo 'PyGObject 3 is available' || echo 'PyGObject 3 is not available'
             )
 
-          # There are no functioning wheels available for OSX 10.12 (as of
+          # There are no functioning wheels available for macOS 10.12 (as of
           # Sept 2020) for either pyqt5 (there are only wheels for 10.13+) or
           # pyside2 (the latest version (5.13.2) with 10.12 wheels has a
           # fatal to us bug, it was fixed in 5.14.0 which has 10.13 wheels)
@@ -292,12 +294,11 @@ jobs:
 
           # Set flag in a delayed manner to avoid issues with installing other
           # packages
-          if [[ "${{ runner.os }}" != 'macOS' ]]; then
-            if [[ "$(lsb_release -r -s)" == "20.04" ]]; then
-              export CPPFLAGS='--coverage -fprofile-abs-path'
-            else
-              export CPPFLAGS='--coverage'
-            fi
+          if [[ "${{ runner.os }}" == 'macOS' ]]; then
+            export CPPFLAGS='-fprofile-instr-generate=default.%m.profraw'
+            export CPPFLAGS="$CPPFLAGS -fcoverage-mapping"
+          else
+            export CPPFLAGS='--coverage -fprofile-abs-path'
           fi
 
           python -m pip install --no-deps --no-build-isolation --verbose \
@@ -315,22 +316,32 @@ jobs:
 
       - name: Run pytest
         run: |
-          python -mpytest -raR -n auto \
+          pytest -raR -n auto \
             --maxfail=50 --timeout=300 --durations=25 \
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
 
       - name: Filter C coverage
         run: |
-          lcov --rc lcov_branch_coverage=1 --capture --directory . --output-file coverage.info
-          lcov --rc lcov_branch_coverage=1 --output-file coverage.info \
-            --extract coverage.info $PWD/src/'*' $PWD/lib/'*'
-          lcov --rc lcov_branch_coverage=1 --list coverage.info
-          find . -name '*.gc*' -delete
-        if: ${{ runner.os != 'macOS' }}
+          if [[ "${{ runner.os }}" != 'macOS' ]]; then
+            lcov --rc lcov_branch_coverage=1 --capture --directory . \
+              --output-file coverage.info
+            lcov --rc lcov_branch_coverage=1 --output-file coverage.info \
+              --extract coverage.info $PWD/src/'*' $PWD/lib/'*'
+            lcov --rc lcov_branch_coverage=1 --list coverage.info
+            find . -name '*.gc*' -delete
+          else
+            xcrun llvm-profdata merge -sparse default.*.profraw \
+              -o default.profdata
+            xcrun llvm-cov export -format="lcov" build/*/src/*.so \
+              -instr-profile default.profdata > info.lcov
+          fi
       - name: Upload code coverage
+        if: ${{ github.event_name != 'schedule' }}
         uses: codecov/codecov-action@v3
+        with:
+          name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }}"
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }} result images"

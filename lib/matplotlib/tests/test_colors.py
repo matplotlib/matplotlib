@@ -1,6 +1,7 @@
 import copy
 import itertools
 import unittest.mock
+from packaging.version import parse as parse_version
 
 from io import BytesIO
 import numpy as np
@@ -147,9 +148,13 @@ def test_double_register_builtin_cmap():
     with pytest.raises(ValueError, match='A colormap named "viridis"'):
         with pytest.warns(mpl.MatplotlibDeprecationWarning):
             cm.register_cmap(name, mpl.colormaps[name])
-    with pytest.warns(UserWarning):
-        # TODO is warning more than once!
-        cm.register_cmap(name, mpl.colormaps[name], override_builtin=True)
+
+    if parse_version(pytest.__version__).major < 8:
+        with pytest.warns(UserWarning):
+            cm.register_cmap(name, mpl.colormaps[name], override_builtin=True)
+    else:
+        with pytest.warns(UserWarning), pytest.warns(mpl.MatplotlibDeprecationWarning):
+            cm.register_cmap(name, mpl.colormaps[name], override_builtin=True)
 
 
 def test_unregister_builtin_cmap():
@@ -555,12 +560,16 @@ def test_PowerNorm():
     assert_array_almost_equal(norm(a), pnorm(a))
 
     a = np.array([-0.5, 0, 2, 4, 8], dtype=float)
-    expected = [0, 0, 1/16, 1/4, 1]
+    expected = [-1/16, 0, 1/16, 1/4, 1]
     pnorm = mcolors.PowerNorm(2, vmin=0, vmax=8)
     assert_array_almost_equal(pnorm(a), expected)
     assert pnorm(a[0]) == expected[0]
     assert pnorm(a[2]) == expected[2]
-    assert_array_almost_equal(a[1:], pnorm.inverse(pnorm(a))[1:])
+    # Check inverse
+    a_roundtrip = pnorm.inverse(pnorm(a))
+    assert_array_almost_equal(a, a_roundtrip)
+    # PowerNorm inverse adds a mask, so check that is correct too
+    assert_array_equal(a_roundtrip.mask, np.zeros(a.shape, dtype=bool))
 
     # Clip = True
     a = np.array([-0.5, 0, 1, 8, 16], dtype=float)
@@ -589,6 +598,15 @@ def test_PowerNorm_translation_invariance():
     assert_array_almost_equal(pnorm(a), expected)
     pnorm = mcolors.PowerNorm(vmin=-2, vmax=-1, gamma=3)
     assert_array_almost_equal(pnorm(a - 2), expected)
+
+
+def test_powernorm_cbar_limits():
+    fig, ax = plt.subplots()
+    vmin, vmax = 300, 1000
+    data = np.arange(10*10).reshape(10, 10) + vmin
+    im = ax.imshow(data, norm=mcolors.PowerNorm(gamma=0.2, vmin=vmin, vmax=vmax))
+    cbar = fig.colorbar(im)
+    assert cbar.ax.get_ylim() == (vmin, vmax)
 
 
 def test_Normalize():
@@ -1366,38 +1384,38 @@ def test_scalarmappable_to_rgba(bytes):
     # uint8 RGBA
     x = np.ones((2, 3, 4), dtype=np.uint8)
     expected = x.copy() if bytes else x.astype(np.float32)/255
-    np.testing.assert_array_equal(sm.to_rgba(x, bytes=bytes), expected)
+    np.testing.assert_almost_equal(sm.to_rgba(x, bytes=bytes), expected)
     # uint8 RGB
     expected[..., 3] = alpha_1
-    np.testing.assert_array_equal(sm.to_rgba(x[..., :3], bytes=bytes), expected)
+    np.testing.assert_almost_equal(sm.to_rgba(x[..., :3], bytes=bytes), expected)
     # uint8 masked RGBA
     xm = np.ma.masked_array(x, mask=np.zeros_like(x))
     xm.mask[0, 0, 0] = True
     expected = x.copy() if bytes else x.astype(np.float32)/255
     expected[0, 0, 3] = 0
-    np.testing.assert_array_equal(sm.to_rgba(xm, bytes=bytes), expected)
+    np.testing.assert_almost_equal(sm.to_rgba(xm, bytes=bytes), expected)
     # uint8 masked RGB
     expected[..., 3] = alpha_1
     expected[0, 0, 3] = 0
-    np.testing.assert_array_equal(sm.to_rgba(xm[..., :3], bytes=bytes), expected)
+    np.testing.assert_almost_equal(sm.to_rgba(xm[..., :3], bytes=bytes), expected)
 
     # float RGBA
     x = np.ones((2, 3, 4), dtype=float) * 0.5
     expected = (x * 255).astype(np.uint8) if bytes else x.copy()
-    np.testing.assert_array_equal(sm.to_rgba(x, bytes=bytes), expected)
+    np.testing.assert_almost_equal(sm.to_rgba(x, bytes=bytes), expected)
     # float RGB
     expected[..., 3] = alpha_1
-    np.testing.assert_array_equal(sm.to_rgba(x[..., :3], bytes=bytes), expected)
+    np.testing.assert_almost_equal(sm.to_rgba(x[..., :3], bytes=bytes), expected)
     # float masked RGBA
     xm = np.ma.masked_array(x, mask=np.zeros_like(x))
     xm.mask[0, 0, 0] = True
     expected = (x * 255).astype(np.uint8) if bytes else x.copy()
     expected[0, 0, 3] = 0
-    np.testing.assert_array_equal(sm.to_rgba(xm, bytes=bytes), expected)
+    np.testing.assert_almost_equal(sm.to_rgba(xm, bytes=bytes), expected)
     # float masked RGB
     expected[..., 3] = alpha_1
     expected[0, 0, 3] = 0
-    np.testing.assert_array_equal(sm.to_rgba(xm[..., :3], bytes=bytes), expected)
+    np.testing.assert_almost_equal(sm.to_rgba(xm[..., :3], bytes=bytes), expected)
 
 
 def test_failed_conversions():

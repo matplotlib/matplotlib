@@ -58,8 +58,8 @@ def test_use():
             assert mpl.rcParams[PARAM] == VALUE
 
 
-def test_use_url(tmpdir):
-    path = Path(tmpdir, 'file')
+def test_use_url(tmp_path):
+    path = tmp_path / 'file'
     path.write_text('axes.facecolor: adeade', encoding='utf-8')
     with temp_style('test', DUMMY_SETTINGS):
         url = ('file:'
@@ -69,10 +69,9 @@ def test_use_url(tmpdir):
             assert mpl.rcParams['axes.facecolor'] == "#adeade"
 
 
-def test_single_path(tmpdir):
+def test_single_path(tmp_path):
     mpl.rcParams[PARAM] = 'gray'
-    temp_file = f'text.{STYLE_EXTENSION}'
-    path = Path(tmpdir, temp_file)
+    path = tmp_path / f'text.{STYLE_EXTENSION}'
     path.write_text(f'{PARAM} : {VALUE}', encoding='utf-8')
     with style.context(path):
         assert mpl.rcParams[PARAM] == VALUE

@@ -112,8 +112,8 @@ plt.show()
 # *loc*. Please see the documentation at :func:`legend` for more details.
 #
 # The ``bbox_to_anchor`` keyword gives a great degree of control for manual
-# legend placement. For example, if you want your axes legend located at the
-# figure's top right-hand corner instead of the axes' corner, simply specify
+# legend placement. For example, if you want your Axes legend located at the
+# figure's top right-hand corner instead of the Axes' corner, simply specify
 # the corner's location and the coordinate system of that location::
 #
 #     ax.legend(bbox_to_anchor=(1, 1),
@@ -213,7 +213,7 @@ ax.legend(handles=[line2], loc='lower right')
 plt.show()
 
 # %%
-# Legend Handlers
+# Legend handlers
 # ===============
 #
 # In order to create legend entries, handles are given as an argument to an

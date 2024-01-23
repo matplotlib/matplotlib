@@ -1,6 +1,6 @@
 # Circle CI configuration file
 # https://circleci.com/docs/
-
+---
 version: 2.1
 
 
@@ -199,6 +199,12 @@ commands:
       - store_artifacts:
           path: doc/build/sphinx-gallery-files.tar.gz
 
+  deploy-docs:
+    steps:
+      - run:
+          name: "Deploy new docs"
+          command: ./.circleci/deploy-docs.sh
+
 
 ##########################################
 # Here is where the real jobs are defined.
@@ -236,9 +242,7 @@ jobs:
           fingerprints:
             - "be:c3:c1:d8:fb:a1:0e:37:71:72:d7:a3:40:13:8f:14"
 
-      - deploy:
-          name: "Deploy new docs"
-          command: ./.circleci/deploy-docs.sh
+      - deploy-docs
 
 #########################################
 # Defining workflows gets us parallelism.

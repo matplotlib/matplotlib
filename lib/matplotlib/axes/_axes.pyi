@@ -17,7 +17,7 @@ from matplotlib.contour import ContourSet, QuadContourSet
 from matplotlib.image import AxesImage, PcolorImage
 from matplotlib.legend import Legend
 from matplotlib.legend_handler import HandlerBase
-from matplotlib.lines import Line2D
+from matplotlib.lines import Line2D, AxLine
 from matplotlib.mlab import GaussianKDE
 from matplotlib.patches import Rectangle, FancyArrow, Polygon, StepPatch, Wedge
 from matplotlib.quiver import Quiver, QuiverKey, Barbs
@@ -30,7 +30,7 @@ import matplotlib.streamplot as mstream
 
 import datetime
 import PIL.Image
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from typing import Any, Literal, overload
 import numpy as np
 from numpy.typing import ArrayLike
@@ -56,11 +56,11 @@ class Axes(_AxesBase):
     @overload
     def legend(self) -> Legend: ...
     @overload
-    def legend(self, handles: Sequence[Artist | tuple[Artist, ...]], labels: Sequence[str], **kwargs) -> Legend: ...
+    def legend(self, handles: Iterable[Artist | tuple[Artist, ...]], labels: Iterable[str], **kwargs) -> Legend: ...
     @overload
-    def legend(self, *, handles: Sequence[Artist | tuple[Artist, ...]], **kwargs) -> Legend: ...
+    def legend(self, *, handles: Iterable[Artist | tuple[Artist, ...]], **kwargs) -> Legend: ...
     @overload
-    def legend(self, labels: Sequence[str], **kwargs) -> Legend: ...
+    def legend(self, labels: Iterable[str], **kwargs) -> Legend: ...
     @overload
     def legend(self, **kwargs) -> Legend: ...
 
@@ -150,7 +150,7 @@ class Axes(_AxesBase):
         *,
         slope: float | None = ...,
         **kwargs
-    ) -> Line2D: ...
+    ) -> AxLine: ...
     def axhspan(
         self, ymin: float, ymax: float, xmin: float = ..., xmax: float = ..., **kwargs
     ) -> Polygon: ...

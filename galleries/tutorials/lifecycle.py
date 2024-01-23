@@ -86,7 +86,7 @@ group_mean = np.mean(group_data)
 #
 # .. note::
 #
-#    Figures can have multiple axes on them. For information on how to do this,
+#    Figures can have multiple Axes on them. For information on how to do this,
 #    see the :ref:`Tight Layout tutorial
 #    <tight_layout_guide>`.
 
@@ -212,7 +212,7 @@ def currency(x, pos):
 
 # %%
 # We can then apply this function to the labels on our plot. To do this,
-# we use the ``xaxis`` attribute of our axes. This lets you perform
+# we use the ``xaxis`` attribute of our Axes. This lets you perform
 # actions on a specific axis on our plot.
 
 fig, ax = plt.subplots(figsize=(6, 8))
@@ -230,7 +230,7 @@ ax.xaxis.set_major_formatter(currency)
 #
 # It is possible to draw multiple plot elements on the same instance of
 # :class:`axes.Axes`. To do this we simply need to call another one of
-# the plot methods on that axes object.
+# the plot methods on that Axes object.
 
 fig, ax = plt.subplots(figsize=(8, 8))
 ax.barh(group_names, group_data)

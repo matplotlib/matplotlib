@@ -94,21 +94,21 @@ API tags: what content from the API reference is in the example?
 +-----------------------------------+---------------------------------------------+
 |**Plot Type**                                                                    |
 +-----------------------------------+---------------------------------------------+
-|``plot type: bar``                 |example contains a bar plot                  |
+|``plot-type: bar``                 |example contains a bar plot                  |
 +-----------------------------------+---------------------------------------------+
-|``plot type: line``                |example contains a line plot                 |
+|``plot-type: line``                |example contains a line plot                 |
 +-----------------------------------+---------------------------------------------+
-|``plot type: pie``                 |example contains a pie plot                  |
+|``plot-type: pie``                 |example contains a pie plot                  |
 +-----------------------------------+---------------------------------------------+
-|``plot type: polar``               |example contains a polar plot                |
+|``plot-type: polar``               |example contains a polar plot                |
 +-----------------------------------+---------------------------------------------+
-|``plot type: 3D``                  |example contains a 3D plot                   |
+|``plot-type: 3D``                  |example contains a 3D plot                   |
 +-----------------------------------+---------------------------------------------+
-|``plot type: histogram``           |example contains a histogram                 |
+|``plot-type: histogram``           |example contains a histogram                 |
 +-----------------------------------+---------------------------------------------+
-|``plot type: specialty``           |                                             |
+|``plot-type: specialty``           |                                             |
 +-----------------------------------+---------------------------------------------+
-|``plot type: scatter``             |                                             |
+|``plot-type: scatter``             |                                             |
 +-----------------------------------+---------------------------------------------+
 
 
@@ -166,7 +166,7 @@ Internal tags: what information is helpful for maintainers or contributors?
 +-------------------------------+-----------------------------------------------------------------------+
 |``tag``                        | use case                                                              |
 +===============================+=======================================================================+
-|``internal: low bandwidth``    |allows users to filter out bandwidth-intensive examples like animations|
+|``internal: high-bandwidth``   |allows users to filter out bandwidth-intensive examples like animations|
 +-------------------------------+-----------------------------------------------------------------------+
 |``internal: untagged``         |allows docs contributors to easily find untagged examples              |
 +-------------------------------+-----------------------------------------------------------------------+
