@@ -75,10 +75,6 @@ Version 3.4
     prev_whats_new/github_stats_3.4.1.rst
     prev_whats_new/github_stats_3.4.0.rst
 
-=============
-Past versions
-=============
-
 Version 3.3
 ^^^^^^^^^^^
 .. toctree::
