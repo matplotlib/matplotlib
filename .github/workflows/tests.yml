@@ -87,7 +87,6 @@ jobs:
             pyqt6-ver: '!=6.6.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
-            extra-requirements: '"pytest>=8.0.0rc1"'
           - os: macos-latest
             python-version: 3.9
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
@@ -337,6 +336,7 @@ jobs:
               -instr-profile default.profdata > info.lcov
           fi
       - name: Upload code coverage
+        if: ${{ github.event_name != 'schedule' }}
         uses: codecov/codecov-action@v3
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }}"
