@@ -75,10 +75,14 @@
           - 'lib/matplotlib/backends/backend_wx*.py*'
 
 "Documentation: API":
-  - changed-files:
-      - any-glob-to-any-file:
-          # Also files in lib/**, but we can't be sure those are only documentation.
-          - 'doc/api/**'
+  - all:
+    - changed-files:
+        - any-glob-to-any-file:
+            # Also files in lib/**, but we can't be sure those are only documentation.
+            - 'doc/api/**'
+        - all-globs-all-files:
+            - '!doc/api/next_api_changes/**'
+
 "Documentation: build":
   - changed-files:
       - any-glob-to-any-file:
@@ -102,10 +106,13 @@
       - any-glob-to-any-file:
           - 'galleries/tutorials/**'
 "Documentation: user guide":
-  - changed-files:
-      - any-glob-to-any-file:
-          - 'doc/users/**'
-          - 'galleries/users_explain/**'
+  - all:
+    - changed-files:
+        - any-glob-to-any-file:
+            - 'doc/users/**'
+            - 'galleries/users_explain/**'
+        - all-globs-to-all-files:
+            - '!doc/users/next_whats_new/**'
 
 "topic: animation":
   - changed-files:
