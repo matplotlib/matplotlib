@@ -978,10 +978,15 @@ class Legend(Artist):
             elif isinstance(artist, Patch):
                 lines.append(
                     artist.get_transform().transform_path(artist.get_path()))
+            elif isinstance(artist, PolyCollection):
+                lines.extend(artist.get_transform().transform_path(path)
+                             for path in artist.get_paths())
             elif isinstance(artist, Collection):
                 transform, transOffset, hoffsets, _ = artist._prepare_points()
                 if len(hoffsets):
                     offsets.extend(transOffset.transform(hoffsets))
+            elif isinstance(artist, Text):
+                bboxes.append(artist.get_window_extent())
 
         return bboxes, lines, offsets
 
