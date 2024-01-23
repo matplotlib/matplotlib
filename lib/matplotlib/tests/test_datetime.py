@@ -673,8 +673,6 @@ class TestDatetimePlotting:
                     [datetime.datetime(2024, 2, 1+delta) for delta in range(threshold)]
                 )
         
-        x_ranges = np.array(range(threshold))
-        y_ranges = np.array(range(threshold))
 
         U = np.sin(np.arange(len(x_dates)))
         V = np.cos(np.arange(len(y_dates)))
