@@ -667,11 +667,12 @@ class TestDatetimePlotting:
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
 
         x_dates = np.array(
-                    [datetime.datetime(2023, 11, 1+delta) for delta in range(threshold)]
+                    [datetime.datetime(2024, 1, 1+delta) for delta in range(threshold)]
                 )
         y_dates = np.array(
-                    [datetime.datetime(2023, 12, 1+delta) for delta in range(threshold)]
+                    [datetime.datetime(2024, 2, 1+delta) for delta in range(threshold)]
                 )
+        
         x_ranges = np.array(range(threshold))
         y_ranges = np.array(range(threshold))
 
