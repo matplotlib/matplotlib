@@ -87,6 +87,7 @@ jobs:
             pyqt6-ver: '!=6.6.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
+            extra-requirements: '"pytest>=8.0.0rc1"'
           - os: macos-latest
             python-version: 3.9
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
