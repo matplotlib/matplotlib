@@ -139,7 +139,7 @@ jobs:
         # FreeType build fails with bash, succeeds with dash
 
       - name: Cache pip
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: C:\cygwin\home\runneradmin\.cache\pip
           key: Cygwin-py3.${{ matrix.python-minor-version }}-pip-${{ hashFiles('requirements/*/*.txt') }}
@@ -147,14 +147,14 @@ jobs:
             ${{ matrix.os }}-py3.${{ matrix.python-minor-version }}-pip-
 
       - name: Cache ccache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: C:\cygwin\home\runneradmin\.ccache
           key: Cygwin-py3.${{ matrix.python-minor-version }}-ccache-${{ hashFiles('src/*') }}
           restore-keys: Cygwin-py3.${{ matrix.python-minor-version }}-ccache-
 
       - name: Cache Matplotlib
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             C:\cygwin\home\runneradmin\.cache\matplotlib
