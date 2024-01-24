@@ -14,20 +14,20 @@ coverage:
         target: 50%
         if_no_uploads: error
         if_not_found: success
-        if_ci_failed: failure
+        if_ci_failed: error
     project:
       default: false
       library:
         target: 50%
         if_no_uploads: error
         if_not_found: success
-        if_ci_failed: failure
+        if_ci_failed: error
         paths:
           - '!lib/.*/tests/.*'
       tests:
         target: auto
         if_no_uploads: error
         if_not_found: success
-        if_ci_failed: failure
+        if_ci_failed: error
         paths:
           - 'lib/.*/tests/.*'

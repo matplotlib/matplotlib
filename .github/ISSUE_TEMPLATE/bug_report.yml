@@ -8,8 +8,6 @@ body:
     attributes:
       label: Bug summary
       description: Describe the bug in 1-2 short sentences
-      placeholder:
-      value:
     validations:
       required: true
   - type: textarea
@@ -19,7 +17,7 @@ body:
       description: >-
         If possible, please provide a minimum self-contained example.
       placeholder: Paste your code here. This field is automatically formatted as Python code.
-      render: python
+      render: Python
     validations:
       required: true
   - type: textarea

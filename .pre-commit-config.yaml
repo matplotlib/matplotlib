@@ -78,3 +78,38 @@ repos:
     hooks:
       - id: yamllint
         args: ["--strict", "--config-file=.yamllint.yml"]
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.28.0
+    hooks:
+      # TODO: Re-enable this when https://github.com/microsoft/azure-pipelines-vscode/issues/567 is fixed.
+      # - id: check-azure-pipelines
+      - id: check-dependabot
+      - id: check-github-workflows
+      - id: check-jsonschema
+        files: ^\.appveyor\.yml$
+        args: ["--verbose", "--schemafile", "https://json.schemastore.org/appveyor.json"]
+      - id: check-jsonschema
+        files: ^\.circleci/config\.yml$
+        args: ["--verbose", "--schemafile", "https://json.schemastore.org/circleciconfig.json"]
+      - id: check-jsonschema
+        files: ^\.github/FUNDING\.yml$
+        args: ["--verbose", "--schemafile", "https://json.schemastore.org/github-funding.json"]
+      - id: check-jsonschema
+        files: ^\.github/ISSUE_TEMPLATE/config\.yml$
+        args: ["--verbose", "--schemafile", "https://json.schemastore.org/github-issue-config.json"]
+      - id: check-jsonschema
+        files: ^\.github/ISSUE_TEMPLATE/.*\.yml$
+        exclude: ^\.github/ISSUE_TEMPLATE/config\.yml$
+        args: ["--verbose", "--schemafile", "https://json.schemastore.org/github-issue-forms.json"]
+      - id: check-jsonschema
+        files: ^\.github/codecov\.yml$
+        args: ["--verbose", "--schemafile", "https://json.schemastore.org/codecov.json"]
+      - id: check-jsonschema
+        files: ^\.github/labeler\.yml$
+        args: ["--verbose", "--schemafile", "https://json.schemastore.org/pull-request-labeler-5.json"]
+      - id: check-jsonschema
+        files: ^environment\.yml$
+        args:
+          - "--verbose"
+          - "--schemafile"
+          - "https://github.com/microsoft/vscode-python/raw/main/schemas/conda-environment.json"
