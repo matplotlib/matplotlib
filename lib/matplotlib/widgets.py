@@ -427,7 +427,7 @@ class Slider(SliderBase):
             =============== ======= ========================================
 
             Please refer to:
-            https://matplotlib.org/stable/gallery/lines_bars_and_markers/marker_reference.html
+            :doc:`gallery/lines_bars_and_markers/marker_reference`
             for more information on styling.
 
         Notes
