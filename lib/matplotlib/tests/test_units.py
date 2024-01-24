@@ -41,6 +41,9 @@ class Quantity:
     def __array__(self):
         return np.asarray(self.magnitude)
 
+    def __len__(self):
+        return len(self.__array__())
+
 
 @pytest.fixture
 def quantity_converter():
@@ -302,3 +305,30 @@ def test_plot_kernel():
     # just a smoketest that fail
     kernel = Kernel([1, 2, 3, 4, 5])
     plt.plot(kernel)
+
+
+@image_comparison(['mappable_units.png'], style="mpl20")
+def test_mappable_units(quantity_converter):
+    # Check that showing an image with units works
+    munits.registry[Quantity] = quantity_converter
+    x, y = np.meshgrid([0, 1], [0, 1])
+    data = Quantity(np.arange(4).reshape(2, 2), 'hours')
+
+    fig, axs = plt.subplots(nrows=2, ncols=2)
+
+    # imshow
+    ax = axs[0, 0]
+    mappable = ax.imshow(data, origin='lower')
+    cbar = fig.colorbar(mappable, ax=ax)
+
+    # pcolor
+    ax = axs[0, 1]
+    mappable = ax.pcolor(x, y, data)
+    fig.colorbar(mappable, ax=ax)
+
+    # pcolormesh + horizontal colorbar
+    ax = axs[1, 0]
+    mappable = ax.pcolormesh(x, y, data)
+    fig.colorbar(mappable, ax=ax, orientation="horizontal")
+
+    axs[1, 1].axis("off")

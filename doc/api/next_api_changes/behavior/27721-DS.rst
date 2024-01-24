@@ -1,0 +1,16 @@
+Unit converters can now support units in images
+-----------------------------------------------
+
+`~.cm.ScalarMappable` can now contain data with units. This adds support for
+unit-ful data to be plotted using - `~.axes.Axes.imshow`, `~.axes.Axes.pcolor`,
+and `~.axes.Axes.pcolormesh`
+
+For this to be supported by third-party `~.units.ConversionInterface`,
+the `~.units.ConversionInterface.default_units` and
+`~.units.ConversionInterface.convert` methods must allow for the *axis*
+argument to be ``None``, and `~.units.ConversionInterface.convert` must be able to
+convert data of more than one dimension (e.g. when plotting images the data is 2D).
+
+If a conversion interface raises an error when given ``None`` or 2D data as described
+above, this error will be re-raised when a user tries to use one of the newly supported
+plotting methods with unit-ful data.

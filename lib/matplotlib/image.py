@@ -726,6 +726,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         if isinstance(A, PIL.Image.Image):
             A = pil_to_array(A)  # Needed e.g. to apply png palette.
+
+        A = self._strip_units(A)
         self._A = self._normalize_image_array(A)
         self._imcache = None
         self.stale = True
@@ -1140,6 +1142,7 @@ class NonUniformImage(AxesImage):
             (M, N) `~numpy.ndarray` or masked array of values to be
             colormapped, or (M, N, 3) RGB array, or (M, N, 4) RGBA array.
         """
+        A = self._strip_units(A)
         A = self._normalize_image_array(A)
         x = np.array(x, np.float32)
         y = np.array(y, np.float32)
@@ -1300,6 +1303,7 @@ class PcolorImage(AxesImage):
             - (M, N, 3): RGB array
             - (M, N, 4): RGBA array
         """
+        A = self._strip_units(A)
         A = self._normalize_image_array(A)
         x = np.arange(0., A.shape[1] + 1) if x is None else np.array(x, float).ravel()
         y = np.arange(0., A.shape[0] + 1) if y is None else np.array(y, float).ravel()

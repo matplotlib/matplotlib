@@ -24,6 +24,7 @@ import matplotlib as mpl
 from matplotlib import _api, colors, cbook, scale
 from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
+import matplotlib.units as munits
 
 
 _LUTSIZE = mpl.rcParams['image.lut']
@@ -283,6 +284,8 @@ class ScalarMappable:
             The colormap used to map normalized data values to RGBA colors.
         """
         self._A = None
+        self._units = None
+        self._converter = None
         self._norm = None  # So that the setter knows we're initializing.
         self.set_norm(norm)  # The Normalize instance of this ScalarMappable.
         self.cmap = None  # So that the setter knows we're initializing.
@@ -393,6 +396,35 @@ class ScalarMappable:
         rgba = self.cmap(x, alpha=alpha, bytes=bytes)
         return rgba
 
+    def _strip_units(self, A):
+        """
+        Remove units from A, and save the units and converter used to do the conversion.
+        """
+        self._converter = munits.registry.get_converter(A)
+        if self._converter is None:
+            self._units = None
+            return A
+
+        try:
+            self._units = self._converter.default_units(A, None)
+        except Exception as e:
+            raise RuntimeError(
+                f'{self._converter} failed when trying to return the default units for '
+                'this image. This may be because support has not been '
+                'implemented for `axis=None` in the default_units() method.'
+            ) from e
+
+        try:
+            A = self._converter.convert(A, self._units, None)
+        except Exception as e:
+            raise munits.ConversionError(
+                f'{self._converter} failed when trying to convert the units for this '
+                'image. This may be because support has not been implemented '
+                'for `axis=None` in the convert() method.'
+            ) from e
+
+        return A
+
     def set_array(self, A):
         """
         Set the value array from array-like *A*.
@@ -408,7 +440,7 @@ class ScalarMappable:
         if A is None:
             self._A = None
             return
-
+        A = self._strip_units(A)
         A = cbook.safe_masked_invalid(A, copy=True)
         if not np.can_cast(A.dtype, float, "same_kind"):
             raise TypeError(f"Image data of dtype {A.dtype} cannot be "
