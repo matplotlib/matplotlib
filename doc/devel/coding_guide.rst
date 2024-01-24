@@ -13,6 +13,8 @@ consistency, and maintainability of the code base.
     If adding new features, changing behavior or function signatures, or removing
     public interfaces, please consult the :ref:`api_changes`.
 
+.. _code-style:
+
 PEP8, as enforced by flake8
 ===========================
 
