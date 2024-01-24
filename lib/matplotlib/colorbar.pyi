@@ -59,7 +59,7 @@ class Colorbar:
         drawedges: bool = ...,
         extendfrac: Literal["auto"] | float | Sequence[float] | None = ...,
         extendrect: bool = ...,
-        label: str = ...,
+        label: str | None = ...,
         location: Literal["left", "right", "top", "bottom"] | None = ...
     ) -> None: ...
     @property
