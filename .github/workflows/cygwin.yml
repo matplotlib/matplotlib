@@ -49,7 +49,7 @@ jobs:
   test-cygwin:
     runs-on: windows-latest
     name: Python 3.${{ matrix.python-minor-version }} on Cygwin
-    if: |
+    if: >-
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'schedule' ||
       (

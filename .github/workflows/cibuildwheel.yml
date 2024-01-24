@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   build_sdist:
-    if: |
+    if: >-
       github.event_name == 'push' ||
       github.event_name == 'pull_request' && (
         (
@@ -76,7 +76,7 @@ jobs:
           if-no-files-found: error
 
   build_wheels:
-    if: |
+    if: >-
       github.event_name == 'push' ||
       github.event_name == 'pull_request' && (
         (
