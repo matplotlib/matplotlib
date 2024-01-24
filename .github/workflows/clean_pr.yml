@@ -48,5 +48,6 @@ jobs:
       - name: Check for branches opened against main
         if: github.ref_name == 'main'
         run: |
-          printf 'PR branch should not be main. See https://matplotlib.org/devdocs/devel/development_workflow.html#make-a-new-feature-branch'
+          echo 'PR branch should not be main.'
+          echo 'See https://matplotlib.org/devdocs/devel/development_workflow.html#make-a-new-feature-branch'
           exit 1

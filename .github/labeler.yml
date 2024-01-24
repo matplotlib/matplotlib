@@ -76,12 +76,12 @@
 
 "Documentation: API":
   - all:
-    - changed-files:
-        - any-glob-to-any-file:
-            # Also files in lib/**, but we can't be sure those are only documentation.
-            - 'doc/api/**'
-        - all-globs-to-all-files:
-            - '!doc/api/next_api_changes/**'
+      - changed-files:
+          - any-glob-to-any-file:
+              # Also files in lib/**, but we can't be sure those are only documentation.
+              - 'doc/api/**'
+          - all-globs-to-all-files:
+              - '!doc/api/next_api_changes/**'
 
 "Documentation: build":
   - changed-files:
@@ -107,12 +107,12 @@
           - 'galleries/tutorials/**'
 "Documentation: user guide":
   - all:
-    - changed-files:
-        - any-glob-to-any-file:
-            - 'doc/users/**'
-            - 'galleries/users_explain/**'
-        - all-globs-to-all-files:
-            - '!doc/users/next_whats_new/**'
+      - changed-files:
+          - any-glob-to-any-file:
+              - 'doc/users/**'
+              - 'galleries/users_explain/**'
+          - all-globs-to-all-files:
+              - '!doc/users/next_whats_new/**'
 
 "topic: animation":
   - changed-files:
