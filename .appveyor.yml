@@ -94,7 +94,7 @@ test_script:
 artifacts:
   - path: result_images\*
     name: result_images
-    type: zip
+    type: Zip
 
 on_finish:
   - conda install codecov
