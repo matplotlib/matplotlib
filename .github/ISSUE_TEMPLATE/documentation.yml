@@ -1,3 +1,4 @@
+---
 name: Documentation
 description: Create a report to help us improve the documentation
 title: "[Doc]: "
@@ -9,7 +10,8 @@ body:
       label: Documentation Link
       description: |
         Link to any documentation or examples that you are referencing.
-        Suggested improvements should be based on the development version of the docs: https://matplotlib.org/devdocs/
+        Suggested improvements should be based on the development version of the docs:
+        https://matplotlib.org/devdocs/
       placeholder: https://matplotlib.org/devdocs/...
   - type: textarea
     id: problem

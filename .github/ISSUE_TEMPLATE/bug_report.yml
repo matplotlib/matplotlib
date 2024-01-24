@@ -1,3 +1,4 @@
+---
 name: Bug Report
 description: Report a bug or issue with Matplotlib.
 title: "[Bug]: "
@@ -6,7 +7,7 @@ body:
     id: summary
     attributes:
       label: Bug summary
-      description:  Describe the bug in 1-2 short sentences
+      description: Describe the bug in 1-2 short sentences
       placeholder:
       value:
     validations:

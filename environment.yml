@@ -4,6 +4,7 @@
 #   conda activate mpl-dev
 #   pip install -e .[dev]
 #
+---
 name: mpl-dev
 channels:
   - conda-forge
