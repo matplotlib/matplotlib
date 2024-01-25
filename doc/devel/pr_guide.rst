@@ -151,11 +151,11 @@ Milestones
 
 Set the milestone according to these guidelines:
 
-* *New features and API changes* are milestoned for the next minor release
+* *New features and API changes* are milestoned for the next meso release
   ``v3.N.0``.
 
 * *Bugfixes, tests for released code, and docstring changes* may be milestoned
-  for the next patch release ``v3.N.M``.
+  for the next micro release ``v3.N.M``.
 
 * *Documentation changes* (only .rst files and examples) may be milestoned
   ``v3.N-doc``.
@@ -250,15 +250,15 @@ Current branches
 The current active branches are
 
 *main*
-  The current development version. Future minor releases (*v3.N.0*) will be
+  The current development version. Future meso (*v3.N.0*) or macro (*v4.0.0*) will be
   branched from this.
 
 *v3.N.x*
-  Maintenance branch for Matplotlib 3.N. Future patch releases will be
-  branched from this.
+  Maintenance branch for Matplotlib 3.N. Future micro releases will be
+  tagged from this.
 
 *v3.N.M-doc*
-  Documentation for the current release.  On a patch release, this will be
+  Documentation for the current micro release.  On a micro release, this will be
   replaced by a properly named branch for the new release.
 
 
@@ -279,14 +279,14 @@ work.
 Backport strategy
 -----------------
 
-Backports to the patch release branch (*v3.N.x*) are the changes that will be
+Backports to the micro release branch (*v3.N.x*) are the changes that will be
 included in the next patch (aka bug-fix) release.  The goal of the patch
 releases is to fix bugs without adding any new regressions or behavior changes.
 We will always attempt to backport:
 
 - critical bug fixes (segfault, failure to import, things that the
   user cannot work around)
-- fixes for regressions introduced in the last two minor releases
+- fixes for regressions introduced in the last two meso releases
 
 and may attempt to backport fixes for regressions introduced in older releases.
 
@@ -296,7 +296,7 @@ effort and risk of re-implementing the bug fix vs the severity of the bug.
 When in doubt, err on the side of not backporting.
 
 When backporting a Pull Request fails or is declined, re-milestone the original
-PR to the next minor release and leave a comment explaining why.
+PR to the next meso release and leave a comment explaining why.
 
 The only changes backported to the documentation branch (*v3.N.M-doc*)
 are changes to :file:`doc` or :file:`galleries`.  Any changes to :file:`lib`

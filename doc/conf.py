@@ -482,7 +482,7 @@ html_theme_options = {
     "switcher": {
         # Add a unique query to the switcher.json url.  This will be ignored by
         # the server, but will be used as part of the key for caching by browsers
-        # so when we do a new minor release the switcher will update "promptly" on
+        # so when we do a new meso release the switcher will update "promptly" on
         # the stable and devdocs.
         "json_url": f"https://matplotlib.org/devdocs/_static/switcher.json?{SHA}",
         "version_match": (

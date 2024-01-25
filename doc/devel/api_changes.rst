@@ -54,7 +54,7 @@ prevents unexpected breaking of code.
 
 Rules
 ^^^^^
-- Deprecations are targeted at the next :ref:`minor release <pr-milestones>` (e.g. 3.x)
+- Deprecations are targeted at the next :ref:`meso release <pr-milestones>` (e.g. 3.x)
 - Deprecated API is generally removed (expired) two point-releases after introduction
   of the deprecation. Longer deprecations can be imposed by core developers on
   a case-by-case basis to give more time for the transition
@@ -200,7 +200,7 @@ For example::
 
 For classes and functions, the directive should be placed before the
 *Parameters* section. For parameters, the directive should be placed at the
-end of the parameter description. The patch release version is omitted and
+end of the parameter description. The micro release version is omitted and
 the directive should not be added to entire modules.
 
 Release notes
