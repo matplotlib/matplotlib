@@ -201,7 +201,7 @@ API changes
 ^^^^^^^^^^^
 
 *Primarily needed for macro and meso releases. We may sometimes have API
-changes in bugfix releases.*
+changes in micro releases.*
 
 Merge the contents of all the files in :file:`doc/api/next_api_changes/` into a single
 file :file:`doc/api/prev_api_changes/api_changes_{X}.{Y}.{Z}.rst` and delete the
@@ -224,7 +224,7 @@ Update :file:`doc/users/release_notes.rst`:
          prev_whats_new/whats_new_X.Y.0.rst
          ../api/prev_api_changes/api_changes_X.Y.0.rst
          prev_whats_new/github_stats_X.Y.0.rst
-- For bugfix releases add the GitHub stats and (if present) the API changes to
+- For micro releases add the GitHub stats and (if present) the API changes to
   the existing X.Y section
 
   .. code:: rst
@@ -237,7 +237,7 @@ Update version switcher
 
 Update ``doc/_static/switcher.json``:
 
-- If a bugfix release, :samp:`{X}.{Y}.{Z}`, no changes are needed.
+- If a micro release, :samp:`{X}.{Y}.{Z}`, no changes are needed.
 - If a macro release, :samp:`{X}.{Y}.0`, change the name of :samp:`name: {X}.{Y+1}
   (dev)` and :samp:`name: {X}.{Y} (stable)` as well as adding a new version for the
   previous stable (:samp:`name: {X}.{Y-1}`).
