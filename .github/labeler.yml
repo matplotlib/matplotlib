@@ -80,7 +80,7 @@
         - any-glob-to-any-file:
             # Also files in lib/**, but we can't be sure those are only documentation.
             - 'doc/api/**'
-        - all-globs-all-files:
+        - all-globs-to-all-files:
             - '!doc/api/next_api_changes/**'
 
 "Documentation: build":
