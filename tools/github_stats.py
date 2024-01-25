@@ -169,7 +169,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '--since-tag', type=str,
         help='The git tag to use for the starting point '
-             '(typically the last major release).')
+             '(typically the last macro release).')
     parser.add_argument(
         '--milestone', type=str,
         help='The GitHub milestone to use for filtering issues [optional].')

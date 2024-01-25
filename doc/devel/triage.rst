@@ -160,7 +160,7 @@ The following workflow is a good way to approach issue triaging:
 
    While we strive for a bug-free library, regressions are the highest
    priority.  If we have broken user-code that *used to* work, we should
-   fix that in the next patch release!
+   fix that in the next micro release!
 
    Try to determine when the regression happened by running the
    reproduction code against older versions of Matplotlib.  This can

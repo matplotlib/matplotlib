@@ -4,10 +4,11 @@
 Dependency version policy
 =========================
 
-For the purpose of this document, 'minor version' is in the sense of
-SemVer (major, minor, patch) and includes both major and minor
-releases. For projects that use date-based versioning, every release
-is a 'minor version'.
+For the purpose of this document, 'minor version' is in the sense of SemVer
+(major, minor, patch) or 'meso version' in the sense of `EffVer
+<https://jacobtomlinson.dev/effver/>`_ (macro, meso, micro).  It includes both
+major/macro and minor/meso releases.  For projects that use date-based
+versioning, every release is a 'minor version'.
 
 Matplotlib follows `NEP 29
 <https://numpy.org/neps/nep-0029-deprecation_policy.html>`__.

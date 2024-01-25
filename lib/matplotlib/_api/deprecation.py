@@ -29,7 +29,7 @@ def _generate_deprecation_warning(
             raise ValueError(
                 "A pending deprecation cannot have a scheduled removal")
     else:
-        removal = f"in {removal}" if removal else "two minor releases later"
+        removal = f"in {removal}" if removal else "two meso releases later"
     if not message:
         message = (
             ("The %(name)s %(obj_type)s" if obj_type else "%(name)s")
