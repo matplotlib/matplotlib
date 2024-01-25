@@ -2350,7 +2350,9 @@ def _is_torch_array(x):
         # we're intentionally not attempting to import torch. If somebody
         # has created a torch array, torch should already be in sys.modules
         return isinstance(x, sys.modules['torch'].Tensor)
-    except Exception:
+    except Exception:  # TypeError, KeyError, AttributeError, maybe others?
+        # we're attempting to access attributes on imported modules which
+        # may have arbitrary user code, so we deliberately catch all exceptions
         return False
 
 
@@ -2360,7 +2362,9 @@ def _is_jax_array(x):
         # we're intentionally not attempting to import jax. If somebody
         # has created a jax array, jax should already be in sys.modules
         return isinstance(x, sys.modules['jax'].Array)
-    except Exception:
+    except Exception:  # TypeError, KeyError, AttributeError, maybe others?
+        # we're attempting to access attributes on imported modules which
+        # may have arbitrary user code, so we deliberately catch all exceptions
         return False
 
 
