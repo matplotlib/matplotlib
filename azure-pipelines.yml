@@ -78,13 +78,6 @@ stages:
           versionSpec: '$(python.version)'
           architecture: 'x64'
         displayName: 'Use Python $(python.version)'
-        condition: and(succeeded(), ne(variables['python.version'], 'Pre'))
-
-      - task: stevedower.python.InstallPython.InstallPython@1
-        displayName: 'Use prerelease Python'
-        inputs:
-          prerelease: true
-        condition: and(succeeded(), eq(variables['python.version'], 'Pre'))
 
       - bash: |
           set -e
@@ -136,8 +129,7 @@ stages:
       - bash: |
           python -m pip install --upgrade pip
           python -m pip install --upgrade meson-python pybind11
-          python -m pip install -r requirements/testing/all.txt -r requirements/testing/extra.txt ||
-            [[ "$PYTHON_VERSION" = 'Pre' ]]
+          python -m pip install -r requirements/testing/all.txt -r requirements/testing/extra.txt
         displayName: 'Install dependencies with pip'
 
       - bash: |
@@ -161,8 +153,7 @@ stages:
 
           python -m pip install \
             --no-build-isolation $CONFIG \
-            --verbose --editable .[dev] ||
-            [[ "$PYTHON_VERSION" = 'Pre' ]]
+            --verbose --editable .[dev]
         displayName: "Install self"
 
       - script: env
@@ -227,8 +218,7 @@ stages:
           fi
           PYTHONFAULTHANDLER=1 pytest -raR -n 2 \
               --maxfail=50 --timeout=300 --durations=25 \
-              --junitxml=junit/test-results.xml --cov-report=xml --cov=lib ||
-            [[ "$PYTHON_VERSION" = 'Pre' ]]
+              --junitxml=junit/test-results.xml --cov-report=xml --cov=lib
           if [[ -n $SESSION_ID ]]; then
             if [[ $VS_VER == 2022 ]]; then
               "$TOOL" shutdown $SESSION_ID
@@ -285,4 +275,4 @@ stages:
 
       - publish: $(System.DefaultWorkingDirectory)/result_images
         artifact: $(Agent.JobName)-result_images
-        condition: and(failed(), ne(variables['python.version'], 'Pre'))
+        condition: failed()
