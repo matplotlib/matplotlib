@@ -1805,19 +1805,31 @@ class EllipseCollection(Collection):
         self._angles = np.deg2rad(angles).ravel()
 
     def set_widths(self, widths):
-        """Set the lengths of the first axes (e.g., major axis lengths)."""
+        """Set the lengths of the first axes (e.g., major axis)."""
         self._set_widths(widths)
         self.stale = True
 
     def set_heights(self, heights):
-        """Set the lengths of second axes.."""
+        """Set the lengths of second axes (e.g., minor axes)."""
         self._set_heights(heights)
         self.stale = True
+
+    def get_widths(self):
+        """Get the lengths of the first axes (e.g., major axis)."""
+        return self._widths * 2
+
+    def get_heights(self):
+        """Set the lengths of second axes (e.g., minor axes)."""
+        return self._heights * 2
 
     def set_angles(self, angles):
         """Set the angles of the first axes, degrees CCW from the x-axis."""
         self._set_angles(angles)
         self.stale = True
+
+    def get_angles(self):
+        """Get the angles of the first axes, degrees CCW from the x-axis."""
+        return np.rad2deg(self._angles)
 
     @artist.allow_rasterization
     def draw(self, renderer):

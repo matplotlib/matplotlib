@@ -408,7 +408,7 @@ def test_EllipseCollection():
     ax.autoscale_view()
 
 
-def test_EllipseCollection_setter():
+def test_EllipseCollection_setter_getter():
     # Test widths, heights and angle setter
     rng = np.random.default_rng(0)
 
@@ -432,6 +432,10 @@ def test_EllipseCollection_setter():
     assert_array_almost_equal(ec._heights, np.array(heights).ravel() * 0.5)
     assert_array_almost_equal(ec._angles, np.deg2rad(angles).ravel())
 
+    assert_array_almost_equal(ec.get_widths(), widths)
+    assert_array_almost_equal(ec.get_heights(), heights)
+    assert_array_almost_equal(ec.get_angles(), angles)
+
     ax.add_collection(ec)
     ax.set_xlim(-2, 12)
     ax.set_ylim(-2, 12)
@@ -442,9 +446,9 @@ def test_EllipseCollection_setter():
 
     ec.set(widths=new_widths, heights=new_heights, angles=new_angles)
 
-    assert_array_almost_equal(ec._widths, np.array(new_widths).ravel() * 0.5)
-    assert_array_almost_equal(ec._heights, np.array(new_heights).ravel() * 0.5)
-    assert_array_almost_equal(ec._angles, np.deg2rad(new_angles).ravel())
+    assert_array_almost_equal(ec.get_widths(), new_widths.ravel())
+    assert_array_almost_equal(ec.get_heights(), new_heights.ravel())
+    assert_array_almost_equal(ec.get_angles(), new_angles.ravel())
 
 
 @image_comparison(['polycollection_close.png'], remove_text=True, style='mpl20')
