@@ -6751,6 +6751,16 @@ def test_pandas_indexing_hist(pd):
     ax.hist(ser_2)
 
 
+def test_pandas_hist2D(pd):
+    np.random.seed(19680801)
+    x0 = np.random.randn(200, 3)
+    df = pd.DataFrame(x0, columns=["a", "b", "c"])
+    fig, ax = plt.subplots()
+    tops = ax.hist(df)
+    # one list of hist values for each column:
+    assert tops[0].shape[0] == 3
+
+
 def test_pandas_bar_align_center(pd):
     # Tests fix for issue 8767
     df = pd.DataFrame({'a': range(2), 'b': range(2)})

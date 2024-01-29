@@ -1411,13 +1411,17 @@ def _reshape_2D(X, name):
     *name* is used to generate the error message for invalid inputs.
     """
 
-    # Unpack in case of e.g. Pandas or xarray object
-    X = _unpack_to_numpy(X)
-
     # Iterate over columns for ndarrays.
-    if isinstance(X, np.ndarray):
-        X = X.T
+    if hasattr(X, 'iloc'):
+        # probably pandas...
+        # return each column as a separate list element
+        if X.ndim == 1:
+            return [np.array(X)]
+        elif X.ndim == 2:
+            return [np.array(X.iloc[:, i]) for i in range(X.shape[1])]
 
+    if hasattr(X, 'T') and hasattr(X, 'ndim'):
+        X = X.T
         if len(X) == 0:
             return [[]]
         elif X.ndim == 1 and np.ndim(X[0]) == 0:
