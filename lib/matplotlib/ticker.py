@@ -1710,10 +1710,11 @@ class FixedLocator(Locator):
     """
     Place ticks at a set of fixed values.
 
-    If *nbins* is not None, the *locs* array of possible positions will be subsampled
-    to keep the number of ticks <= *nbins* +1. The subsampling will be done to include
-    the smallest absolute value; for example, if zero is included in the array of
-    possibilities, then it is guaranteed to be one of the chosen ticks.
+    If *nbins* is None ticks are placed at all values. Otherwise, the *locs* array of
+    possible positions will be subsampled to keep the number of ticks <=
+    :math:`nbins* +1`. The subsampling will be done to include the smallest absolute
+    value; for example, if zero is included in the array of possibilities, then it of
+    the chosen ticks.
     """
 
     def __init__(self, locs, nbins=None):
@@ -1772,7 +1773,7 @@ class NullLocator(Locator):
 
 class LinearLocator(Locator):
     """
-    Place ticks at linearly spaced values.
+    Place ticks at evenly spaced values.
 
     The first time this function is called it will try to set the
     number of ticks to make a nice tick partitioning.  Thereafter, the
@@ -1981,9 +1982,9 @@ class _Edge_integer:
 
 class MaxNLocator(Locator):
     """
-    Place linearly spaced ticks, with a cap on the total number of ticks.
+    Place evenly spaced ticks, with a cap on the total number of ticks.
 
-    Finds nice tick locations with no more than :math:`nbins + 1` being within the
+    Finds nice tick locations with no more than :math:`nbins + 1` ticks being within the
     view limits. Locations beyond the limits are added to support autoscaling.
     """
     default_params = dict(nbins=10,
@@ -2284,7 +2285,7 @@ class LogLocator(Locator):
             The default of ``(1.0, )`` places ticks only at integer powers of the base.
             Permitted string values are ``'auto'`` and ``'all'``. Both of these use an
             algorithm based on the axis view limits to determine whether and how to put
-            ticks between integer powers of the base.
+            ticks between integer powers of the base:
             - ``'auto'``: Ticks are placed only between integer powers.
             - ``'all'``: Ticks are placed between *and* at integer powers.
             - ``None``: Equivalent to ``'auto'``.
@@ -2852,7 +2853,7 @@ class LogitLocator(MaxNLocator):
 
 class AutoLocator(MaxNLocator):
     """
-    Place linearly spaced ticks, with the step size and maximum number of ticks chosen
+    Place evenly spaced ticks, with the step size and maximum number of ticks chosen
     automatically.
 
     This is a subclass of `~matplotlib.ticker.MaxNLocator`, with parameters
@@ -2874,7 +2875,7 @@ class AutoLocator(MaxNLocator):
 
 class AutoMinorLocator(Locator):
     """
-    Place linearly spaced minor ticks, with the step size and maximum number of ticks
+    Place evenly spaced minor ticks, with the step size and maximum number of ticks
     chosen automatically.
 
     The Axis scale must be linear with evenly spaced major ticks .
