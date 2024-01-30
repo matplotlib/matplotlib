@@ -313,22 +313,24 @@ def test_mappable_units(quantity_converter):
     munits.registry[Quantity] = quantity_converter
     x, y = np.meshgrid([0, 1], [0, 1])
     data = Quantity(np.arange(4).reshape(2, 2), 'hours')
+    vmin = Quantity(1, "hours")  # Test a limit different from min of the data
+    vmax = Quantity(3 * 60, "minutes")  # Test a different unit to the data
 
-    fig, axs = plt.subplots(nrows=2, ncols=2)
+    fig, axs = plt.subplots(nrows=2, ncols=2, constrained_layout=True)
 
     # imshow
     ax = axs[0, 0]
-    mappable = ax.imshow(data, origin='lower')
-    cbar = fig.colorbar(mappable, ax=ax)
+    mappable = ax.imshow(data, origin='lower', vmin=vmin, vmax=vmax)
+    cbar = fig.colorbar(mappable, ax=ax, extend="min")
 
     # pcolor
     ax = axs[0, 1]
-    mappable = ax.pcolor(x, y, data)
-    fig.colorbar(mappable, ax=ax)
+    mappable = ax.pcolor(x, y, data, vmin=vmin, vmax=vmax)
+    fig.colorbar(mappable, ax=ax, extend="min")
 
     # pcolormesh + horizontal colorbar
     ax = axs[1, 0]
-    mappable = ax.pcolormesh(x, y, data)
-    fig.colorbar(mappable, ax=ax, orientation="horizontal")
+    mappable = ax.pcolormesh(x, y, data, vmin=vmin, vmax=vmax)
+    fig.colorbar(mappable, ax=ax, orientation="horizontal", extend="min")
 
     axs[1, 1].axis("off")

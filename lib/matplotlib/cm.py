@@ -490,10 +490,14 @@ class ScalarMappable:
                 vmin, vmax = vmin
             except (TypeError, ValueError):
                 pass
-        if vmin is not None:
-            self.norm.vmin = colors._sanitize_extrema(vmin)
-        if vmax is not None:
-            self.norm.vmax = colors._sanitize_extrema(vmax)
+
+        def _process_lim(lim):
+            if self._converter is not None:
+                lim = self._converter.convert(lim, self._units, axis=None)
+            return colors._sanitize_extrema(lim)
+
+        self.norm.vmin = _process_lim(vmin)
+        self.norm.vmax = _process_lim(vmax)
 
     def get_alpha(self):
         """
