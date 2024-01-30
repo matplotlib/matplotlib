@@ -333,9 +333,10 @@ def test_mappable_units(quantity_converter):
     mappable = ax.pcolor(x, y, data, vmin=vmin, vmax=vmax)
     fig.colorbar(mappable, ax=ax, extend="min")
 
-    # pcolormesh + horizontal colorbar
+    # pcolormesh + horizontal colorbar + categorical
+    data = [["one", "two"], ["three", "four"]]
     ax = axs[1, 0]
-    mappable = ax.pcolormesh(x, y, data, vmin=vmin, vmax=vmax)
+    mappable = ax.pcolormesh(x, y, data)
     fig.colorbar(mappable, ax=ax, orientation="horizontal", extend="min")
 
     axs[1, 1].axis("off")

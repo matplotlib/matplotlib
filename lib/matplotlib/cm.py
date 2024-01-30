@@ -408,6 +408,9 @@ class ScalarMappable:
         try:
             self._units = self._converter.default_units(A, None)
         except Exception as e:
+            if isinstance(e, munits.ConversionError):
+                raise e
+
             raise RuntimeError(
                 f'{self._converter} failed when trying to return the default units for '
                 'this image. This may be because support has not been '
@@ -417,6 +420,9 @@ class ScalarMappable:
         try:
             A = self._converter.convert(A, self._units, None)
         except Exception as e:
+            if isinstance(e, munits.ConversionError):
+                raise e
+
             raise munits.ConversionError(
                 f'{self._converter} failed when trying to convert the units for this '
                 'image. This may be because support has not been implemented '

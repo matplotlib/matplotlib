@@ -14,3 +14,7 @@ convert data of more than one dimension (e.g. when plotting images the data is 2
 If a conversion interface raises an error when given ``None`` or 2D data as described
 above, this error will be re-raised when a user tries to use one of the newly supported
 plotting methods with unit-ful data.
+
+If you have a custom conversion interface you want to forbid using with image data, the
+`~.units.ConversionInterface` methods that accept a ``units`` parameter should raise
+a `matplotlib.units.ConversionError` when given ``units=None``.
