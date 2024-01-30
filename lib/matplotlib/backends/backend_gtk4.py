@@ -361,7 +361,7 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
         formats = [formats[default_format], *formats[:default_format],
                    *formats[default_format+1:]]
         dialog.add_choice('format', 'File format', formats, formats)
-        dialog.set_choice('format', formats[default_format])
+        dialog.set_choice('format', formats[0])
 
         dialog.set_current_folder(Gio.File.new_for_path(
             os.path.expanduser(mpl.rcParams['savefig.directory'])))
