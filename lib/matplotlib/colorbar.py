@@ -370,7 +370,6 @@ class Colorbar:
         self.solids_patches = []
         self.lines = []
 
-
         for spine in self.ax.spines.values():
             spine.set_visible(False)
         self.outline = self.ax.spines['outline'] = _ColorbarSpine(self.ax)
@@ -397,9 +396,12 @@ class Colorbar:
         self._reset_locator_formatter_scale()
         self._set_units_from_mappable()
 
+        if ticks is not None and self._converter is not None:
+            ticks = self._converter.convert(ticks, self._units, self._long_axis())
+
         if np.iterable(ticks):
             self._locator = ticker.FixedLocator(ticks, nbins=len(ticks))
-        else:
+        elif isinstance(ticks, ticker.Locator):
             self._locator = ticks
 
         if isinstance(format, str):
