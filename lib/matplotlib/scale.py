@@ -440,7 +440,7 @@ class SymmetricalLogScale(ScaleBase):
     """
     name = 'symlog'
 
-    def __init__(self, axis, *, base=10, linthresh=2, subs=None, linscale=1):
+    def __init__(self, axis, *, base=10, linthresh=2, subs='auto', linscale=1):
         self._transform = SymmetricalLogTransform(base, linthresh, linscale)
         self.subs = subs
 
@@ -454,7 +454,9 @@ class SymmetricalLogScale(ScaleBase):
         axis.set_major_formatter(LogFormatterSciNotation(self.base))
         axis.set_minor_locator(SymmetricalLogLocator(self.get_transform(),
                                                      self.subs))
-        axis.set_minor_formatter(NullFormatter())
+        axis.set_minor_formatter(
+            LogFormatterSciNotation(self.base,
+                                    labelOnlyBase=(self.subs != 'auto')))
 
     def get_transform(self):
         """Return the `.SymmetricalLogTransform` associated with this scale."""
