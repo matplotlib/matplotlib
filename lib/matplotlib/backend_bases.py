@@ -104,16 +104,12 @@ def _safe_pyplot_import():
         current_framework = cbook._get_running_interactive_framework()
         if current_framework is None:
             raise  # No, something else went wrong, likely with the install...
-        backend_mapping = {
-            'qt': 'qtagg',
-            'gtk3': 'gtk3agg',
-            'gtk4': 'gtk4agg',
-            'wx': 'wxagg',
-            'tk': 'tkagg',
-            'macosx': 'macosx',
-            'headless': 'agg',
-        }
-        backend = backend_mapping[current_framework]
+
+        from matplotlib.backends.registry import backendRegistry
+        backend = backendRegistry.framework_to_backend(current_framework)
+        if backend is None:
+            raise KeyError(backend)
+
         rcParams["backend"] = mpl.rcParamsOrig["backend"] = backend
         import matplotlib.pyplot as plt  # Now this should succeed.
     return plt

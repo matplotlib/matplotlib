@@ -23,6 +23,7 @@ import re
 import numpy as np
 
 from matplotlib import _api, cbook
+from matplotlib.backends.registry import BackendFilter, backendRegistry
 from matplotlib.cbook import ls_mapper
 from matplotlib.colors import Colormap, is_color_like
 from matplotlib._fontconfig_pattern import parse_fontconfig_pattern
@@ -32,20 +33,34 @@ from matplotlib._enums import JoinStyle, CapStyle
 from cycler import Cycler, cycler as ccycler
 
 
-# The capitalized forms are needed for ipython at present; this may
-# change for later versions.
-interactive_bk = [
-    'GTK3Agg', 'GTK3Cairo', 'GTK4Agg', 'GTK4Cairo',
-    'MacOSX',
-    'nbAgg',
-    'QtAgg', 'QtCairo', 'Qt5Agg', 'Qt5Cairo',
-    'TkAgg', 'TkCairo',
-    'WebAgg',
-    'WX', 'WXAgg', 'WXCairo',
-]
-non_interactive_bk = ['agg', 'cairo',
-                      'pdf', 'pgf', 'ps', 'svg', 'template']
-all_backends = interactive_bk + non_interactive_bk
+# Deprecation of module-level attributes using PEP 562
+_deprecated_interactive_bk = backendRegistry.list_builtin(BackendFilter.INTERACTIVE)
+_deprecated_non_interactive_bk = backendRegistry.list_builtin(
+    BackendFilter.NON_INTERACTIVE)
+_deprecated_all_backends = backendRegistry.list_builtin()
+
+_deprecated_names_and_args = {
+    "interactive_bk": "matplotlib.backends.registry.BackendFilter.INTERACTIVE",
+    "non_interactive_bk": "matplotlib.backends.registry.BackendFilter.NON_INTERACTIVE",
+    "all_backends": "",
+}
+
+
+def __getattr__(name):
+    if name in _deprecated_names_and_args:
+        arg = _deprecated_names_and_args[name]
+        _api.warn_deprecated(
+            "3.9.0",
+            name=name,
+            alternative="``matplotlib.backends.registry.backendRegistry"
+                f".list_builtin({arg})``",
+        )
+        return globals()[f"_deprecated_{name}"]
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def __dir__():
+    return sorted(globals().keys() | _deprecated_names_and_args.keys())
 
 
 class ValidateInStrings:
@@ -256,7 +271,7 @@ def validate_fonttype(s):
 
 
 _validate_standard_backends = ValidateInStrings(
-    'backend', all_backends, ignorecase=True)
+    'backend', backendRegistry.list_builtin(), ignorecase=True)
 _auto_backend_sentinel = object()
 
 

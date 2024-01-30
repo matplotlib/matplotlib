@@ -69,6 +69,7 @@ from matplotlib import rcsetup, rcParamsDefault, rcParamsOrig
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 from matplotlib.axes import Subplot  # noqa: F401
+from matplotlib.backends.registry import BackendFilter, backendRegistry
 from matplotlib.projections import PolarAxes
 from matplotlib import mlab  # for detrend_none, window_hanning
 from matplotlib.scale import get_scale_names  # noqa: F401
@@ -301,16 +302,10 @@ def switch_backend(newbackend: str) -> None:
 
     if newbackend is rcsetup._auto_backend_sentinel:
         current_framework = cbook._get_running_interactive_framework()
-        mapping = {'qt': 'qtagg',
-                   'gtk3': 'gtk3agg',
-                   'gtk4': 'gtk4agg',
-                   'wx': 'wxagg',
-                   'tk': 'tkagg',
-                   'macosx': 'macosx',
-                   'headless': 'agg'}
 
-        if current_framework in mapping:
-            candidates = [mapping[current_framework]]
+        if (current_framework and
+                (backend := backendRegistry.framework_to_backend(current_framework))):
+            candidates = [backend]
         else:
             candidates = []
         candidates += [
@@ -2509,10 +2504,10 @@ def polar(*args, **kwargs) -> list[Line2D]:
 # requested, ignore rcParams['backend'] and force selection of a backend that
 # is compatible with the current running interactive framework.
 if (rcParams["backend_fallback"]
-        and rcParams._get_backend_or_none() in (  # type: ignore[attr-defined]
-            set(rcsetup.interactive_bk) - {'WebAgg', 'nbAgg'})
-        and cbook._get_running_interactive_framework()):
-    rcParams._set("backend", rcsetup._auto_backend_sentinel)
+        and rcParams._get_backend_or_none() in (  # type: ignore
+            set(backendRegistry.list_builtin(BackendFilter.INTERACTIVE_NON_WEB)))
+        and cbook._get_running_interactive_framework()):  # type: ignore
+    rcParams._set("backend", rcsetup._auto_backend_sentinel)  # type: ignore
 
 # fmt: on
 
