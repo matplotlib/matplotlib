@@ -1589,7 +1589,7 @@ class PercentFormatter(Formatter):
 
 class Locator(TickHelper):
     """
-    Determine the tick locations;
+    Determine tick locations.
 
     Note that the same locator should not be used across multiple
     `~matplotlib.axis.Axis` because the locator stores references to the Axis
@@ -1679,10 +1679,10 @@ class Locator(TickHelper):
 
 class IndexLocator(Locator):
     """
-    Place a tick on every multiple of some base number of points
-    plotted, e.g., on every 5th point.  It is assumed that you are doing
-    index plotting; i.e., the axis is 0, len(data).  This is mainly
-    useful for x ticks.
+    Place ticks at every nth point plotted.
+
+    IndexLocator assumes index plotting; i.e., that the ticks are placed at integer
+    values in the range between 0 and len(data) inclusive.
     """
     def __init__(self, base, offset):
         """Place ticks every *base* data point, starting at *offset*."""
@@ -1708,12 +1708,12 @@ class IndexLocator(Locator):
 
 class FixedLocator(Locator):
     """
-    Tick locations are fixed at *locs*.  If *nbins* is not None,
-    the *locs* array of possible positions will be subsampled to
-    keep the number of ticks <= *nbins* +1.
-    The subsampling will be done to include the smallest
-    absolute value; for example, if zero is included in the
-    array of possibilities, then it is guaranteed to be one of
+    Place ticks at a set of fixed values.
+
+    If *nbins* is None ticks are placed at all values. Otherwise, the *locs* array of
+    possible positions will be subsampled to keep the number of ticks <=
+    :math:`nbins* +1`. The subsampling will be done to include the smallest absolute
+    value; for example, if zero is included in the array of possibilities, then it of
     the chosen ticks.
     """
 
@@ -1773,7 +1773,7 @@ class NullLocator(Locator):
 
 class LinearLocator(Locator):
     """
-    Determine the tick locations
+    Place ticks at evenly spaced values.
 
     The first time this function is called it will try to set the
     number of ticks to make a nice tick partitioning.  Thereafter, the
@@ -1854,8 +1854,7 @@ class LinearLocator(Locator):
 
 class MultipleLocator(Locator):
     """
-    Set a tick on each integer multiple of the *base* plus an *offset* within
-    the view interval.
+    Place ticks at every integer multiple of a base plus an offset.
     """
 
     def __init__(self, base=1.0, offset=0.0):
@@ -1983,7 +1982,9 @@ class _Edge_integer:
 
 class MaxNLocator(Locator):
     """
-    Find nice tick locations with no more than *nbins* + 1 being within the
+    Place evenly spaced ticks, with a cap on the total number of ticks.
+
+    Finds nice tick locations with no more than :math:`nbins + 1` ticks being within the
     view limits. Locations beyond the limits are added to support autoscaling.
     """
     default_params = dict(nbins=10,
@@ -2266,38 +2267,34 @@ def _is_close_to_int(x):
 
 class LogLocator(Locator):
     """
+    Place logarithmically spaced ticks.
 
-    Determine the tick locations for log axes.
-
-    Place ticks on the locations : ``subs[j] * base**i``
-
-    Parameters
-    ----------
-    base : float, default: 10.0
-        The base of the log used, so major ticks are placed at
-        ``base**n``, where ``n`` is an integer.
-    subs : None or {'auto', 'all'} or sequence of float, default: (1.0,)
-        Gives the multiples of integer powers of the base at which
-        to place ticks.  The default of ``(1.0, )`` places ticks only at
-        integer powers of the base.
-        Permitted string values are ``'auto'`` and ``'all'``.
-        Both of these use an algorithm based on the axis view
-        limits to determine whether and how to put ticks between
-        integer powers of the base.  With ``'auto'``, ticks are
-        placed only between integer powers; with ``'all'``, the
-        integer powers are included.  A value of None is
-        equivalent to ``'auto'``.
-    numticks : None or int, default: None
-        The maximum number of ticks to allow on a given axis. The default
-        of ``None`` will try to choose intelligently as long as this
-        Locator has already been assigned to an axis using
-        `~.axis.Axis.get_tick_space`, but otherwise falls back to 9.
-
+    Places ticks at the values ``subs[j] * base**i``.
     """
 
     @_api.delete_parameter("3.8", "numdecs")
     def __init__(self, base=10.0, subs=(1.0,), numdecs=4, numticks=None):
-        """Place ticks on the locations : subs[j] * base**i."""
+        """
+        Parameters
+        ----------
+        base : float, default: 10.0
+            The base of the log used, so major ticks are placed at ``base**n``, where
+            ``n`` is an integer.
+        subs : None or {'auto', 'all'} or sequence of float, default: (1.0,)
+            Gives the multiples of integer powers of the base at which to place ticks.
+            The default of ``(1.0, )`` places ticks only at integer powers of the base.
+            Permitted string values are ``'auto'`` and ``'all'``. Both of these use an
+            algorithm based on the axis view limits to determine whether and how to put
+            ticks between integer powers of the base:
+            - ``'auto'``: Ticks are placed only between integer powers.
+            - ``'all'``: Ticks are placed between *and* at integer powers.
+            - ``None``: Equivalent to ``'auto'``.
+        numticks : None or int, default: None
+            The maximum number of ticks to allow on a given axis. The default of
+            ``None`` will try to choose intelligently as long as this Locator has
+            already been assigned to an axis using `~.axis.Axis.get_tick_space`, but
+            otherwise falls back to 9.
+        """
         if numticks is None:
             if mpl.rcParams['_internal.classic_mode']:
                 numticks = 15
@@ -2464,7 +2461,7 @@ class LogLocator(Locator):
 
 class SymmetricalLogLocator(Locator):
     """
-    Determine the tick locations for symmetric log axes.
+    Place ticks spaced linearly near zero and spaced logarithmically beyond a threshold.
     """
 
     def __init__(self, transform=None, subs=None, linthresh=None, base=None):
@@ -2618,10 +2615,9 @@ class SymmetricalLogLocator(Locator):
 
 class AsinhLocator(Locator):
     """
-    An axis tick locator specialized for the inverse-sinh scale
+    Place ticks spaced evenly on an inverse-sinh scale.
 
-    This is very unlikely to have any use beyond
-    the `~.scale.AsinhScale` class.
+    Generally used with the `~.scale.AsinhScale` class.
 
     .. note::
 
@@ -2711,13 +2707,11 @@ class AsinhLocator(Locator):
 
 class LogitLocator(MaxNLocator):
     """
-    Determine the tick locations for logit axes
+    Place ticks spaced evenly on a logit scale.
     """
 
     def __init__(self, minor=False, *, nbins="auto"):
         """
-        Place ticks on the logit locations
-
         Parameters
         ----------
         nbins : int or 'auto', optional
@@ -2859,9 +2853,11 @@ class LogitLocator(MaxNLocator):
 
 class AutoLocator(MaxNLocator):
     """
-    Dynamically find major tick positions. This is actually a subclass
-    of `~matplotlib.ticker.MaxNLocator`, with parameters *nbins = 'auto'*
-    and *steps = [1, 2, 2.5, 5, 10]*.
+    Place evenly spaced ticks, with the step size and maximum number of ticks chosen
+    automatically.
+
+    This is a subclass of `~matplotlib.ticker.MaxNLocator`, with parameters
+    *nbins = 'auto'* and *steps = [1, 2, 2.5, 5, 10]*.
     """
     def __init__(self):
         """
@@ -2879,8 +2875,10 @@ class AutoLocator(MaxNLocator):
 
 class AutoMinorLocator(Locator):
     """
-    Dynamically find minor tick positions based on the positions of
-    major ticks. The scale must be linear with major ticks evenly spaced.
+    Place evenly spaced minor ticks, with the step size and maximum number of ticks
+    chosen automatically.
+
+    The Axis scale must be linear with evenly spaced major ticks .
     """
 
     def __init__(self, n=None):
