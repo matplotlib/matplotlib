@@ -324,6 +324,11 @@ def test_mappable_units(quantity_converter):
     cbar = fig.colorbar(mappable, ax=ax, extend="min")
 
     # pcolor
+    # Use datetime to check that the locator/formatter is set correctly
+    data = [[datetime(2024, 1, 1), datetime(2024, 1, 2)],
+            [datetime(2024, 1, 3), datetime(2024, 1, 4)]]
+    vmin = datetime(2024, 1, 2)
+    vmax = datetime(2024, 1, 5)
     ax = axs[0, 1]
     mappable = ax.pcolor(x, y, data, vmin=vmin, vmax=vmax)
     fig.colorbar(mappable, ax=ax, extend="min")
