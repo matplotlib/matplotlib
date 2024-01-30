@@ -192,7 +192,7 @@ class Registry(dict):
         else:
             # ... and avoid infinite recursion for pathological iterables for
             # which indexing returns instances of the same iterable class.
-            if type(first) is not type(x):
+            if isinstance(first, list) or type(first) is not type(x):
                 return self.get_converter(first)
         return None
 
