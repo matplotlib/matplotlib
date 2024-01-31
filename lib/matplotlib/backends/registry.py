@@ -31,7 +31,7 @@ class BackendRegistry:
     _BUILTIN_NOT_INTERACTIVE = [
         "agg", "cairo", "pdf", "pgf", "ps", "svg", "template",
     ]
-    _FRAMEWORK_TO_BACKEND_MAPPING = {
+    _GUI_FRAMEWORK_TO_BACKEND_MAPPING = {
         "qt": "qtagg",
         "gtk3": "gtk3agg",
         "gtk4": "gtk4agg",
@@ -41,8 +41,8 @@ class BackendRegistry:
         "headless": "agg",
     }
 
-    def framework_to_backend(self, interactive_framework):
-        return self._FRAMEWORK_TO_BACKEND_MAPPING.get(interactive_framework)
+    def backend_for_gui_framework(self, framework):
+        return self._GUI_FRAMEWORK_TO_BACKEND_MAPPING.get(framework)
 
     def list_builtin(self, filter_=None):
         if filter_ == BackendFilter.INTERACTIVE:

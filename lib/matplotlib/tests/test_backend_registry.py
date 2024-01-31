@@ -23,8 +23,8 @@ def has_duplicates(seq: Sequence[Any]) -> bool:
         ('does not exist', None),
     ]
 )
-def test_framework_to_backend(framework, expected):
-    assert backend_registry.framework_to_backend(framework) == expected
+def test_backend_for_gui_framework(framework, expected):
+    assert backend_registry.backend_for_gui_framework(framework) == expected
 
 
 def test_list_builtin():

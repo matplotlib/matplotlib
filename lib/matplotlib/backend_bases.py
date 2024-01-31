@@ -106,7 +106,7 @@ def _safe_pyplot_import():
             raise  # No, something else went wrong, likely with the install...
 
         from matplotlib.backends.registry import backend_registry
-        backend = backend_registry.framework_to_backend(current_framework)
+        backend = backend_registry.backend_for_gui_framework(current_framework)
         if backend is None:
             raise KeyError(backend)
 
