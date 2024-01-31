@@ -5,6 +5,7 @@ import sys
 import pytest
 
 import matplotlib
+from matplotlib.testing import subprocess_run_for_testing
 
 
 @pytest.mark.parametrize('version_str, version_tuple', [
@@ -26,7 +27,7 @@ def test_tmpconfigdir_warning(tmp_path):
     mode = os.stat(tmp_path).st_mode
     try:
         os.chmod(tmp_path, 0)
-        proc = subprocess.run(
+        proc = subprocess_run_for_testing(
             [sys.executable, "-c", "import matplotlib"],
             env={**os.environ, "MPLCONFIGDIR": str(tmp_path)},
             stderr=subprocess.PIPE, text=True, check=True)
@@ -36,7 +37,7 @@ def test_tmpconfigdir_warning(tmp_path):
 
 
 def test_importable_with_no_home(tmp_path):
-    subprocess.run(
+    subprocess_run_for_testing(
         [sys.executable, "-c",
          "import pathlib; pathlib.Path.home = lambda *args: 1/0; "
          "import matplotlib.pyplot"],
@@ -74,4 +75,6 @@ def test_importable_with__OO():
         "import matplotlib.patches as mpatches"
     )
     cmd = [sys.executable, "-OO", "-c", program]
-    assert subprocess.call(cmd, env={**os.environ, "MPLBACKEND": ""}) == 0
+    subprocess_run_for_testing(
+        cmd, env={**os.environ, "MPLBACKEND": ""}, check=True
+        )

@@ -29,6 +29,7 @@ from matplotlib.rcsetup import (
     validate_sketch,
     _validate_linestyle,
     _listify_validator)
+from matplotlib.testing import subprocess_run_for_testing
 
 
 def test_rcparams(tmp_path):
@@ -524,7 +525,7 @@ def test_backend_fallback_headless(tmp_path):
            "DISPLAY": "", "WAYLAND_DISPLAY": "",
            "MPLBACKEND": "", "MPLCONFIGDIR": str(tmp_path)}
     with pytest.raises(subprocess.CalledProcessError):
-        subprocess.run(
+        subprocess_run_for_testing(
             [sys.executable, "-c",
              "import matplotlib;"
              "matplotlib.use('tkagg');"
@@ -540,7 +541,7 @@ def test_backend_fallback_headless(tmp_path):
 def test_backend_fallback_headful(tmp_path):
     pytest.importorskip("tkinter")
     env = {**os.environ, "MPLBACKEND": "", "MPLCONFIGDIR": str(tmp_path)}
-    backend = subprocess.check_output(
+    backend = subprocess_run_for_testing(
         [sys.executable, "-c",
          "import matplotlib as mpl; "
          "sentinel = mpl.rcsetup._auto_backend_sentinel; "
@@ -549,7 +550,7 @@ def test_backend_fallback_headful(tmp_path):
          "assert mpl.rcParams._get('backend') == sentinel; "
          "import matplotlib.pyplot; "
          "print(matplotlib.get_backend())"],
-        env=env, text=True)
+        env=env, text=True, check=True, capture_output=True).stdout
     # The actual backend will depend on what's installed, but at least tkagg is
     # present.
     assert backend.strip().lower() != "agg"
