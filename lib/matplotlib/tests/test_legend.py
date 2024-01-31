@@ -1452,10 +1452,8 @@ def test_boxplot_legend():
             lbl_index += 1
 
     legend = axs.legend()
-    index = 0
-    for i in legend.legend_handles:
-        assert isinstance(i, mpl.patches.Rectangle)
-        assert i.get_facecolor() == colors[index]
-        assert i.get_edgecolor() == colors[index]
-        assert i.get_label() == labels[index]
-        index += 1
+    for index, handle in enumerate(legend.legend_handles):
+        assert isinstance(handle, mpl.patches.Rectangle)
+        assert handle.get_facecolor() == colors[index]
+        assert handle.get_edgecolor() == colors[index]
+        assert handle.get_label() == labels[index]
