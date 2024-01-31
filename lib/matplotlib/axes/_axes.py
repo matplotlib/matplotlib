@@ -4004,6 +4004,9 @@ class Axes(_AxesBase):
             if 'color' in boxprops:
                 boxprops['edgecolor'] = boxprops.pop('color')
 
+        if labels:
+            boxprops['label'] = labels
+
         # if non-default sym value, put it into the flier dictionary
         # the logic for providing the default symbol ('b+') now lives
         # in bxp in the initial value of flierkw
@@ -4316,13 +4319,16 @@ class Axes(_AxesBase):
                 do_box = do_patch if patch_artist else do_plot
                 boxes.append(do_box(box_x, box_y, **box_kw))
             # draw the whiskers
+            whisker_kw.setdefault('label', '_nolegend_')
             whiskers.append(do_plot(whis_x, whislo_y, **whisker_kw))
             whiskers.append(do_plot(whis_x, whishi_y, **whisker_kw))
             # maybe draw the caps
             if showcaps:
+                cap_kw.setdefault('label', '_nolegend_')
                 caps.append(do_plot(cap_x, cap_lo, **cap_kw))
                 caps.append(do_plot(cap_x, cap_hi, **cap_kw))
             # draw the medians
+            median_kw.setdefault('label', '_nolegend_')
             medians.append(do_plot(med_x, med_y, **median_kw))
             # maybe draw the means
             if showmeans:
@@ -4335,6 +4341,7 @@ class Axes(_AxesBase):
                     means.append(do_plot([pos], [stats['mean']], **mean_kw))
             # maybe draw the fliers
             if showfliers:
+                flier_kw.setdefault('label', '_nolegend_')
                 flier_x = np.full(len(stats['fliers']), pos, dtype=np.float64)
                 flier_y = stats['fliers']
                 fliers.append(do_plot(flier_x, flier_y, **flier_kw))
