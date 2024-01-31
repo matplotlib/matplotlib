@@ -87,8 +87,12 @@ jobs:
             pyqt6-ver: '!=6.6.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
-          - os: macos-latest
+          - os: macos-12  # This runnre is on Intel chips.
             python-version: 3.9
+            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
+            pyside6-ver: '!=6.5.1'
+          - os: macos-14  # This runner is on M1 (arm64) chips.
+            python-version: '3.12'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
 
