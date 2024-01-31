@@ -23,7 +23,7 @@ import re
 import numpy as np
 
 from matplotlib import _api, cbook
-from matplotlib.backends.registry import BackendFilter, backendRegistry
+from matplotlib.backends.registry import BackendFilter, backend_registry
 from matplotlib.cbook import ls_mapper
 from matplotlib.colors import Colormap, is_color_like
 from matplotlib._fontconfig_pattern import parse_fontconfig_pattern
@@ -34,10 +34,10 @@ from cycler import Cycler, cycler as ccycler
 
 
 # Deprecation of module-level attributes using PEP 562
-_deprecated_interactive_bk = backendRegistry.list_builtin(BackendFilter.INTERACTIVE)
-_deprecated_non_interactive_bk = backendRegistry.list_builtin(
+_deprecated_interactive_bk = backend_registry.list_builtin(BackendFilter.INTERACTIVE)
+_deprecated_non_interactive_bk = backend_registry.list_builtin(
     BackendFilter.NON_INTERACTIVE)
-_deprecated_all_backends = backendRegistry.list_builtin()
+_deprecated_all_backends = backend_registry.list_builtin()
 
 _deprecated_names_and_args = {
     "interactive_bk": "matplotlib.backends.registry.BackendFilter.INTERACTIVE",
@@ -52,7 +52,7 @@ def __getattr__(name):
         _api.warn_deprecated(
             "3.9.0",
             name=name,
-            alternative="``matplotlib.backends.registry.backendRegistry"
+            alternative="``matplotlib.backends.registry.backend_registry"
                 f".list_builtin({arg})``",
         )
         return globals()[f"_deprecated_{name}"]
@@ -271,7 +271,7 @@ def validate_fonttype(s):
 
 
 _validate_standard_backends = ValidateInStrings(
-    'backend', backendRegistry.list_builtin(), ignorecase=True)
+    'backend', backend_registry.list_builtin(), ignorecase=True)
 _auto_backend_sentinel = object()
 
 

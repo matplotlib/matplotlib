@@ -13,4 +13,4 @@ class BackendRegistry:
     def list_builtin(self, filter_: BackendFilter | None) -> list[str]: ...
 
 
-backendRegistry: BackendRegistry
+backend_registry: BackendRegistry

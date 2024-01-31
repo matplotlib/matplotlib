@@ -58,4 +58,4 @@ class BackendRegistry:
 
 
 # Singleton
-backendRegistry = BackendRegistry()
+backend_registry = BackendRegistry()

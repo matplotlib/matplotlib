@@ -3,7 +3,7 @@ from typing import Any
 
 import pytest
 
-from matplotlib.backends.registry import BackendFilter, backendRegistry
+from matplotlib.backends.registry import BackendFilter, backend_registry
 
 
 def has_duplicates(seq: Sequence[Any]) -> bool:
@@ -24,11 +24,11 @@ def has_duplicates(seq: Sequence[Any]) -> bool:
     ]
 )
 def test_framework_to_backend(framework, expected):
-    assert backendRegistry.framework_to_backend(framework) == expected
+    assert backend_registry.framework_to_backend(framework) == expected
 
 
 def test_list_builtin():
-    backends = backendRegistry.list_builtin()
+    backends = backend_registry.list_builtin()
     assert not has_duplicates(backends)
     # Compare using sets as order is not important
     assert set(backends) == set((
@@ -53,7 +53,7 @@ def test_list_builtin():
     ]
 )
 def test_list_builtin_with_filter(filter, expected):
-    backends = backendRegistry.list_builtin(filter)
+    backends = backend_registry.list_builtin(filter)
     assert not has_duplicates(backends)
     # Compare using sets as order is not important
     assert set(backends) == set(expected)
