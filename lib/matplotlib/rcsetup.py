@@ -1051,12 +1051,13 @@ _validators = {
                                 "bb", "frak", "scr", "regular"],
     "mathtext.fallback":       _validate_mathtext_fallback,
 
-    "image.aspect":          validate_aspect,  # equal, auto, a number
-    "image.interpolation":   validate_string,
-    "image.cmap":            _validate_cmap,  # gray, jet, etc.
-    "image.lut":             validate_int,  # lookup table
-    "image.origin":          ["upper", "lower"],
-    "image.resample":        validate_bool,
+    "image.aspect":              validate_aspect,  # equal, auto, a number
+    "image.interpolation":       validate_string,
+    "image.interpolation_stage": ["data", "rgba"],
+    "image.cmap":                _validate_cmap,  # gray, jet, etc.
+    "image.lut":                 validate_int,  # lookup table
+    "image.origin":              ["upper", "lower"],
+    "image.resample":            validate_bool,
     # Specify whether vector graphics backends will combine all images on a
     # set of Axes into a single composite image
     "image.composite_image": validate_bool,

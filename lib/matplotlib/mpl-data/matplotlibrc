@@ -603,6 +603,7 @@
 ## ***************************************************************************
 #image.aspect:          equal        # {equal, auto} or a number
 #image.interpolation:   antialiased  # see help(imshow) for options
+#image.interpolation_stage: data     # see help(imshow) for options
 #image.cmap:            viridis      # A colormap name (plasma, magma, etc.)
 #image.lut:             256          # the size of the colormap lookup table
 #image.origin:          upper        # {lower, upper}
