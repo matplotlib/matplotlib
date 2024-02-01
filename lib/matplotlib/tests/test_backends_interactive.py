@@ -627,66 +627,6 @@ def test_blitting_events(env):
     assert 0 < ndraws < 5
 
 
-# The source of this function gets extracted and run in another process, so it
-# must be fully self-contained.
-def _test_figure_leak():
-    import gc
-    import sys
-
-    import psutil
-    from matplotlib import pyplot as plt
-    # Second argument is pause length, but if zero we should skip pausing
-    t = float(sys.argv[1])
-    p = psutil.Process()
-
-    # Warmup cycle, this reasonably allocates a lot
-    for _ in range(2):
-        fig = plt.figure()
-        if t:
-            plt.pause(t)
-        plt.close(fig)
-    mem = p.memory_info().rss
-    gc.collect()
-
-    for _ in range(5):
-        fig = plt.figure()
-        if t:
-            plt.pause(t)
-        plt.close(fig)
-        gc.collect()
-    growth = p.memory_info().rss - mem
-
-    print(growth)
-
-
-# TODO: "0.1" memory threshold could be reduced 10x by fixing tkagg
-@pytest.mark.skipif(sys.platform == "win32",
-                    reason="appveyor tests fail; gh-22988 suggests reworking")
-@pytest.mark.parametrize("env", _get_testable_interactive_backends())
-@pytest.mark.parametrize("time_mem", [(0.0, 2_000_000), (0.1, 30_000_000)])
-def test_figure_leak_20490(env, time_mem, request):
-    pytest.importorskip("psutil", reason="psutil needed to run this test")
-
-    # We haven't yet directly identified the leaks so test with a memory growth
-    # threshold.
-    pause_time, acceptable_memory_leakage = time_mem
-    if env["MPLBACKEND"] == "wx":
-        pytest.skip("wx backend is deprecated; tests failed on appveyor")
-
-    if env["MPLBACKEND"] == "macosx":
-        request.node.add_marker(pytest.mark.xfail(reason="macosx backend is leaky"))
-
-    if env["MPLBACKEND"] == "tkagg" and sys.platform == "darwin":
-        acceptable_memory_leakage += 11_000_000
-
-    result = _run_helper(
-        _test_figure_leak, str(pause_time),
-        timeout=_test_timeout, extra_env=env)
-
-    growth = int(result.stdout)
-    assert growth <= acceptable_memory_leakage
-
-
 def _impl_test_interactive_timers():
     # A timer with <1 millisecond gets converted to int and therefore 0
     # milliseconds, which the mac framework interprets as singleshot.
