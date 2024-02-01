@@ -281,8 +281,6 @@ default: %(va)s
             Additional kwargs are `matplotlib.text.Text` properties.
         """
 
-        suplab = getattr(self, info['name'])
-
         x = kwargs.pop('x', None)
         y = kwargs.pop('y', None)
         if info['name'] in ['_supxlabel', '_suptitle']:
@@ -294,29 +292,24 @@ default: %(va)s
         if y is None:
             y = info['y0']
 
-        if 'horizontalalignment' not in kwargs and 'ha' not in kwargs:
-            kwargs['horizontalalignment'] = info['ha']
-        if 'verticalalignment' not in kwargs and 'va' not in kwargs:
-            kwargs['verticalalignment'] = info['va']
-        if 'rotation' not in kwargs:
-            kwargs['rotation'] = info['rotation']
+        kwargs = cbook.normalize_kwargs(kwargs, Text)
+        kwargs.setdefault('horizontalalignment', info['ha'])
+        kwargs.setdefault('verticalalignment', info['va'])
+        kwargs.setdefault('rotation', info['rotation'])
 
         if 'fontproperties' not in kwargs:
-            if 'fontsize' not in kwargs and 'size' not in kwargs:
-                kwargs['size'] = mpl.rcParams[info['size']]
-            if 'fontweight' not in kwargs and 'weight' not in kwargs:
-                kwargs['weight'] = mpl.rcParams[info['weight']]
+            kwargs.setdefault('fontsize', mpl.rcParams[info['size']])
+            kwargs.setdefault('fontweight', mpl.rcParams[info['weight']])
 
-        sup = self.text(x, y, t, **kwargs)
+        suplab = getattr(self, info['name'])
         if suplab is not None:
             suplab.set_text(t)
             suplab.set_position((x, y))
-            suplab.update_from(sup)
-            sup.remove()
+            suplab.set(**kwargs)
         else:
-            suplab = sup
+            suplab = self.text(x, y, t, **kwargs)
+            setattr(self, info['name'], suplab)
         suplab._autopos = autopos
-        setattr(self, info['name'], suplab)
         self.stale = True
         return suplab
 

@@ -80,17 +80,17 @@ def _get_text_metrics_with_cache_impl(
 @_docstring.interpd
 @_api.define_aliases({
     "color": ["c"],
-    "fontfamily": ["family"],
     "fontproperties": ["font", "font_properties"],
-    "horizontalalignment": ["ha"],
-    "multialignment": ["ma"],
+    "fontfamily": ["family"],
     "fontname": ["name"],
     "fontsize": ["size"],
     "fontstretch": ["stretch"],
     "fontstyle": ["style"],
     "fontvariant": ["variant"],
-    "verticalalignment": ["va"],
     "fontweight": ["weight"],
+    "horizontalalignment": ["ha"],
+    "verticalalignment": ["va"],
+    "multialignment": ["ma"],
 })
 class Text(Artist):
     """Handle storing and drawing of text in window or data coordinates."""
