@@ -11,6 +11,7 @@ import subprocess
 from tempfile import TemporaryDirectory
 import weakref
 
+import matplotlib.pyplot as plt
 from PIL import Image
 
 import matplotlib as mpl
@@ -1007,3 +1008,11 @@ class PdfPages:
     def get_pagecount(self):
         """Return the current number of pages in the multipage pdf file."""
         return self._n_figures
+
+
+
+import matplotlib.pyplot as plt
+x = [10,20,70]
+plt.pie(x,labels=['Coursework','Practical','Examination'],autopct='%1.1f%%')
+plt.pie([1],colors='w',radius=0.4)
+plt.show()
