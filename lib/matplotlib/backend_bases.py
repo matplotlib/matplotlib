@@ -108,7 +108,8 @@ def _safe_pyplot_import():
         from matplotlib.backends.registry import backend_registry
         backend = backend_registry.backend_for_gui_framework(current_framework)
         if backend is None:
-            raise RuntimeError(f"No suitable backend for the current GUI framework {current_framework!r}")
+            raise RuntimeError("No suitable backend for the current GUI framework "
+                               f"{current_framework!r}")
 
         rcParams["backend"] = mpl.rcParamsOrig["backend"] = backend
         import matplotlib.pyplot as plt  # Now this should succeed.
