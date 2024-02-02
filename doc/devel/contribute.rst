@@ -267,7 +267,7 @@ document's URL roughly corresponds to its location in our folder structure:
   .. grid-item:: information about the library
 
       * :file:`doc/users/installing/`
-      * :file:`doc/users/project/`
+      * :file:`doc/project/`
       * :file:`doc/users/resources/`
       * :file:`doc/users/faq.rst`
       * :file:`doc/devel/`
@@ -304,7 +304,7 @@ Matplotlib's community is built by its members, if you would like to help out
 see our :ref:`communications-guidelines`.
 
 If Matplotlib contributes to a project that leads to a scientific publication,
-please follow the :doc:`/users/project/citing` guidelines.
+please follow the :doc:`/project/citing` guidelines.
 
 If you have developed an extension to Matplotlib, please consider adding it to our
 `third party package <https://github.com/matplotlib/mpl-third-party>`_  list.

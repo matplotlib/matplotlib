@@ -58,7 +58,7 @@ repos:
           "--ignore-words",
           "ci/codespell-ignore-words.txt",
           "--skip",
-          "doc/users/project/credits.rst"
+          "doc/project/credits.rst"
           ]
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2

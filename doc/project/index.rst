@@ -1,4 +1,5 @@
 .. redirect-from:: /users/backmatter
+.. redirect-from:: /users/project/index
 
 Project information
 ===================
