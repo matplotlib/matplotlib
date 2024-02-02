@@ -73,7 +73,7 @@ When the labels cannot directly be set on the handles, they can be directly pass
 
 If the handles are not directly accessible, for example when using some
 `Third-party packages <https://matplotlib.org/mpl-third-party/>`_, they can be accessed
-via `.Axes.get_legend_handles_and_labels`. Here we use a dictionary to rename existing
+via `.Axes.get_legend_handles_labels`. Here we use a dictionary to rename existing
 labels::
 
     my_map = {'Line Up':'Up', 'Line Down':'Down'}
