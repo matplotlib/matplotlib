@@ -59,13 +59,27 @@ the appropriate handles directly to :func:`legend`::
     line_down, = ax.plot([3, 2, 1], label='Line 1')
     ax.legend(handles=[line_up, line_down])
 
-In the rare case where the labels cannot directly be set on the handles, they
-can also be directly passed to :func:`legend`::
+Renaming legend entries
+-----------------------
+
+When the labels cannot directly be set on the handles, they can be directly passed to
+`.Axes.legend`::
 
     fig, ax = plt.subplots()
     line_up, = ax.plot([1, 2, 3], label='Line 2')
     line_down, = ax.plot([3, 2, 1], label='Line 1')
     ax.legend([line_up, line_down], ['Line Up', 'Line Down'])
+
+
+If the handles are not directly accessible, for example when using some
+`Third-party packages <https://matplotlib.org/mpl-third-party/>`_, they can be accessed
+via `.Axes.get_legend_handles_and_labels`. Here we use a dictionary to rename existing
+labels::
+
+    my_map = {'Line Up':'Up', 'Line Down':'Down'}
+
+    handles, labels = ax.get_legend_handles_labels()
+    ax.legend(handles, [my_map[l] for l in labels])
 
 
 .. _proxy_legend_handles:
