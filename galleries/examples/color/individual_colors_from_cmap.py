@@ -7,50 +7,54 @@ Sometimes we want to use more colors or a different set of colors than the defau
 cycle provides. Selecting individual colors from one of the provided colormaps can be a
 convenient way to do this.
 
-Once we have hold of a `.Colormap` instance, the individual colors can be accessed
-by passing it an index.  If we want a specific number of colors taken at regular
-intervals from a continuous colormap, we can create a new colormap using the
-`~.Colormap.resampled` method.
+We can retrieve colors from any `.Colormap` by calling it with a float or a list of
+floats in the range [0, 1]; e.g. ``cmap(0.5)`` will give the middle color. See also
+`.Colormap.__call__`.
 
-For more details about manipulating colormaps, see :ref:`colormap-manipulation`.
+Extracting colors from a continuous colormap
+--------------------------------------------
 """
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 import matplotlib as mpl
 
 n_lines = 21
+cmap = mpl.colormaps['plasma']
 
-cmap = mpl.colormaps.get_cmap('plasma').resampled(n_lines)
+# Take colors at regular intervals spanning the colormap.
+colors = cmap(np.linspace(0, 1, n_lines))
 
 fig, ax = plt.subplots(layout='constrained')
 
-for i in range(n_lines):
-    ax.plot([0, i], color=cmap(i))
+for i, color in enumerate(colors):
+    ax.plot([0, i], color=color)
 
 plt.show()
 
 # %%
-# Instead of passing colors one by one to `~.Axes.plot`, we can replace the default
-# color cycle with a different set of colors.  Specifying a `~cycler.cycler` instance
-# within `.rcParams` achieves that.  See :ref:`color_cycle` for details.
+#
+# Extracting colors from a discrete colormap
+# ------------------------------------------
+# The list of all colors in a `.ListedColormap` is available as the ``colors``
+# attribute.
 
+colors = mpl.colormaps['Dark2'].colors
 
-from cycler import cycler
+fig, ax = plt.subplots(layout='constrained')
 
-cmap = mpl.colormaps.get_cmap('Dark2')
-colors = cmap(range(cmap.N))  # cmap.N is number of unique colors in the colormap
-
-with mpl.rc_context({'axes.prop_cycle': cycler(color=colors)}):
-
-    fig, ax = plt.subplots(layout='constrained')
-
-    for i in range(n_lines):
-        ax.plot([0, i])
+for i, color in enumerate(colors):
+    ax.plot([0, i], color=color)
 
 plt.show()
 
 # %%
+# See Also
+# --------
+#
+# For more details about manipulating colormaps, see :ref:`colormap-manipulation`.  To
+# change the default color cycle, see :ref:`color_cycle`.
 #
 # .. admonition:: References
 #
