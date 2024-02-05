@@ -3,6 +3,7 @@
 
 .. redirect-from:: /faq/installing_faq
 .. redirect-from:: /users/faq/installing_faq
+.. redirect-from:: /users/installing/environment_variables_faq
 
 =====================
 Environment variables
