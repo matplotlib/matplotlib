@@ -1268,7 +1268,8 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         if edgecolors.size == 0:
             edgecolors = ("none",)
         for idx in range(n_paths):
-            with cbook._setattr_cm(self, _paths=[paths[idx]]), self._cm_set(
+            with self._cm_set(
+                paths=[paths[idx]],
                 hatch=self.hatches[idx % len(self.hatches)],
                 array=[self.get_array()[idx]],
                 linewidths=[self.get_linewidths()[idx % len(self.get_linewidths())]],
