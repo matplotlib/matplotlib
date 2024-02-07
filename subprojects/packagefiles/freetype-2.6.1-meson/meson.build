@@ -1,6 +1,12 @@
 project('freetype2', 'c',
-  license : ['FTL', 'GPL2'],
-  version: '2.6.1')
+  version: '2.6.1',
+  license: '(FTL OR GPL-2.0-or-later) AND BSD-3-Clause AND MIT AND MIT-Modern-Variant AND Zlib',
+  license_files: [
+    'docs/LICENSE.TXT',
+    'docs/FTL.TXT',
+    'docs/GPLv2.TXT',
+  ],
+  meson_version: '>=1.1.0')
 
 # NOTE about FreeType versions
 # There are 3 versions numbers associated with each releases:
