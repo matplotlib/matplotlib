@@ -2986,6 +2986,10 @@ class Axes3D(Axes):
         # Normalize rows of UVW
         norm = np.linalg.norm(UVW, axis=1)
 
+        # If any row of UVW is all zeros, don't make a quiver for it
+        if normalize:
+            UVW = UVW / norm.reshape((-1, 1))
+
         if len(XYZ) > 0:
             # compute the shaft lines all at once with an outer product
             shafts = (XYZ - np.multiply.outer(shaft_dt, UVW)).swapaxes(0, 1)
