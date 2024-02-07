@@ -134,7 +134,7 @@ def test_jpl_bar_units():
     day = units.Duration("ET", 24.0 * 60.0 * 60.0)
     x = [0 * units.km, 1 * units.km, 2 * units.km]
     w = [1 * day, 2 * day, 3 * day]
-    b = units.Epoch("ET", dt=datetime(2009, 4, 25))
+    b = units.Epoch("ET", dt=datetime(2009, 4, 26))
     fig, ax = plt.subplots()
     ax.bar(x, w, bottom=b)
     ax.set_ylim([b - 1 * day, b + w[-1] + (1.001) * day])
@@ -149,11 +149,22 @@ def test_jpl_barh_units():
     day = units.Duration("ET", 24.0 * 60.0 * 60.0)
     x = [0 * units.km, 1 * units.km, 2 * units.km]
     w = [1 * day, 2 * day, 3 * day]
-    b = units.Epoch("ET", dt=datetime(2009, 4, 25))
+    b = units.Epoch("ET", dt=datetime(2009, 4, 26))
 
     fig, ax = plt.subplots()
     ax.barh(x, w, left=b)
     ax.set_xlim([b - 1 * day, b + w[-1] + (1.001) * day])
+
+
+def test_jpl_datetime_units_consistent():
+    import matplotlib.testing.jpl_units as units
+    units.register()
+
+    dt = datetime(2009, 4, 26)
+    jpl = units.Epoch("ET", dt=dt)
+    dt_conv = munits.registry.get_converter(dt).convert(dt, None, None)
+    jpl_conv = munits.registry.get_converter(jpl).convert(jpl, None, None)
+    assert dt_conv == jpl_conv
 
 
 def test_empty_arrays():
