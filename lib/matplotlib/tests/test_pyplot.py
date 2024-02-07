@@ -43,8 +43,8 @@ def test_pyplot_up_to_date(tmp_path):
 
 
 def test_copy_docstring_and_deprecators(recwarn):
-    @mpl._api.rename_parameter("(version)", "old", "new")
-    @mpl._api.make_keyword_only("(version)", "kwo")
+    @mpl._api.rename_parameter(mpl.__version__, "old", "new")
+    @mpl._api.make_keyword_only(mpl.__version__, "kwo")
     def func(new, kwo=None):
         pass
 
