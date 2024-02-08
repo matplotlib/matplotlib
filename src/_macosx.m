@@ -461,6 +461,8 @@ FigureCanvas__start_event_loop(FigureCanvas* self, PyObject* args, PyObject* key
         return NULL;
     }
 
+    Py_BEGIN_ALLOW_THREADS
+
     NSDate* date =
         (timeout > 0.0) ? [NSDate dateWithTimeIntervalSinceNow: timeout]
                         : [NSDate distantFuture];
@@ -472,6 +474,8 @@ FigureCanvas__start_event_loop(FigureCanvas* self, PyObject* args, PyObject* key
        if (!event || [event type]==NSEventTypeApplicationDefined) { break; }
        [NSApp sendEvent: event];
     }
+
+    Py_END_ALLOW_THREADS
 
     Py_RETURN_NONE;
 }
