@@ -12,10 +12,35 @@ Release guide
    A guide for developers who are doing a Matplotlib release.
 
 
-.. note::
 
-   This assumes that a read-only remote for the canonical repository is
-   ``remote`` and a read/write remote is ``DANGER``
+Versioning Scheme
+=================
+
+Maplotlib follows the `Intended Effort Versioning (EffVer) <https://jacobtomlinson.dev/effver/>`_
+versioning scheme: *macro.meso.micro*.
+
+
+*macro*
+  A release that we expect a large effort from our users to upgrade to.  The v1 to v2 transition
+  included a complete overhaul of the default styles and the v2 to v3 transition involved
+  dropping support for Python 2.
+
+  Future macro versions would include changes of a comparable scale that can not be done
+  incrementally in meso releases.
+
+*meso*
+  A release that we expect some effort from our users to upgrade to.  We target a
+  *Meso* release every 6 months.  These release are primarily intended to release
+  new features to our users, however they also contain intentional feature deprecations and
+  removals per :ref:`our policy <deprecation-guidelines>`.
+
+*micro*
+  A release that we expect users to require little to no effort to upgrade to.  Per
+  our :ref:`backport-strategy` we only backport bug fixes to the maintenance branch.
+  We expect minimal impact on users other than possibly breaking work arounds to a
+  fixed bug or `bugs being used as features <https://xkcd.com/1172/>`_.
+
+  These are released as-needed, but typically every 1-2 months between meso releases.
 
 
 .. _release_feature_freeze:
@@ -23,9 +48,15 @@ Release guide
 Making the release branch
 =========================
 
-When a new minor release (vX.Y.0) is approaching, a new release branch must be made.
+.. note::
+
+   This assumes that a read-only remote for the canonical repository is
+   ``remote`` and a read/write remote is ``DANGER``
+
+
+When a new meso release (vX.Y.0) is approaching, a new release branch must be made.
 When precisely this should happen is up to the release manager, but this point is where
-most new features intended for the minor release are merged and you are entering a
+most new features intended for the meso release are merged and you are entering a
 feature freeze (i.e. newly implemented features will be going into vX.Y+1).
 This does not necessarily mean that no further changes will be made prior to release,
 just that those changes will be made using the backport system.
@@ -50,12 +81,12 @@ Micro versions should instead read::
    on-merge: backport to v3.7.x
 
 Check all active milestones for consistency. Older milestones should also backport
-to higher minor versions (e.g. ``v3.6.3`` and ``v3.6-doc`` should backport to both
+to higher meso versions (e.g. ``v3.6.3`` and ``v3.6-doc`` should backport to both
 ``v3.6.x`` and ``v3.7.x`` once the ``v3.7.x`` branch exists and while PR backports are
 still targeting ``v3.6.x``)
 
-Create the milestone for the next-next minor release (i.e. ``v3.9.0``, as ``v3.8.0``
-should already exist). While most active items should go in the next minor release,
+Create the milestone for the next-next meso release (i.e. ``v3.9.0``, as ``v3.8.0``
+should already exist). While most active items should go in the next meso release,
 this milestone can help with longer term planning, especially around deprecation
 cycles.
 
@@ -142,15 +173,15 @@ are going to tag on and delete the doc branch on GitHub.
 Update supported versions in Security Policy
 --------------------------------------------
 
-When making major or minor releases, update the supported versions in the Security
+When making macro or meso releases, update the supported versions in the Security
 Policy in :file:`SECURITY.md`.
 
-For minor version release update the table in :file:`SECURITY.md` to specify that the
-two most recent minor releases in the current major version series are supported.
+For meso version release update the table in :file:`SECURITY.md` to specify that the
+two most recent meso releases in the current macro version series are supported.
 
-For a major version release update the table in :file:`SECURITY.md` to specify that the
-last minor version in the previous major version series is still supported. Dropping
-support for the last version of a major version series will be handled on an ad-hoc
+For a macro version release update the table in :file:`SECURITY.md` to specify that the
+last meso version in the previous macro version series is still supported. Dropping
+support for the last version of a macro version series will be handled on an ad-hoc
 basis.
 
 Update release notes
@@ -159,7 +190,7 @@ Update release notes
 What's new
 ^^^^^^^^^^
 
-*Only needed for major and minor releases. Bugfix releases should not have new
+*Only needed for macro and meso releases. Bugfix releases should not have new
 features.*
 
 Merge the contents of all the files in :file:`doc/users/next_whats_new/` into a single
@@ -169,8 +200,8 @@ files.
 API changes
 ^^^^^^^^^^^
 
-*Primarily needed for major and minor releases. We may sometimes have API
-changes in bugfix releases.*
+*Primarily needed for macro and meso releases. We may sometimes have API
+changes in micro releases.*
 
 Merge the contents of all the files in :file:`doc/api/next_api_changes/` into a single
 file :file:`doc/api/prev_api_changes/api_changes_{X}.{Y}.{Z}.rst` and delete the
@@ -181,7 +212,7 @@ Release notes TOC
 
 Update :file:`doc/users/release_notes.rst`:
 
-- For major and minor releases add a new section
+- For macro and meso releases add a new section
 
   .. code:: rst
 
@@ -193,7 +224,7 @@ Update :file:`doc/users/release_notes.rst`:
          prev_whats_new/whats_new_X.Y.0.rst
          ../api/prev_api_changes/api_changes_X.Y.0.rst
          prev_whats_new/github_stats_X.Y.0.rst
-- For bugfix releases add the GitHub stats and (if present) the API changes to
+- For micro releases add the GitHub stats and (if present) the API changes to
   the existing X.Y section
 
   .. code:: rst
@@ -206,8 +237,8 @@ Update version switcher
 
 Update ``doc/_static/switcher.json``:
 
-- If a bugfix release, :samp:`{X}.{Y}.{Z}`, no changes are needed.
-- If a major release, :samp:`{X}.{Y}.0`, change the name of :samp:`name: {X}.{Y+1}
+- If a micro release, :samp:`{X}.{Y}.{Z}`, no changes are needed.
+- If a macro release, :samp:`{X}.{Y}.0`, change the name of :samp:`name: {X}.{Y+1}
   (dev)` and :samp:`name: {X}.{Y} (stable)` as well as adding a new version for the
   previous stable (:samp:`name: {X}.{Y-1}`).
 
@@ -259,8 +290,8 @@ Finally, push the tag to GitHub::
 
 Congratulations, the scariest part is done!
 This assumes the release branch has already been made.
-Usually this is done at the time of feature freeze for a minor release (which often
-coincides with the last patch release of the previous minor version)
+Usually this is done at the time of feature freeze for a meso release (which often
+coincides with the last micro release of the previous meso version)
 
 .. [#] The tarball that is provided by GitHub is produced using `git archive`_.
        We use setuptools_scm_ which uses a format string in
@@ -298,7 +329,7 @@ with the ``v3.7-doc`` milestone to both the ``v3.7.x`` branch and the ``v3.7.0-d
    on-merge: backport to v3.7.0-doc
 
 Check all active milestones for consistency. Older doc milestones should also backport to
-higher minor versions (e.g. ``v3.6-doc`` should backport to both ``v3.6.x`` and ``v3.7.x``
+higher meso versions (e.g. ``v3.6-doc`` should backport to both ``v3.6.x`` and ``v3.7.x``
 if the ``v3.7.x`` branch exists)
 
 

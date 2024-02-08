@@ -75,8 +75,8 @@ static PyObject *PyFT2Image_draw_rect(PyFT2Image *self, PyObject *args)
 {
     char const* msg =
         "FT2Image.draw_rect is deprecated since Matplotlib 3.8 and will be removed "
-        "two minor releases later as it is not used in the library. If you rely on "
-        "it, please let us know.";
+        "in Matplotlib 3.10 releases later as it is not used in the library. "
+        "If you rely on it, please let us know.";
     if (PyErr_WarnEx(PyExc_DeprecationWarning, msg, 1)) {
         return NULL;
     }
@@ -841,7 +841,7 @@ static PyObject *PyFT2Font_get_xys(PyFT2Font *self, PyObject *args, PyObject *kw
 {
     char const* msg =
         "FT2Font.get_xys is deprecated since Matplotlib 3.8 and will be removed two "
-        "minor releases later as it is not used in the library. If you rely on it, "
+        "meso releases later as it is not used in the library. If you rely on it, "
         "please let us know.";
     if (PyErr_WarnEx(PyExc_DeprecationWarning, msg, 1)) {
         return NULL;
