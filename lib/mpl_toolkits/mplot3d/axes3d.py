@@ -2984,10 +2984,9 @@ class Axes3D(Axes):
         UVW = np.column_stack(input_args[3:]).astype(float)
 
         # Normalize rows of UVW
-        norm = np.linalg.norm(UVW, axis=1)
-
-        # If any row of UVW is all zeros, don't make a quiver for it
         if normalize:
+            norm = np.linalg.norm(UVW, axis=1)
+            norm[norm == 0] = 1
             UVW = UVW / norm.reshape((-1, 1))
 
         if len(XYZ) > 0:
