@@ -547,6 +547,8 @@ FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keyw
             close(channel[0]);
     }
 
+    Py_BEGIN_ALLOW_THREADS
+
     NSDate* date =
         (timeout > 0.0) ? [NSDate dateWithTimeIntervalSinceNow: timeout]
                         : [NSDate distantFuture];
@@ -558,6 +560,8 @@ FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keyw
        if (!event || [event type]==NSEventTypeApplicationDefined) { break; }
        [NSApp sendEvent: event];
     }
+
+    Py_END_ALLOW_THREADS
 
     if (py_sigint_handler) { PyOS_setsig(SIGINT, py_sigint_handler); }
     if (sigint_socket) { CFSocketInvalidate(sigint_socket); }
