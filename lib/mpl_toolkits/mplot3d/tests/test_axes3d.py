@@ -836,7 +836,8 @@ def test_mixedsamplesraises():
         ax.plot_surface(X, Y, Z, cstride=50, rcount=10)
 
 
-@mpl3d_image_comparison(['quiver3d.png'], style='mpl20')
+# remove tolerance when regenerating the test image
+@mpl3d_image_comparison(['quiver3d.png'], style='mpl20', tol=0.003)
 def test_quiver3d():
     plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
@@ -1555,7 +1556,8 @@ def test_minor_ticks():
     ax.set_zticklabels(["half"], minor=True)
 
 
-@mpl3d_image_comparison(['errorbar3d_errorevery.png'], style='mpl20')
+# remove tolerance when regenerating the test image
+@mpl3d_image_comparison(['errorbar3d_errorevery.png'], style='mpl20', tol=0.003)
 def test_errorbar3d_errorevery():
     """Tests errorevery functionality for 3D errorbars."""
     t = np.arange(0, 2*np.pi+.1, 0.01)
