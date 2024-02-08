@@ -3,7 +3,6 @@ Test output reproducibility.
 """
 
 import os
-import subprocess
 import sys
 
 import pytest
