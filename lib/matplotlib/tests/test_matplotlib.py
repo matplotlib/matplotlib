@@ -74,7 +74,7 @@ def test_importable_with__OO():
         "import matplotlib.cbook as cbook; "
         "import matplotlib.patches as mpatches"
     )
-    cmd = [sys.executable, "-OO", "-c", program]
     subprocess_run_for_testing(
-        cmd, env={**os.environ, "MPLBACKEND": ""}, check=True
+        [sys.executable, "-OO", "-c", program],
+        env={**os.environ, "MPLBACKEND": ""}, check=True
         )

@@ -277,13 +277,7 @@ def _test_threading():
 def test_fontcache_thread_safe():
     pytest.importorskip('threading')
 
-    proc = subprocess_run_helper(
-        _test_threading,
-        timeout=10
-    )
-    if proc.returncode:
-        pytest.fail("The subprocess returned with non-zero exit status "
-                    f"{proc.returncode}.")
+    subprocess_run_helper(_test_threading, timeout=10)
 
 
 def test_fontentry_dataclass():

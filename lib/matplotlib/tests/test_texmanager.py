@@ -1,15 +1,14 @@
 import os
 from pathlib import Path
 import re
-
 import sys
 
-import matplotlib.pyplot as plt
-from matplotlib.texmanager import TexManager
-from matplotlib.testing._markers import needs_usetex
 import pytest
 
+import matplotlib.pyplot as plt
 from matplotlib.testing import subprocess_run_for_testing
+from matplotlib.testing._markers import needs_usetex
+from matplotlib.texmanager import TexManager
 
 
 def test_fontconfig_preamble():
