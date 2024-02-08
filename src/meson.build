@@ -52,7 +52,7 @@ if devnull == 'not-given'
 endif
 
 # Will only exist on Linux with older glibc.
-dl = cc.find_library('dl', required: false)
+dl = dependency('dl', required: false)
 
 # With Meson >= 1.2.0, use cpp_winlibs instead of manually searching.
 if ['cygwin', 'windows'].contains(host_machine.system())

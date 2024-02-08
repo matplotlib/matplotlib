@@ -1,6 +1,10 @@
 project('qhull', 'c',
   version: '8.0.2',
-  license: 'Qhull')
+  license: 'Qhull',
+  license_files: [
+    'COPYING.txt',
+  ],
+  meson_version: '>=1.1.0')
 
 qhull_inc = include_directories('src')
 qhull_lib = static_library('qhull_r',
