@@ -2506,7 +2506,8 @@ def polar(*args, **kwargs) -> list[Line2D]:
 # is compatible with the current running interactive framework.
 if (rcParams["backend_fallback"]
         and rcParams._get_backend_or_none() in (  # type: ignore
-            backend_registry.list_builtin(BackendFilter.INTERACTIVE_NON_WEB))
+            set(backend_registry.list_builtin(BackendFilter.INTERACTIVE)) -
+            {'WebAgg', 'nbAgg'})
         and cbook._get_running_interactive_framework()):  # type: ignore
     rcParams._set("backend", rcsetup._auto_backend_sentinel)  # type: ignore
 

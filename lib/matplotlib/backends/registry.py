@@ -3,8 +3,7 @@ from enum import Enum
 
 class BackendFilter(Enum):
     INTERACTIVE = 0
-    INTERACTIVE_NON_WEB = 1
-    NON_INTERACTIVE = 2
+    NON_INTERACTIVE = 1
 
 
 class BackendRegistry:
@@ -47,9 +46,6 @@ class BackendRegistry:
     def list_builtin(self, filter_=None):
         if filter_ == BackendFilter.INTERACTIVE:
             return self._BUILTIN_INTERACTIVE
-        elif filter_ == BackendFilter.INTERACTIVE_NON_WEB:
-            return list(filter(lambda x: x.lower() not in ("webagg", "nbagg"),
-                               self._BUILTIN_INTERACTIVE))
         elif filter_ == BackendFilter.NON_INTERACTIVE:
             return self._BUILTIN_NOT_INTERACTIVE
 

@@ -3,7 +3,6 @@ from enum import Enum
 
 class BackendFilter(Enum):
     INTERACTIVE: int
-    INTERACTIVE_NON_WEB: int
     NON_INTERACTIVE: int
 
 

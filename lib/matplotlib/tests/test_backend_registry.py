@@ -45,9 +45,6 @@ def test_list_builtin():
          ['GTK3Agg', 'GTK3Cairo', 'GTK4Agg', 'GTK4Cairo', 'MacOSX', 'nbAgg', 'QtAgg',
           'QtCairo', 'Qt5Agg', 'Qt5Cairo', 'TkAgg', 'TkCairo', 'WebAgg', 'WX', 'WXAgg',
            'WXCairo']),
-        (BackendFilter.INTERACTIVE_NON_WEB,
-         ['GTK3Agg', 'GTK3Cairo', 'GTK4Agg', 'GTK4Cairo', 'MacOSX', 'QtAgg', 'QtCairo',
-          'Qt5Agg', 'Qt5Cairo', 'TkAgg', 'TkCairo', 'WX', 'WXAgg', 'WXCairo']),
         (BackendFilter.NON_INTERACTIVE,
          ['agg', 'cairo', 'pdf', 'pgf', 'ps', 'svg', 'template']),
     ]
