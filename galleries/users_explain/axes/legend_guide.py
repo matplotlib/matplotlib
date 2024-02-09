@@ -260,7 +260,7 @@ fig, ax = plt.subplots()
 line1, = ax.plot([3, 2, 1], marker='o', label='Line 1')
 line2, = ax.plot([1, 2, 3], marker='o', label='Line 2')
 
-ax.legend(handler_map={line1: HandlerLine2D(numpoints=4)})
+ax.legend(handler_map={line1: HandlerLine2D(numpoints=4)}, handlelength=4)
 
 # %%
 # As you can see, "Line 1" now has 4 marker points, where "Line 2" has 2 (the
