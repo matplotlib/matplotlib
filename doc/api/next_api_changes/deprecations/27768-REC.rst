@@ -1,0 +1,5 @@
+``[XYZ]Axis.draw``, ``*Image.draw`` *args* and *kwargs*...
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... are deprecated because they have no effect.  This will make the calling sequence
+consistent with the ``draw`` method of other artists.

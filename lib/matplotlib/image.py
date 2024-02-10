@@ -626,6 +626,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         return False
 
+    @_api.delete_parameter('3.9', 'args')
+    @_api.delete_parameter('3.9', 'kwargs')
     @martist.allow_rasterization
     def draw(self, renderer, *args, **kwargs):
         # if not visible, declare victory and return
