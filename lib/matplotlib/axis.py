@@ -1373,6 +1373,8 @@ class Axis(martist.Artist):
             values.append(self.minorTicks[0].get_tick_padding())
         return max(values, default=0)
 
+    @_api.delete_parameter('3.9', 'args')
+    @_api.delete_parameter('3.9', 'kwargs')
     @martist.allow_rasterization
     def draw(self, renderer, *args, **kwargs):
         # docstring inherited
