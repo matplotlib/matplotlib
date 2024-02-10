@@ -3278,7 +3278,8 @@ class NavigationToolbar2:
         Returns
         -------
         str or `None`
-            The filepath of the saved figure. For GTK4 and WebAgg backends it returns `None`.
+            The filepath of the saved figure.
+            For GTK4 and WebAgg backends it returns `None`.
             Returns `None` if figure is not saved.
         """
         raise NotImplementedError

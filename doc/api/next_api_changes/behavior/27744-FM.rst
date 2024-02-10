@@ -1,0 +1,6 @@
+``NavigationToolbar2.save_figure`` now returns filepath of saved figure
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``NavigationToolbar2.save_figure`` function return the filename of the saved figure.
+If no figure is save then it returns None.
+For GTK4 backend and Web backend the still returns None.
