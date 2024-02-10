@@ -1,6 +1,7 @@
 import os
 
 import pytest
+from unittest import mock
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -44,3 +45,14 @@ def test_savefig_rcparam(monkeypatch, tmp_path):
         # Check the savefig.directory rcParam got updated because
         # we added a subdirectory "test"
         assert mpl.rcParams["savefig.directory"] == f"{tmp_path}/test"
+
+
+@pytest.mark.backend('macosx')
+def test_save_figure_return():
+    fig, ax = plt.subplots()
+    ax.imshow([[1]])
+    prop = "matplotlib.backends._macosx.choose_save_file"
+    with mock.patch(prop, return_value="foobar.png"):
+        fname = fig.canvas.manager.toolbar.save_figure()
+        os.remove("foobar.png")
+        assert fname == "foobar.png"
