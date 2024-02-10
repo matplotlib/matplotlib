@@ -3276,13 +3276,18 @@ class NavigationToolbar2:
     def save_figure(self, *args):
         """
         Save the current figure.
+        
+        Backend implementations may choose to return
+        the absolute path of the saved file, if any, as
+        a string.
+        
+        If no file is created or the backend does not implement
+        this functionality then `None` is returned.
 
         Returns
         -------
         str or `None`
             The filepath of the saved figure.
-            For GTK4 and WebAgg backends it returns `None`.
-            Returns `None` if figure is not saved.
         """
         raise NotImplementedError
 
