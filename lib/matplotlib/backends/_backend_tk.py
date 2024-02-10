@@ -884,6 +884,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             self.canvas.figure.savefig(fname, format=extension)
         except Exception as e:
             tkinter.messagebox.showerror("Error saving file", str(e))
+        return fname
 
     def set_history_buttons(self):
         state_map = {True: tk.NORMAL, False: tk.DISABLED}

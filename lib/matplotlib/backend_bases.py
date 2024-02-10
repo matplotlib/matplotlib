@@ -3272,7 +3272,14 @@ class NavigationToolbar2:
         return self.subplot_tool
 
     def save_figure(self, *args):
-        """Save the current figure."""
+        """
+        Save the current figure.
+
+        Returns
+        -------
+        str or `None`
+            The filepath of the saved figure. For GTK4 and Web backends it returns None.
+        """
         raise NotImplementedError
 
     def update(self):

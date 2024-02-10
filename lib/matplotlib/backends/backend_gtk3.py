@@ -383,6 +383,7 @@ class NavigationToolbar2GTK3(_NavigationToolbar2GTK, Gtk.Toolbar):
                 type=Gtk.MessageType.ERROR, buttons=Gtk.ButtonsType.OK)
             dialog.run()
             dialog.destroy()
+        return fname
 
 
 class ToolbarGTK3(ToolContainerBase, Gtk.Box):
