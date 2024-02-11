@@ -405,7 +405,6 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
     def save_figure(self, *args):
         """Save the current figure."""
         self.canvas.send_event('save')
-        return self.UNKNOWN_SAVED_STATUS
 
     def pan(self):
         super().pan()

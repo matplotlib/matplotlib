@@ -840,6 +840,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                     self, "Error saving file", str(e),
                     QtWidgets.QMessageBox.StandardButton.Ok,
                     QtWidgets.QMessageBox.StandardButton.NoButton)
+        return self.NO_FILE_SAVED
 
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0

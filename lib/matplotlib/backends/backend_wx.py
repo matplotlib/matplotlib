@@ -1150,7 +1150,8 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                     caption='Matplotlib error')
                 dialog.ShowModal()
                 dialog.Destroy()
-    
+        return self.NO_FILE_SAVED
+
     def draw_rubberband(self, event, x0, y0, x1, y1):
         height = self.canvas.figure.bbox.height
         sf = 1 if wx.Platform == '__WXMSW__' else self.canvas.GetDPIScaleFactor()
