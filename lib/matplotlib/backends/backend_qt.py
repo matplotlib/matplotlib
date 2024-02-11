@@ -834,12 +834,12 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                 mpl.rcParams['savefig.directory'] = os.path.dirname(fname)
             try:
                 self.canvas.figure.savefig(fname)
+                return fname
             except Exception as e:
                 QtWidgets.QMessageBox.critical(
                     self, "Error saving file", str(e),
                     QtWidgets.QMessageBox.StandardButton.Ok,
                     QtWidgets.QMessageBox.StandardButton.NoButton)
-            return fname
 
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0
