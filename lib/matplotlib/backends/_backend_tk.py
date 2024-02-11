@@ -867,7 +867,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             )
 
         if fname in ["", ()]:
-            return self.FILE_NOT_SAVED
+            return
         # Save dir for next time, unless empty str (i.e., use cwd).
         if initialdir != "":
             mpl.rcParams['savefig.directory'] = (
