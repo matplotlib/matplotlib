@@ -2867,7 +2867,7 @@ class NavigationToolbar2:
         ('Save', 'Save the figure', 'filesave', 'save_figure'),
       )
 
-    UNKNOWN_SAVED_STATUS = object()
+    NO_FILE_SAVED = object()
 
     def __init__(self, canvas):
         self.canvas = canvas
@@ -3233,18 +3233,18 @@ class NavigationToolbar2:
         the absolute path of the saved file, if any, as
         a string.
 
-        If no file is created then `None` is returned.
+        If no file is created then `NavigationToolbar2.NO_FILE_SAVED`
+        is returned.
 
         If the backend does not implement this functionality
-        then `NavigationToolbar2.UNKNOWN_SAVED_STATUS` is returned.
+        then `None` is returned.
 
         Returns
         -------
-        str or `None` or `NavigationToolbar2.UNKNOWN_SAVED_STATUS`
+        str or `NavigationToolbar2.NO_FILE_SAVED` or `None`
             The filepath of the saved figure.
-            Returns `None` if figure is not saved.
-            For GTK4 and WebAgg backends it returns
-            `NavigationToolbar2.UNKNOWN_SAVED_STATUS`.
+            Returns `NavigationToolbar2.NO_FILE_SAVED` if figure is not saved.
+            Returns `None` when the backend does not provide the information.
         """
         raise NotImplementedError
 
