@@ -3229,12 +3229,22 @@ class NavigationToolbar2:
         """
         Save the current figure.
 
+        Backend implementations may choose to return
+        the absolute path of the saved file, if any, as
+        a string.
+
+        If no file is created then `None` is returned.
+
+        If the backend does not implement this functionality
+        then `NavigationToolbar2.UNKNOWN_SAVED_STATUS` is returned.
+
         Returns
         -------
-        str or `None`
+        str or `None` or `NavigationToolbar2.UNKNOWN_SAVED_STATUS`
             The filepath of the saved figure.
-            For GTK4 and WebAgg backends it returns `None`.
             Returns `None` if figure is not saved.
+            For GTK4 and WebAgg backends it returns
+            `NavigationToolbar2.UNKNOWN_SAVED_STATUS`.
         """
         raise NotImplementedError
 
