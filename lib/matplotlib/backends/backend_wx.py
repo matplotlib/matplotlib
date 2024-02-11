@@ -1143,14 +1143,14 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                 mpl.rcParams["savefig.directory"] = str(path.parent)
             try:
                 self.canvas.figure.savefig(path, format=fmt)
+                return path
             except Exception as e:
                 dialog = wx.MessageDialog(
                     parent=self.canvas.GetParent(), message=str(e),
                     caption='Matplotlib error')
                 dialog.ShowModal()
                 dialog.Destroy()
-            return path
-
+    
     def draw_rubberband(self, event, x0, y0, x1, y1):
         height = self.canvas.figure.bbox.height
         sf = 1 if wx.Platform == '__WXMSW__' else self.canvas.GetDPIScaleFactor()
