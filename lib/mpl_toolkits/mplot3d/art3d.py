@@ -448,6 +448,11 @@ class Patch3D(Patch):
                            for ((x, y), z) in zip(verts, zs)]
 
     def get_path(self):
+        # docstring inherited
+        # self._path2d is not initialized until do_3d_projection
+        if not hasattr(self, '_path2d'):
+            self.axes.M = self.axes.get_proj()
+            self.do_3d_projection()
         return self._path2d
 
     def do_3d_projection(self):
@@ -821,14 +826,17 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
 
     Parameters
     ----------
+    col : `~matplotlib.collections.PatchCollection` or \
+`~matplotlib.collections.PathCollection`
+        The collection to convert.
     zs : float or array of floats
         The location or locations to place the patches in the collection along
         the *zdir* axis. Default: 0.
     zdir : {'x', 'y', 'z'}
         The axis in which to place the patches. Default: "z".
         See `.get_dir_vector` for a description of the values.
-    depthshade
-        Whether to shade the patches to give a sense of depth. Default: *True*.
+    depthshade : bool, default: True
+        Whether to shade the patches to give a sense of depth.
 
     """
     if isinstance(col, PathCollection):
@@ -1112,6 +1120,8 @@ def poly_collection_2d_to_3d(col, zs=0, zdir='z'):
 
     Parameters
     ----------
+    col : `~matplotlib.collections.PolyCollection`
+        The collection to convert.
     zs : float or array of floats
         The location or locations to place the polygons in the collection along
         the *zdir* axis. Default: 0.

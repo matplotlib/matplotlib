@@ -26,10 +26,10 @@ supported user APIs.
 # In :mod:`matplotlib.pyplot` various states are preserved
 # across function calls, so that it keeps track of things like
 # the current figure and plotting area, and the plotting
-# functions are directed to the current axes (please note that "axes" here
-# and in most places in the documentation refers to the *axes*
+# functions are directed to the current Axes (please note that we use uppercase
+# Axes to refer to the `~.axes.Axes` concept, which is a central
 # :ref:`part of a figure <figure_parts>`
-# and not the strict mathematical term for more than one axis).
+# and not only the plural of *axis*).
 #
 # .. note::
 #
@@ -81,7 +81,7 @@ plt.show()
 # list of line styles and format strings.  The
 # `~.pyplot.axis` function in the example above takes a
 # list of ``[xmin, xmax, ymin, ymax]`` and specifies the viewport of the
-# axes.
+# Axes.
 #
 # If matplotlib were limited to working with lists, it would be fairly
 # useless for numeric processing.  Generally, you will use `numpy
@@ -241,12 +241,12 @@ plt.show()
 # .. _multiple-figs-axes:
 #
 #
-# Working with multiple figures and axes
+# Working with multiple figures and Axes
 # ======================================
 #
 # MATLAB, and :mod:`.pyplot`, have the concept of the current figure
-# and the current axes.  All plotting functions apply to the current
-# axes.  The function `~.pyplot.gca` returns the current axes (a
+# and the current Axes.  All plotting functions apply to the current
+# Axes.  The function `~.pyplot.gca` returns the current Axes (a
 # `matplotlib.axes.Axes` instance), and `~.pyplot.gcf` returns the current
 # figure (a `matplotlib.figure.Figure` instance). Normally, you don't have to
 # worry about this, because it is all taken care of behind the scenes.  Below
@@ -278,17 +278,17 @@ plt.show()
 # to ``subplot(2, 1, 1)``.
 #
 # You can create an arbitrary number of subplots
-# and axes.  If you want to place an Axes manually, i.e., not on a
+# and Axes.  If you want to place an Axes manually, i.e., not on a
 # rectangular grid, use `~.pyplot.axes`,
 # which allows you to specify the location as ``axes([left, bottom,
 # width, height])`` where all values are in fractional (0 to 1)
 # coordinates.  See :doc:`/gallery/subplots_axes_and_figures/axes_demo` for an example of
-# placing axes manually and :doc:`/gallery/subplots_axes_and_figures/subplot` for an
+# placing Axes manually and :doc:`/gallery/subplots_axes_and_figures/subplot` for an
 # example with lots of subplots.
 #
 # You can create multiple figures by using multiple
 # `~.pyplot.figure` calls with an increasing figure
-# number.  Of course, each figure can contain as many axes and subplots
+# number.  Of course, each figure can contain as many Axes and subplots
 # as your heart desires::
 #
 #     import matplotlib.pyplot as plt
@@ -309,8 +309,8 @@ plt.show()
 #     plt.title('Easy as 1, 2, 3') # subplot 211 title
 #
 # You can clear the current figure with `~.pyplot.clf`
-# and the current axes with `~.pyplot.cla`.  If you find
-# it annoying that states (specifically the current image, figure and axes)
+# and the current Axes with `~.pyplot.cla`.  If you find
+# it annoying that states (specifically the current image, figure and Axes)
 # are being maintained for you behind the scenes, don't despair: this is just a thin
 # stateful wrapper around an object-oriented API, which you can use
 # instead (see :ref:`artists_tutorial`)

@@ -327,6 +327,10 @@ This allows users to set the location of the legend in a more flexible and consi
 Mathtext improvements
 =====================
 
+Improvements are to Mathtext, Matplotlib's native TeX-like mathematics parser
+(see :ref:`mathtext`, not to be confused with Matplotlib using LaTeX directly:
+:ref:`usetex`).
+
 Boldsymbol mathtext command ``\boldsymbol``
 -------------------------------------------
 

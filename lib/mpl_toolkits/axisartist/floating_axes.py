@@ -158,11 +158,8 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
                     bottom=(lat1, 1),
                     top=(lat2, 1))[side]
 
-    def new_fixed_axis(self, loc,
-                       nth_coord=None,
-                       axis_direction=None,
-                       offset=None,
-                       axes=None):
+    def new_fixed_axis(
+            self, loc, nth_coord=None, axis_direction=None, offset=None, axes=None):
         if axes is None:
             axes = self.axes
         if axis_direction is None:
@@ -179,23 +176,16 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
 
     # new_floating_axis will inherit the grid_helper's extremes.
 
-    # def new_floating_axis(self, nth_coord,
-    #                       value,
-    #                       axes=None,
-    #                       axis_direction="bottom"
-    #                       ):
-
+    # def new_floating_axis(self, nth_coord, value, axes=None, axis_direction="bottom"):
     #     axis = super(GridHelperCurveLinear,
     #                  self).new_floating_axis(nth_coord,
     #                                          value, axes=axes,
     #                                          axis_direction=axis_direction)
-
     #     # set extreme values of the axis helper
     #     if nth_coord == 1:
     #         axis.get_helper().set_extremes(*self._extremes[:2])
     #     elif nth_coord == 0:
     #         axis.get_helper().set_extremes(*self._extremes[2:])
-
     #     return axis
 
     def _update_grid(self, x1, y1, x2, y2):
@@ -291,8 +281,6 @@ class FloatingAxesBase:
         self.set_ylim(bbox.ymin, bbox.ymax)
 
 
-floatingaxes_class_factory = cbook._make_class_factory(
-    FloatingAxesBase, "Floating{}")
-FloatingAxes = floatingaxes_class_factory(
-    host_axes_class_factory(axislines.Axes))
+floatingaxes_class_factory = cbook._make_class_factory(FloatingAxesBase, "Floating{}")
+FloatingAxes = floatingaxes_class_factory(host_axes_class_factory(axislines.Axes))
 FloatingSubplot = FloatingAxes

@@ -113,8 +113,8 @@ fig.tight_layout()
 # Selectively marking horizontal regions across the whole Axes
 # ------------------------------------------------------------
 # The same selection mechanism can be applied to fill the full vertical height
-# of the axes. To be independent of y-limits, we add a transform that
-# interprets the x-values in data coordinates and the y-values in axes
+# of the Axes. To be independent of y-limits, we add a transform that
+# interprets the x-values in data coordinates and the y-values in Axes
 # coordinates.
 #
 # The following example marks the regions in which the y-data are above a

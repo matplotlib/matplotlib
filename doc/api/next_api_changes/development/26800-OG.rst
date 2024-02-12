@@ -1,0 +1,14 @@
+Increase to minimum supported versions of dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For Matplotlib 3.9, the :ref:`minimum supported versions <dependencies>` are
+being bumped:
+
++------------+-----------------+---------------+
+| Dependency |  min in mpl3.8  | min in mpl3.9 |
++============+=================+===============+
+|   NumPy    |       1.21.0    |      1.23.0   |
++------------+-----------------+---------------+
+
+This is consistent with our :ref:`min_deps_policy` and `NEP29
+<https://numpy.org/neps/nep-0029-deprecation_policy.html>`__

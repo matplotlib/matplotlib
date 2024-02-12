@@ -1,0 +1,5 @@
+Mixing positional and keyword arguments for ``legend`` handles and labels
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This previously only raised a warning, but is now formally deprecated.  If
+passing *handles* and *labels*, they must be passed either both positionally or
+both as keyword.

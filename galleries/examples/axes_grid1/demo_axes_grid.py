@@ -3,7 +3,7 @@
 Demo Axes Grid
 ==============
 
-Grid of 2x2 images with a single colorbar or with one colorbar per axes.
+Grid of 2x2 images with a single colorbar or with one colorbar per Axes.
 """
 
 import matplotlib.pyplot as plt
@@ -17,13 +17,13 @@ extent = (-3, 4, -4, 3)
 
 
 # A grid of 2x2 images with 0.05 inch pad between images and only the
-# lower-left axes is labeled.
+# lower-left Axes is labeled.
 grid = ImageGrid(
     fig, 141,  # similar to fig.add_subplot(141).
      nrows_ncols=(2, 2), axes_pad=0.05, label_mode="1")
 for ax in grid:
     ax.imshow(Z, extent=extent)
-# This only affects axes in first column and second row as share_all=False.
+# This only affects Axes in first column and second row as share_all=False.
 grid.axes_llc.set(xticks=[-2, 0, 2], yticks=[-2, 0, 2])
 
 
@@ -37,7 +37,7 @@ for ax in grid:
 grid.cbar_axes[0].colorbar(im)
 for cax in grid.cbar_axes:
     cax.tick_params(labeltop=False)
-# This affects all axes as share_all = True.
+# This affects all Axes as share_all = True.
 grid.axes_llc.set(xticks=[-2, 0, 2], yticks=[-2, 0, 2])
 
 
@@ -50,7 +50,7 @@ for ax, cax in zip(grid, grid.cbar_axes):
     im = ax.imshow(Z, extent=extent)
     cax.colorbar(im)
     cax.tick_params(labeltop=False)
-# This affects all axes as share_all = True.
+# This affects all Axes as share_all = True.
 grid.axes_llc.set(xticks=[-2, 0, 2], yticks=[-2, 0, 2])
 
 
@@ -65,7 +65,7 @@ for ax, cax, vlim in zip(grid, grid.cbar_axes, limits):
     im = ax.imshow(Z, extent=extent, vmin=vlim[0], vmax=vlim[1])
     cb = cax.colorbar(im)
     cb.set_ticks((vlim[0], vlim[1]))
-# This affects all axes as share_all = True.
+# This affects all Axes as share_all = True.
 grid.axes_llc.set(xticks=[-2, 0, 2], yticks=[-2, 0, 2])
 
 

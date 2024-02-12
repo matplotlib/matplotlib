@@ -239,8 +239,8 @@ class Axes(_AxesBase):
             selection by using a label starting with an underscore, "_".
             A string starting with an underscore is the default label for all
             artists, so calling `.Axes.legend` without any arguments and
-            without setting the labels manually will result in no legend being
-            drawn.
+            without setting the labels manually will result in a ``UserWarning``
+            and an empty legend being drawn.
 
 
         **2. Explicitly listing the artists and labels in the legend**
@@ -280,7 +280,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        handles : sequence of (`.Artist` or tuple of `.Artist`), optional
+        handles : list of (`.Artist` or tuple of `.Artist`), optional
             A list of Artists (lines, patches) to be added to the legend.
             Use this together with *labels*, if you need full control on what
             is shown in the legend and the automatic mechanism described above
@@ -331,9 +331,6 @@ class Axes(_AxesBase):
         """
         Add a child inset Axes to this existing Axes.
 
-        Warnings
-        --------
-        This method is experimental as of 3.0, and the API may change.
 
         Parameters
         ----------
@@ -460,8 +457,8 @@ class Axes(_AxesBase):
             visibility to True if the automatic choice is not deemed correct.
 
         """
-        # to make the axes connectors work, we need to apply the aspect to
-        # the parent axes.
+        # to make the Axes connectors work, we need to apply the aspect to
+        # the parent Axes.
         self.apply_aspect()
 
         if transform is None:
@@ -632,7 +629,10 @@ class Axes(_AxesBase):
         """
         Add text to the Axes.
 
-        Add the text *s* to the Axes at location *x*, *y* in data coordinates.
+        Add the text *s* to the Axes at location *x*, *y* in data coordinates,
+        with a default ``horizontalalignment`` on the ``left`` and
+        ``verticalalignment`` at the ``baseline``. See
+        :doc:`/gallery/text_labels_and_annotations/text_alignment`.
 
         Parameters
         ----------
@@ -895,7 +895,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        `.Line2D`
+        `.AxLine`
 
         Other Parameters
         ----------------
@@ -1979,6 +1979,8 @@ class Axes(_AxesBase):
         Parameters
         ----------
         x : array-like
+            Not run through Matplotlib's unit conversion, so this should
+            be a unit-less array.
 
         detrend : callable, default: `.mlab.detrend_none` (no detrending)
             A detrending function applied to *x*.  It must have the
@@ -2056,6 +2058,8 @@ class Axes(_AxesBase):
         Parameters
         ----------
         x, y : array-like of length n
+            Neither *x* nor *y* are run through Matplotlib's unit conversion, so
+            these should be unit-less arrays.
 
         detrend : callable, default: `.mlab.detrend_none` (no detrending)
             A detrending function applied to *x* and *y*.  It must have the
@@ -3007,11 +3011,10 @@ class Axes(_AxesBase):
             A format string defining the properties of the baseline.
 
         orientation : {'vertical', 'horizontal'}, default: 'vertical'
-            If 'vertical', will produce a plot with stems oriented vertically,
-            If 'horizontal', the stems will be oriented horizontally.
+            The orientation of the stems.
 
         bottom : float, default: 0
-            The y/x-position of the baseline (depending on orientation).
+            The y/x-position of the baseline (depending on *orientation*).
 
         label : str, default: None
             The label to use for the stems in legends.
@@ -3683,6 +3686,11 @@ class Axes(_AxesBase):
                     f"'{dep_axis}err' (shape: {np.shape(err)}) must be a "
                     f"scalar or a 1D or (2, n) array-like whose shape matches "
                     f"'{dep_axis}' (shape: {np.shape(dep)})") from None
+            if err.dtype is np.dtype(object) and np.any(err == None):  # noqa: E711
+                raise ValueError(
+                    f"'{dep_axis}err' must not contain None. "
+                    "Use NaN if you want to skip a value.")
+
             res = np.zeros(err.shape, dtype=bool)  # Default in case of nan
             if np.any(np.less(err, -err, out=res, where=(err == err))):
                 # like err<0, but also works for timedelta and nan.
@@ -3996,6 +4004,9 @@ class Axes(_AxesBase):
             if 'color' in boxprops:
                 boxprops['edgecolor'] = boxprops.pop('color')
 
+        if labels:
+            boxprops['label'] = labels
+
         # if non-default sym value, put it into the flier dictionary
         # the logic for providing the default symbol ('b+') now lives
         # in bxp in the initial value of flierkw
@@ -4308,13 +4319,16 @@ class Axes(_AxesBase):
                 do_box = do_patch if patch_artist else do_plot
                 boxes.append(do_box(box_x, box_y, **box_kw))
             # draw the whiskers
+            whisker_kw.setdefault('label', '_nolegend_')
             whiskers.append(do_plot(whis_x, whislo_y, **whisker_kw))
             whiskers.append(do_plot(whis_x, whishi_y, **whisker_kw))
             # maybe draw the caps
             if showcaps:
+                cap_kw.setdefault('label', '_nolegend_')
                 caps.append(do_plot(cap_x, cap_lo, **cap_kw))
                 caps.append(do_plot(cap_x, cap_hi, **cap_kw))
             # draw the medians
+            median_kw.setdefault('label', '_nolegend_')
             medians.append(do_plot(med_x, med_y, **median_kw))
             # maybe draw the means
             if showmeans:
@@ -4327,6 +4341,7 @@ class Axes(_AxesBase):
                     means.append(do_plot([pos], [stats['mean']], **mean_kw))
             # maybe draw the fliers
             if showfliers:
+                flier_kw.setdefault('label', '_nolegend_')
                 flier_x = np.full(len(stats['fliers']), pos, dtype=np.float64)
                 flier_y = stats['fliers']
                 fliers.append(do_plot(flier_x, flier_y, **flier_kw))
@@ -4873,8 +4888,8 @@ default: :rc:`scatter.edgecolors`
         yscale : {'linear', 'log'}, default: 'linear'
             Use a linear or log10 scale on the vertical axis.
 
-        mincnt : int > 0, default: *None*
-            If not *None*, only display cells with more than *mincnt*
+        mincnt : int >= 0, default: *None*
+            If not *None*, only display cells with at least *mincnt*
             number of points in the cell.
 
         marginals : bool, default: *False*
@@ -4941,6 +4956,11 @@ default: :rc:`scatter.edgecolors`
             - `numpy.sum`: integral of the point values
             - `numpy.amax`: value taken from the largest point
 
+            By default will only reduce cells with at least 1 point because some
+            reduction functions (such as `numpy.amax`) will error/warn with empty
+            input. Changing *mincnt* will adjust the cutoff, and if set to 0 will
+            pass empty input to the reduction function.
+
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
 
@@ -4983,6 +5003,10 @@ default: :rc:`scatter.edgecolors`
             ty = np.log10(ty)
         if extent is not None:
             xmin, xmax, ymin, ymax = extent
+            if xmin > xmax:
+                raise ValueError("In extent, xmax must be greater than xmin")
+            if ymin > ymax:
+                raise ValueError("In extent, ymax must be greater than ymin")
         else:
             xmin, xmax = (tx.min(), tx.max()) if len(x) else (0, 1)
             ymin, ymax = (ty.min(), ty.max()) if len(y) else (0, 1)
@@ -5038,7 +5062,7 @@ default: :rc:`scatter.edgecolors`
                 else:
                     Cs_at_i2[i2[i]].append(C[i])
             if mincnt is None:
-                mincnt = 0
+                mincnt = 1
             accum = np.array(
                 [reduce_C_function(acc) if len(acc) >= mincnt else np.nan
                  for Cs_at_i in [Cs_at_i1, Cs_at_i2]
@@ -5094,10 +5118,10 @@ default: :rc:`scatter.edgecolors`
             )
 
         # Set normalizer if bins is 'log'
-        if bins == 'log':
+        if cbook._str_equal(bins, 'log'):
             if norm is not None:
                 _api.warn_external("Only one of 'bins' and 'norm' arguments "
-                                   f"can be supplied, ignoring bins={bins}")
+                                   f"can be supplied, ignoring {bins=}")
             else:
                 norm = mcolors.LogNorm(vmin=vmin, vmax=vmax)
                 vmin = vmax = None
@@ -5766,7 +5790,7 @@ default: :rc:`scatter.edgecolors`
         im.set_data(X)
         im.set_alpha(alpha)
         if im.get_clip_path() is None:
-            # image does not already have clipping set, clip to axes patch
+            # image does not already have clipping set, clip to Axes patch
             im.set_clip_path(self.patch)
         im._scale_norm(norm, vmin, vmax)
         im.set_url(url)
@@ -6163,7 +6187,7 @@ default: :rc:`scatter.edgecolors`
             and *Y* should be the same as those of *C* (if not, a ValueError
             will be raised).  For ``'nearest'`` the color ``C[i, j]`` is
             centered on ``(X[i, j], Y[i, j])``.  For ``'gouraud'``, a smooth
-            interpolation is caried out between the quadrilateral corners.
+            interpolation is carried out between the quadrilateral corners.
 
             If *X* and/or *Y* are 1-D arrays or column vectors they will be
             expanded as needed into the appropriate 2D arrays, making a
@@ -6503,7 +6527,7 @@ default: :rc:`scatter.edgecolors`
             ret._scale_norm(norm, vmin, vmax)
 
         if ret.get_clip_path() is None:
-            # image does not already have clipping set, clip to axes patch
+            # image does not already have clipping set, clip to Axes patch
             ret.set_clip_path(self.patch)
 
         ret.sticky_edges.x[:] = [xl, xr]
@@ -8455,7 +8479,7 @@ such objects
 
     def _get_aspect_ratio(self):
         """
-        Convenience method to calculate the aspect ratio of the axes in
+        Convenience method to calculate the aspect ratio of the Axes in
         the display coordinate system.
         """
         figure_size = self.get_figure().get_size_inches()

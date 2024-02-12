@@ -15,6 +15,11 @@ Here we briefly discuss how to choose between the many options.  For
 help on creating your own colormaps, see
 :ref:`colormap-manipulation`.
 
+To get a list of all registered colormaps, you can do::
+
+    from matplotlib import colormaps
+    list(colormaps)
+
 Overview
 ========
 

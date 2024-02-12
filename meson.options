@@ -1,0 +1,30 @@
+# Options may be set by passing through `pip` or `build` via meson-python:
+# https://meson-python.readthedocs.io/en/stable/how-to-guides/config-settings.html
+
+# By default, Matplotlib downloads and builds its own copies of FreeType and of
+# Qhull. You may use the following options to instead link against a system
+# FreeType/Qhull. As an exception, Matplotlib defaults to the system version of
+# FreeType on AIX.
+option('system-freetype', type: 'boolean', value: false,
+       description: 'Build against system version of FreeType')
+option('system-qhull', type: 'boolean', value: false,
+       description: 'Build against system version of Qhull')
+
+# Some of Matplotlib's components are optional: the MacOSX backend (installed
+# by default on macOS; requires the Cocoa headers included with XCode). You
+# can control whether they are installed using the following options. Note that
+# the MacOSX backend is never built on Linux or Windows, regardless of the
+# config value.
+option('macosx', type: 'boolean', value: true,
+       description: 'Enable MacOSX backend (requires Cocoa)')
+
+# User-configurable options
+#
+# Default backend, one of: Agg, Cairo, GTK3Agg, GTK3Cairo, GTK4Agg, GTK4Cairo,
+# MacOSX, Pdf, Ps, QtAgg, QtCairo, SVG, TkAgg, WX, WXAgg.
+#
+# The Agg, Ps, Pdf and SVG backends do not require external dependencies.  Do
+# not choose MacOSX if you have disabled the relevant extension modules.  The
+# default is determined by fallback.
+option('rcParams-backend', type: 'string', value: 'auto',
+       description: 'Set default backend at runtime')

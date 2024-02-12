@@ -272,7 +272,7 @@ class GridSpecBase:
         # don't mutate kwargs passed by user...
         subplot_kw = subplot_kw.copy()
 
-        # Create array to hold all axes.
+        # Create array to hold all Axes.
         axarr = np.empty((self._nrows, self._ncols), dtype=object)
         for row in range(self._nrows):
             for col in range(self._ncols):

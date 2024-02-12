@@ -285,7 +285,7 @@ class Axis(maxis.XAxis):
 
         # Project the bounds along the current position of the cube:
         bounds = mins[0], maxs[0], mins[1], maxs[1], mins[2], maxs[2]
-        bounds_proj = self.axes._tunit_cube(bounds, self.axes.M)
+        bounds_proj = self.axes._transformed_cube(bounds)
 
         # Determine which one of the parallel planes are higher up:
         means_z0 = np.zeros(3)

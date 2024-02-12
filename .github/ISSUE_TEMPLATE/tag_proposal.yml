@@ -1,0 +1,27 @@
+name: Tag Proposal
+description: Suggest a new tag or subcategory for the gallery of examples
+title: "[Tag]: "
+labels: [Tag proposal]
+body:
+  - type: markdown
+    attributes:
+      value: |
+         Please search the [tag glossary]() for relevant tags before creating a new tag proposal.
+  - type: textarea
+    id: need
+    attributes:
+      label: Need
+      description: Briefly describe the need this tag will fill. (1-4 sentences)
+      placeholder: |
+        * A tag is needed for examples that share [...]
+        * Existing tags do not work because [...]
+        * Current gallery examples that would use this tag include [...]
+        * Indicate which subcategory this tag falls under, or whether a new subcategory is proposed.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: >
+        What should the tag be? All tags are in the format `subcategory: tag`

@@ -6,8 +6,8 @@ Colorbar Tick Labelling
 Vertical colorbars have ticks, tick labels, and labels visible on the *y* axis,
 horizontal colorbars on the *x* axis. The ``ticks`` parameter can be used to
 set the ticks and the ``format`` parameter can be used to format the tick labels
-of the visible colorbar axes. For further adjustments, the ``yaxis`` or
-``xaxis`` axes of the colorbar can be retrieved using its ``ax`` property.
+of the visible colorbar Axes. For further adjustments, the ``yaxis`` or
+``xaxis`` Axes of the colorbar can be retrieved using its ``ax`` property.
 """
 import matplotlib.pyplot as plt
 import numpy as np

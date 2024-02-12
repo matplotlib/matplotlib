@@ -22,11 +22,17 @@ author's initials. Typically, each change will get its own file, but you may
 also amend existing files when suitable. The overall goal is a comprehensible
 documentation of the changes.
 
-Please avoid using references in section titles, as it causes links to be
-confusing in the table of contents. Instead, ensure that a reference is
-included in the descriptive text. A typical entry could look like this::
+A typical entry could look like this::
 
    Locators
    ~~~~~~~~
    The unused `Locator.autoscale()` method is deprecated (pass the axis
    limits to `Locator.view_limits()` instead).
+
+Please avoid using references in section titles, as it causes links to be
+confusing in the table of contents. Instead, ensure that a reference is
+included in the descriptive text.
+
+.. NOTE
+   Lines 5-30 of this file are include in :ref:`api_whats_new`;
+   therefore, please check the doc build after changing this file.

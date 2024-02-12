@@ -1,15 +1,5 @@
 {{ fullname | escape | underline}}
 
-{% if fullname in ['mpl_toolkits.axes_grid1.colorbar'] %}
-
-.. To prevent problems with the autosummary for the colorbar doc treat this
-   separately (sphinx-doc/sphinx/issues/4874)
-
-.. automodule:: {{ fullname }}
-   :members:
-
-{% else %}
-
 .. automodule:: {{ fullname }}
    :no-members:
    :no-inherited-members:
@@ -45,4 +35,3 @@ Functions
 
 {% endif %}
 {% endblock %}
-{% endif %}

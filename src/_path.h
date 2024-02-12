@@ -113,7 +113,7 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
     size_t i;
     bool all_done;
 
-    size_t n = points.size();
+    size_t n = safe_first_shape(points);
 
     std::vector<uint8_t> yflag0(n);
     std::vector<uint8_t> subpath_flag(n);
@@ -247,7 +247,7 @@ inline void points_in_path(PointArray &points,
     typedef agg::conv_contour<curve_t> contour_t;
 
     size_t i;
-    for (i = 0; i < points.size(); ++i) {
+    for (i = 0; i < safe_first_shape(points); ++i) {
         result[i] = false;
     }
 
@@ -379,14 +379,14 @@ void get_path_collection_extents(agg::trans_affine &master_transform,
                                  agg::trans_affine &offset_trans,
                                  extent_limits &extent)
 {
-    if (offsets.size() != 0 && offsets.dim(1) != 2) {
+    if (offsets.size() != 0 && offsets.shape(1) != 2) {
         throw std::runtime_error("Offsets array must have shape (N, 2)");
     }
 
     size_t Npaths = paths.size();
-    size_t Noffsets = offsets.size();
+    size_t Noffsets = safe_first_shape(offsets);
     size_t N = std::max(Npaths, Noffsets);
-    size_t Ntransforms = std::min(transforms.size(), N);
+    size_t Ntransforms = std::min(safe_first_shape(transforms), N);
     size_t i;
 
     agg::trans_affine trans;
@@ -436,9 +436,9 @@ void point_in_path_collection(double x,
         return;
     }
 
-    size_t Noffsets = offsets.size();
+    size_t Noffsets = safe_first_shape(offsets);
     size_t N = std::max(Npaths, Noffsets);
-    size_t Ntransforms = std::min(transforms.size(), N);
+    size_t Ntransforms = std::min(safe_first_shape(transforms), N);
     size_t i;
 
     agg::trans_affine trans;
@@ -709,11 +709,11 @@ clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside, std::vecto
 template <class VerticesArray, class ResultArray>
 void affine_transform_2d(VerticesArray &vertices, agg::trans_affine &trans, ResultArray &result)
 {
-    if (vertices.size() != 0 && vertices.dim(1) != 2) {
+    if (vertices.size() != 0 && vertices.shape(1) != 2) {
         throw std::runtime_error("Invalid vertices array.");
     }
 
-    size_t n = vertices.size();
+    size_t n = vertices.shape(0);
     double x;
     double y;
     double t0;
@@ -739,7 +739,7 @@ void affine_transform_2d(VerticesArray &vertices, agg::trans_affine &trans, Resu
 template <class VerticesArray, class ResultArray>
 void affine_transform_1d(VerticesArray &vertices, agg::trans_affine &trans, ResultArray &result)
 {
-    if (vertices.dim(0) != 2) {
+    if (vertices.shape(0) != 2) {
         throw std::runtime_error("Invalid vertices array.");
     }
 
@@ -776,7 +776,7 @@ int count_bboxes_overlapping_bbox(agg::rect_d &a, BBoxArray &bboxes)
         std::swap(a.y1, a.y2);
     }
 
-    size_t num_bboxes = bboxes.size();
+    size_t num_bboxes = safe_first_shape(bboxes);
     for (size_t i = 0; i < num_bboxes; ++i) {
         b = agg::rect_d(bboxes(i, 0, 0), bboxes(i, 0, 1), bboxes(i, 1, 0), bboxes(i, 1, 1));
 
@@ -856,7 +856,7 @@ inline bool segments_intersect(const double &x1,
 template <class PathIterator1, class PathIterator2>
 bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
 {
-    typedef PathNanRemover<py::PathIterator> no_nans_t;
+    typedef PathNanRemover<mpl::PathIterator> no_nans_t;
     typedef agg::conv_curve<no_nans_t> curve_t;
 
     if (p1.total_vertices() < 2 || p2.total_vertices() < 2) {
@@ -920,7 +920,7 @@ bool path_intersects_rectangle(PathIterator &path,
                                double rect_x2, double rect_y2,
                                bool filled)
 {
-    typedef PathNanRemover<py::PathIterator> no_nans_t;
+    typedef PathNanRemover<mpl::PathIterator> no_nans_t;
     typedef agg::conv_curve<no_nans_t> curve_t;
 
     if (path.total_vertices() == 0) {
@@ -966,7 +966,7 @@ void convert_path_to_polygons(PathIterator &path,
                               int closed_only,
                               std::vector<Polygon> &result)
 {
-    typedef agg::conv_transform<py::PathIterator> transformed_path_t;
+    typedef agg::conv_transform<mpl::PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removal_t;
     typedef PathClipper<nan_removal_t> clipped_t;
     typedef PathSimplifier<clipped_t> simplify_t;
@@ -1032,7 +1032,7 @@ void cleanup_path(PathIterator &path,
                   std::vector<double> &vertices,
                   std::vector<unsigned char> &codes)
 {
-    typedef agg::conv_transform<py::PathIterator> transformed_path_t;
+    typedef agg::conv_transform<mpl::PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removal_t;
     typedef PathClipper<nan_removal_t> clipped_t;
     typedef PathSnapper<clipped_t> snapped_t;
@@ -1189,7 +1189,7 @@ bool convert_to_string(PathIterator &path,
                        std::string& buffer)
 {
     size_t buffersize;
-    typedef agg::conv_transform<py::PathIterator> transformed_path_t;
+    typedef agg::conv_transform<mpl::PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removal_t;
     typedef PathClipper<nan_removal_t> clipped_t;
     typedef PathSimplifier<clipped_t> simplify_t;

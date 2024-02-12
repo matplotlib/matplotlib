@@ -1,0 +1,4 @@
+Boxplots now ignore masked data points
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`~matplotlib.axes.Axes.boxplot` and `~matplotlib.cbook.boxplot_stats` now ignore
+any masked points in the input data.

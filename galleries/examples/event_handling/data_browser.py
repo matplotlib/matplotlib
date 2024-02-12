@@ -23,7 +23,7 @@ import numpy as np
 class PointBrowser:
     """
     Click on a point to select and highlight it -- the data that
-    generated the point will be shown in the lower axes.  Use the 'n'
+    generated the point will be shown in the lower Axes.  Use the 'n'
     and 'p' keys to browse through the next and previous points
     """
 

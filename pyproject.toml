@@ -35,7 +35,7 @@ dependencies = [
     "cycler >= 0.10",
     "fonttools >= 4.22.0",
     "kiwisolver >= 1.3.1",
-    "numpy >= 1.21",
+    "numpy >= 1.23",
     "packaging >= 20.0",
     "pillow >= 8",
     "pyparsing >= 2.3.1",
@@ -207,16 +207,25 @@ convention = "numpy"
 "galleries/users_explain/text/text_props.py" = ["E501"]
 
 [tool.mypy]
-exclude = [
-  ".*/matplotlib/(sphinxext|backends|testing/jpl_units)",
-  ".*/mpl_toolkits",
-  # tinypages is used for testing the sphinx ext,
-  # stubtest will import and run, opening a figure if not excluded
-  ".*/tinypages",
-]
 ignore_missing_imports = true
 enable_incomplete_feature = [
   "Unpack",
+]
+exclude = [
+  #stubtest
+  ".*/matplotlib/(sphinxext|backends|testing/jpl_units)",
+  #mypy precommit
+  "galleries/",
+  "doc/",
+  "lib/matplotlib/backends/",
+  "lib/matplotlib/sphinxext",
+  "lib/matplotlib/testing/jpl_units",
+  "lib/mpl_toolkits/",
+  #removing tests causes errors in backends
+  "lib/matplotlib/tests/",
+  # tinypages is used for testing the sphinx ext,
+  # stubtest will import and run, opening a figure if not excluded
+  ".*/tinypages"
 ]
 
 [tool.rstcheck]
@@ -278,4 +287,17 @@ ignore_messages = [
     "Hyperlink target \".*\" is not referenced.",
     "Duplicate implicit target name: \".*\".",
     "Duplicate explicit target name: \".*\".",
+    # sphinx.ext.intersphinx directives
+    "No role entry for \"external+.*\".",
+    "Unknown interpreted text role \"external+.*\"."
+]
+
+[tool.pytest.ini_options]
+# Because tests can be run from an installed copy, most of our Pytest
+# configuration is in the `pytest_configure` function in
+# `lib/matplotlib/testing/conftest.py`.
+minversion = "7.0"
+testpaths = ["lib"]
+addopts = [
+    "--import-mode=importlib",
 ]

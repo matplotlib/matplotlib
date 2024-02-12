@@ -1,0 +1,5 @@
+Inconsistent *nth_coord* and *loc* passed to ``_FixedAxisArtistHelperBase``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The value of the *nth_coord* parameter of ``_FixedAxisArtistHelperBase`` and
+its subclasses is now inferred from the value of *loc*; passing inconsistent
+values (e.g., requesting a "top y axis" or a "left x axis") has no more effect.

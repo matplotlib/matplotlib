@@ -18,12 +18,11 @@ extern "C" {
 int convert_path(PyObject *obj, void *pathp);
 }
 
-namespace py
-{
+namespace mpl {
 
 /************************************************************
- * py::PathIterator acts as a bridge between Numpy and Agg.  Given a
- * pair of Numpy arrays, vertices and codes, it iterates over
+ * mpl::PathIterator acts as a bridge between NumPy and Agg.  Given a
+ * pair of NumPy arrays, vertices and codes, it iterates over
  * those vertices and codes, using the standard Agg vertex source
  * interface:
  *
@@ -66,14 +65,14 @@ class PathIterator
         : m_vertices(NULL), m_codes(NULL), m_iterator(0)
     {
         if (!set(vertices, codes, should_simplify, simplify_threshold))
-            throw py::exception();
+            throw mpl::exception();
     }
 
     inline PathIterator(PyObject *vertices, PyObject *codes)
         : m_vertices(NULL), m_codes(NULL), m_iterator(0)
     {
         if (!set(vertices, codes))
-            throw py::exception();
+            throw mpl::exception();
     }
 
     inline PathIterator(const PathIterator &other)
@@ -233,11 +232,11 @@ class PathGenerator
 
         item = PySequence_GetItem(m_paths, i % m_npaths);
         if (item == NULL) {
-            throw py::exception();
+            throw mpl::exception();
         }
         if (!convert_path(item, &path)) {
             Py_DECREF(item);
-            throw py::exception();
+            throw mpl::exception();
         }
         Py_DECREF(item);
         return path;

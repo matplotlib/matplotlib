@@ -20,7 +20,7 @@ fig.suptitle('Categorical Plotting')
 
 
 # %%
-# This works on both axes:
+# This works on both Axes:
 
 cat = ["bored", "happy", "bored", "bored", "happy", "bored"]
 dog = ["happy", "happy", "happy", "happy", "bored", "bored"]

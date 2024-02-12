@@ -877,7 +877,7 @@ class AnchoredOffsetbox(OffsetBox):
 
     AnchoredOffsetbox has a single child.  When multiple children are needed,
     use an extra OffsetBox to enclose them.  By default, the offset box is
-    anchored against its parent axes. You may explicitly specify the
+    anchored against its parent Axes. You may explicitly specify the
     *bbox_to_anchor*.
     """
     zorder = 5  # zorder of the legend
@@ -1230,13 +1230,13 @@ or callable, default: value of *xycoords*
 
         annotation_clip: bool or None, default: None
             Whether to clip (i.e. not draw) the annotation when the annotation
-            point *xy* is outside the axes area.
+            point *xy* is outside the Axes area.
 
             - If *True*, the annotation will be clipped when *xy* is outside
-              the axes.
+              the Axes.
             - If *False*, the annotation will always be drawn.
             - If *None*, the annotation will be clipped when *xy* is outside
-              the axes and *xycoords* is 'data'.
+              the Axes and *xycoords* is 'data'.
 
         pad : float, default: 0.4
             Padding around the offsetbox.
@@ -1458,7 +1458,7 @@ class DraggableBase:
             ref_artist.set_picker(True)
         self.got_artist = False
         self._use_blit = use_blit and self.canvas.supports_blit
-        callbacks = ref_artist.figure._canvas_callbacks
+        callbacks = self.canvas.callbacks
         self._disconnectors = [
             functools.partial(
                 callbacks.disconnect, callbacks._connect_picklable(name, func))
@@ -1471,7 +1471,6 @@ class DraggableBase:
 
     # A property, not an attribute, to maintain picklability.
     canvas = property(lambda self: self.ref_artist.figure.canvas)
-
     cids = property(lambda self: [
         disconnect.args[0] for disconnect in self._disconnectors[:2]])
 

@@ -4,6 +4,15 @@
 Contribute
 ##########
 
+.. ifconfig:: releaselevel != 'dev'
+
+   .. important::
+
+      If you plan to contribute to Matplotlib, please read the
+      `development version <https://matplotlib.org/devdocs/devel/index.html>`_
+      of this document as it will have the most up to date installation
+      instructions, workflow process, and contributing guidelines.
+
 Thank you for your interest in helping to improve Matplotlib! There are various
 ways to contribute: optimizing and refactoring code, detailing unclear
 documentation and writing new examples, reporting and fixing bugs and requesting
@@ -11,6 +20,10 @@ and implementing new features, helping the community...
 
 New contributors
 ================
+.. toctree::
+   :hidden:
+
+   contribute
 
 .. grid:: 1 1 2 2
    :class-row: sd-align-minor-center
@@ -49,14 +62,14 @@ New contributors
             :octicon:`bug;1em;sd-text-info` Submit bug report
 
          .. grid-item-card::
-            :link: contributing-code
+            :link: contribute_code
             :link-type: ref
             :shadow: none
 
             :octicon:`code;1em;sd-text-info` Contribute code
 
          .. grid-item-card::
-            :link: documenting-matplotlib
+            :link: contribute_documentation
             :link-type: ref
             :shadow: none
 
@@ -87,12 +100,6 @@ Development environment
          :maxdepth: 2
 
          development_setup
-
-      .. toctree::
-         :maxdepth: 1
-
-         dependencies
-         ../users/installing/environment_variables_faq.rst
 
 
    .. grid-item-card::
@@ -127,12 +134,11 @@ Policies and guidelines
       **Code**
       ^^^
 
-      | :ref:`coding_guidelines`
-
       .. toctree::
          :maxdepth: 1
 
          coding_guide
+         api_changes
          testing
 
    .. grid-item-card::
@@ -146,16 +152,19 @@ Policies and guidelines
 
          document
          style_guide
+         tag_guidelines
 
    .. grid-item-card::
       :shadow: none
 
-      **Triage**
+      **Triage And Review**
       ^^^
 
-      | :ref:`bug_triaging`
-      | :ref:`triage_team`
-      | :ref:`triage_workflow`
+      .. toctree::
+         :maxdepth: 1
+
+         triage
+         pr_guide
 
    .. grid-item-card::
       :shadow: none
@@ -167,13 +176,6 @@ Policies and guidelines
          :maxdepth: 1
 
          release_guide
+         communication_guide
          min_dep_policy
          MEP/index
-
-.. toctree::
-   :hidden:
-
-   contribute
-   triage
-   license
-   color_changes

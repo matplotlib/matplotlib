@@ -459,8 +459,8 @@ def test_mathtext_fallback(fallback, fontlist):
     mpl.font_manager.fontManager.ttflist.pop()
 
 
-def test_math_to_image(tmpdir):
-    mathtext.math_to_image('$x^2$', str(tmpdir.join('example.png')))
+def test_math_to_image(tmp_path):
+    mathtext.math_to_image('$x^2$', tmp_path / 'example.png')
     mathtext.math_to_image('$x^2$', io.BytesIO())
     mathtext.math_to_image('$x^2$', io.BytesIO(), color='Maroon')
 

@@ -41,8 +41,68 @@ static bool keyChangeOption = false;
 static bool keyChangeCapsLock = false;
 /* Keep track of the current mouse up/down state for open/closed cursor hand */
 static bool leftMouseGrabbing = false;
+/* Keep track of whether stdin has been received */
+static bool stdin_received = false;
+static bool stdin_sigint = false;
+// Global variable to store the original SIGINT handler
+static struct sigaction originalSigintAction = {0};
+
+// Signal handler for SIGINT, only sets a flag to exit the run loop
+static void handleSigint(int signal) {
+    stdin_sigint = true;
+}
+
+static int wait_for_stdin() {
+    @autoreleasepool {
+        stdin_received = false;
+        stdin_sigint = false;
+
+        // Set up a SIGINT handler to interrupt the event loop if ctrl+c comes in too
+        struct sigaction customAction = {0};
+        customAction.sa_handler = handleSigint;
+        // Set the new handler and store the old one
+        sigaction(SIGINT, &customAction, &originalSigintAction);
+
+        // Create an NSFileHandle for standard input
+        NSFileHandle *stdinHandle = [NSFileHandle fileHandleWithStandardInput];
+
+        // Register for data available notifications on standard input
+        [[NSNotificationCenter defaultCenter] addObserverForName: NSFileHandleDataAvailableNotification
+                                                          object: stdinHandle
+                                                           queue: [NSOperationQueue mainQueue] // Use the main queue
+                                                      usingBlock: ^(NSNotification *notification) {
+                                                                    // Mark that input has been received
+                                                                    stdin_received = true;
+                                                                    }
+        ];
+
+        // Wait in the background for anything that happens to stdin
+        [stdinHandle waitForDataInBackgroundAndNotify];
+
+        // continuously run an event loop until the stdin_received flag is set to exit
+        while (!stdin_received && !stdin_sigint) {
+            while (true) {
+                NSEvent *event = [NSApp nextEventMatchingMask: NSEventMaskAny
+                                                    untilDate: [NSDate distantPast]
+                                                       inMode: NSDefaultRunLoopMode
+                                                      dequeue: YES];
+                if (!event) { break; }
+                [NSApp sendEvent: event];
+            }
+        }
+        // Remove the input handler as an observer
+        [[NSNotificationCenter defaultCenter] removeObserver: stdinHandle];
+
+        // Restore the original SIGINT handler upon exiting the function
+        sigaction(SIGINT, &originalSigintAction, NULL);
+        return 1;
+    }
+}
 
 /* ---------------------------- Cocoa classes ---------------------------- */
+@interface MatplotlibAppDelegate : NSObject <NSApplicationDelegate>
+- (BOOL)applicationSupportsSecureRestorableState:(NSApplication *)app;
+@end
 
 @interface Window : NSWindow
 {   PyObject* manager;
@@ -138,7 +198,11 @@ static void lazy_init(void) {
 
     NSApp = [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+    [NSApp setDelegate: [[[MatplotlibAppDelegate alloc] init] autorelease]];
 
+    // Run our own event loop while waiting for stdin on the Python side
+    // this is needed to keep the application responsive while waiting for input
+    PyOS_InputHook = wait_for_stdin;
 }
 
 static PyObject*
@@ -349,7 +413,7 @@ FigureCanvas_set_cursor(PyObject* unused, PyObject* args)
             [[NSCursor openHandCursor] set];
         }
         break;
-      /* OSX handles busy state itself so no need to set a cursor here */
+      /* macOS handles busy state itself so no need to set a cursor here */
       case 5: break;
       case 6: [[NSCursor resizeLeftRightCursor] set]; break;
       case 7: [[NSCursor resizeUpDownCursor] set]; break;
@@ -388,7 +452,7 @@ FigureCanvas_remove_rubberband(FigureCanvas* self)
 }
 
 static PyObject*
-FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keywords)
+FigureCanvas__start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keywords)
 {
     float timeout = 0.0;
 
@@ -396,6 +460,8 @@ FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keyw
     if (!PyArg_ParseTupleAndKeywords(args, keywords, "f", kwlist, &timeout)) {
         return NULL;
     }
+
+    Py_BEGIN_ALLOW_THREADS
 
     NSDate* date =
         (timeout > 0.0) ? [NSDate dateWithTimeIntervalSinceNow: timeout]
@@ -408,6 +474,8 @@ FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keyw
        if (!event || [event type]==NSEventTypeApplicationDefined) { break; }
        [NSApp sendEvent: event];
     }
+
+    Py_END_ALLOW_THREADS
 
     Py_RETURN_NONE;
 }
@@ -459,8 +527,8 @@ static PyTypeObject FigureCanvasType = {
          (PyCFunction)FigureCanvas_remove_rubberband,
          METH_NOARGS,
          "Remove the current rubberband rectangle."},
-        {"start_event_loop",
-         (PyCFunction)FigureCanvas_start_event_loop,
+        {"_start_event_loop",
+         (PyCFunction)FigureCanvas__start_event_loop,
          METH_KEYWORDS | METH_VARARGS,
          NULL},  // docstring inherited
         {"stop_event_loop",
@@ -718,6 +786,12 @@ static PyTypeObject FigureManagerType = {
         {}  // sentinel
     },
 };
+
+@implementation MatplotlibAppDelegate
+- (BOOL)applicationSupportsSecureRestorableState:(NSApplication *)app {
+    return YES;
+}
+@end
 
 @interface NavigationToolbar2Handler : NSObject
 {   PyObject* toolbar;
@@ -1069,8 +1143,10 @@ choose_save_file(PyObject* unused, PyObject* args)
 }
 
 static void _buffer_release(void* info, const void* data, size_t size) {
+    PyGILState_STATE gstate = PyGILState_Ensure();
     PyBuffer_Release((Py_buffer *)info);
     free(info);
+    PyGILState_Release(gstate);
 }
 
 static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
@@ -1661,11 +1737,15 @@ Timer__timer_start(Timer* self, PyObject* args)
     }
 
     // hold a reference to the timer so we can invalidate/stop it later
-    self->timer = [NSTimer scheduledTimerWithTimeInterval: interval
-                                            repeats: !single
-                                              block: ^(NSTimer *timer) {
+    self->timer = [NSTimer timerWithTimeInterval: interval
+                                         repeats: !single
+                                           block: ^(NSTimer *timer) {
         gil_call_method((PyObject*)self, "_on_timer");
     }];
+    // Schedule the timer on the main run loop which is needed
+    // when updating the UI from a background thread
+    [[NSRunLoop mainRunLoop] addTimer: self->timer forMode: NSRunLoopCommonModes];
+
 exit:
     Py_XDECREF(py_interval);
     Py_XDECREF(py_single);
@@ -1726,7 +1806,7 @@ static struct PyModuleDef moduledef = {
         {"event_loop_is_running",
          (PyCFunction)event_loop_is_running,
          METH_NOARGS,
-         "Return whether the OSX backend has set up the NSApp main event loop."},
+         "Return whether the macosx backend has set up the NSApp main event loop."},
         {"wake_on_fd_write",
          (PyCFunction)wake_on_fd_write,
          METH_VARARGS,

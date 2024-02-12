@@ -450,3 +450,13 @@ def test_remove_draggable():
     an.draggable(True)
     an.remove()
     MouseEvent("button_release_event", fig.canvas, 1, 1)._process()
+
+
+def test_draggable_in_subfigure():
+    fig = plt.figure()
+    # Put annotation at lower left corner to make it easily pickable below.
+    ann = fig.subfigures().add_axes([0, 0, 1, 1]).annotate("foo", (0, 0))
+    ann.draggable(True)
+    fig.canvas.draw()  # Texts are non-pickable until the first draw.
+    MouseEvent("button_press_event", fig.canvas, 1, 1)._process()
+    assert ann._draggable.got_artist

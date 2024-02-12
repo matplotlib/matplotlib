@@ -13,7 +13,7 @@ What's new in Matplotlib 1.3 (Aug 01, 2013)
 New in 1.3.1
 ------------
 
-1.3.1 is a bugfix release, primarily dealing with improved setup and
+1.3.1 is a micro release, primarily dealing with improved setup and
 handling of dependencies, and correcting and enhancing the
 documentation.
 

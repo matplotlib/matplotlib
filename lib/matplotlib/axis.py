@@ -717,7 +717,7 @@ class Axis(martist.Artist):
         self.minor._formatter_is_default = value
 
     def _get_shared_axes(self):
-        """Return Grouper of shared axes for current axis."""
+        """Return Grouper of shared Axes for current axis."""
         return self.axes._shared_axes[
             self._get_axis_name()].get_siblings(self.axes)
 
@@ -754,7 +754,7 @@ class Axis(martist.Artist):
 
         By default, the x coordinate of the y label and the y coordinate of the
         x label are determined by the tick label bounding boxes, but this can
-        lead to poor alignment of multiple labels if there are multiple axes.
+        lead to poor alignment of multiple labels if there are multiple Axes.
 
         You can also specify the coordinate system of the label with the
         transform.  If None, the default coordinate system will be the axes
@@ -807,6 +807,7 @@ class Axis(martist.Artist):
             - `matplotlib.scale.SymmetricalLogScale`
             - `matplotlib.scale.LogitScale`
             - `matplotlib.scale.FuncScale`
+            - `matplotlib.scale.AsinhScale`
 
         Notes
         -----
@@ -1234,7 +1235,7 @@ class Axis(martist.Artist):
 
         if emit:
             self.axes.callbacks.process(f"{name}lim_changed", self.axes)
-            # Call all of the other axes that are shared with this one
+            # Call all of the other Axes that are shared with this one
             for other in self._get_shared_axes():
                 if other is self.axes:
                     continue

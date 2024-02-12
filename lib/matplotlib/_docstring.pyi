@@ -4,6 +4,9 @@ from typing import Any, Callable, TypeVar, overload
 _T = TypeVar('_T')
 
 
+def kwarg_doc(text: str) -> Callable[[_T], _T]: ...
+
+
 class Substitution:
     @overload
     def __init__(self, *args: str): ...

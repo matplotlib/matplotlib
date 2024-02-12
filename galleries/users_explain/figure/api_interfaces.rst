@@ -31,7 +31,7 @@ Native Matplotlib interfaces
 ----------------------------
 
 The explicit "Axes" interface
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The "Axes" interface is how Matplotlib is implemented, and many customizations
 and fine-tuning end up being done at this level.
@@ -59,7 +59,7 @@ but before they are displayed.
 
 
 The implicit "pyplot" interface
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The `~.matplotlib.pyplot` module shadows most of the
 `~.matplotlib.axes.Axes` plotting methods to give the equivalent of
@@ -285,6 +285,11 @@ Appendix: "pylab" interface
 ---------------------------
 
 There is one further interface that is highly discouraged, and that is to
-basically do ``from matplotlib.pyplot import *``.  This allows users to simply
-call ``plot(x, y)``.  While convenient, this can lead to obvious problems if the
-user unwittingly names a variable the same name as a pyplot method.
+basically do ``from matplotlib.pylab import *``. This imports all the
+functions from ``matplotlib.pyplot``, ``numpy``, ``numpy.fft``, ``numpy.linalg``, and
+``numpy.random``, and some additional functions into the global namespace.
+
+Such a pattern is considered bad practice in modern python, as it clutters
+the global namespace. Even more severely, in the case of ``pylab``, this will
+overwrite some builtin functions (e.g. the builtin ``sum`` will be replaced by
+``numpy.sum``), which can lead to unexpected behavior.

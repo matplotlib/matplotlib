@@ -11,7 +11,6 @@ Module containing Axes3D, an object which can plot 3D objects on a
 """
 
 from collections import defaultdict
-import functools
 import itertools
 import math
 import textwrap
@@ -69,7 +68,7 @@ class Axes3D(Axes):
         fig : Figure
             The parent figure.
         rect : tuple (left, bottom, width, height), default: None.
-            The ``(left, bottom, width, height)`` axes position.
+            The ``(left, bottom, width, height)`` Axes position.
         elev : float, default: 30
             The elevation angle in degrees rotates the camera above and below
             the x-y plane, with a positive angle corresponding to a location
@@ -214,7 +213,7 @@ class Axes3D(Axes):
         self.stale = True
 
     def _init_axis(self):
-        """Init 3D axes; overrides creation of regular X/Y axes."""
+        """Init 3D Axes; overrides creation of regular X/Y Axes."""
         self.xaxis = axis3d.XAxis(self)
         self.yaxis = axis3d.YAxis(self)
         self.zaxis = axis3d.ZAxis(self)
@@ -226,9 +225,10 @@ class Axes3D(Axes):
     get_zgridlines = _axis_method_wrapper("zaxis", "get_gridlines")
     get_zticklines = _axis_method_wrapper("zaxis", "get_ticklines")
 
-    def _unit_cube(self, vals=None):
-        minx, maxx, miny, maxy, minz, maxz = vals or self.get_w_lims()
-        return [(minx, miny, minz),
+    def _transformed_cube(self, vals):
+        """Return cube with limits from *vals* transformed by self.M."""
+        minx, maxx, miny, maxy, minz, maxz = vals
+        xyzs = [(minx, miny, minz),
                 (maxx, miny, minz),
                 (maxx, maxy, minz),
                 (minx, maxy, minz),
@@ -236,31 +236,7 @@ class Axes3D(Axes):
                 (maxx, miny, maxz),
                 (maxx, maxy, maxz),
                 (minx, maxy, maxz)]
-
-    def _tunit_cube(self, vals=None, M=None):
-        if M is None:
-            M = self.M
-        xyzs = self._unit_cube(vals)
-        tcube = proj3d._proj_points(xyzs, M)
-        return tcube
-
-    def _tunit_edges(self, vals=None, M=None):
-        tc = self._tunit_cube(vals, M)
-        edges = [(tc[0], tc[1]),
-                 (tc[1], tc[2]),
-                 (tc[2], tc[3]),
-                 (tc[3], tc[0]),
-
-                 (tc[0], tc[4]),
-                 (tc[1], tc[5]),
-                 (tc[2], tc[6]),
-                 (tc[3], tc[7]),
-
-                 (tc[4], tc[5]),
-                 (tc[5], tc[6]),
-                 (tc[6], tc[7]),
-                 (tc[7], tc[4])]
-        return edges
+        return proj3d._proj_points(xyzs, self.M)
 
     def set_aspect(self, aspect, adjustable=None, anchor=None, share=False):
         """
@@ -488,8 +464,7 @@ class Axes3D(Axes):
         super().draw(renderer)
 
     def get_axis_position(self):
-        vals = self.get_w_lims()
-        tc = self._tunit_cube(vals, self.M)
+        tc = self._transformed_cube(self.get_w_lims())
         xhigh = tc[1][2] > tc[2][2]
         yhigh = tc[3][2] > tc[2][2]
         zhigh = tc[0][2] > tc[2][2]
@@ -1079,7 +1054,7 @@ class Axes3D(Axes):
         Parameters
         ----------
         value : {{"linear"}}
-            The axis scale type to apply.  3D axes currently only support
+            The axis scale type to apply.  3D Axes currently only support
             linear scales; other scales yield nonsensical results.
 
         **kwargs
@@ -1103,20 +1078,20 @@ class Axes3D(Axes):
 
         Notes
         -----
-        This function is merely provided for completeness, but 3D axes do not
+        This function is merely provided for completeness, but 3D Axes do not
         support dates for ticks, and so this may not work as expected.
         """)
 
     def clabel(self, *args, **kwargs):
-        """Currently not implemented for 3D axes, and returns *None*."""
+        """Currently not implemented for 3D Axes, and returns *None*."""
         return None
 
     def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z",
                   share=False):
         """
-        Set the elevation and azimuth of the axes in degrees (not radians).
+        Set the elevation and azimuth of the Axes in degrees (not radians).
 
-        This can be used to rotate the axes programmatically.
+        This can be used to rotate the Axes programmatically.
 
         To look normal to the primary planes, the following elevation and
         azimuth angles can be used. A roll angle of 0, 90, 180, or 270 deg
@@ -1285,11 +1260,11 @@ class Axes3D(Axes):
         Parameters
         ----------
         rotate_btn : int or list of int, default: 1
-            The mouse button or buttons to use for 3D rotation of the axes.
+            The mouse button or buttons to use for 3D rotation of the Axes.
         pan_btn : int or list of int, default: 2
-            The mouse button or buttons to use to pan the 3D axes.
+            The mouse button or buttons to use to pan the 3D Axes.
         zoom_btn : int or list of int, default: 3
-            The mouse button or buttons to use to zoom the 3D axes.
+            The mouse button or buttons to use to zoom the 3D Axes.
         """
         self.button_pressed = None
         # coerce scalars into array-like, then convert into
@@ -1685,7 +1660,7 @@ class Axes3D(Axes):
         transformed to the x, y, z data axes based on the current view angles.
         A scale factor > 1 zooms out and a scale factor < 1 zooms in.
 
-        For an axes that has had its aspect ratio set to 'equal', 'equalxy',
+        For an Axes that has had its aspect ratio set to 'equal', 'equalxy',
         'equalyz', or 'equalxz', the relevant axes are constrained to zoom
         equally.
 
@@ -1800,7 +1775,7 @@ class Axes3D(Axes):
         to 'both' autoscales all three axes.
 
         Also, because of how Axes3D objects are drawn very differently
-        from regular 2D axes, some of these settings may have
+        from regular 2D Axes, some of these settings may have
         ambiguous meaning.  For simplicity, the 'z' axis will
         accept settings as if it was like the 'y' axis.
 
@@ -1905,12 +1880,11 @@ class Axes3D(Axes):
         if args and not isinstance(args[0], str):
             zs, *args = args
             if 'zs' in kwargs:
-                raise TypeError("plot() for multiple values for argument 'z'")
+                raise TypeError("plot() for multiple values for argument 'zs'")
         else:
             zs = kwargs.pop('zs', 0)
 
-        # Match length
-        zs = np.broadcast_to(zs, np.shape(xs))
+        xs, ys, zs = cbook._broadcast_with_masks(xs, ys, zs)
 
         lines = super().plot(xs, ys, *args, **kwargs)
         for line in lines:
@@ -1969,23 +1943,23 @@ class Axes3D(Axes):
         color : color-like
             Color of the surface patches.
 
-        cmap : Colormap
+        cmap : Colormap, optional
             Colormap of the surface patches.
 
-        facecolors : array-like of colors.
+        facecolors : array-like of colors
             Colors of each individual patch.
 
-        norm : Normalize
+        norm : `~matplotlib.colors.Normalize`, optional
             Normalization for the colormap.
 
-        vmin, vmax : float
+        vmin, vmax : float, optional
             Bounds for the normalization.
 
         shade : bool, default: True
             Whether to shade the facecolors.  Shading is always disabled when
             *cmap* is specified.
 
-        lightsource : `~matplotlib.colors.LightSource`
+        lightsource : `~matplotlib.colors.LightSource`, optional
             The lightsource to use when *shade* is True.
 
         **kwargs
@@ -2268,14 +2242,14 @@ class Axes3D(Axes):
             Color of the surface patches.
         cmap
             A colormap for the surface patches.
-        norm : Normalize
+        norm : `~matplotlib.colors.Normalize`, optional
             An instance of Normalize to map values to colors.
-        vmin, vmax : float, default: None
+        vmin, vmax : float, optional
             Minimum and maximum value to map.
         shade : bool, default: True
             Whether to shade the facecolors.  Shading is always disabled when
             *cmap* is specified.
-        lightsource : `~matplotlib.colors.LightSource`
+        lightsource : `~matplotlib.colors.LightSource`, optional
             The lightsource to use when *shade* is True.
         **kwargs
             All other keyword arguments are passed on to
@@ -2405,7 +2379,7 @@ class Axes3D(Axes):
             Input data. See `.Axes.contour` for supported data shapes.
         extend3d : bool, default: False
             Whether to extend contour in 3D.
-        stride : int
+        stride : int, default: 5
             Step size for extending contour.
         zdir : {'x', 'y', 'z'}, default: 'z'
             The direction to use.
@@ -2449,7 +2423,7 @@ class Axes3D(Axes):
             Input data. See `.Axes.tricontour` for supported data shapes.
         extend3d : bool, default: False
             Whether to extend contour in 3D.
-        stride : int
+        stride : int, default: 5
             Step size for extending contour.
         zdir : {'x', 'y', 'z'}, default: 'z'
             The direction to use.
@@ -2584,13 +2558,14 @@ class Axes3D(Axes):
         Add a 3D collection object to the plot.
 
         2D collection types are converted to a 3D version by
-        modifying the object and adding z coordinate information.
+        modifying the object and adding z coordinate information,
+        *zs* and *zdir*.
 
-        Supported are:
+        Supported 2D collection types are:
 
-        - PolyCollection
-        - LineCollection
-        - PatchCollection
+        - `.PolyCollection`
+        - `.LineCollection`
+        - `.PatchCollection`
         """
         zvals = np.atleast_1d(zs)
         zsortval = (np.min(zvals) if zvals.size
@@ -2665,8 +2640,7 @@ class Axes3D(Axes):
         had_data = self.has_data()
         zs_orig = zs
 
-        xs, ys, zs = np.broadcast_arrays(
-            *[np.ravel(np.ma.filled(t, np.nan)) for t in [xs, ys, zs]])
+        xs, ys, zs = cbook._broadcast_with_masks(xs, ys, zs)
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
         xs, ys, zs, s, c, color = cbook.delete_masked_points(
@@ -2703,7 +2677,7 @@ class Axes3D(Axes):
             The x coordinates of the left sides of the bars.
         height : 1D array-like
             The height of the bars.
-        zs : float or 1D array-like
+        zs : float or 1D array-like, default: 0
             Z coordinate of bars; if a single value is specified, it will be
             used for all bars.
         zdir : {'x', 'y', 'z'}, default: 'z'
@@ -2722,7 +2696,7 @@ class Axes3D(Axes):
 
         patches = super().bar(left, height, *args, **kwargs)
 
-        zs = np.broadcast_to(zs, len(left))
+        zs = np.broadcast_to(zs, len(left), subok=True)
 
         verts = []
         verts_zs = []
@@ -2786,14 +2760,14 @@ class Axes3D(Axes):
             5. -X
             6. +X
 
-        zsort : str, optional
+        zsort : {'average', 'min', 'max'}, default: 'average'
             The z-axis sorting scheme passed onto `~.art3d.Poly3DCollection`
 
         shade : bool, default: True
             When true, this shades the dark sides of the bars (relative
             to the plot's source of light).
 
-        lightsource : `~matplotlib.colors.LightSource`
+        lightsource : `~matplotlib.colors.LightSource`, optional
             The lightsource to use when *shade* is True.
 
         data : indexable object, optional
@@ -2988,23 +2962,8 @@ class Axes3D(Axes):
 
         had_data = self.has_data()
 
-        input_args = [X, Y, Z, U, V, W]
-
-        # extract the masks, if any
-        masks = [k.mask for k in input_args
-                 if isinstance(k, np.ma.MaskedArray)]
-        # broadcast to match the shape
-        bcast = np.broadcast_arrays(*input_args, *masks)
-        input_args = bcast[:6]
-        masks = bcast[6:]
-        if masks:
-            # combine the masks into one
-            mask = functools.reduce(np.logical_or, masks)
-            # put mask on and compress
-            input_args = [np.ma.array(k, mask=mask).compressed()
-                          for k in input_args]
-        else:
-            input_args = [np.ravel(k) for k in input_args]
+        input_args = cbook._broadcast_with_masks(X, Y, Z, U, V, W,
+                                                 compress=True)
 
         if any(len(v) == 0 for v in input_args):
             # No quivers, so just make an empty collection and return early
@@ -3105,7 +3064,7 @@ class Axes3D(Axes):
         shade : bool, default: True
             Whether to shade the facecolors.
 
-        lightsource : `~matplotlib.colors.LightSource`
+        lightsource : `~matplotlib.colors.LightSource`, optional
             The lightsource to use when *shade* is True.
 
         **kwargs
