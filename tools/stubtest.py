@@ -18,14 +18,33 @@ class Visitor(ast.NodeVisitor):
         self.output = output
 
     def visit_FunctionDef(self, node):
-        if any("delete_parameter" in ast.unparse(line) for line in node.decorator_list):
-            parents = []
-            if hasattr(node, "parent"):
-                parent = node.parent
-                while hasattr(parent, "parent") and not isinstance(parent, ast.Module):
-                    parents.insert(0, parent.name)
-                    parent = parent.parent
-            self.output.write(f"{'.'.join(self.context + parents)}.{node.name}\n")
+        # delete_parameter adds a private sentinel value that leaks
+        # we do not want that sentinel value in the type hints but it breaks typing
+        # Does not apply to variadic arguments (args/kwargs)
+        for dec in node.decorator_list:
+            if "delete_parameter" in ast.unparse(dec):
+                deprecated_arg = dec.args[1].value
+                if (
+                    node.args.vararg is not None
+                    and node.args.vararg.arg == deprecated_arg
+                ):
+                    continue
+                if (
+                    node.args.kwarg is not None
+                    and node.args.kwarg.arg == deprecated_arg
+                ):
+                    continue
+
+                parents = []
+                if hasattr(node, "parent"):
+                    parent = node.parent
+                    while hasattr(parent, "parent") and not isinstance(
+                        parent, ast.Module
+                    ):
+                        parents.insert(0, parent.name)
+                        parent = parent.parent
+                self.output.write(f"{'.'.join(self.context + parents)}.{node.name}\n")
+                break
 
     def visit_ClassDef(self, node):
         for dec in node.decorator_list:
