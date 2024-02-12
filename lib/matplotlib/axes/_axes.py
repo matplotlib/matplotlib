@@ -5883,7 +5883,7 @@ default: :rc:`scatter.edgecolors`
                 def _interp_grid(X):
                     # helper for below
                     if np.shape(X)[1] > 1:
-                        dX = np.diff(X, axis=1)/2.
+                        dX = np.diff(X, axis=1) * 0.5
                         if not (np.all(dX >= 0) or np.all(dX <= 0)):
                             _api.warn_external(
                                 f"The input coordinates to {funcname} are "
