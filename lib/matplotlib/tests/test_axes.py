@@ -8896,8 +8896,8 @@ def test_bar_hatchcolor_with_facecolor_and_edgecolor():
     y = [1, 3, 1, 4]
 
     fig, ax = plt.subplots()
-    ax.bar(x, y, hatch="////", facecolor=(0, 0, 0, 0),
-             hatchcolor="red", edgecolor="black")
+    ax.bar(x, y, hatch="////", facecolor="yellow",
+             hatchcolor="red", edgecolor="blue")
 
 
 @image_comparison(["bar_hatchcolor_with_facecolor"], extensions=["png", "pdf"])
@@ -8905,7 +8905,7 @@ def test_bar_hatchcolor_with_facecolor():
     x = [6, 7, 8, 9]
     y = [2, 4, 7, 3]
     fig, ax = plt.subplots()
-    ax.bar(x, y, hatch="////", hatchcolor="green", facecolor=(0, 0, 0, 0))
+    ax.bar(x, y, hatch="////", hatchcolor="green", facecolor="red")
 
 
 @image_comparison(["bar_hatchcolor"], extensions=["png", "pdf"])
