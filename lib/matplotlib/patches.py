@@ -331,8 +331,8 @@ class Patch(artist.Artist):
                 set_hatch_color_from_edgecolor = False
 
         self._edgecolor = colors.to_rgba(color, self._alpha)
-        if set_hatch_color_from_edgecolor and (not self.set_hatch_color):
-            self._hatch_color = self._edgecolor
+        if set_hatch_color_from_edgecolor:
+            self.set_hatchcolor(color, True)
         self.stale = True
 
     def set_edgecolor(self, color):
@@ -381,16 +381,20 @@ class Patch(artist.Artist):
         self.set_hatchcolor(c)
         self.set_edgecolor(c)
 
-    def _set_hatchcolor(self, color):
-        self.set_hatch_color = True
-        if color is None:
-            self.set_hatch_color = False
-            color = mpl.rcParams['hatch.color']
-        alpha = self._alpha if self._fill else 0
-        self._hatch_color = colors.to_rgba(color, alpha)
-        self.stale = True
+    def _set_hatchcolor(self, color, set_hatchcolor_from_edgecolor=False):
+        if not set_hatchcolor_from_edgecolor:
+            self.set_hatch_color = True
+            if color is None:
+                self.set_hatch_color = False
+                color = mpl.rcParams['hatch.color']
+            alpha = self._alpha if self._fill else 0
+            self._hatch_color = colors.to_rgba(color, alpha)
+            self.stale = True
 
-    def set_hatchcolor(self, color):
+        if not self.set_hatch_color:
+            self._hatch_color = colors.to_rgba(color, self._alpha)
+
+    def set_hatchcolor(self, color, set_hatchcolor_from_edgecolor=False):
         """
         Set the patch hatch color.
 
@@ -398,8 +402,8 @@ class Patch(artist.Artist):
         ----------
         c : color or None
         """
-        self._hatch_color = color
-        self._set_hatchcolor(color)
+        self._original_hatchcolor = color
+        self._set_hatchcolor(color, set_hatchcolor_from_edgecolor)
 
     def set_alpha(self, alpha):
         # docstring inherited
@@ -2765,6 +2769,12 @@ class ConnectionStyle(_Style):
         points. This base class defines a __call__ method, and a few
         helper methods.
         """
+
+        @_api.deprecated("3.7")
+        class SimpleEvent:
+            def __init__(self, xy):
+                self.x, self.y = xy
+
         def _in_patch(self, patch):
             """
             Return a predicate function testing whether a point *xy* is
