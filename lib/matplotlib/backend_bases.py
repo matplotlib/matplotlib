@@ -2584,9 +2584,13 @@ class FigureManagerBase:
     backend-independent way. It's an adapter for the real (GUI) framework that
     represents the visual figure on screen.
 
-    GUI backends define from this class to translate common operations such
+    The figure manager is connected to a specific canvas instance, which in turn
+    is connected to a specific figure instance. To access a figure manager for
+    a given figure in user code, you typically use ``fig.canvas.manager``.
+
+    GUI backends derive from this class to translate common operations such
     as *show* or *resize* to the GUI-specific code. Non-GUI backends do not
-    support these operations an can just use the base class.
+    support these operations and can just use the base class.
 
     This following basic operations are accessible:
 
@@ -2771,6 +2775,11 @@ class FigureManagerBase:
         Set the title text of the window containing the figure.
 
         This has no effect for non-GUI (e.g., PS) backends.
+
+        Examples
+        --------
+        >>> fig = plt.figure()
+        >>> fig.canvas.manager.set_window_title('My figure')
         """
 
 
