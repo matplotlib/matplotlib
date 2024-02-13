@@ -151,9 +151,9 @@ Policies and guidelines
          :maxdepth: 1
 
          document
-         style guide <style_guide>
-         content guide <content_guide/index>
-         tagging guidelines <tag_guidelines>
+         Style guide <style_guide>
+         Content guide <content_guide>
+         Tagging guidelines <tag_guidelines>
 
    .. grid-item-card::
       :shadow: none

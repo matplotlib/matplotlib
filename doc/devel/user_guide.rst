@@ -1,7 +1,9 @@
-.. _content-user-guide:
+.. _user-guide-content-detail:
 
-User guide
-==========
+User guide content guide
+========================
+
+.. summary-begin
 
 The user guide explains what the reader needs to know to *make* and *customize*
 visualizations, and *develop* tools and downstream libraries:
@@ -18,8 +20,14 @@ visualizations, and *develop* tools and downstream libraries:
 
 Each section builds on the previous to expand the reader's conceptal understanding of
 the library so that the user can develop a mental model (schema) of how Matplotlib
-operates. The goal is that understanding how the features, components, and architecture
-fit together empowers the user to piece together solutions from existing documentation.
+operates. For example, *make* introduces the concept of making figures,
+*customize* explains what the user can do with figures, and *develop* discusses
+how the Figure object works in the context of the other parts of the library. The
+goal is that understanding how the features, components, and architecture fit
+together empowers the user to piece together solutions from existing
+documentation.
+
+.. summary-end
 
 .. _content-user-guide-make:
 
