@@ -437,7 +437,8 @@ def make_keyword_only(since, name, func=None):
     assert (name in signature.parameters
             and signature.parameters[name].kind == POK), (
         f"Matplotlib internal error: {name!r} must be a positional-or-keyword "
-        f"parameter for {func.__name__}()")
+        f"parameter for {func.__name__}(). If this error happens on a function with a "
+        f"pyplot wrapper, make sure make_keyword_only() is the outermost decorator.")
     names = [*signature.parameters]
     name_idx = names.index(name)
     kwonly = [name for name in names[name_idx:]
