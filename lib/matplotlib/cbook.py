@@ -6,6 +6,7 @@ A collection of utility functions and classes.  Originally, many
 import collections
 import collections.abc
 import contextlib
+import dataclasses
 import functools
 import gzip
 import itertools
@@ -19,6 +20,7 @@ import sys
 import time
 import traceback
 import types
+from typing import Union
 import weakref
 
 import numpy as np
@@ -1124,6 +1126,32 @@ def _broadcast_with_masks(*args, compress=False):
     else:
         inputs = [np.ravel(k) for k in inputs]
     return inputs
+
+
+@dataclasses.dataclass(frozen=True)
+class BoxplotArtists(collections.abc.Mapping):
+    """
+    Collection of the artists created by `~.Axes.boxplot`.
+
+    For backward compatibility with the previously used dict representation,
+    this can alternatively be accessed like a (read-only) dict. However,
+    dict-like access is discouraged.
+    """
+    boxes: Union[list["matplotlib.lines.Line2D"], list["matplotlib.patches.Patch"]]
+    medians: list["matplotlib.lines.Line2D"]
+    whiskers: list["matplotlib.lines.Line2D"]
+    caps: list["matplotlib.lines.Line2D"]
+    fliers: list["matplotlib.lines.Line2D"]
+    means: list["matplotlib.lines.Line2D"]
+
+    def __getitem__(self, key):
+        return getattr(self, key)
+
+    def __iter__(self):
+        return iter(self.__annotations__)
+
+    def __len__(self):
+        return len(self.__annotations__)
 
 
 def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
