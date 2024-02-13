@@ -85,31 +85,38 @@ repos:
       # - id: check-azure-pipelines
       - id: check-dependabot
       - id: check-github-workflows
+      # NOTE: If any of the below schema files need to be changed, be sure to
+      # update the `ci/vendor_schemas.py` script.
       - id: check-jsonschema
+        name: "Validate AppVeyor config"
         files: ^\.appveyor\.yml$
-        args: ["--verbose", "--schemafile", "https://json.schemastore.org/appveyor.json"]
+        args: ["--verbose", "--schemafile", "ci/schemas/appveyor.json"]
       - id: check-jsonschema
+        name: "Validate CircleCI config"
         files: ^\.circleci/config\.yml$
-        args: ["--verbose", "--schemafile", "https://json.schemastore.org/circleciconfig.json"]
+        args: ["--verbose", "--schemafile", "ci/schemas/circleciconfig.json"]
       - id: check-jsonschema
+        name: "Validate GitHub funding file"
         files: ^\.github/FUNDING\.yml$
-        args: ["--verbose", "--schemafile", "https://json.schemastore.org/github-funding.json"]
+        args: ["--verbose", "--schemafile", "ci/schemas/github-funding.json"]
       - id: check-jsonschema
+        name: "Validate GitHub issue config"
         files: ^\.github/ISSUE_TEMPLATE/config\.yml$
-        args: ["--verbose", "--schemafile", "https://json.schemastore.org/github-issue-config.json"]
+        args: ["--verbose", "--schemafile", "ci/schemas/github-issue-config.json"]
       - id: check-jsonschema
+        name: "Validate GitHub issue templates"
         files: ^\.github/ISSUE_TEMPLATE/.*\.yml$
         exclude: ^\.github/ISSUE_TEMPLATE/config\.yml$
-        args: ["--verbose", "--schemafile", "https://json.schemastore.org/github-issue-forms.json"]
+        args: ["--verbose", "--schemafile", "ci/schemas/github-issue-forms.json"]
       - id: check-jsonschema
+        name: "Validate CodeCov config"
         files: ^\.github/codecov\.yml$
-        args: ["--verbose", "--schemafile", "https://json.schemastore.org/codecov.json"]
+        args: ["--verbose", "--schemafile", "ci/schemas/codecov.json"]
       - id: check-jsonschema
+        name: "Validate GitHub labeler config"
         files: ^\.github/labeler\.yml$
-        args: ["--verbose", "--schemafile", "https://json.schemastore.org/pull-request-labeler-5.json"]
+        args: ["--verbose", "--schemafile", "ci/schemas/pull-request-labeler-5.json"]
       - id: check-jsonschema
+        name: "Validate Conda environment file"
         files: ^environment\.yml$
-        args:
-          - "--verbose"
-          - "--schemafile"
-          - "https://github.com/microsoft/vscode-python/raw/main/schemas/conda-environment.json"
+        args: ["--verbose", "--schemafile", "ci/schemas/conda-environment.json"]
