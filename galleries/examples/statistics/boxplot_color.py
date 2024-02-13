@@ -18,7 +18,7 @@ fruit_weights = [
     np.random.normal(125, 20, size=100),
     np.random.normal(120, 30, size=100),
 ]
-labels = ['peaches', 'oranges', 'tomatos']
+labels = ['peaches', 'oranges', 'tomatoes']
 colors = ['peachpuff', 'orange', 'tomato']
 
 fig, ax = plt.subplots()
