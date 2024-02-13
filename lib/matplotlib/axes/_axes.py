@@ -3801,7 +3801,7 @@ class Axes(_AxesBase):
             in *x*.  If a sequence of 1D arrays, a boxplot is drawn for each
             array in *x*.
 
-        notch : bool, default: False
+        notch : bool, default: :rc:`boxplot.notch`
             Whether to draw a notched boxplot (`True`), or a rectangular
             boxplot (`False`).  The notches represent the confidence interval
             (CI) around the median.  The documentation for *bootstrap*
@@ -3823,7 +3823,7 @@ class Axes(_AxesBase):
             the fliers.  If `None`, then the fliers default to 'b+'.  More
             control is provided by the *flierprops* parameter.
 
-        vert : bool, default: True
+        vert : bool, default: :rc:`boxplot.vertical`
             If `True`, draws vertical boxes.
             If `False`, draw horizontal boxes.
 
@@ -3880,7 +3880,7 @@ class Axes(_AxesBase):
             The widths of the boxes.  The default is 0.5, or ``0.15*(distance
             between extreme positions)``, if that is smaller.
 
-        patch_artist : bool, default: False
+        patch_artist : bool, default: :rc:`boxplot.patchartist`
             If `False` produces boxes with the Line2D artist. Otherwise,
             boxes are drawn with Patch artists.
 
@@ -3897,7 +3897,7 @@ class Axes(_AxesBase):
             75th percentiles are equal, *whis* is set to (0, 100) such
             that the whisker ends are at the minimum and maximum of the data.
 
-        meanline : bool, default: False
+        meanline : bool, default: :rc:`boxplot.meanline`
             If `True` (and *showmeans* is `True`), will try to render the
             mean as a line spanning the full width of the box according to
             *meanprops* (see below).  Not recommended if *shownotches* is also
@@ -3932,13 +3932,13 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        showcaps : bool, default: True
+        showcaps : bool, default: :rc:`boxplot.showcaps`
             Show the caps on the ends of whiskers.
-        showbox : bool, default: True
+        showbox : bool, default: :rc:`boxplot.showbox`
             Show the central box.
-        showfliers : bool, default: True
+        showfliers : bool, default: :rc:`boxplot.showfliers`
             Show the outliers beyond the caps.
-        showmeans : bool, default: False
+        showmeans : bool, default: :rc:`boxplot.showmeans`
             Show the arithmetic means.
         capprops : dict, default: None
             The style of the caps.
@@ -3959,6 +3959,7 @@ class Axes(_AxesBase):
 
         See Also
         --------
+        .Axes.bxp : Draw a boxplot from pre-computed statistics.
         violinplot : Draw an estimate of the probability density function.
         """
 
@@ -4084,13 +4085,26 @@ class Axes(_AxesBase):
             meanline=False, manage_ticks=True, zorder=None,
             capwidths=None):
         """
-        Drawing function for box and whisker plots.
+        Draw a box and whisker plot from pre-computed statistics.
 
-        Make a box and whisker plot for each column of *x* or each
-        vector in sequence *x*.  The box extends from the lower to
-        upper quartile values of the data, with a line at the median.
-        The whiskers extend from the box to show the range of the
-        data.  Flier points are those past the end of the whiskers.
+        The box extends from the first quartile *q1* to the third
+        quartile *q3* of the data, with a line at the median (*med*).
+        The whiskers extend from *whislow* to *whishi*.
+        Flier points are markers past the end of the whiskers.
+        See https://en.wikipedia.org/wiki/Box_plot for reference.
+
+        .. code-block:: none
+
+                   whislow    q1    med    q3    whishi
+                               |-----:-----|
+               o      |--------|     :     |--------|    o  o
+                               |-----:-----|
+             flier                                      fliers
+
+        .. note::
+            This is a low-level drawing function for when you already
+            have the statistical parameters. If you want a boxplot based
+            on a dataset, use `~.Axes.boxplot` instead.
 
         Parameters
         ----------
@@ -4170,9 +4184,9 @@ class Axes(_AxesBase):
           - ``fliers``: points representing data beyond the whiskers (fliers).
           - ``means``: points or lines representing the means.
 
-        Examples
+        See Also
         --------
-        .. plot:: gallery/statistics/bxp.py
+        boxplot : Draw a boxplot from data instead of pre-computed statistics.
         """
         # Clamp median line to edge of box by default.
         medianprops = {
@@ -8276,6 +8290,10 @@ such objects
             to identify the quantile values of each of the violin's
             distribution.
 
+        See Also
+        --------
+        .Axes.violin : Draw a violin from pre-computed statistics.
+        boxplot : Draw a box and whisker plot.
         """
 
         def _kde_method(X, coords):
@@ -8296,7 +8314,7 @@ such objects
     def violin(self, vpstats, positions=None, vert=True, widths=0.5,
                showmeans=False, showextrema=True, showmedians=False):
         """
-        Drawing function for violin plots.
+        Draw a violin plot from pre-computed statistics.
 
         Draw a violin plot for each column of *vpstats*. Each filled area
         extends to represent the entire data range, with optional lines at the
@@ -8378,6 +8396,11 @@ such objects
           - ``cquantiles``: A `~.collections.LineCollection` instance created
             to identify the quantiles values of each of the violin's
             distribution.
+
+        See Also
+        --------
+        violin :
+            Draw a violin plot from data instead of pre-computed statistics.
         """
 
         # Statistical quantities to be plotted on the violins
