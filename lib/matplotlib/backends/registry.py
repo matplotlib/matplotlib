@@ -2,6 +2,11 @@ from enum import Enum
 
 
 class BackendFilter(Enum):
+    """
+    Filter used with :meth:`~.BackendRegistry.list_builtins`
+
+    .. versionadded:: 3.9
+    """
     INTERACTIVE = 0
     NON_INTERACTIVE = 1
 
@@ -11,6 +16,8 @@ class BackendRegistry:
     Registry of backends available within Matplotlib.
 
     This is the single source of truth for available backends.
+
+    .. versionadded:: 3.9
     """
     # Built-in backends are those which are included in the Matplotlib repo.
     # A backend with name 'name' is located in the module
@@ -41,9 +48,36 @@ class BackendRegistry:
     }
 
     def backend_for_gui_framework(self, framework):
+        """
+        Return the name of the backend corresponding to the specified GUI framework.
+
+        Parameters
+        ----------
+        framework : str
+            GUI framework such as "qt".
+
+        Returns
+        -------
+        str
+            Backend name.
+        """
         return self._GUI_FRAMEWORK_TO_BACKEND_MAPPING.get(framework)
 
     def list_builtin(self, filter_=None):
+        """
+        Return list of backends that are built into Matplotlib.
+
+        Parameters
+        ----------
+        filter_ : `~.BackendFilter`, optional
+            Filter to apply to returned backends. For example, to return only
+            non-interactive backends use `.BackendFilter.NON_INTERACTIVE`.
+
+        Returns
+        -------
+        list of str
+            Backend names.
+        """
         if filter_ == BackendFilter.INTERACTIVE:
             return self._BUILTIN_INTERACTIVE
         elif filter_ == BackendFilter.NON_INTERACTIVE:
