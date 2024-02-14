@@ -70,7 +70,7 @@ jobs:
           https://github.com/qhull/qhull/raw/2020.2/COPYING.txt
 
       - name: Build wheels for CPython 3.12
-        uses: pypa/cibuildwheel@39a63b5912f086dd459cf6fcb13dcdd3fe3bc24d # v2.15.0
+        uses: pypa/cibuildwheel@ce3fb7832089eb3e723a0a99cab7f3eaccf074fd # v2.16.5
         env:
           CIBW_BUILD: "cp312-*"
           CIBW_SKIP: "*-musllinux* *i686* *win32*"
@@ -94,7 +94,7 @@ jobs:
             pip install --pre "numpy>=1.25"
 
       - name: Build wheels for CPython 3.11
-        uses: pypa/cibuildwheel@39a63b5912f086dd459cf6fcb13dcdd3fe3bc24d # v2.15.0
+        uses: pypa/cibuildwheel@ce3fb7832089eb3e723a0a99cab7f3eaccf074fd # v2.16.5
         env:
           CIBW_BUILD: "cp311-*"
           CIBW_SKIP: "*-musllinux*"
@@ -107,7 +107,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.10
-        uses: pypa/cibuildwheel@39a63b5912f086dd459cf6fcb13dcdd3fe3bc24d # v2.15.0
+        uses: pypa/cibuildwheel@ce3fb7832089eb3e723a0a99cab7f3eaccf074fd # v2.16.5
         env:
           CIBW_BUILD: "cp310-*"
           CIBW_SKIP: "*-musllinux*"
@@ -120,7 +120,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.9
-        uses: pypa/cibuildwheel@39a63b5912f086dd459cf6fcb13dcdd3fe3bc24d # v2.15.0
+        uses: pypa/cibuildwheel@ce3fb7832089eb3e723a0a99cab7f3eaccf074fd # v2.16.5
         env:
           CIBW_BUILD: "cp39-*"
           CIBW_SKIP: "*-musllinux*"
@@ -133,7 +133,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.8
-        uses: pypa/cibuildwheel@39a63b5912f086dd459cf6fcb13dcdd3fe3bc24d # v2.15.0
+        uses: pypa/cibuildwheel@ce3fb7832089eb3e723a0a99cab7f3eaccf074fd # v2.16.5
         env:
           CIBW_BUILD: "cp38-*"
           CIBW_SKIP: "*-musllinux*"
@@ -146,7 +146,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for PyPy 3.8
-        uses: pypa/cibuildwheel@39a63b5912f086dd459cf6fcb13dcdd3fe3bc24d # v2.15.0
+        uses: pypa/cibuildwheel@ce3fb7832089eb3e723a0a99cab7f3eaccf074fd # v2.16.5
         env:
           CIBW_BUILD: "pp38-*"
           CIBW_SKIP: "*-musllinux*"
@@ -157,7 +157,7 @@ jobs:
         if: matrix.cibw_archs != 'aarch64'
 
       - name: Build wheels for PyPy 3.9
-        uses: pypa/cibuildwheel@39a63b5912f086dd459cf6fcb13dcdd3fe3bc24d # v2.15.0
+        uses: pypa/cibuildwheel@ce3fb7832089eb3e723a0a99cab7f3eaccf074fd # v2.16.5
         env:
           CIBW_BUILD: "pp39-*"
           CIBW_SKIP: "*-musllinux*"
