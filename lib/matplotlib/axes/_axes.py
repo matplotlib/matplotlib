@@ -3885,7 +3885,8 @@ class Axes(_AxesBase):
             boxes are drawn with Patch artists.
 
         labels : sequence, optional
-            Labels for each dataset (one per dataset).
+            Labels for each dataset (one per dataset). These are used for
+            x-tick labels; *not* for legend entries.
 
         manage_ticks : bool, default: True
             If True, the tick locations and labels will be adjusted to match
@@ -4003,9 +4004,6 @@ class Axes(_AxesBase):
             boxprops['linestyle'] = 'solid'  # Not consistent with bxp.
             if 'color' in boxprops:
                 boxprops['edgecolor'] = boxprops.pop('color')
-
-        if labels:
-            boxprops['label'] = labels
 
         # if non-default sym value, put it into the flier dictionary
         # the logic for providing the default symbol ('b+') now lives
