@@ -39,28 +39,25 @@ _deprecated_non_interactive_bk = backend_registry.list_builtin(
     BackendFilter.NON_INTERACTIVE)
 _deprecated_all_backends = backend_registry.list_builtin()
 
-_deprecated_names_and_args = {
-    "interactive_bk": "matplotlib.backends.registry.BackendFilter.INTERACTIVE",
-    "non_interactive_bk": "matplotlib.backends.registry.BackendFilter.NON_INTERACTIVE",
-    "all_backends": "",
-}
 
+@_api.caching_module_getattr
+class __getattr__:
+    interactive_bk = _api.deprecated(
+        "3.9",
+        alternative="``matplotlib.backends.registry.backend_registry.list_builtin"
+            "(matplotlib.backends.registry.BackendFilter.INTERACTIVE)``"
+    )(property(lambda self: _deprecated_interactive_bk))
 
-def __getattr__(name):
-    if name in _deprecated_names_and_args:
-        arg = _deprecated_names_and_args[name]
-        _api.warn_deprecated(
-            "3.9.0",
-            name=name,
-            alternative="``matplotlib.backends.registry.backend_registry"
-                f".list_builtin({arg})``",
-        )
-        return globals()[f"_deprecated_{name}"]
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    non_interactive_bk = _api.deprecated(
+        "3.9",
+        alternative="``matplotlib.backends.registry.backend_registry.list_builtin"
+            "(matplotlib.backends.registry.BackendFilter.NON_INTERACTIVE)``"
+    )(property(lambda self: _deprecated_non_interactive_bk))
 
-
-def __dir__():
-    return sorted(globals().keys() | _deprecated_names_and_args.keys())
+    all_backends = _api.deprecated(
+        "3.9",
+        alternative="``matplotlib.backends.registry.backend_registry.list_builtin()``"
+    )(property(lambda self: _deprecated_all_backends))
 
 
 class ValidateInStrings:

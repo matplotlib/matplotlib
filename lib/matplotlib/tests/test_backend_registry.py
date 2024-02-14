@@ -3,6 +3,7 @@ from typing import Any
 
 import pytest
 
+import matplotlib as mpl
 from matplotlib.backends.registry import BackendFilter, backend_registry
 
 
@@ -54,3 +55,13 @@ def test_list_builtin_with_filter(filter, expected):
     assert not has_duplicates(backends)
     # Compare using sets as order is not important
     assert {*backends} == {*expected}
+
+
+def test_deprecated_rcsetup_attributes():
+    match = "was deprecated in Matplotlib 3.9"
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
+        mpl.rcsetup.interactive_bk
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
+        mpl.rcsetup.non_interactive_bk
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
+        mpl.rcsetup.all_backends
