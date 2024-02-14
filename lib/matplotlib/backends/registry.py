@@ -3,7 +3,7 @@ from enum import Enum
 
 class BackendFilter(Enum):
     """
-    Filter used with :meth:`~.BackendRegistry.list_builtins`
+    Filter used with :meth:`~matplotlib.backends.registry.BackendRegistry.list_builtin`
 
     .. versionadded:: 3.9
     """
@@ -16,6 +16,9 @@ class BackendRegistry:
     Registry of backends available within Matplotlib.
 
     This is the single source of truth for available backends.
+
+    All use of ``BackendRegistry`` should be via the singleton instance
+    ``backend_registry``.
 
     .. versionadded:: 3.9
     """
