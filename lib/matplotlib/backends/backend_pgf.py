@@ -307,7 +307,8 @@ class LatexManager:
         # Open LaTeX process for real work; register it for deletion.  On
         # Windows, we must ensure that the subprocess has quit before being
         # able to delete the tmpdir in which it runs; in order to do so, we
-        # must first `kill()` it, and then `communicate()` with it.
+        # must first `kill()` it, and then `communicate()` with or `wait()` on
+        # it.
         try:
             self.latex = subprocess.Popen(
                 [mpl.rcParams["pgf.texsystem"], "-halt-on-error"],
@@ -324,7 +325,10 @@ class LatexManager:
 
         def finalize_latex(latex):
             latex.kill()
-            latex.communicate()
+            try:
+                latex.communicate()
+            except RuntimeError:
+                latex.wait()
 
         self._finalize_latex = weakref.finalize(
             self, finalize_latex, self.latex)
