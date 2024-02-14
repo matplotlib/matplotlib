@@ -1,0 +1,12 @@
+`~.rcsetup.interactive_bk`, `~.rcsetup.non_interactive_bk` and `~.rcsetup.all_backends`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... are deprecated and replaced by
+:meth:`matplotlib.backends.registry.backend_registry.list_builtin`
+with the following arguments
+
+- `matplotlib.backends.registry.BackendFilter.INTERACTIVE`
+- `matplotlib.backends.registry.BackendFilter.NON_INTERACTIVE`
+- ``None``
+
+respectively.
