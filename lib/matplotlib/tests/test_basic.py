@@ -1,8 +1,9 @@
 import builtins
 import os
-import subprocess
 import sys
 import textwrap
+
+from matplotlib.testing import subprocess_run_for_testing
 
 
 def test_simple():
@@ -41,6 +42,7 @@ def test_lazy_imports():
     assert 'urllib.request' not in sys.modules
     """)
 
-    subprocess.check_call(
+    subprocess_run_for_testing(
         [sys.executable, '-c', source],
-        env={**os.environ, "MPLBACKEND": "", "MATPLOTLIBRC": os.devnull})
+        env={**os.environ, "MPLBACKEND": "", "MATPLOTLIBRC": os.devnull},
+        check=True)

@@ -1,8 +1,9 @@
-import subprocess
 import os
 import sys
 import pytest
+
 import matplotlib.backends.backend_webagg_core
+from matplotlib.testing import subprocess_run_for_testing
 
 
 @pytest.mark.parametrize("backend", ["webagg", "nbagg"])
@@ -23,9 +24,7 @@ def test_webagg_fallback(backend):
         + "print(plt.get_backend());"
         f"assert '{backend}' == plt.get_backend().lower();"
     )
-    ret = subprocess.call([sys.executable, "-c", test_code], env=env)
-
-    assert ret == 0
+    subprocess_run_for_testing([sys.executable, "-c", test_code], env=env, check=True)
 
 
 def test_webagg_core_no_toolbar():

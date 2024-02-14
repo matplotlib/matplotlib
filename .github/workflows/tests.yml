@@ -337,9 +337,10 @@ jobs:
           fi
       - name: Upload code coverage
         if: ${{ github.event_name != 'schedule' }}
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }}"
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - uses: actions/upload-artifact@v4
         if: failure()

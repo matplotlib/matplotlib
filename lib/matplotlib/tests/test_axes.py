@@ -1517,6 +1517,19 @@ def test_pcolorargs():
         ax.pcolormesh(X, Y, Z, shading='auto')
 
 
+def test_pcolormesh_underflow_error():
+    """
+    Test that underflow errors don't crop up in pcolormesh.  Probably
+    a numpy bug (https://github.com/numpy/numpy/issues/25810).
+    """
+    with np.errstate(under="raise"):
+        x = np.arange(0, 3, 0.1)
+        y = np.arange(0, 6, 0.1)
+        z = np.random.randn(len(y), len(x))
+        fig, ax = plt.subplots()
+        ax.pcolormesh(x, y, z)
+
+
 def test_pcolorargs_with_read_only():
     x = np.arange(6).reshape(2, 3)
     xmask = np.broadcast_to([False, True, False], x.shape)  # read-only array

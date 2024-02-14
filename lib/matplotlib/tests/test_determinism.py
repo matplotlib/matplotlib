@@ -3,7 +3,6 @@ Test output reproducibility.
 """
 
 import os
-import subprocess
 import sys
 
 import pytest
@@ -12,6 +11,7 @@ import matplotlib as mpl
 import matplotlib.testing.compare
 from matplotlib import pyplot as plt
 from matplotlib.testing._markers import needs_ghostscript, needs_usetex
+from matplotlib.testing import subprocess_run_for_testing
 
 
 def _save_figure(objects='mhi', fmt="pdf", usetex=False):
@@ -89,12 +89,13 @@ def test_determinism_check(objects, fmt, usetex):
         Output format.
     """
     plots = [
-        subprocess.check_output(
+        subprocess_run_for_testing(
             [sys.executable, "-R", "-c",
              f"from matplotlib.tests.test_determinism import _save_figure;"
              f"_save_figure({objects!r}, {fmt!r}, {usetex})"],
             env={**os.environ, "SOURCE_DATE_EPOCH": "946684800",
-                 "MPLBACKEND": "Agg"})
+                 "MPLBACKEND": "Agg"},
+            text=False, capture_output=True, check=True).stdout
         for _ in range(3)
     ]
     for p in plots[1:]:
@@ -129,10 +130,10 @@ def test_determinism_source_date_epoch(fmt, string):
     string : bytes
         Timestamp string for 2000-01-01 00:00 UTC.
     """
-    buf = subprocess.check_output(
+    buf = subprocess_run_for_testing(
         [sys.executable, "-R", "-c",
          f"from matplotlib.tests.test_determinism import _save_figure; "
          f"_save_figure('', {fmt!r})"],
         env={**os.environ, "SOURCE_DATE_EPOCH": "946684800",
-             "MPLBACKEND": "Agg"})
+             "MPLBACKEND": "Agg"}, capture_output=True, text=False, check=True).stdout
     assert string in buf
