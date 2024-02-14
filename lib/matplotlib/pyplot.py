@@ -305,7 +305,7 @@ def switch_backend(newbackend: str) -> None:
 
         if (current_framework and
                 (backend := backend_registry.backend_for_gui_framework(
-                current_framework))):
+                    current_framework))):
             candidates = [backend]
         else:
             candidates = []

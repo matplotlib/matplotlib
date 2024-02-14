@@ -31,11 +31,11 @@ def test_list_builtin():
     backends = backend_registry.list_builtin()
     assert not has_duplicates(backends)
     # Compare using sets as order is not important
-    assert set(backends) == set((
+    assert {*backends} == {
         'GTK3Agg', 'GTK3Cairo', 'GTK4Agg', 'GTK4Cairo', 'MacOSX', 'nbAgg', 'QtAgg',
         'QtCairo', 'Qt5Agg', 'Qt5Cairo', 'TkAgg', 'TkCairo', 'WebAgg', 'WX', 'WXAgg',
         'WXCairo', 'agg', 'cairo', 'pdf', 'pgf', 'ps', 'svg', 'template',
-    ))
+    }
 
 
 @pytest.mark.parametrize(
@@ -53,4 +53,4 @@ def test_list_builtin_with_filter(filter, expected):
     backends = backend_registry.list_builtin(filter)
     assert not has_duplicates(backends)
     # Compare using sets as order is not important
-    assert set(backends) == set(expected)
+    assert {*backends} == {*expected}
