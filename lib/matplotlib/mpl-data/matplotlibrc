@@ -677,7 +677,9 @@
                     #    line (in pixels).
                     # - *randomness* is the factor by which the length is
                     #    randomly scaled.
-#path.effects:
+#path.effects:      # list of (patheffects function name, {**kwargs} tuples
+                    # ('withStroke', {'linewidth': 4}), ('SimpleLineShadow')
+
 
 
 ## ***************************************************************************

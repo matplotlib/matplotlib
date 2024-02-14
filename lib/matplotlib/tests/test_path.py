@@ -253,6 +253,18 @@ def test_xkcd():
         ax.plot(x, y)
 
 
+@image_comparison(['xkcd.png'], remove_text=True)
+def test_xkcd_style():
+    np.random.seed(0)
+
+    x = np.linspace(0, 2 * np.pi, 100)
+    y = np.sin(x)
+
+    with plt.style.context('xkcd'):
+        fig, ax = plt.subplots()
+        ax.plot(x, y)
+
+
 @image_comparison(['xkcd_marker.png'], remove_text=True)
 def test_xkcd_marker():
     np.random.seed(0)
@@ -263,6 +275,22 @@ def test_xkcd_marker():
     y3 = 2.5 * np.ones(8)
 
     with plt.xkcd():
+        fig, ax = plt.subplots()
+        ax.plot(x, y1, '+', ms=10)
+        ax.plot(x, y2, 'o', ms=10)
+        ax.plot(x, y3, '^', ms=10)
+
+
+@image_comparison(['xkcd_marker.png'], remove_text=True)
+def test_xkcd_marker_style():
+    np.random.seed(0)
+
+    x = np.linspace(0, 5, 8)
+    y1 = x
+    y2 = 5 - x
+    y3 = 2.5 * np.ones(8)
+
+    with plt.style.context('xkcd'):
         fig, ax = plt.subplots()
         ax.plot(x, y1, '+', ms=10)
         ax.plot(x, y2, 'o', ms=10)

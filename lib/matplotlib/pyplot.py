@@ -703,13 +703,29 @@ def setp(obj, *args, **kwargs):
 def xkcd(
     scale: float = 1, length: float = 100, randomness: float = 2
 ) -> ExitStack:
-    """
-    Turn on `xkcd <https://xkcd.com/>`_ sketch-style drawing mode.
+    r"""
+    [*Discouraged*] Turn on `xkcd <https://xkcd.com/>`_ sketch-style drawing mode.
 
-    This will only have an effect on things drawn after this function is called.
+    .. admonition:: Discouraged
 
-    For best results, install the `xkcd script <https://github.com/ipython/xkcd-font/>`_
-    font; xkcd fonts are not packaged with Matplotlib.
+        The use of ``plt.xkcd()`` is discouraged; instead use
+        the ``xkcd`` style sheet::
+
+            plt.style.use('xkcd')
+            with plt.style.use('xkcd'):
+
+        Instead of passing in arguments, modify the ``rcParam``::
+
+            import matplotlib as mpl
+
+            mpl.rcParams['path.sketch'] = (scale, length, randomness)
+
+        For more information, see :ref:`customizing`
+
+
+    This drawing mode only affects things drawn after this function is called.
+    For best results, the "xkcd script" font should be installed; it is
+    not included with Matplotlib.
 
     Parameters
     ----------
@@ -746,26 +762,8 @@ def xkcd(
     stack = ExitStack()
     stack.callback(dict.update, rcParams, rcParams.copy())  # type: ignore
 
-    from matplotlib import patheffects
-    rcParams.update({
-        'font.family': ['xkcd', 'xkcd Script', 'Comic Neue', 'Comic Sans MS'],
-        'font.size': 14.0,
-        'path.sketch': (scale, length, randomness),
-        'path.effects': [
-            patheffects.withStroke(linewidth=4, foreground="w")],
-        'axes.linewidth': 1.5,
-        'lines.linewidth': 2.0,
-        'figure.facecolor': 'white',
-        'grid.linewidth': 0.0,
-        'axes.grid': False,
-        'axes.unicode_minus': False,
-        'axes.edgecolor': 'black',
-        'xtick.major.size': 8,
-        'xtick.major.width': 3,
-        'ytick.major.size': 8,
-        'ytick.major.width': 3,
-    })
-
+    rcParams.update({**style.library["xkcd"],
+                    'path.sketch': (scale, length, randomness)})
     return stack
 
 
