@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 from PIL import Image
 import shutil
-import subprocess
 import sys
 import warnings
 
@@ -17,6 +16,8 @@ from matplotlib.font_manager import (
     json_dump, json_load, get_font, is_opentype_cff_font,
     MSUserFontDirectories, _get_fontconfig_fonts, ttfFontProperty)
 from matplotlib import cbook, ft2font, pyplot as plt, rc_context, figure as mfigure
+from matplotlib.testing import subprocess_run_helper
+
 
 has_fclist = shutil.which('fc-list') is not None
 
@@ -275,15 +276,8 @@ def _test_threading():
 
 def test_fontcache_thread_safe():
     pytest.importorskip('threading')
-    import inspect
 
-    proc = subprocess.run(
-        [sys.executable, "-c",
-         inspect.getsource(_test_threading) + '\n_test_threading()']
-    )
-    if proc.returncode:
-        pytest.fail("The subprocess returned with non-zero exit status "
-                    f"{proc.returncode}.")
+    subprocess_run_helper(_test_threading, timeout=10)
 
 
 def test_fontentry_dataclass():
