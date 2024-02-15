@@ -650,3 +650,39 @@ def test_rcparams_path_sketch_from_file(tmp_path, value):
     rc_path.write_text(f"path.sketch: {value}")
     with mpl.rc_context(fname=rc_path):
         assert mpl.rcParams["path.sketch"] == (1, 2, 3)
+
+
+def test_rcparams_getdefault():
+    with mpl.rc_context({"image.lut": 128}):
+        assert mpl.rcParams.get_default("image.lut") == 256
+
+
+def test_rcparams_getdefaults():
+    mpl.rc("image", lut=128)
+    defaults = mpl.rcParams.get_defaults()
+    assert defaults == mpl.rcParams._defaults
+
+
+def test_rcdefaults():
+    # webagg.port is a style blacklisted key that shouldn't be
+    # updated when resetting rcParams to default values.
+    mpl.rcParams["webagg.port"] = 9000
+    # lines.linewidth is not a style blacklisted key and should be
+    # reset to the default value.
+    # breakpoint()
+    lw = mpl.rcParams.get_default("lines.linewidth")
+    mpl.rcParams["lines.linewidth"] = lw + 1
+    mpl.rcdefaults()
+    assert mpl.rcParams["webagg.port"] == 9000
+    assert mpl.rcParams["lines.linewidth"] == lw
+
+
+def test_rcparams_reset():
+    mpl.rcParams["image.lut"] = 128
+    mpl.rcParams.reset()
+    assert mpl.rcParams["image.lut"] == 256
+
+
+def test_rcparams_clear():
+    with pytest.raises(mpl.MatplotlibDeprecationWarning):
+        mpl.rcParams.clear()

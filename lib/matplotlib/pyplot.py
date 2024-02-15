@@ -65,7 +65,9 @@ from matplotlib.backend_bases import (
     FigureCanvasBase, FigureManagerBase, MouseButton)
 from matplotlib.figure import Figure, FigureBase, figaspect
 from matplotlib.gridspec import GridSpec, SubplotSpec
-from matplotlib import rcsetup, rcParamsDefault, rcParamsOrig
+from matplotlib import rcParams, get_backend, rcParamsOrig
+from matplotlib.rcsetup import interactive_bk as _interactive_bk
+from matplotlib.rcsetup import _auto_backend_sentinel
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 from matplotlib.axes import Subplot  # noqa: F401
@@ -299,7 +301,7 @@ def switch_backend(newbackend: str) -> None:
     # make sure the init is pulled up so we can assign to it later
     import matplotlib.backends
 
-    if newbackend is rcsetup._auto_backend_sentinel:
+    if newbackend is _auto_backend_sentinel:
         current_framework = cbook._get_running_interactive_framework()
         mapping = {'qt': 'qtagg',
                    'gtk3': 'gtk3agg',
@@ -334,7 +336,7 @@ def switch_backend(newbackend: str) -> None:
             rcParamsOrig["backend"] = "agg"
             return
     # have to escape the switch on access logic
-    old_backend = dict.__getitem__(rcParams, 'backend')
+    old_backend = rcParams._get('backend')
 
     module = importlib.import_module(cbook._backend_module_name(newbackend))
     canvas_class = module.FigureCanvas
@@ -411,7 +413,7 @@ def switch_backend(newbackend: str) -> None:
     _log.debug("Loaded backend %s version %s.",
                newbackend, backend_mod.backend_version)
 
-    rcParams['backend'] = rcParamsDefault['backend'] = newbackend
+    rcParams['backend'] = newbackend
     _backend_mod = backend_mod
     for func_name in ["new_figure_manager", "draw_if_interactive", "show"]:
         globals()[func_name].__signature__ = inspect.signature(
@@ -744,7 +746,7 @@ def xkcd(
             "xkcd mode is not compatible with text.usetex = True")
 
     stack = ExitStack()
-    stack.callback(dict.update, rcParams, rcParams.copy())  # type: ignore
+    stack.callback(rcParams.update, rcParams.copy())  # type: ignore
 
     from matplotlib import patheffects
     rcParams.update({
@@ -2502,9 +2504,9 @@ def polar(*args, **kwargs) -> list[Line2D]:
 # is compatible with the current running interactive framework.
 if (rcParams["backend_fallback"]
         and rcParams._get_backend_or_none() in (  # type: ignore
-            set(rcsetup.interactive_bk) - {'WebAgg', 'nbAgg'})
+            set(_interactive_bk) - {'WebAgg', 'nbAgg'})
         and cbook._get_running_interactive_framework()):  # type: ignore
-    rcParams._set("backend", rcsetup._auto_backend_sentinel)  # type: ignore
+    rcParams._set("backend", _auto_backend_sentinel)  # type: ignore
 
 # fmt: on
 

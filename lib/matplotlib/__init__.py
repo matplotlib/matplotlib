@@ -134,8 +134,8 @@ __all__ = [
 
 
 import atexit
-from collections import namedtuple
-from collections.abc import MutableMapping
+from collections import namedtuple, ChainMap
+from collections.abc import MutableMapping, Mapping, KeysView, ValuesView, ItemsView
 import contextlib
 import functools
 import importlib
@@ -153,6 +153,7 @@ import sys
 import tempfile
 
 from packaging.version import parse as parse_version
+from copy import deepcopy
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
@@ -649,7 +650,7 @@ _deprecated_remain_as_none = {}
 @_docstring.Substitution(
     "\n".join(map("- {}".format, sorted(rcsetup._validators, key=str.lower)))
 )
-class RcParams(MutableMapping, dict):
+class RcParams(MutableMapping):
     """
     A dict-like key-value store for config parameters, including validation.
 
@@ -664,12 +665,13 @@ class RcParams(MutableMapping, dict):
     --------
     :ref:`customizing-with-matplotlibrc-files`
     """
-
     validate = rcsetup._validators
 
-    # validate values on the way in
     def __init__(self, *args, **kwargs):
+        self._rcvalues = ChainMap({})
         self.update(*args, **kwargs)
+        self._rcvalues = self._rcvalues.new_child()
+        self._defaults = self._rcvalues.maps[-1]
 
     def _set(self, key, val):
         """
@@ -689,7 +691,7 @@ class RcParams(MutableMapping, dict):
 
         :meta public:
         """
-        dict.__setitem__(self, key, val)
+        self._rcvalues[key] = val
 
     def _get(self, key):
         """
@@ -710,7 +712,7 @@ class RcParams(MutableMapping, dict):
 
         :meta public:
         """
-        return dict.__getitem__(self, key)
+        return self._rcvalues[key]
 
     def __setitem__(self, key, val):
         try:
@@ -765,30 +767,84 @@ class RcParams(MutableMapping, dict):
 
         return self._get(key)
 
+    def get_default(self, key):
+        """Return default value for the key set during initialization."""
+        if key in _deprecated_map:
+            version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
+            _api.warn_deprecated(
+                version, name=key, obj_type="rcparam", alternative=alt_key)
+            return inverse_alt(self._get(alt_key))
+
+        elif key in _deprecated_ignore_map:
+            version, alt_key = _deprecated_ignore_map[key]
+            _api.warn_deprecated(
+                version, name=key, obj_type="rcparam", alternative=alt_key)
+            return self._defaults[alt_key] if alt_key else None
+
+        return self._defaults[key]
+
+    def get_defaults(self):
+        """Return default values set during initialization."""
+        return self._defaults.copy()
+
     def _get_backend_or_none(self):
         """Get the requested backend, if any, without triggering resolution."""
         backend = self._get("backend")
         return None if backend is rcsetup._auto_backend_sentinel else backend
 
+    def __delitem__(self, key):
+        if key not in self.validate:
+            raise KeyError(
+                f"{key} is not a valid rc parameter (see rcParams.keys() for "
+                f"a list of valid parameters)")
+        try:
+            del self._rcvalues[key]
+        except KeyError as err:
+            raise KeyError(
+                f"No custom value set for {key}. Cannot delete default value."
+            ) from err
+
+    def __contains__(self, key):
+        return key in self._rcvalues
+
+    def __iter__(self):
+        """Yield from sorted list of keys"""
+        yield from sorted(self._rcvalues.keys())
+
+    def __len__(self):
+        return len(self._rcvalues)
+
     def __repr__(self):
         class_name = self.__class__.__name__
         indent = len(class_name) + 1
         with _api.suppress_matplotlib_deprecation_warning():
-            repr_split = pprint.pformat(dict(self), indent=1,
+            repr_split = pprint.pformat(dict(self._rcvalues.items()), indent=1,
                                         width=80 - indent).split('\n')
         repr_indented = ('\n' + ' ' * indent).join(repr_split)
         return f'{class_name}({repr_indented})'
 
     def __str__(self):
-        return '\n'.join(map('{0[0]}: {0[1]}'.format, sorted(self.items())))
+        return '\n'.join(map('{0[0]}: {0[1]}'.format, sorted(self._rcvalues.items())))
 
-    def __iter__(self):
-        """Yield sorted list of keys."""
-        with _api.suppress_matplotlib_deprecation_warning():
-            yield from sorted(dict.__iter__(self))
+    @_api.deprecated("3.8")
+    def clear(self):
+        pass
 
-    def __len__(self):
-        return dict.__len__(self)
+    def reset(self):
+        self._rcvalues.clear()
+
+    def setdefault(self, key, default=None):
+        """Insert key with a value of default if key is not in the dictionary.
+
+        Return the value for key if key is in the dictionary, else default.
+        """
+        if key in self:
+            return self[key]
+        self[key] = default
+        return default
+
+    def copy(self):
+        return deepcopy(self)
 
     def find_all(self, pattern):
         """
@@ -805,13 +861,6 @@ class RcParams(MutableMapping, dict):
         return RcParams((key, value)
                         for key, value in self.items()
                         if pattern_re.search(key))
-
-    def copy(self):
-        """Copy this RcParams instance."""
-        rccopy = RcParams()
-        for k in self:  # Skip deprecations and revalidation.
-            rccopy._set(k, self._get(k))
-        return rccopy
 
 
 def rc_params(fail_on_error=False):
@@ -893,7 +942,7 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
                          fname)
             raise
 
-    config = RcParams()
+    config = dict()
 
     for key, (val, line, line_no) in rc_temp.items():
         if key in rcsetup._validators:
@@ -922,7 +971,7 @@ https://github.com/matplotlib/matplotlib/blob/%(version)s/lib/matplotlib/mpl-dat
 or from the matplotlib source distribution""",
                          dict(key=key, fname=fname, line_no=line_no,
                               line=line.rstrip('\n'), version=version))
-    return config
+    return RcParams(config)
 
 
 def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
@@ -946,7 +995,7 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
         return config_from_file
 
     with _api.suppress_matplotlib_deprecation_warning():
-        config = RcParams({**rcParamsDefault, **config_from_file})
+        config = RcParams({**rcParams.get_defaults(), **config_from_file})
 
     if "".join(config['text.latex.preamble']):
         _log.info("""
@@ -961,24 +1010,21 @@ Please do not ask for support with these customizations active.
     return config
 
 
-# When constructing the global instances, we need to perform certain updates
-# by explicitly calling the superclass (dict.update, dict.items) to avoid
-# triggering resolution of _auto_backend_sentinel.
-rcParamsDefault = _rc_params_in_file(
+rcParams = _rc_params_in_file(
     cbook._get_data_path("matplotlibrc"),
     # Strip leading comment.
     transform=lambda line: line[1:] if line.startswith("#") else line,
     fail_on_error=True)
-dict.update(rcParamsDefault, rcsetup._hardcoded_defaults)
+rcParams._rcvalues = rcParams._rcvalues.parents
+rcParams.update(rcsetup._hardcoded_defaults)
 # Normally, the default matplotlibrc file contains *no* entry for backend (the
 # corresponding line starts with ##, not #; we fill on _auto_backend_sentinel
 # in that case.  However, packagers can set a different default backend
 # (resulting in a normal `#backend: foo` line) in which case we should *not*
 # fill in _auto_backend_sentinel.
-dict.setdefault(rcParamsDefault, "backend", rcsetup._auto_backend_sentinel)
-rcParams = RcParams()  # The global instance.
-dict.update(rcParams, dict.items(rcParamsDefault))
-dict.update(rcParams, _rc_params_in_file(matplotlib_fname()))
+rcParams.update(_rc_params_in_file(matplotlib_fname()))
+rcParams.setdefault("backend", rcsetup._auto_backend_sentinel)
+rcParams._rcvalues = rcParams._rcvalues.new_child()
 rcParamsOrig = rcParams.copy()
 with _api.suppress_matplotlib_deprecation_warning():
     # This also checks that all rcParams are indeed listed in the template.
@@ -986,7 +1032,7 @@ with _api.suppress_matplotlib_deprecation_warning():
     defaultParams = rcsetup.defaultParams = {
         # We want to resolve deprecated rcParams, but not backend...
         key: [(rcsetup._auto_backend_sentinel if key == "backend" else
-               rcParamsDefault[key]),
+               rcParams.get_default(key)),
               validator]
         for key, validator in rcsetup._validators.items()}
 if rcParams['axes.formatter.use_locale']:
@@ -1085,13 +1131,10 @@ def rcdefaults():
         Use a specific style file.  Call ``style.use('default')`` to restore
         the default style.
     """
-    # Deprecation warnings were already handled when creating rcParamsDefault,
-    # no need to reemit them here.
-    with _api.suppress_matplotlib_deprecation_warning():
-        from .style.core import STYLE_BLACKLIST
-        rcParams.clear()
-        rcParams.update({k: v for k, v in rcParamsDefault.items()
-                         if k not in STYLE_BLACKLIST})
+    # # Deprecation warnings were already handled when creating rcParamsDefault,
+    # # no need to reemit them here.
+    from .style import core
+    core.use('default')
 
 
 def rc_file_defaults():
@@ -1132,7 +1175,7 @@ def rc_file(fname, *, use_default_template=True):
         from .style.core import STYLE_BLACKLIST
         rc_from_file = rc_params_from_file(
             fname, use_default_template=use_default_template)
-        rcParams.update({k: rc_from_file[k] for k in rc_from_file
+        rcParams.update({k: rc_from_file[k] for k in rc_from_file.keys()
                          if k not in STYLE_BLACKLIST})
 
 
@@ -1181,16 +1224,18 @@ def rc_context(rc=None, fname=None):
             plt.plot(x, y)
 
     """
-    orig = dict(rcParams.copy())
-    del orig['backend']
     try:
+        rcParams._rcvalues = rcParams._rcvalues.new_child()
         if fname:
             rc_file(fname)
         if rc:
             rcParams.update(rc)
         yield
     finally:
-        dict.update(rcParams, orig)  # Revert to the original rcs.
+        # Revert to the original rcs.
+        backend = rcParams["backend"]
+        rcParams._rcvalues = rcParams._rcvalues.parents
+        rcParams["backend"] = backend
 
 
 def use(backend, *, force=True):
