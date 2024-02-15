@@ -1197,10 +1197,18 @@ def test_plot_single_input_multiple_label(label_array):
     x = [1, 2, 3]
     y = [2, 5, 6]
     fig, ax = plt.subplots()
-    ax.plot(x, y, label=label_array)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='Passing label as a length 2 sequence'):
+        ax.plot(x, y, label=label_array)
     leg = ax.legend()
     assert len(leg.get_texts()) == 1
     assert leg.get_texts()[0].get_text() == str(label_array)
+
+
+def test_plot_single_input_list_label():
+    fig, ax = plt.subplots()
+    line, = ax.plot([[0], [1]], label=['A'])
+    assert line.get_label() == 'A'
 
 
 def test_plot_multiple_label_incorrect_length_exception():
