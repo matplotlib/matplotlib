@@ -33,31 +33,30 @@ from matplotlib._enums import JoinStyle, CapStyle
 from cycler import Cycler, cycler as ccycler
 
 
-# Deprecation of module-level attributes using PEP 562
-_deprecated_interactive_bk = backend_registry.list_builtin(BackendFilter.INTERACTIVE)
-_deprecated_non_interactive_bk = backend_registry.list_builtin(
-    BackendFilter.NON_INTERACTIVE)
-_deprecated_all_backends = backend_registry.list_builtin()
-
-
 @_api.caching_module_getattr
 class __getattr__:
-    interactive_bk = _api.deprecated(
+    @_api.deprecated(
         "3.9",
         alternative="``matplotlib.backends.registry.backend_registry.list_builtin"
-            "(matplotlib.backends.registry.BackendFilter.INTERACTIVE)``"
-    )(property(lambda self: _deprecated_interactive_bk))
+            "(matplotlib.backends.registry.BackendFilter.INTERACTIVE)``")
+    @property
+    def interactive_bk(self):
+        return backend_registry.list_builtin(BackendFilter.INTERACTIVE)
 
-    non_interactive_bk = _api.deprecated(
+    @_api.deprecated(
         "3.9",
         alternative="``matplotlib.backends.registry.backend_registry.list_builtin"
-            "(matplotlib.backends.registry.BackendFilter.NON_INTERACTIVE)``"
-    )(property(lambda self: _deprecated_non_interactive_bk))
+            "(matplotlib.backends.registry.BackendFilter.NON_INTERACTIVE)``")
+    @property
+    def non_interactive_bk(self):
+        return backend_registry.list_builtin(BackendFilter.NON_INTERACTIVE)
 
-    all_backends = _api.deprecated(
+    @_api.deprecated(
         "3.9",
-        alternative="``matplotlib.backends.registry.backend_registry.list_builtin()``"
-    )(property(lambda self: _deprecated_all_backends))
+        alternative="``matplotlib.backends.registry.backend_registry.list_builtin()``")
+    @property
+    def all_backends(self):
+        return backend_registry.list_builtin()
 
 
 class ValidateInStrings:
