@@ -18,7 +18,7 @@ class BackendRegistry:
     This is the single source of truth for available backends.
 
     All use of ``BackendRegistry`` should be via the singleton instance
-    ``backend_registry``.
+    ``backend_registry`` which can be imported from ``matplotlib.backends``.
 
     .. versionadded:: 3.9
     """

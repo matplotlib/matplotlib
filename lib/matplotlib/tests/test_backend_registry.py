@@ -4,7 +4,7 @@ from typing import Any
 import pytest
 
 import matplotlib as mpl
-from matplotlib.backends.registry import BackendFilter, backend_registry
+from matplotlib.backends import BackendFilter, backend_registry
 
 
 def has_duplicates(seq: Sequence[Any]) -> bool:

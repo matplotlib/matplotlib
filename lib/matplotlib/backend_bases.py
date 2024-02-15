@@ -105,7 +105,7 @@ def _safe_pyplot_import():
         if current_framework is None:
             raise  # No, something else went wrong, likely with the install...
 
-        from matplotlib.backends.registry import backend_registry
+        from matplotlib.backends import backend_registry
         backend = backend_registry.backend_for_gui_framework(current_framework)
         if backend is None:
             raise RuntimeError("No suitable backend for the current GUI framework "

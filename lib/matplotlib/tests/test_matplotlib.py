@@ -57,7 +57,7 @@ def test_use_doc_standard_backends():
             backends += [e.strip() for e in line.split(',') if e]
         return backends
 
-    from matplotlib.backends.registry import BackendFilter, backend_registry
+    from matplotlib.backends import BackendFilter, backend_registry
 
     assert (set(parse('- interactive backends:\n')) ==
             set(backend_registry.list_builtin(BackendFilter.INTERACTIVE)))
