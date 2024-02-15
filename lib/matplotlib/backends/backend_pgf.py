@@ -286,16 +286,7 @@ class LatexManager:
         self._finalize_tmpdir = weakref.finalize(self, self._tmpdir.cleanup)
 
         # test the LaTeX setup to ensure a clean startup of the subprocess
-        try:
-            self._setup_latex_process(expect_reply=False)
-        except FileNotFoundError as err:
-            raise RuntimeError(
-                f"{self.latex.args[0]!r} not found.  Install it or change "
-                f"rcParams['pgf.texsystem'] to an available TeX "
-                f"implementation.") from err
-        except OSError as err:
-            raise RuntimeError(
-                f"Error starting process {self.latex.args[0]!r}") from err
+        self._setup_latex_process(expect_reply=False)
         stdout, stderr = self.latex.communicate("\n\\makeatletter\\@@end\n")
         if self.latex.returncode != 0:
             raise LatexError(
@@ -303,7 +294,6 @@ class LatexManager:
                 f"while processing the following input:\n"
                 f"{self._build_latex_header()}",
                 stdout)
-
         self.latex = None  # Will be set up on first use.
         # Per-instance cache.
         self._get_box_metrics = functools.lru_cache()(self._get_box_metrics)
@@ -317,15 +307,28 @@ class LatexManager:
         # Open LaTeX process for real work; register it for deletion.  On
         # Windows, we must ensure that the subprocess has quit before being
         # able to delete the tmpdir in which it runs; in order to do so, we
-        # must first `kill()` it, and then `communicate()` with it.
-        self.latex = subprocess.Popen(
-            [mpl.rcParams["pgf.texsystem"], "-halt-on-error"],
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            encoding="utf-8", cwd=self.tmpdir)
+        # must first `kill()` it, and then `communicate()` with or `wait()` on
+        # it.
+        try:
+            self.latex = subprocess.Popen(
+                [mpl.rcParams["pgf.texsystem"], "-halt-on-error"],
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                encoding="utf-8", cwd=self.tmpdir)
+        except FileNotFoundError as err:
+            raise RuntimeError(
+                f"{mpl.rcParams['pgf.texsystem']!r} not found; install it or change "
+                f"rcParams['pgf.texsystem'] to an available TeX implementation"
+            ) from err
+        except OSError as err:
+            raise RuntimeError(
+                f"Error starting {mpl.rcParams['pgf.texsystem']!r}") from err
 
         def finalize_latex(latex):
             latex.kill()
-            latex.communicate()
+            try:
+                latex.communicate()
+            except RuntimeError:
+                latex.wait()
 
         self._finalize_latex = weakref.finalize(
             self, finalize_latex, self.latex)

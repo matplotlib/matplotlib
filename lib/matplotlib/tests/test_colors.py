@@ -1,6 +1,7 @@
 import copy
 import itertools
 import unittest.mock
+from packaging.version import parse as parse_version
 
 from io import BytesIO
 import numpy as np
@@ -146,9 +147,13 @@ def test_double_register_builtin_cmap():
     with pytest.raises(ValueError, match='A colormap named "viridis"'):
         with pytest.warns(mpl.MatplotlibDeprecationWarning):
             cm.register_cmap(name, mpl.colormaps[name])
-    with pytest.warns(UserWarning):
-        # TODO is warning more than once!
-        cm.register_cmap(name, mpl.colormaps[name], override_builtin=True)
+
+    if parse_version(pytest.__version__).major < 8:
+        with pytest.warns(UserWarning):
+            cm.register_cmap(name, mpl.colormaps[name], override_builtin=True)
+    else:
+        with pytest.warns(UserWarning), pytest.warns(mpl.MatplotlibDeprecationWarning):
+            cm.register_cmap(name, mpl.colormaps[name], override_builtin=True)
 
 
 def test_unregister_builtin_cmap():
