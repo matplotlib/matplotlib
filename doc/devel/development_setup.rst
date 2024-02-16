@@ -174,7 +174,7 @@ Install Matplotlib in editable mode
 Install Matplotlib in editable mode from the :file:`matplotlib` directory using the
 command ::
 
-    python -m pip install --verbose --no-build-isolation --editable .[dev]
+    python -m pip install --verbose --no-build-isolation --editable ".[dev]"
 
 The 'editable/develop mode' builds everything and places links in your Python environment
 so that Python will be able to import Matplotlib from your development source directory.

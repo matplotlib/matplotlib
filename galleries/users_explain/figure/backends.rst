@@ -182,7 +182,7 @@ GTK3Agg   Agg rendering to a GTK_ 3.x canvas (requires PyGObject_ and
 GTK4Agg   Agg rendering to a GTK_ 4.x canvas (requires PyGObject_ and
           pycairo_).  This backend can be activated in IPython with
           ``%matplotlib gtk4``.
-macosx    Agg rendering into a Cocoa canvas in OSX.  This backend can be
+macosx    Agg rendering into a Cocoa canvas in macOS.  This backend can be
           activated in IPython with ``%matplotlib osx``.
 TkAgg     Agg rendering to a Tk_ canvas (requires TkInter_). This
           backend can be activated in IPython with ``%matplotlib tk``.

@@ -133,7 +133,7 @@ class ContourLabeler:
 
         use_clabeltext : bool, default: False
             If ``True``, use `.Text.set_transform_rotates_text` to ensure that
-            label rotation is updated whenever the axes aspect changes.
+            label rotation is updated whenever the Axes aspect changes.
 
         zorder : float or None, default: ``(2 + contour.get_zorder())``
             zorder of the contour labels.
@@ -1032,7 +1032,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         """
         Process *args* and *kwargs*; override in derived classes.
 
-        Must set self.levels, self.zmin and self.zmax, and update axes limits.
+        Must set self.levels, self.zmin and self.zmax, and update Axes limits.
         """
         self.levels = args[0]
         allsegs = args[1]

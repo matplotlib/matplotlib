@@ -12,7 +12,7 @@ fontsize units or in points) away from a corner of the Axes: one using
 
 For convenience, this example uses `.pyplot.subplot_mosaic` and subplot
 labels as keys for the subplots.  However, the approach also works with
-`.pyplot.subplots` or keys that are different than what you want to label the
+`.pyplot.subplots` or keys that are different from what you want to label the
 subplot with.
 """
 

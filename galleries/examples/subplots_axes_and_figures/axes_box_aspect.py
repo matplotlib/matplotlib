@@ -4,8 +4,8 @@ Axes box aspect
 ===============
 
 This demo shows how to set the aspect of an Axes box directly via
-`~.Axes.set_box_aspect`. The box aspect is the ratio between axes height
-and axes width in physical units, independent of the data limits.
+`~.Axes.set_box_aspect`. The box aspect is the ratio between Axes height
+and Axes width in physical units, independent of the data limits.
 This is useful to e.g. produce a square plot, independent of the data it
 contains, or to have a usual plot with the same axes dimensions next to
 an image plot with fixed (data-)aspect.
@@ -14,10 +14,10 @@ The following lists a few use cases for `~.Axes.set_box_aspect`.
 """
 
 # %%
-# A square axes, independent of data
+# A square Axes, independent of data
 # ----------------------------------
 #
-# Produce a square axes, no matter what the data limits are.
+# Produce a square Axes, no matter what the data limits are.
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -30,7 +30,7 @@ ax.set_box_aspect(1)
 plt.show()
 
 # %%
-# Shared square axes
+# Shared square Axes
 # ------------------
 #
 # Produce shared subplots that are squared in size.
@@ -46,10 +46,10 @@ ax2.set_box_aspect(1)
 plt.show()
 
 # %%
-# Square twin axes
+# Square twin Axes
 # ----------------
 #
-# Produce a square axes, with a twin axes. The twinned axes takes over the
+# Produce a square Axes, with a twin Axes. The twinned Axes takes over the
 # box aspect of the parent.
 #
 
@@ -70,9 +70,9 @@ plt.show()
 # -------------------------
 #
 # When creating an image plot with fixed data aspect and the default
-# ``adjustable="box"`` next to a normal plot, the axes would be unequal in
+# ``adjustable="box"`` next to a normal plot, the Axes would be unequal in
 # height. `~.Axes.set_box_aspect` provides an easy solution to that by allowing
-# to have the normal plot's axes use the images dimensions as box aspect.
+# to have the normal plot's Axes use the images dimensions as box aspect.
 #
 # This example also shows that *constrained layout* interplays nicely with
 # a fixed box aspect.
@@ -94,8 +94,8 @@ plt.show()
 #
 # It may be desirable to show marginal distributions next to a plot of joint
 # data. The following creates a square plot with the box aspect of the
-# marginal axes being equal to the width- and height-ratios of the gridspec.
-# This ensures that all axes align perfectly, independent on the size of the
+# marginal Axes being equal to the width- and height-ratios of the gridspec.
+# This ensures that all Axes align perfectly, independent on the size of the
 # figure.
 
 fig5, axs = plt.subplots(2, 2, sharex="col", sharey="row",

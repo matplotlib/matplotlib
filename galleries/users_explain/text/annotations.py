@@ -63,9 +63,9 @@ ax.set_ylim(-2, 2)
 # 'figure points'     points from the lower left corner of the figure
 # 'figure pixels'     pixels from the lower left corner of the figure
 # 'figure fraction'   (0, 0) is lower left of figure and (1, 1) is upper right
-# 'axes points'       points from lower left corner of axes
-# 'axes pixels'       pixels from lower left corner of axes
-# 'axes fraction'     (0, 0) is lower left of axes and (1, 1) is upper right
+# 'axes points'       points from lower left corner of the Axes
+# 'axes pixels'       pixels from lower left corner of the Axes
+# 'axes fraction'     (0, 0) is lower left of Axes and (1, 1) is upper right
 # 'data'              use the axes data coordinate system
 # ==================  ========================================================
 #
@@ -79,7 +79,7 @@ ax.set_ylim(-2, 2)
 # ==================  ========================================================
 #
 # For physical coordinate systems (points or pixels) the origin is the
-# bottom-left of the figure or axes. Points are
+# bottom-left of the figure or Axes. Points are
 # `typographic points <https://en.wikipedia.org/wiki/Point_(typography)>`_
 # meaning that they are a physical unit measuring 1/72 of an inch. Points and
 # pixels are discussed in further detail in :ref:`transforms-fig-scale-dpi`.
@@ -153,7 +153,7 @@ ax.set(xlim=(1, 2), ylim=(1, 2))
 # ==================== =====================================================
 #
 # In the example below, the *xy* point is in the data coordinate system
-# since *xycoords* defaults to 'data'. For a polar axes, this is in
+# since *xycoords* defaults to 'data'. For a polar Axes, this is in
 # (theta, radius) space. The text in this example is placed in the
 # fractional figure coordinate system. :class:`matplotlib.text.Text`
 # keyword arguments like *horizontalalignment*, *verticalalignment* and
@@ -505,7 +505,7 @@ ax.add_artist(ada)
 #
 # The ellipse in the example below will have width and height
 # corresponding to 0.1 and 0.4 in data coordinates and will be
-# automatically scaled when the view limits of the axes change.
+# automatically scaled when the view limits of the Axes change.
 
 from matplotlib.patches import Ellipse
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredAuxTransformBox
@@ -517,7 +517,7 @@ box.drawing_area.add_artist(el)
 ax.add_artist(box)
 
 # %%
-# Another method of anchoring an artist relative to a parent axes or anchor
+# Another method of anchoring an artist relative to a parent Axes or anchor
 # point is via the *bbox_to_anchor* argument of `.AnchoredOffsetbox`. This
 # artist can then be automatically positioned relative to another artist using
 # `.HPacker` and `.VPacker`:
@@ -580,7 +580,7 @@ ax2.annotate("Test", xy=(0.2, 0.2), xycoords="axes fraction")
 
 # %%
 # Another commonly used `.Transform` instance is ``Axes.transData``. This
-# transform  is the coordinate system of the data plotted in the axes. In this
+# transform  is the coordinate system of the data plotted in the Axes. In this
 # example, it is used to draw an arrow between related data points in two
 # Axes. We have passed an empty text because in this case, the annotation
 # connects data points.
@@ -712,7 +712,7 @@ an2 = ax.annotate("Test 2", xy=(0.1, 0.1), xycoords="data",
 #
 # `.ConnectionPatch` is like an annotation without text. While `~.Axes.annotate`
 # is sufficient in most situations, `.ConnectionPatch` is useful when you want
-# to connect points in different axes. For example, here we connect the point
+# to connect points in different Axes. For example, here we connect the point
 # *xy* in the data coordinates of ``ax1`` to point *xy* in the data coordinates
 # of ``ax2``:
 
@@ -727,16 +727,16 @@ fig.add_artist(con)
 
 # %%
 # Here, we added the `.ConnectionPatch` to the *figure*
-# (with `~.Figure.add_artist`) rather than to either axes. This ensures that
-# the ConnectionPatch artist is drawn on top of both axes, and is also necessary
+# (with `~.Figure.add_artist`) rather than to either Axes. This ensures that
+# the ConnectionPatch artist is drawn on top of both Axes, and is also necessary
 # when using :ref:`constrained_layout <constrainedlayout_guide>`
-# for positioning the axes.
+# for positioning the Axes.
 #
 # Zoom effect between Axes
 # ^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # `mpl_toolkits.axes_grid1.inset_locator` defines some patch classes useful for
-# interconnecting two axes.
+# interconnecting two Axes.
 #
 # .. figure:: /gallery/subplots_axes_and_figures/images/sphx_glr_axes_zoom_effect_001.png
 #    :target: /gallery/subplots_axes_and_figures/axes_zoom_effect.html

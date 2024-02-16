@@ -1,6 +1,7 @@
 .. _license:
 
 .. redirect-from:: /users/license
+.. redirect-from:: /users/project/license
 
 *******
 License
@@ -50,7 +51,7 @@ License agreement
    :open:
    :class-container: sdd
 
-   .. literalinclude:: ../../../LICENSE/LICENSE
+   .. literalinclude:: ../../LICENSE/LICENSE
       :language: none
 
 
@@ -61,13 +62,13 @@ Bundled software
 .. dropdown:: JSX Tools Resize Observer
    :class-container: sdd
 
-   .. literalinclude:: ../../../LICENSE/LICENSE_JSXTOOLS_RESIZE_OBSERVER
+   .. literalinclude:: ../../LICENSE/LICENSE_JSXTOOLS_RESIZE_OBSERVER
       :language: none
 
 .. dropdown:: QT4 Editor
    :class-container: sdd
 
-   .. literalinclude:: ../../../LICENSE/LICENSE_QT4_EDITOR
+   .. literalinclude:: ../../LICENSE/LICENSE_QT4_EDITOR
       :language: none
 
 
@@ -79,19 +80,19 @@ Colormaps and themes
 .. dropdown:: ColorBrewer
    :class-container: sdd
 
-   .. literalinclude:: ../../../LICENSE/LICENSE_COLORBREWER
+   .. literalinclude:: ../../LICENSE/LICENSE_COLORBREWER
       :language: none
 
 .. dropdown:: Solarized
    :class-container: sdd
 
-   .. literalinclude:: ../../../LICENSE/LICENSE_SOLARIZED
+   .. literalinclude:: ../../LICENSE/LICENSE_SOLARIZED
       :language: none
 
 .. dropdown:: Yorick
    :class-container: sdd
 
-   .. literalinclude:: ../../../LICENSE/LICENSE_YORICK
+   .. literalinclude:: ../../LICENSE/LICENSE_YORICK
       :language: none
 
 
@@ -103,29 +104,29 @@ Fonts
 .. dropdown:: American Mathematical Society (AMS) fonts
    :class-container: sdd
 
-   .. literalinclude:: ../../../LICENSE/LICENSE_AMSFONTS
+   .. literalinclude:: ../../LICENSE/LICENSE_AMSFONTS
       :language: none
 
 .. dropdown:: BaKoMa
    :class-container: sdd
 
-   .. literalinclude:: ../../../LICENSE/LICENSE_BAKOMA
+   .. literalinclude:: ../../LICENSE/LICENSE_BAKOMA
       :language: none
 
 .. dropdown:: Carlogo
    :class-container: sdd
 
-   .. literalinclude:: ../../../LICENSE/LICENSE_CARLOGO
+   .. literalinclude:: ../../LICENSE/LICENSE_CARLOGO
       :language: none
 
 .. dropdown:: Courier 10
    :class-container: sdd
 
-   .. literalinclude:: ../../../LICENSE/LICENSE_COURIERTEN
+   .. literalinclude:: ../../LICENSE/LICENSE_COURIERTEN
       :language: none
 
 .. dropdown:: STIX
    :class-container: sdd
 
-   .. literalinclude:: ../../../LICENSE/LICENSE_STIX
+   .. literalinclude:: ../../LICENSE/LICENSE_STIX
       :language: none

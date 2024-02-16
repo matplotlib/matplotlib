@@ -2,14 +2,21 @@
 Low-level text helper utilities.
 """
 
+from __future__ import annotations
+
 import dataclasses
 
 from . import _api
-from .ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
+from .ft2font import KERNING_DEFAULT, LOAD_NO_HINTING, FT2Font
 
 
-LayoutItem = dataclasses.make_dataclass(
-    "LayoutItem", ["ft_object", "char", "glyph_idx", "x", "prev_kern"])
+@dataclasses.dataclass(frozen=True)
+class LayoutItem:
+    ft_object: FT2Font
+    char: str
+    glyph_idx: int
+    x: float
+    prev_kern: float
 
 
 def warn_on_missing_glyph(codepoint, fontnames):
@@ -38,9 +45,10 @@ def warn_on_missing_glyph(codepoint, fontnames):
 
 def layout(string, font, *, kern_mode=KERNING_DEFAULT):
     """
-    Render *string* with *font*.  For each character in *string*, yield a
-    (glyph-index, x-position) pair.  When such a pair is yielded, the font's
-    glyph is set to the corresponding character.
+    Render *string* with *font*.
+
+    For each character in *string*, yield a LayoutItem instance. When such an instance
+    is yielded, the font's glyph is set to the corresponding character.
 
     Parameters
     ----------
@@ -53,8 +61,7 @@ def layout(string, font, *, kern_mode=KERNING_DEFAULT):
 
     Yields
     ------
-    glyph_index : int
-    x_position : float
+    LayoutItem
     """
     x = 0
     prev_glyph_idx = None

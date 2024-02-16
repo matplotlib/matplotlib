@@ -94,7 +94,7 @@ artifacts:
 
 on_finish:
   - conda install codecov
-  - codecov -e PYTHON_VERSION PLATFORM
+  - codecov -e PYTHON_VERSION PLATFORM -n "$PYTHON_VERSION Windows"
 
 on_failure:
   # Generate a html for visual tests

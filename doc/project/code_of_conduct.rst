@@ -1,4 +1,5 @@
 .. _code_of_conduct:
+.. redirect-from:: /users/project/code_of_conduct
 
 ====================================
 Contributor Covenant Code of Conduct

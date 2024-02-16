@@ -265,11 +265,29 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.clabel(...)
 
-    @pytest.mark.xfail(reason="Test for contour not written yet")
     @mpl.style.context("default")
     def test_contour(self):
-        fig, ax = plt.subplots()
-        ax.contour(...)
+        mpl.rcParams["date.converter"] = "concise"
+        range_threshold = 10
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
+
+        x_dates = np.array(
+            [datetime.datetime(2023, 10, delta) for delta in range(1, range_threshold)]
+        )
+        y_dates = np.array(
+            [datetime.datetime(2023, 10, delta) for delta in range(1, range_threshold)]
+        )
+        x_ranges = np.array(range(1, range_threshold))
+        y_ranges = np.array(range(1, range_threshold))
+
+        X_dates, Y_dates = np.meshgrid(x_dates, y_dates)
+        X_ranges, Y_ranges = np.meshgrid(x_ranges, y_ranges)
+
+        Z_ranges = np.cos(X_ranges / 4) + np.sin(Y_ranges / 4)
+
+        ax1.contour(X_dates, Y_dates, Z_ranges)
+        ax2.contour(X_dates, Y_ranges, Z_ranges)
+        ax3.contour(X_ranges, Y_dates, Z_ranges)
 
     @mpl.style.context("default")
     def test_contourf(self):
@@ -330,11 +348,50 @@ class TestDatetimePlotting:
                      uplims=True, xuplims=True,
                      label='Data')
 
-    @pytest.mark.xfail(reason="Test for eventplot not written yet")
     @mpl.style.context("default")
     def test_eventplot(self):
-        fig, ax = plt.subplots()
-        ax.eventplot(...)
+        mpl.rcParams["date.converter"] = "concise"
+
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
+
+        x_dates1 = np.array([datetime.datetime(2020, 6, 30),
+                             datetime.datetime(2020, 7, 22),
+                             datetime.datetime(2020, 8, 3),
+                             datetime.datetime(2020, 9, 14),],
+                            dtype=np.datetime64,
+                            )
+
+        ax1.eventplot(x_dates1)
+
+        np.random.seed(19680801)
+
+        start_date = datetime.datetime(2020, 7, 1)
+        end_date = datetime.datetime(2020, 10, 15)
+        date_range = end_date - start_date
+
+        dates1 = start_date + np.random.rand(30) * date_range
+        dates2 = start_date + np.random.rand(10) * date_range
+        dates3 = start_date + np.random.rand(50) * date_range
+
+        colors1 = ['C1', 'C2', 'C3']
+        lineoffsets1 = np.array([1, 6, 8])
+        linelengths1 = [5, 2, 3]
+
+        ax2.eventplot([dates1, dates2, dates3],
+                      colors=colors1,
+                      lineoffsets=lineoffsets1,
+                      linelengths=linelengths1)
+
+        lineoffsets2 = np.array([
+            datetime.datetime(2020, 7, 1),
+            datetime.datetime(2020, 7, 15),
+            datetime.datetime(2020, 8, 1)
+        ], dtype=np.datetime64)
+
+        ax3.eventplot([dates1, dates2, dates3],
+                      colors=colors1,
+                      lineoffsets=lineoffsets2,
+                      linelengths=linelengths1)
 
     @mpl.style.context("default")
     def test_fill(self):
@@ -530,11 +587,15 @@ class TestDatetimePlotting:
                          xmin=0.45,
                          xmax=0.65)
 
-    @pytest.mark.xfail(reason="Test for imshow not written yet")
     @mpl.style.context("default")
     def test_imshow(self):
         fig, ax = plt.subplots()
-        ax.imshow(...)
+        a = np.diag(range(5))
+        dt_start = datetime.datetime(2010, 11, 1)
+        dt_end = datetime.datetime(2010, 11, 11)
+        extent = (dt_start, dt_end, dt_start, dt_end)
+        ax.imshow(a, extent=extent)
+        ax.tick_params(axis="x", labelrotation=90)
 
     @pytest.mark.xfail(reason="Test for loglog not written yet")
     @mpl.style.context("default")
@@ -650,11 +711,27 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots(layout='constrained')
         ax.stackplot(dates, stacked_nums)
 
-    @pytest.mark.xfail(reason="Test for stairs not written yet")
     @mpl.style.context("default")
     def test_stairs(self):
-        fig, ax = plt.subplots()
-        ax.stairs(...)
+        mpl.rcParams["date.converter"] = 'concise'
+
+        start_date = datetime.datetime(2023, 12, 1)
+        time_delta = datetime.timedelta(days=1)
+        baseline_date = datetime.datetime(1980, 1, 1)
+
+        bin_edges = [start_date + i * time_delta for i in range(31)]
+        edge_int = np.arange(31)
+        np.random.seed(123456)
+        values1 = np.random.randint(1, 100, 30)
+        values2 = [start_date + datetime.timedelta(days=int(i))
+                   for i in np.random.randint(1, 10000, 30)]
+        values3 = [start_date + datetime.timedelta(days=int(i))
+                   for i in np.random.randint(-10000, 10000, 30)]
+
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, constrained_layout=True)
+        ax1.stairs(values1, edges=bin_edges)
+        ax2.stairs(values2, edges=edge_int, baseline=baseline_date)
+        ax3.stairs(values3, edges=bin_edges, baseline=baseline_date)
 
     @mpl.style.context("default")
     def test_stem(self):

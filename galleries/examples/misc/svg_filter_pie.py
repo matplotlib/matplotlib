@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 from matplotlib.patches import Shadow
 
-# make a square figure and axes
+# make a square figure and Axes
 fig = plt.figure(figsize=(6, 6))
 ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
 

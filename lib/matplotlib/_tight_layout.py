@@ -1,7 +1,7 @@
 """
 Routines to adjust subplot params so that subplots are
-nicely fit in the figure. In doing so, only axis labels, tick labels, axes
-titles and offsetboxes that are anchored to axes are currently considered.
+nicely fit in the figure. In doing so, only axis labels, tick labels, Axes
+titles and offsetboxes that are anchored to Axes are currently considered.
 
 Internally, this module assumes that the margins (left margin, etc.) which are
 differences between ``Axes.get_tightbbox`` and ``Axes.bbox`` are independent of
@@ -22,7 +22,7 @@ def _auto_adjust_subplotpars(
         ax_bbox_list=None, pad=1.08, h_pad=None, w_pad=None, rect=None):
     """
     Return a dict of subplot parameters to adjust spacing between subplots
-    or ``None`` if resulting axes would have zero height or width.
+    or ``None`` if resulting Axes would have zero height or width.
 
     Note that this function ignores geometry information of subplot itself, but
     uses what is given by the *shape* and *subplot_list* parameters.  Also, the
@@ -91,7 +91,7 @@ def _auto_adjust_subplotpars(
 
     fig_width_inch, fig_height_inch = fig.get_size_inches()
 
-    # margins can be negative for axes with aspect applied, so use max(, 0) to
+    # margins can be negative for Axes with aspect applied, so use max(, 0) to
     # make them nonnegative.
     if not margin_left:
         margin_left = max(hspaces[:, 0].max(), 0) + pad_inch/fig_width_inch
@@ -119,12 +119,12 @@ def _auto_adjust_subplotpars(
     if margin_left + margin_right >= 1:
         _api.warn_external('Tight layout not applied. The left and right '
                            'margins cannot be made large enough to '
-                           'accommodate all axes decorations.')
+                           'accommodate all Axes decorations.')
         return None
     if margin_bottom + margin_top >= 1:
         _api.warn_external('Tight layout not applied. The bottom and top '
                            'margins cannot be made large enough to '
-                           'accommodate all axes decorations.')
+                           'accommodate all Axes decorations.')
         return None
 
     kwargs = dict(left=margin_left,
@@ -138,8 +138,8 @@ def _auto_adjust_subplotpars(
         h_axes = (1 - margin_right - margin_left - hspace * (cols - 1)) / cols
         if h_axes < 0:
             _api.warn_external('Tight layout not applied. tight_layout '
-                               'cannot make axes width small enough to '
-                               'accommodate all axes decorations')
+                               'cannot make Axes width small enough to '
+                               'accommodate all Axes decorations')
             return None
         else:
             kwargs["wspace"] = hspace / h_axes
@@ -148,8 +148,8 @@ def _auto_adjust_subplotpars(
         v_axes = (1 - margin_top - margin_bottom - vspace * (rows - 1)) / rows
         if v_axes < 0:
             _api.warn_external('Tight layout not applied. tight_layout '
-                               'cannot make axes height small enough to '
-                               'accommodate all axes decorations.')
+                               'cannot make Axes height small enough to '
+                               'accommodate all Axes decorations.')
             return None
         else:
             kwargs["hspace"] = vspace / v_axes
@@ -159,9 +159,9 @@ def _auto_adjust_subplotpars(
 
 def get_subplotspec_list(axes_list, grid_spec=None):
     """
-    Return a list of subplotspec from the given list of axes.
+    Return a list of subplotspec from the given list of Axes.
 
-    For an instance of axes that does not support subplotspec, None is inserted
+    For an instance of Axes that does not support subplotspec, None is inserted
     in the list.
 
     If grid_spec is given, None is inserted for those not from the given
@@ -201,7 +201,7 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
     fig : Figure
     axes_list : list of Axes
     subplotspec_list : list of `.SubplotSpec`
-        The subplotspecs of each axes.
+        The subplotspecs of each Axes.
     renderer : renderer
     pad : float
         Padding between the figure edge and the edges of subplots, as a
@@ -221,7 +221,7 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
         None if tight_layout could not be accomplished.
     """
 
-    # Multiple axes can share same subplotspec (e.g., if using axes_grid1);
+    # Multiple Axes can share same subplotspec (e.g., if using axes_grid1);
     # we need to group them together.
     ss_to_subplots = {ss: [] for ss in subplotspec_list}
     for ax, ss in zip(axes_list, subplotspec_list):
@@ -240,7 +240,7 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
 
     span_pairs = []
     for ss in ss_to_subplots:
-        # The intent here is to support axes from different gridspecs where
+        # The intent here is to support Axes from different gridspecs where
         # one's nrows (or ncols) is a multiple of the other (e.g. 2 and 4),
         # but this doesn't actually work because the computed wspace, in
         # relative-axes-height, corresponds to different physical spacings for

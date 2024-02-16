@@ -552,10 +552,10 @@ def test_colorbar_lognorm_extension(extend):
 
 def test_colorbar_powernorm_extension():
     # Test that colorbar with powernorm is extended correctly
-    f, ax = plt.subplots()
-    cb = Colorbar(ax, norm=PowerNorm(gamma=0.5, vmin=0.0, vmax=1.0),
-                  orientation='vertical', extend='both')
-    assert cb._values[0] >= 0.0
+    # Just a smoke test that adding the colorbar doesn't raise an error or warning
+    fig, ax = plt.subplots()
+    Colorbar(ax, norm=PowerNorm(gamma=0.5, vmin=0.0, vmax=1.0),
+             orientation='vertical', extend='both')
 
 
 def test_colorbar_axes_kw():
@@ -1228,7 +1228,8 @@ def test_colorbar_wrong_figure():
     im = fig_cl.add_subplot().imshow([[0, 1]])
     # Make sure this doesn't try to setup a gridspec-controlled colorbar on fig_cl,
     # which would crash CL.
-    fig_tl.colorbar(im)
+    with pytest.warns(UserWarning, match="different Figure"):
+        fig_tl.colorbar(im)
     fig_tl.draw_without_rendering()
     fig_cl.draw_without_rendering()
 

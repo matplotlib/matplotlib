@@ -63,7 +63,7 @@ for nn, ax in enumerate(axs):
 # =======================
 #
 # Manually setting the ticks as above works well for specific final plots, but
-# does not adapt as the user interacts with the axes.   At a lower level,
+# does not adapt as the user interacts with the Axes.   At a lower level,
 # Matplotlib has ``Locators`` that are meant to automatically choose ticks
 # depending on the current view limits of the axis, and ``Formatters`` that are
 # meant to format the tick labels automatically.

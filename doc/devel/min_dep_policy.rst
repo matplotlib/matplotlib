@@ -4,10 +4,11 @@
 Dependency version policy
 =========================
 
-For the purpose of this document, 'minor version' is in the sense of
-SemVer (major, minor, patch) and includes both major and minor
-releases. For projects that use date-based versioning, every release
-is a 'minor version'.
+For the purpose of this document, 'minor version' is in the sense of SemVer
+(major, minor, patch) or 'meso version' in the sense of `EffVer
+<https://jacobtomlinson.dev/effver/>`_ (macro, meso, micro).  It includes both
+major/macro and minor/meso releases.  For projects that use date-based
+versioning, every release is a 'minor version'.
 
 Matplotlib follows `NEP 29
 <https://numpy.org/neps/nep-0029-deprecation_policy.html>`__.
@@ -87,6 +88,7 @@ specification of the dependencies.
 ==========  ========  ======
 Matplotlib  Python    NumPy
 ==========  ========  ======
+`3.9`_      3.9       1.23.0
 `3.8`_      3.9       1.21.0
 `3.7`_      3.8       1.20.0
 `3.6`_      3.8       1.19.0
@@ -107,6 +109,7 @@ Matplotlib  Python    NumPy
 1.0         2.4       1.1
 ==========  ========  ======
 
+.. _`3.9`: https://matplotlib.org/3.9.0/devel/dependencies.html
 .. _`3.8`: https://matplotlib.org/3.8.0/devel/dependencies.html
 .. _`3.7`: https://matplotlib.org/3.7.0/devel/dependencies.html
 .. _`3.6`: https://matplotlib.org/3.6.0/devel/dependencies.html

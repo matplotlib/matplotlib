@@ -8,7 +8,7 @@ Controlling the position and size of colorbars with Inset Axes
 This example shows how to control the position, height, and width of colorbars
 using `~mpl_toolkits.axes_grid1.inset_locator.inset_axes`.
 
-Inset axes placement is controlled as for legends: either by providing a *loc*
+Inset Axes placement is controlled as for legends: either by providing a *loc*
 option ("upper right", "best", ...), or by providing a locator with respect to
 the parent bbox.  Parameters such as *bbox_to_anchor* and *borderpad* likewise
 work in the same way, and are also demonstrated here.

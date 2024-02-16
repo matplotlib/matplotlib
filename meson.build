@@ -7,6 +7,19 @@ project(
   # Carlogo, STIX and Computer Modern is OFL
   # DejaVu is Bitstream Vera and Public Domain
   license: 'PSF-2.0 AND MIT AND CC0-1.0 AND OFL-1.1 AND Bitstream-Vera AND Public-Domain',
+  license_files: [
+    'LICENSE/LICENSE',
+    'LICENSE/LICENSE_AMSFONTS',
+    'LICENSE/LICENSE_BAKOMA',
+    'LICENSE/LICENSE_CARLOGO',
+    'LICENSE/LICENSE_COLORBREWER',
+    'LICENSE/LICENSE_COURIERTEN',
+    'LICENSE/LICENSE_JSXTOOLS_RESIZE_OBSERVER',
+    'LICENSE/LICENSE_QT4_EDITOR',
+    'LICENSE/LICENSE_SOLARIZED',
+    'LICENSE/LICENSE_STIX',
+    'LICENSE/LICENSE_YORICK',
+  ],
   meson_version: '>=1.1.0',
   default_options: [
     'b_lto=true',

@@ -1274,7 +1274,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
             continue
 
         # up-convert to an array, just to be safe
-        x = np.asarray(x)
+        x = np.ma.asarray(x)
+        x = x.data[~x.mask].ravel()
 
         # arithmetic mean
         stats['mean'] = np.mean(x)

@@ -172,4 +172,4 @@ About us
         .. toctree::
             :maxdepth: 2
 
-            users/project/index.rst
+            project/index.rst

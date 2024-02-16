@@ -3,7 +3,7 @@
 Managing multiple figures in pyplot
 ===================================
 
-`matplotlib.pyplot` uses the concept of a *current figure* and *current axes*.
+`matplotlib.pyplot` uses the concept of a *current figure* and *current Axes*.
 Figures are identified via a figure number that is passed to `~.pyplot.figure`.
 The figure with the given number is set as *current figure*. Additionally, if
 no figure with the number exists, a new one is created.
@@ -51,4 +51,4 @@ ax.set_xticklabels([])
 plt.show()
 
 # %%
-# .. tags:: component: figure, plot type: line
+# .. tags:: component: figure, plot-type: line

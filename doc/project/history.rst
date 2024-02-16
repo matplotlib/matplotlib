@@ -1,4 +1,5 @@
 .. redirect-from:: /users/history
+.. redirect-from:: /users/project/history
 
 .. _project_history:
 

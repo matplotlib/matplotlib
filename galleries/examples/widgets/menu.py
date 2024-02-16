@@ -5,19 +5,22 @@ Menu
 
 Using texts to construct a simple menu.
 """
+
+from dataclasses import dataclass
+
 import matplotlib.pyplot as plt
 
 import matplotlib.artist as artist
 import matplotlib.patches as patches
+from matplotlib.typing import ColorType
 
 
+@dataclass
 class ItemProperties:
-    def __init__(self, fontsize=14, labelcolor='black', bgcolor='yellow',
-                 alpha=1.0):
-        self.fontsize = fontsize
-        self.labelcolor = labelcolor
-        self.bgcolor = bgcolor
-        self.alpha = alpha
+    fontsize: float = 14
+    labelcolor: ColorType = 'black'
+    bgcolor: ColorType = 'yellow'
+    alpha: float = 1.0
 
 
 class MenuItem(artist.Artist):
@@ -130,7 +133,7 @@ hoverprops = ItemProperties(labelcolor='white', bgcolor='blue',
 menuitems = []
 for label in ('open', 'close', 'save', 'save as', 'quit'):
     def on_select(item):
-        print('you selected %s' % item.labelstr)
+        print(f'you selected {item.labelstr}')
     item = MenuItem(fig, label, props=props, hoverprops=hoverprops,
                     on_select=on_select)
     menuitems.append(item)

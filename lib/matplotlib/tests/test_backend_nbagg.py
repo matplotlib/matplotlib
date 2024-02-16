@@ -1,9 +1,10 @@
 import os
 from pathlib import Path
-import subprocess
 from tempfile import TemporaryDirectory
 
 import pytest
+
+from matplotlib.testing import subprocess_run_for_testing
 
 nbformat = pytest.importorskip('nbformat')
 pytest.importorskip('nbconvert')
@@ -17,11 +18,12 @@ def test_ipynb():
 
     with TemporaryDirectory() as tmpdir:
         out_path = Path(tmpdir, "out.ipynb")
-        subprocess.check_call(
+        subprocess_run_for_testing(
             ["jupyter", "nbconvert", "--to", "notebook",
              "--execute", "--ExecutePreprocessor.timeout=500",
              "--output", str(out_path), str(nb_path)],
-            env={**os.environ, "IPYTHONDIR": tmpdir})
+            env={**os.environ, "IPYTHONDIR": tmpdir},
+            check=True)
         with out_path.open() as out:
             nb = nbformat.read(out, nbformat.current_nbformat)
 

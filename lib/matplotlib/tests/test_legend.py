@@ -1197,10 +1197,18 @@ def test_plot_single_input_multiple_label(label_array):
     x = [1, 2, 3]
     y = [2, 5, 6]
     fig, ax = plt.subplots()
-    ax.plot(x, y, label=label_array)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='Passing label as a length 2 sequence'):
+        ax.plot(x, y, label=label_array)
     leg = ax.legend()
     assert len(leg.get_texts()) == 1
     assert leg.get_texts()[0].get_text() == str(label_array)
+
+
+def test_plot_single_input_list_label():
+    fig, ax = plt.subplots()
+    line, = ax.plot([[0], [1]], label=['A'])
+    assert line.get_label() == 'A'
 
 
 def test_plot_multiple_label_incorrect_length_exception():
@@ -1391,3 +1399,54 @@ def test_legend_nolabels_draw():
     plt.plot([1, 2, 3])
     plt.legend()
     assert plt.gca().get_legend() is not None
+
+
+def test_legend_loc_polycollection():
+    # Test that the legend is placed in the correct
+    # position for 'best' for polycollection
+    x = [3, 4, 5]
+    y1 = [1, 1, 1]
+    y2 = [5, 5, 5]
+    leg_bboxes = []
+    fig, axs = plt.subplots(ncols=2, figsize=(10, 5))
+    for ax, loc in zip(axs.flat, ('best', 'lower left')):
+        ax.fill_between(x, y1, y2, color='gray', alpha=0.5, label='Shaded Area')
+        ax.set_xlim(0, 6)
+        ax.set_ylim(-1, 5)
+        leg = ax.legend(loc=loc)
+        fig.canvas.draw()
+        leg_bboxes.append(
+            leg.get_window_extent().transformed(ax.transAxes.inverted()))
+    assert_allclose(leg_bboxes[1].bounds, leg_bboxes[0].bounds)
+
+
+def test_legend_text():
+    # Test that legend is place in the correct
+    # position for 'best' when there is text in figure
+    fig, axs = plt.subplots(ncols=2, figsize=(10, 5))
+    leg_bboxes = []
+    for ax, loc in zip(axs.flat, ('best', 'lower left')):
+        x = [1, 2]
+        y = [2, 1]
+        ax.plot(x, y, label='plot name')
+        ax.text(1.5, 2, 'some text blahblah', verticalalignment='top')
+        leg = ax.legend(loc=loc)
+        fig.canvas.draw()
+        leg_bboxes.append(
+            leg.get_window_extent().transformed(ax.transAxes.inverted()))
+    assert_allclose(leg_bboxes[1].bounds, leg_bboxes[0].bounds)
+
+
+def test_boxplot_labels():
+    # Test that boxplot(..., labels=) sets the tick labels but not legend entries
+    # This is not consistent with other plot types but is the current behavior.
+    fig, ax = plt.subplots()
+    np.random.seed(19680801)
+    data = np.random.random((10, 3))
+    bp = ax.boxplot(data, labels=['A', 'B', 'C'])
+    # Check that labels set the tick labels ...
+    assert [l.get_text() for l in ax.get_xticklabels()] == ['A', 'B', 'C']
+    # ... but not legend entries
+    handles, labels = ax.get_legend_handles_labels()
+    assert len(handles) == 0
+    assert len(labels) == 0

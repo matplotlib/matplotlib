@@ -25,7 +25,7 @@ reference.
 * `dateutil <https://pypi.org/project/python-dateutil/>`_ (>= 2.7)
 * `fontTools <https://fonttools.readthedocs.io/en/latest/>`_ (>= 4.22.0)
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.3.1)
-* `NumPy <https://numpy.org>`_ (>= 1.21)
+* `NumPy <https://numpy.org>`_ (>= 1.23)
 * `packaging <https://pypi.org/project/packaging/>`_ (>= 20.0)
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 8.0)
 * `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.3.1)
@@ -167,7 +167,7 @@ tool for locating FreeType:
 If not using pkg-config (in particular on Windows), you may need to set the
 include path (to the library headers) and link path (to the libraries)
 explicitly, if they are not in standard locations.  This can be done using
-standard environment variables -- on Linux and OSX:
+standard environment variables -- on Linux and macOS:
 
 .. code-block:: sh
 
@@ -238,7 +238,7 @@ then you must manually install the following packages into your development envi
 - `setuptools_scm <https://pypi.org/project/setuptools-scm/>`_ (>= 7).  Used to
   update the reported ``mpl.__version__`` based on the current git commit.
   Also a runtime dependency for editable installs.
-- `NumPy <https://numpy.org>`_ (>= 1.21).  Also a runtime dependency.
+- `NumPy <https://numpy.org>`_ (>= 1.22).  Also a runtime dependency.
 
 
 .. _compile-dependencies:
@@ -399,27 +399,31 @@ External tools
 --------------
 
 The documentation requires LaTeX and Graphviz.  These are not
-Python packages and must be installed separately. The documentation can be
-built without Inkscape and optipng, but the build process will raise various
-warnings. If the build process warns that you are missing fonts, make sure
-your LaTeX distribution bundles cm-super or install it separately.
+Python packages and must be installed separately.
 
 Required
 ^^^^^^^^
 
 * `Graphviz <http://www.graphviz.org/download>`_
-* a minimal working LaTeX distribution, e.g., `TeX Live <https://www.tug.org/texlive/>`_ or
+* a minimal working LaTeX distribution, e.g. `TeX Live <https://www.tug.org/texlive/>`_ or
   `MikTeX <https://miktex.org/>`_
-* the following LaTeX packages (if your OS bundles TeX Live, the
-  "complete" version of the installer, e.g. "texlive-full" or "texlive-all",
-  will often automatically include these packages):
 
-  * `cm-super <https://ctan.org/pkg/cm-super>`_
+The following LaTeX packages:
+
   * `dvipng <https://ctan.org/pkg/dvipng>`_
   * `underscore <https://ctan.org/pkg/underscore>`_
+  * `cm-super <https://ctan.org/pkg/cm-super>`_
+  * ``collection-fontsrecommended``
+
+The complete version of many LaTex distribution installers, e.g.
+"texlive-full" or "texlive-all", will often automatically include these packages.
+
 
 Optional
 ^^^^^^^^
+
+The documentation can be built without Inkscape and optipng, but the build
+process will raise various warnings.
 
 * `Inkscape <https://inkscape.org>`_
 * `optipng <http://optipng.sourceforge.net>`_

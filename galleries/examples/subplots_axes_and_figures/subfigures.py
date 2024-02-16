@@ -69,7 +69,7 @@ gridspec = axs[0, 0].get_subplotspec().get_gridspec()
 for a in axs[:, 0]:
     a.remove()
 
-# plot data in remaining axes:
+# plot data in remaining Axes:
 for a in axs[:, 1:].flat:
     a.plot(np.arange(10))
 

@@ -11,7 +11,7 @@ option('system-qhull', type: 'boolean', value: false,
        description: 'Build against system version of Qhull')
 
 # Some of Matplotlib's components are optional: the MacOSX backend (installed
-# by default on MacOSX; requires the Cocoa headers included with XCode). You
+# by default on macOS; requires the Cocoa headers included with XCode). You
 # can control whether they are installed using the following options. Note that
 # the MacOSX backend is never built on Linux or Windows, regardless of the
 # config value.

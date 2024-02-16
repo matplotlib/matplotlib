@@ -452,48 +452,86 @@ Automated tests
 Whenever a pull request is created or updated, various automated test tools
 will run on all supported platforms and versions of Python.
 
-* Make sure the Linting, GitHub Actions, AppVeyor, CircleCI, and Azure
-  pipelines are passing before merging (All checks are listed at the bottom of
-  the GitHub page of your pull request). Here are some tips for finding the
-  cause of the test failure:
-
-  - If *Linting* fails, you have a code style issue, which will be listed
-    as annotations on the pull request's diff.
-  - If *Mypy* or *Stubtest* fails, you have inconsistency in type hints, which
-    will be listed as annotations in the diff.
-  - If a GitHub Actions or AppVeyor run fails, search the log for ``FAILURES``.
-    The subsequent section will contain information on the failed tests.
-  - If CircleCI fails, likely you have some reStructuredText style issue in
-    the docs. Search the CircleCI log for ``WARNING``.
-  - If Azure pipelines fail with an image comparison error, you can find the
-    images as *artifacts* of the Azure job:
-
-    - Click *Details* on the check on the GitHub PR page.
-    - Click *View more details on Azure Pipelines* to go to Azure.
-    - On the overview page *artifacts* are listed in the section *Related*.
-
-
-* Codecov and CodeQL are currently for information only. Their failure is not
-  necessarily a blocker.
-
 * tox_ is not used in the automated testing. It is supported for testing
   locally.
 
   .. _tox: https://tox.readthedocs.io/
 
-* If you know only a subset of CIs need to be run, this can be controlled on
-  individual commits by including the following substrings in commit messages:
+* Codecov and CodeQL are currently for information only. Their failure is not
+  necessarily a blocker.
 
-  - ``[ci doc]``: restrict the CI to documentation checks. For when you only
-    changed documentation (this skip is automatic if the changes are only under
-    ``doc/`` or ``galleries/``).
-  - ``[skip circle]``: skip the documentation build check. For when you didn't
-    change documentation.
-  - Unit tests can be turned off for individual platforms with
+Make sure the Linting, GitHub Actions, AppVeyor, CircleCI, and Azure pipelines are
+passing before merging. All checks are listed at the bottom of the GitHub page of your
+pull request.
 
-    - ``[skip actions]``: GitHub Actions
-    - ``[skip appveyor]`` (must be in the first line of the commit): AppVeyor
-    - ``[skip azp]``: Azure Pipelines
+.. list-table::
+    :header-rows: 1
+    :stub-columns: 1
+    :widths: 20 20 60
 
-  - ``[skip ci]``: skip all CIs.  Use this only if you know your changes do not
-    need to be tested at all, which is very rare.
+    * - Name
+      - Check
+      - Tips for finding cause of failure
+    * - Linting
+      - :ref:`code style <code-style>`
+      - Errors are displayed as annotations on the pull request diff.
+    * - | Mypy
+        | Stubtest
+      - :ref:`static type hints <type-hints>`
+      - Errors are displayed as annotations on the pull request diff.
+    * - CircleCI
+      - :ref:`documentation build <writing-rest-pages>`
+      - Search the CircleCI log for ``WARNING``.
+    * - | GitHub Actions
+        | AppVeyor
+        | Azure pipelines
+      - :ref:`tests <testing>`
+      - | Search the log for ``FAILURES``. Subsequent section should contain information
+          on failed tests.
+        |
+        | On Azure, find the images as *artifacts* of the Azure job:
+        | 1. Click *Details* on the check on the GitHub PR page.
+        | 2. Click *View more details on Azure Pipelines* to go to Azure.
+        | 3. On the overview page *artifacts* are listed in the section *Related*.
+
+Skip CI checks
+--------------
+
+If you know only a subset of CI checks need to be run, you can skip unneeded CI checks
+on individual commits by including the following strings in the commit message:
+
+.. list-table::
+    :header-rows: 1
+    :stub-columns: 1
+    :widths: 25 20 55
+
+    * - String
+      - Effect
+      - Notes
+    * - ``[ci doc]``
+      - Only run documentation checks.
+      - | For when you have only changed documentation.
+        | ``[ci doc]`` is applied automatically when the changes are only to files in
+          ``doc/**/`` or ``galleries/**/``
+    * - ``[skip doc]``
+      - Skip documentation checks.
+      - For when you didn't change documentation.
+    * - ``[skip appveyor]``
+      - Skip AppVeyor run.
+      - Substring must be in first line of commit message.
+    * - ``[skip azp]``
+      - Skip Azure Pipelines.
+      -
+    * - ``[skip actions]``
+      - Skip GitHub Actions.
+      -
+    * - ``[skip ci]``
+      - Skip all CI checks.
+      - Use only for changes where documentation checks and unit tests do not apply.
+
+
+``[skip actions]`` and ``[skip ci]`` only skip Github Actions CI workflows that are
+triggered on ``on: push`` and ``on: pull_request`` events. For more information,
+see `Skipping workflow runs`_.
+
+.. _`Skipping workflow runs`: https://docs.github.com/en/actions/managing-workflow-runs/skipping-workflow-runs

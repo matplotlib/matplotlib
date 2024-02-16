@@ -29,15 +29,15 @@ from matplotlib.text import OffsetFrom
 #  'figure points'   : points from the lower left corner of the figure
 #  'figure pixels'   : pixels from the lower left corner of the figure
 #  'figure fraction' : (0, 0) is lower left of figure and (1, 1) is upper right
-#  'axes points'     : points from lower left corner of axes
-#  'axes pixels'     : pixels from lower left corner of axes
-#  'axes fraction'   : (0, 0) is lower left of axes and (1, 1) is upper right
+#  'axes points'     : points from lower left corner of the Axes
+#  'axes pixels'     : pixels from lower left corner of the Axes
+#  'axes fraction'   : (0, 0) is lower left of Axes and (1, 1) is upper right
 #  'offset points'   : Specify an offset (in points) from the xy value
 #  'offset pixels'   : Specify an offset (in pixels) from the xy value
-#  'data'            : use the axes data coordinate system
+#  'data'            : use the Axes data coordinate system
 #
 # Note: for physical coordinate systems (points or pixels) the origin is the
-# (bottom, left) of the figure or axes.
+# (bottom, left) of the figure or Axes.
 #
 # Optionally, you can specify arrow properties which draws and arrow
 # from the text to the annotated point by giving a dictionary of arrow
@@ -85,7 +85,7 @@ ax.annotate('axes fraction',
             horizontalalignment='right', verticalalignment='top')
 
 # You may also use negative points or pixels to specify from (right, top).
-# E.g., (-10, 10) is 10 points to the left of the right side of the axes and 10
+# E.g., (-10, 10) is 10 points to the left of the right side of the Axes and 10
 # points above the bottom
 
 ax.annotate('pixel offset from axes fraction',
@@ -103,10 +103,10 @@ ax.set(xlim=(-1, 5), ylim=(-3, 5))
 #
 # You can specify the *xypoint* and the *xytext* in different positions and
 # coordinate systems, and optionally turn on a connecting line and mark the
-# point with a marker.  Annotations work on polar axes too.
+# point with a marker.  Annotations work on polar Axes too.
 #
 # In the example below, the *xy* point is in native coordinates (*xycoords*
-# defaults to 'data').  For a polar axes, this is in (theta, radius) space.
+# defaults to 'data').  For a polar Axes, this is in (theta, radius) space.
 # The text in the example is placed in the fractional figure coordinate system.
 # Text keyword arguments like horizontal and vertical alignment are respected.
 
@@ -127,7 +127,7 @@ ax.annotate('a polar annotation',
             verticalalignment='bottom')
 
 # %%
-# You can also use polar notation on a cartesian axes.  Here the native
+# You can also use polar notation on a cartesian Axes.  Here the native
 # coordinate system ('data') is cartesian, so you need to specify the
 # xycoords and textcoords as 'polar' if you want to use (theta, radius).
 
@@ -144,7 +144,7 @@ ax.annotate('the top',
             arrowprops=dict(facecolor='black', shrink=0.05),
             horizontalalignment='left',
             verticalalignment='bottom',
-            clip_on=True)  # clip to the axes bounding box
+            clip_on=True)  # clip to the Axes bounding box
 
 ax.set(xlim=[-20, 20], ylim=[-20, 20])
 

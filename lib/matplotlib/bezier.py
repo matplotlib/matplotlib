@@ -171,9 +171,17 @@ def find_bezier_t_intersecting_with_closedpath(
 
         if start_inside ^ middle_inside:
             t1 = middle_t
+            if end == middle:
+                # Edge case where infinite loop is possible
+                # Caused by large numbers relative to tolerance
+                return t0, t1
             end = middle
         else:
             t0 = middle_t
+            if start == middle:
+                # Edge case where infinite loop is possible
+                # Caused by large numbers relative to tolerance
+                return t0, t1
             start = middle
             start_inside = middle_inside
 

@@ -1,11 +1,11 @@
 """
-Adjust subplot layouts so that there are no overlapping axes or axes
-decorations.  All axes decorations are dealt with (labels, ticks, titles,
+Adjust subplot layouts so that there are no overlapping Axes or Axes
+decorations.  All Axes decorations are dealt with (labels, ticks, titles,
 ticklabels) and some dependent artists are also dealt with (colorbar,
 suptitle).
 
 Layout is done via `~matplotlib.gridspec`, with one constraint per gridspec,
-so it is possible to have overlapping axes if the gridspecs overlap (i.e.
+so it is possible to have overlapping Axes if the gridspecs overlap (i.e.
 using `~matplotlib.gridspec.GridSpecFromSubplotSpec`).  Axes placed using
 ``figure.subplots()`` or ``figure.add_subplots()`` will participate in the
 layout.  Axes manually placed via ``figure.add_axes()`` will not.
@@ -33,8 +33,8 @@ constrained to be the same (as modified by ``width_ratio``), where "inner"
 is the width or height of each column/row minus the size of the margins.
 
 Then the size of the margins for each row and column are determined as the
-max width of the decorators on each axes that has decorators in that margin.
-For instance, a normal axes would have a left margin that includes the
+max width of the decorators on each Axes that has decorators in that margin.
+For instance, a normal Axes would have a left margin that includes the
 left ticklabels, and the ylabel if it exists.  The right margin may include a
 colorbar, the bottom margin the xaxis decorations, and the top margin the
 title.
@@ -73,11 +73,11 @@ def do_constrained_layout(fig, h_pad, w_pad,
         `.Figure` instance to do the layout in.
 
     h_pad, w_pad : float
-      Padding around the axes elements in figure-normalized units.
+      Padding around the Axes elements in figure-normalized units.
 
     hspace, wspace : float
        Fraction of the figure to dedicate to space between the
-       axes.  These are evenly spread between the gaps between the axes.
+       Axes.  These are evenly spread between the gaps between the Axes.
        A value of 0.2 for a three-column layout would have a space
        of 0.1 of the figure width between each column.
        If h/wspace < h/w_pad, then the pads are used instead.
@@ -111,7 +111,7 @@ def do_constrained_layout(fig, h_pad, w_pad,
         # larger/smaller).  This second reposition tends to be much milder,
         # so doing twice makes things work OK.
 
-        # make margins for all the axes and subfigures in the
+        # make margins for all the Axes and subfigures in the
         # figure.  Add margins for colorbars...
         make_layout_margins(layoutgrids, fig, renderer, h_pad=h_pad,
                             w_pad=w_pad, hspace=hspace, wspace=wspace)
@@ -128,7 +128,7 @@ def do_constrained_layout(fig, h_pad, w_pad,
 
         warn_collapsed = ('constrained_layout not applied because '
                           'axes sizes collapsed to zero.  Try making '
-                          'figure larger or axes decorations smaller.')
+                          'figure larger or Axes decorations smaller.')
         if check_no_collapsed_axes(layoutgrids, fig):
             reposition_axes(layoutgrids, fig, renderer, h_pad=h_pad,
                             w_pad=w_pad, hspace=hspace, wspace=wspace)
@@ -152,7 +152,7 @@ def make_layoutgrids(fig, layoutgrids, rect=(0, 0, 1, 1)):
 
     (Sub)Figures get a layoutgrid so we can have figure margins.
 
-    Gridspecs that are attached to axes get a layoutgrid so axes
+    Gridspecs that are attached to Axes get a layoutgrid so Axes
     can have margins.
     """
 
@@ -182,7 +182,7 @@ def make_layoutgrids(fig, layoutgrids, rect=(0, 0, 1, 1)):
     for sfig in fig.subfigs:
         layoutgrids = make_layoutgrids(sfig, layoutgrids)
 
-    # for each axes at the local level add its gridspec:
+    # for each Axes at the local level add its gridspec:
     for ax in fig._localaxes:
         gs = ax.get_gridspec()
         if gs is not None:
@@ -239,7 +239,7 @@ def make_layoutgrids_gs(layoutgrids, gs):
 
 def check_no_collapsed_axes(layoutgrids, fig):
     """
-    Check that no axes have collapsed to zero size.
+    Check that no Axes have collapsed to zero size.
     """
     for sfig in fig.subfigs:
         ok = check_no_collapsed_axes(layoutgrids, sfig)
@@ -270,7 +270,7 @@ def compress_fixed_aspect(layoutgrids, fig):
             extraw = np.zeros(gs.ncols)
             extrah = np.zeros(gs.nrows)
         elif _gs != gs:
-            raise ValueError('Cannot do compressed layout if axes are not'
+            raise ValueError('Cannot do compressed layout if Axes are not'
                              'all from the same gridspec')
         orig = ax.get_position(original=True)
         actual = ax.get_position(original=False)
@@ -282,7 +282,7 @@ def compress_fixed_aspect(layoutgrids, fig):
             extrah[sub.rowspan] = np.maximum(extrah[sub.rowspan], dh)
 
     if gs is None:
-        raise ValueError('Cannot do compressed layout if no axes '
+        raise ValueError('Cannot do compressed layout if no Axes '
                          'are part of a gridspec.')
     w = np.sum(extraw) / 2
     layoutgrids[fig].edit_margin_min('left', w)
@@ -313,7 +313,7 @@ def get_margin_from_padding(obj, *, w_pad=0, h_pad=0,
     nrows, ncols = gs.get_geometry()
     # there are two margins for each direction.  The "cb"
     # margins are for pads and colorbars, the non-"cb" are
-    # for the axes decorations (labels etc).
+    # for the Axes decorations (labels etc).
     margin = {'leftcb': w_pad, 'rightcb': w_pad,
               'bottomcb': h_pad, 'topcb': h_pad,
               'left': 0, 'right': 0,
@@ -335,7 +335,7 @@ def get_margin_from_padding(obj, *, w_pad=0, h_pad=0,
 def make_layout_margins(layoutgrids, fig, renderer, *, w_pad=0, h_pad=0,
                         hspace=0, wspace=0):
     """
-    For each axes, make a margin between the *pos* layoutbox and the
+    For each Axes, make a margin between the *pos* layoutbox and the
     *axes* layoutbox be a minimum size that can accommodate the
     decorations on the axis.
 
@@ -379,7 +379,7 @@ def make_layout_margins(layoutgrids, fig, renderer, *, w_pad=0, h_pad=0,
         margin = get_margin_from_padding(ax, w_pad=w_pad, h_pad=h_pad,
                                          hspace=hspace, wspace=wspace)
         pos, bbox = get_pos_and_bbox(ax, renderer)
-        # the margin is the distance between the bounding box of the axes
+        # the margin is the distance between the bounding box of the Axes
         # and its position (plus the padding from above)
         margin['left'] += pos.x0 - bbox.x0
         margin['right'] += bbox.x1 - pos.x1
@@ -388,7 +388,7 @@ def make_layout_margins(layoutgrids, fig, renderer, *, w_pad=0, h_pad=0,
         margin['top'] += bbox.y1 - pos.y1
 
         # make margin for colorbars.  These margins go in the
-        # padding margin, versus the margin for axes decorators.
+        # padding margin, versus the margin for Axes decorators.
         for cbax in ax._colorbars:
             # note pad is a fraction of the parent width...
             pad = colorbar_get_pad(layoutgrids, cbax)
@@ -493,14 +493,14 @@ def match_submerged_margins(layoutgrids, fig):
     """
     Make the margins that are submerged inside an Axes the same size.
 
-    This allows axes that span two columns (or rows) that are offset
+    This allows Axes that span two columns (or rows) that are offset
     from one another to have the same size.
 
     This gives the proper layout for something like::
         fig = plt.figure(constrained_layout=True)
         axs = fig.subplot_mosaic("AAAB\nCCDD")
 
-    Without this routine, the axes D will be wider than C, because the
+    Without this routine, the Axes D will be wider than C, because the
     margin width between the two columns in C has no width by default,
     whereas the margins between the two columns of D are set by the
     width of the margin between A and B. However, obviously the user would
@@ -613,7 +613,7 @@ def get_cb_parent_spans(cbax):
 
 def get_pos_and_bbox(ax, renderer):
     """
-    Get the position and the bbox for the axes.
+    Get the position and the bbox for the Axes.
 
     Parameters
     ----------
@@ -642,7 +642,7 @@ def get_pos_and_bbox(ax, renderer):
 def reposition_axes(layoutgrids, fig, renderer, *,
                     w_pad=0, h_pad=0, hspace=0, wspace=0):
     """
-    Reposition all the axes based on the new inner bounding box.
+    Reposition all the Axes based on the new inner bounding box.
     """
     trans_fig_to_subfig = fig.transFigure - fig.transSubfigure
     for sfig in fig.subfigs:
