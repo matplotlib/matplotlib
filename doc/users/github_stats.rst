@@ -1,32 +1,35 @@
 .. _github-stats:
 
-GitHub statistics for 3.7.4 (Nov 17, 2023)
-==========================================
+GitHub statistics (Feb 16, 2024)
+================================
 
-GitHub statistics for 2023/09/12 (tag: v3.7.3) - 2023/11/17
+GitHub statistics for 2023/11/18 (tag: v3.7.4) - 2024/02/16
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 1 issues and merged 3 pull requests.
-The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/87?closed=1>`__
+We closed 0 issues and merged 5 pull requests.
+The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/90?closed=1>`__
 
-The following 3 authors contributed 10 commits.
+The following 5 authors contributed 15 commits.
 
+* Antony Lee
 * Elliott Sales de Andrade
+* Greg Lucas
 * Kyle Sunden
 * Thomas A Caswell
 
 GitHub issues and pull requests:
 
-Pull Requests (3):
+Pull Requests (5):
 
-* :ghpull:`27332`: Backport PR #27290 on branch v3.7.x (Ensure GIL while releasing buffer)
-* :ghpull:`27340`: Fix CI on v3.7.x branch
-* :ghpull:`27290`: Ensure GIL while releasing buffer
+* :ghpull:`27793`: Backport crash fixes to v3.7.x
+* :ghpull:`27785`: FIX: be careful about communicating with subprocess
+* :ghpull:`27755`: Allow threads during macos event loop
+* :ghpull:`27624`: Prepare for Pytest v8
+* :ghpull:`26689`: Fix error generation for missing pgf.texsystem.
 
-Issues (1):
+Issues (0):
 
-* :ghissue:`27262`: [Bug]: Segmentation fault when resizing on Python 3.12 and MacOS 14
 
 
 Previous GitHub statistics
