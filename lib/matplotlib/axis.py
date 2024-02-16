@@ -2114,7 +2114,7 @@ class Axis(martist.Artist):
             If not set, the labels are generated using the axis tick `.Formatter`.
 
         minor : bool, default: False
-            If ``False``, set the major ticks; if ``True``, the minor ticks.
+            If ``False``, set only the major ticks; if ``True``, only the minor ticks.
 
         **kwargs
             `.Text` properties for the labels. Using these is only allowed if
