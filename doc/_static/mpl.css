@@ -85,11 +85,6 @@ html[data-theme="dark"] .sphx-glr-thumbcontainer {
     background-color: rgb(63, 63, 63);
 }
 
-/* workaround: the default padding decenters the image inside the frame */
-.sphx-glr-thumbcontainer .figure {
-    padding: 0;
-}
-
 /* hide download buttons in example headers
  * https://sphinx-gallery.github.io/stable/advanced.html#hide-the-download-buttons-in-the-example-headers
  */
