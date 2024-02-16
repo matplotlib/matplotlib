@@ -1,5 +1,10 @@
-from .geo import AitoffAxes, HammerAxes, LambertAxes, MollweideAxes
-from .polar import PolarAxes
+from .geo import (
+    AitoffAxes as AitoffAxes,
+    HammerAxes as HammerAxes,
+    LambertAxes as LambertAxes,
+    MollweideAxes as MollweideAxes,
+)
+from .polar import PolarAxes as PolarAxes
 from ..axes import Axes
 
 class ProjectionRegistry:

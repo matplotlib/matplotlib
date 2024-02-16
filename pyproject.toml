@@ -208,6 +208,11 @@ convention = "numpy"
 
 [tool.mypy]
 ignore_missing_imports = true
+enable_error_code = [
+  "ignore-without-code",
+  "redundant-expr",
+  "truthy-bool",
+]
 enable_incomplete_feature = [
   "Unpack",
 ]
@@ -227,6 +232,11 @@ exclude = [
   # stubtest will import and run, opening a figure if not excluded
   ".*/tinypages"
 ]
+files = [
+  "lib/matplotlib",
+]
+follow_imports = "silent"
+warn_unreachable = true
 
 [tool.rstcheck]
 ignore_directives = [
