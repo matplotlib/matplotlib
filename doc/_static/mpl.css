@@ -85,9 +85,13 @@ html[data-theme="dark"] .sphx-glr-thumbcontainer {
     background-color: rgb(63, 63, 63);
 }
 
-/* workaround: the default padding decenters the image inside the frame */
-.sphx-glr-thumbcontainer .figure {
-    padding: 0;
+/* Set a fixed height so that lazy loading does not change heights. Without a fixed
+ * height lazy loading of images interferes with anchor links: Clicking a link goes to
+ * a certain position, but then the loaded images add content and move the anchor to a
+ * different position.
+ */
+.sphx-glr-thumbcontainer img {
+    height: 112px;
 }
 
 /* hide download buttons in example headers
