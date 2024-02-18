@@ -5,6 +5,7 @@
 #ifndef MPL_FT2FONT_H
 #define MPL_FT2FONT_H
 #include <vector>
+#include<set>
 #include <stdint.h>
 #include <unordered_map>
 
@@ -91,6 +92,7 @@ class FT2Font
                                  FT_Int32 flags,
                                  FT_Error &charcode_error,
                                  FT_Error &glyph_error,
+                                 std::set<FT_String*> &glyph_seen_fonts,
                                  bool override);
     void load_glyph(FT_UInt glyph_index, FT_Int32 flags, FT2Font *&ft_object, bool fallback);
     void load_glyph(FT_UInt glyph_index, FT_Int32 flags);

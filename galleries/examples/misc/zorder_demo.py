@@ -15,7 +15,7 @@ Images (`.AxesImage`, `.FigureImage`, `.BboxImage`)                 0
 `.Patch`, `.PatchCollection`                                        1
 `.Line2D`, `.LineCollection` (including minor ticks, grid lines)    2
 Major ticks                                                         2.01
-`.Text` (including axes labels and titles)                          3
+`.Text` (including Axes labels and titles)                          3
 `.Legend`                                                           5
 ================================================================    =======
 

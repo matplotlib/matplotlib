@@ -10,9 +10,6 @@
 #include <set>
 #include <algorithm>
 
-#define STRINGIFY(s) XSTRINGIFY(s)
-#define XSTRINGIFY(s) #s
-
 static PyObject *convert_xys_to_array(std::vector<double> &xys)
 {
     npy_intp dims[] = {(npy_intp)xys.size() / 2, 2 };
@@ -78,8 +75,8 @@ static PyObject *PyFT2Image_draw_rect(PyFT2Image *self, PyObject *args)
 {
     char const* msg =
         "FT2Image.draw_rect is deprecated since Matplotlib 3.8 and will be removed "
-        "two minor releases later as it is not used in the library. If you rely on "
-        "it, please let us know.";
+        "in Matplotlib 3.10 releases later as it is not used in the library. "
+        "If you rely on it, please let us know.";
     if (PyErr_WarnEx(PyExc_DeprecationWarning, msg, 1)) {
         return NULL;
     }
@@ -844,7 +841,7 @@ static PyObject *PyFT2Font_get_xys(PyFT2Font *self, PyObject *args, PyObject *kw
 {
     char const* msg =
         "FT2Font.get_xys is deprecated since Matplotlib 3.8 and will be removed two "
-        "minor releases later as it is not used in the library. If you rely on it, "
+        "meso releases later as it is not used in the library. If you rely on it, "
         "please let us know.";
     if (PyErr_WarnEx(PyExc_DeprecationWarning, msg, 1)) {
         return NULL;
@@ -1532,7 +1529,7 @@ PyMODINIT_FUNC PyInit_ft2font(void)
         // Glyph is not constructible from Python, thus not added to the module.
         PyType_Ready(PyGlyph_init_type()) ||
         PyModule_AddStringConstant(m, "__freetype_version__", version_string) ||
-        PyModule_AddStringConstant(m, "__freetype_build_type__", STRINGIFY(FREETYPE_BUILD_TYPE)) ||
+        PyModule_AddStringConstant(m, "__freetype_build_type__", FREETYPE_BUILD_TYPE) ||
         PyModule_AddIntConstant(m, "SCALABLE", FT_FACE_FLAG_SCALABLE) ||
         PyModule_AddIntConstant(m, "FIXED_SIZES", FT_FACE_FLAG_FIXED_SIZES) ||
         PyModule_AddIntConstant(m, "FIXED_WIDTH", FT_FACE_FLAG_FIXED_WIDTH) ||

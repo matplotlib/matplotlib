@@ -118,6 +118,7 @@ extensions = [
     'sphinxext.redirect_from',
     'sphinx_copybutton',
     'sphinx_design',
+    'sphinx_tags',
 ]
 
 exclude_patterns = [
@@ -157,6 +158,10 @@ def _check_dependencies():
         raise OSError(
             "No binary named dot - graphviz must be installed to build the "
             "documentation")
+    if shutil.which('latex') is None:
+        raise OSError(
+            "No binary named latex - a LaTeX distribution must be installed to build "
+            "the documentation")
 
 _check_dependencies()
 
@@ -207,6 +212,7 @@ intersphinx_mapping = {
     'scipy': ('https://docs.scipy.org/doc/scipy/', None),
     'tornado': ('https://www.tornadoweb.org/en/stable/', None),
     'xarray': ('https://docs.xarray.dev/en/stable/', None),
+    'meson-python': ('https://meson-python.readthedocs.io/en/stable/', None)
 }
 
 
@@ -282,6 +288,18 @@ if 'plot_gallery=0' in sys.argv:
     logger = logging.getLogger('sphinx')
     logger.addFilter(gallery_image_warning_filter)
 
+# Sphinx tags configuration
+tags_create_tags = True
+tags_page_title = "All tags"
+tags_create_badges = True
+tags_badge_colors = {
+    "animation": "primary",
+    "component:*": "secondary",
+    "event-handling": "success",
+    "interactivity:*": "dark",
+    "plot-type:*": "danger",
+    "*": "light"  # default value
+}
 
 mathmpl_fontsize = 11.0
 mathmpl_srcset = ['2x']
@@ -464,7 +482,7 @@ html_theme_options = {
     "switcher": {
         # Add a unique query to the switcher.json url.  This will be ignored by
         # the server, but will be used as part of the key for caching by browsers
-        # so when we do a new minor release the switcher will update "promptly" on
+        # so when we do a new meso release the switcher will update "promptly" on
         # the stable and devdocs.
         "json_url": f"https://matplotlib.org/devdocs/_static/switcher.json?{SHA}",
         "version_match": (

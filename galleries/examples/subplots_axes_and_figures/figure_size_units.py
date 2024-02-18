@@ -65,8 +65,7 @@ plt.show()
 
 # %%
 # .. [#] Unfortunately, this does not work well for the ``matplotlib inline``
-#        backend in Jupyter because that backend uses a different default of
-#        ``rcParams['figure.dpi'] = 72``. Additionally, it saves the figure
+#        backend in Jupyter because that backend saves the figure
 #        with ``bbox_inches='tight'``, which crops the figure and makes the
 #        actual size unpredictable.
 

@@ -72,51 +72,6 @@ def test_resampled():
     assert_array_almost_equal(lc(np.nan), lc3(np.nan))
 
 
-def test_register_cmap():
-    new_cm = mpl.colormaps["viridis"]
-    target = "viridis2"
-    with pytest.warns(
-            mpl.MatplotlibDeprecationWarning,
-            match=r"matplotlib\.colormaps\.register\(name\)"
-    ):
-        cm.register_cmap(target, new_cm)
-    assert mpl.colormaps[target] == new_cm
-
-    with pytest.raises(ValueError,
-                       match="Arguments must include a name or a Colormap"):
-        with pytest.warns(
-            mpl.MatplotlibDeprecationWarning,
-            match=r"matplotlib\.colormaps\.register\(name\)"
-        ):
-            cm.register_cmap()
-
-    with pytest.warns(
-            mpl.MatplotlibDeprecationWarning,
-            match=r"matplotlib\.colormaps\.unregister\(name\)"
-    ):
-        cm.unregister_cmap(target)
-    with pytest.raises(ValueError,
-                       match=f'{target!r} is not a valid value for name;'):
-        with pytest.warns(
-                mpl.MatplotlibDeprecationWarning,
-                match=r"matplotlib\.colormaps\[name\]"
-        ):
-            cm.get_cmap(target)
-    with pytest.warns(
-            mpl.MatplotlibDeprecationWarning,
-            match=r"matplotlib\.colormaps\.unregister\(name\)"
-    ):
-        # test that second time is error free
-        cm.unregister_cmap(target)
-
-    with pytest.raises(TypeError, match="'cmap' must be"):
-        with pytest.warns(
-            mpl.MatplotlibDeprecationWarning,
-            match=r"matplotlib\.colormaps\.register\(name\)"
-        ):
-            cm.register_cmap('nome', cmap='not a cmap')
-
-
 def test_colormaps_get_cmap():
     cr = mpl.colormaps
 
@@ -141,23 +96,7 @@ def test_double_register_builtin_cmap():
     name = "viridis"
     match = f"Re-registering the builtin cmap {name!r}."
     with pytest.raises(ValueError, match=match):
-        matplotlib.colormaps.register(
-            mpl.colormaps[name], name=name, force=True
-        )
-    with pytest.raises(ValueError, match='A colormap named "viridis"'):
-        with pytest.warns(mpl.MatplotlibDeprecationWarning):
-            cm.register_cmap(name, mpl.colormaps[name])
-    with pytest.warns(UserWarning):
-        # TODO is warning more than once!
-        cm.register_cmap(name, mpl.colormaps[name], override_builtin=True)
-
-
-def test_unregister_builtin_cmap():
-    name = "viridis"
-    match = f'cannot unregister {name!r} which is a builtin colormap.'
-    with pytest.raises(ValueError, match=match):
-        with pytest.warns(mpl.MatplotlibDeprecationWarning):
-            cm.unregister_cmap(name)
+        matplotlib.colormaps.register(mpl.colormaps[name], name=name, force=True)
 
 
 def test_colormap_copy():
@@ -555,12 +494,16 @@ def test_PowerNorm():
     assert_array_almost_equal(norm(a), pnorm(a))
 
     a = np.array([-0.5, 0, 2, 4, 8], dtype=float)
-    expected = [0, 0, 1/16, 1/4, 1]
+    expected = [-1/16, 0, 1/16, 1/4, 1]
     pnorm = mcolors.PowerNorm(2, vmin=0, vmax=8)
     assert_array_almost_equal(pnorm(a), expected)
     assert pnorm(a[0]) == expected[0]
     assert pnorm(a[2]) == expected[2]
-    assert_array_almost_equal(a[1:], pnorm.inverse(pnorm(a))[1:])
+    # Check inverse
+    a_roundtrip = pnorm.inverse(pnorm(a))
+    assert_array_almost_equal(a, a_roundtrip)
+    # PowerNorm inverse adds a mask, so check that is correct too
+    assert_array_equal(a_roundtrip.mask, np.zeros(a.shape, dtype=bool))
 
     # Clip = True
     a = np.array([-0.5, 0, 1, 8, 16], dtype=float)
@@ -589,6 +532,15 @@ def test_PowerNorm_translation_invariance():
     assert_array_almost_equal(pnorm(a), expected)
     pnorm = mcolors.PowerNorm(vmin=-2, vmax=-1, gamma=3)
     assert_array_almost_equal(pnorm(a - 2), expected)
+
+
+def test_powernorm_cbar_limits():
+    fig, ax = plt.subplots()
+    vmin, vmax = 300, 1000
+    data = np.arange(10*10).reshape(10, 10) + vmin
+    im = ax.imshow(data, norm=mcolors.PowerNorm(gamma=0.2, vmin=vmin, vmax=vmax))
+    cbar = fig.colorbar(im)
+    assert cbar.ax.get_ylim() == (vmin, vmax)
 
 
 def test_Normalize():
@@ -1366,38 +1318,38 @@ def test_scalarmappable_to_rgba(bytes):
     # uint8 RGBA
     x = np.ones((2, 3, 4), dtype=np.uint8)
     expected = x.copy() if bytes else x.astype(np.float32)/255
-    np.testing.assert_array_equal(sm.to_rgba(x, bytes=bytes), expected)
+    np.testing.assert_almost_equal(sm.to_rgba(x, bytes=bytes), expected)
     # uint8 RGB
     expected[..., 3] = alpha_1
-    np.testing.assert_array_equal(sm.to_rgba(x[..., :3], bytes=bytes), expected)
+    np.testing.assert_almost_equal(sm.to_rgba(x[..., :3], bytes=bytes), expected)
     # uint8 masked RGBA
     xm = np.ma.masked_array(x, mask=np.zeros_like(x))
     xm.mask[0, 0, 0] = True
     expected = x.copy() if bytes else x.astype(np.float32)/255
     expected[0, 0, 3] = 0
-    np.testing.assert_array_equal(sm.to_rgba(xm, bytes=bytes), expected)
+    np.testing.assert_almost_equal(sm.to_rgba(xm, bytes=bytes), expected)
     # uint8 masked RGB
     expected[..., 3] = alpha_1
     expected[0, 0, 3] = 0
-    np.testing.assert_array_equal(sm.to_rgba(xm[..., :3], bytes=bytes), expected)
+    np.testing.assert_almost_equal(sm.to_rgba(xm[..., :3], bytes=bytes), expected)
 
     # float RGBA
     x = np.ones((2, 3, 4), dtype=float) * 0.5
     expected = (x * 255).astype(np.uint8) if bytes else x.copy()
-    np.testing.assert_array_equal(sm.to_rgba(x, bytes=bytes), expected)
+    np.testing.assert_almost_equal(sm.to_rgba(x, bytes=bytes), expected)
     # float RGB
     expected[..., 3] = alpha_1
-    np.testing.assert_array_equal(sm.to_rgba(x[..., :3], bytes=bytes), expected)
+    np.testing.assert_almost_equal(sm.to_rgba(x[..., :3], bytes=bytes), expected)
     # float masked RGBA
     xm = np.ma.masked_array(x, mask=np.zeros_like(x))
     xm.mask[0, 0, 0] = True
     expected = (x * 255).astype(np.uint8) if bytes else x.copy()
     expected[0, 0, 3] = 0
-    np.testing.assert_array_equal(sm.to_rgba(xm, bytes=bytes), expected)
+    np.testing.assert_almost_equal(sm.to_rgba(xm, bytes=bytes), expected)
     # float masked RGB
     expected[..., 3] = alpha_1
     expected[0, 0, 3] = 0
-    np.testing.assert_array_equal(sm.to_rgba(xm[..., :3], bytes=bytes), expected)
+    np.testing.assert_almost_equal(sm.to_rgba(xm[..., :3], bytes=bytes), expected)
 
 
 def test_failed_conversions():

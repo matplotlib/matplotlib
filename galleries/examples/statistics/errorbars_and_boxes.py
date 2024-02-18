@@ -51,7 +51,7 @@ def make_error_boxes(ax, xdata, ydata, xerror, yerror, facecolor='r',
     pc = PatchCollection(errorboxes, facecolor=facecolor, alpha=alpha,
                          edgecolor=edgecolor)
 
-    # Add collection to axes
+    # Add collection to Axes
     ax.add_collection(pc)
 
     # Plot errorbars
@@ -61,7 +61,7 @@ def make_error_boxes(ax, xdata, ydata, xerror, yerror, facecolor='r',
     return artists
 
 
-# Create figure and axes
+# Create figure and Axes
 fig, ax = plt.subplots(1)
 
 # Call function to create error boxes

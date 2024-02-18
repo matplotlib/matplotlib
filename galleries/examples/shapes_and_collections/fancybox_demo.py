@@ -90,7 +90,7 @@ ax.set(xlim=(0, 1), ylim=(0, 1), aspect=1,
        title='boxstyle="round,pad=0.1"\n mutation_scale=2')
 
 ax = axs[1, 1]
-# When the aspect ratio of the axes is not 1, the fancy box may not be what you
+# When the aspect ratio of the Axes is not 1, the fancy box may not be what you
 # expected (green).
 fancy = add_fancy_patch_around(ax, bb, boxstyle="round,pad=0.2")
 fancy.set(facecolor="none", edgecolor="green")

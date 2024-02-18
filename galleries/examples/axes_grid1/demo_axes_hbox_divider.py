@@ -5,7 +5,7 @@ HBoxDivider and VBoxDivider demo
 
 Using an `.HBoxDivider` to arrange subplots.
 
-Note that both axes' location are adjusted so that they have
+Note that both Axes' location are adjusted so that they have
 equal heights while maintaining their aspect ratios.
 
 """
@@ -36,7 +36,7 @@ plt.show()
 # %%
 # Using a `.VBoxDivider` to arrange subplots.
 #
-# Note that both axes' location are adjusted so that they have
+# Note that both Axes' location are adjusted so that they have
 # equal widths while maintaining their aspect ratios.
 
 fig, (ax1, ax2) = plt.subplots(2, 1)

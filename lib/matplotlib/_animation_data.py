@@ -251,7 +251,7 @@ DISPLAY_TEMPLATE = """
     }}, 0);
   }})()
 </script>
-"""
+"""  # noqa: E501
 
 
 INCLUDED_FRAMES = """

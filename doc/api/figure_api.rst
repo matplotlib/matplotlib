@@ -8,8 +8,11 @@
    :no-members:
    :no-undoc-members:
 
-The Figure class
-================
+Figure
+======
+
+Figure class
+------------
 .. autosummary::
    :toctree: _as_gen
    :template: autosummary_class_only.rst
@@ -19,7 +22,7 @@ The Figure class
 
 
 Adding Axes and SubFigures
-==========================
+--------------------------
 
 .. autosummary::
    :toctree: _as_gen
@@ -38,7 +41,7 @@ Adding Axes and SubFigures
    Figure.add_subfigure
 
 Saving
-======
+------
 
 .. autosummary::
    :toctree: _as_gen
@@ -49,7 +52,7 @@ Saving
 
 
 Annotating
-==========
+----------
 
 .. autosummary::
    :toctree: _as_gen
@@ -72,7 +75,7 @@ Annotating
 
 
 Figure geometry
-===============
+---------------
 
 .. autosummary::
    :toctree: _as_gen
@@ -90,7 +93,7 @@ Figure geometry
    Figure.set_dpi
 
 Subplot layout
-==============
+--------------
 
 .. autosummary::
    :toctree: _as_gen
@@ -102,7 +105,7 @@ Subplot layout
    Figure.get_layout_engine
 
 Discouraged or deprecated
--------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autosummary::
    :toctree: _as_gen
@@ -118,7 +121,7 @@ Discouraged or deprecated
    Figure.get_constrained_layout_pads
 
 Interactive
-===========
+-----------
 
 .. seealso::
 
@@ -135,7 +138,7 @@ Interactive
    Figure.pick
 
 Modifying appearance
-====================
+--------------------
 
 .. autosummary::
    :toctree: _as_gen
@@ -152,7 +155,7 @@ Modifying appearance
    Figure.get_edgecolor
 
 Adding and getting Artists
-==========================
+--------------------------
 
 .. autosummary::
    :toctree: _as_gen
@@ -164,7 +167,7 @@ Adding and getting Artists
    Figure.figimage
 
 Getting and modifying state
-===========================
+---------------------------
 
 .. seealso::
 
@@ -306,3 +309,8 @@ FigureBase parent class
 =======================
 
 .. autoclass:: FigureBase
+
+Helper functions
+================
+
+.. autofunction:: figaspect

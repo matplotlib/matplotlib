@@ -43,7 +43,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         name: Install Python
         with:
           python-version: 3.9
@@ -69,9 +69,9 @@ jobs:
         run: twine check dist/*
 
       - name: Upload sdist result
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: sdist
+          name: cibw-sdist
           path: dist/*.tar.gz
           if-no-files-found: error
 
@@ -91,11 +91,20 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       CIBW_BEFORE_BUILD: >-
-        pip install numpy>=1.25 &&
         rm -rf {package}/build
       CIBW_BEFORE_BUILD_WINDOWS: >-
-        pip install delvewheel numpy>=1.25 &&
+        pip install delvewheel &&
         rm -rf {package}/build
+      # Live on the edge when building on main or a PR against main since
+      # these wheels are also used for nightlies and NumPy 2.0 transition
+      # requires using the NumPy 2.0 nightlies for compatibility.
+      # If using all `--pre` releases creates issues, the NumPy wheel can be
+      # installed more targeted.
+      CIBW_BUILD_FRONTEND: >-
+        ${{ (((github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+              (github.event_name == 'pull_request' && github.base_ref == 'main')) &&
+            'pip; args: --pre --extra-index-url "https://pypi.anaconda.org/scientific-python-nightly-wheels/simple"') ||
+            'build' }}
       CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >-
         delvewheel repair -w {dest_dir} {wheel}
       CIBW_AFTER_BUILD: >-
@@ -131,35 +140,21 @@ jobs:
           platforms: arm64
 
       - name: Download sdist
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: sdist
+          name: cibw-sdist
           path: dist/
 
       - name: Build wheels for CPython 3.12
-        uses: pypa/cibuildwheel@7da7df1efc530f07d1945c00934b8cfd34be0d50 # v2.16.1
+        uses: pypa/cibuildwheel@ce3fb7832089eb3e723a0a99cab7f3eaccf074fd # v2.16.5
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
           CIBW_BUILD: "cp312-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          # Remove this once NumPy with Python 3.12 wheels is not pre-release.
-          CIBW_BEFORE_BUILD: >-
-            pip install "meson-python>=0.13.1" ninja "pybind11>=2.6" "setuptools>=42" "setuptools_scm>=7" &&
-            pip install --pre "numpy>=1.25" &&
-            rm -rf {package}/build
-          CIBW_BEFORE_BUILD_WINDOWS: >-
-            pip install delvewheel "meson-python>=0.13.1" ninja "pybind11>=2.6" "setuptools>=42" "setuptools_scm>=7" &&
-            pip install --pre "numpy>=1.25" &&
-            rm -rf {package}/build
-          CIBW_ENVIRONMENT: PIP_NO_BUILD_ISOLATION=0
-          # Remove this once contourpy has Python 3.12 wheels.
-          CIBW_BEFORE_TEST: >-
-            pip install "meson>=1.2.0" "meson-python>=0.13.1" "ninja" "pybind11>=2.10.4" &&
-            pip install --pre "numpy>=1.25"
 
       - name: Build wheels for CPython 3.11
-        uses: pypa/cibuildwheel@7da7df1efc530f07d1945c00934b8cfd34be0d50 # v2.16.1
+        uses: pypa/cibuildwheel@ce3fb7832089eb3e723a0a99cab7f3eaccf074fd # v2.16.5
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -167,7 +162,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.10
-        uses: pypa/cibuildwheel@7da7df1efc530f07d1945c00934b8cfd34be0d50 # v2.16.1
+        uses: pypa/cibuildwheel@ce3fb7832089eb3e723a0a99cab7f3eaccf074fd # v2.16.5
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -175,7 +170,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.9
-        uses: pypa/cibuildwheel@7da7df1efc530f07d1945c00934b8cfd34be0d50 # v2.16.1
+        uses: pypa/cibuildwheel@ce3fb7832089eb3e723a0a99cab7f3eaccf074fd # v2.16.5
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -183,7 +178,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for PyPy
-        uses: pypa/cibuildwheel@7da7df1efc530f07d1945c00934b8cfd34be0d50 # v2.16.1
+        uses: pypa/cibuildwheel@ce3fb7832089eb3e723a0a99cab7f3eaccf074fd # v2.16.5
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -191,8 +186,30 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
         if: matrix.cibw_archs != 'aarch64'
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: cibw-wheels-${{ runner.os }}-${{ matrix.cibw_archs }}
           path: ./wheelhouse/*.whl
           if-no-files-found: error
+
+  publish:
+    if: github.event_name == 'release' && github.event.action == 'published'
+    name: Upload release to PyPI
+    needs: [build_sdist, build_wheels]
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: cibw-*
+          path: dist
+          merge-multiple: true
+
+      - name: Print out packages
+        run: ls dist
+
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@2f6f737ca5f74c637829c0f5c3acd0e29ea5e8bf # v1.8.11

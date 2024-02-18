@@ -288,7 +288,7 @@ fig.text(.1, .1, r'even: $ \delta $ = $ \$4 $')
 # (not minus).
 #
 # Custom fonts
-# ~~~~~~~~~~~~
+# ^^^^^^^^^^^^
 # Mathtext also provides a way to use custom fonts for math.  This method is
 # fairly tricky to use, and should be considered an experimental feature for
 # patient users only.  By setting :rc:`mathtext.fontset` to ``custom``,

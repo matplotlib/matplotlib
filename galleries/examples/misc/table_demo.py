@@ -40,7 +40,7 @@ for row in range(n_rows):
 colors = colors[::-1]
 cell_text.reverse()
 
-# Add a table at the bottom of the axes
+# Add a table at the bottom of the Axes
 the_table = plt.table(cellText=cell_text,
                       rowLabels=rows,
                       rowColours=colors,

@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 from PIL import Image
 import shutil
-import subprocess
 import sys
 import warnings
 
@@ -17,6 +16,8 @@ from matplotlib.font_manager import (
     json_dump, json_load, get_font, is_opentype_cff_font,
     MSUserFontDirectories, _get_fontconfig_fonts, ttfFontProperty)
 from matplotlib import cbook, ft2font, pyplot as plt, rc_context, figure as mfigure
+from matplotlib.testing import subprocess_run_helper
+
 
 has_fclist = shutil.which('fc-list') is not None
 
@@ -46,12 +47,11 @@ def test_score_weight():
             fontManager.score_weight(400, 400))
 
 
-def test_json_serialization(tmpdir):
+def test_json_serialization(tmp_path):
     # Can't open a NamedTemporaryFile twice on Windows, so use a temporary
     # directory instead.
-    path = Path(tmpdir, "fontlist.json")
-    json_dump(fontManager, path)
-    copy = json_load(path)
+    json_dump(fontManager, tmp_path / "fontlist.json")
+    copy = json_load(tmp_path / "fontlist.json")
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore', 'findfont: Font family.*not found')
         for prop in ({'family': 'STIXGeneral'},
@@ -133,8 +133,7 @@ def test_find_noto():
         fig.savefig(BytesIO(), format=fmt)
 
 
-def test_find_invalid(tmpdir):
-    tmp_path = Path(tmpdir)
+def test_find_invalid(tmp_path):
 
     with pytest.raises(FileNotFoundError):
         get_font(tmp_path / 'non-existent-font-name.ttf')
@@ -277,15 +276,8 @@ def _test_threading():
 
 def test_fontcache_thread_safe():
     pytest.importorskip('threading')
-    import inspect
 
-    proc = subprocess.run(
-        [sys.executable, "-c",
-         inspect.getsource(_test_threading) + '\n_test_threading()']
-    )
-    if proc.returncode:
-        pytest.fail("The subprocess returned with non-zero exit status "
-                    f"{proc.returncode}.")
+    subprocess_run_helper(_test_threading, timeout=10)
 
 
 def test_fontentry_dataclass():

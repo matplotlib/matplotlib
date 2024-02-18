@@ -8,7 +8,7 @@ Event handling and picking
 **************************
 
 Matplotlib works with a number of user interface toolkits (wxpython,
-tkinter, qt, gtk, and macosx) and in order to support features like
+tkinter, qt, gtk, and macOS) and in order to support features like
 interactive panning and zooming of figures, it is helpful to the
 developers to have an API for interacting with the figure via key
 presses and mouse movements that is "GUI neutral" so we don't have to

@@ -272,7 +272,7 @@ class GridSpecBase:
         # don't mutate kwargs passed by user...
         subplot_kw = subplot_kw.copy()
 
-        # Create array to hold all axes.
+        # Create array to hold all Axes.
         axarr = np.empty((self._nrows, self._ncols), dtype=object)
         for row in range(self._nrows):
             for col in range(self._ncols):
@@ -484,7 +484,12 @@ class GridSpecFromSubplotSpec(GridSpecBase):
         """
         self._wspace = wspace
         self._hspace = hspace
-        self._subplot_spec = subplot_spec
+        if isinstance(subplot_spec, SubplotSpec):
+            self._subplot_spec = subplot_spec
+        else:
+            raise TypeError(
+                            "subplot_spec must be type SubplotSpec, "
+                            "usually from GridSpec, or axes.get_subplotspec.")
         self.figure = self._subplot_spec.get_gridspec().figure
         super().__init__(nrows, ncols,
                          width_ratios=width_ratios,

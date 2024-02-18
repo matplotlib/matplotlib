@@ -52,7 +52,7 @@ if devnull == 'not-given'
 endif
 
 # Will only exist on Linux with older glibc.
-dl = cc.find_library('dl', required: false)
+dl = dependency('dl', required: false)
 
 # With Meson >= 1.2.0, use cpp_winlibs instead of manually searching.
 if ['cygwin', 'windows'].contains(host_machine.system())
@@ -82,9 +82,9 @@ extension_data = {
   '_c_internal_utils': {
     'subdir': 'matplotlib',
     'sources': files(
-      '_c_internal_utils.c',
+      '_c_internal_utils.cpp',
     ),
-    'dependencies': [py3_dep, dl, ole32, shell32, user32],
+    'dependencies': [pybind11_dep, dl, ole32, shell32, user32],
   },
   'ft2font': {
     'subdir': 'matplotlib',
@@ -95,6 +95,11 @@ extension_data = {
     ),
     'dependencies': [
       freetype_dep, numpy_dep, agg_dep.partial_dependency(includes: true),
+    ],
+    'cpp_args': [
+      '-DFREETYPE_BUILD_TYPE="@0@"'.format(
+        freetype_dep.type_name() == 'internal' ? 'local' : 'system',
+      ),
     ],
   },
   '_image': {
@@ -122,7 +127,7 @@ extension_data = {
     'sources': files(
       '_qhull_wrapper.cpp',
     ),
-    'dependencies': [numpy_dep, qhull_dep],
+    'dependencies': [pybind11_dep, qhull_dep],
     'c_args': [f'-DMPL_DEVNULL=@devnull@'],
     'cpp_args': [f'-DMPL_DEVNULL=@devnull@'],
   },
@@ -134,7 +139,7 @@ extension_data = {
     'include_directories': include_directories('.'),
     # The dl/psapi libraries are needed for finding Tcl/Tk at run time.
     'dependencies': [
-      numpy_dep, agg_dep.partial_dependency(includes: true), dl, comctl32, psapi,
+      pybind11_dep, agg_dep.partial_dependency(includes: true), dl, comctl32, psapi,
     ],
   },
   '_tri': {

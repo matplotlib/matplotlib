@@ -1,0 +1,19 @@
+Deprecated Classes Removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following deprecated classes from version 3.7 have been removed:
+
+- ``matplotlib.backends.backend_ps.PsBackendHelper``
+- ``matplotlib.backends.backend_webagg.ServerThread``
+
+These classes were previously marked as deprecated and have now been removed in accordance with the deprecation cycle.
+
+Deprecated C++ Methods Removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following deprecated C++ methods from :file:`src/_backend_agg_wrapper.cpp`, deprecated since version 3.7, have also been removed:
+
+- ``PyBufferRegion_to_string``
+- ``PyBufferRegion_to_string_argb``
+
+These methods were previously marked as deprecated and have now been removed.

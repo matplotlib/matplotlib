@@ -152,7 +152,7 @@ class AxesWidget(Widget):
     def _get_data_coords(self, event):
         """Return *event*'s data coordinates in this widget's Axes."""
         # This method handles the possibility that event.inaxes != self.ax (which may
-        # occur if multiple axes are overlaid), in which case event.xdata/.ydata will
+        # occur if multiple Axes are overlaid), in which case event.xdata/.ydata will
         # be wrong.  Note that we still special-case the common case where
         # event.inaxes == self.ax and avoid re-running the inverse data transform,
         # because that can introduce floating point errors for synthetic events.
@@ -191,7 +191,7 @@ class Button(AxesWidget):
         image : array-like or PIL Image
             The image to place in the button, if not *None*.  The parameter is
             directly forwarded to `~.axes.Axes.imshow`.
-        color : color
+        color : :mpltype:`color`
             The color of the button when not activated.
         hovercolor : color
             The color of the button when the mouse is over it.
@@ -2261,7 +2261,7 @@ class _SelectorWidget(AxesWidget):
         Preprocess an event:
 
         - Replace *event* by the previous event if *event* has no ``xdata``.
-        - Get ``xdata`` and ``ydata`` from this widget's axes, and clip them to the axes
+        - Get ``xdata`` and ``ydata`` from this widget's Axes, and clip them to the axes
           limits.
         - Update the previous event.
         """
@@ -2684,7 +2684,7 @@ class SpanSelector(_SelectorWidget):
             # visibility to False and extents to (v, v)
             # update will be called when setting the extents
             self._visible = False
-            self.extents = v, v
+            self._set_extents((v, v))
             # We need to set the visibility back, so the span selector will be
             # drawn when necessary (span width > 0)
             self._visible = True
@@ -2797,7 +2797,7 @@ class SpanSelector(_SelectorWidget):
             if vmin > vmax:
                 vmin, vmax = vmax, vmin
 
-        self.extents = vmin, vmax
+        self._set_extents((vmin, vmax))
 
         if self.onmove_callback is not None:
             self.onmove_callback(vmin, vmax)
@@ -2855,7 +2855,12 @@ class SpanSelector(_SelectorWidget):
 
     @property
     def extents(self):
-        """Return extents of the span selector."""
+        """
+        (float, float)
+            The values, in data coordinates, for the start and end points of the current
+            selection. If there is no selection then the start and end values will be
+            the same.
+        """
         if self.direction == 'horizontal':
             vmin = self._selection_artist.get_x()
             vmax = vmin + self._selection_artist.get_width()
@@ -2866,6 +2871,10 @@ class SpanSelector(_SelectorWidget):
 
     @extents.setter
     def extents(self, extents):
+        self._set_extents(extents)
+        self._selection_completed = True
+
+    def _set_extents(self, extents):
         # Update displayed shape
         if self.snap_values is not None:
             extents = tuple(self._snap(extents, self.snap_values))
@@ -3057,7 +3066,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
     Parameters
     ----------
     ax : `~matplotlib.axes.Axes`
-        The parent axes for the widget.
+        The parent Axes for the widget.
 
     onselect : function
         A callback function that is called after a release event and the

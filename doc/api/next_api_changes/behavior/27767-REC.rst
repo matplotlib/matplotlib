@@ -1,0 +1,7 @@
+Legend labels for ``plot``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously if a sequence was passed to the *label* parameter of `~.Axes.plot` when
+plotting a single dataset, the sequence was automatically cast to string for the legend
+label.  Now, if the sequence has only one element, that element will be the legend
+label.  To keep the old behavior, cast the sequence to string before passing.

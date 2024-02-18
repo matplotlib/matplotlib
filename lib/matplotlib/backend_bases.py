@@ -35,6 +35,8 @@ import io
 import itertools
 import logging
 import os
+import signal
+import socket
 import sys
 import time
 import weakref
@@ -1578,7 +1580,7 @@ def _mouse_handler(event):
             if last_axes is not None:
                 # Create a synthetic LocationEvent for the axes_leave_event.
                 # Its inaxes attribute needs to be manually set (because the
-                # cursor is actually *out* of that axes at that point); this is
+                # cursor is actually *out* of that Axes at that point); this is
                 # done with the internal _set_inaxes method which ensures that
                 # the xdata and ydata attributes are also correct.
                 try:
@@ -1649,6 +1651,64 @@ def _is_non_interactive_terminal_ipython(ip):
     return (hasattr(ip, 'parent')
             and (ip.parent is not None)
             and getattr(ip.parent, 'interact', None) is False)
+
+
+@contextmanager
+def _allow_interrupt(prepare_notifier, handle_sigint):
+    """
+    A context manager that allows terminating a plot by sending a SIGINT.  It
+    is necessary because the running backend prevents the Python interpreter
+    from running and processing signals (i.e., to raise a KeyboardInterrupt).
+    To solve this, one needs to somehow wake up the interpreter and make it
+    close the plot window.  We do this by using the signal.set_wakeup_fd()
+    function which organizes a write of the signal number into a socketpair.
+    A backend-specific function, *prepare_notifier*, arranges to listen to
+    the pair's read socket while the event loop is running.  (If it returns a
+    notifier object, that object is kept alive while the context manager runs.)
+
+    If SIGINT was indeed caught, after exiting the on_signal() function the
+    interpreter reacts to the signal according to the handler function which
+    had been set up by a signal.signal() call; here, we arrange to call the
+    backend-specific *handle_sigint* function.  Finally, we call the old SIGINT
+    handler with the same arguments that were given to our custom handler.
+
+    We do this only if the old handler for SIGINT was not None, which means
+    that a non-python handler was installed, i.e. in Julia, and not SIG_IGN
+    which means we should ignore the interrupts.
+
+    Parameters
+    ----------
+    prepare_notifier : Callable[[socket.socket], object]
+    handle_sigint : Callable[[], object]
+    """
+
+    old_sigint_handler = signal.getsignal(signal.SIGINT)
+    if old_sigint_handler in (None, signal.SIG_IGN, signal.SIG_DFL):
+        yield
+        return
+
+    handler_args = None
+    wsock, rsock = socket.socketpair()
+    wsock.setblocking(False)
+    rsock.setblocking(False)
+    old_wakeup_fd = signal.set_wakeup_fd(wsock.fileno())
+    notifier = prepare_notifier(rsock)
+
+    def save_args_and_handle_sigint(*args):
+        nonlocal handler_args
+        handler_args = args
+        handle_sigint()
+
+    signal.signal(signal.SIGINT, save_args_and_handle_sigint)
+    try:
+        yield
+    finally:
+        wsock.close()
+        rsock.close()
+        signal.set_wakeup_fd(old_wakeup_fd)
+        signal.signal(signal.SIGINT, old_sigint_handler)
+        if handler_args is not None:
+            old_sigint_handler(*handler_args)
 
 
 class FigureCanvasBase:
@@ -2547,9 +2607,13 @@ class FigureManagerBase:
     backend-independent way. It's an adapter for the real (GUI) framework that
     represents the visual figure on screen.
 
-    GUI backends define from this class to translate common operations such
+    The figure manager is connected to a specific canvas instance, which in turn
+    is connected to a specific figure instance. To access a figure manager for
+    a given figure in user code, you typically use ``fig.canvas.manager``.
+
+    GUI backends derive from this class to translate common operations such
     as *show* or *resize* to the GUI-specific code. Non-GUI backends do not
-    support these operations an can just use the base class.
+    support these operations and can just use the base class.
 
     This following basic operations are accessible:
 
@@ -2734,6 +2798,11 @@ class FigureManagerBase:
         Set the title text of the window containing the figure.
 
         This has no effect for non-GUI (e.g., PS) backends.
+
+        Examples
+        --------
+        >>> fig = plt.figure()
+        >>> fig.canvas.manager.set_window_title('My figure')
         """
 
 

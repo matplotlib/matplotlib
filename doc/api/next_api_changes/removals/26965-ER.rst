@@ -1,0 +1,22 @@
+Removal of top-level cmap registration and access functions in ``mpl.cm``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As part of the `multi-step refactoring of colormap registration
+<https://github.com/matplotlib/matplotlib/issues/20853>`_, the following functions have
+been removed:
+
+- ``matplotlib.cm.get_cmap``; use ``matplotlib.colormaps[name]`` instead if you
+  have a `str`.
+
+  Use `matplotlib.cm.ColormapRegistry.get_cmap` if you have a `str`, `None` or a
+  `matplotlib.colors.Colormap` object that you want to convert to a `.Colormap`
+  object.
+- ``matplotlib.cm.register_cmap``; use `matplotlib.colormaps.register
+  <.ColormapRegistry.register>` instead.
+- ``matplotlib.cm.unregister_cmap``; use `matplotlib.colormaps.unregister
+  <.ColormapRegistry.unregister>` instead.
+- ``matplotlib.pyplot.register_cmap``; use `matplotlib.colormaps.register
+  <.ColormapRegistry.register>` instead.
+
+The `matplotlib.pyplot.get_cmap` function will stay available for backward
+compatibility.

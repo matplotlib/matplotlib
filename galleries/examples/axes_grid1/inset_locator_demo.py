@@ -7,7 +7,7 @@ Inset locator demo
 
 # %%
 # The `.inset_locator`'s `~.inset_locator.inset_axes` allows
-# easily placing insets in the corners of the axes by specifying a width and
+# easily placing insets in the corners of the Axes by specifying a width and
 # height and optionally a location (loc) that accepts locations as codes,
 # similar to `~matplotlib.axes.Axes.legend`.
 # By default, the inset is offset by some points from the axes,
@@ -23,17 +23,17 @@ fig, (ax, ax2) = plt.subplots(1, 2, figsize=[5.5, 2.8])
 # at the default upper right location
 axins = inset_axes(ax, width=1.3, height=0.9)
 
-# Create inset of width 30% and height 40% of the parent axes' bounding box
+# Create inset of width 30% and height 40% of the parent Axes' bounding box
 # at the lower left corner (loc=3)
 axins2 = inset_axes(ax, width="30%", height="40%", loc=3)
 
 # Create inset of mixed specifications in the second subplot;
-# width is 30% of parent axes' bounding box and
+# width is 30% of parent Axes' bounding box and
 # height is 1 inch at the upper left corner (loc=2)
 axins3 = inset_axes(ax2, width="30%", height=1., loc=2)
 
 # Create an inset in the lower right corner (loc=4) with borderpad=1, i.e.
-# 10 points padding (as 10pt is the default fontsize) to the parent axes
+# 10 points padding (as 10pt is the default fontsize) to the parent Axes
 axins4 = inset_axes(ax2, width="20%", height="20%", loc=4, borderpad=1)
 
 # Turn ticklabels of insets off
@@ -54,9 +54,9 @@ plt.show()
 fig = plt.figure(figsize=[5.5, 2.8])
 ax = fig.add_subplot(121)
 
-# We use the axes transform as bbox_transform. Therefore, the bounding box
+# We use the Axes transform as bbox_transform. Therefore, the bounding box
 # needs to be specified in axes coordinates ((0, 0) is the lower left corner
-# of the axes, (1, 1) is the upper right corner).
+# of the Axes, (1, 1) is the upper right corner).
 # The bounding box (.2, .4, .6, .5) starts at (.2, .4) and ranges to (.8, .9)
 # in those coordinates.
 # Inside this bounding box an inset of half the bounding box' width and
@@ -78,7 +78,7 @@ ax.set(xlim=(0, 10), ylim=(0, 10))
 
 
 # Note how the two following insets are created at the same positions, one by
-# use of the default parent axes' bbox and the other via a bbox in axes
+# use of the default parent Axes' bbox and the other via a bbox in Axes
 # coordinates and the respective transform.
 ax2 = fig.add_subplot(222)
 axins2 = inset_axes(ax2, width="30%", height="50%")
@@ -101,8 +101,8 @@ plt.show()
 
 
 # %%
-# In the above the axes transform together with 4-tuple bounding boxes has been
-# used as it mostly is useful to specify an inset relative to the axes it is
+# In the above the Axes transform together with 4-tuple bounding boxes has been
+# used as it mostly is useful to specify an inset relative to the Axes it is
 # an inset to. However, other use cases are equally possible. The following
 # example examines some of those.
 #
@@ -110,7 +110,7 @@ plt.show()
 fig = plt.figure(figsize=[5.5, 2.8])
 ax = fig.add_subplot(131)
 
-# Create an inset outside the axes
+# Create an inset outside the Axes
 axins = inset_axes(ax, width="100%", height="100%",
                    bbox_to_anchor=(1.05, .6, .5, .4),
                    bbox_transform=ax.transAxes, loc=2, borderpad=0)
@@ -134,7 +134,7 @@ axins3 = inset_axes(ax2, width="100%", height="100%",
                     bbox_transform=ax2.transData, loc=2, borderpad=0)
 
 # Create an inset horizontally centered in figure coordinates and vertically
-# bound to line up with the axes.
+# bound to line up with the Axes.
 from matplotlib.transforms import blended_transform_factory  # noqa
 
 transform = blended_transform_factory(fig.transFigure, ax2.transAxes)

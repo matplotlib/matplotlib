@@ -1,5 +1,7 @@
 #include "_tri.h"
 
+using namespace pybind11::literals;
+
 PYBIND11_MODULE(_tri, m) {
     py::class_<Triangulation>(m, "Triangulation")
         .def(py::init<const Triangulation::CoordinateArray&,
@@ -9,13 +11,13 @@ PYBIND11_MODULE(_tri, m) {
                       const Triangulation::EdgeArray&,
                       const Triangulation::NeighborArray&,
                       bool>(),
-            py::arg("x"),
-            py::arg("y"),
-            py::arg("triangles"),
-            py::arg("mask"),
-            py::arg("edges"),
-            py::arg("neighbors"),
-            py::arg("correct_triangle_orientations"),
+            "x"_a,
+            "y"_a,
+            "triangles"_a,
+            "mask"_a,
+            "edges"_a,
+            "neighbors"_a,
+            "correct_triangle_orientations"_a,
             "Create a new C++ Triangulation object.\n"
             "This should not be called directly, use the python class\n"
             "matplotlib.tri.Triangulation instead.\n")
@@ -31,8 +33,8 @@ PYBIND11_MODULE(_tri, m) {
     py::class_<TriContourGenerator>(m, "TriContourGenerator")
         .def(py::init<Triangulation&,
                       const TriContourGenerator::CoordinateArray&>(),
-            py::arg("triangulation"),
-            py::arg("z"),
+            "triangulation"_a,
+            "z"_a,
             "Create a new C++ TriContourGenerator object.\n"
             "This should not be called directly, use the functions\n"
             "matplotlib.axes.tricontour and tricontourf instead.\n")
@@ -43,7 +45,7 @@ PYBIND11_MODULE(_tri, m) {
 
     py::class_<TrapezoidMapTriFinder>(m, "TrapezoidMapTriFinder")
         .def(py::init<Triangulation&>(),
-            py::arg("triangulation"),
+            "triangulation"_a,
             "Create a new C++ TrapezoidMapTriFinder object.\n"
             "This should not be called directly, use the python class\n"
             "matplotlib.tri.TrapezoidMapTriFinder instead.\n")
