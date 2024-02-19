@@ -536,6 +536,10 @@ html_sidebars = {
         "cheatsheet_sidebar.html",
         "donate_sidebar.html",
     ],
+    # no sidebar for release notes, because that page is only a collection of links
+    # to sub-pages. The sidebar would repeat all the titles of the sub-pages and
+    # thus basically repeat all the content of the page.
+    "users/release_notes": ["empty_sidebar.html"],
     # '**': ['localtoc.html', 'pagesource.html']
 }
 
