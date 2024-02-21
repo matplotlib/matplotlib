@@ -24,7 +24,7 @@ environment:
   global:
     PYTHONFAULTHANDLER: 1
     PYTHONIOENCODING: UTF-8
-    PYTEST_ARGS: -raR --numprocesses=auto --timeout=300 --durations=25
+    PYTEST_ARGS: -rfEsXR --numprocesses=auto --timeout=300 --durations=25
                  --cov-report= --cov=lib --log-level=DEBUG
 
   matrix:
