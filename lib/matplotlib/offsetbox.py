@@ -1407,8 +1407,6 @@ or callable, default: value of *xycoords*
 
     def draw(self, renderer):
         # docstring inherited
-        if renderer is not None:
-            self._renderer = renderer
         if not self.get_visible() or not self._check_xy(renderer):
             return
         renderer.open_group(self.__class__.__name__, gid=self.get_gid())
