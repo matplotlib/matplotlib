@@ -72,9 +72,8 @@ def mpltype_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
     if mpltype not in type_to_link_target:
         raise ValueError(f"Unknown mpltype: {mpltype!r}")
 
-    ref_nodes, messages = inliner.interpreted(
+    node_list, messages = inliner.interpreted(
         mpltype, f'{mpltype} <{type_to_link_target[mpltype]}>', 'ref', lineno)
-    node_list = [ref_nodes]
     return node_list, messages
 
 
