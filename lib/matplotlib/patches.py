@@ -1840,7 +1840,7 @@ class Annulus(Patch):
         ----------
         width : float
         """
-        if min(self.a, self.b) <= width:
+        if width <= min(self.a, self.b) is False:
             raise ValueError(
                 'Width of annulus must be less than or equal semi-minor axis')
 
