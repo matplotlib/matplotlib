@@ -1,8 +1,10 @@
 # Python package
 # Create and test a Python package on multiple Python versions.
-# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and
+# more:
 # https://docs.microsoft.com/en-us/azure/devops/pipelines/ecosystems/python?view=azure-devops
 
+---
 trigger:
   branches:
     exclude:
@@ -18,261 +20,266 @@ pr:
 
 stages:
 
-- stage: Check
-  jobs:
-  - job: Skip
-    pool:
-      vmImage: 'ubuntu-latest'
-    variables:
-      DECODE_PERCENTS: 'false'
-      RET: 'true'
-    steps:
-    - bash: |
-        git_log=`git log --max-count=1 --skip=1 --pretty=format:"%B" | tr "\n" " "`
-        echo "##vso[task.setvariable variable=log]$git_log"
-    - bash: echo "##vso[task.setvariable variable=RET]false"
-      condition: or(contains(variables.log, '[skip azp]'), contains(variables.log, '[azp skip]'), contains(variables.log, '[skip ci]'), contains(variables.log, '[ci skip]'), contains(variables.log, '[ci doc]'))
-    - bash: echo "##vso[task.setvariable variable=start_main;isOutput=true]$RET"
-      name: result
+  - stage: Check
+    jobs:
+      - job: Skip
+        pool:
+          vmImage: 'ubuntu-latest'
+        variables:
+          DECODE_PERCENTS: 'false'
+          RET: 'true'
+        steps:
+          - bash: |
+              git_log=`git log --max-count=1 --skip=1 --pretty=format:"%B" | tr "\n" " "`
+              echo "##vso[task.setvariable variable=log]$git_log"
+          - bash: echo "##vso[task.setvariable variable=RET]false"
+            condition: >-
+              or(contains(variables.log, '[skip azp]'),
+                 contains(variables.log, '[azp skip]'),
+                 contains(variables.log, '[skip ci]'),
+                 contains(variables.log, '[ci skip]'),
+                 contains(variables.log, '[ci doc]'))
+          - bash: echo "##vso[task.setvariable variable=start_main;isOutput=true]$RET"
+            name: result
 
-- stage: Main
-  condition: and(succeeded(), eq(dependencies.Check.outputs['Skip.result.start_main'], 'true'))
-  dependsOn: Check
-  jobs:
-    - job: Pytest
-      strategy:
-        matrix:
-          Linux_py39:
-            vmImage: 'ubuntu-20.04'  # keep one job pinned to the oldest image
-            python.version: '3.9'
-          Linux_py310:
-            vmImage: 'ubuntu-latest'
-            python.version: '3.10'
-          Linux_py311:
-            vmImage: 'ubuntu-latest'
-            python.version: '3.11'
-          macOS_py39:
-            vmImage: 'macOS-latest'
-            python.version: '3.9'
-          macOS_py310:
-            vmImage: 'macOS-latest'
-            python.version: '3.10'
-          macOS_py311:
-            vmImage: 'macOS-latest'
-            python.version: '3.11'
-          Windows_py39:
-            vmImage: 'windows-2019'  # keep one job pinned to the oldest image
-            python.version: '3.9'
-          Windows_py310:
-            vmImage: 'windows-latest'
-            python.version: '3.10'
-          Windows_py311:
-            vmImage: 'windows-latest'
-            python.version: '3.11'
-        maxParallel: 4
-      pool:
-        vmImage: '$(vmImage)'
-      steps:
-      - task: UsePythonVersion@0
-        inputs:
-          versionSpec: '$(python.version)'
-          architecture: 'x64'
-        displayName: 'Use Python $(python.version)'
+  - stage: Main
+    condition: and(succeeded(), eq(dependencies.Check.outputs['Skip.result.start_main'], 'true'))
+    dependsOn: Check
+    jobs:
+      - job: Pytest
+        strategy:
+          matrix:
+            Linux_py39:
+              vmImage: 'ubuntu-20.04'  # keep one job pinned to the oldest image
+              python.version: '3.9'
+            Linux_py310:
+              vmImage: 'ubuntu-latest'
+              python.version: '3.10'
+            Linux_py311:
+              vmImage: 'ubuntu-latest'
+              python.version: '3.11'
+            macOS_py39:
+              vmImage: 'macOS-latest'
+              python.version: '3.9'
+            macOS_py310:
+              vmImage: 'macOS-latest'
+              python.version: '3.10'
+            macOS_py311:
+              vmImage: 'macOS-latest'
+              python.version: '3.11'
+            Windows_py39:
+              vmImage: 'windows-2019'  # keep one job pinned to the oldest image
+              python.version: '3.9'
+            Windows_py310:
+              vmImage: 'windows-latest'
+              python.version: '3.10'
+            Windows_py311:
+              vmImage: 'windows-latest'
+              python.version: '3.11'
+          maxParallel: 4
+        pool:
+          vmImage: '$(vmImage)'
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '$(python.version)'
+              architecture: 'x64'
+            displayName: 'Use Python $(python.version)'
 
-      - bash: |
-          set -e
-          case "$AGENT_OS" in
-          Linux)
-            echo 'Acquire::Retries "3";' | sudo tee /etc/apt/apt.conf.d/80-retries
-            sudo apt update
-            sudo apt install --no-install-recommends \
-              cm-super \
-              dvipng \
-              ffmpeg \
-              fonts-freefont-otf \
-              fonts-noto-cjk \
-              fonts-wqy-zenhei \
-              gdb \
-              gir1.2-gtk-3.0 \
-              graphviz \
-              inkscape \
-              language-pack-de \
-              lcov \
-              libcairo2 \
-              libgirepository-1.0-1 \
-              lmodern \
-              ninja-build \
-              poppler-utils \
-              texlive-fonts-recommended \
-              texlive-latex-base \
-              texlive-latex-extra \
-              texlive-latex-recommended \
-              texlive-luatex \
-              texlive-pictures \
-              texlive-xetex
-            ;;
-          Darwin)
-            brew install --cask xquartz
-            brew install ccache ffmpeg imagemagick mplayer ninja pkg-config
-            brew tap homebrew/cask-fonts
-            brew install font-noto-sans-cjk-sc
-            ;;
-          Windows_NT)
-            choco install ninja
-            ;;
-          *)
-            exit 1
-            ;;
-          esac
-        displayName: 'Install dependencies'
+          - bash: |
+              set -e
+              case "$AGENT_OS" in
+              Linux)
+                echo 'Acquire::Retries "3";' | sudo tee /etc/apt/apt.conf.d/80-retries
+                sudo apt update
+                sudo apt install --no-install-recommends \
+                  cm-super \
+                  dvipng \
+                  ffmpeg \
+                  fonts-freefont-otf \
+                  fonts-noto-cjk \
+                  fonts-wqy-zenhei \
+                  gdb \
+                  gir1.2-gtk-3.0 \
+                  graphviz \
+                  inkscape \
+                  language-pack-de \
+                  lcov \
+                  libcairo2 \
+                  libgirepository-1.0-1 \
+                  lmodern \
+                  ninja-build \
+                  poppler-utils \
+                  texlive-fonts-recommended \
+                  texlive-latex-base \
+                  texlive-latex-extra \
+                  texlive-latex-recommended \
+                  texlive-luatex \
+                  texlive-pictures \
+                  texlive-xetex
+                ;;
+              Darwin)
+                brew install --cask xquartz
+                brew install ccache ffmpeg imagemagick mplayer ninja pkg-config
+                brew tap homebrew/cask-fonts
+                brew install font-noto-sans-cjk-sc
+                ;;
+              Windows_NT)
+                choco install ninja
+                ;;
+              *)
+                exit 1
+                ;;
+              esac
+            displayName: 'Install dependencies'
 
-      - bash: |
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade meson-python pybind11
-          python -m pip install -r requirements/testing/all.txt -r requirements/testing/extra.txt
-        displayName: 'Install dependencies with pip'
+          - bash: |
+              python -m pip install --upgrade pip
+              python -m pip install --upgrade meson-python pybind11
+              python -m pip install -r requirements/testing/all.txt -r requirements/testing/extra.txt
+            displayName: 'Install dependencies with pip'
 
-      - bash: |
-          case "$AGENT_OS" in
-          Linux)
-            export CPPFLAGS='--coverage -fprofile-abs-path'
-            ;;
-          Darwin)
-            export CPPFLAGS='-fprofile-instr-generate=default.%m.profraw'
-            export CPPFLAGS="$CPPFLAGS -fcoverage-mapping"
-            ;;
-          Windows_NT)
-            CONFIG='--config-settings=setup-args=--vsenv'
-            CONFIG="$CONFIG --config-settings=setup-args=-Dcpp_link_args=-PROFILE"
-            CONFIG="$CONFIG --config-settings=setup-args=-Dbuildtype=debug"
-            ;;
-          *)
-            exit 1
-            ;;
-          esac
+          - bash: |
+              case "$AGENT_OS" in
+              Linux)
+                export CPPFLAGS='--coverage -fprofile-abs-path'
+                ;;
+              Darwin)
+                export CPPFLAGS='-fprofile-instr-generate=default.%m.profraw'
+                export CPPFLAGS="$CPPFLAGS -fcoverage-mapping"
+                ;;
+              Windows_NT)
+                CONFIG='--config-settings=setup-args=--vsenv'
+                CONFIG="$CONFIG --config-settings=setup-args=-Dcpp_link_args=-PROFILE"
+                CONFIG="$CONFIG --config-settings=setup-args=-Dbuildtype=debug"
+                ;;
+              *)
+                exit 1
+                ;;
+              esac
 
-          python -m pip install \
-            --no-build-isolation $CONFIG \
-            --verbose --editable .[dev]
-        displayName: "Install self"
+              python -m pip install \
+                --no-build-isolation $CONFIG \
+                --verbose --editable .[dev]
+            displayName: "Install self"
 
-      - script: env
-        displayName: 'print env'
+          - script: env
+            displayName: 'print env'
 
-      - script: pip list
-        displayName: 'print pip'
+          - script: pip list
+            displayName: 'print pip'
 
-      - bash: |
-          set -e
-          if [[ "$AGENT_OS" == 'Windows_NT' ]]; then
-            SESSION_ID=$(python -c "import uuid; print(uuid.uuid4(), end='')")
-            echo "Coverage session ID: ${SESSION_ID}"
-            VS=$(ls -d /c/Program\ Files*/Microsoft\ Visual\ Studio/*/Enterprise)
-            echo "Visual Studio: ${VS}"
-            DIR="$VS/Common7/IDE/Extensions/Microsoft/CodeCoverage.Console"
-            if [[ -d $DIR ]]; then
-              # This is for MSVC 2022 (on windows-latest).
-              TOOL="$DIR/Microsoft.CodeCoverage.Console.exe"
-              for f in build/cp*/src/*.pyd; do
-                echo $f
-                echo "=============================="
-                "$TOOL" instrument $f --session-id $SESSION_ID \
-                  --log-level Verbose --log-file instrument.log
-                cat instrument.log
-                rm instrument.log
-              done
-              echo "Starting $TOOL in server mode"
-              "$TOOL" collect \
-                  --session-id $SESSION_ID --server-mode \
-                  --output-format cobertura --output extensions.xml \
-                  --log-level Verbose --log-file extensions.log &
-              VS_VER=2022
-            else
-            DIR="$VS"/Team\ Tools/Dynamic\ Code\ Coverage\ Tools/amd64
-            if [[ -d $DIR ]]; then
-              # This is for MSVC 2019 (on windows-2019).
-              VSINSTR="$VS"/Team\ Tools/Performance\ Tools/vsinstr.exe
-              for f in build/cp*/src/*.pyd; do
-                "$VSINSTR" $f -Verbose -Coverage
-              done
-              TOOL="$DIR/CodeCoverage.exe"
-              cat > extensions.config << EOF
-          <CodeCoverage>
-            <CollectFromChildProcesses>true</CollectFromChildProcesses>
-            <ModulePaths>
-              <Include>
-                <ModulePath>.*\\.*\.pyd</ModulePath>
-              </Include>
-            </ModulePaths>
-          </CodeCoverage>
-          EOF
-              echo "Starting $TOOL in server mode"
-              "$TOOL" collect \
-                -config:extensions.config -session:$SESSION_ID \
-                -output:extensions.coverage -verbose &
-              echo "Started $TOOL"
-              VS_VER=2019
-            fi
-            fi
-            echo "##vso[task.setvariable variable=VS_COVERAGE_TOOL]$TOOL"
-          fi
-          PYTHONFAULTHANDLER=1 pytest -rfEsXR -n 2 \
-              --maxfail=50 --timeout=300 --durations=25 \
-              --junitxml=junit/test-results.xml --cov-report=xml --cov=lib
-          if [[ -n $SESSION_ID ]]; then
-            if [[ $VS_VER == 2022 ]]; then
-              "$TOOL" shutdown $SESSION_ID
-              echo "Coverage collection log"
-              echo "======================="
-              cat extensions.log
-            else
-              "$TOOL" shutdown -session:$SESSION_ID
-            fi
-          fi
-        displayName: 'pytest'
+          - bash: |
+              set -e
+              if [[ "$AGENT_OS" == 'Windows_NT' ]]; then
+                SESSION_ID=$(python -c "import uuid; print(uuid.uuid4(), end='')")
+                echo "Coverage session ID: ${SESSION_ID}"
+                VS=$(ls -d /c/Program\ Files*/Microsoft\ Visual\ Studio/*/Enterprise)
+                echo "Visual Studio: ${VS}"
+                DIR="$VS/Common7/IDE/Extensions/Microsoft/CodeCoverage.Console"
+                if [[ -d $DIR ]]; then
+                  # This is for MSVC 2022 (on windows-latest).
+                  TOOL="$DIR/Microsoft.CodeCoverage.Console.exe"
+                  for f in build/cp*/src/*.pyd; do
+                    echo $f
+                    echo "=============================="
+                    "$TOOL" instrument $f --session-id $SESSION_ID \
+                      --log-level Verbose --log-file instrument.log
+                    cat instrument.log
+                    rm instrument.log
+                  done
+                  echo "Starting $TOOL in server mode"
+                  "$TOOL" collect \
+                      --session-id $SESSION_ID --server-mode \
+                      --output-format cobertura --output extensions.xml \
+                      --log-level Verbose --log-file extensions.log &
+                  VS_VER=2022
+                else
+                DIR="$VS"/Team\ Tools/Dynamic\ Code\ Coverage\ Tools/amd64
+                if [[ -d $DIR ]]; then
+                  # This is for MSVC 2019 (on windows-2019).
+                  VSINSTR="$VS"/Team\ Tools/Performance\ Tools/vsinstr.exe
+                  for f in build/cp*/src/*.pyd; do
+                    "$VSINSTR" $f -Verbose -Coverage
+                  done
+                  TOOL="$DIR/CodeCoverage.exe"
+                  cat > extensions.config << EOF
+              <CodeCoverage>
+                <CollectFromChildProcesses>true</CollectFromChildProcesses>
+                <ModulePaths>
+                  <Include>
+                    <ModulePath>.*\\.*\.pyd</ModulePath>
+                  </Include>
+                </ModulePaths>
+              </CodeCoverage>
+              EOF
+                  echo "Starting $TOOL in server mode"
+                  "$TOOL" collect \
+                    -config:extensions.config -session:$SESSION_ID \
+                    -output:extensions.coverage -verbose &
+                  echo "Started $TOOL"
+                  VS_VER=2019
+                fi
+                fi
+                echo "##vso[task.setvariable variable=VS_COVERAGE_TOOL]$TOOL"
+              fi
+              PYTHONFAULTHANDLER=1 pytest -rfEsXR -n 2 \
+                  --maxfail=50 --timeout=300 --durations=25 \
+                  --junitxml=junit/test-results.xml --cov-report=xml --cov=lib
+              if [[ -n $SESSION_ID ]]; then
+                if [[ $VS_VER == 2022 ]]; then
+                  "$TOOL" shutdown $SESSION_ID
+                  echo "Coverage collection log"
+                  echo "======================="
+                  cat extensions.log
+                else
+                  "$TOOL" shutdown -session:$SESSION_ID
+                fi
+              fi
+            displayName: 'pytest'
 
-      - bash: |
-          case "$AGENT_OS" in
-          Linux)
-            lcov --rc lcov_branch_coverage=1 --capture --directory . \
-              --output-file coverage.info
-            lcov --rc lcov_branch_coverage=1 --output-file coverage.info \
-              --extract coverage.info $PWD/src/'*' $PWD/lib/'*'
-            lcov --rc lcov_branch_coverage=1 --list coverage.info
-            find . -name '*.gc*' -delete
-            ;;
-          Darwin)
-            xcrun llvm-profdata merge -sparse default.*.profraw \
-              -o default.profdata
-            xcrun llvm-cov export -format="lcov" build/*/src/*.so \
-              -instr-profile default.profdata > info.lcov
-            ;;
-          Windows_NT)
-            if [[ -f extensions.coverage ]]; then
-              # For MSVC 2019.
-              "$VS_COVERAGE_TOOL" analyze -output:extensions.xml \
-                -include_skipped_functions -include_skipped_modules \
-                extensions.coverage
-              rm extensions.coverage
-            fi
-            ;;
-          *)
-            exit 1
-            ;;
-          esac
-        displayName: 'Filter C coverage'
-      - bash: |
-          bash <(curl -s https://codecov.io/bash) \
-            -n "$PYTHON_VERSION $AGENT_OS" \
-            -f 'coverage.xml' -f 'extensions.xml'
-        displayName: 'Upload to codecov.io'
+          - bash: |
+              case "$AGENT_OS" in
+              Linux)
+                lcov --rc lcov_branch_coverage=1 --capture --directory . \
+                  --output-file coverage.info
+                lcov --rc lcov_branch_coverage=1 --output-file coverage.info \
+                  --extract coverage.info $PWD/src/'*' $PWD/lib/'*'
+                lcov --rc lcov_branch_coverage=1 --list coverage.info
+                find . -name '*.gc*' -delete
+                ;;
+              Darwin)
+                xcrun llvm-profdata merge -sparse default.*.profraw \
+                  -o default.profdata
+                xcrun llvm-cov export -format="lcov" build/*/src/*.so \
+                  -instr-profile default.profdata > info.lcov
+                ;;
+              Windows_NT)
+                if [[ -f extensions.coverage ]]; then
+                  # For MSVC 2019.
+                  "$VS_COVERAGE_TOOL" analyze -output:extensions.xml \
+                    -include_skipped_functions -include_skipped_modules \
+                    extensions.coverage
+                  rm extensions.coverage
+                fi
+                ;;
+              *)
+                exit 1
+                ;;
+              esac
+            displayName: 'Filter C coverage'
+          - bash: |
+              bash <(curl -s https://codecov.io/bash) \
+                -n "$PYTHON_VERSION $AGENT_OS" \
+                -f 'coverage.xml' -f 'extensions.xml'
+            displayName: 'Upload to codecov.io'
 
-      - task: PublishTestResults@2
-        inputs:
-          testResultsFiles: '**/test-results.xml'
-          testRunTitle: 'Python $(python.version)'
-        condition: succeededOrFailed()
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFiles: '**/test-results.xml'
+              testRunTitle: 'Python $(python.version)'
+            condition: succeededOrFailed()
 
-      - publish: $(System.DefaultWorkingDirectory)/result_images
-        artifact: $(Agent.JobName)-result_images
-        condition: failed()
+          - publish: $(System.DefaultWorkingDirectory)/result_images
+            artifact: $(Agent.JobName)-result_images
+            condition: failed()

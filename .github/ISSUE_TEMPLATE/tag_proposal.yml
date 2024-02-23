@@ -1,3 +1,4 @@
+---
 name: Tag Proposal
 description: Suggest a new tag or subcategory for the gallery of examples
 title: "[Tag]: "
@@ -5,8 +6,8 @@ labels: [Tag proposal]
 body:
   - type: markdown
     attributes:
-      value: |
-         Please search the [tag glossary]() for relevant tags before creating a new tag proposal.
+      value: >-
+        Please search the [tag glossary]() for relevant tags before creating a new tag proposal.
   - type: textarea
     id: need
     attributes:
@@ -23,5 +24,5 @@ body:
     id: solution
     attributes:
       label: Proposed solution
-      description: >
+      description: >-
         What should the tag be? All tags are in the format `subcategory: tag`

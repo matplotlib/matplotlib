@@ -1,0 +1,620 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://json.schemastore.org/codecov",
+  "definitions": {
+    "default": {
+      "$comment": "See https://docs.codecov.com/docs/commit-status#basic-configuration",
+      "properties": {
+        "target": {
+          "type": ["string", "number"],
+          "pattern": "^(([0-9]+\\.?[0-9]*|\\.[0-9]+)%?|auto)$",
+          "default": "auto"
+        },
+        "threshold": {
+          "type": "string",
+          "default": "0%",
+          "pattern": "^([0-9]+\\.?[0-9]*|\\.[0-9]+)%?$"
+        },
+        "base": {
+          "type": "string",
+          "default": "auto",
+          "deprecated": true
+        },
+        "flags": {
+          "type": "array",
+          "default": []
+        },
+        "paths": {
+          "type": ["array", "string"],
+          "default": []
+        },
+        "branches": {
+          "type": "array",
+          "default": []
+        },
+        "if_not_found": {
+          "type": "string",
+          "enum": ["failure", "success"],
+          "default": "success"
+        },
+        "informational": {
+          "type": "boolean",
+          "default": false
+        },
+        "only_pulls": {
+          "type": "boolean",
+          "default": false
+        },
+        "if_ci_failed": {
+          "type": "string",
+          "enum": ["error", "success"]
+        },
+        "flag_coverage_not_uploaded_behavior": {
+          "type": "string",
+          "enum": ["include", "exclude", "pass"]
+        }
+      }
+    },
+    "flag": {
+      "type": "object",
+      "properties": {
+        "joined": {
+          "type": "boolean"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "ignore": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "assume": {
+          "type": ["boolean", "array"],
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "layout": {
+      "anyOf": [
+        {},
+        {
+          "enum": [
+            "header",
+            "footer",
+            "diff",
+            "file",
+            "files",
+            "flag",
+            "flags",
+            "reach",
+            "sunburst",
+            "uncovered"
+          ]
+        }
+      ]
+    },
+    "notification": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "branches": {
+          "type": "string"
+        },
+        "threshold": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "flags": {
+          "type": "string"
+        },
+        "base": {
+          "enum": ["parent", "pr", "auto"]
+        },
+        "only_pulls": {
+          "type": "boolean"
+        },
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "description": "Schema for codecov.yml files.",
+  "properties": {
+    "codecov": {
+      "description": "See https://docs.codecov.io/docs/codecov-yaml for details",
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "bot": {
+          "description": "Team bot. See https://docs.codecov.io/docs/team-bot for details",
+          "type": "string"
+        },
+        "branch": {
+          "type": "string"
+        },
+        "ci": {
+          "description": "Detecting CI services. See https://docs.codecov.io/docs/detecting-ci-services for details.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "assume_all_flags": {
+          "type": "boolean"
+        },
+        "strict_yaml_branch": {
+          "type": "string"
+        },
+        "max_report_age": {
+          "type": ["string", "integer", "boolean"]
+        },
+        "disable_default_path_fixes": {
+          "type": "boolean"
+        },
+        "require_ci_to_pass": {
+          "type": "boolean"
+        },
+        "allow_pseudo_compare": {
+          "type": "boolean"
+        },
+        "archive": {
+          "type": "object",
+          "properties": {
+            "uploads": {
+              "type": "boolean"
+            }
+          }
+        },
+        "notify": {
+          "type": "object",
+          "properties": {
+            "after_n_builds": {
+              "type": "integer"
+            },
+            "countdown": {
+              "type": "integer"
+            },
+            "delay": {
+              "type": "integer"
+            },
+            "wait_for_ci": {
+              "type": "boolean"
+            }
+          }
+        },
+        "ui": {
+          "type": "object",
+          "properties": {
+            "hide_density": {
+              "type": ["boolean", "array"],
+              "items": {
+                "type": "string"
+              }
+            },
+            "hide_complexity": {
+              "type": ["boolean", "array"],
+              "items": {
+                "type": "string"
+              }
+            },
+            "hide_contextual": {
+              "type": "boolean"
+            },
+            "hide_sunburst": {
+              "type": "boolean"
+            },
+            "hide_search": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "coverage": {
+      "description": "Coverage configuration. See https://docs.codecov.io/docs/coverage-configuration for details.",
+      "type": "object",
+      "properties": {
+        "precision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "round": {
+          "enum": ["down", "up", "nearest"]
+        },
+        "range": {
+          "type": "string"
+        },
+        "notify": {
+          "description": "Notifications. See https://docs.codecov.io/docs/notifications for details.",
+          "type": "object",
+          "properties": {
+            "irc": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "branches": {
+                  "type": "string"
+                },
+                "threshold": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "flags": {
+                  "type": "string"
+                },
+                "base": {
+                  "enum": ["parent", "pr", "auto"]
+                },
+                "only_pulls": {
+                  "type": "boolean"
+                },
+                "paths": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "channel": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                },
+                "nickserv_password": {
+                  "type": "string"
+                },
+                "notice": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "slack": {
+              "description": "Slack. See https://docs.codecov.io/docs/notifications#section-slack for details.",
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "branches": {
+                  "type": "string"
+                },
+                "threshold": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "flags": {
+                  "type": "string"
+                },
+                "base": {
+                  "enum": ["parent", "pr", "auto"]
+                },
+                "only_pulls": {
+                  "type": "boolean"
+                },
+                "paths": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "attachments": {
+                  "$ref": "#/definitions/layout"
+                }
+              }
+            },
+            "gitter": {
+              "description": "Gitter. See https://docs.codecov.io/docs/notifications#section-gitter for details.",
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "branches": {
+                  "type": "string"
+                },
+                "threshold": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "flags": {
+                  "type": "string"
+                },
+                "base": {
+                  "enum": ["parent", "pr", "auto"]
+                },
+                "only_pulls": {
+                  "type": "boolean"
+                },
+                "paths": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "hipchat": {
+              "description": "Hipchat. See https://docs.codecov.io/docs/notifications#section-hipchat for details.",
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "branches": {
+                  "type": "string"
+                },
+                "threshold": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "flags": {
+                  "type": "string"
+                },
+                "base": {
+                  "enum": ["parent", "pr", "auto"]
+                },
+                "only_pulls": {
+                  "type": "boolean"
+                },
+                "paths": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "card": {
+                  "type": "boolean"
+                },
+                "notify": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "webhook": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "branches": {
+                  "type": "string"
+                },
+                "threshold": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "flags": {
+                  "type": "string"
+                },
+                "base": {
+                  "enum": ["parent", "pr", "auto"]
+                },
+                "only_pulls": {
+                  "type": "boolean"
+                },
+                "paths": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "email": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "branches": {
+                  "type": "string"
+                },
+                "threshold": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "flags": {
+                  "type": "string"
+                },
+                "base": {
+                  "enum": ["parent", "pr", "auto"]
+                },
+                "only_pulls": {
+                  "type": "boolean"
+                },
+                "paths": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "layout": {
+                  "$ref": "#/definitions/layout"
+                },
+                "+to": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "status": {
+          "description": "Commit status. See https://docs.codecov.io/docs/commit-status for details.",
+          "type": ["boolean", "object"],
+          "additionalProperties": false,
+          "properties": {
+            "default_rules": {
+              "type": "object"
+            },
+            "project": {
+              "properties": {
+                "default": {
+                  "$ref": "#/definitions/default",
+                  "type": ["object", "boolean"]
+                }
+              },
+              "additionalProperties": {
+                "$ref": "#/definitions/default",
+                "type": ["object", "boolean"]
+              }
+            },
+            "patch": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/default",
+                  "type": "object"
+                },
+                {
+                  "type": "string",
+                  "enum": ["off"]
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            },
+            "changes": {
+              "$ref": "#/definitions/default",
+              "type": ["object", "boolean"]
+            }
+          }
+        }
+      }
+    },
+    "ignore": {
+      "description": "Ignoring paths. see https://docs.codecov.io/docs/ignoring-paths for details.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "fixes": {
+      "description": "Fixing paths. See https://docs.codecov.io/docs/fixing-paths for details.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "flags": {
+      "description": "Flags. See https://docs.codecov.io/docs/flags for details.",
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/flag"
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/flag"
+          }
+        }
+      ]
+    },
+    "comment": {
+      "description": "Pull request comments. See https://docs.codecov.io/docs/pull-request-comments for details.",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "layout": {
+              "$ref": "#/definitions/layout"
+            },
+            "require_changes": {
+              "type": "boolean"
+            },
+            "require_base": {
+              "type": "boolean"
+            },
+            "require_head": {
+              "type": "boolean"
+            },
+            "branches": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "behavior": {
+              "enum": ["default", "once", "new", "spammy"]
+            },
+            "flags": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/flag"
+              }
+            },
+            "paths": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "const": false
+        }
+      ]
+    },
+    "github_checks": {
+      "description": "GitHub Checks. See https://docs.codecov.com/docs/github-checks for details.",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "annotations": {
+              "type": "boolean"
+            }
+          }
+        },
+        { "type": "boolean" },
+        { "type": "string", "enum": ["off"] }
+      ]
+    }
+  },
+  "title": "JSON schema for Codecov configuration files",
+  "type": "object"
+}

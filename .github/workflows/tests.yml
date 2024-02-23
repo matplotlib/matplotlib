@@ -30,7 +30,7 @@ env:
 
 jobs:
   test:
-    if: |
+    if: >-
       github.event_name == 'workflow_dispatch' ||
       (
         github.repository == 'matplotlib/matplotlib' &&
@@ -278,9 +278,7 @@ jobs:
 
       - name: Install the nightly dependencies
         # Only install the nightly dependencies during the scheduled event
-        if: |
-          github.event_name == 'schedule' &&
-          matrix.name-suffix != '(Minimum Versions)'
+        if: github.event_name == 'schedule' && matrix.name-suffix != '(Minimum Versions)'
         run: |
           python -m pip install pytz tzdata  # Must be installed for Pandas.
           python -m pip install \

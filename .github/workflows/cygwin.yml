@@ -49,7 +49,7 @@ jobs:
   test-cygwin:
     runs-on: windows-latest
     name: Python 3.${{ matrix.python-minor-version }} on Cygwin
-    if: |
+    if: >-
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'schedule' ||
       (
@@ -118,8 +118,7 @@ jobs:
         # GitHub Actions runs everything as Administrator.  I don't
         # know how to test for this, so set the uid for the CI job so
         # that the existing unix root detection will work.
-        run: |
-           /bin/mkpasswd.exe -c | sed -e "s/$(id -u)/0/" >/etc/passwd
+        run: /bin/mkpasswd.exe -c | sed -e "s/$(id -u)/0/" >/etc/passwd
 
       - name: Mark test repo safe
         shell: bash.exe -eo pipefail -o igncr "{0}"
@@ -143,8 +142,7 @@ jobs:
         with:
           path: C:\cygwin\home\runneradmin\.cache\pip
           key: Cygwin-py3.${{ matrix.python-minor-version }}-pip-${{ hashFiles('requirements/*/*.txt') }}
-          restore-keys: |
-            ${{ matrix.os }}-py3.${{ matrix.python-minor-version }}-pip-
+          restore-keys: ${{ matrix.os }}-py3.${{ matrix.python-minor-version }}-pip-
 
       - name: Cache ccache
         uses: actions/cache@v4
@@ -215,7 +213,8 @@ jobs:
       - name: Find DLLs to rebase
         shell: bash.exe -eo pipefail -o igncr "{0}"
         run: |
-          find {/usr,/usr/local}/{bin,lib/python3.*/site-packages} /usr/lib/lapack . -name \*.exe -o -name \*.dll -print >files_to_rebase.txt
+          find {/usr,/usr/local}/{bin,lib/python3.*/site-packages} /usr/lib/lapack . \
+            -name \*.exe -o -name \*.dll -print >files_to_rebase.txt
 
       - name: Rebase DLL list
         shell: ash.exe "{0}"
@@ -236,7 +235,9 @@ jobs:
           oldmplrc=$(python -c "from matplotlib import matplotlib_fname as mplrc_file; print(mplrc_file())")
           echo "${oldmplrc}"
           mkdir -p ~/.matplotlib/
-          sed -E -e 's~#animation\.ffmpeg_path:.+~animation.ffmpeg_path: /usr/bin/ffmpeg.exe~' "${oldmplrc}" >~/.matplotlib/matplotlibrc
+          sed -E \
+            -e 's~#animation\.ffmpeg_path:.+~animation.ffmpeg_path: /usr/bin/ffmpeg.exe~' \
+            "${oldmplrc}" >~/.matplotlib/matplotlibrc
 
       - name: Run pytest
         shell: bash.exe -eo pipefail -o igncr "{0}"

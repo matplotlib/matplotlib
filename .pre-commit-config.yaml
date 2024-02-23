@@ -1,3 +1,4 @@
+---
 ci:
   autofix_prs: false
   autoupdate_schedule: 'quarterly'
@@ -23,43 +24,42 @@ repos:
       - id: mixed-line-ending
       - id: name-tests-test
         args: ["--pytest-test-first"]
-      - id: no-commit-to-branch #default is master and main
+      - id: no-commit-to-branch  # Default is master and main.
       - id: trailing-whitespace
         exclude_types: [svg]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.8.0
     hooks:
       - id: mypy
-        additional_dependencies: [
-          pandas-stubs,
-          types-pillow,
-          types-python-dateutil,
-          types-psutil,
-          types-docutils,
-          types-PyYAML]
-        args: [
-          "--config-file=pyproject.toml",
-          "lib/matplotlib"
-          ]
-        files: lib/matplotlib #only run when files in lib/matplotlib are changed
+        additional_dependencies:
+          - pandas-stubs
+          - types-pillow
+          - types-python-dateutil
+          - types-psutil
+          - types-docutils
+          - types-PyYAML
+        args: ["--config-file=pyproject.toml", "lib/matplotlib"]
+        files: lib/matplotlib  # Only run when files in lib/matplotlib are changed.
         pass_filenames: false
   - repo: https://github.com/pycqa/flake8
     rev: 6.1.0
     hooks:
       - id: flake8
-        additional_dependencies: [pydocstyle>5.1.0, flake8-docstrings>1.4.0, flake8-force]
+        additional_dependencies:
+          - pydocstyle>5.1.0
+          - flake8-docstrings>1.4.0
+          - flake8-force
         args: ["--docstring-convention=all"]
   - repo: https://github.com/codespell-project/codespell
     rev: v2.2.6
     hooks:
       - id: codespell
         files: ^.*\.(py|c|cpp|h|m|md|rst|yml)$
-        args: [
-          "--ignore-words",
-          "ci/codespell-ignore-words.txt",
-          "--skip",
-          "doc/project/credits.rst"
-          ]
+        args:
+          - "--ignore-words"
+          - "ci/codespell-ignore-words.txt"
+          - "--skip"
+          - "doc/project/credits.rst"
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
     hooks:
@@ -73,3 +73,50 @@ repos:
         additional_dependencies:
           - sphinx>=1.8.1
           - tomli
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.29.0
+    hooks:
+      - id: yamllint
+        args: ["--strict", "--config-file=.yamllint.yml"]
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.28.0
+    hooks:
+      # TODO: Re-enable this when https://github.com/microsoft/azure-pipelines-vscode/issues/567 is fixed.
+      # - id: check-azure-pipelines
+      - id: check-dependabot
+      - id: check-github-workflows
+      # NOTE: If any of the below schema files need to be changed, be sure to
+      # update the `ci/vendor_schemas.py` script.
+      - id: check-jsonschema
+        name: "Validate AppVeyor config"
+        files: ^\.appveyor\.yml$
+        args: ["--verbose", "--schemafile", "ci/schemas/appveyor.json"]
+      - id: check-jsonschema
+        name: "Validate CircleCI config"
+        files: ^\.circleci/config\.yml$
+        args: ["--verbose", "--schemafile", "ci/schemas/circleciconfig.json"]
+      - id: check-jsonschema
+        name: "Validate GitHub funding file"
+        files: ^\.github/FUNDING\.yml$
+        args: ["--verbose", "--schemafile", "ci/schemas/github-funding.json"]
+      - id: check-jsonschema
+        name: "Validate GitHub issue config"
+        files: ^\.github/ISSUE_TEMPLATE/config\.yml$
+        args: ["--verbose", "--schemafile", "ci/schemas/github-issue-config.json"]
+      - id: check-jsonschema
+        name: "Validate GitHub issue templates"
+        files: ^\.github/ISSUE_TEMPLATE/.*\.yml$
+        exclude: ^\.github/ISSUE_TEMPLATE/config\.yml$
+        args: ["--verbose", "--schemafile", "ci/schemas/github-issue-forms.json"]
+      - id: check-jsonschema
+        name: "Validate CodeCov config"
+        files: ^\.github/codecov\.yml$
+        args: ["--verbose", "--schemafile", "ci/schemas/codecov.json"]
+      - id: check-jsonschema
+        name: "Validate GitHub labeler config"
+        files: ^\.github/labeler\.yml$
+        args: ["--verbose", "--schemafile", "ci/schemas/pull-request-labeler-5.json"]
+      - id: check-jsonschema
+        name: "Validate Conda environment file"
+        files: ^environment\.yml$
+        args: ["--verbose", "--schemafile", "ci/schemas/conda-environment.json"]
