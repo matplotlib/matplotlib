@@ -99,18 +99,19 @@ mpl_tk_blit(py::object interp_obj, const char *photo_name,
 
     auto data_ptr = data.mutable_unchecked<3>();  // Checks ndim and writeable flag.
     if (data.shape(2) != 4) {
-        throw py::value_error("Data pointer must be RGBA; last dimension is " +
-                              std::to_string(data.shape(2)) + ", not 4");
+        throw py::value_error(
+            "Data pointer must be RGBA; last dimension is {}, not 4"_s.format(
+                data.shape(2)));
     }
     if (data.shape(0) > INT_MAX) {  // Limited by Tk_PhotoPutBlock argument type.
         throw std::range_error(
-            "Height (" + std::to_string(data.shape(0)) +
-            ") exceeds maximum allowable size (" + std::to_string(INT_MAX) + ")");
+            "Height ({}) exceeds maximum allowable size ({})"_s.format(
+                data.shape(0), INT_MAX));
     }
     if (data.shape(1) > INT_MAX / 4) {  // Limited by Tk_PhotoImageBlock.pitch field.
         throw std::range_error(
-            "Width (" + std::to_string(data.shape(1)) +
-            ") exceeds maximum allowable size (" + std::to_string(INT_MAX / 4) + ")");
+            "Width ({}) exceeds maximum allowable size ({})"_s.format(
+                data.shape(1), INT_MAX / 4));
     }
     const auto height = static_cast<int>(data.shape(0));
     const auto width = static_cast<int>(data.shape(1));
