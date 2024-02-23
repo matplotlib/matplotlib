@@ -8220,26 +8220,26 @@ such objects
           The input data.
 
         positions : array-like, default: [1, 2, ..., n]
-          The positions of the violins. The ticks and limits are
-          automatically set to match the positions.
+          The positions of the violins; i.e. coordinates on the x-axis for
+          vertical violins (or y-axis for horizontal violins).
 
         vert : bool, default: True.
           If true, creates a vertical violin plot.
           Otherwise, creates a horizontal violin plot.
 
-        widths : array-like, default: 0.5
-          Either a scalar or a vector that sets the maximal width of
-          each violin. The default is 0.5, which uses about half of the
-          available horizontal space.
+        widths : float or array-like, default: 0.5
+          The maximum width of each violin in units of the *positions* axis.
+          The default is 0.5, which is half the available space when using default
+          *positions*.
 
         showmeans : bool, default: False
-          If `True`, will toggle rendering of the means.
+          Whether to show the mean with a line.
 
         showextrema : bool, default: True
-          If `True`, will toggle rendering of the extrema.
+          Whether to show extrema with a line.
 
         showmedians : bool, default: False
-          If `True`, will toggle rendering of the medians.
+          Whether to show the median with a line.
 
         quantiles : array-like, default: None
           If not None, set a list of floats in interval [0, 1] for each violin,
@@ -8247,16 +8247,14 @@ such objects
           violin.
 
         points : int, default: 100
-          Defines the number of points to evaluate each of the
-          gaussian kernel density estimations at.
+          The number of points to evaluate each of the gaussian kernel density
+          estimations at.
 
-        bw_method : str, scalar or callable, optional
-          The method used to calculate the estimator bandwidth.  This can be
-          'scott', 'silverman', a scalar constant or a callable.  If a
-          scalar, this will be used directly as `kde.factor`.  If a
+        bw_method : {'scott', 'silverman'} or float or callable, default: 'scott'
+          The method used to calculate the estimator bandwidth.  If a
+          float, this will be used directly as `kde.factor`.  If a
           callable, it should take a `matplotlib.mlab.GaussianKDE` instance as
-          its only parameter and return a scalar. If None (default), 'scott'
-          is used.
+          its only parameter and return a float.
 
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
@@ -8347,26 +8345,26 @@ such objects
             for this violin's dataset.
 
         positions : array-like, default: [1, 2, ..., n]
-          The positions of the violins. The ticks and limits are
-          automatically set to match the positions.
+          The positions of the violins; i.e. coordinates on the x-axis for
+          vertical violins (or y-axis for horizontal violins).
 
         vert : bool, default: True.
           If true, plots the violins vertically.
           Otherwise, plots the violins horizontally.
 
-        widths : array-like, default: 0.5
-          Either a scalar or a vector that sets the maximal width of
-          each violin. The default is 0.5, which uses about half of the
-          available horizontal space.
+        widths : float or array-like, default: 0.5
+          The maximum width of each violin in units of the *positions* axis.
+          The default is 0.5, which is half available space when using default
+          *positions*.
 
         showmeans : bool, default: False
-          If true, will toggle rendering of the means.
+          Whether to show the mean with a line.
 
         showextrema : bool, default: True
-          If true, will toggle rendering of the extrema.
+          Whether to show extrema with a line.
 
         showmedians : bool, default: False
-          If true, will toggle rendering of the medians.
+          Whether to show the median with a line.
 
         Returns
         -------
