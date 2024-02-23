@@ -1840,9 +1840,9 @@ class Annulus(Patch):
         ----------
         width : float
         """
-        if min(self.a, self.b) <= width:
+        if width > min(self.a, self.b):
             raise ValueError(
-                'Width of annulus must be less than or equal semi-minor axis')
+                'Width of annulus must be less than or equal to semi-minor axis')
 
         self._width = width
         self._path = None
