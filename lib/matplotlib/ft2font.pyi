@@ -1,4 +1,4 @@
-from typing import BinaryIO, Literal, TypedDict, overload
+from typing import BinaryIO, Literal, TypedDict, final, overload
 
 import numpy as np
 from numpy.typing import NDArray
@@ -158,6 +158,7 @@ class _SfntPcltDict(TypedDict):
     widthType: int
     serifStyle: int
 
+@final
 class FT2Font:
     ascender: int
     bbox: tuple[int, int, int, int]
@@ -233,11 +234,13 @@ class FT2Font:
         self, string: str, angle: float = ..., flags: int = ...
     ) -> NDArray[np.float64]: ...
 
+@final
 class FT2Image:  # TODO: When updating mypy>=1.4, subclass from Buffer.
     def __init__(self, width: float, height: float) -> None: ...
     def draw_rect(self, x0: float, y0: float, x1: float, y1: float) -> None: ...
     def draw_rect_filled(self, x0: float, y0: float, x1: float, y1: float) -> None: ...
 
+@final
 class Glyph:
     width: int
     height: int

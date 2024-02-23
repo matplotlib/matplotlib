@@ -146,7 +146,7 @@ static PyTypeObject* PyFT2Image_init_type()
     PyFT2ImageType.tp_name = "matplotlib.ft2font.FT2Image";
     PyFT2ImageType.tp_basicsize = sizeof(PyFT2Image);
     PyFT2ImageType.tp_dealloc = (destructor)PyFT2Image_dealloc;
-    PyFT2ImageType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
+    PyFT2ImageType.tp_flags = Py_TPFLAGS_DEFAULT;
     PyFT2ImageType.tp_methods = methods;
     PyFT2ImageType.tp_new = PyFT2Image_new;
     PyFT2ImageType.tp_init = (initproc)PyFT2Image_init;
@@ -236,7 +236,7 @@ static PyTypeObject *PyGlyph_init_type()
     PyGlyphType.tp_name = "matplotlib.ft2font.Glyph";
     PyGlyphType.tp_basicsize = sizeof(PyGlyph);
     PyGlyphType.tp_dealloc = (destructor)PyGlyph_dealloc;
-    PyGlyphType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
+    PyGlyphType.tp_flags = Py_TPFLAGS_DEFAULT;
     PyGlyphType.tp_members = members;
     PyGlyphType.tp_getset = getset;
 
@@ -1495,7 +1495,7 @@ static PyTypeObject *PyFT2Font_init_type()
     PyFT2FontType.tp_doc = PyFT2Font_init__doc__;
     PyFT2FontType.tp_basicsize = sizeof(PyFT2Font);
     PyFT2FontType.tp_dealloc = (destructor)PyFT2Font_dealloc;
-    PyFT2FontType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
+    PyFT2FontType.tp_flags = Py_TPFLAGS_DEFAULT;
     PyFT2FontType.tp_methods = methods;
     PyFT2FontType.tp_getset = getset;
     PyFT2FontType.tp_new = PyFT2Font_new;
