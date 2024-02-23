@@ -743,6 +743,7 @@ class Axes(_AxesBase):
         | float
         | Callable[[GaussianKDE], float]
         | None = ...,
+        side: Literal["both", "low", "high"] = ...,
         *,
         data=...,
     ) -> dict[str, Collection]: ...
@@ -755,6 +756,7 @@ class Axes(_AxesBase):
         showmeans: bool = ...,
         showextrema: bool = ...,
         showmedians: bool = ...,
+        side: Literal["both", "low", "high"] = ...,
     ) -> dict[str, Collection]: ...
 
     table = mtable.table
