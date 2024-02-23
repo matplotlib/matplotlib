@@ -8205,7 +8205,7 @@ such objects
     @_preprocess_data(replace_names=["dataset"])
     def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
                    showmeans=False, showextrema=True, showmedians=False,
-                   quantiles=None, points=100, bw_method=None):
+                   quantiles=None, points=100, bw_method=None, side='both'):
         """
         Make a violin plot.
 
@@ -8258,6 +8258,10 @@ such objects
           its only parameter and return a scalar. If None (default), 'scott'
           is used.
 
+        side : {'both', 'low', 'high'}, default: 'both'
+            'both' plots standard violins. 'low'/'high' only
+            plots the side below/above the positions value.
+
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
 
@@ -8309,10 +8313,10 @@ such objects
                                      quantiles=quantiles)
         return self.violin(vpstats, positions=positions, vert=vert,
                            widths=widths, showmeans=showmeans,
-                           showextrema=showextrema, showmedians=showmedians)
+                           showextrema=showextrema, showmedians=showmedians, side=side)
 
     def violin(self, vpstats, positions=None, vert=True, widths=0.5,
-               showmeans=False, showextrema=True, showmedians=False):
+               showmeans=False, showextrema=True, showmedians=False, side='both'):
         """
         Draw a violin plot from pre-computed statistics.
 
@@ -8367,6 +8371,10 @@ such objects
 
         showmedians : bool, default: False
           If true, will toggle rendering of the medians.
+
+        side : {'both', 'low', 'high'}, default: 'both'
+            'both' plots standard violins. 'low'/'high' only
+            plots the side below/above the positions value.
 
         Returns
         -------
@@ -8430,8 +8438,13 @@ such objects
         elif len(widths) != N:
             raise ValueError(datashape_message.format("widths"))
 
+        # Validate side
+        _api.check_in_list(["both", "low", "high"], side=side)
+
         # Calculate ranges for statistics lines (shape (2, N)).
-        line_ends = [[-0.25], [0.25]] * np.array(widths) + positions
+        line_ends = [[-0.25 if side in ['both', 'low'] else 0],
+                     [0.25 if side in ['both', 'high'] else 0]] \
+                          * np.array(widths) + positions
 
         # Colors.
         if mpl.rcParams['_internal.classic_mode']:
@@ -8443,12 +8456,24 @@ such objects
         # Check whether we are rendering vertically or horizontally
         if vert:
             fill = self.fill_betweenx
-            perp_lines = functools.partial(self.hlines, colors=linecolor)
-            par_lines = functools.partial(self.vlines, colors=linecolor)
+            if side in ['low', 'high']:
+                perp_lines = functools.partial(self.hlines, colors=linecolor,
+                                                capstyle='projecting')
+                par_lines = functools.partial(self.vlines, colors=linecolor,
+                                                capstyle='projecting')
+            else:
+                perp_lines = functools.partial(self.hlines, colors=linecolor)
+                par_lines = functools.partial(self.vlines, colors=linecolor)
         else:
             fill = self.fill_between
-            perp_lines = functools.partial(self.vlines, colors=linecolor)
-            par_lines = functools.partial(self.hlines, colors=linecolor)
+            if side in ['low', 'high']:
+                perp_lines = functools.partial(self.vlines, colors=linecolor,
+                                                capstyle='projecting')
+                par_lines = functools.partial(self.hlines, colors=linecolor,
+                                                capstyle='projecting')
+            else:
+                perp_lines = functools.partial(self.vlines, colors=linecolor)
+                par_lines = functools.partial(self.hlines, colors=linecolor)
 
         # Render violins
         bodies = []
@@ -8456,7 +8481,9 @@ such objects
             # The 0.5 factor reflects the fact that we plot from v-p to v+p.
             vals = np.array(stats['vals'])
             vals = 0.5 * width * vals / vals.max()
-            bodies += [fill(stats['coords'], -vals + pos, vals + pos,
+            bodies += [fill(stats['coords'],
+                            -vals + pos if side in ['both', 'low'] else pos,
+                            vals + pos if side in ['both', 'high'] else pos,
                             facecolor=fillcolor, alpha=0.3)]
             means.append(stats['mean'])
             mins.append(stats['min'])

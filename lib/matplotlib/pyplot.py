@@ -4075,6 +4075,7 @@ def violinplot(
     | float
     | Callable[[GaussianKDE], float]
     | None = None,
+    side: Literal["both", "low", "high"] = "both",
     *,
     data=None,
 ) -> dict[str, Collection]:
@@ -4089,6 +4090,7 @@ def violinplot(
         quantiles=quantiles,
         points=points,
         bw_method=bw_method,
+        side=side,
         **({"data": data} if data is not None else {}),
     )
 
