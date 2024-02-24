@@ -3334,6 +3334,7 @@ class Axes(_AxesBase):
                     raise TypeError(
                         'autopct must be callable or a format string')
                 if mpl._val_or_rc(textprops.get("usetex"), "text.usetex"):
+                    # Regex Matching Added To Support % Symbol in Latex
                     s = re.sub(r"([^\\])%", r"\1\\%", s)
                 t = self.text(xt, yt, s,
                               clip_on=False,
