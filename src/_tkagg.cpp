@@ -9,6 +9,7 @@
 // rewritten, we have removed the PIL licensing information.  If you want PIL,
 // you can get it at https://python-pillow.org/
 
+#include <Python.h>
 #include <memory>
 #include <new>
 #include <stdexcept>
