@@ -14,10 +14,6 @@
  * original.
  */
 
-#include "py_exceptions.h"
-
-#include <complex>
-
 #ifdef _POSIX_C_SOURCE
 #    undef _POSIX_C_SOURCE
 #endif
@@ -39,6 +35,10 @@
 
 #include <Python.h>
 #include <numpy/ndarrayobject.h>
+
+#include "py_exceptions.h"
+
+#include <complex>
 
 namespace numpy
 {

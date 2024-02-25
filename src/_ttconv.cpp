@@ -5,6 +5,7 @@
 
   Python wrapper for TrueType conversion library in ../ttconv.
  */
+#include <Python.h>
 #include "mplutils.h"
 
 #include <pybind11/pybind11.h>
