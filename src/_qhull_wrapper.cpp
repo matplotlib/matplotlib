@@ -5,6 +5,7 @@
  * triangulation, construct an instance of the matplotlib.tri.Triangulation
  * class without specifying a triangles array.
  */
+#include <Python.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 
