@@ -168,7 +168,6 @@ jobs:
         run: |
           /usr/sbin/alternatives --set python /usr/bin/python3.${{ matrix.python-minor-version }}
           /usr/sbin/alternatives --set python3 /usr/bin/python3.${{ matrix.python-minor-version }}
-          /usr/sbin/alternatives --set pytest /usr/bin/pytest-3.${{matrix.python-minor-version }}
 
       - name: Install Python dependencies
         shell: bash.exe -eo pipefail -o igncr "{0}"
