@@ -243,8 +243,6 @@ jobs:
         shell: bash.exe -eo pipefail -o igncr "{0}"
         id: cygwin-run-pytest
         run: |
-          mkdir run-test 
-          cd run-test
           xvfb-run python -m pytest -rfEsXR -n auto \
             --maxfail=50 --timeout=300 --durations=25 \
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
