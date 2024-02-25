@@ -2,6 +2,7 @@
 
 #define NO_IMPORT_ARRAY
 
+#include <Python.h>
 #include "_backend_agg.h"
 #include "mplutils.h"
 
