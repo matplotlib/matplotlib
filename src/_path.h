@@ -3,6 +3,7 @@
 #ifndef MPL_PATH_H
 #define MPL_PATH_H
 
+#include <Python.h>
 #include <limits>
 #include <math.h>
 #include <vector>
