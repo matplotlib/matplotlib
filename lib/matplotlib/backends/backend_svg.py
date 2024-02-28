@@ -302,6 +302,7 @@ class RendererSVG(RendererBase):
 
         self._groupd = {}
         self._image_counter = itertools.count()
+        self._clip_id = 0
         self._clipd = {}
         self._markers = {}
         self._path_collection_id = 0
@@ -324,6 +325,11 @@ class RendererSVG(RendererBase):
             attrib={'xmlns:xlink': "http://www.w3.org/1999/xlink"})
         self._write_metadata(metadata)
         self._write_default_style()
+
+    def _get_next_clip_id(self):
+        clip_id = self._clip_id
+        self._clip_id += 1
+        return clip_id
 
     def finalize(self):
         self._write_clips()
@@ -590,7 +596,7 @@ class RendererSVG(RendererBase):
         clippath, clippath_trans = gc.get_clip_path()
         if clippath is not None:
             clippath_trans = self._make_flip_transform(clippath_trans)
-            dictkey = (id(clippath), str(clippath_trans))
+            dictkey = (self._get_next_clip_id(), str(clippath_trans))
         elif cliprect is not None:
             x, y, w, h = cliprect.bounds
             y = self.height-(y+h)
