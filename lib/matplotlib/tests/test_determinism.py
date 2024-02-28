@@ -8,13 +8,21 @@ import sys
 import pytest
 
 import matplotlib as mpl
-import matplotlib.testing.compare
 from matplotlib import pyplot as plt
-from matplotlib.testing._markers import needs_ghostscript, needs_usetex
+from matplotlib.cbook import get_sample_data
+from matplotlib.collections import PathCollection
+from matplotlib.image import BboxImage
+from matplotlib.offsetbox import AnchoredOffsetbox, AuxTransformBox
+from matplotlib.patches import Circle, PathPatch
+from matplotlib.path import Path
 from matplotlib.testing import subprocess_run_for_testing
+from matplotlib.testing._markers import needs_ghostscript, needs_usetex
+import matplotlib.testing.compare
+from matplotlib.text import TextPath
+from matplotlib.transforms import IdentityTransform
 
 
-def _save_figure(objects='mhi', fmt="pdf", usetex=False):
+def _save_figure(objects='mhip', fmt="pdf", usetex=False):
     mpl.use(fmt)
     mpl.rcParams.update({'svg.hashsalt': 'asdf', 'text.usetex': usetex})
 
@@ -50,6 +58,76 @@ def _save_figure(objects='mhi', fmt="pdf", usetex=False):
         A = [[2, 3, 1], [1, 2, 3], [2, 1, 3]]
         fig.add_subplot(1, 6, 5).imshow(A, interpolation='bicubic')
 
+    if 'p' in objects:
+
+        # clipping support class, copied from demo_text_path.py gallery example
+        class PathClippedImagePatch(PathPatch):
+            """
+            The given image is used to draw the face of the patch. Internally,
+            it uses BboxImage whose clippath set to the path of the patch.
+
+            FIXME : The result is currently dpi dependent.
+            """
+
+            def __init__(self, path, bbox_image, **kwargs):
+                super().__init__(path, **kwargs)
+                self.bbox_image = BboxImage(
+                    self.get_window_extent, norm=None, origin=None)
+                self.bbox_image.set_data(bbox_image)
+
+            def set_facecolor(self, color):
+                """Simply ignore facecolor."""
+                super().set_facecolor("none")
+
+            def draw(self, renderer=None):
+                # the clip path must be updated every draw. any solution? -JJ
+                self.bbox_image.set_clip_path(self._path, self.get_transform())
+                self.bbox_image.draw(renderer)
+                super().draw(renderer)
+
+        # add a polar projection
+        px = fig.add_subplot(projection="polar")
+        pimg = px.imshow([[2]])
+        pimg.set_clip_path(Circle((0, 1), radius=0.3333))
+
+        # add a text-based clipping path (origin: demo_text_path.py)
+        (ax1, ax2) = fig.subplots(2)
+        arr = plt.imread(get_sample_data("grace_hopper.jpg"))
+        text_path = TextPath((0, 0), "!?", size=150)
+        p = PathClippedImagePatch(text_path, arr, ec="k")
+        offsetbox = AuxTransformBox(IdentityTransform())
+        offsetbox.add_artist(p)
+        ao = AnchoredOffsetbox(loc='upper left', child=offsetbox, frameon=True,
+                               borderpad=0.2)
+        ax1.add_artist(ao)
+
+        # add a 2x2 grid of path-clipped axes (origin: test_artist.py)
+        exterior = Path.unit_rectangle().deepcopy()
+        exterior.vertices *= 4
+        exterior.vertices -= 2
+        interior = Path.unit_circle().deepcopy()
+        interior.vertices = interior.vertices[::-1]
+        clip_path = Path.make_compound_path(exterior, interior)
+
+        star = Path.unit_regular_star(6).deepcopy()
+        star.vertices *= 2.6
+
+        (row1, row2) = fig.subplots(2, 2, sharex=True, sharey=True)
+        for row in (row1, row2):
+            ax1, ax2 = row
+            collection = PathCollection([star], lw=5, edgecolor='blue',
+                                        facecolor='red', alpha=0.7, hatch='*')
+            collection.set_clip_path(clip_path, ax1.transData)
+            ax1.add_collection(collection)
+
+            patch = PathPatch(star, lw=5, edgecolor='blue', facecolor='red',
+                              alpha=0.7, hatch='*')
+            patch.set_clip_path(clip_path, ax2.transData)
+            ax2.add_patch(patch)
+
+            ax1.set_xlim([-3, 3])
+            ax1.set_ylim([-3, 3])
+
     x = range(5)
     ax = fig.add_subplot(1, 6, 6)
     ax.plot(x, x)
@@ -67,12 +145,13 @@ def _save_figure(objects='mhi', fmt="pdf", usetex=False):
         ("m", "pdf", False),
         ("h", "pdf", False),
         ("i", "pdf", False),
-        ("mhi", "pdf", False),
-        ("mhi", "ps", False),
+        ("mhip", "pdf", False),
+        ("mhip", "ps", False),
         pytest.param(
-            "mhi", "ps", True, marks=[needs_usetex, needs_ghostscript]),
-        ("mhi", "svg", False),
-        pytest.param("mhi", "svg", True, marks=needs_usetex),
+            "mhip", "ps", True, marks=[needs_usetex, needs_ghostscript]),
+        ("p", "svg", False),
+        ("mhip", "svg", False),
+        pytest.param("mhip", "svg", True, marks=needs_usetex),
     ]
 )
 def test_determinism_check(objects, fmt, usetex):
@@ -84,7 +163,7 @@ def test_determinism_check(objects, fmt, usetex):
     ----------
     objects : str
         Objects to be included in the test document: 'm' for markers, 'h' for
-        hatch patterns, 'i' for images.
+        hatch patterns, 'i' for images, and 'p' for paths.
     fmt : {"pdf", "ps", "svg"}
         Output format.
     """

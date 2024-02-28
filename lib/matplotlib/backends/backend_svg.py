@@ -302,6 +302,7 @@ class RendererSVG(RendererBase):
 
         self._groupd = {}
         self._image_counter = itertools.count()
+        self._clip_path_ids = {}
         self._clipd = {}
         self._markers = {}
         self._path_collection_id = 0
@@ -324,6 +325,20 @@ class RendererSVG(RendererBase):
             attrib={'xmlns:xlink': "http://www.w3.org/1999/xlink"})
         self._write_metadata(metadata)
         self._write_default_style()
+
+    def _get_clippath_id(self, clippath):
+        """
+        Returns a stable and unique identifier for the *clippath* argument
+        object within the current rendering context.
+
+        This allows plots that include custom clip paths to produce identical
+        SVG output on each render, provided that the :rc:`svg.hashsalt` config
+        setting and the ``SOURCE_DATE_EPOCH`` build-time environment variable
+        are set to fixed values.
+        """
+        if clippath not in self._clip_path_ids:
+            self._clip_path_ids[clippath] = len(self._clip_path_ids)
+        return self._clip_path_ids[clippath]
 
     def finalize(self):
         self._write_clips()
@@ -590,7 +605,7 @@ class RendererSVG(RendererBase):
         clippath, clippath_trans = gc.get_clip_path()
         if clippath is not None:
             clippath_trans = self._make_flip_transform(clippath_trans)
-            dictkey = (id(clippath), str(clippath_trans))
+            dictkey = (self._get_clippath_id(clippath), str(clippath_trans))
         elif cliprect is not None:
             x, y, w, h = cliprect.bounds
             y = self.height-(y+h)
@@ -605,7 +620,7 @@ class RendererSVG(RendererBase):
             else:
                 self._clipd[dictkey] = (dictkey, oid)
         else:
-            clip, oid = clip
+            _, oid = clip
         return {'clip-path': f'url(#{oid})'}
 
     def _write_clips(self):
