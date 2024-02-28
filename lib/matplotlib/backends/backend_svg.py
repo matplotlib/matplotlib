@@ -611,7 +611,7 @@ class RendererSVG(RendererBase):
             else:
                 self._clipd[dictkey] = (dictkey, oid)
         else:
-            clip, oid = clip
+            _, oid = clip
         return {'clip-path': f'url(#{oid})'}
 
     def _write_clips(self):
