@@ -14,7 +14,7 @@ from matplotlib.testing._markers import needs_ghostscript, needs_usetex
 from matplotlib.testing import subprocess_run_for_testing
 
 
-def _save_figure(objects='mhi', fmt="pdf", usetex=False):
+def _save_figure(objects='mhip', fmt="pdf", usetex=False):
     mpl.use(fmt)
     mpl.rcParams.update({'svg.hashsalt': 'asdf', 'text.usetex': usetex})
 
@@ -50,6 +50,10 @@ def _save_figure(objects='mhi', fmt="pdf", usetex=False):
         A = [[2, 3, 1], [1, 2, 3], [2, 1, 3]]
         fig.add_subplot(1, 6, 5).imshow(A, interpolation='bicubic')
 
+    if 'p' in objects:
+        # add a polar projection
+        fig.add_subplot(projection="polar")
+
     x = range(5)
     ax = fig.add_subplot(1, 6, 6)
     ax.plot(x, x)
@@ -71,8 +75,8 @@ def _save_figure(objects='mhi', fmt="pdf", usetex=False):
         ("mhi", "ps", False),
         pytest.param(
             "mhi", "ps", True, marks=[needs_usetex, needs_ghostscript]),
-        ("mhi", "svg", False),
-        pytest.param("mhi", "svg", True, marks=needs_usetex),
+        ("mhip", "svg", False),
+        pytest.param("mhip", "svg", True, marks=needs_usetex),
     ]
 )
 def test_determinism_check(objects, fmt, usetex):
@@ -84,7 +88,7 @@ def test_determinism_check(objects, fmt, usetex):
     ----------
     objects : str
         Objects to be included in the test document: 'm' for markers, 'h' for
-        hatch patterns, 'i' for images.
+        hatch patterns, 'i' for images, and 'p' for projections.
     fmt : {"pdf", "ps", "svg"}
         Output format.
     """
