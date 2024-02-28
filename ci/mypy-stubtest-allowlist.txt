@@ -18,8 +18,6 @@ matplotlib.pyplot.*
 matplotlib.typing.*
 
 # Other decorator modifying signature
-# Runtime picks up  *args **kwargs, but only decorated by a decorator that uses @wraps so?
-matplotlib.axis.Axis.draw
 # Backcompat decorator which does not modify runtime reported signature
 matplotlib.offsetbox.*Offset[Bb]ox.get_offset
 
