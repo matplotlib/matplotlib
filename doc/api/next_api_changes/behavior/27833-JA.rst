@@ -1,0 +1,8 @@
+SVG output: improved reproducibility
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A problem that caused some plots to `produce different SVG output on each render <https://github.com/matplotlib/matplotlib/issues/27831>`, even with a static ``svg.hashsalt`` configuration setting, was discovered.
+
+The cause relates to use of a non-deterministic ID scheme for non-rectangular path clipping objects, and a change has been applied to use a monotonically increasing integer ID scheme for those elements instead.
+
+Provided that plots add non-rectangular clip objects in deterministic order, this should provide repeatable (a.k.a. reproducible, deterministic) SVG output.
