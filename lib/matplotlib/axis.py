@@ -1001,7 +1001,7 @@ class Axis(martist.Artist):
         ::
 
             >>> ax.yaxis.set_tick_params(labelsize=30, labelcolor='red',
-                                         direction='out', which='major')
+            ...                          direction='out', which='major')
             >>> ax.yaxis.get_tick_params(which='major')
             {'direction': 'out',
             'left': True,
