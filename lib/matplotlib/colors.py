@@ -1471,7 +1471,7 @@ class TwoSlopeNorm(Normalize):
 
             >>> import matplotlib.colors as mcolors
             >>> offset = mcolors.TwoSlopeNorm(vmin=-4000.,
-                                              vcenter=0., vmax=10000)
+            ...                               vcenter=0., vmax=10000)
             >>> data = [-4000., -2000., 0., 2500., 5000., 7500., 10000.]
             >>> offset(data)
             array([0., 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
