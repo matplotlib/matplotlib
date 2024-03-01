@@ -3794,6 +3794,21 @@ def test_horiz_violinplot_custompoints_200():
                   showextrema=False, showmedians=False, points=200)
 
 
+@image_comparison(['violinplot_sides.png'], remove_text=True, style='mpl20')
+def test_violinplot_sides():
+    ax = plt.axes()
+    np.random.seed(19680801)
+    data = [np.random.normal(size=100)]
+    # Check horizontal violinplot
+    for pos, side in zip([0, -0.5, 0.5], ['both', 'low', 'high']):
+        ax.violinplot(data, positions=[pos], vert=False, showmeans=False,
+                      showextrema=True, showmedians=True, side=side)
+    # Check vertical violinplot
+    for pos, side in zip([4, 3.5, 4.5], ['both', 'low', 'high']):
+        ax.violinplot(data, positions=[pos], vert=True, showmeans=False,
+                      showextrema=True, showmedians=True, side=side)
+
+
 def test_violinplot_bad_positions():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(47))
