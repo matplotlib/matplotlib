@@ -885,6 +885,19 @@ def test_quiver3d_masked():
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
 
+@mpl3d_image_comparison(['quiver3d_colorcoded.png'], style='mpl20')
+def test_quiver3d_colorcoded():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    x = y = dx = dz = np.zeros(10)
+    z = dy = np.arange(10.)
+
+    color = plt.cm.Reds(dy/dy.max())
+    ax.quiver(x, y, z, dx, dy, dz, colors=color)
+    ax.set_ylim(0, 10)
+
+
 def test_patch_modification():
     fig = plt.figure()
     ax = fig.add_subplot(projection="3d")
