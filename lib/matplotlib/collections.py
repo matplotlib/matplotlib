@@ -1038,12 +1038,12 @@ class PathCollection(_CollectionWithSizes):
         Create legend handles and labels for a PathCollection.
 
         Each legend handle is a `.Line2D` representing the Path that was drawn,
-        and each label is a string what each Path represents.
+        and each label is a string that represents the Path.
 
         This is useful for obtaining a legend for a `~.Axes.scatter` plot;
         e.g.::
 
-            scatter = plt.scatter([1, 2, 3],  [4, 5, 6],  c=[7, 2, 3])
+            scatter = plt.scatter([1, 2, 3],  [4, 5, 6],  c=[7, 2, 3], num=None)
             plt.legend(*scatter.legend_elements())
 
         creates three legend elements, one for each color with the numerical
