@@ -2727,15 +2727,10 @@ class Axes3D(Axes):
         UVW = np.column_stack(input_args[3:]).astype(float)
 
         # Normalize rows of UVW
-        norm = np.linalg.norm(UVW, axis=1)
-
-        # If any row of UVW is all zeros, don't make a quiver for it
-        mask = norm > 0
-        XYZ = XYZ[mask]
         if normalize:
-            UVW = UVW[mask] / norm[mask].reshape((-1, 1))
-        else:
-            UVW = UVW[mask]
+            norm = np.linalg.norm(UVW, axis=1)
+            norm[norm == 0] = 1
+            UVW = UVW / norm.reshape((-1, 1))
 
         if len(XYZ) > 0:
             # compute the shaft lines all at once with an outer product
@@ -2749,7 +2744,7 @@ class Axes3D(Axes):
             # transpose to get a list of lines
             heads = heads.swapaxes(0, 1)
 
-            lines = [*shafts, *heads]
+            lines = [*shafts, *heads[::2], *heads[1::2]]
         else:
             lines = []
 
