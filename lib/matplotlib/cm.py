@@ -328,7 +328,7 @@ class ScalarMappable:
         treated as an RGB or RGBA array, and no mapping will be done.
         The array can be `~numpy.uint8`, or it can be floats with
         values in the 0-1 range; otherwise a ValueError will be raised.
-        If it is a masked array, any masked elements will be set to 0 alpha.
+        Any NaNs or masked elements will be set to 0 alpha.
         If the last dimension is 3, the *alpha* kwarg (defaulting to 1)
         will be used to fill in the transparency.  If the last dimension
         is 4, the *alpha* kwarg is ignored; it does not
@@ -360,6 +360,12 @@ class ScalarMappable:
                 else:
                     raise ValueError("Third dimension must be 3 or 4")
                 if xx.dtype.kind == 'f':
+                    # If any of R, G, B, or A is nan, set to 0
+                    if np.any(nans := np.isnan(x)):
+                        if xx.shape[2] == 4:
+                            xx = xx.copy()
+                        xx[np.any(nans, axis=2), :] = 0
+
                     if norm and (xx.max() > 1 or xx.min() < 0):
                         raise ValueError("Floating point image RGB values "
                                          "must be in the 0..1 range.")
