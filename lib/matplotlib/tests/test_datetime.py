@@ -657,9 +657,10 @@ class TestDatetimePlotting:
         x_ranges = np.array(range(1, range_threshold))
         y_ranges = np.array(range(1, range_threshold))
 
-        ax1.plot_date(x_dates, y_dates)
-        ax2.plot_date(x_dates, y_ranges)
-        ax3.plot_date(x_ranges, y_dates)
+        with pytest.warns(mpl.MatplotlibDeprecationWarning):
+            ax1.plot_date(x_dates, y_dates)
+            ax2.plot_date(x_dates, y_ranges)
+            ax3.plot_date(x_ranges, y_dates)
 
     @pytest.mark.xfail(reason="Test for quiver not written yet")
     @mpl.style.context("default")
