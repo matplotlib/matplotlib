@@ -1742,17 +1742,17 @@ class Axes(_AxesBase):
             self._request_autoscale_view("y")
         return lines
 
+    @_api.deprecated("3.9", alternative="plot")
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
     @_docstring.dedent_interpd
     def plot_date(self, x, y, fmt='o', tz=None, xdate=True, ydate=False,
                   **kwargs):
         """
-        [*Discouraged*] Plot coercing the axis to treat floats as dates.
+        Plot coercing the axis to treat floats as dates.
 
-        .. admonition:: Discouraged
+        .. deprecated:: 3.9
 
-            This method exists for historic reasons and will be deprecated in
-            the future.
+            This method exists for historic reasons and will be removed in version 3.11.
 
             - ``datetime``-like data should directly be plotted using
               `~.Axes.plot`.

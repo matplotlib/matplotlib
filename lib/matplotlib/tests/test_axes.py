@@ -870,7 +870,8 @@ def test_single_date():
     data1 = [-65.54]
 
     fig, ax = plt.subplots(2, 1)
-    ax[0].plot_date(time1 + dt, data1, 'o', color='r')
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        ax[0].plot_date(time1 + dt, data1, 'o', color='r')
     ax[1].plot(time1, data1, 'o', color='r')
 
 
@@ -6897,11 +6898,13 @@ def test_date_timezone_x():
     # Same Timezone
     plt.figure(figsize=(20, 12))
     plt.subplot(2, 1, 1)
-    plt.plot_date(time_index, [3] * 3, tz='Canada/Eastern')
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.plot_date(time_index, [3] * 3, tz='Canada/Eastern')
 
     # Different Timezone
     plt.subplot(2, 1, 2)
-    plt.plot_date(time_index, [3] * 3, tz='UTC')
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.plot_date(time_index, [3] * 3, tz='UTC')
 
 
 @image_comparison(['date_timezone_y.png'])
@@ -6914,12 +6917,13 @@ def test_date_timezone_y():
     # Same Timezone
     plt.figure(figsize=(20, 12))
     plt.subplot(2, 1, 1)
-    plt.plot_date([3] * 3,
-                  time_index, tz='Canada/Eastern', xdate=False, ydate=True)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.plot_date([3] * 3, time_index, tz='Canada/Eastern', xdate=False, ydate=True)
 
     # Different Timezone
     plt.subplot(2, 1, 2)
-    plt.plot_date([3] * 3, time_index, tz='UTC', xdate=False, ydate=True)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.plot_date([3] * 3, time_index, tz='UTC', xdate=False, ydate=True)
 
 
 @image_comparison(['date_timezone_x_and_y.png'], tol=1.0)
@@ -6932,11 +6936,13 @@ def test_date_timezone_x_and_y():
     # Same Timezone
     plt.figure(figsize=(20, 12))
     plt.subplot(2, 1, 1)
-    plt.plot_date(time_index, time_index, tz='UTC', ydate=True)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.plot_date(time_index, time_index, tz='UTC', ydate=True)
 
     # Different Timezone
     plt.subplot(2, 1, 2)
-    plt.plot_date(time_index, time_index, tz='US/Eastern', ydate=True)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.plot_date(time_index, time_index, tz='US/Eastern', ydate=True)
 
 
 @image_comparison(['axisbelow.png'], remove_text=True)
