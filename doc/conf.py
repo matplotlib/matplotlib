@@ -484,7 +484,13 @@ html_theme_options = {
         # the server, but will be used as part of the key for caching by browsers
         # so when we do a new meso release the switcher will update "promptly" on
         # the stable and devdocs.
-        "json_url": f"https://matplotlib.org/devdocs/_static/switcher.json?{SHA}",
+        "json_url": (
+            "https://output.circle-artifacts.com/output/job/"
+            f"{os.environ['CIRCLE_WORKFLOW_JOB_ID']}/artifacts/"
+            f"{os.environ['CIRCLE_NODE_INDEX']}"
+            "/doc/build/html/_static/switcher.json" if CIRCLECI else
+            f"https://matplotlib.org/devdocs/_static/switcher.json?{SHA}"
+        ),
         "version_match": (
             # The start version to show. This must be in switcher.json.
             # We either go to 'stable' or to 'devdocs'
