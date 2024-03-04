@@ -93,29 +93,6 @@ _default_backends = {
 }
 
 
-def _safe_pyplot_import():
-    """
-    Import and return ``pyplot``, correctly setting the backend if one is
-    already forced.
-    """
-    try:
-        import matplotlib.pyplot as plt
-    except ImportError:  # Likely due to a framework mismatch.
-        current_framework = cbook._get_running_interactive_framework()
-        if current_framework is None:
-            raise  # No, something else went wrong, likely with the install...
-
-        from matplotlib.backends import backend_registry
-        backend = backend_registry.backend_for_gui_framework(current_framework)
-        if backend is None:
-            raise RuntimeError("No suitable backend for the current GUI framework "
-                               f"{current_framework!r}")
-
-        rcParams["backend"] = mpl.rcParamsOrig["backend"] = backend
-        import matplotlib.pyplot as plt  # Now this should succeed.
-    return plt
-
-
 def register_backend(format, backend, description=None):
     """
     Register a backend for saving to a given file format.
