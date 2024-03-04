@@ -2438,10 +2438,11 @@ def matshow(A: ArrayLike, fignum: None | int = None, **kwargs) -> AxesImage:
     """
     Display an array as a matrix in a new figure window.
 
-    The origin is set at the upper left hand corner and rows (first
-    dimension of the array) are displayed horizontally.  The aspect
-    ratio of the figure window is that of the array, unless this would
-    make an excessively short or narrow figure.
+    The origin is set at the upper left hand corner.
+    The first dimension of the array represents the length of the vertical column
+    the second dimension of the array represents the length of the
+    horizontal column. The aspect ratio of the figure window is that of the array,
+    unless this would make an excessively short or narrow figure.
 
     Tick labels for the xaxis are placed on top.
 
