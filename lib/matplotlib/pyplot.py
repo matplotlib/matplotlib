@@ -2433,12 +2433,20 @@ def imsave(
 
 def matshow(A: ArrayLike, fignum: None | int = None, **kwargs) -> AxesImage:
     """
-    Display an array as a matrix in a new figure window.
+    Display a 2D array as a matrix in a new figure window.
 
-    The origin is set at the upper left hand corner and rows (first
-    dimension of the array) are displayed horizontally.  The aspect
-    ratio of the figure window is that of the array, unless this would
-    make an excessively short or narrow figure.
+    The origin is set at the upper left hand corner.
+    The indexing is ``(row, column)`` so that the first index runs vertically
+    and the second index runs horizontally in the figure:
+
+    .. code-block:: none
+
+        A[0, 0]   ⋯ A[0, M-1]
+           ⋮             ⋮
+        A[N-1, 0] ⋯ A[N-1, M-1]
+
+    The aspect ratio of the figure window is that of the array,
+    unless this would make an excessively short or narrow figure.
 
     Tick labels for the xaxis are placed on top.
 
