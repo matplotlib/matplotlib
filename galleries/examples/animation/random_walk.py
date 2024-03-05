@@ -25,9 +25,7 @@ def random_walk(num_steps, max_step=0.05):
 
 def update_lines(num, walks, lines):
     for line, walk in zip(lines, walks):
-        # NOTE: there is no .set_data() for 3 dim data...
-        line.set_data(walk[:num, :2].T)
-        line.set_3d_properties(walk[:num, 2])
+        line.set_data_3d(walk[:num, :].T)
     return lines
 
 
