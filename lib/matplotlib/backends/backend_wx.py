@@ -43,6 +43,10 @@ def _create_wxapp():
     wxapp = wx.App(False)
     wxapp.SetExitOnFrameDelete(True)
     cbook._setup_new_guiapp()
+    if wx.Platform == '__WXMSW__':
+        # Set per-process DPI awareness. See https://docs.microsoft.com/en-us/windows/win32/api/shellscalingapi/ne-shellscalingapi-process_dpi_awareness
+        import ctypes
+        ctypes.windll.shcore.SetProcessDpiAwareness(2)
     return wxapp
 
 
@@ -469,9 +473,11 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         """
 
         FigureCanvasBase.__init__(self, figure)
-        w, h = map(math.ceil, self.figure.bbox.size)
+        size = wx.Size(*map(math.ceil, self.figure.bbox.size))
+        if wx.Platform != '__WXMSW__':
+            size = parent.FromDIP(size)
         # Set preferred window size hint - helps the sizer, if one is connected
-        wx.Panel.__init__(self, parent, id, size=parent.FromDIP(wx.Size(w, h)))
+        wx.Panel.__init__(self, parent, id, size=size)
         self.bitmap = None
         self._isDrawn = False
         self._rubberband_rect = None
@@ -1132,7 +1138,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         height = self.canvas.figure.bbox.height
-        sf = self.GetDPIScaleFactor()
+        sf = 1 if wx.Platform == '__WXMSW__' else self.GetDPIScaleFactor()
         self.canvas._rubberband_rect = (x0/sf, (height - y0)/sf,
                                         x1/sf, (height - y1)/sf)
         self.canvas.Refresh()
