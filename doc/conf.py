@@ -200,6 +200,7 @@ nitpicky = True
 missing_references_write_json = False
 missing_references_warn_unused_ignores = False
 
+
 intersphinx_mapping = {
     'Pillow': ('https://pillow.readthedocs.io/en/stable/', None),
     'cycler': ('https://matplotlib.org/cycler/', None),
@@ -548,6 +549,9 @@ html_sidebars = {
     "users/release_notes": ["empty_sidebar.html"],
     # '**': ['localtoc.html', 'pagesource.html']
 }
+
+# Don't include link to doc source files
+html_show_sourcelink = False
 
 # Copies only relevant code, not the '>>>' prompt
 copybutton_prompt_text = r'>>> |\.\.\. '
