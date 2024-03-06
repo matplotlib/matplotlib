@@ -806,7 +806,8 @@ def test_mixedsamplesraises():
         ax.plot_surface(X, Y, Z, cstride=50, rcount=10)
 
 
-@mpl3d_image_comparison(['quiver3d.png'], style='mpl20')
+# remove tolerance when regenerating the test image
+@mpl3d_image_comparison(['quiver3d.png'], style='mpl20', tol=0.003)
 def test_quiver3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -851,6 +852,19 @@ def test_quiver3d_masked():
     v = np.ma.masked_where((0.1 < y) & (y < 0.7), v, copy=False)
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
+
+
+@mpl3d_image_comparison(['quiver3d_colorcoded.png'], style='mpl20')
+def test_quiver3d_colorcoded():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    x = y = dx = dz = np.zeros(10)
+    z = dy = np.arange(10.)
+
+    color = plt.cm.Reds(dy/dy.max())
+    ax.quiver(x, y, z, dx, dy, dz, colors=color)
+    ax.set_ylim(0, 10)
 
 
 def test_patch_modification():
@@ -1519,7 +1533,8 @@ def test_minor_ticks():
     ax.set_zticklabels(["half"], minor=True)
 
 
-@mpl3d_image_comparison(['errorbar3d_errorevery.png'], style='mpl20')
+# remove tolerance when regenerating the test image
+@mpl3d_image_comparison(['errorbar3d_errorevery.png'], style='mpl20', tol=0.003)
 def test_errorbar3d_errorevery():
     """Tests errorevery functionality for 3D errorbars."""
     t = np.arange(0, 2*np.pi+.1, 0.01)
