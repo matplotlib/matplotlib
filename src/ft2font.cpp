@@ -183,35 +183,26 @@ FT2Image::draw_rect_filled(unsigned long x0, unsigned long y0, unsigned long x1,
     m_dirty = true;
 }
 
-// ft_outline_decomposer should be passed to FT_Outline_Decompose.  On the
-// first pass, vertices and codes are set to NULL, and index is simply
-// incremented for each vertex that should be inserted, so that it is set, at
-// the end, to the total number of vertices.  On a second pass, vertices and
-// codes should point to correctly sized arrays, and index set again to zero,
-// to get fill vertices and codes with the outline decomposition.
+// ft_outline_decomposer should be passed to FT_Outline_Decompose.
 struct ft_outline_decomposer
 {
-    int index;
-    double* vertices;
-    unsigned char* codes;
+    std::vector<double> &vertices;
+    std::vector<unsigned char> &codes;
 };
 
 static int
 ft_outline_move_to(FT_Vector const* to, void* user)
 {
     ft_outline_decomposer* d = reinterpret_cast<ft_outline_decomposer*>(user);
-    if (d->codes) {
-        if (d->index) {
-            // Appending CLOSEPOLY is important to make patheffects work.
-            *(d->vertices++) = 0;
-            *(d->vertices++) = 0;
-            *(d->codes++) = CLOSEPOLY;
-        }
-        *(d->vertices++) = to->x * (1. / 64.);
-        *(d->vertices++) = to->y * (1. / 64.);
-        *(d->codes++) = MOVETO;
+    if (!d->vertices.empty()) {
+        // Appending CLOSEPOLY is important to make patheffects work.
+        d->vertices.push_back(0);
+        d->vertices.push_back(0);
+        d->codes.push_back(CLOSEPOLY);
     }
-    d->index += d->index ? 2 : 1;
+    d->vertices.push_back(to->x * (1. / 64.));
+    d->vertices.push_back(to->y * (1. / 64.));
+    d->codes.push_back(MOVETO);
     return 0;
 }
 
@@ -219,12 +210,9 @@ static int
 ft_outline_line_to(FT_Vector const* to, void* user)
 {
     ft_outline_decomposer* d = reinterpret_cast<ft_outline_decomposer*>(user);
-    if (d->codes) {
-        *(d->vertices++) = to->x * (1. / 64.);
-        *(d->vertices++) = to->y * (1. / 64.);
-        *(d->codes++) = LINETO;
-    }
-    d->index++;
+    d->vertices.push_back(to->x * (1. / 64.));
+    d->vertices.push_back(to->y * (1. / 64.));
+    d->codes.push_back(LINETO);
     return 0;
 }
 
@@ -232,15 +220,12 @@ static int
 ft_outline_conic_to(FT_Vector const* control, FT_Vector const* to, void* user)
 {
     ft_outline_decomposer* d = reinterpret_cast<ft_outline_decomposer*>(user);
-    if (d->codes) {
-        *(d->vertices++) = control->x * (1. / 64.);
-        *(d->vertices++) = control->y * (1. / 64.);
-        *(d->vertices++) = to->x * (1. / 64.);
-        *(d->vertices++) = to->y * (1. / 64.);
-        *(d->codes++) = CURVE3;
-        *(d->codes++) = CURVE3;
-    }
-    d->index += 2;
+    d->vertices.push_back(control->x * (1. / 64.));
+    d->vertices.push_back(control->y * (1. / 64.));
+    d->vertices.push_back(to->x * (1. / 64.));
+    d->vertices.push_back(to->y * (1. / 64.));
+    d->codes.push_back(CURVE3);
+    d->codes.push_back(CURVE3);
     return 0;
 }
 
@@ -249,18 +234,15 @@ ft_outline_cubic_to(
   FT_Vector const* c1, FT_Vector const* c2, FT_Vector const* to, void* user)
 {
     ft_outline_decomposer* d = reinterpret_cast<ft_outline_decomposer*>(user);
-    if (d->codes) {
-        *(d->vertices++) = c1->x * (1. / 64.);
-        *(d->vertices++) = c1->y * (1. / 64.);
-        *(d->vertices++) = c2->x * (1. / 64.);
-        *(d->vertices++) = c2->y * (1. / 64.);
-        *(d->vertices++) = to->x * (1. / 64.);
-        *(d->vertices++) = to->y * (1. / 64.);
-        *(d->codes++) = CURVE4;
-        *(d->codes++) = CURVE4;
-        *(d->codes++) = CURVE4;
-    }
-    d->index += 3;
+    d->vertices.push_back(c1->x * (1. / 64.));
+    d->vertices.push_back(c1->y * (1. / 64.));
+    d->vertices.push_back(c2->x * (1. / 64.));
+    d->vertices.push_back(c2->y * (1. / 64.));
+    d->vertices.push_back(to->x * (1. / 64.));
+    d->vertices.push_back(to->y * (1. / 64.));
+    d->codes.push_back(CURVE4);
+    d->codes.push_back(CURVE4);
+    d->codes.push_back(CURVE4);
     return 0;
 }
 
@@ -276,28 +258,28 @@ FT2Font::get_path(std::vector<double> &vertices, std::vector<unsigned char> &cod
     if (!face->glyph) {
         throw std::runtime_error("No glyph loaded");
     }
-    ft_outline_decomposer decomposer = {};
+    ft_outline_decomposer decomposer = {
+        vertices,
+        codes,
+    };
+    // We can make a close-enough estimate based on number of points and number of
+    // contours (which produce a MOVETO each), though it's slightly underestimating due
+    // to higher-order curves.
+    size_t estimated_points = static_cast<size_t>(face->glyph->outline.n_contours) +
+                              static_cast<size_t>(face->glyph->outline.n_points);
+    vertices.reserve(2 * estimated_points);
+    codes.reserve(estimated_points);
     if (FT_Error error = FT_Outline_Decompose(
             &face->glyph->outline, &ft_outline_funcs, &decomposer)) {
         throw std::runtime_error("FT_Outline_Decompose failed with error " +
                                  std::to_string(error));
     }
-    if (!decomposer.index) {  // Don't append CLOSEPOLY to null glyphs.
+    if (vertices.empty()) {  // Don't append CLOSEPOLY to null glyphs.
         return;
     }
-    vertices.resize((decomposer.index + 1) * 2);
-    codes.resize(decomposer.index + 1);
-    decomposer.index = 0;
-    decomposer.vertices = vertices.data();
-    decomposer.codes = codes.data();
-    if (FT_Error error = FT_Outline_Decompose(
-            &face->glyph->outline, &ft_outline_funcs, &decomposer)) {
-        throw std::runtime_error("FT_Outline_Decompose failed with error " +
-                                 std::to_string(error));
-    }
-    *(decomposer.vertices++) = 0;
-    *(decomposer.vertices++) = 0;
-    *(decomposer.codes++) = CLOSEPOLY;
+    vertices.push_back(0);
+    vertices.push_back(0);
+    codes.push_back(CLOSEPOLY);
 }
 
 FT2Font::FT2Font(FT_Open_Args &open_args,
