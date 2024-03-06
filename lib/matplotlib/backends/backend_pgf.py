@@ -987,26 +987,25 @@ class PdfPages:
                 raise ValueError(f"No figure {figure}")
             figure = manager.canvas.figure
 
-        with cbook._setattr_cm(figure, canvas=FigureCanvasPgf(figure)):
-            width, height = figure.get_size_inches()
-            if self._n_figures == 0:
-                self._write_header(width, height)
-            else:
-                # \pdfpagewidth and \pdfpageheight exist on pdftex, xetex, and
-                # luatex<0.85; they were renamed to \pagewidth and \pageheight
-                # on luatex>=0.85.
-                self._file.write(
-                    (
-                        r'\newpage'
-                        r'\ifdefined\pdfpagewidth\pdfpagewidth'
-                        fr'\else\pagewidth\fi={width}in'
-                        r'\ifdefined\pdfpageheight\pdfpageheight'
-                        fr'\else\pageheight\fi={height}in'
-                        '%%\n'
-                    ).encode("ascii")
-                )
-            figure.savefig(self._file, format="pgf", **kwargs)
-            self._n_figures += 1
+        width, height = figure.get_size_inches()
+        if self._n_figures == 0:
+            self._write_header(width, height)
+        else:
+            # \pdfpagewidth and \pdfpageheight exist on pdftex, xetex, and
+            # luatex<0.85; they were renamed to \pagewidth and \pageheight
+            # on luatex>=0.85.
+            self._file.write(
+                (
+                    r'\newpage'
+                    r'\ifdefined\pdfpagewidth\pdfpagewidth'
+                    fr'\else\pagewidth\fi={width}in'
+                    r'\ifdefined\pdfpageheight\pdfpageheight'
+                    fr'\else\pageheight\fi={height}in'
+                    '%%\n'
+                ).encode("ascii")
+            )
+        figure.savefig(self._file, format="pgf", backend="pgf", **kwargs)
+        self._n_figures += 1
 
     def get_pagecount(self):
         """Return the current number of pages in the multipage pdf file."""
