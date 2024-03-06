@@ -3,7 +3,6 @@
 
 // pybind11 equivalent of py_converters.h
 
-#include <Python.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 

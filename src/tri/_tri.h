@@ -63,7 +63,6 @@
 #ifndef MPL_TRI_H
 #define MPL_TRI_H
 
-#include <Python.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 
