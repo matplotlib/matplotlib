@@ -151,6 +151,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         zorder : float, default: 1
             The drawing order, shared by all Patches in the Collection. See
             :doc:`/gallery/misc/zorder_demo` for all defaults and examples.
+        **kwargs
+            Remaining kwargs will be used to set properties as
+             `Collection.set_{key}(val)` for each `key`, `val` kwarg pair.
         """
         artist.Artist.__init__(self)
         cm.ScalarMappable.__init__(self, norm, cmap)
