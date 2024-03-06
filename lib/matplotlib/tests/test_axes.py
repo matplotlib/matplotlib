@@ -8903,8 +8903,11 @@ def test_axhvlinespan_interpolation():
 @check_figures_equal(extensions=["png"])
 @pytest.mark.parametrize("which", ("x", "y"))
 def test_axes_clear_behavior(fig_ref, fig_test, which):
+    """Test that the given tick params are not reset by ax.clear()."""
     ax_test = fig_test.subplots()
     ax_ref = fig_ref.subplots()
+    # the following tick params values are chosen to each create a visual difference
+    # from their defaults 
     target = {
         "direction": "in",
         "length": 10,
