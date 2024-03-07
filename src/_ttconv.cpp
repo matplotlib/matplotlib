@@ -5,9 +5,8 @@
 
   Python wrapper for TrueType conversion library in ../ttconv.
  */
-#include "mplutils.h"
-
 #include <pybind11/pybind11.h>
+#include "mplutils.h"
 #include "pprdrv.h"
 #include <vector>
 

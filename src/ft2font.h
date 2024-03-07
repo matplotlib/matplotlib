@@ -2,8 +2,13 @@
 
 /* A python interface to FreeType */
 #pragma once
+
 #ifndef MPL_FT2FONT_H
 #define MPL_FT2FONT_H
+
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
+
 #include <vector>
 #include<set>
 #include <stdint.h>
@@ -18,9 +23,6 @@ extern "C" {
 #include FT_TYPE1_TABLES_H
 #include FT_TRUETYPE_TABLES_H
 }
-
-#define PY_SSIZE_T_CLEAN
-#include <Python.h>
 
 /*
  By definition, FT_FIXED as 2 16bit values stored in a single long.
