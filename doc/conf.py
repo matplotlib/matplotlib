@@ -200,6 +200,7 @@ nitpicky = True
 missing_references_write_json = False
 missing_references_warn_unused_ignores = False
 
+
 intersphinx_mapping = {
     'Pillow': ('https://pillow.readthedocs.io/en/stable/', None),
     'cycler': ('https://matplotlib.org/cycler/', None),
@@ -484,7 +485,13 @@ html_theme_options = {
         # the server, but will be used as part of the key for caching by browsers
         # so when we do a new meso release the switcher will update "promptly" on
         # the stable and devdocs.
-        "json_url": f"https://matplotlib.org/devdocs/_static/switcher.json?{SHA}",
+        "json_url": (
+            "https://output.circle-artifacts.com/output/job/"
+            f"{os.environ['CIRCLE_WORKFLOW_JOB_ID']}/artifacts/"
+            f"{os.environ['CIRCLE_NODE_INDEX']}"
+            "/doc/build/html/_static/switcher.json" if CIRCLECI else
+            f"https://matplotlib.org/devdocs/_static/switcher.json?{SHA}"
+        ),
         "version_match": (
             # The start version to show. This must be in switcher.json.
             # We either go to 'stable' or to 'devdocs'
@@ -492,7 +499,7 @@ html_theme_options = {
             else 'devdocs')
     },
     "navbar_end": ["theme-switcher", "version-switcher", "mpl_icon_links"],
-    "secondary_sidebar_items": "page-toc.html",
+    "navbar_persistent": ["search-button"],
     "footer_start": ["copyright", "sphinx-version", "doc_version"],
     # We override the announcement template from pydata-sphinx-theme, where
     # this special value indicates the use of the unreleased banner. If we need
@@ -542,6 +549,9 @@ html_sidebars = {
     "users/release_notes": ["empty_sidebar.html"],
     # '**': ['localtoc.html', 'pagesource.html']
 }
+
+# Don't include link to doc source files
+html_show_sourcelink = False
 
 # Copies only relevant code, not the '>>>' prompt
 copybutton_prompt_text = r'>>> |\.\.\. '
