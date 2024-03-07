@@ -78,8 +78,8 @@ _get_transform_mesh(const py::object& transform, const py::ssize_t *dims)
 
     if (output_mesh_array.ndim() != 2) {
         throw std::runtime_error(
-            "Inverse transformed mesh array should be 2D not " +
-            std::to_string(output_mesh_array.ndim()) + "D");
+            "Inverse transformed mesh array should be 2D not {}D"_s.format(
+                output_mesh_array.ndim()));
     }
 
     return output_mesh_array;
@@ -108,8 +108,8 @@ image_resample(py::array input_array,
 
     if (ndim == 3 && input_array.shape(2) != 4) {
         throw std::invalid_argument(
-            "3D input array must be RGBA with shape (M, N, 4), has trailing dimension of " +
-            std::to_string(input_array.shape(2)));
+            "3D input array must be RGBA with shape (M, N, 4), has trailing dimension of {}"_s.format(
+                input_array.shape(2)));
     }
 
     // Ensure input array is contiguous, regardless of dtype
@@ -120,14 +120,14 @@ image_resample(py::array input_array,
 
     if (out_ndim != ndim) {
         throw std::invalid_argument(
-            "Input (" + std::to_string(ndim) + "D) and output (" + std::to_string(out_ndim) +
-            "D) arrays have different dimensionalities");
+            "Input ({}D) and output ({}D) arrays have different dimensionalities"_s.format(
+                ndim, out_ndim));
     }
 
     if (out_ndim == 3 && output_array.shape(2) != 4) {
         throw std::invalid_argument(
-            "3D output array must be RGBA with shape (M, N, 4), has trailing dimension of " +
-            std::to_string(output_array.shape(2)));
+            "3D output array must be RGBA with shape (M, N, 4), has trailing dimension of {}"_s.format(
+                output_array.shape(2)));
     }
 
     if (!output_array.dtype().is(dtype)) {
