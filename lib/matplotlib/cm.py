@@ -362,7 +362,7 @@ class ScalarMappable:
                 if xx.dtype.kind == 'f':
                     # If any of R, G, B, or A is nan, set to 0
                     if np.any(nans := np.isnan(x)):
-                        if xx.shape[2] == 4:
+                        if x.shape[2] == 4:
                             xx = xx.copy()
                         xx[np.any(nans, axis=2), :] = 0
 
