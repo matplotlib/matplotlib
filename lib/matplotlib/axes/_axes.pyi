@@ -94,6 +94,7 @@ class Axes(_AxesBase):
         ]
         | Transform
         | None = ...,
+        transform: Transform | None = ...,
         **kwargs
     ) -> SecondaryAxis: ...
     def secondary_yaxis(
@@ -105,6 +106,7 @@ class Axes(_AxesBase):
         ]
         | Transform
         | None = ...,
+        transform: Transform | None = ...,
         **kwargs
     ) -> SecondaryAxis: ...
     def text(
