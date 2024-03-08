@@ -509,7 +509,7 @@ def to_rgba_array(c, alpha=None):
         if isinstance(c, Sequence):
             # ensure that an explicit alpha does not overwrite full transparency
             # for "none"
-            none_mask = np.array([isinstance(cc, str) and cc == "none" for cc in c])
+            none_mask = [cbook._str_equal(cc, "none") for cc in c]
             rgba[:, 3][none_mask] = 0
     return rgba
 
