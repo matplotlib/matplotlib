@@ -36,6 +36,14 @@ is_release_build = tags.has('release')  # noqa
 
 # are we running circle CI?
 CIRCLECI = 'CIRCLECI' in os.environ
+# are we deploying this build to matplotlib.org/devdocs?
+# This is a copy of the logic in .circleci/deploy-docs.sh
+DEVDOCS = (
+    CIRCLECI and
+    (os.environ.get("CIRCLE_PROJECT_USERNAME") == "matplotlib") and
+    (os.environ.get("CIRCLE_BRANCH") == "main") and
+    (not os.environ.get("CIRCLE_PULL_REQUEST", "").startswith(
+        "https://github.com/matplotlib/matplotlib/pull")))
 
 
 def _parse_skip_subdirs_file():
@@ -489,7 +497,7 @@ html_theme_options = {
             "https://output.circle-artifacts.com/output/job/"
             f"{os.environ['CIRCLE_WORKFLOW_JOB_ID']}/artifacts/"
             f"{os.environ['CIRCLE_NODE_INDEX']}"
-            "/doc/build/html/_static/switcher.json" if CIRCLECI else
+            "/doc/build/html/_static/switcher.json" if CIRCLECI and not DEVDOCS else
             f"https://matplotlib.org/devdocs/_static/switcher.json?{SHA}"
         ),
         "version_match": (
