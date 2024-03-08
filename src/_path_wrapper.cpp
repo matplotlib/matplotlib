@@ -301,7 +301,7 @@ Py_cleanup_path(mpl::PathIterator path, agg::trans_affine trans, bool remove_nan
     std::vector<npy_uint8> codes;
 
     cleanup_path(path, trans, remove_nans, do_clip, clip_rect, snap_mode, stroke_width,
-                 simplify.value(), return_curves, sketch, vertices, codes);
+                 *simplify, return_curves, sketch, vertices, codes);
 
     auto length = static_cast<py::ssize_t>(codes.size());
 
@@ -360,8 +360,8 @@ Py_convert_to_string(mpl::PathIterator path, agg::trans_affine trans,
         simplify = path.should_simplify();
     }
 
-    status = convert_to_string(path, trans, cliprect, simplify.value(), sketch,
-                               precision, codes, postfix, buffer);
+    status = convert_to_string(path, trans, cliprect, *simplify, sketch, precision,
+                               codes, postfix, buffer);
 
     if (!status) {
         throw py::value_error("Malformed path codes");
