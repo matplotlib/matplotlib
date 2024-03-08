@@ -318,6 +318,35 @@ jobs:
             --maxfail=50 --timeout=300 --durations=25 \
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
 
+      - name: Cleanup non-failed image files
+        run: |
+          # Handle -expected.png files
+          find ./result_images -type f -name "*-expected.png" | while read file; do
+            dir=$(dirname "$file")
+            if [[ $dir == *"test_compare_images"* ]]; then
+              continue
+            fi
+            base=${file%-expected.png}
+            echo "${base}-failed-diff.png"
+            if [[ ! -e "${base}-failed-diff.png" ]]; then
+              rm "$file"
+            fi
+          done
+
+          # Handle .png files, excluding those ending with -failed-diff.png and -expected.png
+          find ./result_images -type f -name "*.png" ! -name "*-failed-diff.png" ! -name "*-expected.png" \
+          | while read file; do
+            dir=$(dirname "$file")
+            if [[ $dir == *"test_compare_images"* ]]; then
+              continue
+            fi
+            base=${file%.png}
+            echo "${base}-failed-diff.png"
+            if [[ ! -e "${base}-failed-diff.png" ]]; then
+              rm "$file"
+            fi
+          done
+
       - name: Filter C coverage
         run: |
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
