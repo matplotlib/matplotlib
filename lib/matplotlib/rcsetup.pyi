@@ -8,8 +8,6 @@ interactive_bk: list[str]
 non_interactive_bk: list[str]
 all_backends: list[str]
 
-def __dir__() -> list[str]: ...
-
 _T = TypeVar("_T")
 
 def _listify_validator(s: Callable[[Any], _T]) -> Callable[[Any], list[_T]]: ...
