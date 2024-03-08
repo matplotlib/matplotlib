@@ -118,9 +118,10 @@ extension_data = {
     'subdir': 'matplotlib',
     'sources': files(
       'py_converters.cpp',
+      'py_converters_11.cpp',
       '_path_wrapper.cpp',
     ),
-    'dependencies': [numpy_dep, agg_dep],
+    'dependencies': [numpy_dep, agg_dep, pybind11_dep],
   },
   '_qhull': {
     'subdir': 'matplotlib',
