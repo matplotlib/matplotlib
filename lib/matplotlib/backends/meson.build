@@ -33,6 +33,7 @@ python_sources = [
   'backend_wxagg.py',
   'backend_wxcairo.py',
   'qt_compat.py',
+  'registry.py',
 ]
 
 typing_sources = [
