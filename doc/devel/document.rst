@@ -64,6 +64,11 @@ used. To build the documentation in html format, cd into :file:`doc/` and run:
 
    make html
 
+.. note::
+
+   Since the documentation is very large, the first build may take 10-20 minutes,
+   depending on your machine.  Subsequent builds will be faster.
+
 Other useful invocations include
 
 .. code-block:: sh
