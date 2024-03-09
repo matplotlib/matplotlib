@@ -63,12 +63,12 @@ void throw_ft_error(std::string message, FT_Error error) {
     throw std::runtime_error(os.str());
 }
 
-FT2Image::FT2Image() : m_buffer(NULL), m_width(0), m_height(0)
+FT2Image::FT2Image() : m_buffer(nullptr), m_width(0), m_height(0)
 {
 }
 
 FT2Image::FT2Image(unsigned long width, unsigned long height)
-    : m_buffer(NULL), m_width(0), m_height(0)
+    : m_buffer(nullptr), m_width(0), m_height(0)
 {
     resize(width, height);
 }
@@ -91,7 +91,7 @@ void FT2Image::resize(long width, long height)
     if ((unsigned long)width != m_width || (unsigned long)height != m_height) {
         if (numBytes > m_width * m_height) {
             delete[] m_buffer;
-            m_buffer = NULL;
+            m_buffer = nullptr;
             m_buffer = new unsigned char[numBytes];
         }
 
@@ -259,7 +259,7 @@ FT2Font::FT2Font(FT_Open_Args &open_args,
                  long hinting_factor_,
                  std::vector<FT2Font *> &fallback_list,
                  FT2Font::WarnFunc warn)
-    : ft_glyph_warn(warn), image(), face(NULL)
+    : ft_glyph_warn(warn), image(), face(nullptr)
 {
     clear();
 
@@ -280,12 +280,12 @@ FT2Font::FT2Font(FT_Open_Args &open_args,
         throw_ft_error("Could not set the fontsize", error);
     }
 
-    if (open_args.stream != NULL) {
+    if (open_args.stream != nullptr) {
         face->face_flags |= FT_FACE_FLAG_EXTERNAL_STREAM;
     }
 
     FT_Matrix transform = { 65536 / hinting_factor, 0, 0, 65536 };
-    FT_Set_Transform(face, &transform, 0);
+    FT_Set_Transform(face, &transform, nullptr);
 
     // Set fallbacks
     std::copy(fallback_list.begin(), fallback_list.end(), std::back_inserter(fallbacks));
@@ -329,7 +329,7 @@ void FT2Font::set_size(double ptsize, double dpi)
         throw_ft_error("Could not set the fontsize", error);
     }
     FT_Matrix transform = { 65536 / hinting_factor, 0, 0, 65536 };
-    FT_Set_Transform(face, &transform, 0);
+    FT_Set_Transform(face, &transform, nullptr);
 
     for (auto & fallback : fallbacks) {
         fallback->set_size(ptsize, dpi);
@@ -420,7 +420,7 @@ void FT2Font::set_text(
     bbox.xMax = bbox.yMax = -32000;
 
     FT_UInt previous = 0;
-    FT2Font *previous_ft_object = NULL;
+    FT2Font *previous_ft_object = nullptr;
 
     for (auto codepoint : text) {
         FT_UInt glyph_index = 0;
@@ -456,8 +456,8 @@ void FT2Font::set_text(
         FT_Glyph &thisGlyph = glyphs[glyphs.size() - 1];
 
         last_advance = ft_object_with_glyph->get_face()->glyph->advance.x;
-        FT_Glyph_Transform(thisGlyph, 0, &pen);
-        FT_Glyph_Transform(thisGlyph, &matrix, 0);
+        FT_Glyph_Transform(thisGlyph, nullptr, &pen);
+        FT_Glyph_Transform(thisGlyph, &matrix, nullptr);
         xys.push_back(pen.x);
         xys.push_back(pen.y);
 
@@ -492,7 +492,7 @@ void FT2Font::load_char(long charcode, FT_Int32 flags, FT2Font *&ft_object, bool
     if (fallback && char_to_font.find(charcode) != char_to_font.end()) {
         ft_object = char_to_font[charcode];
         // since it will be assigned to ft_object anyway
-        FT2Font *throwaway = NULL;
+        FT2Font *throwaway = nullptr;
         ft_object->load_char(charcode, flags, throwaway, false);
     } else if (fallback) {
         FT_UInt final_glyph_index;
@@ -517,7 +517,7 @@ void FT2Font::load_char(long charcode, FT_Int32 flags, FT2Font *&ft_object, bool
         ft_object = this;
         FT_UInt glyph_index = FT_Get_Char_Index(face, (FT_ULong) charcode);
         if (!glyph_index){
-            glyph_seen_fonts.insert((face != NULL)?face->family_name: NULL);
+            glyph_seen_fonts.insert((face != nullptr)?face->family_name: nullptr);
             ft_glyph_warn((FT_ULong)charcode, glyph_seen_fonts);
         }
         if (FT_Error error = FT_Load_Glyph(face, glyph_index, flags)) {
@@ -636,7 +636,7 @@ void FT2Font::load_glyph(FT_UInt glyph_index, FT_Int32 flags)
 
 FT_UInt FT2Font::get_char_index(FT_ULong charcode, bool fallback = false)
 {
-    FT2Font *ft_object = NULL;
+    FT2Font *ft_object = nullptr;
     if (fallback && char_to_font.find(charcode) != char_to_font.end()) {
         // fallback denotes whether we want to search fallback list.
         // should call set_text/load_char_with_fallback to parent FT2Font before
@@ -676,7 +676,7 @@ void FT2Font::draw_glyphs_to_bitmap(bool antialiased)
 
     for (auto & glyph : glyphs) {
         FT_Error error = FT_Glyph_To_Bitmap(
-            &glyph, antialiased ? FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO, 0, 1);
+            &glyph, antialiased ? FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO, nullptr, 1);
         if (error) {
             throw_ft_error("Could not convert glyph to bitmap", error);
         }

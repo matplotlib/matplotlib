@@ -890,7 +890,7 @@ inline void RendererAgg::draw_image(GCAgg &gc,
     } else {
         set_clipbox(gc.cliprect, rendererBase);
         rendererBase.blend_from(
-            pixf, 0, (int)x, (int)(height - (y + image.shape(0))), (agg::int8u)(alpha * 255));
+            pixf, nullptr, (int)x, (int)(height - (y + image.shape(0))), (agg::int8u)(alpha * 255));
     }
 
     rendererBase.reset_clipping(true);

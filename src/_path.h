@@ -1082,7 +1082,7 @@ void __add_number(double val, char format_code, int precision,
         buffer += str;
     } else {
         char *str = PyOS_double_to_string(
-          val, format_code, precision, Py_DTSF_ADD_DOT_0, NULL);
+          val, format_code, precision, Py_DTSF_ADD_DOT_0, nullptr);
         // Delete trailing zeros and decimal point
         char *c = str + strlen(str) - 1;  // Start at last character.
         // Rewind through all the zeros and, if present, the trailing decimal
