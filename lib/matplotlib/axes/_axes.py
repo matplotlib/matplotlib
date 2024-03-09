@@ -3798,7 +3798,7 @@ class Axes(_AxesBase):
                 tick_labels=None, flierprops=None, medianprops=None,
                 meanprops=None, capprops=None, whiskerprops=None,
                 manage_ticks=True, autorange=False, zorder=None,
-                capwidths=None):
+                capwidths=None, label=None):
         """
         Draw a box and whisker plot.
 
@@ -3985,6 +3985,18 @@ class Axes(_AxesBase):
             The style of the median.
         meanprops : dict, default: None
             The style of the mean.
+        label : str or list of str, optional
+            Legend labels. Use a single string when all boxes have the same style and
+            you only want a single legend entry for them. Use a list of strings to
+            label all boxes individually. To be distinguishable, the boxes should be
+            styled individually, which is currently only possible by modifying the
+            returned artists, see e.g. :doc:`/gallery/statistics/boxplot_demo`.
+
+            In the case of a single string, the legend entry will technically be
+            associated with the first box only. By default, the legend will show the
+            median line (``result["medians"]``); if *patch_artist* is True, the legend
+            will show the box `Patch` artists (``result["boxes"]``) instead.
+
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
 
@@ -4105,7 +4117,7 @@ class Axes(_AxesBase):
                            meanline=meanline, showfliers=showfliers,
                            capprops=capprops, whiskerprops=whiskerprops,
                            manage_ticks=manage_ticks, zorder=zorder,
-                           capwidths=capwidths)
+                           capwidths=capwidths, label=label)
         return artists
 
     def bxp(self, bxpstats, positions=None, widths=None, vert=True,
@@ -4114,7 +4126,7 @@ class Axes(_AxesBase):
             boxprops=None, whiskerprops=None, flierprops=None,
             medianprops=None, capprops=None, meanprops=None,
             meanline=False, manage_ticks=True, zorder=None,
-            capwidths=None):
+            capwidths=None, label=None):
         """
         Draw a box and whisker plot from pre-computed statistics.
 
@@ -4196,6 +4208,18 @@ class Axes(_AxesBase):
         manage_ticks : bool, default: True
           If True, the tick locations and labels will be adjusted to match the
           boxplot positions.
+
+        label : str or list of str, optional
+            Legend labels. Use a single string when all boxes have the same style and
+            you only want a single legend entry for them. Use a list of strings to
+            label all boxes individually. To be distinguishable, the boxes should be
+            styled individually, which is currently only possible by modifying the
+            returned artists, see e.g. :doc:`/gallery/statistics/boxplot_demo`.
+
+            In the case of a single string, the legend entry will technically be
+            associated with the first box only. By default, the legend will show the
+            median line (``result["medians"]``); if *patch_artist* is True, the legend
+            will show the box `Patch` artists (``result["boxes"]``) instead.
 
         zorder : float, default: ``Line2D.zorder = 2``
           The zorder of the resulting boxplot.
@@ -4361,6 +4385,7 @@ class Axes(_AxesBase):
             if showbox:
                 do_box = do_patch if patch_artist else do_plot
                 boxes.append(do_box(box_x, box_y, **box_kw))
+                median_kw.setdefault('label', '_nolegend_')
             # draw the whiskers
             whisker_kw.setdefault('label', '_nolegend_')
             whiskers.append(do_plot(whis_x, whislo_y, **whisker_kw))
@@ -4371,7 +4396,6 @@ class Axes(_AxesBase):
                 caps.append(do_plot(cap_x, cap_lo, **cap_kw))
                 caps.append(do_plot(cap_x, cap_hi, **cap_kw))
             # draw the medians
-            median_kw.setdefault('label', '_nolegend_')
             medians.append(do_plot(med_x, med_y, **median_kw))
             # maybe draw the means
             if showmeans:
@@ -4388,6 +4412,19 @@ class Axes(_AxesBase):
                 flier_x = np.full(len(stats['fliers']), pos, dtype=np.float64)
                 flier_y = stats['fliers']
                 fliers.append(do_plot(flier_x, flier_y, **flier_kw))
+
+        # Set legend labels
+        if label:
+            box_or_med = boxes if showbox and patch_artist else medians
+            if cbook.is_scalar_or_string(label):
+                # assign the label only to the first box
+                box_or_med[0].set_label(label)
+            else:  # label is a sequence
+                if len(box_or_med) != len(label):
+                    raise ValueError("There must be an equal number of legend"
+                                     " labels and boxplots.")
+                for artist, lbl in zip(box_or_med, label):
+                    artist.set_label(lbl)
 
         if manage_ticks:
             axis_name = "x" if vert else "y"

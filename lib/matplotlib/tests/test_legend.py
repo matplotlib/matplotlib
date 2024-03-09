@@ -1435,3 +1435,50 @@ def test_legend_text():
         leg_bboxes.append(
             leg.get_window_extent().transformed(ax.transAxes.inverted()))
     assert_allclose(leg_bboxes[1].bounds, leg_bboxes[0].bounds)
+
+
+def test_boxplot_labels():
+    # Test that boxplot(..., labels=) sets the tick labels but not legend entries
+    # This is not consistent with other plot types but is the current behavior.
+    fig, ax = plt.subplots()
+    np.random.seed(19680801)
+    data = np.random.random((10, 3))
+    bp = ax.boxplot(data, labels=['A', 'B', 'C'])
+    # Check that labels set the tick labels ...
+    assert [l.get_text() for l in ax.get_xticklabels()] == ['A', 'B', 'C']
+    # ... but not legend entries
+    handles, labels = ax.get_legend_handles_labels()
+    assert len(handles) == 0
+    assert len(labels) == 0
+
+
+def test_boxplot_legend_labels():
+    # Test that legend entries are generated when passing `label`.
+    np.random.seed(19680801)
+    data = np.random.random((10, 4))
+    fig, axs = plt.subplots(nrows=1, ncols=4)
+    legend_labels = ['box A', 'box B', 'box C', 'box D']
+
+    # Testing legend labels and patch passed to legend.
+    bp1 = axs[0].boxplot(data, patch_artist=True, label=legend_labels)
+    assert [v.get_label() for v in bp1['boxes']] == legend_labels
+    handles, labels = axs[0].get_legend_handles_labels()
+    assert labels == legend_labels
+    assert all(isinstance(h, mpl.patches.PathPatch) for h in handles)
+
+    # Testing legend without `box`.
+    bp2 = axs[1].boxplot(data, label=legend_labels, showbox=False)
+    # Without a box, The legend entries should be passed from the medians.
+    assert [v.get_label() for v in bp2['medians']] == legend_labels
+    handles, labels = axs[1].get_legend_handles_labels()
+    assert labels == legend_labels
+    assert all(isinstance(h, mpl.lines.Line2D) for h in handles)
+
+    # Testing legend with number of labels different from number of boxes.
+    with pytest.raises(ValueError, match='There must be an equal number'):
+        bp3 = axs[2].boxplot(data, label=legend_labels[:-1])
+
+    # Test that for a string label, only the first box gets a label.
+    bp4 = axs[3].boxplot(data, label='box A')
+    assert bp4['medians'][0].get_label() == 'box A'
+    assert all(x.get_label().startswith("_") for x in bp4['medians'][1:])

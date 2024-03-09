@@ -2871,6 +2871,7 @@ def boxplot(
     autorange: bool = False,
     zorder: float | None = None,
     capwidths: float | ArrayLike | None = None,
+    label: Sequence[str] | None = None,
     *,
     data=None,
 ) -> dict[str, Any]:
@@ -2902,6 +2903,7 @@ def boxplot(
         autorange=autorange,
         zorder=zorder,
         capwidths=capwidths,
+        label=label,
         **({"data": data} if data is not None else {}),
     )
 
