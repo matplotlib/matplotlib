@@ -70,9 +70,9 @@ class Cell(Rectangle):
             The cell width.
         height : float
             The cell height.
-        edgecolor : color, default: 'k'
+        edgecolor : :mpltype:`color`, default: 'k'
             The color of the cell border.
-        facecolor : color, default: 'w'
+        facecolor : :mpltype:`color`, default: 'w'
             The cell facecolor.
         fill : bool, default: True
             Whether the cell background is filled.
@@ -681,7 +681,7 @@ def table(ax,
         *Note*: Line breaks in the strings are currently not accounted for and
         will result in the text exceeding the cell boundaries.
 
-    cellColours : 2D list of colors, optional
+    cellColours : 2D list of :mpltype:`color`, optional
         The background colors of the cells.
 
     cellLoc : {'right', 'center', 'left'}
@@ -694,7 +694,7 @@ def table(ax,
     rowLabels : list of str, optional
         The text of the row header cells.
 
-    rowColours : list of colors, optional
+    rowColours : list of :mpltype:`color`, optional
         The colors of the row header cells.
 
     rowLoc : {'left', 'center', 'right'}
@@ -703,7 +703,7 @@ def table(ax,
     colLabels : list of str, optional
         The text of the column header cells.
 
-    colColours : list of colors, optional
+    colColours : list of :mpltype:`color`, optional
         The colors of the column header cells.
 
     colLoc : {'center', 'left', 'right'}

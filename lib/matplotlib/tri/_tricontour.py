@@ -130,7 +130,7 @@ Returns
 
 Other Parameters
 ----------------
-colors : color string or sequence of colors, optional
+colors : :mpltype:`color` or list of :mpltype:`color`, optional
     The colors of the levels, i.e., the contour %%(type)s.
 
     The sequence is cycled for the levels in ascending order. If the sequence

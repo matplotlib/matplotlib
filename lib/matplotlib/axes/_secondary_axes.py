@@ -263,7 +263,7 @@ class SecondaryAxis(_AxesBase):
 
         Parameters
         ----------
-        color : color; see :ref:`colors_def`
+        color : :mpltype:`color`
         """
         axis = self._axis_map[self._orientation]
         axis.set_tick_params(colors=color)

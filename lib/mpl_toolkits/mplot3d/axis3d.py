@@ -250,7 +250,7 @@ class Axis(maxis.XAxis):
 
         Parameters
         ----------
-        color : color
+        color : :mpltype:`color`
             Color for axis pane.
         alpha : float, optional
             Alpha value for axis pane. If None, base it on *color*.

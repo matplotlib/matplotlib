@@ -730,7 +730,7 @@ class Colorbar:
         ----------
         levels : array-like
             The positions of the lines.
-        colors : color or list of colors
+        colors : :mpltype:`color` or list of :mpltype:`color`
             Either a single color applying to all lines or one color value for
             each line.
         linewidths : float or array-like

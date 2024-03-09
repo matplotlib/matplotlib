@@ -427,10 +427,10 @@ class Axes(_AxesBase):
             `ax.transAxes`, i.e. the units of *rect* are in Axes-relative
             coordinates.
 
-        facecolor : color, default: 'none'
+        facecolor : :mpltype:`color`, default: 'none'
             Facecolor of the rectangle.
 
-        edgecolor : color, default: '0.5'
+        edgecolor : :mpltype:`color`, default: '0.5'
             Color of the rectangle and color of the connecting lines.
 
         alpha : float, default: 0.5
@@ -1097,7 +1097,7 @@ class Axes(_AxesBase):
             Respective beginning and end of each line. If scalars are
             provided, all lines will have the same length.
 
-        colors : color or list of colors, default: :rc:`lines.color`
+        colors : :mpltype:`color` or list of color , default: :rc:`lines.color`
 
         linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, default: 'solid'
 
@@ -1188,7 +1188,7 @@ class Axes(_AxesBase):
             Respective beginning and end of each line. If scalars are
             provided, all lines will have the same length.
 
-        colors : color or list of colors, default: :rc:`lines.color`
+        colors : :mpltype:`color` or list of color, default: :rc:`lines.color`
 
         linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, default: 'solid'
 
@@ -1324,7 +1324,7 @@ class Axes(_AxesBase):
             If *positions* is 2D, this can be a sequence with length matching
             the length of *positions*.
 
-        colors : color or list of colors, default: :rc:`lines.color`
+        colors : :mpltype:`color` or list of color, default: :rc:`lines.color`
             The color(s) of the event lines.
 
             If *positions* is 2D, this can be a sequence with length matching
@@ -2357,10 +2357,10 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        color : color or list of color, optional
+        color : :mpltype:`color` or list of :mpltype:`color`, optional
             The colors of the bar faces.
 
-        edgecolor : color or list of color, optional
+        edgecolor : :mpltype:`color` or list of :mpltype:`color`, optional
             The colors of the bar edges.
 
         linewidth : float or array-like, optional
@@ -2392,7 +2392,7 @@ class Axes(_AxesBase):
             See :doc:`/gallery/statistics/errorbar_features` for an example on
             the usage of *xerr* and *yerr*.
 
-        ecolor : color or list of color, default: 'black'
+        ecolor : :mpltype:`color` or list of :mpltype:`color`, default: 'black'
             The line color of the errorbars.
 
         capsize : float, default: :rc:`errorbar.capsize`
@@ -2670,10 +2670,10 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        color : color or list of color, optional
+        color : :mpltype:`color` or list of :mpltype:`color`, optional
             The colors of the bar faces.
 
-        edgecolor : color or list of color, optional
+        edgecolor : :mpltype:`color` or list of :mpltype:`color`, optional
             The colors of the bar edges.
 
         linewidth : float or array-like, optional
@@ -2705,7 +2705,7 @@ class Axes(_AxesBase):
             See :doc:`/gallery/statistics/errorbar_features` for an example on
             the usage of *xerr* and *yerr*.
 
-        ecolor : color or list of color, default: 'black'
+        ecolor : :mpltype:`color` or list of :mpltype:`color`, default: 'black'
             The line color of the errorbars.
 
         capsize : float, default: :rc:`errorbar.capsize`
@@ -3163,7 +3163,7 @@ class Axes(_AxesBase):
         labels : list, default: None
             A sequence of strings providing the labels for each wedge
 
-        colors : color or array-like of color, default: None
+        colors : :mpltype:`color` or list of :mpltype:`color`, default: None
             A sequence of colors through which the pie chart will cycle.  If
             *None*, will use the colors in the currently active cycle.
 
@@ -3458,7 +3458,7 @@ class Axes(_AxesBase):
             Use 'none' (case-insensitive) to plot errorbars without any data
             markers.
 
-        ecolor : color, default: None
+        ecolor : :mpltype:`color`, default: None
             The color of the errorbar lines.  If None, use the color of the
             line connecting the markers.
 
@@ -4440,9 +4440,9 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        c : color or sequence or sequence of color or None
+        c : :mpltype:`color` or array-like or list of :mpltype:`color` or None
             See argument description of `.Axes.scatter`.
-        edgecolors : color or sequence of color or {'face', 'none'} or None
+        edgecolors : :mpltype:`color` or sequence of color or {'face', 'none'} or None
             See argument description of `.Axes.scatter`.
         kwargs : dict
             Additional kwargs. If these keys exist, we pop and process them:
@@ -4599,7 +4599,7 @@ class Axes(_AxesBase):
             To eliminate the marker edge either set *linewidth=0* or
             *edgecolor='none'*.
 
-        c : array-like or list of colors or color, optional
+        c : array-like or list of :mpltype:`color` or :mpltype:`color`, optional
             The marker colors. Possible values:
 
             - A scalar or sequence of n numbers to be mapped to colors using
@@ -4649,8 +4649,8 @@ class Axes(_AxesBase):
             The linewidth of the marker edges. Note: The default *edgecolors*
             is 'face'. You may want to change this as well.
 
-        edgecolors : {'face', 'none', *None*} or color or sequence of color, \
-default: :rc:`scatter.edgecolors`
+        edgecolors : {'face', 'none', *None*} or :mpltype:`color` or list of \
+:mpltype:`color`, default: :rc:`scatter.edgecolors`
             The edge color of the marker. Possible values:
 
             - 'face': The edge color will always be the same as the face color.
@@ -6762,7 +6762,7 @@ default: :rc:`scatter.edgecolors`
         log : bool, default: False
             If ``True``, the histogram axis will be set to a log scale.
 
-        color : color or array-like of colors or None, default: None
+        color : :mpltype:`color` or list of :mpltype:`color` or None, default: None
             Color or sequence of colors, one per dataset.  Default (``None``)
             uses the standard line color sequence.
 

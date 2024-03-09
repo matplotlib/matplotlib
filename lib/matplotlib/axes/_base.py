@@ -1507,7 +1507,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        color : color; see :ref:`colors_def`
+        color : :mpltype:`color`
         """
         self._facecolor = color
         self.stale = True
@@ -3379,17 +3379,17 @@ class _AxesBase(martist.Artist):
             Tick length in points.
         width : float
             Tick width in points.
-        color : color
+        color : :mpltype:`color`
             Tick color.
         pad : float
             Distance in points between tick and label.
         labelsize : float or str
             Tick label font size in points or as a string (e.g., 'large').
-        labelcolor : color
+        labelcolor : :mpltype:`color`
             Tick label color.
         labelfontfamily : str
             Tick label font.
-        colors : color
+        colors : :mpltype:`color`
             Tick color and label color.
         zorder : float
             Tick and label zorder.
@@ -3399,7 +3399,7 @@ class _AxesBase(martist.Artist):
             Whether to draw the respective tick labels.
         labelrotation : float
             Tick label rotation
-        grid_color : color
+        grid_color : :mpltype:`color`
             Gridline color.
         grid_alpha : float
             Transparency of gridlines: 0 (transparent) to 1 (opaque).

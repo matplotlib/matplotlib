@@ -192,7 +192,7 @@ class RendererBase:
             The locations to draw the markers.
         trans : `~matplotlib.transforms.Transform`
             An affine transform applied to the path.
-        rgbFace : color, optional
+        rgbFace : :mpltype:`color`, optional
         """
         for vertices, codes in path.iter_segments(trans, simplify=False):
             if len(vertices):
@@ -930,7 +930,7 @@ class GraphicsContextBase:
 
         Parameters
         ----------
-        fg : color
+        fg : :mpltype:`color`
         isRGBA : bool
             If *fg* is known to be an ``(r, g, b, a)`` tuple, *isRGBA* can be
             set to True to improve performance.
@@ -2085,11 +2085,11 @@ class FigureCanvasBase:
         dpi : float, default: :rc:`savefig.dpi`
             The dots per inch to save the figure in.
 
-        facecolor : color or 'auto', default: :rc:`savefig.facecolor`
+        facecolor : :mpltype:`color` or 'auto', default: :rc:`savefig.facecolor`
             The facecolor of the figure.  If 'auto', use the current figure
             facecolor.
 
-        edgecolor : color or 'auto', default: :rc:`savefig.edgecolor`
+        edgecolor : :mpltype:`color` or 'auto', default: :rc:`savefig.edgecolor`
             The edgecolor of the figure.  If 'auto', use the current figure
             edgecolor.
 

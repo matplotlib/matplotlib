@@ -164,7 +164,7 @@ class ColorSequenceRegistry(Mapping):
         name : str
             The name for the color sequence.
 
-        color_list : list of colors
+        color_list : list of :mpltype:`color`
             An iterable returning valid Matplotlib colors when iterating over.
             Note however that the returned color sequence will always be a
             list regardless of the input type.
@@ -1047,7 +1047,7 @@ class LinearSegmentedColormap(Colormap):
         ----------
         name : str
             The name of the colormap.
-        colors : array-like of colors or array-like of (value, color)
+        colors : list of :mpltype:`color` or list of (value, color)
             If only colors are given, they are equidistantly mapped from the
             range :math:`[0, 1]`; i.e. 0 maps to ``colors[0]`` and 1 maps to
             ``colors[-1]``.

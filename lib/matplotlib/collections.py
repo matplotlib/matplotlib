@@ -96,11 +96,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         Parameters
         ----------
-        edgecolors : color or list of colors, default: :rc:`patch.edgecolor`
+        edgecolors : :mpltype:`color` or list of colors, default: :rc:`patch.edgecolor`
             Edge color for each patch making up the collection. The special
             value 'face' can be passed to make the edgecolor match the
             facecolor.
-        facecolors : color or list of colors, default: :rc:`patch.facecolor`
+        facecolors : :mpltype:`color` or list of colors, default: :rc:`patch.facecolor`
             Face color for each patch making up the collection.
         linewidths : float or list of floats, default: :rc:`patch.linewidth`
             Line width for each patch making up the collection.
@@ -748,7 +748,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        c : color or list of RGBA tuples
+        c : :mpltype:`color` or list of RGBA tuples
 
         See Also
         --------
@@ -779,7 +779,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        c : color or list of colors
+        c : :mpltype:`color` or list of :mpltype:`color`
         """
         if isinstance(c, str) and c.lower() in ("none", "face"):
             c = c.lower()
@@ -824,7 +824,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        c : color or list of colors or 'face'
+        c : :mpltype:`color` or list of :mpltype:`color` or 'face'
             The collection edgecolor(s).  If a sequence, the patches cycle
             through it.  If 'face', match the facecolor.
         """
@@ -1371,7 +1371,7 @@ class LineCollection(Collection):
             can have a different number of segments.
         linewidths : float or list of float, default: :rc:`lines.linewidth`
             The width of each line in points.
-        colors : color or list of color, default: :rc:`lines.color`
+        colors : :mpltype:`color` or list of color, default: :rc:`lines.color`
             A sequence of RGBA tuples (e.g., arbitrary color strings, etc, not
             allowed).
         antialiaseds : bool or list of bool, default: :rc:`lines.antialiased`
@@ -1379,7 +1379,7 @@ class LineCollection(Collection):
         zorder : float, default: 2
             zorder of the lines once drawn.
 
-        facecolors : color or list of color, default: 'none'
+        facecolors : :mpltype:`color` or list of :mpltype:`color`, default: 'none'
             When setting *facecolors*, each line is interpreted as a boundary
             for an area, implicitly closing the path from the last point to the
             first point. The enclosed area is filled with *facecolor*.
@@ -1458,7 +1458,7 @@ class LineCollection(Collection):
 
         Parameters
         ----------
-        c : color or list of colors
+        c : :mpltype:`color` or list of :mpltype:`color`
             Single color (all lines have same color), or a
             sequence of RGBA tuples; if it is a sequence the lines will
             cycle through the sequence.
@@ -1486,7 +1486,7 @@ class LineCollection(Collection):
 
         Parameters
         ----------
-        gapcolor : color or list of colors or None
+        gapcolor : :mpltype:`color` or list of :mpltype:`color` or None
             The color with which to fill the gaps. If None, the gaps are
             unfilled.
         """
@@ -1559,7 +1559,7 @@ class EventCollection(LineCollection):
             ``lineoffset - linelength/2`` to ``lineoffset + linelength/2``).
         linewidth : float or list thereof, default: :rc:`lines.linewidth`
             The line width of the event lines, in points.
-        color : color or list of colors, default: :rc:`lines.color`
+        color : :mpltype:`color` or list of :mpltype:`color`, default: :rc:`lines.color`
             The color of the event lines.
         linestyle : str or tuple or list thereof, default: 'solid'
             Valid strings are ['solid', 'dashed', 'dashdot', 'dotted',
