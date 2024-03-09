@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 import matplotlib.scale as mscale
 from matplotlib.rcsetup import cycler
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
+from matplotlib.colors import to_rgba_array
 
 
 @pytest.mark.parametrize('N, result', [
@@ -1686,3 +1687,13 @@ def test_set_cmap_mismatched_name():
     cmap_returned = plt.get_cmap("wrong-cmap")
     assert cmap_returned == cmap
     assert cmap_returned.name == "wrong-cmap"
+
+
+def test_to_rgba_array_none_color_with_alpha_param():
+    # effective alpha for color "none" must always be 0 to achieve a vanishing color
+    # even explicit alpha must be ignored
+    c = ["blue", "none"]
+    alpha = [1, 1]
+    assert_array_equal(
+        to_rgba_array(c, alpha), [[0., 0., 1., 1.], [0., 0., 0., 0.]]
+    )
