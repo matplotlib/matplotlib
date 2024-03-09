@@ -123,26 +123,12 @@ GitHub statistics
 We automatically extract GitHub issue, PRs, and authors from GitHub via the API. To
 prepare this list:
 
-1. Archive the existing GitHub statistics page.
-
-   a. Copy the current :file:`doc/users/github_stats.rst` to
-      :file:`doc/users/prev_whats_new/github_stats_{X}.{Y}.{Z}.rst`.
-   b. Change the link target at the top of the file.
-   c. Remove the "Previous GitHub Stats" section at the end.
-
-   For example, when updating from v3.7.0 to v3.7.1::
-
-      cp doc/users/github_stats.rst doc/users/prev_whats_new/github_stats_3.7.0.rst
-      $EDITOR doc/users/prev_whats_new/github_stats_3.7.0.rst
-      # Change contents as noted above.
-      git add doc/users/prev_whats_new/github_stats_3.7.0.rst
-
-2. Re-generate the updated stats::
+1. Re-generate the stats, e.g., for version 3.7.1::
 
        python tools/github_stats.py --since-tag v3.7.0 --milestone=v3.7.1 \
-           --project 'matplotlib/matplotlib' --links > doc/users/github_stats.rst
+           --project 'matplotlib/matplotlib' --links > doc/users/prev_whats_new/github_stats_3.7.1.rst
 
-3. Review and commit changes. Some issue/PR titles may not be valid reST (the most
+2. Review and commit changes. Some issue/PR titles may not be valid reST (the most
    common issue is ``*`` which is interpreted as unclosed markup).
 
 .. note::
@@ -210,22 +196,22 @@ individual files.
 Release notes TOC
 ^^^^^^^^^^^^^^^^^
 
-Update :file:`doc/users/release_notes.rst`:
-
-- For macro and meso releases add a new section
+- For macro and meso releases create a new :file:`doc/users/{X}.{Y}.rst` file, and
+  add it to the table of contents on :file:`doc/users/release_notes.rst`.
 
   .. code:: rst
 
      X.Y
-     ===
+     ^^^
      .. toctree::
          :maxdepth: 1
 
          prev_whats_new/whats_new_X.Y.0.rst
          ../api/prev_api_changes/api_changes_X.Y.0.rst
          prev_whats_new/github_stats_X.Y.0.rst
+
 - For micro releases add the GitHub stats and (if present) the API changes to
-  the existing X.Y section
+  :file:`doc/users/{X}.{Y}.rst`
 
   .. code:: rst
 

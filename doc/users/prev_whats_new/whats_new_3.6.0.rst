@@ -3,7 +3,7 @@ What's new in Matplotlib 3.6.0 (Sep 15, 2022)
 =============================================
 
 For a list of all of the issues and pull requests since the last revision, see
-the :ref:`github-stats`.
+the :ref:`github-stats-3-6-0`.
 
 .. contents:: Table of Contents
    :depth: 4
@@ -168,7 +168,7 @@ The new *capwidths* parameter to `~.Axes.bxp` and `~.Axes.boxplot` allows
 controlling the widths of the caps in box and whisker plots.
 
 .. plot::
-    :alt: A box plot with capwidths 0.01 and 0.2 
+    :alt: A box plot with capwidths 0.01 and 0.2
     :include-source: true
 
     x = np.linspace(-7, 7, 140)
@@ -302,7 +302,7 @@ within a single grid cell. See the difference between the plots below:
 
 .. plot::
     :alt: A figure with two streamplots. First streamplot has broken streamlines. Second streamplot has continuous streamlines.
-    
+
     w = 3
     Y, X = np.mgrid[-w:w:100j, -w:w:100j]
     U = -1 - X**2 + Y
@@ -326,7 +326,7 @@ the scale. This is based on an arcsinh transformation that allows plotting both
 positive and negative values that span many orders of magnitude.
 
 .. plot::
-    :alt: Figure with 2 subplots. Subplot on the left uses symlog scale on the y axis. The transition at -2 is not smooth. Subplot on the right use asinh scale. The transition at -2 is smooth. 
+    :alt: Figure with 2 subplots. Subplot on the left uses symlog scale on the y axis. The transition at -2 is not smooth. Subplot on the right use asinh scale. The transition at -2 is smooth.
 
     fig, (ax0, ax1) = plt.subplots(1, 2, sharex=True)
     x = np.linspace(-3, 6, 100)
@@ -371,7 +371,7 @@ The rotation point of the `~matplotlib.patches.Rectangle` can now be set to
 'xy', 'center' or a 2-tuple of numbers using the *rotation_point* argument.
 
 .. plot::
-    :alt: Blue square that isn't rotated. Green square rotated 45 degrees relative to center. Orange square rotated 45 degrees relative to lower right corner. Red square rotated 45 degrees relative to point in upper right quadrant.  
+    :alt: Blue square that isn't rotated. Green square rotated 45 degrees relative to center. Orange square rotated 45 degrees relative to lower right corner. Red square rotated 45 degrees relative to point in upper right quadrant.
 
     fig, ax = plt.subplots()
 
@@ -448,7 +448,7 @@ It is now possible to set or get minor ticks using `.pyplot.xticks` and
 `.pyplot.yticks` by setting ``minor=True``.
 
 .. plot::
-    :alt: Plot showing a line from 1,2 to 3.5,-0.5. X axis showing the 1, 2 and 3 minor ticks on the x axis as One, Zwei, Trois. 
+    :alt: Plot showing a line from 1,2 to 3.5,-0.5. X axis showing the 1, 2 and 3 minor ticks on the x axis as One, Zwei, Trois.
     :include-source: true
 
     plt.figure()

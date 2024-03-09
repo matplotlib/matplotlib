@@ -7,4 +7,3 @@ Next version
 
    next_whats_new
    ../api/next_api_changes
-   github_stats

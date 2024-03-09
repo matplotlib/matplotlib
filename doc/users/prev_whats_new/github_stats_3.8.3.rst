@@ -1,4 +1,4 @@
-.. _github-stats:
+.. _github-stats-3-8-3:
 
 GitHub statistics for 3.8.3 (Feb 14, 2024)
 ==========================================
@@ -137,14 +137,3 @@ Issues (18):
 * :ghissue:`27461`: [Doc]: API interface overview pylab incorrect import statement: from matplotlib.pyplot import *
 * :ghissue:`27383`: [Bug]: Error in Hexbin plot in Matplotlib 3.0 onward
 * :ghissue:`27358`: [Doc]: Garbled menu widget example output
-
-
-Previous GitHub statistics
---------------------------
-
-.. toctree::
-    :maxdepth: 1
-    :glob:
-    :reversed:
-
-    prev_whats_new/github_stats_*

@@ -3,7 +3,7 @@ What's new in Matplotlib 3.5.2 (May 02, 2022)
 =============================================
 
 For a list of all of the issues and pull requests since the last revision, see
-the :ref:`github-stats`.
+the :ref:`github-stats-3-5-0`.
 
 .. contents:: Table of Contents
    :depth: 4

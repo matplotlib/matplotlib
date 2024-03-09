@@ -1,0 +1,6 @@
+Version 1.0
+^^^^^^^^^^^
+.. toctree::
+    :maxdepth: 1
+
+    prev_whats_new/whats_new_1.0.rst

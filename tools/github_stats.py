@@ -28,7 +28,7 @@ ISO8601 = "%Y-%m-%dT%H:%M:%SZ"
 PER_PAGE = 100
 
 REPORT_TEMPLATE = """\
-.. _github-stats:
+.. _github-stats-{tag_dash}:
 
 {title}
 {title_underline}
@@ -270,10 +270,17 @@ if __name__ == "__main__":
         links = ''
 
     # Print summary report we can directly include into release notes.
-    print(REPORT_TEMPLATE.format(title=title, title_underline='=' * len(title),
-                                 since_day=since_day, tag=tag,
-                                 today=today.strftime('%Y/%m/%d'),
-                                 n_issues=n_issues, n_pulls=n_pulls,
-                                 milestone=milestone_str,
-                                 nauthors=len(unique_authors), ncommits=ncommits,
-                                 unique_authors='\n'.join(unique_authors), links=links))
+    print(REPORT_TEMPLATE.format(
+        title=title,
+        title_underline='=' * len(title),
+        since_day=since_day,
+        tag=tag,
+        tag_dash=tag.replace(".", "-"),
+        today=today.strftime('%Y/%m/%d'),
+        n_issues=n_issues,
+        n_pulls=n_pulls,
+        milestone=milestone_str,
+        nauthors=len(unique_authors),
+        ncommits=ncommits,
+        unique_authors='\n'.join(unique_authors),
+        links=links))

@@ -4,7 +4,7 @@ What's new in Matplotlib 3.1 (May 18, 2019)
 ===========================================
 
 For a list of all of the issues and pull requests since the last
-revision, see the :ref:`github-stats`.
+revision, see the :ref:`github-stats-3-1-0`.
 
 .. contents:: Table of Contents
    :depth: 4
@@ -179,7 +179,7 @@ changed.
 Alternatively to strings like ``"data"`` or ``"axes fraction"``,
 `.ConnectionPatch` now accepts any `~matplotlib.transforms.Transform` as input
 for the *coordsA* and *coordsB* arguments. This allows to draw lines between
-points defined in different user defined coordinate systems. Also see 
+points defined in different user defined coordinate systems. Also see
 :ref:`using_connectionpatch`.
 
 mplot3d Line3D now allows {set,get}_data_3d
