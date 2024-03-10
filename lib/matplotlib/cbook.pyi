@@ -135,7 +135,7 @@ def boxplot_stats(
     X: ArrayLike,
     whis: float | tuple[float, float] = ...,
     bootstrap: int | None = ...,
-    labels: ArrayLike | None = ...,
+    tick_labels: ArrayLike | None = ...,
     autorange: bool = ...,
 ) -> list[dict[str, Any]]: ...
 

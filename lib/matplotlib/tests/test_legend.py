@@ -1437,16 +1437,20 @@ def test_legend_text():
     assert_allclose(leg_bboxes[1].bounds, leg_bboxes[0].bounds)
 
 
-def test_boxplot_labels():
-    # Test that boxplot(..., labels=) sets the tick labels but not legend entries
-    # This is not consistent with other plot types but is the current behavior.
-    fig, ax = plt.subplots()
+def test_boxplot_tick_labels():
+    # Test the renamed `tick_labels` parameter.
+    # Test for deprecation of old name `labels`.
+    np.random.seed(19680801)
     np.random.seed(19680801)
     data = np.random.random((10, 3))
-    bp = ax.boxplot(data, labels=['A', 'B', 'C'])
-    # Check that labels set the tick labels ...
-    assert [l.get_text() for l in ax.get_xticklabels()] == ['A', 'B', 'C']
-    # ... but not legend entries
-    handles, labels = ax.get_legend_handles_labels()
-    assert len(handles) == 0
-    assert len(labels) == 0
+
+    fig, axs = plt.subplots(nrows=1, ncols=2, sharey=True)
+    # Should get deprecation warning for `labels`
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='has been renamed \'tick_labels\''):
+        axs[0].boxplot(data, labels=['A', 'B', 'C'])
+    assert [l.get_text() for l in axs[0].get_xticklabels()] == ['A', 'B', 'C']
+
+    # Test the new tick_labels parameter
+    axs[1].boxplot(data, tick_labels=['A', 'B', 'C'])
+    assert [l.get_text() for l in axs[1].get_xticklabels()] == ['A', 'B', 'C']

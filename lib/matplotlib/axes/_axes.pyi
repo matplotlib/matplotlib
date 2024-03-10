@@ -362,7 +362,7 @@ class Axes(_AxesBase):
         showbox: bool | None = ...,
         showfliers: bool | None = ...,
         boxprops: dict[str, Any] | None = ...,
-        labels: Sequence[str] | None = ...,
+        tick_labels: Sequence[str] | None = ...,
         flierprops: dict[str, Any] | None = ...,
         medianprops: dict[str, Any] | None = ...,
         meanprops: dict[str, Any] | None = ...,
