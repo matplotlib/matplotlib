@@ -547,7 +547,6 @@ html_index = 'index.html'
 html_sidebars = {
     "index": [
         # 'sidebar_announcement.html',
-        "sidebar_versions.html",
         "cheatsheet_sidebar.html",
         "donate_sidebar.html",
     ],

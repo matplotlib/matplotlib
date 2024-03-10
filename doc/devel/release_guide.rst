@@ -443,7 +443,6 @@ which will copy the built docs over.  If this is a final release, link the
   rm stable
   ln -s 3.7.0 stable
 
-You will need to manually edit :file:`versions.html` to show the released version.
 You will also need to edit :file:`sitemap.xml` to include
 the newly released version.  Now commit and push everything to GitHub ::
 
