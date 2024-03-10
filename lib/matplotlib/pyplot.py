@@ -1002,7 +1002,8 @@ def gcf() -> Figure:
 
 
 def fignum_exists(num: int | str) -> bool:
-    """Return whether the figure with the given id exists.
+    """
+    Return whether the figure with the given id exists.
 
     Parameters
     ----------
