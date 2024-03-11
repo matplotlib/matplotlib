@@ -1,171 +1,142 @@
 .. _github-stats:
 
-GitHub statistics for 3.8.1 (Oct 31, 2023)
+GitHub statistics for 3.8.3 (Feb 14, 2024)
 ==========================================
 
-GitHub statistics for 2023/09/15 (tag: v3.8.0) - 2023/10/31
+GitHub statistics for 2023/11/17 (tag: v3.8.2) - 2024/02/14
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 24 issues and merged 95 pull requests.
-The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/85?closed=1>`__
+We closed 18 issues and merged 74 pull requests.
+The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/88?closed=1>`__
 
-The following 27 authors contributed 165 commits.
+The following 25 authors contributed 133 commits.
 
-* 0taj
+* Allan Haldane
 * Antony Lee
-* Anvi Verma
-* Artyom Romanov
-* Augusto Borges
-* Chiraag Balu
+* Christoph Hasse
 * David Stansby
 * dependabot[bot]
 * Elliott Sales de Andrade
-* Eric Firing
-* Gaurav-Kumar-Soni
 * Greg Lucas
-* Gurudatta Shanbhag
 * hannah
-* Hugues Hoppe
+* James Salsman
 * Jody Klymak
 * Joshua Stevenson
-* Junpei Ota
-* katotaisei
+* judfs
 * Kyle Sunden
-* Lucia Korpas
 * Matthew Morrison
 * Oscar Gustafsson
 * Ruth Comer
+* Samuel Diebolt
+* saranti
+* sdiebolt
+* Shriya Kalakata
+* Stefan
+* Steffen Rehberg
+* stevezhang1999
 * Thomas A Caswell
 * Tim Hoffmann
-* wemi3
 
 GitHub issues and pull requests:
 
-Pull Requests (95):
+Pull Requests (74):
 
-* :ghpull:`27239`: Backport PR #27237 on branch v3.8.x (DOC: Add command to install appropriate ``requirements.txt`` during dev venv setup)
-* :ghpull:`27238`: Backport PR #27165 on branch v3.8.x (Fixing Matplotlib Notebook Text)
-* :ghpull:`27165`: Fixing Matplotlib Notebook Text
-* :ghpull:`27229`: Backport PR #27226 on branch v3.8.x (DOC: link out to troubleshooting guide in install)
-* :ghpull:`27226`: DOC: link out to troubleshooting guide in install
-* :ghpull:`27227`: Backport PR #27221 on branch v3.8.x (FIX: Enable interrupts on macosx event loops)
-* :ghpull:`27221`: FIX: Enable interrupts on macosx event loops
-* :ghpull:`27220`: Backport PR #27217 on branch v3.8.x: Fix type hints for undeprecated contour APIs
-* :ghpull:`27217`: Fix type hints for undeprecated contour APIs
-* :ghpull:`27212`: Backport PR #27088 on branch v3.8.x (Update ``find_nearest_contour`` and revert contour deprecations)
-* :ghpull:`27207`: Backport PR #26970 on branch v3.8.x (FIX: Add PyOS_InputHook back to macos backend)
-* :ghpull:`27088`: Update ``find_nearest_contour`` and revert contour deprecations
-* :ghpull:`27206`: Backport PR #27205 on branch v3.8.x (Improve legend picking example)
-* :ghpull:`26970`: FIX: Add PyOS_InputHook back to macos backend
-* :ghpull:`27205`: Improve legend picking example
-* :ghpull:`27202`: Backport PR #27178 on branch v3.8.x (Try/except import of Axes3D)
-* :ghpull:`27178`: Try/except import of Axes3D
-* :ghpull:`27201`: Backport PR #27179 on branch v3.8.x (Restore default behavior of hexbin mincnt with C provided)
-* :ghpull:`27197`: Backport PR #27045 on branch v3.8.x (Ensure valid path mangling for ContourLabeler)
-* :ghpull:`27179`: Restore default behavior of hexbin mincnt with C provided
-* :ghpull:`27045`: Ensure valid path mangling for ContourLabeler
-* :ghpull:`27191`: Backport PR #27189 on branch v3.8.x (Fix typo in docstring of ``matplotlib.colors.from_levels_and_colors``)
-* :ghpull:`27189`: Fix typo in docstring of ``matplotlib.colors.from_levels_and_colors``
-* :ghpull:`27154`: Backport PR #27153 on branch v3.8.x (Link xkcd color survey in named colors example)
-* :ghpull:`27133`: Backport PR #27132 on branch v3.8.x (changed automated tests from subsection to section in workflow)
-* :ghpull:`27131`: Backport PR #27118 on branch v3.8.x (Update developer release guide to follow conventions)
-* :ghpull:`27118`: Update developer release guide to follow conventions
-* :ghpull:`27122`: Backport PR #26930 on branch v3.8.x (Added documentation on getting full list of registered colormaps re: issue #26244)
-* :ghpull:`26930`: Added documentation on getting full list of registered colormaps re: issue #26244
-* :ghpull:`27113`: Backport PR #27039 on branch v3.8.x (Formatted docs)
-* :ghpull:`27039`: Formatted release note docs
-* :ghpull:`27101`: Backport PR #27096 on branch v3.8.x (make fonts.py, mathtext.py, text_intro.py confirm to docs guidelines)
-* :ghpull:`27097`: Backport PR #27093 on branch v3.8.x ([Doc]: Move Automated Tests section to workflow docs #26998)
-* :ghpull:`27065`: Backport PR #26943 on branch v3.8.x (ci: Run mypy against typed cycler)
-* :ghpull:`26943`: ci: Run mypy against typed cycler
-* :ghpull:`27060`: Backport PR #27059: ci: Clean up Python 3.12 builds
-* :ghpull:`27057`: Backport PR #27040 on branch v3.8.x (Bump pypa/cibuildwheel from 2.16.1 to 2.16.2)
-* :ghpull:`27059`: ci: Clean up Python 3.12 builds
-* :ghpull:`27055`: Backport PR #27054 on branch v3.8.x (updated interactive.rst)
-* :ghpull:`27052`: Backport PR #27036 on branch v3.8.x (updated artist_intro.rst)
-* :ghpull:`27051`: Backport PR #26995 on branch v3.8.x (user/project/citing updated)
-* :ghpull:`27046`: Backport PR #27043 on branch v3.8.x (updated api_interfaces.rst)
-* :ghpull:`27040`: Bump pypa/cibuildwheel from 2.16.1 to 2.16.2
-* :ghpull:`27041`: Backport PR #26908 on branch v3.8.x (``allsegs`` and ``allkinds`` return individual segments)
-* :ghpull:`26908`: ``allsegs`` and ``allkinds`` return individual segments
-* :ghpull:`27034`: Backport PR #27017 on branch v3.8.x (DOC: clarify usetex versus mathtext)
-* :ghpull:`27017`: DOC: clarify usetex versus mathtext
-* :ghpull:`27031`: Backport PR #27015 on branch v3.8.x (ValueError exception added to handle mix of {} and % string in colorbar format)
-* :ghpull:`27015`: ValueError exception added to handle mix of {} and % string in colorbar format
-* :ghpull:`27022`: BLD: Remove development dependencies from sdists
-* :ghpull:`27023`: Backport PR #26883 on branch v3.8.x ([TYP] Type changes from running against Pandas)
-* :ghpull:`26883`: [TYP] Type changes from running against Pandas
-* :ghpull:`27018`: Backport PR #26961 on branch v3.8.x (DOC: made "open PR on MPL" a section in contribute guide)
-* :ghpull:`27009`: Backport PR #27006 on branch v3.8.x (DOC: Fix resizing of animation examples)
-* :ghpull:`26999`: Backport PR #26940 on branch v3.8.x (Add typing to pyplot.show() to avoid errors with mypy --strict.)
-* :ghpull:`27000`: Backport PR #26605 on branch v3.8.x (ci: Install GTK4 from brew on macOS)
-* :ghpull:`26982`: Backport PR #26976 on branch v3.8.x (Bump pypa/cibuildwheel from 2.16.0 to 2.16.1)
-* :ghpull:`26940`: Add typing to pyplot.show() to avoid errors with mypy --strict.
-* :ghpull:`26997`: Backport PR #26850 on branch v3.8.x (DOC: Fix missing-reference generation on Windows)
-* :ghpull:`26860`: Backport PR #26849 on branch v3.8.x (Bump setuptools required version because of setuptools_scm v8)
-* :ghpull:`26850`: DOC: Fix missing-reference generation on Windows
-* :ghpull:`26987`: Backport PR #26985 on branch v3.8.x (Reformatted documentation under toolkits and tutorials directory )
-* :ghpull:`26979`: Backport PR #26959 on branch v3.8.x (Move papersize="auto" deprecation to backend_bases.)
-* :ghpull:`26976`: Bump pypa/cibuildwheel from 2.16.0 to 2.16.1
-* :ghpull:`26959`: Move papersize="auto" deprecation to backend_bases.
-* :ghpull:`26939`: Backport PR #26937 on branch v3.8.x (Add ArrayLike to scatter c arg type hint)
-* :ghpull:`26964`: Backport PR #26952 on branch v3.8.x (FIX 2-tuple of colors in to_rgba_array)
-* :ghpull:`26956`: Backport PR #26955 on branch v3.8.x (Fix incorrect skip check in test_backend_ps.)
-* :ghpull:`26952`: FIX 2-tuple of colors in to_rgba_array
-* :ghpull:`26955`: Fix incorrect skip check in test_backend_ps.
-* :ghpull:`26945`: Backport PR #26927 on branch v3.8.x ([TYP] Remove some stubtest allowlist entries)
-* :ghpull:`26927`: [TYP] Remove some stubtest allowlist entries
-* :ghpull:`26937`: Add ArrayLike to scatter c arg type hint
-* :ghpull:`26933`: Backport PR #26914 on branch v3.8.x (DOC: add a couple more placement examples, crosslink axes_grid [ci doc])
-* :ghpull:`26849`: Bump setuptools required version because of setuptools_scm v8
-* :ghpull:`26844`: Backport PR #26843 on branch v3.8.x (DOC: Use ax.xaxis rather ax.get_xaxis())
-* :ghpull:`26836`: Backport PR #26834 on branch v3.8.x (Fix Issue 26821: [Bug]: ValueError: The truth value... when an ndarray is passed to the color kwarg of axes3d.scatter)
-* :ghpull:`26834`: Fix Issue 26821: [Bug]: ValueError: The truth value... when an ndarray is passed to the color kwarg of axes3d.scatter
-* :ghpull:`26835`: Backport PR #26814 on branch v3.8.x (Bump pypa/cibuildwheel from 2.15.0 to 2.16.0)
-* :ghpull:`26828`: Backport PR #26825 on branch v3.8.x (Fix issue with non-string labels and legend)
-* :ghpull:`26825`: Fix issue with non-string labels and legend
-* :ghpull:`26814`: Bump pypa/cibuildwheel from 2.15.0 to 2.16.0
-* :ghpull:`26816`: Backport PR #26799 on branch v3.8.x (Update kiwisolver and pillow versions to be consistent with requirements)
-* :ghpull:`26820`: Backport PR #26811 on branch v3.8.x (Add overload for slice to Spines.__getitem__)
-* :ghpull:`26811`: Add overload for slice to Spines.__getitem__
-* :ghpull:`26799`: Update kiwisolver and pillow versions to be consistent with requirements
-* :ghpull:`26809`: Backport PR #26804 on branch v3.8.x (Fix issue with locale comma when not using math text)
-* :ghpull:`26789`: Backport changes to contribute from PR #26737
-* :ghpull:`26810`: Backport PR #26807 on branch v3.8.x (Catch ValueError to support pytorch (and others) plotting)
-* :ghpull:`26807`: Catch ValueError to support pytorch (and others) plotting
-* :ghpull:`26804`: Fix issue with locale comma when not using math text
-* :ghpull:`26781`: Backport PR #26780 on branch v3.8.x (fix Axes.errorbar docstring)
-* :ghpull:`26780`: fix Axes.errorbar docstring
-* :ghpull:`26699`: Improve naming of cibuildwheel jobs
-* :ghpull:`26605`: ci: Install GTK4 from brew on macOS
+* :ghpull:`27790`: Backport PR #27785 on branch v3.8.x (FIX: be careful about communicating with subprocess)
+* :ghpull:`27789`: Backport PR #27756 on branch v3.8.x (Add protections against infinite loop in bezier calculations)
+* :ghpull:`27785`: FIX: be careful about communicating with subprocess
+* :ghpull:`27756`: Add protections against infinite loop in bezier calculations
+* :ghpull:`27779`: Manual backport of dependabot cibw upgrades
+* :ghpull:`27778`: Backport PR #27773 on branch v3.8.x (MNT: pcolormesh robust underflow)
+* :ghpull:`27773`: MNT: pcolormesh robust underflow
+* :ghpull:`27777`: Backport PR #27776 on branch v3.8.x (Better document the relation between figure and manager)
+* :ghpull:`27776`: Better document the relation between figure and manager
+* :ghpull:`27759`: Backport PR #27755 on branch v3.8.x (Allow threads during macos event loop)
+* :ghpull:`27755`: Allow threads during macos event loop
+* :ghpull:`27742`: Backport PR #27708 on branch v3.8.x (DOC: update colors from colormaps example)
+* :ghpull:`27718`: Backport PR #27716 on branch v3.8.x (fix default image format in gtk4 savefig dialog)
+* :ghpull:`27716`: fix default image format in gtk4 savefig dialog
+* :ghpull:`27697`: Backport PR #27044 on branch v3.8.x (Fix quiver key plot when angles='xy' and/or scale_units='xy')
+* :ghpull:`27044`: Fix quiver key plot when angles='xy' and/or scale_units='xy'
+* :ghpull:`27691`: Backport PR #27681 on branch v3.8.x (doc: fix Patch.contains_point docstring example)
+* :ghpull:`27681`: doc: fix Patch.contains_point docstring example
+* :ghpull:`27683`: Backport PR #27670 on branch v3.8.x (Implement macos AppDelegate)
+* :ghpull:`27670`: Implement macos AppDelegate
+* :ghpull:`27680`: Backport PR #27678 on branch v3.8.x (DOC: selecting individual colors from a colormap)
+* :ghpull:`27664`: Backport PR #27581: CI: install German language packs on ubuntu test …
+* :ghpull:`27661`: Backport of pr 27647 on v3.8.x
+* :ghpull:`27662`: Backport PR #27657 on branch v3.8.x (Fix Numpy 2.0 related test failures)
+* :ghpull:`27657`: Fix Numpy 2.0 related test failures
+* :ghpull:`27647`: Fix error that occurs when minorticks are on multi-Axes Figure with more than one boxplot
+* :ghpull:`27660`: Backport PR #27624 on branch v3.8.x (Prepare for Pytest v8)
+* :ghpull:`27624`: Prepare for Pytest v8
+* :ghpull:`27636`: Backport PR #27634 on branch v3.8.x (circle: Make deploy stage into a normal step)
+* :ghpull:`27622`: Backport PR #27620 on branch v3.8.x (DOC: simplify histogram animation example)
+* :ghpull:`27612`: Backport PR #27606 on branch v3.8.x (Pin black version)
+* :ghpull:`27606`: Pin black version
+* :ghpull:`27598`: Backport PR #27594 on branch v3.8.x (Cleanup viewlims example.)
+* :ghpull:`27597`: Backport PR #27595 on branch v3.8.x (Fix is_sorted_and_has_non_nan for byteswapped inputs.)
+* :ghpull:`27595`: Fix is_sorted_and_has_non_nan for byteswapped inputs.
+* :ghpull:`27586`: Backport PR #27578 on branch v3.8.x (Fix polar labels with negative theta limit)
+* :ghpull:`27578`: Fix polar labels with negative theta limit
+* :ghpull:`27581`: CI: install German language packs on ubuntu test runners
+* :ghpull:`27544`: Backport PR #27527 on branch v3.8.x (FIX: Add macos timers to the main thread)
+* :ghpull:`27527`: FIX: Add macos timers to the main thread
+* :ghpull:`27537`: Backport PR #27535 on branch v3.8.x (Update ax.legend input types)
+* :ghpull:`27535`: Update ax.legend input types
+* :ghpull:`27536`: Backport PR #27534 on branch v3.8.x (Clarify AxLine Params)
+* :ghpull:`27534`: Clarify AxLine Params
+* :ghpull:`27530`: Backport PR #27528 on branch v3.8.x (FIX: Remove runloop execution while waiting for stdin)
+* :ghpull:`27528`: FIX: Remove runloop execution while waiting for stdin
+* :ghpull:`27510`: Backport PR #27346 on branch v3.8.x (DOC: Show and correct default alignment parameters in text.py)
+* :ghpull:`27346`: DOC: Show and correct default alignment parameters in text.py
+* :ghpull:`27506`: Backport PR #27504 on branch v3.8.x (DOC: correct return type for axline)
+* :ghpull:`27504`: DOC: correct return type for axline
+* :ghpull:`27501`: Backport PR #27496 on branch v3.8.x (Bump actions/setup-python from 4 to 5)
+* :ghpull:`27496`: Bump actions/setup-python from 4 to 5
+* :ghpull:`27484`: Backport PR #27481 on branch v3.8.x (Fixing Pylab documentation in API interface overview)
+* :ghpull:`27481`: Fixing Pylab documentation in API interface overview
+* :ghpull:`27467`: Manual backport of #27395 on v3.8.x
+* :ghpull:`27464`: Backport PR #27316 on branch v3.8.x (DOC: Synchronize LICENSE_STIX files)
+* :ghpull:`27316`: DOC: Synchronize LICENSE_STIX files
+* :ghpull:`27453`: Backport PR #27434 on branch v3.8.x (FIX: Expand stairs plot-type entry intro (reattempt))
+* :ghpull:`27446`: Backport PR #27397 on branch v3.8.x (SpanSelector widget: Improve doc for ``extents``)
+* :ghpull:`27397`: SpanSelector widget: Improve doc for ``extents``
+* :ghpull:`27444`: Backport PR #27441 on branch v3.8.x (Fix some minor issues with hexbin bins argument)
+* :ghpull:`27441`: Fix some minor issues with hexbin bins argument
+* :ghpull:`27429`: Backport PR #27411 on branch v3.8.x (DOC: multilevel tick example)
+* :ghpull:`27420`: Backport PR #27325 on branch v3.8.x (Fixing Sentence Case on Section Titles in users_explain)
+* :ghpull:`27413`: Backport PR #27412 on branch v3.8.x (ci: Block PyQt6 6.6.0 on Ubuntu)
+* :ghpull:`27412`: ci: Block PyQt6 6.6.0 on Ubuntu
+* :ghpull:`27403`: Backport PR #27386 on branch v3.8.x (Doc: add a "please use dev version" to top of contribute docs)
+* :ghpull:`27384`: Backport PR #27377 on branch v3.8.x (TST: Make test_movie_writer_invalid_path locale-agnostic)
+* :ghpull:`27377`: TST: Make test_movie_writer_invalid_path locale-agnostic
+* :ghpull:`27379`: Backport PR #27376 on branch v3.8.x ([MNT] fix type annotations of ``fignum_exists``)
+* :ghpull:`27376`: [MNT] fix type annotations of ``fignum_exists``
+* :ghpull:`27369`: Backport PR #27365 on branch v3.8.x ([DOC]: Fix menu example)
+* :ghpull:`27365`: [DOC]: Fix menu example
+* :ghpull:`27354`: Backport PR #27348 on branch v3.8.x (updated api/animation documentation as per standards)
 
-Issues (24):
+Issues (18):
 
-* :ghissue:`27120`: [Bug]: macosx backend pause() cannot be ctrl-c'd
-* :ghissue:`27070`: [Bug]: find_nearest_contour deprecated with no replacement?
-* :ghissue:`26913`: Should ``ContourSet.allsegs`` and ``.allkinds`` be deprecated?
-* :ghissue:`26869`: [Bug]: Plot window not shown in Mac OS with backend set to default MacOSX
-* :ghissue:`16865`: Hexbin mincnt parameter docstring should say "more than or equal to" not "more than"
-* :ghissue:`27103`: [Bug]: hexbin cannot always accept np.max like functions as reduce_C_function
-* :ghissue:`27062`: [Bug]: ContourLabeler.clabel with manual != False breaks unconnected contours
-* :ghissue:`26971`: [Bug]: plt.clabel raises exception at very low DPI: ``ValueError: 'codes' must be a 1D list or array with the same length of 'vertices'. Your vertices have shape (2, 2) but your codes have shape (1,)``
-* :ghissue:`27188`: Small error in docstring of matplotlib.colors.from_levels_and_colors
-* :ghissue:`27126`: [Bug]: LinearSegmentedColormap.from_list cannot process list with two colors
-* :ghissue:`26244`: [Doc]: document how to get list of registered colormaps
-* :ghissue:`26863`: [Doc]: ``ContourSet`` ``allsegs`` and ``allkinds`` after #25247
-* :ghissue:`26932`: [Bug]: Poetry installs setuptools-scm and setuptools
-* :ghissue:`27007`: [Bug]: Colorbar format string kind guess could be made more robust
-* :ghissue:`26919`: [Bug]: Missing file pyplot.pyi for mypy typing
-* :ghissue:`26949`: [Bug]: colors.LinearSegmentedColormap.from_list does not take two tuples in 3.8.0
-* :ghissue:`26936`: [Bug/TYPE]: Scatter ``c`` Typehint does not support list of numbers when using ``cmap``
-* :ghissue:`26846`: [MNT]: setuptools-scm v8.0.1 compatibility
-* :ghissue:`26821`: [Bug]: ``ValueError: The truth value...`` when an ndarray is passed to the ``color`` kwarg of ``axes3d.scatter``
-* :ghissue:`26822`: [Bug]: QuadMesh.get_array change breaks seaborn heatmap annotation
-* :ghissue:`26824`: [Bug]: Legend fails for bar plot with numeric label
-* :ghissue:`26808`: [Bug]: No overload variant of "__getitem__" of "Spines" matches argument type "slice"  [call-overload]
-* :ghissue:`26806`: [Bug]: ValueError when plotting 2D pytorch tensor using matplotlib==3.8.0
-* :ghissue:`26803`: [Bug]: use_locale leads to curly brackets around decimal separator
+* :ghissue:`27437`: [Bug]: PGF backend crashes at program exit after creating a plot
+* :ghissue:`27770`: [Bug]: pcolormesh issue with np.seterr(under='raise')
+* :ghissue:`27720`: [Bug]: pyplot hangs at pause in sonoma 14.3 with backend MacOSX
+* :ghissue:`26316`: [Bug]: quiverkey shows multiple arrows under geographical projection and angle='xy'
+* :ghissue:`23178`: [Bug]: ``contains_point()`` does not appear to work?
+* :ghissue:`27389`: [Bug]: Warning after update to macOS 14 "WARNING: Secure coding is not enabled for restorable state! Enable secure coding by implementing NSApplicationDelegate.applicationSupportsSecureRestorableState: and returning YES."
+* :ghissue:`27645`: [TST] Upcoming dependency test failures
+* :ghissue:`26484`: [Bug]: Turning on minor gridlines in a multi-Axes Figure, created with subplots(), that contains >1 boxplot results in a ValueError
+* :ghissue:`27596`: [Bug]: Markers with numeric name like CARETLEFT cannot be specified using a cycler
+* :ghissue:`25995`: [Bug]: _path.is_sorted is wrong for the non-native byteorder case
+* :ghissue:`25568`: [Bug]: unexpected thetalim behavior in polar plot
+* :ghissue:`27507`: [Bug]: Argument types for ``handles`` and ``labels`` are too strict for method ``Axes.legend``
+* :ghissue:`27503`: [Bug]: Cannot Create lines.AxLine
+* :ghissue:`27515`: [Bug]: Python interpreter becomes slow at reading inputs after plotting with matplotlib
+* :ghissue:`27345`: [Doc]: text alignment defaults
+* :ghissue:`27461`: [Doc]: API interface overview pylab incorrect import statement: from matplotlib.pyplot import *
+* :ghissue:`27383`: [Bug]: Error in Hexbin plot in Matplotlib 3.0 onward
+* :ghissue:`27358`: [Doc]: Garbled menu widget example output
 
 
 Previous GitHub statistics
