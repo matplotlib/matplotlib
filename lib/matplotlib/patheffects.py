@@ -152,6 +152,12 @@ class PathEffectRenderer(RendererBase):
         else:
             return object.__getattribute__(self, name)
 
+    def open_group(self, s, gid=None):
+        return self._renderer.open_group(s, gid)
+
+    def close_group(self, s):
+        return self._renderer.close_group(s)
+
 
 class Normal(AbstractPathEffect):
     """
