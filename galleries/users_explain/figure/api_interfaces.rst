@@ -58,6 +58,8 @@ is very flexible, and allows us to customize the objects after they are created,
 but before they are displayed.
 
 
+.. _pyplot_interface:
+
 The implicit "pyplot" interface
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
