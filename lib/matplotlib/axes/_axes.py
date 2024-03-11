@@ -3909,9 +3909,11 @@ class Axes(_AxesBase):
             If `False` produces boxes with the Line2D artist. Otherwise,
             boxes are drawn with Patch artists.
 
-        tick_labels : sequence, optional
+        tick_labels : list of str, optional
             The tick labels of each boxplot.
-            Default: None (Use default numeric labels.)
+            Ticks are always placed at the box *positions*. If *tick_labels* is given,
+            the ticks are labelled accordingly. Otherwise, they keep their numeric
+            values.
 
             .. versionchanged:: 3.9
 

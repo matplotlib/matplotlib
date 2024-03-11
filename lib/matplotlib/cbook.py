@@ -1246,7 +1246,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, tick_labels=None,
     if tick_labels is None:
         tick_labels = itertools.repeat(None)
     elif len(tick_labels) != ncols:
-        raise ValueError("Dimensions of tick labels and X must be compatible")
+        raise ValueError("Dimensions of tick_labels and X must be compatible")
 
     input_whis = whis
     for ii, (x, label) in enumerate(zip(X, tick_labels)):
