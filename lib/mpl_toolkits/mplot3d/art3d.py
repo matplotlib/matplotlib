@@ -1246,6 +1246,11 @@ def _set_offsets3d(col_3d, offsets, zdir='z'):
     """
     Set the 3d offsets for the collection.
 
+    .. note::
+    
+        Since 3D collections have no common 3D base class, this function
+        factors out the common code for ``set_offests3d()`` methods.
+
     Parameters
     ----------
     offsets : (N, 3) or (3,) array-like
@@ -1265,7 +1270,20 @@ def _set_offsets3d(col_3d, offsets, zdir='z'):
 
 
 def _get_offsets3d(col3d):
-    """Return the offsets for the collection."""
+    """
+    Return the offsets for the collection.
+    
+    .. note::
+    
+        Since 3D collections have no common 3D base class, this function
+        factors out the common code for ``get_offests3d()`` methods.
+        
+        Usage pattern::
+        
+            def get_offsets3d(self):
+                return _get_offsets3d(self)
+
+    """
     # Default to zeros in the no-offset (None) case
     return np.zeros((1, 3)) if col3d._offsets3d is None else col3d._offsets3d
 
