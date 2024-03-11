@@ -43,6 +43,24 @@ _log = logging.getLogger(__name__)
 # All the other methods should go in the _AxesBase class.
 
 
+def _make_axes_method(func):
+    """
+    Patch the qualname for functions that are directly added to Axes.
+
+    Some Axes functionality is defined in functions in other submodules.
+    These are simply added as attributes to Axes. As a result, their
+    ``__qualname__`` is e.g. only "table" and not "Axes.table". This
+    function fixes that.
+
+    Note that the function itself is patched, so that
+    ``matplotlib.table.table.__qualname__` will also show "Axes.table".
+    However, since these functions are not intended to be standalone,
+    this is bearable.
+    """
+    func.__qualname__ = f"Axes.{func.__name__}"
+    return func
+
+
 @_docstring.interpd
 class Axes(_AxesBase):
     """
@@ -8541,18 +8559,19 @@ such objects
 
     # Methods that are entirely implemented in other modules.
 
-    table = mtable.table
+    table = _make_axes_method(mtable.table)
 
     # args can be either Y or y1, y2, ... and all should be replaced
-    stackplot = _preprocess_data()(mstack.stackplot)
+    stackplot = _preprocess_data()(_make_axes_method(mstack.stackplot))
 
     streamplot = _preprocess_data(
-        replace_names=["x", "y", "u", "v", "start_points"])(mstream.streamplot)
+            replace_names=["x", "y", "u", "v", "start_points"])(
+        _make_axes_method(mstream.streamplot))
 
-    tricontour = mtri.tricontour
-    tricontourf = mtri.tricontourf
-    tripcolor = mtri.tripcolor
-    triplot = mtri.triplot
+    tricontour = _make_axes_method(mtri.tricontour)
+    tricontourf = _make_axes_method(mtri.tricontourf)
+    tripcolor = _make_axes_method(mtri.tripcolor)
+    triplot = _make_axes_method(mtri.triplot)
 
     def _get_aspect_ratio(self):
         """
