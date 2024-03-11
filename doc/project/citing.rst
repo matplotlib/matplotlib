@@ -31,10 +31,10 @@ By version
 
 
 v3.8.3
-   .. image:: ../../_static/zenodo_cache/10661079.svg
+   .. image:: ../_static/zenodo_cache/10661079.svg
       :target:  https://doi.org/10.5281/zenodo.10661079
 v3.8.2
-   .. image:: ../../_static/zenodo_cache/10150955.svg
+   .. image:: ../_static/zenodo_cache/10150955.svg
       :target:  https://doi.org/10.5281/zenodo.10150955
 v3.8.1
    .. image:: ../_static/zenodo_cache/10059757.svg
