@@ -26,7 +26,7 @@ ax.set_ylabel('fruit weight (g)')
 
 bplot = ax.boxplot(fruit_weights,
                    patch_artist=True,  # fill with color
-                   labels=labels)  # will be used to label x-ticks
+                   tick_labels=labels)  # will be used to label x-ticks
 
 # fill with colors
 for patch, color in zip(bplot['boxes'], colors):
