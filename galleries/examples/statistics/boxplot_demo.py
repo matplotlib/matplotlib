@@ -108,9 +108,9 @@ fig.canvas.manager.set_window_title('A Boxplot Example')
 fig.subplots_adjust(left=0.075, right=0.95, top=0.9, bottom=0.25)
 
 bp = ax1.boxplot(data, notch=False, sym='+', vert=True, whis=1.5)
-plt.setp(bp['boxes'], color='black')
-plt.setp(bp['whiskers'], color='black')
-plt.setp(bp['fliers'], color='red', marker='+')
+plt.setp(bp.boxes, color='black')
+plt.setp(bp.whiskers, color='black')
+plt.setp(bp.fliers, color='red', marker='+')
 
 # Add a horizontal grid to the plot, but make it very light in color
 # so we can use it for reading data values but not be distracting
@@ -229,8 +229,8 @@ bp = ax.boxplot(treatments, sym='k+', positions=pos,
 
 ax.set_xlabel('treatment')
 ax.set_ylabel('response')
-plt.setp(bp['whiskers'], color='k', linestyle='-')
-plt.setp(bp['fliers'], markersize=3.0)
+plt.setp(bp.whiskers, color='k', linestyle='-')
+plt.setp(bp.fliers, markersize=3.0)
 plt.show()
 
 

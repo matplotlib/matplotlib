@@ -1,0 +1,3 @@
+``boxplot()`` returns a dataclass instead of a dict
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The dataclass still supports dict-like access for backwards compatibility.

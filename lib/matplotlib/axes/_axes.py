@@ -3932,10 +3932,10 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        dict
-          A dictionary mapping each component of the boxplot to a list
-          of the `.Line2D` instances created. That dictionary has the
-          following keys (assuming vertical boxplots):
+        BoxplotArtists
+          A dataclass mapping each component of the boxplot to a list
+          of the `.Line2D` instances created. The dataclass has the
+          following attributes (assuming vertical boxplots):
 
           - ``boxes``: the main body of the boxplot showing the
             quartiles and the median's confidence intervals if
@@ -3953,6 +3953,10 @@ class Axes(_AxesBase):
             the whiskers (fliers).
 
           - ``means``: points or lines representing the means.
+
+          .. versionchanged:: 3.9
+              Formerly, a dict was returned. The return value is now a dataclass, that
+              still supports dict-like access for backward-compatibility.
 
         Other Parameters
         ----------------
@@ -4195,10 +4199,10 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        dict
-          A dictionary mapping each component of the boxplot to a list
-          of the `.Line2D` instances created. That dictionary has the
-          following keys (assuming vertical boxplots):
+        BoxplotArtists
+          A dataclass mapping each component of the boxplot to a list
+          of the `.Line2D` instances created. The dataclass has the
+          following attributes (assuming vertical boxplots):
 
           - ``boxes``: main bodies of the boxplot showing the quartiles, and
             the median's confidence intervals if enabled.
@@ -4207,6 +4211,10 @@ class Axes(_AxesBase):
           - ``caps``: horizontal lines at the ends of the whiskers.
           - ``fliers``: points representing data beyond the whiskers (fliers).
           - ``means``: points or lines representing the means.
+
+        .. versionchanged:: 3.9
+            Formerly, a dict was returned. The return value is now a dataclass, that
+            still supports dict-like access for backward-compatibility.
 
         See Also
         --------
@@ -4414,8 +4422,10 @@ class Axes(_AxesBase):
 
             self._request_autoscale_view()
 
-        return dict(whiskers=whiskers, caps=caps, boxes=boxes,
-                    medians=medians, fliers=fliers, means=means)
+        return cbook.BoxplotArtists(
+            whiskers=whiskers, caps=caps, boxes=boxes,
+            medians=medians, fliers=fliers, means=means
+        )
 
     @staticmethod
     def _parse_scatter_color_args(c, edgecolors, kwargs, xsize,

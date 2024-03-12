@@ -1,10 +1,13 @@
 import collections.abc
 from collections.abc import Callable, Collection, Generator, Iterable, Iterator
 import contextlib
+import dataclasses
 import os
 from pathlib import Path
 
 from matplotlib.artist import Artist
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -15,6 +18,7 @@ from typing import (
     IO,
     Literal,
     TypeVar,
+    Union,
     overload,
 )
 
@@ -131,6 +135,19 @@ class GrouperView(Generic[_T]):
 def simple_linear_interpolation(a: ArrayLike, steps: int) -> np.ndarray: ...
 def delete_masked_points(*args): ...
 def _broadcast_with_masks(*args: ArrayLike, compress: bool = ...) -> list[ArrayLike]: ...
+
+@dataclasses.dataclass
+class BoxplotArtists(collections.abc.Mapping):
+    boxes: Union[list[Line2D], list[Patch]]
+    medians: list[Line2D]
+    whiskers: list[Line2D]
+    caps: list[Line2D]
+    fliers: list[Line2D]
+    means: list[Line2D]
+    def __getitem__(self, key: str) -> Union[list[Line2D], list[Patch]]: ...
+    def __iter__(self) -> Iterator[str]: ...
+    def __len__(self) -> int: ...
+
 def boxplot_stats(
     X: ArrayLike,
     whis: float | tuple[float, float] = ...,

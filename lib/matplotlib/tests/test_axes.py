@@ -3646,6 +3646,15 @@ def test_boxplot_mod_artist_after_plotting():
             obj.set_color('green')
 
 
+def test_boxplot_return_dict_and_dataclass():
+    # check that the returned BoxplotArtists works as a dataclass and as a dict
+    # i.e. bp['key'] and bp.key are equivalent
+    fig, ax = plt.subplots()
+    bp = ax.boxplot(np.linspace(0, 1, 11), sym="o")
+    for key in bp:
+        assert bp[key] is getattr(bp, key)
+
+
 @image_comparison(['violinplot_vert_baseline.png',
                    'violinplot_vert_baseline.png'])
 def test_vert_violinplot_baseline():

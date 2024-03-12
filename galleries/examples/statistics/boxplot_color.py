@@ -29,7 +29,7 @@ bplot = ax.boxplot(fruit_weights,
                    labels=labels)  # will be used to label x-ticks
 
 # fill with colors
-for patch, color in zip(bplot['boxes'], colors):
+for patch, color in zip(bplot.boxes, colors):
     patch.set_facecolor(color)
 
 plt.show()
