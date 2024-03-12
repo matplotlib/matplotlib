@@ -7,14 +7,15 @@
 #define MPL_BACKEND_AGG_H
 
 #include <cmath>
-#include <vector>
 #include <algorithm>
 
 #include "agg_alpha_mask_u8.h"
 #include "agg_conv_curve.h"
 #include "agg_conv_dash.h"
 #include "agg_conv_stroke.h"
+#include "agg_conv_transform.h"
 #include "agg_image_accessors.h"
+#include "agg_path_storage.h"
 #include "agg_pixfmt_amask_adaptor.h"
 #include "agg_pixfmt_gray.h"
 #include "agg_pixfmt_rgba.h"
@@ -25,7 +26,6 @@
 #include "agg_scanline_bin.h"
 #include "agg_scanline_p.h"
 #include "agg_scanline_storage_aa.h"
-#include "agg_scanline_storage_bin.h"
 #include "agg_scanline_u.h"
 #include "agg_span_allocator.h"
 #include "agg_span_converter.h"
@@ -34,7 +34,6 @@
 #include "agg_span_image_filter_rgba.h"
 #include "agg_span_interpolator_linear.h"
 #include "agg_span_pattern_rgba.h"
-#include "util/agg_color_conv_rgb8.h"
 
 #include "_backend_agg_basic_types.h"
 #include "path_converters.h"

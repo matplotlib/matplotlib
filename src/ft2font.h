@@ -9,10 +9,10 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-#include <vector>
-#include<set>
-#include <stdint.h>
+#include <cstdint>
+#include <set>
 #include <unordered_map>
+#include <vector>
 
 extern "C" {
 #include <ft2build.h>

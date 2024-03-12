@@ -10,12 +10,10 @@
 // you can get it at https://python-pillow.org/
 
 #include <Python.h>
-#include <memory>
 #include <new>
 #include <stdexcept>
 #include <string>
 #include <tuple>
-#include <vector>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -48,6 +46,8 @@ static inline PyObject *PyErr_SetFromWindowsErr(int ierr) {
 #endif
 
 #ifdef WIN32_DLL
+#include <vector>
+
 #include <windows.h>
 #include <commctrl.h>
 #define PSAPI_VERSION 1

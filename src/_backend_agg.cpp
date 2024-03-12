@@ -4,7 +4,6 @@
 
 #include <Python.h>
 #include "_backend_agg.h"
-#include "mplutils.h"
 
 RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi)
     : width(width),
