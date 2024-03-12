@@ -1940,13 +1940,13 @@ class Axes3D(Axes):
             'classic' mode uses a default of ``rstride = cstride = 10`` instead
             of the new default of ``rcount = ccount = 50``.
 
-        color : color-like
+        color : :mpltype:`color`
             Color of the surface patches.
 
         cmap : Colormap, optional
             Colormap of the surface patches.
 
-        facecolors : array-like of colors
+        facecolors : list of :mpltype:`color`
             Colors of each individual patch.
 
         norm : `~matplotlib.colors.Normalize`, optional
@@ -2613,7 +2613,7 @@ class Axes3D(Axes):
             The marker size in points**2. Either an array of the same length
             as *xs* and *ys* or a single value to make all markers the same
             size.
-        c : color, sequence, or sequence of colors, optional
+        c : :mpltype:`color`, sequence, or sequence of colors, optional
             The marker color. Possible values:
 
             - A single color format string.
@@ -2984,15 +2984,10 @@ class Axes3D(Axes):
         UVW = np.column_stack(input_args[3:]).astype(float)
 
         # Normalize rows of UVW
-        norm = np.linalg.norm(UVW, axis=1)
-
-        # If any row of UVW is all zeros, don't make a quiver for it
-        mask = norm > 0
-        XYZ = XYZ[mask]
         if normalize:
-            UVW = UVW[mask] / norm[mask].reshape((-1, 1))
-        else:
-            UVW = UVW[mask]
+            norm = np.linalg.norm(UVW, axis=1)
+            norm[norm == 0] = 1
+            UVW = UVW / norm.reshape((-1, 1))
 
         if len(XYZ) > 0:
             # compute the shaft lines all at once with an outer product
@@ -3006,7 +3001,7 @@ class Axes3D(Axes):
             # transpose to get a list of lines
             heads = heads.swapaxes(0, 1)
 
-            lines = [*shafts, *heads]
+            lines = [*shafts, *heads[::2], *heads[1::2]]
         else:
             lines = []
 
@@ -3265,7 +3260,7 @@ class Axes3D(Axes):
             Use 'none' (case-insensitive) to plot errorbars without any data
             markers.
 
-        ecolor : color, default: None
+        ecolor : :mpltype:`color`, default: None
             The color of the errorbar lines.  If None, use the color of the
             line connecting the markers.
 

@@ -6,6 +6,9 @@
 #ifndef MPL_SCALAR_H
 #define MPL_SCALAR_H
 
+#include <cstddef>
+#include <stdexcept>
+
 namespace array
 {
 

@@ -120,13 +120,12 @@ dtype and *levels* is not specified, *levels* now defaults to ``[0.5]`` for
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This can occur if the user explicitly passes a ``levels`` array with no values
+between ``z.min()`` and ``z.max()``; or if ``z`` has the same value everywhere.
 
 ``AxesImage.set_extent`` now raises ``TypeError`` for unknown keyword arguments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 It previously raised a `ValueError`.
-
-etween ``z.min()`` and ``z.max()``; or if ``z`` has the same value everywhere.
 
 Change of ``legend(loc="best")`` behavior
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

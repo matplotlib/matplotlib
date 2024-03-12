@@ -101,6 +101,5 @@ Using Matplotlib
 .. toctree::
     :hidden:
 
-    explain/index
     getting_started/index
     installing/index

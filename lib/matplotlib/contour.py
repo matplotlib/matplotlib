@@ -78,7 +78,7 @@ class ContourLabeler:
             Size in points or relative size e.g., 'smaller', 'x-large'.
             See `.Text.set_size` for accepted string values.
 
-        colors : color or colors or None, default: None
+        colors : :mpltype:`color` or colors or None, default: None
             The label colors:
 
             - If *None*, the color of each label matches the color of
@@ -1653,7 +1653,7 @@ corner_mask : bool, default: :rc:`contour.corner_mask`
     nearest those points are always masked out, other triangular
     corners comprising three unmasked points are contoured as usual.
 
-colors : color string or sequence of colors, optional
+colors : :mpltype:`color` or list of :mpltype:`color`, optional
     The colors of the levels, i.e. the lines for `.contour` and the
     areas for `.contourf`.
 

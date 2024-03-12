@@ -870,7 +870,8 @@ def test_single_date():
     data1 = [-65.54]
 
     fig, ax = plt.subplots(2, 1)
-    ax[0].plot_date(time1 + dt, data1, 'o', color='r')
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        ax[0].plot_date(time1 + dt, data1, 'o', color='r')
     ax[1].plot(time1, data1, 'o', color='r')
 
 
@@ -3792,6 +3793,21 @@ def test_horiz_violinplot_custompoints_200():
     data = [np.random.normal(size=100) for _ in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
                   showextrema=False, showmedians=False, points=200)
+
+
+@image_comparison(['violinplot_sides.png'], remove_text=True, style='mpl20')
+def test_violinplot_sides():
+    ax = plt.axes()
+    np.random.seed(19680801)
+    data = [np.random.normal(size=100)]
+    # Check horizontal violinplot
+    for pos, side in zip([0, -0.5, 0.5], ['both', 'low', 'high']):
+        ax.violinplot(data, positions=[pos], vert=False, showmeans=False,
+                      showextrema=True, showmedians=True, side=side)
+    # Check vertical violinplot
+    for pos, side in zip([4, 3.5, 4.5], ['both', 'low', 'high']):
+        ax.violinplot(data, positions=[pos], vert=True, showmeans=False,
+                      showextrema=True, showmedians=True, side=side)
 
 
 def test_violinplot_bad_positions():
@@ -6882,11 +6898,13 @@ def test_date_timezone_x():
     # Same Timezone
     plt.figure(figsize=(20, 12))
     plt.subplot(2, 1, 1)
-    plt.plot_date(time_index, [3] * 3, tz='Canada/Eastern')
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.plot_date(time_index, [3] * 3, tz='Canada/Eastern')
 
     # Different Timezone
     plt.subplot(2, 1, 2)
-    plt.plot_date(time_index, [3] * 3, tz='UTC')
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.plot_date(time_index, [3] * 3, tz='UTC')
 
 
 @image_comparison(['date_timezone_y.png'])
@@ -6899,12 +6917,13 @@ def test_date_timezone_y():
     # Same Timezone
     plt.figure(figsize=(20, 12))
     plt.subplot(2, 1, 1)
-    plt.plot_date([3] * 3,
-                  time_index, tz='Canada/Eastern', xdate=False, ydate=True)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.plot_date([3] * 3, time_index, tz='Canada/Eastern', xdate=False, ydate=True)
 
     # Different Timezone
     plt.subplot(2, 1, 2)
-    plt.plot_date([3] * 3, time_index, tz='UTC', xdate=False, ydate=True)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.plot_date([3] * 3, time_index, tz='UTC', xdate=False, ydate=True)
 
 
 @image_comparison(['date_timezone_x_and_y.png'], tol=1.0)
@@ -6917,11 +6936,13 @@ def test_date_timezone_x_and_y():
     # Same Timezone
     plt.figure(figsize=(20, 12))
     plt.subplot(2, 1, 1)
-    plt.plot_date(time_index, time_index, tz='UTC', ydate=True)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.plot_date(time_index, time_index, tz='UTC', ydate=True)
 
     # Different Timezone
     plt.subplot(2, 1, 2)
-    plt.plot_date(time_index, time_index, tz='US/Eastern', ydate=True)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.plot_date(time_index, time_index, tz='US/Eastern', ydate=True)
 
 
 @image_comparison(['axisbelow.png'], remove_text=True)
@@ -7528,6 +7549,7 @@ def test_secondary_xy():
         secax(0.6, functions=(lambda x: x**2, lambda x: x**(1/2)))
         secax(0.8)
         secax("top" if nn == 0 else "right", functions=_Translation(2))
+        secax(6.25, transform=ax.transData)
 
 
 def test_secondary_fail():
@@ -7539,6 +7561,8 @@ def test_secondary_fail():
         ax.secondary_xaxis('right')
     with pytest.raises(ValueError):
         ax.secondary_yaxis('bottom')
+    with pytest.raises(TypeError):
+        ax.secondary_xaxis(0.2, transform='error')
 
 
 def test_secondary_resize():
@@ -8899,3 +8923,46 @@ def test_axhvlinespan_interpolation():
     ax.axhline(1, c="C0", alpha=.5)
     ax.axhspan(.8, .9, fc="C1", alpha=.5)
     ax.axhspan(.6, .7, .8, .9, fc="C2", alpha=.5)
+
+
+@check_figures_equal(extensions=["png"])
+@pytest.mark.parametrize("which", ("x", "y"))
+def test_axes_clear_behavior(fig_ref, fig_test, which):
+    """Test that the given tick params are not reset by ax.clear()."""
+    ax_test = fig_test.subplots()
+    ax_ref = fig_ref.subplots()
+    # the following tick params values are chosen to each create a visual difference
+    # from their defaults
+    target = {
+        "direction": "in",
+        "length": 10,
+        "width": 10,
+        "color": "xkcd:wine red",
+        "pad": 0,
+        "labelfontfamily": "serif",
+        "zorder": 7,
+        "labelrotation": 45,
+        "labelcolor": "xkcd:shocking pink",
+        # this overrides color + labelcolor, skip
+        # colors: ,
+        "grid_color": "xkcd:fluorescent green",
+        "grid_alpha": 0.5,
+        "grid_linewidth": 3,
+        "grid_linestyle": ":",
+        "bottom": False,
+        "top": True,
+        "left": False,
+        "right": True,
+        "labelbottom": True,
+        "labeltop": True,
+        "labelleft": True,
+        "labelright": True,
+    }
+
+    ax_ref.tick_params(axis=which, **target)
+
+    ax_test.tick_params(axis=which, **target)
+    ax_test.clear()
+
+    ax_ref.grid(True)
+    ax_test.grid(True)

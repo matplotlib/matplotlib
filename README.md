@@ -43,7 +43,7 @@ You've worked out a way to fix it — even better!
 You want to tell us about it — best of all!
 
 Start at the [contributing
-guide](https://matplotlib.org/devdocs/devel/contributing.html)!
+guide](https://matplotlib.org/devdocs/devel/contribute.html)!
 
 ## Contact
 

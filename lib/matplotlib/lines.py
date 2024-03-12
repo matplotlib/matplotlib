@@ -651,6 +651,11 @@ class Line2D(Artist):
         Parameters
         ----------
         *args : (2, N) array or two 1D arrays
+
+        See Also
+        --------
+        set_xdata
+        set_ydata
         """
         if len(args) == 1:
             (x, y), = args
@@ -1056,7 +1061,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        color : color; see :ref:`colors_def`
+        color : :mpltype:`color`
         """
         mcolors._check_color_like(color=color)
         self._color = color
@@ -1111,7 +1116,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        gapcolor : color or None
+        gapcolor : :mpltype:`color` or None
             The color with which to fill the gaps. If None, the gaps are
             unfilled.
         """
@@ -1214,7 +1219,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        ec : color
+        ec : :mpltype:`color`
         """
         self._set_markercolor("markeredgecolor", True, ec)
 
@@ -1224,7 +1229,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        fc : color
+        fc : :mpltype:`color`
         """
         self._set_markercolor("markerfacecolor", True, fc)
 
@@ -1234,7 +1239,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        fc : color
+        fc : :mpltype:`color`
         """
         self._set_markercolor("markerfacecoloralt", False, fc)
 
@@ -1274,6 +1279,11 @@ class Line2D(Artist):
         Parameters
         ----------
         x : 1D array
+
+        See Also
+        --------
+        set_data
+        set_ydata
         """
         if not np.iterable(x):
             raise RuntimeError('x must be a sequence')
@@ -1288,6 +1298,11 @@ class Line2D(Artist):
         Parameters
         ----------
         y : 1D array
+
+        See Also
+        --------
+        set_data
+        set_xdata
         """
         if not np.iterable(y):
             raise RuntimeError('y must be a sequence')

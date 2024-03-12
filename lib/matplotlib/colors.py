@@ -164,7 +164,7 @@ class ColorSequenceRegistry(Mapping):
         name : str
             The name for the color sequence.
 
-        color_list : list of colors
+        color_list : list of :mpltype:`color`
             An iterable returning valid Matplotlib colors when iterating over.
             Note however that the returned color sequence will always be a
             list regardless of the input type.
@@ -243,7 +243,14 @@ def _check_color_like(**kwargs):
     """
     for k, v in kwargs.items():
         if not is_color_like(v):
-            raise ValueError(f"{v!r} is not a valid value for {k}")
+            raise ValueError(
+                f"{v!r} is not a valid value for {k}: supported inputs are "
+                f"(r, g, b) and (r, g, b, a) 0-1 float tuples; "
+                f"'#rrggbb', '#rrggbbaa', '#rgb', '#rgba' strings; "
+                f"named color strings; "
+                f"string reprs of 0-1 floats for grayscale values; "
+                f"'C0', 'C1', ... strings for colors of the color cycle; "
+                f"and pairs combining one of the above with an alpha value")
 
 
 def same_color(c1, c2):
@@ -506,6 +513,11 @@ def to_rgba_array(c, alpha=None):
 
     if alpha is not None:
         rgba[:, 3] = alpha
+        if isinstance(c, Sequence):
+            # ensure that an explicit alpha does not overwrite full transparency
+            # for "none"
+            none_mask = [cbook._str_equal(cc, "none") for cc in c]
+            rgba[:, 3][none_mask] = 0
     return rgba
 
 
@@ -1042,7 +1054,7 @@ class LinearSegmentedColormap(Colormap):
         ----------
         name : str
             The name of the colormap.
-        colors : array-like of colors or array-like of (value, color)
+        colors : list of :mpltype:`color` or list of (value, color)
             If only colors are given, they are equidistantly mapped from the
             range :math:`[0, 1]`; i.e. 0 maps to ``colors[0]`` and 1 maps to
             ``colors[-1]``.
@@ -1471,7 +1483,7 @@ class TwoSlopeNorm(Normalize):
 
             >>> import matplotlib.colors as mcolors
             >>> offset = mcolors.TwoSlopeNorm(vmin=-4000.,
-                                              vcenter=0., vmax=10000)
+            ...                               vcenter=0., vmax=10000)
             >>> data = [-4000., -2000., 0., 2500., 5000., 7500., 10000.]
             >>> offset(data)
             array([0., 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])

@@ -14,7 +14,6 @@
 #include "agg_conv_curve.h"
 #include "agg_conv_stroke.h"
 #include "agg_conv_transform.h"
-#include "agg_path_storage.h"
 #include "agg_trans_affine.h"
 
 #include "path_converters.h"

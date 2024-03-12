@@ -41,6 +41,25 @@ secax.set_xlabel('angle [rad]')
 plt.show()
 
 # %%
+# By default, the secondary axis is drawn in the Axes coordinate space.
+# We can also provide a custom transform to place it in a different
+# coordinate space. Here we put the axis at Y = 0 in data coordinates.
+
+fig, ax = plt.subplots(layout='constrained')
+x = np.arange(0, 10)
+np.random.seed(19680801)
+y = np.random.randn(len(x))
+ax.plot(x, y)
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_title('Random data')
+
+# Pass ax.transData as a transform to place the axis relative to our data
+secax = ax.secondary_xaxis(0, transform=ax.transData)
+secax.set_xlabel('Axis at Y = 0')
+plt.show()
+
+# %%
 # Here is the case of converting from wavenumber to wavelength in a
 # log-log scale.
 #

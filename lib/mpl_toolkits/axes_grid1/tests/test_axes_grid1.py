@@ -93,7 +93,8 @@ def test_twin_axes_empty_and_removed():
 
 def test_twin_axes_both_with_units():
     host = host_subplot(111)
-    host.plot_date([0, 1, 2], [0, 1, 2], xdate=False, ydate=True)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        host.plot_date([0, 1, 2], [0, 1, 2], xdate=False, ydate=True)
     twin = host.twinx()
     twin.plot(["a", "b", "c"])
     assert host.get_yticklabels()[0].get_text() == "00:00:00"

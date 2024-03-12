@@ -2,13 +2,11 @@
 #include "ft2font.h"
 #include "py_converters.h"
 #include "py_exceptions.h"
-#include "numpy_cpp.h"
 
 // From Python
 #include <structmember.h>
 
 #include <set>
-#include <algorithm>
 
 static PyObject *convert_xys_to_array(std::vector<double> &xys)
 {

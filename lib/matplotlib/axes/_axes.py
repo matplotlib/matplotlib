@@ -427,10 +427,10 @@ class Axes(_AxesBase):
             `ax.transAxes`, i.e. the units of *rect* are in Axes-relative
             coordinates.
 
-        facecolor : color, default: 'none'
+        facecolor : :mpltype:`color`, default: 'none'
             Facecolor of the rectangle.
 
-        edgecolor : color, default: '0.5'
+        edgecolor : :mpltype:`color`, default: '0.5'
             Color of the rectangle and color of the connecting lines.
 
         alpha : float, default: 0.5
@@ -551,7 +551,7 @@ class Axes(_AxesBase):
         return self.indicate_inset(rect, inset_ax, **kwargs)
 
     @_docstring.dedent_interpd
-    def secondary_xaxis(self, location, *, functions=None, **kwargs):
+    def secondary_xaxis(self, location, *, functions=None, transform=None, **kwargs):
         """
         Add a second x-axis to this `~.axes.Axes`.
 
@@ -582,18 +582,30 @@ class Axes(_AxesBase):
             secax = ax.secondary_xaxis('top', functions=(invert, invert))
             secax.set_xlabel('Period [s]')
             plt.show()
+
+        To add a secondary axis relative to your data, you can pass a transform
+        to the new axis.
+
+        .. plot::
+
+            fig, ax = plt.subplots()
+            ax.plot(range(0, 5), range(-1, 4))
+
+            # Pass 'ax.transData' as a transform to place the axis
+            # relative to your data at y=0
+            secax = ax.secondary_xaxis(0, transform=ax.transData)
         """
-        if location in ['top', 'bottom'] or isinstance(location, Real):
-            secondary_ax = SecondaryAxis(self, 'x', location, functions,
-                                         **kwargs)
-            self.add_child_axes(secondary_ax)
-            return secondary_ax
-        else:
+        if not (location in ['top', 'bottom'] or isinstance(location, Real)):
             raise ValueError('secondary_xaxis location must be either '
                              'a float or "top"/"bottom"')
 
+        secondary_ax = SecondaryAxis(self, 'x', location, functions,
+                                     transform, **kwargs)
+        self.add_child_axes(secondary_ax)
+        return secondary_ax
+
     @_docstring.dedent_interpd
-    def secondary_yaxis(self, location, *, functions=None, **kwargs):
+    def secondary_yaxis(self, location, *, functions=None, transform=None, **kwargs):
         """
         Add a second y-axis to this `~.axes.Axes`.
 
@@ -614,15 +626,27 @@ class Axes(_AxesBase):
             secax = ax.secondary_yaxis('right', functions=(np.deg2rad,
                                                            np.rad2deg))
             secax.set_ylabel('radians')
+
+        To add a secondary axis relative to your data, you can pass a transform
+        to the new axis.
+
+        .. plot::
+
+            fig, ax = plt.subplots()
+            ax.plot(range(0, 5), range(-1, 4))
+
+            # Pass 'ax.transData' as a transform to place the axis
+            # relative to your data at x=3
+            secax = ax.secondary_yaxis(3, transform=ax.transData)
         """
-        if location in ['left', 'right'] or isinstance(location, Real):
-            secondary_ax = SecondaryAxis(self, 'y', location,
-                                         functions, **kwargs)
-            self.add_child_axes(secondary_ax)
-            return secondary_ax
-        else:
+        if not (location in ['left', 'right'] or isinstance(location, Real)):
             raise ValueError('secondary_yaxis location must be either '
                              'a float or "left"/"right"')
+
+        secondary_ax = SecondaryAxis(self, 'y', location, functions,
+                                     transform, **kwargs)
+        self.add_child_axes(secondary_ax)
+        return secondary_ax
 
     @_docstring.dedent_interpd
     def text(self, x, y, s, fontdict=None, **kwargs):
@@ -1073,7 +1097,7 @@ class Axes(_AxesBase):
             Respective beginning and end of each line. If scalars are
             provided, all lines will have the same length.
 
-        colors : color or list of colors, default: :rc:`lines.color`
+        colors : :mpltype:`color` or list of color , default: :rc:`lines.color`
 
         linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, default: 'solid'
 
@@ -1164,7 +1188,7 @@ class Axes(_AxesBase):
             Respective beginning and end of each line. If scalars are
             provided, all lines will have the same length.
 
-        colors : color or list of colors, default: :rc:`lines.color`
+        colors : :mpltype:`color` or list of color, default: :rc:`lines.color`
 
         linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, default: 'solid'
 
@@ -1300,7 +1324,7 @@ class Axes(_AxesBase):
             If *positions* is 2D, this can be a sequence with length matching
             the length of *positions*.
 
-        colors : color or list of colors, default: :rc:`lines.color`
+        colors : :mpltype:`color` or list of color, default: :rc:`lines.color`
             The color(s) of the event lines.
 
             If *positions* is 2D, this can be a sequence with length matching
@@ -1742,17 +1766,17 @@ class Axes(_AxesBase):
             self._request_autoscale_view("y")
         return lines
 
+    @_api.deprecated("3.9", alternative="plot")
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
     @_docstring.dedent_interpd
     def plot_date(self, x, y, fmt='o', tz=None, xdate=True, ydate=False,
                   **kwargs):
         """
-        [*Discouraged*] Plot coercing the axis to treat floats as dates.
+        Plot coercing the axis to treat floats as dates.
 
-        .. admonition:: Discouraged
+        .. deprecated:: 3.9
 
-            This method exists for historic reasons and will be deprecated in
-            the future.
+            This method exists for historic reasons and will be removed in version 3.11.
 
             - ``datetime``-like data should directly be plotted using
               `~.Axes.plot`.
@@ -2333,10 +2357,10 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        color : color or list of color, optional
+        color : :mpltype:`color` or list of :mpltype:`color`, optional
             The colors of the bar faces.
 
-        edgecolor : color or list of color, optional
+        edgecolor : :mpltype:`color` or list of :mpltype:`color`, optional
             The colors of the bar edges.
 
         linewidth : float or array-like, optional
@@ -2368,7 +2392,7 @@ class Axes(_AxesBase):
             See :doc:`/gallery/statistics/errorbar_features` for an example on
             the usage of *xerr* and *yerr*.
 
-        ecolor : color or list of color, default: 'black'
+        ecolor : :mpltype:`color` or list of :mpltype:`color`, default: 'black'
             The line color of the errorbars.
 
         capsize : float, default: :rc:`errorbar.capsize`
@@ -2646,10 +2670,10 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        color : color or list of color, optional
+        color : :mpltype:`color` or list of :mpltype:`color`, optional
             The colors of the bar faces.
 
-        edgecolor : color or list of color, optional
+        edgecolor : :mpltype:`color` or list of :mpltype:`color`, optional
             The colors of the bar edges.
 
         linewidth : float or array-like, optional
@@ -2681,7 +2705,7 @@ class Axes(_AxesBase):
             See :doc:`/gallery/statistics/errorbar_features` for an example on
             the usage of *xerr* and *yerr*.
 
-        ecolor : color or list of color, default: 'black'
+        ecolor : :mpltype:`color` or list of :mpltype:`color`, default: 'black'
             The line color of the errorbars.
 
         capsize : float, default: :rc:`errorbar.capsize`
@@ -3139,7 +3163,7 @@ class Axes(_AxesBase):
         labels : list, default: None
             A sequence of strings providing the labels for each wedge
 
-        colors : color or array-like of color, default: None
+        colors : :mpltype:`color` or list of :mpltype:`color`, default: None
             A sequence of colors through which the pie chart will cycle.  If
             *None*, will use the colors in the currently active cycle.
 
@@ -3434,7 +3458,7 @@ class Axes(_AxesBase):
             Use 'none' (case-insensitive) to plot errorbars without any data
             markers.
 
-        ecolor : color, default: None
+        ecolor : :mpltype:`color`, default: None
             The color of the errorbar lines.  If None, use the color of the
             line connecting the markers.
 
@@ -4416,9 +4440,9 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        c : color or sequence or sequence of color or None
+        c : :mpltype:`color` or array-like or list of :mpltype:`color` or None
             See argument description of `.Axes.scatter`.
-        edgecolors : color or sequence of color or {'face', 'none'} or None
+        edgecolors : :mpltype:`color` or sequence of color or {'face', 'none'} or None
             See argument description of `.Axes.scatter`.
         kwargs : dict
             Additional kwargs. If these keys exist, we pop and process them:
@@ -4575,7 +4599,7 @@ class Axes(_AxesBase):
             To eliminate the marker edge either set *linewidth=0* or
             *edgecolor='none'*.
 
-        c : array-like or list of colors or color, optional
+        c : array-like or list of :mpltype:`color` or :mpltype:`color`, optional
             The marker colors. Possible values:
 
             - A scalar or sequence of n numbers to be mapped to colors using
@@ -4625,8 +4649,8 @@ class Axes(_AxesBase):
             The linewidth of the marker edges. Note: The default *edgecolors*
             is 'face'. You may want to change this as well.
 
-        edgecolors : {'face', 'none', *None*} or color or sequence of color, \
-default: :rc:`scatter.edgecolors`
+        edgecolors : {'face', 'none', *None*} or :mpltype:`color` or list of \
+:mpltype:`color`, default: :rc:`scatter.edgecolors`
             The edge color of the marker. Possible values:
 
             - 'face': The edge color will always be the same as the face color.
@@ -6738,7 +6762,7 @@ default: :rc:`scatter.edgecolors`
         log : bool, default: False
             If ``True``, the histogram axis will be set to a log scale.
 
-        color : color or array-like of colors or None, default: None
+        color : :mpltype:`color` or list of :mpltype:`color` or None, default: None
             Color or sequence of colors, one per dataset.  Default (``None``)
             uses the standard line color sequence.
 
@@ -8205,7 +8229,7 @@ such objects
     @_preprocess_data(replace_names=["dataset"])
     def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
                    showmeans=False, showextrema=True, showmedians=False,
-                   quantiles=None, points=100, bw_method=None):
+                   quantiles=None, points=100, bw_method=None, side='both'):
         """
         Make a violin plot.
 
@@ -8255,6 +8279,10 @@ such objects
           float, this will be used directly as `kde.factor`.  If a
           callable, it should take a `matplotlib.mlab.GaussianKDE` instance as
           its only parameter and return a float.
+
+        side : {'both', 'low', 'high'}, default: 'both'
+            'both' plots standard violins. 'low'/'high' only
+            plots the side below/above the positions value.
 
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
@@ -8307,10 +8335,10 @@ such objects
                                      quantiles=quantiles)
         return self.violin(vpstats, positions=positions, vert=vert,
                            widths=widths, showmeans=showmeans,
-                           showextrema=showextrema, showmedians=showmedians)
+                           showextrema=showextrema, showmedians=showmedians, side=side)
 
     def violin(self, vpstats, positions=None, vert=True, widths=0.5,
-               showmeans=False, showextrema=True, showmedians=False):
+               showmeans=False, showextrema=True, showmedians=False, side='both'):
         """
         Draw a violin plot from pre-computed statistics.
 
@@ -8365,6 +8393,10 @@ such objects
 
         showmedians : bool, default: False
           Whether to show the median with a line.
+
+        side : {'both', 'low', 'high'}, default: 'both'
+            'both' plots standard violins. 'low'/'high' only
+            plots the side below/above the positions value.
 
         Returns
         -------
@@ -8428,8 +8460,13 @@ such objects
         elif len(widths) != N:
             raise ValueError(datashape_message.format("widths"))
 
+        # Validate side
+        _api.check_in_list(["both", "low", "high"], side=side)
+
         # Calculate ranges for statistics lines (shape (2, N)).
-        line_ends = [[-0.25], [0.25]] * np.array(widths) + positions
+        line_ends = [[-0.25 if side in ['both', 'low'] else 0],
+                     [0.25 if side in ['both', 'high'] else 0]] \
+                          * np.array(widths) + positions
 
         # Colors.
         if mpl.rcParams['_internal.classic_mode']:
@@ -8441,12 +8478,24 @@ such objects
         # Check whether we are rendering vertically or horizontally
         if vert:
             fill = self.fill_betweenx
-            perp_lines = functools.partial(self.hlines, colors=linecolor)
-            par_lines = functools.partial(self.vlines, colors=linecolor)
+            if side in ['low', 'high']:
+                perp_lines = functools.partial(self.hlines, colors=linecolor,
+                                                capstyle='projecting')
+                par_lines = functools.partial(self.vlines, colors=linecolor,
+                                                capstyle='projecting')
+            else:
+                perp_lines = functools.partial(self.hlines, colors=linecolor)
+                par_lines = functools.partial(self.vlines, colors=linecolor)
         else:
             fill = self.fill_between
-            perp_lines = functools.partial(self.vlines, colors=linecolor)
-            par_lines = functools.partial(self.hlines, colors=linecolor)
+            if side in ['low', 'high']:
+                perp_lines = functools.partial(self.vlines, colors=linecolor,
+                                                capstyle='projecting')
+                par_lines = functools.partial(self.hlines, colors=linecolor,
+                                                capstyle='projecting')
+            else:
+                perp_lines = functools.partial(self.vlines, colors=linecolor)
+                par_lines = functools.partial(self.hlines, colors=linecolor)
 
         # Render violins
         bodies = []
@@ -8454,7 +8503,9 @@ such objects
             # The 0.5 factor reflects the fact that we plot from v-p to v+p.
             vals = np.array(stats['vals'])
             vals = 0.5 * width * vals / vals.max()
-            bodies += [fill(stats['coords'], -vals + pos, vals + pos,
+            bodies += [fill(stats['coords'],
+                            -vals + pos if side in ['both', 'low'] else pos,
+                            vals + pos if side in ['both', 'high'] else pos,
                             facecolor=fillcolor, alpha=0.3)]
             means.append(stats['mean'])
             mins.append(stats['min'])

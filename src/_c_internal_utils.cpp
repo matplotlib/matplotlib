@@ -1,3 +1,6 @@
+#include <Python.h>
+/* Python.h must be included before any system headers,
+    to ensure visibility macros are properly set. */
 #include <stdexcept>
 
 #ifdef _WIN32

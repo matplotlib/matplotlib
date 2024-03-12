@@ -47,7 +47,7 @@ def stackplot(axes, x, *args,
         A sequence of labels to assign to each data series. If unspecified,
         then no labels will be applied to artists.
 
-    colors : list of color, optional
+    colors : list of :mpltype:`color`, optional
         A sequence of colors to be cycled through and used to color the stacked
         areas. The sequence need not be exactly the same length as the number
         of provided *y*, in which case the colors will repeat from the

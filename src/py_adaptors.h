@@ -12,6 +12,7 @@
 
 #include "numpy/arrayobject.h"
 
+#include "agg_basics.h"
 #include "py_exceptions.h"
 
 extern "C" {

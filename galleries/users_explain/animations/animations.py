@@ -49,28 +49,33 @@ import matplotlib.animation as animation
 # *func* that modifies the data plotted on the figure. It uses the *frames*
 # parameter to determine the length of the animation. The *interval* parameter
 # is used to determine time in milliseconds between drawing of two frames.
-# Animating using `.FuncAnimation` would usually follow the following
-# structure:
+# Animating using `.FuncAnimation` typically requires these steps:
 #
-# - Plot the initial figure, including all the required artists. Save all the
-#   artists in variables so that they can be updated later on during the
-#   animation.
-# - Create an animation function that updates the data in each artist to
-#   generate the new frame at each function call.
-# - Create a `.FuncAnimation` object with the `.Figure` and the animation
-#   function, along with the keyword arguments that determine the animation
-#   properties.
-# - Use `.animation.Animation.save` or `.pyplot.show` to save or show the
-#   animation.
+# 1) Plot the initial figure as you would in a static plot. Save all the created
+#    artists, which are returned by the plot functions, in variables so that you can
+#    access and modify them later in the animation function.
+# 2) Create an animation function that updates the artists for a given frame.
+#    Typically, this calls ``set_*`` methods of the artists.
+# 3) Create a `.FuncAnimation`, passing the `.Figure` and the animation function.
+# 4) Save or show the animation using one of the following methods:
 #
-# The update function uses the ``set_*`` function for different artists to
-# modify the data. The following table shows a few plotting methods, the artist
-# types they return and some methods that can be used to update them.
+#    - `.pyplot.show` to show the animation in a window
+#    - `.Animation.to_html5_video` to create a HTML ``<video>`` tag
+#    - `.Animation.to_jshtml` to create HTML code with interactive JavaScript animation
+#      controls
+#    - `.Animation.save` to save the animation to a file
+#
+# The following table shows a few plotting methods, the artists they return and some
+# commonly used ``set_*`` methods that update the underlying data. While updating data
+# is the most common operation in animations, you can also update other aspects such as
+# color or text position.
 #
 # ========================================  =============================  ===========================
-# Plotting method                           Artist                         Set method
+# Plotting method                           Artist                         Data set methods
 # ========================================  =============================  ===========================
-# `.Axes.plot`                              `.lines.Line2D`                `~.lines.Line2D.set_data`
+# `.Axes.plot`                              `.lines.Line2D`                `~.Line2D.set_data`,
+#                                                                          `~.Line2D.set_xdata`,
+#                                                                          `~.Line2D.set_ydata`
 # `.Axes.scatter`                           `.collections.PathCollection`  `~.collections.\
 #                                                                          PathCollection.set_offsets`
 # `.Axes.imshow`                            `.image.AxesImage`             ``AxesImage.set_data``
@@ -88,6 +93,7 @@ import matplotlib.animation as animation
 #                                                                          `~.Ellipse.set_center`,
 #                                                                          `~.Ellipse.set_height`,
 #                                                                          `~.Ellipse.set_width`
+# `.Axes.set_title`, `.Axes.text`           `.text.Text`                   `~.Text.set_text`
 # ========================================  =============================  ===========================
 #
 # Covering the set methods for all types of artists is beyond the scope of this

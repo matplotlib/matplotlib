@@ -7,7 +7,6 @@
 #define PY_SSIZE_T_CLEAN
 
 #include <Python.h>
-#include <stdint.h>
 
 #ifdef _POSIX_C_SOURCE
 #    undef _POSIX_C_SOURCE

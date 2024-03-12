@@ -36,6 +36,14 @@ is_release_build = tags.has('release')  # noqa
 
 # are we running circle CI?
 CIRCLECI = 'CIRCLECI' in os.environ
+# are we deploying this build to matplotlib.org/devdocs?
+# This is a copy of the logic in .circleci/deploy-docs.sh
+DEVDOCS = (
+    CIRCLECI and
+    (os.environ.get("CIRCLE_PROJECT_USERNAME") == "matplotlib") and
+    (os.environ.get("CIRCLE_BRANCH") == "main") and
+    (not os.environ.get("CIRCLE_PULL_REQUEST", "").startswith(
+        "https://github.com/matplotlib/matplotlib/pull")))
 
 
 def _parse_skip_subdirs_file():
@@ -122,7 +130,10 @@ extensions = [
 ]
 
 exclude_patterns = [
-    'api/prev_api_changes/api_changes_*/*', '**/*inc.rst']
+    'api/prev_api_changes/api_changes_*/*',
+    '**/*inc.rst',
+    'users/explain/index.rst'  # Page has no content, but required by sphinx gallery
+]
 
 exclude_patterns += skip_subdirs
 
@@ -199,6 +210,7 @@ nitpicky = True
 # change this to True to update the allowed failures
 missing_references_write_json = False
 missing_references_warn_unused_ignores = False
+
 
 intersphinx_mapping = {
     'Pillow': ('https://pillow.readthedocs.io/en/stable/', None),
@@ -484,7 +496,13 @@ html_theme_options = {
         # the server, but will be used as part of the key for caching by browsers
         # so when we do a new meso release the switcher will update "promptly" on
         # the stable and devdocs.
-        "json_url": f"https://matplotlib.org/devdocs/_static/switcher.json?{SHA}",
+        "json_url": (
+            "https://output.circle-artifacts.com/output/job/"
+            f"{os.environ['CIRCLE_WORKFLOW_JOB_ID']}/artifacts/"
+            f"{os.environ['CIRCLE_NODE_INDEX']}"
+            "/doc/build/html/_static/switcher.json" if CIRCLECI and not DEVDOCS else
+            f"https://matplotlib.org/devdocs/_static/switcher.json?{SHA}"
+        ),
         "version_match": (
             # The start version to show. This must be in switcher.json.
             # We either go to 'stable' or to 'devdocs'
@@ -492,7 +510,7 @@ html_theme_options = {
             else 'devdocs')
     },
     "navbar_end": ["theme-switcher", "version-switcher", "mpl_icon_links"],
-    "secondary_sidebar_items": "page-toc.html",
+    "navbar_persistent": ["search-button"],
     "footer_start": ["copyright", "sphinx-version", "doc_version"],
     # We override the announcement template from pydata-sphinx-theme, where
     # this special value indicates the use of the unreleased banner. If we need
@@ -532,7 +550,6 @@ html_index = 'index.html'
 html_sidebars = {
     "index": [
         # 'sidebar_announcement.html',
-        "sidebar_versions.html",
         "cheatsheet_sidebar.html",
         "donate_sidebar.html",
     ],
@@ -542,6 +559,9 @@ html_sidebars = {
     "users/release_notes": ["empty_sidebar.html"],
     # '**': ['localtoc.html', 'pagesource.html']
 }
+
+# Don't include link to doc source files
+html_show_sourcelink = False
 
 # Copies only relevant code, not the '>>>' prompt
 copybutton_prompt_text = r'>>> |\.\.\. '
@@ -721,16 +741,14 @@ texinfo_documents = [
 numpydoc_show_class_members = False
 
 # We want to prevent any size limit, as we'll add scroll bars with CSS.
-inheritance_graph_attrs = dict(dpi=100, size='1000.0', splines='polyline')
+inheritance_graph_attrs = dict(size='1000.0', splines='polyline')
 # Also remove minimum node dimensions, and increase line size a bit.
 inheritance_node_attrs = dict(height=0.02, margin=0.055, penwidth=1,
                               width=0.01)
 inheritance_edge_attrs = dict(penwidth=1)
 
 graphviz_dot = shutil.which('dot')
-# Still use PNG until SVG linking is fixed
-# https://github.com/sphinx-doc/sphinx/issues/3176
-# graphviz_output_format = 'svg'
+graphviz_output_format = 'svg'
 
 # -----------------------------------------------------------------------------
 # Source code links
