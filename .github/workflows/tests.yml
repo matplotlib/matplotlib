@@ -339,8 +339,8 @@ jobs:
                       fi
                       if [[ -e "${base}.$extension" ]]; then
                           rm "${base}.$extension"
+                          echo " Removed ${base}.$extension"
                       fi
-                      echo "Removed $file"
                   fi
               done
           }
