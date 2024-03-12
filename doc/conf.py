@@ -130,7 +130,10 @@ extensions = [
 ]
 
 exclude_patterns = [
-    'api/prev_api_changes/api_changes_*/*', '**/*inc.rst']
+    'api/prev_api_changes/api_changes_*/*',
+    '**/*inc.rst',
+    'users/explain/index.rst'  # Page has no content, but required by sphinx gallery
+]
 
 exclude_patterns += skip_subdirs
 
