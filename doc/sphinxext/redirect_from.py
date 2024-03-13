@@ -73,8 +73,8 @@ class RedirectFromDomain(Domain):
         """The mapping of the redirects."""
         return self.data.setdefault('redirects', {})
 
-    def clear_doc(self, docnames):
-        self.redirects.clear()
+    def clear_doc(self, docname):
+        self.redirects.pop(docname, None)
 
     def merge_domaindata(self, docnames, otherdata):
         for src, dst in otherdata['redirects'].items():
