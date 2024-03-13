@@ -3789,12 +3789,13 @@ class Axes(_AxesBase):
         return errorbar_container  # (l0, caplines, barcols)
 
     @_preprocess_data()
+    @_api.rename_parameter("3.9", "labels", "tick_labels")
     def boxplot(self, x, notch=None, sym=None, vert=None, whis=None,
                 positions=None, widths=None, patch_artist=None,
                 bootstrap=None, usermedians=None, conf_intervals=None,
                 meanline=None, showmeans=None, showcaps=None,
                 showbox=None, showfliers=None, boxprops=None,
-                labels=None, flierprops=None, medianprops=None,
+                tick_labels=None, flierprops=None, medianprops=None,
                 meanprops=None, capprops=None, whiskerprops=None,
                 manage_ticks=True, autorange=False, zorder=None,
                 capwidths=None):
@@ -3908,9 +3909,15 @@ class Axes(_AxesBase):
             If `False` produces boxes with the Line2D artist. Otherwise,
             boxes are drawn with Patch artists.
 
-        labels : sequence, optional
-            Labels for each dataset (one per dataset). These are used for
-            x-tick labels; *not* for legend entries.
+        tick_labels : list of str, optional
+            The tick labels of each boxplot.
+            Ticks are always placed at the box *positions*. If *tick_labels* is given,
+            the ticks are labelled accordingly. Otherwise, they keep their numeric
+            values.
+
+            .. versionchanged:: 3.9
+                Renamed from *labels*, which is deprecated since 3.9
+                and will be removed in 3.11.
 
         manage_ticks : bool, default: True
             If True, the tick locations and labels will be adjusted to match
@@ -3994,7 +4001,7 @@ class Axes(_AxesBase):
             bootstrap = mpl.rcParams['boxplot.bootstrap']
 
         bxpstats = cbook.boxplot_stats(x, whis=whis, bootstrap=bootstrap,
-                                       labels=labels, autorange=autorange)
+                                       tick_labels=tick_labels, autorange=autorange)
         if notch is None:
             notch = mpl.rcParams['boxplot.notch']
         if vert is None:

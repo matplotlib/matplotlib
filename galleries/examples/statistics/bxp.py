@@ -25,7 +25,7 @@ data = np.random.lognormal(size=(37, 4), mean=1.5, sigma=1.75)
 labels = list('ABCD')
 
 # compute the boxplot stats
-stats = cbook.boxplot_stats(data, labels=labels, bootstrap=10000)
+stats = cbook.boxplot_stats(data, tick_labels=labels, bootstrap=10000)
 
 # %%
 # After we've computed the stats, we can go through and change anything.

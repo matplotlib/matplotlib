@@ -1126,7 +1126,8 @@ def _broadcast_with_masks(*args, compress=False):
     return inputs
 
 
-def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
+@_api.rename_parameter("3.9", "labels", "tick_labels")
+def boxplot_stats(X, whis=1.5, bootstrap=None, tick_labels=None,
                   autorange=False):
     r"""
     Return a list of dictionaries of statistics used to draw a series of box
@@ -1161,9 +1162,13 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         Number of times the confidence intervals around the median
         should be bootstrapped (percentile method).
 
-    labels : array-like, optional
+    tick_labels : array-like, optional
         Labels for each dataset. Length must be compatible with
         dimensions of *X*.
+
+        .. versionchanged:: 3.9
+            Renamed from *labels*, which is deprecated since 3.9
+            and will be removed in 3.11.
 
     autorange : bool, optional (False)
         When `True` and the data are distributed such that the 25th and 75th
@@ -1240,13 +1245,13 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
     X = _reshape_2D(X, "X")
 
     ncols = len(X)
-    if labels is None:
-        labels = itertools.repeat(None)
-    elif len(labels) != ncols:
-        raise ValueError("Dimensions of labels and X must be compatible")
+    if tick_labels is None:
+        tick_labels = itertools.repeat(None)
+    elif len(tick_labels) != ncols:
+        raise ValueError("Dimensions of tick_labels and X must be compatible")
 
     input_whis = whis
-    for ii, (x, label) in enumerate(zip(X, labels)):
+    for ii, (x, label) in enumerate(zip(X, tick_labels)):
 
         # empty dict
         stats = {}

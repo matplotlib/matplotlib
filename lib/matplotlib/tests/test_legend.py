@@ -1435,18 +1435,3 @@ def test_legend_text():
         leg_bboxes.append(
             leg.get_window_extent().transformed(ax.transAxes.inverted()))
     assert_allclose(leg_bboxes[1].bounds, leg_bboxes[0].bounds)
-
-
-def test_boxplot_labels():
-    # Test that boxplot(..., labels=) sets the tick labels but not legend entries
-    # This is not consistent with other plot types but is the current behavior.
-    fig, ax = plt.subplots()
-    np.random.seed(19680801)
-    data = np.random.random((10, 3))
-    bp = ax.boxplot(data, labels=['A', 'B', 'C'])
-    # Check that labels set the tick labels ...
-    assert [l.get_text() for l in ax.get_xticklabels()] == ['A', 'B', 'C']
-    # ... but not legend entries
-    handles, labels = ax.get_legend_handles_labels()
-    assert len(handles) == 0
-    assert len(labels) == 0
