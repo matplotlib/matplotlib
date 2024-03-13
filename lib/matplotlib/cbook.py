@@ -2349,6 +2349,30 @@ def _picklable_class_constructor(mixin_class, fmt, attr_name, base_class):
     return cls.__new__(cls)
 
 
+def _is_torch_array(x):
+    """Check if 'x' is a PyTorch Tensor."""
+    try:
+        # we're intentionally not attempting to import torch. If somebody
+        # has created a torch array, torch should already be in sys.modules
+        return isinstance(x, sys.modules['torch'].Tensor)
+    except Exception:  # TypeError, KeyError, AttributeError, maybe others?
+        # we're attempting to access attributes on imported modules which
+        # may have arbitrary user code, so we deliberately catch all exceptions
+        return False
+
+
+def _is_jax_array(x):
+    """Check if 'x' is a JAX Array."""
+    try:
+        # we're intentionally not attempting to import jax. If somebody
+        # has created a jax array, jax should already be in sys.modules
+        return isinstance(x, sys.modules['jax'].Array)
+    except Exception:  # TypeError, KeyError, AttributeError, maybe others?
+        # we're attempting to access attributes on imported modules which
+        # may have arbitrary user code, so we deliberately catch all exceptions
+        return False
+
+
 def _unpack_to_numpy(x):
     """Internal helper to extract data from e.g. pandas and xarray objects."""
     if isinstance(x, np.ndarray):
@@ -2361,6 +2385,12 @@ def _unpack_to_numpy(x):
         xtmp = x.values
         # For example a dict has a 'values' attribute, but it is not a property
         # so in this case we do not want to return a function
+        if isinstance(xtmp, np.ndarray):
+            return xtmp
+    if _is_torch_array(x) or _is_jax_array(x):
+        xtmp = x.__array__()
+
+        # In case __array__() method does not return a numpy array in future
         if isinstance(xtmp, np.ndarray):
             return xtmp
     return x
