@@ -1,4 +1,5 @@
 .. redirect-from: /devel/dependencies
+.. redirect-from:: /users/installing/dependencies.rst
 
 .. _dependencies:
 
