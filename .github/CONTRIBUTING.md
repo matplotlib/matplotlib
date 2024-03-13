@@ -1,1 +1,6 @@
-Please refer to the [developers guide](https://matplotlib.org/devel/index.html).
+For comprehensive guidance, please consult the [developer's guide](https://matplotlib.org/devel/index.html).
+
+
+
+
+
