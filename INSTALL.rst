@@ -1,1 +1,1 @@
-See doc/users/installing/index.rst
+See doc/install/index.rst
