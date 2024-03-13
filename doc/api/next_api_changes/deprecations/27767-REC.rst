@@ -1,0 +1,9 @@
+Legend labels for ``plot``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously if a sequence was passed to the *label* parameter of `~.Axes.plot` when
+plotting a single dataset, the sequence was automatically cast to string for the legend
+label.  This behavior is now deprecated and in future will error if the sequence length
+is not one (consistent with multi-dataset behavior, where the number of elements must
+match the number of datasets).  To keep the old behavior, cast the sequence to string
+before passing.

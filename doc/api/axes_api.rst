@@ -335,6 +335,8 @@ Autoscaling and margins
    Axes.use_sticky_edges
 
    Axes.margins
+   Axes.get_xmargin
+   Axes.get_ymargin
    Axes.set_xmargin
    Axes.set_ymargin
 

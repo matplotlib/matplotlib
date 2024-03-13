@@ -1,9 +1,7 @@
 """
-==========
-Image demo
-==========
-
-Many ways to plot images in Matplotlib.
+========================
+Many ways to plot images
+========================
 
 The most common way to plot images in Matplotlib is with
 `~.axes.Axes.imshow`. The following examples demonstrate much of the

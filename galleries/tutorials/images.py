@@ -156,9 +156,8 @@ imgplot.set_cmap('nipy_spectral')
 #    commands together in one cell.  plt commands will not change plots from earlier
 #    cells.
 #
-# There are many other colormap schemes available.  See the `list and
-# images of the colormaps
-# <../colors/colormaps.html>`_.
+# There are many other colormap schemes available.  See the :ref:`list and images
+# of the colormaps<colormaps>`.
 #
 # .. _`Color Bars`:
 #

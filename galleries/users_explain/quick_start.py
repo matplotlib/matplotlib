@@ -31,14 +31,14 @@ import matplotlib as mpl
 # creating a Figure with an Axes is using `.pyplot.subplots`. We can then use
 # `.Axes.plot` to draw some data on the Axes:
 
-fig, ax = plt.subplots()  # Create a figure containing a single axes.
-ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
+fig, ax = plt.subplots()  # Create a figure containing a single Axes.
+ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the Axes.
 
 # %%
 #
 # Note that to get this Figure to display, you may have to call ``plt.show()``,
 # depending on your backend.  For more details of Figures and backends, see
-# :ref:`figure_explanation`.
+# :ref:`figure-intro`.
 #
 # .. _figure_parts:
 #
@@ -62,7 +62,7 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
 #    fig = plt.figure()  # an empty figure with no Axes
 #    fig, ax = plt.subplots()  # a figure with a single Axes
 #    fig, axs = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
-#    # a figure with one axes on the left, and two on the right:
+#    # a figure with one Axes on the left, and two on the right:
 #    fig, axs = plt.subplot_mosaic([['left', 'right_top'],
 #                                   ['left', 'right_bottom']])
 #
@@ -71,7 +71,7 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
 # :ref:`Matplotlib backends <backends>` support zooming and
 # panning on figure windows.
 #
-# For more on Figures, see :ref:`figure_explanation`.
+# For more on Figures, see :ref:`figure-intro`.
 #
 # :class:`~matplotlib.axes.Axes`
 # ------------------------------
@@ -126,10 +126,13 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
 #   b = np.matrix([[1, 2], [3, 4]])
 #   b_asarray = np.asarray(b)
 #
-# Most methods will also parse an addressable object like a *dict*, a
-# `numpy.recarray`, or a `pandas.DataFrame`.  Matplotlib allows you to
-# provide the ``data`` keyword argument and generate plots passing the
+# Most methods will also parse a string-indexable object like a *dict*, a
+# `structured numpy array`_, or a `pandas.DataFrame`.  Matplotlib allows you
+# to provide the ``data`` keyword argument and generate plots passing the
 # strings corresponding to the *x* and *y* variables.
+#
+# .. _structured numpy array: https://numpy.org/doc/stable/user/basics.rec.html#structured-arrays  # noqa: E501
+
 np.random.seed(19680801)  # seed the random number generator.
 data = {'a': np.arange(50),
         'c': np.random.randint(0, 50, 50),
@@ -167,12 +170,12 @@ x = np.linspace(0, 2, 100)  # Sample data.
 
 # Note that even in the OO-style, we use `.pyplot.figure` to create the Figure.
 fig, ax = plt.subplots(figsize=(5, 2.7), layout='constrained')
-ax.plot(x, x, label='linear')  # Plot some data on the axes.
-ax.plot(x, x**2, label='quadratic')  # Plot more data on the axes...
+ax.plot(x, x, label='linear')  # Plot some data on the Axes.
+ax.plot(x, x**2, label='quadratic')  # Plot more data on the Axes...
 ax.plot(x, x**3, label='cubic')  # ... and some more.
-ax.set_xlabel('x label')  # Add an x-label to the axes.
-ax.set_ylabel('y label')  # Add a y-label to the axes.
-ax.set_title("Simple Plot")  # Add a title to the axes.
+ax.set_xlabel('x label')  # Add an x-label to the Axes.
+ax.set_ylabel('y label')  # Add a y-label to the Axes.
+ax.set_title("Simple Plot")  # Add a title to the Axes.
 ax.legend()  # Add a legend.
 
 # %%
@@ -181,7 +184,7 @@ ax.legend()  # Add a legend.
 x = np.linspace(0, 2, 100)  # Sample data.
 
 plt.figure(figsize=(5, 2.7), layout='constrained')
-plt.plot(x, x, label='linear')  # Plot some data on the (implicit) axes.
+plt.plot(x, x, label='linear')  # Plot some data on the (implicit) Axes.
 plt.plot(x, x**2, label='quadratic')  # etc.
 plt.plot(x, x**3, label='cubic')
 plt.xlabel('x label')

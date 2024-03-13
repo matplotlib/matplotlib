@@ -28,6 +28,7 @@ from matplotlib import cycler
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 
+# %%
 N = 10
 data = (np.geomspace(1, 10, 100) + np.random.randn(N, 100)).T
 cmap = plt.cm.coolwarm
@@ -35,10 +36,10 @@ mpl.rcParams['axes.prop_cycle'] = cycler(color=cmap(np.linspace(0, 1, N)))
 
 fig, ax = plt.subplots()
 lines = ax.plot(data)
-ax.legend()
 
 # %%
-# Note that no legend entries were created.
+# Since the data does not have any labels, creating a legend requires
+# us to define the icons and labels.
 # In this case, we can compose a legend using Matplotlib objects that aren't
 # explicitly tied to the data that was plotted. For example:
 

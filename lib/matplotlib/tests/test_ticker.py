@@ -3,6 +3,7 @@ import itertools
 import locale
 import logging
 import re
+from packaging.version import parse as parse_version
 
 import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
@@ -38,12 +39,37 @@ class TestMaxNLocator:
         loc = mticker.MaxNLocator(nbins=5, integer=True, steps=steps)
         assert_almost_equal(loc.tick_values(vmin, vmax), expected)
 
+    @pytest.mark.parametrize('kwargs, errortype, match', [
+        ({'foo': 0}, TypeError,
+         re.escape("set_params() got an unexpected keyword argument 'foo'")),
+        ({'steps': [2, 1]}, ValueError, "steps argument must be an increasing"),
+        ({'steps': 2}, ValueError, "steps argument must be an increasing"),
+        ({'steps': [2, 11]}, ValueError, "steps argument must be an increasing"),
+    ])
+    def test_errors(self, kwargs, errortype, match):
+        with pytest.raises(errortype, match=match):
+            mticker.MaxNLocator(**kwargs)
+
+    @pytest.mark.parametrize('steps, result', [
+        ([1, 2, 10], [1, 2, 10]),
+        ([2, 10], [1, 2, 10]),
+        ([1, 2], [1, 2, 10]),
+        ([2], [1, 2, 10]),
+    ])
+    def test_padding(self, steps, result):
+        loc = mticker.MaxNLocator(steps=steps)
+        assert (loc._steps == result).all()
+
 
 class TestLinearLocator:
     def test_basic(self):
         loc = mticker.LinearLocator(numticks=3)
         test_value = np.array([-0.8, -0.3, 0.2])
         assert_almost_equal(loc.tick_values(-0.8, 0.2), test_value)
+
+    def test_zero_numticks(self):
+        loc = mticker.LinearLocator(numticks=0)
+        loc.tick_values(-0.8, 0.2) == []
 
     def test_set_params(self):
         """
@@ -54,6 +80,15 @@ class TestLinearLocator:
         loc.set_params(numticks=8, presets={(0, 1): []})
         assert loc.numticks == 8
         assert loc.presets == {(0, 1): []}
+
+    def test_presets(self):
+        loc = mticker.LinearLocator(presets={(1, 2): [1, 1.25, 1.75],
+                                             (0, 2): [0.5, 1.5]})
+        assert loc.tick_values(1, 2) == [1, 1.25, 1.75]
+        assert loc.tick_values(2, 1) == [1, 1.25, 1.75]
+        assert loc.tick_values(0, 2) == [0.5, 1.5]
+        assert loc.tick_values(0.0, 2.0) == [0.5, 1.5]
+        assert (loc.tick_values(0, 1) == np.linspace(0, 1, 11)).all()
 
 
 class TestMultipleLocator:
@@ -300,7 +335,7 @@ class TestLogLocator:
 
     def test_polar_axes(self):
         """
-        Polar axes have a different ticking logic.
+        Polar Axes have a different ticking logic.
         """
         fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
         ax.set_yscale('log')
@@ -590,6 +625,23 @@ class TestSymmetricalLogLocator:
         ticks = sym.tick_values(vmin=vmin, vmax=vmax)
         assert_array_equal(ticks, expected)
 
+    def test_subs(self):
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, subs=[2.0, 4.0])
+        sym.create_dummy_axis()
+        sym.axis.set_view_interval(-10, 10)
+        assert (sym() == [-20., -40.,  -2.,  -4.,   0.,   2.,   4.,  20.,  40.]).all()
+
+    def test_extending(self):
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1)
+        sym.create_dummy_axis()
+        sym.axis.set_view_interval(8, 9)
+        assert (sym() == [1.0]).all()
+        sym.axis.set_view_interval(8, 12)
+        assert (sym() == [1.0, 10.0]).all()
+        assert sym.view_limits(10, 10) == (1, 100)
+        assert sym.view_limits(-10, -10) == (-100, -1)
+        assert sym.view_limits(0, 0) == (-0.001, 0.001)
+
 
 class TestAsinhLocator:
     def test_init(self):
@@ -863,10 +915,17 @@ class TestScalarFormatter:
             'axes.formatter.use_mathtext': False
         })
 
-        with pytest.warns(UserWarning, match='cmr10 font should ideally'):
-            fig, ax = plt.subplots()
-            ax.set_xticks([-1, 0, 1])
-            fig.canvas.draw()
+        if parse_version(pytest.__version__).major < 8:
+            with pytest.warns(UserWarning, match='cmr10 font should ideally'):
+                fig, ax = plt.subplots()
+                ax.set_xticks([-1, 0, 1])
+                fig.canvas.draw()
+        else:
+            with (pytest.warns(UserWarning, match="Glyph 8722"),
+                  pytest.warns(UserWarning, match='cmr10 font should ideally')):
+                fig, ax = plt.subplots()
+                ax.set_xticks([-1, 0, 1])
+                fig.canvas.draw()
 
     def test_cmr10_substitutions(self, caplog):
         mpl.rcParams.update({
@@ -1383,14 +1442,21 @@ class TestFormatStrFormatter:
 
 class TestStrMethodFormatter:
     test_data = [
-        ('{x:05d}', (2,), '00002'),
-        ('{x:03d}-{pos:02d}', (2, 1), '002-01'),
+        ('{x:05d}', (2,), False, '00002'),
+        ('{x:05d}', (2,), True, '00002'),
+        ('{x:05d}', (-2,), False, '-0002'),
+        ('{x:05d}', (-2,), True, '\N{MINUS SIGN}0002'),
+        ('{x:03d}-{pos:02d}', (2, 1), False, '002-01'),
+        ('{x:03d}-{pos:02d}', (2, 1), True, '002-01'),
+        ('{x:03d}-{pos:02d}', (-2, 1), False, '-02-01'),
+        ('{x:03d}-{pos:02d}', (-2, 1), True, '\N{MINUS SIGN}02-01'),
     ]
 
-    @pytest.mark.parametrize('format, input, expected', test_data)
-    def test_basic(self, format, input, expected):
-        fmt = mticker.StrMethodFormatter(format)
-        assert fmt(*input) == expected
+    @pytest.mark.parametrize('format, input, unicode_minus, expected', test_data)
+    def test_basic(self, format, input, unicode_minus, expected):
+        with mpl.rc_context({"axes.unicode_minus": unicode_minus}):
+            fmt = mticker.StrMethodFormatter(format)
+            assert fmt(*input) == expected
 
 
 class TestEngFormatter:
@@ -1589,22 +1655,41 @@ class TestPercentFormatter:
             assert fmt.format_pct(50, 100) == expected
 
 
-def test_locale_comma():
-    currentLocale = locale.getlocale()
+def _impl_locale_comma():
     try:
         locale.setlocale(locale.LC_ALL, 'de_DE.UTF-8')
-        ticks = mticker.ScalarFormatter(useMathText=True, useLocale=True)
-        fmt = '$\\mathdefault{%1.1f}$'
-        x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
-        assert x == '$\\mathdefault{0{,}5}$'
-        # Do not change , in the format string
-        fmt = ',$\\mathdefault{,%1.1f},$'
-        x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
-        assert x == ',$\\mathdefault{,0{,}5},$'
     except locale.Error:
-        pytest.skip("Locale de_DE.UTF-8 is not supported on this machine")
-    finally:
-        locale.setlocale(locale.LC_ALL, currentLocale)
+        print('SKIP: Locale de_DE.UTF-8 is not supported on this machine')
+        return
+    ticks = mticker.ScalarFormatter(useMathText=True, useLocale=True)
+    fmt = '$\\mathdefault{%1.1f}$'
+    x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
+    assert x == '$\\mathdefault{0{,}5}$'
+    # Do not change , in the format string
+    fmt = ',$\\mathdefault{,%1.1f},$'
+    x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
+    assert x == ',$\\mathdefault{,0{,}5},$'
+    # Make sure no brackets are added if not using math text
+    ticks = mticker.ScalarFormatter(useMathText=False, useLocale=True)
+    fmt = '%1.1f'
+    x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
+    assert x == '0,5'
+
+
+def test_locale_comma():
+    # On some systems/pytest versions, `pytest.skip` in an exception handler
+    # does not skip, but is treated as an exception, so directly running this
+    # test can incorrectly fail instead of skip.
+    # Instead, run this test in a subprocess, which avoids the problem, and the
+    # need to fix the locale after.
+    proc = mpl.testing.subprocess_run_helper(_impl_locale_comma, timeout=60,
+                                             extra_env={'MPLBACKEND': 'Agg'})
+    skip_msg = next((line[len('SKIP:'):].strip()
+                     for line in proc.stdout.splitlines()
+                     if line.startswith('SKIP:')),
+                    '')
+    if skip_msg:
+        pytest.skip(skip_msg)
 
 
 def test_majformatter_type():
@@ -1719,3 +1804,24 @@ def test_set_offset_string(formatter):
     assert formatter.get_offset() == ''
     formatter.set_offset_string('mpl')
     assert formatter.get_offset() == 'mpl'
+
+
+def test_minorticks_on_multi_fig():
+    """
+    Turning on minor gridlines in a multi-Axes Figure
+    that contains more than one boxplot and shares the x-axis
+    should not raise an exception.
+    """
+    fig, ax = plt.subplots()
+
+    ax.boxplot(np.arange(10), positions=[0])
+    ax.boxplot(np.arange(10), positions=[0])
+    ax.boxplot(np.arange(10), positions=[1])
+
+    ax.grid(which="major")
+    ax.grid(which="minor")
+    ax.minorticks_on()
+    fig.draw_without_rendering()
+
+    assert ax.get_xgridlines()
+    assert isinstance(ax.xaxis.get_minor_locator(), mpl.ticker.AutoMinorLocator)

@@ -11,12 +11,14 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
+from datetime import datetime, timezone
 import logging
 import os
 from pathlib import Path
 import shutil
 import subprocess
 import sys
+import time
 from urllib.parse import urlsplit, urlunsplit
 import warnings
 
@@ -25,9 +27,6 @@ import yaml
 
 import matplotlib
 
-from datetime import timezone
-from datetime import datetime
-import time
 
 # debug that building expected version
 print(f"Building Documentation for Matplotlib: {matplotlib.__version__}")
@@ -37,6 +36,14 @@ is_release_build = tags.has('release')  # noqa
 
 # are we running circle CI?
 CIRCLECI = 'CIRCLECI' in os.environ
+# are we deploying this build to matplotlib.org/devdocs?
+# This is a copy of the logic in .circleci/deploy-docs.sh
+DEVDOCS = (
+    CIRCLECI and
+    (os.environ.get("CIRCLE_PROJECT_USERNAME") == "matplotlib") and
+    (os.environ.get("CIRCLE_BRANCH") == "main") and
+    (not os.environ.get("CIRCLE_PULL_REQUEST", "").startswith(
+        "https://github.com/matplotlib/matplotlib/pull")))
 
 
 def _parse_skip_subdirs_file():
@@ -48,8 +55,9 @@ def _parse_skip_subdirs_file():
     but you can skip subdirectories of 'users'.  Doing this
     can make partial builds very fast.
     """
-    default_skip_subdirs = ['users/prev_whats_new/*', 'api/*', 'gallery/*',
-                            'tutorials/*', 'plot_types/*', 'devel/*']
+    default_skip_subdirs = [
+        'users/prev_whats_new/*', 'users/explain/*', 'api/*', 'gallery/*',
+        'tutorials/*', 'plot_types/*', 'devel/*']
     try:
         with open(".mpl_skip_subdirs.yaml", 'r') as fin:
             print('Reading subdirectories to skip from',
@@ -118,10 +126,13 @@ extensions = [
     'sphinxext.redirect_from',
     'sphinx_copybutton',
     'sphinx_design',
+    'sphinx_tags',
 ]
 
 exclude_patterns = [
-    'api/prev_api_changes/api_changes_*/*'
+    'api/prev_api_changes/api_changes_*/*',
+    '**/*inc.rst',
+    'users/explain/index.rst'  # Page has no content, but required by sphinx gallery
 ]
 
 exclude_patterns += skip_subdirs
@@ -158,6 +169,10 @@ def _check_dependencies():
         raise OSError(
             "No binary named dot - graphviz must be installed to build the "
             "documentation")
+    if shutil.which('latex') is None:
+        raise OSError(
+            "No binary named latex - a LaTeX distribution must be installed to build "
+            "the documentation")
 
 _check_dependencies()
 
@@ -196,6 +211,7 @@ nitpicky = True
 missing_references_write_json = False
 missing_references_warn_unused_ignores = False
 
+
 intersphinx_mapping = {
     'Pillow': ('https://pillow.readthedocs.io/en/stable/', None),
     'cycler': ('https://matplotlib.org/cycler/', None),
@@ -208,6 +224,7 @@ intersphinx_mapping = {
     'scipy': ('https://docs.scipy.org/doc/scipy/', None),
     'tornado': ('https://www.tornadoweb.org/en/stable/', None),
     'xarray': ('https://docs.xarray.dev/en/stable/', None),
+    'meson-python': ('https://meson-python.readthedocs.io/en/stable/', None)
 }
 
 
@@ -283,6 +300,18 @@ if 'plot_gallery=0' in sys.argv:
     logger = logging.getLogger('sphinx')
     logger.addFilter(gallery_image_warning_filter)
 
+# Sphinx tags configuration
+tags_create_tags = True
+tags_page_title = "All tags"
+tags_create_badges = True
+tags_badge_colors = {
+    "animation": "primary",
+    "component:*": "secondary",
+    "event-handling": "success",
+    "interactivity:*": "dark",
+    "plot-type:*": "danger",
+    "*": "light"  # default value
+}
 
 mathmpl_fontsize = 11.0
 mathmpl_srcset = ['2x']
@@ -465,9 +494,15 @@ html_theme_options = {
     "switcher": {
         # Add a unique query to the switcher.json url.  This will be ignored by
         # the server, but will be used as part of the key for caching by browsers
-        # so when we do a new minor release the switcher will update "promptly" on
+        # so when we do a new meso release the switcher will update "promptly" on
         # the stable and devdocs.
-        "json_url": f"https://matplotlib.org/devdocs/_static/switcher.json?{SHA}",
+        "json_url": (
+            "https://output.circle-artifacts.com/output/job/"
+            f"{os.environ['CIRCLE_WORKFLOW_JOB_ID']}/artifacts/"
+            f"{os.environ['CIRCLE_NODE_INDEX']}"
+            "/doc/build/html/_static/switcher.json" if CIRCLECI and not DEVDOCS else
+            f"https://matplotlib.org/devdocs/_static/switcher.json?{SHA}"
+        ),
         "version_match": (
             # The start version to show. This must be in switcher.json.
             # We either go to 'stable' or to 'devdocs'
@@ -475,7 +510,7 @@ html_theme_options = {
             else 'devdocs')
     },
     "navbar_end": ["theme-switcher", "version-switcher", "mpl_icon_links"],
-    "secondary_sidebar_items": "page-toc.html",
+    "navbar_persistent": ["search-button"],
     "footer_start": ["copyright", "sphinx-version", "doc_version"],
     # We override the announcement template from pydata-sphinx-theme, where
     # this special value indicates the use of the unreleased banner. If we need
@@ -515,12 +550,18 @@ html_index = 'index.html'
 html_sidebars = {
     "index": [
         # 'sidebar_announcement.html',
-        "sidebar_versions.html",
         "cheatsheet_sidebar.html",
         "donate_sidebar.html",
     ],
+    # no sidebar for release notes, because that page is only a collection of links
+    # to sub-pages. The sidebar would repeat all the titles of the sub-pages and
+    # thus basically repeat all the content of the page.
+    "users/release_notes": ["empty_sidebar.html"],
     # '**': ['localtoc.html', 'pagesource.html']
 }
+
+# Don't include link to doc source files
+html_show_sourcelink = False
 
 # Copies only relevant code, not the '>>>' prompt
 copybutton_prompt_text = r'>>> |\.\.\. '
@@ -700,16 +741,14 @@ texinfo_documents = [
 numpydoc_show_class_members = False
 
 # We want to prevent any size limit, as we'll add scroll bars with CSS.
-inheritance_graph_attrs = dict(dpi=100, size='1000.0', splines='polyline')
+inheritance_graph_attrs = dict(size='1000.0', splines='polyline')
 # Also remove minimum node dimensions, and increase line size a bit.
 inheritance_node_attrs = dict(height=0.02, margin=0.055, penwidth=1,
                               width=0.01)
 inheritance_edge_attrs = dict(penwidth=1)
 
 graphviz_dot = shutil.which('dot')
-# Still use PNG until SVG linking is fixed
-# https://github.com/sphinx-doc/sphinx/issues/3176
-# graphviz_output_format = 'svg'
+graphviz_output_format = 'svg'
 
 # -----------------------------------------------------------------------------
 # Source code links

@@ -64,7 +64,6 @@ class Gcf:
         if hasattr(manager, "_cidgcf"):
             manager.canvas.mpl_disconnect(manager._cidgcf)
         manager.destroy()
-        del manager, num
 
     @classmethod
     def destroy_fig(cls, fig):

@@ -3,7 +3,7 @@
 Adding lines to figures
 =======================
 
-Adding lines to a figure without any axes.
+Adding lines to a figure without any Axes.
 
 .. redirect-from:: /gallery/pyplots/fig_x
 """

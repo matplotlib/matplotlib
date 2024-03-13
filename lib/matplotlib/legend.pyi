@@ -52,7 +52,7 @@ class Legend(Artist):
     def __init__(
         self,
         parent: Axes | Figure,
-        handles: Iterable[Artist],
+        handles: Iterable[Artist | tuple[Artist, ...]],
         labels: Iterable[str],
         *,
         loc: str | tuple[float, float] | int | None = ...,

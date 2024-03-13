@@ -148,9 +148,9 @@ To register new colormaps use::
 
     plt.colormaps.register(my_colormap)
 
-We recommend to use the new API instead of the `~.cm.get_cmap` and
-`~.cm.register_cmap` functions for new code. `matplotlib.cm.get_cmap` and
-`matplotlib.cm.register_cmap` will eventually be deprecated and removed.
+We recommend to use the new API instead of the ``matplotlib.cm.get_cmap`` and
+``matplotlib.cm.register_cmap`` functions for new code. ``matplotlib.cm.get_cmap`` and
+``matplotlib.cm.register_cmap`` will eventually be deprecated and removed.
 Within `.pyplot`, ``plt.get_cmap()`` and ``plt.register_cmap()`` will continue
 to be supported for backward compatibility.
 
@@ -284,7 +284,7 @@ Simplifying the font setting for usetex mode
 Now the :rc:`font.family` accepts some font names as value for a more
 user-friendly setup.
 
-.. code-block::
+.. code-block:: python
 
     plt.rcParams.update({
         "text.usetex": True,
@@ -561,7 +561,7 @@ to block callback signals from being processed by the ``CallbackRegistry``.
 The optional keyword, *signal*, can be used to block a specific signal
 from being processed and let all other signals pass.
 
-.. code-block::
+.. code-block:: python
 
     import matplotlib.pyplot as plt
 

@@ -23,7 +23,7 @@ def bullseye_plot(ax, data, seg_bold=None, cmap="viridis", norm=None):
 
     Parameters
     ----------
-    ax : axes
+    ax : Axes
     data : list[float]
         The intensity values for each of the 17 segments.
     seg_bold : list[int], optional
@@ -95,7 +95,7 @@ def bullseye_plot(ax, data, seg_bold=None, cmap="viridis", norm=None):
 data = np.arange(17) + 1
 
 
-# Make a figure and axes with dimensions as desired.
+# Make a figure and Axes with dimensions as desired.
 fig = plt.figure(figsize=(10, 5), layout="constrained")
 fig.get_layout_engine().set(wspace=.1, w_pad=.2)
 axs = fig.subplots(1, 3, subplot_kw=dict(projection='polar'))

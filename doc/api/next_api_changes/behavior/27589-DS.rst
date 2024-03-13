@@ -1,0 +1,5 @@
+PowerNorm no longer clips values below vmin
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When ``clip=False`` is set (the default) on `~matplotlib.colors.PowerNorm`,
+values below ``vmin`` are now linearly normalised. Previously they were clipped
+to zero. This fixes issues with the display of colorbars associated with a power norm.

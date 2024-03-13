@@ -37,11 +37,11 @@ class Divider:
             Sizes for horizontal division.
         vertical : list of :mod:`~mpl_toolkits.axes_grid1.axes_size`
             Sizes for vertical division.
-        aspect : bool
+        aspect : bool, optional
             Whether overall rectangular area is reduced so that the relative
             part of the horizontal and vertical scales have the same scale.
         anchor : (float, float) or {'C', 'SW', 'S', 'SE', 'E', 'NE', 'N', \
-'NW', 'W'}
+'NW', 'W'}, default: 'C'
             Placement of the reduced rectangle, when *aspect* is True.
         """
 
@@ -294,7 +294,7 @@ class Divider:
         ----------
         use_axes : `~matplotlib.axes.Axes` or list of `~matplotlib.axes.Axes`
             The Axes whose decorations are taken into account.
-        pad : float, optional
+        pad : float, default: 0.1
             Additional padding in inches.
         adjust_dirs : list of {"left", "right", "bottom", "top"}, optional
             The sides where padding is added; defaults to all four sides.
@@ -377,6 +377,16 @@ class SubplotDivider(Divider):
             If *nrows*, *ncols*, and *index* are all single digit numbers, then
             *args* can be passed as a single 3-digit number (e.g. 234 for
             (2, 3, 4)).
+        horizontal : list of :mod:`~mpl_toolkits.axes_grid1.axes_size`, optional
+            Sizes for horizontal division.
+        vertical : list of :mod:`~mpl_toolkits.axes_grid1.axes_size`, optional
+            Sizes for vertical division.
+        aspect : bool, optional
+            Whether overall rectangular area is reduced so that the relative
+            part of the horizontal and vertical scales have the same scale.
+        anchor : (float, float) or {'C', 'SW', 'S', 'SE', 'E', 'NE', 'N', \
+'NW', 'W'}, default: 'C'
+            Placement of the reduced rectangle, when *aspect* is True.
         """
         self.figure = fig
         super().__init__(fig, [0, 0, 1, 1],

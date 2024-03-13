@@ -2,9 +2,9 @@
 
 .. _contributing:
 
-==========
+**********
 Contribute
-==========
+**********
 
 You've discovered a bug or something else you want to change
 in Matplotlib — excellent!
@@ -90,6 +90,8 @@ active contributors, many of whom felt just like you when they started out and
 are happy to welcome you and support you as you get to know how we work, and
 where things are. Take a look at the next sections to learn more.
 
+.. _contributor_incubator:
+
 Contributor incubator
 ---------------------
 
@@ -103,6 +105,9 @@ documentation or a blog post, how to get involved in community work, or get a
 
 To join, please go to our public community_ channel, and ask to be added to
 ``#incubator``. One of our core developers will see your message and will add you.
+
+.. _gitter: https://gitter.im/matplotlib/matplotlib
+.. _community: https://gitter.im/matplotlib/community
 
 New Contributors Meeting
 ------------------------
@@ -170,18 +175,18 @@ also welcome to post feature requests or pull requests.
 
 If you are reporting a bug, please do your best to include the following:
 
-1. A short, top-level summary of the bug. In most cases, this should be 1-2
+#. A short, top-level summary of the bug. In most cases, this should be 1-2
    sentences.
 
-2. A short, self-contained code snippet to reproduce the bug, ideally allowing
+#. A short, self-contained code snippet to reproduce the bug, ideally allowing
    a simple copy and paste to reproduce. Please do your best to reduce the code
    snippet to the minimum required.
 
-3. The actual outcome of the code snippet.
+#. The actual outcome of the code snippet.
 
-4. The expected outcome of the code snippet.
+#. The expected outcome of the code snippet.
 
-5. The Matplotlib version, Python version and platform that you are using. You
+#. The Matplotlib version, Python version and platform that you are using. You
    can grab the version with the following commands::
 
       >>> import matplotlib
@@ -206,18 +211,108 @@ Please post feature requests to the
 
 The Matplotlib developers will give feedback on the feature proposal. Since
 Matplotlib is an open source project with limited resources, we encourage
-users to then also
-:ref:`participate in the implementation <contributing-code>`.
+users to then also :ref:`participate in the implementation <contribute_code>`.
 
-.. _contributing-code:
+.. _contribute_code:
 
 Contribute code
 ===============
+You want to implement a feature or fix a bug or help with maintenance - much
+appreciated! Our library source code is found in
+
+* Python library code: :file:`lib/`
+* C-extension code: :file:`src/`
+* Tests: :file:`lib/matplotlib/tests/`
+
+Because many people use and work on Matplotlib, we have guidelines for keeping
+our code consistent and mitigating the impact of changes.
+
+* :ref:`coding_guidelines`
+* :ref:`api_changes`
+* :ref:`pr-guidelines`
+
+Code is contributed through pull requests, so we recommend that you start at
+:ref:`how-to-contribute` If you get stuck, please reach out on the
+:ref:`contributor_incubator`
+
+.. _contribute_documentation:
+
+Contribute documentation
+========================
+
+You as an end-user of Matplotlib can make a valuable contribution because you
+more clearly see the potential for improvement than a core developer. For example,
+you can:
+
+- Fix a typo
+- Clarify a docstring
+- Write or update an :ref:`example plot <gallery>`
+- Write or update a comprehensive :ref:`tutorial <tutorials>`
+
+Our code is documented inline in the source code files in :file:`matplotlib/lib`.
+Our website structure mirrors our folder structure, meaning that a narrative
+document's URL roughly corresponds to its location in our folder structure:
+
+.. grid:: 1 1 2 2
+
+  .. grid-item:: using the library
+
+      * :file:`galleries/plot_types/`
+      * :file:`users/getting_started/`
+      * :file:`galleries/user_explain/`
+      * :file:`galleries/tutorials/`
+      * :file:`galleries/examples/`
+      * :file:`doc/api`
+
+  .. grid-item:: information about the library
+
+      * :file:`doc/users/installing/`
+      * :file:`doc/project/`
+      * :file:`doc/users/resources/`
+      * :file:`doc/users/faq.rst`
+      * :file:`doc/devel/`
+
+Other documentation is generated from the following external sources:
+
+* matplotlib.org homepage: https://github.com/matplotlib/mpl-brochure-site
+* cheat sheets: https://github.com/matplotlib/cheatsheets
+* third party packages: https://github.com/matplotlib/mpl-third-party
+
+Instructions and guidelines for contributing documentation are found in:
+
+* :doc:`document`
+* :doc:`style_guide`
+* :doc:`tag_guidelines`
+
+Documentation is contributed through pull requests, so we recommend that you start
+at :ref:`how-to-contribute`. If that feels intimidating, we encourage you to
+`open an issue`_ describing what improvements you would make. If you get stuck,
+please reach out on the :ref:`contributor_incubator`
+
+.. _`open an issue`: https://github.com/matplotlib/matplotlib/issues/new?assignees=&labels=Documentation&projects=&template=documentation.yml&title=%5BDoc%5D%3A+
+
+
+.. _other_ways_to_contribute:
+
+Other ways to contribute
+========================
+
+It also helps us if you spread the word: reference the project from your blog
+and articles or link to it from your website!
+
+Matplotlib's community is built by its members, if you would like to help out
+see our :ref:`communications-guidelines`.
+
+If Matplotlib contributes to a project that leads to a scientific publication,
+please follow the :doc:`/project/citing` guidelines.
+
+If you have developed an extension to Matplotlib, please consider adding it to our
+`third party package <https://github.com/matplotlib/mpl-third-party>`_  list.
 
 .. _how-to-contribute:
 
-How to contribute
------------------
+How to contribute via pull request
+==================================
 
 The preferred way to contribute to Matplotlib is to fork the `main
 repository <https://github.com/matplotlib/matplotlib/>`__ on GitHub,
@@ -227,54 +322,59 @@ Maplotlib repository to your own computer, or alternatively using
 in-browser development environment that comes with the appropriated setup to
 contribute to Matplotlib.
 
+Workflow overview
+-----------------
+
 A brief overview of the workflow is as follows.
 
-1. `Create an account <https://github.com/join>`_ on GitHub if you do not
+#. `Create an account <https://github.com/join>`_ on GitHub if you do not
    already have one.
 
-2. Fork the `project repository <https://github.com/matplotlib/matplotlib>`_:
-   click on the 'Fork' button near the top of the page. This creates a copy of
-   the code under your account on the GitHub server.
+#. Fork the `project repository <https://github.com/matplotlib/matplotlib>`_ by
+   clicking on the :octicon:`repo-forked` **Fork** button near the top of the page.
+   This creates a copy of the code under your account on the GitHub server.
 
-.. tab-set::
+#. Set up a development environment:
 
-    .. tab-item:: Local development
+   .. tab-set::
 
-        3. Clone this copy to your local disk::
+      .. tab-item:: Local development
 
-             git clone https://github.com/<YOUR GITHUB USERNAME>/matplotlib.git
+          Clone this copy to your local disk::
 
-    .. tab-item:: Using GitHub Codespaces
+            git clone https://github.com/<YOUR GITHUB USERNAME>/matplotlib.git
 
-        3. Check out the Matplotlib repository and activate your development
-           environment:
+      .. tab-item:: Using GitHub Codespaces
 
-           * Open codespaces on your fork by clicking on the green "Code" button
+          Check out the Matplotlib repository and activate your development environment:
+
+          #. Open codespaces on your fork by clicking on the green "Code" button
              on the GitHub web interface and selecting the "Codespaces" tab.
-           * Next, click on "Open codespaces on <your branch name>". You will be
+
+          #. Next, click on "Open codespaces on <your branch name>". You will be
              able to change branches later, so you can select the default
              ``main`` branch.
-           * After the codespace is created, you will be taken to a new browser
+
+          #. After the codespace is created, you will be taken to a new browser
              tab where you can use the terminal to activate a pre-defined conda
              environment called ``mpl-dev``::
 
-               conda activate mpl-dev
+              conda activate mpl-dev
 
 
+#. Install the local version of Matplotlib with::
 
-4. Install the local version of Matplotlib with::
-
-     python -m pip install -e .
+     python -m pip install --no-build-isolation --editable .[dev]
 
    See :ref:`installing_for_devs` for detailed instructions.
 
-5. Create a branch to hold your changes::
+#. Create a branch to hold your changes::
 
      git checkout -b my-feature origin/main
 
    and start making changes. Never work in the ``main`` branch!
 
-6. Work on this task using Git to do the version control. Codespaces persist for
+#. Work on this task using Git to do the version control. Codespaces persist for
    some time (check the `documentation for details
    <https://docs.github.com/codespaces/getting-started/the-codespace-lifecycle>`_)
    and can be managed on https://github.com/codespaces. When you're done editing
@@ -287,25 +387,19 @@ A brief overview of the workflow is as follows.
 
      git push -u origin my-feature
 
-Finally, go to the web page of your fork of the Matplotlib repo, and click
-'Pull request' to send your changes to the maintainers for review.
-
-For more detailed instructions on how to set up Matplotlib for development and
-best practices for contribution, see :ref:`installing_for_devs`.
-
 GitHub Codespaces workflows
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * If you need to open a GUI window with Matplotlib output on Codespaces, our
   configuration includes a `light-weight Fluxbox-based desktop
   <https://github.com/devcontainers/features/tree/main/src/desktop-lite>`_.
   You can use it by connecting to this desktop via your web browser. To do this:
 
-  1. Press ``F1`` or ``Ctrl/Cmd+Shift+P`` and select
+  #. Press ``F1`` or ``Ctrl/Cmd+Shift+P`` and select
      ``Ports: Focus on Ports View`` in the VSCode session to bring it into
      focus. Open the ports view in your tool, select the ``noVNC`` port, and
      click the Globe icon.
-  2. In the browser that appears, click the Connect button and enter the desktop
+  #. In the browser that appears, click the Connect button and enter the desktop
      password (``vscode`` by default).
 
   Check the `GitHub instructions
@@ -317,366 +411,16 @@ GitHub Codespaces workflows
   extension. Locate the ``doc/build/html`` folder in the Explorer, right click
   the file you want to open and select "Open with Live Server."
 
-.. _contributing_documentation:
 
-Contribute documentation
-========================
-
-You as an end-user of Matplotlib can make a valuable contribution because you
-more clearly see the potential for improvement than a core developer. For example, you can:
-
-- Fix a typo
-- Clarify a docstring
-- Write or update an :ref:`example plot <gallery>`
-- Write or update a comprehensive :ref:`tutorial <tutorials>`
-
-The documentation source files live in the same GitHub repository as the code.
-Contributions are proposed and accepted through the pull request process.
-For details see :ref:`how-to-contribute`.
-
-If you have trouble getting started, you may instead open an `issue`_
-describing the intended improvement.
-
-.. _issue: https://github.com/matplotlib/matplotlib/issues
-
-.. seealso::
-  * :ref:`documenting-matplotlib`
-
-.. _other_ways_to_contribute:
-
-Other ways to contribute
-========================
-
-It also helps us if you spread the word: reference the project from your blog
-and articles or link to it from your website!  If Matplotlib contributes to a
-project that leads to a scientific publication, please follow the
-:doc:`/users/project/citing` guidelines.
-
-.. _coding_guidelines:
-
-Coding guidelines
-=================
-
-API changes
------------
-
-API consistency and stability are of great value. Therefore, API changes
-(e.g. signature changes, behavior changes, removals) will only be conducted
-if the added benefit is worth the user effort for adapting.
-
-Because we are a visualization library our primary output is the final
-visualization the user sees.  Thus it is our :ref:`long standing
-<color_changes>` policy that the appearance of the figure is part of the API
-and any changes, either semantic or esthetic, will be treated as a
-backwards-incompatible API change.
-
-API changes in Matplotlib have to be performed following the deprecation process
-below, except in very rare circumstances as deemed necessary by the development team.
-This ensures that users are notified before the change will take effect and thus
-prevents unexpected breaking of code.
-
-Rules
-~~~~~
-
-- Deprecations are targeted at the next point.release (e.g. 3.x)
-- Deprecated API is generally removed two point-releases after introduction
-  of the deprecation. Longer deprecations can be imposed by core developers on
-  a case-by-case basis to give more time for the transition
-- The old API must remain fully functional during the deprecation period
-- If alternatives to the deprecated API exist, they should be available
-  during the deprecation period
-- If in doubt, decisions about API changes are finally made by the
-  API consistency lead developer
-
-Introducing
-~~~~~~~~~~~
-
-1. Announce the deprecation in a new file
-   :file:`doc/api/next_api_changes/deprecations/99999-ABC.rst` where ``99999``
-   is the pull request number and ``ABC`` are the contributor's initials.
-2. If possible, issue a `~matplotlib.MatplotlibDeprecationWarning` when the
-   deprecated API is used. There are a number of helper tools for this:
-
-   - Use ``_api.warn_deprecated()`` for general deprecation warnings
-   - Use the decorator ``@_api.deprecated`` to deprecate classes, functions,
-     methods, or properties
-   - Use ``@_api.deprecate_privatize_attribute`` to annotate deprecation of
-     attributes while keeping the internal private version.
-   - To warn on changes of the function signature, use the decorators
-     ``@_api.delete_parameter``, ``@_api.rename_parameter``, and
-     ``@_api.make_keyword_only``
-
-   All these helpers take a first parameter *since*, which should be set to
-   the next point release, e.g. "3.x".
-
-   You can use standard rst cross references in *alternative*.
-
-3. Make appropriate changes to the type hints in the associated ``.pyi`` file.
-   The general guideline is to match runtime reported behavior.
-
-   - Items marked with ``@_api.deprecated`` or ``@_api.deprecate_privatize_attribute``
-     are generally kept during the expiry period, and thus no changes are needed on
-     introduction.
-   - Items decorated with ``@_api.rename_parameter`` or ``@_api.make_keyword_only``
-     report the *new* (post deprecation) signature at runtime, and thus *should* be
-     updated on introduction.
-   - Items decorated with ``@_api.delete_parameter`` should include a default value hint
-     for the deleted parameter, even if it did not previously have one (e.g.
-     ``param: <type> = ...``). Even so, the decorator changes the default value to a
-     sentinel value which should not be included in the type stub. Thus, Mypy Stubtest
-     needs to be informed of the inconsistency by placing the method into
-     :file:`ci/mypy-stubtest-allowlist.txt` under a heading indicating the deprecation
-     version number.
-
-Expiring
-~~~~~~~~
-
-1. Announce the API changes in a new file
-   :file:`doc/api/next_api_changes/[kind]/99999-ABC.rst` where ``99999``
-   is the pull request number and ``ABC`` are the contributor's initials, and
-   ``[kind]`` is one of the folders :file:`behavior`, :file:`development`,
-   :file:`removals`. See :file:`doc/api/next_api_changes/README.rst` for more
-   information. For the content, you can usually copy the deprecation notice
-   and adapt it slightly.
-2. Change the code functionality and remove any related deprecation warnings.
-3. Make appropriate changes to the type hints in the associated ``.pyi`` file.
-
-   - Items marked with ``@_api.deprecated`` or ``@_api.deprecate_privatize_attribute``
-     are to be removed on expiry.
-   - Items decorated with ``@_api.rename_parameter`` or ``@_api.make_keyword_only``
-     will have been updated at introduction, and require no change now.
-   - Items decorated with ``@_api.delete_parameter`` will need to be updated to the
-     final signature, in the same way as the ``.py`` file signature is updated.
-     The entry in :file:`ci/mypy-stubtest-allowlist.txt` should be removed.
-   - Any other entries in :file:`ci/mypy-stubtest-allowlist.txt` under a version's
-     deprecations should be double checked, as only ``delete_parameter`` should normally
-     require that mechanism for deprecation. For removed items that were not in the stub
-     file, only deleting from the allowlist is required.
-
-Adding new API
---------------
-
-Every new function, parameter and attribute that is not explicitly marked as
-private (i.e., starts with an underscore) becomes part of Matplotlib's public
-API. As discussed above, changing the existing API is cumbersome. Therefore,
-take particular care when adding new API:
-
-- Mark helper functions and internal attributes as private by prefixing them
-  with an underscore.
-- Carefully think about good names for your functions and variables.
-- Try to adopt patterns and naming conventions from existing parts of the
-  Matplotlib API.
-- Consider making as many arguments keyword-only as possible. See also
-  `API Evolution the Right Way -- Add Parameters Compatibly`__.
-
-  __ https://emptysqua.re/blog/api-evolution-the-right-way/#adding-parameters
-
-
-New modules and files: installation
------------------------------------
-
-* If you have added new files or directories, or reorganized existing
-  ones, make sure the new files are included in the match patterns in
-  in *package_data* in :file:`setupext.py`.
-* New modules *may* be typed inline or using parallel stub file like existing modules.
-
-C/C++ extensions
-----------------
-
-* Extensions may be written in C or C++.
-
-* Code style should conform to PEP7 (understanding that PEP7 doesn't
-  address C++, but most of its admonitions still apply).
-
-* Python/C interface code should be kept separate from the core C/C++
-  code.  The interface code should be named :file:`FOO_wrap.cpp` or
-  :file:`FOO_wrapper.cpp`.
-
-* Header file documentation (aka docstrings) should be in Numpydoc
-  format.  We don't plan on using automated tools for these
-  docstrings, and the Numpydoc format is well understood in the
-  scientific Python community.
-
-* C/C++ code in the :file:`extern/` directory is vendored, and should be kept
-  close to upstream whenever possible.  It can be modified to fix bugs or
-  implement new features only if the required changes cannot be made elsewhere
-  in the codebase.  In particular, avoid making style fixes to it.
-
-.. _keyword-argument-processing:
-
-Keyword argument processing
----------------------------
-
-Matplotlib makes extensive use of ``**kwargs`` for pass-through customizations
-from one function to another.  A typical example is
-`~matplotlib.axes.Axes.text`.  The definition of `matplotlib.pyplot.text` is a
-simple pass-through to `matplotlib.axes.Axes.text`::
-
-  # in pyplot.py
-  def text(x, y, s, fontdict=None, **kwargs):
-      return gca().text(x, y, s, fontdict=fontdict, **kwargs)
-
-`matplotlib.axes.Axes.text` (simplified for illustration) just
-passes all ``args`` and ``kwargs`` on to ``matplotlib.text.Text.__init__``::
-
-  # in axes/_axes.py
-  def text(self, x, y, s, fontdict=None, **kwargs):
-      t = Text(x=x, y=y, text=s, **kwargs)
-
-and ``matplotlib.text.Text.__init__`` (again, simplified)
-just passes them on to the `matplotlib.artist.Artist.update` method::
-
-  # in text.py
-  def __init__(self, x=0, y=0, text='', **kwargs):
-      super().__init__()
-      self.update(kwargs)
-
-``update`` does the work looking for methods named like
-``set_property`` if ``property`` is a keyword argument.  i.e., no one
-looks at the keywords, they just get passed through the API to the
-artist constructor which looks for suitably named methods and calls
-them with the value.
-
-As a general rule, the use of ``**kwargs`` should be reserved for
-pass-through keyword arguments, as in the example above.  If all the
-keyword args are to be used in the function, and not passed
-on, use the key/value keyword args in the function definition rather
-than the ``**kwargs`` idiom.
-
-In some cases, you may want to consume some keys in the local
-function, and let others pass through.  Instead of popping arguments to
-use off ``**kwargs``, specify them as keyword-only arguments to the local
-function.  This makes it obvious at a glance which arguments will be
-consumed in the function.  For example, in
-:meth:`~matplotlib.axes.Axes.plot`, ``scalex`` and ``scaley`` are
-local arguments and the rest are passed on as
-:meth:`~matplotlib.lines.Line2D` keyword arguments::
-
-  # in axes/_axes.py
-  def plot(self, *args, scalex=True, scaley=True, **kwargs):
-      lines = []
-      for line in self._get_lines(*args, **kwargs):
-          self.add_line(line)
-          lines.append(line)
-
-.. _using_logging:
-
-Using logging for debug messages
---------------------------------
-
-Matplotlib uses the standard Python `logging` library to write verbose
-warnings, information, and debug messages. Please use it! In all those places
-you write `print` calls to do your debugging, try using `logging.debug`
-instead!
-
-
-To include `logging` in your module, at the top of the module, you need to
-``import logging``.  Then calls in your code like::
-
-  _log = logging.getLogger(__name__)  # right after the imports
-
-  # code
-  # more code
-  _log.info('Here is some information')
-  _log.debug('Here is some more detailed information')
-
-will log to a logger named ``matplotlib.yourmodulename``.
-
-If an end-user of Matplotlib sets up `logging` to display at levels more
-verbose than ``logging.WARNING`` in their code with the Matplotlib-provided
-helper::
-
-  plt.set_loglevel("debug")
-
-or manually with ::
-
-  import logging
-  logging.basicConfig(level=logging.DEBUG)
-  import matplotlib.pyplot as plt
-
-Then they will receive messages like
-
-.. code-block:: none
-
-   DEBUG:matplotlib.backends:backend MacOSX version unknown
-   DEBUG:matplotlib.yourmodulename:Here is some information
-   DEBUG:matplotlib.yourmodulename:Here is some more detailed information
-
-Avoid using pre-computed strings (``f-strings``, ``str.format``,etc.) for logging because
-of security and performance issues, and because they interfere with style handlers. For
-example, use ``_log.error('hello %s', 'world')``  rather than ``_log.error('hello
-{}'.format('world'))`` or ``_log.error(f'hello {s}')``.
-
-Which logging level to use?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-There are five levels at which you can emit messages.
-
-- `logging.critical` and `logging.error` are really only there for errors that
-  will end the use of the library but not kill the interpreter.
-- `logging.warning` and `._api.warn_external` are used to warn the user,
-  see below.
-- `logging.info` is for information that the user may want to know if the
-  program behaves oddly. They are not displayed by default. For instance, if
-  an object isn't drawn because its position is ``NaN``, that can usually
-  be ignored, but a mystified user could call
-  ``logging.basicConfig(level=logging.INFO)`` and get an error message that
-  says why.
-- `logging.debug` is the least likely to be displayed, and hence can be the
-  most verbose.  "Expected" code paths (e.g., reporting normal intermediate
-  steps of layouting or rendering) should only log at this level.
-
-By default, `logging` displays all log messages at levels higher than
-``logging.WARNING`` to `sys.stderr`.
-
-The `logging tutorial`_ suggests that the difference between `logging.warning`
-and `._api.warn_external` (which uses `warnings.warn`) is that
-`._api.warn_external` should be used for things the user must change to stop
-the warning (typically in the source), whereas `logging.warning` can be more
-persistent. Moreover, note that `._api.warn_external` will by default only
-emit a given warning *once* for each line of user code, whereas
-`logging.warning` will display the message every time it is called.
-
-By default, `warnings.warn` displays the line of code that has the ``warn``
-call. This usually isn't more informative than the warning message itself.
-Therefore, Matplotlib uses `._api.warn_external` which uses `warnings.warn`,
-but goes up the stack and displays the first line of code outside of
-Matplotlib. For example, for the module::
-
-    # in my_matplotlib_module.py
-    import warnings
-
-    def set_range(bottom, top):
-        if bottom == top:
-            warnings.warn('Attempting to set identical bottom==top')
-
-running the script::
-
-    from matplotlib import my_matplotlib_module
-    my_matplotlib_module.set_range(0, 0)  # set range
-
-will display
-
-.. code-block:: none
-
-    UserWarning: Attempting to set identical bottom==top
-    warnings.warn('Attempting to set identical bottom==top')
-
-Modifying the module to use `._api.warn_external`::
-
-    from matplotlib import _api
-
-    def set_range(bottom, top):
-        if bottom == top:
-            _api.warn_external('Attempting to set identical bottom==top')
-
-and running the same script will display
-
-.. code-block:: none
-
-   UserWarning: Attempting to set identical bottom==top
-   my_matplotlib_module.set_range(0, 0)  # set range
-
-.. _logging tutorial: https://docs.python.org/3/howto/logging.html#logging-basic-tutorial
-.. _gitter: https://gitter.im/matplotlib/matplotlib
-.. _community: https://gitter.im/matplotlib/community
+Open a pull request on Matplotlib
+---------------------------------
+
+Finally, go to the web page of *your fork* of the Matplotlib repo, and click
+**Compare & pull request** to send your changes to the maintainers for review.
+The base repository is ``matplotlib/matplotlib`` and the base branch is
+generally ``main``. For more guidance, see GitHub's `pull request tutorial
+<https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork>`_.
+
+For more detailed instructions on how to set up Matplotlib for development and
+best practices for contribution, see :ref:`installing_for_devs` and
+:ref:`development-workflow`.

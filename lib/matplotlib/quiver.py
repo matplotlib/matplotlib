@@ -72,7 +72,7 @@ U, V : 1D or 2D array-like
     of these components (in data or in screen space) depends on *angles*.
 
     *U* and *V* must have the same number of elements, matching the number of
-    arrow locations in  *X*, *Y*. *U* and *V* may be masked. Locations masked
+    arrow locations in *X*, *Y*. *U* and *V* may be masked. Locations masked
     in any of *U*, *V*, and *C* will not be drawn.
 
 C : 1D or 2D array-like, optional
@@ -90,7 +90,7 @@ angles : {'uv', 'xy'} or array-like, default: 'uv'
       symbolize a quantity that is not based on *X*, *Y* data coordinates.
 
       If *U* == *V* the orientation of the arrow on the plot is 45 degrees
-      counter-clockwise from the  horizontal axis (positive to the right).
+      counter-clockwise from the horizontal axis (positive to the right).
 
     - 'xy': Arrow direction in data coordinates, i.e. the arrows point from
       (x, y) to (x+u, y+v). Use this e.g. for plotting a gradient field.
@@ -179,7 +179,7 @@ minlength : float, default: 1
     Minimum length as a multiple of shaft width; if an arrow length
     is less than this, plot a dot (hexagon) of this diameter instead.
 
-color : color or color sequence, optional
+color : :mpltype:`color` or list :mpltype:`color`, optional
     Explicit color(s) for the arrows. If *C* has been set, *color* has no
     effect.
 
@@ -263,7 +263,7 @@ class QuiverKey(martist.Artist):
             The key label (e.g., length and units of the key).
         angle : float, default: 0
             The angle of the key arrow, in degrees anti-clockwise from the
-            x-axis.
+            horizontal axis.
         coordinates : {'axes', 'figure', 'data', 'inches'}, default: 'axes'
             Coordinate system and units for *X*, *Y*: 'axes' and 'figure' are
             normalized coordinate systems with (0, 0) in the lower left and
@@ -271,14 +271,14 @@ class QuiverKey(martist.Artist):
             (used for the locations of the vectors in the quiver plot itself);
             'inches' is position in the figure in inches, with (0, 0) at the
             lower left corner.
-        color : color
+        color : :mpltype:`color`
             Overrides face and edge colors from *Q*.
         labelpos : {'N', 'S', 'E', 'W'}
             Position the label above, below, to the right, to the left of the
             arrow, respectively.
         labelsep : float, default: 0.1
             Distance in inches between the arrow and the label.
-        labelcolor : color, default: :rc:`text.color`
+        labelcolor : :mpltype:`color`, default: :rc:`text.color`
             Label color.
         fontproperties : dict, optional
             A dictionary with keyword arguments accepted by the
@@ -327,10 +327,8 @@ class QuiverKey(martist.Artist):
                                    Umask=ma.nomask):
                 u = self.U * np.cos(np.radians(self.angle))
                 v = self.U * np.sin(np.radians(self.angle))
-                angle = (self.Q.angles if isinstance(self.Q.angles, str)
-                         else 'uv')
-                self.verts = self.Q._make_verts(
-                    np.array([u]), np.array([v]), angle)
+                self.verts = self.Q._make_verts([[0., 0.]],
+                                                np.array([u]), np.array([v]), 'uv')
             kwargs = self.Q.polykw
             kwargs.update(self.kw)
             self.vector = mcollections.PolyCollection(
@@ -521,7 +519,7 @@ class Quiver(mcollections.PolyCollection):
             # _make_verts sets self.scale if not already specified
             if (self._dpi_at_last_init != self.axes.figure.dpi
                     and self.scale is None):
-                self._make_verts(self.U, self.V, self.angles)
+                self._make_verts(self.XY, self.U, self.V, self.angles)
 
             self._dpi_at_last_init = self.axes.figure.dpi
 
@@ -537,7 +535,7 @@ class Quiver(mcollections.PolyCollection):
     @martist.allow_rasterization
     def draw(self, renderer):
         self._init()
-        verts = self._make_verts(self.U, self.V, self.angles)
+        verts = self._make_verts(self.XY, self.U, self.V, self.angles)
         self.set_verts(verts, closed=False)
         super().draw(renderer)
         self.stale = False
@@ -594,33 +592,38 @@ class Quiver(mcollections.PolyCollection):
         self.set_transform(trans)
         return trans
 
-    def _angles_lengths(self, U, V, eps=1):
-        xy = self.axes.transData.transform(self.XY)
+    # Calculate angles and lengths for segment between (x, y), (x+u, y+v)
+    def _angles_lengths(self, XY, U, V, eps=1):
+        xy = self.axes.transData.transform(XY)
         uv = np.column_stack((U, V))
-        xyp = self.axes.transData.transform(self.XY + eps * uv)
+        xyp = self.axes.transData.transform(XY + eps * uv)
         dxy = xyp - xy
         angles = np.arctan2(dxy[:, 1], dxy[:, 0])
         lengths = np.hypot(*dxy.T) / eps
         return angles, lengths
 
-    def _make_verts(self, U, V, angles):
+    # XY is stacked [X, Y].
+    # See quiver() doc for meaning of X, Y, U, V, angles.
+    def _make_verts(self, XY, U, V, angles):
         uv = (U + V * 1j)
         str_angles = angles if isinstance(angles, str) else ''
         if str_angles == 'xy' and self.scale_units == 'xy':
             # Here eps is 1 so that if we get U, V by diffing
             # the X, Y arrays, the vectors will connect the
             # points, regardless of the axis scaling (including log).
-            angles, lengths = self._angles_lengths(U, V, eps=1)
+            angles, lengths = self._angles_lengths(XY, U, V, eps=1)
         elif str_angles == 'xy' or self.scale_units == 'xy':
             # Calculate eps based on the extents of the plot
             # so that we don't end up with roundoff error from
             # adding a small number to a large.
             eps = np.abs(self.axes.dataLim.extents).max() * 0.001
-            angles, lengths = self._angles_lengths(U, V, eps=eps)
+            angles, lengths = self._angles_lengths(XY, U, V, eps=eps)
+
         if str_angles and self.scale_units == 'xy':
             a = lengths
         else:
             a = np.abs(uv)
+
         if self.scale is None:
             sn = max(10, math.sqrt(self.N))
             if self.Umask is not ma.nomask:
@@ -630,6 +633,7 @@ class Quiver(mcollections.PolyCollection):
             # crude auto-scaling
             # scale is typical arrow length as a multiple of the arrow width
             scale = 1.8 * amean * sn / self.span
+
         if self.scale_units is None:
             if self.scale is None:
                 self.scale = scale
@@ -721,8 +725,6 @@ class Quiver(mcollections.PolyCollection):
         # Mask handling is deferred to the caller, _make_verts.
         return X, Y
 
-    quiver_doc = _api.deprecated("3.7")(property(lambda self: _quiver_doc))
-
 
 _barbs_doc = r"""
 Plot a 2D field of barbs.
@@ -794,12 +796,12 @@ pivot : {'tip', 'middle'} or float, default: 'tip'
     rotates about this point. This can also be a number, which shifts the
     start of the barb that many points away from grid point.
 
-barbcolor : color or color sequence
+barbcolor : :mpltype:`color` or color sequence
     The color of all parts of the barb except for the flags.  This parameter
     is analogous to the *edgecolor* parameter for polygons, which can be used
     instead. However this parameter will override facecolor.
 
-flagcolor : color or color sequence
+flagcolor : :mpltype:`color` or color sequence
     The color of any flags on the barb.  This parameter is analogous to the
     *facecolor* parameter for polygons, which can be used instead. However,
     this parameter will override facecolor.  If this is not set (and *C* has
@@ -1177,5 +1179,3 @@ class Barbs(mcollections.PolyCollection):
         xy = np.column_stack((x, y))
         super().set_offsets(xy)
         self.stale = True
-
-    barbs_doc = _api.deprecated("3.7")(property(lambda self: _barbs_doc))

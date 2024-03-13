@@ -2132,10 +2132,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 lastx, lasty = x, y
         output(Op.grestore)
 
-    def draw_gouraud_triangle(self, gc, points, colors, trans):
-        self.draw_gouraud_triangles(gc, points.reshape((1, 3, 2)),
-                                    colors.reshape((1, 3, 4)), trans)
-
     def draw_gouraud_triangles(self, gc, points, colors, trans):
         assert len(points) == len(colors)
         if len(points) == 0:
@@ -2382,8 +2378,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             multibyte_glyphs = []
             prev_was_multibyte = True
             prev_font = font
-            for item in _text_helpers.layout(
-                    s, font, kern_mode=KERNING_UNFITTED):
+            for item in _text_helpers.layout(s, font, kern_mode=KERNING_UNFITTED):
                 if _font_supports_glyph(fonttype, ord(item.char)):
                     if prev_was_multibyte or item.ft_object != prev_font:
                         singlebyte_chunks.append((item.ft_object, item.x, []))
@@ -2393,9 +2388,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                     singlebyte_chunks[-1][2].append(item.char)
                     prev_was_multibyte = False
                 else:
-                    multibyte_glyphs.append(
-                        (item.ft_object, item.x, item.glyph_idx)
-                    )
+                    multibyte_glyphs.append((item.ft_object, item.x, item.glyph_idx))
                     prev_was_multibyte = True
             # Do the rotation and global translation as a single matrix
             # concatenation up front
@@ -2732,7 +2725,7 @@ class PdfPages:
             _api.warn_deprecated("3.8", message=(
                 "Keeping empty pdf files is deprecated since %(since)s and support "
                 "will be removed %(removal)s."))
-            PdfFile(self._filename, metadata=self._metadata)  # touch the file.
+            PdfFile(self._filename, metadata=self._metadata).close()  # touch the file.
 
     def infodict(self):
         """
@@ -2762,8 +2755,7 @@ class PdfPages:
                 raise ValueError(f"No figure {figure}")
             figure = manager.canvas.figure
         # Force use of pdf backend, as PdfPages is tightly coupled with it.
-        with cbook._setattr_cm(figure, canvas=FigureCanvasPdf(figure)):
-            figure.savefig(self, format="pdf", **kwargs)
+        figure.savefig(self, format="pdf", backend="pdf", **kwargs)
 
     def get_pagecount(self):
         """Return the current number of pages in the multipage pdf file."""

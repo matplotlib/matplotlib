@@ -1,9 +1,9 @@
 """
-========
-Psd Demo
-========
+============================
+Power spectral density (PSD)
+============================
 
-Plotting Power Spectral Density (PSD) in Matplotlib.
+Plotting power spectral density (PSD) using `~.Axes.psd`.
 
 The PSD is a common plot in the field of signal processing. NumPy has
 many useful libraries for computing a PSD. Below we demo a few examples
@@ -26,8 +26,10 @@ cnse = np.convolve(nse, r) * dt
 cnse = cnse[:len(t)]
 s = 0.1 * np.sin(2 * np.pi * t) + cnse
 
-fig, (ax0, ax1) = plt.subplots(2, 1)
+fig, (ax0, ax1) = plt.subplots(2, 1, layout='constrained')
 ax0.plot(t, s)
+ax0.set_xlabel('Time (s)')
+ax0.set_ylabel('Signal')
 ax1.psd(s, 512, 1 / dt)
 
 plt.show()
@@ -64,8 +66,8 @@ fig, axs = plt.subplot_mosaic([
 ], layout='constrained')
 
 axs['signal'].plot(t, y)
-axs['signal'].set_xlabel('time [s]')
-axs['signal'].set_ylabel('signal')
+axs['signal'].set_xlabel('Time (s)')
+axs['signal'].set_ylabel('Signal')
 
 # Plot the PSD with different amounts of zero padding. This uses the entire
 # time series at once

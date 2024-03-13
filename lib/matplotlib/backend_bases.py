@@ -35,6 +35,8 @@ import io
 import itertools
 import logging
 import os
+import signal
+import socket
 import sys
 import time
 import weakref
@@ -89,32 +91,6 @@ _default_backends = {
     'tiff': 'matplotlib.backends.backend_agg',
     'webp': 'matplotlib.backends.backend_agg',
 }
-
-
-def _safe_pyplot_import():
-    """
-    Import and return ``pyplot``, correctly setting the backend if one is
-    already forced.
-    """
-    try:
-        import matplotlib.pyplot as plt
-    except ImportError:  # Likely due to a framework mismatch.
-        current_framework = cbook._get_running_interactive_framework()
-        if current_framework is None:
-            raise  # No, something else went wrong, likely with the install...
-        backend_mapping = {
-            'qt': 'qtagg',
-            'gtk3': 'gtk3agg',
-            'gtk4': 'gtk4agg',
-            'wx': 'wxagg',
-            'tk': 'tkagg',
-            'macosx': 'macosx',
-            'headless': 'agg',
-        }
-        backend = backend_mapping[current_framework]
-        rcParams["backend"] = mpl.rcParamsOrig["backend"] = backend
-        import matplotlib.pyplot as plt  # Now this should succeed.
-    return plt
 
 
 def register_backend(format, backend, description=None):
@@ -208,10 +184,15 @@ class RendererBase:
         ----------
         gc : `.GraphicsContextBase`
             The graphics context.
+        marker_path : `~matplotlib.path.Path`
+            The path for the marker.
         marker_trans : `~matplotlib.transforms.Transform`
             An affine transform applied to the marker.
+        path : `~matplotlib.path.Path`
+            The locations to draw the markers.
         trans : `~matplotlib.transforms.Transform`
             An affine transform applied to the path.
+        rgbFace : :mpltype:`color`, optional
         """
         for vertices, codes in path.iter_segments(trans, simplify=False):
             if len(vertices):
@@ -286,24 +267,6 @@ class RendererBase:
         return self.draw_path_collection(
             gc, master_transform, paths, [], offsets, offsetTrans, facecolors,
             edgecolors, linewidths, [], [antialiased], [None], 'screen')
-
-    @_api.deprecated("3.7", alternative="draw_gouraud_triangles")
-    def draw_gouraud_triangle(self, gc, points, colors, transform):
-        """
-        Draw a Gouraud-shaded triangle.
-
-        Parameters
-        ----------
-        gc : `.GraphicsContextBase`
-            The graphics context.
-        points : (3, 2) array-like
-            Array of (x, y) points for the triangle.
-        colors : (3, 4) array-like
-            RGBA colors for each point of the triangle.
-        transform : `~matplotlib.transforms.Transform`
-            An affine transform to apply to the points.
-        """
-        raise NotImplementedError
 
     def draw_gouraud_triangles(self, gc, triangles_array, colors_array,
                                transform):
@@ -967,7 +930,7 @@ class GraphicsContextBase:
 
         Parameters
         ----------
-        fg : color
+        fg : :mpltype:`color`
         isRGBA : bool
             If *fg* is known to be an ``(r, g, b, a)`` tuple, *isRGBA* can be
             set to True to improve performance.
@@ -1116,10 +1079,10 @@ class TimerBase:
             The time between timer events in milliseconds.  Will be stored as
             ``timer.interval``.
         callbacks : list[tuple[callable, tuple, dict]]
-            List of (func, args, kwargs) tuples that will be called upon
-            timer events.  This list is accessible as ``timer.callbacks`` and
-            can be manipulated directly, or the functions `add_callback` and
-            `remove_callback` can be used.
+            List of (func, args, kwargs) tuples that will be called upon timer
+            events.  This list is accessible as ``timer.callbacks`` and can be
+            manipulated directly, or the functions `~.TimerBase.add_callback`
+            and `~.TimerBase.remove_callback` can be used.
         """
         self.callbacks = [] if callbacks is None else callbacks.copy()
         # Set .interval and not ._interval to go through the property setter.
@@ -1130,6 +1093,7 @@ class TimerBase:
         """Need to stop timer and possibly disconnect timer."""
         self._timer_stop()
 
+    @_api.delete_parameter("3.9", "interval", alternative="timer.interval")
     def start(self, interval=None):
         """
         Start the timer object.
@@ -1590,7 +1554,7 @@ def _mouse_handler(event):
             if last_axes is not None:
                 # Create a synthetic LocationEvent for the axes_leave_event.
                 # Its inaxes attribute needs to be manually set (because the
-                # cursor is actually *out* of that axes at that point); this is
+                # cursor is actually *out* of that Axes at that point); this is
                 # done with the internal _set_inaxes method which ensures that
                 # the xdata and ydata attributes are also correct.
                 try:
@@ -1661,6 +1625,64 @@ def _is_non_interactive_terminal_ipython(ip):
     return (hasattr(ip, 'parent')
             and (ip.parent is not None)
             and getattr(ip.parent, 'interact', None) is False)
+
+
+@contextmanager
+def _allow_interrupt(prepare_notifier, handle_sigint):
+    """
+    A context manager that allows terminating a plot by sending a SIGINT.  It
+    is necessary because the running backend prevents the Python interpreter
+    from running and processing signals (i.e., to raise a KeyboardInterrupt).
+    To solve this, one needs to somehow wake up the interpreter and make it
+    close the plot window.  We do this by using the signal.set_wakeup_fd()
+    function which organizes a write of the signal number into a socketpair.
+    A backend-specific function, *prepare_notifier*, arranges to listen to
+    the pair's read socket while the event loop is running.  (If it returns a
+    notifier object, that object is kept alive while the context manager runs.)
+
+    If SIGINT was indeed caught, after exiting the on_signal() function the
+    interpreter reacts to the signal according to the handler function which
+    had been set up by a signal.signal() call; here, we arrange to call the
+    backend-specific *handle_sigint* function.  Finally, we call the old SIGINT
+    handler with the same arguments that were given to our custom handler.
+
+    We do this only if the old handler for SIGINT was not None, which means
+    that a non-python handler was installed, i.e. in Julia, and not SIG_IGN
+    which means we should ignore the interrupts.
+
+    Parameters
+    ----------
+    prepare_notifier : Callable[[socket.socket], object]
+    handle_sigint : Callable[[], object]
+    """
+
+    old_sigint_handler = signal.getsignal(signal.SIGINT)
+    if old_sigint_handler in (None, signal.SIG_IGN, signal.SIG_DFL):
+        yield
+        return
+
+    handler_args = None
+    wsock, rsock = socket.socketpair()
+    wsock.setblocking(False)
+    rsock.setblocking(False)
+    old_wakeup_fd = signal.set_wakeup_fd(wsock.fileno())
+    notifier = prepare_notifier(rsock)
+
+    def save_args_and_handle_sigint(*args):
+        nonlocal handler_args
+        handler_args = args
+        handle_sigint()
+
+    signal.signal(signal.SIGINT, save_args_and_handle_sigint)
+    try:
+        yield
+    finally:
+        wsock.close()
+        rsock.close()
+        signal.set_wakeup_fd(old_wakeup_fd)
+        signal.signal(signal.SIGINT, old_sigint_handler)
+        if handler_args is not None:
+            old_sigint_handler(*handler_args)
 
 
 class FigureCanvasBase:
@@ -2063,11 +2085,11 @@ class FigureCanvasBase:
         dpi : float, default: :rc:`savefig.dpi`
             The dots per inch to save the figure in.
 
-        facecolor : color or 'auto', default: :rc:`savefig.facecolor`
+        facecolor : :mpltype:`color` or 'auto', default: :rc:`savefig.facecolor`
             The facecolor of the figure.  If 'auto', use the current figure
             facecolor.
 
-        edgecolor : color or 'auto', default: :rc:`savefig.edgecolor`
+        edgecolor : :mpltype:`color` or 'auto', default: :rc:`savefig.edgecolor`
             The edgecolor of the figure.  If 'auto', use the current figure
             edgecolor.
 
@@ -2117,6 +2139,12 @@ class FigureCanvasBase:
             dpi = rcParams['savefig.dpi']
         if dpi == 'figure':
             dpi = getattr(self.figure, '_original_dpi', self.figure.dpi)
+
+        if kwargs.get("papertype") == 'auto':
+            # When deprecation elapses, remove backend_ps._get_papertype & its callers.
+            _api.warn_deprecated(
+                "3.8", name="papertype='auto'", addendum="Pass an explicit paper type, "
+                "'figure', or omit the *papertype* argument entirely.")
 
         # Remove the figure manager, if any, to avoid resizing the GUI widget.
         with cbook._setattr_cm(self, manager=None), \
@@ -2398,8 +2426,6 @@ def key_press_handler(event, canvas=None, toolbar=None):
         back-compatibility, but, if set, should always be equal to
         ``event.canvas.toolbar``.
     """
-    # these bindings happen whether you are over an Axes or not
-
     if event.key is None:
         return
     if canvas is None:
@@ -2407,55 +2433,40 @@ def key_press_handler(event, canvas=None, toolbar=None):
     if toolbar is None:
         toolbar = canvas.toolbar
 
-    # Load key-mappings from rcParams.
-    fullscreen_keys = rcParams['keymap.fullscreen']
-    home_keys = rcParams['keymap.home']
-    back_keys = rcParams['keymap.back']
-    forward_keys = rcParams['keymap.forward']
-    pan_keys = rcParams['keymap.pan']
-    zoom_keys = rcParams['keymap.zoom']
-    save_keys = rcParams['keymap.save']
-    quit_keys = rcParams['keymap.quit']
-    quit_all_keys = rcParams['keymap.quit_all']
-    grid_keys = rcParams['keymap.grid']
-    grid_minor_keys = rcParams['keymap.grid_minor']
-    toggle_yscale_keys = rcParams['keymap.yscale']
-    toggle_xscale_keys = rcParams['keymap.xscale']
-
-    # toggle fullscreen mode ('f', 'ctrl + f')
-    if event.key in fullscreen_keys:
+    # toggle fullscreen mode (default key 'f', 'ctrl + f')
+    if event.key in rcParams['keymap.fullscreen']:
         try:
             canvas.manager.full_screen_toggle()
         except AttributeError:
             pass
 
     # quit the figure (default key 'ctrl+w')
-    if event.key in quit_keys:
+    if event.key in rcParams['keymap.quit']:
         Gcf.destroy_fig(canvas.figure)
-    if event.key in quit_all_keys:
+    if event.key in rcParams['keymap.quit_all']:
         Gcf.destroy_all()
 
     if toolbar is not None:
         # home or reset mnemonic  (default key 'h', 'home' and 'r')
-        if event.key in home_keys:
+        if event.key in rcParams['keymap.home']:
             toolbar.home()
         # forward / backward keys to enable left handed quick navigation
         # (default key for backward: 'left', 'backspace' and 'c')
-        elif event.key in back_keys:
+        elif event.key in rcParams['keymap.back']:
             toolbar.back()
         # (default key for forward: 'right' and 'v')
-        elif event.key in forward_keys:
+        elif event.key in rcParams['keymap.forward']:
             toolbar.forward()
         # pan mnemonic (default key 'p')
-        elif event.key in pan_keys:
+        elif event.key in rcParams['keymap.pan']:
             toolbar.pan()
             toolbar._update_cursor(event)
         # zoom mnemonic (default key 'o')
-        elif event.key in zoom_keys:
+        elif event.key in rcParams['keymap.zoom']:
             toolbar.zoom()
             toolbar._update_cursor(event)
         # saving current figure (default key 's')
-        elif event.key in save_keys:
+        elif event.key in rcParams['keymap.save']:
             toolbar.save_figure()
 
     if event.inaxes is None:
@@ -2465,19 +2476,16 @@ def key_press_handler(event, canvas=None, toolbar=None):
     def _get_uniform_gridstate(ticks):
         # Return True/False if all grid lines are on or off, None if they are
         # not all in the same state.
-        if all(tick.gridline.get_visible() for tick in ticks):
-            return True
-        elif not any(tick.gridline.get_visible() for tick in ticks):
-            return False
-        else:
-            return None
+        return (True if all(tick.gridline.get_visible() for tick in ticks) else
+                False if not any(tick.gridline.get_visible() for tick in ticks) else
+                None)
 
     ax = event.inaxes
     # toggle major grids in current Axes (default key 'g')
     # Both here and below (for 'G'), we do nothing if *any* grid (major or
     # minor, x or y) is not in a uniform state, to avoid messing up user
     # customization.
-    if (event.key in grid_keys
+    if (event.key in rcParams['keymap.grid']
             # Exclude minor grids not in a uniform state.
             and None not in [_get_uniform_gridstate(ax.xaxis.minorTicks),
                              _get_uniform_gridstate(ax.yaxis.minorTicks)]):
@@ -2496,7 +2504,7 @@ def key_press_handler(event, canvas=None, toolbar=None):
             ax.grid(y_state, which="major" if y_state else "both", axis="y")
             canvas.draw_idle()
     # toggle major and minor grids in current Axes (default key 'G')
-    if (event.key in grid_minor_keys
+    if (event.key in rcParams['keymap.grid_minor']
             # Exclude major grids not in a uniform state.
             and None not in [_get_uniform_gridstate(ax.xaxis.majorTicks),
                              _get_uniform_gridstate(ax.yaxis.majorTicks)]):
@@ -2514,7 +2522,7 @@ def key_press_handler(event, canvas=None, toolbar=None):
             ax.grid(y_state, which="both", axis="y")
             canvas.draw_idle()
     # toggle scaling of y-axes between 'log and 'linear' (default key 'l')
-    elif event.key in toggle_yscale_keys:
+    elif event.key in rcParams['keymap.yscale']:
         scale = ax.get_yscale()
         if scale == 'log':
             ax.set_yscale('linear')
@@ -2527,7 +2535,7 @@ def key_press_handler(event, canvas=None, toolbar=None):
                 ax.set_yscale('linear')
             ax.figure.canvas.draw_idle()
     # toggle scaling of x-axes between 'log and 'linear' (default key 'k')
-    elif event.key in toggle_xscale_keys:
+    elif event.key in rcParams['keymap.xscale']:
         scalex = ax.get_xscale()
         if scalex == 'log':
             ax.set_xscale('linear')
@@ -2573,9 +2581,13 @@ class FigureManagerBase:
     backend-independent way. It's an adapter for the real (GUI) framework that
     represents the visual figure on screen.
 
-    GUI backends define from this class to translate common operations such
+    The figure manager is connected to a specific canvas instance, which in turn
+    is connected to a specific figure instance. To access a figure manager for
+    a given figure in user code, you typically use ``fig.canvas.manager``.
+
+    GUI backends derive from this class to translate common operations such
     as *show* or *resize* to the GUI-specific code. Non-GUI backends do not
-    support these operations an can just use the base class.
+    support these operations and can just use the base class.
 
     This following basic operations are accessible:
 
@@ -2760,6 +2772,11 @@ class FigureManagerBase:
         Set the title text of the window containing the figure.
 
         This has no effect for non-GUI (e.g., PS) backends.
+
+        Examples
+        --------
+        >>> fig = plt.figure()
+        >>> fig.canvas.manager.set_window_title('My figure')
         """
 
 

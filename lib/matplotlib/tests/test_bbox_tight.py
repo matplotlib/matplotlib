@@ -141,8 +141,7 @@ def test_noop_tight_bbox():
     dpi = 100
     # make the figure just the right size up front
     fig = plt.figure(frameon=False, dpi=dpi, figsize=(x_size/dpi, y_size/dpi))
-    ax = plt.Axes(fig, [0., 0., 1., 1.])
-    fig.add_axes(ax)
+    ax = fig.add_axes((0, 0, 1, 1))
     ax.set_axis_off()
     ax.xaxis.set_visible(False)
     ax.yaxis.set_visible(False)

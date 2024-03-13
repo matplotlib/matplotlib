@@ -1,0 +1,3 @@
+``matplotlib.axis.Axis.set_ticklabels``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... a param was renamed to labels from ticklabels.

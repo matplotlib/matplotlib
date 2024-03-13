@@ -3,12 +3,12 @@
 Figure labels: suptitle, supxlabel, supylabel
 =============================================
 
-Each axes can have a title (or actually three - one each with *loc* "left",
+Each Axes can have a title (or actually three - one each with *loc* "left",
 "center", and "right"), but is sometimes desirable to give a whole figure
-(or `.SubFigure`) an overall title, using `.FigureBase.suptitle`.
+(or `.SubFigure`) an overall title, using `.Figure.suptitle`.
 
-We can also add figure-level x- and y-labels using `.FigureBase.supxlabel` and
-`.FigureBase.supylabel`.
+We can also add figure-level x- and y-labels using `.Figure.supxlabel` and
+`.Figure.supylabel`.
 """
 
 import matplotlib.pyplot as plt
@@ -31,8 +31,8 @@ ax2.set_title('undamped')
 fig.suptitle('Different types of oscillations', fontsize=16)
 
 # %%
-# A global x- or y-label can be set using the `.FigureBase.supxlabel` and
-# `.FigureBase.supylabel` methods.
+# A global x- or y-label can be set using the `.Figure.supxlabel` and
+# `.Figure.supylabel` methods.
 
 
 with get_sample_data('Stocks.csv') as file:

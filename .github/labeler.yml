@@ -1,0 +1,281 @@
+---
+"CI: Run cibuildwheel":
+  - changed-files:
+      - any-glob-to-any-file: ['.github/workflows/cibuildwheel.yml']
+"CI: Run cygwin":
+  - changed-files:
+      - any-glob-to-any-file: ['.github/workflows/cygwin.yml']
+
+"backend: agg":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'extern/agg24-svn/'
+          - 'lib/matplotlib/backends/_backend_agg.pyi'
+          - 'lib/matplotlib/backends/backend_agg.py*'
+          - 'src/_backend_agg*'
+"backend: cairo":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/backends/backend_*cairo.py*'
+"backend: pdf":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/backends/_backend_pdf_ps.py'
+          - 'lib/matplotlib/backends/backend_pdf.py'
+"backend: pgf":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/backends/backend_pgf.py'
+"backend: ps":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/backends/_backend_pdf_ps.py'
+          - 'lib/matplotlib/backends/backend_ps.py'
+"backend: svg":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/backends/backend_svg.py'
+
+"GUI: gtk":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/backends/_backend_gtk.py*'
+          - 'lib/matplotlib/backends/backend_gtk*'
+"GUI: MacOSX":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/backends/*_macosx.py*'
+          - 'src/_macosx.m'
+"GUI: nbagg":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/backends/*_nbagg*.py*'
+          - 'lib/matplotlib/backends/web_backend/js/nbagg_mpl.js'
+"GUI: Qt":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/backends/backend_qt*'
+          - 'lib/matplotlib/backends/qt_compat.py'
+          - 'lib/matplotlib/backends/qt_editor/**'
+"GUI: tk":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/backends/*backend_tk*'
+          - 'lib/matplotlib/backends/_tkagg.pyi'
+          - 'src/_tkagg.cpp'
+          - 'src/_tkmini.h'
+"GUI: webagg":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/backends/*_webagg*.py*'
+          - 'lib/matplotlib/backends/web_backend/**'
+"GUI: wx":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/backends/backend_wx*.py*'
+
+"Documentation: API":
+  - all:
+      - changed-files:
+          - any-glob-to-any-file:
+              # Also files in lib/**, but we can't be sure those are only documentation.
+              - 'doc/api/**'
+          - all-globs-to-all-files:
+              - '!doc/api/next_api_changes/**'
+
+"Documentation: build":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'doc/conf.py'
+          - 'doc/Makefile'
+          - 'doc/make.bat'
+"Documentation: devdocs":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'doc/devel/**'
+"Documentation: examples":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'galleries/examples/**'
+"Documentation: plot types":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'galleries/plot_types/**'
+"Documentation: tutorials":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'galleries/tutorials/**'
+"Documentation: user guide":
+  - all:
+      - changed-files:
+          - any-glob-to-any-file:
+              - 'doc/users/**'
+              - 'galleries/users_explain/**'
+          - all-globs-to-all-files:
+              - '!doc/users/next_whats_new/**'
+
+"topic: animation":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/animation.py*'
+          - 'lib/matplotlib/_animation_data.py*'
+"topic: axes":
+  - changed-files:
+      - any-glob-to-any-file:
+          # Note, axes.py is not included here because it contains many plotting
+          # methods, for which changes would not be considered on topic.
+          - 'lib/matplotlib/axes/_base.py*'
+"topic: canvas and figure manager":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/backend_bases.py*'
+"topic: categorical":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/category.py*'
+"topic: collections and mappables":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/collections.py*'
+"topic: color/color & colormaps":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/colorbar.py*'
+          - 'lib/matplotlib/colors.py*'
+          - 'lib/matplotlib/_color_data.py*'
+          - 'lib/matplotlib/cm.py*'
+          - 'lib/matplotlib/_cm.py*'
+          - 'lib/matplotlib/_cm_listed.py*'
+"topic: contour":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/contour.py*'
+          - 'src/_qhull_wrapper.cpp'
+"topic: date handling":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/dates.py*'
+"topic: figures and subfigures":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/figure.py*'
+"topic: geometry manager":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/_constrained_layout.py*'
+          - 'lib/matplotlib/_layoutgrid.py*'
+          - 'lib/matplotlib/_tight_bbox.py*'
+          - 'lib/matplotlib/_tight_layout.py*'
+          - 'lib/matplotlib/gridspec.py*'
+          - 'lib/matplotlib/layout_engine.py*'
+"topic: hatch":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/hatch.py*'
+"topic: images":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/image.py*'
+          - 'lib/matplotlib/_image.pyi'
+          - 'src/_image_*'
+"topic: legend":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/legend.py*'
+          - 'lib/matplotlib/legend_handler.py*'
+"topic: markers":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/markers.py*'
+"topic: mpl_toolkit":
+  - all:
+      - changed-files:
+          - any-glob-to-any-file:
+              - 'lib/mpl_toolkits/**'
+          - all-globs-to-all-files:
+              - '!lib/mpl_toolkits/mplot3d/**'
+"topic: mplot3d":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/mpl_toolkits/mplot3d/**'
+"topic: path handling":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/path.py*'
+          - 'lib/matplotlib/patheffects.py*'
+          - 'lib/matplotlib/_path.pyi'
+          - 'src/*path*'
+"topic: polar":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/projections/polar.py*'
+"topic: pyplot API":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/pyplot.py'
+          - 'lib/matplotlib/_pylab_helpers.py*'
+"topic: rcparams":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/rcsetup.py*'
+"topic: sankey":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/sankey.py*'
+"topic: sphinx extension":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/sphinxext/**'
+"topic: styles":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/mpl-data/stylelib/**'
+          - 'lib/matplotlib/style/**'
+"topic: table":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/table.py*'
+"topic: text":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/text.py*'
+          - 'lib/matplotlib/textpath.py*'
+"topic: text/fonts":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/checkdep_freetype2.c'
+          - 'src/ft2font*'
+"topic: text/mathtext":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/mathtext.py*'
+          - 'lib/matplotlib/_mathtext.py*'
+          - 'lib/matplotlib/_mathtext_data.py*'
+"topic: ticks axis labels":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/axis.py*'
+          - 'lib/matplotlib/ticker.py*'
+"topic: toolbar":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/backend_managers.py*'
+          - 'lib/matplotlib/backend_tools.py*'
+"topic: transforms and scales":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/scale.py*'
+          - 'lib/matplotlib/transforms.py*'
+"topic: tri":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/tri/**'
+          - 'src/tri/**'
+"topic: units and array ducktypes":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/units.py*'
+"topic: widgets/UI":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/matplotlib/widgets.py*'

@@ -4,7 +4,7 @@ Behaviour changes
 First argument to ``subplot_mosaic`` renamed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Both `.FigureBase.subplot_mosaic`, and `.pyplot.subplot_mosaic` have had the
+Both `.Figure.subplot_mosaic`, and `.pyplot.subplot_mosaic` have had the
 first positional argument renamed from *layout* to *mosaic*. As we have
 consolidated the *constrained_layout* and *tight_layout* keyword arguments in
 the Figure creation functions of `.pyplot` into a single *layout* keyword
@@ -132,7 +132,7 @@ consistently exposes all the attributes and methods related to the line marker
 (:ghissue:`11358`). This makes it easy to change the marker features after
 instantiating a legend.
 
-.. code::
+.. code-block:: python
 
     import matplotlib.pyplot as plt
 
@@ -147,7 +147,7 @@ instantiating a legend.
 The former legend handler for Line2D objects has been renamed
 `.HandlerLine2DCompound`. To revert to the previous behaviour, one can use
 
-.. code::
+.. code-block:: python
 
     import matplotlib.legend as mlegend
     from matplotlib.legend_handler import HandlerLine2DCompound

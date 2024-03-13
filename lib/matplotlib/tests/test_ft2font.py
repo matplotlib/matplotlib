@@ -30,25 +30,21 @@ def test_ft2font_positive_hinting_factor():
         ft2font.FT2Font(file_name, 0)
 
 
-def test_fallback_smoke():
-    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
-    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
-        pytest.skip("Font wqy-zenhei.ttc may be missing")
-
-    fp = fm.FontProperties(family=["Noto Sans CJK JP"])
-    if Path(fm.findfont(fp)).name != "NotoSansCJK-Regular.ttc":
-        pytest.skip("Noto Sans CJK JP font may be missing.")
-
+@pytest.mark.parametrize('family_name, file_name',
+                          [("WenQuanYi Zen Hei",  "wqy-zenhei.ttc"),
+                           ("Noto Sans CJK JP", "NotoSansCJK.ttc"),
+                           ("Noto Sans TC", "NotoSansTC-Regular.otf")]
+                         )
+def test_fallback_smoke(family_name, file_name):
+    fp = fm.FontProperties(family=[family_name])
+    if Path(fm.findfont(fp)).name != file_name:
+        pytest.skip(f"Font {family_name} ({file_name}) is missing")
     plt.rcParams['font.size'] = 20
     fig = plt.figure(figsize=(4.75, 1.85))
     fig.text(0.05, 0.45, "There are 几个汉字 in between!",
-             family=['DejaVu Sans', "Noto Sans CJK JP"])
-    fig.text(0.05, 0.25, "There are 几个汉字 in between!",
-             family=['DejaVu Sans', "WenQuanYi Zen Hei"])
-    fig.text(0.05, 0.65, "There are 几个汉字 in between!",
-             family=["Noto Sans CJK JP"])
+             family=['DejaVu Sans', family_name])
     fig.text(0.05, 0.85, "There are 几个汉字 in between!",
-             family=["WenQuanYi Zen Hei"])
+             family=[family_name])
 
     # TODO enable fallback for other backends!
     for fmt in ['png', 'raw']:  # ["svg", "pdf", "ps"]:
@@ -57,7 +53,8 @@ def test_fallback_smoke():
 
 @pytest.mark.parametrize('family_name, file_name',
                          [("WenQuanYi Zen Hei",  "wqy-zenhei"),
-                          ("Noto Sans CJK JP", "NotoSansCJK")]
+                          ("Noto Sans CJK JP", "NotoSansCJK"),
+                          ("Noto Sans TC", "NotoSansTC-Regular.otf")]
                          )
 @check_figures_equal(extensions=["png", "pdf", "eps", "svg"])
 def test_font_fallback_chinese(fig_test, fig_ref, family_name, file_name):
@@ -78,11 +75,27 @@ def test_font_fallback_chinese(fig_test, fig_ref, family_name, file_name):
         fig_test.text(0.05, .85 - 0.15*j, txt, family=test_font)
 
 
+@pytest.mark.parametrize("font_list",
+                          [['DejaVu Serif', 'DejaVu Sans'],
+                           ['DejaVu Sans Mono']],
+                         ids=["two fonts", "one font"])
+def test_fallback_missing(recwarn, font_list):
+    fig = plt.figure()
+    fig.text(.5, .5, "Hello 🙃 World!", family=font_list)
+    fig.canvas.draw()
+    assert all(isinstance(warn.message, UserWarning) for warn in recwarn)
+    # not sure order is guaranteed on the font listing so
+    assert recwarn[0].message.args[0].startswith(
+           "Glyph 128579 (\\N{UPSIDE-DOWN FACE}) missing from font(s)")
+    assert all([font in recwarn[0].message.args[0] for font in font_list])
+
+
 @pytest.mark.parametrize(
     "family_name, file_name",
     [
         ("WenQuanYi Zen Hei", "wqy-zenhei"),
         ("Noto Sans CJK JP", "NotoSansCJK"),
+        ("Noto Sans TC", "NotoSansTC-Regular.otf")
     ],
 )
 def test__get_fontmap(family_name, file_name):
@@ -97,7 +110,6 @@ def test__get_fontmap(family_name, file_name):
             fm.FontProperties(family=["DejaVu Sans", family_name])
         )
     )
-
     fontmap = ft._get_fontmap(text)
     for char, font in fontmap.items():
         if ord(char) > 127:

@@ -1,0 +1,26 @@
+Most arguments to widgets have been made keyword-only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Passing all but the very few first arguments positionally in the constructors
+of Widgets is now keyword-only. In general, all optional arguments are keyword-only.
+
+``RadioButtons.circles``
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+... is removed.  (``RadioButtons`` now draws itself using `~.Axes.scatter`.)
+
+``CheckButtons.rectangles`` and ``CheckButtons.lines``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``CheckButtons.rectangles`` and ``CheckButtons.lines`` are removed.
+(``CheckButtons`` now draws itself using `~.Axes.scatter`.)
+
+Remove unused parameter *x* to ``TextBox.begin_typing``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This parameter was unused in the method, but was a required argument.
+
+``MultiCursor.needclear``
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... is removed.

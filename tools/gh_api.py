@@ -97,8 +97,7 @@ def post_gist(content, description='', filename='file', auth=False):
     return response_data['html_url']
 
 def get_pull_request(project, num, auth=False):
-    """get pull request info  by number
-    """
+    """Return the pull request info for a given PR number."""
     url = f"https://api.github.com/repos/{project}/pulls/{num}"
     if auth:
         header = make_auth_header()

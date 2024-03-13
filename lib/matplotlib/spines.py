@@ -472,7 +472,7 @@ class Spine(mpatches.Patch):
 
         Parameters
         ----------
-        c : color
+        c : :mpltype:`color`
 
         Notes
         -----

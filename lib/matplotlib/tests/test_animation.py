@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import platform
 import re
+import shutil
 import subprocess
 import sys
 import weakref
@@ -318,7 +319,7 @@ def test_cleanup_temporaries(method_name, tmpdir, anim):
         assert list(Path(str(tmpdir)).iterdir()) == []
 
 
-@pytest.mark.skipif(os.name != "posix", reason="requires a POSIX OS")
+@pytest.mark.skipif(shutil.which("/bin/sh") is None, reason="requires a POSIX OS")
 def test_failing_ffmpeg(tmpdir, monkeypatch, anim):
     """
     Test that we correctly raise a CalledProcessError when ffmpeg fails.
@@ -544,9 +545,9 @@ def test_disable_cache_warning(anim):
 
 def test_movie_writer_invalid_path(anim):
     if sys.platform == "win32":
-        match_str = re.escape("[WinError 3] The system cannot find the path specified:")
+        match_str = r"\[WinError 3] .*'\\\\foo\\\\bar\\\\aardvark'"
     else:
-        match_str = re.escape("[Errno 2] No such file or directory: '/foo")
+        match_str = r"\[Errno 2] .*'/foo"
     with pytest.raises(FileNotFoundError, match=match_str):
         anim.save("/foo/bar/aardvark/thiscannotreallyexist.mp4",
                   writer=animation.FFMpegFileWriter())

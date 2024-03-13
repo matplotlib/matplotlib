@@ -73,7 +73,7 @@ Other font specifications which Matplotlib supports:
   - Limited support with Matplotlib
 
 Font subsetting
-~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^
 
 The PDF and PostScript formats support embedding fonts in files, allowing the
 display program to correctly render the text, independent of what fonts are
@@ -93,7 +93,7 @@ of ttconv.
 Currently Type 3, Type 42, and TrueType fonts are subsetted.  Type 1 fonts are not.
 
 Core Fonts
-~~~~~~~~~~
+^^^^^^^^^^
 
 In addition to the ability to embed fonts, as part of the `PostScript
 <https://en.wikipedia.org/wiki/PostScript_fonts#Core_Font_Set>`_ and `PDF

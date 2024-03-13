@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
 from matplotlib.path import Path
 import matplotlib.patches as patches
+from matplotlib.backend_bases import RendererBase
+from matplotlib.patheffects import PathEffectRenderer
 
 
 @image_comparison(['patheffect1'], remove_text=True)
@@ -192,3 +194,20 @@ def test_patheffects_spaces_and_newlines():
                     bbox={'color': 'thistle'})
     text1.set_path_effects([path_effects.Normal()])
     text2.set_path_effects([path_effects.Normal()])
+
+
+def test_patheffects_overridden_methods_open_close_group():
+    class CustomRenderer(RendererBase):
+        def __init__(self):
+            super().__init__()
+
+        def open_group(self, s, gid=None):
+            return "open_group overridden"
+
+        def close_group(self, s):
+            return "close_group overridden"
+
+    renderer = PathEffectRenderer([path_effects.Normal()], CustomRenderer())
+
+    assert renderer.open_group('s') == "open_group overridden"
+    assert renderer.close_group('s') == "close_group overridden"

@@ -1,0 +1,11 @@
+``loc='best'`` for ``legend`` now considers ``Text`` and ``PolyCollections``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The location selection ``legend`` now considers the existence of ``Text``
+and ``PolyCollections`` in the ``badness`` calculation.
+
+Note: The ``best`` option can already be quite slow for plots with large
+amounts of data. For ``PolyCollections``, it only considers the ``Path``
+of ``PolyCollections`` and not the enclosed area when checking for overlap
+to reduce additional latency. However, it can still be quite slow when
+there are large amounts of ``PolyCollections`` in the plot to check for.

@@ -1,5 +1,8 @@
 .. highlight:: bash
 
+.. redirect-from:: /devel/gitwash/development_workflow
+.. redirect-from:: /devel/gitwash/maintainer_workflow
+
 .. _development-workflow:
 
 ####################
@@ -147,6 +150,23 @@ complicated change or some code you are not happy with.
 If you don't think your request is ready to be merged, just say so in your pull
 request message and use the "Draft PR" feature of GitHub. This is a good way of
 getting some preliminary code review.
+
+.. _update-pull-request:
+
+Update a pull request
+=====================
+
+When updating your pull request after making revisions, instead of adding new
+commits, please consider amending your initial commit(s) to keep the commit
+history clean.
+
+You can achieve this by using
+
+.. code-block:: bash
+
+    git commit -a --amend --no-edit
+    git push [your-remote-repo] [your-branch] --force-with-lease
+
 
 Manage commit history
 =====================
@@ -423,3 +443,95 @@ thought it was.
 Be judicious with force-pushing.  It is effectively re-writing published
 history, and if anyone has fetched the old commits, it will have a different view
 of history which can cause confusion.
+
+.. _automated-tests:
+
+Automated tests
+===============
+
+Whenever a pull request is created or updated, various automated test tools
+will run on all supported platforms and versions of Python.
+
+* tox_ is not used in the automated testing. It is supported for testing
+  locally.
+
+  .. _tox: https://tox.readthedocs.io/
+
+* Codecov and CodeQL are currently for information only. Their failure is not
+  necessarily a blocker.
+
+Make sure the Linting, GitHub Actions, AppVeyor, CircleCI, and Azure pipelines are
+passing before merging. All checks are listed at the bottom of the GitHub page of your
+pull request.
+
+.. list-table::
+    :header-rows: 1
+    :stub-columns: 1
+    :widths: 20 20 60
+
+    * - Name
+      - Check
+      - Tips for finding cause of failure
+    * - Linting
+      - :ref:`code style <code-style>`
+      - Errors are displayed as annotations on the pull request diff.
+    * - | Mypy
+        | Stubtest
+      - :ref:`static type hints <type-hints>`
+      - Errors are displayed as annotations on the pull request diff.
+    * - CircleCI
+      - :ref:`documentation build <writing-rest-pages>`
+      - Search the CircleCI log for ``WARNING``.
+    * - | GitHub Actions
+        | AppVeyor
+        | Azure pipelines
+      - :ref:`tests <testing>`
+      - | Search the log for ``FAILURES``. Subsequent section should contain information
+          on failed tests.
+        |
+        | On Azure, find the images as *artifacts* of the Azure job:
+        | 1. Click *Details* on the check on the GitHub PR page.
+        | 2. Click *View more details on Azure Pipelines* to go to Azure.
+        | 3. On the overview page *artifacts* are listed in the section *Related*.
+
+Skip CI checks
+--------------
+
+If you know only a subset of CI checks need to be run, you can skip unneeded CI checks
+on individual commits by including the following strings in the commit message:
+
+.. list-table::
+    :header-rows: 1
+    :stub-columns: 1
+    :widths: 25 20 55
+
+    * - String
+      - Effect
+      - Notes
+    * - ``[ci doc]``
+      - Only run documentation checks.
+      - | For when you have only changed documentation.
+        | ``[ci doc]`` is applied automatically when the changes are only to files in
+          ``doc/**/`` or ``galleries/**/``
+    * - ``[skip doc]``
+      - Skip documentation checks.
+      - For when you didn't change documentation.
+    * - ``[skip appveyor]``
+      - Skip AppVeyor run.
+      - Substring must be in first line of commit message.
+    * - ``[skip azp]``
+      - Skip Azure Pipelines.
+      -
+    * - ``[skip actions]``
+      - Skip GitHub Actions.
+      -
+    * - ``[skip ci]``
+      - Skip all CI checks.
+      - Use only for changes where documentation checks and unit tests do not apply.
+
+
+``[skip actions]`` and ``[skip ci]`` only skip Github Actions CI workflows that are
+triggered on ``on: push`` and ``on: pull_request`` events. For more information,
+see `Skipping workflow runs`_.
+
+.. _`Skipping workflow runs`: https://docs.github.com/en/actions/managing-workflow-runs/skipping-workflow-runs

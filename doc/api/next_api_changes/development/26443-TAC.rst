@@ -1,7 +1,0 @@
-New wheel architectures
-~~~~~~~~~~~~~~~~~~~~~~~
-
-
-Wheels have been added for:
-
-- musl based systems

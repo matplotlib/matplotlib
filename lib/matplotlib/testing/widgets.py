@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 
 def get_ax():
-    """Create a plot and return its axes."""
+    """Create a plot and return its Axes."""
     fig, ax = plt.subplots(1, 1)
     ax.plot([0, 200], [0, 200])
     ax.set_aspect(1.0)
@@ -34,7 +34,7 @@ def mock_event(ax, button=1, xdata=0, ydata=0, key=None, step=1):
     Parameters
     ----------
     ax : `~matplotlib.axes.Axes`
-        The axes the event will be in.
+        The Axes the event will be in.
     xdata : float
         x coord of mouse in data coords.
     ydata : float

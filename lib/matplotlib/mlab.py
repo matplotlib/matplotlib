@@ -776,12 +776,11 @@ class GaussianKDE:
     dataset : array-like
         Datapoints to estimate from. In case of univariate data this is a 1-D
         array, otherwise a 2D array with shape (# of dims, # of data).
-    bw_method : str, scalar or callable, optional
-        The method used to calculate the estimator bandwidth.  This can be
-        'scott', 'silverman', a scalar constant or a callable.  If a
-        scalar, this will be used directly as `kde.factor`.  If a
+    bw_method : {'scott', 'silverman'} or float or callable, optional
+        The method used to calculate the estimator bandwidth.  If a
+        float, this will be used directly as `kde.factor`.  If a
         callable, it should take a `GaussianKDE` instance as only
-        parameter and return a scalar. If None (default), 'scott' is used.
+        parameter and return a float. If None (default), 'scott' is used.
 
     Attributes
     ----------

@@ -1,0 +1,4 @@
+``matplotlib.tri`` submodules are removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``matplotlib.tri.*`` submodules are removed.  All functionality is
+available in ``matplotlib.tri`` directly and should be imported from there.

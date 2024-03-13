@@ -1,10 +1,11 @@
 # codecov used to be able to find this anywhere, now we have to manually
 # tell it where to look
+---
 comment: false
 
 codecov:
   notify:
-    require_ci_to_pass: no
+    require_ci_to_pass: false
 
 coverage:
   status:
@@ -13,20 +14,20 @@ coverage:
         target: 50%
         if_no_uploads: error
         if_not_found: success
-        if_ci_failed: failure
+        if_ci_failed: error
     project:
       default: false
       library:
         target: 50%
         if_no_uploads: error
         if_not_found: success
-        if_ci_failed: failure
+        if_ci_failed: error
         paths:
           - '!lib/.*/tests/.*'
       tests:
         target: auto
         if_no_uploads: error
         if_not_found: success
-        if_ci_failed: failure
+        if_ci_failed: error
         paths:
           - 'lib/.*/tests/.*'

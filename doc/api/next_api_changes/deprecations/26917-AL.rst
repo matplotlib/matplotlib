@@ -1,0 +1,3 @@
+``ContourLabeler.add_label_clabeltext``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated.

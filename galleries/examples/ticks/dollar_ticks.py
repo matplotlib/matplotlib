@@ -3,10 +3,11 @@
 Dollar ticks
 ============
 
-Use a `~.ticker.FormatStrFormatter` to prepend dollar signs on y-axis labels.
+Use a format string to prepend dollar signs on y-axis labels.
 
 .. redirect-from:: /gallery/pyplots/dollar_ticks
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 
