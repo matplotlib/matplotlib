@@ -1167,6 +1167,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, tick_labels=None,
         dimensions of *X*.
 
         .. versionchanged:: 3.9
+        Renamed from *labels*, which is deprecated since 3.9
+        and will be removed in 3.11.
 
     autorange : bool, optional (False)
         When `True` and the data are distributed such that the 25th and 75th
