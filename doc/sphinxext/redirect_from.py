@@ -77,14 +77,8 @@ class RedirectFromDomain(Domain):
         self.redirects.pop(docname, None)
 
     def merge_domaindata(self, docnames, otherdata):
-        for src, dst in otherdata['redirects'].items():
-            if src not in self.redirects:
-                self.redirects[src] = dst
-            elif self.redirects[src] != dst:
-                raise ValueError(
-                    f"Inconsistent redirections from {src} to "
-                    f"{self.redirects[src]} and {otherdata['redirects'][src]}")
-
+        for docname in docnames:
+            self.redirects[docname] = otherdata['redirects'][docname]
 
 class RedirectFrom(Directive):
     required_arguments = 1
