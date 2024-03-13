@@ -33,6 +33,7 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             # See documentation of QRect: bottom() and right() are off
             # by 1, so use left() + width() and top() + height().
             rect = event.rect()
+
             # scale rect dimensions using the screen dpi ratio to get
             # correct values for the Figure coordinates (rather than
             # QT5's coords)
@@ -58,6 +59,12 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
                 QtGui.QImage.Format.Format_RGBA8888,
             )
             qimage.setDevicePixelRatio(self.device_pixel_ratio)
+
+            # Clear the rect, ensuring that issues encountered with images
+            # with transparency compose correctly, as seen in
+            # https://github.com/matplotlib/matplotlib/pull/13050.
+            painter.eraseRect(rect)
+
             # set origin using original QT coordinates
             painter.drawImage(rect.topLeft(), qimage)
 
