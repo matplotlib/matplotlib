@@ -4150,7 +4150,6 @@ class Lasso(AxesWidget):
 
         .. versionadded:: 3.9
     """
-   
     def __init__(self, ax, xy, callback, *, useblit=True, props=None):
         super().__init__(ax)
 
