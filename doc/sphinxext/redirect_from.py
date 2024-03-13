@@ -80,6 +80,7 @@ class RedirectFromDomain(Domain):
         for docname in docnames:
             self.redirects[docname] = otherdata['redirects'][docname]
 
+
 class RedirectFrom(Directive):
     required_arguments = 1
 
