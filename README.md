@@ -31,8 +31,8 @@ and various graphical user interface toolkits.
 ## Install
 
 See the [install
-documentation](https://matplotlib.org/stable/users/installing/index.html),
-which is generated from `/doc/users/installing/index.rst`
+documentation](https://matplotlib.org/stable/install/index.html),
+which is generated from `/doc/install/index.rst`
 
 ## Contribute
 

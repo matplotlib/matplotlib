@@ -239,7 +239,7 @@ Examples:
 
 .. code-block:: rst
 
-   See the :doc:`/users/installing/index`
+   See the :doc:`/install/index`
 
    See the tutorial :ref:`quick_start`
 
@@ -247,14 +247,14 @@ Examples:
 
 will render as:
 
-  See the :doc:`/users/installing/index`
+  See the :doc:`/install/index`
 
   See the tutorial :ref:`quick_start`
 
   See the example :doc:`/gallery/lines_bars_and_markers/simple_plot`
 
 Sections can also be given reference labels.  For instance from the
-:doc:`/users/installing/index` link:
+:doc:`/install/index` link:
 
 .. code-block:: rst
 

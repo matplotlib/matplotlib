@@ -163,7 +163,7 @@ must be installed separately.
 .. toctree::
   :maxdepth: 2
 
-  ../users/installing/dependencies
+  ../install/dependencies
 
 
 .. _development-install:
