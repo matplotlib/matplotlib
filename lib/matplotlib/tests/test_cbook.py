@@ -147,7 +147,7 @@ class Test_boxplot_stats:
 
     def test_results_withlabels(self):
         labels = ['Test1', 2, 'Aardvark', 4]
-        results = cbook.boxplot_stats(self.data, tick_labels=labels)
+        results = cbook.boxplot_stats(self.data, labels=labels)
         for lab, res in zip(labels, results):
             assert res['label'] == lab
 
@@ -158,7 +158,7 @@ class Test_boxplot_stats:
     def test_label_error(self):
         labels = [1, 2]
         with pytest.raises(ValueError):
-            cbook.boxplot_stats(self.data, tick_labels=labels)
+            cbook.boxplot_stats(self.data, labels=labels)
 
     def test_bad_dims(self):
         data = np.random.normal(size=(34, 34, 34))
