@@ -2,11 +2,9 @@
 Render to qt from agg.
 """
 
-import ctypes
-
 import numpy as np
 
-from .qt_compat import QT_API, QtCore, QtGui
+from .qt_compat import QtGui
 from .backend_agg import FigureCanvasAgg
 from .backend_qt import _BackendQT, FigureCanvasQT
 from .backend_qt import (  # noqa: F401 # pylint: disable=W0611
