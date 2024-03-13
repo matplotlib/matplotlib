@@ -4,13 +4,14 @@ Render to qt from agg.
 
 import ctypes
 
-from matplotlib.transforms import Bbox
+import numpy as np
 
 from .qt_compat import QT_API, QtCore, QtGui
 from .backend_agg import FigureCanvasAgg
 from .backend_qt import _BackendQT, FigureCanvasQT
 from .backend_qt import (  # noqa: F401 # pylint: disable=W0611
     FigureManagerQT, NavigationToolbar2QT)
+from ..transforms import Bbox
 
 
 class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
@@ -47,25 +48,20 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             right = left + width
             # create a buffer using the image bounding box
             bbox = Bbox([[left, bottom], [right, top]])
-            buf = memoryview(self.copy_from_bbox(bbox))
+            region = self.copy_from_bbox(bbox)
 
-            if QT_API == "PyQt6":
-                from PyQt6 import sip
-                ptr = int(sip.voidptr(buf))
-            else:
-                ptr = buf
+            # Now draw the region we copied with the painter.
+            r_width, r_height = region.get_bounds()[2:]
 
-            painter.eraseRect(rect)  # clear the widget canvas
-            qimage = QtGui.QImage(ptr, buf.shape[1], buf.shape[0],
-                                  QtGui.QImage.Format.Format_RGBA8888)
+            # Draw the region copied with the QPainter
+            qimage = QtGui.QImage(
+                np.frombuffer(region, dtype=np.uint8),
+                r_width, r_height,
+                QtGui.QImage.Format.Format_RGBA8888,
+            )
             qimage.setDevicePixelRatio(self.device_pixel_ratio)
             # set origin using original QT coordinates
-            origin = QtCore.QPoint(rect.left(), rect.top())
-            painter.drawImage(origin, qimage)
-            # Adjust the buf reference count to work around a memory
-            # leak bug in QImage under PySide.
-            if QT_API == "PySide2" and QtCore.__version_info__ < (5, 12):
-                ctypes.c_long.from_address(id(buf)).value = 1
+            painter.drawImage(rect.topLeft(), qimage)
 
             self._draw_rect_callback(painter)
         finally:

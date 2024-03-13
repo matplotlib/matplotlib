@@ -75,6 +75,14 @@ static PyObject *PyBufferRegion_get_extents(PyBufferRegion *self, PyObject *args
     return Py_BuildValue("IIII", rect.x1, rect.y1, rect.x2, rect.y2);
 }
 
+static PyObject *PyBufferRegion_get_bounds(PyBufferRegion *self, PyObject *args)
+{
+    agg::rect_i rect = self->x->get_rect();
+
+    return Py_BuildValue("IIII", rect.x1, rect.y1, rect.x2 - rect.x1, rect.y2 - rect.y1);
+}
+
+
 int PyBufferRegion_get_buffer(PyBufferRegion *self, Py_buffer *buf, int flags)
 {
     Py_INCREF(self);
@@ -105,6 +113,7 @@ static PyTypeObject *PyBufferRegion_init_type()
         { "set_x", (PyCFunction)PyBufferRegion_set_x, METH_VARARGS, NULL },
         { "set_y", (PyCFunction)PyBufferRegion_set_y, METH_VARARGS, NULL },
         { "get_extents", (PyCFunction)PyBufferRegion_get_extents, METH_NOARGS, NULL },
+        { "get_bounds", (PyCFunction)PyBufferRegion_get_bounds, METH_NOARGS, NULL },
         { NULL }
     };
 
