@@ -3916,6 +3916,8 @@ class Axes(_AxesBase):
             values.
 
             .. versionchanged:: 3.9
+                Renamed from *labels*, which is deprecated since 3.9
+                and will be removed in 3.11.
 
         manage_ticks : bool, default: True
             If True, the tick locations and labels will be adjusted to match
