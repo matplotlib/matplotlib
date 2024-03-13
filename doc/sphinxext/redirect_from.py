@@ -89,10 +89,6 @@ class RedirectFrom(Directive):
         domain = env.get_domain('redirect_from')
         current_doc = env.path2doc(self.state.document.current_source)
         redirected_reldoc, _ = env.relfn2path(redirected_doc, current_doc)
-        if redirected_reldoc in domain.redirects:
-            raise ValueError(
-                f"{redirected_reldoc} is already noted as redirecting to "
-                f"{domain.redirects[redirected_reldoc]}")
         domain.redirects[redirected_reldoc] = current_doc
         return []
 
