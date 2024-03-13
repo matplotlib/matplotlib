@@ -2,7 +2,6 @@
 #include <Cocoa/Cocoa.h>
 #include <ApplicationServices/ApplicationServices.h>
 #include <Python.h>
-#include "mplutils.h"
 
 /* Proper way to check for the OS X version we are compiling for, from
  * https://developer.apple.com/library/archive/documentation/DeveloperTools/Conceptual/cross_development/Using/using.html
@@ -258,20 +257,21 @@ static CGFloat _get_device_scale(CGContextRef cr)
     return pixelSize.width;
 }
 
-int mpl_check_modifier(
+bool
+mpl_check_modifier(
         NSUInteger modifiers, NSEventModifierFlags flag,
         PyObject* list, char const* name)
 {
-    int status = 0;
+    bool failed = false;
     if (modifiers & flag) {
         PyObject* py_name = NULL;
         if (!(py_name = PyUnicode_FromString(name))
             || PyList_Append(list, py_name)) {
-            status = -1;  // failure
+            failed = true;
         }
         Py_XDECREF(py_name);
     }
-    return status;
+    return failed;
 }
 
 PyObject* mpl_modifiers(NSEvent* event)
@@ -498,14 +498,16 @@ FigureCanvas_stop_event_loop(FigureCanvas* self)
 
 static PyTypeObject FigureCanvasType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "_macosx.FigureCanvas",
+    .tp_name = "matplotlib.backends._macosx.FigureCanvas",
+    .tp_doc = PyDoc_STR("A FigureCanvas object wraps a Cocoa NSView object."),
     .tp_basicsize = sizeof(FigureCanvas),
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+
+    .tp_new = (newfunc)FigureCanvas_new,
+    .tp_init = (initproc)FigureCanvas_init,
     .tp_dealloc = (destructor)FigureCanvas_dealloc,
     .tp_repr = (reprfunc)FigureCanvas_repr,
-    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    .tp_init = (initproc)FigureCanvas_init,
-    .tp_new = (newfunc)FigureCanvas_new,
-    .tp_doc = "A FigureCanvas object wraps a Cocoa NSView object.",
+
     .tp_methods = (PyMethodDef[]){
         {"update",
          (PyCFunction)FigureCanvas_update,
@@ -518,15 +520,15 @@ static PyTypeObject FigureCanvasType = {
         {"set_cursor",
          (PyCFunction)FigureCanvas_set_cursor,
          METH_VARARGS,
-         "Set the active cursor."},
+         PyDoc_STR("Set the active cursor.")},
         {"set_rubberband",
          (PyCFunction)FigureCanvas_set_rubberband,
          METH_VARARGS,
-         "Specify a new rubberband rectangle and invalidate it."},
+         PyDoc_STR("Specify a new rubberband rectangle and invalidate it.")},
         {"remove_rubberband",
          (PyCFunction)FigureCanvas_remove_rubberband,
          METH_NOARGS,
-         "Remove the current rubberband rectangle."},
+         PyDoc_STR("Remove the current rubberband rectangle.")},
         {"_start_event_loop",
          (PyCFunction)FigureCanvas__start_event_loop,
          METH_KEYWORDS | METH_VARARGS,
@@ -745,14 +747,16 @@ FigureManager_full_screen_toggle(FigureManager* self)
 
 static PyTypeObject FigureManagerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "_macosx.FigureManager",
+    .tp_name = "matplotlib.backends._macosx.FigureManager",
+    .tp_doc = PyDoc_STR("A FigureManager object wraps a Cocoa NSWindow object."),
     .tp_basicsize = sizeof(FigureManager),
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+
+    .tp_new = (newfunc)FigureManager_new,
+    .tp_init = (initproc)FigureManager_init,
     .tp_dealloc = (destructor)FigureManager_dealloc,
     .tp_repr = (reprfunc)FigureManager_repr,
-    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    .tp_init = (initproc)FigureManager_init,
-    .tp_new = (newfunc)FigureManager_new,
-    .tp_doc = "A FigureManager object wraps a Cocoa NSWindow object.",
+
     .tp_methods = (PyMethodDef[]){  // All docstrings are inherited.
         {"_show",
          (PyCFunction)FigureManager__show,
@@ -766,11 +770,11 @@ static PyTypeObject FigureManagerType = {
         {"_set_window_mode",
          (PyCFunction)FigureManager__set_window_mode,
          METH_VARARGS,
-         "Set the window open mode (system, tab, window)"},
+         PyDoc_STR("Set the window open mode (system, tab, window)")},
         {"set_icon",
          (PyCFunction)FigureManager_set_icon,
          METH_STATIC | METH_VARARGS,
-         "Set application icon"},
+         PyDoc_STR("Set application icon")},
         {"set_window_title",
          (PyCFunction)FigureManager_set_window_title,
          METH_VARARGS},
@@ -826,8 +830,7 @@ typedef struct {
 
 - (void)installCallbacks:(SEL[7])actions forButtons:(NSButton*[7])buttons
 {
-    int i;
-    for (i = 0; i < 7; i++) {
+    for (int i = 0; i < 7; i++) {
         SEL action = actions[i];
         NSButton* button = buttons[i];
         [button setTarget: self];
@@ -1036,14 +1039,16 @@ NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
 
 static PyTypeObject NavigationToolbar2Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "_macosx.NavigationToolbar2",
+    .tp_name = "matplotlib.backends._macosx.NavigationToolbar2",
+    .tp_doc = PyDoc_STR("NavigationToolbar2"),
     .tp_basicsize = sizeof(NavigationToolbar2),
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+
+    .tp_new = (newfunc)NavigationToolbar2_new,
+    .tp_init = (initproc)NavigationToolbar2_init,
     .tp_dealloc = (destructor)NavigationToolbar2_dealloc,
     .tp_repr = (reprfunc)NavigationToolbar2_repr,
-    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    .tp_init = (initproc)NavigationToolbar2_init,
-    .tp_new = (newfunc)NavigationToolbar2_new,
-    .tp_doc = "NavigationToolbar2",
+
     .tp_methods = (PyMethodDef[]){  // All docstrings are inherited.
         {"set_message",
          (PyCFunction)NavigationToolbar2_set_message,
@@ -1782,13 +1787,16 @@ Timer_dealloc(Timer* self)
 
 static PyTypeObject TimerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "_macosx.Timer",
+    .tp_name = "matplotlib.backends._macosx.Timer",
+    .tp_doc = PyDoc_STR("A Timer object that contains an NSTimer that gets added to "
+                        "the event loop when started."),
     .tp_basicsize = sizeof(Timer),
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+
+    .tp_new = (newfunc)Timer_new,
     .tp_dealloc = (destructor)Timer_dealloc,
     .tp_repr = (reprfunc)Timer_repr,
-    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    .tp_new = (newfunc)Timer_new,
-    .tp_doc = "A Timer object that contains an NSTimer that gets added to the event loop when started.",
+
     .tp_methods = (PyMethodDef[]){  // All docstrings are inherited.
         {"_timer_start",
          (PyCFunction)Timer__timer_start,
@@ -1801,46 +1809,53 @@ static PyTypeObject TimerType = {
 };
 
 static struct PyModuleDef moduledef = {
-    PyModuleDef_HEAD_INIT, "_macosx", "Mac OS X native backend", -1,
-    (PyMethodDef[]){
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "_macosx",
+    .m_doc = PyDoc_STR("Mac OS X native backend"),
+    .m_size = -1,
+    .m_methods = (PyMethodDef[]){
         {"event_loop_is_running",
          (PyCFunction)event_loop_is_running,
          METH_NOARGS,
-         "Return whether the macosx backend has set up the NSApp main event loop."},
+         PyDoc_STR(
+            "Return whether the macosx backend has set up the NSApp main event loop.")},
         {"wake_on_fd_write",
          (PyCFunction)wake_on_fd_write,
          METH_VARARGS,
-         "Arrange for Python to invoke its signal handlers when (any) data is\n"
-         "written on the file descriptor given as argument."},
+         PyDoc_STR(
+            "Arrange for Python to invoke its signal handlers when (any) data is\n"
+            "written on the file descriptor given as argument.")},
         {"stop",
          (PyCFunction)stop,
          METH_NOARGS,
-         "Stop the NSApp."},
+         PyDoc_STR("Stop the NSApp.")},
         {"show",
          (PyCFunction)show,
          METH_NOARGS,
-         "Show all the figures and enter the main loop.\n"
-         "\n"
-         "This function does not return until all Matplotlib windows are closed,\n"
-         "and is normally not needed in interactive sessions."},
+         PyDoc_STR(
+            "Show all the figures and enter the main loop.\n"
+            "\n"
+            "This function does not return until all Matplotlib windows are closed,\n"
+            "and is normally not needed in interactive sessions.")},
         {"choose_save_file",
          (PyCFunction)choose_save_file,
          METH_VARARGS,
-         "Query the user for a location where to save a file."},
+         PyDoc_STR("Query the user for a location where to save a file.")},
         {}  /* Sentinel */
     },
 };
 
 #pragma GCC visibility push(default)
 
-PyObject* PyInit__macosx(void)
+PyMODINIT_FUNC
+PyInit__macosx(void)
 {
     PyObject *m;
     if (!(m = PyModule_Create(&moduledef))
-        || prepare_and_add_type(&FigureCanvasType, m)
-        || prepare_and_add_type(&FigureManagerType, m)
-        || prepare_and_add_type(&NavigationToolbar2Type, m)
-        || prepare_and_add_type(&TimerType, m)) {
+        || PyModule_AddType(m, &FigureCanvasType)
+        || PyModule_AddType(m, &FigureManagerType)
+        || PyModule_AddType(m, &NavigationToolbar2Type)
+        || PyModule_AddType(m, &TimerType)) {
         Py_XDECREF(m);
         return NULL;
     }
