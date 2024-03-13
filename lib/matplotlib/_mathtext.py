@@ -2030,9 +2030,17 @@ class Parser:
         # elements is important for speed.)
         p.auto_delim       = Forward()
         p.placeable        = Forward()
+        p.named_placeable  = Forward()
         p.required_group   = Forward()
         p.optional_group   = Forward()
         p.token            = Forward()
+
+        # Workaround for placable being part of a cycle of definitions
+        # calling `p.placeable("name")` results in a copy, so not guaranteed
+        # to get the definition added after it is used.
+        # ref https://github.com/matplotlib/matplotlib/issues/25204
+        # xref https://github.com/pyparsing/pyparsing/issues/95
+        p.named_placeable <<= p.placeable
 
         set_names_and_parse_actions()  # for mutually recursive definitions.
 
@@ -2043,7 +2051,7 @@ class Parser:
 
         p.accent = (
             csnames("accent", [*self._accent_map, *self._wide_accents])
-            - p.placeable("sym"))
+            - p.named_placeable("sym"))
 
         p.function = csnames("name", self._function_names)
 
@@ -2089,7 +2097,7 @@ class Parser:
              + OneOrMore(oneOf(["_", "^"]) - p.placeable)("subsuper")
              + Regex("'*")("apostrophes"))
             | Regex("'+")("apostrophes")
-            | (p.placeable("nucleus") + Regex("'*")("apostrophes"))
+            | (p.named_placeable("nucleus") + Regex("'*")("apostrophes"))
         )
 
         p.simple = p.space | p.customspace | p.font | p.subsuper
