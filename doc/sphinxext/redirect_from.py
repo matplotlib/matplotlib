@@ -33,7 +33,7 @@ full path::
 """
 
 from pathlib import Path
-from docutils.parsers.rst import Directive
+from sphinx.util.docutils import SphinxDirective
 from sphinx.domains import Domain
 from sphinx.util import logging
 
@@ -51,7 +51,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
 
 def setup(app):
-    RedirectFrom.app = app
     app.add_directive("redirect-from", RedirectFrom)
     app.add_domain(RedirectFromDomain)
     app.connect("build-finished", _generate_redirects)
@@ -81,15 +80,14 @@ class RedirectFromDomain(Domain):
             self.redirects[docname] = otherdata['redirects'][docname]
 
 
-class RedirectFrom(Directive):
+class RedirectFrom(SphinxDirective):
     required_arguments = 1
 
     def run(self):
         redirected_doc, = self.arguments
-        env = self.app.env
-        domain = env.get_domain('redirect_from')
-        current_doc = env.path2doc(self.state.document.current_source)
-        redirected_reldoc, _ = env.relfn2path(redirected_doc, current_doc)
+        domain = self.env.get_domain('redirect_from')
+        current_doc = self.env.path2doc(self.state.document.current_source)
+        redirected_reldoc, _ = self.env.relfn2path(redirected_doc, current_doc)
         domain.redirects[redirected_reldoc] = current_doc
         return []
 
