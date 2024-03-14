@@ -943,9 +943,8 @@ def test_auto_format_str(fmt, value, result):
 
 
 def test_unpack_to_numpy_from_torch():
-    """Test that torch tensors are converted to numpy arrays.
-    We don't want to create a dependency on torch in the test suite, so we mock it.
-    """
+    # Test that torch tensors are converted to NumPy arrays.
+    # We don't want to create a dependency on torch in the test suite, so we mock it.
     class Tensor:
         def __init__(self, data):
             self.data = data
@@ -963,9 +962,8 @@ def test_unpack_to_numpy_from_torch():
 
 
 def test_unpack_to_numpy_from_jax():
-    """Test that jax arrays are converted to numpy arrays.
-    We don't want to create a dependency on jax in the test suite, so we mock it.
-    """
+    # Test that jax arrays are converted to NumPy arrays.
+    # We don't want to create a dependency on jax in the test suite, so we mock it.
     class Array:
         def __init__(self, data):
             self.data = data
