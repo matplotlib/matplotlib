@@ -81,9 +81,10 @@ class RedirectFromDomain(Domain):
             otherdoc = otherdata['redirects'][docname]
             if self.redirects[docname]:
                 src, dst = self.redirects[docname]
+                _, otherdst = otherdoc
                 raise ValueError(
                     f"Inconsistent redirections from {src} to "
-                    f"{dst} and {otherdoc(1)}")
+                    f"{dst} and {otherdst}")
             self.redirects[docname] = otherdoc
 
 
