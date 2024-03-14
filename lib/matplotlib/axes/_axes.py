@@ -2394,7 +2394,8 @@ class Axes(_AxesBase):
         # checking and processing will be left to the errorbar method.
         xerr = kwargs.pop('xerr', None)
         yerr = kwargs.pop('yerr', None)
-        error_kw = kwargs.pop('error_kw', {})
+        error_kw = kwargs.pop('error_kw', None)
+        error_kw = {} if error_kw is None else error_kw.copy()
         ezorder = error_kw.pop('zorder', None)
         if ezorder is None:
             ezorder = kwargs.get('zorder', None)
@@ -2550,9 +2551,8 @@ class Axes(_AxesBase):
 
             error_kw.setdefault("label", '_nolegend_')
 
-            errorbar = self.errorbar(ex, ey,
-                                     yerr=yerr, xerr=xerr,
-                                     fmt='none', **error_kw)
+            errorbar = self.errorbar(ex, ey, yerr=yerr, xerr=xerr, fmt='none',
+                                     **error_kw)
         else:
             errorbar = None
 
