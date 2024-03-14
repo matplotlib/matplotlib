@@ -4142,18 +4142,29 @@ class Lasso(AxesWidget):
         Whether to use blitting for faster drawing (if supported by the
         backend). See the tutorial :ref:`blitting`
         for details.
-    """
+    props: dict, optional
+        Lasso line properties. See `.Line2D` for valid properties.
+        Default *props* are::
 
-    def __init__(self, ax, xy, callback, *, useblit=True):
+            {'linestyle' : '-', 'color' : 'black', 'lw' : 2}
+
+        .. versionadded:: 3.9
+    """
+    def __init__(self, ax, xy, callback, *, useblit=True, props=None):
         super().__init__(ax)
 
         self.useblit = useblit and self.canvas.supports_blit
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
 
+        style = {'linestyle': '-', 'color': 'black', 'lw': 2}
+
+        if props is not None:
+            style.update(props)
+
         x, y = xy
         self.verts = [(x, y)]
-        self.line = Line2D([x], [y], linestyle='-', color='black', lw=2)
+        self.line = Line2D([x], [y], **style)
         self.ax.add_line(self.line)
         self.callback = callback
         self.connect_event('button_release_event', self.onrelease)
