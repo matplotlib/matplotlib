@@ -1746,6 +1746,11 @@ Timer__timer_start(Timer* self, PyObject* args)
                                          repeats: !single
                                            block: ^(NSTimer *timer) {
         gil_call_method((PyObject*)self, "_on_timer");
+        if (single) {
+            // A single-shot timer will be automatically invalidated when it fires, so
+            // we shouldn't do it ourselves when the object is deleted.
+            self->timer = NULL;
+        }
     }];
     // Schedule the timer on the main run loop which is needed
     // when updating the UI from a background thread
