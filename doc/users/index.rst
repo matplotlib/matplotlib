@@ -102,4 +102,4 @@ Using Matplotlib
     :hidden:
 
     getting_started/index
-    installing/index
+    ../install/index
