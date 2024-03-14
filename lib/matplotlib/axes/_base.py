@@ -3987,22 +3987,13 @@ class _AxesBase(martist.Artist):
         Displaying minor ticks may reduce performance; you may turn them off
         using `minorticks_off()` if drawing speed is a problem.
         """
-        for ax in (self.xaxis, self.yaxis):
-            scale = ax.get_scale()
-            if scale == 'log':
-                s = ax._scale
-                ax.set_minor_locator(mticker.LogLocator(s.base, s.subs))
-            elif scale == 'symlog':
-                s = ax._scale
-                ax.set_minor_locator(
-                    mticker.SymmetricalLogLocator(s._transform, s.subs))
-            else:
-                ax.set_minor_locator(mticker.AutoMinorLocator())
+        self.xaxis.minorticks_on()
+        self.yaxis.minorticks_on()
 
     def minorticks_off(self):
         """Remove minor ticks from the Axes."""
-        self.xaxis.set_minor_locator(mticker.NullLocator())
-        self.yaxis.set_minor_locator(mticker.NullLocator())
+        self.xaxis.minorticks_off()
+        self.yaxis.minorticks_off()
 
     # Interactive manipulation
 

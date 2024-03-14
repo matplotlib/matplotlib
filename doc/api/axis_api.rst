@@ -112,6 +112,9 @@ Ticks, tick labels and Offset text
 
    Axis.axis_date
 
+   Axis.minorticks_off
+   Axis.minorticks_on
+
 
 Data and view intervals
 -----------------------

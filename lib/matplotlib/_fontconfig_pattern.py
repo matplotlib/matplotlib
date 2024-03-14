@@ -13,7 +13,7 @@ from functools import lru_cache, partial
 import re
 
 from pyparsing import (
-    Optional, ParseException, Regex, StringEnd, Suppress, ZeroOrMore, oneOf)
+    Group, Optional, ParseException, Regex, StringEnd, Suppress, ZeroOrMore, oneOf)
 
 
 _family_punc = r'\\\-:,'
@@ -61,7 +61,7 @@ def _make_fontconfig_parser():
     size = Regex(r"([0-9]+\.?[0-9]*|\.[0-9]+)")
     name = Regex(r"[a-z]+")
     value = Regex(fr"([^{_value_punc}]|(\\[{_value_punc}]))*")
-    prop = (name + Suppress("=") + comma_separated(value)) | oneOf(_CONSTANTS)
+    prop = Group((name + Suppress("=") + comma_separated(value)) | oneOf(_CONSTANTS))
     return (
         Optional(comma_separated(family)("families"))
         + Optional("-" + comma_separated(size)("sizes"))
