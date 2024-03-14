@@ -53,6 +53,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 def setup(app):
     app.add_directive("redirect-from", RedirectFrom)
     app.add_domain(RedirectFromDomain)
+    app.connect("builder-inited", _clear_redirects)
     app.connect("build-finished", _generate_redirects)
 
     metadata = {'parallel_read_safe': True}
@@ -88,6 +89,10 @@ class RedirectFrom(SphinxDirective):
         domain = self.env.get_domain('redirect_from')
         current_doc = self.env.path2doc(self.state.document.current_source)
         redirected_reldoc, _ = self.env.relfn2path(redirected_doc, current_doc)
+        if redirected_reldoc in domain.redirects:
+            raise ValueError(
+                f"{redirected_reldoc} is already noted as redirecting to "
+                f"{domain.redirects[redirected_reldoc]}")
         domain.redirects[redirected_reldoc] = current_doc
         return []
 
@@ -108,3 +113,10 @@ def _generate_redirects(app, exception):
             logger.info('making refresh html file: %s redirect to %s', k, v)
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_text(html, encoding='utf-8')
+
+
+def _clear_redirects(app):
+    domain = app.env.get_domain('redirect_from')
+    if (domain.redirects):
+        domain.redirects.clear()
+        logger.info('clearing cached redirects')
