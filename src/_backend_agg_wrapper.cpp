@@ -75,14 +75,6 @@ static PyObject *PyBufferRegion_get_extents(PyBufferRegion *self, PyObject *args
     return Py_BuildValue("IIII", rect.x1, rect.y1, rect.x2, rect.y2);
 }
 
-static PyObject *PyBufferRegion_get_bounds(PyBufferRegion *self, PyObject *args)
-{
-    agg::rect_i rect = self->x->get_rect();
-
-    return Py_BuildValue("IIII", rect.x1, rect.y1, rect.x2 - rect.x1, rect.y2 - rect.y1);
-}
-
-
 int PyBufferRegion_get_buffer(PyBufferRegion *self, Py_buffer *buf, int flags)
 {
     Py_INCREF(self);
@@ -113,7 +105,6 @@ static PyTypeObject *PyBufferRegion_init_type()
         { "set_x", (PyCFunction)PyBufferRegion_set_x, METH_VARARGS, NULL },
         { "set_y", (PyCFunction)PyBufferRegion_set_y, METH_VARARGS, NULL },
         { "get_extents", (PyCFunction)PyBufferRegion_get_extents, METH_NOARGS, NULL },
-        { "get_bounds", (PyCFunction)PyBufferRegion_get_bounds, METH_NOARGS, NULL },
         { NULL }
     };
 
@@ -481,6 +472,12 @@ static PyObject *PyRendererAgg_clear(PyRendererAgg *self, PyObject *args)
 
 static PyObject *PyRendererAgg_copy_from_bbox(PyRendererAgg *self, PyObject *args)
 {
+    // Note that whilst the copy_from_bbox call can technically return an image that
+    // is of a different rect than was requested, this is not used in the underlying
+    // backend. In the future, this copy_from_bbox will not return a PyBufferRegion,
+    // and instead simply return an image (the renderer interface may still expose a
+    // bbox in the response for convenience, but this doesn't need to be a special
+    // type at the C++ level).
     agg::rect_d bbox;
     BufferRegion *reg;
     PyObject *regobj;

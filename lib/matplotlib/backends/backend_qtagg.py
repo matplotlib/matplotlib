@@ -33,7 +33,6 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             # See documentation of QRect: bottom() and right() are off
             # by 1, so use left() + width() and top() + height().
             rect = event.rect()
-
             # scale rect dimensions using the screen dpi ratio to get
             # correct values for the Figure coordinates (rather than
             # QT5's coords)
@@ -47,24 +46,17 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             right = left + width
             # create a buffer using the image bounding box
             bbox = Bbox([[left, bottom], [right, top]])
-            region = self.copy_from_bbox(bbox)
+            img = np.asarray(self.copy_from_bbox(bbox), dtype=np.uint8)
 
-            # Now draw the region we copied with the painter.
-            r_width, r_height = region.get_bounds()[2:]
+            # Clear the widget canvas, to avoid issues as seen in
+            # https://github.com/matplotlib/matplotlib/issues/13012
+            painter.eraseRect(rect)
 
-            # Draw the region copied with the QPainter
             qimage = QtGui.QImage(
-                np.frombuffer(region, dtype=np.uint8),
-                r_width, r_height,
+                img, img.shape[1], img.shape[0],
                 QtGui.QImage.Format.Format_RGBA8888,
             )
             qimage.setDevicePixelRatio(self.device_pixel_ratio)
-
-            # Clear the rect, ensuring that issues encountered with images
-            # with transparency compose correctly, as seen in
-            # https://github.com/matplotlib/matplotlib/pull/13050.
-            painter.eraseRect(rect)
-
             # set origin using original QT coordinates
             painter.drawImage(rect.topLeft(), qimage)
 
