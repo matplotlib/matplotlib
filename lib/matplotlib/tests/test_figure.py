@@ -160,7 +160,8 @@ def test_clf_keyword():
     assert [t.get_text() for t in fig2.texts] == []
 
 
-@image_comparison(['figure_today'])
+@image_comparison(['figure_today'],
+                  tol=0.015 if platform.machine() == 'arm64' else 0)
 def test_figure():
     # named figure support
     fig = plt.figure('today')

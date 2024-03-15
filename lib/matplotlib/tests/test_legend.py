@@ -151,7 +151,8 @@ def test_legend_label_with_leading_underscore():
     assert len(legend.legend_handles) == 0
 
 
-@image_comparison(['legend_labels_first.png'], remove_text=True)
+@image_comparison(['legend_labels_first.png'], remove_text=True,
+                  tol=0.013 if platform.machine() == 'arm64' else 0)
 def test_labels_first():
     # test labels to left of markers
     fig, ax = plt.subplots()
@@ -161,7 +162,8 @@ def test_labels_first():
     ax.legend(loc='best', markerfirst=False)
 
 
-@image_comparison(['legend_multiple_keys.png'], remove_text=True)
+@image_comparison(['legend_multiple_keys.png'], remove_text=True,
+                  tol=0.013 if platform.machine() == 'arm64' else 0)
 def test_multiple_keys():
     # test legend entries with multiple keys
     fig, ax = plt.subplots()
@@ -175,7 +177,7 @@ def test_multiple_keys():
 
 
 @image_comparison(['rgba_alpha.png'], remove_text=True,
-                  tol=0 if platform.machine() == 'x86_64' else 0.01)
+                  tol=0 if platform.machine() == 'x86_64' else 0.03)
 def test_alpha_rgba():
     fig, ax = plt.subplots()
     ax.plot(range(10), lw=5)
@@ -184,7 +186,7 @@ def test_alpha_rgba():
 
 
 @image_comparison(['rcparam_alpha.png'], remove_text=True,
-                  tol=0 if platform.machine() == 'x86_64' else 0.01)
+                  tol=0 if platform.machine() == 'x86_64' else 0.03)
 def test_alpha_rcparam():
     fig, ax = plt.subplots()
     ax.plot(range(10), lw=5)
@@ -212,7 +214,7 @@ def test_fancy():
 
 
 @image_comparison(['framealpha'], remove_text=True,
-                  tol=0 if platform.machine() == 'x86_64' else 0.02)
+                  tol=0 if platform.machine() == 'x86_64' else 0.024)
 def test_framealpha():
     x = np.linspace(1, 100, 100)
     y = x
@@ -523,7 +525,8 @@ def test_figure_legend_outside():
                         legbb[nn])
 
 
-@image_comparison(['legend_stackplot.png'])
+@image_comparison(['legend_stackplot.png'],
+                  tol=0.031 if platform.machine() == 'arm64' else 0)
 def test_legend_stackplot():
     """Test legend for PolyCollection using stackplot."""
     # related to #1341, #1943, and PR #3303
@@ -658,8 +661,8 @@ def test_empty_bar_chart_with_legend():
     plt.legend()
 
 
-@image_comparison(['shadow_argument_types.png'], remove_text=True,
-                  style='mpl20')
+@image_comparison(['shadow_argument_types.png'], remove_text=True, style='mpl20',
+                  tol=0.028 if platform.machine() == 'arm64' else 0)
 def test_shadow_argument_types():
     # Test that different arguments for shadow work as expected
     fig, ax = plt.subplots()

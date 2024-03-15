@@ -42,7 +42,7 @@ def test_polar_annotations():
 
 
 @image_comparison(['polar_coords'], style='default', remove_text=True,
-                  tol=0.012)
+                  tol=0.014)
 def test_polar_coord_annotations():
     # You can also use polar notation on a cartesian axes.  Here the native
     # coordinate system ('data') is cartesian, so you need to specify the

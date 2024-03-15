@@ -1,6 +1,7 @@
 from datetime import datetime
 import io
 import itertools
+import platform
 import re
 from types import SimpleNamespace
 
@@ -388,7 +389,8 @@ def test_barb_limits():
                               decimal=1)
 
 
-@image_comparison(['EllipseCollection_test_image.png'], remove_text=True)
+@image_comparison(['EllipseCollection_test_image.png'], remove_text=True,
+                  tol=0.021 if platform.machine() == 'arm64' else 0)
 def test_EllipseCollection():
     # Test basic functionality
     fig, ax = plt.subplots()

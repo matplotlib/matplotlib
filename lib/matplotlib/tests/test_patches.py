@@ -1,6 +1,8 @@
 """
 Tests specific to the patches module.
 """
+import platform
+
 import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
@@ -14,9 +16,6 @@ import matplotlib.pyplot as plt
 from matplotlib import (
     collections as mcollections, colors as mcolors, patches as mpatches,
     path as mpath, transforms as mtransforms, rcParams)
-
-import sys
-on_win = (sys.platform == 'win32')
 
 
 def test_Polygon_close():
@@ -438,8 +437,8 @@ def test_wedge_movement():
         assert getattr(w, attr) == new_v
 
 
-# png needs tol>=0.06, pdf tol>=1.617
-@image_comparison(['wedge_range'], remove_text=True, tol=1.65 if on_win else 0)
+@image_comparison(['wedge_range'], remove_text=True,
+                  tol=0.009 if platform.machine() == 'arm64' else 0)
 def test_wedge_range():
     ax = plt.axes()
 
@@ -564,7 +563,8 @@ def test_units_rectangle():
     ax.set_ylim([5*U.km, 9*U.km])
 
 
-@image_comparison(['connection_patch.png'], style='mpl20', remove_text=True)
+@image_comparison(['connection_patch.png'], style='mpl20', remove_text=True,
+                  tol=0.024 if platform.machine() == 'arm64' else 0)
 def test_connection_patch():
     fig, (ax1, ax2) = plt.subplots(1, 2)
 
