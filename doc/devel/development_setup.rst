@@ -1,3 +1,5 @@
+.. highlight:: bash
+
 .. redirect-from:: /devel/gitwash/configure_git
 .. redirect-from:: /devel/gitwash/dot2_dot3
 .. redirect-from:: /devel/gitwash/following_latest

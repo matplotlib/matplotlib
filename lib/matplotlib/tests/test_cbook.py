@@ -147,7 +147,7 @@ class Test_boxplot_stats:
 
     def test_results_withlabels(self):
         labels = ['Test1', 2, 'Aardvark', 4]
-        results = cbook.boxplot_stats(self.data, tick_labels=labels)
+        results = cbook.boxplot_stats(self.data, labels=labels)
         for lab, res in zip(labels, results):
             assert res['label'] == lab
 
@@ -158,7 +158,7 @@ class Test_boxplot_stats:
     def test_label_error(self):
         labels = [1, 2]
         with pytest.raises(ValueError):
-            cbook.boxplot_stats(self.data, tick_labels=labels)
+            cbook.boxplot_stats(self.data, labels=labels)
 
     def test_bad_dims(self):
         data = np.random.normal(size=(34, 34, 34))
@@ -943,13 +943,18 @@ def test_auto_format_str(fmt, value, result):
 
 
 def test_unpack_to_numpy_from_torch():
-    # Test that torch tensors are converted to NumPy arrays.
-    # We don't want to create a dependency on torch in the test suite, so we mock it.
+    """
+    Test that torch tensors are converted to NumPy arrays.
+
+    We don't want to create a dependency on torch in the test suite, so we mock it.
+    """
     class Tensor:
         def __init__(self, data):
             self.data = data
+
         def __array__(self):
             return self.data
+
     torch = ModuleType('torch')
     torch.Tensor = Tensor
     sys.modules['torch'] = torch
@@ -962,11 +967,15 @@ def test_unpack_to_numpy_from_torch():
 
 
 def test_unpack_to_numpy_from_jax():
-    # Test that jax arrays are converted to NumPy arrays.
-    # We don't want to create a dependency on jax in the test suite, so we mock it.
+    """
+    Test that jax arrays are converted to NumPy arrays.
+
+    We don't want to create a dependency on jax in the test suite, so we mock it.
+    """
     class Array:
         def __init__(self, data):
             self.data = data
+
         def __array__(self):
             return self.data
 

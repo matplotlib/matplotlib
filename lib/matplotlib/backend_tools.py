@@ -99,12 +99,12 @@ class ToolBase:
     """
     Icon filename.
 
-    ``str | None``: Filename of the Toolbar icon; either absolute, or
-    relative to the directory containing the Python source file where the
-    ``Tool.image``class attribute is defined (in the latter case, this cannot
-    be defined as an instance attribute).  In either case, the extension is
-    optional; leaving it off lets individual backends select the icon format
-    they prefer.  If None, the *name* is used as a label in the toolbar button.
+    ``str | None``: Filename of the Toolbar icon; either absolute, or relative to the
+    directory containing the Python source file where the ``Tool.image`` class attribute
+    is defined (in the latter case, this cannot be defined as an instance attribute).
+    In either case, the extension is optional; leaving it off lets individual backends
+    select the icon format they prefer.  If None, the *name* is used as a label in the
+    toolbar button.
     """
 
     def __init__(self, toolmanager, name):

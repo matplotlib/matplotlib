@@ -34,6 +34,13 @@ from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 
 
+def _set_rgba(ctx, color, alpha, forced_alpha):
+    if len(color) == 3 or forced_alpha:
+        ctx.set_source_rgba(*color[:3], alpha)
+    else:
+        ctx.set_source_rgba(*color)
+
+
 def _append_path(ctx, path, transform, clip=None):
     for points, code in path.iter_segments(
             transform, remove_nans=True, clip=clip):
@@ -100,13 +107,11 @@ class RendererCairo(RendererBase):
         self.gc.ctx = ctx
         self.width, self.height = size
 
-    def _fill_and_stroke(self, ctx, fill_c, alpha, alpha_overrides):
+    @staticmethod
+    def _fill_and_stroke(ctx, fill_c, alpha, alpha_overrides):
         if fill_c is not None:
             ctx.save()
-            if len(fill_c) == 3 or alpha_overrides:
-                ctx.set_source_rgba(fill_c[0], fill_c[1], fill_c[2], alpha)
-            else:
-                ctx.set_source_rgba(fill_c[0], fill_c[1], fill_c[2], fill_c[3])
+            _set_rgba(ctx, fill_c, alpha, alpha_overrides)
             ctx.fill_preserve()
             ctx.restore()
         ctx.stroke()
@@ -122,8 +127,31 @@ class RendererCairo(RendererBase):
                      + Affine2D().scale(1, -1).translate(0, self.height))
         ctx.new_path()
         _append_path(ctx, path, transform, clip)
-        self._fill_and_stroke(
-            ctx, rgbFace, gc.get_alpha(), gc.get_forced_alpha())
+        if rgbFace is not None:
+            ctx.save()
+            _set_rgba(ctx, rgbFace, gc.get_alpha(), gc.get_forced_alpha())
+            ctx.fill_preserve()
+            ctx.restore()
+        hatch_path = gc.get_hatch_path()
+        if hatch_path:
+            dpi = int(self.dpi)
+            hatch_surface = ctx.get_target().create_similar(
+                cairo.Content.COLOR_ALPHA, dpi, dpi)
+            hatch_ctx = cairo.Context(hatch_surface)
+            _append_path(hatch_ctx, hatch_path,
+                         Affine2D().scale(dpi, -dpi).translate(0, dpi),
+                         None)
+            hatch_ctx.set_line_width(self.points_to_pixels(gc.get_hatch_linewidth()))
+            hatch_ctx.set_source_rgba(*gc.get_hatch_color())
+            hatch_ctx.fill_preserve()
+            hatch_ctx.stroke()
+            hatch_pattern = cairo.SurfacePattern(hatch_surface)
+            hatch_pattern.set_extend(cairo.Extend.REPEAT)
+            ctx.save()
+            ctx.set_source(hatch_pattern)
+            ctx.fill_preserve()
+            ctx.restore()
+        ctx.stroke()
 
     def draw_markers(self, gc, marker_path, marker_trans, path, transform,
                      rgbFace=None):
@@ -267,8 +295,13 @@ class RendererCairo(RendererBase):
     def new_gc(self):
         # docstring inherited
         self.gc.ctx.save()
+        # FIXME: The following doesn't properly implement a stack-like behavior
+        # and relies instead on the (non-guaranteed) fact that artists never
+        # rely on nesting gc states, so directly resetting the attributes (IOW
+        # a single-level stack) is enough.
         self.gc._alpha = 1
         self.gc._forced_alpha = False  # if True, _alpha overrides A from RGBA
+        self.gc._hatch = None
         return self.gc
 
     def points_to_pixels(self, points):
@@ -298,12 +331,8 @@ class GraphicsContextCairo(GraphicsContextBase):
 
     def set_alpha(self, alpha):
         super().set_alpha(alpha)
-        _alpha = self.get_alpha()
-        rgb = self._rgb
-        if self.get_forced_alpha():
-            self.ctx.set_source_rgba(rgb[0], rgb[1], rgb[2], _alpha)
-        else:
-            self.ctx.set_source_rgba(rgb[0], rgb[1], rgb[2], rgb[3])
+        _set_rgba(
+            self.ctx, self._rgb, self.get_alpha(), self.get_forced_alpha())
 
     def set_antialiased(self, b):
         self.ctx.set_antialias(
