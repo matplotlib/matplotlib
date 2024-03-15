@@ -2,6 +2,7 @@
 ==============
 stairs(values)
 ==============
+A stepwise constant function as a line with bounding edges or a filled plot.
 
 See `~matplotlib.axes.Axes.stairs` when plotting :math:`y` between
 :math:`(x_i, x_{i+1})`. For plotting :math:`y` at :math:`x`, see

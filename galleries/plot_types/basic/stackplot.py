@@ -2,6 +2,8 @@
 ===============
 stackplot(x, y)
 ===============
+Draw a stacked area plot or a streamgraph.
+
 See `~matplotlib.axes.Axes.stackplot`
 """
 import matplotlib.pyplot as plt

@@ -727,7 +727,7 @@ class Quiver(mcollections.PolyCollection):
 
 
 _barbs_doc = r"""
-Plot a 2D field of barbs.
+Plot a 2D field of wind barbs.
 
 Call signature::
 

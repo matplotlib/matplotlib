@@ -19,7 +19,7 @@ def stackplot(axes, x, *args,
               labels=(), colors=None, hatch=None, baseline='zero',
               **kwargs):
     """
-    Draw a stacked area plot.
+    Draw a stacked area plot or a streamgraph.
 
     Parameters
     ----------
