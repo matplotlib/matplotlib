@@ -4001,7 +4001,7 @@ class Axes(_AxesBase):
             bootstrap = mpl.rcParams['boxplot.bootstrap']
 
         bxpstats = cbook.boxplot_stats(x, whis=whis, bootstrap=bootstrap,
-                                       tick_labels=tick_labels, autorange=autorange)
+                                       labels=tick_labels, autorange=autorange)
         if notch is None:
             notch = mpl.rcParams['boxplot.notch']
         if vert is None:
