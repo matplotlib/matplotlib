@@ -347,6 +347,10 @@ jobs:
 
           remove_files "png"; remove_files "svg"; remove_files "pdf"; remove_files "eps";
 
+          if [ "$(find ./result_images -mindepth 1 -type d)" ]; then
+              find ./result_images/* -type d -empty -delete
+          fi
+
       - name: Filter C coverage
         run: |
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
