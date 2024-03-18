@@ -1,1 +1,1 @@
-Please refer to the [developers guide](https://matplotlib.org/devel/index.html).
+Please refer to the [contributing guide](https://matplotlib.org/devel/index.html).

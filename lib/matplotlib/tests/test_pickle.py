@@ -15,7 +15,7 @@ from matplotlib.lines import VertexSelector
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import matplotlib.figure as mfigure
-from mpl_toolkits.axes_grid1 import parasite_axes  # type: ignore
+from mpl_toolkits.axes_grid1 import axes_divider, parasite_axes  # type: ignore
 
 
 def test_simple():
@@ -274,6 +274,7 @@ def test_unpickle_canvas():
 
 def test_mpl_toolkits():
     ax = parasite_axes.host_axes([0, 0, 1, 1])
+    axes_divider.make_axes_area_auto_adjustable(ax)
     assert type(pickle.loads(pickle.dumps(ax))) == parasite_axes.HostAxes
 
 

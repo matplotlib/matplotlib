@@ -773,6 +773,14 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self._interpolation = s
         self.stale = True
 
+    def get_interpolation_stage(self):
+        """
+        Return when interpolation happens during the transform to RGBA.
+
+        One of 'data', 'rgba'.
+        """
+        return self._interpolation_stage
+
     def set_interpolation_stage(self, s):
         """
         Set when interpolation happens during the transform to RGBA.
