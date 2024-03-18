@@ -8511,6 +8511,8 @@ def test_empty_line_plots():
     (":-", r"':-' is not a valid format string \(two linestyle symbols\)"),
     ("rk", r"'rk' is not a valid format string \(two color symbols\)"),
     (":o-r", r"':o-r' is not a valid format string \(two linestyle symbols\)"),
+    ("C", r"'C' is not a valid format string \('C' must be followed by a number\)"),
+    (".C", r"'.C' is not a valid format string \('C' must be followed by a number\)"),
 ))
 @pytest.mark.parametrize("data", [None, {"string": range(3)}])
 def test_plot_format_errors(fmt, match, data):
@@ -8543,6 +8545,11 @@ def test_plot_format():
     line = ax.plot([1, 2, 3], 'k3')
     assert line[0].get_marker() == '3'
     assert line[0].get_color() == 'k'
+    fig, ax = plt.subplots()
+    line = ax.plot([1, 2, 3], '.C12:')
+    assert line[0].get_marker() == '.'
+    assert line[0].get_color() == mcolors.to_rgba('C12')
+    assert line[0].get_linestyle() == ':'
 
 
 def test_automatic_legend():
