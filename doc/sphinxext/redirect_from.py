@@ -77,15 +77,13 @@ class RedirectFromDomain(Domain):
         self.redirects.pop(docname, None)
 
     def merge_domaindata(self, docnames, otherdata):
-        for docname in docnames:
-            otherdoc = otherdata['redirects'][docname]
-            if self.redirects[docname]:
-                src, dst = self.redirects[docname]
-                _, otherdst = otherdoc
+        for src, dst in otherdata['redirects'].items():
+            if src not in self.redirects:
+                self.redirects[src] = dst
+            elif self.redirects[src] != dst:
                 raise ValueError(
                     f"Inconsistent redirections from {src} to "
-                    f"{dst} and {otherdst}")
-            self.redirects[docname] = otherdoc
+                    f"{self.redirects[src]} and {otherdata['redirects'][src]}")
 
 
 class RedirectFrom(SphinxDirective):
