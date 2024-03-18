@@ -10,8 +10,8 @@ from pathlib import Path
 import warnings
 
 import numpy as np
-import PIL.Image
-import PIL.PngImagePlugin
+from PIL import Image
+from PIL import PngImagePlugin
 
 import matplotlib as mpl
 from matplotlib import _api, cbook, cm
@@ -679,7 +679,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """Write the image to png file *fname*."""
         im = self.to_rgba(self._A[::-1] if self.origin == 'lower' else self._A,
                           bytes=True, norm=True)
-        PIL.Image.fromarray(im).save(fname, format="png")
+        Image.fromarray(im).save(fname, format="png")
 
     @staticmethod
     def _normalize_image_array(A):
@@ -722,9 +722,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        A : array-like or `PIL.Image.Image`
+        A : array-like or Pillow `~PIL.Image.Image`
         """
-        if isinstance(A, PIL.Image.Image):
+        if isinstance(A, Image.Image):
             A = pil_to_array(A)  # Needed e.g. to apply png palette.
         self._A = self._normalize_image_array(A)
         self._imcache = None
@@ -1477,7 +1477,7 @@ def imread(fname, format=None):
     .. note::
 
         This function exists for historical reasons.  It is recommended to
-        use `PIL.Image.open` instead for loading images.
+        use Pillow's `~PIL.Image.open` instead for loading images.
 
     Parameters
     ----------
@@ -1487,13 +1487,13 @@ def imread(fname, format=None):
 
         Passing a URL is deprecated.  Please open the URL
         for reading and pass the result to Pillow, e.g. with
-        ``np.array(PIL.Image.open(urllib.request.urlopen(url)))``.
+        ``np.array(Image.open(urllib.request.urlopen(url)))``.
     format : str, optional
         The image file format assumed for reading the data.  The image is
         loaded as a PNG file if *format* is set to "png", if *fname* is a path
         or opened file with a ".png" extension, or if it is a URL.  In all
         other cases, *format* is ignored and the format is auto-detected by
-        `PIL.Image.open`.
+        Pillow's `~PIL.Image.open`.
 
     Returns
     -------
@@ -1534,17 +1534,17 @@ def imread(fname, format=None):
     else:
         ext = format
     img_open = (
-        PIL.PngImagePlugin.PngImageFile if ext == 'png' else PIL.Image.open)
+        PngImagePlugin.PngImageFile if ext == 'png' else Image.open)
     if isinstance(fname, str) and len(parse.urlparse(fname).scheme) > 1:
         # Pillow doesn't handle URLs directly.
         raise ValueError(
             "Please open the URL for reading and pass the "
             "result to Pillow, e.g. with "
-            "``np.array(PIL.Image.open(urllib.request.urlopen(url)))``."
+            "``np.array(Image.open(urllib.request.urlopen(url)))``."
             )
     with img_open(fname) as image:
         return (_pil_png_to_float_array(image)
-                if isinstance(image, PIL.PngImagePlugin.PngImageFile) else
+                if isinstance(image, PngImagePlugin.PngImageFile) else
                 pil_to_array(image))
 
 
@@ -1595,9 +1595,9 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         information.
         Currently only supported for "png", "pdf", "ps", "eps", and "svg".
     pil_kwargs : dict, optional
-        Keyword arguments passed to `PIL.Image.Image.save`.  If the 'pnginfo'
-        key is present, it completely overrides *metadata*, including the
-        default 'Software' key.
+        Keyword arguments passed to Pillow's `~PIL.Image.Image.save`.  If the
+        'pnginfo' key is present, it completely overrides *metadata*, including
+        the default 'Software' key.
     """
     from matplotlib.figure import Figure
     if isinstance(fname, os.PathLike):
@@ -1641,7 +1641,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             # we modify this below, so make a copy (don't modify caller's dict)
             pil_kwargs = pil_kwargs.copy()
         pil_shape = (rgba.shape[1], rgba.shape[0])
-        image = PIL.Image.frombuffer(
+        image = Image.frombuffer(
             "RGBA", pil_shape, rgba, "raw", "RGBA", 0, 1)
         if format == "png":
             # Only use the metadata kwarg if pnginfo is not set, because the
@@ -1656,7 +1656,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
                                  f"https://matplotlib.org/"),
                     **(metadata if metadata is not None else {}),
                 }
-                pil_kwargs["pnginfo"] = pnginfo = PIL.PngImagePlugin.PngInfo()
+                pil_kwargs["pnginfo"] = pnginfo = PngImagePlugin.PngInfo()
                 for k, v in metadata.items():
                     if v is not None:
                         pnginfo.add_text(k, v)
@@ -1668,7 +1668,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             if cbook._str_equal(facecolor, "auto"):
                 facecolor = mpl.rcParams["figure.facecolor"]
             color = tuple(int(x * 255) for x in mcolors.to_rgb(facecolor))
-            background = PIL.Image.new("RGB", pil_shape, color)
+            background = Image.new("RGB", pil_shape, color)
             background.paste(image, image)
             image = background
         pil_kwargs.setdefault("format", format)
@@ -1715,7 +1715,7 @@ def _pil_png_to_float_array(pil_png):
     """Convert a PIL `PNGImageFile` to a 0-1 float array."""
     # Unlike pil_to_array this converts to 0-1 float32s for backcompat with the
     # old libpng-based loader.
-    # The supported rawmodes are from PIL.PngImagePlugin._MODES.  When
+    # The supported rawmodes are from Pillow's PngImagePlugin._MODES.  When
     # mode == "RGB(A)", the 16-bit raw data has already been coarsened to 8-bit
     # by Pillow.
     mode = pil_png.mode

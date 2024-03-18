@@ -5,7 +5,7 @@ from typing import Any, BinaryIO, Literal
 
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
-import PIL.Image
+from PIL import Image
 
 import matplotlib.artist as martist
 from matplotlib.axes import Axes
@@ -200,7 +200,7 @@ def imsave(
     metadata: dict[str, str] | None = ...,
     pil_kwargs: dict[str, Any] | None = ...
 ) -> None: ...
-def pil_to_array(pilImage: PIL.Image.Image) -> np.ndarray: ...
+def pil_to_array(pilImage: Image.Image) -> np.ndarray: ...
 def thumbnail(
     infile: str | BinaryIO,
     thumbfile: str | BinaryIO,

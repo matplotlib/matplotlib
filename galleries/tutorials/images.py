@@ -78,8 +78,8 @@ import numpy as np
 # <https://raw.githubusercontent.com/matplotlib/matplotlib/main/doc/_static/stinkbug.png>`_
 # to your computer for the rest of this tutorial.
 #
-# We use Pillow to open an image (with `PIL.Image.open`), and immediately
-# convert the `PIL.Image.Image` object into an 8-bit (``dtype=uint8``) numpy
+# We use Pillow to open an image (with Pillow's `~PIL.Image.open`), and immediately
+# convert Pillow's `~PIL.Image.Image` object into an 8-bit (``dtype=uint8``) numpy
 # array.
 
 img = np.asarray(Image.open('../../doc/_static/stinkbug.png'))

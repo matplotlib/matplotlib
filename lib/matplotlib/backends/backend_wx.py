@@ -15,7 +15,7 @@ import sys
 import weakref
 
 import numpy as np
-import PIL.Image
+from PIL import Image
 
 import matplotlib as mpl
 from matplotlib.backend_bases import (
@@ -1054,7 +1054,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         *name*, including the extension and relative to Matplotlib's "images"
         data directory.
         """
-        pilimg = PIL.Image.open(cbook._get_data_path("images", name))
+        pilimg = Image.open(cbook._get_data_path("images", name))
         # ensure RGBA as wx BitMap expects RGBA format
         image = np.array(pilimg.convert("RGBA"))
         try:

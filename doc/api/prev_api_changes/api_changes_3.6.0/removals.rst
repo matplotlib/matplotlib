@@ -25,8 +25,8 @@ Stricter validation of function parameters
 
 Passing a URL to `~.pyplot.imread()` has been removed. Please open the URL for
 reading and directly use the Pillow API (e.g.,
-``PIL.Image.open(urllib.request.urlopen(url))``, or
-``PIL.Image.open(io.BytesIO(requests.get(url).content))``) instead.
+``from PIL import Image;Image.open(urllib.request.urlopen(url))``, or
+``from PIL import Image;Image.open(io.BytesIO(requests.get(url).content))``) instead.
 
 MarkerStyle is immutable
 ........................

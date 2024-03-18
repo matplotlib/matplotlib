@@ -29,7 +29,7 @@ import matplotlib.stackplot as mstack
 import matplotlib.streamplot as mstream
 
 import datetime
-import PIL.Image
+from PIL import Image
 from collections.abc import Callable, Iterable, Sequence
 from typing import Any, Literal, overload
 import numpy as np
@@ -476,7 +476,7 @@ class Axes(_AxesBase):
     ) -> PolyCollection: ...
     def imshow(
         self,
-        X: ArrayLike | PIL.Image.Image,
+        X: ArrayLike | Image.Image,
         cmap: str | Colormap | None = ...,
         norm: str | Normalize | None = ...,
         *,

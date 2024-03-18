@@ -3291,7 +3291,7 @@ None}, default: None
 
         pil_kwargs : dict, optional
             Additional keyword arguments that are passed to
-            `PIL.Image.Image.save` when saving the figure.
+            Pillow's `~PIL.Image.Image.save` when saving the figure.
 
         """
 

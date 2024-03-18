@@ -7,7 +7,7 @@ from .lines import Line2D
 from .patches import Circle, Polygon, Rectangle
 from .text import Text
 
-import PIL.Image
+from PIL import Image
 
 from collections.abc import Callable, Collection, Iterable, Sequence
 from typing import Any, Literal
@@ -46,7 +46,7 @@ class Button(AxesWidget):
         self,
         ax: Axes,
         label: str,
-        image: ArrayLike | PIL.Image.Image | None = ...,
+        image: ArrayLike | Image.Image | None = ...,
         color: ColorType = ...,
         hovercolor: ColorType = ...,
         *,

@@ -29,8 +29,8 @@ raise a deprecation warning. In the future, this will become a hard error.
 
 Passing a URL to `~.pyplot.imread()` is deprecated. Please open the URL for
 reading and directly use the Pillow API
-(``PIL.Image.open(urllib.request.urlopen(url))``, or
-``PIL.Image.open(io.BytesIO(requests.get(url).content))``) instead.
+(``from PIL import Image;Image.open(urllib.request.urlopen(url))``, or
+``from PIL import Image;Image.open(io.BytesIO(requests.get(url).content))``) instead.
 
 Subplot-related attributes and methods
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
