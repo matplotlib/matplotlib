@@ -317,7 +317,10 @@ target is unambiguous you can simply leave them out:
 
   `.LineCollection`
 
-and the link still works: `.LineCollection`.
+and the link still works: `.LineCollection`. Note that you should typically include
+the leading dot. It tells Sphinx to look for the given name in the whole project.
+See also the explanation at `Sphinx: Cross-referencing Python objects
+<https://www.sphinx-doc.org/en/master/usage/domains/python.html#cross-referencing-python-objects>`_.
 
 If there are multiple code elements with the same name (e.g. ``plot()`` is a
 method in multiple classes), you'll have to extend the definition:
