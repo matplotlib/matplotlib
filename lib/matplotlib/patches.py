@@ -4189,7 +4189,7 @@ default: 'arc3'
             Head and tail patches, respectively.
 
         shrinkA, shrinkB : float, default: 2
-            Shrinking factor of the tail and head of the arrow respectively.
+            Shrink amount, in points, of the tail and head of the arrow respectively.
 
         mutation_scale : float, default: 1
             Value with which attributes of *arrowstyle* (e.g., *head_length*)
