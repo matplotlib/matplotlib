@@ -1846,10 +1846,13 @@ class PatchCollection(Collection):
             a heterogeneous assortment of different patch types.
 
         match_original : bool, default: False
-            If True, use the colors and linewidths of the original
-            patches.  If False, new colors may be assigned by
+            If True, use the colors, linewidths, linestyles
+            and the hatch of the original patches.
+            If False, new colors may be assigned by
             providing the standard collection arguments, facecolor,
             edgecolor, linewidths, norm or cmap.
+            Also, all hatches will be set to the first patch's hatch,
+            regardless of the hatch set in the original patches.
 
         **kwargs
             All other parameters are forwarded to `.Collection`.
@@ -1867,16 +1870,19 @@ class PatchCollection(Collection):
         """
 
         if match_original:
-            def determine_facecolor(patch):
-                if patch.get_fill():
-                    return patch.get_facecolor()
-                return [0, 0, 0, 0]
-
-            kwargs['facecolors'] = [determine_facecolor(p) for p in patches]
-            kwargs['edgecolors'] = [p.get_edgecolor() for p in patches]
+            kwargs['facecolors'] = [p.get_facecolor() for p in patches]
             kwargs['linewidths'] = [p.get_linewidth() for p in patches]
             kwargs['linestyles'] = [p.get_linestyle() for p in patches]
             kwargs['antialiaseds'] = [p.get_antialiased() for p in patches]
+
+            # Edgecolors are handled separately because are defaulted to None
+            # and the Hatch colors depend on them.
+            if any(p._original_edgecolor is not None for p in patches):
+                kwargs["edgecolors"] = [p.get_edgecolor() for p in patches]
+
+            # Using the hatch of only the first patch
+            if patches:
+                kwargs['hatch'] = patches[0].get_hatch()
 
         super().__init__(**kwargs)
 
