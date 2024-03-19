@@ -1460,7 +1460,7 @@ def test_boxplot_legend_labels():
     assert all(isinstance(h, mpl.lines.Line2D) for h in handles)
 
     # Testing legend with number of labels different from number of boxes.
-    with pytest.raises(ValueError, match='There must be an equal number'):
+    with pytest.raises(ValueError, match='values must have same the length'):
         bp3 = axs[2].boxplot(data, label=legend_labels[:-1])
 
     # Test that for a string label, only the first box gets a label.

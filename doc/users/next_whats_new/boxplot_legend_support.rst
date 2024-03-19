@@ -3,7 +3,7 @@ Legend support for Boxplot
 Boxplots now support a *label* parameter to create legend entries.
 
 Legend labels can be passed as a list of strings to label multiple boxes in a single
-`.boxplot` call:
+`.Axes.boxplot` call:
 
 
 .. plot::
@@ -37,7 +37,7 @@ Legend labels can be passed as a list of strings to label multiple boxes in a si
     ax.legend()
 
 
-Or as a single string to each individual `.boxplot`:
+Or as a single string to each individual `.Axes.boxplot`:
 
 .. plot::
     :include-source: true
