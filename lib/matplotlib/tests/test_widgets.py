@@ -1042,9 +1042,11 @@ def test_lasso_set_props(ax):
     assert line.get_alpha() == 0.3
 
 
-def test_CheckButtons(ax):
+@pytest.mark.parametrize('layout_direction', ['vertical', 'horizontal'])
+def test_CheckButtons(ax, layout_direction):
     labels = ('a', 'b', 'c')
-    check = widgets.CheckButtons(ax, labels, (True, False, True))
+    check = widgets.CheckButtons(ax, labels, (True, False, True),
+                                 layout_direction=layout_direction)
     assert check.get_status() == [True, False, True]
     check.set_active(0)
     assert check.get_status() == [False, False, True]
@@ -1111,28 +1113,54 @@ def test_RadioButtons(ax, layout_direction):
 
 @image_comparison(['check_radio_buttons.png'], style='mpl20', remove_text=True)
 def test_check_radio_buttons_image():
-    ax = get_ax()
-    fig = ax.figure
-    fig.subplots_adjust(left=0.3)
+    fig = plt.figure()
 
-    rax1 = fig.add_axes((0.05, 0.7, 0.2, 0.15))
-    rb1 = widgets.RadioButtons(rax1, ('Radio 1', 'Radio 2', 'Radio 3'))
+    rb1 = widgets.RadioButtons(fig.add_axes((0.05, 0.7, 0.2, 0.15)),
+                               ('Radio 1', 'Radio 2', 'Radio 3'))
 
-    rax2 = fig.add_axes((0.05, 0.5, 0.2, 0.15))
-    cb1 = widgets.CheckButtons(rax2, ('Check 1', 'Check 2', 'Check 3'),
+    rb2 = widgets.RadioButtons(fig.add_axes((0.3, 0.7, 0.6, 0.15)),
+                               ('Radio 1', 'Radio 2', 'Radio 3'),
+                               layout_direction='horizontal')
+
+    cb1 = widgets.CheckButtons(fig.add_axes((0.05, 0.5, 0.2, 0.15)),
+                               ('Check 1', 'Check 2', 'Check 3'),
                                (False, True, True))
 
-    rax3 = fig.add_axes((0.05, 0.3, 0.2, 0.15))
+    cb2 = widgets.CheckButtons(fig.add_axes((0.3, 0.5, 0.6, 0.15)),
+                               ('Check 1', 'Check 2', 'Check 3'),
+                               (False, True, True),
+                               layout_direction='horizontal')
+
     rb3 = widgets.RadioButtons(
-        rax3, ('Radio 1', 'Radio 2', 'Radio 3'),
+        fig.add_axes((0.05, 0.3, 0.2, 0.15)),
+        ('Radio 1', 'Radio 2', 'Radio 3'),
         label_props={'fontsize': [8, 12, 16],
                      'color': ['red', 'green', 'blue']},
         radio_props={'edgecolor': ['red', 'green', 'blue'],
                      'facecolor': ['mistyrose', 'palegreen', 'lightblue']})
 
-    rax4 = fig.add_axes((0.05, 0.1, 0.2, 0.15))
+    rb4 = widgets.RadioButtons(
+        fig.add_axes((0.3, 0.3, 0.6, 0.15)),
+        ('Radio 1', 'Radio 2', 'Radio 3'),
+        layout_direction='horizontal',
+        label_props={'fontsize': [8, 12, 16],
+                     'color': ['red', 'green', 'blue']},
+        radio_props={'edgecolor': ['red', 'green', 'blue'],
+                     'facecolor': ['mistyrose', 'palegreen', 'lightblue']})
+
+    cb3 = widgets.CheckButtons(
+        fig.add_axes((0.05, 0.1, 0.2, 0.15)),
+        ('Check 1', 'Check 2', 'Check 3'), (False, True, True),
+        label_props={'fontsize': [8, 12, 16],
+                     'color': ['red', 'green', 'blue']},
+        frame_props={'edgecolor': ['red', 'green', 'blue'],
+                     'facecolor': ['mistyrose', 'palegreen', 'lightblue']},
+        check_props={'color': ['red', 'green', 'blue']})
+
     cb4 = widgets.CheckButtons(
-        rax4, ('Check 1', 'Check 2', 'Check 3'), (False, True, True),
+        fig.add_axes((0.3, 0.1, 0.6, 0.15)),
+        ('Check 1', 'Check 2', 'Check 3'), (False, True, True),
+        layout_direction='horizontal',
         label_props={'fontsize': [8, 12, 16],
                      'color': ['red', 'green', 'blue']},
         frame_props={'edgecolor': ['red', 'green', 'blue'],
