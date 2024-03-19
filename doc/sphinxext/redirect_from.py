@@ -122,6 +122,6 @@ def _generate_redirects(app, exception):
 
 def _clear_redirects(app):
     domain = app.env.get_domain('redirect_from')
-    if (domain.redirects):
-        domain.redirects.clear()
+    if domain.redirects:
         logger.info('clearing cached redirects')
+        domain.redirects.clear()
