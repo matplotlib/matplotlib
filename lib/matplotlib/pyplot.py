@@ -413,7 +413,7 @@ def switch_backend(newbackend: str) -> None:
     if newbackend in ("ipympl", "widget"):
         # ipympl < 0.9.4 expects rcParams["backend"] to be the fully-qualified backend
         # name "module://ipympl.backend_nbagg" not short names "ipympl" or "widget".
-        import importlib_metadata as im
+        import importlib.metadata as im
         from matplotlib import _parse_to_version_info  # type: ignore[attr-defined]
         try:
             module_version = im.version("ipympl")
