@@ -80,8 +80,8 @@ class Patch(artist.Artist):
                     "the edgecolor or facecolor properties.")
             self.set_color(color)
         else:
-            self.set_edgecolor(edgecolor)
             self.set_facecolor(facecolor)
+            self.set_edgecolor(edgecolor)
 
         self._linewidth = 0
         self._unscaled_dash_pattern = (0, None)  # offset, dash
@@ -369,7 +369,7 @@ class Patch(artist.Artist):
                 set_hatch_color = False
 
         self._edgecolor = colors.to_rgba(color, self._alpha)
-        if set_hatch_color:
+        if set_hatch_color and not self._facecolor == self._edgecolor:
             self._hatch_color = self._edgecolor
         self.stale = True
 
