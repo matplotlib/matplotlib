@@ -372,7 +372,7 @@ class Axes(_AxesBase):
         autorange: bool = ...,
         zorder: float | None = ...,
         capwidths: float | ArrayLike | None = ...,
-		label: Sequence[str] | None = ...,
+        label: Sequence[str] | None = ...,
         *,
         data=...,
     ) -> dict[str, Any]: ...
@@ -398,7 +398,7 @@ class Axes(_AxesBase):
         manage_ticks: bool = ...,
         zorder: float | None = ...,
         capwidths: float | ArrayLike | None = ...,
-		label: Sequence[str] | None = ...,
+        label: Sequence[str] | None = ...,
     ) -> dict[str, Any]: ...
     def scatter(
         self,

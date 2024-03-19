@@ -3997,6 +3997,8 @@ class Axes(_AxesBase):
             median line (``result["medians"]``); if *patch_artist* is True, the legend
             will show the box `.Patch` artists (``result["boxes"]``) instead.
 
+            .. versionadded:: 3.9
+
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
 
@@ -4221,6 +4223,8 @@ class Axes(_AxesBase):
             median line (``result["medians"]``); if *patch_artist* is True, the legend
             will show the box `.Patch` artists (``result["boxes"]``) instead.
 
+            .. versionadded:: 3.9
+
         zorder : float, default: ``Line2D.zorder = 2``
           The zorder of the resulting boxplot.
 
@@ -4421,8 +4425,7 @@ class Axes(_AxesBase):
                 box_or_med[0].set_label(label)
             else:  # label is a sequence
                 if len(box_or_med) != len(label):
-                    raise ValueError("There must be an equal number of legend"
-                                     " labels and boxplots.")
+                    raise ValueError(datashape_message.format("label"))
                 for artist, lbl in zip(box_or_med, label):
                     artist.set_label(lbl)
 
