@@ -1,14 +1,14 @@
-RadioButtons widget may now be laid out horizontally
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CheckButtons / RadioButtons widget may now be laid out horizontally
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The `.RadioButtons` widget's primary layout direction may now be specified with
-the *orientation* keyword argument:
+The `.CheckButtons` and `.RadioButtons` widget's primary layout direction may
+now be specified with the *orientation* keyword argument:
 
 .. plot::
     :include-source:
 
     import matplotlib.pyplot as plt
-    from matplotlib.widgets import RadioButtons
+    from matplotlib.widgets import CheckButtons, RadioButtons
 
     fig = plt.figure(figsize=(4, 2))
 
@@ -16,8 +16,14 @@ the *orientation* keyword argument:
     rbv = RadioButtons(fig.add_axes((0.05, 0.6, 0.2, 0.35)),
                        ('Radio 1', 'Radio 2', 'Radio 3'),
                        orientation='vertical')
+    cbv = CheckButtons(fig.add_axes((0.05, 0.2, 0.2, 0.35)),
+                       ('Check 1', 'Check 2', 'Check 3'),
+                       orientation='vertical')
 
     # Alternatively, a horizontal orientation may be used:
     rbh = RadioButtons(fig.add_axes((0.3, 0.6, 0.6, 0.35)),
                        ('Radio 1', 'Radio 2', 'Radio 3'),
+                       orientation='horizontal')
+    cbh = CheckButtons(fig.add_axes((0.3, 0.2, 0.6, 0.35)),
+                       ('Check 1', 'Check 2', 'Check 3'),
                        orientation='horizontal')
