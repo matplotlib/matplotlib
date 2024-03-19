@@ -1208,13 +1208,17 @@ def use(backend, *, force=True):
         backend names, which are case-insensitive:
 
         - interactive backends:
-          GTK3Agg, GTK3Cairo, GTK4Agg, GTK4Cairo, MacOSX, nbAgg, QtAgg,
-          QtCairo, TkAgg, TkCairo, WebAgg, WX, WXAgg, WXCairo, Qt5Agg, Qt5Cairo
+          GTK3Agg, GTK3Cairo, GTK4Agg, GTK4Cairo, MacOSX, nbAgg, notebook, QtAgg,
+          QtCairo, TkAgg, TkCairo, WebAgg, WX, WXAgg, WXCairo, Qt5Agg, Qt5Cairo,
+          Qt6Agg, Qt6Cairo
 
         - non-interactive backends:
           agg, cairo, pdf, pgf, ps, svg, template
 
         or a string of the form: ``module://my.module.name``.
+
+        notebook is a synonym for nbAgg, Qt6Agg for QtAgg, and Qt6Cairo for
+        QtCairo.
 
         Switching to an interactive backend is not possible if an unrelated
         event loop has already been started (e.g., switching to GTK3Agg if a
