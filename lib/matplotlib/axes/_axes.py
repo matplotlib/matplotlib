@@ -3995,7 +3995,7 @@ class Axes(_AxesBase):
             In the case of a single string, the legend entry will technically be
             associated with the first box only. By default, the legend will show the
             median line (``result["medians"]``); if *patch_artist* is True, the legend
-            will show the box `Patch` artists (``result["boxes"]``) instead.
+            will show the box `.Patch` artists (``result["boxes"]``) instead.
 
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
@@ -4219,7 +4219,7 @@ class Axes(_AxesBase):
             In the case of a single string, the legend entry will technically be
             associated with the first box only. By default, the legend will show the
             median line (``result["medians"]``); if *patch_artist* is True, the legend
-            will show the box `Patch` artists (``result["boxes"]``) instead.
+            will show the box `.Patch` artists (``result["boxes"]``) instead.
 
         zorder : float, default: ``Line2D.zorder = 2``
           The zorder of the resulting boxplot.
