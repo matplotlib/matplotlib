@@ -7104,8 +7104,11 @@ such objects
     def stairs(self, values, edges=None, *,
                orientation='vertical', baseline=0, fill=False, **kwargs):
         """
-        A stepwise constant function as a line with bounding edges
-        or a filled plot.
+        Draw a stepwise constant function as a line or a filled plot.
+
+        *edges* define the x-axis positions of the steps. *values* the function values
+        between these steps. Depending on *fill*, the function is drawn either as a
+        continuous line with vertical segments at the edges, or as a filled area.
 
         Parameters
         ----------
@@ -7113,7 +7116,7 @@ such objects
             The step heights.
 
         edges : array-like
-            The edge positions, with ``len(edges) == len(vals) + 1``,
+            The step positions, with ``len(edges) == len(vals) + 1``,
             between which the curve takes on vals values.
 
         orientation : {'vertical', 'horizontal'}, default: 'vertical'
