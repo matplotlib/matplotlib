@@ -1767,8 +1767,8 @@ or callable, default: value of *xycoords*
             relpos           See below; default is (0.5, 0.5)
             patchA           Default is bounding box of the text
             patchB           Default is None
-            shrinkA          Default is 2 points
-            shrinkB          Default is 2 points
+            shrinkA          In points. Default is 2 points
+            shrinkB          In points. Default is 2 points
             mutation_scale   Default is text size (in points)
             mutation_aspect  Default is 1
             ?                Any `.FancyArrowPatch` property
