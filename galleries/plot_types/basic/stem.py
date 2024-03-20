@@ -2,6 +2,7 @@
 ==========
 stem(x, y)
 ==========
+Create a stem plot.
 
 See `~matplotlib.axes.Axes.stem`.
 """

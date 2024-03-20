@@ -2,6 +2,7 @@
 ==========
 boxplot(X)
 ==========
+Draw a box and whisker plot.
 
 See `~matplotlib.axes.Axes.boxplot`.
 """

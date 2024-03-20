@@ -2,6 +2,7 @@
 =========
 imshow(Z)
 =========
+Display data as an image, i.e., on a 2D regular raster.
 
 See `~matplotlib.axes.Axes.imshow`.
 """

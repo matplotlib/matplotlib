@@ -2,6 +2,7 @@
 ==================
 tripcolor(x, y, z)
 ==================
+Create a pseudocolor plot of an unstructured triangular grid.
 
 See `~matplotlib.axes.Axes.tripcolor`.
 """
