@@ -194,7 +194,7 @@ jobs:
           if-no-files-found: error
 
   publish:
-    if: github.event_name == 'release' && github.event.action == 'published'
+    if: github.event_name == 'push' && github.ref_type == 'tag'
     name: Upload release to PyPI
     needs: [build_sdist, build_wheels]
     runs-on: ubuntu-latest
