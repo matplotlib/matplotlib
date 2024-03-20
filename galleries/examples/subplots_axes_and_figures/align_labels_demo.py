@@ -1,16 +1,16 @@
 """
-===============
-Aligning Labels
-===============
+==========================
+Aligning Labels and Titles
+==========================
 
-Aligning xlabel and ylabel using `.Figure.align_xlabels` and
-`.Figure.align_ylabels`
+Aligning xlabel, ylabel, and title using `.Figure.align_xlabels`,
+`.Figure.align_ylabels`, and `.Figure.align_titles`.
 
-`.Figure.align_labels` wraps these two functions.
+`.Figure.align_labels` wraps the x and y label functions.
 
 Note that the xlabel "XLabel1 1" would normally be much closer to the
-x-axis, and "YLabel1 0" would be much closer to the y-axis of their
-respective axes.
+x-axis, "YLabel1 0" would be much closer to the y-axis, and title
+"Title0 1" would be much closer to the top of their respective axes.
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,12 +18,19 @@ import numpy as np
 import matplotlib.gridspec as gridspec
 
 fig = plt.figure(tight_layout=True)
-gs = gridspec.GridSpec(2, 2)
+gs = gridspec.GridSpec(2, 3)
 
-ax = fig.add_subplot(gs[0, :])
+ax = fig.add_subplot(gs[0, :2])
 ax.plot(np.arange(0, 1e6, 1000))
-ax.set_ylabel('YLabel0')
-ax.set_xlabel('XLabel0')
+ax.set_title('Title0 1')
+ax.set_ylabel('YLabel0 1')
+ax.set_xlabel('XLabel0 1')
+
+ax = fig.add_subplot(gs[0, -1])
+ax.plot(np.arange(1., 0., -0.1) * 2000., np.arange(1., 0., -0.1))
+ax.set_title('Title0 2')
+ax.xaxis.tick_top()
+
 
 for i in range(2):
     ax = fig.add_subplot(gs[1, i])
@@ -32,6 +39,8 @@ for i in range(2):
     ax.set_xlabel('XLabel1 %d' % i)
     if i == 0:
         ax.tick_params(axis='x', rotation=55)
+
 fig.align_labels()  # same as fig.align_xlabels(); fig.align_ylabels()
+fig.align_titles()
 
 plt.show()
