@@ -5,6 +5,7 @@ import inspect
 import logging
 from numbers import Real
 from operator import attrgetter
+import re
 import types
 
 import numpy as np
@@ -189,13 +190,14 @@ def _process_plot_format(fmt, *, ambiguous_fmt_datakey=False):
                 raise ValueError(errfmt.format(fmt, "two color symbols"))
             color = c
             i += 1
-        elif c == 'C' and i < len(fmt) - 1:
-            color_cycle_number = int(fmt[i + 1])
-            color = mcolors.to_rgba(f"C{color_cycle_number}")
-            i += 2
+        elif c == "C":
+            cn_color = re.match(r"C\d+", fmt[i:])
+            if not cn_color:
+                raise ValueError(errfmt.format(fmt, "'C' must be followed by a number"))
+            color = mcolors.to_rgba(cn_color[0])
+            i += len(cn_color[0])
         else:
-            raise ValueError(
-                errfmt.format(fmt, f"unrecognized character {c!r}"))
+            raise ValueError(errfmt.format(fmt, f"unrecognized character {c!r}"))
 
     if linestyle is None and marker is None:
         linestyle = mpl.rcParams['lines.linestyle']
