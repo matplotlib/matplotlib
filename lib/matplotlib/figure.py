@@ -132,8 +132,7 @@ class FigureBase(Artist):
         self._supxlabel = None
         self._supylabel = None
 
-        # groupers to keep track of x, y labels and title we want to
-        # align.
+        # groupers to keep track of x, y labels and title we want to align.
         # see self.align_xlabels, self.align_ylabels,
         # self.align_titles, and axis._get_tick_boxes_siblings
         self._align_label_groups = {
