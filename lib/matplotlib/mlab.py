@@ -244,9 +244,10 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
 
     if mode is None or mode == 'default':
         mode = 'psd'
-    _api.check_in_list(
-        ['default', 'psd', 'complex', 'magnitude', 'angle', 'phase'],
-        mode=mode)
+    else:
+        _api.check_in_list(
+            ['default', 'psd', 'complex', 'magnitude', 'angle', 'phase'],
+            mode=mode)
 
     if not same_data and mode != 'psd':
         raise ValueError("x and y must be equal if mode is not 'psd'")
@@ -262,7 +263,8 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
             sides = 'twosided'
         else:
             sides = 'onesided'
-    _api.check_in_list(['default', 'onesided', 'twosided'], sides=sides)
+    else:
+        _api.check_in_list(['default', 'onesided', 'twosided'], sides=sides)
 
     # zero pad x and y up to NFFT if they are shorter than NFFT
     if len(x) < NFFT:
