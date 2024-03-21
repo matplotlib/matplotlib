@@ -29,12 +29,9 @@ environment:
                  --cov-report= --cov=lib --log-level=DEBUG
 
   matrix:
-    - PYTHON_VERSION: "3.9"
+    - PYTHON_VERSION: "3.11"
       CONDA_INSTALL_LOCN: "C:\\Miniconda3-x64"
-      TEST_ALL: "no"
-    - PYTHON_VERSION: "3.10"
-      CONDA_INSTALL_LOCN: "C:\\Miniconda3-x64"
-      TEST_ALL: "no"
+      TEST_ALL: "yes"
 
 # We always use a 64-bit machine, but can build x86 distributions
 # with the PYTHON_ARCH variable
@@ -77,7 +74,8 @@ test_script:
   - '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd | findstr freetype.*.dll && exit /b 1 || exit /b 0'
 
   # this are optional dependencies so that we don't skip so many tests...
-  - if x%TEST_ALL% == xyes conda install -q ffmpeg inkscape miktex
+  - if x%TEST_ALL% == xyes conda install -q ffmpeg inkscape
+  # miktex is available on conda, but seems to fail with permission errors.
   # missing packages on conda-forge for imagemagick
   # This install sometimes failed randomly :-(
   # - choco install imagemagick
