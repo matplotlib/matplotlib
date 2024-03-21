@@ -144,24 +144,16 @@ def _process_plot_format(fmt, *, ambiguous_fmt_datakey=False):
     marker = None
     color = None
 
-    # Is fmt just a colorspec?
-    try:
-        color = mcolors.to_rgba(fmt)
-
-        # We need to differentiate grayscale '1.0' from tri_down marker '1'
+    # First check whether fmt is just a colorspec, but specifically exclude the
+    # grayscale string "1" (not "1.0"), which is interpreted as the tri_down
+    # marker "1".  The grayscale string "0" could be unambiguously understood
+    # as a color (black) but also excluded for consistency.
+    if fmt not in ["0", "1"]:
         try:
-            fmtint = str(int(fmt))
+            color = mcolors.to_rgba(fmt)
+            return linestyle, marker, color
         except ValueError:
-            return linestyle, marker, color  # Yes
-        else:
-            if fmt != fmtint:
-                # user definitely doesn't want tri_down marker
-                return linestyle, marker, color  # Yes
-            else:
-                # ignore converted color
-                color = None
-    except ValueError:
-        pass  # No, not just a color.
+            pass
 
     errfmt = ("{!r} is neither a data key nor a valid format string ({})"
               if ambiguous_fmt_datakey else
