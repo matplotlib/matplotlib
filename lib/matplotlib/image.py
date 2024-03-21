@@ -789,10 +789,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         ----------
         s : {'data', 'rgba'} or None
             Whether to apply up/downsampling interpolation in data or RGBA
-            space.
+            space.  If None, use :rc:`image.interpolation_stage`.
         """
-        if s is None:
-            s = "data"  # placeholder for maybe having rcParam
+        s = mpl._val_or_rc(s, 'image.interpolation_stage')
         _api.check_in_list(['data', 'rgba'], s=s)
         self._interpolation_stage = s
         self.stale = True

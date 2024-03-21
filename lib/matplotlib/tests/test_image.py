@@ -1462,6 +1462,15 @@ def test_rgba_antialias():
                   cmap=cmap, vmin=-1.2, vmax=1.2)
 
 
+def test_rc_interpolation_stage():
+    for val in ["data", "rgba"]:
+        with mpl.rc_context({"image.interpolation_stage": val}):
+            assert plt.imshow([[1, 2]]).get_interpolation_stage() == val
+    for val in ["DATA", "foo", None]:
+        with pytest.raises(ValueError):
+            mpl.rcParams["image.interpolation_stage"] = val
+
+
 # We check for the warning with a draw() in the test, but we also need to
 # filter the warning as it is emitted by the figure test decorator
 @pytest.mark.filterwarnings(r'ignore:Data with more than .* '
