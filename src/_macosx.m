@@ -44,7 +44,7 @@ static bool leftMouseGrabbing = false;
 static bool stdin_received = false;
 static bool stdin_sigint = false;
 // Global variable to store the original SIGINT handler
-static struct sigaction originalSigintAction = {0};
+static PyOS_sighandler_t originalSigintAction = NULL;
 
 // Signal handler for SIGINT, only sets a flag to exit the run loop
 static void handleSigint(int signal) {
@@ -57,10 +57,7 @@ static int wait_for_stdin() {
         stdin_sigint = false;
 
         // Set up a SIGINT handler to interrupt the event loop if ctrl+c comes in too
-        struct sigaction customAction = {0};
-        customAction.sa_handler = handleSigint;
-        // Set the new handler and store the old one
-        sigaction(SIGINT, &customAction, &originalSigintAction);
+        originalSigintAction = PyOS_setsig(SIGINT, handleSigint);
 
         // Create an NSFileHandle for standard input
         NSFileHandle *stdinHandle = [NSFileHandle fileHandleWithStandardInput];
@@ -93,7 +90,7 @@ static int wait_for_stdin() {
         [[NSNotificationCenter defaultCenter] removeObserver: stdinHandle];
 
         // Restore the original SIGINT handler upon exiting the function
-        sigaction(SIGINT, &originalSigintAction, NULL);
+        PyOS_setsig(SIGINT, originalSigintAction);
         return 1;
     }
 }
