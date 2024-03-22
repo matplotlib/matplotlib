@@ -38,6 +38,26 @@ class Grid:
     displayed with a given aspect ratio; for example, it is difficult to
     display multiple images of a same size with some fixed padding between
     them.  AxesGrid can be used in such case.
+
+    Attributes
+    ----------
+    axes_all : list of Axes
+        A flat list of Axes. Note that you can also access this directly
+        from the grid. The following is equivalent ::
+
+            grid[i] == grid.axes_all[i]
+            len(grid) == len(grid.axes_all)
+
+    axes_column : list of list of Axes
+        A 2D list of Axes where the first index is the column. This results
+        in the usage pattern ``grid.axes_column[col][row]``.
+    axes_row : list of list of Axes
+        A 2D list of Axes where the first index is the row. This results
+        in the usage pattern ``grid.axes_row[row][col]``.
+    axes_llc : Axes
+        The Axes in the lower left corner.
+    ngrids : int
+        Number of Axes in the grid.
     """
 
     _defaultAxesClass = Axes
@@ -93,7 +113,8 @@ class Grid:
             - "all": All axes are labelled.
             - "keep": Do not do anything.
 
-        axes_class : subclass of `matplotlib.axes.Axes`, default: None
+        axes_class : subclass of `matplotlib.axes.Axes`, default: `.mpl_axes.Axes`
+            The type of Axes to create.
         aspect : bool, default: False
             Whether the axes aspect ratio follows the aspect ratio of the data
             limits.
