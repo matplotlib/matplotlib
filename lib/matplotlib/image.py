@@ -1085,12 +1085,16 @@ class NonUniformImage(AxesImage):
                 B[:, :, 0:3] = A
                 B[:, :, 3] = 255
                 A = B
-        vl = self.axes.viewLim
         l, b, r, t = self.axes.bbox.extents
         width = int(((round(r) + 0.5) - (round(l) - 0.5)) * magnification)
         height = int(((round(t) + 0.5) - (round(b) - 0.5)) * magnification)
-        x_pix = np.linspace(vl.x0, vl.x1, width)
-        y_pix = np.linspace(vl.y0, vl.y1, height)
+
+        invertedTransform = self.axes.transData.inverted()
+        x_pix = invertedTransform.transform(
+            [(x, b) for x in np.linspace(l, r, width)])[:, 0]
+        y_pix = invertedTransform.transform(
+            [(l, y) for y in np.linspace(b, t, height)])[:, 1]
+
         if self._interpolation == "nearest":
             x_mid = (self._Ax[:-1] + self._Ax[1:]) / 2
             y_mid = (self._Ay[:-1] + self._Ay[1:]) / 2
