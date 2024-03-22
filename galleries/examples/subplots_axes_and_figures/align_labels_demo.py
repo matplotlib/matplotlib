@@ -9,8 +9,8 @@ Aligning xlabel, ylabel, and title using `.Figure.align_xlabels`,
 `.Figure.align_labels` wraps the x and y label functions.
 
 Note that the xlabel "XLabel1 1" would normally be much closer to the
-x-axis, "YLabel1 0" would be much closer to the y-axis, and title
-"Title0 1" would be much closer to the top of their respective axes.
+x-axis, "YLabel0 0" would be much closer to the y-axis, and title
+"Title0 0" would be much closer to the top of their respective axes.
 """
 import matplotlib.pyplot as plt
 import numpy as np
