@@ -18,18 +18,18 @@ import numpy as np
 import matplotlib.gridspec as gridspec
 
 fig = plt.figure(tight_layout=True)
-gs = gridspec.GridSpec(2, 3)
+gs = gridspec.GridSpec(2, 2)
 
-ax = fig.add_subplot(gs[0, :2])
+ax = fig.add_subplot(gs[0, 0])
 ax.plot(np.arange(0, 1e6, 1000))
-ax.set_title('Title0 1')
-ax.set_ylabel('YLabel0 1')
-ax.set_xlabel('XLabel0 1')
+ax.set_title('Title0 0')
+ax.set_ylabel('YLabel0 0')
 
-ax = fig.add_subplot(gs[0, -1])
+ax = fig.add_subplot(gs[0, 1])
 ax.plot(np.arange(1., 0., -0.1) * 2000., np.arange(1., 0., -0.1))
-ax.set_title('Title0 2')
+ax.set_title('Title0 1')
 ax.xaxis.tick_top()
+ax.tick_params(axis='x', rotation=55)
 
 
 for i in range(2):
