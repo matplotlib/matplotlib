@@ -376,12 +376,39 @@ def test_quiver_offsets():
     qc.set_offsets(new_offsets)
 
     np.testing.assert_allclose(qc.get_offsets(), new_offsets)
-    np.testing.assert_allclose(qc.X, new_offsets[::, 0])
-    np.testing.assert_allclose(qc.Y, new_offsets[::, 1])
-    np.testing.assert_allclose(qc.XY, new_offsets)
+    np.testing.assert_allclose(qc.get_X(), new_offsets[..., 0])
+    np.testing.assert_allclose(qc.get_Y(), new_offsets[..., 1])
+
+    new_X = qc.get_X() + 5
+    qc.set_X(new_X)
+    np.testing.assert_allclose(qc.get_X(), new_X)
+
+    new_Y = qc.get_Y() + 5
+    qc.set_Y(new_Y)
+    np.testing.assert_allclose(qc.get_Y(), new_Y)
+
+    # new length
+    L = 2
+    with pytest.raises(ValueError):
+        qc.set_X(qc.get_X()[:L])
+
+    with pytest.raises(ValueError):
+        qc.set_Y(qc.get_Y()[:L])
+
+    with pytest.raises(ValueError):
+        qc.set_offsets(qc.get_offsets()[:L])
+
+    with pytest.raises(ValueError):
+        qc.set_XYUVC(X=new_X[:L], Y=new_Y[:L])
+
+    qc.set_XYUVC(X=X[:L], Y=Y[:L], U=qc.get_U()[:L], V=qc.get_V()[:L])
+    np.testing.assert_allclose(qc.get_X(), X[:L])
+    np.testing.assert_allclose(qc.get_Y(), Y[:L])
+    np.testing.assert_allclose(qc.get_U(), U.ravel()[:L])
+    np.testing.assert_allclose(qc.get_V(), V.ravel()[:L])
 
 
-def test_quiver_UVC():
+def test_quiver_change_UVC():
     fig, ax = plt.subplots()
     X = np.arange(-10, 10, 1)
     Y = np.arange(-10, 10, 1)
@@ -393,22 +420,35 @@ def test_quiver_UVC():
     ax.add_collection(qc)
     ax.autoscale_view()
 
-    np.testing.assert_allclose(qc.U, U.ravel())
-    np.testing.assert_allclose(qc.V, V.ravel())
+    np.testing.assert_allclose(qc.get_U(), U.ravel())
+    np.testing.assert_allclose(qc.get_V(), V.ravel())
     np.testing.assert_allclose(qc.get_array(), M.ravel())
 
-    qc.set_UVC(U/2, V/3)
-    np.testing.assert_allclose(qc.U, U.ravel() / 2)
-    np.testing.assert_allclose(qc.V, V.ravel() / 3)
+    qc.set_XYUVC(U=U/2, V=V/3)
+    np.testing.assert_allclose(qc.get_U(), U.ravel() / 2)
+    np.testing.assert_allclose(qc.get_V(), V.ravel() / 3)
 
     qc.set_U(U/4)
-    np.testing.assert_allclose(qc.U, U.ravel() / 4)
+    np.testing.assert_allclose(qc.get_U(), U.ravel() / 4)
 
     qc.set_V(V/6)
-    np.testing.assert_allclose(qc.V, V.ravel() / 6)
+    np.testing.assert_allclose(qc.get_V(), V.ravel() / 6)
 
-    qc.set_C(M/10)
+    qc.set_C(C=M/10)
     np.testing.assert_allclose(qc.get_array(), M.ravel() / 10)
+
+    with pytest.raises(ValueError):
+        qc.set_X(X[:2])
+    with pytest.raises(ValueError):
+        qc.set_Y(Y[:2])
+    with pytest.raises(ValueError):
+        qc.set_U(U[:2])
+    with pytest.raises(ValueError):
+        qc.set_V(V[:2])
+
+    qc.set_XYUVC()
+    np.testing.assert_allclose(qc.get_U(), U.ravel() / 4)
+    np.testing.assert_allclose(qc.get_V(), V.ravel() / 6)
 
 
 def test_quiver_limits():
