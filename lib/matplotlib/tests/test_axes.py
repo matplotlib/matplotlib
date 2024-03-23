@@ -4585,7 +4585,6 @@ def test_hist_labels():
     assert bars[0].get_label() == '0'
 
 
-
 @image_comparison(['transparent_markers'], remove_text=True)
 def test_transparent_markers():
     np.random.seed(0)
