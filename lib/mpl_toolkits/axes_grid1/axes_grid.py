@@ -234,6 +234,7 @@ class Grid:
             - "all": All axes are labelled.
             - "keep": Do not do anything.
         """
+        _api.check_in_list(["all", "L", "1", "keep"], mode=mode)
         is_last_row, is_first_col = (
             np.mgrid[:self._nrows, :self._ncols] == [[[self._nrows - 1]], [[0]]])
         if mode == "all":
@@ -244,15 +245,6 @@ class Grid:
         elif mode == "1":
             bottom = left = is_last_row & is_first_col
         else:
-            # Use _api.check_in_list at the top of the method when deprecation
-            # period expires
-            if mode != 'keep':
-                _api.warn_deprecated(
-                    '3.7', name="Grid label_mode",
-                    message='Passing an undefined label_mode is deprecated '
-                            'since %(since)s and will become an error '
-                            '%(removal)s. To silence this warning, pass '
-                            '"keep", which gives the same behaviour.')
             return
         for i in range(self._nrows):
             for j in range(self._ncols):

@@ -633,9 +633,6 @@ class Legend(Artist):
         else:
             raise ValueError(f"Invalid labelcolor: {labelcolor!r}")
 
-    legendHandles = _api.deprecated('3.7', alternative="legend_handles")(
-        property(lambda self: self.legend_handles))
-
     def _set_artist_props(self, a):
         """
         Set the boilerplate props for artists added to Axes.
