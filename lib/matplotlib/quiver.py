@@ -325,7 +325,7 @@ class QuiverKey(martist.Artist):
             self._set_transform()
             with cbook._setattr_cm(self.Q, pivot=self.pivot[self.labelpos],
                                    # Hack: save and restore the Umask
-                                   Umask=ma.nomask):
+                                   _Umask=ma.nomask):
                 u = self.U * np.cos(np.radians(self.angle))
                 v = self.U * np.sin(np.radians(self.angle))
                 self.verts = self.Q._make_verts([[0., 0.]],
@@ -469,6 +469,7 @@ class Quiver(mcollections.PolyCollection):
     """
 
     _PIVOT_VALS = ('tail', 'middle', 'tip')
+    Umask = _api.deprecate_privatize_attribute("3.9")
 
     @_docstring.Substitution(_quiver_doc)
     def __init__(self, ax, *args,
@@ -769,7 +770,7 @@ class Quiver(mcollections.PolyCollection):
                 C = ma.array(C, mask=mask, copy=False)
         self._U = U.filled(1)
         self._V = V.filled(1)
-        self.Umask = mask
+        self._Umask = mask
         if C is not None:
             self.set_array(C)
         self._N = N
@@ -836,8 +837,8 @@ class Quiver(mcollections.PolyCollection):
 
         if self.scale is None:
             sn = max(10, math.sqrt(len(self.get_offsets())))
-            if self.Umask is not ma.nomask:
-                amean = a[~self.Umask].mean()
+            if self._Umask is not ma.nomask:
+                amean = a[~self._Umask].mean()
             else:
                 amean = a.mean()
             # crude auto-scaling
@@ -867,9 +868,9 @@ class Quiver(mcollections.PolyCollection):
         theta = theta.reshape((-1, 1))  # for broadcasting
         xy = (X + Y * 1j) * np.exp(1j * theta) * self.width
         XY = np.stack((xy.real, xy.imag), axis=2)
-        if self.Umask is not ma.nomask:
+        if self._Umask is not ma.nomask:
             XY = ma.array(XY)
-            XY[self.Umask] = ma.masked
+            XY[self._Umask] = ma.masked
             # This might be handled more efficiently with nans, given
             # that nans will end up in the paths anyway.
 
