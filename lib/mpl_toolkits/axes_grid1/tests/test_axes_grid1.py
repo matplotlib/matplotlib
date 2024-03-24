@@ -432,13 +432,10 @@ def test_image_grid_single_bottom():
     grid.cbar_axes[0].colorbar(im)
 
 
-def test_image_grid_label_mode_deprecation_warning():
-    imdata = np.arange(9).reshape((3, 3))
-
+def test_image_grid_label_mode_invalid():
     fig = plt.figure()
-    with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match="Passing an undefined label_mode"):
-        grid = ImageGrid(fig, (0, 0, 1, 1), (2, 1), label_mode="foo")
+    with pytest.raises(ValueError, match="'foo' is not a valid value for mode"):
+        ImageGrid(fig, (0, 0, 1, 1), (2, 1), label_mode="foo")
 
 
 @image_comparison(['image_grid.png'],
