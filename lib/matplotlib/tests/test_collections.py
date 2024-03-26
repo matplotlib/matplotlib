@@ -389,17 +389,9 @@ def test_quiver_offsets():
 
     # new length
     L = 2
-    with pytest.raises(ValueError):
-        qc.set_X(qc.get_X()[:L])
-
-    with pytest.raises(ValueError):
-        qc.set_Y(qc.get_Y()[:L])
-
-    with pytest.raises(ValueError):
-        qc.set_offsets(qc.get_offsets()[:L])
-
-    with pytest.raises(ValueError):
-        qc.set_XYUVC(X=new_X[:L], Y=new_Y[:L])
+    qc.set_XYUVC(X=new_X[:L], Y=new_Y[:L])
+    np.testing.assert_allclose(qc.get_X(), new_X[:L])
+    np.testing.assert_allclose(qc.get_Y(), new_Y[:L])
 
     qc.set_XYUVC(X=X[:L], Y=Y[:L], U=qc.get_U()[:L], V=qc.get_V()[:L])
     np.testing.assert_allclose(qc.get_X(), X[:L])
@@ -408,23 +400,21 @@ def test_quiver_offsets():
     np.testing.assert_allclose(qc.get_V(), V.ravel()[:L])
 
 
-def test_quiver_change_UVC():
+def test_quiver_change_XYUVC():
     fig, ax = plt.subplots()
     X = np.arange(-10, 10, 1)
     Y = np.arange(-10, 10, 1)
     U, V = np.meshgrid(X, Y)
-    M = np.hypot(U, V)
-    qc = mquiver.Quiver(
-        ax, X, Y, U, V, M
-        )
+    C = np.hypot(U, V)
+    qc = mquiver.Quiver(ax, X, Y, U, V, C)
     ax.add_collection(qc)
     ax.autoscale_view()
 
     np.testing.assert_allclose(qc.get_U(), U.ravel())
     np.testing.assert_allclose(qc.get_V(), V.ravel())
-    np.testing.assert_allclose(qc.get_array(), M.ravel())
+    np.testing.assert_allclose(qc.get_C(), C.ravel())
 
-    qc.set_XYUVC(U=U/2, V=V/3)
+    qc.set(U=U/2, V=V/3)
     np.testing.assert_allclose(qc.get_U(), U.ravel() / 2)
     np.testing.assert_allclose(qc.get_V(), V.ravel() / 3)
 
@@ -434,21 +424,63 @@ def test_quiver_change_UVC():
     qc.set_V(V/6)
     np.testing.assert_allclose(qc.get_V(), V.ravel() / 6)
 
-    qc.set_C(C=M/10)
-    np.testing.assert_allclose(qc.get_array(), M.ravel() / 10)
+    qc.set_C(C/3)
+    np.testing.assert_allclose(qc.get_C(), C.ravel() / 3)
 
+    # check consistency not enable
+    qc.set_XYUVC(X=X[:2], Y=Y[:2])
     with pytest.raises(ValueError):
-        qc.set_X(X[:2])
-    with pytest.raises(ValueError):
-        qc.set_Y(Y[:2])
-    with pytest.raises(ValueError):
-        qc.set_U(U[:2])
-    with pytest.raises(ValueError):
-        qc.set_V(V[:2])
+        # setting only one of the two X, Y fails because X and Y needs
+        # to be stacked when passed to `offsets`
+        qc.set(Y=Y[:3])
 
-    qc.set_XYUVC()
+    qc.set()
     np.testing.assert_allclose(qc.get_U(), U.ravel() / 4)
     np.testing.assert_allclose(qc.get_V(), V.ravel() / 6)
+
+
+def test_quiver_deprecated_attribute():
+    fig, ax = plt.subplots()
+    X = np.arange(-10, 10, 1)
+    Y = np.arange(-10, 10, 1)
+    U, V = np.meshgrid(X, Y)
+    C = np.hypot(U, V)
+    qc = mquiver.Quiver(ax, X, Y, U, V, C)
+    ax.add_collection(qc)
+    ax.autoscale_view()
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        x = qc.X
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        qc.X = x * 2
+    np.testing.assert_allclose(qc.get_X(), x * 2)
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        y = qc.Y
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        qc.Y = y * 2
+    np.testing.assert_allclose(qc.get_Y(), y * 2)
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        np.testing.assert_allclose(qc.N, len(qc.get_offsets()))
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        u = qc.U
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        qc.U = u * 2
+    np.testing.assert_allclose(qc.get_U(), u * 2)
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        v = qc.V
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        qc.V = v * 2
+    np.testing.assert_allclose(qc.get_V(), v * 2)
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        xy = qc.XY
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        qc.XY = xy * 2
+    np.testing.assert_allclose(qc.get_offsets(), xy * 2)
 
 
 def test_quiver_limits():

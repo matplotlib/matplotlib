@@ -454,11 +454,10 @@ class Quiver(mcollections.PolyCollection):
     """
     Specialized PolyCollection for arrows.
 
-    The API methods are set_UVC(), set_U(), set_V() and set_C(), which
-    can be used to change the size, orientation, and color of the
-    arrows; their locations are fixed when the class is
-    instantiated.  Possibly these methods will be useful
-    in animations.
+    The API methods are set_XYUVC(), set_X(), set_Y(), set_U() and set_V(),
+    which can be used to change the size, orientation, and color of the
+    arrows; their locations are fixed when the class is instantiated.
+    Possibly these methods will be useful in animations.
 
     Much of the work in this class is done in the draw()
     method so that as much information as possible is available
@@ -512,7 +511,7 @@ class Quiver(mcollections.PolyCollection):
         X, Y, U, V, C, self._nr, self._nc = _parse_args(
             *args, caller_name='quiver()'
         )
-        self.set_XYUVC(X=X, Y=Y, U=U, V=V, C=C)
+        self.set_XYUVC(X=X, Y=Y, U=U, V=V, C=C, check_shape=True)
         self._dpi_at_last_init = None
 
     def _init(self):
@@ -547,9 +546,9 @@ class Quiver(mcollections.PolyCollection):
         return self.get_X()
 
     @X.setter
-    def X(self):
+    def X(self, value):
         _api.warn_deprecated("3.9", alternative="set_X")
-        return self.set_X()
+        return self.set_X(value)
 
     @property
     def Y(self):
@@ -557,9 +556,9 @@ class Quiver(mcollections.PolyCollection):
         return self.get_Y()
 
     @Y.setter
-    def Y(self):
+    def Y(self, value):
         _api.warn_deprecated("3.9", alternative="set_Y")
-        return self.set_Y()
+        return self.set_Y(value)
 
     @property
     def U(self):
@@ -567,9 +566,9 @@ class Quiver(mcollections.PolyCollection):
         return self.get_U()
 
     @U.setter
-    def U(self):
+    def U(self, value):
         _api.warn_deprecated("3.9", alternative="set_U")
-        return self.set_U()
+        return self.set_U(value)
 
     @property
     def V(self):
@@ -577,29 +576,19 @@ class Quiver(mcollections.PolyCollection):
         return self.get_V()
 
     @V.setter
-    def V(self):
+    def V(self, value):
         _api.warn_deprecated("3.9", alternative="set_V")
-        return self.set_V()
-
-    @property
-    def C(self):
-        _api.warn_deprecated("3.9", alternative="get_C")
-        return self.get_C()
-
-    @C.setter
-    def C(self):
-        _api.warn_deprecated("3.9", alternative="set_C")
-        return self.set_C()
+        return self.set_V(value)
 
     @property
     def XY(self):
-        _api.warn_deprecated("3.9", alternative="get_XY")
+        _api.warn_deprecated("3.9", alternative="get_offsets")
         return self.get_offsets()
 
     @XY.setter
-    def XY(self, XY):
-        _api.warn_deprecated("3.9", alternative="set_XY")
-        self.set_offsets(offsets=XY)
+    def XY(self, value):
+        _api.warn_deprecated("3.9", alternative="set_offsets")
+        self.set_offsets(offsets=value)
 
     def set_offsets(self, offsets):
         self.set_XYUVC(X=offsets[:, 0], Y=offsets[:, 1])
@@ -620,23 +609,6 @@ class Quiver(mcollections.PolyCollection):
         self.set_verts(verts, closed=False)
         super().draw(renderer)
         self.stale = False
-
-    def get_XY(self):
-        """Returns the positions. Alias for ``get_offsets``."""
-        return self.get_offsets()
-
-    def set_XY(self, XY):
-        """
-        Set positions. Alias for ``set_offsets``. If the size
-        changes and it is not compatible with ``U``, ``V`` or
-        ``C``, use ``set_XYUVC`` instead.
-
-        Parameters
-        ----------
-        X : array-like
-            The size must be compatible with ``U``, ``V`` and ``C``.
-        """
-        self.set_offsets(offsets=XY)
 
     def set_X(self, X):
         """
@@ -711,9 +683,9 @@ class Quiver(mcollections.PolyCollection):
 
     def get_C(self):
         """Returns the arrow colors."""
-        return self._C
+        return self.get_array()
 
-    def set_XYUVC(self, X=None, Y=None, U=None, V=None, C=None):
+    def set_XYUVC(self, X=None, Y=None, U=None, V=None, C=None, check_shape=False):
         """
         Set the positions (X, Y) and components (U, V) of the arrow vectors
         and arrow colors (C) values of the arrows.
@@ -733,6 +705,9 @@ class Quiver(mcollections.PolyCollection):
         C : array-like or None, optional
             The arrow colors. The default is None.
             The size must the same as the existing U, V or be one.
+        check_shape : bool
+            Whether to check if the shape of the parameters are
+            consistent. Default is False.
         """
 
         X = self.get_X() if X is None else X
@@ -752,13 +727,14 @@ class Quiver(mcollections.PolyCollection):
             C = ma.masked_invalid(
                 self._C if C is None else C, copy=True
             ).ravel()
-        for name, var in zip(('U', 'V', 'C'), (U, V, C)):
-            if not (var is None or var.size == N or var.size == 1):
-                raise ValueError(
-                    f'Argument {name} has a size {var.size}'
-                    f' which does not match {N},'
-                    ' the number of arrow positions'
-                )
+        if check_shape:
+            for name, var in zip(('U', 'V', 'C'), (U, V, C)):
+                if not (var is None or var.size == N or var.size == 1):
+                    raise ValueError(
+                        f'Argument {name} has a size {var.size}'
+                        f' which does not match {N},'
+                        ' the number of arrow positions'
+                    )
 
         # now shapes are validated and we can start assigning things
         mask = ma.mask_or(U.mask, V.mask, copy=False, shrink=True)
