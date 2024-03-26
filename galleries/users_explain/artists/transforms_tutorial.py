@@ -86,7 +86,7 @@ The transformations also know how to invert themselves (via
 `.Transform.inverted`) to generate a transform from output coordinate system
 back to the input coordinate system.  For example, ``ax.transData`` converts
 values in data coordinates to display coordinates and
-``ax.transData.inversed()`` is a :class:`matplotlib.transforms.Transform` that
+``ax.transData.inverted()`` is a :class:`matplotlib.transforms.Transform` that
 goes from display coordinates to data coordinates. This is particularly useful
 when processing events from the user interface, which typically occur in
 display space, and you want to know where the mouse click or key-press occurred
