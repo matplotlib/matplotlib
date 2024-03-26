@@ -6591,7 +6591,10 @@ class Axes(_AxesBase):
             elif x.ndim == 2 and y.ndim == 2:
                 style = "quadmesh"
             else:
-                raise TypeError("arguments do not match valid signatures")
+                raise TypeError(
+                    f"When 3 positional parameters are passed to pcolorfast, the first "
+                    f"two (X and Y) must be both 1D or both 2D; the given X was "
+                    f"{x.ndim}D and the given Y was {y.ndim}D")
         else:
             raise _api.nargs_error('pcolorfast', '1 or 3', len(args))
 
