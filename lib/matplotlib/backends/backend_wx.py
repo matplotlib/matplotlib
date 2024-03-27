@@ -14,9 +14,6 @@ import pathlib
 import sys
 import weakref
 
-import numpy as np
-import PIL.Image
-
 import matplotlib as mpl
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase,
@@ -24,12 +21,13 @@ from matplotlib.backend_bases import (
     TimerBase, ToolContainerBase, cursors,
     CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 
-from matplotlib import _api, cbook, backend_tools
+from matplotlib import _api, cbook, backend_tools, _c_internal_utils
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 
 import wx
+import wx.svg
 
 _log = logging.getLogger(__name__)
 
@@ -45,6 +43,8 @@ def _create_wxapp():
     wxapp = wx.App(False)
     wxapp.SetExitOnFrameDelete(True)
     cbook._setup_new_guiapp()
+    # Set per-process DPI awareness. This is a NoOp except in MSW
+    _c_internal_utils.Win32_SetProcessDpiAwareness_max()
     return wxapp
 
 
@@ -471,12 +471,12 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         """
 
         FigureCanvasBase.__init__(self, figure)
-        w, h = map(math.ceil, self.figure.bbox.size)
+        size = wx.Size(*map(math.ceil, self.figure.bbox.size))
+        if wx.Platform != '__WXMSW__':
+            size = parent.FromDIP(size)
         # Set preferred window size hint - helps the sizer, if one is connected
-        wx.Panel.__init__(self, parent, id, size=wx.Size(w, h))
-        # Create the drawing bitmap
-        self.bitmap = wx.Bitmap(w, h)
-        _log.debug("%s - __init__() - bitmap w:%d h:%d", type(self), w, h)
+        wx.Panel.__init__(self, parent, id, size=size)
+        self.bitmap = None
         self._isDrawn = False
         self._rubberband_rect = None
         self._rubberband_pen_black = wx.Pen('BLACK', 1, wx.PENSTYLE_SHORT_DASH)
@@ -512,6 +512,12 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         self.SetBackgroundStyle(wx.BG_STYLE_PAINT)  # Reduce flicker.
         self.SetBackgroundColour(wx.WHITE)
 
+        if wx.Platform == '__WXMAC__':
+            # Initial scaling. Other platforms handle this automatically
+            dpiScale = self.GetDPIScaleFactor()
+            self.SetInitialSize(self.GetSize()*(1/dpiScale))
+            self._set_device_pixel_ratio(dpiScale)
+
     def Copy_to_Clipboard(self, event=None):
         """Copy bitmap of canvas to system clipboard."""
         bmp_obj = wx.BitmapDataObject()
@@ -523,6 +529,12 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
                 wx.TheClipboard.SetData(bmp_obj)
                 wx.TheClipboard.Flush()
                 wx.TheClipboard.Close()
+
+    def _update_device_pixel_ratio(self, *args, **kwargs):
+        # We need to be careful in cases with mixed resolution displays if
+        # device_pixel_ratio changes.
+        if self._set_device_pixel_ratio(self.GetDPIScaleFactor()):
+            self.draw()
 
     def draw_idle(self):
         # docstring inherited
@@ -631,7 +643,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         In this application we attempt to resize to fit the window, so it
         is better to take the performance hit and redraw the whole window.
         """
-
+        self._update_device_pixel_ratio()
         _log.debug("%s - _on_size()", type(self))
         sz = self.GetParent().GetSizer()
         if sz:
@@ -655,9 +667,10 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             return  # Empty figure
 
         # Create a new, correctly sized bitmap
-        self.bitmap = wx.Bitmap(self._width, self._height)
-
         dpival = self.figure.dpi
+        if not wx.Platform == '__WXMSW__':
+            scale = self.GetDPIScaleFactor()
+            dpival /= scale
         winch = self._width / dpival
         hinch = self._height / dpival
         self.figure.set_size_inches(winch, hinch, forward=False)
@@ -712,7 +725,11 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         else:
             x, y = pos.X, pos.Y
         # flip y so y=0 is bottom of canvas
-        return x, self.figure.bbox.height - y
+        if not wx.Platform == '__WXMSW__':
+            scale = self.GetDPIScaleFactor()
+            return x*scale, self.figure.bbox.height - y*scale
+        else:
+            return x, self.figure.bbox.height - y
 
     def _on_key_down(self, event):
         """Capture key press."""
@@ -898,8 +915,8 @@ class FigureFrameWx(wx.Frame):
         # On Windows, canvas sizing must occur after toolbar addition;
         # otherwise the toolbar further resizes the canvas.
         w, h = map(math.ceil, fig.bbox.size)
-        self.canvas.SetInitialSize(wx.Size(w, h))
-        self.canvas.SetMinSize((2, 2))
+        self.canvas.SetInitialSize(self.FromDIP(wx.Size(w, h)))
+        self.canvas.SetMinSize(self.FromDIP(wx.Size(2, 2)))
         self.canvas.SetFocus()
 
         self.Fit()
@@ -1017,9 +1034,9 @@ def _set_frame_icon(frame):
 class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
     def __init__(self, canvas, coordinates=True, *, style=wx.TB_BOTTOM):
         wx.ToolBar.__init__(self, canvas.GetParent(), -1, style=style)
+        if wx.Platform == '__WXMAC__':
+            self.SetToolBitmapSize(self.GetToolBitmapSize()*self.GetDPIScaleFactor())
 
-        if 'wxMac' in wx.PlatformInfo:
-            self.SetToolBitmapSize((24, 24))
         self.wx_ids = {}
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
@@ -1028,7 +1045,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             self.wx_ids[text] = (
                 self.AddTool(
                     -1,
-                    bitmap=self._icon(f"{image_file}.png"),
+                    bitmap=self._icon(f"{image_file}.svg"),
                     bmpDisabled=wx.NullBitmap,
                     label=text, shortHelp=tooltip_text,
                     kind=(wx.ITEM_CHECK if text in ["Pan", "Zoom"]
@@ -1054,9 +1071,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         *name*, including the extension and relative to Matplotlib's "images"
         data directory.
         """
-        pilimg = PIL.Image.open(cbook._get_data_path("images", name))
-        # ensure RGBA as wx BitMap expects RGBA format
-        image = np.array(pilimg.convert("RGBA"))
+        svg = cbook._get_data_path("images", name).read_bytes()
         try:
             dark = wx.SystemSettings.GetAppearance().IsDark()
         except AttributeError:  # wxpython < 4.1
@@ -1068,11 +1083,9 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             fg_lum = (.299 * fg.red + .587 * fg.green + .114 * fg.blue) / 255
             dark = fg_lum - bg_lum > .2
         if dark:
-            fg = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT)
-            black_mask = (image[..., :3] == 0).all(axis=-1)
-            image[black_mask, :3] = (fg.Red(), fg.Green(), fg.Blue())
-        return wx.Bitmap.FromBufferRGBA(
-            image.shape[1], image.shape[0], image.tobytes())
+            svg = svg.replace(b'fill:black;', b'fill:white;')
+        toolbarIconSize = wx.ArtProvider().GetDIPSizeHint(wx.ART_TOOLBAR)
+        return wx.BitmapBundle.FromSVG(svg, toolbarIconSize)
 
     def _update_buttons_checked(self):
         if "Pan" in self.wx_ids:
@@ -1123,7 +1136,9 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         height = self.canvas.figure.bbox.height
-        self.canvas._rubberband_rect = (x0, height - y0, x1, height - y1)
+        sf = 1 if wx.Platform == '__WXMSW__' else self.GetDPIScaleFactor()
+        self.canvas._rubberband_rect = (x0/sf, (height - y0)/sf,
+                                        x1/sf, (height - y1)/sf)
         self.canvas.Refresh()
 
     def remove_rubberband(self):
