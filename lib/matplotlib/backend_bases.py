@@ -2995,7 +2995,7 @@ class NavigationToolbar2:
             elif event.name == "button_release_event":
                 self.release_zoom(event)
 
-    def _start_event_axes_interaction(self, event, method="zoom"):
+    def _start_event_axes_interaction(self, event, *, method):
 
         def _ax_filter(ax):
             return (ax.in_axes(event) and

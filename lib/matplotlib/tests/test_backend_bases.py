@@ -446,8 +446,7 @@ def test_toolmanager_update_keymap():
 @pytest.mark.parametrize("patch_vis", [True, False])
 @pytest.mark.parametrize("forward_nav", [True, False, "auto"])
 @pytest.mark.parametrize("t_s", ["twin", "share"])
-def test_interactive_pan_zoom_events(tool, button, patch_vis,
-                                     forward_nav, t_s):
+def test_interactive_pan_zoom_events(tool, button, patch_vis, forward_nav, t_s):
     # Bottom axes: ax_b    Top axes: ax_t
     fig, ax_b = plt.subplots()
     ax_t = fig.add_subplot(221, zorder=99)
@@ -492,7 +491,7 @@ def test_interactive_pan_zoom_events(tool, button, patch_vis,
     xstart_t, xstop_t, ystart_t, ystop_t = 1, 2, 1, 2
     # Convert to screen coordinates ("s").  Events are defined only with pixel
     # precision, so round the pixel values, and below, check against the
-    # corresponding xdata/ydata, which are close but not equal to d0/d1.
+    # corresponding xdata/ydata, which are close but not equal to s0/s1.
     s0 = ax_t.transData.transform((xstart_t, ystart_t)).astype(int)
     s1 = ax_t.transData.transform((xstop_t, ystop_t)).astype(int)
 
@@ -501,10 +500,8 @@ def test_interactive_pan_zoom_events(tool, button, patch_vis,
     xstop_b, ystop_b = ax_b.transData.inverted().transform(s1)
 
     # Set up the mouse movements
-    start_event = MouseEvent(
-        "button_press_event", fig.canvas, *s0, button)
-    stop_event = MouseEvent(
-        "button_release_event", fig.canvas, *s1, button)
+    start_event = MouseEvent("button_press_event", fig.canvas, *s0, button)
+    stop_event = MouseEvent("button_release_event", fig.canvas, *s1, button)
 
     tb = NavigationToolbar2(fig.canvas)
 
@@ -512,19 +509,16 @@ def test_interactive_pan_zoom_events(tool, button, patch_vis,
         # Evaluate expected limits before executing the zoom-event
         direction = ("in" if button == 1 else "out")
 
-        xlim_t, ylim_t = ax_t._prepare_view_from_bbox(
-            [*s0, *s1], direction)
+        xlim_t, ylim_t = ax_t._prepare_view_from_bbox([*s0, *s1], direction)
 
         if ax_t.get_forward_navigation_events() is True:
-            xlim_b, ylim_b = ax_b._prepare_view_from_bbox(
-                [*s0, *s1], direction)
+            xlim_b, ylim_b = ax_b._prepare_view_from_bbox([*s0, *s1], direction)
         elif ax_t.get_forward_navigation_events() is False:
             xlim_b = init_xlim
             ylim_b = init_ylim
         else:
-            if ax_t.patch.get_visible() is False:
-                xlim_b, ylim_b = ax_b._prepare_view_from_bbox(
-                    [*s0, *s1], direction)
+            if not ax_t.patch.get_visible():
+                xlim_b, ylim_b = ax_b._prepare_view_from_bbox([*s0, *s1], direction)
             else:
                 xlim_b = init_xlim
                 ylim_b = init_ylim
@@ -540,31 +534,26 @@ def test_interactive_pan_zoom_events(tool, button, patch_vis,
         assert ax_b.get_ylim() == pytest.approx(ylim_b, abs=0.15)
 
         # Check if twin-axes are properly triggered
-        assert ax_t.get_xlim() == pytest.approx(ax_t_twin.get_xlim(),
-                                                abs=0.15)
-        assert ax_b.get_xlim() == pytest.approx(ax_b_twin.get_xlim(),
-                                                abs=0.15)
+        assert ax_t.get_xlim() == pytest.approx(ax_t_twin.get_xlim(), abs=0.15)
+        assert ax_b.get_xlim() == pytest.approx(ax_b_twin.get_xlim(), abs=0.15)
     else:
         # Evaluate expected limits
         # (call start_pan to make sure ax._pan_start is set)
         ax_t.start_pan(*s0, button)
-        xlim_t, ylim_t = ax_t._get_pan_points(
-            button, None, *s1).T.astype(float)
+        xlim_t, ylim_t = ax_t._get_pan_points(button, None, *s1).T.astype(float)
         ax_t.end_pan()
 
         if ax_t.get_forward_navigation_events() is True:
             ax_b.start_pan(*s0, button)
-            xlim_b, ylim_b = ax_b._get_pan_points(
-                button, None, *s1).T.astype(float)
+            xlim_b, ylim_b = ax_b._get_pan_points(button, None, *s1).T.astype(float)
             ax_b.end_pan()
         elif ax_t.get_forward_navigation_events() is False:
             xlim_b = init_xlim
             ylim_b = init_ylim
         else:
-            if ax_t.patch.get_visible() is False:
+            if not ax_t.patch.get_visible():
                 ax_b.start_pan(*s0, button)
-                xlim_b, ylim_b = ax_b._get_pan_points(
-                    button, None, *s1).T.astype(float)
+                xlim_b, ylim_b = ax_b._get_pan_points(button, None, *s1).T.astype(float)
                 ax_b.end_pan()
             else:
                 xlim_b = init_xlim
@@ -581,7 +570,5 @@ def test_interactive_pan_zoom_events(tool, button, patch_vis,
         assert ax_b.get_ylim() == pytest.approx(ylim_b, abs=0.15)
 
         # Check if twin-axes are properly triggered
-        assert ax_t.get_xlim() == pytest.approx(ax_t_twin.get_xlim(),
-                                                abs=0.15)
-        assert ax_b.get_xlim() == pytest.approx(ax_b_twin.get_xlim(),
-                                                abs=0.15)
+        assert ax_t.get_xlim() == pytest.approx(ax_t_twin.get_xlim(), abs=0.15)
+        assert ax_b.get_xlim() == pytest.approx(ax_b_twin.get_xlim(), abs=0.15)
