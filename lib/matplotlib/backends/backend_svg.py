@@ -1085,6 +1085,11 @@ class RendererSVG(RendererBase):
         writer.end('g')
 
     def _draw_text_as_text(self, gc, x, y, s, prop, angle, ismath, mtext=None):
+        # NOTE: If you change the font styling CSS, then be sure the check for
+        # svg.fonttype = none in `lib/matplotlib/testing/compare.py::convert` remains in
+        # sync. Also be sure to re-generate any SVG using this mode, or else such tests
+        # will fail to use the right converter for the expected images, and they will
+        # fail strangely.
         writer = self.writer
 
         color = rgb2hex(gc.get_rgb())
