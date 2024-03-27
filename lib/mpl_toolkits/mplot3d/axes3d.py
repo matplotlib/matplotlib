@@ -3610,7 +3610,7 @@ class Axes3D(Axes):
         bottom : float, default: 0
             The position of the baseline, in *orientation*-coordinates.
 
-        label : str, default: None
+        label : str, optional
             The label to use for the stems in legends.
 
         orientation : {'x', 'y', 'z'}, default: 'z'

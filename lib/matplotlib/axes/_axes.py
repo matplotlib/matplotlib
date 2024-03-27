@@ -3058,7 +3058,7 @@ class Axes(_AxesBase):
         bottom : float, default: 0
             The y/x-position of the baseline (depending on *orientation*).
 
-        label : str, default: None
+        label : str, optional
             The label to use for the stems in legends.
 
         data : indexable object, optional
@@ -6831,7 +6831,7 @@ class Axes(_AxesBase):
             Color or sequence of colors, one per dataset.  Default (``None``)
             uses the standard line color sequence.
 
-        label : str or None, default: None
+        label : str or list of str, optional
             String, or sequence of strings to match multiple datasets.  Bar
             charts yield multiple patches per dataset, but only the first gets
             the label, so that `~.Axes.legend` will work as expected.
