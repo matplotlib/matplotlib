@@ -21,7 +21,7 @@ from matplotlib.backend_bases import (
     TimerBase, ToolContainerBase, cursors,
     CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 
-from matplotlib import _api, cbook, backend_tools
+from matplotlib import _api, cbook, backend_tools, _c_internal_utils
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
@@ -43,10 +43,8 @@ def _create_wxapp():
     wxapp = wx.App(False)
     wxapp.SetExitOnFrameDelete(True)
     cbook._setup_new_guiapp()
-    if wx.Platform == '__WXMSW__':
-        # Set per-process DPI awareness. See https://docs.microsoft.com/en-us/windows/win32/api/shellscalingapi/ne-shellscalingapi-process_dpi_awareness
-        import ctypes
-        ctypes.windll.shcore.SetProcessDpiAwareness(2)
+    # Set per-process DPI awareness. This is a NoOp except in MSW
+    _c_internal_utils.Win32_SetProcessDpiAwareness_max()
     return wxapp
 
 
