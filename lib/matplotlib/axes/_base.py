@@ -2296,6 +2296,8 @@ class _AxesBase(martist.Artist):
         return image
 
     def _update_image_limits(self, image):
+        if not image.get_in_autoscale():
+            return
         xmin, xmax, ymin, ymax = image.get_extent()
         self.axes.update_datalim(((xmin, ymin), (xmax, ymax)))
 
@@ -2331,6 +2333,9 @@ class _AxesBase(martist.Artist):
         """
         Figures out the data limit of the given line, updating self.dataLim.
         """
+        if not line.get_in_autoscale():
+            return
+
         path = line.get_path()
         if path.vertices.size == 0:
             return
@@ -2398,6 +2403,9 @@ class _AxesBase(martist.Artist):
         # cannot check for '==0' since unitized data may not compare to zero
         # issue #2150 - we update the limits if patch has non zero width
         # or height.
+        if not patch.get_in_autoscale():
+            return
+
         if (isinstance(patch, mpatches.Rectangle) and
                 ((not patch.get_width()) and (not patch.get_height()))):
             return
