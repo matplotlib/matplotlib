@@ -177,7 +177,7 @@ class Artist:
             "Supported properties are\n\n"
             + kwdoc(cls))
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self._stale = True
         self.stale_callback = None
         self._axes = None
@@ -212,6 +212,7 @@ class Artist:
         self._path_effects = mpl.rcParams['path.effects']
         self._sticky_edges = _XYPair([], [])
         self._in_layout = True
+        super().__init__(**kwargs)
 
     def __getstate__(self):
         d = self.__dict__.copy()
