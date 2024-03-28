@@ -35,9 +35,17 @@ plt.show()
 
 # %%
 #
+# .. tags::
+#
+#    plot-type: histogram, plot-type:hexbin, domain:statistics
+#
 # .. admonition:: References
 #
 #    The use of the following functions, methods, classes and modules is shown
 #    in this example:
 #
 #    - `matplotlib.axes.Axes.hexbin` / `matplotlib.pyplot.hexbin`
+#
+# .. ifconfig:: releaselevel == 'dev'
+#
+#    .. tags::  internal: needs-review
