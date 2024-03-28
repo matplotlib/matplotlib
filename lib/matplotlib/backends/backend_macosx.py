@@ -179,6 +179,8 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
             _macosx.show()
 
     def show(self):
+        if self.canvas.figure.stale:
+            self.canvas.draw_idle()
         if not self._shown:
             self._show()
             self._shown = True
