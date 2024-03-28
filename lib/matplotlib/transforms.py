@@ -627,6 +627,7 @@ class BboxBase(TransformNode):
         """Construct a `Bbox` by translating this one by *tx* and *ty*."""
         return Bbox(self._points + (tx, ty))
 
+    @_api.deprecated("3.9")
     def corners(self):
         """
         Return the corners of this rectangle as an array of points.
@@ -642,10 +643,12 @@ class BboxBase(TransformNode):
         Return the axes-aligned bounding box that bounds the result of rotating
         this `Bbox` by an angle of *radians*.
         """
-        corners = self.corners()
-        corners_rotated = Affine2D().rotate(radians).transform(corners)
+        (x0, y0), (x1, y1) = self.get_points()
         bbox = Bbox.unit()
-        bbox.update_from_data_xy(corners_rotated, ignore=True)
+        bbox.update_from_data_xy(
+            Affine2D().rotate(radians).transform(
+                [[x0, y0], [x0, y1], [x1, y0], [x1, y1]]),
+            ignore=True)
         return bbox
 
     @staticmethod
