@@ -1012,7 +1012,8 @@ class CheckButtons(AxesWidget):
     """
 
     def __init__(self, ax, labels, actives=None, *, useblit=True,
-                 label_props=None, frame_props=None, check_props=None):
+                 label_props=None, frame_props=None, check_props=None,
+                 orientation='vertical'):
         """
         Add check buttons to `~.axes.Axes` instance *ax*.
 
@@ -1047,9 +1048,15 @@ class CheckButtons(AxesWidget):
             black color, and 1.0 linewidth.
 
             .. versionadded:: 3.7
+        orientation : {'vertical', 'horizontal'}
+            The orientation of the buttons: 'vertical' places buttons from top
+            to bottom, 'horizontal' places buttons from left to right.
+
+            .. versionadded:: 3.9
         """
         super().__init__(ax)
 
+        _api.check_in_list(['vertical', 'horizontal'], orientation=orientation)
         _api.check_isinstance((dict, None), label_props=label_props,
                               frame_props=frame_props, check_props=check_props)
 
@@ -1063,14 +1070,29 @@ class CheckButtons(AxesWidget):
         self._useblit = useblit and self.canvas.supports_blit
         self._background = None
 
-        ys = np.linspace(1, 0, len(labels)+2)[1:-1]
+        if orientation == 'vertical':
+            # Place buttons from top to bottom with buttons at (0.15, y) and labels
+            # at (0.25, y), where y is evenly spaced within the Axes.
+            button_ys = label_ys = np.linspace(1, 0, len(labels) + 2)[1:-1]
+            button_xs = np.full_like(button_ys, 0.15)
+            label_xs = np.full_like(label_ys, 0.25)
+            label_ha = 'left'
+            label_va = 'center'
+        else:
+            # Place buttons from left to right with buttons at (x, 0.15) and labels
+            # at (x, 0.25), where x is evenly spaced within the Axes.
+            button_xs = label_xs = np.linspace(0, 1, len(labels) + 2)[1:-1]
+            button_ys = np.full_like(button_xs, 0.15)
+            label_ys = np.full_like(label_xs, 0.25)
+            label_ha = 'center'
+            label_va = 'bottom'
 
         label_props = _expand_text_props(label_props)
         self.labels = [
-            ax.text(0.25, y, label, transform=ax.transAxes,
-                    horizontalalignment="left", verticalalignment="center",
+            ax.text(x, y, label, transform=ax.transAxes,
+                    horizontalalignment=label_ha, verticalalignment=label_va,
                     **props)
-            for y, label, props in zip(ys, labels, label_props)]
+            for x, y, label, props in zip(label_xs, label_ys, labels, label_props)]
         text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
 
         frame_props = {
@@ -1082,7 +1104,7 @@ class CheckButtons(AxesWidget):
         }
         frame_props.setdefault('facecolor', frame_props.get('color', 'none'))
         frame_props.setdefault('edgecolor', frame_props.pop('color', 'black'))
-        self._frames = ax.scatter([0.15] * len(ys), ys, **frame_props)
+        self._frames = ax.scatter(button_xs, button_ys, **frame_props)
         check_props = {
             'linewidth': 1,
             's': text_size**2,
@@ -1092,7 +1114,7 @@ class CheckButtons(AxesWidget):
             'animated': self._useblit,
         }
         check_props.setdefault('facecolor', check_props.pop('color', 'black'))
-        self._checks = ax.scatter([0.15] * len(ys), ys, **check_props)
+        self._checks = ax.scatter(button_xs, button_ys, **check_props)
         # The user may have passed custom colours in check_props, so we need to
         # create the checks (above), and modify the visibility after getting
         # whatever the user set.
@@ -1580,7 +1602,8 @@ class RadioButtons(AxesWidget):
     """
 
     def __init__(self, ax, labels, active=0, activecolor=None, *,
-                 useblit=True, label_props=None, radio_props=None):
+                 useblit=True, label_props=None, radio_props=None,
+                 orientation='vertical'):
         """
         Add radio buttons to an `~.axes.Axes`.
 
@@ -1616,9 +1639,15 @@ class RadioButtons(AxesWidget):
                 button.
 
             .. versionadded:: 3.7
+        orientation : {'vertical', 'horizontal'}
+            The orientation of the buttons: 'vertical' places buttons from top
+            to bottom, 'horizontal' places buttons from left to right.
+
+            .. versionadded:: 3.9
         """
         super().__init__(ax)
 
+        _api.check_in_list(['vertical', 'horizontal'], orientation=orientation)
         _api.check_isinstance((dict, None), label_props=label_props,
                               radio_props=radio_props)
 
@@ -1642,17 +1671,32 @@ class RadioButtons(AxesWidget):
         ax.set_yticks([])
         ax.set_navigate(False)
 
-        ys = np.linspace(1, 0, len(labels) + 2)[1:-1]
+        if orientation == 'vertical':
+            # Place buttons from top to bottom with buttons at (0.15, y) and labels
+            # at (0.25, y), where y is evenly spaced within the Axes.
+            button_ys = label_ys = np.linspace(1, 0, len(labels) + 2)[1:-1]
+            button_xs = np.full_like(button_ys, 0.15)
+            label_xs = np.full_like(label_ys, 0.25)
+            label_ha = 'left'
+            label_va = 'center'
+        else:
+            # Place buttons from left to right with buttons at (x, 0.15) and labels
+            # at (x, 0.25), where x is evenly spaced within the Axes.
+            button_xs = label_xs = np.linspace(0, 1, len(labels) + 2)[1:-1]
+            button_ys = np.full_like(button_xs, 0.15)
+            label_ys = np.full_like(label_xs, 0.25)
+            label_ha = 'center'
+            label_va = 'bottom'
 
         self._useblit = useblit and self.canvas.supports_blit
         self._background = None
 
         label_props = _expand_text_props(label_props)
         self.labels = [
-            ax.text(0.25, y, label, transform=ax.transAxes,
-                    horizontalalignment="left", verticalalignment="center",
+            ax.text(x, y, label, transform=ax.transAxes,
+                    horizontalalignment=label_ha, verticalalignment=label_va,
                     **props)
-            for y, label, props in zip(ys, labels, label_props)]
+            for x, y, label, props in zip(label_xs, label_ys, labels, label_props)]
         text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
 
         radio_props = {
@@ -1665,7 +1709,7 @@ class RadioButtons(AxesWidget):
         radio_props.setdefault('edgecolor', radio_props.get('color', 'black'))
         radio_props.setdefault('facecolor',
                                radio_props.pop('color', activecolor))
-        self._buttons = ax.scatter([.15] * len(ys), ys, **radio_props)
+        self._buttons = ax.scatter(button_xs, button_ys, **radio_props)
         # The user may have passed custom colours in radio_props, so we need to
         # create the radios, and modify the visibility after getting whatever
         # the user set.
