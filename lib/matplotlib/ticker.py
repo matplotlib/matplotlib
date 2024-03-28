@@ -1005,8 +1005,8 @@ class LogFormatter(Formatter):
         # only label the decades
         fx = math.log(x) / math.log(b)
         is_x_decade = _is_close_to_int(fx)
-        exponent = round(fx) if is_x_decade else np.floor(fx)
-        coeff = round(b ** (fx - exponent))
+        exponent = np.round(fx) if is_x_decade else np.floor(fx)
+        coeff = np.round(b ** (fx - exponent))
 
         if self.labelOnlyBase and not is_x_decade:
             return ''
@@ -1086,8 +1086,8 @@ class LogFormatterMathtext(LogFormatter):
         # only label the decades
         fx = math.log(x) / math.log(b)
         is_x_decade = _is_close_to_int(fx)
-        exponent = round(fx) if is_x_decade else np.floor(fx)
-        coeff = round(b ** (fx - exponent))
+        exponent = np.round(fx) if is_x_decade else np.floor(fx)
+        coeff = np.round(b ** (fx - exponent))
 
         if self.labelOnlyBase and not is_x_decade:
             return ''
@@ -1095,7 +1095,7 @@ class LogFormatterMathtext(LogFormatter):
             return ''
 
         if is_x_decade:
-            fx = round(fx)
+            fx = np.round(fx)
 
         # use string formatting of the base if it is not an integer
         if b % 1 == 0.0:
@@ -1123,7 +1123,7 @@ class LogFormatterSciNotation(LogFormatterMathtext):
         exponent = math.floor(fx)
         coeff = b ** (fx - exponent)
         if _is_close_to_int(coeff):
-            coeff = round(coeff)
+            coeff = np.round(coeff)
         return r'$\mathdefault{%s%g\times%s^{%d}}$' \
             % (sign_string, coeff, base, exponent)
 
@@ -1298,13 +1298,13 @@ class LogitFormatter(Formatter):
             return ""
         if x <= 0 or x >= 1:
             return ""
-        if _is_close_to_int(2 * x) and round(2 * x) == 1:
+        if _is_close_to_int(2 * x) and np.round(2 * x) == 1:
             s = self._one_half
         elif x < 0.5 and _is_decade(x, rtol=1e-7):
-            exponent = round(math.log10(x))
+            exponent = np.round(math.log10(x))
             s = "10^{%d}" % exponent
         elif x > 0.5 and _is_decade(1 - x, rtol=1e-7):
-            exponent = round(math.log10(1 - x))
+            exponent = np.round(math.log10(1 - x))
             s = self._one_minus("10^{%d}" % exponent)
         elif x < 0.1:
             s = self._format_value(x, self.locs)
@@ -2262,7 +2262,7 @@ def _decade_greater(x, base):
 
 
 def _is_close_to_int(x):
-    return math.isclose(x, round(x))
+    return math.isclose(x, np.round(x))
 
 
 class LogLocator(Locator):
@@ -2924,8 +2924,8 @@ class AutoMinorLocator(Locator):
 
         vmin, vmax = sorted(self.axis.get_view_interval())
         t0 = majorlocs[0]
-        tmin = round((vmin - t0) / minorstep)
-        tmax = round((vmax - t0) / minorstep) + 1
+        tmin = np.round((vmin - t0) / minorstep)
+        tmax = np.round((vmax - t0) / minorstep) + 1
         locs = (np.arange(tmin, tmax) * minorstep) + t0
 
         return self.raise_if_exceeds(locs)
