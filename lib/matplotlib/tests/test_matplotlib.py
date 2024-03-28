@@ -54,7 +54,7 @@ def test_use_doc_standard_backends():
         for line in matplotlib.use.__doc__.split(key)[1].split('\n'):
             if not line.strip():
                 break
-            backends += [e.strip() for e in line.split(',') if e]
+            backends += [e.strip().lower() for e in line.split(',') if e]
         return backends
 
     from matplotlib.backends import BackendFilter, backend_registry
