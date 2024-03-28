@@ -197,6 +197,19 @@ def test_missing_back_button():
 
 
 @_isolated_tk_test(success_count=1)
+def test_save_figure_return():
+    import matplotlib.pyplot as plt
+    from unittest import mock
+    fig = plt.figure()
+    prop = "tkinter.filedialog.asksaveasfilename"
+    with mock.patch(prop, return_value="foobar.png"):
+        fname = fig.canvas.manager.toolbar.save_figure()
+        os.remove("foobar.png")
+        assert fname == "foobar.png"
+        print("success")
+
+
+@_isolated_tk_test(success_count=1)
 def test_canvas_focus():
     import tkinter as tk
     import matplotlib.pyplot as plt
