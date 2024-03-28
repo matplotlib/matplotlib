@@ -2377,14 +2377,15 @@ class XAxis(Axis):
 
     def set_label_position(self, position):
         """
-        Set the label position (top or bottom)
+        Set the label position (top or bottom) with respect to the spine or the axes
 
         Parameters
         ----------
-        position : {'top', 'bottom'}
+        position : {'top', 'bottom','axestop', 'axesbottom'}
         """
         self.label.set_verticalalignment(_api.check_getitem({
             'top': 'baseline', 'bottom': 'top',
+            'axesbottom': 'top', 'axestop': 'baseline',
         }, position=position))
         self.label_position = position
         self.stale = True
@@ -2415,6 +2416,25 @@ class XAxis(Axis):
             self.label.set_position(
                 (x, bottom - self.labelpad * self.figure.dpi / 72)
             )
+
+        elif self.label_position == 'axesbottom':
+            spinebbox = self.axes.bbox
+            bbox = mtransforms.Bbox.union(bboxes + [spinebbox])
+            bottom = bbox.y0
+
+            self.label.set_position(
+                (x, bottom - self.labelpad * self.figure.dpi / 72)
+            )
+
+        elif self.label_position == 'axestop':
+            spinebbox = self.axes.bbox
+            bbox = mtransforms.Bbox.union(bboxes2 + [spinebbox])
+            top = bbox.y1
+
+            self.label.set_position(
+                (x, top + self.labelpad * self.figure.dpi / 72)
+            )
+
         else:
             try:
                 spine = self.axes.spines['top']
@@ -2617,15 +2637,16 @@ class YAxis(Axis):
 
     def set_label_position(self, position):
         """
-        Set the label position (left or right)
+        Set the label position (left or right) with respect to the spine or the axes
 
         Parameters
         ----------
-        position : {'left', 'right'}
+        position : {'left', 'right', 'axesleft', 'axesright'}
         """
         self.label.set_rotation_mode('anchor')
         self.label.set_verticalalignment(_api.check_getitem({
             'left': 'bottom', 'right': 'top',
+            'axesleft': 'bottom', 'axesright': 'top',
         }, position=position))
         self.label_position = position
         self.stale = True
@@ -2654,7 +2675,21 @@ class YAxis(Axis):
             self.label.set_position(
                 (left - self.labelpad * self.figure.dpi / 72, y)
             )
+        elif self.label_position == 'axesleft':
+            spinebbox = self.axes.bbox
+            bbox = mtransforms.Bbox.union(bboxes + [spinebbox])
+            left = bbox.x0
+            self.label.set_position(
+                (left - self.labelpad * self.figure.dpi / 72, y)
+            )
 
+        elif self.label_position == 'axesright':
+            spinebbox = self.axes.bbox
+            bbox = mtransforms.Bbox.union(bboxes2 + [spinebbox])
+            right = bbox.x1
+            self.label.set_position(
+                (right + self.labelpad * self.figure.dpi / 72, y)
+            )
         else:
             try:
                 spine = self.axes.spines['right']
