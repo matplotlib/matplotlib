@@ -264,7 +264,7 @@ sphinx_gallery_conf = {
     'image_scrapers': (matplotlib_reduced_latex_scraper, ),
     'image_srcset': ["2x"],
     'junit': '../test-results/sphinx-gallery/junit.xml' if CIRCLECI else '',
-    'matplotlib_animations': True,
+    'matplotlib_animations': (True, 'mp4'),
     'min_reported_time': 1,
     'plot_gallery': 'True',  # sphinx-gallery/913
     'reference_url': {'matplotlib': None},

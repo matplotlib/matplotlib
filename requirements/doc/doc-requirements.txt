@@ -18,7 +18,8 @@ pydata-sphinx-theme~=0.15.0
 mpl-sphinx-theme~=3.8.0
 pyyaml
 sphinxcontrib-svg2pdfconverter>=1.1.0
-sphinx-gallery>=0.12.0
+git+https://github.com/QuLogic/sphinx-gallery@anim-options
+sphinxcontrib-video>=0.2.1rc0
 sphinx-copybutton
 sphinx-design
 sphinx-tags>=0.3.0
