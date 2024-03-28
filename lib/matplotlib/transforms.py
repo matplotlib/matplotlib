@@ -2853,14 +2853,14 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     if (not np.isfinite(vmin)) or (not np.isfinite(vmax)):
         return -expander, expander
 
+    # Expand vmin, vmax to float: if they were integer types, they can wrap
+    # around in abs (abs(np.int8(-128)) == -128) and vmax - vmin can overflow.
+    vmin, vmax = map(np.float64, (vmin, vmax))
+
     swapped = False
     if vmax < vmin:
         vmin, vmax = vmax, vmin
         swapped = True
-
-    # Expand vmin, vmax to float: if they were integer types, they can wrap
-    # around in abs (abs(np.int8(-128)) == -128) and vmax - vmin can overflow.
-    vmin, vmax = map(float, [vmin, vmax])
 
     maxabsvalue = max(abs(vmin), abs(vmax))
     if maxabsvalue < (1e6 / tiny) * np.finfo(float).tiny:

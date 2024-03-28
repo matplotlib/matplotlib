@@ -1238,3 +1238,48 @@ def test_colorbar_format_string_and_old():
     plt.imshow([[0, 1]])
     cb = plt.colorbar(format="{x}%")
     assert isinstance(cb._formatter, StrMethodFormatter)
+
+
+def test_colorbar_log_units():
+    class FakeQuantity(np.ndarray):
+        # this is a self-contained version of astropy.units.Quantity
+        # reduced to a bare minimum to reproduce
+        # https://github.com/astropy/astropy/issues/11306
+
+        def __new__(cls, value):
+            return np.array(value).view(cls)
+
+        def __array_ufunc__(self, function, method, *inputs, **kwargs):
+            def to_value(q):
+                value = q.view(np.ndarray)
+                if value.shape:
+                    return value
+                else:
+                    return value[()]
+
+            arrays = [to_value(q) for q in inputs]
+            result = super().__array_ufunc__(function, method, *arrays, **kwargs)
+            if function not in (np.minimum, np.maximum):
+                return result
+            else:
+                return self._new_view(result)
+
+        def _new_view(self, obj):
+            obj = np.array(obj, copy=False, subok=True)
+            view = obj.view(FakeQuantity)
+            return view
+
+        def __ne__(self, other):
+            return NotImplemented
+
+        def __float__(self):
+            raise RuntimeError("boom")
+
+        def item(self, *args):
+            return self._new_view(super().item(*args))
+
+    data = FakeQuantity([[1, 2], [3, 4]])
+    fig, ax = plt.subplots()
+    im = ax.imshow(data, norm=LogNorm())
+    fig.colorbar(im)
+    fig.canvas.draw()
