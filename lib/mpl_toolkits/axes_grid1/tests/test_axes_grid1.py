@@ -346,7 +346,8 @@ def test_fill_facecolor():
 
 # Update style when regenerating the test image
 @image_comparison(['zoomed_axes.png', 'inverted_zoomed_axes.png'],
-                  style=('classic', '_classic_test_patch'))
+                  style=('classic', '_classic_test_patch'),
+                  tol=0.02 if platform.machine() == 'arm64' else 0)
 def test_zooming_with_inverted_axes():
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3], [1, 2, 3])

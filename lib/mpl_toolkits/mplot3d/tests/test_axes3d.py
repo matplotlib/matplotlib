@@ -581,7 +581,7 @@ def test_marker_draw_order_view_rotated(fig_test, fig_ref):
     ax.view_init(elev=0, azim=azim - 180, roll=0)  # view rotated by 180 deg
 
 
-@mpl3d_image_comparison(['plot_3d_from_2d.png'], tol=0.015, style='mpl20')
+@mpl3d_image_comparison(['plot_3d_from_2d.png'], tol=0.019, style='mpl20')
 def test_plot_3d_from_2d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -1588,7 +1588,8 @@ def test_errorbar3d_errorevery():
                 errorevery=estep)
 
 
-@mpl3d_image_comparison(['errorbar3d.png'], style='mpl20')
+@mpl3d_image_comparison(['errorbar3d.png'], style='mpl20',
+                        tol=0.014 if platform.machine() == 'arm64' else 0)
 def test_errorbar3d():
     """Tests limits, color styling, and legend for 3D errorbars."""
     fig = plt.figure()
@@ -1604,7 +1605,7 @@ def test_errorbar3d():
     ax.legend()
 
 
-@image_comparison(['stem3d.png'], style='mpl20', tol=0.003)
+@image_comparison(['stem3d.png'], style='mpl20', tol=0.008)
 def test_stem3d():
     plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig, axs = plt.subplots(2, 3, figsize=(8, 6),

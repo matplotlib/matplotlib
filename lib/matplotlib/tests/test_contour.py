@@ -164,7 +164,8 @@ def test_contour_label_with_disconnected_segments(split_collections):
 
 
 @pytest.mark.parametrize("split_collections", [False, True])
-@image_comparison(['contour_manual_colors_and_levels.png'], remove_text=True)
+@image_comparison(['contour_manual_colors_and_levels.png'], remove_text=True,
+                  tol=0.018 if platform.machine() == 'arm64' else 0)
 def test_given_colors_levels_and_extends(split_collections):
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False

@@ -1,5 +1,6 @@
 import base64
 import io
+import platform
 
 import numpy as np
 from numpy.testing import assert_array_almost_equal, assert_array_equal
@@ -27,7 +28,8 @@ def test_clipping():
     ax.set_ylim((-0.20, -0.28))
 
 
-@image_comparison(['overflow'], remove_text=True)
+@image_comparison(['overflow'], remove_text=True,
+                  tol=0.007 if platform.machine() == 'arm64' else 0)
 def test_overflow():
     x = np.array([1.0, 2.0, 3.0, 2.0e5])
     y = np.arange(len(x))

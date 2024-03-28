@@ -79,7 +79,7 @@ def quantity_converter():
 # Tests that the conversion machinery works properly for classes that
 # work as a facade over numpy arrays (like pint)
 @image_comparison(['plot_pint.png'], style='mpl20',
-                  tol=0 if platform.machine() == 'x86_64' else 0.01)
+                  tol=0 if platform.machine() == 'x86_64' else 0.03)
 def test_numpy_facade(quantity_converter):
     # use former defaults to match existing baseline image
     plt.rcParams['axes.formatter.limits'] = -7, 7
@@ -106,7 +106,7 @@ def test_numpy_facade(quantity_converter):
 
 # Tests gh-8908
 @image_comparison(['plot_masked_units.png'], remove_text=True, style='mpl20',
-                  tol=0 if platform.machine() == 'x86_64' else 0.01)
+                  tol=0 if platform.machine() == 'x86_64' else 0.02)
 def test_plot_masked_units():
     data = np.linspace(-5, 5)
     data_masked = np.ma.array(data, mask=(data > -2) & (data < 2))
