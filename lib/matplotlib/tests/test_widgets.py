@@ -1771,3 +1771,14 @@ def test_MultiCursor(horizOn, vertOn):
         assert l.get_xdata() == (.5, .5)
     for l in multi.hlines:
         assert l.get_ydata() == (.25, .25)
+
+
+def test_parent_axes_removal():
+
+    fig, ax = plt.subplots(1, 1)
+
+    radio = widgets.RadioButtons(ax, ['1', '2'], 0)
+
+    ax.remove()
+    with io.BytesIO() as out:
+        fig.savefig(out, format='raw')
