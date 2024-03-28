@@ -1,0 +1,10 @@
+``QuiverKey`` internal Artists
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Access to the following `.quiver.QuiverKey` internal Artists is now deprecated.
+You may instead use `.quiver.QuiverKey`-level methods to modify these Artists.
+
+- ``QuiverKey.text``
+- ``QuiverKey.vector``
+- ``QuiverKey.verts``
+
