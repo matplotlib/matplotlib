@@ -1316,10 +1316,6 @@ class LocationEvent(Event):
         The keyboard modifiers currently being pressed (except for KeyEvent).
     """
 
-    # Fully delete all occurrences of lastevent after deprecation elapses.
-    _lastevent = None
-    lastevent = _api.deprecated("3.8")(
-        _api.classproperty(lambda cls: cls._lastevent))
     _last_axes_ref = None
 
     def __init__(self, name, canvas, x, y, guiEvent=None, *, modifiers=None):
@@ -1572,8 +1568,6 @@ def _mouse_handler(event):
                 event.canvas.callbacks.process("axes_enter_event", event)
         LocationEvent._last_axes_ref = (
             weakref.ref(event.inaxes) if event.inaxes else None)
-        LocationEvent._lastevent = (
-            None if event.name == "figure_leave_event" else event)
 
 
 def _get_renderer(figure, print_method=None):
