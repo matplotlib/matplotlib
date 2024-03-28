@@ -1406,6 +1406,27 @@ def test_nonuniform_and_pcolor():
         ax.set(xlim=(0, 10))
 
 
+@image_comparison(["nonuniform_logscale.png"], style="mpl20")
+def test_nonuniform_logscale():
+    axs = plt.figure(figsize=(3, 3)).subplots(3)
+
+    for i in range(3):
+        ax = axs[i]
+        im = NonUniformImage(ax)
+        im.set_data(np.arange(1, 4) ** 2, np.arange(1, 4) ** 2,
+                    np.arange(9).reshape((3, 3)))
+        ax.set_xlim(1, 9)
+        ax.set_ylim(1, 9)
+        ax.set_axis_off()
+        if i == 1:
+            ax.set_xscale("log")
+            ax.set_yscale("log")
+        if i == 2:
+            ax.set_xscale("log", base=2)
+            ax.set_yscale("log", base=3)
+        ax.add_image(im)
+
+
 @image_comparison(
     ['rgba_antialias.png'], style='mpl20', remove_text=True,
     tol=0.007 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
