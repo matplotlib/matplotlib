@@ -34,10 +34,10 @@ Install
         .. toctree::
             :maxdepth: 2
 
-            users/installing/index
+            install/index
 
 For more detailed instructions, see the
-:doc:`installation guide <users/installing/index>`.
+:doc:`installation guide <install/index>`.
 
 Learn
 =====

@@ -1,5 +1,7 @@
 .. _troubleshooting-install:
 
+.. redirect-from:: /users/installing/troubleshooting_faq
+
 Troubleshooting
 ===============
 
