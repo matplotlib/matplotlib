@@ -1,0 +1,8 @@
+Classes derived from Axis must implement get_tick_params
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Tick parameter translation depends on the concrete axis (x or y), so any
+axis class derived from `~matplotlib.axis.Axis` must implement
+`~matplotlib.axis.Axis.get_tick_params`. This is not necessary if the new axis
+class is derived from `.XAxis` or `.YAxis` (as for instance the Axis classes
+of `mpl_toolkits.mplot3d`).
