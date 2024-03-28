@@ -209,6 +209,7 @@ class Artist:
         self._gid = None
         self._snap = None
         self._sketch = mpl.rcParams['path.sketch']
+        self._sketch_seed = mpl.rcParams['path.sketch_seed']
         self._path_effects = mpl.rcParams['path.effects']
         self._sticky_edges = _XYPair([], [])
         self._in_layout = True
@@ -681,7 +682,8 @@ class Artist:
         """
         return self._sketch
 
-    def set_sketch_params(self, scale=None, length=None, randomness=None):
+    def set_sketch_params(self, scale=None, length=None, randomness=None,
+                          seed=None):
         """
         Set the sketch parameters.
 
@@ -701,12 +703,21 @@ class Artist:
             The PGF backend uses this argument as an RNG seed and not as
             described above. Using the same seed yields the same random shape.
 
-            .. ACCEPTS: (scale: float, length: float, randomness: float)
+        seed : int, optional
+            Seed for the internal pseudo-random number generator.
+
+            .. versionadded:: 3.8
+
+            .. ACCEPTS: (scale: float, length: float, randomness: float, seed: int)
         """
+        if seed is not None:
+            self._sketch_seed = seed
+
         if scale is None:
             self._sketch = None
         else:
-            self._sketch = (scale, length or 128.0, randomness or 16.0)
+            self._sketch = (scale, length or 128.0, randomness or 16.0,
+                            self._sketch_seed)
         self.stale = True
 
     def set_path_effects(self, path_effects):
