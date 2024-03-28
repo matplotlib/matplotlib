@@ -1,0 +1,19 @@
+[
+    ['galleries/examples/user_interfaces/', 'galleries/examples/units/', 
+     'galleries/examples/ticks/', 'galleries/examples/subplots_axes_and_figures/', 
+     'galleries/examples/style_sheets/', 'galleries/examples/statistics/', 'galleries/examples/spines/', 
+     'galleries/examples/specialty_plots/', 'galleries/examples/showcase/', 'galleries/examples/shapes_and_collections/', 
+     'galleries/examples/scales/', 'galleries/examples/pyplots/', 'galleries/examples/mplot3d/', 'galleries/examples/misc/', 
+     'galleries/examples/lines_bars_and_markers/', 'galleries/examples/images_contours_and_fields/', 
+     'galleries/examples/event_handling/', 'galleries/examples/color/', 'galleries/examples/axisartist/', 
+     'galleries/examples/axes_grid1/', 'galleries/examples/animation/', 
+     'unsorted', 
+     'galleries/examples/pie_and_polar_charts/', 'galleries/examples/text_labels_and_annotations/', 
+     'galleries/examples/userdemo/', 'galleries/examples/widgets/'
+    ], 
+    ['unsorted'], 
+    ['galleries/plot_types/unstructured/', 'galleries/plot_types/stats/', 
+     'galleries/plot_types/basic/', 'galleries/plot_types/arrays/', 'galleries/plot_types/3D/', 
+     'unsorted'
+    ]
+]
