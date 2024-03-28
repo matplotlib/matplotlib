@@ -1,0 +1,124 @@
+---
+linux_aarch64_test_task:
+  arm_container:
+    image: python:3.11-slim
+    cpu: 4
+    memory: 12G
+
+  name: "aarch64 Linux Python 3.11 test"
+  skip: "changesIncludeOnly('doc/*')"
+  env:
+    CIRRUS_CLONE_DEPTH: 0
+
+  pip_cache:
+    folder: ~/.cache/pip
+
+  os_deps_script: |
+    apt-get update
+    apt-get install -yy --no-install-recommends \
+      ccache \
+      cm-super \
+      dvipng \
+      ffmpeg \
+      fonts-dejavu \
+      fonts-freefont-otf \
+      fonts-noto-cjk \
+      g++ \
+      gcc \
+      ghostscript \
+      git \
+      inkscape \
+      lmodern \
+      make \
+      ninja-build \
+      texlive \
+      texlive-latex-extra \
+      texlive-luatex \
+      texlive-pictures \
+      texlive-xetex \
+      tk \
+      xvfb
+  fetch_tags_script: |
+    git fetch --tags
+  venv_script: |
+    python3 --version
+    python3 -m venv mpl-dev
+    source mpl-dev/bin/activate
+    python3 -m pip install --upgrade pip setuptools
+  python_deps_script: |
+    source mpl-dev/bin/activate
+    python3 -m pip install --upgrade \
+      'contourpy>=1.0.1' cycler fonttools kiwisolver importlib_resources \
+      numpy packaging pillow 'pyparsing!=3.1.0' python-dateutil setuptools-scm \
+      'meson-python>=0.13.1' 'pybind11>=2.6' \
+      -r requirements/testing/all.txt -r requirements/testing/extra.txt
+  build_script: |
+    source mpl-dev/bin/activate
+    python3 -m pip install --verbose --no-build-isolation --editable .
+  test_script: |
+    source mpl-dev/bin/activate
+    pytest -raR -n auto --junitxml=junit/test-results.xml \
+      --maxfail=50 --timeout=300 --durations=25 \
+      --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
+  always:
+    junit_artifacts:
+      path: "junit/test-results.xml"
+      format: junit
+  on_failure:
+    compress_test_image_script:
+      tar cf result_images.tar.gz result_images/
+    test_image_artifacts:
+      path: "result_images.tar.gz"
+
+
+macos_arm64_test_task:
+  macos_instance:
+    image: ghcr.io/cirruslabs/macos-ventura-xcode:14
+
+  name: "arm64 MacOS Python 3.10 test"
+  skip: "changesIncludeOnly('doc/*')"
+  env:
+    CIRRUS_CLONE_DEPTH: 0
+
+  pip_cache:
+    folder: ~/.cache/pip
+
+  os_deps_script: |
+    brew update
+    brew install python-tk@3.10 ccache ffmpeg ninja qt6
+    echo /opt/homebrew/opt/python@3.10/libexec/bin | sudo tee /etc/paths.d/brew
+    echo /opt/homebrew/opt/ccache/libexec | sudo tee -a /etc/paths.d/brew
+    brew link python-tk@3.10
+    brew install --cask mactex-no-gui
+  fetch_tags_script: |
+    git fetch --tags
+  venv_script: |
+    eval "$(/usr/libexec/path_helper)"
+    python -m venv ~/mpl-dev
+    source ~/mpl-dev/bin/activate
+    python -m pip install --upgrade pip setuptools
+  python_deps_script: |
+    eval "$(/usr/libexec/path_helper)" && source ~/mpl-dev/bin/activate
+    python -m pip install --upgrade \
+      'contourpy>=1.0.1' cycler fonttools kiwisolver importlib_resources \
+      numpy packaging pillow 'pyparsing!=3.1.0' python-dateutil setuptools-scm \
+      'meson-python>=0.13.1' 'pybind11>=2.6' \
+      -r requirements/testing/all.txt -r requirements/testing/extra.txt \
+      sphinx tk ipython pyqt6 pyside6
+  build_script: |
+    eval "$(/usr/libexec/path_helper)" && source ~/mpl-dev/bin/activate
+    python -m pip install --verbose --no-build-isolation --editable .
+  test_script: |
+    eval "$(/usr/libexec/path_helper)" && source ~/mpl-dev/bin/activate
+    pytest -raR -n auto --junitxml=junit/test-results.xml \
+      --maxfail=50 --timeout=300 --durations=25 \
+      --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
+  always:
+    junit_artifacts:
+      path: "junit/test-results.xml"
+      format: junit
+  on_failure:
+    compress_test_image_script:
+      tar cf result_images.tar.gz result_images/
+    test_image_artifacts:
+      path: "result_images.tar.gz"

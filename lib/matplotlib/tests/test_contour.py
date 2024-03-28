@@ -441,8 +441,7 @@ def test_contourf_log_extension(split_collections):
 @pytest.mark.parametrize("split_collections", [False, True])
 @image_comparison(
     ['contour_addlines.png'], remove_text=True, style='mpl20',
-    tol=0.15 if platform.machine() in ('aarch64', 'ppc64le', 's390x')
-        else 0.03)
+    tol=0.15 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0.03)
 # tolerance is because image changed minutely when tick finding on
 # colorbars was cleaned up...
 def test_contour_addlines(split_collections):

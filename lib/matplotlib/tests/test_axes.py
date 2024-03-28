@@ -8799,7 +8799,8 @@ def test_zorder_and_explicit_rasterization():
         fig.savefig(b, format='pdf')
 
 
-@image_comparison(["preset_clip_paths.png"], remove_text=True, style="mpl20")
+@image_comparison(["preset_clip_paths.png"], remove_text=True, style="mpl20",
+                  tol=0.016 if platform.machine() in ('aarch64', ) else 0)
 def test_preset_clip_paths():
     fig, ax = plt.subplots()
 
