@@ -3012,6 +3012,38 @@ None}, default: None
         The size in pixels can be obtained by multiplying with `Figure.dpi`.
         """
         return np.array(self.bbox_inches.p1)
+    
+    def set_figsize(self, w, h=None):
+        """
+        Set the figure size in inches.
+        Call signatures::
+             fig.set_size_inches(w, h)  # OR
+             fig.set_size_inches((w, h))
+        Parameters
+        ----------
+        w : (float, float) or float
+            Width and height in inches (if height not specified as a separate
+            argument) or width.
+        h : float
+            Height in inches.
+        forward : bool, default: True
+            If ``True``, the canvas size is automatically updated, e.g.,
+            you can resize the figure window from the shell.
+            
+        See Also
+        --------
+        matplotlib.figure.Figure.get_size_inches
+        matplotlib.figure.Figure.set_figwidth
+        matplotlib.figure.Figure.set_figheight
+        Notes
+        -----
+        To transform from pixels to inches divide by `Figure.dpi`.
+        """
+        self.set_size_inches(w, h, forward=True)
+    
+    def get_figsize(self):
+        """Return the figure size in inches."""
+        return self.get_size_inches()
 
     def get_figwidth(self):
         """Return the figure width in inches."""
