@@ -7,6 +7,7 @@ Displays a set of subplots with an MRI image, its intensity
 histogram and some EEG traces.
 
 .. redirect-from:: /gallery/specialty_plots/mri_demo
+.. redirect-from:: /gallery/specialty_plots/mri_with_eeg
 """
 
 import matplotlib.pyplot as plt
