@@ -111,7 +111,7 @@ def test_complete(fig_test, fig_ref):
     loaded.canvas.draw()
 
     fig_test.set_size_inches(loaded.get_size_inches())
-    fig_test.figimage(loaded.canvas.renderer.buffer_rgba())
+    fig_test.figimage(np.asarray(loaded.canvas.renderer.buffer_rgba()))
 
     plt.close(loaded)
 
@@ -151,7 +151,7 @@ def test_pickle_load_from_subprocess(fig_test, fig_ref, tmp_path):
     loaded_fig.canvas.draw()
 
     fig_test.set_size_inches(loaded_fig.get_size_inches())
-    fig_test.figimage(loaded_fig.canvas.renderer.buffer_rgba())
+    fig_test.figimage(np.asarray(loaded_fig.canvas.renderer.buffer_rgba()))
 
     plt.close(loaded_fig)
 

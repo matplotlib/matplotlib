@@ -41,6 +41,9 @@ class Quantity:
     def __array__(self):
         return np.asarray(self.magnitude)
 
+    def __len__(self):
+        return len(self.__array__())
+
 
 @pytest.fixture
 def quantity_converter():
@@ -302,3 +305,42 @@ def test_plot_kernel():
     # just a smoketest that fail
     kernel = Kernel([1, 2, 3, 4, 5])
     plt.plot(kernel)
+
+
+@image_comparison(['mappable_units.png'], style="mpl20")
+def test_mappable_units(quantity_converter):
+    # Check that showing an image with units works
+    munits.registry[Quantity] = quantity_converter
+    x, y = np.meshgrid([0, 1], [0, 1])
+    data = Quantity(np.arange(4).reshape(2, 2), 'hours')
+    vmin = Quantity(1, "hours")  # Test a limit different from min of the data
+    vmax = Quantity(3 * 60, "minutes")  # Test a different unit to the data
+
+    fig, axs = plt.subplots(nrows=2, ncols=2, constrained_layout=True)
+
+    # imshow
+    ax = axs[0, 0]
+    mappable = ax.imshow(data, origin='lower', vmin=vmin, vmax=vmax)
+    cbar = fig.colorbar(mappable, ax=ax, extend="min")
+
+    # pcolor
+    #
+    # Use datetime to check that the locator/formatter is set correctly
+    # Also test ticks argument to colorbar
+    data = [[datetime(2024, 1, 1), datetime(2024, 1, 2)],
+            [datetime(2024, 1, 3), datetime(2024, 1, 4)]]
+    vmin = datetime(2024, 1, 2)
+    vmax = datetime(2024, 1, 5)
+    ax = axs[0, 1]
+    mappable = ax.pcolor(x, y, data, vmin=vmin, vmax=vmax)
+
+    ticks = [datetime(2024, 1, 2), datetime(2024, 1, 3), datetime(2024, 1, 5)]
+    fig.colorbar(mappable, ax=ax, extend="min", ticks=ticks)
+
+    # pcolormesh + horizontal colorbar + categorical
+    data = [["one", "two"], ["three", "four"]]
+    ax = axs[1, 0]
+    mappable = ax.pcolormesh(x, y, data)
+    fig.colorbar(mappable, ax=ax, orientation="horizontal", extend="min")
+
+    axs[1, 1].axis("off")

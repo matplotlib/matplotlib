@@ -794,7 +794,7 @@ def test_collection_set_array():
 
     # Test set_array with wrong dtype
     with pytest.raises(TypeError, match="^Image data of dtype"):
-        c.set_array("wrong_input")
+        c.set_array(object())
 
     # Test if array kwarg is copied
     vals[5] = 45

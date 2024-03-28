@@ -101,6 +101,8 @@ class StrCategoryConverter(units.ConversionInterface):
             object storing string to integer mapping
         """
         # the conversion call stack is default_units -> axis_info -> convert
+        if axis is None:
+            return UnitData(data)
         if axis.units is None:
             axis.set_units(UnitData(data))
         else:
@@ -208,7 +210,7 @@ class UnitData:
         TypeError
             If elements in *data* are neither str nor bytes.
         """
-        data = np.atleast_1d(np.array(data, dtype=object))
+        data = np.atleast_1d(np.array(data, dtype=object).ravel())
         # check if convertible to number:
         convertible = True
         for val in OrderedDict.fromkeys(data):
