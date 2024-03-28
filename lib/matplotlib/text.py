@@ -750,9 +750,16 @@ class Text(Artist):
 
             # don't use self.get_position here, which refers to text
             # position in Text:
-            posx = float(self.convert_xunits(self._x))
-            posy = float(self.convert_yunits(self._y))
+            x, y = self._x, self._y
+            if np.ma.is_masked(x):
+                x = np.nan
+            if np.ma.is_masked(y):
+                y = np.nan
+            posx = float(self.convert_xunits(x))
+            posy = float(self.convert_yunits(y))
             posx, posy = trans.transform((posx, posy))
+            if np.isnan(posx) or np.isnan(posy):
+                return  # don't throw a warning here
             if not np.isfinite(posx) or not np.isfinite(posy):
                 _log.warning("posx and posy should be finite values")
                 return

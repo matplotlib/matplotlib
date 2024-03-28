@@ -1295,6 +1295,28 @@ def test_axes3d_isometric():
     ax.grid(True)
 
 
+@mpl3d_image_comparison(['axlim_clip.png'], style='mpl20')
+def test_axlim_clip():
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+    x = np.linspace(0, 1, 11)
+    y = np.linspace(0, 1, 11)
+    X, Y = np.meshgrid(x, y)
+    Z = X + Y
+
+    ax.plot_surface(X, Y, Z, alpha=0.5, axlim_clip=True)
+    ax.plot_trisurf(X.ravel(), Y.ravel(), Z.ravel() + 1,
+                    edgecolor='none', axlim_clip=True)
+    ax.scatter(X.ravel(), Y.ravel(), Z.ravel() + 2, axlim_clip=True)
+    ax.quiver(X.ravel(), Y.ravel(), Z.ravel() + 3,
+              X.ravel(), Y.ravel(), Z.ravel(), axlim_clip=True)
+    ax.plot(X[0], Y[0], Z[0] + 4, axlim_clip=True)
+    ax.text(0.6, 0.5, 5, 'test', axlim_clip=True)  # won't be visible
+
+    ax.set(xlim=(0, 0.5), ylim=(0, 1), zlim=(0, 6))
+    ax.view_init(elev=0, azim=-45)
+
+
 @pytest.mark.parametrize('value', [np.inf, np.nan])
 @pytest.mark.parametrize(('setter', 'side'), [
     ('set_xlim3d', 'left'),
@@ -1928,10 +1950,10 @@ def test_computed_zorder():
         ax.add_collection3d(tri)
 
         # plot a vector
-        ax.plot((2, 2), (2, 2), (0, 4), c='red', zorder=2)
+        ax.plot((2, 2), (2, 2), (0, 4), c='red', zorder=2, axlim_clip=False)
 
         # plot some points
-        ax.scatter((3, 3), (1, 3), (1, 3), c='red', zorder=10)
+        ax.scatter((3, 3), (1, 3), (1, 3), c='red', zorder=10, axlim_clip=False)
 
         ax.set_xlim((0, 5.0))
         ax.set_ylim((0, 5.0))
