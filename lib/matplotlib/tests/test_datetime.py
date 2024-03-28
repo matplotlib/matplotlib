@@ -490,11 +490,25 @@ class TestDatetimePlotting:
         ax2.fill_betweenx(y_dates, x_values1, x_values2)
         ax3.fill_betweenx(y_dates, x_dates1, x_dates2)
 
-    @pytest.mark.xfail(reason="Test for hexbin not written yet")
     @mpl.style.context("default")
     def test_hexbin(self):
-        fig, ax = plt.subplots()
-        ax.hexbin(...)
+        mpl.rcParams["date.converter"] = 'concise'
+        np.random.seed(19680801)
+
+        dates = np.arange(np.datetime64('2022-01-01'), np.datetime64('2023-12-31'),
+                          np.timedelta64(1, 'D'))
+        fig, (ax0, ax1, ax2) = plt.subplots(3, 1)
+        fig.set_size_inches(4, 8)
+
+        n = dates.shape[0]
+        x = np.random.standard_normal(n)
+        y = np.random.standard_normal(n)
+        ax0.hexbin(dates, y, marginals=True, gridsize=(10, 6),
+                   extent=[19030, 19680, min(y), max(y)])
+        ax1.hexbin(x, dates, marginals=True, gridsize=(10, 6),
+                   extent=[min(x), max(x), 19030, 19680])
+        ax2.hexbin(dates, dates, marginals=True, gridsize=(10, 6),
+                   extent=[19030, 19900, 19030, 19680])
 
     @mpl.style.context("default")
     def test_hist(self):
