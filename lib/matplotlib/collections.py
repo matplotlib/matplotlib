@@ -1745,9 +1745,9 @@ class EllipseCollection(Collection):
             Forwarded to `Collection`.
         """
         super().__init__(**kwargs)
-        self._set_widths(widths)
-        self._set_heights(heights)
-        self._set_angles(angles)
+        self.set_widths(widths)
+        self.set_heights(heights)
+        self.set_angles(angles)
         self._units = units
         self.set_transform(transforms.IdentityTransform())
         self._transforms = np.empty((0, 3, 3))
@@ -1795,23 +1795,19 @@ class EllipseCollection(Collection):
             m[:2, 2:] = 0
             self.set_transform(_affine(m))
 
-    def _set_widths(self, widths):
-        self._widths = 0.5 * np.asarray(widths).ravel()
-
-    def _set_heights(self, heights):
-        self._heights = 0.5 * np.asarray(heights).ravel()
-
-    def _set_angles(self, angles):
-        self._angles = np.deg2rad(angles).ravel()
-
     def set_widths(self, widths):
         """Set the lengths of the first axes (e.g., major axis)."""
-        self._set_widths(widths)
+        self._widths = 0.5 * np.asarray(widths).ravel()
         self.stale = True
 
     def set_heights(self, heights):
         """Set the lengths of second axes (e.g., minor axes)."""
-        self._set_heights(heights)
+        self._heights = 0.5 * np.asarray(heights).ravel()
+        self.stale = True
+
+    def set_angles(self, angles):
+        """Set the angles of the first axes, degrees CCW from the x-axis."""
+        self._angles = np.deg2rad(angles).ravel()
         self.stale = True
 
     def get_widths(self):
@@ -1821,11 +1817,6 @@ class EllipseCollection(Collection):
     def get_heights(self):
         """Set the lengths of second axes (e.g., minor axes)."""
         return self._heights * 2
-
-    def set_angles(self, angles):
-        """Set the angles of the first axes, degrees CCW from the x-axis."""
-        self._set_angles(angles)
-        self.stale = True
 
     def get_angles(self):
         """Get the angles of the first axes, degrees CCW from the x-axis."""
