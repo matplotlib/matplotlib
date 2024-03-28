@@ -1,0 +1,419 @@
+From cd8c281da87d38820ecc4c452bbf6fd921155915 Mon Sep 17 00:00:00 2001
+From: Elliott Sales de Andrade <quantum.analyst@gmail.com>
+Date: Thu, 28 Mar 2024 00:54:59 -0400
+Subject: [PATCH 1/3] Annotate printf-like functions with GCC's format
+ attribute
+
+This allows checking format strings when building with `-Wformat` (or
+with `-Wall`).
+---
+ src/libqhull/libqhull.h     | 13 ++++++++++---
+ src/libqhull_r/libqhull_r.h | 13 ++++++++++---
+ src/testqset_r/testqset_r.c |  4 ++--
+ 3 files changed, 22 insertions(+), 8 deletions(-)
+
+diff --git a/src/libqhull/libqhull.h b/src/libqhull/libqhull.h
+index 90c0519b..1080ec11 100644
+--- a/src/libqhull/libqhull.h
++++ b/src/libqhull/libqhull.h
+@@ -60,6 +60,13 @@
+ #endif
+ #endif
+ 
++#if defined(__GNUC__)
++/* See https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-format-function-attribute */
++#define QH_PRINTF_LIKE(string_index, first_to_check) __attribute__((format(printf, string_index, first_to_check)))
++#else
++#define QH_PRINTF_LIKE(string_index, first_to_check)
++#endif
++
+ /*============ constants and basic types ====================*/
+ 
+ extern const char qh_version[]; /* defined in global.c */
+@@ -1136,13 +1143,13 @@ void    qh_user_memsizes(void);
+ 
+ /********* -usermem.c prototypes (alphabetical) **********************/
+ void    qh_exit(int exitcode);
+-void    qh_fprintf_stderr(int msgcode, const char *fmt, ... );
++void    qh_fprintf_stderr(int msgcode, const char *fmt, ... ) QH_PRINTF_LIKE(2, 3);
+ void    qh_free(void *mem);
+ void   *qh_malloc(size_t size);
+ 
+ /********* -userprintf.c and userprintf_rbox.c prototypes **********************/
+-void    qh_fprintf(FILE *fp, int msgcode, const char *fmt, ... );
+-void    qh_fprintf_rbox(FILE *fp, int msgcode, const char *fmt, ... );
++void    qh_fprintf(FILE *fp, int msgcode, const char *fmt, ... ) QH_PRINTF_LIKE(3, 4);
++void    qh_fprintf_rbox(FILE *fp, int msgcode, const char *fmt, ... ) QH_PRINTF_LIKE(3, 4);
+ 
+ /***** -geom.c/geom2.c/random.c prototypes (duplicated from geom.h, random.h) ****************/
+ 
+diff --git a/src/libqhull_r/libqhull_r.h b/src/libqhull_r/libqhull_r.h
+index 023e0181..917f96af 100644
+--- a/src/libqhull_r/libqhull_r.h
++++ b/src/libqhull_r/libqhull_r.h
+@@ -48,6 +48,13 @@
+ #endif
+ #endif
+ 
++#if defined(__GNUC__)
++/* See https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-format-function-attribute */
++#define QH_PRINTF_LIKE(string_index, first_to_check) __attribute__((format(printf, string_index, first_to_check)))
++#else
++#define QH_PRINTF_LIKE(string_index, first_to_check)
++#endif
++
+ /*============ constants and basic types ====================*/
+ 
+ extern const char qh_version[]; /* defined in global_r.c */
+@@ -1132,13 +1139,13 @@ void    qh_user_memsizes(qhT *qh);
+ 
+ /********* -usermem_r.c prototypes (alphabetical) **********************/
+ void    qh_exit(int exitcode);
+-void    qh_fprintf_stderr(int msgcode, const char *fmt, ... );
++void    qh_fprintf_stderr(int msgcode, const char *fmt, ... ) QH_PRINTF_LIKE(2, 3);
+ void    qh_free(void *mem);
+ void   *qh_malloc(size_t size);
+ 
+ /********* -userprintf_r.c and userprintf_rbox_r.c prototypes **********************/
+-void    qh_fprintf(qhT *qh, FILE *fp, int msgcode, const char *fmt, ... );
+-void    qh_fprintf_rbox(qhT *qh, FILE *fp, int msgcode, const char *fmt, ... );
++void    qh_fprintf(qhT *qh, FILE *fp, int msgcode, const char *fmt, ... ) QH_PRINTF_LIKE(4, 5);
++void    qh_fprintf_rbox(qhT *qh, FILE *fp, int msgcode, const char *fmt, ... ) QH_PRINTF_LIKE(4, 5);
+ 
+ /***** -geom_r.c/geom2_r.c/random_r.c prototypes (duplicated from geom_r.h, random_r.h) ****************/
+ 
+diff --git a/src/testqset_r/testqset_r.c b/src/testqset_r/testqset_r.c
+index 671494f3..b0253e0e 100644
+--- a/src/testqset_r/testqset_r.c
++++ b/src/testqset_r/testqset_r.c
+@@ -117,7 +117,7 @@ int error_count= 0;  /* Global error_count.  checkSetContents(qh) keeps its own
+ /* Functions normally defined in user_r.h for usermem_r.c */
+ 
+ void    qh_exit(int exitcode);
+-void    qh_fprintf_stderr(int msgcode, const char *fmt, ... );
++void    qh_fprintf_stderr(int msgcode, const char *fmt, ... ) QH_PRINTF_LIKE(2, 3);
+ void    qh_free(void *mem);
+ void   *qh_malloc(size_t size);
+ 
+@@ -134,7 +134,7 @@ void    qh_errexit(qhT *qh, int exitcode, facetT *f, ridgeT *r)
+ 
+ /* Normally defined in userprintf_r.c */
+ 
+-void    qh_fprintf(qhT *qh, FILE *fp, int msgcode, const char *fmt, ... );
++void    qh_fprintf(qhT *qh, FILE *fp, int msgcode, const char *fmt, ... ) QH_PRINTF_LIKE(4, 5);
+ void    qh_fprintf(qhT *qh, FILE *fp, int msgcode, const char *fmt, ... )
+ {
+     static int needs_cr= 0;  /* True if qh_fprintf needs a CR. testqset_r is not itself reentrant */
+
+From cc7e366259866d4cd24a312a4aaf891ff0abe85a Mon Sep 17 00:00:00 2001
+From: Elliott Sales de Andrade <quantum.analyst@gmail.com>
+Date: Thu, 28 Mar 2024 01:05:06 -0400
+Subject: [PATCH 2/3] Fix arguments inconsistent with their format strings
+
+---
+ src/libqhull/global.c       |  2 +-
+ src/libqhull/merge.c        | 11 +++++------
+ src/libqhull/poly2.c        |  5 +++--
+ src/libqhull_r/global_r.c   |  2 +-
+ src/libqhull_r/mem_r.c      |  4 ++--
+ src/libqhull_r/merge_r.c    | 11 +++++------
+ src/libqhull_r/poly2_r.c    |  5 +++--
+ src/libqhullcpp/Qhull.cpp   |  2 +-
+ src/testqset_r/testqset_r.c | 14 +++++++-------
+ 9 files changed, 28 insertions(+), 28 deletions(-)
+
+diff --git a/src/libqhull/global.c b/src/libqhull/global.c
+index 27babbb4..faf67f37 100644
+--- a/src/libqhull/global.c
++++ b/src/libqhull/global.c
+@@ -2248,7 +2248,7 @@ void qh_lib_check(int qhullLibraryType, int qhTsize, int vertexTsize, int ridgeT
+       last_errcode= 6253;
+     }
+     if (qhmemTsize && qhmemTsize != sizeof(qhmemT)) {
+-      qh_fprintf_stderr(6254, "qh_lib_check: Incorrect qhull library called.  Size of qhmemT for caller is %d, but for qhull library is %d.\n", qhmemTsize, sizeof(qhmemT));
++      qh_fprintf_stderr(6254, "qh_lib_check: Incorrect qhull library called.  Size of qhmemT for caller is %d, but for qhull library is %d.\n", qhmemTsize, (int)sizeof(qhmemT));
+       last_errcode= 6254;
+     }
+     if (last_errcode) {
+diff --git a/src/libqhull/merge.c b/src/libqhull/merge.c
+index de3a0b00..89392dc6 100644
+--- a/src/libqhull/merge.c
++++ b/src/libqhull/merge.c
+@@ -427,7 +427,7 @@ void qh_appendmergeset(facetT *facet, facetT *neighbor, mergeType mergetype, coo
+     return;
+   }
+   if (!qh facet_mergeset || !qh degen_mergeset) {
+-    qh_fprintf(qh ferr, 6403, "qhull internal error (qh_appendmergeset): expecting temp set defined for qh.facet_mergeset (0x%x) and qh.degen_mergeset (0x%x).  Got NULL\n",
++    qh_fprintf(qh ferr, 6403, "qhull internal error (qh_appendmergeset): expecting temp set defined for qh.facet_mergeset (%p) and qh.degen_mergeset (%p).  Got NULL\n",
+       qh facet_mergeset, qh degen_mergeset);
+     /* otherwise qh_setappend creates a new set that is not freed by qh_freebuild() */
+     qh_errexit(qh_ERRqhull, NULL, NULL);
+@@ -513,8 +513,7 @@ void qh_appendvertexmerge(vertexT *vertex, vertexT *destination, mergeType merge
+   const char *mergename;
+ 
+   if (!qh vertex_mergeset) {
+-    qh_fprintf(qh ferr, 6387, "qhull internal error (qh_appendvertexmerge): expecting temp set defined for qh.vertex_mergeset (0x%x).  Got NULL\n",
+-      qh vertex_mergeset);
++    qh_fprintf(qh ferr, 6387, "qhull internal error (qh_appendvertexmerge): expecting temp set defined for qh.vertex_mergeset.  Got NULL\n");
+     /* otherwise qh_setappend creates a new set that is not freed by qh_freebuild() */
+     qh_errexit(qh_ERRqhull, NULL, NULL);
+   }
+@@ -1654,7 +1653,7 @@ void qh_forcedmerges(boolT *wasmerge) {
+ void qh_freemergesets(void) {
+ 
+   if (!qh facet_mergeset || !qh degen_mergeset || !qh vertex_mergeset) {
+-    qh_fprintf(qh ferr, 6388, "qhull internal error (qh_freemergesets): expecting mergesets.  Got a NULL mergeset, qh.facet_mergeset (0x%x), qh.degen_mergeset (0x%x), qh.vertex_mergeset (0x%x)\n",
++    qh_fprintf(qh ferr, 6388, "qhull internal error (qh_freemergesets): expecting mergesets.  Got a NULL mergeset, qh.facet_mergeset (%p), qh.degen_mergeset (%p), qh.vertex_mergeset (%p)\n",
+       qh facet_mergeset, qh degen_mergeset, qh vertex_mergeset);
+     qh_errexit(qh_ERRqhull, NULL, NULL);
+   }
+@@ -2034,7 +2033,7 @@ ridgeT *qh_hashridge_find(setT *hashtable, int hashsize, ridgeT *ridge,
+ void qh_initmergesets(void /* qh.facet_mergeset,degen_mergeset,vertex_mergeset */) {
+ 
+   if (qh facet_mergeset || qh degen_mergeset || qh vertex_mergeset) {
+-    qh_fprintf(qh ferr, 6386, "qhull internal error (qh_initmergesets): expecting NULL mergesets.  Got qh.facet_mergeset (0x%x), qh.degen_mergeset (0x%x), qh.vertex_mergeset (0x%x)\n",
++    qh_fprintf(qh ferr, 6386, "qhull internal error (qh_initmergesets): expecting NULL mergesets.  Got qh.facet_mergeset (%p), qh.degen_mergeset (%p), qh.vertex_mergeset (%p)\n",
+       qh facet_mergeset, qh degen_mergeset, qh vertex_mergeset);
+     qh_errexit(qh_ERRqhull, NULL, NULL);
+   }
+@@ -2304,7 +2303,7 @@ void qh_maybe_duplicateridge(ridgeT *ridgeA) {
+             if (k == last) {
+               vertex= qh_findbest_ridgevertex(ridge, &pinched, &dist);
+               trace2((qh ferr, 2069, "qh_maybe_duplicateridge: will merge v%d into v%d (dist %2.2g) due to duplicate ridges r%d/r%d with the same vertices.  mergevertex set\n",
+-                pinched->id, vertex->id, dist, ridgeA->id, ridge->id, ridgeA->top->id, ridgeA->bottom->id, ridge->top->id, ridge->bottom->id));
++                pinched->id, vertex->id, dist, ridgeA->id, ridge->id));
+               qh_appendvertexmerge(pinched, vertex, MRGvertices, dist, ridgeA, ridge);
+               ridge->mergevertex= True; /* disables check for duplicate vertices in qh_checkfacet */
+               ridgeA->mergevertex= True;
+diff --git a/src/libqhull/poly2.c b/src/libqhull/poly2.c
+index 0bdfa6d6..9077b9c3 100644
+--- a/src/libqhull/poly2.c
++++ b/src/libqhull/poly2.c
+@@ -1144,7 +1144,7 @@ boolT qh_checklists(facetT *facetlist) {
+       vertex->visitid= qh vertex_visit;
+       if (vertex->previous != previousvertex) {
+         qh_fprintf(qh ferr, 6427, "qhull internal error (qh_checklists): expecting v%d.previous == v%d.  Got v%d\n",
+-              vertex->id, previousvertex, getid_(vertex->previous));
++              vertex->id, previousvertex->id, getid_(vertex->previous));
+         waserror= True;
+         errorvertex= vertex;
+       }
+@@ -2279,7 +2279,8 @@ void qh_initialhull(setT *vertices) {
+     zzinc_(Zdistcheck);
+     qh_distplane(qh interior_point, facet, &dist);  /* duplicates qh_setfacetplane */
+     if (dist > qh DISTround) {  /* clearly flipped, due to axis-parallel facet or coplanar firstfacet */
+-      trace1((qh ferr, 1031, "qh_initialhull: initial orientation incorrect, qh.interior_point is %2.2g from f%d.  Either axis-parallel facet or coplanar firstfacet f%d.  Force outside orientation of all facets\n"));
++      trace1((qh ferr, 1031, "qh_initialhull: initial orientation incorrect, qh.interior_point is %2.2g from f%d.  Either axis-parallel facet or coplanar firstfacet f%d.  Force outside orientation of all facets\n",
++        dist, facet->id, firstfacet->id));
+       FORALLfacets { /* reuse facet, then 'break' */
+         facet->flipped= False;
+         facet->toporient ^= (unsigned char)True;
+diff --git a/src/libqhull_r/global_r.c b/src/libqhull_r/global_r.c
+index 3a0b9c62..c681a715 100644
+--- a/src/libqhull_r/global_r.c
++++ b/src/libqhull_r/global_r.c
+@@ -2201,7 +2201,7 @@ void qh_lib_check(int qhullLibraryType, int qhTsize, int vertexTsize, int ridgeT
+       last_errcode= 6253;
+     }
+     if (qhmemTsize && qhmemTsize != sizeof(qhmemT)) {
+-      qh_fprintf_stderr(6254, "qh_lib_check: Incorrect qhull library called.  Size of qhmemT for caller is %d, but for qhull library is %d.\n", qhmemTsize, sizeof(qhmemT));
++      qh_fprintf_stderr(6254, "qh_lib_check: Incorrect qhull library called.  Size of qhmemT for caller is %d, but for qhull library is %d.\n", qhmemTsize, (int)sizeof(qhmemT));
+       last_errcode= 6254;
+     }
+     if (last_errcode) {
+diff --git a/src/libqhull_r/mem_r.c b/src/libqhull_r/mem_r.c
+index 7d5509eb..d811f733 100644
+--- a/src/libqhull_r/mem_r.c
++++ b/src/libqhull_r/mem_r.c
+@@ -186,7 +186,7 @@ void qh_memcheck(qhT *qh) {
+     qh_exit(qhmem_ERRqhull);  /* can not use qh_errexit() */
+   }
+   if (qh->qhmem.ferr == 0 || qh->qhmem.IStracing < 0 || qh->qhmem.IStracing > 10 || (((qh->qhmem.ALIGNmask+1) & qh->qhmem.ALIGNmask) != 0)) {
+-    qh_fprintf_stderr(6244, "qhull internal error (qh_memcheck): either qh->qhmem is overwritten or qh->qhmem is not initialized.  Call qh_meminit or qh_new_qhull before calling qh_mem routines.  ferr 0x%x, IsTracing %d, ALIGNmask 0x%x\n", 
++    qh_fprintf_stderr(6244, "qhull internal error (qh_memcheck): either qh->qhmem is overwritten or qh->qhmem is not initialized.  Call qh_meminit or qh_new_qhull before calling qh_mem routines.  ferr %p, IsTracing %d, ALIGNmask 0x%x\n",
+           qh->qhmem.ferr, qh->qhmem.IStracing, qh->qhmem.ALIGNmask);
+     qh_exit(qhmem_ERRqhull);  /* can not use qh_errexit() */
+   }
+@@ -203,7 +203,7 @@ void qh_memcheck(qhT *qh) {
+     qh_errexit(qh, qhmem_ERRqhull, NULL, NULL);
+   }
+   if (qh->qhmem.IStracing != 0)
+-    qh_fprintf(qh, qh->qhmem.ferr, 8144, "qh_memcheck: total size of freelists totfree is the same as qh->qhmem.totfree\n", totfree);
++    qh_fprintf(qh, qh->qhmem.ferr, 8144, "qh_memcheck: total size of freelists totfree (%d) is the same as qh->qhmem.totfree\n", totfree);
+ } /* memcheck */
+ 
+ /*-<a                             href="qh-mem_r.htm#TOC"
+diff --git a/src/libqhull_r/merge_r.c b/src/libqhull_r/merge_r.c
+index f3c899cd..55a86afd 100644
+--- a/src/libqhull_r/merge_r.c
++++ b/src/libqhull_r/merge_r.c
+@@ -427,7 +427,7 @@ void qh_appendmergeset(qhT *qh, facetT *facet, facetT *neighbor, mergeType merge
+     return;
+   }
+   if (!qh->facet_mergeset || !qh->degen_mergeset) {
+-    qh_fprintf(qh, qh->ferr, 6403, "qhull internal error (qh_appendmergeset): expecting temp set defined for qh.facet_mergeset (0x%x) and qh.degen_mergeset (0x%x).  Got NULL\n",
++    qh_fprintf(qh, qh->ferr, 6403, "qhull internal error (qh_appendmergeset): expecting temp set defined for qh.facet_mergeset (%p) and qh.degen_mergeset (%p).  Got NULL\n",
+       qh->facet_mergeset, qh->degen_mergeset);
+     /* otherwise qh_setappend creates a new set that is not freed by qh_freebuild() */
+     qh_errexit(qh, qh_ERRqhull, NULL, NULL);
+@@ -513,8 +513,7 @@ void qh_appendvertexmerge(qhT *qh, vertexT *vertex, vertexT *destination, mergeT
+   const char *mergename;
+ 
+   if (!qh->vertex_mergeset) {
+-    qh_fprintf(qh, qh->ferr, 6387, "qhull internal error (qh_appendvertexmerge): expecting temp set defined for qh.vertex_mergeset (0x%x).  Got NULL\n",
+-      qh->vertex_mergeset);
++    qh_fprintf(qh, qh->ferr, 6387, "qhull internal error (qh_appendvertexmerge): expecting temp set defined for qh.vertex_mergeset.  Got NULL\n");
+     /* otherwise qh_setappend creates a new set that is not freed by qh_freebuild() */
+     qh_errexit(qh, qh_ERRqhull, NULL, NULL);
+   }
+@@ -1654,7 +1653,7 @@ void qh_forcedmerges(qhT *qh, boolT *wasmerge) {
+ void qh_freemergesets(qhT *qh) {
+ 
+   if (!qh->facet_mergeset || !qh->degen_mergeset || !qh->vertex_mergeset) {
+-    qh_fprintf(qh, qh->ferr, 6388, "qhull internal error (qh_freemergesets): expecting mergesets.  Got a NULL mergeset, qh.facet_mergeset (0x%x), qh.degen_mergeset (0x%x), qh.vertex_mergeset (0x%x)\n",
++    qh_fprintf(qh, qh->ferr, 6388, "qhull internal error (qh_freemergesets): expecting mergesets.  Got a NULL mergeset, qh.facet_mergeset (%p), qh.degen_mergeset (%p), qh.vertex_mergeset (%p)\n",
+       qh->facet_mergeset, qh->degen_mergeset, qh->vertex_mergeset);
+     qh_errexit(qh, qh_ERRqhull, NULL, NULL);
+   }
+@@ -2034,7 +2033,7 @@ ridgeT *qh_hashridge_find(qhT *qh, setT *hashtable, int hashsize, ridgeT *ridge,
+ void qh_initmergesets(qhT *qh /* qh.facet_mergeset,degen_mergeset,vertex_mergeset */) {
+ 
+   if (qh->facet_mergeset || qh->degen_mergeset || qh->vertex_mergeset) {
+-    qh_fprintf(qh, qh->ferr, 6386, "qhull internal error (qh_initmergesets): expecting NULL mergesets.  Got qh.facet_mergeset (0x%x), qh.degen_mergeset (0x%x), qh.vertex_mergeset (0x%x)\n",
++    qh_fprintf(qh, qh->ferr, 6386, "qhull internal error (qh_initmergesets): expecting NULL mergesets.  Got qh.facet_mergeset (%p), qh.degen_mergeset (%p), qh.vertex_mergeset (%p)\n",
+       qh->facet_mergeset, qh->degen_mergeset, qh->vertex_mergeset);
+     qh_errexit(qh, qh_ERRqhull, NULL, NULL);
+   }
+@@ -2304,7 +2303,7 @@ void qh_maybe_duplicateridge(qhT *qh, ridgeT *ridgeA) {
+             if (k == last) {
+               vertex= qh_findbest_ridgevertex(qh, ridge, &pinched, &dist);
+               trace2((qh, qh->ferr, 2069, "qh_maybe_duplicateridge: will merge v%d into v%d (dist %2.2g) due to duplicate ridges r%d/r%d with the same vertices.  mergevertex set\n",
+-                pinched->id, vertex->id, dist, ridgeA->id, ridge->id, ridgeA->top->id, ridgeA->bottom->id, ridge->top->id, ridge->bottom->id));
++                pinched->id, vertex->id, dist, ridgeA->id, ridge->id));
+               qh_appendvertexmerge(qh, pinched, vertex, MRGvertices, dist, ridgeA, ridge);
+               ridge->mergevertex= True; /* disables check for duplicate vertices in qh_checkfacet */
+               ridgeA->mergevertex= True;
+diff --git a/src/libqhull_r/poly2_r.c b/src/libqhull_r/poly2_r.c
+index 01758340..4d9a0c51 100644
+--- a/src/libqhull_r/poly2_r.c
++++ b/src/libqhull_r/poly2_r.c
+@@ -1145,7 +1145,7 @@ boolT qh_checklists(qhT *qh, facetT *facetlist) {
+       vertex->visitid= qh->vertex_visit;
+       if (vertex->previous != previousvertex) {
+         qh_fprintf(qh, qh->ferr, 6427, "qhull internal error (qh_checklists): expecting v%d.previous == v%d.  Got v%d\n",
+-              vertex->id, previousvertex, getid_(vertex->previous));
++              vertex->id, previousvertex->id, getid_(vertex->previous));
+         waserror= True;
+         errorvertex= vertex;
+       }
+@@ -2280,7 +2280,8 @@ void qh_initialhull(qhT *qh, setT *vertices) {
+     zzinc_(Zdistcheck);
+     qh_distplane(qh, qh->interior_point, facet, &dist);  /* duplicates qh_setfacetplane */
+     if (dist > qh->DISTround) {  /* clearly flipped, due to axis-parallel facet or coplanar firstfacet */
+-      trace1((qh, qh->ferr, 1031, "qh_initialhull: initial orientation incorrect, qh.interior_point is %2.2g from f%d.  Either axis-parallel facet or coplanar firstfacet f%d.  Force outside orientation of all facets\n"));
++      trace1((qh, qh->ferr, 1031, "qh_initialhull: initial orientation incorrect, qh.interior_point is %2.2g from f%d.  Either axis-parallel facet or coplanar firstfacet f%d.  Force outside orientation of all facets\n",
++        dist, facet->id, firstfacet->id));
+       FORALLfacets { /* reuse facet, then 'break' */
+         facet->flipped= False;
+         facet->toporient ^= (unsigned char)True;
+diff --git a/src/libqhullcpp/Qhull.cpp b/src/libqhullcpp/Qhull.cpp
+index d5c75e92..3123e8ae 100644
+--- a/src/libqhullcpp/Qhull.cpp
++++ b/src/libqhullcpp/Qhull.cpp
+@@ -357,7 +357,7 @@ initializeFeasiblePoint(int hulldim)
+             qh_errexit(qh_qh, qh_ERRmem, NULL, NULL);
+         }
+         if(feasible_point.size()!=static_cast<size_t>(hulldim)){
+-            qh_fprintf(qh_qh, qh_qh->ferr, 6210, "qhull error: dimension of feasiblePoint should be %d.  It is %u\n", hulldim, feasible_point.size());
++            qh_fprintf(qh_qh, qh_qh->ferr, 6210, "qhull error: dimension of feasiblePoint should be %d.  It is %u\n", hulldim, (unsigned int)feasible_point.size());
+             qh_errexit(qh_qh, qh_ERRmem, NULL, NULL);
+         }
+         qh_qh->feasible_point= static_cast<coordT*>(qh_malloc(static_cast<size_t>(hulldim) * sizeof(coordT)));
+diff --git a/src/testqset_r/testqset_r.c b/src/testqset_r/testqset_r.c
+index b0253e0e..5ea87394 100644
+--- a/src/testqset_r/testqset_r.c
++++ b/src/testqset_r/testqset_r.c
+@@ -532,7 +532,7 @@ void testSetequalInEtc(qhT *qh, int numInts, int *intarray, int checkEvery)
+             }
+             if(j>0){
+                 if(qh_setequal(ints, ints2)){
+-                    qh_fprintf(qh, stderr, 6324, "testqset_r (testSetequalInEtc): non-empty set equal to empty set\n", j);
++                    qh_fprintf(qh, stderr, 6324, "testqset_r (testSetequalInEtc): non-empty set equal to empty set at %d\n", j);
+                     error_count++;
+                 }
+                 qh_setfree(qh, &ints3);
+@@ -551,23 +551,23 @@ void testSetequalInEtc(qhT *qh, int numInts, int *intarray, int checkEvery)
+                     error_count++;
+                 }
+                 if(!qh_setequal_except(ints, intarray+j/2, ints3, intarray+j/2+1)){
+-                    qh_fprintf(qh, stderr, 6326, "testqset_r (qh_setequal_except): modified set not equal to original set except modified\n", j);
++                    qh_fprintf(qh, stderr, 6326, "testqset_r (qh_setequal_except): modified set not equal to original set except modified at %d\n", j);
+                     error_count++;
+                 }
+                 if(qh_setequal_except(ints, intarray+j/2, ints3, intarray)){
+-                    qh_fprintf(qh, stderr, 6327, "testqset_r (qh_setequal_except): modified set equal to original set with wrong excepts\n", j);
++                    qh_fprintf(qh, stderr, 6327, "testqset_r (qh_setequal_except): modified set equal to original set with wrong excepts at %d\n", j);
+                     error_count++;
+                 }
+                 if(!qh_setequal_skip(ints, j/2, ints3, j/2)){
+-                    qh_fprintf(qh, stderr, 6328, "testqset_r (qh_setequal_skip): modified set not equal to original set except modified\n", j);
++                    qh_fprintf(qh, stderr, 6328, "testqset_r (qh_setequal_skip): modified set not equal to original set except modified at %d\n", j);
+                     error_count++;
+                 }
+                 if(j>2 && qh_setequal_skip(ints, j/2, ints3, 0)){
+-                    qh_fprintf(qh, stderr, 6329, "testqset_r (qh_setequal_skip): modified set equal to original set with wrong excepts\n", j);
++                    qh_fprintf(qh, stderr, 6329, "testqset_r (qh_setequal_skip): modified set equal to original set with wrong excepts at %d\n", j);
+                     error_count++;
+                 }
+                 if(intarray+j/2+1!=qh_setdel(ints3, intarray+j/2+1)){
+-                    qh_fprintf(qh, stderr, 6330, "testqset_r (qh_setdel): failed to find added element\n", j);
++                    qh_fprintf(qh, stderr, 6330, "testqset_r (qh_setdel): failed to find added element at %d\n", j);
+                     error_count++;
+                 }
+                 checkSetContents(qh, "qh_setdel", ints3, j-1, 0, j-1, (j==1 ? -1 : j/2+1));  /* swaps last element with deleted element */
+@@ -786,7 +786,7 @@ void checkSetContents(qhT *qh, const char *name, setT *set, int count, int range
+     if(set){
+         SETreturnsize_(set, actualSize);  /* normally used only when speed is critical */
+         if(*qh_setendpointer(set)!=NULL){
+-            qh_fprintf(qh, stderr, 6344, "testqset_r (%s): qh_setendpointer(set), 0x%x, is not NULL terminator of set 0x%x\n", name, qh_setendpointer(set), set);
++            qh_fprintf(qh, stderr, 6344, "testqset_r (%s): qh_setendpointer(set), %p, is not NULL terminator of set %p\n", name, qh_setendpointer(set), set);
+             error_count++;
+         }
+     }
+
+From f7c3bbdfd23c034f5af66fa1f067691aac3378d8 Mon Sep 17 00:00:00 2001
+From: Elliott Sales de Andrade <quantum.analyst@gmail.com>
+Date: Thu, 28 Mar 2024 05:11:33 -0400
+Subject: [PATCH 3/3] Don't pass user-defined input as format string
+
+---
+ src/libqhull/io.c     | 2 +-
+ src/libqhull_r/io_r.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/libqhull/io.c b/src/libqhull/io.c
+index beed156a..7b7f4546 100644
+--- a/src/libqhull/io.c
++++ b/src/libqhull/io.c
+@@ -1618,7 +1618,7 @@ void qh_printcenter(FILE *fp, qh_PRINT format, const char *string, facetT *facet
+   if (qh CENTERtype != qh_ASvoronoi && qh CENTERtype != qh_AScentrum)
+     return;
+   if (string)
+-    qh_fprintf(fp, 9066, string);
++    qh_fprintf(fp, 9066, "%s", string);
+   if (qh CENTERtype == qh_ASvoronoi) {
+     num= qh hull_dim-1;
+     if (!facet->normal || !facet->upperdelaunay || !qh ATinfinity) {
+diff --git a/src/libqhull_r/io_r.c b/src/libqhull_r/io_r.c
+index a80a5b14..389b1aa6 100644
+--- a/src/libqhull_r/io_r.c
++++ b/src/libqhull_r/io_r.c
+@@ -1618,7 +1618,7 @@ void qh_printcenter(qhT *qh, FILE *fp, qh_PRINT format, const char *string, face
+   if (qh->CENTERtype != qh_ASvoronoi && qh->CENTERtype != qh_AScentrum)
+     return;
+   if (string)
+-    qh_fprintf(qh, fp, 9066, string);
++    qh_fprintf(qh, fp, 9066, "%s", string);
+   if (qh->CENTERtype == qh_ASvoronoi) {
+     num= qh->hull_dim-1;
+     if (!facet->normal || !facet->upperdelaunay || !qh->ATinfinity) {
