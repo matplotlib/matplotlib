@@ -7,6 +7,7 @@ from matplotlib.font_manager import FontProperties
 from matplotlib.image import BboxImage
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 from matplotlib.transforms import Bbox, BboxBase, Transform
+from matplotlib.typing import StrLike
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -117,12 +118,12 @@ class TextArea(OffsetBox):
     offset_transform: Transform
     def __init__(
         self,
-        s: str,
+        s: StrLike,
         *,
         textprops: dict[str, Any] | None = ...,
         multilinebaseline: bool = ...,
     ) -> None: ...
-    def set_text(self, s: str) -> None: ...
+    def set_text(self, s: StrLike) -> None: ...
     def get_text(self) -> str: ...
     def set_multilinebaseline(self, t: bool) -> None: ...
     def get_multilinebaseline(self) -> bool: ...
@@ -180,7 +181,7 @@ class AnchoredText(AnchoredOffsetbox):
     txt: TextArea
     def __init__(
         self,
-        s: str,
+        s: StrLike,
         loc: str,
         *,
         pad: float = ...,

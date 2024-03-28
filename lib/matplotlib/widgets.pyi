@@ -12,7 +12,7 @@ import PIL.Image
 from collections.abc import Callable, Collection, Iterable, Sequence
 from typing import Any, Literal
 from numpy.typing import ArrayLike
-from .typing import ColorType
+from .typing import ColorType, StrLike
 import numpy as np
 
 class LockDraw:
@@ -45,7 +45,7 @@ class Button(AxesWidget):
     def __init__(
         self,
         ax: Axes,
-        label: str,
+        label: StrLike,
         image: ArrayLike | PIL.Image.Image | None = ...,
         color: ColorType = ...,
         hovercolor: ColorType = ...,
@@ -93,7 +93,7 @@ class Slider(SliderBase):
     def __init__(
         self,
         ax: Axes,
-        label: str,
+        label: StrLike,
         valmin: float,
         valmax: float,
         *,
@@ -124,7 +124,7 @@ class RangeSlider(SliderBase):
     def __init__(
         self,
         ax: Axes,
-        label: str,
+        label: StrLike,
         valmin: float,
         valmax: float,
         *,
@@ -178,7 +178,7 @@ class TextBox(AxesWidget):
     def __init__(
         self,
         ax: Axes,
-        label: str,
+        label: StrLike,
         initial: str = ...,
         *,
         color: ColorType = ...,
