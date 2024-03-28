@@ -728,6 +728,43 @@ class DejaVuSerifFonts(DejaVuFonts):
     }
 
 
+class LatinModernFonts(UnicodeFonts):
+    """
+    A font handling class for the Latin Modern fonts
+
+    """
+    _fontmap = {
+        'rm': 'Latin Modern Roman',
+        'it': 'Latin Modern Roman:italic',
+        'bf': 'Latin Modern Roman:weight=bold',
+        'bfit': 'Latin Modern Roman:italic:bold',
+        'tt': 'Latin Modern Mono',
+        'sf': 'Latin Modern Sans',
+        'ex': 'Latin Modern Math'
+    }
+    _fallback_font = False
+    _sans = False
+
+    def __init__(self, *args, **kwargs):
+        # This must come first so the backend's owner is set correctly
+        self.fontmap = {}
+        TruetypeFonts.__init__(self, *args, **kwargs)
+
+        for key, name in self._fontmap.items():
+            fullpath = findfont(name)
+            self.fontmap[key] = fullpath
+            self.fontmap[name] = fullpath
+
+    def _get_glyph(self, fontname, font_class, sym):
+        uniindex = get_unicode_index(sym)
+        font = self._get_font(fontname)
+        if font is not None:
+            glyphindex = font.get_char_index(uniindex)
+            if glyphindex != 0:
+                return super()._get_glyph(fontname, font_class, sym)
+        return super()._get_glyph('ex', font_class, sym)
+
+
 class DejaVuSansFonts(DejaVuFonts):
     """
     A font handling class for the DejaVu Sans fonts
@@ -936,6 +973,10 @@ class FontConstantsBase:
     delta_integral: T.ClassVar[float] = 0.1
 
 
+class LatinModernFontConstants(FontConstantsBase):
+    pass
+
+
 class ComputerModernFontConstants(FontConstantsBase):
     script_space = 0.075
     subdrop = 0.2
@@ -983,6 +1024,8 @@ _font_constant_mapping = {
     'cmss10': ComputerModernFontConstants,
     'cmsy10': ComputerModernFontConstants,
     'cmtt10': ComputerModernFontConstants,
+    'Latin Modern Roman': LatinModernFontConstants,
+    'Latin Modern Math': LatinModernFontConstants,
     'STIXGeneral': STIXFontConstants,
     'STIXNonUnicode': STIXFontConstants,
     'STIXSizeFiveSym': STIXFontConstants,
