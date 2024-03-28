@@ -625,6 +625,28 @@ def test_linecollection_scaled_dashes():
         assert oh.get_linestyles()[0] == lh._dash_pattern
 
 
+def test_patch_collection_handler():
+    fig, ax = plt.subplots()
+    pc = mcollections.PatchCollection([
+        plt.Circle((0, 0), radius=1, facecolor='red', edgecolor='green',
+                   linewidth=3, linestyle='--'),
+        plt.Rectangle((0.5, 0.5), 1, 1),
+    ], match_original=True, label='my_collection')
+
+    ax.add_collection(pc)
+    _, labels = ax.get_legend_handles_labels()
+    assert len(labels) == 1
+    assert labels[0] == 'my_collection'
+
+    leg = ax.legend()
+    handles = leg.legend_handles
+    assert mpl.colors.same_color(handles[0].get_facecolor(), 'red')
+    assert mpl.colors.same_color(handles[0].get_edgecolor(), 'green')
+    assert handles[0].get_linewidth() == 3
+    np.testing.assert_allclose(handles[0].get_linestyle()[1],
+                               pc.get_linestyle()[0][1])
+
+
 def test_handler_numpoints():
     """Test legend handler with numpoints <= 1."""
     # related to #6921 and PR #8478
