@@ -19,6 +19,8 @@ class FigureCanvasGTK4Cairo(FigureCanvasCairo, FigureCanvasGTK4):
                 self.get_style_context(), ctx,
                 allocation.x, allocation.y,
                 allocation.width, allocation.height)
+            self._renderer.width = allocation.width * scale
+            self._renderer.height = allocation.height * scale
             self._renderer.dpi = self.figure.dpi
             self.figure.draw(self._renderer)
 
