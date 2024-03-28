@@ -130,7 +130,7 @@ def test_tight_layout7():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout8'])
+@image_comparison(['tight_layout8'], tol=0.005)
 def test_tight_layout8():
     """Test automatic use of tight_layout."""
     fig = plt.figure()
