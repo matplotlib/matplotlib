@@ -603,9 +603,9 @@ def test_grouper_private():
     for o in objs:
         assert o in mapping
 
-    base_set = mapping[objs[0]]
+    _, base_set = mapping[objs[0]]
     for o in objs[1:]:
-        assert mapping[o] is base_set
+        assert mapping[o][1] is base_set
 
 
 def test_flatiter():
