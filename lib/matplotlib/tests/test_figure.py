@@ -10,6 +10,7 @@ import warnings
 import numpy as np
 import pytest
 from PIL import Image
+from matplotlib.testing.compare import compare_images
 
 import matplotlib as mpl
 from matplotlib import gridspec
@@ -99,6 +100,37 @@ def test_align_labels_stray_axes():
         xn[nn] = ax.yaxis.label.get_position()[0]
     np.testing.assert_allclose(xn[:2], xn[2:])
     np.testing.assert_allclose(yn[::2], yn[1::2])
+
+
+## TODO add image comparison
+@image_comparison(['figure_align_titles'], extensions=['png', 'svg'],
+                   tol=0 if platform.machine() == 'x86_64' else 0.01, style='mpl20')
+def test_align_titles():
+    fig, axs = plt.subplots(2, 2,
+                            subplot_kw={"xlabel": "x", "ylabel": "",
+                                        "title": "Title"}, layout="constrained")
+    axs[0][0].imshow(plt.np.zeros((5, 3)))
+    axs[0][1].imshow(plt.np.zeros((3, 5)))
+    axs[1][0].imshow(plt.np.zeros((2, 1)))
+    axs[1][1].imshow(plt.np.zeros((1, 2)))
+
+    axs[0][1].set_title('Title2', loc="left")
+    fig.align_titles()
+
+
+## TODO add image comparison
+@image_comparison(['figure_align_titles_param'], extensions=['png', 'svg'],
+                   tol=0 if platform.machine() == 'x86_64' else 0.01, style='mpl20')
+def test_align_titles_param():
+    fig, axs = plt.subplots(2, 2,
+                            subplot_kw={"xlabel": "x", "ylabel": "",
+                                        "title": "t"}, layout="constrained")
+    axs[0][0].imshow(plt.np.zeros((3, 5)))
+    axs[0][1].imshow(plt.np.zeros((5, 3)))
+    axs[1][0].imshow(plt.np.zeros((2, 1)))
+    axs[1][1].imshow(plt.np.zeros((1, 2)))
+
+    fig.align_titles([axs[0][0], axs[0][1]])
 
 
 def test_figure_label():

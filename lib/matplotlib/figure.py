@@ -132,10 +132,11 @@ class FigureBase(Artist):
         self._supxlabel = None
         self._supylabel = None
 
-        # groupers to keep track of x and y labels we want to align.
-        # see self.align_xlabels and self.align_ylabels and
+        # groupers to keep track of x, y and title labels we want to align.
+        # see self.align_xlabels, self.align_ylabels, self.align_titles and
         # axis._get_tick_boxes_siblings
-        self._align_label_groups = {"x": cbook.Grouper(), "y": cbook.Grouper()}
+        self._align_label_groups = {"x": cbook.Grouper(), "y": cbook.Grouper(),
+                                    "title": cbook.Grouper()}
 
         self._localaxes = []  # track all Axes
         self.artists = []
@@ -1290,6 +1291,68 @@ default: %(va)s
             if ax.get_subplotspec() is not None:
                 ax._set_position(ax.get_subplotspec().get_position(self))
         self.stale = True
+
+    def align_titles(self, axs=None):
+        """
+        Align the titles of subplots in the same subplot column if title
+        alignment is being done automatically (i.e. the title position is
+        not manually set).
+
+        Alignment persists for draw events after this is called.
+
+        If the title is on the top,
+        it is aligned with titles on Axes with the same top-most row.
+
+        Parameters
+        ----------
+        axs : list of `~matplotlib.axes.Axes`
+            Optional list of (or `~numpy.ndarray`) `~matplotlib.axes.Axes`
+            to align the titles.
+            Default is to align all titles on the figure.
+
+        See Also
+        --------
+        matplotlib.figure.Figure.align_ylabels
+        matplotlib.figure.Figure.align_xlabels
+        matplotlib.figure.Figure.align_labels
+
+        Notes
+        -----
+        This assumes that ``axs`` are from the same `.GridSpec`, so that
+        their `.SubplotSpec` positions correspond to figure positions.
+
+        Examples
+        --------
+        Example with aligned titles on multiple rows::
+
+            fig, axs = plt.subplots(2, 2,
+                            subplot_kw={"xlabel": "x", "ylabel": "",
+                                        "title": "Title"})
+            axs[0][0].imshow(plt.np.zeros((5, 3)))
+            axs[0][1].imshow(plt.np.zeros((3, 5)))
+            axs[1][0].imshow(plt.np.zeros((2, 1)))
+            axs[1][1].imshow(plt.np.zeros((1, 2)))
+
+            axs[0][1].set_title('Title2', loc="left")
+            fig.align_titles()
+        """
+        if axs is None:
+            axs = self.axes
+        axs = [ax for ax in np.ravel(axs) if ax.get_subplotspec() is not None]
+        locs = ['left', 'center', 'right']
+        for ax in axs:
+            for loc in locs:
+                if ax.get_title(loc=loc):
+                    rowspan = ax.get_subplotspec().rowspan
+                    for axc in axs:
+                        rowspanc = axc.get_subplotspec().rowspan
+                        if rowspan.start == rowspanc.start or \
+                                rowspan.stop == rowspanc.stop:
+                            self._align_label_groups['title'].join(ax, axc)
+
+        # Fixes the issue that the bbox is too small to fit the aligned
+        # title when saving the figure
+        self.canvas.draw_idle()
 
     def align_xlabels(self, axs=None):
         """
