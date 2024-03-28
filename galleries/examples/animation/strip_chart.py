@@ -67,3 +67,5 @@ ani = animation.FuncAnimation(fig, scope.update, emitter, interval=50,
                               blit=True, save_count=100)
 
 plt.show()
+
+# ..tags:: animation, plot-type: line
