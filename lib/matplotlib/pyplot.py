@@ -995,18 +995,24 @@ default: None
     fig_label = ''
     if num is None:
         num = next_num
-    elif isinstance(num, str):
-        fig_label = num
-        all_labels = get_figlabels()
-        if fig_label not in all_labels:
-            if fig_label == 'all':
-                _api.warn_external("close('all') closes all existing figures.")
-            num = next_num
-        else:
-            inum = all_labels.index(fig_label)
-            num = allnums[inum]
     else:
-        num = int(num)  # crude validation of num argument
+        if any([figsize, dpi, facecolor, edgecolor, not frameon,
+                kwargs]) and num in allnums:
+            _api.warn_external(
+                "Ignoring specified arguments in this call "
+                f"because figure with num: {num} already exists")
+        if isinstance(num, str):
+            fig_label = num
+            all_labels = get_figlabels()
+            if fig_label not in all_labels:
+                if fig_label == 'all':
+                    _api.warn_external("close('all') closes all existing figures.")
+                num = next_num
+            else:
+                inum = all_labels.index(fig_label)
+                num = allnums[inum]
+        else:
+            num = int(num)  # crude validation of num argument
 
     # Type of "num" has narrowed to int, but mypy can't quite see it
     manager = _pylab_helpers.Gcf.get_fig_manager(num)  # type: ignore[arg-type]
