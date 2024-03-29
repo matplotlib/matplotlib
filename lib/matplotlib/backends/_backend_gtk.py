@@ -45,6 +45,7 @@ def _shutdown_application(app):
 def _create_application():
     global _application
 
+    created = False
     if _application is None:
         app = Gio.Application.get_default()
         if app is None or getattr(app, '_created_by_matplotlib', False):
@@ -60,10 +61,11 @@ def _create_application():
             _application.connect('shutdown', _shutdown_application)
             _application.register()
             cbook._setup_new_guiapp()
+            created = True
         else:
             _application = app
 
-    return _application
+    return _application, created
 
 
 def mpl_to_gtk_cursor_name(mpl_cursor):
@@ -137,7 +139,16 @@ class _FigureManagerGTK(FigureManagerBase):
     def __init__(self, canvas, num):
         self._gtk_ver = gtk_ver = Gtk.get_major_version()
 
-        app = _create_application()
+        app, created = _create_application()
+        if created:
+            if gtk_ver == 3:
+                theme = Gtk.IconTheme.get_default()
+                _add_icon_theme = theme.append_search_path
+            else:
+                theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
+                _add_icon_theme = theme.add_search_path
+            _add_icon_theme(str(cbook._get_data_path('images/icons')))
+
         self.window = Gtk.Window()
         app.add_window(self.window)
         super().__init__(canvas, num)
