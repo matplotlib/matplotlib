@@ -2630,6 +2630,46 @@ None}, default: None
     # to the figure in the right context, but then IPython doesn't
     # use it, for some reason.
 
+    def set_layout(self, layout=None, **kwargs):
+        """
+        Wrapper method for set_layout_engine, used to provide consistency between the
+        variable's name and it's setter.
+
+        Parameters
+        ----------
+        layout : {'constrained', 'compressed', 'tight', 'none', `.LayoutEngine`, None}
+
+            - 'constrained' will use `~.ConstrainedLayoutEngine`
+            - 'compressed' will also use `~.ConstrainedLayoutEngine`, but with
+              a correction that attempts to make a good layout for fixed-aspect
+              ratio Axes.
+            - 'tight' uses `~.TightLayoutEngine`
+            - 'none' removes layout engine.
+
+            If a `.LayoutEngine` instance, that instance will be used.
+
+            If `None`, the behavior is controlled by :rc:`figure.autolayout`
+            (which if `True` behaves as if 'tight' was passed) and
+            :rc:`figure.constrained_layout.use` (which if `True` behaves as if
+            'constrained' was passed).  If both are `True`,
+            :rc:`figure.autolayout` takes priority.
+
+            Users and libraries can define their own layout engines and pass
+            the instance directly as well.
+
+        **kwargs
+            The keyword arguments are passed to the layout engine to set things
+            like padding and margin sizes.  Only used if *layout* is a string.
+
+        """
+        self.set_layout_engine(layout,**kwargs)
+
+    def get_layout(self):
+        # Wrapper class for get_layout_engine
+        return self.get_layout_engine()
+        
+
+
     def _repr_html_(self):
         # We can't use "isinstance" here, because then we'd end up importing
         # webagg unconditionally.
