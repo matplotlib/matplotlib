@@ -1,0 +1,4 @@
+tricontour
+tricontourf
+tripcolor
+triplot
