@@ -8,7 +8,7 @@ import os
 
 
 # Utility functions
-def get_ordering(dir):
+def get_ordering(dir, include_directory_path=False):
     """Read gallery_order.txt in dir and return content of the file as a List"""
     file_path = os.path.join(dir, 'gallery_order.txt')
     f = open(file_path, "r")
@@ -18,7 +18,10 @@ def get_ordering(dir):
         if line == "unsorted":
             ordered_list.append(UNSORTED)
         else:
-            ordered_list.append(line)
+            if include_directory_path:
+                ordered_list.append(os.path.join(dir, line))
+            else:
+                ordered_list.append(line)
 
     return ordered_list
 
@@ -69,9 +72,9 @@ tutorials_order = [
 #     UNSORTED
 # ]
 
-plot_types_directory = "../galleries/plot_types/"
-plot_types_order = get_ordering(plot_types_directory)
 
+plot_types_directory = "../galleries/plot_types/"
+plot_types_order = get_ordering(plot_types_directory, include_directory_path=True)
 
 folder_lists = [examples_order, tutorials_order, plot_types_order]
 explicit_order_folders = [fd for folders in folder_lists
@@ -133,7 +136,7 @@ list_all = [
 
 for dir in list_directory(plot_types_directory):
     try:
-        ordered_subdirs = get_ordering(dir)
+        ordered_subdirs = get_ordering(dir, include_directory_path=False)
         list_all.extend(ordered_subdirs)
     except FileNotFoundError:
         # Fallback to ordering already defined in list_all
