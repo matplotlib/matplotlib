@@ -1,11 +1,16 @@
 from contextlib import nullcontext
 
 from .backend_cairo import FigureCanvasCairo
-from .backend_gtk3 import Gtk, FigureCanvasGTK3, _BackendGTK3
+from .backend_gtk3 import GLib, Gtk, FigureCanvasGTK3, _BackendGTK3
 
 
 class FigureCanvasGTK3Cairo(FigureCanvasCairo, FigureCanvasGTK3):
     def on_draw_event(self, widget, ctx):
+        if self._idle_draw_id:
+            GLib.source_remove(self._idle_draw_id)
+            self._idle_draw_id = 0
+            self.draw()
+
         with (self.toolbar._wait_cursor_for_draw_cm() if self.toolbar
               else nullcontext()):
             self._renderer.set_context(ctx)
