@@ -398,6 +398,7 @@ class ToolbarGTK4(ToolContainerBase, Gtk.Box):
         ToolContainerBase.__init__(self, toolmanager)
         Gtk.Box.__init__(self)
         self.set_property('orientation', Gtk.Orientation.HORIZONTAL)
+        self.add_css_class('toolbar')
 
         # Tool items are created later, but must appear before the message.
         self._tool_box = Gtk.Box()
