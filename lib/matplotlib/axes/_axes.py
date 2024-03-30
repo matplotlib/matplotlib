@@ -16,6 +16,7 @@ import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
 import matplotlib.dates  # noqa: F401, Register date unit converter as side effect.
 import matplotlib.image as mimage
+import matplotlib.inset as minset
 import matplotlib.legend as mlegend
 import matplotlib.lines as mlines
 import matplotlib.markers as mmarkers
@@ -419,9 +420,9 @@ class Axes(_AxesBase):
         return inset_ax
 
     @_docstring.interpd
-    def indicate_inset(self, bounds, inset_ax=None, *, transform=None,
+    def indicate_inset(self, bounds=None, inset_ax=None, *, transform=None,
                        facecolor='none', edgecolor='0.5', alpha=0.5,
-                       zorder=4.99, **kwargs):
+                       zorder=None, **kwargs):
         """
         Add an inset indicator to the Axes.  This is a rectangle on the plot
         at the position indicated by *bounds* that optionally has lines that
@@ -433,18 +434,19 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        bounds : [x0, y0, width, height]
+        bounds : [x0, y0, width, height], optional
             Lower-left corner of rectangle to be marked, and its width
-            and height.
+            and height.  If not set, the bounds will be calculated from the
+            data limits of *inset_ax*, which must be supplied.
 
-        inset_ax : `.Axes`
+        inset_ax : `.Axes`, optional
             An optional inset Axes to draw connecting lines to.  Two lines are
             drawn connecting the indicator box to the inset Axes on corners
             chosen so as to not overlap with the indicator box.
 
         transform : `.Transform`
             Transform for the rectangle coordinates. Defaults to
-            `ax.transAxes`, i.e. the units of *rect* are in Axes-relative
+            ``ax.transAxes``, i.e. the units of *rect* are in Axes-relative
             coordinates.
 
         facecolor : :mpltype:`color`, default: 'none'
@@ -469,15 +471,20 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        rectangle_patch : `.patches.Rectangle`
-             The indicator frame.
+        inset_indicator : `.inset.InsetIndicator`
+            An artist which contains
 
-        connector_lines : 4-tuple of `.patches.ConnectionPatch`
-            The four connector lines connecting to (lower_left, upper_left,
-            lower_right upper_right) corners of *inset_ax*. Two lines are
-            set with visibility to *False*,  but the user can set the
-            visibility to True if the automatic choice is not deemed correct.
+            inset_indicator.rectangle : `.Rectangle`
+                The indicator frame.
 
+            inset_indicator.connectors : 4-tuple of `.patches.ConnectionPatch`
+                The four connector lines connecting to (lower_left, upper_left,
+                lower_right upper_right) corners of *inset_ax*. Two lines are
+                set with visibility to *False*,  but the user can set the
+                visibility to True if the automatic choice is not deemed correct.
+
+            .. versionchanged:: 3.10
+                Previously the rectangle and connectors tuple were returned.
         """
         # to make the Axes connectors work, we need to apply the aspect to
         # the parent Axes.
@@ -487,51 +494,13 @@ class Axes(_AxesBase):
             transform = self.transData
         kwargs.setdefault('label', '_indicate_inset')
 
-        x, y, width, height = bounds
-        rectangle_patch = mpatches.Rectangle(
-            (x, y), width, height,
+        indicator_patch = minset.InsetIndicator(
+            bounds, inset_ax=inset_ax,
             facecolor=facecolor, edgecolor=edgecolor, alpha=alpha,
             zorder=zorder, transform=transform, **kwargs)
-        self.add_patch(rectangle_patch)
+        self.add_artist(indicator_patch)
 
-        connects = []
-
-        if inset_ax is not None:
-            # connect the inset_axes to the rectangle
-            for xy_inset_ax in [(0, 0), (0, 1), (1, 0), (1, 1)]:
-                # inset_ax positions are in axes coordinates
-                # The 0, 1 values define the four edges if the inset_ax
-                # lower_left, upper_left, lower_right upper_right.
-                ex, ey = xy_inset_ax
-                if self.xaxis.get_inverted():
-                    ex = 1 - ex
-                if self.yaxis.get_inverted():
-                    ey = 1 - ey
-                xy_data = x + ex * width, y + ey * height
-                p = mpatches.ConnectionPatch(
-                    xyA=xy_inset_ax, coordsA=inset_ax.transAxes,
-                    xyB=xy_data, coordsB=self.transData,
-                    arrowstyle="-", zorder=zorder,
-                    edgecolor=edgecolor, alpha=alpha)
-                connects.append(p)
-                self.add_patch(p)
-
-            # decide which two of the lines to keep visible....
-            pos = inset_ax.get_position()
-            bboxins = pos.transformed(self.get_figure(root=False).transSubfigure)
-            rectbbox = mtransforms.Bbox.from_bounds(
-                *bounds
-            ).transformed(transform)
-            x0 = rectbbox.x0 < bboxins.x0
-            x1 = rectbbox.x1 < bboxins.x1
-            y0 = rectbbox.y0 < bboxins.y0
-            y1 = rectbbox.y1 < bboxins.y1
-            connects[0].set_visible(x0 ^ y0)
-            connects[1].set_visible(x0 == y1)
-            connects[2].set_visible(x1 == y0)
-            connects[3].set_visible(x1 ^ y1)
-
-        return rectangle_patch, tuple(connects) if connects else None
+        return indicator_patch
 
     def indicate_inset_zoom(self, inset_ax, **kwargs):
         """
@@ -555,22 +524,23 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        rectangle_patch : `.patches.Rectangle`
-             Rectangle artist.
+        inset_indicator : `.inset.InsetIndicator`
+            An artist which contains
 
-        connector_lines : 4-tuple of `.patches.ConnectionPatch`
-            Each of four connector lines coming from the rectangle drawn on
-            this axis, in the order lower left, upper left, lower right,
-            upper right.
-            Two are set with visibility to *False*,  but the user can
-            set the visibility to *True* if the automatic choice is not deemed
-            correct.
+            inset_indicator.rectangle : `.Rectangle`
+                The indicator frame.
+
+            inset_indicator.connectors : 4-tuple of `.patches.ConnectionPatch`
+                The four connector lines connecting to (lower_left, upper_left,
+                lower_right upper_right) corners of *inset_ax*. Two lines are
+                set with visibility to *False*,  but the user can set the
+                visibility to True if the automatic choice is not deemed correct.
+
+            .. versionchanged:: 3.10
+                Previously the rectangle and connectors tuple were returned.
         """
 
-        xlim = inset_ax.get_xlim()
-        ylim = inset_ax.get_ylim()
-        rect = (xlim[0], ylim[0], xlim[1] - xlim[0], ylim[1] - ylim[0])
-        return self.indicate_inset(rect, inset_ax, **kwargs)
+        return self.indicate_inset(None, inset_ax, **kwargs)
 
     @_docstring.interpd
     def secondary_xaxis(self, location, functions=None, *, transform=None, **kwargs):

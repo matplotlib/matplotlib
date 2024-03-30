@@ -104,6 +104,7 @@ Alphabetical list of modules:
    gridspec_api.rst
    hatch_api.rst
    image_api.rst
+   inset_api.rst
    layout_engine_api.rst
    legend_api.rst
    legend_handler_api.rst
