@@ -3053,7 +3053,7 @@ None}, default: None
         """
         return np.array(self.bbox_inches.p1)
     
-    def set_figsize(self, w, h=None):
+    def set_figsize(self, w, h=None, forward=True):
         """
         Set the figure size in inches.
         Call signatures::
@@ -3079,7 +3079,7 @@ None}, default: None
         -----
         To transform from pixels to inches divide by `Figure.dpi`.
         """
-        self.set_size_inches(w, h, forward=True)
+        self.set_size_inches(w, h, forward)
     
     def get_figsize(self):
         """Return the figure size in inches."""
