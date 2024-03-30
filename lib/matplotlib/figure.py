@@ -2889,6 +2889,54 @@ None}, default: None
 
         return w_pad, h_pad, wspace, hspace
 
+        def set_subplotparams(self, subplotparams={}):
+        """
+        Set the subplot layout parameters.
+        Accepts either a `.SubplotParams` object, from which the relevant
+        parameters are copied, or a dictionary of subplot layout parameters.
+        If a dictionary is provided, this function is a convenience wrapper for
+        `matplotlib.figure.Figure.subplots_adjust`
+        Parameters
+        ----------
+        subplotparams : `~matplotlib.figure.SubplotParams` or dict with keys \
+        "left", "bottom", "right", 'top", "wspace", "hspace"] , optional
+            SubplotParams object to copy new subplot parameters from, or a dict
+             of SubplotParams constructor arguments.
+            By default, an empty dictionary is passed, which maintains the
+             current state of the figure's `.SubplotParams`
+        See Also
+        --------
+        matplotlib.figure.Figure.subplots_adjust
+        matplotlib.figure.Figure.get_subplotparams
+        """
+        valid_keys = ["left", "bottom", "right", "top", "wspace", "hspace"]
+        if isinstance(subplotparams, dict):
+            # Filter out the valid keys
+            valid_params = {key: value for key, value in subplotparams.items() if key in valid_keys}
+            self.subplots_adjust(**valid_params)
+        elif isinstance(subplotparams, SubplotParams):
+            self.subplots_adjust(**subplotparams.__dict__)
+        else:
+            raise TypeError(
+                "subplotparams must be a dictionary of keyword-argument pairs or"
+                " an instance of SubplotParams()")
+            
+        if not subplotparams:
+            self.set_subplotparams(self.get_subplotparams())
+
+    def get_subplotparams(self):
+        """
+        Return the `.SubplotParams` object associated with the Figure.
+        Returns
+        -------
+        `.SubplotParams`
+        See Also
+        --------
+        matplotlib.figure.Figure.subplots_adjust
+        matplotlib.figure.Figure.get_subplotparams
+        """
+        return self.subplotpars
+
     def set_canvas(self, canvas):
         """
         Set the canvas that contains the figure
