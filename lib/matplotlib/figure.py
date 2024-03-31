@@ -2909,11 +2909,11 @@ None}, default: None
         matplotlib.figure.Figure.subplots_adjust
         matplotlib.figure.Figure.get_subplotparams
         """
-        valid_keys = ["left", "bottom", "right", "top", "wspace", "hspace"]
+        subplotparams_args = ["left", "bottom", "right", "top", "wspace", "hspace"]
         if isinstance(subplotparams, dict):
             # Filter out the valid keys
-            valid_params = {key: value for key, value in subplotparams.items() if key in valid_keys}
-            self.subplots_adjust(**valid_params)
+            kwargs = {key: value for key, value in subplotparams.items() if key in subplotparams_args}
+            self.subplots_adjust(**kwargs)
         elif isinstance(subplotparams, SubplotParams):
             self.subplots_adjust(**subplotparams.__dict__)
         else:
