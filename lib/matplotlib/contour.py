@@ -1808,8 +1808,6 @@ hatches : list[str], optional
 
     A list of cross hatch patterns to use on the filled areas.
     If None, no hatching will be added to the contour.
-    Hatching is supported in the PostScript, PDF, SVG and Agg
-    backends only.
 
 algorithm : {'mpl2005', 'mpl2014', 'serial', 'threaded'}, optional
     Which contouring algorithm to use to calculate the contour lines and
