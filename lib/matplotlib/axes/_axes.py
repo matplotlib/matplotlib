@@ -8350,9 +8350,10 @@ such objects
 
     @_api.make_keyword_only("3.9", "vert")
     @_preprocess_data(replace_names=["dataset"])
-    def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
+    def violinplot(self, dataset, positions=None, vert=None, widths=0.5,
                    showmeans=False, showextrema=True, showmedians=False,
-                   quantiles=None, points=100, bw_method=None, side='both'):
+                   quantiles=None, points=100, bw_method=None, side='both',
+                   orientation=None):
         """
         Make a violin plot.
 
@@ -8371,8 +8372,14 @@ such objects
             vertical violins (or y-axis for horizontal violins).
 
         vert : bool, default: True.
-            If true, creates a vertical violin plot.
-            Otherwise, creates a horizontal violin plot.
+            .. deprecated:: 3.10
+                Use *orientation* instead.
+
+                If this is given during the deprecation period, it overrides
+                the *orientation* parameter.
+
+            If True, plots the violins vertically.
+            If False, plots the violins horizontally.
 
         widths : float or array-like, default: 0.5
             The maximum width of each violin in units of the *positions* axis.
@@ -8406,6 +8413,12 @@ such objects
         side : {'both', 'low', 'high'}, default: 'both'
             'both' plots standard violins. 'low'/'high' only
             plots the side below/above the positions value.
+
+        orientation : {'vertical', 'horizontal'}, default: 'vertical'
+            If 'horizontal', plots the violins horizontally.
+            Otherwise, plots the violins vertically.
+
+            .. versionadded:: 3.10
 
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
@@ -8457,12 +8470,14 @@ such objects
         vpstats = cbook.violin_stats(dataset, _kde_method, points=points,
                                      quantiles=quantiles)
         return self.violin(vpstats, positions=positions, vert=vert,
-                           widths=widths, showmeans=showmeans,
-                           showextrema=showextrema, showmedians=showmedians, side=side)
+                           orientation=orientation, widths=widths,
+                           showmeans=showmeans, showextrema=showextrema,
+                           showmedians=showmedians, side=side)
 
     @_api.make_keyword_only("3.9", "vert")
-    def violin(self, vpstats, positions=None, vert=True, widths=0.5,
-               showmeans=False, showextrema=True, showmedians=False, side='both'):
+    def violin(self, vpstats, positions=None, vert=None, widths=0.5,
+               showmeans=False, showextrema=True, showmedians=False, side='both',
+               orientation=None):
         """
         Draw a violin plot from pre-computed statistics.
 
@@ -8501,8 +8516,14 @@ such objects
             vertical violins (or y-axis for horizontal violins).
 
         vert : bool, default: True.
-            If true, plots the violins vertically.
-            Otherwise, plots the violins horizontally.
+            .. deprecated:: 3.10
+                Use *orientation* instead.
+
+                If this is given during the deprecation period, it overrides
+                the *orientation* parameter.
+
+            If True, plots the violins vertically.
+            If False, plots the violins horizontally.
 
         widths : float or array-like, default: 0.5
             The maximum width of each violin in units of the *positions* axis.
@@ -8521,6 +8542,12 @@ such objects
         side : {'both', 'low', 'high'}, default: 'both'
             'both' plots standard violins. 'low'/'high' only
             plots the side below/above the positions value.
+
+        orientation : {'vertical', 'horizontal'}, default: 'vertical'
+            If 'horizontal', plots the violins horizontally.
+            Otherwise, plots the violins vertically.
+
+            .. versionadded:: 3.10
 
         Returns
         -------
@@ -8572,6 +8599,24 @@ such objects
         datashape_message = ("List of violinplot statistics and `{0}` "
                              "values must have the same length")
 
+        if vert is not None:
+            _api.warn_deprecated(
+                "3.10",
+                name="vert: bool",
+                alternative="orientation: {'vertical', 'horizontal'}"
+            )
+
+        # vert and orientation parameters are linked until vert's
+        # deprecation period expires. If both are selected,
+        # vert takes precedence.
+        if vert or vert is None and orientation is None:
+            orientation = 'vertical'
+        elif vert is False:
+            orientation = 'horizontal'
+
+        if orientation is not None:
+            _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
+
         # Validate positions
         if positions is None:
             positions = range(1, N + 1)
@@ -8600,7 +8645,7 @@ such objects
             fillcolor = linecolor = self._get_lines.get_next_color()
 
         # Check whether we are rendering vertically or horizontally
-        if vert:
+        if orientation == 'vertical':
             fill = self.fill_betweenx
             if side in ['low', 'high']:
                 perp_lines = functools.partial(self.hlines, colors=linecolor,

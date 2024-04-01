@@ -4142,7 +4142,7 @@ def triplot(*args, **kwargs):
 def violinplot(
     dataset: ArrayLike | Sequence[ArrayLike],
     positions: ArrayLike | None = None,
-    vert: bool = True,
+    vert: bool | None = None,
     widths: float | ArrayLike = 0.5,
     showmeans: bool = False,
     showextrema: bool = True,
@@ -4154,6 +4154,7 @@ def violinplot(
     | Callable[[GaussianKDE], float]
     | None = None,
     side: Literal["both", "low", "high"] = "both",
+    orientation: Literal["vertical", "horizontal"] | None = None,
     *,
     data=None,
 ) -> dict[str, Collection]:
@@ -4169,6 +4170,7 @@ def violinplot(
         points=points,
         bw_method=bw_method,
         side=side,
+        orientation=orientation,
         **({"data": data} if data is not None else {}),
     )
 

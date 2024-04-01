@@ -62,37 +62,37 @@ axs[0, 5].violinplot(data[-1:], pos[-1:], points=60, widths=0.7,
                      quantiles=[0.05, 0.1, 0.8, 0.9], bw_method=0.5, side='high')
 axs[0, 5].set_title('Custom violin 6', fontsize=fs)
 
-axs[1, 0].violinplot(data, pos, points=80, vert=False, widths=0.7,
+axs[1, 0].violinplot(data, pos, points=80, orientation='horizontal', widths=0.7,
                      showmeans=True, showextrema=True, showmedians=True)
 axs[1, 0].set_title('Custom violin 7', fontsize=fs)
 
-axs[1, 1].violinplot(data, pos, points=100, vert=False, widths=0.9,
+axs[1, 1].violinplot(data, pos, points=100, orientation='horizontal', widths=0.9,
                      showmeans=True, showextrema=True, showmedians=True,
                      bw_method='silverman')
 axs[1, 1].set_title('Custom violin 8', fontsize=fs)
 
-axs[1, 2].violinplot(data, pos, points=200, vert=False, widths=1.1,
+axs[1, 2].violinplot(data, pos, points=200, orientation='horizontal', widths=1.1,
                      showmeans=True, showextrema=True, showmedians=True,
                      bw_method=0.5)
 axs[1, 2].set_title('Custom violin 9', fontsize=fs)
 
-axs[1, 3].violinplot(data, pos, points=200, vert=False, widths=1.1,
+axs[1, 3].violinplot(data, pos, points=200, orientation='horizontal', widths=1.1,
                      showmeans=True, showextrema=True, showmedians=True,
                      quantiles=[[0.1], [], [], [0.175, 0.954], [0.75], [0.25]],
                      bw_method=0.5)
 axs[1, 3].set_title('Custom violin 10', fontsize=fs)
 
-axs[1, 4].violinplot(data[-1:], pos[-1:], points=200, vert=False, widths=1.1,
-                     showmeans=True, showextrema=True, showmedians=True,
+axs[1, 4].violinplot(data[-1:], pos[-1:], points=200, orientation='horizontal',
+                     widths=1.1, showmeans=True, showextrema=True, showmedians=True,
                      quantiles=[0.05, 0.1, 0.8, 0.9], bw_method=0.5)
 axs[1, 4].set_title('Custom violin 11', fontsize=fs)
 
-axs[1, 5].violinplot(data[-1:], pos[-1:], points=200, vert=False, widths=1.1,
-                     showmeans=True, showextrema=True, showmedians=True,
+axs[1, 5].violinplot(data[-1:], pos[-1:], points=200, orientation='horizontal',
+                     widths=1.1, showmeans=True, showextrema=True, showmedians=True,
                      quantiles=[0.05, 0.1, 0.8, 0.9], bw_method=0.5, side='low')
 
-axs[1, 5].violinplot(data[-1:], pos[-1:], points=200, vert=False, widths=1.1,
-                     showmeans=True, showextrema=True, showmedians=True,
+axs[1, 5].violinplot(data[-1:], pos[-1:], points=200, orientation='horizontal',
+                     widths=1.1, showmeans=True, showextrema=True, showmedians=True,
                      quantiles=[0.05, 0.1, 0.8, 0.9], bw_method=0.5, side='high')
 axs[1, 5].set_title('Custom violin 12', fontsize=fs)
 

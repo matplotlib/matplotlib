@@ -739,7 +739,7 @@ class Axes(_AxesBase):
         dataset: ArrayLike | Sequence[ArrayLike],
         positions: ArrayLike | None = ...,
         *,
-        vert: bool = ...,
+        vert: bool | None = ...,
         widths: float | ArrayLike = ...,
         showmeans: bool = ...,
         showextrema: bool = ...,
@@ -751,6 +751,7 @@ class Axes(_AxesBase):
         | Callable[[GaussianKDE], float]
         | None = ...,
         side: Literal["both", "low", "high"] = ...,
+        orientation: Literal["vertical", "horizontal"] | None = ...,
         data=...,
     ) -> dict[str, Collection]: ...
     def violin(
@@ -758,12 +759,13 @@ class Axes(_AxesBase):
         vpstats: Sequence[dict[str, Any]],
         positions: ArrayLike | None = ...,
         *,
-        vert: bool = ...,
+        vert: bool | None = ...,
         widths: float | ArrayLike = ...,
         showmeans: bool = ...,
         showextrema: bool = ...,
         showmedians: bool = ...,
         side: Literal["both", "low", "high"] = ...,
+        orientation: Literal["vertical", "horizontal"] | None = ...,
     ) -> dict[str, Collection]: ...
 
     table = mtable.table
