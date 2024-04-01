@@ -127,8 +127,8 @@ class ColorSequenceRegistry(Mapping):
         'Accent': _cm._Accent_data,
         'Dark2': _cm._Dark2_data,
         'Set1': _cm._Set1_data,
-        'Set2': _cm._Set1_data,
-        'Set3': _cm._Set1_data,
+        'Set2': _cm._Set2_data,
+        'Set3': _cm._Set3_data,
     }
 
     def __init__(self):
