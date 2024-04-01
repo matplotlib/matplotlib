@@ -28,7 +28,7 @@ repos:
       - id: trailing-whitespace
         exclude_types: [svg]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
+    rev: v1.9.0
     hooks:
       - id: mypy
         additional_dependencies:
@@ -42,7 +42,7 @@ repos:
         files: lib/matplotlib  # Only run when files in lib/matplotlib are changed.
         pass_filenames: false
   - repo: https://github.com/pycqa/flake8
-    rev: 6.1.0
+    rev: 7.0.0
     hooks:
       - id: flake8
         additional_dependencies:
@@ -74,12 +74,12 @@ repos:
           - sphinx>=1.8.1
           - tomli
   - repo: https://github.com/adrienverge/yamllint
-    rev: v1.29.0
+    rev: v1.35.1
     hooks:
       - id: yamllint
         args: ["--strict", "--config-file=.yamllint.yml"]
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.28.0
+    rev: 0.28.1
     hooks:
       # TODO: Re-enable this when https://github.com/microsoft/azure-pipelines-vscode/issues/567 is fixed.
       # - id: check-azure-pipelines
