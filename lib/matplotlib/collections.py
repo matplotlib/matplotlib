@@ -524,9 +524,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         hatchings are done.  If same letter repeats, it increases the
         density of hatching of that pattern.
 
-        Hatching is supported in the PostScript, PDF, SVG and Agg
-        backends only.
-
         Unlike other properties such as linewidth and colors, hatching
         can only be specified for the collection as a whole, not separately
         for each member.
