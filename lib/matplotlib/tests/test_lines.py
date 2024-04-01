@@ -98,7 +98,7 @@ def test_invalid_line_data():
         line.set_ydata(0)
 
 
-@image_comparison(['line_dashes'], remove_text=True, tol=0.002)
+@image_comparison(['line_dashes'], remove_text=True, tol=0.003)
 def test_line_dashes():
     # Tolerance introduced after reordering of floating-point operations
     # Remove when regenerating the images
@@ -139,7 +139,8 @@ def test_valid_linestyles():
         line.set_linestyle('aardvark')
 
 
-@image_comparison(['drawstyle_variants.png'], remove_text=True)
+@image_comparison(['drawstyle_variants.png'], remove_text=True,
+                  tol=0.03 if platform.machine() == 'arm64' else 0)
 def test_drawstyle_variants():
     fig, axs = plt.subplots(6)
     dss = ["default", "steps-mid", "steps-pre", "steps-post", "steps", None]

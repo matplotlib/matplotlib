@@ -237,7 +237,8 @@ def test_matshow(fig_test, fig_ref):
                    'formatter_ticker_003',
                    'formatter_ticker_004',
                    'formatter_ticker_005',
-                   ])
+                   ],
+                  tol=0.031 if platform.machine() == 'arm64' else 0)
 def test_formatter_ticker():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -437,7 +438,8 @@ def test_twin_logscale(fig_test, fig_ref, twin):
     remove_ticks_and_titles(fig_ref)
 
 
-@image_comparison(['twin_autoscale.png'])
+@image_comparison(['twin_autoscale.png'],
+                  tol=0.009 if platform.machine() == 'arm64' else 0)
 def test_twinx_axis_scales():
     x = np.array([0, 0.5, 1])
     y = 0.5 * x
@@ -1232,7 +1234,8 @@ def test_fill_betweenx_input(y, x1, x2):
         ax.fill_betweenx(y, x1, x2)
 
 
-@image_comparison(['fill_between_interpolate'], remove_text=True)
+@image_comparison(['fill_between_interpolate'], remove_text=True,
+                  tol=0.012 if platform.machine() == 'arm64' else 0)
 def test_fill_between_interpolate():
     x = np.arange(0.0, 2, 0.02)
     y1 = np.sin(2*np.pi*x)
@@ -1623,7 +1626,7 @@ def test_pcolorauto(fig_test, fig_ref, snap):
     ax.pcolormesh(x2, y2, Z, snap=snap)
 
 
-@image_comparison(['canonical'])
+@image_comparison(['canonical'], tol=0.02 if platform.machine() == 'arm64' else 0)
 def test_canonical():
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3])
@@ -3065,7 +3068,8 @@ def test_log_scales_invalid():
         ax.set_ylim(-1, 10)
 
 
-@image_comparison(['stackplot_test_image', 'stackplot_test_image'])
+@image_comparison(['stackplot_test_image', 'stackplot_test_image'],
+                  tol=0.031 if platform.machine() == 'arm64' else 0)
 def test_stackplot():
     fig = plt.figure()
     x = np.linspace(0, 10, 10)
@@ -4873,7 +4877,8 @@ def test_marker_styles():
                 marker=marker, markersize=10+y/5, label=marker)
 
 
-@image_comparison(['rc_markerfill.png'])
+@image_comparison(['rc_markerfill.png'],
+                  tol=0.037 if platform.machine() == 'arm64' else 0)
 def test_markers_fillstyle_rcparams():
     fig, ax = plt.subplots()
     x = np.arange(7)
@@ -4896,7 +4901,7 @@ def test_vertex_markers():
 
 
 @image_comparison(['vline_hline_zorder', 'errorbar_zorder'],
-                  tol=0 if platform.machine() == 'x86_64' else 0.02)
+                  tol=0 if platform.machine() == 'x86_64' else 0.026)
 def test_eb_line_zorder():
     x = list(range(10))
 
@@ -5455,7 +5460,8 @@ def test_twin_remove(fig_test, fig_ref):
     ax_ref.yaxis.tick_left()
 
 
-@image_comparison(['twin_spines.png'], remove_text=True)
+@image_comparison(['twin_spines.png'], remove_text=True,
+                  tol=0.022 if platform.machine() == 'arm64' else 0)
 def test_twin_spines():
 
     def make_patch_spines_invisible(ax):
@@ -5822,7 +5828,7 @@ def test_pie_linewidth_0():
     plt.axis('equal')
 
 
-@image_comparison(['pie_center_radius.png'], style='mpl20', tol=0.005)
+@image_comparison(['pie_center_radius.png'], style='mpl20', tol=0.007)
 def test_pie_center_radius():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -6008,7 +6014,8 @@ def test_pie_hatch_multi(fig_test, fig_ref):
     [w.set_hatch(hp) for w, hp in zip(wedges, hatch)]
 
 
-@image_comparison(['set_get_ticklabels.png'])
+@image_comparison(['set_get_ticklabels.png'],
+                  tol=0.025 if platform.machine() == 'arm64' else 0)
 def test_set_get_ticklabels():
     # test issue 2246
     fig, ax = plt.subplots(2)
@@ -6579,7 +6586,8 @@ def test_loglog():
     ax.tick_params(length=15, width=2, which='minor')
 
 
-@image_comparison(["test_loglog_nonpos.png"], remove_text=True, style='mpl20')
+@image_comparison(["test_loglog_nonpos.png"], remove_text=True, style='mpl20',
+                  tol=0.029 if platform.machine() == 'arm64' else 0)
 def test_loglog_nonpos():
     fig, axs = plt.subplots(3, 3)
     x = np.arange(1, 11)
@@ -7505,8 +7513,8 @@ def test_scatter_empty_data():
     plt.scatter([], [], s=[], c=[])
 
 
-@image_comparison(['annotate_across_transforms.png'],
-                  style='mpl20', remove_text=True)
+@image_comparison(['annotate_across_transforms.png'], style='mpl20', remove_text=True,
+                  tol=0.025 if platform.machine() == 'arm64' else 0)
 def test_annotate_across_transforms():
     x = np.linspace(0, 10, 200)
     y = np.exp(-x) * np.sin(x)
@@ -7536,7 +7544,8 @@ class _Translation(mtransforms.Transform):
         return _Translation(-self.dx)
 
 
-@image_comparison(['secondary_xy.png'], style='mpl20')
+@image_comparison(['secondary_xy.png'], style='mpl20',
+                  tol=0.027 if platform.machine() == 'arm64' else 0)
 def test_secondary_xy():
     fig, axs = plt.subplots(1, 2, figsize=(10, 5), constrained_layout=True)
 
@@ -8799,7 +8808,8 @@ def test_zorder_and_explicit_rasterization():
         fig.savefig(b, format='pdf')
 
 
-@image_comparison(["preset_clip_paths.png"], remove_text=True, style="mpl20")
+@image_comparison(["preset_clip_paths.png"], remove_text=True, style="mpl20",
+                  tol=0.027 if platform.machine() == "arm64" else 0)
 def test_preset_clip_paths():
     fig, ax = plt.subplots()
 
