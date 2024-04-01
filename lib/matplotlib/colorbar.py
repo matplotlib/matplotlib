@@ -291,7 +291,7 @@ class Colorbar:
                  drawedges=False,
                  extendfrac=None,
                  extendrect=False,
-                 label='',
+                 label=None,
                  location=None,
                  ):
 
@@ -391,12 +391,17 @@ class Colorbar:
                 orientation) if location is None else location
         self.ticklocation = ticklocation
 
-        self.set_label(label)
+        if label is not None:
+            self.set_label(label)
         self._reset_locator_formatter_scale()
+        self._set_units_from_mappable()
+
+        if ticks is not None and self._converter is not None:
+            ticks = self._converter.convert(ticks, self._units, self._long_axis())
 
         if np.iterable(ticks):
             self._locator = ticker.FixedLocator(ticks, nbins=len(ticks))
-        else:
+        elif isinstance(ticks, ticker.Locator):
             self._locator = ticks
 
         if isinstance(format, str):
@@ -1330,6 +1335,27 @@ class Colorbar:
                 self.norm.vmin, self.norm.vmax = points[:, 0]
             elif self.orientation == 'vertical':
                 self.norm.vmin, self.norm.vmax = points[:, 1]
+
+    def _set_units_from_mappable(self):
+        """
+        Set the colorbar locator and formatter if the mappable has units.
+        """
+        self._units = self.mappable._units
+        self._converter = self.mappable._converter
+        if self._converter is not None:
+
+            axis = self._long_axis()
+            info = self._converter.axisinfo(self._units, axis)
+
+            if info is not None:
+                if info.majloc is not None:
+                    self.locator = info.majloc
+                if info.minloc is not None:
+                    self.minorlocator = info.minloc
+                if info.majfmt is not None:
+                    self.formatter = info.majfmt
+                if info.minfmt is not None:
+                    self.minorformatter = info.minfmt
 
 
 ColorbarBase = Colorbar  # Backcompat API

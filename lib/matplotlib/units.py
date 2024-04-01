@@ -118,16 +118,22 @@ class ConversionInterface:
 
     @staticmethod
     def default_units(x, axis):
-        """Return the default unit for *x* or ``None`` for the given axis."""
+        """
+        Return the default unit for *x*.
+
+        *axis* may be an `~.axis.Axis` or ``None``.
+        """
         return None
 
     @staticmethod
     def convert(obj, unit, axis):
         """
-        Convert *obj* using *unit* for the specified *axis*.
+        Convert *obj* using *unit*.
 
         If *obj* is a sequence, return the converted sequence.  The output must
         be a sequence of scalars that can be used by the numpy array layer.
+
+        *axis* may be an `~.axis.Axis` or ``None``.
         """
         return obj
 
@@ -186,7 +192,7 @@ class Registry(dict):
         else:
             # ... and avoid infinite recursion for pathological iterables for
             # which indexing returns instances of the same iterable class.
-            if type(first) is not type(x):
+            if isinstance(first, list) or type(first) is not type(x):
                 return self.get_converter(first)
         return None
 
