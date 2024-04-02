@@ -1,0 +1,772 @@
+
+
+Search results
+^^^^^^^^^^^^^^
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.scatter.">
+
+.. only:: html
+
+  .. image:: /plot_types/basic/images/thumb/sphx_glr_scatter_plot_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_basic_scatter_plot.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">scatter(x, y)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.bar.">
+
+.. only:: html
+
+  .. image:: /plot_types/basic/images/thumb/sphx_glr_bar_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_basic_bar.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">bar(x, height)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.fill_between.">
+
+.. only:: html
+
+  .. image:: /plot_types/basic/images/thumb/sphx_glr_fill_between_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_basic_fill_between.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">fill_between(x, y1, y2)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.plot.">
+
+.. only:: html
+
+  .. image:: /plot_types/basic/images/thumb/sphx_glr_plot_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_basic_plot.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">plot(x, y)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="stackplot(x, y)">
+
+.. only:: html
+
+  .. image:: /plot_types/basic/images/thumb/sphx_glr_stackplot_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_basic_stackplot.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">stackplot(x, y)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.stairs when plotting y between (x_i, x_{i+1}). For plotting y at x, s...">
+
+.. only:: html
+
+  .. image:: /plot_types/basic/images/thumb/sphx_glr_stairs_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_basic_stairs.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">stairs(values)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.stem.">
+
+.. only:: html
+
+  .. image:: /plot_types/basic/images/thumb/sphx_glr_stem_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_basic_stem.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">stem(x, y)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.boxplot.">
+
+.. only:: html
+
+  .. image:: /plot_types/stats/images/thumb/sphx_glr_boxplot_plot_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_stats_boxplot_plot.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">boxplot(X)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.ecdf.">
+
+.. only:: html
+
+  .. image:: /plot_types/stats/images/thumb/sphx_glr_ecdf_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_stats_ecdf.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">ecdf(x)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.errorbar.">
+
+.. only:: html
+
+  .. image:: /plot_types/stats/images/thumb/sphx_glr_errorbar_plot_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_stats_errorbar_plot.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">errorbar(x, y, yerr, xerr)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.eventplot.">
+
+.. only:: html
+
+  .. image:: /plot_types/stats/images/thumb/sphx_glr_eventplot_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_stats_eventplot.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">eventplot(D)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.hexbin.">
+
+.. only:: html
+
+  .. image:: /plot_types/stats/images/thumb/sphx_glr_hexbin_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_stats_hexbin.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">hexbin(x, y, C)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.hist2d.">
+
+.. only:: html
+
+  .. image:: /plot_types/stats/images/thumb/sphx_glr_hist2d_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_stats_hist2d.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">hist2d(x, y)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.hist.">
+
+.. only:: html
+
+  .. image:: /plot_types/stats/images/thumb/sphx_glr_hist_plot_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_stats_hist_plot.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">hist(x)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.pie.">
+
+.. only:: html
+
+  .. image:: /plot_types/stats/images/thumb/sphx_glr_pie_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_stats_pie.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">pie(x)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.violinplot.">
+
+.. only:: html
+
+  .. image:: /plot_types/stats/images/thumb/sphx_glr_violin_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_stats_violin.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">violinplot(D)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.imshow.">
+
+.. only:: html
+
+  .. image:: /plot_types/arrays/images/thumb/sphx_glr_imshow_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_arrays_imshow.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">imshow(Z)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.barbs.">
+
+.. only:: html
+
+  .. image:: /plot_types/arrays/images/thumb/sphx_glr_barbs_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_arrays_barbs.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">barbs(X, Y, U, V)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.contour.">
+
+.. only:: html
+
+  .. image:: /plot_types/arrays/images/thumb/sphx_glr_contour_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_arrays_contour.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">contour(X, Y, Z)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.contourf.">
+
+.. only:: html
+
+  .. image:: /plot_types/arrays/images/thumb/sphx_glr_contourf_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_arrays_contourf.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">contourf(X, Y, Z)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="~.axes.Axes.pcolormesh is more flexible than ~.axes.Axes.imshow in that the x and y vectors nee...">
+
+.. only:: html
+
+  .. image:: /plot_types/arrays/images/thumb/sphx_glr_pcolormesh_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_arrays_pcolormesh.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">pcolormesh(X, Y, Z)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.quiver.">
+
+.. only:: html
+
+  .. image:: /plot_types/arrays/images/thumb/sphx_glr_quiver_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_arrays_quiver.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">quiver(X, Y, U, V)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.streamplot.">
+
+.. only:: html
+
+  .. image:: /plot_types/arrays/images/thumb/sphx_glr_streamplot_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_arrays_streamplot.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">streamplot(X, Y, U, V)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.tricontour.">
+
+.. only:: html
+
+  .. image:: /plot_types/unstructured/images/thumb/sphx_glr_tricontour_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_unstructured_tricontour.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">tricontour(x, y, z)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.tricontourf.">
+
+.. only:: html
+
+  .. image:: /plot_types/unstructured/images/thumb/sphx_glr_tricontourf_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_unstructured_tricontourf.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">tricontourf(x, y, z)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.tripcolor.">
+
+.. only:: html
+
+  .. image:: /plot_types/unstructured/images/thumb/sphx_glr_tripcolor_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_unstructured_tripcolor.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">tripcolor(x, y, z)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~matplotlib.axes.Axes.triplot.">
+
+.. only:: html
+
+  .. image:: /plot_types/unstructured/images/thumb/sphx_glr_triplot_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_unstructured_triplot.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">triplot(x, y)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~mpl_toolkits.mplot3d.axes3d.Axes3D.scatter.">
+
+.. only:: html
+
+  .. image:: /plot_types/3D/images/thumb/sphx_glr_scatter3d_simple_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_3D_scatter3d_simple.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">scatter(xs, ys, zs)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_surface.">
+
+.. only:: html
+
+  .. image:: /plot_types/3D/images/thumb/sphx_glr_surface3d_simple_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_3D_surface3d_simple.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">plot_surface(X, Y, Z)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_trisurf.">
+
+.. only:: html
+
+  .. image:: /plot_types/3D/images/thumb/sphx_glr_trisurf3d_simple_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_3D_trisurf3d_simple.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">plot_trisurf(x, y, z)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~mpl_toolkits.mplot3d.axes3d.Axes3D.voxels.">
+
+.. only:: html
+
+  .. image:: /plot_types/3D/images/thumb/sphx_glr_voxels_simple_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_3D_voxels_simple.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">voxels([x, y, z], filled)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="See ~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_wireframe.">
+
+.. only:: html
+
+  .. image:: /plot_types/3D/images/thumb/sphx_glr_wire3d_simple_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_plot_types_3D_wire3d_simple.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">plot_wireframe(X, Y, Z)</div>
+    </div>
+
+
+.. raw:: html
+
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Tips for customizing the properties and default styles of Matplotlib.">
+
+.. only:: html
+
+  .. image:: /users/explain/images/thumb/sphx_glr_customizing_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_users_explain_customizing.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Customizing Matplotlib with style sheets and rcParams</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This tutorial covers some basic usage patterns and best practices to help you get started with ...">
+
+.. only:: html
+
+  .. image:: /users/explain/images/thumb/sphx_glr_quick_start_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_users_explain_quick_start.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Quick start guide</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Blitting is a standard technique in raster graphics that, in the context of Matplotlib, can be ...">
+
+.. only:: html
+
+  .. image:: /users/explain/animations/images/thumb/sphx_glr_blitting_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_users_explain_animations_blitting.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Faster rendering by using blitting</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This tutorial shows how to build and customize standalone colorbars, i.e. without an attached p...">
+
+.. only:: html
+
+  .. image:: /users/explain/colors/images/thumb/sphx_glr_colorbar_only_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_users_explain_colors_colorbar_only.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Customized Colorbars Tutorial</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Matplotlib has a number of built-in colormaps accessible via .matplotlib.colormaps.  There are ...">
+
+.. only:: html
+
+  .. image:: /users/explain/colors/images/thumb/sphx_glr_colormap-manipulation_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_users_explain_colors_colormap-manipulation.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Creating Colormaps in Matplotlib</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Objects that use colormaps by default linearly map the colors in the colormap from data values ...">
+
+.. only:: html
+
+  .. image:: /users/explain/colors/images/thumb/sphx_glr_colormapnorms_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_users_explain_colors_colormapnorms.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Colormap normalization</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Matplotlib has a number of built-in colormaps accessible via .matplotlib.colormaps.  There are ...">
+
+.. only:: html
+
+  .. image:: /users/explain/colors/images/thumb/sphx_glr_colormaps_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_users_explain_colors_colormaps.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Choosing Colormaps in Matplotlib</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Color formats =============">
+
+.. only:: html
+
+  .. image:: /users/explain/colors/images/thumb/sphx_glr_colors_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_users_explain_colors_colors.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Specifying colors</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Annotations are graphical elements, often pieces of text, that explain, add context to, or othe...">
+
+.. only:: html
+
+  .. image:: /users/explain/text/images/thumb/sphx_glr_annotations_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_users_explain_text_annotations.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Annotations</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Matplotlib implements a lightweight TeX expression parser and layout engine and Mathtext is the...">
+
+.. only:: html
+
+  .. image:: /users/explain/text/images/thumb/sphx_glr_mathtext_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_users_explain_text_mathtext.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Writing mathematical expressions</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Introduction to plotting and working with text in Matplotlib.">
+
+.. only:: html
+
+  .. image:: /users/explain/text/images/thumb/sphx_glr_text_intro_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_users_explain_text_text_intro.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Text in Matplotlib</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Controlling properties of text and its layout with Matplotlib.">
+
+.. only:: html
+
+  .. image:: /users/explain/text/images/thumb/sphx_glr_text_props_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_users_explain_text_text_props.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Text properties and layout</div>
+    </div>
+
+
+.. raw:: html
+
+    </div>
+
+
+.. raw:: html
+
+    </div>
+
