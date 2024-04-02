@@ -1190,7 +1190,8 @@ class Artist:
         Helper for `.Artist.set` and `.Artist.update`.
 
         *errfmt* is used to generate error messages for invalid property
-        names; it gets formatted with ``type(self)`` and the property name.
+        names; it gets formatted with ``type(self)`` for "{cls}" and the
+        property name for "{prop_name}".
         """
         ret = []
         with cbook._setattr_cm(self, eventson=False):
@@ -1203,7 +1204,8 @@ class Artist:
                     func = getattr(self, f"set_{k}", None)
                     if not callable(func):
                         raise AttributeError(
-                            errfmt.format(cls=type(self), prop_name=k))
+                            errfmt.format(cls=type(self), prop_name=k),
+                            name=k)
                     ret.append(func(v))
         if ret:
             self.pchanged()
