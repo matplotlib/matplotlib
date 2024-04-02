@@ -1874,13 +1874,21 @@ class RectangleCollection(_CollectionWithWidthHeightAngle):
         refer to the *offsets* data units. 'xy' differs from all others in
         that the angle as plotted varies with the aspect ratio, and equals
         the specified angle only when the aspect ratio is unity.  Hence
-        it behaves the same as the `~.patches.Ellipse` with
+        it behaves the same as the `~.patches.Rectangle` with
         ``axes.transData`` as its transform.
+    centered : bool
+        Whether to use the center or the corner of the rectangle to
+        define the position of the rectangles. Default is False.
     **kwargs
         Forwarded to `Collection`.
 
     """
     _path_generator = mpath.Path.unit_rectangle
+
+    def __init__(self, *args, **kwargs):
+        if kwargs.pop("centered", False):
+            self._path_generator = mpath.Path.unit_rectangle_centered
+        super().__init__(*args, **kwargs)
 
 
 class PatchCollection(Collection):

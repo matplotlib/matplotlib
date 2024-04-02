@@ -431,9 +431,12 @@ def test_RectangleCollection():
 
 
 @pytest.mark.parametrize(
-    'Class', [mcollections.EllipseCollection, mcollections.RectangleCollection]
+    'Class, centered',
+    [(mcollections.EllipseCollection, None),
+     (mcollections.RectangleCollection, False),
+     (mcollections.RectangleCollection, True)]
     )
-def test_WidthHeightAngleCollection_setter_getter(Class):
+def test_WidthHeightAngleCollection_setter_getter(Class, centered):
     # Test widths, heights and angle setter
     rng = np.random.default_rng(0)
 
@@ -444,6 +447,9 @@ def test_WidthHeightAngleCollection_setter_getter(Class):
 
     fig, ax = plt.subplots()
 
+    kwargs = {}
+    if centered is not None:
+        kwargs["centered"] = centered
     ec = Class(
         widths=widths,
         heights=heights,
@@ -451,6 +457,7 @@ def test_WidthHeightAngleCollection_setter_getter(Class):
         offsets=offsets,
         units='x',
         offset_transform=ax.transData,
+        **kwargs,
         )
 
     assert_array_almost_equal(ec._widths, np.array(widths).ravel())

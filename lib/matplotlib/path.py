@@ -741,6 +741,20 @@ class Path:
                                       closed=True, readonly=True)
         return cls._unit_rectangle
 
+    _unit_rectangle_centered = None
+
+    @classmethod
+    def unit_rectangle_centered(cls):
+        """
+        Return a `Path` instance of the unit rectangle from (-0.5, -0.5) to (0.5, 0.5).
+        """
+        if cls._unit_rectangle_centered is None:
+            cls._unit_rectangle_centered = cls(
+                [[-0.5, -0.5], [0.5, -0.5], [0.5, 0.5], [-0.5, 0.5], [-0.5, -0.5]],
+                closed=True, readonly=True
+                )
+        return cls._unit_rectangle_centered
+
     _unit_regular_polygons = WeakValueDictionary()
 
     @classmethod
