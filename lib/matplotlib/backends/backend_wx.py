@@ -1165,6 +1165,7 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
         if parent is None:
             parent = toolmanager.canvas.GetParent()
         ToolContainerBase.__init__(self, toolmanager)
+        self._icon_extension = '.svg' # wx backend wants 'svg' tool icons
         wx.ToolBar.__init__(self, parent, -1, style=style)
         self._space = self.AddStretchableSpace()
         self._label_text = wx.StaticText(self, style=wx.ALIGN_RIGHT)
