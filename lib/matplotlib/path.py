@@ -799,6 +799,21 @@ class Path:
         """
         return cls.unit_regular_star(numVertices, 0.0)
 
+    _half_unit_circle = None
+
+    @classmethod
+    def half_unit_circle(cls):
+        """
+        Return the readonly :class:`Path` of the half unit circle.
+
+        For most cases, :func:`Path.circle` will be what you want.
+        """
+        if cls._half_unit_circle is None:
+            cls._half_unit_circle = cls.circle(
+                center=(0, 0), radius=0.5, readonly=True
+                )
+        return cls._half_unit_circle
+
     _unit_circle = None
 
     @classmethod
