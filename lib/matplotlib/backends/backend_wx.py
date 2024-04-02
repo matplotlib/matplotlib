@@ -1161,6 +1161,8 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 # tools for matplotlib.backend_managers.ToolManager:
 
 class ToolbarWx(ToolContainerBase, wx.ToolBar):
+    _icon_extension = '.svg'
+
     def __init__(self, toolmanager, parent=None, style=wx.TB_BOTTOM):
         if parent is None:
             parent = toolmanager.canvas.GetParent()
