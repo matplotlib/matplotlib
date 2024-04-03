@@ -38,6 +38,7 @@ from numpy.testing import (
     assert_allclose, assert_array_equal, assert_array_almost_equal)
 from matplotlib.testing.decorators import (
     image_comparison, check_figures_equal, remove_ticks_and_titles)
+from matplotlib.testing._markers import needs_usetex
 
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
@@ -9008,3 +9009,16 @@ def test_boxplot_tick_labels():
     # Test the new tick_labels parameter
     axs[1].boxplot(data, tick_labels=['A', 'B', 'C'])
     assert [l.get_text() for l in axs[1].get_xticklabels()] == ['A', 'B', 'C']
+
+
+@needs_usetex
+@check_figures_equal()
+def test_latex_pie_percent(fig_test, fig_ref):
+
+    data = [20, 10, 70]
+
+    ax = fig_test.subplots()
+    ax.pie(data, autopct="%1.0f%%", textprops={'usetex': True})
+
+    ax1 = fig_ref.subplots()
+    ax1.pie(data, autopct=r"%1.0f\%%", textprops={'usetex': True})
