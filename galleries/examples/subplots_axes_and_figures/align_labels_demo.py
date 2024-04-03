@@ -15,7 +15,7 @@ x-axis, "YLabel0 0" would be much closer to the y-axis, and title
 import matplotlib.pyplot as plt
 import numpy as np
 
-fig, axs = plt.subplots(2, 2, layout='tight')
+fig, axs = plt.subplots(2, 2, layout='constrained')
 
 ax = axs[0][0]
 ax.plot(np.arange(0, 1e6, 1000))
