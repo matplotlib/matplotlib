@@ -333,7 +333,7 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
         "cycler>=0.10",
         "fonttools>=4.22.0",
         "kiwisolver>=1.3.1",
-        "numpy>=1.21,<2",
+        "numpy>=1.21",
         "packaging>=20.0",
         "pillow>=8",
         "pyparsing>=2.3.1",
