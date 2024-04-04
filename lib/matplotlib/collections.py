@@ -266,12 +266,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
             # No paths to transform
             return transforms.Bbox.null()
 
-        if not transform.is_affine:
-            paths = [transform.transform_path_non_affine(p) for p in paths]
-            # Don't convert transform to transform.get_affine() here because
-            # we may have transform.contains_branch(transData) but not
-            # transforms.get_affine().contains_branch(transData).  But later,
-            # be careful to only apply the affine part that remains.
+        # Don't convert transform to transform.get_affine() here because
+        # we may have transform.contains_branch(transData) but not
+        # transforms.get_affine().contains_branch(transData).  But later,
+        # be careful to only apply the affine part that remains.
 
         offsets = self.get_offsets()
 

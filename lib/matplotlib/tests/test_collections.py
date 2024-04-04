@@ -358,6 +358,26 @@ def test_collection_log_datalim(fig_test, fig_ref):
     ax_ref.plot(x, y, marker="o", ls="")
 
 
+@mpl.style.context('mpl20')
+@check_figures_equal(extensions=['png'])
+def test_collection_log_datalim_order_dependency(fig_test, fig_ref):
+    xy = np.c_[np.arange(50), np.linspace(1, 100, 50)]
+    lines_test = mpl.collections.LineCollection(segments=[xy])
+    lines_ref = mpl.collections.LineCollection(segments=[xy])
+
+    ax_test = fig_test.subplots()
+    ax_test.set_xscale('log')
+    ax_test.set_yscale('log')
+    ax_test.add_collection(lines_test)
+    ax_test.autoscale_view()
+
+    ax_ref = fig_ref.subplots()
+    ax_ref.add_collection(lines_ref)
+    ax_ref.set_xscale('log')
+    ax_ref.set_yscale('log')
+    ax_ref.autoscale_view()
+
+
 def test_quiver_limits():
     ax = plt.axes()
     x, y = np.arange(8), np.arange(10)
