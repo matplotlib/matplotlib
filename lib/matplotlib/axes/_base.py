@@ -2985,8 +2985,13 @@ class _AxesBase(martist.Artist):
 
         titles = (self.title, self._left_title, self._right_title)
 
-        # Need to check all our twins too, and all the children as well.
-        axs = self._twinned_axes.get_siblings(self) + self.child_axes
+        # Need to check all our twins too, aligned axes, and all the children
+        # as well.
+        axs = set()
+        axs.update(self.child_axes)
+        axs.update(self._twinned_axes.get_siblings(self))
+        axs.update(self.figure._align_label_groups['title'].get_siblings(self))
+
         for ax in self.child_axes:  # Child positions must be updated first.
             locator = ax.get_axes_locator()
             ax.apply_aspect(locator(self, renderer) if locator else None)

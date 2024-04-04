@@ -132,10 +132,14 @@ class FigureBase(Artist):
         self._supxlabel = None
         self._supylabel = None
 
-        # groupers to keep track of x and y labels we want to align.
-        # see self.align_xlabels and self.align_ylabels and
-        # axis._get_tick_boxes_siblings
-        self._align_label_groups = {"x": cbook.Grouper(), "y": cbook.Grouper()}
+        # groupers to keep track of x, y labels and title we want to align.
+        # see self.align_xlabels, self.align_ylabels,
+        # self.align_titles, and axis._get_tick_boxes_siblings
+        self._align_label_groups = {
+            "x": cbook.Grouper(),
+            "y": cbook.Grouper(),
+            "title": cbook.Grouper()
+        }
 
         self._localaxes = []  # track all Axes
         self.artists = []
@@ -1293,7 +1297,7 @@ default: %(va)s
 
     def align_xlabels(self, axs=None):
         """
-        Align the xlabels of subplots in the same subplot column if label
+        Align the xlabels of subplots in the same subplot row if label
         alignment is being done automatically (i.e. the label position is
         not manually set).
 
@@ -1314,6 +1318,7 @@ default: %(va)s
         See Also
         --------
         matplotlib.figure.Figure.align_ylabels
+        matplotlib.figure.Figure.align_titles
         matplotlib.figure.Figure.align_labels
 
         Notes
@@ -1375,6 +1380,7 @@ default: %(va)s
         See Also
         --------
         matplotlib.figure.Figure.align_xlabels
+        matplotlib.figure.Figure.align_titles
         matplotlib.figure.Figure.align_labels
 
         Notes
@@ -1412,6 +1418,53 @@ default: %(va)s
                         # grouper for groups of ylabels to align
                         self._align_label_groups['y'].join(ax, axc)
 
+    def align_titles(self, axs=None):
+        """
+        Align the titles of subplots in the same subplot row if title
+        alignment is being done automatically (i.e. the title position is
+        not manually set).
+
+        Alignment persists for draw events after this is called.
+
+        Parameters
+        ----------
+        axs : list of `~matplotlib.axes.Axes`
+            Optional list of (or ndarray) `~matplotlib.axes.Axes`
+            to align the titles.
+            Default is to align all Axes on the figure.
+
+        See Also
+        --------
+        matplotlib.figure.Figure.align_xlabels
+        matplotlib.figure.Figure.align_ylabels
+        matplotlib.figure.Figure.align_labels
+
+        Notes
+        -----
+        This assumes that ``axs`` are from the same `.GridSpec`, so that
+        their `.SubplotSpec` positions correspond to figure positions.
+
+        Examples
+        --------
+        Example with titles::
+
+            fig, axs = plt.subplots(1, 2)
+            axs[0].set_aspect('equal')
+            axs[0].set_title('Title 0')
+            axs[1].set_title('Title 1')
+            fig.align_titles()
+        """
+        if axs is None:
+            axs = self.axes
+        axs = [ax for ax in np.ravel(axs) if ax.get_subplotspec() is not None]
+        for ax in axs:
+            _log.debug(' Working on: %s', ax.get_title())
+            rowspan = ax.get_subplotspec().rowspan
+            for axc in axs:
+                rowspanc = axc.get_subplotspec().rowspan
+                if (rowspan.start == rowspanc.start):
+                    self._align_label_groups['title'].join(ax, axc)
+
     def align_labels(self, axs=None):
         """
         Align the xlabels and ylabels of subplots with the same subplots
@@ -1430,8 +1483,8 @@ default: %(va)s
         See Also
         --------
         matplotlib.figure.Figure.align_xlabels
-
         matplotlib.figure.Figure.align_ylabels
+        matplotlib.figure.Figure.align_titles
         """
         self.align_xlabels(axs=axs)
         self.align_ylabels(axs=axs)
