@@ -315,7 +315,7 @@ The correct target folder can be found using::
 
     python -c "import matplotlib.tests; print(matplotlib.tests.__file__.rsplit('/', 1)[0])"
 
-An analogous copying of :file:`lib/mpl_toolkits/tests/baseline_images`
+An analogous copying of :file:`lib/mpl_toolkits/*/tests/baseline_images`
 is necessary for testing ``mpl_toolkits``.
 
 Run the tests
