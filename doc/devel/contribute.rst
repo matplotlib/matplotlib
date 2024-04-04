@@ -155,12 +155,10 @@ Work on an issue
 
 In general, the Matplotlib project does not assign issues. Issues are
 "assigned" or "claimed" by
-:ref:`proposing a solution via a pull request <how-to-pull-request>` (PR).
-We ask PR authors to
-`link the PR to the issue
-<https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue>`_.
-Such links are be displayed in the discussion thread as well as the sidebar
-on the issue page on GitHub.
+:ref:`proposing a solution via a pull request <how-to-pull-request>`.
+We ask pull request (PR) authors to
+`link to the issue in the PR
+<https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue>`_ because then Github adds corresponding links to the PR to the discussion and the sidebar on the linked issue page on GitHub.
 
 Before starting to work on an issue, please check if there is already
 a linked PR. If there is, try to work with the author by
