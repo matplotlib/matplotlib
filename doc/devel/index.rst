@@ -81,7 +81,7 @@ New contributors
 
       :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I claim an issue? <managing_issues_prs>`
 
-      :octicon:`codespaces;1em;sd-text-info` :ref:`How do I start a pull request? <how-to-contribute>`
+      :octicon:`codespaces;1em;sd-text-info` :ref:`How do I start a pull request? <how-to-pull-request>`
 
    .. grid-item::
 
