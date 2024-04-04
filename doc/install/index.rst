@@ -1,4 +1,5 @@
 .. redirect-from:: /users/installing
+.. redirect-from:: /users/installing/index
 
 ************
 Installation

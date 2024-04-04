@@ -61,7 +61,7 @@ dev = [
 
 [project.urls]
 "Homepage" = "https://matplotlib.org"
-"Download" = "https://matplotlib.org/stable/users/installing/index.html"
+"Download" = "https://matplotlib.org/stable/install/index.html"
 "Documentation" = "https://matplotlib.org"
 "Source Code" = "https://github.com/matplotlib/matplotlib"
 "Bug Tracker" = "https://github.com/matplotlib/matplotlib/issues"
