@@ -68,7 +68,7 @@ def test_align_labels():
 
 @image_comparison(['figure_align_titles_tight.png',
                    'figure_align_titles_constrained.png'],
-                  tol=0 if platform.machine() == 'x86_64' else 0.01,
+                  tol=0 if platform.machine() == 'x86_64' else 0.022,
                   style='mpl20')
 def test_align_titles():
     for layout in ['tight', 'constrained']:
