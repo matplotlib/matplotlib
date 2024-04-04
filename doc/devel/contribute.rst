@@ -163,55 +163,6 @@ a new PR; duplicate PRs are subject to being closed.  However, if the existing
 PR is an outline, unlikely to work, or stalled, and the original author is
 unresponsive, feel free to open a new PR referencing the old one.
 
-.. _submitting-a-bug-report:
-
-Submit a bug report
-===================
-
-If you find a bug in the code or documentation, do not hesitate to submit a
-ticket to the
-`Issue Tracker <https://github.com/matplotlib/matplotlib/issues>`_. You are
-also welcome to post feature requests or pull requests.
-
-If you are reporting a bug, please do your best to include the following:
-
-#. A short, top-level summary of the bug. In most cases, this should be 1-2
-   sentences.
-
-#. A short, self-contained code snippet to reproduce the bug, ideally allowing
-   a simple copy and paste to reproduce. Please do your best to reduce the code
-   snippet to the minimum required.
-
-#. The actual outcome of the code snippet.
-
-#. The expected outcome of the code snippet.
-
-#. The Matplotlib version, Python version and platform that you are using. You
-   can grab the version with the following commands::
-
-      >>> import matplotlib
-      >>> matplotlib.__version__
-      '3.4.1'
-      >>> import platform
-      >>> platform.python_version()
-      '3.9.2'
-
-We have preloaded the issue creation page with a Markdown form that you can
-use to organize this information.
-
-Thank you for your help in keeping bug reports complete, targeted and descriptive.
-
-.. _request-a-new-feature:
-
-Request a new feature
-=====================
-
-Please post feature requests to the
-`Issue Tracker <https://github.com/matplotlib/matplotlib/issues>`_.
-
-The Matplotlib developers will give feedback on the feature proposal. Since
-Matplotlib is an open source project with limited resources, we encourage
-users to then also :ref:`participate in the implementation <contribute_code>`.
 
 .. _contribute_code:
 
