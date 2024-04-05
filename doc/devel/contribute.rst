@@ -227,8 +227,8 @@ suggestions. We ❤ feedback!
 
 .. _managing_issues_prs:
 
-Choose an issue
-===============
+Work on an issue
+================
 
 In general, the Matplotlib project does not assign issues. Issues are
 "assigned" or "claimed" by opening a PR; there is no other assignment
