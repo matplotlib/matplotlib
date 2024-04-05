@@ -87,7 +87,7 @@ For code, documentation, or triage, please follow the corresponding
 
       :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I choose an issue? <managing_issues_prs>`
 
-      :octicon:`codespaces;1em;sd-text-info` :ref:`How do I start a pull request? <how-to-contribute>`
+      :octicon:`codespaces;1em;sd-text-info` :ref:`How do I start a pull request? <how-to-pull-request>`
 
    .. grid-item::
 
@@ -114,7 +114,7 @@ For code, documentation, or triage, please follow the corresponding
             :link-type: ref
             :shadow: none
 
-            :octicon:`paper-airplane;1em;sd-text-info` Community
+            :octicon:`people;1em;sd-text-info` Community
 
 
 
