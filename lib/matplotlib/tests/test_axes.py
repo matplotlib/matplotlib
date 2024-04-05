@@ -2342,6 +2342,23 @@ def test_hist_zorder(histtype, zorder):
         assert patch.get_zorder() == zorder
 
 
+def test_stairs_no_baseline_fill_warns():
+    fig, ax = plt.subplots()
+    baseline = None
+    fill = True
+    warn_match = (
+        "Because baseline in None, the Path used to draw the stairs will "
+    )
+    with pytest.warns(UserWarning, match=warn_match):
+        ax.stairs(
+            [4, 5, 1, 0, 2],
+            [1, 2, 3, 4, 5, 6],
+            facecolor="blue",
+            baseline=baseline,
+            fill=fill
+        )
+
+
 @check_figures_equal(extensions=['png'])
 def test_stairs(fig_test, fig_ref):
     import matplotlib.lines as mlines
