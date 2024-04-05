@@ -30,7 +30,12 @@ existing issue and pull request discussions, and following the conversations
 during pull request reviews to get context. Or you can deep-dive into a subset
 of the code-base to understand what is going on.
 
-There are a few typical new contributor profiles:
+Do I really have something to contribute to Matplotlib?
+-------------------------------------------------------
+
+100% yes. There are so many ways to contribute to our community. Take a look at
+the next sections to learn more. There are a few typical new contributor
+profiles:
 
 * **You are a Matplotlib user, and you see a bug, a potential improvement, or
   something that annoys you, and you can fix it.**
@@ -75,104 +80,10 @@ There are a few typical new contributor profiles:
   and gaining context on this area by reading the issues and pull requests
   touching these subjects is a reasonable approach.
 
-.. _get_connected:
-
-Get connected
-=============
-
-Do I really have something to contribute to Matplotlib?
--------------------------------------------------------
-
-100% yes. There are so many ways to contribute to our community.
-
-When in doubt, we recommend going together! Get connected with our community of
-active contributors, many of whom felt just like you when they started out and
-are happy to welcome you and support you as you get to know how we work, and
-where things are. Take a look at the next sections to learn more.
-
-.. _contributor_incubator:
-
-Contributor incubator
----------------------
-
-The incubator is our non-public communication channel for new contributors. It
-is a private gitter_ (chat) room moderated by core Matplotlib developers where
-you can get guidance and support for your first few PRs. It's a place where you
-can ask questions about anything: how to use git, GitHub, how our PR review
-process works, technical questions about the code, what makes for good
-documentation or a blog post, how to get involved in community work, or get a
-"pre-review" on your PR.
-
-To join, please go to our public community_ channel, and ask to be added to
-``#incubator``. One of our core developers will see your message and will add you.
-
-.. _gitter: https://gitter.im/matplotlib/matplotlib
-.. _community: https://gitter.im/matplotlib/community
-
-New Contributors Meeting
-------------------------
-
-Once a month, we host a meeting to discuss topics that interest new
-contributors. Anyone can attend, present, or sit in and listen to the call.
-Among our attendees are fellow new contributors, as well as maintainers, and
-veteran contributors, who are keen to support onboarding of new folks and
-share their experience. You can find our community calendar link at the
-`Scientific Python website <https://scientific-python.org/calendars/>`_, and
-you can browse previous meeting notes on `GitHub
-<https://github.com/matplotlib/ProjectManagement/tree/master/new_contributor_meeting>`_.
-We recommend joining the meeting to clarify any doubts, or lingering
-questions you might have, and to get to know a few of the people behind the
-GitHub handles 😉. You can reach out to us on gitter_ for any clarifications or
-suggestions. We ❤ feedback!
-
-.. _new_contributors:
-
-Good first issues
------------------
-
-While any contributions are welcome, we have marked some issues as
-particularly suited for new contributors by the label `good first issue
-<https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_. These
-are well documented issues, that do not require a deep understanding of the
-internals of Matplotlib. The issues may additionally be tagged with a
-difficulty. ``Difficulty: Easy`` is suited for people with little Python
-experience. ``Difficulty: Medium`` and ``Difficulty: Hard`` require more
-programming experience. This could be for a variety of reasons, among them,
-though not necessarily all at the same time:
-
-- The issue is in areas of the code base which have more interdependencies,
-  or legacy code.
-- It has less clearly defined tasks, which require some independent
-  exploration, making suggestions, or follow-up discussions to clarify a good
-  path to resolve the issue.
-- It involves Python features such as decorators and context managers, which
-  have subtleties due to our implementation decisions.
-
-.. _managing_issues_prs:
-
-Work on an issue
-----------------
-
-In general, the Matplotlib project does not assign issues. Issues are
-"assigned" or "claimed" by
-:ref:`proposing a solution via a pull request <how-to-pull-request>`.
-We ask pull request (PR) authors to
-`link to the issue in the PR
-<https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue>`_ because then Github adds corresponding links to the PR to the discussion and the sidebar on the linked issue page on GitHub.
-
-Before starting to work on an issue, please check if there is already
-a linked PR. If there is, try to work with the author by
-submitting reviews of their code or commenting on the PR rather than opening
-a new PR; duplicate PRs are unnecessary concurrent work and thus are subject
-to being closed.  However, if the existing
-PR is an outline, unlikely to work, or stalled, and the original author is
-unresponsive, feel free to open a new PR referencing the old one.
-
-
 .. _contribute_code:
 
-Contribute code
-===============
+Code
+----
 You want to implement a feature or fix a bug or help with maintenance - much
 appreciated! Our library source code is found in
 
@@ -193,8 +104,8 @@ Code is contributed through pull requests, so we recommend that you start at
 
 .. _contribute_documentation:
 
-Contribute documentation
-========================
+Documentation
+-------------
 
 You as an end-user of Matplotlib can make a valuable contribution because you
 more clearly see the potential for improvement than a core developer. For example,
@@ -250,8 +161,8 @@ please reach out on the :ref:`contributor_incubator`
 
 .. _other_ways_to_contribute:
 
-Other ways to contribute
-========================
+Community
+---------
 
 It also helps us if you spread the word: reference the project from your blog
 and articles or link to it from your website!
@@ -265,10 +176,97 @@ please follow the :doc:`/project/citing` guidelines.
 If you have developed an extension to Matplotlib, please consider adding it to our
 `third party package <https://github.com/matplotlib/mpl-third-party>`_  list.
 
+
+.. _get_connected:
+
+Get connected
+=============
+When in doubt, we recommend going together! Get connected with our community of
+active contributors, many of whom felt just like you when they started out and
+are happy to welcome you and support you as you get to know how we work, and
+where things are.
+
+.. _contributor_incubator:
+
+Contributor incubator
+---------------------
+
+The incubator is our non-public communication channel for new contributors. It
+is a private gitter_ (chat) room moderated by core Matplotlib developers where
+you can get guidance and support for your first few PRs. It's a place where you
+can ask questions about anything: how to use git, GitHub, how our PR review
+process works, technical questions about the code, what makes for good
+documentation or a blog post, how to get involved in community work, or get a
+"pre-review" on your PR.
+
+To join, please go to our public community_ channel, and ask to be added to
+``#incubator``. One of our core developers will see your message and will add you.
+
+.. _gitter: https://gitter.im/matplotlib/matplotlib
+.. _community: https://gitter.im/matplotlib/community
+
+
+.. _new_contributors:
+
+New Contributors Meeting
+------------------------
+
+Once a month, we host a meeting to discuss topics that interest new
+contributors. Anyone can attend, present, or sit in and listen to the call.
+Among our attendees are fellow new contributors, as well as maintainers, and
+veteran contributors, who are keen to support onboarding of new folks and
+share their experience. You can find our community calendar link at the
+`Scientific Python website <https://scientific-python.org/calendars/>`_, and
+you can browse previous meeting notes on `GitHub
+<https://github.com/matplotlib/ProjectManagement/tree/master/new_contributor_meeting>`_.
+We recommend joining the meeting to clarify any doubts, or lingering
+questions you might have, and to get to know a few of the people behind the
+GitHub handles 😉. You can reach out to us on gitter_ for any clarifications or
+suggestions. We ❤ feedback!
+
+.. _managing_issues_prs:
+
+Choose an issue
+===============
+
+In general, the Matplotlib project does not assign issues. Issues are
+"assigned" or "claimed" by opening a PR; there is no other assignment
+mechanism. If you have opened such a PR, please comment on the issue thread to
+avoid duplication of work. Please check if there is an existing PR for the
+issue you are addressing. If there is, try to work with the author by
+submitting reviews of their code or commenting on the PR rather than opening
+a new PR; duplicate PRs are subject to being closed.  However, if the existing
+PR is an outline, unlikely to work, or stalled, and the original author is
+unresponsive, feel free to open a new PR referencing the old one.
+
+.. _good_first_issues:
+
+Good first issues
+-----------------
+
+While any contributions are welcome, we have marked some issues as
+particularly suited for new contributors by the label `good first issue
+<https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_. These
+are well documented issues, that do not require a deep understanding of the
+internals of Matplotlib. The issues may additionally be tagged with a
+difficulty. ``Difficulty: Easy`` is suited for people with little Python
+experience. ``Difficulty: Medium`` and ``Difficulty: Hard`` require more
+programming experience. This could be for a variety of reasons, among them,
+though not necessarily all at the same time:
+
+- The issue is in areas of the code base which have more interdependencies,
+  or legacy code.
+- It has less clearly defined tasks, which require some independent
+  exploration, making suggestions, or follow-up discussions to clarify a good
+  path to resolve the issue.
+- It involves Python features such as decorators and context managers, which
+  have subtleties due to our implementation decisions.
+
+
 .. _how-to-pull-request:
 
-How to contribute via pull request
-==================================
+Start a pull request
+====================
 
 The preferred way to contribute to Matplotlib is to fork the `main
 repository <https://github.com/matplotlib/matplotlib/>`__ on GitHub,

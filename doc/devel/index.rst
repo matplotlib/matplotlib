@@ -62,6 +62,14 @@ implementing new features...
 
 New contributors
 ================
+
+If you are new to contributing, we recommend that you first read our
+:ref:`contributing guide<contributing>`. If you are contributing code or
+documentation, please follow our guides for setting up and managing a
+:ref:`development environment and workflow<development_environment>`.
+For code, documentation, or triage, please follow the corresponding
+:ref:`contribution guidelines <contribution_guideline>`.
+
 .. toctree::
    :hidden:
 
@@ -77,11 +85,9 @@ New contributors
 
       :octicon:`question;1em;sd-text-info` :ref:`Where should I ask questions? <get_connected>`
 
-      :octicon:`issue-opened;1em;sd-text-info` :ref:`What are "good-first-issues"? <new_contributors>`
+      :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I choose an issue? <managing_issues_prs>`
 
-      :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I claim an issue? <managing_issues_prs>`
-
-      :octicon:`codespaces;1em;sd-text-info` :ref:`How do I start a pull request? <how-to-pull-request>`
+      :octicon:`codespaces;1em;sd-text-info` :ref:`How do I start a pull request? <how-to-contribute>`
 
    .. grid-item::
 
@@ -94,29 +100,23 @@ New contributors
             :link-type: ref
             :shadow: none
 
-            :octicon:`code;1em;sd-text-info` Contribute code
+            :octicon:`code;1em;sd-text-info` Code
 
          .. grid-item-card::
             :link: contribute_documentation
             :link-type: ref
             :shadow: none
 
-            :octicon:`note;1em;sd-text-info` Write documentation
+            :octicon:`note;1em;sd-text-info` Documentation
 
          .. grid-item-card::
             :link: other_ways_to_contribute
             :link-type: ref
             :shadow: none
 
-            :octicon:`paper-airplane;1em;sd-text-info` Other ways to contribute
+            :octicon:`paper-airplane;1em;sd-text-info` Community
 
 
-If you are new to contributing, we recommend that you first read our
-:ref:`contributing guide<contributing>`. If you are contributing code or
-documentation, please follow our guides for setting up and managing a
-:ref:`development environment and workflow<development_environment>`.
-For code, documentation, or triage, please follow the corresponding
-:ref:`contribution guidelines <contribution_guideline>`.
 
 
 .. _development_environment:
