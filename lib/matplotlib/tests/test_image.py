@@ -205,6 +205,14 @@ def test_imsave(fmt):
     assert_array_equal(arr_dpi1, arr_dpi100)
 
 
+@pytest.mark.parametrize("origin", ["upper", "lower"])
+def test_imsave_rgba_origin(origin):
+    # test that imsave always passes c-contiguous arrays down to pillow
+    buf = io.BytesIO()
+    result = np.zeros((10, 10, 4), dtype='uint8')
+    mimage.imsave(buf, arr=result, format="png", origin=origin)
+
+
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
 def test_imsave_fspath(fmt):
     plt.imsave(Path(os.devnull), np.array([[0, 1]]), format=fmt)
