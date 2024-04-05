@@ -114,7 +114,7 @@ For code, documentation, or triage, please follow the corresponding
             :link-type: ref
             :shadow: none
 
-            :octicon:`people;1em;sd-text-info` Community
+            :octicon:`globe;1em;sd-text-info` Community
 
 
 

@@ -30,55 +30,56 @@ existing issue and pull request discussions, and following the conversations
 during pull request reviews to get context. Or you can deep-dive into a subset
 of the code-base to understand what is going on.
 
-Do I really have something to contribute to Matplotlib?
--------------------------------------------------------
+.. dropdown:: Do I really have something to contribute to Matplotlib?
+    :open:
+    :icon: person-add
 
-100% yes. There are so many ways to contribute to our community. Take a look at
-the next sections to learn more. There are a few typical new contributor
-profiles:
+    100% yes. There are so many ways to contribute to our community. Take a look at
+    the next sections to learn more. There are a few typical new contributor
+    profiles:
 
-* **You are a Matplotlib user, and you see a bug, a potential improvement, or
-  something that annoys you, and you can fix it.**
+    * **You are a Matplotlib user, and you see a bug, a potential improvement, or
+      something that annoys you, and you can fix it.**
 
-  You can search our issue tracker for an existing issue that describes your problem or
-  open a new issue to inform us of the problem you observed and discuss the best approach
-  to fix it. If your contributions would not be captured on GitHub (social media,
-  communication, educational content), you can also reach out to us on gitter_,
-  `Discourse <https://discourse.matplotlib.org/>`__ or attend any of our `community
-  meetings <https://scientific-python.org/calendars>`__.
+      You can search our issue tracker for an existing issue that describes your problem or
+      open a new issue to inform us of the problem you observed and discuss the best approach
+      to fix it. If your contributions would not be captured on GitHub (social media,
+      communication, educational content), you can also reach out to us on gitter_,
+      `Discourse <https://discourse.matplotlib.org/>`__ or attend any of our `community
+      meetings <https://scientific-python.org/calendars>`__.
 
-* **You are not a regular Matplotlib user but a domain expert: you know about
-  visualization, 3D plotting, design, technical writing, statistics, or some
-  other field where Matplotlib could be improved.**
+    * **You are not a regular Matplotlib user but a domain expert: you know about
+      visualization, 3D plotting, design, technical writing, statistics, or some
+      other field where Matplotlib could be improved.**
 
-  Awesome -- you have a focus on a specific application and domain and can
-  start there. In this case, maintainers can help you figure out the best
-  implementation; open an issue or pull request with a starting point, and we'll
-  be happy to discuss technical approaches.
+      Awesome -- you have a focus on a specific application and domain and can
+      start there. In this case, maintainers can help you figure out the best
+      implementation; open an issue or pull request with a starting point, and we'll
+      be happy to discuss technical approaches.
 
-  If you prefer, you can use the `GitHub functionality for "draft" pull requests
-  <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/changing-the-stage-of-a-pull-request#converting-a-pull-request-to-a-draft>`__
-  and request early feedback on whatever you are working on, but you should be
-  aware that maintainers may not review your contribution unless it has the
-  "Ready to review" state on GitHub.
+      If you prefer, you can use the `GitHub functionality for "draft" pull requests
+      <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/changing-the-stage-of-a-pull-request#converting-a-pull-request-to-a-draft>`__
+      and request early feedback on whatever you are working on, but you should be
+      aware that maintainers may not review your contribution unless it has the
+      "Ready to review" state on GitHub.
 
-* **You are new to Matplotlib, both as a user and contributor, and want to start
-  contributing but have yet to develop a particular interest.**
+    * **You are new to Matplotlib, both as a user and contributor, and want to start
+      contributing but have yet to develop a particular interest.**
 
-  Having some previous experience or relationship with the library can be very
-  helpful when making open-source contributions. It helps you understand why
-  things are the way they are and how they *should* be. Having first-hand
-  experience and context is valuable both for what you can bring to the
-  conversation (and given the breadth of Matplotlib's usage, there is a good
-  chance it is a unique context in any given conversation) and make it easier to
-  understand where other people are coming from.
+      Having some previous experience or relationship with the library can be very
+      helpful when making open-source contributions. It helps you understand why
+      things are the way they are and how they *should* be. Having first-hand
+      experience and context is valuable both for what you can bring to the
+      conversation (and given the breadth of Matplotlib's usage, there is a good
+      chance it is a unique context in any given conversation) and make it easier to
+      understand where other people are coming from.
 
-  Understanding the entire codebase is a long-term project, and nobody expects
-  you to do this right away. If you are determined to get started with
-  Matplotlib and want to learn, going through the basic functionality,
-  choosing something to focus on (3d, testing, documentation, animations, etc.)
-  and gaining context on this area by reading the issues and pull requests
-  touching these subjects is a reasonable approach.
+      Understanding the entire codebase is a long-term project, and nobody expects
+      you to do this right away. If you are determined to get started with
+      Matplotlib and want to learn, going through the basic functionality,
+      choosing something to focus on (3d, testing, documentation, animations, etc.)
+      and gaining context on this area by reading the issues and pull requests
+      touching these subjects is a reasonable approach.
 
 .. _contribute_code:
 
@@ -344,10 +345,10 @@ A brief overview of the workflow is as follows.
 GitHub Codespaces workflows
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* If you need to open a GUI window with Matplotlib output on Codespaces, our
-  configuration includes a `light-weight Fluxbox-based desktop
-  <https://github.com/devcontainers/features/tree/main/src/desktop-lite>`_.
-  You can use it by connecting to this desktop via your web browser. To do this:
+If you need to open a GUI window with Matplotlib output on Codespaces, our
+configuration includes a `light-weight Fluxbox-based desktop
+<https://github.com/devcontainers/features/tree/main/src/desktop-lite>`_.
+You can use it by connecting to this desktop via your web browser. To do this:
 
   #. Press ``F1`` or ``Ctrl/Cmd+Shift+P`` and select
      ``Ports: Focus on Ports View`` in the VSCode session to bring it into
@@ -356,14 +357,17 @@ GitHub Codespaces workflows
   #. In the browser that appears, click the Connect button and enter the desktop
      password (``vscode`` by default).
 
-  Check the `GitHub instructions
-  <https://github.com/devcontainers/features/tree/main/src/desktop-lite#connecting-to-the-desktop>`_
-  for more details on connecting to the desktop.
+Check the `GitHub instructions
+<https://github.com/devcontainers/features/tree/main/src/desktop-lite#connecting-to-the-desktop>`_
+for more details on connecting to the desktop.
 
-* If you also built the documentation pages, you can view them using Codespaces.
-  Use the "Extensions" icon in the activity bar to install the "Live Server"
-  extension. Locate the ``doc/build/html`` folder in the Explorer, right click
-  the file you want to open and select "Open with Live Server."
+View documentation
+""""""""""""""""""
+
+If you also built the documentation pages, you can view them using Codespaces.
+Use the "Extensions" icon in the activity bar to install the "Live Server"
+extension. Locate the ``doc/build/html`` folder in the Explorer, right click
+the file you want to open and select "Open with Live Server."
 
 
 Open a pull request on Matplotlib
