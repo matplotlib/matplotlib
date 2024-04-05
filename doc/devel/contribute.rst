@@ -32,7 +32,7 @@ of the code-base to understand what is going on.
 
 .. dropdown:: Do I really have something to contribute to Matplotlib?
     :open:
-    :icon: person-add
+    :icon: person-fill
 
     100% yes. There are so many ways to contribute to our community. Take a look at
     the next sections to learn more. There are a few typical new contributor
@@ -350,12 +350,12 @@ configuration includes a `light-weight Fluxbox-based desktop
 <https://github.com/devcontainers/features/tree/main/src/desktop-lite>`_.
 You can use it by connecting to this desktop via your web browser. To do this:
 
-  #. Press ``F1`` or ``Ctrl/Cmd+Shift+P`` and select
-     ``Ports: Focus on Ports View`` in the VSCode session to bring it into
-     focus. Open the ports view in your tool, select the ``noVNC`` port, and
-     click the Globe icon.
-  #. In the browser that appears, click the Connect button and enter the desktop
-     password (``vscode`` by default).
+#. Press ``F1`` or ``Ctrl/Cmd+Shift+P`` and select
+    ``Ports: Focus on Ports View`` in the VSCode session to bring it into
+    focus. Open the ports view in your tool, select the ``noVNC`` port, and
+    click the Globe icon.
+#. In the browser that appears, click the Connect button and enter the desktop
+    password (``vscode`` by default).
 
 Check the `GitHub instructions
 <https://github.com/devcontainers/features/tree/main/src/desktop-lite#connecting-to-the-desktop>`_
