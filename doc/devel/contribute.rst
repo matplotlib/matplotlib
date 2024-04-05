@@ -154,12 +154,17 @@ Work on an issue
 ----------------
 
 In general, the Matplotlib project does not assign issues. Issues are
-"assigned" or "claimed" by opening a PR; there is no other assignment
-mechanism. If you have opened such a PR, please comment on the issue thread to
-avoid duplication of work. Please check if there is an existing PR for the
-issue you are addressing. If there is, try to work with the author by
+"assigned" or "claimed" by
+:ref:`proposing a solution via a pull request <how-to-pull-request>`.
+We ask pull request (PR) authors to
+`link to the issue in the PR
+<https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue>`_ because then Github adds corresponding links to the PR to the discussion and the sidebar on the linked issue page on GitHub.
+
+Before starting to work on an issue, please check if there is already
+a linked PR. If there is, try to work with the author by
 submitting reviews of their code or commenting on the PR rather than opening
-a new PR; duplicate PRs are subject to being closed.  However, if the existing
+a new PR; duplicate PRs are unnecessary concurrent work and thus are subject
+to being closed.  However, if the existing
 PR is an outline, unlikely to work, or stalled, and the original author is
 unresponsive, feel free to open a new PR referencing the old one.
 
@@ -183,7 +188,7 @@ our code consistent and mitigating the impact of changes.
 * :ref:`pr-guidelines`
 
 Code is contributed through pull requests, so we recommend that you start at
-:ref:`how-to-contribute` If you get stuck, please reach out on the
+:ref:`how-to-pull-request` If you get stuck, please reach out on the
 :ref:`contributor_incubator`
 
 .. _contribute_documentation:
@@ -236,7 +241,7 @@ Instructions and guidelines for contributing documentation are found in:
 * :doc:`tag_guidelines`
 
 Documentation is contributed through pull requests, so we recommend that you start
-at :ref:`how-to-contribute`. If that feels intimidating, we encourage you to
+at :ref:`how-to-pull-request`. If that feels intimidating, we encourage you to
 `open an issue`_ describing what improvements you would make. If you get stuck,
 please reach out on the :ref:`contributor_incubator`
 
@@ -260,7 +265,7 @@ please follow the :doc:`/project/citing` guidelines.
 If you have developed an extension to Matplotlib, please consider adding it to our
 `third party package <https://github.com/matplotlib/mpl-third-party>`_  list.
 
-.. _how-to-contribute:
+.. _how-to-pull-request:
 
 How to contribute via pull request
 ==================================
