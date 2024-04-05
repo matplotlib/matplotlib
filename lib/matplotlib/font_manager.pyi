@@ -117,6 +117,14 @@ class FontManager:
         rebuild_if_missing: bool = ...,
     ) -> str: ...
     def get_font_names(self) -> list[str]: ...
+    def findfont_existence(
+    self,
+    prop: str | FontProperties,
+    fontext: Literal["ttf", "afm"] = ...,
+    directory: str | None = ...,
+    fallback_to_default: bool = ...,
+    rebuild_if_missing: bool = ...,
+    ) -> str | None: ...
 
 def is_opentype_cff_font(filename: str) -> bool: ...
 def get_font(

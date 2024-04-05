@@ -1582,6 +1582,65 @@ def _load_fontmanager(*, try_read_cache=True):
     return fm
 
 
+def findfont_existence(self, prop, fontext='ttf', directory=None,
+                       fallback_to_default=False, rebuild_if_missing=True):
+    """
+    Check if a font that closely matches the given font properties exists.
+
+    Parameters
+    ----------
+    prop : str or `~matplotlib.font_manager.FontProperties`
+        The font properties to search for. This can be either a
+        `.FontProperties` object or a string defining a
+        `fontconfig patterns`_.
+
+    fontext : {'ttf', 'afm'}, default: 'ttf'
+        The extension of the font file:
+
+        - 'ttf': TrueType and OpenType fonts (.ttf, .ttc, .otf)
+        - 'afm': Adobe Font Metrics (.afm)
+
+    directory : str, optional
+        If given, only search this directory and its subdirectories.
+
+    fallback_to_default : bool, default: False
+        If True, will fall back to the default font family if
+        the first lookup hard-fails.
+        For this function, it is set to False to prevent fallback.
+
+    rebuild_if_missing : bool, default: True
+        Whether to rebuild the font cache and search again if the first
+        match appears to point to a nonexisting font (i.e., the font cache
+        contains outdated entries).
+
+    Returns
+    -------
+    str or None
+        The filename of the best matching font if it exists, None otherwise.
+
+    Raises
+    ------
+    RuntimeError
+        If the font of the requested family is not found
+        and fallback_to_default is False.
+    """
+    # Pass the relevant rcParams (and the font manager, as `self`) to
+    # _findfont_cached so to prevent using a stale cache entry after an
+    # rcParam was changed.
+    rc_params = tuple(tuple(mpl.rcParams[key]) for key in [
+        "font.serif", "font.sans-serif", "font.cursive", "font.fantasy",
+        "font.monospace"])
+    ret = self._findfont_cached(
+        prop, fontext, directory, fallback_to_default, rebuild_if_missing,
+        rc_params)
+    if isinstance(ret, _ExceptionProxy):
+        if fallback_to_default:
+            raise ret.klass(ret.message)
+        else:
+            return None
+    return ret
+
+
 fontManager = _load_fontmanager()
 findfont = fontManager.findfont
 get_font_names = fontManager.get_font_names
