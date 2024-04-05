@@ -13,6 +13,15 @@ Release notes
    .. include:: release_notes_next.rst
 
 
+Version 3.9
+^^^^^^^^^^^
+.. toctree::
+    :maxdepth: 1
+
+    next_whats_new
+    ../api/next_api_changes
+    github_stats.rst
+
 Version 3.8
 ^^^^^^^^^^^
 .. toctree::
