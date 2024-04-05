@@ -7245,7 +7245,7 @@ such objects
             _api.warn_external(
                 f"Both {baseline=} and {fill=} have been passed. "
                 "baseline=None is only intended for unfilled stair plots. "
-                "Because baseline in None, the Path used to draw the stairs will "
+                "Because baseline is None, the Path used to draw the stairs will "
                 "not be closed, thus because fill is True the polygon will be closed "
                 "by drawing an (unstroked) edge from the first to last point.  It is "
                 "very likely that the resulting fill patterns is not the desired "
