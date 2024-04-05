@@ -7201,7 +7201,7 @@ such objects
 
             Passing both ``fill=True` and ``baseline=None`` will likely result in
             undesired filling as the first and last points will be connected
-            with a straight line with the fill between and the stairs.
+            with a straight line with the fill between the line and the stairs.
 
 
         Returns
@@ -7244,6 +7244,7 @@ such objects
         if baseline is None and fill:
             _api.warn_external(
                 f"Both {baseline=} and {fill=} have been passed. "
+                "baseline=None is only intended for unfilled stair plots. "
                 "Because baseline in None, the Path used to draw the stairs will "
                 "not be closed, thus because fill is True the polygon will be closed "
                 "by drawing an (unstroked) edge from the first to last point.  It is "

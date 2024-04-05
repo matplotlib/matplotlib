@@ -2344,18 +2344,13 @@ def test_hist_zorder(histtype, zorder):
 
 def test_stairs_no_baseline_fill_warns():
     fig, ax = plt.subplots()
-    baseline = None
-    fill = True
-    warn_match = (
-        "Because baseline in None, the Path used to draw the stairs will "
-    )
-    with pytest.warns(UserWarning, match=warn_match):
+    with pytest.warns(UserWarning, match="baseline=None and fill=True"):
         ax.stairs(
             [4, 5, 1, 0, 2],
             [1, 2, 3, 4, 5, 6],
             facecolor="blue",
-            baseline=baseline,
-            fill=fill
+            baseline=None,
+            fill=True
         )
 
 
