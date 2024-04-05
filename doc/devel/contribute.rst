@@ -34,9 +34,10 @@ of the code-base to understand what is going on.
     :open:
     :icon: person-fill
 
-    100% yes. There are so many ways to contribute to our community. Take a look at
-    the next sections to learn more. There are a few typical new contributor
-    profiles:
+    100% yes! There are so many ways to contribute to our community. Take a look
+    at the following sections to learn more.
+
+    There are a few typical new contributor profiles:
 
     * **You are a Matplotlib user, and you see a bug, a potential improvement, or
       something that annoys you, and you can fix it.**
@@ -86,7 +87,7 @@ of the code-base to understand what is going on.
 Code
 ----
 You want to implement a feature or fix a bug or help with maintenance - much
-appreciated! Our library source code is found in
+appreciated! Our library source code is found in:
 
 * Python library code: :file:`lib/`
 * C-extension code: :file:`src/`
@@ -130,15 +131,16 @@ document's URL roughly corresponds to its location in our folder structure:
       * :file:`galleries/user_explain/`
       * :file:`galleries/tutorials/`
       * :file:`galleries/examples/`
-      * :file:`doc/api`
+      * :file:`doc/api/`
 
   .. grid-item:: information about the library
 
       * :file:`doc/install/`
       * :file:`doc/project/`
-      * :file:`doc/users/resources/`
-      * :file:`doc/users/faq.rst`
       * :file:`doc/devel/`
+      * :file:`doc/users/resources/index.rst`
+      * :file:`doc/users/faq.rst`
+
 
 Other documentation is generated from the following external sources:
 
@@ -164,15 +166,14 @@ please reach out on the :ref:`contributor_incubator`
 
 Community
 ---------
-
-It also helps us if you spread the word: reference the project from your blog
-and articles or link to it from your website!
-
 Matplotlib's community is built by its members, if you would like to help out
 see our :ref:`communications-guidelines`.
 
+It helps us if you spread the word: reference the project from your blog
+and articles or link to it from your website!
+
 If Matplotlib contributes to a project that leads to a scientific publication,
-please follow the :doc:`/project/citing` guidelines.
+please cite us following the :doc:`/project/citing` guidelines.
 
 If you have developed an extension to Matplotlib, please consider adding it to our
 `third party package <https://github.com/matplotlib/mpl-third-party>`_  list.
