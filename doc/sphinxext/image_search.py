@@ -18,14 +18,60 @@ from docutils.utils import get_source_line
 from docutils import nodes
 
 from sphinx.util import logging as sphinx_logging
-
+from sphinx.errors import ExtensionError
 from sphinx_gallery import gen_gallery
 from sphinx_gallery.py_source_parser import split_code_and_text_blocks
 from sphinx_gallery.gen_rst import extract_intro_and_title
-from sphinx_gallery.backreferences import _thumbnail_div, THUMBNAIL_PARENT_DIV, THUMBNAIL_PARENT_DIV_CLOSE
-
+from sphinx_gallery.backreferences import BACKREF_THUMBNAIL_TEMPLATE, _thumbnail_div, THUMBNAIL_PARENT_DIV, THUMBNAIL_PARENT_DIV_CLOSE
+from sphinx_gallery.scrapers import _find_image_ext
 
 logger = sphinx_logging.getLogger(__name__)
+
+
+# id="imgsearchref-{ref_name}" attribute is used by the js file later
+# to programmatically hide or unhide thumbnails depending on search result
+THUMBNAIL_TEMPLATE = """
+.. raw:: html
+
+    <div class="sphx-glr-imgsearch-resultelement" id="imgsearchref-({ref_name})">
+    <div class="sphx-glr-thumbcontainer" tooltip="{snippet}">
+
+.. only:: html
+
+  .. image:: /{thumbnail}
+    :alt:
+
+  :ref:`sphx_glr_{ref_name}`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">{title}</div>
+    </div>
+    </div>
+
+"""
+
+def _thumbnail_div(target_dir, src_dir, fname, snippet, title,
+                   is_backref=False, check=True):
+    """Generate RST to place a thumbnail in a gallery."""
+    thumb, _ = _find_image_ext(
+        os.path.join(target_dir, 'images', 'thumb',
+                     'sphx_glr_%s_thumb.png' % fname[:-3]))
+    if check and not os.path.isfile(thumb):
+        # This means we have done something wrong in creating our thumbnail!
+        raise ExtensionError('Could not find internal Sphinx-Gallery thumbnail'
+                             ' file:\n%s' % (thumb,))
+    thumb = os.path.relpath(thumb, src_dir)
+    full_dir = os.path.relpath(target_dir, src_dir)
+
+    # Inside rst files forward slash defines paths
+    thumb = thumb.replace(os.sep, "/")
+
+    ref_name = os.path.join(full_dir, fname).replace(os.path.sep, '_')
+
+    template = BACKREF_THUMBNAIL_TEMPLATE if is_backref else THUMBNAIL_TEMPLATE
+    return template.format(snippet=escape(snippet),
+                           thumbnail=thumb, title=title, ref_name=ref_name)
 
 
 def generate_search_page(app):
