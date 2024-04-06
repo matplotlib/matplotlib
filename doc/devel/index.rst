@@ -16,6 +16,10 @@ Contribute
 :octicon:`heart;1em;sd-text-info` Thank you for your interest in helping to improve
 Matplotlib! :octicon:`heart;1em;sd-text-info`
 
+There are various ways to contribute: optimizing and refactoring code, detailing
+unclear documentation and writing new examples, helping the community, reporting
+and fixing bugs and requesting and implementing new features...
+
 .. _submitting-a-bug-report:
 .. _request-a-new-feature:
 
@@ -54,14 +58,17 @@ Matplotlib! :octicon:`heart;1em;sd-text-info`
          Request a feature
 
 
-We welcome you to get more involved with the Matplotlib project.
-There are various ways to contribute:
-optimizing and refactoring code, detailing unclear documentation and writing new
-examples, helping the community, reporting and fixing bugs and requesting and
-implementing new features...
+We welcome you to get more involved with the Matplotlib project! If you are new
+to contributing, we recommend that you first read our
+:ref:`contributing guide<contributing>`. If you are contributing code or
+documentation, please follow our guides for setting up and managing a
+:ref:`development environment and workflow<development_environment>`.
+For code, documentation, or triage, please follow the corresponding
+:ref:`contribution guidelines <contribution_guideline>`.
 
 New contributors
 ================
+
 .. toctree::
    :hidden:
 
@@ -77,9 +84,7 @@ New contributors
 
       :octicon:`question;1em;sd-text-info` :ref:`Where should I ask questions? <get_connected>`
 
-      :octicon:`issue-opened;1em;sd-text-info` :ref:`What are "good-first-issues"? <new_contributors>`
-
-      :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I claim an issue? <managing_issues_prs>`
+      :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I work on an issue? <managing_issues_prs>`
 
       :octicon:`codespaces;1em;sd-text-info` :ref:`How do I start a pull request? <how-to-pull-request>`
 
@@ -108,15 +113,9 @@ New contributors
             :link-type: ref
             :shadow: none
 
-            :octicon:`paper-airplane;1em;sd-text-info` Other ways to contribute
+            :octicon:`globe;1em;sd-text-info` Build community
 
 
-If you are new to contributing, we recommend that you first read our
-:ref:`contributing guide<contributing>`. If you are contributing code or
-documentation, please follow our guides for setting up and managing a
-:ref:`development environment and workflow<development_environment>`.
-For code, documentation, or triage, please follow the corresponding
-:ref:`contribution guidelines <contribution_guideline>`.
 
 
 .. _development_environment:
