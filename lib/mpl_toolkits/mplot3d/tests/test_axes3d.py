@@ -2275,7 +2275,6 @@ def test_on_move_vertical_axis(vertical_axis: str) -> None:
     )
 
 
-
 @image_comparison(baseline_images=['arc_pathpatch.png'],
                   remove_text=True,
                   style='mpl20')
