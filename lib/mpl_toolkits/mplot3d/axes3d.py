@@ -383,7 +383,8 @@ class Axes3D(Axes):
         # of the axes in mpl3.8.
         aspect *= 1.8294640721620434 * 25/24 * zoom / np.linalg.norm(aspect)
 
-        self._box_aspect = aspect
+        self._box_aspect = self._roll_to_vertical(aspect, sign=-1)
+        # self._box_aspect = aspect
         self.stale = True
 
     def apply_aspect(self, position=None):
@@ -1190,15 +1191,16 @@ class Axes3D(Axes):
                                  f"None for proj_type = {proj_type}")
             self._focal_length = np.inf
 
-    def _roll_to_vertical(self, arr):
+    def _roll_to_vertical(self, arr, sign=1):
         """Roll arrays to match the different vertical axis."""
-        return np.roll(arr, self._vertical_axis - 2)
+        return np.roll(arr, sign * self._vertical_axis - 2)
 
     def get_proj(self):
         """Create the projection matrix from the current viewing position."""
 
         # Transform to uniform world coordinates 0-1, 0-1, 0-1
         box_aspect = self._roll_to_vertical(self._box_aspect)
+        # self._box_aspect = box_aspect
         worldM = proj3d.world_transformation(
             *self.get_xlim3d(),
             *self.get_ylim3d(),
