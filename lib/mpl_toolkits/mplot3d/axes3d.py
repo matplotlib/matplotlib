@@ -1193,7 +1193,7 @@ class Axes3D(Axes):
 
     def _roll_to_vertical(self, arr, sign=1):
         """Roll arrays to match the different vertical axis."""
-        return np.roll(arr, sign * self._vertical_axis - 2)
+        return np.roll(arr, sign * (self._vertical_axis - 2))
 
     def get_proj(self):
         """Create the projection matrix from the current viewing position."""
