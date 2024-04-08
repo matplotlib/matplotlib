@@ -8,7 +8,7 @@ Image Search Demo
 
 .. raw:: html
 
-    <button>show search results demo</button>
+    <button id="sphx-glr-imgsearchbutton" >show search results demo</button>
     <div class="sphx-glr-thumbcontainer" id="sphx-glr-imgsearchresult-container" ></div>
 
 .. include:: index.recommendations

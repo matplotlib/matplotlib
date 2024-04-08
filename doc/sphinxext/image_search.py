@@ -1,21 +1,15 @@
-from __future__ import division, print_function, absolute_import
-import codecs
-import copy
-from datetime import timedelta, datetime
-from difflib import get_close_matches
-from importlib import import_module
-import re
 import os
-import pathlib
-from xml.sax.saxutils import quoteattr, escape
-from itertools import chain
-from collections import defaultdict
 import json
-import logging
-from pathlib import Path
+import pandas as pd
+import numpy as np
+import torch
+import timm
 
-from docutils.utils import get_source_line
-from docutils import nodes
+from xml.sax.saxutils import escape
+from PIL import Image
+from tqdm import tqdm
+from torchvision import transforms
+from torch.autograd import Variable
 
 from sphinx.util import logging as sphinx_logging
 from sphinx.errors import ExtensionError
@@ -25,7 +19,94 @@ from sphinx_gallery.gen_rst import extract_intro_and_title
 from sphinx_gallery.backreferences import BACKREF_THUMBNAIL_TEMPLATE, _thumbnail_div, THUMBNAIL_PARENT_DIV, THUMBNAIL_PARENT_DIV_CLOSE
 from sphinx_gallery.scrapers import _find_image_ext
 
+
 logger = sphinx_logging.getLogger(__name__)
+
+
+
+class SearchSetup:
+    """ A class for setting up and generating image vectors."""
+    def __init__(self, model_name='vgg19', pretrained=True):
+        """
+        Parameters:
+        -----------
+        image_list : list
+        A list of images to be indexed and searched.
+        model_name : str, optional (default='vgg19')
+        The name of the pre-trained model to use for feature extraction.
+        pretrained : bool, optional (default=True)
+        Whether to use the pre-trained weights for the chosen model.
+        image_count : int, optional (default=None)
+        The number of images to be indexed and searched. If None, all images in the image_list will be used.
+        """
+        self.model_name = model_name
+        self.pretrained = pretrained
+        self.image_data = pd.DataFrame()
+        self.d = None
+        self.queue = []
+
+        base_model = timm.create_model(self.model_name, pretrained=self.pretrained)
+        self.model = torch.nn.Sequential(*list(base_model.children())[:-1])
+        self.model.eval()   # disables gradient computation
+
+
+    def _extract(self, img):
+        # Resize and convert the image
+        img = img.resize((224, 224))
+        img = img.convert('RGB')
+
+        # Preprocess the image
+        preprocess = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229,0.224, 0.225]),
+        ])
+        x = preprocess(img)
+        x = Variable(torch.unsqueeze(x, dim=0).float(), requires_grad=False)
+
+        # Extract features
+        feature = self.model(x)
+        feature = feature.data.numpy().flatten()
+        return feature / np.linalg.norm(feature)
+
+    def _get_feature(self, image_data: list):
+        self.image_data = image_data
+        features = []
+        for img_path in tqdm(self.image_data):  # Iterate through images
+            # Extract features from the image
+            try:
+                feature = self._extract(img=Image.open(img_path))
+                print(feature)
+                features.append(feature)
+            except:
+                # If there is an error, append None to the feature list
+                features.append(None)
+                continue
+        return features
+    
+    def add_image( self, thumbnail_id, image_path ):
+        
+        self.queue.append( (thumbnail_id, image_path) )
+
+    def start_feature_extraction(self):
+        data_df = pd.DataFrame()
+
+        image_paths = list( map( lambda x:x[1], self.queue ) )
+        data_df['image_path'] = image_paths
+
+        features = self._get_feature(image_paths)
+        data_df['feature'] = features
+
+        data_df['thumbnail_id'] = list( map( lambda x:x[0], self.queue ) )
+
+        f = open('./_static/data.json', "w")
+        data_json = []
+        for i in range(len(data_df)):
+            data_json.append( [ data_df.loc[i, "thumbnail_id"], data_df.loc[i, "feature"].tolist() ] )
+
+        f.write(json.dumps(data_json))
+
+
+
 
 
 # id="imgsearchref-{ref_name}" attribute is used by the js file later
@@ -70,8 +151,8 @@ def _thumbnail_div(target_dir, src_dir, fname, snippet, title,
     ref_name = os.path.join(full_dir, fname).replace(os.path.sep, '_')
 
     template = BACKREF_THUMBNAIL_TEMPLATE if is_backref else THUMBNAIL_TEMPLATE
-    return template.format(snippet=escape(snippet),
-                           thumbnail=thumb, title=title, ref_name=ref_name)
+    return ( ref_name, template.format(snippet=escape(snippet),
+                           thumbnail=thumb, title=title, ref_name=ref_name) )
 
 
 def generate_search_page(app):
@@ -97,6 +178,7 @@ def generate_search_page(app):
     except FileExistsError:
         pass
     
+    search_setup = SearchSetup(model_name='vgg19', pretrained=True)
     f = open(os.path.join(image_search_path, "index.recommendations"), "w")
     f.write("\n\n" + heading + "\n")
     f.write("^" * len(heading) + "\n")
@@ -148,7 +230,7 @@ def generate_search_page(app):
                     # generates rst text with thumbnail and link to the example   
                     # _thumbnail_div needs to be modified to keep the thumbnail and link
                     # hidden by default so that it can be made visible by the js script later
-                    thumbnail_rst = _thumbnail_div(
+                    ( ref_name, thumbnail_rst ) = _thumbnail_div(
                         src_dir,
                         app.builder.srcdir,
                         f"{example_name}.py",
@@ -156,10 +238,13 @@ def generate_search_page(app):
                         title
                     )
 
+                    search_setup.add_image( f"imgsearchref-({ref_name})", example_image_path )
+
                     # add the thumbnail 
                     rst_content += thumbnail_rst
 
-
+        logger.info("STARTING FEATURE EXTRACTION")
+        search_setup.start_feature_extraction()
         f.write(rst_content)
         f.write(THUMBNAIL_PARENT_DIV_CLOSE)
         # f.close()
