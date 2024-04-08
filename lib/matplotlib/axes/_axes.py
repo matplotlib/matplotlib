@@ -7272,14 +7272,14 @@ such objects
                 "very likely that the resulting fill patterns is not the desired "
                 "result."
             )
-        if baseline is None:
-            baseline = 0
-        if orientation == 'vertical':
-            patch.sticky_edges.y.append(np.min(baseline))
-            self.update_datalim([(edges[0], np.min(baseline))])
-        else:
-            patch.sticky_edges.x.append(np.min(baseline))
-            self.update_datalim([(np.min(baseline), edges[0])])
+
+        if baseline is not None:
+            if orientation == 'vertical':
+                patch.sticky_edges.y.append(np.min(baseline))
+                self.update_datalim([(edges[0], np.min(baseline))])
+            else:
+                patch.sticky_edges.x.append(np.min(baseline))
+                self.update_datalim([(np.min(baseline), edges[0])])
         self._request_autoscale_view()
         return patch
 
