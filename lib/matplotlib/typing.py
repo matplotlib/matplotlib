@@ -58,3 +58,8 @@ RcStyleType = Union[
 _HT = TypeVar("_HT", bound=Hashable)
 HashableList = list[Union[_HT, "HashableList[_HT]"]]
 """A nested list of Hashable values."""
+
+StrLike = Any
+"""Many arguments can be arbitrary objects which are converted to strings."""
+
+CellAlignmentType = Literal["center", "left", "right"]

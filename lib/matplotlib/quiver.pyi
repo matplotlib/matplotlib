@@ -10,7 +10,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 from collections.abc import Sequence
 from typing import Any, Literal, overload
-from matplotlib.typing import ColorType
+from matplotlib.typing import ColorType, StrLike
 
 class QuiverKey(martist.Artist):
     halign: dict[Literal["N", "S", "E", "W"], Literal["left", "center", "right"]]
@@ -23,7 +23,7 @@ class QuiverKey(martist.Artist):
     angle: float
     coord: Literal["axes", "figure", "data", "inches"]
     color: ColorType | None
-    label: str
+    label: StrLike
     labelpos: Literal["N", "S", "E", "W"]
     labelcolor: ColorType | None
     fontproperties: dict[str, Any]
@@ -36,7 +36,7 @@ class QuiverKey(martist.Artist):
         X: float,
         Y: float,
         U: float,
-        label: str,
+        label: StrLike,
         *,
         angle: float = ...,
         coordinates: Literal["axes", "figure", "data", "inches"] = ...,

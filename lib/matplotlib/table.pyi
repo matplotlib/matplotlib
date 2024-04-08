@@ -5,7 +5,7 @@ from .patches import Rectangle
 from .path import Path
 from .text import Text
 from .transforms import Bbox
-from .typing import ColorType
+from .typing import CellAlignmentType, ColorType, StrLike
 
 from collections.abc import Sequence
 from typing import Any, Literal
@@ -21,8 +21,8 @@ class Cell(Rectangle):
         edgecolor: ColorType = ...,
         facecolor: ColorType = ...,
         fill: bool = ...,
-        text: str = ...,
-        loc: Literal["left", "center", "right"] = ...,
+        text: StrLike = ...,
+        loc: CellAlignmentType = ...,
         fontproperties: dict[str, Any] | None = ...,
         visible_edges: str | None = ...
     ) -> None: ...
@@ -68,16 +68,16 @@ class Table(Artist):
 
 def table(
     ax: Axes,
-    cellText: Sequence[Sequence[str]] | None = ...,
+    cellText: Sequence[Sequence[StrLike]] | None = ...,
     cellColours: Sequence[Sequence[ColorType]] | None = ...,
-    cellLoc: Literal["left", "center", "right"] = ...,
+    cellLoc: CellAlignmentType = ...,
     colWidths: Sequence[float] | None = ...,
     rowLabels: Sequence[str] | None = ...,
     rowColours: Sequence[ColorType] | None = ...,
-    rowLoc: Literal["left", "center", "right"] = ...,
+    rowLoc: CellAlignmentType = ...,
     colLabels: Sequence[str] | None = ...,
     colColours: Sequence[ColorType] | None = ...,
-    colLoc: Literal["left", "center", "right"] = ...,
+    colLoc: CellAlignmentType = ...,
     loc: str = ...,
     bbox: Bbox | None = ...,
     edges: str = ...,

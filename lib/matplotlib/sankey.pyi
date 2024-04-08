@@ -1,4 +1,5 @@
 from matplotlib.axes import Axes
+from matplotlib.typing import StrLike
 
 from collections.abc import Callable, Iterable
 from typing import Any
@@ -46,7 +47,7 @@ class Sankey:
     ) -> None: ...
     def add(
         self,
-        patchlabel: str = ...,
+        patchlabel: StrLike = ...,
         flows: Iterable[float] | None = ...,
         orientations: Iterable[int] | None = ...,
         labels: str | Iterable[str | None] = ...,
