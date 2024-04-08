@@ -7200,8 +7200,8 @@ such objects
             Whether the area under the step curve should be filled.
 
             Passing both ``fill=True` and ``baseline=None`` will likely result in
-            undesired filling as the first and last points will be connected
-            with a straight line with the fill between the line and the stairs.
+            undesired filling: the first and last points will be connected
+            with a straight line and the fill will be between this line and the stairs.
 
 
         Returns
