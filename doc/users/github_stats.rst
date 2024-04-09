@@ -1,16 +1,16 @@
 .. _github-stats:
 
-GitHub statistics for 3.9.0 (Apr 05, 2024)
+GitHub statistics for 3.9.0 (Apr 09, 2024)
 ==========================================
 
-GitHub statistics for 2023/09/15 (tag: v3.8.0) - 2024/04/05
+GitHub statistics for 2023/09/15 (tag: v3.8.0) - 2024/04/09
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 85 issues and merged 387 pull requests.
+We closed 86 issues and merged 393 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/78?closed=1>`__
 
-The following 170 authors contributed 2480 commits.
+The following 170 authors contributed 2496 commits.
 
 * 0taj
 * Abdul Razak Taha
@@ -185,8 +185,14 @@ The following 170 authors contributed 2480 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (387):
+Pull Requests (393):
 
+* :ghpull:`28049`: Backport PR #28036 on branch v3.9.x (BLD: Fetch version from setuptools_scm at build time)
+* :ghpull:`28036`: BLD: Fetch version from setuptools_scm at build time
+* :ghpull:`28038`: Backport PR #28023 on branch v3.9.x (ci: Update merge conflict labeler)
+* :ghpull:`28023`: ci: Update merge conflict labeler
+* :ghpull:`28035`: Backport PR #28026 on branch v3.9.x ([DOC] reshuffle of contributing)
+* :ghpull:`28026`: [DOC] reshuffle of contributing
 * :ghpull:`28024`: DOC: Rewrite "Work on an issue" section
 * :ghpull:`28011`: DOC: Move bug reports and feature requests to top of contributing index
 * :ghpull:`27747`: Move doc/users/installing/ to doc/install/
@@ -575,8 +581,9 @@ Pull Requests (387):
 * :ghpull:`26482`: [DOC]: print pydata sphinx/mpl theme versions
 * :ghpull:`23787`: Use pybind11 for C/C++ extensions
 
-Issues (85):
+Issues (86):
 
+* :ghissue:`28005`: [Doc]: Improve contribute instructions
 * :ghissue:`22376`: [ENH]: align_titles
 * :ghissue:`5506`: Confusing status bar values in presence of multiple axes
 * :ghissue:`4284`: Twin axis message coordinates
