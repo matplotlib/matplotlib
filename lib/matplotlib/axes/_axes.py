@@ -7205,8 +7205,15 @@ such objects
             True or an array is passed to *baseline*, a closed
             path is drawn.
 
+            If None, then drawn as an unclosed Path.
+
         fill : bool, default: False
             Whether the area under the step curve should be filled.
+
+            Passing both ``fill=True` and ``baseline=None`` will likely result in
+            undesired filling: the first and last points will be connected
+            with a straight line and the fill will be between this line and the stairs.
+
 
         Returns
         -------
@@ -7245,6 +7252,16 @@ such objects
                                    fill=fill,
                                    **kwargs)
         self.add_patch(patch)
+        if baseline is None and fill:
+            _api.warn_external(
+                f"Both {baseline=} and {fill=} have been passed. "
+                "baseline=None is only intended for unfilled stair plots. "
+                "Because baseline is None, the Path used to draw the stairs will "
+                "not be closed, thus because fill is True the polygon will be closed "
+                "by drawing an (unstroked) edge from the first to last point.  It is "
+                "very likely that the resulting fill patterns is not the desired "
+                "result."
+            )
         if baseline is None:
             baseline = 0
         if orientation == 'vertical':
