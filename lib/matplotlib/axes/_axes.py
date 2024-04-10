@@ -6038,9 +6038,11 @@ class Axes(_AxesBase):
 
         Call signature::
 
-            pcolor([X, Y,] C, **kwargs)
+            pcolor([X, Y,] C, /, **kwargs)
 
         *X* and *Y* can be used to specify the corners of the quadrilaterals.
+
+        The arguments *X*, *Y*, *C* are positional-only.
 
         .. hint::
 
@@ -6253,9 +6255,11 @@ class Axes(_AxesBase):
 
         Call signature::
 
-            pcolormesh([X, Y,] C, **kwargs)
+            pcolormesh([X, Y,] C, /, **kwargs)
 
         *X* and *Y* can be used to specify the corners of the quadrilaterals.
+
+        The arguments *X*, *Y*, *C* are positional-only.
 
         .. hint::
 
@@ -6480,6 +6484,8 @@ class Axes(_AxesBase):
 
             ax.pcolorfast([X, Y], C, /, **kwargs)
 
+        The arguments *X*, *Y*, *C* are positional-only.
+
         This method is similar to `~.Axes.pcolor` and `~.Axes.pcolormesh`.
         It's designed to provide the fastest pcolor-type plotting with the
         Agg backend. To achieve this, it uses different algorithms internally
@@ -6662,7 +6668,9 @@ class Axes(_AxesBase):
 
         Call signature::
 
-            contour([X, Y,] Z, [levels], **kwargs)
+            contour([X, Y,] Z, /, [levels], **kwargs)
+
+        The arguments *X*, *Y*, *Z* are positional-only.
         %(contour_doc)s
         """
         kwargs['filled'] = False
@@ -6678,7 +6686,9 @@ class Axes(_AxesBase):
 
         Call signature::
 
-            contourf([X, Y,] Z, [levels], **kwargs)
+            contourf([X, Y,] Z, /, [levels], **kwargs)
+
+        The arguments *X*, *Y*, *Z* are positional-only.
         %(contour_doc)s
         """
         kwargs['filled'] = True
