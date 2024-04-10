@@ -20,6 +20,7 @@ import sys
 from urllib.parse import urlsplit, urlunsplit
 import warnings
 
+import sphinx  # Added import sphinx
 import matplotlib
 
 from datetime import timezone
@@ -347,6 +348,9 @@ def add_html_cache_busting(app, pagename, templatename, context, doctree):
     This adds the Matplotlib version as a query to the link reference in the
     HTML, if the path is not absolute (i.e., it comes from the `_static`
     directory) and doesn't already have a query.
+
+    .. note:: Sphinx 7.1 provides asset checksums; so this hook only runs on
+              Sphinx 7.0 and earlier.
     """
     from sphinx.builders.html import Stylesheet, JavaScript
 
@@ -575,7 +579,7 @@ latex_elements['preamble'] = r"""
    % One line per author on title page
    \DeclareRobustCommand{\and}%
      {\end{tabular}\kern-\tabcolsep\\\begin{tabular}[t]{c}}%
-   \usepackage{etoolbox}
+   \usepackage{etoolbox
    \AtBeginEnvironment{sphinxthebibliography}{\appendix\part{Appendices}}
    \usepackage{expdlist}
    \let\latexdescription=\description
@@ -723,4 +727,7 @@ def setup(app):
     else:
         bld_type = 'rel'
     app.add_config_value('releaselevel', bld_type, 'env')
-    app.connect('html-page-context', add_html_cache_busting, priority=1000)
+    if sphinx.version_info[:2] < (7, 1):
+        app.connect('html-page-context', add_html_cache_busting, priority=1000)
+
+
