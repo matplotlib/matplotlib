@@ -17,7 +17,6 @@ jobs:
     defaults:
       run:
         shell: bash -l {0}
-    if: github.repository_owner == 'matplotlib'
 
     steps:
       # c.f. https://github.com/actions/download-artifact/issues/3#issuecomment-1017141067
