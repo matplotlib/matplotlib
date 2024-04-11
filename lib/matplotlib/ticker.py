@@ -1024,7 +1024,7 @@ class LogFormatter(Formatter):
 
     def format_data_short(self, value):
         # docstring inherited
-        return '%-12g' % value
+        return ('%-12g' % value).rstrip()
 
     def _pprint_val(self, x, d):
         # If the number is not too big and it's an int, format it as an int.
