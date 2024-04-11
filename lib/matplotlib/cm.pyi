@@ -30,7 +30,7 @@ class ScalarMappable:
     ) -> None: ...
     def to_rgba(
         self,
-        x: np.ndarray,
+        x: float | np.ndarray,
         alpha: float | ArrayLike | None = ...,
         bytes: bool = ...,
         norm: bool = ...,
