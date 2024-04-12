@@ -603,7 +603,7 @@
 ## ***************************************************************************
 #image.aspect:          equal        # {equal, auto} or a number
 #image.interpolation:   antialiased  # see help(imshow) for options
-#image.interpolation_stage: data     # see help(imshow) for options
+#image.interpolation_stage: antialiased     # see help(imshow) for options
 #image.cmap:            viridis      # A colormap name (plasma, magma, etc.)
 #image.lut:             256          # the size of the colormap lookup table
 #image.origin:          upper        # {lower, upper}
@@ -671,7 +671,7 @@
                   # to the nearest pixel when certain criteria are met.
                   # When False, paths will never be snapped.
 #path.sketch: None  # May be None, or a tuple of the form:
-                    #  path.sketch: (scale, length, randomness) 
+                    #  path.sketch: (scale, length, randomness)
                     # - *scale* is the amplitude of the wiggle
                     #    perpendicular to the line (in pixels).
                     # - *length* is the length of the wiggle along the

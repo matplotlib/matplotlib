@@ -421,7 +421,21 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if not unsampled:
             if not (A.ndim == 2 or A.ndim == 3 and A.shape[-1] in (3, 4)):
                 raise ValueError(f"Invalid shape {A.shape} for image data")
-            if A.ndim == 2 and self._interpolation_stage != 'rgba':
+
+            # if antialiased, this needs to change as window sizes
+            # change:
+            interpolation_stage = self._interpolation_stage
+            if interpolation_stage == 'antialiased':
+                pos = np.array([[0, 0], [A.shape[1], A.shape[0]]])
+                disp = t.transform(pos)
+                dispx = np.abs(np.diff(disp[:, 0])) / A.shape[1]
+                dispy = np.abs(np.diff(disp[:, 1])) / A.shape[0]
+                if (dispx < 3) or (dispy < 3):
+                    interpolation_stage = 'rgba'
+                else:
+                    interpolation_stage = 'data'
+
+            if A.ndim == 2 and interpolation_stage == 'data':
                 # if we are a 2D array, then we are running through the
                 # norm + colormap transformation.  However, in general the
                 # input data is not going to match the size on the screen so we
@@ -550,7 +564,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                      cbook._setattr_cm(self.norm, vmin=s_vmin, vmax=s_vmax):
                     output = self.norm(resampled_masked)
             else:
-                if A.ndim == 2:  # _interpolation_stage == 'rgba'
+                if A.ndim == 2:  # interpolation_stage = 'rgba'
                     self.norm.autoscale_None(A)
                     A = self.to_rgba(A)
                 alpha = self._get_scalar_alpha()
@@ -785,12 +799,14 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        s : {'data', 'rgba'} or None
+        s : {'data', 'rgba', 'antialiased'} or None
             Whether to apply up/downsampling interpolation in data or RGBA
             space.  If None, use :rc:`image.interpolation_stage`.
+            If 'antialiased' we will check upsampling rate and if less
+            than 3 then use 'rgba', otherwise use 'data'.
         """
         s = mpl._val_or_rc(s, 'image.interpolation_stage')
-        _api.check_in_list(['data', 'rgba'], s=s)
+        _api.check_in_list(['data', 'rgba', 'antialiased'], s=s)
         self._interpolation_stage = s
         self.stale = True
 
