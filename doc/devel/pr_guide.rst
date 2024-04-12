@@ -212,10 +212,9 @@ Some explicit rules following from this:
     the flow of championed PRs reasonable.
 
 After giving the last required approval, the author of the approval should
-merge the PR. PR authors must not self-merge, except for when another reviewer
+merge the PR. PR authors should not self-merge except for when another reviewer
 explicitly allows it (e.g., "Approve modulo CI passing, may self merge when
 green", or "Take or leave the comments. You may self merge".).
-Core developers may also self-merge in exceptional emergency situations.
 
 .. _pr-automated-tests:
 
