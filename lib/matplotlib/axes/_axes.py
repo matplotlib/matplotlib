@@ -7210,9 +7210,34 @@ such objects
         # If None, make all labels None (via zip_longest below); otherwise,
         # cast each element to str, but keep a single str as it.
         labels = [] if label is None else np.atleast_1d(np.asarray(label, str))
+
+        if 'hatch' in kwargs:
+            if not isinstance(kwargs['hatch'], str):
+                hatches = itertools.cycle(kwargs['hatch'])
+            else:
+                hatches = itertools.cycle([kwargs['hatch']])
+
+        if 'edgecolor' in kwargs:
+            if not isinstance(kwargs['edgecolor'], str):
+                edgecolors = itertools.cycle(kwargs['edgecolor'])
+            else:
+                edgecolors = itertools.cycle([kwargs['edgecolor']])
+
+        if 'linewidth' in kwargs:
+            if isinstance(kwargs['linewidth'], list or tuple):
+                linewidths = itertools.cycle(kwargs['linewidth'])
+            else:
+                linewidths = itertools.cycle([kwargs['linewidth']])
+
         for patch, lbl in itertools.zip_longest(patches, labels):
             if patch:
                 p = patch[0]
+                if 'hatch' in kwargs:
+                    kwargs['hatch'] = next(hatches)
+                if 'edgecolor' in kwargs:
+                    kwargs['edgecolor'] = next(edgecolors)
+                if 'linewidth' in kwargs:
+                    kwargs['linewidth'] = next(linewidths)
                 p._internal_update(kwargs)
                 if lbl is not None:
                     p.set_label(lbl)
