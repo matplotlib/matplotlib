@@ -2265,19 +2265,9 @@ class _AxesBase(martist.Artist):
             collection.set_clip_path(self.patch)
 
         if autolim:
-            # Make sure viewLim is not stale (mostly to match
-            # pre-lazy-autoscale behavior, which is not really better).
-            self._unstale_viewLim()
-            datalim = collection.get_datalim(self.transData)
-            points = datalim.get_points()
-            if not np.isinf(datalim.minpos).all():
-                # By definition, if minpos (minimum positive value) is set
-                # (i.e., non-inf), then min(points) <= minpos <= max(points),
-                # and minpos would be superfluous. However, we add minpos to
-                # the call so that self.dataLim will update its own minpos.
-                # This ensures that log scales see the correct minimum.
-                points = np.concatenate([points, [datalim.minpos]])
-            self.update_datalim(points)
+            collection._update_limits(self)
+        else:
+            collection.set_in_autoscale(False)
 
         self.stale = True
         return collection
@@ -2294,10 +2284,6 @@ class _AxesBase(martist.Artist):
         image._remove_method = self._children.remove
         self.stale = True
         return image
-
-    def _update_image_limits(self, image):
-        xmin, xmax, ymin, ymax = image.get_extent()
-        self.axes.update_datalim(((xmin, ymin), (xmax, ymax)))
 
     def add_line(self, line):
         """
@@ -2327,54 +2313,6 @@ class _AxesBase(martist.Artist):
         self.stale = True
         return txt
 
-    def _update_line_limits(self, line):
-        """
-        Figures out the data limit of the given line, updating self.dataLim.
-        """
-        path = line.get_path()
-        if path.vertices.size == 0:
-            return
-
-        line_trf = line.get_transform()
-
-        if line_trf == self.transData:
-            data_path = path
-        elif any(line_trf.contains_branch_seperately(self.transData)):
-            # Compute the transform from line coordinates to data coordinates.
-            trf_to_data = line_trf - self.transData
-            # If transData is affine we can use the cached non-affine component
-            # of line's path (since the non-affine part of line_trf is
-            # entirely encapsulated in trf_to_data).
-            if self.transData.is_affine:
-                line_trans_path = line._get_transformed_path()
-                na_path, _ = line_trans_path.get_transformed_path_and_affine()
-                data_path = trf_to_data.transform_path_affine(na_path)
-            else:
-                data_path = trf_to_data.transform_path(path)
-        else:
-            # For backwards compatibility we update the dataLim with the
-            # coordinate range of the given path, even though the coordinate
-            # systems are completely different. This may occur in situations
-            # such as when ax.transAxes is passed through for absolute
-            # positioning.
-            data_path = path
-
-        if not data_path.vertices.size:
-            return
-
-        updatex, updatey = line_trf.contains_branch_seperately(self.transData)
-        if self.name != "rectilinear":
-            # This block is mostly intended to handle axvline in polar plots,
-            # for which updatey would otherwise be True.
-            if updatex and line_trf == self.get_yaxis_transform():
-                updatex = False
-            if updatey and line_trf == self.get_xaxis_transform():
-                updatey = False
-        self.dataLim.update_from_path(data_path,
-                                      self.ignore_existing_data_limits,
-                                      updatex=updatex, updatey=updatey)
-        self.ignore_existing_data_limits = False
-
     def add_patch(self, p):
         """
         Add a `.Patch` to the Axes; return the patch.
@@ -2387,46 +2325,6 @@ class _AxesBase(martist.Artist):
         self._children.append(p)
         p._remove_method = self._children.remove
         return p
-
-    def _update_patch_limits(self, patch):
-        """Update the data limits for the given patch."""
-        # hist can add zero height Rectangles, which is useful to keep
-        # the bins, counts and patches lined up, but it throws off log
-        # scaling.  We'll ignore rects with zero height or width in
-        # the auto-scaling
-
-        # cannot check for '==0' since unitized data may not compare to zero
-        # issue #2150 - we update the limits if patch has non zero width
-        # or height.
-        if (isinstance(patch, mpatches.Rectangle) and
-                ((not patch.get_width()) and (not patch.get_height()))):
-            return
-        p = patch.get_path()
-        # Get all vertices on the path
-        # Loop through each segment to get extrema for Bezier curve sections
-        vertices = []
-        for curve, code in p.iter_bezier(simplify=False):
-            # Get distance along the curve of any extrema
-            _, dzeros = curve.axis_aligned_extrema()
-            # Calculate vertices of start, end and any extrema in between
-            vertices.append(curve([0, *dzeros, 1]))
-
-        if len(vertices):
-            vertices = np.vstack(vertices)
-
-        patch_trf = patch.get_transform()
-        updatex, updatey = patch_trf.contains_branch_seperately(self.transData)
-        if not (updatex or updatey):
-            return
-        if self.name != "rectilinear":
-            # As in _update_line_limits, but for axvspan.
-            if updatex and patch_trf == self.get_yaxis_transform():
-                updatex = False
-            if updatey and patch_trf == self.get_xaxis_transform():
-                updatey = False
-        trf_to_data = patch_trf - self.transData
-        xys = trf_to_data.transform(vertices)
-        self.update_datalim(xys, updatex=updatex, updatey=updatey)
 
     def add_table(self, tab):
         """
@@ -2483,12 +2381,29 @@ class _AxesBase(martist.Artist):
 
         for artist in self._children:
             if not visible_only or artist.get_visible():
-                if isinstance(artist, mlines.Line2D):
-                    self._update_line_limits(artist)
-                elif isinstance(artist, mpatches.Patch):
-                    self._update_patch_limits(artist)
-                elif isinstance(artist, mimage.AxesImage):
-                    self._update_image_limits(artist)
+                if artist.get_in_autoscale():
+                    artist._update_limits(self)
+
+    def _update_line_limits(self, line):
+        """
+        These 3 functions were made to appease the integration tests.
+        _update_limits() is now inside the respective Artists
+        """
+        line._update_limits(self)
+
+    def _update_patch_limits(self, patch):
+        """
+        These 3 functions were made to appease the integration tests.
+        _update_limits() is now inside the respective Artists
+        """
+        patch._update_limits(self)
+
+    def _update_image_limits(self, image):
+        """
+        These 3 functions were made to appease the integration tests.
+        _update_limits() is now inside the respective Artists
+        """
+        image._update_limits(self)
 
     def update_datalim(self, xys, updatex=True, updatey=True):
         """

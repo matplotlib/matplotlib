@@ -1464,6 +1464,54 @@ class Line2D(Artist):
         """
         return self._linestyle in ('--', '-.', ':')
 
+    def _update_limits(self, axes_base):
+        """
+        Figures out the data limit of the given line, updating axes_base.dataLim.
+        """
+        path = self.get_path()
+        if path.vertices.size == 0:
+            return
+
+        line_trf = self.get_transform()
+
+        if line_trf == axes_base.transData:
+            data_path = path
+        elif any(line_trf.contains_branch_seperately(axes_base.transData)):
+            # Compute the transform from line coordinates to data coordinates.
+            trf_to_data = line_trf - axes_base.transData
+            # If transData is affine we can use the cached non-affine component
+            # of line's path (since the non-affine part of line_trf is
+            # entirely encapsulated in trf_to_data).
+            if axes_base.transData.is_affine:
+                line_trans_path = self._get_transformed_path()
+                na_path, _ = line_trans_path.get_transformed_path_and_affine()
+                data_path = trf_to_data.transform_path_affine(na_path)
+            else:
+                data_path = trf_to_data.transform_path(path)
+        else:
+            # For backwards compatibility we update the dataLim with the
+            # coordinate range of the given path, even though the coordinate
+            # systems are completely different. This may occur in situations
+            # such as when ax.transAxes is passed through for absolute
+            # positioning.
+            data_path = path
+
+        if not data_path.vertices.size:
+            return
+
+        updatex, updatey = line_trf.contains_branch_seperately(axes_base.transData)
+        if axes_base.name != "rectilinear":
+            # This block is mostly intended to handle axvline in polar plots,
+            # for which updatey would otherwise be True.
+            if updatex and line_trf == axes_base.get_yaxis_transform():
+                updatex = False
+            if updatey and line_trf == axes_base.get_xaxis_transform():
+                updatey = False
+        axes_base.dataLim.update_from_path(data_path,
+                                           axes_base.ignore_existing_data_limits,
+                                           updatex=updatex, updatey=updatey)
+        axes_base.ignore_existing_data_limits = False
+
 
 class AxLine(Line2D):
     """

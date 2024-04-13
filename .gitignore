@@ -29,6 +29,10 @@
 
 # Python files #
 ################
+
+# virtual environment
+env/
+
 # meson-python working directory
 build
 .mesonpy*

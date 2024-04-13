@@ -957,6 +957,21 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.cmap = other.cmap
         self.stale = True
 
+    def _update_limits(self, axes_base):
+        # Make sure viewLim is not stale (mostly to match
+        # pre-lazy-autoscale behavior, which is not really better).
+        axes_base._unstale_viewLim()
+        datalim = self.get_datalim(axes_base.transData)
+        points = datalim.get_points()
+        if not np.isinf(datalim.minpos).all():
+            # By definition, if minpos (minimum positive value) is set
+            # (i.e., non-inf), then min(points) <= minpos <= max(points),
+            # and minpos would be superfluous. However, we add minpos to
+            # the call so that axes_base.dataLim will update its own minpos.
+            # This ensures that log scales see the correct minimum.
+            points = np.concatenate([points, [datalim.minpos]])
+        axes_base.update_datalim(points)
+
 
 class _CollectionWithSizes(Collection):
     """

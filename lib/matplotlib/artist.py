@@ -212,6 +212,7 @@ class Artist:
         self._path_effects = mpl.rcParams['path.effects']
         self._sticky_edges = _XYPair([], [])
         self._in_layout = True
+        self._in_autoscale = True
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -881,6 +882,14 @@ class Artist:
                      or isinstance(clip_path, TransformedPatchPath)
                      and clip_path._patch is self.axes.patch))
 
+    def get_in_autoscale(self):
+        """
+        Return bool or tuple[bool] flag, with as many entries as
+        dimensions in the plot. When True, the artist is included
+        in autoscale calculations along that axis.
+        """
+        return self._in_autoscale
+
     def get_clip_on(self):
         """Return whether the artist uses clipping."""
         return self._clipon
@@ -1086,6 +1095,17 @@ class Artist:
         """
         self._in_layout = in_layout
 
+    def set_in_autoscale(self, in_autoscale):
+        """
+        Set if artist is to be included in autoscale calculations
+        along certain axes.
+
+        Parameters
+        ----------
+        in_autoscale : bool or tuple[bool]
+        """
+        self._in_autoscale = in_autoscale
+
     def get_label(self):
         """Return the label used for this artist in the legend."""
         return self._label
@@ -1219,6 +1239,13 @@ class Artist:
         return self._update_props(
             kwargs, "{cls.__name__}.set() got an unexpected keyword argument "
             "{prop_name!r}")
+
+    def _update_limits(self, axes_base):
+        """
+        Defaults to failure in base Artist. Will be overridden in
+        Line2D, Patch, AxesImage, and Collection classes.
+        """
+        raise NotImplementedError('artist child does not have _update_limits function')
 
     def set(self, **kwargs):
         # docstring and signature are auto-generated via

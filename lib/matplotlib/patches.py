@@ -650,6 +650,46 @@ class Patch(artist.Artist):
         y = self.convert_yunits(xy[1])
         return x, y
 
+    def _update_limits(self, axes_base):
+        """Update the data limits for the given patch."""
+        # hist can add zero height Rectangles, which is useful to keep
+        # the bins, counts and patches lined up, but it throws off log
+        # scaling.  We'll ignore rects with zero height or width in
+        # the auto-scaling
+
+        # cannot check for '==0' since unitized data may not compare to zero
+        # issue #2150 - we update the limits if patch has non zero width
+        # or height.
+        if (isinstance(self, Rectangle) and
+                ((not self.get_width()) and (not self.get_height()))):
+            return
+        p = self.get_path()
+        # Get all vertices on the path
+        # Loop through each segment to get extrema for Bezier curve sections
+        vertices = []
+        for curve, code in p.iter_bezier(simplify=False):
+            # Get distance along the curve of any extrema
+            _, dzeros = curve.axis_aligned_extrema()
+            # Calculate vertices of start, end and any extrema in between
+            vertices.append(curve([0, *dzeros, 1]))
+
+        if len(vertices):
+            vertices = np.vstack(vertices)
+
+        patch_trf = self.get_transform()
+        updatex, updatey = patch_trf.contains_branch_seperately(axes_base.transData)
+        if not (updatex or updatey):
+            return
+        if axes_base.name != "rectilinear":
+            # As in _update_line_limits, but for axvspan.
+            if updatex and patch_trf == axes_base.get_yaxis_transform():
+                updatex = False
+            if updatey and patch_trf == axes_base.get_xaxis_transform():
+                updatey = False
+        trf_to_data = patch_trf - axes_base.transData
+        xys = trf_to_data.transform(vertices)
+        axes_base.update_datalim(xys, updatex=updatex, updatey=updatey)
+
 
 class Shadow(Patch):
     def __str__(self):

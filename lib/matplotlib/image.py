@@ -1043,6 +1043,10 @@ class AxesImage(_ImageBase):
         else:
             return arr[i, j]
 
+    def _update_limits(self, axes_base):
+        xmin, xmax, ymin, ymax = self.get_extent()
+        axes_base.axes.update_datalim(((xmin, ymin), (xmax, ymax)))
+
 
 class NonUniformImage(AxesImage):
 
