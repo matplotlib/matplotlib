@@ -2379,29 +2379,29 @@ class _AxesBase(martist.Artist):
         self.dataLim.set_points(mtransforms.Bbox.null().get_points())
         self.ignore_existing_data_limits = True
 
-        for artist in self._children:
+        for artist in self._children:  # can be Collection now
             if not visible_only or artist.get_visible():
                 if artist.get_in_autoscale():
                     artist._update_limits(self)
 
     def _update_line_limits(self, line):
         """
-        These 3 functions were made to appease the integration tests.
-        _update_limits() is now inside the respective Artists
+        These 3 functions keep the interface the same for integration tests.
+        _update_limits() is now inside the respective Artists.
         """
         line._update_limits(self)
 
     def _update_patch_limits(self, patch):
         """
-        These 3 functions were made to appease the integration tests.
-        _update_limits() is now inside the respective Artists
+        These 3 functions keep the interface the same for integration tests.
+        _update_limits() is now inside the respective Artists.
         """
         patch._update_limits(self)
 
     def _update_image_limits(self, image):
         """
-        These 3 functions were made to appease the integration tests.
-        _update_limits() is now inside the respective Artists
+        These 3 functions keep the interface the same for integration tests.
+        _update_limits() is now inside the respective Artists.
         """
         image._update_limits(self)
 

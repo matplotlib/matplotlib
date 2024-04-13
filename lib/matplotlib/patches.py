@@ -651,7 +651,7 @@ class Patch(artist.Artist):
         return x, y
 
     def _update_limits(self, axes_base):
-        """Update the data limits for the given patch."""
+        """Update the data limits for the patch."""
         # hist can add zero height Rectangles, which is useful to keep
         # the bins, counts and patches lined up, but it throws off log
         # scaling.  We'll ignore rects with zero height or width in
@@ -660,6 +660,9 @@ class Patch(artist.Artist):
         # cannot check for '==0' since unitized data may not compare to zero
         # issue #2150 - we update the limits if patch has non zero width
         # or height.
+        if not self._in_autoscale:
+            return
+
         if (isinstance(self, Rectangle) and
                 ((not self.get_width()) and (not self.get_height()))):
             return

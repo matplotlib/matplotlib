@@ -1468,6 +1468,9 @@ class Line2D(Artist):
         """
         Figures out the data limit of the given line, updating axes_base.dataLim.
         """
+        if not self._in_autoscale:
+            return
+
         path = self.get_path()
         if path.vertices.size == 0:
             return

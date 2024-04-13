@@ -958,6 +958,13 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.stale = True
 
     def _update_limits(self, axes_base):
+        """
+        Figures out the data limit of a Collection, updating
+        axes_base.dataLim.
+        """
+        if not self._in_autoscale:
+            return
+
         # Make sure viewLim is not stale (mostly to match
         # pre-lazy-autoscale behavior, which is not really better).
         axes_base._unstale_viewLim()

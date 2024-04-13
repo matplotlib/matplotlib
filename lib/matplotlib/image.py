@@ -1044,6 +1044,9 @@ class AxesImage(_ImageBase):
             return arr[i, j]
 
     def _update_limits(self, axes_base):
+        if not self._in_autoscale:
+            return
+
         xmin, xmax, ymin, ymax = self.get_extent()
         axes_base.axes.update_datalim(((xmin, ymin), (xmax, ymax)))
 
