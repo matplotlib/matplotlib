@@ -1,0 +1,7 @@
+``boxplot`` and ``bxp`` *vert* parameter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The parameter *vert: bool* has been deprecated on `~.Axes.boxplot` and
+`~.Axes.bxp`.
+It is replaced by *orientation: {"vertical", "horizontal"}* for API
+consistency.
