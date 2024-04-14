@@ -2249,6 +2249,7 @@ def test_view_init_vertical_axis(
         tickdir_actual = axis._get_tickdir('default')
         np.testing.assert_array_equal(tickdir_expected, tickdir_actual)
 
+
 @pytest.mark.parametrize("vertical_axis", ["x", "y", "z"])
 def test_set_box_aspect_vertical_axis(vertical_axis: str) -> None:
     ax = plt.subplot(1, 1, 1, projection="3d")
@@ -2264,6 +2265,7 @@ def test_set_box_aspect_vertical_axis(vertical_axis: str) -> None:
     aspect_new = tuple(ax._box_aspect)
 
     np.testing.assert_allclose(aspect_expected, aspect_new)
+
 
 @image_comparison(baseline_images=['arc_pathpatch.png'],
                   remove_text=True,
