@@ -2256,7 +2256,9 @@ def test_set_box_aspect_vertical_axis(vertical_axis: str) -> None:
     ax.figure.canvas.draw()
 
     aspect_old = tuple(ax._box_aspect)
-    aspect_expected = np.roll(aspect_old, -1 * (ax._axis_names.index(vert_a) - 2))
+    aspect_expected = np.roll(
+        aspect_old, -1 * (ax._axis_names.index(vertical_axis) - 2)
+    )
 
     ax.set_box_aspect(None)
     aspect_new = tuple(ax._box_aspect)
