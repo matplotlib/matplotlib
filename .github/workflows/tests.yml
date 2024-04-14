@@ -314,6 +314,39 @@ jobs:
             --maxfail=50 --timeout=300 --durations=25 \
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
 
+      - name: Cleanup non-failed image files
+        run: |
+          function remove_files() {
+              local extension=$1
+              find ./result_images -type f -name "*-expected*.$extension" | while read file; do
+                  if [[ $file == *"-expected_pdf"* ]]; then
+                      base=${file%-expected_pdf.$extension}_pdf
+                  elif [[ $file == *"-expected_eps"* ]]; then
+                      base=${file%-expected_eps.$extension}_eps
+                  elif [[ $file == *"-expected_svg"* ]]; then
+                      base=${file%-expected_svg.$extension}_svg
+                  else
+                      base=${file%-expected.$extension}
+                  fi
+                  if [[ ! -e "${base}-failed-diff.$extension" ]]; then
+                      if [[ -e "$file" ]]; then
+                          rm "$file"
+                          echo "Removed $file"
+                      fi
+                      if [[ -e "${base}.$extension" ]]; then
+                          rm "${base}.$extension"
+                          echo " Removed ${base}.$extension"
+                      fi
+                  fi
+              done
+          }
+
+          remove_files "png"; remove_files "svg"; remove_files "pdf"; remove_files "eps";
+
+          if [ "$(find ./result_images -mindepth 1 -type d)" ]; then
+              find ./result_images/* -type d -empty -delete
+          fi
+
       - name: Filter C coverage
         run: |
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
