@@ -1235,7 +1235,7 @@ class FontManager:
     def findfont(self, prop, fontext='ttf', directory=None,
                  fallback_to_default=True, rebuild_if_missing=True):
         """
-        Find a font that most closely matches the given font properties.
+        Find the path to the font file most closely matching the given font properties.
 
         Parameters
         ----------
@@ -1305,7 +1305,7 @@ class FontManager:
     def _find_fonts_by_props(self, prop, fontext='ttf', directory=None,
                              fallback_to_default=True, rebuild_if_missing=True):
         """
-        Find font families that most closely match the given properties.
+        Find the paths to the font files most closely matching the given properties.
 
         Parameters
         ----------
@@ -1335,7 +1335,7 @@ class FontManager:
         Returns
         -------
         list[str]
-            The paths of the fonts found
+            The paths of the fonts found.
 
         Notes
         -----
