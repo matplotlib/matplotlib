@@ -2381,6 +2381,20 @@ def _is_jax_array(x):
         # may have arbitrary user code, so we deliberately catch all exceptions
         return False
 
+def _is_tensorflow_array(x):
+    """Check if 'x' is a TensorFlow Tensor or Variable."""
+    try:
+        # we're intentionally not attempting to import TensorFlow. If somebody
+        # has created a TensorFlow array, TensorFlow should already be in sys.modules
+        # we use `is_tensor` to not depend on the class structure of TensorFlow
+        # arrays, as `tf.Variables` are not instances of `tf.Tensor`
+        # (but convert the same way)
+        return isinstance(x, sys.modules['tensorflow'].is_tensor(x))
+    except Exception:  # TypeError, KeyError, AttributeError, maybe others?
+        # we're attempting to access attributes on imported modules which
+        # may have arbitrary user code, so we deliberately catch all exceptions
+        return False
+
 
 def _unpack_to_numpy(x):
     """Internal helper to extract data from e.g. pandas and xarray objects."""
@@ -2396,10 +2410,14 @@ def _unpack_to_numpy(x):
         # so in this case we do not want to return a function
         if isinstance(xtmp, np.ndarray):
             return xtmp
-    if _is_torch_array(x) or _is_jax_array(x):
-        xtmp = x.__array__()
+    if _is_torch_array(x) or _is_jax_array(x) or _is_tensorflow_array(x):
+        # using np.asarray() instead of explicitly __array__(), as the latter is
+        # only _one_ of many methods, and it's the last resort, see also
+        # https://numpy.org/devdocs/user/basics.interoperability.html#using-arbitrary-objects-in-numpy
+        # therefore, let arrays do better if they can
+        xtmp = np.asarray(x)
 
-        # In case __array__() method does not return a numpy array in future
+        # In case np.asarray method does not return a numpy array in future
         if isinstance(xtmp, np.ndarray):
             return xtmp
     return x
