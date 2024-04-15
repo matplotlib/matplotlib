@@ -2388,7 +2388,7 @@ def _is_tensorflow_array(x):
         # has created a TensorFlow array, TensorFlow should already be in sys.modules
         # we use `is_tensor` to not depend on the class structure of TensorFlow
         # arrays, as `tf.Variables` are not instances of `tf.Tensor`
-        # (but convert the same way)
+        # (they both convert the same way)
         return isinstance(x, sys.modules['tensorflow'].is_tensor(x))
     except Exception:  # TypeError, KeyError, AttributeError, maybe others?
         # we're attempting to access attributes on imported modules which
