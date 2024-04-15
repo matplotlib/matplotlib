@@ -2381,6 +2381,7 @@ def _is_jax_array(x):
         # may have arbitrary user code, so we deliberately catch all exceptions
         return False
 
+
 def _is_tensorflow_array(x):
     """Check if 'x' is a TensorFlow Tensor or Variable."""
     try:
