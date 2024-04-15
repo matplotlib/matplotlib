@@ -843,7 +843,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
 
         default_extension = self.canvas.get_default_filetype()
         default_filetype = self.canvas.get_supported_filetypes()[default_extension]
-        filetype_variable = tk.StringVar(self, default_filetype)
+        filetype_variable = tk.StringVar(self.canvas.get_tk_widget(), default_filetype)
 
         # adding a default extension seems to break the
         # asksaveasfilename dialog when you choose various save types
