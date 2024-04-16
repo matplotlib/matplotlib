@@ -30,7 +30,9 @@ or by registering it for handling pdf output ::
 
 The last method allows you to keep using regular interactive backends and to
 save xelatex, lualatex or pdflatex compiled PDF files from the graphical user
-interface.
+interface.  Note that, in that case, the interactive display will still use the
+standard interactive backends (e.g., QtAgg), and in particular use latex to
+compile relevant text snippets.
 
 Matplotlib's pgf support requires a recent LaTeX_ installation that includes
 the TikZ/PGF packages (such as TeXLive_), preferably with XeLaTeX or LuaLaTeX
