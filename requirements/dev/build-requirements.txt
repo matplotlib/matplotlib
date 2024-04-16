@@ -1,0 +1,6 @@
+pybind11
+meson-python
+cmake
+ninja
+numpy
+setuptools-scm
