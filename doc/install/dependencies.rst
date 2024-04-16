@@ -54,7 +54,8 @@ and the capabilities they provide.
 * Tk_ (>= 8.5, != 8.6.0 or 8.6.1): for the Tk-based backends. Tk is part of
   most standard Python installations, but it's not part of Python itself and
   thus may not be present in rare cases.
-* PyQt6_ (>= 6.1), PySide6_, PyQt5_, or PySide2_: for the Qt-based backends.
+* PyQt6_ (>= 6.1), PySide6_, PyQt5_ (>= 5.12), or PySide2_: for the Qt-based
+  backends.
 * PyGObject_ and pycairo_ (>= 1.14.0): for the GTK-based backends. If using pip
   (but not conda or system package manager) PyGObject must be built from
   source; see `pygobject documentation
