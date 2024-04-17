@@ -1869,8 +1869,6 @@ class PatchCollection(Collection):
             If False, new colors may be assigned by
             providing the standard collection arguments, facecolor,
             edgecolor, linewidths, norm or cmap.
-            Also, all hatches will be set to the first patch's hatch,
-            regardless of the hatch set in the original patches.
 
         **kwargs
             All other parameters are forwarded to `.Collection`.
