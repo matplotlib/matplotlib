@@ -384,7 +384,6 @@ class Axes3D(Axes):
         aspect *= 1.8294640721620434 * 25/24 * zoom / np.linalg.norm(aspect)
 
         self._box_aspect = self._roll_to_vertical(aspect, sign=-1)
-        # self._box_aspect = aspect
         self.stale = True
 
     def apply_aspect(self, position=None):
