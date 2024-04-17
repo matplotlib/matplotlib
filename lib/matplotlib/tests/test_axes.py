@@ -3747,7 +3747,7 @@ def test_horiz_violinplot_baseline():
     # First 9 digits of frac(sqrt(19))
     np.random.seed(358898943)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=False,
                   showextrema=False, showmedians=False)
 
 
@@ -3757,7 +3757,7 @@ def test_horiz_violinplot_showmedians():
     # First 9 digits of frac(sqrt(23))
     np.random.seed(795831523)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=False,
                   showextrema=False, showmedians=True)
 
 
@@ -3767,7 +3767,7 @@ def test_horiz_violinplot_showmeans():
     # First 9 digits of frac(sqrt(29))
     np.random.seed(385164807)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=True,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=True,
                   showextrema=False, showmedians=False)
 
 
@@ -3777,7 +3777,7 @@ def test_horiz_violinplot_showextrema():
     # First 9 digits of frac(sqrt(31))
     np.random.seed(567764362)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=False,
                   showextrema=True, showmedians=False)
 
 
@@ -3787,7 +3787,7 @@ def test_horiz_violinplot_showall():
     # First 9 digits of frac(sqrt(37))
     np.random.seed(82762530)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=True,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=True,
                   showextrema=True, showmedians=True,
                   quantiles=[[0.1, 0.9], [0.2, 0.8], [0.3, 0.7], [0.4, 0.6]])
 
@@ -3798,7 +3798,7 @@ def test_horiz_violinplot_custompoints_10():
     # First 9 digits of frac(sqrt(41))
     np.random.seed(403124237)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=False,
                   showextrema=False, showmedians=False, points=10)
 
 
@@ -3808,7 +3808,7 @@ def test_horiz_violinplot_custompoints_200():
     # First 9 digits of frac(sqrt(43))
     np.random.seed(557438524)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=False,
                   showextrema=False, showmedians=False, points=200)
 
 
@@ -3819,11 +3819,11 @@ def test_violinplot_sides():
     data = [np.random.normal(size=100)]
     # Check horizontal violinplot
     for pos, side in zip([0, -0.5, 0.5], ['both', 'low', 'high']):
-        ax.violinplot(data, positions=[pos], vert=False, showmeans=False,
+        ax.violinplot(data, positions=[pos], orientation='horizontal', showmeans=False,
                       showextrema=True, showmedians=True, side=side)
     # Check vertical violinplot
     for pos, side in zip([4, 3.5, 4.5], ['both', 'low', 'high']):
-        ax.violinplot(data, positions=[pos], vert=True, showmeans=False,
+        ax.violinplot(data, positions=[pos], orientation='vertical', showmeans=False,
                       showextrema=True, showmedians=True, side=side)
 
 
