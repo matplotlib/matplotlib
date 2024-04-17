@@ -1199,7 +1199,6 @@ class Axes3D(Axes):
 
         # Transform to uniform world coordinates 0-1, 0-1, 0-1
         box_aspect = self._roll_to_vertical(self._box_aspect)
-        # self._box_aspect = box_aspect
         worldM = proj3d.world_transformation(
             *self.get_xlim3d(),
             *self.get_ylim3d(),
