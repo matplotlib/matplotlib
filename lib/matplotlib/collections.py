@@ -423,13 +423,31 @@ class Collection(artist.Artist, cm.ScalarMappable):
                     self._antialiaseds, self._urls,
                     "screen")
 
-            renderer.draw_path_collection(
-                gc, transform.frozen(), paths,
-                self.get_transforms(), offsets, offset_trf,
-                self.get_facecolor(), self.get_edgecolor(),
-                self._linewidths, self._linestyles,
-                self._antialiaseds, self._urls,
-                "screen")  # offset_position, kept for backcompat.
+            fcolor = itertools.cycle(facecolors) if facecolors.any() \
+                else itertools.repeat([])
+            ecolor = itertools.cycle(edgecolors) if edgecolors.any() \
+                else itertools.repeat([])
+            lwidth = itertools.cycle(self._linewidths)
+            lstyle = itertools.cycle(self._linestyles)
+            antialiased = itertools.cycle(self._antialiaseds)
+
+            if self._match_original:
+                for idx in range(len(paths)):
+                    gc.set_hatch(self._hatch[idx])
+                    renderer.draw_path_collection(
+                        gc, transform.frozen(), [paths[idx]],
+                        self.get_transforms(), offsets, offset_trf,
+                        [next(fcolor)], [next(ecolor)], [next(lwidth)], [next(lstyle)],
+                        [next(antialiased)], self._urls,
+                        "screen")  # offset_position, kept for backcompat.
+            else:
+                renderer.draw_path_collection(
+                    gc, transform.frozen(), paths,
+                    self.get_transforms(), offsets, offset_trf,
+                    self.get_facecolor(), self.get_edgecolor(),
+                    self._linewidths, self._linestyles,
+                    self._antialiaseds, self._urls,
+                    "screen")
 
         gc.restore()
         renderer.close_group(self.__class__.__name__)
@@ -1868,21 +1886,20 @@ class PatchCollection(Collection):
         a call to `~.ScalarMappable.set_array`), at draw time a call to scalar
         mappable will be made to set the face colors.
         """
+        self._match_original = False
 
         if match_original:
+            self._match_original = True
             kwargs['facecolors'] = [p.get_facecolor() for p in patches]
             kwargs['linewidths'] = [p.get_linewidth() for p in patches]
             kwargs['linestyles'] = [p.get_linestyle() for p in patches]
             kwargs['antialiaseds'] = [p.get_antialiased() for p in patches]
+            kwargs['hatch'] = [p.get_hatch() for p in patches]
 
             # Edgecolors are handled separately because are defaulted to None
             # and the Hatch colors depend on them.
-            if any(p._original_edgecolor is not None for p in patches):
+            if all(p._original_edgecolor is not None for p in patches):
                 kwargs["edgecolors"] = [p.get_edgecolor() for p in patches]
-
-            # Using the hatch of only the first patch
-            if patches:
-                kwargs['hatch'] = patches[0].get_hatch()
 
         super().__init__(**kwargs)
 
