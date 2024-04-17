@@ -1888,16 +1888,16 @@ class PatchCollection(Collection):
 
         if match_original:
             self._match_original = True
-            kwargs['facecolors'] = [p.get_facecolor() for p in patches]
-            kwargs['linewidths'] = [p.get_linewidth() for p in patches]
-            kwargs['linestyles'] = [p.get_linestyle() for p in patches]
-            kwargs['antialiaseds'] = [p.get_antialiased() for p in patches]
-            kwargs['hatch'] = [p.get_hatch() for p in patches]
+            kwargs['facecolors'] = tuple([p.get_facecolor() for p in patches])
+            kwargs['linewidths'] = tuple([p.get_linewidth() for p in patches])
+            kwargs['linestyles'] = tuple([p.get_linestyle() for p in patches])
+            kwargs['antialiaseds'] = tuple([p.get_antialiased() for p in patches])
+            kwargs['hatch'] = tuple([p.get_hatch() for p in patches])
 
             # Edgecolors are handled separately because are defaulted to None
             # and the Hatch colors depend on them.
             if all(p._original_edgecolor is not None for p in patches):
-                kwargs["edgecolors"] = [p.get_edgecolor() for p in patches]
+                kwargs["edgecolors"] = tuple([p.get_edgecolor() for p in patches])
 
         super().__init__(**kwargs)
 
