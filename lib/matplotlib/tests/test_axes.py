@@ -30,6 +30,7 @@ import matplotlib.path as mpath
 from matplotlib.projections.geo import HammerAxes
 from matplotlib.projections.polar import PolarAxes
 import matplotlib.pyplot as plt
+import matplotlib.scale as mscale
 import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
@@ -1078,6 +1079,63 @@ def test_hexbin_mincnt_behavior_upon_C_parameter(fig_test, fig_ref):
         gridsize=gridsize,
     )
     ax_test.set_facecolor("green")
+
+
+@image_comparison(['hexbin_symlog.png'], style='mpl20')
+def test_hexbin_symlog():
+    np.random.seed(19680801)
+    base = 4
+    linthresh = base**0
+    linscale = 1
+    symlog_transform_1 = mscale.SymmetricalLogTransform(10, 2, 1).inverted()
+    symlog_transform_2 = mscale.SymmetricalLogTransform(base, linthresh,
+                                                        linscale).inverted()
+
+    n = 100000
+    x = np.random.standard_normal(n)
+    y = x * (2*np.random.randint(2, size=n) - 1)
+    x_1 = symlog_transform_1.transform_non_affine(x)
+    x_2 = symlog_transform_2.transform_non_affine(x)
+    y_1 = symlog_transform_1.transform_non_affine(y)
+    y_2 = symlog_transform_2.transform_non_affine(y)
+
+    fig, ax = plt.subplots(2, 2)
+
+    h = ax[0, 0].hexbin(
+        x_1, y_1,
+        xscale='symlog',
+        yscale='symlog',
+        bins='log', marginals=True, reduce_C_function=np.sum
+    )
+    plt.colorbar(h)
+
+    h = ax[0, 1].hexbin(
+        x_1, y_2,
+        xscale='symlog',
+        yscale=('symlog',
+                {'base': base, 'linthresh': linthresh, 'linscale': linscale}),
+        bins='log', marginals=True, reduce_C_function=np.sum
+    )
+    plt.colorbar(h)
+
+    h = ax[1, 0].hexbin(
+        x_2, y_1,
+        xscale=('symlog',
+                {'base': base, 'linthresh': linthresh, 'linscale': linscale}),
+        yscale='symlog',
+        bins='log', marginals=True, reduce_C_function=np.sum
+    )
+    plt.colorbar(h)
+
+    h = ax[1, 1].hexbin(
+        x_2, y_2,
+        xscale=('symlog',
+                {'base': base, 'linthresh': linthresh, 'linscale': linscale}),
+        yscale=('symlog',
+                {'base': base, 'linthresh': linthresh, 'linscale': linscale}),
+        bins='log', marginals=True, reduce_C_function=np.sum
+    )
+    plt.colorbar(h)
 
 
 def test_inverted_limits():

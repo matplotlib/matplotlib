@@ -23,6 +23,7 @@ import matplotlib.mlab as mlab
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.quiver as mquiver
+import matplotlib.scale as mscale
 import matplotlib.stackplot as mstack
 import matplotlib.streamplot as mstream
 import matplotlib.table as mtable
@@ -4997,11 +4998,14 @@ class Axes(_AxesBase):
             - If a sequence of values, the values of the lower bound of
               the bins to be used.
 
-        xscale : {'linear', 'log'}, default: 'linear'
-            Use a linear or log10 scale on the horizontal axis.
+        xscale, yscale : {'linear', 'log', 'symlog'}, default: 'linear'
+            The scale used for the horizontal / vertical axis.
 
-        yscale : {'linear', 'log'}, default: 'linear'
-            Use a linear or log10 scale on the vertical axis.
+            'symlog' creates a `.SymmetricalLogScale`, which has optional
+            parameters. If you want to modify them, pass a tuple
+            ``('symlog', params_dict)`` instead of the plain string 'symlog';
+            e.g.
+            ``hexbin(..., xscale=('symlog', {'base': 2, 'linthresh': 3}))``.
 
         mincnt : int >= 0, default: *None*
             If not *None*, only display cells with at least *mincnt*
@@ -5106,6 +5110,16 @@ class Axes(_AxesBase):
         tx = x
         ty = y
 
+        xscale_kwargs = {'base': 10, 'linthresh': 2, 'linscale': 1}
+        if isinstance(xscale, tuple):
+            xscale, xscale_kwargs_ = xscale
+            xscale_kwargs.update(xscale_kwargs_)
+
+        yscale_kwargs = {'base': 10, 'linthresh': 2, 'linscale': 1}
+        if isinstance(yscale, tuple):
+            yscale, yscale_kwargs_ = yscale
+            yscale_kwargs.update(yscale_kwargs_)
+
         if xscale == 'log':
             if np.any(x <= 0.0):
                 raise ValueError(
@@ -5116,6 +5130,20 @@ class Axes(_AxesBase):
                 raise ValueError(
                     "y contains non-positive values, so cannot be log-scaled")
             ty = np.log10(ty)
+
+        if xscale == 'symlog' or yscale == 'symlog':
+            symlog_transform = {
+                'x': mscale.SymmetricalLogTransform(**xscale_kwargs),
+                'y': mscale.SymmetricalLogTransform(**yscale_kwargs)
+            }
+            inv_symlog_trafo = {
+                'x': symlog_transform['x'].inverted(),
+                'y': symlog_transform['y'].inverted()
+            }
+        if xscale == 'symlog':
+            tx = symlog_transform['x'].transform_non_affine(tx)
+        if yscale == 'symlog':
+            ty = symlog_transform['y'].transform_non_affine(ty)
         if extent is not None:
             xmin, xmax, ymin, ymax = extent
             if xmin > xmax:
@@ -5205,7 +5233,7 @@ class Axes(_AxesBase):
         if linewidths is None:
             linewidths = [mpl.rcParams['patch.linewidth']]
 
-        if xscale == 'log' or yscale == 'log':
+        if xscale in ['log', 'symlog'] or yscale in ['log', 'symlog']:
             polygons = np.expand_dims(polygon, 0) + np.expand_dims(offsets, 1)
             if xscale == 'log':
                 polygons[:, :, 0] = 10.0 ** polygons[:, :, 0]
@@ -5217,11 +5245,29 @@ class Axes(_AxesBase):
                 ymin = 10.0 ** ymin
                 ymax = 10.0 ** ymax
                 self.set_yscale(yscale)
+
+            if xscale == 'symlog':
+                polygons[:, :, 0] = inv_symlog_trafo['x'].transform_non_affine(
+                    polygons[:, :, 0]
+                )
+                xmin, xmax = inv_symlog_trafo['x'].transform_non_affine(
+                    np.array([xmin, xmax])
+                )
+                self.set_xscale(xscale, **xscale_kwargs)
+            if yscale == 'symlog':
+                polygons[:, :, 1] = inv_symlog_trafo['y'].transform_non_affine(
+                    polygons[:, :, 1]
+                )
+                ymin, ymax = inv_symlog_trafo['y'].transform_non_affine(
+                    np.array([ymin, ymax])
+                )
+                self.set_yscale(yscale, **yscale_kwargs)
+
             collection = mcoll.PolyCollection(
                 polygons,
                 edgecolors=edgecolors,
                 linewidths=linewidths,
-                )
+            )
         else:
             collection = mcoll.PolyCollection(
                 [polygon],
@@ -5280,6 +5326,13 @@ class Axes(_AxesBase):
 
             if zscale == "log":
                 bin_edges = np.geomspace(zmin, zmax, nbins + 1)
+            elif zscale == "symlog":
+                zmin, zmax = symlog_transform[zname].transform_non_affine(
+                    np.array([zmin, zmax])
+                )
+                bin_edges = np.linspace(zmin, zmax, nbins + 1)
+                bin_edges = inv_symlog_trafo[zname].transform_non_affine(bin_edges)
+
             else:
                 bin_edges = np.linspace(zmin, zmax, nbins + 1)
 
