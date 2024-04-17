@@ -5028,7 +5028,7 @@ class Axes(_AxesBase):
             A `.PolyCollection` defining the hexagonal bins.
 
             - `.PolyCollection.get_offsets` contains a Mx2 array containing
-              the x, y positions of the M hexagon centers.
+              the x, y positions of the M hexagon centers in data coordinates.
             - `.PolyCollection.get_array` contains the values of the M
               hexagons.
 
@@ -5206,7 +5206,7 @@ class Axes(_AxesBase):
             linewidths = [mpl.rcParams['patch.linewidth']]
 
         if xscale == 'log' or yscale == 'log':
-            polygons = np.expand_dims(polygon, 0) + np.expand_dims(offsets, 1)
+            polygons = np.expand_dims(polygon, 0)
             if xscale == 'log':
                 polygons[:, :, 0] = 10.0 ** polygons[:, :, 0]
                 xmin = 10.0 ** xmin
@@ -5217,20 +5217,16 @@ class Axes(_AxesBase):
                 ymin = 10.0 ** ymin
                 ymax = 10.0 ** ymax
                 self.set_yscale(yscale)
-            collection = mcoll.PolyCollection(
-                polygons,
-                edgecolors=edgecolors,
-                linewidths=linewidths,
-                )
         else:
-            collection = mcoll.PolyCollection(
-                [polygon],
-                edgecolors=edgecolors,
-                linewidths=linewidths,
-                offsets=offsets,
-                offset_transform=mtransforms.AffineDeltaTransform(
-                    self.transData),
-            )
+            polygons = [polygon]
+
+        collection = mcoll.PolyCollection(
+            polygons,
+            edgecolors=edgecolors,
+            linewidths=linewidths,
+            offsets=offsets,
+            offset_transform=mtransforms.AffineDeltaTransform(self.transData)
+        )
 
         # Set normalizer if bins is 'log'
         if cbook._str_equal(bins, 'log'):
