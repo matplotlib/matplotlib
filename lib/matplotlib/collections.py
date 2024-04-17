@@ -171,6 +171,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # Flags set by _set_mappable_flags: are colors from mapping an array?
         self._face_is_mapped = None
         self._edge_is_mapped = None
+        self._match_original = False
         self._mapped_colors = None  # calculated in update_scalarmappable
         self._hatch_color = mcolors.to_rgba(mpl.rcParams['hatch.color'])
         self.set_facecolor(facecolors)
@@ -1884,7 +1885,6 @@ class PatchCollection(Collection):
         a call to `~.ScalarMappable.set_array`), at draw time a call to scalar
         mappable will be made to set the face colors.
         """
-        self._match_original = False
 
         if match_original:
             self._match_original = True
