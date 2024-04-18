@@ -152,10 +152,6 @@ be configured in the preamble.
 Troubleshooting
 ===============
 
-* Please note that the TeX packages found in some Linux distributions and
-  MiKTeX installations are dramatically outdated. Make sure to update your
-  package catalog and upgrade or install a recent TeX distribution.
-
 * On Windows, the :envvar:`PATH` environment variable may need to be modified
   to include the directories containing the latex, dvipng and ghostscript
   executables. See :ref:`environment-variables` and
@@ -175,7 +171,7 @@ Troubleshooting
 
 * Configuring an ``unicode-math`` environment can be a bit tricky. The
   TeXLive distribution for example provides a set of math fonts which are
-  usually not installed system-wide. XeTeX, unlike LuaLatex, cannot find
+  usually not installed system-wide. XeLaTeX, unlike LuaLaTeX, cannot find
   these fonts by their name, which is why you might have to specify
   ``\setmathfont{xits-math.otf}`` instead of ``\setmathfont{XITS Math}`` or
   alternatively make the fonts available to your OS. See this
