@@ -1233,6 +1233,8 @@ class _AxesBase(martist.Artist):
         x0, x1 = other.get_xlim()
         self.set_xlim(x0, x1, emit=False, auto=other.get_autoscalex_on())
         self.xaxis._scale = other.xaxis._scale
+        other._shared_axes["x"].join(other, self)
+        other._sharex = self
 
     def sharey(self, other):
         """
@@ -1252,6 +1254,8 @@ class _AxesBase(martist.Artist):
         y0, y1 = other.get_ylim()
         self.set_ylim(y0, y1, emit=False, auto=other.get_autoscaley_on())
         self.yaxis._scale = other.yaxis._scale
+        other._shared_axes["y"].join(other, self)
+        other._sharey = self
 
     def __clear(self):
         """Clear the Axes."""
@@ -1370,6 +1374,7 @@ class _AxesBase(martist.Artist):
             share = getattr(self, f"_share{name}")
             if share is not None:
                 getattr(self, f"share{name}")(share)
+                axis.set_inverted(False)
             else:
                 # Although the scale was set to linear as part of clear,
                 # polar requires that _set_scale is called again
