@@ -105,7 +105,7 @@ list_all = [
 explicit_subsection_order = [item + ".py" for item in list_all]
 
 
-class MplExplicitSubOrder:
+class MplExplicitSubOrder(ExplicitOrder):
     """For use within the 'within_subsection_order' key."""
     def __init__(self, src_dir):
         self.src_dir = src_dir  # src_dir is unused here
@@ -118,6 +118,9 @@ class MplExplicitSubOrder:
         else:
             # ensure not explicitly listed items come last.
             return "zzz" + item
+
+# from sphinx.confing import is_serializable
+# assert is_serializable(MplExplicitSubOrder)
 
 
 # Provide the above classes for use in conf.py

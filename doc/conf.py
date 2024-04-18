@@ -228,22 +228,6 @@ intersphinx_mapping = {
 }
 
 
-# Sphinx gallery configuration
-
-def matplotlib_reduced_latex_scraper(block, block_vars, gallery_conf,
-                                     **kwargs):
-    """
-    Reduce srcset when creating a PDF.
-
-    Because sphinx-gallery runs *very* early, we cannot modify this even in the
-    earliest builder-inited signal. Thus we do it at scraping time.
-    """
-    from sphinx_gallery.scrapers import matplotlib_scraper
-
-    if gallery_conf['builder_name'] == 'latex':
-        gallery_conf['image_srcset'] = []
-    return matplotlib_scraper(block, block_vars, gallery_conf, **kwargs)
-
 gallery_dirs = [f'{ed}' for ed in
                 ['gallery', 'tutorials', 'plot_types', 'users/explain']
                 if f'{ed}/*' not in skip_subdirs]
@@ -261,7 +245,7 @@ sphinx_gallery_conf = {
     'examples_dirs': example_dirs,
     'filename_pattern': '^((?!sgskip).)*$',
     'gallery_dirs': gallery_dirs,
-    'image_scrapers': (matplotlib_reduced_latex_scraper, ),
+    'image_scrapers': ("sphinxext.util.matplotlib_reduced_latex_scraper", ),
     'image_srcset': ["2x"],
     'junit': '../test-results/sphinx-gallery/junit.xml' if CIRCLECI else '',
     'matplotlib_animations': True,
@@ -272,11 +256,11 @@ sphinx_gallery_conf = {
     'reset_modules': (
         'matplotlib',
         # clear basic_units module to re-register with unit registry on import
-        lambda gallery_conf, fname: sys.modules.pop('basic_units', None)
+        "sphinxext.util.clear_basic_unit"
     ),
-    'subsection_order': gallery_order.sectionorder,
+    'subsection_order': "sphinxext.gallery_order.sectionorder",
     'thumbnail_size': (320, 224),
-    'within_subsection_order': gallery_order.subsectionorder,
+    'within_subsection_order': "sphinxext.gallery_order.subsectionorder",
     'capture_repr': (),
     'copyfile_regex': r'.*\.rst',
 }
