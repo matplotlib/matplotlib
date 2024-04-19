@@ -1289,7 +1289,8 @@ class Transform(TransformNode):
     actually perform a transformation.
 
     All non-affine transformations should be subclasses of this class.
-    New affine transformations should be subclasses of `Affine2D`.
+    New affine transformations should be subclasses of `Affine2D` or
+    `Affine3D`.
 
     Subclasses of this class should override the following members (at
     minimum):
@@ -1510,7 +1511,7 @@ class Transform(TransformNode):
             return res[0, 0]
         if ndim == 1:
             return res.reshape(-1)
-        elif ndim == 2:
+        elif ndim == 2 or ndim == 3:
             return res
         raise ValueError(
             "Input values must have shape (N, {dims}) or ({dims},)"
@@ -1839,8 +1840,8 @@ class AffineImmutable(AffineBase):
         b d f
         0 0 1
 
-    This class provides the read-only interface.  For a mutable 2D
-    affine transformation, use `Affine2D`.
+    This class provides the read-only interface.  For a mutable
+    affine transformation, use `Affine2D` or `Affine3D`.
 
     Subclasses of this class will generally only need to override a
     constructor and `~.Transform.get_matrix` that generates a custom matrix
@@ -1920,6 +1921,8 @@ class Affine2DBase(AffineImmutable):
 def _affine_factory(mtx, dims, *args, **kwargs):
     if dims == 2:
         return Affine2D(mtx, *args, **kwargs)
+    elif dims == 3:
+        return Affine3D(mtx, *args, **kwargs)
     else:
         return NotImplemented
 
@@ -2145,6 +2148,298 @@ class Affine2D(AffineImmutable):
         and :meth:`scale`.
         """
         return self.skew(math.radians(xShear), math.radians(yShear))
+
+
+class Affine3D(AffineImmutable):
+    """
+    A mutable 3D affine transformation.
+    """
+
+    def __init__(self, matrix=None, **kwargs):
+        """
+        Initialize an Affine transform from a 4x4 numpy float array::
+
+          a d g j
+          b e h k
+          c f i l
+          0 0 0 1
+
+        If *matrix* is None, initialize with the identity transform.
+        """
+        super().__init__(dims=3, **kwargs)
+        if matrix is None:
+            matrix = np.identity(4)
+        self._mtx = matrix.copy()
+        self._invalid = 0
+
+    _base_str = _make_str_method("_mtx")
+
+    def __str__(self):
+        return (self._base_str()
+                if (self._mtx != np.diag(np.diag(self._mtx))).any()
+                else f"Affine3D().scale("
+                     f"{self._mtx[0, 0]}, "
+                     f"{self._mtx[1, 1]}, "
+                     f"{self._mtx[2, 2]})"
+                if self._mtx[0, 0] != self._mtx[1, 1] or
+                    self._mtx[0, 0] != self._mtx[2, 2]
+                else f"Affine3D().scale({self._mtx[0, 0]})")
+
+    @staticmethod
+    def from_values(a, b, c, d, e, f, g, h, i, j, k, l):
+        """
+        Create a new Affine2D instance from the given values::
+
+          a d g j
+          b e h k
+          c f i l
+          0 0 0 1
+
+        .
+        """
+        return Affine3D(np.array([
+            a, d, g, j,
+            b, e, h, k,
+            c, f, i, l,
+            0.0, 0.0, 0.0, 1.0
+        ], float).reshape((4, 4)))
+
+    def get_matrix(self):
+        """
+        Get the underlying transformation matrix as a 4x4 array::
+
+          a d g j
+          b e h k
+          c f i l
+          0 0 0 1
+
+        .
+        """
+        if self._invalid:
+            self._inverted = None
+            self._invalid = 0
+        return self._mtx
+
+    def set_matrix(self, mtx):
+        """
+        Set the underlying transformation matrix from a 4x4 array::
+
+          a d g j
+          b e h k
+          c f i l
+          0 0 0 1
+
+        .
+        """
+        self._mtx = mtx
+        self.invalidate()
+
+    def set(self, other):
+        """
+        Set this transformation from the frozen copy of another
+        `AffineImmutable` object with input and output dimension of 3.
+        """
+        _api.check_isinstance(AffineImmutable, other=other)
+        if (other.input_dims != 3):
+            raise TypeError("Mismatch between dimensions of AffineImmutable"
+                            "and Affine3D")
+        self._mtx = other.get_matrix()
+        self.invalidate()
+
+    def clear(self):
+        """
+        Reset the underlying matrix to the identity transform.
+        """
+        self._mtx = np.identity(4)
+        self.invalidate()
+        return self
+
+    def rotate(self, theta, dim=0):
+        """
+        Add a rotation (in radians) to this transform in place, along
+        the dimension denoted by *dim*.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        if dim == 0:
+            return self.rotate_around_vector([1, 0, 0], theta)
+        elif dim == 1:
+            return self.rotate_around_vector([0, 1, 0], theta)
+        elif dim == 2:
+            return self.rotate_around_vector([0, 0, 1], theta)
+
+        self.invalidate()
+        return self
+
+    def rotate_deg(self, degrees, dim=0):
+        """
+        Add a rotation (in degrees) to this transform in place, along
+        the dimension denoted by *dim*.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        return self.rotate(math.radians(degrees), dim)
+
+    def rotate_around(self, x, y, z, theta, dim=0):
+        """
+        Add a rotation (in radians) around the point (x, y, z) in place,
+        along the dimension denoted by *dim*.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        return self.translate(-x, -y, -z).rotate(theta, dim).translate(x, y, z)
+
+    def rotate_deg_around(self, x, y, z, degrees, dim=0):
+        """
+        Add a rotation (in degrees) around the point (x, y, z) in place,
+        along the dimension denoted by *dim*.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        # Cast to float to avoid wraparound issues with uint8's
+        x, y = float(x), float(y)
+        return self.translate(-x, -y, -z).rotate_deg(degrees, dim).translate(x, y, z)
+
+    def rotate_around_vector(self, vector, theta):
+        """
+        Add a rotation (in radians) around the vector (vx, vy, vz) in place.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        vx, vy, vz = vector / np.linalg.norm(vector)
+        s = np.sin(theta)
+        c = np.cos(theta)
+        t = 2*np.sin(theta/2)**2  # more numerically stable than t = 1-c
+        rot = [[t*vx*vx + c,    t*vx*vy - vz*s, t*vx*vz + vy*s, 0],
+               [t*vy*vx + vz*s, t*vy*vy + c,    t*vy*vz - vx*s, 0],
+               [t*vz*vx - vy*s, t*vz*vy + vx*s, t*vz*vz + c, 0],
+               [0, 0, 0, 1]]
+        np.matmul(rot, self._mtx, out=self._mtx)
+        return self
+
+    def rotate_deg_around_vector(self, vector, degrees):
+        """
+        Add a rotation (in radians) around the vector (vx, vy, vz) in place.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        return self.rotate_around_vector(vector, math.radians(degrees))
+
+    def translate(self, tx, ty, tz):
+        """
+        Add a translation in place.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        self._mtx[0, 3] += tx
+        self._mtx[1, 3] += ty
+        self._mtx[2, 3] += tz
+        self.invalidate()
+        return self
+
+    def scale(self, sx, sy=None, sz=None):
+        """
+        Add a scale in place.
+
+        If a scale is not provided in the *y* or *z* directions, *sx*
+        will be applied for that direction.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        if sy is None:
+            sy = sx
+
+        if sz is None:
+            sz = sx
+        # explicit element-wise scaling is fastest
+        self._mtx[0, 0] *= sx
+        self._mtx[0, 1] *= sx
+        self._mtx[0, 2] *= sx
+        self._mtx[0, 3] *= sx
+        self._mtx[1, 0] *= sy
+        self._mtx[1, 1] *= sy
+        self._mtx[1, 2] *= sy
+        self._mtx[1, 3] *= sy
+        self._mtx[2, 0] *= sz
+        self._mtx[2, 1] *= sz
+        self._mtx[2, 2] *= sz
+        self._mtx[2, 3] *= sz
+
+        self.invalidate()
+        return self
+
+    def skew(self, xyShear, xzShear, yxShear, yzShear, zxShear, zyShear):
+        """
+        Add a skew in place along for each plane in the 3rd dimension.
+
+        For example *zxShear* is the shear angle along the *zx* plane,
+        in radians.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        rxy = math.tan(xyShear)
+        rxz = math.tan(xzShear)
+        ryx = math.tan(yxShear)
+        ryz = math.tan(yzShear)
+        rzx = math.tan(zxShear)
+        rzy = math.tan(zyShear)
+        mtx = self._mtx
+        # Operating and assigning one scalar at a time is much faster.
+        (xx, xy, xz, x0), (yx, yy, yz, y0), (zx, zy, zz, z0), _ = mtx.tolist()
+        # mtx = [[1 rx 0], [ry 1 0], [0 0 1]] * mtx
+
+        mtx[0, 0] += (rxy * yx) + (rxz * zx)
+        mtx[0, 1] += (rxy * yy) + (rxz * zy)
+        mtx[0, 2] += (rxy * yz) + (rxz * zz)
+        mtx[0, 3] += (rxy * y0) + (rxz * z0)
+        mtx[1, 0] = (ryx * xx) + yx + (ryz * zx)
+        mtx[1, 1] = (ryx * xy) + yy + (ryz * zy)
+        mtx[1, 2] = (ryx * xz) + yz + (ryz * zz)
+        mtx[1, 3] = (ryx * x0) + y0 + (ryz * z0)
+        mtx[2, 0] = (rzx * xx) + (rzy * yx) + zx
+        mtx[2, 1] = (rzx * xy) + (rzy * yy) + zy
+        mtx[2, 2] = (rzx * xz) + (rzy * yz) + zz
+        mtx[2, 3] = (rzx * x0) + (rzy * y0) + z0
+
+        self.invalidate()
+        return self
+
+    def skew_deg(self, xyShear, xzShear, yxShear, yzShear, zxShear, zyShear):
+        """
+        Add a skew in place along for each plane in the 3rd dimension.
+
+        For example *zxShear* is the shear angle along the *zx* plane,
+        in radians.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        return self.skew(
+            math.radians(xyShear),
+            math.radians(xzShear),
+            math.radians(yxShear),
+            math.radians(yzShear),
+            math.radians(zxShear),
+            math.radians(zyShear))
 
 
 class IdentityTransform(AffineImmutable):
@@ -2594,6 +2889,8 @@ def composite_transform_factory(a, b):
     elif isinstance(b, IdentityTransform):
         return a
     elif isinstance(a, Affine2D) and isinstance(b, Affine2D):
+        return CompositeAffine(a, b)
+    elif isinstance(a, Affine3D) and isinstance(b, Affine3D):
         return CompositeAffine(a, b)
     return CompositeGenericTransform(a, b)
 
