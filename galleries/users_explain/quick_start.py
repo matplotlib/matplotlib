@@ -503,7 +503,7 @@ ax4.set_xlabel('Angle [°]')
 # Color mapped data
 # =================
 #
-# Often we want to have a third dimension in a plot represented by a colors in
+# Often we want to have a third dimension in a plot represented by colors in
 # a colormap. Matplotlib has a number of plot types that do this:
 
 X, Y = np.meshgrid(np.linspace(-3, 3, 128), np.linspace(-3, 3, 128))
