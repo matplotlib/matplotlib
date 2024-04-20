@@ -4143,6 +4143,7 @@ def violinplot(
     dataset: ArrayLike | Sequence[ArrayLike],
     positions: ArrayLike | None = None,
     vert: bool | None = None,
+    orientation: Literal["vertical", "horizontal"] = "vertical",
     widths: float | ArrayLike = 0.5,
     showmeans: bool = False,
     showextrema: bool = True,
@@ -4154,7 +4155,6 @@ def violinplot(
     | Callable[[GaussianKDE], float]
     | None = None,
     side: Literal["both", "low", "high"] = "both",
-    orientation: Literal["vertical", "horizontal"] | None = None,
     *,
     data=None,
 ) -> dict[str, Collection]:
@@ -4162,6 +4162,7 @@ def violinplot(
         dataset,
         positions=positions,
         vert=vert,
+        orientation=orientation,
         widths=widths,
         showmeans=showmeans,
         showextrema=showextrema,
@@ -4170,7 +4171,6 @@ def violinplot(
         points=points,
         bw_method=bw_method,
         side=side,
-        orientation=orientation,
         **({"data": data} if data is not None else {}),
     )
 
