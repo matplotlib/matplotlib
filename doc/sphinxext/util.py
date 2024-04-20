@@ -1,6 +1,6 @@
 import sys
 
-# Sphinx gallery configuration
+
 def matplotlib_reduced_latex_scraper(block, block_vars, gallery_conf,
                                      **kwargs):
     """

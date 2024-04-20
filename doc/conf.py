@@ -180,7 +180,6 @@ _check_dependencies()
 # Import only after checking for dependencies.
 # gallery_order.py from the sphinxext folder provides the classes that
 # allow custom ordering of sections and subsections of the gallery
-import sphinxext.gallery_order as gallery_order
 
 # The following import is only necessary to monkey patch the signature later on
 from sphinx_gallery import gen_rst
