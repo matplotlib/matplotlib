@@ -119,9 +119,6 @@ class MplExplicitSubOrder(ExplicitOrder):
             # ensure not explicitly listed items come last.
             return "zzz" + item
 
-# from sphinx.confing import is_serializable
-# assert is_serializable(MplExplicitSubOrder)
-
 
 # Provide the above classes for use in conf.py
 sectionorder = MplExplicitOrder(explicit_order_folders)
