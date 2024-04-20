@@ -8371,7 +8371,7 @@ such objects
             The positions of the violins; i.e. coordinates on the x-axis for
             vertical violins (or y-axis for horizontal violins).
 
-        vert : bool, default: True.
+        vert : bool, optional
             .. deprecated:: 3.10
                 Use *orientation* instead.
 
@@ -8476,7 +8476,7 @@ such objects
 
     @_api.make_keyword_only("3.9", "vert")
     def violin(self, vpstats, positions=None, vert=None,
-               orientation=None, widths=0.5, showmeans=False,
+               orientation='vertical', widths=0.5, showmeans=False,
                showextrema=True, showmedians=False, side='both'):
         """
         Draw a violin plot from pre-computed statistics.
@@ -8515,7 +8515,7 @@ such objects
             The positions of the violins; i.e. coordinates on the x-axis for
             vertical violins (or y-axis for horizontal violins).
 
-        vert : bool, default: True.
+        vert : bool, optional
             .. deprecated:: 3.10
                 Use *orientation* instead.
 

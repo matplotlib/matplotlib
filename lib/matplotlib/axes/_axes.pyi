@@ -760,7 +760,7 @@ class Axes(_AxesBase):
         positions: ArrayLike | None = ...,
         *,
         vert: bool | None = ...,
-        orientation: Literal["vertical", "horizontal"] | None = ...,
+        orientation: Literal["vertical", "horizontal"] = ...,
         widths: float | ArrayLike = ...,
         showmeans: bool = ...,
         showextrema: bool = ...,
