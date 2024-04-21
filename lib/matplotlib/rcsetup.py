@@ -627,7 +627,7 @@ def validate_hatch(s):
         if not isinstance(s, str):
             raise ValueError("Hatch pattern must be a string")
         _api.check_isinstance(str, hatch_pattern=s)
-        unknown = set(s) - {'\\', '/', '|', '-', '+', '*', '.', 'x', 'o', 'O'}
+        unknown = set(s) - {'\\', '/', '|', '-', '+', '*', '.', 'x', 'X', 'o', 'O'}
         if unknown:
             raise ValueError("Unknown hatch symbol(s): %s" % list(unknown))
         return s
