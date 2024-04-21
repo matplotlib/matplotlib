@@ -1,0 +1,5 @@
+``Affine2DBase``, ``BlendedAffine2D`` and ``CompositeAffine2D``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+...are deprecated and replaced with ``AffineImmutable``, ``BlendedAffine``, and
+``CompositeAffine`` respectively.
