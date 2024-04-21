@@ -205,6 +205,14 @@ def test_imsave(fmt):
     assert_array_equal(arr_dpi1, arr_dpi100)
 
 
+@pytest.mark.parametrize("origin", ["upper", "lower"])
+def test_imsave_rgba_origin(origin):
+    # test that imsave always passes c-contiguous arrays down to pillow
+    buf = io.BytesIO()
+    result = np.zeros((10, 10, 4), dtype='uint8')
+    mimage.imsave(buf, arr=result, format="png", origin=origin)
+
+
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
 def test_imsave_fspath(fmt):
     plt.imsave(Path(os.devnull), np.array([[0, 1]]), format=fmt)
@@ -1404,6 +1412,27 @@ def test_nonuniform_and_pcolor():
         ax.set_axis_off()
         # NonUniformImage "leaks" out of extents, not PColorImage.
         ax.set(xlim=(0, 10))
+
+
+@image_comparison(["nonuniform_logscale.png"], style="mpl20")
+def test_nonuniform_logscale():
+    _, axs = plt.subplots(ncols=3, nrows=1)
+
+    for i in range(3):
+        ax = axs[i]
+        im = NonUniformImage(ax)
+        im.set_data(np.arange(1, 4) ** 2, np.arange(1, 4) ** 2,
+                    np.arange(9).reshape((3, 3)))
+        ax.set_xlim(1, 16)
+        ax.set_ylim(1, 16)
+        ax.set_box_aspect(1)
+        if i == 1:
+            ax.set_xscale("log", base=2)
+            ax.set_yscale("log", base=2)
+        if i == 2:
+            ax.set_xscale("log", base=4)
+            ax.set_yscale("log", base=4)
+        ax.add_image(im)
 
 
 @image_comparison(

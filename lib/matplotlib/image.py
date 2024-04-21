@@ -1085,12 +1085,16 @@ class NonUniformImage(AxesImage):
                 B[:, :, 0:3] = A
                 B[:, :, 3] = 255
                 A = B
-        vl = self.axes.viewLim
         l, b, r, t = self.axes.bbox.extents
         width = int(((round(r) + 0.5) - (round(l) - 0.5)) * magnification)
         height = int(((round(t) + 0.5) - (round(b) - 0.5)) * magnification)
-        x_pix = np.linspace(vl.x0, vl.x1, width)
-        y_pix = np.linspace(vl.y0, vl.y1, height)
+
+        invertedTransform = self.axes.transData.inverted()
+        x_pix = invertedTransform.transform(
+            [(x, b) for x in np.linspace(l, r, width)])[:, 0]
+        y_pix = invertedTransform.transform(
+            [(l, y) for y in np.linspace(b, t, height)])[:, 1]
+
         if self._interpolation == "nearest":
             x_mid = (self._Ax[:-1] + self._Ax[1:]) / 2
             y_mid = (self._Ay[:-1] + self._Ay[1:]) / 2
@@ -1640,6 +1644,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             # we modify this below, so make a copy (don't modify caller's dict)
             pil_kwargs = pil_kwargs.copy()
         pil_shape = (rgba.shape[1], rgba.shape[0])
+        rgba = np.require(rgba, requirements='C')
         image = PIL.Image.frombuffer(
             "RGBA", pil_shape, rgba, "raw", "RGBA", 0, 1)
         if format == "png":
