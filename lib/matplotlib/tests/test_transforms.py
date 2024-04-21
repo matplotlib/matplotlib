@@ -850,7 +850,7 @@ CompositeGenericTransform(
     CompositeGenericTransform(
         CompositeGenericTransform(
             TransformWrapper(
-                BlendedAffine2D(
+                BlendedAffine(
                     IdentityTransform(),
                     IdentityTransform())),
             CompositeAffine2D(
@@ -864,7 +864,7 @@ CompositeGenericTransform(
         CompositeGenericTransform(
             PolarAffine(
                 TransformWrapper(
-                    BlendedAffine2D(
+                    BlendedAffine(
                         IdentityTransform(),
                         IdentityTransform())),
                 LockableBbox(

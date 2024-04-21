@@ -258,11 +258,9 @@ class _BlendedMixin:
     def contains_branch_seperately(self, transform: Transform) -> Sequence[bool]: ...
 
 class BlendedGenericTransform(_BlendedMixin, Transform):
-    input_dims: Literal[2]
-    output_dims: Literal[2]
     pass_through: bool
     def __init__(
-        self, x_transform: Transform, y_transform: Transform, **kwargs
+        self, *args: Transform, **kwargs
     ) -> None: ...
     @property
     def depth(self) -> int: ...
@@ -270,14 +268,15 @@ class BlendedGenericTransform(_BlendedMixin, Transform):
     @property
     def is_affine(self) -> bool: ...
 
-class BlendedAffine2D(_BlendedMixin, Affine2DBase):
-    def __init__(
-        self, x_transform: Transform, y_transform: Transform, **kwargs
-    ) -> None: ...
+class BlendedAffine(_BlendedMixin, AffineImmutable):
+    def __init__(self, *args: Transform, **kwargs) -> None: ...
+
+class BlendedAffine2D(BlendedAffine):
+    pass
 
 def blended_transform_factory(
-    x_transform: Transform, y_transform: Transform
-) -> BlendedGenericTransform | BlendedAffine2D: ...
+    *args: Transform
+) -> BlendedGenericTransform | BlendedAffine: ...
 
 class CompositeGenericTransform(Transform):
     pass_through: bool
