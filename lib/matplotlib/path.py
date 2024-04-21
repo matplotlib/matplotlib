@@ -1062,10 +1062,10 @@ def get_path_collection_extents(
     master_transform : `~matplotlib.transforms.Transform`
         Global transformation applied to all paths.
     paths : list of `Path`
-    transforms : list of `~matplotlib.transforms.Affine2DBase`
+    transforms : list of `~matplotlib.transforms.AffineImmutable`
         If non-empty, this overrides *master_transform*.
     offsets : (N, 2) array-like
-    offset_transform : `~matplotlib.transforms.Affine2DBase`
+    offset_transform : `~matplotlib.transforms.AffineImmutable`
         Transform applied to the offsets before offsetting the path.
 
     Notes

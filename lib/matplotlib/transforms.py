@@ -1,13 +1,13 @@
 """
 Matplotlib includes a framework for arbitrary geometric
-transformations that is used determine the final position of all
+transformations that is used to determine the final position of all
 elements drawn on the canvas.
 
 Transforms are composed into trees of `TransformNode` objects
-whose actual value depends on their children.  When the contents of
-children change, their parents are automatically invalidated.  The
+whose actual value depends on their children. When the contents of
+children change, their parents are automatically invalidated. The
 next time an invalidated transform is accessed, it is recomputed to
-reflect those changes.  This invalidation/caching approach prevents
+reflect those changes. This invalidation/caching approach prevents
 unnecessary recomputations of transforms, and contributes to better
 interactive performance.
 
@@ -1372,7 +1372,7 @@ class Transform(TransformNode):
         This is equivalent to flattening the stack then yielding
         ``flat_stack[:i], flat_stack[i:]`` where i=0..(n-1).
         """
-        yield IdentityTransform(), self
+        yield IdentityTransform(dims=self.input_dims), self
 
     @property
     def depth(self):
@@ -1578,7 +1578,7 @@ class Transform(TransformNode):
 
     def get_affine(self):
         """Get the affine part of this transform."""
-        return IdentityTransform()
+        return IdentityTransform(dims=self.input_dims)
 
     def get_matrix(self):
         """Get the matrix for the affine part of this transform."""
@@ -1607,6 +1607,8 @@ class Transform(TransformNode):
         In some cases, this transform may insert curves into the path
         that began as line segments.
         """
+        if self.input_dims != 2 or self.output_dims != 2:
+            raise NotImplementedError('Only defined in 2D')
         return self.transform_path_affine(self.transform_path_non_affine(path))
 
     def transform_path_affine(self, path):
@@ -1617,6 +1619,8 @@ class Transform(TransformNode):
         ``transform_path(path)`` is equivalent to
         ``transform_path_affine(transform_path_non_affine(values))``.
         """
+        if self.input_dims != 2 or self.output_dims != 2:
+            raise NotImplementedError('Only defined in 2D')
         return self.get_affine().transform_path_affine(path)
 
     def transform_path_non_affine(self, path):
@@ -1627,6 +1631,8 @@ class Transform(TransformNode):
         ``transform_path(path)`` is equivalent to
         ``transform_path_affine(transform_path_non_affine(values))``.
         """
+        if self.input_dims != 2 or self.output_dims != 2:
+            raise NotImplementedError('Only defined in 2D')
         x = self.transform_non_affine(path.vertices)
         return Path._fast_from_codes_and_verts(x, path.codes, path)
 
@@ -1821,11 +1827,13 @@ class AffineBase(Transform):
         return self
 
 
-class Affine2DBase(AffineBase):
+class AffineImmutable(AffineBase):
     """
-    The base class of all 2D affine transformations.
+    The base class of all affine transformations.
 
-    2D affine transformations are performed using a 3x3 numpy array::
+    Affine transformations for the n-th degree are performed using a
+    numpy array with shape (n+1, n+1). For example, 2D affine
+    transformations are performed using a 3x3 numpy array::
 
         a c e
         b d f
@@ -1835,34 +1843,46 @@ class Affine2DBase(AffineBase):
     affine transformation, use `Affine2D`.
 
     Subclasses of this class will generally only need to override a
-    constructor and `~.Transform.get_matrix` that generates a custom 3x3 matrix.
+    constructor and `~.Transform.get_matrix` that generates a custom matrix
+    with the appropriate shape.
     """
-    input_dims = 2
-    output_dims = 2
+    def __init__(self, *args, dims=2, **kwargs):
+        self.input_dims = dims
+        self.output_dims = dims
+        super().__init__(*args, **kwargs)
 
     def frozen(self):
         # docstring inherited
-        return Affine2D(self.get_matrix().copy())
+        return _affine_factory(self.get_matrix().copy(), self.input_dims)
 
     @property
     def is_separable(self):
         mtx = self.get_matrix()
-        return mtx[0, 1] == mtx[1, 0] == 0.0
+        separable = True
+        for i in range(self.input_dims):
+            for j in range(i+1, self.input_dims):
+                separable = separable and mtx[i, j] == 0.0
+                separable = separable and mtx[j, i] == 0.0
+        return separable
 
     def to_values(self):
         """
-        Return the values of the matrix as an ``(a, b, c, d, e, f)`` tuple.
+        Return the values of the matrix as a tuple.
         """
         mtx = self.get_matrix()
-        return tuple(mtx[:2].swapaxes(0, 1).flat)
+        return tuple(mtx[:self.input_dims].swapaxes(0, 1).flat)
 
     @_api.rename_parameter("3.8", "points", "values")
     def transform_affine(self, values):
         mtx = self.get_matrix()
+
+        # Default to python implementation if C implementation isn't available
+        transform_fn = (affine_transform if self.input_dims <= 2 else matrix_transform)
+
         if isinstance(values, np.ma.MaskedArray):
-            tpoints = affine_transform(values.data, mtx)
+            tpoints = transform_fn(values.data, mtx)
             return np.ma.MaskedArray(tpoints, mask=np.ma.getmask(values))
-        return affine_transform(values, mtx)
+        return transform_fn(values, mtx)
 
     if DEBUG:
         _transform_affine = transform_affine
@@ -1886,12 +1906,25 @@ class Affine2DBase(AffineBase):
             shorthand_name = None
             if self._shorthand_name:
                 shorthand_name = '(%s)-1' % self._shorthand_name
-            self._inverted = Affine2D(inv(mtx), shorthand_name=shorthand_name)
+            self._inverted = _affine_factory(inv(mtx), self.input_dims,
+                                             shorthand_name=shorthand_name)
             self._invalid = 0
         return self._inverted
 
 
-class Affine2D(Affine2DBase):
+@_api.deprecated("3.9", alternative="AffineImmutable")
+class Affine2DBase(AffineImmutable):
+    pass
+
+
+def _affine_factory(mtx, dims, *args, **kwargs):
+    if dims == 2:
+        return Affine2D(mtx, *args, **kwargs)
+    else:
+        return NotImplemented
+
+
+class Affine2D(AffineImmutable):
     """
     A mutable 2D affine transformation.
     """
@@ -1906,10 +1939,9 @@ class Affine2D(Affine2DBase):
 
         If *matrix* is None, initialize with the identity transform.
         """
-        super().__init__(**kwargs)
+        super().__init__(dims=2, **kwargs)
         if matrix is None:
-            # A bit faster than np.identity(3).
-            matrix = IdentityTransform._mtx
+            matrix = np.identity(3)
         self._mtx = matrix.copy()
         self._invalid = 0
 
@@ -1967,9 +1999,12 @@ class Affine2D(Affine2DBase):
     def set(self, other):
         """
         Set this transformation from the frozen copy of another
-        `Affine2DBase` object.
+        2D `AffineImmutable` object.
         """
-        _api.check_isinstance(Affine2DBase, other=other)
+        _api.check_isinstance(AffineImmutable, other=other)
+        if (other.input_dims != 2):
+            raise TypeError("Mismatch between dimensions of AffineImmutable "
+                            "and Affine2D")
         self._mtx = other.get_matrix()
         self.invalidate()
 
@@ -1977,8 +2012,7 @@ class Affine2D(Affine2DBase):
         """
         Reset the underlying matrix to the identity transform.
         """
-        # A bit faster than np.identity(3).
-        self._mtx = IdentityTransform._mtx.copy()
+        self._mtx = np.identity(3)
         self.invalidate()
         return self
 
@@ -2113,12 +2147,14 @@ class Affine2D(Affine2DBase):
         return self.skew(math.radians(xShear), math.radians(yShear))
 
 
-class IdentityTransform(Affine2DBase):
+class IdentityTransform(AffineImmutable):
     """
     A special class that does one thing, the identity transform, in a
     fast way.
     """
-    _mtx = np.identity(3)
+    def __init__(self, *args, **kwargs):
+        super().__init__(self, *args, **kwargs)
+        self._mtx = np.identity(self.input_dims + 1)
 
     def frozen(self):
         # docstring inherited
@@ -2532,7 +2568,7 @@ def composite_transform_factory(a, b):
     return CompositeGenericTransform(a, b)
 
 
-class BboxTransform(Affine2DBase):
+class BboxTransform(AffineImmutable):
     """
     `BboxTransform` linearly transforms points from one `Bbox` to another.
     """
@@ -2546,7 +2582,7 @@ class BboxTransform(Affine2DBase):
         """
         _api.check_isinstance(BboxBase, boxin=boxin, boxout=boxout)
 
-        super().__init__(**kwargs)
+        super().__init__(dims=2, **kwargs)
         self._boxin = boxin
         self._boxout = boxout
         self.set_children(boxin, boxout)
@@ -2574,7 +2610,7 @@ class BboxTransform(Affine2DBase):
         return self._mtx
 
 
-class BboxTransformTo(Affine2DBase):
+class BboxTransformTo(AffineImmutable):
     """
     `BboxTransformTo` is a transformation that linearly transforms points from
     the unit bounding box to a given `Bbox`.
@@ -2589,7 +2625,7 @@ class BboxTransformTo(Affine2DBase):
         """
         _api.check_isinstance(BboxBase, boxout=boxout)
 
-        super().__init__(**kwargs)
+        super().__init__(dims=2, **kwargs)
         self._boxout = boxout
         self.set_children(boxout)
         self._mtx = None
@@ -2633,7 +2669,7 @@ class BboxTransformToMaxOnly(BboxTransformTo):
         return self._mtx
 
 
-class BboxTransformFrom(Affine2DBase):
+class BboxTransformFrom(AffineImmutable):
     """
     `BboxTransformFrom` linearly transforms points from a given `Bbox` to the
     unit bounding box.
@@ -2643,7 +2679,7 @@ class BboxTransformFrom(Affine2DBase):
     def __init__(self, boxin, **kwargs):
         _api.check_isinstance(BboxBase, boxin=boxin)
 
-        super().__init__(**kwargs)
+        super().__init__(dims=2, **kwargs)
         self._boxin = boxin
         self.set_children(boxin)
         self._mtx = None
@@ -2668,13 +2704,13 @@ class BboxTransformFrom(Affine2DBase):
         return self._mtx
 
 
-class ScaledTranslation(Affine2DBase):
+class ScaledTranslation(AffineImmutable):
     """
     A transformation that translates by *xt* and *yt*, after *xt* and *yt*
     have been transformed by *scale_trans*.
     """
     def __init__(self, xt, yt, scale_trans, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(dims=2, **kwargs)
         self._t = (xt, yt)
         self._scale_trans = scale_trans
         self.set_children(scale_trans)
@@ -2686,15 +2722,14 @@ class ScaledTranslation(Affine2DBase):
     def get_matrix(self):
         # docstring inherited
         if self._invalid:
-            # A bit faster than np.identity(3).
-            self._mtx = IdentityTransform._mtx.copy()
+            self._mtx = np.identity(3)
             self._mtx[:2, 2] = self._scale_trans.transform(self._t)
             self._invalid = 0
             self._inverted = None
         return self._mtx
 
 
-class AffineDeltaTransform(Affine2DBase):
+class AffineDeltaTransform(AffineImmutable):
     r"""
     A transform wrapper for transforming displacements between pairs of points.
 
@@ -2712,7 +2747,7 @@ class AffineDeltaTransform(Affine2DBase):
     """
 
     def __init__(self, transform, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(dims=2, **kwargs)
         self._base_transform = transform
 
     __str__ = _make_str_method("_base_transform")
@@ -2744,6 +2779,8 @@ class TransformedPath(TransformNode):
         transform : `Transform`
         """
         _api.check_isinstance(Transform, transform=transform)
+        if transform.input_dims != 2:
+            raise TypeError("Mismatch between input dimensions of transform and path")
         super().__init__()
         self._path = path
         self._transform = transform
@@ -2981,3 +3018,37 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
         y /= 72.0
     # Default units are 'inches'
     return trans + ScaledTranslation(x, y, fig.dpi_scale_trans)
+
+
+def matrix_transform(vertices, mtx):
+    """
+    Transforms a vertex or set of vertices with a matrix mtx of
+    one dimension higher.
+
+    Parameters
+    ----------
+    vertices : n-element array or (m, n) array, with m vertices
+    mtx      : (n+1, n+1) matrix
+    """
+    values = np.asanyarray(vertices)
+    _, input_dims = mtx.shape
+    input_dims = input_dims - 1
+
+    if (len(values.shape) == 1):
+        # single point
+        if (values.shape == (input_dims,)):
+            point = mtx.dot(np.append(values, [1]))
+            point = point/point[-1]
+            return point[:input_dims]
+        raise RuntimeError("Invalid vertices provided to transform")
+
+    # multiple points
+    if (len(values.shape) == 2 and values.shape[1] == input_dims):
+        points = np.hstack((values, np.ones((values.shape[0], 1))))
+        points = np.dot(mtx, points.T).T
+        last_coords = points[:, -1]
+        points = points / last_coords[:, np.newaxis]
+        return points[:, :-1]
+
+    raise ValueError("Dimensions of input must match the input dimensions of "
+                     "the transform")
