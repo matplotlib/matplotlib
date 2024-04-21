@@ -3,7 +3,7 @@
 import numpy as np
 
 from matplotlib.path import Path
-from rcsetup import validate_hatch
+from matplotlib.rcsetup import validate_hatch
 
 
 class HatchPatternBase:
