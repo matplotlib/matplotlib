@@ -2454,7 +2454,7 @@ class CompositeGenericTransform(Transform):
         super()._invalidate_internal(level, invalidating_node)
 
     def __eq__(self, other):
-        if isinstance(other, (CompositeGenericTransform, CompositeAffine2D)):
+        if isinstance(other, (CompositeGenericTransform, CompositeAffine)):
             return self is other or (self._a == other._a
                                      and self._b == other._b)
         else:
@@ -2515,7 +2515,7 @@ class CompositeGenericTransform(Transform):
             self._b.inverted(), self._a.inverted())
 
 
-class CompositeAffine2D(Affine2DBase):
+class CompositeAffine(AffineImmutable):
     """
     A composite transform formed by applying transform *a* then transform *b*.
 
@@ -2525,7 +2525,7 @@ class CompositeAffine2D(Affine2DBase):
     def __init__(self, a, b, **kwargs):
         """
         Create a new composite transform that is the result of
-        applying `Affine2DBase` *a* then `Affine2DBase` *b*.
+        applying `AffineImmutable` *a* then `AffineImmutable` *b*.
 
         You will generally not call this constructor directly but write ``a +
         b`` instead, which will automatically choose the best kind of composite
@@ -2536,10 +2536,8 @@ class CompositeAffine2D(Affine2DBase):
         if a.output_dims != b.input_dims:
             raise ValueError("The output dimension of 'a' must be equal to "
                              "the input dimensions of 'b'")
-        self.input_dims = a.input_dims
-        self.output_dims = b.output_dims
+        super().__init__(dims=a.output_dims, **kwargs)
 
-        super().__init__(**kwargs)
         self._a = a
         self._b = b
         self.set_children(a, b)
@@ -2568,6 +2566,11 @@ class CompositeAffine2D(Affine2DBase):
         return self._mtx
 
 
+@_api.deprecated("3.9", alternative="CompositeAffine")
+class CompositeAffine2D(CompositeAffine):
+    pass
+
+
 def composite_transform_factory(a, b):
     """
     Create a new composite transform that is the result of applying
@@ -2591,7 +2594,7 @@ def composite_transform_factory(a, b):
     elif isinstance(b, IdentityTransform):
         return a
     elif isinstance(a, Affine2D) and isinstance(b, Affine2D):
-        return CompositeAffine2D(a, b)
+        return CompositeAffine(a, b)
     return CompositeGenericTransform(a, b)
 
 

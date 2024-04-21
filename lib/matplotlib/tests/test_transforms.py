@@ -853,7 +853,7 @@ CompositeGenericTransform(
                 BlendedAffine(
                     IdentityTransform(),
                     IdentityTransform())),
-            CompositeAffine2D(
+            CompositeAffine(
                 Affine2D().scale(1.0),
                 Affine2D().scale(1.0))),
         PolarTransform(
@@ -876,7 +876,7 @@ CompositeGenericTransform(
                     (0.5, 0.5),
                     TransformedBbox(
                         Bbox(x0=0.0, y0=0.0, x1=6.283185307179586, y1=1.0),
-                        CompositeAffine2D(
+                        CompositeAffine(
                             Affine2D().scale(1.0),
                             Affine2D().scale(1.0))),
                     LockableBbox(
