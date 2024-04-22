@@ -834,8 +834,9 @@ class FigureCanvasPgf(FigureCanvasBase):
             self.print_pgf(tmppath / "figure.pgf", **kwargs)
             (tmppath / "figure.tex").write_text(
                 "\n".join([
+                    r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
                     _DOCUMENTCLASS,
-                    r"\usepackage[pdfinfo={%s}]{hyperref}" % pdfinfo,
+                    r"\usepackage{hyperref}",
                     r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
                     % (w, h),
                     r"\usepackage{pgf}",
@@ -944,8 +945,9 @@ class PdfPages:
         pdfinfo = ','.join(
             _metadata_to_str(k, v) for k, v in self._info_dict.items())
         latex_header = "\n".join([
+            r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
             _DOCUMENTCLASS,
-            r"\usepackage[pdfinfo={%s}]{hyperref}" % pdfinfo,
+            r"\usepackage{hyperref}",
             r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
             % (width_inches, height_inches),
             r"\usepackage{pgf}",
