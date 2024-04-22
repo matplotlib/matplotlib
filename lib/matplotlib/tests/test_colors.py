@@ -1689,6 +1689,11 @@ def test_set_cmap_mismatched_name():
     assert cmap_returned.name == "wrong-cmap"
 
 
+def test_cmap_alias_names():
+    assert matplotlib.colormaps["gray"].name == "gray"  # original
+    assert matplotlib.colormaps["grey"].name == "grey"  # alias
+
+
 def test_to_rgba_array_none_color_with_alpha_param():
     # effective alpha for color "none" must always be 0 to achieve a vanishing color
     # even explicit alpha must be ignored
