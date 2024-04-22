@@ -1,0 +1,4 @@
+``hatch.validate_hatch``
+~~~~~~~~~~~~~~~~~~~~~~~~
+Removal of deprecation warning for invalid hatch patterns
+in hatch module, validate_hatch calls `rcsetup.validate_hatch`.
