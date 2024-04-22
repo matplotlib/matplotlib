@@ -36,6 +36,13 @@ _DOCUMENTCLASS = r"\documentclass{article}"
 # %f/{:f} format rather than %s/{} to avoid triggering scientific notation,
 # which is not recognized by TeX.
 
+def _get_documentclass():
+    if mpl.rcParams["pgf.documentclass"]:
+        return mpl.rcParams["pgf.documentclass"]
+    else:
+        return _DOCUMENTCLASS
+
+
 def _get_preamble():
     """Prepare a LaTeX preamble based on the rcParams configuration."""
     font_size_pt = FontProperties(
@@ -205,7 +212,7 @@ class LatexManager:
     @staticmethod
     def _build_latex_header():
         latex_header = [
-            _DOCUMENTCLASS,
+            _get_documentclass(),
             # Include TeX program name as a comment for cache invalidation.
             # TeX does not allow this to be the first line.
             rf"% !TeX program = {mpl.rcParams['pgf.texsystem']}",
@@ -837,7 +844,7 @@ class FigureCanvasPgf(FigureCanvasBase):
                 "\n".join([
                     r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
                     r"\PassOptionsToPackage{%s}{geometry}" % geometry_options,
-                    _DOCUMENTCLASS,
+                    _get_documentclass(),
                     r"\usepackage{hyperref}",
                     r"\usepackage{geometry}",
                     r"\geometry{reset, %s}" % geometry_options,
@@ -951,7 +958,7 @@ class PdfPages:
         latex_header = "\n".join([
             r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
             r"\PassOptionsToPackage{%s}{geometry}" % geometry_options,
-            _DOCUMENTCLASS,
+            _get_documentclass(),
             r"\usepackage{hyperref}",
             r"\usepackage{geometry}",
             r"\geometry{reset, %s}" % geometry_options,
