@@ -1697,3 +1697,14 @@ def test_to_rgba_array_none_color_with_alpha_param():
     assert_array_equal(
         to_rgba_array(c, alpha), [[0., 0., 1., 1.], [0., 0., 0., 0.]]
     )
+
+
+def test_close_error_name():
+    with pytest.raises(KeyError) as exinfo:
+        matplotlib.colormaps["grays"]
+
+    msg = exinfo.value.args[0]
+
+    assert "Grays" in msg
+    assert "gray" in msg
+    assert "gray_r" in msg

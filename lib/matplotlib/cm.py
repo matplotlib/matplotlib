@@ -15,6 +15,7 @@ Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
 """
 
 from collections.abc import Mapping
+import difflib
 import functools
 
 import numpy as np
@@ -88,7 +89,12 @@ class ColormapRegistry(Mapping):
         try:
             return self._cmaps[item].copy()
         except KeyError:
-            raise KeyError(f"{item!r} is not a known colormap name") from None
+            known = list(self._cmaps)
+            if len(best := difflib.get_close_matches(item, known, cutoff=.1)):
+                msg = f"Did you mean one of {best}?"
+            else:
+                msg = "No known keys are close"
+            raise KeyError(f"{item!r} is not a known colormap name. {msg}") from None
 
     def __iter__(self):
         return iter(self._cmaps)
