@@ -836,9 +836,11 @@ class FigureCanvasPgf(FigureCanvasBase):
             (tmppath / "figure.tex").write_text(
                 "\n".join([
                     r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
+                    r"\PassOptionsToPackage{%s}{geometry}" % geometry_options,
                     _DOCUMENTCLASS,
                     r"\usepackage{hyperref}",
-                    r"\usepackage[%s]{geometry}" % geometry_options,
+                    r"\usepackage{geometry}",
+                    r"\geometry{reset, %s}" % geometry_options,
                     r"\usepackage{pgf}",
                     _get_preamble(),
                     r"\begin{document}",
@@ -948,9 +950,11 @@ class PdfPages:
             _metadata_to_str(k, v) for k, v in self._info_dict.items())
         latex_header = "\n".join([
             r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
+            r"\PassOptionsToPackage{%s}{geometry}" % geometry_options,
             _DOCUMENTCLASS,
             r"\usepackage{hyperref}",
-            r"\usepackage[%s]{geometry}" % geometry_options,
+            r"\usepackage{geometry}",
+            r"\geometry{reset, %s}" % geometry_options,
             r"\usepackage{pgf}",
             _get_preamble(),
             r"\setlength{\parindent}{0pt}",
