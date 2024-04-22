@@ -107,7 +107,6 @@ commands:
             python -m pip install --user \
                 numpy<< parameters.numpy_version >> \
                 -r requirements/doc/doc-requirements.txt
-            pip install git+https://github.com/larsoner/sphinx-gallery.git@serial
             python -m pip install --no-deps --user \
                 git+https://github.com/matplotlib/mpl-sphinx-theme.git
 
