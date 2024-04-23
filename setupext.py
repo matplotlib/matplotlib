@@ -195,9 +195,9 @@ LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 
 # Also update the cache path in `.circleci/config.yml`.
 # Also update the docs in `docs/devel/dependencies.rst`.
-LOCAL_QHULL_VERSION = '2020.2'
+LOCAL_QHULL_VERSION = '8.0.2'
 LOCAL_QHULL_HASH = (
-    'b5c2d7eb833278881b952c8a52d20179eab87766b00b865000469a45c1838b7e')
+    '8774e9a12c70b0180b95d6b0b563c5aa4bea8d5960c15e18ae3b6d2521d64f8b')
 
 
 # Matplotlib build options, which can be altered using mplsetup.cfg
@@ -763,7 +763,7 @@ class Qhull(SetupPackage):
             return
 
         toplevel = get_and_extract_tarball(
-            urls=["http://www.qhull.org/download/qhull-2020-src-8.0.2.tgz"],
+            urls=["https://github.com/qhull/qhull/archive/v8.0.2/qhull-8.0.2.tar.gz"],
             sha=LOCAL_QHULL_HASH,
             dirname=f"qhull-{LOCAL_QHULL_VERSION}",
         )
