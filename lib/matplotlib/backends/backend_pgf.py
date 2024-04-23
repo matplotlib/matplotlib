@@ -110,7 +110,7 @@ def _escape_and_apply_props(s, prop):
     if family in families:
         commands.append(families[family])
     elif not mpl.rcParams["pgf.rcfonts"]:
-        commands.append(r"\rmfamily")
+        commands.append(r"\fontfamily{\familydefault}")
     elif any(font.name == family for font in fm.fontManager.ttflist):
         commands.append(
             r"\ifdefined\pdftexversion\else\setmainfont{%s}\rmfamily\fi" % family)
