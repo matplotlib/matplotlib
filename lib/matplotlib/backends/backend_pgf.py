@@ -48,6 +48,9 @@ def _get_preamble():
         # Use displaystyle for all math.
         r"\everymath=\expandafter{\the\everymath\displaystyle}",
         # Set up font sizes to match font.size setting.
+        # If present, use the KOMA package scrextend to adjust the standard
+        # LaTeX font commands (\tiny, ..., \normalsize, ..., \Huge) accordingly.
+        # Otherwise, only set \normalsize, manually.
         r"\IfFileExists{scrextend.sty}{",
         r"  \usepackage[fontsize=%fpt]{scrextend}" % font_size_pt,
         r"}{",
