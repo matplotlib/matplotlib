@@ -93,7 +93,7 @@ class ColormapRegistry(Mapping):
             if len(best := difflib.get_close_matches(item, known, cutoff=.1)):
                 msg = f"Did you mean one of {best}?"
             else:
-                msg = "No known keys are close"
+                msg = ""
             raise KeyError(f"{item!r} is not a known colormap name. {msg}") from None
 
     def __iter__(self):
