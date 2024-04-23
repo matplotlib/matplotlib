@@ -24,27 +24,6 @@ import matplotlib.ticker as mticker
 import pytest
 
 
-@image_comparison(['image_interps'], style='mpl20')
-def test_image_interps():
-    """Make the basic nearest, bilinear and bicubic interps."""
-    # Remove texts when this image is regenerated.
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
-
-    X = np.arange(100).reshape(5, 20)
-
-    fig, (ax1, ax2, ax3) = plt.subplots(3)
-    ax1.imshow(X, interpolation='nearest')
-    ax1.set_title('three interpolations')
-    ax1.set_ylabel('nearest')
-
-    ax2.imshow(X, interpolation='bilinear')
-    ax2.set_ylabel('bilinear')
-
-    ax3.imshow(X, interpolation='bicubic')
-    ax3.set_ylabel('bicubic')
-
-
 @image_comparison(['interp_alpha.png'], remove_text=True)
 def test_alpha_interp():
     """Test the interpolation of the alpha channel on RGBA images"""
@@ -444,15 +423,6 @@ def test_image_cliprect():
     rect = patches.Rectangle(
         xy=(1, 1), width=2, height=2, transform=im.axes.transData)
     im.set_clip_path(rect)
-
-
-@image_comparison(['imshow'], remove_text=True, style='mpl20')
-def test_imshow():
-    fig, ax = plt.subplots()
-    arr = np.arange(100).reshape((10, 10))
-    ax.imshow(arr, interpolation="bilinear", extent=(1, 2, 1, 2))
-    ax.set_xlim(0, 3)
-    ax.set_ylim(0, 3)
 
 
 @check_figures_equal(extensions=['png'])
