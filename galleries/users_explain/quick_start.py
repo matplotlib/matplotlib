@@ -28,16 +28,18 @@ import numpy as np
 # area where points can be specified in terms of x-y coordinates (or theta-r
 # in a polar plot, x-y-z in a 3D plot, etc.).  The simplest way of
 # creating a Figure with an Axes is using `.pyplot.subplots`. We can then use
-# `.Axes.plot` to draw some data on the Axes:
+# `.Axes.plot` to draw some data on the Axes, and `~.pyplot.show` to display
+# the figure:
 
-fig, ax = plt.subplots()  # Create a figure containing a single Axes.
+fig, ax = plt.subplots()             # Create a figure containing a single Axes.
 ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the Axes.
+plt.show()                           # Show the figure.
 
 # %%
 #
-# Note that to get this Figure to display, you may have to call ``plt.show()``,
-# depending on your backend.  For more details of Figures and backends, see
-# :ref:`figure-intro`.
+# Depending on the environment you are working in, ``plt.show()`` can be left
+# out. - This is for example the case with Jupyter notebooks, which
+# automatically show all figures created in a code cell.
 #
 # .. _figure_parts:
 #
@@ -53,24 +55,24 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the Axes.
 #
 # The **whole** figure.  The Figure keeps
 # track of all the child :class:`~matplotlib.axes.Axes`, a group of
-# 'special' Artists (titles, figure legends, colorbars, etc), and
+# 'special' Artists (titles, figure legends, colorbars, etc.), and
 # even nested subfigures.
 #
-# The easiest way to create a new Figure is with pyplot::
+# Typically, you'll create a new Figure through one of the following
+# functions::
 #
-#    fig = plt.figure()  # an empty figure with no Axes
-#    fig, ax = plt.subplots()  # a figure with a single Axes
+#    fig = plt.figure()             # an empty figure with no Axes
+#    fig, ax = plt.subplots()       # a figure with a single Axes
 #    fig, axs = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
 #    # a figure with one Axes on the left, and two on the right:
 #    fig, axs = plt.subplot_mosaic([['left', 'right_top'],
 #                                   ['left', 'right_bottom']])
 #
-# It is often convenient to create the Axes together with the Figure, but you
-# can also manually add Axes later on.  Note that many
-# :ref:`Matplotlib backends <backends>` support zooming and
-# panning on figure windows.
+# `~.pyplot.subplots()` and `~.pyplot.subplot_mosaic` are convenience functions
+# that additionally create Axes objects inside the Figure, but you can also
+# manually add Axes later on.
 #
-# For more on Figures, see :ref:`figure-intro`.
+# For more on Figures, including panning and zooming, see :ref:`figure-intro`.
 #
 # :class:`~matplotlib.axes.Axes`
 # ------------------------------
@@ -85,10 +87,9 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the Axes.
 # :meth:`~matplotlib.axes.Axes.set_xlabel`), and a y-label set via
 # :meth:`~matplotlib.axes.Axes.set_ylabel`).
 #
-# The :class:`~.axes.Axes` class and its member functions are the primary
-# entry point to working with the OOP interface, and have most of the
-# plotting methods defined on them (e.g. ``ax.plot()``, shown above, uses
-# the `~.Axes.plot` method)
+# The `~.axes.Axes` methods are the primary interface for configuring
+# most parts of your plot (adding data, controlling axis scales and
+# limits, adding labels etc.).
 #
 # :class:`~matplotlib.axis.Axis`
 # ------------------------------
