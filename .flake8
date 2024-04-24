@@ -47,6 +47,7 @@ per-file-ignores =
     lib/mpl_toolkits/axisartist/angle_helper.py: E221
 
     doc/conf.py: E402
+    galleries/users_explain/quick_start.py: E402
     galleries/users_explain/artists/paths.py: E402
     galleries/users_explain/artists/patheffects_guide.py: E402
     galleries/users_explain/artists/transforms_tutorial.py: E402, E501

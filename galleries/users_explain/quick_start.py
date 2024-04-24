@@ -17,7 +17,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # sphinx_gallery_thumbnail_number = 3
-import matplotlib as mpl
 
 # %%
 #
@@ -446,13 +445,14 @@ axs[1].set_title('Manual ticks')
 # well as floating point numbers.  These get special locators and formatters
 # as appropriate.  For dates:
 
+from matplotlib.dates import ConciseDateFormatter
+
 fig, ax = plt.subplots(figsize=(5, 2.7), layout='constrained')
 dates = np.arange(np.datetime64('2021-11-15'), np.datetime64('2021-12-25'),
                   np.timedelta64(1, 'h'))
 data = np.cumsum(np.random.randn(len(dates)))
 ax.plot(dates, data)
-cdf = mpl.dates.ConciseDateFormatter(ax.xaxis.get_major_locator())
-ax.xaxis.set_major_formatter(cdf)
+ax.xaxis.set_major_formatter(ConciseDateFormatter(ax.xaxis.get_major_locator()))
 
 # %%
 # For more information see the date examples
@@ -506,6 +506,8 @@ ax4.set_xlabel('Angle [°]')
 # Often we want to have a third dimension in a plot represented by a colors in
 # a colormap. Matplotlib has a number of plot types that do this:
 
+from matplotlib.colors import LogNorm
+
 X, Y = np.meshgrid(np.linspace(-3, 3, 128), np.linspace(-3, 3, 128))
 Z = (1 - X/2 + X**5 + Y**3) * np.exp(-X**2 - Y**2)
 
@@ -518,8 +520,7 @@ co = axs[0, 1].contourf(X, Y, Z, levels=np.linspace(-1.25, 1.25, 11))
 fig.colorbar(co, ax=axs[0, 1])
 axs[0, 1].set_title('contourf()')
 
-pc = axs[1, 0].imshow(Z**2 * 100, cmap='plasma',
-                          norm=mpl.colors.LogNorm(vmin=0.01, vmax=100))
+pc = axs[1, 0].imshow(Z**2 * 100, cmap='plasma', norm=LogNorm(vmin=0.01, vmax=100))
 fig.colorbar(pc, ax=axs[1, 0], extend='both')
 axs[1, 0].set_title('imshow() with LogNorm()')
 
