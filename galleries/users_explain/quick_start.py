@@ -38,7 +38,7 @@ plt.show()                           # Show the figure.
 # %%
 #
 # Depending on the environment you are working in, ``plt.show()`` can be left
-# out. - This is for example the case with Jupyter notebooks, which
+# out. This is for example the case with Jupyter notebooks, which
 # automatically show all figures created in a code cell.
 #
 # .. _figure_parts:
