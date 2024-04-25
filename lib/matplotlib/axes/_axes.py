@@ -570,7 +570,7 @@ class Axes(_AxesBase):
         return self.indicate_inset(rect, inset_ax, **kwargs)
 
     @_docstring.dedent_interpd
-    def secondary_xaxis(self, location, *, functions=None, transform=None, **kwargs):
+    def secondary_xaxis(self, location, functions=None, *, transform=None, **kwargs):
         """
         Add a second x-axis to this `~.axes.Axes`.
 
@@ -624,7 +624,7 @@ class Axes(_AxesBase):
         return secondary_ax
 
     @_docstring.dedent_interpd
-    def secondary_yaxis(self, location, *, functions=None, transform=None, **kwargs):
+    def secondary_yaxis(self, location, functions=None, *, transform=None, **kwargs):
         """
         Add a second y-axis to this `~.axes.Axes`.
 

@@ -497,7 +497,7 @@ ax2.legend([l1, l2], ['Sine (left)', 'Straight (right)'])
 
 ax3.plot(t, s)
 ax3.set_xlabel('Angle [rad]')
-ax4 = ax3.secondary_xaxis('top', functions=(np.rad2deg, np.deg2rad))
+ax4 = ax3.secondary_xaxis('top', (np.rad2deg, np.deg2rad))
 ax4.set_xlabel('Angle [°]')
 
 # %%
