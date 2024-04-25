@@ -362,8 +362,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
      /PaintProc {{
         pop
         {linewidth:g} setlinewidth
-{self._convert_path(
-    Path.hatch(hatch), Affine2D().scale(sidelen), simplify=False)}
+{self._convert_path(Path.hatch(hatch), Affine2D().scale(sidelen), simplify=False)}
         gsave
         fill
         grestore
