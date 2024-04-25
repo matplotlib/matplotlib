@@ -6937,7 +6937,10 @@ such objects
             DATA_PARAMETER_PLACEHOLDER
 
         **kwargs
-            `~matplotlib.patches.Patch` properties
+            `~matplotlib.patches.Patch` properties. The following properties
+            additionally accept a sequence of values corresponding to the
+            datasets in *x*:
+            *edgecolors*, *facecolors*, *linewidths*, *linestyles*, *hatches*.
 
         See Also
         --------
@@ -7211,39 +7214,32 @@ such objects
         # cast each element to str, but keep a single str as it.
         labels = [] if label is None else np.atleast_1d(np.asarray(label, str))
 
-        if 'hatch' in kwargs:
-            if not isinstance(kwargs['hatch'], str):
-                hatches = itertools.cycle(kwargs['hatch'])
-            else:
-                hatches = itertools.cycle([kwargs['hatch']])
+        if histtype == "step":
+            edgecolors = itertools.cycle(np.atleast_1d(kwargs.get('edgecolor',
+                                                                  colors)))
+        else:
+            edgecolors = itertools.cycle(np.atleast_1d(kwargs.get("edgecolor", None)))
 
-        if 'edgecolor' in kwargs:
-            if not isinstance(kwargs['edgecolor'], str):
-                edgecolors = itertools.cycle(kwargs['edgecolor'])
-            else:
-                edgecolors = itertools.cycle([kwargs['edgecolor']])
-
-        if 'linewidth' in kwargs:
-            if isinstance(kwargs['linewidth'], list or tuple):
-                linewidths = itertools.cycle(kwargs['linewidth'])
-            else:
-                linewidths = itertools.cycle([kwargs['linewidth']])
+        facecolors = itertools.cycle(np.atleast_1d(kwargs.get('facecolor', colors)))
+        hatches = itertools.cycle(np.atleast_1d(kwargs.get('hatch', None)))
+        linewidths = itertools.cycle(np.atleast_1d(kwargs.get('linewidth', None)))
+        linestyles = itertools.cycle(np.atleast_1d(kwargs.get('linestyle', None)))
 
         for patch, lbl in itertools.zip_longest(patches, labels):
-            if patch:
-                p = patch[0]
-                if 'hatch' in kwargs:
-                    kwargs['hatch'] = next(hatches)
-                if 'edgecolor' in kwargs:
-                    kwargs['edgecolor'] = next(edgecolors)
-                if 'linewidth' in kwargs:
-                    kwargs['linewidth'] = next(linewidths)
+            p = patch[0]
+            kwargs.update({
+                'hatch': next(hatches),
+                'linewidth': next(linewidths),
+                'linestyle': next(linestyles),
+                'edgecolor': next(edgecolors),
+                'facecolor': next(facecolors),
+            })
+            p._internal_update(kwargs)
+            if lbl is not None:
+                p.set_label(lbl)
+            for p in patch[1:]:
                 p._internal_update(kwargs)
-                if lbl is not None:
-                    p.set_label(lbl)
-                for p in patch[1:]:
-                    p._internal_update(kwargs)
-                    p.set_label('_nolegend_')
+                p.set_label('_nolegend_')
 
         if nx == 1:
             return tops[0], bins, patches[0]

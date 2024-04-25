@@ -4603,6 +4603,39 @@ def test_hist_stacked_bar():
     ax.legend(loc='upper right', bbox_to_anchor=(1.0, 1.0), ncols=1)
 
 
+@pytest.mark.parametrize("histtype", ["step", "stepfilled"])
+@pytest.mark.parametrize("color", [["blue", "green", "brown"], None])
+@pytest.mark.parametrize("edgecolor", [["red", "black", "blue"], [None]*3])
+@pytest.mark.parametrize("facecolor", [["blue", "green", "brown"], [None]*3])
+@check_figures_equal(extensions=["png"])
+def test_hist_vectorized_params(fig_test, fig_ref, histtype, color, edgecolor,
+                                facecolor):
+    np.random.seed(19680801)
+    x = [np.random.randn(n) for n in [2000, 5000, 10000]]
+    linewidth = [1, 1.5, 2]
+    hatch = ["/", "\\", "."]
+    linestyle = ["-", "--", ":"]
+
+    facecolor = facecolor if facecolor[0] is not None else color
+    if histtype == "step":
+        edgecolor = edgecolor if edgecolor[0] is not None else color
+
+    _, bins, _ = fig_test.subplots().hist(x, bins=10, histtype=histtype, color=color,
+                                          edgecolor=edgecolor, facecolor=facecolor,
+                                          linewidth=linewidth, hatch=hatch,
+                                          linestyle=linestyle)
+    ref_ax = fig_ref.subplots()
+    color = [None]*3 if color is None else color
+    edgecolor = [None]*3 if edgecolor is None else edgecolor
+    facecolor = [None]*3 if facecolor is None else facecolor
+
+    for i in range(2, -1, -1):
+        ref_ax.hist(x[i], bins=bins, histtype=histtype, color=color[i],
+                    edgecolor=edgecolor[i], facecolor=facecolor[i],
+                    linewidth=linewidth[i], hatch=hatch[i],
+                    linestyle=linestyle[i])
+
+
 def test_hist_barstacked_bottom_unchanged():
     b = np.array([10, 20])
     plt.hist([[0, 1], [0, 1]], 2, histtype="barstacked", bottom=b)
