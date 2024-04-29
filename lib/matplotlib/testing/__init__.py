@@ -186,6 +186,10 @@ def ipython_in_subprocess(
 ):
     import pytest
     IPython = pytest.importorskip("IPython")
+
+    if sys.platform == "win32":
+        pytest.skip("Cannot change backend running IPython in subprocess on Windows")
+
     if (IPython.version_info[:3] == (8, 24, 0) and
             requested_backend_or_gui_framework == "osx"):
         pytest.skip("Bug using macosx backend in IPython 8.24.0 fixed in 8.24.1")
