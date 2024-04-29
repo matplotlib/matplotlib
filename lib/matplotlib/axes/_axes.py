@@ -5238,11 +5238,6 @@ class Axes(_AxesBase):
                 vmin = vmax = None
             bins = None
 
-        # autoscale the norm with current accum values if it hasn't been set
-        if norm is not None:
-            if norm.vmin is None and norm.vmax is None:
-                norm.autoscale(accum)
-
         if bins is not None:
             if not np.iterable(bins):
                 minimum, maximum = min(accum), max(accum)
@@ -5257,6 +5252,11 @@ class Axes(_AxesBase):
         collection.set_alpha(alpha)
         collection._internal_update(kwargs)
         collection._scale_norm(norm, vmin, vmax)
+
+        # autoscale the norm with current accum values if it hasn't been set
+        if norm is not None:
+            if collection.norm.vmin is None and collection.norm.vmax is None:
+                collection.norm.autoscale()
 
         corners = ((xmin, ymin), (xmax, ymax))
         self.update_datalim(corners)
