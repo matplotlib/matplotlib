@@ -266,16 +266,16 @@ def validate_fonttype(s):
         return fonttype
 
 
-_validate_standard_backends = ValidateInStrings(
-    'backend', backend_registry.list_builtin(), ignorecase=True)
 _auto_backend_sentinel = object()
 
 
 def validate_backend(s):
-    backend = (
-        s if s is _auto_backend_sentinel or s.startswith("module://")
-        else _validate_standard_backends(s))
-    return backend
+    if s is _auto_backend_sentinel or backend_registry.is_valid_backend(s):
+        return s
+    else:
+        msg = (f"'{s}' is not a valid value for backend; supported values are "
+               f"{backend_registry.list_all()}")
+        raise ValueError(msg)
 
 
 def _validate_toolbar(s):

@@ -175,7 +175,8 @@ QtAgg     Agg rendering in a Qt_ canvas (requires PyQt_ or `Qt for Python`_,
           more details.
 ipympl    Agg rendering embedded in a Jupyter widget (requires ipympl_).
           This backend can be enabled in a Jupyter notebook with
-          ``%matplotlib ipympl``.
+          ``%matplotlib ipympl`` or ``%matplotlib widget``.  Works with
+          Jupyter ``lab`` and ``notebook>=7``.
 GTK3Agg   Agg rendering to a GTK_ 3.x canvas (requires PyGObject_ and
           pycairo_).  This backend can be activated in IPython with
           ``%matplotlib gtk3``.
@@ -188,7 +189,8 @@ TkAgg     Agg rendering to a Tk_ canvas (requires TkInter_). This
           backend can be activated in IPython with ``%matplotlib tk``.
 nbAgg     Embed an interactive figure in a Jupyter classic notebook.  This
           backend can be enabled in Jupyter notebooks via
-          ``%matplotlib notebook``.
+          ``%matplotlib notebook`` or ``%matplotlib nbagg``.  Works with
+          Jupyter ``notebook<7`` and ``nbclassic``.
 WebAgg    On ``show()`` will start a tornado server with an interactive
           figure.
 GTK3Cairo Cairo rendering to a GTK_ 3.x canvas (requires PyGObject_ and
@@ -200,7 +202,7 @@ wxAgg     Agg rendering to a wxWidgets_ canvas (requires wxPython_ 4).
 ========= ================================================================
 
 .. note::
-   The names of builtin backends case-insensitive; e.g., 'QtAgg' and
+   The names of builtin backends are case-insensitive; e.g., 'QtAgg' and
    'qtagg' are equivalent.
 
 .. _`Anti-Grain Geometry`: http://agg.sourceforge.net/antigrain.com/
@@ -222,11 +224,13 @@ wxAgg     Agg rendering to a wxWidgets_ canvas (requires wxPython_ 4).
 .. _wxWidgets: https://www.wxwidgets.org/
 .. _ipympl: https://www.matplotlib.org/ipympl
 
+.. _ipympl_install:
+
 ipympl
 ^^^^^^
 
-The Jupyter widget ecosystem is moving too fast to support directly in
-Matplotlib.  To install ipympl:
+The ipympl backend is in a separate package that must be explicitly installed
+if you wish to use it, for example:
 
 .. code-block:: bash
 
