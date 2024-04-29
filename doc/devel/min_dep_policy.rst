@@ -49,7 +49,7 @@ without compiled extensions
 We will only bump these dependencies as we need new features or the old
 versions no longer support our minimum NumPy or Python.
 
-We should work around bugs in our dependencies when practical.
+We will work around bugs in our dependencies when practical.
 
 
 Test and documentation dependencies
@@ -81,15 +81,16 @@ In the case of GUI frameworks for which we rely on Python bindings being
 available, we will also drop support for bindings so old that they don't
 support any Python version that we support.
 
-Security Issues in Dependencies
+Security issues in dependencies
 ===============================
 
-In most cases we should not adjust the versions supported based on CVEs to our
-dependencies.  We are a library not an application and the version constraints
-on our dependencies indicate what will work (not what is wise to use).  Users
-and packagers can install newer versions of the dependencies their discretion
-and evaluation of risk and impact.  In contrast, if we were to adjust our
-minimum supported version it is very hard for a user to override our judgment.
+Generally, we do not adjust the supported versions of dependencies based on
+security vulnerabilities.   We are a library not an application
+and the version constraints on our dependencies indicate what will work (not
+what is wise to use).  Users and packagers can install newer versions of the
+dependencies at their discretion and evaluation of risk and impact.  In
+contrast, if we were to adjust our minimum supported version it is very hard
+for a user to override our judgment.
 
 If Matplotlib aids in exploiting the underlying vulnerability we should treat
 that as a critical bug in Matplotlib.
