@@ -2250,6 +2250,31 @@ def test_view_init_vertical_axis(
         np.testing.assert_array_equal(tickdir_expected, tickdir_actual)
 
 
+@pytest.mark.parametrize("vertical_axis", ["x", "y", "z"])
+def test_on_move_vertical_axis(vertical_axis: str) -> None:
+    """
+    Test vertical axis is respected when rotating the plot interactively.
+    """
+    ax = plt.subplot(1, 1, 1, projection="3d")
+    ax.view_init(elev=0, azim=0, roll=0, vertical_axis=vertical_axis)
+    ax.figure.canvas.draw()
+
+    proj_before = ax.get_proj()
+    event_click = mock_event(ax, button=MouseButton.LEFT, xdata=0, ydata=1)
+    ax._button_press(event_click)
+
+    event_move = mock_event(ax, button=MouseButton.LEFT, xdata=0.5, ydata=0.8)
+    ax._on_move(event_move)
+
+    assert ax._axis_names.index(vertical_axis) == ax._vertical_axis
+
+    # Make sure plot has actually moved:
+    proj_after = ax.get_proj()
+    np.testing.assert_raises(
+        AssertionError, np.testing.assert_allclose, proj_before, proj_after
+    )
+
+
 @image_comparison(baseline_images=['arc_pathpatch.png'],
                   remove_text=True,
                   style='mpl20')
