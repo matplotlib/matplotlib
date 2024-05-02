@@ -22,6 +22,7 @@ import time
 from urllib.parse import urlsplit, urlunsplit
 import warnings
 
+from packaging.version import parse as parse_version
 import sphinx
 import yaml
 
@@ -178,8 +179,20 @@ _check_dependencies()
 
 
 # Import only after checking for dependencies.
-# gallery_order.py from the sphinxext folder provides the classes that
-# allow custom ordering of sections and subsections of the gallery
+import sphinx_gallery
+
+if parse_version(sphinx_gallery.__version__) >= parse_version('0.16.0'):
+    gallery_order_sectionorder = 'sphinxext.gallery_order.sectionorder'
+    gallery_order_subsectionorder = 'sphinxext.gallery_order.subsectionorder'
+    clear_basic_units = 'sphinxext.util.clear_basic_units'
+    matplotlib_reduced_latex_scraper = 'sphinxext.util.matplotlib_reduced_latex_scraper'
+else:
+    # gallery_order.py from the sphinxext folder provides the classes that
+    # allow custom ordering of sections and subsections of the gallery
+    from sphinxext.gallery_order import (
+        sectionorder as gallery_order_sectionorder,
+        subsectionorder as gallery_order_subsectionorder)
+    from sphinxext.util import clear_basic_units, matplotlib_reduced_latex_scraper
 
 # The following import is only necessary to monkey patch the signature later on
 from sphinx_gallery import gen_rst
@@ -237,14 +250,14 @@ for gd in gallery_dirs:
     example_dirs += [f'../galleries/{gd}']
 
 sphinx_gallery_conf = {
-    'backreferences_dir': Path('api') / Path('_as_gen'),
+    'backreferences_dir': Path('api', '_as_gen'),
     # Compression is a significant effort that we skip for local and CI builds.
     'compress_images': ('thumbnails', 'images') if is_release_build else (),
     'doc_module': ('matplotlib', 'mpl_toolkits'),
     'examples_dirs': example_dirs,
     'filename_pattern': '^((?!sgskip).)*$',
     'gallery_dirs': gallery_dirs,
-    'image_scrapers': ("sphinxext.util.matplotlib_reduced_latex_scraper", ),
+    'image_scrapers': (matplotlib_reduced_latex_scraper, ),
     'image_srcset': ["2x"],
     'junit': '../test-results/sphinx-gallery/junit.xml' if CIRCLECI else '',
     'matplotlib_animations': True,
@@ -252,14 +265,10 @@ sphinx_gallery_conf = {
     'plot_gallery': 'True',  # sphinx-gallery/913
     'reference_url': {'matplotlib': None},
     'remove_config_comments': True,
-    'reset_modules': (
-        'matplotlib',
-        # clear basic_units module to re-register with unit registry on import
-        "sphinxext.util.clear_basic_unit"
-    ),
-    'subsection_order': "sphinxext.gallery_order.sectionorder",
+    'reset_modules': ('matplotlib', clear_basic_units),
+    'subsection_order': gallery_order_sectionorder,
     'thumbnail_size': (320, 224),
-    'within_subsection_order': "sphinxext.gallery_order.subsectionorder",
+    'within_subsection_order': gallery_order_subsectionorder,
     'capture_repr': (),
     'copyfile_regex': r'.*\.rst',
 }
@@ -741,7 +750,6 @@ link_github = True
 
 if link_github:
     import inspect
-    from packaging.version import parse
 
     extensions.append('sphinx.ext.linkcode')
 
@@ -797,7 +805,7 @@ if link_github:
         if not fn.startswith(('matplotlib/', 'mpl_toolkits/')):
             return None
 
-        version = parse(matplotlib.__version__)
+        version = parse_version(matplotlib.__version__)
         tag = 'main' if version.is_devrelease else f'v{version.public}'
         return ("https://github.com/matplotlib/matplotlib/blob"
                 f"/{tag}/lib/{fn}{linespec}")

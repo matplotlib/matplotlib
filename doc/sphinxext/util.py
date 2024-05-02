@@ -16,5 +16,6 @@ def matplotlib_reduced_latex_scraper(block, block_vars, gallery_conf,
     return matplotlib_scraper(block, block_vars, gallery_conf, **kwargs)
 
 
-def clear_basic_unit(gallery_conf, fname):
+# Clear basic_units module to re-register with unit registry on import.
+def clear_basic_units(gallery_conf, fname):
     return sys.modules.pop('basic_units', None)
