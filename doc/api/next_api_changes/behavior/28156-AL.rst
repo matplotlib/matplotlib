@@ -1,0 +1,12 @@
+dark_background and fivethirtyeight styles no longer set ``savefig.facecolor`` and ``savefig.edgecolor``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When using these styles, :rc:`savefig.facecolor` and :rc:`savefig.edgecolor`
+now inherit the global default value of "auto", which means that the actual
+figure colors will be used.  Previously, these rcParams were set to the same
+values as :rc:`figure.facecolor` and :rc:`figure.edgecolor`, i.e. a saved
+figure would always use the theme colors even if the user manually overrode
+them; this is no longer the case.
+
+This change should have no impact for users that do not manually set the figure
+face and edge colors.
