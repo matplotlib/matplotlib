@@ -239,11 +239,10 @@ class BackendRegistry:
             self._backend_to_gui_framework[backend] = "unknown"
             return True
 
-        if not self._loaded_entry_points:
-            # Only load entry points if really need to and not already done so.
-            self._ensure_entry_points_loaded()
-            if backend in self._backend_to_gui_framework:
-                return True
+        # Only load entry points if really need to and not already done so.
+        self._ensure_entry_points_loaded()
+        if backend in self._backend_to_gui_framework:
+            return True
 
         return False
 
