@@ -1305,6 +1305,7 @@ _validators = {
 
     "pgf.texsystem": ["xelatex", "lualatex", "pdflatex"],  # latex variant used
     "pgf.rcfonts":   validate_bool,  # use mpl's rc settings for font config
+    "pgf.documentclass": validate_string,  # custom LaTeX documentclass
     "pgf.preamble":  validate_string,  # custom LaTeX preamble
 
     # write raster image data into the svg file

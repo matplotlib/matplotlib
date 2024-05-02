@@ -739,6 +739,7 @@
 ### pgf parameter
 ## See https://matplotlib.org/stable/tutorials/text/pgf.html for more information.
 #pgf.rcfonts: True
+#pgf.documentclass: \documentclass{article}  # Set the documentclass
 #pgf.preamble:  # See text.latex.preamble for documentation
 #pgf.texsystem: xelatex
 
