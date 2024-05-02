@@ -9,15 +9,15 @@ from matplotlib.testing import subprocess_run_for_testing
 nbformat = pytest.importorskip('nbformat')
 pytest.importorskip('nbconvert')
 pytest.importorskip('ipykernel')
-
-# From https://blog.thedataincubator.com/2016/06/testing-jupyter-notebooks/
+pytest.importorskip('matplotlib_inline')
 
 
 def test_ipynb():
-    nb_path = Path(__file__).parent / 'test_nbagg_01.ipynb'
+    nb_path = Path(__file__).parent / 'test_inline_01.ipynb'
 
     with TemporaryDirectory() as tmpdir:
         out_path = Path(tmpdir, "out.ipynb")
+
         subprocess_run_for_testing(
             ["jupyter", "nbconvert", "--to", "notebook",
              "--execute", "--ExecutePreprocessor.timeout=500",
@@ -33,10 +33,14 @@ def test_ipynb():
 
     import IPython
     if IPython.version_info[:2] >= (8, 24):
-        expected_backend = "notebook"
+        expected_backend = "inline"
     else:
         # This code can be removed when Python 3.12, the latest version supported by
         # IPython < 8.24, reaches end-of-life in late 2028.
-        expected_backend = "nbAgg"
+        expected_backend = "module://matplotlib_inline.backend_inline"
     backend_outputs = nb.cells[2]["outputs"]
     assert backend_outputs[0]["data"]["text/plain"] == f"'{expected_backend}'"
+
+    image = nb.cells[1]["outputs"][1]["data"]
+    assert image["text/plain"] == "<Figure size 300x200 with 1 Axes>"
+    assert "image/png" in image

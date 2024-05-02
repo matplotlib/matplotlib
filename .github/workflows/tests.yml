@@ -59,7 +59,8 @@ jobs:
             delete-font-cache: true
           - os: ubuntu-20.04
             python-version: 3.9
-            extra-requirements: '-r requirements/testing/extra.txt'
+            # One CI run tests ipython/matplotlib-inline before backend mapping moved to mpl
+            extra-requirements: '-r requirements/testing/extra.txt "ipython<8.24" "matplotlib-inline<0.1.7"'
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
             # https://github.com/matplotlib/matplotlib/pull/26052#issuecomment-1574595954
             # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
