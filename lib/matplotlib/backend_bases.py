@@ -1766,8 +1766,16 @@ class FigureCanvasBase:
         # `ipython --auto`).  This cannot be done at import time due to
         # ordering issues, so we do it when creating a canvas, and should only
         # be done once per class (hence the `cache`).
-        if sys.modules.get("IPython") is None:
+
+        # This function will not be needed when Python 3.12, the latest version
+        # supported by IPython < 8.24, reaches end-of-life in late 2028.
+        # At that time this function can be made a no-op and deprecated.
+        mod_ipython = sys.modules.get("IPython")
+        if mod_ipython is None or mod_ipython.version_info[:2] >= (8, 24):
+            # Use of backend2gui is not needed for IPython >= 8.24 as the
+            # functionality has been moved to Matplotlib.
             return
+
         import IPython
         ip = IPython.get_ipython()
         if not ip:
@@ -2030,9 +2038,8 @@ class FigureCanvasBase:
         canvas = None
         if backend is not None:
             # Return a specific canvas class, if requested.
-            canvas_class = (
-                importlib.import_module(cbook._backend_module_name(backend))
-                .FigureCanvas)
+            from .backends.registry import backend_registry
+            canvas_class = backend_registry.load_backend_module(backend).FigureCanvas
             if not hasattr(canvas_class, f"print_{fmt}"):
                 raise ValueError(
                     f"The {backend!r} backend does not support {fmt} output")

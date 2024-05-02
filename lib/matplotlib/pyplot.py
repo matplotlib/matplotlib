@@ -295,11 +295,16 @@ def install_repl_displayhook() -> None:
     ip.events.register("post_execute", _draw_all_if_interactive)
     _REPL_DISPLAYHOOK = _ReplDisplayHook.IPYTHON
 
-    from IPython.core.pylabtools import backend2gui
-    # trigger IPython's eventloop integration, if available
-    ipython_gui_name = backend2gui.get(get_backend())
-    if ipython_gui_name:
-        ip.enable_gui(ipython_gui_name)
+    if mod_ipython.version_info[:2] < (8, 24):
+        # Use of backend2gui is not needed for IPython >= 8.24 as that functionality
+        # has been moved to Matplotlib.
+        # This code can be removed when Python 3.12, the latest version supported by
+        # IPython < 8.24, reaches end-of-life in late 2028.
+        from IPython.core.pylabtools import backend2gui
+        # trigger IPython's eventloop integration, if available
+        ipython_gui_name = backend2gui.get(get_backend())
+        if ipython_gui_name:
+            ip.enable_gui(ipython_gui_name)
 
 
 def uninstall_repl_displayhook() -> None:
@@ -402,7 +407,7 @@ def switch_backend(newbackend: str) -> None:
     # have to escape the switch on access logic
     old_backend = dict.__getitem__(rcParams, 'backend')
 
-    module = importlib.import_module(cbook._backend_module_name(newbackend))
+    module = backend_registry.load_backend_module(newbackend)
     canvas_class = module.FigureCanvas
 
     required_framework = canvas_class.required_interactive_framework
@@ -476,6 +481,18 @@ def switch_backend(newbackend: str) -> None:
 
     _log.debug("Loaded backend %s version %s.",
                newbackend, backend_mod.backend_version)
+
+    if newbackend in ("ipympl", "widget"):
+        # ipympl < 0.9.4 expects rcParams["backend"] to be the fully-qualified backend
+        # name "module://ipympl.backend_nbagg" not short names "ipympl" or "widget".
+        import importlib.metadata as im
+        from matplotlib import _parse_to_version_info  # type: ignore[attr-defined]
+        try:
+            module_version = im.version("ipympl")
+            if _parse_to_version_info(module_version) < (0, 9, 4):
+                newbackend = "module://ipympl.backend_nbagg"
+        except im.PackageNotFoundError:
+            pass
 
     rcParams['backend'] = rcParamsDefault['backend'] = newbackend
     _backend_mod = backend_mod
@@ -2586,7 +2603,7 @@ def polar(*args, **kwargs) -> list[Line2D]:
 if (rcParams["backend_fallback"]
         and rcParams._get_backend_or_none() in (  # type: ignore[attr-defined]
             set(backend_registry.list_builtin(BackendFilter.INTERACTIVE)) -
-            {'WebAgg', 'nbAgg'})
+            {'webagg', 'nbagg'})
         and cbook._get_running_interactive_framework()):
     rcParams._set("backend", rcsetup._auto_backend_sentinel)
 
