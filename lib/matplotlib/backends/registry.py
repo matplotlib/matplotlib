@@ -334,9 +334,10 @@ class BackendRegistry:
 
         Returns
         -------
-        Tuple of backend (str) and GUI framework (str or None).
-            A non-interactive backend returns None for its GUI framework rather than
-            "headless".
+        backend : str
+            The backend name.
+        framework : str or None
+            The GUI framework, which will be None for a backend that is non-interactive.
         """
         if isinstance(backend, str):
             backend = backend.lower()
@@ -387,9 +388,10 @@ class BackendRegistry:
 
         Returns
         -------
-        tuple of (str, str or None)
-            A non-interactive backend returns None for its GUI framework rather than
-            "headless".
+        backend : str
+            The backend name.
+        framework : str or None
+            The GUI framework, which will be None for a backend that is non-interactive.
         """
         gui_or_backend = gui_or_backend.lower()
 
