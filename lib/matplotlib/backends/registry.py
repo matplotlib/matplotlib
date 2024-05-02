@@ -397,7 +397,7 @@ class BackendRegistry:
         # First check if it is a gui loop name.
         backend = self.backend_for_gui_framework(gui_or_backend)
         if backend is not None:
-            return backend, gui_or_backend
+            return backend, gui_or_backend if gui_or_backend != "headless" else None
 
         # Then check if it is a backend name.
         try:
