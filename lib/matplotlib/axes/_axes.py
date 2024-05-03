@@ -4060,6 +4060,8 @@ class Axes(_AxesBase):
                                        labels=tick_labels, autorange=autorange)
         if notch is None:
             notch = mpl.rcParams['boxplot.notch']
+        if vert is None:
+            vert = mpl.rcParams['boxplot.vertical']
         if patch_artist is None:
             patch_artist = mpl.rcParams['boxplot.patchartist']
         if meanline is None:
@@ -4359,16 +4361,22 @@ class Axes(_AxesBase):
             mean_kw[removed_prop] = ''
 
         # vert and orientation parameters are linked until vert's
-        # deprecation period expires. If both are selected,
-        # vert takes precedence.
-        if vert is not None:
+        # deprecation period expires. vert only takes precedence and
+        # raises a deprecation warning if set to False.
+        if vert is False:
             _api.warn_deprecated(
                 "3.10",
                 name="vert: bool",
                 alternative="orientation: {'vertical', 'horizontal'}"
                 )
-            orientation = 'vertical' if vert else 'horizontal'
+            orientation = 'horizontal'
         _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
+
+        if not mpl.rcParams['boxplot.vertical']:
+            _api.warn_deprecated(
+                "3.10",
+                name='boxplot.vertical', obj_type="rcparam"
+            )
 
         # vertical or horizontal plot?
         maybe_swap = slice(None) if orientation == 'vertical' else slice(None, None, -1)
