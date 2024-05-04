@@ -45,6 +45,7 @@ for all applications must be located on your :envvar:`PATH`.
 =================  =====================================================
 Parameter          Documentation
 =================  =====================================================
+pgf.documentclass  Line used to define the LaTeX documentclass
 pgf.preamble       Lines to be included in the LaTeX preamble
 pgf.rcfonts        Setup fonts from rc params using the fontspec package
 pgf.texsystem      Either "xelatex" (default), "lualatex" or "pdflatex"
