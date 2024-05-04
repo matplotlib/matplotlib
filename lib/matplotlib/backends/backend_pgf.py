@@ -823,6 +823,7 @@ class FigureCanvasPgf(FigureCanvasBase):
     def print_pdf(self, fname_or_fh, *, metadata=None, **kwargs):
         """Use LaTeX to compile a pgf generated figure to pdf."""
         w, h = self.figure.get_size_inches()
+        geometry_options = r"papersize={%fin,%fin}, margin=0in" % (w, h)
 
         info_dict = _create_pdf_info_dict('pgf', metadata or {})
         pdfinfo = ','.join(
@@ -837,8 +838,7 @@ class FigureCanvasPgf(FigureCanvasBase):
                     r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
                     _DOCUMENTCLASS,
                     r"\usepackage{hyperref}",
-                    r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
-                    % (w, h),
+                    r"\usepackage[%s]{geometry}" % geometry_options,
                     r"\usepackage{pgf}",
                     _get_preamble(),
                     r"\begin{document}",
@@ -942,14 +942,15 @@ class PdfPages:
     keep_empty = _api.deprecate_privatize_attribute("3.8")
 
     def _write_header(self, width_inches, height_inches):
+        geometry_options = (r"papersize={%fin,%fin}, margin=0in"
+                            % (width_inches, height_inches))
         pdfinfo = ','.join(
             _metadata_to_str(k, v) for k, v in self._info_dict.items())
         latex_header = "\n".join([
             r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
             _DOCUMENTCLASS,
             r"\usepackage{hyperref}",
-            r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
-            % (width_inches, height_inches),
+            r"\usepackage[%s]{geometry}" % geometry_options,
             r"\usepackage{pgf}",
             _get_preamble(),
             r"\setlength{\parindent}{0pt}",
