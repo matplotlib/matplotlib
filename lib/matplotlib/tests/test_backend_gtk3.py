@@ -69,3 +69,8 @@ def test_save_figure_return():
             fname = fig.canvas.manager.toolbar.save_figure()
             os.remove("foobar.png")
             assert fname == "foobar.png"
+
+            dialog.get_filename.return_value = None
+            dialog.run.return_value = Gtk.ResponseType.OK
+            fname = fig.canvas.manager.toolbar.save_figure()
+            assert fname is None
