@@ -406,7 +406,7 @@ class _Mode(str, Enum):
 
 class NavigationToolbar2:
     toolitems: tuple[tuple[str, ...] | tuple[None, ...], ...]
-    NO_FILE_SAVED: object
+    UNKNOWN_SAVED_STATUS: object
     canvas: FigureCanvasBase
     mode: _Mode
     def __init__(self, canvas: FigureCanvasBase) -> None: ...

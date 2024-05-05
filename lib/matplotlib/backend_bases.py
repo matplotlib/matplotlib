@@ -2858,7 +2858,7 @@ class NavigationToolbar2:
         ('Save', 'Save the figure', 'filesave', 'save_figure'),
       )
 
-    NO_FILE_SAVED = object()
+    UNKNOWN_SAVED_STATUS = object()
 
     def __init__(self, canvas):
         self.canvas = canvas
@@ -3276,23 +3276,22 @@ class NavigationToolbar2:
     def save_figure(self, *args):
         """
         Save the current figure.
-        
+
         Backend implementations may choose to return
         the absolute path of the saved file, if any, as
         a string.
 
-        If no file is created then `NavigationToolbar2.NO_FILE_SAVED`
-        is returned.
+        If no file is created then `None` is returned.
 
         If the backend does not implement this functionality
-        then `None` is returned.
+        then `NavigationToolbar2.UNKNOWN_SAVED_STATUS` is returned.
 
         Returns
         -------
-        str or `NavigationToolbar2.NO_FILE_SAVED` or `None`
+        str or `NavigationToolbar2.UNKNOWN_SAVED_STATUS` or `None`
             The filepath of the saved figure.
-            Returns `NavigationToolbar2.NO_FILE_SAVED` if figure is not saved.
-            Returns `None` when the backend does not provide the information.
+            Returns `None` if figure is not saved.
+            Returns `NavigationToolbar2.UNKNOWN_SAVED_STATUS` when the backend does not provide the information.
         """
         raise NotImplementedError
 
