@@ -24,7 +24,7 @@ def test_sphinx_gallery_example_header():
         :class: sphx-glr-download-link-note
 
         :ref:`Go to the end <sphx_glr_download_{1}>`
-        to download the full example code{2}
+        to download the full example code.{2}
 
 .. rst-class:: sphx-glr-example-title
 
