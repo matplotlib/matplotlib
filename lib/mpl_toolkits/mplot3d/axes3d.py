@@ -1147,7 +1147,8 @@ class Axes3D(Axes):
         if roll is None:
             roll = self.initial_roll
         vertical_axis = _api.check_getitem(
-            dict(x=0, y=1, z=2), vertical_axis=vertical_axis
+            {name: idx for idx, name in enumerate(self._axis_names)},
+            vertical_axis=vertical_axis,
         )
 
         if share:
@@ -1318,7 +1319,7 @@ class Axes3D(Axes):
             raise ValueError("view angles are already shared")
         self._shared_axes["view"].join(self, other)
         self._shareview = other
-        vertical_axis = {0: "x", 1: "y", 2: "z"}[other._vertical_axis]
+        vertical_axis = self._axis_names[other._vertical_axis]
         self.view_init(elev=other.elev, azim=other.azim, roll=other.roll,
                        vertical_axis=vertical_axis, share=True)
 
@@ -1523,7 +1524,14 @@ class Axes3D(Axes):
             dazim = -(dy/h)*180*np.sin(roll) - (dx/w)*180*np.cos(roll)
             elev = self.elev + delev
             azim = self.azim + dazim
-            self.view_init(elev=elev, azim=azim, roll=roll, share=True)
+            vertical_axis = self._axis_names[self._vertical_axis]
+            self.view_init(
+                elev=elev,
+                azim=azim,
+                roll=roll,
+                vertical_axis=vertical_axis,
+                share=True,
+            )
             self.stale = True
 
         # Pan

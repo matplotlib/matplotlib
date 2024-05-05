@@ -14,7 +14,6 @@ from matplotlib import pyplot as plt
 from matplotlib._pylab_helpers import Gcf
 from matplotlib import _c_internal_utils
 
-
 try:
     from matplotlib.backends.qt_compat import QtGui, QtWidgets  # type: ignore # noqa
     from matplotlib.backends.qt_editor import _formlayout
@@ -375,3 +374,8 @@ def test_fig_sigint_override(qt_core):
     finally:
         # Reset SIGINT handler to what it was before the test
         signal.signal(signal.SIGINT, original_handler)
+
+
+def test_ipython():
+    from matplotlib.testing import ipython_in_subprocess
+    ipython_in_subprocess("qt", "QtAgg", "qtagg")

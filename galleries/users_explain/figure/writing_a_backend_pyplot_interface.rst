@@ -84,3 +84,47 @@ Function-based API
 2. **Showing figures**: `.pyplot.show()` calls a module-level ``show()``
    function, which is typically generated via the ``ShowBase`` class and its
    ``mainloop`` method.
+
+Registering a backend
+---------------------
+
+For a new backend to be usable via ``matplotlib.use()`` or IPython
+``%matplotlib`` magic command, it must be compatible with one of the three ways
+supported by the :class:`~matplotlib.backends.registry.BackendRegistry`:
+
+Built-in
+^^^^^^^^
+
+A backend built into Matplotlib must have its name and
+``FigureCanvas.required_interactive_framework`` hard-coded in the
+:class:`~matplotlib.backends.registry.BackendRegistry`.  If the backend module
+is not ``f"matplotlib.backends.backend_{backend_name.lower()}"`` then there
+must also be an entry in the ``BackendRegistry._name_to_module``.
+
+module:// syntax
+^^^^^^^^^^^^^^^^
+
+Any backend in a separate module (not built into Matplotlib) can be used by
+specifying the path to the module in the form ``module://some.backend.module``.
+An example is ``module://mplcairo.qt`` for
+`mplcairo <https:////github.com/matplotlib/mplcairo>`_.  The backend's
+interactive framework will be taken from its
+``FigureCanvas.required_interactive_framework``.
+
+Entry point
+^^^^^^^^^^^
+
+An external backend module can self-register as a backend using an
+``entry point`` in its ``pyproject.toml`` such as the one used by
+``matplotlib-inline``:
+
+.. code-block:: toml
+
+    [project.entry-points."matplotlib.backend"]
+    inline = "matplotlib_inline.backend_inline"
+
+The backend's interactive framework will be taken from its
+``FigureCanvas.required_interactive_framework``.  All entry points are loaded
+together but only when first needed, such as when a backend name is not
+recognised as a built-in backend, or when
+:meth:`~matplotlib.backends.registry.BackendRegistry.list_all` is first called.

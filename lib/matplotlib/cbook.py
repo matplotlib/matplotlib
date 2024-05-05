@@ -2224,15 +2224,6 @@ def _check_and_log_subprocess(command, logger, **kwargs):
     return proc.stdout
 
 
-def _backend_module_name(name):
-    """
-    Convert a backend name (either a standard backend -- "Agg", "TkAgg", ... --
-    or a custom backend -- "module://...") to the corresponding module name).
-    """
-    return (name[9:] if name.startswith("module://")
-            else f"matplotlib.backends.backend_{name.lower()}")
-
-
 def _setup_new_guiapp():
     """
     Perform OS-dependent setup when Matplotlib creates a new GUI application.
