@@ -3291,7 +3291,8 @@ class NavigationToolbar2:
         str or `NavigationToolbar2.UNKNOWN_SAVED_STATUS` or `None`
             The filepath of the saved figure.
             Returns `None` if figure is not saved.
-            Returns `NavigationToolbar2.UNKNOWN_SAVED_STATUS` when the backend does not provide the information.
+            Returns `NavigationToolbar2.UNKNOWN_SAVED_STATUS` when
+            the backend does not provide the information.
         """
         raise NotImplementedError
 
