@@ -206,7 +206,7 @@ def test_save_figure_return():
         fname = fig.canvas.manager.toolbar.save_figure()
         os.remove("foobar.png")
         assert fname == "foobar.png"
-    with mock.patch(prop, return_value=None):
+    with mock.patch(prop, return_value=""):
         fname = fig.canvas.manager.toolbar.save_figure()
         assert fname is None
     print("success")
