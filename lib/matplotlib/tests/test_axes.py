@@ -978,6 +978,15 @@ def test_hexbin_bad_extents():
         ax.hexbin(x, y, extent=(0, 1, 1, 0))
 
 
+def test_hexbin_string_norm():
+    fig, ax = plt.subplots()
+    hex = ax.hexbin(np.random.rand(10), np.random.rand(10), norm="log", vmin=2, vmax=5)
+    assert isinstance(hex, matplotlib.collections.PolyCollection)
+    assert isinstance(hex.norm, matplotlib.colors.LogNorm)
+    assert hex.norm.vmin == 2
+    assert hex.norm.vmax == 5
+
+
 @image_comparison(['hexbin_empty.png'], remove_text=True)
 def test_hexbin_empty():
     # From #3886: creating hexbin from empty dataset raises ValueError
@@ -1019,6 +1028,27 @@ def test_hexbin_log():
     h = ax.hexbin(x, y, yscale='log', bins='log',
                   marginals=True, reduce_C_function=np.sum)
     plt.colorbar(h)
+
+    # Make sure offsets are set
+    assert h.get_offsets().shape == (11558, 2)
+
+
+def test_hexbin_log_offsets():
+    x = np.geomspace(1, 100, 500)
+
+    fig, ax = plt.subplots()
+    h = ax.hexbin(x, x, xscale='log', yscale='log', gridsize=2)
+    np.testing.assert_almost_equal(
+        h.get_offsets(),
+        np.array(
+            [[0, 0],
+             [0, 2],
+             [1, 0],
+             [1, 2],
+             [2, 0],
+             [2, 2],
+             [0.5, 1],
+             [1.5, 1]]))
 
 
 @image_comparison(["hexbin_linear.png"], style="mpl20", remove_text=True)

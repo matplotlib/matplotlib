@@ -570,7 +570,7 @@ class Axes(_AxesBase):
         return self.indicate_inset(rect, inset_ax, **kwargs)
 
     @_docstring.dedent_interpd
-    def secondary_xaxis(self, location, *, functions=None, transform=None, **kwargs):
+    def secondary_xaxis(self, location, functions=None, *, transform=None, **kwargs):
         """
         Add a second x-axis to this `~.axes.Axes`.
 
@@ -624,7 +624,7 @@ class Axes(_AxesBase):
         return secondary_ax
 
     @_docstring.dedent_interpd
-    def secondary_yaxis(self, location, *, functions=None, transform=None, **kwargs):
+    def secondary_yaxis(self, location, functions=None, *, transform=None, **kwargs):
         """
         Add a second y-axis to this `~.axes.Axes`.
 
@@ -5028,7 +5028,7 @@ class Axes(_AxesBase):
             A `.PolyCollection` defining the hexagonal bins.
 
             - `.PolyCollection.get_offsets` contains a Mx2 array containing
-              the x, y positions of the M hexagon centers.
+              the x, y positions of the M hexagon centers in data coordinates.
             - `.PolyCollection.get_array` contains the values of the M
               hexagons.
 
@@ -5206,7 +5206,7 @@ class Axes(_AxesBase):
             linewidths = [mpl.rcParams['patch.linewidth']]
 
         if xscale == 'log' or yscale == 'log':
-            polygons = np.expand_dims(polygon, 0) + np.expand_dims(offsets, 1)
+            polygons = np.expand_dims(polygon, 0)
             if xscale == 'log':
                 polygons[:, :, 0] = 10.0 ** polygons[:, :, 0]
                 xmin = 10.0 ** xmin
@@ -5217,20 +5217,16 @@ class Axes(_AxesBase):
                 ymin = 10.0 ** ymin
                 ymax = 10.0 ** ymax
                 self.set_yscale(yscale)
-            collection = mcoll.PolyCollection(
-                polygons,
-                edgecolors=edgecolors,
-                linewidths=linewidths,
-                )
         else:
-            collection = mcoll.PolyCollection(
-                [polygon],
-                edgecolors=edgecolors,
-                linewidths=linewidths,
-                offsets=offsets,
-                offset_transform=mtransforms.AffineDeltaTransform(
-                    self.transData),
-            )
+            polygons = [polygon]
+
+        collection = mcoll.PolyCollection(
+            polygons,
+            edgecolors=edgecolors,
+            linewidths=linewidths,
+            offsets=offsets,
+            offset_transform=mtransforms.AffineDeltaTransform(self.transData)
+        )
 
         # Set normalizer if bins is 'log'
         if cbook._str_equal(bins, 'log'):
@@ -5241,11 +5237,6 @@ class Axes(_AxesBase):
                 norm = mcolors.LogNorm(vmin=vmin, vmax=vmax)
                 vmin = vmax = None
             bins = None
-
-        # autoscale the norm with current accum values if it hasn't been set
-        if norm is not None:
-            if norm.vmin is None and norm.vmax is None:
-                norm.autoscale(accum)
 
         if bins is not None:
             if not np.iterable(bins):
@@ -5261,6 +5252,11 @@ class Axes(_AxesBase):
         collection.set_alpha(alpha)
         collection._internal_update(kwargs)
         collection._scale_norm(norm, vmin, vmax)
+
+        # autoscale the norm with current accum values if it hasn't been set
+        if norm is not None:
+            if collection.norm.vmin is None and collection.norm.vmax is None:
+                collection.norm.autoscale()
 
         corners = ((xmin, ymin), (xmax, ymax))
         self.update_datalim(corners)

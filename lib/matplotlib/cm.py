@@ -44,10 +44,17 @@ def _gen_cmap_registry():
             colors.LinearSegmentedColormap.from_list(name, spec, _LUTSIZE))
 
     # Register colormap aliases for gray and grey.
-    cmap_d['grey'] = cmap_d['gray']
-    cmap_d['gist_grey'] = cmap_d['gist_gray']
-    cmap_d['gist_yerg'] = cmap_d['gist_yarg']
-    cmap_d['Grays'] = cmap_d['Greys']
+    aliases = {
+        # alias -> original name
+        'grey': 'gray',
+        'gist_grey': 'gist_gray',
+        'gist_yerg': 'gist_yarg',
+        'Grays': 'Greys',
+    }
+    for alias, original_name in aliases.items():
+        cmap = cmap_d[original_name].copy()
+        cmap.name = alias
+        cmap_d[alias] = cmap
 
     # Generate reversed cmaps.
     for cmap in list(cmap_d.values()):

@@ -88,24 +88,24 @@ class Axes(_AxesBase):
     def secondary_xaxis(
         self,
         location: Literal["top", "bottom"] | float,
-        *,
         functions: tuple[
             Callable[[ArrayLike], ArrayLike], Callable[[ArrayLike], ArrayLike]
         ]
         | Transform
         | None = ...,
+        *,
         transform: Transform | None = ...,
         **kwargs
     ) -> SecondaryAxis: ...
     def secondary_yaxis(
         self,
         location: Literal["left", "right"] | float,
-        *,
         functions: tuple[
             Callable[[ArrayLike], ArrayLike], Callable[[ArrayLike], ArrayLike]
         ]
         | Transform
         | None = ...,
+        *,
         transform: Transform | None = ...,
         **kwargs
     ) -> SecondaryAxis: ...

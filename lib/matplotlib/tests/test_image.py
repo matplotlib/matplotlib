@@ -24,27 +24,6 @@ import matplotlib.ticker as mticker
 import pytest
 
 
-@image_comparison(['image_interps'], style='mpl20')
-def test_image_interps():
-    """Make the basic nearest, bilinear and bicubic interps."""
-    # Remove texts when this image is regenerated.
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
-
-    X = np.arange(100).reshape(5, 20)
-
-    fig, (ax1, ax2, ax3) = plt.subplots(3)
-    ax1.imshow(X, interpolation='nearest')
-    ax1.set_title('three interpolations')
-    ax1.set_ylabel('nearest')
-
-    ax2.imshow(X, interpolation='bilinear')
-    ax2.set_ylabel('bilinear')
-
-    ax3.imshow(X, interpolation='bicubic')
-    ax3.set_ylabel('bicubic')
-
-
 @image_comparison(['interp_alpha.png'], remove_text=True)
 def test_alpha_interp():
     """Test the interpolation of the alpha channel on RGBA images"""
@@ -203,6 +182,14 @@ def test_imsave(fmt):
     assert arr_dpi100.shape == (1856, 2, 3 + has_alpha)
 
     assert_array_equal(arr_dpi1, arr_dpi100)
+
+
+@pytest.mark.parametrize("origin", ["upper", "lower"])
+def test_imsave_rgba_origin(origin):
+    # test that imsave always passes c-contiguous arrays down to pillow
+    buf = io.BytesIO()
+    result = np.zeros((10, 10, 4), dtype='uint8')
+    mimage.imsave(buf, arr=result, format="png", origin=origin)
 
 
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
@@ -436,15 +423,6 @@ def test_image_cliprect():
     rect = patches.Rectangle(
         xy=(1, 1), width=2, height=2, transform=im.axes.transData)
     im.set_clip_path(rect)
-
-
-@image_comparison(['imshow'], remove_text=True, style='mpl20')
-def test_imshow():
-    fig, ax = plt.subplots()
-    arr = np.arange(100).reshape((10, 10))
-    ax.imshow(arr, interpolation="bilinear", extent=(1, 2, 1, 2))
-    ax.set_xlim(0, 3)
-    ax.set_ylim(0, 3)
 
 
 @check_figures_equal(extensions=['png'])
@@ -1404,6 +1382,27 @@ def test_nonuniform_and_pcolor():
         ax.set_axis_off()
         # NonUniformImage "leaks" out of extents, not PColorImage.
         ax.set(xlim=(0, 10))
+
+
+@image_comparison(["nonuniform_logscale.png"], style="mpl20")
+def test_nonuniform_logscale():
+    _, axs = plt.subplots(ncols=3, nrows=1)
+
+    for i in range(3):
+        ax = axs[i]
+        im = NonUniformImage(ax)
+        im.set_data(np.arange(1, 4) ** 2, np.arange(1, 4) ** 2,
+                    np.arange(9).reshape((3, 3)))
+        ax.set_xlim(1, 16)
+        ax.set_ylim(1, 16)
+        ax.set_box_aspect(1)
+        if i == 1:
+            ax.set_xscale("log", base=2)
+            ax.set_yscale("log", base=2)
+        if i == 2:
+            ax.set_xscale("log", base=4)
+            ax.set_yscale("log", base=4)
+        ax.add_image(im)
 
 
 @image_comparison(
