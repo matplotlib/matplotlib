@@ -183,7 +183,9 @@ Troubleshooting
 * If the font configuration used by Matplotlib differs from the font setting
   in yout LaTeX document, the alignment of text elements in imported figures
   may be off. Check the header of your ``.pgf`` file if you are unsure about
-  the fonts Matplotlib used for the layout.
+  the fonts Matplotlib used for the layout. For best results, you may need to
+  set `pgf.documentclass` and `pgf.preamble` to match your LaTeX document and
+  disable `pgf.rcfonts`.
 
 * Vector images and hence ``.pgf`` files can become bloated if there are a lot
   of objects in the graph. This can be the case for image processing or very
