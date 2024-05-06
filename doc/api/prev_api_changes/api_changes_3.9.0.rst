@@ -5,4 +5,6 @@ API Changes for 3.9.0
    :local:
    :depth: 1
 
+.. include:: /api/prev_api_changes/api_changes_3.9.0/behaviour.rst
+
 .. include:: /api/prev_api_changes/api_changes_3.9.0/development.rst
