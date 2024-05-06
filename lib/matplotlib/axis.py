@@ -658,11 +658,16 @@ class Axis(martist.Artist):
 
         self._autolabelpos = True
 
+        if not cbook._str_lower_equal(mpl.rcParams['axes.labelcolor'], 'auto'):
+            color = mpl.rcParams['axes.labelcolor']
+        else:
+            color = mpl.rcParams['text.color']
+
         self.label = mtext.Text(
             np.nan, np.nan,
             fontsize=mpl.rcParams['axes.labelsize'],
             fontweight=mpl.rcParams['axes.labelweight'],
-            color=mpl.rcParams['axes.labelcolor'],
+            color=color
         )
         self._set_artist_props(self.label)
         self.offsetText = mtext.Text(np.nan, np.nan)
@@ -882,7 +887,10 @@ class Axis(martist.Artist):
         self.label._reset_visual_defaults()
         # The above resets the label formatting using text rcParams,
         # so we then update the formatting using axes rcParams
-        self.label.set_color(mpl.rcParams['axes.labelcolor'])
+        if not cbook._str_lower_equal(mpl.rcParams['axes.labelcolor'], 'auto'):
+            self.label.set_color(mpl.rcParams['axes.labelcolor'])
+        else:
+            self.label.set_color(mpl.rcParams['text.color'])
         self.label.set_fontsize(mpl.rcParams['axes.labelsize'])
         self.label.set_fontweight(mpl.rcParams['axes.labelweight'])
         self.offsetText._reset_visual_defaults()

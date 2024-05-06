@@ -1101,7 +1101,7 @@ _validators = {
     "axes.labelsize":     validate_fontsize,  # fontsize of x & y labels
     "axes.labelpad":      validate_float,  # space between label and axis
     "axes.labelweight":   validate_fontweight,  # fontsize of x & y labels
-    "axes.labelcolor":    validate_color,  # color of axis label
+    "axes.labelcolor":    validate_color_or_auto,  # color of axis label
     # use scientific notation if log10 of the axis range is smaller than the
     # first or larger than the second
     "axes.formatter.limits": _listify_validator(validate_int, n=2),
