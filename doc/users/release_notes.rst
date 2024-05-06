@@ -19,7 +19,7 @@ Version 3.9
     :maxdepth: 1
 
     next_whats_new
-    ../api/next_api_changes
+    ../api/prev_api_changes/api_changes_3.9.0.rst
     github_stats.rst
 
 Version 3.8
