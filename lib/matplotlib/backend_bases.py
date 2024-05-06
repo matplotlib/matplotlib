@@ -3459,6 +3459,10 @@ class ToolContainerBase:
         backend-specific code to remove an element from the toolbar; it is
         called when `.ToolManager` emits a `tool_removed_event`.
 
+        Because some tools are present only on the `.ToolManager` but not on
+        the `ToolContainer`, this method must be a no-op when called on a tool
+        absent from the container.
+
         .. warning::
             This is part of the backend implementation and should
             not be called by end-users.  They should instead call
