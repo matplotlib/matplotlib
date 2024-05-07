@@ -1,3 +1,0 @@
-``boxplot`` tick labels
-~~~~~~~~~~~~~~~~~~~~~~~
-The parameter *labels* has been renamed to *tick_labels* for clarity and consistency with `~.Axes.bar`.
