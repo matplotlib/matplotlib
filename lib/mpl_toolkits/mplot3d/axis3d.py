@@ -10,7 +10,7 @@ import matplotlib as mpl
 from matplotlib import (
     _api, artist, lines as mlines, axis as maxis, patches as mpatches,
     transforms as mtransforms, colors as mcolors)
-from . import art3d, proj3d
+from . import art3d
 
 
 def _move_from_center(coord, centers, deltas, axmask=(True, True, True)):
@@ -472,16 +472,16 @@ class Axis(maxis.XAxis):
             pos = edgep1.copy()
             pos[index] = tick.get_loc()
             pos[tickdir] = out_tickdir
-            x1, y1, z1 = proj3d.proj_transform(*pos, self.axes.M)
+            x1, y1, z1 = self.axes.M.transform(pos)
             pos[tickdir] = in_tickdir
-            x2, y2, z2 = proj3d.proj_transform(*pos, self.axes.M)
+            x2, y2, z2 = self.axes.M.transform(pos)
 
             # Get position of label
             labeldeltas = (tick.get_pad() + default_label_offset) * points
 
             pos[tickdir] = edgep1_tickdir
             pos = _move_from_center(pos, centers, labeldeltas, self._axmask())
-            lx, ly, lz = proj3d.proj_transform(*pos, self.axes.M)
+            lx, ly, lz = self.axes.M.transform(pos)
 
             _tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
             tick.tick1line.set_linewidth(tick_lw[tick._major])
@@ -506,7 +506,7 @@ class Axis(maxis.XAxis):
 
         pos = _move_from_center(outeredgep, centers, labeldeltas,
                                 self._axmask())
-        olx, oly, olz = proj3d.proj_transform(*pos, self.axes.M)
+        olx, oly, olz = self.axes.M.transform(pos)
         self.offsetText.set_text(self.major.formatter.get_offset())
         self.offsetText.set_position((olx, oly))
         angle = art3d._norm_text_angle(np.rad2deg(np.arctan2(dy, dx)))
@@ -530,7 +530,7 @@ class Axis(maxis.XAxis):
         # Three-letters (e.g., TFT, FTT) are short-hand for the array of bools
         # from the variable 'highs'.
         # ---------------------------------------------------------------------
-        centpt = proj3d.proj_transform(*centers, self.axes.M)
+        centpt = self.axes.M.transform(centers)
         if centpt[tickdir] > pep[tickdir, outerindex]:
             # if FT and if highs has an even number of Trues
             if (centpt[index] <= pep[index, outerindex]
@@ -564,7 +564,7 @@ class Axis(maxis.XAxis):
         # Draw labels
         lxyz = 0.5 * (edgep1 + edgep2)
         lxyz = _move_from_center(lxyz, centers, labeldeltas, self._axmask())
-        tlx, tly, tlz = proj3d.proj_transform(*lxyz, self.axes.M)
+        tlx, tly, tlz = self.axes.M.transform(lxyz)
         self.label.set_position((tlx, tly))
         if self.get_rotate_label(self.label.get_text()):
             angle = art3d._norm_text_angle(np.rad2deg(np.arctan2(dy, dx)))
@@ -600,7 +600,7 @@ class Axis(maxis.XAxis):
         for edgep1, edgep2, pos in zip(*self._get_all_axis_line_edge_points(
                                            minmax, maxmin, self._tick_position)):
             # Project the edge points along the current position
-            pep = proj3d._proj_trans_points([edgep1, edgep2], self.axes.M)
+            pep = self.axes.M.transform([edgep1, edgep2]).T
             pep = np.asarray(pep)
 
             # The transAxes transform is used because the Text object
@@ -628,7 +628,7 @@ class Axis(maxis.XAxis):
         for edgep1, edgep2, pos in zip(*self._get_all_axis_line_edge_points(
                                            minmax, maxmin, self._label_position)):
             # See comments above
-            pep = proj3d._proj_trans_points([edgep1, edgep2], self.axes.M)
+            pep = self.axes.M.transform([edgep1, edgep2]).T
             pep = np.asarray(pep)
             dx, dy = (self.axes.transAxes.transform([pep[0:2, 1]]) -
                       self.axes.transAxes.transform([pep[0:2, 0]]))[0]
