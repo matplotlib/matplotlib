@@ -22,6 +22,7 @@ import re
 
 import numpy as np
 
+from matplotlib.hatch import _validate_hatch_pattern
 from matplotlib import _api, cbook
 from matplotlib.backends import BackendFilter, backend_registry
 from matplotlib.cbook import ls_mapper
@@ -617,19 +618,7 @@ def _validate_int_greaterequal0(s):
         raise RuntimeError(f'Value must be >=0; got {s}')
 
 
-def validate_hatch(s):
-    r"""
-    Validate a hatch pattern.
-    A hatch pattern string can have any sequence of the following
-    characters: ``\ / | - + * . x o O``.
-    """
-    if not isinstance(s, str):
-        raise ValueError("Hatch pattern must be a string")
-    _api.check_isinstance(str, hatch_pattern=s)
-    unknown = set(s) - {'\\', '/', '|', '-', '+', '*', '.', 'x', 'o', 'O'}
-    if unknown:
-        raise ValueError("Unknown hatch symbol(s): %s" % list(unknown))
-    return s
+validate_hatch = _validate_hatch_pattern
 
 
 validate_hatchlist = _listify_validator(validate_hatch)
