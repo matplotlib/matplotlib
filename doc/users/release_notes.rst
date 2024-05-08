@@ -18,8 +18,8 @@ Version 3.9
 .. toctree::
     :maxdepth: 1
 
-    next_whats_new
-    ../api/next_api_changes
+    prev_whats_new/whats_new_3.9.0.rst
+    ../api/prev_api_changes/api_changes_3.9.0.rst
     github_stats.rst
 
 Version 3.8
@@ -30,7 +30,6 @@ Version 3.8
     prev_whats_new/whats_new_3.8.0.rst
     ../api/prev_api_changes/api_changes_3.8.1.rst
     ../api/prev_api_changes/api_changes_3.8.0.rst
-    github_stats.rst
     prev_whats_new/github_stats_3.8.3.rst
     prev_whats_new/github_stats_3.8.2.rst
     prev_whats_new/github_stats_3.8.1.rst
