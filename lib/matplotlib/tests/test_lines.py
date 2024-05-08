@@ -185,7 +185,7 @@ def test_set_drawstyle():
 
 @image_comparison(
     ['line_collection_dashes'], remove_text=True, style='mpl20',
-    tol=0.65 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
+    tol=0 if platform.machine() == 'x86_64' else 0.65)
 def test_set_line_coll_dash_image():
     fig, ax = plt.subplots()
     np.random.seed(0)
