@@ -79,7 +79,6 @@ class PolarTransform(mtransforms.Transform):
         return self._scale_transform.transform(
             (0, self._axis.get_rorigin()))[1]
 
-    @_api.rename_parameter("3.8", "tr", "values")
     def transform_non_affine(self, values):
         # docstring inherited
         theta, r = np.transpose(values)
@@ -235,7 +234,6 @@ class InvertedPolarTransform(mtransforms.Transform):
         use_rmin="_use_rmin",
         apply_theta_transforms="_apply_theta_transforms")
 
-    @_api.rename_parameter("3.8", "xy", "values")
     def transform_non_affine(self, values):
         # docstring inherited
         x, y = values.T

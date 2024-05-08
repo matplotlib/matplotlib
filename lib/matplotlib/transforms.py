@@ -606,7 +606,6 @@ class BboxBase(TransformNode):
         a = np.array([[-deltaw, -deltah], [deltaw, deltah]])
         return Bbox(self._points + a)
 
-    @_api.rename_parameter("3.8", "p", "w_pad")
     def padded(self, w_pad, h_pad=None):
         """
         Construct a `Bbox` by padding this one on all four sides.
@@ -1799,7 +1798,6 @@ class AffineBase(Transform):
         raise NotImplementedError('Affine subclasses should override this '
                                   'method.')
 
-    @_api.rename_parameter("3.8", "points", "values")
     def transform_non_affine(self, values):
         # docstring inherited
         return values
@@ -1857,7 +1855,6 @@ class Affine2DBase(AffineBase):
         mtx = self.get_matrix()
         return tuple(mtx[:2].swapaxes(0, 1).flat)
 
-    @_api.rename_parameter("3.8", "points", "values")
     def transform_affine(self, values):
         mtx = self.get_matrix()
         if isinstance(values, np.ma.MaskedArray):
@@ -1868,7 +1865,6 @@ class Affine2DBase(AffineBase):
     if DEBUG:
         _transform_affine = transform_affine
 
-        @_api.rename_parameter("3.8", "points", "values")
         def transform_affine(self, values):
             # docstring inherited
             # The major speed trap here is just converting to the
@@ -2131,17 +2127,14 @@ class IdentityTransform(Affine2DBase):
         # docstring inherited
         return self._mtx
 
-    @_api.rename_parameter("3.8", "points", "values")
     def transform(self, values):
         # docstring inherited
         return np.asanyarray(values)
 
-    @_api.rename_parameter("3.8", "points", "values")
     def transform_affine(self, values):
         # docstring inherited
         return np.asanyarray(values)
 
-    @_api.rename_parameter("3.8", "points", "values")
     def transform_non_affine(self, values):
         # docstring inherited
         return np.asanyarray(values)
@@ -2230,7 +2223,6 @@ class BlendedGenericTransform(_BlendedMixin, Transform):
         # docstring inherited
         return blended_transform_factory(self._x.frozen(), self._y.frozen())
 
-    @_api.rename_parameter("3.8", "points", "values")
     def transform_non_affine(self, values):
         # docstring inherited
         if self._x.is_affine and self._y.is_affine:
@@ -2423,12 +2415,10 @@ class CompositeGenericTransform(Transform):
 
     __str__ = _make_str_method("_a", "_b")
 
-    @_api.rename_parameter("3.8", "points", "values")
     def transform_affine(self, values):
         # docstring inherited
         return self.get_affine().transform(values)
 
-    @_api.rename_parameter("3.8", "points", "values")
     def transform_non_affine(self, values):
         # docstring inherited
         if self._a.is_affine and self._b.is_affine:
