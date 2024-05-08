@@ -75,14 +75,13 @@ Or as a single string to each individual `.Axes.boxplot`:
 Percent sign in pie labels auto-escaped with ``usetex=True``
 ------------------------------------------------------------
 
-It is common, with `.Axes.pie`, to specify labels that include a percent sign
-(``%``), which denotes a comment for LaTeX. When enabling LaTeX with
-:rc:`text.usetex` or passing ``textprops={"usetex": True}``, this would cause
-the percent sign to disappear.
+It is common, with `.Axes.pie`, to specify labels that include a percent sign (``%``),
+which denotes a comment for LaTeX. When enabling LaTeX with :rc:`text.usetex` or passing
+``textprops={"usetex": True}``, this used to cause the percent sign to disappear.
 
-Now, the percent sign is automatically escaped (by adding a preceding
-backslash) so that it appears regardless of the ``usetex`` setting. If you have
-pre-escaped the percent sign, this will be detected, and remain as is.
+Now, the percent sign is automatically escaped (by adding a preceding backslash) so that
+it appears regardless of the ``usetex`` setting. If you have pre-escaped the percent
+sign, this will be detected, and remain as is.
 
 ``hatch`` parameter for stackplot
 ---------------------------------
@@ -154,7 +153,7 @@ Setting the parameter *side* to 'low' or 'high' allows to only plot one half of 
     ax.axhspan(.8, .9, fc="C1", alpha=.5)
     ax.axhspan(.6, .7, .8, .9, fc="C2", alpha=.5)
 
-subplot titles can now be automatically aligned
+Subplot titles can now be automatically aligned
 -----------------------------------------------
 
 Subplot axes titles can be misaligned vertically if tick labels or xlabels are placed at
@@ -163,7 +162,7 @@ will now align the titles vertically.
 
 .. plot::
     :include-source:
-    :alt: A figure with two Axes side-by-side, the second of which with ticks on top. The Axes titles and x-labels ppear unaligned with each other due to these ticks.
+    :alt: A figure with two Axes side-by-side, the second of which with ticks on top. The Axes titles and x-labels appear unaligned with each other due to these ticks.
 
     fig, axs = plt.subplots(1, 2, layout='constrained')
 
@@ -205,7 +204,7 @@ Toggle minorticks on Axis
 -------------------------
 
 Minor ticks on an `~matplotlib.axis.Axis` can be displayed or removed using
-`~matplotlib.axis.Axis.minorticks_on` and `~matplotlib.axis.Axis.minorticks_off`; e.g.:
+`~matplotlib.axis.Axis.minorticks_on` and `~matplotlib.axis.Axis.minorticks_off`; e.g.,
 ``ax.xaxis.minorticks_on()``. See also `~matplotlib.axes.Axes.minorticks_on`.
 
 ``StrMethodFormatter`` now respects ``axes.unicode_minus``
@@ -228,7 +227,7 @@ if :rc:`axes.unicode_minus` is set.
 Figure, Axes, and Legend Layout
 ===============================
 
-Subfigures have now controllable zorders
+Subfigures now have controllable zorders
 ----------------------------------------
 
 Previously, setting the zorder of a subfigure had no effect, and those were plotted on
@@ -297,7 +296,7 @@ automatically added.
 
 .. plot::
     :include-source:
-    :alt: Example of the new behavior of 3D axis limits, and how setting the rcparam reverts to the old behavior.
+    :alt: Example of the new behavior of 3D axis limits, and how setting the rcParam reverts to the old behavior.
 
     fig, axs = plt.subplots(1, 2, subplot_kw={'projection': '3d'})
 
@@ -406,5 +405,5 @@ object without requiring a full re-draw.
 NonUniformImage now has mouseover support
 -----------------------------------------
 
-When mousing over a `~matplotlib.image.NonUniformImage` the data values are now
+When mousing over a `~matplotlib.image.NonUniformImage`, the data values are now
 displayed.

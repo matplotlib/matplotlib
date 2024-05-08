@@ -1,12 +1,6 @@
 Deprecations
 ------------
 
-``contour`` deprecations reverted
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-``contour.allsegs``, ``contour.allkinds``, and ``contour.find_nearest_contour`` are no
-longer marked for deprecation.
-
 ``plot_date``
 ^^^^^^^^^^^^^
 

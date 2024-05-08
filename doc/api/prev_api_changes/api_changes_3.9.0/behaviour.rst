@@ -27,14 +27,6 @@ Boxplots now ignore masked data points
 `~matplotlib.axes.Axes.boxplot` and `~matplotlib.cbook.boxplot_stats` now ignore any
 masked points in the input data.
 
-Default behavior of ``hexbin`` with *C* provided requires at least 1 point
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The behavior changed in 3.8.0 to be inclusive of *mincnt*. However that resulted in
-errors or warnings with some reduction functions, so now the default is to require at
-least 1 point to call the reduction function. This effectively restores the default
-behavior to match that of Matplotlib 3.7 and before.
-
 ``axhspan`` and ``axvspan`` now return ``Rectangle``\s, not ``Polygon``\s
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
