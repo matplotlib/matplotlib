@@ -231,20 +231,17 @@ class MaxNLocator(Locator):
     def view_limits(self, dmin: float, dmax: float) -> tuple[float, float]: ...
 
 class LogLocator(Locator):
-    numdecs: float
     numticks: int | None
     def __init__(
         self,
         base: float = ...,
         subs: None | Literal["auto", "all"] | Sequence[float] = ...,
-        numdecs: float = ...,
         numticks: int | None = ...,
     ) -> None: ...
     def set_params(
         self,
         base: float | None = ...,
         subs: Literal["auto", "all"] | Sequence[float] | None = ...,
-        numdecs: float | None = ...,
         numticks: int | None = ...,
     ) -> None: ...
 
