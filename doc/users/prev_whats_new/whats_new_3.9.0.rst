@@ -22,11 +22,8 @@ Plotting and Annotation improvements
 Legend support for Boxplot
 --------------------------
 
-Boxplots now support a *label* parameter to create legend entries.
-
-Legend labels can be passed as a list of strings to label multiple boxes in a single
-`.Axes.boxplot` call:
-
+Boxplots now support a *label* parameter to create legend entries. Legend labels can be
+passed as a list of strings to label multiple boxes in a single `.Axes.boxplot` call:
 
 .. plot::
     :include-source:
@@ -119,7 +116,25 @@ Add option to plot only one half of violin plot
 -----------------------------------------------
 
 Setting the parameter *side* to 'low' or 'high' allows to only plot one half of the
-violin plot.
+`.Axes.violinplot`.
+
+.. plot::
+    :include-source:
+    :alt: Three copies of a vertical violin plot; first in blue showing the default of both sides, followed by an orange copy that only shows the "low" (or left, in this case) side, and finally a green copy that only shows the "high" (or right) side.
+
+    # Fake data with reproducible random state.
+    np.random.seed(19680801)
+    data = np.random.normal(0, 8, size=100)
+
+    fig, ax = plt.subplots()
+
+    ax.violinplot(data, [0], showmeans=True, showextrema=True)
+    ax.violinplot(data, [1], showmeans=True, showextrema=True, side='low')
+    ax.violinplot(data, [2], showmeans=True, showextrema=True, side='high')
+
+    ax.set_title('Violin Sides Example')
+    ax.set_xticks([0, 1, 2], ['Default', 'side="low"', 'side="high"'])
+    ax.set_yticklabels([])
 
 ``axhline`` and ``axhspan`` on polar axes
 -----------------------------------------
@@ -127,12 +142,59 @@ violin plot.
 ... now draw circles and circular arcs (`~.Axes.axhline`) or annuli and wedges
 (`~.Axes.axhspan`).
 
+.. plot::
+    :include-source:
+    :alt: A sample polar plot, that contains an axhline at radius 1, an axhspan annulus between radius 0.8 and 0.9, and an axhspan wedge between radius 0.6 and 0.7 and 288° and 324°.
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection="polar")
+    ax.set_rlim(0, 1.2)
+
+    ax.axhline(1, c="C0", alpha=.5)
+    ax.axhspan(.8, .9, fc="C1", alpha=.5)
+    ax.axhspan(.6, .7, .8, .9, fc="C2", alpha=.5)
+
 subplot titles can now be automatically aligned
 -----------------------------------------------
 
 Subplot axes titles can be misaligned vertically if tick labels or xlabels are placed at
-the top of one subplot. The new method on the `.Figure` class: `.Figure.align_titles`
+the top of one subplot. The new `~.Figure.align_titles` method on the `.Figure` class
 will now align the titles vertically.
+
+.. plot::
+    :include-source:
+    :alt: A figure with two Axes side-by-side, the second of which with ticks on top. The Axes titles and x-labels ppear unaligned with each other due to these ticks.
+
+    fig, axs = plt.subplots(1, 2, layout='constrained')
+
+    axs[0].plot(np.arange(0, 1e6, 1000))
+    axs[0].set_title('Title 0')
+    axs[0].set_xlabel('XLabel 0')
+
+    axs[1].plot(np.arange(1, 0, -0.1) * 2000, np.arange(1, 0, -0.1))
+    axs[1].set_title('Title 1')
+    axs[1].set_xlabel('XLabel 1')
+    axs[1].xaxis.tick_top()
+    axs[1].tick_params(axis='x', rotation=55)
+
+.. plot::
+    :include-source:
+    :alt: A figure with two Axes side-by-side, the second of which with ticks on top. Unlike the previous figure, the Axes titles and x-labels appear aligned.
+
+    fig, axs = plt.subplots(1, 2, layout='constrained')
+
+    axs[0].plot(np.arange(0, 1e6, 1000))
+    axs[0].set_title('Title 0')
+    axs[0].set_xlabel('XLabel 0')
+
+    axs[1].plot(np.arange(1, 0, -0.1) * 2000, np.arange(1, 0, -0.1))
+    axs[1].set_title('Title 1')
+    axs[1].set_xlabel('XLabel 1')
+    axs[1].xaxis.tick_top()
+    axs[1].tick_params(axis='x', rotation=55)
+
+    fig.align_labels()
+    fig.align_titles()
 
 ``axisartist`` can now be used together with standard ``Formatters``
 --------------------------------------------------------------------
@@ -151,6 +213,17 @@ Minor ticks on an `~matplotlib.axis.Axis` can be displayed or removed using
 
 When formatting negative values, `.StrMethodFormatter` will now use unicode minus signs
 if :rc:`axes.unicode_minus` is set.
+
+    >>> from matplotlib.ticker import StrMethodFormatter
+    >>> with plt.rc_context({'axes.unicode_minus': False}):
+    ...     formatter = StrMethodFormatter('{x}')
+    ...     print(formatter.format_data(-10))
+    -10
+
+    >>> with plt.rc_context({'axes.unicode_minus': True}):
+    ...     formatter = StrMethodFormatter('{x}')
+    ...     print(formatter.format_data(-10))
+    −10
 
 Figure, Axes, and Legend Layout
 ===============================
@@ -182,9 +255,9 @@ default a zorder of 0.
 Getters for xmargin, ymargin and zmargin
 ----------------------------------------
 
-``.Axes.get_xmargin()``, ``.Axes.get_ymargin()`` and ``.Axes3D.get_zmargin()`` methods
-have been added to return the margin values set by ``.Axes.set_xmargin()``,
-``.Axes.set_ymargin()`` and ``.Axes3D.set_zmargin()``, respectively.
+`.Axes.get_xmargin`, `.Axes.get_ymargin` and `.Axes3D.get_zmargin` methods have been
+added to return the margin values set by `.Axes.set_xmargin`, `.Axes.set_ymargin` and
+`.Axes3D.set_zmargin`, respectively.
 
 Mathtext improvements
 =====================
@@ -207,9 +280,9 @@ Widget Improvements
 Check and Radio Button widgets support clearing
 -----------------------------------------------
 
-The `.CheckButtons` and `.RadioButtons` widgets now support clearing their
-state by calling their ``.clear`` method. Note that it is not possible to have
-no selected radio buttons, so the selected option at construction time is selected.
+The `.CheckButtons` and `.RadioButtons` widgets now support clearing their state by
+calling their ``.clear`` method. Note that it is not possible to have no selected radio
+buttons, so the selected option at construction time is selected.
 
 3D plotting improvements
 ========================
