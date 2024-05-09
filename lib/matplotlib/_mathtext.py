@@ -2285,7 +2285,8 @@ class Parser:
             if (self._in_subscript_or_superscript or (
                     c in self._binary_operators and (
                     len(s[:loc].split()) == 0 or prev_char == '{' or
-                    prev_char in self._left_delims or prev_char == '='))):
+                    prev_char in self._left_delims or 
+                    prev_char in self._relation_symbols))):
                 return [char]
             else:
                 return [Hlist([self._make_space(0.2),
