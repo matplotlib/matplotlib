@@ -245,9 +245,4 @@ jobs:
         run: |
           xvfb-run pytest-3.${{ matrix.python-minor-version }} -rfEsXR -n auto \
             --maxfail=50 --timeout=300 --durations=25 \
-            --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
-
-      - name: Upload code coverage
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+            --cov-report=term --cov=lib --log-level=DEBUG --color=yes
