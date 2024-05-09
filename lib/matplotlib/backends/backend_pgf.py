@@ -54,7 +54,8 @@ def _get_preamble():
         r"\def\mathdefault#1{#1}",
         # Use displaystyle for all math.
         r"\everymath=\expandafter{\the\everymath\displaystyle}",
-        # Allow pgf.preamble to override the above definitions.
+        # Allow pgf.documentclass and pgf.preamble to override the above definitions.
+        _get_documentclass(),
         mpl.rcParams["pgf.preamble"],
         *([
             r"\ifdefined\pdftexversion\else  % non-pdftex case.",
@@ -201,7 +202,6 @@ class LatexManager:
     @staticmethod
     def _build_latex_header():
         latex_header = [
-            _get_documentclass(),
             _get_preamble(),
             # Include TeX program name as a comment for cache invalidation.
             # TeX does not allow this to be the first line.
@@ -833,7 +833,6 @@ class FigureCanvasPgf(FigureCanvasBase):
                 "\n".join([
                     r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
                     r"\PassOptionsToPackage{%s}{geometry}" % geometry_options,
-                    _get_documentclass(),
                     _get_preamble(),
                     r"\usepackage{hyperref}",
                     r"\usepackage{geometry}",
@@ -947,7 +946,6 @@ class PdfPages:
         latex_header = "\n".join([
             r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
             r"\PassOptionsToPackage{%s}{geometry}" % geometry_options,
-            _get_documentclass(),
             _get_preamble(),
             r"\usepackage{hyperref}",
             r"\usepackage{geometry}",
