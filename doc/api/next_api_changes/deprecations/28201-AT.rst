@@ -1,0 +1,3 @@
+``Poly3DCollection.get_vector``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated with no replacement.
