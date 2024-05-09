@@ -26,9 +26,7 @@ _test_timeout = 60  # A reasonably safe value for slower architectures.
 
 @pytest.fixture
 def qt_core(request):
-    qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
-    QtCore = qt_compat.QtCore
-
+    from matplotlib.backends.qt_compat import QtCore
     return QtCore
 
 

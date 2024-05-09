@@ -1,3 +1,5 @@
+import importlib
+
 from matplotlib import path, transforms
 from matplotlib.backend_bases import (
     FigureCanvasBase, KeyEvent, LocationEvent, MouseButton, MouseEvent,
@@ -325,9 +327,7 @@ def test_toolbar_home_restores_autoscale():
 def test_draw(backend):
     from matplotlib.figure import Figure
     from matplotlib.backends.backend_agg import FigureCanvas
-    test_backend = pytest.importorskip(
-        f'matplotlib.backends.backend_{backend}'
-    )
+    test_backend = importlib.import_module(f'matplotlib.backends.backend_{backend}')
     TestCanvas = test_backend.FigureCanvas
     fig_test = Figure(constrained_layout=True)
     TestCanvas(fig_test)
