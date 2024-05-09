@@ -316,6 +316,7 @@ jobs:
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
 
       - name: Cleanup non-failed image files
+        if: failure()
         run: |
           function remove_files() {
               local extension=$1
@@ -349,6 +350,7 @@ jobs:
           fi
 
       - name: Filter C coverage
+        if: ${{ !cancelled() && github.event_name != 'schedule' }}
         run: |
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
             lcov --rc lcov_branch_coverage=1 --capture --directory . \
@@ -364,7 +366,7 @@ jobs:
               -instr-profile default.profdata > info.lcov
           fi
       - name: Upload code coverage
-        if: ${{ github.event_name != 'schedule' }}
+        if: ${{ !cancelled() && github.event_name != 'schedule' }}
         uses: codecov/codecov-action@v4
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }}"
