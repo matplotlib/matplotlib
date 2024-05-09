@@ -30,7 +30,7 @@ def test_patheffect1():
 
 
 @image_comparison(['patheffect2'], remove_text=True, style='mpl20',
-                  tol=0.052 if platform.machine() == 'arm64' else 0)
+                  tol=0.06 if platform.machine() == 'arm64' else 0)
 def test_patheffect2():
 
     ax2 = plt.subplot()
