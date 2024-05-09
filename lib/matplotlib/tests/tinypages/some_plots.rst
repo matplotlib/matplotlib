@@ -174,3 +174,15 @@ Plot 21 is generated via an include directive:
 Plot 22 uses a different specific function in a file with plot commands:
 
 .. plot:: range6.py range10
+
+Plots 23 and 24 use output-base-name with a {counter}.
+
+.. plot::
+   :output-base-name: custom-base-name-{counter}
+
+   plt.plot(range(4))
+
+.. plot::
+   :output-base-name: custom-base-name-{counter}
+
+   plt.plot(range(6))
