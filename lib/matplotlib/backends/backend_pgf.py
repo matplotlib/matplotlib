@@ -202,12 +202,12 @@ class LatexManager:
     def _build_latex_header():
         latex_header = [
             _get_documentclass(),
+            _get_preamble(),
             # Include TeX program name as a comment for cache invalidation.
             # TeX does not allow this to be the first line.
             rf"% !TeX program = {mpl.rcParams['pgf.texsystem']}",
             # Test whether \includegraphics supports interpolate option.
             r"\usepackage{graphicx}",
-            _get_preamble(),
             r"\begin{document}",
             r"\typeout{pgf_backend_query_start}",
         ]
@@ -834,11 +834,11 @@ class FigureCanvasPgf(FigureCanvasBase):
                     r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
                     r"\PassOptionsToPackage{%s}{geometry}" % geometry_options,
                     _get_documentclass(),
+                    _get_preamble(),
                     r"\usepackage{hyperref}",
                     r"\usepackage{geometry}",
                     r"\geometry{reset, %s}" % geometry_options,
                     r"\usepackage{pgf}",
-                    _get_preamble(),
                     r"\begin{document}",
                     r"\centering",
                     r"\input{figure.pgf}",
@@ -948,11 +948,11 @@ class PdfPages:
             r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
             r"\PassOptionsToPackage{%s}{geometry}" % geometry_options,
             _get_documentclass(),
+            _get_preamble(),
             r"\usepackage{hyperref}",
             r"\usepackage{geometry}",
             r"\geometry{reset, %s}" % geometry_options,
             r"\usepackage{pgf}",
-            _get_preamble(),
             r"\setlength{\parindent}{0pt}",
             r"\begin{document}%",
         ])
