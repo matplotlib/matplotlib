@@ -48,4 +48,4 @@ def test_savefig_rcparam(monkeypatch, tmp_path):
 
 def test_ipython():
     from matplotlib.testing import ipython_in_subprocess
-    ipython_in_subprocess("osx", "MacOSX", "macosx")
+    ipython_in_subprocess("osx", {(8, 24): "macosx", (7, 0): "MacOSX"})
