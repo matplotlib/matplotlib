@@ -43,8 +43,10 @@ def _get_documentclass():
         return _DOCUMENTCLASS
 
 
-def _get_preamble():
+def _get_preamble(commands=None):
     """Prepare a LaTeX preamble based on the rcParams configuration."""
+    if commands is None:
+        commands = []
     font_size_pt = FontProperties(
         size=mpl.rcParams["font.size"]
     ).get_size_in_points()
@@ -69,6 +71,7 @@ def _get_preamble():
                  for family in ["serif", "sans\\-serif", "monospace"]]
             )
         ] + [r"\fi"] if mpl.rcParams["pgf.rcfonts"] else []),
+        *commands,
         # Documented as "must come last".
         mpl.texmanager._usepackage_if_not_loaded("underscore", option="strings"),
     ])
@@ -202,12 +205,13 @@ class LatexManager:
     @staticmethod
     def _build_latex_header():
         latex_header = [
-            _get_preamble(),
-            # Include TeX program name as a comment for cache invalidation.
-            # TeX does not allow this to be the first line.
-            rf"% !TeX program = {mpl.rcParams['pgf.texsystem']}",
-            # Test whether \includegraphics supports interpolate option.
-            r"\usepackage{graphicx}",
+            _get_preamble(commands=[
+                # Include TeX program name as a comment for cache invalidation.
+                # TeX does not allow this to be the first line.
+                rf"% !TeX program = {mpl.rcParams['pgf.texsystem']}",
+                # Test whether \includegraphics supports interpolate option.
+                r"\usepackage{graphicx}",
+                ]),
             r"\begin{document}",
             r"\typeout{pgf_backend_query_start}",
         ]
@@ -833,11 +837,12 @@ class FigureCanvasPgf(FigureCanvasBase):
                 "\n".join([
                     r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
                     r"\PassOptionsToPackage{%s}{geometry}" % geometry_options,
-                    _get_preamble(),
-                    r"\usepackage{hyperref}",
-                    r"\usepackage{geometry}",
-                    r"\geometry{reset, %s}" % geometry_options,
-                    r"\usepackage{pgf}",
+                    _get_preamble(commands=[
+                        r"\usepackage{hyperref}",
+                        r"\usepackage{geometry}",
+                        r"\geometry{reset, %s}" % geometry_options,
+                        r"\usepackage{pgf}",
+                        ]),
                     r"\begin{document}",
                     r"\centering",
                     r"\input{figure.pgf}",
@@ -946,11 +951,12 @@ class PdfPages:
         latex_header = "\n".join([
             r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
             r"\PassOptionsToPackage{%s}{geometry}" % geometry_options,
-            _get_preamble(),
-            r"\usepackage{hyperref}",
-            r"\usepackage{geometry}",
-            r"\geometry{reset, %s}" % geometry_options,
-            r"\usepackage{pgf}",
+            _get_preamble(commands=[
+                r"\usepackage{hyperref}",
+                r"\usepackage{geometry}",
+                r"\geometry{reset, %s}" % geometry_options,
+                r"\usepackage{pgf}",
+                ]),
             r"\setlength{\parindent}{0pt}",
             r"\begin{document}%",
         ])
