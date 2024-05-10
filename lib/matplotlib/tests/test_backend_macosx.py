@@ -46,6 +46,7 @@ def test_savefig_rcparam(monkeypatch, tmp_path):
         assert mpl.rcParams["savefig.directory"] == f"{tmp_path}/test"
 
 
+@pytest.mark.backend('macosx')
 def test_ipython():
     from matplotlib.testing import ipython_in_subprocess
     ipython_in_subprocess("osx", {(8, 24): "macosx", (7, 0): "MacOSX"})

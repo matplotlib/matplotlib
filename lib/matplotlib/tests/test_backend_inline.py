@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
+import sys
 
 import pytest
 
@@ -12,6 +13,7 @@ pytest.importorskip('ipykernel')
 pytest.importorskip('matplotlib_inline')
 
 
+@pytest.mark.skipif(sys.version_info[:2] <= (3, 9), reason="Requires Python 3.10+")
 def test_ipynb():
     nb_path = Path(__file__).parent / 'test_inline_01.ipynb'
 
