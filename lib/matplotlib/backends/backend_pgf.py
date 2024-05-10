@@ -54,17 +54,6 @@ def _get_preamble():
         r"\def\mathdefault#1{#1}",
         # Use displaystyle for all math.
         r"\everymath=\expandafter{\the\everymath\displaystyle}",
-        # Set up font sizes to match font.size setting.
-        # If present, use the KOMA package scrextend to adjust the standard
-        # LaTeX font commands (\tiny, ..., \normalsize, ..., \Huge) accordingly.
-        # Otherwise, only set \normalsize, manually.
-        r"\IfFileExists{scrextend.sty}{",
-        r"  \usepackage[fontsize=%fpt]{scrextend}" % font_size_pt,
-        r"}{",
-        r"  \renewcommand{\normalsize}{\fontsize{%f}{%f}\selectfont}"
-        % (font_size_pt, 1.2 * font_size_pt),
-        r"  \normalsize",
-        r"}",
         # Allow pgf.preamble to override the above definitions.
         mpl.rcParams["pgf.preamble"],
         *([
