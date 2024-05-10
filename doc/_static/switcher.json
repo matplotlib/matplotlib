@@ -1,18 +1,23 @@
 [
     {
-        "name": "3.8 (stable)",
-        "version": "stable",
-        "url": "https://matplotlib.org/stable/"
+        "name": "3.9 (rc)",
+        "version": "rc",
+        "url": "https://matplotlib.org/3.9.0/"
     },
     {
-        "name": "3.9 (dev)",
+        "name": "3.10 (dev)",
         "version": "dev",
         "url": "https://matplotlib.org/devdocs/"
     },
     {
+        "name": "3.8",
+        "version": "3.8.4",
+        "url": "https://matplotlib.org/3.8.4/"
+    },
+    {
         "name": "3.7",
-        "version": "3.7.3",
-        "url": "https://matplotlib.org/3.7.3/"
+        "version": "3.7.5",
+        "url": "https://matplotlib.org/3.7.5/"
     },
     {
         "name": "3.6",

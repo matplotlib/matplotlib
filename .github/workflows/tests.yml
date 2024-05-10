@@ -59,7 +59,8 @@ jobs:
             delete-font-cache: true
           - os: ubuntu-20.04
             python-version: 3.9
-            extra-requirements: '-r requirements/testing/extra.txt'
+            # One CI run tests ipython/matplotlib-inline before backend mapping moved to mpl
+            extra-requirements: '-r requirements/testing/extra.txt "ipython<8.24" "matplotlib-inline<0.1.7"'
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
             # https://github.com/matplotlib/matplotlib/pull/26052#issuecomment-1574595954
             # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
@@ -87,8 +88,12 @@ jobs:
             pyqt6-ver: '!=6.6.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
-          - os: macos-latest
+          - os: macos-12  # This runnre is on Intel chips.
             python-version: 3.9
+            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
+            pyside6-ver: '!=6.5.1'
+          - os: macos-14  # This runner is on M1 (arm64) chips.
+            python-version: '3.12'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
 
@@ -157,7 +162,8 @@ jobs:
           macOS)
             brew install ccache
             brew tap homebrew/cask-fonts
-            brew install font-noto-sans-cjk gobject-introspection gtk4 ninja
+            brew install font-noto-sans-cjk ghostscript gobject-introspection gtk4 ninja
+            brew install --cask inkscape
             ;;
           esac
 
@@ -228,7 +234,6 @@ jobs:
           # (sometimes, the install appears to be successful but shared
           # libraries cannot be loaded at runtime, so an actual import is a
           # better check).
-          # PyGObject, pycairo, and cariocffi do not install on macOS 10.12.
           python -m pip install --upgrade pycairo 'cairocffi>=0.8' PyGObject &&
             (
               python -c 'import gi; gi.require_version("Gtk", "4.0"); from gi.repository import Gtk' &&
@@ -238,43 +243,35 @@ jobs:
               echo 'PyGObject 3 is available' || echo 'PyGObject 3 is not available'
             )
 
-          # There are no functioning wheels available for macOS 10.12 (as of
-          # Sept 2020) for either pyqt5 (there are only wheels for 10.13+) or
-          # pyside2 (the latest version (5.13.2) with 10.12 wheels has a
-          # fatal to us bug, it was fixed in 5.14.0 which has 10.13 wheels)
           python -mpip install --upgrade pyqt5${{ matrix.pyqt5-ver }} &&
             python -c 'import PyQt5.QtCore' &&
             echo 'PyQt5 is available' ||
             echo 'PyQt5 is not available'
-          if [[ "${{ runner.os }}" != 'macOS'
+          # Even though PySide2 wheels can be installed on Python 3.12, they are broken and since PySide2 is
+          # deprecated, they are unlikely to be fixed. For the same deprecation reason, there are no wheels
+          # on M1 macOS, so don't bother there either.
+          if [[ "${{ matrix.os }}" != 'macos-14'
                 && "${{ matrix.python-version }}" != '3.12' ]]; then
             python -mpip install --upgrade pyside2${{ matrix.pyside2-ver }} &&
               python -c 'import PySide2.QtCore' &&
               echo 'PySide2 is available' ||
               echo 'PySide2 is not available'
           fi
-          if [[ "${{ runner.os }}" != 'macOS' ]]; then
-            python -mpip install --upgrade pyqt6${{ matrix.pyqt6-ver }} &&
-              python -c 'import PyQt6.QtCore' &&
-              echo 'PyQt6 is available' ||
-              echo 'PyQt6 is not available'
-          fi
-          if [[ "${{ runner.os }}" != 'macOS'
-                && "${{ matrix.python-version }}" != '3.12' ]]; then
-            python -mpip install --upgrade pyside6${{ matrix.pyside6-ver }} &&
-              python -c 'import PySide6.QtCore' &&
-              echo 'PySide6 is available' ||
-              echo 'PySide6 is not available'
-          fi
+          python -mpip install --upgrade pyqt6${{ matrix.pyqt6-ver }} &&
+            python -c 'import PyQt6.QtCore' &&
+            echo 'PyQt6 is available' ||
+            echo 'PyQt6 is not available'
+          python -mpip install --upgrade pyside6${{ matrix.pyside6-ver }} &&
+            python -c 'import PySide6.QtCore' &&
+            echo 'PySide6 is available' ||
+            echo 'PySide6 is not available'
 
-          if [[ "${{ matrix.python-version }}" != '3.12' ]]; then
-            python -mpip install --upgrade \
-              -f "https://extras.wxpython.org/wxPython4/extras/linux/gtk3/${{ matrix.os }}" \
-              wxPython &&
-              python -c 'import wx' &&
-              echo 'wxPython is available' ||
-              echo 'wxPython is not available'
-          fi
+          python -mpip install --upgrade \
+            -f "https://extras.wxpython.org/wxPython4/extras/linux/gtk3/${{ matrix.os }}" \
+            wxPython &&
+            python -c 'import wx' &&
+            echo 'wxPython is available' ||
+            echo 'wxPython is not available'
 
       - name: Install the nightly dependencies
         # Only install the nightly dependencies during the scheduled event
@@ -318,7 +315,42 @@ jobs:
             --maxfail=50 --timeout=300 --durations=25 \
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
 
+      - name: Cleanup non-failed image files
+        if: failure()
+        run: |
+          function remove_files() {
+              local extension=$1
+              find ./result_images -type f -name "*-expected*.$extension" | while read file; do
+                  if [[ $file == *"-expected_pdf"* ]]; then
+                      base=${file%-expected_pdf.$extension}_pdf
+                  elif [[ $file == *"-expected_eps"* ]]; then
+                      base=${file%-expected_eps.$extension}_eps
+                  elif [[ $file == *"-expected_svg"* ]]; then
+                      base=${file%-expected_svg.$extension}_svg
+                  else
+                      base=${file%-expected.$extension}
+                  fi
+                  if [[ ! -e "${base}-failed-diff.$extension" ]]; then
+                      if [[ -e "$file" ]]; then
+                          rm "$file"
+                          echo "Removed $file"
+                      fi
+                      if [[ -e "${base}.$extension" ]]; then
+                          rm "${base}.$extension"
+                          echo " Removed ${base}.$extension"
+                      fi
+                  fi
+              done
+          }
+
+          remove_files "png"; remove_files "svg"; remove_files "pdf"; remove_files "eps";
+
+          if [ "$(find ./result_images -mindepth 1 -type d)" ]; then
+              find ./result_images/* -type d -empty -delete
+          fi
+
       - name: Filter C coverage
+        if: ${{ !cancelled() && github.event_name != 'schedule' }}
         run: |
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
             lcov --rc lcov_branch_coverage=1 --capture --directory . \
@@ -334,7 +366,7 @@ jobs:
               -instr-profile default.profdata > info.lcov
           fi
       - name: Upload code coverage
-        if: ${{ github.event_name != 'schedule' }}
+        if: ${{ !cancelled() && github.event_name != 'schedule' }}
         uses: codecov/codecov-action@v4
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }}"

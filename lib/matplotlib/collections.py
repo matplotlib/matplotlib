@@ -524,9 +524,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         hatchings are done.  If same letter repeats, it increases the
         density of hatching of that pattern.
 
-        Hatching is supported in the PostScript, PDF, SVG and Agg
-        backends only.
-
         Unlike other properties such as linewidth and colors, hatching
         can only be specified for the collection as a whole, not separately
         for each member.
@@ -1748,9 +1745,9 @@ class EllipseCollection(Collection):
             Forwarded to `Collection`.
         """
         super().__init__(**kwargs)
-        self._widths = 0.5 * np.asarray(widths).ravel()
-        self._heights = 0.5 * np.asarray(heights).ravel()
-        self._angles = np.deg2rad(angles).ravel()
+        self.set_widths(widths)
+        self.set_heights(heights)
+        self.set_angles(angles)
         self._units = units
         self.set_transform(transforms.IdentityTransform())
         self._transforms = np.empty((0, 3, 3))
@@ -1797,6 +1794,33 @@ class EllipseCollection(Collection):
             m = ax.transData.get_affine().get_matrix().copy()
             m[:2, 2:] = 0
             self.set_transform(_affine(m))
+
+    def set_widths(self, widths):
+        """Set the lengths of the first axes (e.g., major axis)."""
+        self._widths = 0.5 * np.asarray(widths).ravel()
+        self.stale = True
+
+    def set_heights(self, heights):
+        """Set the lengths of second axes (e.g., minor axes)."""
+        self._heights = 0.5 * np.asarray(heights).ravel()
+        self.stale = True
+
+    def set_angles(self, angles):
+        """Set the angles of the first axes, degrees CCW from the x-axis."""
+        self._angles = np.deg2rad(angles).ravel()
+        self.stale = True
+
+    def get_widths(self):
+        """Get the lengths of the first axes (e.g., major axis)."""
+        return self._widths * 2
+
+    def get_heights(self):
+        """Set the lengths of second axes (e.g., minor axes)."""
+        return self._heights * 2
+
+    def get_angles(self):
+        """Get the angles of the first axes, degrees CCW from the x-axis."""
+        return np.rad2deg(self._angles)
 
     @artist.allow_rasterization
     def draw(self, renderer):

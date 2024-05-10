@@ -15,10 +15,10 @@ ipykernel
 numpydoc>=1.0
 packaging>=20
 pydata-sphinx-theme~=0.15.0
-mpl-sphinx-theme~=3.8.0
+mpl-sphinx-theme~=3.9.0
 pyyaml
 sphinxcontrib-svg2pdfconverter>=1.1.0
-sphinx-gallery>=0.12.0
 sphinx-copybutton
 sphinx-design
+sphinx-gallery>=0.12.0
 sphinx-tags>=0.3.0

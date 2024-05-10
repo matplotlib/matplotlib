@@ -95,17 +95,6 @@ jobs:
       CIBW_BEFORE_BUILD_WINDOWS: >-
         pip install delvewheel &&
         rm -rf {package}/build
-      # Live on the edge when building on main or a PR against main since
-      # these wheels are also used for nightlies and NumPy 2.0 transition
-      # requires using the NumPy 2.0 nightlies for compatibility.
-      # If using all `--pre` releases creates issues, the NumPy wheel can be
-      # installed more targeted.
-      CIBW_BUILD_FRONTEND: >-
-        ${{ ((github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-              (github.event_name == 'pull_request' && github.base_ref == 'main')) &&
-            'pip; args: --pre
-             --extra-index-url "https://pypi.anaconda.org/scientific-python-nightly-wheels/simple"' ||
-            'build' }}
       CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >-
         delvewheel repair -w {dest_dir} {wheel}
       CIBW_AFTER_BUILD: >-
@@ -116,10 +105,6 @@ jobs:
       CIBW_SKIP: "*-musllinux_aarch64"
       CIBW_TEST_COMMAND: >-
         python {package}/ci/check_version_number.py
-      # Apple Silicon machines are not available for testing, so silence the
-      # warning from cibuildwheel. Remove the skip when they're available.
-      CIBW_TEST_SKIP: "*-macosx_arm64"
-      MACOSX_DEPLOYMENT_TARGET: "10.12"
       MPL_DISABLE_FH4: "yes"
     strategy:
       matrix:
@@ -131,7 +116,15 @@ jobs:
           - os: windows-latest
             cibw_archs: "auto64"
           - os: macos-11
-            cibw_archs: "x86_64 arm64"
+            cibw_archs: "x86_64"
+            # NOTE: macos_target can be moved back into global environment after
+            # meson-python 0.16.0 is released.
+            macos_target: "10.12"
+          - os: macos-14
+            cibw_archs: "arm64"
+            # NOTE: macos_target can be moved back into global environment after
+            # meson-python 0.16.0 is released.
+            macos_target: "11.0"
 
     steps:
       - name: Set up QEMU
@@ -153,6 +146,7 @@ jobs:
         env:
           CIBW_BUILD: "cp312-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          MACOSX_DEPLOYMENT_TARGET: "${{ matrix.macos_target }}"
 
       - name: Build wheels for CPython 3.11
         uses: pypa/cibuildwheel@8d945475ac4b1aac4ae08b2fd27db9917158b6ce  # v2.17.0
@@ -161,6 +155,7 @@ jobs:
         env:
           CIBW_BUILD: "cp311-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          MACOSX_DEPLOYMENT_TARGET: "${{ matrix.macos_target }}"
 
       - name: Build wheels for CPython 3.10
         uses: pypa/cibuildwheel@8d945475ac4b1aac4ae08b2fd27db9917158b6ce  # v2.17.0
@@ -169,6 +164,7 @@ jobs:
         env:
           CIBW_BUILD: "cp310-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          MACOSX_DEPLOYMENT_TARGET: "${{ matrix.macos_target }}"
 
       - name: Build wheels for CPython 3.9
         uses: pypa/cibuildwheel@8d945475ac4b1aac4ae08b2fd27db9917158b6ce  # v2.17.0
@@ -177,6 +173,7 @@ jobs:
         env:
           CIBW_BUILD: "cp39-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          MACOSX_DEPLOYMENT_TARGET: "${{ matrix.macos_target }}"
 
       - name: Build wheels for PyPy
         uses: pypa/cibuildwheel@8d945475ac4b1aac4ae08b2fd27db9917158b6ce  # v2.17.0
@@ -185,6 +182,7 @@ jobs:
         env:
           CIBW_BUILD: "pp39-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          MACOSX_DEPLOYMENT_TARGET: "${{ matrix.macos_target }}"
         if: matrix.cibw_archs != 'aarch64'
 
       - uses: actions/upload-artifact@v4

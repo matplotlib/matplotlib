@@ -558,9 +558,6 @@ class Patch(artist.Artist):
         hatchings are done.  If same letter repeats, it increases the
         density of hatching of that pattern.
 
-        Hatching is supported in the PostScript, PDF, SVG and Agg
-        backends only.
-
         Parameters
         ----------
         hatch : {'/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'}

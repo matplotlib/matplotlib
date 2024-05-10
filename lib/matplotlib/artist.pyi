@@ -15,8 +15,10 @@ from .transforms import (
 import numpy as np
 
 from collections.abc import Callable, Iterable
-from typing import Any, NamedTuple, TextIO, overload
+from typing import Any, NamedTuple, TextIO, overload, TypeVar
 from numpy.typing import ArrayLike
+
+_T_Artist = TypeVar("_T_Artist", bound=Artist)
 
 def allow_rasterization(draw): ...
 
@@ -128,11 +130,21 @@ class Artist:
     def update(self, props: dict[str, Any]) -> list[Any]: ...
     def _internal_update(self, kwargs: Any) -> list[Any]: ...
     def set(self, **kwargs: Any) -> list[Any]: ...
+
+    @overload
     def findobj(
         self,
-        match: None | Callable[[Artist], bool] | type[Artist] = ...,
+        match: None | Callable[[Artist], bool] = ...,
         include_self: bool = ...,
     ) -> list[Artist]: ...
+
+    @overload
+    def findobj(
+        self,
+        match: type[_T_Artist],
+        include_self: bool = ...,
+    ) -> list[_T_Artist]: ...
+
     def get_cursor_data(self, event: MouseEvent) -> Any: ...
     def format_cursor_data(self, data: Any) -> str: ...
     def get_mouseover(self) -> bool: ...

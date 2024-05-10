@@ -1,5 +1,0 @@
-``BboxTransformToMaxOnly``
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-... is deprecated without replacement. If you rely on this, please make a copy of the
-code.

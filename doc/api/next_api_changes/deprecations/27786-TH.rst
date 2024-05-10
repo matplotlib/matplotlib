@@ -1,0 +1,7 @@
+Positional parameters in plotting functions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Many plotting functions will restrict positional arguments to the first few parameters
+in the future. All further configuration parameters will have to be passed as keyword
+arguments. This is to enforce better code and and allow for future changes with reduced
+risk of breaking existing code.

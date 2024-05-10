@@ -1,4 +1,5 @@
 import itertools
+import platform
 
 import numpy as np
 import pytest
@@ -173,7 +174,8 @@ def test_exceptions():
         plt.subplots(2, 2, sharey='blah')
 
 
-@image_comparison(['subplots_offset_text'])
+@image_comparison(['subplots_offset_text'],
+                  tol=0.028 if platform.machine() == 'arm64' else 0)
 def test_subplots_offsettext():
     x = np.arange(0, 1e10, 1e9)
     y = np.arange(0, 100, 10)+1e4

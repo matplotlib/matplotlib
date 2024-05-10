@@ -30,3 +30,13 @@ def test_ipynb():
     errors = [output for cell in nb.cells for output in cell.get("outputs", [])
               if output.output_type == "error"]
     assert not errors
+
+    import IPython
+    if IPython.version_info[:2] >= (8, 24):
+        expected_backend = "notebook"
+    else:
+        # This code can be removed when Python 3.12, the latest version supported by
+        # IPython < 8.24, reaches end-of-life in late 2028.
+        expected_backend = "nbAgg"
+    backend_outputs = nb.cells[2]["outputs"]
+    assert backend_outputs[0]["data"]["text/plain"] == f"'{expected_backend}'"

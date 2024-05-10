@@ -135,7 +135,7 @@ stages:
 
           - bash: |
               python -m pip install --upgrade pip
-              python -m pip install --upgrade meson-python pybind11
+              python -m pip install --upgrade meson-python numpy pybind11 setuptools-scm
               python -m pip install -r requirements/testing/all.txt -r requirements/testing/extra.txt
             displayName: 'Install dependencies with pip'
 
@@ -268,11 +268,13 @@ stages:
                 ;;
               esac
             displayName: 'Filter C coverage'
+            condition: succeededOrFailed()
           - bash: |
               bash <(curl -s https://codecov.io/bash) \
                 -n "$PYTHON_VERSION $AGENT_OS" \
                 -f 'coverage.xml' -f 'extensions.xml'
             displayName: 'Upload to codecov.io'
+            condition: succeededOrFailed()
 
           - task: PublishTestResults@2
             inputs:

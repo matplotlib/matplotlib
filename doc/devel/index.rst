@@ -13,13 +13,62 @@ Contribute
       of this document as it will have the most up to date installation
       instructions, workflow process, and contributing guidelines.
 
-Thank you for your interest in helping to improve Matplotlib! There are various
-ways to contribute: optimizing and refactoring code, detailing unclear
-documentation and writing new examples, reporting and fixing bugs and requesting
-and implementing new features, helping the community...
+:octicon:`heart;1em;sd-text-info` Thank you for your interest in helping to improve
+Matplotlib! :octicon:`heart;1em;sd-text-info`
+
+There are various ways to contribute: optimizing and refactoring code, detailing
+unclear documentation and writing new examples, helping the community, reporting
+and fixing bugs and requesting and implementing new features...
+
+.. _submitting-a-bug-report:
+.. _request-a-new-feature:
+
+.. grid:: 1 1 2 2
+
+   .. grid-item-card::
+      :class-header: sd-fs-5
+
+      :octicon:`bug;1em;sd-text-info` **Submit a bug report**
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+      We have preloaded the issue creation page with a Markdown form that you can
+      use to provide relevant context. Thank you for your help in keeping bug reports
+      complete, targeted and descriptive.
+
+      .. button-link:: https://github.com/matplotlib/matplotlib/issues/new/choose
+            :expand:
+            :color: primary
+
+            Report a bug
+
+   .. grid-item-card::
+      :class-header: sd-fs-5
+
+      :octicon:`light-bulb;1em;sd-text-info` **Request a new feature**
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+      We will give feedback on the feature proposal. Since
+      Matplotlib is an open source project with limited resources, we encourage
+      users to then also :ref:`participate in the implementation <contribute_code>`.
+
+      .. button-link:: https://github.com/matplotlib/matplotlib/issues/new/choose
+         :expand:
+         :color: primary
+
+         Request a feature
+
+
+We welcome you to get more involved with the Matplotlib project! If you are new
+to contributing, we recommend that you first read our
+:ref:`contributing guide<contributing>`. If you are contributing code or
+documentation, please follow our guides for setting up and managing a
+:ref:`development environment and workflow<development_environment>`.
+For code, documentation, or triage, please follow the corresponding
+:ref:`contribution guidelines <contribution_guideline>`.
 
 New contributors
 ================
+
 .. toctree::
    :hidden:
 
@@ -35,31 +84,15 @@ New contributors
 
       :octicon:`question;1em;sd-text-info` :ref:`Where should I ask questions? <get_connected>`
 
-      :octicon:`issue-opened;1em;sd-text-info` :ref:`What are "good-first-issues"? <new_contributors>`
+      :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I work on an issue? <managing_issues_prs>`
 
-      :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I claim an issue? <managing_issues_prs>`
-
-      :octicon:`codespaces;1em;sd-text-info` :ref:`How do I start a pull request? <how-to-contribute>`
+      :octicon:`codespaces;1em;sd-text-info` :ref:`How do I start a pull request? <how-to-pull-request>`
 
    .. grid-item::
 
       .. grid:: 1
          :gutter: 1
          :class-row: sd-fs-5
-
-         .. grid-item-card::
-            :link: request-a-new-feature
-            :link-type: ref
-            :shadow: none
-
-            :octicon:`light-bulb;1em;sd-text-info` Request new feature
-
-         .. grid-item-card::
-            :link: submitting-a-bug-report
-            :link-type: ref
-            :shadow: none
-
-            :octicon:`bug;1em;sd-text-info` Submit bug report
 
          .. grid-item-card::
             :link: contribute_code
@@ -75,12 +108,14 @@ New contributors
 
             :octicon:`note;1em;sd-text-info` Write documentation
 
-If you are new to contributing, we recommend that you first read our
-:ref:`contributing guide<contributing>`. If you are contributing code or
-documentation, please follow our guides for setting up and managing a
-:ref:`development environment and workflow<development_environment>`.
-For code, documentation, or triage, please follow the corresponding
-:ref:`contribution guidelines <contribution_guideline>`.
+         .. grid-item-card::
+            :link: other_ways_to_contribute
+            :link-type: ref
+            :shadow: none
+
+            :octicon:`globe;1em;sd-text-info` Build community
+
+
 
 
 .. _development_environment:

@@ -38,6 +38,7 @@ from numpy.testing import (
     assert_allclose, assert_array_equal, assert_array_almost_equal)
 from matplotlib.testing.decorators import (
     image_comparison, check_figures_equal, remove_ticks_and_titles)
+from matplotlib.testing._markers import needs_usetex
 
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
@@ -237,7 +238,8 @@ def test_matshow(fig_test, fig_ref):
                    'formatter_ticker_003',
                    'formatter_ticker_004',
                    'formatter_ticker_005',
-                   ])
+                   ],
+                  tol=0.031 if platform.machine() == 'arm64' else 0)
 def test_formatter_ticker():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -437,7 +439,8 @@ def test_twin_logscale(fig_test, fig_ref, twin):
     remove_ticks_and_titles(fig_ref)
 
 
-@image_comparison(['twin_autoscale.png'])
+@image_comparison(['twin_autoscale.png'],
+                  tol=0.009 if platform.machine() == 'arm64' else 0)
 def test_twinx_axis_scales():
     x = np.array([0, 0.5, 1])
     y = 0.5 * x
@@ -975,6 +978,15 @@ def test_hexbin_bad_extents():
         ax.hexbin(x, y, extent=(0, 1, 1, 0))
 
 
+def test_hexbin_string_norm():
+    fig, ax = plt.subplots()
+    hex = ax.hexbin(np.random.rand(10), np.random.rand(10), norm="log", vmin=2, vmax=5)
+    assert isinstance(hex, matplotlib.collections.PolyCollection)
+    assert isinstance(hex.norm, matplotlib.colors.LogNorm)
+    assert hex.norm.vmin == 2
+    assert hex.norm.vmax == 5
+
+
 @image_comparison(['hexbin_empty.png'], remove_text=True)
 def test_hexbin_empty():
     # From #3886: creating hexbin from empty dataset raises ValueError
@@ -1016,6 +1028,27 @@ def test_hexbin_log():
     h = ax.hexbin(x, y, yscale='log', bins='log',
                   marginals=True, reduce_C_function=np.sum)
     plt.colorbar(h)
+
+    # Make sure offsets are set
+    assert h.get_offsets().shape == (11558, 2)
+
+
+def test_hexbin_log_offsets():
+    x = np.geomspace(1, 100, 500)
+
+    fig, ax = plt.subplots()
+    h = ax.hexbin(x, x, xscale='log', yscale='log', gridsize=2)
+    np.testing.assert_almost_equal(
+        h.get_offsets(),
+        np.array(
+            [[0, 0],
+             [0, 2],
+             [1, 0],
+             [1, 2],
+             [2, 0],
+             [2, 2],
+             [0.5, 1],
+             [1.5, 1]]))
 
 
 @image_comparison(["hexbin_linear.png"], style="mpl20", remove_text=True)
@@ -1232,7 +1265,8 @@ def test_fill_betweenx_input(y, x1, x2):
         ax.fill_betweenx(y, x1, x2)
 
 
-@image_comparison(['fill_between_interpolate'], remove_text=True)
+@image_comparison(['fill_between_interpolate'], remove_text=True,
+                  tol=0.012 if platform.machine() == 'arm64' else 0)
 def test_fill_between_interpolate():
     x = np.arange(0.0, 2, 0.02)
     y1 = np.sin(2*np.pi*x)
@@ -1623,7 +1657,7 @@ def test_pcolorauto(fig_test, fig_ref, snap):
     ax.pcolormesh(x2, y2, Z, snap=snap)
 
 
-@image_comparison(['canonical'])
+@image_comparison(['canonical'], tol=0.02 if platform.machine() == 'arm64' else 0)
 def test_canonical():
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3])
@@ -2338,6 +2372,18 @@ def test_hist_zorder(histtype, zorder):
         assert patch.get_zorder() == zorder
 
 
+def test_stairs_no_baseline_fill_warns():
+    fig, ax = plt.subplots()
+    with pytest.warns(UserWarning, match="baseline=None and fill=True"):
+        ax.stairs(
+            [4, 5, 1, 0, 2],
+            [1, 2, 3, 4, 5, 6],
+            facecolor="blue",
+            baseline=None,
+            fill=True
+        )
+
+
 @check_figures_equal(extensions=['png'])
 def test_stairs(fig_test, fig_ref):
     import matplotlib.lines as mlines
@@ -2433,16 +2479,17 @@ def test_stairs_update(fig_test, fig_ref):
 
 
 @check_figures_equal(extensions=['png'])
-def test_stairs_baseline_0(fig_test, fig_ref):
-    # Test
-    test_ax = fig_test.add_subplot()
-    test_ax.stairs([5, 6, 7], baseline=None)
+def test_stairs_baseline_None(fig_test, fig_ref):
+    x = np.array([0, 2, 3, 5, 10])
+    y = np.array([1.148, 1.231, 1.248, 1.25])
 
-    # Ref
-    ref_ax = fig_ref.add_subplot()
+    test_axes = fig_test.add_subplot()
+    test_axes.stairs(y, x, baseline=None)
+
     style = {'solid_joinstyle': 'miter', 'solid_capstyle': 'butt'}
-    ref_ax.plot(range(4), [5, 6, 7, 7], drawstyle='steps-post', **style)
-    ref_ax.set_ylim(0, None)
+
+    ref_axes = fig_ref.add_subplot()
+    ref_axes.plot(x, np.append(y, y[-1]), drawstyle='steps-post', **style)
 
 
 def test_stairs_empty():
@@ -3065,7 +3112,8 @@ def test_log_scales_invalid():
         ax.set_ylim(-1, 10)
 
 
-@image_comparison(['stackplot_test_image', 'stackplot_test_image'])
+@image_comparison(['stackplot_test_image', 'stackplot_test_image'],
+                  tol=0.031 if platform.machine() == 'arm64' else 0)
 def test_stackplot():
     fig = plt.figure()
     x = np.linspace(0, 10, 10)
@@ -4873,7 +4921,8 @@ def test_marker_styles():
                 marker=marker, markersize=10+y/5, label=marker)
 
 
-@image_comparison(['rc_markerfill.png'])
+@image_comparison(['rc_markerfill.png'],
+                  tol=0.037 if platform.machine() == 'arm64' else 0)
 def test_markers_fillstyle_rcparams():
     fig, ax = plt.subplots()
     x = np.arange(7)
@@ -4896,7 +4945,7 @@ def test_vertex_markers():
 
 
 @image_comparison(['vline_hline_zorder', 'errorbar_zorder'],
-                  tol=0 if platform.machine() == 'x86_64' else 0.02)
+                  tol=0 if platform.machine() == 'x86_64' else 0.026)
 def test_eb_line_zorder():
     x = list(range(10))
 
@@ -5455,7 +5504,8 @@ def test_twin_remove(fig_test, fig_ref):
     ax_ref.yaxis.tick_left()
 
 
-@image_comparison(['twin_spines.png'], remove_text=True)
+@image_comparison(['twin_spines.png'], remove_text=True,
+                  tol=0.022 if platform.machine() == 'arm64' else 0)
 def test_twin_spines():
 
     def make_patch_spines_invisible(ax):
@@ -5822,7 +5872,7 @@ def test_pie_linewidth_0():
     plt.axis('equal')
 
 
-@image_comparison(['pie_center_radius.png'], style='mpl20', tol=0.005)
+@image_comparison(['pie_center_radius.png'], style='mpl20', tol=0.01)
 def test_pie_center_radius():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -6008,7 +6058,8 @@ def test_pie_hatch_multi(fig_test, fig_ref):
     [w.set_hatch(hp) for w, hp in zip(wedges, hatch)]
 
 
-@image_comparison(['set_get_ticklabels.png'])
+@image_comparison(['set_get_ticklabels.png'],
+                  tol=0.025 if platform.machine() == 'arm64' else 0)
 def test_set_get_ticklabels():
     # test issue 2246
     fig, ax = plt.subplots(2)
@@ -6579,7 +6630,8 @@ def test_loglog():
     ax.tick_params(length=15, width=2, which='minor')
 
 
-@image_comparison(["test_loglog_nonpos.png"], remove_text=True, style='mpl20')
+@image_comparison(["test_loglog_nonpos.png"], remove_text=True, style='mpl20',
+                  tol=0.029 if platform.machine() == 'arm64' else 0)
 def test_loglog_nonpos():
     fig, axs = plt.subplots(3, 3)
     x = np.arange(1, 11)
@@ -7505,8 +7557,8 @@ def test_scatter_empty_data():
     plt.scatter([], [], s=[], c=[])
 
 
-@image_comparison(['annotate_across_transforms.png'],
-                  style='mpl20', remove_text=True)
+@image_comparison(['annotate_across_transforms.png'], style='mpl20', remove_text=True,
+                  tol=0.025 if platform.machine() == 'arm64' else 0)
 def test_annotate_across_transforms():
     x = np.linspace(0, 10, 200)
     y = np.exp(-x) * np.sin(x)
@@ -7536,7 +7588,8 @@ class _Translation(mtransforms.Transform):
         return _Translation(-self.dx)
 
 
-@image_comparison(['secondary_xy.png'], style='mpl20')
+@image_comparison(['secondary_xy.png'], style='mpl20',
+                  tol=0.027 if platform.machine() == 'arm64' else 0)
 def test_secondary_xy():
     fig, axs = plt.subplots(1, 2, figsize=(10, 5), constrained_layout=True)
 
@@ -8799,7 +8852,8 @@ def test_zorder_and_explicit_rasterization():
         fig.savefig(b, format='pdf')
 
 
-@image_comparison(["preset_clip_paths.png"], remove_text=True, style="mpl20")
+@image_comparison(["preset_clip_paths.png"], remove_text=True, style="mpl20",
+                  tol=0.027 if platform.machine() == "arm64" else 0)
 def test_preset_clip_paths():
     fig, ax = plt.subplots()
 
@@ -8998,3 +9052,16 @@ def test_boxplot_tick_labels():
     # Test the new tick_labels parameter
     axs[1].boxplot(data, tick_labels=['A', 'B', 'C'])
     assert [l.get_text() for l in axs[1].get_xticklabels()] == ['A', 'B', 'C']
+
+
+@needs_usetex
+@check_figures_equal()
+def test_latex_pie_percent(fig_test, fig_ref):
+
+    data = [20, 10, 70]
+
+    ax = fig_test.subplots()
+    ax.pie(data, autopct="%1.0f%%", textprops={'usetex': True})
+
+    ax1 = fig_ref.subplots()
+    ax1.pie(data, autopct=r"%1.0f\%%", textprops={'usetex': True})

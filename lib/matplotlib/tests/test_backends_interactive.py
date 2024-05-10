@@ -291,7 +291,7 @@ def _test_thread_impl():
     plt.pause(0.5)  # flush_events fails here on at least Tkagg (bpo-41176)
     future.result()  # Joins the thread; rethrows any exception.
     plt.close()  # backend is responsible for flushing any events here
-    if plt.rcParams["backend"].startswith("WX"):
+    if plt.rcParams["backend"].lower().startswith("wx"):
         # TODO: debug why WX needs this only on py >= 3.8
         fig.canvas.flush_events()
 
@@ -424,9 +424,9 @@ def test_qt_missing():
 
 
 def _impl_test_cross_Qt_imports():
-    import sys
     import importlib
-    import pytest
+    import sys
+    import warnings
 
     _, host_binding, mpl_binding = sys.argv
     # import the mpl binding.  This will force us to use that binding
@@ -436,11 +436,12 @@ def _impl_test_cross_Qt_imports():
     host_qwidgets = importlib.import_module(f'{host_binding}.QtWidgets')
 
     host_app = host_qwidgets.QApplication(["mpl testing"])
-    with pytest.warns(UserWarning, match="Mixing Qt major"):
-        matplotlib.backends.backend_qt._create_qApp()
+    warnings.filterwarnings("error", message=r".*Mixing Qt major.*",
+                            category=UserWarning)
+    matplotlib.backends.backend_qt._create_qApp()
 
 
-def test_cross_Qt_imports():
+def qt5_and_qt6_pairs():
     qt5_bindings = [
         dep for dep in ['PyQt5', 'PySide2']
         if importlib.util.find_spec(dep) is not None
@@ -450,25 +451,29 @@ def test_cross_Qt_imports():
         if importlib.util.find_spec(dep) is not None
     ]
     if len(qt5_bindings) == 0 or len(qt6_bindings) == 0:
-        pytest.skip('need both QT6 and QT5 bindings')
+        yield pytest.param(None, None,
+                           marks=[pytest.mark.skip('need both QT6 and QT5 bindings')])
+        return
 
     for qt5 in qt5_bindings:
         for qt6 in qt6_bindings:
             for pair in ([qt5, qt6], [qt6, qt5]):
-                try:
-                    _run_helper(_impl_test_cross_Qt_imports,
-                                *pair,
-                                timeout=_test_timeout)
-                except subprocess.CalledProcessError as ex:
-                    # if segfault, carry on.  We do try to warn the user they
-                    # are doing something that we do not expect to work
-                    if ex.returncode == -signal.SIGSEGV:
-                        continue
-                    # We got the abort signal which is likely because the Qt5 /
-                    # Qt6 cross import is unhappy, carry on.
-                    elif ex.returncode == -signal.SIGABRT:
-                        continue
-                    raise
+                yield pair
+
+
+@pytest.mark.parametrize('host, mpl', [*qt5_and_qt6_pairs()])
+def test_cross_Qt_imports(host, mpl):
+    try:
+        proc = _run_helper(_impl_test_cross_Qt_imports, host, mpl,
+                           timeout=_test_timeout)
+    except subprocess.CalledProcessError as ex:
+        # We do try to warn the user they are doing something that we do not
+        # expect to work, so we're going to ignore if the subprocess crashes or
+        # is killed, and just check that the warning is printed.
+        stderr = ex.stderr
+    else:
+        stderr = proc.stderr
+    assert "Mixing Qt major versions may not work as expected." in stderr
 
 
 @pytest.mark.skipif('TF_BUILD' in os.environ,
@@ -766,6 +771,13 @@ def test_other_signal_before_sigint(env, target, kwargs, request):
         pytest.skip("SIGINT currently only tested on qt and macosx")
     if backend == "macosx":
         request.node.add_marker(pytest.mark.xfail(reason="macosx backend is buggy"))
+    if sys.platform == "darwin" and target == "show":
+        # We've not previously had these toolkits installed on CI, and so were never
+        # aware that this was crashing. However, we've had little luck reproducing it
+        # locally, so mark it xfail for now. For more information, see
+        # https://github.com/matplotlib/matplotlib/issues/27984
+        request.node.add_marker(
+            pytest.mark.xfail(reason="Qt backend is buggy on macOS"))
     proc = _WaitForStringPopen(
         [sys.executable, "-c",
          inspect.getsource(_test_other_signal_before_sigint_impl) +

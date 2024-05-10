@@ -1,7 +1,7 @@
 project(
   'matplotlib',
   'c', 'cpp',
-  version: '3.9.0.dev0',
+  version: run_command(find_program('python3'), '-m', 'setuptools_scm', check: true).stdout().strip(),
   # qt_editor backend is MIT
   # ResizeObserver at end of lib/matplotlib/backends/web_backend/js/mpl.js is CC0
   # Carlogo, STIX and Computer Modern is OFL

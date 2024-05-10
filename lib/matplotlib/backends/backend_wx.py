@@ -14,6 +14,9 @@ import pathlib
 import sys
 import weakref
 
+import numpy as np
+import PIL.Image
+
 import matplotlib as mpl
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase,
@@ -1071,7 +1074,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         *name*, including the extension and relative to Matplotlib's "images"
         data directory.
         """
-        svg = cbook._get_data_path("images", name).read_bytes()
         try:
             dark = wx.SystemSettings.GetAppearance().IsDark()
         except AttributeError:  # wxpython < 4.1
@@ -1082,10 +1084,24 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             bg_lum = (.299 * bg.red + .587 * bg.green + .114 * bg.blue) / 255
             fg_lum = (.299 * fg.red + .587 * fg.green + .114 * fg.blue) / 255
             dark = fg_lum - bg_lum > .2
-        if dark:
-            svg = svg.replace(b'fill:black;', b'fill:white;')
-        toolbarIconSize = wx.ArtProvider().GetDIPSizeHint(wx.ART_TOOLBAR)
-        return wx.BitmapBundle.FromSVG(svg, toolbarIconSize)
+
+        path = cbook._get_data_path('images', name)
+        if path.suffix == '.svg':
+            svg = path.read_bytes()
+            if dark:
+                svg = svg.replace(b'fill:black;', b'fill:white;')
+            toolbarIconSize = wx.ArtProvider().GetDIPSizeHint(wx.ART_TOOLBAR)
+            return wx.BitmapBundle.FromSVG(svg, toolbarIconSize)
+        else:
+            pilimg = PIL.Image.open(path)
+            # ensure RGBA as wx BitMap expects RGBA format
+            image = np.array(pilimg.convert("RGBA"))
+            if dark:
+                fg = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT)
+                black_mask = (image[..., :3] == 0).all(axis=-1)
+                image[black_mask, :3] = (fg.Red(), fg.Green(), fg.Blue())
+            return wx.Bitmap.FromBufferRGBA(
+                image.shape[1], image.shape[0], image.tobytes())
 
     def _update_buttons_checked(self):
         if "Pan" in self.wx_ids:
@@ -1136,7 +1152,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         height = self.canvas.figure.bbox.height
-        sf = 1 if wx.Platform == '__WXMSW__' else self.GetDPIScaleFactor()
+        sf = 1 if wx.Platform == '__WXMSW__' else self.canvas.GetDPIScaleFactor()
         self.canvas._rubberband_rect = (x0/sf, (height - y0)/sf,
                                         x1/sf, (height - y1)/sf)
         self.canvas.Refresh()
@@ -1161,6 +1177,8 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 # tools for matplotlib.backend_managers.ToolManager:
 
 class ToolbarWx(ToolContainerBase, wx.ToolBar):
+    _icon_extension = '.svg'
+
     def __init__(self, toolmanager, parent=None, style=wx.TB_BOTTOM):
         if parent is None:
             parent = toolmanager.canvas.GetParent()
@@ -1239,9 +1257,8 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
         self.Refresh()
 
     def remove_toolitem(self, name):
-        for tool, handler in self._toolitems[name]:
+        for tool, handler in self._toolitems.pop(name, []):
             self.DeleteTool(tool.Id)
-        del self._toolitems[name]
 
     def set_message(self, s):
         self._label_text.SetLabel(s)
