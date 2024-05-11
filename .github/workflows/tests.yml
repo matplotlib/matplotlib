@@ -60,7 +60,7 @@ jobs:
           - os: ubuntu-20.04
             python-version: 3.9
             # One CI run tests ipython/matplotlib-inline before backend mapping moved to mpl
-            extra-requirements: '-r requirements/testing/extra.txt "ipython<8.24" "matplotlib-inline<0.1.7"'
+            extra-requirements: '-r requirements/testing/extra.txt "ipython==7.19" "matplotlib-inline<0.1.7"'
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
             # https://github.com/matplotlib/matplotlib/pull/26052#issuecomment-1574595954
             # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
@@ -316,6 +316,7 @@ jobs:
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
 
       - name: Cleanup non-failed image files
+        if: failure()
         run: |
           function remove_files() {
               local extension=$1
@@ -349,6 +350,7 @@ jobs:
           fi
 
       - name: Filter C coverage
+        if: ${{ !cancelled() && github.event_name != 'schedule' }}
         run: |
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
             lcov --rc lcov_branch_coverage=1 --capture --directory . \
@@ -364,7 +366,7 @@ jobs:
               -instr-profile default.profdata > info.lcov
           fi
       - name: Upload code coverage
-        if: ${{ github.event_name != 'schedule' }}
+        if: ${{ !cancelled() && github.event_name != 'schedule' }}
         uses: codecov/codecov-action@v4
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }}"

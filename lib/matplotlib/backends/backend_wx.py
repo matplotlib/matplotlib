@@ -1257,9 +1257,8 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
         self.Refresh()
 
     def remove_toolitem(self, name):
-        for tool, handler in self._toolitems[name]:
+        for tool, handler in self._toolitems.pop(name, []):
             self.DeleteTool(tool.Id)
-        del self._toolitems[name]
 
     def set_message(self, s):
         self._label_text.SetLabel(s)

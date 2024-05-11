@@ -14,7 +14,7 @@ import numpy as np
 from contextlib import contextmanager
 
 from matplotlib import (
-    artist, cbook, colors as mcolors, lines, text as mtext,
+    _api, artist, cbook, colors as mcolors, lines, text as mtext,
     path as mpath)
 from matplotlib.collections import (
     Collection, LineCollection, PolyCollection, PatchCollection, PathCollection)
@@ -948,7 +948,11 @@ class Poly3DCollection(PolyCollection):
         self._sort_zpos = None
         self.stale = True
 
+    @_api.deprecated("3.10")
     def get_vector(self, segments3d):
+        return self._get_vector(segments3d)
+
+    def _get_vector(self, segments3d):
         """Optimize points for projection."""
         if len(segments3d):
             xs, ys, zs = np.vstack(segments3d).T
@@ -974,7 +978,7 @@ class Poly3DCollection(PolyCollection):
             Whether the polygon should be closed by adding a CLOSEPOLY
             connection at the end.
         """
-        self.get_vector(verts)
+        self._get_vector(verts)
         # 2D verts will be updated at draw time
         super().set_verts([], False)
         self._closed = closed

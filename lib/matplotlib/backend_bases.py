@@ -3395,11 +3395,17 @@ class ToolContainerBase:
 
     def add_toolitem(self, name, group, position, image, description, toggle):
         """
-        Add a toolitem to the container.
+        A hook to add a toolitem to the container.
 
-        This method must be implemented per backend.
+        This hook must be implemented in each backend and contains the
+        backend-specific code to add an element to the toolbar.
 
-        The callback associated with the button click event,
+        .. warning::
+            This is part of the backend implementation and should
+            not be called by end-users.  They should instead call
+            `.ToolContainerBase.add_tool`.
+
+        The callback associated with the button click event
         must be *exactly* ``self.trigger_tool(name)``.
 
         Parameters
@@ -3425,7 +3431,16 @@ class ToolContainerBase:
 
     def toggle_toolitem(self, name, toggled):
         """
-        Toggle the toolitem without firing event.
+        A hook to toggle a toolitem without firing an event.
+
+        This hook must be implemented in each backend and contains the
+        backend-specific code to silently toggle a toolbar element.
+
+        .. warning::
+            This is part of the backend implementation and should
+            not be called by end-users.  They should instead call
+            `.ToolManager.trigger_tool` or `.ToolContainerBase.trigger_tool`
+            (which are equivalent).
 
         Parameters
         ----------
@@ -3438,11 +3453,20 @@ class ToolContainerBase:
 
     def remove_toolitem(self, name):
         """
-        Remove a toolitem from the `ToolContainer`.
+        A hook to remove a toolitem from the container.
 
-        This method must get implemented per backend.
+        This hook must be implemented in each backend and contains the
+        backend-specific code to remove an element from the toolbar; it is
+        called when `.ToolManager` emits a `tool_removed_event`.
 
-        Called when `.ToolManager` emits a `tool_removed_event`.
+        Because some tools are present only on the `.ToolManager` but not on
+        the `ToolContainer`, this method must be a no-op when called on a tool
+        absent from the container.
+
+        .. warning::
+            This is part of the backend implementation and should
+            not be called by end-users.  They should instead call
+            `.ToolManager.remove_tool`.
 
         Parameters
         ----------

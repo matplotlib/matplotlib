@@ -1007,9 +1007,8 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
             button.toggled.connect(handler)
 
     def remove_toolitem(self, name):
-        for button, handler in self._toolitems[name]:
+        for button, handler in self._toolitems.pop(name, []):
             button.setParent(None)
-        del self._toolitems[name]
 
     def set_message(self, s):
         self.widgetForAction(self._message_action).setText(s)

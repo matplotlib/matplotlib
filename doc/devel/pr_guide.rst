@@ -176,18 +176,24 @@ a corresponding branch.
 
 Merging
 -------
+As a guiding principle, we require two `approvals`_ from core developers (those
+with commit rights) before merging a pull request. This two-pairs-of-eyes
+strategy shall ensure a consistent project direction and prevent accidental
+mistakes. It is permissible to merge with one approval if the change is not
+fundamental and can easily be reverted at any time in the future.
 
-* Documentation and examples may be merged by the first reviewer.  Use
+.. _approvals: https://docs.github.com/en/github/collaborating-with-pull-requests/reviewing-changes-in-pull-requests
+
+Some explicit rules following from this:
+
+* *Documentation and examples* may be merged with a single approval.  Use
   the threshold "is this better than it was?" as the review criteria.
 
-* For code changes (anything in ``src`` or ``lib``) at least two
-  core developers (those with commit rights) should review all pull
-  requests.  If you are the first to review a PR and approve of the
-  changes use the GitHub `'approve review'
-  <https://docs.github.com/en/github/collaborating-with-pull-requests/reviewing-changes-in-pull-requests>`__
-  tool to mark it as such.  If you are a subsequent reviewer please
-  approve the review and if you think no more review is needed, merge
-  the PR.
+* Minor *infrastructure updates*, e.g. temporary pinning of broken dependencies
+  or small changes to the CI configuration, may be merged with a single
+  approval.
+
+* *Code changes* (anything in ``src`` or ``lib``) must have two approvals.
 
   Ensure that all API changes are documented in a file in one of the
   subdirectories of :file:`doc/api/next_api_changes`, and significant new
@@ -205,9 +211,10 @@ Merging
     A core dev should only champion one PR at a time and we should try to keep
     the flow of championed PRs reasonable.
 
-* Do not self merge, except for 'small' patches to un-break the CI or
-  when another reviewer explicitly allows it (ex, "Approve modulo CI
-  passing, may self merge when green").
+After giving the last required approval, the author of the approval should
+merge the PR. PR authors should not self-merge except for when another reviewer
+explicitly allows it (e.g., "Approve modulo CI passing, may self merge when
+green", or "Take or leave the comments. You may self merge".).
 
 .. _pr-automated-tests:
 
