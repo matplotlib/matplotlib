@@ -339,7 +339,7 @@ class NavigationToolbar2GTK3(_NavigationToolbar2GTK, Gtk.Toolbar):
     def save_figure(self, *args):
         dialog = Gtk.FileChooserDialog(
             title="Save the figure",
-            parent=self.canvas.get_toplevel(),
+            transient_for=self.canvas.get_toplevel(),
             action=Gtk.FileChooserAction.SAVE,
             buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                      Gtk.STOCK_SAVE,   Gtk.ResponseType.OK),
@@ -380,7 +380,7 @@ class NavigationToolbar2GTK3(_NavigationToolbar2GTK, Gtk.Toolbar):
             return fname
         except Exception as e:
             dialog = Gtk.MessageDialog(
-                parent=self.canvas.get_toplevel(), text=str(e),
+                transient_for=self.canvas.get_toplevel(), text=str(e),
                 message_type=Gtk.MessageType.ERROR, buttons=Gtk.ButtonsType.OK)
             dialog.run()
             dialog.destroy()
