@@ -430,3 +430,29 @@ def test_document_font_size():
              label=r'\normalsize the document font size is \the\fontdimen6\font'
              )
     plt.legend()
+
+
+# test using a preamble where packages have different options
+@needs_pgf_xelatex
+@pytest.mark.parametrize('format', ('pgf', 'pdf', 'png'))
+@pytest.mark.backend('pgf')
+def test_preamble_packages(format, tmp_path):
+    # A preamble containing all packages matplotlib uses, but with different
+    # options to trigger an option clash.
+    preamble = '\n'.join([
+        r'\usepackage[no-math]{fontspec}',
+        r'\usepackage[nohyphen]{underscore}',
+        r'\usepackage[demo]{graphicx}',
+        r'\usepackage[draft]{hyperref}',
+        r'\usepackage[margin=1in]{geometry}',
+        r'\usepackage[draft]{pgf}',
+        r'\usepackage[ascii]{inputenc}',
+        r'\usepackage[safe]{textcomp}',
+        ])
+    mpl.rcParams['pgf.preamble'] = preamble
+
+    plt.figure().savefig(BytesIO(), format=format)
+
+    path = os.path.join(tmp_path, f'preamble_packages_{format}.pdf')
+    with PdfPages(path) as pdf:
+        pdf.savefig(plt.figure())
