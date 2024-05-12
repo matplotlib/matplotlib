@@ -1,3 +1,0 @@
-``ContourLabeler.add_label`` now respects *use_clabeltext*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... and sets `.Text.set_transform_rotates_text` accordingly.

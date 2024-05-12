@@ -26,9 +26,7 @@ _test_timeout = 60  # A reasonably safe value for slower architectures.
 
 @pytest.fixture
 def qt_core(request):
-    qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
-    QtCore = qt_compat.QtCore
-
+    from matplotlib.backends.qt_compat import QtCore
     return QtCore
 
 
@@ -392,4 +390,4 @@ def test_fig_sigint_override(qt_core):
 
 def test_ipython():
     from matplotlib.testing import ipython_in_subprocess
-    ipython_in_subprocess("qt", "QtAgg", "qtagg")
+    ipython_in_subprocess("qt", {(8, 24): "qtagg", (8, 15): "QtAgg", (7, 0): "Qt5Agg"})

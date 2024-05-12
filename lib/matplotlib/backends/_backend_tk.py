@@ -1012,9 +1012,8 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
                 toolitem.deselect()
 
     def remove_toolitem(self, name):
-        for toolitem in self._toolitems[name]:
+        for toolitem in self._toolitems.pop(name, []):
             toolitem.pack_forget()
-        del self._toolitems[name]
 
     def set_message(self, s):
         self._message.set(s)

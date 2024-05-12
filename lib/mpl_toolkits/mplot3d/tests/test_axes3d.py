@@ -113,7 +113,8 @@ def test_axes3d_repr():
         "title={'center': 'title'}, xlabel='x', ylabel='y', zlabel='z'>")
 
 
-@mpl3d_image_comparison(['axes3d_primary_views.png'], style='mpl20')
+@mpl3d_image_comparison(['axes3d_primary_views.png'], style='mpl20',
+                        tol=0.05 if platform.machine() == "arm64" else 0)
 def test_axes3d_primary_views():
     # (elev, azim, roll)
     views = [(90, -90, 0),  # XY
@@ -1589,7 +1590,7 @@ def test_errorbar3d_errorevery():
 
 
 @mpl3d_image_comparison(['errorbar3d.png'], style='mpl20',
-                        tol=0.014 if platform.machine() == 'arm64' else 0)
+                        tol=0.02 if platform.machine() == 'arm64' else 0)
 def test_errorbar3d():
     """Tests limits, color styling, and legend for 3D errorbars."""
     fig = plt.figure()

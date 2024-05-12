@@ -268,11 +268,13 @@ stages:
                 ;;
               esac
             displayName: 'Filter C coverage'
+            condition: succeededOrFailed()
           - bash: |
               bash <(curl -s https://codecov.io/bash) \
                 -n "$PYTHON_VERSION $AGENT_OS" \
                 -f 'coverage.xml' -f 'extensions.xml'
             displayName: 'Upload to codecov.io'
+            condition: succeededOrFailed()
 
           - task: PublishTestResults@2
             inputs:
