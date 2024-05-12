@@ -380,8 +380,8 @@ class NavigationToolbar2GTK3(_NavigationToolbar2GTK, Gtk.Toolbar):
             return fname
         except Exception as e:
             dialog = Gtk.MessageDialog(
-                parent=self.canvas.get_toplevel(), message_format=str(e),
-                type=Gtk.MessageType.ERROR, buttons=Gtk.ButtonsType.OK)
+                parent=self.canvas.get_toplevel(), text=str(e),
+                message_type=Gtk.MessageType.ERROR, buttons=Gtk.ButtonsType.OK)
             dialog.run()
             dialog.destroy()
 
