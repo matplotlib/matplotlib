@@ -456,3 +456,20 @@ def test_preamble_packages(format, tmp_path):
     path = os.path.join(tmp_path, f'preamble_packages_{format}.pdf')
     with PdfPages(path) as pdf:
         pdf.savefig(plt.figure())
+
+
+# test different documentclass types
+@needs_pgf_xelatex
+@pytest.mark.parametrize('documentclass', (
+    '',
+    r'\documentclass{article}',
+    r'\documentclass[12]{article}',
+    r'\documentclass[10]{article}',
+    r'\documentclass[20]{extarticle}',
+    r'\documentclass{minimal}',
+    r'\documentclass{beamer}',
+    ))
+@pytest.mark.backend('pgf')
+def test_documentclass(documentclass):
+    mpl.rcParams['pgf.documentclass'] = documentclass
+    plt.figure().savefig(BytesIO())
