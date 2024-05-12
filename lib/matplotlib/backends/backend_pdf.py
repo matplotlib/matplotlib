@@ -1551,7 +1551,7 @@ end"""
         self._hatch_patterns[hatch_style] = name
         return name
 
-    hatchPatterns = _api.deprecated("3.8")(property(lambda self: {
+    hatchPatterns = _api.deprecated("3.10")(property(lambda self: {
         k: (e, f, h) for k, (e, f, h, l) in self._hatch_patterns.items()
     }))
 
