@@ -129,9 +129,9 @@ class Tick(martist.Artist):
         if labelcolor is None:
             labelcolor = mpl.rcParams[f"{name}.labelcolor"]
 
-        if cbook._str_equal(labelcolor, 'inherit'):
-            # inherit from tick color
-            labelcolor = mpl.rcParams[f"{name}.color"]
+        if (cbook._str_equal(labelcolor, 'inherit') or
+                cbook._str_equal(labelcolor, 'auto')):
+            labelcolor = mpl.rcParams["text.color"]
 
         if labelsize is None:
             labelsize = mpl.rcParams[f"{name}.labelsize"]
@@ -2591,10 +2591,11 @@ class YAxis(Axis):
         )
         self.label_position = 'left'
 
-        if mpl.rcParams['ytick.labelcolor'] == 'inherit':
-            tick_color = mpl.rcParams['ytick.color']
-        else:
-            tick_color = mpl.rcParams['ytick.labelcolor']
+        tick_color = mpl.rcParams['ytick.labelcolor']
+
+        if (cbook._str_equal(tick_color, 'inherit') or
+                cbook._str_equal(tick_color, 'auto')):
+            tick_color = mpl.rcParams["text.color"]
 
         # x in axes coords, y in display coords(!).
         self.offsetText.set(
