@@ -466,3 +466,11 @@ def test_multiple_same_figure_calls():
     assert fig is fig2
     fig3 = mpl.pyplot.figure(1)  # Checks for false warnings
     assert fig is fig3
+
+
+def test_close_all_warning():
+    fig1 = plt.figure()
+
+    # Check that the warning is issued when 'all' is passed to plt.figure
+    with pytest.warns(UserWarning, match="closes all existing figures"):
+        fig2 = plt.figure("all")
