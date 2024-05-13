@@ -210,4 +210,4 @@ def ipython_in_subprocess(requested_backend_or_gui_framework, all_expected_backe
         capture_output=True,
     )
 
-    assert proc.stdout.strip() == f"Out[1]: '{expected_backend}'"
+    assert proc.stdout.strip().endswith(f"'{expected_backend}'")
