@@ -122,6 +122,9 @@ class Tick(martist.Artist):
         if color is None:
             color = mpl.rcParams[f"{name}.color"]
 
+        if cbook._str_equal(color, 'auto'):
+            color = mpl.rcParams["axes.edgecolor"]
+
         if pad is None:
             pad = mpl.rcParams[f"{name}.{major_minor}.pad"]
         self._base_pad = pad
