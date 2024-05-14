@@ -3878,7 +3878,7 @@ class Axes(_AxesBase):
             the fliers.  If `None`, then the fliers default to 'b+'.  More
             control is provided by the *flierprops* parameter.
 
-        vert : bool, default: :rc:`boxplot.vertical`
+        vert : bool, optional
             .. deprecated:: 3.10
                 Use *orientation* instead.
 
@@ -4060,8 +4060,6 @@ class Axes(_AxesBase):
                                        labels=tick_labels, autorange=autorange)
         if notch is None:
             notch = mpl.rcParams['boxplot.notch']
-        if vert is None:
-            vert = mpl.rcParams['boxplot.vertical']
         if patch_artist is None:
             patch_artist = mpl.rcParams['boxplot.patchartist']
         if meanline is None:
@@ -4227,7 +4225,7 @@ class Axes(_AxesBase):
             Either a scalar or a vector and sets the width of each cap.
             The default is ``0.5*(width of the box)``, see *widths*.
 
-        vert : bool, default: True
+        vert : bool, optional
             .. deprecated:: 3.10
                 Use *orientation* instead.
 
@@ -4361,14 +4359,17 @@ class Axes(_AxesBase):
             mean_kw[removed_prop] = ''
 
         # vert and orientation parameters are linked until vert's
-        # deprecation period expires. vert only takes precedence and
-        # raises a deprecation warning if set to False.
-        if vert is False:
+        # deprecation period expires. vert only takes precedence
+        # if set to False.
+        if vert is None:
+            vert = mpl.rcParams['boxplot.vertical']
+        else:
             _api.warn_deprecated(
                 "3.10",
                 name="vert: bool",
                 alternative="orientation: {'vertical', 'horizontal'}"
-                )
+            )
+        if vert is False:
             orientation = 'horizontal'
         _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
 

@@ -3186,7 +3186,7 @@ def _bxp_test_helper(
     logstats = mpl.cbook.boxplot_stats(
         np.random.lognormal(mean=1.25, sigma=1., size=(37, 4)), **stats_kwargs)
     fig, ax = plt.subplots()
-    if not bxp_kwargs.get('orientation') or bxp_kwargs.get('orientation') == 'vertical':
+    if bxp_kwargs.get('orientation', 'vertical') == 'vertical':
         ax.set_yscale('log')
     else:
         ax.set_xscale('log')
