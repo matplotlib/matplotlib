@@ -1,12 +1,12 @@
 from collections.abc import Callable, Hashable, Iterable
 import os
-from typing import Any, IO, Literal, TypeVar, overload
+from typing import Any, IO, Literal, Sequence, TypeVar, overload
 
 import numpy as np
 from numpy.typing import ArrayLike
 
 from matplotlib.artist import Artist
-from matplotlib.axes import Axes, SubplotBase
+from matplotlib.axes import Axes
 from matplotlib.backend_bases import (
     FigureCanvasBase,
     MouseButton,
@@ -94,17 +94,31 @@ class FigureBase(Artist):
     @overload
     def subplots(
         self,
+        nrows: Literal[1] = ...,
+        ncols: Literal[1] = ...,
+        *,
+        sharex: bool | Literal["none", "all", "row", "col"] = ...,
+        sharey: bool | Literal["none", "all", "row", "col"] = ...,
+        squeeze: Literal[True] = ...,
+        width_ratios: Sequence[float] | None = ...,
+        height_ratios: Sequence[float] | None = ...,
+        subplot_kw: dict[str, Any] | None = ...,
+        gridspec_kw: dict[str, Any] | None = ...,
+    ) -> Axes: ...
+    @overload
+    def subplots(
+        self,
         nrows: int = ...,
         ncols: int = ...,
         *,
         sharex: bool | Literal["none", "all", "row", "col"] = ...,
         sharey: bool | Literal["none", "all", "row", "col"] = ...,
         squeeze: Literal[False],
-        width_ratios: ArrayLike | None = ...,
-        height_ratios: ArrayLike | None = ...,
+        width_ratios: Sequence[float] | None = ...,
+        height_ratios: Sequence[float] | None = ...,
         subplot_kw: dict[str, Any] | None = ...,
-        gridspec_kw: dict[str, Any] | None = ...
-    ) -> np.ndarray: ...
+        gridspec_kw: dict[str, Any] | None = ...,
+    ) -> np.ndarray: ...  # TODO numpy/numpy#24738
     @overload
     def subplots(
         self,
@@ -114,11 +128,11 @@ class FigureBase(Artist):
         sharex: bool | Literal["none", "all", "row", "col"] = ...,
         sharey: bool | Literal["none", "all", "row", "col"] = ...,
         squeeze: bool = ...,
-        width_ratios: ArrayLike | None = ...,
-        height_ratios: ArrayLike | None = ...,
+        width_ratios: Sequence[float] | None = ...,
+        height_ratios: Sequence[float] | None = ...,
         subplot_kw: dict[str, Any] | None = ...,
-        gridspec_kw: dict[str, Any] | None = ...
-    ) -> np.ndarray | SubplotBase | Axes: ...
+        gridspec_kw: dict[str, Any] | None = ...,
+    ) -> Axes | np.ndarray: ...
     def delaxes(self, ax: Axes) -> None: ...
     def clear(self, keep_observers: bool = ...) -> None: ...
     def clf(self, keep_observers: bool = ...) -> None: ...
