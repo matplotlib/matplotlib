@@ -3778,7 +3778,7 @@ def test_horiz_violinplot_baseline():
     # First 9 digits of frac(sqrt(19))
     np.random.seed(358898943)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=False,
                   showextrema=False, showmedians=False)
 
 
@@ -3788,7 +3788,7 @@ def test_horiz_violinplot_showmedians():
     # First 9 digits of frac(sqrt(23))
     np.random.seed(795831523)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=False,
                   showextrema=False, showmedians=True)
 
 
@@ -3798,7 +3798,7 @@ def test_horiz_violinplot_showmeans():
     # First 9 digits of frac(sqrt(29))
     np.random.seed(385164807)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=True,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=True,
                   showextrema=False, showmedians=False)
 
 
@@ -3808,7 +3808,7 @@ def test_horiz_violinplot_showextrema():
     # First 9 digits of frac(sqrt(31))
     np.random.seed(567764362)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=False,
                   showextrema=True, showmedians=False)
 
 
@@ -3818,7 +3818,7 @@ def test_horiz_violinplot_showall():
     # First 9 digits of frac(sqrt(37))
     np.random.seed(82762530)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=True,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=True,
                   showextrema=True, showmedians=True,
                   quantiles=[[0.1, 0.9], [0.2, 0.8], [0.3, 0.7], [0.4, 0.6]])
 
@@ -3829,7 +3829,7 @@ def test_horiz_violinplot_custompoints_10():
     # First 9 digits of frac(sqrt(41))
     np.random.seed(403124237)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=False,
                   showextrema=False, showmedians=False, points=10)
 
 
@@ -3839,7 +3839,7 @@ def test_horiz_violinplot_custompoints_200():
     # First 9 digits of frac(sqrt(43))
     np.random.seed(557438524)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=False,
                   showextrema=False, showmedians=False, points=200)
 
 
@@ -3850,11 +3850,11 @@ def test_violinplot_sides():
     data = [np.random.normal(size=100)]
     # Check horizontal violinplot
     for pos, side in zip([0, -0.5, 0.5], ['both', 'low', 'high']):
-        ax.violinplot(data, positions=[pos], vert=False, showmeans=False,
+        ax.violinplot(data, positions=[pos], orientation='horizontal', showmeans=False,
                       showextrema=True, showmedians=True, side=side)
     # Check vertical violinplot
     for pos, side in zip([4, 3.5, 4.5], ['both', 'low', 'high']):
-        ax.violinplot(data, positions=[pos], vert=True, showmeans=False,
+        ax.violinplot(data, positions=[pos], orientation='vertical', showmeans=False,
                       showextrema=True, showmedians=True, side=side)
 
 
@@ -9065,3 +9065,40 @@ def test_latex_pie_percent(fig_test, fig_ref):
 
     ax1 = fig_ref.subplots()
     ax1.pie(data, autopct=r"%1.0f\%%", textprops={'usetex': True})
+
+
+@check_figures_equal(extensions=['png'])
+def test_violinplot_orientation(fig_test, fig_ref):
+    # Test the `orientation : {'vertical', 'horizontal'}`
+    # parameter and deprecation of `vert: bool`.
+    fig, axs = plt.subplots(nrows=1, ncols=3)
+    np.random.seed(19680801)
+    all_data = [np.random.normal(0, std, 100) for std in range(6, 10)]
+
+    axs[0].violinplot(all_data)  # Default vertical plot.
+    # xticks and yticks should be at their default position.
+    assert all(axs[0].get_xticks() == np.array(
+        [0.5, 1., 1.5, 2., 2.5, 3., 3.5, 4., 4.5]))
+    assert all(axs[0].get_yticks() == np.array(
+        [-30., -20., -10., 0., 10., 20., 30.]))
+
+    # Horizontal plot using new `orientation` keyword.
+    axs[1].violinplot(all_data, orientation='horizontal')
+    # xticks and yticks should be swapped.
+    assert all(axs[1].get_xticks() == np.array(
+        [-30., -20., -10., 0., 10., 20., 30.]))
+    assert all(axs[1].get_yticks() == np.array(
+        [0.5, 1., 1.5, 2., 2.5, 3., 3.5, 4., 4.5]))
+
+    plt.close()
+
+    # Deprecation of `vert: bool` keyword
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='vert: bool was deprecated in Matplotlib 3.10'):
+        # Compare images between a figure that
+        # uses vert and one that uses orientation.
+        ax_ref = fig_ref.subplots()
+        ax_ref.violinplot(all_data, vert=False)
+
+        ax_test = fig_test.subplots()
+        ax_test.violinplot(all_data, orientation='horizontal')

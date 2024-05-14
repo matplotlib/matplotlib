@@ -4159,7 +4159,8 @@ def triplot(*args, **kwargs):
 def violinplot(
     dataset: ArrayLike | Sequence[ArrayLike],
     positions: ArrayLike | None = None,
-    vert: bool = True,
+    vert: bool | None = None,
+    orientation: Literal["vertical", "horizontal"] = "vertical",
     widths: float | ArrayLike = 0.5,
     showmeans: bool = False,
     showextrema: bool = True,
@@ -4178,6 +4179,7 @@ def violinplot(
         dataset,
         positions=positions,
         vert=vert,
+        orientation=orientation,
         widths=widths,
         showmeans=showmeans,
         showextrema=showextrema,
