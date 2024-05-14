@@ -1176,9 +1176,9 @@ class CheckButtons(AxesWidget):
         # If new colours are supplied, then we must re-apply the status.
         self._init_status(actives)
 
-    def set_active(self, index):
+    def set_active(self, index, state=None):
         """
-        Toggle (activate or deactivate) a check button by index.
+        Modify the state of a check button by index.
 
         Callbacks will be triggered if :attr:`eventson` is True.
 
@@ -1187,22 +1187,27 @@ class CheckButtons(AxesWidget):
         index : int
             Index of the check button to toggle.
 
+        state : bool, optional
+            If a boolean value, set the state explicitly. If no value is
+            provided, the state is toggled.
+
         Raises
         ------
         ValueError
             If *index* is invalid.
+        TypeError
+            If *state* is not boolean.
         """
         if index not in range(len(self.labels)):
             raise ValueError(f'Invalid CheckButton index: {index}')
+        _api.check_isinstance((bool, None), state=state)
 
         invisible = colors.to_rgba('none')
 
         facecolors = self._checks.get_facecolor()
-        facecolors[index] = (
-            self._active_check_colors[index]
-            if colors.same_color(facecolors[index], invisible)
-            else invisible
-        )
+        if state is None:
+            state = colors.same_color(facecolors[index], invisible)
+        facecolors[index] = self._active_check_colors[index] if state else invisible
         self._checks.set_facecolor(facecolors)
 
         if self.drawon:
@@ -1233,6 +1238,23 @@ class CheckButtons(AxesWidget):
             [ec if active else "none"
              for ec, active in zip(self._active_check_colors, actives)])
 
+    def clear(self):
+        """Uncheck all checkboxes."""
+
+        self._checks.set_facecolor(['none'] * len(self._active_check_colors))
+
+        if hasattr(self, '_lines'):
+            for l1, l2 in self._lines:
+                l1.set_visible(False)
+                l2.set_visible(False)
+
+        if self.drawon:
+            self.canvas.draw()
+
+        if self.eventson:
+            # Call with no label, as all checkboxes are being cleared.
+            self._observers.process('clicked', None)
+
     def get_status(self):
         """
         Return a list of the status (True/False) of all of the check buttons.
@@ -1240,11 +1262,31 @@ class CheckButtons(AxesWidget):
         return [not colors.same_color(color, colors.to_rgba("none"))
                 for color in self._checks.get_facecolors()]
 
+    def get_checked_labels(self):
+        """Return a list of labels currently checked by user."""
+
+        return [l.get_text() for l, box_checked in
+                zip(self.labels, self.get_status())
+                if box_checked]
+
     def on_clicked(self, func):
         """
         Connect the callback function *func* to button click events.
 
-        Returns a connection id, which can be used to disconnect the callback.
+        Parameters
+        ----------
+        func : callable
+            When the button is clicked, call *func* with button label.
+            When all buttons are cleared, call *func* with None.
+            The callback func must have the signature::
+
+                def func(label: str | None) -> Any
+
+            Return values may exist, but are ignored.
+
+        Returns
+        -------
+        A connection id, which can be used to disconnect the callback.
         """
         return self._observers.connect('clicked', lambda text: func(text))
 
@@ -1533,6 +1575,8 @@ class RadioButtons(AxesWidget):
         The buttons.
     value_selected : str
         The label text of the currently selected button.
+    index_selected : int
+        The index of the selected button.
     """
 
     def __init__(self, ax, labels, active=0, activecolor=None, *,
@@ -1590,7 +1634,9 @@ class RadioButtons(AxesWidget):
             activecolor = 'blue'  # Default.
 
         self._activecolor = activecolor
+        self._initial_active = active
         self.value_selected = labels[active]
+        self.index_selected = active
 
         ax.set_xticks([])
         ax.set_yticks([])
@@ -1716,10 +1762,21 @@ class RadioButtons(AxesWidget):
         Select button with number *index*.
 
         Callbacks will be triggered if :attr:`eventson` is True.
+
+        Parameters
+        ----------
+        index : int
+            The index of the button to activate.
+
+        Raises
+        ------
+        ValueError
+            If the index is invalid.
         """
         if index not in range(len(self.labels)):
             raise ValueError(f'Invalid RadioButton index: {index}')
         self.value_selected = self.labels[index].get_text()
+        self.index_selected = index
         button_facecolors = self._buttons.get_facecolor()
         button_facecolors[:] = colors.to_rgba("none")
         button_facecolors[index] = colors.to_rgba(self._active_colors[index])
@@ -1737,11 +1794,28 @@ class RadioButtons(AxesWidget):
         if self.eventson:
             self._observers.process('clicked', self.labels[index].get_text())
 
+    def clear(self):
+        """Reset the active button to the initially active one."""
+        self.set_active(self._initial_active)
+
     def on_clicked(self, func):
         """
         Connect the callback function *func* to button click events.
 
-        Returns a connection id, which can be used to disconnect the callback.
+        Parameters
+        ----------
+        func : callable
+            When the button is clicked, call *func* with button label.
+            When all buttons are cleared, call *func* with None.
+            The callback func must have the signature::
+
+                def func(label: str | None) -> Any
+
+            Return values may exist, but are ignored.
+
+        Returns
+        -------
+        A connection id, which can be used to disconnect the callback.
         """
         return self._observers.connect('clicked', func)
 

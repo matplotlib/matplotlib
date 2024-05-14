@@ -1,0 +1,6 @@
+*interval* parameter of ``TimerBase.start``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Setting the timer *interval* while starting it is deprecated.  The interval can
+be specified instead in the timer constructor, or by setting the
+``timer.interval`` attribute.

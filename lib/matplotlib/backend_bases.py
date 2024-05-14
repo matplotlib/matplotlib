@@ -1117,6 +1117,7 @@ class TimerBase:
         """Need to stop timer and possibly disconnect timer."""
         self._timer_stop()
 
+    @_api.delete_parameter("3.9", "interval", alternative="timer.interval")
     def start(self, interval=None):
         """
         Start the timer object.
