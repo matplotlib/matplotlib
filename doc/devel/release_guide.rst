@@ -16,7 +16,7 @@ Release guide
 Versioning Scheme
 =================
 
-Maplotlib follows the `Intended Effort Versioning (EffVer) <https://jacobtomlinson.dev/effver/>`_
+Matplotlib follows the `Intended Effort Versioning (EffVer) <https://jacobtomlinson.dev/effver/>`_
 versioning scheme: *macro.meso.micro*.
 
 
