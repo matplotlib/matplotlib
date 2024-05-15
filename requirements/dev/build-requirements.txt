@@ -1,5 +1,4 @@
 pybind11
 meson-python
-cmake
 numpy
 setuptools-scm
