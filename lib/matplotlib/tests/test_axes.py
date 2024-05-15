@@ -3186,7 +3186,7 @@ def _bxp_test_helper(
     logstats = mpl.cbook.boxplot_stats(
         np.random.lognormal(mean=1.25, sigma=1., size=(37, 4)), **stats_kwargs)
     fig, ax = plt.subplots()
-    if bxp_kwargs.get('vert', True):
+    if bxp_kwargs.get('orientation', 'vertical') == 'vertical':
         ax.set_yscale('log')
     else:
         ax.set_xscale('log')
@@ -3237,7 +3237,7 @@ def test_bxp_with_xlabels():
                   style='default',
                   tol=0.1)
 def test_bxp_horizontal():
-    _bxp_test_helper(bxp_kwargs=dict(vert=False))
+    _bxp_test_helper(bxp_kwargs=dict(orientation='horizontal'))
 
 
 @image_comparison(['bxp_with_ylabels.png'],
@@ -3250,7 +3250,8 @@ def test_bxp_with_ylabels():
             s['label'] = label
         return stats
 
-    _bxp_test_helper(transform_stats=transform, bxp_kwargs=dict(vert=False))
+    _bxp_test_helper(transform_stats=transform,
+                     bxp_kwargs=dict(orientation='horizontal'))
 
 
 @image_comparison(['bxp_patchartist.png'],
@@ -3579,7 +3580,6 @@ def test_boxplot_rc_parameters():
     }
 
     rc_axis1 = {
-        'boxplot.vertical': False,
         'boxplot.whiskers': [0, 100],
         'boxplot.patchartist': True,
     }
@@ -9102,3 +9102,42 @@ def test_violinplot_orientation(fig_test, fig_ref):
 
         ax_test = fig_test.subplots()
         ax_test.violinplot(all_data, orientation='horizontal')
+
+
+@check_figures_equal(extensions=['png'])
+def test_boxplot_orientation(fig_test, fig_ref):
+    # Test the `orientation : {'vertical', 'horizontal'}`
+    # parameter and deprecation of `vert: bool`.
+    fig, axs = plt.subplots(nrows=1, ncols=2)
+    np.random.seed(19680801)
+    all_data = [np.random.normal(0, std, 100) for std in range(6, 10)]
+
+    axs[0].boxplot(all_data)  # Default vertical plot.
+    # xticks and yticks should be at their default position.
+    assert all(axs[0].get_xticks() == np.array(
+        [1, 2, 3, 4]))
+    assert all(axs[0].get_yticks() == np.array(
+        [-30., -20., -10., 0., 10., 20., 30.]))
+
+    # Horizontal plot using new `orientation` keyword.
+    axs[1].boxplot(all_data, orientation='horizontal')
+    # xticks and yticks should be swapped.
+    assert all(axs[1].get_xticks() == np.array(
+        [-30., -20., -10., 0., 10., 20., 30.]))
+    assert all(axs[1].get_yticks() == np.array(
+        [1, 2, 3, 4]))
+
+    plt.close()
+
+    # Deprecation of `vert: bool` keyword and
+    # 'boxplot.vertical' rcparam.
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='was deprecated in Matplotlib 3.10'):
+        # Compare images between a figure that
+        # uses vert and one that uses orientation.
+        with mpl.rc_context({'boxplot.vertical': False}):
+            ax_ref = fig_ref.subplots()
+            ax_ref.boxplot(all_data)
+
+        ax_test = fig_test.subplots()
+        ax_test.boxplot(all_data, orientation='horizontal')
