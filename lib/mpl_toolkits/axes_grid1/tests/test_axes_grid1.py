@@ -515,7 +515,7 @@ def test_picking_callbacks_overlap(big_on_axes, small_on_axes, click_on):
     if click_axes is axes["parasite"]:
         click_axes = axes["host"]
     (x, y) = click_axes.transAxes.transform(axes_coords)
-    m = MouseEvent("button_press_event", click_axes.figure.canvas, x, y,
+    m = MouseEvent("button_press_event", click_axes.get_figure(root=False).canvas, x, y,
                    button=1)
     click_axes.pick(m)
     # Checks

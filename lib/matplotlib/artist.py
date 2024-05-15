@@ -75,8 +75,8 @@ def allow_rasterization(draw):
                 renderer.stop_filter(artist.get_agg_filter())
             if artist.get_rasterized():
                 renderer._raster_depth -= 1
-            if (renderer._rasterizing and artist.figure and
-                    artist.figure.suppressComposite):
+            if (renderer._rasterizing and (fig := artist.get_figure(root=True)) and
+                    fig.suppressComposite):
                 # restart rasterizing to prevent merging
                 renderer.stop_rasterizing()
                 renderer.start_rasterizing()
@@ -248,9 +248,9 @@ class Artist:
                 self.axes = None  # decouple the artist from the Axes
                 _ax_flag = True
 
-            if self.figure:
+            if (fig := self.get_figure(root=False)) is not None:
                 if not _ax_flag:
-                    self.figure.stale = True
+                    fig.stale = True
                 self._parent_figure = None
 
         else:
@@ -473,8 +473,9 @@ class Artist:
                 return False, {}
             # subclass-specific implementation follows
         """
-        return (getattr(event, "canvas", None) is not None and self.figure is not None
-                and event.canvas is not self.figure.canvas)
+        return (getattr(event, "canvas", None) is not None
+                and (fig := self.get_figure(root=False)) is not None
+                and event.canvas is not fig.canvas)
 
     def contains(self, mouseevent):
         """
@@ -504,7 +505,7 @@ class Artist:
         --------
         .Artist.set_picker, .Artist.get_picker, .Artist.pick
         """
-        return self.figure is not None and self._picker is not None
+        return self.get_figure(root=False) is not None and self._picker is not None
 
     def pick(self, mouseevent):
         """
@@ -526,7 +527,7 @@ class Artist:
             else:
                 inside, prop = self.contains(mouseevent)
             if inside:
-                PickEvent("pick_event", self.figure.canvas,
+                PickEvent("pick_event", self.get_figure(root=False).canvas,
                           mouseevent, self, **prop)._process()
 
         # Pick children

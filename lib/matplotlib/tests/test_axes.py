@@ -6293,7 +6293,7 @@ def test_tick_label_update():
     ax.set_xticks([-1, 0, 1, 2, 3])
     ax.set_xlim(-0.5, 2.5)
 
-    ax.figure.canvas.draw()
+    fig.canvas.draw()
     tick_texts = [tick.get_text() for tick in ax.xaxis.get_ticklabels()]
     assert tick_texts == ["", "", "unit value", "", ""]
 
@@ -8923,11 +8923,11 @@ def test_cla_clears_children_axes_and_fig():
     img = ax.imshow([[1]])
     for art in lines + [img]:
         assert art.axes is ax
-        assert art.figure is fig
+        assert art.get_figure() is fig
     ax.clear()
     for art in lines + [img]:
         assert art.axes is None
-        assert art.figure is None
+        assert art.get_figure() is None
 
 
 def test_child_axes_removal():

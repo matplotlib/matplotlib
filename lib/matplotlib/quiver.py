@@ -316,11 +316,11 @@ class QuiverKey(martist.Artist):
 
     @property
     def labelsep(self):
-        return self._labelsep_inches * self.Q.axes.figure.dpi
+        return self._labelsep_inches * self.Q.axes.get_figure(root=False).dpi
 
     def _init(self):
-        if True:  # self._dpi_at_last_init != self.axes.figure.dpi
-            if self.Q._dpi_at_last_init != self.Q.axes.figure.dpi:
+        if True:  # self._dpi_at_last_init != self.axes.get_figure().dpi
+            if self.Q._dpi_at_last_init != self.Q.axes.get_figure(root=False).dpi:
                 self.Q._init()
             self._set_transform()
             with cbook._setattr_cm(self.Q, pivot=self.pivot[self.labelpos],
@@ -341,7 +341,7 @@ class QuiverKey(martist.Artist):
                 self.vector.set_color(self.color)
             self.vector.set_transform(self.Q.get_transform())
             self.vector.set_figure(self.get_figure())
-            self._dpi_at_last_init = self.Q.axes.figure.dpi
+            self._dpi_at_last_init = self.Q.axes.get_figure(root=False).dpi
 
     def _text_shift(self):
         return {
@@ -361,11 +361,12 @@ class QuiverKey(martist.Artist):
         self.stale = False
 
     def _set_transform(self):
+        fig = self.Q.axes.get_figure(root=False)
         self.set_transform(_api.check_getitem({
             "data": self.Q.axes.transData,
             "axes": self.Q.axes.transAxes,
-            "figure": self.Q.axes.figure.transFigure,
-            "inches": self.Q.axes.figure.dpi_scale_trans,
+            "figure": fig.transFigure,
+            "inches": fig.dpi_scale_trans,
         }, coordinates=self.coord))
 
     def set_figure(self, fig):
@@ -518,11 +519,11 @@ class Quiver(mcollections.PolyCollection):
                 self.width = 0.06 * self.span / sn
 
             # _make_verts sets self.scale if not already specified
-            if (self._dpi_at_last_init != self.axes.figure.dpi
+            if (self._dpi_at_last_init != self.axes.get_figure(root=False).dpi
                     and self.scale is None):
                 self._make_verts(self.XY, self.U, self.V, self.angles)
 
-            self._dpi_at_last_init = self.axes.figure.dpi
+            self._dpi_at_last_init = self.axes.get_figure(root=False).dpi
 
     def get_datalim(self, transData):
         trans = self.get_transform()
@@ -579,7 +580,7 @@ class Quiver(mcollections.PolyCollection):
             'width': bb.width,
             'height': bb.height,
             'dots': 1.,
-            'inches': self.axes.figure.dpi,
+            'inches': self.axes.get_figure(root=False).dpi,
         }, units=units)
 
     def _set_transform(self):

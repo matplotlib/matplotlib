@@ -997,7 +997,7 @@ default: None
                 "Ignoring specified arguments in this call "
                 f"because figure with num: {num.canvas.manager.num} already exists")
         _pylab_helpers.Gcf.set_active(num.canvas.manager)
-        return num.figure
+        return num.get_figure(root=True)
 
     next_num = max(allnums) + 1 if allnums else 1
     fig_label = ''
@@ -1362,8 +1362,9 @@ def sca(ax: Axes) -> None:
     # Mypy sees ax.figure as potentially None,
     # but if you are calling this, it won't be None
     # Additionally the slight difference between `Figure` and `FigureBase` mypy catches
-    figure(ax.figure)  # type: ignore[arg-type]
-    ax.figure.sca(ax)  # type: ignore[union-attr]
+    fig = ax.get_figure(root=False)
+    figure(fig)  # type: ignore[arg-type]
+    fig.sca(ax)  # type: ignore[union-attr]
 
 
 def cla() -> None:

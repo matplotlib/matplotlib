@@ -27,7 +27,7 @@ import matplotlib.transforms as mtransforms
 
 
 def _contour_labeler_event_handler(cs, inline, inline_spacing, event):
-    canvas = cs.axes.figure.canvas
+    canvas = cs.axes.get_figure(root=False).canvas
     is_button = event.name == "button_press_event"
     is_key = event.name == "key_press_event"
     # Quit (even if not in infinite mode; this is consistent with
@@ -199,7 +199,8 @@ class ContourLabeler:
             if not inline:
                 print('Remove last label by clicking third mouse button.')
             mpl._blocking_input.blocking_input_loop(
-                self.axes.figure, ["button_press_event", "key_press_event"],
+                self.axes.get_figure(root=True),
+                ["button_press_event", "key_press_event"],
                 timeout=-1, handler=functools.partial(
                     _contour_labeler_event_handler,
                     self, inline, inline_spacing))
@@ -222,7 +223,7 @@ class ContourLabeler:
 
     def _get_nth_label_width(self, nth):
         """Return the width of the *nth* label, in pixels."""
-        fig = self.axes.figure
+        fig = self.axes.get_figure(root=False)
         renderer = fig._get_renderer()
         return (Text(0, 0,
                      self.get_text(self.labelLevelList[nth], self.labelFmt),

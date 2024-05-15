@@ -978,7 +978,7 @@ class AxesImage(_ImageBase):
         bbox = Bbox(np.array([[x1, y1], [x2, y2]]))
         transformed_bbox = TransformedBbox(bbox, trans)
         clip = ((self.get_clip_box() or self.axes.bbox) if self.get_clip_on()
-                else self.figure.bbox)
+                else self.get_figure(root=True).bbox)
         return self._make_image(self._A, bbox, transformed_bbox, clip,
                                 magnification, unsampled=unsampled)
 
@@ -1403,7 +1403,7 @@ class FigureImage(_ImageBase):
             cmap=cmap,
             origin=origin
         )
-        self.figure = fig
+        self.set_figure(fig)
         self.ox = offsetx
         self.oy = offsety
         self._internal_update(kwargs)
@@ -1417,14 +1417,15 @@ class FigureImage(_ImageBase):
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
-        fac = renderer.dpi/self.figure.dpi
+        fig = self.get_figure(root=True)
+        fac = renderer.dpi/fig.dpi
         # fac here is to account for pdf, eps, svg backends where
         # figure.dpi is set to 72.  This means we need to scale the
         # image (using magnification) and offset it appropriately.
         bbox = Bbox([[self.ox/fac, self.oy/fac],
                      [(self.ox/fac + self._A.shape[1]),
                      (self.oy/fac + self._A.shape[0])]])
-        width, height = self.figure.get_size_inches()
+        width, height = fig.get_size_inches()
         width *= renderer.dpi
         height *= renderer.dpi
         clip = Bbox([[0, 0], [width, height]])

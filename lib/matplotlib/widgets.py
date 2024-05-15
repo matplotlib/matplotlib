@@ -117,7 +117,7 @@ class AxesWidget(Widget):
         self.ax = ax
         self._cids = []
 
-    canvas = property(lambda self: self.ax.figure.canvas)
+    canvas = property(lambda self: self.ax.get_figure(root=False).canvas)
 
     def connect_event(self, event, callback):
         """
@@ -569,7 +569,7 @@ class Slider(SliderBase):
             self._handle.set_xdata([val])
         self.valtext.set_text(self._format(val))
         if self.drawon:
-            self.ax.figure.canvas.draw_idle()
+            self.ax.get_figure(root=False).canvas.draw_idle()
         self.val = val
         if self.eventson:
             self._observers.process('changed', val)
@@ -945,7 +945,7 @@ class RangeSlider(SliderBase):
         self.valtext.set_text(self._format((vmin, vmax)))
 
         if self.drawon:
-            self.ax.figure.canvas.draw_idle()
+            self.ax.get_figure(root=False).canvas.draw_idle()
         self.val = (vmin, vmax)
         if self.eventson:
             self._observers.process("changed", (vmin, vmax))
@@ -1370,8 +1370,9 @@ class TextBox(AxesWidget):
         # This causes a single extra draw if the figure has never been rendered
         # yet, which should be fine as we're going to repeatedly re-render the
         # figure later anyways.
-        if self.ax.figure._get_renderer() is None:
-            self.ax.figure.canvas.draw()
+        fig = self.ax.get_figure(root=False)
+        if fig._get_renderer() is None:
+            fig.canvas.draw()
 
         text = self.text_disp.get_text()  # Save value before overwriting it.
         widthtext = text[:self.cursor_index]
@@ -1393,7 +1394,7 @@ class TextBox(AxesWidget):
             visible=True)
         self.text_disp.set_text(text)
 
-        self.ax.figure.canvas.draw()
+        fig.canvas.draw()
 
     def _release(self, event):
         if self.ignore(event):
@@ -1456,7 +1457,7 @@ class TextBox(AxesWidget):
         stack = ExitStack()  # Register cleanup actions when user stops typing.
         self._on_stop_typing = stack.close
         toolmanager = getattr(
-            self.ax.figure.canvas.manager, "toolmanager", None)
+            self.ax.get_figure(root=False).canvas.manager, "toolmanager", None)
         if toolmanager is not None:
             # If using toolmanager, lock keypresses, and plan to release the
             # lock when typing stops.
@@ -1478,7 +1479,7 @@ class TextBox(AxesWidget):
             notifysubmit = False
         self.capturekeystrokes = False
         self.cursor.set_visible(False)
-        self.ax.figure.canvas.draw()
+        self.ax.get_figure(root=False).canvas.draw()
         if notifysubmit and self.eventson:
             # Because process() might throw an error in the user's code, only
             # call it once we've already done our cleanup.
@@ -1509,7 +1510,7 @@ class TextBox(AxesWidget):
         if not colors.same_color(c, self.ax.get_facecolor()):
             self.ax.set_facecolor(c)
             if self.drawon:
-                self.ax.figure.canvas.draw()
+                self.ax.get_figure(root=False).canvas.draw()
 
     def on_text_change(self, func):
         """
@@ -2003,7 +2004,8 @@ class MultiCursor(Widget):
         self.vertOn = vertOn
 
         self._canvas_infos = {
-            ax.figure.canvas: {"cids": [], "background": None} for ax in axes}
+            ax.get_figure(root=False).canvas:
+                {"cids": [], "background": None} for ax in axes}
 
         xmin, xmax = axes[-1].get_xlim()
         ymin, ymax = axes[-1].get_ylim()
@@ -2201,7 +2203,7 @@ class _SelectorWidget(AxesWidget):
     def update(self):
         """Draw using blit() or draw_idle(), depending on ``self.useblit``."""
         if (not self.ax.get_visible() or
-                self.ax.figure._get_renderer() is None):
+                self.ax.get_figure(root=False)._get_renderer() is None):
             return
         if self.useblit:
             if self.background is not None:
@@ -2574,7 +2576,7 @@ class SpanSelector(_SelectorWidget):
     def new_axes(self, ax, *, _props=None, _init=False):
         """Set SpanSelector to operate on a new Axes."""
         reconnect = False
-        if _init or self.canvas is not ax.figure.canvas:
+        if _init or self.canvas is not ax.get_figure(root=False).canvas:
             if self.canvas is not None:
                 self.disconnect_events()
             reconnect = True
@@ -2627,7 +2629,7 @@ class SpanSelector(_SelectorWidget):
         else:
             cursor = backend_tools.Cursors.POINTER
 
-        self.ax.figure.canvas.set_cursor(cursor)
+        self.ax.get_figure(root=False).canvas.set_cursor(cursor)
 
     def connect_default_events(self):
         # docstring inherited

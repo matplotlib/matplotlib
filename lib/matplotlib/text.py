@@ -372,7 +372,8 @@ class Text(Artist):
         # Full vertical extent of font, including ascenders and descenders:
         _, lp_h, lp_d = _get_text_metrics_with_cache(
             renderer, "lp", self._fontproperties,
-            ismath="TeX" if self.get_usetex() else False, dpi=self.figure.dpi)
+            ismath="TeX" if self.get_usetex() else False,
+            dpi=self.get_figure(root=False).dpi)
         min_dy = (lp_h - lp_d) * self._linespacing
 
         for i, line in enumerate(lines):
@@ -380,7 +381,7 @@ class Text(Artist):
             if clean_line:
                 w, h, d = _get_text_metrics_with_cache(
                     renderer, clean_line, self._fontproperties,
-                    ismath=ismath, dpi=self.figure.dpi)
+                    ismath=ismath, dpi=self.get_figure(root=False).dpi)
             else:
                 w = h = d = 0
 
@@ -934,28 +935,30 @@ class Text(Artist):
 
         dpi : float, optional
             The dpi value for computing the bbox, defaults to
-            ``self.figure.dpi`` (*not* the renderer dpi); should be set e.g. if
+            ``self.get_figure().dpi`` (*not* the renderer dpi); should be set e.g. if
             to match regions with a figure saved with a custom dpi value.
         """
         if not self.get_visible():
             return Bbox.unit()
+
+        fig = self.get_figure(root=True)
         if dpi is None:
-            dpi = self.figure.dpi
+            dpi = fig.dpi
         if self.get_text() == '':
-            with cbook._setattr_cm(self.figure, dpi=dpi):
+            with cbook._setattr_cm(fig, dpi=dpi):
                 tx, ty = self._get_xy_display()
                 return Bbox.from_bounds(tx, ty, 0, 0)
 
         if renderer is not None:
             self._renderer = renderer
         if self._renderer is None:
-            self._renderer = self.figure._get_renderer()
+            self._renderer = fig._get_renderer()
         if self._renderer is None:
             raise RuntimeError(
                 "Cannot get window extent of text w/o renderer. You likely "
                 "want to call 'figure.draw_without_rendering()' first.")
 
-        with cbook._setattr_cm(self.figure, dpi=dpi):
+        with cbook._setattr_cm(fig, dpi=dpi):
             bbox, info, descent = self._get_layout(self._renderer)
             x, y = self.get_unitless_position()
             x, y = self.get_transform().transform((x, y))
@@ -1514,9 +1517,9 @@ class _AnnotationBase:
 
         # if unit is offset-like
         if bbox_name == "figure":
-            bbox0 = self.figure.figbbox
+            bbox0 = self.get_figure(root=False).figbbox
         elif bbox_name == "subfigure":
-            bbox0 = self.figure.bbox
+            bbox0 = self.get_figure(root=False).bbox
         elif bbox_name == "axes":
             bbox0 = self.axes.bbox
 
@@ -1529,11 +1532,13 @@ class _AnnotationBase:
             raise ValueError(f"{coords!r} is not a valid coordinate")
 
         if unit == "points":
-            tr = Affine2D().scale(self.figure.dpi / 72)  # dpi/72 dots per point
+            tr = Affine2D().scale(
+                self.get_figure(root=False).dpi / 72)  # dpi/72 dots per point
         elif unit == "pixels":
             tr = Affine2D()
         elif unit == "fontsize":
-            tr = Affine2D().scale(self.get_size() * self.figure.dpi / 72)
+            tr = Affine2D().scale(
+                self.get_size() * self.get_figure(root=False).dpi / 72)
         elif unit == "fraction":
             tr = Affine2D().scale(*bbox0.size)
         else:
@@ -1571,7 +1576,7 @@ class _AnnotationBase:
     def _check_xy(self, renderer=None):
         """Check whether the annotation at *xy_pixel* should be drawn."""
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=False)._get_renderer()
         b = self.get_annotation_clip()
         if b or (b is None and self.xycoords == "data"):
             # check if self.xy is inside the Axes.
@@ -1987,8 +1992,9 @@ or callable, default: value of *xycoords*
         self.update_positions(renderer)
         self.update_bbox_position_size(renderer)
         if self.arrow_patch is not None:  # FancyArrowPatch
-            if self.arrow_patch.figure is None and self.figure is not None:
-                self.arrow_patch.figure = self.figure
+            if (self.arrow_patch.get_figure(root=False) is None and
+                    (fig := self.get_figure(root=False)) is not None):
+                self.arrow_patch.set_figure(fig)
             self.arrow_patch.draw(renderer)
         # Draw text, including FancyBboxPatch, after FancyArrowPatch.
         # Otherwise, a wedge arrowstyle can land partly on top of the Bbox.
@@ -2003,7 +2009,7 @@ or callable, default: value of *xycoords*
         if renderer is not None:
             self._renderer = renderer
         if self._renderer is None:
-            self._renderer = self.figure._get_renderer()
+            self._renderer = self.get_figure(root=False)._get_renderer()
         if self._renderer is None:
             raise RuntimeError('Cannot get window extent without renderer')
 

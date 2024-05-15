@@ -627,7 +627,7 @@ def get_pos_and_bbox(ax, renderer):
     bbox : `~matplotlib.transforms.Bbox`
         Tight bounding box in figure coordinates.
     """
-    fig = ax.figure
+    fig = ax.get_figure(root=False)
     pos = ax.get_position(original=True)
     # pos is in panel co-ords, but we need in figure for the layout
     pos = pos.transformed(fig.transSubfigure - fig.transFigure)
@@ -699,7 +699,7 @@ def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None):
 
     parents = cbax._colorbar_info['parents']
     gs = parents[0].get_gridspec()
-    fig = cbax.figure
+    fig = cbax.get_figure(root=False)
     trans_fig_to_subfig = fig.transFigure - fig.transSubfigure
 
     cb_rspans, cb_cspans = get_cb_parent_spans(cbax)

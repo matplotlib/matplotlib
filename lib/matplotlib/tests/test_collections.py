@@ -518,7 +518,7 @@ def test_regularpolycollection_scale():
             """Return transform scaling circle areas to data space."""
             ax = self.axes
 
-            pts2pixels = 72.0 / ax.figure.dpi
+            pts2pixels = 72.0 / ax.get_figure(root=False).dpi
 
             scale_x = pts2pixels * ax.bbox.width / ax.viewLim.width
             scale_y = pts2pixels * ax.bbox.height / ax.viewLim.height
