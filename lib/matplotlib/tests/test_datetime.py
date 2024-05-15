@@ -255,7 +255,7 @@ class TestDatetimePlotting:
                 datetime.datetime(2020, 1, 27)
             ]
         }]
-        ax.bxp(data, vert=False)
+        ax.bxp(data, orientation='horizontal')
         ax.xaxis.set_major_formatter(mpl.dates.DateFormatter("%Y-%m-%d"))
         ax.set_title('Box plot with datetime data')
 
