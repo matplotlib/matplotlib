@@ -1,16 +1,16 @@
 .. _github-stats:
 
-GitHub statistics for 3.9.0 (Apr 09, 2024)
+GitHub statistics for 3.9.0 (May 15, 2024)
 ==========================================
 
-GitHub statistics for 2023/09/15 (tag: v3.8.0) - 2024/04/09
+GitHub statistics for 2023/09/15 (tag: v3.8.0) - 2024/05/15
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 86 issues and merged 393 pull requests.
+We closed 97 issues and merged 450 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/78?closed=1>`__
 
-The following 170 authors contributed 2496 commits.
+The following 175 authors contributed 2584 commits.
 
 * 0taj
 * Abdul Razak Taha
@@ -67,6 +67,7 @@ The following 170 authors contributed 2496 commits.
 * Eva Sibinga
 * Evgenii Radchenko
 * Faisal Fawad
+* Felipe Cybis Pereira
 * Garrett Sward
 * Gaurav-Kumar-Soni
 * Gauri Chaudhari
@@ -81,6 +82,7 @@ The following 170 authors contributed 2496 commits.
 * Ian Hunt-Isaak
 * Ian Thomas
 * ifEricReturnTrue
+* Illviljan
 * Issam
 * Issam Arabi
 * Jacob Stevens-Haas
@@ -124,6 +126,7 @@ The following 170 authors contributed 2496 commits.
 * Mostafa Noah
 * MostafaNouh0011
 * n-aswin
+* Nabil
 * nbarlowATI
 * Nidaa Rabah
 * Nivedita Chaudhari
@@ -132,6 +135,7 @@ The following 170 authors contributed 2496 commits.
 * Pavel Liavonau
 * Pedro
 * Pedro Peçanha
+* Peter Talley
 * Pradeep Reddy Raamana
 * Prajwal Agrawal
 * Pranav Raghu
@@ -166,6 +170,7 @@ The following 170 authors contributed 2496 commits.
 * Talha Irfan
 * thehappycheese
 * Thomas A Caswell
+* Tiago Lubiana
 * Tim Hoffmann
 * tobias
 * Tom Sarantis
@@ -185,8 +190,65 @@ The following 170 authors contributed 2496 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (393):
+Pull Requests (450):
 
+* :ghpull:`28206`: Backport PR #28205 on branch v3.9.x (TST: Fix tests with older versions of ipython)
+* :ghpull:`28207`: TST: Followup corrections to #28205
+* :ghpull:`28205`: TST: Fix tests with older versions of ipython
+* :ghpull:`28203`: Backport PR #28164 on branch v3.9.x (CI: Ensure code coverage is always uploaded)
+* :ghpull:`28204`: Backport PR #28195 on branch v3.9.x (TST: Prepare for pytest 9)
+* :ghpull:`28191`: DOC: Use released mpl-sphinx-theme on v3.9.x
+* :ghpull:`28195`: TST: Prepare for pytest 9
+* :ghpull:`28193`: Backport PR #28185 on branch v3.9.x (DOC: Bump mpl-sphinx-theme to 3.9)
+* :ghpull:`28190`: Backport PR #28103 on branch v3.9.x ([DOC]: Fix compatibility with sphinx-gallery 0.16)
+* :ghpull:`28164`: CI: Ensure code coverage is always uploaded
+* :ghpull:`28194`: Backport PR #28188 on branch v3.9.x ([TST] Bump some tolerances for Macos ARM)
+* :ghpull:`28188`: [TST] Bump some tolerances for Macos ARM
+* :ghpull:`28185`: DOC: Bump mpl-sphinx-theme to 3.9
+* :ghpull:`28189`: Backport PR #28181 on branch v3.9.x (DOC: Prepare release notes for 3.9)
+* :ghpull:`28103`: [DOC]: Fix compatibility with sphinx-gallery 0.16
+* :ghpull:`28181`: DOC: Prepare release notes for 3.9
+* :ghpull:`28184`: Backport PR #28182 on branch v3.9.x (Bump custom hatch deprecation expiration)
+* :ghpull:`28182`: Bump custom hatch deprecation expiration
+* :ghpull:`28178`: Backport PR #28171 on branch v3.9.x (Support removing absent tools from ToolContainerBase.)
+* :ghpull:`28171`: Support removing absent tools from ToolContainerBase.
+* :ghpull:`28174`: Backport PR #28169 on branch v3.9.x (Clarify public-ness of some ToolContainerBase APIs.)
+* :ghpull:`28169`: Clarify public-ness of some ToolContainerBase APIs.
+* :ghpull:`28160`: Backport PR #28039 on branch v3.9.x (Respect vertical_axis when rotating plot interactively)
+* :ghpull:`28159`: Backport PR #28157 on branch v3.9.x (Remove call to non-existent method _default_contains in Artist)
+* :ghpull:`28162`: Backport PR #27948 on branch v3.9.x (Move IPython backend mapping to Matplotlib and support entry points)
+* :ghpull:`28163`: Backport PR #28144 on branch v3.9.x (DOC: Refactor code in the fishbone diagram example)
+* :ghpull:`28144`: DOC: Refactor code in the fishbone diagram example
+* :ghpull:`27948`: Move IPython backend mapping to Matplotlib and support entry points
+* :ghpull:`28039`: Respect vertical_axis when rotating plot interactively
+* :ghpull:`28157`: Remove call to non-existent method _default_contains in Artist
+* :ghpull:`28141`: Backport PR #27960 on branch v3.9.x (Update AppVeyor config)
+* :ghpull:`28138`: Backport PR #28068 on branch v3.9.x ([TYP] Add possible type hint to ``colors`` argument in ``LinearSegmentedColormap.from_list``)
+* :ghpull:`28140`: Backport PR #28136 on branch v3.9.x (Appease pycodestyle.)
+* :ghpull:`27960`: Update AppVeyor config
+* :ghpull:`28068`: [TYP] Add possible type hint to ``colors`` argument in ``LinearSegmentedColormap.from_list``
+* :ghpull:`28136`: Appease pycodestyle.
+* :ghpull:`28135`: Backport PR #28134 on branch v3.9.x (DOC: Minor improvements on quickstart)
+* :ghpull:`28134`: DOC: Minor improvements on quickstart
+* :ghpull:`28121`: Backport PR #28085 on branch v3.9.x (Clarify that the pgf backend is never actually used interactively.)
+* :ghpull:`28120`: Backport PR #28102 on branch v3.9.x (Fix typo in color mapping documentation in quick_start.py)
+* :ghpull:`28109`: Backport PR #28100 on branch v3.9.x (TST: wxcairo sometimes raises OSError on missing cairo libraries)
+* :ghpull:`28100`: TST: wxcairo sometimes raises OSError on missing cairo libraries
+* :ghpull:`28108`: Backport PR #28107 on branch v3.9.x ([DOC] Fix description in CapStyle example)
+* :ghpull:`28107`: [DOC] Fix description in CapStyle example
+* :ghpull:`28102`: Fix typo in color mapping documentation in quick_start.py
+* :ghpull:`28095`: Backport PR #28094 on branch v3.9.x (DOC: exclude sphinx 7.3.*)
+* :ghpull:`28081`: Backport PR #28078 on branch v3.9.x (Clarify that findfont & _find_fonts_by_props return paths.)
+* :ghpull:`28080`: Backport PR #28077 on branch v3.9.x (Parent tk StringVar to the canvas widget, not to the toolbar.)
+* :ghpull:`28092`: Backport PR #28032 on branch v3.9.x (FIX: ensure images are C order before passing to pillow)
+* :ghpull:`28032`: FIX: ensure images are C order before passing to pillow
+* :ghpull:`28088`: Backport PR #28087 on branch v3.9.x (Document Qt5 minimal version.)
+* :ghpull:`28085`: Clarify that the pgf backend is never actually used interactively.
+* :ghpull:`28078`: Clarify that findfont & _find_fonts_by_props return paths.
+* :ghpull:`28077`: Parent tk StringVar to the canvas widget, not to the toolbar.
+* :ghpull:`28062`: Backport PR #28056 on branch v3.9.x (Strip trailing spaces from log-formatter cursor output.)
+* :ghpull:`28063`: Backport PR #28055 on branch v3.9.x (DOC: Improve inverted axis example)
+* :ghpull:`28056`: Strip trailing spaces from log-formatter cursor output.
 * :ghpull:`28049`: Backport PR #28036 on branch v3.9.x (BLD: Fetch version from setuptools_scm at build time)
 * :ghpull:`28036`: BLD: Fetch version from setuptools_scm at build time
 * :ghpull:`28038`: Backport PR #28023 on branch v3.9.x (ci: Update merge conflict labeler)
@@ -581,8 +643,19 @@ Pull Requests (393):
 * :ghpull:`26482`: [DOC]: print pydata sphinx/mpl theme versions
 * :ghpull:`23787`: Use pybind11 for C/C++ extensions
 
-Issues (86):
+Issues (97):
 
+* :ghissue:`28202`: [Bug]: Qt test_ipython fails on older ipython
+* :ghissue:`28145`: [TST] Upcoming dependency test failures
+* :ghissue:`28034`: [TST] Upcoming dependency test failures
+* :ghissue:`28168`: [TST] Upcoming dependency test failures
+* :ghissue:`28040`: [Bug]: vertical_axis not respected when rotating plots interactively
+* :ghissue:`28146`: [Bug]: Useless recursive group in SVG output when using path_effects
+* :ghissue:`28067`: [Bug]: ``LinearSegmentedColormap.from_list`` does not have all type hints for argument ``colors``
+* :ghissue:`26778`: [MNT]: Numpy 2.0 support strategy
+* :ghissue:`28020`: [Bug]: imsave fails on RGBA data when origin is set to lower
+* :ghissue:`7720`: WXAgg backend not rendering nicely on retina
+* :ghissue:`28069`: [Bug]: Cant save with custom toolbar
 * :ghissue:`28005`: [Doc]: Improve contribute instructions
 * :ghissue:`22376`: [ENH]: align_titles
 * :ghissue:`5506`: Confusing status bar values in presence of multiple axes
