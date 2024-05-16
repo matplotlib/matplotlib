@@ -160,10 +160,9 @@ jobs:
             fi
             ;;
           macOS)
-            brew install ccache
-            brew tap homebrew/cask-fonts
-            brew install font-noto-sans-cjk ghostscript gobject-introspection gtk4 ninja
-            brew install --cask inkscape
+            brew update
+            brew install ccache ghostscript gobject-introspection gtk4 ninja
+            brew install --cask font-noto-sans-cjk inkscape
             ;;
           esac
 
