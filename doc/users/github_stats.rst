@@ -655,7 +655,7 @@ Issues (97):
 * :ghissue:`26778`: [MNT]: Numpy 2.0 support strategy
 * :ghissue:`28020`: [Bug]: imsave fails on RGBA data when origin is set to lower
 * :ghissue:`7720`: WXAgg backend not rendering nicely on retina
-* :ghissue:`28069`: [Bug]: Cant save with custom toolbar
+* :ghissue:`28069`: [Bug]: Can't save with custom toolbar
 * :ghissue:`28005`: [Doc]: Improve contribute instructions
 * :ghissue:`22376`: [ENH]: align_titles
 * :ghissue:`5506`: Confusing status bar values in presence of multiple axes
