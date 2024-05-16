@@ -94,7 +94,6 @@ class PathInteractor:
         self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self.pathpatch)
         self.ax.draw_artist(self.line)
-        self.canvas.blit(self.ax.bbox)
 
     def on_button_press(self, event):
         """Callback for mouse button presses."""
