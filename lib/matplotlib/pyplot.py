@@ -90,6 +90,9 @@ if TYPE_CHECKING:
     import PIL.Image
     from numpy.typing import ArrayLike
 
+    import matplotlib.axes
+    import matplotlib.artist
+    import matplotlib.backend_bases
     from matplotlib.axis import Tick
     from matplotlib.axes._base import _AxesBase
     from matplotlib.backend_bases import RendererBase, Event
