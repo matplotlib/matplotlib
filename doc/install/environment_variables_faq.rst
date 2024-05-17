@@ -29,13 +29,6 @@ Environment variables
   used to find a base directory in which the :file:`matplotlib` subdirectory is
   created.
 
-.. envvar:: MPLSETUPCFG
-
-   This optional variable can be set to the full path of a :file:`mplsetup.cfg`
-   configuration file used to customize the Matplotlib build.  By default, a
-   :file:`mplsetup.cfg` file in the root of the Matplotlib source tree will be
-   read.  Supported build options are listed in :file:`mplsetup.cfg.template`.
-
 .. envvar:: PATH
 
   The list of directories searched to find executable programs.
