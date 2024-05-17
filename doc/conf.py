@@ -271,6 +271,7 @@ sphinx_gallery_conf = {
     'within_subsection_order': gallery_order_subsectionorder,
     'capture_repr': (),
     'copyfile_regex': r'.*\.rst',
+    'prefer_full_module': {r'module\.submodule'},
 }
 
 if 'plot_gallery=0' in sys.argv:
