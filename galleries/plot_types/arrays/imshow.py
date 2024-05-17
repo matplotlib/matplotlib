@@ -19,6 +19,6 @@ Z = (1 - X/2 + X**5 + Y**3) * np.exp(-X**2 - Y**2)
 # plot
 fig, ax = plt.subplots()
 
-ax.imshow(Z)
+ax.imshow(Z, origin='lower')
 
 plt.show()
