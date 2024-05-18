@@ -90,6 +90,9 @@ if TYPE_CHECKING:
     import PIL.Image
     from numpy.typing import ArrayLike
 
+    import matplotlib.axes
+    import matplotlib.artist
+    import matplotlib.backend_bases
     from matplotlib.axis import Tick
     from matplotlib.axes._base import _AxesBase
     from matplotlib.backend_bases import RendererBase, Event
@@ -2935,6 +2938,7 @@ def boxplot(
     notch: bool | None = None,
     sym: str | None = None,
     vert: bool | None = None,
+    orientation: Literal["vertical", "horizontal"] = "vertical",
     whis: float | tuple[float, float] | None = None,
     positions: ArrayLike | None = None,
     widths: float | ArrayLike | None = None,
@@ -2967,6 +2971,7 @@ def boxplot(
         notch=notch,
         sym=sym,
         vert=vert,
+        orientation=orientation,
         whis=whis,
         positions=positions,
         widths=widths,
@@ -4159,7 +4164,8 @@ def triplot(*args, **kwargs):
 def violinplot(
     dataset: ArrayLike | Sequence[ArrayLike],
     positions: ArrayLike | None = None,
-    vert: bool = True,
+    vert: bool | None = None,
+    orientation: Literal["vertical", "horizontal"] = "vertical",
     widths: float | ArrayLike = 0.5,
     showmeans: bool = False,
     showextrema: bool = True,
@@ -4178,6 +4184,7 @@ def violinplot(
         dataset,
         positions=positions,
         vert=vert,
+        orientation=orientation,
         widths=widths,
         showmeans=showmeans,
         showextrema=showextrema,

@@ -16,7 +16,7 @@ Release guide
 Versioning Scheme
 =================
 
-Maplotlib follows the `Intended Effort Versioning (EffVer) <https://jacobtomlinson.dev/effver/>`_
+Matplotlib follows the `Intended Effort Versioning (EffVer) <https://jacobtomlinson.dev/effver/>`_
 versioning scheme: *macro.meso.micro*.
 
 
@@ -238,9 +238,9 @@ Update version switcher
 Update ``doc/_static/switcher.json``:
 
 - If a micro release, :samp:`{X}.{Y}.{Z}`, no changes are needed.
-- If a macro release, :samp:`{X}.{Y}.0`, change the name of :samp:`name: {X}.{Y+1}
-  (dev)` and :samp:`name: {X}.{Y} (stable)` as well as adding a new version for the
-  previous stable (:samp:`name: {X}.{Y-1}`).
+- If a meso release, :samp:`{X}.{Y}.0`, change the name of :samp:`name: {X}.{Y+1} (dev)`
+  and :samp:`name: {X}.{Y} (stable)` as well as adding a new version for the previous
+  stable (:samp:`name: {X}.{Y-1}`).
 
 Verify that docs build
 ----------------------
@@ -367,7 +367,8 @@ PyPI. Most builders should trigger automatically once the tag is pushed to GitHu
 
 * Windows, macOS and manylinux wheels are built on GitHub Actions. Builds are triggered
   by the GitHub Action defined in :file:`.github/workflows/cibuildwheel.yml`, and wheels
-  will be available as artifacts of the build.
+  will be available as artifacts of the build. Both a source tarball and the wheels will
+  be automatically uploaded to PyPI once all of them have been built.
 * The auto-tick bot should open a pull request into the `conda-forge feedstock
   <https://github.com/conda-forge/matplotlib-feedstock>`__. Review and merge (if you
   have the power to).
@@ -380,8 +381,14 @@ PyPI. Most builders should trigger automatically once the tag is pushed to GitHu
 
 .. _release_upload_bin:
 
-Make distribution and upload to PyPI
-====================================
+Manually uploading to PyPI
+==========================
+
+.. note::
+
+    As noted above, the GitHub Actions workflow should build and upload source tarballs
+    and wheels automatically. If for some reason, you need to upload these artifacts
+    manually, then follow the instructions in this section.
 
 Once you have collected all of the wheels (expect this to take a few hours), generate
 the tarball::
