@@ -989,7 +989,8 @@ default: None
         # type narrowed to `Figure | SubFigure` by combination of input and isinstance
         if num.canvas.manager is None:
             raise ValueError("The passed figure is not managed by pyplot")
-        elif num.canvas.manager.num in allnums:
+        elif any([figsize, dpi, facecolor, edgecolor, not frameon,
+                  kwargs]) and num.canvas.manager.num in allnums:
             _api.warn_external(
                 "Ignoring specified arguments in this call "
                 f"because figure with num: {num.canvas.manager.num} already exists")
