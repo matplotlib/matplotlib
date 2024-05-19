@@ -140,7 +140,7 @@ jobs:
           path: dist/
 
       - name: Build wheels for CPython 3.12
-        uses: pypa/cibuildwheel@8d945475ac4b1aac4ae08b2fd27db9917158b6ce  # v2.17.0
+        uses: pypa/cibuildwheel@711a3d017d0729f3edde18545fee967f03d65f65  # v2.18.0
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -149,7 +149,7 @@ jobs:
           MACOSX_DEPLOYMENT_TARGET: "${{ matrix.macos_target }}"
 
       - name: Build wheels for CPython 3.11
-        uses: pypa/cibuildwheel@8d945475ac4b1aac4ae08b2fd27db9917158b6ce  # v2.17.0
+        uses: pypa/cibuildwheel@711a3d017d0729f3edde18545fee967f03d65f65  # v2.18.0
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -158,7 +158,7 @@ jobs:
           MACOSX_DEPLOYMENT_TARGET: "${{ matrix.macos_target }}"
 
       - name: Build wheels for CPython 3.10
-        uses: pypa/cibuildwheel@8d945475ac4b1aac4ae08b2fd27db9917158b6ce  # v2.17.0
+        uses: pypa/cibuildwheel@711a3d017d0729f3edde18545fee967f03d65f65  # v2.18.0
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -167,7 +167,7 @@ jobs:
           MACOSX_DEPLOYMENT_TARGET: "${{ matrix.macos_target }}"
 
       - name: Build wheels for CPython 3.9
-        uses: pypa/cibuildwheel@8d945475ac4b1aac4ae08b2fd27db9917158b6ce  # v2.17.0
+        uses: pypa/cibuildwheel@711a3d017d0729f3edde18545fee967f03d65f65  # v2.18.0
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -176,7 +176,7 @@ jobs:
           MACOSX_DEPLOYMENT_TARGET: "${{ matrix.macos_target }}"
 
       - name: Build wheels for PyPy
-        uses: pypa/cibuildwheel@8d945475ac4b1aac4ae08b2fd27db9917158b6ce  # v2.17.0
+        uses: pypa/cibuildwheel@711a3d017d0729f3edde18545fee967f03d65f65  # v2.18.0
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:

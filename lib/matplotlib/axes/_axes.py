@@ -3819,9 +3819,10 @@ class Axes(_AxesBase):
     @_api.make_keyword_only("3.9", "notch")
     @_preprocess_data()
     @_api.rename_parameter("3.9", "labels", "tick_labels")
-    def boxplot(self, x, notch=None, sym=None, vert=None, whis=None,
-                positions=None, widths=None, patch_artist=None,
-                bootstrap=None, usermedians=None, conf_intervals=None,
+    def boxplot(self, x, notch=None, sym=None, vert=None,
+                orientation='vertical', whis=None, positions=None,
+                widths=None, patch_artist=None, bootstrap=None,
+                usermedians=None, conf_intervals=None,
                 meanline=None, showmeans=None, showcaps=None,
                 showbox=None, showfliers=None, boxprops=None,
                 tick_labels=None, flierprops=None, medianprops=None,
@@ -3877,9 +3878,21 @@ class Axes(_AxesBase):
             the fliers.  If `None`, then the fliers default to 'b+'.  More
             control is provided by the *flierprops* parameter.
 
-        vert : bool, default: :rc:`boxplot.vertical`
-            If `True`, draws vertical boxes.
-            If `False`, draw horizontal boxes.
+        vert : bool, optional
+            .. deprecated:: 3.10
+                Use *orientation* instead.
+
+                If this is given during the deprecation period, it overrides
+                the *orientation* parameter.
+
+            If True, plots the boxes vertically.
+            If False, plots the boxes horizontally.
+
+        orientation : {'vertical', 'horizontal'}, default: 'vertical'
+            If 'horizontal', plots the boxes horizontally.
+            Otherwise, plots the boxes vertically.
+
+            .. versionadded:: 3.10
 
         whis : float or (float, float), default: 1.5
             The position of the whiskers.
@@ -4047,8 +4060,6 @@ class Axes(_AxesBase):
                                        labels=tick_labels, autorange=autorange)
         if notch is None:
             notch = mpl.rcParams['boxplot.notch']
-        if vert is None:
-            vert = mpl.rcParams['boxplot.vertical']
         if patch_artist is None:
             patch_artist = mpl.rcParams['boxplot.patchartist']
         if meanline is None:
@@ -4148,13 +4159,14 @@ class Axes(_AxesBase):
                            meanline=meanline, showfliers=showfliers,
                            capprops=capprops, whiskerprops=whiskerprops,
                            manage_ticks=manage_ticks, zorder=zorder,
-                           capwidths=capwidths, label=label)
+                           capwidths=capwidths, label=label,
+                           orientation=orientation)
         return artists
 
     @_api.make_keyword_only("3.9", "widths")
-    def bxp(self, bxpstats, positions=None, widths=None, vert=True,
-            patch_artist=False, shownotches=False, showmeans=False,
-            showcaps=True, showbox=True, showfliers=True,
+    def bxp(self, bxpstats, positions=None, widths=None, vert=None,
+            orientation='vertical', patch_artist=False, shownotches=False,
+            showmeans=False, showcaps=True, showbox=True, showfliers=True,
             boxprops=None, whiskerprops=None, flierprops=None,
             medianprops=None, capprops=None, meanprops=None,
             meanline=False, manage_ticks=True, zorder=None,
@@ -4213,9 +4225,21 @@ class Axes(_AxesBase):
             Either a scalar or a vector and sets the width of each cap.
             The default is ``0.5*(width of the box)``, see *widths*.
 
-        vert : bool, default: True
-            If `True` (default), makes the boxes vertical.
-            If `False`, makes horizontal boxes.
+        vert : bool, optional
+            .. deprecated:: 3.10
+                Use *orientation* instead.
+
+                If this is given during the deprecation period, it overrides
+                the *orientation* parameter.
+
+            If True, plots the boxes vertically.
+            If False, plots the boxes horizontally.
+
+        orientation : {'vertical', 'horizontal'}, default: 'vertical'
+            If 'horizontal', plots the boxes horizontally.
+            Otherwise, plots the boxes vertically.
+
+            .. versionadded:: 3.10
 
         patch_artist : bool, default: False
             If `False` produces boxes with the `.Line2D` artist.
@@ -4334,8 +4358,29 @@ class Axes(_AxesBase):
         if meanprops is None or removed_prop not in meanprops:
             mean_kw[removed_prop] = ''
 
+        # vert and orientation parameters are linked until vert's
+        # deprecation period expires. vert only takes precedence
+        # if set to False.
+        if vert is None:
+            vert = mpl.rcParams['boxplot.vertical']
+        else:
+            _api.warn_deprecated(
+                "3.10",
+                name="vert: bool",
+                alternative="orientation: {'vertical', 'horizontal'}"
+            )
+        if vert is False:
+            orientation = 'horizontal'
+        _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
+
+        if not mpl.rcParams['boxplot.vertical']:
+            _api.warn_deprecated(
+                "3.10",
+                name='boxplot.vertical', obj_type="rcparam"
+            )
+
         # vertical or horizontal plot?
-        maybe_swap = slice(None) if vert else slice(None, None, -1)
+        maybe_swap = slice(None) if orientation == 'vertical' else slice(None, None, -1)
 
         def do_plot(xs, ys, **kwargs):
             return self.plot(*[xs, ys][maybe_swap], **kwargs)[0]
@@ -4460,7 +4505,7 @@ class Axes(_AxesBase):
                     artist.set_label(lbl)
 
         if manage_ticks:
-            axis_name = "x" if vert else "y"
+            axis_name = "x" if orientation == 'vertical' else "y"
             interval = getattr(self.dataLim, f"interval{axis_name}")
             axis = self._axis_map[axis_name]
             positions = axis.convert_units(positions)
@@ -8346,9 +8391,10 @@ such objects
 
     @_api.make_keyword_only("3.9", "vert")
     @_preprocess_data(replace_names=["dataset"])
-    def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
-                   showmeans=False, showextrema=True, showmedians=False,
-                   quantiles=None, points=100, bw_method=None, side='both'):
+    def violinplot(self, dataset, positions=None, vert=None,
+                   orientation='vertical', widths=0.5, showmeans=False,
+                   showextrema=True, showmedians=False, quantiles=None,
+                   points=100, bw_method=None, side='both',):
         """
         Make a violin plot.
 
@@ -8366,9 +8412,21 @@ such objects
             The positions of the violins; i.e. coordinates on the x-axis for
             vertical violins (or y-axis for horizontal violins).
 
-        vert : bool, default: True.
-            If true, creates a vertical violin plot.
-            Otherwise, creates a horizontal violin plot.
+        vert : bool, optional
+            .. deprecated:: 3.10
+                Use *orientation* instead.
+
+                If this is given during the deprecation period, it overrides
+                the *orientation* parameter.
+
+            If True, plots the violins vertically.
+            If False, plots the violins horizontally.
+
+        orientation : {'vertical', 'horizontal'}, default: 'vertical'
+            If 'horizontal', plots the violins horizontally.
+            Otherwise, plots the violins vertically.
+
+            .. versionadded:: 3.10
 
         widths : float or array-like, default: 0.5
             The maximum width of each violin in units of the *positions* axis.
@@ -8453,12 +8511,14 @@ such objects
         vpstats = cbook.violin_stats(dataset, _kde_method, points=points,
                                      quantiles=quantiles)
         return self.violin(vpstats, positions=positions, vert=vert,
-                           widths=widths, showmeans=showmeans,
-                           showextrema=showextrema, showmedians=showmedians, side=side)
+                           orientation=orientation, widths=widths,
+                           showmeans=showmeans, showextrema=showextrema,
+                           showmedians=showmedians, side=side)
 
     @_api.make_keyword_only("3.9", "vert")
-    def violin(self, vpstats, positions=None, vert=True, widths=0.5,
-               showmeans=False, showextrema=True, showmedians=False, side='both'):
+    def violin(self, vpstats, positions=None, vert=None,
+               orientation='vertical', widths=0.5, showmeans=False,
+               showextrema=True, showmedians=False, side='both'):
         """
         Draw a violin plot from pre-computed statistics.
 
@@ -8496,9 +8556,21 @@ such objects
             The positions of the violins; i.e. coordinates on the x-axis for
             vertical violins (or y-axis for horizontal violins).
 
-        vert : bool, default: True.
-            If true, plots the violins vertically.
-            Otherwise, plots the violins horizontally.
+        vert : bool, optional
+            .. deprecated:: 3.10
+                Use *orientation* instead.
+
+                If this is given during the deprecation period, it overrides
+                the *orientation* parameter.
+
+            If True, plots the violins vertically.
+            If False, plots the violins horizontally.
+
+        orientation : {'vertical', 'horizontal'}, default: 'vertical'
+            If 'horizontal', plots the violins horizontally.
+            Otherwise, plots the violins vertically.
+
+            .. versionadded:: 3.10
 
         widths : float or array-like, default: 0.5
             The maximum width of each violin in units of the *positions* axis.
@@ -8568,6 +8640,18 @@ such objects
         datashape_message = ("List of violinplot statistics and `{0}` "
                              "values must have the same length")
 
+        # vert and orientation parameters are linked until vert's
+        # deprecation period expires. If both are selected,
+        # vert takes precedence.
+        if vert is not None:
+            _api.warn_deprecated(
+                "3.10",
+                name="vert: bool",
+                alternative="orientation: {'vertical', 'horizontal'}"
+                )
+            orientation = 'vertical' if vert else 'horizontal'
+        _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
+
         # Validate positions
         if positions is None:
             positions = range(1, N + 1)
@@ -8596,7 +8680,7 @@ such objects
             fillcolor = linecolor = self._get_lines.get_next_color()
 
         # Check whether we are rendering vertically or horizontally
-        if vert:
+        if orientation == 'vertical':
             fill = self.fill_betweenx
             if side in ['low', 'high']:
                 perp_lines = functools.partial(self.hlines, colors=linecolor,

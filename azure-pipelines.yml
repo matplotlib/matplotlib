@@ -119,10 +119,10 @@ stages:
                   texlive-xetex
                 ;;
               Darwin)
+                brew update
                 brew install --cask xquartz
                 brew install ccache ffmpeg imagemagick mplayer ninja pkg-config
-                brew tap homebrew/cask-fonts
-                brew install font-noto-sans-cjk-sc
+                brew install --cask font-noto-sans-cjk-sc
                 ;;
               Windows_NT)
                 choco install ninja
