@@ -983,14 +983,19 @@ default: None
     `~matplotlib.rcParams` defines the default values, which can be modified
     in the matplotlibrc file.
     """
+    allnums = get_fignums()
+
     if isinstance(num, FigureBase):
         # type narrowed to `Figure | SubFigure` by combination of input and isinstance
         if num.canvas.manager is None:
             raise ValueError("The passed figure is not managed by pyplot")
+        elif num.canvas.manager.num in allnums:
+            _api.warn_external(
+                "Ignoring specified arguments in this call "
+                f"because figure with num: {num.canvas.manager.num} already exists")
         _pylab_helpers.Gcf.set_active(num.canvas.manager)
         return num.figure
 
-    allnums = get_fignums()
     next_num = max(allnums) + 1 if allnums else 1
     fig_label = ''
     if num is None:
