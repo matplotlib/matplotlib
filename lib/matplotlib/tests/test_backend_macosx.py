@@ -48,6 +48,12 @@ def test_savefig_rcparam(monkeypatch, tmp_path):
 
 
 @pytest.mark.backend('macosx')
+def test_ipython():
+    from matplotlib.testing import ipython_in_subprocess
+    ipython_in_subprocess("osx", {(8, 24): "macosx", (7, 0): "MacOSX"})
+
+
+@pytest.mark.backend('macosx')
 def test_save_figure_return():
     fig, ax = plt.subplots()
     ax.imshow([[1]])
@@ -59,9 +65,3 @@ def test_save_figure_return():
     with mock.patch(prop, return_value=None):
         fname = fig.canvas.manager.toolbar.save_figure()
         assert fname is None
-
-
-@pytest.mark.backend('macosx')
-def test_ipython():
-    from matplotlib.testing import ipython_in_subprocess
-    ipython_in_subprocess("osx", {(8, 24): "macosx", (7, 0): "MacOSX"})

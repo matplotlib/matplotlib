@@ -67,7 +67,8 @@ def test_save_figure_return():
             os.remove("foobar.png")
             assert fname == "foobar.png"
 
-            dialog.get_filename.return_value = None
-            dialog.run.return_value = Gtk.ResponseType.OK
-            fname = fig.canvas.manager.toolbar.save_figure()
-            assert fname is None
+            with mock.patch("gi.repository.Gtk.MessageDialog"):
+                dialog.get_filename.return_value = None
+                dialog.run.return_value = Gtk.ResponseType.OK
+                fname = fig.canvas.manager.toolbar.save_figure()
+                assert fname is None

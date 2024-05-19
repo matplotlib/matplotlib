@@ -196,7 +196,7 @@ def test_missing_back_button():
     print("success")
 
 
-@_isolated_tk_test(success_count=1)
+@_isolated_tk_test(success_count=2)
 def test_save_figure_return():
     import matplotlib.pyplot as plt
     from unittest import mock
@@ -206,10 +206,11 @@ def test_save_figure_return():
         fname = fig.canvas.manager.toolbar.save_figure()
         os.remove("foobar.png")
         assert fname == "foobar.png"
+        print("success")
     with mock.patch(prop, return_value=""):
         fname = fig.canvas.manager.toolbar.save_figure()
         assert fname is None
-    print("success")
+        print("success")
 
 
 @_isolated_tk_test(success_count=1)
