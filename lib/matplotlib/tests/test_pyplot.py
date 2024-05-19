@@ -457,3 +457,22 @@ def test_figure_hook():
         fig = plt.figure()
 
     assert fig._test_was_here
+
+
+def test_multiple_same_figure_calls():
+    fig = mpl.pyplot.figure(1, figsize=(1, 2))
+    with pytest.warns(UserWarning, match="Ignoring specified arguments in this call"):
+        fig2 = mpl.pyplot.figure(1, figsize=(3, 4))
+    with pytest.warns(UserWarning, match="Ignoring specified arguments in this call"):
+        mpl.pyplot.figure(fig, figsize=(5, 6))
+    assert fig is fig2
+    fig3 = mpl.pyplot.figure(1)  # Checks for false warnings
+    assert fig is fig3
+
+
+def test_close_all_warning():
+    fig1 = plt.figure()
+
+    # Check that the warning is issued when 'all' is passed to plt.figure
+    with pytest.warns(UserWarning, match="closes all existing figures"):
+        fig2 = plt.figure("all")
