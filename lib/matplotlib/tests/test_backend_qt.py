@@ -388,6 +388,7 @@ def test_fig_sigint_override(qt_core):
         signal.signal(signal.SIGINT, original_handler)
 
 
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_ipython():
     from matplotlib.testing import ipython_in_subprocess
     ipython_in_subprocess("qt", {(8, 24): "qtagg", (8, 15): "QtAgg", (7, 0): "Qt5Agg"})

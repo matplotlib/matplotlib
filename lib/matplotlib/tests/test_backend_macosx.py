@@ -61,6 +61,7 @@ def test_save_figure_return():
         assert fname is None
 
 
+@pytest.mark.backend('macosx')
 def test_ipython():
     from matplotlib.testing import ipython_in_subprocess
     ipython_in_subprocess("osx", {(8, 24): "macosx", (7, 0): "MacOSX"})
