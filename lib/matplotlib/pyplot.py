@@ -90,6 +90,9 @@ if TYPE_CHECKING:
     import PIL.Image
     from numpy.typing import ArrayLike
 
+    import matplotlib.axes
+    import matplotlib.artist
+    import matplotlib.backend_bases
     from matplotlib.axis import Tick
     from matplotlib.axes._base import _AxesBase
     from matplotlib.backend_bases import RendererBase, Event
@@ -980,30 +983,42 @@ default: None
     `~matplotlib.rcParams` defines the default values, which can be modified
     in the matplotlibrc file.
     """
+    allnums = get_fignums()
+
     if isinstance(num, FigureBase):
         # type narrowed to `Figure | SubFigure` by combination of input and isinstance
         if num.canvas.manager is None:
             raise ValueError("The passed figure is not managed by pyplot")
+        elif any([figsize, dpi, facecolor, edgecolor, not frameon,
+                  kwargs]) and num.canvas.manager.num in allnums:
+            _api.warn_external(
+                "Ignoring specified arguments in this call "
+                f"because figure with num: {num.canvas.manager.num} already exists")
         _pylab_helpers.Gcf.set_active(num.canvas.manager)
         return num.figure
 
-    allnums = get_fignums()
     next_num = max(allnums) + 1 if allnums else 1
     fig_label = ''
     if num is None:
         num = next_num
-    elif isinstance(num, str):
-        fig_label = num
-        all_labels = get_figlabels()
-        if fig_label not in all_labels:
-            if fig_label == 'all':
-                _api.warn_external("close('all') closes all existing figures.")
-            num = next_num
-        else:
-            inum = all_labels.index(fig_label)
-            num = allnums[inum]
     else:
-        num = int(num)  # crude validation of num argument
+        if any([figsize, dpi, facecolor, edgecolor, not frameon,
+                kwargs]) and num in allnums:
+            _api.warn_external(
+                "Ignoring specified arguments in this call "
+                f"because figure with num: {num} already exists")
+        if isinstance(num, str):
+            fig_label = num
+            all_labels = get_figlabels()
+            if fig_label not in all_labels:
+                if fig_label == 'all':
+                    _api.warn_external("close('all') closes all existing figures.")
+                num = next_num
+            else:
+                inum = all_labels.index(fig_label)
+                num = allnums[inum]
+        else:
+            num = int(num)  # crude validation of num argument
 
     # Type of "num" has narrowed to int, but mypy can't quite see it
     manager = _pylab_helpers.Gcf.get_fig_manager(num)  # type: ignore[arg-type]

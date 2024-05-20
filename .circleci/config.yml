@@ -103,7 +103,7 @@ commands:
       - run:
           name: Install Python dependencies
           command: |
-            python -m pip install --user meson-python numpy pybind11 setuptools-scm
+            python -m pip install --user -r requirements/dev/build-requirements.txt
             python -m pip install --user \
                 numpy<< parameters.numpy_version >> \
                 -r requirements/doc/doc-requirements.txt
