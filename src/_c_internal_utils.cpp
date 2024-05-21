@@ -111,7 +111,11 @@ static py::object
 mpl_GetForegroundWindow(void)
 {
 #ifdef _WIN32
-  return py::capsule(GetForegroundWindow(), "HWND");
+  if (HWND hwnd = GetForegroundWindow()) {
+    return py::capsule(hwnd, "HWND");
+  } else {
+    return py::none();
+  }
 #else
   return py::none();
 #endif
