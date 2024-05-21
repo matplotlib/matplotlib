@@ -121,22 +121,20 @@ Before trying to install Matplotlib, please install the :ref:`dependencies`.
 To build from a tarball, download the latest *tar.gz* release
 file from `the PyPI files page <https://pypi.org/project/matplotlib/>`_.
 
-We provide a `mplsetup.cfg`_ file which you can use to customize the build
-process. For example, which default backend to use, whether some of the
-optional libraries that Matplotlib ships with are installed, and so on. This
-file will be particularly useful to those packaging Matplotlib.
-
-.. _mplsetup.cfg: https://raw.githubusercontent.com/matplotlib/matplotlib/main/mplsetup.cfg.template
-
 If you are building your own Matplotlib wheels (or sdists) on Windows, note
 that any DLLs that you copy into the source tree will be packaged too.
-
 
 Configure build and behavior defaults
 =====================================
 
-Aspects of the build and install process and some behaviorial defaults of the
-library can be configured via:
+We provide a `meson.options`_ file containing options with which you can use to
+customize the build process. For example, which default backend to use, whether some of
+the optional libraries that Matplotlib ships with are installed, and so on. These
+options will be particularly useful to those packaging Matplotlib.
+
+.. _meson.options: https://github.com/matplotlib/matplotlib/blob/main/meson.options
+
+Aspects of some behaviorial defaults of the library can be configured via:
 
 .. toctree::
   :maxdepth: 2

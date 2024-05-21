@@ -95,7 +95,6 @@ install = ['--tags=data,python-runtime,runtime']
 [tool.setuptools_scm]
 version_scheme = "release-branch-semver"
 local_scheme = "node-and-date"
-write_to = "lib/matplotlib/_version.py"
 parentdir_prefix_version = "matplotlib-"
 fallback_version = "0.0+UNKNOWN"
 
