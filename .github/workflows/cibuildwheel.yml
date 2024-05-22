@@ -105,6 +105,7 @@ jobs:
       CIBW_SKIP: "*-musllinux_aarch64"
       CIBW_TEST_COMMAND: >-
         python {package}/ci/check_version_number.py
+      MACOSX_DEPLOYMENT_TARGET: "10.12"
       MPL_DISABLE_FH4: "yes"
     strategy:
       matrix:
@@ -115,16 +116,10 @@ jobs:
             cibw_archs: "aarch64"
           - os: windows-latest
             cibw_archs: "auto64"
-          - os: macos-11
+          - os: macos-12
             cibw_archs: "x86_64"
-            # NOTE: macos_target can be moved back into global environment after
-            # meson-python 0.16.0 is released.
-            macos_target: "10.12"
           - os: macos-14
             cibw_archs: "arm64"
-            # NOTE: macos_target can be moved back into global environment after
-            # meson-python 0.16.0 is released.
-            macos_target: "11.0"
 
     steps:
       - name: Set up QEMU
@@ -146,7 +141,6 @@ jobs:
         env:
           CIBW_BUILD: "cp312-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          MACOSX_DEPLOYMENT_TARGET: "${{ matrix.macos_target }}"
 
       - name: Build wheels for CPython 3.11
         uses: pypa/cibuildwheel@711a3d017d0729f3edde18545fee967f03d65f65  # v2.18.0
@@ -155,7 +149,6 @@ jobs:
         env:
           CIBW_BUILD: "cp311-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          MACOSX_DEPLOYMENT_TARGET: "${{ matrix.macos_target }}"
 
       - name: Build wheels for CPython 3.10
         uses: pypa/cibuildwheel@711a3d017d0729f3edde18545fee967f03d65f65  # v2.18.0
@@ -164,7 +157,6 @@ jobs:
         env:
           CIBW_BUILD: "cp310-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          MACOSX_DEPLOYMENT_TARGET: "${{ matrix.macos_target }}"
 
       - name: Build wheels for CPython 3.9
         uses: pypa/cibuildwheel@711a3d017d0729f3edde18545fee967f03d65f65  # v2.18.0
@@ -173,7 +165,6 @@ jobs:
         env:
           CIBW_BUILD: "cp39-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          MACOSX_DEPLOYMENT_TARGET: "${{ matrix.macos_target }}"
 
       - name: Build wheels for PyPy
         uses: pypa/cibuildwheel@711a3d017d0729f3edde18545fee967f03d65f65  # v2.18.0
@@ -182,7 +173,6 @@ jobs:
         env:
           CIBW_BUILD: "pp39-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          MACOSX_DEPLOYMENT_TARGET: "${{ matrix.macos_target }}"
         if: matrix.cibw_archs != 'aarch64'
 
       - uses: actions/upload-artifact@v4
