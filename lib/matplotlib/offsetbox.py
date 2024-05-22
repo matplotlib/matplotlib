@@ -1506,6 +1506,9 @@ class DraggableBase:
             self.finalize_offset()
             self.got_artist = False
             if self._use_blit:
+                self.ref_artist.draw(
+                    self.ref_artist.figure._get_renderer())
+                self.canvas.blit()
                 self.ref_artist.set_animated(False)
 
     def _check_still_parented(self):
