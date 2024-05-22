@@ -11,6 +11,7 @@ Module containing Axes3D, an object which can plot 3D objects on a
 """
 
 from collections import defaultdict
+from typing import Literal
 import itertools
 import math
 import textwrap
@@ -1191,8 +1192,20 @@ class Axes3D(Axes):
                                  f"None for proj_type = {proj_type}")
             self._focal_length = np.inf
 
-    def _roll_to_vertical(self, arr, sign=1):
-        """Roll arrays to match the different vertical axis."""
+    def _roll_to_vertical(
+        self, arr: "np.typing.ArrayLike", sign: Literal[1, -1] = 1
+    ) -> np.ndarray:
+        """
+        Roll arrays to match the different vertical axis.
+
+        Parameters
+        ----------
+        arr : ArrayLike
+            Array to roll.
+        sign : Literal[1, -1], default: 1
+            Roll the array elements in a positive or negative
+            direction. Defaults to the positive direction.
+        """
         return np.roll(arr, sign * (self._vertical_axis - 2))
 
     def get_proj(self):
