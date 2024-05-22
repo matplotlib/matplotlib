@@ -1,0 +1,4 @@
+pybind11
+meson-python
+numpy
+setuptools-scm

@@ -44,7 +44,7 @@ def _restore_foreground_window_at_end():
     try:
         yield
     finally:
-        if mpl.rcParams['tk.window_focus']:
+        if foreground and mpl.rcParams['tk.window_focus']:
             _c_internal_utils.Win32_SetForegroundWindow(foreground)
 
 
