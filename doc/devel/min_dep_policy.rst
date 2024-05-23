@@ -51,12 +51,12 @@ versions no longer support our minimum NumPy or Python.
 
 We will work around bugs in our dependencies when practical.
 
-IPython and Matplotlib do not formally depend on each other, however there
-is practical coupling for the integration of Matplotlib into Ipython.
-but we will ensure the integration works with at least minor or major versions
-of IPython released in the 24 months prior to our planned release date.
-Matplotlib may or may not work with older versions and we
-will not warn if used within an IPython outside of this window.
+IPython and Matplotlib do not formally depend on each other, however there is
+practical coupling for the integration of Matplotlib's UI into IPython and
+IPykernel.  We will ensure this integration works with at least minor or major
+versions of IPython and IPykernel released in the 24 months prior to our
+planned release date.  Matplotlib may or may not work with older versions and
+we will not warn if used with IPython or IPykernel outside of this window.
 
 
 
