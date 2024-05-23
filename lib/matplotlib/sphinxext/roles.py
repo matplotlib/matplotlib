@@ -2,10 +2,11 @@ from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
 
+import matplotlib
 from matplotlib import rcParamsDefault
 
 
-class QueryReference(nodes.Inline, nodes.TextElement):
+class _QueryReference(nodes.Inline, nodes.TextElement):
     """
     Wraps a reference or pending reference to add a query string.
 
@@ -19,7 +20,7 @@ class QueryReference(nodes.Inline, nodes.TextElement):
         return '&'.join(f'{name}={value}' for name, value in self.attlist())
 
 
-def visit_query_reference_node(self, node):
+def _visit_query_reference_node(self, node):
     """
     Resolve *node* into query strings on its ``reference`` children.
 
@@ -33,14 +34,14 @@ def visit_query_reference_node(self, node):
     self.visit_literal(node)
 
 
-def depart_query_reference_node(self, node):
+def _depart_query_reference_node(self, node):
     """
     Act as if this is a `~docutils.nodes.literal`.
     """
     self.depart_literal(node)
 
 
-def rcparam_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
+def _rcparam_role(name, rawtext, text, lineno, inliner, options=None, content=None):
     # Generate a pending cross-reference so that Sphinx will ensure this link
     # isn't broken at some point in the future.
     title = f'rcParams["{text}"]'
@@ -48,7 +49,7 @@ def rcparam_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
     ref_nodes, messages = inliner.interpreted(title, f'{title} <{target}>',
                                               'ref', lineno)
 
-    qr = QueryReference(rawtext, highlight=text)
+    qr = _QueryReference(rawtext, highlight=text)
     qr += ref_nodes
     node_list = [qr]
 
@@ -64,7 +65,7 @@ def rcparam_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
     return node_list, messages
 
 
-def mpltype_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
+def _mpltype_role(name, rawtext, text, lineno, inliner, options=None, content=None):
     mpltype = text
     type_to_link_target = {
         'color': 'colors_def',
@@ -78,12 +79,13 @@ def mpltype_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
 
 
 def setup(app):
-    app.add_role("rc", rcparam_role)
-    app.add_role("mpltype", mpltype_role)
+    app.add_role("rc", _rcparam_role)
+    app.add_role("mpltype", _mpltype_role)
     app.add_node(
-        QueryReference,
-        html=(visit_query_reference_node, depart_query_reference_node),
-        latex=(visit_query_reference_node, depart_query_reference_node),
-        text=(visit_query_reference_node, depart_query_reference_node),
+        _QueryReference,
+        html=(_visit_query_reference_node, _depart_query_reference_node),
+        latex=(_visit_query_reference_node, _depart_query_reference_node),
+        text=(_visit_query_reference_node, _depart_query_reference_node),
     )
-    return {"parallel_read_safe": True, "parallel_write_safe": True}
+    return {"version": matplotlib.__version__,
+            "parallel_read_safe": True, "parallel_write_safe": True}
