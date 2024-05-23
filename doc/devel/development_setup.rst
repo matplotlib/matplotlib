@@ -254,3 +254,9 @@ listed in ``.pre-commit-config.yaml``, against the full codebase with ::
 To run a particular hook manually, run ``pre-commit run`` with the hook id ::
 
     pre-commit run <hook id> --all-files
+
+
+Please note that the ``mypy`` pre-commit hook cannot check the :ref:`type-hints`
+for new functions; instead the stubs for new functions are checked using the
+``stubtest`` :ref:`CI check <automated-tests>` and can be checked locally using
+``tox -e stubtest``.
