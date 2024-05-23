@@ -1268,6 +1268,14 @@ default: %(va)s
         parents_bbox = ax.get_position(original=True).frozen()  # .union(
         #    [ax.get_position(original=True).frozen() for ax in [ax]])
 
+        # ensure we are working on the correct type of colormap
+        if not isinstance(mappable.cmap, mpl.colors.MultivarColormap):
+            raise AttributeError('fig.colorbars() is used with mutlivariate '
+                                 'colorbars, but this mapplable contains '
+                                 f'{type(mappable.cmap)}. Try '
+                                 'fig.colorbar(mappable) or '
+                                 'fig.colorbar_2d(mappable) instead.')
+
         # assume right - find shape
         if shape[0] == -1:
             if shape[1] == -1:
@@ -1324,8 +1332,13 @@ default: %(va)s
 
     def colorbar_2D(self, mappable, fraction=0.25, pad=0.1):
         """
-        Absolute minimal implementation of colorbar option for bivariate data
-        *** This should be remade from scratch ***
+        Absolute minimal implementation of colorbar option for bivariate data.
+
+        *** This should be remade from scratch - possibly made into a class***
+
+        Note how this version supports `matplotlib.colors.LogNorm` etc.
+        by plotting the colormap in the axis coordinate system rather than the
+        data coordinate system
         """
 
         ax = mappable.axes
@@ -1342,14 +1355,31 @@ default: %(va)s
         new_posn = Bbox(new_posn)
         ax._set_position(new_posn)
 
+        # ensure data is scaled
+        mappable.autoscale_None()
+
         # assume right - split reserved space into shape
         cax = self.add_axes(pbcb, label="<colorbar2D>")
 
         # make colorbar
         extent = [*mappable.scalars[1].get_clim(), *mappable.scalars[0].get_clim()]
-        cim = cax.imshow(mappable._cmap.lut, origin='lower', extent=extent,
-                         aspect=(extent[1] - extent[0]) / (extent[3] - extent[2]))
+        cim = cax.imshow(mappable._cmap.lut, origin='lower',
+                         extent=(0, 1, 0, 1),
+                         transform=cax.transAxes)
 
+        # scale the x and y axis according to the norm
+        # i.e. for use with `matplotlib.colors.LogNorm` etc.
+        cax.set_yscale('function',
+                       functions=(mappable.norm[0], mappable.norm[0].inverse))
+        cax.set_xscale('function',
+                       functions=(mappable.norm[1], mappable.norm[1].inverse))
+
+        # set limits manually
+        # since the image uses transform=cax.transAxes, the limits are not set
+        cax.set_ylim(*mappable.scalars[0].get_clim())
+        cax.set_xlim(*mappable.scalars[1].get_clim())
+        # make the colormap square
+        cax.set_box_aspect(1)
         return cax
 
     def subplots_adjust(self, left=None, bottom=None, right=None, top=None,
