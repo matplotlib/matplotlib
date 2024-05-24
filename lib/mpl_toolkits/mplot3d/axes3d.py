@@ -1524,6 +1524,7 @@ class Axes3D(Axes):
             dazim = -(dy/h)*180*np.sin(roll) - (dx/w)*180*np.cos(roll)
             elev = self.elev + delev
             azim = self.azim + dazim
+            roll = self.roll
             vertical_axis = self._axis_names[self._vertical_axis]
             self.view_init(
                 elev=elev,
