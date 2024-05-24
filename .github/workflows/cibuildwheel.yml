@@ -134,6 +134,27 @@ jobs:
           name: cibw-sdist
           path: dist/
 
+      - name: Build wheels for CPython 3.13
+        uses: pypa/cibuildwheel@7e5a838a63ac8128d71ab2dfd99e4634dd1bca09  # v2.19.2
+        with:
+          package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
+        env:
+          CIBW_BUILD: "cp313-* cp313t-*"
+          # No free-threading wheels for NumPy; musllinux skipped for main builds also.
+          CIBW_SKIP: "cp313t-win_amd64 *-musllinux_aarch64"
+          CIBW_BUILD_FRONTEND:
+            "pip; args: --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple"
+          CIBW_PRERELEASE_PYTHONS: true
+          CIBW_FREE_THREADED_SUPPORT: true
+          # No free-threading wheels available for aarch64 on Pillow.
+          CIBW_TEST_SKIP: "cp313t-manylinux_aarch64"
+          # We need pre-releases to get the nightly wheels.
+          CIBW_BEFORE_TEST: >-
+            pip install --pre
+            --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
+            contourpy numpy pillow
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+
       - name: Build wheels for CPython 3.12
         uses: pypa/cibuildwheel@7e5a838a63ac8128d71ab2dfd99e4634dd1bca09  # v2.19.2
         with:
