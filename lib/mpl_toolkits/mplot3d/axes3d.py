@@ -14,6 +14,7 @@ from collections import defaultdict
 import itertools
 import math
 import textwrap
+import warnings
 
 import numpy as np
 
@@ -1502,6 +1503,23 @@ class Axes3D(Axes):
         p2 = p1 - scale*vec
         return p2, pane_idx
 
+    def _arcball(self, p):
+        """
+        Convert a point p = [x, y] to a point on a virtual trackball
+        This is Ken Shoemake's arcball
+        See: Ken Shoemake, "ARCBALL: A user interface for specifying
+        three-dimensional rotation using a mouse." in
+        Proceedings of Graphics Interface '92, 1992, pp. 151-156,
+        https://doi.org/10.20380/GI1992.18
+        """
+        p = 2 * p
+        r = p[0]**2 + p[1]**2
+        if r > 1:
+            p = np.concatenate(([0], p/math.sqrt(r)))
+        else:
+            p = np.concatenate(([math.sqrt(1-r)], p))
+        return p
+
     def _on_move(self, event):
         """
         Mouse moving.
@@ -1537,12 +1555,25 @@ class Axes3D(Axes):
             if dx == 0 and dy == 0:
                 return
 
+            # Convert to quaternion
+            elev = np.deg2rad(self.elev)
+            azim = np.deg2rad(self.azim)
             roll = np.deg2rad(self.roll)
-            delev = -(dy/h)*180*np.cos(roll) + (dx/w)*180*np.sin(roll)
-            dazim = -(dy/h)*180*np.sin(roll) - (dx/w)*180*np.cos(roll)
-            elev = self.elev + delev
-            azim = self.azim + dazim
-            roll = self.roll
+            q = _Quaternion.from_cardan_angles(elev, azim, roll)
+
+            # Update quaternion - a variation on Ken Shoemake's ARCBALL
+            current_point = np.array([self._sx/w, self._sy/h])
+            new_point = np.array([x/w, y/h])
+            current_vec = self._arcball(current_point)
+            new_vec = self._arcball(new_point)
+            dq = _Quaternion.rotate_from_to(current_vec, new_vec)
+            q = dq*q
+
+            # Convert to elev, azim, roll
+            elev, azim, roll = q.as_cardan_angles()
+            azim = np.rad2deg(azim)
+            elev = np.rad2deg(elev)
+            roll = np.rad2deg(roll)
             vertical_axis = self._axis_names[self._vertical_axis]
             self.view_init(
                 elev=elev,
@@ -3725,3 +3756,123 @@ def get_test_data(delta=0.05):
     Y = Y * 10
     Z = Z * 500
     return X, Y, Z
+
+
+class _Quaternion:
+    """
+    Quaternions
+    consisting of scalar, along 1, and vector, with components along i, j, k
+    """
+
+    def __init__(self, scalar, vector):
+        self.scalar = scalar
+        self.vector = np.array(vector)
+
+    def __neg__(self):
+        return self.__class__(-self.scalar, -self.vector)
+
+    def __mul__(self, other):
+        """
+        Product of two quaternions
+        i*i = j*j = k*k = i*j*k = -1
+        Quaternion multiplication can be expressed concisely
+        using scalar and vector parts,
+        see <https://en.wikipedia.org/wiki/Quaternion#Scalar_and_vector_parts>
+        """
+        return self.__class__(
+            self.scalar*other.scalar - np.dot(self.vector, other.vector),
+            self.scalar*other.vector + self.vector*other.scalar
+            + np.cross(self.vector, other.vector))
+
+    def conjugate(self):
+        """The conjugate quaternion -(1/2)*(q+i*q*i+j*q*j+k*q*k)"""
+        return self.__class__(self.scalar, -self.vector)
+
+    @property
+    def norm(self):
+        """The 2-norm, q*q', a scalar"""
+        return self.scalar*self.scalar + np.dot(self.vector, self.vector)
+
+    def normalize(self):
+        """Scaling such that norm equals 1"""
+        n = np.sqrt(self.norm)
+        return self.__class__(self.scalar/n, self.vector/n)
+
+    def reciprocal(self):
+        """The reciprocal, 1/q = q'/(q*q') = q' / norm(q)"""
+        n = self.norm
+        return self.__class__(self.scalar/n, -self.vector/n)
+
+    def __div__(self, other):
+        return self*other.reciprocal()
+
+    __truediv__ = __div__
+
+    def rotate(self, v):
+        # Rotate the vector v by the quaternion q, i.e.,
+        # calculate (the vector part of) q*v/q
+        v = self.__class__(0, v)
+        v = self*v/self
+        return v.vector
+
+    def __eq__(self, other):
+        return (self.scalar == other.scalar) and (self.vector == other.vector).all
+
+    def __repr__(self):
+        return "_Quaternion({}, {})".format(repr(self.scalar), repr(self.vector))
+
+    @classmethod
+    def rotate_from_to(cls, r1, r2):
+        """
+        The quaternion for the shortest rotation from vector r1 to vector r2
+        i.e., q = sqrt(r2*r1'), normalized.
+        If r1 and r2 are antiparallel, then the result is ambiguous;
+        a normal vector will be returned, and a warning will be issued.
+        """
+        k = np.cross(r1, r2)
+        nk = np.linalg.norm(k)
+        th = np.arctan2(nk, np.dot(r1, r2))
+        th = th/2
+        if nk == 0:  # r1 and r2 are parallel or anti-parallel
+            if np.dot(r1, r2) < 0:
+                warnings.warn("Rotation defined by anti-parallel vectors is ambiguous")
+                k = np.zeros(3)
+                k[np.argmin(r1*r1)] = 1  # basis vector most perpendicular to r1-r2
+                k = np.cross(r1, k)
+                k = k / np.linalg.norm(k)  # unit vector normal to r1-r2
+                q = cls(0, k)
+            else:
+                q = cls(1, [0, 0, 0])  # = 1, no rotation
+        else:
+            q = cls(math.cos(th), k*math.sin(th)/nk)
+        return q
+
+    @classmethod
+    def from_cardan_angles(cls, elev, azim, roll):
+        """
+        Converts the angles to a quaternion
+            q = exp((roll/2)*e_x)*exp((elev/2)*e_y)*exp((-azim/2)*e_z)
+        i.e., the angles are a kind of Tait-Bryan angles, -z,y',x".
+        The angles should be given in radians, not degrees.
+        """
+        ca, sa = np.cos(azim/2), np.sin(azim/2)
+        ce, se = np.cos(elev/2), np.sin(elev/2)
+        cr, sr = np.cos(roll/2), np.sin(roll/2)
+
+        qw = ca*ce*cr + sa*se*sr
+        qx = ca*ce*sr - sa*se*cr
+        qy = ca*se*cr + sa*ce*sr
+        qz = ca*se*sr - sa*ce*cr
+        return cls(qw, [qx, qy, qz])
+
+    def as_cardan_angles(self):
+        """
+        The inverse of `from_cardan_angles()`.
+        Note that the angles returned are in radians, not degrees.
+        """
+        qw = self.scalar
+        qx, qy, qz = self.vector[..., :]
+        azim = np.arctan2(2*(-qw*qz+qx*qy), qw*qw+qx*qx-qy*qy-qz*qz)
+        elev = np.arcsin( 2*( qw*qy+qz*qx)/(qw*qw+qx*qx+qy*qy+qz*qz))  # noqa E201
+        roll = np.arctan2(2*( qw*qx-qy*qz), qw*qw-qx*qx-qy*qy+qz*qz)   # noqa E201
+        return elev, azim, roll
