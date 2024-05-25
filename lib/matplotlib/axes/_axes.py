@@ -1586,7 +1586,7 @@ class Axes(_AxesBase):
           >>> plot(x1, y1, 'bo')
           >>> plot(x2, y2, 'go')
 
-        - If *x* and/or *y* are 2D arrays a separate data set will be drawn
+        - If *x* and/or *y* are 2D arrays, a separate data set will be drawn
           for every column. If both *x* and *y* are 2D, they must have the
           same shape. If only one of them is 2D with shape (N, m) the other
           must have length N and will be used for every data set m.
