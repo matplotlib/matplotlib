@@ -1766,6 +1766,31 @@ def test_shared_axes_retick():
     assert ax2.get_zlim() == (-0.5, 2.5)
 
 
+def test_rotate():
+    """Test rotating using the left mouse button."""
+    for roll in [0, 30]:
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1, projection='3d')
+        ax.view_init(0, 0, roll)
+        ax.figure.canvas.draw()
+
+        # drag mouse horizontally to change azimuth
+        dx = 0.1
+        dy = 0.2
+        ax._button_press(
+            mock_event(ax, button=MouseButton.LEFT, xdata=0, ydata=0))
+        ax._on_move(
+            mock_event(ax, button=MouseButton.LEFT,
+                           xdata=dx*ax._pseudo_w, ydata=dy*ax._pseudo_h))
+        ax.figure.canvas.draw()
+        roll_radians = np.deg2rad(ax.roll)
+        cs = np.cos(roll_radians)
+        sn = np.sin(roll_radians)
+        assert ax.elev == (-dy*180*cs + dx*180*sn)
+        assert ax.azim == (-dy*180*sn - dx*180*cs)
+        assert ax.roll == roll
+
+
 def test_pan():
     """Test mouse panning using the middle mouse button."""
 
