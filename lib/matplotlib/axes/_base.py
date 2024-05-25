@@ -2985,6 +2985,10 @@ class _AxesBase(martist.Artist):
 
         titles = (self.title, self._left_title, self._right_title)
 
+        if not any(title.get_text() for title in titles):
+            # If the titles are all empty, there is no need to update their positions.
+            return
+
         # Need to check all our twins too, aligned axes, and all the children
         # as well.
         axs = set()
@@ -2996,21 +3000,24 @@ class _AxesBase(martist.Artist):
             locator = ax.get_axes_locator()
             ax.apply_aspect(locator(self, renderer) if locator else None)
 
+        top = -np.inf
+        for ax in axs:
+            bb = None
+            xticklabel_top = any(tick.label2.get_visible() for tick in
+                                 [ax.xaxis.majorTicks[0], ax.xaxis.minorTicks[0]])
+            if (xticklabel_top or ax.xaxis.get_label_position() == 'top'):
+                bb = ax.xaxis.get_tightbbox(renderer)
+            if bb is None:
+                # Extent of the outline for colorbars, of the axes otherwise.
+                bb = ax.spines.get("outline", ax).get_window_extent()
+            top = max(top, bb.ymax)
+
         for title in titles:
             x, _ = title.get_position()
             # need to start again in case of window resizing
             title.set_position((x, 1.0))
-            top = -np.inf
-            for ax in axs:
-                bb = None
-                if (ax.xaxis.get_ticks_position() in ['top', 'unknown']
-                        or ax.xaxis.get_label_position() == 'top'):
-                    bb = ax.xaxis.get_tightbbox(renderer)
-                if bb is None:
-                    # Extent of the outline for colorbars, of the axes otherwise.
-                    bb = ax.spines.get("outline", ax).get_window_extent()
-                top = max(top, bb.ymax)
-                if title.get_text():
+            if title.get_text():
+                for ax in axs:
                     ax.yaxis.get_tightbbox(renderer)  # update offsetText
                     if ax.yaxis.offsetText.get_text():
                         bb = ax.yaxis.offsetText.get_tightbbox(renderer)
