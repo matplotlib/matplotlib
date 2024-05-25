@@ -253,11 +253,16 @@ def _test_threading():
     from matplotlib.ft2font import LOAD_NO_HINTING
     import matplotlib.font_manager as fm
 
+    def loud_excepthook(args):
+        raise RuntimeError("error in thread!")
+
+    threading.excepthook = loud_excepthook
+
     N = 10
     b = threading.Barrier(N)
 
     def bad_idea(n):
-        b.wait()
+        b.wait(timeout=5)
         for j in range(100):
             font = fm.get_font(fm.findfont("DejaVu Sans"))
             font.set_text(str(n), 0.0, flags=LOAD_NO_HINTING)
@@ -271,7 +276,9 @@ def _test_threading():
         t.start()
 
     for t in threads:
-        t.join()
+        t.join(timeout=9)
+        if t.is_alive():
+            raise RuntimeError("thread failed to join")
 
 
 def test_fontcache_thread_safe():
