@@ -1447,12 +1447,23 @@ class PolarAxes(Axes):
                     cbook._g_sig_digits(value, delta))
             return f"{value:-{opt}.{prec}{fmt}}"
 
-        return ('\N{GREEK SMALL LETTER THETA}={}\N{GREEK SMALL LETTER PI} '
-                '({}\N{DEGREE SIGN}), r={}').format(
+        # In case fmt_xdata was not specified, resort to default
+        if self.fmt_xdata is None:
+            return ('\N{GREEK SMALL LETTER THETA}={}\N{GREEK SMALL LETTER PI} '
+                    '({}\N{DEGREE SIGN}), r={}').format(
                     format_sig(theta_halfturns, delta_t_halfturns, "", "f"),
                     format_sig(theta_degrees, delta_t_degrees, "", "f"),
-                    format_sig(r, delta_r, "#", "g"),
+                    format_sig(r, delta_r, "#", "g")
+                    if self.fmt_ydata is None
+                    else self.format_ydata(r)
                 )
+        else:
+            return '\N{GREEK SMALL LETTER THETA}={}, r={}'.format(
+                        self.format_xdata(theta),
+                        format_sig(r, delta_r, "#", "g")
+                        if self.fmt_ydata is None
+                        else self.format_ydata(r)
+                        )
 
     def get_data_ratio(self):
         """
