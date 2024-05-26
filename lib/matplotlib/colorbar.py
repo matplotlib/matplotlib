@@ -257,7 +257,8 @@ class Colorbar:
         *location* is None, the ticks will be at the bottom for a horizontal
         colorbar and at the right for a vertical.
 
-    %(_colormap_kw_doc)s
+
+            %(_colormap_kw_doc)s
 
     location : None or {'left', 'right', 'top', 'bottom'}
         Set the *orientation* and *ticklocation* of the colorbar using a
