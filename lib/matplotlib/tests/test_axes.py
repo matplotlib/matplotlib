@@ -8293,6 +8293,88 @@ def test_ylabel_ha_with_position(ha):
     assert ax.yaxis.get_label().get_ha() == ha
 
 
+@image_comparison(baseline_images=['axes_labels_position.png'])
+def test_axes_labels_position():
+    x, y = [-4, 4], [-0.2, 0.8]
+
+    def do_plot(ax):
+        ax.plot(x, y)
+        ax.set_ylim(-0.4, 1.0)
+        ax.set_xlim(-5, 5)
+        ax.set_xlabel(r'x-axis label')
+        ax.set_ylabel(r'y-axis label')
+
+    fig, axs = plt.subplots(nrows=3, ncols=2, figsize=(8, 8), constrained_layout=True)
+    fig.suptitle('set_label_position')
+
+    # Bottom and left spines
+    irow = 0
+    for ax in axs[irow]:
+        do_plot(ax)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.xaxis.set_tick_params(bottom='on', top=False, direction='inout')
+        ax.yaxis.set_tick_params(left='on', right=False, direction='inout')
+        ax.spines['bottom'].set_position('zero')
+        ax.spines['left'].set_position('zero')
+
+    ax = axs[irow, 0]
+    ax.set_title('bottom & left', {'fontweight': 'bold'})
+    ax.xaxis.set_label_position('bottom')
+    ax.yaxis.set_label_position('left')
+
+    ax = axs[irow, 1]
+    ax.set_title('axesbottom & axesleft', {'fontweight': 'bold'})
+    ax.xaxis.set_label_position('axesbottom')
+    ax.yaxis.set_label_position('axesleft')
+
+    # Top and right spines
+    irow = 1
+    for ax in axs[irow]:
+        do_plot(ax)
+        ax.spines['bottom'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+        ax.xaxis.set_tick_params(labeltop=True, labelbottom=False,
+                                 bottom=False, top=True, direction='inout')
+        ax.yaxis.set_tick_params(labelright=True, labelleft=False,
+                                 left=False, right=True, direction='inout')
+        ax.spines['top'].set_position('zero')
+        ax.spines['right'].set_position('zero')
+
+    ax = axs[irow, 0]
+    ax.set_title('top & right', {'fontweight': 'bold'})
+    ax.xaxis.set_label_position('top')
+    ax.yaxis.set_label_position('right')
+
+    ax = axs[irow, 1]
+    ax.set_title('axestop & axesright', {'fontweight': 'bold'})
+    ax.xaxis.set_label_position('axestop')
+    ax.yaxis.set_label_position('axesright')
+
+    # Non-floating spines
+    irow = 2
+    for ax in axs[irow]:
+        do_plot(ax)
+
+    ax = axs[irow, 0]
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.set_title('axesbottom & axesleft', {'fontweight': 'bold'})
+    ax.xaxis.set_label_position('axesbottom')
+    ax.yaxis.set_label_position('axesleft')
+
+    ax = axs[irow, 1]
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.xaxis.set_tick_params(labeltop=True, labelbottom=False,
+                             bottom=False, top=True, direction='inout')
+    ax.yaxis.set_tick_params(labelright=True, labelleft=False,
+                             left=False, right=True, direction='inout')
+    ax.set_title('axestop & axesright', {'fontweight': 'bold'})
+    ax.xaxis.set_label_position('axestop')
+    ax.yaxis.set_label_position('axesright')
+
+
 def test_bar_label_location_vertical():
     ax = plt.gca()
     xs, heights = [1, 2], [3, -4]
