@@ -2400,34 +2400,18 @@ class XAxis(Axis):
         # get bounding boxes for this axis and any siblings
         # that have been set by `fig.align_xlabels()`
         bboxes, bboxes2 = self._get_tick_boxes_siblings(renderer=renderer)
-
         x, y = self.label.get_position()
+
         if self.label_position == 'bottom':
-            try:
-                spine = self.axes.spines['bottom']
-                spinebbox = spine.get_window_extent()
-            except KeyError:
-                # use Axes if spine doesn't exist
-                spinebbox = self.axes.bbox
-            bbox = mtransforms.Bbox.union(bboxes + [spinebbox])
-            bottom = bbox.y0
-
-            self.label.set_position(
-                (x, bottom - self.labelpad * self.figure.dpi / 72)
-            )
+            # Union with extents of the bottom spine if present, of the axes otherwise.
+            bbox = mtransforms.Bbox.union([
+                *bboxes, self.axes.spines.get("bottom", self.axes).get_window_extent()])
+            self.label.set_position((x, bbox.y0 - self.labelpad * self.figure.dpi / 72))
         else:
-            try:
-                spine = self.axes.spines['top']
-                spinebbox = spine.get_window_extent()
-            except KeyError:
-                # use Axes if spine doesn't exist
-                spinebbox = self.axes.bbox
-            bbox = mtransforms.Bbox.union(bboxes2 + [spinebbox])
-            top = bbox.y1
-
-            self.label.set_position(
-                (x, top + self.labelpad * self.figure.dpi / 72)
-            )
+            # Union with extents of the top spine if present, of the axes otherwise.
+            bbox = mtransforms.Bbox.union([
+                *bboxes2, self.axes.spines.get("top", self.axes).get_window_extent()])
+            self.label.set_position((x, bbox.y1 + self.labelpad * self.figure.dpi / 72))
 
     def _update_offset_text_position(self, bboxes, bboxes2):
         """
@@ -2642,32 +2626,17 @@ class YAxis(Axis):
         # that have been set by `fig.align_ylabels()`
         bboxes, bboxes2 = self._get_tick_boxes_siblings(renderer=renderer)
         x, y = self.label.get_position()
+
         if self.label_position == 'left':
-            try:
-                spine = self.axes.spines['left']
-                spinebbox = spine.get_window_extent()
-            except KeyError:
-                # use Axes if spine doesn't exist
-                spinebbox = self.axes.bbox
-            bbox = mtransforms.Bbox.union(bboxes + [spinebbox])
-            left = bbox.x0
-            self.label.set_position(
-                (left - self.labelpad * self.figure.dpi / 72, y)
-            )
-
+            # Union with extents of the left spine if present, of the axes otherwise.
+            bbox = mtransforms.Bbox.union([
+                *bboxes, self.axes.spines.get("left", self.axes).get_window_extent()])
+            self.label.set_position((bbox.x0 - self.labelpad * self.figure.dpi / 72, y))
         else:
-            try:
-                spine = self.axes.spines['right']
-                spinebbox = spine.get_window_extent()
-            except KeyError:
-                # use Axes if spine doesn't exist
-                spinebbox = self.axes.bbox
-
-            bbox = mtransforms.Bbox.union(bboxes2 + [spinebbox])
-            right = bbox.x1
-            self.label.set_position(
-                (right + self.labelpad * self.figure.dpi / 72, y)
-            )
+            # Union with extents of the right spine if present, of the axes otherwise.
+            bbox = mtransforms.Bbox.union([
+                *bboxes2, self.axes.spines.get("right", self.axes).get_window_extent()])
+            self.label.set_position((bbox.x1 + self.labelpad * self.figure.dpi / 72, y))
 
     def _update_offset_text_position(self, bboxes, bboxes2):
         """
