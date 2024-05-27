@@ -257,10 +257,6 @@ class Colorbar:
         *location* is None, the ticks will be at the bottom for a horizontal
         colorbar and at the right for a vertical.
 
-    drawedges : bool
-        Whether to draw lines at color boundaries.
-
-
     %(_colormap_kw_doc)s
 
     location : None or {'left', 'right', 'top', 'bottom'}
