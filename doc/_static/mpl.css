@@ -123,6 +123,12 @@ img.graphviz.inheritance {
     max-width: none;
 }
 
+/* Flip the colours on graphviz graphs on dark mode */
+html[data-theme="dark"] div.graphviz > object.inheritance {
+    filter: brightness(0.8) invert(0.82) contrast(1.2);
+    color-scheme: normal;
+}
+
 /* Make tables in notes horizontally scrollable if too large. */
 div.wide-table {
     overflow-x: auto;
