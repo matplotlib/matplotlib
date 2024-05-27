@@ -52,7 +52,7 @@ class Legend(Artist):
     def __init__(
         self,
         parent: Axes | Figure,
-        handles: Iterable[Artist],
+        handles: Iterable[Artist | tuple[Artist, ...]],
         labels: Iterable[str],
         *,
         loc: str | tuple[float, float] | int | None = ...,
@@ -150,5 +150,3 @@ class Legend(Artist):
         update: Literal["loc", "bbox"] = ...,
     ) -> None: ...
     def get_draggable(self) -> bool: ...
-    @property
-    def legendHandles(self) -> list[Artist | None]: ...

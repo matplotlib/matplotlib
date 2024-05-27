@@ -7,8 +7,6 @@ from matplotlib.backend_bases import MouseEvent
 import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
-from matplotlib.lines import Line2D
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing.widgets import (click_and_drag, do_event, get_ax,
                                         mock_event, noop)
@@ -976,6 +974,23 @@ def test_span_selector_snap(ax):
     assert tool.extents == (17, 35)
 
 
+def test_span_selector_extents(ax):
+    tool = widgets.SpanSelector(
+        ax, lambda a, b: None, "horizontal", ignore_event_outside=True
+        )
+    tool.extents = (5, 10)
+
+    assert tool.extents == (5, 10)
+    assert tool._selection_completed
+
+    # Since `ignore_event_outside=True`, this event should be ignored
+    press_data = (12, 14)
+    release_data = (20, 14)
+    click_and_drag(tool, start=press_data, end=release_data)
+
+    assert tool.extents == (5, 10)
+
+
 @pytest.mark.parametrize('kwargs', [
     dict(),
     dict(useblit=False, props=dict(color='red')),
@@ -1005,11 +1020,45 @@ def test_lasso_selector_set_props(ax):
     assert artist.get_alpha() == 0.3
 
 
+def test_lasso_set_props(ax):
+    onselect = mock.Mock(spec=noop, return_value=None)
+    tool = widgets.Lasso(ax, (100, 100), onselect)
+    line = tool.line
+    assert mcolors.same_color(line.get_color(), 'black')
+    assert line.get_linestyle() == '-'
+    assert line.get_lw() == 2
+    tool = widgets.Lasso(ax, (100, 100), onselect, props=dict(
+        linestyle='-', color='darkblue', alpha=0.2, lw=1))
+
+    line = tool.line
+    assert mcolors.same_color(line.get_color(), 'darkblue')
+    assert line.get_alpha() == 0.2
+    assert line.get_lw() == 1
+    assert line.get_linestyle() == '-'
+    line.set_color('r')
+    line.set_alpha(0.3)
+    assert mcolors.same_color(line.get_color(), 'r')
+    assert line.get_alpha() == 0.3
+
+
 def test_CheckButtons(ax):
-    check = widgets.CheckButtons(ax, ('a', 'b', 'c'), (True, False, True))
+    labels = ('a', 'b', 'c')
+    check = widgets.CheckButtons(ax, labels, (True, False, True))
     assert check.get_status() == [True, False, True]
     check.set_active(0)
     assert check.get_status() == [False, False, True]
+    assert check.get_checked_labels() == ['c']
+    check.clear()
+    assert check.get_status() == [False, False, False]
+    assert check.get_checked_labels() == []
+
+    for invalid_index in [-1, len(labels), len(labels)+5]:
+        with pytest.raises(ValueError):
+            check.set_active(index=invalid_index)
+
+    for invalid_value in ['invalid', -1]:
+        with pytest.raises(TypeError):
+            check.set_active(1, state=invalid_value)
 
     cid = check.on_clicked(lambda: None)
     check.disconnect(cid)
@@ -1047,6 +1096,16 @@ def test_TextBox(ax, toolbar):
     assert text_change_event.call_count == 3
 
 
+def test_RadioButtons(ax):
+    radio = widgets.RadioButtons(ax, ('Radio 1', 'Radio 2', 'Radio 3'))
+    radio.set_active(1)
+    assert radio.value_selected == 'Radio 2'
+    assert radio.index_selected == 1
+    radio.clear()
+    assert radio.value_selected == 'Radio 1'
+    assert radio.index_selected == 0
+
+
 @image_comparison(['check_radio_buttons.png'], style='mpl20', remove_text=True)
 def test_check_radio_buttons_image():
     ax = get_ax()
@@ -1055,16 +1114,10 @@ def test_check_radio_buttons_image():
 
     rax1 = fig.add_axes((0.05, 0.7, 0.2, 0.15))
     rb1 = widgets.RadioButtons(rax1, ('Radio 1', 'Radio 2', 'Radio 3'))
-    with pytest.warns(DeprecationWarning,
-                      match='The circles attribute was deprecated'):
-        rb1.circles  # Trigger the old-style elliptic radiobuttons.
 
     rax2 = fig.add_axes((0.05, 0.5, 0.2, 0.15))
     cb1 = widgets.CheckButtons(rax2, ('Check 1', 'Check 2', 'Check 3'),
                                (False, True, True))
-    with pytest.warns(DeprecationWarning,
-                      match='The rectangles attribute was deprecated'):
-        cb1.rectangles  # Trigger old-style Rectangle check boxes
 
     rax3 = fig.add_axes((0.05, 0.3, 0.2, 0.15))
     rb3 = widgets.RadioButtons(
@@ -1162,57 +1215,6 @@ def test_check_button_props(fig_test, fig_ref):
     # This means we cannot pass facecolor to both setters directly.
     check_props['edgecolor'] = check_props.pop('facecolor')
     cb.set_check_props({**check_props, 's': (24 / 2)**2})
-
-
-@check_figures_equal(extensions=["png"])
-def test_check_buttons_rectangles(fig_test, fig_ref):
-    # Test should be removed once .rectangles is removed
-    cb = widgets.CheckButtons(fig_test.subplots(), ["", ""],
-                              [False, False])
-    with pytest.warns(DeprecationWarning,
-                      match='The rectangles attribute was deprecated'):
-        cb.rectangles
-    ax = fig_ref.add_subplot(xticks=[], yticks=[])
-    ys = [2/3, 1/3]
-    dy = 1/3
-    w, h = dy / 2, dy / 2
-    rectangles = [
-        Rectangle(xy=(0.05, ys[i] - h / 2), width=w, height=h,
-                  edgecolor="black",
-                  facecolor="none",
-                  transform=ax.transAxes
-                  )
-        for i, y in enumerate(ys)
-    ]
-    for rectangle in rectangles:
-        ax.add_patch(rectangle)
-
-
-@check_figures_equal(extensions=["png"])
-def test_check_buttons_lines(fig_test, fig_ref):
-    # Test should be removed once .lines is removed
-    cb = widgets.CheckButtons(fig_test.subplots(), ["", ""], [True, True])
-    with pytest.warns(DeprecationWarning,
-                      match='The lines attribute was deprecated'):
-        cb.lines
-    for rectangle in cb._rectangles:
-        rectangle.set_visible(False)
-    ax = fig_ref.add_subplot(xticks=[], yticks=[])
-    ys = [2/3, 1/3]
-    dy = 1/3
-    w, h = dy / 2, dy / 2
-    lineparams = {'color': 'k', 'linewidth': 1.25,
-                    'transform': ax.transAxes,
-                    'solid_capstyle': 'butt'}
-    for i, y in enumerate(ys):
-        x, y = 0.05, y - h / 2
-        l1 = Line2D([x, x + w], [y + h, y], **lineparams)
-        l2 = Line2D([x, x + w], [y, y + h], **lineparams)
-
-        l1.set_visible(True)
-        l2.set_visible(True)
-        ax.add_line(l1)
-        ax.add_line(l2)
 
 
 def test_slider_slidermin_slidermax_invalid():

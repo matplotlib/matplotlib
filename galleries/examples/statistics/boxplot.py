@@ -8,7 +8,7 @@ customize box plots. The first figure demonstrates how to remove and add
 individual components (note that the mean is the only value not shown by
 default). The second figure demonstrates how the styles of the artists can be
 customized. It also demonstrates how to set the limit of the whiskers to
-specific percentiles (lower right axes)
+specific percentiles (lower right Axes)
 
 A good general reference on boxplots and their history can be found here:
 https://vita.had.co.nz/papers/boxplots.pdf
@@ -28,23 +28,23 @@ fs = 10  # fontsize
 # Demonstrate how to toggle the display of different elements:
 
 fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(6, 6), sharey=True)
-axs[0, 0].boxplot(data, labels=labels)
+axs[0, 0].boxplot(data, tick_labels=labels)
 axs[0, 0].set_title('Default', fontsize=fs)
 
-axs[0, 1].boxplot(data, labels=labels, showmeans=True)
+axs[0, 1].boxplot(data, tick_labels=labels, showmeans=True)
 axs[0, 1].set_title('showmeans=True', fontsize=fs)
 
-axs[0, 2].boxplot(data, labels=labels, showmeans=True, meanline=True)
+axs[0, 2].boxplot(data, tick_labels=labels, showmeans=True, meanline=True)
 axs[0, 2].set_title('showmeans=True,\nmeanline=True', fontsize=fs)
 
-axs[1, 0].boxplot(data, labels=labels, showbox=False, showcaps=False)
+axs[1, 0].boxplot(data, tick_labels=labels, showbox=False, showcaps=False)
 tufte_title = 'Tufte Style \n(showbox=False,\nshowcaps=False)'
 axs[1, 0].set_title(tufte_title, fontsize=fs)
 
-axs[1, 1].boxplot(data, labels=labels, notch=True, bootstrap=10000)
+axs[1, 1].boxplot(data, tick_labels=labels, notch=True, bootstrap=10000)
 axs[1, 1].set_title('notch=True,\nbootstrap=10000', fontsize=fs)
 
-axs[1, 2].boxplot(data, labels=labels, showfliers=False)
+axs[1, 2].boxplot(data, tick_labels=labels, showfliers=False)
 axs[1, 2].set_title('showfliers=False', fontsize=fs)
 
 for ax in axs.flat:

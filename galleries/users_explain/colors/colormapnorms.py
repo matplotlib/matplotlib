@@ -4,7 +4,7 @@
 
 .. _colormapnorms:
 
-Colormap Normalization
+Colormap normalization
 ======================
 
 Objects that use colormaps by default linearly map the colors in the

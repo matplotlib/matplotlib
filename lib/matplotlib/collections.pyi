@@ -1,16 +1,18 @@
+from collections.abc import Callable, Iterable, Sequence
+from typing import Literal
+
+import numpy as np
+from numpy.typing import ArrayLike, NDArray
+
 from . import artist, cm, transforms
 from .backend_bases import MouseEvent
 from .artist import Artist
 from .colors import Normalize, Colormap
+from .lines import Line2D
 from .path import Path
 from .patches import Patch
 from .ticker import Locator, Formatter
 from .tri import Triangulation
-
-import numpy as np
-from numpy.typing import ArrayLike, NDArray
-from collections.abc import Callable, Iterable, Sequence
-from typing import Literal
 from .typing import ColorType, LineStyleType, CapStyleType, JoinStyleType
 
 class Collection(artist.Artist, cm.ScalarMappable):
@@ -84,8 +86,8 @@ class PathCollection(_CollectionWithSizes):
         num: int | Literal["auto"] | ArrayLike | Locator = ...,
         fmt: str | Formatter | None = ...,
         func: Callable[[ArrayLike], ArrayLike] = ...,
-        **kwargs
-    ): ...
+        **kwargs,
+    ) -> tuple[list[Line2D], list[str]]: ...
 
 class PolyCollection(_CollectionWithSizes):
     def __init__(
@@ -103,18 +105,6 @@ class PolyCollection(_CollectionWithSizes):
     def set_verts_and_codes(
         self, verts: Sequence[ArrayLike | Path], codes: Sequence[int]
     ) -> None: ...
-
-class BrokenBarHCollection(PolyCollection):
-    def __init__(
-        self,
-        xranges: Iterable[tuple[float, float]],
-        yrange: tuple[float, float],
-        **kwargs
-    ) -> None: ...
-    @classmethod
-    def span_where(
-        cls, x: ArrayLike, ymin: float, ymax: float, where: ArrayLike, **kwargs
-    ) -> BrokenBarHCollection: ...
 
 class RegularPolyCollection(_CollectionWithSizes):
     def __init__(
@@ -190,6 +180,12 @@ class EllipseCollection(Collection):
         ] = ...,
         **kwargs
     ) -> None: ...
+    def set_widths(self, widths: ArrayLike) -> None: ...
+    def set_heights(self, heights: ArrayLike) -> None: ...
+    def set_angles(self, angles: ArrayLike) -> None: ...
+    def get_widths(self) -> ArrayLike: ...
+    def get_heights(self) -> ArrayLike: ...
+    def get_angles(self) -> ArrayLike: ...
 
 class PatchCollection(Collection):
     def __init__(

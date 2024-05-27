@@ -541,8 +541,8 @@ class FFMpegBase:
                       else mpl.rcParams[self._args_key])
         # For h264, the default format is yuv444p, which is not compatible
         # with quicktime (and others). Specifying yuv420p fixes playback on
-        # iOS, as well as HTML5 video in firefox and safari (on both Win and
-        # OSX). Also fixes internet explorer. This is as of 2015/10/29.
+        # iOS, as well as HTML5 video in firefox and safari (on both Windows and
+        # macOS). Also fixes internet explorer. This is as of 2015/10/29.
         if self.codec == 'h264' and '-pix_fmt' not in extra_args:
             args.extend(['-pix_fmt', 'yuv420p'])
         # For GIF, we're telling FFMPEG to split the video stream, to generate
@@ -1032,7 +1032,7 @@ class Animation:
             # Convert interval in ms to frames per second
             fps = 1000. / self._interval
 
-        # Re-use the savefig DPI for ours if none is given
+        # Reuse the savefig DPI for ours if none is given.
         dpi = mpl._val_or_rc(dpi, 'savefig.dpi')
         if dpi == 'figure':
             dpi = self._fig.dpi
@@ -1171,7 +1171,7 @@ class Animation:
         # of the entire figure.
         updated_ax = {a.axes for a in artists}
         # Enumerate artists to cache Axes backgrounds. We do not draw
-        # artists yet to not cache foreground from plots with shared axes
+        # artists yet to not cache foreground from plots with shared Axes
         for ax in updated_ax:
             # If we haven't cached the background for the current view of this
             # Axes object, do so now. This might not always be reliable, but
@@ -1445,8 +1445,6 @@ class TimedAnimation(Animation):
 
         self.event_source.interval = self._interval
         return True
-
-    repeat = _api.deprecate_privatize_attribute("3.7")
 
 
 class ArtistAnimation(TimedAnimation):
@@ -1787,8 +1785,6 @@ class FuncAnimation(TimedAnimation):
 
             for a in self._drawn_artists:
                 a.set_animated(self._blit)
-
-    save_count = _api.deprecate_privatize_attribute("3.7")
 
 
 def _validate_grabframe_kwargs(savefig_kwargs):

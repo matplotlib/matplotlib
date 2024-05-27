@@ -92,12 +92,22 @@ Axis limits and direction
 
    get_zaxis
    get_xlim
+   set_xlim
    get_ylim
+   set_ylim
    get_zlim
    set_zlim
    get_w_lims
+   invert_xaxis
+   xaxis_inverted
+   invert_yaxis
+   yaxis_inverted
    invert_zaxis
    zaxis_inverted
+   get_xbound
+   set_xbound
+   get_ybound
+   set_ybound
    get_zbound
    set_zbound
 
@@ -137,6 +147,7 @@ Autoscaling and margins
    :template: autosummary.rst
    :nosignatures:
 
+   get_zmargin
    set_zmargin
    margins
    autoscale
@@ -266,9 +277,6 @@ Aliases and deprecated methods
     set_zlim3d
     stem3D
     text3D
-    tunit_cube
-    tunit_edges
-    unit_cube
 
 
 Other

@@ -734,7 +734,8 @@ def safe_masked_invalid(x, copy=False):
     if not x.dtype.isnative:
         # If we have already made a copy, do the byteswap in place, else make a
         # copy with the byte order swapped.
-        x = x.byteswap(inplace=copy).newbyteorder('N')  # Swap to native order.
+        # Swap to native order.
+        x = x.byteswap(inplace=copy).view(x.dtype.newbyteorder('N'))
     try:
         xm = np.ma.masked_where(~(np.isfinite(x)), x, copy=False)
     except TypeError:
@@ -848,12 +849,18 @@ class Grouper:
     def __init__(self, init=()):
         self._mapping = weakref.WeakKeyDictionary(
             {x: weakref.WeakSet([x]) for x in init})
+        self._ordering = weakref.WeakKeyDictionary()
+        for x in init:
+            if x not in self._ordering:
+                self._ordering[x] = len(self._ordering)
+        self._next_order = len(self._ordering)  # Plain int to simplify pickling.
 
     def __getstate__(self):
         return {
             **vars(self),
             # Convert weak refs to strong ones.
             "_mapping": {k: set(v) for k, v in self._mapping.items()},
+            "_ordering": {**self._ordering},
         }
 
     def __setstate__(self, state):
@@ -861,6 +868,7 @@ class Grouper:
         # Convert strong refs to weak ones.
         self._mapping = weakref.WeakKeyDictionary(
             {k: weakref.WeakSet(v) for k, v in self._mapping.items()})
+        self._ordering = weakref.WeakKeyDictionary(self._ordering)
 
     def __contains__(self, item):
         return item in self._mapping
@@ -874,10 +882,19 @@ class Grouper:
         Join given arguments into the same set.  Accepts one or more arguments.
         """
         mapping = self._mapping
-        set_a = mapping.setdefault(a, weakref.WeakSet([a]))
-
+        try:
+            set_a = mapping[a]
+        except KeyError:
+            set_a = mapping[a] = weakref.WeakSet([a])
+            self._ordering[a] = self._next_order
+            self._next_order += 1
         for arg in args:
-            set_b = mapping.get(arg, weakref.WeakSet([arg]))
+            try:
+                set_b = mapping[arg]
+            except KeyError:
+                set_b = mapping[arg] = weakref.WeakSet([arg])
+                self._ordering[arg] = self._next_order
+                self._next_order += 1
             if set_b is not set_a:
                 if len(set_b) > len(set_a):
                     set_a, set_b = set_b, set_a
@@ -891,9 +908,8 @@ class Grouper:
 
     def remove(self, a):
         """Remove *a* from the grouper, doing nothing if it is not there."""
-        set_a = self._mapping.pop(a, None)
-        if set_a:
-            set_a.remove(a)
+        self._mapping.pop(a, {a}).remove(a)
+        self._ordering.pop(a, None)
 
     def __iter__(self):
         """
@@ -903,12 +919,12 @@ class Grouper:
         """
         unique_groups = {id(group): group for group in self._mapping.values()}
         for group in unique_groups.values():
-            yield [x for x in group]
+            yield sorted(group, key=self._ordering.__getitem__)
 
     def get_siblings(self, a):
         """Return all of the items joined with *a*, including itself."""
         siblings = self._mapping.get(a, [a])
-        return [x for x in siblings]
+        return sorted(siblings, key=self._ordering.get)
 
 
 class GrouperView:
@@ -1087,8 +1103,45 @@ def _combine_masks(*args):
     return margs
 
 
-def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
-                  autorange=False):
+def _broadcast_with_masks(*args, compress=False):
+    """
+    Broadcast inputs, combining all masked arrays.
+
+    Parameters
+    ----------
+    *args : array-like
+        The inputs to broadcast.
+    compress : bool, default: False
+        Whether to compress the masked arrays. If False, the masked values
+        are replaced by NaNs.
+
+    Returns
+    -------
+    list of array-like
+        The broadcasted and masked inputs.
+    """
+    # extract the masks, if any
+    masks = [k.mask for k in args if isinstance(k, np.ma.MaskedArray)]
+    # broadcast to match the shape
+    bcast = np.broadcast_arrays(*args, *masks)
+    inputs = bcast[:len(args)]
+    masks = bcast[len(args):]
+    if masks:
+        # combine the masks into one
+        mask = np.logical_or.reduce(masks)
+        # put mask on and compress
+        if compress:
+            inputs = [np.ma.array(k, mask=mask).compressed()
+                      for k in inputs]
+        else:
+            inputs = [np.ma.array(k, mask=mask, dtype=float).filled(np.nan).ravel()
+                      for k in inputs]
+    else:
+        inputs = [np.ravel(k) for k in inputs]
+    return inputs
+
+
+def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None, autorange=False):
     r"""
     Return a list of dictionaries of statistics used to draw a series of box
     and whisker plots using `~.Axes.bxp`.
@@ -1122,7 +1175,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         Number of times the confidence intervals around the median
         should be bootstrapped (percentile method).
 
-    labels : array-like, optional
+    labels : list of str, optional
         Labels for each dataset. Length must be compatible with
         dimensions of *X*.
 
@@ -1235,7 +1288,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
             continue
 
         # up-convert to an array, just to be safe
-        x = np.asarray(x)
+        x = np.ma.asarray(x)
+        x = x.data[~x.mask].ravel()
 
         # arithmetic mean
         stats['mean'] = np.mean(x)
@@ -1678,13 +1732,23 @@ def safe_first_element(obj):
     This is a type-independent way of obtaining the first element,
     supporting both index access and the iterator protocol.
     """
-    return _safe_first_finite(obj, skip_nonfinite=False)
+    if isinstance(obj, collections.abc.Iterator):
+        # needed to accept `array.flat` as input.
+        # np.flatiter reports as an instance of collections.Iterator but can still be
+        # indexed via []. This has the side effect of re-setting the iterator, but
+        # that is acceptable.
+        try:
+            return obj[0]
+        except TypeError:
+            pass
+        raise RuntimeError("matplotlib does not support generators as input")
+    return next(iter(obj))
 
 
-def _safe_first_finite(obj, *, skip_nonfinite=True):
+def _safe_first_finite(obj):
     """
     Return the first finite element in *obj* if one is available and skip_nonfinite is
-    True. Otherwise return the first element.
+    True. Otherwise, return the first element.
 
     This is a method for internal use.
 
@@ -1696,7 +1760,10 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
             return False
         try:
             return math.isfinite(val)
-        except TypeError:
+        except (TypeError, ValueError):
+            # if the outer object is 2d, then val is a 1d array, and
+            # - math.isfinite(numpy.zeros(3)) raises TypeError
+            # - math.isfinite(torch.zeros(3)) raises ValueError
             pass
         try:
             return np.isfinite(val) if np.isscalar(val) else True
@@ -1704,26 +1771,12 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
             # This is something that NumPy cannot make heads or tails of,
             # assume "finite"
             return True
-    if skip_nonfinite is False:
-        if isinstance(obj, collections.abc.Iterator):
-            # needed to accept `array.flat` as input.
-            # np.flatiter reports as an instance of collections.Iterator
-            # but can still be indexed via [].
-            # This has the side effect of re-setting the iterator, but
-            # that is acceptable.
-            try:
-                return obj[0]
-            except TypeError:
-                pass
-            raise RuntimeError("matplotlib does not support generators "
-                               "as input")
-        return next(iter(obj))
-    elif isinstance(obj, np.flatiter):
+
+    if isinstance(obj, np.flatiter):
         # TODO do the finite filtering on this
         return obj[0]
     elif isinstance(obj, collections.abc.Iterator):
-        raise RuntimeError("matplotlib does not "
-                           "support generators as input")
+        raise RuntimeError("matplotlib does not support generators as input")
     else:
         for val in obj:
             if safe_isfinite(val):
@@ -2171,15 +2224,6 @@ def _check_and_log_subprocess(command, logger, **kwargs):
     return proc.stdout
 
 
-def _backend_module_name(name):
-    """
-    Convert a backend name (either a standard backend -- "Agg", "TkAgg", ... --
-    or a custom backend -- "module://...") to the corresponding module name).
-    """
-    return (name[9:] if name.startswith("module://")
-            else f"matplotlib.backends.backend_{name.lower()}")
-
-
 def _setup_new_guiapp():
     """
     Perform OS-dependent setup when Matplotlib creates a new GUI application.
@@ -2305,6 +2349,45 @@ def _picklable_class_constructor(mixin_class, fmt, attr_name, base_class):
     return cls.__new__(cls)
 
 
+def _is_torch_array(x):
+    """Check if 'x' is a PyTorch Tensor."""
+    try:
+        # we're intentionally not attempting to import torch. If somebody
+        # has created a torch array, torch should already be in sys.modules
+        return isinstance(x, sys.modules['torch'].Tensor)
+    except Exception:  # TypeError, KeyError, AttributeError, maybe others?
+        # we're attempting to access attributes on imported modules which
+        # may have arbitrary user code, so we deliberately catch all exceptions
+        return False
+
+
+def _is_jax_array(x):
+    """Check if 'x' is a JAX Array."""
+    try:
+        # we're intentionally not attempting to import jax. If somebody
+        # has created a jax array, jax should already be in sys.modules
+        return isinstance(x, sys.modules['jax'].Array)
+    except Exception:  # TypeError, KeyError, AttributeError, maybe others?
+        # we're attempting to access attributes on imported modules which
+        # may have arbitrary user code, so we deliberately catch all exceptions
+        return False
+
+
+def _is_tensorflow_array(x):
+    """Check if 'x' is a TensorFlow Tensor or Variable."""
+    try:
+        # we're intentionally not attempting to import TensorFlow. If somebody
+        # has created a TensorFlow array, TensorFlow should already be in sys.modules
+        # we use `is_tensor` to not depend on the class structure of TensorFlow
+        # arrays, as `tf.Variables` are not instances of `tf.Tensor`
+        # (they both convert the same way)
+        return isinstance(x, sys.modules['tensorflow'].is_tensor(x))
+    except Exception:  # TypeError, KeyError, AttributeError, maybe others?
+        # we're attempting to access attributes on imported modules which
+        # may have arbitrary user code, so we deliberately catch all exceptions
+        return False
+
+
 def _unpack_to_numpy(x):
     """Internal helper to extract data from e.g. pandas and xarray objects."""
     if isinstance(x, np.ndarray):
@@ -2317,6 +2400,16 @@ def _unpack_to_numpy(x):
         xtmp = x.values
         # For example a dict has a 'values' attribute, but it is not a property
         # so in this case we do not want to return a function
+        if isinstance(xtmp, np.ndarray):
+            return xtmp
+    if _is_torch_array(x) or _is_jax_array(x) or _is_tensorflow_array(x):
+        # using np.asarray() instead of explicitly __array__(), as the latter is
+        # only _one_ of many methods, and it's the last resort, see also
+        # https://numpy.org/devdocs/user/basics.interoperability.html#using-arbitrary-objects-in-numpy
+        # therefore, let arrays do better if they can
+        xtmp = np.asarray(x)
+
+        # In case np.asarray method does not return a numpy array in future
         if isinstance(xtmp, np.ndarray):
             return xtmp
     return x

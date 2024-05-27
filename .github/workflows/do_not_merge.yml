@@ -1,0 +1,30 @@
+---
+name: Do Not Merge
+
+# action to block merging on specific labels
+on:
+  pull_request:
+    types: [synchronize, opened, reopened, labeled, unlabeled]
+
+permissions: {}
+
+jobs:
+  do-not-merge:
+    name: Prevent Merging
+    runs-on: ubuntu-latest
+    env:
+      has_tag: >-
+         ${{contains(github.event.pull_request.labels.*.name, 'status: needs comment/discussion') ||
+            contains(github.event.pull_request.labels.*.name, 'status: waiting for other PR')}}
+    steps:
+      - name: Check for label
+        if: ${{'true' == env.has_tag}}
+        run: |
+          echo "This PR cannot be merged because it has one of the following labels: "
+          echo "* status: needs comment/discussion"
+          echo "* status: waiting for other PR"
+          echo "${{env.has_tag}}"
+          exit 1
+      - name: Allow merging
+        if: ${{'false' == env.has_tag}}
+        run: exit 0

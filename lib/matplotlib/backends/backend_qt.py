@@ -9,13 +9,12 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     TimerBase, cursors, ToolContainerBase, MouseButton,
-    CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
+    CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent,
+    _allow_interrupt)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from . import qt_compat
 from .qt_compat import (
-    QtCore, QtGui, QtWidgets, __version__, QT_API,
-    _to_int, _isdeleted, _maybe_allow_interrupt
-)
+    QtCore, QtGui, QtWidgets, __version__, QT_API, _to_int, _isdeleted)
 
 
 # SPECIAL_KEYS are Qt::Key that do *not* return their Unicode name
@@ -41,7 +40,7 @@ SPECIAL_KEYS = {
         ("Key_PageUp", "pageup"),
         ("Key_PageDown", "pagedown"),
         ("Key_Shift", "shift"),
-        # In OSX, the control and super (aka cmd/apple) keys are switched.
+        # In macOS, the control and super (aka cmd/apple) keys are switched.
         ("Key_Control", "control" if sys.platform != "darwin" else "cmd"),
         ("Key_Meta", "meta" if sys.platform != "darwin" else "control"),
         ("Key_Alt", "alt"),
@@ -140,12 +139,44 @@ def _create_qApp():
             image = str(cbook._get_data_path('images/matplotlib.svg'))
             icon = QtGui.QIcon(image)
             app.setWindowIcon(icon)
-        app.lastWindowClosed.connect(app.quit)
+        app.setQuitOnLastWindowClosed(True)
         cbook._setup_new_guiapp()
         if qt_version == 5:
             app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
 
     return app
+
+
+def _allow_interrupt_qt(qapp_or_eventloop):
+    """A context manager that allows terminating a plot by sending a SIGINT."""
+
+    # Use QSocketNotifier to read the socketpair while the Qt event loop runs.
+
+    def prepare_notifier(rsock):
+        sn = QtCore.QSocketNotifier(rsock.fileno(), QtCore.QSocketNotifier.Type.Read)
+
+        @sn.activated.connect
+        def _may_clear_sock():
+            # Running a Python function on socket activation gives the interpreter a
+            # chance to handle the signal in Python land.  We also need to drain the
+            # socket with recv() to re-arm it, because it will be written to as part of
+            # the wakeup.  (We need this in case set_wakeup_fd catches a signal other
+            # than SIGINT and we shall continue waiting.)
+            try:
+                rsock.recv(1)
+            except BlockingIOError:
+                # This may occasionally fire too soon or more than once on Windows, so
+                # be forgiving about reading an empty socket.
+                pass
+
+        return sn  # Actually keep the notifier alive.
+
+    def handle_sigint():
+        if hasattr(qapp_or_eventloop, 'closeAllWindows'):
+            qapp_or_eventloop.closeAllWindows()
+        qapp_or_eventloop.quit()
+
+    return _allow_interrupt(prepare_notifier, handle_sigint)
 
 
 class TimerQT(TimerBase):
@@ -261,6 +292,8 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         # Force querying of the modifiers, as the cached modifier state can
         # have been invalidated while the window was out of focus.
         mods = QtWidgets.QApplication.instance().queryKeyboardModifiers()
+        if self.figure is None:
+            return
         LocationEvent("figure_enter_event", self,
                       *self.mouseEventCoords(event),
                       modifiers=self._mpl_modifiers(mods),
@@ -268,6 +301,8 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def leaveEvent(self, event):
         QtWidgets.QApplication.restoreOverrideCursor()
+        if self.figure is None:
+            return
         LocationEvent("figure_leave_event", self,
                       *self.mouseEventCoords(),
                       modifiers=self._mpl_modifiers(),
@@ -275,7 +310,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def mousePressEvent(self, event):
         button = self.buttond.get(event.button())
-        if button is not None:
+        if button is not None and self.figure is not None:
             MouseEvent("button_press_event", self,
                        *self.mouseEventCoords(event), button,
                        modifiers=self._mpl_modifiers(),
@@ -283,13 +318,15 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def mouseDoubleClickEvent(self, event):
         button = self.buttond.get(event.button())
-        if button is not None:
+        if button is not None and self.figure is not None:
             MouseEvent("button_press_event", self,
                        *self.mouseEventCoords(event), button, dblclick=True,
                        modifiers=self._mpl_modifiers(),
                        guiEvent=event)._process()
 
     def mouseMoveEvent(self, event):
+        if self.figure is None:
+            return
         MouseEvent("motion_notify_event", self,
                    *self.mouseEventCoords(event),
                    modifiers=self._mpl_modifiers(),
@@ -297,7 +334,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def mouseReleaseEvent(self, event):
         button = self.buttond.get(event.button())
-        if button is not None:
+        if button is not None and self.figure is not None:
             MouseEvent("button_release_event", self,
                        *self.mouseEventCoords(event), button,
                        modifiers=self._mpl_modifiers(),
@@ -311,7 +348,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             steps = event.angleDelta().y() / 120
         else:
             steps = event.pixelDelta().y()
-        if steps:
+        if steps and self.figure is not None:
             MouseEvent("scroll_event", self,
                        *self.mouseEventCoords(event), step=steps,
                        modifiers=self._mpl_modifiers(),
@@ -319,20 +356,22 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def keyPressEvent(self, event):
         key = self._get_key(event)
-        if key is not None:
+        if key is not None and self.figure is not None:
             KeyEvent("key_press_event", self,
                      key, *self.mouseEventCoords(),
                      guiEvent=event)._process()
 
     def keyReleaseEvent(self, event):
         key = self._get_key(event)
-        if key is not None:
+        if key is not None and self.figure is not None:
             KeyEvent("key_release_event", self,
                      key, *self.mouseEventCoords(),
                      guiEvent=event)._process()
 
     def resizeEvent(self, event):
         if self._in_resize_event:  # Prevent PyQt6 recursion
+            return
+        if self.figure is None:
             return
         self._in_resize_event = True
         try:
@@ -409,7 +448,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         if timeout > 0:
             _ = QtCore.QTimer.singleShot(int(timeout * 1000), event_loop.quit)
 
-        with _maybe_allow_interrupt(event_loop):
+        with _allow_interrupt_qt(event_loop):
             qt_compat._exec(event_loop)
 
     def stop_event_loop(self, event=None):
@@ -590,10 +629,11 @@ class FigureManagerQT(FigureManagerBase):
     def start_main_loop(cls):
         qapp = QtWidgets.QApplication.instance()
         if qapp:
-            with _maybe_allow_interrupt(qapp):
+            with _allow_interrupt_qt(qapp):
                 qt_compat._exec(qapp)
 
     def show(self):
+        self.window._destroying = False
         self.window.show()
         if mpl.rcParams['figure.raise_window']:
             self.window.activateWindow()
@@ -642,8 +682,13 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             if text is None:
                 self.addSeparator()
             else:
+                slot = getattr(self, callback)
+                # https://bugreports.qt.io/browse/PYSIDE-2512
+                slot = functools.wraps(slot)(functools.partial(slot))
+                slot = QtCore.Slot()(slot)
+
                 a = self.addAction(self._icon(image_file + '.png'),
-                                   text, getattr(self, callback))
+                                   text, slot)
                 self._actions[callback] = a
                 if callback in ['zoom', 'pan']:
                     a.setCheckable(True)
@@ -696,7 +741,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         axes = self.canvas.figure.get_axes()
         if not axes:
             QtWidgets.QMessageBox.warning(
-                self.canvas.parent(), "Error", "There are no axes to edit.")
+                self.canvas.parent(), "Error", "There are no Axes to edit.")
             return
         elif len(axes) == 1:
             ax, = axes
@@ -716,7 +761,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                     titles[i] += f" (id: {id(ax):#x})"  # Deduplicate titles.
             item, ok = QtWidgets.QInputDialog.getItem(
                 self.canvas.parent(),
-                'Customize', 'Select axes:', titles, 0, False)
+                'Customize', 'Select Axes:', titles, 0, False)
             if not ok:
                 return
             ax = axes[titles.index(item)]
@@ -759,6 +804,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             self.canvas.mpl_connect(
                 "close_event", lambda e: self._subplot_dialog.reject())
         self._subplot_dialog.update_from_current_subplotpars()
+        self._subplot_dialog.setModal(True)
         self._subplot_dialog.show()
         return self._subplot_dialog
 
@@ -961,9 +1007,8 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
             button.toggled.connect(handler)
 
     def remove_toolitem(self, name):
-        for button, handler in self._toolitems[name]:
+        for button, handler in self._toolitems.pop(name, []):
             button.setParent(None)
-        del self._toolitems[name]
 
     def set_message(self, s):
         self.widgetForAction(self._message_action).setText(s)

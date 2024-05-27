@@ -15,7 +15,7 @@ from . import _api, cbook
 from .colors import BoundaryNorm
 from .cm import ScalarMappable
 from .path import Path
-from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
+from .transforms import (BboxBase, Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
 
 _log = logging.getLogger(__name__)
@@ -224,10 +224,10 @@ class Artist:
 
         The effect will not be visible until the figure is redrawn, e.g.,
         with `.FigureCanvasBase.draw_idle`.  Call `~.axes.Axes.relim` to
-        update the axes limits if desired.
+        update the Axes limits if desired.
 
         Note: `~.axes.Axes.relim` will not see collections even if the
-        collection was added to the axes with *autolim* = True.
+        collection was added to the Axes with *autolim* = True.
 
         Note: there is no support for removing the artist's legend entry.
         """
@@ -299,9 +299,8 @@ class Artist:
     def axes(self, new_axes):
         if (new_axes is not None and self._axes is not None
                 and new_axes != self._axes):
-            raise ValueError("Can not reset the axes.  You are probably "
-                             "trying to re-use an artist in more than one "
-                             "Axes which is not supported")
+            raise ValueError("Can not reset the Axes. You are probably trying to reuse "
+                             "an artist in more than one Axes which is not supported")
         self._axes = new_axes
         if new_axes is not None and new_axes is not self:
             self.stale_callback = _stale_axes_callback
@@ -340,7 +339,7 @@ class Artist:
         Be careful when using this function, the results will not update
         if the artist window extent of the artist changes.  The extent
         can change due to any changes in the transform stack, such as
-        changing the axes limits, the figure size, or the canvas used
+        changing the Axes limits, the figure size, or the canvas used
         (as is done when saving a figure).  This can lead to unexpected
         behavior where interactive figures will look fine on the screen,
         but will save incorrectly.
@@ -353,7 +352,7 @@ class Artist:
 
         Parameters
         ----------
-        renderer : `.RendererBase` subclass
+        renderer : `~matplotlib.backend_bases.RendererBase` subclass, optional
             renderer that will be used to draw the figures (i.e.
             ``fig.canvas.get_renderer()``)
 
@@ -440,7 +439,7 @@ class Artist:
 
         Parameters
         ----------
-        t : `.Transform`
+        t : `~matplotlib.transforms.Transform`
         """
         self._transform = t
         self._transformSet = True
@@ -494,9 +493,6 @@ class Artist:
             such as which points are contained in the pick radius. See the
             individual Artist subclasses for details.
         """
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
         _log.warning("%r needs 'contains' method", self.__class__.__name__)
         return False, {}
 
@@ -506,7 +502,7 @@ class Artist:
 
         See Also
         --------
-        set_picker, get_picker, pick
+        .Artist.set_picker, .Artist.get_picker, .Artist.pick
         """
         return self.figure is not None and self._picker is not None
 
@@ -519,7 +515,7 @@ class Artist:
 
         See Also
         --------
-        set_picker, get_picker, pickable
+        .Artist.set_picker, .Artist.get_picker, .Artist.pickable
         """
         from .backend_bases import PickEvent  # Circular import.
         # Pick self
@@ -537,7 +533,8 @@ class Artist:
         for a in self.get_children():
             # make sure the event happened in the same Axes
             ax = getattr(a, 'axes', None)
-            if (mouseevent.inaxes is None or ax is None
+            if (isinstance(a, mpl.figure.SubFigure)
+                    or mouseevent.inaxes is None or ax is None
                     or mouseevent.inaxes == ax):
                 # we need to check if mouseevent.inaxes is None
                 # because some objects associated with an Axes (e.g., a
@@ -586,11 +583,11 @@ class Artist:
         """
         Return the picking behavior of the artist.
 
-        The possible values are described in `.set_picker`.
+        The possible values are described in `.Artist.set_picker`.
 
         See Also
         --------
-        set_picker, pickable, pick
+        .Artist.set_picker, .Artist.pickable, .Artist.pick
         """
         return self._picker
 
@@ -733,7 +730,7 @@ class Artist:
 
         Parameters
         ----------
-        fig : `.Figure`
+        fig : `~matplotlib.figure.Figure`
         """
         # if this is a no-op just return
         if self.figure is fig:
@@ -757,15 +754,17 @@ class Artist:
 
         Parameters
         ----------
-        clipbox : `.BboxBase` or None
-            Typically would be created from a `.TransformedBbox`. For
-            instance ``TransformedBbox(Bbox([[0, 0], [1, 1]]), ax.transAxes)``
-            is the default clipping for an artist added to an Axes.
+        clipbox : `~matplotlib.transforms.BboxBase` or None
+            Will typically be created from a `.TransformedBbox`. For instance,
+            ``TransformedBbox(Bbox([[0, 0], [1, 1]]), ax.transAxes)`` is the default
+            clipping for an artist added to an Axes.
 
         """
-        self.clipbox = clipbox
-        self.pchanged()
-        self.stale = True
+        _api.check_isinstance((BboxBase, None), clipbox=clipbox)
+        if clipbox != self.clipbox:
+            self.clipbox = clipbox
+            self.pchanged()
+            self.stale = True
 
     def set_clip_path(self, path, transform=None):
         """
@@ -986,7 +985,7 @@ class Artist:
 
         Parameters
         ----------
-        renderer : `.RendererBase` subclass.
+        renderer : `~matplotlib.backend_bases.RendererBase` subclass.
 
         Notes
         -----
@@ -1010,9 +1009,10 @@ class Artist:
                 f'alpha must be numeric or None, not {type(alpha)}')
         if alpha is not None and not (0 <= alpha <= 1):
             raise ValueError(f'alpha ({alpha}) is outside 0-1 range')
-        self._alpha = alpha
-        self.pchanged()
-        self.stale = True
+        if alpha != self._alpha:
+            self._alpha = alpha
+            self.pchanged()
+            self.stale = True
 
     def _set_alpha_for_array(self, alpha):
         """
@@ -1045,9 +1045,10 @@ class Artist:
         ----------
         b : bool
         """
-        self._visible = b
-        self.pchanged()
-        self.stale = True
+        if b != self._visible:
+            self._visible = b
+            self.pchanged()
+            self.stale = True
 
     def set_animated(self, b):
         """
@@ -1095,9 +1096,11 @@ class Artist:
         s : object
             *s* will be converted to a string by calling `str`.
         """
-        self._label = str(s) if s is not None else None
-        self.pchanged()
-        self.stale = True
+        label = str(s) if s is not None else None
+        if label != self._label:
+            self._label = label
+            self.pchanged()
+            self.stale = True
 
     def get_zorder(self):
         """Return the artist's zorder."""
@@ -1114,9 +1117,10 @@ class Artist:
         """
         if level is None:
             level = self.__class__.zorder
-        self.zorder = level
-        self.pchanged()
-        self.stale = True
+        if level != self.zorder:
+            self.zorder = level
+            self.pchanged()
+            self.stale = True
 
     @property
     def sticky_edges(self):
@@ -1473,6 +1477,9 @@ class ArtistInspector:
         if not hasattr(self.o, name):
             raise AttributeError(f'{self.o} has no function {name}')
         func = getattr(self.o, name)
+
+        if hasattr(func, '_kwarg_doc'):
+            return func._kwarg_doc
 
         docstring = inspect.getdoc(func)
         if docstring is None:

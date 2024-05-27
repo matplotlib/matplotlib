@@ -11,7 +11,6 @@ Module containing Axes3D, an object which can plot 3D objects on a
 """
 
 from collections import defaultdict
-import functools
 import itertools
 import math
 import textwrap
@@ -21,7 +20,6 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import _api, cbook, _docstring, _preprocess_data
 import matplotlib.artist as martist
-import matplotlib.axes as maxes
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.image as mimage
@@ -58,11 +56,6 @@ class Axes3D(Axes):
     Axes._shared_axes["z"] = cbook.Grouper()
     Axes._shared_axes["view"] = cbook.Grouper()
 
-    vvec = _api.deprecate_privatize_attribute("3.7")
-    eye = _api.deprecate_privatize_attribute("3.7")
-    sx = _api.deprecate_privatize_attribute("3.7")
-    sy = _api.deprecate_privatize_attribute("3.7")
-
     def __init__(
             self, fig, rect=None, *args,
             elev=30, azim=-60, roll=0, sharez=None, proj_type='persp',
@@ -75,7 +68,7 @@ class Axes3D(Axes):
         fig : Figure
             The parent figure.
         rect : tuple (left, bottom, width, height), default: None.
-            The ``(left, bottom, width, height)`` axes position.
+            The ``(left, bottom, width, height)`` Axes position.
         elev : float, default: 30
             The elevation angle in degrees rotates the camera above and below
             the x-y plane, with a positive angle corresponding to a location
@@ -133,7 +126,9 @@ class Axes3D(Axes):
 
         self.xy_viewLim = Bbox.unit()
         self.zz_viewLim = Bbox.unit()
-        self.xy_dataLim = Bbox.unit()
+        xymargin = 0.05 * 10/11  # match mpl3.8 appearance
+        self.xy_dataLim = Bbox([[xymargin, xymargin],
+                                [1 - xymargin, 1 - xymargin]])
         # z-limits are encoded in the x-component of the Bbox, y is un-used
         self.zz_dataLim = Bbox.unit()
 
@@ -165,6 +160,9 @@ class Axes3D(Axes):
         self.set_axis_on()
         self.M = None
         self.invM = None
+
+        self._view_margin = 1/48  # default value to match mpl3.8
+        self.autoscale_view()
 
         # func used to format z -- fall back on major formatters
         self.fmt_zdata = None
@@ -215,7 +213,7 @@ class Axes3D(Axes):
         self.stale = True
 
     def _init_axis(self):
-        """Init 3D axes; overrides creation of regular X/Y axes."""
+        """Init 3D Axes; overrides creation of regular X/Y Axes."""
         self.xaxis = axis3d.XAxis(self)
         self.yaxis = axis3d.YAxis(self)
         self.zaxis = axis3d.ZAxis(self)
@@ -227,13 +225,10 @@ class Axes3D(Axes):
     get_zgridlines = _axis_method_wrapper("zaxis", "get_gridlines")
     get_zticklines = _axis_method_wrapper("zaxis", "get_ticklines")
 
-    @_api.deprecated("3.7")
-    def unit_cube(self, vals=None):
-        return self._unit_cube(vals)
-
-    def _unit_cube(self, vals=None):
-        minx, maxx, miny, maxy, minz, maxz = vals or self.get_w_lims()
-        return [(minx, miny, minz),
+    def _transformed_cube(self, vals):
+        """Return cube with limits from *vals* transformed by self.M."""
+        minx, maxx, miny, maxy, minz, maxz = vals
+        xyzs = [(minx, miny, minz),
                 (maxx, miny, minz),
                 (maxx, maxy, minz),
                 (minx, maxy, minz),
@@ -241,39 +236,7 @@ class Axes3D(Axes):
                 (maxx, miny, maxz),
                 (maxx, maxy, maxz),
                 (minx, maxy, maxz)]
-
-    @_api.deprecated("3.7")
-    def tunit_cube(self, vals=None, M=None):
-        return self._tunit_cube(vals, M)
-
-    def _tunit_cube(self, vals=None, M=None):
-        if M is None:
-            M = self.M
-        xyzs = self._unit_cube(vals)
-        tcube = proj3d._proj_points(xyzs, M)
-        return tcube
-
-    @_api.deprecated("3.7")
-    def tunit_edges(self, vals=None, M=None):
-        return self._tunit_edges(vals, M)
-
-    def _tunit_edges(self, vals=None, M=None):
-        tc = self._tunit_cube(vals, M)
-        edges = [(tc[0], tc[1]),
-                 (tc[1], tc[2]),
-                 (tc[2], tc[3]),
-                 (tc[3], tc[0]),
-
-                 (tc[0], tc[4]),
-                 (tc[1], tc[5]),
-                 (tc[2], tc[6]),
-                 (tc[3], tc[7]),
-
-                 (tc[4], tc[5]),
-                 (tc[5], tc[6]),
-                 (tc[6], tc[7]),
-                 (tc[7], tc[4])]
-        return edges
+        return proj3d._proj_points(xyzs, self.M)
 
     def set_aspect(self, aspect, adjustable=None, anchor=None, share=False):
         """
@@ -345,7 +308,8 @@ class Axes3D(Axes):
                                              self.set_ylim3d,
                                              self.set_zlim3d)):
                     if i in ax_indices:
-                        set_lim(mean[i] - deltas[i]/2., mean[i] + deltas[i]/2.)
+                        set_lim(mean[i] - deltas[i]/2., mean[i] + deltas[i]/2.,
+                                auto=True, view_margin=None)
             else:  # 'box'
                 # Change the box aspect such that the ratio of the length of
                 # the unmodified axis to the length of the diagonal
@@ -413,8 +377,11 @@ class Axes3D(Axes):
         else:
             aspect = np.asarray(aspect, dtype=float)
             _api.check_shape((3,), aspect=aspect)
-        # default scale tuned to match the mpl32 appearance.
-        aspect *= 1.8294640721620434 * zoom / np.linalg.norm(aspect)
+        # The scale 1.8294640721620434 is tuned to match the mpl3.2 appearance.
+        # The 25/24 factor is to compensate for the change in automargin
+        # behavior in mpl3.9. This comes from the padding of 1/48 on both sides
+        # of the axes in mpl3.8.
+        aspect *= 1.8294640721620434 * 25/24 * zoom / np.linalg.norm(aspect)
 
         self._box_aspect = aspect
         self.stale = True
@@ -497,8 +464,7 @@ class Axes3D(Axes):
         super().draw(renderer)
 
     def get_axis_position(self):
-        vals = self.get_w_lims()
-        tc = self._tunit_cube(vals, self.M)
+        tc = self._transformed_cube(self.get_w_lims())
         xhigh = tc[1][2] > tc[2][2]
         yhigh = tc[3][2] > tc[2][2]
         zhigh = tc[0][2] > tc[2][2]
@@ -512,6 +478,22 @@ class Axes3D(Axes):
 
     get_autoscalez_on = _axis_method_wrapper("zaxis", "_get_autoscale_on")
     set_autoscalez_on = _axis_method_wrapper("zaxis", "_set_autoscale_on")
+
+    def get_zmargin(self):
+        """
+        Retrieve autoscaling margin of the z-axis.
+
+        .. versionadded:: 3.9
+
+        Returns
+        -------
+        zmargin : float
+
+        See Also
+        --------
+        mpl_toolkits.mplot3d.axes3d.Axes3D.set_zmargin
+        """
+        return self._zmargin
 
     def set_zmargin(self, m):
         """
@@ -585,17 +567,17 @@ class Axes3D(Axes):
             scalez = True
         else:
             if axis in ['x', 'both']:
-                self.set_autoscalex_on(bool(enable))
+                self.set_autoscalex_on(enable)
                 scalex = self.get_autoscalex_on()
             else:
                 scalex = False
             if axis in ['y', 'both']:
-                self.set_autoscaley_on(bool(enable))
+                self.set_autoscaley_on(enable)
                 scaley = self.get_autoscaley_on()
             else:
                 scaley = False
             if axis in ['z', 'both']:
-                self.set_autoscalez_on(bool(enable))
+                self.set_autoscalez_on(enable)
                 scalez = self.get_autoscalez_on()
             else:
                 scalez = False
@@ -620,8 +602,8 @@ class Axes3D(Axes):
         # Let autoscale_view figure out how to use this data.
         self.autoscale_view()
 
-    def autoscale_view(self, tight=None, scalex=True, scaley=True,
-                       scalez=True):
+    def autoscale_view(self, tight=None,
+                       scalex=True, scaley=True, scalez=True):
         """
         Autoscale the view limits using the data limits.
 
@@ -653,7 +635,7 @@ class Axes3D(Axes):
                 x1 += delta
             if not _tight:
                 x0, x1 = xlocator.view_limits(x0, x1)
-            self.set_xbound(x0, x1)
+            self.set_xbound(x0, x1, self._view_margin)
 
         if scaley and self.get_autoscaley_on():
             y0, y1 = self.xy_dataLim.intervaly
@@ -665,7 +647,7 @@ class Axes3D(Axes):
                 y1 += delta
             if not _tight:
                 y0, y1 = ylocator.view_limits(y0, y1)
-            self.set_ybound(y0, y1)
+            self.set_ybound(y0, y1, self._view_margin)
 
         if scalez and self.get_autoscalez_on():
             z0, z1 = self.zz_dataLim.intervalx
@@ -677,7 +659,7 @@ class Axes3D(Axes):
                 z1 += delta
             if not _tight:
                 z0, z1 = zlocator.view_limits(z0, z1)
-            self.set_zbound(z0, z1)
+            self.set_zbound(z0, z1, self._view_margin)
 
     def get_w_lims(self):
         """Get 3D world limits."""
@@ -686,28 +668,347 @@ class Axes3D(Axes):
         minz, maxz = self.get_zlim3d()
         return minx, maxx, miny, maxy, minz, maxz
 
-    # set_xlim, set_ylim are directly inherited from base Axes.
+    def _set_bound3d(self, get_bound, set_lim, axis_inverted,
+                     lower=None, upper=None, view_margin=None):
+        """
+        Set 3D axis bounds.
+        """
+        if upper is None and np.iterable(lower):
+            lower, upper = lower
+
+        old_lower, old_upper = get_bound()
+        if lower is None:
+            lower = old_lower
+        if upper is None:
+            upper = old_upper
+
+        set_lim(sorted((lower, upper), reverse=bool(axis_inverted())),
+                auto=None, view_margin=view_margin)
+
+    def set_xbound(self, lower=None, upper=None, view_margin=None):
+        """
+        Set the lower and upper numerical bounds of the x-axis.
+
+        This method will honor axis inversion regardless of parameter order.
+        It will not change the autoscaling setting (`.get_autoscalex_on()`).
+
+        Parameters
+        ----------
+        lower, upper : float or None
+            The lower and upper bounds. If *None*, the respective axis bound
+            is not modified.
+        view_margin : float or None
+            The margin to apply to the bounds. If *None*, the margin is handled
+            by `.set_xlim`.
+
+        See Also
+        --------
+        get_xbound
+        get_xlim, set_xlim
+        invert_xaxis, xaxis_inverted
+        """
+        self._set_bound3d(self.get_xbound, self.set_xlim, self.xaxis_inverted,
+                          lower, upper, view_margin)
+
+    def set_ybound(self, lower=None, upper=None, view_margin=None):
+        """
+        Set the lower and upper numerical bounds of the y-axis.
+
+        This method will honor axis inversion regardless of parameter order.
+        It will not change the autoscaling setting (`.get_autoscaley_on()`).
+
+        Parameters
+        ----------
+        lower, upper : float or None
+            The lower and upper bounds. If *None*, the respective axis bound
+            is not modified.
+        view_margin : float or None
+            The margin to apply to the bounds. If *None*, the margin is handled
+            by `.set_ylim`.
+
+        See Also
+        --------
+        get_ybound
+        get_ylim, set_ylim
+        invert_yaxis, yaxis_inverted
+        """
+        self._set_bound3d(self.get_ybound, self.set_ylim, self.yaxis_inverted,
+                          lower, upper, view_margin)
+
+    def set_zbound(self, lower=None, upper=None, view_margin=None):
+        """
+        Set the lower and upper numerical bounds of the z-axis.
+        This method will honor axis inversion regardless of parameter order.
+        It will not change the autoscaling setting (`.get_autoscaley_on()`).
+
+        Parameters
+        ----------
+        lower, upper : float or None
+            The lower and upper bounds. If *None*, the respective axis bound
+            is not modified.
+        view_margin : float or None
+            The margin to apply to the bounds. If *None*, the margin is handled
+            by `.set_zlim`.
+
+        See Also
+        --------
+        get_zbound
+        get_zlim, set_zlim
+        invert_zaxis, zaxis_inverted
+        """
+        self._set_bound3d(self.get_zbound, self.set_zlim, self.zaxis_inverted,
+                          lower, upper, view_margin)
+
+    def _set_lim3d(self, axis, lower=None, upper=None, *, emit=True,
+                   auto=False, view_margin=None, axmin=None, axmax=None):
+        """
+        Set 3D axis limits.
+        """
+        if upper is None:
+            if np.iterable(lower):
+                lower, upper = lower
+            elif axmax is None:
+                upper = axis.get_view_interval()[1]
+        if lower is None and axmin is None:
+            lower = axis.get_view_interval()[0]
+        if axmin is not None:
+            if lower is not None:
+                raise TypeError("Cannot pass both 'lower' and 'min'")
+            lower = axmin
+        if axmax is not None:
+            if upper is not None:
+                raise TypeError("Cannot pass both 'upper' and 'max'")
+            upper = axmax
+        if np.isinf(lower) or np.isinf(upper):
+            raise ValueError(f"Axis limits {lower}, {upper} cannot be infinite")
+        if view_margin is None:
+            if mpl.rcParams['axes3d.automargin']:
+                view_margin = self._view_margin
+            else:
+                view_margin = 0
+        delta = (upper - lower) * view_margin
+        lower -= delta
+        upper += delta
+        return axis._set_lim(lower, upper, emit=emit, auto=auto)
+
+    def set_xlim(self, left=None, right=None, *, emit=True, auto=False,
+                 view_margin=None, xmin=None, xmax=None):
+        """
+        Set the 3D x-axis view limits.
+
+        Parameters
+        ----------
+        left : float, optional
+            The left xlim in data coordinates. Passing *None* leaves the
+            limit unchanged.
+
+            The left and right xlims may also be passed as the tuple
+            (*left*, *right*) as the first positional argument (or as
+            the *left* keyword argument).
+
+            .. ACCEPTS: (left: float, right: float)
+
+        right : float, optional
+            The right xlim in data coordinates. Passing *None* leaves the
+            limit unchanged.
+
+        emit : bool, default: True
+            Whether to notify observers of limit change.
+
+        auto : bool or None, default: False
+            Whether to turn on autoscaling of the x-axis. *True* turns on,
+            *False* turns off, *None* leaves unchanged.
+
+        view_margin : float, optional
+            The additional margin to apply to the limits.
+
+        xmin, xmax : float, optional
+            They are equivalent to left and right respectively, and it is an
+            error to pass both *xmin* and *left* or *xmax* and *right*.
+
+        Returns
+        -------
+        left, right : (float, float)
+            The new x-axis limits in data coordinates.
+
+        See Also
+        --------
+        get_xlim
+        set_xbound, get_xbound
+        invert_xaxis, xaxis_inverted
+
+        Notes
+        -----
+        The *left* value may be greater than the *right* value, in which
+        case the x-axis values will decrease from *left* to *right*.
+
+        Examples
+        --------
+        >>> set_xlim(left, right)
+        >>> set_xlim((left, right))
+        >>> left, right = set_xlim(left, right)
+
+        One limit may be left unchanged.
+
+        >>> set_xlim(right=right_lim)
+
+        Limits may be passed in reverse order to flip the direction of
+        the x-axis. For example, suppose ``x`` represents depth of the
+        ocean in m. The x-axis limits might be set like the following
+        so 5000 m depth is at the left of the plot and the surface,
+        0 m, is at the right.
+
+        >>> set_xlim(5000, 0)
+        """
+        return self._set_lim3d(self.xaxis, left, right, emit=emit, auto=auto,
+                               view_margin=view_margin, axmin=xmin, axmax=xmax)
+
+    def set_ylim(self, bottom=None, top=None, *, emit=True, auto=False,
+                 view_margin=None, ymin=None, ymax=None):
+        """
+        Set the 3D y-axis view limits.
+
+        Parameters
+        ----------
+        bottom : float, optional
+            The bottom ylim in data coordinates. Passing *None* leaves the
+            limit unchanged.
+
+            The bottom and top ylims may also be passed as the tuple
+            (*bottom*, *top*) as the first positional argument (or as
+            the *bottom* keyword argument).
+
+            .. ACCEPTS: (bottom: float, top: float)
+
+        top : float, optional
+            The top ylim in data coordinates. Passing *None* leaves the
+            limit unchanged.
+
+        emit : bool, default: True
+            Whether to notify observers of limit change.
+
+        auto : bool or None, default: False
+            Whether to turn on autoscaling of the y-axis. *True* turns on,
+            *False* turns off, *None* leaves unchanged.
+
+        view_margin : float, optional
+            The additional margin to apply to the limits.
+
+        ymin, ymax : float, optional
+            They are equivalent to bottom and top respectively, and it is an
+            error to pass both *ymin* and *bottom* or *ymax* and *top*.
+
+        Returns
+        -------
+        bottom, top : (float, float)
+            The new y-axis limits in data coordinates.
+
+        See Also
+        --------
+        get_ylim
+        set_ybound, get_ybound
+        invert_yaxis, yaxis_inverted
+
+        Notes
+        -----
+        The *bottom* value may be greater than the *top* value, in which
+        case the y-axis values will decrease from *bottom* to *top*.
+
+        Examples
+        --------
+        >>> set_ylim(bottom, top)
+        >>> set_ylim((bottom, top))
+        >>> bottom, top = set_ylim(bottom, top)
+
+        One limit may be left unchanged.
+
+        >>> set_ylim(top=top_lim)
+
+        Limits may be passed in reverse order to flip the direction of
+        the y-axis. For example, suppose ``y`` represents depth of the
+        ocean in m. The y-axis limits might be set like the following
+        so 5000 m depth is at the bottom of the plot and the surface,
+        0 m, is at the top.
+
+        >>> set_ylim(5000, 0)
+        """
+        return self._set_lim3d(self.yaxis, bottom, top, emit=emit, auto=auto,
+                               view_margin=view_margin, axmin=ymin, axmax=ymax)
+
     def set_zlim(self, bottom=None, top=None, *, emit=True, auto=False,
-                 zmin=None, zmax=None):
+                 view_margin=None, zmin=None, zmax=None):
         """
-        Set 3D z limits.
+        Set the 3D z-axis view limits.
 
-        See `.Axes.set_ylim` for full documentation
+        Parameters
+        ----------
+        bottom : float, optional
+            The bottom zlim in data coordinates. Passing *None* leaves the
+            limit unchanged.
+
+            The bottom and top zlims may also be passed as the tuple
+            (*bottom*, *top*) as the first positional argument (or as
+            the *bottom* keyword argument).
+
+            .. ACCEPTS: (bottom: float, top: float)
+
+        top : float, optional
+            The top zlim in data coordinates. Passing *None* leaves the
+            limit unchanged.
+
+        emit : bool, default: True
+            Whether to notify observers of limit change.
+
+        auto : bool or None, default: False
+            Whether to turn on autoscaling of the z-axis. *True* turns on,
+            *False* turns off, *None* leaves unchanged.
+
+        view_margin : float, optional
+            The additional margin to apply to the limits.
+
+        zmin, zmax : float, optional
+            They are equivalent to bottom and top respectively, and it is an
+            error to pass both *zmin* and *bottom* or *zmax* and *top*.
+
+        Returns
+        -------
+        bottom, top : (float, float)
+            The new z-axis limits in data coordinates.
+
+        See Also
+        --------
+        get_zlim
+        set_zbound, get_zbound
+        invert_zaxis, zaxis_inverted
+
+        Notes
+        -----
+        The *bottom* value may be greater than the *top* value, in which
+        case the z-axis values will decrease from *bottom* to *top*.
+
+        Examples
+        --------
+        >>> set_zlim(bottom, top)
+        >>> set_zlim((bottom, top))
+        >>> bottom, top = set_zlim(bottom, top)
+
+        One limit may be left unchanged.
+
+        >>> set_zlim(top=top_lim)
+
+        Limits may be passed in reverse order to flip the direction of
+        the z-axis. For example, suppose ``z`` represents depth of the
+        ocean in m. The z-axis limits might be set like the following
+        so 5000 m depth is at the bottom of the plot and the surface,
+        0 m, is at the top.
+
+        >>> set_zlim(5000, 0)
         """
-        if top is None and np.iterable(bottom):
-            bottom, top = bottom
-        if zmin is not None:
-            if bottom is not None:
-                raise TypeError("Cannot pass both 'bottom' and 'zmin'")
-            bottom = zmin
-        if zmax is not None:
-            if top is not None:
-                raise TypeError("Cannot pass both 'top' and 'zmax'")
-            top = zmax
-        return self.zaxis._set_lim(bottom, top, emit=emit, auto=auto)
+        return self._set_lim3d(self.zaxis, bottom, top, emit=emit, auto=auto,
+                               view_margin=view_margin, axmin=zmin, axmax=zmax)
 
-    set_xlim3d = maxes.Axes.set_xlim
-    set_ylim3d = maxes.Axes.set_ylim
+    set_xlim3d = set_xlim
+    set_ylim3d = set_ylim
     set_zlim3d = set_zlim
 
     def get_xlim(self):
@@ -719,7 +1020,25 @@ class Axes3D(Axes):
         return tuple(self.xy_viewLim.intervaly)
 
     def get_zlim(self):
-        """Get 3D z limits."""
+        """
+        Return the 3D z-axis view limits.
+
+        Returns
+        -------
+        left, right : (float, float)
+            The current z-axis limits in data coordinates.
+
+        See Also
+        --------
+        set_zlim
+        set_zbound, get_zbound
+        invert_zaxis, zaxis_inverted
+
+        Notes
+        -----
+        The z-axis may be inverted, in which case the *left* value will
+        be greater than the *right* value.
+        """
         return tuple(self.zz_viewLim.intervalx)
 
     get_zscale = _axis_method_wrapper("zaxis", "get_scale")
@@ -735,7 +1054,7 @@ class Axes3D(Axes):
         Parameters
         ----------
         value : {{"linear"}}
-            The axis scale type to apply.  3D axes currently only support
+            The axis scale type to apply.  3D Axes currently only support
             linear scales; other scales yield nonsensical results.
 
         **kwargs
@@ -759,20 +1078,20 @@ class Axes3D(Axes):
 
         Notes
         -----
-        This function is merely provided for completeness, but 3D axes do not
+        This function is merely provided for completeness, but 3D Axes do not
         support dates for ticks, and so this may not work as expected.
         """)
 
     def clabel(self, *args, **kwargs):
-        """Currently not implemented for 3D axes, and returns *None*."""
+        """Currently not implemented for 3D Axes, and returns *None*."""
         return None
 
     def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z",
                   share=False):
         """
-        Set the elevation and azimuth of the axes in degrees (not radians).
+        Set the elevation and azimuth of the Axes in degrees (not radians).
 
-        This can be used to rotate the axes programmatically.
+        This can be used to rotate the Axes programmatically.
 
         To look normal to the primary planes, the following elevation and
         azimuth angles can be used. A roll angle of 0, 90, 180, or 270 deg
@@ -828,7 +1147,8 @@ class Axes3D(Axes):
         if roll is None:
             roll = self.initial_roll
         vertical_axis = _api.check_getitem(
-            dict(x=0, y=1, z=2), vertical_axis=vertical_axis
+            {name: idx for idx, name in enumerate(self._axis_names)},
+            vertical_axis=vertical_axis,
         )
 
         if share:
@@ -909,11 +1229,6 @@ class Axes3D(Axes):
         # towards the middle of the box of data from a distance:
         eye = R + self._dist * ps
 
-        # vvec, self._vvec and self._eye are unused, remove when deprecated
-        vvec = R - eye
-        self._eye = eye
-        self._vvec = vvec / np.linalg.norm(vvec)
-
         # Calculate the viewing axes for the eye position
         u, v, w = self._calc_view_axes(eye)
         self._view_u = u  # _view_u is towards the right of the screen
@@ -946,11 +1261,11 @@ class Axes3D(Axes):
         Parameters
         ----------
         rotate_btn : int or list of int, default: 1
-            The mouse button or buttons to use for 3D rotation of the axes.
+            The mouse button or buttons to use for 3D rotation of the Axes.
         pan_btn : int or list of int, default: 2
-            The mouse button or buttons to use to pan the 3D axes.
+            The mouse button or buttons to use to pan the 3D Axes.
         zoom_btn : int or list of int, default: 3
-            The mouse button or buttons to use to zoom the 3D axes.
+            The mouse button or buttons to use to zoom the 3D Axes.
         """
         self.button_pressed = None
         # coerce scalars into array-like, then convert into
@@ -1004,7 +1319,7 @@ class Axes3D(Axes):
             raise ValueError("view angles are already shared")
         self._shared_axes["view"].join(self, other)
         self._shareview = other
-        vertical_axis = {0: "x", 1: "y", 2: "z"}[other._vertical_axis]
+        vertical_axis = self._axis_names[other._vertical_axis]
         self.view_init(elev=other.elev, azim=other.azim, roll=other.roll,
                        vertical_axis=vertical_axis, share=True)
 
@@ -1015,6 +1330,15 @@ class Axes3D(Axes):
             self._zmargin = mpl.rcParams['axes.zmargin']
         else:
             self._zmargin = 0.
+
+        xymargin = 0.05 * 10/11  # match mpl3.8 appearance
+        self.xy_dataLim = Bbox([[xymargin, xymargin],
+                                [1 - xymargin, 1 - xymargin]])
+        # z-limits are encoded in the x-component of the Bbox, y is un-used
+        self.zz_dataLim = Bbox.unit()
+        self._view_margin = 1/48  # default value to match mpl3.8
+        self.autoscale_view()
+
         self.grid(mpl.rcParams['axes3d.grid'])
 
     def _button_press(self, event):
@@ -1143,7 +1467,7 @@ class Axes3D(Axes):
         # Get the pane locations for each of the axes
         pane_locs = []
         for axis in self._axis_map.values():
-            xys, loc = axis.active_pane(renderer)
+            xys, loc = axis.active_pane()
             pane_locs.append(loc)
 
         # Find the distance to the nearest pane by projecting the view vector
@@ -1200,7 +1524,15 @@ class Axes3D(Axes):
             dazim = -(dy/h)*180*np.sin(roll) - (dx/w)*180*np.cos(roll)
             elev = self.elev + delev
             azim = self.azim + dazim
-            self.view_init(elev=elev, azim=azim, roll=roll, share=True)
+            roll = self.roll
+            vertical_axis = self._axis_names[self._vertical_axis]
+            self.view_init(
+                elev=elev,
+                azim=azim,
+                roll=roll,
+                vertical_axis=vertical_axis,
+                share=True,
+            )
             self.stale = True
 
         # Pan
@@ -1255,9 +1587,9 @@ class Axes3D(Axes):
         dz = (maxz - minz) * duvw_projected[2]
 
         # Set the new axis limits
-        self.set_xlim3d(minx + dx, maxx + dx)
-        self.set_ylim3d(miny + dy, maxy + dy)
-        self.set_zlim3d(minz + dz, maxz + dz)
+        self.set_xlim3d(minx + dx, maxx + dx, auto=None)
+        self.set_ylim3d(miny + dy, maxy + dy, auto=None)
+        self.set_zlim3d(minz + dz, maxz + dz, auto=None)
 
     def _calc_view_axes(self, eye):
         """
@@ -1337,7 +1669,7 @@ class Axes3D(Axes):
         transformed to the x, y, z data axes based on the current view angles.
         A scale factor > 1 zooms out and a scale factor < 1 zooms in.
 
-        For an axes that has had its aspect ratio set to 'equal', 'equalxy',
+        For an Axes that has had its aspect ratio set to 'equal', 'equalxy',
         'equalyz', or 'equalxz', the relevant axes are constrained to zoom
         equally.
 
@@ -1386,9 +1718,9 @@ class Axes3D(Axes):
         cx, cy, cz, dx, dy, dz = self._get_w_centers_ranges()
 
         # Set the scaled axis limits
-        self.set_xlim3d(cx - dx*scale_x/2, cx + dx*scale_x/2)
-        self.set_ylim3d(cy - dy*scale_y/2, cy + dy*scale_y/2)
-        self.set_zlim3d(cz - dz*scale_z/2, cz + dz*scale_z/2)
+        self.set_xlim3d(cx - dx*scale_x/2, cx + dx*scale_x/2, auto=None)
+        self.set_ylim3d(cy - dy*scale_y/2, cy + dy*scale_y/2, auto=None)
+        self.set_zlim3d(cz - dz*scale_z/2, cz + dz*scale_z/2, auto=None)
 
     def _get_w_centers_ranges(self):
         """Get 3D world centers and axis ranges."""
@@ -1452,7 +1784,7 @@ class Axes3D(Axes):
         to 'both' autoscales all three axes.
 
         Also, because of how Axes3D objects are drawn very differently
-        from regular 2D axes, some of these settings may have
+        from regular 2D Axes, some of these settings may have
         ambiguous meaning.  For simplicity, the 'z' axis will
         accept settings as if it was like the 'y' axis.
 
@@ -1475,6 +1807,12 @@ class Axes3D(Axes):
     def invert_zaxis(self):
         """
         Invert the z-axis.
+
+        See Also
+        --------
+        zaxis_inverted
+        get_zlim, set_zlim
+        get_zbound, set_zbound
         """
         bottom, top = self.get_zlim()
         self.set_zlim(top, bottom, auto=None)
@@ -1484,40 +1822,39 @@ class Axes3D(Axes):
     def get_zbound(self):
         """
         Return the lower and upper z-axis bounds, in increasing order.
+
+        See Also
+        --------
+        set_zbound
+        get_zlim, set_zlim
+        invert_zaxis, zaxis_inverted
         """
-        bottom, top = self.get_zlim()
-        if bottom < top:
-            return bottom, top
+        lower, upper = self.get_zlim()
+        if lower < upper:
+            return lower, upper
         else:
-            return top, bottom
-
-    def set_zbound(self, lower=None, upper=None):
-        """
-        Set the lower and upper numerical bounds of the z-axis.
-
-        This method will honor axes inversion regardless of parameter order.
-        It will not change the autoscaling setting (`.get_autoscalez_on()`).
-        """
-        if upper is None and np.iterable(lower):
-            lower, upper = lower
-
-        old_lower, old_upper = self.get_zbound()
-        if lower is None:
-            lower = old_lower
-        if upper is None:
-            upper = old_upper
-
-        self.set_zlim(sorted((lower, upper),
-                             reverse=bool(self.zaxis_inverted())),
-                      auto=None)
+            return upper, lower
 
     def text(self, x, y, z, s, zdir=None, **kwargs):
         """
-        Add text to the plot.
+        Add the text *s* to the 3D Axes at location *x*, *y*, *z* in data coordinates.
 
-        Keyword arguments will be passed on to `.Axes.text`, except for the
-        *zdir* keyword, which sets the direction to be used as the z
-        direction.
+        Parameters
+        ----------
+        x, y, z : float
+            The position to place the text.
+        s : str
+            The text.
+        zdir : {'x', 'y', 'z', 3-tuple}, optional
+            The direction to be used as the z-direction. Default: 'z'.
+            See `.get_dir_vector` for a description of the values.
+        **kwargs
+            Other arguments are forwarded to `matplotlib.axes.Axes.text`.
+
+        Returns
+        -------
+        `.Text3D`
+            The created `.Text3D` instance.
         """
         text = super().text(x, y, s, **kwargs)
         art3d.text_2d_to_3d(text, z, zdir)
@@ -1552,12 +1889,11 @@ class Axes3D(Axes):
         if args and not isinstance(args[0], str):
             zs, *args = args
             if 'zs' in kwargs:
-                raise TypeError("plot() for multiple values for argument 'z'")
+                raise TypeError("plot() for multiple values for argument 'zs'")
         else:
             zs = kwargs.pop('zs', 0)
 
-        # Match length
-        zs = np.broadcast_to(zs, np.shape(xs))
+        xs, ys, zs = cbook._broadcast_with_masks(xs, ys, zs)
 
         lines = super().plot(xs, ys, *args, **kwargs)
         for line in lines:
@@ -1613,26 +1949,26 @@ class Axes3D(Axes):
             'classic' mode uses a default of ``rstride = cstride = 10`` instead
             of the new default of ``rcount = ccount = 50``.
 
-        color : color-like
+        color : :mpltype:`color`
             Color of the surface patches.
 
-        cmap : Colormap
+        cmap : Colormap, optional
             Colormap of the surface patches.
 
-        facecolors : array-like of colors.
+        facecolors : list of :mpltype:`color`
             Colors of each individual patch.
 
-        norm : Normalize
+        norm : `~matplotlib.colors.Normalize`, optional
             Normalization for the colormap.
 
-        vmin, vmax : float
+        vmin, vmax : float, optional
             Bounds for the normalization.
 
         shade : bool, default: True
             Whether to shade the facecolors.  Shading is always disabled when
             *cmap* is specified.
 
-        lightsource : `~matplotlib.colors.LightSource`
+        lightsource : `~matplotlib.colors.LightSource`, optional
             The lightsource to use when *shade* is True.
 
         **kwargs
@@ -1915,14 +2251,14 @@ class Axes3D(Axes):
             Color of the surface patches.
         cmap
             A colormap for the surface patches.
-        norm : Normalize
+        norm : `~matplotlib.colors.Normalize`, optional
             An instance of Normalize to map values to colors.
-        vmin, vmax : float, default: None
+        vmin, vmax : float, optional
             Minimum and maximum value to map.
         shade : bool, default: True
             Whether to shade the facecolors.  Shading is always disabled when
             *cmap* is specified.
-        lightsource : `~matplotlib.colors.LightSource`
+        lightsource : `~matplotlib.colors.LightSource`, optional
             The lightsource to use when *shade* is True.
         **kwargs
             All other keyword arguments are passed on to
@@ -2052,7 +2388,7 @@ class Axes3D(Axes):
             Input data. See `.Axes.contour` for supported data shapes.
         extend3d : bool, default: False
             Whether to extend contour in 3D.
-        stride : int
+        stride : int, default: 5
             Step size for extending contour.
         zdir : {'x', 'y', 'z'}, default: 'z'
             The direction to use.
@@ -2096,7 +2432,7 @@ class Axes3D(Axes):
             Input data. See `.Axes.tricontour` for supported data shapes.
         extend3d : bool, default: False
             Whether to extend contour in 3D.
-        stride : int
+        stride : int, default: 5
             Step size for extending contour.
         zdir : {'x', 'y', 'z'}, default: 'z'
             The direction to use.
@@ -2231,13 +2567,14 @@ class Axes3D(Axes):
         Add a 3D collection object to the plot.
 
         2D collection types are converted to a 3D version by
-        modifying the object and adding z coordinate information.
+        modifying the object and adding z coordinate information,
+        *zs* and *zdir*.
 
-        Supported are:
+        Supported 2D collection types are:
 
-        - PolyCollection
-        - LineCollection
-        - PatchCollection
+        - `.PolyCollection`
+        - `.LineCollection`
+        - `.PatchCollection`
         """
         zvals = np.atleast_1d(zs)
         zsortval = (np.min(zvals) if zvals.size
@@ -2285,7 +2622,7 @@ class Axes3D(Axes):
             The marker size in points**2. Either an array of the same length
             as *xs* and *ys* or a single value to make all markers the same
             size.
-        c : color, sequence, or sequence of colors, optional
+        c : :mpltype:`color`, sequence, or sequence of colors, optional
             The marker color. Possible values:
 
             - A single color format string.
@@ -2312,14 +2649,13 @@ class Axes3D(Axes):
         had_data = self.has_data()
         zs_orig = zs
 
-        xs, ys, zs = np.broadcast_arrays(
-            *[np.ravel(np.ma.filled(t, np.nan)) for t in [xs, ys, zs]])
+        xs, ys, zs = cbook._broadcast_with_masks(xs, ys, zs)
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
         xs, ys, zs, s, c, color = cbook.delete_masked_points(
             xs, ys, zs, s, c, kwargs.get('color', None)
             )
-        if kwargs.get('color', None):
+        if kwargs.get("color") is not None:
             kwargs['color'] = color
 
         # For xs and ys, 2D scatter() will do the copying.
@@ -2350,7 +2686,7 @@ class Axes3D(Axes):
             The x coordinates of the left sides of the bars.
         height : 1D array-like
             The height of the bars.
-        zs : float or 1D array-like
+        zs : float or 1D array-like, default: 0
             Z coordinate of bars; if a single value is specified, it will be
             used for all bars.
         zdir : {'x', 'y', 'z'}, default: 'z'
@@ -2369,7 +2705,7 @@ class Axes3D(Axes):
 
         patches = super().bar(left, height, *args, **kwargs)
 
-        zs = np.broadcast_to(zs, len(left))
+        zs = np.broadcast_to(zs, len(left), subok=True)
 
         verts = []
         verts_zs = []
@@ -2433,14 +2769,14 @@ class Axes3D(Axes):
             5. -X
             6. +X
 
-        zsort : str, optional
+        zsort : {'average', 'min', 'max'}, default: 'average'
             The z-axis sorting scheme passed onto `~.art3d.Poly3DCollection`
 
         shade : bool, default: True
             When true, this shades the dark sides of the bars (relative
             to the plot's source of light).
 
-        lightsource : `~matplotlib.colors.LightSource`
+        lightsource : `~matplotlib.colors.LightSource`, optional
             The lightsource to use when *shade* is True.
 
         data : indexable object, optional
@@ -2635,23 +2971,8 @@ class Axes3D(Axes):
 
         had_data = self.has_data()
 
-        input_args = [X, Y, Z, U, V, W]
-
-        # extract the masks, if any
-        masks = [k.mask for k in input_args
-                 if isinstance(k, np.ma.MaskedArray)]
-        # broadcast to match the shape
-        bcast = np.broadcast_arrays(*input_args, *masks)
-        input_args = bcast[:6]
-        masks = bcast[6:]
-        if masks:
-            # combine the masks into one
-            mask = functools.reduce(np.logical_or, masks)
-            # put mask on and compress
-            input_args = [np.ma.array(k, mask=mask).compressed()
-                          for k in input_args]
-        else:
-            input_args = [np.ravel(k) for k in input_args]
+        input_args = cbook._broadcast_with_masks(X, Y, Z, U, V, W,
+                                                 compress=True)
 
         if any(len(v) == 0 for v in input_args):
             # No quivers, so just make an empty collection and return early
@@ -2672,15 +2993,10 @@ class Axes3D(Axes):
         UVW = np.column_stack(input_args[3:]).astype(float)
 
         # Normalize rows of UVW
-        norm = np.linalg.norm(UVW, axis=1)
-
-        # If any row of UVW is all zeros, don't make a quiver for it
-        mask = norm > 0
-        XYZ = XYZ[mask]
         if normalize:
-            UVW = UVW[mask] / norm[mask].reshape((-1, 1))
-        else:
-            UVW = UVW[mask]
+            norm = np.linalg.norm(UVW, axis=1)
+            norm[norm == 0] = 1
+            UVW = UVW / norm.reshape((-1, 1))
 
         if len(XYZ) > 0:
             # compute the shaft lines all at once with an outer product
@@ -2694,7 +3010,7 @@ class Axes3D(Axes):
             # transpose to get a list of lines
             heads = heads.swapaxes(0, 1)
 
-            lines = [*shafts, *heads]
+            lines = [*shafts, *heads[::2], *heads[1::2]]
         else:
             lines = []
 
@@ -2752,7 +3068,7 @@ class Axes3D(Axes):
         shade : bool, default: True
             Whether to shade the facecolors.
 
-        lightsource : `~matplotlib.colors.LightSource`
+        lightsource : `~matplotlib.colors.LightSource`, optional
             The lightsource to use when *shade* is True.
 
         **kwargs
@@ -2953,7 +3269,7 @@ class Axes3D(Axes):
             Use 'none' (case-insensitive) to plot errorbars without any data
             markers.
 
-        ecolor : color, default: None
+        ecolor : :mpltype:`color`, default: None
             The color of the errorbar lines.  If None, use the color of the
             line connecting the markers.
 
@@ -2981,10 +3297,10 @@ class Axes3D(Axes):
             lower limits. In that case a caret symbol is used to indicate
             this. *lims*-arguments may be scalars, or array-likes of the same
             length as the errors. To use limits with inverted axes,
-            `~.Axes.set_xlim` or `~.Axes.set_ylim` must be called before
-            `errorbar`. Note the tricky parameter names: setting e.g.
-            *ylolims* to True means that the y-value is a *lower* limit of the
-            True value, so, only an *upward*-pointing arrow will be drawn!
+            `~.set_xlim`, `~.set_ylim`, or `~.set_zlim` must be
+            called before `errorbar`. Note the tricky parameter names: setting
+            e.g. *ylolims* to True means that the y-value is a *lower* limit of
+            the True value, so, only an *upward*-pointing arrow will be drawn!
 
         xuplims, yuplims, zuplims : bool, default: False
             Same as above, but for controlling the upper limits.
@@ -3303,7 +3619,7 @@ class Axes3D(Axes):
         bottom : float, default: 0
             The position of the baseline, in *orientation*-coordinates.
 
-        label : str, default: None
+        label : str, optional
             The label to use for the stems in legends.
 
         orientation : {'x', 'y', 'z'}, default: 'z'

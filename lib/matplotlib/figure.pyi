@@ -1,4 +1,9 @@
+from collections.abc import Callable, Hashable, Iterable
 import os
+from typing import Any, IO, Literal, TypeVar, overload
+
+import numpy as np
+from numpy.typing import ArrayLike
 
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes, SubplotBase
@@ -11,7 +16,7 @@ from matplotlib.backend_bases import (
 from matplotlib.colors import Colormap, Normalize
 from matplotlib.colorbar import Colorbar
 from matplotlib.cm import ScalarMappable
-from matplotlib.gridspec import GridSpec, SubplotSpec
+from matplotlib.gridspec import GridSpec, SubplotSpec, SubplotParams as SubplotParams
 from matplotlib.image import _ImageBase, FigureImage
 from matplotlib.layout_engine import LayoutEngine
 from matplotlib.legend import Legend
@@ -19,39 +24,9 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle, Patch
 from matplotlib.text import Text
 from matplotlib.transforms import Affine2D, Bbox, BboxBase, Transform
-
-import numpy as np
-from numpy.typing import ArrayLike
-
-from collections.abc import Callable, Iterable
-from typing import Any, IO, Literal, overload
 from .typing import ColorType, HashableList
 
-class SubplotParams:
-    def __init__(
-        self,
-        left: float | None = ...,
-        bottom: float | None = ...,
-        right: float | None = ...,
-        top: float | None = ...,
-        wspace: float | None = ...,
-        hspace: float | None = ...,
-    ) -> None: ...
-    left: float
-    right: float
-    bottom: float
-    top: float
-    wspace: float
-    hspace: float
-    def update(
-        self,
-        left: float | None = ...,
-        bottom: float | None = ...,
-        right: float | None = ...,
-        top: float | None = ...,
-        wspace: float | None = ...,
-        hspace: float | None = ...,
-    ) -> None: ...
+_T = TypeVar("_T")
 
 class FigureBase(Artist):
     artists: list[Artist]
@@ -186,6 +161,7 @@ class FigureBase(Artist):
     ) -> None: ...
     def align_xlabels(self, axs: Iterable[Axes] | None = ...) -> None: ...
     def align_ylabels(self, axs: Iterable[Axes] | None = ...) -> None: ...
+    def align_titles(self, axs: Iterable[Axes] | None = ...) -> None: ...
     def align_labels(self, axs: Iterable[Axes] | None = ...) -> None: ...
     def add_gridspec(self, nrows: int = ..., ncols: int = ..., **kwargs) -> GridSpec: ...
     @overload
@@ -226,11 +202,38 @@ class FigureBase(Artist):
         *,
         bbox_extra_artists: Iterable[Artist] | None = ...,
     ) -> Bbox: ...
-
-    # Any in list of list is recursive list[list[Hashable | list[Hashable | ...]]] but that can't really be type checked
+    @overload
     def subplot_mosaic(
         self,
-        mosaic: str | HashableList,
+        mosaic: str,
+        *,
+        sharex: bool = ...,
+        sharey: bool = ...,
+        width_ratios: ArrayLike | None = ...,
+        height_ratios: ArrayLike | None = ...,
+        empty_sentinel: str = ...,
+        subplot_kw: dict[str, Any] | None = ...,
+        per_subplot_kw: dict[str | tuple[str, ...], dict[str, Any]] | None = ...,
+        gridspec_kw: dict[str, Any] | None = ...,
+    ) -> dict[str, Axes]: ...
+    @overload
+    def subplot_mosaic(
+        self,
+        mosaic: list[HashableList[_T]],
+        *,
+        sharex: bool = ...,
+        sharey: bool = ...,
+        width_ratios: ArrayLike | None = ...,
+        height_ratios: ArrayLike | None = ...,
+        empty_sentinel: _T = ...,
+        subplot_kw: dict[str, Any] | None = ...,
+        per_subplot_kw: dict[_T | tuple[_T, ...], dict[str, Any]] | None = ...,
+        gridspec_kw: dict[str, Any] | None = ...,
+    ) -> dict[_T, Axes]: ...
+    @overload
+    def subplot_mosaic(
+        self,
+        mosaic: list[HashableList[Hashable]],
         *,
         sharex: bool = ...,
         sharey: bool = ...,
@@ -238,9 +241,9 @@ class FigureBase(Artist):
         height_ratios: ArrayLike | None = ...,
         empty_sentinel: Any = ...,
         subplot_kw: dict[str, Any] | None = ...,
-        per_subplot_kw: dict[Any, dict[str, Any]] | None = ...,
-        gridspec_kw: dict[str, Any] | None = ...
-    ) -> dict[Any, Axes]: ...
+        per_subplot_kw: dict[Hashable | tuple[Hashable, ...], dict[str, Any]] | None = ...,
+        gridspec_kw: dict[str, Any] | None = ...,
+    ) -> dict[Hashable, Axes]: ...
 
 class SubFigure(FigureBase):
     figure: Figure

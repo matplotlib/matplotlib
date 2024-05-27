@@ -1,9 +1,7 @@
-/* This file contains liberal use of asserts to assist code development and
- * debugging.  Standard matplotlib builds disable asserts so they cause no
- * performance reduction.  To enable the asserts, you need to undefine the
- * NDEBUG macro, which is achieved by adding the following
- *     undef_macros=['NDEBUG']
- * to the appropriate make_extension call in setupext.py, and then rebuilding.
+/* This file contains liberal use of asserts to assist code development and debugging.
+ * Standard Matplotlib builds disable asserts so they cause no performance reduction. To
+ * enable the asserts, you need to undefine the NDEBUG macro, which is achieved by
+ * passing ``b_ndebug=false`` to the Meson configuration.
  */
 #include "../mplutils.h"
 #include "_tri.h"

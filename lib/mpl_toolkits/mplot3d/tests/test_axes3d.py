@@ -1,5 +1,6 @@
 import functools
 import itertools
+import platform
 
 import pytest
 
@@ -112,7 +113,8 @@ def test_axes3d_repr():
         "title={'center': 'title'}, xlabel='x', ylabel='y', zlabel='z'>")
 
 
-@mpl3d_image_comparison(['axes3d_primary_views.png'], style='mpl20')
+@mpl3d_image_comparison(['axes3d_primary_views.png'], style='mpl20',
+                        tol=0.05 if platform.machine() == "arm64" else 0)
 def test_axes3d_primary_views():
     # (elev, azim, roll)
     views = [(90, -90, 0),  # XY
@@ -217,8 +219,11 @@ def test_bar3d_lightsource():
     np.testing.assert_array_max_ulp(color, collection._facecolor3d[1::6], 4)
 
 
-@mpl3d_image_comparison(['contour3d.png'], style='mpl20')
+@mpl3d_image_comparison(
+    ['contour3d.png'], style='mpl20',
+    tol=0.002 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
 def test_contour3d():
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
@@ -230,6 +235,7 @@ def test_contour3d():
 
 @mpl3d_image_comparison(['contour3d_extend3d.png'], style='mpl20')
 def test_contour3d_extend3d():
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
@@ -241,6 +247,7 @@ def test_contour3d_extend3d():
 
 @mpl3d_image_comparison(['contourf3d.png'], style='mpl20')
 def test_contourf3d():
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
@@ -254,6 +261,7 @@ def test_contourf3d():
 
 @mpl3d_image_comparison(['contourf3d_fill.png'], style='mpl20')
 def test_contourf3d_fill():
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     X, Y = np.meshgrid(np.arange(-2, 2, 0.25), np.arange(-2, 2, 0.25))
@@ -297,6 +305,7 @@ def test_contourf3d_extend(fig_test, fig_ref, extend, levels):
 
 @mpl3d_image_comparison(['tricontour.png'], tol=0.02, style='mpl20')
 def test_tricontour():
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
 
     np.random.seed(19680801)
@@ -366,6 +375,7 @@ def test_mixedsubplots():
     t1 = np.arange(0.0, 5.0, 0.1)
     t2 = np.arange(0.0, 5.0, 0.02)
 
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure(figsize=plt.figaspect(2.))
     ax = fig.add_subplot(2, 1, 1)
     ax.plot(t1, f(t1), 'bo', t2, f(t2), 'k--', markerfacecolor='green')
@@ -397,6 +407,7 @@ def test_tight_layout_text(fig_test, fig_ref):
 
 @mpl3d_image_comparison(['scatter3d.png'], style='mpl20')
 def test_scatter3d():
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     ax.scatter(np.arange(10), np.arange(10), np.arange(10),
@@ -410,6 +421,7 @@ def test_scatter3d():
 
 @mpl3d_image_comparison(['scatter3d_color.png'], style='mpl20')
 def test_scatter3d_color():
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
 
@@ -570,7 +582,7 @@ def test_marker_draw_order_view_rotated(fig_test, fig_ref):
     ax.view_init(elev=0, azim=azim - 180, roll=0)  # view rotated by 180 deg
 
 
-@mpl3d_image_comparison(['plot_3d_from_2d.png'], tol=0.015, style='mpl20')
+@mpl3d_image_comparison(['plot_3d_from_2d.png'], tol=0.019, style='mpl20')
 def test_plot_3d_from_2d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -594,12 +606,14 @@ def test_surface3d():
     Z = np.sin(R)
     surf = ax.plot_surface(X, Y, Z, rcount=40, ccount=40, cmap=cm.coolwarm,
                            lw=0, antialiased=False)
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     ax.set_zlim(-1.01, 1.01)
     fig.colorbar(surf, shrink=0.5, aspect=5)
 
 
 @image_comparison(['surface3d_label_offset_tick_position.png'], style='mpl20')
 def test_surface3d_label_offset_tick_position():
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     ax = plt.figure().add_subplot(projection="3d")
 
     x, y = np.mgrid[0:6 * np.pi:0.25, 0:4 * np.pi:0.25]
@@ -624,6 +638,7 @@ def test_surface3d_shaded():
     Z = np.sin(R)
     ax.plot_surface(X, Y, Z, rstride=5, cstride=5,
                     color=[0.25, 1, 0.25], lw=1, antialiased=False)
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     ax.set_zlim(-1.01, 1.01)
 
 
@@ -652,6 +667,24 @@ def test_surface3d_masked():
     colors = mpl.colormaps["plasma"](norm(z))
     ax.plot_surface(x, y, z, facecolors=colors)
     ax.view_init(30, -80, 0)
+
+
+@check_figures_equal(extensions=["png"])
+def test_plot_scatter_masks(fig_test, fig_ref):
+    x = np.linspace(0, 10, 100)
+    y = np.linspace(0, 10, 100)
+    z = np.sin(x) * np.cos(y)
+    mask = z > 0
+
+    z_masked = np.ma.array(z, mask=mask)
+    ax_test = fig_test.add_subplot(projection='3d')
+    ax_test.scatter(x, y, z_masked)
+    ax_test.plot(x, y, z_masked)
+
+    x[mask] = y[mask] = z[mask] = np.nan
+    ax_ref = fig_ref.add_subplot(projection='3d')
+    ax_ref.scatter(x, y, z)
+    ax_ref.plot(x, y, z)
 
 
 @check_figures_equal(extensions=["png"])
@@ -692,6 +725,7 @@ def test_text3d():
 
     ax.text(1, 1, 1, "red", color='red')
     ax.text2D(0.05, 0.95, "2D Text", transform=ax.transAxes)
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     ax.set_xlim3d(0, 10)
     ax.set_ylim3d(0, 10)
     ax.set_zlim3d(0, 10)
@@ -803,8 +837,10 @@ def test_mixedsamplesraises():
         ax.plot_surface(X, Y, Z, cstride=50, rcount=10)
 
 
-@mpl3d_image_comparison(['quiver3d.png'], style='mpl20')
+# remove tolerance when regenerating the test image
+@mpl3d_image_comparison(['quiver3d.png'], style='mpl20', tol=0.003)
 def test_quiver3d():
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     pivots = ['tip', 'middle', 'tail']
@@ -848,6 +884,19 @@ def test_quiver3d_masked():
     v = np.ma.masked_where((0.1 < y) & (y < 0.7), v, copy=False)
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
+
+
+@mpl3d_image_comparison(['quiver3d_colorcoded.png'], style='mpl20')
+def test_quiver3d_colorcoded():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    x = y = dx = dz = np.zeros(10)
+    z = dy = np.arange(10.)
+
+    color = plt.cm.Reds(dy/dy.max())
+    ax.quiver(x, y, z, dx, dy, dz, colors=color)
+    ax.set_ylim(0, 10)
 
 
 def test_patch_modification():
@@ -973,6 +1022,7 @@ def test_add_collection3d_zs_array():
 
     assert line is not None
 
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     ax.set_xlim(-5, 5)
     ax.set_ylim(-4, 6)
     ax.set_zlim(-2, 2)
@@ -999,6 +1049,7 @@ def test_add_collection3d_zs_scalar():
 
     assert line is not None
 
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     ax.set_xlim(-5, 5)
     ax.set_ylim(-4, 6)
     ax.set_zlim(0, 2)
@@ -1024,7 +1075,7 @@ def test_axes3d_labelpad():
 
     # Tick labels also respect tick.pad (also from rcParams)
     for i, tick in enumerate(ax.yaxis.get_major_ticks()):
-        tick.set_pad(tick.get_pad() - i * 5)
+        tick.set_pad(tick.get_pad() + 5 - i * 5)
 
 
 @mpl3d_image_comparison(['axes3d_cla.png'], remove_text=False, style='mpl20')
@@ -1120,6 +1171,7 @@ def test_proj_axes_cube():
     for x, y, t in zip(txs, tys, ts):
         ax.text(x, y, t)
 
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     ax.set_xlim(-0.2, 0.2)
     ax.set_ylim(-0.2, 0.2)
 
@@ -1149,6 +1201,7 @@ def test_proj_axes_cube_ortho():
     for x, y, t in zip(txs, tys, ts):
         ax.text(x, y, t)
 
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     ax.set_xlim(-200, 200)
     ax.set_ylim(-200, 200)
 
@@ -1168,6 +1221,7 @@ def test_world():
 def test_autoscale():
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     assert ax.get_zscale() == 'linear'
+    ax._view_margin = 0
     ax.margins(x=0, y=.1, z=.2)
     ax.plot([0, 1], [0, 1], [0, 1])
     assert ax.get_w_lims() == (0, 1, -.1, 1.1, -.2, 1.2)
@@ -1516,7 +1570,8 @@ def test_minor_ticks():
     ax.set_zticklabels(["half"], minor=True)
 
 
-@mpl3d_image_comparison(['errorbar3d_errorevery.png'], style='mpl20')
+# remove tolerance when regenerating the test image
+@mpl3d_image_comparison(['errorbar3d_errorevery.png'], style='mpl20', tol=0.003)
 def test_errorbar3d_errorevery():
     """Tests errorevery functionality for 3D errorbars."""
     t = np.arange(0, 2*np.pi+.1, 0.01)
@@ -1534,7 +1589,8 @@ def test_errorbar3d_errorevery():
                 errorevery=estep)
 
 
-@mpl3d_image_comparison(['errorbar3d.png'], style='mpl20')
+@mpl3d_image_comparison(['errorbar3d.png'], style='mpl20',
+                        tol=0.02 if platform.machine() == 'arm64' else 0)
 def test_errorbar3d():
     """Tests limits, color styling, and legend for 3D errorbars."""
     fig = plt.figure()
@@ -1550,8 +1606,9 @@ def test_errorbar3d():
     ax.legend()
 
 
-@image_comparison(['stem3d.png'], style='mpl20', tol=0.003)
+@image_comparison(['stem3d.png'], style='mpl20', tol=0.008)
 def test_stem3d():
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig, axs = plt.subplots(2, 3, figsize=(8, 6),
                             constrained_layout=True,
                             subplot_kw={'projection': '3d'})
@@ -1636,6 +1693,7 @@ def test_colorbar_pos():
 def test_inverted_zaxis():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
+    ax.set_zlim(0, 1)
     assert not ax.zaxis_inverted()
     assert ax.get_zlim() == (0, 1)
     assert ax.get_zbound() == (0, 1)
@@ -1668,17 +1726,17 @@ def test_inverted_zaxis():
 def test_set_zlim():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
-    assert ax.get_zlim() == (0, 1)
+    assert np.allclose(ax.get_zlim(), (-1/48, 49/48))
     ax.set_zlim(zmax=2)
-    assert ax.get_zlim() == (0, 2)
+    assert np.allclose(ax.get_zlim(), (-1/48, 2))
     ax.set_zlim(zmin=1)
     assert ax.get_zlim() == (1, 2)
 
     with pytest.raises(
-            TypeError, match="Cannot pass both 'bottom' and 'zmin'"):
+            TypeError, match="Cannot pass both 'lower' and 'min'"):
         ax.set_zlim(bottom=0, zmin=1)
     with pytest.raises(
-            TypeError, match="Cannot pass both 'top' and 'zmax'"):
+            TypeError, match="Cannot pass both 'upper' and 'max'"):
         ax.set_zlim(top=0, zmax=1)
 
 
@@ -1706,6 +1764,31 @@ def test_shared_axes_retick():
     # check that setting ticks on a shared axis is synchronized
     assert ax1.get_zlim() == (-0.5, 2.5)
     assert ax2.get_zlim() == (-0.5, 2.5)
+
+
+def test_rotate():
+    """Test rotating using the left mouse button."""
+    for roll in [0, 30]:
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1, projection='3d')
+        ax.view_init(0, 0, roll)
+        ax.figure.canvas.draw()
+
+        # drag mouse horizontally to change azimuth
+        dx = 0.1
+        dy = 0.2
+        ax._button_press(
+            mock_event(ax, button=MouseButton.LEFT, xdata=0, ydata=0))
+        ax._on_move(
+            mock_event(ax, button=MouseButton.LEFT,
+                           xdata=dx*ax._pseudo_w, ydata=dy*ax._pseudo_h))
+        ax.figure.canvas.draw()
+        roll_radians = np.deg2rad(ax.roll)
+        cs = np.cos(roll_radians)
+        sn = np.sin(roll_radians)
+        assert ax.elev == (-dy*180*cs + dx*180*sn)
+        assert ax.azim == (-dy*180*sn - dx*180*cs)
+        assert ax.roll == roll
 
 
 def test_pan():
@@ -1752,13 +1835,13 @@ def test_pan():
                           ("zoom", MouseButton.LEFT, 'x',  # zoom in
                           ((-0.01, 0.10), (-0.03, 0.08), (-0.06, 0.06))),
                           ("zoom", MouseButton.LEFT, 'y',  # zoom in
-                          ((-0.07, 0.04), (-0.03, 0.08), (0.00, 0.11))),
+                          ((-0.07, 0.05), (-0.04, 0.08), (0.00, 0.12))),
                           ("zoom", MouseButton.RIGHT, None,  # zoom out
-                          ((-0.09, 0.15), (-0.07, 0.17), (-0.06, 0.18))),
+                          ((-0.09, 0.15), (-0.08, 0.17), (-0.07, 0.18))),
                           ("pan", MouseButton.LEFT, None,
-                          ((-0.70, -0.58), (-1.03, -0.91), (-1.27, -1.15))),
+                          ((-0.70, -0.58), (-1.04, -0.91), (-1.27, -1.15))),
                           ("pan", MouseButton.LEFT, 'x',
-                          ((-0.96, -0.84), (-0.58, -0.46), (-0.06, 0.06))),
+                          ((-0.97, -0.84), (-0.58, -0.46), (-0.06, 0.06))),
                           ("pan", MouseButton.LEFT, 'y',
                           ((0.20, 0.32), (-0.51, -0.39), (-1.27, -1.15)))])
 def test_toolbar_zoom_pan(tool, button, key, expected):
@@ -1856,6 +1939,7 @@ def test_subfigure_simple():
 @image_comparison(baseline_images=['computed_zorder'], remove_text=True,
                   extensions=['png'], style=('mpl20'))
 def test_computed_zorder():
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax1 = fig.add_subplot(221, projection='3d')
     ax2 = fig.add_subplot(222, projection='3d')
@@ -1991,6 +2075,15 @@ def test_margins():
     assert ax.margins() == (0, 0.1, 0)
 
 
+def test_margin_getters():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.margins(0.1, 0.2, 0.3)
+    assert ax.get_xmargin() == 0.1
+    assert ax.get_ymargin() == 0.2
+    assert ax.get_zmargin() == 0.3
+
+
 @pytest.mark.parametrize('err, args, kwargs, match', (
         (ValueError, (-1,), {}, r'margin must be greater than -0\.5'),
         (ValueError, (1, -1, 1), {}, r'margin must be greater than -0\.5'),
@@ -2051,6 +2144,7 @@ def test_pathpatch_3d(fig_test, fig_ref):
                   remove_text=True,
                   style='mpl20')
 def test_scatter_spiral():
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     th = np.linspace(0, 2 * np.pi * 6, 256)
@@ -2058,6 +2152,16 @@ def test_scatter_spiral():
 
     # force at least 1 draw!
     fig.canvas.draw()
+
+
+def test_Poly3DCollection_get_path():
+    # Smoke test to see that get_path does not raise
+    # See GH#27361
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    p = Circle((0, 0), 1.0)
+    ax.add_patch(p)
+    art3d.pathpatch_2d_to_3d(p)
+    p.get_path()
 
 
 def test_Poly3DCollection_get_facecolor():
@@ -2172,6 +2276,31 @@ def test_view_init_vertical_axis(
         np.testing.assert_array_equal(tickdir_expected, tickdir_actual)
 
 
+@pytest.mark.parametrize("vertical_axis", ["x", "y", "z"])
+def test_on_move_vertical_axis(vertical_axis: str) -> None:
+    """
+    Test vertical axis is respected when rotating the plot interactively.
+    """
+    ax = plt.subplot(1, 1, 1, projection="3d")
+    ax.view_init(elev=0, azim=0, roll=0, vertical_axis=vertical_axis)
+    ax.figure.canvas.draw()
+
+    proj_before = ax.get_proj()
+    event_click = mock_event(ax, button=MouseButton.LEFT, xdata=0, ydata=1)
+    ax._button_press(event_click)
+
+    event_move = mock_event(ax, button=MouseButton.LEFT, xdata=0.5, ydata=0.8)
+    ax._on_move(event_move)
+
+    assert ax._axis_names.index(vertical_axis) == ax._vertical_axis
+
+    # Make sure plot has actually moved:
+    proj_after = ax.get_proj()
+    np.testing.assert_raises(
+        AssertionError, np.testing.assert_allclose, proj_before, proj_after
+    )
+
+
 @image_comparison(baseline_images=['arc_pathpatch.png'],
                   remove_text=True,
                   style='mpl20')
@@ -2248,6 +2377,7 @@ def test_scatter_masked_color():
 
 @mpl3d_image_comparison(['surface3d_zsort_inf.png'], style='mpl20')
 def test_surface3d_zsort_inf():
+    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
 
@@ -2257,3 +2387,22 @@ def test_surface3d_zsort_inf():
 
     ax.plot_surface(x, y, z, cmap='jet')
     ax.view_init(elev=45, azim=145)
+
+
+def test_Poly3DCollection_init_value_error():
+    # smoke test to ensure the input check works
+    # GH#26420
+    with pytest.raises(ValueError,
+                       match='You must provide facecolors, edgecolors, '
+                        'or both for shade to work.'):
+        poly = np.array([[0, 0, 1], [0, 1, 1], [0, 0, 0]], float)
+        c = art3d.Poly3DCollection([poly], shade=True)
+
+
+def test_ndarray_color_kwargs_value_error():
+    # smoke test
+    # ensures ndarray can be passed to color in kwargs for 3d projection plot
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(1, 0, 0, color=np.array([0, 0, 0, 1]))
+    fig.canvas.draw()

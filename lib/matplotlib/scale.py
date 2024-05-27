@@ -54,7 +54,7 @@ class ScaleBase:
 
         Notes
         -----
-        The following note is for scale implementors.
+        The following note is for scale implementers.
 
         For back-compatibility reasons, scales take an `~matplotlib.axis.Axis`
         object as first argument.  However, this argument should not

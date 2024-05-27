@@ -3,7 +3,6 @@ import decimal
 import io
 import os
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 
 import numpy as np
 import pytest
@@ -81,35 +80,48 @@ def test_multipage_properfinalize():
     assert len(s) < 40000
 
 
-def test_multipage_keep_empty():
+def test_multipage_keep_empty(tmp_path):
     # test empty pdf files
-    # test that an empty pdf is left behind with keep_empty=True (default)
-    with NamedTemporaryFile(delete=False) as tmp:
-        with PdfPages(tmp) as pdf:
-            filename = pdf._file.fh.name
-        assert os.path.exists(filename)
-    os.remove(filename)
-    # test if an empty pdf is deleting itself afterwards with keep_empty=False
-    with PdfPages(filename, keep_empty=False) as pdf:
+
+    # an empty pdf is left behind with keep_empty unset
+    fn = tmp_path / "a.pdf"
+    with pytest.warns(mpl.MatplotlibDeprecationWarning), PdfPages(fn) as pdf:
         pass
-    assert not os.path.exists(filename)
+    assert fn.exists()
+
+    # an empty pdf is left behind with keep_empty=True
+    fn = tmp_path / "b.pdf"
+    with pytest.warns(mpl.MatplotlibDeprecationWarning), \
+            PdfPages(fn, keep_empty=True) as pdf:
+        pass
+    assert fn.exists()
+
+    # an empty pdf deletes itself afterwards with keep_empty=False
+    fn = tmp_path / "c.pdf"
+    with PdfPages(fn, keep_empty=False) as pdf:
+        pass
+    assert not fn.exists()
+
     # test pdf files with content, they should never be deleted
-    fig, ax = plt.subplots()
-    ax.plot([1, 2, 3])
-    # test that a non-empty pdf is left behind with keep_empty=True (default)
-    with NamedTemporaryFile(delete=False) as tmp:
-        with PdfPages(tmp) as pdf:
-            filename = pdf._file.fh.name
-            pdf.savefig()
-        assert os.path.exists(filename)
-    os.remove(filename)
-    # test that a non-empty pdf is left behind with keep_empty=False
-    with NamedTemporaryFile(delete=False) as tmp:
-        with PdfPages(tmp, keep_empty=False) as pdf:
-            filename = pdf._file.fh.name
-            pdf.savefig()
-        assert os.path.exists(filename)
-    os.remove(filename)
+
+    # a non-empty pdf is left behind with keep_empty unset
+    fn = tmp_path / "d.pdf"
+    with PdfPages(fn) as pdf:
+        pdf.savefig(plt.figure())
+    assert fn.exists()
+
+    # a non-empty pdf is left behind with keep_empty=True
+    fn = tmp_path / "e.pdf"
+    with pytest.warns(mpl.MatplotlibDeprecationWarning), \
+            PdfPages(fn, keep_empty=True) as pdf:
+        pdf.savefig(plt.figure())
+    assert fn.exists()
+
+    # a non-empty pdf is left behind with keep_empty=False
+    fn = tmp_path / "f.pdf"
+    with PdfPages(fn, keep_empty=False) as pdf:
+        pdf.savefig(plt.figure())
+    assert fn.exists()
 
 
 def test_composite_image():
@@ -435,3 +447,19 @@ def test_multi_font_type42():
 
     fig = plt.figure()
     fig.text(0.15, 0.475, "There are 几个汉字 in between!")
+
+
+@pytest.mark.parametrize('family_name, file_name',
+                         [("Noto Sans", "NotoSans-Regular.otf"),
+                          ("FreeMono", "FreeMono.otf")])
+def test_otf_font_smoke(family_name, file_name):
+    # checks that there's no segfault
+    fp = fm.FontProperties(family=[family_name])
+    if Path(fm.findfont(fp)).name != file_name:
+        pytest.skip(f"Font {family_name} may be missing")
+
+    plt.rc('font', family=[family_name], size=27)
+
+    fig = plt.figure()
+    fig.text(0.15, 0.475, "Привет мир!")
+    fig.savefig(io.BytesIO(), format="pdf")

@@ -31,7 +31,7 @@ ax = plt.subplot(2, 1, 1)
 
 # If we want the same offset for each text instance,
 # we only need to make one transform.  To get the
-# transform argument to offset_copy, we need to make the axes
+# transform argument to offset_copy, we need to make the Axes
 # first; the subplot function above is one way to do this.
 trans_offset = mtransforms.offset_copy(ax.transData, fig=fig,
                                        x=0.05, y=0.10, units='inches')

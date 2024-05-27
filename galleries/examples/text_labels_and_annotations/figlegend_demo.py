@@ -30,7 +30,7 @@ plt.tight_layout()
 plt.show()
 
 # %%
-# Sometimes we do not want the legend to overlap the axes.  If you use
+# Sometimes we do not want the legend to overlap the Axes.  If you use
 # *constrained layout* you can specify "outside right upper", and
 # *constrained layout* will make room for the legend.
 

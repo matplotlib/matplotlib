@@ -6,7 +6,7 @@ Shared axis
 You can share the x- or y-axis limits for one axis with another by
 passing an `~.axes.Axes` instance as a *sharex* or *sharey* keyword argument.
 
-Changing the axis limits on one axes will be reflected automatically
+Changing the axis limits on one Axes will be reflected automatically
 in the other, and vice-versa, so when you navigate with the toolbar
 the Axes will follow each other on their shared axis.  Ditto for
 changes in the axis scaling (e.g., log vs. linear).  However, it is

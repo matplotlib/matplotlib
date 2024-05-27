@@ -2,11 +2,17 @@
 
 /* A python interface to FreeType */
 #pragma once
+
 #ifndef MPL_FT2FONT_H
 #define MPL_FT2FONT_H
-#include <vector>
-#include <stdint.h>
+
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
+
+#include <cstdint>
+#include <set>
 #include <unordered_map>
+#include <vector>
 
 extern "C" {
 #include <ft2build.h>
@@ -17,9 +23,6 @@ extern "C" {
 #include FT_TYPE1_TABLES_H
 #include FT_TRUETYPE_TABLES_H
 }
-
-#define PY_SSIZE_T_CLEAN
-#include <Python.h>
 
 /*
  By definition, FT_FIXED as 2 16bit values stored in a single long.
@@ -91,6 +94,7 @@ class FT2Font
                                  FT_Int32 flags,
                                  FT_Error &charcode_error,
                                  FT_Error &glyph_error,
+                                 std::set<FT_String*> &glyph_seen_fonts,
                                  bool override);
     void load_glyph(FT_UInt glyph_index, FT_Int32 flags, FT2Font *&ft_object, bool fallback);
     void load_glyph(FT_UInt glyph_index, FT_Int32 flags);

@@ -152,6 +152,12 @@ class PathEffectRenderer(RendererBase):
         else:
             return object.__getattribute__(self, name)
 
+    def open_group(self, s, gid=None):
+        return self._renderer.open_group(s, gid)
+
+    def close_group(self, s):
+        return self._renderer.close_group(s)
+
 
 class Normal(AbstractPathEffect):
     """
@@ -228,7 +234,7 @@ class SimplePatchShadow(AbstractPathEffect):
         ----------
         offset : (float, float), default: (2, -2)
             The (x, y) offset of the shadow in points.
-        shadow_rgbFace : color
+        shadow_rgbFace : :mpltype:`color`
             The shadow color.
         alpha : float, default: 0.3
             The alpha transparency of the created shadow patch.
@@ -295,7 +301,7 @@ class SimpleLineShadow(AbstractPathEffect):
         ----------
         offset : (float, float), default: (2, -2)
             The (x, y) offset to apply to the path, in points.
-        shadow_color : color, default: 'black'
+        shadow_color : :mpltype:`color`, default: 'black'
             The shadow color.
             A value of ``None`` takes the original artist's color
             with a scale factor of *rho*.

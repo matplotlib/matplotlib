@@ -8,13 +8,14 @@
 
 #include "agg_color_rgba.h"
 #include "agg_math_stroke.h"
+#include "agg_trans_affine.h"
 #include "path_converters.h"
 
 #include "py_adaptors.h"
 
 struct ClipPath
 {
-    py::PathIterator path;
+    mpl::PathIterator path;
     agg::trans_affine trans;
 };
 
@@ -103,7 +104,7 @@ class GCAgg
 
     e_snap_mode snap_mode;
 
-    py::PathIterator hatchpath;
+    mpl::PathIterator hatchpath;
     agg::rgba hatch_color;
     double hatch_linewidth;
 

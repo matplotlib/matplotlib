@@ -64,6 +64,11 @@ used. To build the documentation in html format, cd into :file:`doc/` and run:
 
    make html
 
+.. note::
+
+   Since the documentation is very large, the first build may take 10-20 minutes,
+   depending on your machine.  Subsequent builds will be faster.
+
 Other useful invocations include
 
 .. code-block:: sh
@@ -142,7 +147,7 @@ It is useful to strive for consistency in the Matplotlib documentation.  Here
 are some formatting and style conventions that are used.
 
 Section formatting
-~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^
 
 Use `sentence case <https://apastyle.apa.org/style-grammar-guidelines/capitalization/sentence-case>`__
 ``Upper lower`` for section titles, e.g., ``Possible hangups`` rather than
@@ -163,8 +168,27 @@ for section markup characters, i.e.:
 
 This may not yet be applied consistently in existing docs.
 
+Table formatting
+^^^^^^^^^^^^^^^^
+Given the size of the table and length of each entry, use:
+
++-------------+-------------------------------+--------------------+
+|             | small table                   | large table        |
++-------------+-------------------------------+--------------------+
+| short entry | `simple or grid table`_       | `grid table`_      |
++-------------+-------------------------------+--------------------+
+| long entry  | `list table`_                 | `csv table`_       |
++-------------+-------------------------------+--------------------+
+
+For more information, see `rst tables <https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#tables>`_.
+
+.. _`simple or grid table`: https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#tables
+.. _`grid table`: https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#grid-tables
+.. _`list table`: https://docutils.sourceforge.io/docs/ref/rst/directives.html#list-table
+.. _`csv table`: https://docutils.sourceforge.io/docs/ref/rst/directives.html#csv-table-1
+
 Function arguments
-~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^
 
 Function arguments and keywords within docstrings should be referred to using
 the ``*emphasis*`` role. This will keep Matplotlib's documentation consistent
@@ -215,7 +239,7 @@ Examples:
 
 .. code-block:: rst
 
-   See the :doc:`/users/installing/index`
+   See the :doc:`/install/index`
 
    See the tutorial :ref:`quick_start`
 
@@ -223,14 +247,14 @@ Examples:
 
 will render as:
 
-  See the :doc:`/users/installing/index`
+  See the :doc:`/install/index`
 
   See the tutorial :ref:`quick_start`
 
   See the example :doc:`/gallery/lines_bars_and_markers/simple_plot`
 
 Sections can also be given reference labels.  For instance from the
-:doc:`/users/installing/index` link:
+:doc:`/install/index` link:
 
 .. code-block:: rst
 
@@ -293,7 +317,10 @@ target is unambiguous you can simply leave them out:
 
   `.LineCollection`
 
-and the link still works: `.LineCollection`.
+and the link still works: `.LineCollection`. Note that you should typically include
+the leading dot. It tells Sphinx to look for the given name in the whole project.
+See also the explanation at `Sphinx: Cross-referencing Python objects
+<https://www.sphinx-doc.org/en/master/usage/domains/python.html#cross-referencing-python-objects>`_.
 
 If there are multiple code elements with the same name (e.g. ``plot()`` is a
 method in multiple classes), you'll have to extend the definition:
@@ -445,7 +472,8 @@ and the Sphinx_ documentation.  Some Matplotlib-specific formatting conventions
 to keep in mind:
 
 Quote positions
-~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^
+
 The quotes for single line docstrings are on the same line (pydocstyle D200)::
 
     def get_linewidth(self):
@@ -461,7 +489,8 @@ The quotes for multi-line docstrings are on separate lines (pydocstyle D213)::
         """
 
 Function arguments
-~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^
+
 Function arguments and keywords within docstrings should be referred to
 using the ``*emphasis*`` role. This will keep Matplotlib's documentation
 consistent with Python's documentation:
@@ -478,7 +507,8 @@ Do not use the ```default role``` or the ````literal```` role:
 
 
 Quotes for strings
-~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^
+
 Matplotlib does not have a convention whether to use single-quotes or
 double-quotes.  There is a mixture of both in the current code.
 
@@ -495,7 +525,8 @@ slightly improve the rendered docs, they are cumbersome to type and difficult
 to read in plain-text docs.
 
 Parameter type descriptions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 The main goal for parameter type descriptions is to be readable and
 understandable by humans. If the possible types are too complex use a
 simplification for the type description and explain the type more
@@ -534,7 +565,8 @@ Non-numeric homogeneous sequences are described as lists, e.g.::
   list of `.Artist`
 
 Reference types
-~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^
+
 Generally, the rules from referring-to-other-code_ apply. More specifically:
 
 Use full references ```~matplotlib.colors.Normalize``` with an
@@ -550,7 +582,8 @@ Use abbreviated links ```.Normalize``` in the text.
         A `.Normalize` instance is used to scale luminance data to 0, 1.
 
 Default values
-~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^
+
 As opposed to the numpydoc guide, parameters need not be marked as
 *optional* if they have a simple default:
 
@@ -592,7 +625,8 @@ effect.
 
 
 ``See also`` sections
-~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^
+
 Sphinx automatically links code elements in the definition blocks of ``See
 also`` sections. No need to use backticks there::
 
@@ -602,7 +636,8 @@ also`` sections. No need to use backticks there::
    axhline : horizontal line across the Axes
 
 Wrap parameter lists
-~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
+
 Long parameter lists should be wrapped using a ``\`` for continuation and
 starting on the new line without any indent (no indent because pydoc will
 parse the docstring and strip the line continuation so that indent would
@@ -627,7 +662,8 @@ Alternatively, you can describe the valid parameter values in a dedicated
 section of the docstring.
 
 rcParams
-~~~~~~~~
+^^^^^^^^
+
 rcParams can be referenced with the custom ``:rc:`` role:
 :literal:`:rc:\`foo\`` yields ``rcParams["foo"] = 'default'``, which is a link
 to the :file:`matplotlibrc` file description.
@@ -668,7 +704,7 @@ in that case, they can be documented as an ``.. ACCEPTS:`` block, e.g. for
 
 .. code-block:: python
 
-   def set_xlim(self, ...):
+   def set_xlim(self, left=None, right=None):
        """
        Set the x-axis view limits.
 

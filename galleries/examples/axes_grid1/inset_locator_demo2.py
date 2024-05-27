@@ -26,7 +26,7 @@ fig, (ax, ax2) = plt.subplots(ncols=2, figsize=[6, 3])
 ax.set_aspect(1)
 
 axins = zoomed_inset_axes(ax, zoom=0.5, loc='upper right')
-# fix the number of ticks on the inset axes
+# fix the number of ticks on the inset Axes
 axins.yaxis.get_major_locator().set_params(nbins=7)
 axins.xaxis.get_major_locator().set_params(nbins=7)
 axins.tick_params(labelleft=False, labelbottom=False)
@@ -61,13 +61,13 @@ axins2.imshow(Z2, extent=extent, origin="lower")
 x1, x2, y1, y2 = -1.5, -0.9, -2.5, -1.9
 axins2.set_xlim(x1, x2)
 axins2.set_ylim(y1, y2)
-# fix the number of ticks on the inset axes
+# fix the number of ticks on the inset Axes
 axins2.yaxis.get_major_locator().set_params(nbins=7)
 axins2.xaxis.get_major_locator().set_params(nbins=7)
 axins2.tick_params(labelleft=False, labelbottom=False)
 
-# draw a bbox of the region of the inset axes in the parent axes and
-# connecting lines between the bbox and the inset axes area
+# draw a bbox of the region of the inset Axes in the parent Axes and
+# connecting lines between the bbox and the inset Axes area
 mark_inset(ax2, axins2, loc1=2, loc2=4, fc="none", ec="0.5")
 
 plt.show()

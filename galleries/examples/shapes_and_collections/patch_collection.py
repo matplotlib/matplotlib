@@ -6,7 +6,7 @@ Circles, Wedges and Polygons
 This example demonstrates how to use `.collections.PatchCollection`.
 
 See also :doc:`/gallery/shapes_and_collections/artist_reference`, which instead
-adds each artist separately to its own axes.
+adds each artist separately to its own Axes.
 """
 
 import matplotlib.pyplot as plt

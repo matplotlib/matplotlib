@@ -2,6 +2,7 @@
 ======
 pie(x)
 ======
+Plot a pie chart.
 
 See `~matplotlib.axes.Axes.pie`.
 """

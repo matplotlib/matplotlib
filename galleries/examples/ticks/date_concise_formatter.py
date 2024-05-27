@@ -1,4 +1,6 @@
 """
+.. _date_concise_formatter:
+
 ================================================
 Formatting date ticks using ConciseDateFormatter
 ================================================

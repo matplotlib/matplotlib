@@ -1,12 +1,12 @@
+from collections.abc import Callable, Iterator, MutableMapping
+from typing import Any, Literal, TypeVar, overload
+
 import matplotlib.patches as mpatches
-from collections.abc import MutableMapping, Iterator
 from matplotlib.axes import Axes
 from matplotlib.axis import Axis
 from matplotlib.path import Path
 from matplotlib.transforms import Transform
 from matplotlib.typing import ColorType
-
-from typing import Literal, TypeVar, overload
 
 class Spine(mpatches.Patch):
     axes: Axes
@@ -63,7 +63,7 @@ class Spine(mpatches.Patch):
 
 class SpinesProxy:
     def __init__(self, spine_dict: dict[str, Spine]) -> None: ...
-    def __getattr__(self, name: str): ...
+    def __getattr__(self, name: str) -> Callable[..., None]: ...
     def __dir__(self) -> list[str]: ...
 
 class Spines(MutableMapping[str, Spine]):
@@ -75,6 +75,8 @@ class Spines(MutableMapping[str, Spine]):
     def __getitem__(self, key: str) -> Spine: ...
     @overload
     def __getitem__(self, key: list[str]) -> SpinesProxy: ...
+    @overload
+    def __getitem__(self, key: slice) -> SpinesProxy: ...
     def __setitem__(self, key: str, value: Spine) -> None: ...
     def __delitem__(self, key: str) -> None: ...
     def __iter__(self) -> Iterator[str]: ...

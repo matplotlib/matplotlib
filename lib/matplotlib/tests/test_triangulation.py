@@ -1035,7 +1035,7 @@ def test_trirefine():
     x_verif, y_verif = np.meshgrid(x_verif, x_verif)
     x_verif = x_verif.ravel()
     y_verif = y_verif.ravel()
-    ind1d = np.in1d(np.around(x_verif*(2.5+y_verif), 8),
+    ind1d = np.isin(np.around(x_verif*(2.5+y_verif), 8),
                     np.around(x_refi*(2.5+y_refi), 8))
     assert_array_equal(ind1d, True)
 

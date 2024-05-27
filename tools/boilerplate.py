@@ -83,7 +83,7 @@ def {name}{signature}:
 """
 
 CMAP_TEMPLATE = '''
-def {name}():
+def {name}() -> None:
     """
     Set the colormap to {name!r}.
 

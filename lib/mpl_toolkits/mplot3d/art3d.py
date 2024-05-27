@@ -14,7 +14,7 @@ import numpy as np
 from contextlib import contextmanager
 
 from matplotlib import (
-    artist, cbook, colors as mcolors, lines, text as mtext,
+    _api, artist, cbook, colors as mcolors, lines, text as mtext,
     path as mpath)
 from matplotlib.collections import (
     Collection, LineCollection, PolyCollection, PatchCollection, PathCollection)
@@ -202,7 +202,7 @@ class Line3D(lines.Line2D):
             The y-data to be plotted.
         zs : array-like
             The z-data to be plotted.
-        *args, **kwargs :
+        *args, **kwargs
             Additional arguments are passed to `~matplotlib.lines.Line2D`.
         """
         super().__init__([], [], *args, **kwargs)
@@ -448,6 +448,11 @@ class Patch3D(Patch):
                            for ((x, y), z) in zip(verts, zs)]
 
     def get_path(self):
+        # docstring inherited
+        # self._path2d is not initialized until do_3d_projection
+        if not hasattr(self, '_path2d'):
+            self.axes.M = self.axes.get_proj()
+            self.do_3d_projection()
         return self._path2d
 
     def do_3d_projection(self):
@@ -821,18 +826,22 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
 
     Parameters
     ----------
+    col : `~matplotlib.collections.PatchCollection` or \
+`~matplotlib.collections.PathCollection`
+        The collection to convert.
     zs : float or array of floats
         The location or locations to place the patches in the collection along
         the *zdir* axis. Default: 0.
     zdir : {'x', 'y', 'z'}
         The axis in which to place the patches. Default: "z".
         See `.get_dir_vector` for a description of the values.
-    depthshade
-        Whether to shade the patches to give a sense of depth. Default: *True*.
+    depthshade : bool, default: True
+        Whether to shade the patches to give a sense of depth.
 
     """
     if isinstance(col, PathCollection):
         col.__class__ = Path3DCollection
+        col._offset_zordered = None
     elif isinstance(col, PatchCollection):
         col.__class__ = Patch3DCollection
     col._depthshade = depthshade
@@ -905,7 +914,7 @@ class Poly3DCollection(PolyCollection):
                 kwargs['edgecolors'] = _shade_colors(
                     edgecolors, normals, lightsource
                 )
-            if facecolors is None and edgecolors in None:
+            if facecolors is None and edgecolors is None:
                 raise ValueError(
                     "You must provide facecolors, edgecolors, or both for "
                     "shade to work.")
@@ -939,11 +948,15 @@ class Poly3DCollection(PolyCollection):
         self._sort_zpos = None
         self.stale = True
 
+    @_api.deprecated("3.10")
     def get_vector(self, segments3d):
+        return self._get_vector(segments3d)
+
+    def _get_vector(self, segments3d):
         """Optimize points for projection."""
         if len(segments3d):
-            xs, ys, zs = np.row_stack(segments3d).T
-        else:  # row_stack can't stack zero arrays.
+            xs, ys, zs = np.vstack(segments3d).T
+        else:  # vstack can't stack zero arrays.
             xs, ys, zs = [], [], []
         ones = np.ones(len(xs))
         self._vec = np.array([xs, ys, zs, ones])
@@ -965,7 +978,7 @@ class Poly3DCollection(PolyCollection):
             Whether the polygon should be closed by adding a CLOSEPOLY
             connection at the end.
         """
-        self.get_vector(verts)
+        self._get_vector(verts)
         # 2D verts will be updated at draw time
         super().set_verts([], False)
         self._closed = closed
@@ -1111,6 +1124,8 @@ def poly_collection_2d_to_3d(col, zs=0, zdir='z'):
 
     Parameters
     ----------
+    col : `~matplotlib.collections.PolyCollection`
+        The collection to convert.
     zs : float or array of floats
         The location or locations to place the polygons in the collection along
         the *zdir* axis. Default: 0.

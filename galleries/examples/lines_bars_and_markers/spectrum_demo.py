@@ -1,6 +1,6 @@
 """
 ========================
-Spectrum Representations
+Spectrum representations
 ========================
 
 The plots show different spectrum representations of a sine signal with
@@ -24,28 +24,28 @@ cnse = cnse[:len(t)]
 
 s = 0.1 * np.sin(4 * np.pi * t) + cnse  # the signal
 
-fig, axs = plt.subplots(nrows=3, ncols=2, figsize=(7, 7))
+fig = plt.figure(figsize=(7, 7), layout='constrained')
+axs = fig.subplot_mosaic([["signal", "signal"],
+                          ["magnitude", "log_magnitude"],
+                          ["phase", "angle"]])
 
 # plot time signal:
-axs[0, 0].set_title("Signal")
-axs[0, 0].plot(t, s, color='C0')
-axs[0, 0].set_xlabel("Time")
-axs[0, 0].set_ylabel("Amplitude")
+axs["signal"].set_title("Signal")
+axs["signal"].plot(t, s, color='C0')
+axs["signal"].set_xlabel("Time (s)")
+axs["signal"].set_ylabel("Amplitude")
 
 # plot different spectrum types:
-axs[1, 0].set_title("Magnitude Spectrum")
-axs[1, 0].magnitude_spectrum(s, Fs=Fs, color='C1')
+axs["magnitude"].set_title("Magnitude Spectrum")
+axs["magnitude"].magnitude_spectrum(s, Fs=Fs, color='C1')
 
-axs[1, 1].set_title("Log. Magnitude Spectrum")
-axs[1, 1].magnitude_spectrum(s, Fs=Fs, scale='dB', color='C1')
+axs["log_magnitude"].set_title("Log. Magnitude Spectrum")
+axs["log_magnitude"].magnitude_spectrum(s, Fs=Fs, scale='dB', color='C1')
 
-axs[2, 0].set_title("Phase Spectrum ")
-axs[2, 0].phase_spectrum(s, Fs=Fs, color='C2')
+axs["phase"].set_title("Phase Spectrum ")
+axs["phase"].phase_spectrum(s, Fs=Fs, color='C2')
 
-axs[2, 1].set_title("Angle Spectrum")
-axs[2, 1].angle_spectrum(s, Fs=Fs, color='C2')
+axs["angle"].set_title("Angle Spectrum")
+axs["angle"].angle_spectrum(s, Fs=Fs, color='C2')
 
-axs[0, 1].remove()  # don't display empty ax
-
-fig.tight_layout()
 plt.show()

@@ -25,9 +25,7 @@ def random_walk(num_steps, max_step=0.05):
 
 def update_lines(num, walks, lines):
     for line, walk in zip(lines, walks):
-        # NOTE: there is no .set_data() for 3 dim data...
-        line.set_data(walk[:num, :2].T)
-        line.set_3d_properties(walk[:num, 2])
+        line.set_data_3d(walk[:num, :].T)
     return lines
 
 
@@ -42,7 +40,7 @@ ax = fig.add_subplot(projection="3d")
 # Create lines initially without data
 lines = [ax.plot([], [], [])[0] for _ in walks]
 
-# Setting the axes properties
+# Setting the Axes properties
 ax.set(xlim3d=(0, 1), xlabel='X')
 ax.set(ylim3d=(0, 1), ylabel='Y')
 ax.set(zlim3d=(0, 1), zlabel='Z')

@@ -20,10 +20,10 @@ also be based on ``mpl_toolkits.axisartist``.  This behavior is consistent with
 ``plt.get_cmap`` and ``matplotlib.cm.get_cmap`` return a copy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Formerly, `~.pyplot.get_cmap` and `.cm.get_cmap` returned a global version of a
-`.Colormap`. This was prone to errors as modification of the colormap would
-propagate from one location to another without warning. Now, a new copy of the
-colormap is returned.
+Formerly, `~.pyplot.get_cmap` and ``matplotlib.cm.get_cmap`` returned a global version
+of a `.Colormap`. This was prone to errors as modification of the colormap would
+propagate from one location to another without warning. Now, a new copy of the colormap
+is returned.
 
 ``TrapezoidMapTriFinder`` uses different random number generator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -51,7 +51,7 @@ Now, the halfrange remains fixed when vcenter is changed, and **vmin** and
 
 For example, this is what the values were when changing vcenter previously.
 
-.. code-block::
+.. code-block:: python
 
     norm = CenteredNorm(vcenter=0, halfrange=1)
     # Move vcenter up by one
@@ -61,7 +61,7 @@ For example, this is what the values were when changing vcenter previously.
 
 and now, with that same example
 
-.. code-block::
+.. code-block:: python
 
     norm = CenteredNorm(vcenter=0, halfrange=1)
     norm.vcenter = 1
@@ -120,13 +120,12 @@ dtype and *levels* is not specified, *levels* now defaults to ``[0.5]`` for
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This can occur if the user explicitly passes a ``levels`` array with no values
+between ``z.min()`` and ``z.max()``; or if ``z`` has the same value everywhere.
 
 ``AxesImage.set_extent`` now raises ``TypeError`` for unknown keyword arguments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 It previously raised a `ValueError`.
-
-etween ``z.min()`` and ``z.max()``; or if ``z`` has the same value everywhere.
 
 Change of ``legend(loc="best")`` behavior
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

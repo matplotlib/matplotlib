@@ -10,6 +10,7 @@ from pathlib import Path
 import warnings
 
 import numpy as np
+import PIL.Image
 import PIL.PngImagePlugin
 
 import matplotlib as mpl
@@ -18,7 +19,7 @@ from matplotlib import _api, cbook, cm
 from matplotlib import _image
 # For user convenience, the names from _image are also imported into
 # the image namespace
-from matplotlib._image import *
+from matplotlib._image import *  # noqa: F401, F403
 import matplotlib.artist as martist
 from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.colors as mcolors
@@ -349,7 +350,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         If *round_to_pixel_border* is True, the output image size will be
         rounded to the nearest pixel boundary.  This makes the images align
-        correctly with the axes.  It should not be used if exact scaling is
+        correctly with the Axes.  It should not be used if exact scaling is
         needed, such as for `FigureImage`.
 
         Returns
@@ -402,7 +403,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 .translate(-clipped_bbox.x0, -clipped_bbox.y0)
                 .scale(magnification)))
 
-        # So that the image is aligned with the edge of the axes, we want to
+        # So that the image is aligned with the edge of the Axes, we want to
         # round up the output width to the next integer.  This also means
         # scaling the transform slightly to account for the extra subpixel.
         if ((not unsampled) and t.is_affine and round_to_pixel_border and
@@ -517,6 +518,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 if isinstance(self.norm, mcolors.NoNorm):
                     A_resampled = A_resampled.astype(A.dtype)
 
+                # Compute out_mask (what screen pixels include "bad" data
+                # pixels) and out_alpha (to what extent screen pixels are
+                # covered by data pixels: 0 outside the data extent, 1 inside
+                # (even for bad data), and intermediate values at the edges).
                 mask = (np.where(A.mask, np.float32(np.nan), np.float32(1))
                         if A.mask.shape == A.shape  # nontrivial mask
                         else np.ones_like(A, np.float32))
@@ -524,12 +529,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # non-affine transformations
                 out_alpha = _resample(self, mask, out_shape, t, resample=True)
                 del mask  # Make sure we don't use mask anymore!
-                # Agg updates out_alpha in place.  If the pixel has no image
-                # data it will not be updated (and still be 0 as we initialized
-                # it), if input data that would go into that output pixel than
-                # it will be `nan`, if all the input data for a pixel is good
-                # it will be 1, and if there is _some_ good data in that output
-                # pixel it will be between [0, 1] (such as a rotated image).
                 out_mask = np.isnan(out_alpha)
                 out_alpha[out_mask] = 1
                 # Apply the pixel-by-pixel alpha values if present
@@ -554,11 +553,15 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 if A.ndim == 2:  # _interpolation_stage == 'rgba'
                     self.norm.autoscale_None(A)
                     A = self.to_rgba(A)
-                if A.shape[2] == 3:
-                    A = _rgb_to_rgba(A)
                 alpha = self._get_scalar_alpha()
-                output_alpha = _resample(  # resample alpha channel
-                    self, A[..., 3], out_shape, t, alpha=alpha)
+                if A.shape[2] == 3:
+                    # No need to resample alpha or make a full array; NumPy will expand
+                    # this out and cast to uint8 if necessary when it's assigned to the
+                    # alpha channel below.
+                    output_alpha = (255 * alpha) if A.dtype == np.uint8 else alpha
+                else:
+                    output_alpha = _resample(  # resample alpha channel
+                        self, A[..., 3], out_shape, t, alpha=alpha)
                 output = _resample(  # resample rgb channels
                     self, _rgb_to_rgba(A[..., :3]), out_shape, t, alpha=alpha)
                 output[..., 3] = output_alpha  # recombine rgb and alpha
@@ -622,7 +625,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         return False
 
     @martist.allow_rasterization
-    def draw(self, renderer, *args, **kwargs):
+    def draw(self, renderer):
         # if not visible, declare victory and return
         if not self.get_visible():
             self.stale = False
@@ -699,7 +702,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             if A.min() < 0 or high < A.max():
                 _log.warning(
                     'Clipping input data to the valid range for imshow with '
-                    'RGB data ([0..1] for floats or [0..255] for integers).'
+                    'RGB data ([0..1] for floats or [0..255] for integers). '
+                    'Got range [%s..%s].',
+                    A.min(), A.max()
                 )
                 A = np.clip(A, 0, high)
             # Cast unsupported integer types to uint8
@@ -766,6 +771,14 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self._interpolation = s
         self.stale = True
 
+    def get_interpolation_stage(self):
+        """
+        Return when interpolation happens during the transform to RGBA.
+
+        One of 'data', 'rgba'.
+        """
+        return self._interpolation_stage
+
     def set_interpolation_stage(self, s):
         """
         Set when interpolation happens during the transform to RGBA.
@@ -774,10 +787,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         ----------
         s : {'data', 'rgba'} or None
             Whether to apply up/downsampling interpolation in data or RGBA
-            space.
+            space.  If None, use :rc:`image.interpolation_stage`.
         """
-        if s is None:
-            s = "data"  # placeholder for maybe having rcParam
+        s = mpl._val_or_rc(s, 'image.interpolation_stage')
         _api.check_in_list(['data', 'rgba'], s=s)
         self._interpolation_stage = s
         self.stale = True
@@ -851,7 +863,7 @@ class AxesImage(_ImageBase):
     Parameters
     ----------
     ax : `~matplotlib.axes.Axes`
-        The axes the image will belong to.
+        The Axes the image will belong to.
     cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
         The Colormap instance or registered colormap name used to map scalar
         data to colors.
@@ -869,7 +881,7 @@ class AxesImage(_ImageBase):
         applied (visual interpolation).
     origin : {'upper', 'lower'}, default: :rc:`image.origin`
         Place the [0, 0] index of the array in the upper left or lower left
-        corner of the axes. The convention 'upper' is typically used for
+        corner of the Axes. The convention 'upper' is typically used for
         matrices and images.
     extent : tuple, optional
         The data axes (left, right, bottom, top) for making image plots
@@ -953,8 +965,8 @@ class AxesImage(_ImageBase):
             ``(left, right, bottom, top)`` in data coordinates.
         **kwargs
             Other parameters from which unit info (i.e., the *xunits*,
-            *yunits*, *zunits* (for 3D axes), *runits* and *thetaunits* (for
-            polar axes) entries are applied, if present.
+            *yunits*, *zunits* (for 3D Axes), *runits* and *thetaunits* (for
+            polar Axes) entries are applied, if present.
 
         Notes
         -----
@@ -1031,14 +1043,13 @@ class AxesImage(_ImageBase):
 
 
 class NonUniformImage(AxesImage):
-    mouseover = False  # This class still needs its own get_cursor_data impl.
 
     def __init__(self, ax, *, interpolation='nearest', **kwargs):
         """
         Parameters
         ----------
         ax : `~matplotlib.axes.Axes`
-            The axes the image will belong to.
+            The Axes the image will belong to.
         interpolation : {'nearest', 'bilinear'}, default: 'nearest'
             The interpolation scheme used in the resampling.
         **kwargs
@@ -1072,12 +1083,16 @@ class NonUniformImage(AxesImage):
                 B[:, :, 0:3] = A
                 B[:, :, 3] = 255
                 A = B
-        vl = self.axes.viewLim
         l, b, r, t = self.axes.bbox.extents
         width = int(((round(r) + 0.5) - (round(l) - 0.5)) * magnification)
         height = int(((round(t) + 0.5) - (round(b) - 0.5)) * magnification)
-        x_pix = np.linspace(vl.x0, vl.x1, width)
-        y_pix = np.linspace(vl.y0, vl.y1, height)
+
+        invertedTransform = self.axes.transData.inverted()
+        x_pix = invertedTransform.transform(
+            [(x, b) for x in np.linspace(l, r, width)])[:, 0]
+        y_pix = invertedTransform.transform(
+            [(l, y) for y in np.linspace(b, t, height)])[:, 1]
+
         if self._interpolation == "nearest":
             x_mid = (self._Ax[:-1] + self._Ax[1:]) / 2
             y_mid = (self._Ay[:-1] + self._Ay[1:]) / 2
@@ -1183,6 +1198,16 @@ class NonUniformImage(AxesImage):
             raise RuntimeError('Cannot change colors after loading data')
         super().set_cmap(cmap)
 
+    def get_cursor_data(self, event):
+        # docstring inherited
+        x, y = event.xdata, event.ydata
+        if (x < self._Ax[0] or x > self._Ax[-1] or
+                y < self._Ay[0] or y > self._Ay[-1]):
+            return None
+        j = np.searchsorted(self._Ax, x) - 1
+        i = np.searchsorted(self._Ay, y) - 1
+        return self._A[i, j]
+
 
 class PcolorImage(AxesImage):
     """
@@ -1205,7 +1230,7 @@ class PcolorImage(AxesImage):
         Parameters
         ----------
         ax : `~matplotlib.axes.Axes`
-            The axes the image will belong to.
+            The Axes the image will belong to.
         x, y : 1D array-like, optional
             Monotonic arrays of length N+1 and M+1, respectively, specifying
             rectangle boundaries.  If not given, will default to
@@ -1315,10 +1340,7 @@ class PcolorImage(AxesImage):
             return None
         j = np.searchsorted(self._Ax, x) - 1
         i = np.searchsorted(self._Ay, y) - 1
-        try:
-            return self._A[i, j]
-        except IndexError:
-            return None
+        return self._A[i, j]
 
 
 class FigureImage(_ImageBase):
@@ -1563,7 +1585,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         is unset is documented under *fname*.
     origin : {'upper', 'lower'}, default: :rc:`image.origin`
         Indicates whether the ``(0, 0)`` index of the array is in the upper
-        left or lower left corner of the axes.
+        left or lower left corner of the Axes.
     dpi : float
         The DPI to store in the metadata of the file.  This does not affect the
         resolution of the output image.  Depending on file format, this may be
@@ -1620,6 +1642,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             # we modify this below, so make a copy (don't modify caller's dict)
             pil_kwargs = pil_kwargs.copy()
         pil_shape = (rgba.shape[1], rgba.shape[0])
+        rgba = np.require(rgba, requirements='C')
         image = PIL.Image.frombuffer(
             "RGBA", pil_shape, rgba, "raw", "RGBA", 0, 1)
         if format == "png":

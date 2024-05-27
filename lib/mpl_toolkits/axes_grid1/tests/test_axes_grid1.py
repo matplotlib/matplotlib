@@ -93,7 +93,8 @@ def test_twin_axes_empty_and_removed():
 
 def test_twin_axes_both_with_units():
     host = host_subplot(111)
-    host.plot_date([0, 1, 2], [0, 1, 2], xdate=False, ydate=True)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        host.plot_date([0, 1, 2], [0, 1, 2], xdate=False, ydate=True)
     twin = host.twinx()
     twin.plot(["a", "b", "c"])
     assert host.get_yticklabels()[0].get_text() == "00:00:00"
@@ -345,7 +346,8 @@ def test_fill_facecolor():
 
 # Update style when regenerating the test image
 @image_comparison(['zoomed_axes.png', 'inverted_zoomed_axes.png'],
-                  style=('classic', '_classic_test_patch'))
+                  style=('classic', '_classic_test_patch'),
+                  tol=0.02 if platform.machine() == 'arm64' else 0)
 def test_zooming_with_inverted_axes():
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3], [1, 2, 3])
@@ -431,13 +433,10 @@ def test_image_grid_single_bottom():
     grid.cbar_axes[0].colorbar(im)
 
 
-def test_image_grid_label_mode_deprecation_warning():
-    imdata = np.arange(9).reshape((3, 3))
-
+def test_image_grid_label_mode_invalid():
     fig = plt.figure()
-    with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match="Passing an undefined label_mode"):
-        grid = ImageGrid(fig, (0, 0, 1, 1), (2, 1), label_mode="foo")
+    with pytest.raises(ValueError, match="'foo' is not a valid value for mode"):
+        ImageGrid(fig, (0, 0, 1, 1), (2, 1), label_mode="foo")
 
 
 @image_comparison(['image_grid.png'],

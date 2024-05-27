@@ -92,16 +92,13 @@ def test_invalid_line_data():
         mlines.Line2D([], 1)
 
     line = mlines.Line2D([], [])
-    # when deprecation cycle is completed
-    # with pytest.raises(RuntimeError, match='x must be'):
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+    with pytest.raises(RuntimeError, match='x must be'):
         line.set_xdata(0)
-    # with pytest.raises(RuntimeError, match='y must be'):
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+    with pytest.raises(RuntimeError, match='y must be'):
         line.set_ydata(0)
 
 
-@image_comparison(['line_dashes'], remove_text=True, tol=0.002)
+@image_comparison(['line_dashes'], remove_text=True, tol=0.003)
 def test_line_dashes():
     # Tolerance introduced after reordering of floating-point operations
     # Remove when regenerating the images
@@ -142,7 +139,8 @@ def test_valid_linestyles():
         line.set_linestyle('aardvark')
 
 
-@image_comparison(['drawstyle_variants.png'], remove_text=True)
+@image_comparison(['drawstyle_variants.png'], remove_text=True,
+                  tol=0.03 if platform.machine() == 'arm64' else 0)
 def test_drawstyle_variants():
     fig, axs = plt.subplots(6)
     dss = ["default", "steps-mid", "steps-pre", "steps-post", "steps", None]
@@ -187,7 +185,7 @@ def test_set_drawstyle():
 
 @image_comparison(
     ['line_collection_dashes'], remove_text=True, style='mpl20',
-    tol=0.65 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
+    tol=0 if platform.machine() == 'x86_64' else 0.65)
 def test_set_line_coll_dash_image():
     fig, ax = plt.subplots()
     np.random.seed(0)
@@ -249,6 +247,8 @@ def test_is_sorted_and_has_non_nan():
     assert _path.is_sorted_and_has_non_nan(np.array([1, 2, 3]))
     assert _path.is_sorted_and_has_non_nan(np.array([1, np.nan, 3]))
     assert not _path.is_sorted_and_has_non_nan([3, 5] + [np.nan] * 100 + [0, 2])
+    # [2, 256] byteswapped:
+    assert not _path.is_sorted_and_has_non_nan(np.array([33554432, 65536], ">i4"))
     n = 2 * mlines.Line2D._subslice_optim_min_size
     plt.plot([np.nan] * n, range(n))
 

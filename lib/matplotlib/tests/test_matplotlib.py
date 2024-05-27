@@ -5,6 +5,7 @@ import sys
 import pytest
 
 import matplotlib
+from matplotlib.testing import subprocess_run_for_testing
 
 
 @pytest.mark.parametrize('version_str, version_tuple', [
@@ -17,30 +18,30 @@ def test_parse_to_version_info(version_str, version_tuple):
     assert matplotlib._parse_to_version_info(version_str) == version_tuple
 
 
-@pytest.mark.skipif(
-    os.name == "nt", reason="chmod() doesn't work as is on Windows")
-@pytest.mark.skipif(os.name != "nt" and os.geteuid() == 0,
+@pytest.mark.skipif(sys.platform == "win32",
+                    reason="chmod() doesn't work as is on Windows")
+@pytest.mark.skipif(sys.platform != "win32" and os.geteuid() == 0,
                     reason="chmod() doesn't work as root")
-def test_tmpconfigdir_warning(tmpdir):
+def test_tmpconfigdir_warning(tmp_path):
     """Test that a warning is emitted if a temporary configdir must be used."""
-    mode = os.stat(tmpdir).st_mode
+    mode = os.stat(tmp_path).st_mode
     try:
-        os.chmod(tmpdir, 0)
-        proc = subprocess.run(
+        os.chmod(tmp_path, 0)
+        proc = subprocess_run_for_testing(
             [sys.executable, "-c", "import matplotlib"],
-            env={**os.environ, "MPLCONFIGDIR": str(tmpdir)},
+            env={**os.environ, "MPLCONFIGDIR": str(tmp_path)},
             stderr=subprocess.PIPE, text=True, check=True)
         assert "set the MPLCONFIGDIR" in proc.stderr
     finally:
-        os.chmod(tmpdir, mode)
+        os.chmod(tmp_path, mode)
 
 
-def test_importable_with_no_home(tmpdir):
-    subprocess.run(
+def test_importable_with_no_home(tmp_path):
+    subprocess_run_for_testing(
         [sys.executable, "-c",
          "import pathlib; pathlib.Path.home = lambda *args: 1/0; "
          "import matplotlib.pyplot"],
-        env={**os.environ, "MPLCONFIGDIR": str(tmpdir)}, check=True)
+        env={**os.environ, "MPLCONFIGDIR": str(tmp_path)}, check=True)
 
 
 def test_use_doc_standard_backends():
@@ -53,13 +54,15 @@ def test_use_doc_standard_backends():
         for line in matplotlib.use.__doc__.split(key)[1].split('\n'):
             if not line.strip():
                 break
-            backends += [e.strip() for e in line.split(',') if e]
+            backends += [e.strip().lower() for e in line.split(',') if e]
         return backends
 
+    from matplotlib.backends import BackendFilter, backend_registry
+
     assert (set(parse('- interactive backends:\n')) ==
-            set(matplotlib.rcsetup.interactive_bk))
+            set(backend_registry.list_builtin(BackendFilter.INTERACTIVE)))
     assert (set(parse('- non-interactive backends:\n')) ==
-            set(matplotlib.rcsetup.non_interactive_bk))
+            set(backend_registry.list_builtin(BackendFilter.NON_INTERACTIVE)))
 
 
 def test_importable_with__OO():
@@ -73,5 +76,7 @@ def test_importable_with__OO():
         "import matplotlib.cbook as cbook; "
         "import matplotlib.patches as mpatches"
     )
-    cmd = [sys.executable, "-OO", "-c", program]
-    assert subprocess.call(cmd, env={**os.environ, "MPLBACKEND": ""}) == 0
+    subprocess_run_for_testing(
+        [sys.executable, "-OO", "-c", program],
+        env={**os.environ, "MPLBACKEND": ""}, check=True
+        )

@@ -130,7 +130,7 @@ Returns
 
 Other Parameters
 ----------------
-colors : color string or sequence of colors, optional
+colors : :mpltype:`color` or list of :mpltype:`color`, optional
     The colors of the levels, i.e., the contour %%(type)s.
 
     The sequence is cycled for the levels in ascending order. If the sequence
@@ -255,8 +255,6 @@ def tricontourf(ax, *args, **kwargs):
     hatches : list[str], optional
         A list of crosshatch patterns to use on the filled areas.
         If None, no hatching will be added to the contour.
-        Hatching is supported in the PostScript, PDF, SVG and Agg
-        backends only.
 
     Notes
     -----

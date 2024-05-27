@@ -1,7 +1,6 @@
 import copy
 from datetime import datetime
 import io
-from pathlib import Path
 import pickle
 import platform
 from threading import Timer
@@ -65,6 +64,32 @@ def test_align_labels():
                 tick.set_rotation(90)
 
     fig.align_labels()
+
+
+@image_comparison(['figure_align_titles_tight.png',
+                   'figure_align_titles_constrained.png'],
+                  tol=0 if platform.machine() == 'x86_64' else 0.022,
+                  style='mpl20')
+def test_align_titles():
+    for layout in ['tight', 'constrained']:
+        fig, axs = plt.subplots(1, 2, layout=layout, width_ratios=[2, 1])
+
+        ax = axs[0]
+        ax.plot(np.arange(0, 1e6, 1000))
+        ax.set_title('Title0 left', loc='left')
+        ax.set_title('Title0 center', loc='center')
+        ax.set_title('Title0 right', loc='right')
+
+        ax = axs[1]
+        ax.plot(np.arange(0, 1e4, 100))
+        ax.set_title('Title1')
+        ax.set_xlabel('Xlabel0')
+        ax.xaxis.set_label_position("top")
+        ax.xaxis.tick_top()
+        for tick in ax.get_xticklabels():
+            tick.set_rotation(90)
+
+        fig.align_titles()
 
 
 def test_align_labels_stray_axes():
@@ -161,7 +186,8 @@ def test_clf_keyword():
     assert [t.get_text() for t in fig2.texts] == []
 
 
-@image_comparison(['figure_today'])
+@image_comparison(['figure_today'],
+                  tol=0.015 if platform.machine() == 'arm64' else 0)
 def test_figure():
     # named figure support
     fig = plt.figure('today')
@@ -739,8 +765,8 @@ def test_add_artist(fig_test, fig_ref):
 
 
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
-def test_fspath(fmt, tmpdir):
-    out = Path(tmpdir, f"test.{fmt}")
+def test_fspath(fmt, tmp_path):
+    out = tmp_path / f"test.{fmt}"
     plt.savefig(out)
     with out.open("rb") as file:
         # All the supported formats include the format name (case-insensitive)
@@ -1287,6 +1313,12 @@ def test_subfigure():
 
     fig.suptitle('Figure suptitle', fontsize='xx-large')
 
+    # below tests for the draw zorder of subfigures.
+    leg = fig.legend(handles=[plt.Line2D([0], [0], label='Line{}'.format(i))
+                     for i in range(5)], loc='center')
+    sub[0].set_zorder(leg.get_zorder() - 1)
+    sub[1].set_zorder(leg.get_zorder() + 1)
+
 
 def test_subfigure_tightbbox():
     # test that we can get the tightbbox with a subfigure...
@@ -1359,7 +1391,6 @@ def test_subfigure_double():
         ax.set_xlabel('x-label', fontsize=fontsize)
         ax.set_ylabel('y-label', fontsize=fontsize)
         ax.set_title('Title', fontsize=fontsize)
-
     subfigsnest[0].colorbar(pc, ax=axsnest0)
 
     subfigsnest[1].suptitle('subfigsnest[1]')
@@ -1480,6 +1511,13 @@ def test_subfigures_wspace_hspace():
 
     np.testing.assert_allclose(sub_figs[1, 2].bbox.min, [w * 0.7, 0])
     np.testing.assert_allclose(sub_figs[1, 2].bbox.max, [w, h * 0.4])
+
+
+def test_subfigure_remove():
+    fig = plt.figure()
+    sfs = fig.subfigures(2, 2)
+    sfs[1, 1].remove()
+    assert len(fig.subfigs) == 3
 
 
 def test_add_subplot_kwargs():
@@ -1659,3 +1697,39 @@ def test_not_visible_figure():
     fig.savefig(buf, format='svg')
     buf.seek(0)
     assert '<g ' not in buf.read()
+
+
+def test_warn_colorbar_mismatch():
+    fig1, ax1 = plt.subplots()
+    fig2, (ax2_1, ax2_2) = plt.subplots(2)
+    im = ax1.imshow([[1, 2], [3, 4]])
+
+    fig1.colorbar(im)  # should not warn
+    with pytest.warns(UserWarning, match="different Figure"):
+        fig2.colorbar(im)
+    # warn mismatch even when the host figure is not inferred
+    with pytest.warns(UserWarning, match="different Figure"):
+        fig2.colorbar(im, ax=ax1)
+    with pytest.warns(UserWarning, match="different Figure"):
+        fig2.colorbar(im, ax=ax2_1)
+    with pytest.warns(UserWarning, match="different Figure"):
+        fig2.colorbar(im, cax=ax2_2)
+
+    # edge case: only compare top level artist in case of subfigure
+    fig3 = plt.figure()
+    fig4 = plt.figure()
+    subfig3_1 = fig3.subfigures()
+    subfig3_2 = fig3.subfigures()
+    subfig4_1 = fig4.subfigures()
+    ax3_1 = subfig3_1.subplots()
+    ax3_2 = subfig3_1.subplots()
+    ax4_1 = subfig4_1.subplots()
+    im3_1 = ax3_1.imshow([[1, 2], [3, 4]])
+    im3_2 = ax3_2.imshow([[1, 2], [3, 4]])
+    im4_1 = ax4_1.imshow([[1, 2], [3, 4]])
+
+    fig3.colorbar(im3_1)   # should not warn
+    subfig3_1.colorbar(im3_1)   # should not warn
+    subfig3_1.colorbar(im3_2)   # should not warn
+    with pytest.warns(UserWarning, match="different Figure"):
+        subfig3_1.colorbar(im4_1)

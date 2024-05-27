@@ -1,6 +1,7 @@
 from datetime import datetime
 import io
 import itertools
+import platform
 import re
 from types import SimpleNamespace
 
@@ -292,6 +293,16 @@ def check_segments(coll, positions, linelength, lineoffset, orientation):
         assert segment[1, pos2] == positions[i]
 
 
+def test_collection_norm_autoscale():
+    # norm should be autoscaled when array is set, not deferred to draw time
+    lines = np.arange(24).reshape((4, 3, 2))
+    coll = mcollections.LineCollection(lines, array=np.arange(4))
+    assert coll.norm(2) == 2 / 3
+    # setting a new array shouldn't update the already scaled limits
+    coll.set_array(np.arange(4) + 5)
+    assert coll.norm(2) == 2 / 3
+
+
 def test_null_collection_datalim():
     col = mcollections.PathCollection([])
     col_data_lim = col.get_datalim(mtransforms.IdentityTransform())
@@ -378,7 +389,8 @@ def test_barb_limits():
                               decimal=1)
 
 
-@image_comparison(['EllipseCollection_test_image.png'], remove_text=True)
+@image_comparison(['EllipseCollection_test_image.png'], remove_text=True,
+                  tol=0.021 if platform.machine() == 'arm64' else 0)
 def test_EllipseCollection():
     # Test basic functionality
     fig, ax = plt.subplots()
@@ -398,9 +410,53 @@ def test_EllipseCollection():
     ax.autoscale_view()
 
 
+def test_EllipseCollection_setter_getter():
+    # Test widths, heights and angle setter
+    rng = np.random.default_rng(0)
+
+    widths = (2, )
+    heights = (3, )
+    angles = (45, )
+    offsets = rng.random((10, 2)) * 10
+
+    fig, ax = plt.subplots()
+
+    ec = mcollections.EllipseCollection(
+        widths=widths,
+        heights=heights,
+        angles=angles,
+        offsets=offsets,
+        units='x',
+        offset_transform=ax.transData,
+        )
+
+    assert_array_almost_equal(ec._widths, np.array(widths).ravel() * 0.5)
+    assert_array_almost_equal(ec._heights, np.array(heights).ravel() * 0.5)
+    assert_array_almost_equal(ec._angles, np.deg2rad(angles).ravel())
+
+    assert_array_almost_equal(ec.get_widths(), widths)
+    assert_array_almost_equal(ec.get_heights(), heights)
+    assert_array_almost_equal(ec.get_angles(), angles)
+
+    ax.add_collection(ec)
+    ax.set_xlim(-2, 12)
+    ax.set_ylim(-2, 12)
+
+    new_widths = rng.random((10, 2)) * 2
+    new_heights = rng.random((10, 2)) * 3
+    new_angles = rng.random((10, 2)) * 180
+
+    ec.set(widths=new_widths, heights=new_heights, angles=new_angles)
+
+    assert_array_almost_equal(ec.get_widths(), new_widths.ravel())
+    assert_array_almost_equal(ec.get_heights(), new_heights.ravel())
+    assert_array_almost_equal(ec.get_angles(), new_angles.ravel())
+
+
 @image_comparison(['polycollection_close.png'], remove_text=True, style='mpl20')
 def test_polycollection_close():
     from mpl_toolkits.mplot3d import Axes3D  # type: ignore
+    plt.rcParams['axes3d.automargin'] = True
 
     vertsQuad = [
         [[0., 0.], [0., 1.], [1., 1.], [1., 0.]],

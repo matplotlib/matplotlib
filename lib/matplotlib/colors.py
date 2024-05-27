@@ -127,8 +127,8 @@ class ColorSequenceRegistry(Mapping):
         'Accent': _cm._Accent_data,
         'Dark2': _cm._Dark2_data,
         'Set1': _cm._Set1_data,
-        'Set2': _cm._Set1_data,
-        'Set3': _cm._Set1_data,
+        'Set2': _cm._Set2_data,
+        'Set3': _cm._Set3_data,
     }
 
     def __init__(self):
@@ -164,7 +164,7 @@ class ColorSequenceRegistry(Mapping):
         name : str
             The name for the color sequence.
 
-        color_list : list of colors
+        color_list : list of :mpltype:`color`
             An iterable returning valid Matplotlib colors when iterating over.
             Note however that the returned color sequence will always be a
             list regardless of the input type.
@@ -243,7 +243,14 @@ def _check_color_like(**kwargs):
     """
     for k, v in kwargs.items():
         if not is_color_like(v):
-            raise ValueError(f"{v!r} is not a valid value for {k}")
+            raise ValueError(
+                f"{v!r} is not a valid value for {k}: supported inputs are "
+                f"(r, g, b) and (r, g, b, a) 0-1 float tuples; "
+                f"'#rrggbb', '#rrggbbaa', '#rgb', '#rgba' strings; "
+                f"named color strings; "
+                f"string reprs of 0-1 floats for grayscale values; "
+                f"'C0', 'C1', ... strings for colors of the color cycle; "
+                f"and pairs combining one of the above with an alpha value")
 
 
 def same_color(c1, c2):
@@ -435,7 +442,7 @@ def to_rgba_array(c, alpha=None):
         (n, 4) array of RGBA colors,  where each channel (red, green, blue,
         alpha) can assume values between 0 and 1.
     """
-    if isinstance(c, tuple) and len(c) == 2:
+    if isinstance(c, tuple) and len(c) == 2 and isinstance(c[1], Real):
         if alpha is None:
             c, alpha = c
         else:
@@ -506,6 +513,11 @@ def to_rgba_array(c, alpha=None):
 
     if alpha is not None:
         rgba[:, 3] = alpha
+        if isinstance(c, Sequence):
+            # ensure that an explicit alpha does not overwrite full transparency
+            # for "none"
+            none_mask = [cbook._str_equal(cc, "none") for cc in c]
+            rgba[:, 3][none_mask] = 0
     return rgba
 
 
@@ -726,7 +738,8 @@ class Colormap:
 
         xa = np.array(X, copy=True)
         if not xa.dtype.isnative:
-            xa = xa.byteswap().newbyteorder()  # Native byteorder is faster.
+            # Native byteorder is faster.
+            xa = xa.byteswap().view(xa.dtype.newbyteorder())
         if xa.dtype.kind == "f":
             xa *= self.N
             # xa == 1 (== N after multiplication) is not out of range.
@@ -1041,7 +1054,7 @@ class LinearSegmentedColormap(Colormap):
         ----------
         name : str
             The name of the colormap.
-        colors : array-like of colors or array-like of (value, color)
+        colors : list of :mpltype:`color` or list of (value, color)
             If only colors are given, they are equidistantly mapped from the
             range :math:`[0, 1]`; i.e. 0 maps to ``colors[0]`` and 1 maps to
             ``colors[-1]``.
@@ -1214,8 +1227,24 @@ class ListedColormap(Colormap):
 
 class Normalize:
     """
-    A class which, when called, linearly normalizes data into the
-    ``[0.0, 1.0]`` interval.
+    A class which, when called, maps values within the interval
+    ``[vmin, vmax]`` linearly to the interval ``[0.0, 1.0]``. The mapping of
+    values outside ``[vmin, vmax]`` depends on *clip*.
+
+    Examples
+    --------
+    ::
+
+        x = [-2, -1, 0, 1, 2]
+
+        norm = mpl.colors.Normalize(vmin=-1, vmax=1, clip=False)
+        norm(x)  # [-0.5, 0., 0.5, 1., 1.5]
+        norm = mpl.colors.Normalize(vmin=-1, vmax=1, clip=True)
+        norm(x)  # [0., 0., 0.5, 1., 1.]
+
+    See Also
+    --------
+    :ref:`colormapnorms`
     """
 
     def __init__(self, vmin=None, vmax=None, clip=False):
@@ -1223,22 +1252,28 @@ class Normalize:
         Parameters
         ----------
         vmin, vmax : float or None
-            If *vmin* and/or *vmax* is not given, they are initialized from the
-            minimum and maximum value, respectively, of the first input
-            processed; i.e., ``__call__(A)`` calls ``autoscale_None(A)``.
+            Values within the range ``[vmin, vmax]`` from the input data will be
+            linearly mapped to ``[0, 1]``. If either *vmin* or *vmax* is not
+            provided, they default to the minimum and maximum values of the input,
+            respectively.
 
         clip : bool, default: False
-            If ``True`` values falling outside the range ``[vmin, vmax]``,
-            are mapped to 0 or 1, whichever is closer, and masked values are
-            set to 1.  If ``False`` masked values remain masked.
+            Determines the behavior for mapping values outside the range
+            ``[vmin, vmax]``.
 
-            Clipping silently defeats the purpose of setting the over and
-            under colors in a colormap, so it is likely to lead to
-            surprises; therefore the default is ``clip=False``.
+            If clipping is off, values outside the range ``[vmin, vmax]`` are
+            also transformed, resulting in values outside ``[0, 1]``.  This
+            behavior is usually desirable, as colormaps can mark these *under*
+            and *over* values with specific colors.
+
+            If clipping is on, values below *vmin* are mapped to 0 and values
+            above *vmax* are mapped to 1. Such values become indistinguishable
+            from regular boundary values, which may cause misinterpretation of
+            the data.
 
         Notes
         -----
-        Returns 0 if ``vmin == vmax``.
+        If ``vmin == vmax``, input data will be mapped to 0.
         """
         self._vmin = _sanitize_extrema(vmin)
         self._vmax = _sanitize_extrema(vmax)
@@ -1292,6 +1327,11 @@ class Normalize:
 
         *value* can be a scalar or sequence.
 
+        Parameters
+        ----------
+        value
+            Data to normalize.
+
         Returns
         -------
         result : masked array
@@ -1322,14 +1362,15 @@ class Normalize:
 
     def __call__(self, value, clip=None):
         """
-        Normalize *value* data in the ``[vmin, vmax]`` interval into the
-        ``[0.0, 1.0]`` interval and return it.
+        Normalize the data and return the normalized data.
 
         Parameters
         ----------
         value
             Data to normalize.
         clip : bool, optional
+            See the description of the parameter *clip* in `.Normalize`.
+
             If ``None``, defaults to ``self.clip`` (which defaults to
             ``False``).
 
@@ -1367,6 +1408,15 @@ class Normalize:
         return result
 
     def inverse(self, value):
+        """
+        Maps the normalized value (i.e., index in the colormap) back to image
+        data value.
+
+        Parameters
+        ----------
+        value
+            Normalized value.
+        """
         if not self.scaled():
             raise ValueError("Not invertible until both vmin and vmax are set")
         (vmin,), _ = self.process_value(self.vmin)
@@ -1388,7 +1438,7 @@ class Normalize:
         self._changed()
 
     def autoscale_None(self, A):
-        """If vmin or vmax are not set, use the min/max of *A* to set them."""
+        """If *vmin* or *vmax* are not set, use the min/max of *A* to set them."""
         A = np.asanyarray(A)
 
         if isinstance(A, np.ma.MaskedArray):
@@ -1402,7 +1452,7 @@ class Normalize:
             self.vmax = A.max()
 
     def scaled(self):
-        """Return whether vmin and vmax are set."""
+        """Return whether *vmin* and *vmax* are both set."""
         return self.vmin is not None and self.vmax is not None
 
 
@@ -1433,7 +1483,7 @@ class TwoSlopeNorm(Normalize):
 
             >>> import matplotlib.colors as mcolors
             >>> offset = mcolors.TwoSlopeNorm(vmin=-4000.,
-                                              vcenter=0., vmax=10000)
+            ...                               vcenter=0., vmax=10000)
             >>> data = [-4000., -2000., 0., 2500., 5000., 7500., 10000.]
             >>> offset(data)
             array([0., 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
@@ -1524,9 +1574,18 @@ class CenteredNorm(Normalize):
             Defaults to the largest absolute difference to *vcenter* for
             the values in the dataset.
         clip : bool, default: False
-            If ``True`` values falling outside the range ``[vmin, vmax]``,
-            are mapped to 0 or 1, whichever is closer, and masked values are
-            set to 1.  If ``False`` masked values remain masked.
+            Determines the behavior for mapping values outside the range
+            ``[vmin, vmax]``.
+
+            If clipping is off, values outside the range ``[vmin, vmax]`` are
+            also transformed, resulting in values outside ``[0, 1]``.  This
+            behavior is usually desirable, as colormaps can mark these *under*
+            and *over* values with specific colors.
+
+            If clipping is on, values below *vmin* are mapped to 0 and values
+            above *vmax* are mapped to 1. Such values become indistinguishable
+            from regular boundary values, which may cause misinterpretation of
+            the data.
 
         Examples
         --------
@@ -1799,13 +1858,17 @@ class FuncNorm(Normalize):
         processed; i.e., ``__call__(A)`` calls ``autoscale_None(A)``.
 
     clip : bool, default: False
-        If ``True`` values falling outside the range ``[vmin, vmax]``,
-        are mapped to 0 or 1, whichever is closer, and masked values are
-        set to 1.  If ``False`` masked values remain masked.
+        Determines the behavior for mapping values outside the range
+        ``[vmin, vmax]``.
 
-        Clipping silently defeats the purpose of setting the over and
-        under colors in a colormap, so it is likely to lead to
-        surprises; therefore the default is ``clip=False``.
+        If clipping is off, values outside the range ``[vmin, vmax]`` are also
+        transformed by the function, resulting in values outside ``[0, 1]``.
+        This behavior is usually desirable, as colormaps can mark these *under*
+        and *over* values with specific colors.
+
+        If clipping is on, values below *vmin* are mapped to 0 and values above
+        *vmax* are mapped to 1. Such values become indistinguishable from
+        regular boundary values, which may cause misinterpretation of the data.
     """
 
 
@@ -1899,13 +1962,17 @@ class PowerNorm(Normalize):
         minimum and maximum value, respectively, of the first input
         processed; i.e., ``__call__(A)`` calls ``autoscale_None(A)``.
     clip : bool, default: False
-        If ``True`` values falling outside the range ``[vmin, vmax]``,
-        are mapped to 0 or 1, whichever is closer, and masked values
-        remain masked.
+        Determines the behavior for mapping values outside the range
+        ``[vmin, vmax]``.
 
-        Clipping silently defeats the purpose of setting the over and under
-        colors, so it is likely to lead to surprises; therefore the default
-        is ``clip=False``.
+        If clipping is off, values above *vmax* are transformed by the power
+        function, resulting in values above 1, and values below *vmin* are linearly
+        transformed resulting in values below 0. This behavior is usually desirable, as
+        colormaps can mark these *under* and *over* values with specific colors.
+
+        If clipping is on, values below *vmin* are mapped to 0 and values above
+        *vmax* are mapped to 1. Such values become indistinguishable from
+        regular boundary values, which may cause misinterpretation of the data.
 
     Notes
     -----
@@ -1914,6 +1981,8 @@ class PowerNorm(Normalize):
     .. math::
 
         \left ( \frac{x - v_{min}}{v_{max}  - v_{min}} \right )^{\gamma}
+
+    For input values below *vmin*, gamma is set to one.
     """
     def __init__(self, gamma, vmin=None, vmax=None, clip=False):
         super().__init__(vmin, vmax, clip)
@@ -1939,9 +2008,8 @@ class PowerNorm(Normalize):
                                      mask=mask)
             resdat = result.data
             resdat -= vmin
-            resdat[resdat < 0] = 0
-            np.power(resdat, gamma, resdat)
-            resdat /= (vmax - vmin) ** gamma
+            resdat /= (vmax - vmin)
+            resdat[resdat > 0] = np.power(resdat[resdat > 0], gamma)
 
             result = np.ma.array(resdat, mask=result.mask, copy=False)
         if is_scalar:
@@ -1951,14 +2019,21 @@ class PowerNorm(Normalize):
     def inverse(self, value):
         if not self.scaled():
             raise ValueError("Not invertible until scaled")
+
+        result, is_scalar = self.process_value(value)
+
         gamma = self.gamma
         vmin, vmax = self.vmin, self.vmax
 
-        if np.iterable(value):
-            val = np.ma.asarray(value)
-            return np.ma.power(val, 1. / gamma) * (vmax - vmin) + vmin
-        else:
-            return pow(value, 1. / gamma) * (vmax - vmin) + vmin
+        resdat = result.data
+        resdat[resdat > 0] = np.power(resdat[resdat > 0], 1 / gamma)
+        resdat *= (vmax - vmin)
+        resdat += vmin
+
+        result = np.ma.array(resdat, mask=result.mask, copy=False)
+        if is_scalar:
+            result = result[0]
+        return result
 
 
 class BoundaryNorm(Normalize):
@@ -2135,7 +2210,7 @@ def rgb_to_hsv(arr):
     out = np.zeros_like(arr)
     arr_max = arr.max(-1)
     ipos = arr_max > 0
-    delta = arr.ptp(-1)
+    delta = np.ptp(arr, -1)
     s = np.zeros_like(delta)
     s[ipos] = delta[ipos] / arr_max[ipos]
     ipos = delta > 0
@@ -2274,6 +2349,18 @@ class LightSource:
         altdeg : float, default: 45 degrees
             The altitude (0-90, degrees up from horizontal) of the light
             source.
+        hsv_min_val : number, default: 0
+            The minimum value ("v" in "hsv") that the *intensity* map can shift the
+            output image to.
+        hsv_max_val : number, default: 1
+            The maximum value ("v" in "hsv") that the *intensity* map can shift the
+            output image to.
+        hsv_min_sat : number, default: 1
+            The minimum saturation value that the *intensity* map can shift the output
+            image to.
+        hsv_max_sat : number, default: 0
+            The maximum saturation value that the *intensity* map can shift the output
+            image to.
 
         Notes
         -----
@@ -2573,18 +2660,20 @@ class LightSource:
             An (M, N, 3) RGB array of floats ranging from 0 to 1 (color image).
         intensity : `~numpy.ndarray`
             An (M, N, 1) array of floats ranging from 0 to 1 (grayscale image).
-        hsv_max_sat : number, default: 1
-            The maximum saturation value that the *intensity* map can shift the
-            output image to.
+        hsv_max_sat : number, optional
+            The maximum saturation value that the *intensity* map can shift the output
+            image to. If not provided, use the value provided upon initialization.
         hsv_min_sat : number, optional
-            The minimum saturation value that the *intensity* map can shift the
-            output image to. Defaults to 0.
+            The minimum saturation value that the *intensity* map can shift the output
+            image to. If not provided, use the value provided upon initialization.
         hsv_max_val : number, optional
-            The maximum value ("v" in "hsv") that the *intensity* map can shift
-            the output image to. Defaults to 1.
+            The maximum value ("v" in "hsv") that the *intensity* map can shift the
+            output image to. If not provided, use the value provided upon
+            initialization.
         hsv_min_val : number, optional
-            The minimum value ("v" in "hsv") that the *intensity* map can shift
-            the output image to. Defaults to 0.
+            The minimum value ("v" in "hsv") that the *intensity* map can shift the
+            output image to. If not provided, use the value provided upon
+            initialization.
 
         Returns
         -------
@@ -2684,8 +2773,8 @@ def from_levels_and_colors(levels, colors, extend='neither'):
 
     Returns
     -------
-    cmap : `~matplotlib.colors.Normalize`
-    norm : `~matplotlib.colors.Colormap`
+    cmap : `~matplotlib.colors.Colormap`
+    norm : `~matplotlib.colors.Normalize`
     """
     slice_map = {
         'both': slice(1, -1),

@@ -41,7 +41,7 @@ class AbstractMovieWriter(abc.ABC, metaclass=abc.ABCMeta):
     dpi: float
 
     @abc.abstractmethod
-    def setup(self, fig: Figure, outfile: str | Path, dpi: float | None = ...): ...
+    def setup(self, fig: Figure, outfile: str | Path, dpi: float | None = ...) -> None: ...
     @property
     def frame_size(self) -> tuple[int, int]: ...
     @abc.abstractmethod
@@ -65,7 +65,7 @@ class MovieWriter(AbstractMovieWriter):
         extra_args: list[str] | None = ...,
         metadata: dict[str, str] | None = ...,
     ) -> None: ...
-    def setup(self, fig: Figure, outfile: str | Path, dpi: float | None = ...): ...
+    def setup(self, fig: Figure, outfile: str | Path, dpi: float | None = ...) -> None: ...
     def grab_frame(self, **savefig_kwargs) -> None: ...
     def finish(self) -> None: ...
     @classmethod
@@ -188,7 +188,6 @@ class Animation:
     def resume(self) -> None: ...
 
 class TimedAnimation(Animation):
-    repeat: bool
     def __init__(
         self,
         fig: Figure,
@@ -204,7 +203,6 @@ class ArtistAnimation(TimedAnimation):
     def __init__(self, fig: Figure, artists: Sequence[Collection[Artist]], *args, **kwargs) -> None: ...
 
 class FuncAnimation(TimedAnimation):
-    save_count: int
     def __init__(
         self,
         fig: Figure,

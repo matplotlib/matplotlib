@@ -361,7 +361,7 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
         formats = [formats[default_format], *formats[:default_format],
                    *formats[default_format+1:]]
         dialog.add_choice('format', 'File format', formats, formats)
-        dialog.set_choice('format', formats[default_format])
+        dialog.set_choice('format', formats[0])
 
         dialog.set_current_folder(Gio.File.new_for_path(
             os.path.expanduser(mpl.rcParams['savefig.directory'])))
@@ -475,15 +475,10 @@ class ToolbarGTK4(ToolContainerBase, Gtk.Box):
             toolitem.handler_unblock(signal)
 
     def remove_toolitem(self, name):
-        if name not in self._toolitems:
-            self.toolmanager.message_event(f'{name} not in toolbar', self)
-            return
-
-        for group in self._groups:
-            for toolitem, _signal in self._toolitems[name]:
+        for toolitem, _signal in self._toolitems.pop(name, []):
+            for group in self._groups:
                 if toolitem in self._groups[group]:
                     self._groups[group].remove(toolitem)
-        del self._toolitems[name]
 
     def _add_separator(self):
         sep = Gtk.Separator()

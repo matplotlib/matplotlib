@@ -2,6 +2,7 @@
 ============
 eventplot(D)
 ============
+Plot identical parallel lines at the given positions.
 
 See `~matplotlib.axes.Axes.eventplot`.
 """

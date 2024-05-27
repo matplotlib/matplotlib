@@ -1,5 +1,7 @@
 import collections
+import itertools
 import platform
+import time
 from unittest import mock
 import warnings
 
@@ -149,7 +151,8 @@ def test_legend_label_with_leading_underscore():
     assert len(legend.legend_handles) == 0
 
 
-@image_comparison(['legend_labels_first.png'], remove_text=True)
+@image_comparison(['legend_labels_first.png'], remove_text=True,
+                  tol=0.013 if platform.machine() == 'arm64' else 0)
 def test_labels_first():
     # test labels to left of markers
     fig, ax = plt.subplots()
@@ -159,7 +162,8 @@ def test_labels_first():
     ax.legend(loc='best', markerfirst=False)
 
 
-@image_comparison(['legend_multiple_keys.png'], remove_text=True)
+@image_comparison(['legend_multiple_keys.png'], remove_text=True,
+                  tol=0.013 if platform.machine() == 'arm64' else 0)
 def test_multiple_keys():
     # test legend entries with multiple keys
     fig, ax = plt.subplots()
@@ -173,7 +177,7 @@ def test_multiple_keys():
 
 
 @image_comparison(['rgba_alpha.png'], remove_text=True,
-                  tol=0 if platform.machine() == 'x86_64' else 0.01)
+                  tol=0 if platform.machine() == 'x86_64' else 0.03)
 def test_alpha_rgba():
     fig, ax = plt.subplots()
     ax.plot(range(10), lw=5)
@@ -182,7 +186,7 @@ def test_alpha_rgba():
 
 
 @image_comparison(['rcparam_alpha.png'], remove_text=True,
-                  tol=0 if platform.machine() == 'x86_64' else 0.01)
+                  tol=0 if platform.machine() == 'x86_64' else 0.03)
 def test_alpha_rcparam():
     fig, ax = plt.subplots()
     ax.plot(range(10), lw=5)
@@ -210,7 +214,7 @@ def test_fancy():
 
 
 @image_comparison(['framealpha'], remove_text=True,
-                  tol=0 if platform.machine() == 'x86_64' else 0.02)
+                  tol=0 if platform.machine() == 'x86_64' else 0.024)
 def test_framealpha():
     x = np.linspace(1, 100, 100)
     y = x
@@ -403,10 +407,10 @@ class TestLegendFunction:
         th = np.linspace(0, 2*np.pi, 1024)
         lns, = ax.plot(th, np.sin(th), label='sin')
         lnc, = ax.plot(th, np.cos(th), label='cos')
-        with pytest.warns(UserWarning) as record:
+        with pytest.warns(DeprecationWarning) as record:
             ax.legend((lnc, lns), labels=('a', 'b'))
         assert len(record) == 1
-        assert str(record[0].message) == (
+        assert str(record[0].message).startswith(
             "You have mixed positional and keyword arguments, some input may "
             "be discarded.")
 
@@ -472,10 +476,10 @@ class TestLegendFigureFunction:
         fig, axs = plt.subplots(1, 2)
         lines = axs[0].plot(range(10))
         lines2 = axs[1].plot(np.arange(10) * 2.)
-        with pytest.warns(UserWarning) as record:
+        with pytest.warns(DeprecationWarning) as record:
             fig.legend((lines, lines2), labels=('a', 'b'))
         assert len(record) == 1
-        assert str(record[0].message) == (
+        assert str(record[0].message).startswith(
             "You have mixed positional and keyword arguments, some input may "
             "be discarded.")
 
@@ -521,7 +525,8 @@ def test_figure_legend_outside():
                         legbb[nn])
 
 
-@image_comparison(['legend_stackplot.png'])
+@image_comparison(['legend_stackplot.png'],
+                  tol=0.031 if platform.machine() == 'arm64' else 0)
 def test_legend_stackplot():
     """Test legend for PolyCollection using stackplot."""
     # related to #1341, #1943, and PR #3303
@@ -634,6 +639,7 @@ def test_handler_numpoints():
 def test_text_nohandler_warning():
     """Test that Text artists with labels raise a warning"""
     fig, ax = plt.subplots()
+    ax.plot([0], label="mock data")
     ax.text(x=0, y=0, s="text", label="label")
     with pytest.warns(UserWarning) as record:
         ax.legend()
@@ -655,8 +661,8 @@ def test_empty_bar_chart_with_legend():
     plt.legend()
 
 
-@image_comparison(['shadow_argument_types.png'], remove_text=True,
-                  style='mpl20')
+@image_comparison(['shadow_argument_types.png'], remove_text=True, style='mpl20',
+                  tol=0.028 if platform.machine() == 'arm64' else 0)
 def test_shadow_argument_types():
     # Test that different arguments for shadow work as expected
     fig, ax = plt.subplots()
@@ -701,7 +707,7 @@ def test_legend_title_empty():
     # it comes back as an empty string, and that it is not
     # visible:
     fig, ax = plt.subplots()
-    ax.plot(range(10))
+    ax.plot(range(10), label="mock data")
     leg = ax.legend()
     assert leg.get_title().get_text() == ""
     assert not leg.get_title().get_visible()
@@ -734,7 +740,7 @@ def test_window_extent_cached_renderer():
 
 def test_legend_title_fontprop_fontsize():
     # test the title_fontsize kwarg
-    plt.plot(range(10))
+    plt.plot(range(10), label="mock data")
     with pytest.raises(ValueError):
         plt.legend(title='Aardvark', title_fontsize=22,
                    title_fontproperties={'family': 'serif', 'size': 22})
@@ -745,27 +751,27 @@ def test_legend_title_fontprop_fontsize():
 
     fig, axes = plt.subplots(2, 3, figsize=(10, 6))
     axes = axes.flat
-    axes[0].plot(range(10))
+    axes[0].plot(range(10), label="mock data")
     leg0 = axes[0].legend(title='Aardvark', title_fontsize=22)
     assert leg0.get_title().get_fontsize() == 22
-    axes[1].plot(range(10))
+    axes[1].plot(range(10), label="mock data")
     leg1 = axes[1].legend(title='Aardvark',
                           title_fontproperties={'family': 'serif', 'size': 22})
     assert leg1.get_title().get_fontsize() == 22
-    axes[2].plot(range(10))
+    axes[2].plot(range(10), label="mock data")
     mpl.rcParams['legend.title_fontsize'] = None
     leg2 = axes[2].legend(title='Aardvark',
                           title_fontproperties={'family': 'serif'})
     assert leg2.get_title().get_fontsize() == mpl.rcParams['font.size']
-    axes[3].plot(range(10))
+    axes[3].plot(range(10), label="mock data")
     leg3 = axes[3].legend(title='Aardvark')
     assert leg3.get_title().get_fontsize() == mpl.rcParams['font.size']
-    axes[4].plot(range(10))
+    axes[4].plot(range(10), label="mock data")
     mpl.rcParams['legend.title_fontsize'] = 20
     leg4 = axes[4].legend(title='Aardvark',
                           title_fontproperties={'family': 'serif'})
     assert leg4.get_title().get_fontsize() == 20
-    axes[5].plot(range(10))
+    axes[5].plot(range(10), label="mock data")
     leg5 = axes[5].legend(title='Aardvark')
     assert leg5.get_title().get_fontsize() == 20
 
@@ -1069,6 +1075,7 @@ def test_legend_labelcolor_rcparam_markerfacecolor_short():
         assert mpl.colors.same_color(text.get_color(), color)
 
 
+@pytest.mark.filterwarnings("ignore:No artists with labels found to put in legend")
 def test_get_set_draggable():
     legend = plt.legend()
     assert not legend.get_draggable()
@@ -1109,29 +1116,43 @@ def test_usetex_no_warn(caplog):
     assert "Font family ['serif'] not found." not in caplog.text
 
 
-def test_warn_big_data_best_loc():
+def test_warn_big_data_best_loc(monkeypatch):
+    # Force _find_best_position to think it took a long time.
+    counter = itertools.count(0, step=1.5)
+    monkeypatch.setattr(time, 'perf_counter', lambda: next(counter))
+
     fig, ax = plt.subplots()
     fig.canvas.draw()  # So that we can call draw_artist later.
-    for idx in range(1000):
-        ax.plot(np.arange(5000), label=idx)
+
+    # Place line across all possible legend locations.
+    x = [0.9, 0.1, 0.1, 0.9, 0.9, 0.5]
+    y = [0.95, 0.95, 0.05, 0.05, 0.5, 0.5]
+    ax.plot(x, y, 'o-', label='line')
+
     with rc_context({'legend.loc': 'best'}):
         legend = ax.legend()
-    with pytest.warns(UserWarning) as records:
+    with pytest.warns(UserWarning,
+                      match='Creating legend with loc="best" can be slow with large '
+                      'amounts of data.') as records:
         fig.draw_artist(legend)  # Don't bother drawing the lines -- it's slow.
     # The _find_best_position method of Legend is called twice, duplicating
     # the warning message.
     assert len(records) == 2
-    for record in records:
-        assert str(record.message) == (
-            'Creating legend with loc="best" can be slow with large '
-            'amounts of data.')
 
 
-def test_no_warn_big_data_when_loc_specified():
+def test_no_warn_big_data_when_loc_specified(monkeypatch):
+    # Force _find_best_position to think it took a long time.
+    counter = itertools.count(0, step=1.5)
+    monkeypatch.setattr(time, 'perf_counter', lambda: next(counter))
+
     fig, ax = plt.subplots()
     fig.canvas.draw()
-    for idx in range(1000):
-        ax.plot(np.arange(5000), label=idx)
+
+    # Place line across all possible legend locations.
+    x = [0.9, 0.1, 0.1, 0.9, 0.9, 0.5]
+    y = [0.95, 0.95, 0.05, 0.05, 0.5, 0.5]
+    ax.plot(x, y, 'o-', label='line')
+
     legend = ax.legend('best')
     fig.draw_artist(legend)  # Check that no warning is emitted.
 
@@ -1179,10 +1200,18 @@ def test_plot_single_input_multiple_label(label_array):
     x = [1, 2, 3]
     y = [2, 5, 6]
     fig, ax = plt.subplots()
-    ax.plot(x, y, label=label_array)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='Passing label as a length 2 sequence'):
+        ax.plot(x, y, label=label_array)
     leg = ax.legend()
     assert len(leg.get_texts()) == 1
     assert leg.get_texts()[0].get_text() == str(label_array)
+
+
+def test_plot_single_input_list_label():
+    fig, ax = plt.subplots()
+    line, = ax.plot([[0], [1]], label=['A'])
+    assert line.get_label() == 'A'
 
 
 def test_plot_multiple_label_incorrect_length_exception():
@@ -1273,71 +1302,171 @@ def test_loc_invalid_tuple_exception():
     fig, ax = plt.subplots()
     with pytest.raises(ValueError, match=('loc must be string, coordinate '
                        'tuple, or an integer 0-10, not \\(1.1,\\)')):
-        ax.legend(loc=(1.1, ))
+        ax.legend(loc=(1.1, ), labels=["mock data"])
 
     with pytest.raises(ValueError, match=('loc must be string, coordinate '
                        'tuple, or an integer 0-10, not \\(0.481, 0.4227, 0.4523\\)')):
-        ax.legend(loc=(0.481, 0.4227, 0.4523))
+        ax.legend(loc=(0.481, 0.4227, 0.4523), labels=["mock data"])
 
     with pytest.raises(ValueError, match=('loc must be string, coordinate '
                        'tuple, or an integer 0-10, not \\(0.481, \'go blue\'\\)')):
-        ax.legend(loc=(0.481, "go blue"))
+        ax.legend(loc=(0.481, "go blue"), labels=["mock data"])
 
 
 def test_loc_valid_tuple():
     fig, ax = plt.subplots()
-    ax.legend(loc=(0.481, 0.442))
-    ax.legend(loc=(1, 2))
+    ax.legend(loc=(0.481, 0.442), labels=["mock data"])
+    ax.legend(loc=(1, 2), labels=["mock data"])
 
 
 def test_loc_valid_list():
     fig, ax = plt.subplots()
-    ax.legend(loc=[0.481, 0.442])
-    ax.legend(loc=[1, 2])
+    ax.legend(loc=[0.481, 0.442], labels=["mock data"])
+    ax.legend(loc=[1, 2], labels=["mock data"])
 
 
 def test_loc_invalid_list_exception():
     fig, ax = plt.subplots()
     with pytest.raises(ValueError, match=('loc must be string, coordinate '
                        'tuple, or an integer 0-10, not \\[1.1, 2.2, 3.3\\]')):
-        ax.legend(loc=[1.1, 2.2, 3.3])
+        ax.legend(loc=[1.1, 2.2, 3.3], labels=["mock data"])
 
 
 def test_loc_invalid_type():
     fig, ax = plt.subplots()
     with pytest.raises(ValueError, match=("loc must be string, coordinate "
                        "tuple, or an integer 0-10, not {'not': True}")):
-        ax.legend(loc={'not': True})
+        ax.legend(loc={'not': True}, labels=["mock data"])
 
 
 def test_loc_validation_numeric_value():
     fig, ax = plt.subplots()
-    ax.legend(loc=0)
-    ax.legend(loc=1)
-    ax.legend(loc=5)
-    ax.legend(loc=10)
+    ax.legend(loc=0, labels=["mock data"])
+    ax.legend(loc=1, labels=["mock data"])
+    ax.legend(loc=5, labels=["mock data"])
+    ax.legend(loc=10, labels=["mock data"])
     with pytest.raises(ValueError, match=('loc must be string, coordinate '
                        'tuple, or an integer 0-10, not 11')):
-        ax.legend(loc=11)
+        ax.legend(loc=11, labels=["mock data"])
 
     with pytest.raises(ValueError, match=('loc must be string, coordinate '
                        'tuple, or an integer 0-10, not -1')):
-        ax.legend(loc=-1)
+        ax.legend(loc=-1, labels=["mock data"])
 
 
 def test_loc_validation_string_value():
     fig, ax = plt.subplots()
-    ax.legend(loc='best')
-    ax.legend(loc='upper right')
-    ax.legend(loc='best')
-    ax.legend(loc='upper right')
-    ax.legend(loc='upper left')
-    ax.legend(loc='lower left')
-    ax.legend(loc='lower right')
-    ax.legend(loc='right')
-    ax.legend(loc='center left')
-    ax.legend(loc='center right')
-    ax.legend(loc='lower center')
-    ax.legend(loc='upper center')
+    labels = ["mock data"]
+    ax.legend(loc='best', labels=labels)
+    ax.legend(loc='upper right', labels=labels)
+    ax.legend(loc='best', labels=labels)
+    ax.legend(loc='upper right', labels=labels)
+    ax.legend(loc='upper left', labels=labels)
+    ax.legend(loc='lower left', labels=labels)
+    ax.legend(loc='lower right', labels=labels)
+    ax.legend(loc='right', labels=labels)
+    ax.legend(loc='center left', labels=labels)
+    ax.legend(loc='center right', labels=labels)
+    ax.legend(loc='lower center', labels=labels)
+    ax.legend(loc='upper center', labels=labels)
     with pytest.raises(ValueError, match="'wrong' is not a valid value for"):
-        ax.legend(loc='wrong')
+        ax.legend(loc='wrong', labels=labels)
+
+
+def test_legend_handle_label_mismatch():
+    pl1, = plt.plot(range(10))
+    pl2, = plt.plot(range(10))
+    with pytest.warns(UserWarning, match="number of handles and labels"):
+        legend = plt.legend(handles=[pl1, pl2], labels=["pl1", "pl2", "pl3"])
+        assert len(legend.legend_handles) == 2
+        assert len(legend.get_texts()) == 2
+
+
+def test_legend_handle_label_mismatch_no_len():
+    pl1, = plt.plot(range(10))
+    pl2, = plt.plot(range(10))
+    legend = plt.legend(handles=iter([pl1, pl2]),
+                        labels=iter(["pl1", "pl2", "pl3"]))
+    assert len(legend.legend_handles) == 2
+    assert len(legend.get_texts()) == 2
+
+
+def test_legend_nolabels_warning():
+    plt.plot([1, 2, 3])
+    with pytest.raises(UserWarning, match="No artists with labels found"):
+        plt.legend()
+
+
+@pytest.mark.filterwarnings("ignore:No artists with labels found to put in legend")
+def test_legend_nolabels_draw():
+    plt.plot([1, 2, 3])
+    plt.legend()
+    assert plt.gca().get_legend() is not None
+
+
+def test_legend_loc_polycollection():
+    # Test that the legend is placed in the correct
+    # position for 'best' for polycollection
+    x = [3, 4, 5]
+    y1 = [1, 1, 1]
+    y2 = [5, 5, 5]
+    leg_bboxes = []
+    fig, axs = plt.subplots(ncols=2, figsize=(10, 5))
+    for ax, loc in zip(axs.flat, ('best', 'lower left')):
+        ax.fill_between(x, y1, y2, color='gray', alpha=0.5, label='Shaded Area')
+        ax.set_xlim(0, 6)
+        ax.set_ylim(-1, 5)
+        leg = ax.legend(loc=loc)
+        fig.canvas.draw()
+        leg_bboxes.append(
+            leg.get_window_extent().transformed(ax.transAxes.inverted()))
+    assert_allclose(leg_bboxes[1].bounds, leg_bboxes[0].bounds)
+
+
+def test_legend_text():
+    # Test that legend is place in the correct
+    # position for 'best' when there is text in figure
+    fig, axs = plt.subplots(ncols=2, figsize=(10, 5))
+    leg_bboxes = []
+    for ax, loc in zip(axs.flat, ('best', 'lower left')):
+        x = [1, 2]
+        y = [2, 1]
+        ax.plot(x, y, label='plot name')
+        ax.text(1.5, 2, 'some text blahblah', verticalalignment='top')
+        leg = ax.legend(loc=loc)
+        fig.canvas.draw()
+        leg_bboxes.append(
+            leg.get_window_extent().transformed(ax.transAxes.inverted()))
+    assert_allclose(leg_bboxes[1].bounds, leg_bboxes[0].bounds)
+
+
+def test_boxplot_legend_labels():
+    # Test that legend entries are generated when passing `label`.
+    np.random.seed(19680801)
+    data = np.random.random((10, 4))
+    fig, axs = plt.subplots(nrows=1, ncols=4)
+    legend_labels = ['box A', 'box B', 'box C', 'box D']
+
+    # Testing legend labels and patch passed to legend.
+    bp1 = axs[0].boxplot(data, patch_artist=True, label=legend_labels)
+    assert [v.get_label() for v in bp1['boxes']] == legend_labels
+    handles, labels = axs[0].get_legend_handles_labels()
+    assert labels == legend_labels
+    assert all(isinstance(h, mpl.patches.PathPatch) for h in handles)
+
+    # Testing legend without `box`.
+    bp2 = axs[1].boxplot(data, label=legend_labels, showbox=False)
+    # Without a box, The legend entries should be passed from the medians.
+    assert [v.get_label() for v in bp2['medians']] == legend_labels
+    handles, labels = axs[1].get_legend_handles_labels()
+    assert labels == legend_labels
+    assert all(isinstance(h, mpl.lines.Line2D) for h in handles)
+
+    # Testing legend with number of labels different from number of boxes.
+    with pytest.raises(ValueError, match='values must have same the length'):
+        bp3 = axs[2].boxplot(data, label=legend_labels[:-1])
+
+    # Test that for a string label, only the first box gets a label.
+    bp4 = axs[3].boxplot(data, label='box A')
+    assert bp4['medians'][0].get_label() == 'box A'
+    assert all(x.get_label().startswith("_") for x in bp4['medians'][1:])

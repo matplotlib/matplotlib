@@ -24,27 +24,6 @@ import matplotlib.ticker as mticker
 import pytest
 
 
-@image_comparison(['image_interps'], style='mpl20')
-def test_image_interps():
-    """Make the basic nearest, bilinear and bicubic interps."""
-    # Remove texts when this image is regenerated.
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
-
-    X = np.arange(100).reshape(5, 20)
-
-    fig, (ax1, ax2, ax3) = plt.subplots(3)
-    ax1.imshow(X, interpolation='nearest')
-    ax1.set_title('three interpolations')
-    ax1.set_ylabel('nearest')
-
-    ax2.imshow(X, interpolation='bilinear')
-    ax2.set_ylabel('bilinear')
-
-    ax3.imshow(X, interpolation='bicubic')
-    ax3.set_ylabel('bicubic')
-
-
 @image_comparison(['interp_alpha.png'], remove_text=True)
 def test_alpha_interp():
     """Test the interpolation of the alpha channel on RGBA images"""
@@ -205,6 +184,14 @@ def test_imsave(fmt):
     assert_array_equal(arr_dpi1, arr_dpi100)
 
 
+@pytest.mark.parametrize("origin", ["upper", "lower"])
+def test_imsave_rgba_origin(origin):
+    # test that imsave always passes c-contiguous arrays down to pillow
+    buf = io.BytesIO()
+    result = np.zeros((10, 10, 4), dtype='uint8')
+    mimage.imsave(buf, arr=result, format="png", origin=origin)
+
+
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
 def test_imsave_fspath(fmt):
     plt.imsave(Path(os.devnull), np.array([[0, 1]]), format=fmt)
@@ -266,6 +253,32 @@ def test_image_alpha():
     ax1.imshow(Z, alpha=1.0, interpolation='none')
     ax2.imshow(Z, alpha=0.5, interpolation='none')
     ax3.imshow(Z, alpha=0.5, interpolation='nearest')
+
+
+@mpl.style.context('mpl20')
+@check_figures_equal(extensions=['png'])
+def test_imshow_alpha(fig_test, fig_ref):
+    np.random.seed(19680801)
+
+    rgbf = np.random.rand(6, 6, 3)
+    rgbu = np.uint8(rgbf * 255)
+    ((ax0, ax1), (ax2, ax3)) = fig_test.subplots(2, 2)
+    ax0.imshow(rgbf, alpha=0.5)
+    ax1.imshow(rgbf, alpha=0.75)
+    ax2.imshow(rgbu, alpha=0.5)
+    ax3.imshow(rgbu, alpha=0.75)
+
+    rgbaf = np.concatenate((rgbf, np.ones((6, 6, 1))), axis=2)
+    rgbau = np.concatenate((rgbu, np.full((6, 6, 1), 255, np.uint8)), axis=2)
+    ((ax0, ax1), (ax2, ax3)) = fig_ref.subplots(2, 2)
+    rgbaf[:, :, 3] = 0.5
+    ax0.imshow(rgbaf)
+    rgbaf[:, :, 3] = 0.75
+    ax1.imshow(rgbaf)
+    rgbau[:, :, 3] = 127
+    ax2.imshow(rgbau)
+    rgbau[:, :, 3] = 191
+    ax3.imshow(rgbau)
 
 
 def test_cursor_data():
@@ -339,6 +352,38 @@ def test_cursor_data():
     assert im.get_cursor_data(event) == 44
 
 
+@pytest.mark.parametrize("xy, data", [
+    # x/y coords chosen to be 0.5 above boundaries so they lie within image pixels
+    [[0.5, 0.5], 0 + 0],
+    [[0.5, 1.5], 0 + 1],
+    [[4.5, 0.5], 16 + 0],
+    [[8.5, 0.5], 16 + 0],
+    [[9.5, 2.5], 81 + 4],
+    [[-1, 0.5], None],
+    [[0.5, -1], None],
+    ]
+)
+def test_cursor_data_nonuniform(xy, data):
+    from matplotlib.backend_bases import MouseEvent
+
+    # Non-linear set of x-values
+    x = np.array([0, 1, 4, 9, 16])
+    y = np.array([0, 1, 2, 3, 4])
+    z = x[np.newaxis, :]**2 + y[:, np.newaxis]**2
+
+    fig, ax = plt.subplots()
+    im = NonUniformImage(ax, extent=(x.min(), x.max(), y.min(), y.max()))
+    im.set_data(x, y, z)
+    ax.add_image(im)
+    # Set lower min lim so we can test cursor outside image
+    ax.set_xlim(x.min() - 2, x.max())
+    ax.set_ylim(y.min() - 2, y.max())
+
+    xdisp, ydisp = ax.transData.transform(xy)
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    assert im.get_cursor_data(event) == data, (im.get_cursor_data(event), data)
+
+
 @pytest.mark.parametrize(
     "data, text", [
         ([[10001, 10000]], "[10001.000]"),
@@ -378,15 +423,6 @@ def test_image_cliprect():
     rect = patches.Rectangle(
         xy=(1, 1), width=2, height=2, transform=im.axes.transData)
     im.set_clip_path(rect)
-
-
-@image_comparison(['imshow'], remove_text=True, style='mpl20')
-def test_imshow():
-    fig, ax = plt.subplots()
-    arr = np.arange(100).reshape((10, 10))
-    ax.imshow(arr, interpolation="bilinear", extent=(1, 2, 1, 2))
-    ax.set_xlim(0, 3)
-    ax.set_ylim(0, 3)
 
 
 @check_figures_equal(extensions=['png'])
@@ -800,10 +836,8 @@ def test_image_preserve_size2():
     data = np.identity(n, float)
 
     fig = plt.figure(figsize=(n, n), frameon=False)
-
-    ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
+    ax = fig.add_axes((0.0, 0.0, 1.0, 1.0))
     ax.set_axis_off()
-    fig.add_axes(ax)
     ax.imshow(data, interpolation='nearest', origin='lower', aspect='auto')
     buff = io.BytesIO()
     fig.savefig(buff, dpi=1)
@@ -1350,9 +1384,30 @@ def test_nonuniform_and_pcolor():
         ax.set(xlim=(0, 10))
 
 
+@image_comparison(["nonuniform_logscale.png"], style="mpl20")
+def test_nonuniform_logscale():
+    _, axs = plt.subplots(ncols=3, nrows=1)
+
+    for i in range(3):
+        ax = axs[i]
+        im = NonUniformImage(ax)
+        im.set_data(np.arange(1, 4) ** 2, np.arange(1, 4) ** 2,
+                    np.arange(9).reshape((3, 3)))
+        ax.set_xlim(1, 16)
+        ax.set_ylim(1, 16)
+        ax.set_box_aspect(1)
+        if i == 1:
+            ax.set_xscale("log", base=2)
+            ax.set_yscale("log", base=2)
+        if i == 2:
+            ax.set_xscale("log", base=4)
+            ax.set_yscale("log", base=4)
+        ax.add_image(im)
+
+
 @image_comparison(
     ['rgba_antialias.png'], style='mpl20', remove_text=True,
-    tol=0.007 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
+    tol=0 if platform.machine() == 'x86_64' else 0.007)
 def test_rgba_antialias():
     fig, axs = plt.subplots(2, 2, figsize=(3.5, 3.5), sharex=False,
                             sharey=False, constrained_layout=True)
@@ -1404,6 +1459,15 @@ def test_rgba_antialias():
     # alternating red and blue stripes become purple
     axs[3].imshow(aa, interpolation='antialiased', interpolation_stage='rgba',
                   cmap=cmap, vmin=-1.2, vmax=1.2)
+
+
+def test_rc_interpolation_stage():
+    for val in ["data", "rgba"]:
+        with mpl.rc_context({"image.interpolation_stage": val}):
+            assert plt.imshow([[1, 2]]).get_interpolation_stage() == val
+    for val in ["DATA", "foo", None]:
+        with pytest.raises(ValueError):
+            mpl.rcParams["image.interpolation_stage"] = val
 
 
 # We check for the warning with a draw() in the test, but we also need to
@@ -1470,16 +1534,25 @@ def test_str_norms(fig_test, fig_ref):
 
 def test__resample_valid_output():
     resample = functools.partial(mpl._image.resample, transform=Affine2D())
-    with pytest.raises(ValueError, match="must be a NumPy array"):
+    with pytest.raises(TypeError, match="incompatible function arguments"):
         resample(np.zeros((9, 9)), None)
     with pytest.raises(ValueError, match="different dimensionalities"):
         resample(np.zeros((9, 9)), np.zeros((9, 9, 4)))
-    with pytest.raises(ValueError, match="must be RGBA"):
+    with pytest.raises(ValueError, match="different dimensionalities"):
+        resample(np.zeros((9, 9, 4)), np.zeros((9, 9)))
+    with pytest.raises(ValueError, match="3D input array must be RGBA"):
+        resample(np.zeros((9, 9, 3)), np.zeros((9, 9, 4)))
+    with pytest.raises(ValueError, match="3D output array must be RGBA"):
         resample(np.zeros((9, 9, 4)), np.zeros((9, 9, 3)))
-    with pytest.raises(ValueError, match="Mismatched types"):
+    with pytest.raises(ValueError, match="mismatched types"):
         resample(np.zeros((9, 9), np.uint8), np.zeros((9, 9)))
     with pytest.raises(ValueError, match="must be C-contiguous"):
         resample(np.zeros((9, 9)), np.zeros((9, 9)).T)
+
+    out = np.zeros((9, 9))
+    out.flags.writeable = False
+    with pytest.raises(ValueError, match="Output array must be writeable"):
+        resample(np.zeros((9, 9)), out)
 
 
 def test_axesimage_get_shape():

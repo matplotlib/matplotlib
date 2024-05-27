@@ -4,8 +4,8 @@
 #define MPL_PATH_CONVERTERS_H
 
 #include <cmath>
-#include <stdint.h>
-#include "agg_path_storage.h"
+#include <cstdint>
+
 #include "agg_clip_liang_barsky.h"
 #include "mplutils.h"
 #include "agg_conv_segmentator.h"

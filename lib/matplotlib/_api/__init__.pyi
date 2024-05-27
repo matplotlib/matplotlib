@@ -25,6 +25,7 @@ class classproperty(Any):
         fdel: None = ...,
         doc: str | None = None,
     ): ...
+    # Replace return with Self when py3.9 is dropped
     @overload
     def __get__(self, instance: None, owner: None) -> classproperty: ...
     @overload

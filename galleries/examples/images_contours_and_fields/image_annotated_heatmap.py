@@ -114,7 +114,7 @@ def heatmap(data, row_labels, col_labels, ax=None,
         A list or array of length N with the labels for the columns.
     ax
         A `matplotlib.axes.Axes` instance to which the heatmap is plotted.  If
-        not provided, use current axes or create a new one.  Optional.
+        not provided, use current Axes or create a new one.  Optional.
     cbar_kw
         A dictionary with arguments to `matplotlib.Figure.colorbar`.  Optional.
     cbarlabel

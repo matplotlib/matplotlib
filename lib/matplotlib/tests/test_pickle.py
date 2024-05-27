@@ -15,7 +15,7 @@ from matplotlib.lines import VertexSelector
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import matplotlib.figure as mfigure
-from mpl_toolkits.axes_grid1 import parasite_axes  # type: ignore
+from mpl_toolkits.axes_grid1 import axes_divider, parasite_axes  # type: ignore
 
 
 def test_simple():
@@ -90,7 +90,7 @@ def _generate_complete_test_figure(fig_ref):
     plt.legend(loc='upper left')
 
     plt.subplot(3, 3, 9)
-    plt.errorbar(x, x * -0.5, xerr=0.2, yerr=0.4)
+    plt.errorbar(x, x * -0.5, xerr=0.2, yerr=0.4, label='$-.5 x$')
     plt.legend(draggable=True)
 
     fig_ref.align_ylabels()  # Test handling of _align_label_groups Groupers.
@@ -143,7 +143,7 @@ def test_pickle_load_from_subprocess(fig_test, fig_ref, tmp_path):
     proc = subprocess_run_helper(
         _pickle_load_subprocess,
         timeout=60,
-        extra_env={'PICKLE_FILE_PATH': str(fp)}
+        extra_env={'PICKLE_FILE_PATH': str(fp), 'MPLBACKEND': 'Agg'}
     )
 
     loaded_fig = pickle.loads(ast.literal_eval(proc.stdout))
@@ -274,6 +274,7 @@ def test_unpickle_canvas():
 
 def test_mpl_toolkits():
     ax = parasite_axes.host_axes([0, 0, 1, 1])
+    axes_divider.make_axes_area_auto_adjustable(ax)
     assert type(pickle.loads(pickle.dumps(ax))) == parasite_axes.HostAxes
 
 

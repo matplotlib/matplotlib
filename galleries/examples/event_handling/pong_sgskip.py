@@ -234,7 +234,7 @@ class Game:
                 puck.disp.set_offsets([[puck.x, puck.y]])
                 self.ax.draw_artist(puck.disp)
 
-        # just redraw the axes rectangle
+        # just redraw the Axes rectangle
         self.canvas.blit(self.ax.bbox)
         self.canvas.flush_events()
         if self.cnt == 50000:

@@ -71,7 +71,7 @@ class RendererAgg(RendererBase):
         self._filter_renderers = []
 
         self._update_methods()
-        self.mathtext_parser = MathTextParser('Agg')
+        self.mathtext_parser = MathTextParser('agg')
 
         self.bbox = Bbox.from_bounds(0, 0, self.width, self.height)
 
@@ -84,7 +84,6 @@ class RendererAgg(RendererBase):
         self.__init__(state['width'], state['height'], state['dpi'])
 
     def _update_methods(self):
-        self.draw_gouraud_triangle = self._renderer.draw_gouraud_triangle
         self.draw_gouraud_triangles = self._renderer.draw_gouraud_triangles
         self.draw_image = self._renderer.draw_image
         self.draw_markers = self._renderer.draw_markers

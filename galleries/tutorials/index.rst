@@ -118,14 +118,14 @@ User guide tutorials
 Many of our tutorials were moved from this section to :ref:`users-guide-index`:
 
 Introductory
-~~~~~~~~~~~~
+^^^^^^^^^^^^
 
 - :ref:`quick_start`
 - :ref:`customizing`
 - :ref:`animations`
 
 Intermediate
-~~~~~~~~~~~~
+^^^^^^^^^^^^
 
 - :ref:`legend_guide`
 - :ref:`color_cycle`
@@ -136,7 +136,7 @@ Intermediate
 - :ref:`imshow_extent`
 
 Advanced
-~~~~~~~~
+^^^^^^^^
 
 - :ref:`blitting`
 - :ref:`paths`
@@ -144,16 +144,16 @@ Advanced
 - :ref:`transforms_tutorial`
 
 Colors
-~~~~~~
+^^^^^^
 
 See :ref:`tutorials-colors`.
 
 Text
-~~~~
+^^^^
 
 See :ref:`tutorials-text`.
 
 Toolkits
-~~~~~~~~
+^^^^^^^^
 
 See :ref:`tutorials-toolkits`.

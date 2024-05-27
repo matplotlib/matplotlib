@@ -38,6 +38,7 @@ from numpy.testing import (
     assert_allclose, assert_array_equal, assert_array_almost_equal)
 from matplotlib.testing.decorators import (
     image_comparison, check_figures_equal, remove_ticks_and_titles)
+from matplotlib.testing._markers import needs_usetex
 
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
@@ -237,7 +238,8 @@ def test_matshow(fig_test, fig_ref):
                    'formatter_ticker_003',
                    'formatter_ticker_004',
                    'formatter_ticker_005',
-                   ])
+                   ],
+                  tol=0.031 if platform.machine() == 'arm64' else 0)
 def test_formatter_ticker():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -437,7 +439,8 @@ def test_twin_logscale(fig_test, fig_ref, twin):
     remove_ticks_and_titles(fig_ref)
 
 
-@image_comparison(['twin_autoscale.png'])
+@image_comparison(['twin_autoscale.png'],
+                  tol=0.009 if platform.machine() == 'arm64' else 0)
 def test_twinx_axis_scales():
     x = np.array([0, 0.5, 1])
     y = 0.5 * x
@@ -835,6 +838,12 @@ def test_errorbar_dashes(fig_test, fig_ref):
     ax_test.errorbar(x, y, xerr=np.abs(y), yerr=np.abs(y), dashes=[2, 2])
 
 
+def test_errorbar_mapview_kwarg():
+    D = {ii: ii for ii in range(10)}
+    fig, ax = plt.subplots()
+    ax.errorbar(x=D.keys(), y=D.values(), xerr=D.values())
+
+
 @image_comparison(['single_point', 'single_point'])
 def test_single_point():
     # Issue #1796: don't let lines.marker affect the grid
@@ -864,7 +873,8 @@ def test_single_date():
     data1 = [-65.54]
 
     fig, ax = plt.subplots(2, 1)
-    ax[0].plot_date(time1 + dt, data1, 'o', color='r')
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        ax[0].plot_date(time1 + dt, data1, 'o', color='r')
     ax[1].plot(time1, data1, 'o', color='r')
 
 
@@ -916,8 +926,8 @@ def test_axvspan_epoch():
     units.register()
 
     # generate some data
-    t0 = units.Epoch("ET", dt=datetime.datetime(2009, 1, 20))
-    tf = units.Epoch("ET", dt=datetime.datetime(2009, 1, 21))
+    t0 = units.Epoch("ET", dt=datetime.datetime(2009, 1, 21))
+    tf = units.Epoch("ET", dt=datetime.datetime(2009, 1, 22))
     dt = units.Duration("ET", units.day.convert("sec"))
 
     ax = plt.gca()
@@ -931,8 +941,8 @@ def test_axhspan_epoch():
     units.register()
 
     # generate some data
-    t0 = units.Epoch("ET", dt=datetime.datetime(2009, 1, 20))
-    tf = units.Epoch("ET", dt=datetime.datetime(2009, 1, 21))
+    t0 = units.Epoch("ET", dt=datetime.datetime(2009, 1, 21))
+    tf = units.Epoch("ET", dt=datetime.datetime(2009, 1, 22))
     dt = units.Duration("ET", units.day.convert("sec"))
 
     ax = plt.gca()
@@ -956,15 +966,39 @@ def test_hexbin_extent():
     ax.hexbin("x", "y", extent=[.1, .3, .6, .7], data=data)
 
 
-@image_comparison(['hexbin_empty.png', 'hexbin_empty.png'], remove_text=True)
+def test_hexbin_bad_extents():
+    fig, ax = plt.subplots()
+    data = (np.arange(20) / 20).reshape((2, 10))
+    x, y = data
+
+    with pytest.raises(ValueError, match="In extent, xmax must be greater than xmin"):
+        ax.hexbin(x, y, extent=(1, 0, 0, 1))
+
+    with pytest.raises(ValueError, match="In extent, ymax must be greater than ymin"):
+        ax.hexbin(x, y, extent=(0, 1, 1, 0))
+
+
+def test_hexbin_string_norm():
+    fig, ax = plt.subplots()
+    hex = ax.hexbin(np.random.rand(10), np.random.rand(10), norm="log", vmin=2, vmax=5)
+    assert isinstance(hex, matplotlib.collections.PolyCollection)
+    assert isinstance(hex.norm, matplotlib.colors.LogNorm)
+    assert hex.norm.vmin == 2
+    assert hex.norm.vmax == 5
+
+
+@image_comparison(['hexbin_empty.png'], remove_text=True)
 def test_hexbin_empty():
     # From #3886: creating hexbin from empty dataset raises ValueError
     fig, ax = plt.subplots()
     ax.hexbin([], [])
-    fig, ax = plt.subplots()
     # From #23922: creating hexbin with log scaling from empty
     # dataset raises ValueError
     ax.hexbin([], [], bins='log')
+    # From #27103: np.max errors when handed empty data
+    ax.hexbin([], [], C=[], reduce_C_function=np.max)
+    # No string-comparison warning from NumPy.
+    ax.hexbin([], [], bins=np.arange(10))
 
 
 def test_hexbin_pickable():
@@ -994,6 +1028,27 @@ def test_hexbin_log():
     h = ax.hexbin(x, y, yscale='log', bins='log',
                   marginals=True, reduce_C_function=np.sum)
     plt.colorbar(h)
+
+    # Make sure offsets are set
+    assert h.get_offsets().shape == (11558, 2)
+
+
+def test_hexbin_log_offsets():
+    x = np.geomspace(1, 100, 500)
+
+    fig, ax = plt.subplots()
+    h = ax.hexbin(x, x, xscale='log', yscale='log', gridsize=2)
+    np.testing.assert_almost_equal(
+        h.get_offsets(),
+        np.array(
+            [[0, 0],
+             [0, 2],
+             [1, 0],
+             [1, 2],
+             [2, 0],
+             [2, 2],
+             [0.5, 1],
+             [1.5, 1]]))
 
 
 @image_comparison(["hexbin_linear.png"], style="mpl20", remove_text=True)
@@ -1210,7 +1265,8 @@ def test_fill_betweenx_input(y, x1, x2):
         ax.fill_betweenx(y, x1, x2)
 
 
-@image_comparison(['fill_between_interpolate'], remove_text=True)
+@image_comparison(['fill_between_interpolate'], remove_text=True,
+                  tol=0.012 if platform.machine() == 'arm64' else 0)
 def test_fill_between_interpolate():
     x = np.arange(0.0, 2, 0.02)
     y1 = np.sin(2*np.pi*x)
@@ -1327,7 +1383,7 @@ def test_pcolormesh():
     Qz = np.sin(Y) + np.sin(X)
     Qx = (Qx + 1.1)
     Z = np.hypot(X, Y) / 5
-    Z = (Z - Z.min()) / Z.ptp()
+    Z = (Z - Z.min()) / np.ptp(Z)
 
     # The color array can include masked values:
     Zm = ma.masked_where(np.abs(Qz) < 0.5 * np.max(Qz), Z)
@@ -1348,7 +1404,7 @@ def test_pcolormesh_small():
     Qz = np.sin(Y) + np.sin(X)
     Qx = (Qx + 1.1)
     Z = np.hypot(X, Y) / 5
-    Z = (Z - Z.min()) / Z.ptp()
+    Z = (Z - Z.min()) / np.ptp(Z)
     Zm = ma.masked_where(np.abs(Qz) < 0.5 * np.max(Qz), Z)
     Zm2 = ma.masked_where(Qz < -0.5 * np.max(Qz), Z)
 
@@ -1378,7 +1434,7 @@ def test_pcolormesh_alpha():
     Qx = X
     Qy = Y + np.sin(X)
     Z = np.hypot(X, Y) / 5
-    Z = (Z - Z.min()) / Z.ptp()
+    Z = (Z - Z.min()) / np.ptp(Z)
     vir = mpl.colormaps["viridis"].resampled(16)
     # make another colormap with varying alpha
     colors = vir(np.arange(16))
@@ -1496,6 +1552,19 @@ def test_pcolorargs():
         ax.pcolormesh(X, Y, Z, shading='auto')
 
 
+def test_pcolormesh_underflow_error():
+    """
+    Test that underflow errors don't crop up in pcolormesh.  Probably
+    a numpy bug (https://github.com/numpy/numpy/issues/25810).
+    """
+    with np.errstate(under="raise"):
+        x = np.arange(0, 3, 0.1)
+        y = np.arange(0, 6, 0.1)
+        z = np.random.randn(len(y), len(x))
+        fig, ax = plt.subplots()
+        ax.pcolormesh(x, y, z)
+
+
 def test_pcolorargs_with_read_only():
     x = np.arange(6).reshape(2, 3)
     xmask = np.broadcast_to([False, True, False], x.shape)  # read-only array
@@ -1588,7 +1657,7 @@ def test_pcolorauto(fig_test, fig_ref, snap):
     ax.pcolormesh(x2, y2, Z, snap=snap)
 
 
-@image_comparison(['canonical'])
+@image_comparison(['canonical'], tol=0.02 if platform.machine() == 'arm64' else 0)
 def test_canonical():
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3])
@@ -2303,6 +2372,18 @@ def test_hist_zorder(histtype, zorder):
         assert patch.get_zorder() == zorder
 
 
+def test_stairs_no_baseline_fill_warns():
+    fig, ax = plt.subplots()
+    with pytest.warns(UserWarning, match="baseline=None and fill=True"):
+        ax.stairs(
+            [4, 5, 1, 0, 2],
+            [1, 2, 3, 4, 5, 6],
+            facecolor="blue",
+            baseline=None,
+            fill=True
+        )
+
+
 @check_figures_equal(extensions=['png'])
 def test_stairs(fig_test, fig_ref):
     import matplotlib.lines as mlines
@@ -2398,16 +2479,17 @@ def test_stairs_update(fig_test, fig_ref):
 
 
 @check_figures_equal(extensions=['png'])
-def test_stairs_baseline_0(fig_test, fig_ref):
-    # Test
-    test_ax = fig_test.add_subplot()
-    test_ax.stairs([5, 6, 7], baseline=None)
+def test_stairs_baseline_None(fig_test, fig_ref):
+    x = np.array([0, 2, 3, 5, 10])
+    y = np.array([1.148, 1.231, 1.248, 1.25])
 
-    # Ref
-    ref_ax = fig_ref.add_subplot()
+    test_axes = fig_test.add_subplot()
+    test_axes.stairs(y, x, baseline=None)
+
     style = {'solid_joinstyle': 'miter', 'solid_capstyle': 'butt'}
-    ref_ax.plot(range(4), [5, 6, 7, 7], drawstyle='steps-post', **style)
-    ref_ax.set_ylim(0, None)
+
+    ref_axes = fig_ref.add_subplot()
+    ref_axes.plot(x, np.append(y, y[-1]), drawstyle='steps-post', **style)
 
 
 def test_stairs_empty():
@@ -2502,7 +2584,7 @@ def test_contour_hatching():
 
 @image_comparison(
     ['contour_colorbar'], style='mpl20',
-    tol=0.02 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
+    tol=0.54 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
 def test_contour_colorbar():
     x, y, z = contour_dat()
 
@@ -3030,7 +3112,8 @@ def test_log_scales_invalid():
         ax.set_ylim(-1, 10)
 
 
-@image_comparison(['stackplot_test_image', 'stackplot_test_image'])
+@image_comparison(['stackplot_test_image', 'stackplot_test_image'],
+                  tol=0.031 if platform.machine() == 'arm64' else 0)
 def test_stackplot():
     fig = plt.figure()
     x = np.linspace(0, 10, 10)
@@ -3076,13 +3159,34 @@ def test_stackplot_baseline():
     axs[1, 1].stackplot(range(100), d.T, baseline='weighted_wiggle')
 
 
+@check_figures_equal()
+def test_stackplot_hatching(fig_ref, fig_test):
+    x = np.linspace(0, 10, 10)
+    y1 = 1.0 * x
+    y2 = 2.0 * x + 1
+    y3 = 3.0 * x + 2
+    # stackplot with different hatching styles (issue #27146)
+    ax_test = fig_test.subplots()
+    ax_test.stackplot(x, y1, y2, y3, hatch=["x", "//", "\\\\"], colors=["white"])
+    ax_test.set_xlim((0, 10))
+    ax_test.set_ylim((0, 70))
+    # compare with result from hatching each layer individually
+    stack_baseline = np.zeros(len(x))
+    ax_ref = fig_ref.subplots()
+    ax_ref.fill_between(x, stack_baseline, y1, hatch="x", facecolor="white")
+    ax_ref.fill_between(x, y1, y1+y2, hatch="//", facecolor="white")
+    ax_ref.fill_between(x, y1+y2, y1+y2+y3, hatch="\\\\", facecolor="white")
+    ax_ref.set_xlim((0, 10))
+    ax_ref.set_ylim((0, 70))
+
+
 def _bxp_test_helper(
         stats_kwargs={}, transform_stats=lambda s: s, bxp_kwargs={}):
     np.random.seed(937)
     logstats = mpl.cbook.boxplot_stats(
         np.random.lognormal(mean=1.25, sigma=1., size=(37, 4)), **stats_kwargs)
     fig, ax = plt.subplots()
-    if bxp_kwargs.get('vert', True):
+    if bxp_kwargs.get('orientation', 'vertical') == 'vertical':
         ax.set_yscale('log')
     else:
         ax.set_xscale('log')
@@ -3133,7 +3237,7 @@ def test_bxp_with_xlabels():
                   style='default',
                   tol=0.1)
 def test_bxp_horizontal():
-    _bxp_test_helper(bxp_kwargs=dict(vert=False))
+    _bxp_test_helper(bxp_kwargs=dict(orientation='horizontal'))
 
 
 @image_comparison(['bxp_with_ylabels.png'],
@@ -3146,7 +3250,8 @@ def test_bxp_with_ylabels():
             s['label'] = label
         return stats
 
-    _bxp_test_helper(transform_stats=transform, bxp_kwargs=dict(vert=False))
+    _bxp_test_helper(transform_stats=transform,
+                     bxp_kwargs=dict(orientation='horizontal'))
 
 
 @image_comparison(['bxp_patchartist.png'],
@@ -3221,6 +3326,15 @@ def test_bxp_customcap():
 def test_bxp_customwhisker():
     _bxp_test_helper(bxp_kwargs=dict(
         whiskerprops=dict(linestyle='-', color='m', lw=3)))
+
+
+@check_figures_equal()
+def test_boxplot_median_bound_by_box(fig_test, fig_ref):
+    data = np.arange(3)
+    medianprops_test = {"linewidth": 12}
+    medianprops_ref = {**medianprops_test, "solid_capstyle": "butt"}
+    fig_test.subplots().boxplot(data,  medianprops=medianprops_test)
+    fig_ref.subplots().boxplot(data, medianprops=medianprops_ref)
 
 
 @image_comparison(['bxp_withnotch.png'],
@@ -3349,6 +3463,20 @@ def test_boxplot():
     ax.set_ylim((-30, 30))
 
 
+@check_figures_equal(extensions=["png"])
+def test_boxplot_masked(fig_test, fig_ref):
+    # Check that masked values are ignored when plotting a boxplot
+    x_orig = np.linspace(-1, 1, 200)
+
+    ax = fig_test.subplots()
+    x = x_orig[x_orig >= 0]
+    ax.boxplot(x)
+
+    x = np.ma.masked_less(x_orig, 0)
+    ax = fig_ref.subplots()
+    ax.boxplot(x)
+
+
 @image_comparison(['boxplot_custom_capwidths.png'],
                   savefig_kwarg={'dpi': 40}, style='default')
 def test_boxplot_custom_capwidths():
@@ -3452,7 +3580,6 @@ def test_boxplot_rc_parameters():
     }
 
     rc_axis1 = {
-        'boxplot.vertical': False,
         'boxplot.whiskers': [0, 100],
         'boxplot.patchartist': True,
     }
@@ -3651,7 +3778,7 @@ def test_horiz_violinplot_baseline():
     # First 9 digits of frac(sqrt(19))
     np.random.seed(358898943)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=False,
                   showextrema=False, showmedians=False)
 
 
@@ -3661,7 +3788,7 @@ def test_horiz_violinplot_showmedians():
     # First 9 digits of frac(sqrt(23))
     np.random.seed(795831523)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=False,
                   showextrema=False, showmedians=True)
 
 
@@ -3671,7 +3798,7 @@ def test_horiz_violinplot_showmeans():
     # First 9 digits of frac(sqrt(29))
     np.random.seed(385164807)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=True,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=True,
                   showextrema=False, showmedians=False)
 
 
@@ -3681,7 +3808,7 @@ def test_horiz_violinplot_showextrema():
     # First 9 digits of frac(sqrt(31))
     np.random.seed(567764362)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=False,
                   showextrema=True, showmedians=False)
 
 
@@ -3691,7 +3818,7 @@ def test_horiz_violinplot_showall():
     # First 9 digits of frac(sqrt(37))
     np.random.seed(82762530)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=True,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=True,
                   showextrema=True, showmedians=True,
                   quantiles=[[0.1, 0.9], [0.2, 0.8], [0.3, 0.7], [0.4, 0.6]])
 
@@ -3702,7 +3829,7 @@ def test_horiz_violinplot_custompoints_10():
     # First 9 digits of frac(sqrt(41))
     np.random.seed(403124237)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=False,
                   showextrema=False, showmedians=False, points=10)
 
 
@@ -3712,8 +3839,23 @@ def test_horiz_violinplot_custompoints_200():
     # First 9 digits of frac(sqrt(43))
     np.random.seed(557438524)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=False,
                   showextrema=False, showmedians=False, points=200)
+
+
+@image_comparison(['violinplot_sides.png'], remove_text=True, style='mpl20')
+def test_violinplot_sides():
+    ax = plt.axes()
+    np.random.seed(19680801)
+    data = [np.random.normal(size=100)]
+    # Check horizontal violinplot
+    for pos, side in zip([0, -0.5, 0.5], ['both', 'low', 'high']):
+        ax.violinplot(data, positions=[pos], orientation='horizontal', showmeans=False,
+                      showextrema=True, showmedians=True, side=side)
+    # Check vertical violinplot
+    for pos, side in zip([4, 3.5, 4.5], ['both', 'low', 'high']):
+        ax.violinplot(data, positions=[pos], orientation='vertical', showmeans=False,
+                      showextrema=True, showmedians=True, side=side)
 
 
 def test_violinplot_bad_positions():
@@ -4089,6 +4231,20 @@ def test_xerr_yerr_not_negative():
                     yerr=datetime.timedelta(days=-10))
 
 
+def test_xerr_yerr_not_none():
+    ax = plt.figure().subplots()
+
+    with pytest.raises(ValueError,
+                       match="'xerr' must not contain None"):
+        ax.errorbar(x=[0], y=[0], xerr=[[None], [1]], yerr=[[None], [1]])
+    with pytest.raises(ValueError,
+                       match="'xerr' must not contain None"):
+        ax.errorbar(x=[0], y=[0], xerr=[[None], [1]])
+    with pytest.raises(ValueError,
+                       match="'yerr' must not contain None"):
+        ax.errorbar(x=[0], y=[0], yerr=[[None], [1]])
+
+
 @check_figures_equal()
 def test_errorbar_every(fig_test, fig_ref):
     x = np.linspace(0, 1, 15)
@@ -4358,134 +4514,75 @@ def test_hist_step_bottom():
     ax.hist(d1, bottom=np.arange(10), histtype="stepfilled")
 
 
-def test_hist_stepfilled_geometry():
-    bins = [0, 1, 2, 3]
-    data = [0, 0, 1, 1, 1, 2]
-    _, _, (polygon, ) = plt.hist(data,
-                                 bins=bins,
-                                 histtype='stepfilled')
-    xy = [[0, 0], [0, 2], [1, 2], [1, 3], [2, 3], [2, 1], [3, 1],
-          [3, 0], [2, 0], [2, 0], [1, 0], [1, 0], [0, 0]]
-    assert_array_equal(polygon.get_xy(), xy)
-
-
 def test_hist_step_geometry():
     bins = [0, 1, 2, 3]
     data = [0, 0, 1, 1, 1, 2]
-    _, _, (polygon, ) = plt.hist(data,
-                                 bins=bins,
-                                 histtype='step')
-    xy = [[0, 0], [0, 2], [1, 2], [1, 3], [2, 3], [2, 1], [3, 1], [3, 0]]
-    assert_array_equal(polygon.get_xy(), xy)
+    top = [[0, 0], [0, 2], [1, 2], [1, 3], [2, 3], [2, 1], [3, 1], [3, 0]]
+    bottom = [[2, 0], [2, 0], [1, 0], [1, 0], [0, 0]]
 
-
-def test_hist_stepfilled_bottom_geometry():
-    bins = [0, 1, 2, 3]
-    data = [0, 0, 1, 1, 1, 2]
-    _, _, (polygon, ) = plt.hist(data,
-                                 bins=bins,
-                                 bottom=[1, 2, 1.5],
-                                 histtype='stepfilled')
-    xy = [[0, 1], [0, 3], [1, 3], [1, 5], [2, 5], [2, 2.5], [3, 2.5],
-          [3, 1.5], [2, 1.5], [2, 2], [1, 2], [1, 1], [0, 1]]
-    assert_array_equal(polygon.get_xy(), xy)
+    for histtype, xy in [('step', top), ('stepfilled', top + bottom)]:
+        _, _, (polygon, ) = plt.hist(data, bins=bins, histtype=histtype)
+        assert_array_equal(polygon.get_xy(), xy)
 
 
 def test_hist_step_bottom_geometry():
     bins = [0, 1, 2, 3]
     data = [0, 0, 1, 1, 1, 2]
-    _, _, (polygon, ) = plt.hist(data,
-                                 bins=bins,
-                                 bottom=[1, 2, 1.5],
-                                 histtype='step')
-    xy = [[0, 1], [0, 3], [1, 3], [1, 5], [2, 5], [2, 2.5], [3, 2.5], [3, 1.5]]
-    assert_array_equal(polygon.get_xy(), xy)
+    top = [[0, 1], [0, 3], [1, 3], [1, 5], [2, 5], [2, 2.5], [3, 2.5], [3, 1.5]]
+    bottom = [[2, 1.5], [2, 2], [1, 2], [1, 1], [0, 1]]
 
-
-def test_hist_stacked_stepfilled_geometry():
-    bins = [0, 1, 2, 3]
-    data_1 = [0, 0, 1, 1, 1, 2]
-    data_2 = [0, 1, 2]
-    _, _, patches = plt.hist([data_1, data_2],
-                             bins=bins,
-                             stacked=True,
-                             histtype='stepfilled')
-
-    assert len(patches) == 2
-
-    polygon,  = patches[0]
-    xy = [[0, 0], [0, 2], [1, 2], [1, 3], [2, 3], [2, 1], [3, 1],
-          [3, 0], [2, 0], [2, 0], [1, 0], [1, 0], [0, 0]]
-    assert_array_equal(polygon.get_xy(), xy)
-
-    polygon,  = patches[1]
-    xy = [[0, 2], [0, 3], [1, 3], [1, 4], [2, 4], [2, 2], [3, 2],
-          [3, 1], [2, 1], [2, 3], [1, 3], [1, 2], [0, 2]]
-    assert_array_equal(polygon.get_xy(), xy)
+    for histtype, xy in [('step', top), ('stepfilled', top + bottom)]:
+        _, _, (polygon, ) = plt.hist(data, bins=bins, bottom=[1, 2, 1.5],
+                                     histtype=histtype)
+        assert_array_equal(polygon.get_xy(), xy)
 
 
 def test_hist_stacked_step_geometry():
     bins = [0, 1, 2, 3]
     data_1 = [0, 0, 1, 1, 1, 2]
     data_2 = [0, 1, 2]
-    _, _, patches = plt.hist([data_1, data_2],
-                             bins=bins,
-                             stacked=True,
-                             histtype='step')
+    tops = [
+        [[0, 0], [0, 2], [1, 2], [1, 3], [2, 3], [2, 1], [3, 1], [3, 0]],
+        [[0, 2], [0, 3], [1, 3], [1, 4], [2, 4], [2, 2], [3, 2], [3, 1]],
+    ]
+    bottoms = [
+        [[2, 0], [2, 0], [1, 0], [1, 0], [0, 0]],
+        [[2, 1], [2, 3], [1, 3], [1, 2], [0, 2]],
+    ]
+    combined = [t + b for t, b in zip(tops, bottoms)]
 
-    assert len(patches) == 2
-
-    polygon,  = patches[0]
-    xy = [[0, 0], [0, 2], [1, 2], [1, 3], [2, 3], [2, 1], [3, 1], [3, 0]]
-    assert_array_equal(polygon.get_xy(), xy)
-
-    polygon,  = patches[1]
-    xy = [[0, 2], [0, 3], [1, 3], [1, 4], [2, 4], [2, 2], [3, 2], [3, 1]]
-    assert_array_equal(polygon.get_xy(), xy)
-
-
-def test_hist_stacked_stepfilled_bottom_geometry():
-    bins = [0, 1, 2, 3]
-    data_1 = [0, 0, 1, 1, 1, 2]
-    data_2 = [0, 1, 2]
-    _, _, patches = plt.hist([data_1, data_2],
-                             bins=bins,
-                             stacked=True,
-                             bottom=[1, 2, 1.5],
-                             histtype='stepfilled')
-
-    assert len(patches) == 2
-
-    polygon,  = patches[0]
-    xy = [[0, 1], [0, 3], [1, 3], [1, 5], [2, 5], [2, 2.5], [3, 2.5],
-          [3, 1.5], [2, 1.5], [2, 2], [1, 2], [1, 1], [0, 1]]
-    assert_array_equal(polygon.get_xy(), xy)
-
-    polygon,  = patches[1]
-    xy = [[0, 3], [0, 4], [1, 4], [1, 6], [2, 6], [2, 3.5], [3, 3.5],
-          [3, 2.5], [2, 2.5], [2, 5], [1, 5], [1, 3], [0, 3]]
-    assert_array_equal(polygon.get_xy(), xy)
+    for histtype, xy in [('step', tops), ('stepfilled', combined)]:
+        _, _, patches = plt.hist([data_1, data_2], bins=bins, stacked=True,
+                                 histtype=histtype)
+        assert len(patches) == 2
+        polygon, = patches[0]
+        assert_array_equal(polygon.get_xy(), xy[0])
+        polygon, = patches[1]
+        assert_array_equal(polygon.get_xy(), xy[1])
 
 
 def test_hist_stacked_step_bottom_geometry():
     bins = [0, 1, 2, 3]
     data_1 = [0, 0, 1, 1, 1, 2]
     data_2 = [0, 1, 2]
-    _, _, patches = plt.hist([data_1, data_2],
-                             bins=bins,
-                             stacked=True,
-                             bottom=[1, 2, 1.5],
-                             histtype='step')
+    tops = [
+        [[0, 1], [0, 3], [1, 3], [1, 5], [2, 5], [2, 2.5], [3, 2.5], [3, 1.5]],
+        [[0, 3], [0, 4], [1, 4], [1, 6], [2, 6], [2, 3.5], [3, 3.5], [3, 2.5]],
+    ]
+    bottoms = [
+        [[2, 1.5], [2, 2], [1, 2], [1, 1], [0, 1]],
+        [[2, 2.5], [2, 5], [1, 5], [1, 3], [0, 3]],
+    ]
+    combined = [t + b for t, b in zip(tops, bottoms)]
 
-    assert len(patches) == 2
-
-    polygon,  = patches[0]
-    xy = [[0, 1], [0, 3], [1, 3], [1, 5], [2, 5], [2, 2.5], [3, 2.5], [3, 1.5]]
-    assert_array_equal(polygon.get_xy(), xy)
-
-    polygon,  = patches[1]
-    xy = [[0, 3], [0, 4], [1, 4], [1, 6], [2, 6], [2, 3.5], [3, 3.5], [3, 2.5]]
-    assert_array_equal(polygon.get_xy(), xy)
+    for histtype, xy in [('step', tops), ('stepfilled', combined)]:
+        _, _, patches = plt.hist([data_1, data_2], bins=bins, stacked=True,
+                                 bottom=[1, 2, 1.5], histtype=histtype)
+        assert len(patches) == 2
+        polygon, = patches[0]
+        assert_array_equal(polygon.get_xy(), xy[0])
+        polygon, = patches[1]
+        assert_array_equal(polygon.get_xy(), xy[1])
 
 
 @image_comparison(['hist_stacked_bar'])
@@ -4824,7 +4921,8 @@ def test_marker_styles():
                 marker=marker, markersize=10+y/5, label=marker)
 
 
-@image_comparison(['rc_markerfill.png'])
+@image_comparison(['rc_markerfill.png'],
+                  tol=0.037 if platform.machine() == 'arm64' else 0)
 def test_markers_fillstyle_rcparams():
     fig, ax = plt.subplots()
     x = np.arange(7)
@@ -4847,7 +4945,7 @@ def test_vertex_markers():
 
 
 @image_comparison(['vline_hline_zorder', 'errorbar_zorder'],
-                  tol=0 if platform.machine() == 'x86_64' else 0.02)
+                  tol=0 if platform.machine() == 'x86_64' else 0.026)
 def test_eb_line_zorder():
     x = list(range(10))
 
@@ -5406,7 +5504,8 @@ def test_twin_remove(fig_test, fig_ref):
     ax_ref.yaxis.tick_left()
 
 
-@image_comparison(['twin_spines.png'], remove_text=True)
+@image_comparison(['twin_spines.png'], remove_text=True,
+                  tol=0.022 if platform.machine() == 'arm64' else 0)
 def test_twin_spines():
 
     def make_patch_spines_invisible(ax):
@@ -5723,7 +5822,12 @@ def test_text_labelsize():
     ax.tick_params(direction='out')
 
 
-@image_comparison(['pie_default.png'])
+# Note: The `pie` image tests were affected by Numpy 2.0 changing promotions
+# (NEP 50). While the changes were only marginal, tolerances were introduced.
+# These tolerances could likely go away when numpy 2.0 is the minimum supported
+# numpy and the images are regenerated.
+
+@image_comparison(['pie_default.png'], tol=0.01)
 def test_pie_default():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -5736,7 +5840,7 @@ def test_pie_default():
 
 
 @image_comparison(['pie_linewidth_0', 'pie_linewidth_0', 'pie_linewidth_0'],
-                  extensions=['png'], style='mpl20')
+                  extensions=['png'], style='mpl20', tol=0.01)
 def test_pie_linewidth_0():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -5768,7 +5872,7 @@ def test_pie_linewidth_0():
     plt.axis('equal')
 
 
-@image_comparison(['pie_center_radius.png'], style='mpl20')
+@image_comparison(['pie_center_radius.png'], style='mpl20', tol=0.01)
 def test_pie_center_radius():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -5788,7 +5892,7 @@ def test_pie_center_radius():
     plt.axis('equal')
 
 
-@image_comparison(['pie_linewidth_2.png'], style='mpl20')
+@image_comparison(['pie_linewidth_2.png'], style='mpl20', tol=0.01)
 def test_pie_linewidth_2():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -5803,7 +5907,7 @@ def test_pie_linewidth_2():
     plt.axis('equal')
 
 
-@image_comparison(['pie_ccw_true.png'], style='mpl20')
+@image_comparison(['pie_ccw_true.png'], style='mpl20', tol=0.01)
 def test_pie_ccw_true():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -5818,7 +5922,7 @@ def test_pie_ccw_true():
     plt.axis('equal')
 
 
-@image_comparison(['pie_frame_grid.png'], style='mpl20')
+@image_comparison(['pie_frame_grid.png'], style='mpl20', tol=0.002)
 def test_pie_frame_grid():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -5845,7 +5949,7 @@ def test_pie_frame_grid():
     plt.axis('equal')
 
 
-@image_comparison(['pie_rotatelabels_true.png'], style='mpl20')
+@image_comparison(['pie_rotatelabels_true.png'], style='mpl20', tol=0.009)
 def test_pie_rotatelabels_true():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Hogwarts', 'Frogs', 'Dogs', 'Logs'
@@ -5860,7 +5964,7 @@ def test_pie_rotatelabels_true():
     plt.axis('equal')
 
 
-@image_comparison(['pie_no_label.png'])
+@image_comparison(['pie_no_label.png'], tol=0.01)
 def test_pie_nolabel_but_legend():
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
     sizes = [15, 30, 45, 10]
@@ -5874,7 +5978,7 @@ def test_pie_nolabel_but_legend():
     plt.legend()
 
 
-@image_comparison(['pie_shadow.png'], style='mpl20')
+@image_comparison(['pie_shadow.png'], style='mpl20', tol=0.002)
 def test_pie_shadow():
     # Also acts as a test for the shade argument of Shadow
     sizes = [15, 30, 45, 10]
@@ -5954,7 +6058,8 @@ def test_pie_hatch_multi(fig_test, fig_ref):
     [w.set_hatch(hp) for w, hp in zip(wedges, hatch)]
 
 
-@image_comparison(['set_get_ticklabels.png'])
+@image_comparison(['set_get_ticklabels.png'],
+                  tol=0.025 if platform.machine() == 'arm64' else 0)
 def test_set_get_ticklabels():
     # test issue 2246
     fig, ax = plt.subplots(2)
@@ -6142,6 +6247,14 @@ def test_margins():
                               xmax + (xmax - xmin) * -0.2)
     assert ax3.get_ylim() == (ymin - (ymax - ymin) * 0.5,
                               ymax + (ymax - ymin) * 0.5)
+
+
+def test_margin_getters():
+    fig = plt.figure()
+    ax = fig.add_subplot()
+    ax.margins(0.2, 0.3)
+    assert ax.get_xmargin() == 0.2
+    assert ax.get_ymargin() == 0.3
 
 
 def test_set_margin_updates_limits():
@@ -6388,6 +6501,13 @@ def test_pcolorfast(xy, data, cls):
     assert type(ax.pcolorfast(*xy, data)) == cls
 
 
+def test_pcolorfast_bad_dims():
+    fig, ax = plt.subplots()
+    with pytest.raises(
+            TypeError, match=("the given X was 1D and the given Y was 2D")):
+        ax.pcolorfast(np.empty(6), np.empty((4, 7)), np.empty((8, 8)))
+
+
 def test_shared_scale():
     fig, axs = plt.subplots(2, 2, sharex=True, sharey=True)
 
@@ -6510,7 +6630,8 @@ def test_loglog():
     ax.tick_params(length=15, width=2, which='minor')
 
 
-@image_comparison(["test_loglog_nonpos.png"], remove_text=True, style='mpl20')
+@image_comparison(["test_loglog_nonpos.png"], remove_text=True, style='mpl20',
+                  tol=0.029 if platform.machine() == 'arm64' else 0)
 def test_loglog_nonpos():
     fig, axs = plt.subplots(3, 3)
     x = np.arange(1, 11)
@@ -6836,11 +6957,13 @@ def test_date_timezone_x():
     # Same Timezone
     plt.figure(figsize=(20, 12))
     plt.subplot(2, 1, 1)
-    plt.plot_date(time_index, [3] * 3, tz='Canada/Eastern')
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.plot_date(time_index, [3] * 3, tz='Canada/Eastern')
 
     # Different Timezone
     plt.subplot(2, 1, 2)
-    plt.plot_date(time_index, [3] * 3, tz='UTC')
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.plot_date(time_index, [3] * 3, tz='UTC')
 
 
 @image_comparison(['date_timezone_y.png'])
@@ -6853,12 +6976,13 @@ def test_date_timezone_y():
     # Same Timezone
     plt.figure(figsize=(20, 12))
     plt.subplot(2, 1, 1)
-    plt.plot_date([3] * 3,
-                  time_index, tz='Canada/Eastern', xdate=False, ydate=True)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.plot_date([3] * 3, time_index, tz='Canada/Eastern', xdate=False, ydate=True)
 
     # Different Timezone
     plt.subplot(2, 1, 2)
-    plt.plot_date([3] * 3, time_index, tz='UTC', xdate=False, ydate=True)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.plot_date([3] * 3, time_index, tz='UTC', xdate=False, ydate=True)
 
 
 @image_comparison(['date_timezone_x_and_y.png'], tol=1.0)
@@ -6871,11 +6995,13 @@ def test_date_timezone_x_and_y():
     # Same Timezone
     plt.figure(figsize=(20, 12))
     plt.subplot(2, 1, 1)
-    plt.plot_date(time_index, time_index, tz='UTC', ydate=True)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.plot_date(time_index, time_index, tz='UTC', ydate=True)
 
     # Different Timezone
     plt.subplot(2, 1, 2)
-    plt.plot_date(time_index, time_index, tz='US/Eastern', ydate=True)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.plot_date(time_index, time_index, tz='US/Eastern', ydate=True)
 
 
 @image_comparison(['axisbelow.png'], remove_text=True)
@@ -7431,8 +7557,8 @@ def test_scatter_empty_data():
     plt.scatter([], [], s=[], c=[])
 
 
-@image_comparison(['annotate_across_transforms.png'],
-                  style='mpl20', remove_text=True)
+@image_comparison(['annotate_across_transforms.png'], style='mpl20', remove_text=True,
+                  tol=0.025 if platform.machine() == 'arm64' else 0)
 def test_annotate_across_transforms():
     x = np.linspace(0, 10, 200)
     y = np.exp(-x) * np.sin(x)
@@ -7448,7 +7574,22 @@ def test_annotate_across_transforms():
                 arrowprops=dict(arrowstyle="->"))
 
 
-@image_comparison(['secondary_xy.png'], style='mpl20')
+class _Translation(mtransforms.Transform):
+    input_dims = 1
+    output_dims = 1
+
+    def __init__(self, dx):
+        self.dx = dx
+
+    def transform(self, values):
+        return values + self.dx
+
+    def inverted(self):
+        return _Translation(-self.dx)
+
+
+@image_comparison(['secondary_xy.png'], style='mpl20',
+                  tol=0.027 if platform.machine() == 'arm64' else 0)
 def test_secondary_xy():
     fig, axs = plt.subplots(1, 2, figsize=(10, 5), constrained_layout=True)
 
@@ -7467,6 +7608,8 @@ def test_secondary_xy():
         secax(0.4, functions=(lambda x: 2 * x, lambda x: x / 2))
         secax(0.6, functions=(lambda x: x**2, lambda x: x**(1/2)))
         secax(0.8)
+        secax("top" if nn == 0 else "right", functions=_Translation(2))
+        secax(6.25, transform=ax.transData)
 
 
 def test_secondary_fail():
@@ -7478,6 +7621,8 @@ def test_secondary_fail():
         ax.secondary_xaxis('right')
     with pytest.raises(ValueError):
         ax.secondary_yaxis('bottom')
+    with pytest.raises(TypeError):
+        ax.secondary_xaxis(0.2, transform='error')
 
 
 def test_secondary_resize():
@@ -7554,7 +7699,7 @@ def test_axis_options():
 
 def color_boxes(fig, ax):
     """
-    Helper for the tests below that test the extents of various axes elements
+    Helper for the tests below that test the extents of various Axes elements
     """
     fig.canvas.draw()
 
@@ -8154,11 +8299,11 @@ def test_bar_label_location_vertical():
     rects = ax.bar(xs, heights)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (xs[0], heights[0])
-    assert labels[0].get_ha() == 'center'
-    assert labels[0].get_va() == 'bottom'
+    assert labels[0].get_horizontalalignment() == 'center'
+    assert labels[0].get_verticalalignment() == 'bottom'
     assert labels[1].xy == (xs[1], heights[1])
-    assert labels[1].get_ha() == 'center'
-    assert labels[1].get_va() == 'top'
+    assert labels[1].get_horizontalalignment() == 'center'
+    assert labels[1].get_verticalalignment() == 'top'
 
 
 def test_bar_label_location_vertical_yinverted():
@@ -8168,11 +8313,11 @@ def test_bar_label_location_vertical_yinverted():
     rects = ax.bar(xs, heights)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (xs[0], heights[0])
-    assert labels[0].get_ha() == 'center'
-    assert labels[0].get_va() == 'top'
+    assert labels[0].get_horizontalalignment() == 'center'
+    assert labels[0].get_verticalalignment() == 'top'
     assert labels[1].xy == (xs[1], heights[1])
-    assert labels[1].get_ha() == 'center'
-    assert labels[1].get_va() == 'bottom'
+    assert labels[1].get_horizontalalignment() == 'center'
+    assert labels[1].get_verticalalignment() == 'bottom'
 
 
 def test_bar_label_location_horizontal():
@@ -8181,11 +8326,11 @@ def test_bar_label_location_horizontal():
     rects = ax.barh(ys, widths)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (widths[0], ys[0])
-    assert labels[0].get_ha() == 'left'
-    assert labels[0].get_va() == 'center'
+    assert labels[0].get_horizontalalignment() == 'left'
+    assert labels[0].get_verticalalignment() == 'center'
     assert labels[1].xy == (widths[1], ys[1])
-    assert labels[1].get_ha() == 'right'
-    assert labels[1].get_va() == 'center'
+    assert labels[1].get_horizontalalignment() == 'right'
+    assert labels[1].get_verticalalignment() == 'center'
 
 
 def test_bar_label_location_horizontal_yinverted():
@@ -8195,11 +8340,11 @@ def test_bar_label_location_horizontal_yinverted():
     rects = ax.barh(ys, widths)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (widths[0], ys[0])
-    assert labels[0].get_ha() == 'left'
-    assert labels[0].get_va() == 'center'
+    assert labels[0].get_horizontalalignment() == 'left'
+    assert labels[0].get_verticalalignment() == 'center'
     assert labels[1].xy == (widths[1], ys[1])
-    assert labels[1].get_ha() == 'right'
-    assert labels[1].get_va() == 'center'
+    assert labels[1].get_horizontalalignment() == 'right'
+    assert labels[1].get_verticalalignment() == 'center'
 
 
 def test_bar_label_location_horizontal_xinverted():
@@ -8209,11 +8354,11 @@ def test_bar_label_location_horizontal_xinverted():
     rects = ax.barh(ys, widths)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (widths[0], ys[0])
-    assert labels[0].get_ha() == 'right'
-    assert labels[0].get_va() == 'center'
+    assert labels[0].get_horizontalalignment() == 'right'
+    assert labels[0].get_verticalalignment() == 'center'
     assert labels[1].xy == (widths[1], ys[1])
-    assert labels[1].get_ha() == 'left'
-    assert labels[1].get_va() == 'center'
+    assert labels[1].get_horizontalalignment() == 'left'
+    assert labels[1].get_verticalalignment() == 'center'
 
 
 def test_bar_label_location_horizontal_xyinverted():
@@ -8224,11 +8369,11 @@ def test_bar_label_location_horizontal_xyinverted():
     rects = ax.barh(ys, widths)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (widths[0], ys[0])
-    assert labels[0].get_ha() == 'right'
-    assert labels[0].get_va() == 'center'
+    assert labels[0].get_horizontalalignment() == 'right'
+    assert labels[0].get_verticalalignment() == 'center'
     assert labels[1].xy == (widths[1], ys[1])
-    assert labels[1].get_ha() == 'left'
-    assert labels[1].get_va() == 'center'
+    assert labels[1].get_horizontalalignment() == 'left'
+    assert labels[1].get_verticalalignment() == 'center'
 
 
 def test_bar_label_location_center():
@@ -8237,11 +8382,11 @@ def test_bar_label_location_center():
     rects = ax.barh(ys, widths)
     labels = ax.bar_label(rects, label_type='center')
     assert labels[0].xy == (0.5, 0.5)
-    assert labels[0].get_ha() == 'center'
-    assert labels[0].get_va() == 'center'
+    assert labels[0].get_horizontalalignment() == 'center'
+    assert labels[0].get_verticalalignment() == 'center'
     assert labels[1].xy == (0.5, 0.5)
-    assert labels[1].get_ha() == 'center'
-    assert labels[1].get_va() == 'center'
+    assert labels[1].get_horizontalalignment() == 'center'
+    assert labels[1].get_verticalalignment() == 'center'
 
 
 @image_comparison(['test_centered_bar_label_nonlinear.svg'])
@@ -8273,11 +8418,11 @@ def test_bar_label_location_errorbars():
     rects = ax.bar(xs, heights, yerr=1)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (xs[0], heights[0] + 1)
-    assert labels[0].get_ha() == 'center'
-    assert labels[0].get_va() == 'bottom'
+    assert labels[0].get_horizontalalignment() == 'center'
+    assert labels[0].get_verticalalignment() == 'bottom'
     assert labels[1].xy == (xs[1], heights[1] - 1)
-    assert labels[1].get_ha() == 'center'
-    assert labels[1].get_va() == 'top'
+    assert labels[1].get_horizontalalignment() == 'center'
+    assert labels[1].get_verticalalignment() == 'top'
 
 
 @pytest.mark.parametrize('fmt', [
@@ -8312,7 +8457,7 @@ def test_bar_label_nan_ydata():
     labels = ax.bar_label(bars)
     assert [l.get_text() for l in labels] == ['', '1']
     assert labels[0].xy == (2, 0)
-    assert labels[0].get_va() == 'bottom'
+    assert labels[0].get_verticalalignment() == 'bottom'
 
 
 def test_bar_label_nan_ydata_inverted():
@@ -8322,7 +8467,7 @@ def test_bar_label_nan_ydata_inverted():
     labels = ax.bar_label(bars)
     assert [l.get_text() for l in labels] == ['', '1']
     assert labels[0].xy == (2, 0)
-    assert labels[0].get_va() == 'bottom'
+    assert labels[0].get_verticalalignment() == 'bottom'
 
 
 def test_nan_barlabels():
@@ -8426,6 +8571,8 @@ def test_empty_line_plots():
     (":-", r"':-' is not a valid format string \(two linestyle symbols\)"),
     ("rk", r"'rk' is not a valid format string \(two color symbols\)"),
     (":o-r", r"':o-r' is not a valid format string \(two linestyle symbols\)"),
+    ("C", r"'C' is not a valid format string \('C' must be followed by a number\)"),
+    (".C", r"'.C' is not a valid format string \('C' must be followed by a number\)"),
 ))
 @pytest.mark.parametrize("data", [None, {"string": range(3)}])
 def test_plot_format_errors(fmt, match, data):
@@ -8458,6 +8605,11 @@ def test_plot_format():
     line = ax.plot([1, 2, 3], 'k3')
     assert line[0].get_marker() == '3'
     assert line[0].get_color() == 'k'
+    fig, ax = plt.subplots()
+    line = ax.plot([1, 2, 3], '.C12:')
+    assert line[0].get_marker() == '.'
+    assert line[0].get_color() == mcolors.to_rgba('C12')
+    assert line[0].get_linestyle() == ':'
 
 
 def test_automatic_legend():
@@ -8670,6 +8822,14 @@ def test_cla_clears_children_axes_and_fig():
         assert art.figure is None
 
 
+def test_child_axes_removal():
+    fig, ax = plt.subplots()
+    marginal = ax.inset_axes([1, 0, .1, 1], sharey=ax)
+    marginal_twin = marginal.twinx()
+    marginal.remove()
+    ax.set(xlim=(-1, 1), ylim=(10, 20))
+
+
 def test_scatter_color_repr_error():
 
     def get_next_color():
@@ -8692,7 +8852,8 @@ def test_zorder_and_explicit_rasterization():
         fig.savefig(b, format='pdf')
 
 
-@image_comparison(["preset_clip_paths.png"], remove_text=True, style="mpl20")
+@image_comparison(["preset_clip_paths.png"], remove_text=True, style="mpl20",
+                  tol=0.027 if platform.machine() == "arm64" else 0)
 def test_preset_clip_paths():
     fig, ax = plt.subplots()
 
@@ -8794,7 +8955,7 @@ def test_tick_param_labelfont():
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3, 4], [1, 2, 3, 4])
     ax.set_xlabel('X label in Impact font', fontname='Impact')
-    ax.set_ylabel('Y label in Humor Sans', fontname='Humor Sans')
+    ax.set_ylabel('Y label in xkcd script', fontname='xkcd script')
     ax.tick_params(color='r', labelfontfamily='monospace')
     plt.title('Title in sans-serif')
     for text in ax.get_xticklabels():
@@ -8818,3 +8979,165 @@ def test_xylim_changed_shared():
     axs[1].callbacks.connect("ylim_changed", events.append)
     axs[0].set(xlim=[1, 3], ylim=[2, 4])
     assert events == [axs[1], axs[1]]
+
+
+@image_comparison(["axhvlinespan_interpolation.png"], style="default")
+def test_axhvlinespan_interpolation():
+    ax = plt.figure().add_subplot(projection="polar")
+    ax.set_axis_off()
+    ax.axvline(.1, c="C0")
+    ax.axvspan(.2, .3, fc="C1")
+    ax.axvspan(.4, .5, .1, .2, fc="C2")
+    ax.axhline(1, c="C0", alpha=.5)
+    ax.axhspan(.8, .9, fc="C1", alpha=.5)
+    ax.axhspan(.6, .7, .8, .9, fc="C2", alpha=.5)
+
+
+@check_figures_equal(extensions=["png"])
+@pytest.mark.parametrize("which", ("x", "y"))
+def test_axes_clear_behavior(fig_ref, fig_test, which):
+    """Test that the given tick params are not reset by ax.clear()."""
+    ax_test = fig_test.subplots()
+    ax_ref = fig_ref.subplots()
+    # the following tick params values are chosen to each create a visual difference
+    # from their defaults
+    target = {
+        "direction": "in",
+        "length": 10,
+        "width": 10,
+        "color": "xkcd:wine red",
+        "pad": 0,
+        "labelfontfamily": "serif",
+        "zorder": 7,
+        "labelrotation": 45,
+        "labelcolor": "xkcd:shocking pink",
+        # this overrides color + labelcolor, skip
+        # colors: ,
+        "grid_color": "xkcd:fluorescent green",
+        "grid_alpha": 0.5,
+        "grid_linewidth": 3,
+        "grid_linestyle": ":",
+        "bottom": False,
+        "top": True,
+        "left": False,
+        "right": True,
+        "labelbottom": True,
+        "labeltop": True,
+        "labelleft": True,
+        "labelright": True,
+    }
+
+    ax_ref.tick_params(axis=which, **target)
+
+    ax_test.tick_params(axis=which, **target)
+    ax_test.clear()
+
+    ax_ref.grid(True)
+    ax_test.grid(True)
+
+
+def test_boxplot_tick_labels():
+    # Test the renamed `tick_labels` parameter.
+    # Test for deprecation of old name `labels`.
+    np.random.seed(19680801)
+    data = np.random.random((10, 3))
+
+    fig, axs = plt.subplots(nrows=1, ncols=2, sharey=True)
+    # Should get deprecation warning for `labels`
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='has been renamed \'tick_labels\''):
+        axs[0].boxplot(data, labels=['A', 'B', 'C'])
+    assert [l.get_text() for l in axs[0].get_xticklabels()] == ['A', 'B', 'C']
+
+    # Test the new tick_labels parameter
+    axs[1].boxplot(data, tick_labels=['A', 'B', 'C'])
+    assert [l.get_text() for l in axs[1].get_xticklabels()] == ['A', 'B', 'C']
+
+
+@needs_usetex
+@check_figures_equal()
+def test_latex_pie_percent(fig_test, fig_ref):
+
+    data = [20, 10, 70]
+
+    ax = fig_test.subplots()
+    ax.pie(data, autopct="%1.0f%%", textprops={'usetex': True})
+
+    ax1 = fig_ref.subplots()
+    ax1.pie(data, autopct=r"%1.0f\%%", textprops={'usetex': True})
+
+
+@check_figures_equal(extensions=['png'])
+def test_violinplot_orientation(fig_test, fig_ref):
+    # Test the `orientation : {'vertical', 'horizontal'}`
+    # parameter and deprecation of `vert: bool`.
+    fig, axs = plt.subplots(nrows=1, ncols=3)
+    np.random.seed(19680801)
+    all_data = [np.random.normal(0, std, 100) for std in range(6, 10)]
+
+    axs[0].violinplot(all_data)  # Default vertical plot.
+    # xticks and yticks should be at their default position.
+    assert all(axs[0].get_xticks() == np.array(
+        [0.5, 1., 1.5, 2., 2.5, 3., 3.5, 4., 4.5]))
+    assert all(axs[0].get_yticks() == np.array(
+        [-30., -20., -10., 0., 10., 20., 30.]))
+
+    # Horizontal plot using new `orientation` keyword.
+    axs[1].violinplot(all_data, orientation='horizontal')
+    # xticks and yticks should be swapped.
+    assert all(axs[1].get_xticks() == np.array(
+        [-30., -20., -10., 0., 10., 20., 30.]))
+    assert all(axs[1].get_yticks() == np.array(
+        [0.5, 1., 1.5, 2., 2.5, 3., 3.5, 4., 4.5]))
+
+    plt.close()
+
+    # Deprecation of `vert: bool` keyword
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='vert: bool was deprecated in Matplotlib 3.10'):
+        # Compare images between a figure that
+        # uses vert and one that uses orientation.
+        ax_ref = fig_ref.subplots()
+        ax_ref.violinplot(all_data, vert=False)
+
+        ax_test = fig_test.subplots()
+        ax_test.violinplot(all_data, orientation='horizontal')
+
+
+@check_figures_equal(extensions=['png'])
+def test_boxplot_orientation(fig_test, fig_ref):
+    # Test the `orientation : {'vertical', 'horizontal'}`
+    # parameter and deprecation of `vert: bool`.
+    fig, axs = plt.subplots(nrows=1, ncols=2)
+    np.random.seed(19680801)
+    all_data = [np.random.normal(0, std, 100) for std in range(6, 10)]
+
+    axs[0].boxplot(all_data)  # Default vertical plot.
+    # xticks and yticks should be at their default position.
+    assert all(axs[0].get_xticks() == np.array(
+        [1, 2, 3, 4]))
+    assert all(axs[0].get_yticks() == np.array(
+        [-30., -20., -10., 0., 10., 20., 30.]))
+
+    # Horizontal plot using new `orientation` keyword.
+    axs[1].boxplot(all_data, orientation='horizontal')
+    # xticks and yticks should be swapped.
+    assert all(axs[1].get_xticks() == np.array(
+        [-30., -20., -10., 0., 10., 20., 30.]))
+    assert all(axs[1].get_yticks() == np.array(
+        [1, 2, 3, 4]))
+
+    plt.close()
+
+    # Deprecation of `vert: bool` keyword and
+    # 'boxplot.vertical' rcparam.
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='was deprecated in Matplotlib 3.10'):
+        # Compare images between a figure that
+        # uses vert and one that uses orientation.
+        with mpl.rc_context({'boxplot.vertical': False}):
+            ax_ref = fig_ref.subplots()
+            ax_ref.boxplot(all_data)
+
+        ax_test = fig_test.subplots()
+        ax_test.boxplot(all_data, orientation='horizontal')

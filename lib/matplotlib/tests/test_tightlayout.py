@@ -130,7 +130,7 @@ def test_tight_layout7():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout8'])
+@image_comparison(['tight_layout8'], tol=0.005)
 def test_tight_layout8():
     """Test automatic use of tight_layout."""
     fig = plt.figure()
@@ -173,13 +173,15 @@ def test_outward_ticks():
     plt.tight_layout()
     # These values were obtained after visual checking that they correspond
     # to a tight layouting that did take the ticks into account.
-    ans = [[[0.091, 0.607], [0.433, 0.933]],
-           [[0.579, 0.607], [0.922, 0.933]],
-           [[0.091, 0.140], [0.433, 0.466]],
-           [[0.579, 0.140], [0.922, 0.466]]]
+    expected = [
+        [[0.091, 0.607], [0.433, 0.933]],
+        [[0.579, 0.607], [0.922, 0.933]],
+        [[0.091, 0.140], [0.433, 0.466]],
+        [[0.579, 0.140], [0.922, 0.466]],
+    ]
     for nn, ax in enumerate(fig.axes):
         assert_array_equal(np.round(ax.get_position().get_points(), 3),
-                           ans[nn])
+                           expected[nn])
 
 
 def add_offsetboxes(ax, size=10, margin=.1, color='black'):
@@ -253,7 +255,7 @@ def test_tight_layout_offsetboxes():
 
 
 def test_empty_layout():
-    """Test that tight layout doesn't cause an error when there are no axes."""
+    """Test that tight layout doesn't cause an error when there are no Axes."""
     fig = plt.gcf()
     fig.tight_layout()
 

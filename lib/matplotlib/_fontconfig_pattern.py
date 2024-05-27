@@ -13,9 +13,7 @@ from functools import lru_cache, partial
 import re
 
 from pyparsing import (
-    Group, Optional, ParseException, Regex, StringEnd, Suppress, ZeroOrMore)
-
-from matplotlib import _api
+    Group, Optional, ParseException, Regex, StringEnd, Suppress, ZeroOrMore, oneOf)
 
 
 _family_punc = r'\\\-:,'
@@ -63,8 +61,7 @@ def _make_fontconfig_parser():
     size = Regex(r"([0-9]+\.?[0-9]*|\.[0-9]+)")
     name = Regex(r"[a-z]+")
     value = Regex(fr"([^{_value_punc}]|(\\[{_value_punc}]))*")
-    # replace trailing `| name` by oneOf(_CONSTANTS) in mpl 3.9.
-    prop = Group((name + Suppress("=") + comma_separated(value)) | name)
+    prop = Group((name + Suppress("=") + comma_separated(value)) | oneOf(_CONSTANTS))
     return (
         Optional(comma_separated(family)("families"))
         + Optional("-" + comma_separated(size)("sizes"))
@@ -97,12 +94,6 @@ def parse_fontconfig_pattern(pattern):
         props["size"] = [*parse["sizes"]]
     for prop in parse.get("properties", []):
         if len(prop) == 1:
-            if prop[0] not in _CONSTANTS:
-                _api.warn_deprecated(
-                    "3.7", message=f"Support for unknown constants "
-                    f"({prop[0]!r}) is deprecated since %(since)s and "
-                    f"will be removed %(removal)s.")
-                continue
             prop = _CONSTANTS[prop[0]]
         k, *v = prop
         props.setdefault(k, []).extend(map(_value_unescape, v))

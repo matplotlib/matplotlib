@@ -2,6 +2,7 @@
 ===================
 tricontour(x, y, z)
 ===================
+Draw contour lines on an unstructured triangular grid.
 
 See `~matplotlib.axes.Axes.tricontour`.
 """

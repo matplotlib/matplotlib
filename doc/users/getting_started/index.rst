@@ -22,7 +22,7 @@ Installation quick-start
 
             conda install -c conda-forge matplotlib
 
-Further details are available in the :doc:`Installation Guide </users/installing/index>`.
+Further details are available in the :doc:`Installation Guide </install/index>`.
 
 
 Draw a first plot

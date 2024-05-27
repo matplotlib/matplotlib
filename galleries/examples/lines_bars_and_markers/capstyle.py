@@ -3,8 +3,8 @@
 CapStyle
 =========
 
-The `matplotlib._enums.CapStyle` controls how Matplotlib draws the corners
-where two different line segments meet. For more details, see the
+The `matplotlib._enums.CapStyle` controls how Matplotlib draws the two
+endpoints (caps) of an unclosed line. For more details, see the
 `~matplotlib._enums.CapStyle` docs.
 """
 
