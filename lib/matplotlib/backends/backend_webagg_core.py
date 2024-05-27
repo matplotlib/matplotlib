@@ -371,6 +371,7 @@ _ALLOWED_TOOL_ITEMS = {
     'forward',
     'pan',
     'zoom',
+    'duplicate',
     'download',
     None,
 }

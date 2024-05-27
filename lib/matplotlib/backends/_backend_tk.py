@@ -624,7 +624,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
                 self._buttons[text] = button = self._Button(
                     text,
                     str(cbook._get_data_path(f"images/{image_file}.png")),
-                    toggle=callback in ["zoom", "pan"],
+                    toggle=callback in ["zoom", "pan", "duplicate", "zoomAside"],
                     command=getattr(self, callback),
                 )
                 if tooltip_text is not None:
@@ -679,7 +679,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
 
     def _update_buttons_checked(self):
         # sync button checkstates to match active mode
-        for text, mode in [('Zoom', _Mode.ZOOM), ('Pan', _Mode.PAN)]:
+        for text, mode in [('Zoom', _Mode.ZOOM), ('Zoom Aside', _Mode.ZOOMASIDE), ('Pan', _Mode.PAN), ('Duplicate', _Mode.DUPLICATE)]:
             if text in self._buttons:
                 if self.mode == mode:
                     self._buttons[text].select()  # NOT .invoke()
@@ -692,6 +692,14 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
 
     def zoom(self, *args):
         super().zoom(*args)
+        self._update_buttons_checked()
+
+    def duplicate(self, *args):
+        super().duplicate(*args)
+        self._update_buttons_checked()
+
+    def zoomAside(self, *args):
+        super().zoomAside(*args)
         self._update_buttons_checked()
 
     def set_message(self, s):

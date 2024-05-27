@@ -1051,7 +1051,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                     bitmap=self._icon(f"{image_file}.svg"),
                     bmpDisabled=wx.NullBitmap,
                     label=text, shortHelp=tooltip_text,
-                    kind=(wx.ITEM_CHECK if text in ["Pan", "Zoom"]
+                    kind=(wx.ITEM_CHECK if text in ["Pan", "Zoom", "Duplicate"]
                           else wx.ITEM_NORMAL))
                 .Id)
             self.Bind(wx.EVT_TOOL, getattr(self, callback),
@@ -1108,6 +1108,10 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             self.ToggleTool(self.wx_ids["Pan"], self.mode.name == "PAN")
         if "Zoom" in self.wx_ids:
             self.ToggleTool(self.wx_ids["Zoom"], self.mode.name == "ZOOM")
+        if "Duplicate" in self.wx_ids:
+            self.ToggleTool(self.wx_ids["Duplicate"], self.mode.name == "DUPLICATE")
+        if "ZoomAside" in self.wx_ids:
+            self.ToggleTool(self.wx_ids["ZoomAside"], self.mode.name == "ZOOMASIDE")
 
     def zoom(self, *args):
         super().zoom(*args)
@@ -1115,6 +1119,14 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
     def pan(self, *args):
         super().pan(*args)
+        self._update_buttons_checked()
+
+    def duplicate(self, *args):
+        super().duplicate(*args)
+        self._update_buttons_checked()
+
+    def zoomAside(self, *args):
+        super().zoomAside(*args)
         self._update_buttons_checked()
 
     def save_figure(self, *args):

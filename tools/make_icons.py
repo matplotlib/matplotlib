@@ -93,6 +93,8 @@ icon_defs = [
     ('back', 0xf060),
     ('forward', 0xf061),
     ('zoom_to_rect', 0xf002),
+    ('zoomAside', 0xf008),
+    ('duplicate', 0xf035),
     ('move', 0xf047),
     ('filesave', 0xf0c7),
     ('subplots', 0xf1de),

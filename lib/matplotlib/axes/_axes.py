@@ -8761,3 +8761,25 @@ such objects
         ll, ur = self.get_position() * figure_size
         width, height = ur - ll
         return height / (width * self.get_data_ratio())
+
+    def copy(self, target_ax=None):
+        if target_ax is None:
+            target_ax = self.figure.subplots()
+            self.figure.delaxes(target_ax)
+
+        target_ax.set_xlim(self.get_xlim())
+        target_ax.set_ylim(self.get_ylim())
+        target_ax.set_xscale(self.get_xscale())
+        target_ax.set_yscale(self.get_yscale())
+        target_ax.set_title(self.get_title())
+        target_ax.set_xlabel(self.get_xlabel())
+        target_ax.set_ylabel(self.get_ylabel())
+
+        # Copy all lines from self to target_ax
+        for line in self.get_lines():
+            target_ax.plot(line.get_xdata(), line.get_ydata(), label=line.get_label(), linestyle=line.get_linestyle(), color=line.get_color())
+
+        # Copy legends
+        if self.get_legend():
+            target_ax.legend(loc=self.get_legend()._loc)
+        return target_ax

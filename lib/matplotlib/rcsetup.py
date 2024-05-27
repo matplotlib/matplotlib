@@ -1329,6 +1329,8 @@ _validators = {
     "keymap.forward":    validate_stringlist,
     "keymap.pan":        validate_stringlist,
     "keymap.zoom":       validate_stringlist,
+    "keymap.zoomAside":  validate_stringlist,
+    "keymap.duplicate":  validate_stringlist,
     "keymap.save":       validate_stringlist,
     "keymap.quit":       validate_stringlist,
     "keymap.quit_all":   validate_stringlist,  # e.g.: "W", "cmd+W", "Q"

@@ -760,6 +760,8 @@
 #keymap.forward: right, v, MouseButton.FORWARD      # for quick navigation
 #keymap.pan: p                  # pan mnemonic
 #keymap.zoom: o                 # zoom mnemonic
+#keymap.zoomAside: O            # zoom Aside mnemonic
+#keymap.duplicate: d            # duplicate mnemonic
 #keymap.save: s, ctrl+s         # saving current figure
 #keymap.help: f1                # display help about active tools
 #keymap.quit: ctrl+w, cmd+w, q  # close the current figure

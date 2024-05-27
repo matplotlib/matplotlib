@@ -201,12 +201,26 @@ class GeoAxes(Axes):
         This Axes object does not support interactive zoom box.
         """
         return False
+    
+    def can_zoomAside(self):
+        """
+        Return whether this Axes supports the zoom Aside box button functionality.
+        """
+        return self.can_zoom() and self.can_duplicate()
 
     def can_pan(self):
         """
         Return whether this Axes supports the pan/zoom button functionality.
 
         This Axes object does not support interactive pan/zoom.
+        """
+        return False
+    
+    def can_duplicate(self):
+        """
+        Return whether this Axes supports the duplicate box button functionality.
+
+        This Axes object does not support interactive duplicate box.
         """
         return False
 

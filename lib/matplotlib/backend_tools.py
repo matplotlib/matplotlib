@@ -466,7 +466,9 @@ class ToolViewsPositions(ToolBase):
     need to access the figure's history of views and positions, e.g.
 
     * `ToolZoom`
+    * `ToolZoomAside`
     * `ToolPan`
+    * `ToolDuplicate`
     * `ToolHome`
     * `ToolBack`
     * `ToolForward`
@@ -644,7 +646,7 @@ class SaveFigureBase(ToolBase):
 
 
 class ZoomPanBase(ToolToggleBase):
-    """Base class for `ToolZoom` and `ToolPan`."""
+    """Base class for `ToolZoom`, `ToolPan` and `ToolDuplicate`."""
     def __init__(self, *args):
         super().__init__(*args)
         self._button_pressed = None
@@ -830,6 +832,58 @@ class ToolZoom(ZoomPanBase):
         self.toolmanager.get_tool(_views_positions).push_current()
         self._cancel_action()
 
+class ToolZoomAside(ToolZoom):
+    """A Tool for duplicating a figure."""
+
+    description = 'Zoom Aside'
+    image = 'mpl-data/images/zoomAside'
+    default_keymap = property(lambda self: mpl.rcParams['keymap.zoomAside'])
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
+    def _release(self, event):
+        """Callback for mouse button releases in zoom-to-rectangle mode."""
+
+        for zoom_id in self._ids_zoom:
+            self.figure.canvas.mpl_disconnect(zoom_id)
+        self._ids_zoom = []
+
+        if not self._xypress:
+            self._cancel_action()
+            return
+
+        done_ax = []
+
+        for cur_xypress in self._xypress:
+            x, y = event.x, event.y
+            lastx, lasty, a, _ind, view = cur_xypress
+            # ignore singular clicks - 5 pixels is a threshold
+            if abs(x - lastx) < 5 or abs(y - lasty) < 5:
+                self._cancel_action()
+                return
+
+            # detect twinx, twiny Axes and avoid double zooming
+            twinx = any(a.get_shared_x_axes().joined(a, a1) for a1 in done_ax)
+            twiny = any(a.get_shared_y_axes().joined(a, a1) for a1 in done_ax)
+            done_ax.append(a)
+
+            if self._button_pressed == 1:
+                direction = 'in'
+            elif self._button_pressed == 3:
+                direction = 'out'
+            else:
+                continue
+
+            old_axe = a
+            a._set_view_from_bbox((lastx, lasty, x, y), direction,
+                                  self._zoom_mode, twinx, twiny)
+            self.figure.duplicate(old_axe)
+
+        self._zoom_mode = None
+        self.toolmanager.get_tool(_views_positions).push_current()
+        self._cancel_action()
+
 
 class ToolPan(ZoomPanBase):
     """Pan Axes with left mouse, zoom with right."""
@@ -897,6 +951,89 @@ class ToolPan(ZoomPanBase):
         self.toolmanager.canvas.draw_idle()
 
 
+class ToolDuplicate(ZoomPanBase):
+    """A Tool for duplicating a figure."""
+
+    description = 'Duplicate Figure'
+    image = 'mpl-data/images/duplicate'
+    default_keymap = property(lambda self: mpl.rcParams['keymap.duplicate'])
+    cursor = cursors.SELECT_REGION
+    radio_group = 'default'
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        self._ids = []
+
+    def _cancel_action(self):
+        for zoom_id in self._ids:
+            self.figure.canvas.mpl_disconnect(zoom_id)
+        # self.toolmanager.trigger_tool('rubberband', self)
+        self.figure.canvas.draw_idle()
+        self._xypress = None
+        self._button_pressed = None
+        self._ids = []
+        return
+
+    def _press(self, event):
+        """Callback for mouse button presses in duplicate mode."""
+
+        # If we're already in the middle of a duplicate, pressing another
+        # button works to "cancel"
+        if self._ids:
+            self._cancel_action()
+
+        if event.button == 1:
+            self._button_pressed = 1
+        elif event.button == 3:
+            self._button_pressed = 3
+        else:
+            self._cancel_action()
+            return
+
+        x, y = event.x, event.y
+
+        self._xypress = []
+        for i, a in enumerate(self.figure.get_axes()):
+            if (x is not None and y is not None and a.in_axes(event) and
+                    a.get_navigate()):
+                self._xypress.append((x, y, a, i, a._get_view()))
+
+        id1 = self.figure.canvas.mpl_connect(
+            'key_press_event', self._switch_on_mode)
+        id2 = self.figure.canvas.mpl_connect(
+            'key_release_event', self._switch_off_mode)
+
+        self._ids = id1, id2
+        self._mode = event.key
+
+    def _switch_on_mode(self, event):
+        self._mode = event.key
+
+    def _switch_off_mode(self, event):
+        self._mode = None
+
+    def _release(self, event):
+        """Callback for mouse button releases in duplicate mode."""
+
+        for zoom_id in self._ids:
+            self.figure.canvas.mpl_disconnect(zoom_id)
+        self._ids = []
+
+        if not self._xypress:
+            self._cancel_action()
+            return
+        
+        self.figure.duplicate()
+        
+        for cur_xypress in self._xypress:
+            _, _, ax, _, _ = cur_xypress
+            ax.set_navigate_mode(None)
+
+        self._mode = None
+        self.toolmanager.get_tool(_views_positions).push_current()
+        self._cancel_action()
+
+
 class ToolHelpBase(ToolBase):
     description = 'Print tool list, shortcuts and description'
     default_keymap = property(lambda self: mpl.rcParams['keymap.help'])
@@ -947,8 +1084,8 @@ class ToolCopyToClipboardBase(ToolBase):
 
 
 default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
-                 'zoom': ToolZoom, 'pan': ToolPan,
-                 'subplots': ConfigureSubplotsBase,
+                 'zoom': ToolZoom, 'zoomAside': ToolZoomAside, 'pan': ToolPan,
+                 'subplots': ConfigureSubplotsBase, 'duplicate': ToolDuplicate,
                  'save': SaveFigureBase,
                  'grid': ToolGrid,
                  'grid_minor': ToolMinorGrid,
@@ -966,7 +1103,7 @@ default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  }
 
 default_toolbar_tools = [['navigation', ['home', 'back', 'forward']],
-                         ['zoompan', ['pan', 'zoom', 'subplots']],
+                         ['zoompan', ['pan', 'zoom', 'zoomAside', 'subplots', 'duplicate']],
                          ['io', ['save', 'help']]]
 
 

@@ -690,7 +690,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                 a = self.addAction(self._icon(image_file + '.png'),
                                    text, slot)
                 self._actions[callback] = a
-                if callback in ['zoom', 'pan']:
+                if callback in ['zoom', 'pan', 'duplicate', 'zoomAside']:
                     a.setCheckable(True)
                 if tooltip_text is not None:
                     a.setToolTip(tooltip_text)
@@ -773,6 +773,10 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             self._actions['pan'].setChecked(self.mode.name == 'PAN')
         if 'zoom' in self._actions:
             self._actions['zoom'].setChecked(self.mode.name == 'ZOOM')
+        if 'duplicate' in self._actions:
+            self._actions['duplicate'].setChecked(self.mode.name == 'DUPLICATE')
+        if 'zoomAside' in self._actions:
+            self._actions['zoomAside'].setChecked(self.mode.name == 'ZOOMASIDE')
 
     def pan(self, *args):
         super().pan(*args)
@@ -780,6 +784,14 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
     def zoom(self, *args):
         super().zoom(*args)
+        self._update_buttons_checked()
+
+    def duplicate(self, *args):
+        super().duplicate(*args)
+        self._update_buttons_checked()
+
+    def zoomAside(self, *args):
+        super().zoomAside(*args)
         self._update_buttons_checked()
 
     def set_message(self, s):

@@ -2586,6 +2586,63 @@ None}, default: None
         self._axstack = _AxesStack()  # track all figure Axes and current Axes
         self.clear()
 
+    def duplicate(self, axes_to_duplicate):
+
+        if not isinstance(axes_to_duplicate, (Axes, list, tuple)):
+            return
+
+        og_subplots = super().get_children()
+        n_sub = len(og_subplots)
+        grid = self.gca().get_gridspec()
+        nrows = grid.nrows
+        ncols = grid.ncols
+
+        while (1):
+            if (nrows*ncols < n_sub): 
+                if (nrows >= ncols):
+                    ncols += 1
+                else:
+                    nrows += 1
+            else:
+                break
+
+        if isinstance(axes_to_duplicate, Axes):
+            found = False
+        else:
+            found = [False * len(axes_to_duplicate)]
+
+        i = 1
+        pos_canvas = 1  # Position in which the subplot will be placed
+        while (i < n_sub):
+            self.delaxes(og_subplots[i])
+            ax = self.add_subplot(nrows, ncols, pos_canvas)
+            og_subplots[i].copy(ax)
+            if isinstance(axes_to_duplicate, Axes) and og_subplots[i] == axes_to_duplicate:
+                pos_canvas += 1
+                ax = self.add_subplot(nrows, ncols, pos_canvas)
+                og_subplots[i].copy(ax)
+                found = True
+            elif isinstance(axes_to_duplicate, (list,tuple)) and og_subplots[i] in axes_to_duplicate:
+                pos_canvas += 1
+                ax = self.add_subplot(nrows, ncols, pos_canvas)
+                og_subplots[i].copy(ax)
+                found[axes_to_duplicate.index(og_subplots[i])] = True
+            i += 1
+            pos_canvas += 1
+
+
+        if isinstance(axes_to_duplicate, Axes) and not found:
+            ax = self.add_subplot(nrows, ncols, pos_canvas)
+            axes_to_duplicate.copy(ax)
+        elif isinstance(axes_to_duplicate, (list,tuple)):
+            for i in range(len(axes_to_duplicate)):
+                if not found[i]:
+                    ax = self.add_subplot(nrows, ncols, pos_canvas)
+                    axes_to_duplicate[i].copy(ax)
+                    pos_canvas += 1
+        
+        return ax
+
     def pick(self, mouseevent):
         if not self.canvas.widgetlock.locked():
             super().pick(mouseevent)

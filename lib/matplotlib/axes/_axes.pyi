@@ -769,6 +769,7 @@ class Axes(_AxesBase):
         showmedians: bool = ...,
         side: Literal["both", "low", "high"] = ...,
     ) -> dict[str, Collection]: ...
+    def copy(self, target_ax: Axes | None = ...) -> Axes: ...
 
     table = mtable.table
     stackplot = mstack.stackplot

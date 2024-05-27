@@ -4018,10 +4018,22 @@ class _AxesBase(martist.Artist):
         Return whether this Axes supports the zoom box button functionality.
         """
         return True
+    
+    def can_zoomAside(self):
+        """
+        Return whether this Axes supports the zoom Aside box button functionality.
+        """
+        return self.can_zoom() and self.can_duplicate()
 
     def can_pan(self):
         """
         Return whether this Axes supports any pan/zoom button functionality.
+        """
+        return True
+    
+    def can_duplicate(self):
+        """
+        Return whether this Axes supports the duplicate box button functionality.
         """
         return True
 

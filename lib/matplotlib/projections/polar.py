@@ -1470,6 +1470,20 @@ class PolarAxes(Axes):
         A polar Axes does not support zoom boxes.
         """
         return False
+    
+    def can_zoomAside(self):
+        """
+        Return whether this Axes supports the zoom Aside box button functionality.
+        """
+        return self.can_zoom() and self.can_duplicate()
+    
+    def can_duplicate(self):
+        """
+        Return whether this Axes supports the duplicate box button functionality.
+
+        A polar Axes does not support duplicate boxes.
+        """
+        return False
 
     def can_pan(self):
         """

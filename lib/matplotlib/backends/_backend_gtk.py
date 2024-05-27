@@ -285,7 +285,7 @@ class _NavigationToolbar2GTK(NavigationToolbar2):
         self.canvas._draw_rubberband(None)
 
     def _update_buttons_checked(self):
-        for name, active in [("Pan", "PAN"), ("Zoom", "ZOOM")]:
+        for name, active in [("Pan", "PAN"), ("Zoom", "ZOOM"), ("Duplicate", "DUPLICATE")]:
             button = self._gtk_ids.get(name)
             if button:
                 with button.handler_block(button._signal_handler):
@@ -297,6 +297,14 @@ class _NavigationToolbar2GTK(NavigationToolbar2):
 
     def zoom(self, *args):
         super().zoom(*args)
+        self._update_buttons_checked()
+
+    def duplicate(self, *args):
+        super().duplicate(*args)
+        self._update_buttons_checked()
+
+    def zoomAside(self, *args):
+        super().zoomAside(*args)
         self._update_buttons_checked()
 
     def set_history_buttons(self):

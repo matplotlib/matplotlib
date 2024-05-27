@@ -207,14 +207,105 @@ def test_interactive_zoom():
     assert not ax.get_autoscalex_on() and not ax.get_autoscaley_on()
 
 
-def test_widgetlock_zoompan():
+def test_interactive_zoomAside():
+    fig, ax = plt.subplots()
+    ax.set(xscale="logit")
+    assert ax.get_navigate_mode() is None
+
+    tb = NavigationToolbar2(fig.canvas)
+    tb.zoomAside()
+    assert ax.get_navigate_mode() == 'ZOOMASIDE'
+
+    xlim0 = ax.get_xlim()
+    ylim0 = ax.get_ylim()
+
+    # Zoom from x=1e-6, y=0.1 to x=1-1e-5, 0.8 (data coordinates, "d").
+    d0 = (1e-6, 0.1)
+    d1 = (1-1e-5, 0.8)
+    # Convert to screen coordinates ("s").  Events are defined only with pixel
+    # precision, so round the pixel values, and below, check against the
+    # corresponding xdata/ydata, which are close but not equal to d0/d1.
+    s0 = ax.transData.transform(d0).astype(int)
+    s1 = ax.transData.transform(d1).astype(int)
+
+    # Zoom in.
+    start_event = MouseEvent(
+        "button_press_event", fig.canvas, *s0, MouseButton.LEFT)
+    fig.canvas.callbacks.process(start_event.name, start_event)
+    stop_event = MouseEvent(
+        "button_release_event", fig.canvas, *s1, MouseButton.LEFT)
+    fig.canvas.callbacks.process(stop_event.name, stop_event)
+
+    new_ax = fig.axes
+    assert len(fig.axes) == 2
+
+    ax1 , ax2 = new_ax
+    assert ax1.get_xlim() == ax.get_xlim()
+    assert ax1.get_ylim() == ax.get_ylim()
+    assert ax2.get_xlim() == (start_event.xdata, stop_event.xdata)
+    assert ax2.get_ylim() == (start_event.ydata, stop_event.ydata)
+
+    tb.zoomAside()
+    assert ax.get_navigate_mode() is None
+    assert ax1.get_navigate_mode() is None
+    assert ax2.get_navigate_mode() is None
+
+    assert not ax1.get_autoscalex_on() and not ax1.get_autoscaley_on()
+    assert not ax2.get_autoscalex_on() and not ax2.get_autoscaley_on()
+
+
+def test_interactive_duplicate():
+    fig, old_ax = plt.subplots()
+    old_ax.plot(range(11), range(11))
+
+    assert old_ax.get_navigate_mode() is None
+
+    tb = NavigationToolbar2(fig.canvas)
+    tb.duplicate()
+    assert old_ax.get_navigate_mode() == 'DUPLICATE'
+
+    # Convert data coordinates, "d", to screen coordinates ("s").
+    # Events are defined only with pixel precision, so round them.
+    d = (1e-6, 0.1)
+    s = old_ax.transData.transform(d).astype(int)
+
+    # Click on Figure.
+    start_event = MouseEvent("button_press_event", fig.canvas, *s, MouseButton.LEFT)
+    fig.canvas.callbacks.process(start_event.name, start_event)
+    stop_event = MouseEvent("button_release_event", fig.canvas, *s, MouseButton.LEFT)
+    fig.canvas.callbacks.process(stop_event.name, stop_event)
+
+    new_ax = fig.axes
+    assert len(fig.axes) == 2
+
+    ax1 , ax2 = new_ax
+    assert ax1.get_xlim() == ax2.get_xlim()
+    assert ax1.get_ylim() == ax2.get_ylim()
+    assert ax1.get_xscale() == ax2.get_xscale()
+    assert ax1.get_yscale() == ax2.get_yscale()
+    assert ax1.get_lines()[0].get_xydata().tolist() == ax2.get_lines()[0].get_xydata().tolist()
+
+    tb.duplicate()
+    assert old_ax.get_navigate_mode() is None
+    assert ax1.get_navigate_mode() is None
+    assert ax2.get_navigate_mode() is None
+
+    assert not ax1.get_autoscalex_on() and not ax1.get_autoscaley_on()
+    assert not ax2.get_autoscalex_on() and not ax2.get_autoscaley_on()
+
+
+def test_widgetlock_zoompanduplicate():
     fig, ax = plt.subplots()
     ax.plot([0, 1], [0, 1])
     fig.canvas.widgetlock(ax)
     tb = NavigationToolbar2(fig.canvas)
     tb.zoom()
     assert ax.get_navigate_mode() is None
+    tb.zoomAside()
+    assert ax.get_navigate_mode() is None
     tb.pan()
+    assert ax.get_navigate_mode() is None
+    tb.duplicate()
     assert ax.get_navigate_mode() is None
 
 
@@ -288,6 +379,8 @@ def test_toolbar_zoompan():
     assert ax.get_navigate_mode() == "ZOOM"
     ax.figure.canvas.manager.toolmanager.trigger_tool('pan')
     assert ax.get_navigate_mode() == "PAN"
+    ax.figure.canvas.manager.toolmanager.trigger_tool('duplicate')
+    assert ax.get_navigate_mode() == "DUPLICATE"
 
 
 def test_toolbar_home_restores_autoscale():
