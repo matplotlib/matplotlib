@@ -11,7 +11,6 @@ Module containing Axes3D, an object which can plot 3D objects on a
 """
 
 from collections import defaultdict
-from typing import Literal
 import itertools
 import math
 import textwrap
