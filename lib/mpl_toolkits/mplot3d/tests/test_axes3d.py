@@ -2276,21 +2276,22 @@ def test_on_move_vertical_axis(vertical_axis: str) -> None:
     )
 
 
-@pytest.mark.parametrize("vertical_axis", ["x", "y", "z"])
-def test_set_box_aspect_vertical_axis(vertical_axis: str) -> None:
+@pytest.mark.parametrize(
+    "vertical_axis, aspect_expected",
+    [
+        ("x", [1.14285715, 0.85714286, 1.14285715]),
+        ("y", [0.85714286, 1.14285715, 1.14285715]),
+        ("z", [1.14285715, 1.14285715, 0.85714286]),
+    ],
+)
+def test_set_box_aspect_vertical_axis(vertical_axis, aspect_expected):
     ax = plt.subplot(1, 1, 1, projection="3d")
     ax.view_init(elev=0, azim=0, roll=0, vertical_axis=vertical_axis)
     ax.figure.canvas.draw()
 
-    aspect_old = tuple(ax._box_aspect)
-    aspect_expected = np.roll(
-        aspect_old, -1 * (ax._axis_names.index(vertical_axis) - 2)
-    )
-
     ax.set_box_aspect(None)
-    aspect_new = tuple(ax._box_aspect)
 
-    np.testing.assert_allclose(aspect_expected, aspect_new)
+    np.testing.assert_allclose(aspect_expected, ax._box_aspect)
 
 
 @image_comparison(baseline_images=['arc_pathpatch.png'],
