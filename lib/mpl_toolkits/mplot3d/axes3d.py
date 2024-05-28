@@ -384,7 +384,7 @@ class Axes3D(Axes):
         # of the axes in mpl3.8.
         aspect *= 1.8294640721620434 * 25/24 * zoom / np.linalg.norm(aspect)
 
-        self._box_aspect = self._roll_to_vertical(aspect, sign=-1)
+        self._box_aspect = self._roll_to_vertical(aspect, reverse=True)
         self.stale = True
 
     def apply_aspect(self, position=None):
@@ -1193,7 +1193,7 @@ class Axes3D(Axes):
             self._focal_length = np.inf
 
     def _roll_to_vertical(
-        self, arr: "np.typing.ArrayLike", sign: Literal[1, -1] = 1
+        self, arr: "np.typing.ArrayLike", reverse: bool = False
     ) -> np.ndarray:
         """
         Roll arrays to match the different vertical axis.
@@ -1202,11 +1202,13 @@ class Axes3D(Axes):
         ----------
         arr : ArrayLike
             Array to roll.
-        sign : Literal[1, -1], default: 1
-            Roll the array elements in a positive or negative
-            direction. Defaults to the positive direction.
+        reverse : bool, default: False
+            Reverse the direction of the roll.
         """
-        return np.roll(arr, sign * (self._vertical_axis - 2))
+        if reverse:
+            return np.roll(arr, (self._vertical_axis - 2) * -1)
+        else:
+            return np.roll(arr, (self._vertical_axis - 2))
 
     def get_proj(self):
         """Create the projection matrix from the current viewing position."""
