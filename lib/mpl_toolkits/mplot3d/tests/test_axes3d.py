@@ -2279,9 +2279,9 @@ def test_on_move_vertical_axis(vertical_axis: str) -> None:
 @pytest.mark.parametrize(
     "vertical_axis, aspect_expected",
     [
-        ("x", [1.14285715, 0.85714286, 1.14285715]),
-        ("y", [0.85714286, 1.14285715, 1.14285715]),
-        ("z", [1.14285715, 1.14285715, 0.85714286]),
+        ("x", [1.190476, 0.892857, 1.190476]),
+        ("y", [0.892857, 1.190476, 1.190476]),
+        ("z", [1.190476, 1.190476, 0.892857]),
     ],
 )
 def test_set_box_aspect_vertical_axis(vertical_axis, aspect_expected):
