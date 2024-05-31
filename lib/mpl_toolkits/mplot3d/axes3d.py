@@ -1348,6 +1348,8 @@ class Axes3D(Axes):
             toolbar = self.figure.canvas.toolbar
             if toolbar and toolbar._nav_stack() is None:
                 toolbar.push_current()
+            if toolbar:
+                toolbar.set_message(toolbar._mouse_event_to_message(event))
 
     def _button_release(self, event):
         self.button_pressed = None
@@ -1356,6 +1358,8 @@ class Axes3D(Axes):
         # push_current, so check the navigation mode so we don't call it twice
         if toolbar and self.get_navigate_mode() is None:
             toolbar.push_current()
+        if toolbar:
+            toolbar.set_message(toolbar._mouse_event_to_message(event))
 
     def _get_view(self):
         # docstring inherited

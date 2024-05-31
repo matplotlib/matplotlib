@@ -189,6 +189,8 @@ jobs:
     environment: release
     permissions:
       id-token: write
+      attestations: write
+      contents: read
     steps:
       - name: Download packages
         uses: actions/download-artifact@v4
@@ -199,6 +201,11 @@ jobs:
 
       - name: Print out packages
         run: ls dist
+
+      - name: Generate artifact attestation for sdist and wheel
+        uses: actions/attest-build-provenance@173725a1209d09b31f9d30a3890cf2757ebbff0d  # v1.1.2
+        with:
+          subject-path: dist/matplotlib-*
 
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@81e9d935c883d0b210363ab89cf05f3894778450  # v1.8.14
