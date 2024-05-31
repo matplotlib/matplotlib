@@ -677,7 +677,7 @@ class ScalarFormatter(Formatter):
 
     def format_data(self, value):
         # docstring inherited
-        e = math.floor(math.log10(abs(value)))
+        e = np.floor(math.log10(abs(value)))
         s = np.round(value / 10**e, 10)
         significand = self._format_maybe_minus_and_locale(
             "%d" if s % 1 == 0 else "%1.10g", s)
@@ -786,13 +786,13 @@ class ScalarFormatter(Formatter):
             self.orderOfMagnitude = 0
             return
         if self.offset:
-            oom = math.floor(math.log10(vmax - vmin))
+            oom = np.floor(math.log10(vmax - vmin))
         else:
             val = locs.max()
             if val == 0:
                 oom = 0
             else:
-                oom = math.floor(math.log10(val))
+                oom = np.floor(math.log10(val))
         if oom <= self._powerlimits[0]:
             self.orderOfMagnitude = oom
         elif oom >= self._powerlimits[1]:
@@ -818,7 +818,7 @@ class ScalarFormatter(Formatter):
         if len(self.locs) < 2:
             # We needed the end points only for the loc_range calculation.
             locs = locs[:-2]
-        loc_range_oom = int(math.floor(math.log10(loc_range)))
+        loc_range_oom = int(np.floor(math.log10(loc_range)))
         # first estimate:
         sigfigs = max(0, 3 - loc_range_oom)
         # refined estimate:
@@ -1124,8 +1124,10 @@ class LogFormatterSciNotation(LogFormatterMathtext):
     def _non_decade_format(self, sign_string, base, fx, usetex):
         """Return string for non-decade locations."""
         b = float(base)
-        exponent = math.floor(fx)
-        coeff = b ** (fx - exponent)
+        exponent = np.floor(fx)
+        # We don't use b**(fx - exponent) because it will raise a
+        # RuntimeWarning if fx==exponent==np.inf
+        coeff = np.power(b, fx - exponent)
         if _is_close_to_int(coeff):
             coeff = np.round(coeff)
         return r'$\mathdefault{%s%g\times%s^{%d}}$' \
@@ -1267,7 +1269,7 @@ class LogitFormatter(Formatter):
 
     def _format_value(self, x, locs, sci_notation=True):
         if sci_notation:
-            exponent = math.floor(np.log10(x))
+            exponent = np.floor(np.log10(x))
             min_precision = 0
         else:
             exponent = 0
@@ -1281,7 +1283,7 @@ class LogitFormatter(Formatter):
             precision = (
                 int(np.round(precision))
                 if _is_close_to_int(precision)
-                else math.ceil(precision)
+                else int(np.ceil(precision))
             )
             if precision < min_precision:
                 precision = min_precision
@@ -1453,7 +1455,7 @@ class EngFormatter(Formatter):
             num = -num
 
         if num != 0:
-            pow10 = int(math.floor(math.log10(num) / 3) * 3)
+            pow10 = int(np.floor(math.log10(num) / 3) * 3)
         else:
             pow10 = 0
             # Force num to zero, to avoid inconsistencies like
@@ -1552,7 +1554,7 @@ class PercentFormatter(Formatter):
                 # zero. This is very important since the equation for decimals
                 # starts out as `scaled_range > 0.5 * 10**(2 - decimals)`
                 # and ends up with `decimals > 2 - log10(2 * scaled_range)`.
-                decimals = math.ceil(2.0 - math.log10(2.0 * scaled_range))
+                decimals = np.ceil(2.0 - math.log10(2.0 * scaled_range))
                 if decimals > 5:
                     decimals = 5
                 elif decimals < 0:
@@ -1850,8 +1852,8 @@ class LinearLocator(Locator):
                 math.log10(vmax - vmin), math.log10(max(self.numticks - 1, 1)))
             exponent -= (remainder < .5)
             scale = max(self.numticks - 1, 1) ** (-exponent)
-            vmin = math.floor(scale * vmin) / scale
-            vmax = math.ceil(scale * vmax) / scale
+            vmin = np.floor(scale * vmin) / scale
+            vmax = np.ceil(scale * vmax) / scale
 
         return mtransforms.nonsingular(vmin, vmax)
 
@@ -2375,7 +2377,7 @@ class LogLocator(Locator):
         log_vmin = math.log(vmin) / math.log(b)
         log_vmax = math.log(vmax) / math.log(b)
 
-        numdec = math.floor(log_vmax) - math.ceil(log_vmin)
+        numdec = np.floor(log_vmax) - np.ceil(log_vmin)
 
         if isinstance(self._subs, str):
             if numdec > 10 or b < 3:
@@ -2390,7 +2392,7 @@ class LogLocator(Locator):
             subs = self._subs
 
         # Get decades between major ticks.
-        stride = (max(math.ceil(numdec / (numticks - 1)), 1)
+        stride = (max(np.ceil(numdec / (numticks - 1)), 1)
                   if mpl.rcParams['_internal.classic_mode'] else
                   numdec // numticks + 1)
 
@@ -2405,8 +2407,8 @@ class LogLocator(Locator):
         # whether we're a major or a minor locator.
         have_subs = len(subs) > 1 or (len(subs) == 1 and subs[0] != 1.0)
 
-        decades = np.arange(math.floor(log_vmin) - stride,
-                            math.ceil(log_vmax) + 2 * stride, stride)
+        decades = np.arange(np.floor(log_vmin) - stride,
+                            np.ceil(log_vmax) + 2 * stride, stride)
 
         if have_subs:
             if stride == 1:
@@ -2783,7 +2785,7 @@ class LogitLocator(MaxNLocator):
             if numideal > nbins:
                 # to many ideal ticks, subsampling ideals for major ticks, and
                 # take others for minor ticks
-                subsampling_factor = math.ceil(numideal / nbins)
+                subsampling_factor = np.ceil(numideal / nbins)
                 if self._minor:
                     ticklocs = [
                         ideal_ticks(b)
