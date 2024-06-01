@@ -1,3 +1,40 @@
+"""
+Custom roles for the Matplotlib documentation.
+
+.. warning::
+
+    These roles are considered semi-public. They are only intended to be used in
+    the Matplotlib documentation.
+
+However, it can happen that downstream packages end up pulling these roles into
+their documentation, which will result in documentation build errors. The following
+describes the exact mechanism and how to fix the errors.
+
+There are two ways, Matplotlib docstrings can end up in downstream documentation.
+You have to subclass a Matplotlib class and either use the ``:inherited-members:``
+option in your autodoc configuration, or you have to override a method without
+specifying a new docstring; the new method will inherit the original docstring and
+still render in your autodoc. If the docstring contains one of the custom sphinx
+roles, you'll see one of the following error messages:
+
+.. code-block:: none
+
+    Unknown interpreted text role "mpltype".
+    Unknown interpreted text role "rc".
+
+To fix this, you can add this module as extension to your sphinx :file:`conf.py`::
+
+    extensions = [
+        'matplotlib.sphinxext.roles',
+        # Other extensions.
+    ]
+
+.. warning::
+
+    Direct use of these roles in other packages is not officially supported. We
+    reserve the right to modify or remove these roles without prior notification.
+"""
+
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
@@ -42,6 +79,13 @@ def _depart_query_reference_node(self, node):
 
 
 def _rcparam_role(name, rawtext, text, lineno, inliner, options=None, content=None):
+    """
+    Sphinx role ``:rc:`` to highlight and link ``rcParams`` entries.
+
+    Usage: Give the desired ``rcParams`` key as parameter.
+
+    :code:`:rc:`figure.dpi`` will render as: :rc:`figure.dpi`
+    """
     # Generate a pending cross-reference so that Sphinx will ensure this link
     # isn't broken at some point in the future.
     title = f'rcParams["{text}"]'
@@ -66,6 +110,18 @@ def _rcparam_role(name, rawtext, text, lineno, inliner, options=None, content=No
 
 
 def _mpltype_role(name, rawtext, text, lineno, inliner, options=None, content=None):
+    """
+    Sphinx role ``:mpltype:`` for custom matplotlib types.
+
+    In Matplotlib, there are a number of type-like concepts that do not have a
+    direct type representation; example: color. This role allows to properly
+    highlight them in the docs and link to their definition.
+
+    Currently supported values:
+
+    - :code:`:mpltype:`color`` will render as: :mpltype:`color`
+
+    """
     mpltype = text
     type_to_link_target = {
         'color': 'colors_def',
