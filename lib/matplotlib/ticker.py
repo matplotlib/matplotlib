@@ -2137,7 +2137,10 @@ class MaxNLocator(Locator):
             large_steps = large_steps & (floored_vmaxs >= _vmax)
 
         # Find index of smallest large step
-        istep = np.nonzero(large_steps)[0][0]
+        if any(large_steps):
+            istep = np.nonzero(large_steps)[0][0]
+        else:
+            istep = len(steps) - 1
 
         # Start at smallest of the steps greater than the raw step, and check
         # if it provides enough ticks. If not, work backwards through
