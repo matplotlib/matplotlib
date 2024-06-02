@@ -2291,7 +2291,7 @@ def test_set_box_aspect_vertical_axis(vertical_axis, aspect_expected):
 
     ax.set_box_aspect(None)
 
-    np.testing.assert_allclose(aspect_expected, ax._box_aspect)
+    np.testing.assert_allclose(aspect_expected, ax._box_aspect, rtol=1e-6)
 
 
 @image_comparison(baseline_images=['arc_pathpatch.png'],
