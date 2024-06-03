@@ -2176,12 +2176,12 @@ class Parser:
         # prevent operator spacing from leaking into a new expression
         self._em_width_cache = {}
         ParserElement.resetCache()
-        return T.cast(Hlist, result[0])  # Known return type from main.
         tokens = self._tokenize(s)
         adjusted_tokens = self._adjust_spacing(tokens)
         parsed_expression = ''.join(adjusted_tokens)
         box = self._parser.parse(parsed_expression, fonts_object, fontsize, dpi)
         return box
+        return T.cast(Hlist, result[0])  # Known return type from main.
 
     def get_state(self) -> ParserState:
         """Get the current `State` of the parser."""
