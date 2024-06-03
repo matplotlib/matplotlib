@@ -2177,14 +2177,9 @@ class Parser:
         self._em_width_cache = {}
         ParserElement.resetCache()
         return T.cast(Hlist, result[0])  # Known return type from main.
-        
-        # Tokenize the input string into individual tokens (by isatyamks)
         tokens = self._tokenize(s)
-        # Adjust tokens for spacing
         adjusted_tokens = self._adjust_spacing(tokens)
-        # Join adjusted tokens back into a string
         parsed_expression = ''.join(adjusted_tokens)
-        # Existing parsing logic using adjusted tokens
         box = self._parser.parse(parsed_expression, fonts_object, fontsize, dpi)
         return box
 
@@ -2804,7 +2799,6 @@ class Parser:
             middle_part = []
 
         parts: list[Node] = []
-        # \left. and \right. aren't supposed to produce any symbols
         if front != '.':
             parts.append(
                 AutoHeightChar(front, height, depth, state, factor=factor))
@@ -2818,7 +2812,6 @@ class Parser:
     def auto_delim(self, toks: ParseResults) -> T.Any:
         return self._auto_sized_delimiter(
             toks["left"],
-            # if "mid" in toks ... can be removed when requiring pyparsing 3.
             toks["mid"].asList() if "mid" in toks else [],
             toks["right"])
 
@@ -2869,18 +2862,13 @@ class Parser:
         vlt = Vlist(stack)
         result = [Hlist([vlt])]
         return result
-
     def _is_unary_minus(self, tokens, index):
-        """Determine if the minus at the given index is unary."""
         if index == 0:
             return True
         prev_token = tokens[index - 1]
-        # Define contexts that indicate a unary minus
         unary_contexts = {'{', '(', '[', '=', '+', '-', '*', '/', '^', ' '}
         return prev_token in unary_contexts
-
     def _tokenize(self, s):
-        """Tokenize the input string s into individual tokens."""
         tokens = []
         i = 0
         while i < len(s):
@@ -2894,16 +2882,12 @@ class Parser:
                 tokens.append(s[i])
                 i += 1
         return tokens
-
     def _adjust_spacing(self, tokens):
-        """Adjust spacing for unary and binary minus signs."""
         adjusted_tokens = []
         for token in tokens:
             if token == 'UNARY_MINUS':
-                # Apply spacing for unary minus (less space before)
                 adjusted_tokens.append(r'\! -')
             elif token == 'MINUS':
-                # Apply normal spacing for binary minus
                 adjusted_tokens.append(' - ')
             else:
                 adjusted_tokens.append(token)
