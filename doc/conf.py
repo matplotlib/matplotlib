@@ -508,6 +508,7 @@ html_theme_options = {
     # this special value indicates the use of the unreleased banner. If we need
     # an actual announcement, then just place the text here as usual.
     "announcement": "unreleased" if not is_release_build else "",
+    "show_version_warning_banner": True,
 }
 include_analytics = is_release_build
 if include_analytics:
