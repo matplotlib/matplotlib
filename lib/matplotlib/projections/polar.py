@@ -1451,12 +1451,12 @@ class PolarAxes(Axes):
         if self.fmt_xdata is None:
             return ('\N{GREEK SMALL LETTER THETA}={}\N{GREEK SMALL LETTER PI} '
                     '({}\N{DEGREE SIGN}), r={}').format(
-                    format_sig(theta_halfturns, delta_t_halfturns, "", "f"),
-                    format_sig(theta_degrees, delta_t_degrees, "", "f"),
-                    format_sig(r, delta_r, "#", "g")
-                    if self.fmt_ydata is None
-                    else self.format_ydata(r)
-                )
+                        format_sig(theta_halfturns, delta_t_halfturns, "", "f"),
+                        format_sig(theta_degrees, delta_t_degrees, "", "f"),
+                        format_sig(r, delta_r, "#", "g")
+                        if self.fmt_ydata is None
+                        else self.format_ydata(r)
+                    )
         else:
             return '\N{GREEK SMALL LETTER THETA}={}, r={}'.format(
                         self.format_xdata(theta),
