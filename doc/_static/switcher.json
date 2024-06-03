@@ -2,7 +2,8 @@
     {
         "name": "3.9 (stable)",
         "version": "stable",
-        "url": "https://matplotlib.org/stable/"
+        "url": "https://matplotlib.org/stable/",
+        "preferred": true
     },
     {
         "name": "3.10 (dev)",
