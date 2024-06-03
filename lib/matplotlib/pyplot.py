@@ -304,10 +304,12 @@ def install_repl_displayhook() -> None:
         # This code can be removed when Python 3.12, the latest version supported by
         # IPython < 8.24, reaches end-of-life in late 2028.
         from IPython.core.pylabtools import backend2gui
-        # trigger IPython's eventloop integration, if available
         ipython_gui_name = backend2gui.get(get_backend())
-        if ipython_gui_name:
-            ip.enable_gui(ipython_gui_name)
+    else:
+        _, ipython_gui_name = backend_registry.resolve_backend(get_backend())
+    # trigger IPython's eventloop integration, if available
+    if ipython_gui_name:
+        ip.enable_gui(ipython_gui_name)
 
 
 def uninstall_repl_displayhook() -> None:
