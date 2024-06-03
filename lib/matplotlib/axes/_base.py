@@ -1736,7 +1736,7 @@ class _AxesBase(martist.Artist):
                 and any(getattr(ax.get_data_ratio, "__func__", None)
                         != _AxesBase.get_data_ratio
                         for ax in axs)):
-            # Limits adjustment by _apply_aspect assumes that the axes' aspect
+            # Limits adjustment by apply_aspect assumes that the axes' aspect
             # ratio can be computed from the data limits and scales.
             raise ValueError("Cannot set Axes adjustable to 'datalim' for "
                              "Axes which override 'get_data_ratio'")
@@ -1870,7 +1870,7 @@ class _AxesBase(martist.Artist):
         ysize = max(abs(tymax - tymin), 1e-30)
         return ysize / xsize
 
-    @_api.delete_parameter("3.6", "position")
+    @_api.delete_parameter("3.10", "position")
     def apply_aspect(self, position=None):
         """
         Adjust the Axes for a specified data aspect ratio.
@@ -1882,12 +1882,11 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         position : None or .Bbox
-
             If not ``None``, this defines the position of the
             Axes within the figure as a Bbox. See `~.Axes.get_position`
             for further details.
 
-            .. admonition:: Deprecated
+            .. deprecated:: 3.10
 
                 Changing the *position* through ``apply_aspect`` is
                 considered internal API. This parameter will be removed
@@ -1917,6 +1916,19 @@ class _AxesBase(martist.Artist):
         Adjust the Axes for a specified data aspect ratio.
 
         See the docstring of the public `apply_aspect` method.
+
+        .. note::
+
+            It is somewhat surprising that "_apply_aspect" takes an optional
+            position as input, which seems more functionality than what the
+            name suggests.
+
+            Generally, applying an aspect will modify the size and position
+            of an Axes. I haven't been able to reconstruct the history but
+            assume, the fact that position is updated anyway was used to
+            funnel additional position constraints into the already existing
+            code. Likely, this function should better be called
+            _update_geometry() nowadays.
 
         Parameters
         ----------

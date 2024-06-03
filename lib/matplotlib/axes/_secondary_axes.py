@@ -139,10 +139,10 @@ class SecondaryAxis(_AxesBase):
         # it gets called in ax._apply_aspect() (of all places)
         self.set_axes_locator(_TransformedBoundsLocator(bounds, transform))
 
-    def _apply_aspect(self, position=None):
+    def apply_aspect(self, position=None):
         # docstring inherited.
         self._set_lims()
-        super()._apply_aspect(position)
+        super().apply_aspect(position)
 
     @_docstring.copy(Axis.set_ticks)
     def set_ticks(self, ticks, labels=None, *, minor=False, **kwargs):

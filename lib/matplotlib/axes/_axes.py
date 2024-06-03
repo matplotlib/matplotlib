@@ -410,7 +410,7 @@ class Axes(_AxesBase):
         inset_ax = projection_class(self.figure, bounds, zorder=zorder, **pkw)
 
         # this locator lets the axes move if in data coordinates.
-        # it gets called in `ax._apply_aspect() (of all places)
+        # it gets called in `ax.apply_aspect() (of all places)
         inset_ax.set_axes_locator(inset_locator)
 
         self.add_child_axes(inset_ax)
