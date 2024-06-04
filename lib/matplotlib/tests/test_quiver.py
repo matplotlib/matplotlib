@@ -6,6 +6,7 @@ import pytest
 
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal
 
 
 def draw_quiver(ax, **kwargs):
@@ -333,3 +334,19 @@ def test_quiver_setuvc_numbers():
 
     q = ax.quiver(X, Y, U, V)
     q.set_UVC(0, 1)
+
+
+@check_figures_equal()
+def test_zorder(fig_test, fig_ref):
+    """Check QuiverKey zorder option"""
+    X, Y, U, V = 1, 1, 2, 2
+
+    ax_test = fig_test.subplots()
+    zorder_value = 5.
+    q_test = ax_test.quiver(X, Y, U, V)
+    ax_test.quiverkey(q_test, 0.8, 0.3, U, label='U', zorder=zorder_value)
+
+    ax_ref = fig_ref.subplots()
+    q_ref = ax_ref.quiver(X, Y, U, V)
+    qk_ref = ax_ref.quiverkey(q_ref, 0.8, 0.3, U, label='U')
+    qk_ref.set_zorder(zorder_value)
