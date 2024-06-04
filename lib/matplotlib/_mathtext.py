@@ -2870,7 +2870,7 @@ class Parser:
         prev_token = tokens[index - 1]
         unary_contexts = {'{', '(', '[', '=', '+', '-', '*', '/', '^', ' '}
         return prev_token in unary_contexts
-   
+   # def _tokenize
     def _tokenize(self, s):
         tokens = []
         i = 0
@@ -2885,7 +2885,7 @@ class Parser:
                 tokens.append(s[i])
                 i += 1
         return tokens
-    
+    #function for _adjust_spacing
     def _adjust_spacing(self, tokens):
         adjusted_tokens = []
         for token in tokens:
