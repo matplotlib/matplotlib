@@ -286,8 +286,7 @@ class QuiverKey(martist.Artist):
             A dictionary with keyword arguments accepted by the
             `~matplotlib.font_manager.FontProperties` initializer:
             *family*, *style*, *variant*, *size*, *weight*.
-        zorder : float, default: None
-        zorder : float or None
+        zorder : float
             The zorder of the key. The default is 0.1 above *Q*.
         **kwargs
             Any additional keyword arguments are used to override vector
