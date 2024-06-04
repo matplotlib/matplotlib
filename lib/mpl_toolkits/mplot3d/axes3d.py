@@ -1503,21 +1503,22 @@ class Axes3D(Axes):
         p2 = p1 - scale*vec
         return p2, pane_idx
 
-    def _arcball(self, p):
+    def _arcball(self, x: float, y: float) -> np.ndarray:
         """
-        Convert a point p = [x, y] to a point on a virtual trackball
+        Convert a point (x, y) to a point on a virtual trackball
         This is Ken Shoemake's arcball
         See: Ken Shoemake, "ARCBALL: A user interface for specifying
         three-dimensional rotation using a mouse." in
         Proceedings of Graphics Interface '92, 1992, pp. 151-156,
         https://doi.org/10.20380/GI1992.18
         """
-        p = 2 * p
-        r = p[0]**2 + p[1]**2
-        if r > 1:
-            p = np.concatenate(([0], p/math.sqrt(r)))
+        x *= 2
+        y *= 2
+        r2 = x*x + y*y
+        if r2 > 1:
+            p = np.array([0, x/math.sqrt(r2), y/math.sqrt(r2)])
         else:
-            p = np.concatenate(([math.sqrt(1-r)], p))
+            p = np.array([math.sqrt(1-r2), x, y])
         return p
 
     def _on_move(self, event):
@@ -1562,12 +1563,10 @@ class Axes3D(Axes):
             q = _Quaternion.from_cardan_angles(elev, azim, roll)
 
             # Update quaternion - a variation on Ken Shoemake's ARCBALL
-            current_point = np.array([self._sx/w, self._sy/h])
-            new_point = np.array([x/w, y/h])
-            current_vec = self._arcball(current_point)
-            new_vec = self._arcball(new_point)
+            current_vec = self._arcball(self._sx/w, self._sy/h)
+            new_vec = self._arcball(x/w, y/h)
             dq = _Quaternion.rotate_from_to(current_vec, new_vec)
-            q = dq*q
+            q = dq * q
 
             # Convert to elev, azim, roll
             elev, azim, roll = q.as_cardan_angles()
