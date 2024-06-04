@@ -2269,6 +2269,19 @@ class Parser:
     def symbol(self, s: str, loc: int,
                toks: ParseResults | dict[str, str]) -> T.Any:
         c = toks["sym"]
+        if c == "-":
+            # "U+2212 minus sign is the preferred representation of the unary
+            # and binary minus sign rather than the ASCII-derived U+002D
+            # hyphen-minus, because minus sign is unambiguous and because it
+            # is rendered with a more desirable length, usually longer than a
+            # hyphen." (https://www.unicode.org/reports/tr25/)
+            c = "\N{MINUS SIGN}"
+        try:
+            char = Char(c, self.get_state())
+        except ValueError as err:
+            raise ParseFatalException(s, loc,
+                                      "Unknown symbol: %s" % c) from err
+
         if c in self._spaced_symbols:
             # iterate until we find previous character, needed for cases
             # such as ${ -2}$, $ -2$, or $   -2$.
