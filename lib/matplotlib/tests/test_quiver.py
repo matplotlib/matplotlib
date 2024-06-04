@@ -348,15 +348,15 @@ def draw_quiverkey_zorder_argument(fig, zorder=None):
     ax.set_xlim(0.5, 5.5)
     ax.set_ylim(0.5, 5.5)
     if zorder is None:
-        ax.quiverkey(q, 4, 4, 25,
-                          coordinates='data', label='U', color='blue')
-        ax.quiverkey(q, 5.5, 2, 20,
-                          coordinates='data', label='V', color='blue', angle=90)
+        ax.quiverkey(q, 4, 4, 25, coordinates='data',
+                     label='U', color='blue')
+        ax.quiverkey(q, 5.5, 2, 20, coordinates='data',
+                     label='V', color='blue', angle=90)
     else:
-        ax.quiverkey(q, 4, 4, 25,
-                          coordinates='data', label='U', color='blue', zorder=zorder)
-        ax.quiverkey(q, 5.5, 2, 20,
-                          coordinates='data', label='V', color='blue', angle=90, zorder=zorder)
+        ax.quiverkey(q, 4, 4, 25, coordinates='data',
+                     label='U', color='blue', zorder=zorder)
+        ax.quiverkey(q, 5.5, 2, 20, coordinates='data',
+                     label='V', color='blue', angle=90, zorder=zorder)
 
 
 def draw_quiverkey_setzorder(fig, zorder=None):
@@ -370,10 +370,10 @@ def draw_quiverkey_setzorder(fig, zorder=None):
     q = ax.quiver(X, Y, U, V, pivot='middle')
     ax.set_xlim(0.5, 5.5)
     ax.set_ylim(0.5, 5.5)
-    qk1 = ax.quiverkey(q, 4, 4, 25,
-                       coordinates='data', label='U', color='blue')
-    qk2 = ax.quiverkey(q, 5.5, 2, 20,
-                       coordinates='data', label='V', color='blue', angle=90)
+    qk1 = ax.quiverkey(q, 4, 4, 25, coordinates='data',
+                       label='U', color='blue')
+    qk2 = ax.quiverkey(q, 5.5, 2, 20, coordinates='data',
+                       label='V', color='blue', angle=90)
     if zorder is not None:
         qk1.set_zorder(zorder)
         qk2.set_zorder(zorder)
