@@ -534,7 +534,7 @@ def test_bivariate_repr_html():
 
 
 def test_multivariate_repr_html():
-    cmap = mpl.multivar_colormaps['4VarAddA']
+    cmap = mpl.multivar_colormaps['3VarAddA']
     html = cmap._repr_html_()
     assert len(html) > 0
     for c in cmap.colormaps:

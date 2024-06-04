@@ -1365,7 +1365,8 @@ default: %(va)s
         extent = [*mappable.scalars[1].get_clim(), *mappable.scalars[0].get_clim()]
         cim = cax.imshow(mappable._cmap.lut, origin='lower',
                          extent=(0, 1, 0, 1),
-                         transform=cax.transAxes)
+                         transform=cax.transAxes,
+                         interpolation='nearest')
 
         # scale the x and y axis according to the norm
         # i.e. for use with `matplotlib.colors.LogNorm` etc.

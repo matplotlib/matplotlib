@@ -42,6 +42,11 @@ Colormaps
    Colormap
    LinearSegmentedColormap
    ListedColormap
+   Colormap
+   MultivarColormap
+   BivarColormap
+   SegmentedBivarColormap
+   BivarColormapFromImage
 
 Other classes
 -------------

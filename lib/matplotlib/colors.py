@@ -1766,10 +1766,7 @@ class SegmentedBivarColormap(BivarColormap):
     name : str
         The name of the colormap.
     N : int
-        The number of RGB quantization levels along the first axis.
-    M : int
-        The number of RGB quantization levels along the second axis.
-        If None, M = N
+        The number of RGB quantization levels along each axis.
     shape: str 'square' or 'circle' or 'ignore' or 'circleignore'
 
         - If 'square' each variate is clipped to [0,1] independently
@@ -1822,7 +1819,7 @@ class BivarColormapFromImage(BivarColormap):
 
     """
 
-    def __init__(self, lut, name, shape='square'):
+    def __init__(self, lut, name='', shape='square'):
         self._lut = lut
         super().__init__(name, lut.shape[0], lut.shape[1], shape)
 

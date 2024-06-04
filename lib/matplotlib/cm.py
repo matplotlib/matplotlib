@@ -351,7 +351,7 @@ class VectorMappable:
             self.scalars = [ScalarMappable(norm, cmap)]
             # it would be tempting to just use one layer of callbacks here
             # i.e. self.callbacks = self.scalars[0].callbacks
-            # but this will require more reformating as it fails in cleanup
+            # but this will require more reformatting as it fails in cleanup
             # if a colorbar is removed
             self.scalars[0].callbacks.connect('changed', self._on_changed)
 
@@ -696,6 +696,7 @@ class VectorMappable:
         Propagate the signal to listeners on the VectorMappable
         """
         self.changed()
+
 
 class ScalarMappable:
     """
