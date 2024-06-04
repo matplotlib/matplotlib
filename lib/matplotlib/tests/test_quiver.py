@@ -336,7 +336,7 @@ def test_quiver_setuvc_numbers():
     q.set_UVC(0, 1)
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_zorder(fig_test, fig_ref):
     """Check QuiverKey zorder option"""
     X, Y, U, V = 1, 1, 2, 2
