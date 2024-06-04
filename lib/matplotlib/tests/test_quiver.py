@@ -336,17 +336,91 @@ def test_quiver_setuvc_numbers():
     q.set_UVC(0, 1)
 
 
+def draw_quiverkey_zorder_argument(fig, zorder=None):
+    """Draw Quiver and QuiverKey with zorder argment"""
+    x = np.arange(1, 6, 1)
+    y = np.arange(1, 6, 1)
+    X, Y = np.meshgrid(x, y)
+    U, V = 2, 2
+
+    ax = fig.subplots()
+    q = ax.quiver(X, Y, U, V, pivot='middle')
+    ax.set_xlim(0.5, 5.5)
+    ax.set_ylim(0.5, 5.5)
+    if zorder is None:
+        ax.quiverkey(q, 4, 4, 25,
+                          coordinates='data', label="U", color="blue")
+        ax.quiverkey(q, 5.5, 2, 20,
+                          coordinates='data', label="V", color="blue", angle=90)
+    else:
+        ax.quiverkey(q, 4, 4, 25,
+                          coordinates='data', label="U", color="blue", zorder=zorder)
+        ax.quiverkey(q, 5.5, 2, 20,
+                          coordinates='data', label="V", color="blue", angle=90, zorder=zorder)
+
+
+def draw_quiverkey_setzorder(fig, zorder=None):
+    """Draw Quiver and QuiverKey with set_zorder"""
+    x = np.arange(1, 6, 1)
+    y = np.arange(1, 6, 1)
+    X, Y = np.meshgrid(x, y)
+    U, V = 2, 2
+
+    ax = fig.subplots()
+    q = ax.quiver(X, Y, U, V, pivot='middle')
+    ax.set_xlim(0.5, 5.5)
+    ax.set_ylim(0.5, 5.5)
+    qk1 = ax.quiverkey(q, 4, 4, 25,
+                       coordinates='data', label="U", color="blue")
+    qk2 = ax.quiverkey(q, 5.5, 2, 20,
+                       coordinates='data', label="V", color="blue", angle=90)
+    if zorder is not None:
+        qk1.set_zorder(zorder)
+        qk2.set_zorder(zorder)
+
+
 @check_figures_equal(extensions=['png'])
-def test_zorder(fig_test, fig_ref):
+def test_quiverkey_zorder_default(fig_test, fig_ref):
     """Check QuiverKey zorder option"""
-    X, Y, U, V = 1, 1, 2, 2
+    draw_quiverkey_zorder_argument(fig_test)
+    draw_quiverkey_setzorder(fig_ref)
 
-    ax_test = fig_test.subplots()
-    zorder_value = 5.
-    q_test = ax_test.quiver(X, Y, U, V)
-    ax_test.quiverkey(q_test, 0.8, 0.3, U, label='U', zorder=zorder_value)
 
-    ax_ref = fig_ref.subplots()
-    q_ref = ax_ref.quiver(X, Y, U, V)
-    qk_ref = ax_ref.quiverkey(q_ref, 0.8, 0.3, U, label='U')
-    qk_ref.set_zorder(zorder_value)
+@check_figures_equal(extensions=['png'])
+def test_quiverkey_zorder_zero(fig_test, fig_ref):
+    """
+    Check QuiverKey zorder option
+    zorder=0 means quiverkey is under quiver.
+    """
+    draw_quiverkey_zorder_argument(fig_test, zorder=0)
+    draw_quiverkey_setzorder(fig_ref, zorder=0)
+
+
+@check_figures_equal(extensions=['png'])
+def test_quiverkey_zorder_two(fig_test, fig_ref):
+    """
+    Check QuiverKey zorder option
+    zorder=2 means quiverkey is same as default.
+    """
+    draw_quiverkey_zorder_argument(fig_test, zorder=2)
+    draw_quiverkey_setzorder(fig_ref, zorder=2)
+
+
+@check_figures_equal(extensions=['png'])
+def test_quiverkey_zorder_five(fig_test, fig_ref):
+    """
+    Check QuiverKey zorder option
+    zorder=5 means quiverkey is over ticks.
+    """
+    draw_quiverkey_zorder_argument(fig_test, zorder=5)
+    draw_quiverkey_setzorder(fig_ref, zorder=5)
+
+
+@check_figures_equal(extensions=['png'])
+def test_quiverkey_zorder_None(fig_test, fig_ref):
+    """
+    Check QuiverKey zorder option
+    zorder=None means quiverkey is over ticks.
+    """
+    draw_quiverkey_zorder_argument(fig_test, zorder=None)
+    draw_quiverkey_setzorder(fig_ref, zorder=None)
