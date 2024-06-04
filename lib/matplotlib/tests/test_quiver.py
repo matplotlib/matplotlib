@@ -337,7 +337,7 @@ def test_quiver_setuvc_numbers():
 
 
 def draw_quiverkey_zorder_argument(fig, zorder=None):
-    """Draw Quiver and QuiverKey with zorder argment"""
+    """Draw Quiver and QuiverKey using zorder argument"""
     x = np.arange(1, 6, 1)
     y = np.arange(1, 6, 1)
     X, Y = np.meshgrid(x, y)
@@ -360,7 +360,7 @@ def draw_quiverkey_zorder_argument(fig, zorder=None):
 
 
 def draw_quiverkey_setzorder(fig, zorder=None):
-    """Draw Quiver and QuiverKey with set_zorder"""
+    """Draw Quiver and QuiverKey using set_zorder"""
     x = np.arange(1, 6, 1)
     y = np.arange(1, 6, 1)
     X, Y = np.meshgrid(x, y)
