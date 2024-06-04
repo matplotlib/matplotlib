@@ -1,0 +1,6 @@
+Add zorder option in QuiverKey
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+It has been needed to use ``set_zorder`` when you set zorder in the QuiverKey.
+This commit can be set zorder with ``zorder`` argument in the QuiverKey
+in the same way as other plots.
+This commit improves API consistency.
