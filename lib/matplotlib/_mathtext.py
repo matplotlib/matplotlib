@@ -2179,7 +2179,7 @@ class Parser:
         tokens = self._tokenize(s)
         adjusted_tokens = self._adjust_spacing(tokens)
         parsed_expression = ''.join(adjusted_tokens)
-        box = self._parser.parse(parsed_expression, fonts_object, fontsize, dpi)
+        box = self.Parser.parse(parsed_expression, fonts_object, fontsize, dpi)
         return T.cast(Hlist, result[0]), box # Known return type from main.
 
     def get_state(self) -> ParserState:
