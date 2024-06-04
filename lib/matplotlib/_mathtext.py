@@ -2863,12 +2863,14 @@ class Parser:
         vlt = Vlist(stack)
         result = [Hlist([vlt])]
         return result
+
     def _is_unary_minus(self, tokens, index):
         if index == 0:
             return True
         prev_token = tokens[index - 1]
         unary_contexts = {'{', '(', '[', '=', '+', '-', '*', '/', '^', ' '}
         return prev_token in unary_contexts
+   
     def _tokenize(self, s):
         tokens = []
         i = 0
@@ -2883,6 +2885,7 @@ class Parser:
                 tokens.append(s[i])
                 i += 1
         return tokens
+    
     def _adjust_spacing(self, tokens):
         adjusted_tokens = []
         for token in tokens:
