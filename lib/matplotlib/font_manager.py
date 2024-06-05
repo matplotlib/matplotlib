@@ -1086,9 +1086,12 @@ class FontManager:
         self.ttflist = []
 
         # Delay the warning by 5s.
-        timer = threading.Timer(5, lambda: _log.warning(
-            'Matplotlib is building the font cache; this may take a moment.'))
-        timer.start()
+        try:
+            timer = threading.Timer(5, lambda: _log.warning(
+                'Matplotlib is building the font cache; this may take a moment.'))
+            timer.start()
+        except RuntimeError:
+            timer = None
         try:
             for fontext in ["afm", "ttf"]:
                 for path in [*findSystemFonts(paths, fontext=fontext),
@@ -1101,7 +1104,8 @@ class FontManager:
                         _log.info("Failed to extract font properties from %s: "
                                   "%s", path, exc)
         finally:
-            timer.cancel()
+            if timer:
+                timer.cancel()
 
     def addfont(self, path):
         """
