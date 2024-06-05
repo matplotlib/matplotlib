@@ -2278,14 +2278,14 @@ class Parser:
 
         if c in self._spaced_symbols:
             # iterate until we find previous character, needed for cases
-            # such as ${ -2}$, $ -2$, or $   -2$.
+            # such as $=-2$, ${ -2}$, $ -2$, or $   -2$.
             prev_char = next((c for c in s[:loc][::-1] if c != ' '), '')
             # Binary operators at start of string should not be spaced
             # Also, operators in sub- or superscripts should not be spaced
             if (self._in_subscript_or_superscript or (
                     c in self._binary_operators and (
-                    len(s[:loc].split()) == 0 or prev_char == '{' or
-                    prev_char in self._left_delims))):
+                    len(s[:loc].split()) == 0 or prev_char in {
+                        '{', *self._left_delims, *self._relation_symbols}))):
                 return [char]
             else:
                 return [Hlist([self._make_space(0.2),

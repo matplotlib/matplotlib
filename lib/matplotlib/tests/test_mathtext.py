@@ -124,6 +124,7 @@ math_tests = [
     r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$',  # github issue 5799
     r'$\left(X\right)_{a}^{b}$',  # github issue 7615
     r'$\dfrac{\$100.00}{y}$',  # github issue #1888
+    r'$a=-b-c$'  # github issue #28180
 ]
 # 'svgastext' tests switch svg output to embed text as text (rather than as
 # paths).
