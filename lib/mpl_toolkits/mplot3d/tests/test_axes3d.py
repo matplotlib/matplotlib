@@ -5,6 +5,7 @@ import platform
 import pytest
 
 from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
+from mpl_toolkits.mplot3d.axes3d import _Quaternion as Quaternion
 import matplotlib as mpl
 from matplotlib.backend_bases import (MouseButton, MouseEvent,
                                       NavigationToolbar2)
@@ -1766,29 +1767,127 @@ def test_shared_axes_retick():
     assert ax2.get_zlim() == (-0.5, 2.5)
 
 
+def test_quaternion():
+    # 1:
+    q1 = Quaternion(1, [0, 0, 0])
+    assert q1.scalar == 1
+    assert (q1.vector == [0, 0, 0]).all
+    # __neg__:
+    assert (-q1).scalar == -1
+    assert ((-q1).vector == [0, 0, 0]).all
+    # i, j, k:
+    qi = Quaternion(0, [1, 0, 0])
+    assert qi.scalar == 0
+    assert (qi.vector == [1, 0, 0]).all
+    qj = Quaternion(0, [0, 1, 0])
+    assert qj.scalar == 0
+    assert (qj.vector == [0, 1, 0]).all
+    qk = Quaternion(0, [0, 0, 1])
+    assert qk.scalar == 0
+    assert (qk.vector == [0, 0, 1]).all
+    # i^2 = j^2 = k^2 = -1:
+    assert qi*qi == -q1
+    assert qj*qj == -q1
+    assert qk*qk == -q1
+    # identity:
+    assert q1*qi == qi
+    assert q1*qj == qj
+    assert q1*qk == qk
+    # i*j=k, j*k=i, k*i=j:
+    assert qi*qj == qk
+    assert qj*qk == qi
+    assert qk*qi == qj
+    assert qj*qi == -qk
+    assert qk*qj == -qi
+    assert qi*qk == -qj
+    # __mul__:
+    assert (Quaternion(2, [3, 4, 5]) * Quaternion(6, [7, 8, 9])
+            == Quaternion(-86, [28, 48, 44]))
+    # conjugate():
+    for q in [q1, qi, qj, qk]:
+        assert q.conjugate().scalar == q.scalar
+        assert (q.conjugate().vector == -q.vector).all
+        assert q.conjugate().conjugate() == q
+        assert ((q*q.conjugate()).vector == 0).all
+    # norm:
+    q0 = Quaternion(0, [0, 0, 0])
+    assert q0.norm == 0
+    assert q1.norm == 1
+    assert qi.norm == 1
+    assert qj.norm == 1
+    assert qk.norm == 1
+    for q in [q0, q1, qi, qj, qk]:
+        assert q.norm == (q*q.conjugate()).scalar
+    # normalize():
+    for q in [
+        Quaternion(2, [0, 0, 0]),
+        Quaternion(0, [3, 0, 0]),
+        Quaternion(0, [0, 4, 0]),
+        Quaternion(0, [0, 0, 5]),
+        Quaternion(6, [7, 8, 9])
+    ]:
+        assert q.normalize().norm == 1
+    # reciprocal():
+    for q in [q1, qi, qj, qk]:
+        assert q*q.reciprocal() == q1
+        assert q.reciprocal()*q == q1
+    # rotate():
+    assert (qi.rotate([1, 2, 3]) == np.array([1, -2, -3])).all
+    # rotate_from_to():
+    for r1, r2, q in [
+        ([1, 0, 0], [0, 1, 0], Quaternion(np.sqrt(1/2), [0, 0, np.sqrt(1/2)])),
+        ([1, 0, 0], [0, 0, 1], Quaternion(np.sqrt(1/2), [0, -np.sqrt(1/2), 0])),
+        ([1, 0, 0], [1, 0, 0], Quaternion(1, [0, 0, 0]))
+    ]:
+        assert Quaternion.rotate_from_to(r1, r2) == q
+    # rotate_from_to(), special case:
+    for r1 in [[1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 1, 1]]:
+        r1 = np.array(r1)
+        with pytest.warns(UserWarning):
+            q = Quaternion.rotate_from_to(r1, -r1)
+        assert np.isclose(q.norm, 1)
+        assert np.dot(q.vector, r1) == 0
+    # from_cardan_angles(), as_cardan_angles():
+    for elev, azim, roll in [(0, 0, 0),
+                             (90, 0, 0), (0, 90, 0), (0, 0, 90),
+                             (0, 30, 30), (30, 0, 30), (30, 30, 0),
+                             (47, 11, -24)]:
+        for mag in [1, 2]:
+            q = Quaternion.from_cardan_angles(
+                np.deg2rad(elev), np.deg2rad(azim), np.deg2rad(roll))
+            assert np.isclose(q.norm, 1)
+            q = Quaternion(mag * q.scalar, mag * q.vector)
+            e, a, r = np.rad2deg(Quaternion.as_cardan_angles(q))
+            assert np.isclose(e, elev)
+            assert np.isclose(a, azim)
+            assert np.isclose(r, roll)
+
+
 def test_rotate():
     """Test rotating using the left mouse button."""
-    for roll in [0, 30]:
+    for roll, dx, dy, new_elev, new_azim, new_roll in [
+            [0, 0.5, 0, 0, -90, 0],
+            [30, 0.5, 0, 30, -90, 0],
+            [0, 0, 0.5, -90, 0, 0],
+            [30, 0, 0.5, -60, -90, 90],
+            [0, 0.5, 0.5, -45, -90, 45],
+            [30, 0.5, 0.5, -15, -90, 45]]:
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1, projection='3d')
         ax.view_init(0, 0, roll)
         ax.figure.canvas.draw()
 
-        # drag mouse horizontally to change azimuth
-        dx = 0.1
-        dy = 0.2
+        # drag mouse to change orientation
         ax._button_press(
             mock_event(ax, button=MouseButton.LEFT, xdata=0, ydata=0))
         ax._on_move(
             mock_event(ax, button=MouseButton.LEFT,
                            xdata=dx*ax._pseudo_w, ydata=dy*ax._pseudo_h))
         ax.figure.canvas.draw()
-        roll_radians = np.deg2rad(ax.roll)
-        cs = np.cos(roll_radians)
-        sn = np.sin(roll_radians)
-        assert ax.elev == (-dy*180*cs + dx*180*sn)
-        assert ax.azim == (-dy*180*sn - dx*180*cs)
-        assert ax.roll == roll
+
+        assert np.isclose(ax.elev, new_elev)
+        assert np.isclose(ax.azim, new_azim)
+        assert np.isclose(ax.roll, new_roll)
 
 
 def test_pan():
