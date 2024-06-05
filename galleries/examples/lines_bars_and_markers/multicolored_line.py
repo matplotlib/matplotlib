@@ -121,6 +121,7 @@ plt.show()
 # ---------------------------
 #
 
+
 def colored_line_between_pts(x, y, c, ax, **lc_kwargs):
     """
     Plot a line with a color specified between (x, y) points by a third value.
