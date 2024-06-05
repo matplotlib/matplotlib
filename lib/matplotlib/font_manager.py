@@ -287,6 +287,9 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
         if sys.platform == 'win32':
             installed_fonts = _get_win32_installed_fonts()
             fontpaths = []
+        elif sys.platform == 'emscripten':
+            installed_fonts = []
+            fontpaths = []
         else:
             installed_fonts = _get_fontconfig_fonts()
             if sys.platform == 'darwin':
