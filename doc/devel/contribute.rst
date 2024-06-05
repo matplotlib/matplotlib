@@ -178,6 +178,12 @@ contribution. Some examples are:
 
 Helping out with triage is discussed in detail in :ref:`bug_triaging`.
 
+Triage help is a valuable contribution because it takes a lot of time and
+judgement to effectively curate and resolve issues; therefore we very much
+appreciate thoughtful feedback to issue authors. Please do not verbatim post
+the output of a generative AI tool (such as chat GPT) as a response to a bug
+report as we expect that the issue author has either already tried that or has a
+reason for not doing so.
 
 .. _other_ways_to_contribute:
 
