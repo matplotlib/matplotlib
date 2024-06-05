@@ -109,6 +109,13 @@ New contributors
             :octicon:`note;1em;sd-text-info` Write documentation
 
          .. grid-item-card::
+            :link: contribute_triage
+            :link-type: ref
+            :shadow: none
+
+            :octicon:`issue-opened;1em;sd-text-info` Help triage
+
+         .. grid-item-card::
             :link: other_ways_to_contribute
             :link-type: ref
             :shadow: none
