@@ -21,7 +21,7 @@ Our approach to community engagement is foremost guided by our :ref:`mission-sta
   who may no longer be active on GitHub, build relationships with potential
   contributors, and connect with other projects and communities who use
   Matplotlib.
-* In prioritizing understandability and extensiblity, we recognize that people
+* In prioritizing understandability and extensibility, we recognize that people
   using Matplotlib, in whatever capacity, are part of our community. Doing so
   empowers our community members to build community with each other, for example
   by creating educational resources, building third party tools, and building
