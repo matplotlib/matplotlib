@@ -53,7 +53,7 @@ the toolbar pan and zoom buttons are not used.
    In addition, help and patches would be greatly appreciated!
 
 
-`axes3d.Axes3D` (fig[, rect, elev, azim, roll, ...])    3D Axes object.
+`axes3d.Axes3D` (fig[, rect, azim, elev, roll, ...])    3D Axes object.
 
 
 .. module:: mpl_toolkits.mplot3d.axis3d

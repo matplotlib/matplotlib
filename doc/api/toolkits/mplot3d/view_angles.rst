@@ -8,7 +8,7 @@ How to define the view angle
 ============================
 
 The position of the viewport "camera" in a 3D plot is defined by three angles:
-*elevation*, *azimuth*, and *roll*. From the resulting position, it always
+*azimuth*, *elevation*, and *roll*. From the resulting position, it always
 points towards the center of the plot box volume. The angle direction is a
 common convention, and is shared with
 `PyVista <https://docs.pyvista.org/api/core/camera.html>`_ and
@@ -26,13 +26,26 @@ as well as roll, and all three angles can be set programmatically::
 
     import matplotlib.pyplot as plt
     ax = plt.figure().add_subplot(projection='3d')
-    ax.view_init(elev=30, azim=45, roll=15)
+    ax.view_init(azim=45, elev=30, roll=15)
+
+Rotation of the plot
+====================
+
+The angles relate to the (intrinsic) rotation of the plot via the
+quaternion (with angles here given in radians instead of degrees):
+
+     *q* = exp( +roll **x̂** / 2) exp( +elev **ŷ** / 2) exp( −azim **ẑ** / 2)
+
+i.e., the angles are a kind of Tait-Bryan angles, −z, +y', +x", rather than
+classic Euler angles. (If you want to do anything significant with three-dimensional
+rotations, you are `well advised <https://github.com/moble/quaternion/wiki/Euler-angles-are-horrible>`_
+to stay clear of Tait-Bryan and Euler angles, and to use quaternions instead.)
 
 
 Primary view planes
 ===================
 
-To look directly at the primary view planes, the required elevation, azimuth,
+To look directly at the primary view planes, the required azimuth, elevation,
 and roll angles are shown in the diagram of an "unfolded" plot below. These are
 further documented in the `.mplot3d.axes3d.Axes3D.view_init` API.
 
