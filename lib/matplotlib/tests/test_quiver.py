@@ -381,7 +381,7 @@ def draw_quiverkey_setzorder(fig, zorder=None):
 
 @check_figures_equal(extensions=['png'])
 def test_quiverkey_zorder_default(fig_test, fig_ref):
-    """Check QuiverKey zorder option"""
+    """Check QuiverKey zorder argument"""
     draw_quiverkey_zorder_argument(fig_test)
     draw_quiverkey_setzorder(fig_ref)
 
@@ -389,7 +389,7 @@ def test_quiverkey_zorder_default(fig_test, fig_ref):
 @check_figures_equal(extensions=['png'])
 def test_quiverkey_zorder_zero(fig_test, fig_ref):
     """
-    Check QuiverKey zorder option
+    Check QuiverKey zorder argument
     zorder=0 means quiverkey is under quiver.
     """
     draw_quiverkey_zorder_argument(fig_test, zorder=0)
@@ -399,7 +399,7 @@ def test_quiverkey_zorder_zero(fig_test, fig_ref):
 @check_figures_equal(extensions=['png'])
 def test_quiverkey_zorder_two(fig_test, fig_ref):
     """
-    Check QuiverKey zorder option
+    Check QuiverKey zorder argument
     zorder=2 means quiverkey is same as default.
     """
     draw_quiverkey_zorder_argument(fig_test, zorder=2)
@@ -409,7 +409,7 @@ def test_quiverkey_zorder_two(fig_test, fig_ref):
 @check_figures_equal(extensions=['png'])
 def test_quiverkey_zorder_five(fig_test, fig_ref):
     """
-    Check QuiverKey zorder option
+    Check QuiverKey zorder argument
     zorder=5 means quiverkey is over ticks.
     """
     draw_quiverkey_zorder_argument(fig_test, zorder=5)
@@ -419,8 +419,8 @@ def test_quiverkey_zorder_five(fig_test, fig_ref):
 @check_figures_equal(extensions=['png'])
 def test_quiverkey_zorder_None(fig_test, fig_ref):
     """
-    Check QuiverKey zorder option
-    zorder=None means quiverkey is over ticks.
+    Check QuiverKey zorder argument
+    zorder=2 means quiverkey is default.
     """
     draw_quiverkey_zorder_argument(fig_test, zorder=None)
     draw_quiverkey_setzorder(fig_ref, zorder=None)
