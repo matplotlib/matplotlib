@@ -11,6 +11,8 @@ channels:
 dependencies:
   # runtime dependencies
   - cairocffi
+  - c-compiler
+  - cxx-compiler
   - contourpy>=1.0.1
   - cycler>=0.10.0
   - fonttools>=4.22.0
@@ -24,6 +26,7 @@ dependencies:
   - pygobject
   - pyparsing>=2.3.1
   - pyqt
+  - python
   - python-dateutil>=2.1
   - setuptools_scm
   - wxpython
