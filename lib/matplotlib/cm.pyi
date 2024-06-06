@@ -19,6 +19,8 @@ class ColormapRegistry(Mapping[str, colors.Colormap]):
 
 _colormaps: ColormapRegistry = ...
 
+def get_cmap(name: str | colors.Colormap | None = ..., lut: int | None = ...) -> colors.Colormap: ...
+
 class ScalarMappable:
     cmap: colors.Colormap | None
     colorbar: Colorbar | None
