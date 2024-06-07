@@ -84,7 +84,8 @@ class Axes3D(Axes):
             axis. A positive angle spins the camera clockwise, causing the
             scene to rotate counter-clockwise.
         sharez : Axes3D, optional
-            Other Axes to share z-limits with.
+            Other Axes to share z-limits with.  Note that it is not possible to
+            unshare axes.
         proj_type : {'persp', 'ortho'}
             The projection type, default 'persp'.
         box_aspect : 3-tuple of floats, default: None
@@ -108,7 +109,8 @@ class Axes3D(Axes):
             The focal length can be computed from a desired Field Of View via
             the equation: focal_length = 1/tan(FOV/2)
         shareview : Axes3D, optional
-            Other Axes to share view angles with.
+            Other Axes to share view angles with.  Note that it is not possible
+            to unshare axes.
 
         **kwargs
             Other optional keyword arguments:
@@ -1308,7 +1310,7 @@ class Axes3D(Axes):
 
         This is equivalent to passing ``sharez=other`` when constructing the
         Axes, and cannot be used if the z-axis is already being shared with
-        another Axes.
+        another Axes.  Note that it is not possible to unshare axes.
         """
         _api.check_isinstance(Axes3D, other=other)
         if self._sharez is not None and other is not self._sharez:
@@ -1325,9 +1327,9 @@ class Axes3D(Axes):
         """
         Share the view angles with *other*.
 
-        This is equivalent to passing ``shareview=other`` when
-        constructing the Axes, and cannot be used if the view angles are
-        already being shared with another Axes.
+        This is equivalent to passing ``shareview=other`` when constructing the
+        Axes, and cannot be used if the view angles are already being shared
+        with another Axes.  Note that it is not possible to unshare axes.
         """
         _api.check_isinstance(Axes3D, other=other)
         if self._shareview is not None and other is not self._shareview:
