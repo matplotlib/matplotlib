@@ -510,41 +510,19 @@ class VectorMappable:
                 else:
                     normed_0 = x[0].copy()
                     normed_1 = x[1].copy()
-                # in-place clip to shape of colormap: square, circle, etc.
-                rgba = self.cmap((normed_0, normed_1))
+                # the colormap handles in-place clip to shape of colormap
+                # square, circle, etc.
+                rgba = self.cmap((normed_0, normed_1), alpha=alpha)
             else:  # i.e. isinstance(self._cmaps, colors.MultivarColormap)
-                # This loops through the data and does norm+cmap for each variate.
-                # The alternative is to first to do norm for all, then cmap for all.
-                # Looping norm+cmap for each variate has better memory utilization,
-                # but requires a separate implementation, rather than calling cmap().
-                s = self.scalars[0]
-                rgba = np.array(s.to_rgba(x[0], bytes=False, norm=norm, alpha=1))
-                for s, xx in zip(self.scalars[1:], x[1:]):
-                    sub_rgba = np.array(s.to_rgba(xx, bytes=False, norm=norm, alpha=1))
-                    rgba[..., :3] += sub_rgba[..., :3]  # add colors
-                    rgba[..., 3] *= sub_rgba[..., 3]  # multiply alpha
-                # MultivarColormap require alpha = 0 for bad values
-                # giving the following condition to get the bad_mask
-                mask_bad = rgba[..., 3] == 0
-                rgba[mask_bad] = self.cmap.get_bad()
-
-                if self._cmap.combination_mode == 'Sub':
-                    rgba[..., :3] -= len(self.scalars) - 1
-
-            rgba = np.clip(rgba, 0, 1)
-
-            # If manually specified alpha
-            # rgba[..., -1] is at this point determined by the multivariate
-            # colormaps. (typically 'bad' values set alpha = 0).
-            #
-            if alpha is not None:
-                alpha = np.clip(alpha, 0, 1)
-                if alpha.shape not in [(), x[0].shape]:
-                    raise ValueError(
-                        f"alpha is array-like but its shape {alpha.shape} does "
-                        f"not match that of the input {x[0].shape}")
-                rgba[..., -1] *= alpha
-
+                # Here norm is handled first, then the colormap is applied
+                # it would be more memory efficient to do this in one step
+                # However, then you could not subclass MultivarColormap
+                # to intorudce new combination modes beyond 'Add' and 'Sub'
+                if norm:
+                    normed_x = [s.norm(xx) for s, xx in zip(self.scalars, x)]
+                else:
+                    normed_x = x
+                rgba = self.cmap(normed_x, alpha=alpha)
             if bytes:
                 rgba = (rgba * 255).astype('uint8')
 
