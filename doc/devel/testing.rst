@@ -182,17 +182,28 @@ circle: plotting a circle using a `matplotlib.patches.Circle` patch
 vs plotting the circle using the parametric equation of a circle ::
 
    from matplotlib.testing.decorators import check_figures_equal
-   import matplotib.patches as mpatches
+   import matplotlib.patches as mpatches
    import matplotlib.pyplot as plt
    import numpy as np
 
-   @check_figures_equal(extensions=['png'], tol=100)
+   @check_figures_equal()
    def test_parametric_circle_plot(fig_test, fig_ref):
-       red_circle_ref = mpatches.Circle((0, 0), 0.2, color='r', clip_on=False)
-       fig_ref.add_artist(red_circle_ref)
-       theta = np.linspace(0, 2 * np.pi, 150)
+
+       xo, yo= (.5, .5)
        radius = 0.4
-       fig_test.plot(radius * np.cos(theta), radius * np.sin(theta), color='r')
+
+       ax_test = fig_test.subplots()
+       theta = np.linspace(0, 2 * np.pi, 150)
+       l, = ax_test.plot(xo + (radius * np.cos(theta)),
+                         yo + (radius * np.sin(theta)), c='r')
+
+       ax_ref = fig_ref.subplots()
+       red_circle_ref = mpatches.Circle((xo, yo), radius, ec='r', fc='none',
+                                        lw=l.get_linewidth())
+       ax_ref.add_artist(red_circle_ref)
+
+       for ax in [ax_ref, ax_test]:
+           ax.set(xlim=(0,1), ylim=(0,1), aspect='equal')
 
 Both comparison decorators have a tolerance argument ``tol`` that is used to specify the
 tolerance for difference in color value between the two images, where 255 is the maximal
