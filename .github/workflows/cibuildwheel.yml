@@ -135,7 +135,7 @@ jobs:
           path: dist/
 
       - name: Build wheels for CPython 3.12
-        uses: pypa/cibuildwheel@711a3d017d0729f3edde18545fee967f03d65f65  # v2.18.0
+        uses: pypa/cibuildwheel@ba8be0d98853f5744f24e7f902c8adef7ae2e7f3  # v2.18.1
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -143,7 +143,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.11
-        uses: pypa/cibuildwheel@711a3d017d0729f3edde18545fee967f03d65f65  # v2.18.0
+        uses: pypa/cibuildwheel@ba8be0d98853f5744f24e7f902c8adef7ae2e7f3  # v2.18.1
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -151,7 +151,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.10
-        uses: pypa/cibuildwheel@711a3d017d0729f3edde18545fee967f03d65f65  # v2.18.0
+        uses: pypa/cibuildwheel@ba8be0d98853f5744f24e7f902c8adef7ae2e7f3  # v2.18.1
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -159,7 +159,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.9
-        uses: pypa/cibuildwheel@711a3d017d0729f3edde18545fee967f03d65f65  # v2.18.0
+        uses: pypa/cibuildwheel@ba8be0d98853f5744f24e7f902c8adef7ae2e7f3  # v2.18.1
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -167,7 +167,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for PyPy
-        uses: pypa/cibuildwheel@711a3d017d0729f3edde18545fee967f03d65f65  # v2.18.0
+        uses: pypa/cibuildwheel@ba8be0d98853f5744f24e7f902c8adef7ae2e7f3  # v2.18.1
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -203,7 +203,7 @@ jobs:
         run: ls dist
 
       - name: Generate artifact attestation for sdist and wheel
-        uses: actions/attest-build-provenance@173725a1209d09b31f9d30a3890cf2757ebbff0d  # v1.1.2
+        uses: actions/attest-build-provenance@49df96e17e918a15956db358890b08e61c704919  # v1.2.0
         with:
           subject-path: dist/matplotlib-*
 
