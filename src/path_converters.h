@@ -644,6 +644,9 @@ class PathSimplifier : protected EmbeddedQueue<9>
           m_after_moveto(false),
           m_clipped(false),
 
+          m_laststartx(0.0),
+          m_laststarty(0.0),
+
           // the x, y values from last iteration
           m_lastx(0.0),
           m_lasty(0.0),
@@ -754,6 +757,8 @@ class PathSimplifier : protected EmbeddedQueue<9>
                     _push(x, y);
                 }
                 m_after_moveto = true;
+                m_laststartx = *x;
+                m_laststarty = *y;
                 m_lastx = *x;
                 m_lasty = *y;
                 m_moveto = false;
@@ -767,6 +772,13 @@ class PathSimplifier : protected EmbeddedQueue<9>
                 continue;
             }
             m_after_moveto = false;
+
+            if(agg::is_close(cmd)) {
+                /* If we have to close the polygon, replace
+                   the vertex with the starting vertex */
+                *x = m_laststartx;
+                *y = m_laststarty;
+            }
 
             /* NOTE: We used to skip this very short segments, but if
                you have a lot of them cumulatively, you can miss
@@ -919,6 +931,7 @@ class PathSimplifier : protected EmbeddedQueue<9>
     bool m_moveto;
     bool m_after_moveto;
     bool m_clipped;
+    double m_laststartx, m_laststarty;
     double m_lastx, m_lasty;
 
     double m_origdx;
