@@ -1583,9 +1583,9 @@ default: %(va)s
                       left=0, right=1, bottom=0, top=1)
 
         sfarr = np.empty((nrows, ncols), dtype=object)
-        for i in range(ncols):
-            for j in range(nrows):
-                sfarr[j, i] = self.add_subfigure(gs[j, i], **kwargs)
+        for i in range(nrows):
+            for j in range(ncols):
+                sfarr[i, j] = self.add_subfigure(gs[i, j], **kwargs)
 
         if self.get_layout_engine() is None and (wspace is not None or
                                                  hspace is not None):
