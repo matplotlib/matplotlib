@@ -58,11 +58,13 @@ class Axes3D(Axes):
     Axes._shared_axes["view"] = cbook.Grouper()
 
     def __init__(
-            self, fig, rect=None, *args,
-            elev=30, azim=-60, roll=0, sharez=None, proj_type='persp',
-            box_aspect=None, computed_zorder=True, focal_length=None,
-            shareview=None,
-            **kwargs):
+        self, fig, rect=None, *args,
+        elev=30, azim=-60, roll=0, shareview=None, sharez=None,
+        proj_type='persp', focal_length=None,
+        box_aspect=None,
+        computed_zorder=True,
+        **kwargs,
+    ):
         """
         Parameters
         ----------
@@ -83,11 +85,21 @@ class Axes3D(Axes):
             The roll angle in degrees rotates the camera about the viewing
             axis. A positive angle spins the camera clockwise, causing the
             scene to rotate counter-clockwise.
+        shareview : Axes3D, optional
+            Other Axes to share view angles with.  Note that it is not possible
+            to unshare axes.
         sharez : Axes3D, optional
             Other Axes to share z-limits with.  Note that it is not possible to
             unshare axes.
         proj_type : {'persp', 'ortho'}
             The projection type, default 'persp'.
+        focal_length : float, default: None
+            For a projection type of 'persp', the focal length of the virtual
+            camera. Must be > 0. If None, defaults to 1.
+            For a projection type of 'ortho', must be set to either None
+            or infinity (numpy.inf). If None, defaults to infinity.
+            The focal length can be computed from a desired Field Of View via
+            the equation: focal_length = 1/tan(FOV/2)
         box_aspect : 3-tuple of floats, default: None
             Changes the physical dimensions of the Axes3D, such that the ratio
             of the axis lengths in display units is x:y:z.
@@ -101,16 +113,6 @@ class Axes3D(Axes):
             does not produce the desired result. Note however, that a manual
             zorder will only be correct for a limited view angle. If the figure
             is rotated by the user, it will look wrong from certain angles.
-        focal_length : float, default: None
-            For a projection type of 'persp', the focal length of the virtual
-            camera. Must be > 0. If None, defaults to 1.
-            For a projection type of 'ortho', must be set to either None
-            or infinity (numpy.inf). If None, defaults to infinity.
-            The focal length can be computed from a desired Field Of View via
-            the equation: focal_length = 1/tan(FOV/2)
-        shareview : Axes3D, optional
-            Other Axes to share view angles with.  Note that it is not possible
-            to unshare axes.
 
         **kwargs
             Other optional keyword arguments:
