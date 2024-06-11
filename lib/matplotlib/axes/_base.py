@@ -597,7 +597,8 @@ class _AxesBase(martist.Artist):
 
         sharex, sharey : `~matplotlib.axes.Axes`, optional
             The x- or y-`~.matplotlib.axis` is shared with the x- or y-axis in
-            the input `~.axes.Axes`.
+            the input `~.axes.Axes`.  Note that it is not possible to unshare
+            axes.
 
         frameon : bool, default: True
             Whether the Axes frame is visible.
@@ -1221,7 +1222,7 @@ class _AxesBase(martist.Artist):
 
         This is equivalent to passing ``sharex=other`` when constructing the
         Axes, and cannot be used if the x-axis is already being shared with
-        another Axes.
+        another Axes.  Note that it is not possible to unshare axes.
         """
         _api.check_isinstance(_AxesBase, other=other)
         if self._sharex is not None and other is not self._sharex:
@@ -1240,7 +1241,7 @@ class _AxesBase(martist.Artist):
 
         This is equivalent to passing ``sharey=other`` when constructing the
         Axes, and cannot be used if the y-axis is already being shared with
-        another Axes.
+        another Axes.  Note that it is not possible to unshare axes.
         """
         _api.check_isinstance(_AxesBase, other=other)
         if self._sharey is not None and other is not self._sharey:

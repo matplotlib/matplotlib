@@ -755,6 +755,8 @@ default: %(va)s
             When subplots have a shared axis that has units, calling
             `.Axis.set_units` will update each axis with the new units.
 
+            Note that it is not possible to unshare axes.
+
         squeeze : bool, default: True
             - If True, extra dimensions are squeezed out from the returned
               array of Axes:
