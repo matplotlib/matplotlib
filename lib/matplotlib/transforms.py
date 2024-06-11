@@ -2711,9 +2711,12 @@ class AffineDeltaTransform(Affine2DBase):
     This class is experimental as of 3.3, and the API may change.
     """
 
+    pass_through = True
+
     def __init__(self, transform, **kwargs):
         super().__init__(**kwargs)
         self._base_transform = transform
+        self.set_children(transform)
 
     __str__ = _make_str_method("_base_transform")
 
