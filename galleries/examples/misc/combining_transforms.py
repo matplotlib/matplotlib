@@ -19,11 +19,13 @@ index.
 The transform graph is constructed as follows:
 
 - A blended transform is made to scale the data:
-  - The y direction is the scale-only portion of `ax.transData`
-    obtained with `AffineDeltaTransform`
-  - The x direction is a reflection of the y, made using an `Affine2D`
+
+  - The y direction is the scale-only portion of ``ax.transData``
+    obtained with ``AffineDeltaTransform``
+  - The x direction is a reflection of the y, made using an ``Affine2D``
     reflection matrix
-- The blended transformation is added to a `ScaledTranslation` to place
+
+- The blended transformation is added to a ``ScaledTranslation`` to place
   the circles correctly
 
 As a secondary showcase, this example shows how to work with datetimes
