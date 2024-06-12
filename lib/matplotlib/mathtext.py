@@ -71,27 +71,27 @@ class MathTextParser:
         Depending on the *output* type, this returns either a `VectorParse` or
         a `RasterParse`.
         """
-        # lru_cache can't decorate parse() directly because prop
-        # is mutable; key the cache using an internal copy (see
-        # text._get_text_metrics_with_cache for a similar case).
+        # lru_cache can't decorate parse() directly because prop is
+        # mutable, so we key the cache using an internal copy (see
+        # Text._get_text_metrics_with_cache for a similar case); likewise,
+        # we need to check the mutable state of the text.antialiased and
+        # text.hinting rcParams.
         prop = prop.copy() if prop is not None else None
         antialiased = mpl._val_or_rc(antialiased, 'text.antialiased')
-        return self._parse_cached(s, dpi, prop, antialiased)
-
-    @functools.lru_cache(50)
-    def _parse_cached(self, s, dpi, prop, antialiased):
         from matplotlib.backends import backend_agg
-
-        if prop is None:
-            prop = FontProperties()
-        fontset_class = _api.check_getitem(
-            self._font_type_mapping, fontset=prop.get_math_fontfamily())
         load_glyph_flags = {
             "vector": LOAD_NO_HINTING,
             "raster": backend_agg.get_hinting_flag(),
         }[self._output_type]
-        fontset = fontset_class(prop, load_glyph_flags)
+        return self._parse_cached(s, dpi, prop, antialiased, load_glyph_flags)
 
+    @functools.lru_cache(50)
+    def _parse_cached(self, s, dpi, prop, antialiased, load_glyph_flags):
+        if prop is None:
+            prop = FontProperties()
+        fontset_class = _api.check_getitem(
+            self._font_type_mapping, fontset=prop.get_math_fontfamily())
+        fontset = fontset_class(prop, load_glyph_flags)
         fontsize = prop.get_size_in_points()
 
         if self._parser is None:  # Cache the parser globally.
