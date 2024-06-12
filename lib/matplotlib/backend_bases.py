@@ -510,75 +510,44 @@ class RendererBase:
         angle : float
             The rotation angle in degrees anti-clockwise.
         ismath : bool or "TeX"
-            If True, use mathtext parser. If "TeX", use tex for rendering.
+            If True, use mathtext parser.
         mtext : `~matplotlib.text.Text`
             The original text object to be rendered.
+
+        Notes
+        -----
+        **Notes for backend implementers:**
+
+        `.RendererBase.draw_text` also supports passing "TeX" to the *ismath*
+        parameter to use TeX rendering, but this is not required for actual
+        rendering backends, and indeed many builtin backends do not support
+        this.  Rather, TeX rendering is provided by `~.RendererBase.draw_tex`.
         """
         self._draw_text_as_path(gc, x, y, s, prop, angle, ismath)
-
-    def _get_text_path_transform(self, x, y, s, prop, angle, ismath):
-        """
-        Return the text path and transform.
-
-        Parameters
-        ----------
-        x : float
-            The x location of the text in display coords.
-        y : float
-            The y location of the text baseline in display coords.
-        s : str
-            The text to be converted.
-        prop : `~matplotlib.font_manager.FontProperties`
-            The font property.
-        angle : float
-            Angle in degrees to render the text at.
-        ismath : bool or "TeX"
-            If True, use mathtext parser. If "TeX", use tex for rendering.
-        """
-
-        text2path = self._text2path
-        fontsize = self.points_to_pixels(prop.get_size_in_points())
-        verts, codes = text2path.get_text_path(prop, s, ismath=ismath)
-
-        path = Path(verts, codes)
-        angle = np.deg2rad(angle)
-        if self.flipy():
-            width, height = self.get_canvas_width_height()
-            transform = (Affine2D()
-                         .scale(fontsize / text2path.FONT_SCALE)
-                         .rotate(angle)
-                         .translate(x, height - y))
-        else:
-            transform = (Affine2D()
-                         .scale(fontsize / text2path.FONT_SCALE)
-                         .rotate(angle)
-                         .translate(x, y))
-
-        return path, transform
 
     def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):
         """
         Draw the text by converting them to paths using `.TextToPath`.
 
-        Parameters
-        ----------
-        gc : `.GraphicsContextBase`
-            The graphics context.
-        x : float
-            The x location of the text in display coords.
-        y : float
-            The y location of the text baseline in display coords.
-        s : str
-            The text to be converted.
-        prop : `~matplotlib.font_manager.FontProperties`
-            The font property.
-        angle : float
-            Angle in degrees to render the text at.
-        ismath : bool or "TeX"
-            If True, use mathtext parser. If "TeX", use tex for rendering.
+        This private helper supports the same parameters as
+        `~.RendererBase.draw_text`; setting *ismath* to "TeX" triggers TeX
+        rendering.
         """
-        path, transform = self._get_text_path_transform(
-            x, y, s, prop, angle, ismath)
+        text2path = self._text2path
+        fontsize = self.points_to_pixels(prop.get_size_in_points())
+        verts, codes = text2path.get_text_path(prop, s, ismath=ismath)
+        path = Path(verts, codes)
+        if self.flipy():
+            width, height = self.get_canvas_width_height()
+            transform = (Affine2D()
+                         .scale(fontsize / text2path.FONT_SCALE)
+                         .rotate_deg(angle)
+                         .translate(x, height - y))
+        else:
+            transform = (Affine2D()
+                         .scale(fontsize / text2path.FONT_SCALE)
+                         .rotate_deg(angle)
+                         .translate(x, y))
         color = gc.get_rgb()
         gc.set_linewidth(0.0)
         self.draw_path(gc, path, transform, rgbFace=color)
