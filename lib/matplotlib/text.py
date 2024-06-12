@@ -606,6 +606,10 @@ class Text(Artist):
         """
         Set whether the text can be wrapped.
 
+        Wrapping makes sure the text is completely within the figure box, i.e.
+        it does not extend beyond the drawing area. It does not take into
+        account any other artists.
+
         Parameters
         ----------
         wrap : bool
