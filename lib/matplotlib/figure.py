@@ -1550,6 +1550,9 @@ default: %(va)s
         .. note::
             The *subfigure* concept is new in v3.4, and the API is still provisional.
 
+        .. versionchanged:: 3.10
+            subfigures are now added in row-major order.
+
         Parameters
         ----------
         nrows, ncols : int, default: 1

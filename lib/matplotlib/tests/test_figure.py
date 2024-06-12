@@ -1735,12 +1735,9 @@ def test_warn_colorbar_mismatch():
         subfig3_1.colorbar(im4_1)
 
 
-@check_figures_equal(extensions=['png'])
-def test_subfigure_row_order(fig_test, fig_ref):
-    # Test that subfigures are drawn in row major order.
-    sf_arr_ref = fig_ref.subfigures(4, 3)
-    for i, sf in enumerate(sf_arr_ref.ravel()):
-        sf.suptitle(i)
-    fig_test.subfigures(4, 3)
-    for i, sf in enumerate(fig_test.subfigs):
-        sf.suptitle(i)
+def test_subfigure_row_order():
+    # Test that subfigures are drawn in row-major order.
+    fig = plt.figure()
+    sf_arr = fig.subfigures(4, 3)
+    for a, b in zip(sf_arr.ravel(), fig.subfigs):
+        assert a is b
