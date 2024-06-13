@@ -1552,6 +1552,9 @@ default: %(va)s
         .. note::
             The *subfigure* concept is new in v3.4, and the API is still provisional.
 
+        .. versionchanged:: 3.10
+            subfigures are now added in row-major order.
+
         Parameters
         ----------
         nrows, ncols : int, default: 1
@@ -1585,9 +1588,9 @@ default: %(va)s
                       left=0, right=1, bottom=0, top=1)
 
         sfarr = np.empty((nrows, ncols), dtype=object)
-        for i in range(ncols):
-            for j in range(nrows):
-                sfarr[j, i] = self.add_subfigure(gs[j, i], **kwargs)
+        for i in range(nrows):
+            for j in range(ncols):
+                sfarr[i, j] = self.add_subfigure(gs[i, j], **kwargs)
 
         if self.get_layout_engine() is None and (wspace is not None or
                                                  hspace is not None):
