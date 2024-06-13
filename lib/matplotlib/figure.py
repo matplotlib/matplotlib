@@ -931,6 +931,7 @@ default: %(va)s
         self.texts = []
         self.images = []
         self.legends = []
+        self.subplotpars.update(rc_default=True)
         if not keep_observers:
             self._axobservers = cbook.CallbackRegistry()
         self._suptitle = None
@@ -1256,7 +1257,7 @@ default: %(va)s
         return cb
 
     def subplots_adjust(self, left=None, bottom=None, right=None, top=None,
-                        wspace=None, hspace=None):
+                        wspace=None, hspace=None, rc_default=False):
         """
         Adjust the subplot layout parameters.
 
@@ -1283,6 +1284,10 @@ default: %(va)s
         hspace : float, optional
             The height of the padding between subplots,
             as a fraction of the average Axes height.
+        rc_default : bool
+            Determine the defaults. *False*, the default, and the values
+            are unchanged. *True* and the values are taken from
+            :rc:`figure.subplot.*`
         """
         if (self.get_layout_engine() is not None and
                 not self.get_layout_engine().adjust_compatible):
@@ -1291,7 +1296,8 @@ default: %(va)s
                 "incompatible with subplots_adjust and/or tight_layout; "
                 "not calling subplots_adjust.")
             return
-        self.subplotpars.update(left, bottom, right, top, wspace, hspace)
+        self.subplotpars.update(left, bottom, right, top, wspace, hspace,
+                                rc_default=rc_default)
         for ax in self.axes:
             if ax.get_subplotspec() is not None:
                 ax._set_position(ax.get_subplotspec().get_position(self))
