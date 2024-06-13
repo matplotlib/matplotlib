@@ -513,21 +513,7 @@ class RendererBase:
             If True, use mathtext parser. If "TeX", use tex for rendering.
         mtext : `~matplotlib.text.Text`
             The original text object to be rendered.
-
-        Notes
-        -----
-        **Note for backend implementers:**
-
-        When you are trying to determine if you have gotten your bounding box
-        right (which is what enables the text layout/alignment to work
-        properly), it helps to change the line in text.py::
-
-            if 0: bbox_artist(self, renderer)
-
-        to if 1, and then the actual bounding box will be plotted along with
-        your text.
         """
-
         self._draw_text_as_path(gc, x, y, s, prop, angle, ismath)
 
     def _get_text_path_transform(self, x, y, s, prop, angle, ismath):
