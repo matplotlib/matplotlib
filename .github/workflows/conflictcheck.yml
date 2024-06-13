@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check if PRs have merge conflicts
-        uses: eps1lon/actions-label-merge-conflict@6d74047dcef155976a15e4a124dde2c7fe0c5522  # v3.0.1
+        uses: eps1lon/actions-label-merge-conflict@1b1b1fcde06a9b3d089f3464c96417961dde1168  # v3.0.2
         with:
           dirtyLabel: "status: needs rebase"
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
