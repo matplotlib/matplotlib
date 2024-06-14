@@ -168,8 +168,11 @@ class BackendRegistry:
     def _validate_and_store_entry_points(self, entries):
         # Validate and store entry points so that they can be used via matplotlib.use()
         # in the normal manner. Entry point names cannot be of module:// format, cannot
-        # shadow a built-in backend name, and cannot be duplicated.
-        for name, module in entries:
+        # shadow a built-in backend name, and there cannot be multiple entry points
+        # with the same name but different modules. Multiple entry points with the same
+        # name and value are permitted (it can sometimes happen outside of our control,
+        # see https://github.com/matplotlib/matplotlib/issues/28367).
+        for name, module in set(entries):
             name = name.lower()
             if name.startswith("module://"):
                 raise RuntimeError(
