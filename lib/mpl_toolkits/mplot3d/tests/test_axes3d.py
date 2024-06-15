@@ -2417,6 +2417,22 @@ def test_view_init_vertical_axis(
         np.testing.assert_array_equal(tickdir_expected, tickdir_actual)
 
 
+def test_view_init_positional_args():
+    """
+    Test view_init() with positional instead of keyword arguments
+    """
+    ax = plt.subplot(1, 1, 1, projection="3d")
+    with pytest.deprecated_call():
+        ax.view_init(10, 20, 30, "y", False)
+    assert ax.azim == 20
+    assert ax.elev == 10
+    assert ax.roll == 30
+    assert ax._vertical_axis == 1
+
+    with pytest.raises(TypeError):
+        ax.view_init(10, 20, 30, "y", False, "superfluous argument")
+
+
 @pytest.mark.parametrize("vertical_axis", ["x", "y", "z"])
 def test_on_move_vertical_axis(vertical_axis: str) -> None:
     """
