@@ -2744,7 +2744,7 @@ class Axes(_AxesBase):
 
         data : indexable object, optional
             If given, all parameters also accept a string ``s``, which is
-            interpreted as ``data[s]`` (unless this raises an exception).
+            interpreted as ``data[s]`` if  ``s`` is a key in ``data``.
 
         **kwargs : `.Rectangle` properties
 
