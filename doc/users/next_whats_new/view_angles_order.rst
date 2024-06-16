@@ -12,6 +12,6 @@ For backward compatibility, the old ``elev``, ``azim`` etc. positional arguments
 will still be accepted (but it is not recommended).
 
 
-[1]: See :doc: `/api/toolkits/mplot3d/view_angles` for details. Also, this particular
+[1]: See :doc:`/api/toolkits/mplot3d/view_angles` for details. Also, this particular
 order appears to be most common; and it is consistent with the ordering in
 matplotlib's colors.py - see also :ghissue:`28353`.

@@ -37,7 +37,7 @@ for plane, angles in views:
     axd[plane].view_init(azim=angles[0], elev=angles[1], roll=angles[2])
     axd[plane].set_box_aspect(None, zoom=1.25)
 
-    label = f'{plane}\n{angles}'
+    label = f'{plane}\nazim={angles[0]}\nelev={angles[1]}\nroll={angles[2]}'
     annotate_axes(axd[plane], label, fontsize=14)
 
 for plane in ('XY', '-XY'):

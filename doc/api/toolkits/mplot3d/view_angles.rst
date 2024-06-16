@@ -31,15 +31,24 @@ as well as roll, and all three angles can be set programmatically::
 Rotation of the plot
 ====================
 
-The angles relate to the (intrinsic) rotation of the plot via the
-quaternion (with angles here given in radians instead of degrees):
+The *azim*, *elev*, *roll* rotation order corresponds to rotation of the scene
+observed by a stationary camera. First, a left-handed rotation about the z axis is
+applied (*azim*), then a right-handed rotation about the (camera) y axis (*elev*), then a
+right-handed rotation about the (camera) x axis (*roll*). Here, the z, y, and x axis are fixed
+axes (not the axes that rotate together with the original scene).
+
+This can also be thought of as orbiting a camera around a fixed scene, by reversing
+the order of operations. First the camera is rotated about the scene's +x axis
+(*roll*), then the +y axis (*elev*), then the −z axis (*azim*).
+
+If you would like to make the connection with quaternions (because
+`Euler angles are horrible <https://github.com/moble/quaternion/wiki/Euler-angles-are-horrible>`_):
+the *azim*, *elev*, *roll* angles relate to the (intrinsic) rotation of the plot via:
 
      *q* = exp( +roll **x̂** / 2) exp( +elev **ŷ** / 2) exp( −azim **ẑ** / 2)
 
-i.e., the angles are a kind of Tait-Bryan angles, −z, +y', +x", rather than
-classic Euler angles. (If you want to do anything significant with three-dimensional
-rotations, you are `well advised <https://github.com/moble/quaternion/wiki/Euler-angles-are-horrible>`_
-to stay clear of Tait-Bryan and Euler angles, and to use quaternions instead.)
+(with angles given in radians instead of degrees). That is, the angles are a kind of
+Tait-Bryan angles: −z, +y', +x", rather than classic Euler angles.
 
 
 Primary view planes
