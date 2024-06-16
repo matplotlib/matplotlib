@@ -2658,16 +2658,17 @@ class Axes3D(Axes):
             art3d.patch_collection_2d_to_3d(col, zs=zs, zdir=zdir)
             col.set_sort_zpos(zsortval)
 
-        # FIXME: Implement auto-scaling function for Patch3DCollection
-        # Currently unable to do so due to issues with Patch3DCollection
-        # See https://github.com/matplotlib/matplotlib/issues/14298 for details
         if autolim:
             if isinstance(col, art3d.Line3DCollection):
                 self.auto_scale_xyz(*np.array(col._segments3d).transpose(),
                                     had_data=had_data)
-
-            if isinstance(col, art3d.Poly3DCollection):
+            elif isinstance(col, art3d.Poly3DCollection):
                 self.auto_scale_xyz(*col._vec[:-1], had_data=had_data)
+            elif isinstance(col, art3d.Patch3DCollection):
+                pass
+                # FIXME: Implement auto-scaling function for Patch3DCollection
+                # Currently unable to do so due to issues with Patch3DCollection
+                # See https://github.com/matplotlib/matplotlib/issues/14298 for details
 
         collection = super().add_collection(col)
         return collection
