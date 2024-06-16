@@ -4603,37 +4603,56 @@ def test_hist_stacked_bar():
     ax.legend(loc='upper right', bbox_to_anchor=(1.0, 1.0), ncols=1)
 
 
-@pytest.mark.parametrize("histtype", ["step", "stepfilled"])
-@pytest.mark.parametrize("color", [["blue", "green", "brown"], None])
-@pytest.mark.parametrize("edgecolor", [["red", "black", "blue"], [None]*3])
-@pytest.mark.parametrize("facecolor", [["blue", "green", "brown"], [None]*3])
 @check_figures_equal(extensions=["png"])
-def test_hist_vectorized_params(fig_test, fig_ref, histtype, color, edgecolor,
-                                facecolor):
+def test_hist_vectorized_params(fig_test, fig_ref):
     np.random.seed(19680801)
     x = [np.random.randn(n) for n in [2000, 5000, 10000]]
-    linewidth = [1, 1.5, 2]
+
+    facecolor = ["b", "g", "r"]
+    edgecolor = ["b", "g", "r"]
     hatch = ["/", "\\", "."]
     linestyle = ["-", "--", ":"]
+    linewidth = [1, 1.5, 2]
+    colors = ["b", "g", "r"]
+    ((axt1, axt2, axt3), (axt4, axt5, axt6)) = fig_test.subplots(2, 3)
+    ((axr1, axr2, axr3), (axr4, axr5, axr6)) = fig_ref.subplots(2, 3)
 
-    facecolor = facecolor if facecolor[0] is not None else color
-    if histtype == "step":
-        edgecolor = edgecolor if edgecolor[0] is not None else color
+    _, bins, _ = axt1.hist(x, bins=10, histtype="stepfilled", facecolor=facecolor)
 
-    _, bins, _ = fig_test.subplots().hist(x, bins=10, histtype=histtype, color=color,
-                                          edgecolor=edgecolor, facecolor=facecolor,
-                                          linewidth=linewidth, hatch=hatch,
-                                          linestyle=linestyle)
-    ref_ax = fig_ref.subplots()
-    color = [None]*3 if color is None else color
-    edgecolor = [None]*3 if edgecolor is None else edgecolor
-    facecolor = [None]*3 if facecolor is None else facecolor
+    for i, (xi, fc) in enumerate(zip(x, facecolor)):
+        axr1.hist(xi, bins=bins, histtype="stepfilled", facecolor=fc,
+                  zorder=(len(x)-i)/2)
 
-    for i in range(2, -1, -1):
-        ref_ax.hist(x[i], bins=bins, histtype=histtype, color=color[i],
-                    edgecolor=edgecolor[i], facecolor=facecolor[i],
-                    linewidth=linewidth[i], hatch=hatch[i],
-                    linestyle=linestyle[i])
+    _, bins, _ = axt2.hist(x, bins=10, histtype="step", edgecolor=edgecolor)
+
+    for i, (xi, ec) in enumerate(zip(x, edgecolor)):
+        axr2.hist(xi, bins=bins, histtype="step", edgecolor=ec, zorder=(len(x)-i)/2)
+
+    _, bins, _ = axt3.hist(x, bins=10, histtype="stepfilled", hatch=hatch,
+                            facecolor=facecolor)
+
+    for i, (xi, fc, ht) in enumerate(zip(x, facecolor, hatch)):
+        axr3.hist(xi, bins=bins, histtype="stepfilled", hatch=ht, facecolor=fc,
+                  zorder=(len(x)-i)/2)
+
+    _, bins, _ = axt4.hist(x, bins=10, histtype="step", linestyle=linestyle,
+                           edgecolor=edgecolor)
+
+    for i, (xi, ec, ls) in enumerate(zip(x, edgecolor, linestyle)):
+        axr4.hist(xi, bins=bins, histtype="step", linestyle=ls, edgecolor=ec,
+                  zorder=(len(x)-i)/2)
+
+    _, bins, _ = axt5.hist(x, bins=10, histtype="step", linewidth=linewidth,
+                           edgecolor=edgecolor)
+
+    for i, (xi, ec, lw) in enumerate(zip(x, edgecolor, linewidth)):
+        axr5.hist(xi, bins=bins, histtype="step", linewidth=lw, edgecolor=ec,
+                  zorder=(len(x)-i)/2)
+
+    _, bins, _ = axt6.hist(x, bins=10, histtype="stepfilled", color=colors)
+
+    for i, (xi, c) in enumerate(zip(x, colors)):
+        axr6.hist(xi, bins=bins, histtype="stepfilled", color=c, zorder=(len(x)-i)/2)
 
 
 def test_hist_barstacked_bottom_unchanged():
