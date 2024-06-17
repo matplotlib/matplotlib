@@ -22,7 +22,6 @@ from matplotlib.path import Path
 from matplotlib.text import Text
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 
 mpl3d_image_comparison = functools.partial(

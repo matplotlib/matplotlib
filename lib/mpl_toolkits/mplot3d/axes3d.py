@@ -3341,7 +3341,7 @@ class Axes3D(Axes):
 
         # compute axes limits
         dx = bars.dx / 2
-        dy = bars.dy / 2 #/ np.sqrt(3)
+        dy = bars.dy / 2
         viewlim = np.array([(np.min(x) - dx, np.max(x) + dx),
                             (np.min(y) - dy, np.max(y) + dy),
                             (min(bars.z0, np.min(z)), np.max(z))])

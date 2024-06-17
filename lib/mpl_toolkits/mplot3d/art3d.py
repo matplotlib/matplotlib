@@ -91,6 +91,7 @@ HEXAGON = np.array([
 
 # ---------------------------------------------------------------------------- #
 
+
 def is_none(*args):
     for a in args:
         yield a is None
