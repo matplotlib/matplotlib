@@ -1994,9 +1994,8 @@ class Axes3D(Axes):
             - 'polygon': The two lines are connected to form a single polygon.
               This is faster and can render more cleanly for simple shapes
               (e.g. for filling between two lines that lie within a plane).
-            - 'auto': If the lines are in a plane parallel to a coordinate axis
-              (one of *x*, *y*, *z* are constant and equal for both lines),
-              'polygon' is used. Otherwise, 'quad' is used.
+            - 'auto': If the points all lie on the same 3D plane, 'polygon' is
+              used. Otherwise, 'quad' is used.
 
         facecolors : list of :mpltype:`color`, default: None
             Colors of each individual patch, or a single color to be used for
@@ -2019,19 +2018,6 @@ class Axes3D(Axes):
 
         had_data = self.has_data()
         x1, y1, z1, x2, y2, z2 = cbook._broadcast_with_masks(x1, y1, z1, x2, y2, z2)
-        if mode == 'auto':
-            if ((np.all(x1 == x1[0]) and np.all(x2 == x1[0]))
-                 or (np.all(y1 == y1[0]) and np.all(y2 == y1[0]))
-                 or (np.all(z1 == z1[0]) and np.all(z2 == z1[0]))):
-                mode = 'polygon'
-            else:
-                mode = 'quad'
-
-        if shade is None:
-            if mode == 'quad':
-                shade = True
-            else:
-                shade = False
 
         if facecolors is None:
             facecolors = [self._get_patches_for_fill.get_next_color()]
@@ -2045,6 +2031,21 @@ class Axes3D(Axes):
                 raise ValueError(f"where size ({where.size}) does not match "
                                  f"size ({x1.size})")
         where = where & ~np.isnan(x1)  # NaNs were broadcast in _broadcast_with_masks
+
+        if mode == 'auto':
+            if art3d._all_points_on_plane(np.concatenate((x1[where], x2[where])),
+                                          np.concatenate((y1[where], y2[where])),
+                                          np.concatenate((z1[where], z2[where])),
+                                          atol=1e-12):
+                mode = 'polygon'
+            else:
+                mode = 'quad'
+
+        if shade is None:
+            if mode == 'quad':
+                shade = True
+            else:
+                shade = False
 
         polys = []
         for idx0, idx1 in cbook.contiguous_regions(where):
