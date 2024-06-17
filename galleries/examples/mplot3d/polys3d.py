@@ -30,7 +30,6 @@ ax = plt.figure().add_subplot(projection='3d')
 
 poly = Poly3DCollection(verts, alpha=.7)
 ax.add_collection3d(poly)
-ax.auto_scale_xyz(verts[:, :, 0], verts[:, :, 1], verts[:, :, 2])
 ax.set_aspect('equalxy')
 
 plt.show()
