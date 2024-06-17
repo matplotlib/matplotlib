@@ -1957,6 +1957,130 @@ class Axes3D(Axes):
 
     plot3D = plot
 
+    def fill_between(self, x1, y1, z1, x2, y2, z2, *,
+                     where=None, mode='auto', facecolors=None, shade=None,
+                     **kwargs):
+        """
+        Fill the area between two 3D curves.
+
+        The curves are defined by the points (*x1*, *y1*, *z1*) and
+        (*x2*, *y2*, *z2*). This creates one or multiple quadrangle
+        polygons that are filled. All points must be the same length N, or a
+        single value to be used for all points.
+
+        Parameters
+        ----------
+        x1, y1, z1 : float or 1D array-like
+            x, y, and z  coordinates of vertices for 1st line.
+
+        x2, y2, z2 : float or 1D array-like
+            x, y, and z coordinates of vertices for 2nd line.
+
+        where : array of bool (length N), optional
+            Define *where* to exclude some regions from being filled. The
+            filled regions are defined by the coordinates ``pts[where]``,
+            for all x, y, and z pts. More precisely, fill between ``pts[i]``
+            and ``pts[i+1]`` if ``where[i] and where[i+1]``. Note that this
+            definition implies that an isolated *True* value between two
+            *False* values in *where* will not result in filling. Both sides of
+            the *True* position remain unfilled due to the adjacent *False*
+            values.
+
+        mode : {'quad', 'polygon', 'auto'}, default: 'auto'
+            The fill mode. One of:
+
+            - 'quad':  A separate quadrilateral polygon is created for each
+              pair of subsequent points in the two lines.
+            - 'polygon': The two lines are connected to form a single polygon.
+              This is faster and can render more cleanly for simple shapes
+              (e.g. for filling between two lines that lie within a plane).
+            - 'auto': If the points all lie on the same 3D plane, 'polygon' is
+              used. Otherwise, 'quad' is used.
+
+        facecolors : list of :mpltype:`color`, default: None
+            Colors of each individual patch, or a single color to be used for
+            all patches.
+
+        shade : bool, default: None
+            Whether to shade the facecolors. If *None*, then defaults to *True*
+            for 'quad' mode and *False* for 'polygon' mode.
+
+        **kwargs
+            All other keyword arguments are passed on to `.Poly3DCollection`.
+
+        Returns
+        -------
+        `.Poly3DCollection`
+            A `.Poly3DCollection` containing the plotted polygons.
+
+        """
+        _api.check_in_list(['auto', 'quad', 'polygon'], mode=mode)
+
+        had_data = self.has_data()
+        x1, y1, z1, x2, y2, z2 = cbook._broadcast_with_masks(x1, y1, z1, x2, y2, z2)
+
+        if facecolors is None:
+            facecolors = [self._get_patches_for_fill.get_next_color()]
+        facecolors = list(mcolors.to_rgba_array(facecolors))
+
+        if where is None:
+            where = True
+        else:
+            where = np.asarray(where, dtype=bool)
+            if where.size != x1.size:
+                raise ValueError(f"where size ({where.size}) does not match "
+                                 f"size ({x1.size})")
+        where = where & ~np.isnan(x1)  # NaNs were broadcast in _broadcast_with_masks
+
+        if mode == 'auto':
+            if art3d._all_points_on_plane(np.concatenate((x1[where], x2[where])),
+                                          np.concatenate((y1[where], y2[where])),
+                                          np.concatenate((z1[where], z2[where])),
+                                          atol=1e-12):
+                mode = 'polygon'
+            else:
+                mode = 'quad'
+
+        if shade is None:
+            if mode == 'quad':
+                shade = True
+            else:
+                shade = False
+
+        polys = []
+        for idx0, idx1 in cbook.contiguous_regions(where):
+            x1i = x1[idx0:idx1]
+            y1i = y1[idx0:idx1]
+            z1i = z1[idx0:idx1]
+            x2i = x2[idx0:idx1]
+            y2i = y2[idx0:idx1]
+            z2i = z2[idx0:idx1]
+
+            if not len(x1i):
+                continue
+
+            if mode == 'quad':
+                # Preallocate the array for the region's vertices, and fill it in
+                n_polys_i = len(x1i) - 1
+                polys_i = np.empty((n_polys_i, 4, 3))
+                polys_i[:, 0, :] = np.column_stack((x1i[:-1], y1i[:-1], z1i[:-1]))
+                polys_i[:, 1, :] = np.column_stack((x1i[1:], y1i[1:], z1i[1:]))
+                polys_i[:, 2, :] = np.column_stack((x2i[1:], y2i[1:], z2i[1:]))
+                polys_i[:, 3, :] = np.column_stack((x2i[:-1], y2i[:-1], z2i[:-1]))
+                polys = polys + [*polys_i]
+            elif mode == 'polygon':
+                line1 = np.column_stack((x1i, y1i, z1i))
+                line2 = np.column_stack((x2i[::-1], y2i[::-1], z2i[::-1]))
+                poly = np.concatenate((line1, line2), axis=0)
+                polys.append(poly)
+
+        polyc = art3d.Poly3DCollection(polys, facecolors=facecolors, shade=shade,
+                                       **kwargs)
+        self.add_collection(polyc)
+
+        self.auto_scale_xyz([x1, x2], [y1, y2], [z1, z2], had_data)
+        return polyc
+
     def plot_surface(self, X, Y, Z, *, norm=None, vmin=None,
                      vmax=None, lightsource=None, **kwargs):
         """
