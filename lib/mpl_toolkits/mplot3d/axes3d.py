@@ -2750,7 +2750,7 @@ class Axes3D(Axes):
 
         - `.PolyCollection`
         - `.LineCollection`
-        - `.PatchCollection`
+        - `.PatchCollection` (currently not supporting *autolim*)
 
         Parameters
         ----------
