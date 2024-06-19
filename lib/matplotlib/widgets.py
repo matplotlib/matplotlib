@@ -1001,14 +1001,8 @@ class CheckButtons(AxesWidget):
     ----------
     ax : `~matplotlib.axes.Axes`
         The parent Axes for the widget.
-
     labels : list of `~matplotlib.text.Text`
-
-    rectangles : list of `~matplotlib.patches.Rectangle`
-
-    lines : list of (`.Line2D`, `.Line2D`) pairs
-        List of lines for the x's in the checkboxes.  These lines exist for
-        each box, but have ``set_visible(False)`` when its box is not checked.
+        The text label objects of the check buttons.
     """
 
     def __init__(self, ax, labels, actives=None, *, useblit=True,
@@ -1571,8 +1565,6 @@ class RadioButtons(AxesWidget):
         The color of the selected button.
     labels : list of `.Text`
         The button labels.
-    circles : list of `~.patches.Circle`
-        The buttons.
     value_selected : str
         The label text of the currently selected button.
     index_selected : int
@@ -1751,11 +1743,6 @@ class RadioButtons(AxesWidget):
         colors._check_color_like(activecolor=activecolor)
         self._activecolor = activecolor
         self.set_radio_props({'facecolor': activecolor})
-        # Make sure the deprecated version is updated.
-        # Remove once circles is removed.
-        labels = [label.get_text() for label in self.labels]
-        with cbook._setattr_cm(self, eventson=False):
-            self.set_active(labels.index(self.value_selected))
 
     def set_active(self, index):
         """
