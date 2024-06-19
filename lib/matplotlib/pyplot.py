@@ -2882,7 +2882,7 @@ def axhline(y: float = 0, xmin: float = 0, xmax: float = 1, **kwargs) -> Line2D:
 @_copy_docstring_and_deprecators(Axes.axhspan)
 def axhspan(
     ymin: float, ymax: float, xmin: float = 0, xmax: float = 1, **kwargs
-) -> Polygon:
+) -> Rectangle:
     return gca().axhspan(ymin, ymax, xmin=xmin, xmax=xmax, **kwargs)
 
 
@@ -2920,7 +2920,7 @@ def axvline(x: float = 0, ymin: float = 0, ymax: float = 1, **kwargs) -> Line2D:
 @_copy_docstring_and_deprecators(Axes.axvspan)
 def axvspan(
     xmin: float, xmax: float, ymin: float = 0, ymax: float = 1, **kwargs
-) -> Polygon:
+) -> Rectangle:
     return gca().axvspan(xmin, xmax, ymin=ymin, ymax=ymax, **kwargs)
 
 

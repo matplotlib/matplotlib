@@ -1006,14 +1006,14 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        `~matplotlib.patches.Polygon`
+        `~matplotlib.patches.Rectangle`
             Horizontal span (rectangle) from (xmin, ymin) to (xmax, ymax).
 
         Other Parameters
         ----------------
-        **kwargs : `~matplotlib.patches.Polygon` properties
+        **kwargs : `~matplotlib.patches.Rectangle` properties
 
-        %(Polygon:kwdoc)s
+        %(Rectangle:kwdoc)s
 
         See Also
         --------
@@ -1061,14 +1061,14 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        `~matplotlib.patches.Polygon`
+        `~matplotlib.patches.Rectangle`
             Vertical span (rectangle) from (xmin, ymin) to (xmax, ymax).
 
         Other Parameters
         ----------------
-        **kwargs : `~matplotlib.patches.Polygon` properties
+        **kwargs : `~matplotlib.patches.Rectangle` properties
 
-        %(Polygon:kwdoc)s
+        %(Rectangle:kwdoc)s
 
         See Also
         --------
