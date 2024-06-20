@@ -90,22 +90,6 @@ class Widget:
         """
         return not self.active
 
-    def _changed_canvas(self):
-        """
-        Someone has switched the canvas on us!
-
-        This happens if `savefig` needs to save to a format the previous
-        backend did not support (e.g. saving a figure using an Agg based
-        backend saved to a vector format).
-
-        Returns
-        -------
-        bool
-           True if the canvas has been changed.
-
-        """
-        return self.canvas is not self.ax.figure.canvas
-
 
 class AxesWidget(Widget):
     """
@@ -131,8 +115,9 @@ class AxesWidget(Widget):
 
     def __init__(self, ax):
         self.ax = ax
-        self.canvas = ax.figure.canvas
         self._cids = []
+
+    canvas = property(lambda self: self.ax.figure.canvas)
 
     def connect_event(self, event, callback):
         """
@@ -1100,7 +1085,7 @@ class CheckButtons(AxesWidget):
 
     def _clear(self, event):
         """Internal event handler to clear the buttons."""
-        if self.ignore(event) or self._changed_canvas():
+        if self.ignore(event) or self.canvas.is_saving():
             return
         self._background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self._checks)
@@ -1677,7 +1662,7 @@ class RadioButtons(AxesWidget):
 
     def _clear(self, event):
         """Internal event handler to clear the buttons."""
-        if self.ignore(event) or self._changed_canvas():
+        if self.ignore(event) or self.canvas.is_saving():
             return
         self._background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self._buttons)
@@ -1933,7 +1918,7 @@ class Cursor(AxesWidget):
 
     def clear(self, event):
         """Internal event handler to clear the cursor."""
-        if self.ignore(event) or self._changed_canvas():
+        if self.ignore(event) or self.canvas.is_saving():
             return
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
@@ -2573,9 +2558,7 @@ class SpanSelector(_SelectorWidget):
         self.drag_from_anywhere = drag_from_anywhere
         self.ignore_event_outside = ignore_event_outside
 
-        # Reset canvas so that `new_axes` connects events.
-        self.canvas = None
-        self.new_axes(ax, _props=props)
+        self.new_axes(ax, _props=props, _init=True)
 
         # Setup handles
         self._handle_props = {
@@ -2588,14 +2571,12 @@ class SpanSelector(_SelectorWidget):
 
         self._active_handle = None
 
-    def new_axes(self, ax, *, _props=None):
+    def new_axes(self, ax, *, _props=None, _init=False):
         """Set SpanSelector to operate on a new Axes."""
         self.ax = ax
-        if self.canvas is not ax.figure.canvas:
+        if _init or self.canvas is not ax.figure.canvas:
             if self.canvas is not None:
                 self.disconnect_events()
-
-            self.canvas = ax.figure.canvas
             self.connect_default_events()
 
         # Reset

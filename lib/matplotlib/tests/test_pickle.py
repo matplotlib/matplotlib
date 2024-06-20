@@ -307,3 +307,11 @@ def test_cycler():
     ax = pickle.loads(pickle.dumps(ax))
     l, = ax.plot([3, 4])
     assert l.get_color() == "m"
+
+
+# Run under an interactive backend to test that we don't try to pickle the
+# (interactive and non-picklable) canvas.
+@pytest.mark.backend('tkagg')
+def test_axeswidget_interactive():
+    ax = plt.figure().add_subplot()
+    pickle.dumps(mpl.widgets.Button(ax, "button"))
