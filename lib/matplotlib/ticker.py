@@ -1629,10 +1629,27 @@ class Locator(TickHelper):
             str(type(self)))
 
     def __call__(self):
-        """Return the locations of the ticks."""
+        """
+        Return the locations of the ticks.
+
+        The returned locations depend on the locator's axis.  If a locator
+        is used across multiple axises, make sure to (temporarily) set
+        ``locator.axis`` to the correct axis before getting the tick locations.
+        """
         # note: some locators return data limits, other return view limits,
         # hence there is no *one* interface to call self.tick_values.
         raise NotImplementedError('Derived must override')
+
+    def _call_with_axis(self, axis):
+        """
+        Get the tick locations while the locator's axis is temporarily set to *axis*.
+        """
+        current = axis
+        try:
+            self.set_axis(axis)
+            return self()
+        finally:
+            self.set_axis(current)
 
     def raise_if_exceeds(self, locs):
         """

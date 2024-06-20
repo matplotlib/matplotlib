@@ -1527,14 +1527,14 @@ class Axis(martist.Artist):
 
     def get_majorticklocs(self):
         """Return this Axis' major tick locations in data coordinates."""
-        return self.major.locator()
+        return self.major.locator._call_with_axis(self)
 
     def get_minorticklocs(self):
         """Return this Axis' minor tick locations in data coordinates."""
         # Remove minor ticks duplicating major ticks.
-        minor_locs = np.asarray(self.minor.locator())
+        minor_locs = np.asarray(self.minor.locator._call_with_axis(self))
         if self.remove_overlapping_locs:
-            major_locs = self.major.locator()
+            major_locs = self.major.locator._call_with_axis(self)
             transform = self._scale.get_transform()
             tr_minor_locs = transform.transform(minor_locs)
             tr_major_locs = transform.transform(major_locs)
