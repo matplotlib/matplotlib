@@ -135,7 +135,7 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
         collection = PolyCollection(verts, alpha=alpha, array=colors,
                                     cmap=cmap, norm=norm, **kwargs)
 
-    collection._scale_norm(norm, vmin, vmax)
+    collection.colorizer._scale_norm(norm, vmin, vmax, collection.get_array())
     ax.grid(False)
 
     minx = tri.x.min()

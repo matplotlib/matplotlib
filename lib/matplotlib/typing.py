@@ -11,9 +11,9 @@ downstream libraries.
 """
 from collections.abc import Hashable, Sequence
 import pathlib
-from typing import Any, Literal, TypeAlias, TypeVar
+from typing import Any, Literal, TypeAlias, TypeVar, Union
 
-from . import path
+from . import path, colors
 from ._enums import JoinStyle, CapStyle
 from .markers import MarkerStyle
 
@@ -34,6 +34,7 @@ RGBColourType: TypeAlias = RGBColorType
 RGBAColourType: TypeAlias = RGBAColorType
 ColourType: TypeAlias = ColorType
 
+ColorMapType = Union[colors.Colormap, colors.BivarColormap, colors.MultivarColormap]
 LineStyleType: TypeAlias = str | tuple[float, Sequence[float]]
 DrawStyleType: TypeAlias = Literal["default", "steps", "steps-pre", "steps-mid",
                                    "steps-post"]

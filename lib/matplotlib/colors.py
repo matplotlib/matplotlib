@@ -765,6 +765,7 @@ class Colormap:
         if not self._isinit:
             self._init()
 
+        mask_bad = _get_mask([X])
         xa = np.array(X, copy=True)
         if not xa.dtype.isnative:
             # Native byteorder is faster.
@@ -778,7 +779,6 @@ class Colormap:
         mask_under = xa < 0
         mask_over = xa >= self.N
         # If input was masked, get the bad mask from it; else mask out nans.
-        mask_bad = X.mask if np.ma.is_masked(X) else np.isnan(xa)
         with np.errstate(invalid="ignore"):
             # We need this cast for unsigned ints as well as floats
             xa = xa.astype(int)
@@ -1333,6 +1333,9 @@ class MultivarColormap:
         rgba, mask_bad = self[0]._get_rgba_and_mask(X[0], bytes=False)
         rgba = np.asarray(rgba)
         for c, xx in zip(self[1:], X[1:]):
+            # because the components already calculate the mask
+            # we do not call `_get_mask(X)` here, but instead combine the
+            # existing masks.
             sub_rgba, sub_mask_bad = c._get_rgba_and_mask(xx, bytes=False)
             sub_rgba = np.asarray(sub_rgba)
             rgba[..., :3] += sub_rgba[..., :3]  # add colors
@@ -1623,9 +1626,7 @@ class BivarColormap:
         mask_outside = (X0 < 0) | (X1 < 0) \
                      | (X0 >= self.N) | (X1 >= self.M)
         # If input was masked, get the bad mask from it; else mask out nans.
-        mask_bad_0 = X0.mask if np.ma.is_masked(X0) else np.isnan(X0)
-        mask_bad_1 = X1.mask if np.ma.is_masked(X1) else np.isnan(X1)
-        mask_bad = mask_bad_0 | mask_bad_1
+        mask_bad = _get_mask([X0, X1])
 
         with np.errstate(invalid="ignore"):
             # We need this cast for unsigned ints as well as floats
@@ -2723,6 +2724,28 @@ def _make_norm_from_scale(
     Norm.__doc__ = base_norm_cls.__doc__
 
     return Norm
+
+
+def _get_mask(X):
+    """
+    Helper function to get the mask. Marked values and np.nan are
+    true in the output
+
+    Parameters
+    ----------
+    X : iterable of np.arrays
+        each array must be numpy array or masked array of shape
+        (n, m) or (n)
+
+    Returns
+    -------
+    mask, bool or boolean np.array of shape (n,m) or (n)
+    """
+    mask_bad = X[0].mask if np.ma.is_masked(X[0]) else np.isnan(X[0])
+    if len(X) > 1:
+        for xx in X[1:]:
+            mask_bad |= xx.mask if np.ma.is_masked(xx) else np.isnan(xx)
+    return mask_bad
 
 
 def _create_empty_object_of_class(cls):

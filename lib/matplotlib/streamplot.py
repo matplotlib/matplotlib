@@ -232,8 +232,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     lc.sticky_edges.y[:] = [grid.y_origin, grid.y_origin + grid.height]
     if use_multicolor_lines:
         lc.set_array(np.ma.hstack(line_colors))
-        lc.set_cmap(cmap)
-        lc.set_norm(norm)
+        lc.colorizer.cmap = cmap
+        lc.colorizer.norm = norm
     axes.add_collection(lc)
 
     ac = mcollections.PatchCollection(arrows)

@@ -11,7 +11,7 @@ import matplotlib.artist as martist
 from matplotlib.axes import Axes
 from matplotlib import cm
 from matplotlib.backend_bases import RendererBase, MouseEvent
-from matplotlib.colors import Colormap, Normalize
+from matplotlib.colors import Colormap, BivarColormap, MultivarColormap, Normalize
 from matplotlib.figure import Figure
 from matplotlib.transforms import Affine2D, BboxBase, Bbox, Transform
 
@@ -58,14 +58,14 @@ def composite_images(
     images: Sequence[_ImageBase], renderer: RendererBase, magnification: float = ...
 ) -> tuple[np.ndarray, float, float]: ...
 
-class _ImageBase(martist.Artist, cm.ScalarMappable):
+class _ImageBase(martist.Artist, cm.VectorMappable):
     zorder: float
     origin: Literal["upper", "lower"]
     axes: Axes
     def __init__(
         self,
         ax: Axes,
-        cmap: str | Colormap | None = ...,
+        cmap: str | Colormap | BivarColormap | MultivarColormap | None = ...,
         norm: str | Normalize | None = ...,
         interpolation: str | None = ...,
         origin: Literal["upper", "lower"] | None = ...,
@@ -104,7 +104,7 @@ class AxesImage(_ImageBase):
         self,
         ax: Axes,
         *,
-        cmap: str | Colormap | None = ...,
+        cmap: str | Colormap | BivarColormap | MultivarColormap | None = ...,
         norm: str | Normalize | None = ...,
         interpolation: str | None = ...,
         origin: Literal["upper", "lower"] | None = ...,
@@ -158,7 +158,7 @@ class FigureImage(_ImageBase):
         self,
         fig: Figure,
         *,
-        cmap: str | Colormap | None = ...,
+        cmap: str | Colormap | BivarColormap | MultivarColormap | None = ...,
         norm: str | Normalize | None = ...,
         offsetx: int = ...,
         offsety: int = ...,

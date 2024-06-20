@@ -12,8 +12,7 @@ import warnings
 import numpy as np
 
 import matplotlib as mpl
-from . import _api, cbook
-from .colors import BoundaryNorm
+from . import _api, cbook, cm
 from .cm import ScalarMappable
 from .path import Path
 from .transforms import (BboxBase, Bbox, IdentityTransform, Transform, TransformedBbox,
@@ -1346,35 +1345,16 @@ class Artist:
         --------
         get_cursor_data
         """
-        if np.ndim(data) == 0 and isinstance(self, ScalarMappable):
+        if isinstance(self, ScalarMappable):
+            # Internal classes no longer inherit from ScalarMappable, and this
+            # block should never be executed by the internal API
+
             # This block logically belongs to ScalarMappable, but can't be
-            # implemented in it because most ScalarMappable subclasses inherit
-            # from Artist first and from ScalarMappable second, so
+            # implemented in it in case custom ScalarMappable subclasses
+            # inherit from Artist first and from ScalarMappable second, so
             # Artist.format_cursor_data would always have precedence over
             # ScalarMappable.format_cursor_data.
-            n = self.cmap.N
-            if np.ma.getmask(data):
-                return "[]"
-            normed = self.norm(data)
-            if np.isfinite(normed):
-                if isinstance(self.norm, BoundaryNorm):
-                    # not an invertible normalization mapping
-                    cur_idx = np.argmin(np.abs(self.norm.boundaries - data))
-                    neigh_idx = max(0, cur_idx - 1)
-                    # use max diff to prevent delta == 0
-                    delta = np.diff(
-                        self.norm.boundaries[neigh_idx:cur_idx + 2]
-                    ).max()
-
-                else:
-                    # Midpoints of neighboring color intervals.
-                    neighbors = self.norm.inverse(
-                        (int(normed * n) + np.array([0, 1])) / n)
-                    delta = abs(neighbors - data).max()
-                g_sig_digits = cbook._g_sig_digits(data, delta)
-            else:
-                g_sig_digits = 3  # Consistent with default below.
-            return f"[{data:-#.{g_sig_digits}g}]"
+            return self.colorizer._format_cursor_data(data)
         else:
             try:
                 data[0]
@@ -1415,6 +1395,126 @@ class Artist:
                 ax._mouseover_set.discard(self)
 
     mouseover = property(get_mouseover, set_mouseover)  # backcompat.
+
+
+class ColorizingArtist(Artist):
+    def __init__(self, norm=None, cmap=None):
+        """
+        Parameters
+        ----------
+        norm : `.Normalize` (or subclass thereof) or str or None
+            The normalizing object which scales data, typically into the
+            interval ``[0, 1]``.
+            If a `str`, a `.Normalize` subclass is dynamically generated based
+            on the scale with the corresponding name.
+            If *None*, *norm* defaults to a *colors.Normalize* object which
+            initializes its scaling based on the first data processed.
+        cmap : str or `~matplotlib.colors.Colormap`
+            The colormap used to map normalized data values to RGBA colors.
+        """
+
+        Artist.__init__(self)
+
+        self._A = None
+        if isinstance(norm, cm.Colorizer):
+            self._colorizer = norm
+        else:
+            self._colorizer = cm.Colorizer(cmap, norm)
+
+        self._id_colorizer = self.colorizer.callbacks.connect('changed', self.changed)
+        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
+
+    def set_array(self, A):
+        """
+        Set the value array from array-like *A*.
+
+        Parameters
+        ----------
+        A : array-like or None
+            The values that are mapped to colors.
+
+            The base class `.VectorMappable` does not make any assumptions on
+            the dimensionality and shape of the value array *A*.
+        """
+        if A is None:
+            self._A = None
+            return
+        A = cm._ensure_multivariate_data(self.colorizer.cmap.n_variates, A)
+
+        A = cbook.safe_masked_invalid(A, copy=True)
+        if not np.can_cast(A.dtype, float, "same_kind"):
+            if A.dtype.fields is None:
+                raise TypeError(f"Image data of dtype {A.dtype} cannot be "
+                                f"converted to float")
+            else:
+                for key in A.dtype.fields:
+                    if not np.can_cast(A[key].dtype, float, "same_kind"):
+                        raise TypeError(f"Image data of dtype {A.dtype} cannot be "
+                                        f"converted to a sequence of floats")
+        self._A = A
+        self.colorizer.autoscale_None(A)
+
+    def get_array(self):
+        """
+        Return the array of values, that are mapped to colors.
+
+        The base class `.VectorMappable` does not make any assumptions on
+        the dimensionality and shape of the array.
+        """
+        return self._A
+
+    @property
+    def colorizer(self):
+        return self._colorizer
+
+    @colorizer.setter
+    def colorizer(self, colorizer):
+        self._set_colorizer(colorizer)
+
+    def _set_colorizer(self, colorizer):
+        if isinstance(colorizer, cm.Colorizer):
+            if self._A is not None:
+                if not colorizer.cmap.n_variates == self.colorizer.cmap.n_variates:
+                    raise ValueError('The new Colorizer object must have the same'
+                                     ' number of variates as the existing data.')
+            else:
+                self.colorizer.callbacks.disconnect(self._id_colorizer)
+                self._colorizer = colorizer
+                self._id_colorizer = colorizer.callbacks.connect('changed',
+                                                                 self.changed)
+                self.changed()
+        else:
+            raise ValueError('Only a Colorizer object can be set to colorizer.')
+
+    def _get_colorizer(self):
+        """
+        Function to get the colorizer.
+        Useful in edge cases where you want a standalone variable with the colorizer,
+        but also want the colorizer to update if the colorizer on the artist changes.
+
+        used in `contour.ContourLabeler.label_colorizer`
+        """
+        return self._colorizer
+
+    def changed(self):
+        """
+        Call this whenever the mappable is changed to notify all the
+        callbackSM listeners to the 'changed' signal.
+        """
+        self.callbacks.process('changed')
+        self.stale = True
+
+    def format_cursor_data(self, data):
+        """
+        Return a string representation of *data*.
+
+        Uses the colorbar's formatter to format the data.
+
+        See Also
+        --------
+        get_cursor_data
+        """
+        return self.colorizer._format_cursor_data(data)
 
 
 def _get_tightbbox_for_layout_only(obj, *args, **kwargs):

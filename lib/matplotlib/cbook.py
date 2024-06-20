@@ -739,7 +739,17 @@ def safe_masked_invalid(x, copy=False):
     try:
         xm = np.ma.masked_where(~(np.isfinite(x)), x, copy=False)
     except TypeError:
-        return x
+        if len(x.dtype.descr) > 1:
+            # in case of a dtype with multiple fields:
+            try:
+                mask = np.empty(x.shape, dtype=np.dtype('bool, '*len(x.dtype.descr)))
+                for dd, dm in zip(x.dtype.descr, mask.dtype.descr):
+                    mask[dm[0]] = ~(np.isfinite(x[dd[0]]))
+                xm = np.ma.array(x, mask=mask, copy=False)
+            except TypeError:
+                return x
+        else:
+            return x
     return xm
 
 
@@ -2254,7 +2264,13 @@ def _g_sig_digits(value, delta):
     if delta == 0:
         # delta = 0 may occur when trying to format values over a tiny range;
         # in that case, replace it by the distance to the closest float.
-        delta = abs(np.spacing(value))
+        if value == 0:
+            # In this case the closest float is typically 325 digits away.
+            # However, with both the value and delta at zero, it is more
+            # reasonable to simply display 0.0 rather than 325 zeros.
+            delta = 0.1
+        else:
+            delta = abs(np.spacing(value))
     # If e.g. value = 45.67 and delta = 0.02, then we want to round to 2 digits
     # after the decimal point (floor(log10(0.02)) = -2); 45.67 contributes 2
     # digits before the decimal point (floor(log10(45.67)) + 1 = 2): the total

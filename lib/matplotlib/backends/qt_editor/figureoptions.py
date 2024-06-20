@@ -146,12 +146,27 @@ def figure_edit(axes, parent=None):
             continue
         labeled_mappables.append((label, mappable))
     mappables = []
-    cmaps = [(cmap, name) for name, cmap in sorted(cm._colormaps.items())]
     for label, mappable in labeled_mappables:
-        cmap = mappable.get_cmap()
-        if cmap not in cm._colormaps.values():
+        cmap = mappable.colorizer.cmap
+        if isinstance(cmap, mcolors.Colormap):
+            cmaps = [(cmap, name) for name, cmap in sorted(cm._colormaps.items())]
+            cvals = cm._colormaps.values()
+        elif isinstance(cmap, mcolors.BivarColormap):
+            cmaps = [(cmap, name) for name, cmap in sorted(cm._bivar_colormaps.items())]
+            cvals = cm._bivar_colormaps.values()
+        else:  # isinstance(mappable.colorizer.cmap, mcolors.MultivarColormap):
+            cmaps = [(cmap, name) for name, cmap
+                     in sorted(cm._multivar_colormaps.items())]
+            cvals = cm._multivar_colormaps.values()
+        if cmap not in cvals:
             cmaps = [(cmap, cmap.name), *cmaps]
-        low, high = mappable.get_clim()
+        low, high = mappable.colorizer.get_clim()
+        if len(low) == 1:
+            low = low[0]
+            high = high[0]
+        else:
+            low = str(low)[1:-1]
+            high = str(high)[1:-1]
         mappabledata = [
             ('Label', label),
             ('Colormap', [cmap.name] + cmaps),
@@ -242,6 +257,9 @@ def figure_edit(axes, parent=None):
                 label, cmap, low, high = mappable_settings
             mappable.set_label(label)
             mappable.set_cmap(cmap)
+            if isinstance(low, str):
+                low = [float(l) for l in low.split(',')]
+                high = [float(l) for l in high.split(',')]
             mappable.set_clim(*sorted([low, high]))
 
         # re-generate legend, if checkbox is checked
@@ -263,7 +281,6 @@ def figure_edit(axes, parent=None):
             if getattr(axes, f"get_{name}lim")() != orig_limits[name]:
                 figure.canvas.toolbar.push_current()
                 break
-
     _formlayout.fedit(
         datalist, title="Figure options", parent=parent,
         icon=QtGui.QIcon(

@@ -3069,7 +3069,7 @@ None}, default: None
         im.set_array(X)
         im.set_alpha(alpha)
         if norm is None:
-            im.set_clim(vmin, vmax)
+            im.colorizer.set_clim(vmin, vmax)
         self.images.append(im)
         im._remove_method = self.images.remove
         self.stale = True

@@ -11,7 +11,7 @@ from matplotlib.collections import (
     EventCollection,
     QuadMesh,
 )
-from matplotlib.colors import Colormap, Normalize
+from matplotlib.colors import Colormap, BivarColormap, MultivarColormap, Normalize
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.contour import ContourSet, QuadContourSet
 from matplotlib.image import AxesImage, PcolorImage
@@ -482,7 +482,7 @@ class Axes(_AxesBase):
     def imshow(
         self,
         X: ArrayLike | PIL.Image.Image,
-        cmap: str | Colormap | None = ...,
+        cmap: str | Colormap | BivarColormap | MultivarColormap | None = ...,
         norm: str | Normalize | None = ...,
         *,
         aspect: Literal["equal", "auto"] | float | None = ...,
@@ -506,7 +506,7 @@ class Axes(_AxesBase):
         shading: Literal["flat", "nearest", "auto"] | None = ...,
         alpha: float | None = ...,
         norm: str | Normalize | None = ...,
-        cmap: str | Colormap | None = ...,
+        cmap: str | Colormap | BivarColormap | MultivarColormap | None = ...,
         vmin: float | None = ...,
         vmax: float | None = ...,
         data=...,
@@ -517,7 +517,7 @@ class Axes(_AxesBase):
         *args: ArrayLike,
         alpha: float | None = ...,
         norm: str | Normalize | None = ...,
-        cmap: str | Colormap | None = ...,
+        cmap: str | Colormap | BivarColormap | MultivarColormap | None = ...,
         vmin: float | None = ...,
         vmax: float | None = ...,
         shading: Literal["flat", "nearest", "gouraud", "auto"] | None = ...,

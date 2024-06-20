@@ -7,7 +7,7 @@ from numpy.typing import ArrayLike, NDArray
 from . import artist, cm, transforms
 from .backend_bases import MouseEvent
 from .artist import Artist
-from .colors import Normalize, Colormap
+from .colors import Normalize, Colormap, BivarColormap, MultivarColormap
 from .lines import Line2D
 from .path import Path
 from .patches import Patch
@@ -15,7 +15,7 @@ from .ticker import Locator, Formatter
 from .tri import Triangulation
 from .typing import ColorType, LineStyleType, CapStyleType, JoinStyleType
 
-class Collection(artist.Artist, cm.ScalarMappable):
+class Collection(artist.Artist, cm.VectorMappable):
     def __init__(
         self,
         *,
@@ -29,7 +29,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         offsets: tuple[float, float] | Sequence[tuple[float, float]] | None = ...,
         offset_transform: transforms.Transform | None = ...,
         norm: Normalize | None = ...,
-        cmap: Colormap | None = ...,
+        cmap: Colormap | BivarColormap | MultivarColormap | None = ...,
         pickradius: float = ...,
         hatch: str | None = ...,
         urls: Sequence[str] | None = ...,

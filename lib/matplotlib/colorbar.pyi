@@ -21,7 +21,7 @@ class _ColorbarSpine(mspines.Spines):
 
 class Colorbar:
     n_rasterize: int
-    mappable: cm.ScalarMappable
+    mappable: cm.VectorMappable
     ax: Axes
     alpha: float | None
     cmap: colors.Colormap
@@ -43,7 +43,7 @@ class Colorbar:
     def __init__(
         self,
         ax: Axes,
-        mappable: cm.ScalarMappable | None = ...,
+        mappable: cm.VectorMappable | None = ...,
         *,
         cmap: str | colors.Colormap | None = ...,
         norm: colors.Normalize | None = ...,
@@ -78,7 +78,7 @@ class Colorbar:
     def minorformatter(self) -> Formatter: ...
     @minorformatter.setter
     def minorformatter(self, fmt: Formatter) -> None: ...
-    def update_normal(self, mappable: cm.ScalarMappable) -> None: ...
+    def update_normal(self, mappable: cm.VectorMappable) -> None: ...
     @overload
     def add_lines(self, CS: contour.ContourSet, erase: bool = ...) -> None: ...
     @overload

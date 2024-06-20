@@ -549,3 +549,59 @@ def test_multivar_eq():
     cmap_1 = mpl.multivar_colormaps['2VarAddA']
     cmap_1 = mpl.colors.MultivarColormap(cmap_1[:], 'sRGB_sub')
     assert (cmap_0 == cmap_1) is False
+
+
+def test_vectormappable():
+    vm = mpl.cm.ScalarMappable(cmap='2VarAddA')
+    X = (np.linspace(0, 1, 3)[:, np.newaxis] * np.ones((3, 3)),
+         np.linspace(0, 1, 3)[np.newaxis, :] * np.ones((3, 3)))
+    res = np.array([[[0., 0., 0., 1.],
+                     [0.38551765, 0.24977647, 0.13414118, 1.],
+                     [0.813, 0.423, 0.105, 1.]],
+                    [[0.17331765, 0.30909412, 0.42372941, 1.],
+                     [0.55883529, 0.55887059, 0.55787059, 1.],
+                     [0.98631765, 0.73209412, 0.52872941, 1.]],
+                    [[0.187, 0.577, 0.895, 1.],
+                     [0.57251765, 0.82677647, 1., 1.],
+                     [1., 1., 1., 1.]]])
+    assert_allclose(vm.to_rgba(X), res)
+    vm = mpl.cm.ScalarMappable(cmap='BiCone')
+    res = np.array([[[0.30631738, 0.74203125, 0.89724219, 1.],
+                     [0.11054785, 0.78253223, 0.67161328, 1.],
+                     [0.48632812, 0.75336328, 0.39531641, 1.]],
+                    [[0.61757812, 0.65564453, 0.99548438, 1.],
+                     [0.99269824, 0.97310156, 0.96819922, 1.],
+                     [0.78989453, 0.65757422, 0.21412500, 1.]],
+                    [[0.83592969, 0.55910547, 0.91921094, 1.],
+                     [0.96039453, 0.50968750, 0.66529297, 1.],
+                     [0.95374219, 0.54730859, 0.35664844, 1.]]])
+    assert_allclose(vm.to_rgba(X), res)
+
+    X_complex128 = np.empty(X[0].shape, dtype=np.complex128)
+    X_complex128[:, :] = X[0]+X[1]*1j
+    assert_allclose(vm.to_rgba(X_complex128), res)
+    X_complex64 = np.empty(X[0].shape, dtype=np.complex64)
+    X_complex64[:, :] = X[0]+X[1]*1j
+    assert_allclose(vm.to_rgba(X_complex64), res)
+
+    dt = np.dtype('float32, float64')
+    X_dt = np.empty(X[0].shape, dtype=dt)
+    X_dt['f0'] = X[0]
+    X_dt['f1'] = X[1]
+    assert_allclose(vm.to_rgba(X_dt), res)
+
+    # test norm=False
+    assert_allclose(vm.to_rgba(X, norm=False), res)
+
+    # test set_array
+    dt = np.dtype('str, float64')
+    X_dt = np.empty(X[0].shape, dtype=dt)
+    X_dt['f1'] = X[1]
+
+    with pytest.raises(TypeError, match='cannot be converted to a sequence of float'):
+        vm.set_array(X_dt)
+
+    # get clim
+    vm = mpl.cm.ScalarMappable(cmap='BiCone')
+    vm.set_array(X)
+    assert_allclose(vm.get_clim(), ([0, 0], [1, 1]))

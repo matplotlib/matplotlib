@@ -180,13 +180,16 @@ class ContourLabeler:
         self._label_font_props = font_manager.FontProperties(size=fontsize)
 
         if colors is None:
-            self.labelMappable = self
+            self.label_colorizer = self._get_colorizer
             self.labelCValueList = np.take(self.cvalues, self.labelIndiceList)
         else:
             cmap = mcolors.ListedColormap(colors, N=len(self.labelLevelList))
             self.labelCValueList = list(range(len(self.labelLevelList)))
-            self.labelMappable = cm.ScalarMappable(cmap=cmap,
-                                                   norm=mcolors.NoNorm())
+            #  self.labelMappable = cm.Colorizer(cmap=cmap,
+            #                                         norm=mcolors.NoNorm())
+            #  if not hasattr(self, 'colorizer'):
+            self.label_colorizer = lambda: cm.Colorizer(cmap=cmap,
+                                                        norm=mcolors.NoNorm())
 
         self.labelXYs = []
 
@@ -506,7 +509,7 @@ class ContourLabeler:
             rotation=rotation,
             horizontalalignment='center', verticalalignment='center',
             zorder=self._clabel_zorder,
-            color=self.labelMappable.to_rgba(cvalue, alpha=self.get_alpha()),
+            color=self.label_colorizer().to_rgba(cvalue, alpha=self.get_alpha()),
             fontproperties=self._label_font_props,
             clip_box=self.axes.bbox)
         if self._use_clabeltext:
@@ -850,15 +853,16 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         self.labelTexts = []
         self.labelCValues = []
 
-        self.set_cmap(cmap)
+        self.colorizer.cmap = cmap
         if norm is not None:
-            self.set_norm(norm)
-        with self.norm.callbacks.blocked(signal="changed"):
-            if vmin is not None:
-                self.norm.vmin = vmin
-            if vmax is not None:
-                self.norm.vmax = vmax
-        self.norm._changed()
+            self.colorizer.norm = norm
+        #  with self.colorizer.norm.callbacks.blocked(signal="changed"):
+        #    if vmin is not None:
+        #        self.colorizer.vmin = vmin
+        #    if vmax is not None:
+        #        self.colorizer.vmax = vmax
+        # self.colorizer.norm._changed()
+        self.colorizer.set_clim(vmin, vmax)
         self._process_colors()
 
         if self._paths is None:
@@ -907,7 +911,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         [subp.codes for subp in p._iter_connected_components()]
         for p in self.get_paths()])
     tcolors = _api.deprecated("3.8")(property(lambda self: [
-        (tuple(rgba),) for rgba in self.to_rgba(self.cvalues, self.alpha)]))
+        (tuple(rgba),) for rgba in self.colorizer.to_rgba(self.cvalues, self.alpha)]))
     tlinewidths = _api.deprecated("3.8")(property(lambda self: [
         (w,) for w in self.get_linewidths()]))
     alpha = property(lambda self: self.get_alpha())
@@ -1103,17 +1107,17 @@ class ContourSet(ContourLabeler, mcoll.Collection):
     def changed(self):
         if not hasattr(self, "cvalues"):
             self._process_colors()  # Sets cvalues.
-        # Force an autoscale immediately because self.to_rgba() calls
+        # Force an autoscale immediately because self.colorizer.to_rgba() calls
         # autoscale_None() internally with the data passed to it,
         # so if vmin/vmax are not set yet, this would override them with
         # content from *cvalues* rather than levels like we want
-        self.norm.autoscale_None(self.levels)
+        self.colorizer.autoscale_None(np.array(self.levels))
         self.set_array(self.cvalues)
         self.update_scalarmappable()
         alphas = np.broadcast_to(self.get_alpha(), len(self.cvalues))
         for label, cv, alpha in zip(self.labelTexts, self.labelCValues, alphas):
             label.set_alpha(alpha)
-            label.set_color(self.labelMappable.to_rgba(cv))
+            label.set_color(self.colorizer.to_rgba(cv))
         super().changed()
 
     def _autolev(self, N):
@@ -1244,7 +1248,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         of the regions.
 
         """
-        self.monochrome = self.cmap.monochrome
+        self.monochrome = self.colorizer.cmap.monochrome
         if self.colors is not None:
             # Generate integers for direct indexing.
             i0, i1 = 0, len(self.levels)
@@ -1256,14 +1260,14 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                 if self.extend in ('both', 'max'):
                     i1 += 1
             self.cvalues = list(range(i0, i1))
-            self.set_norm(mcolors.NoNorm())
+            self.colorizer.norm = mcolors.NoNorm()
         else:
             self.cvalues = self.layers
-        self.norm.autoscale_None(self.levels)
+        self.colorizer.autoscale_None(np.array(self.levels))
         self.set_array(self.cvalues)
         self.update_scalarmappable()
         if self.extend in ('both', 'max', 'min'):
-            self.norm.clip = False
+            self.colorizer.clip = False
 
     def _process_linewidths(self, linewidths):
         Nlev = len(self.levels)
