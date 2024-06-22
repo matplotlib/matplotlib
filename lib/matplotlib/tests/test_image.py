@@ -1578,6 +1578,17 @@ def test_non_transdata_image_does_not_touch_aspect():
     assert ax.get_aspect() == 2
 
 
+@check_figures_equal()
+def test_interpolation_stage_rgba_does_not_respect_array_alpha(fig_test, fig_ref):
+    # GH 28382
+    im = np.arange(9).reshape(3, 3)
+    alpha = np.linspace(0, 1, 9).reshape(3, 3)
+    ax_test = fig_test.subplots()
+    ax_test.imshow(im, alpha=alpha, interpolation='none', interpolation_stage='rgba')
+    ax_ref = fig_ref.subplots()
+    ax_ref.imshow(im, alpha=alpha, interpolation='none')
+
+
 @pytest.mark.parametrize(
     'dtype',
     ('float64', 'float32', 'int16', 'uint16', 'int8', 'uint8'),
