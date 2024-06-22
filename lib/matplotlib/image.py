@@ -501,17 +501,25 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                 if A.ndim == 2:  # interpolation_stage = 'rgba'
                     self.norm.autoscale_None(A)
                     A = self.to_rgba(A)
-                alpha = self._get_scalar_alpha()
-                if A.shape[2] == 3:
-                    # No need to resample alpha or make a full array; NumPy will expand
-                    # this out and cast to uint8 if necessary when it's assigned to the
-                    # alpha channel below.
-                    output_alpha = (255 * alpha) if A.dtype == np.uint8 else alpha
+
+                alpha = self.get_alpha()
+                if alpha is not None and np.ndim(alpha) > 0:
+                    output_alpha = _resample(self, alpha, out_shape, t, resample=True)
+                    output = _resample(  # resample rgb channels
+                        # alpha: float, should only be specified when alpha is a scalar
+                        self, _rgb_to_rgba(A[..., :3]), out_shape, t)
                 else:
-                    output_alpha = _resample(  # resample alpha channel
-                        self, A[..., 3], out_shape, t, alpha=alpha)
-                output = _resample(  # resample rgb channels
-                    self, _rgb_to_rgba(A[..., :3]), out_shape, t, alpha=alpha)
+                    alpha = self._get_scalar_alpha()
+                    if A.shape[2] == 3:
+                        # No need to resample alpha or make a full array; NumPy will
+                        # expand this out and cast to uint8 if necessary when it's
+                        # assigned to the alpha channel below.
+                        output_alpha = (255 * alpha) if A.dtype == np.uint8 else alpha
+                    else:
+                        output_alpha = _resample(  # resample alpha channel
+                            self, A[..., 3], out_shape, t, alpha=alpha)
+                    output = _resample(  # resample rgb channels
+                        self, _rgb_to_rgba(A[..., :3]), out_shape, t, alpha=alpha)
                 output[..., 3] = output_alpha  # recombine rgb and alpha
 
             # output is now either a 2D array of normed (int or float) data
