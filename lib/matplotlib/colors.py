@@ -225,7 +225,7 @@ def is_color_like(c):
         return True
     try:
         to_rgba(c)
-    except ValueError:
+    except (TypeError, ValueError):
         return False
     else:
         return True
@@ -296,6 +296,11 @@ def to_rgba(c, alpha=None):
         Tuple of floats ``(r, g, b, a)``, where each channel (red, green, blue,
         alpha) can assume values between 0 and 1.
     """
+    if isinstance(c, tuple) and len(c) == 2:
+        if alpha is None:
+            c, alpha = c
+        else:
+            c = c[0]
     # Special-case nth color syntax because it should not be cached.
     if _is_nth_color(c):
         prop_cycler = mpl.rcParams['axes.prop_cycle']
@@ -325,11 +330,6 @@ def _to_rgba_no_colorcycle(c, alpha=None):
     *alpha* is ignored for the color value ``"none"`` (case-insensitive),
     which always maps to ``(0, 0, 0, 0)``.
     """
-    if isinstance(c, tuple) and len(c) == 2:
-        if alpha is None:
-            c, alpha = c
-        else:
-            c = c[0]
     if alpha is not None and not 0 <= alpha <= 1:
         raise ValueError("'alpha' must be between 0 and 1, inclusive")
     orig_c = c
