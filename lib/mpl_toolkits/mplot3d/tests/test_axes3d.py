@@ -2429,6 +2429,10 @@ def test_view_init_positional_args():
     assert ax.roll == 30
     assert ax._vertical_axis == 1
 
+    with pytest.raises(Exception,
+                       match="Positional argument repeated as keyword argument."):
+        ax.view_init(10, elev=10)
+
     with pytest.raises(TypeError):
         ax.view_init(10, 20, 30, "y", False, "superfluous argument")
 
