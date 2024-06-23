@@ -9004,6 +9004,11 @@ def test_axhvlinespan_interpolation():
     ax.axhspan(.8, .9, fc="C1", alpha=.5)
     ax.axhspan(.6, .7, .8, .9, fc="C2", alpha=.5)
 
+@check_figures_equal(extensions=["png"])
+def test_anim_without_image(fig_test, fig_ref):
+    ax_ref = fig_ref.subplots()
+    imdata = np.random.random((20, 20))
+    ax_ref.plot(imdata, animated=True)
 
 @check_figures_equal(extensions=["png"])
 @pytest.mark.parametrize("which", ("x", "y"))
