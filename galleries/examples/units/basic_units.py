@@ -146,10 +146,10 @@ class TaggedValue(metaclass=TaggedValueMeta):
             return getattr(variable, name)
         return object.__getattribute__(self, name)
 
-    def __array__(self, dtype=object):
+    def __array__(self, dtype=object, copy=False):
         return np.asarray(self.value, dtype)
 
-    def __array_wrap__(self, array, context):
+    def __array_wrap__(self, array, context=None, return_scalar=False):
         return TaggedValue(array, self.unit)
 
     def __repr__(self):
@@ -222,10 +222,10 @@ class BasicUnit:
     def __rmul__(self, lhs):
         return self*lhs
 
-    def __array_wrap__(self, array, context):
+    def __array_wrap__(self, array, context=None, return_scalar=False):
         return TaggedValue(array, self)
 
-    def __array__(self, t=None, context=None):
+    def __array__(self, t=None, context=None, copy=False):
         ret = np.array(1)
         if t is not None:
             return ret.astype(t)
