@@ -236,7 +236,8 @@ intersphinx_mapping = {
     'scipy': ('https://docs.scipy.org/doc/scipy/', None),
     'tornado': ('https://www.tornadoweb.org/en/stable/', None),
     'xarray': ('https://docs.xarray.dev/en/stable/', None),
-    'meson-python': ('https://meson-python.readthedocs.io/en/stable/', None)
+    'meson-python': ('https://meson-python.readthedocs.io/en/stable/', None),
+    'pip': ('https://pip.pypa.io/en/stable/', None),
 }
 
 

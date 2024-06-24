@@ -222,14 +222,13 @@ Build dependencies
 Python
 ------
 
-By default, ``pip`` will build packages using build isolation, meaning that these
-build dependencies are temporally installed by pip for the duration of the
-Matplotlib build process. However, build isolation is disabled when :ref:`installing Matplotlib for development <development-install>`;
-therefore we recommend using one of our :ref:`virtual environment configurations <dev-environment>` to
-create a development environment in which these packages are automatically installed.
-
-If you are developing Matplotlib and unable to use our environment configurations,
-then you must manually install the following packages into your development environment:
+``pip`` normally builds packages using :external+pip:doc:`build isolation <reference/build-system/pyproject-toml>`,
+which means that ``pip`` installs the dependencies listed here for the
+duration of the build process. However, build isolation is disabled via the the
+:external+pip:ref:`--no-build-isolation <install_--no-build-isolation>` flag
+when :ref:`installing Matplotlib for development <development-install>`, which
+means that the dependencies must be explicitly installed, either by :ref:`creating a virtual environment <dev-environment>`
+(recommended) or by manually installing the following packages:
 
 - `meson-python <https://meson-python.readthedocs.io/>`_ (>= 0.13.1).
 - `ninja <https://ninja-build.org/>`_ (>= 1.8.2). This may be available in your package
