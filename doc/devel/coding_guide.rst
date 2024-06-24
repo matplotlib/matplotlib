@@ -89,7 +89,8 @@ We generally use `stub files
 the type information for ``colors.py``. A notable exception is ``pyplot.py``,
 which is type hinted inline.
 
-Type hints can be validated by the ``stubtest`` tool, which can be run
+Type hints can be validated by the `stubtest
+<https://mypy.readthedocs.io/en/stable/stubtest.html>`_ tool, which can be run
 locally using ``tox -e stubtest`` and is a part of the :ref:`automated-tests`
 suite. Type hints for existing functions are also checked by the mypy
 :ref:`pre-commit hook <pre-commit-hooks>`.
