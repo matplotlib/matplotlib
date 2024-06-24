@@ -1004,8 +1004,8 @@ def test_poly3dcollection_closed():
                                 facecolor=(0.5, 0.5, 1, 0.5), closed=True)
     c2 = art3d.Poly3DCollection([poly2], linewidths=3, edgecolor='k',
                                 facecolor=(1, 0.5, 0.5, 0.5), closed=False)
-    ax.add_collection3d(c1)
-    ax.add_collection3d(c2)
+    ax.add_collection3d(c1, autolim=False)
+    ax.add_collection3d(c2, autolim=False)
 
 
 def test_poly_collection_2d_to_3d_empty():
@@ -1038,8 +1038,8 @@ def test_poly3dcollection_alpha():
     c2.set_facecolor((1, 0.5, 0.5))
     c2.set_edgecolor('k')
     c2.set_alpha(0.5)
-    ax.add_collection3d(c1)
-    ax.add_collection3d(c2)
+    ax.add_collection3d(c1, autolim=False)
+    ax.add_collection3d(c2, autolim=False)
 
 
 @mpl3d_image_comparison(['add_collection3d_zs_array.png'], style='mpl20')
@@ -1096,6 +1096,32 @@ def test_add_collection3d_zs_scalar():
     ax.set_xlim(-5, 5)
     ax.set_ylim(-4, 6)
     ax.set_zlim(0, 2)
+
+
+def test_line3dCollection_autoscaling():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    lines = [[(0, 0, 0), (1, 4, 2)],
+             [(1, 1, 3), (2, 0, 2)],
+             [(1, 0, 4), (1, 4, 5)]]
+
+    lc = art3d.Line3DCollection(lines)
+    ax.add_collection3d(lc)
+    assert np.allclose(ax.get_xlim3d(), (-0.041666666666666664, 2.0416666666666665))
+    assert np.allclose(ax.get_ylim3d(), (-0.08333333333333333, 4.083333333333333))
+    assert np.allclose(ax.get_zlim3d(), (-0.10416666666666666, 5.104166666666667))
+
+
+def test_poly3dCollection_autoscaling():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    poly = np.array([[0, 0, 0], [1, 1, 3], [1, 0, 4]])
+    col = art3d.Poly3DCollection([poly])
+    ax.add_collection3d(col)
+    assert np.allclose(ax.get_xlim3d(), (-0.020833333333333332, 1.0208333333333333))
+    assert np.allclose(ax.get_ylim3d(), (-0.020833333333333332, 1.0208333333333333))
+    assert np.allclose(ax.get_zlim3d(), (-0.0833333333333333, 4.083333333333333))
 
 
 @mpl3d_image_comparison(['axes3d_labelpad.png'],
