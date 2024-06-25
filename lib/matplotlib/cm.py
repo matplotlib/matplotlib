@@ -24,6 +24,8 @@ import matplotlib as mpl
 from matplotlib import _api, colors, cbook, scale
 from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
+from matplotlib._cm_multivar import cmap_families as multivar_cmaps
+from matplotlib._cm_bivar import cmaps as bivar_cmaps
 
 
 _LUTSIZE = mpl.rcParams['image.lut']
@@ -237,6 +239,12 @@ class ColormapRegistry(Mapping):
 # detail.
 _colormaps = ColormapRegistry(_gen_cmap_registry())
 globals().update(_colormaps)
+
+_multivar_colormaps = ColormapRegistry(multivar_cmaps)
+globals().update(_multivar_colormaps)
+
+_bivar_colormaps = ColormapRegistry(bivar_cmaps)
+globals().update(_bivar_colormaps)
 
 
 # This is an exact copy of pyplot.get_cmap(). It was removed in 3.9, but apparently
