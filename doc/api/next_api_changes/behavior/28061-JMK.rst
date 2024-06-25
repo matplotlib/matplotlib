@@ -1,0 +1,15 @@
+imshow *interpolation_stage* default changed to 'antialiased'
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The *interpolation_stage* keyword argument `~.Axes.imshow` has a new default
+value 'antialiased'.  For images that are up-sampled less than a factor of
+three or down-sampled , image interpolation will occur in 'rgba' space.  For images
+that are up-sampled by more than a factor of 3, then image interpolation occurs
+in 'data' space.
+
+The previous default was 'data', so down-sampled images may change subtly with
+the new default.  However, the new default also avoids floating point artifacts
+at sharp boundaries in a colormap when down-sampling.
+
+The previous behavior can achieved by setting :rc:`image.interpolation_stage` or
+the *interpolation_stage* parameter in `~.axes.Axes.imshow` to 'data'.

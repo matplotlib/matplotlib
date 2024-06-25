@@ -5832,11 +5832,14 @@ class Axes(_AxesBase):
             which can be set by *filterrad*. Additionally, the antigrain image
             resize filter is controlled by the parameter *filternorm*.
 
-        interpolation_stage : {'data', 'rgba'}, default: 'data'
-            If 'data', interpolation
-            is carried out on the data provided by the user.  If 'rgba', the
-            interpolation is carried out after the colormapping has been
-            applied (visual interpolation).
+        interpolation_stage : {'antialiased', 'data', 'rgba'}, default: 'antialiased'
+            If 'data', interpolation is carried out on the data provided by the user.
+            If 'rgba', the interpolation is carried out in RGBA-space after the
+            color-mapping has been applied (visual interpolation).  If 'antialiased',
+            then 'rgba' is used if downsampling, or upsampling at a rate less than 3.
+            If upsampling at a higher rate, then 'data' is used.
+            See :doc:`/gallery/images_contours_and_fields/image_antialiasing` for
+            a discussion of image antialiasing.
 
         alpha : float or array-like, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).

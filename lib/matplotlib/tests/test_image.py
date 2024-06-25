@@ -853,8 +853,6 @@ def test_image_preserve_size2():
 
 @image_comparison(['mask_image_over_under.png'], remove_text=True, tol=1.0)
 def test_mask_image_over_under():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
 
     delta = 0.025
     x = y = np.arange(-3.0, 3.0, delta)
@@ -1406,8 +1404,7 @@ def test_nonuniform_logscale():
 
 
 @image_comparison(
-    ['rgba_antialias.png'], style='mpl20', remove_text=True,
-    tol=0 if platform.machine() == 'x86_64' else 0.007)
+    ['rgba_antialias.png'], style='mpl20', remove_text=True, tol=0.01)
 def test_rgba_antialias():
     fig, axs = plt.subplots(2, 2, figsize=(3.5, 3.5), sharex=False,
                             sharey=False, constrained_layout=True)
@@ -1459,6 +1456,45 @@ def test_rgba_antialias():
     # alternating red and blue stripes become purple
     axs[3].imshow(aa, interpolation='antialiased', interpolation_stage='rgba',
                   cmap=cmap, vmin=-1.2, vmax=1.2)
+
+
+@check_figures_equal(extensions=('png', ))
+def test_upsample_interpolation_stage(fig_test, fig_ref):
+    """
+    Show that interpolation_stage='antialiased' gives the same as 'data'
+    for upsampling.
+    """
+    # Fixing random state for reproducibility.  This non-standard seed
+    # gives red splotches for 'rgba'.
+    np.random.seed(19680801+9)
+
+    grid = np.random.rand(4, 4)
+    ax = fig_ref.subplots()
+    ax.imshow(grid, interpolation='bilinear', cmap='viridis',
+              interpolation_stage='data')
+
+    ax = fig_test.subplots()
+    ax.imshow(grid, interpolation='bilinear', cmap='viridis',
+              interpolation_stage='antialiased')
+
+
+@check_figures_equal(extensions=('png', ))
+def test_downsample_interpolation_stage(fig_test, fig_ref):
+    """
+    Show that interpolation_stage='antialiased' gives the same as 'rgba'
+    for downsampling.
+    """
+    # Fixing random state for reproducibility
+    np.random.seed(19680801)
+
+    grid = np.random.rand(4000, 4000)
+    ax = fig_ref.subplots()
+    ax.imshow(grid, interpolation='antialiased', cmap='viridis',
+              interpolation_stage='rgba')
+
+    ax = fig_test.subplots()
+    ax.imshow(grid, interpolation='antialiased', cmap='viridis',
+              interpolation_stage='antialiased')
 
 
 def test_rc_interpolation_stage():
@@ -1576,3 +1612,84 @@ def test_non_transdata_image_does_not_touch_aspect():
     assert ax.get_aspect() == 1
     ax.imshow(im, transform=ax.transAxes, aspect=2)
     assert ax.get_aspect() == 2
+
+
+@image_comparison(
+    ['downsampling.png'], style='mpl20', remove_text=True, tol=0.09)
+def test_downsampling():
+    N = 450
+    x = np.arange(N) / N - 0.5
+    y = np.arange(N) / N - 0.5
+    aa = np.ones((N, N))
+    aa[::2, :] = -1
+
+    X, Y = np.meshgrid(x, y)
+    R = np.sqrt(X**2 + Y**2)
+    f0 = 5
+    k = 100
+    a = np.sin(np.pi * 2 * (f0 * R + k * R**2 / 2))
+    # make the left hand side of this
+    a[:int(N / 2), :][R[:int(N / 2), :] < 0.4] = -1
+    a[:int(N / 2), :][R[:int(N / 2), :] < 0.3] = 1
+    aa[:, int(N / 3):] = a[:, int(N / 3):]
+    a = aa
+
+    fig, axs = plt.subplots(2, 3, figsize=(7, 6), layout='compressed')
+    axs[0, 0].imshow(a, interpolation='nearest', interpolation_stage='rgba',
+                     cmap='RdBu_r')
+    axs[0, 0].set_xlim(125, 175)
+    axs[0, 0].set_ylim(250, 200)
+    axs[0, 0].set_title('Zoom')
+
+    for ax, interp, space in zip(axs.flat[1:], ['nearest', 'nearest', 'hanning',
+                                                'hanning', 'antialiased'],
+                                 ['data', 'rgba', 'data', 'rgba', 'antialiased']):
+        ax.imshow(a, interpolation=interp, interpolation_stage=space,
+                  cmap='RdBu_r')
+        ax.set_title(f"interpolation='{interp}'\nspace='{space}'")
+
+
+@image_comparison(
+    ['downsampling_speckle.png'], style='mpl20', remove_text=True, tol=0.09)
+def test_downsampling_speckle():
+    fig, axs = plt.subplots(1, 2, figsize=(5, 2.7), sharex=True, sharey=True,
+                            layout="compressed")
+    axs = axs.flatten()
+    img = ((np.arange(1024).reshape(-1, 1) * np.ones(720)) // 50).T
+
+    cm = plt.get_cmap("viridis")
+    cm.set_over("m")
+    norm = colors.LogNorm(vmin=3, vmax=11)
+
+    # old default cannot be tested because it creates over/under speckles
+    # in the following that are machine dependent.
+
+    axs[0].set_title("interpolation='antialiased', stage='rgba'")
+    axs[0].imshow(np.triu(img), cmap=cm, norm=norm, interpolation_stage='rgba')
+
+    # Should be same as previous
+    axs[1].set_title("interpolation='antialiased', stage='antialiased'")
+    axs[1].imshow(np.triu(img), cmap=cm, norm=norm)
+
+
+@image_comparison(
+    ['upsampling.png'], style='mpl20', remove_text=True)
+def test_upsampling():
+
+    np.random.seed(19680801+9)  # need this seed to get yellow next to blue
+    a = np.random.rand(4, 4)
+
+    fig, axs = plt.subplots(1, 3, figsize=(6.5, 3), layout='compressed')
+    im = axs[0].imshow(a, cmap='viridis')
+    axs[0].set_title(
+        "interpolation='antialiased'\nstage='antialaised'\n(default for upsampling)")
+
+    # probably what people want:
+    axs[1].imshow(a, cmap='viridis', interpolation='sinc')
+    axs[1].set_title(
+        "interpolation='sinc'\nstage='antialiased'\n(default for upsampling)")
+
+    # probably not what people want:
+    axs[2].imshow(a, cmap='viridis', interpolation='sinc', interpolation_stage='rgba')
+    axs[2].set_title("interpolation='sinc'\nstage='rgba'")
+    fig.colorbar(im, ax=axs, shrink=0.7, extend='both')

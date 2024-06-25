@@ -1053,7 +1053,7 @@ _validators = {
 
     "image.aspect":              validate_aspect,  # equal, auto, a number
     "image.interpolation":       validate_string,
-    "image.interpolation_stage": ["data", "rgba"],
+    "image.interpolation_stage": ["antialiased", "data", "rgba"],
     "image.cmap":                _validate_cmap,  # gray, jet, etc.
     "image.lut":                 validate_int,  # lookup table
     "image.origin":              ["upper", "lower"],
