@@ -2182,6 +2182,21 @@ def xticks(
     **kwargs
         `.Text` properties can be used to control the appearance of the labels.
 
+        .. warning::
+
+            This only sets the properties of the current ticks, which is
+            only sufficient if you either pass *ticks*, resulting in a
+            fixed list of ticks, or if the plot is static.
+
+            Ticks are not guaranteed to be persistent. Various operations
+            can create, delete and modify the Tick instances. There is an
+            imminent risk that these settings can get lost if you work on
+            the figure further (including also panning/zooming on a
+            displayed figure).
+
+            Use `~.pyplot.tick_params` instead if possible.
+
+
     Returns
     -------
     locs
@@ -2252,6 +2267,20 @@ def yticks(
         ticks/labels.
     **kwargs
         `.Text` properties can be used to control the appearance of the labels.
+
+        .. warning::
+
+            This only sets the properties of the current ticks, which is
+            only sufficient if you either pass *ticks*, resulting in a
+            fixed list of ticks, or if the plot is static.
+
+            Ticks are not guaranteed to be persistent. Various operations
+            can create, delete and modify the Tick instances. There is an
+            imminent risk that these settings can get lost if you work on
+            the figure further (including also panning/zooming on a
+            displayed figure).
+
+            Use `~.pyplot.tick_params` instead if possible.
 
     Returns
     -------
