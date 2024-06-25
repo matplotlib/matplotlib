@@ -697,6 +697,9 @@ class Path:
         be simplified so that vertices outside of (0, 0), (width,
         height) will be clipped.
 
+        The resulting polygons will be simplified if the
+        :attr:`Path.should_simplify` attribute of the path is `True`.
+
         If *closed_only* is `True` (default), only closed polygons,
         with the last point being the same as the first point, will be
         returned.  Any unclosed polylines in the path will be
