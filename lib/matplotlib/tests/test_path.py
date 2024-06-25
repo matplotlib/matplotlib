@@ -546,22 +546,27 @@ def test_cleanup_closepoly():
 def test_simplify_closepoly():
     # The values of the vertices in a CLOSEPOLY should always be ignored,
     # in favor of the most recent MOVETO's vertex values
-    paths = (
-            Path([(0, 0), (1, 0), (1, 1), (0, 0)],
-                 [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY],),
-            Path([(0, 0), (1, 0), (1, 1), (np.nan, np.nan)],
-                 [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY],),
-            Path([(0, 0), (1, 0), (1, 1), (40, 50)],
-                 [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY],),
-            Path([(0, 0), (0.5, 0), (1, 0), (1, 0.5),
-                  (1, 1), (0.5, 0.5), (0, 0)],
-                 [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO,
-                  Path.LINETO, Path.LINETO, Path.CLOSEPOLY]),
-    )
+    paths = [
+        Path([(0, 0), (1, 0), (1, 1), (0, 0)],
+             [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]),
+        Path([(0, 0), (1, 0), (1, 1), (np.nan, np.nan)],
+             [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]),
+        Path([(0, 0), (1, 0), (1, 1), (40, 50)],
+             [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]),
+        Path([(0, 0), (0.5, 0), (1, 0), (1, 0.5),
+              (1, 1), (0.5, 0.5), (0, 0)],
+             [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO,
+              Path.LINETO, Path.LINETO, Path.CLOSEPOLY]),
+    ]
 
-    first_segment = list(paths[0].cleaned(simplify=True).iter_segments())
-    for p in paths[1:]:
-        simplified = list(p.cleaned(simplify=True).iter_segments())
+    first_segments = list(paths[0].cleaned(simplify=True).iter_segments())
+    for path in paths[1:]:
+        simplified_segments = list(path.cleaned(simplify=True).iter_segments())
+        for seg1, seg2 in zip(simplified_segments, first_segments):
+            vertex1, code1 = seg1
+            vertex2, code2 = seg2
 
-        assert all([np.array_equal(a[0], b[0]) and a[1] == b[1]
-                    for a, b in zip(simplified, first_segment)])
+            # Check whether the vertices are equal
+            assert_array_equal(vertex1, vertex2)
+            # Check whether the codes are equal
+            assert code1 == code2
