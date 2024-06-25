@@ -54,7 +54,7 @@ from PIL.PngImagePlugin import PngInfo
 
 import matplotlib as mpl
 import numpy as np
-from matplotlib import _api, _cm, cbook, scale
+from matplotlib import _api, _cm, cbook, scale, _image
 from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
 
 
@@ -87,6 +87,7 @@ _colors_full_map.update(BASE_COLORS)
 _colors_full_map = _ColorMapping(_colors_full_map)
 
 _REPR_PNG_SIZE = (512, 64)
+_BIVAR_REPR_PNG_SIZE = 256
 
 
 def get_named_colors_mapping():
@@ -674,14 +675,23 @@ def _create_lookup_table(N, data, gamma=1.0):
     return np.clip(lut, 0.0, 1.0)
 
 
-class Colormap:
+class ColormapBase:
+    """
+    Base class for all colormaps, both scalar, bivariate and multivariate.
+
+    This class is used for type checking, and cannot be initialized.
+    """
+    ...
+
+
+class Colormap(ColormapBase):
     """
     Baseclass for all scalar to RGBA mappings.
 
     Typically, Colormap instances are used to convert data values (floats)
     from the interval ``[0, 1]`` to the RGBA color that the respective
     Colormap represents. For scaling of data into the ``[0, 1]`` interval see
-    `matplotlib.colors.Normalize`. Subclasses of `matplotlib.cm.ScalarMappable`
+    `matplotlib.colors.Normalize`. Subclasses of `matplotlib.cm.VectorMappable`
     make heavy use of this ``data -> normalize -> map-to-color`` processing
     chain.
     """
@@ -704,13 +714,14 @@ class Colormap:
         self._i_over = self.N + 1
         self._i_bad = self.N + 2
         self._isinit = False
+        self.n_variates = 1
         #: When this colormap exists on a scalar mappable and colorbar_extend
         #: is not False, colorbar creation will pick up ``colorbar_extend`` as
         #: the default value for the ``extend`` keyword in the
         #: `matplotlib.colorbar.Colorbar` constructor.
         self.colorbar_extend = False
 
-    def __call__(self, X, alpha=None, bytes=False):
+    def __call__(self, X, alpha=None, bytes=False, return_mask_bad=False):
         r"""
         Parameters
         ----------
@@ -727,6 +738,8 @@ class Colormap:
             If False (default), the returned RGBA values will be floats in the
             interval ``[0, 1]`` otherwise they will be `numpy.uint8`\s in the
             interval ``[0, 255]``.
+        return_mask_bad : bool
+            If true, also return a mask of bad values.
 
         Returns
         -------
@@ -778,6 +791,8 @@ class Colormap:
 
         if not np.iterable(X):
             rgba = tuple(rgba)
+        if return_mask_bad:
+            return rgba, mask_bad
         return rgba
 
     def __copy__(self):
@@ -1224,6 +1239,594 @@ class ListedColormap(Colormap):
         new_cmap._rgba_under = self._rgba_over
         new_cmap._rgba_bad = self._rgba_bad
         return new_cmap
+
+
+class MultivarColormap(ColormapBase):
+    """
+    Class for holding multiple `~matplotlib.colors.Colormap` for use in a
+    `~matplotlib.cm.VectorMappable` object
+
+    MultivarColormap does not support alpha in the constituent
+    look up tables (ignored).
+    """
+    def __init__(self, name, colormaps, combination_mode):
+        """
+        Parameters
+        ----------
+        name : str
+            The name of the colormap family.
+        colormaps: list or tuple of `~matplotlib.colors.Colormap` objects
+            The individual colormaps that are combined
+        combination_mode: str, 'Add' or 'Sub'
+            Describe how colormaps are combined in sRGB space
+            'Add' -> additive
+            'Sub' -> subtractive
+        """
+        self.name = name
+
+        if not np.iterable(colormaps) or len(colormaps) == 1:
+            raise ValueError("A MultivarColormap must have more than one colormap.")
+        for cmap in colormaps:
+            if not issubclass(type(cmap), Colormap):
+                raise ValueError("colormaps must be a list of objects that subclass"
+                                 " Colormap, not strings or list of strings")
+
+        self.colormaps = colormaps
+        self.combination_mode = combination_mode
+        self.n_variates = len(colormaps)
+        self._rgba_bad = (0.0, 0.0, 0.0, 0.0)  # If bad, don't paint anything.
+
+    def __call__(self, X, alpha=None, bytes=False):
+        r"""
+        Parameters
+        ----------
+        X : tuple (X0, X1, ...) of length equal to the number of colormaps
+            X0, X1 ...:
+            float or int, `~numpy.ndarray` or scalar
+            The data value(s) to convert to RGBA.
+            For floats, *Xi...* should be in the interval ``[0.0, 1.0]`` to
+            return the RGBA values ``X*100`` percent along the Colormap line.
+            For integers, *Xi...*  should be in the interval ``[0, self[i].N)`` to
+            return RGBA values *indexed* from colormap [i] with index ``Xi``, where
+            self[i] is colormap i.
+        alpha : float or array-like or None
+            Alpha must be a scalar between 0 and 1, a sequence of such
+            floats with shape matching Xi, or None.
+        bytes : bool
+            If False (default), the returned RGBA values will be floats in the
+            interval ``[0, 1]`` otherwise they will be `numpy.uint8`\s in the
+            interval ``[0, 255]``.
+
+        Returns
+        -------
+        Tuple of RGBA values if X[0] is scalar, otherwise an array of
+        RGBA values with a shape of ``X.shape + (4, )``.
+        """
+
+        if len(X) != len(self):
+            raise ValueError(
+                f'For the selected colormap the data must have a first dimension '
+                f'{len(self)}, not {len(X)}')
+        rgba, mask_bad = self[0](X[0], bytes=False, return_mask_bad=True)
+        rgba = np.asarray(rgba)
+        for c, xx in zip(self[1:], X[1:]):
+            sub_rgba, sub_mask_bad = c(xx, bytes=False, return_mask_bad=True)
+            sub_rgba = np.asarray(sub_rgba)
+            rgba[..., :3] += sub_rgba[..., :3]  # add colors
+            rgba[..., 3] *= sub_rgba[..., 3]  # multiply alpha
+            mask_bad |= sub_mask_bad
+
+        if self.combination_mode == 'Sub':
+            rgba[..., :3] -= len(self) - 1
+
+        rgba[mask_bad] = self.get_bad()
+
+        rgba = np.clip(rgba, 0, 1)
+
+        if alpha is not None:
+            alpha = np.clip(alpha, 0, 1)
+            if alpha.shape not in [(), np.array(X[0]).shape]:
+                raise ValueError(
+                    f"alpha is array-like but its shape {alpha.shape} does "
+                    f"not match that of X[0] {np.array(X[0]).shape}")
+            rgba[..., -1] *= alpha
+
+        if bytes:
+            rgba = (rgba * 255).astype('uint8')
+
+        if not np.iterable(X[0]):
+            rgba = tuple(rgba)
+
+        return rgba
+
+    def copy(self):
+        """Return a copy of the multivarcolormap."""
+        return self.__copy__()
+
+    def __copy__(self):
+        cls = self.__class__
+        cmapobject = cls.__new__(cls)
+        cmapobject.__dict__.update(self.__dict__)
+        cmapobject.colormaps = [cm.copy() for cm in self.colormaps]
+        cmapobject._rgba_bad = np.copy(self._rgba_bad)
+        return cmapobject
+
+    def __eq__(self, other):
+        if not isinstance(other, MultivarColormap):
+            return False
+        if not len(self) == len(other):
+            return False
+        for c0, c1 in zip(self, other):
+            if not c0 == c1:
+                return False
+        if not all(self._rgba_bad == other._rgba_bad):
+            return False
+        if not self.combination_mode == other.combination_mode:
+            return False
+        return True
+
+    def __getitem__(self, item):
+        return self.colormaps[item]
+
+    def __iter__(self):
+        for c in self.colormaps:
+            yield c
+
+    def __len__(self):
+        return len(self.colormaps)
+
+    def __str__(self):
+        return self.name
+
+    def get_bad(self):
+        """Get the color for masked values."""
+        return np.array(self._rgba_bad)
+
+    def set_bad(self, color='k', alpha=None):
+        """Set the color for masked values."""
+        self._rgba_bad = to_rgba(color, alpha)
+
+    @property
+    def combination_mode(self):
+        return self._combination_mode
+
+    @combination_mode.setter
+    def combination_mode(self, mode):
+        if mode not in ['Add', 'Sub']:
+            raise ValueError("Combination_mode must be 'Add' or 'Sub',"
+                             f" {mode!r} is not allowed.")
+        self._combination_mode = mode
+
+    def _repr_png_(self):
+        raise NotImplementedError("no png representation of MultivarColormap"
+                                  " but you may access png repreesntations of the"
+                                  " individual colorbars.")
+
+    def _repr_html_(self):
+        """Generate an HTML representation of the MultivarColormap."""
+        return ''.join([c._repr_html_() for c in self.colormaps])
+
+
+class BivarColormap(ColormapBase):
+    """
+    Baseclass for all bivarate to RGBA mappings.
+
+    Designed as a drop-in replcement for Colormap when using a 2D
+    lookup table. To be used with `~matplotlib.cm.VectorMappable`.
+    """
+
+    def __init__(self, name, N=256, M=256, shape='square'):
+        """
+        Parameters
+        ----------
+        name : str
+            The name of the colormap.
+        N : int
+            The number of RGB quantization levels along the first axis.
+        M : int
+            The number of RGB quantization levels along the second axis.
+            If None, M = N
+        shape: str 'square' or 'circle' or 'ignore' or 'circleignore'
+
+            - If 'square' each variate is clipped to [0,1] independently
+            - If 'circle' the variates are clipped radially to the center
+              of the colormap, and a circular mask is applied when the colormap
+              is displayed
+            - If 'ignore' the variates are not clipped, but instead assigned the
+              'outside' color
+            - If  'circleignore' a circular mask is applied, but the data is not
+              clipped and instead assigned the 'outside' color
+
+        """
+
+        self.name = name
+        self.N = int(N)  # ensure that N is always int
+        self.M = int(M)
+        self.shape = shape
+        self._rgba_bad = (0.0, 0.0, 0.0, 0.0)  # If bad, don't paint anything.
+        self._rgba_outside = (1.0, 0.0, 1.0, 1.0)
+        self._isinit = False
+        self.n_variates = 2
+        '''#: When this colormap exists on a scalar mappable and colorbar_extend
+        #: is not False, colorbar creation will pick up ``colorbar_extend`` as
+        #: the default value for the ``extend`` keyword in the
+        #: `matplotlib.colorbar.Colorbar` constructor.
+        self.colorbar_extend = False'''
+
+    def __call__(self, X, alpha=None, bytes=False):
+        r"""
+        Parameters
+        ----------
+        X : tuple (X0, X1), X0 and X1: float or int `~numpy.ndarray` or scalar
+            The data value(s) to convert to RGBA.
+
+            - For floats, *X* should be in the interval ``[0.0, 1.0]`` to
+              return the RGBA values ``X*100`` percent along the Colormap.
+            - For integers, *X* should be in the interval ``[0, Colormap.N)`` to
+              return RGBA values *indexed* from the Colormap with index ``X``.
+
+        alpha : float or array-like or None
+            Alpha must be a scalar between 0 and 1, a sequence of such
+            floats with shape matching X0, or None.
+        bytes : bool
+            If False (default), the returned RGBA values will be floats in the
+            interval ``[0, 1]`` otherwise they will be `numpy.uint8`\s in the
+            interval ``[0, 255]``.
+
+        Returns
+        -------
+        Tuple of RGBA values if X is scalar, otherwise an array of
+        RGBA values with a shape of ``X.shape + (4, )``.
+        """
+
+        if len(X) != 2:
+            raise ValueError(
+                f'For a `BivarColormap` the data must have a first dimension '
+                f'{2}, not {len(X)}')
+
+        if not self._isinit:
+            self._init()
+
+        X0 = np.ma.array(X[0], copy=True)
+        X1 = np.ma.array(X[1], copy=True)
+        # clip to shape of colormap, circle square, etc.
+        self._clip((X0, X1))
+
+        # Native byteorder is faster.
+        if not X0.dtype.isnative:
+            X0 = X0.byteswap().view(X0.dtype.newbyteorder())
+        if not X1.dtype.isnative:
+            X1 = X1.byteswap().view(X1.dtype.newbyteorder())
+
+        if X0.dtype.kind == "f":
+            X0 *= self.N
+            # xa == 1 (== N after multiplication) is not out of range.
+            X0[X0 == self.N] = self.N - 1
+
+        if X1.dtype.kind == "f":
+            X1 *= self.M
+            # xa == 1 (== N after multiplication) is not out of range.
+            X1[X1 == self.M] = self.M - 1
+
+        # Pre-compute the masks before casting to int (which can truncate)
+        mask_outside = (X0 < 0) | (X1 < 0) \
+                     | (X0 >= self.N) | (X1 >= self.M)
+        # If input was masked, get the bad mask from it; else mask out nans.
+        mask_bad_0 = X0.mask if np.ma.is_masked(X0) else np.isnan(X0)
+        mask_bad_1 = X1.mask if np.ma.is_masked(X1) else np.isnan(X1)
+        mask_bad = mask_bad_0 | mask_bad_1
+
+        with np.errstate(invalid="ignore"):
+            # We need this cast for unsigned ints as well as floats
+            X0 = X0.astype(int)
+            X1 = X1.astype(int)
+
+        # Set masked values to zero
+        # The corresponding rgb values will be replaced later
+        for X_part in [X0, X1]:
+            X_part[mask_outside] = 0
+            X_part[mask_bad] = 0
+
+        rgba = self._lut[X0, X1]
+        if np.isscalar(X[0]):
+            rgba = np.copy(rgba)
+        rgba[mask_outside] = self._rgba_outside
+        rgba[mask_bad] = self._rgba_bad
+        if bytes:
+            rgba = (rgba * 255).astype(np.uint8)
+        if alpha is not None:
+            alpha = np.clip(alpha, 0, 1)
+            if bytes:
+                alpha *= 255  # Will be cast to uint8 upon assignment.
+            if alpha.shape not in [(), np.array(X0).shape]:
+                raise ValueError(
+                    f"alpha is array-like but its shape {alpha.shape} does "
+                    f"not match that of X[0] {np.array(X0).shape}")
+            rgba[..., -1] = alpha
+            # If the "bad" color is all zeros, then ignore alpha input.
+            if (np.array(self._rgba_bad) == 0).all():
+                rgba[mask_bad] = (0, 0, 0, 0)
+
+        if not np.iterable(X[0]):
+            rgba = tuple(rgba)
+        return rgba
+
+    @property
+    def lut(self):
+        """
+        For external access to the lut, i.e. for displaying the cmap.
+        For circular colormaps this returns a lut with a circular mask.
+
+        Internal functions (such as to_rgb()) should use _lut
+        which stores the lut without a circular mask
+        A lut without the circular mask is needed in to_rgb() because the
+        conversion from floats to ints results in some some pixel-requests
+        just outside of the circular mask
+
+        """
+        if not self._isinit:
+            self._init()
+        lut = np.copy(self._lut)
+        if self.shape == 'circle' or self.shape == 'circleignore':
+            n = np.linspace(-1, 1, self.N)
+            m = np.linspace(-1, 1, self.M)
+            radii_sqr = (n**2)[:, np.newaxis] + (m**2)[np.newaxis, :]
+            mask_outside = radii_sqr > 1
+            lut[mask_outside, 3] = 0
+        return lut
+
+    def __copy__(self):
+        cls = self.__class__
+        cmapobject = cls.__new__(cls)
+        cmapobject.__dict__.update(self.__dict__)
+
+        cmapobject._rgba_outside = np.copy(self._rgba_outside)
+        cmapobject._rgba_bad = np.copy(self._rgba_bad)
+        cmapobject.shape = self.shape
+        if self._isinit:
+            cmapobject._lut = np.copy(self._lut)
+        return cmapobject
+
+    def __eq__(self, other):
+        if not isinstance(other, BivarColormap):
+            return False
+        # To compare lookup tables the Colormaps have to be initialized
+        if not self._isinit:
+            self._init()
+        if not other._isinit:
+            other._init()
+        if not np.array_equal(self._lut, other._lut):
+            return False
+        if not np.array_equal(self._rgba_bad, other._rgba_bad):
+            return False
+        if not np.array_equal(self._rgba_outside, other._rgba_outside):
+            return False
+        if not self.shape == other.shape:
+            return False
+        return True
+
+    def get_bad(self):
+        """Get the color for masked values."""
+        return self._rgba_bad
+
+    def set_bad(self, color='k', alpha=None):
+        """Set the color for masked values."""
+        self._rgba_bad = to_rgba(color, alpha)
+
+    def get_outside(self):
+        """Get the color for out-of-range values."""
+        return self._rgba_outside
+
+    def set_outside(self, color='k', alpha=None):
+        """Set the color for out-of-range values."""
+        self._rgba_outside = to_rgba(color, alpha)
+
+    def _init(self):
+        """Generate the lookup table, ``self._lut``."""
+        raise NotImplementedError("Abstract class only")
+
+    @property
+    def shape(self):
+        return self._shape
+
+    @shape.setter
+    def shape(self, shape):
+        if shape in ['square', 'circle', 'ignore', 'circleignore']:
+            self._shape = shape
+        else:
+            raise ValueError("The shape must be a valid string, "
+                             "'square', 'circle', 'ignore', or 'circleignore'")
+
+    def _clip(self, X):
+        """
+        For internal use when applying a BivarColormap to data.
+        i.e. cm.VectorMappable().to_rgba()
+        Clips X[0] and X[1] according to 'self.shape'.
+        X is modified in-place.
+
+        Parameters
+        ----------
+        X: np.array
+            array of floats or ints to be clipped
+        shape: str 'square' or 'circle' or 'ignore' or 'circleignore'
+
+            - If 'square' each variate is clipped to [0,1] independently
+            - If 'circle' the variates are clipped radially to the center
+              of the colormap.
+              It is assumed that a circular mask is applied when the colormap
+              is displayed
+            - If 'ignore' the variates are not clipped, but instead assigned the
+              'outside' color
+            - If 'circleignore' a circular mask is applied, but the data is not clipped
+              and instead assigned the 'outside' color
+
+        """
+        if self.shape == 'square':
+            for X_part, mx in zip(X, (self.N, self.M)):
+                X_part[X_part < 0] = 0
+                if X_part.dtype.kind == "f":
+                    X_part[X_part > 1] = 1
+                else:
+                    X_part[X_part >= mx] = mx - 1
+
+        elif self.shape == 'ignore':
+            for X_part, mx in zip(X, (self.N, self.M)):
+                X_part[X_part < 0] = -1
+                if X_part.dtype.kind == "f":
+                    X_part[X_part > 1] = -1
+                else:
+                    X_part[X_part >= mx] = -1
+
+        elif self.shape == 'circle' or self.shape == 'circleignore':
+            for X_part in X:
+                if not X_part.dtype.kind == "f":
+                    raise NotImplementedError(
+                        "Circular bivariate colormaps are only"
+                        " implemented for use with with floats, not integers")
+            radii_sqr = (X[0] - 0.5)**2 + (X[1] - 0.5)**2
+            mask_outside = radii_sqr > 0.25
+            if self.shape == 'circle':
+                overextend = 2 * np.sqrt(radii_sqr[mask_outside])
+                X[0][mask_outside] = (X[0][mask_outside] - 0.5) / overextend + 0.5
+                X[1][mask_outside] = (X[1][mask_outside] - 0.5) / overextend + 0.5
+            else:
+                X[0][mask_outside] = -1
+                X[1][mask_outside] = -1
+
+    def _repr_png_(self):
+        """Generate a PNG representation of the BivarColormap."""
+        if not self._isinit:
+            self._init()
+
+        pixels = (self.lut[::-1, :, :] * 255).astype(np.uint8)
+
+        png_bytes = io.BytesIO()
+        title = self.name + ' BivarColormap'
+        author = f'Matplotlib v{mpl.__version__}, https://matplotlib.org'
+        pnginfo = PngInfo()
+        pnginfo.add_text('Title', title)
+        pnginfo.add_text('Description', title)
+        pnginfo.add_text('Author', author)
+        pnginfo.add_text('Software', author)
+        Image.fromarray(pixels).save(png_bytes, format='png', pnginfo=pnginfo)
+        return png_bytes.getvalue()
+
+    def _repr_html_(self):
+        """Generate an HTML representation of the Colormap."""
+        png_bytes = self._repr_png_()
+        png_base64 = base64.b64encode(png_bytes).decode('ascii')
+        def color_block(color):
+            hex_color = to_hex(color, keep_alpha=True)
+            return (f'<div title="{hex_color}" '
+                    'style="display: inline-block; '
+                    'width: 1em; height: 1em; '
+                    'margin: 0; '
+                    'vertical-align: middle; '
+                    'border: 1px solid #555; '
+                    f'background-color: {hex_color};"></div>')
+
+        return ('<div style="vertical-align: middle;">'
+                f'<strong>{self.name}</strong> '
+                '</div>'
+                '<div class="cmap"><img '
+                f'alt="{self.name} BivarColormap" '
+                f'title="{self.name}" '
+                'style="border: 1px solid #555;" '
+                f'src="data:image/png;base64,{png_base64}"></div>'
+                '<div style="vertical-align: middle; '
+                f'max-width: {_BIVAR_REPR_PNG_SIZE+2}px; '
+                'display: flex; justify-content: space-between;">'
+                '<div style="float: left;">'
+                f'{color_block(self.get_outside())} outside'
+                '</div>'
+                '<div style="float: right;">'
+                f'bad {color_block(self.get_bad())}'
+                '</div>')
+
+    def copy(self):
+        """Return a copy of the colormap."""
+        return self.__copy__()
+
+
+class SegmentedBivarColormap(BivarColormap):
+    """
+    BivarColormap object generated by supersampling a regular grid
+
+    Parameters
+    ----------
+    patch : nparray of shape (k, k, 3)
+        This patch gets supersamples to a lut of shape (N, M, 4)
+    name : str
+        The name of the colormap.
+    N : int
+        The number of RGB quantization levels along each axis.
+    shape: str 'square' or 'circle' or 'ignore' or 'circleignore'
+
+        - If 'square' each variate is clipped to [0,1] independently
+        - If 'circle' the variates are clipped radially to the center
+          of the colormap, and a circular mask is applied when the colormap
+          is displayed
+        - If 'ignore' the variates are not clipped, but instead assigned the
+          'outside' color
+        - If 'circleignore' a circular mask is applied, but the data is not clipped
+
+    """
+
+    def __init__(self, patch, name, N=256, shape='square'):
+        self.patch = patch
+        super().__init__(name, N, N, shape)
+
+    def _init(self):
+        s = self.patch.shape
+        _patch = np.empty((s[0], s[1], 4))
+        _patch[:, :, :3] = self.patch
+        _patch[:, :, 3] = 1
+        transform = mpl.transforms.Affine2D().translate(-0.5, -0.5)\
+                                .scale(self.N / (s[0] - 1), self.N / (s[0] - 1))
+        self._lut = np.empty((self.N, self.N, 4))
+
+        _image.resample(_patch, self._lut, transform, _image.BILINEAR,
+                        resample=False, alpha=1)
+        self._isinit = True
+
+
+class BivarColormapFromImage(BivarColormap):
+    """
+    BivarColormap object generated by supersampling a regular grid
+
+    Parameters
+    ----------
+    lut : nparray of shape (N, M, 3) or (N, M, 4)
+        The look-up-table
+    name : str
+        The name of the colormap.
+    shape: str 'square' or 'circle' or 'ignore' or 'circleignore'
+
+        - If 'square' each variate is clipped to [0,1] independently
+        - If 'circle' the variates are clipped radially to the center
+          of the colormap, and a circular mask is applied when the colormap
+          is displayed
+        - If 'ignore' the variates are not clipped, but instead assigned the
+          'outside' color
+        - If 'circleignore' a circular mask is applied, but the data is not clipped
+
+    """
+
+    def __init__(self, lut, name='', shape='square'):
+        # We can allow for a PIL.Image as unput in the following way, but importing
+        # matplotlib.image.pil_to_array() results in a circular import
+        # For now, this function only accepts numpy arrays.
+        # if isinstance(Image, lut):
+        #    lut = image.pil_to_array(lut)
+        lut = np.array(lut, copy=True)
+        if lut.ndim != 3 or lut.shape[2] not in (3, 4):
+            raise ValueError("The lut must be an array of shape (n, m, 3) or (n, m, 4)",
+                             " or a PIL.image encoded as RGB or RGBA")
+        self._lut = lut
+        super().__init__(name, lut.shape[0], lut.shape[1], shape)
+
+    def _init(self):
+        self._isinit = True
 
 
 class Normalize:
@@ -2168,7 +2771,7 @@ class BoundaryNorm(Normalize):
 class NoNorm(Normalize):
     """
     Dummy replacement for `Normalize`, for the case where we want to use
-    indices directly in a `~matplotlib.cm.ScalarMappable`.
+    indices directly in a `~matplotlib.cm.VectorMappable`.
     """
     def __call__(self, value, clip=None):
         if np.iterable(value):

@@ -129,6 +129,8 @@ __all__ = [
     "interactive",
     "is_interactive",
     "colormaps",
+    "multivar_colormaps",
+    "bivar_colormaps",
     "color_sequences",
 ]
 
@@ -1543,4 +1545,6 @@ def validate_backend(s):
 # workaround: we must defer colormaps import to after loading rcParams, because
 # colormap creation depends on rcParams
 from matplotlib.cm import _colormaps as colormaps  # noqa: E402
+from matplotlib.cm import _multivar_colormaps as multivar_colormaps  # noqa: E402
+from matplotlib.cm import _bivar_colormaps as bivar_colormaps  # noqa: E402
 from matplotlib.colors import _color_sequences as color_sequences  # noqa: E402
