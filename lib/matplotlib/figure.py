@@ -2227,7 +2227,6 @@ class SubFigure(FigureBase):
         self.subplotpars = parent.subplotpars
         self.dpi_scale_trans = parent.dpi_scale_trans
         self._axobservers = parent._axobservers
-        self.canvas = parent.canvas
         self.transFigure = parent.transFigure
         self.bbox_relative = Bbox.null()
         self._redo_transform_rel_fig()
@@ -2243,6 +2242,10 @@ class SubFigure(FigureBase):
             in_layout=False, transform=self.transSubfigure)
         self._set_artist_props(self.patch)
         self.patch.set_antialiased(False)
+
+    @property
+    def canvas(self):
+        return self._parent.canvas
 
     @property
     def dpi(self):
