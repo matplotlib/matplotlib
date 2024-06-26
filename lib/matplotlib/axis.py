@@ -2028,7 +2028,9 @@ class Axis(martist.Artist):
 
             .. warning::
 
-                This only sets the properties of the current ticks.
+                This only sets the properties of the current ticks, which is
+                only sufficient for static plots.
+
                 Ticks are not guaranteed to be persistent. Various operations
                 can create, delete and modify the Tick instances. There is an
                 imminent risk that these settings can get lost if you work on
