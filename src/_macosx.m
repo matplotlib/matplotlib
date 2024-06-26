@@ -77,6 +77,9 @@ static int wait_for_stdin() {
 
         // continuously run an event loop until the stdin_received flag is set to exit
         while (!stdin_received && !stdin_sigint) {
+            // This loop is similar to the main event loop and flush_events which have
+            // Py_[BEGIN|END]_ALLOW_THREADS surrounding the loop.
+            // This should not be necessary here because PyOS_InputHook releases the GIL for us.
             while (true) {
                 NSEvent *event = [NSApp nextEventMatchingMask: NSEventMaskAny
                                                     untilDate: [NSDate distantPast]
@@ -380,6 +383,9 @@ FigureCanvas_flush_events(FigureCanvas* self)
     // to process, breaking out of the loop when no events remain and
     // displaying the canvas if needed.
     NSEvent *event;
+
+    Py_BEGIN_ALLOW_THREADS
+
     while (true) {
         event = [NSApp nextEventMatchingMask: NSEventMaskAny
                                    untilDate: [NSDate distantPast]
@@ -390,6 +396,9 @@ FigureCanvas_flush_events(FigureCanvas* self)
         }
         [NSApp sendEvent:event];
     }
+
+    Py_END_ALLOW_THREADS
+
     [self->view displayIfNeeded];
     Py_RETURN_NONE;
 }
