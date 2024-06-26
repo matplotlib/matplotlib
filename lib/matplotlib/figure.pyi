@@ -263,7 +263,6 @@ class SubFigure(FigureBase):
     figure: Figure
     subplotpars: SubplotParams
     dpi_scale_trans: Affine2D
-    canvas: FigureCanvasBase
     transFigure: Transform
     bbox_relative: Bbox
     figbbox: BboxBase
@@ -281,6 +280,8 @@ class SubFigure(FigureBase):
         frameon: bool | None = ...,
         **kwargs
     ) -> None: ...
+    @property
+    def canvas(self) -> FigureCanvasBase: ...
     @property
     def dpi(self) -> float: ...
     @dpi.setter
