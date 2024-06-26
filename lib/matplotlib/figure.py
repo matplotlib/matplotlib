@@ -1636,6 +1636,8 @@ default: %(va)s
         sf = SubFigure(self, subplotspec, **kwargs)
         self.subfigs += [sf]
         sf._remove_method = self.subfigs.remove
+        sf.stale_callback = _stale_figure_callback
+        self.stale = True
         return sf
 
     def sca(self, a):

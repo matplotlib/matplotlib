@@ -1741,3 +1741,27 @@ def test_subfigure_row_order():
     sf_arr = fig.subfigures(4, 3)
     for a, b in zip(sf_arr.ravel(), fig.subfigs):
         assert a is b
+
+
+def test_subfigure_stale_propagation():
+    fig = plt.figure()
+
+    fig.draw_without_rendering()
+    assert not fig.stale
+
+    sfig1 = fig.subfigures()
+    assert fig.stale
+
+    fig.draw_without_rendering()
+    assert not fig.stale
+    assert not sfig1.stale
+
+    sfig2 = sfig1.subfigures()
+    assert fig.stale
+
+    fig.draw_without_rendering()
+    assert not fig.stale
+    assert not sfig2.stale
+
+    sfig2.stale = True
+    assert fig.stale
