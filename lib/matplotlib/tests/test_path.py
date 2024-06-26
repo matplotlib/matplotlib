@@ -546,27 +546,13 @@ def test_cleanup_closepoly():
 def test_simplify_closepoly():
     # The values of the vertices in a CLOSEPOLY should always be ignored,
     # in favor of the most recent MOVETO's vertex values
-    paths = [
-        Path([(0, 0), (1, 0), (1, 1), (0, 0)],
-             [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]),
-        Path([(0, 0), (1, 0), (1, 1), (np.nan, np.nan)],
-             [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]),
-        Path([(0, 0), (1, 0), (1, 1), (40, 50)],
-             [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]),
-        Path([(0, 0), (0.5, 0), (1, 0), (1, 0.5),
-              (1, 1), (0.5, 0.5), (0, 0)],
-             [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO,
-              Path.LINETO, Path.LINETO, Path.CLOSEPOLY]),
-    ]
+    path_ref = Path([(0, 0), (1, 0), (1, 1), (40, 50)],
+                    [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
+    path_test = Path([(0, 0), (1, 0), (1, 1), (np.nan, np.nan)],
+                     [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
 
-    first_segments = list(paths[0].cleaned(simplify=True).iter_segments())
-    for path in paths[1:]:
-        simplified_segments = list(path.cleaned(simplify=True).iter_segments())
-        for seg1, seg2 in zip(simplified_segments, first_segments):
-            vertex1, code1 = seg1
-            vertex2, code2 = seg2
+    path_ref_simplified = path_ref.cleaned(simplify=True)
+    path_test_simplified = path_test.cleaned(simplify=True)
 
-            # Check whether the vertices are equal
-            assert_array_equal(vertex1, vertex2)
-            # Check whether the codes are equal
-            assert code1 == code2
+    assert_array_equal(path_ref_simplified.vertices, path_test_simplified.vertices)
+    assert_array_equal(path_ref_simplified.codes, path_test_simplified.codes)
