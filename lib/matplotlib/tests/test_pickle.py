@@ -93,6 +93,11 @@ def _generate_complete_test_figure(fig_ref):
     plt.errorbar(x, x * -0.5, xerr=0.2, yerr=0.4, label='$-.5 x$')
     plt.legend(draggable=True)
 
+    # Ensure subfigure parenting works.
+    subfigs = fig_ref.subfigures(2)
+    subfigs[0].subplots(1, 2)
+    subfigs[1].subplots(1, 2)
+
     fig_ref.align_ylabels()  # Test handling of _align_label_groups Groupers.
 
 
