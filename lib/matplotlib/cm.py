@@ -232,6 +232,44 @@ _colormaps = ColormapRegistry(_gen_cmap_registry())
 globals().update(_colormaps)
 
 
+# This is an exact copy of pyplot.get_cmap(). It was removed in 3.9, but apparently
+# caused more user trouble than expected. Re-added for 3.9.1 and extended the
+# deprecation period for two additional minor releases.
+@_api.deprecated(
+    '3.7',
+    removal='3.11',
+    alternative="``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()``"
+                " or ``pyplot.get_cmap()``"
+    )
+def get_cmap(name=None, lut=None):
+    """
+    Get a colormap instance, defaulting to rc values if *name* is None.
+
+    Parameters
+    ----------
+    name : `~matplotlib.colors.Colormap` or str or None, default: None
+        If a `.Colormap` instance, it will be returned. Otherwise, the name of
+        a colormap known to Matplotlib, which will be resampled by *lut*. The
+        default, None, means :rc:`image.cmap`.
+    lut : int or None, default: None
+        If *name* is not already a Colormap instance and *lut* is not None, the
+        colormap will be resampled to have *lut* entries in the lookup table.
+
+    Returns
+    -------
+    Colormap
+    """
+    if name is None:
+        name = mpl.rcParams['image.cmap']
+    if isinstance(name, colors.Colormap):
+        return name
+    _api.check_in_list(sorted(_colormaps), name=name)
+    if lut is None:
+        return _colormaps[name]
+    else:
+        return _colormaps[name].resampled(lut)
+
+
 def _auto_norm_from_scale(scale_cls):
     """
     Automatically generate a norm class from *scale_cls*.
