@@ -93,6 +93,9 @@ class BackendRegistry:
         }
 
     def _backend_module_name(self, backend):
+        if backend.startswith("module://"):
+            return backend[9:]
+
         # Return name of module containing the specified backend.
         # Does not check if the backend is valid, use is_valid_backend for that.
         backend = backend.lower()
@@ -224,7 +227,8 @@ class BackendRegistry:
         bool
             True if backend is valid, False otherwise.
         """
-        backend = backend.lower()
+        if not backend.startswith("module://"):
+            backend = backend.lower()
 
         # For backward compatibility, convert ipympl and matplotlib-inline long
         # module:// names to their shortened forms.
@@ -342,7 +346,8 @@ class BackendRegistry:
             The GUI framework, which will be None for a backend that is non-interactive.
         """
         if isinstance(backend, str):
-            backend = backend.lower()
+            if not backend.startswith("module://"):
+                backend = backend.lower()
         else:  # Might be _auto_backend_sentinel or None
             # Use whatever is already running...
             from matplotlib import get_backend
@@ -395,7 +400,8 @@ class BackendRegistry:
         framework : str or None
             The GUI framework, which will be None for a backend that is non-interactive.
         """
-        gui_or_backend = gui_or_backend.lower()
+        if not gui_or_backend.startswith("module://"):
+            gui_or_backend = gui_or_backend.lower()
 
         # First check if it is a gui loop name.
         backend = self.backend_for_gui_framework(gui_or_backend)

@@ -86,6 +86,15 @@ def test_is_valid_backend(backend, is_valid):
     assert backend_registry.is_valid_backend(backend) == is_valid
 
 
+@pytest.mark.parametrize("backend, normalized", [
+    ("agg", "matplotlib.backends.backend_agg"),
+    ("QtAgg", "matplotlib.backends.backend_qtagg"),
+    ("module://Anything", "Anything"),
+])
+def test_backend_normalization(backend, normalized):
+    assert backend_registry._backend_module_name(backend) == normalized
+
+
 def test_deprecated_rcsetup_attributes():
     match = "was deprecated in Matplotlib 3.9"
     with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
