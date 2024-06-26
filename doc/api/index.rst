@@ -126,6 +126,7 @@ Alphabetical list of modules:
    sphinxext_mathmpl_api.rst
    sphinxext_plot_directive_api.rst
    sphinxext_figmpl_directive_api.rst
+   sphinxext_roles.rst
    spines_api.rst
    style_api.rst
    table_api.rst

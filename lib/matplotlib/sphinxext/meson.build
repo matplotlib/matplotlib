@@ -3,6 +3,7 @@ python_sources = [
   'figmpl_directive.py',
   'mathmpl.py',
   'plot_directive.py',
+  'roles.py',
 ]
 
 typing_sources = [
