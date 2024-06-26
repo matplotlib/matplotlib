@@ -283,11 +283,11 @@ ignore_directives = [
     "include"
 ]
 ignore_roles = [
-    # sphinxext.custom_roles
-    "rc",
     # matplotlib.sphinxext.mathmpl
     "mathmpl",
     "math-stix",
+    # matplotlib.sphinxext.roles
+    "rc",
     # sphinxext.github
     "ghissue",
     "ghpull",
