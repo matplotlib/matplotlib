@@ -1882,6 +1882,11 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         position : None or .Bbox
+
+            .. note::
+                This parameter exists for historic reasons and is considered
+                internal. End users should not use it.
+
             If not ``None``, this defines the position of the
             Axes within the figure as a Bbox. See `~.Axes.get_position`
             for further details.
@@ -1892,6 +1897,10 @@ class _AxesBase(martist.Artist):
         to call it yourself if you need to update the Axes position and/or
         view limits before the Figure is drawn.
 
+        An alternative with a broader scope is `.Figure.draw_without_rendering`,
+        which updates all stale components of a figure, not only the positioning /
+        view limits of a single Axes.
+
         See Also
         --------
         matplotlib.axes.Axes.set_aspect
@@ -1900,6 +1909,24 @@ class _AxesBase(martist.Artist):
             Set how the Axes adjusts to achieve the required aspect ratio.
         matplotlib.axes.Axes.set_anchor
             Set the position in case of extra space.
+        matplotlib.figure.Figure.draw_without_rendering
+            Update all stale components of a figure.
+
+        Examples
+        --------
+        A typical usage example would be the following. `~.Axes.imshow` sets the
+        aspect to 1, but adapting the Axes position and extent to reflect this is
+        deferred until rendering for performance reasons. If you want to know the
+        Axes size before, you need to call `.apply_aspect` to get the correct
+        values.
+
+        >>> fig, ax = plt.subplots()
+        >>> ax.imshow(np.zeros((3, 3)))
+        >>> ax.bbox.width, ax.bbox.height
+        (496.0, 369.59999999999997)
+        >>> ax.apply_aspect()
+        >>> ax.bbox.width, ax.bbox.height
+        (369.59999999999997, 369.59999999999997)
         """
         if position is None:
             position = self.get_position(original=True)
