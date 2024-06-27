@@ -3527,11 +3527,11 @@ class Axes(_AxesBase):
         `.ErrorbarContainer`
             The container contains:
 
-            - plotline: `~matplotlib.lines.Line2D` instance of x, y plot markers
+            - data_line : A `~matplotlib.lines.Line2D` instance of x, y plot markers
               and/or line.
-            - caplines: A tuple of `~matplotlib.lines.Line2D` instances of the error
+            - caplines : A tuple of `~matplotlib.lines.Line2D` instances of the error
               bar caps.
-            - barlinecols: A tuple of `.LineCollection` with the horizontal and
+            - barlinecols : A tuple of `.LineCollection` with the horizontal and
               vertical error ranges.
 
         Other Parameters
