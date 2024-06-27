@@ -2969,9 +2969,15 @@ class _AxesBase(martist.Artist):
             # Index of largest element < x0 + tol, if any.
             i0 = stickies.searchsorted(x0 + tol) - 1
             x0bound = stickies[i0] if i0 != -1 else None
+            # Ensure the boundary acts only if the sticky is the extreme value
+            if x0bound is not None and x0bound > x0:
+                x0bound = None
             # Index of smallest element > x1 - tol, if any.
             i1 = stickies.searchsorted(x1 - tol)
             x1bound = stickies[i1] if i1 != len(stickies) else None
+            # Ensure the boundary acts only if the sticky is the extreme value
+            if x1bound is not None and x1bound < x1:
+                x1bound = None
 
             # Add the margin in figure space and then transform back, to handle
             # non-linear scales.
