@@ -4672,6 +4672,11 @@ def test_hist_emptydata():
     ax.hist([[], range(10), range(10)], histtype="step")
 
 
+def test_hist_none_patch():
+    x = [[1, 2], [2, 3]]
+    plt.hist(x, label=["First", "Second", "Third"])
+
+
 def test_hist_labels():
     # test singleton labels OK
     fig, ax = plt.subplots()
