@@ -4673,8 +4673,7 @@ def test_hist_emptydata():
 
 
 def test_hist_none_patch():
-    x = [[1, 2], [2, 3]]
-    plt.hist(x, label=["First", "Second", "Third"])
+    plt.hist([1, 2], label=["First", "Second"])
 
 
 def test_hist_labels():
