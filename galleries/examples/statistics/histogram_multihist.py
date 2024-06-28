@@ -59,7 +59,7 @@ plt.show()
 # * linestyles
 #
 #
-# Histograms with Edge-Colors
+# Edge-Colors
 # ...........................
 
 fig, ax = plt.subplots()
@@ -74,7 +74,7 @@ ax.set_title('Stacked Steps with Edgecolors')
 plt.show()
 
 # %%
-# Face colors
+# Face-Colors
 # ...........................
 
 fig, ax = plt.subplots()
