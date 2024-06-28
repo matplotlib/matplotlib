@@ -8250,10 +8250,10 @@ def test_relative_ticklabel_sizes(size):
 def test_multiplot_autoscale():
     fig = plt.figure()
     ax1, ax2 = fig.subplots(2, 1, sharex='all')
-    ax1.scatter([1, 2, 3, 4], [2, 3, 2, 3])
+    ax1.plot([18000, 18250, 18500, 18750], [2, 3, 2, 3])
     ax2.axhspan(-5, 5)
     xlim = ax1.get_xlim()
-    assert np.allclose(xlim, [0.5, 4.5])
+    assert np.allclose(xlim, [18000, 18800])
 
 
 def test_sharing_does_not_link_positions():
