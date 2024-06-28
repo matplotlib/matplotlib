@@ -667,6 +667,13 @@ class TestBasicTransform:
 
         assert not self.stack1.contains_branch(self.tn1 + self.ta2)
 
+        blend = mtransforms.BlendedGenericTransform(self.tn2, self.stack2)
+        x, y = blend.contains_branch_seperately(self.stack2_subset)
+        stack_blend = self.tn3 + blend
+        sx, sy = stack_blend.contains_branch_seperately(self.stack2_subset)
+        assert x is sx is False
+        assert y is sy is True
+
     def test_affine_simplification(self):
         # tests that a transform stack only calls as much is absolutely
         # necessary "non-affine" allowing the best possible optimization with
