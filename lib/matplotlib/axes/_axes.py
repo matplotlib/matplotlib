@@ -1028,7 +1028,7 @@ class Axes(_AxesBase):
         # For Rectangles and non-separable transforms, add_patch can be buggy
         # and update the x limits even though it shouldn't do so for an
         # yaxis_transformed patch, so undo that update.
-        ix = self.dataLim.intervalx
+        ix = self.dataLim.intervalx.copy()
         mx = self.dataLim.minposx
         self.add_patch(p)
         self.dataLim.intervalx = ix
