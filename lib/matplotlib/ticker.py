@@ -407,6 +407,11 @@ class ScalarFormatter(Formatter):
     useLocale : bool, default: :rc:`axes.formatter.use_locale`.
         Whether to use locale settings for decimal sign and positive sign.
         See `.set_useLocale`.
+    usetex : bool, default: :rc:`text.usetex`
+        To enable/disable the use of TeX's math mode for rendering the
+        numbers in the formatter.
+
+        .. versionadded:: 3.10
 
     Notes
     -----
@@ -444,19 +449,31 @@ class ScalarFormatter(Formatter):
 
     """
 
-    def __init__(self, useOffset=None, useMathText=None, useLocale=None):
+    def __init__(self, useOffset=None, useMathText=None, useLocale=None, *,
+                 usetex=None):
         if useOffset is None:
             useOffset = mpl.rcParams['axes.formatter.useoffset']
         self._offset_threshold = \
             mpl.rcParams['axes.formatter.offset_threshold']
         self.set_useOffset(useOffset)
-        self._usetex = mpl.rcParams['text.usetex']
+        self.set_usetex(usetex)
         self.set_useMathText(useMathText)
         self.orderOfMagnitude = 0
         self.format = ''
         self._scientific = True
         self._powerlimits = mpl.rcParams['axes.formatter.limits']
         self.set_useLocale(useLocale)
+
+    def get_usetex(self):
+        return self._usetex
+
+    def set_usetex(self, val):
+        if val is None:
+            self._usetex = mpl.rcParams['text.usetex']
+        else:
+            self._usetex = val
+
+    usetex = property(fget=get_usetex, fset=set_usetex)
 
     def get_useOffset(self):
         """
