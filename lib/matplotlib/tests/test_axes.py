@@ -4673,7 +4673,13 @@ def test_hist_emptydata():
 
 
 def test_hist_none_patch():
-    plt.hist([1, 2], label=["First", "Second"])
+    # To cover None patches when excess labels are provided
+    labels = ["First", "Second"]
+    patches = [[1, 2]]
+    fig, ax = plt.subplots()
+    ax.hist(patches, label=labels)
+    _, lbls = ax.get_legend_handles_labels()
+    assert (len(lbls) < len(labels) and len(patches) < len(labels))
 
 
 def test_hist_labels():
