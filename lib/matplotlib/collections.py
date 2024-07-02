@@ -78,6 +78,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def __init__(self, *,
                  edgecolors=None,
                  facecolors=None,
+                 hatchcolors=None,
                  linewidths=None,
                  linestyles='solid',
                  capstyle=None,
@@ -172,7 +173,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._face_is_mapped = None
         self._edge_is_mapped = None
         self._mapped_colors = None  # calculated in update_scalarmappable
-        self._hatch_color = mcolors.to_rgba(mpl.rcParams['hatch.color'])
+        hatchcolors = mpl._val_or_rc(hatchcolors, "hatch.color")
+        if isinstance(hatchcolors, str):
+            self._hatch_color = mcolors.to_rgba(hatchcolors)
+        else:
+            self._hatch_color = mcolors.to_rgba_array(hatchcolors[0])
         self.set_facecolor(facecolors)
         self.set_edgecolor(edgecolors)
         self.set_linewidth(linewidths)
@@ -181,6 +186,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_pickradius(pickradius)
         self.set_urls(urls)
         self.set_hatch(hatch)
+        self.set_hatchcolor(hatchcolors)
         self.set_zorder(zorder)
 
         if capstyle:
@@ -797,7 +803,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return mpl.rcParams['patch.edgecolor']
 
     def _set_edgecolor(self, c):
-        set_hatch_color = True
         if c is None:
             if (mpl.rcParams['patch.force_edgecolor']
                     or self._edge_default
@@ -805,14 +810,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 c = self._get_default_edgecolor()
             else:
                 c = 'none'
-                set_hatch_color = False
         if cbook._str_lower_equal(c, 'face'):
             self._edgecolors = 'face'
             self.stale = True
             return
         self._edgecolors = mcolors.to_rgba_array(c, self._alpha)
-        if set_hatch_color and len(self._edgecolors):
-            self._hatch_color = tuple(self._edgecolors[0])
         self.stale = True
 
     def set_edgecolor(self, c):
@@ -833,6 +835,30 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._original_edgecolor = c
         self._set_edgecolor(c)
 
+    def _set_hatchcolor(self, c):
+        if cbook._str_lower_equal(c, 'inherit'):
+            self._hatchcolors = 'inherit'
+            self.stale = True
+            return
+        self._hatchcolors = mcolors.to_rgba_array(c, self._alpha)
+        self._hatch_color = self._hatchcolors[0]  # Waiting for PR #27937
+        self.stale = True
+
+    def set_hatchcolor(self, c):
+        """
+        Set the hatchcolor(s) of the collection.
+
+        Parameters
+        ----------
+        c : :mpltype:`color` or list of :mpltype:`color` or 'inherit'
+            The collection hatchcolor(s).  If a sequence, the patches cycle
+            through it.  If 'face', match the facecolor.
+        """
+        if isinstance(c, str) and c.lower() in ("none", "inherit"):
+            c = c.lower()
+        self._original_hatchcolor = c
+        self._set_hatchcolor(c)
+
     def set_alpha(self, alpha):
         """
         Set the transparency of the collection.
@@ -848,6 +874,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         artist.Artist._set_alpha_for_array(self, alpha)
         self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
+        self._set_hatchcolor(self._original_hatchcolor)
 
     set_alpha.__doc__ = artist.Artist._set_alpha_for_array.__doc__
 
@@ -950,6 +977,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._us_linestyles = other._us_linestyles
         self._pickradius = other._pickradius
         self._hatch = other._hatch
+        self._hatch_color = other._hatch_color
 
         # update_from for scalarmappable
         self._A = other._A
