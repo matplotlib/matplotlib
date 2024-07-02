@@ -57,6 +57,13 @@ class Axes3D(Axes):
     Axes._shared_axes["z"] = cbook.Grouper()
     Axes._shared_axes["view"] = cbook.Grouper()
 
+    #: Callable to format the z-data in an interactive window
+    #:
+    #: The expected signature is ::
+    #:
+    #:     def fmt(val: float, /) -> str: ...
+    fmt_zdata = None
+
     def __init__(
         self, fig, rect=None, *args,
         elev=30, azim=-60, roll=0, shareview=None, sharez=None,

@@ -551,6 +551,20 @@ class _AxesBase(martist.Artist):
 
     _subclass_uses_cla = False
 
+    #: Callable to format the x-data in an interactive window.
+    #:
+    #: The expected signature is ::
+    #:
+    #:     def fmt(val: float, /) -> str: ...
+    fmt_xdata = None
+
+    #: Callable to format the y-data in an interactive window
+    #:
+    #: The expected signature is ::
+    #:
+    #:     def fmt(val: float, /) -> str: ...
+    fmt_ydata = None
+
     @property
     def _axis_map(self):
         """A mapping of axis names, e.g. 'x', to `Axis` instances."""

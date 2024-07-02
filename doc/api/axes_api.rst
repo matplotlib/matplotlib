@@ -528,6 +528,8 @@ Interactive
    Axes.format_cursor_data
    Axes.format_xdata
    Axes.format_ydata
+   Axes.fmt_xdata
+   Axes.fmt_ydata
 
    Axes.mouseover
    Axes.in_axes
