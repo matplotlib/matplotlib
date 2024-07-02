@@ -1079,7 +1079,11 @@ class Animation:
 
         def _pre_composite_to_white(color):
             r, g, b, a = mcolors.to_rgba(color)
-            return a * np.array([r, g, b]) + 1 - a
+            if type(writer) == PillowWriter:
+                print("no true transparency using pillow")
+                return a * np.array([r, g, b]) + 1 - a
+            else:
+                return np.array([r, g, b, a])
 
         savefig_kwargs['facecolor'] = _pre_composite_to_white(facecolor)
         savefig_kwargs['transparent'] = False   # just to be safe!
