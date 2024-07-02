@@ -4622,6 +4622,64 @@ def test_hist_stacked_bar():
     ax.legend(loc='upper right', bbox_to_anchor=(1.0, 1.0), ncols=1)
 
 
+@pytest.mark.parametrize('kwargs', ({'facecolor': ["b", "g", "r"]},
+                                    {'edgecolor': ["b", "g", "r"]},
+                                    {'hatch': ["/", "\\", "."]},
+                                    {'linestyle': ["-", "--", ":"]},
+                                    {'linewidth': [1, 1.5, 2]},
+                                    {'color': ["b", "g", "r"]}))
+@check_figures_equal(extensions=["png"])
+def test_hist_vectorized_params(fig_test, fig_ref, kwargs):
+    np.random.seed(19680801)
+    x = [np.random.randn(n) for n in [2000, 5000, 10000]]
+
+    (axt1, axt2) = fig_test.subplots(2)
+    (axr1, axr2) = fig_ref.subplots(2)
+
+    for histtype, axt, axr in [("stepfilled", axt1, axr1), ("step", axt2, axr2)]:
+        _, bins, _ = axt.hist(x, bins=10, histtype=histtype, **kwargs)
+
+        kw, values = next(iter(kwargs.items()))
+        for i, (xi, value) in enumerate(zip(x, values)):
+            axr.hist(xi, bins=bins, histtype=histtype, **{kw: value},
+                     zorder=(len(x)-i)/2)
+
+
+@pytest.mark.parametrize('kwargs, patch_face, patch_edge',
+                         [({'histtype': 'stepfilled', 'color': 'r',
+                            'facecolor': 'y', 'edgecolor': 'g'}, 'y', 'g'),
+                          ({'histtype': 'step', 'color': 'r',
+                            'facecolor': 'y', 'edgecolor': 'g'}, ('y', 0), 'g'),
+                          ({'histtype': 'stepfilled', 'color': 'r',
+                            'edgecolor': 'g'}, 'r', 'g'),
+                          ({'histtype': 'step', 'color': 'r',
+                            'edgecolor': 'g'}, ('r', 0), 'g'),
+                          ({'histtype': 'stepfilled', 'color': 'r',
+                            'facecolor': 'y'}, 'y', 'k'),
+                          ({'histtype': 'step', 'color': 'r',
+                            'facecolor': 'y'}, ('y', 0), 'r'),
+                          ({'histtype': 'stepfilled',
+                            'facecolor': 'y', 'edgecolor': 'g'}, 'y', 'g'),
+                          ({'histtype': 'step', 'facecolor': 'y',
+                            'edgecolor': 'g'}, ('y', 0), 'g'),
+                          ({'histtype': 'stepfilled', 'color': 'r'}, 'r', 'k'),
+                          ({'histtype': 'step', 'color': 'r'}, ('r', 0), 'r'),
+                          ({'histtype': 'stepfilled', 'facecolor': 'y'}, 'y', 'k'),
+                          ({'histtype': 'step', 'facecolor': 'y'}, ('y', 0), 'C0'),
+                          ({'histtype': 'stepfilled', 'edgecolor': 'g'}, 'C0', 'g'),
+                          ({'histtype': 'step', 'edgecolor': 'g'}, ('C0', 0), 'g'),
+                          ({'histtype': 'stepfilled'}, 'C0', 'k'),
+                          ({'histtype': 'step'}, ('C0', 0), 'C0')])
+def test_hist_color_semantics(kwargs, patch_face, patch_edge):
+    _, _, patches = plt.figure().subplots().hist([1, 2, 3], **kwargs)
+    # 'C0'(blue) stands for the first color of the default color cycle
+    # as well as the patch.facecolor rcParam
+    # When the expected edgecolor is 'k'(black), it corresponds to the
+    # patch.edgecolor rcParam
+    assert all(mcolors.same_color([p.get_facecolor(), p.get_edgecolor()],
+                                  [patch_face, patch_edge]) for p in patches)
+
+
 def test_hist_barstacked_bottom_unchanged():
     b = np.array([10, 20])
     plt.hist([[0, 1], [0, 1]], 2, histtype="barstacked", bottom=b)
@@ -4631,6 +4689,16 @@ def test_hist_barstacked_bottom_unchanged():
 def test_hist_emptydata():
     fig, ax = plt.subplots()
     ax.hist([[], range(10), range(10)], histtype="step")
+
+
+def test_hist_none_patch():
+    # To cover None patches when excess labels are provided
+    labels = ["First", "Second"]
+    patches = [[1, 2]]
+    fig, ax = plt.subplots()
+    ax.hist(patches, label=labels)
+    _, lbls = ax.get_legend_handles_labels()
+    assert (len(lbls) < len(labels) and len(patches) < len(labels))
 
 
 def test_hist_labels():
