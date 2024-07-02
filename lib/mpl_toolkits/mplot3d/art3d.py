@@ -598,19 +598,20 @@ class Patch3DCollection(PatchCollection):
         # Force the collection to initialize the face and edgecolors
         # just in case it is a scalarmappable with a colormap.
         self.update_scalarmappable()
-        offsets = self.get_offsets()
-        if len(offsets) > 0:
-            xs, ys = offsets.T
+        offsets2d = super().get_offsets()
+        if len(offsets2d) > 0:
+            xs, ys = offsets2d.T
         else:
             xs = []
             ys = []
-        self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
+        self._zdir = zdir
+        self.set_offsets3d(np.ma.column_stack((xs, ys, np.atleast_1d(zs))), zdir)
         self._z_markers_idx = slice(-1)
         self._vzs = None
         self.stale = True
 
     def do_3d_projection(self):
-        xs, ys, zs = self._offsets3d
+        xs, ys, zs = self.get_offsets3d()
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
                                                         self.axes.M)
         self._vzs = vzs
@@ -641,6 +642,31 @@ class Patch3DCollection(PatchCollection):
         if cbook._str_equal(self._edgecolors, 'face'):
             return self.get_facecolor()
         return self._maybe_depth_shade_and_sort_colors(super().get_edgecolor())
+
+    def set_offsets3d(self, offsets, zdir='z'):
+        """
+        Set the 3d offsets for the collection.
+
+        Parameters
+        ----------
+        offsets : (N, 3) or (3,) array-like
+            The offsets to be set.
+        zdir : {'x', 'y', 'z'}
+            The axis in which to place the offsets. Default: 'z'.
+            See `.get_dir_vector` for a description of the values.
+        """
+        return _set_offsets3d(self, offsets, zdir)
+
+    def get_offsets3d(self):
+        """
+        Return the 3d offsets for the collection.
+
+        Returns
+        -------
+        offsets : (N, 3) array
+            The offsets for the collection.
+        """
+        return _get_offsets3d(self)
 
 
 class Path3DCollection(PathCollection):
@@ -696,13 +722,13 @@ class Path3DCollection(PathCollection):
         # Force the collection to initialize the face and edgecolors
         # just in case it is a scalarmappable with a colormap.
         self.update_scalarmappable()
-        offsets = self.get_offsets()
+        offsets = super().get_offsets()
         if len(offsets) > 0:
             xs, ys = offsets.T
         else:
             xs = []
             ys = []
-        self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
+        self.set_offsets3d(np.ma.column_stack((xs, ys, np.atleast_1d(zs))), zdir)
         # In the base draw methods we access the attributes directly which
         # means we cannot resolve the shuffling in the getter methods like
         # we do for the edge and face colors.
@@ -715,7 +741,6 @@ class Path3DCollection(PathCollection):
         # Grab the current sizes and linewidths to preserve them.
         self._sizes3d = self._sizes
         self._linewidths3d = np.array(self._linewidths)
-        xs, ys, zs = self._offsets3d
 
         # Sort the points based on z coordinates
         # Performance optimization: Create a sorted index array and reorder
@@ -751,7 +776,7 @@ class Path3DCollection(PathCollection):
         self.stale = True
 
     def do_3d_projection(self):
-        xs, ys, zs = self._offsets3d
+        xs, ys, zs = self.get_offsets3d()
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
                                                         self.axes.M)
         # Sort the points based on z coordinates
@@ -817,6 +842,31 @@ class Path3DCollection(PathCollection):
         if cbook._str_equal(self._edgecolors, 'face'):
             return self.get_facecolor()
         return self._maybe_depth_shade_and_sort_colors(super().get_edgecolor())
+
+    def set_offsets3d(self, offsets, zdir='z'):
+        """
+        Set the 3d offsets for the collection.
+
+        Parameters
+        ----------
+        offsets : (N, 3) or (3,) array-like
+            The offsets to be set.
+        zdir : {'x', 'y', 'z'}, default: 'z'
+            The axis in which to place the offsets.
+            See `.get_dir_vector` for a description of the values.
+        """
+        return _set_offsets3d(self, offsets, zdir)
+
+    def get_offsets3d(self):
+        """
+        Return the 3d offsets for the collection.
+
+        Returns
+        -------
+        offsets : (N, 3) array
+            The offsets for the collection.
+        """
+        return _get_offsets3d(self)
 
 
 def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
@@ -1117,6 +1167,31 @@ class Poly3DCollection(PolyCollection):
             self.do_3d_projection()
         return np.asarray(self._edgecolors2d)
 
+    def set_offsets3d(self, offsets, zdir='z'):
+        """
+        Set the 3d offsets for the collection.
+
+        Parameters
+        ----------
+        offsets : (N, 3) or (3,) array-like
+            The offsets to be set.
+        zdir : {'x', 'y', 'z'}, default: 'z'
+            The axis in which to place the offsets.
+            See `.get_dir_vector` for a description of the values.
+        """
+        return _set_offsets3d(self, offsets, zdir)
+
+    def get_offsets3d(self):
+        """
+        Return the 3d offsets for the collection.
+
+        Returns
+        -------
+        offsets : (N, 3) array
+            The offsets for the collection.
+        """
+        return _get_offsets3d(self)
+
 
 def poly_collection_2d_to_3d(col, zs=0, zdir='z'):
     """
@@ -1169,6 +1244,49 @@ def rotate_axes(xs, ys, zs, zdir):
         return zs, xs, ys
     else:
         return xs, ys, zs
+
+
+def _set_offsets3d(col_3d, offsets, zdir='z'):
+    """
+    Set the 3d offsets for the collection.
+
+    Note: Since 3D collections have no common 3D base class, this function
+    factors out the common code for `set_offsets3d` methods of different 3D
+    collections.
+
+    Parameters
+    ----------
+    offsets : (N, 3) or (3,) array-like
+        The offsets to be set.
+    zdir : {'x', 'y', 'z'}, default: 'z'
+        The axis in which to place the offsets.
+        See `.get_dir_vector` for a description of the values.
+    """
+    offsets = np.asanyarray(offsets)
+    if offsets.shape == (3,):  # Broadcast (3,) -> (1, 3) but nothing else.
+        offsets = offsets[None, :]
+    xs = np.asanyarray(col_3d.convert_xunits(offsets[:, 0]), float)
+    ys = np.asanyarray(col_3d.convert_yunits(offsets[:, 1]), float)
+    zs = np.asanyarray(col_3d.convert_yunits(offsets[:, 2]), float)
+    col_3d._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
+    col_3d.stale = True
+
+
+def _get_offsets3d(col3d):
+    """
+    Return the offsets for the collection.
+
+    Note: Since 3D collections have no common 3D base class, this function
+    factors out the common code for `get_offsets3d` methods of different 3D
+    collections.
+
+    Usage pattern::
+
+        def get_offsets3d(self):
+            return _get_offsets3d(self)
+
+    """
+    return col3d._offsets3d
 
 
 def _zalpha(colors, zs):
