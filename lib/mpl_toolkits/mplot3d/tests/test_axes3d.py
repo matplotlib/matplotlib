@@ -2,6 +2,7 @@ import functools
 import itertools
 import platform
 
+import numpy as np
 import pytest
 
 from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
@@ -14,12 +15,12 @@ from matplotlib import colors as mcolors, patches as mpatch
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.testing.widgets import mock_event
 from matplotlib.collections import LineCollection, PolyCollection
+from matplotlib.cbook import hexbin
 from matplotlib.patches import Circle, PathPatch
 from matplotlib.path import Path
 from matplotlib.text import Text
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 
 mpl3d_image_comparison = functools.partial(
@@ -32,7 +33,42 @@ def plot_cuboid(ax, scale):
     pts = itertools.combinations(np.array(list(itertools.product(r, r, r))), 2)
     for start, end in pts:
         if np.sum(np.abs(start - end)) == r[1] - r[0]:
-            ax.plot3D(*zip(start*np.array(scale), end*np.array(scale)))
+            ax.plot3D(*zip(start * np.array(scale), end * np.array(scale)))
+
+
+def get_gaussian_bars(mu=(0, 0),
+                      sigma=([0.8, 0.3],
+                             [0.3, 0.5]),
+                      range=(-3, 3),
+                      res=8,
+                      seed=123):
+    np.random.seed(seed)
+    sl = slice(*range, complex(res))
+    xy = np.array(np.mgrid[sl, sl][::-1]).T - mu
+    p = np.linalg.inv(sigma)
+    exp = np.sum(np.moveaxis(xy.T, 0, 1) * (p @ np.moveaxis(xy, 0, -1)), 1)
+    z = np.exp(-exp / 2) / np.sqrt(np.linalg.det(sigma)) / np.pi / 2
+    return *xy.T, z, '0.8'
+
+
+def get_gaussian_hexs(mu=(0, 0),
+                      sigma=([0.8, 0.3],
+                             [0.3, 0.5]),
+                      n=10_000,
+                      res=8,
+                      seed=123):
+    np.random.seed(seed)
+    xy = np.random.multivariate_normal(mu, sigma, n)
+    xyz, (xmin, xmax), (ymin, ymax), (nx, ny) = hexbin(*xy.T, gridsize=res)
+    dxy = np.array([(xmax - xmin) / nx, (ymax - ymin) / ny / np.sqrt(3)]) * 0.95
+    return *xyz, dxy
+
+
+def get_bar3d_test_data():
+    return {
+        'rect': get_gaussian_bars(),
+        'hex': get_gaussian_hexs()
+    }
 
 
 @check_figures_equal(extensions=["png"])
@@ -218,6 +254,79 @@ def test_bar3d_lightsource():
     # precisely (within floating point rounding errors of 4 ULP) the colors
     # from the colormap, due to the illumination parallel to the z-axis.
     np.testing.assert_array_max_ulp(color, collection._facecolor3d[1::6], 4)
+
+
+@pytest.fixture(params=[get_bar3d_test_data])
+def bar3d_test_data(request):
+    return request.param()
+
+
+class TestBar3D:
+
+    shapes = ('rect', 'hex')
+
+    def _plot_bar3d(self, ax, x, y, z, dxy, shape, azim=None, elev=None, **kws):
+
+        api_function = ax.hexbar3d if shape == 'hex' else ax.bar3d_grid
+        bars = api_function(x, y, z, dxy, **kws)
+
+        if azim:
+            ax.azim = azim
+        if elev:
+            ax.elev = elev
+
+        return bars
+
+    @mpl3d_image_comparison(['bar3d_with_1d_data.png'])
+    def test_bar3d_with_1d_data(self):
+        fig, axes = plt.subplots(1, 2, subplot_kw={'projection': '3d'})
+        for ax, shape in zip(axes, self.shapes):
+            self._plot_bar3d(ax, 0, 0, 1, '0.8', shape, ec='0.5', lw=0.5)
+
+    @mpl3d_image_comparison(['bar3d_zsort.png', 'bar3d_zsort_hex.png'])
+    def test_bar3d_zsort(self):
+        for shape in self.shapes:
+            fig, axes = plt.subplots(2, 4, subplot_kw={'projection': '3d'})
+            elev = 45
+            azim0, astep = -22.5, 45
+            camera = itertools.product(np.r_[azim0:(180 + azim0):astep],
+                                       (elev, -elev))
+            # sourcery skip: no-loop-in-tests
+            for ax, (azim, elev) in zip(axes.T.ravel(), camera):
+                self._plot_bar3d(ax,
+                                 [0, 1], [0, 1], [1, 2],
+                                 '0.8',
+                                 shape,
+                                 azim=azim, elev=elev,
+                                 ec='0.5', lw=0.5)
+
+    @mpl3d_image_comparison(['bar3d_with_2d_data.png'])
+    def test_bar3d_with_2d_data(self, bar3d_test_data):
+        fig, axes = plt.subplots(1, 2, subplot_kw={'projection': '3d'})
+        for ax, shape in zip(axes, self.shapes):
+            x, y, z, dxy = bar3d_test_data[shape]
+            self._plot_bar3d(ax, x, y, z, dxy, shape, ec='0.5', lw=0.5)
+
+    def _gen_bar3d_subplots(self, bar3d_test_data):
+        config = dict(edgecolors='0.5', lw=0.5)
+        fig, axes = plt.subplots(2, 2, subplot_kw={'projection': '3d'})
+        for i, shape in enumerate(self.shapes):
+            x, y, z, dxy = bar3d_test_data[shape]
+            for j, shade in enumerate((0, 1)):
+                yield (axes[i, j], x, y, z, dxy, shape), {**config, 'shade': shade}
+
+    @mpl3d_image_comparison(['bar3d_facecolors.png'])
+    def test_bar3d_facecolors(self, bar3d_test_data):
+        for (ax, x, y, z, dxy, shape), kws in self._gen_bar3d_subplots(bar3d_test_data):
+            bars = self._plot_bar3d(
+                ax, x, y, z, dxy, shape, **kws,
+                facecolors=list(mcolors.CSS4_COLORS)[:x.size]
+            )
+
+    @mpl3d_image_comparison(['bar3d_cmap.png'])
+    def test_bar3d_cmap(self, bar3d_test_data):
+        for (ax, x, y, z, dxy, shape), kws in self._gen_bar3d_subplots(bar3d_test_data):
+            bars = self._plot_bar3d(ax, x, y, z, dxy, shape, cmap='viridis', **kws)
 
 
 @mpl3d_image_comparison(
