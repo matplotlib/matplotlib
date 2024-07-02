@@ -11,6 +11,8 @@ Matplotlib |release| documentation
 Matplotlib is a comprehensive library for creating static, animated,
 and interactive visualizations.
 
+For the original paper click here: https://ieeexplore.ieee.org/document/4160265
+
 Install
 =======
 
