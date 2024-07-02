@@ -1594,6 +1594,18 @@ def test_engformatter_usetex_useMathText():
         assert x_tick_label_text == ['$0$', '$500$', '$1$ k']
 
 
+def test_engformatter_useOffset():
+    fig, ax = plt.subplots()
+    offset = int(1e7)
+    ydata = range(offset, offset+5)
+    ax.plot(ydata)
+    ax.set_yticks(ydata)
+    ax.yaxis.set_major_formatter(mticker.EngFormatter(useOffset=True, unit="Hz"))
+    fig.canvas.draw()
+    y_tick_label_text = [labl.get_text() for labl in ax.get_yticklabels()]
+    assert y_tick_label_text == (np.array(ydata)-offset).astype(str).tolist()
+
+
 class TestPercentFormatter:
     percent_data = [
         # Check explicitly set decimals over different intervals and values
