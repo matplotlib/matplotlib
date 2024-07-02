@@ -50,3 +50,6 @@ ani = animation.FuncAnimation(
     fig, update_lines, num_steps, fargs=(walks, lines), interval=100)
 
 plt.show()
+
+# %%
+# .. tags:: animation, plot-type: 3D

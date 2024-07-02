@@ -46,3 +46,6 @@ ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True,
 # ani.save("movie.mp4", writer=writer)
 
 plt.show()
+
+# %%
+# .. tags:: animation
