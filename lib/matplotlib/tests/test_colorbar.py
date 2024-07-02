@@ -1139,6 +1139,7 @@ def test_colorbar_set_formatter_locator():
     fmt = LogFormatter()
     cb.minorformatter = fmt
     assert cb.ax.yaxis.get_minor_formatter() is fmt
+    assert cb.long_axis is cb.ax.yaxis
 
 
 @image_comparison(['colorbar_extend_alpha.png'], remove_text=True,
