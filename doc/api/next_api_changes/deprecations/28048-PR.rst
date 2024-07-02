@@ -1,0 +1,6 @@
+``PdfFile.hatchPatterns``
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... is deprecated and replaced by an internal helper called ``PdfFile._hatch_patterns`` instead.
+
+- The attribute ``PdfFile._hatch_patterns`` now stores hatch linewidths as well.
