@@ -89,6 +89,87 @@ def test_date2num_masked():
                                    True))
 
 
+def test_timedelta_numpy():
+    # TODO: merge with datetime test?
+    # test that numpy timedeltas work properly...
+    time = [datetime.timedelta(days=x) for x in range(0, 3)]
+    timenp = np.array(time, dtype='timedelta64[ns]')
+    data = np.array([0., 2., 1.])
+    fig = plt.figure(figsize=(10, 2))
+    ax = fig.add_subplot(1, 1, 1)
+    h, = ax.plot(time, data)
+    hnp, = ax.plot(timenp, data)
+    np.testing.assert_equal(h.get_xdata(orig=False), hnp.get_xdata(orig=False))
+    fig = plt.figure(figsize=(10, 2))
+    ax = fig.add_subplot(1, 1, 1)
+    h, = ax.plot(data, time)
+    hnp, = ax.plot(data, timenp)
+    np.testing.assert_equal(h.get_ydata(orig=False), hnp.get_ydata(orig=False))
+
+
+@pytest.mark.parametrize('num, td', [(100, datetime.timedelta(100)),
+                                     (100 + (1 / 86400),
+                                      datetime.timedelta(100, 1)),
+                                     (100 + (1 / 8640000000),
+                                      datetime.timedelta(100, 0, 10)),
+                                     (1 / 86400000000,
+                                      datetime.timedelta(0, 0, 1))])
+def test_timedelta2num(num, td):
+    # conversion to num
+    assert mdates.timedelta2num(td) == num
+
+
+@pytest.mark.parametrize('t0', [datetime.timedelta(100),
+
+                                [datetime.timedelta(10, 1),
+                                 datetime.timedelta(11, 1)],
+
+                                [[datetime.timedelta(10, 0),
+                                  datetime.timedelta(11, 0)],
+                                 [datetime.timedelta(12, 0),
+                                  datetime.timedelta(13, 0)]]
+
+                                ])
+@pytest.mark.parametrize('dtype', ['timedelta64[s]',
+                                   'timedelta64[ms]',
+                                   'timedelta64[us]',
+                                   'timedelta64[ns]'])
+def test_timedelta_timedelta2num_numpy(t0, dtype):
+    time = mdates.timedelta2num(t0)
+    tnp = np.array(t0, dtype=dtype)
+    nptime = mdates.timedelta2num(tnp)
+    np.testing.assert_equal(time, nptime)
+
+
+@pytest.mark.parametrize('dtype', ['timedelta64[s]',
+                                   'timedelta64[ms]',
+                                   'timedelta64[us]',
+                                   'timedelta64[ns]'])
+def test_timedelta2num_NaT(dtype):
+    t0 = datetime.timedelta(100, 1)
+    tmpl = [mdates.timedelta2num(t0), np.nan]
+    tnp = np.array([t0, 'NaT'], dtype=dtype)
+    nptime = mdates.timedelta2num(tnp)
+    np.testing.assert_array_equal(tmpl, nptime)
+
+
+@pytest.mark.parametrize('units', ['s', 'ms', 'us', 'ns'])
+def test_timedelta2num_NaT_scalar(units):
+    tmpl = mdates.timedelta2num(np.timedelta64('NaT', units))
+    assert np.isnan(tmpl)
+
+
+def test_timedelta2num_masked():
+    # Without tzinfo
+    base = datetime.timedelta(days=10)
+    tds = np.ma.array([base + datetime.timedelta(days=(2 * i))
+                       for i in range(7)], mask=[0, 1, 1, 0, 0, 0, 1])
+    nptds = mdates.timedelta2num(tds)
+    np.testing.assert_array_equal(np.ma.getmask(nptds),
+                                  (False, True, True, False, False, False,
+                                   True))
+
+
 def test_date_empty():
     # make sure we do the right thing when told to plot dates even
     # if no date data has been presented, cf
@@ -1182,6 +1263,8 @@ def test_tz_utc():
 
 @pytest.mark.parametrize("x, tdelta",
                          [(1, datetime.timedelta(days=1)),
+                          (100.00000001736,
+                           datetime.timedelta(days=100, microseconds=1500)),
                           ([1, 1.5], [datetime.timedelta(days=1),
                                       datetime.timedelta(days=1.5)])])
 def test_num2timedelta(x, tdelta):
@@ -1341,7 +1424,7 @@ def test_datestr2num():
 
 @pytest.mark.parametrize('kwarg',
                          ('formats', 'zero_formats', 'offset_formats'))
-def test_concise_formatter_exceptions(kwarg):
+def test_concise_date_formatter_exceptions(kwarg):
     locator = mdates.AutoDateLocator()
     kwargs = {kwarg: ['', '%Y']}
     match = f"{kwarg} argument must be a list"
@@ -1392,3 +1475,492 @@ def test_DateFormatter_settz():
     # Set tzinfo
     formatter.set_tzinfo('Pacific/Kiritimati')
     assert formatter(time) == '2011-Jan-01 14:00'
+
+
+def test_timedelta_locator():
+    locator = mdates.TimedeltaLocator()
+    # Test nonsingular
+    assert locator.nonsingular(0, np.inf) == (0, 1)
+    assert locator.nonsingular(0, 1) == (0, 1)
+    assert locator.nonsingular(1, 0) == (0, 1)
+    assert locator.nonsingular(0, 0) == (-2, 2)
+
+
+def test_auto_timedelta_locator_viewlim():
+    locator = mdates.AutoTimedeltaLocator()
+    locator.create_dummy_axis()
+
+    locator.axis.set_view_interval(vmin=-1, vmax=5)
+    assert locator.viewlim_to_dt() == (datetime.timedelta(days=-1),
+                                       datetime.timedelta(days=5))
+
+    # upper < lower limit
+    locator.axis.set_view_interval(vmin=1.5, vmax=-3.25)
+    assert locator.viewlim_to_dt() == (datetime.timedelta(days=-3, hours=-6),
+                                       datetime.timedelta(days=1, hours=12))
+
+
+@pytest.mark.parametrize(
+    "t_delta, expected",
+    (
+     [datetime.timedelta(days=141),
+      ['80 days, 0:00:00', '100 days, 0:00:00', '120 days, 0:00:00',
+       '140 days, 0:00:00', '160 days, 0:00:00', '180 days, 0:00:00',
+       '200 days, 0:00:00', '220 days, 0:00:00', '240 days, 0:00:00',
+       '260 days, 0:00:00']
+      ],
+     [datetime.timedelta(hours=40),
+      ['99 days, 18:00:00', '100 days, 0:00:00', '100 days, 6:00:00',
+       '100 days, 12:00:00', '100 days, 18:00:00', '101 days, 0:00:00',
+       '101 days, 6:00:00', '101 days, 12:00:00', '101 days, 18:00:00']
+      ],
+     [datetime.timedelta(minutes=20),
+      ['99 days, 23:55:00', '100 days, 0:00:00', '100 days, 0:05:00',
+       '100 days, 0:10:00', '100 days, 0:15:00', '100 days, 0:20:00',
+       '100 days, 0:25:00']
+      ],
+     [datetime.timedelta(seconds=40),
+      ['100 days, 0:00:00', '100 days, 0:00:05', '100 days, 0:00:10',
+       '100 days, 0:00:15', '100 days, 0:00:20', '100 days, 0:00:25',
+       '100 days, 0:00:30', '100 days, 0:00:35', '100 days, 0:00:40',
+       '100 days, 0:00:45']
+      ],
+     [datetime.timedelta(microseconds=1500),
+      ['100 days, 0:00:00',
+       '100 days, 0:00:00.000500', '100 days, 0:00:00.001000',
+       '100 days, 0:00:00.001500', '100 days, 0:00:00.002000']
+      ],)
+)
+def test_auto_timedelta_locator(t_delta, expected):
+    def _create_auto_timedelta_locator(delta1, delta2):
+        locator = mdates.AutoTimedeltaLocator()
+        locator.create_dummy_axis()
+        locator.axis.set_view_interval(mdates.timedelta2num(delta1),
+                                       mdates.timedelta2num(delta2))
+        return locator
+
+    dt1 = datetime.timedelta(days=100)
+
+    dt2 = dt1 + t_delta
+    locator = _create_auto_timedelta_locator(dt1, dt2)
+    assert list(map(str, mdates.num2timedelta(locator()))) == expected
+
+
+@pytest.mark.parametrize(
+    "t_delta, maxticks, expected",
+    (
+     [datetime.timedelta(days=141),
+      5,  # a maximum of 5 ticks total
+      ['50 days, 0:00:00', '100 days, 0:00:00', '150 days, 0:00:00',
+       '200 days, 0:00:00', '250 days, 0:00:00']
+      ],
+
+     [datetime.timedelta(days=141),
+      {mdates.DAILY: 5},  # modify daily explicitly, instead of all
+      ['50 days, 0:00:00', '100 days, 0:00:00', '150 days, 0:00:00',
+       '200 days, 0:00:00', '250 days, 0:00:00']
+      ],
+
+     [datetime.timedelta(days=141),
+      {mdates.HOURLY: 5},  # modify hourly, should not change daily ticks
+      ['80 days, 0:00:00', '100 days, 0:00:00', '120 days, 0:00:00',
+       '140 days, 0:00:00', '160 days, 0:00:00', '180 days, 0:00:00',
+       '200 days, 0:00:00', '220 days, 0:00:00', '240 days, 0:00:00',
+       '260 days, 0:00:00']
+      ],
+     )
+)
+def test_auto_timedelta_locator_custom_maxticks(t_delta, maxticks, expected):
+    def _create_auto_timedelta_locator(delta1, delta2):
+        locator = mdates.AutoTimedeltaLocator(maxticks=maxticks)
+        locator.create_dummy_axis()
+        locator.axis.set_view_interval(mdates.timedelta2num(delta1),
+                                       mdates.timedelta2num(delta2))
+        return locator
+
+    dt1 = datetime.timedelta(days=100)
+
+    dt2 = dt1 + t_delta
+    locator = _create_auto_timedelta_locator(dt1, dt2)
+    assert list(map(str, mdates.num2timedelta(locator()))) == expected
+
+
+@pytest.mark.parametrize(
+    "kwargs, dt1, expected",
+    [  # note that the output string format here differs from strftimedelta!
+        [{'freq': mdates.DAILY, 'interval': 25},
+         datetime.timedelta(days=137),
+         ['-25 days, 0:00:00', '0:00:00', '25 days, 0:00:00',
+          '50 days, 0:00:00', '75 days, 0:00:00', '100 days, 0:00:00',
+          '125 days, 0:00:00', '150 days, 0:00:00']],
+
+        [{'freq': mdates.HOURLY, 'interval': 12},
+         datetime.timedelta(days=3),
+         ['-1 day, 12:00:00', '0:00:00', '12:00:00', '1 day, 0:00:00',
+          '1 day, 12:00:00', '2 days, 0:00:00', '2 days, 12:00:00',
+          '3 days, 0:00:00', '3 days, 12:00:00']],
+
+        [{'freq': mdates.MINUTELY, 'interval': 20},
+         datetime.timedelta(hours=2),
+         ['-1 day, 23:40:00', '0:00:00', '0:20:00', '0:40:00',
+          '1:00:00', '1:20:00', '1:40:00', '2:00:00', '2:20:00']],
+
+        [{'freq': mdates.SECONDLY, 'interval': 15},
+         datetime.timedelta(minutes=1),
+         ['-1 day, 23:59:45', '0:00:00', '0:00:15', '0:00:30',
+          '0:00:45', '0:01:00', '0:01:15']],
+
+        [{'freq': mdates.MICROSECONDLY, 'interval': 300000},
+         datetime.timedelta(seconds=2),
+         ['-1 day, 23:59:59.700000', '0:00:00', '0:00:00.300000',
+          '0:00:00.600000', '0:00:00.900000', '0:00:01.200000',
+          '0:00:01.500000', '0:00:01.800000', '0:00:02.100000']],
+
+        [{'freq': mdates.HOURLY, 'interval': 12},
+         datetime.timedelta(days=-3),  # upper bound < lower bound
+         # -4 days, 12:00:00 is -3.5 days! Hours are positive!
+         ['-4 days, 12:00:00', '-3 days, 0:00:00', '-3 days, 12:00:00',
+          '-2 days, 0:00:00', '-2 days, 12:00:00', '-1 day, 0:00:00',
+          '-1 day, 12:00:00', '0:00:00', '12:00:00']],
+    ]
+)
+def test_timedelta_locators_fixed(kwargs, dt1, expected):
+    dt0 = datetime.timedelta(days=0)
+    locator = mdates.TimedeltaLocator(**kwargs)
+    locator.create_dummy_axis()
+    locator.axis.set_view_interval(*mdates.timedelta2num([dt0, dt1]))
+    assert list(map(str, mdates.num2timedelta(locator()))) == expected
+
+
+@pytest.mark.parametrize(
+    "td, fmt, expected",
+    [
+        (datetime.timedelta(days=1), "%d days, %H:%M", "1 days, 00:00"),
+        (datetime.timedelta(days=2.25), "%d days, %H:%M", "2 days, 06:00"),
+        (datetime.timedelta(seconds=362), "%H:%M:%S.%f", "00:06:02.000000"),
+        (datetime.timedelta(microseconds=1250), "%S.%f", "00.001250"),
+        (datetime.timedelta(days=-0.25), "%H:%M", "-06:00"),
+        (datetime.timedelta(days=-1.5), "%d days, %H:%M", "-1 days, 12:00"),
+        (datetime.timedelta(days=2), "%>H hours", "48 hours"),
+        (datetime.timedelta(days=0.25), "%>M min", "360 min"),
+        (datetime.timedelta(hours=2), "%H hours", "02 hours"),
+        (datetime.timedelta(hours=2), "%-H hours", "2 hours"),
+        (datetime.timedelta(seconds=362.13), "%>S.%f", "362.130000")
+    ]
+)
+def test_strftimedelta(td, fmt, expected):
+    assert mdates.strftimedelta(td, fmt) == expected
+
+
+def test_strftimedelta_invalid_formatter():
+    with pytest.raises(ValueError, match=r'Invalid format string'):
+        # %A is invalid (would be full name of weekday for dates)
+        mdates.strftimedelta(datetime.timedelta(days=3), "%A %H:%M")
+
+
+@pytest.mark.parametrize(
+    "t_delta, fmt, expected",
+    [
+        [datetime.timedelta(days=141), "%d days",
+         ['100 days', '120 days', '140 days', '160 days', '180 days',
+          '200 days', '220 days', '240 days', '260 days']],
+        [datetime.timedelta(hours=40), "%d days %H:%M",
+         ['100 days 00:00', '100 days 06:00', '100 days 12:00',
+          '100 days 18:00', '101 days 00:00', '101 days 06:00',
+          '101 days 12:00', '101 days 18:00', '102 days 00:00']],
+
+        [datetime.timedelta(minutes=30), "%M:%S.0",
+         ['40:00.0', '45:00.0', '50:00.0', '55:00.0', '00:00.0',
+          '05:00.0', '10:00.0', '15:00.0', '20:00.0']],
+
+        [datetime.timedelta(seconds=30), "%S.%f",
+         ['00.000000', '05.000000', '10.000000', '15.000000', '20.000000',
+          '25.000000', '30.000000', '35.000000']],
+
+        [datetime.timedelta(microseconds=600), "%S.%f",
+         ['59.999600', '59.999800', '00.000000', '00.000200',
+          '00.000400', '00.000600', '00.000800', '00.001000']]
+     ]
+)
+def test_timdelta_formatter(t_delta, fmt, expected):
+    def _create_timedelta_locator(td1, td2, fmt):
+        fig, ax = plt.subplots()
+
+        locator = mdates.AutoTimedeltaLocator()
+        formatter = mdates.TimedeltaFormatter(fmt)
+        ax.yaxis.set_major_locator(locator)
+        ax.yaxis.set_major_formatter(formatter)
+        ax.set_ylim(td1, td2)
+        fig.canvas.draw()
+        sts = [st.get_text() for st in ax.get_yticklabels()]
+        return sts
+
+    td1 = datetime.timedelta(days=100, hours=3, minutes=45)
+    td2 = td1 + t_delta
+    strings = _create_timedelta_locator(
+        td1, td2, fmt
+    )
+    assert strings == expected
+
+
+def test_auto_timedelta_formatter_callable():
+    locator = mdates.TimedeltaLocator(freq=mdates.DAILY, interval=1)
+    formatter = mdates.AutoTimedeltaFormatter(locator)
+
+    def format_func(tds, _):
+        return [mdates.strftimedelta(td, "DAY %d") for td in tds]
+
+    formatter.scaled[1] = format_func
+    assert formatter([datetime.timedelta(days=2)]) == ['DAY 2']
+
+
+@pytest.mark.parametrize('delta, expected', [
+    (datetime.timedelta(days=200),
+     [r'$\mathdefault{%d\;}$days' % day for day in range(20, 261, 20)]),
+    (datetime.timedelta(days=1),
+     [r'$\mathdefault{%d\;}$days$\mathdefault{,\;%02d{:}00}$'
+      % (day, hour) for day, hour in [
+         (39, 18), (40, 0), (40, 6), (40, 12), (40, 18), (41, 0), (41, 6)]
+      ]),
+    (datetime.timedelta(hours=2),
+     [r'$\mathdefault{%d\;}$days$\mathdefault{,\;%02d{:}%02d}$'
+      % (day, hour, minu) for day, hour, minu in [
+         (39, 23, 45), (40, 0, 0), (40, 0, 15), (40, 0, 30), (40, 0, 45),
+         (40, 1, 0), (40, 1, 15), (40, 1, 30), (40, 1, 45), (40, 2, 0),
+         (40, 2, 15)]
+      ])
+])
+def test_timedelta_formatter_usetex(delta, expected):
+    style.use("default")
+
+    d1 = datetime.timedelta(days=40)
+    d2 = d1 + delta
+
+    locator = mdates.AutoTimedeltaLocator()
+    locator.create_dummy_axis()
+    locator.axis.set_view_interval(mdates.timedelta2num(d1),
+                                   mdates.timedelta2num(d2))
+
+    formatter = mdates.AutoTimedeltaFormatter(locator, usetex=True)
+    print([formatter(loc) for loc in locator()])
+    print([s for s in expected])
+    assert [formatter(loc) for loc in locator()] == [s for s in expected]
+
+
+@pytest.mark.parametrize('t1, t_delta, expected', [
+    [datetime.timedelta(days=100, hours=3, minutes=45),
+     datetime.timedelta(days=141),  # label on days, zero format not used
+     ['100 d', '120 d', '140 d', '160 d', '180 d',
+      '200 d', '220 d', '240 d', '260 d']
+     ],
+    [datetime.timedelta(days=0, hours=0, minutes=0),
+     datetime.timedelta(days=9),  # label on days, same for zero format
+     ['-1 d', '0 d', '1 d', '2 d', '3 d', '4 d',
+      '5 d', '6 d', '7 d', '8 d', '9 d', '10 d']
+     ],
+    [datetime.timedelta(days=100, hours=3, minutes=45),
+     datetime.timedelta(hours=40),  # label on hh:mm, zero format on days
+     ['100 d', '6:00', '12:00', '18:00', '101 d', '6:00', '12:00',
+      '18:00', '102 d']
+     ],
+    [datetime.timedelta(days=100, hours=3, minutes=45),
+     datetime.timedelta(minutes=30),  # label on hh:mm, zero format not used
+     ['3:40', '3:45', '3:50', '3:55', '4:00', '4:05', '4:10',
+      '4:15', '4:20']
+     ],
+    [datetime.timedelta(days=100, hours=3, minutes=45),
+     datetime.timedelta(seconds=30),  # label on seconds, zero format hh:mm
+     ['3:45', '5', '10', '15', '20', '25', '30', '35']
+     ],
+    [datetime.timedelta(days=100, hours=3, minutes=45),
+     datetime.timedelta(seconds=2),  # label on seconds.f, zero format hh:mm
+     ['3:45', '0.5', '1.0', '1.5', '2.0', '2.5']
+     ],
+])
+def test_concise_timedelta_formatter(t1, t_delta, expected):
+    t2 = t1 + t_delta
+
+    fig, ax = plt.subplots()
+
+    locator = mdates.AutoTimedeltaLocator()
+    formatter = mdates.ConciseTimedeltaFormatter(locator)
+    ax.yaxis.set_major_locator(locator)
+    ax.yaxis.set_major_formatter(formatter)
+    ax.set_ylim(t1, t2)
+    fig.canvas.draw()
+    strings = [st.get_text() for st in ax.get_yticklabels()]
+
+    assert strings == expected
+
+
+@pytest.mark.parametrize('t1, t_delta, expected', [
+    [datetime.timedelta(days=100, hours=3, minutes=45),
+     datetime.timedelta(days=141),  # label on days, zero format not used
+     ['100 D', '120 D', '140 D', '160 D', '180 D',
+      '200 D', '220 D', '240 D', '260 D']
+     ],
+    [datetime.timedelta(days=0, hours=0, minutes=0),
+     datetime.timedelta(days=9),  # label on days, same for zero format
+     ['-1 D', '0 D', '1 D', '2 D', '3 D', '4 D',
+      '5 D', '6 D', '7 D', '8 D', '9 D', '10 D']
+     ],
+    [datetime.timedelta(days=100, hours=3, minutes=45),
+     datetime.timedelta(hours=40),  # label on hh:mm, zero format on days
+     ['100 D', '6 h 0 min', '12 h 0 min', '18 h 0 min', '101 D',
+      '6 h 0 min', '12 h 0 min', '18 h 0 min', '102 D']
+     ],
+    [datetime.timedelta(days=100, hours=3, minutes=45),
+     datetime.timedelta(minutes=30),  # label on hh:mm, zero format not used
+     ['3 h 40 min', '3 h 45 min', '3 h 50 min', '3 h 55 min', '4 h 0 min',
+      '4 h 5 min', '4 h 10 min', '4 h 15 min', '4 h 20 min']
+     ],
+    [datetime.timedelta(days=100, hours=3, minutes=45),
+     datetime.timedelta(seconds=30),  # label on seconds, zero format hh:mm
+     ['3 h 45 min', '5 s 000000 us', '10 s 000000 us', '15 s 000000 us',
+      '20 s 000000 us', '25 s 000000 us', '30 s 000000 us', '35 s 000000 us']
+     ],
+    [datetime.timedelta(days=100, hours=3, minutes=45),
+     datetime.timedelta(seconds=2),  # label on seconds.f, zero format hh:mm
+     ['3 h 45 min', '0 s 500000 us', '1 s 000000 us', '1 s 500000 us',
+      '2 s 000000 us', '2 s 500000 us']
+     ],
+])
+def test_concise_timedelta_formatter_custom_formats(t1, t_delta, expected):
+    t2 = t1 + t_delta
+
+    formats = ['%d D', '%-H h %-M min', '%-H h %-M min', '%-S s %f us']
+    zero_formats = ['%d D', '%d D', '%-H h %-M min', '%-H h %-M min']
+
+    fig, ax = plt.subplots()
+
+    locator = mdates.AutoTimedeltaLocator()
+    formatter = mdates.ConciseTimedeltaFormatter(locator, formats=formats,
+                                                 zero_formats=zero_formats)
+    ax.yaxis.set_major_locator(locator)
+    ax.yaxis.set_major_formatter(formatter)
+    ax.set_ylim(t1, t2)
+    fig.canvas.draw()
+    strings = [st.get_text() for st in ax.get_yticklabels()]
+
+    assert strings == expected
+
+
+@pytest.mark.parametrize('kwarg',
+                         ('formats', 'zero_formats', 'offset_formats'))
+def test_concise_timedelta_formatter_exceptions(kwarg):
+    locator = mdates.AutoDateLocator()
+    kwargs = {kwarg: ['', '%H']}
+    match = f"{kwarg} argument must be a list"
+    with pytest.raises(ValueError, match=match):
+        mdates.ConciseTimedeltaFormatter(locator, **kwargs)
+
+
+@pytest.mark.parametrize('t_delta, expected', [
+    [datetime.timedelta(days=141), ""],
+    [datetime.timedelta(hours=40),  ""],
+    [datetime.timedelta(minutes=30), "100 days"],
+    [datetime.timedelta(seconds=30), "100 days 3:45"],
+    [datetime.timedelta(seconds=2),  "100 days 3:45"],
+])
+def test_concise_timedelta_formatter_show_offset(t_delta, expected):
+    t1 = datetime.timedelta(days=100, hours=3, minutes=45)
+    t2 = t1 + t_delta
+
+    fig, ax = plt.subplots()
+
+    locator = mdates.AutoTimedeltaLocator()
+    formatter = mdates.ConciseTimedeltaFormatter(locator)
+    ax.yaxis.set_major_locator(locator)
+    ax.yaxis.set_major_formatter(formatter)
+    ax.set_ylim(t1, t2)
+    fig.canvas.draw()
+
+    assert formatter.get_offset() == expected
+
+
+@pytest.mark.parametrize('t_delta, expected', [
+    [datetime.timedelta(days=141), ""],
+    [datetime.timedelta(hours=40),  ""],
+    [datetime.timedelta(minutes=30), "100 d"],
+    [datetime.timedelta(seconds=30), "100 d 3 h 45 min"],
+    [datetime.timedelta(seconds=2),  "100 d 3 h 45 min"],
+])
+def test_concise_timedelta_formatter_show_custom_offset(t_delta, expected):
+    t1 = datetime.timedelta(days=100, hours=3, minutes=45)
+    t2 = t1 + t_delta
+
+    offset_formats = ['',
+                      '',
+                      '%d d',
+                      '%d d %-H h %M min']
+
+    fig, ax = plt.subplots()
+
+    locator = mdates.AutoTimedeltaLocator()
+    formatter = mdates.ConciseTimedeltaFormatter(locator,
+                                                 offset_formats=offset_formats)
+    ax.yaxis.set_major_locator(locator)
+    ax.yaxis.set_major_formatter(formatter)
+    ax.set_ylim(t1, t2)
+    fig.canvas.draw()
+
+    assert formatter.get_offset() == expected
+
+
+def test_concise_timedelta_formatter_call():
+    locator = mdates.AutoDateLocator()
+    formatter = mdates.ConciseTimedeltaFormatter(locator)
+    assert formatter(1.7) == '1 d'
+    assert formatter.format_data_short(1.7) == '1 d 16:48:00'
+
+
+def test_change_timedelta_converter():
+    plt.rcParams['date.converter'] = 'concise'
+    dates = np.arange('1', '10', dtype='timedelta64[D]')
+    fig, ax = plt.subplots()
+
+    ax.plot(dates, np.arange(len(dates)))
+    fig.canvas.draw()
+    assert ax.get_xticklabels()[0].get_text() == '0 d'
+    assert ax.get_xticklabels()[1].get_text() == '1 d'
+
+    plt.rcParams['date.converter'] = 'auto'
+    fig, ax = plt.subplots()
+
+    ax.plot(dates, np.arange(len(dates)))
+    fig.canvas.draw()
+    assert ax.get_xticklabels()[0].get_text() == '0 days'
+    assert ax.get_xticklabels()[1].get_text() == '1 days'
+
+
+def test_concise_timedelta_convert_w_formatter_args():
+    td0 = datetime.timedelta(days=0)
+    td1 = datetime.timedelta(days=1)
+
+    # verify default first
+    conv = mdates.ConciseTimedeltaConverter()
+    axinfo = conv.axisinfo(None, None)
+    fmt = axinfo.majfmt
+    locator = axinfo.majloc
+    locator.create_dummy_axis()
+    # set a reasonable range and call locator to select correct tick frequency
+    locator.axis.set_view_interval(mdates.timedelta2num(td0),
+                                   mdates.timedelta2num(td1))
+    assert fmt.format_ticks(locator()) == ['-6:00', '0 d', '6:00', '12:00',
+                                           '18:00', '1 d', '6:00']
+    assert fmt.get_offset() == ''
+
+    # change 'show_offset_zero' to False and modify tick format strings
+    fmt_strings = ["%d days", "%H:%M:%S", "%H:%M:%S", "%S.f"]
+    conv = mdates.ConciseTimedeltaConverter(formats=fmt_strings)
+    axinfo = conv.axisinfo(None, None)
+    fmt = axinfo.majfmt
+    locator = axinfo.majloc
+    locator.create_dummy_axis()
+    # set a reasonable range and call locator to select correct tick frequency
+    locator.axis.set_view_interval(mdates.timedelta2num(td0),
+                                   mdates.timedelta2num(td1))
+    assert fmt.format_ticks(locator()) == ['-06:00:00', '0 days', '06:00:00',
+                                           '12:00:00', '18:00:00', '1 days',
+                                           '06:00:00']
+    assert fmt.get_offset() == ''
