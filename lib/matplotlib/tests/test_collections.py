@@ -965,11 +965,6 @@ def test_polyquadmesh_masked_vertices_array():
     # Poly version should have the same facecolors as the end of the quadmesh
     assert_array_equal(quadmesh_fc, polymesh.get_facecolor())
 
-    # Setting array with 1D compressed values is deprecated
-    with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match="Setting a PolyQuadMesh"):
-        polymesh.set_array(np.ones(5))
-
     # We should also be able to call set_array with a new mask and get
     # updated polys
     # Remove mask, should add all polys back
