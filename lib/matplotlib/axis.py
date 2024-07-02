@@ -234,7 +234,6 @@ class Tick(martist.Artist):
                     self.gridline, self.label1, self.label2]
         return children
 
-    @_api.rename_parameter("3.8", "clippath", "path")
     def set_clip_path(self, path, transform=None):
         # docstring inherited
         super().set_clip_path(path, transform)
@@ -280,32 +279,6 @@ class Tick(martist.Artist):
             artist.draw(renderer)
         renderer.close_group(self.__name__)
         self.stale = False
-
-    @_api.deprecated("3.8")
-    def set_label1(self, s):
-        """
-        Set the label1 text.
-
-        Parameters
-        ----------
-        s : str
-        """
-        self.label1.set_text(s)
-        self.stale = True
-
-    set_label = set_label1
-
-    @_api.deprecated("3.8")
-    def set_label2(self, s):
-        """
-        Set the label2 text.
-
-        Parameters
-        ----------
-        s : str
-        """
-        self.label2.set_text(s)
-        self.stale = True
 
     def set_url(self, url):
         """
@@ -832,6 +805,10 @@ class Axis(martist.Artist):
                 **{f"scale{k}": k == name for k in self.axes._axis_names})
 
     def limit_range_for_scale(self, vmin, vmax):
+        """
+        Return the range *vmin*, *vmax*, restricted to the domain supported by the
+        current scale.
+        """
         return self._scale.limit_range_for_scale(vmin, vmax, self.get_minpos())
 
     def _get_autoscale_on(self):
@@ -840,8 +817,9 @@ class Axis(martist.Artist):
 
     def _set_autoscale_on(self, b):
         """
-        Set whether this Axis is autoscaled when drawing or by
-        `.Axes.autoscale_view`. If b is None, then the value is not changed.
+        Set whether this Axis is autoscaled when drawing or by `.Axes.autoscale_view`.
+
+        If b is None, then the value is not changed.
 
         Parameters
         ----------
@@ -1130,7 +1108,6 @@ class Axis(martist.Artist):
         kwtrans.update(kw_)
         return kwtrans
 
-    @_api.rename_parameter("3.8", "clippath", "path")
     def set_clip_path(self, path, transform=None):
         super().set_clip_path(path, transform)
         for child in self.majorTicks + self.minorTicks:

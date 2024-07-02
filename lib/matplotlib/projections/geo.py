@@ -249,7 +249,6 @@ class AitoffAxes(GeoAxes):
     class AitoffTransform(_GeoTransform):
         """The base Aitoff transform."""
 
-        @_api.rename_parameter("3.8", "ll", "values")
         def transform_non_affine(self, values):
             # docstring inherited
             longitude, latitude = values.T
@@ -271,7 +270,6 @@ class AitoffAxes(GeoAxes):
 
     class InvertedAitoffTransform(_GeoTransform):
 
-        @_api.rename_parameter("3.8", "xy", "values")
         def transform_non_affine(self, values):
             # docstring inherited
             # MGDTODO: Math is hard ;(
@@ -297,7 +295,6 @@ class HammerAxes(GeoAxes):
     class HammerTransform(_GeoTransform):
         """The base Hammer transform."""
 
-        @_api.rename_parameter("3.8", "ll", "values")
         def transform_non_affine(self, values):
             # docstring inherited
             longitude, latitude = values.T
@@ -315,7 +312,6 @@ class HammerAxes(GeoAxes):
 
     class InvertedHammerTransform(_GeoTransform):
 
-        @_api.rename_parameter("3.8", "xy", "values")
         def transform_non_affine(self, values):
             # docstring inherited
             x, y = values.T
@@ -344,7 +340,6 @@ class MollweideAxes(GeoAxes):
     class MollweideTransform(_GeoTransform):
         """The base Mollweide transform."""
 
-        @_api.rename_parameter("3.8", "ll", "values")
         def transform_non_affine(self, values):
             # docstring inherited
             def d(theta):
@@ -385,7 +380,6 @@ class MollweideAxes(GeoAxes):
 
     class InvertedMollweideTransform(_GeoTransform):
 
-        @_api.rename_parameter("3.8", "xy", "values")
         def transform_non_affine(self, values):
             # docstring inherited
             x, y = values.T
@@ -426,7 +420,6 @@ class LambertAxes(GeoAxes):
             self._center_longitude = center_longitude
             self._center_latitude = center_latitude
 
-        @_api.rename_parameter("3.8", "ll", "values")
         def transform_non_affine(self, values):
             # docstring inherited
             longitude, latitude = values.T
@@ -460,7 +453,6 @@ class LambertAxes(GeoAxes):
             self._center_longitude = center_longitude
             self._center_latitude = center_latitude
 
-        @_api.rename_parameter("3.8", "xy", "values")
         def transform_non_affine(self, values):
             # docstring inherited
             x, y = values.T
