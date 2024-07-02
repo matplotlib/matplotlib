@@ -5,8 +5,8 @@ import os
 import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook
 from matplotlib.backend_bases import (
-    ToolContainerBase, KeyEvent, LocationEvent, MouseEvent, ResizeEvent,
-    CloseEvent)
+    ToolContainerBase, MouseButton,
+    KeyEvent, LocationEvent, MouseEvent, ResizeEvent, CloseEvent)
 
 try:
     import gi
@@ -151,6 +151,7 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
     def motion_notify_event(self, controller, x, y):
         MouseEvent(
             "motion_notify_event", self, *self._mpl_coords((x, y)),
+            buttons=self._mpl_buttons(controller),
             modifiers=self._mpl_modifiers(controller),
         )._process()
 
@@ -174,6 +175,26 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         self.figure.set_size_inches(winch, hinch, forward=False)
         ResizeEvent("resize_event", self)._process()
         self.draw_idle()
+
+    def _mpl_buttons(self, controller):
+        # NOTE: This spews "Broken accounting of active state" warnings on
+        # right click on macOS.
+        surface = self.get_native().get_surface()
+        is_over, x, y, event_state = surface.get_device_position(
+            self.get_display().get_default_seat().get_pointer())
+        # NOTE: alternatively we could use
+        #   event_state = controller.get_current_event_state()
+        # but for button_press/button_release this would report the state
+        # *prior* to the event rather than after it; the above reports the
+        # state *after* it.
+        mod_table = [
+            (MouseButton.LEFT, Gdk.ModifierType.BUTTON1_MASK),
+            (MouseButton.MIDDLE, Gdk.ModifierType.BUTTON2_MASK),
+            (MouseButton.RIGHT, Gdk.ModifierType.BUTTON3_MASK),
+            (MouseButton.BACK, Gdk.ModifierType.BUTTON4_MASK),
+            (MouseButton.FORWARD, Gdk.ModifierType.BUTTON5_MASK),
+        ]
+        return {name for name, mask in mod_table if event_state & mask}
 
     def _mpl_modifiers(self, controller=None):
         if controller is None:
