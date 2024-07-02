@@ -15,6 +15,7 @@ the Quiver code.
 """
 
 import math
+from numbers import Number
 
 import numpy as np
 from numpy import ma
@@ -325,7 +326,7 @@ class QuiverKey(martist.Artist):
             self._set_transform()
             with cbook._setattr_cm(self.Q, pivot=self.pivot[self.labelpos],
                                    # Hack: save and restore the Umask
-                                   Umask=ma.nomask):
+                                   _Umask=ma.nomask):
                 u = self.U * np.cos(np.radians(self.angle))
                 v = self.U * np.sin(np.radians(self.angle))
                 self.verts = self.Q._make_verts([[0., 0.]],
@@ -418,21 +419,30 @@ def _parse_args(*args, caller_name='function'):
     else:
         raise _api.nargs_error(caller_name, takes="from 2 to 5", given=nargs)
 
-    nr, nc = (1, U.shape[0]) if U.ndim == 1 else U.shape
+    nr, nc = _extract_nr_nc(U)
 
-    if X is not None:
-        X = X.ravel()
-        Y = Y.ravel()
-        if len(X) == nc and len(Y) == nr:
-            X, Y = [a.ravel() for a in np.meshgrid(X, Y)]
-        elif len(X) != len(Y):
-            raise ValueError('X and Y must be the same size, but '
-                             f'X.size is {X.size} and Y.size is {Y.size}.')
-    else:
+    if X is None:
         indexgrid = np.meshgrid(np.arange(nc), np.arange(nr))
         X, Y = [np.ravel(a) for a in indexgrid]
-    # Size validation for U, V, C is left to the set_UVC method.
-    return X, Y, U, V, C
+    # Size validation for U, V, C is left to the set_XYUVC method.
+    return X, Y, U, V, C, nr, nc
+
+
+def _process_XY(X, Y, nc, nr):
+    X = X.ravel()
+    Y = Y.ravel()
+    if len(X) == nc and len(Y) == nr:
+        X, Y = [a.ravel() for a in np.meshgrid(X, Y)]
+    elif len(X) != len(Y):
+        raise ValueError(
+            'X and Y must be the same size, but '
+            f'X.size is {X.size} and Y.size is {Y.size}.'
+        )
+    return X, Y
+
+
+def _extract_nr_nc(U):
+    return (1, U.shape[0]) if U.ndim == 1 else U.shape
 
 
 def _check_consistent_shapes(*arrays):
@@ -445,11 +455,10 @@ class Quiver(mcollections.PolyCollection):
     """
     Specialized PolyCollection for arrows.
 
-    The only API method is set_UVC(), which can be used
-    to change the size, orientation, and color of the
-    arrows; their locations are fixed when the class is
-    instantiated.  Possibly this method will be useful
-    in animations.
+    The API methods are set_XYUVC(), set_X(), set_Y(), set_U() and set_V(),
+    which can be used to change the size, orientation, and color of the
+    arrows; their locations are fixed when the class is instantiated.
+    Possibly these methods will be useful in animations.
 
     Much of the work in this class is done in the draw()
     method so that as much information as possible is available
@@ -460,6 +469,7 @@ class Quiver(mcollections.PolyCollection):
     """
 
     _PIVOT_VALS = ('tail', 'middle', 'tip')
+    Umask = _api.deprecate_privatize_attribute("3.9")
 
     @_docstring.Substitution(_quiver_doc)
     def __init__(self, ax, *args,
@@ -473,11 +483,7 @@ class Quiver(mcollections.PolyCollection):
         %s
         """
         self._axes = ax  # The attr actually set by the Artist.axes property.
-        X, Y, U, V, C = _parse_args(*args, caller_name='quiver')
-        self.X = X
-        self.Y = Y
-        self.XY = np.column_stack((X, Y))
-        self.N = len(X)
+
         self.scale = scale
         self.headwidth = headwidth
         self.headlength = float(headlength)
@@ -497,10 +503,16 @@ class Quiver(mcollections.PolyCollection):
         self.transform = kwargs.pop('transform', ax.transData)
         kwargs.setdefault('facecolors', color)
         kwargs.setdefault('linewidths', (0,))
-        super().__init__([], offsets=self.XY, offset_transform=self.transform,
-                         closed=False, **kwargs)
+        super().__init__(
+            [], offset_transform=self.transform, closed=False, **kwargs
+            )
         self.polykw = kwargs
-        self.set_UVC(U, V, C)
+
+        self._U = self._V = self._C = None
+        X, Y, U, V, C, self._nr, self._nc = _parse_args(
+            *args, caller_name='quiver()'
+        )
+        self.set_XYUVC(X=X, Y=Y, U=U, V=V, C=C, check_shape=True)
         self._dpi_at_last_init = None
 
     def _init(self):
@@ -514,21 +526,79 @@ class Quiver(mcollections.PolyCollection):
             trans = self._set_transform()
             self.span = trans.inverted().transform_bbox(self.axes.bbox).width
             if self.width is None:
-                sn = np.clip(math.sqrt(self.N), 8, 25)
+                sn = np.clip(math.sqrt(len(self.get_offsets())), 8, 25)
                 self.width = 0.06 * self.span / sn
 
             # _make_verts sets self.scale if not already specified
             if (self._dpi_at_last_init != self.axes.figure.dpi
                     and self.scale is None):
-                self._make_verts(self.XY, self.U, self.V, self.angles)
+                self._make_verts(self.get_offsets(), self._U, self._V, self.angles)
 
             self._dpi_at_last_init = self.axes.figure.dpi
+
+    @property
+    def N(self):
+        _api.warn_deprecated("3.9", alternative="get_X().size")
+        return len(self.get_X())
+
+    @property
+    def X(self):
+        _api.warn_deprecated("3.9", alternative="get_X")
+        return self.get_X()
+
+    @X.setter
+    def X(self, value):
+        _api.warn_deprecated("3.9", alternative="set_X")
+        return self.set_X(value)
+
+    @property
+    def Y(self):
+        _api.warn_deprecated("3.9", alternative="get_Y")
+        return self.get_Y()
+
+    @Y.setter
+    def Y(self, value):
+        _api.warn_deprecated("3.9", alternative="set_Y")
+        return self.set_Y(value)
+
+    @property
+    def U(self):
+        _api.warn_deprecated("3.9", alternative="get_U")
+        return self.get_U()
+
+    @U.setter
+    def U(self, value):
+        _api.warn_deprecated("3.9", alternative="set_U")
+        return self.set_U(value)
+
+    @property
+    def V(self):
+        _api.warn_deprecated("3.9", alternative="get_V")
+        return self.get_V()
+
+    @V.setter
+    def V(self, value):
+        _api.warn_deprecated("3.9", alternative="set_V")
+        return self.set_V(value)
+
+    @property
+    def XY(self):
+        _api.warn_deprecated("3.9", alternative="get_offsets")
+        return self.get_offsets()
+
+    @XY.setter
+    def XY(self, value):
+        _api.warn_deprecated("3.9", alternative="set_offsets")
+        self.set_offsets(offsets=value)
+
+    def set_offsets(self, offsets):
+        self.set_XYUVC(X=offsets[:, 0], Y=offsets[:, 1])
 
     def get_datalim(self, transData):
         trans = self.get_transform()
         offset_trf = self.get_offset_transform()
         full_transform = (trans - transData) + (offset_trf - transData)
-        XY = full_transform.transform(self.XY)
+        XY = full_transform.transform(self.get_offsets())
         bbox = transforms.Bbox.null()
         bbox.update_from_data_xy(XY, ignore=True)
         return bbox
@@ -536,24 +606,138 @@ class Quiver(mcollections.PolyCollection):
     @martist.allow_rasterization
     def draw(self, renderer):
         self._init()
-        verts = self._make_verts(self.XY, self.U, self.V, self.angles)
+        verts = self._make_verts(self.get_offsets(), self._U, self._V, self.angles)
         self.set_verts(verts, closed=False)
         super().draw(renderer)
         self.stale = False
 
-    def set_UVC(self, U, V, C=None):
+    def set_X(self, X):
+        """
+        Set positions in the horizontal direction.
+
+        Parameters
+        ----------
+        X : array-like
+            The size must the same as the existing Y.
+        """
+        self.set_XYUVC(X=X)
+
+    def get_X(self):
+        """Returns the positions in the horizontal direction."""
+        return self.get_offsets()[..., 0]
+
+    def set_Y(self, Y):
+        """
+        Set positions in the vertical direction.
+
+        Parameters
+        ----------
+        Y : array-like
+            The size must the same as the existing X.
+        """
+        self.set_XYUVC(Y=Y)
+
+    def get_Y(self):
+        """Returns the positions in the vertical direction."""
+        return self.get_offsets()[..., 1]
+
+    def set_U(self, U):
+        """
+        Set horizontal direction components.
+
+        Parameters
+        ----------
+        U : array-like
+            The size must the same as the existing X, Y, V or be one.
+        """
+        self.set_XYUVC(U=U)
+
+    def get_U(self):
+        """Returns the horizontal direction components."""
+        return self._U
+
+    def set_V(self, V):
+        """
+        Set vertical direction components.
+
+        Parameters
+        ----------
+        V : array-like
+            The size must the same as the existing X, Y, U or be one.
+        """
+        self.set_XYUVC(V=V)
+
+    def get_V(self):
+        """Returns the vertical direction components."""
+        return self._V
+
+    def set_C(self, C):
+        """
+        Set the arrow colors.
+
+        Parameters
+        ----------
+        C : array-like
+            The size must the same as the existing X, Y, U, V or be one.
+        """
+        self.set_XYUVC(C=C)
+
+    def get_C(self):
+        """Returns the arrow colors."""
+        return self.get_array()
+
+    def set_XYUVC(self, X=None, Y=None, U=None, V=None, C=None, check_shape=False):
+        """
+        Set the positions (X, Y) and components (U, V) of the arrow vectors
+        and arrow colors (C) values of the arrows.
+        The size of the array must match with existing values. To change
+        the size, all arguments must be changed at once and their size
+        compatible.
+
+        Parameters
+        ----------
+        X, Y : array-like of float or None, optional
+            The arrow locations in the horizontal and vertical directions.
+            Any shape is valid so long as X and Y have the same size.
+        U, V : array-like or None, optional
+            The horizontal and vertical direction components of the arrows.
+            If None it is unchanged.
+            The size must the same as the existing U, V or be one.
+        C : array-like or None, optional
+            The arrow colors. The default is None.
+            The size must the same as the existing U, V or be one.
+        check_shape : bool
+            Whether to check if the shape of the parameters are
+            consistent. Default is False.
+        """
+
+        X = self.get_X() if X is None else X
+        Y = self.get_Y() if Y is None else Y
+        if U is None or isinstance(U, Number):
+            nr, nc = (self._nr, self._nc)
+        else:
+            nr, nc = _extract_nr_nc(U)
+        X, Y = _process_XY(X, Y, nc, nr)
+        N = len(X)
+
         # We need to ensure we have a copy, not a reference
         # to an array that might change before draw().
-        U = ma.masked_invalid(U, copy=True).ravel()
-        V = ma.masked_invalid(V, copy=True).ravel()
-        if C is not None:
-            C = ma.masked_invalid(C, copy=True).ravel()
-        for name, var in zip(('U', 'V', 'C'), (U, V, C)):
-            if not (var is None or var.size == self.N or var.size == 1):
-                raise ValueError(f'Argument {name} has a size {var.size}'
-                                 f' which does not match {self.N},'
-                                 ' the number of arrow positions')
+        U = ma.masked_invalid(self._U if U is None else U, copy=True).ravel()
+        V = ma.masked_invalid(self._V if V is None else V, copy=True).ravel()
+        if C is not None or self._C is not None:
+            C = ma.masked_invalid(
+                self._C if C is None else C, copy=True
+            ).ravel()
+        if check_shape:
+            for name, var in zip(('U', 'V', 'C'), (U, V, C)):
+                if not (var is None or var.size == N or var.size == 1):
+                    raise ValueError(
+                        f'Argument {name} has a size {var.size}'
+                        f' which does not match {N},'
+                        ' the number of arrow positions'
+                    )
 
+        # now shapes are validated and we can start assigning things
         mask = ma.mask_or(U.mask, V.mask, copy=False, shrink=True)
         if C is not None:
             mask = ma.mask_or(mask, C.mask, copy=False, shrink=True)
@@ -561,11 +745,14 @@ class Quiver(mcollections.PolyCollection):
                 C = C.filled()
             else:
                 C = ma.array(C, mask=mask, copy=False)
-        self.U = U.filled(1)
-        self.V = V.filled(1)
-        self.Umask = mask
+        self._U = U.filled(1)
+        self._V = V.filled(1)
+        self._Umask = mask
         if C is not None:
             self.set_array(C)
+        self._N = N
+        self._new_UV = True
+        super().set_offsets(np.column_stack([X, Y]))
         self.stale = True
 
     def _dots_per_unit(self, units):
@@ -626,9 +813,9 @@ class Quiver(mcollections.PolyCollection):
             a = np.abs(uv)
 
         if self.scale is None:
-            sn = max(10, math.sqrt(self.N))
-            if self.Umask is not ma.nomask:
-                amean = a[~self.Umask].mean()
+            sn = max(10, math.sqrt(len(self.get_offsets())))
+            if self._Umask is not ma.nomask:
+                amean = a[~self._Umask].mean()
             else:
                 amean = a.mean()
             # crude auto-scaling
@@ -658,9 +845,9 @@ class Quiver(mcollections.PolyCollection):
         theta = theta.reshape((-1, 1))  # for broadcasting
         xy = (X + Y * 1j) * np.exp(1j * theta) * self.width
         XY = np.stack((xy.real, xy.imag), axis=2)
-        if self.Umask is not ma.nomask:
+        if self._Umask is not ma.nomask:
             XY = ma.array(XY)
-            XY[self.Umask] = ma.masked
+            XY[self._Umask] = ma.masked
             # This might be handled more efficiently with nans, given
             # that nans will end up in the paths anyway.
 
@@ -930,10 +1117,11 @@ class Barbs(mcollections.PolyCollection):
             kwargs['linewidth'] = 1
 
         # Parse out the data arrays from the various configurations supported
-        x, y, u, v, c = _parse_args(*args, caller_name='barbs')
-        self.x = x
-        self.y = y
-        xy = np.column_stack((x, y))
+        x, y, u, v, c, self._nr, self._nc = _parse_args(
+            *args, caller_name='barbs()'
+        )
+        self.x, self.y = _process_XY(x, y, self._nr, self._nc)
+        xy = np.column_stack([self.x, self.y])
 
         # Make a collection
         barb_size = self._length ** 2 / 4  # Empirically determined
