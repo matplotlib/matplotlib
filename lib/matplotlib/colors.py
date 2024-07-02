@@ -674,7 +674,16 @@ def _create_lookup_table(N, data, gamma=1.0):
     return np.clip(lut, 0.0, 1.0)
 
 
-class Colormap:
+class ColormapBase:
+    """
+    Base class for all colormaps, both scalar, bivariate and multivariate.
+
+    This class is used for type checking, and cannot be initialized.
+    """
+    ...
+
+
+class Colormap(ColormapBase):
     """
     Baseclass for all scalar to RGBA mappings.
 
@@ -704,6 +713,7 @@ class Colormap:
         self._i_over = self.N + 1
         self._i_bad = self.N + 2
         self._isinit = False
+        self.n_variates = 1
         #: When this colormap exists on a scalar mappable and colorbar_extend
         #: is not False, colorbar creation will pick up ``colorbar_extend`` as
         #: the default value for the ``extend`` keyword in the
