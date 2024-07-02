@@ -1116,12 +1116,13 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             label.set_color(self.labelMappable.to_rgba(cv))
         super().changed()
 
-    def _autolev(self, N):
+    def _autolev(self, N, *, using_default):
         """
         Select contour levels to span the data.
 
         The target number of levels, *N*, is used only when the
-        scale is not log and default locator is used.
+        locator is not set and the scale is log or the default
+        locator is used.
 
         We need two more levels for filled contours than for
         line contours, because for the latter we need to specify
@@ -1132,7 +1133,12 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         """
         if self.locator is None:
             if self.logscale:
-                self.locator = ticker.LogLocator()
+                if using_default:
+                    # Let log locator choose instead of using hard coded value
+                    # set in self._process_contour_level_args()
+                    self.locator = ticker.LogLocator()
+                else:
+                    self.locator = ticker.LogLocator(numticks=N)
             else:
                 self.locator = ticker.MaxNLocator(N + 1, min_n_ticks=1)
 
@@ -1175,8 +1181,9 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                 levels_arg = 7  # Default, hard-wired.
         else:
             levels_arg = self.levels
+
         if isinstance(levels_arg, Integral):
-            self.levels = self._autolev(levels_arg)
+            self.levels = self._autolev(levels_arg, using_default=self.levels is None)
         else:
             self.levels = np.asarray(levels_arg, np.float64)
         if self.filled and len(self.levels) < 2:

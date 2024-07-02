@@ -222,6 +222,21 @@ def test_log_locator_levels(split_collections):
     _maybe_split_collections(split_collections)
 
 
+@pytest.mark.parametrize("n_levels", [2, 3, 4, 5, 6])
+def test_lognorm_levels(n_levels):
+    x, y = np.mgrid[1:10:0.1, 1:10:0.1]
+    data = np.abs(np.sin(x)*np.exp(y))
+
+    fig, ax = plt.subplots()
+    im = ax.contour(x, y, data, norm=LogNorm(), levels=n_levels)
+    fig.colorbar(im, ax=ax)
+
+    levels = im.levels
+    visible_levels = levels[(levels <= data.max()) & (levels >= data.min())]
+    # levels parameter promises "no more than n+1 "nice" contour levels "
+    assert len(visible_levels) <= n_levels + 1
+
+
 @pytest.mark.parametrize("split_collections", [False, True])
 @image_comparison(['contour_datetime_axis.png'], style='mpl20')
 def test_contour_datetime_axis(split_collections):
