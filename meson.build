@@ -30,6 +30,10 @@ project(
 
 cc = meson.get_compiler('c')
 cpp = meson.get_compiler('cpp')
+# Objective C is needed for the _c_internal_utils and macosx extension.
+if host_machine.system() == 'darwin'
+  add_languages('objc', native: false)
+endif
 
 # https://mesonbuild.com/Python-module.html
 py_mod = import('python')

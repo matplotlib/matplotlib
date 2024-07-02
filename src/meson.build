@@ -69,6 +69,12 @@ else
   user32 = []
 endif
 
+if host_machine.system() == 'darwin'
+  cocoa = dependency('appleframeworks', modules: 'Cocoa')
+else
+  cocoa = []
+endif
+
 extension_data = {
   '_backend_agg': {
     'subdir': 'matplotlib/backends',
@@ -81,10 +87,11 @@ extension_data = {
   },
   '_c_internal_utils': {
     'subdir': 'matplotlib',
-    'sources': files(
-      '_c_internal_utils.cpp',
-    ),
-    'dependencies': [pybind11_dep, dl, ole32, shell32, user32],
+    'sources': [
+      files('_c_internal_utils.cpp'),
+      (host_machine.system() == 'darwin') ? files('_objc_internal_utils.m') : [],
+    ],
+    'dependencies': [pybind11_dep, dl, ole32, shell32, user32, cocoa],
   },
   'ft2font': {
     'subdir': 'matplotlib',
@@ -183,14 +190,13 @@ foreach ext, kwargs : extension_data
 endforeach
 
 if get_option('macosx') and host_machine.system() == 'darwin'
-  add_languages('objc', native: false)
   py3.extension_module(
     '_macosx',
     subdir: 'matplotlib/backends',
     sources: files(
       '_macosx.m',
     ),
-    dependencies: dependency('appleframeworks', modules: 'Cocoa'),
+    dependencies: [cocoa],
     override_options: ['werror=true'],
     install: true,
   )

@@ -21,6 +21,12 @@
 #else
 #define UNUSED_ON_NON_WINDOWS Py_UNUSED
 #endif
+#ifdef __APPLE__
+// Defined in _objc_internal_utils.m.
+extern "C" {
+int _macos_display_is_valid(void);
+}
+#endif
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -72,6 +78,8 @@ mpl_display_is_valid(void)
         }
     }
     return false;
+#elif defined(__APPLE__)
+    return _macos_display_is_valid() == 1;
 #else
     return true;
 #endif
@@ -186,6 +194,8 @@ PYBIND11_MODULE(_c_internal_utils, m)
         On Linux, returns True if either $DISPLAY is set and XOpenDisplay(NULL)
         succeeds, or $WAYLAND_DISPLAY is set and wl_display_connect(NULL)
         succeeds.
+
+        On macOS, returns True if NSScreen::mainScreen is not nil.
 
         On other platforms, always returns True.)""");
     m.def(
