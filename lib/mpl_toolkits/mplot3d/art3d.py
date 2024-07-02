@@ -268,7 +268,8 @@ class Line3D(lines.Line2D):
     def draw(self, renderer):
         xs3d, ys3d, zs3d = self._verts3d
         xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, self.axes.M)
-        self.set_data(xs, ys)
+        view_culled_mask = zs <= -1  # True for all points in front of view plane
+        self.set_data(xs[view_culled_mask], ys[view_culled_mask])
         super().draw(renderer)
         self.stale = False
 
@@ -351,8 +352,8 @@ class Collection3D(Collection):
         """Project the points according to renderer matrix."""
         xyzs_list = [proj3d.proj_transform(*vs.T, self.axes.M)
                      for vs, _ in self._3dverts_codes]
-        self._paths = [mpath.Path(np.column_stack([xs, ys]), cs)
-                       for (xs, ys, _), (_, cs) in zip(xyzs_list, self._3dverts_codes)]
+        self._paths = [mpath.Path(np.column_stack([xs[zs <= -1], ys[zs <= -1]]), cs)
+                       for (xs, ys, zs), (_, cs) in zip(xyzs_list, self._3dverts_codes)]
         zs = np.concatenate([zs for _, _, zs in xyzs_list])
         return zs.min() if len(zs) else 1e9
 
