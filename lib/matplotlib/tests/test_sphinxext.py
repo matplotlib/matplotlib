@@ -97,6 +97,9 @@ def test_tinypages(tmp_path):
     assert filecmp.cmp(range_6, plot_file(17))
     # plot 22 is from the range6.py file again, but a different function
     assert filecmp.cmp(range_10, img_dir / 'range6_range10.png')
+    # plots 23 and 24 use a custom base name with {counter}
+    assert filecmp.cmp(range_4, img_dir / 'custom-base-name-18.png')
+    assert filecmp.cmp(range_6, img_dir / 'custom-base-name-19.png')
 
     # Modify the included plot
     contents = (tmp_path / 'included_plot_21.rst').read_bytes()
