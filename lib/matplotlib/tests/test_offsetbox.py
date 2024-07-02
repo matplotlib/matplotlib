@@ -103,8 +103,9 @@ def test_offsetbox_loc_codes():
              'center': 10,
              }
     fig, ax = plt.subplots()
-    da = DrawingArea(100, 100)
+
     for code in codes:
+        da = DrawingArea(100, 100)
         anchored_box = AnchoredOffsetbox(loc=code, child=da)
         ax.add_artist(anchored_box)
     fig.canvas.draw()

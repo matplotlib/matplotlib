@@ -20,6 +20,9 @@ from .transforms import (BboxBase, Bbox, IdentityTransform, Transform, Transform
 
 _log = logging.getLogger(__name__)
 
+# a tombstone sentinel to ensure we never reset the axes or figure on an Artist
+_tombstone = object()
+
 
 def _prevent_rasterization(draw):
     # We assume that by default artists are not allowed to rasterize (unless
@@ -181,7 +184,7 @@ class Artist:
         self._stale = True
         self.stale_callback = None
         self._axes = None
-        self.figure = None
+        self._figure = None
 
         self._transform = None
         self._transformSet = False
@@ -293,17 +296,59 @@ class Artist:
     @property
     def axes(self):
         """The `~.axes.Axes` instance the artist resides in, or *None*."""
-        return self._axes
+        return self._axes if self._axes is not _tombstone else None
 
     @axes.setter
     def axes(self, new_axes):
         if (new_axes is not None and self._axes is not None
                 and new_axes != self._axes):
-            raise ValueError("Can not reset the Axes. You are probably trying to reuse "
-                             "an artist in more than one Axes which is not supported")
+            if self._axes is _tombstone:
+                extra = (
+                    f"The artist {self!r} has had its Axes reset to None " +
+                    "but was previously included in one."
+                )
+            else:
+                extra = (
+                    f"The artist {self!r} is currently in {self._axes!r} " +
+                    f"in the figure {self._axes.figure!r}."
+                )
+            raise ValueError("Can not reset the Axes.  You are probably " +
+                             "trying to re-use an artist in more than one " +
+                             "Axes which is not supported.  " +
+                             extra
+                             )
+        if self._axes is not None and new_axes is None:
+            new_axes = _tombstone
         self._axes = new_axes
         if new_axes is not None and new_axes is not self:
             self.stale_callback = _stale_axes_callback
+
+    @property
+    def figure(self):
+        """The `~.figure.Figure` instance the artist resides in, or *None*."""
+        return self._figure if self._figure is not _tombstone else None
+
+    @figure.setter
+    def figure(self, new_figure):
+        if (new_figure is not None and self._figure is not None
+                and new_figure != self._figure and new_figure is not True):
+            if self._figure is _tombstone:
+                extra = (
+                    f"The artist {self!r} has had its Figure reset to None " +
+                    "but was previously included in one."
+                )
+            else:
+                extra = (
+                    f"The artist {self!r} is currently in {self._figure!r}."
+                )
+            raise ValueError("Can not reset the figure.  You are probably " +
+                             "trying to re-use an artist in more than one " +
+                             "Figure which is not supported.  " +
+                             extra
+                             )
+        if self._figure is not None and new_figure is None:
+            new_figure = _tombstone
+        self._figure = new_figure
 
     @property
     def stale(self):
@@ -735,14 +780,6 @@ class Artist:
         # if this is a no-op just return
         if self.figure is fig:
             return
-        # if we currently have a figure (the case of both `self.figure`
-        # and *fig* being none is taken care of above) we then user is
-        # trying to change the figure an artist is associated with which
-        # is not allowed for the same reason as adding the same instance
-        # to more than one Axes
-        if self.figure is not None:
-            raise RuntimeError("Can not put single artist in "
-                               "more than one figure")
         self.figure = fig
         if self.figure and self.figure is not self:
             self.pchanged()
