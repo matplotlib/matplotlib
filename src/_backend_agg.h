@@ -913,6 +913,10 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
     typedef PathSnapper<clipped_t> snapped_t;
     typedef agg::conv_curve<snapped_t> snapped_curve_t;
     typedef agg::conv_curve<clipped_t> curve_t;
+    typedef Sketch<clipped_t> sketch_clipped_t;
+    typedef Sketch<curve_t> sketch_curve_t;
+    typedef Sketch<snapped_t> sketch_snapped_t;
+    typedef Sketch<snapped_curve_t> sketch_snapped_curve_t;
 
     size_t Npaths = path_generator.num_paths();
     size_t Noffsets = safe_first_shape(offsets);
@@ -988,31 +992,29 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
             }
         }
 
+        gc.isaa = antialiaseds(i % Naa);
+        transformed_path_t tpath(path, trans);
+        nan_removed_t nan_removed(tpath, true, has_codes);
+        clipped_t clipped(nan_removed, do_clip, width, height);
         if (check_snap) {
-            gc.isaa = antialiaseds(i % Naa);
-
-            transformed_path_t tpath(path, trans);
-            nan_removed_t nan_removed(tpath, true, has_codes);
-            clipped_t clipped(nan_removed, do_clip, width, height);
             snapped_t snapped(
                 clipped, gc.snap_mode, path.total_vertices(), points_to_pixels(gc.linewidth));
             if (has_codes) {
                 snapped_curve_t curve(snapped);
-                _draw_path(curve, has_clippath, face, gc);
+                sketch_snapped_curve_t sketch(curve, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness);
+                _draw_path(sketch, has_clippath, face, gc);
             } else {
-                _draw_path(snapped, has_clippath, face, gc);
+                sketch_snapped_t sketch(snapped, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness);
+                _draw_path(sketch, has_clippath, face, gc);
             }
         } else {
-            gc.isaa = antialiaseds(i % Naa);
-
-            transformed_path_t tpath(path, trans);
-            nan_removed_t nan_removed(tpath, true, has_codes);
-            clipped_t clipped(nan_removed, do_clip, width, height);
             if (has_codes) {
                 curve_t curve(clipped);
-                _draw_path(curve, has_clippath, face, gc);
+                sketch_curve_t sketch(curve, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness);
+                _draw_path(sketch, has_clippath, face, gc);
             } else {
-                _draw_path(clipped, has_clippath, face, gc);
+                sketch_clipped_t sketch(clipped, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness);
+                _draw_path(sketch, has_clippath, face, gc);
             }
         }
     }
