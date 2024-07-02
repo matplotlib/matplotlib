@@ -3451,6 +3451,8 @@ class _AxesBase(martist.Artist):
             Width of gridlines in points.
         grid_linestyle : str
             Any valid `.Line2D` line style spec.
+        gridOn : bool
+            Whether to draw the grid lines.
 
         Examples
         --------
