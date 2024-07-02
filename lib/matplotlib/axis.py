@@ -122,6 +122,9 @@ class Tick(martist.Artist):
         if color is None:
             color = mpl.rcParams[f"{name}.color"]
 
+        if cbook._str_equal(color, 'auto'):
+            color = mpl.rcParams["axes.edgecolor"]
+
         if pad is None:
             pad = mpl.rcParams[f"{name}.{major_minor}.pad"]
         self._base_pad = pad
@@ -129,9 +132,9 @@ class Tick(martist.Artist):
         if labelcolor is None:
             labelcolor = mpl.rcParams[f"{name}.labelcolor"]
 
-        if cbook._str_equal(labelcolor, 'inherit'):
-            # inherit from tick color
-            labelcolor = mpl.rcParams[f"{name}.color"]
+        if (cbook._str_equal(labelcolor, 'inherit') or
+                cbook._str_equal(labelcolor, 'auto')):
+            labelcolor = mpl.rcParams["text.color"]
 
         if labelsize is None:
             labelsize = mpl.rcParams[f"{name}.labelsize"]
@@ -658,11 +661,16 @@ class Axis(martist.Artist):
 
         self._autolabelpos = True
 
+        if not cbook._str_lower_equal(mpl.rcParams['axes.labelcolor'], 'auto'):
+            color = mpl.rcParams['axes.labelcolor']
+        else:
+            color = mpl.rcParams['text.color']
+
         self.label = mtext.Text(
             np.nan, np.nan,
             fontsize=mpl.rcParams['axes.labelsize'],
             fontweight=mpl.rcParams['axes.labelweight'],
-            color=mpl.rcParams['axes.labelcolor'],
+            color=color
         )
         self._set_artist_props(self.label)
         self.offsetText = mtext.Text(np.nan, np.nan)
@@ -882,7 +890,10 @@ class Axis(martist.Artist):
         self.label._reset_visual_defaults()
         # The above resets the label formatting using text rcParams,
         # so we then update the formatting using axes rcParams
-        self.label.set_color(mpl.rcParams['axes.labelcolor'])
+        if not cbook._str_lower_equal(mpl.rcParams['axes.labelcolor'], 'auto'):
+            self.label.set_color(mpl.rcParams['axes.labelcolor'])
+        else:
+            self.label.set_color(mpl.rcParams['text.color'])
         self.label.set_fontsize(mpl.rcParams['axes.labelsize'])
         self.label.set_fontweight(mpl.rcParams['axes.labelweight'])
         self.offsetText._reset_visual_defaults()
@@ -2569,10 +2580,11 @@ class YAxis(Axis):
         )
         self.label_position = 'left'
 
-        if mpl.rcParams['ytick.labelcolor'] == 'inherit':
-            tick_color = mpl.rcParams['ytick.color']
-        else:
-            tick_color = mpl.rcParams['ytick.labelcolor']
+        tick_color = mpl.rcParams['ytick.labelcolor']
+
+        if (cbook._str_equal(tick_color, 'inherit') or
+                cbook._str_equal(tick_color, 'auto')):
+            tick_color = mpl.rcParams["text.color"]
 
         # x in axes coords, y in display coords(!).
         self.offsetText.set(

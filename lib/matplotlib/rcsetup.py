@@ -301,6 +301,12 @@ def validate_color_or_auto(s):
     return validate_color(s)
 
 
+def validate_color_inherit_or_auto(s):
+    if cbook._str_equal(s, 'inherit') or cbook._str_equal(s, 'auto'):
+        return s
+    return validate_color(s)
+
+
 def validate_color_for_prop_cycle(s):
     # N-th color cycle syntax can't go into the color cycle.
     if isinstance(s, str) and re.match("^C[0-9]$", s):
@@ -1101,7 +1107,7 @@ _validators = {
     "axes.labelsize":     validate_fontsize,  # fontsize of x & y labels
     "axes.labelpad":      validate_float,  # space between label and axis
     "axes.labelweight":   validate_fontweight,  # fontsize of x & y labels
-    "axes.labelcolor":    validate_color,  # color of axis label
+    "axes.labelcolor":    validate_color_or_auto,  # color of axis label
     # use scientific notation if log10 of the axis range is smaller than the
     # first or larger than the second
     "axes.formatter.limits": _listify_validator(validate_int, n=2),
@@ -1198,8 +1204,8 @@ _validators = {
     "xtick.minor.width":   validate_float,     # minor xtick width in points
     "xtick.major.pad":     validate_float,     # distance to label in points
     "xtick.minor.pad":     validate_float,     # distance to label in points
-    "xtick.color":         validate_color,     # color of xticks
-    "xtick.labelcolor":    validate_color_or_inherit,  # color of xtick labels
+    "xtick.color":         validate_color_or_auto,     # color of xticks
+    "xtick.labelcolor":    validate_color_inherit_or_auto,  # color of xtick labels
     "xtick.minor.visible": validate_bool,      # visibility of minor xticks
     "xtick.minor.top":     validate_bool,      # draw top minor xticks
     "xtick.minor.bottom":  validate_bool,      # draw bottom minor xticks
@@ -1221,8 +1227,8 @@ _validators = {
     "ytick.minor.width":   validate_float,     # minor ytick width in points
     "ytick.major.pad":     validate_float,     # distance to label in points
     "ytick.minor.pad":     validate_float,     # distance to label in points
-    "ytick.color":         validate_color,     # color of yticks
-    "ytick.labelcolor":    validate_color_or_inherit,  # color of ytick labels
+    "ytick.color":         validate_color_or_auto,     # color of yticks
+    "ytick.labelcolor":    validate_color_inherit_or_auto,  # color of ytick labels
     "ytick.minor.visible": validate_bool,      # visibility of minor yticks
     "ytick.minor.left":    validate_bool,      # draw left minor yticks
     "ytick.minor.right":   validate_bool,      # draw right minor yticks
