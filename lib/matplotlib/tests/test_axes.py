@@ -7414,12 +7414,12 @@ def test_inset():
 
     rect = [xlim[0], ylim[0], xlim[1] - xlim[0], ylim[1] - ylim[0]]
 
-    rec, connectors = ax.indicate_inset(bounds=rect)
-    assert connectors is None
+    inset = ax.indicate_inset(bounds=rect)
+    assert not inset.connectors
     fig.canvas.draw()
     xx = np.array([[1.5, 2.],
                    [2.15, 2.5]])
-    assert np.all(rec.get_bbox().get_points() == xx)
+    assert np.all(inset.get_bbox().get_points() == xx)
 
 
 def test_zoom_inset():
@@ -7443,16 +7443,72 @@ def test_zoom_inset():
     axin1.set_ylim([2, 2.5])
     axin1.set_aspect(ax.get_aspect())
 
-    rec, connectors = ax.indicate_inset_zoom(axin1)
-    assert len(connectors) == 4
-    fig.canvas.draw()
-    xx = np.array([[1.5,  2.],
-                   [2.15, 2.5]])
-    assert np.all(rec.get_bbox().get_points() == xx)
-    xx = np.array([[0.6325, 0.692308],
-                   [0.8425, 0.907692]])
-    np.testing.assert_allclose(
-        axin1.get_position().get_points(), xx, rtol=1e-4)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        rec, connectors = ax.indicate_inset_zoom(axin1)
+    for _ in range(2):
+        # Drawing twice should not affect result
+        fig.canvas.draw()
+        assert len(connectors) == 4
+        xx = np.array([[1.5,  2.],
+                       [2.15, 2.5]])
+        assert np.all(rec.get_bbox().get_points() == xx)
+        xx = np.array([[0.6325, 0.692308],
+                       [0.8425, 0.907692]])
+        np.testing.assert_allclose(
+            axin1.get_position().get_points(), xx, rtol=1e-4)
+
+
+@check_figures_equal(extensions=["png"])
+def test_zoom_inset_update_limits(fig_test, fig_ref):
+    # Updating the inset axes limits should also update the indicator #19768
+    ax_ref = fig_ref.add_subplot()
+    ax_test = fig_test.add_subplot()
+
+    for ax in ax_ref, ax_test:
+        ax.set_xlim([0, 5])
+        ax.set_ylim([0, 5])
+
+    inset_ref = ax_ref.inset_axes([0.6, 0.6, 0.3, 0.3])
+    inset_test = ax_test.inset_axes([0.6, 0.6, 0.3, 0.3])
+
+    inset_ref.set_xlim([1, 2])
+    inset_ref.set_ylim([3, 4])
+    ax_ref.indicate_inset_zoom(inset_ref)
+
+    ax_test.indicate_inset_zoom(inset_test)
+    inset_test.set_xlim([1, 2])
+    inset_test.set_ylim([3, 4])
+
+
+def test_zoom_inset_update_connector_style():
+    # Check that we can set connector style properties independently of the main patch.
+    fig, ax = plt.subplots()
+    inset = ax.inset_axes([0.6, 0.6, 0.3, 0.3])
+    inset.set_xlim([0.2, 0.4])
+    inset.set_ylim([0.2, 0.4])
+    indicator = ax.indicate_inset_zoom(inset, edgecolor='red')
+    for conn in indicator.connectors:
+        conn.set_color('blue')
+
+    fig.draw_without_rendering()
+    for conn in indicator.connectors:
+        assert mcolors.same_color(conn.get_edgecolor()[:3], 'blue')
+
+
+@image_comparison(['zoom_inset_connector_styles.png'], remove_text=True, style='mpl20')
+def test_zoom_inset_connector_styles():
+    fig, axs = plt.subplots(2)
+    for ax in axs:
+        ax.plot([1, 2, 3])
+
+    axs[1].set_xlim(0.5, 1.5)
+    indicator = axs[0].indicate_inset_zoom(axs[1], linewidth=5)
+    for conn in indicator.connectors:
+        if conn.get_visible():
+            # Make one visible connector a different style
+            conn.set_linestyle('dashed')
+            conn.set_color('blue')
+            break
 
 
 @image_comparison(['inset_polar.png'], remove_text=True, style='mpl20')
@@ -7495,8 +7551,8 @@ def test_indicate_inset_inverted(x_inverted, y_inverted):
     if y_inverted:
         ax1.invert_yaxis()
 
-    rect, bounds = ax1.indicate_inset([2, 2, 5, 4], ax2)
-    lower_left, upper_left, lower_right, upper_right = bounds
+    inset = ax1.indicate_inset([2, 2, 5, 4], ax2)
+    lower_left, upper_left, lower_right, upper_right = inset.connectors
 
     sign_x = -1 if x_inverted else 1
     sign_y = -1 if y_inverted else 1
