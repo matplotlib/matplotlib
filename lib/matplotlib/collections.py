@@ -171,6 +171,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # Flags set by _set_mappable_flags: are colors from mapping an array?
         self._face_is_mapped = None
         self._edge_is_mapped = None
+        self._match_original = False
         self._mapped_colors = None  # calculated in update_scalarmappable
         self._hatch_color = mcolors.to_rgba(mpl.rcParams['hatch.color'])
         self.set_facecolor(facecolors)
@@ -423,13 +424,31 @@ class Collection(artist.Artist, cm.ScalarMappable):
                     self._antialiaseds, self._urls,
                     "screen")
 
-            renderer.draw_path_collection(
-                gc, transform.frozen(), paths,
-                self.get_transforms(), offsets, offset_trf,
-                self.get_facecolor(), self.get_edgecolor(),
-                self._linewidths, self._linestyles,
-                self._antialiaseds, self._urls,
-                "screen")  # offset_position, kept for backcompat.
+            fcolor = itertools.cycle(facecolors) if facecolors.any() \
+                else itertools.repeat([])
+            ecolor = itertools.cycle(edgecolors) if edgecolors.any() \
+                else itertools.repeat([])
+            lwidth = itertools.cycle(self._linewidths)
+            lstyle = itertools.cycle(self._linestyles)
+            antialiased = itertools.cycle(self._antialiaseds)
+
+            if self._match_original:
+                for idx in range(len(paths)):
+                    gc.set_hatch(self._hatch[idx])
+                    renderer.draw_path_collection(
+                        gc, transform.frozen(), [paths[idx]],
+                        self.get_transforms(), offsets, offset_trf,
+                        [next(fcolor)], [next(ecolor)], [next(lwidth)], [next(lstyle)],
+                        [next(antialiased)], self._urls,
+                        "screen")  # offset_position, kept for backcompat.
+            else:
+                renderer.draw_path_collection(
+                    gc, transform.frozen(), paths,
+                    self.get_transforms(), offsets, offset_trf,
+                    self.get_facecolor(), self.get_edgecolor(),
+                    self._linewidths, self._linestyles,
+                    self._antialiaseds, self._urls,
+                    "screen")
 
         gc.restore()
         renderer.close_group(self.__class__.__name__)
@@ -1846,8 +1865,9 @@ class PatchCollection(Collection):
             a heterogeneous assortment of different patch types.
 
         match_original : bool, default: False
-            If True, use the colors and linewidths of the original
-            patches.  If False, new colors may be assigned by
+            If True, use the colors, linewidths, linestyles
+            and the hatch of the original patches.
+            If False, new colors may be assigned by
             providing the standard collection arguments, facecolor,
             edgecolor, linewidths, norm or cmap.
 
@@ -1867,16 +1887,17 @@ class PatchCollection(Collection):
         """
 
         if match_original:
-            def determine_facecolor(patch):
-                if patch.get_fill():
-                    return patch.get_facecolor()
-                return [0, 0, 0, 0]
+            self._match_original = True
+            kwargs['facecolors'] = tuple([p.get_facecolor() for p in patches])
+            kwargs['linewidths'] = tuple([p.get_linewidth() for p in patches])
+            kwargs['linestyles'] = tuple([p.get_linestyle() for p in patches])
+            kwargs['antialiaseds'] = tuple([p.get_antialiased() for p in patches])
+            kwargs['hatch'] = tuple([p.get_hatch() for p in patches])
 
-            kwargs['facecolors'] = [determine_facecolor(p) for p in patches]
-            kwargs['edgecolors'] = [p.get_edgecolor() for p in patches]
-            kwargs['linewidths'] = [p.get_linewidth() for p in patches]
-            kwargs['linestyles'] = [p.get_linestyle() for p in patches]
-            kwargs['antialiaseds'] = [p.get_antialiased() for p in patches]
+            # Edgecolors are handled separately because are defaulted to None
+            # and the Hatch colors depend on them.
+            if all(p._original_edgecolor is not None for p in patches):
+                kwargs["edgecolors"] = tuple([p.get_edgecolor() for p in patches])
 
         super().__init__(**kwargs)
 
