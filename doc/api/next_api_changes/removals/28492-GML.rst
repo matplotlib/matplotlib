@@ -1,4 +1,4 @@
-The ``.PolyQuadMesh`` class requires full 2D arrays of values
+The ``PolyQuadMesh`` class requires full 2D arrays of values
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Previously, if a masked array was input, the list of polygons within the collection
