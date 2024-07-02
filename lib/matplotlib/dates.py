@@ -796,7 +796,7 @@ class ConciseDateFormatter(ticker.Formatter):
 
         if show_offset:
             # set the offset string:
-            if self._locator.axis.get_inverted():
+            if self._locator.axis and self._locator.axis.__name__ == ('xaxis' or 'yaxis') and self._locator.axis.get_inverted():
                 self.offset_string = tickdatetime[0].strftime(offsetfmts[level])
             else:
                 self.offset_string = tickdatetime[-1].strftime(offsetfmts[level])
