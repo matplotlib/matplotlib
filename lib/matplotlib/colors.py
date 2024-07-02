@@ -1258,8 +1258,11 @@ class MultivarColormap(ColormapBase):
             The individual colormaps that are combined
         combination_mode: str, 'Add' or 'Sub'
             Describe how colormaps are combined in sRGB space
-            'Add' -> additive
-            'Sub' -> subtractive
+            
+            - If 'Add' -> Mixing produces brighter colors
+              `sRGB = cmap[0][X[0]] + cmap[1][x[1]] + ... + cmap[n-1][x[n-1]]`
+            - If 'Sub' -> Mixing produces darker colors
+              `sRGB = cmap[0][X[0]] + cmap[1][x[1]] + ... + cmap[n-1][x[n-1]] - n + 1`
         """
         self.name = name
 
