@@ -163,6 +163,9 @@ stages:
                 --verbose --editable .[dev]
             displayName: "Install self"
 
+          - bash: playwright install --with-deps
+            displayName: 'Install browsers for testing'
+
           - script: env
             displayName: 'print env'
 
@@ -225,6 +228,7 @@ stages:
               fi
               PYTHONFAULTHANDLER=1 pytest -rfEsXR -n 2 \
                   --maxfail=50 --timeout=300 --durations=25 \
+                  --browser chromium --browser firefox --browser webkit \
                   --junitxml=junit/test-results.xml --cov-report=xml --cov=lib
               if [[ -n $SESSION_ID ]]; then
                 if [[ $VS_VER == 2022 ]]; then
