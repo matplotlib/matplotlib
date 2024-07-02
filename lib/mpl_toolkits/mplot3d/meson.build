@@ -4,6 +4,7 @@ python_sources = [
   'axes3d.py',
   'axis3d.py',
   'proj3d.py',
+  'transform3d.py',
 ]
 
 py3.install_sources(python_sources, subdir: 'mpl_toolkits/mplot3d')

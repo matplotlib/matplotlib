@@ -463,7 +463,7 @@ plt.show()
 #     In [268]: print(rect.get_data_transform())
 #     CompositeGenericTransform(
 #         TransformWrapper(
-#             BlendedAffine2D(
+#             BlendedAffine(
 #                 IdentityTransform(),
 #                 IdentityTransform())),
 #         CompositeGenericTransform(
@@ -471,7 +471,7 @@ plt.show()
 #                 TransformedBbox(
 #                     Bbox(x0=0.0, y0=0.0, x1=1.0, y1=1.0),
 #                     TransformWrapper(
-#                         BlendedAffine2D(
+#                         BlendedAffine(
 #                             IdentityTransform(),
 #                             IdentityTransform())))),
 #             BboxTransformTo(
@@ -489,7 +489,7 @@ plt.show()
 #     In [269]: print(ax.transData)
 #     CompositeGenericTransform(
 #         TransformWrapper(
-#             BlendedAffine2D(
+#             BlendedAffine(
 #                 IdentityTransform(),
 #                 IdentityTransform())),
 #         CompositeGenericTransform(
@@ -497,7 +497,7 @@ plt.show()
 #                 TransformedBbox(
 #                     Bbox(x0=0.0, y0=0.0, x1=1.0, y1=1.0),
 #                     TransformWrapper(
-#                         BlendedAffine2D(
+#                         BlendedAffine(
 #                             IdentityTransform(),
 #                             IdentityTransform())))),
 #             BboxTransformTo(

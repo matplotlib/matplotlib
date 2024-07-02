@@ -439,10 +439,10 @@ class RendererBase:
         im : (N, M, 4) array of `numpy.uint8`
             An array of RGBA pixels.
 
-        transform : `~matplotlib.transforms.Affine2DBase`
+        transform : `~matplotlib.transforms.AffineImmutable`
             If and only if the concrete backend is written such that
             `option_scale_image` returns ``True``, an affine transformation
-            (i.e., an `.Affine2DBase`) *may* be passed to `draw_image`.  The
+            (i.e., an `.AffineImmutable`) *may* be passed to `draw_image`.  The
             translation vector of the transformation is given in physical units
             (i.e., dots or pixels). Note that the transformation does not
             override *x* and *y*, and has to be applied *before* translating

@@ -7,6 +7,7 @@ import numpy as np
 from matplotlib import _api
 
 
+@_api.deprecated("3.10")
 def world_transformation(xmin, xmax,
                          ymin, ymax,
                          zmin, zmax, pb_aspect=None):
@@ -37,6 +38,7 @@ def rotation_about_vector(v, angle):
     return _rotation_about_vector(v, angle)
 
 
+@_api.deprecated("3.10")
 def _rotation_about_vector(v, angle):
     """
     Produce a rotation matrix for an angle in radians about a vector.
@@ -93,6 +95,7 @@ def _view_axes(E, R, V, roll):
     return u, v, w
 
 
+@_api.deprecated("3.10")
 def _view_transformation_uvw(u, v, w, E):
     """
     Return the view transformation matrix.
@@ -142,6 +145,7 @@ def persp_transformation(zfront, zback, focal_length):
     return _persp_transformation(zfront, zback, focal_length)
 
 
+@_api.deprecated("3.10")
 def _persp_transformation(zfront, zback, focal_length):
     e = focal_length
     a = 1  # aspect ratio
@@ -159,6 +163,7 @@ def ortho_transformation(zfront, zback):
     return _ortho_transformation(zfront, zback)
 
 
+@_api.deprecated("3.10")
 def _ortho_transformation(zfront, zback):
     # note: w component in the resulting vector will be (zback-zfront), not 1
     a = -(zfront + zback)
@@ -170,6 +175,7 @@ def _ortho_transformation(zfront, zback):
     return proj_matrix
 
 
+@_api.deprecated("3.10")
 def _proj_transform_vec(vec, M):
     vecw = np.dot(M, vec)
     w = vecw[3]
@@ -178,6 +184,7 @@ def _proj_transform_vec(vec, M):
     return txs, tys, tzs
 
 
+@_api.deprecated("3.10")
 def _proj_transform_vec_clip(vec, M):
     vecw = np.dot(M, vec)
     w = vecw[3]
@@ -189,6 +196,7 @@ def _proj_transform_vec_clip(vec, M):
     return txs, tys, tzs, tis
 
 
+@_api.deprecated("3.10")
 def inv_transform(xs, ys, zs, invM):
     """
     Transform the points by the inverse of the projection matrix, *invM*.
@@ -203,10 +211,12 @@ def inv_transform(xs, ys, zs, invM):
     return vecr[0], vecr[1], vecr[2]
 
 
+@_api.deprecated("3.10")
 def _vec_pad_ones(xs, ys, zs):
     return np.array([xs, ys, zs, np.ones_like(xs)])
 
 
+@_api.deprecated("3.10")
 def proj_transform(xs, ys, zs, M):
     """
     Transform the points by the projection matrix *M*.
@@ -220,6 +230,7 @@ transform = _api.deprecated(
     alternative="proj_transform")(proj_transform)
 
 
+@_api.deprecated("3.10")
 def proj_transform_clip(xs, ys, zs, M):
     """
     Transform the points by the projection matrix
@@ -235,6 +246,7 @@ def proj_points(points, M):
     return _proj_points(points, M)
 
 
+@_api.deprecated("3.10")
 def _proj_points(points, M):
     return np.column_stack(_proj_trans_points(points, M))
 
@@ -244,6 +256,7 @@ def proj_trans_points(points, M):
     return _proj_trans_points(points, M)
 
 
+@_api.deprecated("3.10")
 def _proj_trans_points(points, M):
     xs, ys, zs = zip(*points)
     return proj_transform(xs, ys, zs, M)
