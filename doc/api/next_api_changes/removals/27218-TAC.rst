@@ -1,0 +1,7 @@
+Remove hard reference to ``lastevent`` in ``LocationEvent``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+This was previously used to detect exiting from axes, however the hard
+reference would keep closed `Figure` objects and their children alive longer
+than expected.
