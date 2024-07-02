@@ -231,10 +231,64 @@ def is_color_like(c):
         return True
 
 
+def is_hex_color(c):
+    """
+    (Helper function) Determines if the input string is a
+    hexadecimal number in color format. String must start
+    with # or 0x and have 8 bytes following, 2 for each color
+    and alpha channel.
+    """
+    if not isinstance(c, str):
+        return False
+    if c.startswith('#'):
+        if len(c) != 9:
+            return False
+        c = c[1:]
+    elif c.startswith('0x'):
+        if len(c) != 10:
+            return False
+        c = c[2:]
+    else:
+        return False
+
+    for x in c:
+        if x not in '0123456789abcdefABCDEF':
+            return False
+
+    return True
+
+
+def is_tuple_color(c):
+    """
+    (Helper function) Determines if the input string is a
+    tuple in color format. Tuple must have two values: the
+    first representing the color and the second representing
+    the alpha value.
+    """
+    if not isinstance(c, tuple):
+        return False
+    if len(c) != 2:
+        return False
+
+    color = c[0]
+    if not isinstance(color, str):
+        return False
+    if c != 'r' and c != 'g' and c != 'b':
+        return False
+
+    alpha = c[1]
+    if not isinstance(alpha, float):
+        return False
+    if alpha < 0 or alpha > 1:
+        return False
+
+    return True
+
+
 def _has_alpha_channel(c):
     """Return whether *c* is a color with an alpha channel."""
-    # 4-element sequences are interpreted as r, g, b, a
-    return not isinstance(c, str) and len(c) == 4
+    is_color = not isinstance(c, str) and len(c) == 4
+    return is_color or is_hex_color(c) or is_tuple_color(c)
 
 
 def _check_color_like(**kwargs):
