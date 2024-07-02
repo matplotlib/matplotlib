@@ -134,6 +134,23 @@ jobs:
           name: cibw-sdist
           path: dist/
 
+      - name: Build wheels for CPython 3.13
+        uses: pypa/cibuildwheel@ba8be0d98853f5744f24e7f902c8adef7ae2e7f3  # v2.18.1
+        with:
+          package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
+        env:
+          CIBW_BUILD: "cp313-* cp313t-*"
+          CIBW_PRERELEASE_PYTHONS: true
+          CIBW_FREE_THREADED_SUPPORT: true
+          # We need pre-releases to get the nightly wheels.
+          CIBW_BEFORE_TEST: >-
+            pip install --pre
+            --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
+            contourpy numpy git+https://github.com/python-pillow/Pillow@main
+          # Pillow needs a bunch of image libraries to build here, so we'll skip testing for now.
+          CIBW_TEST_SKIP: "*linux*"
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+
       - name: Build wheels for CPython 3.12
         uses: pypa/cibuildwheel@932529cab190fafca8c735a551657247fa8f8eaf  # v2.19.1
         with:
