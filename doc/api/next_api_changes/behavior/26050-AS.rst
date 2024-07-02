@@ -1,0 +1,13 @@
+Seed for ``path.sketch`` will have a rolling (auto incrementing) behaviour
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The seed for the internal Pseudo number generator will now have an auto changing behavior.
+This means that the C code of every artist will get a different seed every time it is called
+and this will be done in a deterministic manner.
+
+Two figures sketched with the same parameters and different seed will look different from one another.
+
+``Artist.get_sketch_params()`` will now return a 4-tuple instead of a 3-tuple consisting of
+(scale, length, randomness, seed) of the form (float, float, float, int).
+
+See 'What's new' on how to set a value to the seed and its behaviour.

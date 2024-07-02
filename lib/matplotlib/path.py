@@ -382,8 +382,8 @@ class Path:
             If True, curve segments will be returned as curve segments.
             If False, all curves will be converted to line segments.
         sketch : None or sequence, optional
-            If not None, must be a 3-tuple of the form
-            (scale, length, randomness), representing the sketch parameters.
+            If not None, must be a 4-tuple of the form
+            (scale, length, randomness, seed), representing the sketch parameters.
         """
         if not len(self):
             return

@@ -451,13 +451,16 @@ int convert_sketch_params(PyObject *obj, void *sketchp)
 {
     SketchParams *sketch = (SketchParams *)sketchp;
 
+    sketch->seed=0; // default
+
     if (obj == NULL || obj == Py_None) {
         sketch->scale = 0.0;
     } else if (!PyArg_ParseTuple(obj,
-                                 "ddd:sketch_params",
+                                 "ddd|i:sketch_params",
                                  &sketch->scale,
                                  &sketch->length,
-                                 &sketch->randomness)) {
+                                 &sketch->randomness,
+                                 &sketch->seed)) {
         return 0;
     }
 
