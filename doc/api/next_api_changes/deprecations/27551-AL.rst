@@ -1,0 +1,4 @@
+``GridFinder.transform_xy`` and ``GridFinder.inv_transform_xy``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are deprecated.  Directly use the standard transform returned by
+`.GridFinder.get_transform` instead.
