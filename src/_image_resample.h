@@ -3,6 +3,8 @@
 #ifndef MPL_RESAMPLE_H
 #define MPL_RESAMPLE_H
 
+#define MPL_DISABLE_AGG_GRAY_CLIPPING
+
 #include "agg_image_accessors.h"
 #include "agg_path_storage.h"
 #include "agg_pixfmt_gray.h"

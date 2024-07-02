@@ -7,7 +7,7 @@ from matplotlib.testing.decorators import image_comparison
 from matplotlib import cm, pyplot as plt
 
 
-@image_comparison(['pngsuite.png'], tol=0.03)
+@image_comparison(['pngsuite.png'], tol=0.04)
 def test_pngsuite():
     files = sorted(
         (Path(__file__).parent / "baseline_images/pngsuite").glob("basn*.png"))

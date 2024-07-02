@@ -696,7 +696,7 @@ def test_jpeg_alpha():
     # If this fails, there will be only one color (all black). If this
     # is working, we should have all 256 shades of grey represented.
     num_colors = len(image.getcolors(256))
-    assert 175 <= num_colors <= 210
+    assert 175 <= num_colors <= 230
     # The fully transparent part should be red.
     corner_pixel = image.getpixel((0, 0))
     assert corner_pixel == (254, 0, 0)
@@ -1405,9 +1405,7 @@ def test_nonuniform_logscale():
         ax.add_image(im)
 
 
-@image_comparison(
-    ['rgba_antialias.png'], style='mpl20', remove_text=True,
-    tol=0 if platform.machine() == 'x86_64' else 0.007)
+@image_comparison(['rgba_antialias.png'], style='mpl20', remove_text=True, tol=0.02)
 def test_rgba_antialias():
     fig, axs = plt.subplots(2, 2, figsize=(3.5, 3.5), sharex=False,
                             sharey=False, constrained_layout=True)
