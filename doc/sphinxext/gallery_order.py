@@ -4,6 +4,7 @@ Paths are relative to the conf.py file.
 """
 
 from sphinx_gallery.sorting import ExplicitOrder
+import os
 
 # Gallery sections shall be displayed in the following order.
 # Non-matching sections are inserted at the unsorted position
@@ -123,3 +124,58 @@ class MplExplicitSubOrder(ExplicitOrder):
 # Provide the above classes for use in conf.py
 sectionorder = MplExplicitOrder(explicit_order_folders)
 subsectionorder = MplExplicitSubOrder
+
+# README file types
+READMES_FILES = ["README.txt"]  # , "README.rst"]
+ORDER_TYPE = {"examples": "example",
+              "tutorials": "tutorial",
+              "plot_types": "plot"}
+
+
+def parse_readme(file_to_read, order_type):
+    file = open(file_to_read)
+    for line in file:
+        if line.find(ORDER_TYPE[order_type]) != -1:
+            return True
+
+    return False
+
+
+DIRECTORIES = ["examples", "tutorials",
+               "plot_types"]
+
+
+def follow_directory():
+    new_folder_list = []
+    for parent_folder in DIRECTORIES:
+        directory_list = [UNSORTED]
+        parent_folder_path = "galleries/" + parent_folder
+        items = os.listdir(parent_folder_path)
+        folders = [item for item in items
+                   if os.path.isdir(os.path.join(parent_folder_path, item))]
+
+        for folder in folders:
+            folder_to_parse = parent_folder_path + "/" + folder + "/"
+            file_to_parse = None
+            if os.path.exists(folder_to_parse + "README.txt"):
+                file_to_parse = folder_to_parse + "README.txt"
+            elif os.path.exists(folder_to_parse + "README.rst"):
+                file_to_parse = folder_to_parse + "README.rst"
+
+            file_type = parse_readme(file_to_parse, parent_folder)
+
+            if file_type:
+                directory_list = [folder_to_parse] + directory_list
+            else:
+                directory_list.append(folder_to_parse)
+
+        new_folder_list.append(directory_list)
+
+    print(folder_lists)
+    print("-------------------------")
+    print(new_folder_list)
+
+    return new_folder_list
+    # folder_lists = new_folder_list
+
+follow_directory()
