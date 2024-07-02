@@ -1838,6 +1838,13 @@ def test_small_range_loglocator(numticks):
         assert (np.diff(np.log10(ll.tick_values(6, 150))) == 1).all()
 
 
+def test_yticks_with_inf():
+    fig, ax = plt.subplots()
+    ax.loglog(np.logspace(0, 10, 10), np.logspace(0, 10, 10)**2)
+    ax.set_yticks([1, 10, np.inf])
+    fig.draw_without_rendering()
+
+
 def test_NullFormatter():
     formatter = mticker.NullFormatter()
     assert formatter(1.0) == ''
