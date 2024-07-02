@@ -1873,3 +1873,16 @@ def test_minorticks_on_multi_fig():
 
     assert ax.get_xgridlines()
     assert isinstance(ax.xaxis.get_minor_locator(), mpl.ticker.AutoMinorLocator)
+
+
+def test_locator_reuse():
+    fig = plt.figure()
+    ax = fig.add_subplot(xlim=(.6, .8))
+    loc = mticker.AutoLocator()
+    ax.xaxis.set_major_locator(loc)
+    ax.yaxis.set_major_locator(loc)
+    fig.draw_without_rendering()
+    xticklabels = [l.get_text() for l in ax.get_xticklabels()]
+    yticklabels = [l.get_text() for l in ax.get_yticklabels()]
+    assert xticklabels == ["0.60", "0.65", "0.70", "0.75", "0.80"]
+    assert yticklabels == ["0.0", "0.2", "0.4", "0.6", "0.8", "1.0"]

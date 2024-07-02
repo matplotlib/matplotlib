@@ -185,11 +185,11 @@ class FixedAxisArtistHelperRectilinear(_FixedAxisArtistHelperBase):
         angle_normal, angle_tangent = {0: (90, 0), 1: (0, 90)}[self.nth_coord]
 
         major = self.axis.major
-        major_locs = major.locator()
+        major_locs = major.locator._call_with_axis(self.axis)
         major_labels = major.formatter.format_ticks(major_locs)
 
         minor = self.axis.minor
-        minor_locs = minor.locator()
+        minor_locs = minor.locator._call_with_axis(self.axis)
         minor_labels = minor.formatter.format_ticks(minor_locs)
 
         tick_to_axes = self.get_tick_transform(axes) - axes.transAxes
@@ -246,11 +246,11 @@ class FloatingAxisArtistHelperRectilinear(_FloatingAxisArtistHelperBase):
         angle_normal, angle_tangent = {0: (90, 0), 1: (0, 90)}[self.nth_coord]
 
         major = self.axis.major
-        major_locs = major.locator()
+        major_locs = major.locator._call_with_axis(self.axis)
         major_labels = major.formatter.format_ticks(major_locs)
 
         minor = self.axis.minor
-        minor_locs = minor.locator()
+        minor_locs = minor.locator._call_with_axis(self.axis)
         minor_labels = minor.formatter.format_ticks(minor_locs)
 
         data_to_axes = axes.transData - axes.transAxes
@@ -351,18 +351,22 @@ class GridHelperRectlinear(GridHelperBase):
             locs = []
             y1, y2 = self.axes.get_ylim()
             if which in ("both", "major"):
-                locs.extend(self.axes.xaxis.major.locator())
+                locs.extend(
+                    self.axes.xaxis.major.locator._call_with_axis(self.axes.xaxis))
             if which in ("both", "minor"):
-                locs.extend(self.axes.xaxis.minor.locator())
+                locs.extend(
+                    self.axes.xaxis.minor.locator._call_with_axis(self.axes.xaxis))
             gridlines.extend([[x, x], [y1, y2]] for x in locs)
 
         if axis in ("both", "y"):
             x1, x2 = self.axes.get_xlim()
             locs = []
             if self.axes.yaxis._major_tick_kw["gridOn"]:
-                locs.extend(self.axes.yaxis.major.locator())
+                locs.extend(
+                    self.axes.yaxis.major.locator._call_with_axis(self.axes.yaxis))
             if self.axes.yaxis._minor_tick_kw["gridOn"]:
-                locs.extend(self.axes.yaxis.minor.locator())
+                locs.extend(
+                    self.axes.yaxis.minor.locator._call_with_axis(self.axis.yaxis))
             gridlines.extend([[x1, x2], [y, y]] for y in locs)
 
         return gridlines
