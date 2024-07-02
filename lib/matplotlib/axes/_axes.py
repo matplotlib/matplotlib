@@ -7226,21 +7226,22 @@ such objects
         linestyles = itertools.cycle(np.atleast_1d(kwargs.get('linestyle', None)))
 
         for patch, lbl in itertools.zip_longest(patches, labels):
-            if patch:
-                p = patch[0]
-                kwargs.update({
-                    'hatch': next(hatches),
-                    'linewidth': next(linewidths),
-                    'linestyle': next(linestyles),
-                    'edgecolor': next(edgecolors),
-                    'facecolor': next(facecolors),
-                })
+            if not patch:
+                continue
+            p = patch[0]
+            kwargs.update({
+                'hatch': next(hatches),
+                'linewidth': next(linewidths),
+                'linestyle': next(linestyles),
+                'edgecolor': next(edgecolors),
+                'facecolor': next(facecolors),
+            })
+            p._internal_update(kwargs)
+            if lbl is not None:
+                p.set_label(lbl)
+            for p in patch[1:]:
                 p._internal_update(kwargs)
-                if lbl is not None:
-                    p.set_label(lbl)
-                for p in patch[1:]:
-                    p._internal_update(kwargs)
-                    p.set_label('_nolegend_')
+                p.set_label('_nolegend_')
 
         if nx == 1:
             return tops[0], bins, patches[0]
