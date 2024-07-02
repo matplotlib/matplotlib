@@ -94,6 +94,11 @@ plt.show()
 
 # %%
 #
+# .. tags::
+#
+#    plot-type: histogram2d, plot-type: pcolormesh, purpose:storytelling,
+#    styling: color, component: colormap
+#
 # .. admonition:: References
 #
 #    The use of the following functions, methods, classes and modules is shown

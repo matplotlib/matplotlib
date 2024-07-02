@@ -43,3 +43,7 @@ ax.axhline(0, color="k")
 ax.legend()
 
 plt.show()
+
+# %%
+#
+# .. tags:: plot-type: histogram, domain:statistics, purpose: showcase

@@ -47,9 +47,16 @@ plt.show()
 
 # %%
 #
+# .. tags::
+#    plot-type: histogram, domain: statistics, purpose: reference
+#
 # .. admonition:: References
 #
 #    The use of the following functions, methods, classes and modules is shown
 #    in this example:
 #
 #    - `matplotlib.axes.Axes.hist` / `matplotlib.pyplot.hist`
+#
+# .. ifconfig:: releaselevel == 'dev'
+#
+#    .. tags::  internal: needs-review

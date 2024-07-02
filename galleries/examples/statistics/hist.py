@@ -103,6 +103,11 @@ axs[2].hist2d(dist1, dist2, bins=(80, 10), norm=colors.LogNorm())
 
 # %%
 #
+# .. tags::
+#
+#    plot-type:histogram, plot-type:histogram2d, domain:statistics, styling:color,
+#    component: normalization, component: patch
+#
 # .. admonition:: References
 #
 #    The use of the following functions, methods, classes and modules is shown
