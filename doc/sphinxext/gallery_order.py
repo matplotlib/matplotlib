@@ -4,49 +4,46 @@ Paths are relative to the conf.py file.
 """
 
 from sphinx_gallery.sorting import ExplicitOrder
+import os
+
+
+# Utility functions
+def get_ordering(dir, include_directory_path=False):
+    """Read gallery_order.txt in dir and return content of the file as a List"""
+    file_path = os.path.join(dir, 'gallery_order.txt')
+    f = open(file_path, "r")
+    lines = [line.replace('\n', '') for line in f.readlines()]
+    ordered_list = []
+    for line in lines:
+        if line == "unsorted":
+            ordered_list.append(UNSORTED)
+        else:
+            if include_directory_path:
+                ordered_list.append(os.path.join(dir, line))
+            else:
+                ordered_list.append(line)
+
+    return ordered_list
+
+
+def list_directory(parent_dir):
+    """Return list of sub directories at a directory"""
+    root, dirs, files = next(os.walk(parent_dir))
+    return [os.path.join(root, dir) for dir in dirs]
 
 # Gallery sections shall be displayed in the following order.
 # Non-matching sections are inserted at the unsorted position
 
 UNSORTED = "unsorted"
 
-examples_order = [
-    '../galleries/examples/lines_bars_and_markers',
-    '../galleries/examples/images_contours_and_fields',
-    '../galleries/examples/subplots_axes_and_figures',
-    '../galleries/examples/statistics',
-    '../galleries/examples/pie_and_polar_charts',
-    '../galleries/examples/text_labels_and_annotations',
-    '../galleries/examples/color',
-    '../galleries/examples/shapes_and_collections',
-    '../galleries/examples/style_sheets',
-    '../galleries/examples/pyplots',
-    '../galleries/examples/axes_grid1',
-    '../galleries/examples/axisartist',
-    '../galleries/examples/showcase',
-    UNSORTED,
-    '../galleries/examples/userdemo',
-]
 
-tutorials_order = [
-    '../galleries/tutorials/introductory',
-    '../galleries/tutorials/intermediate',
-    '../galleries/tutorials/advanced',
-    UNSORTED,
-    '../galleries/tutorials/provisional'
-]
+plot_types_directory = "../galleries/plot_types/"
+plot_types_order = get_ordering(plot_types_directory, include_directory_path=True)
 
-plot_types_order = [
-    '../galleries/plot_types/basic',
-    '../galleries/plot_types/stats',
-    '../galleries/plot_types/arrays',
-    '../galleries/plot_types/unstructured',
-    '../galleries/plot_types/3D',
-    UNSORTED
-]
+examples_directory = "../galleries/examples/"
+examples_order = get_ordering(examples_directory, include_directory_path=True)
 
-folder_lists = [examples_order, tutorials_order, plot_types_order]
-
+folder_lists = [examples_order, plot_types_order]
 explicit_order_folders = [fd for folders in folder_lists
                           for fd in folders[:folders.index(UNSORTED)]]
 explicit_order_folders.append(UNSORTED)
@@ -69,39 +66,20 @@ class MplExplicitOrder(ExplicitOrder):
 # Examples/tutorials that do not appear in a list will be appended.
 
 list_all = [
-    #  **Tutorials**
-    #  introductory
-    "quick_start", "pyplot", "images", "lifecycle", "customizing",
-    #  intermediate
-    "artists", "legend_guide", "color_cycle",
-    "constrainedlayout_guide", "tight_layout_guide",
-    #  advanced
-    #  text
-    "text_intro", "text_props",
-    #  colors
-    "colors",
+    # folders that don't contain gallery_order.txt file can  
+    # list their file orderings here 
+]
 
-    #  **Examples**
-    #  color
-    "color_demo",
-    #  pies
-    "pie_features", "pie_demo2",
 
-    # **Plot Types
-    # Basic
-    "plot", "scatter_plot", "bar", "stem", "step", "fill_between",
-    # Arrays
-    "imshow", "pcolormesh", "contour", "contourf",
-    "barbs", "quiver", "streamplot",
-    # Stats
-    "hist_plot", "boxplot_plot", "errorbar_plot", "violin",
-    "eventplot", "hist2d", "hexbin", "pie",
-    # Unstructured
-    "tricontour", "tricontourf", "tripcolor", "triplot",
-    # Spines
-    "spines", "spine_placement_demo", "spines_dropped",
-    "multiple_yaxis_with_spines", "centered_spines_with_arrows",
-    ]
+for dir in list_directory(plot_types_directory):
+    try:
+        ordered_subdirs = get_ordering(dir, include_directory_path=False)
+        list_all.extend(ordered_subdirs)
+    except FileNotFoundError:
+        # Fallback to ordering already defined in list_all
+        pass
+
+
 explicit_subsection_order = [item + ".py" for item in list_all]
 
 

@@ -1,0 +1,6 @@
+plot
+scatter_plot
+bar
+stem
+step
+fill_between
