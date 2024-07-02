@@ -26,6 +26,8 @@ __all__ = [
     "interactive",
     "is_interactive",
     "colormaps",
+    "multivar_colormaps",
+    "bivar_colormaps",
     "color_sequences",
 ]
 
@@ -112,4 +114,6 @@ def _preprocess_data(
 ) -> Callable: ...
 
 from matplotlib.cm import _colormaps as colormaps
+from matplotlib.cm import _multivar_colormaps as multivar_colormaps
+from matplotlib.cm import _bivar_colormaps as bivar_colormaps
 from matplotlib.colors import _color_sequences as color_sequences

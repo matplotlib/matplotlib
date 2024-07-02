@@ -15,7 +15,7 @@ from matplotlib.backend_bases import (
 )
 from matplotlib.colors import Colormap, Normalize
 from matplotlib.colorbar import Colorbar
-from matplotlib.cm import ScalarMappable
+from matplotlib.cm import ScalarMappable, VectorMappable
 from matplotlib.gridspec import GridSpec, SubplotSpec, SubplotParams as SubplotParams
 from matplotlib.image import _ImageBase, FigureImage
 from matplotlib.layout_engine import LayoutEngine
@@ -164,6 +164,22 @@ class FigureBase(Artist):
         use_gridspec: bool = ...,
         **kwargs
     ) -> Colorbar: ...
+    def colorbars(
+        self,
+        mappable: VectorMappable,
+        shape: tuple[int, int] = ...,
+        fraction_per_row: float = ...,
+        pad: float = ...,
+        internal_pad: float = ...,
+        total_aspect: float = ...,
+        **kwargs
+    ) -> list[Colorbar]: ...
+    def colorbar_2D(
+        self,
+        mappable: VectorMappable,
+        fraction: float = ...,
+        pad: float = ...,
+        ) -> Axes: ...
     def subplots_adjust(
         self,
         left: float | None = ...,

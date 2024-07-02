@@ -13,7 +13,7 @@ import numpy as np
 import matplotlib as mpl
 from . import _api, cbook
 from .colors import BoundaryNorm
-from .cm import ScalarMappable
+from .cm import ScalarMappable, VectorMappable
 from .path import Path
 from .transforms import (BboxBase, Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
@@ -1327,12 +1327,13 @@ class Artist:
         --------
         get_cursor_data
         """
-        if np.ndim(data) == 0 and isinstance(self, ScalarMappable):
-            # This block logically belongs to ScalarMappable, but can't be
-            # implemented in it because most ScalarMappable subclasses inherit
-            # from Artist first and from ScalarMappable second, so
+        if np.ndim(data) == 0 and \
+           (isinstance(self, ScalarMappable) or isinstance(self, VectorMappable)):
+            # This block logically belongs to Scalar/VectorMappable, but can't be
+            # implemented in it because most Scalar/VectorMappable subclasses
+            # inherit from Artist first and from Scalar/VectorMappable second, so
             # Artist.format_cursor_data would always have precedence over
-            # ScalarMappable.format_cursor_data.
+            # Scalar/VectorMappable.format_cursor_data.
             n = self.cmap.N
             if np.ma.getmask(data):
                 return "[]"
