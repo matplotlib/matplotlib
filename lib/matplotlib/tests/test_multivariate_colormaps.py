@@ -281,7 +281,30 @@ def test_bivar_cmap_call():
                        match="only implemented for use with with floats"):
         cs = cmap([(0, 5, 9, 0, 0, 9), (0, 0, 0, 5, 11, 11)])
 
+def test_bivar_getitem():
+    '''Test __getitem__  on BivarColormap'''
+    xA = ([.0, .25, .5, .75, 1., -1, 2], [.5]*7)
+    xB = ([.5]*7, [.0, .25, .5, .75, 1., -1, 2])
 
+    cmaps = mpl.bivar_colormaps['BiPeak']
+    assert_array_equal(cmaps(xA), cmaps[0](xA[0]))
+    assert_array_equal(cmaps(xB), cmaps[1](xB[1]))
+
+    cmaps.shape = 'ignore'
+    assert_array_equal(cmaps(xA), cmaps[0](xA[0]))
+    assert_array_equal(cmaps(xB), cmaps[1](xB[1]))
+
+    xA = ([.0, .25, .5, .75, 1., -1, 2], [.0]*7)
+    xB = ([.0]*7, [.0, .25, .5, .75, 1., -1, 2])
+    cmaps = mpl.bivar_colormaps['BiOrangeBlue']
+    assert_array_equal(cmaps(xA), cmaps[0](xA[0]))
+    assert_array_equal(cmaps(xB), cmaps[1](xB[1]))
+
+    cmaps.shape = 'ignore'
+    assert_array_equal(cmaps(xA), cmaps[0](xA[0]))
+    assert_array_equal(cmaps(xB), cmaps[1](xB[1]))
+
+    
 def test_bivar_cmap_bad_shape():
     """
     Tests calling a bivariate colormap with integer values
