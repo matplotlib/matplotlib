@@ -2573,10 +2573,13 @@ class SpanSelector(_SelectorWidget):
 
     def new_axes(self, ax, *, _props=None, _init=False):
         """Set SpanSelector to operate on a new Axes."""
-        self.ax = ax
+        reconnect = False
         if _init or self.canvas is not ax.figure.canvas:
             if self.canvas is not None:
                 self.disconnect_events()
+            reconnect = True
+        self.ax = ax
+        if reconnect:
             self.connect_default_events()
 
         # Reset
