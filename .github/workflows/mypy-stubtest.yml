@@ -16,7 +16,7 @@ jobs:
       - name: Set up Python 3
         uses: actions/setup-python@v5
         with:
-          python-version: 3.9
+          python-version: '3.10'
 
       - name: Set up reviewdog
         uses: reviewdog/action-setup@v1
@@ -30,7 +30,7 @@ jobs:
         run: |
           set -o pipefail
           tox -e stubtest | \
-              sed -e "s!.tox/stubtest/lib/python3.9/site-packages!lib!g" | \
+              sed -e "s!.tox/stubtest/lib/python3.10/site-packages!lib!g" | \
               reviewdog \
                 -efm '%Eerror: %m' \
                 -efm '%CStub: in file %f:%l' \

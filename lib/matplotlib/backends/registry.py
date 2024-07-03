@@ -132,14 +132,8 @@ class BackendRegistry:
         #   [project.entry-points."matplotlib.backend"]
         #   inline = "matplotlib_inline.backend_inline"
         import importlib.metadata as im
-        import sys
 
-        # entry_points group keyword not available before Python 3.10
-        group = "matplotlib.backend"
-        if sys.version_info >= (3, 10):
-            entry_points = im.entry_points(group=group)
-        else:
-            entry_points = im.entry_points().get(group, ())
+        entry_points = im.entry_points(group="matplotlib.backend")
         entries = [(entry.name, entry.value) for entry in entry_points]
 
         # For backward compatibility, if matplotlib-inline and/or ipympl are installed

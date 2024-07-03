@@ -24,6 +24,7 @@ dependencies:
   - pygobject
   - pyparsing>=2.3.1
   - pyqt
+  - python>=3.10
   - python-dateutil>=2.1
   - setuptools_scm
   - wxpython
