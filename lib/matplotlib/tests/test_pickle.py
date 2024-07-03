@@ -1,5 +1,7 @@
 from io import BytesIO
 import ast
+import os
+import sys
 import pickle
 import pickletools
 
@@ -316,6 +318,11 @@ def _test_axeswidget_interactive():
     pickle.dumps(mpl.widgets.Button(ax, "button"))
 
 
+@pytest.mark.xfail(  # https://github.com/actions/setup-python/issues/649
+        ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
+        sys.platform == 'darwin' and sys.version_info[:2] < (3, 11),
+        reason='Tk version mismatch on Azure macOS CI'
+    )
 def test_axeswidget_interactive():
     subprocess_run_helper(
         _test_axeswidget_interactive,
