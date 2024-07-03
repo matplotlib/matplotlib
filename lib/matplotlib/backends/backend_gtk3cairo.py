@@ -13,15 +13,19 @@ class FigureCanvasGTK3Cairo(FigureCanvasCairo, FigureCanvasGTK3):
 
         with (self.toolbar._wait_cursor_for_draw_cm() if self.toolbar
               else nullcontext()):
-            self._renderer.set_context(ctx)
+            allocation = self.get_allocation()
+            # Render the background before scaling, as the allocated size here is in
+            # logical pixels.
+            Gtk.render_background(
+                self.get_style_context(), ctx,
+                0, 0, allocation.width, allocation.height)
             scale = self.device_pixel_ratio
             # Scale physical drawing to logical size.
             ctx.scale(1 / scale, 1 / scale)
-            allocation = self.get_allocation()
-            Gtk.render_background(
-                self.get_style_context(), ctx,
-                allocation.x, allocation.y,
-                allocation.width, allocation.height)
+            self._renderer.set_context(ctx)
+            # Set renderer to physical size so it renders in full resolution.
+            self._renderer.width = allocation.width * scale
+            self._renderer.height = allocation.height * scale
             self._renderer.dpi = self.figure.dpi
             self.figure.draw(self._renderer)
 
