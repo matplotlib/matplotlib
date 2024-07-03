@@ -631,12 +631,13 @@ def test_svg_font_string(font_str, include_generic):
     text_count = 0
     for text_element in tree.findall(f".//{{{ns}}}text"):
         text_count += 1
-        font_info = dict(
+        font_style = dict(
             map(lambda x: x.strip(), _.strip().split(":"))
             for _ in dict(text_element.items())["style"].split(";")
-        )["font"]
+        )
 
-        assert font_info == f"{size}px {font_str}"
+        assert font_style["font-size"] == f"{size}px"
+        assert font_style["font-family"] == font_str
     assert text_count == len(ax.texts)
 
 
