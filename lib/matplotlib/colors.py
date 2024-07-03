@@ -675,16 +675,7 @@ def _create_lookup_table(N, data, gamma=1.0):
     return np.clip(lut, 0.0, 1.0)
 
 
-class ColormapBase:
-    """
-    Base class for all colormaps, both scalar, bivariate and multivariate.
-
-    This class is used for type checking, and cannot be initialized.
-    """
-    ...
-
-
-class Colormap(ColormapBase):
+class Colormap:
     """
     Baseclass for all scalar to RGBA mappings.
 
@@ -721,7 +712,33 @@ class Colormap(ColormapBase):
         #: `matplotlib.colorbar.Colorbar` constructor.
         self.colorbar_extend = False
 
-    def __call__(self, X, alpha=None, bytes=False, return_mask_bad=False):
+    def __call__(self, X, alpha=None, bytes=False):
+        r"""
+        Parameters
+        ----------
+        X : float or int, `~numpy.ndarray` or scalar
+            The data value(s) to convert to RGBA.
+            For floats, *X* should be in the interval ``[0.0, 1.0]`` to
+            return the RGBA values ``X*100`` percent along the Colormap line.
+            For integers, *X* should be in the interval ``[0, Colormap.N)`` to
+            return RGBA values *indexed* from the Colormap with index ``X``.
+        alpha : float or array-like or None
+            Alpha must be a scalar between 0 and 1, a sequence of such
+            floats with shape matching X, or None.
+        bytes : bool
+            If False (default), the returned RGBA values will be floats in the
+            interval ``[0, 1]`` otherwise they will be `numpy.uint8`\s in the
+            interval ``[0, 255]``
+
+        Returns
+        -------
+        Tuple of RGBA values if X is scalar, otherwise an array of
+        RGBA values with a shape of ``X.shape + (4, )``.
+        """
+        rgba, mask = self._get_rgba_and_mask(X, alpha=alpha, bytes=bytes)
+        return rgba
+
+    def _get_rgba_and_mask(self, X, alpha=None, bytes=False):
         r"""
         Parameters
         ----------
@@ -738,13 +755,12 @@ class Colormap(ColormapBase):
             If False (default), the returned RGBA values will be floats in the
             interval ``[0, 1]`` otherwise they will be `numpy.uint8`\s in the
             interval ``[0, 255]``.
-        return_mask_bad : bool
-            If true, also return a mask of bad values.
 
         Returns
         -------
-        Tuple of RGBA values if X is scalar, otherwise an array of
-        RGBA values with a shape of ``X.shape + (4, )``.
+        (colors, mask), where color is a tuple of RGBA values if X is scalar,
+        otherwise an array of RGBA values with a shape of ``X.shape + (4, )``,
+        and mask is a boolean array.
         """
         if not self._isinit:
             self._init()
@@ -791,9 +807,7 @@ class Colormap(ColormapBase):
 
         if not np.iterable(X):
             rgba = tuple(rgba)
-        if return_mask_bad:
-            return rgba, mask_bad
-        return rgba
+        return rgba, mask_bad
 
     def __copy__(self):
         cls = self.__class__
@@ -1241,13 +1255,10 @@ class ListedColormap(Colormap):
         return new_cmap
 
 
-class MultivarColormap(ColormapBase):
+class MultivarColormap:
     """
     Class for holding multiple `~matplotlib.colors.Colormap` for use in a
     `~matplotlib.cm.VectorMappable` object
-
-    MultivarColormap does not support alpha in the constituent
-    look up tables (ignored).
     """
     def __init__(self, name, colormaps, combination_mode):
         """
@@ -1259,7 +1270,7 @@ class MultivarColormap(ColormapBase):
             The individual colormaps that are combined
         combination_mode: str, 'Add' or 'Sub'
             Describe how colormaps are combined in sRGB space
-            
+
             - If 'Add' -> Mixing produces brighter colors
               `sRGB = cmap[0][X[0]] + cmap[1][x[1]] + ... + cmap[n-1][x[n-1]]`
             - If 'Sub' -> Mixing produces darker colors
@@ -1267,12 +1278,18 @@ class MultivarColormap(ColormapBase):
         """
         self.name = name
 
-        if not np.iterable(colormaps) or len(colormaps) == 1:
+        if not np.iterable(colormaps) \
+           or len(colormaps) == 1 \
+           or isinstance(colormaps, str):
             raise ValueError("A MultivarColormap must have more than one colormap.")
-        for cmap in colormaps:
+        colormaps = list(colormaps)  # ensure cmaps is a list, i.e. not a tuple
+        for i, cmap in enumerate(colormaps):
             if not issubclass(type(cmap), Colormap):
-                raise ValueError("colormaps must be a list of objects that subclass"
-                                 " Colormap, not strings or list of strings")
+                if isinstance(cmap, str):
+                    colormaps[i] = mpl.colormaps[cmap]
+                else:
+                    raise ValueError("colormaps must be a list of objects that subclass"
+                                     " Colormap or valid strings.")
 
         self.colormaps = colormaps
         self.combination_mode = combination_mode
@@ -1310,10 +1327,10 @@ class MultivarColormap(ColormapBase):
             raise ValueError(
                 f'For the selected colormap the data must have a first dimension '
                 f'{len(self)}, not {len(X)}')
-        rgba, mask_bad = self[0](X[0], bytes=False, return_mask_bad=True)
+        rgba, mask_bad = self[0]._get_rgba_and_mask(X[0], bytes=False)
         rgba = np.asarray(rgba)
         for c, xx in zip(self[1:], X[1:]):
-            sub_rgba, sub_mask_bad = c(xx, bytes=False, return_mask_bad=True)
+            sub_rgba, sub_mask_bad = c._get_rgba_and_mask(xx, bytes=False)
             sub_rgba = np.asarray(sub_rgba)
             rgba[..., :3] += sub_rgba[..., :3]  # add colors
             rgba[..., 3] *= sub_rgba[..., 3]  # multiply alpha
@@ -1401,16 +1418,30 @@ class MultivarColormap(ColormapBase):
         self._combination_mode = mode
 
     def _repr_png_(self):
-        raise NotImplementedError("no png representation of MultivarColormap"
-                                  " but you may access png repreesntations of the"
-                                  " individual colorbars.")
+        """Generate a PNG representation of the Colormap."""
+        X = np.tile(np.linspace(0, 1, _REPR_PNG_SIZE[0]),
+                                (_REPR_PNG_SIZE[1], 1))
+        pixels = np.zeros((_REPR_PNG_SIZE[1]*len(self), _REPR_PNG_SIZE[0], 4),
+                          dtype=np.uint8)
+        for i, c in enumerate(self):
+            pixels[i*_REPR_PNG_SIZE[1]:(i+1)*_REPR_PNG_SIZE[1], :] = c(X, bytes=True)
+        png_bytes = io.BytesIO()
+        title = self.name + ' multivariate colormap'
+        author = f'Matplotlib v{mpl.__version__}, https://matplotlib.org'
+        pnginfo = PngInfo()
+        pnginfo.add_text('Title', title)
+        pnginfo.add_text('Description', title)
+        pnginfo.add_text('Author', author)
+        pnginfo.add_text('Software', author)
+        Image.fromarray(pixels).save(png_bytes, format='png', pnginfo=pnginfo)
+        return png_bytes.getvalue()
 
     def _repr_html_(self):
         """Generate an HTML representation of the MultivarColormap."""
         return ''.join([c._repr_html_() for c in self.colormaps])
 
 
-class BivarColormap(ColormapBase):
+class BivarColormap:
     """
     Baseclass for all bivarate to RGBA mappings.
 

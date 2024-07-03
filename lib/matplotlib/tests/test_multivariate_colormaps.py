@@ -41,8 +41,7 @@ def test_bivariate_cmap_shapes():
 def test_multivar_creation():
     # test creation of a custom multivariate colorbar
     blues = mpl.colormaps['Blues']
-    oranges = mpl.colormaps['Oranges']
-    cmap = mpl.colors.MultivarColormap('custom', (blues, oranges), 'Sub')
+    cmap = mpl.colors.MultivarColormap('custom', (blues, 'Oranges'), 'Sub')
     y, x = np.mgrid[0:3, 0:3]/2
     im = cmap((y, x))
     res = np.array([[[0.96862745, 0.94509804, 0.92156863, 1],
@@ -57,8 +56,8 @@ def test_multivar_creation():
     assert_allclose(im,  res, atol=0.01)
 
     with pytest.raises(ValueError, match="colormaps must be a list of"):
-        cmap = mpl.colors.MultivarColormap('custom', (blues, 'Oranges'), 'Sub')
-    with pytest.raises(ValueError, match="colormaps must be a list of"):
+        cmap = mpl.colors.MultivarColormap('custom', (blues, [blues]), 'Sub')
+    with pytest.raises(ValueError, match="A MultivarColormap must"):
         cmap = mpl.colors.MultivarColormap('custom', 'blues', 'Sub')
     with pytest.raises(ValueError, match="A MultivarColormap must"):
         cmap = mpl.colors.MultivarColormap('custom', (blues), 'Sub')
@@ -281,8 +280,9 @@ def test_bivar_cmap_call():
                        match="only implemented for use with with floats"):
         cs = cmap([(0, 5, 9, 0, 0, 9), (0, 0, 0, 5, 11, 11)])
 
+
 def test_bivar_getitem():
-    '''Test __getitem__  on BivarColormap'''
+    """Test __getitem__  on BivarColormap"""
     xA = ([.0, .25, .5, .75, 1., -1, 2], [.5]*7)
     xB = ([.5]*7, [.0, .25, .5, .75, 1., -1, 2])
 
@@ -304,7 +304,7 @@ def test_bivar_getitem():
     assert_array_equal(cmaps(xA), cmaps[0](xA[0]))
     assert_array_equal(cmaps(xB), cmaps[1](xB[1]))
 
-    
+
 def test_bivar_cmap_bad_shape():
     """
     Tests calling a bivariate colormap with integer values
