@@ -8,7 +8,7 @@ import pytest
 
 import matplotlib as mpl
 from matplotlib import cm
-from matplotlib.testing import subprocess_run_helper
+from matplotlib.testing import subprocess_run_helper, is_ci_environment
 from matplotlib.testing.decorators import check_figures_equal
 from matplotlib.dates import rrulewrapper
 from matplotlib.lines import VertexSelector
@@ -311,7 +311,14 @@ def test_cycler():
 
 # Run under an interactive backend to test that we don't try to pickle the
 # (interactive and non-picklable) canvas.
-@pytest.mark.backend('tkagg')
-def test_axeswidget_interactive():
+def _test_axeswidget_interactive():
     ax = plt.figure().add_subplot()
     pickle.dumps(mpl.widgets.Button(ax, "button"))
+
+
+def test_axeswidget_interactive():
+    subprocess_run_helper(
+        _test_axeswidget_interactive,
+        timeout=120 if is_ci_environment() else 20,
+        extra_env={'MPLBACKEND': 'tkagg'}
+    )

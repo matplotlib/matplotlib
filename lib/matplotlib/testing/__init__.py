@@ -211,3 +211,24 @@ def ipython_in_subprocess(requested_backend_or_gui_framework, all_expected_backe
     )
 
     assert proc.stdout.strip().endswith(f"'{expected_backend}'")
+
+
+def is_ci_environment():
+    # Common CI variables
+    ci_environment_variables = [
+        'CI',        # Generic CI environment variable
+        'CONTINUOUS_INTEGRATION',  # Generic CI environment variable
+        'TRAVIS',    # Travis CI
+        'CIRCLECI',  # CircleCI
+        'JENKINS',   # Jenkins
+        'GITLAB_CI',  # GitLab CI
+        'GITHUB_ACTIONS',  # GitHub Actions
+        'TEAMCITY_VERSION'  # TeamCity
+        # Add other CI environment variables as needed
+    ]
+
+    for env_var in ci_environment_variables:
+        if os.getenv(env_var):
+            return True
+
+    return False
