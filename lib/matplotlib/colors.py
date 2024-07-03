@@ -1296,7 +1296,7 @@ class MultivarColormap:
         self.n_variates = len(colormaps)
         self._rgba_bad = (0.0, 0.0, 0.0, 0.0)  # If bad, don't paint anything.
 
-    def __call__(self, X, alpha=None, bytes=False):
+    def __call__(self, X, alpha=None, bytes=False, clip=True):
         r"""
         Parameters
         ----------
@@ -1316,6 +1316,8 @@ class MultivarColormap:
             If False (default), the returned RGBA values will be floats in the
             interval ``[0, 1]`` otherwise they will be `numpy.uint8`\s in the
             interval ``[0, 255]``.
+        clip : bool
+            If True, clip output to 0 to 1
 
         Returns
         -------
@@ -1341,10 +1343,12 @@ class MultivarColormap:
 
         rgba[mask_bad] = self.get_bad()
 
-        rgba = np.clip(rgba, 0, 1)
+        if clip:
+            rgba = np.clip(rgba, 0, 1)
 
         if alpha is not None:
-            alpha = np.clip(alpha, 0, 1)
+            if clip:
+                alpha = np.clip(alpha, 0, 1)
             if alpha.shape not in [(), np.array(X[0]).shape]:
                 raise ValueError(
                     f"alpha is array-like but its shape {alpha.shape} does "
@@ -1352,6 +1356,11 @@ class MultivarColormap:
             rgba[..., -1] *= alpha
 
         if bytes:
+            if not clip:
+                raise ValueError(
+                    "clip cannot be false while bytes is true"
+                    " as uint8 does not support values below 0"
+                    " or above 255.")
             rgba = (rgba * 255).astype('uint8')
 
         if not np.iterable(X[0]):
@@ -1737,24 +1746,20 @@ class BivarColormap:
         if not self._isinit:
             self._init()
         if item == 0:
-            cmap = Colormap(self.name+'0', self.N)
             one_d_lut = self._lut[:, self._origin[1]]
+            new_cmap = ListedColormap(one_d_lut, name=self.name+'_0', N=self.N)
+
         elif item == 1:
-            cmap = Colormap(self.name+'1', self.M)
             one_d_lut = self._lut[self._origin[0], :]
+            new_cmap = ListedColormap(one_d_lut, name=self.name+'_1', N=self.M)
         else:
             raise KeyError(f"only 0 or 1 are"
                            f" valid keys for BivarColormap, not {item!r}")
-        cmap._lut = np.zeros((self.N + 3, 4), float)
-        cmap._lut[:-3] = one_d_lut
-        cmap.set_bad(self._rgba_bad)
-        self._rgba_outside
+        new_cmap._rgba_bad = self._rgba_bad
         if self.shape in ['ignore', 'circleignore']:
-            cmap.set_under(self._rgba_outside)
-            cmap.set_over(self._rgba_outside)
-        cmap._set_extremes()
-        cmap._isinit = True
-        return cmap
+            new_cmap.set_over(self._rgba_outside)
+            new_cmap.set_under(self._rgba_outside)
+        return new_cmap
 
     def _repr_png_(self):
         """Generate a PNG representation of the BivarColormap."""
