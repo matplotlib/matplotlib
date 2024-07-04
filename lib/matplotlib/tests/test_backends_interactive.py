@@ -19,7 +19,7 @@ import pytest
 import matplotlib as mpl
 from matplotlib import _c_internal_utils
 from matplotlib.backend_tools import ToolToggleBase
-from matplotlib.testing import subprocess_run_helper as _run_helper
+from matplotlib.testing import subprocess_run_helper as _run_helper, is_ci_environment
 
 
 class _WaitForStringPopen(subprocess.Popen):
@@ -108,27 +108,6 @@ def _get_testable_interactive_backends():
     return [pytest.param({**env}, marks=[*marks],
                          id='-'.join(f'{k}={v}' for k, v in env.items()))
             for env, marks in _get_available_interactive_backends()]
-
-
-def is_ci_environment():
-    # Common CI variables
-    ci_environment_variables = [
-        'CI',        # Generic CI environment variable
-        'CONTINUOUS_INTEGRATION',  # Generic CI environment variable
-        'TRAVIS',    # Travis CI
-        'CIRCLECI',  # CircleCI
-        'JENKINS',   # Jenkins
-        'GITLAB_CI',  # GitLab CI
-        'GITHUB_ACTIONS',  # GitHub Actions
-        'TEAMCITY_VERSION'  # TeamCity
-        # Add other CI environment variables as needed
-    ]
-
-    for env_var in ci_environment_variables:
-        if os.getenv(env_var):
-            return True
-
-    return False
 
 
 # Reasonable safe values for slower CI/Remote and local architectures.
