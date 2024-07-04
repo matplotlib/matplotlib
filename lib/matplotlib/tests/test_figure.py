@@ -1807,4 +1807,3 @@ def test_subfigure_stale_propagation():
 
     sfig2.stale = True
     assert fig.stale
-
