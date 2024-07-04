@@ -33,8 +33,9 @@ class Widget:
 
 class AxesWidget(Widget):
     ax: Axes
-    canvas: FigureCanvasBase | None
     def __init__(self, ax: Axes) -> None: ...
+    @property
+    def canvas(self) -> FigureCanvasBase | None: ...
     def connect_event(self, event: Event, callback: Callable) -> None: ...
     def disconnect_events(self) -> None: ...
 
@@ -310,7 +311,6 @@ class SpanSelector(_SelectorWidget):
     grab_range: float
     drag_from_anywhere: bool
     ignore_event_outside: bool
-    canvas: FigureCanvasBase | None
     def __init__(
         self,
         ax: Axes,
@@ -330,7 +330,13 @@ class SpanSelector(_SelectorWidget):
         ignore_event_outside: bool = ...,
         snap_values: ArrayLike | None = ...,
     ) -> None: ...
-    def new_axes(self, ax: Axes, *, _props: dict[str, Any] | None = ...) -> None: ...
+    def new_axes(
+        self,
+        ax: Axes,
+        *,
+        _props: dict[str, Any] | None = ...,
+        _init: bool = ...,
+    ) -> None: ...
     def connect_default_events(self) -> None: ...
     @property
     def direction(self) -> Literal["horizontal", "vertical"]: ...

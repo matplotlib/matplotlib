@@ -1,5 +1,7 @@
 from io import BytesIO
 import ast
+import os
+import sys
 import pickle
 import pickletools
 
@@ -8,7 +10,7 @@ import pytest
 
 import matplotlib as mpl
 from matplotlib import cm
-from matplotlib.testing import subprocess_run_helper
+from matplotlib.testing import subprocess_run_helper, is_ci_environment
 from matplotlib.testing.decorators import check_figures_equal
 from matplotlib.dates import rrulewrapper
 from matplotlib.lines import VertexSelector
@@ -307,3 +309,23 @@ def test_cycler():
     ax = pickle.loads(pickle.dumps(ax))
     l, = ax.plot([3, 4])
     assert l.get_color() == "m"
+
+
+# Run under an interactive backend to test that we don't try to pickle the
+# (interactive and non-picklable) canvas.
+def _test_axeswidget_interactive():
+    ax = plt.figure().add_subplot()
+    pickle.dumps(mpl.widgets.Button(ax, "button"))
+
+
+@pytest.mark.xfail(  # https://github.com/actions/setup-python/issues/649
+        ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
+        sys.platform == 'darwin' and sys.version_info[:2] < (3, 11),
+        reason='Tk version mismatch on Azure macOS CI'
+    )
+def test_axeswidget_interactive():
+    subprocess_run_helper(
+        _test_axeswidget_interactive,
+        timeout=120 if is_ci_environment() else 20,
+        extra_env={'MPLBACKEND': 'tkagg'}
+    )
