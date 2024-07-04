@@ -270,11 +270,7 @@ class ThetaFormatter(mticker.Formatter):
         vmin, vmax = self.axis.get_view_interval()
         d = np.rad2deg(abs(vmax - vmin))
         digits = max(-int(np.log10(d) - 1.5), 0)
-        # Use Unicode rather than mathtext with \circ, so that it will work
-        # correctly with any arbitrary font (assuming it has a degree sign),
-        # whereas $5\circ$ will only work correctly with one of the supported
-        # math fonts (Computer Modern and STIX).
-        return f"{np.rad2deg(x):0.{digits:d}f}\N{DEGREE SIGN}"
+        return f"{np.rad2deg(x):0.{digits}f}\N{DEGREE SIGN}"
 
 
 class _AxisWrapper:
@@ -1451,12 +1447,25 @@ class PolarAxes(Axes):
                     cbook._g_sig_digits(value, delta))
             return f"{value:-{opt}.{prec}{fmt}}"
 
-        return ('\N{GREEK SMALL LETTER THETA}={}\N{GREEK SMALL LETTER PI} '
-                '({}\N{DEGREE SIGN}), r={}').format(
+        # In case fmt_xdata was not specified, resort to default
+
+        if self.fmt_ydata is None:
+            r_label = format_sig(r, delta_r, "#", "g")
+        else:
+            r_label = self.format_ydata(r)
+
+        if self.fmt_xdata is None:
+            return ('\N{GREEK SMALL LETTER THETA}={}\N{GREEK SMALL LETTER PI} '
+                    '({}\N{DEGREE SIGN}), r={}').format(
                     format_sig(theta_halfturns, delta_t_halfturns, "", "f"),
                     format_sig(theta_degrees, delta_t_degrees, "", "f"),
-                    format_sig(r, delta_r, "#", "g"),
+                    r_label
                 )
+        else:
+            return '\N{GREEK SMALL LETTER THETA}={}, r={}'.format(
+                        self.format_xdata(theta),
+                        r_label
+                        )
 
     def get_data_ratio(self):
         """

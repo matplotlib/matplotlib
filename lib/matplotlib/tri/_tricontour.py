@@ -255,8 +255,6 @@ def tricontourf(ax, *args, **kwargs):
     hatches : list[str], optional
         A list of crosshatch patterns to use on the filled areas.
         If None, no hatching will be added to the contour.
-        Hatching is supported in the PostScript, PDF, SVG and Agg
-        backends only.
 
     Notes
     -----

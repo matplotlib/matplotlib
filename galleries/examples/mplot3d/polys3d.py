@@ -1,47 +1,35 @@
 """
-=============================================
-Generate polygons to fill under 3D line graph
-=============================================
+====================
+Generate 3D polygons
+====================
 
-Demonstrate how to create polygons which fill the space under a line
-graph. In this example polygons are semi-transparent, creating a sort
-of 'jagged stained glass' effect.
+Demonstrate how to create polygons in 3D. Here we stack 3 hexagons.
 """
-
-import math
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-from matplotlib.collections import PolyCollection
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
-# Fixing random state for reproducibility
-np.random.seed(19680801)
+# Coordinates of a hexagon
+angles = np.linspace(0, 2 * np.pi, 6, endpoint=False)
+x = np.cos(angles)
+y = np.sin(angles)
+zs = [-3, -2, -1]
 
+# Close the hexagon by repeating the first vertex
+x = np.append(x, x[0])
+y = np.append(y, y[0])
 
-def polygon_under_graph(x, y):
-    """
-    Construct the vertex list which defines the polygon filling the space under
-    the (x, y) line graph. This assumes x is in ascending order.
-    """
-    return [(x[0], 0.), *zip(x, y), (x[-1], 0.)]
-
+verts = []
+for z in zs:
+    verts.append(list(zip(x*z, y*z, np.full_like(x, z))))
+verts = np.array(verts)
 
 ax = plt.figure().add_subplot(projection='3d')
 
-x = np.linspace(0., 10., 31)
-lambdas = range(1, 9)
-
-# verts[i] is a list of (x, y) pairs defining polygon i.
-gamma = np.vectorize(math.gamma)
-verts = [polygon_under_graph(x, l**x * np.exp(-l) / gamma(x + 1))
-         for l in lambdas]
-facecolors = plt.colormaps['viridis_r'](np.linspace(0, 1, len(verts)))
-
-poly = PolyCollection(verts, facecolors=facecolors, alpha=.7)
-ax.add_collection3d(poly, zs=lambdas, zdir='y')
-
-ax.set(xlim=(0, 10), ylim=(1, 9), zlim=(0, 0.35),
-       xlabel='x', ylabel=r'$\lambda$', zlabel='probability')
+poly = Poly3DCollection(verts, alpha=.7)
+ax.add_collection3d(poly)
+ax.set_aspect('equalxy')
 
 plt.show()

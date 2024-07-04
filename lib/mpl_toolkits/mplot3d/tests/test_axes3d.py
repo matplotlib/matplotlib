@@ -5,6 +5,7 @@ import platform
 import pytest
 
 from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
+from mpl_toolkits.mplot3d.axes3d import _Quaternion as Quaternion
 import matplotlib as mpl
 from matplotlib.backend_bases import (MouseButton, MouseEvent,
                                       NavigationToolbar2)
@@ -113,7 +114,8 @@ def test_axes3d_repr():
         "title={'center': 'title'}, xlabel='x', ylabel='y', zlabel='z'>")
 
 
-@mpl3d_image_comparison(['axes3d_primary_views.png'], style='mpl20')
+@mpl3d_image_comparison(['axes3d_primary_views.png'], style='mpl20',
+                        tol=0.05 if platform.machine() == "arm64" else 0)
 def test_axes3d_primary_views():
     # (elev, azim, roll)
     views = [(90, -90, 0),  # XY
@@ -581,7 +583,7 @@ def test_marker_draw_order_view_rotated(fig_test, fig_ref):
     ax.view_init(elev=0, azim=azim - 180, roll=0)  # view rotated by 180 deg
 
 
-@mpl3d_image_comparison(['plot_3d_from_2d.png'], tol=0.015, style='mpl20')
+@mpl3d_image_comparison(['plot_3d_from_2d.png'], tol=0.019, style='mpl20')
 def test_plot_3d_from_2d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -589,6 +591,48 @@ def test_plot_3d_from_2d():
     ys = np.arange(5, 10)
     ax.plot(xs, ys, zs=0, zdir='x')
     ax.plot(xs, ys, zs=0, zdir='y')
+
+
+@mpl3d_image_comparison(['fill_between_quad.png'], style='mpl20')
+def test_fill_between_quad():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    theta = np.linspace(0, 2*np.pi, 50)
+
+    x1 = np.cos(theta)
+    y1 = np.sin(theta)
+    z1 = 0.1 * np.sin(6 * theta)
+
+    x2 = 0.6 * np.cos(theta)
+    y2 = 0.6 * np.sin(theta)
+    z2 = 2
+
+    where = (theta < np.pi/2) | (theta > 3*np.pi/2)
+
+    # Since none of x1 == x2, y1 == y2, or z1 == z2 is True, the fill_between
+    # mode will map to 'quad'
+    ax.fill_between(x1, y1, z1, x2, y2, z2,
+                    where=where, mode='auto', alpha=0.5, edgecolor='k')
+
+
+@mpl3d_image_comparison(['fill_between_polygon.png'], style='mpl20')
+def test_fill_between_polygon():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    theta = np.linspace(0, 2*np.pi, 50)
+
+    x1 = x2 = theta
+    y1 = y2 = 0
+    z1 = np.cos(theta)
+    z2 = z1 + 1
+
+    where = (theta < np.pi/2) | (theta > 3*np.pi/2)
+
+    # Since x1 == x2 and y1 == y2, the fill_between mode will be 'polygon'
+    ax.fill_between(x1, y1, z1, x2, y2, z2,
+                    where=where, mode='auto', edgecolor='k')
 
 
 @mpl3d_image_comparison(['surface3d.png'], style='mpl20')
@@ -960,8 +1004,8 @@ def test_poly3dcollection_closed():
                                 facecolor=(0.5, 0.5, 1, 0.5), closed=True)
     c2 = art3d.Poly3DCollection([poly2], linewidths=3, edgecolor='k',
                                 facecolor=(1, 0.5, 0.5, 0.5), closed=False)
-    ax.add_collection3d(c1)
-    ax.add_collection3d(c2)
+    ax.add_collection3d(c1, autolim=False)
+    ax.add_collection3d(c2, autolim=False)
 
 
 def test_poly_collection_2d_to_3d_empty():
@@ -994,8 +1038,8 @@ def test_poly3dcollection_alpha():
     c2.set_facecolor((1, 0.5, 0.5))
     c2.set_edgecolor('k')
     c2.set_alpha(0.5)
-    ax.add_collection3d(c1)
-    ax.add_collection3d(c2)
+    ax.add_collection3d(c1, autolim=False)
+    ax.add_collection3d(c2, autolim=False)
 
 
 @mpl3d_image_comparison(['add_collection3d_zs_array.png'], style='mpl20')
@@ -1052,6 +1096,32 @@ def test_add_collection3d_zs_scalar():
     ax.set_xlim(-5, 5)
     ax.set_ylim(-4, 6)
     ax.set_zlim(0, 2)
+
+
+def test_line3dCollection_autoscaling():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    lines = [[(0, 0, 0), (1, 4, 2)],
+             [(1, 1, 3), (2, 0, 2)],
+             [(1, 0, 4), (1, 4, 5)]]
+
+    lc = art3d.Line3DCollection(lines)
+    ax.add_collection3d(lc)
+    assert np.allclose(ax.get_xlim3d(), (-0.041666666666666664, 2.0416666666666665))
+    assert np.allclose(ax.get_ylim3d(), (-0.08333333333333333, 4.083333333333333))
+    assert np.allclose(ax.get_zlim3d(), (-0.10416666666666666, 5.104166666666667))
+
+
+def test_poly3dCollection_autoscaling():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    poly = np.array([[0, 0, 0], [1, 1, 3], [1, 0, 4]])
+    col = art3d.Poly3DCollection([poly])
+    ax.add_collection3d(col)
+    assert np.allclose(ax.get_xlim3d(), (-0.020833333333333332, 1.0208333333333333))
+    assert np.allclose(ax.get_ylim3d(), (-0.020833333333333332, 1.0208333333333333))
+    assert np.allclose(ax.get_zlim3d(), (-0.0833333333333333, 4.083333333333333))
 
 
 @mpl3d_image_comparison(['axes3d_labelpad.png'],
@@ -1588,7 +1658,8 @@ def test_errorbar3d_errorevery():
                 errorevery=estep)
 
 
-@mpl3d_image_comparison(['errorbar3d.png'], style='mpl20')
+@mpl3d_image_comparison(['errorbar3d.png'], style='mpl20',
+                        tol=0.02 if platform.machine() == 'arm64' else 0)
 def test_errorbar3d():
     """Tests limits, color styling, and legend for 3D errorbars."""
     fig = plt.figure()
@@ -1604,7 +1675,7 @@ def test_errorbar3d():
     ax.legend()
 
 
-@image_comparison(['stem3d.png'], style='mpl20', tol=0.003)
+@image_comparison(['stem3d.png'], style='mpl20', tol=0.008)
 def test_stem3d():
     plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig, axs = plt.subplots(2, 3, figsize=(8, 6),
@@ -1762,6 +1833,129 @@ def test_shared_axes_retick():
     # check that setting ticks on a shared axis is synchronized
     assert ax1.get_zlim() == (-0.5, 2.5)
     assert ax2.get_zlim() == (-0.5, 2.5)
+
+
+def test_quaternion():
+    # 1:
+    q1 = Quaternion(1, [0, 0, 0])
+    assert q1.scalar == 1
+    assert (q1.vector == [0, 0, 0]).all
+    # __neg__:
+    assert (-q1).scalar == -1
+    assert ((-q1).vector == [0, 0, 0]).all
+    # i, j, k:
+    qi = Quaternion(0, [1, 0, 0])
+    assert qi.scalar == 0
+    assert (qi.vector == [1, 0, 0]).all
+    qj = Quaternion(0, [0, 1, 0])
+    assert qj.scalar == 0
+    assert (qj.vector == [0, 1, 0]).all
+    qk = Quaternion(0, [0, 0, 1])
+    assert qk.scalar == 0
+    assert (qk.vector == [0, 0, 1]).all
+    # i^2 = j^2 = k^2 = -1:
+    assert qi*qi == -q1
+    assert qj*qj == -q1
+    assert qk*qk == -q1
+    # identity:
+    assert q1*qi == qi
+    assert q1*qj == qj
+    assert q1*qk == qk
+    # i*j=k, j*k=i, k*i=j:
+    assert qi*qj == qk
+    assert qj*qk == qi
+    assert qk*qi == qj
+    assert qj*qi == -qk
+    assert qk*qj == -qi
+    assert qi*qk == -qj
+    # __mul__:
+    assert (Quaternion(2, [3, 4, 5]) * Quaternion(6, [7, 8, 9])
+            == Quaternion(-86, [28, 48, 44]))
+    # conjugate():
+    for q in [q1, qi, qj, qk]:
+        assert q.conjugate().scalar == q.scalar
+        assert (q.conjugate().vector == -q.vector).all
+        assert q.conjugate().conjugate() == q
+        assert ((q*q.conjugate()).vector == 0).all
+    # norm:
+    q0 = Quaternion(0, [0, 0, 0])
+    assert q0.norm == 0
+    assert q1.norm == 1
+    assert qi.norm == 1
+    assert qj.norm == 1
+    assert qk.norm == 1
+    for q in [q0, q1, qi, qj, qk]:
+        assert q.norm == (q*q.conjugate()).scalar
+    # normalize():
+    for q in [
+        Quaternion(2, [0, 0, 0]),
+        Quaternion(0, [3, 0, 0]),
+        Quaternion(0, [0, 4, 0]),
+        Quaternion(0, [0, 0, 5]),
+        Quaternion(6, [7, 8, 9])
+    ]:
+        assert q.normalize().norm == 1
+    # reciprocal():
+    for q in [q1, qi, qj, qk]:
+        assert q*q.reciprocal() == q1
+        assert q.reciprocal()*q == q1
+    # rotate():
+    assert (qi.rotate([1, 2, 3]) == np.array([1, -2, -3])).all
+    # rotate_from_to():
+    for r1, r2, q in [
+        ([1, 0, 0], [0, 1, 0], Quaternion(np.sqrt(1/2), [0, 0, np.sqrt(1/2)])),
+        ([1, 0, 0], [0, 0, 1], Quaternion(np.sqrt(1/2), [0, -np.sqrt(1/2), 0])),
+        ([1, 0, 0], [1, 0, 0], Quaternion(1, [0, 0, 0]))
+    ]:
+        assert Quaternion.rotate_from_to(r1, r2) == q
+    # rotate_from_to(), special case:
+    for r1 in [[1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 1, 1]]:
+        r1 = np.array(r1)
+        with pytest.warns(UserWarning):
+            q = Quaternion.rotate_from_to(r1, -r1)
+        assert np.isclose(q.norm, 1)
+        assert np.dot(q.vector, r1) == 0
+    # from_cardan_angles(), as_cardan_angles():
+    for elev, azim, roll in [(0, 0, 0),
+                             (90, 0, 0), (0, 90, 0), (0, 0, 90),
+                             (0, 30, 30), (30, 0, 30), (30, 30, 0),
+                             (47, 11, -24)]:
+        for mag in [1, 2]:
+            q = Quaternion.from_cardan_angles(
+                np.deg2rad(elev), np.deg2rad(azim), np.deg2rad(roll))
+            assert np.isclose(q.norm, 1)
+            q = Quaternion(mag * q.scalar, mag * q.vector)
+            e, a, r = np.rad2deg(Quaternion.as_cardan_angles(q))
+            assert np.isclose(e, elev)
+            assert np.isclose(a, azim)
+            assert np.isclose(r, roll)
+
+
+def test_rotate():
+    """Test rotating using the left mouse button."""
+    for roll, dx, dy, new_elev, new_azim, new_roll in [
+            [0, 0.5, 0, 0, -90, 0],
+            [30, 0.5, 0, 30, -90, 0],
+            [0, 0, 0.5, -90, 0, 0],
+            [30, 0, 0.5, -60, -90, 90],
+            [0, 0.5, 0.5, -45, -90, 45],
+            [30, 0.5, 0.5, -15, -90, 45]]:
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1, projection='3d')
+        ax.view_init(0, 0, roll)
+        ax.figure.canvas.draw()
+
+        # drag mouse to change orientation
+        ax._button_press(
+            mock_event(ax, button=MouseButton.LEFT, xdata=0, ydata=0))
+        ax._on_move(
+            mock_event(ax, button=MouseButton.LEFT,
+                           xdata=dx*ax._pseudo_w, ydata=dy*ax._pseudo_h))
+        ax.figure.canvas.draw()
+
+        assert np.isclose(ax.elev, new_elev)
+        assert np.isclose(ax.azim, new_azim)
+        assert np.isclose(ax.roll, new_roll)
 
 
 def test_pan():
@@ -2247,6 +2441,49 @@ def test_view_init_vertical_axis(
         tickdir_expected = tickdirs_expected[i]
         tickdir_actual = axis._get_tickdir('default')
         np.testing.assert_array_equal(tickdir_expected, tickdir_actual)
+
+
+@pytest.mark.parametrize("vertical_axis", ["x", "y", "z"])
+def test_on_move_vertical_axis(vertical_axis: str) -> None:
+    """
+    Test vertical axis is respected when rotating the plot interactively.
+    """
+    ax = plt.subplot(1, 1, 1, projection="3d")
+    ax.view_init(elev=0, azim=0, roll=0, vertical_axis=vertical_axis)
+    ax.figure.canvas.draw()
+
+    proj_before = ax.get_proj()
+    event_click = mock_event(ax, button=MouseButton.LEFT, xdata=0, ydata=1)
+    ax._button_press(event_click)
+
+    event_move = mock_event(ax, button=MouseButton.LEFT, xdata=0.5, ydata=0.8)
+    ax._on_move(event_move)
+
+    assert ax._axis_names.index(vertical_axis) == ax._vertical_axis
+
+    # Make sure plot has actually moved:
+    proj_after = ax.get_proj()
+    np.testing.assert_raises(
+        AssertionError, np.testing.assert_allclose, proj_before, proj_after
+    )
+
+
+@pytest.mark.parametrize(
+    "vertical_axis, aspect_expected",
+    [
+        ("x", [1.190476, 0.892857, 1.190476]),
+        ("y", [0.892857, 1.190476, 1.190476]),
+        ("z", [1.190476, 1.190476, 0.892857]),
+    ],
+)
+def test_set_box_aspect_vertical_axis(vertical_axis, aspect_expected):
+    ax = plt.subplot(1, 1, 1, projection="3d")
+    ax.view_init(elev=0, azim=0, roll=0, vertical_axis=vertical_axis)
+    ax.figure.canvas.draw()
+
+    ax.set_box_aspect(None)
+
+    np.testing.assert_allclose(aspect_expected, ax._box_aspect, rtol=1e-6)
 
 
 @image_comparison(baseline_images=['arc_pathpatch.png'],

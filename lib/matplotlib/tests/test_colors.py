@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 import matplotlib.scale as mscale
 from matplotlib.rcsetup import cycler
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
-from matplotlib.colors import to_rgba_array
+from matplotlib.colors import is_color_like, to_rgba_array
 
 
 @pytest.mark.parametrize('N, result', [
@@ -1689,6 +1689,11 @@ def test_set_cmap_mismatched_name():
     assert cmap_returned.name == "wrong-cmap"
 
 
+def test_cmap_alias_names():
+    assert matplotlib.colormaps["gray"].name == "gray"  # original
+    assert matplotlib.colormaps["grey"].name == "grey"  # alias
+
+
 def test_to_rgba_array_none_color_with_alpha_param():
     # effective alpha for color "none" must always be 0 to achieve a vanishing color
     # even explicit alpha must be ignored
@@ -1697,3 +1702,16 @@ def test_to_rgba_array_none_color_with_alpha_param():
     assert_array_equal(
         to_rgba_array(c, alpha), [[0., 0., 1., 1.], [0., 0., 0., 0.]]
     )
+
+
+@pytest.mark.parametrize('input, expected',
+                         [('red', True),
+                          (('red', 0.5), True),
+                          (('red', 2), False),
+                          (['red', 0.5], False),
+                          (('red', 'blue'), False),
+                          (['red', 'blue'], False),
+                          ('C3', True),
+                          (('C3', 0.5), True)])
+def test_is_color_like(input, expected):
+    assert is_color_like(input) is expected

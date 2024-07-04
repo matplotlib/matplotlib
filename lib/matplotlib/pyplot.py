@@ -90,6 +90,9 @@ if TYPE_CHECKING:
     import PIL.Image
     from numpy.typing import ArrayLike
 
+    import matplotlib.axes
+    import matplotlib.artist
+    import matplotlib.backend_bases
     from matplotlib.axis import Tick
     from matplotlib.axes._base import _AxesBase
     from matplotlib.backend_bases import RendererBase, Event
@@ -179,7 +182,77 @@ def _copy_docstring_and_deprecators(
         method = method.__wrapped__
     for decorator in decorators[::-1]:
         func = decorator(func)
+    _add_pyplot_note(func, method)
     return func
+
+
+_NO_PYPLOT_NOTE = [
+    'FigureBase._gci',  # wrapped_func is private
+    '_AxesBase._sci',  # wrapped_func is private
+    'Artist.findobj',  # not a standard pyplot wrapper because it does not operate
+                       # on the current Figure / Axes. Explanation of relation would
+                       # be more complex and is not too important.
+]
+
+
+def _add_pyplot_note(func, wrapped_func):
+    """
+    Add a note to the docstring of *func* that it is a pyplot wrapper.
+
+    The note is added to the "Notes" section of the docstring. If that does
+    not exist, a "Notes" section is created. In numpydoc, the "Notes"
+    section is the third last possible section, only potentially followed by
+    "References" and "Examples".
+    """
+    if not func.__doc__:
+        return  # nothing to do
+
+    qualname = wrapped_func.__qualname__
+    if qualname in _NO_PYPLOT_NOTE:
+        return
+
+    wrapped_func_is_method = True
+    if "." not in qualname:
+        # method qualnames are prefixed by the class and ".", e.g. "Axes.plot"
+        wrapped_func_is_method = False
+        link = f"{wrapped_func.__module__}.{qualname}"
+    elif qualname.startswith("Axes."):  # e.g. "Axes.plot"
+        link = ".axes." + qualname
+    elif qualname.startswith("_AxesBase."):  # e.g. "_AxesBase.set_xlabel"
+        link = ".axes.Axes" + qualname[9:]
+    elif qualname.startswith("Figure."):  # e.g. "Figure.figimage"
+        link = "." + qualname
+    elif qualname.startswith("FigureBase."):  # e.g. "FigureBase.gca"
+        link = ".Figure" + qualname[10:]
+    elif qualname.startswith("FigureCanvasBase."):  # "FigureBaseCanvas.mpl_connect"
+        link = "." + qualname
+    else:
+        raise RuntimeError(f"Wrapped method from unexpected class: {qualname}")
+
+    if wrapped_func_is_method:
+        message = f"This is the :ref:`pyplot wrapper <pyplot_interface>` for `{link}`."
+    else:
+        message = f"This is equivalent to `{link}`."
+
+    # Find the correct insert position:
+    # - either we already have a "Notes" section into which we can insert
+    # - or we create one before the next present section. Note that in numpydoc, the
+    #   "Notes" section is the third last possible section, only potentially followed
+    #   by "References" and "Examples".
+    # - or we append a new "Notes" section at the end.
+    doc = inspect.cleandoc(func.__doc__)
+    if "\nNotes\n-----" in doc:
+        before, after = doc.split("\nNotes\n-----", 1)
+    elif (index := doc.find("\nReferences\n----------")) != -1:
+        before, after = doc[:index], doc[index:]
+    elif (index := doc.find("\nExamples\n--------")) != -1:
+        before, after = doc[:index], doc[index:]
+    else:
+        # No "Notes", "References", or "Examples" --> append to the end.
+        before = doc + "\n"
+        after = ""
+
+    func.__doc__ = f"{before}\nNotes\n-----\n\n.. note::\n\n    {message}\n{after}"
 
 
 ## Global ##
@@ -225,9 +298,16 @@ def install_repl_displayhook() -> None:
     ip.events.register("post_execute", _draw_all_if_interactive)
     _REPL_DISPLAYHOOK = _ReplDisplayHook.IPYTHON
 
-    from IPython.core.pylabtools import backend2gui
+    if mod_ipython.version_info[:2] < (8, 24):
+        # Use of backend2gui is not needed for IPython >= 8.24 as that functionality
+        # has been moved to Matplotlib.
+        # This code can be removed when Python 3.12, the latest version supported by
+        # IPython < 8.24, reaches end-of-life in late 2028.
+        from IPython.core.pylabtools import backend2gui
+        ipython_gui_name = backend2gui.get(get_backend())
+    else:
+        _, ipython_gui_name = backend_registry.resolve_backend(get_backend())
     # trigger IPython's eventloop integration, if available
-    ipython_gui_name = backend2gui.get(get_backend())
     if ipython_gui_name:
         ip.enable_gui(ipython_gui_name)
 
@@ -332,7 +412,7 @@ def switch_backend(newbackend: str) -> None:
     # have to escape the switch on access logic
     old_backend = dict.__getitem__(rcParams, 'backend')
 
-    module = importlib.import_module(cbook._backend_module_name(newbackend))
+    module = backend_registry.load_backend_module(newbackend)
     canvas_class = module.FigureCanvas
 
     required_framework = canvas_class.required_interactive_framework
@@ -406,6 +486,18 @@ def switch_backend(newbackend: str) -> None:
 
     _log.debug("Loaded backend %s version %s.",
                newbackend, backend_mod.backend_version)
+
+    if newbackend in ("ipympl", "widget"):
+        # ipympl < 0.9.4 expects rcParams["backend"] to be the fully-qualified backend
+        # name "module://ipympl.backend_nbagg" not short names "ipympl" or "widget".
+        import importlib.metadata as im
+        from matplotlib import _parse_to_version_info  # type: ignore[attr-defined]
+        try:
+            module_version = im.version("ipympl")
+            if _parse_to_version_info(module_version) < (0, 9, 4):
+                newbackend = "module://ipympl.backend_nbagg"
+        except im.PackageNotFoundError:
+            pass
 
     rcParams['backend'] = rcParamsDefault['backend'] = newbackend
     _backend_mod = backend_mod
@@ -893,30 +985,42 @@ default: None
     `~matplotlib.rcParams` defines the default values, which can be modified
     in the matplotlibrc file.
     """
+    allnums = get_fignums()
+
     if isinstance(num, FigureBase):
         # type narrowed to `Figure | SubFigure` by combination of input and isinstance
         if num.canvas.manager is None:
             raise ValueError("The passed figure is not managed by pyplot")
+        elif any([figsize, dpi, facecolor, edgecolor, not frameon,
+                  kwargs]) and num.canvas.manager.num in allnums:
+            _api.warn_external(
+                "Ignoring specified arguments in this call "
+                f"because figure with num: {num.canvas.manager.num} already exists")
         _pylab_helpers.Gcf.set_active(num.canvas.manager)
         return num.figure
 
-    allnums = get_fignums()
     next_num = max(allnums) + 1 if allnums else 1
     fig_label = ''
     if num is None:
         num = next_num
-    elif isinstance(num, str):
-        fig_label = num
-        all_labels = get_figlabels()
-        if fig_label not in all_labels:
-            if fig_label == 'all':
-                _api.warn_external("close('all') closes all existing figures.")
-            num = next_num
-        else:
-            inum = all_labels.index(fig_label)
-            num = allnums[inum]
     else:
-        num = int(num)  # crude validation of num argument
+        if any([figsize, dpi, facecolor, edgecolor, not frameon,
+                kwargs]) and num in allnums:
+            _api.warn_external(
+                "Ignoring specified arguments in this call "
+                f"because figure with num: {num} already exists")
+        if isinstance(num, str):
+            fig_label = num
+            all_labels = get_figlabels()
+            if fig_label not in all_labels:
+                if fig_label == 'all':
+                    _api.warn_external("close('all') closes all existing figures.")
+                num = next_num
+            else:
+                inum = all_labels.index(fig_label)
+                num = allnums[inum]
+        else:
+            num = int(num)  # crude validation of num argument
 
     # Type of "num" has narrowed to int, but mypy can't quite see it
     manager = _pylab_helpers.Gcf.get_fig_manager(num)  # type: ignore[arg-type]
@@ -1458,6 +1562,57 @@ def subplot(*args, **kwargs) -> Axes:
     return ax
 
 
+@overload
+def subplots(
+    nrows: Literal[1] = ...,
+    ncols: Literal[1] = ...,
+    *,
+    sharex: bool | Literal["none", "all", "row", "col"] = ...,
+    sharey: bool | Literal["none", "all", "row", "col"] = ...,
+    squeeze: Literal[True] = ...,
+    width_ratios: Sequence[float] | None = ...,
+    height_ratios: Sequence[float] | None = ...,
+    subplot_kw: dict[str, Any] | None = ...,
+    gridspec_kw: dict[str, Any] | None = ...,
+    **fig_kw
+) -> tuple[Figure, Axes]:
+    ...
+
+
+@overload
+def subplots(
+    nrows: int = ...,
+    ncols: int = ...,
+    *,
+    sharex: bool | Literal["none", "all", "row", "col"] = ...,
+    sharey: bool | Literal["none", "all", "row", "col"] = ...,
+    squeeze: Literal[False],
+    width_ratios: Sequence[float] | None = ...,
+    height_ratios: Sequence[float] | None = ...,
+    subplot_kw: dict[str, Any] | None = ...,
+    gridspec_kw: dict[str, Any] | None = ...,
+    **fig_kw
+) -> tuple[Figure, np.ndarray]:  # TODO numpy/numpy#24738
+    ...
+
+
+@overload
+def subplots(
+    nrows: int = ...,
+    ncols: int = ...,
+    *,
+    sharex: bool | Literal["none", "all", "row", "col"] = ...,
+    sharey: bool | Literal["none", "all", "row", "col"] = ...,
+    squeeze: bool = ...,
+    width_ratios: Sequence[float] | None = ...,
+    height_ratios: Sequence[float] | None = ...,
+    subplot_kw: dict[str, Any] | None = ...,
+    gridspec_kw: dict[str, Any] | None = ...,
+    **fig_kw
+) -> tuple[Figure, Axes | np.ndarray]:
+    ...
+
+
 def subplots(
     nrows: int = 1, ncols: int = 1, *,
     sharex: bool | Literal["none", "all", "row", "col"] = False,
@@ -1496,8 +1651,9 @@ def subplots(
         on, use `~matplotlib.axes.Axes.tick_params`.
 
         When subplots have a shared axis that has units, calling
-        `~matplotlib.axis.Axis.set_units` will update each axis with the
-        new units.
+        `.Axis.set_units` will update each axis with the new units.
+
+        Note that it is not possible to unshare axes.
 
     squeeze : bool, default: True
         - If True, extra dimensions are squeezed out from the returned
@@ -2026,6 +2182,21 @@ def xticks(
     **kwargs
         `.Text` properties can be used to control the appearance of the labels.
 
+        .. warning::
+
+            This only sets the properties of the current ticks, which is
+            only sufficient if you either pass *ticks*, resulting in a
+            fixed list of ticks, or if the plot is static.
+
+            Ticks are not guaranteed to be persistent. Various operations
+            can create, delete and modify the Tick instances. There is an
+            imminent risk that these settings can get lost if you work on
+            the figure further (including also panning/zooming on a
+            displayed figure).
+
+            Use `~.pyplot.tick_params` instead if possible.
+
+
     Returns
     -------
     locs
@@ -2096,6 +2267,20 @@ def yticks(
         ticks/labels.
     **kwargs
         `.Text` properties can be used to control the appearance of the labels.
+
+        .. warning::
+
+            This only sets the properties of the current ticks, which is
+            only sufficient if you either pass *ticks*, resulting in a
+            fixed list of ticks, or if the plot is static.
+
+            Ticks are not guaranteed to be persistent. Various operations
+            can create, delete and modify the Tick instances. There is an
+            imminent risk that these settings can get lost if you work on
+            the figure further (including also panning/zooming on a
+            displayed figure).
+
+            Use `~.pyplot.tick_params` instead if possible.
 
     Returns
     -------
@@ -2516,7 +2701,7 @@ def polar(*args, **kwargs) -> list[Line2D]:
 if (rcParams["backend_fallback"]
         and rcParams._get_backend_or_none() in (  # type: ignore[attr-defined]
             set(backend_registry.list_builtin(BackendFilter.INTERACTIVE)) -
-            {'WebAgg', 'nbAgg'})
+            {'webagg', 'nbagg'})
         and cbook._get_running_interactive_framework()):
     rcParams._set("backend", rcsetup._auto_backend_sentinel)
 
@@ -2733,7 +2918,7 @@ def axhline(y: float = 0, xmin: float = 0, xmax: float = 1, **kwargs) -> Line2D:
 @_copy_docstring_and_deprecators(Axes.axhspan)
 def axhspan(
     ymin: float, ymax: float, xmin: float = 0, xmax: float = 1, **kwargs
-) -> Polygon:
+) -> Rectangle:
     return gca().axhspan(ymin, ymax, xmin=xmin, xmax=xmax, **kwargs)
 
 
@@ -2771,7 +2956,7 @@ def axvline(x: float = 0, ymin: float = 0, ymax: float = 1, **kwargs) -> Line2D:
 @_copy_docstring_and_deprecators(Axes.axvspan)
 def axvspan(
     xmin: float, xmax: float, ymin: float = 0, ymax: float = 1, **kwargs
-) -> Polygon:
+) -> Rectangle:
     return gca().axvspan(xmin, xmax, ymin=ymin, ymax=ymax, **kwargs)
 
 
@@ -2855,6 +3040,7 @@ def boxplot(
     notch: bool | None = None,
     sym: str | None = None,
     vert: bool | None = None,
+    orientation: Literal["vertical", "horizontal"] = "vertical",
     whis: float | tuple[float, float] | None = None,
     positions: ArrayLike | None = None,
     widths: float | ArrayLike | None = None,
@@ -2878,6 +3064,7 @@ def boxplot(
     autorange: bool = False,
     zorder: float | None = None,
     capwidths: float | ArrayLike | None = None,
+    label: Sequence[str] | None = None,
     *,
     data=None,
 ) -> dict[str, Any]:
@@ -2886,6 +3073,7 @@ def boxplot(
         notch=notch,
         sym=sym,
         vert=vert,
+        orientation=orientation,
         whis=whis,
         positions=positions,
         widths=widths,
@@ -2909,6 +3097,7 @@ def boxplot(
         autorange=autorange,
         zorder=zorder,
         capwidths=capwidths,
+        label=label,
         **({"data": data} if data is not None else {}),
     )
 
@@ -4077,7 +4266,8 @@ def triplot(*args, **kwargs):
 def violinplot(
     dataset: ArrayLike | Sequence[ArrayLike],
     positions: ArrayLike | None = None,
-    vert: bool = True,
+    vert: bool | None = None,
+    orientation: Literal["vertical", "horizontal"] = "vertical",
     widths: float | ArrayLike = 0.5,
     showmeans: bool = False,
     showextrema: bool = True,
@@ -4096,6 +4286,7 @@ def violinplot(
         dataset,
         positions=positions,
         vert=vert,
+        orientation=orientation,
         widths=widths,
         showmeans=showmeans,
         showextrema=showextrema,

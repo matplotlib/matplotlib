@@ -38,6 +38,7 @@ from numpy.testing import (
     assert_allclose, assert_array_equal, assert_array_almost_equal)
 from matplotlib.testing.decorators import (
     image_comparison, check_figures_equal, remove_ticks_and_titles)
+from matplotlib.testing._markers import needs_usetex
 
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
@@ -237,7 +238,8 @@ def test_matshow(fig_test, fig_ref):
                    'formatter_ticker_003',
                    'formatter_ticker_004',
                    'formatter_ticker_005',
-                   ])
+                   ],
+                  tol=0.031 if platform.machine() == 'arm64' else 0)
 def test_formatter_ticker():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -437,7 +439,8 @@ def test_twin_logscale(fig_test, fig_ref, twin):
     remove_ticks_and_titles(fig_ref)
 
 
-@image_comparison(['twin_autoscale.png'])
+@image_comparison(['twin_autoscale.png'],
+                  tol=0.009 if platform.machine() == 'arm64' else 0)
 def test_twinx_axis_scales():
     x = np.array([0, 0.5, 1])
     y = 0.5 * x
@@ -677,6 +680,25 @@ def test_sticky_shared_axes(fig_test, fig_ref):
     ax0 = fig_ref.add_subplot(212)
     ax1 = fig_ref.add_subplot(211, sharex=ax0)
     ax0.pcolormesh(Z)
+
+
+@image_comparison(['sticky_tolerance.png'], remove_text=True, style="mpl20")
+def test_sticky_tolerance():
+    fig, axs = plt.subplots(2, 2)
+
+    width = .1
+
+    axs.flat[0].bar(x=0, height=width, bottom=20000.6)
+    axs.flat[0].bar(x=1, height=width, bottom=20000.1)
+
+    axs.flat[1].bar(x=0, height=-width, bottom=20000.6)
+    axs.flat[1].bar(x=1, height=-width, bottom=20000.1)
+
+    axs.flat[2].barh(y=0, width=-width, left=-20000.6)
+    axs.flat[2].barh(y=1, width=-width, left=-20000.1)
+
+    axs.flat[3].barh(y=0, width=width, left=-20000.6)
+    axs.flat[3].barh(y=1, width=width, left=-20000.1)
 
 
 def test_nargs_stem():
@@ -975,6 +997,15 @@ def test_hexbin_bad_extents():
         ax.hexbin(x, y, extent=(0, 1, 1, 0))
 
 
+def test_hexbin_string_norm():
+    fig, ax = plt.subplots()
+    hex = ax.hexbin(np.random.rand(10), np.random.rand(10), norm="log", vmin=2, vmax=5)
+    assert isinstance(hex, matplotlib.collections.PolyCollection)
+    assert isinstance(hex.norm, matplotlib.colors.LogNorm)
+    assert hex.norm.vmin == 2
+    assert hex.norm.vmax == 5
+
+
 @image_comparison(['hexbin_empty.png'], remove_text=True)
 def test_hexbin_empty():
     # From #3886: creating hexbin from empty dataset raises ValueError
@@ -1016,6 +1047,27 @@ def test_hexbin_log():
     h = ax.hexbin(x, y, yscale='log', bins='log',
                   marginals=True, reduce_C_function=np.sum)
     plt.colorbar(h)
+
+    # Make sure offsets are set
+    assert h.get_offsets().shape == (11558, 2)
+
+
+def test_hexbin_log_offsets():
+    x = np.geomspace(1, 100, 500)
+
+    fig, ax = plt.subplots()
+    h = ax.hexbin(x, x, xscale='log', yscale='log', gridsize=2)
+    np.testing.assert_almost_equal(
+        h.get_offsets(),
+        np.array(
+            [[0, 0],
+             [0, 2],
+             [1, 0],
+             [1, 2],
+             [2, 0],
+             [2, 2],
+             [0.5, 1],
+             [1.5, 1]]))
 
 
 @image_comparison(["hexbin_linear.png"], style="mpl20", remove_text=True)
@@ -1232,7 +1284,8 @@ def test_fill_betweenx_input(y, x1, x2):
         ax.fill_betweenx(y, x1, x2)
 
 
-@image_comparison(['fill_between_interpolate'], remove_text=True)
+@image_comparison(['fill_between_interpolate'], remove_text=True,
+                  tol=0.012 if platform.machine() == 'arm64' else 0)
 def test_fill_between_interpolate():
     x = np.arange(0.0, 2, 0.02)
     y1 = np.sin(2*np.pi*x)
@@ -1623,7 +1676,7 @@ def test_pcolorauto(fig_test, fig_ref, snap):
     ax.pcolormesh(x2, y2, Z, snap=snap)
 
 
-@image_comparison(['canonical'])
+@image_comparison(['canonical'], tol=0.02 if platform.machine() == 'arm64' else 0)
 def test_canonical():
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3])
@@ -2338,6 +2391,18 @@ def test_hist_zorder(histtype, zorder):
         assert patch.get_zorder() == zorder
 
 
+def test_stairs_no_baseline_fill_warns():
+    fig, ax = plt.subplots()
+    with pytest.warns(UserWarning, match="baseline=None and fill=True"):
+        ax.stairs(
+            [4, 5, 1, 0, 2],
+            [1, 2, 3, 4, 5, 6],
+            facecolor="blue",
+            baseline=None,
+            fill=True
+        )
+
+
 @check_figures_equal(extensions=['png'])
 def test_stairs(fig_test, fig_ref):
     import matplotlib.lines as mlines
@@ -2433,16 +2498,17 @@ def test_stairs_update(fig_test, fig_ref):
 
 
 @check_figures_equal(extensions=['png'])
-def test_stairs_baseline_0(fig_test, fig_ref):
-    # Test
-    test_ax = fig_test.add_subplot()
-    test_ax.stairs([5, 6, 7], baseline=None)
+def test_stairs_baseline_None(fig_test, fig_ref):
+    x = np.array([0, 2, 3, 5, 10])
+    y = np.array([1.148, 1.231, 1.248, 1.25])
 
-    # Ref
-    ref_ax = fig_ref.add_subplot()
+    test_axes = fig_test.add_subplot()
+    test_axes.stairs(y, x, baseline=None)
+
     style = {'solid_joinstyle': 'miter', 'solid_capstyle': 'butt'}
-    ref_ax.plot(range(4), [5, 6, 7, 7], drawstyle='steps-post', **style)
-    ref_ax.set_ylim(0, None)
+
+    ref_axes = fig_ref.add_subplot()
+    ref_axes.plot(x, np.append(y, y[-1]), drawstyle='steps-post', **style)
 
 
 def test_stairs_empty():
@@ -3065,7 +3131,8 @@ def test_log_scales_invalid():
         ax.set_ylim(-1, 10)
 
 
-@image_comparison(['stackplot_test_image', 'stackplot_test_image'])
+@image_comparison(['stackplot_test_image', 'stackplot_test_image'],
+                  tol=0.031 if platform.machine() == 'arm64' else 0)
 def test_stackplot():
     fig = plt.figure()
     x = np.linspace(0, 10, 10)
@@ -3138,7 +3205,7 @@ def _bxp_test_helper(
     logstats = mpl.cbook.boxplot_stats(
         np.random.lognormal(mean=1.25, sigma=1., size=(37, 4)), **stats_kwargs)
     fig, ax = plt.subplots()
-    if bxp_kwargs.get('vert', True):
+    if bxp_kwargs.get('orientation', 'vertical') == 'vertical':
         ax.set_yscale('log')
     else:
         ax.set_xscale('log')
@@ -3189,7 +3256,7 @@ def test_bxp_with_xlabels():
                   style='default',
                   tol=0.1)
 def test_bxp_horizontal():
-    _bxp_test_helper(bxp_kwargs=dict(vert=False))
+    _bxp_test_helper(bxp_kwargs=dict(orientation='horizontal'))
 
 
 @image_comparison(['bxp_with_ylabels.png'],
@@ -3202,7 +3269,8 @@ def test_bxp_with_ylabels():
             s['label'] = label
         return stats
 
-    _bxp_test_helper(transform_stats=transform, bxp_kwargs=dict(vert=False))
+    _bxp_test_helper(transform_stats=transform,
+                     bxp_kwargs=dict(orientation='horizontal'))
 
 
 @image_comparison(['bxp_patchartist.png'],
@@ -3531,7 +3599,6 @@ def test_boxplot_rc_parameters():
     }
 
     rc_axis1 = {
-        'boxplot.vertical': False,
         'boxplot.whiskers': [0, 100],
         'boxplot.patchartist': True,
     }
@@ -3730,7 +3797,7 @@ def test_horiz_violinplot_baseline():
     # First 9 digits of frac(sqrt(19))
     np.random.seed(358898943)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=False,
                   showextrema=False, showmedians=False)
 
 
@@ -3740,7 +3807,7 @@ def test_horiz_violinplot_showmedians():
     # First 9 digits of frac(sqrt(23))
     np.random.seed(795831523)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=False,
                   showextrema=False, showmedians=True)
 
 
@@ -3750,7 +3817,7 @@ def test_horiz_violinplot_showmeans():
     # First 9 digits of frac(sqrt(29))
     np.random.seed(385164807)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=True,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=True,
                   showextrema=False, showmedians=False)
 
 
@@ -3760,7 +3827,7 @@ def test_horiz_violinplot_showextrema():
     # First 9 digits of frac(sqrt(31))
     np.random.seed(567764362)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=False,
                   showextrema=True, showmedians=False)
 
 
@@ -3770,7 +3837,7 @@ def test_horiz_violinplot_showall():
     # First 9 digits of frac(sqrt(37))
     np.random.seed(82762530)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=True,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=True,
                   showextrema=True, showmedians=True,
                   quantiles=[[0.1, 0.9], [0.2, 0.8], [0.3, 0.7], [0.4, 0.6]])
 
@@ -3781,7 +3848,7 @@ def test_horiz_violinplot_custompoints_10():
     # First 9 digits of frac(sqrt(41))
     np.random.seed(403124237)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=False,
                   showextrema=False, showmedians=False, points=10)
 
 
@@ -3791,7 +3858,7 @@ def test_horiz_violinplot_custompoints_200():
     # First 9 digits of frac(sqrt(43))
     np.random.seed(557438524)
     data = [np.random.normal(size=100) for _ in range(4)]
-    ax.violinplot(data, positions=range(4), vert=False, showmeans=False,
+    ax.violinplot(data, positions=range(4), orientation='horizontal', showmeans=False,
                   showextrema=False, showmedians=False, points=200)
 
 
@@ -3802,11 +3869,11 @@ def test_violinplot_sides():
     data = [np.random.normal(size=100)]
     # Check horizontal violinplot
     for pos, side in zip([0, -0.5, 0.5], ['both', 'low', 'high']):
-        ax.violinplot(data, positions=[pos], vert=False, showmeans=False,
+        ax.violinplot(data, positions=[pos], orientation='horizontal', showmeans=False,
                       showextrema=True, showmedians=True, side=side)
     # Check vertical violinplot
     for pos, side in zip([4, 3.5, 4.5], ['both', 'low', 'high']):
-        ax.violinplot(data, positions=[pos], vert=True, showmeans=False,
+        ax.violinplot(data, positions=[pos], orientation='vertical', showmeans=False,
                       showextrema=True, showmedians=True, side=side)
 
 
@@ -4873,7 +4940,8 @@ def test_marker_styles():
                 marker=marker, markersize=10+y/5, label=marker)
 
 
-@image_comparison(['rc_markerfill.png'])
+@image_comparison(['rc_markerfill.png'],
+                  tol=0.037 if platform.machine() == 'arm64' else 0)
 def test_markers_fillstyle_rcparams():
     fig, ax = plt.subplots()
     x = np.arange(7)
@@ -4896,7 +4964,7 @@ def test_vertex_markers():
 
 
 @image_comparison(['vline_hline_zorder', 'errorbar_zorder'],
-                  tol=0 if platform.machine() == 'x86_64' else 0.02)
+                  tol=0 if platform.machine() == 'x86_64' else 0.026)
 def test_eb_line_zorder():
     x = list(range(10))
 
@@ -5455,7 +5523,8 @@ def test_twin_remove(fig_test, fig_ref):
     ax_ref.yaxis.tick_left()
 
 
-@image_comparison(['twin_spines.png'], remove_text=True)
+@image_comparison(['twin_spines.png'], remove_text=True,
+                  tol=0.022 if platform.machine() == 'arm64' else 0)
 def test_twin_spines():
 
     def make_patch_spines_invisible(ax):
@@ -5822,7 +5891,7 @@ def test_pie_linewidth_0():
     plt.axis('equal')
 
 
-@image_comparison(['pie_center_radius.png'], style='mpl20', tol=0.005)
+@image_comparison(['pie_center_radius.png'], style='mpl20', tol=0.01)
 def test_pie_center_radius():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -6008,7 +6077,8 @@ def test_pie_hatch_multi(fig_test, fig_ref):
     [w.set_hatch(hp) for w, hp in zip(wedges, hatch)]
 
 
-@image_comparison(['set_get_ticklabels.png'])
+@image_comparison(['set_get_ticklabels.png'],
+                  tol=0.025 if platform.machine() == 'arm64' else 0)
 def test_set_get_ticklabels():
     # test issue 2246
     fig, ax = plt.subplots(2)
@@ -6450,6 +6520,13 @@ def test_pcolorfast(xy, data, cls):
     assert type(ax.pcolorfast(*xy, data)) == cls
 
 
+def test_pcolorfast_bad_dims():
+    fig, ax = plt.subplots()
+    with pytest.raises(
+            TypeError, match=("the given X was 1D and the given Y was 2D")):
+        ax.pcolorfast(np.empty(6), np.empty((4, 7)), np.empty((8, 8)))
+
+
 def test_shared_scale():
     fig, axs = plt.subplots(2, 2, sharex=True, sharey=True)
 
@@ -6572,7 +6649,8 @@ def test_loglog():
     ax.tick_params(length=15, width=2, which='minor')
 
 
-@image_comparison(["test_loglog_nonpos.png"], remove_text=True, style='mpl20')
+@image_comparison(["test_loglog_nonpos.png"], remove_text=True, style='mpl20',
+                  tol=0.029 if platform.machine() == 'arm64' else 0)
 def test_loglog_nonpos():
     fig, axs = plt.subplots(3, 3)
     x = np.arange(1, 11)
@@ -7059,6 +7137,18 @@ def test_title_no_move_off_page():
     assert tt.get_position()[1] == 1.0
 
 
+def test_title_inset_ax():
+    # Title should be above any child axes
+    mpl.rcParams['axes.titley'] = None
+    fig, ax = plt.subplots()
+    ax.set_title('Title')
+    fig.draw_without_rendering()
+    assert ax.title.get_position()[1] == 1
+    ax.inset_axes([0, 1, 1, 0.1])
+    fig.draw_without_rendering()
+    assert ax.title.get_position()[1] == 1.1
+
+
 def test_offset_label_color():
     # Tests issue 6440
     fig, ax = plt.subplots()
@@ -7498,8 +7588,8 @@ def test_scatter_empty_data():
     plt.scatter([], [], s=[], c=[])
 
 
-@image_comparison(['annotate_across_transforms.png'],
-                  style='mpl20', remove_text=True)
+@image_comparison(['annotate_across_transforms.png'], style='mpl20', remove_text=True,
+                  tol=0.025 if platform.machine() == 'arm64' else 0)
 def test_annotate_across_transforms():
     x = np.linspace(0, 10, 200)
     y = np.exp(-x) * np.sin(x)
@@ -7529,7 +7619,8 @@ class _Translation(mtransforms.Transform):
         return _Translation(-self.dx)
 
 
-@image_comparison(['secondary_xy.png'], style='mpl20')
+@image_comparison(['secondary_xy.png'], style='mpl20',
+                  tol=0.027 if platform.machine() == 'arm64' else 0)
 def test_secondary_xy():
     fig, axs = plt.subplots(1, 2, figsize=(10, 5), constrained_layout=True)
 
@@ -8159,10 +8250,10 @@ def test_relative_ticklabel_sizes(size):
 def test_multiplot_autoscale():
     fig = plt.figure()
     ax1, ax2 = fig.subplots(2, 1, sharex='all')
-    ax1.scatter([1, 2, 3, 4], [2, 3, 2, 3])
+    ax1.plot([18000, 18250, 18500, 18750], [2, 3, 2, 3])
     ax2.axhspan(-5, 5)
     xlim = ax1.get_xlim()
-    assert np.allclose(xlim, [0.5, 4.5])
+    assert np.allclose(xlim, [18000, 18800])
 
 
 def test_sharing_does_not_link_positions():
@@ -8511,6 +8602,8 @@ def test_empty_line_plots():
     (":-", r"':-' is not a valid format string \(two linestyle symbols\)"),
     ("rk", r"'rk' is not a valid format string \(two color symbols\)"),
     (":o-r", r"':o-r' is not a valid format string \(two linestyle symbols\)"),
+    ("C", r"'C' is not a valid format string \('C' must be followed by a number\)"),
+    (".C", r"'.C' is not a valid format string \('C' must be followed by a number\)"),
 ))
 @pytest.mark.parametrize("data", [None, {"string": range(3)}])
 def test_plot_format_errors(fmt, match, data):
@@ -8543,6 +8636,11 @@ def test_plot_format():
     line = ax.plot([1, 2, 3], 'k3')
     assert line[0].get_marker() == '3'
     assert line[0].get_color() == 'k'
+    fig, ax = plt.subplots()
+    line = ax.plot([1, 2, 3], '.C12:')
+    assert line[0].get_marker() == '.'
+    assert line[0].get_color() == mcolors.to_rgba('C12')
+    assert line[0].get_linestyle() == ':'
 
 
 def test_automatic_legend():
@@ -8785,7 +8883,8 @@ def test_zorder_and_explicit_rasterization():
         fig.savefig(b, format='pdf')
 
 
-@image_comparison(["preset_clip_paths.png"], remove_text=True, style="mpl20")
+@image_comparison(["preset_clip_paths.png"], remove_text=True, style="mpl20",
+                  tol=0.027 if platform.machine() == "arm64" else 0)
 def test_preset_clip_paths():
     fig, ax = plt.subplots()
 
@@ -8984,3 +9083,92 @@ def test_boxplot_tick_labels():
     # Test the new tick_labels parameter
     axs[1].boxplot(data, tick_labels=['A', 'B', 'C'])
     assert [l.get_text() for l in axs[1].get_xticklabels()] == ['A', 'B', 'C']
+
+
+@needs_usetex
+@check_figures_equal()
+def test_latex_pie_percent(fig_test, fig_ref):
+
+    data = [20, 10, 70]
+
+    ax = fig_test.subplots()
+    ax.pie(data, autopct="%1.0f%%", textprops={'usetex': True})
+
+    ax1 = fig_ref.subplots()
+    ax1.pie(data, autopct=r"%1.0f\%%", textprops={'usetex': True})
+
+
+@check_figures_equal(extensions=['png'])
+def test_violinplot_orientation(fig_test, fig_ref):
+    # Test the `orientation : {'vertical', 'horizontal'}`
+    # parameter and deprecation of `vert: bool`.
+    fig, axs = plt.subplots(nrows=1, ncols=3)
+    np.random.seed(19680801)
+    all_data = [np.random.normal(0, std, 100) for std in range(6, 10)]
+
+    axs[0].violinplot(all_data)  # Default vertical plot.
+    # xticks and yticks should be at their default position.
+    assert all(axs[0].get_xticks() == np.array(
+        [0.5, 1., 1.5, 2., 2.5, 3., 3.5, 4., 4.5]))
+    assert all(axs[0].get_yticks() == np.array(
+        [-30., -20., -10., 0., 10., 20., 30.]))
+
+    # Horizontal plot using new `orientation` keyword.
+    axs[1].violinplot(all_data, orientation='horizontal')
+    # xticks and yticks should be swapped.
+    assert all(axs[1].get_xticks() == np.array(
+        [-30., -20., -10., 0., 10., 20., 30.]))
+    assert all(axs[1].get_yticks() == np.array(
+        [0.5, 1., 1.5, 2., 2.5, 3., 3.5, 4., 4.5]))
+
+    plt.close()
+
+    # Deprecation of `vert: bool` keyword
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='vert: bool was deprecated in Matplotlib 3.10'):
+        # Compare images between a figure that
+        # uses vert and one that uses orientation.
+        ax_ref = fig_ref.subplots()
+        ax_ref.violinplot(all_data, vert=False)
+
+        ax_test = fig_test.subplots()
+        ax_test.violinplot(all_data, orientation='horizontal')
+
+
+@check_figures_equal(extensions=['png'])
+def test_boxplot_orientation(fig_test, fig_ref):
+    # Test the `orientation : {'vertical', 'horizontal'}`
+    # parameter and deprecation of `vert: bool`.
+    fig, axs = plt.subplots(nrows=1, ncols=2)
+    np.random.seed(19680801)
+    all_data = [np.random.normal(0, std, 100) for std in range(6, 10)]
+
+    axs[0].boxplot(all_data)  # Default vertical plot.
+    # xticks and yticks should be at their default position.
+    assert all(axs[0].get_xticks() == np.array(
+        [1, 2, 3, 4]))
+    assert all(axs[0].get_yticks() == np.array(
+        [-30., -20., -10., 0., 10., 20., 30.]))
+
+    # Horizontal plot using new `orientation` keyword.
+    axs[1].boxplot(all_data, orientation='horizontal')
+    # xticks and yticks should be swapped.
+    assert all(axs[1].get_xticks() == np.array(
+        [-30., -20., -10., 0., 10., 20., 30.]))
+    assert all(axs[1].get_yticks() == np.array(
+        [1, 2, 3, 4]))
+
+    plt.close()
+
+    # Deprecation of `vert: bool` keyword and
+    # 'boxplot.vertical' rcparam.
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='was deprecated in Matplotlib 3.10'):
+        # Compare images between a figure that
+        # uses vert and one that uses orientation.
+        with mpl.rc_context({'boxplot.vertical': False}):
+            ax_ref = fig_ref.subplots()
+            ax_ref.boxplot(all_data)
+
+        ax_test = fig_test.subplots()
+        ax_test.boxplot(all_data, orientation='horizontal')

@@ -2,6 +2,7 @@
 ==========
 plot(x, y)
 ==========
+Plot y versus x as lines and/or markers.
 
 See `~matplotlib.axes.Axes.plot`.
 """

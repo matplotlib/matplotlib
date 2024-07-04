@@ -23,9 +23,13 @@ from matplotlib.backends.backend_pdf import (
     _create_pdf_info_dict, _datetime_to_pdf)
 from matplotlib.path import Path
 from matplotlib.figure import Figure
+from matplotlib.font_manager import FontProperties
 from matplotlib._pylab_helpers import Gcf
 
 _log = logging.getLogger(__name__)
+
+
+_DOCUMENTCLASS = r"\documentclass{article}"
 
 
 # Note: When formatting floating point values, it is important to use the
@@ -34,17 +38,32 @@ _log = logging.getLogger(__name__)
 
 def _get_preamble():
     """Prepare a LaTeX preamble based on the rcParams configuration."""
+    font_size_pt = FontProperties(
+        size=mpl.rcParams["font.size"]
+    ).get_size_in_points()
     return "\n".join([
         # Remove Matplotlib's custom command \mathdefault.  (Not using
         # \mathnormal instead since this looks odd with Computer Modern.)
         r"\def\mathdefault#1{#1}",
         # Use displaystyle for all math.
         r"\everymath=\expandafter{\the\everymath\displaystyle}",
+        # Set up font sizes to match font.size setting.
+        # If present, use the KOMA package scrextend to adjust the standard
+        # LaTeX font commands (\tiny, ..., \normalsize, ..., \Huge) accordingly.
+        # Otherwise, only set \normalsize, manually.
+        r"\IfFileExists{scrextend.sty}{",
+        r"  \usepackage[fontsize=%fpt]{scrextend}" % font_size_pt,
+        r"}{",
+        r"  \renewcommand{\normalsize}{\fontsize{%f}{%f}\selectfont}"
+        % (font_size_pt, 1.2 * font_size_pt),
+        r"  \normalsize",
+        r"}",
         # Allow pgf.preamble to override the above definitions.
         mpl.rcParams["pgf.preamble"],
-        r"\ifdefined\pdftexversion\else  % non-pdftex case.",
-        r"  \usepackage{fontspec}",
         *([
+            r"\ifdefined\pdftexversion\else  % non-pdftex case.",
+            r"  \usepackage{fontspec}",
+        ] + [
             r"  \%s{%s}[Path=\detokenize{%s/}]"
             % (command, path.name, path.parent.as_posix())
             for command, path in zip(
@@ -52,8 +71,7 @@ def _get_preamble():
                 [pathlib.Path(fm.findfont(family))
                  for family in ["serif", "sans\\-serif", "monospace"]]
             )
-        ] if mpl.rcParams["pgf.rcfonts"] else []),
-        r"\fi",
+        ] + [r"\fi"] if mpl.rcParams["pgf.rcfonts"] else []),
         # Documented as "must come last".
         mpl.texmanager._usepackage_if_not_loaded("underscore", option="strings"),
     ])
@@ -94,6 +112,8 @@ def _escape_and_apply_props(s, prop):
     family = prop.get_family()[0]
     if family in families:
         commands.append(families[family])
+    elif not mpl.rcParams["pgf.rcfonts"]:
+        commands.append(r"\fontfamily{\familydefault}")
     elif any(font.name == family for font in fm.fontManager.ttflist):
         commands.append(
             r"\ifdefined\pdftexversion\else\setmainfont{%s}\rmfamily\fi" % family)
@@ -185,7 +205,7 @@ class LatexManager:
     @staticmethod
     def _build_latex_header():
         latex_header = [
-            r"\documentclass{article}",
+            _DOCUMENTCLASS,
             # Include TeX program name as a comment for cache invalidation.
             # TeX does not allow this to be the first line.
             rf"% !TeX program = {mpl.rcParams['pgf.texsystem']}",
@@ -814,7 +834,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             self.print_pgf(tmppath / "figure.pgf", **kwargs)
             (tmppath / "figure.tex").write_text(
                 "\n".join([
-                    r"\documentclass[12pt]{article}",
+                    _DOCUMENTCLASS,
                     r"\usepackage[pdfinfo={%s}]{hyperref}" % pdfinfo,
                     r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
                     % (w, h),
@@ -924,7 +944,7 @@ class PdfPages:
         pdfinfo = ','.join(
             _metadata_to_str(k, v) for k, v in self._info_dict.items())
         latex_header = "\n".join([
-            r"\documentclass[12pt]{article}",
+            _DOCUMENTCLASS,
             r"\usepackage[pdfinfo={%s}]{hyperref}" % pdfinfo,
             r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
             % (width_inches, height_inches),
@@ -995,14 +1015,10 @@ class PdfPages:
             # luatex<0.85; they were renamed to \pagewidth and \pageheight
             # on luatex>=0.85.
             self._file.write(
-                (
-                    r'\newpage'
-                    r'\ifdefined\pdfpagewidth\pdfpagewidth'
-                    fr'\else\pagewidth\fi={width}in'
-                    r'\ifdefined\pdfpageheight\pdfpageheight'
-                    fr'\else\pageheight\fi={height}in'
-                    '%%\n'
-                ).encode("ascii")
+                rb'\newpage'
+                rb'\ifdefined\pdfpagewidth\pdfpagewidth\else\pagewidth\fi=%fin'
+                rb'\ifdefined\pdfpageheight\pdfpageheight\else\pageheight\fi=%fin'
+                b'%%\n' % (width, height)
             )
         figure.savefig(self._file, format="pgf", backend="pgf", **kwargs)
         self._n_figures += 1

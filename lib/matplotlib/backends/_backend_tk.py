@@ -44,7 +44,7 @@ def _restore_foreground_window_at_end():
     try:
         yield
     finally:
-        if mpl.rcParams['tk.window_focus']:
+        if foreground and mpl.rcParams['tk.window_focus']:
             _c_internal_utils.Win32_SetForegroundWindow(foreground)
 
 
@@ -843,7 +843,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
 
         default_extension = self.canvas.get_default_filetype()
         default_filetype = self.canvas.get_supported_filetypes()[default_extension]
-        filetype_variable = tk.StringVar(self, default_filetype)
+        filetype_variable = tk.StringVar(self.canvas.get_tk_widget(), default_filetype)
 
         # adding a default extension seems to break the
         # asksaveasfilename dialog when you choose various save types
@@ -1011,9 +1011,8 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
                 toolitem.deselect()
 
     def remove_toolitem(self, name):
-        for toolitem in self._toolitems[name]:
+        for toolitem in self._toolitems.pop(name, []):
             toolitem.pack_forget()
-        del self._toolitems[name]
 
     def set_message(self, s):
         self._message.set(s)

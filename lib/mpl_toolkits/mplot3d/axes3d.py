@@ -14,6 +14,7 @@ from collections import defaultdict
 import itertools
 import math
 import textwrap
+import warnings
 
 import numpy as np
 
@@ -57,11 +58,13 @@ class Axes3D(Axes):
     Axes._shared_axes["view"] = cbook.Grouper()
 
     def __init__(
-            self, fig, rect=None, *args,
-            elev=30, azim=-60, roll=0, sharez=None, proj_type='persp',
-            box_aspect=None, computed_zorder=True, focal_length=None,
-            shareview=None,
-            **kwargs):
+        self, fig, rect=None, *args,
+        elev=30, azim=-60, roll=0, shareview=None, sharez=None,
+        proj_type='persp', focal_length=None,
+        box_aspect=None,
+        computed_zorder=True,
+        **kwargs,
+    ):
         """
         Parameters
         ----------
@@ -82,10 +85,21 @@ class Axes3D(Axes):
             The roll angle in degrees rotates the camera about the viewing
             axis. A positive angle spins the camera clockwise, causing the
             scene to rotate counter-clockwise.
+        shareview : Axes3D, optional
+            Other Axes to share view angles with.  Note that it is not possible
+            to unshare axes.
         sharez : Axes3D, optional
-            Other Axes to share z-limits with.
+            Other Axes to share z-limits with.  Note that it is not possible to
+            unshare axes.
         proj_type : {'persp', 'ortho'}
             The projection type, default 'persp'.
+        focal_length : float, default: None
+            For a projection type of 'persp', the focal length of the virtual
+            camera. Must be > 0. If None, defaults to 1.
+            For a projection type of 'ortho', must be set to either None
+            or infinity (numpy.inf). If None, defaults to infinity.
+            The focal length can be computed from a desired Field Of View via
+            the equation: focal_length = 1/tan(FOV/2)
         box_aspect : 3-tuple of floats, default: None
             Changes the physical dimensions of the Axes3D, such that the ratio
             of the axis lengths in display units is x:y:z.
@@ -99,15 +113,6 @@ class Axes3D(Axes):
             does not produce the desired result. Note however, that a manual
             zorder will only be correct for a limited view angle. If the figure
             is rotated by the user, it will look wrong from certain angles.
-        focal_length : float, default: None
-            For a projection type of 'persp', the focal length of the virtual
-            camera. Must be > 0. If None, defaults to 1.
-            For a projection type of 'ortho', must be set to either None
-            or infinity (numpy.inf). If None, defaults to infinity.
-            The focal length can be computed from a desired Field Of View via
-            the equation: focal_length = 1/tan(FOV/2)
-        shareview : Axes3D, optional
-            Other Axes to share view angles with.
 
         **kwargs
             Other optional keyword arguments:
@@ -383,7 +388,7 @@ class Axes3D(Axes):
         # of the axes in mpl3.8.
         aspect *= 1.8294640721620434 * 25/24 * zoom / np.linalg.norm(aspect)
 
-        self._box_aspect = aspect
+        self._box_aspect = self._roll_to_vertical(aspect, reverse=True)
         self.stale = True
 
     def apply_aspect(self, position=None):
@@ -1147,7 +1152,8 @@ class Axes3D(Axes):
         if roll is None:
             roll = self.initial_roll
         vertical_axis = _api.check_getitem(
-            dict(x=0, y=1, z=2), vertical_axis=vertical_axis
+            {name: idx for idx, name in enumerate(self._axis_names)},
+            vertical_axis=vertical_axis,
         )
 
         if share:
@@ -1190,9 +1196,23 @@ class Axes3D(Axes):
                                  f"None for proj_type = {proj_type}")
             self._focal_length = np.inf
 
-    def _roll_to_vertical(self, arr):
-        """Roll arrays to match the different vertical axis."""
-        return np.roll(arr, self._vertical_axis - 2)
+    def _roll_to_vertical(
+        self, arr: "np.typing.ArrayLike", reverse: bool = False
+    ) -> np.ndarray:
+        """
+        Roll arrays to match the different vertical axis.
+
+        Parameters
+        ----------
+        arr : ArrayLike
+            Array to roll.
+        reverse : bool, default: False
+            Reverse the direction of the roll.
+        """
+        if reverse:
+            return np.roll(arr, (self._vertical_axis - 2) * -1)
+        else:
+            return np.roll(arr, (self._vertical_axis - 2))
 
     def get_proj(self):
         """Create the projection matrix from the current viewing position."""
@@ -1292,7 +1312,7 @@ class Axes3D(Axes):
 
         This is equivalent to passing ``sharez=other`` when constructing the
         Axes, and cannot be used if the z-axis is already being shared with
-        another Axes.
+        another Axes.  Note that it is not possible to unshare axes.
         """
         _api.check_isinstance(Axes3D, other=other)
         if self._sharez is not None and other is not self._sharez:
@@ -1309,16 +1329,16 @@ class Axes3D(Axes):
         """
         Share the view angles with *other*.
 
-        This is equivalent to passing ``shareview=other`` when
-        constructing the Axes, and cannot be used if the view angles are
-        already being shared with another Axes.
+        This is equivalent to passing ``shareview=other`` when constructing the
+        Axes, and cannot be used if the view angles are already being shared
+        with another Axes.  Note that it is not possible to unshare axes.
         """
         _api.check_isinstance(Axes3D, other=other)
         if self._shareview is not None and other is not self._shareview:
             raise ValueError("view angles are already shared")
         self._shared_axes["view"].join(self, other)
         self._shareview = other
-        vertical_axis = {0: "x", 1: "y", 2: "z"}[other._vertical_axis]
+        vertical_axis = self._axis_names[other._vertical_axis]
         self.view_init(elev=other.elev, azim=other.azim, roll=other.roll,
                        vertical_axis=vertical_axis, share=True)
 
@@ -1347,6 +1367,8 @@ class Axes3D(Axes):
             toolbar = self.figure.canvas.toolbar
             if toolbar and toolbar._nav_stack() is None:
                 toolbar.push_current()
+            if toolbar:
+                toolbar.set_message(toolbar._mouse_event_to_message(event))
 
     def _button_release(self, event):
         self.button_pressed = None
@@ -1355,6 +1377,8 @@ class Axes3D(Axes):
         # push_current, so check the navigation mode so we don't call it twice
         if toolbar and self.get_navigate_mode() is None:
             toolbar.push_current()
+        if toolbar:
+            toolbar.set_message(toolbar._mouse_event_to_message(event))
 
     def _get_view(self):
         # docstring inherited
@@ -1483,6 +1507,24 @@ class Axes3D(Axes):
         p2 = p1 - scale*vec
         return p2, pane_idx
 
+    def _arcball(self, x: float, y: float) -> np.ndarray:
+        """
+        Convert a point (x, y) to a point on a virtual trackball
+        This is Ken Shoemake's arcball
+        See: Ken Shoemake, "ARCBALL: A user interface for specifying
+        three-dimensional rotation using a mouse." in
+        Proceedings of Graphics Interface '92, 1992, pp. 151-156,
+        https://doi.org/10.20380/GI1992.18
+        """
+        x *= 2
+        y *= 2
+        r2 = x*x + y*y
+        if r2 > 1:
+            p = np.array([0, x/math.sqrt(r2), y/math.sqrt(r2)])
+        else:
+            p = np.array([math.sqrt(1-r2), x, y])
+        return p
+
     def _on_move(self, event):
         """
         Mouse moving.
@@ -1518,12 +1560,31 @@ class Axes3D(Axes):
             if dx == 0 and dy == 0:
                 return
 
+            # Convert to quaternion
+            elev = np.deg2rad(self.elev)
+            azim = np.deg2rad(self.azim)
             roll = np.deg2rad(self.roll)
-            delev = -(dy/h)*180*np.cos(roll) + (dx/w)*180*np.sin(roll)
-            dazim = -(dy/h)*180*np.sin(roll) - (dx/w)*180*np.cos(roll)
-            elev = self.elev + delev
-            azim = self.azim + dazim
-            self.view_init(elev=elev, azim=azim, roll=roll, share=True)
+            q = _Quaternion.from_cardan_angles(elev, azim, roll)
+
+            # Update quaternion - a variation on Ken Shoemake's ARCBALL
+            current_vec = self._arcball(self._sx/w, self._sy/h)
+            new_vec = self._arcball(x/w, y/h)
+            dq = _Quaternion.rotate_from_to(current_vec, new_vec)
+            q = dq * q
+
+            # Convert to elev, azim, roll
+            elev, azim, roll = q.as_cardan_angles()
+            azim = np.rad2deg(azim)
+            elev = np.rad2deg(elev)
+            roll = np.rad2deg(roll)
+            vertical_axis = self._axis_names[self._vertical_axis]
+            self.view_init(
+                elev=elev,
+                azim=azim,
+                roll=roll,
+                vertical_axis=vertical_axis,
+                share=True,
+            )
             self.stale = True
 
         # Pan
@@ -1895,6 +1956,130 @@ class Axes3D(Axes):
         return lines
 
     plot3D = plot
+
+    def fill_between(self, x1, y1, z1, x2, y2, z2, *,
+                     where=None, mode='auto', facecolors=None, shade=None,
+                     **kwargs):
+        """
+        Fill the area between two 3D curves.
+
+        The curves are defined by the points (*x1*, *y1*, *z1*) and
+        (*x2*, *y2*, *z2*). This creates one or multiple quadrangle
+        polygons that are filled. All points must be the same length N, or a
+        single value to be used for all points.
+
+        Parameters
+        ----------
+        x1, y1, z1 : float or 1D array-like
+            x, y, and z  coordinates of vertices for 1st line.
+
+        x2, y2, z2 : float or 1D array-like
+            x, y, and z coordinates of vertices for 2nd line.
+
+        where : array of bool (length N), optional
+            Define *where* to exclude some regions from being filled. The
+            filled regions are defined by the coordinates ``pts[where]``,
+            for all x, y, and z pts. More precisely, fill between ``pts[i]``
+            and ``pts[i+1]`` if ``where[i] and where[i+1]``. Note that this
+            definition implies that an isolated *True* value between two
+            *False* values in *where* will not result in filling. Both sides of
+            the *True* position remain unfilled due to the adjacent *False*
+            values.
+
+        mode : {'quad', 'polygon', 'auto'}, default: 'auto'
+            The fill mode. One of:
+
+            - 'quad':  A separate quadrilateral polygon is created for each
+              pair of subsequent points in the two lines.
+            - 'polygon': The two lines are connected to form a single polygon.
+              This is faster and can render more cleanly for simple shapes
+              (e.g. for filling between two lines that lie within a plane).
+            - 'auto': If the points all lie on the same 3D plane, 'polygon' is
+              used. Otherwise, 'quad' is used.
+
+        facecolors : list of :mpltype:`color`, default: None
+            Colors of each individual patch, or a single color to be used for
+            all patches.
+
+        shade : bool, default: None
+            Whether to shade the facecolors. If *None*, then defaults to *True*
+            for 'quad' mode and *False* for 'polygon' mode.
+
+        **kwargs
+            All other keyword arguments are passed on to `.Poly3DCollection`.
+
+        Returns
+        -------
+        `.Poly3DCollection`
+            A `.Poly3DCollection` containing the plotted polygons.
+
+        """
+        _api.check_in_list(['auto', 'quad', 'polygon'], mode=mode)
+
+        had_data = self.has_data()
+        x1, y1, z1, x2, y2, z2 = cbook._broadcast_with_masks(x1, y1, z1, x2, y2, z2)
+
+        if facecolors is None:
+            facecolors = [self._get_patches_for_fill.get_next_color()]
+        facecolors = list(mcolors.to_rgba_array(facecolors))
+
+        if where is None:
+            where = True
+        else:
+            where = np.asarray(where, dtype=bool)
+            if where.size != x1.size:
+                raise ValueError(f"where size ({where.size}) does not match "
+                                 f"size ({x1.size})")
+        where = where & ~np.isnan(x1)  # NaNs were broadcast in _broadcast_with_masks
+
+        if mode == 'auto':
+            if art3d._all_points_on_plane(np.concatenate((x1[where], x2[where])),
+                                          np.concatenate((y1[where], y2[where])),
+                                          np.concatenate((z1[where], z2[where])),
+                                          atol=1e-12):
+                mode = 'polygon'
+            else:
+                mode = 'quad'
+
+        if shade is None:
+            if mode == 'quad':
+                shade = True
+            else:
+                shade = False
+
+        polys = []
+        for idx0, idx1 in cbook.contiguous_regions(where):
+            x1i = x1[idx0:idx1]
+            y1i = y1[idx0:idx1]
+            z1i = z1[idx0:idx1]
+            x2i = x2[idx0:idx1]
+            y2i = y2[idx0:idx1]
+            z2i = z2[idx0:idx1]
+
+            if not len(x1i):
+                continue
+
+            if mode == 'quad':
+                # Preallocate the array for the region's vertices, and fill it in
+                n_polys_i = len(x1i) - 1
+                polys_i = np.empty((n_polys_i, 4, 3))
+                polys_i[:, 0, :] = np.column_stack((x1i[:-1], y1i[:-1], z1i[:-1]))
+                polys_i[:, 1, :] = np.column_stack((x1i[1:], y1i[1:], z1i[1:]))
+                polys_i[:, 2, :] = np.column_stack((x2i[1:], y2i[1:], z2i[1:]))
+                polys_i[:, 3, :] = np.column_stack((x2i[:-1], y2i[:-1], z2i[:-1]))
+                polys = polys + [*polys_i]
+            elif mode == 'polygon':
+                line1 = np.column_stack((x1i, y1i, z1i))
+                line2 = np.column_stack((x2i[::-1], y2i[::-1], z2i[::-1]))
+                poly = np.concatenate((line1, line2), axis=0)
+                polys.append(poly)
+
+        polyc = art3d.Poly3DCollection(polys, facecolors=facecolors, shade=shade,
+                                       **kwargs)
+        self.add_collection(polyc)
+
+        self.auto_scale_xyz([x1, x2], [y1, y2], [z1, z2], had_data)
+        return polyc
 
     def plot_surface(self, X, Y, Z, *, norm=None, vmin=None,
                      vmax=None, lightsource=None, **kwargs):
@@ -2553,7 +2738,7 @@ class Axes3D(Axes):
         self._auto_scale_contourf(X, Y, Z, zdir, levels, had_data)
         return cset
 
-    def add_collection3d(self, col, zs=0, zdir='z'):
+    def add_collection3d(self, col, zs=0, zdir='z', autolim=True):
         """
         Add a 3D collection object to the plot.
 
@@ -2565,8 +2750,21 @@ class Axes3D(Axes):
 
         - `.PolyCollection`
         - `.LineCollection`
-        - `.PatchCollection`
+        - `.PatchCollection` (currently not supporting *autolim*)
+
+        Parameters
+        ----------
+        col : `.Collection`
+            A 2D collection object.
+        zs : float or array-like, default: 0
+            The z-positions to be used for the 2D objects.
+        zdir : {'x', 'y', 'z'}, default: 'z'
+            The direction to use for the z-positions.
+        autolim : bool, default: True
+            Whether to update the data limits.
         """
+        had_data = self.has_data()
+
         zvals = np.atleast_1d(zs)
         zsortval = (np.min(zvals) if zvals.size
                     else 0)  # FIXME: arbitrary default
@@ -2583,6 +2781,18 @@ class Axes3D(Axes):
         elif type(col) is mcoll.PatchCollection:
             art3d.patch_collection_2d_to_3d(col, zs=zs, zdir=zdir)
             col.set_sort_zpos(zsortval)
+
+        if autolim:
+            if isinstance(col, art3d.Line3DCollection):
+                self.auto_scale_xyz(*np.array(col._segments3d).transpose(),
+                                    had_data=had_data)
+            elif isinstance(col, art3d.Poly3DCollection):
+                self.auto_scale_xyz(*col._vec[:-1], had_data=had_data)
+            elif isinstance(col, art3d.Patch3DCollection):
+                pass
+                # FIXME: Implement auto-scaling function for Patch3DCollection
+                # Currently unable to do so due to issues with Patch3DCollection
+                # See https://github.com/matplotlib/matplotlib/issues/14298 for details
 
         collection = super().add_collection(col)
         return collection
@@ -3610,7 +3820,7 @@ class Axes3D(Axes):
         bottom : float, default: 0
             The position of the baseline, in *orientation*-coordinates.
 
-        label : str, default: None
+        label : str, optional
             The label to use for the stems in legends.
 
         orientation : {'x', 'y', 'z'}, default: 'z'
@@ -3698,3 +3908,123 @@ def get_test_data(delta=0.05):
     Y = Y * 10
     Z = Z * 500
     return X, Y, Z
+
+
+class _Quaternion:
+    """
+    Quaternions
+    consisting of scalar, along 1, and vector, with components along i, j, k
+    """
+
+    def __init__(self, scalar, vector):
+        self.scalar = scalar
+        self.vector = np.array(vector)
+
+    def __neg__(self):
+        return self.__class__(-self.scalar, -self.vector)
+
+    def __mul__(self, other):
+        """
+        Product of two quaternions
+        i*i = j*j = k*k = i*j*k = -1
+        Quaternion multiplication can be expressed concisely
+        using scalar and vector parts,
+        see <https://en.wikipedia.org/wiki/Quaternion#Scalar_and_vector_parts>
+        """
+        return self.__class__(
+            self.scalar*other.scalar - np.dot(self.vector, other.vector),
+            self.scalar*other.vector + self.vector*other.scalar
+            + np.cross(self.vector, other.vector))
+
+    def conjugate(self):
+        """The conjugate quaternion -(1/2)*(q+i*q*i+j*q*j+k*q*k)"""
+        return self.__class__(self.scalar, -self.vector)
+
+    @property
+    def norm(self):
+        """The 2-norm, q*q', a scalar"""
+        return self.scalar*self.scalar + np.dot(self.vector, self.vector)
+
+    def normalize(self):
+        """Scaling such that norm equals 1"""
+        n = np.sqrt(self.norm)
+        return self.__class__(self.scalar/n, self.vector/n)
+
+    def reciprocal(self):
+        """The reciprocal, 1/q = q'/(q*q') = q' / norm(q)"""
+        n = self.norm
+        return self.__class__(self.scalar/n, -self.vector/n)
+
+    def __div__(self, other):
+        return self*other.reciprocal()
+
+    __truediv__ = __div__
+
+    def rotate(self, v):
+        # Rotate the vector v by the quaternion q, i.e.,
+        # calculate (the vector part of) q*v/q
+        v = self.__class__(0, v)
+        v = self*v/self
+        return v.vector
+
+    def __eq__(self, other):
+        return (self.scalar == other.scalar) and (self.vector == other.vector).all
+
+    def __repr__(self):
+        return "_Quaternion({}, {})".format(repr(self.scalar), repr(self.vector))
+
+    @classmethod
+    def rotate_from_to(cls, r1, r2):
+        """
+        The quaternion for the shortest rotation from vector r1 to vector r2
+        i.e., q = sqrt(r2*r1'), normalized.
+        If r1 and r2 are antiparallel, then the result is ambiguous;
+        a normal vector will be returned, and a warning will be issued.
+        """
+        k = np.cross(r1, r2)
+        nk = np.linalg.norm(k)
+        th = np.arctan2(nk, np.dot(r1, r2))
+        th = th/2
+        if nk == 0:  # r1 and r2 are parallel or anti-parallel
+            if np.dot(r1, r2) < 0:
+                warnings.warn("Rotation defined by anti-parallel vectors is ambiguous")
+                k = np.zeros(3)
+                k[np.argmin(r1*r1)] = 1  # basis vector most perpendicular to r1-r2
+                k = np.cross(r1, k)
+                k = k / np.linalg.norm(k)  # unit vector normal to r1-r2
+                q = cls(0, k)
+            else:
+                q = cls(1, [0, 0, 0])  # = 1, no rotation
+        else:
+            q = cls(math.cos(th), k*math.sin(th)/nk)
+        return q
+
+    @classmethod
+    def from_cardan_angles(cls, elev, azim, roll):
+        """
+        Converts the angles to a quaternion
+            q = exp((roll/2)*e_x)*exp((elev/2)*e_y)*exp((-azim/2)*e_z)
+        i.e., the angles are a kind of Tait-Bryan angles, -z,y',x".
+        The angles should be given in radians, not degrees.
+        """
+        ca, sa = np.cos(azim/2), np.sin(azim/2)
+        ce, se = np.cos(elev/2), np.sin(elev/2)
+        cr, sr = np.cos(roll/2), np.sin(roll/2)
+
+        qw = ca*ce*cr + sa*se*sr
+        qx = ca*ce*sr - sa*se*cr
+        qy = ca*se*cr + sa*ce*sr
+        qz = ca*se*sr - sa*ce*cr
+        return cls(qw, [qx, qy, qz])
+
+    def as_cardan_angles(self):
+        """
+        The inverse of `from_cardan_angles()`.
+        Note that the angles returned are in radians, not degrees.
+        """
+        qw = self.scalar
+        qx, qy, qz = self.vector[..., :]
+        azim = np.arctan2(2*(-qw*qz+qx*qy), qw*qw+qx*qx-qy*qy-qz*qz)
+        elev = np.arcsin( 2*( qw*qy+qz*qx)/(qw*qw+qx*qx+qy*qy+qz*qz))  # noqa E201
+        roll = np.arctan2(2*( qw*qx-qy*qz), qw*qw-qx*qx-qy*qy+qz*qz)   # noqa E201
+        return elev, azim, roll

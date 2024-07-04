@@ -266,16 +266,16 @@ def validate_fonttype(s):
         return fonttype
 
 
-_validate_standard_backends = ValidateInStrings(
-    'backend', backend_registry.list_builtin(), ignorecase=True)
 _auto_backend_sentinel = object()
 
 
 def validate_backend(s):
-    backend = (
-        s if s is _auto_backend_sentinel or s.startswith("module://")
-        else _validate_standard_backends(s))
-    return backend
+    if s is _auto_backend_sentinel or backend_registry.is_valid_backend(s):
+        return s
+    else:
+        msg = (f"'{s}' is not a valid value for backend; supported values are "
+               f"{backend_registry.list_all()}")
+        raise ValueError(msg)
 
 
 def _validate_toolbar(s):
@@ -1051,12 +1051,13 @@ _validators = {
                                 "bb", "frak", "scr", "regular"],
     "mathtext.fallback":       _validate_mathtext_fallback,
 
-    "image.aspect":          validate_aspect,  # equal, auto, a number
-    "image.interpolation":   validate_string,
-    "image.cmap":            _validate_cmap,  # gray, jet, etc.
-    "image.lut":             validate_int,  # lookup table
-    "image.origin":          ["upper", "lower"],
-    "image.resample":        validate_bool,
+    "image.aspect":              validate_aspect,  # equal, auto, a number
+    "image.interpolation":       validate_string,
+    "image.interpolation_stage": ["data", "rgba"],
+    "image.cmap":                _validate_cmap,  # gray, jet, etc.
+    "image.lut":                 validate_int,  # lookup table
+    "image.origin":              ["upper", "lower"],
+    "image.resample":            validate_bool,
     # Specify whether vector graphics backends will combine all images on a
     # set of Axes into a single composite image
     "image.composite_image": validate_bool,

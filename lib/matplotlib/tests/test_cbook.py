@@ -963,7 +963,10 @@ def test_unpack_to_numpy_from_torch():
     torch_tensor = torch.Tensor(data)
 
     result = cbook._unpack_to_numpy(torch_tensor)
-    assert result is torch_tensor.__array__()
+    # compare results, do not check for identity: the latter would fail
+    # if not mocked, and the implementation does not guarantee it
+    # is the same Python object, just the same values.
+    assert_array_equal(result, data)
 
 
 def test_unpack_to_numpy_from_jax():
@@ -988,4 +991,36 @@ def test_unpack_to_numpy_from_jax():
     jax_array = jax.Array(data)
 
     result = cbook._unpack_to_numpy(jax_array)
-    assert result is jax_array.__array__()
+    # compare results, do not check for identity: the latter would fail
+    # if not mocked, and the implementation does not guarantee it
+    # is the same Python object, just the same values.
+    assert_array_equal(result, data)
+
+
+def test_unpack_to_numpy_from_tensorflow():
+    """
+    Test that tensorflow arrays are converted to NumPy arrays.
+
+    We don't want to create a dependency on tensorflow in the test suite, so we mock it.
+    """
+    class Tensor:
+        def __init__(self, data):
+            self.data = data
+
+        def __array__(self):
+            return self.data
+
+    tensorflow = ModuleType('tensorflow')
+    tensorflow.is_tensor = lambda x: isinstance(x, Tensor)
+    tensorflow.Tensor = Tensor
+
+    sys.modules['tensorflow'] = tensorflow
+
+    data = np.arange(10)
+    tf_tensor = tensorflow.Tensor(data)
+
+    result = cbook._unpack_to_numpy(tf_tensor)
+    # compare results, do not check for identity: the latter would fail
+    # if not mocked, and the implementation does not guarantee it
+    # is the same Python object, just the same values.
+    assert_array_equal(result, data)

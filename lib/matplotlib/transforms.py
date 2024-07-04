@@ -1423,7 +1423,7 @@ class Transform(TransformNode):
                              'transforms with 2 output dimensions')
         # for a non-blended transform each separate dimension is the same, so
         # just return the appropriate shape.
-        return [self.contains_branch(other_transform)] * 2
+        return (self.contains_branch(other_transform), ) * 2
 
     def __sub__(self, other):
         """
@@ -2403,6 +2403,15 @@ class CompositeGenericTransform(Transform):
             yield left, right + self._b
         for left, right in self._b._iter_break_from_left_to_right():
             yield self._a + left, right
+
+    def contains_branch_seperately(self, other_transform):
+        # docstring inherited
+        if self.output_dims != 2:
+            raise ValueError('contains_branch_seperately only supports '
+                             'transforms with 2 output dimensions')
+        if self == other_transform:
+            return (True, True)
+        return self._b.contains_branch_seperately(other_transform)
 
     depth = property(lambda self: self._a.depth + self._b.depth)
     is_affine = property(lambda self: self._a.is_affine and self._b.is_affine)

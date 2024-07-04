@@ -130,6 +130,14 @@ class TestMultipleLocator:
             loc = mticker.MultipleLocator(base=3.147, offset=1.3)
             assert_almost_equal(loc.view_limits(-4, 4), (-4.994, 4.447))
 
+    def test_view_limits_single_bin(self):
+        """
+        Test that 'round_numbers' works properly with a single bin.
+        """
+        with mpl.rc_context({'axes.autolimit_mode': 'round_numbers'}):
+            loc = mticker.MaxNLocator(nbins=1)
+            assert_almost_equal(loc.view_limits(-2.3, 2.3), (-4, 4))
+
     def test_set_params(self):
         """
         Create multiple locator with 0.7 base, and change it to something else.
@@ -1177,11 +1185,11 @@ class TestLogFormatter:
         assert label == expected
 
     @pytest.mark.parametrize('value, long, short', [
-        (0.0, "0", "0           "),
-        (0, "0", "0           "),
-        (-1.0, "-10^0", "-1          "),
-        (2e-10, "2x10^-10", "2e-10       "),
-        (1e10, "10^10", "1e+10       "),
+        (0.0, "0", "0"),
+        (0, "0", "0"),
+        (-1.0, "-10^0", "-1"),
+        (2e-10, "2x10^-10", "2e-10"),
+        (1e10, "10^10", "1e+10"),
     ])
     def test_format_data(self, value, long, short):
         fig, ax = plt.subplots()

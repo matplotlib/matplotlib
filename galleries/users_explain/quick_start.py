@@ -17,7 +17,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # sphinx_gallery_thumbnail_number = 3
-import matplotlib as mpl
 
 # %%
 #
@@ -29,16 +28,18 @@ import matplotlib as mpl
 # area where points can be specified in terms of x-y coordinates (or theta-r
 # in a polar plot, x-y-z in a 3D plot, etc.).  The simplest way of
 # creating a Figure with an Axes is using `.pyplot.subplots`. We can then use
-# `.Axes.plot` to draw some data on the Axes:
+# `.Axes.plot` to draw some data on the Axes, and `~.pyplot.show` to display
+# the figure:
 
-fig, ax = plt.subplots()  # Create a figure containing a single Axes.
+fig, ax = plt.subplots()             # Create a figure containing a single Axes.
 ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the Axes.
+plt.show()                           # Show the figure.
 
 # %%
 #
-# Note that to get this Figure to display, you may have to call ``plt.show()``,
-# depending on your backend.  For more details of Figures and backends, see
-# :ref:`figure-intro`.
+# Depending on the environment you are working in, ``plt.show()`` can be left
+# out. This is for example the case with Jupyter notebooks, which
+# automatically show all figures created in a code cell.
 #
 # .. _figure_parts:
 #
@@ -54,24 +55,24 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the Axes.
 #
 # The **whole** figure.  The Figure keeps
 # track of all the child :class:`~matplotlib.axes.Axes`, a group of
-# 'special' Artists (titles, figure legends, colorbars, etc), and
+# 'special' Artists (titles, figure legends, colorbars, etc.), and
 # even nested subfigures.
 #
-# The easiest way to create a new Figure is with pyplot::
+# Typically, you'll create a new Figure through one of the following
+# functions::
 #
-#    fig = plt.figure()  # an empty figure with no Axes
-#    fig, ax = plt.subplots()  # a figure with a single Axes
+#    fig = plt.figure()             # an empty figure with no Axes
+#    fig, ax = plt.subplots()       # a figure with a single Axes
 #    fig, axs = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
 #    # a figure with one Axes on the left, and two on the right:
 #    fig, axs = plt.subplot_mosaic([['left', 'right_top'],
 #                                   ['left', 'right_bottom']])
 #
-# It is often convenient to create the Axes together with the Figure, but you
-# can also manually add Axes later on.  Note that many
-# :ref:`Matplotlib backends <backends>` support zooming and
-# panning on figure windows.
+# `~.pyplot.subplots()` and `~.pyplot.subplot_mosaic` are convenience functions
+# that additionally create Axes objects inside the Figure, but you can also
+# manually add Axes later on.
 #
-# For more on Figures, see :ref:`figure-intro`.
+# For more on Figures, including panning and zooming, see :ref:`figure-intro`.
 #
 # :class:`~matplotlib.axes.Axes`
 # ------------------------------
@@ -86,10 +87,9 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the Axes.
 # :meth:`~matplotlib.axes.Axes.set_xlabel`), and a y-label set via
 # :meth:`~matplotlib.axes.Axes.set_ylabel`).
 #
-# The :class:`~.axes.Axes` class and its member functions are the primary
-# entry point to working with the OOP interface, and have most of the
-# plotting methods defined on them (e.g. ``ax.plot()``, shown above, uses
-# the `~.Axes.plot` method)
+# The `~.axes.Axes` methods are the primary interface for configuring
+# most parts of your plot (adding data, controlling axis scales and
+# limits, adding labels etc.).
 #
 # :class:`~matplotlib.axis.Axis`
 # ------------------------------
@@ -446,13 +446,14 @@ axs[1].set_title('Manual ticks')
 # well as floating point numbers.  These get special locators and formatters
 # as appropriate.  For dates:
 
+from matplotlib.dates import ConciseDateFormatter
+
 fig, ax = plt.subplots(figsize=(5, 2.7), layout='constrained')
 dates = np.arange(np.datetime64('2021-11-15'), np.datetime64('2021-12-25'),
                   np.timedelta64(1, 'h'))
 data = np.cumsum(np.random.randn(len(dates)))
 ax.plot(dates, data)
-cdf = mpl.dates.ConciseDateFormatter(ax.xaxis.get_major_locator())
-ax.xaxis.set_major_formatter(cdf)
+ax.xaxis.set_major_formatter(ConciseDateFormatter(ax.xaxis.get_major_locator()))
 
 # %%
 # For more information see the date examples
@@ -496,15 +497,17 @@ ax2.legend([l1, l2], ['Sine (left)', 'Straight (right)'])
 
 ax3.plot(t, s)
 ax3.set_xlabel('Angle [rad]')
-ax4 = ax3.secondary_xaxis('top', functions=(np.rad2deg, np.deg2rad))
+ax4 = ax3.secondary_xaxis('top', (np.rad2deg, np.deg2rad))
 ax4.set_xlabel('Angle [°]')
 
 # %%
 # Color mapped data
 # =================
 #
-# Often we want to have a third dimension in a plot represented by a colors in
+# Often we want to have a third dimension in a plot represented by colors in
 # a colormap. Matplotlib has a number of plot types that do this:
+
+from matplotlib.colors import LogNorm
 
 X, Y = np.meshgrid(np.linspace(-3, 3, 128), np.linspace(-3, 3, 128))
 Z = (1 - X/2 + X**5 + Y**3) * np.exp(-X**2 - Y**2)
@@ -518,8 +521,7 @@ co = axs[0, 1].contourf(X, Y, Z, levels=np.linspace(-1.25, 1.25, 11))
 fig.colorbar(co, ax=axs[0, 1])
 axs[0, 1].set_title('contourf()')
 
-pc = axs[1, 0].imshow(Z**2 * 100, cmap='plasma',
-                          norm=mpl.colors.LogNorm(vmin=0.01, vmax=100))
+pc = axs[1, 0].imshow(Z**2 * 100, cmap='plasma', norm=LogNorm(vmin=0.01, vmax=100))
 fig.colorbar(pc, ax=axs[1, 0], extend='both')
 axs[1, 0].set_title('imshow() with LogNorm()')
 

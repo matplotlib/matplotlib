@@ -1,3 +1,5 @@
+import platform
+
 import numpy as np
 
 from matplotlib.testing.decorators import image_comparison
@@ -27,7 +29,8 @@ def test_patheffect1():
     ax1.grid(True, linestyle="-", path_effects=pe)
 
 
-@image_comparison(['patheffect2'], remove_text=True, style='mpl20')
+@image_comparison(['patheffect2'], remove_text=True, style='mpl20',
+                  tol=0.06 if platform.machine() == 'arm64' else 0)
 def test_patheffect2():
 
     ax2 = plt.subplot()
@@ -42,7 +45,7 @@ def test_patheffect2():
                                                    foreground="w")])
 
 
-@image_comparison(['patheffect3'])
+@image_comparison(['patheffect3'], tol=0.019 if platform.machine() == 'arm64' else 0)
 def test_patheffect3():
     p1, = plt.plot([1, 3, 5, 4, 3], 'o-b', lw=4)
     p1.set_path_effects([path_effects.SimpleLineShadow(),

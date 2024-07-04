@@ -154,7 +154,7 @@ fig, ax = plt.subplots(layout='constrained')
 
 ax.plot(dates, temperature)
 ax.set_ylabel(r'$T\ [^oC]$')
-plt.xticks(rotation=70)
+ax.xaxis.set_tick_params(rotation=70)
 
 
 def date2yday(x):

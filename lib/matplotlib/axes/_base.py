@@ -5,6 +5,7 @@ import inspect
 import logging
 from numbers import Real
 from operator import attrgetter
+import re
 import types
 
 import numpy as np
@@ -143,24 +144,16 @@ def _process_plot_format(fmt, *, ambiguous_fmt_datakey=False):
     marker = None
     color = None
 
-    # Is fmt just a colorspec?
-    try:
-        color = mcolors.to_rgba(fmt)
-
-        # We need to differentiate grayscale '1.0' from tri_down marker '1'
+    # First check whether fmt is just a colorspec, but specifically exclude the
+    # grayscale string "1" (not "1.0"), which is interpreted as the tri_down
+    # marker "1".  The grayscale string "0" could be unambiguously understood
+    # as a color (black) but also excluded for consistency.
+    if fmt not in ["0", "1"]:
         try:
-            fmtint = str(int(fmt))
+            color = mcolors.to_rgba(fmt)
+            return linestyle, marker, color
         except ValueError:
-            return linestyle, marker, color  # Yes
-        else:
-            if fmt != fmtint:
-                # user definitely doesn't want tri_down marker
-                return linestyle, marker, color  # Yes
-            else:
-                # ignore converted color
-                color = None
-    except ValueError:
-        pass  # No, not just a color.
+            pass
 
     errfmt = ("{!r} is neither a data key nor a valid format string ({})"
               if ambiguous_fmt_datakey else
@@ -189,13 +182,14 @@ def _process_plot_format(fmt, *, ambiguous_fmt_datakey=False):
                 raise ValueError(errfmt.format(fmt, "two color symbols"))
             color = c
             i += 1
-        elif c == 'C' and i < len(fmt) - 1:
-            color_cycle_number = int(fmt[i + 1])
-            color = mcolors.to_rgba(f"C{color_cycle_number}")
-            i += 2
+        elif c == "C":
+            cn_color = re.match(r"C\d+", fmt[i:])
+            if not cn_color:
+                raise ValueError(errfmt.format(fmt, "'C' must be followed by a number"))
+            color = mcolors.to_rgba(cn_color[0])
+            i += len(cn_color[0])
         else:
-            raise ValueError(
-                errfmt.format(fmt, f"unrecognized character {c!r}"))
+            raise ValueError(errfmt.format(fmt, f"unrecognized character {c!r}"))
 
     if linestyle is None and marker is None:
         linestyle = mpl.rcParams['lines.linestyle']
@@ -577,6 +571,7 @@ class _AxesBase(martist.Artist):
                  xscale=None,
                  yscale=None,
                  box_aspect=None,
+                 forward_navigation_events="auto",
                  **kwargs
                  ):
         """
@@ -602,7 +597,8 @@ class _AxesBase(martist.Artist):
 
         sharex, sharey : `~matplotlib.axes.Axes`, optional
             The x- or y-`~.matplotlib.axis` is shared with the x- or y-axis in
-            the input `~.axes.Axes`.
+            the input `~.axes.Axes`.  Note that it is not possible to unshare
+            axes.
 
         frameon : bool, default: True
             Whether the Axes frame is visible.
@@ -610,6 +606,11 @@ class _AxesBase(martist.Artist):
         box_aspect : float, optional
             Set a fixed aspect for the Axes box, i.e. the ratio of height to
             width. See `~.axes.Axes.set_box_aspect` for details.
+
+        forward_navigation_events : bool or "auto", default: "auto"
+            Control whether pan/zoom events are passed through to Axes below
+            this one. "auto" is *True* for axes with an invisible patch and
+            *False* otherwise.
 
         **kwargs
             Other optional keyword arguments:
@@ -646,6 +647,7 @@ class _AxesBase(martist.Artist):
         self._adjustable = 'box'
         self._anchor = 'C'
         self._stale_viewlims = {name: False for name in self._axis_names}
+        self._forward_navigation_events = forward_navigation_events
         self._sharex = sharex
         self._sharey = sharey
         self.set_label(label)
@@ -1220,7 +1222,7 @@ class _AxesBase(martist.Artist):
 
         This is equivalent to passing ``sharex=other`` when constructing the
         Axes, and cannot be used if the x-axis is already being shared with
-        another Axes.
+        another Axes.  Note that it is not possible to unshare axes.
         """
         _api.check_isinstance(_AxesBase, other=other)
         if self._sharex is not None and other is not self._sharex:
@@ -1239,7 +1241,7 @@ class _AxesBase(martist.Artist):
 
         This is equivalent to passing ``sharey=other`` when constructing the
         Axes, and cannot be used if the y-axis is already being shared with
-        another Axes.
+        another Axes.  Note that it is not possible to unshare axes.
         """
         _api.check_isinstance(_AxesBase, other=other)
         if self._sharey is not None and other is not self._sharey:
@@ -1880,6 +1882,11 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         position : None or .Bbox
+
+            .. note::
+                This parameter exists for historic reasons and is considered
+                internal. End users should not use it.
+
             If not ``None``, this defines the position of the
             Axes within the figure as a Bbox. See `~.Axes.get_position`
             for further details.
@@ -1890,6 +1897,10 @@ class _AxesBase(martist.Artist):
         to call it yourself if you need to update the Axes position and/or
         view limits before the Figure is drawn.
 
+        An alternative with a broader scope is `.Figure.draw_without_rendering`,
+        which updates all stale components of a figure, not only the positioning /
+        view limits of a single Axes.
+
         See Also
         --------
         matplotlib.axes.Axes.set_aspect
@@ -1898,6 +1909,24 @@ class _AxesBase(martist.Artist):
             Set how the Axes adjusts to achieve the required aspect ratio.
         matplotlib.axes.Axes.set_anchor
             Set the position in case of extra space.
+        matplotlib.figure.Figure.draw_without_rendering
+            Update all stale components of a figure.
+
+        Examples
+        --------
+        A typical usage example would be the following. `~.Axes.imshow` sets the
+        aspect to 1, but adapting the Axes position and extent to reflect this is
+        deferred until rendering for performance reasons. If you want to know the
+        Axes size before, you need to call `.apply_aspect` to get the correct
+        values.
+
+        >>> fig, ax = plt.subplots()
+        >>> ax.imshow(np.zeros((3, 3)))
+        >>> ax.bbox.width, ax.bbox.height
+        (496.0, 369.59999999999997)
+        >>> ax.apply_aspect()
+        >>> ax.bbox.width, ax.bbox.height
+        (369.59999999999997, 369.59999999999997)
         """
         if position is None:
             position = self.get_position(original=True)
@@ -2940,9 +2969,15 @@ class _AxesBase(martist.Artist):
             # Index of largest element < x0 + tol, if any.
             i0 = stickies.searchsorted(x0 + tol) - 1
             x0bound = stickies[i0] if i0 != -1 else None
+            # Ensure the boundary acts only if the sticky is the extreme value
+            if x0bound is not None and x0bound > x0:
+                x0bound = None
             # Index of smallest element > x1 - tol, if any.
             i1 = stickies.searchsorted(x1 - tol)
             x1bound = stickies[i1] if i1 != len(stickies) else None
+            # Ensure the boundary acts only if the sticky is the extreme value
+            if x1bound is not None and x1bound < x1:
+                x1bound = None
 
             # Add the margin in figure space and then transform back, to handle
             # non-linear scales.
@@ -2984,30 +3019,39 @@ class _AxesBase(martist.Artist):
 
         titles = (self.title, self._left_title, self._right_title)
 
-        # Need to check all our twins too, and all the children as well.
-        axs = self._twinned_axes.get_siblings(self) + self.child_axes
+        if not any(title.get_text() for title in titles):
+            # If the titles are all empty, there is no need to update their positions.
+            return
+
+        # Need to check all our twins too, aligned axes, and all the children
+        # as well.
+        axs = set()
+        axs.update(self.child_axes)
+        axs.update(self._twinned_axes.get_siblings(self))
+        axs.update(self.figure._align_label_groups['title'].get_siblings(self))
+
         for ax in self.child_axes:  # Child positions must be updated first.
             locator = ax.get_axes_locator()
             ax.apply_aspect(locator(self, renderer) if locator else None)
+
+        top = -np.inf
+        for ax in axs:
+            bb = None
+            xticklabel_top = any(tick.label2.get_visible() for tick in
+                                 [ax.xaxis.majorTicks[0], ax.xaxis.minorTicks[0]])
+            if (xticklabel_top or ax.xaxis.get_label_position() == 'top'):
+                bb = ax.xaxis.get_tightbbox(renderer)
+            if bb is None:
+                # Extent of the outline for colorbars, of the axes otherwise.
+                bb = ax.spines.get("outline", ax).get_window_extent()
+            top = max(top, bb.ymax)
 
         for title in titles:
             x, _ = title.get_position()
             # need to start again in case of window resizing
             title.set_position((x, 1.0))
-            top = -np.inf
-            for ax in axs:
-                bb = None
-                if (ax.xaxis.get_ticks_position() in ['top', 'unknown']
-                        or ax.xaxis.get_label_position() == 'top'):
-                    bb = ax.xaxis.get_tightbbox(renderer)
-                if bb is None:
-                    if 'outline' in ax.spines:
-                        # Special case for colorbars:
-                        bb = ax.spines['outline'].get_window_extent()
-                    else:
-                        bb = ax.get_window_extent(renderer)
-                top = max(top, bb.ymax)
-                if title.get_text():
+            if title.get_text():
+                for ax in axs:
                     ax.yaxis.get_tightbbox(renderer)  # update offsetText
                     if ax.yaxis.offsetText.get_text():
                         bb = ax.yaxis.offsetText.get_tightbbox(renderer)
@@ -3975,10 +4019,20 @@ class _AxesBase(martist.Artist):
 
     def format_coord(self, x, y):
         """Return a format string formatting the *x*, *y* coordinates."""
-        return "x={} y={}".format(
-            "???" if x is None else self.format_xdata(x),
-            "???" if y is None else self.format_ydata(y),
-        )
+        twins = self._twinned_axes.get_siblings(self)
+        if len(twins) == 1:
+            return "(x, y) = ({}, {})".format(
+                "???" if x is None else self.format_xdata(x),
+                "???" if y is None else self.format_ydata(y))
+        screen_xy = self.transData.transform((x, y))
+        xy_strs = []
+        # Retrieve twins in the order of self.figure.axes to sort tied zorders (which is
+        # the common case) by the order in which they are added to the figure.
+        for ax in sorted(twins, key=attrgetter("zorder")):
+            data_x, data_y = ax.transData.inverted().transform(screen_xy)
+            xy_strs.append(
+                "({}, {})".format(ax.format_xdata(data_x), ax.format_ydata(data_y)))
+        return "(x, y) = {}".format(" | ".join(xy_strs))
 
     def minorticks_on(self):
         """
@@ -4022,6 +4076,11 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         b : bool
+
+        See Also
+        --------
+        matplotlib.axes.Axes.set_forward_navigation_events
+
         """
         self._navigate = b
 
@@ -4472,6 +4531,8 @@ class _AxesBase(martist.Artist):
                     [0, 0, 1, 1], self.transAxes))
         self.set_adjustable('datalim')
         twin.set_adjustable('datalim')
+        twin.set_zorder(self.zorder)
+
         self._twinned_axes.join(self, twin)
         return twin
 
@@ -4617,6 +4678,31 @@ class _AxesBase(martist.Artist):
                 which="both", labelright=False, **right_kw)
             if self.yaxis.offsetText.get_position()[0] == 1:
                 self.yaxis.offsetText.set_visible(False)
+
+    def set_forward_navigation_events(self, forward):
+        """
+        Set how pan/zoom events are forwarded to Axes below this one.
+
+        Parameters
+        ----------
+        forward : bool or "auto"
+            Possible values:
+
+            - True: Forward events to other axes with lower or equal zorder.
+            - False: Events are only executed on this axes.
+            - "auto": Default behaviour (*True* for axes with an invisible
+              patch and *False* otherwise)
+
+        See Also
+        --------
+        matplotlib.axes.Axes.set_navigate
+
+        """
+        self._forward_navigation_events = forward
+
+    def get_forward_navigation_events(self):
+        """Get how pan/zoom events are forwarded to Axes below this one."""
+        return self._forward_navigation_events
 
 
 def _draw_rasterized(figure, artists, renderer):

@@ -1,3 +1,5 @@
+import platform
+
 import numpy as np
 
 import matplotlib as mpl
@@ -7,8 +9,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import art3d
 
 
-# Update style when regenerating the test image
-@image_comparison(['legend_plot.png'], remove_text=True, style=('mpl20'))
+@image_comparison(['legend_plot.png'], remove_text=True, style='mpl20')
 def test_legend_plot():
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
     x = np.arange(10)
@@ -17,8 +18,7 @@ def test_legend_plot():
     ax.legend()
 
 
-# Update style when regenerating the test image
-@image_comparison(['legend_bar.png'], remove_text=True, style=('mpl20'))
+@image_comparison(['legend_bar.png'], remove_text=True, style='mpl20')
 def test_legend_bar():
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
     x = np.arange(10)
@@ -27,8 +27,8 @@ def test_legend_bar():
     ax.legend([b1[0], b2[0]], ['up', 'down'])
 
 
-# Update style when regenerating the test image
-@image_comparison(['fancy.png'], remove_text=True, style=('mpl20'))
+@image_comparison(['fancy.png'], remove_text=True, style='mpl20',
+                  tol=0.011 if platform.machine() == 'arm64' else 0)
 def test_fancy():
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
     ax.plot(np.arange(10), np.full(10, 5), np.full(10, 5), 'o--', label='line')

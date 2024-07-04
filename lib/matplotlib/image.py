@@ -518,6 +518,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 if isinstance(self.norm, mcolors.NoNorm):
                     A_resampled = A_resampled.astype(A.dtype)
 
+                # Compute out_mask (what screen pixels include "bad" data
+                # pixels) and out_alpha (to what extent screen pixels are
+                # covered by data pixels: 0 outside the data extent, 1 inside
+                # (even for bad data), and intermediate values at the edges).
                 mask = (np.where(A.mask, np.float32(np.nan), np.float32(1))
                         if A.mask.shape == A.shape  # nontrivial mask
                         else np.ones_like(A, np.float32))
@@ -525,12 +529,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # non-affine transformations
                 out_alpha = _resample(self, mask, out_shape, t, resample=True)
                 del mask  # Make sure we don't use mask anymore!
-                # Agg updates out_alpha in place.  If the pixel has no image
-                # data it will not be updated (and still be 0 as we initialized
-                # it), if input data that would go into that output pixel than
-                # it will be `nan`, if all the input data for a pixel is good
-                # it will be 1, and if there is _some_ good data in that output
-                # pixel it will be between [0, 1] (such as a rotated image).
                 out_mask = np.isnan(out_alpha)
                 out_alpha[out_mask] = 1
                 # Apply the pixel-by-pixel alpha values if present
@@ -789,10 +787,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         ----------
         s : {'data', 'rgba'} or None
             Whether to apply up/downsampling interpolation in data or RGBA
-            space.
+            space.  If None, use :rc:`image.interpolation_stage`.
         """
-        if s is None:
-            s = "data"  # placeholder for maybe having rcParam
+        s = mpl._val_or_rc(s, 'image.interpolation_stage')
         _api.check_in_list(['data', 'rgba'], s=s)
         self._interpolation_stage = s
         self.stale = True
@@ -1086,12 +1083,16 @@ class NonUniformImage(AxesImage):
                 B[:, :, 0:3] = A
                 B[:, :, 3] = 255
                 A = B
-        vl = self.axes.viewLim
         l, b, r, t = self.axes.bbox.extents
         width = int(((round(r) + 0.5) - (round(l) - 0.5)) * magnification)
         height = int(((round(t) + 0.5) - (round(b) - 0.5)) * magnification)
-        x_pix = np.linspace(vl.x0, vl.x1, width)
-        y_pix = np.linspace(vl.y0, vl.y1, height)
+
+        invertedTransform = self.axes.transData.inverted()
+        x_pix = invertedTransform.transform(
+            [(x, b) for x in np.linspace(l, r, width)])[:, 0]
+        y_pix = invertedTransform.transform(
+            [(l, y) for y in np.linspace(b, t, height)])[:, 1]
+
         if self._interpolation == "nearest":
             x_mid = (self._Ax[:-1] + self._Ax[1:]) / 2
             y_mid = (self._Ay[:-1] + self._Ay[1:]) / 2
@@ -1641,6 +1642,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             # we modify this below, so make a copy (don't modify caller's dict)
             pil_kwargs = pil_kwargs.copy()
         pil_shape = (rgba.shape[1], rgba.shape[0])
+        rgba = np.require(rgba, requirements='C')
         image = PIL.Image.frombuffer(
             "RGBA", pil_shape, rgba, "raw", "RGBA", 0, 1)
         if format == "png":

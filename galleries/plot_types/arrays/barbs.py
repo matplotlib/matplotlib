@@ -2,6 +2,7 @@
 =================
 barbs(X, Y, U, V)
 =================
+Plot a 2D field of wind barbs.
 
 See `~matplotlib.axes.Axes.barbs`.
 """

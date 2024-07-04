@@ -111,6 +111,16 @@ See `.Axes3D.contourf` for API documentation.
    The feature demoed in the second contourf3d example was enabled as a
    result of a bugfix for version 1.1.0.
 
+.. _fillbetween3d:
+
+Fill between 3D lines
+=====================
+See `.Axes3D.fill_between` for API documentation.
+
+.. figure:: /gallery/mplot3d/images/sphx_glr_fillbetween3d_001.png
+   :target: /gallery/mplot3d/fillbetween3d.html
+   :align: center
+
 .. _polygon3d:
 
 Polygon plots

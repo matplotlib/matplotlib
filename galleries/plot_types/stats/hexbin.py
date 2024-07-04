@@ -2,6 +2,7 @@
 ===============
 hexbin(x, y, C)
 ===============
+Make a 2D hexagonal binning plot of points x, y.
 
 See `~matplotlib.axes.Axes.hexbin`.
 """

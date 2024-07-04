@@ -24,27 +24,6 @@ import matplotlib.ticker as mticker
 import pytest
 
 
-@image_comparison(['image_interps'], style='mpl20')
-def test_image_interps():
-    """Make the basic nearest, bilinear and bicubic interps."""
-    # Remove texts when this image is regenerated.
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
-
-    X = np.arange(100).reshape(5, 20)
-
-    fig, (ax1, ax2, ax3) = plt.subplots(3)
-    ax1.imshow(X, interpolation='nearest')
-    ax1.set_title('three interpolations')
-    ax1.set_ylabel('nearest')
-
-    ax2.imshow(X, interpolation='bilinear')
-    ax2.set_ylabel('bilinear')
-
-    ax3.imshow(X, interpolation='bicubic')
-    ax3.set_ylabel('bicubic')
-
-
 @image_comparison(['interp_alpha.png'], remove_text=True)
 def test_alpha_interp():
     """Test the interpolation of the alpha channel on RGBA images"""
@@ -203,6 +182,14 @@ def test_imsave(fmt):
     assert arr_dpi100.shape == (1856, 2, 3 + has_alpha)
 
     assert_array_equal(arr_dpi1, arr_dpi100)
+
+
+@pytest.mark.parametrize("origin", ["upper", "lower"])
+def test_imsave_rgba_origin(origin):
+    # test that imsave always passes c-contiguous arrays down to pillow
+    buf = io.BytesIO()
+    result = np.zeros((10, 10, 4), dtype='uint8')
+    mimage.imsave(buf, arr=result, format="png", origin=origin)
 
 
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
@@ -436,15 +423,6 @@ def test_image_cliprect():
     rect = patches.Rectangle(
         xy=(1, 1), width=2, height=2, transform=im.axes.transData)
     im.set_clip_path(rect)
-
-
-@image_comparison(['imshow'], remove_text=True, style='mpl20')
-def test_imshow():
-    fig, ax = plt.subplots()
-    arr = np.arange(100).reshape((10, 10))
-    ax.imshow(arr, interpolation="bilinear", extent=(1, 2, 1, 2))
-    ax.set_xlim(0, 3)
-    ax.set_ylim(0, 3)
 
 
 @check_figures_equal(extensions=['png'])
@@ -1406,9 +1384,30 @@ def test_nonuniform_and_pcolor():
         ax.set(xlim=(0, 10))
 
 
+@image_comparison(["nonuniform_logscale.png"], style="mpl20")
+def test_nonuniform_logscale():
+    _, axs = plt.subplots(ncols=3, nrows=1)
+
+    for i in range(3):
+        ax = axs[i]
+        im = NonUniformImage(ax)
+        im.set_data(np.arange(1, 4) ** 2, np.arange(1, 4) ** 2,
+                    np.arange(9).reshape((3, 3)))
+        ax.set_xlim(1, 16)
+        ax.set_ylim(1, 16)
+        ax.set_box_aspect(1)
+        if i == 1:
+            ax.set_xscale("log", base=2)
+            ax.set_yscale("log", base=2)
+        if i == 2:
+            ax.set_xscale("log", base=4)
+            ax.set_yscale("log", base=4)
+        ax.add_image(im)
+
+
 @image_comparison(
     ['rgba_antialias.png'], style='mpl20', remove_text=True,
-    tol=0.007 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
+    tol=0 if platform.machine() == 'x86_64' else 0.007)
 def test_rgba_antialias():
     fig, axs = plt.subplots(2, 2, figsize=(3.5, 3.5), sharex=False,
                             sharey=False, constrained_layout=True)
@@ -1460,6 +1459,15 @@ def test_rgba_antialias():
     # alternating red and blue stripes become purple
     axs[3].imshow(aa, interpolation='antialiased', interpolation_stage='rgba',
                   cmap=cmap, vmin=-1.2, vmax=1.2)
+
+
+def test_rc_interpolation_stage():
+    for val in ["data", "rgba"]:
+        with mpl.rc_context({"image.interpolation_stage": val}):
+            assert plt.imshow([[1, 2]]).get_interpolation_stage() == val
+    for val in ["DATA", "foo", None]:
+        with pytest.raises(ValueError):
+            mpl.rcParams["image.interpolation_stage"] = val
 
 
 # We check for the warning with a draw() in the test, but we also need to
@@ -1568,3 +1576,20 @@ def test_non_transdata_image_does_not_touch_aspect():
     assert ax.get_aspect() == 1
     ax.imshow(im, transform=ax.transAxes, aspect=2)
     assert ax.get_aspect() == 2
+
+
+@pytest.mark.parametrize(
+    'dtype',
+    ('float64', 'float32', 'int16', 'uint16', 'int8', 'uint8'),
+)
+@pytest.mark.parametrize('ndim', (2, 3))
+def test_resample_dtypes(dtype, ndim):
+    # Issue 28448, incorrect dtype comparisons in C++ image_resample can raise
+    # ValueError: arrays must be of dtype byte, short, float32 or float64
+    rng = np.random.default_rng(4181)
+    shape = (2, 2) if ndim == 2 else (2, 2, 3)
+    data = rng.uniform(size=shape).astype(np.dtype(dtype, copy=True))
+    fig, ax = plt.subplots()
+    axes_image = ax.imshow(data)
+    # Before fix the following raises ValueError for some dtypes.
+    axes_image.make_image(None)[0]

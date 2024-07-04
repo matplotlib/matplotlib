@@ -32,10 +32,11 @@ Plot a 2D field of arrows.
 
 Call signature::
 
-  quiver([X, Y], U, V, [C], **kwargs)
+  quiver([X, Y], U, V, [C], /, **kwargs)
 
 *X*, *Y* define the arrow locations, *U*, *V* define the arrow directions, and
-*C* optionally sets the color.
+*C* optionally sets the color. The arguments *X*, *Y*, *U*, *V*, *C* are
+positional-only.
 
 **Arrow length**
 
@@ -727,17 +728,18 @@ class Quiver(mcollections.PolyCollection):
 
 
 _barbs_doc = r"""
-Plot a 2D field of barbs.
+Plot a 2D field of wind barbs.
 
 Call signature::
 
-  barbs([X, Y], U, V, [C], **kwargs)
+  barbs([X, Y], U, V, [C], /, **kwargs)
 
 Where *X*, *Y* define the barb locations, *U*, *V* define the barb
 directions, and *C* optionally sets the color.
 
-All arguments may be 1D or 2D. *U*, *V*, *C* may be masked arrays, but masked
-*X*, *Y* are not supported at present.
+The arguments *X*, *Y*, *U*, *V*, *C* are positional-only and may be
+1D or 2D. *U*, *V*, *C* may be masked arrays, but masked *X*, *Y*
+are not supported at present.
 
 Barbs are traditionally used in meteorology as a way to plot the speed
 and direction of wind observations, but can technically be used to

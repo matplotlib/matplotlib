@@ -239,7 +239,7 @@ Examples:
 
 .. code-block:: rst
 
-   See the :doc:`/users/installing/index`
+   See the :doc:`/install/index`
 
    See the tutorial :ref:`quick_start`
 
@@ -247,14 +247,14 @@ Examples:
 
 will render as:
 
-  See the :doc:`/users/installing/index`
+  See the :doc:`/install/index`
 
   See the tutorial :ref:`quick_start`
 
   See the example :doc:`/gallery/lines_bars_and_markers/simple_plot`
 
 Sections can also be given reference labels.  For instance from the
-:doc:`/users/installing/index` link:
+:doc:`/install/index` link:
 
 .. code-block:: rst
 
@@ -317,7 +317,10 @@ target is unambiguous you can simply leave them out:
 
   `.LineCollection`
 
-and the link still works: `.LineCollection`.
+and the link still works: `.LineCollection`. Note that you should typically include
+the leading dot. It tells Sphinx to look for the given name in the whole project.
+See also the explanation at `Sphinx: Cross-referencing Python objects
+<https://www.sphinx-doc.org/en/master/usage/domains/python.html#cross-referencing-python-objects>`_.
 
 If there are multiple code elements with the same name (e.g. ``plot()`` is a
 method in multiple classes), you'll have to extend the definition:

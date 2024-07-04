@@ -44,7 +44,7 @@ static bool leftMouseGrabbing = false;
 static bool stdin_received = false;
 static bool stdin_sigint = false;
 // Global variable to store the original SIGINT handler
-static struct sigaction originalSigintAction = {0};
+static PyOS_sighandler_t originalSigintAction = NULL;
 
 // Signal handler for SIGINT, only sets a flag to exit the run loop
 static void handleSigint(int signal) {
@@ -57,10 +57,7 @@ static int wait_for_stdin() {
         stdin_sigint = false;
 
         // Set up a SIGINT handler to interrupt the event loop if ctrl+c comes in too
-        struct sigaction customAction = {0};
-        customAction.sa_handler = handleSigint;
-        // Set the new handler and store the old one
-        sigaction(SIGINT, &customAction, &originalSigintAction);
+        originalSigintAction = PyOS_setsig(SIGINT, handleSigint);
 
         // Create an NSFileHandle for standard input
         NSFileHandle *stdinHandle = [NSFileHandle fileHandleWithStandardInput];
@@ -80,6 +77,9 @@ static int wait_for_stdin() {
 
         // continuously run an event loop until the stdin_received flag is set to exit
         while (!stdin_received && !stdin_sigint) {
+            // This loop is similar to the main event loop and flush_events which have
+            // Py_[BEGIN|END]_ALLOW_THREADS surrounding the loop.
+            // This should not be necessary here because PyOS_InputHook releases the GIL for us.
             while (true) {
                 NSEvent *event = [NSApp nextEventMatchingMask: NSEventMaskAny
                                                     untilDate: [NSDate distantPast]
@@ -93,7 +93,7 @@ static int wait_for_stdin() {
         [[NSNotificationCenter defaultCenter] removeObserver: stdinHandle];
 
         // Restore the original SIGINT handler upon exiting the function
-        sigaction(SIGINT, &originalSigintAction, NULL);
+        PyOS_setsig(SIGINT, originalSigintAction);
         return 1;
     }
 }
@@ -383,6 +383,9 @@ FigureCanvas_flush_events(FigureCanvas* self)
     // to process, breaking out of the loop when no events remain and
     // displaying the canvas if needed.
     NSEvent *event;
+
+    Py_BEGIN_ALLOW_THREADS
+
     while (true) {
         event = [NSApp nextEventMatchingMask: NSEventMaskAny
                                    untilDate: [NSDate distantPast]
@@ -393,6 +396,9 @@ FigureCanvas_flush_events(FigureCanvas* self)
         }
         [NSApp sendEvent:event];
     }
+
+    Py_END_ALLOW_THREADS
+
     [self->view displayIfNeeded];
     Py_RETURN_NONE;
 }

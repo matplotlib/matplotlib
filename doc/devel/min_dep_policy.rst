@@ -49,6 +49,17 @@ without compiled extensions
 We will only bump these dependencies as we need new features or the old
 versions no longer support our minimum NumPy or Python.
 
+We will work around bugs in our dependencies when practical.
+
+IPython and Matplotlib do not formally depend on each other, however there is
+practical coupling for the integration of Matplotlib's UI into IPython and
+IPykernel.  We will ensure this integration works with at least minor or major
+versions of IPython and IPykernel released in the 24 months prior to our
+planned release date.  Matplotlib may or may not work with older versions and
+we will not warn if used with IPython or IPykernel outside of this window.
+
+
+
 Test and documentation dependencies
 ===================================
 
@@ -58,8 +69,10 @@ support for old versions.  However, we need to be careful to not
 over-run what down-stream packagers support (as most of the run the
 tests and build the documentation as part of the packaging process).
 
-We will support at least minor versions of the development
-dependencies released in the 12 months prior to our planned release.
+We will support at least minor versions of the development dependencies
+released in the 12 months prior to our planned release.  Specific versions that
+are known to be buggy may be excluded from support using the finest-grained
+filtering that is practical.
 
 We will only bump these as needed or versions no longer support our
 minimum Python and NumPy.
@@ -75,6 +88,20 @@ possible.  We will bump these on a case-by-case basis.
 In the case of GUI frameworks for which we rely on Python bindings being
 available, we will also drop support for bindings so old that they don't
 support any Python version that we support.
+
+Security issues in dependencies
+===============================
+
+Generally, we do not adjust the supported versions of dependencies based on
+security vulnerabilities.   We are a library not an application
+and the version constraints on our dependencies indicate what will work (not
+what is wise to use).  Users and packagers can install newer versions of the
+dependencies at their discretion and evaluation of risk and impact.  In
+contrast, if we were to adjust our minimum supported version it is very hard
+for a user to override our judgment.
+
+If Matplotlib aids in exploiting the underlying vulnerability we should treat
+that as a critical bug in Matplotlib.
 
 .. _list-of-dependency-min-versions:
 

@@ -230,6 +230,7 @@ class Dvi:
         self.dpi = dpi
         self.fonts = {}
         self.state = _dvistate.pre
+        self._missing_font = None
 
     def __enter__(self):
         """Context manager enter method, does nothing."""
@@ -337,6 +338,8 @@ class Dvi:
         while True:
             byte = self.file.read(1)[0]
             self._dtable[byte](self, byte)
+            if self._missing_font:
+                raise self._missing_font
             name = self._dtable[byte].__name__
             if name == "_push":
                 down_stack.append(down_stack[-1])
@@ -364,11 +367,15 @@ class Dvi:
     @_dispatch(min=0, max=127, state=_dvistate.inpage)
     def _set_char_immediate(self, char):
         self._put_char_real(char)
+        if isinstance(self.fonts[self.f], FileNotFoundError):
+            return
         self.h += self.fonts[self.f]._width_of(char)
 
     @_dispatch(min=128, max=131, state=_dvistate.inpage, args=('olen1',))
     def _set_char(self, char):
         self._put_char_real(char)
+        if isinstance(self.fonts[self.f], FileNotFoundError):
+            return
         self.h += self.fonts[self.f]._width_of(char)
 
     @_dispatch(132, state=_dvistate.inpage, args=('s4', 's4'))
@@ -382,7 +389,9 @@ class Dvi:
 
     def _put_char_real(self, char):
         font = self.fonts[self.f]
-        if font._vf is None:
+        if isinstance(font, FileNotFoundError):
+            self._missing_font = font
+        elif font._vf is None:
             self.text.append(Text(self.h, self.v, font, char,
                                   font._width_of(char)))
         else:
@@ -486,7 +495,16 @@ class Dvi:
     def _fnt_def_real(self, k, c, s, d, a, l):
         n = self.file.read(a + l)
         fontname = n[-l:].decode('ascii')
-        tfm = _tfmfile(fontname)
+        try:
+            tfm = _tfmfile(fontname)
+        except FileNotFoundError as exc:
+            # Explicitly allow defining missing fonts for Vf support; we only
+            # register an error when trying to load a glyph from a missing font
+            # and throw that error in Dvi._read.  For Vf, _finalize_packet
+            # checks whether a missing glyph has been used, and in that case
+            # skips the glyph definition.
+            self.fonts[k] = exc
+            return
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
             raise ValueError('tfm checksum mismatch: %s' % n)
         try:
@@ -712,12 +730,14 @@ class Vf(Dvi):
         self.h, self.v, self.w, self.x, self.y, self.z = 0, 0, 0, 0, 0, 0
         self.stack, self.text, self.boxes = [], [], []
         self.f = self._first_font
+        self._missing_font = None
         return self.file.tell() + pl
 
     def _finalize_packet(self, packet_char, packet_width):
-        self._chars[packet_char] = Page(
-            text=self.text, boxes=self.boxes, width=packet_width,
-            height=None, descent=None)
+        if not self._missing_font:  # Otherwise we don't have full glyph definition.
+            self._chars[packet_char] = Page(
+                text=self.text, boxes=self.boxes, width=packet_width,
+                height=None, descent=None)
         self.state = _dvistate.outer
 
     def _pre(self, i, x, cs, ds):
