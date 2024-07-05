@@ -197,10 +197,10 @@ jobs:
             ~/.cache/matplotlib
             !~/.cache/matplotlib/tex.cache
             !~/.cache/matplotlib/test_cache
-          key: 4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
+          key: 5-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
           restore-keys: |
-            4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
-            4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-
+            5-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
+            5-${{ runner.os }}-py${{ matrix.python-version }}-mpl-
 
       - name: Install Python dependencies
         run: |
@@ -281,6 +281,9 @@ jobs:
             --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
             --upgrade --only-binary=:all: numpy pandas
 
+      - name: Install browsers for testing
+        run: playwright install --with-deps
+
       - name: Install Matplotlib
         run: |
           ccache -s
@@ -311,6 +314,8 @@ jobs:
       - name: Run pytest
         run: |
           pytest -rfEsXR -n auto \
+            --browser chromium --browser firefox --browser webkit \
+            --slowmo=100 --tracing=on --video=on \
             --maxfail=50 --timeout=300 --durations=25 \
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
 
@@ -376,6 +381,12 @@ jobs:
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }} result images"
           path: ./result_images
+
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }} playwright"
+          path: ./test-results
 
   # Separate dependent job to only upload one issue from the matrix of jobs
   create-issue:
