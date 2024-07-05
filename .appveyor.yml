@@ -1,7 +1,6 @@
 # With infos from
 # http://tjelvarolsson.com/blog/how-to-continuously-test-your-python-code-on-windows-using-appveyor/
 # https://packaging.python.org/en/latest/appveyor/
-# https://github.com/rmcgibbo/python-appveyor-conda-example
 ---
 
 # Backslashes in quotes need to be escaped: \ -> "\\"
@@ -30,7 +29,6 @@ environment:
 
   matrix:
     - PYTHON_VERSION: "3.11"
-      CONDA_INSTALL_LOCN: "C:\\Miniconda3-x64"
       TEST_ALL: "yes"
 
 # We always use a 64-bit machine, but can build x86 distributions
@@ -46,24 +44,20 @@ cache:
   - '%USERPROFILE%\.cache\matplotlib'
 
 init:
-  - echo %PYTHON_VERSION% %CONDA_INSTALL_LOCN%
+  - ps:
+      Invoke-Webrequest
+      -URI https://micro.mamba.pm/api/micromamba/win-64/latest
+      -OutFile C:\projects\micromamba.tar.bz2
+  - ps: C:\PROGRA~1\7-Zip\7z.exe x C:\projects\micromamba.tar.bz2 -aoa -oC:\projects\
+  - ps: C:\PROGRA~1\7-Zip\7z.exe x C:\projects\micromamba.tar -ttar -aoa -oC:\projects\
+  - 'set PATH=C:\projects\Library\bin;%PATH%'
+  - micromamba shell init --shell cmd.exe
+  - micromamba config set always_yes true
+  - micromamba config prepend channels conda-forge
 
 install:
-  - set PATH=%CONDA_INSTALL_LOCN%;%CONDA_INSTALL_LOCN%\scripts;%PATH%;
-  - conda config --set always_yes true
-  - conda config --set show_channel_urls yes
-  - conda config --prepend channels conda-forge
-
-  # For building, use a new environment
-  # Add python version to environment
-  # `^ ` escapes spaces for indentation
-  - echo ^ ^ - python=%PYTHON_VERSION% >> environment.yml
-  - conda env create -f environment.yml
-  - activate mpl-dev
-  - conda install -c conda-forge pywin32
-  - echo %PYTHON_VERSION% %TARGET_ARCH%
-  # Show the installed packages + versions
-  - conda list
+  - micromamba env create -f environment.yml python=%PYTHON_VERSION% pywin32
+  - micromamba activate mpl-dev
 
 test_script:
   # Now build the thing..
@@ -74,7 +68,7 @@ test_script:
   - '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd | findstr freetype.*.dll && exit /b 1 || exit /b 0'
 
   # this are optional dependencies so that we don't skip so many tests...
-  - if x%TEST_ALL% == xyes conda install -q ffmpeg inkscape
+  - if x%TEST_ALL% == xyes micromamba install -q ffmpeg inkscape
   # miktex is available on conda, but seems to fail with permission errors.
   # missing packages on conda-forge for imagemagick
   # This install sometimes failed randomly :-(
@@ -95,7 +89,7 @@ artifacts:
     type: Zip
 
 on_finish:
-  - conda install codecov
+  - micromamba install codecov
   - codecov -e PYTHON_VERSION PLATFORM -n "$PYTHON_VERSION Windows"
 
 on_failure:
