@@ -28,12 +28,12 @@ def test_bivariate_cmap_shapes():
 
     # shape = 'ignore'
     cmap = mpl.bivar_colormaps['BiPeak']
-    cmap.shape = 'ignore'
+    cmap = cmap.with_extremes(shape='ignore')
     axes[2].imshow(cmap((x_0, x_1)), interpolation='nearest')
 
     # shape = circleignore
     cmap = mpl.bivar_colormaps['BiCone']
-    cmap.shape = 'circleignore'
+    cmap = cmap.with_extremes(shape='circleignore')
     axes[3].imshow(cmap((x_0, x_1)), interpolation='nearest')
     remove_ticks_and_titles(fig)
 
@@ -156,7 +156,7 @@ def test_multivar_cmap_call():
     with pytest.raises(ValueError, match="alpha is array-like but its shape"):
         cs = cmap([(0, 5, 9), (0, 0, 0)], bytes=True, alpha=(0.5, 0.3))
 
-    cmap.set_bad((1, 1, 1, 1))
+    cmap = cmap.with_extremes(bad=(1, 1, 1, 1))
     cs = cmap([(0., 1.1, np.nan), (0., 1.2, 1.)])
     res = np.array([[1., 1., 1., 1.],
                    [0., 0., 0., 1.],
@@ -166,16 +166,40 @@ def test_multivar_cmap_call():
     # call outside with tuple
     assert_allclose(cmap((300, 300), bytes=True, alpha=0.5),
                     [0, 0, 0, 127], atol=0.01)
-
     with pytest.raises(ValueError,
                        match="For the selected colormap the data must have"):
         cs = cmap((0, 5, 9))
+
+    # test over/under
+    cmap = mpl.multivar_colormaps['2VarAddA']
+    with pytest.raises(ValueError, match='i.e. be of length 2'):
+        cmap.with_extremes(over=0)
+    with pytest.raises(ValueError, match='i.e. be of length 2'):
+        cmap.with_extremes(under=0)
+
+    cmap = cmap.with_extremes(under=[(0, 0, 0, 0)]*2)
+    assert_allclose((0, 0, 0, 0), cmap((-1., 0)), atol=1e-2)
+    cmap = cmap.with_extremes(over=[(0, 0, 0, 0)]*2)
+    assert_allclose((0, 0, 0, 0), cmap((2., 0)), atol=1e-2)
 
 
 def test_multivar_bad_mode():
     cmap = mpl.multivar_colormaps['2VarSubA']
     with pytest.raises(ValueError, match="Combination_mode must be 'Add' or 'Sub'"):
-        cmap.combination_mode = 'bad'
+        cmap = mpl.colors.MultivarColormap('', cmap[:], 'bad')
+
+
+def test_multivar_resample():
+    cmap = mpl.multivar_colormaps['3VarAddA']
+    cmap_resampled = cmap.resampled((None, 10, 3))
+
+    assert_allclose(cmap_resampled[1](0.25), (0.093, 0.116, 0.059, 1.0))
+    assert_allclose(cmap_resampled((0, 0.25, 0)), (0.093, 0.116, 0.059, 1.0))
+    assert_allclose(cmap_resampled((1, 0.25, 1)), (0.417271, 0.264624, 0.274976, 1.),
+                                   atol=0.01)
+
+    with pytest.raises(ValueError, match="lutshape must be of length"):
+        cmap = cmap.resampled(4)
 
 
 def test_bivar_cmap_call_tuple():
@@ -205,7 +229,7 @@ def test_bivar_cmap_call():
     assert_allclose(cs,  res, atol=0.01)
 
     # call mix floats integers
-    cmap.set_outside((1, 0, 0, 0))
+    cmap = cmap.with_extremes(outside=(1, 0, 0, 0))
     cs = cmap([(0.5, 0), (0, 3)])
     res = np.array([[0.555, 0, 1, 1],
                     [0, 0.2727, 1, 1]])
@@ -251,9 +275,7 @@ def test_bivar_cmap_call():
     # final point is outside colormap and should then receive
     # the 'outside' (in this case [1,0,0,0])
     # also test 'bad' (in this case [1,1,1,0])
-    cmap.shape = 'ignore'
-    cmap.set_outside((1, 0, 0, 0))
-    cmap.set_bad((1, 1, 1, 0))
+    cmap = cmap.with_extremes(outside=(1, 0, 0, 0), bad=(1, 1, 1, 0), shape='ignore')
     cs = cmap([(0., 1.1, np.nan), (0., 1.2, 1.)])
     res = np.array([[0, 0, 1, 1],
                     [1, 0, 0, 0],
@@ -263,9 +285,6 @@ def test_bivar_cmap_call():
     assert_allclose(cmap((10, 12), bytes=True, alpha=0.5),
                     [255, 0, 0, 127], atol=0.01)
     # with integers
-    # cmap = mpl.colors.BivarColormapFromImage(im)
-    # cmap.shape = 'ignore'
-    # cmap.set_outside((1, 0, 0, 0))
     cs = cmap([(0, 10), (0, 12)])
     res = np.array([[0, 0, 1, 1],
                     [1, 0, 0, 0]])
@@ -275,7 +294,7 @@ def test_bivar_cmap_call():
                        match="For a `BivarColormap` the data must have"):
         cs = cmap((0, 5, 9))
 
-    cmap.shape = 'circle'
+    cmap = cmap.with_extremes(shape='circle')
     with pytest.raises(NotImplementedError,
                        match="only implemented for use with with floats"):
         cs = cmap([(0, 5, 9, 0, 0, 9), (0, 0, 0, 5, 11, 11)])
@@ -290,7 +309,7 @@ def test_bivar_getitem():
     assert_array_equal(cmaps(xA), cmaps[0](xA[0]))
     assert_array_equal(cmaps(xB), cmaps[1](xB[1]))
 
-    cmaps.shape = 'ignore'
+    cmaps = cmaps.with_extremes(shape='ignore')
     assert_array_equal(cmaps(xA), cmaps[0](xA[0]))
     assert_array_equal(cmaps(xB), cmaps[1](xB[1]))
 
@@ -300,7 +319,7 @@ def test_bivar_getitem():
     assert_array_equal(cmaps(xA), cmaps[0](xA[0]))
     assert_array_equal(cmaps(xB), cmaps[1](xB[1]))
 
-    cmaps.shape = 'ignore'
+    cmaps = cmaps.with_extremes(shape='ignore')
     assert_array_equal(cmaps(xA), cmaps[0](xA[0]))
     assert_array_equal(cmaps(xB), cmaps[1](xB[1]))
 
@@ -312,7 +331,12 @@ def test_bivar_cmap_bad_shape():
     cmap = mpl.bivar_colormaps['BiCone']
     with pytest.raises(ValueError,
                        match="shape must be a valid string"):
-        cmap.shape = 'bad shape'
+        cmap.with_extremes(shape='bad_shape')
+
+    with pytest.raises(ValueError,
+                       match="shape must be a valid string"):
+        mpl.colors.BivarColormapFromImage(np.ones((3, 3, 4)),
+                                          shape='bad_shape')
 
 
 def test_bivar_cmap_bad_lut():
@@ -334,11 +358,26 @@ def test_bivar_cmap_from_image():
     data_1 = np.arange(6).reshape((3, 2)).T/5
 
     # bivariate colormap from array
-    im = np.ones((10, 12, 4))
-    im[:, :, 0] = np.arange(10)[:, np.newaxis]/10
-    im[:, :, 1] = np.arange(12)[np.newaxis, :]/12
+    cim = np.ones((10, 12, 3))
+    cim[:, :, 0] = np.arange(10)[:, np.newaxis]/10
+    cim[:, :, 1] = np.arange(12)[np.newaxis, :]/12
 
-    cmap = mpl.colors.BivarColormapFromImage(im, 'custom')
+    cmap = mpl.colors.BivarColormapFromImage(cim, 'custom')
+    im = cmap((data_0, data_1))
+    res = np.array([[[0, 0, 1, 1],
+                    [0.2, 0.33333333, 1, 1],
+                    [0.4, 0.75, 1, 1]],
+                   [[0.6, 0.16666667, 1, 1],
+                    [0.8, 0.58333333, 1, 1],
+                    [0.9, 0.91666667, 1, 1]]])
+    assert_allclose(im,  res, atol=0.01)
+
+    # input as unit8
+    cim = np.ones((10, 12, 3))*255
+    cim[:, :, 0] = np.arange(10)[:, np.newaxis]/10*255
+    cim[:, :, 1] = np.arange(12)[np.newaxis, :]/12*255
+
+    cmap = mpl.colors.BivarColormapFromImage(cim.astype(np.uint8), 'custom')
     im = cmap((data_0, data_1))
     res = np.array([[[0, 0, 1, 1],
                     [0.2, 0.33333333, 1, 1],
@@ -350,12 +389,11 @@ def test_bivar_cmap_from_image():
 
     # bivariate colormap from array
     png_path = Path(__file__).parent / "baseline_images/pngsuite/basn2c16.png"
-    im = Image.open(png_path)
-    im = np.asarray(im.convert('RGBA'))
+    cim = Image.open(png_path)
+    cim = np.asarray(cim.convert('RGBA'))
 
-    cmap = mpl.colors.BivarColormapFromImage(im, 'custom')
-    im = cmap((data_0, data_1))
-
+    cmap = mpl.colors.BivarColormapFromImage(cim, 'custom')
+    im = cmap((data_0, data_1), bytes=True)
     res = np.array([[[255, 255,   0, 255],
                      [156, 206,   0, 255],
                      [49, 156,  49, 255]],
@@ -363,6 +401,28 @@ def test_bivar_cmap_from_image():
                      [99,  49, 107, 255],
                      [0,   0, 255, 255]]])
     assert_allclose(im,  res, atol=0.01)
+
+
+def test_bivar_resample():
+    cmap = mpl.bivar_colormaps['BiOrangeBlue'].resampled((2, 2))
+    assert_allclose(cmap((0.25, 0.25)), (0, 0, 0, 1), atol=1e-2)
+
+    cmap = mpl.bivar_colormaps['BiOrangeBlue'].resampled((-2, 2))
+    assert_allclose(cmap((0.25, 0.25)), (1., 0.5, 0., 1.), atol=1e-2)
+
+    cmap = mpl.bivar_colormaps['BiOrangeBlue'].resampled((2, -2))
+    assert_allclose(cmap((0.25, 0.25)), (0., 0.5, 1., 1.), atol=1e-2)
+
+    cmap = mpl.bivar_colormaps['BiOrangeBlue'].resampled((-2, -2))
+    assert_allclose(cmap((0.25, 0.25)), (1, 1, 1, 1), atol=1e-2)
+
+    cmap = mpl.bivar_colormaps['BiOrangeBlue'].reversed()
+    assert_allclose(cmap((0.25, 0.25)), (0.748535, 0.748547, 0.748535, 1.), atol=1e-2)
+    cmap = mpl.bivar_colormaps['BiOrangeBlue'].transposed()
+    assert_allclose(cmap((0.25, 0.25)), (0.252441, 0.252422, 0.252441, 1.), atol=1e-2)
+
+    with pytest.raises(ValueError, match="lutshape must be of length"):
+        cmap = cmap.resampled(4)
 
 
 def test_bivariate_repr_png():
@@ -393,7 +453,7 @@ def test_multivariate_repr_html():
     cmap = mpl.multivar_colormaps['3VarAddA']
     html = cmap._repr_html_()
     assert len(html) > 0
-    for c in cmap.colormaps:
+    for c in cmap:
         png = c._repr_png_()
         assert base64.b64encode(png).decode('ascii') in html
     assert cmap.name in html
@@ -417,11 +477,11 @@ def test_bivar_eq():
     assert (cmap_0 == cmap_1) is False
 
     cmap_1 = mpl.bivar_colormaps['BiPeak']
-    cmap_1.set_bad('k')
+    cmap_1 = cmap_1.with_extremes(bad='k')
     assert (cmap_0 == cmap_1) is False
 
     cmap_1 = mpl.bivar_colormaps['BiPeak']
-    cmap_1.set_outside('k')
+    cmap_1 = cmap_1.with_extremes(outside='k')
     assert (cmap_0 == cmap_1) is False
 
     cmap_1 = mpl.bivar_colormaps['BiPeak']
@@ -430,7 +490,7 @@ def test_bivar_eq():
     assert (cmap_0 == cmap_1) is False
 
     cmap_1 = mpl.bivar_colormaps['BiPeak']
-    cmap_1.shape = 'ignore'
+    cmap_1 = cmap_1.with_extremes(shape='ignore')
     assert (cmap_0 == cmap_1) is False
 
 
@@ -455,9 +515,9 @@ def test_multivar_eq():
     assert (cmap_0 == cmap_1) is False
 
     cmap_1 = mpl.multivar_colormaps['2VarAddA']
-    cmap_1.set_bad('k')
+    cmap_1 = cmap_1.with_extremes(bad='k')
     assert (cmap_0 == cmap_1) is False
 
     cmap_1 = mpl.multivar_colormaps['2VarAddA']
-    cmap_1.combination_mode = 'Sub'
+    cmap_1 = mpl.colors.MultivarColormap('', cmap_1[:], 'Sub')
     assert (cmap_0 == cmap_1) is False
