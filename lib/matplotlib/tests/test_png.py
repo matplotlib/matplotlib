@@ -20,7 +20,8 @@ def test_pngsuite():
         if data.ndim == 2:
             # keep grayscale images gray
             cmap = cm.gray
-        # use the old default data interpolation stage
+        # Using the old default data interpolation stage lets us
+        # continue to use the existing reference image
         plt.imshow(data, extent=(i, i + 1, 0, 1), cmap=cmap,
                    interpolation_stage='data')
 

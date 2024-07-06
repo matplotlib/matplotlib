@@ -131,10 +131,10 @@ plt.show()
 # colormap, it is what we perceive when a blue and red stripe are close to each
 # other.
 #
-# The default for the *interpolation* keyword argument is 'antialiased' which
+# The default for the *interpolation* keyword argument is 'auto' which
 # will choose a Hanning filter if the image is being down-sampled or up-sampled
 # by less than a factor of three.  The default *interpolation_stage* keyword
-# argument is also 'antialiased', and for images that are down-sampled or
+# argument is also 'auto', and for images that are down-sampled or
 # up-sampled by less than a factor of three it defaults to 'rgba'
 # interpolation.
 #
@@ -151,8 +151,8 @@ ax.set_title("up-sampled by factor a 1.17, interpolation='nearest'")
 # %%
 # Better anti-aliasing algorithms can reduce this effect:
 fig, ax = plt.subplots(figsize=(6.8, 6.8))
-ax.imshow(alarge, interpolation='antialiased', cmap='grey')
-ax.set_title("up-sampled by factor a 1.17, interpolation='antialiased'")
+ax.imshow(alarge, interpolation='auto', cmap='grey')
+ax.set_title("up-sampled by factor a 1.17, interpolation='auto'")
 
 # %%
 # Apart from the default 'hanning' anti-aliasing, `~.Axes.imshow` supports a
@@ -174,8 +174,8 @@ for ax, interp in zip(axs, ['hanning', 'lanczos']):
 # you do not use an anti-aliasing filter (*interpolation* set set to
 # 'nearest'), however, that makes the part of the data susceptible to Moiré
 # patterns much worse (second panel).  Therefore, we recommend the default
-# *interpolation* of 'hanning'/'antialiased', and *interpolation_stage* of
-# 'rgba'/'antialiased' for most down-sampling situations (last panel).
+# *interpolation* of 'hanning'/'auto', and *interpolation_stage* of
+# 'rgba'/'auto' for most down-sampling situations (last panel).
 
 a = alarge + 1
 cmap = plt.get_cmap('RdBu_r')
@@ -206,7 +206,7 @@ a = np.random.rand(4, 4)
 
 fig, axs = plt.subplots(1, 2, figsize=(6.5, 4), layout='compressed')
 axs[0].imshow(asmall, cmap='viridis')
-axs[0].set_title("interpolation='antialiased'\nstage='antialiased'")
+axs[0].set_title("interpolation='auto'\nstage='auto'")
 axs[1].imshow(asmall, cmap='viridis', interpolation="nearest",
               interpolation_stage="data")
 axs[1].set_title("interpolation='nearest'\nstage='data'")
@@ -218,7 +218,7 @@ plt.show()
 # where the filters can cause colors that are not in the colormap to be the result of
 # the interpolation.  In the following example, note that when the interpolation is
 # 'rgba' there are red colors as interpolation artifacts.  Therefore, the default
-# 'antialiased' choice for *interpolation_stage* is set to be the same as 'data'
+# 'auto' choice for *interpolation_stage* is set to be the same as 'data'
 # when up-sampling is greater than a factor of three:
 
 fig, axs = plt.subplots(1, 2, figsize=(6.5, 4), layout='compressed')

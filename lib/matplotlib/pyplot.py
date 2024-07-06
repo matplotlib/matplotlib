@@ -3565,7 +3565,7 @@ def imshow(
     vmax: float | None = None,
     origin: Literal["upper", "lower"] | None = None,
     extent: tuple[float, float, float, float] | None = None,
-    interpolation_stage: Literal["data", "rgba"] | None = None,
+    interpolation_stage: Literal["data", "rgba", "auto"] | None = None,
     filternorm: bool = True,
     filterrad: float = 4.0,
     resample: bool | None = None,

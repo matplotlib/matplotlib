@@ -98,7 +98,7 @@ def test_imshow_antialiased(fig_test, fig_ref,
         fig.set_size_inches(fig_size, fig_size)
     ax = fig_test.subplots()
     ax.set_position([0, 0, 1, 1])
-    ax.imshow(A, interpolation='antialiased')
+    ax.imshow(A, interpolation='auto')
     ax = fig_ref.subplots()
     ax.set_position([0, 0, 1, 1])
     ax.imshow(A, interpolation=interpolation)
@@ -113,7 +113,7 @@ def test_imshow_zoom(fig_test, fig_ref):
     for fig in [fig_test, fig_ref]:
         fig.set_size_inches(2.9, 2.9)
     ax = fig_test.subplots()
-    ax.imshow(A, interpolation='antialiased')
+    ax.imshow(A, interpolation='auto')
     ax.set_xlim([10, 20])
     ax.set_ylim([10, 20])
     ax = fig_ref.subplots()
@@ -951,6 +951,7 @@ def test_imshow_masked_interpolation():
 
     fig, ax_grid = plt.subplots(3, 6)
     interps = sorted(mimage._interpd_)
+    interps.remove('auto')
     interps.remove('antialiased')
 
     for interp, ax in zip(interps, ax_grid.ravel()):
@@ -1449,19 +1450,19 @@ def test_rgba_antialias():
 
     # data antialias: Note no purples, and white in circle.  Note
     # that alternating red and blue stripes become white.
-    axs[2].imshow(aa, interpolation='antialiased', interpolation_stage='data',
+    axs[2].imshow(aa, interpolation='auto', interpolation_stage='data',
                   cmap=cmap, vmin=-1.2, vmax=1.2)
 
     # rgba antialias: Note purples at boundary with circle.  Note that
     # alternating red and blue stripes become purple
-    axs[3].imshow(aa, interpolation='antialiased', interpolation_stage='rgba',
+    axs[3].imshow(aa, interpolation='auto', interpolation_stage='rgba',
                   cmap=cmap, vmin=-1.2, vmax=1.2)
 
 
 @check_figures_equal(extensions=('png', ))
 def test_upsample_interpolation_stage(fig_test, fig_ref):
     """
-    Show that interpolation_stage='antialiased' gives the same as 'data'
+    Show that interpolation_stage='auto' gives the same as 'data'
     for upsampling.
     """
     # Fixing random state for reproducibility.  This non-standard seed
@@ -1475,13 +1476,13 @@ def test_upsample_interpolation_stage(fig_test, fig_ref):
 
     ax = fig_test.subplots()
     ax.imshow(grid, interpolation='bilinear', cmap='viridis',
-              interpolation_stage='antialiased')
+              interpolation_stage='auto')
 
 
 @check_figures_equal(extensions=('png', ))
 def test_downsample_interpolation_stage(fig_test, fig_ref):
     """
-    Show that interpolation_stage='antialiased' gives the same as 'rgba'
+    Show that interpolation_stage='auto' gives the same as 'rgba'
     for downsampling.
     """
     # Fixing random state for reproducibility
@@ -1489,12 +1490,12 @@ def test_downsample_interpolation_stage(fig_test, fig_ref):
 
     grid = np.random.rand(4000, 4000)
     ax = fig_ref.subplots()
-    ax.imshow(grid, interpolation='antialiased', cmap='viridis',
+    ax.imshow(grid, interpolation='auto', cmap='viridis',
               interpolation_stage='rgba')
 
     ax = fig_test.subplots()
-    ax.imshow(grid, interpolation='antialiased', cmap='viridis',
-              interpolation_stage='antialiased')
+    ax.imshow(grid, interpolation='auto', cmap='viridis',
+              interpolation_stage='auto')
 
 
 def test_rc_interpolation_stage():
@@ -1642,8 +1643,8 @@ def test_downsampling():
     axs[0, 0].set_title('Zoom')
 
     for ax, interp, space in zip(axs.flat[1:], ['nearest', 'nearest', 'hanning',
-                                                'hanning', 'antialiased'],
-                                 ['data', 'rgba', 'data', 'rgba', 'antialiased']):
+                                                'hanning', 'auto'],
+                                 ['data', 'rgba', 'data', 'rgba', 'auto']):
         ax.imshow(a, interpolation=interp, interpolation_stage=space,
                   cmap='RdBu_r')
         ax.set_title(f"interpolation='{interp}'\nspace='{space}'")
@@ -1664,11 +1665,11 @@ def test_downsampling_speckle():
     # old default cannot be tested because it creates over/under speckles
     # in the following that are machine dependent.
 
-    axs[0].set_title("interpolation='antialiased', stage='rgba'")
+    axs[0].set_title("interpolation='auto', stage='rgba'")
     axs[0].imshow(np.triu(img), cmap=cm, norm=norm, interpolation_stage='rgba')
 
     # Should be same as previous
-    axs[1].set_title("interpolation='antialiased', stage='antialiased'")
+    axs[1].set_title("interpolation='auto', stage='auto'")
     axs[1].imshow(np.triu(img), cmap=cm, norm=norm)
 
 
@@ -1682,12 +1683,12 @@ def test_upsampling():
     fig, axs = plt.subplots(1, 3, figsize=(6.5, 3), layout='compressed')
     im = axs[0].imshow(a, cmap='viridis')
     axs[0].set_title(
-        "interpolation='antialiased'\nstage='antialaised'\n(default for upsampling)")
+        "interpolation='auto'\nstage='antialaised'\n(default for upsampling)")
 
     # probably what people want:
     axs[1].imshow(a, cmap='viridis', interpolation='sinc')
     axs[1].set_title(
-        "interpolation='sinc'\nstage='antialiased'\n(default for upsampling)")
+        "interpolation='sinc'\nstage='auto'\n(default for upsampling)")
 
     # probably not what people want:
     axs[2].imshow(a, cmap='viridis', interpolation='sinc', interpolation_stage='rgba')
