@@ -1,7 +1,7 @@
 [
     {
         "name": "3.9 (stable)",
-        "version": "stable",
+        "version": "3.9.1",
         "url": "https://matplotlib.org/stable/",
         "preferred": true
     },
