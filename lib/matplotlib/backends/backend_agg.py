@@ -22,7 +22,7 @@ Still TODO:
 """
 
 from contextlib import nullcontext
-from math import radians, cos, sin
+from math import radians, cos, sin, sqrt
 
 import numpy as np
 
@@ -198,10 +198,13 @@ class RendererAgg(RendererBase):
         xo, yo = font.get_bitmap_offset()
         xo /= 64.0
         yo /= 64.0
+        h = sqrt(xo**2 + yo**2)
         xd = d * sin(radians(angle))
         yd = d * cos(radians(angle))
+        xo = h * cos(radians(angle))
+        yo = h * sin(radians(angle))
         x = round(x + xo + xd)
-        y = round(y + yo + yd)
+        y = round(y + yo - yd)
         self._renderer.draw_text_image(font, x, y + 1, angle, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
