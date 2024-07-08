@@ -204,7 +204,7 @@ class RendererBase:
                                rgbFace)
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
-                             offsets, offset_trans, facecolors, edgecolors,
+                             offsets, offset_trans, facecolors, edgecolors, hatchcolors,
                              linewidths, linestyles, antialiaseds, urls,
                              offset_position):
         """
@@ -235,7 +235,7 @@ class RendererBase:
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
                 gc, list(path_ids), offsets, offset_trans,
-                facecolors, edgecolors, linewidths, linestyles,
+                facecolors, edgecolors, hatchcolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position):
             path, transform = path_id
             # Only apply another translation if we have an offset, else we
@@ -250,7 +250,7 @@ class RendererBase:
 
     def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
                        coordinates, offsets, offsetTrans, facecolors,
-                       antialiased, edgecolors):
+                       antialiased, edgecolors, hatchcolors):
         """
         Draw a quadmesh.
 
@@ -267,7 +267,7 @@ class RendererBase:
 
         return self.draw_path_collection(
             gc, master_transform, paths, [], offsets, offsetTrans, facecolors,
-            edgecolors, linewidths, [], [antialiased], [None], 'screen')
+            edgecolors, hatchcolors, linewidths, [], [antialiased], [None], 'screen')
 
     def draw_gouraud_triangles(self, gc, triangles_array, colors_array,
                                transform):
@@ -735,11 +735,6 @@ class GraphicsContextBase:
         self._linewidth = 1
         self._rgb = (0.0, 0.0, 0.0, 1.0)
         self._hatch = None
-        self._hatch_color = colors.to_rgba(
-            rcParams["hatch.color"]
-            if rcParams["hatch.color"] != "inherit"
-            else rcParams["patch.edgecolor"]
-        )
         self._hatch_linewidth = rcParams['hatch.linewidth']
         self._url = None
         self._gid = None
@@ -760,7 +755,6 @@ class GraphicsContextBase:
         self._linewidth = gc._linewidth
         self._rgb = gc._rgb
         self._hatch = gc._hatch
-        self._hatch_color = gc._hatch_color
         self._hatch_linewidth = gc._hatch_linewidth
         self._url = gc._url
         self._gid = gc._gid
@@ -997,14 +991,6 @@ class GraphicsContextBase:
         if hatch is None:
             return None
         return Path.hatch(hatch, density)
-
-    def get_hatch_color(self):
-        """Get the hatch color."""
-        return self._hatch_color
-
-    def set_hatch_color(self, hatch_color):
-        """Set the hatch color."""
-        self._hatch_color = hatch_color
 
     def get_hatch_linewidth(self):
         """Get the hatch linewidth."""

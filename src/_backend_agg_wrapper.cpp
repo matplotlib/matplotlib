@@ -298,6 +298,7 @@ PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args)
     agg::trans_affine offset_trans;
     numpy::array_view<const double, 2> facecolors;
     numpy::array_view<const double, 2> edgecolors;
+    numpy::array_view<const double, 2> hatchcolors;
     numpy::array_view<const double, 1> linewidths;
     DashesVector dashes;
     numpy::array_view<const uint8_t, 1> antialiaseds;
@@ -322,6 +323,7 @@ PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args)
                           &facecolors,
                           &convert_colors,
                           &edgecolors,
+                          &hatchcolors,
                           &linewidths.converter,
                           &linewidths,
                           &convert_dashes_vector,
@@ -342,6 +344,7 @@ PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args)
                                             offset_trans,
                                             facecolors,
                                             edgecolors,
+                                            hatchcolors,
                                             linewidths,
                                             dashes,
                                             antialiaseds)));
@@ -361,6 +364,7 @@ static PyObject *PyRendererAgg_draw_quad_mesh(PyRendererAgg *self, PyObject *arg
     numpy::array_view<const double, 2> facecolors;
     bool antialiased;
     numpy::array_view<const double, 2> edgecolors;
+    numpy::array_view<const double, 2> hatchcolors;
 
     if (!PyArg_ParseTuple(args,
                           "O&O&IIO&O&O&O&O&O&:draw_quad_mesh",
@@ -381,7 +385,8 @@ static PyObject *PyRendererAgg_draw_quad_mesh(PyRendererAgg *self, PyObject *arg
                           &convert_bool,
                           &antialiased,
                           &convert_colors,
-                          &edgecolors)) {
+                          &edgecolors,
+                          &hatchcolors)) {
         return NULL;
     }
 
@@ -395,7 +400,8 @@ static PyObject *PyRendererAgg_draw_quad_mesh(PyRendererAgg *self, PyObject *arg
                                       offset_trans,
                                       facecolors,
                                       antialiased,
-                                      edgecolors)));
+                                      edgecolors,
+                                      hatchcolors)));
 
     Py_RETURN_NONE;
 }

@@ -173,11 +173,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._face_is_mapped = None
         self._edge_is_mapped = None
         self._mapped_colors = None  # calculated in update_scalarmappable
-        hatchcolors = mpl._val_or_rc(hatchcolors, "hatch.color")
-        if isinstance(hatchcolors, str):
-            self._hatch_color = mcolors.to_rgba(hatchcolors)
-        else:
-            self._hatch_color = mcolors.to_rgba_array(hatchcolors[0])
         self.set_facecolor(facecolors)
         self.set_edgecolor(edgecolors)
         self.set_linewidth(linewidths)
@@ -424,7 +419,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 renderer.draw_path_collection(
                     gc, transform.frozen(), ipaths,
                     self.get_transforms(), offsets, offset_trf,
-                    [mcolors.to_rgba("none")], self._gapcolor,
+                    [mcolors.to_rgba("none")], self._gapcolor, self.get_hatchcolor(),
                     self._linewidths, ilinestyles,
                     self._antialiaseds, self._urls,
                     "screen")
@@ -432,7 +427,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             renderer.draw_path_collection(
                 gc, transform.frozen(), paths,
                 self.get_transforms(), offsets, offset_trf,
-                self.get_facecolor(), self.get_edgecolor(),
+                self.get_facecolor(), self.get_edgecolor(), self.get_hatchcolor(),
                 self._linewidths, self._linestyles,
                 self._antialiaseds, self._urls,
                 "screen")  # offset_position, kept for backcompat.
@@ -802,6 +797,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # This may be overridden in a subclass.
         return mpl.rcParams['patch.edgecolor']
 
+    def get_hatchcolor(self):
+        return self._hatchcolors
+
     def _set_edgecolor(self, c):
         if c is None:
             if (mpl.rcParams['patch.force_edgecolor']
@@ -836,12 +834,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._set_edgecolor(c)
 
     def _set_hatchcolor(self, c):
-        if cbook._str_lower_equal(c, 'inherit'):
-            self._hatchcolors = 'inherit'
-            self.stale = True
-            return
+        c = mpl._val_or_rc(c, "hatch.color")
+        if c == "inherit":
+            c = mpl.rcParams["patch.edgecolor"]
         self._hatchcolors = mcolors.to_rgba_array(c, self._alpha)
-        self._hatch_color = self._hatchcolors[0]  # Waiting for PR #27937
+        self._hatch_color = self._hatchcolors[0]
         self.stale = True
 
     def set_hatchcolor(self, c):
@@ -977,6 +974,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._us_linestyles = other._us_linestyles
         self._pickradius = other._pickradius
         self._hatch = other._hatch
+        self._hatchcolors = other._hatchcolors
         self._hatch_color = other._hatch_color
 
         # update_from for scalarmappable
@@ -2234,7 +2232,8 @@ class QuadMesh(_MeshData, Collection):
                 coordinates, offsets, offset_trf,
                 # Backends expect flattened rgba arrays (n*m, 4) for fc and ec
                 self.get_facecolor().reshape((-1, 4)),
-                self._antialiased, self.get_edgecolors().reshape((-1, 4)))
+                self._antialiased, self.get_edgecolors().reshape((-1, 4)),
+                self.get_hatchcolors().reshape((-1, 4)))
         gc.restore()
         renderer.close_group(self.__class__.__name__)
         self.stale = False
