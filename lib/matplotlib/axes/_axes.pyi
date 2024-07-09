@@ -1,4 +1,4 @@
-from matplotlib.axes._base import _AxesBase, _coords_type
+from matplotlib.axes._base import _AxesBase, coords_type
 from matplotlib.axes._secondary_axes import SecondaryAxis
 
 from matplotlib.artist import Artist
@@ -122,8 +122,8 @@ class Axes(_AxesBase):
         text: str,
         xy: tuple[float, float],
         xytext: tuple[float, float] | None = ...,
-        xycoords: _coords_type = ...,
-        textcoords: _coords_type = ...,
+        xycoords: coords_type = ...,
+        textcoords: coords_type | None = ...,
         arrowprops: dict[str, Any] | None = ...,
         annotation_clip: bool | None = ...,
         **kwargs

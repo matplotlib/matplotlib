@@ -94,8 +94,8 @@ if TYPE_CHECKING:
     import matplotlib.artist
     import matplotlib.backend_bases
     from matplotlib.axis import Tick
-    from matplotlib.axes._base import _AxesBase, _coords_type
-    from matplotlib.backend_bases import RendererBase, Event
+    from matplotlib.axes._base import _AxesBase, coords_type
+    from matplotlib.backend_bases import Event
     from matplotlib.cm import ScalarMappable
     from matplotlib.contour import ContourSet, QuadContourSet
     from matplotlib.collections import (
@@ -119,7 +119,6 @@ if TYPE_CHECKING:
     from matplotlib.patches import FancyArrow, StepPatch, Wedge
     from matplotlib.quiver import Barbs, Quiver, QuiverKey
     from matplotlib.scale import ScaleBase
-    from matplotlib.transforms import Transform, Bbox
     from matplotlib.typing import ColorType, LineStyleType, MarkerType, HashableList
     from matplotlib.widgets import SubplotTool
 
@@ -2858,8 +2857,8 @@ def annotate(
     text: str,
     xy: tuple[float, float],
     xytext: tuple[float, float] | None = None,
-    xycoords: _coords_type = "data",
-    textcoords: _coords_type = None,
+    xycoords: coords_type = "data",
+    textcoords: coords_type | None = None,
     arrowprops: dict[str, Any] | None = None,
     annotation_clip: bool | None = None,
     **kwargs,

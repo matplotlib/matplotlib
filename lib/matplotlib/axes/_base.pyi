@@ -29,6 +29,9 @@ from numpy.typing import ArrayLike
 from typing import Any, Literal, TypeVar, overload
 from matplotlib.typing import ColorType
 
+coords_type_base = str | Artist | Transform | Callable[[RendererBase], Bbox | Transform]
+coords_type = coords_type_base | tuple[coords_type_base, coords_type_base]
+
 _T = TypeVar("_T", bound=Artist)
 
 class _axis_method_wrapper:
