@@ -7,7 +7,7 @@ from numbers import Real
 from operator import attrgetter
 import re
 import types
-from typing import Callable, Union, TypeAlias
+from typing import Callable, Union
 
 import numpy as np
 
@@ -34,7 +34,7 @@ import matplotlib.transforms as mtransforms
 _log = logging.getLogger(__name__)
 
 
-coords_type_base: TypeAlias = Union[
+coords_type_base = Union[
     str,
     martist.Artist,
     mtransforms.Transform,
@@ -43,7 +43,7 @@ coords_type_base: TypeAlias = Union[
         Union[mtransforms.Bbox, mtransforms.Transform]
     ]
 ]
-coords_type: TypeAlias = Union[
+coords_type = Union[
     coords_type_base,
     tuple[coords_type_base, coords_type_base]
 ]
