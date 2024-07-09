@@ -4612,18 +4612,18 @@ def test_hist_stacked_bar():
 @check_figures_equal(extensions=["png"])
 def test_hist_vectorized_params(fig_test, fig_ref, kwargs):
     np.random.seed(19680801)
-    x = [np.random.randn(n) for n in [2000, 5000, 10000]]
+    xs = [np.random.randn(n) for n in [20, 50, 100]]
 
     (axt1, axt2) = fig_test.subplots(2)
     (axr1, axr2) = fig_ref.subplots(2)
 
     for histtype, axt, axr in [("stepfilled", axt1, axr1), ("step", axt2, axr2)]:
-        _, bins, _ = axt.hist(x, bins=10, histtype=histtype, **kwargs)
+        _, bins, _ = axt.hist(xs, bins=10, histtype=histtype, **kwargs)
 
         kw, values = next(iter(kwargs.items()))
-        for i, (xi, value) in enumerate(zip(x, values)):
-            axr.hist(xi, bins=bins, histtype=histtype, **{kw: value},
-                     zorder=(len(x)-i)/2)
+        for i, (x, value) in enumerate(zip(xs, values)):
+            axr.hist(x, bins=bins, histtype=histtype, **{kw: value},
+                     zorder=(len(xs)-i)/2)
 
 
 @pytest.mark.parametrize('kwargs, patch_face, patch_edge',
@@ -4672,14 +4672,13 @@ def test_hist_emptydata():
     ax.hist([[], range(10), range(10)], histtype="step")
 
 
-def test_hist_none_patch():
-    # To cover None patches when excess labels are provided
-    labels = ["First", "Second"]
-    patches = [[1, 2]]
+def test_hist_unused_labels():
+    # When a list with one dataset and N elements is provided and N labels, ensure
+    # that the first label is used for the dataset and all other labels are ignored
     fig, ax = plt.subplots()
-    ax.hist(patches, label=labels)
-    _, lbls = ax.get_legend_handles_labels()
-    assert (len(lbls) < len(labels) and len(patches) < len(labels))
+    ax.hist([[1, 2, 3]], label=["values", "unused", "also unused"])
+    _, labels = ax.get_legend_handles_labels()
+    assert labels == ["values"]
 
 
 def test_hist_labels():

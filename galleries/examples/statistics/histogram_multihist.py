@@ -50,16 +50,17 @@ plt.show()
 # Setting properties for each dataset
 # -----------------------------------
 #
-# Plotting bar charts with datasets differentiated using:
+# You can style the histograms individually by passing a list of values to the
+# following parameters:
 #
-# * edgecolors
-# * facecolors
-# * hatches
-# * linewidths
-# * linestyles
+# * edgecolor
+# * facecolor
+# * hatch
+# * linewidth
+# * linestyle
 #
 #
-# Edge-Colors
+# edgecolor
 # ...........................
 
 fig, ax = plt.subplots()
@@ -74,7 +75,7 @@ ax.set_title('Stacked Steps with Edgecolors')
 plt.show()
 
 # %%
-# Face-Colors
+# facecolor
 # ...........................
 
 fig, ax = plt.subplots()
@@ -88,7 +89,7 @@ ax.set_title("Bars with different Facecolors")
 plt.show()
 
 # %%
-# Hatches
+# hatch
 # .......................
 
 fig, ax = plt.subplots()
@@ -102,7 +103,7 @@ ax.set_title("Hatches on Stacked Bars")
 plt.show()
 
 # %%
-# Linewidths
+# linewidth
 # ..........................
 
 fig, ax = plt.subplots()
@@ -118,7 +119,7 @@ ax.set_title("Bars with Linewidths")
 plt.show()
 
 # %%
-# LineStyles
+# linestyle
 # ..........................
 
 fig, ax = plt.subplots()

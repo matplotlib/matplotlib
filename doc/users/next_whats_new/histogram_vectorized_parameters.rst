@@ -1,9 +1,9 @@
-Vectorize ``hatch``, ``edgecolor``, ``facecolor``, ``linewidth`` and ``linestyle`` in *hist* methods
-----------------------------------------------------------------------------------------------------
+Vectorized ``hist`` style parameters
+------------------------------------
 
 The parameters ``hatch``, ``edgecolor``, ``facecolor``, ``linewidth`` and ``linestyle``
 of the `~matplotlib.axes.Axes.hist` method are now vectorized.
-This means that you can pass in unique parameters for each histogram that is generated
+This means that you can pass in individual parameters for each histogram
 when the input *x* has multiple datasets.
 
 
