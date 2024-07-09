@@ -38,7 +38,7 @@ _coords_type_base = Union[
     str,
     martist.Artist,
     mtransforms.Transform,
-    Callable[[backend_bases.RendererBase], mtransforms.Bbox | mtransforms.Transform]
+    Callable[[backend_bases.RendererBase], Union[mtransforms.Bbox, mtransforms.Transform]]
 ]
 _coords_type = _coords_type_base | tuple[_coords_type_base, _coords_type_base]
 
