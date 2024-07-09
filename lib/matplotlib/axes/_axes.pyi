@@ -1,4 +1,4 @@
-from matplotlib.axes._base import _AxesBase
+from matplotlib.axes._base import _AxesBase, _coords_type
 from matplotlib.axes._secondary_axes import SecondaryAxis
 
 from matplotlib.artist import Artist
@@ -22,7 +22,7 @@ from matplotlib.mlab import GaussianKDE
 from matplotlib.patches import Rectangle, FancyArrow, Polygon, StepPatch, Wedge
 from matplotlib.quiver import Quiver, QuiverKey, Barbs
 from matplotlib.text import Annotation, Text
-from matplotlib.transforms import Transform, Bbox
+from matplotlib.transforms import Transform
 import matplotlib.tri as mtri
 import matplotlib.table as mtable
 import matplotlib.stackplot as mstack
@@ -35,11 +35,6 @@ from typing import Any, Literal, overload
 import numpy as np
 from numpy.typing import ArrayLike
 from matplotlib.typing import ColorType, MarkerType, LineStyleType
-
-_coords_type_base = (
-    str | Artist | Transform | Callable[[RendererBase], Bbox | Transform]
-)
-_coords_type = _coords_type_base | tuple[_coords_type_base, _coords_type_base]
 
 class Axes(_AxesBase):
     def get_title(self, loc: Literal["left", "center", "right"] = ...) -> str: ...

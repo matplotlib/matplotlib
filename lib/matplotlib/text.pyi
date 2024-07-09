@@ -1,5 +1,5 @@
 from .artist import Artist
-from .axes._axes import _coords_type
+from .axes._base import _coords_type
 from .backend_bases import RendererBase
 from .font_manager import FontProperties
 from .offsetbox import DraggableAnnotation

@@ -94,7 +94,7 @@ if TYPE_CHECKING:
     import matplotlib.artist
     import matplotlib.backend_bases
     from matplotlib.axis import Tick
-    from matplotlib.axes._base import _AxesBase
+    from matplotlib.axes._base import _AxesBase, _coords_type
     from matplotlib.backend_bases import RendererBase, Event
     from matplotlib.cm import ScalarMappable
     from matplotlib.contour import ContourSet, QuadContourSet

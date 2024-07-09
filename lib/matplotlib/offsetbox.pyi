@@ -1,5 +1,5 @@
 import matplotlib.artist as martist
-from matplotlib.axes._axes import _coords_type
+from matplotlib.axes._base import _coords_type
 from matplotlib.backend_bases import RendererBase, Event, FigureCanvasBase
 from matplotlib.colors import Colormap, Normalize
 import matplotlib.text as mtext
