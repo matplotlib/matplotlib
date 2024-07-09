@@ -230,7 +230,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         xy: tuple[float, float],
         xybox: tuple[float, float] | None = ...,
         xycoords: coords_type = ...,
-        boxcoords: coords_type = ...,
+        boxcoords: coords_type | None = ...,
         *,
         frameon: bool = ...,
         pad: float = ...,
