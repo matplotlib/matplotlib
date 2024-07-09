@@ -2858,17 +2858,8 @@ def annotate(
     text: str,
     xy: tuple[float, float],
     xytext: tuple[float, float] | None = None,
-    xycoords: str
-    | Artist
-    | Transform
-    | Callable[[RendererBase], Bbox | Transform]
-    | tuple[float, float] = "data",
-    textcoords: str
-    | Artist
-    | Transform
-    | Callable[[RendererBase], Bbox | Transform]
-    | tuple[float, float]
-    | None = None,
+    xycoords: _coords_type = "data",
+    textcoords: _coords_type = None,
     arrowprops: dict[str, Any] | None = None,
     annotation_clip: bool | None = None,
     **kwargs,

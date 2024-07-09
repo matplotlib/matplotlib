@@ -1,4 +1,5 @@
 from .artist import Artist
+from .axes._axes import _coords_type
 from .backend_bases import RendererBase
 from .font_manager import FontProperties
 from .offsetbox import DraggableAnnotation
@@ -120,17 +121,11 @@ class OffsetFrom:
 
 class _AnnotationBase:
     xy: tuple[float, float]
-    xycoords: str | tuple[str, str] | Artist | Transform | Callable[
-        [RendererBase], Bbox | Transform
-    ]
+    xycoords: _coords_type
     def __init__(
         self,
         xy,
-        xycoords: str
-        | tuple[str, str]
-        | Artist
-        | Transform
-        | Callable[[RendererBase], Bbox | Transform] = ...,
+        xycoords: _coords_type = ..., 
         annotation_clip: bool | None = ...,
     ) -> None: ...
     def set_annotation_clip(self, b: bool | None) -> None: ...
@@ -147,17 +142,8 @@ class Annotation(Text, _AnnotationBase):
         text: str,
         xy: tuple[float, float],
         xytext: tuple[float, float] | None = ...,
-        xycoords: str
-        | tuple[str, str]
-        | Artist
-        | Transform
-        | Callable[[RendererBase], Bbox | Transform] = ...,
-        textcoords: str
-        | tuple[str, str]
-        | Artist
-        | Transform
-        | Callable[[RendererBase], Bbox | Transform]
-        | None = ...,
+        xycoords: _coords_type = ...,
+        textcoords: _coords_type = ...,
         arrowprops: dict[str, Any] | None = ...,
         annotation_clip: bool | None = ...,
         **kwargs
@@ -165,17 +151,11 @@ class Annotation(Text, _AnnotationBase):
     @property
     def xycoords(
         self,
-    ) -> str | tuple[str, str] | Artist | Transform | Callable[
-        [RendererBase], Bbox | Transform
-    ]: ...
+    ) -> _coords_type: ...
     @xycoords.setter
     def xycoords(
         self,
-        xycoords: str
-        | tuple[str, str]
-        | Artist
-        | Transform
-        | Callable[[RendererBase], Bbox | Transform],
+        xycoords: _coords_type,
     ) -> None: ...
     @property
     def xyann(self) -> tuple[float, float]: ...
@@ -183,31 +163,19 @@ class Annotation(Text, _AnnotationBase):
     def xyann(self, xytext: tuple[float, float]) -> None: ...
     def get_anncoords(
         self,
-    ) -> str | tuple[str, str] | Artist | Transform | Callable[
-        [RendererBase], Bbox | Transform
-    ]: ...
+    ) -> _coords_type: ...
     def set_anncoords(
         self,
-        coords: str
-        | tuple[str, str]
-        | Artist
-        | Transform
-        | Callable[[RendererBase], Bbox | Transform],
+        coords: _coords_type,
     ) -> None: ...
     @property
     def anncoords(
         self,
-    ) -> str | tuple[str, str] | Artist | Transform | Callable[
-        [RendererBase], Bbox | Transform
-    ]: ...
+    ) -> _coords_type: ...
     @anncoords.setter
     def anncoords(
         self,
-        coords: str
-        | tuple[str, str]
-        | Artist
-        | Transform
-        | Callable[[RendererBase], Bbox | Transform],
+        coords: _coords_type,
     ) -> None: ...
     def update_positions(self, renderer: RendererBase) -> None: ...
     # Drops `dpi` parameter from superclass

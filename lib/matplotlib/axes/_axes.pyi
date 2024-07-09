@@ -36,6 +36,11 @@ import numpy as np
 from numpy.typing import ArrayLike
 from matplotlib.typing import ColorType, MarkerType, LineStyleType
 
+_coords_type_base = (
+    str | Artist | Transform | Callable[[RendererBase], Bbox | Transform]
+)
+_coords_type = _coords_type_base | tuple[_coords_type_base, _coords_type_base]
+
 class Axes(_AxesBase):
     def get_title(self, loc: Literal["left", "center", "right"] = ...) -> str: ...
     def set_title(
@@ -122,17 +127,8 @@ class Axes(_AxesBase):
         text: str,
         xy: tuple[float, float],
         xytext: tuple[float, float] | None = ...,
-        xycoords: str
-        | Artist
-        | Transform
-        | Callable[[RendererBase], Bbox | Transform]
-        | tuple[float, float] = ...,
-        textcoords: str
-        | Artist
-        | Transform
-        | Callable[[RendererBase], Bbox | Transform]
-        | tuple[float, float]
-        | None = ...,
+        xycoords: _coords_type = ...,
+        textcoords: _coords_type = ...,
         arrowprops: dict[str, Any] | None = ...,
         annotation_clip: bool | None = ...,
         **kwargs
