@@ -1284,7 +1284,7 @@ class MultivarColormap:
             raise ValueError("A MultivarColormap must have more than one colormap.")
         colormaps = list(colormaps)  # ensure cmaps is a list, i.e. not a tuple
         for i, cmap in enumerate(colormaps):
-            if not issubclass(type(cmap), Colormap):
+            if not isinstance(cmap, Colormap):
                 if isinstance(cmap, str):
                     colormaps[i] = mpl.colormaps[cmap]
                 else:
@@ -1926,7 +1926,7 @@ class BivarColormap:
                 if not X_part.dtype.kind == "f":
                     raise NotImplementedError(
                         "Circular bivariate colormaps are only"
-                        " implemented for use with with floats, not integers")
+                        " implemented for use with with floats")
             radii_sqr = (X[0] - 0.5)**2 + (X[1] - 0.5)**2
             mask_outside = radii_sqr > 0.25
             if self.shape == 'circle':
