@@ -35,10 +35,10 @@ _log = logging.getLogger(__name__)
 
 
 _coords_type_base = (
-    Type[str] | 
-    martist.Artist | 
-    mtransforms.Transform | 
-    Callable[[backend_bases.RendererBase], mtransforms.Bbox | mtransforms.Transform]
+    Type[str]
+    | martist.Artist
+    | mtransforms.Transform
+    | Callable[[backend_bases.RendererBase], mtransforms.Bbox | mtransforms.Transform]
 )
 _coords_type = _coords_type_base | tuple[_coords_type_base, _coords_type_base]
 
