@@ -43,7 +43,10 @@ _coords_type_base = Union[
         Union[mtransforms.Bbox, mtransforms.Transform]
     ]
 ]
-_coords_type = _coords_type_base | tuple[_coords_type_base, _coords_type_base]
+_coords_type = Union[
+    _coords_type_base,
+    tuple[_coords_type_base, _coords_type_base]
+]
 
 
 class _axis_method_wrapper:
