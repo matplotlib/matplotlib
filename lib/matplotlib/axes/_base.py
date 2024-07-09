@@ -39,7 +39,7 @@ _coords_type_base = Union[
     martist.Artist,
     mtransforms.Transform,
     Callable[
-        [backend_bases.RendererBase], 
+        [backend_bases.RendererBase],
         Union[mtransforms.Bbox, mtransforms.Transform]
     ]
 ]
