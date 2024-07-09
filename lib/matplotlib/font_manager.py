@@ -917,7 +917,7 @@ class FontProperties:
 class _JSONEncoder(json.JSONEncoder):
     def __init__(self, *args, **kwargs):
         kwargs["default"] = self.default
-        super.__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def default(self, o):
         if isinstance(o, FontManager):
