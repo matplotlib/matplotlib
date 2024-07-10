@@ -36,6 +36,7 @@ if "%1" == "show" goto show
 if "%1" == "clean" (
 	REM workaround because sphinx does not completely clean up (#11139)
 	rmdir /s /q "%SOURCEDIR%\build"
+	rmdir /s /q "%SOURCEDIR%\_tags"
 	rmdir /s /q "%SOURCEDIR%\api\_as_gen"
 	rmdir /s /q "%SOURCEDIR%\gallery"
 	rmdir /s /q "%SOURCEDIR%\plot_types"
