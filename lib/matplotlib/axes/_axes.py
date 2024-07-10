@@ -6942,6 +6942,8 @@ such objects
             datasets in *x*:
             *edgecolors*, *facecolors*, *linewidths*, *linestyles*, *hatches*.
 
+            .. versionadded:: 3.10
+
         See Also
         --------
         hist2d : 2D histogram with rectangular bins
