@@ -360,8 +360,8 @@ class ImageGrid(Grid):
             Padding between the image axes and the colorbar axes.
 
             .. versionchanged:: 3.10
-                `cbar_mode="single"` no longer adds the `axes_pad` between the axes and
-                the colorbar if the `cbar_location` is `"left"` or `"bottom"`
+                ``cbar_mode="single"`` no longer adds *axes_pad* between the axes
+                and the colorbar if the *cbar_location* is "left" or "bottom".
 
         cbar_size : size specification (see `.Size.from_any`), default: "5%"
             Colorbar size.
