@@ -322,6 +322,7 @@ class RendererSVG(RendererBase):
             viewBox=f'0 0 {str_width} {str_height}',
             xmlns="http://www.w3.org/2000/svg",
             version="1.1",
+            id=mpl.rcParams['svg.id'],
             attrib={'xmlns:xlink': "http://www.w3.org/1999/xlink"})
         self._write_metadata(metadata)
         self._write_default_style()
