@@ -18,16 +18,12 @@ Hidden tags provide additional functionality for maintainers and contributors.
 
 How to tag?
 -----------
-Place the tag directive at the bottom of each page and add the tags underneath
+Place the tag directive at the bottom of each page and add the tags underneath, e.g.:
 
-.. code-block:: python
+.. code-block:: rst
 
-    # fig, ax = plt.subplots()
-    # ax.plot([1,2,3], [3,2,1], linestyle=':')
-    #
-    # .. tags::
-    #    plot-type: line, styling: texture,
-
+    .. tags::
+       topic: tagging, purpose: reference
 
 What gets a tag?
 ----------------

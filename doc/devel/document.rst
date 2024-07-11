@@ -1059,9 +1059,11 @@ examples exist so that users can scan through visual examples. Unlike tutorials 
 guides, gallery examples teach by demonstration, rather than by explanation or
 instruction.
 
-Gallery examples should contain a very brief description of *what* they demonstrate and,
-when relevant, *how* it is achieved. Avoid instructions or excessive explanation;
-instead, tag with related concepts and cross-link to relevant tutorials or user guides.
+Gallery examples should contain a very brief description of *what* is being demonstrated
+and, when relevant, *how* it is achieved. Explanations should be brief, providing only
+the minimal context necessary for understanding the example. Cross-link related
+documentation (e.g. tutorials, user guides and API entries) and tag the example with
+related concepts.
 
 Format
 ^^^^^^
@@ -1069,35 +1071,40 @@ Format
 All :ref:`examples-index` should aim to follow these guidelines:
 
 :Title: Describe content in a short sentence (approx. 1-6 words). Do not use *demo* as
-        this is implied by being an example. Avoid implied verbs such as "creating,
-        making, etc", e.g. "annotated heatmaps" is preferred to "creating annotated
-        heatmaps". Use the simple present tense when a verb is necessary, e.g. *Fill the
+        this is implied by being an example. Avoid implied verbs such as *create*,
+        *make*, etc, e.g. *annotated heatmaps* is preferred to *create annotated
+        heatmaps*. Use the simple present tense when a verb is necessary, e.g. *Fill the
         area between two curves*
 
-:Subtitle: In a short paragraph (approx 1-3 sentences) describe what visualization
-           technique is being demonstrated and how library features are used to execute
-           the technique, e.g. *Set bar color and bar label entries using the color and
-           label parameters of ~Axes.bar*
+:Description: In a short paragraph (approx 1-3 sentences) describe what visualization
+              technique is being demonstrated and how library features are used to
+              execute the technique, e.g. *Set bar color and bar label entries using the
+              color and label parameters of ~Axes.bar*
 
 :Plot: Clearly demonstrate the subject and, when possible, show edge cases and different
        applications. While the plot should be visually appealing, prioritize keeping the
        plot uncluttered.
 
 :Code: Write the minimum necessary to showcase the feature that is the focus of the
-       example. Avoid styling and annotation-such as setting titles, legends, colors,
-       etc.- when it will not improve the clarity of the example.
+       example. Avoid custom styling and annotation (titles, legends, colors, etc.)
+       when it will not improve the clarity of the example.
 
-:Text: Use short comments sparingly to describe what hard to follow parts of code are
+       Use short comments sparingly to describe what hard to follow parts of code are
        doing. When more context or explanation is required, add a text paragraph before
        the code example.
 
-Example:
+:doc:`/gallery/misc/bbox_intersect` demonstrates the point of visual examples.
+This example is "messy" in that it's hard to categorize, but the gallery is the right
+spot for it because it makes sense to find it by visual search
 
-The ``bbox_intersect`` gallery example demonstrates the point of visual examples:
+:doc:`/gallery/images_contours_and_fields/colormap_interactive_adjustment` is an
+example of a good descriptive title that briefly summarizes how the showcased
+library features are used to implement the demonstrated visualization technique.
 
-* this example is "messy" in that it's hard to categorize, but the gallery is the right
-  spot for it because it makes sense to find it by visual search
-* https://matplotlib.org/devdocs/gallery/misc/bbox_intersect.html#sphx-glr-gallery-misc-bbox-intersect-py
+:doc:`/gallery/lines_bars_and_markers/lines_with_ticks_demo` is an example of having a
+minimal amount of code necessary to showcase the feature. The lack of extraneous code
+makes it easier for the reader to map which parts of code correspond to which parts of
+the plot.
 
 Miscellaneous
 =============
