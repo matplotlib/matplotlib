@@ -181,7 +181,7 @@ class Artist:
         self._stale = True
         self.stale_callback = None
         self._axes = None
-        self.figure = None
+        self._parent_figure = None
 
         self._transform = None
         self._transformSet = False
@@ -251,7 +251,7 @@ class Artist:
             if self.figure:
                 if not _ax_flag:
                     self.figure.stale = True
-                self.figure = None
+                self._parent_figure = None
 
         else:
             raise NotImplementedError('cannot remove artist')
@@ -720,33 +720,48 @@ class Artist:
     def get_path_effects(self):
         return self._path_effects
 
-    def get_figure(self):
-        """Return the `.Figure` instance the artist belongs to."""
-        return self.figure
-
-    def set_figure(self, fig):
+    def get_figure(self, root=False):
         """
-        Set the `.Figure` instance the artist belongs to.
+        Return the `.Figure` or `.SubFigure` instance the artist belongs to.
 
         Parameters
         ----------
-        fig : `~matplotlib.figure.Figure`
+        root : bool, default=False
+            If False, return the (Sub)Figure this artist is on.  If True,
+            return the root Figure for a nested tree of SubFigures.
+        """
+        if root and self._parent_figure is not None:
+            return self._parent_figure.get_figure(root=True)
+
+        return self._parent_figure
+
+    def set_figure(self, fig):
+        """
+        Set the `.Figure` or `.SubFigure` instance the artist belongs to.
+
+        Parameters
+        ----------
+        fig : `~matplotlib.figure.Figure` or `~matplotlib.figure.SubFigure`
         """
         # if this is a no-op just return
-        if self.figure is fig:
+        if self._parent_figure is fig:
             return
         # if we currently have a figure (the case of both `self.figure`
         # and *fig* being none is taken care of above) we then user is
         # trying to change the figure an artist is associated with which
         # is not allowed for the same reason as adding the same instance
         # to more than one Axes
-        if self.figure is not None:
+        if self._parent_figure is not None:
             raise RuntimeError("Can not put single artist in "
                                "more than one figure")
-        self.figure = fig
-        if self.figure and self.figure is not self:
+        self._parent_figure = fig
+        if self._parent_figure and self._parent_figure is not self:
             self.pchanged()
         self.stale = True
+
+    figure = property(get_figure, set_figure,
+                      doc=("The (Sub)Figure that the artist is on.  For more "
+                           "control, use the `get_figure` method."))
 
     def set_clip_box(self, clipbox):
         """

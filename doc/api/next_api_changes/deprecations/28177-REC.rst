@@ -1,0 +1,5 @@
+(Sub)Figure.set_figure
+~~~~~~~~~~~~~~~~~~~~~~
+
+...is deprecated and in future will always raise an exception.  The parent and
+root figures of a (Sub)Figure are set at instantiation and cannot be changed.

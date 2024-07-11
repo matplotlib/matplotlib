@@ -1296,7 +1296,7 @@ class _AxesBase(martist.Artist):
         self._gridOn = mpl.rcParams['axes.grid']
         old_children, self._children = self._children, []
         for chld in old_children:
-            chld.axes = chld.figure = None
+            chld.axes = chld._parent_figure = None
         self._mouseover_set = _OrderedSet()
         self.child_axes = []
         self._current_image = None  # strictly for pyplot via _sci, _gci
