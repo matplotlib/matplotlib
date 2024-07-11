@@ -94,6 +94,20 @@ class FigureBase(Artist):
     @overload
     def subplots(
         self,
+        nrows: Literal[1] = ...,
+        ncols: Literal[1] = ...,
+        *,
+        sharex: bool | Literal["none", "all", "row", "col"] = ...,
+        sharey: bool | Literal["none", "all", "row", "col"] = ...,
+        squeeze: Literal[True] = ...,
+        width_ratios: Sequence[float] | None = ...,
+        height_ratios: Sequence[float] | None = ...,
+        subplot_kw: dict[str, Any] | None = ...,
+        gridspec_kw: dict[str, Any] | None = ...,
+    ) -> Axes: ...
+    @overload
+    def subplots(
+        self,
         nrows: int = ...,
         ncols: int = ...,
         *,

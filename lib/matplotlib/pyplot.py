@@ -1564,18 +1564,18 @@ def subplot(*args, **kwargs) -> Axes:
 
 @overload
 def subplots(
-    nrows: int = ...,
-    ncols: int = ...,
+    nrows: Literal[1] = ...,
+    ncols: Literal[1] = ...,
     *,
     sharex: bool | Literal["none", "all", "row", "col"] = ...,
     sharey: bool | Literal["none", "all", "row", "col"] = ...,
-    squeeze: Literal[True],
+    squeeze: Literal[True] = ...,
     width_ratios: Sequence[float] | None = ...,
     height_ratios: Sequence[float] | None = ...,
     subplot_kw: dict[str, Any] | None = ...,
     gridspec_kw: dict[str, Any] | None = ...,
     **fig_kw
-) -> tuple[Figure, Any]:
+) -> tuple[Figure, Axes]:
     ...
 
 
@@ -1593,6 +1593,23 @@ def subplots(
     gridspec_kw: dict[str, Any] | None = ...,
     **fig_kw
 ) -> tuple[Figure, np.ndarray]:  # TODO numpy/numpy#24738
+    ...
+
+
+@overload
+def subplots(
+    nrows: int = ...,
+    ncols: int = ...,
+    *,
+    sharex: bool | Literal["none", "all", "row", "col"] = ...,
+    sharey: bool | Literal["none", "all", "row", "col"] = ...,
+    squeeze: bool = ...,
+    width_ratios: Sequence[float] | None = ...,
+    height_ratios: Sequence[float] | None = ...,
+    subplot_kw: dict[str, Any] | None = ...,
+    gridspec_kw: dict[str, Any] | None = ...,
+    **fig_kw
+) -> tuple[Figure, Any]:
     ...
 
 
