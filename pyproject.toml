@@ -259,6 +259,7 @@ ignore_directives = [
     # sphinxext.redirect_from
     "redirect-from",
     # sphinx-design
+    "card",
     "dropdown",
     "grid",
     "tab-set",
@@ -279,6 +280,8 @@ ignore_directives = [
     "ifconfig",
     # sphinx.ext.inheritance_diagram
     "inheritance-diagram",
+    # sphinx-tags
+    "tags",
     # include directive is causing attribute errors
     "include"
 ]
