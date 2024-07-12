@@ -64,8 +64,8 @@ _log = logging.getLogger(__name__)
 
 
 def _stale_figure_callback(self, val):
-    if self.figure:
-        self.figure.stale = val
+    if (fig := self.get_figure(root=False)) is not None:
+        fig.stale = val
 
 
 class _AxesStack:
