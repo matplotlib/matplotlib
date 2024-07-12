@@ -16,7 +16,7 @@ from matplotlib.font_manager import (
     json_dump, json_load, get_font, is_opentype_cff_font,
     MSUserFontDirectories, _get_fontconfig_fonts, ttfFontProperty)
 from matplotlib import cbook, ft2font, pyplot as plt, rc_context, figure as mfigure
-from matplotlib.testing import subprocess_run_helper
+from matplotlib.testing import subprocess_run_helper, subprocess_run_for_testing
 
 
 has_fclist = shutil.which('fc-list') is not None
@@ -278,6 +278,28 @@ def test_fontcache_thread_safe():
     pytest.importorskip('threading')
 
     subprocess_run_helper(_test_threading, timeout=10)
+
+
+def test_lockfilefailure(tmp_path):
+    # The logic here:
+    # 1. get a temp directory from pytest
+    # 2. import matplotlib which makes sure it exists
+    # 3. get the cache dir (where we check it is writable)
+    # 4. make it not writable
+    # 5. try to write into it via font manager
+    proc = subprocess_run_for_testing(
+        [
+            sys.executable,
+            "-c",
+            "import matplotlib;"
+            "import os;"
+            "p = matplotlib.get_cachedir();"
+            "os.chmod(p, 0o555);"
+            "import matplotlib.font_manager;"
+        ],
+        env={**os.environ, 'MPLCONFIGDIR': str(tmp_path)},
+        check=True
+    )
 
 
 def test_fontentry_dataclass():

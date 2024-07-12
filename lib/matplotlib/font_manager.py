@@ -965,11 +965,11 @@ def json_dump(data, filename):
     This function temporarily locks the output file to prevent multiple
     processes from overwriting one another's output.
     """
-    with cbook._lock_path(filename), open(filename, 'w') as fh:
-        try:
+    try:
+        with cbook._lock_path(filename), open(filename, 'w') as fh:
             json.dump(data, fh, cls=_JSONEncoder, indent=2)
-        except OSError as e:
-            _log.warning('Could not save font_manager cache %s', e)
+    except OSError as e:
+        _log.warning('Could not save font_manager cache %s', e)
 
 
 def json_load(filename):
