@@ -1,6 +1,6 @@
 ``svg.id`` rcParam
 ~~~~~~~~~~~~~~~~~~
-:rc:`svg.id` lets you insert an ``id`` attibute into the top-level ``<svg>`` tag.
+:rc:`svg.id` lets you insert an ``id`` attribute into the top-level ``<svg>`` tag.
 
 e.g. ``rcParams["svg.id"] = "svg1"`` results in
 default), no ``id`` tag is included
