@@ -32,7 +32,7 @@ from ._enums import JoinStyle, CapStyle
     "linewidth": ["linewidths", "lw"],
     "offset_transform": ["transOffset"],
 })
-class Collection(artist.Artist, cm.ScalarMappable):
+class Collection(artist.Artist, cm.VectorMappable):
     r"""
     Base class for Collections. Must be subclassed to be usable.
 
@@ -55,10 +55,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
       prop[i % len(prop)]
 
-    Each Collection can optionally be used as its own `.ScalarMappable` by
+    Each Collection can optionally be used as its own `.VectorMappable` by
     passing the *norm* and *cmap* parameters to its constructor. If the
-    Collection's `.ScalarMappable` matrix ``_A`` has been set (via a call
-    to `.Collection.set_array`), then at draw time this internal scalar
+    Collection's `.VectorMappable` matrix ``_A`` has been set (via a call
+    to `.Collection.set_array`), then at draw time this internal vector
     mappable will be used to set the ``facecolors`` and ``edgecolors``,
     ignoring those that were manually passed in.
     """
@@ -156,7 +156,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             ``Collection.set_{key}(val)`` for each key-value pair in *kwargs*.
         """
         artist.Artist.__init__(self)
-        cm.ScalarMappable.__init__(self, norm, cmap)
+        cm.VectorMappable.__init__(self, norm, cmap)
         # list of un-scaled dash patterns
         # this is needed scaling the dash pattern by linewidth
         self._us_linestyles = [(0, None)]
@@ -903,12 +903,19 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # Allow possibility to call 'self.set_array(None)'.
         if self._A is not None:
             # QuadMesh can map 2d arrays (but pcolormesh supplies 1d array)
-            if self._A.ndim > 1 and not isinstance(self, _MeshData):
+            if len(self.scalars) == 1:
+                # A and alpha of same shape
+                A_shape = self._A.shape
+            else:
+                # A will have an extra dimension
+                A_shape = self._A[0].shape
+
+            if len(A_shape) > 1 and not isinstance(self, _MeshData):
                 raise ValueError('Collections can only map rank 1 arrays')
             if np.iterable(self._alpha):
-                if self._alpha.size != self._A.size:
+                if self._alpha.size != np.prod(A_shape):
                     raise ValueError(
-                        f'Data array shape, {self._A.shape} '
+                        f'Data array shape, {A_shape} '
                         'is incompatible with alpha array shape, '
                         f'{self._alpha.shape}. '
                         'This can occur with the deprecated '
@@ -916,7 +923,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
                         'in which a row and/or column of the data '
                         'array is dropped.')
                 # pcolormesh, scatter, maybe others flatten their _A
-                self._alpha = self._alpha.reshape(self._A.shape)
+                self._alpha = self._alpha.reshape(A_shape)
+
             self._mapped_colors = self.to_rgba(self._A, self._alpha)
 
         if self._face_is_mapped:
@@ -2012,7 +2020,8 @@ class _MeshData:
         ok_shapes = [(h, w, 3), (h, w, 4), (h, w), (h * w,)]
         if A is not None:
             shape = np.shape(A)
-            if shape not in ok_shapes:
+            if shape not in ok_shapes and \
+                        not ((shape[1:] == (h, w) and shape[0] < 9)):
                 raise ValueError(
                     f"For X ({width}) and Y ({height}) with {self._shading} "
                     f"shading, A should have shape "
@@ -2269,7 +2278,10 @@ class PolyQuadMesh(_MeshData, PolyCollection):
         arr = self.get_array()
         if arr is not None:
             arr = np.ma.getmaskarray(arr)
-            if arr.ndim == 3:
+            if len(self.scalars) > 1:
+                # multivar case
+                mask |= np.any(arr, axis=0)
+            elif arr.ndim == 3:
                 # RGB(A) case
                 mask |= np.any(arr, axis=-1)
             elif arr.ndim == 2:
