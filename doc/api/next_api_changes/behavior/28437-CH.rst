@@ -1,0 +1,15 @@
+*alpha* parameter handling in _ImageBase._make_image
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This PR expands and clarifies code logic in _ImageBase._make_image
+related to the *alpha* parameter, and ensures that `~.Axes.imshow`
+exhibits the following behavior:
+
+1. When the image does not have alpha channel:
+- *alpha* not specified: default to 1.0.
+- scalar *alpha*: broadcast.
+- array *alpha*: concatenate.
+2. When the image has an alpha channel:
+- *alpha* not specified: nothings needs to be done.
+- scalar *alpha*: multiply the alpha channel with user-specified scalar.
+- array *alpha*: replace the alpha channel with user-specified array.
