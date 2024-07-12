@@ -1311,6 +1311,7 @@ _validators = {
     "svg.image_inline": validate_bool,
     "svg.fonttype": ["none", "path"],  # save text as text ("none") or "paths"
     "svg.hashsalt": validate_string_or_None,
+    "svg.id": validate_string_or_None,
 
     # set this when you want to generate hardcopy docstring
     "docstring.hardcopy": validate_bool,
