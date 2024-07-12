@@ -1,9 +1,9 @@
 """
-===========
-Simple Plot
-===========
+=========
+Line plot
+=========
 
-Create a simple plot.
+Create a basic line plot.
 """
 
 import matplotlib.pyplot as plt

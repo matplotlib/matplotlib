@@ -1,7 +1,7 @@
 """
-============
-Layer Images
-============
+================================
+Layer images with alpha blending
+================================
 
 Layer images above one another using alpha blending
 """
