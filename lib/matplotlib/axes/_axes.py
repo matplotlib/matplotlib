@@ -5799,7 +5799,7 @@ class Axes(_AxesBase):
         interpolation : str, default: :rc:`image.interpolation`
             The interpolation method used.
 
-            Supported values are 'none', 'antialiased', 'nearest', 'bilinear',
+            Supported values are 'none', 'auto', 'nearest', 'bilinear',
             'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
             'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
             'sinc', 'lanczos', 'blackman'.
@@ -5814,7 +5814,7 @@ class Axes(_AxesBase):
             pdf, and svg viewers may display these raw pixels differently. On
             other backends, 'none' is the same as 'nearest'.
 
-            If *interpolation* is the default 'antialiased', then 'nearest'
+            If *interpolation* is the default 'auto', then 'nearest'
             interpolation is used if the image is upsampled by more than a
             factor of three (i.e. the number of display pixels is at least
             three times the size of the data array).  If the upsampling rate is
@@ -5832,11 +5832,20 @@ class Axes(_AxesBase):
             which can be set by *filterrad*. Additionally, the antigrain image
             resize filter is controlled by the parameter *filternorm*.
 
-        interpolation_stage : {'data', 'rgba'}, default: 'data'
-            If 'data', interpolation
-            is carried out on the data provided by the user.  If 'rgba', the
-            interpolation is carried out after the colormapping has been
-            applied (visual interpolation).
+        interpolation_stage : {'auto', 'data', 'rgba'}, default: 'auto'
+            Supported values:
+
+            - 'data': Interpolation is carried out on the data provided by the user
+              This is useful if interpolating between pixels during upsampling.
+            - 'rgba': The interpolation is carried out in RGBA-space after the
+              color-mapping has been applied. This is useful if downsampling and
+              combining pixels visually.
+            - 'auto': Select a suitable interpolation stage automatically. This uses
+              'rgba' when downsampling, or upsampling at a rate less than 3, and
+              'data' when upsampling at a higher rate.
+
+            See :doc:`/gallery/images_contours_and_fields/image_antialiasing` for
+            a discussion of image antialiasing.
 
         alpha : float or array-like, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).

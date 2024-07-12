@@ -31,7 +31,7 @@ _log = logging.getLogger(__name__)
 
 # map interpolation strings to module constants
 _interpd_ = {
-    'antialiased': _image.NEAREST,  # this will use nearest or Hanning...
+    'auto': _image.NEAREST,  # this will use nearest or Hanning...
     'none': _image.NEAREST,  # fall back to nearest when not supported
     'nearest': _image.NEAREST,
     'bilinear': _image.BILINEAR,
@@ -50,6 +50,7 @@ _interpd_ = {
     'sinc': _image.SINC,
     'lanczos': _image.LANCZOS,
     'blackman': _image.BLACKMAN,
+    'antialiased': _image.NEAREST,  # this will use nearest or Hanning...
 }
 
 interpolations_names = set(_interpd_)
@@ -186,7 +187,7 @@ def _resample(
     # compare the number of displayed pixels to the number of
     # the data pixels.
     interpolation = image_obj.get_interpolation()
-    if interpolation == 'antialiased':
+    if interpolation in ['antialiased', 'auto']:
         # don't antialias if upsampling by an integer number or
         # if zooming in more than a factor of 3
         pos = np.array([[0, 0], [data.shape[1], data.shape[0]]])
@@ -421,7 +422,21 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if not unsampled:
             if not (A.ndim == 2 or A.ndim == 3 and A.shape[-1] in (3, 4)):
                 raise ValueError(f"Invalid shape {A.shape} for image data")
-            if A.ndim == 2 and self._interpolation_stage != 'rgba':
+
+            # if antialiased, this needs to change as window sizes
+            # change:
+            interpolation_stage = self._interpolation_stage
+            if interpolation_stage in ['antialiased', 'auto']:
+                pos = np.array([[0, 0], [A.shape[1], A.shape[0]]])
+                disp = t.transform(pos)
+                dispx = np.abs(np.diff(disp[:, 0])) / A.shape[1]
+                dispy = np.abs(np.diff(disp[:, 1])) / A.shape[0]
+                if (dispx < 3) or (dispy < 3):
+                    interpolation_stage = 'rgba'
+                else:
+                    interpolation_stage = 'data'
+
+            if A.ndim == 2 and interpolation_stage == 'data':
                 # if we are a 2D array, then we are running through the
                 # norm + colormap transformation.  However, in general the
                 # input data is not going to match the size on the screen so we
@@ -550,7 +565,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                      cbook._setattr_cm(self.norm, vmin=s_vmin, vmax=s_vmax):
                     output = self.norm(resampled_masked)
             else:
-                if A.ndim == 2:  # _interpolation_stage == 'rgba'
+                if A.ndim == 2:  # interpolation_stage = 'rgba'
                     self.norm.autoscale_None(A)
                     A = self.to_rgba(A)
                 alpha = self._get_scalar_alpha()
@@ -744,9 +759,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         Return the interpolation method the image uses when resizing.
 
-        One of 'antialiased', 'nearest', 'bilinear', 'bicubic', 'spline16',
-        'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric',
-        'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos',
+        One of 'auto', 'antialiased', 'nearest', 'bilinear', 'bicubic',
+        'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser',
+        'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos',
         or 'none'.
         """
         return self._interpolation
@@ -762,7 +777,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        s : {'antialiased', 'nearest', 'bilinear', 'bicubic', 'spline16', \
+        s : {'auto', 'nearest', 'bilinear', 'bicubic', 'spline16', \
 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', \
 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos', 'none'} or None
         """
@@ -785,12 +800,14 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        s : {'data', 'rgba'} or None
+        s : {'data', 'rgba', 'auto'} or None
             Whether to apply up/downsampling interpolation in data or RGBA
             space.  If None, use :rc:`image.interpolation_stage`.
+            If 'auto' we will check upsampling rate and if less
+            than 3 then use 'rgba', otherwise use 'data'.
         """
         s = mpl._val_or_rc(s, 'image.interpolation_stage')
-        _api.check_in_list(['data', 'rgba'], s=s)
+        _api.check_in_list(['data', 'rgba', 'auto'], s=s)
         self._interpolation_stage = s
         self.stale = True
 
@@ -870,7 +887,7 @@ class AxesImage(_ImageBase):
     norm : str or `~matplotlib.colors.Normalize`
         Maps luminance to 0-1.
     interpolation : str, default: :rc:`image.interpolation`
-        Supported values are 'none', 'antialiased', 'nearest', 'bilinear',
+        Supported values are 'none', 'auto', 'nearest', 'bilinear',
         'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
         'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
         'sinc', 'lanczos', 'blackman'.
