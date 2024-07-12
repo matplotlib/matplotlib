@@ -1,7 +1,8 @@
 ``svg.id`` rcParam
 ~~~~~~~~~~~~~~~~~~
-The value of this new rcParam controls whether the top-level ``<svg>`` tag
-contains an ``id`` attribute and what its value is. When set to ``None`` (the
+:rc:`svg.id` lets you insert an ``id`` attibute into the top-level ``<svg>`` tag.
+
+e.g. ``rcParams["svg.id"] = "svg1"`` results in
 default), no ``id`` tag is included
 
 .. code-block:: XML
