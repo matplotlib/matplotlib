@@ -127,7 +127,9 @@ jobs:
           - os: ubuntu-24.04-arm
             cibw_archs: "aarch64"
           - os: windows-latest
-            cibw_archs: "auto64"
+            cibw_archs: "AMD64"
+          - os: windows-11-arm
+            cibw_archs: "ARM64"
           - os: macos-13
             cibw_archs: "x86_64"
           - os: macos-14
@@ -187,7 +189,7 @@ jobs:
           CIBW_BUILD: "pp311-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_ENABLE: pypy
-        if: matrix.cibw_archs != 'aarch64' && matrix.os != 'windows-latest'
+        if: matrix.cibw_archs != 'aarch64' && matrix.os != 'windows-latest' && matrix.os != 'windows-11-arm'
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
