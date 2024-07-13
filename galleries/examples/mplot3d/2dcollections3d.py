@@ -46,3 +46,9 @@ ax.set_zlabel('Z')
 ax.view_init(elev=20., azim=-35, roll=0)
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D, scatter, line
+#    component: axes
+#    level: intermediate
