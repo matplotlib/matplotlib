@@ -46,7 +46,7 @@ jobs:
       - uses: actions/setup-python@v5
         name: Install Python
         with:
-          python-version: 3.9
+          python-version: '3.10'
 
       # Something changed somewhere that prevents the downloaded-at-build-time
       # licenses from being included in built wheels, so pre-download them so
@@ -158,22 +158,14 @@ jobs:
           CIBW_BUILD: "cp310-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
-      - name: Build wheels for CPython 3.9
-        uses: pypa/cibuildwheel@7e5a838a63ac8128d71ab2dfd99e4634dd1bca09  # v2.19.2
-        with:
-          package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
-        env:
-          CIBW_BUILD: "cp39-*"
-          CIBW_ARCHS: ${{ matrix.cibw_archs }}
-
       - name: Build wheels for PyPy
         uses: pypa/cibuildwheel@7e5a838a63ac8128d71ab2dfd99e4634dd1bca09  # v2.19.2
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
-          CIBW_BUILD: "pp39-*"
+          CIBW_BUILD: "pp310-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-        if: matrix.cibw_archs != 'aarch64'
+        if: matrix.cibw_archs != 'aarch64' && matrix.os != 'windows-latest'
 
       - uses: actions/upload-artifact@v4
         with:

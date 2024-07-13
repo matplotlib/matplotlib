@@ -16,7 +16,6 @@ classifiers=[
     "License :: OSI Approved :: Python Software Foundation License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -40,9 +39,8 @@ dependencies = [
     "pillow >= 8",
     "pyparsing >= 2.3.1",
     "python-dateutil >= 2.7",
-    "importlib-resources >= 3.2.0; python_version < '3.10'",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 [project.optional-dependencies]
 # Should be a copy of the build dependencies below.
@@ -160,7 +158,7 @@ external = [
   "E703",
 ]
 
-target-version = "py39"
+target-version = "py310"
 
 [tool.ruff.pydocstyle]
 convention = "numpy"
