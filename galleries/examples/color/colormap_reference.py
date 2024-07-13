@@ -95,3 +95,8 @@ plot_color_gradients("Original and reversed ", ['viridis', 'viridis_r'])
 #    - `matplotlib.axes.Axes.imshow`
 #    - `matplotlib.figure.Figure.text`
 #    - `matplotlib.axes.Axes.set_axis_off`
+#
+# .. tags::
+#
+#    styling: colormap
+#    purpose: reference
