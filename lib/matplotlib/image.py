@@ -344,7 +344,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         Parameters
         ----------
         A : ndarray
-            This may be:
 
             - a (M, N) array interpreted as scalar (greyscale) image,
               with one of the dtypes `~numpy.float32`, `~numpy.float64`,
