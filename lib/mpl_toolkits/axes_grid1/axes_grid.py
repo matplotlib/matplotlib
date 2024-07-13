@@ -358,6 +358,11 @@ class ImageGrid(Grid):
         cbar_location : {"left", "right", "bottom", "top"}, default: "right"
         cbar_pad : float, default: None
             Padding between the image axes and the colorbar axes.
+
+            .. versionchanged:: 3.10
+                ``cbar_mode="single"`` no longer adds *axes_pad* between the axes
+                and the colorbar if the *cbar_location* is "left" or "bottom".
+
         cbar_size : size specification (see `.Size.from_any`), default: "5%"
             Colorbar size.
         cbar_set_cax : bool, default: True
@@ -439,7 +444,7 @@ class ImageGrid(Grid):
             self.cbar_axes[0].set_visible(True)
 
         for col, ax in enumerate(self.axes_row[0]):
-            if h:
+            if col != 0:
                 h.append(self._horiz_pad_size)
 
             if ax:
@@ -468,7 +473,7 @@ class ImageGrid(Grid):
         v_ax_pos = []
         v_cb_pos = []
         for row, ax in enumerate(self.axes_column[0][::-1]):
-            if v:
+            if row != 0:
                 v.append(self._vert_pad_size)
 
             if ax:
