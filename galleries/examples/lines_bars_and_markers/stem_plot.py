@@ -36,3 +36,8 @@ plt.show()
 #    in this example:
 #
 #    - `matplotlib.axes.Axes.stem` / `matplotlib.pyplot.stem`
+#
+# .. tags::
+#
+#    plot-type: stem
+#    level: beginner

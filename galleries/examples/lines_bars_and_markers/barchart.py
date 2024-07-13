@@ -49,3 +49,9 @@ plt.show()
 #
 #    - `matplotlib.axes.Axes.bar` / `matplotlib.pyplot.bar`
 #    - `matplotlib.axes.Axes.bar_label` / `matplotlib.pyplot.bar_label`
+#
+# .. tags::
+#
+#    component: label
+#    plot-type: bar
+#    level: beginner

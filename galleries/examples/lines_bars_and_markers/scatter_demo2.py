@@ -34,3 +34,11 @@ ax.grid(True)
 fig.tight_layout()
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: marker
+#    component: color
+#    plot-style: scatter
+#    level: beginner

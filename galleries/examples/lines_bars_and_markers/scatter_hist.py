@@ -120,3 +120,10 @@ plt.show()
 #    - `matplotlib.axes.Axes.inset_axes`
 #    - `matplotlib.axes.Axes.scatter`
 #    - `matplotlib.axes.Axes.hist`
+#
+# .. tags::
+#
+#    component: axes
+#    plot-type: scatter
+#    plot-type: histogram
+#    level: intermediate
