@@ -3000,6 +3000,94 @@ class Axes(_AxesBase):
 
         return col
 
+    def grouped_bar(self, x, heights, dataset_labels=None):
+        """
+        Parameters
+        -----------
+        x : array-like of str
+            The labels.
+        heights : list of array-like or dict of array-like or 2D array
+            The heights for all x and groups. One of:
+
+            - list of array-like: A list of datasets, each dataset must have
+              ``len(x)`` elements.
+
+              .. code-block:: none
+
+                 x = ['a', 'b']
+                 group_labels = ['ds0', 'ds1', 'ds2']
+
+                 # group_labels: ds0   ds1        dw2
+                 heights = [dataset_0, dataset_1, dataset_2]
+
+                 #            x[0]   x[1]
+                 dataset_0 = [ds0_a, ds0_b]
+
+                 #           x[0]   x[1]
+                 heights = [[ds0_a, ds0_b],  # dataset_0
+                            [ds1_a, ds1_b],  # dataset_1
+                            [ds2_a, ds2_b],  # dataset_2
+                            ]
+
+            - dict of array-like: A names to datasets, each dataset (dict value)
+              must have ``len(x)`` elements.
+
+              group_labels = heights.keys()
+              heights = heights.values()
+
+            - a 2D array: columns map to *x*, columns are the different datasets.
+
+              .. code-block:: none
+
+                          dataset_0 dataset_1 dataset_2
+                 x[0]='a'  ds0_a     ds1_a     ds2_a
+                 x[1]='b'  ds0_b     ds1_b     ds2_b
+
+              Note that this is consistent with pandas. These two calls produce
+              the same bar plot structure::
+
+                  grouped_bar(x, array, group_labels=group_labels)
+                  pd.DataFrame(array, index=x, columns=group_labels).plot.bar()
+
+
+            An iterable of array-like: The iteration runs over the groups.
+            Each individual array-like is the list of label values for that group.
+        dataset_labels : array-like of str, optional
+            The labels of the datasets.
+        """
+        if hasattr(heights, 'keys'):
+            if dataset_labels is not None:
+                raise ValueError(
+                    "'dataset_labels' cannot be used if 'heights' are a mapping")
+            dataset_labels = heights.keys()
+            heights = heights.values()
+        elif hasattr(heights, 'shape'):
+            heights = heights.T
+
+        num_labels = len(x)
+        num_datasets = len(heights)
+
+        for dataset in heights:
+            assert len(dataset) == num_labels
+
+        margin = 0.1
+        bar_width = (1 - 2 * margin) / num_datasets
+        block_centers = np.arange(num_labels)
+
+        if dataset_labels is None:
+            dataset_labels = [None] * num_datasets
+        else:
+            assert len(dataset_labels) == num_datasets
+
+        for i, (hs, dataset_label) in enumerate(zip(heights, dataset_labels)):
+            lefts = block_centers - 0.5 + margin + i * bar_width
+            print(i, x, lefts, hs, dataset_label)
+            self.bar(lefts, hs, width=bar_width, align="edge", label=dataset_label)
+
+        self.xaxis.set_ticks(block_centers, labels=x)
+
+        # TODO: does not return anything for now
+
     @_preprocess_data()
     def stem(self, *args, linefmt=None, markerfmt=None, basefmt=None, bottom=0,
              label=None, orientation='vertical'):
