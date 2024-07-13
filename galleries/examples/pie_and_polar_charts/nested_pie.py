@@ -90,3 +90,9 @@ plt.show()
 #    - `matplotlib.projections.polar`
 #    - ``Axes.set`` (`matplotlib.artist.Artist.set`)
 #    - `matplotlib.axes.Axes.set_axis_off`
+#
+# .. tag::
+#
+#    plot-type: pie
+#    level: beginner
+#    purpose: showcase

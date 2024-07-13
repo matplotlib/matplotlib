@@ -34,3 +34,8 @@ plt.show()
 #    - `matplotlib.projections.polar.PolarAxes.set_rticks`
 #    - `matplotlib.projections.polar.PolarAxes.set_rmax`
 #    - `matplotlib.projections.polar.PolarAxes.set_rlabel_position`
+#
+# .. tags::
+#
+#    plot-type: polar
+#    level: beginner
