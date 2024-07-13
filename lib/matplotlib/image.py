@@ -341,18 +341,33 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         the given *clip_bbox* (also in pixel space), and magnified by the
         *magnification* factor.
 
-        *A* may be a greyscale image (M, N) with a dtype of `~numpy.float32`,
-        `~numpy.float64`, `~numpy.float128`, `~numpy.uint16` or `~numpy.uint8`,
-        or an (M, N, 4) RGBA image with a dtype of `~numpy.float32`,
-        `~numpy.float64`, `~numpy.float128`, or `~numpy.uint8`.
+        Parameters
+        ----------
+        A : ndarray
 
-        If *unsampled* is True, the image will not be scaled, but an
-        appropriate affine transformation will be returned instead.
+            - a (M, N) array interpreted as scalar (greyscale) image,
+              with one of the dtypes `~numpy.float32`, `~numpy.float64`,
+              `~numpy.float128`, `~numpy.uint16` or `~numpy.uint8`.
+            - (M, N, 4) RGBA image with a dtype of `~numpy.float32`,
+              `~numpy.float64`, `~numpy.float128`, or `~numpy.uint8`.
 
-        If *round_to_pixel_border* is True, the output image size will be
-        rounded to the nearest pixel boundary.  This makes the images align
-        correctly with the Axes.  It should not be used if exact scaling is
-        needed, such as for `FigureImage`.
+        in_bbox : `~matplotlib.transforms.Bbox`
+
+        out_bbox : `~matplotlib.transforms.Bbox`
+
+        clip_bbox : `~matplotlib.transforms.Bbox`
+
+        magnification : float, default: 1
+
+        unsampled : bool, default: False
+            If True, the image will not be scaled, but an appropriate
+            affine transformation will be returned instead.
+
+        round_to_pixel_border : bool, default: True
+            If True, the output image size will be rounded to the nearest pixel
+            boundary.  This makes the images align correctly with the Axes.
+            It should not be used if exact scaling is needed, such as for
+            `.FigureImage`.
 
         Returns
         -------
