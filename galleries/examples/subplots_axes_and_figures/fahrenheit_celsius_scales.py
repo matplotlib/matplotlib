@@ -44,3 +44,10 @@ def make_plot():
     plt.show()
 
 make_plot()
+
+# %%
+# .. tags::
+#
+#    component: axes
+#    plot-type: line
+#    level: beginner

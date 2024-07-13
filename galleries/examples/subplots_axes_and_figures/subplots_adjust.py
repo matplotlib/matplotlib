@@ -29,3 +29,10 @@ cax = plt.axes((0.85, 0.1, 0.075, 0.8))
 plt.colorbar(cax=cax)
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: subplot
+#    plot-type: imshow
+#    level: beginner

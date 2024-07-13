@@ -49,3 +49,9 @@ plt.show()
 #    - `matplotlib.axes.Axes.twinx` / `matplotlib.pyplot.twinx`
 #    - `matplotlib.axes.Axes.twiny` / `matplotlib.pyplot.twiny`
 #    - `matplotlib.axes.Axes.tick_params` / `matplotlib.pyplot.tick_params`
+#
+# .. tags::
+#
+#    component: Axes
+#    plot-type: line
+#    level: beginner
