@@ -53,3 +53,10 @@ axs[2].set_proj_type('persp', focal_length=0.2)  # FOV = 157.4 deg
 axs[2].set_title("'persp'\nfocal_length = 0.2", fontsize=10)
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    styling: small-multiples,
+#    component: subplot,
+#    level: intermediate
