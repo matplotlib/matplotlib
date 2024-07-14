@@ -1501,8 +1501,9 @@ class TestVoxels:
             ax.voxels(x, y)
         # x, y, z are positional only - this passes them on as attributes of
         # Poly3DCollection
-        with pytest.raises(AttributeError):
+        with pytest.raises(AttributeError, match="keyword argument 'x'") as exec_info:
             ax.voxels(filled=filled, x=x, y=y, z=z)
+        assert exec_info.value.name == 'x'
 
 
 def test_line3d_set_get_data_3d():
