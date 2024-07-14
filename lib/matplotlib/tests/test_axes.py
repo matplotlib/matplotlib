@@ -4627,6 +4627,10 @@ def test_hist_vectorized_params(fig_test, fig_ref, kwargs):
 
 
 @pytest.mark.parametrize('kwargs, patch_face, patch_edge',
+                         # 'C0'(blue) stands for the first color of the
+                         # default color cycle as well as the patch.facecolor rcParam
+                         # When the expected edgecolor is 'k'(black),
+                         # it corresponds to the patch.edgecolor rcParam
                          [({'histtype': 'stepfilled', 'color': 'r',
                             'facecolor': 'y', 'edgecolor': 'g'}, 'y', 'g'),
                           ({'histtype': 'step', 'color': 'r',
@@ -4653,10 +4657,6 @@ def test_hist_vectorized_params(fig_test, fig_ref, kwargs):
                           ({'histtype': 'step'}, ('C0', 0), 'C0')])
 def test_hist_color_semantics(kwargs, patch_face, patch_edge):
     _, _, patches = plt.figure().subplots().hist([1, 2, 3], **kwargs)
-    # 'C0'(blue) stands for the first color of the default color cycle
-    # as well as the patch.facecolor rcParam
-    # When the expected edgecolor is 'k'(black), it corresponds to the
-    # patch.edgecolor rcParam
     assert all(mcolors.same_color([p.get_facecolor(), p.get_edgecolor()],
                                   [patch_face, patch_edge]) for p in patches)
 

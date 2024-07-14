@@ -61,7 +61,7 @@ plt.show()
 #
 #
 # edgecolor
-# ...........................
+# .........
 
 fig, ax = plt.subplots()
 
@@ -76,7 +76,7 @@ plt.show()
 
 # %%
 # facecolor
-# ...........................
+# .........
 
 fig, ax = plt.subplots()
 
@@ -90,7 +90,7 @@ plt.show()
 
 # %%
 # hatch
-# .......................
+# .....
 
 fig, ax = plt.subplots()
 
@@ -104,7 +104,7 @@ plt.show()
 
 # %%
 # linewidth
-# ..........................
+# .........
 
 fig, ax = plt.subplots()
 
@@ -120,7 +120,7 @@ plt.show()
 
 # %%
 # linestyle
-# ..........................
+# .........
 
 fig, ax = plt.subplots()
 
