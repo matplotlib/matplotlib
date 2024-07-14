@@ -91,7 +91,7 @@ plt.show()
 #    - ``Axes.set`` (`matplotlib.artist.Artist.set`)
 #    - `matplotlib.axes.Axes.set_axis_off`
 #
-# .. tag::
+# .. tags::
 #
 #    plot-type: pie
 #    level: beginner

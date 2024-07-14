@@ -39,7 +39,7 @@ plt.show()
 #    - `matplotlib.projections.polar`
 #    - `matplotlib.projections.polar.PolarAxes`
 #
-# .. tag::
+# .. tags::
 #
 #    component: legend
 #    plot-type: polar
