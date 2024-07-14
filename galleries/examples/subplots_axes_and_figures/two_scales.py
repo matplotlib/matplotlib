@@ -52,6 +52,6 @@ plt.show()
 #
 # .. tags::
 #
-#    component: Axes
+#    component: axes
 #    plot-type: line
 #    level: beginner
