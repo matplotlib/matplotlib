@@ -1,3 +1,7 @@
+.. redirect-from:: /devel/tag_glossary
+
+.. _document-tag-glossary:
+
 Tag Glossary
 ============
 
