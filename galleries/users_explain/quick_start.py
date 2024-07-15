@@ -1,3 +1,6 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
 """
 .. redirect-from:: /tutorials/introductory/usage
 .. redirect-from:: /tutorials/introductory/quick_start
@@ -12,9 +15,6 @@ This tutorial covers some basic usage patterns and best practices to
 help you get started with Matplotlib.
 
 """
-
-import matplotlib.pyplot as plt
-import numpy as np
 
 # sphinx_gallery_thumbnail_number = 3
 
