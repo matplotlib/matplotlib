@@ -254,7 +254,7 @@ Pull Requests (1066):
 * :ghpull:`17617`: Rewrite pdf test to use check_figures_equal.
 * :ghpull:`17654`: Small fixes to recent What's New
 * :ghpull:`17649`: MNT: make _setattr_cm more forgiving
-* :ghpull:`17644`: Doc 33 whats new consolidation
+* :ghpull:`17644`: Doc 33 what's new consolidation
 * :ghpull:`17647`: Fix example in docstring of cbook._unfold.
 * :ghpull:`10187`: DOC: add a blitting tutorial
 * :ghpull:`17471`: Removed idiomatic constructs from interactive figures docs
