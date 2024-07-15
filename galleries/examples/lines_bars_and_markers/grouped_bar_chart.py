@@ -102,3 +102,19 @@ ax.grouped_bar(x, data, dataset_labels=columns)
 #
 #     df = pd.DataFrame(data, index=x, columns=columns)
 #     df.plot.bar()
+
+# %%
+# Numeric x values
+# ----------------
+# In the most common case, one will want to pass categorical labels as *x*.
+# Additionally, we allow numeric values for *x*, as with `~.Axes.bar()`.
+# But for simplicity and clarity, we require that these are equidistant.
+
+x = [0, 2, 4]
+data = {
+    'data1': [1, 2, 3],
+    'data2': [1.2, 2.2, 3.2],
+}
+
+fig, ax = plt.subplots()
+ax.grouped_bar(x, data)

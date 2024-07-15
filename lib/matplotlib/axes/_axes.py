@@ -3004,8 +3004,12 @@ class Axes(_AxesBase):
         """
         Parameters
         -----------
-        x : array-like of str
-            The labels.
+        x : array-like or list of str
+            The center positions of the bar groups. If these are numeric values,
+            they have to be equidistant. As with `~.Axes.bar`, you can provide
+            categorical labels, which will be used at integer numeric positions
+            ``range(x)``.
+
         heights : list of array-like or dict of array-like or 2D array
             The heights for all x and groups. One of:
 
@@ -3064,15 +3068,29 @@ class Axes(_AxesBase):
         elif hasattr(heights, 'shape'):
             heights = heights.T
 
-        num_labels = len(x)
+        num_groups = len(x)
         num_datasets = len(heights)
 
-        for dataset in heights:
-            assert len(dataset) == num_labels
+        if isinstance(x[0], str):
+            tick_labels = x
+            group_centers = np.arange(num_groups)
+        else:
+            if num_groups > 1:
+                d = np.diff(x)
+                if not np.allclose(d, d.mean()):
+                    raise ValueError("'x' must be equidistant")
+            group_centers = np.asarray(x)
+            tick_labels = None
+
+        for i, dataset in enumerate(heights):
+            if len(dataset) != num_groups:
+                raise ValueError(
+                    f"'x' indicates {num_groups} groups, but dataset {i} "
+                    f"has {len(dataset)} groups"
+                )
 
         margin = 0.1
         bar_width = (1 - 2 * margin) / num_datasets
-        block_centers = np.arange(num_labels)
 
         if dataset_labels is None:
             dataset_labels = [None] * num_datasets
@@ -3080,11 +3098,10 @@ class Axes(_AxesBase):
             assert len(dataset_labels) == num_datasets
 
         for i, (hs, dataset_label) in enumerate(zip(heights, dataset_labels)):
-            lefts = block_centers - 0.5 + margin + i * bar_width
-            print(i, x, lefts, hs, dataset_label)
+            lefts = group_centers - 0.5 + margin + i * bar_width
             self.bar(lefts, hs, width=bar_width, align="edge", label=dataset_label)
 
-        self.xaxis.set_ticks(block_centers, labels=x)
+        self.xaxis.set_ticks(group_centers, labels=tick_labels)
 
         # TODO: does not return anything for now
 
