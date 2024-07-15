@@ -33,12 +33,6 @@ _line_param_aliases = [next(iter(d)) for d in _line_inspector.aliasd.values()]
 _gridline_param_names = ['grid_' + name
                          for name in _line_param_names + _line_param_aliases]
 
-_MARKER_DICT = {
-    'out': (mlines.TICKDOWN, mlines.TICKUP),
-    'in': (mlines.TICKUP, mlines.TICKDOWN),
-    'inout': ('|', '|'),
-}
-
 
 class Tick(martist.Artist):
     """
@@ -425,7 +419,11 @@ class XTick(Tick):
     def _apply_tickdir(self, tickdir):
         # docstring inherited
         super()._apply_tickdir(tickdir)
-        mark1, mark2 = _MARKER_DICT[self._tickdir]
+        mark1, mark2 = {
+            'out': (mlines.TICKDOWN, mlines.TICKUP),
+            'in': (mlines.TICKUP, mlines.TICKDOWN),
+            'inout': ('|', '|'),
+        }[self._tickdir]
         self.tick1line.set_marker(mark1)
         self.tick2line.set_marker(mark2)
 
