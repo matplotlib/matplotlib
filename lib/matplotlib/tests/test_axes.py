@@ -701,6 +701,16 @@ def test_sticky_tolerance():
     axs.flat[3].barh(y=1, width=width, left=-20000.1)
 
 
+@image_comparison(['sticky_tolerance_cf.png'], remove_text=True, style="mpl20")
+def test_sticky_tolerance_contourf():
+    fig, ax = plt.subplots()
+
+    x = y = [14496.71, 14496.75]
+    data = [[0, 1], [2, 3]]
+
+    ax.contourf(x, y, data)
+
+
 def test_nargs_stem():
     with pytest.raises(TypeError, match='0 were given'):
         # stem() takes 1-3 arguments.
