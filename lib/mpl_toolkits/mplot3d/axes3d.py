@@ -1801,7 +1801,7 @@ class Axes3D(Axes):
         """
         Get the z-label text string.
         """
-        label = self.zaxis.get_label()
+        label = self.zaxis.label
         return label.get_text()
 
     # Axes rectangle characteristics

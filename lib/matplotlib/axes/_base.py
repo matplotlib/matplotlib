@@ -777,8 +777,8 @@ class _AxesBase(martist.Artist):
             if titles:
                 fields += [f"title={titles}"]
         for name, axis in self._axis_map.items():
-            if axis.get_label() and axis.get_label().get_text():
-                fields += [f"{name}label={axis.get_label().get_text()!r}"]
+            if axis.label and axis.label.get_text():
+                fields += [f"{name}label={axis.label.get_text()!r}"]
         return f"<{self.__class__.__name__}: " + ", ".join(fields) + ">"
 
     def get_subplotspec(self):
@@ -3517,7 +3517,7 @@ class _AxesBase(martist.Artist):
         """
         Get the xlabel text string.
         """
-        label = self.xaxis.get_label()
+        label = self.xaxis.label
         return label.get_text()
 
     def set_xlabel(self, xlabel, fontdict=None, labelpad=None, *,
@@ -3770,7 +3770,7 @@ class _AxesBase(martist.Artist):
         """
         Get the ylabel text string.
         """
-        label = self.yaxis.get_label()
+        label = self.yaxis.label
         return label.get_text()
 
     def set_ylabel(self, ylabel, fontdict=None, labelpad=None, *,

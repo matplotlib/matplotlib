@@ -312,13 +312,13 @@ class AxisLabel(AttributeCopier, LabelBase):
 
     def get_ref_artist(self):
         # docstring inherited
-        return self._axis.get_label()
+        return self._axis.label
 
     def get_text(self):
         # docstring inherited
         t = super().get_text()
         if t == "__from_axes__":
-            return self._axis.get_label().get_text()
+            return self._axis.label.get_text()
         return self._text
 
     _default_alignments = dict(left=("bottom", "center"),
