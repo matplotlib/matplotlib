@@ -1003,6 +1003,7 @@ class TestLogFormatterMathtext:
         (3, 1e2, '$\\mathdefault{100}$'),
         (3, 1e-3, '$\\mathdefault{10^{-3}}$'),
         (3, 1e3, '$\\mathdefault{10^{3}}$'),
+        (2, np.inf, ''),
     ]
 
     @pytest.mark.parametrize('min_exponent, value, expected', test_data)
