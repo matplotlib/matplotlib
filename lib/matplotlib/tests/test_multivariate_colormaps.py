@@ -41,7 +41,7 @@ def test_bivariate_cmap_shapes():
 def test_multivar_creation():
     # test creation of a custom multivariate colorbar
     blues = mpl.colormaps['Blues']
-    cmap = mpl.colors.MultivarColormap('custom', (blues, 'Oranges'), 'Sub')
+    cmap = mpl.colors.MultivarColormap('custom', (blues, 'Oranges'), 'sRGB_sub')
     y, x = np.mgrid[0:3, 0:3]/2
     im = cmap((y, x))
     res = np.array([[[0.96862745, 0.94509804, 0.92156863, 1],
@@ -56,11 +56,11 @@ def test_multivar_creation():
     assert_allclose(im,  res, atol=0.01)
 
     with pytest.raises(ValueError, match="colormaps must be a list of"):
-        cmap = mpl.colors.MultivarColormap('custom', (blues, [blues]), 'Sub')
+        cmap = mpl.colors.MultivarColormap('custom', (blues, [blues]), 'sRGB_sub')
     with pytest.raises(ValueError, match="A MultivarColormap must"):
-        cmap = mpl.colors.MultivarColormap('custom', 'blues', 'Sub')
+        cmap = mpl.colors.MultivarColormap('custom', 'blues', 'sRGB_sub')
     with pytest.raises(ValueError, match="A MultivarColormap must"):
-        cmap = mpl.colors.MultivarColormap('custom', (blues), 'Sub')
+        cmap = mpl.colors.MultivarColormap('custom', (blues), 'sRGB_sub')
 
 
 @image_comparison(["multivar_alpha_mixing.png"])
@@ -72,7 +72,7 @@ def test_multivar_alpha_mixing():
     alpha[:, 3] = np.linspace(1, 0, 256)
     alpha_cmap = mpl.colors.LinearSegmentedColormap.from_list('from_list', alpha)
 
-    cmap = mpl.colors.MultivarColormap('custom', (rainbow, alpha_cmap), 'Add')
+    cmap = mpl.colors.MultivarColormap('custom', (rainbow, alpha_cmap), 'sRGB_add')
     y, x = np.mgrid[0:10, 0:10]/9
     im = cmap((y, x))
 
@@ -185,7 +185,7 @@ def test_multivar_cmap_call():
 
 def test_multivar_bad_mode():
     cmap = mpl.multivar_colormaps['2VarSubA']
-    with pytest.raises(ValueError, match="Combination_mode must be 'Add' or 'Sub'"):
+    with pytest.raises(ValueError, match="Combination_mode must be 'sRGB_add' or"):
         cmap = mpl.colors.MultivarColormap('', cmap[:], 'bad')
 
 
@@ -508,7 +508,7 @@ def test_multivar_eq():
 
     cmap_1 = mpl.colors.MultivarColormap('2VarAddA',
                                          [cmap_0[0]]*2,
-                                         'Add')
+                                         'sRGB_add')
     assert (cmap_0 == cmap_1) is False
 
     cmap_1 = mpl.multivar_colormaps['3VarAddA']
@@ -519,5 +519,5 @@ def test_multivar_eq():
     assert (cmap_0 == cmap_1) is False
 
     cmap_1 = mpl.multivar_colormaps['2VarAddA']
-    cmap_1 = mpl.colors.MultivarColormap('', cmap_1[:], 'Sub')
+    cmap_1 = mpl.colors.MultivarColormap('', cmap_1[:], 'sRGB_sub')
     assert (cmap_0 == cmap_1) is False
