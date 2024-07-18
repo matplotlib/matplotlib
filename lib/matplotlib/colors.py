@@ -1268,12 +1268,12 @@ class MultivarColormap:
             The name of the colormap family.
         colormaps: list or tuple of `~matplotlib.colors.Colormap` objects
             The individual colormaps that are combined
-        combination_mode: str, 'Add' or 'Sub'
+        combination_mode: str, 'sRGB_add' or 'sRGB_sub'
             Describe how colormaps are combined in sRGB space
 
-            - If 'Add' -> Mixing produces brighter colors
+            - If 'sRGB_add' -> Mixing produces brighter colors
               `sRGB = cmap[0][X[0]] + cmap[1][x[1]] + ... + cmap[n-1][x[n-1]]`
-            - If 'Sub' -> Mixing produces darker colors
+            - If 'sRGB_sub' -> Mixing produces darker colors
               `sRGB = cmap[0][X[0]] + cmap[1][x[1]] + ... + cmap[n-1][x[n-1]] - n + 1`
         """
         self.name = name
@@ -1292,8 +1292,8 @@ class MultivarColormap:
                                      " Colormap or valid strings.")
 
         self._colormaps = colormaps
-        if combination_mode not in ['Add', 'Sub']:
-            raise ValueError("Combination_mode must be 'Add' or 'Sub',"
+        if combination_mode not in ['sRGB_add', 'sRGB_sub']:
+            raise ValueError("Combination_mode must be 'sRGB_add' or 'sRGB_sub',"
                              f" {combination_mode!r} is not allowed.")
         self._combination_mode = combination_mode
         self.n_variates = len(colormaps)
@@ -1341,7 +1341,7 @@ class MultivarColormap:
             rgba[..., 3] *= sub_rgba[..., 3]  # multiply alpha
             mask_bad |= sub_mask_bad
 
-        if self.combination_mode == 'Sub':
+        if self.combination_mode == 'sRGB_sub':
             rgba[..., :3] -= len(self) - 1
 
         rgba[mask_bad] = self.get_bad()
