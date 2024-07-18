@@ -219,7 +219,7 @@ plt.show()
 #
 # .. tags::
 #
-#    plot-type: speciality, plot-type:scatter, component: ellipse, component: patch,
+#    plot-type: speciality, plot-type: scatter, component: ellipse, component: patch,
 #    domain: statistics,
 #
 # .. admonition:: References

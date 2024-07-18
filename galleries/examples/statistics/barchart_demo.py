@@ -101,7 +101,7 @@ plt.show()
 
 # %%
 #
-# ..tags:: purpose:storytelling, domain: statistics, plot-type: bar
+# ..tags:: purpose: storytelling, domain: statistics, plot-type: bar
 #
 # .. admonition:: References
 #

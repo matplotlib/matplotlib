@@ -46,4 +46,4 @@ plt.show()
 
 # %%
 #
-# .. tags:: plot-type: histogram, domain:statistics, purpose: showcase
+# .. tags:: plot-type: histogram, domain: statistics, purpose: showcase

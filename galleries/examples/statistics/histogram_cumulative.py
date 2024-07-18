@@ -67,7 +67,7 @@ plt.show()
 
 # %%
 #
-# ..tags:: plot-type: ecdf, plot-type: histogram, domain:statistics
+# ..tags:: plot-type: ecdf, plot-type: histogram, domain: statistics
 #
 # .. admonition:: References
 #

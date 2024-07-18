@@ -74,7 +74,7 @@ plt.show()
 #
 # .. tags::
 #
-#    plot-type: errorbar, component:rectangle, component: patchcollection,
+#    plot-type: errorbar, component: rectangle, component: patchcollection,
 #    domain: statistics
 #
 # .. admonition:: References

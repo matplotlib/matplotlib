@@ -37,7 +37,7 @@ plt.show()
 #
 # .. tags::
 #
-#    plot-type: histogram, plot-type:hexbin, domain:statistics
+#    plot-type: histogram, plot-type: hexbin, domain: statistics
 #
 # .. admonition:: References
 #

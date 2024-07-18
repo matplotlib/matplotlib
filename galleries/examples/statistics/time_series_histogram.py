@@ -96,7 +96,7 @@ plt.show()
 #
 # .. tags::
 #
-#    plot-type: histogram2d, plot-type: pcolormesh, purpose:storytelling,
+#    plot-type: histogram2d, plot-type: pcolormesh, purpose: storytelling,
 #    styling: color, component: colormap
 #
 # .. admonition:: References

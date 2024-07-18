@@ -105,7 +105,8 @@ axs[2].hist2d(dist1, dist2, bins=(80, 10), norm=colors.LogNorm())
 #
 # .. tags::
 #
-#    plot-type:histogram, plot-type:histogram2d, domain:statistics, styling:color,
+#    plot-type: histogram, plot-type: histogram2d,
+#    domain: statistics, styling: color,
 #    component: normalization, component: patch
 #
 # .. admonition:: References

@@ -106,7 +106,7 @@ plt.show()
 
 # %%
 #
-# ..tags:: plot-type: violin, domain:statistics
+# ..tags:: plot-type: violin, domain: statistics
 #
 # .. admonition:: References
 #
