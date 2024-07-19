@@ -2206,8 +2206,8 @@ class Axes3D(Axes):
             col_inds = list(range(0, cols-1, cstride)) + [cols-1]
 
             polys = []
-            for rs, rs_next in zip(row_inds[:-1], row_inds[1:]):
-                for cs, cs_next in zip(col_inds[:-1], col_inds[1:]):
+            for rs, rs_next in itertools.pairwise(row_inds):
+                for cs, cs_next in itertools.pairwise(col_inds):
                     ps = [
                         # +1 ensures we share edges between polygons
                         cbook._array_perimeter(a[rs:rs_next+1, cs:cs_next+1])
@@ -3385,7 +3385,7 @@ class Axes3D(Axes):
                         voxel_faces[i0].append(p0 + square_rot_neg)
 
                     # draw middle faces
-                    for r1, r2 in zip(rinds[:-1], rinds[1:]):
+                    for r1, r2 in itertools.pairwise(rinds):
                         p1 = permute.dot([p, q, r1])
                         p2 = permute.dot([p, q, r2])
 

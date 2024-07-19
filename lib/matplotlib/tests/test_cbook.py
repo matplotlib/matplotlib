@@ -799,8 +799,8 @@ def test_array_patch_perimeters():
         row_inds = [*range(0, rows-1, rstride), rows-1]
         col_inds = [*range(0, cols-1, cstride), cols-1]
         polys = []
-        for rs, rs_next in zip(row_inds[:-1], row_inds[1:]):
-            for cs, cs_next in zip(col_inds[:-1], col_inds[1:]):
+        for rs, rs_next in itertools.pairwise(row_inds):
+            for cs, cs_next in itertools.pairwise(col_inds):
                 # +1 ensures we share edges between polygons
                 ps = cbook._array_perimeter(x[rs:rs_next+1, cs:cs_next+1]).T
                 polys.append(ps)
