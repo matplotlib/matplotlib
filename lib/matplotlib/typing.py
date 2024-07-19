@@ -11,17 +11,14 @@ downstream libraries.
 """
 from collections.abc import Hashable, Sequence
 import pathlib
-from typing import Any, Literal, TypeVar
+from typing import Any, Literal, TypeAlias, TypeVar
 
 from . import path
 from ._enums import JoinStyle, CapStyle
 from .markers import MarkerStyle
 
-# The following are type aliases. Once python 3.9 is dropped, they should be annotated
-# using ``typing.TypeAlias``.
-
-RGBColorType = tuple[float, float, float] | str
-RGBAColorType = (
+RGBColorType: TypeAlias = tuple[float, float, float] | str
+RGBAColorType: TypeAlias = (
     str |  # "none" or "#RRGGBBAA"/"#RGBA" hex strings
     tuple[float, float, float, float] |
     # 2 tuple (color, alpha) representations, not infinitely recursive
@@ -31,27 +28,28 @@ RGBAColorType = (
     tuple[tuple[float, float, float, float], float]
 )
 
-ColorType = RGBColorType | RGBAColorType
+ColorType: TypeAlias = RGBColorType | RGBAColorType
 
-RGBColourType = RGBColorType
-RGBAColourType = RGBAColorType
-ColourType = ColorType
+RGBColourType: TypeAlias = RGBColorType
+RGBAColourType: TypeAlias = RGBAColorType
+ColourType: TypeAlias = ColorType
 
-LineStyleType = str | tuple[float, Sequence[float]]
-DrawStyleType = Literal["default", "steps", "steps-pre", "steps-mid", "steps-post"]
-MarkEveryType = (
+LineStyleType: TypeAlias = str | tuple[float, Sequence[float]]
+DrawStyleType: TypeAlias = Literal["default", "steps", "steps-pre", "steps-mid",
+                                   "steps-post"]
+MarkEveryType: TypeAlias = (
     None |
     int | tuple[int, int] | slice | list[int] |
     float | tuple[float, float] |
     list[bool]
 )
 
-MarkerType = str | path.Path | MarkerStyle
-FillStyleType = Literal["full", "left", "right", "bottom", "top", "none"]
-JoinStyleType = JoinStyle | Literal["miter", "round", "bevel"]
-CapStyleType = CapStyle | Literal["butt", "projecting", "round"]
+MarkerType: TypeAlias = str | path.Path | MarkerStyle
+FillStyleType: TypeAlias = Literal["full", "left", "right", "bottom", "top", "none"]
+JoinStyleType: TypeAlias = JoinStyle | Literal["miter", "round", "bevel"]
+CapStyleType: TypeAlias = CapStyle | Literal["butt", "projecting", "round"]
 
-RcStyleType = (
+RcStyleType: TypeAlias = (
     str |
     dict[str, Any] |
     pathlib.Path |
@@ -59,5 +57,5 @@ RcStyleType = (
 )
 
 _HT = TypeVar("_HT", bound=Hashable)
-HashableList = list[_HT | "HashableList[_HT]"]
+HashableList: TypeAlias = list[_HT | "HashableList[_HT]"]
 """A nested list of Hashable values."""
