@@ -112,6 +112,10 @@ exclude = [
     ".tox",
     ".eggs",
 ]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
 ignore = [
     "D100",
     "D101",
@@ -132,7 +136,6 @@ ignore = [
     "E741",
     "F841",
 ]
-line-length = 88
 select = [
     "D",
     "E",
@@ -140,7 +143,7 @@ select = [
     "W",
 ]
 
-# The following error codes are not supported by ruff v0.0.240
+# The following error codes are not supported by ruff v0.2.0
 # They are planned and should be selected once implemented
 # even if they are deselected by default.
 # These are primarily whitespace/corrected by autoformatters (which we don't use).
@@ -158,12 +161,10 @@ external = [
   "E703",
 ]
 
-target-version = "py310"
-
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "numpy"
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "doc/conf.py" = ["E402"]
 "galleries/examples/animation/frame_grabbing_sgskip.py" = ["E402"]
 "galleries/examples/lines_bars_and_markers/marker_reference.py" = ["E402"]
