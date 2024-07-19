@@ -2645,7 +2645,7 @@ class Parser:
             if rdelim == '':
                 rdelim = '.'
             return self._auto_sized_delimiter(ldelim,
-                                              T.cast(list[T.Union[Box, Char, str]],
+                                              T.cast(list[Box | Char | str],
                                                      result),
                                               rdelim)
         return result
@@ -2786,7 +2786,7 @@ class Parser:
                     del middle[idx]
             # There should only be \middle and its delimiter as str, which have
             # just been removed.
-            middle_part = T.cast(list[T.Union[Box, Char]], middle)
+            middle_part = T.cast(list[Box | Char], middle)
         else:
             height = 0
             depth = 0
