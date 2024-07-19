@@ -3655,12 +3655,23 @@ class RectangleSelector(_SelectorWidget):
 
         min_lim = (xlim[0], ylim[0])
         max_lim = (xlim[1], ylim[1])
+
         # Axes limits in display coordinates
         min_lim = self.ax.transData.transform(min_lim)
         max_lim = self.ax.transData.transform(max_lim)
 
+        # For axes where the limits are reversed, need to make sure the
+        # display min/max are in the correct order.
+
+        if min_lim[0] > max_lim[0]:
+            min_lim[0], max_lim[0] = max_lim[0], min_lim[0]
+
+        if min_lim[1] > max_lim[1]:
+            min_lim[1], max_lim[1] = max_lim[1], min_lim[1]
+
         x = np.clip(x, min_lim[0], max_lim[0])
         y = np.clip(y, min_lim[1], max_lim[1])
+
         return x, y
 
     # TODO: _draw_shape can be removed in 3.7
