@@ -136,11 +136,22 @@ ignore = [
     "E741",
     "F841",
 ]
+preview = true
+explicit-preview-rules = true
 select = [
     "D",
     "E",
     "F",
     "W",
+    # The following error codes require the preview mode to be enabled.
+    "E201",
+    "E202",
+    "E203",
+    "E221",
+    "E251",
+    "E261",
+    "E272",
+    "E703",
 ]
 
 # The following error codes are not supported by ruff v0.2.0
@@ -150,15 +161,7 @@ select = [
 # See https://github.com/charliermarsh/ruff/issues/2402 for status on implementation
 external = [
   "E122",
-  "E201",
-  "E202",
-  "E203",
-  "E221",
-  "E251",
-  "E261",
-  "E272",
   "E302",
-  "E703",
 ]
 
 [tool.ruff.lint.pydocstyle]
@@ -167,8 +170,12 @@ convention = "numpy"
 [tool.ruff.lint.per-file-ignores]
 "doc/conf.py" = ["E402"]
 "galleries/examples/animation/frame_grabbing_sgskip.py" = ["E402"]
+"galleries/examples/images_contours_and_fields/tricontour_demo.py" = ["E201"]
+"galleries/examples/images_contours_and_fields/tripcolor_demo.py" = ["E201"]
+"galleries/examples/images_contours_and_fields/triplot_demo.py" = ["E201"]
 "galleries/examples/lines_bars_and_markers/marker_reference.py" = ["E402"]
 "galleries/examples/misc/print_stdout_sgskip.py" = ["E402"]
+"galleries/examples/misc/table_demo.py" = ["E201"]
 "galleries/examples/style_sheets/bmh.py" = ["E501"]
 "galleries/examples/subplots_axes_and_figures/demo_constrained_layout.py" = ["E402"]
 "galleries/examples/text_labels_and_annotations/custom_legends.py" = ["E402"]
@@ -188,6 +195,9 @@ convention = "numpy"
 "lib/matplotlib/__init__.py" = ["E402", "F401"]
 "lib/matplotlib/_animation_data.py" = ["E501"]
 "lib/matplotlib/_api/__init__.py" = ["F401"]
+"lib/matplotlib/_cm.py" = ["E202", "E203"]
+"lib/matplotlib/_mathtext.py" = ["E221"]
+"lib/matplotlib/_mathtext_data.py" = ["E203"]
 "lib/matplotlib/axes/__init__.py" = ["F401", "F403"]
 "lib/matplotlib/backends/backend_template.py" = ["F401"]
 "lib/matplotlib/font_manager.py" = ["E501"]
@@ -195,7 +205,12 @@ convention = "numpy"
 "lib/matplotlib/pylab.py" = ["F401", "F403"]
 "lib/matplotlib/pyplot.py" = ["F401", "F811"]
 "lib/matplotlib/tests/test_mathtext.py" = ["E501"]
+"lib/matplotlib/transforms.py" = ["E201"]
+"lib/matplotlib/tri/_triinterpolate.py" = ["E201", "E221"]
+"lib/mpl_toolkits/axes_grid1/axes_size.py" = ["E272"]
 "lib/mpl_toolkits/axisartist/__init__.py" = ["F401"]
+"lib/mpl_toolkits/axisartist/angle_helper.py" = ["E221"]
+"lib/mpl_toolkits/mplot3d/proj3d.py" = ["E201"]
 "lib/pylab.py" = ["F401", "F403"]
 
 "galleries/users_explain/artists/paths.py" = ["E402"]
