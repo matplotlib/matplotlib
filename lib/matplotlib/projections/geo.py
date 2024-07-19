@@ -151,6 +151,15 @@ class GeoAxes(Axes):
                         "not supported.  Please consider using Cartopy.")
 
     set_ylim = set_xlim
+    set_xbound = set_xlim
+    set_ybound = set_ylim
+
+    def invert_xaxis(self):
+        """Not supported. Please consider using Cartopy."""
+        raise TypeError("Changing axes limits of a geographic projection is "
+                        "not supported.  Please consider using Cartopy.")
+
+    invert_yaxis = invert_xaxis
 
     def format_coord(self, lon, lat):
         """Return a format string formatting the coordinate."""
