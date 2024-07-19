@@ -376,7 +376,7 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
         font.set_size(fontsize, dpi)
         glyph = font.load_char(num, flags=self.load_glyph_flags)
 
-        xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
+        xmin, ymin, xmax, ymax = (val / 64 for val in glyph.bbox)
         offset = self._get_offset(font, glyph, fontsize, dpi)
         metrics = FontMetrics(
             advance = glyph.linearHoriAdvance/65536.0,
