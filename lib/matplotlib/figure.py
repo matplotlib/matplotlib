@@ -1899,7 +1899,7 @@ default: %(va)s
             layout = inspect.cleandoc(layout)
             return [list(ln) for ln in layout.strip('\n').split('\n')]
 
-    def _sub_prep(self, mosaic, sub_add_func, *, sharex=False, sharey=False,
+    def _sub_prep(self, mosaic, parent, mode='axes', *,
                        width_ratios=None, height_ratios=None,
                        empty_sentinel='.',
                        subthing_kw=None, per_subthing_kw=None, gridspec_kw=None):
@@ -1972,14 +1972,11 @@ default: %(va)s
         # special-case string input
         if isinstance(mosaic, str):
             mosaic = self._normalize_grid_string(mosaic)
-            per_subplot_kw = {
-                tuple(k): v for k, v in per_subplot_kw.items()
+            per_subthing_kw = {
+                tuple(k): v for k, v in per_subthing_kw.items()
             }
 
         per_subthing_kw = self._check_duplication_and_flatten_kwargs(per_subthing_kw)
-
-        # Only accept strict bools to allow a possible future API expansion.
-        _api.check_isinstance(bool, sharex=sharex, sharey=sharey)
 
         def _make_array(inp):
             """
@@ -2050,7 +2047,7 @@ default: %(va)s
 
             return tuple(unique_ids), nested
 
-        def _do_layout(gs, mosaic, unique_ids, nested, sub_add_func):
+        def _do_layout(gs, mosaic, unique_ids, nested, parent, mode):
             """
             Recursively do the mosaic.
 
@@ -2082,13 +2079,6 @@ default: %(va)s
             # This will stash the upper left index of each object (axes or
             # nested mosaic) at this level
             this_level = dict()
-
-            # When dealing with .add_subfigure - need to create
-            # separate SubFigures for nested layouts,
-            # otherwise they will all create without nesting.
-            subfigs_for_nested = {}
-            if sub_add_func.__name__ == 'add_subfigure':
-                subfigs_for_nested = _get_subfigs_from_nested(nested, sub_add_func, gs)
 
             # go through the unique keys,
             for name in unique_ids:
@@ -2124,6 +2114,10 @@ default: %(va)s
                     if name in output:
                         raise ValueError(f"There are duplicate keys {name} "
                                          f"in the layout\n{mosaic!r}")
+                    if mode == 'axes':
+                        sub_add_func = parent.add_subplot
+                    elif mode == 'subfigures':
+                        sub_add_func = parent.add_subfigure
                     ax = sub_add_func(
                             gs[slc], **{
                                 'label': str(name),
@@ -2138,12 +2132,18 @@ default: %(va)s
                     j, k = key
                     # recursively add the nested mosaic
                     rows, cols = nested_mosaic.shape
+                    if mode == 'subfigures':
+                        local_parent = parent.add_subfigure(gs[j, k])
+                    elif mode == 'axes':
+                        local_parent = parent
+                    else:
+                        raise ValueError
                     nested_output = _do_layout(
                         gs[j, k].subgridspec(rows, cols),
                         nested_mosaic,
                         *_identify_keys_and_nested(nested_mosaic),
-                        sub_add_func if not subfigs_for_nested.get(key)
-                        else subfigs_for_nested[key].add_subfigure
+                        local_parent,
+                        mode
                     )
                     overlap = set(output) & set(nested_output)
                     if overlap:
@@ -2160,22 +2160,17 @@ default: %(va)s
         mosaic = _make_array(mosaic)
         rows, cols = mosaic.shape
         gs = self.add_gridspec(rows, cols, **gridspec_kw)
-        ret = _do_layout(gs, mosaic, *_identify_keys_and_nested(mosaic))
-        ax0 = next(iter(ret.values()))
-        for ax in ret.values():
-            if sharex:
-                ax.sharex(ax0)
-                ax._label_outer_xaxis(skip_non_rectangular_axes=True)
-            if sharey:
-                ax.sharey(ax0)
-                ax._label_outer_yaxis(skip_non_rectangular_axes=True)
-        if extra := set(per_subplot_kw) - set(ret):
+        ret = _do_layout(gs, mosaic, *_identify_keys_and_nested(mosaic), parent, mode)
+
+        if extra := set(per_subthing_kw) - set(ret):
             raise ValueError(
                 f"The keys {extra} are in *per_subplot_kw* "
                 "but not in the mosaic."
             )
 
-    def subfigure_mosaic(self, mosaic, *, width_ratios=None,
+        return ret
+
+    def subfigure_mosaic(self, mosaic, *, sharex=False, sharey=False, width_ratios=None,
                          height_ratios=None, empty_sentinel='.',
                          subfigure_kw=None, per_subfigure_kw=None, gridspec_kw=None):
         """
@@ -2274,7 +2269,8 @@ default: %(va)s
            total layout.
 
         """
-        ret = self._sub_prep(mosaic, self.add_subfigure, width_ratios=width_ratios,
+
+        ret = self._sub_prep(mosaic, self, 'subfigures', width_ratios=width_ratios,
                              height_ratios=height_ratios, empty_sentinel=empty_sentinel,
                              subthing_kw=subfigure_kw, per_subthing_kw=per_subfigure_kw,
                              gridspec_kw=gridspec_kw)
@@ -2390,10 +2386,24 @@ default: %(va)s
            total layout.
 
         """
-        ret = self._sub_prep(mosaic, self.add_subplot, sharex=sharex, sharey=sharey,
+
+        # Only accept strict bools to allow a possible future API expansion.
+        _api.check_isinstance(bool, sharex=sharex, sharey=sharey)
+
+        ret = self._sub_prep(mosaic, self, 'axes',
                              width_ratios=width_ratios, height_ratios=height_ratios,
                              empty_sentinel=empty_sentinel, subthing_kw=subplot_kw,
                              per_subthing_kw=per_subplot_kw, gridspec_kw=gridspec_kw)
+
+        ax0 = next(iter(ret.values()))
+        for ax in ret.values():
+            if sharex:
+                ax.sharex(ax0)
+                ax._label_outer_xaxis(skip_non_rectangular_axes=True)
+            if sharey:
+                ax.sharey(ax0)
+                ax._label_outer_yaxis(skip_non_rectangular_axes=True)
+
         return ret
 
     def _set_artist_props(self, a):
