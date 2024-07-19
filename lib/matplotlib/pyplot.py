@@ -4018,7 +4018,7 @@ def spy(
         **kwargs,
     )
     if isinstance(__ret, cm.ScalarMappable):
-        sci(__ret)  # noqa
+        sci(__ret)
     return __ret
 
 

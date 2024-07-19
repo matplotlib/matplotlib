@@ -192,15 +192,10 @@ convention = "numpy"
 "galleries/examples/user_interfaces/pylab_with_gtk4_sgskip.py" = ["E402"]
 "galleries/examples/userdemo/pgf_preamble_sgskip.py" = ["E402"]
 
-"lib/matplotlib/__init__.py" = ["E402"]
-"lib/matplotlib/_animation_data.py" = ["E501"]
 "lib/matplotlib/_cm.py" = ["E202", "E203"]
 "lib/matplotlib/_mathtext.py" = ["E221"]
 "lib/matplotlib/_mathtext_data.py" = ["E203"]
-"lib/matplotlib/axes/__init__.py" = ["F403"]
 "lib/matplotlib/backends/backend_template.py" = ["F401"]
-"lib/matplotlib/font_manager.py" = ["E501"]
-"lib/matplotlib/image.py" = ["F403"]
 "lib/matplotlib/pylab.py" = ["F401", "F403"]
 "lib/matplotlib/pyplot.py" = ["F811"]
 "lib/matplotlib/tests/test_mathtext.py" = ["E501"]
@@ -209,7 +204,6 @@ convention = "numpy"
 "lib/mpl_toolkits/axes_grid1/axes_size.py" = ["E272"]
 "lib/mpl_toolkits/axisartist/angle_helper.py" = ["E221"]
 "lib/mpl_toolkits/mplot3d/proj3d.py" = ["E201"]
-"lib/pylab.py" = ["F403"]
 
 "galleries/users_explain/artists/paths.py" = ["E402"]
 "galleries/users_explain/artists/patheffects_guide.py" = ["E402"]
