@@ -3,7 +3,6 @@ from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 from matplotlib.collections import Collection, PathCollection
 from matplotlib.colors import Colormap, Normalize
-from matplotlib.font_manager import FontProperties
 from matplotlib.path import Path
 from matplotlib.patches import Patch
 from matplotlib.text import Text

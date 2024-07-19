@@ -2,7 +2,7 @@ from .artist import Artist
 from .axes import Axes
 from .backend_bases import MouseEvent, FigureCanvasBase
 from .path import Path
-from .transforms import Bbox, Transform
+from .transforms import Bbox
 
 from collections.abc import Callable, Sequence
 from typing import Any, Literal, overload

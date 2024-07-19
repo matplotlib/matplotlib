@@ -22,7 +22,7 @@ import matplotlib as mpl
 from matplotlib import _api, _mathtext
 from matplotlib.ft2font import LOAD_NO_HINTING
 from matplotlib.font_manager import FontProperties
-from ._mathtext import (  # noqa: reexported API
+from ._mathtext import (  # noqa: F401, reexported API
     RasterParse, VectorParse, get_unicode_index)
 
 _log = logging.getLogger(__name__)

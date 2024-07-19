@@ -4,7 +4,7 @@ from .backend_bases import FigureCanvasBase, Event, MouseEvent, MouseButton
 from .collections import LineCollection
 from .figure import Figure
 from .lines import Line2D
-from .patches import Circle, Polygon, Rectangle
+from .patches import Polygon, Rectangle
 from .text import Text
 
 import PIL.Image
