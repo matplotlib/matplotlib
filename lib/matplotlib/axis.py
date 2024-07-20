@@ -1347,7 +1347,7 @@ class Axis(martist.Artist):
     def _get_ticklabel_bboxes(self, ticks, renderer=None):
         """Return lists of bboxes for ticks' label1's and label2's."""
         if renderer is None:
-            renderer = self.get_figure(root=False)._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         return ([tick.label1.get_window_extent(renderer)
                  for tick in ticks if tick.label1.get_visible()],
                 [tick.label2.get_window_extent(renderer)
@@ -1366,7 +1366,7 @@ class Axis(martist.Artist):
         if not self.get_visible():
             return
         if renderer is None:
-            renderer = self.get_figure(root=False)._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         ticks_to_draw = self._update_ticks()
 
         self._update_label_position(renderer)
@@ -2410,13 +2410,13 @@ class XAxis(Axis):
             bbox = mtransforms.Bbox.union([
                 *bboxes, self.axes.spines.get("bottom", self.axes).get_window_extent()])
             self.label.set_position(
-                (x, bbox.y0 - self.labelpad * self.get_figure(root=False).dpi / 72))
+                (x, bbox.y0 - self.labelpad * self.get_figure(root=True).dpi / 72))
         else:
             # Union with extents of the top spine if present, of the axes otherwise.
             bbox = mtransforms.Bbox.union([
                 *bboxes2, self.axes.spines.get("top", self.axes).get_window_extent()])
             self.label.set_position(
-                (x, bbox.y1 + self.labelpad * self.get_figure(root=False).dpi / 72))
+                (x, bbox.y1 + self.labelpad * self.get_figure(root=True).dpi / 72))
 
     def _update_offset_text_position(self, bboxes, bboxes2):
         """
@@ -2432,14 +2432,14 @@ class XAxis(Axis):
             else:
                 bbox = mtransforms.Bbox.union(bboxes)
                 bottom = bbox.y0
-            y = bottom - self.OFFSETTEXTPAD * self.get_figure(root=False).dpi / 72
+            y = bottom - self.OFFSETTEXTPAD * self.get_figure(root=True).dpi / 72
         else:
             if not len(bboxes2):
                 top = self.axes.bbox.ymax
             else:
                 bbox = mtransforms.Bbox.union(bboxes2)
                 top = bbox.y1
-            y = top + self.OFFSETTEXTPAD * self.get_figure(root=False).dpi / 72
+            y = top + self.OFFSETTEXTPAD * self.get_figure(root=True).dpi / 72
         self.offsetText.set_position((x, y))
 
     def set_ticks_position(self, position):
@@ -2637,13 +2637,13 @@ class YAxis(Axis):
             bbox = mtransforms.Bbox.union([
                 *bboxes, self.axes.spines.get("left", self.axes).get_window_extent()])
             self.label.set_position(
-                (bbox.x0 - self.labelpad * self.get_figure(root=False).dpi / 72, y))
+                (bbox.x0 - self.labelpad * self.get_figure(root=True).dpi / 72, y))
         else:
             # Union with extents of the right spine if present, of the axes otherwise.
             bbox = mtransforms.Bbox.union([
                 *bboxes2, self.axes.spines.get("right", self.axes).get_window_extent()])
             self.label.set_position(
-                (bbox.x1 + self.labelpad * self.get_figure(root=False).dpi / 72, y))
+                (bbox.x1 + self.labelpad * self.get_figure(root=True).dpi / 72, y))
 
     def _update_offset_text_position(self, bboxes, bboxes2):
         """
@@ -2658,7 +2658,7 @@ class YAxis(Axis):
             bbox = self.axes.bbox
         top = bbox.ymax
         self.offsetText.set_position(
-            (x, top + self.OFFSETTEXTPAD * self.get_figure(root=False).dpi / 72)
+            (x, top + self.OFFSETTEXTPAD * self.get_figure(root=True).dpi / 72)
         )
 
     def set_offset_position(self, position):

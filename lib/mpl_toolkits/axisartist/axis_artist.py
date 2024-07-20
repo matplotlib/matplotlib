@@ -253,7 +253,7 @@ class LabelBase(mtext.Text):
 
     def get_window_extent(self, renderer=None):
         if renderer is None:
-            renderer = self.get_figure(root=False)._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
 
         # save original and adjust some properties
         tr = self.get_transform()
@@ -391,7 +391,7 @@ class AxisLabel(AttributeCopier, LabelBase):
 
     def get_window_extent(self, renderer=None):
         if renderer is None:
-            renderer = self.get_figure(root=False)._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         if not self.get_visible():
             return
 
@@ -550,7 +550,7 @@ class TickLabels(AxisLabel):  # mtext.Text
 
     def get_window_extents(self, renderer=None):
         if renderer is None:
-            renderer = self.get_figure(root=False)._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
 
         if not self.get_visible():
             self._axislabel_pad = self._external_pad
@@ -922,7 +922,7 @@ class AxisArtist(martist.Artist):
         # majorticks even for minor ticks. not clear what is best.
 
         if renderer is None:
-            renderer = self.get_figure(root=False)._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
 
         dpi_cor = renderer.points_to_pixels(1.)
         if self.major_ticks.get_visible() and self.major_ticks.get_tick_out():

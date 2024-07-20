@@ -3113,7 +3113,7 @@ class _AxesBase(martist.Artist):
             for _axis in self._axis_map.values():
                 artists.remove(_axis)
 
-        if not self.get_figure(root=False).canvas.is_saving():
+        if not self.get_figure(root=True).canvas.is_saving():
             artists = [
                 a for a in artists
                 if not a.get_animated() or isinstance(a, mimage.AxesImage)]
@@ -3153,7 +3153,7 @@ class _AxesBase(martist.Artist):
         """
         Efficiently redraw a single artist.
         """
-        a.draw(self.get_figure(root=False).canvas.get_renderer())
+        a.draw(self.get_figure(root=True).canvas.get_renderer())
 
     def redraw_in_frame(self):
         """
@@ -3163,7 +3163,7 @@ class _AxesBase(martist.Artist):
             for artist in [*self._axis_map.values(),
                            self.title, self._left_title, self._right_title]:
                 stack.enter_context(artist._cm_set(visible=False))
-            self.draw(self.get_figure(root=False).canvas.get_renderer())
+            self.draw(self.get_figure(root=True).canvas.get_renderer())
 
     # Axes rectangle characteristics
 
@@ -4471,7 +4471,7 @@ class _AxesBase(martist.Artist):
 
         bb = []
         if renderer is None:
-            renderer = self.get_figure(root=False)._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
 
         if not self.get_visible():
             return None

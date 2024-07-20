@@ -363,7 +363,7 @@ class OffsetBox(martist.Artist):
     def get_window_extent(self, renderer=None):
         # docstring inherited
         if renderer is None:
-            renderer = self.get_figure(root=False)._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         bbox = self.get_bbox(renderer)
         try:  # Some subclasses redefine get_offset to take no args.
             px, py = self.get_offset(bbox, renderer)
@@ -1356,7 +1356,7 @@ or callable, default: value of *xycoords*
     def get_window_extent(self, renderer=None):
         # docstring inherited
         if renderer is None:
-            renderer = self.get_figure(root=False)._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         self.update_positions(renderer)
         return Bbox.union([child.get_window_extent(renderer)
                            for child in self.get_children()])
@@ -1364,7 +1364,7 @@ or callable, default: value of *xycoords*
     def get_tightbbox(self, renderer=None):
         # docstring inherited
         if renderer is None:
-            renderer = self.get_figure(root=False)._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         self.update_positions(renderer)
         return Bbox.union([child.get_tightbbox(renderer)
                            for child in self.get_children()])
@@ -1469,7 +1469,7 @@ class DraggableBase:
         ]
 
     # A property, not an attribute, to maintain picklability.
-    canvas = property(lambda self: self.ref_artist.get_figure(root=False).canvas)
+    canvas = property(lambda self: self.ref_artist.get_figure(root=True).canvas)
     cids = property(lambda self: [
         disconnect.args[0] for disconnect in self._disconnectors[:2]])
 
@@ -1481,7 +1481,7 @@ class DraggableBase:
             if self._use_blit:
                 self.canvas.restore_region(self.background)
                 self.ref_artist.draw(
-                    self.ref_artist.get_figure(root=False)._get_renderer())
+                    self.ref_artist.get_figure(root=True)._get_renderer())
                 self.canvas.blit()
             else:
                 self.canvas.draw()
@@ -1536,7 +1536,7 @@ class DraggableOffsetBox(DraggableBase):
 
     def save_offset(self):
         offsetbox = self.offsetbox
-        renderer = offsetbox.get_figure(root=False)._get_renderer()
+        renderer = offsetbox.get_figure(root=True)._get_renderer()
         offset = offsetbox.get_offset(offsetbox.get_bbox(renderer), renderer)
         self.offsetbox_x, self.offsetbox_y = offset
         self.offsetbox.set_offset(offset)
@@ -1547,7 +1547,7 @@ class DraggableOffsetBox(DraggableBase):
 
     def get_loc_in_canvas(self):
         offsetbox = self.offsetbox
-        renderer = offsetbox.get_figure(root=False)._get_renderer()
+        renderer = offsetbox.get_figure(root=True)._get_renderer()
         bbox = offsetbox.get_bbox(renderer)
         ox, oy = offsetbox._offset
         loc_in_canvas = (ox + bbox.x0, oy + bbox.y0)

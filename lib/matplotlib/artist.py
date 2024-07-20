@@ -474,7 +474,7 @@ class Artist:
             # subclass-specific implementation follows
         """
         return (getattr(event, "canvas", None) is not None
-                and (fig := self.get_figure(root=False)) is not None
+                and (fig := self.get_figure(root=True)) is not None
                 and event.canvas is not fig.canvas)
 
     def contains(self, mouseevent):
@@ -527,7 +527,7 @@ class Artist:
             else:
                 inside, prop = self.contains(mouseevent)
             if inside:
-                PickEvent("pick_event", self.get_figure(root=False).canvas,
+                PickEvent("pick_event", self.get_figure(root=True).canvas,
                           mouseevent, self, **prop)._process()
 
         # Pick children

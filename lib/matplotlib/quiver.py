@@ -316,11 +316,11 @@ class QuiverKey(martist.Artist):
 
     @property
     def labelsep(self):
-        return self._labelsep_inches * self.Q.axes.get_figure(root=False).dpi
+        return self._labelsep_inches * self.Q.axes.get_figure(root=True).dpi
 
     def _init(self):
         if True:  # self._dpi_at_last_init != self.axes.get_figure().dpi
-            if self.Q._dpi_at_last_init != self.Q.axes.get_figure(root=False).dpi:
+            if self.Q._dpi_at_last_init != self.Q.axes.get_figure(root=True).dpi:
                 self.Q._init()
             self._set_transform()
             with cbook._setattr_cm(self.Q, pivot=self.pivot[self.labelpos],
@@ -341,7 +341,7 @@ class QuiverKey(martist.Artist):
                 self.vector.set_color(self.color)
             self.vector.set_transform(self.Q.get_transform())
             self.vector.set_figure(self.get_figure())
-            self._dpi_at_last_init = self.Q.axes.get_figure(root=False).dpi
+            self._dpi_at_last_init = self.Q.axes.get_figure(root=True).dpi
 
     def _text_shift(self):
         return {
@@ -519,11 +519,11 @@ class Quiver(mcollections.PolyCollection):
                 self.width = 0.06 * self.span / sn
 
             # _make_verts sets self.scale if not already specified
-            if (self._dpi_at_last_init != self.axes.get_figure(root=False).dpi
+            if (self._dpi_at_last_init != self.axes.get_figure(root=True).dpi
                     and self.scale is None):
                 self._make_verts(self.XY, self.U, self.V, self.angles)
 
-            self._dpi_at_last_init = self.axes.get_figure(root=False).dpi
+            self._dpi_at_last_init = self.axes.get_figure(root=True).dpi
 
     def get_datalim(self, transData):
         trans = self.get_transform()
@@ -580,7 +580,7 @@ class Quiver(mcollections.PolyCollection):
             'width': bb.width,
             'height': bb.height,
             'dots': 1.,
-            'inches': self.axes.get_figure(root=False).dpi,
+            'inches': self.axes.get_figure(root=True).dpi,
         }, units=units)
 
     def _set_transform(self):

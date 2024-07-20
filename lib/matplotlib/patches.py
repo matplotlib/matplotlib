@@ -4596,7 +4596,7 @@ class ConnectionPatch(FancyArrowPatch):
                 return self._get_xy(self.xy, 'data')
             return (
                 self._get_xy(self.xy, self.xycoords)  # converted data point
-                + xy * self.get_figure(root=False).dpi / 72)  # converted offset
+                + xy * self.get_figure(root=True).dpi / 72)  # converted offset
         elif s == 'polar':
             theta, r = x, y
             x = r * np.cos(theta)

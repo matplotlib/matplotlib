@@ -174,7 +174,7 @@ class Spine(mpatches.Patch):
             else:
                 padout = 0.5
                 padin = 0.5
-            dpi = self.get_figure(root=False).dpi
+            dpi = self.get_figure(root=True).dpi
             padout = padout * tickl / 72 * dpi
             padin = padin * tickl / 72 * dpi
 

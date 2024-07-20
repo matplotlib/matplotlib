@@ -27,7 +27,7 @@ import matplotlib.transforms as mtransforms
 
 
 def _contour_labeler_event_handler(cs, inline, inline_spacing, event):
-    canvas = cs.axes.get_figure(root=False).canvas
+    canvas = cs.axes.get_figure(root=True).canvas
     is_button = event.name == "button_press_event"
     is_key = event.name == "key_press_event"
     # Quit (even if not in infinite mode; this is consistent with
@@ -224,7 +224,7 @@ class ContourLabeler:
     def _get_nth_label_width(self, nth):
         """Return the width of the *nth* label, in pixels."""
         fig = self.axes.get_figure(root=False)
-        renderer = fig._get_renderer()
+        renderer = fig.get_figure(root=True)._get_renderer()
         return (Text(0, 0,
                      self.get_text(self.labelLevelList[nth], self.labelFmt),
                      figure=fig, fontproperties=self._label_font_props)

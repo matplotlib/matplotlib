@@ -989,15 +989,16 @@ default: None
 
     if isinstance(num, FigureBase):
         # type narrowed to `Figure | SubFigure` by combination of input and isinstance
-        if num.canvas.manager is None:
+        root_fig = num.get_figure(root=True)
+        if root_fig.canvas.manager is None:
             raise ValueError("The passed figure is not managed by pyplot")
         elif any([figsize, dpi, facecolor, edgecolor, not frameon,
-                  kwargs]) and num.canvas.manager.num in allnums:
+                  kwargs]) and root_fig.canvas.manager.num in allnums:
             _api.warn_external(
-                "Ignoring specified arguments in this call "
-                f"because figure with num: {num.canvas.manager.num} already exists")
-        _pylab_helpers.Gcf.set_active(num.canvas.manager)
-        return num.get_figure(root=True)
+                "Ignoring specified arguments in this call because figure "
+                f"with num: {root_fig.canvas.manager.num} already exists")
+        _pylab_helpers.Gcf.set_active(root_fig.canvas.manager)
+        return root_fig
 
     next_num = max(allnums) + 1 if allnums else 1
     fig_label = ''

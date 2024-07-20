@@ -57,7 +57,7 @@ def mock_event(ax, button=1, xdata=0, ydata=0, key=None, step=1):
                                                (xdata, ydata)])[0]
     event.xdata, event.ydata = xdata, ydata
     event.inaxes = ax
-    event.canvas = ax.get_figure(root=False).canvas
+    event.canvas = ax.get_figure(root=True).canvas
     event.key = key
     event.step = step
     event.guiEvent = None

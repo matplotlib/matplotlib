@@ -173,7 +173,7 @@ class Axes3D(Axes):
         self.fmt_zdata = None
 
         self.mouse_init()
-        fig = self.get_figure(root=False)
+        fig = self.get_figure(root=True)
         fig.canvas.callbacks._connect_picklable(
             'motion_notify_event', self._on_move)
         fig.canvas.callbacks._connect_picklable(
@@ -1365,7 +1365,7 @@ class Axes3D(Axes):
         if event.inaxes == self:
             self.button_pressed = event.button
             self._sx, self._sy = event.xdata, event.ydata
-            toolbar = self.get_figure(root=False).canvas.toolbar
+            toolbar = self.get_figure(root=True).canvas.toolbar
             if toolbar and toolbar._nav_stack() is None:
                 toolbar.push_current()
             if toolbar:
@@ -1373,7 +1373,7 @@ class Axes3D(Axes):
 
     def _button_release(self, event):
         self.button_pressed = None
-        toolbar = self.get_figure(root=False).canvas.toolbar
+        toolbar = self.get_figure(root=True).canvas.toolbar
         # backend_bases.release_zoom and backend_bases.release_pan call
         # push_current, so check the navigation mode so we don't call it twice
         if toolbar and self.get_navigate_mode() is None:
@@ -1606,7 +1606,7 @@ class Axes3D(Axes):
         # Store the event coordinates for the next time through.
         self._sx, self._sy = x, y
         # Always request a draw update at the end of interaction
-        self.get_figure(root=False).canvas.draw_idle()
+        self.get_figure(root=True).canvas.draw_idle()
 
     def drag_pan(self, button, key, x, y):
         # docstring inherited
@@ -3657,7 +3657,7 @@ class Axes3D(Axes):
         # them directly in planar form.
         quiversize = eb_cap_style.get('markersize',
                                       mpl.rcParams['lines.markersize']) ** 2
-        quiversize *= self.get_figure(root=False).dpi / 72
+        quiversize *= self.get_figure(root=True).dpi / 72
         quiversize = self.transAxes.inverted().transform([
             (0, 0), (quiversize, quiversize)])
         quiversize = np.mean(np.diff(quiversize, axis=0))

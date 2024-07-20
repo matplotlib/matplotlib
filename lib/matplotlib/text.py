@@ -373,7 +373,7 @@ class Text(Artist):
         _, lp_h, lp_d = _get_text_metrics_with_cache(
             renderer, "lp", self._fontproperties,
             ismath="TeX" if self.get_usetex() else False,
-            dpi=self.get_figure(root=False).dpi)
+            dpi=self.get_figure(root=True).dpi)
         min_dy = (lp_h - lp_d) * self._linespacing
 
         for i, line in enumerate(lines):
@@ -381,7 +381,7 @@ class Text(Artist):
             if clean_line:
                 w, h, d = _get_text_metrics_with_cache(
                     renderer, clean_line, self._fontproperties,
-                    ismath=ismath, dpi=self.get_figure(root=False).dpi)
+                    ismath=ismath, dpi=self.get_figure(root=True).dpi)
             else:
                 w = h = d = 0
 
@@ -935,8 +935,8 @@ class Text(Artist):
 
         dpi : float, optional
             The dpi value for computing the bbox, defaults to
-            ``self.get_figure().dpi`` (*not* the renderer dpi); should be set e.g. if
-            to match regions with a figure saved with a custom dpi value.
+            ``self.get_figure(root=True).dpi`` (*not* the renderer dpi); should be set
+            e.g. if to match regions with a figure saved with a custom dpi value.
         """
         if not self.get_visible():
             return Bbox.unit()
@@ -1533,12 +1533,12 @@ class _AnnotationBase:
 
         if unit == "points":
             tr = Affine2D().scale(
-                self.get_figure(root=False).dpi / 72)  # dpi/72 dots per point
+                self.get_figure(root=True).dpi / 72)  # dpi/72 dots per point
         elif unit == "pixels":
             tr = Affine2D()
         elif unit == "fontsize":
             tr = Affine2D().scale(
-                self.get_size() * self.get_figure(root=False).dpi / 72)
+                self.get_size() * self.get_figure(root=True).dpi / 72)
         elif unit == "fraction":
             tr = Affine2D().scale(*bbox0.size)
         else:
@@ -1576,7 +1576,7 @@ class _AnnotationBase:
     def _check_xy(self, renderer=None):
         """Check whether the annotation at *xy_pixel* should be drawn."""
         if renderer is None:
-            renderer = self.get_figure(root=False)._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         b = self.get_annotation_clip()
         if b or (b is None and self.xycoords == "data"):
             # check if self.xy is inside the Axes.
@@ -2009,7 +2009,7 @@ or callable, default: value of *xycoords*
         if renderer is not None:
             self._renderer = renderer
         if self._renderer is None:
-            self._renderer = self.get_figure(root=False)._get_renderer()
+            self._renderer = self.get_figure(root=True)._get_renderer()
         if self._renderer is None:
             raise RuntimeError('Cannot get window extent without renderer')
 

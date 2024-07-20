@@ -467,7 +467,7 @@ class Line2D(Artist):
         yt = xy[:, 1]
 
         # Convert pick radius from points to pixels
-        fig = self.get_figure(root=False)
+        fig = self.get_figure(root=True)
         if fig is None:
             _log.warning('no figure set when check if mouse is on line')
             pixels = self._pickradius
@@ -641,7 +641,7 @@ class Line2D(Artist):
                                  ignore=True)
         # correct for marker size, if any
         if self._marker:
-            ms = (self._markersize / 72.0 * self.get_figure(root=False).dpi) * 0.5
+            ms = (self._markersize / 72.0 * self.get_figure(root=True).dpi) * 0.5
             bbox = bbox.padded(ms)
         return bbox
 
@@ -1649,7 +1649,7 @@ class VertexSelector:
             'pick_event', self.onpick)
         self.ind = set()
 
-    canvas = property(lambda self: self.axes.get_figure(root=False).canvas)
+    canvas = property(lambda self: self.axes.get_figure(root=True).canvas)
 
     def process_selected(self, ind, xs, ys):
         """

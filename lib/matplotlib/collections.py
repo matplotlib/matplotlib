@@ -1001,7 +1001,7 @@ class _CollectionWithSizes(Collection):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        self.set_sizes(self._sizes, self.get_figure(root=False).dpi)
+        self.set_sizes(self._sizes, self.get_figure(root=True).dpi)
         super().draw(renderer)
 
 
@@ -1310,7 +1310,7 @@ class RegularPolyCollection(_CollectionWithSizes):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        self.set_sizes(self._sizes, self.get_figure(root=False).dpi)
+        self.set_sizes(self._sizes, self.get_figure(root=True).dpi)
         self._transforms = [
             transforms.Affine2D(x).rotate(-self._rotation).get_matrix()
             for x in self._transforms

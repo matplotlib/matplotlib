@@ -1660,7 +1660,7 @@ def test_polygon_selector_box(ax):
     # In order to trigger the correct callbacks, trigger events on the canvas
     # instead of the individual tools
     t = ax.transData
-    canvas = ax.get_figure(root=False).canvas
+    canvas = ax.get_figure(root=True).canvas
 
     # Scale to half size using the top right corner of the bounding box
     MouseEvent(
