@@ -4754,7 +4754,10 @@ def _draw_rasterized(figure, artists, renderer):
             self.artists = artists
 
         def get_figure(self, root=False):
-            return self.figure
+            if root:
+                return self.figure.get_figure(root=True)
+            else:
+                return self.figure
 
         @martist.allow_rasterization
         def draw(self, renderer):
