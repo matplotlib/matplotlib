@@ -64,7 +64,7 @@ jobs:
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
             # https://github.com/matplotlib/matplotlib/pull/26052#issuecomment-1574595954
             # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
-            pyqt6-ver: '!=6.5.1,!=6.6.0'
+            pyqt6-ver: '!=6.5.1,!=6.6.0,!=6.7.1'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
           - os: ubuntu-20.04
@@ -72,7 +72,7 @@ jobs:
             extra-requirements: '-r requirements/testing/extra.txt'
             # https://github.com/matplotlib/matplotlib/pull/26052#issuecomment-1574595954
             # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
-            pyqt6-ver: '!=6.5.1,!=6.6.0'
+            pyqt6-ver: '!=6.5.1,!=6.6.0,!=6.7.1'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
           - os: ubuntu-22.04
