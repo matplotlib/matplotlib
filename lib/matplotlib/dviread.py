@@ -507,7 +507,7 @@ class Dvi:
             self.fonts[k] = exc
             return
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
-            raise ValueError('tfm checksum mismatch: %s' % n)
+            raise ValueError(f'tfm checksum mismatch: {n}')
         try:
             vf = _vffile(fontname)
         except FileNotFoundError:
@@ -518,7 +518,7 @@ class Dvi:
     def _pre(self, i, num, den, mag, k):
         self.file.read(k)  # comment in the dvi file
         if i != 2:
-            raise ValueError("Unknown dvi format %d" % i)
+            raise ValueError(f"Unknown dvi format {i}")
         if num != 25400000 or den != 7227 * 2**16:
             raise ValueError("Nonstandard units in dvi file")
             # meaning: TeX always uses those exact values, so it
@@ -694,8 +694,7 @@ class Vf(Dvi):
                     raise ValueError("Packet length mismatch in vf file")
                 else:
                     if byte in (139, 140) or byte >= 243:
-                        raise ValueError(
-                            "Inappropriate opcode %d in vf file" % byte)
+                        raise ValueError(f"Inappropriate opcode {byte} in vf file")
                     Dvi._dtable[byte](self, byte)
                     continue
 
@@ -731,7 +730,7 @@ class Vf(Dvi):
             elif byte == 248:       # postamble (just some number of 248s)
                 break
             else:
-                raise ValueError("Unknown vf opcode %d" % byte)
+                raise ValueError(f"Unknown vf opcode {byte}")
 
     def _init_packet(self, pl):
         if self.state != _dvistate.outer:
@@ -755,7 +754,7 @@ class Vf(Dvi):
         if self.state is not _dvistate.pre:
             raise ValueError("pre command in middle of vf file")
         if i != 202:
-            raise ValueError("Unknown vf format %d" % i)
+            raise ValueError(f"Unknown vf format {i}")
         if len(x):
             _log.debug('vf file comment: %s', x)
         self.state = _dvistate.outer
