@@ -1597,7 +1597,7 @@ def subplots(
     subplot_kw: dict[str, Any] | None = ...,
     gridspec_kw: dict[str, Any] | None = ...,
     **fig_kw
-) -> tuple[Figure, Axes | np.ndarray]:
+) -> tuple[Figure, Any]:
     ...
 
 
