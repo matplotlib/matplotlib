@@ -271,7 +271,8 @@ class Dvi:
         Output the text and boxes belonging to the most recent page.
         page = dvi._output()
         """
-        minx, miny, maxx, maxy = np.inf, np.inf, -np.inf, -np.inf
+        minx = miny = np.inf
+        maxx = maxy = -np.inf
         maxy_pure = -np.inf
         for elt in self.text + self.boxes:
             if isinstance(elt, Box):
@@ -422,7 +423,7 @@ class Dvi:
     @_dispatch(139, state=_dvistate.outer, args=('s4',)*11)
     def _bop(self, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, p):
         self.state = _dvistate.inpage
-        self.h, self.v, self.w, self.x, self.y, self.z = 0, 0, 0, 0, 0, 0
+        self.h = self.v = self.w = self.x = self.y = self.z = 0
         self.stack = []
         self.text = []          # list of Text objects
         self.boxes = []         # list of Box objects
@@ -678,8 +679,8 @@ class Vf(Dvi):
         Read one page from the file. Return True if successful,
         False if there were no more pages.
         """
-        packet_char, packet_ends = None, None
-        packet_len, packet_width = None, None
+        packet_char = packet_ends = None
+        packet_len = packet_width = None
         while True:
             byte = self.file.read(1)[0]
             # If we are in a packet, execute the dvi instructions
@@ -687,7 +688,7 @@ class Vf(Dvi):
                 byte_at = self.file.tell()-1
                 if byte_at == packet_ends:
                     self._finalize_packet(packet_char, packet_width)
-                    packet_len, packet_char, packet_width = None, None, None
+                    packet_len = packet_char = packet_width = None
                     # fall through to out-of-packet code
                 elif byte_at > packet_ends:
                     raise ValueError("Packet length mismatch in vf file")
@@ -701,23 +702,31 @@ class Vf(Dvi):
             # We are outside a packet
             if byte < 242:          # a short packet (length given by byte)
                 packet_len = byte
-                packet_char, packet_width = self._arg(1), self._arg(3)
+                packet_char = self._arg(1)
+                packet_width = self._arg(3)
                 packet_ends = self._init_packet(byte)
                 self.state = _dvistate.inpage
             elif byte == 242:       # a long packet
-                packet_len, packet_char, packet_width = \
-                            [self._arg(x) for x in (4, 4, 4)]
+                packet_len = self._arg(4)
+                packet_char = self._arg(4)
+                packet_width = self._arg(4)
                 self._init_packet(packet_len)
             elif 243 <= byte <= 246:
                 k = self._arg(byte - 242, byte == 246)
-                c, s, d, a, l = [self._arg(x) for x in (4, 4, 4, 1, 1)]
+                c = self._arg(4)
+                s = self._arg(4)
+                d = self._arg(4)
+                a = self._arg(1)
+                l = self._arg(1)
                 self._fnt_def_real(k, c, s, d, a, l)
                 if self._first_font is None:
                     self._first_font = k
             elif byte == 247:       # preamble
-                i, k = self._arg(1), self._arg(1)
+                i = self._arg(1)
+                k = self._arg(1)
                 x = self.file.read(k)
-                cs, ds = self._arg(4), self._arg(4)
+                cs = self._arg(4)
+                ds = self._arg(4)
                 self._pre(i, x, cs, ds)
             elif byte == 248:       # postamble (just some number of 248s)
                 break
@@ -727,8 +736,10 @@ class Vf(Dvi):
     def _init_packet(self, pl):
         if self.state != _dvistate.outer:
             raise ValueError("Misplaced packet in vf file")
-        self.h, self.v, self.w, self.x, self.y, self.z = 0, 0, 0, 0, 0, 0
-        self.stack, self.text, self.boxes = [], [], []
+        self.h = self.v = self.w = self.x = self.y = self.z = 0
+        self.stack = []
+        self.text = []
+        self.boxes = []
         self.f = self._first_font
         self._missing_font = None
         return self.file.tell() + pl
@@ -794,7 +805,9 @@ class Tfm:
             widths = struct.unpack(f'!{nw}i', file.read(4*nw))
             heights = struct.unpack(f'!{nh}i', file.read(4*nh))
             depths = struct.unpack(f'!{nd}i', file.read(4*nd))
-        self.width, self.height, self.depth = {}, {}, {}
+        self.width = {}
+        self.height = {}
+        self.depth = {}
         for idx, char in enumerate(range(bc, ec+1)):
             byte0 = char_info[4*idx]
             byte1 = char_info[4*idx+1]
