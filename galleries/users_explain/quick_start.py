@@ -1,6 +1,3 @@
-import matplotlib.pyplot as plt
-import numpy as np
-
 """
 .. redirect-from:: /tutorials/introductory/usage
 .. redirect-from:: /tutorials/introductory/quick_start
@@ -30,6 +27,9 @@ help you get started with Matplotlib.
 # creating a Figure with an Axes is using `.pyplot.subplots`. We can then use
 # `.Axes.plot` to draw some data on the Axes, and `~.pyplot.show` to display
 # the figure:
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 fig, ax = plt.subplots()             # Create a figure containing a single Axes.
 ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the Axes.
