@@ -37,11 +37,11 @@ Running the tests
 
 In the root directory of your development repository run::
 
-   python -m pytest
+   pytest
 
 
-pytest can be configured via a lot of `command-line parameters`_. Some
-particularly useful ones are:
+``pytest`` can be configured via many :external+pytest:doc:`command-line parameters
+<how-to/usage>`. Some particularly useful ones are:
 
 =============================  ===========
 ``-v`` or ``--verbose``        Be more verbose
@@ -50,14 +50,49 @@ particularly useful ones are:
 ``--capture=no`` or ``-s``     Do not capture stdout
 =============================  ===========
 
-To run a single test from the command line, you can provide a file path,
-optionally followed by the function separated by two colons, e.g., (tests do
-not need to be installed, but Matplotlib should be)::
+To run a single test from the command line, you can provide a file path, optionally
+followed by the function separated by two colons, e.g., (tests do not need to be
+installed, but Matplotlib should be)::
 
   pytest lib/matplotlib/tests/test_simplification.py::test_clipping
 
+If you want to use ``pytest`` as a module (via ``python -m pytest``), then you will need
+to avoid clashes between ``pytest``'s import mode and Python's search path:
 
-.. _command-line parameters: http://doc.pytest.org/en/latest/usage.html
+- On more recent Python, you may :external+python:std:option:`disable "unsafe import
+  paths" <-P>` (i.e., stop adding the current directory to the import path) with the
+  ``-P`` argument::
+
+      python -P -m pytest
+
+- On older Python, you may enable :external+python:std:option:`isolated mode <-I>`
+  (which stops adding the current directory to the import path, but has other
+  repercussions)::
+
+      python -I -m pytest
+
+- On any Python, set ``pytest``'s :external+pytest:doc:`import mode
+  <explanation/pythonpath>` to the older ``prepend`` mode (but note that this will break
+  ``pytest``'s assert rewriting)::
+
+      python -m pytest --import-mode prepend
+
+Viewing image test output
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The output of :ref:`image-based <image-comparison>` tests is stored in a
+``result_images`` directory. These images can be compiled into one HTML page, containing
+hundreds of images, using the ``visualize_tests`` tool::
+
+    python tools/visualize_tests.py
+
+Image test failures can also be analysed using the ``triage_tests`` tool::
+
+    python tools/triage_tests.py
+
+The triage tool allows you to accept or reject test failures and will copy the new image
+to the folder where the baseline test images are stored. The triage tool requires that
+:ref:`QT <backend_dependencies>` is installed.
 
 
 Writing a simple test
@@ -94,7 +129,9 @@ For numpy's default random number generator use::
 
 and then use ``rng`` when generating the random numbers.
 
-The seed is John Hunter's birthday.
+The seed is :ref:`John Hunter's <project_history>` birthday.
+
+.. _image-comparison:
 
 Writing an image comparison test
 --------------------------------
@@ -122,6 +159,16 @@ case :file:`lib/matplotlib/tests/baseline_images/test_lines`).  Put this new
 file under source code revision control (with ``git add``).  When rerunning
 the tests, they should now pass.
 
+It is preferred that new tests use ``style='mpl20'`` as this leads to smaller
+figures and reflects the newer look of default Matplotlib plots. Also, if the
+texts (labels, tick labels, etc) are not really part of what is tested, use
+``remove_text=True`` as this will lead to smaller figures and reduce possible
+issues with font mismatch on different platforms.
+
+
+Compare two methods of creating an image
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Baseline images take a lot of space in the Matplotlib repository.
 An alternative approach for image comparison tests is to use the
 `~matplotlib.testing.decorators.check_figures_equal` decorator, which should be
@@ -130,11 +177,37 @@ images on the figures using two different methods (the tested method and the
 baseline method).  The decorator will arrange for setting up the figures and
 then collect the drawn results and compare them.
 
-It is preferred that new tests use ``style='mpl20'`` as this leads to smaller
-figures and reflects the newer look of default Matplotlib plots. Also, if the
-texts (labels, tick labels, etc) are not really part of what is tested, use
-``remove_text=True`` as this will lead to smaller figures and reduce possible
-issues with font mismatch on different platforms.
+For example, this test compares two different methods to draw the same
+circle: plotting a circle using a `matplotlib.patches.Circle` patch
+vs plotting the circle using the parametric equation of a circle ::
+
+   from matplotlib.testing.decorators import check_figures_equal
+   import matplotlib.patches as mpatches
+   import matplotlib.pyplot as plt
+   import numpy as np
+
+   @check_figures_equal()
+   def test_parametric_circle_plot(fig_test, fig_ref):
+
+       xo, yo= (.5, .5)
+       radius = 0.4
+
+       ax_test = fig_test.subplots()
+       theta = np.linspace(0, 2 * np.pi, 150)
+       l, = ax_test.plot(xo + (radius * np.cos(theta)),
+                         yo + (radius * np.sin(theta)), c='r')
+
+       ax_ref = fig_ref.subplots()
+       red_circle_ref = mpatches.Circle((xo, yo), radius, ec='r', fc='none',
+                                        lw=l.get_linewidth())
+       ax_ref.add_artist(red_circle_ref)
+
+       for ax in [ax_ref, ax_test]:
+           ax.set(xlim=(0,1), ylim=(0,1), aspect='equal')
+
+Both comparison decorators have a tolerance argument ``tol`` that is used to specify the
+tolerance for difference in color value between the two images, where 255 is the maximal
+difference. The test fails if the average pixel difference is greater than this value.
 
 See the documentation of `~matplotlib.testing.decorators.image_comparison` and
 `~matplotlib.testing.decorators.check_figures_equal` for additional information
@@ -179,7 +252,7 @@ Using tox
 
 `Tox <https://tox.readthedocs.io/en/latest/>`_ is a tool for running tests
 against multiple Python environments, including multiple versions of Python
-(e.g., 3.7, 3.8) and even different Python implementations altogether
+(e.g., 3.10, 3.11) and even different Python implementations altogether
 (e.g., CPython, PyPy, Jython, etc.), as long as all these versions are
 available on your system's $PATH (consider using your system package manager,
 e.g. apt-get, yum, or Homebrew, to install them).
@@ -196,7 +269,7 @@ You can also run tox on a subset of environments:
 
 .. code-block:: bash
 
-    $ tox -e py38,py39
+    $ tox -e py310,py311
 
 Tox processes everything serially so it can take a long time to test
 several environments. To speed it up, you might try using a new,
@@ -253,16 +326,17 @@ The correct target folder can be found using::
 
     python -c "import matplotlib.tests; print(matplotlib.tests.__file__.rsplit('/', 1)[0])"
 
-An analogous copying of :file:`lib/mpl_toolkits/tests/baseline_images`
+An analogous copying of :file:`lib/mpl_toolkits/*/tests/baseline_images`
 is necessary for testing ``mpl_toolkits``.
 
 Run the tests
 ^^^^^^^^^^^^^
-To run the all the tests on your installed version of Matplotlib::
 
-    python -m pytest --pyargs matplotlib.tests
+To run all the tests on your installed version of Matplotlib::
+
+    pytest --pyargs matplotlib.tests
 
 The test discovery scope can be narrowed to single test modules or even single
 functions::
 
-    python -m pytest --pyargs matplotlib.tests.test_simplification.py::test_clipping
+    pytest --pyargs matplotlib.tests.test_simplification.py::test_clipping

@@ -49,7 +49,7 @@ class RibbonBoxImage(AxesImage):
         self._ribbonbox = RibbonBox(color)
         self.set_transform(BboxTransformTo(bbox))
 
-    def draw(self, renderer, *args, **kwargs):
+    def draw(self, renderer):
         stretch_factor = self._bbox.height / self._bbox.width
 
         ny = int(stretch_factor*self._ribbonbox.nx)
@@ -57,7 +57,7 @@ class RibbonBoxImage(AxesImage):
             arr = self._ribbonbox.get_stretched_image(stretch_factor)
             self.set_array(arr)
 
-        super().draw(renderer, *args, **kwargs)
+        super().draw(renderer)
 
 
 def main():

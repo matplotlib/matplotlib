@@ -1,4 +1,5 @@
 from io import BytesIO
+import platform
 
 import numpy as np
 
@@ -43,7 +44,8 @@ def test_bbox_inches_tight():
 
 
 @image_comparison(['bbox_inches_tight_suptile_legend'],
-                  savefig_kwarg={'bbox_inches': 'tight'})
+                  savefig_kwarg={'bbox_inches': 'tight'},
+                  tol=0.02 if platform.machine() == 'arm64' else 0)
 def test_bbox_inches_tight_suptile_legend():
     plt.plot(np.arange(10), label='a straight line')
     plt.legend(bbox_to_anchor=(0.9, 1), loc='upper left')
@@ -141,8 +143,7 @@ def test_noop_tight_bbox():
     dpi = 100
     # make the figure just the right size up front
     fig = plt.figure(frameon=False, dpi=dpi, figsize=(x_size/dpi, y_size/dpi))
-    ax = plt.Axes(fig, [0., 0., 1., 1.])
-    fig.add_axes(ax)
+    ax = fig.add_axes((0, 0, 1, 1))
     ax.set_axis_off()
     ax.xaxis.set_visible(False)
     ax.yaxis.set_visible(False)

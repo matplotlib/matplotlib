@@ -34,10 +34,10 @@ Install
         .. toctree::
             :maxdepth: 2
 
-            users/installing/index
+            install/index
 
 For more detailed instructions, see the
-:doc:`installation guide <users/installing/index>`.
+:doc:`installation guide <install/index>`.
 
 Learn
 =====
@@ -56,7 +56,7 @@ Learn
             users/explain/quick_start
             User guide <users/index.rst>
             tutorials/index.rst
-            users/faq/index.rst
+            users/faq.rst
 
     .. grid-item-card::
         :padding: 2
@@ -172,4 +172,4 @@ About us
         .. toctree::
             :maxdepth: 2
 
-            users/project/index.rst
+            project/index.rst

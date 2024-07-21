@@ -1,0 +1,781 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "allOf": [
+    {
+      "$ref": "#/definitions/job"
+    }
+  ],
+  "definitions": {
+    "possiblySecretString": {
+      "anyOf": [
+        {
+          "type": "string",
+          "description": "This value will be used directly (regular string)"
+        },
+        {
+          "type": "number",
+          "description": "This value will be treated as a string even though it is a number"
+        },
+        {
+          "title": "secret string",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "secure": {
+              "type": "string",
+              "description": "This should have been encrypted by the same user account to which the project belongs"
+            }
+          }
+        }
+      ]
+    },
+    "commitFilter": {
+      "title": "commit filter",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "message": {
+          "type": "string",
+          "format": "regex",
+          "description": "Regex for matching commit message"
+        },
+        "author": {
+          "description": "Commit author's username, name, email or regexp matching one of these.",
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "regex"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "files": {
+          "type": "array",
+          "description": "Only specific files (glob patterns)",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "command": {
+      "title": "command",
+      "oneOf": [
+        {
+          "type": "string",
+          "description": "Run a batch command"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ps": {
+              "type": "string",
+              "description": "Run a PowerShell command"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "pwsh": {
+              "type": "string",
+              "description": "Run a PowerShell Core command"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "description": "Run a batch command",
+          "additionalProperties": false,
+          "properties": {
+            "cmd": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "description": "Run a Bash command",
+          "additionalProperties": false,
+          "properties": {
+            "sh": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "envVarHash": {
+      "title": "environment variable hash",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/possiblySecretString"
+      }
+    },
+    "platform": {
+      "enum": ["x86", "x64", "ARM", "ARM64", "Win32", "Any CPU"]
+    },
+    "configuration": {
+      "type": "string"
+    },
+    "imageName": {
+      "enum": [
+        "macOS",
+        "macOS-Mojave",
+        "macos-bigsur",
+        "macos-monterey",
+        "Previous macOS",
+        "Previous macOS-Mojave",
+        "Ubuntu",
+        "Ubuntu1604",
+        "Ubuntu1804",
+        "Ubuntu2004",
+        "Ubuntu2204",
+        "Previous Ubuntu",
+        "Previous Ubuntu1604",
+        "Previous Ubuntu1804",
+        "Previous Ubuntu2004",
+        "Visual Studio 2013",
+        "Visual Studio 2015",
+        "Visual Studio 2017",
+        "Visual Studio 2019",
+        "Visual Studio 2022",
+        "Visual Studio 2017 Preview",
+        "Visual Studio 2019 Preview",
+        "Previous Visual Studio 2013",
+        "Previous Visual Studio 2015",
+        "Previous Visual Studio 2017",
+        "Previous Visual Studio 2019",
+        "Previous Visual Studio 2022",
+        "zhaw18",
+        "WMF 5"
+      ]
+    },
+    "image": {
+      "description": "Build worker image (VM template) -DEV_VERSION",
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/imageName"
+          }
+        },
+        {
+          "$ref": "#/definitions/imageName"
+        }
+      ]
+    },
+    "jobScalars": {
+      "title": "job scalars",
+      "type": "object",
+      "properties": {
+        "image": {
+          "$ref": "#/definitions/image"
+        },
+        "platform": {
+          "description": "Build platform, i.e. x86, x64, Any CPU. This setting is optional",
+          "oneOf": [
+            {
+              "$ref": "#/definitions/platform"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/platform"
+              }
+            }
+          ]
+        },
+        "configuration": {
+          "description": "Build Configuration, i.e. Debug, Release, etc.",
+          "oneOf": [
+            {
+              "$ref": "#/definitions/configuration"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/configuration"
+              }
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "not": {
+            "required": ["skip_tags"]
+          }
+        },
+        {
+          "not": {
+            "required": ["skip_commits"]
+          }
+        },
+        {
+          "not": {
+            "required": ["skip_branch_with_pr"]
+          }
+        },
+        {
+          "not": {
+            "required": ["skip_non_tags"]
+          }
+        }
+      ]
+    },
+    "job": {
+      "title": "job",
+      "type": "object",
+      "properties": {
+        "version": {
+          "description": "Version format",
+          "type": "string"
+        },
+        "branches": {
+          "title": "branch options",
+          "type": "object",
+          "description": "Branches to build",
+          "additionalProperties": false,
+          "properties": {
+            "only": {
+              "description": "Whitelist",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "except": {
+              "type": "array",
+              "description": "Blacklist",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "skip_tags": {
+          "type": "boolean",
+          "description": "Do not build on tags (GitHub and BitBucket)"
+        },
+        "skip_non_tags": {
+          "type": "boolean",
+          "description": "Start builds on tags only (GitHub and BitBucket)"
+        },
+        "skip_commits": {
+          "$ref": "#/definitions/commitFilter",
+          "description": "Skipping commits with particular message or from specific user"
+        },
+        "only_commits": {
+          "$ref": "#/definitions/commitFilter",
+          "description": "Including commits with particular message or from specific user"
+        },
+        "skip_branch_with_pr": {
+          "type": "boolean",
+          "description": "Do not build feature branch with open Pull Requests"
+        },
+        "max_jobs": {
+          "description": "Maximum number of concurrent jobs for the project",
+          "type": "integer"
+        },
+        "notifications": {
+          "type": "array",
+          "items": {
+            "title": "notification",
+            "type": "object"
+          }
+        },
+        "image": {
+          "$ref": "#/definitions/image"
+        },
+        "init": {
+          "description": "Scripts that are called at very beginning, before repo cloning",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/command"
+          }
+        },
+        "clone_folder": {
+          "type": "string",
+          "description": "Clone directory"
+        },
+        "shallow_clone": {
+          "type": "boolean",
+          "description": "Fetch repository as zip archive",
+          "default": false
+        },
+        "clone_depth": {
+          "description": "Set git clone depth",
+          "type": "integer"
+        },
+        "hosts": {
+          "title": "host options",
+          "type": "object",
+          "description": "Setting up etc\\hosts file",
+          "additionalProperties": {
+            "type": "string",
+            "anyOf": [
+              {
+                "format": "ipv4"
+              },
+              {
+                "format": "ipv6"
+              }
+            ]
+          }
+        },
+        "environment": {
+          "description": "Environment variables",
+          "anyOf": [
+            {
+              "title": "environment options",
+              "type": "object",
+              "properties": {
+                "global": {
+                  "$ref": "#/definitions/envVarHash",
+                  "description": "variables defined here are no different than those defined at top level of 'environment' node"
+                },
+                "matrix": {
+                  "type": "array",
+                  "description": "an array of environment variables, each member of which is one dimension in the build matrix calculation",
+                  "items": {
+                    "$ref": "#/definitions/envVarHash"
+                  }
+                }
+              }
+            },
+            {
+              "$ref": "#/definitions/envVarHash"
+            }
+          ]
+        },
+        "matrix": {
+          "title": "matrix options",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "fast_finish": {
+              "type": "boolean",
+              "description": "Set this flag to immediately finish build once one of the jobs fails"
+            },
+            "allow_failures": {
+              "type": "array",
+              "description": "This is how to allow failing jobs in the matrix",
+              "items": {
+                "$ref": "#/definitions/jobScalars"
+              }
+            },
+            "exclude": {
+              "type": "array",
+              "description": "Exclude configuration from the matrix. Works similarly to 'allow_failures' but build not even being started for excluded combination.",
+              "items": {
+                "$ref": "#/definitions/job"
+              }
+            }
+          }
+        },
+        "cache": {
+          "type": "array",
+          "description": "Build cache to preserve files/folders between builds",
+          "items": {
+            "type": "string"
+          }
+        },
+        "services": {
+          "type": "array",
+          "description": "Enable service required for build/tests",
+          "items": {
+            "enum": [
+              "docker",
+              "iis",
+              "mongodb",
+              "msmq",
+              "mssql",
+              "mssql2008r2sp2",
+              "mssql2008r2sp2rs",
+              "mssql2012sp1",
+              "mssql2012sp1rs",
+              "mssql2014",
+              "mssql2014rs",
+              "mssql2016",
+              "mssql2017",
+              "mysql",
+              "postgresql",
+              "postgresql93",
+              "postgresql94",
+              "postgresql95",
+              "postgresql96",
+              "postgresql10",
+              "postgresql11",
+              "postgresql12",
+              "postgresql13"
+            ]
+          }
+        },
+        "install": {
+          "description": "Scripts that run after cloning repository",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/command"
+          }
+        },
+        "assembly_info": {
+          "title": "assembly options",
+          "type": "object",
+          "description": "Enable patching of AssemblyInfo.* files",
+          "additionalProperties": false,
+          "properties": {
+            "patch": {
+              "type": "boolean"
+            },
+            "file": {
+              "type": "string"
+            },
+            "assembly_version": {
+              "type": "string"
+            },
+            "assembly_file_version": {
+              "type": "string"
+            },
+            "assembly_informational_version": {
+              "type": "string"
+            }
+          }
+        },
+        "nuget": {
+          "title": "NuGet options",
+          "type": "object",
+          "description": "Automatically register private account and/or project AppVeyor NuGet feeds",
+          "properties": {
+            "account_feed": {
+              "type": "boolean"
+            },
+            "project_feed": {
+              "type": "boolean"
+            },
+            "disable_publish_on_pr": {
+              "type": "boolean",
+              "description": "Disable publishing of .nupkg artifacts to account/project feeds for pull request builds"
+            }
+          }
+        },
+        "platform": {
+          "description": "Build platform, i.e. x86, x64, Any CPU. This setting is optional",
+          "oneOf": [
+            {
+              "$ref": "#/definitions/platform"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/platform"
+              }
+            }
+          ]
+        },
+        "configuration": {
+          "description": "Build Configuration, i.e. Debug, Release, etc.",
+          "oneOf": [
+            {
+              "$ref": "#/definitions/configuration"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/configuration"
+              }
+            }
+          ]
+        },
+        "build": {
+          "oneOf": [
+            {
+              "type": "boolean",
+              "enum": [false]
+            },
+            {
+              "title": "build options",
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "parallel": {
+                  "type": "boolean",
+                  "description": "Enable MSBuild parallel builds"
+                },
+                "project": {
+                  "type": "string",
+                  "description": "Path to Visual Studio solution or project"
+                },
+                "publish_wap": {
+                  "type": "boolean",
+                  "description": "Package Web Application Projects (WAP) for Web Deploy"
+                },
+                "publish_wap_xcopy": {
+                  "type": "boolean",
+                  "description": "Package Web Application Projects (WAP) for XCopy deployment"
+                },
+                "publish_wap_beanstalk": {
+                  "type": "boolean",
+                  "description": "Package Web Applications for AWS Elastic Beanstalk deployment"
+                },
+                "publish_wap_octopus": {
+                  "type": "boolean",
+                  "description": "Package Web Applications for Octopus deployment"
+                },
+                "publish_azure_webjob": {
+                  "type": "boolean",
+                  "description": "Package Azure WebJobs for Zip Push deployment"
+                },
+                "publish_azure": {
+                  "type": "boolean",
+                  "description": "Package Azure Cloud Service projects and push to artifacts"
+                },
+                "publish_aspnet_core": {
+                  "type": "boolean",
+                  "description": "Package ASP.NET Core projects"
+                },
+                "publish_core_console": {
+                  "type": "boolean",
+                  "description": "Package .NET Core console projects"
+                },
+                "publish_nuget": {
+                  "type": "boolean",
+                  "description": "Package projects with .nuspec files and push to artifacts"
+                },
+                "publish_nuget_symbols": {
+                  "type": "boolean",
+                  "description": "Generate and publish NuGet symbol packages"
+                },
+                "include_nuget_references": {
+                  "type": "boolean",
+                  "description": "Add -IncludeReferencedProjects option while packaging NuGet artifacts"
+                },
+                "verbosity": {
+                  "enum": ["quiet", "minimal", "normal", "detailed"],
+                  "description": "MSBuild verbosity level"
+                }
+              }
+            }
+          ]
+        },
+        "before_build": {
+          "description": "Scripts to run before build",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/command"
+          }
+        },
+        "before_package": {
+          "description": "Scripts to run *after* solution is built and *before* automatic packaging occurs (web apps, NuGet packages, Azure Cloud Services)",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/command"
+          }
+        },
+        "after_build": {
+          "description": "Scripts to run after build",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/command"
+          }
+        },
+        "build_script": {
+          "description": "To run your custom scripts instead of automatic MSBuild",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/command"
+          }
+        },
+        "before_test": {
+          "description": "Scripts to run before tests",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/command"
+          }
+        },
+        "test": {
+          "oneOf": [
+            {
+              "type": "boolean",
+              "enum": [false],
+              "description": "To disable automatic tests"
+            },
+            {
+              "title": "test options",
+              "description": "To run tests again only selected assemblies and/or categories",
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "assemblies": {
+                  "title": "assembly options",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "only": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "except": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "categories": {
+                  "oneOf": [
+                    {
+                      "title": "category options",
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "only": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "except": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "description": "To run tests from different categories as separate jobs in parallel",
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "A category common for all jobs"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "test_script": {
+          "description": "To run your custom scripts instead of automatic tests",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/command"
+          }
+        },
+        "after_test": {
+          "type": "array",
+          "description": "Scripts to run after tests",
+          "items": {
+            "$ref": "#/definitions/command"
+          }
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "title": "artifact options",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "Auto",
+                  "WebDeployPackage",
+                  "NuGetPackage",
+                  "AzureCloudService",
+                  "AzureCloudServiceConfig",
+                  "SsdtPackage",
+                  "Zip",
+                  "File"
+                ]
+              }
+            },
+            "required": ["path"]
+          }
+        },
+        "before_deploy": {
+          "type": "array",
+          "description": "Scripts to run before deployment",
+          "items": {
+            "$ref": "#/definitions/command"
+          }
+        },
+        "deploy": {
+          "oneOf": [
+            {
+              "enum": ["off"]
+            },
+            {
+              "type": "array",
+              "items": {
+                "title": "deployment options",
+                "type": "object"
+              }
+            }
+          ]
+        },
+        "deploy_script": {
+          "description": "To run your custom scripts instead of provider deployments",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/command"
+          }
+        },
+        "after_deploy": {
+          "type": "array",
+          "description": "Scripts to run after deployment",
+          "items": {
+            "$ref": "#/definitions/command"
+          }
+        },
+        "on_success": {
+          "type": "array",
+          "description": "On successful build",
+          "items": {
+            "$ref": "#/definitions/command"
+          }
+        },
+        "on_failure": {
+          "type": "array",
+          "description": "On build failure",
+          "items": {
+            "$ref": "#/definitions/command"
+          }
+        },
+        "on_finish": {
+          "type": "array",
+          "description": "After build failure or success",
+          "items": {
+            "$ref": "#/definitions/command"
+          }
+        }
+      }
+    }
+  },
+  "id": "https://json.schemastore.org/appveyor.json",
+  "title": "JSON schema for AppVeyor CI configuration files"
+}

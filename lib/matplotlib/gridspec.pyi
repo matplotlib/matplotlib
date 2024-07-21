@@ -5,7 +5,7 @@ import numpy as np
 
 from matplotlib.axes import Axes, SubplotBase
 from matplotlib.backend_bases import RendererBase
-from matplotlib.figure import Figure, SubplotParams
+from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
 
 class GridSpecBase:
@@ -30,7 +30,7 @@ class GridSpecBase:
     def set_height_ratios(self, height_ratios: ArrayLike | None) -> None: ...
     def get_height_ratios(self) -> ArrayLike: ...
     def get_grid_positions(
-        self, fig: Figure, raw: bool = ...
+        self, fig: Figure
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: ...
     @staticmethod
     def _check_gridspec_exists(figure: Figure, nrows: int, ncols: int) -> GridSpec: ...
@@ -54,7 +54,7 @@ class GridSpecBase:
         sharey: bool | Literal["all", "row", "col", "none"] = ...,
         squeeze: Literal[True] = ...,
         subplot_kw: dict[str, Any] | None = ...
-    ) -> np.ndarray | SubplotBase | Axes: ...
+    ) -> np.ndarray | Axes: ...
 
 class GridSpec(GridSpecBase):
     left: float | None
@@ -132,3 +132,29 @@ class SubplotSpec:
     def subgridspec(
         self, nrows: int, ncols: int, **kwargs
     ) -> GridSpecFromSubplotSpec: ...
+
+class SubplotParams:
+    def __init__(
+        self,
+        left: float | None = ...,
+        bottom: float | None = ...,
+        right: float | None = ...,
+        top: float | None = ...,
+        wspace: float | None = ...,
+        hspace: float | None = ...,
+    ) -> None: ...
+    left: float
+    right: float
+    bottom: float
+    top: float
+    wspace: float
+    hspace: float
+    def update(
+        self,
+        left: float | None = ...,
+        bottom: float | None = ...,
+        right: float | None = ...,
+        top: float | None = ...,
+        wspace: float | None = ...,
+        hspace: float | None = ...,
+    ) -> None: ...

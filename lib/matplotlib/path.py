@@ -697,6 +697,9 @@ class Path:
         be simplified so that vertices outside of (0, 0), (width,
         height) will be clipped.
 
+        The resulting polygons will be simplified if the
+        :attr:`Path.should_simplify` attribute of the path is `True`.
+
         If *closed_only* is `True` (default), only closed polygons,
         with the last point being the same as the first point, will be
         returned.  Any unclosed polylines in the path will be
@@ -1063,6 +1066,7 @@ def get_path_collection_extents(
         Global transformation applied to all paths.
     paths : list of `Path`
     transforms : list of `~matplotlib.transforms.Affine2DBase`
+        If non-empty, this overrides *master_transform*.
     offsets : (N, 2) array-like
     offset_transform : `~matplotlib.transforms.Affine2DBase`
         Transform applied to the offsets before offsetting the path.

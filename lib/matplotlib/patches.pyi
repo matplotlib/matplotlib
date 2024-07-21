@@ -181,7 +181,14 @@ class Arrow(Patch):
     def __init__(
         self, x: float, y: float, dx: float, dy: float, *, width: float = ..., **kwargs
     ) -> None: ...
-
+    def set_data(
+        self,
+        x: float | None = ...,
+        y: float | None = ...,
+        dx: float | None = ...,
+        dy: float | None = ...,
+        width: float | None = ...,
+    ) -> None: ...
 class FancyArrow(Polygon):
     def __init__(
         self,
@@ -455,9 +462,6 @@ class BoxStyle(_Style):
 
 class ConnectionStyle(_Style):
     class _Base(ConnectionStyle):
-        class SimpleEvent:
-            def __init__(self, xy: tuple[float, float]) -> None: ...
-
         def __call__(
             self,
             posA: tuple[float, float],

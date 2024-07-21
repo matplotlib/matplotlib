@@ -29,14 +29,17 @@ def _generate_deprecation_warning(
             raise ValueError(
                 "A pending deprecation cannot have a scheduled removal")
     else:
-        removal = f"in {removal}" if removal else "two minor releases later"
+        if not removal:
+            macro, meso, *_ = since.split('.')
+            removal = f'{macro}.{int(meso) + 2}'
+        removal = f"in {removal}"
     if not message:
         message = (
             ("The %(name)s %(obj_type)s" if obj_type else "%(name)s")
             + (" will be deprecated in a future version"
                if pending else
-               (" was deprecated in Matplotlib %(since)s"
-                + (" and will be removed %(removal)s" if removal else "")))
+               " was deprecated in Matplotlib %(since)s and will be removed %(removal)s"
+               )
             + "."
             + (" Use %(alternative)s instead." if alternative else "")
             + (" %(addendum)s" if addendum else ""))
@@ -434,7 +437,8 @@ def make_keyword_only(since, name, func=None):
     assert (name in signature.parameters
             and signature.parameters[name].kind == POK), (
         f"Matplotlib internal error: {name!r} must be a positional-or-keyword "
-        f"parameter for {func.__name__}()")
+        f"parameter for {func.__name__}(). If this error happens on a function with a "
+        f"pyplot wrapper, make sure make_keyword_only() is the outermost decorator.")
     names = [*signature.parameters]
     name_idx = names.index(name)
     kwonly = [name for name in names[name_idx:]

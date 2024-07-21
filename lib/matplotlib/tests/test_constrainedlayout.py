@@ -1,4 +1,6 @@
 import gc
+import platform
+
 import numpy as np
 import pytest
 
@@ -195,7 +197,8 @@ def test_constrained_layout9():
     fig.suptitle('Test Suptitle', fontsize=28)
 
 
-@image_comparison(['constrained_layout10.png'])
+@image_comparison(['constrained_layout10.png'],
+                  tol=0.032 if platform.machine() == 'arm64' else 0)
 def test_constrained_layout10():
     """Test for handling legend outside axis"""
     fig, axs = plt.subplots(2, 2, layout="constrained")
@@ -347,7 +350,7 @@ def test_constrained_layout19():
 
 
 def test_constrained_layout20():
-    """Smoke test cl does not mess up added axes"""
+    """Smoke test cl does not mess up added Axes"""
     gx = np.linspace(-5, 5, 4)
     img = np.hypot(gx, gx[:, None])
 

@@ -23,9 +23,13 @@ from matplotlib.backends.backend_pdf import (
     _create_pdf_info_dict, _datetime_to_pdf)
 from matplotlib.path import Path
 from matplotlib.figure import Figure
+from matplotlib.font_manager import FontProperties
 from matplotlib._pylab_helpers import Gcf
 
 _log = logging.getLogger(__name__)
+
+
+_DOCUMENTCLASS = r"\documentclass{article}"
 
 
 # Note: When formatting floating point values, it is important to use the
@@ -34,29 +38,43 @@ _log = logging.getLogger(__name__)
 
 def _get_preamble():
     """Prepare a LaTeX preamble based on the rcParams configuration."""
-    preamble = [
+    font_size_pt = FontProperties(
+        size=mpl.rcParams["font.size"]
+    ).get_size_in_points()
+    return "\n".join([
         # Remove Matplotlib's custom command \mathdefault.  (Not using
         # \mathnormal instead since this looks odd with Computer Modern.)
         r"\def\mathdefault#1{#1}",
         # Use displaystyle for all math.
         r"\everymath=\expandafter{\the\everymath\displaystyle}",
+        # Set up font sizes to match font.size setting.
+        # If present, use the KOMA package scrextend to adjust the standard
+        # LaTeX font commands (\tiny, ..., \normalsize, ..., \Huge) accordingly.
+        # Otherwise, only set \normalsize, manually.
+        r"\IfFileExists{scrextend.sty}{",
+        r"  \usepackage[fontsize=%fpt]{scrextend}" % font_size_pt,
+        r"}{",
+        r"  \renewcommand{\normalsize}{\fontsize{%f}{%f}\selectfont}"
+        % (font_size_pt, 1.2 * font_size_pt),
+        r"  \normalsize",
+        r"}",
         # Allow pgf.preamble to override the above definitions.
         mpl.rcParams["pgf.preamble"],
-    ]
-    if mpl.rcParams["pgf.texsystem"] != "pdflatex":
-        preamble.append("\\usepackage{fontspec}")
-        if mpl.rcParams["pgf.rcfonts"]:
-            families = ["serif", "sans\\-serif", "monospace"]
-            commands = ["setmainfont", "setsansfont", "setmonofont"]
-            for family, command in zip(families, commands):
-                # 1) Forward slashes also work on Windows, so don't mess with
-                # backslashes.  2) The dirname needs to include a separator.
-                path = pathlib.Path(fm.findfont(family))
-                preamble.append(r"\%s{%s}[Path=\detokenize{%s/}]" % (
-                    command, path.name, path.parent.as_posix()))
-    preamble.append(mpl.texmanager._usepackage_if_not_loaded(
-        "underscore", option="strings"))  # Documented as "must come last".
-    return "\n".join(preamble)
+        *([
+            r"\ifdefined\pdftexversion\else  % non-pdftex case.",
+            r"  \usepackage{fontspec}",
+        ] + [
+            r"  \%s{%s}[Path=\detokenize{%s/}]"
+            % (command, path.name, path.parent.as_posix())
+            for command, path in zip(
+                ["setmainfont", "setsansfont", "setmonofont"],
+                [pathlib.Path(fm.findfont(family))
+                 for family in ["serif", "sans\\-serif", "monospace"]]
+            )
+        ] + [r"\fi"] if mpl.rcParams["pgf.rcfonts"] else []),
+        # Documented as "must come last".
+        mpl.texmanager._usepackage_if_not_loaded("underscore", option="strings"),
+    ])
 
 
 # It's better to use only one unit for all coordinates, since the
@@ -94,9 +112,11 @@ def _escape_and_apply_props(s, prop):
     family = prop.get_family()[0]
     if family in families:
         commands.append(families[family])
-    elif (any(font.name == family for font in fm.fontManager.ttflist)
-          and mpl.rcParams["pgf.texsystem"] != "pdflatex"):
-        commands.append(r"\setmainfont{%s}\rmfamily" % family)
+    elif not mpl.rcParams["pgf.rcfonts"]:
+        commands.append(r"\fontfamily{\familydefault}")
+    elif any(font.name == family for font in fm.fontManager.ttflist):
+        commands.append(
+            r"\ifdefined\pdftexversion\else\setmainfont{%s}\rmfamily\fi" % family)
     else:
         _log.warning("Ignoring unknown font: %s", family)
 
@@ -185,7 +205,7 @@ class LatexManager:
     @staticmethod
     def _build_latex_header():
         latex_header = [
-            r"\documentclass{article}",
+            _DOCUMENTCLASS,
             # Include TeX program name as a comment for cache invalidation.
             # TeX does not allow this to be the first line.
             rf"% !TeX program = {mpl.rcParams['pgf.texsystem']}",
@@ -241,16 +261,7 @@ class LatexManager:
         self._finalize_tmpdir = weakref.finalize(self, self._tmpdir.cleanup)
 
         # test the LaTeX setup to ensure a clean startup of the subprocess
-        try:
-            self._setup_latex_process(expect_reply=False)
-        except FileNotFoundError as err:
-            raise RuntimeError(
-                f"{self.latex.args[0]!r} not found.  Install it or change "
-                f"rcParams['pgf.texsystem'] to an available TeX "
-                f"implementation.") from err
-        except OSError as err:
-            raise RuntimeError(
-                f"Error starting process {self.latex.args[0]!r}") from err
+        self._setup_latex_process(expect_reply=False)
         stdout, stderr = self.latex.communicate("\n\\makeatletter\\@@end\n")
         if self.latex.returncode != 0:
             raise LatexError(
@@ -258,7 +269,6 @@ class LatexManager:
                 f"while processing the following input:\n"
                 f"{self._build_latex_header()}",
                 stdout)
-
         self.latex = None  # Will be set up on first use.
         # Per-instance cache.
         self._get_box_metrics = functools.lru_cache(self._get_box_metrics)
@@ -267,15 +277,28 @@ class LatexManager:
         # Open LaTeX process for real work; register it for deletion.  On
         # Windows, we must ensure that the subprocess has quit before being
         # able to delete the tmpdir in which it runs; in order to do so, we
-        # must first `kill()` it, and then `communicate()` with it.
-        self.latex = subprocess.Popen(
-            [mpl.rcParams["pgf.texsystem"], "-halt-on-error"],
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            encoding="utf-8", cwd=self.tmpdir)
+        # must first `kill()` it, and then `communicate()` with or `wait()` on
+        # it.
+        try:
+            self.latex = subprocess.Popen(
+                [mpl.rcParams["pgf.texsystem"], "-halt-on-error"],
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                encoding="utf-8", cwd=self.tmpdir)
+        except FileNotFoundError as err:
+            raise RuntimeError(
+                f"{mpl.rcParams['pgf.texsystem']!r} not found; install it or change "
+                f"rcParams['pgf.texsystem'] to an available TeX implementation"
+            ) from err
+        except OSError as err:
+            raise RuntimeError(
+                f"Error starting {mpl.rcParams['pgf.texsystem']!r}") from err
 
         def finalize_latex(latex):
             latex.kill()
-            latex.communicate()
+            try:
+                latex.communicate()
+            except RuntimeError:
+                latex.wait()
 
         self._finalize_latex = weakref.finalize(
             self, finalize_latex, self.latex)
@@ -811,7 +834,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             self.print_pgf(tmppath / "figure.pgf", **kwargs)
             (tmppath / "figure.tex").write_text(
                 "\n".join([
-                    r"\documentclass[12pt]{article}",
+                    _DOCUMENTCLASS,
                     r"\usepackage[pdfinfo={%s}]{hyperref}" % pdfinfo,
                     r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
                     % (w, h),
@@ -921,7 +944,7 @@ class PdfPages:
         pdfinfo = ','.join(
             _metadata_to_str(k, v) for k, v in self._info_dict.items())
         latex_header = "\n".join([
-            r"\documentclass[12pt]{article}",
+            _DOCUMENTCLASS,
             r"\usepackage[pdfinfo={%s}]{hyperref}" % pdfinfo,
             r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
             % (width_inches, height_inches),
@@ -984,26 +1007,21 @@ class PdfPages:
                 raise ValueError(f"No figure {figure}")
             figure = manager.canvas.figure
 
-        with cbook._setattr_cm(figure, canvas=FigureCanvasPgf(figure)):
-            width, height = figure.get_size_inches()
-            if self._n_figures == 0:
-                self._write_header(width, height)
-            else:
-                # \pdfpagewidth and \pdfpageheight exist on pdftex, xetex, and
-                # luatex<0.85; they were renamed to \pagewidth and \pageheight
-                # on luatex>=0.85.
-                self._file.write(
-                    (
-                        r'\newpage'
-                        r'\ifdefined\pdfpagewidth\pdfpagewidth'
-                        fr'\else\pagewidth\fi={width}in'
-                        r'\ifdefined\pdfpageheight\pdfpageheight'
-                        fr'\else\pageheight\fi={height}in'
-                        '%%\n'
-                    ).encode("ascii")
-                )
-            figure.savefig(self._file, format="pgf", **kwargs)
-            self._n_figures += 1
+        width, height = figure.get_size_inches()
+        if self._n_figures == 0:
+            self._write_header(width, height)
+        else:
+            # \pdfpagewidth and \pdfpageheight exist on pdftex, xetex, and
+            # luatex<0.85; they were renamed to \pagewidth and \pageheight
+            # on luatex>=0.85.
+            self._file.write(
+                rb'\newpage'
+                rb'\ifdefined\pdfpagewidth\pdfpagewidth\else\pagewidth\fi=%fin'
+                rb'\ifdefined\pdfpageheight\pdfpageheight\else\pageheight\fi=%fin'
+                b'%%\n' % (width, height)
+            )
+        figure.savefig(self._file, format="pgf", backend="pgf", **kwargs)
+        self._n_figures += 1
 
     def get_pagecount(self):
         """Return the current number of pages in the multipage pdf file."""

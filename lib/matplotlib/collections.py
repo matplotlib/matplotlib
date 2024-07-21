@@ -96,11 +96,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         Parameters
         ----------
-        edgecolors : color or list of colors, default: :rc:`patch.edgecolor`
+        edgecolors : :mpltype:`color` or list of colors, default: :rc:`patch.edgecolor`
             Edge color for each patch making up the collection. The special
             value 'face' can be passed to make the edgecolor match the
             facecolor.
-        facecolors : color or list of colors, default: :rc:`patch.facecolor`
+        facecolors : :mpltype:`color` or list of colors, default: :rc:`patch.facecolor`
             Face color for each patch making up the collection.
         linewidths : float or list of floats, default: :rc:`patch.linewidth`
             Line width for each patch making up the collection.
@@ -151,6 +151,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         zorder : float, default: 1
             The drawing order, shared by all Patches in the Collection. See
             :doc:`/gallery/misc/zorder_demo` for all defaults and examples.
+        **kwargs
+            Remaining keyword arguments will be used to set properties as
+            ``Collection.set_{key}(val)`` for each key-value pair in *kwargs*.
         """
         artist.Artist.__init__(self)
         cm.ScalarMappable.__init__(self, norm, cmap)
@@ -521,9 +524,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         hatchings are done.  If same letter repeats, it increases the
         density of hatching of that pattern.
 
-        Hatching is supported in the PostScript, PDF, SVG and Agg
-        backends only.
-
         Unlike other properties such as linewidth and colors, hatching
         can only be specified for the collection as a whole, not separately
         for each member.
@@ -745,7 +745,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        c : color or list of RGBA tuples
+        c : :mpltype:`color` or list of RGBA tuples
 
         See Also
         --------
@@ -776,7 +776,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        c : color or list of colors
+        c : :mpltype:`color` or list of :mpltype:`color`
         """
         if isinstance(c, str) and c.lower() in ("none", "face"):
             c = c.lower()
@@ -821,7 +821,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        c : color or list of colors or 'face'
+        c : :mpltype:`color` or list of :mpltype:`color` or 'face'
             The collection edgecolor(s).  If a sequence, the patches cycle
             through it.  If 'face', match the facecolor.
         """
@@ -1038,12 +1038,12 @@ class PathCollection(_CollectionWithSizes):
         Create legend handles and labels for a PathCollection.
 
         Each legend handle is a `.Line2D` representing the Path that was drawn,
-        and each label is a string what each Path represents.
+        and each label is a string that represents the Path.
 
         This is useful for obtaining a legend for a `~.Axes.scatter` plot;
         e.g.::
 
-            scatter = plt.scatter([1, 2, 3],  [4, 5, 6],  c=[7, 2, 3])
+            scatter = plt.scatter([1, 2, 3],  [4, 5, 6],  c=[7, 2, 3], num=None)
             plt.legend(*scatter.legend_elements())
 
         creates three legend elements, one for each color with the numerical
@@ -1253,51 +1253,6 @@ class PolyCollection(_CollectionWithSizes):
                        for xy, cds in zip(verts, codes)]
         self.stale = True
 
-    @classmethod
-    @_api.deprecated("3.7", alternative="fill_between")
-    def span_where(cls, x, ymin, ymax, where, **kwargs):
-        """
-        Return a `.BrokenBarHCollection` that plots horizontal bars from
-        over the regions in *x* where *where* is True.  The bars range
-        on the y-axis from *ymin* to *ymax*
-
-        *kwargs* are passed on to the collection.
-        """
-        xranges = []
-        for ind0, ind1 in cbook.contiguous_regions(where):
-            xslice = x[ind0:ind1]
-            if not len(xslice):
-                continue
-            xranges.append((xslice[0], xslice[-1] - xslice[0]))
-        return BrokenBarHCollection(xranges, [ymin, ymax - ymin], **kwargs)
-
-
-@_api.deprecated("3.7")
-class BrokenBarHCollection(PolyCollection):
-    """
-    A collection of horizontal bars spanning *yrange* with a sequence of
-    *xranges*.
-    """
-    def __init__(self, xranges, yrange, **kwargs):
-        """
-        Parameters
-        ----------
-        xranges : list of (float, float)
-            The sequence of (left-edge-position, width) pairs for each bar.
-        yrange : (float, float)
-            The (lower-edge, height) common to all bars.
-        **kwargs
-            Forwarded to `.Collection`.
-        """
-        ymin, ywidth = yrange
-        ymax = ymin + ywidth
-        verts = [[(xmin, ymin),
-                  (xmin, ymax),
-                  (xmin + xwidth, ymax),
-                  (xmin + xwidth, ymin),
-                  (xmin, ymin)] for xmin, xwidth in xranges]
-        super().__init__(verts, **kwargs)
-
 
 class RegularPolyCollection(_CollectionWithSizes):
     """A collection of n-sided regular polygons."""
@@ -1404,15 +1359,16 @@ class LineCollection(Collection):
         Parameters
         ----------
         segments : list of array-like
-            A sequence of (*line0*, *line1*, *line2*), where::
+            A sequence (*line0*, *line1*, *line2*) of lines, where each line is a list
+            of points::
 
-                linen = (x0, y0), (x1, y1), ... (xm, ym)
+                lineN = [(x0, y0), (x1, y1), ... (xm, ym)]
 
-            or the equivalent numpy array with two columns. Each line
+            or the equivalent Mx2 numpy array with two columns. Each line
             can have a different number of segments.
         linewidths : float or list of float, default: :rc:`lines.linewidth`
             The width of each line in points.
-        colors : color or list of color, default: :rc:`lines.color`
+        colors : :mpltype:`color` or list of color, default: :rc:`lines.color`
             A sequence of RGBA tuples (e.g., arbitrary color strings, etc, not
             allowed).
         antialiaseds : bool or list of bool, default: :rc:`lines.antialiased`
@@ -1420,7 +1376,7 @@ class LineCollection(Collection):
         zorder : float, default: 2
             zorder of the lines once drawn.
 
-        facecolors : color or list of color, default: 'none'
+        facecolors : :mpltype:`color` or list of :mpltype:`color`, default: 'none'
             When setting *facecolors*, each line is interpreted as a boundary
             for an area, implicitly closing the path from the last point to the
             first point. The enclosed area is filled with *facecolor*.
@@ -1499,7 +1455,7 @@ class LineCollection(Collection):
 
         Parameters
         ----------
-        c : color or list of colors
+        c : :mpltype:`color` or list of :mpltype:`color`
             Single color (all lines have same color), or a
             sequence of RGBA tuples; if it is a sequence the lines will
             cycle through the sequence.
@@ -1527,7 +1483,7 @@ class LineCollection(Collection):
 
         Parameters
         ----------
-        gapcolor : color or list of colors or None
+        gapcolor : :mpltype:`color` or list of :mpltype:`color` or None
             The color with which to fill the gaps. If None, the gaps are
             unfilled.
         """
@@ -1600,7 +1556,7 @@ class EventCollection(LineCollection):
             ``lineoffset - linelength/2`` to ``lineoffset + linelength/2``).
         linewidth : float or list thereof, default: :rc:`lines.linewidth`
             The line width of the event lines, in points.
-        color : color or list of colors, default: :rc:`lines.color`
+        color : :mpltype:`color` or list of :mpltype:`color`, default: :rc:`lines.color`
             The color of the event lines.
         linestyle : str or tuple or list thereof, default: 'solid'
             Valid strings are ['solid', 'dashed', 'dashdot', 'dotted',
@@ -1789,9 +1745,9 @@ class EllipseCollection(Collection):
             Forwarded to `Collection`.
         """
         super().__init__(**kwargs)
-        self._widths = 0.5 * np.asarray(widths).ravel()
-        self._heights = 0.5 * np.asarray(heights).ravel()
-        self._angles = np.deg2rad(angles).ravel()
+        self.set_widths(widths)
+        self.set_heights(heights)
+        self.set_angles(angles)
         self._units = units
         self.set_transform(transforms.IdentityTransform())
         self._transforms = np.empty((0, 3, 3))
@@ -1838,6 +1794,33 @@ class EllipseCollection(Collection):
             m = ax.transData.get_affine().get_matrix().copy()
             m[:2, 2:] = 0
             self.set_transform(_affine(m))
+
+    def set_widths(self, widths):
+        """Set the lengths of the first axes (e.g., major axis)."""
+        self._widths = 0.5 * np.asarray(widths).ravel()
+        self.stale = True
+
+    def set_heights(self, heights):
+        """Set the lengths of second axes (e.g., minor axes)."""
+        self._heights = 0.5 * np.asarray(heights).ravel()
+        self.stale = True
+
+    def set_angles(self, angles):
+        """Set the angles of the first axes, degrees CCW from the x-axis."""
+        self._angles = np.deg2rad(angles).ravel()
+        self.stale = True
+
+    def get_widths(self):
+        """Get the lengths of the first axes (e.g., major axis)."""
+        return self._widths * 2
+
+    def get_heights(self):
+        """Set the lengths of second axes (e.g., minor axes)."""
+        return self._heights * 2
+
+    def get_angles(self):
+        """Get the angles of the first axes, degrees CCW from the x-axis."""
+        return np.rad2deg(self._angles)
 
     @artist.allow_rasterization
     def draw(self, renderer):
@@ -2269,14 +2252,8 @@ class PolyQuadMesh(_MeshData, PolyCollection):
     """
 
     def __init__(self, coordinates, **kwargs):
-        # We need to keep track of whether we are using deprecated compression
-        # Update it after the initializers
-        self._deprecated_compression = False
         super().__init__(coordinates=coordinates)
         PolyCollection.__init__(self, verts=[], **kwargs)
-        # Store this during the compression deprecation period
-        self._original_mask = ~self._get_unmasked_polys()
-        self._deprecated_compression = np.any(self._original_mask)
         # Setting the verts updates the paths of the PolyCollection
         # This is called after the initializers to make sure the kwargs
         # have all been processed and available for the masking calculations
@@ -2289,14 +2266,7 @@ class PolyQuadMesh(_MeshData, PolyCollection):
 
         # We want the shape of the polygon, which is the corner of each X/Y array
         mask = (mask[0:-1, 0:-1] | mask[1:, 1:] | mask[0:-1, 1:] | mask[1:, 0:-1])
-
-        if (getattr(self, "_deprecated_compression", False) and
-                np.any(self._original_mask)):
-            return ~(mask | self._original_mask)
-        # Take account of the array data too, temporarily avoiding
-        # the compression warning and resetting the variable after the call
-        with cbook._setattr_cm(self, _deprecated_compression=False):
-            arr = self.get_array()
+        arr = self.get_array()
         if arr is not None:
             arr = np.ma.getmaskarray(arr)
             if arr.ndim == 3:
@@ -2352,42 +2322,8 @@ class PolyQuadMesh(_MeshData, PolyCollection):
     def set_array(self, A):
         # docstring inherited
         prev_unmask = self._get_unmasked_polys()
-        # MPL <3.8 compressed the mask, so we need to handle flattened 1d input
-        # until the deprecation expires, also only warning when there are masked
-        # elements and thus compression occurring.
-        if self._deprecated_compression and np.ndim(A) == 1:
-            _api.warn_deprecated("3.8", message="Setting a PolyQuadMesh array using "
-                                 "the compressed values is deprecated. "
-                                 "Pass the full 2D shape of the original array "
-                                 f"{prev_unmask.shape} including the masked elements.")
-            Afull = np.empty(self._original_mask.shape)
-            Afull[~self._original_mask] = A
-            # We also want to update the mask with any potential
-            # new masked elements that came in. But, we don't want
-            # to update any of the compression from the original
-            mask = self._original_mask.copy()
-            mask[~self._original_mask] |= np.ma.getmask(A)
-            A = np.ma.array(Afull, mask=mask)
-            return super().set_array(A)
-        self._deprecated_compression = False
         super().set_array(A)
         # If the mask has changed at all we need to update
         # the set of Polys that we are drawing
         if not np.array_equal(prev_unmask, self._get_unmasked_polys()):
             self._set_unmasked_verts()
-
-    def get_array(self):
-        # docstring inherited
-        # Can remove this entire function once the deprecation period ends
-        A = super().get_array()
-        if A is None:
-            return
-        if self._deprecated_compression and np.any(np.ma.getmask(A)):
-            _api.warn_deprecated("3.8", message=(
-                "Getting the array from a PolyQuadMesh will return the full "
-                "array in the future (uncompressed). To get this behavior now "
-                "set the PolyQuadMesh with a 2D array .set_array(data2d)."))
-            # Setting an array of a polycollection required
-            # compressing the array
-            return np.ma.compressed(A)
-        return A

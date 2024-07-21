@@ -10,8 +10,7 @@ from matplotlib.testing import subprocess_run_for_testing
 import pytest
 
 
-pytest.importorskip('sphinx',
-                    minversion=None if sys.version_info < (3, 10) else '4.1.3')
+pytest.importorskip('sphinx', minversion='4.1.3')
 
 
 def build_sphinx_html(source_dir, doctree_dir, html_dir, extra_args=None):

@@ -99,8 +99,12 @@ def get_location(node, app):
     if source:
         # 'source' can have the form '/some/path:docstring of some.api' but the
         # colons are forbidden on windows, but on posix just passes through.
-        path, *post = source.partition(':')
-        post = ''.join(post)
+        if ':docstring of' in source:
+            path, *post = source.rpartition(':docstring of')
+            post = ''.join(post)
+        else:
+            path = source
+            post = ''
         # We locate references relative to the parent of the doc
         # directory, which for matplotlib, will be the root of the
         # matplotlib repo. When matplotlib is not an editable install
@@ -194,8 +198,7 @@ def save_missing_references_handler(app, exc):
 
     _warn_unused_missing_references(app)
 
-    json_path = (Path(app.confdir) /
-                 app.config.missing_references_filename)
+    json_path = Path(app.confdir) / app.config.missing_references_filename
 
     references_warnings = getattr(app.env, 'missing_references_warnings', {})
 
@@ -264,8 +267,7 @@ def prepare_missing_references_handler(app):
 
     app.env.missing_references_ignored_references = {}
 
-    json_path = (Path(app.confdir) /
-                    app.config.missing_references_filename)
+    json_path = Path(app.confdir) / app.config.missing_references_filename
     if not json_path.exists():
         return
 

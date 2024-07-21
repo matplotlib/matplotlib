@@ -1,3 +1,4 @@
+---
 name: Bug Report
 description: Report a bug or issue with Matplotlib.
 title: "[Bug]: "
@@ -6,26 +7,24 @@ body:
     id: summary
     attributes:
       label: Bug summary
-      description:  Describe the bug in 1-2 short sentences
-      placeholder:
-      value:
+      description: Describe the bug in 1-2 short sentences
     validations:
       required: true
   - type: textarea
     id: reproduction
     attributes:
       label: Code for reproduction
-      description: |
+      description: >-
         If possible, please provide a minimum self-contained example.
       placeholder: Paste your code here. This field is automatically formatted as Python code.
-      render: python
+      render: Python
     validations:
       required: true
   - type: textarea
     id: actual
     attributes:
       label: Actual outcome
-      description: |
+      description: >-
         Paste the output produced by the code provided above, e.g.
         console output, images/videos produced by the code, any relevant screenshots/screencasts, etc.
     validations:

@@ -34,7 +34,6 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
     required_interactive_framework = "gtk4"
     supports_blit = False
     manager_class = _api.classproperty(lambda cls: FigureManagerGTK4)
-    _context_is_scaled = False
 
     def __init__(self, figure=None):
         super().__init__(figure=figure)
@@ -228,13 +227,8 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
 
         lw = 1
         dash = 3
-        if not self._context_is_scaled:
-            x0, y0, w, h = (dim / self.device_pixel_ratio
-                            for dim in self._rubberband_rect)
-        else:
-            x0, y0, w, h = self._rubberband_rect
-            lw *= self.device_pixel_ratio
-            dash *= self.device_pixel_ratio
+        x0, y0, w, h = (dim / self.device_pixel_ratio
+                        for dim in self._rubberband_rect)
         x1 = x0 + w
         y1 = y0 + h
 
@@ -361,7 +355,7 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
         formats = [formats[default_format], *formats[:default_format],
                    *formats[default_format+1:]]
         dialog.add_choice('format', 'File format', formats, formats)
-        dialog.set_choice('format', formats[default_format])
+        dialog.set_choice('format', formats[0])
 
         dialog.set_current_folder(Gio.File.new_for_path(
             os.path.expanduser(mpl.rcParams['savefig.directory'])))
@@ -475,15 +469,10 @@ class ToolbarGTK4(ToolContainerBase, Gtk.Box):
             toolitem.handler_unblock(signal)
 
     def remove_toolitem(self, name):
-        if name not in self._toolitems:
-            self.toolmanager.message_event(f'{name} not in toolbar', self)
-            return
-
-        for group in self._groups:
-            for toolitem, _signal in self._toolitems[name]:
+        for toolitem, _signal in self._toolitems.pop(name, []):
+            for group in self._groups:
                 if toolitem in self._groups[group]:
                     self._groups[group].remove(toolitem)
-        del self._toolitems[name]
 
     def _add_separator(self):
         sep = Gtk.Separator()

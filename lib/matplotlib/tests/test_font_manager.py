@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 from PIL import Image
 import shutil
-import subprocess
 import sys
 import warnings
 
@@ -17,6 +16,8 @@ from matplotlib.font_manager import (
     json_dump, json_load, get_font, is_opentype_cff_font,
     MSUserFontDirectories, _get_fontconfig_fonts, ttfFontProperty)
 from matplotlib import cbook, ft2font, pyplot as plt, rc_context, figure as mfigure
+from matplotlib.testing import subprocess_run_helper, subprocess_run_for_testing
+
 
 has_fclist = shutil.which('fc-list') is not None
 
@@ -46,12 +47,11 @@ def test_score_weight():
             fontManager.score_weight(400, 400))
 
 
-def test_json_serialization(tmpdir):
+def test_json_serialization(tmp_path):
     # Can't open a NamedTemporaryFile twice on Windows, so use a temporary
     # directory instead.
-    path = Path(tmpdir, "fontlist.json")
-    json_dump(fontManager, path)
-    copy = json_load(path)
+    json_dump(fontManager, tmp_path / "fontlist.json")
+    copy = json_load(tmp_path / "fontlist.json")
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore', 'findfont: Font family.*not found')
         for prop in ({'family': 'STIXGeneral'},
@@ -133,8 +133,7 @@ def test_find_noto():
         fig.savefig(BytesIO(), format=fmt)
 
 
-def test_find_invalid(tmpdir):
-    tmp_path = Path(tmpdir)
+def test_find_invalid(tmp_path):
 
     with pytest.raises(FileNotFoundError):
         get_font(tmp_path / 'non-existent-font-name.ttf')
@@ -254,11 +253,16 @@ def _test_threading():
     from matplotlib.ft2font import LOAD_NO_HINTING
     import matplotlib.font_manager as fm
 
+    def loud_excepthook(args):
+        raise RuntimeError("error in thread!")
+
+    threading.excepthook = loud_excepthook
+
     N = 10
     b = threading.Barrier(N)
 
     def bad_idea(n):
-        b.wait()
+        b.wait(timeout=5)
         for j in range(100):
             font = fm.get_font(fm.findfont("DejaVu Sans"))
             font.set_text(str(n), 0.0, flags=LOAD_NO_HINTING)
@@ -272,20 +276,37 @@ def _test_threading():
         t.start()
 
     for t in threads:
-        t.join()
+        t.join(timeout=9)
+        if t.is_alive():
+            raise RuntimeError("thread failed to join")
 
 
 def test_fontcache_thread_safe():
     pytest.importorskip('threading')
-    import inspect
 
-    proc = subprocess.run(
-        [sys.executable, "-c",
-         inspect.getsource(_test_threading) + '\n_test_threading()']
+    subprocess_run_helper(_test_threading, timeout=10)
+
+
+def test_lockfilefailure(tmp_path):
+    # The logic here:
+    # 1. get a temp directory from pytest
+    # 2. import matplotlib which makes sure it exists
+    # 3. get the cache dir (where we check it is writable)
+    # 4. make it not writable
+    # 5. try to write into it via font manager
+    proc = subprocess_run_for_testing(
+        [
+            sys.executable,
+            "-c",
+            "import matplotlib;"
+            "import os;"
+            "p = matplotlib.get_cachedir();"
+            "os.chmod(p, 0o555);"
+            "import matplotlib.font_manager;"
+        ],
+        env={**os.environ, 'MPLCONFIGDIR': str(tmp_path)},
+        check=True
     )
-    if proc.returncode:
-        pytest.fail("The subprocess returned with non-zero exit status "
-                    f"{proc.returncode}.")
 
 
 def test_fontentry_dataclass():

@@ -81,43 +81,47 @@ def test_multipage_properfinalize():
 
 
 def test_multipage_keep_empty(tmp_path):
-    os.chdir(tmp_path)
-
     # test empty pdf files
 
     # an empty pdf is left behind with keep_empty unset
-    with pytest.warns(mpl.MatplotlibDeprecationWarning), PdfPages("a.pdf") as pdf:
+    fn = tmp_path / "a.pdf"
+    with pytest.warns(mpl.MatplotlibDeprecationWarning), PdfPages(fn) as pdf:
         pass
-    assert os.path.exists("a.pdf")
+    assert fn.exists()
 
     # an empty pdf is left behind with keep_empty=True
+    fn = tmp_path / "b.pdf"
     with pytest.warns(mpl.MatplotlibDeprecationWarning), \
-            PdfPages("b.pdf", keep_empty=True) as pdf:
+            PdfPages(fn, keep_empty=True) as pdf:
         pass
-    assert os.path.exists("b.pdf")
+    assert fn.exists()
 
     # an empty pdf deletes itself afterwards with keep_empty=False
-    with PdfPages("c.pdf", keep_empty=False) as pdf:
+    fn = tmp_path / "c.pdf"
+    with PdfPages(fn, keep_empty=False) as pdf:
         pass
-    assert not os.path.exists("c.pdf")
+    assert not fn.exists()
 
     # test pdf files with content, they should never be deleted
 
     # a non-empty pdf is left behind with keep_empty unset
-    with PdfPages("d.pdf") as pdf:
+    fn = tmp_path / "d.pdf"
+    with PdfPages(fn) as pdf:
         pdf.savefig(plt.figure())
-    assert os.path.exists("d.pdf")
+    assert fn.exists()
 
     # a non-empty pdf is left behind with keep_empty=True
+    fn = tmp_path / "e.pdf"
     with pytest.warns(mpl.MatplotlibDeprecationWarning), \
-            PdfPages("e.pdf", keep_empty=True) as pdf:
+            PdfPages(fn, keep_empty=True) as pdf:
         pdf.savefig(plt.figure())
-    assert os.path.exists("e.pdf")
+    assert fn.exists()
 
     # a non-empty pdf is left behind with keep_empty=False
-    with PdfPages("f.pdf", keep_empty=False) as pdf:
+    fn = tmp_path / "f.pdf"
+    with PdfPages(fn, keep_empty=False) as pdf:
         pdf.savefig(plt.figure())
-    assert os.path.exists("f.pdf")
+    assert fn.exists()
 
 
 def test_composite_image():
@@ -443,3 +447,19 @@ def test_multi_font_type42():
 
     fig = plt.figure()
     fig.text(0.15, 0.475, "There are 几个汉字 in between!")
+
+
+@pytest.mark.parametrize('family_name, file_name',
+                         [("Noto Sans", "NotoSans-Regular.otf"),
+                          ("FreeMono", "FreeMono.otf")])
+def test_otf_font_smoke(family_name, file_name):
+    # checks that there's no segfault
+    fp = fm.FontProperties(family=[family_name])
+    if Path(fm.findfont(fp)).name != file_name:
+        pytest.skip(f"Font {family_name} may be missing")
+
+    plt.rc('font', family=[family_name], size=27)
+
+    fig = plt.figure()
+    fig.text(0.15, 0.475, "Привет мир!")
+    fig.savefig(io.BytesIO(), format="pdf")

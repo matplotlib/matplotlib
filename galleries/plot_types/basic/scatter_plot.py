@@ -2,6 +2,7 @@
 =============
 scatter(x, y)
 =============
+A scatter plot of y vs. x with varying marker size and/or color.
 
 See `~matplotlib.axes.Axes.scatter`.
 """

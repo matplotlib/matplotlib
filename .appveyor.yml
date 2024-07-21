@@ -1,7 +1,7 @@
 # With infos from
 # http://tjelvarolsson.com/blog/how-to-continuously-test-your-python-code-on-windows-using-appveyor/
 # https://packaging.python.org/en/latest/appveyor/
-# https://github.com/rmcgibbo/python-appveyor-conda-example
+---
 
 # Backslashes in quotes need to be escaped: \ -> "\\"
 branches:
@@ -24,21 +24,17 @@ environment:
   global:
     PYTHONFAULTHANDLER: 1
     PYTHONIOENCODING: UTF-8
-    PYTEST_ARGS: -raR --numprocesses=auto --timeout=300 --durations=25
+    PYTEST_ARGS: -rfEsXR --numprocesses=auto --timeout=300 --durations=25
                  --cov-report= --cov=lib --log-level=DEBUG
 
   matrix:
-    - PYTHON_VERSION: "3.9"
-      CONDA_INSTALL_LOCN: "C:\\Miniconda3-x64"
-      TEST_ALL: "no"
-    - PYTHON_VERSION: "3.10"
-      CONDA_INSTALL_LOCN: "C:\\Miniconda3-x64"
-      TEST_ALL: "no"
+    - PYTHON_VERSION: "3.11"
+      TEST_ALL: "yes"
 
 # We always use a 64-bit machine, but can build x86 distributions
 # with the PYTHON_ARCH variable
 platform:
-    - x64
+  - x64
 
 # all our python builds have to happen in tests_script...
 build: false
@@ -48,41 +44,41 @@ cache:
   - '%USERPROFILE%\.cache\matplotlib'
 
 init:
-  - echo %PYTHON_VERSION% %CONDA_INSTALL_LOCN%
+  - ps:
+      Invoke-Webrequest
+      -URI https://micro.mamba.pm/api/micromamba/win-64/latest
+      -OutFile C:\projects\micromamba.tar.bz2
+  - ps: C:\PROGRA~1\7-Zip\7z.exe x C:\projects\micromamba.tar.bz2 -aoa -oC:\projects\
+  - ps: C:\PROGRA~1\7-Zip\7z.exe x C:\projects\micromamba.tar -ttar -aoa -oC:\projects\
+  - 'set PATH=C:\projects\Library\bin;%PATH%'
+  - micromamba shell init --shell cmd.exe
+  - micromamba config set always_yes true
+  - micromamba config prepend channels conda-forge
 
 install:
-  - set PATH=%CONDA_INSTALL_LOCN%;%CONDA_INSTALL_LOCN%\scripts;%PATH%;
-  - conda config --set always_yes true
-  - conda config --set show_channel_urls yes
-  - conda config --prepend channels conda-forge
-
-  # For building, use a new environment
-  # Add python version to environment
-  # `^ ` escapes spaces for indentation
-  - echo ^ ^ - python=%PYTHON_VERSION% >> environment.yml
-  - conda env create -f environment.yml
-  - activate mpl-dev
-  - conda install -c conda-forge pywin32
-  - echo %PYTHON_VERSION% %TARGET_ARCH%
-  # Show the installed packages + versions
-  - conda list
+  - micromamba env create -f environment.yml python=%PYTHON_VERSION% pywin32
+  - micromamba activate mpl-dev
 
 test_script:
   # Now build the thing..
   - set LINK=/LIBPATH:%cd%\lib
-  - pip install -ve .
+  - pip install -v --no-build-isolation --config-settings=setup-args="--vsenv" --editable .[dev]
   # this should show no freetype dll...
   - set "DUMPBIN=%VS140COMNTOOLS%\..\..\VC\bin\dumpbin.exe"
   - '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd | findstr freetype.*.dll && exit /b 1 || exit /b 0'
 
   # this are optional dependencies so that we don't skip so many tests...
-  - if x%TEST_ALL% == xyes conda install -q ffmpeg inkscape miktex
+  - if x%TEST_ALL% == xyes micromamba install -q ffmpeg inkscape
+  # miktex is available on conda, but seems to fail with permission errors.
   # missing packages on conda-forge for imagemagick
   # This install sometimes failed randomly :-(
-  #- choco install imagemagick
+  # - choco install imagemagick
 
   # Test import of tkagg backend
-  - python -c "import matplotlib as m; m.use('tkagg'); import matplotlib.pyplot as plt; print(plt.get_backend())"
+  - python -c
+    "import matplotlib as m; m.use('tkagg');
+    import matplotlib.pyplot as plt;
+    print(plt.get_backend())"
   # tests
   - echo The following args are passed to pytest %PYTEST_ARGS%
   - pytest %PYTEST_ARGS%
@@ -90,11 +86,11 @@ test_script:
 artifacts:
   - path: result_images\*
     name: result_images
-    type: zip
+    type: Zip
 
 on_finish:
-  - conda install codecov
-  - codecov -e PYTHON_VERSION PLATFORM
+  - micromamba install codecov
+  - codecov -e PYTHON_VERSION PLATFORM -n "$PYTHON_VERSION Windows"
 
 on_failure:
   # Generate a html for visual tests

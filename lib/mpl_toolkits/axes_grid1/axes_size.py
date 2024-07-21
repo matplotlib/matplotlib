@@ -233,14 +233,14 @@ class _AxesDecorationsSize(_Base):
     }
 
     def __init__(self, ax, direction):
-        self._get_size = _api.check_getitem(
-            self._get_size_map, direction=direction)
+        _api.check_in_list(self._get_size_map, direction=direction)
+        self._direction = direction
         self._ax_list = [ax] if isinstance(ax, Axes) else ax
 
     def get_size(self, renderer):
         sz = max([
-            self._get_size(ax.get_tightbbox(renderer, call_axes_locator=False),
-                           ax.bbox)
+            self._get_size_map[self._direction](
+                ax.get_tightbbox(renderer, call_axes_locator=False), ax.bbox)
             for ax in self._ax_list])
         dpi = renderer.points_to_pixels(72)
         abs_size = sz / dpi

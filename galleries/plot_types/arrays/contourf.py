@@ -2,6 +2,7 @@
 =================
 contourf(X, Y, Z)
 =================
+Plot filled contours.
 
 See `~matplotlib.axes.Axes.contourf`.
 """

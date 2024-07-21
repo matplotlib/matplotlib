@@ -16,10 +16,10 @@ __all__ = ['stackplot']
 
 
 def stackplot(axes, x, *args,
-              labels=(), colors=None, baseline='zero',
+              labels=(), colors=None, hatch=None, baseline='zero',
               **kwargs):
     """
-    Draw a stacked area plot.
+    Draw a stacked area plot or a streamgraph.
 
     Parameters
     ----------
@@ -47,13 +47,25 @@ def stackplot(axes, x, *args,
         A sequence of labels to assign to each data series. If unspecified,
         then no labels will be applied to artists.
 
-    colors : list of color, optional
+    colors : list of :mpltype:`color`, optional
         A sequence of colors to be cycled through and used to color the stacked
         areas. The sequence need not be exactly the same length as the number
         of provided *y*, in which case the colors will repeat from the
         beginning.
 
         If not specified, the colors from the Axes property cycle will be used.
+
+    hatch : list of str, default: None
+        A sequence of hatching styles.  See
+        :doc:`/gallery/shapes_and_collections/hatch_style_reference`.
+        The sequence will be cycled through for filling the
+        stacked areas from bottom to top.
+        It need not be exactly the same length as the number
+        of provided *y*, in which case the styles will repeat from the
+        beginning.
+
+        .. versionadded:: 3.9
+           Support for list input
 
     data : indexable object, optional
         DATA_PARAMETER_PLACEHOLDER
@@ -68,13 +80,18 @@ def stackplot(axes, x, *args,
         stacked area plot.
     """
 
-    y = np.row_stack(args)
+    y = np.vstack(args)
 
     labels = iter(labels)
     if colors is not None:
         colors = itertools.cycle(colors)
     else:
         colors = (axes._get_lines.get_next_color() for _ in y)
+
+    if hatch is None or isinstance(hatch, str):
+        hatch = itertools.cycle([hatch])
+    else:
+        hatch = itertools.cycle(hatch)
 
     # Assume data passed has not been 'stacked', so stack it here.
     # We'll need a float buffer for the upcoming calculations.
@@ -113,7 +130,9 @@ def stackplot(axes, x, *args,
 
     # Color between x = 0 and the first array.
     coll = axes.fill_between(x, first_line, stack[0, :],
-                             facecolor=next(colors), label=next(labels, None),
+                             facecolor=next(colors),
+                             hatch=next(hatch),
+                             label=next(labels, None),
                              **kwargs)
     coll.sticky_edges.y[:] = [0]
     r = [coll]
@@ -122,6 +141,7 @@ def stackplot(axes, x, *args,
     for i in range(len(y) - 1):
         r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
                                    facecolor=next(colors),
+                                   hatch=next(hatch),
                                    label=next(labels, None),
                                    **kwargs))
     return r

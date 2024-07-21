@@ -50,7 +50,7 @@ def setup():
     set_reproducibility_for_testing()
 
 
-def subprocess_run_for_testing(command, env=None, timeout=None, stdout=None,
+def subprocess_run_for_testing(command, env=None, timeout=60, stdout=None,
                                stderr=None, check=False, text=True,
                                capture_output=False):
     """
@@ -122,11 +122,16 @@ def subprocess_run_helper(func, *args, timeout, extra_env=None):
     """
     target = func.__name__
     module = func.__module__
+    file = func.__code__.co_filename
     proc = subprocess_run_for_testing(
         [
             sys.executable,
             "-c",
-            f"from {module} import {target}; {target}()",
+            f"import importlib.util;"
+            f"_spec = importlib.util.spec_from_file_location({module!r}, {file!r});"
+            f"_module = importlib.util.module_from_spec(_spec);"
+            f"_spec.loader.exec_module(_module);"
+            f"_module.{target}()",
             *args
         ],
         env={**os.environ, "SOURCE_DATE_EPOCH": "0", **(extra_env or {})},
@@ -172,3 +177,58 @@ def _has_tex_package(package):
         return True
     except FileNotFoundError:
         return False
+
+
+def ipython_in_subprocess(requested_backend_or_gui_framework, all_expected_backends):
+    import pytest
+    IPython = pytest.importorskip("IPython")
+
+    if sys.platform == "win32":
+        pytest.skip("Cannot change backend running IPython in subprocess on Windows")
+
+    if (IPython.version_info[:3] == (8, 24, 0) and
+            requested_backend_or_gui_framework == "osx"):
+        pytest.skip("Bug using macosx backend in IPython 8.24.0 fixed in 8.24.1")
+
+    # This code can be removed when Python 3.12, the latest version supported
+    # by IPython < 8.24, reaches end-of-life in late 2028.
+    for min_version, backend in all_expected_backends.items():
+        if IPython.version_info[:2] >= min_version:
+            expected_backend = backend
+            break
+
+    code = ("import matplotlib as mpl, matplotlib.pyplot as plt;"
+            "fig, ax=plt.subplots(); ax.plot([1, 3, 2]); mpl.get_backend()")
+    proc = subprocess_run_for_testing(
+        [
+            "ipython",
+            "--no-simple-prompt",
+            f"--matplotlib={requested_backend_or_gui_framework}",
+            "-c", code,
+        ],
+        check=True,
+        capture_output=True,
+    )
+
+    assert proc.stdout.strip().endswith(f"'{expected_backend}'")
+
+
+def is_ci_environment():
+    # Common CI variables
+    ci_environment_variables = [
+        'CI',        # Generic CI environment variable
+        'CONTINUOUS_INTEGRATION',  # Generic CI environment variable
+        'TRAVIS',    # Travis CI
+        'CIRCLECI',  # CircleCI
+        'JENKINS',   # Jenkins
+        'GITLAB_CI',  # GitLab CI
+        'GITHUB_ACTIONS',  # GitHub Actions
+        'TEAMCITY_VERSION'  # TeamCity
+        # Add other CI environment variables as needed
+    ]
+
+    for env_var in ci_environment_variables:
+        if os.getenv(env_var):
+            return True
+
+    return False

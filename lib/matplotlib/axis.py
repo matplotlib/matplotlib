@@ -129,7 +129,7 @@ class Tick(martist.Artist):
         if labelcolor is None:
             labelcolor = mpl.rcParams[f"{name}.labelcolor"]
 
-        if labelcolor == 'inherit':
+        if cbook._str_equal(labelcolor, 'inherit'):
             # inherit from tick color
             labelcolor = mpl.rcParams[f"{name}.color"]
 
@@ -208,7 +208,7 @@ class Tick(martist.Artist):
         """Set tick direction.  Valid values are 'out', 'in', 'inout'."""
         # This method is responsible for updating `_pad`, and, in subclasses,
         # for setting the tick{1,2}line markers as well.  From the user
-        # perspective this should always be called though _apply_params, which
+        # perspective this should always be called through _apply_params, which
         # further updates ticklabel positions using the new pads.
         if tickdir is None:
             tickdir = mpl.rcParams[f'{self.__name__}.direction']
@@ -264,21 +264,6 @@ class Tick(martist.Artist):
     def get_pad(self):
         """Get the value of the tick label pad in points."""
         return self._base_pad
-
-    def _get_text1(self):
-        """Get the default Text 1 instance."""
-
-    def _get_text2(self):
-        """Get the default Text 2 instance."""
-
-    def _get_tick1line(self):
-        """Get the default `.Line2D` instance for tick1."""
-
-    def _get_tick2line(self):
-        """Get the default `.Line2D` instance for tick2."""
-
-    def _get_gridline(self):
-        """Get the default grid `.Line2D` instance for this tick."""
 
     def get_loc(self):
         """Return the tick location (data coords) as a scalar."""
@@ -732,7 +717,7 @@ class Axis(martist.Artist):
         self.minor._formatter_is_default = value
 
     def _get_shared_axes(self):
-        """Return Grouper of shared axes for current axis."""
+        """Return Grouper of shared Axes for current axis."""
         return self.axes._shared_axes[
             self._get_axis_name()].get_siblings(self.axes)
 
@@ -769,7 +754,7 @@ class Axis(martist.Artist):
 
         By default, the x coordinate of the y label and the y coordinate of the
         x label are determined by the tick label bounding boxes, but this can
-        lead to poor alignment of multiple labels if there are multiple axes.
+        lead to poor alignment of multiple labels if there are multiple Axes.
 
         You can also specify the coordinate system of the label with the
         transform.  If None, the default coordinate system will be the axes
@@ -822,6 +807,7 @@ class Axis(martist.Artist):
             - `matplotlib.scale.SymmetricalLogScale`
             - `matplotlib.scale.LogitScale`
             - `matplotlib.scale.FuncScale`
+            - `matplotlib.scale.AsinhScale`
 
         Notes
         -----
@@ -855,13 +841,14 @@ class Axis(martist.Artist):
     def _set_autoscale_on(self, b):
         """
         Set whether this Axis is autoscaled when drawing or by
-        `.Axes.autoscale_view`.
+        `.Axes.autoscale_view`. If b is None, then the value is not changed.
 
         Parameters
         ----------
         b : bool
         """
-        self._autoscale_on = b
+        if b is not None:
+            self._autoscale_on = b
 
     def get_children(self):
         return [self.label, self.offsetText,
@@ -941,6 +928,44 @@ class Axis(martist.Artist):
         except AttributeError:
             pass
 
+    def minorticks_on(self):
+        """
+        Display default minor ticks on the Axis, depending on the scale
+        (`~.axis.Axis.get_scale`).
+
+        Scales use specific minor locators:
+
+        - log: `~.LogLocator`
+        - symlog: `~.SymmetricalLogLocator`
+        - asinh: `~.AsinhLocator`
+        - logit: `~.LogitLocator`
+        - default: `~.AutoMinorLocator`
+
+        Displaying minor ticks may reduce performance; you may turn them off
+        using `minorticks_off()` if drawing speed is a problem.
+        """
+        scale = self.get_scale()
+        if scale == 'log':
+            s = self._scale
+            self.set_minor_locator(mticker.LogLocator(s.base, s.subs))
+        elif scale == 'symlog':
+            s = self._scale
+            self.set_minor_locator(
+                mticker.SymmetricalLogLocator(s._transform, s.subs))
+        elif scale == 'asinh':
+            s = self._scale
+            self.set_minor_locator(
+                    mticker.AsinhLocator(s.linear_width, base=s._base,
+                                         subs=s._subs))
+        elif scale == 'logit':
+            self.set_minor_locator(mticker.LogitLocator(minor=True))
+        else:
+            self.set_minor_locator(mticker.AutoMinorLocator())
+
+    def minorticks_off(self):
+        """Remove minor ticks from the Axis."""
+        self.set_minor_locator(mticker.NullLocator())
+
     def set_tick_params(self, which='major', reset=False, **kwargs):
         """
         Set appearance parameters for ticks, ticklabels, and gridlines.
@@ -1014,7 +1039,7 @@ class Axis(martist.Artist):
         ::
 
             >>> ax.yaxis.set_tick_params(labelsize=30, labelcolor='red',
-                                         direction='out', which='major')
+            ...                          direction='out', which='major')
             >>> ax.yaxis.get_tick_params(which='major')
             {'direction': 'out',
             'left': True,
@@ -1244,12 +1269,11 @@ class Axis(martist.Artist):
         # Mark viewlims as no longer stale without triggering an autoscale.
         for ax in self._get_shared_axes():
             ax._stale_viewlims[name] = False
-        if auto is not None:
-            self._set_autoscale_on(bool(auto))
+        self._set_autoscale_on(auto)
 
         if emit:
             self.axes.callbacks.process(f"{name}lim_changed", self.axes)
-            # Call all of the other axes that are shared with this one
+            # Call all of the other Axes that are shared with this one
             for other in self._get_shared_axes():
                 if other is self.axes:
                     continue
@@ -1291,6 +1315,17 @@ class Axis(martist.Artist):
         view_low, view_high = self.get_view_interval()
         if view_low > view_high:
             view_low, view_high = view_high, view_low
+
+        if (hasattr(self, "axes") and self.axes.name == '3d'
+                and mpl.rcParams['axes3d.automargin']):
+            # In mpl3.8, the margin was 1/48. Due to the change in automargin
+            # behavior in mpl3.9, we need to adjust this to compensate for a
+            # zoom factor of 2/48, giving us a 23/24 modifier. So the new
+            # margin is 0.019965277777777776 = 1/48*23/24.
+            margin = 0.019965277777777776
+            delta = view_high - view_low
+            view_high = view_high - delta * margin
+            view_low = view_low + delta * margin
 
         interval_t = self.get_transform().transform([view_low, view_high])
 
@@ -1377,7 +1412,7 @@ class Axis(martist.Artist):
         return max(values, default=0)
 
     @martist.allow_rasterization
-    def draw(self, renderer, *args, **kwargs):
+    def draw(self, renderer):
         # docstring inherited
 
         if not self.get_visible():
@@ -1945,7 +1980,6 @@ class Axis(martist.Artist):
     def _format_with_dict(tickd, x, pos):
         return tickd.get(x, "")
 
-    @_api.rename_parameter("3.7", "ticklabels", "labels")
     def set_ticklabels(self, labels, *, minor=False, fontdict=None, **kwargs):
         r"""
         [*Discouraged*] Set this Axis' tick labels with list of string labels.
@@ -1966,8 +2000,9 @@ class Axis(martist.Artist):
         ----------
         labels : sequence of str or of `.Text`\s
             Texts for labeling each tick location in the sequence set by
-            `.Axis.set_ticks`; the number of labels must match the number of
-            locations.
+            `.Axis.set_ticks`; the number of labels must match the number of locations.
+            The labels are used as is, via a `.FixedFormatter` (without further
+            formatting).
 
         minor : bool
             If True, set minor ticks instead of major ticks.
@@ -1993,7 +2028,9 @@ class Axis(martist.Artist):
 
             .. warning::
 
-                This only sets the properties of the current ticks.
+                This only sets the properties of the current ticks, which is
+                only sufficient for static plots.
+
                 Ticks are not guaranteed to be persistent. Various operations
                 can create, delete and modify the Tick instances. There is an
                 imminent risk that these settings can get lost if you work on
@@ -2090,29 +2127,33 @@ class Axis(martist.Artist):
 
     def set_ticks(self, ticks, labels=None, *, minor=False, **kwargs):
         """
-        Set this Axis' tick locations and optionally labels.
+        Set this Axis' tick locations and optionally tick labels.
 
         If necessary, the view limits of the Axis are expanded so that all
         given ticks are visible.
 
         Parameters
         ----------
-        ticks : 1D ArrayLike
-            Array of tick locations.  The axis `.Locator` is replaced by a
-            `~.ticker.FixedLocator`.
+        ticks : 1D array-like
+            Array of tick locations (either floats or in axis units). The axis
+            `.Locator` is replaced by a `~.ticker.FixedLocator`.
 
-            The values may be either floats or in axis units.
+            Pass an empty list (``set_ticks([])``) to remove all ticks.
 
             Some tick formatters will not label arbitrary tick positions;
             e.g. log formatters only label decade ticks by default. In
             such a case you can set a formatter explicitly on the axis
             using `.Axis.set_major_formatter` or provide formatted
             *labels* yourself.
+
         labels : list of str, optional
-            List of tick labels. If not set, the labels are generated with
-            the axis tick `.Formatter`.
+            Tick labels for each location in *ticks*; must have the same length as
+            *ticks*. If set, the labels are used as is, via a `.FixedFormatter`.
+            If not set, the labels are generated using the axis tick `.Formatter`.
+
         minor : bool, default: False
-            If ``False``, set the major ticks; if ``True``, the minor ticks.
+            If ``False``, set only the major ticks; if ``True``, only the minor ticks.
+
         **kwargs
             `.Text` properties for the labels. Using these is only allowed if
             you pass *labels*. In other cases, please use `~.Axes.tick_params`.
@@ -2361,34 +2402,18 @@ class XAxis(Axis):
         # get bounding boxes for this axis and any siblings
         # that have been set by `fig.align_xlabels()`
         bboxes, bboxes2 = self._get_tick_boxes_siblings(renderer=renderer)
-
         x, y = self.label.get_position()
+
         if self.label_position == 'bottom':
-            try:
-                spine = self.axes.spines['bottom']
-                spinebbox = spine.get_window_extent()
-            except KeyError:
-                # use Axes if spine doesn't exist
-                spinebbox = self.axes.bbox
-            bbox = mtransforms.Bbox.union(bboxes + [spinebbox])
-            bottom = bbox.y0
-
-            self.label.set_position(
-                (x, bottom - self.labelpad * self.figure.dpi / 72)
-            )
+            # Union with extents of the bottom spine if present, of the axes otherwise.
+            bbox = mtransforms.Bbox.union([
+                *bboxes, self.axes.spines.get("bottom", self.axes).get_window_extent()])
+            self.label.set_position((x, bbox.y0 - self.labelpad * self.figure.dpi / 72))
         else:
-            try:
-                spine = self.axes.spines['top']
-                spinebbox = spine.get_window_extent()
-            except KeyError:
-                # use Axes if spine doesn't exist
-                spinebbox = self.axes.bbox
-            bbox = mtransforms.Bbox.union(bboxes2 + [spinebbox])
-            top = bbox.y1
-
-            self.label.set_position(
-                (x, top + self.labelpad * self.figure.dpi / 72)
-            )
+            # Union with extents of the top spine if present, of the axes otherwise.
+            bbox = mtransforms.Bbox.union([
+                *bboxes2, self.axes.spines.get("top", self.axes).get_window_extent()])
+            self.label.set_position((x, bbox.y1 + self.labelpad * self.figure.dpi / 72))
 
     def _update_offset_text_position(self, bboxes, bboxes2):
         """
@@ -2603,32 +2628,17 @@ class YAxis(Axis):
         # that have been set by `fig.align_ylabels()`
         bboxes, bboxes2 = self._get_tick_boxes_siblings(renderer=renderer)
         x, y = self.label.get_position()
+
         if self.label_position == 'left':
-            try:
-                spine = self.axes.spines['left']
-                spinebbox = spine.get_window_extent()
-            except KeyError:
-                # use Axes if spine doesn't exist
-                spinebbox = self.axes.bbox
-            bbox = mtransforms.Bbox.union(bboxes + [spinebbox])
-            left = bbox.x0
-            self.label.set_position(
-                (left - self.labelpad * self.figure.dpi / 72, y)
-            )
-
+            # Union with extents of the left spine if present, of the axes otherwise.
+            bbox = mtransforms.Bbox.union([
+                *bboxes, self.axes.spines.get("left", self.axes).get_window_extent()])
+            self.label.set_position((bbox.x0 - self.labelpad * self.figure.dpi / 72, y))
         else:
-            try:
-                spine = self.axes.spines['right']
-                spinebbox = spine.get_window_extent()
-            except KeyError:
-                # use Axes if spine doesn't exist
-                spinebbox = self.axes.bbox
-
-            bbox = mtransforms.Bbox.union(bboxes2 + [spinebbox])
-            right = bbox.x1
-            self.label.set_position(
-                (right + self.labelpad * self.figure.dpi / 72, y)
-            )
+            # Union with extents of the right spine if present, of the axes otherwise.
+            bbox = mtransforms.Bbox.union([
+                *bboxes2, self.axes.spines.get("right", self.axes).get_window_extent()])
+            self.label.set_position((bbox.x1 + self.labelpad * self.figure.dpi / 72, y))
 
     def _update_offset_text_position(self, bboxes, bboxes2):
         """

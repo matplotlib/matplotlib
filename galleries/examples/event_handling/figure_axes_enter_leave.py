@@ -42,7 +42,7 @@ def on_leave_figure(event):
 
 
 fig, axs = plt.subplots(2, 1)
-fig.suptitle('mouse hover over figure or axes to trigger events')
+fig.suptitle('mouse hover over figure or Axes to trigger events')
 
 fig.canvas.mpl_connect('figure_enter_event', on_enter_figure)
 fig.canvas.mpl_connect('figure_leave_event', on_leave_figure)

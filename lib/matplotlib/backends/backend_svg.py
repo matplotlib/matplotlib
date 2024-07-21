@@ -200,6 +200,7 @@ class XMLWriter:
         tag
             Element tag.  If given, the tag must match the start tag.  If
             omitted, the current element is closed.
+        indent : bool, default: True
         """
         if tag:
             assert self.__tags, f"unbalanced end({tag})"
@@ -301,6 +302,7 @@ class RendererSVG(RendererBase):
 
         self._groupd = {}
         self._image_counter = itertools.count()
+        self._clip_path_ids = {}
         self._clipd = {}
         self._markers = {}
         self._path_collection_id = 0
@@ -320,9 +322,24 @@ class RendererSVG(RendererBase):
             viewBox=f'0 0 {str_width} {str_height}',
             xmlns="http://www.w3.org/2000/svg",
             version="1.1",
+            id=mpl.rcParams['svg.id'],
             attrib={'xmlns:xlink': "http://www.w3.org/1999/xlink"})
         self._write_metadata(metadata)
         self._write_default_style()
+
+    def _get_clippath_id(self, clippath):
+        """
+        Returns a stable and unique identifier for the *clippath* argument
+        object within the current rendering context.
+
+        This allows plots that include custom clip paths to produce identical
+        SVG output on each render, provided that the :rc:`svg.hashsalt` config
+        setting and the ``SOURCE_DATE_EPOCH`` build-time environment variable
+        are set to fixed values.
+        """
+        if clippath not in self._clip_path_ids:
+            self._clip_path_ids[clippath] = len(self._clip_path_ids)
+        return self._clip_path_ids[clippath]
 
     def finalize(self):
         self._write_clips()
@@ -589,7 +606,7 @@ class RendererSVG(RendererBase):
         clippath, clippath_trans = gc.get_clip_path()
         if clippath is not None:
             clippath_trans = self._make_flip_transform(clippath_trans)
-            dictkey = (id(clippath), str(clippath_trans))
+            dictkey = (self._get_clippath_id(clippath), str(clippath_trans))
         elif cliprect is not None:
             x, y, w, h = cliprect.bounds
             y = self.height-(y+h)
@@ -604,7 +621,7 @@ class RendererSVG(RendererBase):
             else:
                 self._clipd[dictkey] = (dictkey, oid)
         else:
-            clip, oid = clip
+            _, oid = clip
         return {'clip-path': f'url(#{oid})'}
 
     def _write_clips(self):
@@ -769,11 +786,7 @@ class RendererSVG(RendererBase):
 
         self._path_collection_id += 1
 
-    def draw_gouraud_triangle(self, gc, points, colors, trans):
-        # docstring inherited
-        self._draw_gouraud_triangle(gc, points, colors, trans)
-
-    def _draw_gouraud_triangle(self, gc, points, colors, trans):
+    def _draw_gouraud_triangle(self, transformed_points, colors):
         # This uses a method described here:
         #
         #   http://www.svgopen.org/2005/papers/Converting3DFaceToSVG/index.html
@@ -785,43 +798,17 @@ class RendererSVG(RendererBase):
         # opposite edge.  Underlying these three gradients is a solid
         # triangle whose color is the average of all three points.
 
-        writer = self.writer
-        if not self._has_gouraud:
-            self._has_gouraud = True
-            writer.start(
-                'filter',
-                id='colorAdd')
-            writer.element(
-                'feComposite',
-                attrib={'in': 'SourceGraphic'},
-                in2='BackgroundImage',
-                operator='arithmetic',
-                k2="1", k3="1")
-            writer.end('filter')
-            # feColorMatrix filter to correct opacity
-            writer.start(
-                'filter',
-                id='colorMat')
-            writer.element(
-                'feColorMatrix',
-                attrib={'type': 'matrix'},
-                values='1 0 0 0 0 \n0 1 0 0 0 \n0 0 1 0 0' +
-                       ' \n1 1 1 1 0 \n0 0 0 0 1 ')
-            writer.end('filter')
-
         avg_color = np.average(colors, axis=0)
         if avg_color[-1] == 0:
             # Skip fully-transparent triangles
             return
 
-        trans_and_flip = self._make_flip_transform(trans)
-        tpoints = trans_and_flip.transform(points)
-
+        writer = self.writer
         writer.start('defs')
         for i in range(3):
-            x1, y1 = tpoints[i]
-            x2, y2 = tpoints[(i + 1) % 3]
-            x3, y3 = tpoints[(i + 2) % 3]
+            x1, y1 = transformed_points[i]
+            x2, y2 = transformed_points[(i + 1) % 3]
+            x3, y3 = transformed_points[(i + 2) % 3]
             rgba_color = colors[i]
 
             if x2 == x3:
@@ -861,9 +848,9 @@ class RendererSVG(RendererBase):
         writer.end('defs')
 
         # triangle formation using "path"
-        dpath = "M " + _short_float_fmt(x1)+',' + _short_float_fmt(y1)
-        dpath += " L " + _short_float_fmt(x2) + ',' + _short_float_fmt(y2)
-        dpath += " " + _short_float_fmt(x3) + ',' + _short_float_fmt(y3) + " Z"
+        dpath = (f"M {_short_float_fmt(x1)},{_short_float_fmt(y1)}"
+                 f" L {_short_float_fmt(x2)},{_short_float_fmt(y2)}"
+                 f" {_short_float_fmt(x3)},{_short_float_fmt(y3)} Z")
 
         writer.element(
             'path',
@@ -905,11 +892,36 @@ class RendererSVG(RendererBase):
 
     def draw_gouraud_triangles(self, gc, triangles_array, colors_array,
                                transform):
-        self.writer.start('g', **self._get_clip_attrs(gc))
+        writer = self.writer
+        writer.start('g', **self._get_clip_attrs(gc))
         transform = transform.frozen()
-        for tri, col in zip(triangles_array, colors_array):
-            self._draw_gouraud_triangle(gc, tri, col, transform)
-        self.writer.end('g')
+        trans_and_flip = self._make_flip_transform(transform)
+
+        if not self._has_gouraud:
+            self._has_gouraud = True
+            writer.start(
+                'filter',
+                id='colorAdd')
+            writer.element(
+                'feComposite',
+                attrib={'in': 'SourceGraphic'},
+                in2='BackgroundImage',
+                operator='arithmetic',
+                k2="1", k3="1")
+            writer.end('filter')
+            # feColorMatrix filter to correct opacity
+            writer.start(
+                'filter',
+                id='colorMat')
+            writer.element(
+                'feColorMatrix',
+                attrib={'type': 'matrix'},
+                values='1 0 0 0 0 \n0 1 0 0 0 \n0 0 1 0 0 \n1 1 1 1 0 \n0 0 0 0 1 ')
+            writer.end('filter')
+
+        for points, colors in zip(triangles_array, colors_array):
+            self._draw_gouraud_triangle(trans_and_flip.transform(points), colors)
+        writer.end('g')
 
     def option_scale_image(self):
         # docstring inherited
@@ -1089,6 +1101,11 @@ class RendererSVG(RendererBase):
         writer.end('g')
 
     def _draw_text_as_text(self, gc, x, y, s, prop, angle, ismath, mtext=None):
+        # NOTE: If you change the font styling CSS, then be sure the check for
+        # svg.fonttype = none in `lib/matplotlib/testing/compare.py::convert` remains in
+        # sync. Also be sure to re-generate any SVG using this mode, or else such tests
+        # will fail to use the right converter for the expected images, and they will
+        # fail strangely.
         writer = self.writer
 
         color = rgb2hex(gc.get_rgb())

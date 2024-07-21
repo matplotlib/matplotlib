@@ -10,9 +10,6 @@
     `SubFigure`) with `Figure.add_subfigure` or `Figure.subfigures` methods
     (provisional API v3.4).
 
-`SubplotParams`
-    Control the default spacing between subplots.
-
 Figures are typically created using pyplot methods `~.pyplot.figure`,
 `~.pyplot.subplots`, and `~.pyplot.subplot_mosaic`.
 
@@ -27,12 +24,13 @@ Figures are typically created using pyplot methods `~.pyplot.figure`,
 Some situations call for directly instantiating a `~.figure.Figure` class,
 usually inside an application of some sort (see :ref:`user_interfaces` for a
 list of examples) .  More information about Figures can be found at
-:ref:`figure_explanation`.
+:ref:`figure-intro`.
 """
 
 from contextlib import ExitStack
 import inspect
 import itertools
+import functools
 import logging
 from numbers import Integral
 import threading
@@ -51,7 +49,7 @@ import matplotlib.colorbar as cbar
 import matplotlib.image as mimage
 
 from matplotlib.axes import Axes
-from matplotlib.gridspec import GridSpec
+from matplotlib.gridspec import GridSpec, SubplotParams
 from matplotlib.layout_engine import (
     ConstrainedLayoutEngine, TightLayoutEngine, LayoutEngine,
     PlaceHolderLayoutEngine
@@ -66,13 +64,13 @@ _log = logging.getLogger(__name__)
 
 
 def _stale_figure_callback(self, val):
-    if self.figure:
-        self.figure.stale = val
+    if (fig := self.get_figure(root=False)) is not None:
+        fig.stale = val
 
 
 class _AxesStack:
     """
-    Helper class to track axes in a figure.
+    Helper class to track Axes in a figure.
 
     Axes are tracked both in the order in which they have been added
     (``self._axes`` insertion/iteration order) and in the separate "gca" stack
@@ -80,30 +78,30 @@ class _AxesStack:
     """
 
     def __init__(self):
-        self._axes = {}  # Mapping of axes to "gca" order.
+        self._axes = {}  # Mapping of Axes to "gca" order.
         self._counter = itertools.count()
 
     def as_list(self):
-        """List the axes that have been added to the figure."""
+        """List the Axes that have been added to the figure."""
         return [*self._axes]  # This relies on dict preserving order.
 
     def remove(self, a):
-        """Remove the axes from the stack."""
+        """Remove the Axes from the stack."""
         self._axes.pop(a)
 
     def bubble(self, a):
-        """Move an axes, which must already exist in the stack, to the top."""
+        """Move an Axes, which must already exist in the stack, to the top."""
         if a not in self._axes:
             raise ValueError("Axes has not been added yet")
         self._axes[a] = next(self._counter)
 
     def add(self, a):
-        """Add an axes to the stack, ignoring it if already present."""
+        """Add an Axes to the stack, ignoring it if already present."""
         if a not in self._axes:
             self._axes[a] = next(self._counter)
 
     def current(self):
-        """Return the active axes, or None if the stack is empty."""
+        """Return the active Axes, or None if the stack is empty."""
         return max(self._axes, key=self._axes.__getitem__, default=None)
 
     def __getstate__(self):
@@ -116,66 +114,6 @@ class _AxesStack:
         next_counter = state.pop('_counter')
         vars(self).update(state)
         self._counter = itertools.count(next_counter)
-
-
-class SubplotParams:
-    """
-    A class to hold the parameters for a subplot.
-    """
-
-    def __init__(self, left=None, bottom=None, right=None, top=None,
-                 wspace=None, hspace=None):
-        """
-        Defaults are given by :rc:`figure.subplot.[name]`.
-
-        Parameters
-        ----------
-        left : float
-            The position of the left edge of the subplots,
-            as a fraction of the figure width.
-        right : float
-            The position of the right edge of the subplots,
-            as a fraction of the figure width.
-        bottom : float
-            The position of the bottom edge of the subplots,
-            as a fraction of the figure height.
-        top : float
-            The position of the top edge of the subplots,
-            as a fraction of the figure height.
-        wspace : float
-            The width of the padding between subplots,
-            as a fraction of the average Axes width.
-        hspace : float
-            The height of the padding between subplots,
-            as a fraction of the average Axes height.
-        """
-        for key in ["left", "bottom", "right", "top", "wspace", "hspace"]:
-            setattr(self, key, mpl.rcParams[f"figure.subplot.{key}"])
-        self.update(left, bottom, right, top, wspace, hspace)
-
-    def update(self, left=None, bottom=None, right=None, top=None,
-               wspace=None, hspace=None):
-        """
-        Update the dimensions of the passed parameters. *None* means unchanged.
-        """
-        if ((left if left is not None else self.left)
-                >= (right if right is not None else self.right)):
-            raise ValueError('left cannot be >= right')
-        if ((bottom if bottom is not None else self.bottom)
-                >= (top if top is not None else self.top)):
-            raise ValueError('bottom cannot be >= top')
-        if left is not None:
-            self.left = left
-        if right is not None:
-            self.right = right
-        if bottom is not None:
-            self.bottom = bottom
-        if top is not None:
-            self.top = top
-        if wspace is not None:
-            self.wspace = wspace
-        if hspace is not None:
-            self.hspace = hspace
 
 
 class FigureBase(Artist):
@@ -195,12 +133,16 @@ class FigureBase(Artist):
         self._supxlabel = None
         self._supylabel = None
 
-        # groupers to keep track of x and y labels we want to align.
-        # see self.align_xlabels and self.align_ylabels and
-        # axis._get_tick_boxes_siblings
-        self._align_label_groups = {"x": cbook.Grouper(), "y": cbook.Grouper()}
+        # groupers to keep track of x, y labels and title we want to align.
+        # see self.align_xlabels, self.align_ylabels,
+        # self.align_titles, and axis._get_tick_boxes_siblings
+        self._align_label_groups = {
+            "x": cbook.Grouper(),
+            "y": cbook.Grouper(),
+            "title": cbook.Grouper()
+        }
 
-        self._localaxes = []  # track all axes
+        self._localaxes = []  # track all Axes
         self.artists = []
         self.lines = []
         self.patches = []
@@ -215,12 +157,6 @@ class FigureBase(Artist):
     def _get_draw_artists(self, renderer):
         """Also runs apply_aspect"""
         artists = self.get_children()
-        for sfig in self.subfigs:
-            artists.remove(sfig)
-            childa = sfig.get_children()
-            for child in childa:
-                if child in artists:
-                    artists.remove(child)
 
         artists.remove(self.patch)
         artists = sorted(
@@ -292,6 +228,67 @@ class FigureBase(Artist):
                 *self.legends,
                 *self.subfigs]
 
+    def get_figure(self, root=None):
+        """
+        Return the `.Figure` or `.SubFigure` instance the (Sub)Figure belongs to.
+
+        Parameters
+        ----------
+        root : bool, default=True
+            If False, return the (Sub)Figure this artist is on.  If True,
+            return the root Figure for a nested tree of SubFigures.
+
+            .. deprecated:: 3.10
+
+                From version 3.12 *root* will default to False.
+        """
+        if self._root_figure is self:
+            # Top level Figure
+            return self
+
+        if self._parent is self._root_figure:
+            # Return early to prevent the deprecation warning when *root* does not
+            # matter
+            return self._parent
+
+        if root is None:
+            # When deprecation expires, consider removing the docstring and just
+            # inheriting the one from Artist.
+            message = ('From Matplotlib 3.12 SubFigure.get_figure will by default '
+                       'return the direct parent figure, which may be a SubFigure. '
+                       'To suppress this warning, pass the root parameter.  Pass '
+                       '`True` to maintain the old behavior and `False` to opt-in to '
+                       'the future behavior.')
+            _api.warn_deprecated('3.10', message=message)
+            root = True
+
+        if root:
+            return self._root_figure
+
+        return self._parent
+
+    def set_figure(self, fig):
+        """
+        .. deprecated:: 3.10
+            Currently this method will raise an exception if *fig* is anything other
+            than the root `.Figure` this (Sub)Figure is on.  In future it will always
+            raise an exception.
+        """
+        no_switch = ("The parent and root figures of a (Sub)Figure are set at "
+                     "instantiation and cannot be changed.")
+        if fig is self._root_figure:
+            _api.warn_deprecated(
+                "3.10",
+                message=(f"{no_switch} From Matplotlib 3.12 this operation will raise "
+                         "an exception."))
+            return
+
+        raise ValueError(no_switch)
+
+    figure = property(functools.partial(get_figure, root=True), set_figure,
+                      doc=("The root `Figure`.  To get the parent of a `SubFigure`, "
+                           "use the `get_figure` method."))
+
     def contains(self, mouseevent):
         """
         Test whether the mouse event occurred on the figure.
@@ -350,8 +347,6 @@ default: %(va)s
             Additional kwargs are `matplotlib.text.Text` properties.
         """
 
-        suplab = getattr(self, info['name'])
-
         x = kwargs.pop('x', None)
         y = kwargs.pop('y', None)
         if info['name'] in ['_supxlabel', '_suptitle']:
@@ -363,29 +358,24 @@ default: %(va)s
         if y is None:
             y = info['y0']
 
-        if 'horizontalalignment' not in kwargs and 'ha' not in kwargs:
-            kwargs['horizontalalignment'] = info['ha']
-        if 'verticalalignment' not in kwargs and 'va' not in kwargs:
-            kwargs['verticalalignment'] = info['va']
-        if 'rotation' not in kwargs:
-            kwargs['rotation'] = info['rotation']
+        kwargs = cbook.normalize_kwargs(kwargs, Text)
+        kwargs.setdefault('horizontalalignment', info['ha'])
+        kwargs.setdefault('verticalalignment', info['va'])
+        kwargs.setdefault('rotation', info['rotation'])
 
         if 'fontproperties' not in kwargs:
-            if 'fontsize' not in kwargs and 'size' not in kwargs:
-                kwargs['size'] = mpl.rcParams[info['size']]
-            if 'fontweight' not in kwargs and 'weight' not in kwargs:
-                kwargs['weight'] = mpl.rcParams[info['weight']]
+            kwargs.setdefault('fontsize', mpl.rcParams[info['size']])
+            kwargs.setdefault('fontweight', mpl.rcParams[info['weight']])
 
-        sup = self.text(x, y, t, **kwargs)
+        suplab = getattr(self, info['name'])
         if suplab is not None:
             suplab.set_text(t)
             suplab.set_position((x, y))
-            suplab.update_from(sup)
-            sup.remove()
+            suplab.set(**kwargs)
         else:
-            suplab = sup
+            suplab = self.text(x, y, t, **kwargs)
+            setattr(self, info['name'], suplab)
         suplab._autopos = autopos
-        setattr(self, info['name'], suplab)
         self.stale = True
         return suplab
 
@@ -473,7 +463,7 @@ default: %(va)s
 
         Parameters
         ----------
-        color : color
+        color : :mpltype:`color`
         """
         self.patch.set_edgecolor(color)
 
@@ -483,7 +473,7 @@ default: %(va)s
 
         Parameters
         ----------
-        color : color
+        color : :mpltype:`color`
         """
         self.patch.set_facecolor(color)
 
@@ -571,7 +561,7 @@ default: %(va)s
         sharex, sharey : `~matplotlib.axes.Axes`, optional
             Share the x or y `~matplotlib.axis` with sharex and/or sharey.
             The axis will have the same limits, ticks, and scale as the axis
-            of the shared axes.
+            of the shared Axes.
 
         label : str
             A label for the returned Axes.
@@ -579,7 +569,7 @@ default: %(va)s
         Returns
         -------
         `~.axes.Axes`, or a subclass of `~.axes.Axes`
-            The returned axes class depends on the projection used. It is
+            The returned Axes class depends on the projection used. It is
             `~.axes.Axes` if rectilinear projection is used and
             `.projections.polar.PolarAxes` if polar projection is used.
 
@@ -644,7 +634,7 @@ default: %(va)s
                 raise ValueError(f'all entries in rect must be finite not {rect}')
             projection_class, pkw = self._process_projection_requirements(**kwargs)
 
-            # create the new axes using the axes class given
+            # create the new Axes using the Axes class given
             a = projection_class(self, rect, **pkw)
             key = (projection_class, pkw)
 
@@ -707,7 +697,7 @@ default: %(va)s
         sharex, sharey : `~matplotlib.axes.Axes`, optional
             Share the x or y `~matplotlib.axis` with sharex and/or sharey.
             The axis will have the same limits, ticks, and scale as the axis
-            of the shared axes.
+            of the shared Axes.
 
         label : str
             A label for the returned Axes.
@@ -827,6 +817,8 @@ default: %(va)s
             When subplots have a shared axis that has units, calling
             `.Axis.set_units` will update each axis with the new units.
 
+            Note that it is not possible to unshare axes.
+
         squeeze : bool, default: True
             - If True, extra dimensions are squeezed out from the returned
               array of Axes:
@@ -936,14 +928,28 @@ default: %(va)s
         """
         Remove the `~.axes.Axes` *ax* from the figure; update the current Axes.
         """
+        self._remove_axes(ax, owners=[self._axstack, self._localaxes])
 
-        self._axstack.remove(ax)
+    def _remove_axes(self, ax, owners):
+        """
+        Common helper for removal of standard Axes (via delaxes) and of child Axes.
+
+        Parameters
+        ----------
+        ax : `~.AxesBase`
+            The Axes to remove.
+        owners
+            List of objects (list or _AxesStack) "owning" the Axes, from which the Axes
+            will be remove()d.
+        """
+        for owner in owners:
+            owner.remove(ax)
+
         self._axobservers.process("_axes_change_event", self)
         self.stale = True
-        self._localaxes.remove(ax)
         self.canvas.release_mouse(ax)
 
-        for name in ax._axis_names:  # Break link between any shared axes
+        for name in ax._axis_names:  # Break link between any shared Axes
             grouper = ax._shared_axes[name]
             siblings = [other for other in grouper.get_siblings(ax) if other is not ax]
             if not siblings:  # Axes was not shared along this axis; we're done.
@@ -958,7 +964,7 @@ default: %(va)s
             remaining_axis.get_minor_formatter().set_axis(remaining_axis)
             remaining_axis.get_minor_locator().set_axis(remaining_axis)
 
-        ax._twinned_axes.remove(ax)  # Break link between any twinned axes.
+        ax._twinned_axes.remove(ax)  # Break link between any twinned Axes.
 
     def clear(self, keep_observers=False):
         """
@@ -972,7 +978,7 @@ default: %(va)s
         """
         self.suppressComposite = None
 
-        # first clear the axes in any subfigures
+        # first clear the Axes in any subfigures
         for subfig in self.subfigs:
             subfig.clear(keep_observers=keep_observers)
         self.subfigs = []
@@ -1241,12 +1247,12 @@ default: %(va)s
         included automatically.
 
         The *shrink* kwarg provides a simple way to scale the colorbar with
-        respect to the axes. Note that if *cax* is specified, it determines the
+        respect to the Axes. Note that if *cax* is specified, it determines the
         size of the colorbar, and *shrink* and *aspect* are ignored.
 
         For more precise control, you can manually specify the positions of the
         axes objects in which the mappable and the colorbar are drawn.  In this
-        case, do not use any of the axes properties kwargs.
+        case, do not use any of the Axes properties kwargs.
 
         It is known that some vector graphics viewers (svg and pdf) render
         white gaps between segments of the colorbar.  This is due to bugs in
@@ -1273,7 +1279,7 @@ default: %(va)s
                     'Either provide the *cax* argument to use as the Axes for '
                     'the Colorbar, provide the *ax* argument to steal space '
                     'from it, or add *mappable* to an Axes.')
-            fig = (  # Figure of first axes; logic copied from make_axes.
+            fig = (  # Figure of first Axes; logic copied from make_axes.
                 [*ax.flat] if isinstance(ax, np.ndarray)
                 else [*ax] if np.iterable(ax)
                 else [ax])[0].figure
@@ -1290,6 +1296,19 @@ default: %(va)s
             # make_axes calls add_{axes,subplot} which changes gca; undo that.
             fig.sca(current_ax)
             cax.grid(visible=False, which='both', axis='both')
+
+        if hasattr(mappable, "figure") and mappable.figure is not None:
+            # Get top level artists
+            mappable_host_fig = mappable.figure
+            if isinstance(mappable_host_fig, mpl.figure.SubFigure):
+                mappable_host_fig = mappable_host_fig.figure
+            # Warn in case of mismatch
+            if mappable_host_fig is not self.figure:
+                _api.warn_external(
+                        f'Adding colorbar to a different Figure '
+                        f'{repr(mappable.figure)} than '
+                        f'{repr(self.figure)} which '
+                        f'fig.colorbar is called on.')
 
         NON_COLORBAR_KEYS = [  # remove kws that cannot be passed to Colorbar
             'fraction', 'pad', 'shrink', 'aspect', 'anchor', 'panchor']
@@ -1342,7 +1361,7 @@ default: %(va)s
 
     def align_xlabels(self, axs=None):
         """
-        Align the xlabels of subplots in the same subplot column if label
+        Align the xlabels of subplots in the same subplot row if label
         alignment is being done automatically (i.e. the label position is
         not manually set).
 
@@ -1363,6 +1382,7 @@ default: %(va)s
         See Also
         --------
         matplotlib.figure.Figure.align_ylabels
+        matplotlib.figure.Figure.align_titles
         matplotlib.figure.Figure.align_labels
 
         Notes
@@ -1388,9 +1408,9 @@ default: %(va)s
             _log.debug(' Working on: %s', ax.get_xlabel())
             rowspan = ax.get_subplotspec().rowspan
             pos = ax.xaxis.get_label_position()  # top or bottom
-            # Search through other axes for label positions that are same as
+            # Search through other Axes for label positions that are same as
             # this one and that share the appropriate row number.
-            # Add to a grouper associated with each axes of siblings.
+            # Add to a grouper associated with each Axes of siblings.
             # This list is inspected in `axis.draw` by
             # `axis._update_label_position`.
             for axc in axs:
@@ -1424,6 +1444,7 @@ default: %(va)s
         See Also
         --------
         matplotlib.figure.Figure.align_xlabels
+        matplotlib.figure.Figure.align_titles
         matplotlib.figure.Figure.align_labels
 
         Notes
@@ -1448,9 +1469,9 @@ default: %(va)s
             _log.debug(' Working on: %s', ax.get_ylabel())
             colspan = ax.get_subplotspec().colspan
             pos = ax.yaxis.get_label_position()  # left or right
-            # Search through other axes for label positions that are same as
+            # Search through other Axes for label positions that are same as
             # this one and that share the appropriate column number.
-            # Add to a list associated with each axes of siblings.
+            # Add to a list associated with each Axes of siblings.
             # This list is inspected in `axis.draw` by
             # `axis._update_label_position`.
             for axc in axs:
@@ -1460,6 +1481,53 @@ default: %(va)s
                             pos == 'right' and colspan.stop == colspanc.stop):
                         # grouper for groups of ylabels to align
                         self._align_label_groups['y'].join(ax, axc)
+
+    def align_titles(self, axs=None):
+        """
+        Align the titles of subplots in the same subplot row if title
+        alignment is being done automatically (i.e. the title position is
+        not manually set).
+
+        Alignment persists for draw events after this is called.
+
+        Parameters
+        ----------
+        axs : list of `~matplotlib.axes.Axes`
+            Optional list of (or ndarray) `~matplotlib.axes.Axes`
+            to align the titles.
+            Default is to align all Axes on the figure.
+
+        See Also
+        --------
+        matplotlib.figure.Figure.align_xlabels
+        matplotlib.figure.Figure.align_ylabels
+        matplotlib.figure.Figure.align_labels
+
+        Notes
+        -----
+        This assumes that ``axs`` are from the same `.GridSpec`, so that
+        their `.SubplotSpec` positions correspond to figure positions.
+
+        Examples
+        --------
+        Example with titles::
+
+            fig, axs = plt.subplots(1, 2)
+            axs[0].set_aspect('equal')
+            axs[0].set_title('Title 0')
+            axs[1].set_title('Title 1')
+            fig.align_titles()
+        """
+        if axs is None:
+            axs = self.axes
+        axs = [ax for ax in np.ravel(axs) if ax.get_subplotspec() is not None]
+        for ax in axs:
+            _log.debug(' Working on: %s', ax.get_title())
+            rowspan = ax.get_subplotspec().rowspan
+            for axc in axs:
+                rowspanc = axc.get_subplotspec().rowspan
+                if (rowspan.start == rowspanc.start):
+                    self._align_label_groups['title'].join(ax, axc)
 
     def align_labels(self, axs=None):
         """
@@ -1479,16 +1547,20 @@ default: %(va)s
         See Also
         --------
         matplotlib.figure.Figure.align_xlabels
-
         matplotlib.figure.Figure.align_ylabels
+        matplotlib.figure.Figure.align_titles
         """
         self.align_xlabels(axs=axs)
         self.align_ylabels(axs=axs)
 
     def add_gridspec(self, nrows=1, ncols=1, **kwargs):
         """
-        Return a `.GridSpec` that has this figure as a parent.  This allows
-        complex layout of Axes in the figure.
+        Low-level API for creating a `.GridSpec` that has this figure as a parent.
+
+        This is a low-level API, allowing you to create a gridspec and
+        subsequently add subplots based on the gridspec. Most users do
+        not need that freedom and should use the higher-level methods
+        `~.Figure.subplots` or `~.Figure.subplot_mosaic`.
 
         Parameters
         ----------
@@ -1542,6 +1614,9 @@ default: %(va)s
         .. note::
             The *subfigure* concept is new in v3.4, and the API is still provisional.
 
+        .. versionchanged:: 3.10
+            subfigures are now added in row-major order.
+
         Parameters
         ----------
         nrows, ncols : int, default: 1
@@ -1575,9 +1650,9 @@ default: %(va)s
                       left=0, right=1, bottom=0, top=1)
 
         sfarr = np.empty((nrows, ncols), dtype=object)
-        for i in range(ncols):
-            for j in range(nrows):
-                sfarr[j, i] = self.add_subfigure(gs[j, i], **kwargs)
+        for i in range(nrows):
+            for j in range(ncols):
+                sfarr[i, j] = self.add_subfigure(gs[i, j], **kwargs)
 
         if self.get_layout_engine() is None and (wspace is not None or
                                                  hspace is not None):
@@ -1622,6 +1697,9 @@ default: %(va)s
         """
         sf = SubFigure(self, subplotspec, **kwargs)
         self.subfigs += [sf]
+        sf._remove_method = self.subfigs.remove
+        sf.stale_callback = _stale_figure_callback
+        self.stale = True
         return sf
 
     def sca(self, a):
@@ -1712,6 +1790,9 @@ default: %(va)s
         return projection_class, kwargs
 
     def get_default_bbox_extra_artists(self):
+        """
+        Return a list of Artists typically used in `.Figure.get_tightbbox`.
+        """
         bbox_artists = [artist for artist in self.get_children()
                         if (artist.get_visible() and artist.get_in_layout())]
         for ax in self.axes:
@@ -1752,7 +1833,9 @@ default: %(va)s
 
         bb = []
         if bbox_extra_artists is None:
-            artists = self.get_default_bbox_extra_artists()
+            artists = [artist for artist in self.get_children()
+                       if (artist not in self.axes and artist.get_visible()
+                           and artist.get_in_layout())]
         else:
             artists = bbox_extra_artists
 
@@ -1763,7 +1846,7 @@ default: %(va)s
 
         for ax in self.axes:
             if ax.get_visible():
-                # some axes don't take the bbox_extra_artists kwarg so we
+                # some Axes don't take the bbox_extra_artists kwarg so we
                 # need this conditional....
                 try:
                     bbox = ax.get_tightbbox(
@@ -1798,15 +1881,11 @@ default: %(va)s
             if isinstance(k, tuple):
                 for sub_key in k:
                     if sub_key in expanded:
-                        raise ValueError(
-                            f'The key {sub_key!r} appears multiple times.'
-                            )
+                        raise ValueError(f'The key {sub_key!r} appears multiple times.')
                     expanded[sub_key] = v
             else:
                 if k in expanded:
-                    raise ValueError(
-                        f'The key {k!r} appears multiple times.'
-                    )
+                    raise ValueError(f'The key {k!r} appears multiple times.')
                 expanded[k] = v
         return expanded
 
@@ -1926,7 +2005,7 @@ default: %(va)s
         -------
         dict[label, Axes]
            A dictionary mapping the labels to the Axes objects.  The order of
-           the axes is left-to-right and top-to-bottom of their position in the
+           the Axes is left-to-right and top-to-bottom of their position in the
            total layout.
 
         """
@@ -2036,7 +2115,7 @@ default: %(va)s
             """
             output = dict()
 
-            # we need to merge together the Axes at this level and the axes
+            # we need to merge together the Axes at this level and the Axes
             # in the (recursively) nested sub-mosaics so that we can add
             # them to the figure in the "natural" order if you were to
             # ravel in c-order all of the Axes that will be created
@@ -2076,7 +2155,7 @@ default: %(va)s
                 # element is an Axes or a nested mosaic.
                 if method == 'axes':
                     slc = arg
-                    # add a single axes
+                    # add a single Axes
                     if name in output:
                         raise ValueError(f"There are duplicate keys {name} "
                                          f"in the layout\n{mosaic!r}")
@@ -2141,6 +2220,7 @@ class SubFigure(FigureBase):
     """
     Logical figure that can be placed inside a figure.
 
+    See :ref:`figure-api-subfigure` for an index of methods on this class.
     Typically instantiated using `.Figure.add_subfigure` or
     `.SubFigure.add_subfigure`, or `.SubFigure.subfigures`.  A subfigure has
     the same methods as a figure except for those particularly tied to the size
@@ -2204,14 +2284,13 @@ class SubFigure(FigureBase):
 
         self._subplotspec = subplotspec
         self._parent = parent
-        self.figure = parent.figure
+        self._root_figure = parent._root_figure
 
         # subfigures use the parent axstack
         self._axstack = parent._axstack
         self.subplotpars = parent.subplotpars
         self.dpi_scale_trans = parent.dpi_scale_trans
         self._axobservers = parent._axobservers
-        self.canvas = parent.canvas
         self.transFigure = parent.transFigure
         self.bbox_relative = Bbox.null()
         self._redo_transform_rel_fig()
@@ -2227,6 +2306,10 @@ class SubFigure(FigureBase):
             in_layout=False, transform=self.transSubfigure)
         self._set_artist_props(self.patch)
         self.patch.set_antialiased(False)
+
+    @property
+    def canvas(self):
+        return self._parent.canvas
 
     @property
     def dpi(self):
@@ -2339,8 +2422,6 @@ class SubFigure(FigureBase):
             self.patch.draw(renderer)
             mimage._draw_list_compositing_images(
                 renderer, self, artists, self.figure.suppressComposite)
-            for sfig in self.subfigs:
-                sfig.draw(renderer)
             renderer.close_group('subfigure')
 
         finally:
@@ -2351,6 +2432,8 @@ class SubFigure(FigureBase):
 class Figure(FigureBase):
     """
     The top level container for all the plot elements.
+
+    See `matplotlib.figure` for an index of class methods.
 
     Attributes
     ----------
@@ -2421,7 +2504,7 @@ class Figure(FigureBase):
         frameon : bool, default: :rc:`figure.frameon`
             If ``False``, suppress drawing the figure background patch.
 
-        subplotpars : `SubplotParams`
+        subplotpars : `~matplotlib.gridspec.SubplotParams`
             Subplot parameters. If not given, the default subplot
             parameters :rc:`figure.subplot.*` are used.
 
@@ -2448,21 +2531,21 @@ None}, default: None
             overlapping Axes decorations (labels, ticks, etc). Note that
             layout managers can have significant performance penalties.
 
-            - 'constrained': The constrained layout solver adjusts axes sizes
-              to avoid overlapping axes decorations.  Can handle complex plot
+            - 'constrained': The constrained layout solver adjusts Axes sizes
+              to avoid overlapping Axes decorations.  Can handle complex plot
               layouts and colorbars, and is thus recommended.
 
-              See :ref:`constrainedlayout_guide`
-              for examples.
+              See :ref:`constrainedlayout_guide` for examples.
 
             - 'compressed': uses the same algorithm as 'constrained', but
               removes extra space between fixed-aspect-ratio Axes.  Best for
-              simple grids of axes.
+              simple grids of Axes.
 
             - 'tight': Use the tight layout mechanism. This is a relatively
               simple algorithm that adjusts the subplot parameters so that
-              decorations do not overlap. See `.Figure.set_tight_layout` for
-              further details.
+              decorations do not overlap.
+
+              See :ref:`tight_layout_guide` for examples.
 
             - 'none': Do not use a layout engine.
 
@@ -2482,7 +2565,7 @@ None}, default: None
             %(Figure:kwdoc)s
         """
         super().__init__(**kwargs)
-        self.figure = self
+        self._root_figure = self
         self._layout_engine = None
 
         if layout is not None:
@@ -2572,7 +2655,7 @@ None}, default: None
 
         self.subplotpars = subplotpars
 
-        self._axstack = _AxesStack()  # track all figure axes and current axes
+        self._axstack = _AxesStack()  # track all figure Axes and current Axes
         self.clear()
 
     def pick(self, mouseevent):
@@ -2604,8 +2687,7 @@ None}, default: None
 
         Parameters
         ----------
-        layout: {'constrained', 'compressed', 'tight', 'none'} or \
-`LayoutEngine` or None
+        layout : {'constrained', 'compressed', 'tight', 'none', `.LayoutEngine`, None}
 
             - 'constrained' will use `~.ConstrainedLayoutEngine`
             - 'compressed' will also use `~.ConstrainedLayoutEngine`, but with
@@ -2613,6 +2695,8 @@ None}, default: None
               ratio Axes.
             - 'tight' uses `~.TightLayoutEngine`
             - 'none' removes layout engine.
+
+            If a `.LayoutEngine` instance, that instance will be used.
 
             If `None`, the behavior is controlled by :rc:`figure.autolayout`
             (which if `True` behaves as if 'tight' was passed) and
@@ -2623,7 +2707,7 @@ None}, default: None
             Users and libraries can define their own layout engines and pass
             the instance directly as well.
 
-        kwargs: dict
+        **kwargs
             The keyword arguments are passed to the layout engine to set things
             like padding and margin sizes.  Only used if *layout* is a string.
 
@@ -2767,26 +2851,21 @@ None}, default: None
     dpi = property(_get_dpi, _set_dpi, doc="The resolution in dots per inch.")
 
     def get_tight_layout(self):
-        """Return whether `.tight_layout` is called when drawing."""
+        """Return whether `.Figure.tight_layout` is called when drawing."""
         return isinstance(self.get_layout_engine(), TightLayoutEngine)
 
     @_api.deprecated("3.6", alternative="set_layout_engine",
                      pending=True)
     def set_tight_layout(self, tight):
         """
-        [*Discouraged*] Set whether and how `.tight_layout` is called when
-        drawing.
-
-        .. admonition:: Discouraged
-
-            This method is discouraged in favor of `~.set_layout_engine`.
+        Set whether and how `.Figure.tight_layout` is called when drawing.
 
         Parameters
         ----------
         tight : bool or dict with keys "pad", "w_pad", "h_pad", "rect" or None
-            If a bool, sets whether to call `.tight_layout` upon drawing.
+            If a bool, sets whether to call `.Figure.tight_layout` upon drawing.
             If ``None``, use :rc:`figure.autolayout` instead.
-            If a dict, pass it as kwargs to `.tight_layout`, overriding the
+            If a dict, pass it as kwargs to `.Figure.tight_layout`, overriding the
             default paddings.
         """
         if tight is None:
@@ -2808,8 +2887,7 @@ None}, default: None
                      pending=True)
     def set_constrained_layout(self, constrained):
         """
-        [*Discouraged*] Set whether ``constrained_layout`` is used upon
-        drawing.
+        Set whether ``constrained_layout`` is used upon drawing.
 
         If None, :rc:`figure.constrained_layout.use` value will be used.
 
@@ -2817,10 +2895,6 @@ None}, default: None
         the default ``constrained_layout`` paddings will be
         overridden.  These pads are in inches and default to 3.0/72.0.
         ``w_pad`` is the width padding and ``h_pad`` is the height padding.
-
-        .. admonition:: Discouraged
-
-            This method is discouraged in favor of `~.set_layout_engine`.
 
         Parameters
         ----------
@@ -2950,7 +3024,7 @@ None}, default: None
 
         origin : {'upper', 'lower'}, default: :rc:`image.origin`
             Indicates where the [0, 0] index of the array is in the upper left
-            or lower left corner of the axes.
+            or lower left corner of the Axes.
 
         resize : bool
             If *True*, resize the figure to match the given image size.
@@ -3153,9 +3227,6 @@ None}, default: None
                 mimage._draw_list_compositing_images(
                     renderer, self, artists, self.suppressComposite)
 
-                for sfig in self.subfigs:
-                    sfig.draw(renderer)
-
                 renderer.close_group('figure')
             finally:
                 self.stale = False
@@ -3204,8 +3275,8 @@ None}, default: None
         if version != mpl.__version__:
             _api.warn_external(
                 f"This figure was saved with matplotlib version {version} and "
-                f"is unlikely to function correctly.")
-
+                f"loaded with {mpl.__version__} so may not function correctly."
+            )
         self.__dict__ = state
 
         # re-initialise some of the unstored state information
@@ -3232,14 +3303,14 @@ None}, default: None
 
     def savefig(self, fname, *, transparent=None, **kwargs):
         """
-        Save the current figure.
+        Save the current figure as an image or vector graphic to a file.
 
         Call signature::
 
-          savefig(fname, *, dpi='figure', format=None, metadata=None,
-                  bbox_inches=None, pad_inches=0.1,
-                  facecolor='auto', edgecolor='auto',
-                  backend=None, **kwargs
+          savefig(fname, *, transparent=None, dpi='figure', format=None,
+                  metadata=None, bbox_inches=None, pad_inches=0.1,
+                  facecolor='auto', edgecolor='auto', backend=None,
+                  **kwargs
                  )
 
         The available output formats depend on the backend being used.
@@ -3264,6 +3335,22 @@ None}, default: None
 
         Other Parameters
         ----------------
+        transparent : bool, default: :rc:`savefig.transparent`
+            If *True*, the Axes patches will all be transparent; the
+            Figure patch will also be transparent unless *facecolor*
+            and/or *edgecolor* are specified via kwargs.
+
+            If *False* has no effect and the color of the Axes and
+            Figure patches are unchanged (unless the Figure patch
+            is specified via the *facecolor* and/or *edgecolor* keyword
+            arguments in which case those colors are used).
+
+            The transparency of these patches will be restored to their
+            original values upon exit of this function.
+
+            This is useful, for example, for displaying
+            a plot on top of a colored background on a web page.
+
         dpi : float or 'figure', default: :rc:`savefig.dpi`
             The resolution in dots per inch.  If 'figure', use the figure's
             dpi value.
@@ -3299,11 +3386,11 @@ None}, default: None
             compressed layout engine; ignored if one of those engines is not in
             use.
 
-        facecolor : color or 'auto', default: :rc:`savefig.facecolor`
+        facecolor : :mpltype:`color` or 'auto', default: :rc:`savefig.facecolor`
             The facecolor of the figure.  If 'auto', use the current figure
             facecolor.
 
-        edgecolor : color or 'auto', default: :rc:`savefig.edgecolor`
+        edgecolor : :mpltype:`color` or 'auto', default: :rc:`savefig.edgecolor`
             The edgecolor of the figure.  If 'auto', use the current figure
             edgecolor.
 
@@ -3322,22 +3409,6 @@ None}, default: None
             One of 'letter', 'legal', 'executive', 'ledger', 'a0' through
             'a10', 'b0' through 'b10'. Only supported for postscript
             output.
-
-        transparent : bool
-            If *True*, the Axes patches will all be transparent; the
-            Figure patch will also be transparent unless *facecolor*
-            and/or *edgecolor* are specified via kwargs.
-
-            If *False* has no effect and the color of the Axes and
-            Figure patches are unchanged (unless the Figure patch
-            is specified via the *facecolor* and/or *edgecolor* keyword
-            arguments in which case those colors are used).
-
-            The transparency of these patches will be restored to their
-            original values upon exit of this function.
-
-            This is useful, for example, for displaying
-            a plot on top of a colored background on a web page.
 
         bbox_extra_artists : list of `~matplotlib.artist.Artist`, optional
             A list of extra artists that will be considered when the
@@ -3383,7 +3454,7 @@ None}, default: None
                 # set subfigure to appear transparent in printed image
                 for subfig in self.subfigs:
                     _recursively_make_subfig_transparent(stack, subfig)
-                # set axes to be transparent
+                # set Axes to be transparent
                 for ax in self.axes:
                     _recursively_make_axes_transparent(stack, ax)
             self.canvas.print_figure(fname, **kwargs)

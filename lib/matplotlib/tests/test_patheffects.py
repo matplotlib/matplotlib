@@ -1,3 +1,5 @@
+import platform
+
 import numpy as np
 
 from matplotlib.testing.decorators import image_comparison
@@ -5,6 +7,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
 from matplotlib.path import Path
 import matplotlib.patches as patches
+from matplotlib.backend_bases import RendererBase
+from matplotlib.patheffects import PathEffectRenderer
 
 
 @image_comparison(['patheffect1'], remove_text=True)
@@ -25,7 +29,8 @@ def test_patheffect1():
     ax1.grid(True, linestyle="-", path_effects=pe)
 
 
-@image_comparison(['patheffect2'], remove_text=True, style='mpl20')
+@image_comparison(['patheffect2'], remove_text=True, style='mpl20',
+                  tol=0.06 if platform.machine() == 'arm64' else 0)
 def test_patheffect2():
 
     ax2 = plt.subplot()
@@ -40,7 +45,7 @@ def test_patheffect2():
                                                    foreground="w")])
 
 
-@image_comparison(['patheffect3'])
+@image_comparison(['patheffect3'], tol=0.019 if platform.machine() == 'arm64' else 0)
 def test_patheffect3():
     p1, = plt.plot([1, 3, 5, 4, 3], 'o-b', lw=4)
     p1.set_path_effects([path_effects.SimpleLineShadow(),
@@ -192,3 +197,20 @@ def test_patheffects_spaces_and_newlines():
                     bbox={'color': 'thistle'})
     text1.set_path_effects([path_effects.Normal()])
     text2.set_path_effects([path_effects.Normal()])
+
+
+def test_patheffects_overridden_methods_open_close_group():
+    class CustomRenderer(RendererBase):
+        def __init__(self):
+            super().__init__()
+
+        def open_group(self, s, gid=None):
+            return "open_group overridden"
+
+        def close_group(self, s):
+            return "close_group overridden"
+
+    renderer = PathEffectRenderer([path_effects.Normal()], CustomRenderer())
+
+    assert renderer.open_group('s') == "open_group overridden"
+    assert renderer.close_group('s') == "close_group overridden"

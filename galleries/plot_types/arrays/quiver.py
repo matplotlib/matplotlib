@@ -2,6 +2,7 @@
 ==================
 quiver(X, Y, U, V)
 ==================
+Plot a 2D field of arrows.
 
 See `~matplotlib.axes.Axes.quiver`.
 """

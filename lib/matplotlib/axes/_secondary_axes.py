@@ -2,10 +2,11 @@ import numbers
 
 import numpy as np
 
-from matplotlib import _api, _docstring
+from matplotlib import _api, _docstring, transforms
 import matplotlib.ticker as mticker
 from matplotlib.axes._base import _AxesBase, _TransformedBoundsLocator
 from matplotlib.axis import Axis
+from matplotlib.transforms import Transform
 
 
 class SecondaryAxis(_AxesBase):
@@ -13,7 +14,8 @@ class SecondaryAxis(_AxesBase):
     General class to hold a Secondary_X/Yaxis.
     """
 
-    def __init__(self, parent, orientation, location, functions, **kwargs):
+    def __init__(self, parent, orientation, location, functions, transform=None,
+                 **kwargs):
         """
         See `.secondary_xaxis` and `.secondary_yaxis` for the doc string.
         While there is no need for this to be private, it should really be
@@ -38,7 +40,7 @@ class SecondaryAxis(_AxesBase):
         self._parentscale = None
         # this gets positioned w/o constrained_layout so exclude:
 
-        self.set_location(location)
+        self.set_location(location, transform)
         self.set_functions(functions)
 
         # styling:
@@ -57,7 +59,7 @@ class SecondaryAxis(_AxesBase):
     def set_alignment(self, align):
         """
         Set if axes spine and labels are drawn at top or bottom (or left/right)
-        of the axes.
+        of the Axes.
 
         Parameters
         ----------
@@ -73,7 +75,7 @@ class SecondaryAxis(_AxesBase):
         self._axis.set_ticks_position(align)
         self._axis.set_label_position(align)
 
-    def set_location(self, location):
+    def set_location(self, location, transform=None):
         """
         Set the vertical or horizontal location of the axes in
         parent-normalized coordinates.
@@ -84,9 +86,18 @@ class SecondaryAxis(_AxesBase):
             The position to put the secondary axis.  Strings can be 'top' or
             'bottom' for orientation='x' and 'right' or 'left' for
             orientation='y'. A float indicates the relative position on the
-            parent axes to put the new axes, 0.0 being the bottom (or left)
+            parent Axes to put the new Axes, 0.0 being the bottom (or left)
             and 1.0 being the top (or right).
+
+        transform : `.Transform`, optional
+            Transform for the location to use. Defaults to
+            the parent's ``transAxes``, so locations are normally relative to
+            the parent axes.
+
+            .. versionadded:: 3.9
         """
+
+        _api.check_isinstance((transforms.Transform, None), transform=transform)
 
         # This puts the rectangle into figure-relative coordinates.
         if isinstance(location, str):
@@ -105,15 +116,28 @@ class SecondaryAxis(_AxesBase):
             # An x-secondary axes is like an inset axes from x = 0 to x = 1 and
             # from y = pos to y = pos + eps, in the parent's transAxes coords.
             bounds = [0, self._pos, 1., 1e-10]
+
+            # If a transformation is provided, use its y component rather than
+            # the parent's transAxes. This can be used to place axes in the data
+            # coords, for instance.
+            if transform is not None:
+                transform = transforms.blended_transform_factory(
+                    self._parent.transAxes, transform)
         else:  # 'y'
             bounds = [self._pos, 0, 1e-10, 1]
+            if transform is not None:
+                transform = transforms.blended_transform_factory(
+                    transform, self._parent.transAxes)  # Use provided x axis
+
+        # If no transform is provided, use the parent's transAxes
+        if transform is None:
+            transform = self._parent.transAxes
 
         # this locator lets the axes move in the parent axes coordinates.
         # so it never needs to know where the parent is explicitly in
         # figure coordinates.
         # it gets called in ax.apply_aspect() (of all places)
-        self.set_axes_locator(
-            _TransformedBoundsLocator(bounds, self._parent.transAxes))
+        self.set_axes_locator(_TransformedBoundsLocator(bounds, transform))
 
     def apply_aspect(self, position=None):
         # docstring inherited.
@@ -129,7 +153,7 @@ class SecondaryAxis(_AxesBase):
 
     def set_functions(self, functions):
         """
-        Set how the secondary axis converts limits from the parent axes.
+        Set how the secondary axis converts limits from the parent Axes.
 
         Parameters
         ----------
@@ -144,15 +168,21 @@ class SecondaryAxis(_AxesBase):
             If a transform is supplied, then the transform must have an
             inverse.
         """
+
         if (isinstance(functions, tuple) and len(functions) == 2 and
                 callable(functions[0]) and callable(functions[1])):
             # make an arbitrary convert from a two-tuple of functions
             # forward and inverse.
             self._functions = functions
+        elif isinstance(functions, Transform):
+            self._functions = (
+                 functions.transform,
+                 lambda x: functions.inverted().transform(x)
+            )
         elif functions is None:
             self._functions = (lambda x: x, lambda x: x)
         else:
-            raise ValueError('functions argument of secondary axes '
+            raise ValueError('functions argument of secondary Axes '
                              'must be a two-tuple of callable functions '
                              'with the first function being the transform '
                              'and the second being the inverse')
@@ -160,12 +190,12 @@ class SecondaryAxis(_AxesBase):
 
     def draw(self, renderer):
         """
-        Draw the secondary axes.
+        Draw the secondary Axes.
 
-        Consults the parent axes for its limits and converts them
+        Consults the parent Axes for its limits and converts them
         using the converter specified by
         `~.axes._secondary_axes.set_functions` (or *functions*
-        parameter when axes initialized.)
+        parameter when Axes initialized.)
         """
         self._set_lims()
         # this sets the scale in case the parent has set its scale.
@@ -204,7 +234,7 @@ class SecondaryAxis(_AxesBase):
     def _set_lims(self):
         """
         Set the limits based on parent limits and the convert method
-        between the parent and this secondary axes.
+        between the parent and this secondary Axes.
         """
         if self._orientation == 'x':
             lims = self._parent.get_xlim()
@@ -222,18 +252,18 @@ class SecondaryAxis(_AxesBase):
 
     def set_aspect(self, *args, **kwargs):
         """
-        Secondary axes cannot set the aspect ratio, so calling this just
+        Secondary Axes cannot set the aspect ratio, so calling this just
         sets a warning.
         """
-        _api.warn_external("Secondary axes can't set the aspect ratio")
+        _api.warn_external("Secondary Axes can't set the aspect ratio")
 
     def set_color(self, color):
         """
-        Change the color of the secondary axes and all decorators.
+        Change the color of the secondary Axes and all decorators.
 
         Parameters
         ----------
-        color : color
+        color : :mpltype:`color`
         """
         axis = self._axis_map[self._orientation]
         axis.set_tick_params(colors=color)
@@ -254,7 +284,7 @@ location : {'top', 'bottom', 'left', 'right'} or float
     The position to put the secondary axis.  Strings can be 'top' or
     'bottom' for orientation='x' and 'right' or 'left' for
     orientation='y'. A float indicates the relative position on the
-    parent axes to put the new axes, 0.0 being the bottom (or left)
+    parent Axes to put the new Axes, 0.0 being the bottom (or left)
     and 1.0 being the top (or right).
 
 functions : 2-tuple of func, or Transform with an inverse
@@ -271,6 +301,14 @@ functions : 2-tuple of func, or Transform with an inverse
     See :doc:`/gallery/subplots_axes_and_figures/secondary_axis`
     for examples of making these conversions.
 
+transform : `.Transform`, optional
+    If specified, *location* will be
+    placed relative to this transform (in the direction of the axis)
+    rather than the parent's axis. i.e. a secondary x-axis will
+    use the provided y transform and the x transform of the parent.
+
+    .. versionadded:: 3.9
+
 Returns
 -------
 ax : axes._secondary_axes.SecondaryAxis
@@ -278,6 +316,6 @@ ax : axes._secondary_axes.SecondaryAxis
 Other Parameters
 ----------------
 **kwargs : `~matplotlib.axes.Axes` properties.
-    Other miscellaneous axes parameters.
+    Other miscellaneous Axes parameters.
 '''
 _docstring.interpd.update(_secax_docstring=_secax_docstring)

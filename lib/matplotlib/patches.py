@@ -127,6 +127,29 @@ class Patch(artist.Artist):
         """
         Test whether the mouse event occurred in the patch.
 
+        Parameters
+        ----------
+        mouseevent : `~matplotlib.backend_bases.MouseEvent`
+            Where the user clicked.
+
+        radius : float, optional
+            Additional margin on the patch in target coordinates of
+            `.Patch.get_transform`. See `.Path.contains_point` for further
+            details.
+
+            If `None`, the default value depends on the state of the object:
+
+            - If `.Artist.get_picker` is a number, the default
+              is that value.  This is so that picking works as expected.
+            - Otherwise if the edge color has a non-zero alpha, the default
+              is half of the linewidth.  This is so that all the colored
+              pixels are "in" the patch.
+            - Finally, if the edge has 0 alpha, the default is 0.  This is
+              so that patches without a stroked edge do not have points
+              outside of the filled region report as "in" due to an
+              invisible edge.
+
+
         Returns
         -------
         (bool, empty dict)
@@ -160,12 +183,24 @@ class Patch(artist.Artist):
         ----------
         point : (float, float)
             The point (x, y) to check, in target coordinates of
-            ``self.get_transform()``. These are display coordinates for patches
-            that are added to a figure or axes.
+            ``.Patch.get_transform()``. These are display coordinates for patches
+            that are added to a figure or Axes.
         radius : float, optional
             Additional margin on the patch in target coordinates of
-            ``self.get_transform()``. See `.Path.contains_point` for further
+            `.Patch.get_transform`. See `.Path.contains_point` for further
             details.
+
+            If `None`, the default value depends on the state of the object:
+
+            - If `.Artist.get_picker` is a number, the default
+              is that value.  This is so that picking works as expected.
+            - Otherwise if the edge color has a non-zero alpha, the default
+              is half of the linewidth.  This is so that all the colored
+              pixels are "in" the patch.
+            - Finally, if the edge has 0 alpha, the default is 0.  This is
+              so that patches without a stroked edge do not have points
+              outside of the filled region report as "in" due to an
+              invisible edge.
 
         Returns
         -------
@@ -190,10 +225,10 @@ class Patch(artist.Artist):
         transform them first:
 
         >>> center = 0, 0
-        >>> c = Circle(center, radius=1)
+        >>> c = Circle(center, radius=3)
         >>> plt.gca().add_patch(c)
-        >>> transformed_center = c.get_transform().transform(center)
-        >>> c.contains_point(transformed_center)
+        >>> transformed_interior_point = c.get_data_transform().transform((0, 2))
+        >>> c.contains_point(transformed_interior_point)
         True
 
         """
@@ -211,11 +246,23 @@ class Patch(artist.Artist):
         points : (N, 2) array
             The points to check, in target coordinates of
             ``self.get_transform()``. These are display coordinates for patches
-            that are added to a figure or axes. Columns contain x and y values.
+            that are added to a figure or Axes. Columns contain x and y values.
         radius : float, optional
             Additional margin on the patch in target coordinates of
-            ``self.get_transform()``. See `.Path.contains_point` for further
+            `.Patch.get_transform`. See `.Path.contains_point` for further
             details.
+
+            If `None`, the default value depends on the state of the object:
+
+            - If `.Artist.get_picker` is a number, the default
+              is that value.  This is so that picking works as expected.
+            - Otherwise if the edge color has a non-zero alpha, the default
+              is half of the linewidth.  This is so that all the colored
+              pixels are "in" the patch.
+            - Finally, if the edge has 0 alpha, the default is 0.  This is
+              so that patches without a stroked edge do not have points
+              outside of the filled region report as "in" due to an
+              invisible edge.
 
         Returns
         -------
@@ -332,7 +379,7 @@ class Patch(artist.Artist):
 
         Parameters
         ----------
-        color : color or None
+        color : :mpltype:`color` or None
         """
         self._original_edgecolor = color
         self._set_edgecolor(color)
@@ -350,7 +397,7 @@ class Patch(artist.Artist):
 
         Parameters
         ----------
-        color : color or None
+        color : :mpltype:`color` or None
         """
         self._original_facecolor = color
         self._set_facecolor(color)
@@ -361,7 +408,7 @@ class Patch(artist.Artist):
 
         Parameters
         ----------
-        c : color
+        c : :mpltype:`color`
 
         See Also
         --------
@@ -510,9 +557,6 @@ class Patch(artist.Artist):
         Letters can be combined, in which case all the specified
         hatchings are done.  If same letter repeats, it increases the
         density of hatching of that pattern.
-
-        Hatching is supported in the PostScript, PDF, SVG and Agg
-        backends only.
 
         Parameters
         ----------
@@ -994,9 +1038,10 @@ class StepPatch(PathPatch):
             True or an array is passed to *baseline*, a closed
             path is drawn.
 
-        Other valid keyword arguments are:
+        **kwargs
+            `Patch` properties:
 
-        %(Patch:kwdoc)s
+            %(Patch:kwdoc)s
         """
         self.orientation = orientation
         self._edges = np.asarray(edges)
@@ -1112,7 +1157,7 @@ class Polygon(Patch):
         Parameters
         ----------
         closed : bool
-           True if the polygon is closed
+            True if the polygon is closed
         """
         if self._closed == bool(closed):
             return
@@ -1296,18 +1341,46 @@ class Arrow(Patch):
             properties.
         """
         super().__init__(**kwargs)
-        self._patch_transform = (
-            transforms.Affine2D()
-            .scale(np.hypot(dx, dy), width)
-            .rotate(np.arctan2(dy, dx))
-            .translate(x, y)
-            .frozen())
+        self.set_data(x, y, dx, dy, width)
 
     def get_path(self):
         return self._path
 
     def get_patch_transform(self):
         return self._patch_transform
+
+    def set_data(self, x=None, y=None, dx=None, dy=None, width=None):
+        """
+        Set `.Arrow` x, y, dx, dy and width.
+        Values left as None will not be updated.
+
+        Parameters
+        ----------
+        x, y : float or None, default: None
+            The x and y coordinates of the arrow base.
+
+        dx, dy : float or None, default: None
+            The length of the arrow along x and y direction.
+
+        width : float or None, default: None
+            Width of full arrow tail.
+        """
+        if x is not None:
+            self._x = x
+        if y is not None:
+            self._y = y
+        if dx is not None:
+            self._dx = dx
+        if dy is not None:
+            self._dy = dy
+        if width is not None:
+            self._width = width
+        self._patch_transform = (
+            transforms.Affine2D()
+            .scale(np.hypot(self._dx, self._dy), self._width)
+            .rotate(np.arctan2(self._dy, self._dx))
+            .translate(self._x, self._y)
+            .frozen())
 
 
 class FancyArrow(Polygon):
@@ -1764,9 +1837,9 @@ class Annulus(Patch):
         ----------
         width : float
         """
-        if min(self.a, self.b) <= width:
+        if width > min(self.a, self.b):
             raise ValueError(
-                'Width of annulus must be less than or equal semi-minor axis')
+                'Width of annulus must be less than or equal to semi-minor axis')
 
         self._width = width
         self._path = None
@@ -2084,7 +2157,7 @@ class Arc(Ellipse):
                 & (y0e - epsilon < ys) & (ys < y1e + epsilon)
             ]
 
-        # Transform the axes (or figure) box_path so that it is relative to
+        # Transform the Axes (or figure) box_path so that it is relative to
         # the unit circle in the same way that it is relative to the desired
         # ellipse.
         box_path_transform = (
@@ -2706,12 +2779,6 @@ class ConnectionStyle(_Style):
         points. This base class defines a __call__ method, and a few
         helper methods.
         """
-
-        @_api.deprecated("3.7")
-        class SimpleEvent:
-            def __init__(self, xy):
-                self.x, self.y = xy
-
         def _in_patch(self, patch):
             """
             Return a predicate function testing whether a point *xy* is
@@ -4119,7 +4186,7 @@ default: 'arc3'
             Head and tail patches, respectively.
 
         shrinkA, shrinkB : float, default: 2
-            Shrinking factor of the tail and head of the arrow respectively.
+            Shrink amount, in points, of the tail and head of the arrow respectively.
 
         mutation_scale : float, default: 1
             Value with which attributes of *arrowstyle* (e.g., *head_length*)
@@ -4391,7 +4458,7 @@ default: 'arc3'
 
 
 class ConnectionPatch(FancyArrowPatch):
-    """A patch that connects two points (possibly in different axes)."""
+    """A patch that connects two points (possibly in different Axes)."""
 
     def __str__(self):
         return "ConnectionPatch((%g, %g), (%g, %g))" % \
@@ -4443,15 +4510,15 @@ class ConnectionPatch(FancyArrowPatch):
         'subfigure points'   points from the lower left corner of the subfigure
         'subfigure pixels'   pixels from the lower left corner of the subfigure
         'subfigure fraction' fraction of the subfigure, 0, 0 is lower left.
-        'axes points'        points from lower left corner of axes
-        'axes pixels'        pixels from lower left corner of axes
-        'axes fraction'      0, 0 is lower left of axes and 1, 1 is upper right
+        'axes points'        points from lower left corner of the Axes
+        'axes pixels'        pixels from lower left corner of the Axes
+        'axes fraction'      0, 0 is lower left of Axes and 1, 1 is upper right
         'data'               use the coordinate system of the object being
                              annotated (default)
         'offset points'      offset (in points) from the *xy* value
         'polar'              you can specify *theta*, *r* for the annotation,
                              even in cartesian plots.  Note that if you are
-                             using a polar axes, you do not need to specify
+                             using a polar Axes, you do not need to specify
                              polar for the coordinate system since that is the
                              native "data" coordinate system.
         ==================== ==================================================
@@ -4498,7 +4565,7 @@ class ConnectionPatch(FancyArrowPatch):
                          mutation_aspect=mutation_aspect,
                          clip_on=clip_on,
                          **kwargs)
-        # if True, draw annotation only if self.xy is inside the axes
+        # if True, draw annotation only if self.xy is inside the Axes
         self._annotation_clip = None
 
     def _get_xy(self, xy, s, axes=None):
@@ -4548,7 +4615,7 @@ class ConnectionPatch(FancyArrowPatch):
             y = bb.y0 + y if y >= 0 else bb.y1 + y
             return x, y
         elif s == 'axes pixels':
-            # pixels from the lower left corner of the axes
+            # pixels from the lower left corner of the Axes
             bb = axes.bbox
             x = bb.x0 + x if x >= 0 else bb.x1 + x
             y = bb.y0 + y if y >= 0 else bb.y1 + y
@@ -4566,10 +4633,10 @@ class ConnectionPatch(FancyArrowPatch):
         ----------
         b : bool or None
             - True: The annotation will be clipped when ``self.xy`` is
-              outside the axes.
+              outside the Axes.
             - False: The annotation will always be drawn.
             - None: The annotation will be clipped when ``self.xy`` is
-              outside the axes and ``self.xycoords == "data"``.
+              outside the Axes and ``self.xycoords == "data"``.
         """
         self._annotation_clip = b
         self.stale = True
@@ -4626,8 +4693,6 @@ class ConnectionPatch(FancyArrowPatch):
         return True
 
     def draw(self, renderer):
-        if renderer is not None:
-            self._renderer = renderer
         if not self.get_visible() or not self._check_xy(renderer):
             return
         super().draw(renderer)

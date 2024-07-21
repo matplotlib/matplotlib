@@ -29,10 +29,7 @@ xtick.minor.size: 0
 ytick.major.size: 0
 ytick.minor.size: 0
 
-font.size:14.0
-
-savefig.edgecolor: f0f0f0
-savefig.facecolor: f0f0f0
+font.size: 14.0
 
 figure.subplot.left: 0.08
 figure.subplot.right: 0.95

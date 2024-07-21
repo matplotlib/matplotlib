@@ -15,7 +15,7 @@ from . import _api, cbook
 from .colors import BoundaryNorm
 from .cm import ScalarMappable
 from .path import Path
-from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
+from .transforms import (BboxBase, Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
 
 _log = logging.getLogger(__name__)
@@ -181,7 +181,7 @@ class Artist:
         self._stale = True
         self.stale_callback = None
         self._axes = None
-        self.figure = None
+        self._parent_figure = None
 
         self._transform = None
         self._transformSet = False
@@ -224,10 +224,10 @@ class Artist:
 
         The effect will not be visible until the figure is redrawn, e.g.,
         with `.FigureCanvasBase.draw_idle`.  Call `~.axes.Axes.relim` to
-        update the axes limits if desired.
+        update the Axes limits if desired.
 
         Note: `~.axes.Axes.relim` will not see collections even if the
-        collection was added to the axes with *autolim* = True.
+        collection was added to the Axes with *autolim* = True.
 
         Note: there is no support for removing the artist's legend entry.
         """
@@ -251,7 +251,7 @@ class Artist:
             if self.figure:
                 if not _ax_flag:
                     self.figure.stale = True
-                self.figure = None
+                self._parent_figure = None
 
         else:
             raise NotImplementedError('cannot remove artist')
@@ -299,9 +299,8 @@ class Artist:
     def axes(self, new_axes):
         if (new_axes is not None and self._axes is not None
                 and new_axes != self._axes):
-            raise ValueError("Can not reset the axes.  You are probably "
-                             "trying to re-use an artist in more than one "
-                             "Axes which is not supported")
+            raise ValueError("Can not reset the Axes. You are probably trying to reuse "
+                             "an artist in more than one Axes which is not supported")
         self._axes = new_axes
         if new_axes is not None and new_axes is not self:
             self.stale_callback = _stale_axes_callback
@@ -340,7 +339,7 @@ class Artist:
         Be careful when using this function, the results will not update
         if the artist window extent of the artist changes.  The extent
         can change due to any changes in the transform stack, such as
-        changing the axes limits, the figure size, or the canvas used
+        changing the Axes limits, the figure size, or the canvas used
         (as is done when saving a figure).  This can lead to unexpected
         behavior where interactive figures will look fine on the screen,
         but will save incorrectly.
@@ -494,9 +493,6 @@ class Artist:
             such as which points are contained in the pick radius. See the
             individual Artist subclasses for details.
         """
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
         _log.warning("%r needs 'contains' method", self.__class__.__name__)
         return False, {}
 
@@ -506,7 +502,7 @@ class Artist:
 
         See Also
         --------
-        set_picker, get_picker, pick
+        .Artist.set_picker, .Artist.get_picker, .Artist.pick
         """
         return self.figure is not None and self._picker is not None
 
@@ -519,7 +515,7 @@ class Artist:
 
         See Also
         --------
-        set_picker, get_picker, pickable
+        .Artist.set_picker, .Artist.get_picker, .Artist.pickable
         """
         from .backend_bases import PickEvent  # Circular import.
         # Pick self
@@ -537,7 +533,8 @@ class Artist:
         for a in self.get_children():
             # make sure the event happened in the same Axes
             ax = getattr(a, 'axes', None)
-            if (mouseevent.inaxes is None or ax is None
+            if (isinstance(a, mpl.figure.SubFigure)
+                    or mouseevent.inaxes is None or ax is None
                     or mouseevent.inaxes == ax):
                 # we need to check if mouseevent.inaxes is None
                 # because some objects associated with an Axes (e.g., a
@@ -586,11 +583,11 @@ class Artist:
         """
         Return the picking behavior of the artist.
 
-        The possible values are described in `.set_picker`.
+        The possible values are described in `.Artist.set_picker`.
 
         See Also
         --------
-        set_picker, pickable, pick
+        .Artist.set_picker, .Artist.pickable, .Artist.pick
         """
         return self._picker
 
@@ -723,33 +720,48 @@ class Artist:
     def get_path_effects(self):
         return self._path_effects
 
-    def get_figure(self):
-        """Return the `.Figure` instance the artist belongs to."""
-        return self.figure
-
-    def set_figure(self, fig):
+    def get_figure(self, root=False):
         """
-        Set the `.Figure` instance the artist belongs to.
+        Return the `.Figure` or `.SubFigure` instance the artist belongs to.
 
         Parameters
         ----------
-        fig : `~matplotlib.figure.Figure`
+        root : bool, default=False
+            If False, return the (Sub)Figure this artist is on.  If True,
+            return the root Figure for a nested tree of SubFigures.
+        """
+        if root and self._parent_figure is not None:
+            return self._parent_figure.get_figure(root=True)
+
+        return self._parent_figure
+
+    def set_figure(self, fig):
+        """
+        Set the `.Figure` or `.SubFigure` instance the artist belongs to.
+
+        Parameters
+        ----------
+        fig : `~matplotlib.figure.Figure` or `~matplotlib.figure.SubFigure`
         """
         # if this is a no-op just return
-        if self.figure is fig:
+        if self._parent_figure is fig:
             return
         # if we currently have a figure (the case of both `self.figure`
         # and *fig* being none is taken care of above) we then user is
         # trying to change the figure an artist is associated with which
         # is not allowed for the same reason as adding the same instance
         # to more than one Axes
-        if self.figure is not None:
+        if self._parent_figure is not None:
             raise RuntimeError("Can not put single artist in "
                                "more than one figure")
-        self.figure = fig
-        if self.figure and self.figure is not self:
+        self._parent_figure = fig
+        if self._parent_figure and self._parent_figure is not self:
             self.pchanged()
         self.stale = True
+
+    figure = property(get_figure, set_figure,
+                      doc=("The (Sub)Figure that the artist is on.  For more "
+                           "control, use the `get_figure` method."))
 
     def set_clip_box(self, clipbox):
         """
@@ -763,6 +775,7 @@ class Artist:
             clipping for an artist added to an Axes.
 
         """
+        _api.check_isinstance((BboxBase, None), clipbox=clipbox)
         if clipbox != self.clipbox:
             self.clipbox = clipbox
             self.pchanged()
@@ -1177,7 +1190,8 @@ class Artist:
         Helper for `.Artist.set` and `.Artist.update`.
 
         *errfmt* is used to generate error messages for invalid property
-        names; it gets formatted with ``type(self)`` and the property name.
+        names; it gets formatted with ``type(self)`` for "{cls}" and the
+        property name for "{prop_name}".
         """
         ret = []
         with cbook._setattr_cm(self, eventson=False):
@@ -1190,7 +1204,8 @@ class Artist:
                     func = getattr(self, f"set_{k}", None)
                     if not callable(func):
                         raise AttributeError(
-                            errfmt.format(cls=type(self), prop_name=k))
+                            errfmt.format(cls=type(self), prop_name=k),
+                            name=k)
                     ret.append(func(v))
         if ret:
             self.pchanged()
@@ -1479,6 +1494,9 @@ class ArtistInspector:
         if not hasattr(self.o, name):
             raise AttributeError(f'{self.o} has no function {name}')
         func = getattr(self.o, name)
+
+        if hasattr(func, '_kwarg_doc'):
+            return func._kwarg_doc
 
         docstring = inspect.getdoc(func)
         if docstring is None:

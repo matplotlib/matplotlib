@@ -12,13 +12,13 @@ class FigureCanvasWxAgg(FigureCanvasAgg, _FigureCanvasWxBase):
         Render the figure using agg.
         """
         FigureCanvasAgg.draw(self)
-        self.bitmap = _rgba_to_wx_bitmap(self.get_renderer().buffer_rgba())
+        self.bitmap = self._create_bitmap()
         self._isDrawn = True
         self.gui_repaint(drawDC=drawDC)
 
     def blit(self, bbox=None):
         # docstring inherited
-        bitmap = _rgba_to_wx_bitmap(self.get_renderer().buffer_rgba())
+        bitmap = self._create_bitmap()
         if bbox is None:
             self.bitmap = bitmap
         else:
@@ -31,11 +31,13 @@ class FigureCanvasWxAgg(FigureCanvasAgg, _FigureCanvasWxBase):
             srcDC.SelectObject(wx.NullBitmap)
         self.gui_repaint()
 
-
-def _rgba_to_wx_bitmap(rgba):
-    """Convert an RGBA buffer to a wx.Bitmap."""
-    h, w, _ = rgba.shape
-    return wx.Bitmap.FromBufferRGBA(w, h, rgba)
+    def _create_bitmap(self):
+        """Create a wx.Bitmap from the renderer RGBA buffer"""
+        rgba = self.get_renderer().buffer_rgba()
+        h, w, _ = rgba.shape
+        bitmap = wx.Bitmap.FromBufferRGBA(w, h, rgba)
+        bitmap.SetScaleFactor(self.GetDPIScaleFactor())
+        return bitmap
 
 
 @_BackendWx.export

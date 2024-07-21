@@ -41,6 +41,11 @@ class UpdateDist:
         # which the plotted distribution should converge.
         self.ax.axvline(prob, linestyle='--', color='black')
 
+    def start(self):
+        # Used for the *init_func* parameter of FuncAnimation; this is called when
+        # initializing the animation, and also after resizing the figure.
+        return self.line,
+
     def __call__(self, i):
         # This way the plot can continuously run and we just keep
         # watching new realizations of the process
@@ -62,5 +67,5 @@ np.random.seed(19680801)
 
 fig, ax = plt.subplots()
 ud = UpdateDist(ax, prob=0.7)
-anim = FuncAnimation(fig, ud, frames=100, interval=100, blit=True)
+anim = FuncAnimation(fig, ud, init_func=ud.start, frames=100, interval=100, blit=True)
 plt.show()

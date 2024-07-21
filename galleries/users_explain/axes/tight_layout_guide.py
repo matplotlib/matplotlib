@@ -4,7 +4,7 @@
 .. _tight_layout_guide:
 
 ==================
-Tight Layout guide
+Tight layout guide
 ==================
 
 How to use tight-layout to fit plots within your figure cleanly.
@@ -18,14 +18,11 @@ An alternative to *tight_layout* is :ref:`constrained_layout
 <constrainedlayout_guide>`.
 
 
-Simple Example
+Simple example
 ==============
 
-In matplotlib, the location of axes (including subplots) are specified in
-normalized figure coordinates. It can happen that your axis labels or
-titles (or sometimes even ticklabels) go outside the figure area, and are thus
-clipped.
-
+With the default Axes positioning, the axes title, axis labels, or tick labels
+can sometimes go outside the figure area, and thus get clipped.
 """
 
 # sphinx_gallery_thumbnail_number = 7
@@ -49,7 +46,7 @@ fig, ax = plt.subplots()
 example_plot(ax, fontsize=24)
 
 # %%
-# To prevent this, the location of axes needs to be adjusted. For
+# To prevent this, the location of Axes needs to be adjusted. For
 # subplots, this can be done manually by adjusting the subplot parameters
 # using `.Figure.subplots_adjust`. `.Figure.tight_layout` does this
 # automatically.
@@ -65,7 +62,7 @@ plt.tight_layout()
 # equivalently, set :rc:`figure.autolayout` to ``True``.
 #
 # When you have multiple subplots, often you see labels of different
-# axes overlapping each other.
+# Axes overlapping each other.
 
 plt.close('all')
 
@@ -140,7 +137,7 @@ plt.tight_layout()
 
 # %%
 # Although not thoroughly tested, it seems to work for subplots with
-# aspect != "auto" (e.g., axes with images).
+# aspect != "auto" (e.g., Axes with images).
 
 arr = np.arange(100).reshape((10, 10))
 
@@ -156,12 +153,12 @@ plt.tight_layout()
 # Caveats
 # =======
 #
-# * `~matplotlib.pyplot.tight_layout` considers all artists on the axes by
+# * `~matplotlib.pyplot.tight_layout` considers all artists on the Axes by
 #   default.  To remove an artist from the layout calculation you can call
 #   `.Artist.set_in_layout`.
 #
 # * ``tight_layout`` assumes that the extra space needed for artists is
-#   independent of the original location of axes. This is often true, but there
+#   independent of the original location of Axes. This is often true, but there
 #   are rare cases where it is not.
 #
 # * ``pad=0`` can clip some texts by a few pixels. This may be a bug or
@@ -190,8 +187,8 @@ gs1.tight_layout(fig)
 
 # %%
 # You may provide an optional *rect* parameter, which specifies the bounding
-# box that the subplots will be fit inside. The coordinates must be in
-# normalized figure coordinates and the default is (0, 0, 1, 1).
+# box that the subplots will be fit inside. The coordinates are in
+# normalized figure coordinates and default to (0, 0, 1, 1) (the whole figure).
 
 fig = plt.figure()
 
@@ -213,13 +210,13 @@ gs1.tight_layout(fig, rect=[0, 0, 0.5, 1.0])
 
 
 # %%
-# Legends and Annotations
+# Legends and annotations
 # =======================
 #
 # Pre Matplotlib 2.2, legends and annotations were excluded from the bounding
 # box calculations that decide the layout.  Subsequently, these artists were
 # added to the calculation, but sometimes it is undesirable to include them.
-# For instance in this case it might be good to have the axes shrink a bit
+# For instance in this case it might be good to have the Axes shrink a bit
 # to make room for the legend:
 
 fig, ax = plt.subplots(figsize=(4, 3))
@@ -245,7 +242,7 @@ plt.show()
 # Use with AxesGrid1
 # ==================
 #
-# While limited, :mod:`mpl_toolkits.axes_grid1` is also supported.
+# Limited support for :mod:`mpl_toolkits.axes_grid1` is provided.
 
 from mpl_toolkits.axes_grid1 import Grid
 
@@ -266,7 +263,7 @@ plt.tight_layout()
 # ========
 #
 # If you create a colorbar with `.Figure.colorbar`, the created colorbar is
-# drawn in a Subplot as long as the parent axes is also a Subplot, so
+# drawn in a Subplot as long as the parent Axes is also a Subplot, so
 # `.Figure.tight_layout` will work.
 
 plt.close('all')

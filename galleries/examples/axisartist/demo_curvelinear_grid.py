@@ -54,7 +54,8 @@ def curvelinear_test2(fig):
 
     # PolarAxes.PolarTransform takes radian. However, we want our coordinate
     # system in degree
-    tr = Affine2D().scale(np.pi/180, 1) + PolarAxes.PolarTransform()
+    tr = Affine2D().scale(np.pi/180, 1) + PolarAxes.PolarTransform(
+        apply_theta_transforms=False)
     # Polar projection, which involves cycle, and also has limits in
     # its coordinates, needs a special method to find the extremes
     # (min, max of the coordinate within the view).
@@ -90,7 +91,7 @@ def curvelinear_test2(fig):
 
     ax1.grid(True, zorder=0)
 
-    # A parasite axes with given transform
+    # A parasite Axes with given transform
     ax2 = ax1.get_aux_axes(tr)
     # note that ax2.transData == tr + ax1.transData
     # Anything you draw in ax2 will match the ticks and grids of ax1.

@@ -80,17 +80,17 @@ def _get_text_metrics_with_cache_impl(
 @_docstring.interpd
 @_api.define_aliases({
     "color": ["c"],
-    "fontfamily": ["family"],
     "fontproperties": ["font", "font_properties"],
-    "horizontalalignment": ["ha"],
-    "multialignment": ["ma"],
+    "fontfamily": ["family"],
     "fontname": ["name"],
     "fontsize": ["size"],
     "fontstretch": ["stretch"],
     "fontstyle": ["style"],
     "fontvariant": ["variant"],
-    "verticalalignment": ["va"],
     "fontweight": ["weight"],
+    "horizontalalignment": ["ha"],
+    "verticalalignment": ["va"],
+    "multialignment": ["ma"],
 })
 class Text(Artist):
     """Handle storing and drawing of text in window or data coordinates."""
@@ -123,7 +123,7 @@ class Text(Artist):
 
         The text is aligned relative to the anchor point (*x*, *y*) according
         to ``horizontalalignment`` (default: 'left') and ``verticalalignment``
-        (default: 'bottom'). See also
+        (default: 'baseline'). See also
         :doc:`/gallery/text_labels_and_annotations/text_alignment`.
 
         While Text accepts the 'label' keyword argument, by default it is not
@@ -606,6 +606,9 @@ class Text(Artist):
         """
         Set whether the text can be wrapped.
 
+        Wrapping makes sure the text is confined to the (sub)figure box. It
+        does not take into account any other artists.
+
         Parameters
         ----------
         wrap : bool
@@ -653,16 +656,16 @@ class Text(Artist):
         """
         if rotation > 270:
             quad = rotation - 270
-            h1 = y0 / math.cos(math.radians(quad))
+            h1 = (y0 - figure_box.y0) / math.cos(math.radians(quad))
             h2 = (figure_box.x1 - x0) / math.cos(math.radians(90 - quad))
         elif rotation > 180:
             quad = rotation - 180
-            h1 = x0 / math.cos(math.radians(quad))
-            h2 = y0 / math.cos(math.radians(90 - quad))
+            h1 = (x0 - figure_box.x0) / math.cos(math.radians(quad))
+            h2 = (y0 - figure_box.y0) / math.cos(math.radians(90 - quad))
         elif rotation > 90:
             quad = rotation - 90
             h1 = (figure_box.y1 - y0) / math.cos(math.radians(quad))
-            h2 = x0 / math.cos(math.radians(90 - quad))
+            h2 = (x0 - figure_box.x0) / math.cos(math.radians(90 - quad))
         else:
             h1 = (figure_box.x1 - x0) / math.cos(math.radians(rotation))
             h2 = (figure_box.y1 - y0) / math.cos(math.radians(90 - rotation))
@@ -965,7 +968,7 @@ class Text(Artist):
 
         Parameters
         ----------
-        color : color
+        color : :mpltype:`color`
 
         See Also
         --------
@@ -985,7 +988,7 @@ class Text(Artist):
 
         Parameters
         ----------
-        color : color
+        color : :mpltype:`color`
         """
         # "auto" is only supported by axisartist, but we can just let it error
         # out at draw time for simplicity.
@@ -1251,7 +1254,7 @@ class Text(Artist):
 
         Parameters
         ----------
-        align : {'bottom', 'baseline', 'center', 'center_baseline', 'top'}
+        align : {'baseline', 'bottom', 'center', 'center_baseline', 'top'}
         """
         _api.check_in_list(
             ['top', 'bottom', 'center', 'baseline', 'center_baseline'],
@@ -1314,6 +1317,7 @@ class Text(Artist):
         self._fontproperties = FontProperties._from_any(fp).copy()
         self.stale = True
 
+    @_docstring.kwarg_doc("bool, default: :rc:`text.usetex`")
     def set_usetex(self, usetex):
         """
         Parameters
@@ -1497,7 +1501,7 @@ class _AnnotationBase:
             return self.axes.transData
         elif coords == 'polar':
             from matplotlib.projections import PolarAxes
-            tr = PolarAxes.PolarTransform()
+            tr = PolarAxes.PolarTransform(apply_theta_transforms=False)
             trans = tr + self.axes.transData
             return trans
 
@@ -1545,10 +1549,10 @@ class _AnnotationBase:
         ----------
         b : bool or None
             - True: The annotation will be clipped when ``self.xy`` is
-              outside the axes.
+              outside the Axes.
             - False: The annotation will always be drawn.
             - None: The annotation will be clipped when ``self.xy`` is
-              outside the axes and ``self.xycoords == "data"``.
+              outside the Axes and ``self.xycoords == "data"``.
         """
         self._annotation_clip = b
 
@@ -1570,7 +1574,7 @@ class _AnnotationBase:
             renderer = self.figure._get_renderer()
         b = self.get_annotation_clip()
         if b or (b is None and self.xycoords == "data"):
-            # check if self.xy is inside the axes.
+            # check if self.xy is inside the Axes.
             xy_pixel = self._get_position_xy(renderer)
             return self.axes.contains_point(xy_pixel)
         return True
@@ -1676,9 +1680,9 @@ callable, default: 'data'
               'subfigure points'   Points from the lower left of the subfigure
               'subfigure pixels'   Pixels from the lower left of the subfigure
               'subfigure fraction' Fraction of subfigure from lower left
-              'axes points'        Points from lower left corner of axes
-              'axes pixels'        Pixels from lower left corner of axes
-              'axes fraction'      Fraction of axes from lower left
+              'axes points'        Points from lower left corner of the Axes
+              'axes pixels'        Pixels from lower left corner of the Axes
+              'axes fraction'      Fraction of Axes from lower left
               'data'               Use the coordinate system of the object
                                    being annotated (default)
               'polar'              *(theta, r)* if not native 'data'
@@ -1766,8 +1770,8 @@ or callable, default: value of *xycoords*
             relpos           See below; default is (0.5, 0.5)
             patchA           Default is bounding box of the text
             patchB           Default is None
-            shrinkA          Default is 2 points
-            shrinkB          Default is 2 points
+            shrinkA          In points. Default is 2 points
+            shrinkB          In points. Default is 2 points
             mutation_scale   Default is text size (in points)
             mutation_aspect  Default is 1
             ?                Any `.FancyArrowPatch` property
@@ -1782,13 +1786,13 @@ or callable, default: value of *xycoords*
 
         annotation_clip : bool or None, default: None
             Whether to clip (i.e. not draw) the annotation when the annotation
-            point *xy* is outside the axes area.
+            point *xy* is outside the Axes area.
 
             - If *True*, the annotation will be clipped when *xy* is outside
-              the axes.
+              the Axes.
             - If *False*, the annotation will always be drawn.
             - If *None*, the annotation will be clipped when *xy* is outside
-              the axes and *xycoords* is 'data'.
+              the Axes and *xycoords* is 'data'.
 
         **kwargs
             Additional kwargs are passed to `.Text`.
@@ -1799,7 +1803,7 @@ or callable, default: value of *xycoords*
 
         See Also
         --------
-        :ref:`plotting-guide-annotation`
+        :ref:`annotations`
 
         """
         _AnnotationBase.__init__(self,

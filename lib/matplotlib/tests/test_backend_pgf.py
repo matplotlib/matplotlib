@@ -288,43 +288,47 @@ def test_pdf_pages_metadata_check(monkeypatch, system):
 
 @needs_pgf_xelatex
 def test_multipage_keep_empty(tmp_path):
-    os.chdir(tmp_path)
-
     # test empty pdf files
 
     # an empty pdf is left behind with keep_empty unset
-    with pytest.warns(mpl.MatplotlibDeprecationWarning), PdfPages("a.pdf") as pdf:
+    fn = tmp_path / "a.pdf"
+    with pytest.warns(mpl.MatplotlibDeprecationWarning), PdfPages(fn) as pdf:
         pass
-    assert os.path.exists("a.pdf")
+    assert fn.exists()
 
     # an empty pdf is left behind with keep_empty=True
+    fn = tmp_path / "b.pdf"
     with pytest.warns(mpl.MatplotlibDeprecationWarning), \
-            PdfPages("b.pdf", keep_empty=True) as pdf:
+            PdfPages(fn, keep_empty=True) as pdf:
         pass
-    assert os.path.exists("b.pdf")
+    assert fn.exists()
 
     # an empty pdf deletes itself afterwards with keep_empty=False
-    with PdfPages("c.pdf", keep_empty=False) as pdf:
+    fn = tmp_path / "c.pdf"
+    with PdfPages(fn, keep_empty=False) as pdf:
         pass
-    assert not os.path.exists("c.pdf")
+    assert not fn.exists()
 
     # test pdf files with content, they should never be deleted
 
     # a non-empty pdf is left behind with keep_empty unset
-    with PdfPages("d.pdf") as pdf:
+    fn = tmp_path / "d.pdf"
+    with PdfPages(fn) as pdf:
         pdf.savefig(plt.figure())
-    assert os.path.exists("d.pdf")
+    assert fn.exists()
 
     # a non-empty pdf is left behind with keep_empty=True
+    fn = tmp_path / "e.pdf"
     with pytest.warns(mpl.MatplotlibDeprecationWarning), \
-            PdfPages("e.pdf", keep_empty=True) as pdf:
+            PdfPages(fn, keep_empty=True) as pdf:
         pdf.savefig(plt.figure())
-    assert os.path.exists("e.pdf")
+    assert fn.exists()
 
     # a non-empty pdf is left behind with keep_empty=False
-    with PdfPages("f.pdf", keep_empty=False) as pdf:
+    fn = tmp_path / "f.pdf"
+    with PdfPages(fn, keep_empty=False) as pdf:
         pdf.savefig(plt.figure())
-    assert os.path.exists("f.pdf")
+    assert fn.exists()
 
 
 @needs_pgf_xelatex
@@ -402,3 +406,27 @@ def test_sketch_params():
     # \pgfdecoratecurrentpath must be after the path definition and before the
     # path is used (\pgfusepath)
     assert baseline in buf
+
+
+# test to make sure that the document font size is set consistently (see #26892)
+@needs_pgf_xelatex
+@pytest.mark.skipif(
+    not _has_tex_package('unicode-math'), reason='needs unicode-math.sty'
+)
+@pytest.mark.backend('pgf')
+@image_comparison(['pgf_document_font_size.pdf'], style='default', remove_text=True)
+def test_document_font_size():
+    mpl.rcParams.update({
+        'pgf.texsystem': 'xelatex',
+        'pgf.rcfonts': False,
+        'pgf.preamble': r'\usepackage{unicode-math}',
+    })
+    plt.figure()
+    plt.plot([],
+             label=r'$this is a very very very long math label a \times b + 10^{-3}$ '
+                   r'and some text'
+             )
+    plt.plot([],
+             label=r'\normalsize the document font size is \the\fontdimen6\font'
+             )
+    plt.legend()

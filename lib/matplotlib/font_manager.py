@@ -25,6 +25,8 @@ Future versions may implement the Level 2 or 2.1 specifications.
 #   - setWeights function needs improvement
 #   - 'light' is an invalid weight value, remove it.
 
+from __future__ import annotations
+
 from base64 import b64encode
 from collections import namedtuple
 import copy
@@ -36,11 +38,11 @@ import logging
 from numbers import Number
 import os
 from pathlib import Path
+import plistlib
 import re
 import subprocess
 import sys
 import threading
-from typing import Union
 
 import matplotlib as mpl
 from matplotlib import _api, _afm, cbook, ft2font
@@ -206,7 +208,7 @@ def win32FontDirectory():
       \\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\Fonts
 
     If the key is not found, ``%WINDIR%\Fonts`` will be returned.
-    """
+    """  # noqa: E501
     import winreg
     try:
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER, MSFolders) as user:
@@ -261,6 +263,17 @@ def _get_fontconfig_fonts():
     return [Path(os.fsdecode(fname)) for fname in out.split(b'\n')]
 
 
+@lru_cache
+def _get_macos_fonts():
+    """Cache and list the font paths known to ``system_profiler SPFontsDataType``."""
+    try:
+        d, = plistlib.loads(
+            subprocess.check_output(["system_profiler", "-xml", "SPFontsDataType"]))
+    except (OSError, subprocess.CalledProcessError, plistlib.InvalidFileException):
+        return []
+    return [Path(entry["path"]) for entry in d["_items"]]
+
+
 def findSystemFonts(fontpaths=None, fontext='ttf'):
     """
     Search for fonts in the specified font paths.  If no paths are
@@ -279,6 +292,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
         else:
             installed_fonts = _get_fontconfig_fonts()
             if sys.platform == 'darwin':
+                installed_fonts += _get_macos_fonts()
                 fontpaths = [*X11FontDirectories, *OSXFontDirectories]
             else:
                 fontpaths = X11FontDirectories
@@ -294,42 +308,35 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
     return [fname for fname in fontfiles if os.path.exists(fname)]
 
 
-def _fontentry_helper_repr_png(fontent):
-    from matplotlib.figure import Figure  # Circular import.
-    fig = Figure()
-    font_path = Path(fontent.fname) if fontent.fname != '' else None
-    fig.text(0, 0, fontent.name, font=font_path)
-    with BytesIO() as buf:
-        fig.savefig(buf, bbox_inches='tight', transparent=True)
-        return buf.getvalue()
-
-
-def _fontentry_helper_repr_html(fontent):
-    png_stream = _fontentry_helper_repr_png(fontent)
-    png_b64 = b64encode(png_stream).decode()
-    return f"<img src=\"data:image/png;base64, {png_b64}\" />"
-
-
-FontEntry = dataclasses.make_dataclass(
-    'FontEntry', [
-        ('fname', str, dataclasses.field(default='')),
-        ('name', str, dataclasses.field(default='')),
-        ('style', str, dataclasses.field(default='normal')),
-        ('variant', str, dataclasses.field(default='normal')),
-        ('weight', Union[str, int], dataclasses.field(default='normal')),
-        ('stretch', str, dataclasses.field(default='normal')),
-        ('size', str, dataclasses.field(default='medium')),
-    ],
-    namespace={
-        '__doc__': """
+@dataclasses.dataclass(frozen=True)
+class FontEntry:
+    """
     A class for storing Font properties.
 
     It is used when populating the font lookup dictionary.
-    """,
-        '_repr_html_': lambda self: _fontentry_helper_repr_html(self),
-        '_repr_png_': lambda self: _fontentry_helper_repr_png(self),
-    }
-)
+    """
+
+    fname: str = ''
+    name: str = ''
+    style: str = 'normal'
+    variant: str = 'normal'
+    weight: str | int = 'normal'
+    stretch: str = 'normal'
+    size: str = 'medium'
+
+    def _repr_html_(self) -> str:
+        png_stream = self._repr_png_()
+        png_b64 = b64encode(png_stream).decode()
+        return f"<img src=\"data:image/png;base64, {png_b64}\" />"
+
+    def _repr_png_(self) -> bytes:
+        from matplotlib.figure import Figure  # Circular import.
+        fig = Figure()
+        font_path = Path(self.fname) if self.fname != '' else None
+        fig.text(0, 0, self.name, font=font_path)
+        with BytesIO() as buf:
+            fig.savefig(buf, bbox_inches='tight', transparent=True)
+            return buf.getvalue()
 
 
 def ttfFontProperty(font):
@@ -916,8 +923,7 @@ class _JSONEncoder(json.JSONEncoder):
             try:
                 # Cache paths of fonts shipped with Matplotlib relative to the
                 # Matplotlib data path, which helps in the presence of venvs.
-                d["fname"] = str(
-                    Path(d["fname"]).relative_to(mpl.get_data_path()))
+                d["fname"] = str(Path(d["fname"]).relative_to(mpl.get_data_path()))
             except ValueError:
                 pass
             return d
@@ -934,10 +940,9 @@ def _json_decode(o):
         r.__dict__.update(o)
         return r
     elif cls == 'FontEntry':
-        r = FontEntry.__new__(FontEntry)
-        r.__dict__.update(o)
-        if not os.path.isabs(r.fname):
-            r.fname = os.path.join(mpl.get_data_path(), r.fname)
+        if not os.path.isabs(o['fname']):
+            o['fname'] = os.path.join(mpl.get_data_path(), o['fname'])
+        r = FontEntry(**o)
         return r
     else:
         raise ValueError("Don't know how to deserialize __class__=%s" % cls)
@@ -960,11 +965,11 @@ def json_dump(data, filename):
     This function temporarily locks the output file to prevent multiple
     processes from overwriting one another's output.
     """
-    with cbook._lock_path(filename), open(filename, 'w') as fh:
-        try:
+    try:
+        with cbook._lock_path(filename), open(filename, 'w') as fh:
             json.dump(data, fh, cls=_JSONEncoder, indent=2)
-        except OSError as e:
-            _log.warning('Could not save font_manager cache %s', e)
+    except OSError as e:
+        _log.warning('Could not save font_manager cache %s', e)
 
 
 def json_load(filename):
@@ -1011,7 +1016,7 @@ class FontManager:
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires an existing font
     # cache files to be rebuilt.
-    __version__ = 330
+    __version__ = 390
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__
@@ -1233,7 +1238,7 @@ class FontManager:
     def findfont(self, prop, fontext='ttf', directory=None,
                  fallback_to_default=True, rebuild_if_missing=True):
         """
-        Find a font that most closely matches the given font properties.
+        Find the path to the font file most closely matching the given font properties.
 
         Parameters
         ----------
@@ -1303,7 +1308,7 @@ class FontManager:
     def _find_fonts_by_props(self, prop, fontext='ttf', directory=None,
                              fallback_to_default=True, rebuild_if_missing=True):
         """
-        Find font families that most closely match the given properties.
+        Find the paths to the font files most closely matching the given properties.
 
         Parameters
         ----------
@@ -1333,16 +1338,16 @@ class FontManager:
         Returns
         -------
         list[str]
-            The paths of the fonts found
+            The paths of the fonts found.
 
         Notes
         -----
         This is an extension/wrapper of the original findfont API, which only
         returns a single font for given font properties. Instead, this API
-        returns a dict containing multiple fonts and their filepaths
-        which closely match the given font properties.  Since this internally
-        uses the original API, there's no change to the logic of performing the
-        nearest neighbor search.  See `findfont` for more details.
+        returns a list of filepaths of multiple fonts which closely match the
+        given font properties.  Since this internally uses the original API,
+        there's no change to the logic of performing the nearest neighbor
+        search.  See `findfont` for more details.
         """
 
         prop = FontProperties._from_any(prop)
@@ -1448,7 +1453,8 @@ class FontManager:
                 # actually raised.
                 return _ExceptionProxy(
                     ValueError,
-                    f"Failed to find font {prop}, and fallback to the default font was disabled"
+                    f"Failed to find font {prop}, and fallback to the default font was "
+                    f"disabled"
                 )
         else:
             _log.debug('findfont: Matching %s to %s (%r) with score of %f.',

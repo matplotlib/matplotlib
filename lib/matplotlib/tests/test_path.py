@@ -1,3 +1,4 @@
+import platform
 import re
 
 import numpy as np
@@ -142,15 +143,15 @@ def test_nonlinear_containment():
     ax.set(xscale="log", ylim=(0, 1))
     polygon = ax.axvspan(1, 10)
     assert polygon.get_path().contains_point(
-        ax.transData.transform((5, .5)), ax.transData)
+        ax.transData.transform((5, .5)), polygon.get_transform())
     assert not polygon.get_path().contains_point(
-        ax.transData.transform((.5, .5)), ax.transData)
+        ax.transData.transform((.5, .5)), polygon.get_transform())
     assert not polygon.get_path().contains_point(
-        ax.transData.transform((50, .5)), ax.transData)
+        ax.transData.transform((50, .5)), polygon.get_transform())
 
 
-@image_comparison(['arrow_contains_point.png'],
-                  remove_text=True, style='mpl20')
+@image_comparison(['arrow_contains_point.png'], remove_text=True, style='mpl20',
+                  tol=0.027 if platform.machine() == 'arm64' else 0)
 def test_arrow_contains_point():
     # fix bug (#8384)
     fig, ax = plt.subplots()
@@ -281,7 +282,8 @@ def test_marker_paths_pdf():
 
 
 @image_comparison(['nan_path'], style='default', remove_text=True,
-                  extensions=['pdf', 'svg', 'eps', 'png'])
+                  extensions=['pdf', 'svg', 'eps', 'png'],
+                  tol=0.009 if platform.machine() == 'arm64' else 0)
 def test_nan_isolated_points():
 
     y0 = [0, np.nan, 2, np.nan, 4, 5, 6]

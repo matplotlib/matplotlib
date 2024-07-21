@@ -241,7 +241,7 @@ class Entry:
             if basename.endswith(f'_{ext}'):
                 display_extension = f'_{ext}'
                 extension = ext
-                basename = basename[:-4]
+                basename = basename[:-len(display_extension)]
                 break
         else:
             display_extension = ''

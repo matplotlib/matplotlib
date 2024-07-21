@@ -18,7 +18,7 @@ fig = plt.figure(figsize=plt.figaspect(0.5))
 # =============
 # First subplot
 # =============
-# set up the axes for the first plot
+# set up the Axes for the first plot
 ax = fig.add_subplot(1, 2, 1, projection='3d')
 
 # plot a 3D surface like in the example mplot3d/surface3d_demo
@@ -35,7 +35,7 @@ fig.colorbar(surf, shrink=0.5, aspect=10)
 # ==============
 # Second subplot
 # ==============
-# set up the axes for the second plot
+# set up the Axes for the second plot
 ax = fig.add_subplot(1, 2, 2, projection='3d')
 
 # plot a 3D wireframe like in the example mplot3d/wire3d_demo

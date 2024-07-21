@@ -7,7 +7,7 @@ API Changes in 1.3.x
 Changes in 1.3.1
 ----------------
 
-It is rare that we make an API change in a bugfix release, however,
+It is rare that we make an API change in a micro release, however,
 for 1.3.1 since 1.3.0 the following change was made:
 
 - ``text.Text.cached`` (used to cache font objects) has been made into a

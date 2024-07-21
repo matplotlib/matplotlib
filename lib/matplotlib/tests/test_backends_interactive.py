@@ -1,3 +1,4 @@
+import functools
 import importlib
 import importlib.util
 import inspect
@@ -18,7 +19,7 @@ import pytest
 import matplotlib as mpl
 from matplotlib import _c_internal_utils
 from matplotlib.backend_tools import ToolToggleBase
-from matplotlib.testing import subprocess_run_helper as _run_helper
+from matplotlib.testing import subprocess_run_helper as _run_helper, is_ci_environment
 
 
 class _WaitForStringPopen(subprocess.Popen):
@@ -52,7 +53,10 @@ class _WaitForStringPopen(subprocess.Popen):
 # PyPI-installable on CI.  They are not available for all tested Python
 # versions so we don't fail on missing backends.
 
-def _get_testable_interactive_backends():
+@functools.lru_cache
+def _get_available_interactive_backends():
+    _is_linux_and_display_invalid = (sys.platform == "linux" and
+                                     not _c_internal_utils.display_is_valid())
     envs = []
     for deps, env in [
             *[([qt_api],
@@ -70,8 +74,7 @@ def _get_testable_interactive_backends():
     ]:
         reason = None
         missing = [dep for dep in deps if not importlib.util.find_spec(dep)]
-        if (sys.platform == "linux" and
-                not _c_internal_utils.display_is_valid()):
+        if _is_linux_and_display_invalid:
             reason = "$DISPLAY and $WAYLAND_DISPLAY are unset"
         elif missing:
             reason = "{} cannot be imported".format(", ".join(missing))
@@ -85,10 +88,9 @@ def _get_testable_interactive_backends():
                 reason = "no usable GTK bindings"
         marks = []
         if reason:
-            marks.append(pytest.mark.skip(
-                reason=f"Skipping {env} because {reason}"))
+            marks.append(pytest.mark.skip(reason=f"Skipping {env} because {reason}"))
         elif env["MPLBACKEND"].startswith('wx') and sys.platform == 'darwin':
-            # ignore on OSX because that's currently broken (github #16849)
+            # ignore on macosx because that's currently broken (github #16849)
             marks.append(pytest.mark.xfail(reason='github #16849'))
         elif (env['MPLBACKEND'] == 'tkagg' and
               ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
@@ -97,34 +99,15 @@ def _get_testable_interactive_backends():
               ):
             marks.append(  # https://github.com/actions/setup-python/issues/649
                 pytest.mark.xfail(reason='Tk version mismatch on Azure macOS CI'))
-        envs.append(
-            pytest.param(
-                {**env, 'BACKEND_DEPS': ','.join(deps)},
-                marks=marks, id=str(env)
-            )
-        )
+        envs.append(({**env, 'BACKEND_DEPS': ','.join(deps)}, marks))
     return envs
 
 
-def is_ci_environment():
-    # Common CI variables
-    ci_environment_variables = [
-        'CI',        # Generic CI environment variable
-        'CONTINUOUS_INTEGRATION',  # Generic CI environment variable
-        'TRAVIS',    # Travis CI
-        'CIRCLECI',  # CircleCI
-        'JENKINS',   # Jenkins
-        'GITLAB_CI',  # GitLab CI
-        'GITHUB_ACTIONS',  # GitHub Actions
-        'TEAMCITY_VERSION'  # TeamCity
-        # Add other CI environment variables as needed
-    ]
-
-    for env_var in ci_environment_variables:
-        if os.getenv(env_var):
-            return True
-
-    return False
+def _get_testable_interactive_backends():
+    # We re-create this because some of the callers below might modify the markers.
+    return [pytest.param({**env}, marks=[*marks],
+                         id='-'.join(f'{k}={v}' for k, v in env.items()))
+            for env, marks in _get_available_interactive_backends()]
 
 
 # Reasonable safe values for slower CI/Remote and local architectures.
@@ -210,10 +193,6 @@ def _test_interactive_impl():
         # test toolbar button icon LA mode see GH issue 25174
         _test_toolbar_button_la_mode_icon(fig)
 
-    if mpl.rcParams["toolbar"] == "toolmanager":
-        # test toolbar button icon LA mode see GH issue 25174
-        _test_toolbar_button_la_mode_icon(fig)
-
     ax.plot([0, 1], [2, 3])
     if fig.canvas.toolbar:  # i.e toolbar2.
         fig.canvas.toolbar.draw_rubberband(None, 1., 1, 2., 2)
@@ -291,7 +270,7 @@ def _test_thread_impl():
     plt.pause(0.5)  # flush_events fails here on at least Tkagg (bpo-41176)
     future.result()  # Joins the thread; rethrows any exception.
     plt.close()  # backend is responsible for flushing any events here
-    if plt.rcParams["backend"].startswith("WX"):
+    if plt.rcParams["backend"].lower().startswith("wx"):
         # TODO: debug why WX needs this only on py >= 3.8
         fig.canvas.flush_events()
 
@@ -424,9 +403,9 @@ def test_qt_missing():
 
 
 def _impl_test_cross_Qt_imports():
-    import sys
     import importlib
-    import pytest
+    import sys
+    import warnings
 
     _, host_binding, mpl_binding = sys.argv
     # import the mpl binding.  This will force us to use that binding
@@ -436,11 +415,12 @@ def _impl_test_cross_Qt_imports():
     host_qwidgets = importlib.import_module(f'{host_binding}.QtWidgets')
 
     host_app = host_qwidgets.QApplication(["mpl testing"])
-    with pytest.warns(UserWarning, match="Mixing Qt major"):
-        matplotlib.backends.backend_qt._create_qApp()
+    warnings.filterwarnings("error", message=r".*Mixing Qt major.*",
+                            category=UserWarning)
+    matplotlib.backends.backend_qt._create_qApp()
 
 
-def test_cross_Qt_imports():
+def qt5_and_qt6_pairs():
     qt5_bindings = [
         dep for dep in ['PyQt5', 'PySide2']
         if importlib.util.find_spec(dep) is not None
@@ -450,30 +430,34 @@ def test_cross_Qt_imports():
         if importlib.util.find_spec(dep) is not None
     ]
     if len(qt5_bindings) == 0 or len(qt6_bindings) == 0:
-        pytest.skip('need both QT6 and QT5 bindings')
+        yield pytest.param(None, None,
+                           marks=[pytest.mark.skip('need both QT6 and QT5 bindings')])
+        return
 
     for qt5 in qt5_bindings:
         for qt6 in qt6_bindings:
             for pair in ([qt5, qt6], [qt6, qt5]):
-                try:
-                    _run_helper(_impl_test_cross_Qt_imports,
-                                *pair,
-                                timeout=_test_timeout)
-                except subprocess.CalledProcessError as ex:
-                    # if segfault, carry on.  We do try to warn the user they
-                    # are doing something that we do not expect to work
-                    if ex.returncode == -signal.SIGSEGV:
-                        continue
-                    # We got the abort signal which is likely because the Qt5 /
-                    # Qt6 cross import is unhappy, carry on.
-                    elif ex.returncode == -signal.SIGABRT:
-                        continue
-                    raise
+                yield pair
+
+
+@pytest.mark.parametrize('host, mpl', [*qt5_and_qt6_pairs()])
+def test_cross_Qt_imports(host, mpl):
+    try:
+        proc = _run_helper(_impl_test_cross_Qt_imports, host, mpl,
+                           timeout=_test_timeout)
+    except subprocess.CalledProcessError as ex:
+        # We do try to warn the user they are doing something that we do not
+        # expect to work, so we're going to ignore if the subprocess crashes or
+        # is killed, and just check that the warning is printed.
+        stderr = ex.stderr
+    else:
+        stderr = proc.stderr
+    assert "Mixing Qt major versions may not work as expected." in stderr
 
 
 @pytest.mark.skipif('TF_BUILD' in os.environ,
                     reason="this test fails an azure for unknown reasons")
-@pytest.mark.skipif(os.name == "nt", reason="Cannot send SIGINT on Windows.")
+@pytest.mark.skipif(sys.platform == "win32", reason="Cannot send SIGINT on Windows.")
 def test_webagg():
     pytest.importorskip("tornado")
     proc = subprocess.Popen(
@@ -481,24 +465,27 @@ def test_webagg():
          inspect.getsource(_test_interactive_impl)
          + "\n_test_interactive_impl()", "{}"],
         env={**os.environ, "MPLBACKEND": "webagg", "SOURCE_DATE_EPOCH": "0"})
-    url = "http://{}:{}".format(
-        mpl.rcParams["webagg.address"], mpl.rcParams["webagg.port"])
+    url = f'http://{mpl.rcParams["webagg.address"]}:{mpl.rcParams["webagg.port"]}'
     timeout = time.perf_counter() + _test_timeout
-    while True:
-        try:
-            retcode = proc.poll()
-            # check that the subprocess for the server is not dead
-            assert retcode is None
-            conn = urllib.request.urlopen(url)
-            break
-        except urllib.error.URLError:
-            if time.perf_counter() > timeout:
-                pytest.fail("Failed to connect to the webagg server.")
-            else:
-                continue
-    conn.close()
-    proc.send_signal(signal.SIGINT)
-    assert proc.wait(timeout=_test_timeout) == 0
+    try:
+        while True:
+            try:
+                retcode = proc.poll()
+                # check that the subprocess for the server is not dead
+                assert retcode is None
+                conn = urllib.request.urlopen(url)
+                break
+            except urllib.error.URLError:
+                if time.perf_counter() > timeout:
+                    pytest.fail("Failed to connect to the webagg server.")
+                else:
+                    continue
+        conn.close()
+        proc.send_signal(signal.SIGINT)
+        assert proc.wait(timeout=_test_timeout) == 0
+    finally:
+        if proc.poll() is None:
+            proc.kill()
 
 
 def _lazy_headless():
@@ -622,65 +609,6 @@ def test_blitting_events(env):
     # blitting is not properly implemented
     ndraws = proc.stdout.count("DrawEvent")
     assert 0 < ndraws < 5
-
-
-# The source of this function gets extracted and run in another process, so it
-# must be fully self-contained.
-def _test_figure_leak():
-    import gc
-    import sys
-
-    import psutil
-    from matplotlib import pyplot as plt
-    # Second argument is pause length, but if zero we should skip pausing
-    t = float(sys.argv[1])
-    p = psutil.Process()
-
-    # Warmup cycle, this reasonably allocates a lot
-    for _ in range(2):
-        fig = plt.figure()
-        if t:
-            plt.pause(t)
-        plt.close(fig)
-    mem = p.memory_info().rss
-    gc.collect()
-
-    for _ in range(5):
-        fig = plt.figure()
-        if t:
-            plt.pause(t)
-        plt.close(fig)
-        gc.collect()
-    growth = p.memory_info().rss - mem
-
-    print(growth)
-
-
-# TODO: "0.1" memory threshold could be reduced 10x by fixing tkagg
-@pytest.mark.skipif(sys.platform == "win32",
-                    reason="appveyor tests fail; gh-22988 suggests reworking")
-@pytest.mark.parametrize("env", _get_testable_interactive_backends())
-@pytest.mark.parametrize("time_mem", [(0.0, 2_000_000), (0.1, 30_000_000)])
-def test_figure_leak_20490(env, time_mem):
-    pytest.importorskip("psutil", reason="psutil needed to run this test")
-
-    # We haven't yet directly identified the leaks so test with a memory growth
-    # threshold.
-    pause_time, acceptable_memory_leakage = time_mem
-    if env["MPLBACKEND"] == "wx":
-        pytest.skip("wx backend is deprecated; tests failed on appveyor")
-
-    if env["MPLBACKEND"] == "macosx" or (
-            env["MPLBACKEND"] == "tkagg" and sys.platform == 'darwin'
-    ):
-        acceptable_memory_leakage += 11_000_000
-
-    result = _run_helper(
-        _test_figure_leak, str(pause_time),
-        timeout=_test_timeout, extra_env=env)
-
-    growth = int(result.stdout)
-    assert growth <= acceptable_memory_leakage
 
 
 def _impl_test_interactive_timers():
@@ -816,12 +744,19 @@ def _test_other_signal_before_sigint_impl(backend, target_name, kwargs):
     ('show', {'block': True}),
     ('pause', {'interval': 10})
 ])
-def test_other_signal_before_sigint(env, target, kwargs):
+def test_other_signal_before_sigint(env, target, kwargs, request):
     backend = env.get("MPLBACKEND")
     if not backend.startswith(("qt", "macosx")):
         pytest.skip("SIGINT currently only tested on qt and macosx")
-    if backend == "macosx" and target == "show":
-        pytest.xfail("test currently failing for macosx + show()")
+    if backend == "macosx":
+        request.node.add_marker(pytest.mark.xfail(reason="macosx backend is buggy"))
+    if sys.platform == "darwin" and target == "show":
+        # We've not previously had these toolkits installed on CI, and so were never
+        # aware that this was crashing. However, we've had little luck reproducing it
+        # locally, so mark it xfail for now. For more information, see
+        # https://github.com/matplotlib/matplotlib/issues/27984
+        request.node.add_marker(
+            pytest.mark.xfail(reason="Qt backend is buggy on macOS"))
     proc = _WaitForStringPopen(
         [sys.executable, "-c",
          inspect.getsource(_test_other_signal_before_sigint_impl) +

@@ -78,7 +78,7 @@ namespace py = pybind11;
 /* An edge of a triangle consisting of an triangle index in the range 0 to
  * ntri-1 and an edge index in the range 0 to 2.  Edge i goes from the
  * triangle's point i to point (i+1)%3. */
-struct TriEdge
+struct TriEdge final
 {
     TriEdge();
     TriEdge(int tri_, int edge_);
@@ -111,7 +111,7 @@ struct XY
 };
 
 // 3D point with x,y,z coordinates.
-struct XYZ
+struct XYZ final
 {
     XYZ(const double& x_, const double& y_, const double& z_);
     XYZ cross(const XYZ& other) const;
@@ -123,7 +123,7 @@ struct XYZ
 };
 
 // 2D bounding box, which may be empty.
-class BoundingBox
+class BoundingBox final
 {
 public:
     BoundingBox();
@@ -138,7 +138,7 @@ public:
 /* A single line of a contour, which may be a closed line loop or an open line
  * strip.  Identical adjacent points are avoided using push_back(), and a closed
  * line loop should also not have identical first and last points. */
-class ContourLine : public std::vector<XY>
+class ContourLine final : public std::vector<XY>
 {
 public:
     ContourLine();
@@ -157,7 +157,7 @@ void write_contour(const Contour& contour);
 
 /* Triangulation with npoints points and ntri triangles.  Derived fields are
  * calculated when they are first needed. */
-class Triangulation
+class Triangulation final
 {
 public:
     typedef py::array_t<double, py::array::c_style | py::array::forcecast> CoordinateArray;
@@ -254,7 +254,7 @@ public:
 
 private:
     // An edge of a triangulation, composed of start and end point indices.
-    struct Edge
+    struct Edge final
     {
         Edge() : start(-1), end(-1) {}
         Edge(int start_, int end_) : start(start_), end(end_) {}
@@ -267,7 +267,7 @@ private:
     /* An edge of a boundary of a triangulation, composed of a boundary index
      * and an edge index within that boundary.  Used to index into the
      * boundaries collection to obtain the corresponding TriEdge. */
-    struct BoundaryEdge
+    struct BoundaryEdge final
     {
         BoundaryEdge() : boundary(-1), edge(-1) {}
         BoundaryEdge(int boundary_, int edge_)
@@ -328,7 +328,7 @@ private:
 
 
 // Contour generator for a triangulation.
-class TriContourGenerator
+class TriContourGenerator final
 {
 public:
     typedef Triangulation::CoordinateArray CoordinateArray;
@@ -508,7 +508,7 @@ private:
  * colinear points but only in the simplest of cases.  No explicit testing of
  * the validity of the triangulation is performed as this is a computationally
  * more complex task than the trifinding itself. */
-class TrapezoidMapTriFinder
+class TrapezoidMapTriFinder final
 {
 public:
     typedef Triangulation::CoordinateArray CoordinateArray;
@@ -551,7 +551,7 @@ private:
     /* A Point consists of x,y coordinates as well as the index of a triangle
      * associated with the point, so that a search at this point's coordinates
      * can return a valid triangle index. */
-    struct Point : XY
+    struct Point final : XY
     {
         Point() : XY(), tri(-1) {}
         Point(const double& x, const double& y) : XY(x,y), tri(-1) {}
@@ -565,7 +565,7 @@ private:
      * the Edge which are used to map from trapezoid to triangle index.  Also
      * stores pointers to the 3rd points of the below and above triangles,
      * which are only used to disambiguate triangles with colinear points. */
-    struct Edge
+    struct Edge final
     {
         Edge(const Point* left_,
              const Point* right_,
@@ -608,7 +608,7 @@ private:
     class Node;  // Forward declaration.
 
     // Helper structure used by TrapezoidMapTriFinder::get_tree_stats.
-    struct NodeStats
+    struct NodeStats final
     {
         NodeStats()
             : node_count(0), trapezoid_count(0), max_parent_count(0),
@@ -632,7 +632,7 @@ private:
      * The parent collection acts as a reference count to the number of times
      * a Node occurs in the search tree.  When the parent count is reduced to
      * zero a Node can be safely deleted. */
-    class Node
+    class Node final
     {
     public:
         Node(const Point* point, Node* left, Node* right);// Type_XNode.
@@ -717,7 +717,7 @@ private:
      * To obtain the index of the triangle corresponding to a particular
      * Trapezoid, use the Edge member variables below.triangle_above or
      * above.triangle_below. */
-    struct Trapezoid
+    struct Trapezoid final
     {
         Trapezoid(const Point* left_,
                   const Point* right_,

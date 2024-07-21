@@ -210,7 +210,7 @@ plt.show()
 # Matplotlib uses :file:`matplotlibrc` configuration files to customize all
 # kinds of properties, which we call 'rc settings' or 'rc parameters'. You can
 # control the defaults of almost every property in Matplotlib: figure size and
-# DPI, line width, color and style, axes, axis and grid properties, text and
+# DPI, line width, color and style, Axes, axis and grid properties, text and
 # font properties and so on. The :file:`matplotlibrc` is read at startup to
 # configure Matplotlib. Matplotlib looks for :file:`matplotlibrc` in four
 # locations, in the following order:
@@ -234,8 +234,8 @@ plt.show()
 #
 # 4. :file:`{INSTALL}/matplotlib/mpl-data/matplotlibrc`, where
 #    :file:`{INSTALL}` is something like
-#    :file:`/usr/lib/python3.9/site-packages` on Linux, and maybe
-#    :file:`C:\\Python39\\Lib\\site-packages` on Windows. Every time you
+#    :file:`/usr/lib/python3.10/site-packages` on Linux, and maybe
+#    :file:`C:\\Python310\\Lib\\site-packages` on Windows. Every time you
 #    install matplotlib, this file will be overwritten, so if you want
 #    your customizations to be saved, please move this file to your
 #    user-specific matplotlib directory.

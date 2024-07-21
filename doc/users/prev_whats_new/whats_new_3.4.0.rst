@@ -494,7 +494,7 @@ display an image of the colormap.
 
 .. only:: html
 
-    .. code-block::
+    .. code-block:: ipython
 
         In[1]: cmap = plt.get_cmap('viridis').with_extremes(bad='r', under='g', over='b')
 
@@ -547,7 +547,7 @@ for out-of-range and masked values.
 New ``cm.unregister_cmap`` function
 -----------------------------------
 
-`.cm.unregister_cmap` allows users to remove a colormap that they have
+``matplotlib.cm.unregister_cmap`` allows users to remove a colormap that they have
 previously registered.
 
 New ``CenteredNorm`` for symmetrical data around a center
@@ -634,8 +634,8 @@ supxlabel and supylabel
 -----------------------
 
 It is possible to add x- and y-labels to a whole figure, analogous to
-`.FigureBase.suptitle` using the new `.FigureBase.supxlabel` and
-`.FigureBase.supylabel` methods.
+`.Figure.suptitle` using the new `.Figure.supxlabel` and
+`.Figure.supylabel` methods.
 
 .. plot::
 

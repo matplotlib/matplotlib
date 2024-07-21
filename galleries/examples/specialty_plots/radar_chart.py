@@ -9,7 +9,7 @@ Although this example allows a frame of either 'circle' or 'polygon', polygon
 frames don't have proper gridlines (the lines are circles instead of polygons).
 It's possible to get a polygon grid by setting GRIDLINE_INTERPOLATION_STEPS in
 `matplotlib.axis` to the desired number of vertices, but the orientation of the
-polygon is not aligned with the radial axes.
+polygon is not aligned with the radial axis.
 
 .. [1] https://en.wikipedia.org/wiki/Radar_chart
 """
@@ -27,7 +27,7 @@ from matplotlib.transforms import Affine2D
 
 def radar_factory(num_vars, frame='circle'):
     """
-    Create a radar chart with `num_vars` axes.
+    Create a radar chart with `num_vars` Axes.
 
     This function creates a RadarAxes projection and registers it.
 
@@ -36,7 +36,7 @@ def radar_factory(num_vars, frame='circle'):
     num_vars : int
         Number of variables for radar chart.
     frame : {'circle', 'polygon'}
-        Shape of frame surrounding axes.
+        Shape of frame surrounding Axes.
 
     """
     # calculate evenly-spaced axis angles
@@ -177,7 +177,7 @@ if __name__ == '__main__':
     fig.subplots_adjust(wspace=0.25, hspace=0.20, top=0.85, bottom=0.05)
 
     colors = ['b', 'r', 'g', 'm', 'y']
-    # Plot the four cases from the example data on separate axes
+    # Plot the four cases from the example data on separate Axes
     for ax, (title, case_data) in zip(axs.flat, data):
         ax.set_rgrids([0.2, 0.4, 0.6, 0.8])
         ax.set_title(title, weight='bold', size='medium', position=(0.5, 1.1),

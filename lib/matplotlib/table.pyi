@@ -22,7 +22,7 @@ class Cell(Rectangle):
         facecolor: ColorType = ...,
         fill: bool = ...,
         text: str = ...,
-        loc: Literal["left", "center", "right"] | None = ...,
+        loc: Literal["left", "center", "right"] = ...,
         fontproperties: dict[str, Any] | None = ...,
         visible_edges: str | None = ...
     ) -> None: ...

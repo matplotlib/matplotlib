@@ -23,6 +23,7 @@ from matplotlib.backend_bases import (
     CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 from matplotlib._pylab_helpers import Gcf
 from . import _tkagg
+from ._tkagg import TK_PHOTO_COMPOSITE_OVERLAY, TK_PHOTO_COMPOSITE_SET
 
 
 _log = logging.getLogger(__name__)
@@ -43,16 +44,13 @@ def _restore_foreground_window_at_end():
     try:
         yield
     finally:
-        if mpl.rcParams['tk.window_focus']:
+        if foreground and mpl.rcParams['tk.window_focus']:
             _c_internal_utils.Win32_SetForegroundWindow(foreground)
 
 
 _blit_args = {}
 # Initialize to a non-empty string that is not a Tcl command
 _blit_tcl_name = "mpl_blit_" + uuid.uuid4().hex
-
-TK_PHOTO_COMPOSITE_OVERLAY = 0  # apply transparency rules pixel-wise
-TK_PHOTO_COMPOSITE_SET = 1  # set image buffer directly
 
 
 def _blit(argsid):
@@ -62,11 +60,11 @@ def _blit(argsid):
     *argsid* is a unique string identifier to fetch the correct arguments from
     the ``_blit_args`` dict, since arguments cannot be passed directly.
     """
-    photoimage, dataptr, offsets, bboxptr, comp_rule = _blit_args.pop(argsid)
+    photoimage, data, offsets, bbox, comp_rule = _blit_args.pop(argsid)
     if not photoimage.tk.call("info", "commands", photoimage):
         return
-    _tkagg.blit(photoimage.tk.interpaddr(), str(photoimage), dataptr,
-                comp_rule, offsets, bboxptr)
+    _tkagg.blit(photoimage.tk.interpaddr(), str(photoimage), data, comp_rule, offsets,
+                bbox)
 
 
 def blit(photoimage, aggimage, offsets, bbox=None):
@@ -87,7 +85,6 @@ def blit(photoimage, aggimage, offsets, bbox=None):
     """
     data = np.asarray(aggimage)
     height, width = data.shape[:2]
-    dataptr = (height, width, data.ctypes.data)
     if bbox is not None:
         (x1, y1), (x2, y2) = bbox.__array__()
         x1 = max(math.floor(x1), 0)
@@ -109,7 +106,7 @@ def blit(photoimage, aggimage, offsets, bbox=None):
 
     # tkapp.call coerces all arguments to strings, so to avoid string parsing
     # within _blit, pack up the arguments into a global data structure.
-    args = photoimage, dataptr, offsets, bboxptr, comp_rule
+    args = photoimage, data, offsets, bboxptr, comp_rule
     # Need a unique key to avoid thread races.
     # Again, make the key a string to avoid string parsing in _blit.
     argsid = str(id(args))
@@ -631,7 +628,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
                     command=getattr(self, callback),
                 )
                 if tooltip_text is not None:
-                    ToolTip.createToolTip(button, tooltip_text)
+                    add_tooltip(button, tooltip_text)
 
         self._label_font = tkinter.font.Font(root=window, size=10)
 
@@ -846,7 +843,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
 
         default_extension = self.canvas.get_default_filetype()
         default_filetype = self.canvas.get_supported_filetypes()[default_extension]
-        filetype_variable = tk.StringVar(self, default_filetype)
+        filetype_variable = tk.StringVar(self.canvas.get_tk_widget(), default_filetype)
 
         # adding a default extension seems to break the
         # asksaveasfilename dialog when you choose various save types
@@ -892,62 +889,44 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         state_map = {True: tk.NORMAL, False: tk.DISABLED}
         can_back = self._nav_stack._pos > 0
         can_forward = self._nav_stack._pos < len(self._nav_stack) - 1
-
         if "Back" in self._buttons:
             self._buttons['Back']['state'] = state_map[can_back]
-
         if "Forward" in self._buttons:
             self._buttons['Forward']['state'] = state_map[can_forward]
 
 
-class ToolTip:
-    """
-    Tooltip recipe from
-    http://www.voidspace.org.uk/python/weblog/arch_d7_2006_07_01.shtml#e387
-    """
-    @staticmethod
-    def createToolTip(widget, text):
-        toolTip = ToolTip(widget)
-        def enter(event):
-            toolTip.showtip(text)
-        def leave(event):
-            toolTip.hidetip()
-        widget.bind('<Enter>', enter)
-        widget.bind('<Leave>', leave)
+def add_tooltip(widget, text):
+    tipwindow = None
 
-    def __init__(self, widget):
-        self.widget = widget
-        self.tipwindow = None
-        self.id = None
-        self.x = self.y = 0
-
-    def showtip(self, text):
+    def showtip(event):
         """Display text in tooltip window."""
-        self.text = text
-        if self.tipwindow or not self.text:
+        nonlocal tipwindow
+        if tipwindow or not text:
             return
-        x, y, _, _ = self.widget.bbox("insert")
-        x = x + self.widget.winfo_rootx() + self.widget.winfo_width()
-        y = y + self.widget.winfo_rooty()
-        self.tipwindow = tw = tk.Toplevel(self.widget)
-        tw.wm_overrideredirect(1)
-        tw.wm_geometry("+%d+%d" % (x, y))
-        try:
-            # For Mac OS
-            tw.tk.call("::tk::unsupported::MacWindowStyle",
-                       "style", tw._w,
-                       "help", "noActivates")
+        x, y, _, _ = widget.bbox("insert")
+        x = x + widget.winfo_rootx() + widget.winfo_width()
+        y = y + widget.winfo_rooty()
+        tipwindow = tk.Toplevel(widget)
+        tipwindow.overrideredirect(1)
+        tipwindow.geometry(f"+{x}+{y}")
+        try:  # For Mac OS
+            tipwindow.tk.call("::tk::unsupported::MacWindowStyle",
+                              "style", tipwindow._w,
+                              "help", "noActivates")
         except tk.TclError:
             pass
-        label = tk.Label(tw, text=self.text, justify=tk.LEFT,
+        label = tk.Label(tipwindow, text=text, justify=tk.LEFT,
                          relief=tk.SOLID, borderwidth=1)
         label.pack(ipadx=1)
 
-    def hidetip(self):
-        tw = self.tipwindow
-        self.tipwindow = None
-        if tw:
-            tw.destroy()
+    def hidetip(event):
+        nonlocal tipwindow
+        if tipwindow:
+            tipwindow.destroy()
+        tipwindow = None
+
+    widget.bind("<Enter>", showtip)
+    widget.bind("<Leave>", hidetip)
 
 
 @backend_tools._register_tool_class(FigureCanvasTk)
@@ -1002,7 +981,7 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
                                               lambda: self._button_click(name))
         button.pack_configure(before=before)
         if description is not None:
-            ToolTip.createToolTip(button, description)
+            add_tooltip(button, description)
         self._toolitems.setdefault(name, [])
         self._toolitems[name].append(button)
 
@@ -1032,9 +1011,8 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
                 toolitem.deselect()
 
     def remove_toolitem(self, name):
-        for toolitem in self._toolitems[name]:
+        for toolitem in self._toolitems.pop(name, []):
             toolitem.pack_forget()
-        del self._toolitems[name]
 
     def set_message(self, s):
         self._message.set(s)

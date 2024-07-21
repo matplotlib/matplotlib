@@ -335,6 +335,8 @@ Autoscaling and margins
    Axes.use_sticky_edges
 
    Axes.margins
+   Axes.get_xmargin
+   Axes.get_ymargin
    Axes.set_xmargin
    Axes.set_ymargin
 
@@ -514,6 +516,9 @@ Interactive
    Axes.set_navigate
    Axes.get_navigate_mode
    Axes.set_navigate_mode
+
+   Axes.get_forward_navigation_events
+   Axes.set_forward_navigation_events
 
    Axes.start_pan
    Axes.drag_pan

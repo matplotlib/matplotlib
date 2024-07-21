@@ -1,0 +1,6 @@
+Subfigures
+~~~~~~~~~~
+
+`.Figure.subfigures` are now added in row-major order to be consistent with
+`.Figure.subplots`.  The return value of `~.Figure.subfigures` is not changed,
+but the order of ``fig.subfigs`` is.

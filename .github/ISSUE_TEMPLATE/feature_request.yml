@@ -1,3 +1,4 @@
+---
 name: Feature Request
 description: Suggest something to add to Matplotlib!
 title: "[ENH]: "
@@ -5,8 +6,9 @@ labels: [New feature]
 body:
   - type: markdown
     attributes:
-      value: |
-         Please search the [issues](https://github.com/matplotlib/matplotlib/issues) for relevant feature requests before creating a new feature request.
+      value: >-
+        Please search the [issues](https://github.com/matplotlib/matplotlib/issues) for relevant feature
+        requests before creating a new feature request.
   - type: textarea
     id: problem
     attributes:

@@ -98,25 +98,23 @@ print(mscale.get_scale_names())
 # %%
 #
 
-todo = ['asinh', 'symlog', 'log', 'logit', ]
 fig, axs = plt.subplot_mosaic([['asinh', 'symlog'],
                                ['log', 'logit']], layout='constrained')
 
 x = np.arange(0, 1000)
 
-for td in todo:
-    ax = axs[td]
-    if td in ['asinh', 'symlog']:
+for name, ax in axs.items():
+    if name in ['asinh', 'symlog']:
         yy = x - np.mean(x)
-    elif td in ['logit']:
+    elif name in ['logit']:
         yy = (x-np.min(x))
         yy = yy / np.max(np.abs(yy))
     else:
         yy = x
 
     ax.plot(yy, yy)
-    ax.set_yscale(td)
-    ax.set_title(td)
+    ax.set_yscale(name)
+    ax.set_title(name)
 
 # %%
 # Optional arguments for scales
@@ -131,9 +129,8 @@ for td in todo:
 fig, axs = plt.subplot_mosaic([['log', 'symlog']], layout='constrained',
                               figsize=(6.4, 3))
 
-for td in axs:
-    ax = axs[td]
-    if td in ['log']:
+for name, ax in axs.items():
+    if name in ['log']:
         ax.plot(x, x)
         ax.set_yscale('log', base=2)
         ax.set_title('log base=2')

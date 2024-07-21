@@ -96,6 +96,13 @@ class PathEffectRenderer(RendererBase):
     def copy_with_path_effect(self, path_effects):
         return self.__class__(path_effects, self._renderer)
 
+    def __getattribute__(self, name):
+        if name in ['flipy', 'get_canvas_width_height', 'new_gc',
+                    'points_to_pixels', '_text2path', 'height', 'width']:
+            return getattr(self._renderer, name)
+        else:
+            return object.__getattribute__(self, name)
+
     def draw_path(self, gc, tpath, affine, rgbFace=None):
         for path_effect in self._path_effects:
             path_effect.draw_path(self._renderer, gc, tpath, affine,
@@ -137,20 +144,11 @@ class PathEffectRenderer(RendererBase):
             renderer.draw_path_collection(gc, master_transform, paths,
                                           *args, **kwargs)
 
-    def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):
-        # Implements the naive text drawing as is found in RendererBase.
-        path, transform = self._get_text_path_transform(x, y, s, prop,
-                                                        angle, ismath)
-        color = gc.get_rgb()
-        gc.set_linewidth(0.0)
-        self.draw_path(gc, path, transform, rgbFace=color)
+    def open_group(self, s, gid=None):
+        return self._renderer.open_group(s, gid)
 
-    def __getattribute__(self, name):
-        if name in ['flipy', 'get_canvas_width_height', 'new_gc',
-                    'points_to_pixels', '_text2path', 'height', 'width']:
-            return getattr(self._renderer, name)
-        else:
-            return object.__getattribute__(self, name)
+    def close_group(self, s):
+        return self._renderer.close_group(s)
 
 
 class Normal(AbstractPathEffect):
@@ -228,7 +226,7 @@ class SimplePatchShadow(AbstractPathEffect):
         ----------
         offset : (float, float), default: (2, -2)
             The (x, y) offset of the shadow in points.
-        shadow_rgbFace : color
+        shadow_rgbFace : :mpltype:`color`
             The shadow color.
         alpha : float, default: 0.3
             The alpha transparency of the created shadow patch.
@@ -295,7 +293,7 @@ class SimpleLineShadow(AbstractPathEffect):
         ----------
         offset : (float, float), default: (2, -2)
             The (x, y) offset to apply to the path, in points.
-        shadow_color : color, default: 'black'
+        shadow_color : :mpltype:`color`, default: 'black'
             The shadow color.
             A value of ``None`` takes the original artist's color
             with a scale factor of *rho*.

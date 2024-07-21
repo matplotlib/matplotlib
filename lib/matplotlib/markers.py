@@ -47,7 +47,7 @@ marker                         symbol description
 ``11`` (``CARETDOWNBASE``)     |m36|  caretdown (centered at base)
 ``"none"`` or ``"None"``              nothing
 ``" "`` or  ``""``                    nothing
-``'$...$'``                    |m37|  Render the string using mathtext.
+``"$...$"``                    |m37|  Render the string using mathtext.
                                       E.g ``"$f$"`` for marker showing the
                                       letter ``f``.
 ``verts``                             A list of (x, y) pairs used for Path
@@ -55,7 +55,7 @@ marker                         symbol description
                                       located at (0, 0) and the size is
                                       normalized, such that the created path
                                       is encapsulated inside the unit cell.
-path                                  A `~matplotlib.path.Path` instance.
+``path``                              A `~matplotlib.path.Path` instance.
 ``(numsides, 0, angle)``              A regular polygon with ``numsides``
                                       sides, rotated by ``angle``.
 ``(numsides, 1, angle)``              A star-like symbol with ``numsides``
@@ -63,11 +63,6 @@ path                                  A `~matplotlib.path.Path` instance.
 ``(numsides, 2, angle)``              An asterisk with ``numsides`` sides,
                                       rotated by ``angle``.
 ============================== ====== =========================================
-
-As a deprecated feature, ``None`` also means 'nothing' when directly
-constructing a `.MarkerStyle`, but note that there are other contexts where
-``marker=None`` instead means "the default marker" (e.g. :rc:`scatter.marker`
-for `.Axes.scatter`).
 
 Note that special symbols can be defined via the
 :ref:`STIX math font <mathtext>`,
@@ -227,24 +222,22 @@ class MarkerStyle:
         """
         Parameters
         ----------
-        marker : str, array-like, Path, MarkerStyle, or None
-            - Another instance of *MarkerStyle* copies the details of that
-              ``marker``.
-            - *None* means no marker.  This is the deprecated default.
+        marker : str, array-like, Path, MarkerStyle
+            - Another instance of `MarkerStyle` copies the details of that *marker*.
             - For other possible marker values, see the module docstring
               `matplotlib.markers`.
 
         fillstyle : str, default: :rc:`markers.fillstyle`
             One of 'full', 'left', 'right', 'bottom', 'top', 'none'.
 
-        transform : transforms.Transform, default: None
+        transform : `~matplotlib.transforms.Transform`, optional
             Transform that will be combined with the native transform of the
             marker.
 
-        capstyle : `.CapStyle` or %(CapStyle)s, default: None
+        capstyle : `.CapStyle` or %(CapStyle)s, optional
             Cap style that will override the default cap style of the marker.
 
-        joinstyle : `.JoinStyle` or %(JoinStyle)s, default: None
+        joinstyle : `.JoinStyle` or %(JoinStyle)s, optional
             Join style that will override the default join style of the marker.
         """
         self._marker_function = None
@@ -309,10 +302,8 @@ class MarkerStyle:
 
         Parameters
         ----------
-        marker : str, array-like, Path, MarkerStyle, or None, default: None
-            - Another instance of *MarkerStyle* copies the details of that
-              ``marker``.
-            - *None* means no marker.
+        marker : str, array-like, Path, MarkerStyle
+            - Another instance of `MarkerStyle` copies the details of that *marker*.
             - For other possible marker values see the module docstring
               `matplotlib.markers`.
         """
@@ -388,13 +379,13 @@ class MarkerStyle:
         if self._user_transform is not None:
             return self._user_transform.frozen()
 
-    def transformed(self, transform: Affine2D):
+    def transformed(self, transform):
         """
         Return a new version of this marker with the transform applied.
 
         Parameters
         ----------
-        transform : `~matplotlib.transforms.Affine2D`, default: None
+        transform : `~matplotlib.transforms.Affine2D`
             Transform will be combined with current user supplied transform.
         """
         new_marker = MarkerStyle(self)
@@ -410,10 +401,10 @@ class MarkerStyle:
 
         Parameters
         ----------
-        deg : float, default: None
+        deg : float, optional
             Rotation angle in degrees.
 
-        rad : float, default: None
+        rad : float, optional
             Rotation angle in radians.
 
         .. note:: You must specify exactly one of deg or rad.
@@ -437,14 +428,14 @@ class MarkerStyle:
         """
         Return new marker scaled by specified scale factors.
 
-        If *sy* is None, the same scale is applied in both the *x*- and
+        If *sy* is not given, the same scale is applied in both the *x*- and
         *y*-directions.
 
         Parameters
         ----------
         sx : float
             *X*-direction scaling factor.
-        sy : float, default: None
+        sy : float, optional
             *Y*-direction scaling factor.
         """
         if sy is None:

@@ -164,7 +164,7 @@ class FourierDemoFrame(wx.Frame):
         if self.state == '':
             return
         x, y = event.xdata, event.ydata
-        if x is None:  # outside the axes
+        if x is None:  # outside the Axes
             return
         x0, y0, f0Init, AInit = self.mouseInfo
         self.A.set(AInit + (AInit * (y - y0) / y0), self)
