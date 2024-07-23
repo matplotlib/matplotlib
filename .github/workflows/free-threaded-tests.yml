@@ -1,0 +1,257 @@
+---
+    name: Tests
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
+      cancel-in-progress: true
+
+    on:
+      push:
+        branches-ignore:
+          - auto-backport-of-pr-[0-9]+
+          - v[0-9]+.[0-9]+.[0-9x]+-doc
+          - dependabot/**
+      pull_request:
+        branches-ignore:
+          - v[0-9]+.[0-9]+.[0-9x]+-doc
+        paths-ignore:
+          # Skip running tests if changes are only in documentation directories
+          - 'doc/**'
+          - 'galleries/**'
+      schedule:
+        # 5:47 UTC on Saturdays
+        - cron: "47 5 * * 6"
+      workflow_dispatch:
+        workflow: "*"
+
+    env:
+      NO_AT_BRIDGE: 1  # Necessary for GTK3 interactive test.
+      OPENBLAS_NUM_THREADS: 1
+      PYTHONFAULTHANDLER: 1
+
+    jobs:
+      test:
+        if: >-
+          github.event_name == 'workflow_dispatch' ||
+          (
+            github.repository == 'matplotlib/matplotlib' &&
+            !contains(github.event.head_commit.message, '[ci skip]') &&
+            !contains(github.event.head_commit.message, '[skip ci]') &&
+            !contains(github.event.head_commit.message, '[skip github]') &&
+            !contains(github.event.head_commit.message, '[ci doc]')
+          )
+        permissions:
+          contents: read
+        name: "Python 3.13t on ubuntu-latest (free-threaded)"
+        runs-on: ubuntu-latest
+
+        steps:
+          - uses: actions/checkout@v4
+            with:
+              fetch-depth: 0
+
+          - name: Set up Python 3.13t
+            uses: deadsnakes/action@6c8b9b82fe0b4344f4b98f2775fcc395df45e494 # v3.1.0
+            with:
+                python-version: "3.13"
+                nogil: true
+
+          - name: Install OS dependencies
+            run: |
+                echo 'Acquire::Retries "3";' | sudo tee /etc/apt/apt.conf.d/80-retries
+                sudo apt-get update -yy
+                sudo apt-get install -yy --no-install-recommends \
+                    ccache \
+                    cm-super \
+                    dvipng \
+                    ffmpeg \
+                    fonts-freefont-otf \
+                    fonts-noto-cjk \
+                    fonts-wqy-zenhei \
+                    gdb \
+                    gir1.2-gtk-3.0 \
+                    graphviz \
+                    inkscape \
+                    language-pack-de \
+                    lcov \
+                    libcairo2 \
+                    libcairo2-dev \
+                    libffi-dev \
+                    libgeos-dev \
+                    libgirepository1.0-dev \
+                    libsdl2-2.0-0 \
+                    libxkbcommon-x11-0 \
+                    libxcb-cursor0 \
+                    libxcb-icccm4 \
+                    libxcb-image0 \
+                    libxcb-keysyms1 \
+                    libxcb-randr0 \
+                    libxcb-render-util0 \
+                    libxcb-xinerama0 \
+                    lmodern \
+                    ninja-build \
+                    pkg-config \
+                    qtbase5-dev \
+                    texlive-fonts-recommended \
+                    texlive-latex-base \
+                    texlive-latex-extra \
+                    texlive-latex-recommended \
+                    texlive-luatex \
+                    texlive-pictures \
+                    texlive-xetex
+                sudo apt-get install -yy --no-install-recommends \
+                gir1.2-gtk-4.0 libnotify4
+
+          - name: Install the nightly dependencies
+            run: |
+              python -m pip install pytz tzdata  # Must be installed for Pandas.
+              python -m pip install \
+                  --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
+                  --upgrade --only-binary=:all: numpy pandas pillow
+
+          - name: Install Python dependencies
+            run: |
+              # Upgrade pip and setuptools and wheel to get as clean an install as
+              # possible.
+              python -m pip install --upgrade pip setuptools wheel
+
+              # Install dependencies from PyPI.
+              # Preinstall build requirements to enable no-build-isolation builds.
+              python -m pip install --upgrade $PRE \
+                'contourpy>=1.0.1' cycler fonttools kiwisolver importlib_resources \
+                packaging 'pyparsing!=3.1.0' python-dateutil setuptools-scm \
+                'meson-python>=0.13.1' 'pybind11>=2.6' \
+                -r requirements/testing/all.txt
+
+              # Install optional dependencies from PyPI.
+              # Sphinx is needed to run sphinxext tests
+              python -m pip install --upgrade sphinx!=6.1.2
+
+              # GUI toolkits are pip-installable only for some versions of Python
+              # so don't fail if we can't install them.  Make it easier to check
+              # whether the install was successful by trying to import the toolkit
+              # (sometimes, the install appears to be successful but shared
+              # libraries cannot be loaded at runtime, so an actual import is a
+              # better check).
+              python -m pip install --upgrade pycairo 'cairocffi>=0.8' PyGObject &&
+                (
+                  python -c 'import gi; gi.require_version("Gtk", "4.0"); from gi.repository import Gtk' &&
+                  echo 'PyGObject 4 is available' || echo 'PyGObject 4 is not available'
+                ) && (
+                  python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
+                  echo 'PyGObject 3 is available' || echo 'PyGObject 3 is not available'
+                )
+
+          - name: Install Matplotlib
+            run: |
+              git describe
+
+              # Set flag in a delayed manner to avoid issues with installing other
+              # packages
+              if [[ "${{ runner.os }}" == 'macOS' ]]; then
+                export CPPFLAGS='-fprofile-instr-generate=default.%m.profraw'
+                export CPPFLAGS="$CPPFLAGS -fcoverage-mapping"
+              else
+                export CPPFLAGS='--coverage -fprofile-abs-path'
+              fi
+
+              python -m pip install --no-deps --no-build-isolation --verbose \
+                --config-settings=setup-args="-DrcParams-backend=Agg" \
+                --editable .[dev]
+
+              if [[ "${{ runner.os }}" != 'macOS' ]]; then
+                unset CPPFLAGS
+              fi
+
+          - name: Run pytest
+            run: |
+              pytest -rfEsXR -n auto \
+                --maxfail=50 --timeout=300 --durations=25 \
+                --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
+
+          - name: Cleanup non-failed image files
+            if: failure()
+            run: |
+              function remove_files() {
+                  local extension=$1
+                  find ./result_images -type f -name "*-expected*.$extension" | while read file; do
+                      if [[ $file == *"-expected_pdf"* ]]; then
+                          base=${file%-expected_pdf.$extension}_pdf
+                      elif [[ $file == *"-expected_eps"* ]]; then
+                          base=${file%-expected_eps.$extension}_eps
+                      elif [[ $file == *"-expected_svg"* ]]; then
+                          base=${file%-expected_svg.$extension}_svg
+                      else
+                          base=${file%-expected.$extension}
+                      fi
+                      if [[ ! -e "${base}-failed-diff.$extension" ]]; then
+                          if [[ -e "$file" ]]; then
+                              rm "$file"
+                              echo "Removed $file"
+                          fi
+                          if [[ -e "${base}.$extension" ]]; then
+                              rm "${base}.$extension"
+                              echo " Removed ${base}.$extension"
+                          fi
+                      fi
+                  done
+              }
+
+              remove_files "png"; remove_files "svg"; remove_files "pdf"; remove_files "eps";
+
+              if [ "$(find ./result_images -mindepth 1 -type d)" ]; then
+                  find ./result_images/* -type d -empty -delete
+              fi
+
+          - name: Filter C coverage
+            if: ${{ !cancelled() && github.event_name != 'schedule' }}
+            run: |
+              if [[ "${{ runner.os }}" != 'macOS' ]]; then
+                lcov --rc lcov_branch_coverage=1 --capture --directory . \
+                  --output-file coverage.info
+                lcov --rc lcov_branch_coverage=1 --output-file coverage.info \
+                  --extract coverage.info $PWD/src/'*' $PWD/lib/'*'
+                lcov --rc lcov_branch_coverage=1 --list coverage.info
+                find . -name '*.gc*' -delete
+              else
+                xcrun llvm-profdata merge -sparse default.*.profraw \
+                  -o default.profdata
+                xcrun llvm-cov export -format="lcov" build/*/src/*.so \
+                  -instr-profile default.profdata > info.lcov
+              fi
+          - name: Upload code coverage
+            if: ${{ !cancelled() && github.event_name != 'schedule' }}
+            uses: codecov/codecov-action@v4
+            with:
+              name: "3.13t ubuntu-latest (free-threaded)"
+              token: ${{ secrets.CODECOV_TOKEN }}
+
+          - uses: actions/upload-artifact@v4
+            if: failure()
+            with:
+              name: "3.13t ubuntu-latest (free-threaded) result images"
+              path: ./result_images
+
+      # Separate dependent job to only upload one issue from the matrix of jobs
+      create-issue:
+        if: ${{ failure() && github.event_name == 'schedule' }}
+        needs: [test]
+        permissions:
+          issues: write
+        runs-on: ubuntu-latest
+        name: "Create issue on failure"
+
+        steps:
+          - name: Create issue on failure
+            uses: imjohnbo/issue-bot@v3
+            with:
+              title: "[TST] Upcoming dependency test failures"
+              body: |
+                The weekly build with nightly wheels from numpy and pandas
+                has failed. Check the logs for any updates that need to be
+                made in matplotlib.
+                https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+
+              pinned: false
+              close-previous: false
+            env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
