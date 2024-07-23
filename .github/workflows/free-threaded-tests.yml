@@ -144,8 +144,6 @@
 
           - name: Install Matplotlib
             run: |
-              git describe
-
               # Set flag in a delayed manner to avoid issues with installing other
               # packages
               if [[ "${{ runner.os }}" == 'macOS' ]]; then
