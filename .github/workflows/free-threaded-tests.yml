@@ -103,7 +103,7 @@
 
           - name: Install the nightly dependencies
             run: |
-              python -m pip install pytz tzdata  # Must be installed for Pandas.
+              python -m pip install pytz tzdata python-dateutil  # Must be installed for Pandas.
               python -m pip install \
                   --pre \
                   --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
