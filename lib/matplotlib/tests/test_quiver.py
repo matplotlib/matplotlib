@@ -24,7 +24,7 @@ def test_quiver_memory_leak():
     fig, ax = plt.subplots()
 
     Q = draw_quiver(ax)
-    ttX = Q.X
+    ttX = Q.get_X()
     Q.remove()
 
     del Q
@@ -133,7 +133,7 @@ def test_quiver_copy():
     uv = dict(u=np.array([1.1]), v=np.array([2.0]))
     q0 = ax.quiver([1], [1], uv['u'], uv['v'])
     uv['v'][0] = 0
-    assert q0.V[0] == 2.0
+    assert q0.get_V()[0] == 2.0
 
 
 @image_comparison(['quiver_key_pivot.png'], remove_text=True)
@@ -332,4 +332,4 @@ def test_quiver_setuvc_numbers():
     U = V = np.ones_like(X)
 
     q = ax.quiver(X, Y, U, V)
-    q.set_UVC(0, 1)
+    q.set_XYUVC(U=0, V=1)

@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import matplotlib.collections as mcollections
 import matplotlib.colors as mcolors
 import matplotlib.path as mpath
+import matplotlib.quiver as mquiver
 import matplotlib.transforms as mtransforms
 from matplotlib.collections import (Collection, LineCollection,
                                     EventCollection, PolyCollection)
@@ -356,6 +357,131 @@ def test_collection_log_datalim(fig_test, fig_ref):
     ax_ref.set_xscale('log')
     ax_ref.set_yscale('log')
     ax_ref.plot(x, y, marker="o", ls="")
+
+
+def test_quiver_offsets():
+    fig, ax = plt.subplots()
+    x = np.arange(-10, 10, 1)
+    y = np.arange(-10, 10, 1)
+    U, V = np.meshgrid(x, y)
+    X = U.ravel()
+    Y = V.ravel()
+    qc = mquiver.Quiver(ax, X, Y, U, V)
+    ax.add_collection(qc)
+    ax.autoscale_view()
+
+    expected_offsets = np.column_stack([X, Y])
+    np.testing.assert_allclose(expected_offsets, qc.get_offsets())
+
+    new_offsets = np.column_stack([(X + 10).ravel(), Y.ravel()])
+    qc.set_offsets(new_offsets)
+
+    np.testing.assert_allclose(qc.get_offsets(), new_offsets)
+    np.testing.assert_allclose(qc.get_X(), new_offsets[..., 0])
+    np.testing.assert_allclose(qc.get_Y(), new_offsets[..., 1])
+
+    new_X = qc.get_X() + 5
+    qc.set_X(new_X)
+    np.testing.assert_allclose(qc.get_X(), new_X)
+
+    new_Y = qc.get_Y() + 5
+    qc.set_Y(new_Y)
+    np.testing.assert_allclose(qc.get_Y(), new_Y)
+
+    # new length
+    L = 2
+    qc.set_XYUVC(X=new_X[:L], Y=new_Y[:L])
+    np.testing.assert_allclose(qc.get_X(), new_X[:L])
+    np.testing.assert_allclose(qc.get_Y(), new_Y[:L])
+
+    qc.set_XYUVC(X=X[:L], Y=Y[:L], U=qc.get_U()[:L], V=qc.get_V()[:L])
+    np.testing.assert_allclose(qc.get_X(), X[:L])
+    np.testing.assert_allclose(qc.get_Y(), Y[:L])
+    np.testing.assert_allclose(qc.get_U(), U.ravel()[:L])
+    np.testing.assert_allclose(qc.get_V(), V.ravel()[:L])
+
+
+def test_quiver_change_XYUVC():
+    fig, ax = plt.subplots()
+    X = np.arange(-10, 10, 1)
+    Y = np.arange(-10, 10, 1)
+    U, V = np.meshgrid(X, Y)
+    C = np.hypot(U, V)
+    qc = mquiver.Quiver(ax, X, Y, U, V, C)
+    ax.add_collection(qc)
+    ax.autoscale_view()
+
+    np.testing.assert_allclose(qc.get_U(), U.ravel())
+    np.testing.assert_allclose(qc.get_V(), V.ravel())
+    np.testing.assert_allclose(qc.get_C(), C.ravel())
+
+    qc.set(U=U/2, V=V/3)
+    np.testing.assert_allclose(qc.get_U(), U.ravel() / 2)
+    np.testing.assert_allclose(qc.get_V(), V.ravel() / 3)
+
+    qc.set_U(U/4)
+    np.testing.assert_allclose(qc.get_U(), U.ravel() / 4)
+
+    qc.set_V(V/6)
+    np.testing.assert_allclose(qc.get_V(), V.ravel() / 6)
+
+    qc.set_C(C/3)
+    np.testing.assert_allclose(qc.get_C(), C.ravel() / 3)
+
+    # check consistency not enable
+    qc.set_XYUVC(X=X[:2], Y=Y[:2])
+    with pytest.raises(ValueError):
+        # setting only one of the two X, Y fails because X and Y needs
+        # to be stacked when passed to `offsets`
+        qc.set(Y=Y[:3])
+
+    qc.set()
+    np.testing.assert_allclose(qc.get_U(), U.ravel() / 4)
+    np.testing.assert_allclose(qc.get_V(), V.ravel() / 6)
+
+
+def test_quiver_deprecated_attribute():
+    fig, ax = plt.subplots()
+    X = np.arange(-10, 10, 1)
+    Y = np.arange(-10, 10, 1)
+    U, V = np.meshgrid(X, Y)
+    C = np.hypot(U, V)
+    qc = mquiver.Quiver(ax, X, Y, U, V, C)
+    ax.add_collection(qc)
+    ax.autoscale_view()
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        x = qc.X
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        qc.X = x * 2
+    np.testing.assert_allclose(qc.get_X(), x * 2)
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        y = qc.Y
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        qc.Y = y * 2
+    np.testing.assert_allclose(qc.get_Y(), y * 2)
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        np.testing.assert_allclose(qc.N, len(qc.get_offsets()))
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        u = qc.U
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        qc.U = u * 2
+    np.testing.assert_allclose(qc.get_U(), u * 2)
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        v = qc.V
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        qc.V = v * 2
+    np.testing.assert_allclose(qc.get_V(), v * 2)
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        xy = qc.XY
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        qc.XY = xy * 2
+    np.testing.assert_allclose(qc.get_offsets(), xy * 2)
 
 
 def test_quiver_limits():
