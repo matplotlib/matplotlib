@@ -550,3 +550,22 @@ def test_simplify_closepoly():
     simplified_path = path.cleaned(simplify=True)
     assert_array_equal(expected_path.vertices, simplified_path.vertices)
     assert_array_equal(expected_path.codes, simplified_path.codes)
+
+    # test for a path with an invalid MOVETO
+    # CLOSEPOLY with an invalid MOVETO should be ignored
+    path = Path([(1, 0), (1, -1), (2, -1),
+                 (np.nan, np.nan), (-1, -1), (-2, 1), (-1, 1),
+                 (2, 2), (0, -1)],
+                [Path.MOVETO, Path.LINETO, Path.LINETO,
+                 Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO,
+                 Path.CLOSEPOLY, Path.LINETO])
+    expected_path = Path([(1, 0), (1, -1), (2, -1),
+                          (np.nan, np.nan), (-1, -1), (-2, 1), (-1, 1),
+                          (0, -1), (0, -1), (0, 0)],
+                         [Path.MOVETO, Path.LINETO, Path.LINETO,
+                          Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO,
+                          Path.LINETO, Path.LINETO, Path.STOP])
+
+    simplified_path = path.cleaned(simplify=True)
+    assert_array_equal(expected_path.vertices, simplified_path.vertices)
+    assert_array_equal(expected_path.codes, simplified_path.codes)
