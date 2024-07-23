@@ -715,6 +715,8 @@ class RendererSVG(RendererBase):
             self._markers[dictkey] = oid
 
         writer.start('g', **self._get_clip_attrs(gc))
+        if gc.get_url() is not None:
+            self.writer.start('a', {'xlink:href': gc.get_url()})
         trans_and_flip = self._make_flip_transform(trans)
         attrib = {'xlink:href': f'#{oid}'}
         clip = (0, 0, self.width*72, self.height*72)
@@ -726,6 +728,8 @@ class RendererSVG(RendererBase):
                 attrib['y'] = _short_float_fmt(y)
                 attrib['style'] = self._get_style(gc, rgbFace)
                 writer.element('use', attrib=attrib)
+        if gc.get_url() is not None:
+            self.writer.end('a')
         writer.end('g')
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,

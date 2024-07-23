@@ -343,13 +343,17 @@ def test_url():
     s.set_urls(['https://example.com/foo', 'https://example.com/bar', None])
 
     # Line2D
-    p, = plt.plot([1, 3], [6, 5])
+    p, = plt.plot([2, 3, 4], [4, 5, 6])
     p.set_url('https://example.com/baz')
+
+    # Line2D markers-only
+    p, = plt.plot([3, 4, 5], [4, 5, 6], linestyle='none', marker='x')
+    p.set_url('https://example.com/quux')
 
     b = BytesIO()
     fig.savefig(b, format='svg')
     b = b.getvalue()
-    for v in [b'foo', b'bar', b'baz']:
+    for v in [b'foo', b'bar', b'baz', b'quux']:
         assert b'https://example.com/' + v in b
 
 
