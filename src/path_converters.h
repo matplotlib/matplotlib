@@ -644,8 +644,12 @@ class PathSimplifier : protected EmbeddedQueue<9>
           m_after_moveto(false),
           m_clipped(false),
 
-          m_last_startx(0.0),
-          m_last_starty(0.0),
+          // whether the most recent MOVETO vertex is valid
+          m_has_init(false),
+
+          // the most recent MOVETO vertex
+          m_initX(0.0),
+          m_initY(0.0),
 
           // the x, y values from last iteration
           m_lastx(0.0),
@@ -757,8 +761,15 @@ class PathSimplifier : protected EmbeddedQueue<9>
                     _push(x, y);
                 }
                 m_after_moveto = true;
-                m_last_startx = *x;
-                m_last_starty = *y;
+
+                if (std::isfinite(*x) && std::isfinite(*y)) {
+                    m_has_init = true;
+                    m_initX = *x;
+                    m_initY = *y;
+                } else {
+                    m_has_init = false;
+                }
+
                 m_lastx = *x;
                 m_lasty = *y;
                 m_moveto = false;
@@ -774,10 +785,16 @@ class PathSimplifier : protected EmbeddedQueue<9>
             m_after_moveto = false;
 
             if(agg::is_close(cmd)) {
-                /* If we have to close the polygon, replace
-                   the vertex with the starting vertex */
-                *x = m_last_startx;
-                *y = m_last_starty;
+                if (m_has_init) {
+                    /* If we have a valid initial vertex, then
+                       replace the current vertex with the initial vertex */
+                    *x = m_initX;
+                    *y = m_initY;
+                } else {
+                    /* If we don't have a valid initial vertex, then
+                       we can't close the path, so we skip the vertex */
+                    continue;
+                }
             }
 
             /* NOTE: We used to skip this very short segments, but if
@@ -931,7 +948,8 @@ class PathSimplifier : protected EmbeddedQueue<9>
     bool m_moveto;
     bool m_after_moveto;
     bool m_clipped;
-    double m_last_startx, m_last_starty;
+    bool m_has_init;
+    double m_initX, m_initY;
     double m_lastx, m_lasty;
 
     double m_origdx;
