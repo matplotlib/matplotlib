@@ -223,8 +223,8 @@ transform = _api.deprecated(
 
 
 @_api.deprecated("3.10")
-def proj_transform_clip(xs, ys, zs, M, focal_length=np.inf):
-    return _proj_transform_clip(xs, ys, zs, M, focal_length)
+def proj_transform_clip(xs, ys, zs, M):
+    return _proj_transform_clip(xs, ys, zs, M, focal_length=np.inf)
 
 
 def _proj_transform_clip(xs, ys, zs, M, focal_length):
