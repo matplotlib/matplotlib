@@ -217,6 +217,7 @@ Other
    Axis.axes
    Axis.limit_range_for_scale
    Axis.reset_ticks
+   Axis.set_clip_path
    Axis.set_default_intervals
 
 Discouraged
@@ -263,8 +264,7 @@ specify a matching series of labels.  Calling ``set_ticks`` makes a
    Tick.get_tick_padding
    Tick.get_tickdir
    Tick.get_view_interval
-   Tick.set_label1
-   Tick.set_label2
+   Tick.set_clip_path
    Tick.set_pad
    Tick.set_url
    Tick.update_position
