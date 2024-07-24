@@ -1,13 +1,13 @@
 """
 Matplotlib includes a framework for arbitrary geometric
-transformations that is used determine the final position of all
+transformations that is used to determine the final position of all
 elements drawn on the canvas.
 
 Transforms are composed into trees of `TransformNode` objects
-whose actual value depends on their children.  When the contents of
-children change, their parents are automatically invalidated.  The
+whose actual value depends on their children. When the contents of
+children change, their parents are automatically invalidated. The
 next time an invalidated transform is accessed, it is recomputed to
-reflect those changes.  This invalidation/caching approach prevents
+reflect those changes. This invalidation/caching approach prevents
 unnecessary recomputations of transforms, and contributes to better
 interactive performance.
 
@@ -1290,7 +1290,8 @@ class Transform(TransformNode):
     actually perform a transformation.
 
     All non-affine transformations should be subclasses of this class.
-    New affine transformations should be subclasses of `Affine2D`.
+    New affine transformations should be subclasses of `Affine2D` or
+    `Affine3D`.
 
     Subclasses of this class should override the following members (at
     minimum):
@@ -1373,7 +1374,7 @@ class Transform(TransformNode):
         This is equivalent to flattening the stack then yielding
         ``flat_stack[:i], flat_stack[i:]`` where i=0..(n-1).
         """
-        yield IdentityTransform(), self
+        yield IdentityTransform(dims=self.input_dims), self
 
     @property
     def depth(self):
@@ -1511,7 +1512,7 @@ class Transform(TransformNode):
             return res[0, 0]
         if ndim == 1:
             return res.reshape(-1)
-        elif ndim == 2:
+        elif ndim == 2 or ndim == 3:
             return res
         raise ValueError(
             "Input values must have shape (N, {dims}) or ({dims},)"
@@ -1579,7 +1580,7 @@ class Transform(TransformNode):
 
     def get_affine(self):
         """Get the affine part of this transform."""
-        return IdentityTransform()
+        return IdentityTransform(dims=self.input_dims)
 
     def get_matrix(self):
         """Get the matrix for the affine part of this transform."""
@@ -1608,6 +1609,8 @@ class Transform(TransformNode):
         In some cases, this transform may insert curves into the path
         that began as line segments.
         """
+        if self.input_dims != 2 or self.output_dims != 2:
+            raise NotImplementedError('Only defined in 2D')
         return self.transform_path_affine(self.transform_path_non_affine(path))
 
     def transform_path_affine(self, path):
@@ -1618,6 +1621,8 @@ class Transform(TransformNode):
         ``transform_path(path)`` is equivalent to
         ``transform_path_affine(transform_path_non_affine(values))``.
         """
+        if self.input_dims != 2 or self.output_dims != 2:
+            raise NotImplementedError('Only defined in 2D')
         return self.get_affine().transform_path_affine(path)
 
     def transform_path_non_affine(self, path):
@@ -1628,6 +1633,8 @@ class Transform(TransformNode):
         ``transform_path(path)`` is equivalent to
         ``transform_path_affine(transform_path_non_affine(values))``.
         """
+        if self.input_dims != 2 or self.output_dims != 2:
+            raise NotImplementedError('Only defined in 2D')
         x = self.transform_non_affine(path.vertices)
         return Path._fast_from_codes_and_verts(x, path.codes, path)
 
@@ -1822,48 +1829,62 @@ class AffineBase(Transform):
         return self
 
 
-class Affine2DBase(AffineBase):
+class AffineImmutable(AffineBase):
     """
-    The base class of all 2D affine transformations.
+    The base class of all affine transformations.
 
-    2D affine transformations are performed using a 3x3 numpy array::
+    Affine transformations for the n-th degree are performed using a
+    numpy array with shape (n+1, n+1). For example, 2D affine
+    transformations are performed using a 3x3 numpy array::
 
         a c e
         b d f
         0 0 1
 
-    This class provides the read-only interface.  For a mutable 2D
-    affine transformation, use `Affine2D`.
+    This class provides the read-only interface.  For a mutable
+    affine transformation, use `Affine2D` or `Affine3D`.
 
     Subclasses of this class will generally only need to override a
-    constructor and `~.Transform.get_matrix` that generates a custom 3x3 matrix.
+    constructor and `~.Transform.get_matrix` that generates a custom matrix
+    with the appropriate shape.
     """
-    input_dims = 2
-    output_dims = 2
+    def __init__(self, *args, dims=2, **kwargs):
+        self.input_dims = dims
+        self.output_dims = dims
+        super().__init__(*args, **kwargs)
 
     def frozen(self):
         # docstring inherited
-        return Affine2D(self.get_matrix().copy())
+        return _affine_factory(self.get_matrix().copy(), self.input_dims)
 
     @property
     def is_separable(self):
         mtx = self.get_matrix()
-        return mtx[0, 1] == mtx[1, 0] == 0.0
+        separable = True
+        for i in range(self.input_dims):
+            for j in range(i+1, self.input_dims):
+                separable = separable and mtx[i, j] == 0.0
+                separable = separable and mtx[j, i] == 0.0
+        return separable
 
     def to_values(self):
         """
-        Return the values of the matrix as an ``(a, b, c, d, e, f)`` tuple.
+        Return the values of the matrix as a tuple.
         """
         mtx = self.get_matrix()
-        return tuple(mtx[:2].swapaxes(0, 1).flat)
+        return tuple(mtx[:self.input_dims].swapaxes(0, 1).flat)
 
     @_api.rename_parameter("3.8", "points", "values")
     def transform_affine(self, values):
         mtx = self.get_matrix()
+
+        # Default to python implementation if C implementation isn't available
+        transform_fn = (affine_transform if self.input_dims <= 2 else matrix_transform)
+
         if isinstance(values, np.ma.MaskedArray):
-            tpoints = affine_transform(values.data, mtx)
+            tpoints = transform_fn(values.data, mtx)
             return np.ma.MaskedArray(tpoints, mask=np.ma.getmask(values))
-        return affine_transform(values, mtx)
+        return transform_fn(values, mtx)
 
     if DEBUG:
         _transform_affine = transform_affine
@@ -1887,12 +1908,27 @@ class Affine2DBase(AffineBase):
             shorthand_name = None
             if self._shorthand_name:
                 shorthand_name = '(%s)-1' % self._shorthand_name
-            self._inverted = Affine2D(inv(mtx), shorthand_name=shorthand_name)
+            self._inverted = _affine_factory(inv(mtx), self.input_dims,
+                                             shorthand_name=shorthand_name)
             self._invalid = 0
         return self._inverted
 
 
-class Affine2D(Affine2DBase):
+@_api.deprecated("3.9", alternative="AffineImmutable")
+class Affine2DBase(AffineImmutable):
+    pass
+
+
+def _affine_factory(mtx, dims, *args, **kwargs):
+    if dims == 2:
+        return Affine2D(mtx, *args, **kwargs)
+    elif dims == 3:
+        return Affine3D(mtx, *args, **kwargs)
+    else:
+        return NotImplemented
+
+
+class Affine2D(AffineImmutable):
     """
     A mutable 2D affine transformation.
     """
@@ -1907,10 +1943,9 @@ class Affine2D(Affine2DBase):
 
         If *matrix* is None, initialize with the identity transform.
         """
-        super().__init__(**kwargs)
+        super().__init__(dims=2, **kwargs)
         if matrix is None:
-            # A bit faster than np.identity(3).
-            matrix = IdentityTransform._mtx
+            matrix = np.identity(3)
         self._mtx = matrix.copy()
         self._invalid = 0
 
@@ -1968,9 +2003,12 @@ class Affine2D(Affine2DBase):
     def set(self, other):
         """
         Set this transformation from the frozen copy of another
-        `Affine2DBase` object.
+        2D `AffineImmutable` object.
         """
-        _api.check_isinstance(Affine2DBase, other=other)
+        _api.check_isinstance(AffineImmutable, other=other)
+        if (other.input_dims != 2):
+            raise TypeError("Mismatch between dimensions of AffineImmutable "
+                            "and Affine2D")
         self._mtx = other.get_matrix()
         self.invalidate()
 
@@ -1978,8 +2016,7 @@ class Affine2D(Affine2DBase):
         """
         Reset the underlying matrix to the identity transform.
         """
-        # A bit faster than np.identity(3).
-        self._mtx = IdentityTransform._mtx.copy()
+        self._mtx = np.identity(3)
         self.invalidate()
         return self
 
@@ -2114,12 +2151,306 @@ class Affine2D(Affine2DBase):
         return self.skew(math.radians(xShear), math.radians(yShear))
 
 
-class IdentityTransform(Affine2DBase):
+class Affine3D(AffineImmutable):
+    """
+    A mutable 3D affine transformation.
+    """
+
+    def __init__(self, matrix=None, **kwargs):
+        """
+        Initialize an Affine transform from a 4x4 numpy float array::
+
+          a d g j
+          b e h k
+          c f i l
+          0 0 0 1
+
+        If *matrix* is None, initialize with the identity transform.
+        """
+        super().__init__(dims=3, **kwargs)
+        if matrix is None:
+            matrix = np.identity(4)
+        self._mtx = matrix.copy()
+        self._invalid = 0
+
+    _base_str = _make_str_method("_mtx")
+
+    def __str__(self):
+        return (self._base_str()
+                if (self._mtx != np.diag(np.diag(self._mtx))).any()
+                else f"Affine3D().scale("
+                     f"{self._mtx[0, 0]}, "
+                     f"{self._mtx[1, 1]}, "
+                     f"{self._mtx[2, 2]})"
+                if self._mtx[0, 0] != self._mtx[1, 1] or
+                    self._mtx[0, 0] != self._mtx[2, 2]
+                else f"Affine3D().scale({self._mtx[0, 0]})")
+
+    @staticmethod
+    def from_values(a, b, c, d, e, f, g, h, i, j, k, l):
+        """
+        Create a new Affine2D instance from the given values::
+
+          a d g j
+          b e h k
+          c f i l
+          0 0 0 1
+
+        .
+        """
+        return Affine3D(np.array([
+            a, d, g, j,
+            b, e, h, k,
+            c, f, i, l,
+            0.0, 0.0, 0.0, 1.0
+        ], float).reshape((4, 4)))
+
+    def get_matrix(self):
+        """
+        Get the underlying transformation matrix as a 4x4 array::
+
+          a d g j
+          b e h k
+          c f i l
+          0 0 0 1
+
+        .
+        """
+        if self._invalid:
+            self._inverted = None
+            self._invalid = 0
+        return self._mtx
+
+    def set_matrix(self, mtx):
+        """
+        Set the underlying transformation matrix from a 4x4 array::
+
+          a d g j
+          b e h k
+          c f i l
+          0 0 0 1
+
+        .
+        """
+        self._mtx = mtx
+        self.invalidate()
+
+    def set(self, other):
+        """
+        Set this transformation from the frozen copy of another
+        `AffineImmutable` object with input and output dimension of 3.
+        """
+        _api.check_isinstance(AffineImmutable, other=other)
+        if (other.input_dims != 3):
+            raise TypeError("Mismatch between dimensions of AffineImmutable"
+                            "and Affine3D")
+        self._mtx = other.get_matrix()
+        self.invalidate()
+
+    def clear(self):
+        """
+        Reset the underlying matrix to the identity transform.
+        """
+        self._mtx = np.identity(4)
+        self.invalidate()
+        return self
+
+    def rotate(self, theta, dim=0):
+        """
+        Add a rotation (in radians) to this transform in place, along
+        the dimension denoted by *dim*.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        if dim == 0:
+            return self.rotate_around_vector([1, 0, 0], theta)
+        elif dim == 1:
+            return self.rotate_around_vector([0, 1, 0], theta)
+        elif dim == 2:
+            return self.rotate_around_vector([0, 0, 1], theta)
+
+        self.invalidate()
+        return self
+
+    def rotate_deg(self, degrees, dim=0):
+        """
+        Add a rotation (in degrees) to this transform in place, along
+        the dimension denoted by *dim*.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        return self.rotate(math.radians(degrees), dim)
+
+    def rotate_around(self, x, y, z, theta, dim=0):
+        """
+        Add a rotation (in radians) around the point (x, y, z) in place,
+        along the dimension denoted by *dim*.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        return self.translate(-x, -y, -z).rotate(theta, dim).translate(x, y, z)
+
+    def rotate_deg_around(self, x, y, z, degrees, dim=0):
+        """
+        Add a rotation (in degrees) around the point (x, y, z) in place,
+        along the dimension denoted by *dim*.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        # Cast to float to avoid wraparound issues with uint8's
+        x, y = float(x), float(y)
+        return self.translate(-x, -y, -z).rotate_deg(degrees, dim).translate(x, y, z)
+
+    def rotate_around_vector(self, vector, theta):
+        """
+        Add a rotation (in radians) around the vector (vx, vy, vz) in place.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        vx, vy, vz = vector / np.linalg.norm(vector)
+        s = np.sin(theta)
+        c = np.cos(theta)
+        t = 2*np.sin(theta/2)**2  # more numerically stable than t = 1-c
+        rot = [[t*vx*vx + c,    t*vx*vy - vz*s, t*vx*vz + vy*s, 0],
+               [t*vy*vx + vz*s, t*vy*vy + c,    t*vy*vz - vx*s, 0],
+               [t*vz*vx - vy*s, t*vz*vy + vx*s, t*vz*vz + c, 0],
+               [0, 0, 0, 1]]
+        np.matmul(rot, self._mtx, out=self._mtx)
+        return self
+
+    def rotate_deg_around_vector(self, vector, degrees):
+        """
+        Add a rotation (in radians) around the vector (vx, vy, vz) in place.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        return self.rotate_around_vector(vector, math.radians(degrees))
+
+    def translate(self, tx, ty, tz):
+        """
+        Add a translation in place.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        self._mtx[0, 3] += tx
+        self._mtx[1, 3] += ty
+        self._mtx[2, 3] += tz
+        self.invalidate()
+        return self
+
+    def scale(self, sx, sy=None, sz=None):
+        """
+        Add a scale in place.
+
+        If a scale is not provided in the *y* or *z* directions, *sx*
+        will be applied for that direction.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        if sy is None:
+            sy = sx
+
+        if sz is None:
+            sz = sx
+        # explicit element-wise scaling is fastest
+        self._mtx[0, 0] *= sx
+        self._mtx[0, 1] *= sx
+        self._mtx[0, 2] *= sx
+        self._mtx[0, 3] *= sx
+        self._mtx[1, 0] *= sy
+        self._mtx[1, 1] *= sy
+        self._mtx[1, 2] *= sy
+        self._mtx[1, 3] *= sy
+        self._mtx[2, 0] *= sz
+        self._mtx[2, 1] *= sz
+        self._mtx[2, 2] *= sz
+        self._mtx[2, 3] *= sz
+
+        self.invalidate()
+        return self
+
+    def skew(self, xyShear, xzShear, yxShear, yzShear, zxShear, zyShear):
+        """
+        Add a skew in place along for each plane in the 3rd dimension.
+
+        For example *zxShear* is the shear angle along the *zx* plane,
+        in radians.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        rxy = math.tan(xyShear)
+        rxz = math.tan(xzShear)
+        ryx = math.tan(yxShear)
+        ryz = math.tan(yzShear)
+        rzx = math.tan(zxShear)
+        rzy = math.tan(zyShear)
+        mtx = self._mtx
+        # Operating and assigning one scalar at a time is much faster.
+        (xx, xy, xz, x0), (yx, yy, yz, y0), (zx, zy, zz, z0), _ = mtx.tolist()
+        # mtx = [[1 rx 0], [ry 1 0], [0 0 1]] * mtx
+
+        mtx[0, 0] += (rxy * yx) + (rxz * zx)
+        mtx[0, 1] += (rxy * yy) + (rxz * zy)
+        mtx[0, 2] += (rxy * yz) + (rxz * zz)
+        mtx[0, 3] += (rxy * y0) + (rxz * z0)
+        mtx[1, 0] = (ryx * xx) + yx + (ryz * zx)
+        mtx[1, 1] = (ryx * xy) + yy + (ryz * zy)
+        mtx[1, 2] = (ryx * xz) + yz + (ryz * zz)
+        mtx[1, 3] = (ryx * x0) + y0 + (ryz * z0)
+        mtx[2, 0] = (rzx * xx) + (rzy * yx) + zx
+        mtx[2, 1] = (rzx * xy) + (rzy * yy) + zy
+        mtx[2, 2] = (rzx * xz) + (rzy * yz) + zz
+        mtx[2, 3] = (rzx * x0) + (rzy * y0) + z0
+
+        self.invalidate()
+        return self
+
+    def skew_deg(self, xyShear, xzShear, yxShear, yzShear, zxShear, zyShear):
+        """
+        Add a skew in place along for each plane in the 3rd dimension.
+
+        For example *zxShear* is the shear angle along the *zx* plane,
+        in radians.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        return self.skew(
+            math.radians(xyShear),
+            math.radians(xzShear),
+            math.radians(yxShear),
+            math.radians(yzShear),
+            math.radians(zxShear),
+            math.radians(zyShear))
+
+
+class IdentityTransform(AffineImmutable):
     """
     A special class that does one thing, the identity transform, in a
     fast way.
     """
-    _mtx = np.identity(3)
+    def __init__(self, *args, **kwargs):
+        super().__init__(self, *args, **kwargs)
+        self._mtx = np.identity(self.input_dims + 1)
 
     def frozen(self):
         # docstring inherited
@@ -2168,171 +2499,198 @@ class IdentityTransform(Affine2DBase):
 
 
 class _BlendedMixin:
-    """Common methods for `BlendedGenericTransform` and `BlendedAffine2D`."""
+    """Common methods for `BlendedGenericTransform` and `BlendedAffine`."""
 
     def __eq__(self, other):
-        if isinstance(other, (BlendedAffine2D, BlendedGenericTransform)):
-            return (self._x == other._x) and (self._y == other._y)
-        elif self._x == self._y:
-            return self._x == other
+        num_transforms = len(self._transforms)
+
+        if (isinstance(other, (BlendedGenericTransform, BlendedAffine))
+                and num_transforms == len(other._transforms)):
+            return all(self._transforms[i] == other._transforms[i]
+                       for i in range(num_transforms))
         else:
             return NotImplemented
 
     def contains_branch_seperately(self, transform):
-        return (self._x.contains_branch(transform),
-                self._y.contains_branch(transform))
+        return tuple(branch.contains_branch(transform) for branch in self._transforms)
 
-    __str__ = _make_str_method("_x", "_y")
+    def __str__(self):
+        indent = functools.partial(textwrap.indent, prefix=" " * 4)
+        return (
+            type(self).__name__ + "("
+            + ",".join([*(indent("\n" + transform.__str__())
+                          for transform in self._transforms)])
+            + ")")
 
 
 class BlendedGenericTransform(_BlendedMixin, Transform):
     """
-    A "blended" transform uses one transform for the *x*-direction, and
-    another transform for the *y*-direction.
+    A "blended" transform uses one transform for each direction
 
-    This "generic" version can handle any given child transform in the
-    *x*- and *y*-directions.
+    This "generic" version can handle any number of given child transforms, each
+    handling a different axis.
     """
-    input_dims = 2
-    output_dims = 2
     is_separable = True
     pass_through = True
 
-    def __init__(self, x_transform, y_transform, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
-        Create a new "blended" transform using *x_transform* to transform the
-        *x*-axis and *y_transform* to transform the *y*-axis.
+        Create a new "blended" transform, with the first argument providing
+        a transform for the *x*-axis, the second argument providing a transform
+        for the *y*-axis, etc.
 
         You will generally not call this constructor directly but use the
         `blended_transform_factory` function instead, which can determine
         automatically which kind of blended transform to create.
         """
+        self.input_dims = self.output_dims = len(args)
+
+        for i in range(self.input_dims):
+            transform = args[i]
+            if transform.input_dims > 1 and transform.input_dims <= i:
+                raise TypeError("Invalid transform provided to"
+                                "`BlendedGenericTransform`")
+
         Transform.__init__(self, **kwargs)
-        self._x = x_transform
-        self._y = y_transform
-        self.set_children(x_transform, y_transform)
+        self.set_children(*args)
+        self._transforms = args
         self._affine = None
 
     @property
     def depth(self):
-        return max(self._x.depth, self._y.depth)
+        return max(transform.depth for transform in self._transforms)
 
     def contains_branch(self, other):
         # A blended transform cannot possibly contain a branch from two
         # different transforms.
         return False
 
-    is_affine = property(lambda self: self._x.is_affine and self._y.is_affine)
-    has_inverse = property(
-        lambda self: self._x.has_inverse and self._y.has_inverse)
+    is_affine = property(lambda self: all(transform.is_affine
+                                          for transform in self._transforms))
+    has_inverse = property(lambda self: all(transform.has_inverse
+                                            for transform in self._transforms))
 
     def frozen(self):
         # docstring inherited
-        return blended_transform_factory(self._x.frozen(), self._y.frozen())
+        return blended_transform_factory(*(transform.frozen()
+                                           for transform in self._transforms))
 
     @_api.rename_parameter("3.8", "points", "values")
     def transform_non_affine(self, values):
         # docstring inherited
-        if self._x.is_affine and self._y.is_affine:
+        if self.is_affine:
             return values
-        x = self._x
-        y = self._y
 
-        if x == y and x.input_dims == 2:
-            return x.transform_non_affine(values)
+        if all(transform == self._transforms[0]
+               for transform in self._transforms) and self.input_dims >= 2:
+            return self._transforms[0].transform_non_affine(values)
 
-        if x.input_dims == 2:
-            x_points = x.transform_non_affine(values)[:, 0:1]
+        all_points = []
+        masked = False
+
+        for dim in range(self.input_dims):
+            transform = self._transforms[dim]
+            if transform.input_dims == 1:
+                points = transform.transform_non_affine(values[:, dim])
+                points = points.reshape((len(points), 1))
+            else:
+                points = transform.transform_non_affine(values)[:, dim:dim+1]
+
+            masked = masked or isinstance(points, np.ma.MaskedArray)
+            all_points.append(points)
+
+        if masked:
+            return np.ma.concatenate(tuple(all_points), 1)
         else:
-            x_points = x.transform_non_affine(values[:, 0])
-            x_points = x_points.reshape((len(x_points), 1))
-
-        if y.input_dims == 2:
-            y_points = y.transform_non_affine(values)[:, 1:]
-        else:
-            y_points = y.transform_non_affine(values[:, 1])
-            y_points = y_points.reshape((len(y_points), 1))
-
-        if (isinstance(x_points, np.ma.MaskedArray) or
-                isinstance(y_points, np.ma.MaskedArray)):
-            return np.ma.concatenate((x_points, y_points), 1)
-        else:
-            return np.concatenate((x_points, y_points), 1)
+            return np.concatenate(tuple(all_points), 1)
 
     def inverted(self):
         # docstring inherited
-        return BlendedGenericTransform(self._x.inverted(), self._y.inverted())
+        return BlendedGenericTransform(*(transform.inverted()
+                                         for transform in self._transforms))
 
     def get_affine(self):
         # docstring inherited
         if self._invalid or self._affine is None:
-            if self._x == self._y:
-                self._affine = self._x.get_affine()
+            if all(transform == self._transforms[0] for transform in self._transforms):
+                self._affine = self._transforms[0].get_affine()
             else:
-                x_mtx = self._x.get_affine().get_matrix()
-                y_mtx = self._y.get_affine().get_matrix()
-                # We already know the transforms are separable, so we can skip
-                # setting b and c to zero.
-                mtx = np.array([x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]])
-                self._affine = Affine2D(mtx)
+                mtx = np.identity(self.input_dims + 1)
+                for i in range(self.input_dims):
+                    transform = self._transforms[i]
+                    if transform.output_dims > 1:
+                        mtx[i] = transform.get_affine().get_matrix()[i]
+
+                self._affine = _affine_factory(mtx, dims=self.input_dims)
             self._invalid = 0
         return self._affine
 
 
-class BlendedAffine2D(_BlendedMixin, Affine2DBase):
+class BlendedAffine(_BlendedMixin, AffineImmutable):
     """
     A "blended" transform uses one transform for the *x*-direction, and
     another transform for the *y*-direction.
 
     This version is an optimization for the case where both child
-    transforms are of type `Affine2DBase`.
+    transforms are of type `AffineImmutable`.
     """
 
     is_separable = True
 
-    def __init__(self, x_transform, y_transform, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
-        Create a new "blended" transform using *x_transform* to transform the
-        *x*-axis and *y_transform* to transform the *y*-axis.
+        Create a new "blended" transform, with the first argument providing
+        a transform for the *x*-axis, the second argument providing a transform
+        for the *y*-axis, etc.
 
-        Both *x_transform* and *y_transform* must be 2D affine transforms.
+        All provided transforms must be affine transforms.
 
         You will generally not call this constructor directly but use the
         `blended_transform_factory` function instead, which can determine
         automatically which kind of blended transform to create.
         """
-        is_affine = x_transform.is_affine and y_transform.is_affine
-        is_separable = x_transform.is_separable and y_transform.is_separable
-        is_correct = is_affine and is_separable
-        if not is_correct:
-            raise ValueError("Both *x_transform* and *y_transform* must be 2D "
-                             "affine transforms")
-
+        dims = len(args)
         Transform.__init__(self, **kwargs)
-        self._x = x_transform
-        self._y = y_transform
-        self.set_children(x_transform, y_transform)
+        AffineImmutable.__init__(self, dims=dims, **kwargs)
 
-        Affine2DBase.__init__(self)
+        if not all(transform.is_affine and transform.is_separable
+                   for transform in args):
+            raise ValueError("Given transforms must be affine")
+
+        for i in range(self.input_dims):
+            transform = args[i]
+            if transform.input_dims > 1 and transform.input_dims <= i:
+                raise TypeError("Invalid transform provided to"
+                                "`BlendedGenericTransform`")
+
+        self._transforms = args
+        self.set_children(*args)
+
         self._mtx = None
 
     def get_matrix(self):
         # docstring inherited
         if self._invalid:
-            if self._x == self._y:
-                self._mtx = self._x.get_matrix()
+            if all(transform == self._transforms[0] for transform in self._transforms):
+                self._mtx = self._transforms[0].get_matrix()
             else:
-                x_mtx = self._x.get_matrix()
-                y_mtx = self._y.get_matrix()
                 # We already know the transforms are separable, so we can skip
-                # setting b and c to zero.
-                self._mtx = np.array([x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]])
+                # setting non-diagonal values to zero.
+                self._mtx = np.array(
+                    [self._transforms[i].get_affine().get_matrix()[i]
+                     for i in range(self.input_dims)] +
+                    [[0.0] * self.input_dims + [1.0]])
             self._inverted = None
             self._invalid = 0
         return self._mtx
 
 
-def blended_transform_factory(x_transform, y_transform):
+@_api.deprecated("3.9", alternative="BlendedAffine")
+class BlendedAffine2D(BlendedAffine):
+    pass
+
+
+def blended_transform_factory(*args):
     """
     Create a new "blended" transform using *x_transform* to transform
     the *x*-axis and *y_transform* to transform the *y*-axis.
@@ -2340,10 +2698,9 @@ def blended_transform_factory(x_transform, y_transform):
     A faster version of the blended transform is returned for the case
     where both child transforms are affine.
     """
-    if (isinstance(x_transform, Affine2DBase) and
-            isinstance(y_transform, Affine2DBase)):
-        return BlendedAffine2D(x_transform, y_transform)
-    return BlendedGenericTransform(x_transform, y_transform)
+    if all(isinstance(transform, AffineImmutable) for transform in args):
+        return BlendedAffine(*args)
+    return BlendedGenericTransform(*args)
 
 
 class CompositeGenericTransform(Transform):
@@ -2393,7 +2750,7 @@ class CompositeGenericTransform(Transform):
         super()._invalidate_internal(level, invalidating_node)
 
     def __eq__(self, other):
-        if isinstance(other, (CompositeGenericTransform, CompositeAffine2D)):
+        if isinstance(other, (CompositeGenericTransform, CompositeAffine)):
             return self is other or (self._a == other._a
                                      and self._b == other._b)
         else:
@@ -2453,8 +2810,9 @@ class CompositeGenericTransform(Transform):
         if not self._b.is_affine:
             return self._b.get_affine()
         else:
-            return Affine2D(np.dot(self._b.get_affine().get_matrix(),
-                                   self._a.get_affine().get_matrix()))
+            return _affine_factory(np.dot(self._b.get_affine().get_matrix(),
+                                   self._a.get_affine().get_matrix()),
+                                   dims=self.input_dims)
 
     def inverted(self):
         # docstring inherited
@@ -2462,7 +2820,7 @@ class CompositeGenericTransform(Transform):
             self._b.inverted(), self._a.inverted())
 
 
-class CompositeAffine2D(Affine2DBase):
+class CompositeAffine(AffineImmutable):
     """
     A composite transform formed by applying transform *a* then transform *b*.
 
@@ -2472,7 +2830,7 @@ class CompositeAffine2D(Affine2DBase):
     def __init__(self, a, b, **kwargs):
         """
         Create a new composite transform that is the result of
-        applying `Affine2DBase` *a* then `Affine2DBase` *b*.
+        applying `AffineImmutable` *a* then `AffineImmutable` *b*.
 
         You will generally not call this constructor directly but write ``a +
         b`` instead, which will automatically choose the best kind of composite
@@ -2483,10 +2841,8 @@ class CompositeAffine2D(Affine2DBase):
         if a.output_dims != b.input_dims:
             raise ValueError("The output dimension of 'a' must be equal to "
                              "the input dimensions of 'b'")
-        self.input_dims = a.input_dims
-        self.output_dims = b.output_dims
+        super().__init__(dims=a.output_dims, **kwargs)
 
-        super().__init__(**kwargs)
         self._a = a
         self._b = b
         self.set_children(a, b)
@@ -2515,6 +2871,11 @@ class CompositeAffine2D(Affine2DBase):
         return self._mtx
 
 
+@_api.deprecated("3.9", alternative="CompositeAffine")
+class CompositeAffine2D(CompositeAffine):
+    pass
+
+
 def composite_transform_factory(a, b):
     """
     Create a new composite transform that is the result of applying
@@ -2538,11 +2899,13 @@ def composite_transform_factory(a, b):
     elif isinstance(b, IdentityTransform):
         return a
     elif isinstance(a, Affine2D) and isinstance(b, Affine2D):
-        return CompositeAffine2D(a, b)
+        return CompositeAffine(a, b)
+    elif isinstance(a, Affine3D) and isinstance(b, Affine3D):
+        return CompositeAffine(a, b)
     return CompositeGenericTransform(a, b)
 
 
-class BboxTransform(Affine2DBase):
+class BboxTransform(AffineImmutable):
     """
     `BboxTransform` linearly transforms points from one `Bbox` to another.
     """
@@ -2556,7 +2919,7 @@ class BboxTransform(Affine2DBase):
         """
         _api.check_isinstance(BboxBase, boxin=boxin, boxout=boxout)
 
-        super().__init__(**kwargs)
+        super().__init__(dims=2, **kwargs)
         self._boxin = boxin
         self._boxout = boxout
         self.set_children(boxin, boxout)
@@ -2584,7 +2947,7 @@ class BboxTransform(Affine2DBase):
         return self._mtx
 
 
-class BboxTransformTo(Affine2DBase):
+class BboxTransformTo(AffineImmutable):
     """
     `BboxTransformTo` is a transformation that linearly transforms points from
     the unit bounding box to a given `Bbox`.
@@ -2599,7 +2962,7 @@ class BboxTransformTo(Affine2DBase):
         """
         _api.check_isinstance(BboxBase, boxout=boxout)
 
-        super().__init__(**kwargs)
+        super().__init__(dims=2, **kwargs)
         self._boxout = boxout
         self.set_children(boxout)
         self._mtx = None
@@ -2643,7 +3006,7 @@ class BboxTransformToMaxOnly(BboxTransformTo):
         return self._mtx
 
 
-class BboxTransformFrom(Affine2DBase):
+class BboxTransformFrom(AffineImmutable):
     """
     `BboxTransformFrom` linearly transforms points from a given `Bbox` to the
     unit bounding box.
@@ -2653,7 +3016,7 @@ class BboxTransformFrom(Affine2DBase):
     def __init__(self, boxin, **kwargs):
         _api.check_isinstance(BboxBase, boxin=boxin)
 
-        super().__init__(**kwargs)
+        super().__init__(dims=2, **kwargs)
         self._boxin = boxin
         self.set_children(boxin)
         self._mtx = None
@@ -2678,13 +3041,13 @@ class BboxTransformFrom(Affine2DBase):
         return self._mtx
 
 
-class ScaledTranslation(Affine2DBase):
+class ScaledTranslation(AffineImmutable):
     """
     A transformation that translates by *xt* and *yt*, after *xt* and *yt*
     have been transformed by *scale_trans*.
     """
     def __init__(self, xt, yt, scale_trans, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(dims=2, **kwargs)
         self._t = (xt, yt)
         self._scale_trans = scale_trans
         self.set_children(scale_trans)
@@ -2696,15 +3059,14 @@ class ScaledTranslation(Affine2DBase):
     def get_matrix(self):
         # docstring inherited
         if self._invalid:
-            # A bit faster than np.identity(3).
-            self._mtx = IdentityTransform._mtx.copy()
+            self._mtx = np.identity(3)
             self._mtx[:2, 2] = self._scale_trans.transform(self._t)
             self._invalid = 0
             self._inverted = None
         return self._mtx
 
 
-class AffineDeltaTransform(Affine2DBase):
+class AffineDeltaTransform(AffineImmutable):
     r"""
     A transform wrapper for transforming displacements between pairs of points.
 
@@ -2722,7 +3084,7 @@ class AffineDeltaTransform(Affine2DBase):
     """
 
     def __init__(self, transform, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(dims=2, **kwargs)
         self._base_transform = transform
 
     __str__ = _make_str_method("_base_transform")
@@ -2754,6 +3116,8 @@ class TransformedPath(TransformNode):
         transform : `Transform`
         """
         _api.check_isinstance(Transform, transform=transform)
+        if transform.input_dims != 2:
+            raise TypeError("Mismatch between input dimensions of transform and path")
         super().__init__()
         self._path = path
         self._transform = transform
@@ -2991,3 +3355,37 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
         y /= 72.0
     # Default units are 'inches'
     return trans + ScaledTranslation(x, y, fig.dpi_scale_trans)
+
+
+def matrix_transform(vertices, mtx):
+    """
+    Transforms a vertex or set of vertices with a matrix mtx of
+    one dimension higher.
+
+    Parameters
+    ----------
+    vertices : n-element array or (m, n) array, with m vertices
+    mtx      : (n+1, n+1) matrix
+    """
+    values = np.asanyarray(vertices)
+    _, input_dims = mtx.shape
+    input_dims = input_dims - 1
+
+    if (len(values.shape) == 1):
+        # single point
+        if (values.shape == (input_dims,)):
+            point = mtx.dot(np.append(values, [1]))
+            point = point/point[-1]
+            return point[:input_dims]
+        raise RuntimeError("Invalid vertices provided to transform")
+
+    # multiple points
+    if (len(values.shape) == 2 and values.shape[1] == input_dims):
+        points = np.hstack((values, np.ones((values.shape[0], 1))))
+        points = np.dot(mtx, points.T).T
+        last_coords = points[:, -1]
+        points = points / last_coords[:, np.newaxis]
+        return points[:, :-1]
+
+    raise ValueError("Dimensions of input must match the input dimensions of "
+                     "the transform")

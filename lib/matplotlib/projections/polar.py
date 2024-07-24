@@ -155,7 +155,7 @@ class PolarTransform(mtransforms.Transform):
         )
 
 
-class PolarAffine(mtransforms.Affine2DBase):
+class PolarAffine(mtransforms.AffineImmutable):
     r"""
     The affine part of the polar projection.
 
@@ -181,7 +181,7 @@ class PolarAffine(mtransforms.Affine2DBase):
             View limits of the data. The only part of its bounds that is used
             is the y limits (for the radius limits).
         """
-        super().__init__()
+        super().__init__(dims=2)
         self._scale_transform = scale_transform
         self._limits = limits
         self.set_children(scale_transform, limits)

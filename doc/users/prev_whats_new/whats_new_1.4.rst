@@ -155,10 +155,11 @@ every subplot and you need to make some space for legend's labels.
 Support for skewed transformations
 ``````````````````````````````````
 The :class:`~matplotlib.transforms.Affine2D` gained additional methods
-`.skew` and `.skew_deg` to create skewed transformations. Additionally,
-matplotlib internals were cleaned up to support using such transforms in
-`~matplotlib.axes.Axes`. This transform is important for some plot types,
-specifically the Skew-T used in meteorology.
+:func:`~matplotlib.transforms.Affine2D.skew` and
+:func:`~matplotlib.transforms.Affine2D.skew_deg` to create skewed transformations.
+Additionally, matplotlib internals were cleaned up to support using such transforms in
+`~matplotlib.axes.Axes`. This transform is important for some plot types, specifically
+the Skew-T used in meteorology.
 
 .. figure:: ../../gallery/specialty_plots/images/sphx_glr_skewt_001.png
    :target: ../../gallery/specialty_plots/skewt.html

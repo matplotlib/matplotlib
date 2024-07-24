@@ -20,7 +20,6 @@ from matplotlib.collections import (
     Collection, LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.colors import Normalize
 from matplotlib.patches import Patch
-from . import proj3d
 
 
 def _norm_angle(a):
@@ -148,12 +147,11 @@ class Text3D(mtext.Text):
     @artist.allow_rasterization
     def draw(self, renderer):
         position3d = np.array((self._x, self._y, self._z))
-        proj = proj3d._proj_trans_points(
-            [position3d, position3d + self._dir_vec], self.axes.M)
-        dx = proj[0][1] - proj[0][0]
-        dy = proj[1][1] - proj[1][0]
+        proj = self.axes.M.transform([position3d, position3d + self._dir_vec])
+        dx = proj[1][0] - proj[0][0]
+        dy = proj[1][1] - proj[0][1]
         angle = math.degrees(math.atan2(dy, dx))
-        with cbook._setattr_cm(self, _x=proj[0][0], _y=proj[1][0],
+        with cbook._setattr_cm(self, _x=proj[0][0], _y=proj[0][1],
                                _rotation=_norm_text_angle(angle)):
             mtext.Text.draw(self, renderer)
         self.stale = False
@@ -267,8 +265,8 @@ class Line3D(lines.Line2D):
     @artist.allow_rasterization
     def draw(self, renderer):
         xs3d, ys3d, zs3d = self._verts3d
-        xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, self.axes.M)
-        self.set_data(xs, ys)
+        points = self.axes.M.transform(np.column_stack((xs3d, ys3d, zs3d)))
+        self.set_data(points[:, 0], points[:, 1])
         super().draw(renderer)
         self.stale = False
 
@@ -349,11 +347,11 @@ class Collection3D(Collection):
 
     def do_3d_projection(self):
         """Project the points according to renderer matrix."""
-        xyzs_list = [proj3d.proj_transform(*vs.T, self.axes.M)
-                     for vs, _ in self._3dverts_codes]
-        self._paths = [mpath.Path(np.column_stack([xs, ys]), cs)
-                       for (xs, ys, _), (_, cs) in zip(xyzs_list, self._3dverts_codes)]
-        zs = np.concatenate([zs for _, _, zs in xyzs_list])
+        path_vertices = [self.axes.M.transform(vs) for vs, _ in self._3dverts_codes]
+        self._paths = [mpath.Path(vertices[:, :2], codes)
+                       for (vertices, (_, codes))
+                       in zip(path_vertices, self._3dverts_codes)]
+        zs = np.concatenate(path_vertices)[:, 2]
         return zs.min() if len(zs) else 1e9
 
 
@@ -390,15 +388,14 @@ class Line3DCollection(LineCollection):
         """
         Project the points according to renderer matrix.
         """
-        xyslist = [proj3d._proj_trans_points(points, self.axes.M)
-                   for points in self._segments3d]
-        segments_2d = [np.column_stack([xs, ys]) for xs, ys, zs in xyslist]
+        segments_3d = [self.axes.M.transform(segment) for segment in self._segments3d]
+        segments_2d = [segment[:, :2] for segment in segments_3d]
         LineCollection.set_segments(self, segments_2d)
 
         # FIXME
         minz = 1e9
-        for xs, ys, zs in xyslist:
-            minz = min(minz, min(zs))
+        for segment in segments_3d:
+            minz = min(minz, segment[0][2], segment[1][2])
         return minz
 
 
@@ -456,12 +453,10 @@ class Patch3D(Patch):
         return self._path2d
 
     def do_3d_projection(self):
-        s = self._segment3d
-        xs, ys, zs = zip(*s)
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
-                                                        self.axes.M)
-        self._path2d = mpath.Path(np.column_stack([vxs, vys]))
-        return min(vzs)
+        segments = self.axes.M.transform(self._segment3d)
+        self._path2d = mpath.Path(segments[:, :2])
+
+        return min(segments[:, 2])
 
 
 class PathPatch3D(Patch3D):
@@ -503,12 +498,10 @@ class PathPatch3D(Patch3D):
         self._code3d = path.codes
 
     def do_3d_projection(self):
-        s = self._segment3d
-        xs, ys, zs = zip(*s)
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
-                                                        self.axes.M)
-        self._path2d = mpath.Path(np.column_stack([vxs, vys]), self._code3d)
-        return min(vzs)
+        segments = self.axes.M.transform(self._segment3d)
+        self._path2d = mpath.Path(segments[:, :2], self._code3d)
+
+        return min(segments[:, 2])
 
 
 def _get_patch_verts(patch):
@@ -610,14 +603,13 @@ class Patch3DCollection(PatchCollection):
         self.stale = True
 
     def do_3d_projection(self):
-        xs, ys, zs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
-                                                        self.axes.M)
-        self._vzs = vzs
-        super().set_offsets(np.column_stack([vxs, vys]))
+        points = self.axes.M.transform(np.column_stack(self._offsets3d))
+        super().set_offsets(points[:, :2])
 
-        if vzs.size > 0:
-            return min(vzs)
+        self._vzs = points[:, 2]
+
+        if self._vzs.size > 0:
+            return min(self._vzs)
         else:
             return np.nan
 
@@ -751,37 +743,31 @@ class Path3DCollection(PathCollection):
         self.stale = True
 
     def do_3d_projection(self):
-        xs, ys, zs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
-                                                        self.axes.M)
         # Sort the points based on z coordinates
         # Performance optimization: Create a sorted index array and reorder
         # points and point properties according to the index array
-        z_markers_idx = self._z_markers_idx = np.argsort(vzs)[::-1]
-        self._vzs = vzs
+        points = self.axes.M.transform(np.column_stack(self._offsets3d))
+        z_markers_idx = self._z_markers_idx = np.argsort(points[:, 2])[::-1]
+        self._vzs = points[:, 2]
 
         # we have to special case the sizes because of code in collections.py
         # as the draw method does
         #      self.set_sizes(self._sizes, self.figure.dpi)
         # so we cannot rely on doing the sorting on the way out via get_*
-
         if len(self._sizes3d) > 1:
             self._sizes = self._sizes3d[z_markers_idx]
 
         if len(self._linewidths3d) > 1:
             self._linewidths = self._linewidths3d[z_markers_idx]
 
-        PathCollection.set_offsets(self, np.column_stack((vxs, vys)))
+        PathCollection.set_offsets(self, points[:, :2])
 
         # Re-order items
-        vzs = vzs[z_markers_idx]
-        vxs = vxs[z_markers_idx]
-        vys = vys[z_markers_idx]
+        points = points[z_markers_idx]
 
         # Store ordered offset for drawing purpose
-        self._offset_zordered = np.column_stack((vxs, vys))
-
-        return np.min(vzs) if vzs.size else np.nan
+        self._offset_zordered = points[:, :2]
+        return np.min(self._vzs) if self._vzs.size else np.nan
 
     @contextmanager
     def _use_zordered_offset(self):
@@ -958,8 +944,7 @@ class Poly3DCollection(PolyCollection):
             xs, ys, zs = np.vstack(segments3d).T
         else:  # vstack can't stack zero arrays.
             xs, ys, zs = [], [], []
-        ones = np.ones(len(xs))
-        self._vec = np.array([xs, ys, zs, ones])
+        self._vec = np.array([xs, ys, zs])
 
         indices = [0, *np.cumsum([len(segment) for segment in segments3d])]
         self._segslices = [*map(slice, indices[:-1], indices[1:])]
@@ -1024,27 +1009,28 @@ class Poly3DCollection(PolyCollection):
                 self._facecolor3d = self._facecolors
             if self._edge_is_mapped:
                 self._edgecolor3d = self._edgecolors
-        txs, tys, tzs = proj3d._proj_transform_vec(self._vec, self.axes.M)
-        xyzlist = [(txs[sl], tys[sl], tzs[sl]) for sl in self._segslices]
+
+        verts = self.axes.M.transform(np.column_stack(self._vec))
+        verts_slices = [verts[sl] for sl in self._segslices]
 
         # This extra fuss is to re-order face / edge colors
         cface = self._facecolor3d
         cedge = self._edgecolor3d
-        if len(cface) != len(xyzlist):
-            cface = cface.repeat(len(xyzlist), axis=0)
-        if len(cedge) != len(xyzlist):
+
+        if len(cface) != len(verts_slices):
+            cface = cface.repeat(len(verts_slices), axis=0)
+        if len(cedge) != len(verts_slices):
             if len(cedge) == 0:
                 cedge = cface
             else:
-                cedge = cedge.repeat(len(xyzlist), axis=0)
+                cedge = cedge.repeat(len(verts_slices), axis=0)
 
-        if xyzlist:
-            # sort by depth (furthest drawn first)
+        if verts_slices:
             z_segments_2d = sorted(
-                ((self._zsortfunc(zs), np.column_stack([xs, ys]), fc, ec, idx)
-                 for idx, ((xs, ys, zs), fc, ec)
-                 in enumerate(zip(xyzlist, cface, cedge))),
-                key=lambda x: x[0], reverse=True)
+                ((self._zsortfunc(verts[:, 2]), verts[:, :2], fc, ec, idx)
+                 for idx, (verts, fc, ec)
+                 in enumerate(zip(verts_slices, cface, cedge))),
+                 key=lambda x: x[0], reverse=True)
 
             _, segments_2d, self._facecolors2d, self._edgecolors2d, idxs = \
                 zip(*z_segments_2d)
@@ -1065,14 +1051,12 @@ class Poly3DCollection(PolyCollection):
 
         # Return zorder value
         if self._sort_zpos is not None:
-            zvec = np.array([[0], [0], [self._sort_zpos], [1]])
-            ztrans = proj3d._proj_transform_vec(zvec, self.axes.M)
-            return ztrans[2][0]
-        elif tzs.size > 0:
+            return self.axes.M.transform([0, 0, self._sort_zpos])[2]
+        elif len(verts) > 0:
             # FIXME: Some results still don't look quite right.
             #        In particular, examine contourf3d_demo2.py
             #        with az = -54 and elev = -45.
-            return np.min(tzs)
+            return np.min(verts[:, 2])
         else:
             return np.nan
 

@@ -22,7 +22,7 @@ from matplotlib.colors import rgb2hex
 from matplotlib.dates import UTC
 from matplotlib.path import Path
 from matplotlib import _path
-from matplotlib.transforms import Affine2D, Affine2DBase
+from matplotlib.transforms import Affine2D, AffineImmutable
 
 
 _log = logging.getLogger(__name__)
@@ -255,7 +255,7 @@ def _generate_transform(transform_list):
                 or type == 'translate' and value == (0, 0)
                 or type == 'rotate' and value == (0,)):
             continue
-        if type == 'matrix' and isinstance(value, Affine2DBase):
+        if type == 'matrix' and isinstance(value, AffineImmutable):
             value = value.to_values()
         parts.append('{}({})'.format(
             type, ' '.join(_short_float_fmt(x) for x in value)))
