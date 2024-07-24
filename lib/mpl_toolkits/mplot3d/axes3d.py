@@ -1963,7 +1963,7 @@ class Axes3D(Axes):
 
     def fill_between(self, x1, y1, z1, x2, y2, z2, *,
                      where=None, mode='auto', facecolors=None, shade=None,
-                     **kwargs):
+                     axlim_clip=False, **kwargs):
         """
         Fill the area between two 3D curves.
 
@@ -2008,6 +2008,9 @@ class Axes3D(Axes):
         shade : bool, default: None
             Whether to shade the facecolors. If *None*, then defaults to *True*
             for 'quad' mode and *False* for 'polygon' mode.
+
+        axlim_clip : bool, default: False
+            Whether to hide data that is outside the axes view limits.
 
         **kwargs
             All other keyword arguments are passed on to `.Poly3DCollection`.
@@ -2079,7 +2082,7 @@ class Axes3D(Axes):
                 polys.append(poly)
 
         polyc = art3d.Poly3DCollection(polys, facecolors=facecolors, shade=shade,
-                                       **kwargs)
+                                       axlim_clip=axlim_clip, **kwargs)
         self.add_collection(polyc)
 
         self.auto_scale_xyz([x1, x2], [y1, y2], [z1, z2], had_data)
