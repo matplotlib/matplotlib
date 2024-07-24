@@ -23,10 +23,10 @@ def world_transformation(xmin, xmax,
         dy /= ay
         dz /= az
 
-    return np.array([[1/dx, 0,    0,    -xmin/dx],
-                     [0,    1/dy, 0,    -ymin/dy],
-                     [0,    0,    1/dz, -zmin/dz],
-                     [0,    0,    0,    1]])
+    return np.array([[1/dx,    0,    0, -xmin/dx],
+                     [   0, 1/dy,    0, -ymin/dy],
+                     [   0,    0, 1/dz, -zmin/dz],
+                     [   0,    0,    0,        1]])
 
 
 @_api.deprecated("3.8")

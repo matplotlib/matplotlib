@@ -55,8 +55,9 @@ import matplotlib
 import matplotlib.colorbar
 import matplotlib.image
 from matplotlib import _api
-from matplotlib import (  # noqa: F401 Re-exported for typing.
-    cm as cm, get_backend as get_backend, rcParams as rcParams, style as style)
+# Re-exported (import x as x) for typing.
+from matplotlib import cm as cm, get_backend as get_backend, rcParams as rcParams
+from matplotlib import style as style  # noqa: F401
 from matplotlib import _pylab_helpers
 from matplotlib import interactive  # noqa: F401
 from matplotlib import cbook
@@ -4017,7 +4018,7 @@ def spy(
         **kwargs,
     )
     if isinstance(__ret, cm.ScalarMappable):
-        sci(__ret)  # noqa
+        sci(__ret)
     return __ret
 
 

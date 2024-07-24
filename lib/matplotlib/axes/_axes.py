@@ -14,7 +14,7 @@ import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
-import matplotlib.dates  # noqa # Register date unit converter as side effect.
+import matplotlib.dates  # noqa: F401, Register date unit converter as side effect.
 import matplotlib.image as mimage
 import matplotlib.legend as mlegend
 import matplotlib.lines as mlines

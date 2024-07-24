@@ -111,5 +111,5 @@ def _preprocess_data(
     label_namer: str | None = ...
 ) -> Callable: ...
 
-from matplotlib.cm import _colormaps as colormaps
-from matplotlib.colors import _color_sequences as color_sequences
+from matplotlib.cm import _colormaps as colormaps  # noqa: E402
+from matplotlib.colors import _color_sequences as color_sequences  # noqa: E402

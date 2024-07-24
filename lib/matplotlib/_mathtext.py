@@ -379,27 +379,27 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
         xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
         offset = self._get_offset(font, glyph, fontsize, dpi)
         metrics = FontMetrics(
-            advance = glyph.linearHoriAdvance/65536.0,
-            height  = glyph.height/64.0,
-            width   = glyph.width/64.0,
-            xmin    = xmin,
-            xmax    = xmax,
-            ymin    = ymin+offset,
-            ymax    = ymax+offset,
+            advance=glyph.linearHoriAdvance / 65536,
+            height=glyph.height / 64,
+            width=glyph.width / 64,
+            xmin=xmin,
+            xmax=xmax,
+            ymin=ymin + offset,
+            ymax=ymax + offset,
             # iceberg is the equivalent of TeX's "height"
-            iceberg = glyph.horiBearingY/64.0 + offset,
-            slanted = slanted
-            )
+            iceberg=glyph.horiBearingY / 64 + offset,
+            slanted=slanted
+        )
 
         return FontInfo(
-            font            = font,
-            fontsize        = fontsize,
-            postscript_name = font.postscript_name,
-            metrics         = metrics,
-            num             = num,
-            glyph           = glyph,
-            offset          = offset
-            )
+            font=font,
+            fontsize=fontsize,
+            postscript_name=font.postscript_name,
+            metrics=metrics,
+            num=num,
+            glyph=glyph,
+            offset=offset
+        )
 
     def get_xheight(self, fontname: str, fontsize: float, dpi: float) -> float:
         font = self._get_font(fontname)

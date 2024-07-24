@@ -1183,7 +1183,7 @@ def test_tricontourf_decreasing_levels():
 
 def test_internal_cpp_api():
     # Following github issue 8197.
-    from matplotlib import _tri  # noqa: ensure lazy-loaded module *is* loaded.
+    from matplotlib import _tri  # noqa: F401, ensure lazy-loaded module *is* loaded.
 
     # C++ Triangulation.
     with pytest.raises(
