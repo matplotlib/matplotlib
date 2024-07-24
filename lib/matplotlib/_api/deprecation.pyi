@@ -1,8 +1,7 @@
 from collections.abc import Callable
 import contextlib
-from typing import Any, TypedDict, TypeVar, overload
+from typing import Any, ParamSpec, TypedDict, TypeVar, overload
 from typing_extensions import (
-    ParamSpec,  # < Py 3.10
     Unpack,  # < Py 3.11
 )
 

@@ -1,19 +1,17 @@
-:orphan:
-
 Tag Glossary
 ============
 
-I. API tags: what content from the API reference is in the example?
-II. Structural tags: what format is the example? What context can we provide?
-III. Domain tags: what discipline(s) might seek this example consistently?
-IV. Internal tags: what information is helpful for maintainers or contributors?
+.. contents::
+    :depth: 1
+    :local:
+    :backlinks: entry
 
 
 API tags: what content from the API reference is in the example?
 ----------------------------------------------------------------
 
 +-----------------------------------+---------------------------------------------+
-|``tag``                            | use case - if not obvious                   |
+|``tag``                            | use case                                    |
 +===================================+=============================================+
 |**Primary or relevant plot component**                                           |
 +-----------------------------------+---------------------------------------------+
@@ -142,7 +140,9 @@ Structural tags: what format is the example? What context can we provide?
 Domain tags: what discipline(s) might seek this example consistently?
 ---------------------------------------------------------------------
 
-It's futile to draw fences around "who owns what", and that's not the point of domain tags. Domain tags help groups of people to privately organize relevant information, and so are not displayed publicly. See below for a list of existing domain tags. If you don't see the one you're looking for and you think it should exist, consider proposing it.
+It's futile to draw fences around "who owns what", and that's not the point of domain
+tags. See below for a list of existing domain tags. If you don't see the one you're
+looking for and you think it should exist, consider proposing it.
 
 +-------------------------------+----------------------------------------+
 |``tag``                        | use case                               |
@@ -162,6 +162,14 @@ It's futile to draw fences around "who owns what", and that's not the point of d
 
 Internal tags: what information is helpful for maintainers or contributors?
 ---------------------------------------------------------------------------
+
+These tags should be used only for development purposes; therefore please add them
+separately behind a version guard:
+
+.. code:: rst
+
+    .. ifconfig:: releaselevel == 'dev'
+        .. tags::  internal: needs-review
 
 +-------------------------------+-----------------------------------------------------------------------+
 |``tag``                        | use case                                                              |

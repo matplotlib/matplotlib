@@ -1,6 +1,7 @@
 from collections.abc import Callable, Iterable, Sequence
 import datetime
 from typing import Any, Literal, overload
+from typing_extensions import Self  # < Py 3.11
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -93,9 +94,8 @@ class Ticker:
 
 class _LazyTickList:
     def __init__(self, major: bool) -> None: ...
-    # Replace return with Self when py3.9 is dropped
     @overload
-    def __get__(self, instance: None, owner: None) -> _LazyTickList: ...
+    def __get__(self, instance: None, owner: None) -> Self: ...
     @overload
     def __get__(self, instance: Axis, owner: type[Axis]) -> list[Tick]: ...
 

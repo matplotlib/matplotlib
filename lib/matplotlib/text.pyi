@@ -4,7 +4,7 @@ from .font_manager import FontProperties
 from .offsetbox import DraggableAnnotation
 from .path import Path
 from .patches import FancyArrowPatch, FancyBboxPatch
-from .textpath import (  # noqa: reexported API
+from .textpath import (  # noqa: F401, reexported API
     TextPath as TextPath,
     TextToPath as TextToPath,
 )

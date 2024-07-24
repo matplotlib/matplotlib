@@ -1197,8 +1197,8 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
         ``ToolBar.GetToolPos`` is not useful because wx assigns the same Id to
         all Separators and StretchableSpaces.
         """
-        pos, = [pos for pos in range(self.ToolsCount)
-                if self.GetToolByPos(pos) == tool]
+        pos, = (pos for pos in range(self.ToolsCount)
+                if self.GetToolByPos(pos) == tool)
         return pos
 
     def add_toolitem(self, name, group, position, image_file, description,

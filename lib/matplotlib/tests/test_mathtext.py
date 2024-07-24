@@ -4,7 +4,6 @@ import io
 from pathlib import Path
 import platform
 import re
-import shlex
 from xml.etree import ElementTree as ET
 from typing import Any
 
@@ -198,8 +197,8 @@ for fonts, chars in font_test_specs:
             *('}' for font in fonts),
             '$',
         ])
-        for set in chars:
-            font_tests.append(wrapper % set)
+        for font_set in chars:
+            font_tests.append(wrapper % font_set)
 
 
 @pytest.fixture
@@ -271,7 +270,7 @@ def test_short_long_accents(fig_test, fig_ref):
     short_accs = [s for s in acc_map if len(s) == 1]
     corresponding_long_accs = []
     for s in short_accs:
-        l, = [l for l in acc_map if len(l) > 1 and acc_map[l] == acc_map[s]]
+        l, = (l for l in acc_map if len(l) > 1 and acc_map[l] == acc_map[s])
         corresponding_long_accs.append(l)
     fig_test.text(0, .5, "$" + "".join(rf"\{s}a" for s in short_accs) + "$")
     fig_ref.text(
@@ -433,7 +432,7 @@ def test_mathtext_fallback_invalid():
 @pytest.mark.parametrize(
     "fallback,fontlist",
     [("cm", ['DejaVu Sans', 'mpltest', 'STIXGeneral', 'cmr10', 'STIXGeneral']),
-     ("stix", ['DejaVu Sans', 'mpltest', 'STIXGeneral'])])
+     ("stix", ['DejaVu Sans', 'mpltest', 'STIXGeneral', 'STIXGeneral', 'STIXGeneral'])])
 def test_mathtext_fallback(fallback, fontlist):
     mpl.font_manager.fontManager.addfont(
         str(Path(__file__).resolve().parent / 'mpltest.ttf'))
@@ -453,10 +452,10 @@ def test_mathtext_fallback(fallback, fontlist):
     fig.savefig(buff, format="svg")
     tspans = (ET.fromstring(buff.getvalue())
               .findall(".//{http://www.w3.org/2000/svg}tspan[@style]"))
-    # Getting the last element of the style attrib is a close enough
-    # approximation for parsing the font property.
-    char_fonts = [shlex.split(tspan.attrib["style"])[-1] for tspan in tspans]
-    assert char_fonts == fontlist
+    char_fonts = [
+        re.search(r"font-family: '([\w ]+)'", tspan.attrib["style"]).group(1)
+        for tspan in tspans]
+    assert char_fonts == fontlist, f'Expected {fontlist}, got {char_fonts}'
     mpl.font_manager.fontManager.ttflist.pop()
 
 

@@ -20,7 +20,7 @@ When installing through a package manager like ``pip`` or ``conda``, the
 mandatory dependencies are automatically installed. This list is mainly for
 reference.
 
-* `Python <https://www.python.org/downloads/>`_ (>= 3.9)
+* `Python <https://www.python.org/downloads/>`_ (>= 3.10)
 * `contourpy <https://pypi.org/project/contourpy/>`_ (>= 1.0.1)
 * `cycler <https://matplotlib.org/cycler/>`_ (>= 0.10.0)
 * `dateutil <https://pypi.org/project/python-dateutil/>`_ (>= 2.7)
@@ -30,8 +30,6 @@ reference.
 * `packaging <https://pypi.org/project/packaging/>`_ (>= 20.0)
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 8.0)
 * `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.3.1)
-* `importlib-resources <https://pypi.org/project/importlib-resources/>`_
-  (>= 3.2.0; only required on Python < 3.10)
 
 
 .. _optional_dependencies:

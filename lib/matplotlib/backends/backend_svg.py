@@ -322,6 +322,7 @@ class RendererSVG(RendererBase):
             viewBox=f'0 0 {str_width} {str_height}',
             xmlns="http://www.w3.org/2000/svg",
             version="1.1",
+            id=mpl.rcParams['svg.id'],
             attrib={'xmlns:xlink': "http://www.w3.org/1999/xlink"})
         self._write_metadata(metadata)
         self._write_default_style()
@@ -714,6 +715,8 @@ class RendererSVG(RendererBase):
             self._markers[dictkey] = oid
 
         writer.start('g', **self._get_clip_attrs(gc))
+        if gc.get_url() is not None:
+            self.writer.start('a', {'xlink:href': gc.get_url()})
         trans_and_flip = self._make_flip_transform(trans)
         attrib = {'xlink:href': f'#{oid}'}
         clip = (0, 0, self.width*72, self.height*72)
@@ -725,6 +728,8 @@ class RendererSVG(RendererBase):
                 attrib['y'] = _short_float_fmt(y)
                 attrib['style'] = self._get_style(gc, rgbFace)
                 writer.element('use', attrib=attrib)
+        if gc.get_url() is not None:
+            self.writer.end('a')
         writer.end('g')
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
@@ -1065,12 +1070,13 @@ class RendererSVG(RendererBase):
             self._update_glyph_map_defs(glyph_map_new)
 
             for glyph_id, xposition, yposition, scale in glyph_info:
-                attrib = {'xlink:href': f'#{glyph_id}'}
-                if xposition != 0.0:
-                    attrib['x'] = _short_float_fmt(xposition)
-                if yposition != 0.0:
-                    attrib['y'] = _short_float_fmt(yposition)
-                writer.element('use', attrib=attrib)
+                writer.element(
+                    'use',
+                    transform=_generate_transform([
+                        ('translate', (xposition, yposition)),
+                        ('scale', (scale,)),
+                        ]),
+                    attrib={'xlink:href': f'#{glyph_id}'})
 
         else:
             if ismath == "TeX":
@@ -1108,25 +1114,26 @@ class RendererSVG(RendererBase):
         writer = self.writer
 
         color = rgb2hex(gc.get_rgb())
-        style = {}
+        font_style = {}
+        color_style = {}
         if color != '#000000':
-            style['fill'] = color
+            color_style['fill'] = color
 
         alpha = gc.get_alpha() if gc.get_forced_alpha() else gc.get_rgb()[3]
         if alpha != 1:
-            style['opacity'] = _short_float_fmt(alpha)
+            color_style['opacity'] = _short_float_fmt(alpha)
 
         if not ismath:
             attrib = {}
 
-            font_parts = []
+            # Separate font style in their separate attributes
             if prop.get_style() != 'normal':
-                font_parts.append(prop.get_style())
+                font_style['font-style'] = prop.get_style()
             if prop.get_variant() != 'normal':
-                font_parts.append(prop.get_variant())
+                font_style['font-variant'] = prop.get_variant()
             weight = fm.weight_dict[prop.get_weight()]
             if weight != 400:
-                font_parts.append(f'{weight}')
+                font_style['font-weight'] = f'{weight}'
 
             def _normalize_sans(name):
                 return 'sans-serif' if name in ['sans', 'sans serif'] else name
@@ -1149,15 +1156,15 @@ class RendererSVG(RendererBase):
                         for entry in prop.get_family()
                         for name in _expand_family_entry(entry)]
 
-            font_parts.extend([
-                f'{_short_float_fmt(prop.get_size())}px',
-                # ensure expansion, quoting, and dedupe of font names
-                ", ".join(dict.fromkeys(_get_all_quoted_names(prop)))
-            ])
-            style['font'] = ' '.join(font_parts)
+            font_style['font-size'] = f'{_short_float_fmt(prop.get_size())}px'
+            # ensure expansion, quoting, and dedupe of font names
+            font_style['font-family'] = ", ".join(
+                dict.fromkeys(_get_all_quoted_names(prop))
+                )
+
             if prop.get_stretch() != 'normal':
-                style['font-stretch'] = prop.get_stretch()
-            attrib['style'] = _generate_css(style)
+                font_style['font-stretch'] = prop.get_stretch()
+            attrib['style'] = _generate_css({**font_style, **color_style})
 
             if mtext and (angle == 0 or mtext.get_rotation_mode() == "anchor"):
                 # If text anchoring can be supported, get the original
@@ -1179,11 +1186,11 @@ class RendererSVG(RendererBase):
 
                 ha_mpl_to_svg = {'left': 'start', 'right': 'end',
                                  'center': 'middle'}
-                style['text-anchor'] = ha_mpl_to_svg[mtext.get_ha()]
+                font_style['text-anchor'] = ha_mpl_to_svg[mtext.get_ha()]
 
                 attrib['x'] = _short_float_fmt(ax)
                 attrib['y'] = _short_float_fmt(ay)
-                attrib['style'] = _generate_css(style)
+                attrib['style'] = _generate_css({**font_style, **color_style})
                 attrib['transform'] = _generate_transform([
                     ("rotate", (-angle, ax, ay))])
 
@@ -1203,7 +1210,7 @@ class RendererSVG(RendererBase):
             # Apply attributes to 'g', not 'text', because we likely have some
             # rectangles as well with the same style and transformation.
             writer.start('g',
-                         style=_generate_css(style),
+                         style=_generate_css({**font_style, **color_style}),
                          transform=_generate_transform([
                              ('translate', (x, y)),
                              ('rotate', (-angle,))]),
@@ -1215,43 +1222,32 @@ class RendererSVG(RendererBase):
             spans = {}
             for font, fontsize, thetext, new_x, new_y in glyphs:
                 entry = fm.ttfFontProperty(font)
-                font_parts = []
+                font_style = {}
+                # Separate font style in its separate attributes
                 if entry.style != 'normal':
-                    font_parts.append(entry.style)
+                    font_style['font-style'] = entry.style
                 if entry.variant != 'normal':
-                    font_parts.append(entry.variant)
+                    font_style['font-variant'] = entry.variant
                 if entry.weight != 400:
-                    font_parts.append(f'{entry.weight}')
-                font_parts.extend([
-                    f'{_short_float_fmt(fontsize)}px',
-                    f'{entry.name!r}',  # ensure quoting
-                ])
-                style = {'font': ' '.join(font_parts)}
+                    font_style['font-weight'] = f'{entry.weight}'
+                font_style['font-size'] = f'{_short_float_fmt(fontsize)}px'
+                font_style['font-family'] = f'{entry.name!r}'  # ensure quoting
                 if entry.stretch != 'normal':
-                    style['font-stretch'] = entry.stretch
-                style = _generate_css(style)
+                    font_style['font-stretch'] = entry.stretch
+                style = _generate_css({**font_style, **color_style})
                 if thetext == 32:
                     thetext = 0xa0  # non-breaking space
                 spans.setdefault(style, []).append((new_x, -new_y, thetext))
 
             for style, chars in spans.items():
-                chars.sort()
-
-                if len({y for x, y, t in chars}) == 1:  # Are all y's the same?
-                    ys = str(chars[0][1])
-                else:
-                    ys = ' '.join(str(c[1]) for c in chars)
-
-                attrib = {
-                    'style': style,
-                    'x': ' '.join(_short_float_fmt(c[0]) for c in chars),
-                    'y': ys
-                    }
-
-                writer.element(
-                    'tspan',
-                    ''.join(chr(c[2]) for c in chars),
-                    attrib=attrib)
+                chars.sort()  # Sort by increasing x position
+                for x, y, t in chars:  # Output one tspan for each character
+                    writer.element(
+                        'tspan',
+                        chr(t),
+                        x=_short_float_fmt(x),
+                        y=_short_float_fmt(y),
+                        style=style)
 
             writer.end('text')
 
@@ -1355,8 +1351,8 @@ class FigureCanvasSVG(FigureCanvasBase):
             renderer.finalize()
 
     def print_svgz(self, filename, **kwargs):
-        with cbook.open_file_cm(filename, "wb") as fh, \
-                gzip.GzipFile(mode='w', fileobj=fh) as gzipwriter:
+        with (cbook.open_file_cm(filename, "wb") as fh,
+              gzip.GzipFile(mode='w', fileobj=fh) as gzipwriter):
             return self.print_svg(gzipwriter, **kwargs)
 
     def get_default_filetype(self):

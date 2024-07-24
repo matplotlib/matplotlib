@@ -141,11 +141,11 @@ def test_overprecision():
     font = t1f.Type1Font(filename)
     slanted = font.transform({'slant': .167})
     lines = slanted.parts[0].decode('ascii').splitlines()
-    matrix, = [line[line.index('[')+1:line.index(']')]
-               for line in lines if '/FontMatrix' in line]
-    angle, = [word
+    matrix, = (line[line.index('[')+1:line.index(']')]
+               for line in lines if '/FontMatrix' in line)
+    angle, = (word
               for line in lines if '/ItalicAngle' in line
-              for word in line.split() if word[0] in '-0123456789']
+              for word in line.split() if word[0] in '-0123456789')
     # the following used to include 0.00016700000000000002
     assert matrix == '0.001 0 0.000167 0.001 0 0'
     # and here we had -9.48090361795083

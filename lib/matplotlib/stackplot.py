@@ -64,6 +64,9 @@ def stackplot(axes, x, *args,
         of provided *y*, in which case the styles will repeat from the
         beginning.
 
+        .. versionadded:: 3.9
+           Support for list input
+
     data : indexable object, optional
         DATA_PARAMETER_PLACEHOLDER
 

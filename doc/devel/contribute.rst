@@ -2,9 +2,10 @@
 
 .. _contributing:
 
-**********
-Contribute
-**********
+******************
+Contributing guide
+******************
+
 
 You've discovered a bug or something else you want to change
 in Matplotlib — excellent!
@@ -12,10 +13,6 @@ in Matplotlib — excellent!
 You've worked out a way to fix it — even better!
 
 You want to tell us about it — best of all!
-
-This project is a community effort, and everyone is welcome to contribute. Everyone
-within the community is expected to abide by our `code of conduct
-<https://github.com/matplotlib/matplotlib/blob/main/CODE_OF_CONDUCT.md>`_.
 
 Below, you can find a number of ways to contribute, and how to connect with the
 Matplotlib community.
@@ -275,7 +272,7 @@ repository <https://github.com/matplotlib/matplotlib/>`__ on GitHub,
 then submit a "pull request" (PR). You can do this by cloning a copy of the
 Maplotlib repository to your own computer, or alternatively using
 `GitHub Codespaces <https://docs.github.com/codespaces>`_, a cloud-based
-in-browser development environment that comes with the appropriated setup to
+in-browser development environment that comes with the appropriate setup to
 contribute to Matplotlib.
 
 Workflow overview

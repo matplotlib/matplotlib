@@ -35,9 +35,6 @@ matplotlib.figure.Figure.set_constrained_layout
 matplotlib.figure.Figure.set_constrained_layout_pads
 matplotlib.figure.Figure.set_tight_layout
 
-# positional-only argument name lacking leading underscores
-matplotlib.axes._base._AxesBase.axis
-
 # Maybe should be abstractmethods, required for subclasses, stubs define once
 matplotlib.tri.*TriInterpolator.__call__
 matplotlib.tri.*TriInterpolator.gradient
@@ -46,3 +43,6 @@ matplotlib.tri.*TriInterpolator.gradient
 matplotlib.backend_bases.FigureCanvasBase._T
 matplotlib.backend_managers.ToolManager._T
 matplotlib.spines.Spine._T
+
+# Parameter inconsistency due to 3.10 deprecation
+matplotlib.figure.FigureBase.get_figure

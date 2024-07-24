@@ -1,5 +1,5 @@
 from . import _base
-from ._axes import Axes  # noqa: F401
+from ._axes import Axes
 
 # Backcompat.
 Subplot = Axes

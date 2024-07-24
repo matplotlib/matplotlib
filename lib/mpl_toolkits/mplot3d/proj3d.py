@@ -23,10 +23,10 @@ def world_transformation(xmin, xmax,
         dy /= ay
         dz /= az
 
-    return np.array([[1/dx, 0,    0,    -xmin/dx],
-                     [0,    1/dy, 0,    -ymin/dy],
-                     [0,    0,    1/dz, -zmin/dz],
-                     [0,    0,    0,    1]])
+    return np.array([[1/dx,    0,    0, -xmin/dx],
+                     [   0, 1/dy,    0, -ymin/dy],
+                     [   0,    0, 1/dz, -zmin/dz],
+                     [   0,    0,    0,        1]])
 
 
 @_api.deprecated("3.8")
@@ -173,7 +173,6 @@ def _ortho_transformation(zfront, zback):
 def _proj_transform_vec(vec, M):
     vecw = np.dot(M, vec.data)
     w = vecw[3]
-    # clip here..
     txs, tys, tzs = vecw[0]/w, vecw[1]/w, vecw[2]/w
     if np.ma.isMA(vec[0]):  # we check each to protect for scalars
         txs = np.ma.array(txs, mask=vec[0].mask)
@@ -184,21 +183,30 @@ def _proj_transform_vec(vec, M):
     return txs, tys, tzs
 
 
-def _proj_transform_vec_clip(vec, M):
+def _proj_transform_vec_clip(vec, M, focal_length):
     vecw = np.dot(M, vec.data)
     w = vecw[3]
-    # clip here.
-    txs, tys, tzs = vecw[0] / w, vecw[1] / w, vecw[2] / w
-    tis = (0 <= vecw[0]) & (vecw[0] <= 1) & (0 <= vecw[1]) & (vecw[1] <= 1)
-    if np.any(tis):
-        tis = vecw[1] < 1
-    if np.ma.isMA(vec[0]):  # we check each to protect for scalars
-        txs = np.ma.array(txs, mask=vec[0].mask)
-        tis = np.ma.array(tis, mask=vec[0].mask)
+    txs = np.ma.array(vecw[0] / w)
+    tys = np.ma.array(vecw[1] / w)
+    tzs = np.ma.array(vecw[2] / w)
+    if np.isinf(focal_length):  # don't clip orthographic projection
+        tis = np.ones(txs.shape, dtype=bool)
+    else:
+        tis = (-1 <= txs) & (txs <= 1) & (-1 <= tys) & (tys <= 1) & (tzs <= 0)
+    tis = np.ma.array(tis)
+
+    # we check each to protect for scalars
+    if np.ma.isMA(vec[0]):
+        txs.mask = vec[0].mask
+        tis.mask = vec[0].mask
     if np.ma.isMA(vec[1]):
-        tys = np.ma.array(tys, mask=vec[1].mask)
+        tys.mask = vec[1].mask
     if np.ma.isMA(vec[2]):
-        tzs = np.ma.array(tzs, mask=vec[2].mask)
+        tzs.mask = vec[2].mask
+
+    txs.mask = txs.mask | ~tis.data
+    tys.mask = tys.mask | ~tis.data
+    tzs.mask = tzs.mask | ~tis.data
     return txs, tys, tzs, tis
 
 
@@ -236,14 +244,19 @@ transform = _api.deprecated(
     alternative="proj_transform")(proj_transform)
 
 
+@_api.deprecated("3.10")
 def proj_transform_clip(xs, ys, zs, M):
+    return _proj_transform_clip(xs, ys, zs, M, focal_length=np.inf)
+
+
+def _proj_transform_clip(xs, ys, zs, M, focal_length):
     """
     Transform the points by the projection matrix
     and return the clipping result
     returns txs, tys, tzs, tis
     """
     vec = _vec_pad_ones(xs, ys, zs)
-    return _proj_transform_vec_clip(vec, M)
+    return _proj_transform_vec_clip(vec, M, focal_length)
 
 
 @_api.deprecated("3.8")

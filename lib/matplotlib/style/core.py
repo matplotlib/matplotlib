@@ -12,18 +12,11 @@ Core functions and attributes for the matplotlib style library:
 """
 
 import contextlib
+import importlib.resources
 import logging
 import os
 from pathlib import Path
-import sys
 import warnings
-
-if sys.version_info >= (3, 10):
-    import importlib.resources as importlib_resources
-else:
-    # Even though Py3.9 has importlib.resources, it doesn't properly handle
-    # modules added in sys.path.
-    import importlib_resources
 
 import matplotlib as mpl
 from matplotlib import _api, _docstring, _rc_params_in_file, rcParamsDefault
@@ -121,8 +114,7 @@ def use(style):
             elif "." in style:
                 pkg, _, name = style.rpartition(".")
                 try:
-                    path = (importlib_resources.files(pkg)
-                            / f"{name}.{STYLE_EXTENSION}")
+                    path = importlib.resources.files(pkg) / f"{name}.{STYLE_EXTENSION}"
                     style = _rc_params_in_file(path)
                 except (ModuleNotFoundError, OSError, TypeError) as exc:
                     # There is an ambiguity whether a dotted name refers to a

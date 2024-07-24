@@ -1,36 +1,48 @@
 """
-============
-axhspan Demo
-============
+=================================
+Drawing regions that span an Axes
+=================================
 
-Create lines or rectangles that span the Axes in either the horizontal or
-vertical direction, and lines than span the Axes with an arbitrary orientation.
+`~.Axes.axhspan` and `~.Axes.axvspan` draw rectangles that span the Axes in either
+the horizontal or vertical direction and are bounded in the other direction. They are
+often used to highlight data regions.
 """
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-t = np.arange(-1, 2, .01)
-s = np.sin(2 * np.pi * t)
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7, 3))
 
-fig, ax = plt.subplots()
+np.random.seed(19680801)
+s = 2.9 * np.convolve(np.random.randn(500), np.ones(30) / 30, mode='valid')
+ax1.plot(s)
+ax1.axhspan(-1, 1, alpha=0.1)
+ax1.set_ylim(-1.5, 1.5)
 
-ax.plot(t, s)
-# Thick red horizontal line at y=0 that spans the xrange.
-ax.axhline(linewidth=8, color='#d62728')
-# Horizontal line at y=1 that spans the xrange.
-ax.axhline(y=1)
-# Vertical line at x=1 that spans the yrange.
-ax.axvline(x=1)
-# Thick blue vertical line at x=0 that spans the upper quadrant of the yrange.
-ax.axvline(x=0, ymin=0.75, linewidth=8, color='#1f77b4')
-# Default hline at y=.5 that spans the middle half of the Axes.
-ax.axhline(y=.5, xmin=0.25, xmax=0.75)
-# Infinite black line going through (0, 0) to (1, 1).
-ax.axline((0, 0), (1, 1), color='k')
-# 50%-gray rectangle spanning the Axes' width from y=0.25 to y=0.75.
-ax.axhspan(0.25, 0.75, facecolor='0.5')
-# Green rectangle spanning the Axes' height from x=1.25 to x=1.55.
-ax.axvspan(1.25, 1.55, facecolor='#2ca02c')
+
+mu = 8
+sigma = 2
+x = np.linspace(0, 16, 401)
+y = np.exp(-((x-mu)**2)/(2*sigma**2))
+ax2.axvspan(mu-2*sigma, mu-sigma, color='0.95')
+ax2.axvspan(mu-sigma, mu+sigma, color='0.9')
+ax2.axvspan(mu+sigma, mu+2*sigma, color='0.95')
+ax2.axvline(mu, color='darkgrey', linestyle='--')
+ax2.plot(x, y)
 
 plt.show()
+
+# %%
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.axes.Axes.axhspan` / `matplotlib.pyplot.axhspan`
+#    - `matplotlib.axes.Axes.axvspan` / `matplotlib.pyplot.axvspan`
+#
+#
+# .. seealso::
+#
+#    `~.Axes.axhline`, `~.Axes.axvline`, `~.Axes.axline` draw infinite lines.

@@ -49,6 +49,7 @@ except Exception:
              '2014-10-26', '2014-10-18', '2014-08-26']
 
 dates = [datetime.strptime(d, "%Y-%m-%d") for d in dates]  # Convert strs to dates.
+releases = [tuple(release.split('.')) for release in releases]  # Split by component.
 dates, releases = zip(*sorted(zip(dates, releases)))  # Sort by increasing date.
 
 # %%
@@ -61,16 +62,22 @@ dates, releases = zip(*sorted(zip(dates, releases)))  # Sort by increasing date.
 #
 # Note that Matplotlib will automatically plot datetime inputs.
 
-# Choose some nice levels: alternate minor releases between top and bottom, and
-# progressievly shorten the stems for bugfix releases.
+# Choose some nice levels: alternate meso releases between top and bottom, and
+# progressively shorten the stems for micro releases.
 levels = []
-major_minor_releases = sorted({release[:3] for release in releases})
+macro_meso_releases = sorted({release[:2] for release in releases})
 for release in releases:
-    major_minor = release[:3]
-    bugfix = int(release[4])
-    h = 1 + 0.8 * (5 - bugfix)
-    level = h if major_minor_releases.index(major_minor) % 2 == 0 else -h
+    macro_meso = release[:2]
+    micro = int(release[2])
+    h = 1 + 0.8 * (5 - micro)
+    level = h if macro_meso_releases.index(macro_meso) % 2 == 0 else -h
     levels.append(level)
+
+
+def is_feature(release):
+    """Return whether a version (split into components) is a feature release."""
+    return release[-1] == '0'
+
 
 # The figure and the axes.
 fig, ax = plt.subplots(figsize=(8.8, 4), layout="constrained")
@@ -78,25 +85,26 @@ ax.set(title="Matplotlib release dates")
 
 # The vertical stems.
 ax.vlines(dates, 0, levels,
-          color=[("tab:red", 1 if release.endswith(".0") else .5)
-                 for release in releases])
+          color=[("tab:red", 1 if is_feature(release) else .5) for release in releases])
 # The baseline.
 ax.axhline(0, c="black")
 # The markers on the baseline.
-minor_dates = [date for date, release in zip(dates, releases) if release[-1] == '0']
-bugfix_dates = [date for date, release in zip(dates, releases) if release[-1] != '0']
-ax.plot(bugfix_dates, np.zeros_like(bugfix_dates), "ko", mfc="white")
-ax.plot(minor_dates, np.zeros_like(minor_dates), "ko", mfc="tab:red")
+meso_dates = [date for date, release in zip(dates, releases) if is_feature(release)]
+micro_dates = [date for date, release in zip(dates, releases)
+               if not is_feature(release)]
+ax.plot(micro_dates, np.zeros_like(micro_dates), "ko", mfc="white")
+ax.plot(meso_dates, np.zeros_like(meso_dates), "ko", mfc="tab:red")
 
 # Annotate the lines.
 for date, level, release in zip(dates, levels, releases):
-    ax.annotate(release, xy=(date, level),
+    version_str = '.'.join(release)
+    ax.annotate(version_str, xy=(date, level),
                 xytext=(-3, np.sign(level)*3), textcoords="offset points",
                 verticalalignment="bottom" if level > 0 else "top",
-                weight="bold" if release.endswith(".0") else "normal",
+                weight="bold" if is_feature(release) else "normal",
                 bbox=dict(boxstyle='square', pad=0, lw=0, fc=(1, 1, 1, 0.7)))
 
-ax.yaxis.set(major_locator=mdates.YearLocator(),
+ax.xaxis.set(major_locator=mdates.YearLocator(),
              major_formatter=mdates.DateFormatter("%Y"))
 
 # Remove the y-axis and some spines.

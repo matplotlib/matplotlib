@@ -3,7 +3,7 @@ from typing import Any, Literal, overload
 from numpy.typing import ArrayLike
 import numpy as np
 
-from matplotlib.axes import Axes, SubplotBase
+from matplotlib.axes import Axes
 from matplotlib.backend_bases import RendererBase
 from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox

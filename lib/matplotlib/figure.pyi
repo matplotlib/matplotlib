@@ -1,6 +1,6 @@
-from collections.abc import Callable, Hashable, Iterable
+from collections.abc import Callable, Hashable, Iterable, Sequence
 import os
-from typing import Any, IO, Literal, Sequence, TypeVar, overload
+from typing import Any, IO, Literal, TypeVar, overload
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -132,7 +132,7 @@ class FigureBase(Artist):
         height_ratios: Sequence[float] | None = ...,
         subplot_kw: dict[str, Any] | None = ...,
         gridspec_kw: dict[str, Any] | None = ...,
-    ) -> Axes | np.ndarray: ...
+    ) -> Any: ...
     def delaxes(self, ax: Axes) -> None: ...
     def clear(self, keep_observers: bool = ...) -> None: ...
     def clf(self, keep_observers: bool = ...) -> None: ...
@@ -260,7 +260,8 @@ class FigureBase(Artist):
     ) -> dict[Hashable, Axes]: ...
 
 class SubFigure(FigureBase):
-    figure: Figure
+    @property
+    def figure(self) -> Figure: ...
     subplotpars: SubplotParams
     dpi_scale_trans: Affine2D
     transFigure: Transform
@@ -298,7 +299,8 @@ class SubFigure(FigureBase):
     def get_axes(self) -> list[Axes]: ...
 
 class Figure(FigureBase):
-    figure: Figure
+    @property
+    def figure(self) -> Figure: ...
     bbox_inches: Bbox
     dpi_scale_trans: Affine2D
     bbox: BboxBase

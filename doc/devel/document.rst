@@ -894,8 +894,6 @@ these ``*.rst`` files from the source location to the build location (see
 In the Python files, to exclude an example from having a plot generated, insert
 "sgskip" somewhere in the filename.
 
-Format examples
----------------
 
 The format of these files is relatively straightforward.  Properly
 formatted comment blocks are treated as ReST_ text, the code is
@@ -937,7 +935,7 @@ like:
 The first comment block is treated as ReST_ text.  The other comment blocks
 render as comments in :doc:`/gallery/lines_bars_and_markers/simple_plot`.
 
-Tutorials are made with the exact same mechanism, except they are longer, and
+Tutorials are made with the exact same mechanism, except they are longer and
 typically have more than one comment block (i.e. :ref:`quick_start`).  The
 first comment block can be the same as the example above.  Subsequent blocks of
 ReST text are delimited by the line ``# %%`` :
@@ -1052,6 +1050,61 @@ subdirectory, but  :file:`galleries/users_explain/artists` has a mix of
 ``*.rst`` and ``*py`` files.  For mixed subdirectories like this, we must add
 any ``*.rst`` files to a ``:toctree:``, either in the ``README.txt`` or in a
 manual ``index.rst``.
+
+Examples guidelines
+-------------------
+
+The gallery of examples contains visual demonstrations of matplotlib features. Gallery
+examples exist so that users can scan through visual examples. Unlike tutorials or user
+guides, gallery examples teach by demonstration, rather than by explanation or
+instruction.
+
+Gallery examples should contain a very brief description of *what* is being demonstrated
+and, when relevant, *how* it is achieved. Explanations should be brief, providing only
+the minimal context necessary for understanding the example. Cross-link related
+documentation (e.g. tutorials, user guides and API entries) and tag the example with
+related concepts.
+
+Format
+^^^^^^
+
+All :ref:`examples-index` should aim to follow these guidelines:
+
+:Title: Describe content in a short sentence (approx. 1-6 words). Do not use *demo* as
+        this is implied by being an example. Avoid implied verbs such as *create*,
+        *make*, etc, e.g. *annotated heatmaps* is preferred to *create annotated
+        heatmaps*. Use the simple present tense when a verb is necessary, e.g. *Fill the
+        area between two curves*
+
+:Description: In a short paragraph (approx 1-3 sentences) describe what visualization
+              technique is being demonstrated and how library features are used to
+              execute the technique, e.g. *Set bar color and bar label entries using the
+              color and label parameters of ~Axes.bar*
+
+:Plot: Clearly demonstrate the subject and, when possible, show edge cases and different
+       applications. While the plot should be visually appealing, prioritize keeping the
+       plot uncluttered.
+
+:Code: Write the minimum necessary to showcase the feature that is the focus of the
+       example. Avoid custom styling and annotation (titles, legends, colors, etc.)
+       when it will not improve the clarity of the example.
+
+       Use short comments sparingly to describe what hard to follow parts of code are
+       doing. When more context or explanation is required, add a text paragraph before
+       the code example.
+
+:doc:`/gallery/misc/bbox_intersect` demonstrates the point of visual examples.
+This example is "messy" in that it's hard to categorize, but the gallery is the right
+spot for it because it makes sense to find it by visual search
+
+:doc:`/gallery/images_contours_and_fields/colormap_interactive_adjustment` is an
+example of a good descriptive title that briefly summarizes how the showcased
+library features are used to implement the demonstrated visualization technique.
+
+:doc:`/gallery/lines_bars_and_markers/lines_with_ticks_demo` is an example of having a
+minimal amount of code necessary to showcase the feature. The lack of extraneous code
+makes it easier for the reader to map which parts of code correspond to which parts of
+the plot.
 
 Miscellaneous
 =============

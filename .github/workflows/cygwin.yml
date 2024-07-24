@@ -49,10 +49,12 @@ jobs:
   test-cygwin:
     runs-on: windows-latest
     name: Python 3.${{ matrix.python-minor-version }} on Cygwin
+    # Enable these when Cygwin has Python 3.12.
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'schedule' ||
+      (false && github.event_name == 'schedule') ||
       (
+        false &&
         github.repository == 'matplotlib/matplotlib' &&
         !contains(github.event.head_commit.message, '[ci skip]') &&
         !contains(github.event.head_commit.message, '[skip ci]') &&
@@ -72,7 +74,7 @@ jobs:
       )
     strategy:
       matrix:
-        python-minor-version: [9]
+        python-minor-version: [12]
 
     steps:
       - name: Fix line endings

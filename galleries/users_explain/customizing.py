@@ -234,8 +234,8 @@ plt.show()
 #
 # 4. :file:`{INSTALL}/matplotlib/mpl-data/matplotlibrc`, where
 #    :file:`{INSTALL}` is something like
-#    :file:`/usr/lib/python3.9/site-packages` on Linux, and maybe
-#    :file:`C:\\Python39\\Lib\\site-packages` on Windows. Every time you
+#    :file:`/usr/lib/python3.10/site-packages` on Linux, and maybe
+#    :file:`C:\\Python310\\Lib\\site-packages` on Windows. Every time you
 #    install matplotlib, this file will be overwritten, so if you want
 #    your customizations to be saved, please move this file to your
 #    user-specific matplotlib directory.

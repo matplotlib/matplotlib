@@ -508,10 +508,10 @@ def test_scatter3d_sorting(fig_ref, fig_test, depthshade):
     linewidths[0::2, 0::2] = 5
     linewidths[1::2, 1::2] = 5
 
-    x, y, z, sizes, facecolors, edgecolors, linewidths = [
+    x, y, z, sizes, facecolors, edgecolors, linewidths = (
         a.flatten()
         for a in [x, y, z, sizes, facecolors, edgecolors, linewidths]
-    ]
+    )
 
     ax_ref = fig_ref.add_subplot(projection='3d')
     sets = (np.unique(a) for a in [sizes, facecolors, edgecolors, linewidths])
@@ -1325,6 +1325,21 @@ def test_unautoscale(axis, auto):
     np.testing.assert_array_equal(get_lim(), (-0.5, 0.5))
 
 
+@check_figures_equal(extensions=["png"])
+def test_culling(fig_test, fig_ref):
+    xmins = (-100, -50)
+    for fig, xmin in zip((fig_test, fig_ref), xmins):
+        ax = fig.add_subplot(projection='3d')
+        n = abs(xmin) + 1
+        xs = np.linspace(0, xmin, n)
+        ys = np.ones(n)
+        zs = np.zeros(n)
+        ax.plot(xs, ys, zs, 'k')
+
+        ax.set(xlim=(-5, 5), ylim=(-5, 5), zlim=(-5, 5))
+        ax.view_init(5, 180, 0)
+
+
 def test_axes3d_focal_length_checks():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -1540,8 +1555,9 @@ class TestVoxels:
             ax.voxels(x, y)
         # x, y, z are positional only - this passes them on as attributes of
         # Poly3DCollection
-        with pytest.raises(AttributeError):
+        with pytest.raises(AttributeError, match="keyword argument 'x'") as exec_info:
             ax.voxels(filled=filled, x=x, y=y, z=z)
+        assert exec_info.value.name == 'x'
 
 
 def test_line3d_set_get_data_3d():

@@ -27,29 +27,7 @@ import subprocess
 import numpy as np
 from matplotlib import _api, mlab
 from matplotlib.axes import Axes
-from matplotlib.backend_bases import MouseButton
 from matplotlib.figure import Figure
-
-
-# we need to define a custom str because py310 change
-# In Python 3.10 the repr and str representation of Enums changed from
-#
-#  str: 'ClassName.NAME' -> 'NAME'
-#  repr: '<ClassName.NAME: value>' -> 'ClassName.NAME'
-#
-# which is more consistent with what str/repr should do, however this breaks
-# boilerplate which needs to get the ClassName.NAME version in all versions of
-# Python. Thus, we locally monkey patch our preferred str representation in
-# here.
-#
-# bpo-40066
-# https://github.com/python/cpython/pull/22392/
-def enum_str_back_compat_patch(self):
-    return f'{type(self).__name__}.{self.name}'
-
-# only monkey patch if we have to.
-if str(MouseButton.LEFT) != 'MouseButton.Left':
-    MouseButton.__str__ = enum_str_back_compat_patch
 
 
 # This is the magic line that must exist in pyplot, after which the boilerplate
@@ -112,7 +90,7 @@ class value_formatter:
             self._repr = "_api.deprecation._deprecated_parameter"
         elif isinstance(value, Enum):
             # Enum str is Class.Name whereas their repr is <Class.Name: value>.
-            self._repr = str(value)
+            self._repr = f'{type(value).__name__}.{value.name}'
         else:
             self._repr = repr(value)
 
@@ -326,7 +304,10 @@ def boilerplate_gen():
         'pcolormesh': 'sci(__ret)',
         'hist2d': 'sci(__ret[-1])',
         'imshow': 'sci(__ret)',
-        'spy': 'if isinstance(__ret, cm.ScalarMappable): sci(__ret)  # noqa',
+        'spy': (
+            'if isinstance(__ret, cm.ScalarMappable):\n'
+            '        sci(__ret)'
+        ),
         'quiver': 'sci(__ret)',
         'specgram': 'sci(__ret[-1])',
         'streamplot': 'sci(__ret.lines)',

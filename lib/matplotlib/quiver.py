@@ -424,13 +424,13 @@ def _parse_args(*args, caller_name='function'):
         X = X.ravel()
         Y = Y.ravel()
         if len(X) == nc and len(Y) == nr:
-            X, Y = [a.ravel() for a in np.meshgrid(X, Y)]
+            X, Y = (a.ravel() for a in np.meshgrid(X, Y))
         elif len(X) != len(Y):
             raise ValueError('X and Y must be the same size, but '
                              f'X.size is {X.size} and Y.size is {Y.size}.')
     else:
         indexgrid = np.meshgrid(np.arange(nc), np.arange(nr))
-        X, Y = [np.ravel(a) for a in indexgrid]
+        X, Y = (np.ravel(a) for a in indexgrid)
     # Size validation for U, V, C is left to the set_UVC method.
     return X, Y, U, V, C
 

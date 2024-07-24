@@ -1,0 +1,3 @@
+``proj3d.proj_transform_clip``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated with no replacement.

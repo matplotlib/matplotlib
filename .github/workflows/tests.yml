@@ -50,29 +50,26 @@ jobs:
         include:
           - name-suffix: "(Minimum Versions)"
             os: ubuntu-20.04
-            python-version: 3.9
+            python-version: '3.10'
             extra-requirements: '-c requirements/testing/minver.txt'
-            pyqt5-ver: '==5.12.2 sip==5.0.0'  # oldest versions with a Py3.9 wheel.
-            pyqt6-ver: '==6.1.0 PyQt6-Qt6==6.1.0'
-            pyside2-ver: '==5.15.1'  # oldest version with working Py3.9 wheel.
-            pyside6-ver: '==6.0.0'
             delete-font-cache: true
+            # Oldest versions with Py3.10 wheels.
+            pyqt5-ver: '==5.15.5 sip==6.3.0'
+            pyqt6-ver: '==6.2.0 PyQt6-Qt6==6.2.0'
+            pyside2-ver: '==5.15.2.1'
+            pyside6-ver: '==6.2.0'
           - os: ubuntu-20.04
-            python-version: 3.9
+            python-version: '3.10'
             # One CI run tests ipython/matplotlib-inline before backend mapping moved to mpl
-            extra-requirements: '-r requirements/testing/extra.txt "ipython==7.19" "matplotlib-inline<0.1.7"'
+            extra-requirements:
+              -r requirements/testing/extra.txt
+              "ipython==7.29.0"
+              "ipykernel==5.5.6"
+              "matplotlib-inline<0.1.7"
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
             # https://github.com/matplotlib/matplotlib/pull/26052#issuecomment-1574595954
             # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
-            pyqt6-ver: '!=6.5.1,!=6.6.0'
-            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
-            pyside6-ver: '!=6.5.1'
-          - os: ubuntu-20.04
-            python-version: '3.10'
-            extra-requirements: '-r requirements/testing/extra.txt'
-            # https://github.com/matplotlib/matplotlib/pull/26052#issuecomment-1574595954
-            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
-            pyqt6-ver: '!=6.5.1,!=6.6.0'
+            pyqt6-ver: '!=6.5.1,!=6.6.0,!=6.7.1'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
           - os: ubuntu-22.04
@@ -88,8 +85,8 @@ jobs:
             pyqt6-ver: '!=6.6.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
-          - os: macos-12  # This runnre is on Intel chips.
-            python-version: 3.9
+          - os: macos-12  # This runner is on Intel chips.
+            python-version: '3.10'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
           - os: macos-14  # This runner is on M1 (arm64) chips.

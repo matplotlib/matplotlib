@@ -167,6 +167,14 @@ div.wide-table table th.stub {
     display: inline;
 }
 
+/* sdd is a custom class that strips out styling from dropdowns
+ * Example usage:
+ *
+ * .. dropdown::
+ *   :class-container: sdd
+ *
+ */
+
 .sdd.sd-dropdown {
     box-shadow: none!important;
 }
@@ -184,4 +192,18 @@ div.wide-table table th.stub {
 
 .sdd.sd-dropdown .sd-card-header +.sd-card-body{
     --pst-sd-dropdown-color: none;
+}
+
+/* section-toc is a custom class that removes the page title from a toctree listing
+ * Example usage:
+ *
+ * .. rst-class:: section-toc
+ * .. toctree::
+ *
+ */
+.section-toc.toctree-wrapper .toctree-l1>a{
+    display: none;
+}
+.section-toc.toctree-wrapper li>ul{
+    padding-inline-start:0;
 }

@@ -1,5 +1,6 @@
 import functools
 import io
+import operator
 from unittest import mock
 
 import matplotlib as mpl
@@ -1573,7 +1574,7 @@ def test_polygon_selector_remove(idx, draw_bounding_box):
     # Remove the extra point
     event_sequence.append(polygon_remove_vertex(200, 200))
     # Flatten list of lists
-    event_sequence = sum(event_sequence, [])
+    event_sequence = functools.reduce(operator.iadd, event_sequence, [])
     check_polygon_selector(event_sequence, verts, 2,
                            draw_bounding_box=draw_bounding_box)
 

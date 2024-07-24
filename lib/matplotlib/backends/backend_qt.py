@@ -483,7 +483,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         if bbox is None and self.figure:
             bbox = self.figure.bbox  # Blit the entire canvas if bbox is None.
         # repaint uses logical pixels, not physical pixels like the renderer.
-        l, b, w, h = [int(pt / self.device_pixel_ratio) for pt in bbox.bounds]
+        l, b, w, h = (int(pt / self.device_pixel_ratio) for pt in bbox.bounds)
         t = b + h
         self.repaint(l, self.rect().height() - t, w, h)
 
@@ -504,7 +504,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         # Draw the zoom rectangle to the QPainter.  _draw_rect_callback needs
         # to be called at the end of paintEvent.
         if rect is not None:
-            x0, y0, w, h = [int(pt / self.device_pixel_ratio) for pt in rect]
+            x0, y0, w, h = (int(pt / self.device_pixel_ratio) for pt in rect)
             x1 = x0 + w
             y1 = y0 + h
             def _draw_rect_callback(painter):

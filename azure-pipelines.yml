@@ -49,29 +49,20 @@ stages:
       - job: Pytest
         strategy:
           matrix:
-            Linux_py39:
-              vmImage: 'ubuntu-20.04'  # keep one job pinned to the oldest image
-              python.version: '3.9'
             Linux_py310:
-              vmImage: 'ubuntu-latest'
+              vmImage: 'ubuntu-20.04'  # keep one job pinned to the oldest image
               python.version: '3.10'
             Linux_py311:
               vmImage: 'ubuntu-latest'
               python.version: '3.11'
-            macOS_py39:
-              vmImage: 'macOS-latest'
-              python.version: '3.9'
             macOS_py310:
               vmImage: 'macOS-latest'
               python.version: '3.10'
             macOS_py311:
               vmImage: 'macOS-latest'
               python.version: '3.11'
-            Windows_py39:
-              vmImage: 'windows-2019'  # keep one job pinned to the oldest image
-              python.version: '3.9'
             Windows_py310:
-              vmImage: 'windows-latest'
+              vmImage: 'windows-2019'  # keep one job pinned to the oldest image
               python.version: '3.10'
             Windows_py311:
               vmImage: 'windows-latest'

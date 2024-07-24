@@ -252,7 +252,7 @@ Using tox
 
 `Tox <https://tox.readthedocs.io/en/latest/>`_ is a tool for running tests
 against multiple Python environments, including multiple versions of Python
-(e.g., 3.7, 3.8) and even different Python implementations altogether
+(e.g., 3.10, 3.11) and even different Python implementations altogether
 (e.g., CPython, PyPy, Jython, etc.), as long as all these versions are
 available on your system's $PATH (consider using your system package manager,
 e.g. apt-get, yum, or Homebrew, to install them).
@@ -269,7 +269,7 @@ You can also run tox on a subset of environments:
 
 .. code-block:: bash
 
-    $ tox -e py38,py39
+    $ tox -e py310,py311
 
 Tox processes everything serially so it can take a long time to test
 several environments. To speed it up, you might try using a new,

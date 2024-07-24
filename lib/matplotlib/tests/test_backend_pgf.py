@@ -298,8 +298,8 @@ def test_multipage_keep_empty(tmp_path):
 
     # an empty pdf is left behind with keep_empty=True
     fn = tmp_path / "b.pdf"
-    with pytest.warns(mpl.MatplotlibDeprecationWarning), \
-            PdfPages(fn, keep_empty=True) as pdf:
+    with (pytest.warns(mpl.MatplotlibDeprecationWarning),
+          PdfPages(fn, keep_empty=True) as pdf):
         pass
     assert fn.exists()
 
@@ -319,8 +319,8 @@ def test_multipage_keep_empty(tmp_path):
 
     # a non-empty pdf is left behind with keep_empty=True
     fn = tmp_path / "e.pdf"
-    with pytest.warns(mpl.MatplotlibDeprecationWarning), \
-            PdfPages(fn, keep_empty=True) as pdf:
+    with (pytest.warns(mpl.MatplotlibDeprecationWarning),
+          PdfPages(fn, keep_empty=True) as pdf):
         pdf.savefig(plt.figure())
     assert fn.exists()
 

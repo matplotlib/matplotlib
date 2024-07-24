@@ -51,3 +51,9 @@ plt.show()
 #    - `matplotlib.axes.Axes.axhline` / `matplotlib.pyplot.axhline`
 #    - `matplotlib.axes.Axes.axvline` / `matplotlib.pyplot.axvline`
 #    - `matplotlib.axes.Axes.axline` / `matplotlib.pyplot.axline`
+#
+#
+# .. seealso::
+#
+#    `~.Axes.axhspan`, `~.Axes.axvspan` draw rectangles that span the Axes in one
+#    direction and are bounded in the other direction.

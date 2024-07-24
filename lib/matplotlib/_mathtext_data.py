@@ -3,7 +3,7 @@ font data tables for truetype and afm computer modern fonts
 """
 
 from __future__ import annotations
-from typing import overload, Union
+from typing import overload
 
 latex_to_bakoma = {
     '\\__sqrt__'                 : ('cmex10', 0x70),
@@ -1113,11 +1113,10 @@ tex2uni = {
 # Each element is a 4-tuple of the form:
 #   src_start, src_end, dst_font, dst_start
 
-_EntryTypeIn = tuple[str, str, str, Union[str, int]]
+_EntryTypeIn = tuple[str, str, str, str | int]
 _EntryTypeOut = tuple[int, int, str, int]
 
-_stix_virtual_fonts: dict[str, Union[dict[
-    str, list[_EntryTypeIn]], list[_EntryTypeIn]]] = {
+_stix_virtual_fonts: dict[str, dict[str, list[_EntryTypeIn]] | list[_EntryTypeIn]] = {
     'bb': {
         "rm": [
             ("\N{DIGIT ZERO}",
@@ -1729,8 +1728,7 @@ def _normalize_stix_fontcodes(d):
         return {k: _normalize_stix_fontcodes(v) for k, v in d.items()}
 
 
-stix_virtual_fonts: dict[str, Union[dict[str, list[_EntryTypeOut]],
-                                    list[_EntryTypeOut]]]
+stix_virtual_fonts: dict[str, dict[str, list[_EntryTypeOut]] | list[_EntryTypeOut]]
 stix_virtual_fonts = _normalize_stix_fontcodes(_stix_virtual_fonts)
 
 # Free redundant list now that it has been normalized

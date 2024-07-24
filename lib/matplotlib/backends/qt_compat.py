@@ -49,7 +49,7 @@ elif (mpl.rcParams._get_backend_or_none() or "").lower().startswith("qt5"):
     if QT_API_ENV in ["pyqt5", "pyside2"]:
         QT_API = _ETS[QT_API_ENV]
     else:
-        _QT_FORCE_QT5_BINDING = True  # noqa
+        _QT_FORCE_QT5_BINDING = True  # noqa: F811
         QT_API = None
 # A non-Qt backend was selected but we still got there (possible, e.g., when
 # fully manually embedding Matplotlib in a Qt app without using pyplot).

@@ -30,6 +30,7 @@ list of examples) .  More information about Figures can be found at
 from contextlib import ExitStack
 import inspect
 import itertools
+import functools
 import logging
 from numbers import Integral
 import threading
@@ -63,8 +64,8 @@ _log = logging.getLogger(__name__)
 
 
 def _stale_figure_callback(self, val):
-    if self.figure:
-        self.figure.stale = val
+    if (fig := self.get_figure(root=False)) is not None:
+        fig.stale = val
 
 
 class _AxesStack:
@@ -226,6 +227,67 @@ class FigureBase(Artist):
                 *self.images,
                 *self.legends,
                 *self.subfigs]
+
+    def get_figure(self, root=None):
+        """
+        Return the `.Figure` or `.SubFigure` instance the (Sub)Figure belongs to.
+
+        Parameters
+        ----------
+        root : bool, default=True
+            If False, return the (Sub)Figure this artist is on.  If True,
+            return the root Figure for a nested tree of SubFigures.
+
+            .. deprecated:: 3.10
+
+                From version 3.12 *root* will default to False.
+        """
+        if self._root_figure is self:
+            # Top level Figure
+            return self
+
+        if self._parent is self._root_figure:
+            # Return early to prevent the deprecation warning when *root* does not
+            # matter
+            return self._parent
+
+        if root is None:
+            # When deprecation expires, consider removing the docstring and just
+            # inheriting the one from Artist.
+            message = ('From Matplotlib 3.12 SubFigure.get_figure will by default '
+                       'return the direct parent figure, which may be a SubFigure. '
+                       'To suppress this warning, pass the root parameter.  Pass '
+                       '`True` to maintain the old behavior and `False` to opt-in to '
+                       'the future behavior.')
+            _api.warn_deprecated('3.10', message=message)
+            root = True
+
+        if root:
+            return self._root_figure
+
+        return self._parent
+
+    def set_figure(self, fig):
+        """
+        .. deprecated:: 3.10
+            Currently this method will raise an exception if *fig* is anything other
+            than the root `.Figure` this (Sub)Figure is on.  In future it will always
+            raise an exception.
+        """
+        no_switch = ("The parent and root figures of a (Sub)Figure are set at "
+                     "instantiation and cannot be changed.")
+        if fig is self._root_figure:
+            _api.warn_deprecated(
+                "3.10",
+                message=(f"{no_switch} From Matplotlib 3.12 this operation will raise "
+                         "an exception."))
+            return
+
+        raise ValueError(no_switch)
+
+    figure = property(functools.partial(get_figure, root=True), set_figure,
+                      doc=("The root `Figure`.  To get the parent of a `SubFigure`, "
+                           "use the `get_figure` method."))
 
     def contains(self, mouseevent):
         """
@@ -2222,7 +2284,7 @@ class SubFigure(FigureBase):
 
         self._subplotspec = subplotspec
         self._parent = parent
-        self.figure = parent.figure
+        self._root_figure = parent._root_figure
 
         # subfigures use the parent axstack
         self._axstack = parent._axstack
@@ -2503,7 +2565,7 @@ None}, default: None
             %(Figure:kwdoc)s
         """
         super().__init__(**kwargs)
-        self.figure = self
+        self._root_figure = self
         self._layout_engine = None
 
         if layout is not None:

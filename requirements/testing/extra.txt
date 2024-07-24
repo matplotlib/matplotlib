@@ -1,4 +1,4 @@
-# Extra pip requirements for the Python 3.9+ builds
+# Extra pip requirements for the Python 3.10+ builds
 
 --prefer-binary
 ipykernel

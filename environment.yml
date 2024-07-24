@@ -24,6 +24,7 @@ dependencies:
   - pygobject
   - pyparsing>=2.3.1
   - pyqt
+  - python>=3.10
   - python-dateutil>=2.1
   - setuptools_scm
   - wxpython
@@ -40,7 +41,7 @@ dependencies:
   - sphinx-copybutton
   - sphinx-gallery>=0.12.0
   - sphinx-design
-  - sphinx-tags>=0.3.0
+  - sphinx-tags>=0.4.0
   - pip
   - pip:
       - mpl-sphinx-theme~=3.8.0
