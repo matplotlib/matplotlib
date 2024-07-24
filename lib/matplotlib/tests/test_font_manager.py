@@ -183,8 +183,8 @@ def test_addfont_as_path():
     path = Path(__file__).parent / font_test_file
     try:
         fontManager.addfont(path)
-        added, = [font for font in fontManager.ttflist
-                  if font.fname.endswith(font_test_file)]
+        added, = (font for font in fontManager.ttflist
+                  if font.fname.endswith(font_test_file))
         fontManager.ttflist.remove(added)
     finally:
         to_remove = [font for font in fontManager.ttflist

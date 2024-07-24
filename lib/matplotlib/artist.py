@@ -1,10 +1,11 @@
 from collections import namedtuple
 import contextlib
-from functools import cache, wraps
+from functools import cache, reduce, wraps
 import inspect
 from inspect import Signature, Parameter
 import logging
 from numbers import Number, Real
+import operator
 import re
 import warnings
 
@@ -1290,7 +1291,8 @@ class Artist:
             raise ValueError('match must be None, a matplotlib.artist.Artist '
                              'subclass, or a callable')
 
-        artists = sum([c.findobj(matchfunc) for c in self.get_children()], [])
+        artists = reduce(operator.iadd,
+                         [c.findobj(matchfunc) for c in self.get_children()], [])
         if include_self and matchfunc(self):
             artists.append(self)
         return artists

@@ -3086,10 +3086,10 @@ def test_log_scales():
     ax.set_yscale('log', base=5.5)
     ax.invert_yaxis()
     ax.set_xscale('log', base=9.0)
-    xticks, yticks = [
+    xticks, yticks = (
         [(t.get_loc(), t.label1.get_text()) for t in axis._update_ticks()]
         for axis in [ax.xaxis, ax.yaxis]
-    ]
+    )
     assert xticks == [
         (1.0, '$\\mathdefault{9^{0}}$'),
         (9.0, '$\\mathdefault{9^{1}}$'),

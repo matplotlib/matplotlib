@@ -376,7 +376,7 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
         font.set_size(fontsize, dpi)
         glyph = font.load_char(num, flags=self.load_glyph_flags)
 
-        xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
+        xmin, ymin, xmax, ymax = (val / 64 for val in glyph.bbox)
         offset = self._get_offset(font, glyph, fontsize, dpi)
         metrics = FontMetrics(
             advance=glyph.linearHoriAdvance / 65536,
@@ -2645,7 +2645,7 @@ class Parser:
             if rdelim == '':
                 rdelim = '.'
             return self._auto_sized_delimiter(ldelim,
-                                              T.cast(list[T.Union[Box, Char, str]],
+                                              T.cast(list[Box | Char | str],
                                                      result),
                                               rdelim)
         return result
@@ -2786,7 +2786,7 @@ class Parser:
                     del middle[idx]
             # There should only be \middle and its delimiter as str, which have
             # just been removed.
-            middle_part = T.cast(list[T.Union[Box, Char]], middle)
+            middle_part = T.cast(list[Box | Char], middle)
         else:
             height = 0
             depth = 0

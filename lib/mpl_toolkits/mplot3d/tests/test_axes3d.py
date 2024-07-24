@@ -508,10 +508,10 @@ def test_scatter3d_sorting(fig_ref, fig_test, depthshade):
     linewidths[0::2, 0::2] = 5
     linewidths[1::2, 1::2] = 5
 
-    x, y, z, sizes, facecolors, edgecolors, linewidths = [
+    x, y, z, sizes, facecolors, edgecolors, linewidths = (
         a.flatten()
         for a in [x, y, z, sizes, facecolors, edgecolors, linewidths]
-    ]
+    )
 
     ax_ref = fig_ref.add_subplot(projection='3d')
     sets = (np.unique(a) for a in [sizes, facecolors, edgecolors, linewidths])

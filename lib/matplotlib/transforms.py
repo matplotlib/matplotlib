@@ -38,6 +38,7 @@ of how to use transforms.
 
 import copy
 import functools
+import itertools
 import textwrap
 import weakref
 import math
@@ -553,7 +554,7 @@ class BboxBase(TransformNode):
         x0, y0, x1, y1 = self.extents
         w = x1 - x0
         return [Bbox([[x0 + xf0 * w, y0], [x0 + xf1 * w, y1]])
-                for xf0, xf1 in zip(xf[:-1], xf[1:])]
+                for xf0, xf1 in itertools.pairwise(xf)]
 
     def splity(self, *args):
         """
@@ -564,7 +565,7 @@ class BboxBase(TransformNode):
         x0, y0, x1, y1 = self.extents
         h = y1 - y0
         return [Bbox([[x0, y0 + yf0 * h], [x1, y0 + yf1 * h]])
-                for yf0, yf1 in zip(yf[:-1], yf[1:])]
+                for yf0, yf1 in itertools.pairwise(yf)]
 
     def count_contains(self, vertices):
         """

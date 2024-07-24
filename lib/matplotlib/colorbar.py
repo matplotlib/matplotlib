@@ -1115,10 +1115,8 @@ class Colorbar:
             # Update the norm values in a context manager as it is only
             # a temporary change and we don't want to propagate any signals
             # attached to the norm (callbacks.blocked).
-            with self.norm.callbacks.blocked(), \
-                    cbook._setattr_cm(self.norm,
-                                      vmin=self.vmin,
-                                      vmax=self.vmax):
+            with (self.norm.callbacks.blocked(),
+                  cbook._setattr_cm(self.norm, vmin=self.vmin, vmax=self.vmax)):
                 y = self.norm.inverse(y)
         self._y = y
         X, Y = np.meshgrid([0., 1.], y)

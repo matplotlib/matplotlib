@@ -646,7 +646,7 @@ class _AxesBase(martist.Artist):
         self._aspect = 'auto'
         self._adjustable = 'box'
         self._anchor = 'C'
-        self._stale_viewlims = {name: False for name in self._axis_names}
+        self._stale_viewlims = dict.fromkeys(self._axis_names, False)
         self._forward_navigation_events = forward_navigation_events
         self._sharex = sharex
         self._sharey = sharey

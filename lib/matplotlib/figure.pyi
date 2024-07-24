@@ -1,6 +1,6 @@
-from collections.abc import Callable, Hashable, Iterable
+from collections.abc import Callable, Hashable, Iterable, Sequence
 import os
-from typing import Any, IO, Literal, Sequence, TypeVar, overload
+from typing import Any, IO, Literal, TypeVar, overload
 
 import numpy as np
 from numpy.typing import ArrayLike

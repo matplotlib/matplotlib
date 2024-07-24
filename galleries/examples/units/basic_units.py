@@ -7,6 +7,7 @@ Basic Units
 
 """
 
+import itertools
 import math
 
 from packaging.version import parse as parse_version
@@ -254,7 +255,7 @@ class BasicUnit:
 
 class UnitResolver:
     def addition_rule(self, units):
-        for unit_1, unit_2 in zip(units[:-1], units[1:]):
+        for unit_1, unit_2 in itertools.pairwise(units):
             if unit_1 != unit_2:
                 return NotImplemented
         return units[0]

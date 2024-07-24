@@ -1086,8 +1086,8 @@ class Animation:
         # canvas._is_saving = True makes the draw_event animation-starting
         # callback a no-op; canvas.manager = None prevents resizing the GUI
         # widget (both are likewise done in savefig()).
-        with writer.saving(self._fig, filename, dpi), \
-             cbook._setattr_cm(self._fig.canvas, _is_saving=True, manager=None):
+        with (writer.saving(self._fig, filename, dpi),
+              cbook._setattr_cm(self._fig.canvas, _is_saving=True, manager=None)):
             for anim in all_anim:
                 anim._init_draw()  # Clear the initial frame
             frame_number = 0
