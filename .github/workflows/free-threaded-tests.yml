@@ -110,7 +110,7 @@
               python -m pip install \
                   --pre \
                   --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
-                  --upgrade --only-binary=:all: numpy pandas pillow
+                  --upgrade --only-binary=:all: numpy pandas pillow contourpy
 
           - name: Install Python dependencies
             run: |
