@@ -1260,12 +1260,10 @@ class MultivarColormap:
     Class for holding multiple `~matplotlib.colors.Colormap` for use in a
     `~matplotlib.cm.VectorMappable` object
     """
-    def __init__(self, name, colormaps, combination_mode):
+    def __init__(self, colormaps, combination_mode, name='multivariate colormap'):
         """
         Parameters
         ----------
-        name : str
-            The name of the colormap family.
         colormaps: list or tuple of `~matplotlib.colors.Colormap` objects
             The individual colormaps that are combined
         combination_mode: str, 'sRGB_add' or 'sRGB_sub'
@@ -1275,6 +1273,8 @@ class MultivarColormap:
               `sRGB = cmap[0][X[0]] + cmap[1][x[1]] + ... + cmap[n-1][x[n-1]]`
             - If 'sRGB_sub' -> Mixing produces darker colors
               `sRGB = cmap[0][X[0]] + cmap[1][x[1]] + ... + cmap[n-1][x[n-1]] - n + 1`
+        name : str, optional
+            The name of the colormap family.
         """
         self.name = name
 
@@ -1284,12 +1284,11 @@ class MultivarColormap:
             raise ValueError("A MultivarColormap must have more than one colormap.")
         colormaps = list(colormaps)  # ensure cmaps is a list, i.e. not a tuple
         for i, cmap in enumerate(colormaps):
-            if not isinstance(cmap, Colormap):
-                if isinstance(cmap, str):
-                    colormaps[i] = mpl.colormaps[cmap]
-                else:
-                    raise ValueError("colormaps must be a list of objects that subclass"
-                                     " Colormap or valid strings.")
+            if isinstance(cmap, str):
+                colormaps[i] = mpl.colormaps[cmap]
+            elif not isinstance(cmap, Colormap):
+                raise ValueError("colormaps must be a list of objects that subclass"
+                                 " Colormap or valid strings.")
 
         self._colormaps = colormaps
         if combination_mode not in ['sRGB_add', 'sRGB_sub']:
@@ -1314,7 +1313,7 @@ class MultivarColormap:
             self[i] is colormap i.
         alpha : float or array-like or None
             Alpha must be a scalar between 0 and 1, a sequence of such
-            floats with shape matching Xi, or None.
+            floats with shape matching *Xi*, or None.
         bytes : bool
             If False (default), the returned RGBA values will be floats in the
             interval ``[0, 1]`` otherwise they will be `numpy.uint8`\s in the
@@ -1473,15 +1472,13 @@ class MultivarColormap:
                 raise ValueError("*under* must contain a color for each scalar colormap"
                                  f" i.e. be of length {len(new_cm)}.")
             else:
-                for c, b in zip(new_cm, under):
-                    c.set_under(b)
+                [c.set_under(b) for c, b in zip(new_cm, under)]
         if over is not None:
             if not np.iterable(over) or not len(over) == len(new_cm):
                 raise ValueError("*over* must contain a color for each scalar colormap"
                                  f" i.e. be of length {len(new_cm)}.")
             else:
-                for c, b in zip(new_cm, over):
-                    c.set_over(b)
+                [c.set_over(b) for c, b in zip(new_cm, over)]
         return new_cm
 
     @property
@@ -1520,12 +1517,11 @@ class BivarColormap:
     lookup table. To be used with `~matplotlib.cm.VectorMappable`.
     """
 
-    def __init__(self, name, N=256, M=256, shape='square', origin=(0, 0)):
+    def __init__(self, N=256, M=256, shape='square', origin=(0, 0),
+                 name='bivariate colormap'):
         """
         Parameters
         ----------
-        name : str
-            The name of the colormap.
         N : int
             The number of RGB quantization levels along the first axis.
         M : int
@@ -1533,19 +1529,21 @@ class BivarColormap:
             If None, M = N
         shape: str 'square' or 'circle' or 'ignore' or 'circleignore'
 
-            - If 'square' each variate is clipped to [0,1] independently
-            - If 'circle' the variates are clipped radially to the center
+            - 'square' each variate is clipped to [0,1] independently
+            - 'circle' the variates are clipped radially to the center
               of the colormap, and a circular mask is applied when the colormap
               is displayed
-            - If 'ignore' the variates are not clipped, but instead assigned the
+            - 'ignore' the variates are not clipped, but instead assigned the
               'outside' color
-            - If  'circleignore' a circular mask is applied, but the data is not
+            - 'circleignore' a circular mask is applied, but the data is not
               clipped and instead assigned the 'outside' color
 
         origin: (float, float)
             The relative origin of the colormap. Typically (0, 0), for colormaps
             that are linear on both axis, and (.5, .5) for circular colormaps.
             Used when getting 1D colormaps from 2D colormaps.
+        name : str, optional
+            The name of the colormap.
         """
 
         self.name = name
@@ -1865,7 +1863,7 @@ class BivarColormap:
                 raise ValueError("The shape must be a valid string, "
                                  "'square', 'circle', 'ignore', or 'circleignore'")
         if origin is not None:
-            self._origin = (float(origin[0]), float(origin[1]))
+            new_cm._origin = (float(origin[0]), float(origin[1]))
 
         return new_cm
 
@@ -1942,17 +1940,17 @@ class BivarColormap:
         if not self._isinit:
             self._init()
         if item == 0:
-            o = int(self._origin[1]*self.M)
-            if o > self.M-1:
-                o = self.M-1
-            one_d_lut = self._lut[:, o]
+            origin_1_as_int = int(self._origin[1]*self.M)
+            if origin_1_as_int > self.M-1:
+                origin_1_as_int = self.M-1
+            one_d_lut = self._lut[:, origin_1_as_int]
             new_cmap = ListedColormap(one_d_lut, name=self.name+'_0', N=self.N)
 
         elif item == 1:
-            o = int(self._origin[0]*self.N)
-            if o > self.N-1:
-                o = self.N-1
-            one_d_lut = self._lut[o, :]
+            origin_0_as_int = int(self._origin[0]*self.N)
+            if origin_0_as_int > self.N-1:
+                origin_0_as_int = self.N-1
+            one_d_lut = self._lut[origin_0_as_int, :]
             new_cmap = ListedColormap(one_d_lut, name=self.name+'_1', N=self.M)
         else:
             raise KeyError(f"only 0 or 1 are"
@@ -2033,8 +2031,6 @@ class SegmentedBivarColormap(BivarColormap):
     ----------
     patch : nparray of shape (k, k, 3)
         This patch gets supersamples to a lut of shape (N, M, 4)
-    name : str
-        The name of the colormap.
     N : int
         The number of RGB quantization levels along each axis.
     shape: str 'square' or 'circle' or 'ignore' or 'circleignore'
@@ -2052,11 +2048,14 @@ class SegmentedBivarColormap(BivarColormap):
         that are linear on both axis, and (.5, .5) for circular colormaps.
         Used when getting 1D colormaps from 2D colormaps.
 
+    name : str, optional
+        The name of the colormap.
     """
 
-    def __init__(self, patch, name, N=256, shape='square', origin=(0, 0)):
+    def __init__(self, patch, N=256, shape='square', origin=(0, 0),
+                 name='segmented bivariate colormap'):
         self.patch = patch
-        super().__init__(name, N, N, shape, origin)
+        super().__init__(N, N, shape, origin, name=name)
 
     def _init(self):
         s = self.patch.shape
@@ -2080,8 +2079,6 @@ class BivarColormapFromImage(BivarColormap):
     ----------
     lut : nparray of shape (N, M, 3) or (N, M, 4)
         The look-up-table
-    name : str
-        The name of the colormap.
     shape: str 'square' or 'circle' or 'ignore' or 'circleignore'
 
         - If 'square' each variate is clipped to [0,1] independently
@@ -2096,10 +2093,12 @@ class BivarColormapFromImage(BivarColormap):
         The relative origin of the colormap. Typically (0, 0), for colormaps
         that are linear on both axis, and (.5, .5) for circular colormaps.
         Used when getting 1D colormaps from 2D colormaps.
+    name : str, optional
+        The name of the colormap.
 
     """
 
-    def __init__(self, lut, name='', shape='square', origin=(0, 0)):
+    def __init__(self, lut, shape='square', origin=(0, 0), name='from image'):
         # We can allow for a PIL.Image as unput in the following way, but importing
         # matplotlib.image.pil_to_array() results in a circular import
         # For now, this function only accepts numpy arrays.
@@ -2119,7 +2118,7 @@ class BivarColormapFromImage(BivarColormap):
             new_lut[:, :, 3] = 1.
             lut = new_lut
         self._lut = lut
-        super().__init__(name, lut.shape[0], lut.shape[1], shape, origin)
+        super().__init__(lut.shape[0], lut.shape[1], shape, origin, name=name)
 
     def _init(self):
         self._isinit = True
