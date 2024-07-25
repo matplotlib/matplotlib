@@ -10,9 +10,9 @@ def test_scatter_3d_projection_conservation():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     # fix axes3d projection
-    ax.roll = 0
-    ax.elev = 0
     ax.azim = -45
+    ax.elev = 0
+    ax.roll = 0
     ax.stale = True
 
     x = [0, 1, 2, 3, 4]
