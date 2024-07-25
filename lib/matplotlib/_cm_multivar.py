@@ -157,10 +157,10 @@ cmaps = {
     ]}
 
 cmap_families = {
-    '2VarAddA': MultivarColormap('2VarAddA', [cmaps['2VarAddA' + str(i)] for
-                                              i in range(2)], 'sRGB_add'),
-    '2VarSubA': MultivarColormap('2VarSubA', [cmaps['2VarSubA' + str(i)] for
-                                              i in range(2)], 'sRGB_sub'),
-    '3VarAddA': MultivarColormap('3VarAddA', [cmaps['3VarAddA' + str(i)] for
-                                              i in range(3)], 'sRGB_add'),
+    '2VarAddA': MultivarColormap([cmaps['2VarAddA' + str(i)] for i in range(2)],
+                                 'sRGB_add', name='2VarAddA'),
+    '2VarSubA': MultivarColormap([cmaps['2VarSubA' + str(i)] for i in range(2)],
+                                 'sRGB_sub', name='2VarSubA'),
+    '3VarAddA': MultivarColormap([cmaps['3VarAddA' + str(i)] for i in range(3)],
+                                 'sRGB_add', name='3VarAddA'),
 }
