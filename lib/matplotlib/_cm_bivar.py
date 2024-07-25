@@ -1305,8 +1305,8 @@ BiOrangeBlue = np.array(
 
 cmaps = {
     "BiPeak": SegmentedBivarColormap(
-        BiPeak, "BiPeak", 256, "square", (.5, .5)),
+        BiPeak, 256, "square", (.5, .5), name="BiPeak"),
     "BiOrangeBlue": SegmentedBivarColormap(
-        BiOrangeBlue, "BiOrangeBlue", 256, "square", (0, 0)),
-    "BiCone": SegmentedBivarColormap(BiPeak, "BiCone", 256, "circle", (.5, .5)),
+        BiOrangeBlue, 256, "square", (0, 0), name="BiOrangeBlue"),
+    "BiCone": SegmentedBivarColormap(BiPeak, 256, "circle", (.5, .5), name="BiCone"),
 }
