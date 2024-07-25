@@ -55,6 +55,8 @@
                 python-version: "3.13"
                 nogil: true
 
+          # TODO: Remove python3.13-tk-nogil from native dependencies once
+          # setup-python supports nogil distributions.
           - name: Install OS dependencies
             run: |
                 echo 'Acquire::Retries "3";' | sudo tee /etc/apt/apt.conf.d/80-retries
@@ -97,7 +99,8 @@
                     texlive-latex-recommended \
                     texlive-luatex \
                     texlive-pictures \
-                    texlive-xetex
+                    texlive-xetex \
+                    python3.13-tk-nogil
                 sudo apt-get install -yy --no-install-recommends \
                 gir1.2-gtk-4.0 libnotify4
 
