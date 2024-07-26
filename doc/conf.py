@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 import logging
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -200,6 +201,17 @@ from sphinx_gallery import gen_rst
 # Prevent plt.show() from emitting a non-GUI backend warning.
 warnings.filterwarnings('ignore', category=UserWarning,
                         message=r'(\n|.)*is non-interactive, and thus cannot be shown')
+
+
+# hack to catch sphinx-gallery 17.0 warnings
+def tutorials_download_error(record):
+    if re.match("download file not readable: .*tutorials_(python|jupyter).zip",
+                record.msg):
+        return False
+
+
+logger = logging.getLogger('sphinx')
+logger.addFilter(tutorials_download_error)
 
 autosummary_generate = True
 autodoc_typehints = "none"
