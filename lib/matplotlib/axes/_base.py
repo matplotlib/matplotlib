@@ -214,6 +214,7 @@ class _process_plot_var_args:
     """
 
     def __init__(self, command='plot'):
+        _api.check_in_list(['plot', 'fill', 'mirror'], command=command)
         self.command = command
         self.set_prop_cycle(None)
 
@@ -334,6 +335,11 @@ class _process_plot_var_args:
         self._setdefaults(self._getdefaults(kw), kw)
         seg = mlines.Line2D(x, y, **kw)
         return seg, kw
+
+    def _mirror(self, axes, x, y, kw, kwargs):
+        kw = {**kw, **kwargs}  # Don't modify the original kw.
+        self._setdefaults(self._getdefaults(kw), kw)
+        return (x, y), kw
 
     def _makefill(self, axes, x, y, kw, kwargs):
         # Polygon doesn't directly support unitized inputs.
@@ -495,9 +501,13 @@ class _process_plot_var_args:
 
         if self.command == 'plot':
             make_artist = self._makeline
-        else:
+        elif self.command == 'fill':
             kw['closed'] = kwargs.get('closed', True)
             make_artist = self._makefill
+        elif self.command == 'mirror':
+            make_artist = self._mirror
+        else:
+            _api.check_in_list(['plot', 'fill', 'mirror'], command=self.command)
 
         ncx, ncy = x.shape[1], y.shape[1]
         if ncx > 1 and ncy > 1 and ncx != ncy:
