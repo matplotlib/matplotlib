@@ -224,7 +224,7 @@ class _process_plot_var_args:
         self._idx = 0
         self._cycler_items = [*cycler]
 
-    def __call__(self, axes, *args, data=None, **kwargs):
+    def __call__(self, axes, *args, data=None, return_kwargs=False, **kwargs):
         axes._process_unit_info(kwargs=kwargs)
 
         for pos_only in "xy":
@@ -295,7 +295,9 @@ class _process_plot_var_args:
                 this += args[0],
                 args = args[1:]
             yield from self._plot_args(
-                axes, this, kwargs, ambiguous_fmt_datakey=ambiguous_fmt_datakey)
+                axes, this, kwargs, ambiguous_fmt_datakey=ambiguous_fmt_datakey,
+                return_kwargs=return_kwargs
+            )
 
     def get_next_color(self):
         """Return the next color in the cycle."""
