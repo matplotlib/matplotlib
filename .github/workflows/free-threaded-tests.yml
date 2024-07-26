@@ -165,6 +165,8 @@
               fi
 
           - name: Run pytest
+            env:
+              PYTHON_GIL: 0
             run: |
               pytest -rfEsXR -n auto \
                 --maxfail=50 --timeout=300 --durations=25 \
