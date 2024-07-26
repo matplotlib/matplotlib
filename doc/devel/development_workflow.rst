@@ -162,7 +162,7 @@ You can achieve this by using
     git push [your-remote-repo] [your-branch] --force-with-lease
 
 .. tip::
-    Instead of typying your branch name every time, you can once do::
+    Instead of typing your branch name every time, you only need to type the following once to link the remote branch to the local branch::
 
         git push --set-upstream origin my-new-feature
 
