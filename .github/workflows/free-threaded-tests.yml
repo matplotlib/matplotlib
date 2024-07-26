@@ -1,5 +1,5 @@
 ---
-    name: Tests
+    name: Free-threaded tests
     concurrency:
       group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
       cancel-in-progress: true
