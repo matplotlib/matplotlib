@@ -1,7 +1,7 @@
 """
-==========================
-Aligning Labels and Titles
-==========================
+=======================
+Align labels and titles
+=======================
 
 Aligning xlabel, ylabel, and title using `.Figure.align_xlabels`,
 `.Figure.align_ylabels`, and `.Figure.align_titles`.
