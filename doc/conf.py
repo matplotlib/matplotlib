@@ -286,6 +286,11 @@ sphinx_gallery_conf = {
     'copyfile_regex': r'.*\.rst',
 }
 
+if parse_version(sphinx_gallery.__version__) >= parse_version('0.17.0'):
+    sphinx_gallery_conf['parallel'] = True
+    # Any warnings from joblib turned into errors may cause a deadlock.
+    warnings.filterwarnings('default', category=UserWarning, module='joblib')
+
 if 'plot_gallery=0' in sys.argv:
     # Gallery images are not created.  Suppress warnings triggered where other
     # parts of the documentation link to these images.
