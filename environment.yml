@@ -28,6 +28,7 @@ dependencies:
   - python-dateutil>=2.1
   - setuptools_scm
   - wxpython
+  - typing-extensions>=4.0.0
   # building documentation
   - colorspacious
   - graphviz

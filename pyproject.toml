@@ -39,6 +39,7 @@ dependencies = [
     "pillow >= 8",
     "pyparsing >= 2.3.1",
     "python-dateutil >= 2.7",
+    "typing-extensions >= 4.0.0",
 ]
 requires-python = ">=3.10"
 
