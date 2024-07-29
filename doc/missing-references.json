@@ -337,9 +337,6 @@
     "Artist.stale_callback": [
       "doc/users/explain/figure/interactive_guide.rst:323"
     ],
-    "Artist.sticky_edges": [
-      "doc/api/axes_api.rst:356:<autosummary>:1"
-    ],
     "Axes.dataLim": [
       "doc/api/axes_api.rst:293:<autosummary>:1",
       "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes._base._AxesBase.update_datalim:2"
@@ -356,9 +353,6 @@
     ],
     "Image": [
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.gci:4"
-    ],
-    "ImageComparisonFailure": [
-      "lib/matplotlib/testing/decorators.py:docstring of matplotlib.testing.decorators.image_comparison:2"
     ],
     "Line2D.pick": [
       "doc/users/explain/figure/event_handling.rst:568"
@@ -665,29 +659,17 @@
     "mpl_toolkits.axislines.Axes": [
       "lib/mpl_toolkits/axisartist/axis_artist.py:docstring of mpl_toolkits.axisartist.axis_artist:7"
     ],
-    "next_whats_new": [
-      "doc/users/next_whats_new/README.rst:6"
-    ],
     "option_scale_image": [
       "lib/matplotlib/backends/backend_cairo.py:docstring of matplotlib.backends.backend_cairo.RendererCairo.draw_image:22",
       "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.RendererPdf.draw_image:22",
       "lib/matplotlib/backends/backend_ps.py:docstring of matplotlib.backends.backend_ps.RendererPS.draw_image:22",
       "lib/matplotlib/backends/backend_template.py:docstring of matplotlib.backends.backend_template.RendererTemplate.draw_image:22"
     ],
-    "print_xyz": [
-      "lib/matplotlib/backends/backend_template.py:docstring of matplotlib.backends.backend_template:22"
-    ],
     "toggled": [
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.AxisScaleBase.disable:4",
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.AxisScaleBase.enable:4",
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.AxisScaleBase.trigger:2",
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ZoomPanBase.trigger:2"
-    ],
-    "tool_removed_event": [
-      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.ToolContainerBase.remove_toolitem:6"
-    ],
-    "whats_new.rst": [
-      "doc/users/next_whats_new/README.rst:6"
     ]
   }
 }

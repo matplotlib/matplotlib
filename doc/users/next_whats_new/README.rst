@@ -3,7 +3,8 @@
 Instructions for writing "What's new" entries
 =============================================
 
-Please place new portions of `whats_new.rst` in the `next_whats_new` directory.
+Please place new portions of :file:`whats_new.rst` in the :file:`next_whats_new`
+directory.
 
 When adding an entry please look at the currently existing files to
 see if you can extend any of them.  If you create a file, name it
