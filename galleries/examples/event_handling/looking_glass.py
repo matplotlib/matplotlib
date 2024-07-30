@@ -1,6 +1,6 @@
 """
 =============
-Looking Glass
+Looking glass
 =============
 
 Example using mouse events to simulate a looking glass for inspecting data.

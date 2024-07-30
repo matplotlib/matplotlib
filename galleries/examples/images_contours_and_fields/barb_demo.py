@@ -1,6 +1,6 @@
 """
 ==========
-Wind Barbs
+Wind barbs
 ==========
 
 Demonstration of wind barb plots.

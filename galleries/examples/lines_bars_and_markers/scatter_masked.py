@@ -1,7 +1,7 @@
 """
-==============
-Scatter Masked
-==============
+==========================
+Scatter with masked values
+==========================
 
 Mask some data points and add a line demarking
 masked regions.

@@ -1,7 +1,7 @@
 """
-==============
-Bar Label Demo
-==============
+=====================
+Bar chart with labels
+=====================
 
 This example shows how to use the `~.Axes.bar_label` helper function
 to create bar chart labels.

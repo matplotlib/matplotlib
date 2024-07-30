@@ -1,7 +1,7 @@
 """
-======================================
-Thresholding an Image with RangeSlider
-======================================
+=================================
+Image scaling using a RangeSlider
+=================================
 
 Using the RangeSlider widget to control the thresholding of an image.
 

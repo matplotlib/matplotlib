@@ -1,6 +1,6 @@
 r"""
 ==================
-Text Rotation Mode
+Text rotation mode
 ==================
 
 This example illustrates the effect of ``rotation_mode`` on the positioning

@@ -1,6 +1,6 @@
 """
 ================
-Axes Zoom Effect
+Axes zoom effect
 ================
 
 """

@@ -207,7 +207,7 @@ class FuncAnimation(TimedAnimation):
         self,
         fig: Figure,
         func: Callable[..., Iterable[Artist]],
-        frames: Iterable[Artist] | int | Callable[[], Generator] | None = ...,
+        frames: Iterable | int | Callable[[], Generator] | None = ...,
         init_func: Callable[[], Iterable[Artist]] | None = ...,
         fargs: tuple[Any, ...] | None = ...,
         save_count: int | None = ...,

@@ -1,6 +1,6 @@
 """
 ===============
-Image Thumbnail
+Image thumbnail
 ===============
 
 You can use Matplotlib to generate thumbnails from existing images.

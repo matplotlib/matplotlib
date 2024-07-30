@@ -1,6 +1,6 @@
 """
 ====================
-Usetex Baseline Test
+Usetex text baseline
 ====================
 
 Comparison of text baselines computed for mathtext and usetex.

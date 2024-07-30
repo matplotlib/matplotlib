@@ -1,6 +1,6 @@
 """
 ===============
-Simple Axis Pad
+Simple axis pad
 ===============
 
 """

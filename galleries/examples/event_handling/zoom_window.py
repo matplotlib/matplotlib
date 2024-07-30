@@ -1,7 +1,7 @@
 """
-===========
-Zoom Window
-===========
+========================
+Zoom modifies other Axes
+========================
 
 This example shows how to connect events in one window, for example, a mouse
 press, to another figure window.

@@ -1,6 +1,6 @@
 """
 =========
-Stem Plot
+Stem plot
 =========
 
 `~.pyplot.stem` plots vertical lines from a baseline to the y-coordinate and

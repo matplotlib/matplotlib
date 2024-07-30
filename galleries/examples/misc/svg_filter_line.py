@@ -1,7 +1,7 @@
 """
-===============
-SVG Filter Line
-===============
+==========================
+Apply SVG filter to a line
+==========================
 
 Demonstrate SVG filtering effects which might be used with Matplotlib.
 

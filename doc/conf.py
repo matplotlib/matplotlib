@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 import logging
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -201,6 +202,17 @@ from sphinx_gallery import gen_rst
 warnings.filterwarnings('ignore', category=UserWarning,
                         message=r'(\n|.)*is non-interactive, and thus cannot be shown')
 
+
+# hack to catch sphinx-gallery 17.0 warnings
+def tutorials_download_error(record):
+    if re.match("download file not readable: .*tutorials_(python|jupyter).zip",
+                record.msg):
+        return False
+
+
+logger = logging.getLogger('sphinx')
+logger.addFilter(tutorials_download_error)
+
 autosummary_generate = True
 autodoc_typehints = "none"
 
@@ -273,6 +285,11 @@ sphinx_gallery_conf = {
     'capture_repr': (),
     'copyfile_regex': r'.*\.rst',
 }
+
+if parse_version(sphinx_gallery.__version__) >= parse_version('0.17.0'):
+    sphinx_gallery_conf['parallel'] = True
+    # Any warnings from joblib turned into errors may cause a deadlock.
+    warnings.filterwarnings('default', category=UserWarning, module='joblib')
 
 if 'plot_gallery=0' in sys.argv:
     # Gallery images are not created.  Suppress warnings triggered where other

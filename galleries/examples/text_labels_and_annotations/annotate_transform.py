@@ -1,6 +1,6 @@
 """
 ==================
-Annotate Transform
+Annotate transform
 ==================
 
 This example shows how to use different coordinate systems for annotations.
