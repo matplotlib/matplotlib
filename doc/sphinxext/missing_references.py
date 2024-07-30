@@ -17,69 +17,14 @@ The basic operation is:
 
 from collections import defaultdict
 import json
-import logging
 from pathlib import Path
 
 from docutils.utils import get_source_line
-from docutils import nodes
 from sphinx.util import logging as sphinx_logging
 
 import matplotlib
 
 logger = sphinx_logging.getLogger(__name__)
-
-
-class MissingReferenceFilter(logging.Filter):
-    """
-    A logging filter designed to record missing reference warning messages
-    for use by this extension
-    """
-    def __init__(self, app):
-        self.app = app
-        super().__init__()
-
-    def _record_reference(self, record):
-        if not (getattr(record, 'type', '') == 'ref' and
-                isinstance(getattr(record, 'location', None), nodes.Node)):
-            return
-
-        if not hasattr(self.app.env, "missing_references_warnings"):
-            self.app.env.missing_references_warnings = defaultdict(set)
-
-        record_missing_reference(self.app,
-                                 self.app.env.missing_references_warnings,
-                                 record.location)
-
-    def filter(self, record):
-        self._record_reference(record)
-        return True
-
-
-def record_missing_reference(app, record, node):
-    domain = node["refdomain"]
-    typ = node["reftype"]
-    target = node["reftarget"]
-    location = get_location(node, app)
-
-    domain_type = f"{domain}:{typ}"
-
-    record[(domain_type, target)].add(location)
-
-
-def record_missing_reference_handler(app, env, node, contnode):
-    """
-    When the sphinx app notices a missing reference, it emits an
-    event which calls this function. This function records the missing
-    references for analysis at the end of the sphinx build.
-    """
-    if not app.config.missing_references_enabled:
-        # no-op when we are disabled.
-        return
-
-    if not hasattr(env, "missing_references_events"):
-        env.missing_references_events = defaultdict(set)
-
-    record_missing_reference(app, env.missing_references_events, node)
 
 
 def get_location(node, app):
@@ -146,10 +91,34 @@ def _truncate_location(location):
     return location.split(":", 1)[0]
 
 
-def _warn_unused_missing_references(app):
-    if not app.config.missing_references_warn_unused_ignores:
-        return
+def handle_missing_reference(app, domain, node):
+    """
+    Handle the warn-missing-reference Sphinx event.
 
+    This function will:
+
+    #. record missing references for saving/comparing with ignored list.
+    #. prevent Sphinx from raising a warning on ignored references.
+    """
+    typ = node["reftype"]
+    target = node["reftarget"]
+    location = get_location(node, app)
+    domain_type = f"{domain.name}:{typ}"
+
+    app.env.missing_references_events[(domain_type, target)].add(location)
+
+    # If we're ignoring this event, return True so that Sphinx thinks we handled it,
+    # even though we didn't print or warn. If we aren't ignoring it, Sphinx will print a
+    # warning about the missing reference.
+    if location in app.env.missing_references_ignored_references.get(
+            (domain_type, target), []):
+        return True
+
+
+def warn_unused_missing_references(app, exc):
+    """
+    Check that all lines of the existing JSON file are still necessary.
+    """
     # We can only warn if we are building from a source install
     # otherwise, we just have to skip this step.
     basepath = Path(matplotlib.__file__).parent.parent.parent.resolve()
@@ -159,9 +128,8 @@ def _warn_unused_missing_references(app):
         return
 
     # This is a dictionary of {(domain_type, target): locations}
-    references_ignored = getattr(
-        app.env, 'missing_references_ignored_references', {})
-    references_events = getattr(app.env, 'missing_references_events', {})
+    references_ignored = app.env.missing_references_ignored_references
+    references_events = app.env.missing_references_events
 
     # Warn about any reference which is no longer missing.
     for (domain_type, target), locations in references_ignored.items():
@@ -184,26 +152,13 @@ def _warn_unused_missing_references(app):
                                subtype=domain_type)
 
 
-def save_missing_references_handler(app, exc):
+def save_missing_references(app, exc):
     """
-    At the end of the sphinx build, check that all lines of the existing JSON
-    file are still necessary.
-
-    If the configuration value ``missing_references_write_json`` is set
-    then write a new JSON file containing missing references.
+    Write a new JSON file containing missing references.
     """
-    if not app.config.missing_references_enabled:
-        # no-op when we are disabled.
-        return
-
-    _warn_unused_missing_references(app)
-
     json_path = Path(app.confdir) / app.config.missing_references_filename
-
-    references_warnings = getattr(app.env, 'missing_references_warnings', {})
-
-    if app.config.missing_references_write_json:
-        _write_missing_references_json(references_warnings, json_path)
+    references_warnings = app.env.missing_references_events
+    _write_missing_references_json(references_warnings, json_path)
 
 
 def _write_missing_references_json(records, json_path):
@@ -220,6 +175,7 @@ def _write_missing_references_json(records, json_path):
         transformed_records[domain_type][target] = sorted(paths)
     with json_path.open("w") as stream:
         json.dump(transformed_records, stream, sort_keys=True, indent=2)
+        stream.write("\n")  # Silence pre-commit no-newline-at-end-of-file warning.
 
 
 def _read_missing_references_json(json_path):
@@ -242,49 +198,25 @@ def _read_missing_references_json(json_path):
     return ignored_references
 
 
-def prepare_missing_references_handler(app):
+def prepare_missing_references_setup(app):
     """
-    Handler called to initialize this extension once the configuration
-    is ready.
-
-    Reads the missing references file and populates ``nitpick_ignore`` if
-    appropriate.
+    Initialize this extension once the configuration is ready.
     """
     if not app.config.missing_references_enabled:
         # no-op when we are disabled.
         return
 
-    sphinx_logger = logging.getLogger('sphinx')
-    missing_reference_filter = MissingReferenceFilter(app)
-    for handler in sphinx_logger.handlers:
-        if (isinstance(handler, sphinx_logging.WarningStreamHandler)
-                and missing_reference_filter not in handler.filters):
-
-            # This *must* be the first filter, because subsequent filters
-            # throw away the node information and then we can't identify
-            # the reference uniquely.
-            handler.filters.insert(0, missing_reference_filter)
-
-    app.env.missing_references_ignored_references = {}
+    app.connect("warn-missing-reference", handle_missing_reference)
+    if app.config.missing_references_warn_unused_ignores:
+        app.connect("build-finished", warn_unused_missing_references)
+    if app.config.missing_references_write_json:
+        app.connect("build-finished", save_missing_references)
 
     json_path = Path(app.confdir) / app.config.missing_references_filename
-    if not json_path.exists():
-        return
-
-    ignored_references = _read_missing_references_json(json_path)
-
-    app.env.missing_references_ignored_references = ignored_references
-
-    # If we are going to re-write the JSON file, then don't suppress missing
-    # reference warnings. We want to record a full list of missing references
-    # for use later. Otherwise, add all known missing references to
-    # ``nitpick_ignore```
-    if not app.config.missing_references_write_json:
-        # Since Sphinx v6.2, nitpick_ignore may be a list, set or tuple, and
-        # defaults to set.  Previously it was always a list.  Cast to list for
-        # consistency across versions.
-        app.config.nitpick_ignore = list(app.config.nitpick_ignore)
-        app.config.nitpick_ignore.extend(ignored_references.keys())
+    app.env.missing_references_ignored_references = (
+        _read_missing_references_json(json_path) if json_path.exists() else {}
+    )
+    app.env.missing_references_events = defaultdict(set)
 
 
 def setup(app):
@@ -294,8 +226,6 @@ def setup(app):
     app.add_config_value("missing_references_filename",
                          "missing-references.json", "env")
 
-    app.connect("builder-inited", prepare_missing_references_handler)
-    app.connect("missing-reference", record_missing_reference_handler)
-    app.connect("build-finished", save_missing_references_handler)
+    app.connect("builder-inited", prepare_missing_references_setup)
 
     return {'parallel_read_safe': True}
