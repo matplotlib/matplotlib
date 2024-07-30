@@ -8139,9 +8139,7 @@ such objects
         vmin, vmax : float, optional
             vmin and vmax define the data range that the colormap covers.
             By default, the colormap covers the complete value range of the
-            data. It is an error to use vmin/vmax when a norm instance is
-            given (but using a str norm name together with vmin/vmax is
-            acceptable). This parameter is ignored if X is RGB(A).
+            data.
 
         **kwargs
             Additional keyword arguments are passed on to `~.axes.Axes.imshow`
