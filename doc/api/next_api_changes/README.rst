@@ -1,10 +1,18 @@
 :orphan:
 
+.. NOTE TO EDITORS OF THIS FILE
+   This file serves as the README directly available in the file system next to the
+   next_api_changes entries. The content between the ``api-change-guide-*`` markers is
+   additionally included in the documentation page ``doc/devel/api_changes.rst``. Please
+   check that the page builds correctly after changing this file.
+
 Adding API change notes
 =======================
 
-API change notes for future releases are collected in
-:file:`next_api_changes`. They are divided into four subdirectories:
+.. api-change-guide-start
+
+API change notes for future releases are collected in :file:`doc/api/next_api_changes/`.
+They are divided into four subdirectories:
 
 - **Deprecations**: Announcements of future changes. Typically, these will
   raise a deprecation warning and users of this API should change their code
@@ -33,6 +41,4 @@ Please avoid using references in section titles, as it causes links to be
 confusing in the table of contents. Instead, ensure that a reference is
 included in the descriptive text.
 
-.. NOTE
-   Lines 5-30 of this file are include in :ref:`api_whats_new`;
-   therefore, please check the doc build after changing this file.
+.. api-change-guide-end

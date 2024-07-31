@@ -3419,7 +3419,7 @@ class ToolContainerBase:
 
         This hook must be implemented in each backend and contains the
         backend-specific code to remove an element from the toolbar; it is
-        called when `.ToolManager` emits a `tool_removed_event`.
+        called when `.ToolManager` emits a ``tool_removed_event``.
 
         Because some tools are present only on the `.ToolManager` but not on
         the `ToolContainer`, this method must be a no-op when called on a tool

@@ -360,8 +360,8 @@ source_suffix = '.rst'
 # This is the default encoding, but it doesn't hurt to be explicit
 source_encoding = "utf-8"
 
-# The toplevel toctree document (renamed to root_doc in Sphinx 4.0)
-root_doc = master_doc = 'index'
+# The toplevel toctree document.
+root_doc = 'index'
 
 # General substitutions.
 try:
