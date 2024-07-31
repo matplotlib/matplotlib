@@ -58,7 +58,7 @@ plt.show()
 # curves and images parameters" GUI of the Qt backend) results in the image
 # referencing the new colormap object. Thus, the other images are not updated.
 #
-# To make all other images follow, you could additionally sync the
+# To update the other images, sync the
 # colormaps using the following code::
 #
 #     def sync_cmaps(changed_image):
