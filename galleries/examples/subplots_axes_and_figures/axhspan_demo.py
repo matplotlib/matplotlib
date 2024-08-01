@@ -1,7 +1,7 @@
 """
-=================================
-Drawing regions that span an Axes
-=================================
+==============================
+Draw regions that span an Axes
+==============================
 
 `~.Axes.axhspan` and `~.Axes.axvspan` draw rectangles that span the Axes in either
 the horizontal or vertical direction and are bounded in the other direction. They are

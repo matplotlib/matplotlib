@@ -1,7 +1,7 @@
 """
-==================
-Fill Betweenx Demo
-==================
+========================================
+Fill the area between two vertical lines
+========================================
 
 Using `~.Axes.fill_betweenx` to color along the horizontal direction between
 two curves.

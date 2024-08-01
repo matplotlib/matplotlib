@@ -1,7 +1,7 @@
 """
-==========================
-Labeling a pie and a donut
-==========================
+=============================
+A pie and a donut with labels
+=============================
 
 Welcome to the Matplotlib bakery. We will create a pie and a donut
 chart through the `pie method <matplotlib.axes.Axes.pie>` and

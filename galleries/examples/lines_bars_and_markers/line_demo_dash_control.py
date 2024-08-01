@@ -1,7 +1,7 @@
 """
-==============================
-Customizing dashed line styles
-==============================
+===============================
+Dashed line style configuration
+===============================
 
 The dashing of a line is controlled via a dash sequence. It can be modified
 using `.Line2D.set_dashes`.
