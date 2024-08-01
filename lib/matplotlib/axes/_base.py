@@ -2635,7 +2635,7 @@ class _AxesBase(martist.Artist):
     @property
     def use_sticky_edges(self):
         """
-        When autoscaling, whether to obey all `Artist.sticky_edges`.
+        When autoscaling, whether to obey all `.Artist.sticky_edges`.
 
         Default is ``True``.
 

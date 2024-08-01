@@ -1362,7 +1362,7 @@ class Axis(martist.Artist):
         collapsed to near zero.  This allows tight/constrained_layout to ignore
         too-long labels when doing their layout.
         """
-        if not self.get_visible():
+        if not self.get_visible() or for_layout_only and not self.get_in_layout():
             return
         if renderer is None:
             renderer = self.figure._get_renderer()

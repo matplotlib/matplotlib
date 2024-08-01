@@ -216,8 +216,8 @@ API change notes
 """"""""""""""""
 
 .. include:: ../api/next_api_changes/README.rst
-   :start-line: 5
-   :end-line: 31
+   :start-after: api-change-guide-start
+   :end-before: api-change-guide-end
 
 .. _whats-new-notes:
 
@@ -225,5 +225,5 @@ What's new notes
 """"""""""""""""
 
 .. include:: ../users/next_whats_new/README.rst
-   :start-line: 5
-   :end-line: 24
+   :start-after: whats-new-guide-start
+   :end-before: whats-new-guide-end
