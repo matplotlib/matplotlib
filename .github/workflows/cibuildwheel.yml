@@ -110,16 +110,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-20.04
-            cibw_archs: "x86_64"
-          - os: ubuntu-20.04
-            cibw_archs: "aarch64"
           - os: windows-latest
             cibw_archs: "auto64"
-          - os: macos-12
-            cibw_archs: "x86_64"
-          - os: macos-14
-            cibw_archs: "arm64"
 
     steps:
       - name: Set up QEMU
