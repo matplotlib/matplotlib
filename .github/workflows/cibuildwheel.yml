@@ -93,7 +93,7 @@ jobs:
       CIBW_BEFORE_BUILD: >-
         rm -rf {package}/build
       CIBW_BEFORE_BUILD_WINDOWS: >-
-        pip install delvewheel &&
+        pip install delvewheel==1.6.0 &&
         rm -rf {package}/build
       CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >-
         delvewheel repair -w {dest_dir} {wheel}
