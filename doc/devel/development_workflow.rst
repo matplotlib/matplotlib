@@ -79,13 +79,6 @@ default, git will have a link to your fork of the GitHub repo, called
 
    git push origin my-new-feature
 
-.. hint::
-
-    If you first opened the pull request from your ``main`` branch and then
-    converted it to a feature branch, you will need to close the original pull
-    request and open a new pull request from the renamed branch. See
-    `GitHub: working with branches
-    <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches#working-with-branches>`_.
 
 .. _edit-flow:
 
