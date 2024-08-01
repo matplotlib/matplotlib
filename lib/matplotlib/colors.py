@@ -960,6 +960,7 @@ class Colormap:
                 '</div>'
                 '<div style="float: right;">'
                 f'over {color_block(self.get_over())}'
+                '</div>'
                 '</div>')
 
     def copy(self):
