@@ -80,3 +80,15 @@ def test_importable_with__OO():
         [sys.executable, "-OO", "-c", program],
         env={**os.environ, "MPLBACKEND": ""}, check=True
         )
+
+
+def test_pybind11_conflict():
+    # failure mode is process crash
+    from contourpy import contour_generator
+    import matplotlib.pyplot  # noqa
+
+    cont_gen = contour_generator(z=[[0, 1], [2, 3]])
+    try:
+        cont_gen.filled(2.0, 1.0)
+    except Exception as e:
+        pass
