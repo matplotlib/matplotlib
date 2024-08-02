@@ -1,4 +1,8 @@
 """
+.. redirect-from:: /gallery/pie_and_polar_charts/pie_and_donut_labels
+
+.. _pie_donut_labels:
+
 ==========================
 Labeling a pie and a donut
 ==========================
@@ -122,6 +126,7 @@ plt.show()
 # the ingredients would suffice for around 6 donuts - producing one huge
 # donut is untested and might result in kitchen errors.
 
+# .. tags:: plot-type: pie, component: annotation, level: beginner
 
 # %%
 #
