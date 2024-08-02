@@ -1,7 +1,7 @@
 """
-=========================================
-Creating a colormap from a list of colors
-=========================================
+=======================================
+Create a colormap from a list of colors
+=======================================
 
 For more detail on creating and manipulating colormaps see
 :ref:`colormap-manipulation`.

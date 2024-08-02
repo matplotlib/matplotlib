@@ -1,7 +1,7 @@
 """
-=================================
-Pausing and resuming an animation
-=================================
+=============================
+Pause and resume an animation
+=============================
 
 This example showcases:
 

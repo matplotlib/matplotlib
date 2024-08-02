@@ -1,7 +1,7 @@
 """
-==============================
-Filling the area between lines
-==============================
+===============================
+Fill the area between two lines
+===============================
 
 This example shows how to use `~.axes.Axes.fill_between` to color the area
 between two lines.

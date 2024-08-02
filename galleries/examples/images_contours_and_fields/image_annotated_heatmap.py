@@ -1,7 +1,7 @@
 """
-===========================
-Creating annotated heatmaps
-===========================
+=================
+Annotated heatmap
+=================
 
 It is often desirable to show data which depends on two independent
 variables as a color coded image plot. This is often referred to as a
