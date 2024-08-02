@@ -32,7 +32,7 @@ from ._enums import JoinStyle, CapStyle
     "linewidth": ["linewidths", "lw"],
     "offset_transform": ["transOffset"],
 })
-class Collection(artist.Artist, cm.ScalarMappable):
+class Collection(artist.ColorizingArtist, cm.ColorizerShim):
     r"""
     Base class for Collections. Must be subclassed to be usable.
 
@@ -155,8 +155,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             Remaining keyword arguments will be used to set properties as
             ``Collection.set_{key}(val)`` for each key-value pair in *kwargs*.
         """
-        artist.Artist.__init__(self)
-        cm.ScalarMappable.__init__(self, norm, cmap)
+        artist.ColorizingArtist.__init__(self, norm, cmap)
         # list of un-scaled dash patterns
         # this is needed scaling the dash pattern by linewidth
         self._us_linestyles = [(0, None)]

@@ -311,38 +311,25 @@ def _auto_norm_from_scale(scale_cls):
     return type(norm)
 
 
-class ScalarMappable:
+class Colorizer():
     """
-    A mixin class to map scalar data to RGBA.
-
-    The ScalarMappable applies data normalization before returning RGBA colors
-    from the given colormap.
+    Class that holds the data to color pipeline
+    accessible via `.to_rgba(A)` and executed via
+    the `.norm` and `.cmap` attributes.
     """
+    def __init__(self, cmap=None, norm=None):
 
-    def __init__(self, norm=None, cmap=None):
-        """
-        Parameters
-        ----------
-        norm : `.Normalize` (or subclass thereof) or str or None
-            The normalizing object which scales data, typically into the
-            interval ``[0, 1]``.
-            If a `str`, a `.Normalize` subclass is dynamically generated based
-            on the scale with the corresponding name.
-            If *None*, *norm* defaults to a *colors.Normalize* object which
-            initializes its scaling based on the first data processed.
-        cmap : str or `~matplotlib.colors.Colormap`
-            The colormap used to map normalized data values to RGBA colors.
-        """
-        self._A = None
-        self._norm = None  # So that the setter knows we're initializing.
-        self.set_norm(norm)  # The Normalize instance of this ScalarMappable.
-        self.cmap = None  # So that the setter knows we're initializing.
-        self.set_cmap(cmap)  # The Colormap instance of this ScalarMappable.
-        #: The last colorbar associated with this ScalarMappable. May be None.
-        self.colorbar = None
+        self._cmap = None
+        self._set_cmap(cmap)
+
+        self._id_norm = None
+        self._norm = None
+        self.norm = norm
+
         self.callbacks = cbook.CallbackRegistry(signals=["changed"])
+        self.colorbar = None
 
-    def _scale_norm(self, norm, vmin, vmax):
+    def _scale_norm(self, norm, vmin, vmax, A):
         """
         Helper for initial scaling.
 
@@ -362,7 +349,40 @@ class ScalarMappable:
 
         # always resolve the autoscaling so we have concrete limits
         # rather than deferring to draw time.
-        self.autoscale_None()
+        self.autoscale_None(A)
+
+    @property
+    def norm(self):
+        return self._norm
+
+    @norm.setter
+    def norm(self, norm):
+        _api.check_isinstance((colors.Normalize, str, None), norm=norm)
+        if norm is None:
+            norm = colors.Normalize()
+        elif isinstance(norm, str):
+            try:
+                scale_cls = scale._scale_mapping[norm]
+            except KeyError:
+                raise ValueError(
+                    "Invalid norm str name; the following values are "
+                    f"supported: {', '.join(scale._scale_mapping)}"
+                ) from None
+            norm = _auto_norm_from_scale(scale_cls)()
+
+        if norm is self.norm:
+            # We aren't updating anything
+            return
+
+        in_init = self.norm is None
+        # Remove the current callback and connect to the new one
+        if not in_init:
+            self.norm.callbacks.disconnect(self._id_norm)
+        self._norm = norm
+        self._id_norm = self.norm.callbacks.connect('changed',
+                                                    self.changed)
+        if not in_init:
+            self.changed()
 
     def to_rgba(self, x, alpha=None, bytes=False, norm=True):
         """
@@ -370,7 +390,7 @@ class ScalarMappable:
 
         In the normal case, *x* is a 1D or 2D sequence of scalars, and
         the corresponding `~numpy.ndarray` of RGBA values will be returned,
-        based on the norm and colormap set for this ScalarMappable.
+        based on the norm and colormap set for this Colorizer.
 
         There is one special case, for handling images that are already
         RGB or RGBA, such as might have been read from an image file.
@@ -394,6 +414,7 @@ class ScalarMappable:
         performed, and it is assumed to be in the range (0-1).
 
         """
+        # First check for special case, image input:
         # First check for special case, image input:
         try:
             if x.ndim == 3:
@@ -444,49 +465,64 @@ class ScalarMappable:
         rgba = self.cmap(x, alpha=alpha, bytes=bytes)
         return rgba
 
-    def set_array(self, A):
+    def normalize(self, x):
         """
-        Set the value array from array-like *A*.
+        Normalize the data in x.
 
         Parameters
         ----------
-        A : array-like or None
-            The values that are mapped to colors.
+        x : np.array
 
-            The base class `.ScalarMappable` does not make any assumptions on
-            the dimensionality and shape of the value array *A*.
+        Returns
+        -------
+        np.array
+
+        """
+        return self.norm(x)
+
+    def autoscale(self, A):
+        """
+        Autoscale the scalar limits on the norm instance using the
+        current array
         """
         if A is None:
-            self._A = None
-            return
+            raise TypeError('You must first set_array for mappable')
+        # If the norm's limits are updated self.changed() will be called
+        # through the callbacks attached to the norm
+        self.norm.autoscale(A)
 
-        A = cbook.safe_masked_invalid(A, copy=True)
-        if not np.can_cast(A.dtype, float, "same_kind"):
-            raise TypeError(f"Image data of dtype {A.dtype} cannot be "
-                            "converted to float")
-
-        self._A = A
-        if not self.norm.scaled():
-            self.norm.autoscale_None(A)
-
-    def get_array(self):
+    def autoscale_None(self, A):
         """
-        Return the array of values, that are mapped to colors.
-
-        The base class `.ScalarMappable` does not make any assumptions on
-        the dimensionality and shape of the array.
+        Autoscale the scalar limits on the norm instance using the
+        current array, changing only limits that are None
         """
-        return self._A
+        if A is None:
+            raise TypeError('You must first set_array for mappable')
+        # If the norm's limits are updated self.changed() will be called
+        # through the callbacks attached to the norm
+        self.norm.autoscale_None(A)
 
-    def get_cmap(self):
-        """Return the `.Colormap` instance."""
-        return self.cmap
+    def _set_cmap(self, cmap):
+        """
+        Set the colormap for luminance data.
 
-    def get_clim(self):
+        Parameters
+        ----------
+        cmap : `.Colormap` or str or None
         """
-        Return the values (min, max) that are mapped to the colormap limits.
-        """
-        return self.norm.vmin, self.norm.vmax
+        in_init = self._cmap is None
+        cmap = _ensure_cmap(cmap)
+        self._cmap = cmap
+        if not in_init:
+            self.changed()  # Things are not set up properly yet.
+
+    @property
+    def cmap(self):
+        return self._cmap
+
+    @cmap.setter
+    def cmap(self, cmap):
+        self._set_cmap(cmap)
 
     def set_clim(self, vmin=None, vmax=None):
         """
@@ -514,6 +550,110 @@ class ScalarMappable:
         if vmax is not None:
             self.norm.vmax = colors._sanitize_extrema(vmax)
 
+    def get_clim(self):
+        """
+        Return the values (min, max) that are mapped to the colormap limits.
+        """
+        return self.norm.vmin, self.norm.vmax
+
+    def changed(self):
+        """
+        Call this whenever the mappable is changed to notify all the
+        callbackSM listeners to the 'changed' signal.
+        """
+        self.callbacks.process('changed')
+        self.stale = True
+
+    @property
+    def vmin(self):
+        return self.get_clim[0]
+
+    @vmin.setter
+    def vmin(self, vmin):
+        self.set_clim(vmin=vmin)
+
+    @property
+    def vmax(self):
+        return self.get_clim[1]
+
+    @vmax.setter
+    def vmax(self, vmax):
+        self.set_clim(vmax=vmax)
+
+    @property
+    def clip(self):
+        return self.norm.clip
+
+    @clip.setter
+    def clip(self, clip):
+        self.norm.clip = clip
+
+
+class ColorizerShim:
+
+    def _scale_norm(self, norm, vmin, vmax):
+        self.colorizer._scale_norm(norm, vmin, vmax, self._A)
+
+    def to_rgba(self, x, alpha=None, bytes=False, norm=True):
+        """
+        Return a normalized RGBA array corresponding to *x*.
+
+        In the normal case, *x* is a 1D or 2D sequence of scalars, and
+        the corresponding `~numpy.ndarray` of RGBA values will be returned,
+        based on the norm and colormap set for this Colorizer.
+
+        There is one special case, for handling images that are already
+        RGB or RGBA, such as might have been read from an image file.
+        If *x* is an `~numpy.ndarray` with 3 dimensions,
+        and the last dimension is either 3 or 4, then it will be
+        treated as an RGB or RGBA array, and no mapping will be done.
+        The array can be `~numpy.uint8`, or it can be floats with
+        values in the 0-1 range; otherwise a ValueError will be raised.
+        Any NaNs or masked elements will be set to 0 alpha.
+        If the last dimension is 3, the *alpha* kwarg (defaulting to 1)
+        will be used to fill in the transparency.  If the last dimension
+        is 4, the *alpha* kwarg is ignored; it does not
+        replace the preexisting alpha.  A ValueError will be raised
+        if the third dimension is other than 3 or 4.
+
+        In either case, if *bytes* is *False* (default), the RGBA
+        array will be floats in the 0-1 range; if it is *True*,
+        the returned RGBA array will be `~numpy.uint8` in the 0 to 255 range.
+
+        If norm is False, no normalization of the input data is
+        performed, and it is assumed to be in the range (0-1).
+
+        """
+        return self.colorizer.to_rgba(x, alpha=alpha, bytes=bytes, norm=norm)
+
+    def get_cmap(self):
+        """Return the `.Colormap` instance."""
+        return self.colorizer.cmap
+
+    def get_clim(self):
+        """
+        Return the values (min, max) that are mapped to the colormap limits.
+        """
+        return self.colorizer.get_clim()
+
+    def set_clim(self, vmin=None, vmax=None):
+        """
+        Set the norm limits for image scaling.
+
+        Parameters
+        ----------
+        vmin, vmax : float
+             The limits.
+
+             For scalar data, the limits may also be passed as a
+             tuple (*vmin*, *vmax*) as a single positional argument.
+
+             .. ACCEPTS: (vmin: float, vmax: float)
+        """
+        # If the norm's limits are updated self.changed() will be called
+        # through the callbacks attached to the norm
+        self.colorizer.set_clim(vmin, vmax)
+
     def get_alpha(self):
         """
         Returns
@@ -524,6 +664,14 @@ class ScalarMappable:
         # This method is intended to be overridden by Artist sub-classes
         return 1.
 
+    @property
+    def cmap(self):
+        return self.colorizer.cmap
+
+    @cmap.setter
+    def cmap(self, cmap):
+        self.colorizer.cmap = cmap
+
     def set_cmap(self, cmap):
         """
         Set the colormap for luminance data.
@@ -532,44 +680,15 @@ class ScalarMappable:
         ----------
         cmap : `.Colormap` or str or None
         """
-        in_init = self.cmap is None
-
-        self.cmap = _ensure_cmap(cmap)
-        if not in_init:
-            self.changed()  # Things are not set up properly yet.
+        self.cmap = cmap
 
     @property
     def norm(self):
-        return self._norm
+        return self.colorizer.norm
 
     @norm.setter
     def norm(self, norm):
-        _api.check_isinstance((colors.Normalize, str, None), norm=norm)
-        if norm is None:
-            norm = colors.Normalize()
-        elif isinstance(norm, str):
-            try:
-                scale_cls = scale._scale_mapping[norm]
-            except KeyError:
-                raise ValueError(
-                    "Invalid norm str name; the following values are "
-                    f"supported: {', '.join(scale._scale_mapping)}"
-                ) from None
-            norm = _auto_norm_from_scale(scale_cls)()
-
-        if norm is self.norm:
-            # We aren't updating anything
-            return
-
-        in_init = self.norm is None
-        # Remove the current callback and connect to the new one
-        if not in_init:
-            self.norm.callbacks.disconnect(self._id_norm)
-        self._norm = norm
-        self._id_norm = self.norm.callbacks.connect('changed',
-                                                    self.changed)
-        if not in_init:
-            self.changed()
+        self.colorizer.norm = norm
 
     def set_norm(self, norm):
         """
@@ -592,30 +711,22 @@ class ScalarMappable:
         Autoscale the scalar limits on the norm instance using the
         current array
         """
-        if self._A is None:
-            raise TypeError('You must first set_array for mappable')
-        # If the norm's limits are updated self.changed() will be called
-        # through the callbacks attached to the norm
-        self.norm.autoscale(self._A)
+        self.colorizer.autoscale(self._A)
 
     def autoscale_None(self):
         """
         Autoscale the scalar limits on the norm instance using the
         current array, changing only limits that are None
         """
-        if self._A is None:
-            raise TypeError('You must first set_array for mappable')
-        # If the norm's limits are updated self.changed() will be called
-        # through the callbacks attached to the norm
-        self.norm.autoscale_None(self._A)
+        self.colorizer.autoscale_None(self._A)
 
-    def changed(self):
-        """
-        Call this whenever the mappable is changed to notify all the
-        callbackSM listeners to the 'changed' signal.
-        """
-        self.callbacks.process('changed', self)
-        self.stale = True
+    @property
+    def colorbar(self):
+        return self.colorizer.colorbar
+
+    @colorbar.setter
+    def colorbar(self, colorbar):
+        self.colorizer.colorbar = colorbar
 
     def _format_cursor_data_override(self, data):
         # This function overwrites Artist.format_cursor_data(). We cannot
@@ -648,6 +759,79 @@ class ScalarMappable:
         else:
             g_sig_digits = 3  # Consistent with default below.
         return f"[{data:-#.{g_sig_digits}g}]"
+
+
+class ScalarMappable(ColorizerShim):
+    """
+    A mixin class to map one or multiple sets of scalar data to RGBA.
+
+    The VectorMappable applies data normalization before returning RGBA colors
+    from the given `~matplotlib.colors.Colormap`, `~matplotlib.colors.BivarColormap`,
+    or `~matplotlib.colors.MultivarColormap`.
+    """
+
+    def __init__(self, norm=None, cmap=None):
+        """
+        Parameters
+        ----------
+        norm : `.Normalize` (or subclass thereof) or str or None
+            The normalizing object which scales data, typically into the
+            interval ``[0, 1]``.
+            If a `str`, a `.Normalize` subclass is dynamically generated based
+            on the scale with the corresponding name.
+            If *None*, *norm* defaults to a *colors.Normalize* object which
+            initializes its scaling based on the first data processed.
+        cmap : str or `~matplotlib.colors.Colormap`
+            The colormap used to map normalized data values to RGBA colors.
+        """
+        self._A = None
+        self.colorizer = Colorizer(cmap, norm)
+
+        self.colorbar = None
+        self._id_colorizer = self.colorizer.callbacks.connect('changed', self.changed)
+        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
+
+    def set_array(self, A):
+        """
+        Set the value array from array-like *A*.
+
+        Parameters
+        ----------
+        A : array-like or None
+            The values that are mapped to colors.
+
+            The base class `.ScalarMappable` does not make any assumptions on
+            the dimensionality and shape of the value array *A*.
+        """
+        if A is None:
+            self._A = None
+            return
+
+        A = cbook.safe_masked_invalid(A, copy=True)
+        if not np.can_cast(A.dtype, float, "same_kind"):
+            raise TypeError(f"Image data of dtype {A.dtype} cannot be "
+                            "converted to float")
+
+        self._A = A
+        if not self.norm.scaled():
+            self.colorizer.autoscale_None(A)
+
+    def get_array(self):
+        """
+        Return the array of values, that are mapped to colors.
+
+        The base class `.ScalarMappable` does not make any assumptions on
+        the dimensionality and shape of the array.
+        """
+        return self._A
+
+    def changed(self):
+        """
+        Call this whenever the mappable is changed to notify all the
+        callbackSM listeners to the 'changed' signal.
+        """
+        self.callbacks.process('changed', self)
+        self.stale = True
 
 
 # The docstrings here must be generic enough to apply to all relevant methods.

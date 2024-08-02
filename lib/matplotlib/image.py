@@ -229,7 +229,7 @@ def _rgb_to_rgba(A):
     return rgba
 
 
-class _ImageBase(martist.Artist, cm.ScalarMappable):
+class _ImageBase(martist.ColorizingArtist, cm.ColorizerShim):
     """
     Base class for images.
 
@@ -258,8 +258,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                  interpolation_stage=None,
                  **kwargs
                  ):
-        martist.Artist.__init__(self)
-        cm.ScalarMappable.__init__(self, norm, cmap)
+        martist.ColorizingArtist.__init__(self, norm, cmap)
         if origin is None:
             origin = mpl.rcParams['image.origin']
         _api.check_in_list(["upper", "lower"], origin=origin)
@@ -331,7 +330,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         Call this whenever the mappable is changed so observers can update.
         """
         self._imcache = None
-        cm.ScalarMappable.changed(self)
+        martist.ColorizingArtist.changed(self)
 
     def _make_image(self, A, in_bbox, out_bbox, clip_bbox, magnification=1.0,
                     unsampled=False, round_to_pixel_border=True):
@@ -1350,7 +1349,7 @@ class FigureImage(_ImageBase):
 
     def set_data(self, A):
         """Set the image array."""
-        cm.ScalarMappable.set_array(self, A)
+        martist.ColorizingArtist.set_array(self, A)
         self.stale = True
 
 
@@ -1581,7 +1580,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             # as is, saving a few operations.
             rgba = arr
         else:
-            sm = cm.ScalarMappable(cmap=cmap)
+            sm = cm.Colorizer(cmap=cmap)
             sm.set_clim(vmin, vmax)
             rgba = sm.to_rgba(arr, bytes=True)
         if pil_kwargs is None:
