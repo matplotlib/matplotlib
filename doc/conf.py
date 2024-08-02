@@ -514,10 +514,9 @@ html_theme_options = {
             f"https://matplotlib.org/devdocs/_static/switcher.json?{SHA}"
         ),
         "version_match": (
-            # The start version to show. This must be in switcher.json.
-            # We either go to 'stable' or to 'devdocs'
-            'stable' if matplotlib.__version_info__.releaselevel == 'final'
-            else 'devdocs')
+            matplotlib.__version__
+            if matplotlib.__version_info__.releaselevel == 'final'
+            else 'dev')
     },
     "navbar_end": ["theme-switcher", "version-switcher", "mpl_icon_links"],
     "navbar_persistent": ["search-button"],
