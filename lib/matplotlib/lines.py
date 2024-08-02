@@ -1541,21 +1541,15 @@ class AxLine(Line2D):
         super().draw(renderer)
 
     def get_xy1(self):
-        """
-        Return the *xy1* value of the line.
-        """
+        """Return the *xy1* value of the line."""
         return self._xy1
 
     def get_xy2(self):
-        """
-        Return the *xy2* value of the line.
-        """
+        """Return the *xy2* value of the line."""
         return self._xy2
 
     def get_slope(self):
-        """
-        Return the *slope* value of the line.
-        """
+        """Return the *slope* value of the line."""
         return self._slope
 
     def set_xy1(self, x, y):
