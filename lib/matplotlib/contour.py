@@ -1118,7 +1118,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         for label, cv, alpha in zip(self.labelTexts, self.labelCValues, alphas):
             label.set_alpha(alpha)
             label.set_color(self.colorizer.to_rgba(cv))
-        super().changed()
+        # super().colorizer.changed()
 
     def _autolev(self, N):
         """

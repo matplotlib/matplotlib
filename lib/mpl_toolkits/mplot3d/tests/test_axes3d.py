@@ -2103,7 +2103,7 @@ def test_scalarmap_update(fig_test, fig_ref):
     # force a draw
     fig_test.canvas.draw()
     # mark it as "stale"
-    sc_test.changed()
+    sc_test.colorizer.changed()
 
     # ref
     ax_ref = fig_ref.add_subplot(111, projection='3d')

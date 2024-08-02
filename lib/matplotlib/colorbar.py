@@ -296,7 +296,7 @@ class Colorbar:
             self.colorizer = cm.Colorizer(norm=norm, cmap=cmap)
             self.mappable = None
         elif isinstance(mappable, cm.Colorizer):
-            self.colorizer = cm.Colorizer
+            self.colorizer = mappable
             self.mappable = None
         else:
             self.colorizer = mappable.colorizer

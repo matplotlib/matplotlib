@@ -1421,8 +1421,8 @@ class ColorizingArtist(Artist):
         else:
             self._colorizer = cm.Colorizer(cmap, norm)
 
-        self._id_colorizer = self.colorizer.callbacks.connect('changed', self.changed)
-        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
+        #  self._id_colorizer = self.colorizer.callbacks.connect('changed', self.changed)
+        #  self.callbacks = cbook.CallbackRegistry(signals=["changed"])
 
     def set_array(self, A):
         """
@@ -1478,11 +1478,11 @@ class ColorizingArtist(Artist):
                     raise ValueError('The new Colorizer object must have the same'
                                      ' number of variates as the existing data.')
             else:
-                self.colorizer.callbacks.disconnect(self._id_colorizer)
+                # self.colorizer.callbacks.disconnect(self._id_colorizer)
                 self._colorizer = colorizer
-                self._id_colorizer = colorizer.callbacks.connect('changed',
-                                                                 self.changed)
-                self.changed()
+                # self._id_colorizer = colorizer.callbacks.connect('changed',
+                #                                                  self.changed)
+                # self.changed()
         else:
             raise ValueError('Only a Colorizer object can be set to colorizer.')
 
@@ -1496,6 +1496,7 @@ class ColorizingArtist(Artist):
         """
         return self._colorizer
 
+    '''
     def changed(self):
         """
         Call this whenever the mappable is changed to notify all the
@@ -1503,7 +1504,7 @@ class ColorizingArtist(Artist):
         """
         self.callbacks.process('changed')
         self.stale = True
-
+    '''
     def format_cursor_data(self, data):
         """
         Return a string representation of *data*.

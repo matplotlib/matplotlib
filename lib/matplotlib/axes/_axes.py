@@ -5380,7 +5380,7 @@ class Axes(_AxesBase):
                 collection.vbar.set_cmap(collection.get_cmap())
                 collection.hbar.set_cmap(collection.get_cmap())
 
-            collection.callbacks.connect('changed', on_changed)
+            collection.colorizer.callbacks.connect('changed', on_changed)
 
         return collection
 
