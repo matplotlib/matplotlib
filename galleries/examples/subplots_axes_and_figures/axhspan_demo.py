@@ -46,3 +46,9 @@ plt.show()
 # .. seealso::
 #
 #    `~.Axes.axhline`, `~.Axes.axvline`, `~.Axes.axline` draw infinite lines.
+#
+# .. tags::
+#
+#    styling: shape
+#    plot-type: line
+#    level: beginner

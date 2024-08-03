@@ -33,3 +33,8 @@ plt.show()
 #    - `matplotlib.axes.Axes.plot` / `matplotlib.pyplot.plot`
 #    - `matplotlib.pyplot.subplots`
 #    - `matplotlib.figure.Figure.savefig`
+#
+# .. tags::
+#
+#    plot-style: line
+#    level: beginner

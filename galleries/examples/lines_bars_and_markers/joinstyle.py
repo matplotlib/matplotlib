@@ -14,3 +14,6 @@ from matplotlib._enums import JoinStyle
 
 JoinStyle.demo()
 plt.show()
+
+# %%
+# .. tags:: purpose: reference, styling: linestyle

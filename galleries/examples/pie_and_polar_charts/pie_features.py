@@ -130,3 +130,8 @@ plt.show()
 #    in this example:
 #
 #    - `matplotlib.axes.Axes.pie` / `matplotlib.pyplot.pie`
+#
+# .. tags::
+#
+#    plot-type: pie
+#    level: beginner

@@ -78,3 +78,9 @@ plt.show()
 #
 #    - `matplotlib.axes.Axes.bar` / `matplotlib.pyplot.bar`
 #    - `matplotlib.axes.Axes.annotate` / `matplotlib.pyplot.annotate`
+#
+# .. tags::
+#
+#    component: annotate
+#    plot-type: bar
+#    level: beginner

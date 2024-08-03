@@ -118,3 +118,9 @@ ax.bar_label(bar_container, fmt=lambda x: f'{x * 1.61:.1f} km/h')
 #    - `matplotlib.axes.Axes.bar` / `matplotlib.pyplot.bar`
 #    - `matplotlib.axes.Axes.barh` / `matplotlib.pyplot.barh`
 #    - `matplotlib.axes.Axes.bar_label` / `matplotlib.pyplot.bar_label`
+#
+# .. tags::
+#
+#    component: label
+#    plot-type: bar
+#    level: beginner

@@ -47,3 +47,10 @@ line3, = ax.plot(x, y - 0.4, dashes=[4, 4], gapcolor='tab:pink',
 
 ax.legend(handlelength=4)
 plt.show()
+
+# %%
+# .. tags::
+#
+#    styling: linestyle
+#    plot-style: line
+#    level: beginner

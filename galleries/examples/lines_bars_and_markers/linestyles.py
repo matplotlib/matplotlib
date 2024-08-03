@@ -73,3 +73,9 @@ plot_linestyles(ax1, linestyle_tuple[::-1], title='Parametrized linestyles')
 
 plt.tight_layout()
 plt.show()
+
+# %%
+# .. tags::
+#
+#    styling: linestyle
+#    purpose: reference

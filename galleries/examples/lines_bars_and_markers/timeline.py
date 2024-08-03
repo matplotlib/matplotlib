@@ -128,3 +128,9 @@ plt.show()
 #    - `matplotlib.axis.Axis.set_major_formatter`
 #    - `matplotlib.dates.MonthLocator`
 #    - `matplotlib.dates.DateFormatter`
+#
+# .. tags::
+#
+#    component: annotate
+#    plot-type: line
+#    level: intermediate

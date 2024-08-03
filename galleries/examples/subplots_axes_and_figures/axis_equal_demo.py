@@ -33,3 +33,11 @@ axs[1, 1].set_title('still a circle, auto-adjusted data limits', fontsize=10)
 fig.tight_layout()
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: axes
+#    styling: size
+#    plot-type: line
+#    level: beginner

@@ -18,3 +18,10 @@ cbar = fig.colorbar(sc)
 cbar.set_label("ZLabel", loc='top')
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: axis
+#    styling: position
+#    level: beginner

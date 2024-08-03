@@ -51,3 +51,11 @@ fig.supxlabel('Year')
 fig.supylabel('Stock price relative to max')
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: figure
+#    component: title
+#    plot-type: line
+#    level: beginner

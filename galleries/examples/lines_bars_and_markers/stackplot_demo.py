@@ -73,3 +73,9 @@ ys = [gaussian_mixture(x) for _ in range(3)]
 fig, ax = plt.subplots()
 ax.stackplot(x, ys, baseline='wiggle')
 plt.show()
+
+# %%
+# .. tags::
+#
+#    plot-type: stackplot
+#    level: intermediate

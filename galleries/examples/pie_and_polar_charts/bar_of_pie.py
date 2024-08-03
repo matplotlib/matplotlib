@@ -81,3 +81,11 @@ plt.show()
 #    - `matplotlib.axes.Axes.bar` / `matplotlib.pyplot.bar`
 #    - `matplotlib.axes.Axes.pie` / `matplotlib.pyplot.pie`
 #    - `matplotlib.patches.ConnectionPatch`
+#
+# .. tags::
+#
+#    component: subplot
+#    plot-type: pie
+#    plot-type: bar
+#    level: intermediate
+#    purpose: showcase

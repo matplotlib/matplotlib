@@ -121,3 +121,8 @@ plt.show()
 #    - `matplotlib.figure.Figure.subplots_adjust`
 #    - `matplotlib.axes.Axes.text`
 #    - `matplotlib.patches.Rectangle`
+#
+# .. tags::
+#
+#    styling: color
+#    purpose: reference

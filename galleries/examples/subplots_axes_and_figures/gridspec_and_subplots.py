@@ -28,3 +28,9 @@ axbig.annotate('Big Axes \nGridSpec[1:, -1]', (0.1, 0.5),
 fig.tight_layout()
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: subplot
+#    level: beginner

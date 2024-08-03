@@ -132,3 +132,10 @@ plt.show()
 #    - `matplotlib.figure.Figure.add_gridspec`
 #    - `matplotlib.figure.Figure.add_subplot`
 #    - `matplotlib.pyplot.subplot2grid`
+#
+# .. tags::
+#
+#    component: axes
+#    component: subplot
+#    styling: size
+#    level: beginner

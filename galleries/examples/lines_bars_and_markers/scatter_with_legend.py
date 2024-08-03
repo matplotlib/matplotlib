@@ -109,3 +109,9 @@ plt.show()
 #    - `matplotlib.axes.Axes.scatter` / `matplotlib.pyplot.scatter`
 #    - `matplotlib.axes.Axes.legend` / `matplotlib.pyplot.legend`
 #    - `matplotlib.collections.PathCollection.legend_elements`
+#
+# .. tags::
+#
+#    component: legend
+#    plot-type: scatter
+#    level: intermediate

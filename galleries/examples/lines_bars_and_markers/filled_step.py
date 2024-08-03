@@ -235,3 +235,9 @@ plt.show()
 #    - `matplotlib.axes.Axes.fill_betweenx` / `matplotlib.pyplot.fill_betweenx`
 #    - `matplotlib.axes.Axes.fill_between` / `matplotlib.pyplot.fill_between`
 #    - `matplotlib.axis.Axis.set_major_locator`
+#
+# .. tags::
+#
+#    plot-type: histogram
+#    level: intermediate
+#    purpose: showcase

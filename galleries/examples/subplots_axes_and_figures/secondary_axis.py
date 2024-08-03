@@ -211,3 +211,9 @@ plt.show()
 #
 #    - `matplotlib.axes.Axes.secondary_xaxis`
 #    - `matplotlib.axes.Axes.secondary_yaxis`
+#
+# .. tags::
+#
+#    component: axis
+#    plot-type: line
+#    level: beginner

@@ -51,3 +51,9 @@ axs[1, 2].scatter(x, y, s=80, c=z, marker=(5, 2))
 axs[1, 2].set_title("marker=(5, 2)")
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: marker
+#    level: beginner

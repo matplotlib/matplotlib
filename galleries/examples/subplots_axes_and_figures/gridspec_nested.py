@@ -44,3 +44,9 @@ plt.suptitle("GridSpec Inside GridSpec")
 format_axes(fig)
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: subplot
+#    level: intermediate

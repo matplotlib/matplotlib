@@ -40,3 +40,9 @@ plt.title("Mollweide")
 plt.grid(True)
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    plot-type: specialty
+#    domain: cartography

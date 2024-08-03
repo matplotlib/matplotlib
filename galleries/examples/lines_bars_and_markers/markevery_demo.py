@@ -96,3 +96,10 @@ for ax, markevery in zip(axs.flat, cases):
     ax.plot(theta, r, 'o', ls='-', ms=4, markevery=markevery)
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: marker
+#    plot-type: line
+#    level: beginner

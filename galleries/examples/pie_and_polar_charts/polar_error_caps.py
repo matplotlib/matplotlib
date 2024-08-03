@@ -51,3 +51,10 @@ plt.show()
 #
 #    - `matplotlib.axes.Axes.errorbar` / `matplotlib.pyplot.errorbar`
 #    - `matplotlib.projections.polar`
+#
+# .. tags::
+#
+#    component: error
+#    plot-type: errorbar
+#    plot-type: polar
+#    level: beginner

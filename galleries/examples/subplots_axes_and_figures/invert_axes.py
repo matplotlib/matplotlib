@@ -33,3 +33,10 @@ ax2.set_xlabel('decreasing x ⟶')
 ax2.grid(True)
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: axis
+#    plot-type: line
+#    level: beginner

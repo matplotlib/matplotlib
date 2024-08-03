@@ -51,3 +51,9 @@ plt.show()
 #
 #    - `matplotlib.axes.Axes.bar`
 #    - `matplotlib.pyplot.subplots`
+#
+# .. tags::
+#
+#    styling: color
+#    plot-type: bar
+#    level: beginner

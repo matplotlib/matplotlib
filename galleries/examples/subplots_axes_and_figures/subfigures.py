@@ -146,3 +146,10 @@ axsnest1 = subfigsnest[1].subplots(3, 1, sharex=True)
 axsRight = subfigs[1].subplots(2, 2)
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: figure
+#    plot-type: pcolormesh
+#    level: intermediate

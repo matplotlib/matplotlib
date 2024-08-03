@@ -43,3 +43,9 @@ plt.show()
 #    - `matplotlib.axes.Axes.inset_axes`
 #    - `matplotlib.axes.Axes.indicate_inset_zoom`
 #    - `matplotlib.axes.Axes.imshow`
+#
+# .. tags::
+#
+#    component: axes
+#    plot-type: imshow
+#    level: intermediate

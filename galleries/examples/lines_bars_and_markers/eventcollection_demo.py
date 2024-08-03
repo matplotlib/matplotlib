@@ -60,3 +60,9 @@ ax.set_title('line plot with data points')
 
 # display the plot
 plt.show()
+
+# %%
+# .. tags::
+#
+#    plot-type: eventplot
+#    level: intermediate

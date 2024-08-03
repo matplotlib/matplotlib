@@ -14,3 +14,8 @@ from matplotlib._enums import CapStyle
 
 CapStyle.demo()
 plt.show()
+
+# %%
+# .. tags::
+#
+#    purpose: reference

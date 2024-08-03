@@ -38,3 +38,10 @@ axs[2].set_yticks(np.arange(-0.9, 1.0, 0.4))
 axs[2].set_ylim(-1, 1)
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: subplot
+#    plot-type: line
+#    level: beginner

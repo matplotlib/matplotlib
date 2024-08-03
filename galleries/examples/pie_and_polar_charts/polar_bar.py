@@ -32,3 +32,10 @@ plt.show()
 #
 #    - `matplotlib.axes.Axes.bar` / `matplotlib.pyplot.bar`
 #    - `matplotlib.projections.polar`
+#
+# .. tags::
+#
+#    plot-type: pie
+#    plot-type: bar
+#    level: beginner
+#    purpose: showcase

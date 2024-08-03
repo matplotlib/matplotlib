@@ -24,3 +24,10 @@ ax.annotate('race interrupted', (61, 25),
             horizontalalignment='right', verticalalignment='top')
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: annotation
+#    plot-type: bar
+#    level: beginner

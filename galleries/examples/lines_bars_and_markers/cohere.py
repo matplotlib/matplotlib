@@ -31,3 +31,10 @@ cxy, f = axs[1].cohere(s1, s2, NFFT=256, Fs=1. / dt)
 axs[1].set_ylabel('Coherence')
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    domain: signal-processing
+#    plot-type: line
+#    level: beginner

@@ -75,3 +75,9 @@ plt.show()
 #    - `matplotlib.axes.Axes.set_xlabel`
 #    - `matplotlib.axes.Axes.set_ylabel`
 #    - `matplotlib.axes.Axes.tick_params`
+#
+# .. tags::
+#
+#    styling: color
+#    plot-type: line
+#    level: beginner

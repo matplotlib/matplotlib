@@ -280,3 +280,9 @@ plt.show()
 #    - `matplotlib.cm`
 #    - `matplotlib.cm.ScalarMappable.set_cmap`
 #    - `matplotlib.cm.ColormapRegistry.register`
+#
+# .. tags::
+#
+#    styling: colormap
+#    plot-type: imshow
+#    level: intermediate

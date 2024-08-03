@@ -71,3 +71,11 @@ x = np.arange(N) + 0.15
 y = np.random.rand(N)
 gradient_bar(ax, x, y, width=0.7)
 plt.show()
+
+# %%
+# .. tags::
+#
+#    styling: color
+#    plot-type: imshow
+#    level: intermediate
+#    purpose: showcase

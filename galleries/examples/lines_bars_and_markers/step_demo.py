@@ -63,3 +63,9 @@ plt.show()
 #
 #    - `matplotlib.axes.Axes.step` / `matplotlib.pyplot.step`
 #    - `matplotlib.axes.Axes.plot` / `matplotlib.pyplot.plot`
+#
+# .. tags::
+#
+#    plot-type: step
+#    plot-type: line
+#    level: beginner
