@@ -2445,7 +2445,6 @@ class _AxesBase(martist.Artist):
                                       updatex=updatex, updatey=updatey)
         self.ignore_existing_data_limits = False
 
-
     def add_table(self, tab):
         """
         Add a `.Table` to the Axes; return the table.
