@@ -97,9 +97,15 @@ plt.show()
 
 # %%
 #
+# .. tags:: plot-type: boxplot, domain: statistics
+#
 # .. admonition:: References
 #
 #    The use of the following functions, methods, classes and modules is shown
 #    in this example:
 #
 #    - `matplotlib.axes.Axes.boxplot` / `matplotlib.pyplot.boxplot`
+#
+# .. ifconfig:: releaselevel == 'dev'
+#
+#    .. tags::  internal: too-much

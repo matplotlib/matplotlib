@@ -63,6 +63,8 @@ plt.show()
 
 # %%
 #
+# ..tags:: domain: statistics, plot-type: barh, plot-type: histogram, styling: position
+#
 # .. admonition:: References
 #
 #    The use of the following functions, methods, classes and modules is shown

@@ -21,9 +21,16 @@ plt.show()
 
 # %%
 #
+#
+# .. tags:: plot-type: errorbar, domain: statistics,
+#
 # .. admonition:: References
 #
 #    The use of the following functions, methods, classes and modules is shown
 #    in this example:
 #
 #    - `matplotlib.axes.Axes.errorbar` / `matplotlib.pyplot.errorbar`
+#
+# .. ifconfig:: releaselevel == 'dev'
+#
+#    .. tags::  internal: needs-review
