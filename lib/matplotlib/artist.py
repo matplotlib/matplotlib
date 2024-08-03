@@ -1346,7 +1346,9 @@ class Artist:
                     delta = np.diff(
                         self.norm.boundaries[neigh_idx:cur_idx + 2]
                     ).max()
-
+                elif self.norm.vmin == self.norm.vmax:
+                    # singular norms, use delta of 10% of only value
+                    delta = np.abs(self.norm.vmin * .1)
                 else:
                     # Midpoints of neighboring color intervals.
                     neighbors = self.norm.inverse(

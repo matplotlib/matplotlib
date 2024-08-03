@@ -2252,6 +2252,10 @@ def _g_sig_digits(value, delta):
     it is known with an error of *delta*.
     """
     if delta == 0:
+        if value == 0:
+            # if both value and delta are 0, np.spacing below returns 5e-324
+            # which results in rather silly results
+            return 3
         # delta = 0 may occur when trying to format values over a tiny range;
         # in that case, replace it by the distance to the closest float.
         delta = abs(np.spacing(value))
