@@ -728,7 +728,7 @@ class Colormap:
         bytes : bool
             If False (default), the returned RGBA values will be floats in the
             interval ``[0, 1]`` otherwise they will be `numpy.uint8`\s in the
-            interval ``[0, 255]``
+            interval ``[0, 255]``.
 
         Returns
         -------
@@ -736,6 +736,8 @@ class Colormap:
         RGBA values with a shape of ``X.shape + (4, )``.
         """
         rgba, mask = self._get_rgba_and_mask(X, alpha=alpha, bytes=bytes)
+        if not np.iterable(X):
+            rgba = tuple(rgba)
         return rgba
 
     def _get_rgba_and_mask(self, X, alpha=None, bytes=False):
@@ -758,9 +760,9 @@ class Colormap:
 
         Returns
         -------
-        (colors, mask), where color is a tuple of RGBA values if X is scalar,
-        otherwise an array of RGBA values with a shape of ``X.shape + (4, )``,
-        and mask is a boolean array.
+        colors : array of RGBA values with a shape of ``X.shape + (4, )``.
+        mask : boolean array with True where the input is ``np.nan`` or
+            masked.
         """
         if not self._isinit:
             self._init()
@@ -805,8 +807,6 @@ class Colormap:
             if (lut[-1] == 0).all():
                 rgba[mask_bad] = (0, 0, 0, 0)
 
-        if not np.iterable(X):
-            rgba = tuple(rgba)
         return rgba, mask_bad
 
     def __copy__(self):
@@ -1291,9 +1291,7 @@ class MultivarColormap:
                                  " Colormap or valid strings.")
 
         self._colormaps = colormaps
-        if combination_mode not in ['sRGB_add', 'sRGB_sub']:
-            raise ValueError("Combination_mode must be 'sRGB_add' or 'sRGB_sub',"
-                             f" {combination_mode!r} is not allowed.")
+        _api.check_in_list(['sRGB_add', 'sRGB_sub'], combination_mode=combination_mode)
         self._combination_mode = combination_mode
         self.n_variates = len(colormaps)
         self._rgba_bad = (0.0, 0.0, 0.0, 0.0)  # If bad, don't paint anything.
@@ -1332,10 +1330,8 @@ class MultivarColormap:
                 f'For the selected colormap the data must have a first dimension '
                 f'{len(self)}, not {len(X)}')
         rgba, mask_bad = self[0]._get_rgba_and_mask(X[0], bytes=False)
-        rgba = np.asarray(rgba)
         for c, xx in zip(self[1:], X[1:]):
             sub_rgba, sub_mask_bad = c._get_rgba_and_mask(xx, bytes=False)
-            sub_rgba = np.asarray(sub_rgba)
             rgba[..., :3] += sub_rgba[..., :3]  # add colors
             rgba[..., 3] *= sub_rgba[..., 3]  # multiply alpha
             mask_bad |= sub_mask_bad
@@ -1419,11 +1415,10 @@ class MultivarColormap:
 
         Parameters
         ----------
-        lutshape : tuple of ints or None
-            The tuple must be of length matching the number of variates,
-            and each entry is either an int or None.
-            If an int, the corresponding colorbar is resampled.
-            If None, the corresponding colorbar is not resampled.
+        lutshape : tuple of (`int`, `None`)
+            The tuple must have a length matching the number of variates.
+            For each element in the tuple, if `int`, the corresponding colorbar
+            is resampled, if `None`, the corresponding colorbar is not resampled.
 
         Returns
         -------
@@ -1440,22 +1435,24 @@ class MultivarColormap:
 
     def with_extremes(self, *, bad=None, under=None, over=None):
         """
-        Return a copy of the MultivarColormap, for which the colors for masked (*bad*)
-        values has been set and, low (*under*) and high (*over*) out-of-range values,
-        been set in the component colormaps. Note that *under* and *over* colors
-        are subject to the mixing rules determined by the *combination_mode*.
+        Return a copy of the `MultivarColormap` with modified out-of-range attributes.
+
+        The *bad* keyword modifies the copied `MultivarColormap` while *under* and
+        *over* modifies the attributes of the copied component colormaps.
+        Note that *under* and *over* colors are subject to the mixing rules determined
+        by the *combination_mode*.
 
         Parameters
         ----------
         bad : None or :mpltype:`color`
             If Matplotlib color, the bad value is set accordingly in the copy
 
-        under : None or tuple of length matching the length of the MultivarColormap
+        under : None or tuple of :mpltype:`color`
             If tuple, the `under` value of each component is set with the values
             from the tuple.
 
-        over : None or tuple of length matching the length of the MultivarColormap
-            If tuple, the `under` value of each component is set with the values
+        over : None or tuple of :mpltype:`color`
+            If tuple, the `over` value of each component is set with the values
             from the tuple.
 
         Returns
@@ -1528,7 +1525,6 @@ class BivarColormap:
             The number of RGB quantization levels along the first axis.
         M : int
             The number of RGB quantization levels along the second axis.
-            If None, M = N
         shape: {'square', 'circle', 'ignore', 'circleignore'}
 
             - 'square' each variate is clipped to [0,1] independently
@@ -1551,11 +1547,8 @@ class BivarColormap:
         self.name = name
         self.N = int(N)  # ensure that N is always int
         self.M = int(M)
-        if shape in ['square', 'circle', 'ignore', 'circleignore']:
-            self._shape = shape
-        else:
-            raise ValueError("The shape must be a valid string, "
-                             "'square', 'circle', 'ignore', or 'circleignore'")
+        _api.check_in_list(['square', 'circle', 'ignore', 'circleignore'], shape=shape)
+        self._shape = shape
         self._rgba_bad = (0.0, 0.0, 0.0, 0.0)  # If bad, don't paint anything.
         self._rgba_outside = (1.0, 0.0, 1.0, 1.0)
         self._isinit = False
@@ -1738,8 +1731,8 @@ class BivarColormap:
             The tuple must be of length 2, and each entry is either an int or None.
 
             - If an int, the corresponding axis is resampled.
-            - If -1, the axis is inverted
             - If negative the corresponding axis is resampled in reverse
+            - If -1, the axis is inverted
             - If 1 or None, the corresponding axis is not resampled.
 
         transposed : bool
@@ -1815,9 +1808,10 @@ class BivarColormap:
 
     def with_extremes(self, *, bad=None, outside=None, shape=None, origin=None):
         """
-        Return a copy of the BivarColormap, for which the colors for masked (*bad*)
-        valuesand if shape = 'ignore' or 'circleignore', out-of-range *outside* values,
-        have been set accordingly.
+        Return a copy of the `BivarColormap` with modified attributes.
+
+        Note that the *outside* color is only relevantif `shape` = 'ignore'
+        or 'circleignore'.
 
         Parameters
         ----------
@@ -1855,11 +1849,9 @@ class BivarColormap:
         if outside is not None:
             new_cm._rgba_outside = to_rgba(outside)
         if shape is not None:
-            if shape in ['square', 'circle', 'ignore', 'circleignore']:
-                new_cm._shape = shape
-            else:
-                raise ValueError("The shape must be a valid string, "
-                                 "'square', 'circle', 'ignore', or 'circleignore'")
+            _api.check_in_list(['square', 'circle', 'ignore', 'circleignore'],
+                               shape=shape)
+            new_cm._shape = shape
         if origin is not None:
             new_cm._origin = (float(origin[0]), float(origin[1]))
 
@@ -2014,7 +2006,7 @@ class BivarColormap:
                 '</div>'
                 '<div style="float: right;">'
                 f'bad {color_block(self.get_bad())}'
-                '</div>')
+                '</div></div>')
 
     def copy(self):
         """Return a copy of the colormap."""
@@ -2052,6 +2044,7 @@ class SegmentedBivarColormap(BivarColormap):
 
     def __init__(self, patch, N=256, shape='square', origin=(0, 0),
                  name='segmented bivariate colormap'):
+        _api.check_shape((None, None, 3), patch=patch)
         self.patch = patch
         super().__init__(N, N, shape, origin, name=name)
 
