@@ -13,7 +13,7 @@ import base64
 
 @image_comparison(["bivariate_cmap_shapes.png"])
 def test_bivariate_cmap_shapes():
-    x_0 = np.repeat(np.linspace(-0.1, 1.1, 10, dtype='float32'), (10, 1))
+    x_0 = np.repeat(np.linspace(-0.1, 1.1, 10, dtype='float32')[None, :], 10, axis=0)
     x_1 = x_0.T
 
     fig, axes = plt.subplots(1, 4, figsize=(10, 2))
@@ -193,7 +193,7 @@ def test_multivar_cmap_call():
 
 def test_multivar_bad_mode():
     cmap = mpl.multivar_colormaps['2VarSubA']
-    with pytest.raises(ValueError, match="Combination_mode must be 'sRGB_add' or"):
+    with pytest.raises(ValueError, match="is not a valid value for"):
         cmap = mpl.colors.MultivarColormap(cmap[:], 'bad')
 
 
@@ -359,11 +359,11 @@ def test_bivar_cmap_bad_shape():
     cmap = mpl.bivar_colormaps['BiCone']
     _ = cmap.lut
     with pytest.raises(ValueError,
-                       match="shape must be a valid string"):
+                       match="is not a valid value for shape"):
         cmap.with_extremes(shape='bad_shape')
 
     with pytest.raises(ValueError,
-                       match="shape must be a valid string"):
+                       match="is not a valid value for shape"):
         mpl.colors.BivarColormapFromImage(np.ones((3, 3, 4)),
                                           shape='bad_shape')
 
