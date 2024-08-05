@@ -1351,10 +1351,10 @@ class MultivarColormap:
         if alpha is not None:
             if clip:
                 alpha = np.clip(alpha, 0, 1)
-            if alpha.shape not in [(), np.array(X[0]).shape]:
+            if np.shape(alpha) not in [(), np.shape(X[0])]:
                 raise ValueError(
-                    f"alpha is array-like but its shape {alpha.shape} does "
-                    f"not match that of X[0] {np.array(X[0]).shape}")
+                    f"alpha is array-like but its shape {np.shape(alpha)} does "
+                    f"not match that of X[0] {np.shape(X[0])}")
             rgba[..., -1] *= alpha
 
         if bytes:
@@ -1385,14 +1385,14 @@ class MultivarColormap:
     def __eq__(self, other):
         if not isinstance(other, MultivarColormap):
             return False
-        if not len(self) == len(other):
+        if len(self) != len(other):
             return False
         for c0, c1 in zip(self, other):
-            if not c0 == c1:
+            if c0 != c1:
                 return False
         if not all(self._rgba_bad == other._rgba_bad):
             return False
-        if not self.combination_mode == other.combination_mode:
+        if self.combination_mode != other.combination_mode:
             return False
         return True
 
@@ -1430,7 +1430,7 @@ class MultivarColormap:
         MultivarColormap
         """
 
-        if not np.iterable(lutshape) or not len(lutshape) == len(self):
+        if not np.iterable(lutshape) or len(lutshape) != len(self):
             raise ValueError(f"lutshape must be of length {len(self)}")
         new_cmap = self.copy()
         for i, s in enumerate(lutshape):
@@ -1447,7 +1447,7 @@ class MultivarColormap:
 
         Parameters
         ----------
-        bad : None or Matplotlib color
+        bad : None or :mpltype:`color`
             If Matplotlib color, the bad value is set accordingly in the copy
 
         under : None or tuple of length matching the length of the MultivarColormap
@@ -1468,17 +1468,19 @@ class MultivarColormap:
         if bad is not None:
             new_cm._rgba_bad = to_rgba(bad)
         if under is not None:
-            if not np.iterable(under) or not len(under) == len(new_cm):
+            if not np.iterable(under) or len(under) != len(new_cm):
                 raise ValueError("*under* must contain a color for each scalar colormap"
                                  f" i.e. be of length {len(new_cm)}.")
             else:
-                [c.set_under(b) for c, b in zip(new_cm, under)]
+                for c, b in zip(new_cm, under):
+                    c.set_under(b)
         if over is not None:
-            if not np.iterable(over) or not len(over) == len(new_cm):
+            if not np.iterable(over) or len(over) != len(new_cm):
                 raise ValueError("*over* must contain a color for each scalar colormap"
                                  f" i.e. be of length {len(new_cm)}.")
             else:
-                [c.set_over(b) for c, b in zip(new_cm, over)]
+                for c, b in zip(new_cm, over):
+                    c.set_over(b)
         return new_cm
 
     @property
@@ -1511,9 +1513,9 @@ class MultivarColormap:
 
 class BivarColormap:
     """
-    Baseclass for all bivarate to RGBA mappings.
+    Base class for all bivariate to RGBA mappings.
 
-    Designed as a drop-in replcement for Colormap when using a 2D
+    Designed as a drop-in replacement for Colormap when using a 2D
     lookup table. To be used with `~matplotlib.cm.VectorMappable`.
     """
 
@@ -1527,7 +1529,7 @@ class BivarColormap:
         M : int
             The number of RGB quantization levels along the second axis.
             If None, M = N
-        shape: str 'square' or 'circle' or 'ignore' or 'circleignore'
+        shape: {'square', 'circle', 'ignore', 'circleignore'}
 
             - 'square' each variate is clipped to [0,1] independently
             - 'circle' the variates are clipped radially to the center
@@ -1594,7 +1596,7 @@ class BivarColormap:
         if len(X) != 2:
             raise ValueError(
                 f'For a `BivarColormap` the data must have a first dimension '
-                f'{2}, not {len(X)}')
+                f'2, not {len(X)}')
 
         if not self._isinit:
             self._init()
@@ -1621,8 +1623,7 @@ class BivarColormap:
             X1[X1 == self.M] = self.M - 1
 
         # Pre-compute the masks before casting to int (which can truncate)
-        mask_outside = (X0 < 0) | (X1 < 0) \
-                     | (X0 >= self.N) | (X1 >= self.M)
+        mask_outside = (X0 < 0) | (X1 < 0) | (X0 >= self.N) | (X1 >= self.M)
         # If input was masked, get the bad mask from it; else mask out nans.
         mask_bad_0 = X0.mask if np.ma.is_masked(X0) else np.isnan(X0)
         mask_bad_1 = X1.mask if np.ma.is_masked(X1) else np.isnan(X1)
@@ -1650,10 +1651,10 @@ class BivarColormap:
             alpha = np.clip(alpha, 0, 1)
             if bytes:
                 alpha *= 255  # Will be cast to uint8 upon assignment.
-            if alpha.shape not in [(), np.array(X0).shape]:
+            if np.shape(alpha) not in [(), np.shape(X0)]:
                 raise ValueError(
-                    f"alpha is array-like but its shape {alpha.shape} does "
-                    f"not match that of X[0] {np.array(X0).shape}")
+                    f"alpha is array-like but its shape {np.shape(alpha)} does "
+                    f"not match that of X[0] {np.shape(X0)}")
             rgba[..., -1] = alpha
             # If the "bad" color is all zeros, then ignore alpha input.
             if (np.array(self._rgba_bad) == 0).all():
@@ -1713,7 +1714,7 @@ class BivarColormap:
             return False
         if not np.array_equal(self._rgba_outside, other._rgba_outside):
             return False
-        if not self.shape == other.shape:
+        if self.shape != other.shape:
             return False
         return True
 
@@ -1728,6 +1729,7 @@ class BivarColormap:
     def resampled(self, lutshape, transposed=False):
         """
         Return a new colormap with *lutshape* entries.
+
         Note that this function does not move the origin.
 
         Parameters
@@ -1748,7 +1750,7 @@ class BivarColormap:
         BivarColormap
         """
 
-        if not np.iterable(lutshape) or not len(lutshape) == 2:
+        if not np.iterable(lutshape) or len(lutshape) != 2:
             raise ValueError("lutshape must be of length 2")
         lutshape = [lutshape[0], lutshape[1]]
         if lutshape[0] is None or lutshape[0] == 1:
@@ -1776,7 +1778,7 @@ class BivarColormap:
         else:
             x_1 = np.linspace(1, 0, lutshape[1])[np.newaxis, :] * np.ones(lutshape)
 
-        # we need to use shape = 'sqare' while resampling the colormap.
+        # we need to use shape = 'square' while resampling the colormap.
         # if the colormap has shape = 'circle' we would otherwise get *outside* in the
         # resampled colormap
         shape_memory = self._shape
@@ -1785,7 +1787,7 @@ class BivarColormap:
             new_lut = self((x_1, x_0))
             new_cmap = BivarColormapFromImage(new_lut, name=self.name,
                                               shape=shape_memory,
-                                              origin=(self.origin[1], self.origin[0]))
+                                              origin=self.origin[::-1])
         else:
             new_lut = self((x_0, x_1))
             new_cmap = BivarColormapFromImage(new_lut, name=self.name,
@@ -1801,12 +1803,8 @@ class BivarColormap:
         """
         Reverses both or one of the axis.
         """
-        r_0 = 1
-        if axis_0:
-            r_0 = -1
-        r_1 = 1
-        if axis_1:
-            r_1 = -1
+        r_0 = -1 if axis_0 else 1
+        r_1 = -1 if axis_1 else 1
         return self.resampled((r_0, r_1))
 
     def transposed(self):
@@ -1823,14 +1821,14 @@ class BivarColormap:
 
         Parameters
         ----------
-        bad : None or Matplotlib color
+        bad : None or :mpltype:`color`
             If Matplotlib color, the *bad* value is set accordingly in the copy
 
-        outside : None or Matplotlib color
+        outside : None or :mpltype:`color`
             If Matplotlib color and shape is 'ignore' or 'circleignore', values
             *outside* the colormap are colored accordingly in the copy
 
-        shape: str 'square' or 'circle' or 'ignore' or 'circleignore'
+        shape : {'square', 'circle', 'ignore', 'circleignore'}
 
             - If 'square' each variate is clipped to [0,1] independently
             - If 'circle' the variates are clipped radially to the center
@@ -1838,7 +1836,7 @@ class BivarColormap:
               is displayed
             - If 'ignore' the variates are not clipped, but instead assigned the
               *outside* color
-            - If  'circleignore' a circular mask is applied, but the data is not
+            - If 'circleignore' a circular mask is applied, but the data is not
               clipped and instead assigned the *outside* color
 
         origin: (float, float)
@@ -1890,7 +1888,7 @@ class BivarColormap:
         ----------
         X: np.array
             array of floats or ints to be clipped
-        shape: str 'square' or 'circle' or 'ignore' or 'circleignore'
+        shape : {'square', 'circle', 'ignore', 'circleignore'}
 
             - If 'square' each variate is clipped to [0,1] independently
             - If 'circle' the variates are clipped radially to the center
@@ -1921,7 +1919,7 @@ class BivarColormap:
 
         elif self.shape == 'circle' or self.shape == 'circleignore':
             for X_part in X:
-                if not X_part.dtype.kind == "f":
+                if X_part.dtype.kind != "f":
                     raise NotImplementedError(
                         "Circular bivariate colormaps are only"
                         " implemented for use with with floats")
@@ -1944,14 +1942,14 @@ class BivarColormap:
             if origin_1_as_int > self.M-1:
                 origin_1_as_int = self.M-1
             one_d_lut = self._lut[:, origin_1_as_int]
-            new_cmap = ListedColormap(one_d_lut, name=self.name+'_0', N=self.N)
+            new_cmap = ListedColormap(one_d_lut, name=f'{self.name}_0', N=self.N)
 
         elif item == 1:
             origin_0_as_int = int(self._origin[0]*self.N)
             if origin_0_as_int > self.N-1:
                 origin_0_as_int = self.N-1
             one_d_lut = self._lut[origin_0_as_int, :]
-            new_cmap = ListedColormap(one_d_lut, name=self.name+'_1', N=self.M)
+            new_cmap = ListedColormap(one_d_lut, name=f'{self.name}_1', N=self.M)
         else:
             raise KeyError(f"only 0 or 1 are"
                            f" valid keys for BivarColormap, not {item!r}")
@@ -2025,15 +2023,15 @@ class BivarColormap:
 
 class SegmentedBivarColormap(BivarColormap):
     """
-    BivarColormap object generated by supersampling a regular grid
+    BivarColormap object generated by supersampling a regular grid.
 
     Parameters
     ----------
-    patch : nparray of shape (k, k, 3)
-        This patch gets supersamples to a lut of shape (N, M, 4)
+    patch : np.array of shape (k, k, 3)
+        This patch gets supersampled to a lut of shape (N, M, 4).
     N : int
         The number of RGB quantization levels along each axis.
-    shape: str 'square' or 'circle' or 'ignore' or 'circleignore'
+    shape: {'square', 'circle', 'ignore', 'circleignore'}
 
         - If 'square' each variate is clipped to [0,1] independently
         - If 'circle' the variates are clipped radially to the center
@@ -2073,13 +2071,13 @@ class SegmentedBivarColormap(BivarColormap):
 
 class BivarColormapFromImage(BivarColormap):
     """
-    BivarColormap object generated by supersampling a regular grid
+    BivarColormap object generated by supersampling a regular grid.
 
     Parameters
     ----------
     lut : nparray of shape (N, M, 3) or (N, M, 4)
         The look-up-table
-    shape: str 'square' or 'circle' or 'ignore' or 'circleignore'
+    shape: {'square', 'circle', 'ignore', 'circleignore'}
 
         - If 'square' each variate is clipped to [0,1] independently
         - If 'circle' the variates are clipped radially to the center
@@ -2099,7 +2097,7 @@ class BivarColormapFromImage(BivarColormap):
     """
 
     def __init__(self, lut, shape='square', origin=(0, 0), name='from image'):
-        # We can allow for a PIL.Image as unput in the following way, but importing
+        # We can allow for a PIL.Image as input in the following way, but importing
         # matplotlib.image.pil_to_array() results in a circular import
         # For now, this function only accepts numpy arrays.
         # i.e.:

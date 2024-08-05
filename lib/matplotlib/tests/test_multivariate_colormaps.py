@@ -13,7 +13,7 @@ import base64
 
 @image_comparison(["bivariate_cmap_shapes.png"])
 def test_bivariate_cmap_shapes():
-    x_0 = (np.arange(100, dtype='float32').reshape(10, 10) % 10)/9 * 1.2 - 0.1
+    x_0 = np.repeat(np.linspace(-0.1, 1.1, 10, dtype='float32'), (10, 1))
     x_1 = x_0.T
 
     fig, axes = plt.subplots(1, 4, figsize=(10, 2))
