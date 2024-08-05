@@ -2347,6 +2347,11 @@ class _Style:
         return textwrap.indent(rst_table, prefix=' ' * 4)
 
     @classmethod
+    @_api.deprecated(
+        '3.10.0',
+        message="This method is never used internally.",
+        alternative="No replacement.  Please open an issue if you use this."
+    )
     def register(cls, name, style):
         """Register a new style."""
         if not issubclass(style, cls._Base):
