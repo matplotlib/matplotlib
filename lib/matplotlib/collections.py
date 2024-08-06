@@ -17,7 +17,7 @@ import warnings
 import numpy as np
 
 import matplotlib as mpl
-from . import (_api, _path, artist, cbook, cm, colors as mcolors, _docstring,
+from . import (_api, _path, artist, cbook, colorizer, colors as mcolors, _docstring,
                hatch as mhatch, lines as mlines, path as mpath, transforms)
 from ._enums import JoinStyle, CapStyle
 
@@ -32,7 +32,7 @@ from ._enums import JoinStyle, CapStyle
     "linewidth": ["linewidths", "lw"],
     "offset_transform": ["transOffset"],
 })
-class Collection(artist.ColorizingArtist, cm.ColorizerShim):
+class Collection(artist.ColorizingArtist, colorizer.ColorizerShim):
     r"""
     Base class for Collections. Must be subclassed to be usable.
 
