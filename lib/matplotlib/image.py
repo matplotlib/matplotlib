@@ -14,7 +14,7 @@ import PIL.Image
 import PIL.PngImagePlugin
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, cm
+from matplotlib import _api, cbook, colorizer
 # For clarity, names from _image are given explicitly in this module
 from matplotlib import _image
 # For user convenience, the names from _image are also imported into
@@ -229,7 +229,7 @@ def _rgb_to_rgba(A):
     return rgba
 
 
-class _ImageBase(martist.ColorizingArtist, cm.ColorizerShim):
+class _ImageBase(martist.ColorizingArtist, colorizer.ColorizerShim):
     """
     Base class for images.
 
@@ -1580,7 +1580,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             # as is, saving a few operations.
             rgba = arr
         else:
-            sm = cm.Colorizer(cmap=cmap)
+            sm = colorizer.Colorizer(cmap=cmap)
             sm.set_clim(vmin, vmax)
             rgba = sm.to_rgba(arr, bytes=True)
         if pil_kwargs is None:

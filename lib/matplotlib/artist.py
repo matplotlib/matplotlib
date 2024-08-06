@@ -13,7 +13,7 @@ import numpy as np
 
 import matplotlib as mpl
 from . import _api, cbook
-from .cm import Colorizer
+from .colorizer import Colorizer
 from .path import Path
 from .transforms import (BboxBase, Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
