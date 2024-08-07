@@ -1,18 +1,3 @@
-# TODO:
-# * Blit
-#   * Still a few edge cases that aren't working correctly
-#   * Can this integrate better with existing matplotlib animation artist flag?
-#     - If animated removes from default draw(), perhaps we could use this to
-#       simplify initial draw.
-# * Example
-#   * Frameless animation - pure procedural with no loop
-#   * Need example that uses something like inotify or subprocess
-#   * Complex syncing examples
-# * Movies
-#   * Can blit be enabled for movies?
-# * Need to consider event sources to allow clicking through multiple figures
-
-
 import abc
 import base64
 import contextlib
