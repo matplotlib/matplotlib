@@ -125,7 +125,7 @@ static void
 mpl_SetForegroundWindow(py::capsule UNUSED_ON_NON_WINDOWS(handle_p))
 {
 #ifdef _WIN32
-    if (handle_p.name() != "HWND") {
+    if (strcmp(handle_p.name(), "HWND") != 0) {
         throw std::runtime_error("Handle must be a value returned from Win32_GetForegroundWindow");
     }
     HWND handle = static_cast<HWND>(handle_p.get_pointer());
