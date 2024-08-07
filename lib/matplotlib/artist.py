@@ -1394,33 +1394,20 @@ class Artist:
 
 
 class ColorizingArtist(Artist):
-    def __init__(self, norm=None, cmap=None):
+    def __init__(self, colorizer):
         """
         Parameters
         ----------
-        norm : `colors.Normalize` (or subclass thereof) or str or `cm.Colorizer` or None
-            The normalizing object which scales data, typically into the
-            interval ``[0, 1]``.
-            If a `str`, a `colors.Normalize` subclass is dynamically generated based
-            on the scale with the corresponding name.
-            If `cm.Colorizer`, the norm an colormap on the `cm.Colorizer` will be used
-            If *None*, *norm* defaults to a *colors.Normalize* object which
-            initializes its scaling based on the first data processed.
-        cmap : str or `~matplotlib.colors.Colormap`
-            The colormap used to map normalized data values to RGBA colors.
+        colorizer : `colorizer.Colorizer`
         """
+        if not isinstance(colorizer, Colorizer):
+            raise ValueError("A `mpl.colorizer.Colorizer` object must be provided")
 
         Artist.__init__(self)
 
         self._A = None
-        if isinstance(norm, Colorizer):
-            self.colorizer = norm
-            if cmap:
-                raise ValueError("Providing a `cm.Colorizer` as the norm while "
-                                 "at the same time as a `cmap` is not supported..")
-        else:
-            self.colorizer = Colorizer(cmap, norm)
 
+        self.colorizer = colorizer
         self._id_colorizer = self.colorizer.callbacks.connect('changed', self.changed)
         self.callbacks = cbook.CallbackRegistry(signals=["changed"])
 

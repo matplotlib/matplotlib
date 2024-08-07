@@ -155,7 +155,8 @@ class Collection(artist.ColorizingArtist, colorizer.ColorizerShim):
             Remaining keyword arguments will be used to set properties as
             ``Collection.set_{key}(val)`` for each key-value pair in *kwargs*.
         """
-        artist.ColorizingArtist.__init__(self, norm, cmap)
+
+        artist.ColorizingArtist.__init__(self, colorizer._get_colorizer(cmap, norm))
         # list of un-scaled dash patterns
         # this is needed scaling the dash pattern by linewidth
         self._us_linestyles = [(0, None)]

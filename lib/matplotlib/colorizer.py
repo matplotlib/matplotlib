@@ -299,6 +299,22 @@ class Colorizer():
         self.norm.clip = clip
 
 
+def _get_colorizer(cmap, norm):
+    """
+    Passes or creates a Colorizer object.
+
+    Allows users to pass a Colorizer as the norm keyword
+    where a artist.ColorizingArtist is used as the artist.
+    If a Colorizer object is not passed, a Colorizer is created.
+    """
+    if isinstance(norm, Colorizer):
+        if cmap:
+            raise ValueError("Providing a `cm.Colorizer` as the norm while "
+                             "at the same time providing a `cmap` is not supported.")
+        return norm
+    return Colorizer(cmap, norm)
+
+
 class ColorizerShim:
 
     def _scale_norm(self, norm, vmin, vmax):
