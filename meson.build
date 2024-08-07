@@ -31,6 +31,11 @@ project(
 cc = meson.get_compiler('c')
 cpp = meson.get_compiler('cpp')
 
+# Try defining _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR on Windows to see what happens.
+if cpp.get_id() == 'msvc'
+  add_global_arguments('-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR', language : 'cpp')
+endif
+
 # https://mesonbuild.com/Python-module.html
 py_mod = import('python')
 py3 = py_mod.find_installation(pure: false)
