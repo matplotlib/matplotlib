@@ -241,10 +241,8 @@ _colormaps = ColormapRegistry(_gen_cmap_registry())
 globals().update(_colormaps)
 
 _multivar_colormaps = ColormapRegistry(multivar_cmaps)
-globals().update(_multivar_colormaps)
 
 _bivar_colormaps = ColormapRegistry(bivar_cmaps)
-globals().update(_bivar_colormaps)
 
 
 # This is an exact copy of pyplot.get_cmap(). It was removed in 3.9, but apparently
