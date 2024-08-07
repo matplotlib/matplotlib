@@ -641,18 +641,35 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         PIL.Image.fromarray(im).save(fname, format="png")
 
     @staticmethod
-    def _normalize_image_array(A):
+    def _normalize_image_array(A, n_input=1):
         """
         Check validity of image-like input *A* and normalize it to a format suitable for
         Image subclasses.
         """
+        A = mcolorizer._ensure_multivariate_data(n_input, A)
         A = cbook.safe_masked_invalid(A, copy=True)
-        if A.dtype != np.uint8 and not np.can_cast(A.dtype, float, "same_kind"):
-            raise TypeError(f"Image data of dtype {A.dtype} cannot be "
-                            f"converted to float")
+        if n_input == 1:
+            if A.dtype != np.uint8 and not np.can_cast(A.dtype, float, "same_kind"):
+                raise TypeError(f"Image data of dtype {A.dtype} cannot be "
+                                f"converted to float")
+        else:
+            for key in A.dtype.fields:
+                if not np.can_cast(A[key].dtype, float, "same_kind"):
+                    raise TypeError(f"Image data of dtype {A.dtype} cannot be "
+                                    f"converted to a sequence of floats")
         if A.ndim == 3 and A.shape[-1] == 1:
             A = A.squeeze(-1)  # If just (M, N, 1), assume scalar and apply colormap.
         if not (A.ndim == 2 or A.ndim == 3 and A.shape[-1] in [3, 4]):
+            if A.ndim == 3 and A.shape[0] == 2:
+                raise TypeError(f"Invalid shape {A.shape} for image data."
+                                 " For multivariate data a valid colormap must be"
+                                 " explicitly declared, for example"
+                                 f" cmap='BiOrangeBlue' or cmap='2VarAddA'")
+            if A.ndim == 3 and A.shape[0] > 2 and A.shape[0] <= 8:
+                raise TypeError(f"Invalid shape {A.shape} for image data."
+                                 " For multivariate data a multivariate colormap"
+                                 " must be explicitly declared, for example"
+                                 f" cmap='{A.shape[0]}VarAddA'")
             raise TypeError(f"Invalid shape {A.shape} for image data")
         if A.ndim == 3:
             # If the input data has values outside the valid range (after
@@ -685,7 +702,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         """
         if isinstance(A, PIL.Image.Image):
             A = pil_to_array(A)  # Needed e.g. to apply png palette.
-        self._A = self._normalize_image_array(A)
+        self._A = self._normalize_image_array(A, self.norm.n_input)
         self._imcache = None
         self.stale = True
 
@@ -753,6 +770,12 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         """
         s = mpl._val_or_rc(s, 'image.interpolation_stage')
         _api.check_in_list(['data', 'rgba', 'auto'], s=s)
+        if self.norm.n_input > 1:
+            if s == 'data':
+                raise ValueError("'rgba' is the only interpolation stage"
+                                 " available for multivariate data.")
+            else:
+                s = 'rgba'
         self._interpolation_stage = s
         self.stale = True
 
