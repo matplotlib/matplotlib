@@ -258,7 +258,7 @@ class _ImageBase(martist.ColorizingArtist, colorizer.ColorizerShim):
                  interpolation_stage=None,
                  **kwargs
                  ):
-        martist.ColorizingArtist.__init__(self, norm, cmap)
+        martist.ColorizingArtist.__init__(self, colorizer._get_colorizer(cmap, norm))
         if origin is None:
             origin = mpl.rcParams['image.origin']
         _api.check_in_list(["upper", "lower"], origin=origin)
