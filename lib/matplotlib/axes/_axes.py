@@ -6165,6 +6165,21 @@ class Axes(_AxesBase):
         if shading is None:
             shading = mpl.rcParams['pcolor.shading']
         shading = shading.lower()
+
+        mcolorizer.ColorizingArtist._check_exclusionary_keywords(colorizer,
+                                                                 vmin=vmin,
+                                                                 vmax=vmax)
+
+        # we need to get the colorizer object to know the number of
+        # n_variates that should exist in the array, we therefore get the
+        # colorizer here.
+        colorizer = mcolorizer.ColorizingArtist._get_colorizer(norm=norm,
+                                                               cmap=cmap,
+                                                               colorizer=colorizer)
+        if colorizer.norm.n_input > 1:
+            data = mcolorizer._ensure_multivariate_data(colorizer.norm.n_input, args[0])
+            args = (data, *args[1:])
+
         X, Y, C, shading = self._pcolorargs('pcolor', *args, shading=shading,
                                             kwargs=kwargs)
         linewidths = (0.25,)
@@ -6201,9 +6216,8 @@ class Axes(_AxesBase):
         coords = stack([X, Y], axis=-1)
 
         collection = mcoll.PolyQuadMesh(
-            coords, array=C, cmap=cmap, norm=norm, colorizer=colorizer,
+            coords, array=C, colorizer=colorizer,
             alpha=alpha, **kwargs)
-        collection._check_exclusionary_keywords(colorizer, vmin=vmin, vmax=vmax)
         collection._scale_norm(norm, vmin, vmax)
 
         # Transform from native to data coordinates?
@@ -6428,6 +6442,20 @@ class Axes(_AxesBase):
         shading = shading.lower()
         kwargs.setdefault('edgecolors', 'none')
 
+        mcolorizer.ColorizingArtist._check_exclusionary_keywords(colorizer,
+                                                                 vmin=vmin,
+                                                                 vmax=vmax)
+        # we need to get the colorizer object to know the number of
+        # n_variates that should exist in the array, we therefore get the
+        # colorizer here.
+        colorizer_obj = mcolorizer.ColorizingArtist._get_colorizer(norm=norm,
+                                                                   cmap=cmap,
+                                                                   colorizer=colorizer)
+        if colorizer_obj.norm.n_input > 1:
+            data = mcolorizer._ensure_multivariate_data(colorizer_obj.norm.n_input,
+                                                        args[-1])
+            args = (*args[:-1], data)
+
         X, Y, C, shading = self._pcolorargs('pcolormesh', *args,
                                             shading=shading, kwargs=kwargs)
         coords = np.stack([X, Y], axis=-1)
@@ -6436,8 +6464,8 @@ class Axes(_AxesBase):
 
         collection = mcoll.QuadMesh(
             coords, antialiased=antialiased, shading=shading,
-            array=C, cmap=cmap, norm=norm, colorizer=colorizer, alpha=alpha, **kwargs)
-        collection._check_exclusionary_keywords(colorizer, vmin=vmin, vmax=vmax)
+            array=C, colorizer=colorizer_obj,
+            alpha=alpha, **kwargs)
         collection._scale_norm(norm, vmin, vmax)
 
         coords = coords.reshape(-1, 2)  # flatten the grid structure; keep x, y
