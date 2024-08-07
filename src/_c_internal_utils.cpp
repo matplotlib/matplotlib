@@ -7,7 +7,14 @@
 #define WIN32_LEAN_AND_MEAN
 // Windows 10, for latest HiDPI API support.
 #define WINVER 0x0A00
-#define _WIN32_WINNT 0x0A00
+#if defined(_WIN32_WINNT)
+#if _WIN32_WINNT < WINVER
+#undef _WIN32_WINNT
+#define _WIN32_WINNT WINVER
+#endif
+#else
+#define _WIN32_WINNT WINVER
+#endif
 #endif
 #include <pybind11/pybind11.h>
 #ifdef __linux__
