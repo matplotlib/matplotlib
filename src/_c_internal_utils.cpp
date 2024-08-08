@@ -165,7 +165,7 @@ mpl_SetProcessDpiAwareness_max(void)
         DPI_AWARENESS_CONTEXT_SYSTEM_AWARE};         // Win10
     if (IsValidDpiAwarenessContextPtr != NULL
             && SetProcessDpiAwarenessContextPtr != NULL) {
-        for (int i = 0; i < sizeof(ctxs) / sizeof(DPI_AWARENESS_CONTEXT); ++i) {
+        for (size_t i = 0; i < sizeof(ctxs) / sizeof(DPI_AWARENESS_CONTEXT); ++i) {
             if (IsValidDpiAwarenessContextPtr(ctxs[i])) {
                 SetProcessDpiAwarenessContextPtr(ctxs[i]);
                 break;
