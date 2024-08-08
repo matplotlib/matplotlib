@@ -7,7 +7,14 @@
 #define WIN32_LEAN_AND_MEAN
 // Windows 10, for latest HiDPI API support.
 #define WINVER 0x0A00
-#define _WIN32_WINNT 0x0A00
+#if defined(_WIN32_WINNT)
+#if _WIN32_WINNT < WINVER
+#undef _WIN32_WINNT
+#define _WIN32_WINNT WINVER
+#endif
+#else
+#define _WIN32_WINNT WINVER
+#endif
 #endif
 #include <pybind11/pybind11.h>
 #ifdef __linux__
@@ -125,7 +132,7 @@ static void
 mpl_SetForegroundWindow(py::capsule UNUSED_ON_NON_WINDOWS(handle_p))
 {
 #ifdef _WIN32
-    if (handle_p.name() != "HWND") {
+    if (strcmp(handle_p.name(), "HWND") != 0) {
         throw std::runtime_error("Handle must be a value returned from Win32_GetForegroundWindow");
     }
     HWND handle = static_cast<HWND>(handle_p.get_pointer());
@@ -158,7 +165,7 @@ mpl_SetProcessDpiAwareness_max(void)
         DPI_AWARENESS_CONTEXT_SYSTEM_AWARE};         // Win10
     if (IsValidDpiAwarenessContextPtr != NULL
             && SetProcessDpiAwarenessContextPtr != NULL) {
-        for (int i = 0; i < sizeof(ctxs) / sizeof(DPI_AWARENESS_CONTEXT); ++i) {
+        for (size_t i = 0; i < sizeof(ctxs) / sizeof(DPI_AWARENESS_CONTEXT); ++i) {
             if (IsValidDpiAwarenessContextPtr(ctxs[i])) {
                 SetProcessDpiAwarenessContextPtr(ctxs[i]);
                 break;
