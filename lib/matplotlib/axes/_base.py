@@ -1705,7 +1705,8 @@ class _AxesBase(martist.Artist):
         ----------
         adjustable : {'box', 'datalim'}
             If 'box', change the physical dimensions of the Axes.
-            If 'datalim', change the ``x`` or ``y`` data limits.
+            If 'datalim', change the ``x`` or ``y`` data limits. This
+            may ignore explicitly defined axis limits.
 
         share : bool, default: False
             If ``True``, apply the settings to all shared Axes.
@@ -2022,11 +2023,17 @@ class _AxesBase(martist.Artist):
             yc = 0.5 * (ymin + ymax)
             y0 = yc - Ysize / 2.0
             y1 = yc + Ysize / 2.0
+            if not self.get_autoscaley_on():
+                _log.warning("Ignoring fixed y limits to fulfill fixed data aspect "
+                             "with adjustable data limits.")
             self.set_ybound(y_trf.inverted().transform([y0, y1]))
         else:
             xc = 0.5 * (xmin + xmax)
             x0 = xc - Xsize / 2.0
             x1 = xc + Xsize / 2.0
+            if not self.get_autoscalex_on():
+                _log.warning("Ignoring fixed x limits to fulfill fixed data aspect "
+                             "with adjustable data limits.")
             self.set_xbound(x_trf.inverted().transform([x0, x1]))
 
     def axis(self, arg=None, /, *, emit=True, **kwargs):
