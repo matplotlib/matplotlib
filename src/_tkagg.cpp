@@ -19,7 +19,14 @@
 #define WIN32_LEAN_AND_MEAN
 // Windows 8.1
 #define WINVER 0x0603
-#define _WIN32_WINNT 0x0603
+#if defined(_WIN32_WINNT)
+#if _WIN32_WINNT < WINVER
+#undef _WIN32_WINNT
+#define _WIN32_WINNT WINVER
+#endif
+#else
+#define _WIN32_WINNT WINVER
+#endif
 #endif
 
 #include <pybind11/pybind11.h>
