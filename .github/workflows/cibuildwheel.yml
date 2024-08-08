@@ -96,7 +96,7 @@ jobs:
         pip install delvewheel &&
         rm -rf {package}/build
       CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >-
-        delvewheel repair -w {dest_dir} {wheel}
+        delvewheel repair -vv --add-path C:\\Windows\\system32 -w {dest_dir} {wheel}
       CIBW_AFTER_BUILD: >-
         twine check {wheel} &&
         python {package}/ci/check_wheel_licenses.py {wheel}
@@ -110,16 +110,16 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-20.04
-            cibw_archs: "x86_64"
-          - os: ubuntu-20.04
-            cibw_archs: "aarch64"
+          #- os: ubuntu-20.04
+          #  cibw_archs: "x86_64"
+          #- os: ubuntu-20.04
+          #  cibw_archs: "aarch64"
           - os: windows-latest
             cibw_archs: "auto64"
-          - os: macos-12
-            cibw_archs: "x86_64"
-          - os: macos-14
-            cibw_archs: "arm64"
+          #- os: macos-12
+          #  cibw_archs: "x86_64"
+          #- os: macos-14
+          #  cibw_archs: "arm64"
 
     steps:
       - name: Set up QEMU
@@ -135,6 +135,7 @@ jobs:
           path: dist/
 
       - name: Build wheels for CPython 3.13
+        if: false
         uses: pypa/cibuildwheel@7e5a838a63ac8128d71ab2dfd99e4634dd1bca09  # v2.19.2
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
