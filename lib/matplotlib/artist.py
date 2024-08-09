@@ -1420,7 +1420,7 @@ class ColorizingArtist(Artist):
         A : array-like or None
             The values that are mapped to colors.
 
-            The base class `.VectorMappable` does not make any assumptions on
+            The base class `.ColorizingArtist` does not make any assumptions on
             the dimensionality and shape of the value array *A*.
         """
         if A is None:
@@ -1440,7 +1440,7 @@ class ColorizingArtist(Artist):
         """
         Return the array of values, that are mapped to colors.
 
-        The base class `.VectorMappable` does not make any assumptions on
+        The base class `.ColorizingArtist` does not make any assumptions on
         the dimensionality and shape of the array.
         """
         return self._A
