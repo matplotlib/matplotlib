@@ -102,7 +102,11 @@ class LinearScale(ScaleBase):
 
     def set_default_locators_and_formatters(self, axis):
         # docstring inherited
-        axis.set_major_locator(AutoLocator())
+        if (axis.axis_name == 'x' and (mpl.rcParams['xtick.top'] or mpl.rcParams['xtick.bottom']) or
+                axis.axis_name == 'y' and (mpl.rcParams['ytick.left'] or mpl.rcParams['ytick.right'])):
+            axis.set_major_locator(AutoLocator())
+        else:
+            axis.set_major_locator(NullLocator())
         axis.set_major_formatter(ScalarFormatter())
         axis.set_minor_formatter(NullFormatter())
         # update the minor locator for x and y axis based on rcParams
