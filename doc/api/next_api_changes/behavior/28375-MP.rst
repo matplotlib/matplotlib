@@ -1,0 +1,5 @@
+``transforms.AffineDeltaTransform`` updates correctly on axis limit changes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Before this change, transform sub-graphs with ``AffineDeltaTransform`` did not update correctly.
+This PR ensures that changes to the child transform are passed through correctly.
