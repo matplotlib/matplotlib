@@ -9,6 +9,8 @@
 #include <cmath>
 #include <algorithm>
 
+#include <pybind11/pybind11.h>
+
 #include "agg_alpha_mask_u8.h"
 #include "agg_conv_curve.h"
 #include "agg_conv_dash.h"
@@ -1226,6 +1228,19 @@ inline void RendererAgg::draw_gouraud_triangles(GCAgg &gc,
                                                 ColorArray &colors,
                                                 agg::trans_affine &trans)
 {
+    if (points.shape(0) && !check_trailing_shape(points, "points", 3, 2)) {
+        throw pybind11::error_already_set();
+    }
+    if (colors.shape(0) && !check_trailing_shape(colors, "colors", 3, 4)) {
+        throw pybind11::error_already_set();
+    }
+    if (points.shape(0) != colors.shape(0)) {
+        throw pybind11::value_error(
+            "points and colors arrays must be the same length, got " +
+            std::to_string(points.shape(0)) + " points and " +
+            std::to_string(colors.shape(0)) + "colors");
+    }
+
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
     set_clipbox(gc.cliprect, theRasterizer);
