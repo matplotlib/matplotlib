@@ -1006,6 +1006,7 @@ class TestLogFormatterMathtext:
         (3, 1e2, '$\\mathdefault{100}$'),
         (3, 1e-3, '$\\mathdefault{10^{-3}}$'),
         (3, 1e3, '$\\mathdefault{10^{3}}$'),
+        (2, np.inf, ''),
     ]
 
     @pytest.mark.parametrize('min_exponent, value, expected', test_data)
@@ -1836,6 +1837,13 @@ def test_small_range_loglocator(numticks):
     for top in [5, 7, 9, 11, 15, 50, 100, 1000]:
         ticks = ll.tick_values(.5, top)
         assert (np.diff(np.log10(ll.tick_values(6, 150))) == 1).all()
+
+
+def test_yticks_with_inf():
+    fig, ax = plt.subplots()
+    ax.loglog(np.logspace(0, 10, 10), np.logspace(0, 10, 10)**2)
+    ax.set_yticks([1, 10, np.inf])
+    fig.draw_without_rendering()
 
 
 def test_NullFormatter():
