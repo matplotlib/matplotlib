@@ -403,8 +403,9 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
         self.canvas.send_event("rubberband", x0=-1, y0=-1, x1=-1, y1=-1)
 
     def save_figure(self, *args):
-        """Save the current figure"""
+        """Save the current figure."""
         self.canvas.send_event('save')
+        return self.UNKNOWN_SAVED_STATUS
 
     def pan(self):
         super().pan()
