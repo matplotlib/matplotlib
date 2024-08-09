@@ -1,4 +1,5 @@
 import matplotlib.artist as martist
+from matplotlib.axes._base import coords_type
 from matplotlib.backend_bases import RendererBase, Event, FigureCanvasBase
 from matplotlib.colors import Colormap, Normalize
 import matplotlib.text as mtext
@@ -219,9 +220,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
     offsetbox: OffsetBox
     arrowprops: dict[str, Any] | None
     xybox: tuple[float, float]
-    boxcoords: str | tuple[str, str] | martist.Artist | Transform | Callable[
-        [RendererBase], Bbox | Transform
-    ]
+    boxcoords: coords_type
     arrow_patch: FancyArrowPatch | None
     patch: FancyBboxPatch
     prop: FontProperties
@@ -230,17 +229,8 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         offsetbox: OffsetBox,
         xy: tuple[float, float],
         xybox: tuple[float, float] | None = ...,
-        xycoords: str
-        | tuple[str, str]
-        | martist.Artist
-        | Transform
-        | Callable[[RendererBase], Bbox | Transform] = ...,
-        boxcoords: str
-        | tuple[str, str]
-        | martist.Artist
-        | Transform
-        | Callable[[RendererBase], Bbox | Transform]
-        | None = ...,
+        xycoords: coords_type = ...,
+        boxcoords: coords_type | None = ...,
         *,
         frameon: bool = ...,
         pad: float = ...,
@@ -258,17 +248,11 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
     @property
     def anncoords(
         self,
-    ) -> str | tuple[str, str] | martist.Artist | Transform | Callable[
-        [RendererBase], Bbox | Transform
-    ]: ...
+    ) -> coords_type: ...
     @anncoords.setter
     def anncoords(
         self,
-        coords: str
-        | tuple[str, str]
-        | martist.Artist
-        | Transform
-        | Callable[[RendererBase], Bbox | Transform],
+        coords: coords_type,
     ) -> None: ...
     def get_children(self) -> list[martist.Artist]: ...
     def set_figure(self, fig: Figure | SubFigure) -> None: ...

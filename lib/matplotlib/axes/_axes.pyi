@@ -1,4 +1,4 @@
-from matplotlib.axes._base import _AxesBase
+from matplotlib.axes._base import _AxesBase, coords_type
 from matplotlib.axes._secondary_axes import SecondaryAxis
 
 from matplotlib.artist import Artist
@@ -22,7 +22,7 @@ from matplotlib.mlab import GaussianKDE
 from matplotlib.patches import Rectangle, FancyArrow, Polygon, StepPatch, Wedge
 from matplotlib.quiver import Quiver, QuiverKey, Barbs
 from matplotlib.text import Annotation, Text
-from matplotlib.transforms import Transform, Bbox
+from matplotlib.transforms import Transform
 import matplotlib.tri as mtri
 import matplotlib.table as mtable
 import matplotlib.stackplot as mstack
@@ -122,17 +122,8 @@ class Axes(_AxesBase):
         text: str,
         xy: tuple[float, float],
         xytext: tuple[float, float] | None = ...,
-        xycoords: str
-        | Artist
-        | Transform
-        | Callable[[RendererBase], Bbox | Transform]
-        | tuple[float, float] = ...,
-        textcoords: str
-        | Artist
-        | Transform
-        | Callable[[RendererBase], Bbox | Transform]
-        | tuple[float, float]
-        | None = ...,
+        xycoords: coords_type = ...,
+        textcoords: coords_type | None = ...,
         arrowprops: dict[str, Any] | None = ...,
         annotation_clip: bool | None = ...,
         **kwargs
