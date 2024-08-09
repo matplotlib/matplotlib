@@ -173,6 +173,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._edge_is_mapped = None
         self._mapped_colors = None  # calculated in update_scalarmappable
         self._hatch_color = mcolors.to_rgba(mpl.rcParams['hatch.color'])
+        self._hatch_linewidth = mpl.rcParams['hatch.linewidth']
         self.set_facecolor(facecolors)
         self.set_edgecolor(edgecolors)
         self.set_linewidth(linewidths)
@@ -363,6 +364,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if self._hatch:
             gc.set_hatch(self._hatch)
             gc.set_hatch_color(self._hatch_color)
+            gc.set_hatch_linewidth(self._hatch_linewidth)
 
         if self.get_sketch_params() is not None:
             gc.set_sketch_params(*self.get_sketch_params())
@@ -540,6 +542,14 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def get_hatch(self):
         """Return the current hatching pattern."""
         return self._hatch
+
+    def set_hatch_linewidth(self, lw):
+        """Set the hatch linewidth"""
+        self._hatch_linewidth = lw
+
+    def get_hatch_linewidth(self):
+        """Return the hatch linewidth"""
+        return self._hatch_linewidth
 
     def set_offsets(self, offsets):
         """
