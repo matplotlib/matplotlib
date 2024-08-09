@@ -341,9 +341,9 @@ class ThetaTick(maxis.XTick):
 
     def __init__(self, axes, *args, **kwargs):
         self._text1_translate = mtransforms.ScaledTranslation(
-            0, 0, axes.figure.dpi_scale_trans)
+            0, 0, axes.get_figure(root=False).dpi_scale_trans)
         self._text2_translate = mtransforms.ScaledTranslation(
-            0, 0, axes.figure.dpi_scale_trans)
+            0, 0, axes.get_figure(root=False).dpi_scale_trans)
         super().__init__(axes, *args, **kwargs)
         self.label1.set(
             rotation_mode='anchor',
@@ -530,7 +530,7 @@ class _ThetaShift(mtransforms.ScaledTranslation):
         of the axes, or using the rlabel position (``'rlabel'``).
     """
     def __init__(self, axes, pad, mode):
-        super().__init__(pad, pad, axes.figure.dpi_scale_trans)
+        super().__init__(pad, pad, axes.get_figure(root=False).dpi_scale_trans)
         self.set_children(axes._realViewLim)
         self.axes = axes
         self.mode = mode

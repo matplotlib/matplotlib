@@ -391,8 +391,8 @@ class GridSpec(GridSpecBase):
                 if ax.get_subplotspec() is not None:
                     ss = ax.get_subplotspec().get_topmost_subplotspec()
                     if ss.get_gridspec() == self:
-                        ax._set_position(
-                            ax.get_subplotspec().get_position(ax.figure))
+                        fig = ax.get_figure(root=False)
+                        ax._set_position(ax.get_subplotspec().get_position(fig))
 
     def get_subplot_params(self, figure=None):
         """

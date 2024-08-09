@@ -406,8 +406,9 @@ class Axes(_AxesBase):
         # This puts the rectangle into figure-relative coordinates.
         inset_locator = _TransformedBoundsLocator(bounds, transform)
         bounds = inset_locator(self, None).bounds
-        projection_class, pkw = self.figure._process_projection_requirements(**kwargs)
-        inset_ax = projection_class(self.figure, bounds, zorder=zorder, **pkw)
+        fig = self.get_figure(root=False)
+        projection_class, pkw = fig._process_projection_requirements(**kwargs)
+        inset_ax = projection_class(fig, bounds, zorder=zorder, **pkw)
 
         # this locator lets the axes move if in data coordinates.
         # it gets called in `ax.apply_aspect() (of all places)
@@ -515,7 +516,7 @@ class Axes(_AxesBase):
 
             # decide which two of the lines to keep visible....
             pos = inset_ax.get_position()
-            bboxins = pos.transformed(self.figure.transSubfigure)
+            bboxins = pos.transformed(self.get_figure(root=False).transSubfigure)
             rectbbox = mtransforms.Bbox.from_bounds(
                 *bounds
             ).transformed(transform)

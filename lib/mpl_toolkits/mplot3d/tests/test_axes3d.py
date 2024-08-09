@@ -667,8 +667,6 @@ def test_surface3d_label_offset_tick_position():
     ax.set_ylabel("Y label")
     ax.set_zlabel("Z label")
 
-    ax.figure.canvas.draw()
-
 
 @mpl3d_image_comparison(['surface3d_shaded.png'], style='mpl20')
 def test_surface3d_shaded():
@@ -1959,7 +1957,7 @@ def test_rotate():
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1, projection='3d')
         ax.view_init(0, 0, roll)
-        ax.figure.canvas.draw()
+        fig.canvas.draw()
 
         # drag mouse to change orientation
         ax._button_press(
@@ -1967,7 +1965,7 @@ def test_rotate():
         ax._on_move(
             mock_event(ax, button=MouseButton.LEFT,
                            xdata=dx*ax._pseudo_w, ydata=dy*ax._pseudo_h))
-        ax.figure.canvas.draw()
+        fig.canvas.draw()
 
         assert np.isclose(ax.elev, new_elev)
         assert np.isclose(ax.azim, new_azim)
@@ -1983,9 +1981,10 @@ def test_pan():
         range_ = dmax - dmin
         return center, range_
 
-    ax = plt.figure().add_subplot(projection='3d')
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
     ax.scatter(0, 0, 0)
-    ax.figure.canvas.draw()
+    fig.canvas.draw()
 
     x_center0, x_range0 = convert_lim(*ax.get_xlim3d())
     y_center0, y_range0 = convert_lim(*ax.get_ylim3d())
@@ -2440,7 +2439,7 @@ def test_view_init_vertical_axis(
     rtol = 2e-06
     ax = plt.subplot(1, 1, 1, projection="3d")
     ax.view_init(elev=0, azim=0, roll=0, vertical_axis=vertical_axis)
-    ax.figure.canvas.draw()
+    ax.get_figure().canvas.draw()
 
     # Assert the projection matrix:
     proj_actual = ax.get_proj()
@@ -2466,7 +2465,7 @@ def test_on_move_vertical_axis(vertical_axis: str) -> None:
     """
     ax = plt.subplot(1, 1, 1, projection="3d")
     ax.view_init(elev=0, azim=0, roll=0, vertical_axis=vertical_axis)
-    ax.figure.canvas.draw()
+    ax.get_figure().canvas.draw()
 
     proj_before = ax.get_proj()
     event_click = mock_event(ax, button=MouseButton.LEFT, xdata=0, ydata=1)
@@ -2495,7 +2494,7 @@ def test_on_move_vertical_axis(vertical_axis: str) -> None:
 def test_set_box_aspect_vertical_axis(vertical_axis, aspect_expected):
     ax = plt.subplot(1, 1, 1, projection="3d")
     ax.view_init(elev=0, azim=0, roll=0, vertical_axis=vertical_axis)
-    ax.figure.canvas.draw()
+    ax.get_figure().canvas.draw()
 
     ax.set_box_aspect(None)
 

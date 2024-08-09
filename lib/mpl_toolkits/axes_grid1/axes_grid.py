@@ -17,7 +17,7 @@ class CbarAxesBase:
         super().__init__(*args, **kwargs)
 
     def colorbar(self, mappable, **kwargs):
-        return self.figure.colorbar(
+        return self.get_figure(root=False).colorbar(
             mappable, cax=self, location=self.orientation, **kwargs)
 
     @_api.deprecated("3.8", alternative="ax.tick_params and colorbar.set_label")
@@ -415,7 +415,7 @@ class ImageGrid(Grid):
                 self._colorbar_pad = self._vert_pad_size.fixed_size
         self.cbar_axes = [
             _cbaraxes_class_factory(self._defaultAxesClass)(
-                self.axes_all[0].figure, self._divider.get_position(),
+                self.axes_all[0].get_figure(root=False), self._divider.get_position(),
                 orientation=self._colorbar_location)
             for _ in range(self.ngrids)]
 

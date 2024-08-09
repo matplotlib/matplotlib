@@ -13,7 +13,8 @@ class ParasiteAxesBase:
         self.transAux = aux_transform
         self.set_viewlim_mode(viewlim_mode)
         kwargs["frameon"] = False
-        super().__init__(parent_axes.figure, parent_axes._position, **kwargs)
+        super().__init__(parent_axes.get_figure(root=False),
+                         parent_axes._position, **kwargs)
 
     def clear(self):
         super().clear()
