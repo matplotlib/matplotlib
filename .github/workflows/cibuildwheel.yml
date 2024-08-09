@@ -96,7 +96,7 @@ jobs:
         pip install delvewheel &&
         rm -rf {package}/build
       CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >-
-        delvewheel repair -w {dest_dir} {wheel}
+        delvewheel repair -vv --add-path C:\\Windows\\system32 -w {dest_dir} {wheel}
       CIBW_AFTER_BUILD: >-
         twine check {wheel} &&
         python {package}/ci/check_wheel_licenses.py {wheel}
