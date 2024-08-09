@@ -239,6 +239,10 @@ class QuiverKey(martist.Artist):
     valign = {'N': 'bottom', 'S': 'top', 'E': 'center', 'W': 'center'}
     pivot = {'N': 'middle', 'S': 'middle', 'E': 'tip', 'W': 'tail'}
 
+    text = _api.deprecate_privatize_attribute('3.9', alternative='QuiverKey methods')
+    vector = _api.deprecate_privatize_attribute('3.9')
+    verts = _api.deprecate_privatize_attribute('3.9')
+
     def __init__(self, Q, X, Y, U, label,
                  *, angle=0, coordinates='axes', color=None, labelsep=0.1,
                  labelpos='N', labelcolor=None, fontproperties=None, **kwargs):
@@ -291,31 +295,136 @@ class QuiverKey(martist.Artist):
         """
         super().__init__()
         self.Q = Q
-        self.X = X
-        self.Y = Y
         self.U = U
         self.angle = angle
         self.coord = coordinates
         self.color = color
-        self.label = label
         self._labelsep_inches = labelsep
 
-        self.labelpos = labelpos
-        self.labelcolor = labelcolor
+        _api.check_in_list(['N', 'S', 'E', 'W'], labelpos=labelpos)
+        self._labelpos = labelpos
         self.fontproperties = fontproperties or dict()
         self.kw = kwargs
-        self.text = mtext.Text(
-            text=label,
-            horizontalalignment=self.halign[self.labelpos],
-            verticalalignment=self.valign[self.labelpos],
-            fontproperties=self.fontproperties)
-        if self.labelcolor is not None:
-            self.text.set_color(self.labelcolor)
+        self._text = mtext.Text(
+            x=X, y=Y, text=label,
+            horizontalalignment=self.halign[self._labelpos],
+            verticalalignment=self.valign[self._labelpos],
+            fontproperties=self.fontproperties,
+            color=labelcolor)
         self._dpi_at_last_init = None
         self.zorder = Q.zorder + 0.1
 
+    def get_x(self):
+        """Return the *x* position of the QuiverKey."""
+        return self._text.get_position()[0]
+
+    def set_x(self, x):
+        """
+        Set the *x* position of the QuiverKey.
+
+        Parameters
+        ----------
+        x : float
+            The *x* location of the key.
+        """
+        self._text.set_x(x)
+        self.stale = True
+
+    X = property(get_x, set_x)
+
+    def get_y(self):
+        """Return the *y* position of the QuiverKey."""
+        return self._text.get_position()[1]
+
+    def set_y(self, y):
+        """
+        Set the *y* position of the QuiverKey.
+
+        Parameters
+        ----------
+        y : float
+            The *y* location of the key.
+        """
+        self._text.set_y(y)
+        self.stale = True
+
+    Y = property(get_y, set_y)
+
+    def get_position(self):
+        """Return the (x, y) position of the QuiverKey."""
+        return self._text.get_position()
+
+    def set_position(self, xy):
+        """
+        Set the position of the QuiverKey.
+
+        Parameters
+        ----------
+        xy : (float, float)
+            The (*x*, *y*) position of the QuiverKey.
+        """
+        self._text.set_position(xy)
+        self.stale = True
+
+    def get_label_text(self):
+        """Return the label string."""
+        return self._text.get_text()
+
+    def set_label_text(self, text):
+        """Set the label string."""
+        self._text.set_text(text)
+        self.stale = True
+
+    label = property(get_label_text, set_label_text, doc="The label string.")
+
+    def get_label_color(self):
+        """Return the label color."""
+        return self._text.get_color()
+
+    def set_label_color(self, labelcolor):
+        """Set the label color."""
+        self._text.set_color(labelcolor)
+        self.stale = True
+
+    labelcolor = property(get_label_color, set_label_color, doc="The label color.")
+
+    def get_label_pos(self):
+        """Return the label position."""
+        return self._labelpos
+
+    def set_label_pos(self, labelpos):
+        """
+        Set the label position.
+
+        Parameters
+        ----------
+        labelpos : {'N', 'S', 'E', 'W'}
+            Position the label above, below, to the right, to the left of the
+            arrow, respectively.
+        """
+        _api.check_in_list(['N', 'S', 'E', 'W'], labelpos=labelpos)
+        self._labelpos = labelpos
+        self._text.set_horizontalalignment(self.halign[labelpos])
+        self._text.set_verticalalignment(self.valign[labelpos])
+        self._update_text_transform()
+        self._initialized = False
+        self.stale = True
+
+    labelpos = property(get_label_pos, set_label_pos, doc="The label position.")
+
+    def get_labelsep(self):
+        """Return the distance between the arrow and label in inches."""
+        return self._labelsep_inches
+
+    def set_labelsep(self, labelsep):
+        """Set the distance between the arrow and label in inches."""
+        self._labelsep_inches = labelsep
+        self._update_text_transform()
+        self.stale = True
+
     @property
     def labelsep(self):
+        """Return the distance between the arrow and label in pixels."""
         return self._labelsep_inches * self.Q.axes.figure.dpi
 
     def _init(self):
@@ -323,41 +432,42 @@ class QuiverKey(martist.Artist):
             if self.Q._dpi_at_last_init != self.Q.axes.figure.dpi:
                 self.Q._init()
             self._set_transform()
-            with cbook._setattr_cm(self.Q, pivot=self.pivot[self.labelpos],
+            with cbook._setattr_cm(self.Q, pivot=self.pivot[self._labelpos],
                                    # Hack: save and restore the Umask
                                    Umask=ma.nomask):
                 u = self.U * np.cos(np.radians(self.angle))
                 v = self.U * np.sin(np.radians(self.angle))
-                self.verts = self.Q._make_verts([[0., 0.]],
-                                                np.array([u]), np.array([v]), 'uv')
+                self._verts = self.Q._make_verts(
+                    [[0., 0.]], np.array([u]), np.array([v]), 'uv')
             kwargs = self.Q.polykw
             kwargs.update(self.kw)
-            self.vector = mcollections.PolyCollection(
-                self.verts,
+            self._vector = mcollections.PolyCollection(
+                self._verts,
                 offsets=[(self.X, self.Y)],
                 offset_transform=self.get_transform(),
                 **kwargs)
             if self.color is not None:
-                self.vector.set_color(self.color)
-            self.vector.set_transform(self.Q.get_transform())
-            self.vector.set_figure(self.get_figure())
+                self._vector.set_color(self.color)
+            self._vector.set_transform(self.Q.get_transform())
+            self._vector.set_figure(self.get_figure())
             self._dpi_at_last_init = self.Q.axes.figure.dpi
 
-    def _text_shift(self):
-        return {
-            "N": (0, +self.labelsep),
-            "S": (0, -self.labelsep),
-            "E": (+self.labelsep, 0),
-            "W": (-self.labelsep, 0),
-        }[self.labelpos]
+    def _update_text_transform(self):
+        x, y = {
+            "N": (0, +self._labelsep_inches),
+            "S": (0, -self._labelsep_inches),
+            "E": (+self._labelsep_inches, 0),
+            "W": (-self._labelsep_inches, 0),
+        }[self._labelpos]
+        self._text.set_transform(
+            transforms.offset_copy(self.get_transform(), self.figure, x=x, y=y))
 
     @martist.allow_rasterization
     def draw(self, renderer):
         self._init()
-        self.vector.draw(renderer)
-        pos = self.get_transform().transform((self.X, self.Y))
-        self.text.set_position(pos + self._text_shift())
-        self.text.draw(renderer)
+        self._vector.draw(renderer)
+        self._update_text_transform()
+        self._text.draw(renderer)
         self.stale = False
 
     def _set_transform(self):
@@ -370,15 +480,14 @@ class QuiverKey(martist.Artist):
 
     def set_figure(self, fig):
         super().set_figure(fig)
-        self.text.set_figure(fig)
+        self._text.set_figure(fig)
 
     def contains(self, mouseevent):
         if self._different_canvas(mouseevent):
             return False, {}
         # Maybe the dictionary should allow one to
         # distinguish between a text hit and a vector hit.
-        if (self.text.contains(mouseevent)[0] or
-                self.vector.contains(mouseevent)[0]):
+        if self._text.contains(mouseevent)[0] or self._vector.contains(mouseevent)[0]:
             return True, {}
         return False, {}
 
