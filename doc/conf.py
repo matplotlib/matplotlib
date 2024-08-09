@@ -263,7 +263,8 @@ sphinx_gallery_conf = {
     'matplotlib_animations': True,
     'min_reported_time': 1,
     'plot_gallery': 'True',  # sphinx-gallery/913
-    'reference_url': {'matplotlib': None},
+    'reference_url': {'matplotlib': None, 'mpl_toolkits': None},
+    'prefer_full_module': {r'mpl_toolkits\.'},
     'remove_config_comments': True,
     'reset_modules': ('matplotlib', clear_basic_units),
     'subsection_order': gallery_order_sectionorder,
