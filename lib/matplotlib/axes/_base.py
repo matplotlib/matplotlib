@@ -1234,6 +1234,13 @@ class _AxesBase(martist.Artist):
         x0, x1 = other.get_xlim()
         self.set_xlim(x0, x1, emit=False, auto=other.get_autoscalex_on())
         self.xaxis._scale = other.xaxis._scale
+        # Ensure bidirectional sharing
+        other._shared_axes["x"].join(other, self)
+        other._sharex = self
+
+        # Handle inversion if axes are inverted
+        if other.xaxis_inverted():
+            self.invert_xaxis()
 
     def sharey(self, other):
         """
@@ -1253,6 +1260,13 @@ class _AxesBase(martist.Artist):
         y0, y1 = other.get_ylim()
         self.set_ylim(y0, y1, emit=False, auto=other.get_autoscaley_on())
         self.yaxis._scale = other.yaxis._scale
+        # Ensure bidirectional sharing
+        other._shared_axes["y"].join(other, self)
+        other._sharey = self
+
+        # Handle inversion if axes are inverted
+        if other.yaxis_inverted():
+            self.invert_yaxis()
 
     def __clear(self):
         """Clear the Axes."""
@@ -1380,6 +1394,12 @@ class _AxesBase(martist.Artist):
         self._update_transScale()
 
         self.stale = True
+        # handle shared axis inversion after clear
+        if self._sharex and self._sharex.xaxis_inverted():
+            self.invert_xaxis()
+
+        if self._sharey and self._sharey.yaxis_inverted():
+            self.invert_yaxis()
 
     def clear(self):
         """Clear the Axes."""
