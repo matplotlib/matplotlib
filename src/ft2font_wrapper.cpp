@@ -1,11 +1,13 @@
 #include "mplutils.h"
 #include "ft2font.h"
+#include "numpy_cpp.h"
 #include "py_converters.h"
 #include "py_exceptions.h"
 
 // From Python
 #include <structmember.h>
 
+#include <sstream>
 #include <set>
 
 static PyObject *convert_xys_to_array(std::vector<double> &xys)
@@ -146,7 +148,7 @@ static PyTypeObject* PyFT2Image_init_type()
     PyFT2ImageType.tp_name = "matplotlib.ft2font.FT2Image";
     PyFT2ImageType.tp_basicsize = sizeof(PyFT2Image);
     PyFT2ImageType.tp_dealloc = (destructor)PyFT2Image_dealloc;
-    PyFT2ImageType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
+    PyFT2ImageType.tp_flags = Py_TPFLAGS_DEFAULT;
     PyFT2ImageType.tp_methods = methods;
     PyFT2ImageType.tp_new = PyFT2Image_new;
     PyFT2ImageType.tp_init = (initproc)PyFT2Image_init;
@@ -236,7 +238,7 @@ static PyTypeObject *PyGlyph_init_type()
     PyGlyphType.tp_name = "matplotlib.ft2font.Glyph";
     PyGlyphType.tp_basicsize = sizeof(PyGlyph);
     PyGlyphType.tp_dealloc = (destructor)PyGlyph_dealloc;
-    PyGlyphType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
+    PyGlyphType.tp_flags = Py_TPFLAGS_DEFAULT;
     PyGlyphType.tp_members = members;
     PyGlyphType.tp_getset = getset;
 
@@ -306,6 +308,31 @@ exit:
         PyErr_WriteUnraisable((PyObject*)self);
     }
     PyErr_Restore(type, value, traceback);
+}
+
+static void
+ft_glyph_warn(FT_ULong charcode, std::set<FT_String*> family_names)
+{
+    PyObject *text_helpers = NULL, *tmp = NULL;
+    std::set<FT_String*>::iterator it = family_names.begin();
+    std::stringstream ss;
+    ss<<*it;
+    while(++it != family_names.end()){
+        ss<<", "<<*it;
+    }
+
+    if (!(text_helpers = PyImport_ImportModule("matplotlib._text_helpers")) ||
+        !(tmp = PyObject_CallMethod(text_helpers,
+                "warn_on_missing_glyph", "(k, s)",
+                charcode, ss.str().c_str()))) {
+        goto exit;
+    }
+exit:
+    Py_XDECREF(text_helpers);
+    Py_XDECREF(tmp);
+    if (PyErr_Occurred()) {
+        throw mpl::exception();
+    }
 }
 
 static PyObject *PyFT2Font_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
@@ -455,7 +482,8 @@ static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
     Py_CLEAR(data);
 
     CALL_CPP_FULL(
-        "FT2Font", (self->x = new FT2Font(open_args, hinting_factor, fallback_fonts)),
+        "FT2Font",
+        (self->x = new FT2Font(open_args, hinting_factor, fallback_fonts, ft_glyph_warn)),
         Py_CLEAR(self->py_file), -1);
 
     CALL_CPP_INIT("FT2Font->set_kerning_factor", (self->x->set_kerning_factor(kerning_factor)));
@@ -555,13 +583,13 @@ static PyObject *PyFT2Font_get_kerning(PyFT2Font *self, PyObject *args)
 {
     FT_UInt left, right, mode;
     int result;
-    int fallback = 1;
+    bool fallback = true;
 
     if (!PyArg_ParseTuple(args, "III:get_kerning", &left, &right, &mode)) {
         return NULL;
     }
 
-    CALL_CPP("get_kerning", (result = self->x->get_kerning(left, right, mode, (bool)fallback)));
+    CALL_CPP("get_kerning", (result = self->x->get_kerning(left, right, mode, fallback)));
 
     return PyLong_FromLong(result);
 }
@@ -704,7 +732,7 @@ const char *PyFT2Font_load_char__doc__ =
 static PyObject *PyFT2Font_load_char(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
     long charcode;
-    int fallback = 1;
+    bool fallback = true;
     FT_Int32 flags = FT_LOAD_FORCE_AUTOHINT;
     const char *names[] = { "charcode", "flags", NULL };
 
@@ -717,7 +745,7 @@ static PyObject *PyFT2Font_load_char(PyFT2Font *self, PyObject *args, PyObject *
     }
 
     FT2Font *ft_object = NULL;
-    CALL_CPP("load_char", (self->x->load_char(charcode, flags, ft_object, (bool)fallback)));
+    CALL_CPP("load_char", (self->x->load_char(charcode, flags, ft_object, fallback)));
 
     return PyGlyph_from_FT2Font(ft_object);
 }
@@ -743,7 +771,7 @@ static PyObject *PyFT2Font_load_glyph(PyFT2Font *self, PyObject *args, PyObject 
 {
     FT_UInt glyph_index;
     FT_Int32 flags = FT_LOAD_FORCE_AUTOHINT;
-    int fallback = 1;
+    bool fallback = true;
     const char *names[] = { "glyph_index", "flags", NULL };
 
     /* This makes a technically incorrect assumption that FT_Int32 is
@@ -755,7 +783,7 @@ static PyObject *PyFT2Font_load_glyph(PyFT2Font *self, PyObject *args, PyObject 
     }
 
     FT2Font *ft_object = NULL;
-    CALL_CPP("load_glyph", (self->x->load_glyph(glyph_index, flags, ft_object, (bool)fallback)));
+    CALL_CPP("load_glyph", (self->x->load_glyph(glyph_index, flags, ft_object, fallback)));
 
     return PyGlyph_from_FT2Font(ft_object);
 }
@@ -912,14 +940,16 @@ const char *PyFT2Font_get_glyph_name__doc__ =
 static PyObject *PyFT2Font_get_glyph_name(PyFT2Font *self, PyObject *args)
 {
     unsigned int glyph_number;
-    char buffer[128];
+    std::string buffer;
     int fallback = 1;
 
     if (!PyArg_ParseTuple(args, "I:get_glyph_name", &glyph_number)) {
         return NULL;
     }
-    CALL_CPP("get_glyph_name", (self->x->get_glyph_name(glyph_number, buffer, (bool)fallback)));
-    return PyUnicode_FromString(buffer);
+    buffer.resize(128);
+    CALL_CPP("get_glyph_name",
+             (self->x->get_glyph_name(glyph_number, buffer, fallback)));
+    return PyUnicode_FromString(buffer.c_str());
 }
 
 const char *PyFT2Font_get_charmap__doc__ =
@@ -962,13 +992,13 @@ static PyObject *PyFT2Font_get_char_index(PyFT2Font *self, PyObject *args)
 {
     FT_UInt index;
     FT_ULong ccode;
-    int fallback = 1;
+    bool fallback = true;
 
     if (!PyArg_ParseTuple(args, "k:get_char_index", &ccode)) {
         return NULL;
     }
 
-    CALL_CPP("get_char_index", index = self->x->get_char_index(ccode, (bool)fallback));
+    CALL_CPP("get_char_index", index = self->x->get_char_index(ccode, fallback));
 
     return PyLong_FromLong(index);
 }
@@ -1270,7 +1300,20 @@ const char *PyFT2Font_get_path__doc__ =
 
 static PyObject *PyFT2Font_get_path(PyFT2Font *self, PyObject *args)
 {
-    CALL_CPP("get_path", return self->x->get_path());
+    std::vector<double> vertices;
+    std::vector<unsigned char> codes;
+
+    CALL_CPP("get_path", self->x->get_path(vertices, codes));
+
+    npy_intp length = codes.size();
+    npy_intp vertices_dims[2] = { length, 2 };
+    numpy::array_view<double, 2> vertices_arr(vertices_dims);
+    memcpy(vertices_arr.data(), vertices.data(), sizeof(double) * vertices.size());
+    npy_intp codes_dims[1] = { length };
+    numpy::array_view<unsigned char, 1> codes_arr(codes_dims);
+    memcpy(codes_arr.data(), codes.data(), codes.size());
+
+    return Py_BuildValue("NN", vertices_arr.pyobj(), codes_arr.pyobj());
 }
 
 const char *PyFT2Font_get_image__doc__ =
@@ -1495,7 +1538,7 @@ static PyTypeObject *PyFT2Font_init_type()
     PyFT2FontType.tp_doc = PyFT2Font_init__doc__;
     PyFT2FontType.tp_basicsize = sizeof(PyFT2Font);
     PyFT2FontType.tp_dealloc = (destructor)PyFT2Font_dealloc;
-    PyFT2FontType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
+    PyFT2FontType.tp_flags = Py_TPFLAGS_DEFAULT;
     PyFT2FontType.tp_methods = methods;
     PyFT2FontType.tp_getset = getset;
     PyFT2FontType.tp_new = PyFT2Font_new;
