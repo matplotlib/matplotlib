@@ -167,6 +167,17 @@ class Stars(Shapes):
         self.shape_codes[0] = Path.MOVETO
         super().__init__(hatch, density)
 
+
+class Dashes(Shapes):
+    size = 0.35
+
+    def __init__(self, hatch, density):
+        self.num_rows = (hatch.count('_')) * density
+        path = Path([[0, 0], [1, 0]], [Path.MOVETO, Path.LINETO])
+        self.shape_vertices = path.vertices
+        self.shape_codes = path.codes
+        super().__init__(hatch, density)
+
 _hatch_types = [
     HorizontalHatch,
     VerticalHatch,
@@ -175,12 +186,13 @@ _hatch_types = [
     SmallCircles,
     LargeCircles,
     SmallFilledCircles,
-    Stars
+    Stars,
+    Dashes
     ]
 
 
 def _validate_hatch_pattern(hatch):
-    valid_hatch_patterns = set(r'-+|/\xXoO.*')
+    valid_hatch_patterns = set(r'_-+|/\xXoO.*')
     if hatch is not None:
         invalids = set(hatch).difference(valid_hatch_patterns)
         if invalids:
