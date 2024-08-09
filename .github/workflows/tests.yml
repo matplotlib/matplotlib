@@ -85,12 +85,22 @@ jobs:
             pyqt6-ver: '!=6.6.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
+          - os: ubuntu-22.04
+            python-version: '3.13'
+            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
+            pyqt6-ver: '!=6.6.0'
+            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
+            pyside6-ver: '!=6.5.1'
           - os: macos-12  # This runner is on Intel chips.
             python-version: '3.10'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
           - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.12'
+            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
+            pyside6-ver: '!=6.5.1'
+          - os: macos-14  # This runner is on M1 (arm64) chips.
+            python-version: '3.13'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
 
@@ -103,6 +113,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
 
       - name: Install OS dependencies
         run: |
@@ -249,11 +260,11 @@ jobs:
             python -c 'import PyQt5.QtCore' &&
             echo 'PyQt5 is available' ||
             echo 'PyQt5 is not available'
-          # Even though PySide2 wheels can be installed on Python 3.12, they are broken and since PySide2 is
+          # Even though PySide2 wheels can be installed on Python 3.12+, they are broken and since PySide2 is
           # deprecated, they are unlikely to be fixed. For the same deprecation reason, there are no wheels
           # on M1 macOS, so don't bother there either.
           if [[ "${{ matrix.os }}" != 'macos-14'
-                && "${{ matrix.python-version }}" != '3.12' ]]; then
+                && "${{ matrix.python-version }}" != '3.12' && "${{ matrix.python-version }}" != '3.13' ]]; then
             python -mpip install --upgrade pyside2${{ matrix.pyside2-ver }} &&
               python -c 'import PySide2.QtCore' &&
               echo 'PySide2 is available' ||
