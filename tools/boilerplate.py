@@ -237,6 +237,7 @@ def boilerplate_gen():
         'fill',
         'fill_between',
         'fill_betweenx',
+        'fill_disjoint',
         'grid',
         'hexbin',
         'hist',
