@@ -1871,6 +1871,7 @@ class _AxesBase(martist.Artist):
         ysize = max(abs(tymax - tymin), 1e-30)
         return ysize / xsize
 
+    @_api.delete_parameter("3.10", "position")
     def apply_aspect(self, position=None):
         """
         Adjust the Axes for a specified data aspect ratio.
@@ -1890,6 +1891,12 @@ class _AxesBase(martist.Artist):
             If not ``None``, this defines the position of the
             Axes within the figure as a Bbox. See `~.Axes.get_position`
             for further details.
+
+            .. deprecated:: 3.10
+
+                Changing the *position* through ``apply_aspect`` is
+                considered internal API. This parameter will be removed
+                in the future.
 
         Notes
         -----
@@ -1927,6 +1934,36 @@ class _AxesBase(martist.Artist):
         >>> ax.apply_aspect()
         >>> ax.bbox.width, ax.bbox.height
         (369.59999999999997, 369.59999999999997)
+        """
+        # Note: This method is a thin wrapper that only exists for the purpose
+        # of not exposing the position parameter as public API.
+        self._apply_aspect(position)
+
+    def _apply_aspect(self, position=None):
+        """
+        Adjust the Axes for a specified data aspect ratio.
+
+        See the docstring of the public `apply_aspect` method.
+
+        .. note::
+
+            It is somewhat surprising that "_apply_aspect" takes an optional
+            position as input, which seems more functionality than what the
+            name suggests.
+
+            Generally, applying an aspect will modify the size and position
+            of an Axes. I haven't been able to reconstruct the history but
+            assume, the fact that position is updated anyway was used to
+            funnel additional position constraints into the already existing
+            code. Likely, this function should better be called
+            _update_geometry() nowadays.
+
+        Parameters
+        ----------
+        position : None or .Bbox
+            If not ``None``, this defines the position of the
+            Axes within the figure as a Bbox. See `~.Axes.get_position`
+            for further details.
         """
         if position is None:
             position = self.get_position(original=True)
@@ -3026,7 +3063,7 @@ class _AxesBase(martist.Artist):
 
         for ax in self.child_axes:  # Child positions must be updated first.
             locator = ax.get_axes_locator()
-            ax.apply_aspect(locator(self, renderer) if locator else None)
+            ax._apply_aspect(locator(self, renderer) if locator else None)
 
         top = -np.inf
         for ax in axs:
@@ -3089,7 +3126,7 @@ class _AxesBase(martist.Artist):
 
         # loop over self and child Axes...
         locator = self.get_axes_locator()
-        self.apply_aspect(locator(self, renderer) if locator else None)
+        self._apply_aspect(locator(self, renderer) if locator else None)
 
         artists = self.get_children()
         artists.remove(self.patch)
@@ -4472,7 +4509,7 @@ class _AxesBase(martist.Artist):
             return None
 
         locator = self.get_axes_locator()
-        self.apply_aspect(
+        self._apply_aspect(
             locator(self, renderer) if locator and call_axes_locator else None)
 
         for axis in self._axis_map.values():

@@ -30,20 +30,20 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
         current_pos = ax.get_position(original=False).frozen()
         ax.set_axes_locator(lambda a, r, _pos=current_pos: _pos)
         # override the method that enforces the aspect ratio on the Axes
-        if 'apply_aspect' in ax.__dict__:
-            old_aspect.append(ax.apply_aspect)
+        if '_apply_aspect' in ax.__dict__:
+            old_aspect.append(ax._apply_aspect)
         else:
             old_aspect.append(sentinel)
-        ax.apply_aspect = lambda pos=None: None
+        ax._apply_aspect = lambda pos=None: None
 
     def restore_bbox():
         for ax, loc, aspect in zip(fig.axes, locator_list, old_aspect):
             ax.set_axes_locator(loc)
             if aspect is sentinel:
                 # delete our no-op function which un-hides the original method
-                del ax.apply_aspect
+                del ax._apply_aspect
             else:
-                ax.apply_aspect = aspect
+                ax._apply_aspect = aspect
 
         fig.bbox = origBbox
         fig.bbox_inches = origBboxInches
