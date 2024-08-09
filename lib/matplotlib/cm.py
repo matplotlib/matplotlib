@@ -285,7 +285,7 @@ class ScalarMappable(colorizer.ColorizerShim):
     """
     A mixin class to map one or multiple sets of scalar data to RGBA.
 
-    The VectorMappable applies data normalization before returning RGBA colors
+    The ScalarMappable applies data normalization before returning RGBA colors
     from the given `~matplotlib.colors.Colormap`, `~matplotlib.colors.BivarColormap`,
     or `~matplotlib.colors.MultivarColormap`.
     """
