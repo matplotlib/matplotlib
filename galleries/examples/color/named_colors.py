@@ -32,10 +32,19 @@ def plot_colortable(colors, *, ncols=4, sort_colors=True):
     swatch_width = 48
     margin = 12
 
-    # Sort colors by hue, saturation, value and name.
     if sort_colors is True:
-        names = sorted(
-            colors, key=lambda c: tuple(mcolors.rgb_to_hsv(mcolors.to_rgb(c))))
+        # Sort colors: To make the visual perception more smooth, we split
+        # into two groups with low-saturation / high-saturation, and sort
+        # by hue, saturation and value within these groups.
+        by_hsv = sorted((tuple(mcolors.rgb_to_hsv(mcolors.to_rgb(color))),
+                         name)
+                        for name, color in colors.items())
+
+        non_sat = [(hsv, name) for hsv, name in by_hsv if hsv[1] < 0.2]
+        sat = [(hsv, name) for hsv, name in by_hsv if hsv[1] >= 0.2]
+        by_hsv = non_sat + sat
+
+        names = [name for hsv, name in by_hsv]
     else:
         names = list(colors)
 
