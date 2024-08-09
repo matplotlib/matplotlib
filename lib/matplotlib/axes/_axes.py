@@ -432,9 +432,10 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        bounds : [x0, y0, width, height]
+        bounds : [x0, y0, width, height] or None
             Lower-left corner of rectangle to be marked, and its width
-            and height.
+            and height.  If None, the bounds will be calculated from the limits
+            of inset_ax, which must be supplied.
 
         inset_ax : `.Axes`
             An optional inset Axes to draw connecting lines to.  Two lines are
@@ -484,51 +485,13 @@ class Axes(_AxesBase):
             transform = self.transData
         kwargs.setdefault('label', '_indicate_inset')
 
-        x, y, width, height = bounds
-        rectangle_patch = mpatches.Rectangle(
-            (x, y), width, height,
+        indicator_patch = mpatches.InsetIndicator(
+            bounds, inset_ax=inset_ax,
             facecolor=facecolor, edgecolor=edgecolor, alpha=alpha,
             zorder=zorder, transform=transform, **kwargs)
-        self.add_patch(rectangle_patch)
+        self.add_patch(indicator_patch)
 
-        connects = []
-
-        if inset_ax is not None:
-            # connect the inset_axes to the rectangle
-            for xy_inset_ax in [(0, 0), (0, 1), (1, 0), (1, 1)]:
-                # inset_ax positions are in axes coordinates
-                # The 0, 1 values define the four edges if the inset_ax
-                # lower_left, upper_left, lower_right upper_right.
-                ex, ey = xy_inset_ax
-                if self.xaxis.get_inverted():
-                    ex = 1 - ex
-                if self.yaxis.get_inverted():
-                    ey = 1 - ey
-                xy_data = x + ex * width, y + ey * height
-                p = mpatches.ConnectionPatch(
-                    xyA=xy_inset_ax, coordsA=inset_ax.transAxes,
-                    xyB=xy_data, coordsB=self.transData,
-                    arrowstyle="-", zorder=zorder,
-                    edgecolor=edgecolor, alpha=alpha)
-                connects.append(p)
-                self.add_patch(p)
-
-            # decide which two of the lines to keep visible....
-            pos = inset_ax.get_position()
-            bboxins = pos.transformed(self.figure.transSubfigure)
-            rectbbox = mtransforms.Bbox.from_bounds(
-                *bounds
-            ).transformed(transform)
-            x0 = rectbbox.x0 < bboxins.x0
-            x1 = rectbbox.x1 < bboxins.x1
-            y0 = rectbbox.y0 < bboxins.y0
-            y1 = rectbbox.y1 < bboxins.y1
-            connects[0].set_visible(x0 ^ y0)
-            connects[1].set_visible(x0 == y1)
-            connects[2].set_visible(x1 == y0)
-            connects[3].set_visible(x1 ^ y1)
-
-        return rectangle_patch, tuple(connects) if connects else None
+        return indicator_patch
 
     def indicate_inset_zoom(self, inset_ax, **kwargs):
         """
@@ -564,10 +527,7 @@ class Axes(_AxesBase):
             correct.
         """
 
-        xlim = inset_ax.get_xlim()
-        ylim = inset_ax.get_ylim()
-        rect = (xlim[0], ylim[0], xlim[1] - xlim[0], ylim[1] - ylim[0])
-        return self.indicate_inset(rect, inset_ax, **kwargs)
+        return self.indicate_inset(None, inset_ax, **kwargs)
 
     @_docstring.dedent_interpd
     def secondary_xaxis(self, location, functions=None, *, transform=None, **kwargs):
