@@ -171,6 +171,7 @@ class RendererAgg
                               agg::trans_affine &offset_trans,
                               ColorArray &facecolors,
                               ColorArray &edgecolors,
+                              ColorArray &hatchcolors,
                               LineWidthArray &linewidths,
                               DashesVector &linestyles,
                               AntialiasedArray &antialiaseds);
@@ -185,7 +186,8 @@ class RendererAgg
                         agg::trans_affine &offset_trans,
                         ColorArray &facecolors,
                         bool antialiased,
-                        ColorArray &edgecolors);
+                        ColorArray &edgecolors,
+                        ColorArray &hatchcolors);
 
     template <class PointArray, class ColorArray>
     void draw_gouraud_triangles(GCAgg &gc,
@@ -264,6 +266,7 @@ class RendererAgg
                                        const agg::trans_affine &offset_trans,
                                        ColorArray &facecolors,
                                        ColorArray &edgecolors,
+                                       ColorArray &hatchcolors,
                                        LineWidthArray &linewidths,
                                        DashesVector &linestyles,
                                        AntialiasedArray &antialiaseds,
@@ -901,6 +904,7 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
                                                        const agg::trans_affine &offset_trans,
                                                        ColorArray &facecolors,
                                                        ColorArray &edgecolors,
+                                                       ColorArray &hatchcolors,
                                                        LineWidthArray &linewidths,
                                                        DashesVector &linestyles,
                                                        AntialiasedArray &antialiaseds,
@@ -921,11 +925,12 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
     size_t Ntransforms = safe_first_shape(transforms);
     size_t Nfacecolors = safe_first_shape(facecolors);
     size_t Nedgecolors = safe_first_shape(edgecolors);
+    size_t Nhatchcolors = safe_first_shape(hatchcolors);
     size_t Nlinewidths = safe_first_shape(linewidths);
     size_t Nlinestyles = std::min(linestyles.size(), N);
     size_t Naa = safe_first_shape(antialiaseds);
 
-    if ((Nfacecolors == 0 && Nedgecolors == 0) || Npaths == 0) {
+    if ((Nfacecolors == 0 && Nedgecolors == 0 && Nhatchcolors == 0) || Npaths == 0) {
         return;
     }
 
@@ -971,7 +976,7 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
 
         if (Nfacecolors) {
             int ic = i % Nfacecolors;
-            face.second = agg::rgba(facecolors(ic, 0), facecolors(ic, 1), facecolors(ic, 2), facecolors(ic, 3));
+            face.second = agg::rgba(0, 0, 0, 0);
         }
 
         if (Nedgecolors) {
@@ -986,6 +991,11 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
             if (Nlinestyles) {
                 gc.dashes = linestyles[i % Nlinestyles];
             }
+        }
+
+        if(Nhatchcolors) {
+            int ic = i % Nhatchcolors;
+            gc.hatch_color = agg::rgba(hatchcolors(ic, 0), hatchcolors(ic, 1), hatchcolors(ic, 2), hatchcolors(ic, 3));
         }
 
         if (check_snap) {
@@ -1032,6 +1042,7 @@ inline void RendererAgg::draw_path_collection(GCAgg &gc,
                                               agg::trans_affine &offset_trans,
                                               ColorArray &facecolors,
                                               ColorArray &edgecolors,
+                                              ColorArray &hatchcolors,
                                               LineWidthArray &linewidths,
                                               DashesVector &linestyles,
                                               AntialiasedArray &antialiaseds)
@@ -1047,6 +1058,7 @@ inline void RendererAgg::draw_path_collection(GCAgg &gc,
                                   offset_trans,
                                   facecolors,
                                   edgecolors,
+                                  hatchcolors,
                                   linewidths,
                                   linestyles,
                                   antialiaseds,
@@ -1137,7 +1149,8 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
                                         agg::trans_affine &offset_trans,
                                         ColorArray &facecolors,
                                         bool antialiased,
-                                        ColorArray &edgecolors)
+                                        ColorArray &edgecolors,
+                                        ColorArray &hatchcolors)
 {
     QuadMeshGenerator<CoordinateArray> path_generator(mesh_width, mesh_height, coordinates);
 
@@ -1157,6 +1170,7 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
                                   offset_trans,
                                   facecolors,
                                   edgecolors,
+                                  hatchcolors,
                                   linewidths,
                                   linestyles,
                                   antialiaseds,
