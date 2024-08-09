@@ -195,6 +195,11 @@ else:
         subsectionorder as gallery_order_subsectionorder)
     from sphinxext.util import clear_basic_units, matplotlib_reduced_latex_scraper
 
+if parse_version(sphinx_gallery.__version__) >= parse_version('0.17.0'):
+    sg_matplotlib_animations = (True, 'mp4')
+else:
+    sg_matplotlib_animations = True
+
 # The following import is only necessary to monkey patch the signature later on
 from sphinx_gallery import gen_rst
 
@@ -273,7 +278,7 @@ sphinx_gallery_conf = {
     'image_scrapers': (matplotlib_reduced_latex_scraper, ),
     'image_srcset': ["2x"],
     'junit': '../test-results/sphinx-gallery/junit.xml' if CIRCLECI else '',
-    'matplotlib_animations': True,
+    'matplotlib_animations': sg_matplotlib_animations,
     'min_reported_time': 1,
     'plot_gallery': 'True',  # sphinx-gallery/913
     'reference_url': {'matplotlib': None, 'mpl_toolkits': None},
