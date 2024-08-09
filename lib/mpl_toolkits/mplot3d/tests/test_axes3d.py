@@ -117,22 +117,22 @@ def test_axes3d_repr():
 @mpl3d_image_comparison(['axes3d_primary_views.png'], style='mpl20',
                         tol=0.05 if platform.machine() == "arm64" else 0)
 def test_axes3d_primary_views():
-    # (elev, azim, roll)
-    views = [(90, -90, 0),  # XY
-             (0, -90, 0),   # XZ
+    # (azim, elev, roll)
+    views = [(-90, 90, 0),  # XY
+             (-90, 0, 0),   # XZ
              (0, 0, 0),     # YZ
-             (-90, 90, 0),  # -XY
-             (0, 90, 0),    # -XZ
-             (0, 180, 0)]   # -YZ
+             (90, -90, 0),  # -XY
+             (90, 0, 0),    # -XZ
+             (180, 0, 0)]   # -YZ
     # When viewing primary planes, draw the two visible axes so they intersect
     # at their low values
     fig, axs = plt.subplots(2, 3, subplot_kw={'projection': '3d'})
-    for i, ax in enumerate(axs.flat):
+    for ax, (azim, elev, roll) in zip(axs.flat, views):
         ax.set_xlabel('x')
         ax.set_ylabel('y')
         ax.set_zlabel('z')
         ax.set_proj_type('ortho')
-        ax.view_init(elev=views[i][0], azim=views[i][1], roll=views[i][2])
+        ax.view_init(elev, azim, roll)
     plt.tight_layout()
 
 
@@ -168,15 +168,15 @@ def test_bar3d_shaded():
     x2d, y2d = x2d.ravel(), y2d.ravel()
     z = x2d + y2d + 1  # Avoid triggering bug with zero-depth boxes.
 
-    views = [(30, -60, 0), (30, 30, 30), (-30, 30, -90), (300, -30, 0)]
+    views = [(-60, 30, 0), (30, 30, 30), (30, -30, -90), (-30, 300, 0)]
     fig = plt.figure(figsize=plt.figaspect(1 / len(views)))
     axs = fig.subplots(
         1, len(views),
         subplot_kw=dict(projection='3d')
     )
-    for ax, (elev, azim, roll) in zip(axs, views):
+    for ax, (azim, elev, roll) in zip(axs, views):
         ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=True)
-        ax.view_init(elev=elev, azim=azim, roll=roll)
+        ax.view_init(elev, azim, roll)
     fig.canvas.draw()
 
 
@@ -709,7 +709,7 @@ def test_surface3d_masked():
     norm = mcolors.Normalize(vmax=z.max(), vmin=z.min())
     colors = mpl.colormaps["plasma"](norm(z))
     ax.plot_surface(x, y, z, facecolors=colors)
-    ax.view_init(30, -80, 0)
+    ax.view_init(elev=30, azim=-80, roll=0)
 
 
 @check_figures_equal(extensions=["png"])
@@ -749,7 +749,7 @@ def test_surface3d_masked_strides():
     z = np.ma.masked_less(x * y, 2)
 
     ax.plot_surface(x, y, z, rstride=4, cstride=4)
-    ax.view_init(60, -45, 0)
+    ax.view_init(elev=60, azim=-45, roll=0)
 
 
 @mpl3d_image_comparison(['text3d.png'], remove_text=False, style='mpl20')
@@ -1161,7 +1161,7 @@ def test_axes3d_cla():
 def test_axes3d_rotated():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, projection='3d')
-    ax.view_init(90, 45, 0)  # look down, rotated. Should be square
+    ax.view_init(elev=90, azim=45, roll=0)  # look down, rotated. Should be square
 
 
 def test_plotsurface_1d_raises():
@@ -1827,16 +1827,16 @@ def test_set_zlim():
 
 @check_figures_equal(extensions=["png"])
 def test_shared_view(fig_test, fig_ref):
-    elev, azim, roll = 5, 20, 30
+    azim, elev, roll = 20, 5, 30
     ax1 = fig_test.add_subplot(131, projection="3d")
     ax2 = fig_test.add_subplot(132, projection="3d", shareview=ax1)
     ax3 = fig_test.add_subplot(133, projection="3d")
     ax3.shareview(ax1)
-    ax2.view_init(elev=elev, azim=azim, roll=roll, share=True)
+    ax2.view_init(elev, azim, roll, share=True)
 
     for subplot_num in (131, 132, 133):
         ax = fig_ref.add_subplot(subplot_num, projection="3d")
-        ax.view_init(elev=elev, azim=azim, roll=roll)
+        ax.view_init(elev, azim, roll)
 
 
 def test_shared_axes_retick():
@@ -1932,33 +1932,33 @@ def test_quaternion():
         assert np.isclose(q.norm, 1)
         assert np.dot(q.vector, r1) == 0
     # from_cardan_angles(), as_cardan_angles():
-    for elev, azim, roll in [(0, 0, 0),
+    for azim, elev, roll in [(0, 0, 0),
                              (90, 0, 0), (0, 90, 0), (0, 0, 90),
                              (0, 30, 30), (30, 0, 30), (30, 30, 0),
-                             (47, 11, -24)]:
+                             (11, 47, -24)]:
         for mag in [1, 2]:
             q = Quaternion.from_cardan_angles(
-                np.deg2rad(elev), np.deg2rad(azim), np.deg2rad(roll))
+                np.deg2rad(azim), np.deg2rad(elev), np.deg2rad(roll))
             assert np.isclose(q.norm, 1)
             q = Quaternion(mag * q.scalar, mag * q.vector)
-            e, a, r = np.rad2deg(Quaternion.as_cardan_angles(q))
-            assert np.isclose(e, elev)
+            a, e, r = np.rad2deg(Quaternion.as_cardan_angles(q))
             assert np.isclose(a, azim)
+            assert np.isclose(e, elev)
             assert np.isclose(r, roll)
 
 
 def test_rotate():
     """Test rotating using the left mouse button."""
-    for roll, dx, dy, new_elev, new_azim, new_roll in [
-            [0, 0.5, 0, 0, -90, 0],
-            [30, 0.5, 0, 30, -90, 0],
-            [0, 0, 0.5, -90, 0, 0],
-            [30, 0, 0.5, -60, -90, 90],
-            [0, 0.5, 0.5, -45, -90, 45],
-            [30, 0.5, 0.5, -15, -90, 45]]:
+    for roll, dx, dy, new_azim, new_elev, new_roll in [
+            [0, 0.5, 0, -90, 0, 0],
+            [30, 0.5, 0, -90, 30, 0],
+            [0, 0, 0.5, 0, -90, 0],
+            [30, 0, 0.5, -90, -60, 90],
+            [0, 0.5, 0.5, -90, -45, 45],
+            [30, 0.5, 0.5, -90, -15, 45]]:
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1, projection='3d')
-        ax.view_init(0, 0, roll)
+        ax.view_init(elev=0, azim=0, roll=roll)
         ax.figure.canvas.draw()
 
         # drag mouse to change orientation
@@ -1969,8 +1969,8 @@ def test_rotate():
                            xdata=dx*ax._pseudo_w, ydata=dy*ax._pseudo_h))
         ax.figure.canvas.draw()
 
-        assert np.isclose(ax.elev, new_elev)
         assert np.isclose(ax.azim, new_azim)
+        assert np.isclose(ax.elev, new_elev)
         assert np.isclose(ax.roll, new_roll)
 
 

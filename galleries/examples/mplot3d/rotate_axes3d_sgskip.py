@@ -33,7 +33,7 @@ for angle in range(0, 360*4 + 1):
     angle_norm = (angle + 180) % 360 - 180
 
     # Cycle through a full rotation of elevation, then azimuth, roll, and all
-    elev = azim = roll = 0
+    azim = elev = roll = 0
     if angle <= 360:
         elev = angle_norm
     elif angle <= 360*2:
@@ -41,11 +41,11 @@ for angle in range(0, 360*4 + 1):
     elif angle <= 360*3:
         roll = angle_norm
     else:
-        elev = azim = roll = angle_norm
+        azim = elev = roll = angle_norm
 
     # Update the axis view and title
-    ax.view_init(elev, azim, roll)
-    plt.title('Elevation: %d°, Azimuth: %d°, Roll: %d°' % (elev, azim, roll))
+    ax.view_init(elev=elev, azim=azim, roll=roll)
+    plt.title('Azimuth: %d°, Elevation: %d°, Roll: %d°' % (azim, elev, roll))
 
     plt.draw()
     plt.pause(.001)

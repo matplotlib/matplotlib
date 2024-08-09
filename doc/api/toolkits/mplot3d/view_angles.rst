@@ -8,7 +8,7 @@ How to define the view angle
 ============================
 
 The position of the viewport "camera" in a 3D plot is defined by three angles:
-*elevation*, *azimuth*, and *roll*. From the resulting position, it always
+*azimuth*, *elevation*, and *roll*. From the resulting position, it always
 points towards the center of the plot box volume. The angle direction is a
 common convention, and is shared with
 `PyVista <https://docs.pyvista.org/api/core/camera.html>`_ and
@@ -32,7 +32,7 @@ as well as roll, and all three angles can be set programmatically::
 Primary view planes
 ===================
 
-To look directly at the primary view planes, the required elevation, azimuth,
+To look directly at the primary view planes, the required azimuth, elevation,
 and roll angles are shown in the diagram of an "unfolded" plot below. These are
 further documented in the `.mplot3d.axes3d.Axes3D.view_init` API.
 

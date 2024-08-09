@@ -139,7 +139,11 @@ class Axes3D(Axes):
 
         # inhibit autoscale_view until the axes are defined
         # they can't be defined until Axes.__init__ has been called
-        self.view_init(self.initial_elev, self.initial_azim, self.initial_roll)
+        self.view_init(
+            elev=self.initial_elev,
+            azim=self.initial_azim,
+            roll=self.initial_roll,
+        )
 
         self._sharez = sharez
         if sharez is not None:
@@ -1094,24 +1098,65 @@ class Axes3D(Axes):
     def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z",
                   share=False):
         """
-        Set the elevation and azimuth of the Axes in degrees (not radians).
+        Set the azimuth, elevation, and roll of the Axes, in degrees (not radians).
 
         This can be used to rotate the Axes programmatically.
 
-        To look normal to the primary planes, the following elevation and
-        azimuth angles can be used. A roll angle of 0, 90, 180, or 270 deg
-        will rotate these views while keeping the axes at right angles.
+        To look normal to the primary planes, the following azimuth and
+        elevation angles can be used:
 
         ==========   ====  ====
-        view plane   elev  azim
+        view plane   azim  elev
         ==========   ====  ====
-        XY           90    -90
-        XZ           0     -90
-        YZ           0     0
-        -XY          -90   90
-        -XZ          0     90
-        -YZ          0     180
+         XY          -90    90
+         XZ          -90     0
+         YZ            0     0
+        -XY           90   -90
+        -XZ           90     0
+        -YZ          180     0
         ==========   ====  ====
+
+        A roll angle of 0, 90, 180, or 270 degrees will rotate these views
+        while keeping the axes at right angles.
+
+        The *azim*, *elev*, *roll* angles correspond to rotations of the scene
+        observed by a stationary camera, as follows (assuming a default vertical
+        axis of 'z'). First, a left-handed rotation about the z axis is applied
+        (*azim*), then a right-handed rotation about the (camera) y axis (*elev*),
+        then a right-handed rotation about the (camera) x axis (*roll*). Here,
+        the z, y, and x axis are fixed axes (not the axes that rotate together
+        with the original scene).
+
+        If you would like to make the connection with quaternions (because
+        `Euler angles are horrible
+        <https://github.com/moble/quaternion/wiki/Euler-angles-are-horrible>`_):
+        the *azim*, *elev*, *roll* angles relate to the (intrinsic) rotation of
+        the plot via:
+
+             *q* = exp(+roll **x̂** / 2) exp(+elev **ŷ** / 2) exp(−azim **ẑ** / 2)
+
+        (with angles given in radians instead of degrees). That is, the angles
+        are a kind of `Tait-Bryan angles
+        <https://en.wikipedia.org/wiki/Euler_angles#Tait%E2%80%93Bryan_angles>`_:
+        −z, +y', +x", rather than classic `Euler angles
+        <https://en.wikipedia.org/wiki/Euler_angles>`_.
+
+        To avoid confusion, it makes sense to provide the view angles as keyword
+        arguments:
+        ``.view_init(azim=-60, elev=30, roll=0, ...)``
+        This specific order is consistent with the order in which the rotations
+        actually are applied. Moreover, this particular order appears to be most
+        common, see :ghissue:`28353`, and it is consistent with the ordering in
+        `matplotlib.colors.LightSource`.
+
+        For backwards compatibility, positional arguments in the old sequence
+        (first ``elev``, then ``azim``) will still be accepted; but preferably,
+        use keyword arguments, to avoid confusion as to which angle is which.
+        Unfortunately, the order of the positional arguments does not match
+        the actual order of the applied rotations, and it differs from that
+        used in other programs (``azim, elev``). It would be nice if the sensible
+        (keyword) ordering could take over eventually.
+
 
         Parameters
         ----------
@@ -1145,10 +1190,10 @@ class Axes3D(Axes):
 
         self._dist = 10  # The camera distance from origin. Behaves like zoom
 
-        if elev is None:
-            elev = self.initial_elev
         if azim is None:
             azim = self.initial_azim
+        if elev is None:
+            elev = self.initial_elev
         if roll is None:
             roll = self.initial_roll
         vertical_axis = _api.check_getitem(
@@ -1163,8 +1208,8 @@ class Axes3D(Axes):
             axes = [self]
 
         for ax in axes:
-            ax.elev = elev
             ax.azim = azim
+            ax.elev = elev
             ax.roll = roll
             ax._vertical_axis = vertical_axis
 
@@ -1229,15 +1274,15 @@ class Axes3D(Axes):
         # Look into the middle of the world coordinates:
         R = 0.5 * box_aspect
 
-        # elev: elevation angle in the z plane.
         # azim: azimuth angle in the xy plane.
+        # elev: elevation angle in the z plane.
         # Coordinates for a point that rotates around the box of data.
         # p0, p1 corresponds to rotating the box only around the vertical axis.
         # p2 corresponds to rotating the box only around the horizontal axis.
-        elev_rad = np.deg2rad(self.elev)
         azim_rad = np.deg2rad(self.azim)
-        p0 = np.cos(elev_rad) * np.cos(azim_rad)
-        p1 = np.cos(elev_rad) * np.sin(azim_rad)
+        elev_rad = np.deg2rad(self.elev)
+        p0 = np.cos(azim_rad) * np.cos(elev_rad)
+        p1 = np.sin(azim_rad) * np.cos(elev_rad)
         p2 = np.sin(elev_rad)
 
         # When changing vertical axis the coordinates changes as well.
@@ -1339,8 +1384,13 @@ class Axes3D(Axes):
         self._shared_axes["view"].join(self, other)
         self._shareview = other
         vertical_axis = self._axis_names[other._vertical_axis]
-        self.view_init(elev=other.elev, azim=other.azim, roll=other.roll,
-                       vertical_axis=vertical_axis, share=True)
+        self.view_init(
+            elev=other.elev,
+            azim=other.azim,
+            roll=other.roll,
+            vertical_axis=vertical_axis,
+            share=True,
+        )
 
     def clear(self):
         # docstring inherited.
@@ -1392,8 +1442,8 @@ class Axes3D(Axes):
         # docstring inherited
         props, (elev, azim, roll) = view
         self.set(**props)
-        self.elev = elev
         self.azim = azim
+        self.elev = elev
         self.roll = roll
 
     def format_zdata(self, z):
@@ -1430,11 +1480,11 @@ class Axes3D(Axes):
         """
         Return the rotation angles as a string.
         """
-        norm_elev = art3d._norm_angle(self.elev)
         norm_azim = art3d._norm_angle(self.azim)
+        norm_elev = art3d._norm_angle(self.elev)
         norm_roll = art3d._norm_angle(self.roll)
-        coords = (f"elevation={norm_elev:.0f}\N{DEGREE SIGN}, "
-                  f"azimuth={norm_azim:.0f}\N{DEGREE SIGN}, "
+        coords = (f"azimuth={norm_azim:.0f}\N{DEGREE SIGN}, "
+                  f"elevation={norm_elev:.0f}\N{DEGREE SIGN}, "
                   f"roll={norm_roll:.0f}\N{DEGREE SIGN}"
                   ).replace("-", "\N{MINUS SIGN}")
         return coords
@@ -1561,10 +1611,10 @@ class Axes3D(Axes):
                 return
 
             # Convert to quaternion
-            elev = np.deg2rad(self.elev)
             azim = np.deg2rad(self.azim)
+            elev = np.deg2rad(self.elev)
             roll = np.deg2rad(self.roll)
-            q = _Quaternion.from_cardan_angles(elev, azim, roll)
+            q = _Quaternion.from_cardan_angles(azim, elev, roll)
 
             # Update quaternion - a variation on Ken Shoemake's ARCBALL
             current_vec = self._arcball(self._sx/w, self._sy/h)
@@ -1573,18 +1623,13 @@ class Axes3D(Axes):
             q = dq * q
 
             # Convert to elev, azim, roll
-            elev, azim, roll = q.as_cardan_angles()
+            azim, elev, roll = q.as_cardan_angles()
             azim = np.rad2deg(azim)
             elev = np.rad2deg(elev)
             roll = np.rad2deg(roll)
             vertical_axis = self._axis_names[self._vertical_axis]
-            self.view_init(
-                elev=elev,
-                azim=azim,
-                roll=roll,
-                vertical_axis=vertical_axis,
-                share=True,
-            )
+            self.view_init(elev, azim, roll, vertical_axis=vertical_axis,
+                           share=True)
             self.stale = True
 
         # Pan
@@ -3662,10 +3707,10 @@ class Axes3D(Axes):
         quiversize = np.mean(np.diff(quiversize, axis=0))
         # quiversize is now in Axes coordinates, and to convert back to data
         # coordinates, we need to run it through the inverse 3D transform. For
-        # consistency, this uses a fixed elevation, azimuth, and roll.
+        # consistency, this uses a fixed azimuth, elevation, and roll.
         with cbook._setattr_cm(self, elev=0, azim=0, roll=0):
             invM = np.linalg.inv(self.get_proj())
-        # elev=azim=roll=0 produces the Y-Z plane, so quiversize in 2D 'x' is
+        # azim=elev=roll=0 produces the Y-Z plane, so quiversize in 2D 'x' is
         # 'y' in 3D, hence the 1 index.
         quiversize = np.dot(invM, [quiversize, 0, 0, 0])[1]
         # Quivers use a fixed 15-degree arrow head, so scale up the length so
@@ -4000,7 +4045,7 @@ class _Quaternion:
         return q
 
     @classmethod
-    def from_cardan_angles(cls, elev, azim, roll):
+    def from_cardan_angles(cls, azim, elev, roll):
         """
         Converts the angles to a quaternion
             q = exp((roll/2)*e_x)*exp((elev/2)*e_y)*exp((-azim/2)*e_z)
@@ -4027,4 +4072,4 @@ class _Quaternion:
         azim = np.arctan2(2*(-qw*qz+qx*qy), qw*qw+qx*qx-qy*qy-qz*qz)
         elev = np.arcsin( 2*( qw*qy+qz*qx)/(qw*qw+qx*qx+qy*qy+qz*qz))  # noqa E201
         roll = np.arctan2(2*( qw*qx-qy*qz), qw*qw-qx*qx-qy*qy+qz*qz)   # noqa E201
-        return elev, azim, roll
+        return azim, elev, roll
