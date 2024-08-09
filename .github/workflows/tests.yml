@@ -91,6 +91,13 @@ jobs:
             pyqt6-ver: '!=6.6.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
+          - name-suffix: "Free-threaded"
+            os: ubuntu-22.04
+            python-version: '3.13t'
+            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
+            pyqt6-ver: '!=6.6.0'
+            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
+            pyside6-ver: '!=6.5.1'
           - os: macos-12  # This runner is on Intel chips.
             python-version: '3.10'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
@@ -111,9 +118,17 @@ jobs:
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
+        if: matrix.python-version != '3.13t'
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: deadsnakes/action@6c8b9b82fe0b4344f4b98f2775fcc395df45e494  # v3.1.0
+        if: matrix.python-version == '3.13t'
+        with:
+          python-version: '3.13'
+          nogil: true
 
       - name: Install OS dependencies
         run: |
@@ -160,6 +175,11 @@ jobs:
               texlive-luatex \
               texlive-pictures \
               texlive-xetex
+            if [[ "${{ matrix.python-version }}" = '3.13t' ]]; then
+              # TODO: Remove this once setup-python supports nogil distributions.
+              sudo apt-get install -yy --no-install-recommends \
+                python3.13-tk-nogil
+            fi
             if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
               sudo apt-get install -yy --no-install-recommends libopengl0
             else  # ubuntu-22.04
@@ -216,6 +236,15 @@ jobs:
             4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
             4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-
 
+      - name: Install the nightly dependencies
+        if: matrix.python-version == '3.13t'
+        run: |
+          python -m pip install pytz tzdata python-dateutil  # Must be installed for Pandas.
+          python -m pip install \
+              --pre \
+              --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
+              --upgrade --only-binary=:all: numpy pandas pillow contourpy
+
       - name: Install Python dependencies
         run: |
           # Upgrade pip and setuptools and wheel to get as clean an install as
@@ -241,6 +270,7 @@ jobs:
           # Sphinx is needed to run sphinxext tests
           python -m pip install --upgrade sphinx!=6.1.2
 
+          if [[ "${{ matrix.python-version }}" != '3.13t' ]]; then
           # GUI toolkits are pip-installable only for some versions of Python
           # so don't fail if we can't install them.  Make it easier to check
           # whether the install was successful by trying to import the toolkit
@@ -286,6 +316,8 @@ jobs:
             echo 'wxPython is available' ||
             echo 'wxPython is not available'
 
+          fi  # Skip backends on Python 3.13t.
+
       - name: Install the nightly dependencies
         # Only install the nightly dependencies during the scheduled event
         if: github.event_name == 'schedule' && matrix.name-suffix != '(Minimum Versions)'
@@ -324,6 +356,9 @@ jobs:
 
       - name: Run pytest
         run: |
+          if [[ "${{ matrix.python-version }}" == '3.13t' ]]; then
+            export PYTHON_GIL=0
+          fi
           pytest -rfEsXR -n auto \
             --maxfail=50 --timeout=300 --durations=25 \
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
