@@ -15,6 +15,7 @@ import matplotlib as mpl
 from . import _api, cbook
 from .colors import BoundaryNorm
 from .cm import ScalarMappable
+from .colorizer import Colorizer
 from .path import Path
 from .transforms import (BboxBase, Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
@@ -1346,7 +1347,8 @@ class Artist:
         --------
         get_cursor_data
         """
-        if np.ndim(data) == 0 and isinstance(self, ScalarMappable):
+        if np.ndim(data) == 0 and (isinstance(self, ScalarMappable) or
+                                   isinstance(self, ColorizingArtist)):
             # This block logically belongs to ScalarMappable, but can't be
             # implemented in it because most ScalarMappable subclasses inherit
             # from Artist first and from ScalarMappable second, so
@@ -1417,6 +1419,67 @@ class Artist:
                 ax._mouseover_set.discard(self)
 
     mouseover = property(get_mouseover, set_mouseover)  # backcompat.
+
+
+class ColorizingArtist(Artist):
+    def __init__(self, colorizer):
+        """
+        Parameters
+        ----------
+        colorizer : `colorizer.Colorizer`
+        """
+        if not isinstance(colorizer, Colorizer):
+            raise ValueError("A `mpl.colorizer.Colorizer` object must be provided")
+
+        Artist.__init__(self)
+
+        self._A = None
+
+        self.colorizer = colorizer
+        self._id_colorizer = self.colorizer.callbacks.connect('changed', self.changed)
+        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
+
+    def set_array(self, A):
+        """
+        Set the value array from array-like *A*.
+
+        Parameters
+        ----------
+        A : array-like or None
+            The values that are mapped to colors.
+
+            The base class `.ColorizingArtist` does not make any assumptions on
+            the dimensionality and shape of the value array *A*.
+        """
+        if A is None:
+            self._A = None
+            return
+
+        A = cbook.safe_masked_invalid(A, copy=True)
+        if not np.can_cast(A.dtype, float, "same_kind"):
+            raise TypeError(f"Image data of dtype {A.dtype} cannot be "
+                            "converted to float")
+
+        self._A = A
+        if not self.norm.scaled():
+            self.colorizer.autoscale_None(A)
+
+    def get_array(self):
+        """
+        Return the array of values, that are mapped to colors.
+
+        The base class `.ColorizingArtist` does not make any assumptions on
+        the dimensionality and shape of the array.
+        """
+        return self._A
+
+    def changed(self):
+        """
+        Call this whenever the mappable is changed to notify all the
+        callbackSM listeners to the 'changed' signal.
+        """
+        self.callbacks.process('changed')
+        self.stale = True
 
 
 def _get_tightbbox_for_layout_only(obj, *args, **kwargs):

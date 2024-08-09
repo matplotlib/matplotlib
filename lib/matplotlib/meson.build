@@ -31,6 +31,7 @@ python_sources = [
   'cm.py',
   'collections.py',
   'colorbar.py',
+  'colorizer.py',
   'colors.py',
   'container.py',
   'contour.py',
