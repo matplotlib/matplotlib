@@ -481,3 +481,27 @@ def test_polar_neg_theta_lims():
     ax.set_thetalim(-np.pi, np.pi)
     labels = [l.get_text() for l in ax.xaxis.get_ticklabels()]
     assert labels == ['-180°', '-135°', '-90°', '-45°', '0°', '45°', '90°', '135°']
+
+
+@check_figures_equal(extensions=["png"])
+def test_polar_lim_draw(fig_test, fig_ref):
+    """
+    Check that lines on polar axes are correctly transformed after
+    a draw and an axes limit change.
+
+    """
+    # A quarter arc at r=5
+    theta = np.linspace(0, np.pi/2, 90)
+    r = np.full(90, 5)
+
+    ax_ref = fig_ref.add_subplot(projection='polar')
+    ax_ref.set_ylim(0, 10)
+    ax_ref.plot(theta, r)
+
+    ax_test = fig_test.add_subplot(projection='polar')
+    ax_test.set_ylim(4, 10)
+
+    ax_test.plot(theta, r)
+    fig_test.canvas.draw()
+
+    ax_test.set_ylim(0, 10)
