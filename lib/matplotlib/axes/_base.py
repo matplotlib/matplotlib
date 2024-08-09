@@ -1377,6 +1377,7 @@ class _AxesBase(martist.Artist):
             share = getattr(self, f"_share{name}")
             if share is not None:
                 getattr(self, f"share{name}")(share)
+                axis.set_inverted(False)
             else:
                 # Although the scale was set to linear as part of clear,
                 # polar requires that _set_scale is called again
