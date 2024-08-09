@@ -57,6 +57,7 @@ python_sources = [
   'test_marker.py',
   'test_mathtext.py',
   'test_matplotlib.py',
+  'test_multivariate_colormaps.py',
   'test_mlab.py',
   'test_offsetbox.py',
   'test_patches.py',
