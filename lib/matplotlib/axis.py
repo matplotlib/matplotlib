@@ -1443,6 +1443,15 @@ class Axis(martist.Artist):
         return cbook.silent_list('Line2D gridline',
                                  [tick.gridline for tick in ticks])
 
+    def set_label(self, s):
+        """Assigning legend labels is supported. Raises RuntimeError."""
+        raise RuntimeError(
+            "A legend label cannot be assigned to an Axis. Did you mean to "
+            "set the axis label via set_label_text()?")
+
+    @_api.deprecated("3.10", message="Use the property 'Axis.label' instead")
+    # Note: After the deprecation, this should raise a RuntimeError; see
+    # https://github.com/matplotlib/matplotlib/issues/27971#issuecomment-2016955731
     def get_label(self):
         """Return the axis label as a Text instance."""
         return self.label

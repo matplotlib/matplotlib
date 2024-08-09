@@ -1,0 +1,6 @@
+``Axis.get_label``
+~~~~~~~~~~~~~~~~~~
+`.Artist.get_label` is reserved for legend labels. `.Axis.get_label` had overwritten
+this, providing the axis label `.Text` instance. `.Axis.get_label` will raise a
+RuntimeError in the future. If you want the axis label `.Text` instance, use the
+property `.Axis.label` instead.
