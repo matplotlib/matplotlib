@@ -47,6 +47,15 @@ Options
 
 The ``.. plot::`` directive supports the following options:
 
+``:output-base-name:`` : str
+    The base name (without the extension) of the outputted image files. The
+    default is to use the same name as the input script, or the name of
+    the RST document if no script is provided. The string can include the
+    format ``{counter}`` to use an incremented counter. For example,
+    ``'plot-{counter}'`` will create files like ``plot-1.png``, ``plot-2.png``,
+    and so on. If the ``{counter}`` is not provided, two plots with the same
+    output-base-name may overwrite each other.
+
 ``:format:`` : {'python', 'doctest'}
     The format of the input.  If unset, the format is auto-detected.
 
@@ -87,6 +96,10 @@ Configuration options
 ---------------------
 
 The plot directive has the following configuration options:
+
+plot_output_base_name
+    Default value for the output-base-name option (default is to use the name
+    of the input script, or the name of the RST file if no script is provided)
 
 plot_include_source
     Default value for the include-source option (default: False).
@@ -265,6 +278,7 @@ class PlotDirective(Directive):
         'scale': directives.nonnegative_int,
         'align': Image.align,
         'class': directives.class_option,
+        'output-base-name': directives.unchanged,
         'include-source': _option_boolean,
         'show-source-link': _option_boolean,
         'format': _option_format,
@@ -299,6 +313,7 @@ def setup(app):
     app.add_config_value('plot_pre_code', None, True)
     app.add_config_value('plot_include_source', False, True)
     app.add_config_value('plot_html_show_source_link', True, True)
+    app.add_config_value('plot_output_base_name', None, True)
     app.add_config_value('plot_formats', ['png', 'hires.png', 'pdf'], True)
     app.add_config_value('plot_basedir', None, True)
     app.add_config_value('plot_html_show_formats', True, True)
@@ -734,6 +749,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     options.setdefault('include-source', config.plot_include_source)
     options.setdefault('show-source-link', config.plot_html_show_source_link)
+    options.setdefault('output-base-name', config.plot_output_base_name)
 
     if 'class' in options:
         # classes are parsed into a list of string, and output by simply
@@ -775,14 +791,20 @@ def run(arguments, content, options, state_machine, state, lineno):
             function_name = None
 
         code = Path(source_file_name).read_text(encoding='utf-8')
-        output_base = os.path.basename(source_file_name)
+        if options['output-base-name']:
+            output_base = options['output-base-name']
+        else:
+            output_base = os.path.basename(source_file_name)
     else:
         source_file_name = rst_file
         code = textwrap.dedent("\n".join(map(str, content)))
         counter = document.attributes.get('_plot_counter', 0) + 1
         document.attributes['_plot_counter'] = counter
         base, ext = os.path.splitext(os.path.basename(source_file_name))
-        output_base = '%s-%d.py' % (base, counter)
+        if options['output-base-name']:
+            output_base = options['output-base-name'].format(counter=counter)
+        else:
+            output_base = '%s-%d.py' % (base, counter)
         function_name = None
         caption = options.get('caption', '')
 
