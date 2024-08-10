@@ -5498,6 +5498,40 @@ class Axes(_AxesBase):
         self._request_autoscale_view()
         return patches
 
+    def _normalise_fill_between_params(
+            self, ind_dir, ind, dep1, dep2=0, *, where=None, **kwargs):
+        dep_dir = {"x": "y", "y": "x"}[ind_dir]
+
+        if not mpl.rcParams["_internal.classic_mode"]:
+            kwargs = cbook.normalize_kwargs(kwargs, mcoll.Collection)
+            if not any(c in kwargs for c in ("color", "facecolor")):
+                kwargs["facecolor"] = self._get_patches_for_fill.get_next_color()
+
+        # Handle united data, such as dates
+        ind, dep1, dep2 = map(
+            ma.masked_invalid, self._process_unit_info(
+                [(ind_dir, ind), (dep_dir, dep1), (dep_dir, dep2)], kwargs))
+
+        for name, array in [
+                (ind_dir, ind), (f"{dep_dir}1", dep1), (f"{dep_dir}2", dep2)]:
+            if array.ndim > 1:
+                raise ValueError(f"{name!r} is not 1-dimensional")
+
+        if where is None:
+            where = True
+        else:
+            where = np.asarray(where, dtype=bool)
+            if where.size != ind.size:
+                raise ValueError(f"where size ({where.size}) does not match "
+                                 f"{ind_dir} size ({ind.size})")
+        where = where & ~functools.reduce(
+            np.logical_or, map(np.ma.getmaskarray, [ind, dep1, dep2]))
+
+        ind, dep1, dep2 = np.broadcast_arrays(
+            np.atleast_1d(ind), dep1, dep2, subok=True)
+
+        return ind_dir, ind, dep1, dep2, where, kwargs
+
     def make_verts(
             self, ind_dir, ind, dep1, dep2=0, *,
             where=None, interpolate=False, step=None, **kwargs):
@@ -5584,36 +5618,11 @@ class Axes(_AxesBase):
         fill_between : Fill between two sets of y-values.
         fill_betweenx : Fill between two sets of x-values.
         """
-        dep_dir = {"x": "y", "y": "x"}[ind_dir]
 
-        if not mpl.rcParams["_internal.classic_mode"]:
-            kwargs = cbook.normalize_kwargs(kwargs, mcoll.Collection)
-            if not any(c in kwargs for c in ("color", "facecolor")):
-                kwargs["facecolor"] = \
-                    self._get_patches_for_fill.get_next_color()
-
-        # Handle united data, such as dates
-        ind, dep1, dep2 = map(
-            ma.masked_invalid, self._process_unit_info(
-                [(ind_dir, ind), (dep_dir, dep1), (dep_dir, dep2)], kwargs))
-
-        for name, array in [
-                (ind_dir, ind), (f"{dep_dir}1", dep1), (f"{dep_dir}2", dep2)]:
-            if array.ndim > 1:
-                raise ValueError(f"{name!r} is not 1-dimensional")
-
-        if where is None:
-            where = True
-        else:
-            where = np.asarray(where, dtype=bool)
-            if where.size != ind.size:
-                raise ValueError(f"where size ({where.size}) does not match "
-                                 f"{ind_dir} size ({ind.size})")
-        where = where & ~functools.reduce(
-            np.logical_or, map(np.ma.getmaskarray, [ind, dep1, dep2]))
-
-        ind, dep1, dep2 = np.broadcast_arrays(
-            np.atleast_1d(ind), dep1, dep2, subok=True)
+        if not kwargs.get("_fill_between_params_normalised", False):
+            ind_dir, ind, dep1, dep2, where, kwargs = \
+                self._normalise_fill_between_params(
+                    ind_dir, ind, dep1, dep2, where=where, **kwargs)
 
         polys = []
         for idx0, idx1 in cbook.contiguous_regions(where):
@@ -5764,9 +5773,12 @@ class Axes(_AxesBase):
         fill_between : Fill between two sets of y-values.
         fill_betweenx : Fill between two sets of x-values.
         """
+        ind_dir, ind, dep1, dep2, where, kwargs = self._normalise_fill_between_params(
+            ind_dir, ind, dep1, dep2, where=where, **kwargs)
         polys = self.make_verts(
-            ind_dir, ind, dep1, dep2,
-            where=where, interpolate=interpolate, step=step, **kwargs)
+            ind_dir, ind, dep1, dep2, where=where, interpolate=interpolate,
+            step=step, _fill_between_params_normalised=True, **kwargs)
+
         collection = mcoll.PolyCollection(polys, **kwargs)
 
         # now update the datalim and autoscale
