@@ -339,7 +339,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             # This might have changed an ndarray into a masked array.
             offset_trf = offset_trf.get_affine()
 
-        if np.ma.isMaskedArray(offsets):
+        if isinstance(offsets, np.ma.MaskedArray):
             offsets = offsets.filled(np.nan)
             # Changing from a masked array to nan-filled ndarray
             # is probably most efficient at this point.

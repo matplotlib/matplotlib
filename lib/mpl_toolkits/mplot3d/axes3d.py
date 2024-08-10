@@ -2593,10 +2593,10 @@ class Axes3D(Axes):
         offset : float, optional
             If specified, plot a projection of the contour lines at this
             position in a plane normal to *zdir*.
-        data : indexable object, optional
-            DATA_PARAMETER_PLACEHOLDER
         axlim_clip : bool, default: False
             Whether to hide lines with a vertex outside the axes view limits.
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
 
         *args, **kwargs
             Other arguments are forwarded to `matplotlib.axes.Axes.contour`.
@@ -2640,10 +2640,10 @@ class Axes3D(Axes):
         offset : float, optional
             If specified, plot a projection of the contour lines at this
             position in a plane normal to *zdir*.
-        data : indexable object, optional
-            DATA_PARAMETER_PLACEHOLDER
         axlim_clip : bool, default: False
             Whether to hide lines with a vertex outside the axes view limits.
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
         *args, **kwargs
             Other arguments are forwarded to `matplotlib.axes.Axes.tricontour`.
 
@@ -2697,10 +2697,10 @@ class Axes3D(Axes):
         offset : float, optional
             If specified, plot a projection of the contour lines at this
             position in a plane normal to *zdir*.
-        data : indexable object, optional
-            DATA_PARAMETER_PLACEHOLDER
         axlim_clip : bool, default: False
             Whether to hide lines with a vertex outside the axes view limits.
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
         *args, **kwargs
             Other arguments are forwarded to `matplotlib.axes.Axes.contourf`.
 
@@ -2737,10 +2737,10 @@ class Axes3D(Axes):
         offset : float, optional
             If specified, plot a projection of the contour lines at this
             position in a plane normal to zdir.
-        data : indexable object, optional
-            DATA_PARAMETER_PLACEHOLDER
         axlim_clip : bool, default: False
             Whether to hide lines with a vertex outside the axes view limits.
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
         *args, **kwargs
             Other arguments are forwarded to
             `matplotlib.axes.Axes.tricontourf`.
@@ -2935,10 +2935,10 @@ class Axes3D(Axes):
             used for all bars.
         zdir : {'x', 'y', 'z'}, default: 'z'
             When plotting 2D data, the direction to use as z ('x', 'y' or 'z').
-        data : indexable object, optional
-            DATA_PARAMETER_PLACEHOLDER
         axlim_clip : bool, default: False
             Whether to hide bars with points outside the axes view limits.
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
         **kwargs
             Other keyword arguments are forwarded to
             `matplotlib.axes.Axes.bar`.
@@ -3026,11 +3026,11 @@ class Axes3D(Axes):
         lightsource : `~matplotlib.colors.LightSource`, optional
             The lightsource to use when *shade* is True.
 
-        data : indexable object, optional
-            DATA_PARAMETER_PLACEHOLDER
-
         axlim_clip : bool, default: False
             Whether to hide the bars with points outside the axes view limits.
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
 
         **kwargs
             Any additional keyword arguments are passed onto
@@ -3184,11 +3184,11 @@ class Axes3D(Axes):
             Whether all arrows are normalized to have the same length, or keep
             the lengths defined by *u*, *v*, and *w*.
 
-        data : indexable object, optional
-            DATA_PARAMETER_PLACEHOLDER
-
         axlim_clip : bool, default: False
             Whether to hide arrows with points outside the axes view limits.
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
 
         **kwargs
             Any additional keyword arguments are delegated to
@@ -3890,11 +3890,11 @@ class Axes3D(Axes):
         orientation : {'x', 'y', 'z'}, default: 'z'
             The direction along which stems are drawn.
 
-        data : indexable object, optional
-            DATA_PARAMETER_PLACEHOLDER
-
         axlim_clip : bool, default: False
             Whether to hide stems that are outside the axes limits.
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
 
         Returns
         -------

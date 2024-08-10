@@ -2177,10 +2177,10 @@ def test_computed_zorder():
         ax.add_collection3d(tri)
 
         # plot a vector
-        ax.plot((2, 2), (2, 2), (0, 4), c='red', zorder=2, axlim_clip=False)
+        ax.plot((2, 2), (2, 2), (0, 4), c='red', zorder=2)
 
         # plot some points
-        ax.scatter((3, 3), (1, 3), (1, 3), c='red', zorder=10, axlim_clip=False)
+        ax.scatter((3, 3), (1, 3), (1, 3), c='red', zorder=10)
 
         ax.set_xlim((0, 5.0))
         ax.set_ylim((0, 5.0))
