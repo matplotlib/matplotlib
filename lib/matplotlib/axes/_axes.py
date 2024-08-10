@@ -5765,7 +5765,8 @@ class Axes(_AxesBase):
         fill_betweenx : Fill between two sets of x-values.
         """
         polys = self.make_verts(
-            ind_dir, ind, dep1, dep2, where, interpolate, step, **kwargs)
+            ind_dir, ind, dep1, dep2,
+            where=where, interpolate=interpolate, step=step, **kwargs)
         collection = mcoll.PolyCollection(polys, **kwargs)
 
         # now update the datalim and autoscale
