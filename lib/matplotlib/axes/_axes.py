@@ -5498,9 +5498,12 @@ class Axes(_AxesBase):
         self._request_autoscale_view()
         return patches
 
-    def make_verts(self, ind_dir, ind, dep1, dep2=0, *, where=None, interpolate=False, step=None, **kwargs):
+    def make_verts(
+            self, ind_dir, ind, dep1, dep2=0, *,
+            where=None, interpolate=False, step=None, **kwargs):
         """
-        Generate vertices that make polygons which fill the area between two {dir} curves.
+        Generate vertices that make polygons which fill the area between two
+        {dir} curves.
 
         The curves are defined by the points (*{ind}*, *{dep}1*) and (*{ind}*,
         *{dep}2*).  This creates one or multiple polygons describing the filled
@@ -5562,7 +5565,8 @@ class Axes(_AxesBase):
         Returns
         -------
         `list[ArrayLike[numpy.float64]]`
-            A list of numpy arraies containing the vertices of the polygons to be plotted.
+            A list of numpy arrays containing the vertices of the polygons to
+            be plotted.
 
         Other Parameters
         ----------------
@@ -5760,7 +5764,8 @@ class Axes(_AxesBase):
         fill_between : Fill between two sets of y-values.
         fill_betweenx : Fill between two sets of x-values.
         """
-        polys = self.make_verts(ind_dir, ind, dep1, dep2,  where, interpolate, step, **kwargs)
+        polys = self.make_verts(
+            ind_dir, ind, dep1, dep2, where, interpolate, step, **kwargs)
         collection = mcoll.PolyCollection(polys, **kwargs)
 
         # now update the datalim and autoscale
