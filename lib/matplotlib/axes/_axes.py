@@ -5498,15 +5498,9 @@ class Axes(_AxesBase):
         self._request_autoscale_view()
         return patches
 
-    def _fill_between_x_or_y(
-            self, ind_dir, ind, dep1, dep2=0, *,
-            where=None, interpolate=False, step=None, **kwargs):
-        # Common implementation between fill_between (*ind_dir*="x") and
-        # fill_betweenx (*ind_dir*="y").  *ind* is the independent variable,
-        # *dep* the dependent variable.  The docstring below is interpolated
-        # to generate both methods' docstrings.
+    def make_verts(self, ind_dir, ind, dep1, dep2=0, *, where=None, interpolate=False, step=None, **kwargs):
         """
-        Fill the area between two {dir} curves.
+        Generate vertices that make polygons which fill the area between two {dir} curves.
 
         The curves are defined by the points (*{ind}*, *{dep}1*) and (*{ind}*,
         *{dep}2*).  This creates one or multiple polygons describing the filled
@@ -5567,8 +5561,8 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        `.PolyCollection`
-            A `.PolyCollection` containing the plotted polygons.
+        `list[ArrayLike[numpy.float64]]`
+            A list of numpy arraies containing the vertices of the polygons to be plotted.
 
         Other Parameters
         ----------------
@@ -5586,7 +5580,6 @@ class Axes(_AxesBase):
         fill_between : Fill between two sets of y-values.
         fill_betweenx : Fill between two sets of x-values.
         """
-
         dep_dir = {"x": "y", "y": "x"}[ind_dir]
 
         if not mpl.rcParams["_internal.classic_mode"]:
@@ -5677,6 +5670,97 @@ class Axes(_AxesBase):
 
             polys.append(pts)
 
+        return polys
+
+    def _fill_between_x_or_y(
+            self, ind_dir, ind, dep1, dep2=0, *,
+            where=None, interpolate=False, step=None, **kwargs):
+        # Common implementation between fill_between (*ind_dir*="x") and
+        # fill_betweenx (*ind_dir*="y").  *ind* is the independent variable,
+        # *dep* the dependent variable.  The docstring below is interpolated
+        # to generate both methods' docstrings.
+        """
+        Fill the area between two {dir} curves.
+
+        The curves are defined by the points (*{ind}*, *{dep}1*) and (*{ind}*,
+        *{dep}2*).  This creates one or multiple polygons describing the filled
+        area.
+
+        You may exclude some {dir} sections from filling using *where*.
+
+        By default, the edges connect the given points directly.  Use *step*
+        if the filling should be a step function, i.e. constant in between
+        *{ind}*.
+
+        Parameters
+        ----------
+        {ind} : array (length N)
+            The {ind} coordinates of the nodes defining the curves.
+
+        {dep}1 : array (length N) or scalar
+            The {dep} coordinates of the nodes defining the first curve.
+
+        {dep}2 : array (length N) or scalar, default: 0
+            The {dep} coordinates of the nodes defining the second curve.
+
+        where : array of bool (length N), optional
+            Define *where* to exclude some {dir} regions from being filled.
+            The filled regions are defined by the coordinates ``{ind}[where]``.
+            More precisely, fill between ``{ind}[i]`` and ``{ind}[i+1]`` if
+            ``where[i] and where[i+1]``.  Note that this definition implies
+            that an isolated *True* value between two *False* values in *where*
+            will not result in filling.  Both sides of the *True* position
+            remain unfilled due to the adjacent *False* values.
+
+        interpolate : bool, default: False
+            This option is only relevant if *where* is used and the two curves
+            are crossing each other.
+
+            Semantically, *where* is often used for *{dep}1* > *{dep}2* or
+            similar.  By default, the nodes of the polygon defining the filled
+            region will only be placed at the positions in the *{ind}* array.
+            Such a polygon cannot describe the above semantics close to the
+            intersection.  The {ind}-sections containing the intersection are
+            simply clipped.
+
+            Setting *interpolate* to *True* will calculate the actual
+            intersection point and extend the filled region up to this point.
+
+        step : {{'pre', 'post', 'mid'}}, optional
+            Define *step* if the filling should be a step function,
+            i.e. constant in between *{ind}*.  The value determines where the
+            step will occur:
+
+            - 'pre': The y value is continued constantly to the left from
+              every *x* position, i.e. the interval ``(x[i-1], x[i]]`` has the
+              value ``y[i]``.
+            - 'post': The y value is continued constantly to the right from
+              every *x* position, i.e. the interval ``[x[i], x[i+1])`` has the
+              value ``y[i]``.
+            - 'mid': Steps occur half-way between the *x* positions.
+
+        Returns
+        -------
+        `.PolyCollection`
+            A `.PolyCollection` containing the plotted polygons.
+
+        Other Parameters
+        ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
+        **kwargs
+            All other keyword arguments are passed on to `.PolyCollection`.
+            They control the `.Polygon` properties:
+
+            %(PolyCollection:kwdoc)s
+
+        See Also
+        --------
+        fill_between : Fill between two sets of y-values.
+        fill_betweenx : Fill between two sets of x-values.
+        """
+        polys = self.make_verts(ind_dir, ind, dep1, dep2,  where, interpolate, step, **kwargs)
         collection = mcoll.PolyCollection(polys, **kwargs)
 
         # now update the datalim and autoscale
