@@ -4029,14 +4029,19 @@ class _Quaternion:
         elev = np.arcsin( 2*( qw*qy+qz*qx)/(qw*qw+qx*qx+qy*qy+qz*qz))  # noqa E201
         roll = np.arctan2(2*( qw*qx-qy*qz), qw*qw-qx*qx-qy*qy+qz*qz)   # noqa E201
         return elev, azim, roll
-
+        
     def add_faces(self, coordinate_list, face_color, thickness):
-        for i in range(len(coordinate_list) - 1):
-            new_coordinate_list = [coordinate_list[i], coordinate_list[i+1]]
-            new_coordinate_list.append([x + 
-                                        y for x, y in zip(coordinate_list[i+1], [0, 0, -1*thickness])])
-            new_coordinate_list.append([x + 
-                                        y for x, y in zip(coordinate_list[i], [0, 0, -1*thickness])])
-            new_coordinate_list.append(coordinate_list[i])
-            self.add_collection(Poly3DCollection([new_coordinate_list], 
-                                                 color=face_color))
+    for i in range(len(coordinate_list) - 1):
+        new_coordinate_list = [coordinate_list[i], coordinate_list[i+1]]
+        new_coordinate_list.append(
+            [x + y for x, y in zip(coordinate_list[i+1], [0, 0, -1*thickness])]
+        )
+        new_coordinate_list.append(
+            [x + y for x, y in zip(coordinate_list[i], [0, 0, -1*thickness])]
+        )
+        new_coordinate_list.append(coordinate_list[i])
+        self.add_collection(
+            Poly3DCollection([new_coordinate_list], color=face_color)
+        )
+
+
