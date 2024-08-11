@@ -455,18 +455,6 @@ class Axes(_AxesBase):
     def quiver(self, *args, data=..., **kwargs) -> Quiver: ...
     def barbs(self, *args, data=..., **kwargs) -> Barbs: ...
     def fill(self, *args, data=..., **kwargs) -> list[Polygon]: ...
-    def make_verts(
-        self,
-        ind_dir: ArrayLike,
-        ind: ArrayLike,
-        dep1: ArrayLike,
-        dep2: ArrayLike = ...,
-        *,
-        where: Sequence[bool] | None = ...,
-        interpolate: bool = ...,
-        step: Literal["pre", "post", "mid"] | None = ...,
-        **kwargs
-    ) -> "list[ArrayLike]": ...
     def fill_between(
         self,
         x: ArrayLike,

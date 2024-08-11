@@ -10,11 +10,13 @@ line segments).
 """
 
 import itertools
+import functools
 import math
 from numbers import Number, Real
 import warnings
 
 import numpy as np
+from numpy import ma
 
 import matplotlib as mpl
 from . import (_api, _path, artist, cbook, cm, colors as mcolors, _docstring,
@@ -1252,6 +1254,133 @@ class PolyCollection(_CollectionWithSizes):
         self._paths = [mpath.Path(xy, cds) if len(xy) else mpath.Path(xy)
                        for xy, cds in zip(verts, codes)]
         self.stale = True
+
+
+class PolyCollectionForFillBetween(PolyCollection):
+    def __init__(
+            self, ind_dir, ind, dep1, dep2=0, *,
+            where=None, interpolate=False, step=None, **kwargs):
+        axes = kwargs.pop("_axes", getattr(self, "axes", None))
+        polys = self._make_verts(
+            ind_dir, ind, dep1, dep2,
+            where=where, interpolate=interpolate, step=step, axes=axes, **kwargs)
+        super().__init__(polys, **kwargs)
+
+    def set_data(
+            self, ind_dir, ind, dep1, dep2=0, *,
+            where=None, interpolate=False, step=None, **kwargs):
+        polys = self._make_verts(
+            ind_dir, ind, dep1, dep2,
+            where=where, interpolate=interpolate, step=step, **kwargs)
+        self.set_verts(polys)
+
+    def _make_verts(
+            self, ind_dir, ind, dep1, dep2=0, *,
+            where=None, interpolate=False, step=None, axes=None, **kwargs):
+        dep_dir = {"x": "y", "y": "x"}[ind_dir]
+
+        if not mpl.rcParams["_internal.classic_mode"]:
+            kwargs = cbook.normalize_kwargs(kwargs, Collection)
+            if axes and not any(c in kwargs for c in ("color", "facecolor")):
+                kwargs["facecolor"] = axes._get_patches_for_fill.get_next_color()
+
+        # Handle united data, such as dates
+        if axes:
+            ind, dep1, dep2 = axes._process_unit_info(
+                [(ind_dir, ind), (dep_dir, dep1), (dep_dir, dep2)], kwargs)
+        ind, dep1, dep2 = map(ma.masked_invalid, (ind, dep1, dep2))
+
+        for name, array in [
+                (ind_dir, ind), (f"{dep_dir}1", dep1), (f"{dep_dir}2", dep2)]:
+            if array.ndim > 1:
+                raise ValueError(f"{name!r} is not 1-dimensional")
+
+        if where is None:
+            where = True
+        else:
+            where = np.asarray(where, dtype=bool)
+            if where.size != ind.size:
+                raise ValueError(f"where size ({where.size}) does not match "
+                                 f"{ind_dir} size ({ind.size})")
+        where = where & ~functools.reduce(
+            np.logical_or, map(np.ma.getmaskarray, [ind, dep1, dep2]))
+
+        ind, dep1, dep2 = np.broadcast_arrays(
+            np.atleast_1d(ind), dep1, dep2, subok=True)
+
+        polys = [
+            pts for idx0, idx1 in cbook.contiguous_regions(where)
+            if (pts := self._make_pts(
+                ind_dir, ind, dep1, dep2, idx0, idx1, step, interpolate))
+            is not None]
+
+        self._pts = np.vstack([np.hstack([ind[where, None], dep1[where, None]]),
+                               np.hstack([ind[where, None], dep2[where, None]])])
+        if ind_dir == "y":
+            self._pts = self._pts[:, ::-1]
+
+        if "transform" in kwargs:
+            self._up_xy = kwargs["transform"].contains_branch_seperately
+
+        return polys
+
+    def _make_pts(self, ind_dir, ind, dep1, dep2, idx0, idx1, step, interpolate):
+        indslice = ind[idx0:idx1]
+        dep1slice = dep1[idx0:idx1]
+        dep2slice = dep2[idx0:idx1]
+        if step is not None:
+            step_func = cbook.STEP_LOOKUP_MAP["steps-" + step]
+            indslice, dep1slice, dep2slice = \
+                step_func(indslice, dep1slice, dep2slice)
+
+        if not len(indslice):
+            return None
+
+        N = len(indslice)
+        pts = np.zeros((2 * N + 2, 2))
+
+        if interpolate:
+            start = self._get_interp_point(ind, dep1, dep2, idx0)
+            end = self._get_interp_point(ind, dep1, dep2, idx1)
+        else:
+            # Handle scalar dep2 (e.g. 0): the fill should go all
+            # the way down to 0 even if none of the dep1 sample points do.
+            start = indslice[0], dep2slice[0]
+            end = indslice[-1], dep2slice[-1]
+
+        pts[0] = start
+        pts[N + 1] = end
+
+        pts[1:N+1, 0] = indslice
+        pts[1:N+1, 1] = dep1slice
+        pts[N+2:, 0] = indslice[::-1]
+        pts[N+2:, 1] = dep2slice[::-1]
+
+        if ind_dir == "y":
+            pts = pts[:, ::-1]
+
+        return pts
+
+    def _get_interp_point(self, ind, dep1, dep2, idx):
+        im1 = max(idx - 1, 0)
+        ind_values = ind[im1:idx+1]
+        diff_values = dep1[im1:idx+1] - dep2[im1:idx+1]
+        dep1_values = dep1[im1:idx+1]
+
+        if len(diff_values) == 2:
+            if np.ma.is_masked(diff_values[1]):
+                return ind[im1], dep1[im1]
+            elif np.ma.is_masked(diff_values[0]):
+                return ind[idx], dep1[idx]
+
+        diff_order = diff_values.argsort()
+        diff_root_ind = np.interp(
+            0, diff_values[diff_order], ind_values[diff_order])
+        ind_order = ind_values.argsort()
+        diff_root_dep = np.interp(
+            diff_root_ind,
+            ind_values[ind_order], dep1_values[ind_order])
+        return diff_root_ind, diff_root_dep
 
 
 class RegularPolyCollection(_CollectionWithSizes):

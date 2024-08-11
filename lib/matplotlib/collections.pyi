@@ -106,6 +106,28 @@ class PolyCollection(_CollectionWithSizes):
         self, verts: Sequence[ArrayLike | Path], codes: Sequence[int]
     ) -> None: ...
 
+class PolyCollectionForFillBetween(PolyCollection):
+    def __init__(
+        self,
+        ind_dir: ArrayLike,
+        ind: ArrayLike,
+        dep1: ArrayLike,
+        dep2: ArrayLike = ...,
+        *,
+        where: Sequence[bool] | None = ...,
+        interpolate: bool = ...,
+        step: Literal["pre", "post", "mid"] | None = ...) -> None: ...
+    def set_data(
+        self,
+        ind_dir: ArrayLike,
+        ind: ArrayLike,
+        dep1: ArrayLike,
+        dep2: ArrayLike = ...,
+        *,
+        where: Sequence[bool] | None = ...,
+        interpolate: bool = ...,
+        step: Literal["pre", "post", "mid"] | None = ...): ...
+
 class RegularPolyCollection(_CollectionWithSizes):
     def __init__(
         self, numsides: int, *, rotation: float = ..., sizes: ArrayLike = ..., **kwargs
