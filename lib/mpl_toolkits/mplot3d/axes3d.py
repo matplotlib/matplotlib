@@ -32,6 +32,8 @@ from matplotlib.axes import Axes
 from matplotlib.axes._base import _axis_method_wrapper, _process_plot_format
 from matplotlib.transforms import Bbox
 from matplotlib.tri._triangulation import Triangulation
+from matplotlib.collections import PolyCollection
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 from . import art3d
 from . import proj3d
@@ -4028,3 +4030,12 @@ class _Quaternion:
         elev = np.arcsin( 2*( qw*qy+qz*qx)/(qw*qw+qx*qx+qy*qy+qz*qz))  # noqa E201
         roll = np.arctan2(2*( qw*qx-qy*qz), qw*qw-qx*qx-qy*qy+qz*qz)   # noqa E201
         return elev, azim, roll
+
+    def add_faces(self, coordinate_list, face_color, thickness):
+        for i in range(len(coordinate_list) - 1):
+            new_coordinate_list = [coordinate_list[i], coordinate_list[i+1]]
+            new_coordinate_list.append([x + y for x, y in zip(coordinate_list[i+1], [0, 0, -1*thickness])])
+            new_coordinate_list.append([x + y for x, y in zip(coordinate_list[i], [0, 0, -1*thickness])])
+            new_coordinate_list.append(coordinate_list[i])
+            self.add_collection(Poly3DCollection([new_coordinate_list], color=face_color))
+
