@@ -5585,11 +5585,6 @@ class Axes(_AxesBase):
         fill_between : Fill between two sets of y-values.
         fill_betweenx : Fill between two sets of x-values.
         """
-        if not mpl.rcParams["_internal.classic_mode"]:
-            kwargs = cbook.normalize_kwargs(kwargs, mcoll.Collection)
-            if not any(c in kwargs for c in ("color", "facecolor")):
-                kwargs["facecolor"] = self._get_patches_for_fill.get_next_color()
-
         collection = mcoll.PolyCollectionForFillBetween(
             ind_dir, ind, dep1, dep2,
             where=where, interpolate=interpolate, step=step, _axes=self, **kwargs)
