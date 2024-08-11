@@ -1,5 +1,5 @@
 from collections.abc import Callable, Iterable, Sequence
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
@@ -14,6 +14,9 @@ from .patches import Patch
 from .ticker import Locator, Formatter
 from .tri import Triangulation
 from .typing import ColorType, LineStyleType, CapStyleType, JoinStyleType
+
+if TYPE_CHECKING:
+    from .axes._axes import Axes
 
 class Collection(artist.Artist, cm.ScalarMappable):
     def __init__(
@@ -117,7 +120,8 @@ class PolyCollectionForFillBetween(PolyCollection):
         where: Sequence[bool] | None = ...,
         interpolate: bool = ...,
         step: Literal["pre", "post", "mid"] | None = ...,
-        kwargs
+        _axes: "Axes" | None = ...,
+        kwargs,
     ) -> None: ...
     def set_data(
         self,
