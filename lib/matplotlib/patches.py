@@ -4326,7 +4326,7 @@ default: 'arc3'
         """Return the `ConnectionStyle` used."""
         return self._connector
 
-    @_docstring.interpd
+    @_docstring.dedent_interpd
     def set_arrowstyle(self, arrowstyle=None, **kwargs):
         """
         Set the arrow style, possibly with further attributes.
