@@ -1259,30 +1259,25 @@ class PolyCollection(_CollectionWithSizes):
 class PolyCollectionForFillBetween(PolyCollection):
     def __init__(
             self, ind_dir, ind, dep1, dep2=0, *,
-            where=None, interpolate=False, step=None, **kwargs):
-        axes = kwargs.pop("_axes", getattr(self, "axes", None))
+            where=None, interpolate=False, step=None, _axes=None, **kwargs):
+        axes = _axes or getattr(self, "axes", None)
+        kwargs = self._normalise_kwargs(axes, **kwargs)
         polys = self._make_verts(
-            ind_dir, ind, dep1, dep2,
-            where=where, interpolate=interpolate, step=step, axes=axes, **kwargs)
+            ind_dir, ind, dep1, dep2, where, interpolate, step, axes, **kwargs)
         super().__init__(polys, **kwargs)
 
     def set_data(
             self, ind_dir, ind, dep1, dep2=0, *,
             where=None, interpolate=False, step=None, **kwargs):
+        axes = getattr(self, "axes", None)
+        kwargs = self._normalise_kwargs(axes, **kwargs)
         polys = self._make_verts(
-            ind_dir, ind, dep1, dep2,
-            where=where, interpolate=interpolate, step=step, **kwargs)
+            ind_dir, ind, dep1, dep2, where, interpolate, step, axes, **kwargs)
         self.set_verts(polys)
 
     def _make_verts(
-            self, ind_dir, ind, dep1, dep2=0, *,
-            where=None, interpolate=False, step=None, axes=None, **kwargs):
+            self, ind_dir, ind, dep1, dep2, where, interpolate, step, axes, **kwargs):
         dep_dir = {"x": "y", "y": "x"}[ind_dir]
-
-        if not mpl.rcParams["_internal.classic_mode"]:
-            kwargs = cbook.normalize_kwargs(kwargs, Collection)
-            if axes and not any(c in kwargs for c in ("color", "facecolor")):
-                kwargs["facecolor"] = axes._get_patches_for_fill.get_next_color()
 
         # Handle united data, such as dates
         if axes:
@@ -1323,6 +1318,14 @@ class PolyCollectionForFillBetween(PolyCollection):
             self._up_xy = kwargs["transform"].contains_branch_seperately
 
         return polys
+
+    def _normalise_kwargs(self, axes, **kwargs):
+        if not mpl.rcParams["_internal.classic_mode"]:
+            kwargs = cbook.normalize_kwargs(kwargs, Collection)
+            if axes and not any(c in kwargs for c in ("color", "facecolor")):
+                kwargs["facecolor"] = axes._get_patches_for_fill.get_next_color()
+
+        return kwargs
 
     def _make_pts(self, ind_dir, ind, dep1, dep2, idx0, idx1, step, interpolate):
         indslice = ind[idx0:idx1]
