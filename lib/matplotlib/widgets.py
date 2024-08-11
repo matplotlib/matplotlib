@@ -3722,8 +3722,11 @@ class LassoSelector(_SelectorWidget):
 
         self.update()
 
+
 def _dist_to_line(p1, p2, p3):
-    """Calculates the distance of the line connecting the points p1 and p2 to point p3"""
+    """
+    Calculates the distance of the line connecting the points p1 and p2 to point p3
+    """
 
     def dist_sqr(p, q):
         return (q[0] - p[0]) ** 2 + (q[1] - p[1]) ** 2
@@ -3736,6 +3739,7 @@ def _dist_to_line(p1, p2, p3):
 
     return dist_sqr(intersection, p3) ** 0.5, u
 
+
 class PolygonSelector(_SelectorWidget):
     """
     Select a polygon region of an Axes.
@@ -3743,7 +3747,7 @@ class PolygonSelector(_SelectorWidget):
     Place vertices with each mouse click, and make the selection by completing
     the polygon (clicking on the first vertex). Once drawn individual vertices
     can be moved by clicking and dragging with the left mouse button, or
-    removed by clicking the right mouse button. Also new verticies can be
+    removed by clicking the right mouse button. Also new vertices can be
     added by left clicking.
 
     In addition, the following modifier keys can be used:
@@ -3967,10 +3971,10 @@ class PolygonSelector(_SelectorWidget):
             self._active_handle_idx = -1
 
         elif (self._selection_completed
-            and "move_all"
-            not in self._state
-            and "move_vertex" not in self._state
-            and (self._box is None or "move" not in self._box._state)):
+              and "move_all"
+              not in self._state
+              and "move_vertex" not in self._state
+              and (self._box is None or "move" not in self._box._state)):
             if event.button == 1:
                 p3 = self._get_data_coords(event)
                 min_dist = np.inf
