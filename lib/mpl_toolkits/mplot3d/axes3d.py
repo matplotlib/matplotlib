@@ -4037,4 +4037,3 @@ class _Quaternion:
             new_coordinate_list.append([x + y for x, y in zip(coordinate_list[i], [0, 0, -1*thickness])])
             new_coordinate_list.append(coordinate_list[i])
             self.add_collection(Poly3DCollection([new_coordinate_list], color=face_color))
-
