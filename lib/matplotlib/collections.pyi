@@ -116,7 +116,9 @@ class PolyCollectionForFillBetween(PolyCollection):
         *,
         where: Sequence[bool] | None = ...,
         interpolate: bool = ...,
-        step: Literal["pre", "post", "mid"] | None = ...) -> None: ...
+        step: Literal["pre", "post", "mid"] | None = ...,
+        kwargs
+    ) -> None: ...
     def set_data(
         self,
         ind_dir: ArrayLike,
@@ -126,7 +128,9 @@ class PolyCollectionForFillBetween(PolyCollection):
         *,
         where: Sequence[bool] | None = ...,
         interpolate: bool = ...,
-        step: Literal["pre", "post", "mid"] | None = ...): ...
+        step: Literal["pre", "post", "mid"] | None = ...,
+        kwargs
+    ) -> None: ...
 
 class RegularPolyCollection(_CollectionWithSizes):
     def __init__(
