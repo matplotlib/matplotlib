@@ -1270,9 +1270,9 @@ class MultivarColormap:
             Describe how colormaps are combined in sRGB space
 
             - If 'sRGB_add' -> Mixing produces brighter colors
-              `sRGB = cmap[0][X[0]] + cmap[1][x[1]] + ... + cmap[n-1][x[n-1]]`
+              `sRGB = sum(colors)`
             - If 'sRGB_sub' -> Mixing produces darker colors
-              `sRGB = cmap[0][X[0]] + cmap[1][x[1]] + ... + cmap[n-1][x[n-1]] - n + 1`
+              `sRGB = 1 - sum(1 - colors)`
         name : str, optional
             The name of the colormap family.
         """
