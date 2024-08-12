@@ -452,8 +452,10 @@ class Axes(_AxesBase):
         edgecolor : :mpltype:`color`, default: '0.5'
             Color of the rectangle and color of the connecting lines.
 
-        alpha : float, default: 0.5
-            Transparency of the rectangle and connector lines.
+        alpha : float or None, default: 0.5
+            Transparency of the rectangle and connector lines.  If not
+            ``None``, this overrides any alpha value included in the
+            *facecolor* and *edgecolor* parameters.
 
         zorder : float, default: 4.99
             Drawing order of the rectangle and connector lines.  The default,
