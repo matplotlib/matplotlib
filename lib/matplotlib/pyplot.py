@@ -101,6 +101,7 @@ if TYPE_CHECKING:
     from matplotlib.contour import ContourSet, QuadContourSet
     from matplotlib.collections import (
         Collection,
+        FillBetweenPolyCollection,
         LineCollection,
         PolyCollection,
         PathCollection,
