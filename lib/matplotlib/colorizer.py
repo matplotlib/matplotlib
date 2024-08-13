@@ -18,7 +18,7 @@ normalization and a colormap.
 import numpy as np
 from numpy import ma
 import functools
-from matplotlib import _api, colors, cbook, scale, cm
+from matplotlib import _api, colors, cbook, scale, cm, artist
 
 
 class Colorizer():
@@ -318,8 +318,15 @@ def _get_colorizer(cmap, norm):
     return Colorizer(cmap, norm)
 
 
-class ColorizerShim:
+class _ColorizerInterface:
+    """
+    Base class that contains the interface to `Colorizer` objects from
+    a `ColorizingArtist` or `cm.ScalarMappable`.
 
+    Note: This class only contain functions that interface the .colorizer
+    attribute. Other functions that as shared between `ColorizingArtist`
+    and `cm.ScalarMappable` are not included.
+    """
     def _scale_norm(self, norm, vmin, vmax):
         self.colorizer._scale_norm(norm, vmin, vmax, self._A)
 
@@ -464,8 +471,8 @@ class ColorizerShim:
         # cm.ScalarMappable second, so Artist.format_cursor_data would always
         # have precedence over cm.ScalarMappable.format_cursor_data.
 
-        # Note if cm.ScalarMappable is depreciated, this functionality should be 
-        # implemented as format_cursor_data() on ColorizingArtist. 
+        # Note if cm.ScalarMappable is depreciated, this functionality should be
+        # implemented as format_cursor_data() on ColorizingArtist.
         n = self.cmap.N
         if np.ma.getmask(data):
             return "[]"
@@ -491,6 +498,67 @@ class ColorizerShim:
         else:
             g_sig_digits = 3  # Consistent with default below.
         return f"[{data:-#.{g_sig_digits}g}]"
+
+
+class ColorizingArtist(artist.Artist, _ColorizerInterface):
+    def __init__(self, colorizer):
+        """
+        Parameters
+        ----------
+        colorizer : `colorizer.Colorizer`
+        """
+        if not isinstance(colorizer, Colorizer):
+            raise ValueError("A `mpl.colorizer.Colorizer` object must be provided")
+
+        artist.Artist.__init__(self)
+
+        self._A = None
+
+        self.colorizer = colorizer
+        self._id_colorizer = self.colorizer.callbacks.connect('changed', self.changed)
+        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
+
+    def set_array(self, A):
+        """
+        Set the value array from array-like *A*.
+
+        Parameters
+        ----------
+        A : array-like or None
+            The values that are mapped to colors.
+
+            The base class `.ColorizingArtist` does not make any assumptions on
+            the dimensionality and shape of the value array *A*.
+        """
+        if A is None:
+            self._A = None
+            return
+
+        A = cbook.safe_masked_invalid(A, copy=True)
+        if not np.can_cast(A.dtype, float, "same_kind"):
+            raise TypeError(f"Image data of dtype {A.dtype} cannot be "
+                            "converted to float")
+
+        self._A = A
+        if not self.norm.scaled():
+            self.colorizer.autoscale_None(A)
+
+    def get_array(self):
+        """
+        Return the array of values, that are mapped to colors.
+
+        The base class `.ColorizingArtist` does not make any assumptions on
+        the dimensionality and shape of the array.
+        """
+        return self._A
+
+    def changed(self):
+        """
+        Call this whenever the mappable is changed to notify all the
+        callbackSM listeners to the 'changed' signal.
+        """
+        self.callbacks.process('changed')
+        self.stale = True
 
 
 def _auto_norm_from_scale(scale_cls):

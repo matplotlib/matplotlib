@@ -281,7 +281,7 @@ def get_cmap(name=None, lut=None):
         return _colormaps[name].resampled(lut)
 
 
-class ScalarMappable(colorizer.ColorizerShim):
+class ScalarMappable(colorizer._ColorizerInterface):
     """
     A mixin class to map one or multiple sets of scalar data to RGBA.
 

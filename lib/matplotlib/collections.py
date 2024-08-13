@@ -32,7 +32,7 @@ from ._enums import JoinStyle, CapStyle
     "linewidth": ["linewidths", "lw"],
     "offset_transform": ["transOffset"],
 })
-class Collection(artist.ColorizingArtist, colorizer.ColorizerShim):
+class Collection(colorizer.ColorizingArtist):
     r"""
     Base class for Collections. Must be subclassed to be usable.
 
@@ -156,7 +156,7 @@ class Collection(artist.ColorizingArtist, colorizer.ColorizerShim):
             ``Collection.set_{key}(val)`` for each key-value pair in *kwargs*.
         """
 
-        artist.ColorizingArtist.__init__(self, colorizer._get_colorizer(cmap, norm))
+        colorizer.ColorizingArtist.__init__(self, colorizer._get_colorizer(cmap, norm))
         # list of un-scaled dash patterns
         # this is needed scaling the dash pattern by linewidth
         self._us_linestyles = [(0, None)]
