@@ -125,15 +125,27 @@ class FillBetweenPolyCollection(PolyCollection):
     ) -> None: ...
     def set_data(
         self,
-        ind_dir: ArrayLike,
-        ind: ArrayLike,
-        dep1: ArrayLike,
-        dep2: ArrayLike = ...,
-        *,
+        x: ArrayLike,
+        y1: ArrayLike,
+        y2: ArrayLike = ...,
         where: Sequence[bool] | None = ...,
         interpolate: bool = ...,
         step: Literal["pre", "post", "mid"] | None = ...,
-        kwargs
+        *,
+        data=...,
+        **kwargs
+    ) -> None: ...
+    def set_datax(
+        self,
+        y: ArrayLike,
+        x1: ArrayLike,
+        x2: ArrayLike = ...,
+        where: Sequence[bool] | None = ...,
+        interpolate: bool = ...,
+        step: Literal["pre", "post", "mid"] | None = ...,
+        *,
+        data=...,
+        **kwargs
     ) -> None: ...
 
 class RegularPolyCollection(_CollectionWithSizes):

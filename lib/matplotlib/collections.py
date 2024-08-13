@@ -1267,6 +1267,20 @@ class FillBetweenPolyCollection(PolyCollection):
         super().__init__(polys, **kwargs)
 
     def set_data(
+            self, x, y1, y2=0,
+            where=None, interpolate=False, step=None, **kwargs):
+        return self._set_data_x_or_y(
+            "x", x, y1, y2,
+            where=where, interpolate=interpolate, step=step, **kwargs)
+
+    def set_datax(
+            self, y, x1, x2=0,
+            where=None, interpolate=False, step=None, **kwargs):
+        return self._set_data_x_or_y(
+            "y", y, x1, x2,
+            where=where, interpolate=interpolate, step=step, **kwargs)
+
+    def _set_data_x_or_y(
             self, ind_dir, ind, dep1, dep2=0, *,
             where=None, interpolate=False, step=None, **kwargs):
         axes = getattr(self, "axes", None)
