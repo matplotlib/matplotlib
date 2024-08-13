@@ -5585,7 +5585,7 @@ class Axes(_AxesBase):
         fill_between : Fill between two sets of y-values.
         fill_betweenx : Fill between two sets of x-values.
         """
-        collection = mcoll.PolyCollectionForFillBetween(
+        collection = mcoll.FillBetweenPolyCollection(
             ind_dir, ind, dep1, dep2,
             where=where, interpolate=interpolate, step=step, _axes=self, **kwargs)
 
