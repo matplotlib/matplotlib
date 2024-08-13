@@ -19,6 +19,14 @@ import numpy as np
 from numpy import ma
 import functools
 from matplotlib import _api, colors, cbook, scale, cm, artist
+import matplotlib as mpl
+
+mpl._docstring.interpd.update(
+    colorizer_doc="""\
+colorizer : `~matplotlib.colorizer.Colorizer` or None, default: None
+    The Colorizer object used to map color to data. If None, a Colorizer
+    object is created base on *norm* and *cmap*.""",
+    )
 
 
 class Colorizer():
@@ -302,19 +310,14 @@ class Colorizer():
         self.norm.clip = clip
 
 
-def _get_colorizer(cmap, norm):
+def _get_colorizer(cmap, norm, colorizer):
     """
     Passes or creates a Colorizer object.
-
-    Allows users to pass a Colorizer as the norm keyword
-    where a artist.ColorizingArtist is used as the artist.
-    If a Colorizer object is not passed, a Colorizer is created.
     """
-    if isinstance(norm, Colorizer):
-        if cmap:
-            raise ValueError("Providing a `cm.Colorizer` as the norm while "
-                             "at the same time providing a `cmap` is not supported.")
-        return norm
+    if colorizer and isinstance(colorizer, Colorizer):
+        ColorizingArtist._check_exclusionary_keywords(Colorizer,
+                                                      cmap=cmap, norm=norm)
+        return colorizer
     return Colorizer(cmap, norm)
 
 
@@ -514,7 +517,7 @@ class ColorizingArtist(artist.Artist, _ColorizerInterface):
 
         self._A = None
 
-        self.colorizer = colorizer
+        self._colorizer = colorizer
         self._id_colorizer = self.colorizer.callbacks.connect('changed', self.changed)
         self.callbacks = cbook.CallbackRegistry(signals=["changed"])
 
@@ -559,6 +562,40 @@ class ColorizingArtist(artist.Artist, _ColorizerInterface):
         """
         self.callbacks.process('changed')
         self.stale = True
+
+    @property
+    def colorizer(self):
+        return self._colorizer
+
+    @colorizer.setter
+    def colorizer(self, cl):
+        if isinstance(cl, Colorizer):
+            self._colorizer.callbacks.disconnect(self._id_colorizer)
+            self._colorizer = cl
+            self._id_colorizer = cl.callbacks.connect('changed', self.changed)
+        else:
+            raise ValueError("colorizer must be a `Colorizer` object, not "
+                             f" {type(cl)}.")
+
+    @staticmethod
+    def _check_exclusionary_keywords(colorizer, **kwargs):
+        """
+        Raises a ValueError if any kwarg is not None while colorizer is not None
+        """
+        if colorizer is not None:
+            if any([val is not None for val in kwargs.values()]):
+                raise ValueError("The `colorizer` keyword cannot be used simultaneously"
+                                 " with any of the following keywords: "
+                                 + ", ".join(f'`{key}`' for key in kwargs.keys()))
+
+    def _set_colorizer_check_keywords(self, colorizer, **kwargs):
+        """
+        Raises a ValueError if any kwarg is not None while colorizer is not None
+
+        Then sets the colorizer.
+        """
+        self._check_exclusionary_keywords(colorizer, **kwargs)
+        self.colorizer = colorizer
 
 
 def _auto_norm_from_scale(scale_cls):
