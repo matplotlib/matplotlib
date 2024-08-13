@@ -13,7 +13,6 @@ import itertools
 import functools
 import math
 from numbers import Number, Real
-from typing import Literal
 import warnings
 
 import numpy as np
@@ -1269,7 +1268,7 @@ class FillBetweenPolyCollection(PolyCollection):
         super().__init__(polys, **kwargs)
 
     @property
-    def dep_dir(self) -> Literal["x", "y"]:
+    def dep_dir(self):
         match self.ind_dir:
             case "x":
                 return "y"

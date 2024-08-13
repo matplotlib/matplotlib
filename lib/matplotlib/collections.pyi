@@ -123,6 +123,8 @@ class FillBetweenPolyCollection(PolyCollection):
         _axes: "Axes" | None = ...,
         kwargs,
     ) -> None: ...
+    @property
+    def dep_dir(self) -> Literal["x", "y"]: ...
     def set_data(
         self,
         ind: ArrayLike,
