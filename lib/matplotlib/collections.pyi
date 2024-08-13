@@ -109,7 +109,7 @@ class PolyCollection(_CollectionWithSizes):
         self, verts: Sequence[ArrayLike | Path], codes: Sequence[int]
     ) -> None: ...
 
-class PolyCollectionForFillBetween(PolyCollection):
+class FillBetweenPolyCollection(PolyCollection):
     def __init__(
         self,
         ind_dir: ArrayLike,

@@ -1256,7 +1256,7 @@ class PolyCollection(_CollectionWithSizes):
         self.stale = True
 
 
-class PolyCollectionForFillBetween(PolyCollection):
+class FillBetweenPolyCollection(PolyCollection):
     def __init__(
             self, ind_dir, ind, dep1, dep2=0, *,
             where=None, interpolate=False, step=None, _axes=None, **kwargs):
