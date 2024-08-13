@@ -3326,7 +3326,7 @@ def fill_between(
     *,
     data=None,
     **kwargs,
-) -> PolyCollection:
+) -> FillBetweenPolyCollection:
     return gca().fill_between(
         x,
         y1,
@@ -3351,7 +3351,7 @@ def fill_betweenx(
     *,
     data=None,
     **kwargs,
-) -> PolyCollection:
+) -> FillBetweenPolyCollection:
     return gca().fill_betweenx(
         y,
         x1,
