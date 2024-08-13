@@ -100,7 +100,15 @@ jobs:
       CIBW_AFTER_BUILD: >-
         twine check {wheel} &&
         python {package}/ci/check_wheel_licenses.py {wheel}
-      CIBW_CONFIG_SETTINGS: setup-args="--vsenv"
+      # On Windows, we explicitly request MSVC compilers (as GitHub Action runners have
+      # MinGW on PATH that would be picked otherwise), switch to a static build for
+      # runtimes, but use dynamic linking for `VCRUNTIME140.dll`, `VCRUNTIME140_1.dll`,
+      # and the UCRT. This avoids requiring specific versions of `MSVCP140.dll`, while
+      # keeping shared state with the rest of the Python process/extensions.
+      CIBW_CONFIG_SETTINGS_WINDOWS: >-
+        setup-args="--vsenv"
+        setup-args="-Db_vscrt=mt"
+        setup-args="-Dcpp_link_args=['ucrt.lib','vcruntime.lib','/nodefaultlib:libucrt.lib','/nodefaultlib:libvcruntime.lib']"
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
       CIBW_SKIP: "*-musllinux_aarch64"
       CIBW_TEST_COMMAND: >-
@@ -144,7 +152,6 @@ jobs:
           CIBW_SKIP: "cp313t-win_amd64 *-musllinux_aarch64"
           CIBW_BUILD_FRONTEND:
             "pip; args: --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple"
-          CIBW_PRERELEASE_PYTHONS: true
           CIBW_FREE_THREADED_SUPPORT: true
           # No free-threading wheels available for aarch64 on Pillow.
           CIBW_TEST_SKIP: "cp313t-manylinux_aarch64"
