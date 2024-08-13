@@ -13,6 +13,7 @@ import itertools
 import functools
 import math
 from numbers import Number, Real
+from typing import Literal
 import warnings
 
 import numpy as np
@@ -1260,47 +1261,42 @@ class FillBetweenPolyCollection(PolyCollection):
     def __init__(
             self, ind_dir, ind, dep1, dep2=0, *,
             where=None, interpolate=False, step=None, _axes=None, **kwargs):
+        self.ind_dir = ind_dir
         axes = _axes or getattr(self, "axes", None)
         kwargs = self._normalise_kwargs(axes, **kwargs)
         polys = self._make_verts(
-            ind_dir, ind, dep1, dep2, where, interpolate, step, axes, **kwargs)
+            ind, dep1, dep2, where, interpolate, step, axes, **kwargs)
         super().__init__(polys, **kwargs)
 
+    @property
+    def dep_dir(self) -> Literal["x", "y"]:
+        match self.ind_dir:
+            case "x":
+                return "y"
+            case "y":
+                return "x"
+            case _:
+                raise ValueError(f"ind_dir must be 'x' or 'y', got '{self.ind_dir}'")
+
     def set_data(
-            self, x, y1, y2=0,
-            where=None, interpolate=False, step=None, **kwargs):
-        return self._set_data_x_or_y(
-            "x", x, y1, y2,
-            where=where, interpolate=interpolate, step=step, **kwargs)
-
-    def set_datax(
-            self, y, x1, x2=0,
-            where=None, interpolate=False, step=None, **kwargs):
-        return self._set_data_x_or_y(
-            "y", y, x1, x2,
-            where=where, interpolate=interpolate, step=step, **kwargs)
-
-    def _set_data_x_or_y(
-            self, ind_dir, ind, dep1, dep2=0, *,
+            self, ind, dep1, dep2=0,
             where=None, interpolate=False, step=None, **kwargs):
         axes = getattr(self, "axes", None)
         kwargs = self._normalise_kwargs(axes, **kwargs)
         polys = self._make_verts(
-            ind_dir, ind, dep1, dep2, where, interpolate, step, axes, **kwargs)
+            ind, dep1, dep2, where, interpolate, step, axes, **kwargs)
         self.set_verts(polys)
 
-    def _make_verts(
-            self, ind_dir, ind, dep1, dep2, where, interpolate, step, axes, **kwargs):
-        dep_dir = {"x": "y", "y": "x"}[ind_dir]
-
+    def _make_verts(self, ind, dep1, dep2, where, interpolate, step, axes, **kwargs):
         # Handle united data, such as dates
+        dirs = (self.ind_dir, self.dep_dir, self.dep_dir)
+        names = (d + s for d, s in zip(dirs, ("", "1", "2")))
+        arrays = (ind, dep1, dep2)
         if axes:
-            ind, dep1, dep2 = axes._process_unit_info(
-                [(ind_dir, ind), (dep_dir, dep1), (dep_dir, dep2)], kwargs)
-        ind, dep1, dep2 = map(ma.masked_invalid, (ind, dep1, dep2))
+            arrays = tuple(axes._process_unit_info([*zip(dirs, arrays)], kwargs))
+        arrays = tuple(map(ma.masked_invalid, arrays))
 
-        for name, array in [
-                (ind_dir, ind), (f"{dep_dir}1", dep1), (f"{dep_dir}2", dep2)]:
+        for name, array in zip(names, arrays):
             if array.ndim > 1:
                 raise ValueError(f"{name!r} is not 1-dimensional")
 
@@ -1310,23 +1306,20 @@ class FillBetweenPolyCollection(PolyCollection):
             where = np.asarray(where, dtype=bool)
             if where.size != ind.size:
                 raise ValueError(f"where size ({where.size}) does not match "
-                                 f"{ind_dir} size ({ind.size})")
+                                 f"{self.ind_dir} size ({ind.size})")
         where = where & ~functools.reduce(
-            np.logical_or, map(np.ma.getmaskarray, [ind, dep1, dep2]))
+            np.logical_or, map(np.ma.getmaskarray, arrays))
 
-        ind, dep1, dep2 = np.broadcast_arrays(
-            np.atleast_1d(ind), dep1, dep2, subok=True)
+        arrays = np.broadcast_arrays(
+            np.atleast_1d(arrays[0]), *arrays[1:], subok=True)
 
         polys = [
             pts for idx0, idx1 in cbook.contiguous_regions(where)
-            if (pts := self._make_pts(
-                ind_dir, ind, dep1, dep2, idx0, idx1, step, interpolate))
+            if (pts := self._make_pts(*arrays, idx0, idx1, step, interpolate))
             is not None]
 
-        self._pts = np.vstack([np.hstack([ind[where, None], dep1[where, None]]),
-                               np.hstack([ind[where, None], dep2[where, None]])])
-        if ind_dir == "y":
-            self._pts = self._pts[:, ::-1]
+        self._pts = self._normalise_pts(np.vstack([
+            np.hstack([ind[where, None], dep[where, None]]) for dep in arrays[1:]]))
 
         if "transform" in kwargs:
             self._up_xy = kwargs["transform"].contains_branch_seperately
@@ -1341,7 +1334,7 @@ class FillBetweenPolyCollection(PolyCollection):
 
         return kwargs
 
-    def _make_pts(self, ind_dir, ind, dep1, dep2, idx0, idx1, step, interpolate):
+    def _make_pts(self, ind, dep1, dep2, idx0, idx1, step, interpolate):
         indslice = ind[idx0:idx1]
         dep1slice = dep1[idx0:idx1]
         dep2slice = dep2[idx0:idx1]
@@ -1373,10 +1366,7 @@ class FillBetweenPolyCollection(PolyCollection):
         pts[N+2:, 0] = indslice[::-1]
         pts[N+2:, 1] = dep2slice[::-1]
 
-        if ind_dir == "y":
-            pts = pts[:, ::-1]
-
-        return pts
+        return self._normalise_pts(pts)
 
     def _get_interp_point(self, ind, dep1, dep2, idx):
         im1 = max(idx - 1, 0)
@@ -1398,6 +1388,9 @@ class FillBetweenPolyCollection(PolyCollection):
             diff_root_ind,
             ind_values[ind_order], dep1_values[ind_order])
         return diff_root_ind, diff_root_dep
+
+    def _normalise_pts(self, pts):
+        return pts[:, ::-1] if self.ind_dir == "y" else pts
 
 
 class RegularPolyCollection(_CollectionWithSizes):
