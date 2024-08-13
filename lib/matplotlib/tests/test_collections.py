@@ -830,6 +830,32 @@ def test_collection_set_verts_array():
         assert np.array_equal(ap._codes, atp._codes)
 
 
+def _fig_to_bytes(fig):
+    with io.BytesIO() as bio:
+        fig.savefig(bio)
+        return bio.getvalue()
+
+
+def test_collection_set_data():
+    xdata = np.linspace(16, 365, (365-16)*4)
+    y1data = np.sin(2*np.pi*xdata/153) + np.cos(2*np.pi*xdata/127)
+    y2data = y1data + .2
+    y3data = y2data.copy()
+    y3data[100], y3data[200] = y3data[2], y3data[200]
+
+    fig1, ax1 = plt.subplots()
+    ax1.fill_between(xdata, y1data, y2data)
+    fig1b = _fig_to_bytes(fig1)
+
+    fig2, ax2 = plt.subplots()
+    coll2 = ax2.fill_between(xdata, y1data, y3data)
+
+    assert fig1b != _fig_to_bytes(fig2)
+
+    coll2.set_data(xdata, y1data, y2data)
+    assert fig1b == _fig_to_bytes(fig2)
+
+
 def test_collection_set_array():
     vals = [*range(10)]
 
