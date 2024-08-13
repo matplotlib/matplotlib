@@ -229,7 +229,7 @@ def _rgb_to_rgba(A):
     return rgba
 
 
-class _ImageBase(martist.ColorizingArtist, colorizer.ColorizerShim):
+class _ImageBase(colorizer.ColorizingArtist):
     """
     Base class for images.
 
@@ -258,7 +258,7 @@ class _ImageBase(martist.ColorizingArtist, colorizer.ColorizerShim):
                  interpolation_stage=None,
                  **kwargs
                  ):
-        martist.ColorizingArtist.__init__(self, colorizer._get_colorizer(cmap, norm))
+        colorizer.ColorizingArtist.__init__(self, colorizer._get_colorizer(cmap, norm))
         if origin is None:
             origin = mpl.rcParams['image.origin']
         _api.check_in_list(["upper", "lower"], origin=origin)
@@ -330,7 +330,7 @@ class _ImageBase(martist.ColorizingArtist, colorizer.ColorizerShim):
         Call this whenever the mappable is changed so observers can update.
         """
         self._imcache = None
-        martist.ColorizingArtist.changed(self)
+        colorizer.ColorizingArtist.changed(self)
 
     def _make_image(self, A, in_bbox, out_bbox, clip_bbox, magnification=1.0,
                     unsampled=False, round_to_pixel_border=True):
@@ -1349,7 +1349,7 @@ class FigureImage(_ImageBase):
 
     def set_data(self, A):
         """Set the image array."""
-        martist.ColorizingArtist.set_array(self, A)
+        colorizer.ColorizingArtist.set_array(self, A)
         self.stale = True
 
 
