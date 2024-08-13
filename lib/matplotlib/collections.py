@@ -1288,14 +1288,14 @@ class FillBetweenPolyCollection(PolyCollection):
         self.set_verts(polys)
 
     def _make_verts(self, ind, dep1, dep2, where, interpolate, step, axes, **kwargs):
-        # Handle united data, such as dates
         dirs = (self.ind_dir, self.dep_dir, self.dep_dir)
-        names = (d + s for d, s in zip(dirs, ("", "1", "2")))
         arrays = (ind, dep1, dep2)
+        # Handle united data, such as dates
         if axes:
             arrays = tuple(axes._process_unit_info([*zip(dirs, arrays)], kwargs))
-        arrays = tuple(map(ma.masked_invalid, arrays))
+        ind, dep1, dep2 = arrays = tuple(map(ma.masked_invalid, arrays))
 
+        names = (d + s for d, s in zip(dirs, ("", "1", "2")))
         for name, array in zip(names, arrays):
             if array.ndim > 1:
                 raise ValueError(f"{name!r} is not 1-dimensional")
@@ -1310,8 +1310,8 @@ class FillBetweenPolyCollection(PolyCollection):
         where = where & ~functools.reduce(
             np.logical_or, map(np.ma.getmaskarray, arrays))
 
-        arrays = np.broadcast_arrays(
-            np.atleast_1d(arrays[0]), *arrays[1:], subok=True)
+        ind, dep1, dep2 = arrays = np.broadcast_arrays(
+            np.atleast_1d(ind), dep1, dep2, subok=True)
 
         polys = [
             pts for idx0, idx1 in cbook.contiguous_regions(where)
@@ -1319,7 +1319,7 @@ class FillBetweenPolyCollection(PolyCollection):
             is not None]
 
         self._pts = self._normalise_pts(np.vstack([
-            np.hstack([ind[where, None], dep[where, None]]) for dep in arrays[1:]]))
+            np.hstack([ind[where, None], dep[where, None]]) for dep in (dep1, dep2)]))
 
         if "transform" in kwargs:
             self._up_xy = kwargs["transform"].contains_branch_seperately
