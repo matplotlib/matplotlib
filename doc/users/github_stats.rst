@@ -89,7 +89,7 @@ Issues (9):
 * :ghissue:`28250`: [Doc]: Sphinx gallery links mispointed for Axes3D methods
 * :ghissue:`28574`: [Bug]: Nondeterministic behavior with subplot spacing and constrained layout
 * :ghissue:`28626`: [Doc]: Remove old TODO's from animation.py
-* :ghissue:`28648`: [Bug]: format_image_data on an image of only zeros produses a large number of zeros
+* :ghissue:`28648`: [Bug]: format_image_data on an image of only zeros produces a large number of zeros
 * :ghissue:`28624`: [Bug]: Bad type hint in ``_AxesBase.twinx()``
 * :ghissue:`28567`: [Bug]: sticky edge related changes for datetime plots
 * :ghissue:`28533`: [Doc]: Stackplot hatch functionality has version dependencies
