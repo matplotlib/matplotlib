@@ -158,7 +158,12 @@ jobs:
             ;;
           macOS)
             brew update
-            brew install ccache ghostscript gobject-introspection gtk4 ninja
+            brew install ccache ghostscript ninja
+            # The macOS 12 images have an older Python, and this causes homebrew to generate conflicts.
+            # We'll just skip GTK for now, to not pull in Python updates.
+            if [[ "${{ matrix.os }}" = macos-14 ]]; then
+              brew install gobject-introspection gtk4
+            fi
             brew install --cask font-noto-sans-cjk inkscape
             ;;
           esac
