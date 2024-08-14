@@ -16,7 +16,6 @@ from numbers import Number, Real
 import warnings
 
 import numpy as np
-from numpy import ma
 
 import matplotlib as mpl
 from . import (_api, _path, artist, cbook, cm, colors as mcolors, _docstring,
@@ -1288,14 +1287,14 @@ class FillBetweenPolyCollection(PolyCollection):
 
     def _make_verts(self, ind, dep1, dep2, where, interpolate, step, axes, **kwargs):
         dirs = (self.ind_dir, self.dep_dir, self.dep_dir)
-        arrays = (ind, dep1, dep2)
         # Handle united data, such as dates
         if axes:
-            arrays = tuple(axes._process_unit_info([*zip(dirs, arrays)], kwargs))
-        ind, dep1, dep2 = arrays = tuple(map(ma.masked_invalid, arrays))
+            ind, dep1, dep2 = axes._process_unit_info(
+                [*zip(dirs, [ind, dep1, dep2])], kwargs)
+        ind, dep1, dep2 = map(np.ma.masked_invalid, [ind, dep1, dep2])
 
         names = (d + s for d, s in zip(dirs, ("", "1", "2")))
-        for name, array in zip(names, arrays):
+        for name, array in zip(names, [ind, dep1, dep2]):
             if array.ndim > 1:
                 raise ValueError(f"{name!r} is not 1-dimensional")
 
@@ -1307,14 +1306,14 @@ class FillBetweenPolyCollection(PolyCollection):
                 raise ValueError(f"where size ({where.size}) does not match "
                                  f"{self.ind_dir} size ({ind.size})")
         where = where & ~functools.reduce(
-            np.logical_or, map(np.ma.getmaskarray, arrays))
+            np.logical_or, map(np.ma.getmaskarray, [ind, dep1, dep2]))
 
-        ind, dep1, dep2 = arrays = np.broadcast_arrays(
+        ind, dep1, dep2 = np.broadcast_arrays(
             np.atleast_1d(ind), dep1, dep2, subok=True)
 
         polys = [
             pts for idx0, idx1 in cbook.contiguous_regions(where)
-            if (pts := self._make_pts(*arrays, idx0, idx1, step, interpolate))
+            if (pts := self._make_pts(ind, dep1, dep2, idx0, idx1, step, interpolate))
             is not None]
 
         self._pts = self._normalise_pts(np.vstack([
