@@ -81,28 +81,28 @@
       "lib/matplotlib/scale.py:docstring of matplotlib.scale.ScaleBase:8"
     ],
     "output_dims": [
-      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.AitoffAxes.AitoffTransform.transform_non_affine:20",
-      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.AitoffAxes.InvertedAitoffTransform.transform_non_affine:20",
-      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.HammerAxes.HammerTransform.transform_non_affine:20",
-      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.HammerAxes.InvertedHammerTransform.transform_non_affine:20",
-      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.LambertAxes.InvertedLambertTransform.transform_non_affine:20",
-      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.LambertAxes.LambertTransform.transform_non_affine:20",
-      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.MollweideAxes.InvertedMollweideTransform.transform_non_affine:20",
-      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.MollweideAxes.MollweideTransform.transform_non_affine:20",
-      "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.AffineBase.transform:14",
-      "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.AffineBase.transform_affine:21",
-      "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.AffineBase.transform_non_affine:20",
-      "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.CompositeGenericTransform.transform_affine:21",
-      "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.CompositeGenericTransform.transform_non_affine:20",
-      "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.IdentityTransform.transform:14",
-      "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.IdentityTransform.transform_affine:21",
-      "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.IdentityTransform.transform_non_affine:20"
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.AitoffAxes.AitoffTransform.transform_non_affine:22",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.AitoffAxes.InvertedAitoffTransform.transform_non_affine:22",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.HammerAxes.HammerTransform.transform_non_affine:22",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.HammerAxes.InvertedHammerTransform.transform_non_affine:22",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.LambertAxes.InvertedLambertTransform.transform_non_affine:22",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.LambertAxes.LambertTransform.transform_non_affine:22",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.MollweideAxes.InvertedMollweideTransform.transform_non_affine:22",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.MollweideAxes.MollweideTransform.transform_non_affine:22",
+      "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.AffineBase.transform:16",
+      "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.AffineBase.transform_affine:23",
+      "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.AffineBase.transform_non_affine:22",
+      "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.CompositeGenericTransform.transform_affine:23",
+      "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.CompositeGenericTransform.transform_non_affine:22",
+      "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.IdentityTransform.transform:16",
+      "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.IdentityTransform.transform_affine:23",
+      "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.IdentityTransform.transform_non_affine:22"
     ],
     "triangulation": [
       "lib/matplotlib/tri/_trirefine.py:docstring of matplotlib.tri._trirefine.UniformTriRefiner.refine_triangulation:2"
     ],
     "use_sticky_edges": [
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.margins:57"
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.margins:59"
     ],
     "width": [
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.Bbox.bounds:2"
@@ -274,11 +274,11 @@
   },
   "py:data": {
     "matplotlib.axes.Axes.transAxes": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.legend:248",
-      "lib/matplotlib/figure.py:docstring of matplotlib.figure.FigureBase.legend:249",
-      "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:201",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.figlegend:249",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.legend:248"
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.legend:250",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.FigureBase.legend:251",
+      "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:209",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.figlegend:251",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.legend:250"
     ]
   },
   "py:meth": {
@@ -299,13 +299,13 @@
       "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Barbs:9"
     ],
     "matplotlib.collections._CollectionWithSizes.set_sizes": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.barbs:177",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.broken_barh:82",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.fill_between:118",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.fill_betweenx:118",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.hexbin:211",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.pcolor:180",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.quiver:213",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.barbs:179",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.broken_barh:84",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.fill_between:120",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.fill_betweenx:120",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.hexbin:213",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.pcolor:182",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.quiver:215",
       "lib/matplotlib/collections.py:docstring of matplotlib.artist.AsteriskPolygonCollection.set:44",
       "lib/matplotlib/collections.py:docstring of matplotlib.artist.CircleCollection.set:44",
       "lib/matplotlib/collections.py:docstring of matplotlib.artist.PathCollection.set:44",
@@ -313,25 +313,25 @@
       "lib/matplotlib/collections.py:docstring of matplotlib.artist.PolyQuadMesh.set:44",
       "lib/matplotlib/collections.py:docstring of matplotlib.artist.RegularPolyCollection.set:44",
       "lib/matplotlib/collections.py:docstring of matplotlib.artist.StarPolygonCollection.set:44",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.barbs:177",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.broken_barh:82",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.fill_between:118",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.fill_betweenx:118",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.hexbin:211",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.pcolor:180",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.quiver:213",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.barbs:179",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.broken_barh:84",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.fill_between:120",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.fill_betweenx:120",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.hexbin:213",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.pcolor:182",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.quiver:215",
       "lib/matplotlib/quiver.py:docstring of matplotlib.artist.Barbs.set:45",
       "lib/matplotlib/quiver.py:docstring of matplotlib.artist.Quiver.set:45",
-      "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Barbs:210",
-      "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Quiver:249",
+      "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Barbs:212",
+      "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Quiver:251",
       "lib/mpl_toolkits/mplot3d/art3d.py:docstring of matplotlib.artist.Path3DCollection.set:46",
       "lib/mpl_toolkits/mplot3d/art3d.py:docstring of matplotlib.artist.Poly3DCollection.set:44"
     ],
     "matplotlib.collections._MeshData.set_array": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.pcolormesh:162",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.pcolormesh:164",
       "lib/matplotlib/collections.py:docstring of matplotlib.artist.PolyQuadMesh.set:17",
       "lib/matplotlib/collections.py:docstring of matplotlib.artist.QuadMesh.set:17",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.pcolormesh:162"
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.pcolormesh:164"
     ]
   },
   "py:obj": {
@@ -359,10 +359,10 @@
       "doc/users/explain/figure/event_handling.rst:568"
     ],
     "QuadContourSet.changed()": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.contour:154",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.contourf:154",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.contour:154",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.contourf:154"
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.contour:156",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.contourf:156",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.contour:156",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.contourf:156"
     ],
     "Rectangle.contains": [
       "doc/users/explain/figure/event_handling.rst:280"
@@ -377,7 +377,7 @@
     ],
     "ToolContainer": [
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.ToolContainerBase.remove_toolitem:8",
-      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.ToolContainerBase:20"
+      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.ToolContainerBase:9"
     ],
     "_iter_collection": [
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.RendererBase.draw_path_collection:15",
@@ -394,21 +394,21 @@
       "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.PathEffectRenderer.draw_path_collection:15"
     ],
     "_read": [
-      "lib/matplotlib/dviread.py:docstring of matplotlib.dviread.Vf:20"
+      "lib/matplotlib/dviread.py:docstring of matplotlib.dviread.Vf:22"
     ],
     "active": [
-      "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.AxesWidget:32"
+      "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.AxesWidget:21"
     ],
     "ax.transAxes": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.indicate_inset:19",
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.inset_axes:11"
     ],
     "axes.bbox": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.legend:144",
-      "lib/matplotlib/figure.py:docstring of matplotlib.figure.FigureBase.legend:145",
-      "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:97",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.figlegend:145",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.legend:144"
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.legend:146",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.FigureBase.legend:147",
+      "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:105",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.figlegend:147",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.legend:146"
     ],
     "can_composite": [
       "lib/matplotlib/image.py:docstring of matplotlib.image.composite_images:9"
@@ -420,11 +420,11 @@
       "lib/matplotlib/backends/backend_agg.py:docstring of matplotlib.backends.backend_agg.RendererAgg.option_scale_image:2"
     ],
     "figure.bbox": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.legend:144",
-      "lib/matplotlib/figure.py:docstring of matplotlib.figure.FigureBase.legend:145",
-      "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:97",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.figlegend:145",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.legend:144"
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.legend:146",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.FigureBase.legend:147",
+      "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:105",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.figlegend:147",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.legend:146"
     ],
     "fmt_xdata": [
       "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes._base._AxesBase.format_xdata:4"
@@ -439,12 +439,12 @@
       "doc/users/explain/figure/interactive.rst:361"
     ],
     "kde.covariance_factor": [
-      "lib/matplotlib/mlab.py:docstring of matplotlib.mlab.GaussianKDE:40"
+      "lib/matplotlib/mlab.py:docstring of matplotlib.mlab.GaussianKDE:29"
     ],
     "kde.factor": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.violinplot:58",
       "lib/matplotlib/mlab.py:docstring of matplotlib.mlab.GaussianKDE:12",
-      "lib/matplotlib/mlab.py:docstring of matplotlib.mlab.GaussianKDE:44",
+      "lib/matplotlib/mlab.py:docstring of matplotlib.mlab.GaussianKDE:33",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.violinplot:58"
     ],
     "make_image": [
