@@ -41,7 +41,6 @@ class FT2Image
 
     void resize(long width, long height);
     void draw_bitmap(FT_Bitmap *bitmap, FT_Int x, FT_Int y);
-    void draw_rect(unsigned long x0, unsigned long y0, unsigned long x1, unsigned long y1);
     void draw_rect_filled(unsigned long x0, unsigned long y0, unsigned long x1, unsigned long y1);
 
     unsigned char *get_buffer()
@@ -104,9 +103,6 @@ class FT2Font
     void get_width_height(long *width, long *height);
     void get_bitmap_offset(long *x, long *y);
     long get_descent();
-    // TODO: Since we know the size of the array upfront, we probably don't
-    // need to dynamically allocate like this
-    void get_xys(bool antialiased, std::vector<double> &xys);
     void draw_glyphs_to_bitmap(bool antialiased);
     void draw_glyph_to_bitmap(FT2Image &im, int x, int y, size_t glyphInd, bool antialiased);
     void get_glyph_name(unsigned int glyph_number, std::string &buffer, bool fallback);

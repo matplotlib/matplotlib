@@ -145,27 +145,6 @@ void FT2Image::draw_bitmap(FT_Bitmap *bitmap, FT_Int x, FT_Int y)
     m_dirty = true;
 }
 
-void FT2Image::draw_rect(unsigned long x0, unsigned long y0, unsigned long x1, unsigned long y1)
-{
-    if (x0 > m_width || x1 > m_width || y0 > m_height || y1 > m_height) {
-        throw std::runtime_error("Rect coords outside image bounds");
-    }
-
-    size_t top = y0 * m_width;
-    size_t bottom = y1 * m_width;
-    for (size_t i = x0; i < x1 + 1; ++i) {
-        m_buffer[i + top] = 255;
-        m_buffer[i + bottom] = 255;
-    }
-
-    for (size_t j = y0 + 1; j < y1; ++j) {
-        m_buffer[x0 + j * m_width] = 255;
-        m_buffer[x1 + j * m_width] = 255;
-    }
-
-    m_dirty = true;
-}
-
 void
 FT2Image::draw_rect_filled(unsigned long x0, unsigned long y0, unsigned long x1, unsigned long y1)
 {
@@ -713,29 +692,6 @@ void FT2Font::draw_glyphs_to_bitmap(bool antialiased)
         FT_Int y = (FT_Int)((bbox.yMax * (1. / 64.)) - bitmap->top + 1);
 
         image.draw_bitmap(&bitmap->bitmap, x, y);
-    }
-}
-
-void FT2Font::get_xys(bool antialiased, std::vector<double> &xys)
-{
-    for (size_t n = 0; n < glyphs.size(); n++) {
-
-        FT_Error error = FT_Glyph_To_Bitmap(
-            &glyphs[n], antialiased ? FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO, 0, 1);
-        if (error) {
-            throw_ft_error("Could not convert glyph to bitmap", error);
-        }
-
-        FT_BitmapGlyph bitmap = (FT_BitmapGlyph)glyphs[n];
-
-        // bitmap left and top in pixel, string bbox in subpixel
-        FT_Int x = (FT_Int)(bitmap->left - bbox.xMin * (1. / 64.));
-        FT_Int y = (FT_Int)(bbox.yMax * (1. / 64.) - bitmap->top + 1);
-        // make sure the index is non-neg
-        x = x < 0 ? 0 : x;
-        y = y < 0 ? 0 : y;
-        xys.push_back(x);
-        xys.push_back(y);
     }
 }
 
