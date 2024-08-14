@@ -158,6 +158,7 @@ jobs:
             ;;
           macOS)
             brew update
+            export HOMEBREW_NO_INSTALL_UPGRADE=1 HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
             brew install ccache ghostscript ninja
             # The macOS 12 images have an older Python, and this causes homebrew to generate conflicts.
             # We'll just skip GTK for now, to not pull in Python updates.
