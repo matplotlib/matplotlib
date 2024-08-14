@@ -22,6 +22,7 @@ the *display* coordinates.  In the "Transformation Object" column, ``ax`` is a
 :class:`~matplotlib.figure.Figure` instance, and ``subfigure`` is a
 :class:`~matplotlib.figure.SubFigure` instance.
 
+.. _coordinate-systems:
 
 +----------------+-----------------------------------+-----------------------------+
 |Coordinate      |Description                        |Transformation object        |
