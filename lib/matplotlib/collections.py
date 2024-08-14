@@ -1341,9 +1341,6 @@ class FillBetweenPolyCollection(PolyCollection):
             indslice, dep1slice, dep2slice = \
                 step_func(indslice, dep1slice, dep2slice)
 
-        if not len(indslice):
-            return None
-
         N = len(indslice)
         pts = np.zeros((2 * N + 2, 2))
 
