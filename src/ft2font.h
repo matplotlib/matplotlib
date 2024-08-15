@@ -6,9 +6,6 @@
 #ifndef MPL_FT2FONT_H
 #define MPL_FT2FONT_H
 
-#define PY_SSIZE_T_CLEAN
-#include <Python.h>
-
 #include <cstdint>
 #include <set>
 #include <string>

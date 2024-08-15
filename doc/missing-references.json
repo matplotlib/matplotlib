@@ -349,9 +349,6 @@
     "Figure.stale_callback": [
       "doc/users/explain/figure/interactive_guide.rst:333"
     ],
-    "Glyph": [
-      "doc/gallery/misc/ftface_props.rst:25"
-    ],
     "Image": [
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.gci:4"
     ],

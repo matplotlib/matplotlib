@@ -1,7 +1,7 @@
 # Extra pip requirements for the GitHub Actions mypy build
 
 mypy>=1.9
-typing-extensions>=4.1
+typing-extensions>=4.6
 
 # Extra stubs distributed separately from the main pypi package
 pandas-stubs

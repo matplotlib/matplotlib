@@ -94,7 +94,7 @@ extension_data = {
       'py_converters.cpp',
     ),
     'dependencies': [
-      freetype_dep, numpy_dep, agg_dep.partial_dependency(includes: true),
+      freetype_dep, pybind11_dep, numpy_dep, agg_dep.partial_dependency(includes: true),
     ],
     'cpp_args': [
       '-DFREETYPE_BUILD_TYPE="@0@"'.format(
