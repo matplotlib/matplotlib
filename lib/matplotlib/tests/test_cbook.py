@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-import sys
 import itertools
+import pathlib
 import pickle
+import sys
 
 from typing import Any
 from unittest.mock import patch, Mock
@@ -478,6 +479,22 @@ def test_normalize_kwargs_pass(inp, expected, kwargs_to_norm):
         assert expected == cbook.normalize_kwargs(inp, **kwargs_to_norm)
 
 
+def test_warn_external(recwarn):
+    _api.warn_external("oops")
+    assert len(recwarn) == 1
+    if sys.version_info[:2] >= (3, 12):
+        # With Python 3.12, we let Python figure out the stacklevel using the
+        # `skip_file_prefixes` argument, which cannot exempt tests, so just confirm
+        # the filename is not in the package.
+        basedir = pathlib.Path(__file__).parents[2]
+        assert not recwarn[0].filename.startswith((str(basedir / 'matplotlib'),
+                                                   str(basedir / 'mpl_toolkits')))
+    else:
+        # On older Python versions, we manually calculated the stacklevel, and had an
+        # exception for our own tests.
+        assert recwarn[0].filename == __file__
+
+
 def test_warn_external_frame_embedded_python():
     with patch.object(cbook, "sys") as mock_sys:
         mock_sys._getframe = Mock(return_value=None)
@@ -782,12 +799,6 @@ def test_safe_first_element_pandas_series(pd):
     s = pd.Series(range(5), index=range(10, 15))
     actual = cbook._safe_first_finite(s)
     assert actual == 0
-
-
-def test_warn_external(recwarn):
-    _api.warn_external("oops")
-    assert len(recwarn) == 1
-    assert recwarn[0].filename == __file__
 
 
 def test_array_patch_perimeters():
