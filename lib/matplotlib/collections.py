@@ -385,7 +385,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 len(self._linewidths) == 1 and
                 all(ls[1] is None for ls in self._linestyles) and
                 len(self._antialiaseds) == 1 and len(self._urls) == 1 and
-                len(self.get_hatch()) == 0):
+                len(self.get_hatch()) == 1):
             if len(trans):
                 combined_transform = transforms.Affine2D(trans[0]) + transform
             else:
@@ -532,9 +532,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         hatch : {'/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'}
         """
         # Use validate_hatch(list) after deprecation.
-        if isinstance(hatch, str):
-            hatch = [hatch]
-        for h in hatch:
+        for h in np.atleast_1d(hatch):
             mhatch._validate_hatch_pattern(h)
         self._hatch = hatch
         self.stale = True
@@ -1871,15 +1869,11 @@ class PatchCollection(Collection):
 
         if match_original:
             kwargs['facecolors'] = [p.get_facecolor() for p in patches]
+            kwargs['edgecolors'] = [p.get_edgecolor() for p in patches]
             kwargs['linewidths'] = [p.get_linewidth() for p in patches]
             kwargs['linestyles'] = [p.get_linestyle() for p in patches]
             kwargs['antialiaseds'] = [p.get_antialiased() for p in patches]
             kwargs['hatch'] = [p.get_hatch() for p in patches]
-
-            # Edgecolors are handled separately because are defaulted to None
-            # and the Hatch colors depend on them.
-            if all(p._original_edgecolor is not None for p in patches):
-                kwargs["edgecolors"] = tuple([p.get_edgecolor() for p in patches])
 
         super().__init__(**kwargs)
 
