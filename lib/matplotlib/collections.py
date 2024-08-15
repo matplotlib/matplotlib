@@ -171,7 +171,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # Flags set by _set_mappable_flags: are colors from mapping an array?
         self._face_is_mapped = None
         self._edge_is_mapped = None
-        self._match_original = False
         self._mapped_colors = None  # calculated in update_scalarmappable
         self._hatch_color = mcolors.to_rgba(mpl.rcParams['hatch.color'])
         self.set_facecolor(facecolors)
@@ -362,7 +361,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         gc.set_snap(self.get_snap())
 
         if self._hatch:
-            gc.set_hatch(self._hatch)
             gc.set_hatch_color(self._hatch_color)
 
         if self.get_sketch_params() is not None:
@@ -387,7 +385,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 len(self._linewidths) == 1 and
                 all(ls[1] is None for ls in self._linestyles) and
                 len(self._antialiaseds) == 1 and len(self._urls) == 1 and
-                self.get_hatch() is None):
+                len(self.get_hatch()) == 0):
             if len(trans):
                 combined_transform = transforms.Affine2D(trans[0]) + transform
             else:
@@ -421,34 +419,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
                     self.get_transforms(), offsets, offset_trf,
                     [mcolors.to_rgba("none")], self._gapcolor,
                     self._linewidths, ilinestyles,
-                    self._antialiaseds, self._urls,
+                    self._antialiaseds, self.get_hatch(), self._urls,
                     "screen")
 
-            fcolor = itertools.cycle(facecolors) if facecolors.any() \
-                else itertools.repeat([])
-            ecolor = itertools.cycle(edgecolors) if edgecolors.any() \
-                else itertools.repeat([])
-            lwidth = itertools.cycle(self._linewidths)
-            lstyle = itertools.cycle(self._linestyles)
-            antialiased = itertools.cycle(self._antialiaseds)
-
-            if self._match_original:
-                for idx in range(len(paths)):
-                    gc.set_hatch(self._hatch[idx])
-                    renderer.draw_path_collection(
-                        gc, transform.frozen(), [paths[idx]],
-                        self.get_transforms(), offsets, offset_trf,
-                        [next(fcolor)], [next(ecolor)], [next(lwidth)], [next(lstyle)],
-                        [next(antialiased)], self._urls,
-                        "screen")  # offset_position, kept for backcompat.
-            else:
-                renderer.draw_path_collection(
-                    gc, transform.frozen(), paths,
-                    self.get_transforms(), offsets, offset_trf,
-                    self.get_facecolor(), self.get_edgecolor(),
-                    self._linewidths, self._linestyles,
-                    self._antialiaseds, self._urls,
-                    "screen")
+            renderer.draw_path_collection(
+                gc, transform.frozen(), paths,
+                self.get_transforms(), offsets, offset_trf,
+                self.get_facecolor(), self.get_edgecolor(),
+                self._linewidths, self._linestyles,
+                self._antialiaseds, self.get_hatch(), self._urls,
+                "screen")  # offset_position, kept for backcompat.
 
         gc.restore()
         renderer.close_group(self.__class__.__name__)
@@ -552,7 +532,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
         hatch : {'/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'}
         """
         # Use validate_hatch(list) after deprecation.
-        mhatch._validate_hatch_pattern(hatch)
+        if isinstance(hatch, str):
+            hatch = [hatch]
+        for h in hatch:
+            mhatch._validate_hatch_pattern(h)
         self._hatch = hatch
         self.stale = True
 
@@ -1887,12 +1870,11 @@ class PatchCollection(Collection):
         """
 
         if match_original:
-            self._match_original = True
-            kwargs['facecolors'] = tuple([p.get_facecolor() for p in patches])
-            kwargs['linewidths'] = tuple([p.get_linewidth() for p in patches])
-            kwargs['linestyles'] = tuple([p.get_linestyle() for p in patches])
-            kwargs['antialiaseds'] = tuple([p.get_antialiased() for p in patches])
-            kwargs['hatch'] = tuple([p.get_hatch() for p in patches])
+            kwargs['facecolors'] = [p.get_facecolor() for p in patches]
+            kwargs['linewidths'] = [p.get_linewidth() for p in patches]
+            kwargs['linestyles'] = [p.get_linestyle() for p in patches]
+            kwargs['antialiaseds'] = [p.get_antialiased() for p in patches]
+            kwargs['hatch'] = [p.get_hatch() for p in patches]
 
             # Edgecolors are handled separately because are defaulted to None
             # and the Hatch colors depend on them.

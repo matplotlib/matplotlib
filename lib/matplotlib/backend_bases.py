@@ -205,7 +205,7 @@ class RendererBase:
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offset_trans, facecolors, edgecolors,
-                             linewidths, linestyles, antialiaseds, urls,
+                             linewidths, linestyles, antialiaseds, hatches, urls,
                              offset_position):
         """
         Draw a collection of *paths*.
@@ -236,7 +236,7 @@ class RendererBase:
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
                 gc, list(path_ids), offsets, offset_trans,
                 facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position):
+                antialiaseds, hatches, urls, offset_position):
             path, transform = path_id
             # Only apply another translation if we have an offset, else we
             # reuse the initial transform.
@@ -335,7 +335,7 @@ class RendererBase:
 
     def _iter_collection(self, gc, path_ids, offsets, offset_trans, facecolors,
                          edgecolors, linewidths, linestyles,
-                         antialiaseds, urls, offset_position):
+                         antialiaseds, hatches, urls, offset_position):
         """
         Helper method (along with `_iter_collection_raw_paths`) to implement
         `draw_path_collection` in a memory-efficient manner.
@@ -366,6 +366,7 @@ class RendererBase:
         Nlinewidths = len(linewidths)
         Nlinestyles = len(linestyles)
         Nurls = len(urls)
+        Nhatches = len(hatches)
 
         if (Nfacecolors == 0 and Nedgecolors == 0) or Npaths == 0:
             return
@@ -386,12 +387,13 @@ class RendererBase:
         lss = cycle_or_default(linestyles)
         aas = cycle_or_default(antialiaseds)
         urls = cycle_or_default(urls)
+        hchs = cycle_or_default(hatches)
 
         if Nedgecolors == 0:
             gc0.set_linewidth(0.0)
 
-        for pathid, (xo, yo), fc, ec, lw, ls, aa, url in itertools.islice(
-                zip(pathids, toffsets, fcs, ecs, lws, lss, aas, urls), N):
+        for pathid, (xo, yo), fc, ec, lw, ls, aa, hch, url in itertools.islice(
+                zip(pathids, toffsets, fcs, ecs, lws, lss, aas, hchs, urls), N):
             if not (np.isfinite(xo) and np.isfinite(yo)):
                 continue
             if Nedgecolors:
@@ -408,6 +410,8 @@ class RendererBase:
             gc0.set_antialiased(aa)
             if Nurls:
                 gc0.set_url(url)
+            if Nhatches:
+                gc0.set_hatch(hch)
             yield xo, yo, pathid, gc0, fc
         gc0.restore()
 
