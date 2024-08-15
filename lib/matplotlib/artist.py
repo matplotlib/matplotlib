@@ -13,8 +13,6 @@ import numpy as np
 
 import matplotlib as mpl
 from . import _api, cbook
-from .colors import BoundaryNorm
-from .cm import ScalarMappable
 from .path import Path
 from .transforms import (BboxBase, Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
@@ -1346,37 +1344,11 @@ class Artist:
         --------
         get_cursor_data
         """
-        if np.ndim(data) == 0 and isinstance(self, ScalarMappable):
-            # This block logically belongs to ScalarMappable, but can't be
-            # implemented in it because most ScalarMappable subclasses inherit
-            # from Artist first and from ScalarMappable second, so
-            # Artist.format_cursor_data would always have precedence over
-            # ScalarMappable.format_cursor_data.
-            n = self.cmap.N
-            if np.ma.getmask(data):
-                return "[]"
-            normed = self.norm(data)
-            if np.isfinite(normed):
-                if isinstance(self.norm, BoundaryNorm):
-                    # not an invertible normalization mapping
-                    cur_idx = np.argmin(np.abs(self.norm.boundaries - data))
-                    neigh_idx = max(0, cur_idx - 1)
-                    # use max diff to prevent delta == 0
-                    delta = np.diff(
-                        self.norm.boundaries[neigh_idx:cur_idx + 2]
-                    ).max()
-                elif self.norm.vmin == self.norm.vmax:
-                    # singular norms, use delta of 10% of only value
-                    delta = np.abs(self.norm.vmin * .1)
-                else:
-                    # Midpoints of neighboring color intervals.
-                    neighbors = self.norm.inverse(
-                        (int(normed * n) + np.array([0, 1])) / n)
-                    delta = abs(neighbors - data).max()
-                g_sig_digits = cbook._g_sig_digits(data, delta)
-            else:
-                g_sig_digits = 3  # Consistent with default below.
-            return f"[{data:-#.{g_sig_digits}g}]"
+        if np.ndim(data) == 0 and hasattr(self, "_format_cursor_data_override"):
+            # workaround for ScalarMappable to be able to define its own
+            # format_cursor_data(). See ScalarMappable._format_cursor_data_override
+            # for details.
+            return self._format_cursor_data_override(data)
         else:
             try:
                 data[0]
