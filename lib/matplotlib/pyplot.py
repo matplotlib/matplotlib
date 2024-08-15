@@ -410,8 +410,7 @@ def switch_backend(newbackend: str) -> None:
             switch_backend("agg")
             rcParamsOrig["backend"] = "agg"
             return
-    # have to escape the switch on access logic
-    old_backend = dict.__getitem__(rcParams, 'backend')
+    old_backend = rcParams._get('backend')  # get without triggering backend resolution
 
     module = backend_registry.load_backend_module(newbackend)
     canvas_class = module.FigureCanvas
@@ -841,7 +840,7 @@ def xkcd(
             "xkcd mode is not compatible with text.usetex = True")
 
     stack = ExitStack()
-    stack.callback(dict.update, rcParams, rcParams.copy())  # type: ignore[arg-type]
+    stack.callback(rcParams._update_raw, rcParams.copy())  # type: ignore[arg-type]
 
     from matplotlib import patheffects
     rcParams.update({
