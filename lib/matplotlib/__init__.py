@@ -712,6 +712,35 @@ class RcParams(MutableMapping, dict):
         """
         return dict.__getitem__(self, key)
 
+    def _update_raw(self, other_params):
+        """
+        Directly update the data from *other_params*, bypassing deprecation,
+        backend and validation logic on both sides.
+
+        This ``rcParams._update_raw(params)`` replaces the previous pattern
+        ``dict.update(rcParams, params)``.
+
+        Parameters
+        ----------
+        other_params : dict or `.RcParams`
+            The input mapping from which to update.
+        """
+        if isinstance(other_params, RcParams):
+            other_params = dict.items(other_params)
+        dict.update(self, other_params)
+
+    def _ensure_has_backend(self):
+        """
+        Ensure that a "backend" entry exists.
+
+        Normally, the default matplotlibrc file contains *no* entry for "backend" (the
+        corresponding line starts with ##, not #; we fill in _auto_backend_sentinel
+        in that case.  However, packagers can set a different default backend
+        (resulting in a normal `#backend: foo` line) in which case we should *not*
+        fill in _auto_backend_sentinel.
+        """
+        dict.setdefault(self, "backend", rcsetup._auto_backend_sentinel)
+
     def __setitem__(self, key, val):
         try:
             if key in _deprecated_map:
@@ -961,24 +990,17 @@ Please do not ask for support with these customizations active.
     return config
 
 
-# When constructing the global instances, we need to perform certain updates
-# by explicitly calling the superclass (dict.update, dict.items) to avoid
-# triggering resolution of _auto_backend_sentinel.
 rcParamsDefault = _rc_params_in_file(
     cbook._get_data_path("matplotlibrc"),
     # Strip leading comment.
     transform=lambda line: line[1:] if line.startswith("#") else line,
     fail_on_error=True)
-dict.update(rcParamsDefault, rcsetup._hardcoded_defaults)
-# Normally, the default matplotlibrc file contains *no* entry for backend (the
-# corresponding line starts with ##, not #; we fill on _auto_backend_sentinel
-# in that case.  However, packagers can set a different default backend
-# (resulting in a normal `#backend: foo` line) in which case we should *not*
-# fill in _auto_backend_sentinel.
-dict.setdefault(rcParamsDefault, "backend", rcsetup._auto_backend_sentinel)
+rcParamsDefault._update_raw(rcsetup._hardcoded_defaults)
+rcParamsDefault._ensure_has_backend()
+
 rcParams = RcParams()  # The global instance.
-dict.update(rcParams, dict.items(rcParamsDefault))
-dict.update(rcParams, _rc_params_in_file(matplotlib_fname()))
+rcParams._update_raw(rcParamsDefault)
+rcParams._update_raw(_rc_params_in_file(matplotlib_fname()))
 rcParamsOrig = rcParams.copy()
 with _api.suppress_matplotlib_deprecation_warning():
     # This also checks that all rcParams are indeed listed in the template.
@@ -1190,7 +1212,7 @@ def rc_context(rc=None, fname=None):
             rcParams.update(rc)
         yield
     finally:
-        dict.update(rcParams, orig)  # Revert to the original rcs.
+        rcParams._update_raw(orig)  # Revert to the original rcs.
 
 
 def use(backend, *, force=True):
