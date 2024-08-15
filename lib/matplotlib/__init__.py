@@ -157,10 +157,8 @@ from packaging.version import parse as parse_version
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
 from . import _api, _version, cbook, _docstring, rcsetup
-from matplotlib.cbook import sanitize_sequence
 from matplotlib._api import MatplotlibDeprecationWarning
 from matplotlib.rcsetup import cycler  # noqa: F401
-from matplotlib.rcsetup import validate_backend
 
 
 _log = logging.getLogger(__name__)
@@ -1236,7 +1234,7 @@ def use(backend, *, force=True):
     matplotlib.pyplot.switch_backend
 
     """
-    name = validate_backend(backend)
+    name = rcsetup.validate_backend(backend)
     # don't (prematurely) resolve the "auto" backend setting
     if rcParams._get_backend_or_none() == name:
         # Nothing to do if the requested backend is already set
@@ -1340,7 +1338,7 @@ def _replacer(data, value):
     except Exception:
         # key does not exist, silently fall back to key
         pass
-    return sanitize_sequence(value)
+    return cbook.sanitize_sequence(value)
 
 
 def _label_from_arg(y, default_name):
@@ -1472,8 +1470,8 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
         if data is None:
             return func(
                 ax,
-                *map(sanitize_sequence, args),
-                **{k: sanitize_sequence(v) for k, v in kwargs.items()})
+                *map(cbook.sanitize_sequence, args),
+                **{k: cbook.sanitize_sequence(v) for k, v in kwargs.items()})
 
         bound = new_sig.bind(ax, *args, **kwargs)
         auto_label = (bound.arguments.get(label_namer)
@@ -1508,6 +1506,16 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
 
 _log.debug('interactive is %s', is_interactive())
 _log.debug('platform is %s', sys.platform)
+
+
+@_api.deprecated("3.10", alternative="matplotlib.cbook.sanitize_sequence")
+def sanitize_sequence(data):
+    return cbook.sanitize_sequence(data)
+
+
+@_api.deprecated("3.10", alternative="matplotlib.rcsetup.validate_backend")
+def validate_backend(s):
+    return rcsetup.validate_backend(s)
 
 
 # workaround: we must defer colormaps import to after loading rcParams, because
