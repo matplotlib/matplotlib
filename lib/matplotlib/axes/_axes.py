@@ -4680,8 +4680,8 @@ class Axes(_AxesBase):
                       label_namer="y")
     @_docstring.interpd
     def scatter(self, x, y, s=None, c=None, marker=None, cmap=None, norm=None,
-                vmin=None, vmax=None, colorizer=None, alpha=None, linewidths=None, *,
-                edgecolors=None, plotnonfinite=False, **kwargs):
+                vmin=None, vmax=None, alpha=None, linewidths=None, *,
+                edgecolors=None, colorizer=None, plotnonfinite=False, **kwargs):
         """
         A scatter plot of *y* vs. *x* with varying marker size and/or color.
 
@@ -4749,10 +4749,6 @@ class Axes(_AxesBase):
 
             This parameter is ignored if *c* is RGB(A).
 
-        %(colorizer_doc)s
-
-            This parameter is ignored if *c* is RGB(A).
-
         alpha : float, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
@@ -4771,6 +4767,10 @@ class Axes(_AxesBase):
             For non-filled markers, *edgecolors* is ignored. Instead, the color
             is determined like with 'face', i.e. from *c*, *colors*, or
             *facecolors*.
+
+        %(colorizer_doc)s
+
+            This parameter is ignored if *c* is RGB(A).
 
         plotnonfinite : bool, default: False
             Whether to plot points with nonfinite *c* (i.e. ``inf``, ``-inf``
@@ -4968,10 +4968,10 @@ class Axes(_AxesBase):
     @_docstring.interpd
     def hexbin(self, x, y, C=None, gridsize=100, bins=None,
                xscale='linear', yscale='linear', extent=None,
-               cmap=None, norm=None, vmin=None, vmax=None, colorizer=None,
+               cmap=None, norm=None, vmin=None, vmax=None,
                alpha=None, linewidths=None, edgecolors='face',
                reduce_C_function=np.mean, mincnt=None, marginals=False,
-               **kwargs):
+               colorizer=None, **kwargs):
         """
         Make a 2D hexagonal binning plot of points *x*, *y*.
 
@@ -5082,8 +5082,6 @@ class Axes(_AxesBase):
 
         %(vmin_vmax_doc)s
 
-        %(colorizer_doc)s
-
         alpha : float between 0 and 1, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
@@ -5115,6 +5113,8 @@ class Axes(_AxesBase):
             reduction functions (such as `numpy.amax`) will error/warn with empty
             input. Changing *mincnt* will adjust the cutoff, and if set to 0 will
             pass empty input to the reduction function.
+
+        %(colorizer_doc)s
 
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER

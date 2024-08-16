@@ -409,10 +409,10 @@ class Axes(_AxesBase):
         norm: str | Normalize | None = ...,
         vmin: float | None = ...,
         vmax: float | None = ...,
-        colorizer: Colorizer | None = ...,
         alpha: float | None = ...,
         linewidths: float | Sequence[float] | None = ...,
         edgecolors: Literal["face", "none"] | ColorType | Sequence[ColorType] | None = ...,
+        colorizer: Colorizer | None = ...,
         plotnonfinite: bool = ...,
         data=...,
         **kwargs
@@ -432,7 +432,6 @@ class Axes(_AxesBase):
         norm: str | Normalize | None = ...,
         vmin: float | None = ...,
         vmax: float | None = ...,
-        colorizer: Colorizer | None = ...,
         alpha: float | None = ...,
         linewidths: float | None = ...,
         edgecolors: Literal["face", "none"] | ColorType = ...,
@@ -440,6 +439,7 @@ class Axes(_AxesBase):
         mincnt: int | None = ...,
         marginals: bool = ...,
         data=...,
+        colorizer: Colorizer | None = ...,
         **kwargs
     ) -> PolyCollection: ...
     def arrow(

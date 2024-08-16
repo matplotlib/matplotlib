@@ -77,7 +77,7 @@ class _ColorizerInterface:
     def autoscale(self) -> None: ...
     def autoscale_None(self) -> None: ...
 
-    
+
 class ColorizingArtist(artist.Artist, _ColorizerInterface):
     callbacks: cbook.CallbackRegistry
     def __init__(

@@ -157,8 +157,7 @@ class Collection(mcolorizer.ColorizingArtist):
             ``Collection.set_{key}(val)`` for each key-value pair in *kwargs*.
         """
 
-        mcolorizer.ColorizingArtist.__init__(self, mcolorizer._get_colorizer(cmap, norm,
-                                             colorizer))
+        super().__init__(mcolorizer._get_colorizer(cmap, norm, colorizer))
         # list of un-scaled dash patterns
         # this is needed scaling the dash pattern by linewidth
         self._us_linestyles = [(0, None)]

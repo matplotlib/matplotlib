@@ -260,8 +260,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                  interpolation_stage=None,
                  **kwargs
                  ):
-        mcolorizer.ColorizingArtist.__init__(self, mcolorizer._get_colorizer(cmap, norm,
-                                             colorizer))
+        super().__init__(mcolorizer._get_colorizer(cmap, norm, colorizer))
         if origin is None:
             origin = mpl.rcParams['image.origin']
         _api.check_in_list(["upper", "lower"], origin=origin)
@@ -333,7 +332,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         Call this whenever the mappable is changed so observers can update.
         """
         self._imcache = None
-        mcolorizer.ColorizingArtist.changed(self)
+        super().changed()
 
     def _make_image(self, A, in_bbox, out_bbox, clip_bbox, magnification=1.0,
                     unsampled=False, round_to_pixel_border=True):
@@ -1357,7 +1356,7 @@ class FigureImage(_ImageBase):
 
     def set_data(self, A):
         """Set the image array."""
-        mcolorizer.ColorizingArtist.set_array(self, A)
+        super().set_data(A)
         self.stale = True
 
 
