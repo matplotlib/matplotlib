@@ -250,7 +250,7 @@ class RendererBase:
 
     def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
                        coordinates, offsets, offsetTrans, facecolors,
-                       antialiased, edgecolors):
+                       antialiased, edgecolors, hatches):
         """
         Draw a quadmesh.
 
@@ -267,7 +267,7 @@ class RendererBase:
 
         return self.draw_path_collection(
             gc, master_transform, paths, [], offsets, offsetTrans, facecolors,
-            edgecolors, linewidths, [], [antialiased], [None], 'screen')
+            edgecolors, linewidths, [], [antialiased], hatches, [None], 'screen')
 
     def draw_gouraud_triangles(self, gc, triangles_array, colors_array,
                                transform):
@@ -365,8 +365,8 @@ class RendererBase:
         Nedgecolors = len(edgecolors)
         Nlinewidths = len(linewidths)
         Nlinestyles = len(linestyles)
-        Nurls = len(urls)
         Nhatches = len(hatches)
+        Nurls = len(urls)
 
         if (Nfacecolors == 0 and Nedgecolors == 0) or Npaths == 0:
             return
@@ -386,8 +386,8 @@ class RendererBase:
         lws = cycle_or_default(linewidths)
         lss = cycle_or_default(linestyles)
         aas = cycle_or_default(antialiaseds)
-        urls = cycle_or_default(urls)
         hchs = cycle_or_default(hatches)
+        urls = cycle_or_default(urls)
 
         if Nedgecolors == 0:
             gc0.set_linewidth(0.0)
@@ -408,10 +408,10 @@ class RendererBase:
             if fc is not None and len(fc) == 4 and fc[3] == 0:
                 fc = None
             gc0.set_antialiased(aa)
-            if Nurls:
-                gc0.set_url(url)
             if Nhatches:
                 gc0.set_hatch(hch)
+            if Nurls:
+                gc0.set_url(url)
             yield xo, yo, pathid, gc0, fc
         gc0.restore()
 

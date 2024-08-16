@@ -514,7 +514,7 @@ grestore
     @_log_if_debug_on
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offset_trans, facecolors, edgecolors,
-                             linewidths, linestyles, antialiaseds, urls,
+                             linewidths, linestyles, antialiaseds, hatches, urls,
                              offset_position):
         # Is the optimization worth it? Rough calculation:
         # cost of emitting a path in-line is
@@ -530,7 +530,7 @@ grestore
             return RendererBase.draw_path_collection(
                 self, gc, master_transform, paths, all_transforms,
                 offsets, offset_trans, facecolors, edgecolors,
-                linewidths, linestyles, antialiaseds, urls,
+                linewidths, linestyles, antialiaseds, hatches, urls,
                 offset_position)
 
         path_codes = []
@@ -550,7 +550,7 @@ translate
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
                 gc, path_codes, offsets, offset_trans,
                 facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position):
+                antialiaseds, hatches, urls, offset_position):
             ps = f"{xo:g} {yo:g} {path_id}"
             self._draw_ps(ps, gc0, rgbFace)
 

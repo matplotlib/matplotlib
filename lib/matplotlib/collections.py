@@ -360,8 +360,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._set_gc_clip(gc)
         gc.set_snap(self.get_snap())
 
-        if self._hatch:
-            gc.set_hatch_color(self._hatch_color)
+        gc.set_hatch_color(self._hatch_color)
 
         if self.get_sketch_params() is not None:
             gc.set_sketch_params(*self.get_sketch_params())
@@ -411,6 +410,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 gc, paths[0], combined_transform.frozen(),
                 mpath.Path(offsets), offset_trf, tuple(facecolors[0]))
         else:
+            hatches = self.get_hatch()
+            if isinstance(renderer, mpl.backends.backend_agg.RendererAgg):
+                hatches = [mpath.Path.hatch(h) for h in hatches]
+
             if self._gapcolor is not None:
                 # First draw paths within the gaps.
                 ipaths, ilinestyles = self._get_inverse_paths_linestyles()
@@ -419,7 +422,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                     self.get_transforms(), offsets, offset_trf,
                     [mcolors.to_rgba("none")], self._gapcolor,
                     self._linewidths, ilinestyles,
-                    self._antialiaseds, self.get_hatch(), self._urls,
+                    self._antialiaseds, hatches, self._urls,
                     "screen")
 
             renderer.draw_path_collection(
@@ -427,7 +430,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 self.get_transforms(), offsets, offset_trf,
                 self.get_facecolor(), self.get_edgecolor(),
                 self._linewidths, self._linestyles,
-                self._antialiaseds, self.get_hatch(), self._urls,
+                self._antialiaseds, hatches, self._urls,
                 "screen")  # offset_position, kept for backcompat.
 
         gc.restore()
@@ -532,7 +535,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         hatch : {'/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'}
         """
         # Use validate_hatch(list) after deprecation.
-        for h in np.atleast_1d(hatch):
+        hatch = np.atleast_1d(hatch)
+        for h in hatch:
             mhatch._validate_hatch_pattern(h)
         self._hatch = hatch
         self.stale = True
@@ -2203,7 +2207,8 @@ class QuadMesh(_MeshData, Collection):
                 coordinates, offsets, offset_trf,
                 # Backends expect flattened rgba arrays (n*m, 4) for fc and ec
                 self.get_facecolor().reshape((-1, 4)),
-                self._antialiased, self.get_edgecolors().reshape((-1, 4)))
+                self._antialiased, self.get_edgecolors().reshape((-1, 4)),
+                self.get_hatch())
         gc.restore()
         renderer.close_group(self.__class__.__name__)
         self.stale = False
