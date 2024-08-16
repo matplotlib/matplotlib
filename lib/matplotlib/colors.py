@@ -129,6 +129,7 @@ class ColorSequenceRegistry(Mapping):
         'Set1': _cm._Set1_data,
         'Set2': _cm._Set2_data,
         'Set3': _cm._Set3_data,
+        'petroff10': _cm._petroff10_data,
     }
 
     def __init__(self):
