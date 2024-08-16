@@ -393,7 +393,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         w, h = self.get_width_height()
         return QtCore.QSize(w, h)
 
-    def minumumSizeHint(self):
+    def minimumSizeHint(self):
         return QtCore.QSize(10, 10)
 
     @staticmethod
