@@ -193,6 +193,14 @@ jobs:
         env:
           CIBW_BUILD: "pp310-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          # Work around for https://github.com/pypa/setuptools/issues/4571
+          # This can be removed once kiwisolver has wheels for PyPy 3.10
+          # https://github.com/nucleic/kiwi/pull/182
+          CIBW_BEFORE_TEST: >-
+            export PIP_CONSTRAINT=pypy-constraint.txt &&
+            echo "setuptools!=72.2.0" > $PIP_CONSTRAINT &&
+            pip install kiwisolver &&
+            unset PIP_CONSTRAINT
         if: matrix.cibw_archs != 'aarch64' && matrix.os != 'windows-latest'
 
       - uses: actions/upload-artifact@v4
