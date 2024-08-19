@@ -1525,7 +1525,7 @@ class BivarColormap:
             The number of RGB quantization levels along the first axis.
         M : int
             The number of RGB quantization levels along the second axis.
-        shape: {'square', 'circle', 'ignore', 'circleignore'}
+        shape : {'square', 'circle', 'ignore', 'circleignore'}
 
             - 'square' each variate is clipped to [0,1] independently
             - 'circle' the variates are clipped radially to the center
@@ -1536,7 +1536,7 @@ class BivarColormap:
             - 'circleignore' a circular mask is applied, but the data is not
               clipped and instead assigned the 'outside' color
 
-        origin: (float, float)
+        origin : (float, float)
             The relative origin of the colormap. Typically (0, 0), for colormaps
             that are linear on both axis, and (.5, .5) for circular colormaps.
             Used when getting 1D colormaps from 2D colormaps.
@@ -1762,14 +1762,11 @@ class BivarColormap:
             lutshape[1] = -lutshape[1]
             if lutshape[1] == 1:
                 lutshape[1] = self.M
-        if not inverted[0]:
-            x_0 = np.linspace(0, 1, lutshape[0])[:, np.newaxis] * np.ones(lutshape)
-        else:
-            x_0 = np.linspace(1, 0, lutshape[0])[:, np.newaxis] * np.ones(lutshape)
-        if not inverted[1]:
-            x_1 = np.linspace(0, 1, lutshape[1])[np.newaxis, :] * np.ones(lutshape)
-        else:
-            x_1 = np.linspace(1, 0, lutshape[1])[np.newaxis, :] * np.ones(lutshape)
+        x_0, x_1 = np.mgrid[0:1:(lutshape[0] * 1j), 0:1:(lutshape[1] * 1j)]
+        if inverted[0]:
+            x_0 = x_0[::-1, :]
+        if inverted[1]:
+            x_1 = x_1[:, ::-1]
 
         # we need to use shape = 'square' while resampling the colormap.
         # if the colormap has shape = 'circle' we would otherwise get *outside* in the
@@ -1810,7 +1807,7 @@ class BivarColormap:
         """
         Return a copy of the `BivarColormap` with modified attributes.
 
-        Note that the *outside* color is only relevantif `shape` = 'ignore'
+        Note that the *outside* color is only relevant if `shape` = 'ignore'
         or 'circleignore'.
 
         Parameters
@@ -1833,7 +1830,7 @@ class BivarColormap:
             - If 'circleignore' a circular mask is applied, but the data is not
               clipped and instead assigned the *outside* color
 
-        origin: (float, float)
+        origin : (float, float)
             The relative origin of the colormap. Typically (0, 0), for colormaps
             that are linear on both axis, and (.5, .5) for circular colormaps.
             Used when getting 1D colormaps from 2D colormaps.
@@ -2023,7 +2020,7 @@ class SegmentedBivarColormap(BivarColormap):
         This patch gets supersampled to a lut of shape (N, M, 4).
     N : int
         The number of RGB quantization levels along each axis.
-    shape: {'square', 'circle', 'ignore', 'circleignore'}
+    shape : {'square', 'circle', 'ignore', 'circleignore'}
 
         - If 'square' each variate is clipped to [0,1] independently
         - If 'circle' the variates are clipped radially to the center
@@ -2033,7 +2030,7 @@ class SegmentedBivarColormap(BivarColormap):
           'outside' color
         - If 'circleignore' a circular mask is applied, but the data is not clipped
 
-    origin: (float, float)
+    origin : (float, float)
         The relative origin of the colormap. Typically (0, 0), for colormaps
         that are linear on both axis, and (.5, .5) for circular colormaps.
         Used when getting 1D colormaps from 2D colormaps.
