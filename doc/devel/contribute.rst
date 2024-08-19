@@ -158,6 +158,24 @@ please reach out on the :ref:`contributor_incubator`
 
 .. _`open an issue`: https://github.com/matplotlib/matplotlib/issues/new?assignees=&labels=Documentation&projects=&template=documentation.yml&title=%5BDoc%5D%3A+
 
+.. _contribute_triage:
+
+Triage
+------
+We appreciate your help keeping the `issue tracker <https://github.com/matplotlib/matplotlib/issues>`_
+organized because it is our centralized location for feature requests,
+bug reports, tracking major projects, and discussing priorities. Some examples of what
+we mean by triage are:
+
+* labeling issues and pull requests
+* verifying bug reports
+* debugging and resolving issues
+* linking to related issues, discussion, and external work
+
+Our triage process is discussed in detail in :ref:`bug_triaging`.
+
+If you have any questions about the process, please reach out on the
+:ref:`contributor_incubator`
 
 .. _other_ways_to_contribute:
 
