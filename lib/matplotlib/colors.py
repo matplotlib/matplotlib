@@ -760,9 +760,10 @@ class Colormap:
 
         Returns
         -------
-        colors : array of RGBA values with a shape of ``X.shape + (4, )``.
-        mask : boolean array with True where the input is ``np.nan`` or
-            masked.
+        colors : np.ndarray
+            Array of RGBA values with a shape of ``X.shape + (4, )``.
+        mask : np.ndarray
+            Boolean array with True where the input is ``np.nan`` or masked.
         """
         if not self._isinit:
             self._init()
@@ -2016,8 +2017,9 @@ class SegmentedBivarColormap(BivarColormap):
 
     Parameters
     ----------
-    patch : np.array of shape (k, k, 3)
-        This patch gets supersampled to a lut of shape (N, M, 4).
+    patch : np.array
+        Patch is required to have a shape (k, l, 3), and will get supersampled
+        to a lut of shape (N, N, 4).
     N : int
         The number of RGB quantization levels along each axis.
     shape : {'square', 'circle', 'ignore', 'circleignore'}
@@ -2051,7 +2053,7 @@ class SegmentedBivarColormap(BivarColormap):
         _patch[:, :, :3] = self.patch
         _patch[:, :, 3] = 1
         transform = mpl.transforms.Affine2D().translate(-0.5, -0.5)\
-                                .scale(self.N / (s[0] - 1), self.N / (s[0] - 1))
+                                .scale(self.N / (s[1] - 1), self.N / (s[0] - 1))
         self._lut = np.empty((self.N, self.N, 4))
 
         _image.resample(_patch, self._lut, transform, _image.BILINEAR,
