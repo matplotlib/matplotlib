@@ -132,20 +132,20 @@ _arg_mapping = dict(
     # raw: Return delta as is.
     raw=lambda dvi, delta: delta,
     # u1: Read 1 byte as an unsigned number.
-    u1=lambda dvi, delta: dvi._arg(1, signed=False),
+    u1=lambda dvi, delta: dvi._read_arg(1, signed=False),
     # u4: Read 4 bytes as an unsigned number.
-    u4=lambda dvi, delta: dvi._arg(4, signed=False),
+    u4=lambda dvi, delta: dvi._read_arg(4, signed=False),
     # s4: Read 4 bytes as a signed number.
-    s4=lambda dvi, delta: dvi._arg(4, signed=True),
+    s4=lambda dvi, delta: dvi._read_arg(4, signed=True),
     # slen: Read delta bytes as a signed number, or None if delta is None.
-    slen=lambda dvi, delta: dvi._arg(delta, signed=True) if delta else None,
+    slen=lambda dvi, delta: dvi._read_arg(delta, signed=True) if delta else None,
     # slen1: Read (delta + 1) bytes as a signed number.
-    slen1=lambda dvi, delta: dvi._arg(delta + 1, signed=True),
+    slen1=lambda dvi, delta: dvi._read_arg(delta + 1, signed=True),
     # ulen1: Read (delta + 1) bytes as an unsigned number.
-    ulen1=lambda dvi, delta: dvi._arg(delta + 1, signed=False),
+    ulen1=lambda dvi, delta: dvi._read_arg(delta + 1, signed=False),
     # olen1: Read (delta + 1) bytes as an unsigned number if less than 4 bytes,
     # as a signed number if 4 bytes.
-    olen1=lambda dvi, delta: dvi._arg(delta + 1, signed=(delta == 3)),
+    olen1=lambda dvi, delta: dvi._read_arg(delta + 1, signed=(delta == 3)),
 )
 
 
@@ -358,7 +358,7 @@ class Dvi:
                 self.close()
                 return False
 
-    def _arg(self, nbytes, signed=False):
+    def _read_arg(self, nbytes, signed=False):
         """
         Read and return a big-endian integer *nbytes* long.
         Signedness is determined by the *signed* keyword.
@@ -701,31 +701,31 @@ class Vf(Dvi):
             # We are outside a packet
             if byte < 242:          # a short packet (length given by byte)
                 packet_len = byte
-                packet_char = self._arg(1)
-                packet_width = self._arg(3)
+                packet_char = self._read_arg(1)
+                packet_width = self._read_arg(3)
                 packet_ends = self._init_packet(byte)
                 self.state = _dvistate.inpage
             elif byte == 242:       # a long packet
-                packet_len = self._arg(4)
-                packet_char = self._arg(4)
-                packet_width = self._arg(4)
+                packet_len = self._read_arg(4)
+                packet_char = self._read_arg(4)
+                packet_width = self._read_arg(4)
                 self._init_packet(packet_len)
             elif 243 <= byte <= 246:
-                k = self._arg(byte - 242, byte == 246)
-                c = self._arg(4)
-                s = self._arg(4)
-                d = self._arg(4)
-                a = self._arg(1)
-                l = self._arg(1)
+                k = self._read_arg(byte - 242, byte == 246)
+                c = self._read_arg(4)
+                s = self._read_arg(4)
+                d = self._read_arg(4)
+                a = self._read_arg(1)
+                l = self._read_arg(1)
                 self._fnt_def_real(k, c, s, d, a, l)
                 if self._first_font is None:
                     self._first_font = k
             elif byte == 247:       # preamble
-                i = self._arg(1)
-                k = self._arg(1)
+                i = self._read_arg(1)
+                k = self._read_arg(1)
                 x = self.file.read(k)
-                cs = self._arg(4)
-                ds = self._arg(4)
+                cs = self._read_arg(4)
+                ds = self._read_arg(4)
                 self._pre(i, x, cs, ds)
             elif byte == 248:       # postamble (just some number of 248s)
                 break
