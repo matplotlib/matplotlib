@@ -492,6 +492,14 @@ class Colorbar:
         and locator will be preserved.
         """
         if mappable:
+            # The mappable keyword argument exists because
+            # ScalarMappable.changed() emits self.callbacks.process('changed', self)
+            # in contrast, ColorizingArtist (and Colorizer) does not use this keyword.
+            # [ColorizingArtist.changed() emits self.callbacks.process('changed')]
+            # Also, there is no test where self.mappable == mappable is not True
+            # and possibly no use case.
+            # Therefore, the mappable keyword can be depreciated if cm.ScalarMappable
+            # is removed.
             self.mappable = mappable
         _log.debug('colorbar update normal %r %r', self.mappable.norm, self.norm)
         self.set_alpha(self.mappable.get_alpha())

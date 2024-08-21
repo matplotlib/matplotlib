@@ -29,7 +29,7 @@ colorizer : `~matplotlib.colorizer.Colorizer` or None, default: None
     )
 
 
-class Colorizer():
+class Colorizer:
     """
     Class that holds the data to color pipeline
     accessible via `Colorizer.to_rgba(A)` and executed via
