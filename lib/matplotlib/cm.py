@@ -16,10 +16,10 @@ Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
 
 from collections.abc import Mapping
 
-import numpy as np
-
 import matplotlib as mpl
-from matplotlib import _api, colors, cbook, colorizer
+from matplotlib import _api, colors
+# TODO make this warn on access
+from matplotlib.colorizer import _ScalarMappable as ScalarMappable  # noqa
 from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
 from matplotlib._cm_multivar import cmap_families as multivar_cmaps
@@ -279,109 +279,6 @@ def get_cmap(name=None, lut=None):
         return _colormaps[name]
     else:
         return _colormaps[name].resampled(lut)
-
-
-class ScalarMappable(colorizer._ColorizerInterface):
-    """
-    A mixin class to map one or multiple sets of scalar data to RGBA.
-
-    The ScalarMappable applies data normalization before returning RGBA colors
-    from the given `~matplotlib.colors.Colormap`, `~matplotlib.colors.BivarColormap`,
-    or `~matplotlib.colors.MultivarColormap`.
-    """
-
-    def __init__(self, norm=None, cmap=None):
-        """
-        Parameters
-        ----------
-        norm : `.Normalize` (or subclass thereof) or str or None
-            The normalizing object which scales data, typically into the
-            interval ``[0, 1]``.
-            If a `str`, a `.Normalize` subclass is dynamically generated based
-            on the scale with the corresponding name.
-            If *None*, *norm* defaults to a *colors.Normalize* object which
-            initializes its scaling based on the first data processed.
-        cmap : str or `~matplotlib.colors.Colormap`
-            The colormap used to map normalized data values to RGBA colors.
-        """
-        self._A = None
-        self.colorizer = colorizer.Colorizer(cmap, norm)
-
-        self.colorbar = None
-        self._id_colorizer = self.colorizer.callbacks.connect('changed', self.changed)
-        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
-
-    def set_array(self, A):
-        """
-        Set the value array from array-like *A*.
-
-        Parameters
-        ----------
-        A : array-like or None
-            The values that are mapped to colors.
-
-            The base class `.ScalarMappable` does not make any assumptions on
-            the dimensionality and shape of the value array *A*.
-        """
-        if A is None:
-            self._A = None
-            return
-
-        A = cbook.safe_masked_invalid(A, copy=True)
-        if not np.can_cast(A.dtype, float, "same_kind"):
-            raise TypeError(f"Image data of dtype {A.dtype} cannot be "
-                            "converted to float")
-
-        self._A = A
-        if not self.norm.scaled():
-            self.colorizer.autoscale_None(A)
-
-    def get_array(self):
-        """
-        Return the array of values, that are mapped to colors.
-
-        The base class `.ScalarMappable` does not make any assumptions on
-        the dimensionality and shape of the array.
-        """
-        return self._A
-
-    def changed(self):
-        """
-        Call this whenever the mappable is changed to notify all the
-        callbackSM listeners to the 'changed' signal.
-        """
-        self.callbacks.process('changed', self)
-        self.stale = True
-
-
-# The docstrings here must be generic enough to apply to all relevant methods.
-mpl._docstring.interpd.register(
-    cmap_doc="""\
-cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
-    The Colormap instance or registered colormap name used to map scalar data
-    to colors.""",
-    norm_doc="""\
-norm : str or `~matplotlib.colors.Normalize`, optional
-    The normalization method used to scale scalar data to the [0, 1] range
-    before mapping to colors using *cmap*. By default, a linear scaling is
-    used, mapping the lowest value to 0 and the highest to 1.
-
-    If given, this can be one of the following:
-
-    - An instance of `.Normalize` or one of its subclasses
-      (see :ref:`colormapnorms`).
-    - A scale name, i.e. one of "linear", "log", "symlog", "logit", etc.  For a
-      list of available scales, call `matplotlib.scale.get_scale_names()`.
-      In that case, a suitable `.Normalize` subclass is dynamically generated
-      and instantiated.""",
-    vmin_vmax_doc="""\
-vmin, vmax : float, optional
-    When using scalar data and no explicit *norm*, *vmin* and *vmax* define
-    the data range that the colormap covers. By default, the colormap covers
-    the complete value range of the supplied data. It is an error to use
-    *vmin*/*vmax* when a *norm* instance is given (but using a `str` *norm*
-    name together with *vmin*/*vmax* is acceptable).""",
-)
 
 
 def _ensure_cmap(cmap):

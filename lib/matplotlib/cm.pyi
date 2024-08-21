@@ -1,8 +1,7 @@
 from collections.abc import Iterator, Mapping
-from matplotlib import colors, colorizer
+from matplotlib import colors
+from matplotlib.colorizer import _ScalarMappable
 
-import numpy as np
-from numpy.typing import ArrayLike
 
 class ColormapRegistry(Mapping[str, colors.Colormap]):
     def __init__(self, cmaps: Mapping[str, colors.Colormap]) -> None: ...
@@ -22,12 +21,4 @@ _bivar_colormaps: ColormapRegistry = ...
 
 def get_cmap(name: str | colors.Colormap | None = ..., lut: int | None = ...) -> colors.Colormap: ...
 
-class ScalarMappable(colorizer._ColorizerInterface):
-    def __init__(
-        self,
-        norm: colors.Normalize | None = ...,
-        cmap: str | colors.Colormap | None = ...,
-    ) -> None: ...
-    def set_array(self, A: ArrayLike | None) -> None: ...
-    def get_array(self) -> np.ndarray | None: ...
-    def changed(self) -> None: ...
+ScalarMappable = _ScalarMappable

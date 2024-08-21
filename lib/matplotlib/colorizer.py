@@ -2,6 +2,11 @@
 The Colorizer class which handles the data to color pipeline via a
 normalization and a colormap.
 
+.. admonition:: Provisional status of colorizer
+
+    The ``colorizer`` module and classes in this file are considered
+    provisional and may change at any time without a deprecation period.
+
 .. seealso::
 
   :doc:`/gallery/color/colormap_reference` for a list of builtin colormaps.
@@ -13,12 +18,13 @@ normalization and a colormap.
   colormaps.
 
   :ref:`colormapnorms` for more details about data normalization.
+
 """
 
 import numpy as np
 from numpy import ma
 import functools
-from matplotlib import _api, colors, cbook, scale, cm, artist
+from matplotlib import _api, colors, cbook, scale, artist
 import matplotlib as mpl
 
 mpl._docstring.interpd.update(
@@ -231,6 +237,8 @@ class Colorizer:
         ----------
         cmap : `.Colormap` or str or None
         """
+        # bury import to avoid circular imports
+        from matplotlib import cm
         in_init = self._cmap is None
         cmap = cm._ensure_cmap(cmap)
         self._cmap = cmap
@@ -310,17 +318,6 @@ class Colorizer:
         self.norm.clip = clip
 
 
-def _get_colorizer(cmap, norm, colorizer):
-    """
-    Passes or creates a Colorizer object.
-    """
-    if colorizer and isinstance(colorizer, Colorizer):
-        ColorizingArtist._check_exclusionary_keywords(Colorizer,
-                                                      cmap=cmap, norm=norm)
-        return colorizer
-    return Colorizer(cmap, norm)
-
-
 class _ColorizerInterface:
     """
     Base class that contains the interface to `Colorizer` objects from
@@ -331,7 +328,7 @@ class _ColorizerInterface:
     and `cm.ScalarMappable` are not included.
     """
     def _scale_norm(self, norm, vmin, vmax):
-        self.colorizer._scale_norm(norm, vmin, vmax, self._A)
+        self._colorizer._scale_norm(norm, vmin, vmax, self._A)
 
     def to_rgba(self, x, alpha=None, bytes=False, norm=True):
         """
@@ -363,13 +360,13 @@ class _ColorizerInterface:
         performed, and it is assumed to be in the range (0-1).
 
         """
-        return self.colorizer.to_rgba(x, alpha=alpha, bytes=bytes, norm=norm)
+        return self._colorizer.to_rgba(x, alpha=alpha, bytes=bytes, norm=norm)
 
     def get_clim(self):
         """
         Return the values (min, max) that are mapped to the colormap limits.
         """
-        return self.colorizer.get_clim()
+        return self._colorizer.get_clim()
 
     def set_clim(self, vmin=None, vmax=None):
         """
@@ -387,29 +384,25 @@ class _ColorizerInterface:
         """
         # If the norm's limits are updated self.changed() will be called
         # through the callbacks attached to the norm
-        self.colorizer.set_clim(vmin, vmax)
+        self._colorizer.set_clim(vmin, vmax)
 
     def get_alpha(self):
-        """
-        Returns
-        -------
-        float
-            Always returns 1.
-        """
-        # This method is intended to be overridden by Artist sub-classes
-        return 1.
+        try:
+            super().get_alpha()
+        except AttributeError:
+            return 1
 
     @property
     def cmap(self):
-        return self.colorizer.cmap
+        return self._colorizer.cmap
 
     @cmap.setter
     def cmap(self, cmap):
-        self.colorizer.cmap = cmap
+        self._colorizer.cmap = cmap
 
     def get_cmap(self):
         """Return the `.Colormap` instance."""
-        return self.colorizer.cmap
+        return self._colorizer.cmap
 
     def set_cmap(self, cmap):
         """
@@ -423,11 +416,11 @@ class _ColorizerInterface:
 
     @property
     def norm(self):
-        return self.colorizer.norm
+        return self._colorizer.norm
 
     @norm.setter
     def norm(self, norm):
-        self.colorizer.norm = norm
+        self._colorizer.norm = norm
 
     def set_norm(self, norm):
         """
@@ -450,22 +443,22 @@ class _ColorizerInterface:
         Autoscale the scalar limits on the norm instance using the
         current array
         """
-        self.colorizer.autoscale(self._A)
+        self._colorizer.autoscale(self._A)
 
     def autoscale_None(self):
         """
         Autoscale the scalar limits on the norm instance using the
         current array, changing only limits that are None
         """
-        self.colorizer.autoscale_None(self._A)
+        self._colorizer.autoscale_None(self._A)
 
     @property
     def colorbar(self):
-        return self.colorizer.colorbar
+        return self._colorizer.colorbar
 
     @colorbar.setter
     def colorbar(self, colorbar):
-        self.colorizer.colorbar = colorbar
+        self._colorizer.colorbar = colorbar
 
     def _format_cursor_data_override(self, data):
         # This function overwrites Artist.format_cursor_data(). We cannot
@@ -503,22 +496,35 @@ class _ColorizerInterface:
         return f"[{data:-#.{g_sig_digits}g}]"
 
 
-class ColorizingArtist(artist.Artist, _ColorizerInterface):
-    def __init__(self, colorizer):
+class _ScalarMappable(_ColorizerInterface):
+    """
+    A mixin class to map one or multiple sets of scalar data to RGBA.
+
+    The ScalarMappable applies data normalization before returning RGBA colors
+    from the given `~matplotlib.colors.Colormap`, `~matplotlib.colors.BivarColormap`,
+    or `~matplotlib.colors.MultivarColormap`.
+    """
+
+    def __init__(self, norm=None, cmap=None, *, colorizer=None, **kwargs):
         """
         Parameters
         ----------
-        colorizer : `colorizer.Colorizer`
+        norm : `.Normalize` (or subclass thereof) or str or None
+            The normalizing object which scales data, typically into the
+            interval ``[0, 1]``.
+            If a `str`, a `.Normalize` subclass is dynamically generated based
+            on the scale with the corresponding name.
+            If *None*, *norm* defaults to a *colors.Normalize* object which
+            initializes its scaling based on the first data processed.
+        cmap : str or `~matplotlib.colors.Colormap`
+            The colormap used to map normalized data values to RGBA colors.
         """
-        if not isinstance(colorizer, Colorizer):
-            raise ValueError("A `mpl.colorizer.Colorizer` object must be provided")
-
-        artist.Artist.__init__(self)
-
+        super().__init__(**kwargs)
         self._A = None
+        self._colorizer = self._get_colorizer(colorizer=colorizer, norm=norm, cmap=cmap)
 
-        self._colorizer = colorizer
-        self._id_colorizer = self.colorizer.callbacks.connect('changed', self.changed)
+        self.colorbar = None
+        self._id_colorizer = self._colorizer.callbacks.connect('changed', self.changed)
         self.callbacks = cbook.CallbackRegistry(signals=["changed"])
 
     def set_array(self, A):
@@ -530,7 +536,7 @@ class ColorizingArtist(artist.Artist, _ColorizerInterface):
         A : array-like or None
             The values that are mapped to colors.
 
-            The base class `.ColorizingArtist` does not make any assumptions on
+            The base class `.ScalarMappable` does not make any assumptions on
             the dimensionality and shape of the value array *A*.
         """
         if A is None:
@@ -544,13 +550,13 @@ class ColorizingArtist(artist.Artist, _ColorizerInterface):
 
         self._A = A
         if not self.norm.scaled():
-            self.colorizer.autoscale_None(A)
+            self._colorizer.autoscale_None(A)
 
     def get_array(self):
         """
         Return the array of values, that are mapped to colors.
 
-        The base class `.ColorizingArtist` does not make any assumptions on
+        The base class `.ScalarMappable` does not make any assumptions on
         the dimensionality and shape of the array.
         """
         return self._A
@@ -560,8 +566,70 @@ class ColorizingArtist(artist.Artist, _ColorizerInterface):
         Call this whenever the mappable is changed to notify all the
         callbackSM listeners to the 'changed' signal.
         """
-        self.callbacks.process('changed')
+        self.callbacks.process('changed', self)
         self.stale = True
+
+    @staticmethod
+    def _check_exclusionary_keywords(colorizer, **kwargs):
+        """
+        Raises a ValueError if any kwarg is not None while colorizer is not None
+        """
+        if colorizer is not None:
+            if any([val is not None for val in kwargs.values()]):
+                raise ValueError("The `colorizer` keyword cannot be used simultaneously"
+                                 " with any of the following keywords: "
+                                 + ", ".join(f'`{key}`' for key in kwargs.keys()))
+
+    @staticmethod
+    def _get_colorizer(cmap, norm, colorizer):
+        if colorizer and isinstance(colorizer, Colorizer):
+            _ScalarMappable._check_exclusionary_keywords(
+                Colorizer, cmap=cmap, norm=norm
+            )
+            return colorizer
+        return Colorizer(cmap, norm)
+
+# The docstrings here must be generic enough to apply to all relevant methods.
+mpl._docstring.interpd.update(
+    cmap_doc="""\
+cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+    The Colormap instance or registered colormap name used to map scalar data
+    to colors.""",
+    norm_doc="""\
+norm : str or `~matplotlib.colors.Normalize`, optional
+    The normalization method used to scale scalar data to the [0, 1] range
+    before mapping to colors using *cmap*. By default, a linear scaling is
+    used, mapping the lowest value to 0 and the highest to 1.
+
+    If given, this can be one of the following:
+
+    - An instance of `.Normalize` or one of its subclasses
+      (see :ref:`colormapnorms`).
+    - A scale name, i.e. one of "linear", "log", "symlog", "logit", etc.  For a
+      list of available scales, call `matplotlib.scale.get_scale_names()`.
+      In that case, a suitable `.Normalize` subclass is dynamically generated
+      and instantiated.""",
+    vmin_vmax_doc="""\
+vmin, vmax : float, optional
+    When using scalar data and no explicit *norm*, *vmin* and *vmax* define
+    the data range that the colormap covers. By default, the colormap covers
+    the complete value range of the supplied data. It is an error to use
+    *vmin*/*vmax* when a *norm* instance is given (but using a `str` *norm*
+    name together with *vmin*/*vmax* is acceptable).""",
+)
+
+
+class ColorizingArtist(_ScalarMappable, artist.Artist):
+    def __init__(self, colorizer, **kwargs):
+        """
+        Parameters
+        ----------
+        colorizer : `colorizer.Colorizer`
+        """
+        if not isinstance(colorizer, Colorizer):
+            raise ValueError("A `mpl.colorizer.Colorizer` object must be provided")
+
+        super().__init__(colorizer=colorizer, **kwargs)
 
     @property
     def colorizer(self):
@@ -577,22 +645,10 @@ class ColorizingArtist(artist.Artist, _ColorizerInterface):
             raise ValueError("colorizer must be a `Colorizer` object, not "
                              f" {type(cl)}.")
 
-    @staticmethod
-    def _check_exclusionary_keywords(colorizer, **kwargs):
-        """
-        Raises a ValueError if any kwarg is not None while colorizer is not None
-        """
-        if colorizer is not None:
-            if any([val is not None for val in kwargs.values()]):
-                raise ValueError("The `colorizer` keyword cannot be used simultaneously"
-                                 " with any of the following keywords: "
-                                 + ", ".join(f'`{key}`' for key in kwargs.keys()))
-
     def _set_colorizer_check_keywords(self, colorizer, **kwargs):
         """
         Raises a ValueError if any kwarg is not None while colorizer is not None
-
-        Then sets the colorizer.
+        Passes or creates a Colorizer object.
         """
         self._check_exclusionary_keywords(colorizer, **kwargs)
         self.colorizer = colorizer

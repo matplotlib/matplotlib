@@ -260,7 +260,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                  interpolation_stage=None,
                  **kwargs
                  ):
-        super().__init__(mcolorizer._get_colorizer(cmap, norm, colorizer))
+        super().__init__(self._get_colorizer(cmap, norm, colorizer))
         if origin is None:
             origin = mpl.rcParams['image.origin']
         _api.check_in_list(["upper", "lower"], origin=origin)
