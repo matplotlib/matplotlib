@@ -384,7 +384,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 len(self._linewidths) == 1 and
                 all(ls[1] is None for ls in self._linestyles) and
                 len(self._antialiaseds) == 1 and len(self._urls) == 1 and
-                len(self.get_hatch()) == 1):
+                all(h is None for h in self._hatch)):
             if len(trans):
                 combined_transform = transforms.Affine2D(trans[0]) + transform
             else:
