@@ -1316,7 +1316,6 @@ def test_check_offsets_dtype():
 
 @pytest.mark.parametrize('gapcolor', ['orange', ['r', 'k']])
 @check_figures_equal(extensions=['png'])
-@mpl.rc_context({'lines.linewidth': 20})
 def test_striped_lines(fig_test, fig_ref, gapcolor):
     ax_test = fig_test.add_subplot(111)
     ax_ref = fig_ref.add_subplot(111)
@@ -1328,11 +1327,12 @@ def test_striped_lines(fig_test, fig_ref, gapcolor):
     x = range(1, 6)
     linestyles = [':', '-', '--']
 
-    ax_test.vlines(x, 0, 1, linestyle=linestyles, gapcolor=gapcolor, alpha=0.5)
+    ax_test.vlines(x, 0, 1, linewidth=20, linestyle=linestyles, gapcolor=gapcolor,
+                   alpha=0.5)
 
     if isinstance(gapcolor, str):
         gapcolor = [gapcolor]
 
     for x, gcol, ls in zip(x, itertools.cycle(gapcolor),
                            itertools.cycle(linestyles)):
-        ax_ref.axvline(x, 0, 1, linestyle=ls, gapcolor=gcol, alpha=0.5)
+        ax_ref.axvline(x, 0, 1, linewidth=20, linestyle=ls, gapcolor=gcol, alpha=0.5)
