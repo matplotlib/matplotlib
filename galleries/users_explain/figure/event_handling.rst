@@ -251,7 +251,8 @@ is created every time a mouse is pressed::
 
         def __call__(self, event):
             print('click', event)
-            if event.inaxes!=self.line.axes: return
+            if event.inaxes != self.line.axes:
+                return
             self.xs.append(event.xdata)
             self.ys.append(event.ydata)
             self.line.set_data(self.xs, self.ys)
@@ -277,17 +278,19 @@ event.ydata)``.  In addition to the ``LocationEvent`` attributes, it also has:
 Draggable rectangle exercise
 ----------------------------
 
-Write draggable rectangle class that is initialized with a
+Write a draggable rectangle class that is initialized with a
 `.Rectangle` instance but will move its ``xy``
-location when dragged.  Hint: you will need to store the original
-``xy`` location of the rectangle which is stored as rect.xy and
+location when dragged.
+
+Hint: You will need to store the original
+``xy`` location of the rectangle which is stored as ``rect.xy`` and
 connect to the press, motion and release mouse events.  When the mouse
 is pressed, check to see if the click occurs over your rectangle (see
 `.Rectangle.contains`) and if it does, store
-the rectangle xy and the location of the mouse click in data coords.
+the rectangle xy and the location of the mouse click in data coordinates.
 In the motion event callback, compute the deltax and deltay of the
 mouse movement, and add those deltas to the origin of the rectangle
-you stored.  The redraw the figure.  On the button release event, just
+you stored, then redraw the figure.  On the button release event, just
 reset all the button press data you stored as None.
 
 Here is the solution::
