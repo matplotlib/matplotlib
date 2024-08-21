@@ -388,7 +388,7 @@ class _ColorizerInterface:
 
     def get_alpha(self):
         try:
-            super().get_alpha()
+            return super().get_alpha()
         except AttributeError:
             return 1
 
@@ -505,6 +505,20 @@ class _ScalarMappable(_ColorizerInterface):
     or `~matplotlib.colors.MultivarColormap`.
     """
 
+    # _ScalarMappable exists for compatibility with
+    # code written before the introduction of the Colorizer
+    # and ColorizingArtist classes.
+
+    # _ScalarMappable can be depreciated so that ColorizingArtist
+    # inherits directly from _ColorizerInterface.
+    # in this case, the following changes should occur:
+    # __init__() has its functionality moved to ColorizingArtist.
+    # set_array(), get_array(), _get_colorizer() and
+    # _check_exclusionary_keywords() are moved to ColorizingArtist.
+    # changed() can be removed so long as colorbar.Colorbar
+    # is changed to connect to the colorizer instead of the
+    # ScalarMappable/ColorizingArtist,
+    # otherwise changed() can be moved to ColorizingArtist.
     def __init__(self, norm=None, cmap=None, *, colorizer=None, **kwargs):
         """
         Parameters

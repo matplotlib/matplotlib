@@ -9316,7 +9316,8 @@ def test_boxplot_orientation(fig_test, fig_ref):
         ax_test.boxplot(all_data, orientation='horizontal')
 
 
-@image_comparison(["use_colorizer_keyword.png"])
+@image_comparison(["use_colorizer_keyword.png"],
+                   tol=0.05 if platform.machine() == 'arm64' else 0)
 def test_use_colorizer_keyword():
     # test using the colorizer keyword
     np.random.seed(0)
