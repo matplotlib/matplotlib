@@ -1507,8 +1507,7 @@ class DraggableBase:
             self.got_artist = False
             if self._use_blit:
                 self.canvas.restore_region(self.background)
-                self.ref_artist.draw(
-                    self.ref_artist.figure._get_renderer())
+                self.ref_artist.draw(self.ref_artist.figure._get_renderer())
                 self.canvas.blit()
                 self.ref_artist.set_animated(False)
 
