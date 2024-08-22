@@ -815,8 +815,8 @@ This now allows the string to be used in any docstring. For example:
     """
 
 
-
-
+The list of interpolated stubs is stored in the ``_docstring.interpd.params``
+dictionary.
 
 
 Inherit docstrings
