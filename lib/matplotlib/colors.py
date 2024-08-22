@@ -682,7 +682,7 @@ class Colormap:
     Typically, Colormap instances are used to convert data values (floats)
     from the interval ``[0, 1]`` to the RGBA color that the respective
     Colormap represents. For scaling of data into the ``[0, 1]`` interval see
-    `matplotlib.colors.Normalize`. Subclasses of `matplotlib.cm.VectorMappable`
+    `matplotlib.colors.Normalize`. Subclasses of `matplotlib.cm.ScalarMappable`
     make heavy use of this ``data -> normalize -> map-to-color`` processing
     chain.
     """
@@ -725,7 +725,7 @@ class Colormap:
         alpha : float or array-like or None
             Alpha must be a scalar between 0 and 1, a sequence of such
             floats with shape matching X, or None.
-        bytes : bool
+        bytes : bool, default: False
             If False (default), the returned RGBA values will be floats in the
             interval ``[0, 1]`` otherwise they will be `numpy.uint8`\s in the
             interval ``[0, 255]``.
@@ -753,7 +753,7 @@ class Colormap:
         alpha : float or array-like or None
             Alpha must be a scalar between 0 and 1, a sequence of such
             floats with shape matching X, or None.
-        bytes : bool
+        bytes : bool, default: False
             If False (default), the returned RGBA values will be floats in the
             interval ``[0, 1]`` otherwise they will be `numpy.uint8`\s in the
             interval ``[0, 255]``.
@@ -1259,7 +1259,7 @@ class ListedColormap(Colormap):
 class MultivarColormap:
     """
     Class for holding multiple `~matplotlib.colors.Colormap` for use in a
-    `~matplotlib.cm.VectorMappable` object
+    `~matplotlib.cm.ScalarMappable` object
     """
     def __init__(self, colormaps, combination_mode, name='multivariate colormap'):
         """
@@ -1289,7 +1289,7 @@ class MultivarColormap:
                 colormaps[i] = mpl.colormaps[cmap]
             elif not isinstance(cmap, Colormap):
                 raise ValueError("colormaps must be a list of objects that subclass"
-                                 " Colormap or valid strings.")
+                                 " Colormap or a name found in the colormap registry.")
 
         self._colormaps = colormaps
         _api.check_in_list(['sRGB_add', 'sRGB_sub'], combination_mode=combination_mode)
@@ -1313,11 +1313,11 @@ class MultivarColormap:
         alpha : float or array-like or None
             Alpha must be a scalar between 0 and 1, a sequence of such
             floats with shape matching *Xi*, or None.
-        bytes : bool
+        bytes : bool, default: False
             If False (default), the returned RGBA values will be floats in the
             interval ``[0, 1]`` otherwise they will be `numpy.uint8`\s in the
             interval ``[0, 255]``.
-        clip : bool
+        clip : bool, default: True
             If True, clip output to 0 to 1
 
         Returns
@@ -1445,14 +1445,14 @@ class MultivarColormap:
 
         Parameters
         ----------
-        bad : None or :mpltype:`color`
+        bad: :mpltype:`color`, default: None
             If Matplotlib color, the bad value is set accordingly in the copy
 
-        under : None or tuple of :mpltype:`color`
+        under tuple of :mpltype:`color`, default: None
             If tuple, the `under` value of each component is set with the values
             from the tuple.
 
-        over : None or tuple of :mpltype:`color`
+        over tuple of :mpltype:`color`, default: None
             If tuple, the `over` value of each component is set with the values
             from the tuple.
 
@@ -1514,7 +1514,7 @@ class BivarColormap:
     Base class for all bivariate to RGBA mappings.
 
     Designed as a drop-in replacement for Colormap when using a 2D
-    lookup table. To be used with `~matplotlib.cm.VectorMappable`.
+    lookup table. To be used with `~matplotlib.cm.ScalarMappable`.
     """
 
     def __init__(self, N=256, M=256, shape='square', origin=(0, 0),
@@ -1522,9 +1522,9 @@ class BivarColormap:
         """
         Parameters
         ----------
-        N : int
+        N : int, default: 256
             The number of RGB quantization levels along the first axis.
-        M : int
+        M : int, default: 256
             The number of RGB quantization levels along the second axis.
         shape : {'square', 'circle', 'ignore', 'circleignore'}
 
@@ -1537,7 +1537,7 @@ class BivarColormap:
             - 'circleignore' a circular mask is applied, but the data is not
               clipped and instead assigned the 'outside' color
 
-        origin : (float, float)
+        origin : (float, float), default: (0,0)
             The relative origin of the colormap. Typically (0, 0), for colormaps
             that are linear on both axis, and (.5, .5) for circular colormaps.
             Used when getting 1D colormaps from 2D colormaps.
@@ -1573,10 +1573,10 @@ class BivarColormap:
             - For integers, *X* should be in the interval ``[0, Colormap.N)`` to
               return RGBA values *indexed* from the Colormap with index ``X``.
 
-        alpha : float or array-like or None
+        alpha : float or array-like or None, default: None
             Alpha must be a scalar between 0 and 1, a sequence of such
             floats with shape matching X0, or None.
-        bytes : bool
+        bytes : bool, default: False
             If False (default), the returned RGBA values will be floats in the
             interval ``[0, 1]`` otherwise they will be `numpy.uint8`\s in the
             interval ``[0, 255]``.
@@ -1736,7 +1736,7 @@ class BivarColormap:
             - If -1, the axis is inverted
             - If 1 or None, the corresponding axis is not resampled.
 
-        transposed : bool
+        transposed : bool, default: False
             if True, the axes are swapped after resampling
 
         Returns
@@ -1870,7 +1870,7 @@ class BivarColormap:
     def _clip(self, X):
         """
         For internal use when applying a BivarColormap to data.
-        i.e. cm.VectorMappable().to_rgba()
+        i.e. cm.ScalarMappable().to_rgba()
         Clips X[0] and X[1] according to 'self.shape'.
         X is modified in-place.
 
@@ -3056,7 +3056,7 @@ class BoundaryNorm(Normalize):
 class NoNorm(Normalize):
     """
     Dummy replacement for `Normalize`, for the case where we want to use
-    indices directly in a `~matplotlib.cm.VectorMappable`.
+    indices directly in a `~matplotlib.cm.ScalarMappable`.
     """
     def __call__(self, value, clip=None):
         if np.iterable(value):
