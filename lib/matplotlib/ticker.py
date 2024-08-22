@@ -435,10 +435,10 @@ class ScalarFormatter(Formatter):
         lim = (1_000_000, 1_000_010)
 
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, gridspec_kw={'hspace': 2})
-        ax1.set(title='offset_notation', xlim=lim)
+        ax1.set(title='offset notation', xlim=lim)
         ax2.set(title='scientific notation', xlim=lim)
         ax2.xaxis.get_major_formatter().set_useOffset(False)
-        ax3.set(title='floating point notation', xlim=lim)
+        ax3.set(title='floating-point notation', xlim=lim)
         ax3.xaxis.get_major_formatter().set_useOffset(False)
         ax3.xaxis.get_major_formatter().set_scientific(False)
 
@@ -1146,10 +1146,10 @@ class LogitFormatter(Formatter):
         Parameters
         ----------
         use_overline : bool, default: False
-            If x > 1/2, with x = 1-v, indicate if x should be displayed as
-            $\overline{v}$. The default is to display $1-v$.
+            If x > 1/2, with x = 1 - v, indicate if x should be displayed as
+            $\overline{v}$. The default is to display $1 - v$.
 
-        one_half : str, default: r"\frac{1}{2}"
+        one_half : str, default: r"\\frac{1}{2}"
             The string used to represent 1/2.
 
         minor : bool, default: False
@@ -1179,9 +1179,9 @@ class LogitFormatter(Formatter):
 
         Parameters
         ----------
-        use_overline : bool, default: False
-            If x > 1/2, with x = 1-v, indicate if x should be displayed as
-            $\overline{v}$. The default is to display $1-v$.
+        use_overline : bool
+            If x > 1/2, with x = 1 - v, indicate if x should be displayed as
+            $\overline{v}$. The default is to display $1 - v$.
         """
         self._use_overline = use_overline
 
@@ -1189,7 +1189,7 @@ class LogitFormatter(Formatter):
         r"""
         Set the way one half is displayed.
 
-        one_half : str, default: r"\frac{1}{2}"
+        one_half : str
             The string used to represent 1/2.
         """
         self._one_half = one_half
@@ -1707,14 +1707,14 @@ class IndexLocator(Locator):
 
 
 class FixedLocator(Locator):
-    """
+    r"""
     Place ticks at a set of fixed values.
 
     If *nbins* is None ticks are placed at all values. Otherwise, the *locs* array of
-    possible positions will be subsampled to keep the number of ticks <=
-    :math:`nbins* +1`. The subsampling will be done to include the smallest absolute
-    value; for example, if zero is included in the array of possibilities, then it of
-    the chosen ticks.
+    possible positions will be subsampled to keep the number of ticks
+    :math:`\leq nbins + 1`. The subsampling will be done to include the smallest
+    absolute value; for example, if zero is included in the array of possibilities, then
+    it will be included in the chosen ticks.
     """
 
     def __init__(self, locs, nbins=None):
@@ -1861,9 +1861,9 @@ class MultipleLocator(Locator):
         """
         Parameters
         ----------
-        base : float > 0
+        base : float > 0, default: 1.0
             Interval between ticks.
-        offset : float
+        offset : float, default: 0.0
             Value added to each multiple of *base*.
 
             .. versionadded:: 3.8
@@ -1877,9 +1877,9 @@ class MultipleLocator(Locator):
 
         Parameters
         ----------
-        base : float > 0
+        base : float > 0, optional
             Interval between ticks.
-        offset : float
+        offset : float, optional
             Value added to each multiple of *base*.
 
             .. versionadded:: 3.8
