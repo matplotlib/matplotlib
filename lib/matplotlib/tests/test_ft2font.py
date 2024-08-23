@@ -160,6 +160,22 @@ def test_ft2font_invalid_args(tmp_path):
         ft2font.FT2Font(file, _kerning_factor=1.3)
 
 
+def test_ft2font_clear():
+    file = fm.findfont('DejaVu Sans')
+    font = ft2font.FT2Font(file)
+    assert font.get_num_glyphs() == 0
+    assert font.get_width_height() == (0, 0)
+    assert font.get_bitmap_offset() == (0, 0)
+    font.set_text('ABabCDcd')
+    assert font.get_num_glyphs() == 8
+    assert font.get_width_height() != (0, 0)
+    assert font.get_bitmap_offset() != (0, 0)
+    font.clear()
+    assert font.get_num_glyphs() == 0
+    assert font.get_width_height() == (0, 0)
+    assert font.get_bitmap_offset() == (0, 0)
+
+
 @pytest.mark.parametrize('family_name, file_name',
                           [("WenQuanYi Zen Hei",  "wqy-zenhei.ttc"),
                            ("Noto Sans CJK JP", "NotoSansCJK.ttc"),
