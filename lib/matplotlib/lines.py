@@ -1518,9 +1518,14 @@ class AxLine(Line2D):
             x1, y1 = points_transform.transform(self._xy1)
             slope = self._slope
         (vxlo, vylo), (vxhi, vyhi) = ax.transScale.transform(ax.viewLim)
+        
+        # Adjust the tolerance for np.isclose based on the view limits
+        y_limits = ax.get_ylim()
+        tolerance = abs((y_limits[1] - y_limits[0]) / (vxhi - vxlo)) * 1e-8
+
         # General case: find intersections with view limits in either
         # direction, and draw between the middle two points.
-        if np.isclose(slope, 0):
+        if np.isclose(slope, 0, atol=tolerance):
             start = vxlo, y1
             stop = vxhi, y1
         elif np.isinf(slope):
