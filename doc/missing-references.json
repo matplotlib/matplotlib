@@ -356,7 +356,7 @@
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.gci:4"
     ],
     "Line2D.pick": [
-      "doc/users/explain/figure/event_handling.rst:568"
+      "doc/users/explain/figure/event_handling.rst:571"
     ],
     "QuadContourSet.changed()": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.contour:156",
@@ -365,7 +365,7 @@
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.contourf:156"
     ],
     "Rectangle.contains": [
-      "doc/users/explain/figure/event_handling.rst:280"
+      "doc/users/explain/figure/event_handling.rst:285"
     ],
     "Size.from_any": [
       "lib/mpl_toolkits/axes_grid1/axes_grid.py:docstring of mpl_toolkits.axes_grid1.axes_grid.ImageGrid:87",
