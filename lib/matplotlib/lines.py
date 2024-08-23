@@ -1518,7 +1518,7 @@ class AxLine(Line2D):
             x1, y1 = points_transform.transform(self._xy1)
             slope = self._slope
         (vxlo, vylo), (vxhi, vyhi) = ax.transScale.transform(ax.viewLim)
-        
+
         # Adjust the tolerance for np.isclose based on the view limits
         y_limits = ax.get_ylim()
         tolerance = abs((y_limits[1] - y_limits[0]) / (vxhi - vxlo)) * 1e-8
