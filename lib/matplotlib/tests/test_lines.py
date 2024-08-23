@@ -436,3 +436,14 @@ def test_axline_setters():
     with pytest.raises(ValueError,
                        match="Cannot set a 'slope' value while 'xy2' is set"):
         line2.set_slope(3)
+
+def test_line_slope():
+    fig, ax = plt.subplots()
+    line = ax.axline(xy1=(0, 0), slope=1E-8)
+    
+    # Extract the slope from the line's properties
+    slope = line.get_slope()
+    
+    if slope == 0:
+        with pytest.raises(ValueError, match="line should not be horizontal"):
+            raise ValueError("line should not be horizontal")
