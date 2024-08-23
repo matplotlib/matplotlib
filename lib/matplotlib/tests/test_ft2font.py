@@ -29,6 +29,102 @@ def test_ft2image_draw_rect_filled():
             assert np.sum(a) == 255 * filled
 
 
+def test_ft2font_dejavu_attrs():
+    file = fm.findfont('DejaVu Sans')
+    font = ft2font.FT2Font(file)
+    assert font.fname == file
+    # Names extracted from FontForge: Font Information → PS Names tab.
+    assert font.postscript_name == 'DejaVuSans'
+    assert font.family_name == 'DejaVu Sans'
+    assert font.style_name == 'Book'
+    assert font.num_faces == 1  # Single TTF.
+    assert font.num_glyphs == 6241  # From compact encoding view in FontForge.
+    assert font.num_fixed_sizes == 0  # All glyphs are scalable.
+    assert font.num_charmaps == 5
+    # Other internal flags are set, so only check the ones we're allowed to test.
+    expected_flags = (ft2font.SCALABLE | ft2font.SFNT | ft2font.HORIZONTAL |
+                      ft2font.KERNING | ft2font.GLYPH_NAMES)
+    assert (font.face_flags & expected_flags) == expected_flags
+    assert font.style_flags == 0  # Not italic or bold.
+    assert font.scalable
+    # From FontForge: Font Information → General tab → entry name below.
+    assert font.units_per_EM == 2048  # Em Size.
+    assert font.underline_position == -175  # Underline position.
+    assert font.underline_thickness == 90  # Underline height.
+    # From FontForge: Font Information → OS/2 tab → Metrics tab → entry name below.
+    assert font.ascender == 1901  # HHead Ascent.
+    assert font.descender == -483  # HHead Descent.
+    # Unconfirmed values.
+    assert font.height == 2384
+    assert font.max_advance_width == 3838
+    assert font.max_advance_height == 2384
+    assert font.bbox == (-2090, -948, 3673, 2524)
+
+
+def test_ft2font_cm_attrs():
+    file = fm.findfont('cmtt10')
+    font = ft2font.FT2Font(file)
+    assert font.fname == file
+    # Names extracted from FontForge: Font Information → PS Names tab.
+    assert font.postscript_name == 'Cmtt10'
+    assert font.family_name == 'cmtt10'
+    assert font.style_name == 'Regular'
+    assert font.num_faces == 1  # Single TTF.
+    assert font.num_glyphs == 133  # From compact encoding view in FontForge.
+    assert font.num_fixed_sizes == 0  # All glyphs are scalable.
+    assert font.num_charmaps == 2
+    # Other internal flags are set, so only check the ones we're allowed to test.
+    expected_flags = (ft2font.SCALABLE | ft2font.SFNT | ft2font.HORIZONTAL |
+                      ft2font.GLYPH_NAMES)
+    assert (font.face_flags & expected_flags) == expected_flags, font.face_flags
+    assert font.style_flags == 0  # Not italic or bold.
+    assert font.scalable
+    # From FontForge: Font Information → General tab → entry name below.
+    assert font.units_per_EM == 2048  # Em Size.
+    assert font.underline_position == -143  # Underline position.
+    assert font.underline_thickness == 20  # Underline height.
+    # From FontForge: Font Information → OS/2 tab → Metrics tab → entry name below.
+    assert font.ascender == 1276  # HHead Ascent.
+    assert font.descender == -489  # HHead Descent.
+    # Unconfirmed values.
+    assert font.height == 1765
+    assert font.max_advance_width == 1536
+    assert font.max_advance_height == 1765
+    assert font.bbox == (-12, -477, 1280, 1430)
+
+
+def test_ft2font_stix_bold_attrs():
+    file = fm.findfont('STIXSizeTwoSym:bold')
+    font = ft2font.FT2Font(file)
+    assert font.fname == file
+    # Names extracted from FontForge: Font Information → PS Names tab.
+    assert font.postscript_name == 'STIXSizeTwoSym-Bold'
+    assert font.family_name == 'STIXSizeTwoSym'
+    assert font.style_name == 'Bold'
+    assert font.num_faces == 1  # Single TTF.
+    assert font.num_glyphs == 20  # From compact encoding view in FontForge.
+    assert font.num_fixed_sizes == 0  # All glyphs are scalable.
+    assert font.num_charmaps == 3
+    # Other internal flags are set, so only check the ones we're allowed to test.
+    expected_flags = (ft2font.SCALABLE | ft2font.SFNT | ft2font.HORIZONTAL |
+                      ft2font.GLYPH_NAMES)
+    assert (font.face_flags & expected_flags) == expected_flags, font.face_flags
+    assert font.style_flags == ft2font.BOLD
+    assert font.scalable
+    # From FontForge: Font Information → General tab → entry name below.
+    assert font.units_per_EM == 1000  # Em Size.
+    assert font.underline_position == -133  # Underline position.
+    assert font.underline_thickness == 20  # Underline height.
+    # From FontForge: Font Information → OS/2 tab → Metrics tab → entry name below.
+    assert font.ascender == 2095  # HHead Ascent.
+    assert font.descender == -404  # HHead Descent.
+    # Unconfirmed values.
+    assert font.height == 2499
+    assert font.max_advance_width == 1130
+    assert font.max_advance_height == 2499
+    assert font.bbox == (4, -355, 1185, 2095)
+
+
 def test_fallback_errors():
     file_name = fm.findfont('DejaVu Sans')
 
