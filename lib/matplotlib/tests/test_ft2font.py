@@ -125,25 +125,39 @@ def test_ft2font_stix_bold_attrs():
     assert font.bbox == (4, -355, 1185, 2095)
 
 
-def test_fallback_errors():
-    file_name = fm.findfont('DejaVu Sans')
+def test_ft2font_invalid_args(tmp_path):
+    # filename argument.
+    with pytest.raises(TypeError, match='to a font file or a binary-mode file object'):
+        ft2font.FT2Font(None)
+    file = tmp_path / 'invalid-font.ttf'
+    file.write_text('This is not a valid font file.')
+    with (pytest.raises(TypeError, match='to a font file or a binary-mode file object'),
+          file.open('rt') as fd):
+        ft2font.FT2Font(fd)
+    with (pytest.raises(TypeError, match='to a font file or a binary-mode file object'),
+          file.open('wt') as fd):
+        ft2font.FT2Font(fd)
+    with (pytest.raises(TypeError, match='to a font file or a binary-mode file object'),
+          file.open('wb') as fd):
+        ft2font.FT2Font(fd)
 
-    with pytest.raises(TypeError, match="Fallback list must be a list"):
+    file = fm.findfont('DejaVu Sans')
+
+    # hinting_factor argument.
+    with pytest.raises(TypeError, match='cannot be interpreted as an integer'):
+        ft2font.FT2Font(file, 1.3)
+    with pytest.raises(ValueError, match='hinting_factor must be greater than 0'):
+        ft2font.FT2Font(file, 0)
+
+    with pytest.raises(TypeError, match='Fallback list must be a list'):
         # failing to be a list will fail before the 0
-        ft2font.FT2Font(file_name, _fallback_list=(0,))  # type: ignore[arg-type]
+        ft2font.FT2Font(file, _fallback_list=(0,))  # type: ignore[arg-type]
+    with pytest.raises(TypeError, match='Fallback fonts must be FT2Font objects.'):
+        ft2font.FT2Font(file, _fallback_list=[0])  # type: ignore[list-item]
 
-    with pytest.raises(
-            TypeError, match="Fallback fonts must be FT2Font objects."
-    ):
-        ft2font.FT2Font(file_name, _fallback_list=[0])  # type: ignore[list-item]
-
-
-def test_ft2font_positive_hinting_factor():
-    file_name = fm.findfont('DejaVu Sans')
-    with pytest.raises(
-            ValueError, match="hinting_factor must be greater than 0"
-    ):
-        ft2font.FT2Font(file_name, 0)
+    # kerning_factor argument.
+    with pytest.raises(TypeError, match='cannot be interpreted as an integer'):
+        ft2font.FT2Font(file, _kerning_factor=1.3)
 
 
 @pytest.mark.parametrize('family_name, file_name',
