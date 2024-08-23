@@ -586,7 +586,37 @@ ann = ax.annotate("Test",
                                   connectionstyle="arc3,rad=-0.2",
                                   relpos=(1., 0.),
                                   fc="w"))
+# %%
+# Create Annotation Artist
+# ^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# An annotation artist may also be created using `.text.Annotation` and then added to
+# the figure. This can be used to annotate other artists that are added to directly
+# to the figure. For example:
 
+import matplotlib.patches as mpatches
+import matplotlib.text as mtext
+
+fig, ax = plt.subplots(subplot_kw=dict(visible=False), figsize=(3, 3))
+
+# add a circle and a square
+circle = mpatches.Circle((.25, .75), radius=.15, fc='gold', ec='navy')
+fig.add_artist(circle)
+square = mpatches.Rectangle((.75, .25), height=.25, width=.25, fc='navy', ec='gold')
+fig.add_artist(square)
+
+# position annotation line between both artists
+con = mtext.Annotation("", xy=(.95, .25), xytext=(0, 1),
+                       xycoords=circle, textcoords=square,
+                       arrowprops=dict(arrowstyle="-", lw=3, ls='--', color='navy'))
+fig.add_artist(con)
+
+# Position text relative to annotation
+label = mtext.Annotation("connection", xy=(.5, .5), xytext=(1, 1),
+                         xycoords=con, textcoords=fig.transFigure,
+                         arrowprops=dict(arrowstyle="->", lw=3, ls=':', color='gold'),
+                         size=20, color='navy', va='top', ha='right')
+fig.add_artist(label)
 # %%
 # Placing Artist at anchored Axes locations
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
