@@ -63,12 +63,12 @@ void throw_ft_error(std::string message, FT_Error error) {
     throw std::runtime_error(os.str());
 }
 
-FT2Image::FT2Image() : m_dirty(true), m_buffer(NULL), m_width(0), m_height(0)
+FT2Image::FT2Image() : m_buffer(NULL), m_width(0), m_height(0)
 {
 }
 
 FT2Image::FT2Image(unsigned long width, unsigned long height)
-    : m_dirty(true), m_buffer(NULL), m_width(0), m_height(0)
+    : m_buffer(NULL), m_width(0), m_height(0)
 {
     resize(width, height);
 }
@@ -102,8 +102,6 @@ void FT2Image::resize(long width, long height)
     if (numBytes && m_buffer) {
         memset(m_buffer, 0, numBytes);
     }
-
-    m_dirty = true;
 }
 
 void FT2Image::draw_bitmap(FT_Bitmap *bitmap, FT_Int x, FT_Int y)
@@ -141,8 +139,6 @@ void FT2Image::draw_bitmap(FT_Bitmap *bitmap, FT_Int x, FT_Int y)
     } else {
         throw std::runtime_error("Unknown pixel mode");
     }
-
-    m_dirty = true;
 }
 
 void
@@ -158,8 +154,6 @@ FT2Image::draw_rect_filled(unsigned long x0, unsigned long y0, unsigned long x1,
             m_buffer[i + j * m_width] = 255;
         }
     }
-
-    m_dirty = true;
 }
 
 // ft_outline_decomposer should be passed to FT_Outline_Decompose.

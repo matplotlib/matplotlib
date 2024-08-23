@@ -57,7 +57,6 @@ class FT2Image
     }
 
   private:
-    bool m_dirty;
     unsigned char *m_buffer;
     unsigned long m_width;
     unsigned long m_height;
