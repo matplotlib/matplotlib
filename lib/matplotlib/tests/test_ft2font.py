@@ -682,6 +682,30 @@ def test_ft2font_get_sfnt_table(font_name, header):
     assert font.get_sfnt_table(header) == _expected_sfnt_tables[font_name][header]
 
 
+@pytest.mark.parametrize('left, right, unscaled, unfitted, default', [
+    # These are all the same class.
+    ('A', 'A', 57, 248, 256), ('A', 'À', 57, 248, 256), ('A', 'Á', 57, 248, 256),
+    ('A', 'Â', 57, 248, 256), ('A', 'Ã', 57, 248, 256), ('A', 'Ä', 57, 248, 256),
+    # And a few other random ones.
+    ('D', 'A', -36, -156, -128), ('T', '.', -243, -1056, -1024),
+    ('X', 'C', -149, -647, -640), ('-', 'J', 114, 495, 512),
+])
+def test_ft2font_get_kerning(left, right, unscaled, unfitted, default):
+    file = fm.findfont('DejaVu Sans')
+    # With unscaled, these settings should produce exact values found in FontForge.
+    font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
+    font.set_size(100, 100)
+    assert font.get_kerning(font.get_char_index(ord(left)),
+                            font.get_char_index(ord(right)),
+                            ft2font.KERNING_UNSCALED) == unscaled
+    assert font.get_kerning(font.get_char_index(ord(left)),
+                            font.get_char_index(ord(right)),
+                            ft2font.KERNING_UNFITTED) == unfitted
+    assert font.get_kerning(font.get_char_index(ord(left)),
+                            font.get_char_index(ord(right)),
+                            ft2font.KERNING_DEFAULT) == default
+
+
 @pytest.mark.parametrize('family_name, file_name',
                           [("WenQuanYi Zen Hei",  "wqy-zenhei.ttc"),
                            ("Noto Sans CJK JP", "NotoSansCJK.ttc"),
