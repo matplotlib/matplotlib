@@ -325,7 +325,7 @@
       "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Barbs:212",
       "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Quiver:251",
       "lib/mpl_toolkits/mplot3d/art3d.py:docstring of matplotlib.artist.Path3DCollection.set:46",
-      "lib/mpl_toolkits/mplot3d/art3d.py:docstring of matplotlib.artist.Poly3DCollection.set:44"
+      "lib/mpl_toolkits/mplot3d/art3d.py:docstring of matplotlib.artist.Poly3DCollection.set:45"
     ],
     "matplotlib.collections._MeshData.set_array": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.pcolormesh:164",
