@@ -1903,6 +1903,8 @@ class Axes3D(Axes):
             See `.get_dir_vector` for a description of the values.
         axlim_clip : bool, default: False
             Whether to hide text that is outside the axes view limits.
+
+            .. versionadded:: 3.10
         **kwargs
             Other arguments are forwarded to `matplotlib.axes.Axes.text`.
 
@@ -1935,6 +1937,8 @@ class Axes3D(Axes):
             When plotting 2D data, the direction to use as z.
         axlim_clip : bool, default: False
             Whether to hide data that is outside the axes view limits.
+
+            .. versionadded:: 3.10
         **kwargs
             Other arguments are forwarded to `matplotlib.axes.Axes.plot`.
         """
@@ -2012,6 +2016,8 @@ class Axes3D(Axes):
 
         axlim_clip : bool, default: False
             Whether to hide data that is outside the axes view limits.
+
+            .. versionadded:: 3.10
 
         **kwargs
             All other keyword arguments are passed on to `.Poly3DCollection`.
@@ -2157,6 +2163,8 @@ class Axes3D(Axes):
 
         axlim_clip : bool, default: False
             Whether to hide patches with a vertex outside the axes view limits.
+
+            .. versionadded:: 3.10
 
         **kwargs
             Other keyword arguments are forwarded to `.Poly3DCollection`.
@@ -2306,6 +2314,8 @@ class Axes3D(Axes):
             Whether to hide lines and patches with vertices outside the axes
             view limits.
 
+            .. versionadded:: 3.10
+
         rcount, ccount : int
             Maximum number of samples used in each direction.  If the input
             data is larger, it will be downsampled (by slicing) to these
@@ -2453,6 +2463,8 @@ class Axes3D(Axes):
             The lightsource to use when *shade* is True.
         axlim_clip : bool, default: False
             Whether to hide patches with a vertex outside the axes view limits.
+
+            .. versionadded:: 3.10
         **kwargs
             All other keyword arguments are passed on to
             :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
@@ -2596,6 +2608,8 @@ class Axes3D(Axes):
             position in a plane normal to *zdir*.
         axlim_clip : bool, default: False
             Whether to hide lines with a vertex outside the axes view limits.
+
+            .. versionadded:: 3.10
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
 
@@ -2643,6 +2657,8 @@ class Axes3D(Axes):
             position in a plane normal to *zdir*.
         axlim_clip : bool, default: False
             Whether to hide lines with a vertex outside the axes view limits.
+
+            .. versionadded:: 3.10
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
         *args, **kwargs
@@ -2700,6 +2716,8 @@ class Axes3D(Axes):
             position in a plane normal to *zdir*.
         axlim_clip : bool, default: False
             Whether to hide lines with a vertex outside the axes view limits.
+
+            .. versionadded:: 3.10
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
         *args, **kwargs
@@ -2740,6 +2758,8 @@ class Axes3D(Axes):
             position in a plane normal to zdir.
         axlim_clip : bool, default: False
             Whether to hide lines with a vertex outside the axes view limits.
+
+            .. versionadded:: 3.10
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
         *args, **kwargs
@@ -2798,6 +2818,8 @@ class Axes3D(Axes):
             Whether to update the data limits.
         axlim_clip : bool, default: False
             Whether to hide the scatter points outside the axes view limits.
+
+            .. versionadded:: 3.10
         """
         had_data = self.has_data()
 
@@ -2879,6 +2901,8 @@ class Axes3D(Axes):
             independently.
         axlim_clip : bool, default: False
             Whether to hide the scatter points outside the axes view limits.
+
+            .. versionadded:: 3.10
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
         **kwargs
@@ -2938,6 +2962,8 @@ class Axes3D(Axes):
             When plotting 2D data, the direction to use as z ('x', 'y' or 'z').
         axlim_clip : bool, default: False
             Whether to hide bars with points outside the axes view limits.
+
+            .. versionadded:: 3.10
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
         **kwargs
@@ -3029,6 +3055,8 @@ class Axes3D(Axes):
 
         axlim_clip : bool, default: False
             Whether to hide the bars with points outside the axes view limits.
+
+            .. versionadded:: 3.10
 
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
@@ -3188,6 +3216,8 @@ class Axes3D(Axes):
         axlim_clip : bool, default: False
             Whether to hide arrows with points outside the axes view limits.
 
+            .. versionadded:: 3.10
+
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
 
@@ -3328,6 +3358,8 @@ class Axes3D(Axes):
 
         axlim_clip : bool, default: False
             Whether to hide voxels with points outside the axes view limits.
+
+            .. versionadded:: 3.10
 
         **kwargs
             Additional keyword arguments to pass onto
@@ -3576,6 +3608,8 @@ class Axes3D(Axes):
 
         axlim_clip : bool, default: False
             Whether to hide error bars that are outside the axes limits.
+
+            .. versionadded:: 3.10
 
         Returns
         -------
@@ -3892,6 +3926,8 @@ class Axes3D(Axes):
 
         axlim_clip : bool, default: False
             Whether to hide stems that are outside the axes limits.
+
+            .. versionadded:: 3.10
 
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
