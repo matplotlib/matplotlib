@@ -1079,7 +1079,7 @@ static PyObject *PyFT2Font_get_sfnt_table(PyFT2Font *self, PyObject *args)
     case 0: {
         char head_dict[] =
             "{s:(h,H), s:(h,H), s:l, s:l, s:H, s:H,"
-            "s:(l,l), s:(l,l), s:h, s:h, s:h, s:h, s:H, s:H, s:h, s:h, s:h}";
+            "s:(I,I), s:(I,I), s:h, s:h, s:h, s:h, s:H, s:H, s:h, s:h, s:h}";
         TT_Header *t = (TT_Header *)table;
         return Py_BuildValue(head_dict,
                              "version", FIXED_MAJOR(t->Table_Version), FIXED_MINOR(t->Table_Version),
@@ -1088,8 +1088,14 @@ static PyObject *PyFT2Font_get_sfnt_table(PyFT2Font *self, PyObject *args)
                              "magicNumber", t->Magic_Number,
                              "flags", t->Flags,
                              "unitsPerEm", t->Units_Per_EM,
-                             "created", t->Created[0], t->Created[1],
-                             "modified", t->Modified[0], t->Modified[1],
+                             // FreeType 2.6.1 defines these two timestamps as FT_Long,
+                             // but they should be unsigned (fixed in 2.10.0):
+                             // https://gitlab.freedesktop.org/freetype/freetype/-/commit/3e8ec291ffcfa03c8ecba1cdbfaa55f5577f5612
+                             // It's actually read from the file structure as two 32-bit
+                             // values, so we need to cast down in size to prevent sign
+                             // extension from producing huge 64-bit values.
+                             "created", static_cast<unsigned int>(t->Created[0]), static_cast<unsigned int>(t->Created[1]),
+                             "modified", static_cast<unsigned int>(t->Modified[0]), static_cast<unsigned int>(t->Modified[1]),
                              "xMin", t->xMin,
                              "yMin", t->yMin,
                              "xMax", t->xMax,

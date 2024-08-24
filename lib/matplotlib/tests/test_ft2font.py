@@ -258,6 +258,430 @@ def test_ft2font_charmaps():
         assert unic[u] == armn[m]
 
 
+_expected_sfnt_names = {
+    'DejaVu Sans': {
+        0: 'Copyright (c) 2003 by Bitstream, Inc. All Rights Reserved.\n'
+           'Copyright (c) 2006 by Tavmjong Bah. All Rights Reserved.\n'
+           'DejaVu changes are in public domain\n',
+        1: 'DejaVu Sans',
+        2: 'Book',
+        3: 'DejaVu Sans',
+        4: 'DejaVu Sans',
+        5: 'Version 2.35',
+        6: 'DejaVuSans',
+        8: 'DejaVu fonts team',
+        11: 'http://dejavu.sourceforge.net',
+        13: 'Fonts are (c) Bitstream (see below). '
+            'DejaVu changes are in public domain. '
+            '''Glyphs imported from Arev fonts are (c) Tavmjung Bah (see below)
+
+Bitstream Vera Fonts Copyright
+------------------------------
+
+Copyright (c) 2003 by Bitstream, Inc. All Rights Reserved. Bitstream Vera is
+a trademark of Bitstream, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of the fonts accompanying this license ("Fonts") and associated
+documentation files (the "Font Software"), to reproduce and distribute the
+Font Software, including without limitation the rights to use, copy, merge,
+publish, distribute, and/or sell copies of the Font Software, and to permit
+persons to whom the Font Software is furnished to do so, subject to the
+following conditions:
+
+The above copyright and trademark notices and this permission notice shall
+be included in all copies of one or more of the Font Software typefaces.
+
+The Font Software may be modified, altered, or added to, and in particular
+the designs of glyphs or characters in the Fonts may be modified and
+additional glyphs or characters may be added to the Fonts, only if the fonts
+are renamed to names not containing either the words "Bitstream" or the word
+"Vera".
+
+This License becomes null and void to the extent applicable to Fonts or Font
+Software that has been modified and is distributed under the "Bitstream
+Vera" names.
+
+The Font Software may be sold as part of a larger software package but no
+copy of one or more of the Font Software typefaces may be sold by itself.
+
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF COPYRIGHT, PATENT,
+TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL BITSTREAM OR THE GNOME
+FOUNDATION BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, INCLUDING
+ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
+THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM OTHER DEALINGS IN THE
+FONT SOFTWARE.
+
+Except as contained in this notice, the names of Gnome, the Gnome
+Foundation, and Bitstream Inc., shall not be used in advertising or
+otherwise to promote the sale, use or other dealings in this Font Software
+without prior written authorization from the Gnome Foundation or Bitstream
+Inc., respectively. For further information, contact: fonts at gnome dot
+org. ''' '''
+
+Arev Fonts Copyright
+------------------------------
+
+Copyright (c) 2006 by Tavmjong Bah. All Rights Reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the fonts accompanying this license ("Fonts") and
+associated documentation files (the "Font Software"), to reproduce
+and distribute the modifications to the Bitstream Vera Font Software,
+including without limitation the rights to use, copy, merge, publish,
+distribute, and/or sell copies of the Font Software, and to permit
+persons to whom the Font Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright and trademark notices and this permission notice
+shall be included in all copies of one or more of the Font Software
+typefaces.
+
+The Font Software may be modified, altered, or added to, and in
+particular the designs of glyphs or characters in the Fonts may be
+modified and additional glyphs or characters may be added to the
+Fonts, only if the fonts are renamed to names not containing either
+the words "Tavmjong Bah" or the word "Arev".
+
+This License becomes null and void to the extent applicable to Fonts
+or Font Software that has been modified and is distributed under the ''' '''
+"Tavmjong Bah Arev" names.
+
+The Font Software may be sold as part of a larger software package but
+no copy of one or more of the Font Software typefaces may be sold by
+itself.
+
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL
+TAVMJONG BAH BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.
+
+Except as contained in this notice, the name of Tavmjong Bah shall not
+be used in advertising or otherwise to promote the sale, use or other
+dealings in this Font Software without prior written authorization
+from Tavmjong Bah. For further information, contact: tavmjong @ free
+. fr.''',
+        14: 'http://dejavu.sourceforge.net/wiki/index.php/License',
+        16: 'DejaVu Sans',
+        17: 'Book',
+    },
+    'cmtt10': {
+        0: 'Copyright (C) 1994, Basil K. Malyshev. All Rights Reserved.'
+           '012BaKoMa Fonts Collection, Level-B.',
+        1: 'cmtt10',
+        2: 'Regular',
+        3: 'FontMonger:cmtt10',
+        4: 'cmtt10',
+        5: '1.1/12-Nov-94',
+        6: 'Cmtt10',
+    },
+    'STIXSizeTwoSym:bold': {
+        0: 'Copyright (c) 2001-2010 by the STI Pub Companies, consisting of the '
+           'American Chemical Society, the American Institute of Physics, the American '
+           'Mathematical Society, the American Physical Society, Elsevier, Inc., and '
+           'The Institute of Electrical and Electronic Engineers, Inc. Portions '
+           'copyright (c) 1998-2003 by MicroPress, Inc. Portions copyright (c) 1990 by '
+           'Elsevier, Inc. All rights reserved.',
+        1: 'STIXSizeTwoSym',
+        2: 'Bold',
+        3: 'FontMaster:STIXSizeTwoSym-Bold:1.0.0',
+        4: 'STIXSizeTwoSym-Bold',
+        5: 'Version 1.0.0',
+        6: 'STIXSizeTwoSym-Bold',
+        7: 'STIX Fonts(TM) is a trademark of The Institute of Electrical and '
+           'Electronics Engineers, Inc.',
+        9: 'MicroPress Inc., with final additions and corrections provided by Coen '
+           'Hoffman, Elsevier (retired)',
+        10: 'Arie de Ruiter, who in 1995 was Head of Information Technology '
+            'Development at Elsevier Science, made a proposal to the STI Pub group, an '
+            'informal group of publishers consisting of representatives from the '
+            'American Chemical Society (ACS), American Institute of Physics (AIP), '
+            'American Mathematical Society (AMS), American Physical Society (APS), '
+            'Elsevier, and Institute of Electrical and Electronics Engineers (IEEE). '
+            'De Ruiter encouraged the members to consider development of a series of '
+            'Web fonts, which he proposed should be called the Scientific and '
+            'Technical Information eXchange, or STIX, Fonts. All STI Pub member '
+            'organizations enthusiastically endorsed this proposal, and the STI Pub '
+            'group agreed to embark on what has become a twelve-year project. The goal '
+            'of the project was to identify all alphabetic, symbolic, and other '
+            'special characters used in any facet of scientific publishing and to '
+            'create a set of Unicode-based fonts that would be distributed free to '
+            'every scientist, student, and other interested party worldwide. The fonts '
+            'would be consistent with the emerging Unicode standard, and would permit '
+            'universal representation of every character. With the release of the STIX '
+            "fonts, de Ruiter's vision has been realized.",
+        11: 'http://www.stixfonts.org',
+        12: 'http://www.micropress-inc.com',
+        13: 'As a condition for receiving these fonts at no charge, each person '
+            'downloading the fonts must agree to some simple license terms. The '
+            'license is based on the SIL Open Font License '
+            '<http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL>. The '
+            'SIL License is a free and open source license specifically designed for '
+            'fonts and related software. The basic terms are that the recipient will '
+            'not remove the copyright and trademark statements from the fonts and '
+            'that, if the person decides to create a derivative work based on the STIX '
+            'Fonts but incorporating some changes or enhancements, the derivative work '
+            '("Modified Version") will carry a different name. The copyright and '
+            'trademark restrictions are part of the agreement between the STI Pub '
+            'companies and the typeface designer. The "renaming" restriction results '
+            'from the desire of the STI Pub companies to assure that the STIX Fonts '
+            'will continue to function in a predictable fashion for all that use them. '
+            'No copy of one or more of the individual Font typefaces that form the '
+            'STIX Fonts(TM) set may be sold by itself, but other than this one '
+            'restriction, licensees are free to sell the fonts either separately or as '
+            'part of a package that combines other software or fonts with this font '
+            'set.',
+        14: 'http://www.stixfonts.org/user_license.html',
+    },
+}
+
+
+@pytest.mark.parametrize('font_name, expected', _expected_sfnt_names.items(),
+                         ids=_expected_sfnt_names.keys())
+def test_ft2font_get_sfnt(font_name, expected):
+    file = fm.findfont(font_name)
+    font = ft2font.FT2Font(file)
+    sfnt = font.get_sfnt()
+    for name, value in expected.items():
+        # Macintosh, Unicode 1.0, English, name.
+        assert sfnt.pop((1, 0, 0, name)) == value.encode('ascii')
+        # Microsoft, Unicode, English United States, name.
+        assert sfnt.pop((3, 1, 1033, name)) == value.encode('utf-16be')
+    assert sfnt == {}
+
+
+_expected_sfnt_tables = {
+    'DejaVu Sans': {
+        'invalid': None,
+        'head': {
+            'version': (1, 0),
+            'fontRevision': (2, 22937),
+            'checkSumAdjustment': -175678572,
+            'magicNumber': 0x5F0F3CF5,
+            'flags': 31,
+            'unitsPerEm': 2048,
+            'created': (0, 3514699492), 'modified': (0, 3514699492),
+            'xMin': -2090, 'yMin': -948, 'xMax': 3673, 'yMax': 2524,
+            'macStyle': 0,
+            'lowestRecPPEM': 8,
+            'fontDirectionHint': 0,
+            'indexToLocFormat': 1,
+            'glyphDataFormat': 0,
+        },
+        'maxp': {
+            'version': (1, 0),
+            'numGlyphs': 6241,
+            'maxPoints': 852, 'maxComponentPoints': 104, 'maxTwilightPoints': 16,
+            'maxContours': 43, 'maxComponentContours': 12,
+            'maxZones': 2,
+            'maxStorage': 153,
+            'maxFunctionDefs': 64,
+            'maxInstructionDefs': 0,
+            'maxStackElements': 1045,
+            'maxSizeOfInstructions': 534,
+            'maxComponentElements': 8,
+            'maxComponentDepth': 4,
+        },
+        'OS/2': {
+            'version': 1,
+            'xAvgCharWidth': 1038,
+            'usWeightClass': 400, 'usWidthClass': 5,
+            'fsType': 0,
+            'ySubscriptXSize': 1331, 'ySubscriptYSize': 1433,
+            'ySubscriptXOffset': 0, 'ySubscriptYOffset': 286,
+            'ySuperscriptXSize': 1331, 'ySuperscriptYSize': 1433,
+            'ySuperscriptXOffset': 0, 'ySuperscriptYOffset': 983,
+            'yStrikeoutSize': 102, 'yStrikeoutPosition': 530,
+            'sFamilyClass': 0,
+            'panose': b'\x02\x0b\x06\x03\x03\x08\x04\x02\x02\x04',
+            'ulCharRange': (3875565311, 3523280383, 170156073, 67117068),
+            'achVendID': b'PfEd',
+            'fsSelection': 64, 'fsFirstCharIndex': 32, 'fsLastCharIndex': 65535,
+        },
+        'hhea': {
+            'version': (1, 0),
+            'ascent': 1901, 'descent': -483, 'lineGap': 0,
+            'advanceWidthMax': 3838,
+            'minLeftBearing': -2090, 'minRightBearing': -1455,
+            'xMaxExtent': 3673,
+            'caretSlopeRise': 1, 'caretSlopeRun': 0, 'caretOffset': 0,
+            'metricDataFormat': 0, 'numOfLongHorMetrics': 6226,
+        },
+        'vhea': None,
+        'post': {
+            'format': (2, 0),
+            'isFixedPitch': 0, 'italicAngle': (0, 0),
+            'underlinePosition': -130, 'underlineThickness': 90,
+            'minMemType42': 0, 'maxMemType42': 0,
+            'minMemType1': 0, 'maxMemType1': 0,
+        },
+        'pclt': None,
+    },
+    'cmtt10': {
+        'invalid': None,
+        'head': {
+            'version': (1, 0),
+            'fontRevision': (1, 0),
+            'checkSumAdjustment': 555110277,
+            'magicNumber': 0x5F0F3CF5,
+            'flags': 3,
+            'unitsPerEm': 2048,
+            'created': (0, 0), 'modified': (0, 0),
+            'xMin': -12, 'yMin': -477, 'xMax': 1280, 'yMax': 1430,
+            'macStyle': 0,
+            'lowestRecPPEM': 6,
+            'fontDirectionHint': 2,
+            'indexToLocFormat': 1,
+            'glyphDataFormat': 0,
+        },
+        'maxp': {
+            'version': (1, 0),
+            'numGlyphs': 133,
+            'maxPoints': 94, 'maxComponentPoints': 0, 'maxTwilightPoints': 12,
+            'maxContours': 5, 'maxComponentContours': 0,
+            'maxZones': 2,
+            'maxStorage': 6,
+            'maxFunctionDefs': 64,
+            'maxInstructionDefs': 0,
+            'maxStackElements': 200,
+            'maxSizeOfInstructions': 100,
+            'maxComponentElements': 4,
+            'maxComponentDepth': 1,
+        },
+        'OS/2': {
+            'version': 0,
+            'xAvgCharWidth': 1075,
+            'usWeightClass': 400, 'usWidthClass': 5,
+            'fsType': 0,
+            'ySubscriptXSize': 410, 'ySubscriptYSize': 369,
+            'ySubscriptXOffset': 0, 'ySubscriptYOffset': -469,
+            'ySuperscriptXSize': 410, 'ySuperscriptYSize': 369,
+            'ySuperscriptXOffset': 0, 'ySuperscriptYOffset': 1090,
+            'yStrikeoutSize': 102, 'yStrikeoutPosition': 530,
+            'sFamilyClass': 0,
+            'panose': b'\x02\x0b\x05\x00\x00\x00\x00\x00\x00\x00',
+            'ulCharRange': (0, 0, 0, 0),
+            'achVendID': b'\x00\x00\x00\x00',
+            'fsSelection': 64, 'fsFirstCharIndex': 32, 'fsLastCharIndex': 9835,
+        },
+        'hhea': {
+            'version': (1, 0),
+            'ascent': 1276, 'descent': -489, 'lineGap': 0,
+            'advanceWidthMax': 1536,
+            'minLeftBearing': -12, 'minRightBearing': -29,
+            'xMaxExtent': 1280,
+            'caretSlopeRise': 1, 'caretSlopeRun': 0, 'caretOffset': 0,
+            'metricDataFormat': 0, 'numOfLongHorMetrics': 133,
+        },
+        'vhea': None,
+        'post': {
+            'format': (2, 0),
+            'isFixedPitch': 0, 'italicAngle': (0, 0),
+            'underlinePosition': -133, 'underlineThickness': 20,
+            'minMemType42': 0, 'maxMemType42': 0,
+            'minMemType1': 0, 'maxMemType1': 0,
+        },
+        'pclt': {
+            'version': (1, 0),
+            'fontNumber': 2147483648,
+            'pitch': 1075,
+            'xHeight': 905,
+            'style': 0,
+            'typeFamily': 0,
+            'capHeight': 1276,
+            'symbolSet': 0,
+            'typeFace': b'cmtt10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00',
+            'characterComplement': b'\xff\xff\xff\xff7\xff\xff\xfe',
+            'strokeWeight': 0,
+            'widthType': -5,
+            'serifStyle': 64,
+        },
+    },
+    'STIXSizeTwoSym:bold': {
+        'invalid': None,
+        'head': {
+            'version': (1, 0),
+            'fontRevision': (1, 0),
+            'checkSumAdjustment': 1803408080,
+            'magicNumber': 0x5F0F3CF5,
+            'flags': 11,
+            'unitsPerEm': 1000,
+            'created': (0, 3359035786), 'modified': (0, 3359035786),
+            'xMin': 4, 'yMin': -355, 'xMax': 1185, 'yMax': 2095,
+            'macStyle': 1,
+            'lowestRecPPEM': 8,
+            'fontDirectionHint': 2,
+            'indexToLocFormat': 0,
+            'glyphDataFormat': 0,
+        },
+        'maxp': {
+            'version': (1, 0),
+            'numGlyphs': 20,
+            'maxPoints': 37, 'maxComponentPoints': 0, 'maxTwilightPoints': 0,
+            'maxContours': 1, 'maxComponentContours': 0,
+            'maxZones': 2,
+            'maxStorage': 1,
+            'maxFunctionDefs': 64,
+            'maxInstructionDefs': 0,
+            'maxStackElements': 64,
+            'maxSizeOfInstructions': 0,
+            'maxComponentElements': 0,
+            'maxComponentDepth': 0,
+        },
+        'OS/2': {
+            'version': 2,
+            'xAvgCharWidth': 598,
+            'usWeightClass': 700, 'usWidthClass': 5,
+            'fsType': 0,
+            'ySubscriptXSize': 500, 'ySubscriptYSize': 500,
+            'ySubscriptXOffset': 0, 'ySubscriptYOffset': 250,
+            'ySuperscriptXSize': 500, 'ySuperscriptYSize': 500,
+            'ySuperscriptXOffset': 0, 'ySuperscriptYOffset': 500,
+            'yStrikeoutSize': 20, 'yStrikeoutPosition': 1037,
+            'sFamilyClass': 0,
+            'panose': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00',
+            'ulCharRange': (3, 192, 0, 0),
+            'achVendID': b'STIX',
+            'fsSelection': 32, 'fsFirstCharIndex': 32, 'fsLastCharIndex': 10217,
+        },
+        'hhea': {
+            'version': (1, 0),
+            'ascent': 2095, 'descent': -404, 'lineGap': 0,
+            'advanceWidthMax': 1130,
+            'minLeftBearing': 0, 'minRightBearing': -55,
+            'xMaxExtent': 1185,
+            'caretSlopeRise': 1, 'caretSlopeRun': 0, 'caretOffset': 0,
+            'metricDataFormat': 0, 'numOfLongHorMetrics': 19,
+        },
+        'vhea': None,
+        'post': {
+            'format': (2, 0),
+            'isFixedPitch': 0, 'italicAngle': (0, 0),
+            'underlinePosition': -123, 'underlineThickness': 20,
+            'minMemType42': 0, 'maxMemType42': 0,
+            'minMemType1': 0, 'maxMemType1': 0,
+        },
+        'pclt': None,
+    },
+}
+
+
+@pytest.mark.parametrize('font_name', _expected_sfnt_tables.keys())
+@pytest.mark.parametrize('header', _expected_sfnt_tables['DejaVu Sans'].keys())
+def test_ft2font_get_sfnt_table(font_name, header):
+    file = fm.findfont(font_name)
+    font = ft2font.FT2Font(file)
+    assert font.get_sfnt_table(header) == _expected_sfnt_tables[font_name][header]
+
+
 @pytest.mark.parametrize('family_name, file_name',
                           [("WenQuanYi Zen Hei",  "wqy-zenhei.ttc"),
                            ("Noto Sans CJK JP", "NotoSansCJK.ttc"),
