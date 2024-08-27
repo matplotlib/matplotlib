@@ -1526,7 +1526,7 @@ class AxLine(Line2D):
 
         # General case: find intersections with view limits in either
         # direction, and draw between the middle two points.
-        if not manual_slope and (np.isclose(slope, 0, atol=1E-16)):
+        if not manual_slope and (np.isclose(slope, 0, atol=1E-15) or slope == 0):
             start = vxlo, y1
             stop = vxhi, y1
         elif np.isinf(slope):
