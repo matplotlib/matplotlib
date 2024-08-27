@@ -176,6 +176,20 @@ def test_ft2font_clear():
     assert font.get_bitmap_offset() == (0, 0)
 
 
+def test_ft2font_set_size():
+    file = fm.findfont('DejaVu Sans')
+    # Default is 12pt @ 72 dpi.
+    font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=1)
+    font.set_text('ABabCDcd')
+    orig = font.get_width_height()
+    font.set_size(24, 72)
+    font.set_text('ABabCDcd')
+    assert font.get_width_height() == tuple(pytest.approx(2 * x, 1e-1) for x in orig)
+    font.set_size(12, 144)
+    font.set_text('ABabCDcd')
+    assert font.get_width_height() == tuple(pytest.approx(2 * x, 1e-1) for x in orig)
+
+
 def test_ft2font_charmaps():
     def enc(name):
         # We don't expose the encoding enum from FreeType, but can generate it here.
