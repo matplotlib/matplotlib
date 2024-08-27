@@ -192,21 +192,6 @@ class Colorizer:
             xx[np.any(np.ma.getmaskarray(x), axis=2), 3] = 0
         return xx
 
-    def normalize(self, x):
-        """
-        Normalize the data in x.
-
-        Parameters
-        ----------
-        x : np.array
-
-        Returns
-        -------
-        np.array
-
-        """
-        return self.norm(x)
-
     def autoscale(self, A):
         """
         Autoscale the scalar limits on the norm instance using the

@@ -5,13 +5,13 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 
-class Colorizer():
+class Colorizer:
     colorbar: colorbar.Colorbar | None
     callbacks: cbook.CallbackRegistry
     def __init__(
         self,
-        norm: colors.Normalize | str | None = ...,
         cmap: str | colors.Colormap | None = ...,
+        norm: str | colors.Normalize | None = ...,
     ) -> None: ...
     @property
     def norm(self) -> colors.Normalize: ...
@@ -24,12 +24,6 @@ class Colorizer():
         bytes: bool = ...,
         norm: bool = ...,
     ) -> np.ndarray: ...
-    @overload
-    def normalize(self, value: float, clip: bool | None = ...) -> float: ...
-    @overload
-    def normalize(self, value: np.ndarray, clip: bool | None = ...) -> np.ma.MaskedArray: ...
-    @overload
-    def normalize(self, value: ArrayLike, clip: bool | None = ...) -> ArrayLike: ...
     def autoscale(self, A: ArrayLike) -> None: ...
     def autoscale_None(self, A: ArrayLike) -> None: ...
     @property
@@ -83,6 +77,9 @@ class _ScalarMappable(_ColorizerInterface):
         self,
         norm: colors.Normalize | None = ...,
         cmap: str | colors.Colormap | None = ...,
+        *,
+        colorizer: Colorizer | None = ...,
+        **kwargs
     ) -> None: ...
     def set_array(self, A: ArrayLike | None) -> None: ...
     def get_array(self) -> np.ndarray | None: ...
@@ -93,8 +90,8 @@ class ColorizingArtist(_ScalarMappable, artist.Artist):
     callbacks: cbook.CallbackRegistry
     def __init__(
         self,
-        norm: colors.Normalize | None = ...,
-        cmap: str | colors.Colormap | None = ...,
+        colorizer: Colorizer,
+        **kwargs
     ) -> None: ...
     def set_array(self, A: ArrayLike | None) -> None: ...
     def get_array(self) -> np.ndarray | None: ...

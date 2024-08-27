@@ -438,8 +438,8 @@ class Axes(_AxesBase):
         reduce_C_function: Callable[[np.ndarray | list[float]], float] = ...,
         mincnt: int | None = ...,
         marginals: bool = ...,
-        data=...,
         colorizer: Colorizer | None = ...,
+        data=...,
         **kwargs
     ) -> PolyCollection: ...
     def arrow(

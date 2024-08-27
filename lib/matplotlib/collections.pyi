@@ -7,7 +7,6 @@ from numpy.typing import ArrayLike, NDArray
 from . import colorizer, transforms
 from .backend_bases import MouseEvent
 from .artist import Artist
-from .colorizer import Colorizer
 from .colors import Normalize, Colormap
 from .lines import Line2D
 from .path import Path
@@ -31,7 +30,7 @@ class Collection(colorizer.ColorizingArtist):
         offset_transform: transforms.Transform | None = ...,
         norm: Normalize | None = ...,
         cmap: Colormap | None = ...,
-        colorizer: Colorizer | None = ...,
+        colorizer: colorizer.Colorizer | None = ...,
         pickradius: float = ...,
         hatch: str | None = ...,
         urls: Sequence[str] | None = ...,

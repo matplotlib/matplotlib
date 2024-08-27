@@ -103,6 +103,7 @@ typing_sources = [
   'cm.pyi',
   'collections.pyi',
   'colorbar.pyi',
+  'colorizer.pyi',
   'colors.pyi',
   'container.pyi',
   'contour.pyi',
