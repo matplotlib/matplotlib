@@ -439,12 +439,19 @@ def test_axline_setters():
 
 
 def test_line_slope():
-    fig, ax = plt.subplots()
-    line = ax.axline(xy1=(0, 0), slope=1E-8)
+    slopes_to_test = [1E-8, 1E-9, 1E-10, 1E-11, 1E-12, 1E-13, 1E-14, 1E-15]
 
-    # Extract the slope from the line's properties
-    slope = line.get_slope()
+    for slope in slopes_to_test:
+        fig, ax = plt.subplots()
+        line = ax.axline(xy1=(0, 0), slope=slope)
 
-    if slope == 0:
-        with pytest.raises(ValueError, match="line should not be horizontal"):
-            raise ValueError("line should not be horizontal")
+        # Extract the slope from the line's properties
+        calculated_slope = line.get_slope()
+
+        if calculated_slope == 0:
+            with pytest.raises(ValueError, match="line should not be horizontal"):
+                raise ValueError("line should not be horizontal")
+        else:
+            print(f"Slope {slope} correctly processed as {calculated_slope}")
+
+        plt.close(fig)  # Close the figure after each test to free up resources
