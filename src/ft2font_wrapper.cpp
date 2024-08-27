@@ -14,7 +14,10 @@ static PyObject *convert_xys_to_array(std::vector<double> &xys)
 {
     npy_intp dims[] = {(npy_intp)xys.size() / 2, 2 };
     if (dims[0] > 0) {
-        return PyArray_SimpleNewFromData(2, dims, NPY_DOUBLE, &xys[0]);
+        auto obj = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
+        auto array = reinterpret_cast<PyArrayObject *>(obj);
+        memcpy(PyArray_DATA(array), xys.data(), PyArray_NBYTES(array));
+        return obj;
     } else {
         return PyArray_SimpleNew(2, dims, NPY_DOUBLE);
     }
@@ -631,7 +634,7 @@ const char *PyFT2Font_set_text__doc__ =
     "*flags* can be a bitwise-or of the LOAD_XXX constants;\n"
     "the default value is LOAD_FORCE_AUTOHINT.\n"
     "You must call this before `.draw_glyphs_to_bitmap`.\n"
-    "A sequence of x,y positions is returned.\n";
+    "A sequence of x,y positions in 26.6 subpixels is returned; divide by 64 for pixels.\n";
 
 static PyObject *PyFT2Font_set_text(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
