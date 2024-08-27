@@ -368,9 +368,10 @@ class Figure(FigureBase):
         cmap: str | Colormap | None = ...,
         vmin: float | None = ...,
         vmax: float | None = ...,
-        colorizer: Colorizer | None = ...,
         origin: Literal["upper", "lower"] | None = ...,
         resize: bool = ...,
+        *,
+        colorizer: Colorizer | None = ...,
         **kwargs
     ) -> FigureImage: ...
     def set_size_inches(

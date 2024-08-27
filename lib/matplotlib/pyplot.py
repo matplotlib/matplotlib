@@ -2723,9 +2723,10 @@ def figimage(
     cmap: str | Colormap | None = None,
     vmin: float | None = None,
     vmax: float | None = None,
-    colorizer: Colorizer | None = None,
     origin: Literal["upper", "lower"] | None = None,
     resize: bool = False,
+    *,
+    colorizer: Colorizer | None = None,
     **kwargs,
 ) -> FigureImage:
     return gcf().figimage(
@@ -2737,9 +2738,9 @@ def figimage(
         cmap=cmap,
         vmin=vmin,
         vmax=vmax,
-        colorizer=colorizer,
         origin=origin,
         resize=resize,
+        colorizer=colorizer,
         **kwargs,
     )
 

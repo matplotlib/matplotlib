@@ -498,7 +498,7 @@ class Colorbar:
             # [ColorizingArtist.changed() emits self.callbacks.process('changed')]
             # Also, there is no test where self.mappable == mappable is not True
             # and possibly no use case.
-            # Therefore, the mappable keyword can be depreciated if cm.ScalarMappable
+            # Therefore, the mappable keyword can be deprecated if cm.ScalarMappable
             # is removed.
             self.mappable = mappable
         _log.debug('colorbar update normal %r %r', self.mappable.norm, self.norm)

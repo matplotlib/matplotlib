@@ -2972,8 +2972,8 @@ None}, default: None
 
     @_docstring.interpd
     def figimage(self, X, xo=0, yo=0, alpha=None, norm=None, cmap=None,
-                 vmin=None, vmax=None, colorizer=None, origin=None, resize=False,
-                 **kwargs):
+                 vmin=None, vmax=None, origin=None, resize=False, *,
+                 colorizer=None, **kwargs):
         """
         Add a non-resampled image to the figure.
 
@@ -3009,16 +3009,16 @@ None}, default: None
 
             This parameter is ignored if *X* is RGB(A).
 
-        %(colorizer_doc)s
-
-            This parameter is ignored if *X* is RGB(A).
-
         origin : {'upper', 'lower'}, default: :rc:`image.origin`
             Indicates where the [0, 0] index of the array is in the upper left
             or lower left corner of the Axes.
 
         resize : bool
             If *True*, resize the figure to match the given image size.
+
+        %(colorizer_doc)s
+
+            This parameter is ignored if *X* is RGB(A).
 
         Returns
         -------
