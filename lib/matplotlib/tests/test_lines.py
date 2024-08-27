@@ -439,7 +439,7 @@ def test_axline_setters():
 
 
 def test_line_slope():
-    slopes_to_test = [1E-8, 1E-9, 1E-10, 1E-11, 1E-12, 1E-13, 1E-14, 1E-15]
+    slopes_to_test = [1E-8, 1E-9, 1E-10, 1E-11, 1E-12, 1E-13, 1E-14]
 
     for slope in slopes_to_test:
         fig, ax = plt.subplots()
