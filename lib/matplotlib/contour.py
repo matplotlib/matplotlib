@@ -310,14 +310,6 @@ class ContourLabeler:
         determine rotation and then to break contour if desired.  The extra spacing is
         taken into account when breaking the path, but not when computing the angle.
         """
-        if hasattr(self, "_old_style_split_collections"):
-            vis = False
-            for coll in self._old_style_split_collections:
-                vis |= coll.get_visible()
-                coll.remove()
-            self.set_visible(vis)
-            del self._old_style_split_collections  # Invalidate them.
-
         xys = path.vertices
         codes = path.codes
 
@@ -406,97 +398,6 @@ class ContourLabeler:
 
         return angle, Path(xys, codes)
 
-    @_api.deprecated("3.8")
-    def calc_label_rot_and_inline(self, slc, ind, lw, lc=None, spacing=5):
-        """
-        Calculate the appropriate label rotation given the linecontour
-        coordinates in screen units, the index of the label location and the
-        label width.
-
-        If *lc* is not None or empty, also break contours and compute
-        inlining.
-
-        *spacing* is the empty space to leave around the label, in pixels.
-
-        Both tasks are done together to avoid calculating path lengths
-        multiple times, which is relatively costly.
-
-        The method used here involves computing the path length along the
-        contour in pixel coordinates and then looking approximately (label
-        width / 2) away from central point to determine rotation and then to
-        break contour if desired.
-        """
-
-        if lc is None:
-            lc = []
-        # Half the label width
-        hlw = lw / 2.0
-
-        # Check if closed and, if so, rotate contour so label is at edge
-        closed = _is_closed_polygon(slc)
-        if closed:
-            slc = np.concatenate([slc[ind:-1], slc[:ind + 1]])
-            if len(lc):  # Rotate lc also if not empty
-                lc = np.concatenate([lc[ind:-1], lc[:ind + 1]])
-            ind = 0
-
-        # Calculate path lengths
-        pl = np.zeros(slc.shape[0], dtype=float)
-        dx = np.diff(slc, axis=0)
-        pl[1:] = np.cumsum(np.hypot(dx[:, 0], dx[:, 1]))
-        pl = pl - pl[ind]
-
-        # Use linear interpolation to get points around label
-        xi = np.array([-hlw, hlw])
-        if closed:  # Look at end also for closed contours
-            dp = np.array([pl[-1], 0])
-        else:
-            dp = np.zeros_like(xi)
-
-        # Get angle of vector between the two ends of the label - must be
-        # calculated in pixel space for text rotation to work correctly.
-        (dx,), (dy,) = (np.diff(np.interp(dp + xi, pl, slc_col))
-                        for slc_col in slc.T)
-        rotation = np.rad2deg(np.arctan2(dy, dx))
-
-        if self.rightside_up:
-            # Fix angle so text is never upside-down
-            rotation = (rotation + 90) % 180 - 90
-
-        # Break contour if desired
-        nlc = []
-        if len(lc):
-            # Expand range by spacing
-            xi = dp + xi + np.array([-spacing, spacing])
-
-            # Get (integer) indices near points of interest; use -1 as marker
-            # for out of bounds.
-            I = np.interp(xi, pl, np.arange(len(pl)), left=-1, right=-1)
-            I = [np.floor(I[0]).astype(int), np.ceil(I[1]).astype(int)]
-            if I[0] != -1:
-                xy1 = [np.interp(xi[0], pl, lc_col) for lc_col in lc.T]
-            if I[1] != -1:
-                xy2 = [np.interp(xi[1], pl, lc_col) for lc_col in lc.T]
-
-            # Actually break contours
-            if closed:
-                # This will remove contour if shorter than label
-                if all(i != -1 for i in I):
-                    nlc.append(np.vstack([xy2, lc[I[1]:I[0]+1], xy1]))
-            else:
-                # These will remove pieces of contour if they have length zero
-                if I[0] != -1:
-                    nlc.append(np.vstack([lc[:I[0]+1], xy1]))
-                if I[1] != -1:
-                    nlc.append(np.vstack([xy2, lc[I[1]:]]))
-
-            # The current implementation removes contours completely
-            # covered by labels.  Uncomment line below to keep
-            # original contour if this is the preferred behavior.
-            # if not len(nlc): nlc = [lc]
-
-        return rotation, nlc
-
     def add_label(self, x, y, rotation, lev, cvalue):
         """Add a contour label, respecting whether *use_clabeltext* was set."""
         data_x, data_y = self.axes.transData.inverted().transform((x, y))
@@ -518,12 +419,6 @@ class ContourLabeler:
         self.labelXYs.append((x, y))
         # Add label to plot here - useful for manual mode label selection
         self.axes.add_artist(t)
-
-    @_api.deprecated("3.8", alternative="add_label")
-    def add_label_clabeltext(self, x, y, rotation, lev, cvalue):
-        """Add contour label with `.Text.set_transform_rotates_text`."""
-        with cbook._setattr_cm(self, _use_clabeltext=True):
-            self.add_label(x, y, rotation, lev, cvalue)
 
     def add_label_near(self, x, y, inline=True, inline_spacing=5,
                        transform=None):
@@ -602,15 +497,6 @@ class ContourLabeler:
         super().remove()
         for text in self.labelTexts:
             text.remove()
-
-
-def _is_closed_polygon(X):
-    """
-    Return whether first and last object in a sequence are the same. These are
-    presumably coordinates on a polygonal curve, in which case this function
-    tests if that curve is closed.
-    """
-    return np.allclose(X[0], X[-1], rtol=1e-10, atol=1e-13)
 
 
 def _find_closest_point_on_path(xys, p):
@@ -906,56 +792,8 @@ class ContourSet(ContourLabeler, mcoll.Collection):
     allkinds = property(lambda self: [
         [subp.codes for subp in p._iter_connected_components()]
         for p in self.get_paths()])
-    tcolors = _api.deprecated("3.8")(property(lambda self: [
-        (tuple(rgba),) for rgba in self.to_rgba(self.cvalues, self.alpha)]))
-    tlinewidths = _api.deprecated("3.8")(property(lambda self: [
-        (w,) for w in self.get_linewidths()]))
     alpha = property(lambda self: self.get_alpha())
     linestyles = property(lambda self: self._orig_linestyles)
-
-    @_api.deprecated("3.8", alternative="set_antialiased or get_antialiased",
-                     addendum="Note that get_antialiased returns an array.")
-    @property
-    def antialiased(self):
-        return all(self.get_antialiased())
-
-    @antialiased.setter
-    def antialiased(self, aa):
-        self.set_antialiased(aa)
-
-    @_api.deprecated("3.8")
-    @property
-    def collections(self):
-        # On access, make oneself invisible and instead add the old-style collections
-        # (one PathCollection per level).  We do not try to further split contours into
-        # connected components as we already lost track of what pairs of contours need
-        # to be considered as single units to draw filled regions with holes.
-        if not hasattr(self, "_old_style_split_collections"):
-            self.set_visible(False)
-            fcs = self.get_facecolor()
-            ecs = self.get_edgecolor()
-            lws = self.get_linewidth()
-            lss = self.get_linestyle()
-            self._old_style_split_collections = []
-            for idx, path in enumerate(self._paths):
-                pc = mcoll.PathCollection(
-                    [path] if len(path.vertices) else [],
-                    alpha=self.get_alpha(),
-                    antialiaseds=self._antialiaseds[idx % len(self._antialiaseds)],
-                    transform=self.get_transform(),
-                    zorder=self.get_zorder(),
-                    label="_nolegend_",
-                    facecolor=fcs[idx] if len(fcs) else "none",
-                    edgecolor=ecs[idx] if len(ecs) else "none",
-                    linewidths=[lws[idx % len(lws)]],
-                    linestyles=[lss[idx % len(lss)]],
-                )
-                if self.filled:
-                    pc.set(hatch=self.hatches[idx % len(self.hatches)])
-                self._old_style_split_collections.append(pc)
-            for col in self._old_style_split_collections:
-                self.axes.add_collection(col)
-        return self._old_style_split_collections
 
     def get_transform(self):
         """Return the `.Transform` instance used by this ContourSet."""
