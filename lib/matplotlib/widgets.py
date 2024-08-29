@@ -273,10 +273,10 @@ class SliderBase(AxesWidget):
         self.valfmt = valfmt
 
         if orientation == "vertical":
-            ax.set_ylim((valmin, valmax))
+            ax.set_ylim(valmin, valmax)
             axis = ax.yaxis
         else:
-            ax.set_xlim((valmin, valmax))
+            ax.set_xlim(valmin, valmax)
             axis = ax.xaxis
 
         self._fmt = axis.get_major_formatter()

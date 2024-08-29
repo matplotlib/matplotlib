@@ -143,7 +143,7 @@ Other important methods set the extent on the axes (`~.axes.Axes.set_xlim`, `~.a
     x = 2**np.cumsum(np.random.randn(200))
     linesx = ax.plot(t, x)
     ax.set_yscale('log')
-    ax.set_xlim([20, 180])
+    ax.set_xlim(20, 180)
 
 The Axes class also has helpers to deal with Axis ticks and their labels.  Most straight-forward is `~.axes.Axes.set_xticks` and `~.axes.Axes.set_yticks` which manually set the tick locations and optionally their labels.  Minor ticks can be toggled with `~.axes.Axes.minorticks_on` or `~.axes.Axes.minorticks_off`.
 

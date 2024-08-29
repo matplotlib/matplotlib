@@ -401,7 +401,7 @@ plt.show()
 fig, ax = plt.subplots()
 xdata, ydata = (0.2, 0.7), (0.5, 0.5)
 ax.plot(xdata, ydata, "o")
-ax.set_xlim((0, 1))
+ax.set_xlim(0, 1)
 
 trans = (fig.dpi_scale_trans +
          transforms.ScaledTranslation(xdata[0], ydata[0], ax.transData))

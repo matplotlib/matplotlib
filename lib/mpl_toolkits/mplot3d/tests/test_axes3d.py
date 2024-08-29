@@ -2227,9 +2227,9 @@ def test_computed_zorder():
         # plot some points
         ax.scatter((3, 3), (1, 3), (1, 3), c='red', zorder=10)
 
-        ax.set_xlim((0, 5.0))
-        ax.set_ylim((0, 5.0))
-        ax.set_zlim((0, 2.5))
+        ax.set_xlim(0, 5.0)
+        ax.set_ylim(0, 5.0)
+        ax.set_zlim(0, 2.5)
 
     ax3 = fig.add_subplot(223, projection='3d')
     ax4 = fig.add_subplot(224, projection='3d')

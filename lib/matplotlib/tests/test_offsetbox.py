@@ -48,8 +48,8 @@ def test_offsetbox_clipping():
     da.add_artist(bg)
     da.add_artist(line)
     ax.add_artist(anchored_box)
-    ax.set_xlim((0, 1))
-    ax.set_ylim((0, 1))
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
 
 
 def test_offsetbox_clip_children():

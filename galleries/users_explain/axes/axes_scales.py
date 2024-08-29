@@ -171,7 +171,7 @@ ax.plot(t, s, '-', lw=2)
 ax.set_yscale('function', functions=(forward, inverse))
 ax.set_title('function: Mercator')
 ax.grid(True)
-ax.set_xlim([0, 180])
+ax.set_xlim(0, 180)
 ax.yaxis.set_minor_formatter(NullFormatter())
 ax.yaxis.set_major_locator(FixedLocator(np.arange(0, 90, 10)))
 

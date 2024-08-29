@@ -199,7 +199,7 @@ def test_too_many_date_ticks(caplog):
     tf = datetime.datetime(2000, 1, 20)
     fig, ax = plt.subplots()
     with pytest.warns(UserWarning) as rec:
-        ax.set_xlim((t0, tf), auto=True)
+        ax.set_xlim(t0, tf, auto=True)
         assert len(rec) == 1
         assert ('Attempting to set identical low and high xlims'
                 in str(rec[0].message))

@@ -845,7 +845,7 @@ def test_colorbar_change_lim_scale():
 
     pc = ax[1].pcolormesh(np.arange(100).reshape(10, 10)+1)
     cb = fig.colorbar(pc, ax=ax[1], extend='both')
-    cb.ax.set_ylim([20, 90])
+    cb.ax.set_ylim(20, 90)
 
 
 @check_figures_equal()
