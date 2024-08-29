@@ -1589,10 +1589,10 @@ extend : {'neither', 'both', 'min', 'max'}, default: 'neither'
 
         An existing `.QuadContourSet` does not get notified if
         properties of its colormap are changed. Therefore, an explicit
-        call ``QuadContourSet.changed()`` is needed after modifying the
+        call `~.ContourSet.changed()` is needed after modifying the
         colormap. The explicit call can be left out, if a colorbar is
         assigned to the `.QuadContourSet` because it internally calls
-        ``QuadContourSet.changed()``.
+        `~.ContourSet.changed()`.
 
     Example::
 
