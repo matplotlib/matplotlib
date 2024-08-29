@@ -832,9 +832,9 @@ static PyObject *PyFT2Font_draw_glyphs_to_bitmap(PyFT2Font *self, PyObject *args
 const char *PyFT2Font_draw_glyph_to_bitmap__doc__ =
     "draw_glyph_to_bitmap(self, image, x, y, glyph, antialiased=True)\n"
     "--\n\n"
-    "Draw a single glyph to the bitmap at pixel locations x, y\n"
-    "Note it is your responsibility to set up the bitmap manually\n"
-    "with ``set_bitmap_size(w, h)`` before this call is made.\n"
+    "Draw a single glyph to *image* at pixel locations *x*, *y*\n"
+    "Note it is your responsibility to create the image manually\n"
+    "with the correct size before this call is made.\n"
     "\n"
     "If you want automatic layout, use `.set_text` in combinations with\n"
     "`.draw_glyphs_to_bitmap`.  This function is instead intended for people\n"
