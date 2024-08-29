@@ -504,7 +504,7 @@ def test_image_shift():
 
 def test_image_edges():
     fig = plt.figure(figsize=[1, 1])
-    ax = fig.add_axes([0, 0, 1, 1], frameon=False)
+    ax = fig.add_axes((0, 0, 1, 1), frameon=False)
 
     data = np.tile(np.arange(12), 15).reshape(20, 9)
 
@@ -1192,7 +1192,7 @@ def test_exact_vmin():
 
     # make the image exactly 190 pixels wide
     fig = plt.figure(figsize=(1.9, 0.1), dpi=100)
-    ax = fig.add_axes([0, 0, 1, 1])
+    ax = fig.add_axes((0, 0, 1, 1))
 
     data = np.array(
         [[-1, -1, -1, 0, 0, 0, 0, 43, 79, 95, 66, 1, -1, -1, -1, 0, 0, 0, 34]],

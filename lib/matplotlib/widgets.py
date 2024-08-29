@@ -1841,7 +1841,7 @@ class SubplotTool(Widget):
         self.sliderbottom.slidermax = self.slidertop
         self.slidertop.slidermin = self.sliderbottom
 
-        bax = toolfig.add_axes([0.8, 0.05, 0.15, 0.075])
+        bax = toolfig.add_axes((0.8, 0.05, 0.15, 0.075))
         self.buttonreset = Button(bax, 'Reset')
         self.buttonreset.on_clicked(self._on_reset)
 

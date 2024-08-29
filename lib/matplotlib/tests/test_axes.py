@@ -7126,7 +7126,7 @@ def shared_axes_generator(request):
         ax = ax_lst[0][0]
     elif request.param == 'add_axes':
         fig = plt.figure()
-        ax = fig.add_axes([.1, .1, .8, .8])
+        ax = fig.add_axes((.1, .1, .8, .8))
     return fig, ax
 
 
@@ -7460,7 +7460,7 @@ def test_title_no_move_off_page():
     # make sure that the automatic title repositioning does not get done.
     mpl.rcParams['axes.titley'] = None
     fig = plt.figure()
-    ax = fig.add_axes([0.1, -0.5, 0.8, 0.2])
+    ax = fig.add_axes((0.1, -0.5, 0.8, 0.2))
     ax.tick_params(axis="x",
                    bottom=True, top=True, labelbottom=True, labeltop=True)
     tt = ax.set_title('Boo')
@@ -8399,7 +8399,7 @@ def test_aspect_nonlinear_adjustable_box():
 def test_aspect_nonlinear_adjustable_datalim():
     fig = plt.figure(figsize=(10, 10))  # Square.
 
-    ax = fig.add_axes([.1, .1, .8, .8])  # Square.
+    ax = fig.add_axes((.1, .1, .8, .8))  # Square.
     ax.plot([.4, .6], [.4, .6])  # Set minpos to keep logit happy.
     ax.set(xscale="log", xlim=(1, 100),
            yscale="logit", ylim=(1 / 101, 1 / 11),
@@ -8623,7 +8623,7 @@ def test_multiplot_autoscale():
 def test_sharing_does_not_link_positions():
     fig = plt.figure()
     ax0 = fig.add_subplot(221)
-    ax1 = fig.add_axes([.6, .6, .3, .3], sharex=ax0)
+    ax1 = fig.add_axes((.6, .6, .3, .3), sharex=ax0)
     init_pos = ax1.get_position()
     fig.subplots_adjust(left=0)
     assert (ax1.get_position().get_points() == init_pos.get_points()).all()
@@ -9722,7 +9722,7 @@ def test_axes_set_position_external_bbox_unchanged(fig_test, fig_ref):
     ax_test = fig_test.add_axes(bbox)
     ax_test.set_position([0.25, 0.25, 0.5, 0.5])
     assert (bbox.x0, bbox.y0, bbox.width, bbox.height) == (0.0, 0.0, 1.0, 1.0)
-    ax_ref = fig_ref.add_axes([0.25, 0.25, 0.5, 0.5])
+    ax_ref = fig_ref.add_axes((0.25, 0.25, 0.5, 0.5))
 
 
 def test_bar_shape_mismatch():

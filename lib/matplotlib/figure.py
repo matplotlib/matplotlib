@@ -3678,7 +3678,7 @@ def figaspect(arg):
 
         w, h = figaspect(2.)
         fig = Figure(figsize=(w, h))
-        ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+        ax = fig.add_axes((0.1, 0.1, 0.8, 0.8))
         ax.imshow(A, **kwargs)
 
     Make a figure with the proper aspect for an array::
@@ -3686,7 +3686,7 @@ def figaspect(arg):
         A = rand(5, 3)
         w, h = figaspect(A)
         fig = Figure(figsize=(w, h))
-        ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+        ax = fig.add_axes((0.1, 0.1, 0.8, 0.8))
         ax.imshow(A, **kwargs)
     """
 

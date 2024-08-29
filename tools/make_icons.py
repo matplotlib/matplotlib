@@ -64,7 +64,7 @@ def make_icon(font_path, ccode):
 def make_matplotlib_icon():
     fig = plt.figure(figsize=(1, 1))
     fig.patch.set_alpha(0.0)
-    ax = fig.add_axes([0.025, 0.025, 0.95, 0.95], projection='polar')
+    ax = fig.add_axes((0.025, 0.025, 0.95, 0.95), projection='polar')
     ax.set_axisbelow(True)
 
     N = 7

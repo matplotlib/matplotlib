@@ -181,9 +181,9 @@ def test_marker_clipping(fig_ref, fig_test):
     width = 2 * marker_size * ncol
     height = 2 * marker_size * nrow * 2
     fig_ref.set_size_inches((width / fig_ref.dpi, height / fig_ref.dpi))
-    ax_ref = fig_ref.add_axes([0, 0, 1, 1])
+    ax_ref = fig_ref.add_axes((0, 0, 1, 1))
     fig_test.set_size_inches((width / fig_test.dpi, height / fig_ref.dpi))
-    ax_test = fig_test.add_axes([0, 0, 1, 1])
+    ax_test = fig_test.add_axes((0, 0, 1, 1))
 
     for i, marker in enumerate(markers.MarkerStyle.markers):
         x = i % ncol

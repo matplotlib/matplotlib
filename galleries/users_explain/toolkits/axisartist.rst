@@ -50,7 +50,7 @@ To create an Axes, ::
 
   import mpl_toolkits.axisartist as AA
   fig = plt.figure()
-  fig.add_axes([0.1, 0.1, 0.8, 0.8], axes_class=AA.Axes)
+  fig.add_axes((0.1, 0.1, 0.8, 0.8), axes_class=AA.Axes)
 
 or to create a subplot ::
 

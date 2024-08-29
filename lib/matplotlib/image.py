@@ -1772,7 +1772,7 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
         fig = Figure(figsize=(width, height), dpi=dpi)
         FigureCanvasBase(fig)
 
-    ax = fig.add_axes([0, 0, 1, 1], aspect='auto',
+    ax = fig.add_axes((0, 0, 1, 1), aspect='auto',
                       frameon=False, xticks=[], yticks=[])
     ax.imshow(im, aspect='auto', resample=True, interpolation=interpolation)
     fig.savefig(thumbfile, dpi=dpi)

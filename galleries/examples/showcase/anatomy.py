@@ -27,7 +27,7 @@ Y2 = 1+np.cos(1+X/0.75)/2
 Y3 = np.random.uniform(Y1, Y2, len(X))
 
 fig = plt.figure(figsize=(7.5, 7.5))
-ax = fig.add_axes([0.2, 0.17, 0.68, 0.7], aspect=1)
+ax = fig.add_axes((0.2, 0.17, 0.68, 0.7), aspect=1)
 
 ax.xaxis.set_major_locator(MultipleLocator(1.000))
 ax.xaxis.set_minor_locator(AutoMinorLocator(4))
