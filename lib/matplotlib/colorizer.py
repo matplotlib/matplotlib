@@ -38,8 +38,8 @@ colorizer : `~matplotlib.colorizer.Colorizer` or None, default: None
 class Colorizer:
     """
     Class that holds the data to color pipeline
-    accessible via `Colorizer.to_rgba(A)` and executed via
-    the `Colorizer.norm` and `Colorizer.cmap` attributes.
+    accessible via `.Colorizer.to_rgba` and executed via
+    the `.Colorizer.norm` and `.Colorizer.cmap` attributes.
     """
     def __init__(self, cmap=None, norm=None):
 
@@ -306,11 +306,11 @@ class Colorizer:
 class _ColorizerInterface:
     """
     Base class that contains the interface to `Colorizer` objects from
-    a `ColorizingArtist` or `cm.ScalarMappable`.
+    a `ColorizingArtist` or `.cm.ScalarMappable`.
 
     Note: This class only contain functions that interface the .colorizer
-    attribute. Other functions that as shared between `ColorizingArtist`
-    and `cm.ScalarMappable` are not included.
+    attribute. Other functions that as shared between `.ColorizingArtist`
+    and `.cm.ScalarMappable` are not included.
     """
     def _scale_norm(self, norm, vmin, vmax):
         self._colorizer._scale_norm(norm, vmin, vmax, self._A)
@@ -486,8 +486,9 @@ class _ScalarMappable(_ColorizerInterface):
     A mixin class to map one or multiple sets of scalar data to RGBA.
 
     The ScalarMappable applies data normalization before returning RGBA colors
-    from the given `~matplotlib.colors.Colormap`, `~matplotlib.colors.BivarColormap`,
-    or `~matplotlib.colors.MultivarColormap`.
+    from the given `~matplotlib.colors.Colormap`, or
+    `~matplotlib.colors.BivarColormap`.
+
     """
 
     # _ScalarMappable exists for compatibility with
@@ -623,7 +624,7 @@ class ColorizingArtist(_ScalarMappable, artist.Artist):
         """
         Parameters
         ----------
-        colorizer : `colorizer.Colorizer`
+        colorizer : `.colorizer.Colorizer`
         """
         if not isinstance(colorizer, Colorizer):
             raise ValueError("A `mpl.colorizer.Colorizer` object must be provided")
