@@ -36,7 +36,7 @@ patch.force_edgecolor  : True
 patch.edgecolor        : k
 patch.antialiased      : True    # render patches in antialiased (no jaggies)
 
-hatch.color            : k
+hatch.color            : inherit
 hatch.linewidth        : 1.0
 
 hist.bins              : 10

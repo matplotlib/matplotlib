@@ -56,6 +56,7 @@ class Patch(artist.Artist):
                  fill=True,
                  capstyle=None,
                  joinstyle=None,
+                 hatchcolor=None,
                  **kwargs):
         """
         The following kwarg properties are supported
@@ -71,7 +72,9 @@ class Patch(artist.Artist):
         if joinstyle is None:
             joinstyle = JoinStyle.miter
 
-        self._hatch_color = colors.to_rgba(mpl.rcParams['hatch.color'])
+        self._original_edgecolor = None
+        self._original_hatchcolor = None
+
         self._hatch_linewidth = mpl.rcParams['hatch.linewidth']
         self._fill = bool(fill)  # needed for set_facecolor call
         if color is not None:
@@ -82,6 +85,7 @@ class Patch(artist.Artist):
             self.set_color(color)
         else:
             self.set_edgecolor(edgecolor)
+            self.set_hatchcolor(hatchcolor)
             self.set_facecolor(facecolor)
 
         self._linewidth = 0
@@ -291,6 +295,7 @@ class Patch(artist.Artist):
         self._fill = other._fill
         self._hatch = other._hatch
         self._hatch_color = other._hatch_color
+        self._original_hatchcolor = other._original_hatchcolor
         self._unscaled_dash_pattern = other._unscaled_dash_pattern
         self.set_linewidth(other._linewidth)  # also sets scaled dashes
         self.set_transform(other.get_data_transform())
@@ -360,17 +365,15 @@ class Patch(artist.Artist):
         self.stale = True
 
     def _set_edgecolor(self, color):
-        set_hatch_color = True
         if color is None:
             if (mpl.rcParams['patch.force_edgecolor'] or
                     not self._fill or self._edge_default):
                 color = mpl.rcParams['patch.edgecolor']
             else:
                 color = 'none'
-                set_hatch_color = False
 
         self._edgecolor = colors.to_rgba(color, self._alpha)
-        if set_hatch_color:
+        if self._original_hatchcolor is None:
             self._hatch_color = self._edgecolor
         self.stale = True
 
@@ -416,14 +419,39 @@ class Patch(artist.Artist):
         Patch.set_facecolor, Patch.set_edgecolor
             For setting the edge or face color individually.
         """
-        self.set_facecolor(c)
         self.set_edgecolor(c)
+        self.set_hatchcolor(c)
+        self.set_facecolor(c)
+
+    def _set_hatchcolor(self, color):
+        color = mpl._val_or_rc(color, "hatch.color")
+        if color == 'inherit':
+            if self._original_edgecolor is not None:
+                color = self._original_edgecolor
+            else:
+                color = mpl.rcParams['patch.edgecolor']
+        else:
+            self._original_hatchcolor = color
+        self._hatch_color = colors.to_rgba(color, self._alpha)
+        self.stale = True
+
+    def set_hatchcolor(self, color):
+        """
+        Set the patch hatch color.
+
+        Parameters
+        ----------
+        color : :mpltype:`color` or None
+        """
+        self._original_hatchcolor = color
+        self._set_hatchcolor(color)
 
     def set_alpha(self, alpha):
         # docstring inherited
         super().set_alpha(alpha)
         self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
+        self._set_hatchcolor(self._original_hatchcolor)
         # stale is already True
 
     def set_linewidth(self, w):
@@ -487,6 +515,7 @@ class Patch(artist.Artist):
         self._fill = bool(b)
         self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
+        self._set_hatchcolor(self._original_hatchcolor)
         self.stale = True
 
     def get_fill(self):
