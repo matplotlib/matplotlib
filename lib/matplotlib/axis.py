@@ -1099,15 +1099,27 @@ class Axis(martist.Artist):
             'length': 'size',
             'direction': 'tickdir',
             'rotation': 'labelrotation',
-            'left': 'tick1On',
-            'bottom': 'tick1On',
-            'right': 'tick2On',
-            'top': 'tick2On',
-            'labelleft': 'label1On',
-            'labelbottom': 'label1On',
-            'labelright': 'label2On',
-            'labeltop': 'label2On',
         }
+
+	# axis specific mappings
+	axis_mappings = {
+	    'x': {
+	        'top': 'tick20n',
+		'bottom': 'tick10n',
+		'labelbottom': 'label10n',
+		'labeltop': 'label20n',
+	    },
+	    'y': {
+	        'left': 'tick10n',
+		'right': 'tick20n',
+		'labelleft': 'label10n',
+		'labelright': 'label20n',
+	    }
+	}
+
+	# merge shared keymap pais with axis specific map
+	keymap.update(axis_mappings.get(self.axis_name, {}))
+
         if reverse:
             kwtrans = {
                 oldkey: kw_.pop(newkey)
