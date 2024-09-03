@@ -98,7 +98,7 @@ commands:
     parameters:
       numpy_version:
         type: string
-        default: "!=2.1.0"
+        default: "<2.1.0"
     steps:
       - run:
           name: Install Python dependencies
