@@ -1273,7 +1273,8 @@ class FillBetweenPolyCollection(PolyCollection):
         elif self.t_direction == "y":
             return "x"
         else:
-            raise ValueError(f"t_direction must be 'x' or 'y', got {self.t_direction!r}")
+            msg = f"t_direction must be 'x' or 'y', got {self.t_direction!r}"
+            raise ValueError(msg)
 
     def set_data(
             self, ind, dep1, dep2=0,
