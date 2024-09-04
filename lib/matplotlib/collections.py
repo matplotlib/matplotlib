@@ -1277,23 +1277,23 @@ class FillBetweenPolyCollection(PolyCollection):
             raise ValueError(msg)
 
     def set_data(
-            self, ind, dep1, dep2=0,
+            self, t, f1, f2=0,
             where=None, interpolate=False, step=None, **kwargs):
         kwargs = self._normalise_kwargs(self.axes, **kwargs)
         polys = self._make_verts(
-            ind, dep1, dep2, where, interpolate, step, self.axes, **kwargs)
+            t, f1, f2, where, interpolate, step, self.axes, **kwargs)
         self.set_verts(polys)
 
-    def _make_verts(self, ind, dep1, dep2, where, interpolate, step, axes, **kwargs):
+    def _make_verts(self, t, f1, f2, where, interpolate, step, axes, **kwargs):
         dirs = (self.t_direction, self._f_direction, self._f_direction)
         # Handle united data, such as dates
         if axes:
-            ind, dep1, dep2 = axes._process_unit_info(
-                [*zip(dirs, [ind, dep1, dep2])], kwargs)
-        ind, dep1, dep2 = map(np.ma.masked_invalid, [ind, dep1, dep2])
+            t, f1, f2 = axes._process_unit_info(
+                [*zip(dirs, [t, f1, f2])], kwargs)
+        t, f1, f2 = map(np.ma.masked_invalid, [t, f1, f2])
 
         names = (d + s for d, s in zip(dirs, ("", "1", "2")))
-        for name, array in zip(names, [ind, dep1, dep2]):
+        for name, array in zip(names, [t, f1, f2]):
             if array.ndim > 1:
                 raise ValueError(f"{name!r} is not 1-dimensional")
 
@@ -1301,22 +1301,22 @@ class FillBetweenPolyCollection(PolyCollection):
             where = True
         else:
             where = np.asarray(where, dtype=bool)
-            if where.size != ind.size:
+            if where.size != t.size:
                 raise ValueError(f"where size ({where.size}) does not match "
-                                 f"{self.t_direction} size ({ind.size})")
+                                 f"{self.t_direction} size ({t.size})")
         where = where & ~functools.reduce(
-            np.logical_or, map(np.ma.getmaskarray, [ind, dep1, dep2]))
+            np.logical_or, map(np.ma.getmaskarray, [t, f1, f2]))
 
-        ind, dep1, dep2 = np.broadcast_arrays(
-            np.atleast_1d(ind), dep1, dep2, subok=True)
+        t, f1, f2 = np.broadcast_arrays(
+            np.atleast_1d(t), f1, f2, subok=True)
 
         polys = [
             pts for idx0, idx1 in cbook.contiguous_regions(where)
-            if (pts := self._make_pts(ind, dep1, dep2, idx0, idx1, step, interpolate))
+            if (pts := self._make_pts(t, f1, f2, idx0, idx1, step, interpolate))
             is not None]
 
         self._pts = self._normalise_pts(np.vstack([
-            np.hstack([ind[where, None], dep[where, None]]) for dep in (dep1, dep2)]))
+            np.hstack([t[where, None], dep[where, None]]) for dep in (f1, f2)]))
 
         if "transform" in kwargs:
             self._up_xy = kwargs["transform"].contains_branch_seperately
