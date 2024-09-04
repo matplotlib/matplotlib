@@ -1267,7 +1267,7 @@ class FillBetweenPolyCollection(PolyCollection):
         super().__init__(polys, **kwargs)
 
     @property
-    def dep_dir(self):
+    def _dep_dir(self):
         match self.ind_dir:
             case "x":
                 return "y"
@@ -1285,7 +1285,7 @@ class FillBetweenPolyCollection(PolyCollection):
         self.set_verts(polys)
 
     def _make_verts(self, ind, dep1, dep2, where, interpolate, step, axes, **kwargs):
-        dirs = (self.ind_dir, self.dep_dir, self.dep_dir)
+        dirs = (self.ind_dir, self._dep_dir, self._dep_dir)
         # Handle united data, such as dates
         if axes:
             ind, dep1, dep2 = axes._process_unit_info(
