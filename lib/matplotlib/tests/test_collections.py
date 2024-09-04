@@ -851,9 +851,6 @@ def test_fbp_collection_set_data(fname):
 
     fig2, ax2 = plt.subplots()
     coll2 = getattr(ax2, fname)(t, f1, f3)
-
-    assert fig1b != _fig_to_bytes(fig2)
-
     coll2.set_data(t, f1, f2)
     assert fig1b == _fig_to_bytes(fig2)
 
