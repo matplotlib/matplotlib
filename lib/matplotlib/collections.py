@@ -1260,7 +1260,7 @@ class FillBetweenPolyCollection(PolyCollection):
             self, ind_dir, ind, dep1, dep2=0, *,
             where=None, interpolate=False, step=None, _axes=None, **kwargs):
         self.ind_dir = ind_dir
-        axes = _axes or getattr(self, "axes", None)
+        axes = _axes or self.axes
         kwargs = self._normalise_kwargs(axes, **kwargs)
         polys = self._make_verts(
             ind, dep1, dep2, where, interpolate, step, axes, **kwargs)
@@ -1279,10 +1279,9 @@ class FillBetweenPolyCollection(PolyCollection):
     def set_data(
             self, ind, dep1, dep2=0,
             where=None, interpolate=False, step=None, **kwargs):
-        axes = getattr(self, "axes", None)
-        kwargs = self._normalise_kwargs(axes, **kwargs)
+        kwargs = self._normalise_kwargs(self.axes, **kwargs)
         polys = self._make_verts(
-            ind, dep1, dep2, where, interpolate, step, axes, **kwargs)
+            ind, dep1, dep2, where, interpolate, step, self.axes, **kwargs)
         self.set_verts(polys)
 
     def _make_verts(self, ind, dep1, dep2, where, interpolate, step, axes, **kwargs):
