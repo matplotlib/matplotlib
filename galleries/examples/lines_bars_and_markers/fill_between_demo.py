@@ -145,4 +145,4 @@ ax.fill_between(x, 0, 1, where=y > threshold,
 #    styling: conditional
 #    plot-type: fill_between
 #    level: beginner
-#    prupose: showcase
+#    purpose: showcase
