@@ -1268,13 +1268,12 @@ class FillBetweenPolyCollection(PolyCollection):
 
     @property
     def _dep_dir(self):
-        match self.ind_dir:
-            case "x":
-                return "y"
-            case "y":
-                return "x"
-            case _:
-                raise ValueError(f"ind_dir must be 'x' or 'y', got '{self.ind_dir}'")
+        if self.ind_dir == "x":
+            return "y"
+        elif self.ind_dir == "y":
+            return "x"
+        else:
+            raise ValueError(f"ind_dir must be 'x' or 'y', got '{self.ind_dir}'")
 
     def set_data(
             self, ind, dep1, dep2=0,
