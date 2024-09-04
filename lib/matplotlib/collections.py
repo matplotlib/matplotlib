@@ -1257,23 +1257,23 @@ class PolyCollection(_CollectionWithSizes):
 
 class FillBetweenPolyCollection(PolyCollection):
     def __init__(
-            self, ind_dir, ind, dep1, dep2=0, *,
+            self, t_direction, t, f1, f2=0, *,
             where=None, interpolate=False, step=None, _axes=None, **kwargs):
-        self.ind_dir = ind_dir
+        self.t_direction = t_direction
         axes = _axes or self.axes
         kwargs = self._normalise_kwargs(axes, **kwargs)
         polys = self._make_verts(
-            ind, dep1, dep2, where, interpolate, step, axes, **kwargs)
+            t, f1, f2, where, interpolate, step, axes, **kwargs)
         super().__init__(polys, **kwargs)
 
     @property
-    def _dep_dir(self):
-        if self.ind_dir == "x":
+    def _f_direction(self):
+        if self.t_direction == "x":
             return "y"
-        elif self.ind_dir == "y":
+        elif self.t_direction == "y":
             return "x"
         else:
-            raise ValueError(f"ind_dir must be 'x' or 'y', got '{self.ind_dir}'")
+            raise ValueError(f"t_direction must be 'x' or 'y', got {self.t_direction!r}")
 
     def set_data(
             self, ind, dep1, dep2=0,
@@ -1284,7 +1284,7 @@ class FillBetweenPolyCollection(PolyCollection):
         self.set_verts(polys)
 
     def _make_verts(self, ind, dep1, dep2, where, interpolate, step, axes, **kwargs):
-        dirs = (self.ind_dir, self._dep_dir, self._dep_dir)
+        dirs = (self.t_direction, self._f_direction, self._f_direction)
         # Handle united data, such as dates
         if axes:
             ind, dep1, dep2 = axes._process_unit_info(
@@ -1302,7 +1302,7 @@ class FillBetweenPolyCollection(PolyCollection):
             where = np.asarray(where, dtype=bool)
             if where.size != ind.size:
                 raise ValueError(f"where size ({where.size}) does not match "
-                                 f"{self.ind_dir} size ({ind.size})")
+                                 f"{self.t_direction} size ({ind.size})")
         where = where & ~functools.reduce(
             np.logical_or, map(np.ma.getmaskarray, [ind, dep1, dep2]))
 
@@ -1383,7 +1383,7 @@ class FillBetweenPolyCollection(PolyCollection):
         return diff_root_ind, diff_root_dep
 
     def _normalise_pts(self, pts):
-        return pts[:, ::-1] if self.ind_dir == "y" else pts
+        return pts[:, ::-1] if self.t_direction == "y" else pts
 
 
 class RegularPolyCollection(_CollectionWithSizes):
