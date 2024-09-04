@@ -1260,7 +1260,7 @@ class FillBetweenPolyCollection(PolyCollection):
             self, t_direction, t, f1, f2=0, *,
             where=None, interpolate=False, step=None, _axes=None, **kwargs):
         self.t_direction = t_direction
-        axes = _axes or self.axes
+        axes = _axes or getattr(self, "axes", None)
         kwargs = self._normalise_kwargs(axes, **kwargs)
         polys = self._make_verts(
             t, f1, f2, where, interpolate, step, axes, **kwargs)

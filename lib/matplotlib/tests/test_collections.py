@@ -837,48 +837,39 @@ def _fig_to_bytes(fig):
         return bio.getvalue()
 
 
-@pytest.fixture()
-def ind():
-    return np.linspace(16, 365, (365-16)*4)
-
-
-@pytest.fixture()
-def dep1(ind):
-    return np.sin(2*np.pi*ind/153) + np.cos(2*np.pi*ind/127)
-
-
-@pytest.fixture()
-def dep2(dep1):
-    return dep1 + .2
-
-
 @pytest.mark.parametrize("fname", ["fill_between", "fill_betweenx"])
-def test_fbp_collection_set_data(fname, ind, dep1, dep2):
-    dep3 = dep2.copy()
-    dep3[100], dep3[200] = dep3[2], dep3[200]
+def test_fbp_collection_set_data(fname):
+    t = np.linspace(0, 16)
+    f1 = np.sin(t)
+    f2 = f1 + 0.2
+    f3 = f2.copy()
+    f3[10], f3[20] = f3[2], f3[20]
 
     fig1, ax1 = plt.subplots()
-    getattr(ax1, fname)(ind, dep1, dep2)
+    getattr(ax1, fname)(t, f1, f2)
     fig1b = _fig_to_bytes(fig1)
 
     fig2, ax2 = plt.subplots()
-    coll2 = getattr(ax2, fname)(ind, dep1, dep3)
+    coll2 = getattr(ax2, fname)(t, f1, f3)
 
     assert fig1b != _fig_to_bytes(fig2)
 
-    coll2.set_data(ind, dep1, dep2)
+    coll2.set_data(t, f1, f2)
     assert fig1b == _fig_to_bytes(fig2)
 
 
-@pytest.mark.parametrize(("ind_dir", "shape", "where", "msg"), [
-    ("z", (-1,), None, "ind_dir must"),
+@pytest.mark.parametrize(("t_direction", "shape", "where", "msg"), [
+    ("z", (-1,), None, "t_direction must"),
     ("x", (-1, 1), None, "'x' is not"),
     ("x", (-1,), [False]*3, "where size"),
 ])
-def test_fbp_collection_raise(ind_dir, shape, where, msg, ind, dep1, dep2):
-    ind = ind.reshape(*shape)
+def test_fbp_collection_raise(t_direction, shape, where, msg):
+    t = np.linspace(0, 16)
+    f1 = np.sin(t)
+    f2 = f1 + 0.2
+    t = t.reshape(*shape)
     with pytest.raises(ValueError, match=msg):
-        FillBetweenPolyCollection(ind_dir, ind, dep1, dep2, where=where)
+        FillBetweenPolyCollection(t_direction, t, f1, f2, where=where)
 
 
 def test_collection_set_array():
