@@ -1331,21 +1331,21 @@ class FillBetweenPolyCollection(PolyCollection):
 
         return kwargs
 
-    def _make_pts(self, ind, dep1, dep2, idx0, idx1, step, interpolate):
-        indslice = ind[idx0:idx1]
-        dep1slice = dep1[idx0:idx1]
-        dep2slice = dep2[idx0:idx1]
+    def _make_pts(self, t, f1, f2, idx0, idx1, step, interpolate):
+        indslice = t[idx0:idx1]
+        dep1slice = f1[idx0:idx1]
+        dep2slice = f2[idx0:idx1]
         if step is not None:
             step_func = cbook.STEP_LOOKUP_MAP["steps-" + step]
             indslice, dep1slice, dep2slice = \
                 step_func(indslice, dep1slice, dep2slice)
 
-        N = len(indslice)
-        pts = np.zeros((2 * N + 2, 2))
+        size = len(indslice)
+        pts = np.zeros((2 * size + 2, 2))
 
         if interpolate:
-            start = self._get_interp_point(ind, dep1, dep2, idx0)
-            end = self._get_interp_point(ind, dep1, dep2, idx1)
+            start = self._get_interp_point(t, f1, f2, idx0)
+            end = self._get_interp_point(t, f1, f2, idx1)
         else:
             # Handle scalar dep2 (e.g. 0): the fill should go all
             # the way down to 0 even if none of the dep1 sample points do.
@@ -1353,26 +1353,26 @@ class FillBetweenPolyCollection(PolyCollection):
             end = indslice[-1], dep2slice[-1]
 
         pts[0] = start
-        pts[N + 1] = end
+        pts[size + 1] = end
 
-        pts[1:N+1, 0] = indslice
-        pts[1:N+1, 1] = dep1slice
-        pts[N+2:, 0] = indslice[::-1]
-        pts[N+2:, 1] = dep2slice[::-1]
+        pts[1:size+1, 0] = indslice
+        pts[1:size+1, 1] = dep1slice
+        pts[size+2:, 0] = indslice[::-1]
+        pts[size+2:, 1] = dep2slice[::-1]
 
         return self._normalise_pts(pts)
 
-    def _get_interp_point(self, ind, dep1, dep2, idx):
+    def _get_interp_point(self, t, f1, f2, idx):
         im1 = max(idx - 1, 0)
-        ind_values = ind[im1:idx+1]
-        diff_values = dep1[im1:idx+1] - dep2[im1:idx+1]
-        dep1_values = dep1[im1:idx+1]
+        ind_values = t[im1:idx+1]
+        diff_values = f1[im1:idx+1] - f2[im1:idx+1]
+        dep1_values = f1[im1:idx+1]
 
         if len(diff_values) == 2:
             if np.ma.is_masked(diff_values[1]):
-                return ind[im1], dep1[im1]
+                return t[im1], f1[im1]
             elif np.ma.is_masked(diff_values[0]):
-                return ind[idx], dep1[idx]
+                return t[idx], f1[idx]
 
         diff_order = diff_values.argsort()
         diff_root_ind = np.interp(
