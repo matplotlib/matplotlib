@@ -58,7 +58,7 @@ class DataDisplayDownsampler:
         return xdata, y1data, y2data
 
     def update(self, ax):
-        # Update the line
+        # Update the artists
         lims = ax.viewLim
         if abs(lims.width - self.delta) > 1e-8:
             self.delta = lims.width

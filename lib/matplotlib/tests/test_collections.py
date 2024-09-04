@@ -838,7 +838,7 @@ def test_fbp_collection_set_data(fname, fig_test, fig_ref):
     f1 = np.sin(t)
     f2 = f1 + 0.2
     f3 = f2.copy()
-    f3[10], f3[20] = f3[2], f3[20]
+    f3[10], f3[20] = f3[20], f3[10]
 
     ax_ref = fig_ref.subplots()
     getattr(ax_ref, fname)(t, f1, f2)
