@@ -160,21 +160,12 @@ extension_data = {
   },
 }
 
-cpp_special_arguments = []
-if cpp.get_id() == 'msvc' and get_option('buildtype') != 'plain'
-  # Disable FH4 Exception Handling implementation so that we don't require
-  # VCRUNTIME140_1.dll. For more details, see:
-  # https://devblogs.microsoft.com/cppblog/making-cpp-exception-handling-smaller-x64/
-  # https://github.com/joerick/cibuildwheel/issues/423#issuecomment-677763904
-  cpp_special_arguments += ['/d2FH4-']
-endif
-
 foreach ext, kwargs : extension_data
   # Ensure that PY_ARRAY_UNIQUE_SYMBOL is uniquely defined for each extension.
   unique_array_api = '-DPY_ARRAY_UNIQUE_SYMBOL=MPL_@0@_ARRAY_API'.format(ext.replace('.', '_'))
   additions = {
     'c_args': [unique_array_api] + kwargs.get('c_args', []),
-    'cpp_args': cpp_special_arguments + [unique_array_api] + kwargs.get('cpp_args', []),
+    'cpp_args': [unique_array_api] + kwargs.get('cpp_args', []),
   }
   py3.extension_module(
     ext,

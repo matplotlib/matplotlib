@@ -1,0 +1,7 @@
+``suptitle`` in compressed layout
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Compressed layout now automatically positions the `~.Figure.suptitle` just
+above the top row of axes.  To keep this title in its previous position,
+either pass ``in_layout=False`` or explicitly set ``y=0.98`` in the
+`~.Figure.suptitle` call.

@@ -84,43 +84,63 @@ to contributing, we recommend that you first read our
    contribute
 
 .. grid:: 1 1 2 2
-   :class-row: sd-align-minor-center
-
-   .. grid-item::
-      :class: sd-fs-5
-
-      :octicon:`info;1em;sd-text-info` :ref:`Where should I start? <start-contributing>`
-
-      :octicon:`question;1em;sd-text-info` :ref:`Where should I ask questions? <get_connected>`
-
-      :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I work on an issue? <managing_issues_prs>`
-
-      :octicon:`codespaces;1em;sd-text-info` :ref:`How do I start a pull request? <how-to-pull-request>`
+   :class-row: sd-fs-5 sd-align-minor-center
 
    .. grid-item::
 
       .. grid:: 1
          :gutter: 1
-         :class-row: sd-fs-5
+
+         .. grid-item::
+
+            :octicon:`info;1em;sd-text-info` :ref:`Where should I start? <start-contributing>`
+
+         .. grid-item::
+
+            :octicon:`question;1em;sd-text-info` :ref:`Where should I ask questions? <get_connected>`
+
+         .. grid-item::
+
+            :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I work on an issue? <managing_issues_prs>`
+
+         .. grid-item::
+
+            :octicon:`codespaces;1em;sd-text-info` :ref:`How do I start a pull request? <how-to-pull-request>`
+
+   .. grid-item::
+
+      .. grid:: 1
+         :gutter: 1
 
          .. grid-item-card::
             :link: contribute_code
             :link-type: ref
-            :shadow: none
+            :class-card: sd-shadow-none
+            :class-body: sd-text-{primary}
 
             :octicon:`code;1em;sd-text-info` Contribute code
 
          .. grid-item-card::
             :link: contribute_documentation
             :link-type: ref
-            :shadow: none
+            :class-card: sd-shadow-none
+            :class-body: sd-text-{primary}
 
             :octicon:`note;1em;sd-text-info` Write documentation
 
          .. grid-item-card::
+            :link: contribute_triage
+            :link-type: ref
+            :class-card: sd-shadow-none
+            :class-body: sd-text-{primary}
+
+            :octicon:`issue-opened;1em;sd-text-info` Triage issues
+
+         .. grid-item-card::
             :link: other_ways_to_contribute
             :link-type: ref
-            :shadow: none
+            :class-card: sd-shadow-none
+            :class-body: sd-text-{primary}
 
             :octicon:`globe;1em;sd-text-info` Build community
 

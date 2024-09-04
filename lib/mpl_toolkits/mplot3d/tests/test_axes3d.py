@@ -222,7 +222,7 @@ def test_bar3d_lightsource():
 
 @mpl3d_image_comparison(
     ['contour3d.png'], style='mpl20',
-    tol=0.002 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
+    tol=0.002 if platform.machine() in ('aarch64', 'arm64', 'ppc64le', 's390x') else 0)
 def test_contour3d():
     plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()

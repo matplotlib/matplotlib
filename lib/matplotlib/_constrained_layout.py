@@ -140,6 +140,13 @@ def do_constrained_layout(fig, h_pad, w_pad,
                                     w_pad=w_pad, hspace=hspace, wspace=wspace)
                 else:
                     _api.warn_external(warn_collapsed)
+
+                if ((suptitle := fig._suptitle) is not None and
+                        suptitle.get_in_layout() and suptitle._autopos):
+                    x, _ = suptitle.get_position()
+                    suptitle.set_position(
+                        (x, layoutgrids[fig].get_inner_bbox().y1 + h_pad))
+                    suptitle.set_verticalalignment('bottom')
         else:
             _api.warn_external(warn_collapsed)
         reset_margins(layoutgrids, fig)
