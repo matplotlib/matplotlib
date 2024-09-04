@@ -1,0 +1,6 @@
+``fill_between(x)`` now return ``FillBetweenPolyCollection``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:func:`matplotlib.axes.Axes.fill_between` and
+:func:`matplotlib.axes.Axes.fill_betweenx` now return the new class
+:class:`matplotlib.FillBetweenPolyCollection`.
