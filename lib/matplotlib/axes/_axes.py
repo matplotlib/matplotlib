@@ -5578,8 +5578,8 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        `.PolyCollection`
-            A `.PolyCollection` containing the plotted polygons.
+        `.FillBetweenPolyCollection`
+            A `.FillBetweenPolyCollection` containing the plotted polygons.
 
         Other Parameters
         ----------------
@@ -5587,8 +5587,8 @@ class Axes(_AxesBase):
             DATA_PARAMETER_PLACEHOLDER
 
         **kwargs
-            All other keyword arguments are passed on to `.PolyCollection`.
-            They control the `.Polygon` properties:
+            All other keyword arguments are passed on to
+            `.FillBetweenPolyCollection`. They control the `.Polygon` properties:
 
             %(PolyCollection:kwdoc)s
 
