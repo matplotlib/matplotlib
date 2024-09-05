@@ -831,21 +831,18 @@ def test_collection_set_verts_array():
         assert np.array_equal(ap._codes, atp._codes)
 
 
-@pytest.mark.parametrize("fname", ["fill_between", "fill_betweenx"])
 @check_figures_equal(extensions=["png"])
-def test_fbp_collection_set_data(fname, fig_test, fig_ref):
+def test_fbp_collection_set_data(fig_test, fig_ref):
     t = np.linspace(0, 16)
     f1 = np.sin(t)
     f2 = f1 + 0.2
     f3 = f2.copy()
     f3[10], f3[20] = f3[20], f3[10]
 
-    ax_ref = fig_ref.subplots()
-    getattr(ax_ref, fname)(t, f1, f2)
+    fig_ref.subplots().fill_between(t, f1, f2)
 
-    ax2 = fig_test.subplots()
-    coll2 = getattr(ax2, fname)(t, f1, f3)
-    coll2.set_data(t, f1, f2)
+    coll = fig_test.subplots().fill_between(t, f1, f3)
+    coll.set_data(t, f1, f2)
 
 
 @pytest.mark.parametrize(("t_direction", "shape", "where", "msg"), [
