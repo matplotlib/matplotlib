@@ -1257,7 +1257,7 @@ class PolyCollection(_CollectionWithSizes):
 
 class FillBetweenPolyCollection(PolyCollection):
     def __init__(
-            self, t_direction, t, f1, f2=0, *,
+            self, t_direction, t, f1, f2, *,
             where=None, interpolate=False, step=None, _axes=None, **kwargs):
         self.t_direction = t_direction
         kwargs = self._normalise_kwargs(_axes, **kwargs)

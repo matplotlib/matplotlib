@@ -115,12 +115,12 @@ class FillBetweenPolyCollection(PolyCollection):
         t_direction: Literal["x", "y"],
         t: ArrayLike,
         f1: ArrayLike,
-        f2: ArrayLike = ...,
+        f2: ArrayLike,
         *,
         where: Sequence[bool] | None = ...,
         interpolate: bool = ...,
         step: Literal["pre", "post", "mid"] | None = ...,
-        _axes: "Axes" | None = ...,
+        _axes: "Axes | None" = ...,
         kwargs,
     ) -> None: ...
     @property
