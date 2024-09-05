@@ -722,7 +722,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         Return when interpolation happens during the transform to RGBA.
 
-        One of 'data', 'rgba'.
+        One of 'data', 'rgba', 'auto'.
         """
         return self._interpolation_stage
 
