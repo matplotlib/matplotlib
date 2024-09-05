@@ -165,7 +165,7 @@ def figure_edit(axes, parent=None):
                 'Interpolation',
                 [mappable.get_interpolation(), *interpolations]))
 
-            interpolation_stages = ['data', 'rgba']
+            interpolation_stages = ['data', 'rgba', 'auto']
             mappabledata.append((
                 'Interpolation stage',
                 [mappable.get_interpolation_stage(), *interpolation_stages]))
