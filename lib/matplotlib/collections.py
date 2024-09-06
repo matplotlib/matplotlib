@@ -1258,12 +1258,14 @@ class PolyCollection(_CollectionWithSizes):
 class FillBetweenPolyCollection(PolyCollection):
     def __init__(
             self, t_direction, t, f1, f2, *,
-            where=None, interpolate=False, step=None, _axes=None, **kwargs):
+            where=None, interpolate=False, step=None, axes=None, **kwargs):
         self.t_direction = t_direction
-        kwargs = self._normalise_kwargs(_axes, **kwargs)
+        kwargs = self._normalise_kwargs(axes, **kwargs)
         polys = self._make_verts(
-            t, f1, f2, where, interpolate, step, _axes, **kwargs)
+            t, f1, f2, where, interpolate, step, axes, **kwargs)
         super().__init__(polys, **kwargs)
+        if axes is not None:
+            self._update_axes_datalim(axes, kwargs.get("transform"))
 
     @property
     def _f_direction(self):
@@ -1316,9 +1318,6 @@ class FillBetweenPolyCollection(PolyCollection):
 
         self._pts = self._normalise_pts(np.vstack([
             np.hstack([t[where, None], dep[where, None]]) for dep in (f1, f2)]))
-
-        if "transform" in kwargs:
-            self._up_xy = kwargs["transform"].contains_branch_seperately
 
         return polys
 
@@ -1385,6 +1384,13 @@ class FillBetweenPolyCollection(PolyCollection):
     def _normalise_pts(self, pts):
         return pts[:, ::-1] if self.t_direction == "y" else pts
 
+    def _update_axes_datalim(self, axes, transform):
+        """Update the datalim and autoscale."""
+        if transform is not None:
+            up_x, up_y = transform.contains_branch_seperately(axes.transData)
+        else:
+            up_x = up_y = True
+        axes.update_datalim(self._pts, updatex=up_x, updatey=up_y)
 
 class RegularPolyCollection(_CollectionWithSizes):
     """A collection of n-sided regular polygons."""

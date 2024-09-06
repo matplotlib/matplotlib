@@ -120,7 +120,7 @@ class FillBetweenPolyCollection(PolyCollection):
         where: Sequence[bool] | None = ...,
         interpolate: bool = ...,
         step: Literal["pre", "post", "mid"] | None = ...,
-        _axes: "Axes | None" = ...,
+        axes: "Axes | None" = ...,
         **kwargs,
     ) -> None: ...
     @property

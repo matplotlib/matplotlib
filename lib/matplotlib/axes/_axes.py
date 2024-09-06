@@ -5599,14 +5599,7 @@ class Axes(_AxesBase):
         """
         collection = mcoll.FillBetweenPolyCollection(
             ind_dir, ind, dep1, dep2,
-            where=where, interpolate=interpolate, step=step, _axes=self, **kwargs)
-
-        # now update the datalim and autoscale
-        up_x = up_y = True
-        if up_xy := getattr(collection, "_up_xy", None):
-            up_x, up_y = up_xy(self.transData)
-
-        self.update_datalim(collection._pts, updatex=up_x, updatey=up_y)
+            where=where, interpolate=interpolate, step=step, axes=self, **kwargs)
 
         self.add_collection(collection, autolim=False)
         self._request_autoscale_view()
