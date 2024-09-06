@@ -1,6 +1,0 @@
-Introduce ``FillBetweenPolyCollection``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The new class :class:`matplotlib.collections.FillBetweenPolyCollection` provides
-the ``set_data`` method, enabling e.g. resampling
-(:file:`galleries/event_handling/resample.html`).
