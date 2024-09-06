@@ -1392,6 +1392,7 @@ class FillBetweenPolyCollection(PolyCollection):
             up_x = up_y = True
         axes.update_datalim(self._pts, updatex=up_x, updatey=up_y)
 
+
 class RegularPolyCollection(_CollectionWithSizes):
     """A collection of n-sided regular polygons."""
 
