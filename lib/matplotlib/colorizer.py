@@ -11,19 +11,19 @@ normalization and a colormap.
 
   :doc:`/gallery/color/colormap_reference` for a list of builtin colormaps.
 
-  :ref:`colormap-manipulation` for examples of how to make
-  colormaps.
+  :ref:`colormap-manipulation` for examples of how to make colormaps.
 
-  :ref:`colormaps` an in-depth discussion of choosing
-  colormaps.
+  :ref:`colormaps` for an in-depth discussion of choosing colormaps.
 
   :ref:`colormapnorms` for more details about data normalization.
 
 """
 
+import functools
+
 import numpy as np
 from numpy import ma
-import functools
+
 from matplotlib import _api, colors, cbook, scale, artist
 import matplotlib as mpl
 
@@ -31,15 +31,24 @@ mpl._docstring.interpd.update(
     colorizer_doc="""\
 colorizer : `~matplotlib.colorizer.Colorizer` or None, default: None
     The Colorizer object used to map color to data. If None, a Colorizer
-    object is created base on *norm* and *cmap*.""",
+    object is created from a *norm* and *cmap*.""",
     )
 
 
 class Colorizer:
     """
-    Class that holds the data to color pipeline
-    accessible via `.Colorizer.to_rgba` and executed via
+    Data to color pipeline.
+
+    This pipeline is accessible via `.Colorizer.to_rgba` and executed via
     the `.Colorizer.norm` and `.Colorizer.cmap` attributes.
+
+    Parameters
+    ----------
+    cmap: colorbar.Colorbar or str or None, default: None
+        The colormap used to color data.
+
+    norm: colors.Normalize or str or None, default: None
+        The normalization used to normalize the data
     """
     def __init__(self, cmap=None, norm=None):
 
@@ -225,8 +234,7 @@ class Colorizer:
         # bury import to avoid circular imports
         from matplotlib import cm
         in_init = self._cmap is None
-        cmap = cm._ensure_cmap(cmap)
-        self._cmap = cmap
+        self._cmap = cm._ensure_cmap(cmap)
         if not in_init:
             self.changed()  # Things are not set up properly yet.
 
@@ -280,7 +288,7 @@ class Colorizer:
 
     @property
     def vmin(self):
-        return self.get_clim[0]
+        return self.get_clim()[0]
 
     @vmin.setter
     def vmin(self, vmin):
@@ -288,7 +296,7 @@ class Colorizer:
 
     @property
     def vmax(self):
-        return self.get_clim[1]
+        return self.get_clim()[1]
 
     @vmax.setter
     def vmax(self, vmax):
@@ -439,6 +447,9 @@ class _ColorizerInterface:
 
     @property
     def colorbar(self):
+        """
+        The last colorbar associated with this object. May be None
+        """
         return self._colorizer.colorbar
 
     @colorbar.setter
@@ -485,10 +496,8 @@ class _ScalarMappable(_ColorizerInterface):
     """
     A mixin class to map one or multiple sets of scalar data to RGBA.
 
-    The ScalarMappable applies data normalization before returning RGBA colors
-    from the given `~matplotlib.colors.Colormap`, or
-    `~matplotlib.colors.BivarColormap`.
-
+    The ScalarMappable applies data normalization before returning RGBA colors from
+    the given `~matplotlib.colors.Colormap`.
     """
 
     # _ScalarMappable exists for compatibility with
@@ -582,7 +591,7 @@ class _ScalarMappable(_ColorizerInterface):
 
     @staticmethod
     def _get_colorizer(cmap, norm, colorizer):
-        if colorizer and isinstance(colorizer, Colorizer):
+        if isinstance(colorizer, Colorizer):
             _ScalarMappable._check_exclusionary_keywords(
                 Colorizer, cmap=cmap, norm=norm
             )
@@ -620,15 +629,20 @@ vmin, vmax : float, optional
 
 
 class ColorizingArtist(_ScalarMappable, artist.Artist):
+    """
+    Base class for artists that make map data to color using a `.colorizer.Colorizer`.
+
+    The `.colorizer.Colorizer` applies data normalization before
+    returning RGBA colors from a `~matplotlib.colors.Colormap`.
+
+    """
     def __init__(self, colorizer, **kwargs):
         """
         Parameters
         ----------
         colorizer : `.colorizer.Colorizer`
         """
-        if not isinstance(colorizer, Colorizer):
-            raise ValueError("A `mpl.colorizer.Colorizer` object must be provided")
-
+        _api.check_isinstance(Colorizer, colorizer=colorizer)
         super().__init__(colorizer=colorizer, **kwargs)
 
     @property
@@ -637,18 +651,14 @@ class ColorizingArtist(_ScalarMappable, artist.Artist):
 
     @colorizer.setter
     def colorizer(self, cl):
-        if isinstance(cl, Colorizer):
-            self._colorizer.callbacks.disconnect(self._id_colorizer)
-            self._colorizer = cl
-            self._id_colorizer = cl.callbacks.connect('changed', self.changed)
-        else:
-            raise ValueError("colorizer must be a `Colorizer` object, not "
-                             f" {type(cl)}.")
+        _api.check_isinstance(Colorizer, colorizer=cl)
+        self._colorizer.callbacks.disconnect(self._id_colorizer)
+        self._colorizer = cl
+        self._id_colorizer = cl.callbacks.connect('changed', self.changed)
 
     def _set_colorizer_check_keywords(self, colorizer, **kwargs):
         """
-        Raises a ValueError if any kwarg is not None while colorizer is not None
-        Passes or creates a Colorizer object.
+        Raises a ValueError if any kwarg is not None while colorizer is not None.
         """
         self._check_exclusionary_keywords(colorizer, **kwargs)
         self.colorizer = colorizer

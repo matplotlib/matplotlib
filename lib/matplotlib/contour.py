@@ -676,8 +676,8 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         if colorizer:
             self._set_colorizer_check_keywords(colorizer, cmap=cmap,
-                                                     norm=norm, vmin=vmin,
-                                                     vmax=vmax, colors=colors)
+                                               norm=norm, vmin=vmin,
+                                               vmax=vmax, colors=colors)
             norm = colorizer.norm
             cmap = colorizer.cmap
         if (isinstance(norm, mcolors.LogNorm)
