@@ -13,6 +13,7 @@ from matplotlib.figure import Figure
 from matplotlib.patches import Circle
 from matplotlib.text import Text
 import matplotlib.pyplot as plt
+from matplotlib.testing import _gen_multi_font_text
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing._markers import needs_usetex
 from matplotlib import font_manager as fm
@@ -524,30 +525,26 @@ def test_svg_metadata():
     assert values == metadata['Keywords']
 
 
-@image_comparison(["multi_font_aspath.svg"], tol=1.8)
+@image_comparison(["multi_font_aspath.svg"])
 def test_multi_font_type3():
-    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
-    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
-        pytest.skip("Font may be missing")
-
-    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    fonts, test_str = _gen_multi_font_text()
+    plt.rc('font', family=fonts, size=16)
     plt.rc('svg', fonttype='path')
 
     fig = plt.figure()
-    fig.text(0.15, 0.475, "There are 几个汉字 in between!")
+    fig.text(0.5, 0.5, test_str,
+             horizontalalignment='center', verticalalignment='center')
 
 
 @image_comparison(["multi_font_astext.svg"])
 def test_multi_font_type42():
-    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
-    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
-        pytest.skip("Font may be missing")
-
-    fig = plt.figure()
+    fonts, test_str = _gen_multi_font_text()
+    plt.rc('font', family=fonts, size=16)
     plt.rc('svg', fonttype='none')
 
-    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
-    fig.text(0.15, 0.475, "There are 几个汉字 in between!")
+    fig = plt.figure()
+    fig.text(0.5, 0.5, test_str,
+             horizontalalignment='center', verticalalignment='center')
 
 
 @pytest.mark.parametrize('metadata,error,message', [

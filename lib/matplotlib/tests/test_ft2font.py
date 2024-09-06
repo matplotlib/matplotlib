@@ -7,6 +7,7 @@ import pytest
 
 import matplotlib as mpl
 from matplotlib import ft2font
+from matplotlib.testing import _gen_multi_font_text
 from matplotlib.testing.decorators import check_figures_equal
 import matplotlib.font_manager as fm
 import matplotlib.path as mpath
@@ -852,25 +853,15 @@ def test_ft2font_get_path():
     np.testing.assert_array_equal(codes, expected_codes)
 
 
-@pytest.mark.parametrize('family_name, file_name',
-                          [("WenQuanYi Zen Hei",  "wqy-zenhei.ttc"),
-                           ("Noto Sans CJK JP", "NotoSansCJK.ttc"),
-                           ("Noto Sans TC", "NotoSansTC-Regular.otf")]
-                         )
-def test_fallback_smoke(family_name, file_name):
-    fp = fm.FontProperties(family=[family_name])
-    if Path(fm.findfont(fp)).name != file_name:
-        pytest.skip(f"Font {family_name} ({file_name}) is missing")
-    plt.rcParams['font.size'] = 20
+@pytest.mark.parametrize('fmt', ['pdf', 'png', 'ps', 'raw', 'svg'])
+def test_fallback_smoke(fmt):
+    fonts, test_str = _gen_multi_font_text()
+    plt.rcParams['font.size'] = 16
     fig = plt.figure(figsize=(4.75, 1.85))
-    fig.text(0.05, 0.45, "There are 几个汉字 in between!",
-             family=['DejaVu Sans', family_name])
-    fig.text(0.05, 0.85, "There are 几个汉字 in between!",
-             family=[family_name])
+    fig.text(0.5, 0.5, test_str,
+             horizontalalignment='center', verticalalignment='center')
 
-    # TODO enable fallback for other backends!
-    for fmt in ['png', 'raw']:  # ["svg", "pdf", "ps"]:
-        fig.savefig(io.BytesIO(), format=fmt)
+    fig.savefig(io.BytesIO(), format=fmt)
 
 
 @pytest.mark.parametrize('family_name, file_name',
@@ -912,29 +903,15 @@ def test_fallback_missing(recwarn, font_list):
     assert all([font in recwarn[0].message.args[0] for font in font_list])
 
 
-@pytest.mark.parametrize(
-    "family_name, file_name",
-    [
-        ("WenQuanYi Zen Hei", "wqy-zenhei"),
-        ("Noto Sans CJK JP", "NotoSansCJK"),
-        ("Noto Sans TC", "NotoSansTC-Regular.otf")
-    ],
-)
-def test__get_fontmap(family_name, file_name):
-    fp = fm.FontProperties(family=[family_name])
-    found_file_name = Path(fm.findfont(fp)).name
-    if file_name not in found_file_name:
-        pytest.skip(f"Font {family_name} ({file_name}) is missing")
+def test__get_fontmap():
+    fonts, test_str = _gen_multi_font_text()
 
-    text = "There are 几个汉字 in between!"
     ft = fm.get_font(
-        fm.fontManager._find_fonts_by_props(
-            fm.FontProperties(family=["DejaVu Sans", family_name])
-        )
+        fm.fontManager._find_fonts_by_props(fm.FontProperties(family=fonts))
     )
-    fontmap = ft._get_fontmap(text)
+    fontmap = ft._get_fontmap(test_str)
     for char, font in fontmap.items():
         if ord(char) > 127:
-            assert Path(font.fname).name == found_file_name
+            assert Path(font.fname).name == 'DejaVuSans.ttf'
         else:
-            assert Path(font.fname).name == "DejaVuSans.ttf"
+            assert Path(font.fname).name == 'cmr10.ttf'

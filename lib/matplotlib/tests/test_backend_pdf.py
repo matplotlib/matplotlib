@@ -17,6 +17,7 @@ from matplotlib.font_manager import findfont, FontProperties
 from matplotlib.backends._backend_pdf_ps import get_glyphs_subset, font_as_file
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.patches import Rectangle
+from matplotlib.testing import _gen_multi_font_text
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing._markers import needs_usetex
 
@@ -394,30 +395,26 @@ def test_glyphs_subset():
     assert subfont.get_num_glyphs() == nosubfont.get_num_glyphs()
 
 
-@image_comparison(["multi_font_type3.pdf"], tol=4.6)
+@image_comparison(["multi_font_type3.pdf"])
 def test_multi_font_type3():
-    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
-    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
-        pytest.skip("Font may be missing")
-
-    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    fonts, test_str = _gen_multi_font_text()
+    plt.rc('font', family=fonts, size=16)
     plt.rc('pdf', fonttype=3)
 
     fig = plt.figure()
-    fig.text(0.15, 0.475, "There are 几个汉字 in between!")
+    fig.text(0.5, 0.5, test_str,
+             horizontalalignment='center', verticalalignment='center')
 
 
-@image_comparison(["multi_font_type42.pdf"], tol=2.2)
+@image_comparison(["multi_font_type42.pdf"])
 def test_multi_font_type42():
-    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
-    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
-        pytest.skip("Font may be missing")
-
-    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    fonts, test_str = _gen_multi_font_text()
+    plt.rc('font', family=fonts, size=16)
     plt.rc('pdf', fonttype=42)
 
     fig = plt.figure()
-    fig.text(0.15, 0.475, "There are 几个汉字 in between!")
+    fig.text(0.5, 0.5, test_str,
+             horizontalalignment='center', verticalalignment='center')
 
 
 @pytest.mark.parametrize('family_name, file_name',
