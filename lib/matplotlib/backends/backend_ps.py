@@ -191,8 +191,8 @@ def _font_to_ps_type42(font_path, chars, fh):
         # https://github.com/matplotlib/matplotlib/issues/3135#issuecomment-571085541
         if font_path.endswith('.ttc'):
             kw['fontNumber'] = 0
-        with fontTools.ttLib.TTFont(font_path, **kw) as font, \
-             _backend_pdf_ps.get_glyphs_subset(font_path, subset_str) as subset:
+        with (fontTools.ttLib.TTFont(font_path, **kw) as font,
+              _backend_pdf_ps.get_glyphs_subset(font_path, subset_str) as subset):
             fontdata = _backend_pdf_ps.font_as_file(subset).getvalue()
             _log.debug(
                 "SUBSET %s %d -> %d", font_path, os.stat(font_path).st_size,
@@ -201,8 +201,8 @@ def _font_to_ps_type42(font_path, chars, fh):
             fh.write(_serialize_type42(font, subset, fontdata))
     except RuntimeError:
         _log.warning(
-            "The PostScript backend does not currently "
-            "support the selected font (%s).", font_path)
+            "The PostScript backend does not currently support the selected font (%s).",
+            font_path)
         raise
 
 
@@ -225,32 +225,33 @@ def _serialize_type42(font, subset, fontdata):
         The Type-42 formatted font
     """
     version, breakpoints = _version_and_breakpoints(font.get('loca'), fontdata)
-    post, name = font['post'], font['name']
-    fmt = textwrap.dedent(f"""
-    %%!PS-TrueTypeFont-{version[0]}.{version[1]}-{font['head'].fontRevision:.7f}
-    10 dict begin
-    /FontType 42 def
-    /FontMatrix [1 0 0 1 0 0] def
-    /FontName /{name.getDebugName(6)} def
-    /FontInfo 7 dict dup begin
-    /FullName ({name.getDebugName(4)}) def
-    /FamilyName ({name.getDebugName(1)}) def
-    /Version ({name.getDebugName(5)}) def
-    /ItalicAngle {post.italicAngle} def
-    /isFixedPitch {'true' if post.isFixedPitch else 'false'} def
-    /UnderlinePosition {post.underlinePosition} def
-    /UnderlineThickness {post.underlineThickness} def
-    end readonly def
-    /Encoding StandardEncoding def
-    /FontBBox [{' '.join(str(x) for x in _bounds(font))}] def
-    /PaintType 0 def
-    /CIDMap 0 def
-    %s
-    %s
-    FontName currentdict end definefont pop
-    """)
-
-    return fmt % (_charstrings(subset), _sfnts(fontdata, subset, breakpoints))
+    post = font['post']
+    name = font['name']
+    chars = _generate_charstrings(subset)
+    sfnts = _generate_sfnts(fontdata, subset, breakpoints)
+    return textwrap.dedent(f"""
+        %%!PS-TrueTypeFont-{version[0]}.{version[1]}-{font['head'].fontRevision:.7f}
+        10 dict begin
+        /FontType 42 def
+        /FontMatrix [1 0 0 1 0 0] def
+        /FontName /{name.getDebugName(6)} def
+        /FontInfo 7 dict dup begin
+        /FullName ({name.getDebugName(4)}) def
+        /FamilyName ({name.getDebugName(1)}) def
+        /Version ({name.getDebugName(5)}) def
+        /ItalicAngle {post.italicAngle} def
+        /isFixedPitch {'true' if post.isFixedPitch else 'false'} def
+        /UnderlinePosition {post.underlinePosition} def
+        /UnderlineThickness {post.underlineThickness} def
+        end readonly def
+        /Encoding StandardEncoding def
+        /FontBBox [{_nums_to_str(*_bounds(font))}] def
+        /PaintType 0 def
+        /CIDMap 0 def
+        {chars}
+        {sfnts}
+        FontName currentdict end definefont pop
+        """)
 
 
 def _version_and_breakpoints(loca, fontdata):
@@ -321,7 +322,7 @@ def _bounds(font):
     return pen.bounds or (0, 0, 0, 0)
 
 
-def _charstrings(font):
+def _generate_charstrings(font):
     """
     Transform font glyphs into CharStrings
 
@@ -345,7 +346,7 @@ def _charstrings(font):
     return s
 
 
-def _sfnts(fontdata, font, breakpoints):
+def _generate_sfnts(fontdata, font, breakpoints):
     """
     Transform font data into PostScript sfnts format.
 
