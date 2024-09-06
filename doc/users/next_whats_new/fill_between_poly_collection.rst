@@ -12,15 +12,11 @@ the ``set_data`` method, enabling e.g. resampling
     import numpy as np
     from matplotlib import pyplot as plt
 
-    t = np.linspace(0, 2, 9)
-    f1 = t**2
-    f2 = f1 + 0.2
-    f3 = f2.copy()
-    f3[6], f3[7], f3[8] = f3[8], f3[6], f3[7]
+    t = np.linspace(0, 1)
 
-    fig, ax = plt.subplots(2)
-    coll = ax.fill_between(t, f1, f3, step="pre")
+    fig, ax = plt.subplots()
+    coll = ax.fill_between(t, -t, t)
     fig.savefig("before.png")
 
-    coll.set_data(t, f1, f2, step="pre")
+    coll.set_data(t, -t**4, t**4)
     fig.savefig("after.png")
