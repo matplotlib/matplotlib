@@ -1276,7 +1276,7 @@ class FillBetweenPolyCollection(PolyCollection):
             raise ValueError(msg)
 
     def set_data(
-            self, t, f1, f2=0,
+            self, t, f1, f2, *,
             where=None, interpolate=False, step=None, **kwargs):
         kwargs = self._normalise_kwargs(self.axes, **kwargs)
         polys = self._make_verts(
