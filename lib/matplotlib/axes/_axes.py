@@ -5590,7 +5590,7 @@ class Axes(_AxesBase):
             All other keyword arguments are passed on to
             `.FillBetweenPolyCollection`. They control the `.Polygon` properties:
 
-            %(PolyCollection:kwdoc)s
+            %(FillBetweenPolyCollection:kwdoc)s
 
         See Also
         --------
