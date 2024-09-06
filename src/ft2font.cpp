@@ -304,8 +304,9 @@ FT2Font::~FT2Font()
 
 void FT2Font::clear()
 {
-    pen.x = 0;
-    pen.y = 0;
+    pen.x = pen.y = 0;
+    bbox.xMin = bbox.yMin = bbox.xMax = bbox.yMax = 0;
+    advance = 0;
 
     for (size_t i = 0; i < glyphs.size(); i++) {
         FT_Done_Glyph(glyphs[i]);
