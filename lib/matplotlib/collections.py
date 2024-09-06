@@ -1471,8 +1471,7 @@ class FillBetweenPolyCollection(PolyCollection):
         f2_slice = f2[idx0:idx1]
         if step is not None:
             step_func = cbook.STEP_LOOKUP_MAP["steps-" + step]
-            t_slice, f1_slice, f2_slice = \
-                step_func(t_slice, f1_slice, f2_slice)
+            t_slice, f1_slice, f2_slice = step_func(t_slice, f1_slice, f2_slice)
 
         size = len(t_slice)
         pts = np.zeros((2 * size + 2, 2))
@@ -1509,15 +1508,12 @@ class FillBetweenPolyCollection(PolyCollection):
                 return t[im1], f1[im1]
             elif np.ma.is_masked(diff_values[0]):
                 return t[idx], f1[idx]
-        else:
-            diff_order = diff_values.argsort()
-            diff_root_ind = np.interp(
-                0, diff_values[diff_order], t_values[diff_order])
-            ind_order = t_values.argsort()
-            diff_root_dep = np.interp(
-                diff_root_ind,
-                t_values[ind_order], f1_values[ind_order])
-            return diff_root_ind, diff_root_dep
+
+        diff_order = diff_values.argsort()
+        diff_root_t = np.interp(0, diff_values[diff_order], t_values[diff_order])
+        t_order = t_values.argsort()
+        diff_root_f = np.interp(diff_root_t, t_values[t_order], f1_values[t_order])
+        return diff_root_t, diff_root_f
 
     def _normalise_pts(self, pts):
         """
