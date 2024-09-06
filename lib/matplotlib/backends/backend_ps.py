@@ -2,13 +2,12 @@
 A PostScript backend, which can produce both PostScript .ps and .eps.
 """
 
-import binascii
 import bisect
 import codecs
 import datetime
 from enum import Enum
 import functools
-from io import BytesIO, StringIO
+from io import StringIO
 import itertools
 import logging
 import math
@@ -257,6 +256,7 @@ def _serialize_type42(font, subset, fontdata):
 def _version_and_breakpoints(loca, fontdata):
     """
     Read the version number of the font and determine sfnts breakpoints.
+
     When a TrueType font file is written as a Type 42 font, it has to be
     broken into substrings of at most 65535 bytes. These substrings must
     begin at font table boundaries or glyph boundaries in the glyf table.
@@ -274,31 +274,24 @@ def _version_and_breakpoints(loca, fontdata):
 
     Returns
     -------
-    tuple
-        ((v1, v2), breakpoints) where v1 is the major version number,
-        v2 is the minor version number and breakpoints is a sorted list
-        of offsets into fontdata; if loca is not available, just the table
-        boundaries
+    version : tuple[int, int]
+        A 2-tuple of the major version number and minor version number.
+    breakpoints : list[int]
+        The breakpoints is a sorted list of offsets into fontdata; if loca is not
+        available, just the table boundaries.
     """
     v1, v2, numTables = struct.unpack('>3h', fontdata[:6])
     version = (v1, v2)
 
     tables = {}
     for i in range(numTables):
-        tag, _, offset, _ = struct.unpack(
-            '>4sIII',
-            fontdata[12 + i*16:12 + (i+1)*16]
-        )
+        tag, _, offset, _ = struct.unpack('>4sIII', fontdata[12 + i*16:12 + (i+1)*16])
         tables[tag.decode('ascii')] = offset
     if loca is not None:
-        glyf_breakpoints = {
-            tables['glyf'] + offset for offset in loca.locations[:-1]
-        }
+        glyf_breakpoints = {tables['glyf'] + offset for offset in loca.locations[:-1]}
     else:
         glyf_breakpoints = set()
-    breakpoints = sorted(
-        set(tables.values()) | glyf_breakpoints | {len(fontdata)}
-    )
+    breakpoints = sorted({*tables.values(), *glyf_breakpoints, len(fontdata)})
 
     return version, breakpoints
 
@@ -344,13 +337,12 @@ def _charstrings(font):
     str
         A definition of the CharStrings dictionary in PostScript
     """
-    s = StringIO()
     go = font.getGlyphOrder()
-    s.write(f'/CharStrings {len(go)} dict dup begin\n')
+    s = f'/CharStrings {len(go)} dict dup begin\n'
     for i, name in enumerate(go):
-        s.write(f'/{name} {i} def\n')
-    s.write('end readonly def')
-    return s.getvalue()
+        s += f'/{name} {i} def\n'
+    s += 'end readonly def'
+    return s
 
 
 def _sfnts(fontdata, font, breakpoints):
@@ -374,8 +366,7 @@ def _sfnts(fontdata, font, breakpoints):
         The sfnts array for the font definition, consisting
         of hex-encoded strings in PostScript format
     """
-    b = BytesIO()
-    b.write(b'/sfnts[')
+    s = '/sfnts['
     pos = 0
     while pos < len(fontdata):
         i = bisect.bisect_left(breakpoints, pos + 65534)
@@ -383,12 +374,9 @@ def _sfnts(fontdata, font, breakpoints):
         if newpos <= pos:
             # have to accept a larger string
             newpos = breakpoints[-1]
-        b.write(b'<')
-        b.write(binascii.hexlify(fontdata[pos:newpos]))
-        b.write(b'00>')  # need an extra zero byte on every string
+        s += f'<{fontdata[pos:newpos].hex()}00>'  # Always NUL terminate.
         pos = newpos
-    b.write(b']def')
-    s = b.getvalue().decode('ascii')
+    s += ']def'
     return '\n'.join(s[i:i+100] for i in range(0, len(s), 100))
 
 

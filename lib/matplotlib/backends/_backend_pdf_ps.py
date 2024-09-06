@@ -25,7 +25,6 @@ def get_glyphs_subset(fontfile, characters):
     Subset a TTF font
 
     Reads the named fontfile and restricts the font to the characters.
-    Returns a TTFont object.
 
     Parameters
     ----------
