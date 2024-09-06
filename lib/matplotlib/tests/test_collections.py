@@ -832,7 +832,7 @@ def test_collection_set_verts_array():
 
 
 @check_figures_equal(extensions=["png"])
-def test_fbp_collection_set_data(fig_test, fig_ref):
+def test_fill_between_poly_collection_set_data(fig_test, fig_ref):
     t = np.linspace(0, 16)
     f1 = np.sin(t)
     f2 = f1 + 0.2
@@ -848,7 +848,7 @@ def test_fbp_collection_set_data(fig_test, fig_ref):
     ("x", (-1, 1), None, "'x' is not"),
     ("x", (-1,), [False]*3, "where size"),
 ])
-def test_fbp_collection_raise(t_direction, shape, where, msg):
+def test_fill_between_poly_collection_raise(t_direction, shape, where, msg):
     t = np.linspace(0, 16)
     f1 = np.sin(t)
     f2 = f1 + 0.2
