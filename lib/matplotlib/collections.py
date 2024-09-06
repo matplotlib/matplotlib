@@ -1256,9 +1256,77 @@ class PolyCollection(_CollectionWithSizes):
 
 
 class FillBetweenPolyCollection(PolyCollection):
+    """
+    `.PolyCollection` that fills the area between two x- or y-curves.
+    """
     def __init__(
             self, t_direction, t, f1, f2, *,
             where=None, interpolate=False, step=None, axes=None, **kwargs):
+        """
+        Parameters
+        ----------
+        t_direction : {'x', 'y'}
+            The axes on which the variable lies.
+
+            - 'x': the curves are ``(t, f1)`` and ``(t, f2)``.
+            - 'y': the curves are ``(f1, t)`` and ``(f2, t)``.
+
+        t : array (length N)
+            The ``t_direction`` coordinates of the nodes defining the curves.
+
+        f1 : array (length N) or scalar
+            The other coordinates of the nodes defining the first curve.
+
+        f2 : array (length N) or scalar
+            The other coordinates of the nodes defining the second curve.
+
+        where : array of bool (length N), optional
+            Define *where* to exclude some {dir} regions from being filled.
+            The filled regions are defined by the coordinates ``t[where]``.
+            More precisely, fill between ``t[i]`` and ``t[i+1]`` if
+            ``where[i] and where[i+1]``.  Note that this definition implies
+            that an isolated *True* value between two *False* values in *where*
+            will not result in filling.  Both sides of the *True* position
+            remain unfilled due to the adjacent *False* values.
+
+        interpolate : bool, default: False
+            This option is only relevant if *where* is used and the two curves
+            are crossing each other.
+
+            Semantically, *where* is often used for *f1* > *f2* or
+            similar.  By default, the nodes of the polygon defining the filled
+            region will only be placed at the positions in the *t* array.
+            Such a polygon cannot describe the above semantics close to the
+            intersection.  The t-sections containing the intersection are
+            simply clipped.
+
+            Setting *interpolate* to *True* will calculate the actual
+            intersection point and extend the filled region up to this point.
+
+        step : {{'pre', 'post', 'mid'}}, optional
+            Define *step* if the filling should be a step function,
+            i.e. constant in between *t*.  The value determines where the
+            step will occur:
+
+            - 'pre': The f value is continued constantly to the left from
+              every *t* position, i.e. the interval ``(t[i-1], t[i]]`` has the
+              value ``f[i]``.
+            - 'post': The y value is continued constantly to the right from
+              every *x* position, i.e. the interval ``[t[i], t[i+1])`` has the
+              value ``f[i]``.
+            - 'mid': Steps occur half-way between the *t* positions.
+
+        axes : `~matplotlib.axes.Axes` or None
+            The owning Axes to which the collection belongs, or None if there is
+            no Axes upon instantiation.
+
+        **kwargs
+            Forwarded to `.PolyCollection`.
+
+        See Also
+        --------
+        .Axes.fill_between, .Axes.fill_betweenx
+        """
         self.t_direction = t_direction
         kwargs = self._normalise_kwargs(axes, **kwargs)
         polys, pts = self._make_verts_and_pts(
@@ -1269,6 +1337,7 @@ class FillBetweenPolyCollection(PolyCollection):
 
     @property
     def _f_direction(self):
+        """The direction that is other than `self.t_direction`."""
         if self.t_direction == "x":
             return "y"
         elif self.t_direction == "y":
@@ -1280,6 +1349,63 @@ class FillBetweenPolyCollection(PolyCollection):
     def set_data(
             self, t, f1, f2, *,
             where=None, interpolate=False, step=None, **kwargs):
+        """
+        Set the two curves and update the collection.
+
+        Parameters
+        ----------
+        t : array (length N)
+            The ``self.t_direction`` coordinates of the nodes defining the curves.
+
+        f1 : array (length N) or scalar
+            The other coordinates of the nodes defining the first curve.
+
+        f2 : array (length N) or scalar
+            The other coordinates of the nodes defining the second curve.
+
+        where : array of bool (length N), optional
+            Define *where* to exclude some {dir} regions from being filled.
+            The filled regions are defined by the coordinates ``t[where]``.
+            More precisely, fill between ``t[i]`` and ``t[i+1]`` if
+            ``where[i] and where[i+1]``.  Note that this definition implies
+            that an isolated *True* value between two *False* values in *where*
+            will not result in filling.  Both sides of the *True* position
+            remain unfilled due to the adjacent *False* values.
+
+        interpolate : bool, default: False
+            This option is only relevant if *where* is used and the two curves
+            are crossing each other.
+
+            Semantically, *where* is often used for *f1* > *f2* or
+            similar.  By default, the nodes of the polygon defining the filled
+            region will only be placed at the positions in the *t* array.
+            Such a polygon cannot describe the above semantics close to the
+            intersection.  The t-sections containing the intersection are
+            simply clipped.
+
+            Setting *interpolate* to *True* will calculate the actual
+            intersection point and extend the filled region up to this point.
+
+        step : {{'pre', 'post', 'mid'}}, optional
+            Define *step* if the filling should be a step function,
+            i.e. constant in between *t*.  The value determines where the
+            step will occur:
+
+            - 'pre': The f value is continued constantly to the left from
+              every *t* position, i.e. the interval ``(t[i-1], t[i]]`` has the
+              value ``f[i]``.
+            - 'post': The y value is continued constantly to the right from
+              every *x* position, i.e. the interval ``[t[i], t[i+1])`` has the
+              value ``f[i]``.
+            - 'mid': Steps occur half-way between the *t* positions.
+
+        **kwargs
+            Forwarded to `.PolyCollection`.
+
+        See Also
+        --------
+        .PolyCollection.set_verts, .Line2D.set_data
+        """
         kwargs = self._normalise_kwargs(self.axes, **kwargs)
         polys, _ = self._make_verts_and_pts(
             t, f1, f2, where, interpolate, step, self.axes, **kwargs)
@@ -1394,6 +1520,12 @@ class FillBetweenPolyCollection(PolyCollection):
             return diff_root_ind, diff_root_dep
 
     def _normalise_pts(self, pts):
+        """
+        Fix pts calculation results with `self.t_direction`.
+
+        In the workflow, it is assumed that `self.t_direction` is 'x'. If this
+        is not true, we need to exchange the coordinates.
+        """
         return pts[:, ::-1] if self.t_direction == "y" else pts
 
     @staticmethod

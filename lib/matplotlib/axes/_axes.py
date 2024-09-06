@@ -5568,13 +5568,13 @@ class Axes(_AxesBase):
             i.e. constant in between *{ind}*.  The value determines where the
             step will occur:
 
-            - 'pre': The y value is continued constantly to the left from
-              every *x* position, i.e. the interval ``(x[i-1], x[i]]`` has the
-              value ``y[i]``.
+            - 'pre': The {dep} value is continued constantly to the left from
+              every *{ind}* position, i.e. the interval ``({ind}[i-1], {ind}[i]]``
+              has the value ``{dep}[i]``.
             - 'post': The y value is continued constantly to the right from
-              every *x* position, i.e. the interval ``[x[i], x[i+1])`` has the
-              value ``y[i]``.
-            - 'mid': Steps occur half-way between the *x* positions.
+              every *{ind}* position, i.e. the interval ``[{ind}[i], {ind}[i+1])``
+              has the value ``{dep}[i]``.
+            - 'mid': Steps occur half-way between the *{ind}* positions.
 
         Returns
         -------
