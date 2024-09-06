@@ -1336,33 +1336,37 @@ class FillBetweenPolyCollection(PolyCollection):
         return kwargs
 
     def _make_pts(self, t, f1, f2, idx0, idx1, step, interpolate):
-        indslice = t[idx0:idx1]
-        dep1slice = f1[idx0:idx1]
-        dep2slice = f2[idx0:idx1]
+        """
+        Make `verts` from contiguous region between `idx0` and `idx1`, taking
+        into account `step` and `interpolate`.
+        """
+        t_slice = t[idx0:idx1]
+        f1_slice = f1[idx0:idx1]
+        f2_slice = f2[idx0:idx1]
         if step is not None:
             step_func = cbook.STEP_LOOKUP_MAP["steps-" + step]
-            indslice, dep1slice, dep2slice = \
-                step_func(indslice, dep1slice, dep2slice)
+            t_slice, f1_slice, f2_slice = \
+                step_func(t_slice, f1_slice, f2_slice)
 
-        size = len(indslice)
+        size = len(t_slice)
         pts = np.zeros((2 * size + 2, 2))
 
         if interpolate:
             start = self._get_interp_point(t, f1, f2, idx0)
             end = self._get_interp_point(t, f1, f2, idx1)
         else:
-            # Handle scalar dep2 (e.g. 0): the fill should go all
+            # Handle scalar f2 (e.g. 0): the fill should go all
             # the way down to 0 even if none of the dep1 sample points do.
-            start = indslice[0], dep2slice[0]
-            end = indslice[-1], dep2slice[-1]
+            start = t_slice[0], f2_slice[0]
+            end = t_slice[-1], f2_slice[-1]
 
         pts[0] = start
         pts[size + 1] = end
 
-        pts[1:size+1, 0] = indslice
-        pts[1:size+1, 1] = dep1slice
-        pts[size+2:, 0] = indslice[::-1]
-        pts[size+2:, 1] = dep2slice[::-1]
+        pts[1:size+1, 0] = t_slice
+        pts[1:size+1, 1] = f1_slice
+        pts[size+2:, 0] = t_slice[::-1]
+        pts[size+2:, 1] = f2_slice[::-1]
 
         return self._normalise_pts(pts)
 
@@ -1370,24 +1374,24 @@ class FillBetweenPolyCollection(PolyCollection):
     def _get_interp_point(t, f1, f2, idx):
         """Calculate interpolating points."""
         im1 = max(idx - 1, 0)
-        ind_values = t[im1:idx+1]
+        t_values = t[im1:idx+1]
         diff_values = f1[im1:idx+1] - f2[im1:idx+1]
-        dep1_values = f1[im1:idx+1]
+        f1_values = f1[im1:idx+1]
 
         if len(diff_values) == 2:
             if np.ma.is_masked(diff_values[1]):
                 return t[im1], f1[im1]
             elif np.ma.is_masked(diff_values[0]):
                 return t[idx], f1[idx]
-
-        diff_order = diff_values.argsort()
-        diff_root_ind = np.interp(
-            0, diff_values[diff_order], ind_values[diff_order])
-        ind_order = ind_values.argsort()
-        diff_root_dep = np.interp(
-            diff_root_ind,
-            ind_values[ind_order], dep1_values[ind_order])
-        return diff_root_ind, diff_root_dep
+        else:
+            diff_order = diff_values.argsort()
+            diff_root_ind = np.interp(
+                0, diff_values[diff_order], t_values[diff_order])
+            ind_order = t_values.argsort()
+            diff_root_dep = np.interp(
+                diff_root_ind,
+                t_values[ind_order], f1_values[ind_order])
+            return diff_root_ind, diff_root_dep
 
     def _normalise_pts(self, pts):
         return pts[:, ::-1] if self.t_direction == "y" else pts
