@@ -1261,11 +1261,11 @@ class FillBetweenPolyCollection(PolyCollection):
             where=None, interpolate=False, step=None, axes=None, **kwargs):
         self.t_direction = t_direction
         kwargs = self._normalise_kwargs(axes, **kwargs)
-        polys = self._make_verts(
+        polys, pts = self._make_verts_and_pts(
             t, f1, f2, where, interpolate, step, axes, **kwargs)
         super().__init__(polys, **kwargs)
         if axes is not None:
-            self._update_axes_datalim(axes, kwargs.get("transform"))
+            self._update_axes_datalim(pts, axes, kwargs.get("transform"))
 
     @property
     def _f_direction(self):
@@ -1281,11 +1281,15 @@ class FillBetweenPolyCollection(PolyCollection):
             self, t, f1, f2, *,
             where=None, interpolate=False, step=None, **kwargs):
         kwargs = self._normalise_kwargs(self.axes, **kwargs)
-        polys = self._make_verts(
+        polys, _ = self._make_verts_and_pts(
             t, f1, f2, where, interpolate, step, self.axes, **kwargs)
         self.set_verts(polys)
 
-    def _make_verts(self, t, f1, f2, where, interpolate, step, axes, **kwargs):
+    def _make_verts_and_pts(self, t, f1, f2, where, interpolate, step, axes, **kwargs):
+        """
+        Make verts that can be forwarded to `.PolyCollection`,
+        and pts that can be forwarded to `self._update_axes_datalim.
+        """
         dirs = (self.t_direction, self._f_direction, self._f_direction)
         # Handle united data, such as dates
         if axes:
@@ -1312,16 +1316,18 @@ class FillBetweenPolyCollection(PolyCollection):
             np.atleast_1d(t), f1, f2, subok=True)
 
         polys = [
-            pts for idx0, idx1 in cbook.contiguous_regions(where)
-            if (pts := self._make_pts(t, f1, f2, idx0, idx1, step, interpolate))
-            is not None]
+            self._make_pts(t, f1, f2, idx0, idx1, step, interpolate)
+            for idx0, idx1 in cbook.contiguous_regions(where)
+        ]
 
-        self._pts = self._normalise_pts(np.vstack([
-            np.hstack([t[where, None], dep[where, None]]) for dep in (f1, f2)]))
+        pts = self._normalise_pts(np.vstack([
+            np.hstack([t[where, None], f[where, None]]) for f in (f1, f2)]))
 
-        return polys
+        return polys, pts
 
-    def _normalise_kwargs(self, axes, **kwargs):
+    @staticmethod
+    def _normalise_kwargs(axes, **kwargs):
+        """Normalise keyword arguments."""
         if not mpl.rcParams["_internal.classic_mode"]:
             kwargs = cbook.normalize_kwargs(kwargs, Collection)
             if axes and not any(c in kwargs for c in ("color", "facecolor")):
@@ -1360,7 +1366,9 @@ class FillBetweenPolyCollection(PolyCollection):
 
         return self._normalise_pts(pts)
 
-    def _get_interp_point(self, t, f1, f2, idx):
+    @staticmethod
+    def _get_interp_point(t, f1, f2, idx):
+        """Calculate interpolating points."""
         im1 = max(idx - 1, 0)
         ind_values = t[im1:idx+1]
         diff_values = f1[im1:idx+1] - f2[im1:idx+1]
@@ -1384,13 +1392,14 @@ class FillBetweenPolyCollection(PolyCollection):
     def _normalise_pts(self, pts):
         return pts[:, ::-1] if self.t_direction == "y" else pts
 
-    def _update_axes_datalim(self, axes, transform):
-        """Update the datalim and autoscale."""
+    @staticmethod
+    def _update_axes_datalim(pts, axes, transform):
+        """Update the datalim of an external axis and autoscale it."""
         if transform is not None:
             up_x, up_y = transform.contains_branch_seperately(axes.transData)
         else:
             up_x = up_y = True
-        axes.update_datalim(self._pts, updatex=up_x, updatey=up_y)
+        axes.update_datalim(pts, updatex=up_x, updatey=up_y)
 
 
 class RegularPolyCollection(_CollectionWithSizes):
