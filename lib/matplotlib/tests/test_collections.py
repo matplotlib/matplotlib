@@ -836,12 +836,10 @@ def test_fbp_collection_set_data(fig_test, fig_ref):
     t = np.linspace(0, 16)
     f1 = np.sin(t)
     f2 = f1 + 0.2
-    f3 = f2.copy()
-    f3[10], f3[20] = f3[20], f3[10]
 
     fig_ref.subplots().fill_between(t, f1, f2)
 
-    coll = fig_test.subplots().fill_between(t, f1, f3)
+    coll = fig_test.subplots().fill_between(t, -1, 1.2)
     coll.set_data(t, f1, f2)
 
 
