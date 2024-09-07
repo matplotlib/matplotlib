@@ -1316,7 +1316,7 @@ class Animation:
         -------
         str
             An HTML representation of the animation embedded as a js object as
-            produced with the *HTMLWriter*.
+            produced with the `.HTMLWriter`.
         """
         if fps is None and hasattr(self, '_interval'):
             # Convert interval in ms to frames per second
