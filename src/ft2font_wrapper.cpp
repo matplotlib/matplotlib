@@ -172,7 +172,8 @@ const char *PyFT2Font_init__doc__ =
 
 static PyFT2Font *
 PyFT2Font_init(py::object filename, long hinting_factor = 8,
-               py::object fallback_list_or_none = py::none(), int kerning_factor = 0)
+               std::optional<std::vector<PyFT2Font *>> fallback_list = std::nullopt,
+               int kerning_factor = 0)
 {
     if (hinting_factor <= 0) {
         throw py::value_error("hinting_factor must be greater than 0");
@@ -192,24 +193,13 @@ PyFT2Font_init(py::object filename, long hinting_factor = 8,
     open_args.stream = &self->stream;
 
     std::vector<FT2Font *> fallback_fonts;
-    if (!fallback_list_or_none.is_none()) {
-        if (!py::isinstance<py::list>(fallback_list_or_none)) {
-            throw py::type_error("Fallback list must be a list");
-        }
-        auto fallback_list = fallback_list_or_none.cast<py::list>();
-
-        // go through fallbacks once to make sure the types are right
-        for (auto item : fallback_list) {
-            if (!py::isinstance<PyFT2Font>(item)) {
-                throw py::type_error("Fallback fonts must be FT2Font objects.");
-            }
-        }
-        // go through a second time to add them to our lists
-        for (auto item : fallback_list) {
+    if (fallback_list) {
+        // go through fallbacks to add them to our lists
+        for (auto item : *fallback_list) {
             self->fallbacks.append(item);
             // Also (locally) cache the underlying FT2Font objects. As long as
             // the Python objects are kept alive, these pointer are good.
-            FT2Font *fback = py::cast<PyFT2Font *>(item)->x;
+            FT2Font *fback = item->x;
             fallback_fonts.push_back(fback);
         }
     }

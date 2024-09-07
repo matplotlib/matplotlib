@@ -152,10 +152,10 @@ def test_ft2font_invalid_args(tmp_path):
     with pytest.raises(ValueError, match='hinting_factor must be greater than 0'):
         ft2font.FT2Font(file, 0)
 
-    with pytest.raises(TypeError, match='Fallback list must be a list'):
+    with pytest.raises(TypeError, match='incompatible constructor arguments'):
         # failing to be a list will fail before the 0
         ft2font.FT2Font(file, _fallback_list=(0,))  # type: ignore[arg-type]
-    with pytest.raises(TypeError, match='Fallback fonts must be FT2Font objects.'):
+    with pytest.raises(TypeError, match='incompatible constructor arguments'):
         ft2font.FT2Font(file, _fallback_list=[0])  # type: ignore[list-item]
 
     # kerning_factor argument.
