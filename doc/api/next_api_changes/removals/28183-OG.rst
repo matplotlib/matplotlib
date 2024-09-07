@@ -1,5 +1,5 @@
-``Tick.set_label1`` and ``Tick.set_label2``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``Tick.set_label``, ``Tick.set_label1`` and ``Tick.set_label2``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ... are removed.  Calling these methods from third-party code usually had no
 effect, as the labels are overwritten at draw time by the tick formatter.
 
@@ -52,6 +52,10 @@ consistently with ``_ImageBase.set_filterrad``.
 The only parameter of ``Annotation.contains`` and ``Legend.contains`` is renamed to *mouseevent*
 consistently with `.Artist.contains`.
 
+Method parameters renamed
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The *p* parameter of ``BboxBase.padded`` is renamed to *w_pad*, consistently with the other parameter, *h_pad*
 
 *numdecs* parameter and attribute of ``LogLocator``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

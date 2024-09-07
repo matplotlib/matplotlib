@@ -236,12 +236,14 @@ class LogLocator(Locator):
         self,
         base: float = ...,
         subs: None | Literal["auto", "all"] | Sequence[float] = ...,
+        *,
         numticks: int | None = ...,
     ) -> None: ...
     def set_params(
         self,
         base: float | None = ...,
         subs: Literal["auto", "all"] | Sequence[float] | None = ...,
+        *,
         numticks: int | None = ...,
     ) -> None: ...
 

@@ -2275,7 +2275,7 @@ class LogLocator(Locator):
     Places ticks at the values ``subs[j] * base**i``.
     """
 
-    def __init__(self, base=10.0, subs=(1.0,), numticks=None):
+    def __init__(self, base=10.0, subs=(1.0,), *, numticks=None):
         """
         Parameters
         ----------
@@ -2306,7 +2306,7 @@ class LogLocator(Locator):
         self._set_subs(subs)
         self.numticks = numticks
 
-    def set_params(self, base=None, subs=None, numticks=None):
+    def set_params(self, base=None, subs=None, *, numticks=None):
         """Set parameters within this locator."""
         if base is not None:
             self._base = float(base)
