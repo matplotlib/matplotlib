@@ -2,7 +2,7 @@ import io
 
 import numpy as np
 from numpy.testing import assert_array_almost_equal
-from PIL import Image, TiffTags
+from PIL import features, Image, TiffTags
 import pytest
 
 
@@ -249,6 +249,7 @@ def test_pil_kwargs_tiff():
     assert tags["ImageDescription"] == "test image"
 
 
+@pytest.mark.skipif(not features.check("webp"), reason="WebP support not available")
 def test_pil_kwargs_webp():
     plt.plot([0, 1, 2], [0, 1, 0])
     buf_small = io.BytesIO()
@@ -262,6 +263,7 @@ def test_pil_kwargs_webp():
     assert buf_large.getbuffer().nbytes > buf_small.getbuffer().nbytes
 
 
+@pytest.mark.skipif(not features.check("webp"), reason="WebP support not available")
 def test_webp_alpha():
     plt.plot([0, 1, 2], [0, 1, 0])
     buf = io.BytesIO()
