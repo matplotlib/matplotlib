@@ -397,7 +397,7 @@ void FT2Font::set_kerning_factor(int factor)
 }
 
 void FT2Font::set_text(
-    size_t N, uint32_t *codepoints, double angle, FT_Int32 flags, std::vector<double> &xys)
+    std::u32string_view text, double angle, FT_Int32 flags, std::vector<double> &xys)
 {
     FT_Matrix matrix; /* transformation matrix */
 
@@ -420,7 +420,7 @@ void FT2Font::set_text(
     FT_UInt previous = 0;
     FT2Font *previous_ft_object = NULL;
 
-    for (size_t n = 0; n < N; n++) {
+    for (auto codepoint : text) {
         FT_UInt glyph_index = 0;
         FT_BBox glyph_bbox;
         FT_Pos last_advance;
@@ -429,14 +429,14 @@ void FT2Font::set_text(
         std::set<FT_String*> glyph_seen_fonts;
         FT2Font *ft_object_with_glyph = this;
         bool was_found = load_char_with_fallback(ft_object_with_glyph, glyph_index, glyphs,
-                                                 char_to_font, glyph_to_font, codepoints[n], flags,
+                                                 char_to_font, glyph_to_font, codepoint, flags,
                                                  charcode_error, glyph_error, glyph_seen_fonts, false);
         if (!was_found) {
-            ft_glyph_warn((FT_ULong)codepoints[n], glyph_seen_fonts);
+            ft_glyph_warn((FT_ULong)codepoint, glyph_seen_fonts);
             // render missing glyph tofu
             // come back to top-most font
             ft_object_with_glyph = this;
-            char_to_font[codepoints[n]] = ft_object_with_glyph;
+            char_to_font[codepoint] = ft_object_with_glyph;
             glyph_to_font[glyph_index] = ft_object_with_glyph;
             ft_object_with_glyph->load_glyph(glyph_index, flags, ft_object_with_glyph, false);
         }

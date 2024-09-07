@@ -6,24 +6,12 @@
 #include "ft2font.h"
 #include "numpy/arrayobject.h"
 
-#include <cstddef>
 #include <set>
 #include <sstream>
 #include <unordered_map>
 
 namespace py = pybind11;
 using namespace pybind11::literals;
-
-static py::array_t<double>
-convert_xys_to_array(std::vector<double> &xys)
-{
-    py::ssize_t dims[] = { static_cast<py::ssize_t>(xys.size()) / 2, 2 };
-    py::array_t<double> result(dims);
-    if (xys.size() > 0) {
-        memcpy(result.mutable_data(), xys.data(), result.nbytes());
-    }
-    return result;
-}
 
 /**********************************************************************
  * FT2Image
@@ -346,26 +334,19 @@ const char *PyFT2Font_set_text__doc__ =
     "A sequence of x,y positions in 26.6 subpixels is returned; divide by 64 for pixels.\n";
 
 static py::array_t<double>
-PyFT2Font_set_text(PyFT2Font *self, std::u32string text, double angle = 0.0,
+PyFT2Font_set_text(PyFT2Font *self, std::u32string_view text, double angle = 0.0,
                    FT_Int32 flags = FT_LOAD_FORCE_AUTOHINT)
 {
     std::vector<double> xys;
-    std::vector<uint32_t> codepoints;
-    size_t size;
 
-    size = text.size();
-    codepoints.resize(size);
-    for (size_t i = 0; i < size; ++i) {
-        codepoints[i] = text[i];
+    self->x->set_text(text, angle, flags, xys);
+
+    py::ssize_t dims[] = { static_cast<py::ssize_t>(xys.size()) / 2, 2 };
+    py::array_t<double> result(dims);
+    if (xys.size() > 0) {
+        memcpy(result.mutable_data(), xys.data(), result.nbytes());
     }
-
-    uint32_t* codepoints_array = NULL;
-    if (size > 0) {
-        codepoints_array = &codepoints[0];
-    }
-    self->x->set_text(size, codepoints_array, angle, flags, xys);
-
-    return convert_xys_to_array(xys);
+    return result;
 }
 
 const char *PyFT2Font_get_num_glyphs__doc__ =
