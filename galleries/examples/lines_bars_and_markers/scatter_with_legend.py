@@ -1,7 +1,7 @@
 """
-===========================
-Scatter plots with a legend
-===========================
+==========================
+Scatter plot with a legend
+==========================
 
 To create a scatter plot with a legend one may use a loop and create one
 `~.Axes.scatter` plot per item to appear in the legend and set the ``label``

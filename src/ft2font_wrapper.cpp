@@ -1,18 +1,23 @@
 #include "mplutils.h"
 #include "ft2font.h"
+#include "numpy_cpp.h"
 #include "py_converters.h"
 #include "py_exceptions.h"
 
 // From Python
 #include <structmember.h>
 
+#include <sstream>
 #include <set>
 
 static PyObject *convert_xys_to_array(std::vector<double> &xys)
 {
     npy_intp dims[] = {(npy_intp)xys.size() / 2, 2 };
     if (dims[0] > 0) {
-        return PyArray_SimpleNewFromData(2, dims, NPY_DOUBLE, &xys[0]);
+        auto obj = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
+        auto array = reinterpret_cast<PyArrayObject *>(obj);
+        memcpy(PyArray_DATA(array), xys.data(), PyArray_NBYTES(array));
+        return obj;
     } else {
         return PyArray_SimpleNew(2, dims, NPY_DOUBLE);
     }
@@ -61,35 +66,6 @@ static void PyFT2Image_dealloc(PyFT2Image *self)
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
-const char *PyFT2Image_draw_rect__doc__ =
-    "draw_rect(self, x0, y0, x1, y1)\n"
-    "--\n\n"
-    "Draw an empty rectangle to the image.\n"
-    "\n"
-    ".. deprecated:: 3.8\n";
-;
-
-static PyObject *PyFT2Image_draw_rect(PyFT2Image *self, PyObject *args)
-{
-    char const* msg =
-        "FT2Image.draw_rect is deprecated since Matplotlib 3.8 and will be removed "
-        "in Matplotlib 3.10 as it is not used in the library. If you rely on it, "
-        "please let us know.";
-    if (PyErr_WarnEx(PyExc_DeprecationWarning, msg, 1)) {
-        return NULL;
-    }
-
-    double x0, y0, x1, y1;
-
-    if (!PyArg_ParseTuple(args, "dddd:draw_rect", &x0, &y0, &x1, &y1)) {
-        return NULL;
-    }
-
-    CALL_CPP("draw_rect", (self->x->draw_rect(x0, y0, x1, y1)));
-
-    Py_RETURN_NONE;
-}
-
 const char *PyFT2Image_draw_rect_filled__doc__ =
     "draw_rect_filled(self, x0, y0, x1, y1)\n"
     "--\n\n"
@@ -135,7 +111,6 @@ static int PyFT2Image_get_buffer(PyFT2Image *self, Py_buffer *buf, int flags)
 static PyTypeObject* PyFT2Image_init_type()
 {
     static PyMethodDef methods[] = {
-        {"draw_rect", (PyCFunction)PyFT2Image_draw_rect, METH_VARARGS, PyFT2Image_draw_rect__doc__},
         {"draw_rect_filled", (PyCFunction)PyFT2Image_draw_rect_filled, METH_VARARGS, PyFT2Image_draw_rect_filled__doc__},
         {NULL}
     };
@@ -146,7 +121,7 @@ static PyTypeObject* PyFT2Image_init_type()
     PyFT2ImageType.tp_name = "matplotlib.ft2font.FT2Image";
     PyFT2ImageType.tp_basicsize = sizeof(PyFT2Image);
     PyFT2ImageType.tp_dealloc = (destructor)PyFT2Image_dealloc;
-    PyFT2ImageType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
+    PyFT2ImageType.tp_flags = Py_TPFLAGS_DEFAULT;
     PyFT2ImageType.tp_methods = methods;
     PyFT2ImageType.tp_new = PyFT2Image_new;
     PyFT2ImageType.tp_init = (initproc)PyFT2Image_init;
@@ -236,7 +211,7 @@ static PyTypeObject *PyGlyph_init_type()
     PyGlyphType.tp_name = "matplotlib.ft2font.Glyph";
     PyGlyphType.tp_basicsize = sizeof(PyGlyph);
     PyGlyphType.tp_dealloc = (destructor)PyGlyph_dealloc;
-    PyGlyphType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
+    PyGlyphType.tp_flags = Py_TPFLAGS_DEFAULT;
     PyGlyphType.tp_members = members;
     PyGlyphType.tp_getset = getset;
 
@@ -306,6 +281,31 @@ exit:
         PyErr_WriteUnraisable((PyObject*)self);
     }
     PyErr_Restore(type, value, traceback);
+}
+
+static void
+ft_glyph_warn(FT_ULong charcode, std::set<FT_String*> family_names)
+{
+    PyObject *text_helpers = NULL, *tmp = NULL;
+    std::set<FT_String*>::iterator it = family_names.begin();
+    std::stringstream ss;
+    ss<<*it;
+    while(++it != family_names.end()){
+        ss<<", "<<*it;
+    }
+
+    if (!(text_helpers = PyImport_ImportModule("matplotlib._text_helpers")) ||
+        !(tmp = PyObject_CallMethod(text_helpers,
+                "warn_on_missing_glyph", "(k, s)",
+                charcode, ss.str().c_str()))) {
+        goto exit;
+    }
+exit:
+    Py_XDECREF(text_helpers);
+    Py_XDECREF(tmp);
+    if (PyErr_Occurred()) {
+        throw mpl::exception();
+    }
 }
 
 static PyObject *PyFT2Font_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
@@ -455,7 +455,8 @@ static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
     Py_CLEAR(data);
 
     CALL_CPP_FULL(
-        "FT2Font", (self->x = new FT2Font(open_args, hinting_factor, fallback_fonts)),
+        "FT2Font",
+        (self->x = new FT2Font(open_args, hinting_factor, fallback_fonts, ft_glyph_warn)),
         Py_CLEAR(self->py_file), -1);
 
     CALL_CPP_INIT("FT2Font->set_kerning_factor", (self->x->set_kerning_factor(kerning_factor)));
@@ -555,13 +556,13 @@ static PyObject *PyFT2Font_get_kerning(PyFT2Font *self, PyObject *args)
 {
     FT_UInt left, right, mode;
     int result;
-    int fallback = 1;
+    bool fallback = true;
 
     if (!PyArg_ParseTuple(args, "III:get_kerning", &left, &right, &mode)) {
         return NULL;
     }
 
-    CALL_CPP("get_kerning", (result = self->x->get_kerning(left, right, mode, (bool)fallback)));
+    CALL_CPP("get_kerning", (result = self->x->get_kerning(left, right, mode, fallback)));
 
     return PyLong_FromLong(result);
 }
@@ -633,7 +634,7 @@ const char *PyFT2Font_set_text__doc__ =
     "*flags* can be a bitwise-or of the LOAD_XXX constants;\n"
     "the default value is LOAD_FORCE_AUTOHINT.\n"
     "You must call this before `.draw_glyphs_to_bitmap`.\n"
-    "A sequence of x,y positions is returned.\n";
+    "A sequence of x,y positions in 26.6 subpixels is returned; divide by 64 for pixels.\n";
 
 static PyObject *PyFT2Font_set_text(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
@@ -704,7 +705,7 @@ const char *PyFT2Font_load_char__doc__ =
 static PyObject *PyFT2Font_load_char(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
     long charcode;
-    int fallback = 1;
+    bool fallback = true;
     FT_Int32 flags = FT_LOAD_FORCE_AUTOHINT;
     const char *names[] = { "charcode", "flags", NULL };
 
@@ -717,7 +718,7 @@ static PyObject *PyFT2Font_load_char(PyFT2Font *self, PyObject *args, PyObject *
     }
 
     FT2Font *ft_object = NULL;
-    CALL_CPP("load_char", (self->x->load_char(charcode, flags, ft_object, (bool)fallback)));
+    CALL_CPP("load_char", (self->x->load_char(charcode, flags, ft_object, fallback)));
 
     return PyGlyph_from_FT2Font(ft_object);
 }
@@ -743,7 +744,7 @@ static PyObject *PyFT2Font_load_glyph(PyFT2Font *self, PyObject *args, PyObject 
 {
     FT_UInt glyph_index;
     FT_Int32 flags = FT_LOAD_FORCE_AUTOHINT;
-    int fallback = 1;
+    bool fallback = true;
     const char *names[] = { "glyph_index", "flags", NULL };
 
     /* This makes a technically incorrect assumption that FT_Int32 is
@@ -755,7 +756,7 @@ static PyObject *PyFT2Font_load_glyph(PyFT2Font *self, PyObject *args, PyObject 
     }
 
     FT2Font *ft_object = NULL;
-    CALL_CPP("load_glyph", (self->x->load_glyph(glyph_index, flags, ft_object, (bool)fallback)));
+    CALL_CPP("load_glyph", (self->x->load_glyph(glyph_index, flags, ft_object, fallback)));
 
     return PyGlyph_from_FT2Font(ft_object);
 }
@@ -828,43 +829,12 @@ static PyObject *PyFT2Font_draw_glyphs_to_bitmap(PyFT2Font *self, PyObject *args
     Py_RETURN_NONE;
 }
 
-const char *PyFT2Font_get_xys__doc__ =
-    "get_xys(self, antialiased=True)\n"
-    "--\n\n"
-    "Get the xy locations of the current glyphs.\n"
-    "\n"
-    ".. deprecated:: 3.8\n";
-
-static PyObject *PyFT2Font_get_xys(PyFT2Font *self, PyObject *args, PyObject *kwds)
-{
-    char const* msg =
-        "FT2Font.get_xys is deprecated since Matplotlib 3.8 and will be removed in "
-        "Matplotlib 3.10 as it is not used in the library. If you rely on it, "
-        "please let us know.";
-    if (PyErr_WarnEx(PyExc_DeprecationWarning, msg, 1)) {
-        return NULL;
-    }
-
-    bool antialiased = true;
-    std::vector<double> xys;
-    const char *names[] = { "antialiased", NULL };
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&:get_xys",
-                                     (char **)names, &convert_bool, &antialiased)) {
-        return NULL;
-    }
-
-    CALL_CPP("get_xys", (self->x->get_xys(antialiased, xys)));
-
-    return convert_xys_to_array(xys);
-}
-
 const char *PyFT2Font_draw_glyph_to_bitmap__doc__ =
     "draw_glyph_to_bitmap(self, image, x, y, glyph, antialiased=True)\n"
     "--\n\n"
-    "Draw a single glyph to the bitmap at pixel locations x, y\n"
-    "Note it is your responsibility to set up the bitmap manually\n"
-    "with ``set_bitmap_size(w, h)`` before this call is made.\n"
+    "Draw a single glyph to *image* at pixel locations *x*, *y*\n"
+    "Note it is your responsibility to create the image manually\n"
+    "with the correct size before this call is made.\n"
     "\n"
     "If you want automatic layout, use `.set_text` in combinations with\n"
     "`.draw_glyphs_to_bitmap`.  This function is instead intended for people\n"
@@ -912,14 +882,16 @@ const char *PyFT2Font_get_glyph_name__doc__ =
 static PyObject *PyFT2Font_get_glyph_name(PyFT2Font *self, PyObject *args)
 {
     unsigned int glyph_number;
-    char buffer[128];
-    int fallback = 1;
+    std::string buffer;
+    bool fallback = true;
 
     if (!PyArg_ParseTuple(args, "I:get_glyph_name", &glyph_number)) {
         return NULL;
     }
-    CALL_CPP("get_glyph_name", (self->x->get_glyph_name(glyph_number, buffer, (bool)fallback)));
-    return PyUnicode_FromString(buffer);
+    buffer.resize(128);
+    CALL_CPP("get_glyph_name",
+             (self->x->get_glyph_name(glyph_number, buffer, fallback)));
+    return PyUnicode_FromString(buffer.c_str());
 }
 
 const char *PyFT2Font_get_charmap__doc__ =
@@ -962,13 +934,13 @@ static PyObject *PyFT2Font_get_char_index(PyFT2Font *self, PyObject *args)
 {
     FT_UInt index;
     FT_ULong ccode;
-    int fallback = 1;
+    bool fallback = true;
 
     if (!PyArg_ParseTuple(args, "k:get_char_index", &ccode)) {
         return NULL;
     }
 
-    CALL_CPP("get_char_index", index = self->x->get_char_index(ccode, (bool)fallback));
+    CALL_CPP("get_char_index", index = self->x->get_char_index(ccode, fallback));
 
     return PyLong_FromLong(index);
 }
@@ -1110,7 +1082,7 @@ static PyObject *PyFT2Font_get_sfnt_table(PyFT2Font *self, PyObject *args)
     case 0: {
         char head_dict[] =
             "{s:(h,H), s:(h,H), s:l, s:l, s:H, s:H,"
-            "s:(l,l), s:(l,l), s:h, s:h, s:h, s:h, s:H, s:H, s:h, s:h, s:h}";
+            "s:(I,I), s:(I,I), s:h, s:h, s:h, s:h, s:H, s:H, s:h, s:h, s:h}";
         TT_Header *t = (TT_Header *)table;
         return Py_BuildValue(head_dict,
                              "version", FIXED_MAJOR(t->Table_Version), FIXED_MINOR(t->Table_Version),
@@ -1119,8 +1091,14 @@ static PyObject *PyFT2Font_get_sfnt_table(PyFT2Font *self, PyObject *args)
                              "magicNumber", t->Magic_Number,
                              "flags", t->Flags,
                              "unitsPerEm", t->Units_Per_EM,
-                             "created", t->Created[0], t->Created[1],
-                             "modified", t->Modified[0], t->Modified[1],
+                             // FreeType 2.6.1 defines these two timestamps as FT_Long,
+                             // but they should be unsigned (fixed in 2.10.0):
+                             // https://gitlab.freedesktop.org/freetype/freetype/-/commit/3e8ec291ffcfa03c8ecba1cdbfaa55f5577f5612
+                             // It's actually read from the file structure as two 32-bit
+                             // values, so we need to cast down in size to prevent sign
+                             // extension from producing huge 64-bit values.
+                             "created", static_cast<unsigned int>(t->Created[0]), static_cast<unsigned int>(t->Created[1]),
+                             "modified", static_cast<unsigned int>(t->Modified[0]), static_cast<unsigned int>(t->Modified[1]),
                              "xMin", t->xMin,
                              "yMin", t->yMin,
                              "xMax", t->xMax,
@@ -1270,7 +1248,20 @@ const char *PyFT2Font_get_path__doc__ =
 
 static PyObject *PyFT2Font_get_path(PyFT2Font *self, PyObject *args)
 {
-    CALL_CPP("get_path", return self->x->get_path());
+    std::vector<double> vertices;
+    std::vector<unsigned char> codes;
+
+    CALL_CPP("get_path", self->x->get_path(vertices, codes));
+
+    npy_intp length = codes.size();
+    npy_intp vertices_dims[2] = { length, 2 };
+    numpy::array_view<double, 2> vertices_arr(vertices_dims);
+    memcpy(vertices_arr.data(), vertices.data(), sizeof(double) * vertices.size());
+    npy_intp codes_dims[1] = { length };
+    numpy::array_view<unsigned char, 1> codes_arr(codes_dims);
+    memcpy(codes_arr.data(), codes.data(), codes.size());
+
+    return Py_BuildValue("NN", vertices_arr.pyobj(), codes_arr.pyobj());
 }
 
 const char *PyFT2Font_get_image__doc__ =
@@ -1474,7 +1465,6 @@ static PyTypeObject *PyFT2Font_init_type()
         {"get_bitmap_offset", (PyCFunction)PyFT2Font_get_bitmap_offset, METH_NOARGS, PyFT2Font_get_bitmap_offset__doc__},
         {"get_descent", (PyCFunction)PyFT2Font_get_descent, METH_NOARGS, PyFT2Font_get_descent__doc__},
         {"draw_glyphs_to_bitmap", (PyCFunction)PyFT2Font_draw_glyphs_to_bitmap, METH_VARARGS|METH_KEYWORDS, PyFT2Font_draw_glyphs_to_bitmap__doc__},
-        {"get_xys", (PyCFunction)PyFT2Font_get_xys, METH_VARARGS|METH_KEYWORDS, PyFT2Font_get_xys__doc__},
         {"draw_glyph_to_bitmap", (PyCFunction)PyFT2Font_draw_glyph_to_bitmap, METH_VARARGS|METH_KEYWORDS, PyFT2Font_draw_glyph_to_bitmap__doc__},
         {"get_glyph_name", (PyCFunction)PyFT2Font_get_glyph_name, METH_VARARGS, PyFT2Font_get_glyph_name__doc__},
         {"get_charmap", (PyCFunction)PyFT2Font_get_charmap, METH_NOARGS, PyFT2Font_get_charmap__doc__},
@@ -1495,7 +1485,7 @@ static PyTypeObject *PyFT2Font_init_type()
     PyFT2FontType.tp_doc = PyFT2Font_init__doc__;
     PyFT2FontType.tp_basicsize = sizeof(PyFT2Font);
     PyFT2FontType.tp_dealloc = (destructor)PyFT2Font_dealloc;
-    PyFT2FontType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
+    PyFT2FontType.tp_flags = Py_TPFLAGS_DEFAULT;
     PyFT2FontType.tp_methods = methods;
     PyFT2FontType.tp_getset = getset;
     PyFT2FontType.tp_new = PyFT2Font_new;

@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 import re
 import typing
-from typing import Any, Callable, TypeVar
+from typing import Any, TypeVar
 
 import numpy as np
 import pytest

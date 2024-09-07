@@ -1,6 +1,6 @@
 """
 ===================
-Axis Label Position
+Axis label position
 ===================
 
 Choose axis label position when calling `~.Axes.set_xlabel` and

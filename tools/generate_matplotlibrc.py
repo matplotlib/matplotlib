@@ -20,9 +20,9 @@ output = Path(sys.argv[2])
 backend = sys.argv[3]
 
 template_lines = input.read_text(encoding="utf-8").splitlines(True)
-backend_line_idx, = [  # Also asserts that there is a single such line.
+backend_line_idx, = (  # Also asserts that there is a single such line.
     idx for idx, line in enumerate(template_lines)
-    if "#backend:" in line]
+    if "#backend:" in line)
 template_lines[backend_line_idx] = (
     f"#backend: {backend}\n" if backend not in ['', 'auto'] else "##backend: Agg\n")
 output.write_text("".join(template_lines), encoding="utf-8")

@@ -132,20 +132,20 @@ _arg_mapping = dict(
     # raw: Return delta as is.
     raw=lambda dvi, delta: delta,
     # u1: Read 1 byte as an unsigned number.
-    u1=lambda dvi, delta: dvi._arg(1, signed=False),
+    u1=lambda dvi, delta: dvi._read_arg(1, signed=False),
     # u4: Read 4 bytes as an unsigned number.
-    u4=lambda dvi, delta: dvi._arg(4, signed=False),
+    u4=lambda dvi, delta: dvi._read_arg(4, signed=False),
     # s4: Read 4 bytes as a signed number.
-    s4=lambda dvi, delta: dvi._arg(4, signed=True),
+    s4=lambda dvi, delta: dvi._read_arg(4, signed=True),
     # slen: Read delta bytes as a signed number, or None if delta is None.
-    slen=lambda dvi, delta: dvi._arg(delta, signed=True) if delta else None,
+    slen=lambda dvi, delta: dvi._read_arg(delta, signed=True) if delta else None,
     # slen1: Read (delta + 1) bytes as a signed number.
-    slen1=lambda dvi, delta: dvi._arg(delta + 1, signed=True),
+    slen1=lambda dvi, delta: dvi._read_arg(delta + 1, signed=True),
     # ulen1: Read (delta + 1) bytes as an unsigned number.
-    ulen1=lambda dvi, delta: dvi._arg(delta + 1, signed=False),
+    ulen1=lambda dvi, delta: dvi._read_arg(delta + 1, signed=False),
     # olen1: Read (delta + 1) bytes as an unsigned number if less than 4 bytes,
     # as a signed number if 4 bytes.
-    olen1=lambda dvi, delta: dvi._arg(delta + 1, signed=(delta == 3)),
+    olen1=lambda dvi, delta: dvi._read_arg(delta + 1, signed=(delta == 3)),
 )
 
 
@@ -271,7 +271,8 @@ class Dvi:
         Output the text and boxes belonging to the most recent page.
         page = dvi._output()
         """
-        minx, miny, maxx, maxy = np.inf, np.inf, -np.inf, -np.inf
+        minx = miny = np.inf
+        maxx = maxy = -np.inf
         maxy_pure = -np.inf
         for elt in self.text + self.boxes:
             if isinstance(elt, Box):
@@ -357,7 +358,7 @@ class Dvi:
                 self.close()
                 return False
 
-    def _arg(self, nbytes, signed=False):
+    def _read_arg(self, nbytes, signed=False):
         """
         Read and return a big-endian integer *nbytes* long.
         Signedness is determined by the *signed* keyword.
@@ -422,7 +423,7 @@ class Dvi:
     @_dispatch(139, state=_dvistate.outer, args=('s4',)*11)
     def _bop(self, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, p):
         self.state = _dvistate.inpage
-        self.h, self.v, self.w, self.x, self.y, self.z = 0, 0, 0, 0, 0, 0
+        self.h = self.v = self.w = self.x = self.y = self.z = 0
         self.stack = []
         self.text = []          # list of Text objects
         self.boxes = []         # list of Box objects
@@ -506,7 +507,7 @@ class Dvi:
             self.fonts[k] = exc
             return
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
-            raise ValueError('tfm checksum mismatch: %s' % n)
+            raise ValueError(f'tfm checksum mismatch: {n}')
         try:
             vf = _vffile(fontname)
         except FileNotFoundError:
@@ -517,7 +518,7 @@ class Dvi:
     def _pre(self, i, num, den, mag, k):
         self.file.read(k)  # comment in the dvi file
         if i != 2:
-            raise ValueError("Unknown dvi format %d" % i)
+            raise ValueError(f"Unknown dvi format {i}")
         if num != 25400000 or den != 7227 * 2**16:
             raise ValueError("Nonstandard units in dvi file")
             # meaning: TeX always uses those exact values, so it
@@ -678,8 +679,8 @@ class Vf(Dvi):
         Read one page from the file. Return True if successful,
         False if there were no more pages.
         """
-        packet_char, packet_ends = None, None
-        packet_len, packet_width = None, None
+        packet_char = packet_ends = None
+        packet_len = packet_width = None
         while True:
             byte = self.file.read(1)[0]
             # If we are in a packet, execute the dvi instructions
@@ -687,48 +688,57 @@ class Vf(Dvi):
                 byte_at = self.file.tell()-1
                 if byte_at == packet_ends:
                     self._finalize_packet(packet_char, packet_width)
-                    packet_len, packet_char, packet_width = None, None, None
+                    packet_len = packet_char = packet_width = None
                     # fall through to out-of-packet code
                 elif byte_at > packet_ends:
                     raise ValueError("Packet length mismatch in vf file")
                 else:
                     if byte in (139, 140) or byte >= 243:
-                        raise ValueError(
-                            "Inappropriate opcode %d in vf file" % byte)
+                        raise ValueError(f"Inappropriate opcode {byte} in vf file")
                     Dvi._dtable[byte](self, byte)
                     continue
 
             # We are outside a packet
             if byte < 242:          # a short packet (length given by byte)
                 packet_len = byte
-                packet_char, packet_width = self._arg(1), self._arg(3)
+                packet_char = self._read_arg(1)
+                packet_width = self._read_arg(3)
                 packet_ends = self._init_packet(byte)
                 self.state = _dvistate.inpage
             elif byte == 242:       # a long packet
-                packet_len, packet_char, packet_width = \
-                            [self._arg(x) for x in (4, 4, 4)]
+                packet_len = self._read_arg(4)
+                packet_char = self._read_arg(4)
+                packet_width = self._read_arg(4)
                 self._init_packet(packet_len)
             elif 243 <= byte <= 246:
-                k = self._arg(byte - 242, byte == 246)
-                c, s, d, a, l = [self._arg(x) for x in (4, 4, 4, 1, 1)]
+                k = self._read_arg(byte - 242, byte == 246)
+                c = self._read_arg(4)
+                s = self._read_arg(4)
+                d = self._read_arg(4)
+                a = self._read_arg(1)
+                l = self._read_arg(1)
                 self._fnt_def_real(k, c, s, d, a, l)
                 if self._first_font is None:
                     self._first_font = k
             elif byte == 247:       # preamble
-                i, k = self._arg(1), self._arg(1)
+                i = self._read_arg(1)
+                k = self._read_arg(1)
                 x = self.file.read(k)
-                cs, ds = self._arg(4), self._arg(4)
+                cs = self._read_arg(4)
+                ds = self._read_arg(4)
                 self._pre(i, x, cs, ds)
             elif byte == 248:       # postamble (just some number of 248s)
                 break
             else:
-                raise ValueError("Unknown vf opcode %d" % byte)
+                raise ValueError(f"Unknown vf opcode {byte}")
 
     def _init_packet(self, pl):
         if self.state != _dvistate.outer:
             raise ValueError("Misplaced packet in vf file")
-        self.h, self.v, self.w, self.x, self.y, self.z = 0, 0, 0, 0, 0, 0
-        self.stack, self.text, self.boxes = [], [], []
+        self.h = self.v = self.w = self.x = self.y = self.z = 0
+        self.stack = []
+        self.text = []
+        self.boxes = []
         self.f = self._first_font
         self._missing_font = None
         return self.file.tell() + pl
@@ -744,7 +754,7 @@ class Vf(Dvi):
         if self.state is not _dvistate.pre:
             raise ValueError("pre command in middle of vf file")
         if i != 202:
-            raise ValueError("Unknown vf format %d" % i)
+            raise ValueError(f"Unknown vf format {i}")
         if len(x):
             _log.debug('vf file comment: %s', x)
         self.state = _dvistate.outer
@@ -794,7 +804,9 @@ class Tfm:
             widths = struct.unpack(f'!{nw}i', file.read(4*nw))
             heights = struct.unpack(f'!{nh}i', file.read(4*nh))
             depths = struct.unpack(f'!{nd}i', file.read(4*nd))
-        self.width, self.height, self.depth = {}, {}, {}
+        self.width = {}
+        self.height = {}
+        self.depth = {}
         for idx, char in enumerate(range(bc, ec+1)):
             byte0 = char_info[4*idx]
             byte1 = char_info[4*idx+1]

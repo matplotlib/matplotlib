@@ -111,6 +111,7 @@ stages:
                 ;;
               Darwin)
                 brew update
+                export HOMEBREW_NO_INSTALL_UPGRADE=1 HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
                 brew install --cask xquartz
                 brew install ccache ffmpeg imagemagick mplayer ninja pkg-config
                 brew install --cask font-noto-sans-cjk-sc

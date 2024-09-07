@@ -1,7 +1,7 @@
 """
-==========================
-Creating adjacent subplots
-==========================
+=================
+Adjacent subplots
+=================
 
 To create plots that share a common axis (visually) you can set the hspace
 between the subplots to zero. Passing sharex=True when creating the subplots

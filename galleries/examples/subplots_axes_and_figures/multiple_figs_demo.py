@@ -1,7 +1,7 @@
 """
-===================================
-Managing multiple figures in pyplot
-===================================
+=================================
+Manage multiple figures in pyplot
+=================================
 
 `matplotlib.pyplot` uses the concept of a *current figure* and *current Axes*.
 Figures are identified via a figure number that is passed to `~.pyplot.figure`.

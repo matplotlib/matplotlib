@@ -1,7 +1,7 @@
 """
-==================================================
-Combining two subplots using subplots and GridSpec
-==================================================
+================================================
+Combine two subplots using subplots and GridSpec
+================================================
 
 Sometimes we want to combine two subplots in an Axes layout created with
 `~.Figure.subplots`.  We can get the `~.gridspec.GridSpec` from the Axes

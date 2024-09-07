@@ -1,6 +1,7 @@
 """
-Fill Between and Alpha
-======================
+==================================
+``fill_between`` with transparency
+==================================
 
 The `~matplotlib.axes.Axes.fill_between` function generates a shaded
 region between a min and max boundary that is useful for illustrating ranges.

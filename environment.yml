@@ -46,6 +46,7 @@ dependencies:
   - pip:
       - mpl-sphinx-theme~=3.8.0
       - sphinxcontrib-svg2pdfconverter>=1.1.0
+      - sphinxcontrib-video>=0.2.1
       - pikepdf
   # testing
   - black<24

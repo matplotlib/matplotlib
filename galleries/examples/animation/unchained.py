@@ -1,7 +1,7 @@
 """
-========================
-MATPLOTLIB **UNCHAINED**
-========================
+====================
+Matplotlib unchained
+====================
 
 Comparative path demonstration of frequency from a fake signal of a pulsar
 (mostly known because of the cover for Joy Division's Unknown Pleasures).

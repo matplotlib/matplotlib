@@ -1,7 +1,7 @@
 """
-=============================================
-Plotting multiple lines with a LineCollection
-=============================================
+==========================================
+Plot multiple lines using a LineCollection
+==========================================
 
 Matplotlib can efficiently draw multiple lines at once using a `~.LineCollection`.
 """

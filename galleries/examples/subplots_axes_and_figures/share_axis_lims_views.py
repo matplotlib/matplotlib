@@ -1,6 +1,7 @@
 """
-Sharing axis limits and views
-=============================
+===========================
+Share axis limits and views
+===========================
 
 It's common to make two or more plots which share an axis, e.g., two subplots
 with time as a common axis.  When you pan and zoom around on one, you want the

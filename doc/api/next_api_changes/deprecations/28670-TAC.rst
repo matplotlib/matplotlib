@@ -1,0 +1,6 @@
+Deprecated ``register`` on ``matplotlib.patches._Styles`` and subclasses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This class method is never used internally.  Due to the internal check in the
+method it only accepts subclasses of a private baseclass embedded in the host
+class which makes it unlikely that it has been used externally.

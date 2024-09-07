@@ -453,6 +453,8 @@ int convert_sketch_params(PyObject *obj, void *sketchp)
 
     if (obj == NULL || obj == Py_None) {
         sketch->scale = 0.0;
+        sketch->length = 0.0;
+        sketch->randomness = 0.0;
     } else if (!PyArg_ParseTuple(obj,
                                  "ddd:sketch_params",
                                  &sketch->scale,

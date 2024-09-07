@@ -1,6 +1,6 @@
 """
 ===========
-Broken Axis
+Broken axis
 ===========
 
 Broken axis example, where the y-axis will have a portion cut out.

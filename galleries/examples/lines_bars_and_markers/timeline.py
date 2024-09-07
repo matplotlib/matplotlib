@@ -1,7 +1,7 @@
 """
-===============================================
-Creating a timeline with lines, dates, and text
-===============================================
+====================================
+Timeline with lines, dates, and text
+====================================
 
 How to create a simple timeline using Matplotlib release dates.
 

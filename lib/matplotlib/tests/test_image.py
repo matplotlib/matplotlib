@@ -390,7 +390,8 @@ def test_cursor_data_nonuniform(xy, data):
         ([[.123, .987]], "[0.123]"),
         ([[np.nan, 1, 2]], "[]"),
         ([[1, 1+1e-15]], "[1.0000000000000000]"),
-        ([[-1, -1]], "[-1.0000000000000000]"),
+        ([[-1, -1]], "[-1.0]"),
+        ([[0, 0]], "[0.00]"),
     ])
 def test_format_cursor_data(data, text):
     from matplotlib.backend_bases import MouseEvent
@@ -601,7 +602,7 @@ def test_bbox_image_inverted():
     image = np.identity(10)
 
     bbox_im = BboxImage(TransformedBbox(Bbox([[0.1, 0.2], [0.3, 0.25]]),
-                                        ax.figure.transFigure),
+                                        ax.get_figure().transFigure),
                         interpolation='nearest')
     bbox_im.set_data(image)
     bbox_im.set_clip_on(False)
@@ -696,7 +697,7 @@ def test_jpeg_alpha():
     # If this fails, there will be only one color (all black). If this
     # is working, we should have all 256 shades of grey represented.
     num_colors = len(image.getcolors(256))
-    assert 175 <= num_colors <= 210
+    assert 175 <= num_colors <= 230
     # The fully transparent part should be red.
     corner_pixel = image.getpixel((0, 0))
     assert corner_pixel == (254, 0, 0)
@@ -1404,8 +1405,7 @@ def test_nonuniform_logscale():
         ax.add_image(im)
 
 
-@image_comparison(
-    ['rgba_antialias.png'], style='mpl20', remove_text=True, tol=0.01)
+@image_comparison(['rgba_antialias.png'], style='mpl20', remove_text=True, tol=0.02)
 def test_rgba_antialias():
     fig, axs = plt.subplots(2, 2, figsize=(3.5, 3.5), sharex=False,
                             sharey=False, constrained_layout=True)

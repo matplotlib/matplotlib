@@ -173,11 +173,12 @@ class Axes3D(Axes):
         self.fmt_zdata = None
 
         self.mouse_init()
-        self.figure.canvas.callbacks._connect_picklable(
+        fig = self.get_figure(root=True)
+        fig.canvas.callbacks._connect_picklable(
             'motion_notify_event', self._on_move)
-        self.figure.canvas.callbacks._connect_picklable(
+        fig.canvas.callbacks._connect_picklable(
             'button_press_event', self._button_press)
-        self.figure.canvas.callbacks._connect_picklable(
+        fig.canvas.callbacks._connect_picklable(
             'button_release_event', self._button_release)
         self.set_top_view()
 
@@ -1364,7 +1365,7 @@ class Axes3D(Axes):
         if event.inaxes == self:
             self.button_pressed = event.button
             self._sx, self._sy = event.xdata, event.ydata
-            toolbar = self.figure.canvas.toolbar
+            toolbar = self.get_figure(root=True).canvas.toolbar
             if toolbar and toolbar._nav_stack() is None:
                 toolbar.push_current()
             if toolbar:
@@ -1372,7 +1373,7 @@ class Axes3D(Axes):
 
     def _button_release(self, event):
         self.button_pressed = None
-        toolbar = self.figure.canvas.toolbar
+        toolbar = self.get_figure(root=True).canvas.toolbar
         # backend_bases.release_zoom and backend_bases.release_pan call
         # push_current, so check the navigation mode so we don't call it twice
         if toolbar and self.get_navigate_mode() is None:
@@ -1605,7 +1606,7 @@ class Axes3D(Axes):
         # Store the event coordinates for the next time through.
         self._sx, self._sy = x, y
         # Always request a draw update at the end of interaction
-        self.figure.canvas.draw_idle()
+        self.get_figure(root=True).canvas.draw_idle()
 
     def drag_pan(self, button, key, x, y):
         # docstring inherited
@@ -2206,8 +2207,8 @@ class Axes3D(Axes):
             col_inds = list(range(0, cols-1, cstride)) + [cols-1]
 
             polys = []
-            for rs, rs_next in zip(row_inds[:-1], row_inds[1:]):
-                for cs, cs_next in zip(col_inds[:-1], col_inds[1:]):
+            for rs, rs_next in itertools.pairwise(row_inds):
+                for cs, cs_next in itertools.pairwise(col_inds):
                     ps = [
                         # +1 ensures we share edges between polygons
                         cbook._array_perimeter(a[rs:rs_next+1, cs:cs_next+1])
@@ -3385,7 +3386,7 @@ class Axes3D(Axes):
                         voxel_faces[i0].append(p0 + square_rot_neg)
 
                     # draw middle faces
-                    for r1, r2 in zip(rinds[:-1], rinds[1:]):
+                    for r1, r2 in itertools.pairwise(rinds):
                         p1 = permute.dot([p, q, r1])
                         p2 = permute.dot([p, q, r2])
 
@@ -3656,7 +3657,7 @@ class Axes3D(Axes):
         # them directly in planar form.
         quiversize = eb_cap_style.get('markersize',
                                       mpl.rcParams['lines.markersize']) ** 2
-        quiversize *= self.figure.dpi / 72
+        quiversize *= self.get_figure(root=True).dpi / 72
         quiversize = self.transAxes.inverted().transform([
             (0, 0), (quiversize, quiversize)])
         quiversize = np.mean(np.diff(quiversize, axis=0))

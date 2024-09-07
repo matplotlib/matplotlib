@@ -1,7 +1,7 @@
 """
-=================================================
-Creating multiple subplots using ``plt.subplots``
-=================================================
+===============================================
+Create multiple subplots using ``plt.subplots``
+===============================================
 
 `.pyplot.subplots` creates a figure and a grid of subplots with a single call,
 while providing reasonable control over how the individual plots are created.

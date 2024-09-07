@@ -62,7 +62,7 @@ def test_tinypages(tmp_path):
         # This is always next to the doctree dir.
         return doctree_dir.parent / 'plot_directive' / f'some_plots-{num}.png'
 
-    range_10, range_6, range_4 = [plot_file(i) for i in range(1, 4)]
+    range_10, range_6, range_4 = (plot_file(i) for i in range(1, 4))
     # Plot 5 is range(6) plot
     assert filecmp.cmp(range_6, plot_file(5))
     # Plot 7 is range(4) plot

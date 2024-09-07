@@ -81,10 +81,18 @@ def _get_available_interactive_backends():
         elif env["MPLBACKEND"] == 'macosx' and os.environ.get('TF_BUILD'):
             reason = "macosx backend fails on Azure"
         elif env["MPLBACKEND"].startswith('gtk'):
-            import gi  # type: ignore
+            try:
+                import gi  # type: ignore
+            except ImportError:
+                # Though we check that `gi` exists above, it is possible that its
+                # C-level dependencies are not available, and then it still raises an
+                # `ImportError`, so guard against that.
+                available_gtk_versions = []
+            else:
+                gi_repo = gi.Repository.get_default()
+                available_gtk_versions = gi_repo.enumerate_versions('Gtk')
             version = env["MPLBACKEND"][3]
-            repo = gi.Repository.get_default()
-            if f'{version}.0' not in repo.enumerate_versions('Gtk'):
+            if f'{version}.0' not in available_gtk_versions:
                 reason = "no usable GTK bindings"
         marks = []
         if reason:

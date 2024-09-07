@@ -1,7 +1,7 @@
 """
-==============
-Bar color demo
-==============
+====================================
+Bar chart with individual bar colors
+====================================
 
 This is an example showing how to control bar color and legend entries
 using the *color* and *label* parameters of `~matplotlib.pyplot.bar`.

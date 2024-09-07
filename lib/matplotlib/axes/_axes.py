@@ -14,7 +14,7 @@ import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
-import matplotlib.dates  # noqa # Register date unit converter as side effect.
+import matplotlib.dates  # noqa: F401, Register date unit converter as side effect.
 import matplotlib.image as mimage
 import matplotlib.legend as mlegend
 import matplotlib.lines as mlines
@@ -406,8 +406,9 @@ class Axes(_AxesBase):
         # This puts the rectangle into figure-relative coordinates.
         inset_locator = _TransformedBoundsLocator(bounds, transform)
         bounds = inset_locator(self, None).bounds
-        projection_class, pkw = self.figure._process_projection_requirements(**kwargs)
-        inset_ax = projection_class(self.figure, bounds, zorder=zorder, **pkw)
+        fig = self.get_figure(root=False)
+        projection_class, pkw = fig._process_projection_requirements(**kwargs)
+        inset_ax = projection_class(fig, bounds, zorder=zorder, **pkw)
 
         # this locator lets the axes move if in data coordinates.
         # it gets called in `ax.apply_aspect() (of all places)
@@ -452,8 +453,10 @@ class Axes(_AxesBase):
         edgecolor : :mpltype:`color`, default: '0.5'
             Color of the rectangle and color of the connecting lines.
 
-        alpha : float, default: 0.5
-            Transparency of the rectangle and connector lines.
+        alpha : float or None, default: 0.5
+            Transparency of the rectangle and connector lines.  If not
+            ``None``, this overrides any alpha value included in the
+            *facecolor* and *edgecolor* parameters.
 
         zorder : float, default: 4.99
             Drawing order of the rectangle and connector lines.  The default,
@@ -515,7 +518,7 @@ class Axes(_AxesBase):
 
             # decide which two of the lines to keep visible....
             pos = inset_ax.get_position()
-            bboxins = pos.transformed(self.figure.transSubfigure)
+            bboxins = pos.transformed(self.get_figure(root=False).transSubfigure)
             rectbbox = mtransforms.Bbox.from_bounds(
                 *bounds
             ).transformed(transform)
@@ -765,20 +768,25 @@ class Axes(_AxesBase):
     @_docstring.dedent_interpd
     def axhline(self, y=0, xmin=0, xmax=1, **kwargs):
         """
-        Add a horizontal line across the Axes.
+        Add a horizontal line spanning the whole or fraction of the Axes.
+
+        Note: If you want to set x-limits in data coordinates, use
+        `~.Axes.hlines` instead.
 
         Parameters
         ----------
         y : float, default: 0
-            y position in data coordinates of the horizontal line.
+            y position in :ref:`data coordinates <coordinate-systems>`.
 
         xmin : float, default: 0
-            Should be between 0 and 1, 0 being the far left of the plot, 1 the
-            far right of the plot.
+            The start x-position in :ref:`axes coordinates <coordinate-systems>`.
+            Should be between 0 and 1, 0 being the far left of the plot,
+            1 the far right of the plot.
 
         xmax : float, default: 1
-            Should be between 0 and 1, 0 being the far left of the plot, 1 the
-            far right of the plot.
+            The end x-position in :ref:`axes coordinates <coordinate-systems>`.
+            Should be between 0 and 1, 0 being the far left of the plot,
+            1 the far right of the plot.
 
         Returns
         -------
@@ -834,18 +842,23 @@ class Axes(_AxesBase):
     @_docstring.dedent_interpd
     def axvline(self, x=0, ymin=0, ymax=1, **kwargs):
         """
-        Add a vertical line across the Axes.
+        Add a vertical line spanning the whole or fraction of the Axes.
+
+        Note: If you want to set y-limits in data coordinates, use
+        `~.Axes.vlines` instead.
 
         Parameters
         ----------
         x : float, default: 0
-            x position in data coordinates of the vertical line.
+            y position in :ref:`data coordinates <coordinate-systems>`.
 
         ymin : float, default: 0
+            The start y-position in :ref:`axes coordinates <coordinate-systems>`.
             Should be between 0 and 1, 0 being the bottom of the plot, 1 the
             top of the plot.
 
         ymax : float, default: 1
+            The end y-position in :ref:`axes coordinates <coordinate-systems>`.
             Should be between 0 and 1, 0 being the bottom of the plot, 1 the
             top of the plot.
 
@@ -6000,7 +6013,7 @@ class Axes(_AxesBase):
             # unit conversion allows e.g. datetime objects as axis values
             X, Y = args[:2]
             X, Y = self._process_unit_info([("x", X), ("y", Y)], kwargs)
-            X, Y = [cbook.safe_masked_invalid(a, copy=True) for a in [X, Y]]
+            X, Y = (cbook.safe_masked_invalid(a, copy=True) for a in [X, Y])
 
             if funcname == 'pcolormesh':
                 if np.ma.is_masked(X) or np.ma.is_masked(Y):
@@ -8135,6 +8148,11 @@ such objects
 
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
+
+        vmin, vmax : float, optional
+            vmin and vmax define the data range that the colormap covers.
+            By default, the colormap covers the complete value range of the
+            data.
 
         **kwargs
             Additional keyword arguments are passed on to `~.axes.Axes.imshow`

@@ -1,7 +1,7 @@
 """
-================
-Annotating Plots
-================
+==============
+Annotate plots
+==============
 
 The following examples show ways to annotate plots in Matplotlib.
 This includes highlighting specific points of interest and using various

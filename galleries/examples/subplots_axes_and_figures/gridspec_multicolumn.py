@@ -1,7 +1,7 @@
 """
-=======================================================
-Using Gridspec to make multi-column/row subplot layouts
-=======================================================
+=============================================
+Gridspec for multi-column/row subplot layouts
+=============================================
 
 `.GridSpec` is a flexible way to layout
 subplot grids.  Here is an example with a 3x3 grid, and

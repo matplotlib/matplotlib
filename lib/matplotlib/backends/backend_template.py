@@ -20,8 +20,8 @@ packaging it as a normal Python package); if the backend is importable as
     import matplotlib
     matplotlib.use("module://my.backend")
 
-If your backend implements support for saving figures (i.e. has a `print_xyz`
-method), you can register it as the default handler for a given file type::
+If your backend implements support for saving figures (i.e. has a ``print_xyz`` method),
+you can register it as the default handler for a given file type::
 
     from matplotlib.backend_bases import register_backend
     register_backend('xyz', 'my_backend', 'XYZ File Format')

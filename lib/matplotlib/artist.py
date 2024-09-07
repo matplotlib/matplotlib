@@ -1,10 +1,11 @@
 from collections import namedtuple
 import contextlib
-from functools import cache, wraps
+from functools import cache, reduce, wraps
 import inspect
 from inspect import Signature, Parameter
 import logging
 from numbers import Number, Real
+import operator
 import re
 import warnings
 
@@ -12,8 +13,6 @@ import numpy as np
 
 import matplotlib as mpl
 from . import _api, cbook
-from .colors import BoundaryNorm
-from .cm import ScalarMappable
 from .path import Path
 from .transforms import (BboxBase, Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
@@ -75,8 +74,8 @@ def allow_rasterization(draw):
                 renderer.stop_filter(artist.get_agg_filter())
             if artist.get_rasterized():
                 renderer._raster_depth -= 1
-            if (renderer._rasterizing and artist.figure and
-                    artist.figure.suppressComposite):
+            if (renderer._rasterizing and (fig := artist.get_figure(root=True)) and
+                    fig.suppressComposite):
                 # restart rasterizing to prevent merging
                 renderer.stop_rasterizing()
                 renderer.start_rasterizing()
@@ -248,9 +247,9 @@ class Artist:
                 self.axes = None  # decouple the artist from the Axes
                 _ax_flag = True
 
-            if self.figure:
+            if (fig := self.get_figure(root=False)) is not None:
                 if not _ax_flag:
-                    self.figure.stale = True
+                    fig.stale = True
                 self._parent_figure = None
 
         else:
@@ -473,8 +472,9 @@ class Artist:
                 return False, {}
             # subclass-specific implementation follows
         """
-        return (getattr(event, "canvas", None) is not None and self.figure is not None
-                and event.canvas is not self.figure.canvas)
+        return (getattr(event, "canvas", None) is not None
+                and (fig := self.get_figure(root=True)) is not None
+                and event.canvas is not fig.canvas)
 
     def contains(self, mouseevent):
         """
@@ -504,7 +504,7 @@ class Artist:
         --------
         .Artist.set_picker, .Artist.get_picker, .Artist.pick
         """
-        return self.figure is not None and self._picker is not None
+        return self.get_figure(root=False) is not None and self._picker is not None
 
     def pick(self, mouseevent):
         """
@@ -526,7 +526,7 @@ class Artist:
             else:
                 inside, prop = self.contains(mouseevent)
             if inside:
-                PickEvent("pick_event", self.figure.canvas,
+                PickEvent("pick_event", self.get_figure(root=True).canvas,
                           mouseevent, self, **prop)._process()
 
         # Pick children
@@ -1290,7 +1290,8 @@ class Artist:
             raise ValueError('match must be None, a matplotlib.artist.Artist '
                              'subclass, or a callable')
 
-        artists = sum([c.findobj(matchfunc) for c in self.get_children()], [])
+        artists = reduce(operator.iadd,
+                         [c.findobj(matchfunc) for c in self.get_children()], [])
         if include_self and matchfunc(self):
             artists.append(self)
         return artists
@@ -1344,35 +1345,11 @@ class Artist:
         --------
         get_cursor_data
         """
-        if np.ndim(data) == 0 and isinstance(self, ScalarMappable):
-            # This block logically belongs to ScalarMappable, but can't be
-            # implemented in it because most ScalarMappable subclasses inherit
-            # from Artist first and from ScalarMappable second, so
-            # Artist.format_cursor_data would always have precedence over
-            # ScalarMappable.format_cursor_data.
-            n = self.cmap.N
-            if np.ma.getmask(data):
-                return "[]"
-            normed = self.norm(data)
-            if np.isfinite(normed):
-                if isinstance(self.norm, BoundaryNorm):
-                    # not an invertible normalization mapping
-                    cur_idx = np.argmin(np.abs(self.norm.boundaries - data))
-                    neigh_idx = max(0, cur_idx - 1)
-                    # use max diff to prevent delta == 0
-                    delta = np.diff(
-                        self.norm.boundaries[neigh_idx:cur_idx + 2]
-                    ).max()
-
-                else:
-                    # Midpoints of neighboring color intervals.
-                    neighbors = self.norm.inverse(
-                        (int(normed * n) + np.array([0, 1])) / n)
-                    delta = abs(neighbors - data).max()
-                g_sig_digits = cbook._g_sig_digits(data, delta)
-            else:
-                g_sig_digits = 3  # Consistent with default below.
-            return f"[{data:-#.{g_sig_digits}g}]"
+        if np.ndim(data) == 0 and hasattr(self, "_format_cursor_data_override"):
+            # workaround for ScalarMappable to be able to define its own
+            # format_cursor_data(). See ScalarMappable._format_cursor_data_override
+            # for details.
+            return self._format_cursor_data_override(data)
         else:
             try:
                 data[0]
