@@ -70,13 +70,14 @@ class AnchoredLocatorBase(AnchoredOffsetbox):
         raise RuntimeError("No draw method should be called")
 
     def __call__(self, ax, renderer):
+        fig = ax.get_figure(root=False)
         if renderer is None:
-            renderer = ax.figure._get_renderer()
+            renderer = fig._get_renderer()
         self.axes = ax
         bbox = self.get_window_extent(renderer)
         px, py = self.get_offset(bbox.width, bbox.height, 0, 0, renderer)
         bbox_canvas = Bbox.from_bounds(px, py, bbox.width, bbox.height)
-        tr = ax.figure.transSubfigure.inverted()
+        tr = fig.transSubfigure.inverted()
         return TransformedBbox(bbox_canvas, tr)
 
 
@@ -287,10 +288,11 @@ def _add_inset_axes(parent_axes, axes_class, axes_kwargs, axes_locator):
         axes_class = HostAxes
     if axes_kwargs is None:
         axes_kwargs = {}
+    fig = parent_axes.get_figure(root=False)
     inset_axes = axes_class(
-        parent_axes.figure, parent_axes.get_position(),
+        fig, parent_axes.get_position(),
         **{"navigate": False, **axes_kwargs, "axes_locator": axes_locator})
-    return parent_axes.figure.add_axes(inset_axes)
+    return fig.add_axes(inset_axes)
 
 
 @_docstring.dedent_interpd
@@ -395,7 +397,8 @@ def inset_axes(parent_axes, width, height, loc='upper right',
         Inset axes object created.
     """
 
-    if (bbox_transform in [parent_axes.transAxes, parent_axes.figure.transFigure]
+    if (bbox_transform in [parent_axes.transAxes,
+                           parent_axes.get_figure(root=False).transFigure]
             and bbox_to_anchor is None):
         _api.warn_external("Using the axes or figure transform requires a "
                            "bounding box in the respective coordinates. "

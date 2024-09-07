@@ -208,7 +208,7 @@ def test_remove():
 
     for art in [im, ln]:
         assert art.axes is None
-        assert art.figure is None
+        assert art.get_figure() is None
 
     assert im not in ax._mouseover_set
     assert fig.stale

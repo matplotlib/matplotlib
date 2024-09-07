@@ -1259,7 +1259,7 @@ def test_subfigure_legend():
     ax = subfig.subplots()
     ax.plot([0, 1], [0, 1], label="line")
     leg = subfig.legend()
-    assert leg.figure is subfig
+    assert leg.get_figure(root=False) is subfig
 
 
 def test_setting_alpha_keeps_polycollection_color():
