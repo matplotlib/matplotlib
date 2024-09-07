@@ -13,6 +13,9 @@ help you get started with Matplotlib.
 
 """
 
+import matplotlib.pyplot as plt
+import numpy as np
+
 # sphinx_gallery_thumbnail_number = 3
 
 # %%
