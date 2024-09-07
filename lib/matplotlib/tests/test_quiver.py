@@ -113,12 +113,15 @@ def test_quiver_with_key():
     fig, ax = plt.subplots()
     ax.margins(0.1)
     Q = draw_quiver(ax)
-    ax.quiverkey(Q, 0.5, 0.95, 2,
-                 r'$2\, \mathrm{m}\, \mathrm{s}^{-1}$',
-                 angle=-10,
-                 coordinates='figure',
-                 labelpos='W',
-                 fontproperties={'weight': 'bold', 'size': 'large'})
+    qk = ax.quiverkey(Q, 0, 0, 2, '',
+                      angle=-10, coordinates='figure',
+                      labelpos='N', labelcolor='b',
+                      fontproperties={'weight': 'bold', 'size': 'large'})
+    qk.set_x(0.5)
+    qk.set_y(0.95)
+    qk.set_label_text(r'$2\, \mathrm{m}\, \mathrm{s}^{-1}$')
+    qk.set_label_pos('W')
+    qk.set_label_color('k')  # Go back to default to keep same test image.
 
 
 @image_comparison(['quiver_single_test_image.png'], remove_text=True)
@@ -147,8 +150,8 @@ def test_quiver_key_pivot():
     ax.set_ylim(-2, 11)
     ax.quiverkey(q, 0.5, 1, 1, 'N', labelpos='N')
     ax.quiverkey(q, 1, 0.5, 1, 'E', labelpos='E')
-    ax.quiverkey(q, 0.5, 0, 1, 'S', labelpos='S')
-    ax.quiverkey(q, 0, 0.5, 1, 'W', labelpos='W')
+    ax.quiverkey(q, 0.5, 0, 1, 'S').set_label_pos('S')
+    ax.quiverkey(q, 0, 0.5, 1, 'W').set_label_pos('W')
 
 
 @image_comparison(['quiver_key_xy.png'], remove_text=True)
@@ -264,7 +267,7 @@ def test_quiverkey_angles():
     qk = ax.quiverkey(q, 1, 1, 2, 'Label')
     # The arrows are only created when the key is drawn
     fig.canvas.draw()
-    assert len(qk.verts) == 1
+    assert len(qk._verts) == 1
 
 
 def test_quiverkey_angles_xy_aitoff():
@@ -293,7 +296,7 @@ def test_quiverkey_angles_xy_aitoff():
         qk = ax.quiverkey(q, 0, 0, 1, '1 units')
 
         fig.canvas.draw()
-        assert len(qk.verts) == 1
+        assert len(qk._verts) == 1
 
 
 def test_quiverkey_angles_scale_units_cartesian():
@@ -320,7 +323,7 @@ def test_quiverkey_angles_scale_units_cartesian():
         qk = ax.quiverkey(q, 0, 0, 1, '1 units')
 
         fig.canvas.draw()
-        assert len(qk.verts) == 1
+        assert len(qk._verts) == 1
 
 
 def test_quiver_setuvc_numbers():
