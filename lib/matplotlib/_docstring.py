@@ -68,12 +68,6 @@ class Substitution:
             func.__doc__ = inspect.cleandoc(func.__doc__) % self.params
         return func
 
-    def update(self, *args, **kwargs):
-        """
-        Update ``self.params`` (which must be a dict) with the supplied args.
-        """
-        self.params.update(*args, **kwargs)
-
 
 class _ArtistKwdocLoader(dict):
     def __missing__(self, key):
@@ -89,7 +83,7 @@ class _ArtistKwdocLoader(dict):
         return self.setdefault(key, kwdoc(cls))
 
 
-class _ArtistPropertiesSubstitution(Substitution):
+class _ArtistPropertiesSubstitution:
     """
     A `.Substitution` with two additional features:
 
@@ -104,8 +98,15 @@ class _ArtistPropertiesSubstitution(Substitution):
     def __init__(self):
         self.params = _ArtistKwdocLoader()
 
+    def update(self, *args, **kwargs):
+        """
+        Update ``self.params`` (which must be a dict) with the supplied args.
+        """
+        self.params.update(*args, **kwargs)
+
     def __call__(self, obj):
-        super().__call__(obj)
+        if obj.__doc__:
+            obj.__doc__ = inspect.cleandoc(obj.__doc__) % self.params
         if isinstance(obj, type) and obj.__init__ != object.__init__:
             self(obj.__init__)
         return obj
