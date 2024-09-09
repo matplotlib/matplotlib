@@ -1552,7 +1552,7 @@ class FancyArrow(Polygon):
             ]
 
 
-_docstring.interpd.update(
+_docstring.interpd.register(
     FancyArrow="\n".join(
         (inspect.getdoc(FancyArrow.__init__) or "").splitlines()[2:]))
 
@@ -2290,7 +2290,7 @@ class _Style:
         # - %(BoxStyle:table_and_accepts)s
         # - %(ConnectionStyle:table_and_accepts)s
         # - %(ArrowStyle:table_and_accepts)s
-        _docstring.interpd.update({
+        _docstring.interpd.register(**{
             f"{cls.__name__}:table": cls.pprint_styles(),
             f"{cls.__name__}:table_and_accepts": (
                 cls.pprint_styles()

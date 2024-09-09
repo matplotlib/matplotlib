@@ -2030,4 +2030,4 @@ or callable, default: value of *xycoords*
         return super().get_tightbbox(renderer)
 
 
-_docstring.interpd.update(Annotation=Annotation.__init__.__doc__)
+_docstring.interpd.register(Annotation=Annotation.__init__.__doc__)

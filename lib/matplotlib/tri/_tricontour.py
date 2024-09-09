@@ -79,7 +79,7 @@ class TriContourSet(ContourSet):
         return (tri, z)
 
 
-_docstring.interpd.update(_tricontour_doc="""
+_docstring.interpd.register(_tricontour_doc="""
 Draw contour %%(type)s on an unstructured triangular grid.
 
 Call signatures::
