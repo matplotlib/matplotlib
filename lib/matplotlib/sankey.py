@@ -347,7 +347,7 @@ class Sankey:
         # path[2] = path[2][::-1]
         # return path
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def add(self, patchlabel='', flows=None, orientations=None, labels='',
             trunklength=1.0, pathlengths=0.25, prior=None, connect=(0, 0),
             rotation=0, **kwargs):

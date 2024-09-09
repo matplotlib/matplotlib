@@ -1257,7 +1257,7 @@ if Figure.legend.__doc__:
 
 ## Axes ##
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def axes(
     arg: None | tuple[float, float, float, float] = None,
     **kwargs
@@ -1376,7 +1376,7 @@ def cla() -> None:
 
 ## More ways of creating Axes ##
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def subplot(*args, **kwargs) -> Axes:
     """
     Add an Axes to the current figure or retrieve an existing Axes.

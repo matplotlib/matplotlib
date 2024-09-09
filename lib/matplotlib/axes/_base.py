@@ -3242,7 +3242,7 @@ class _AxesBase(martist.Artist):
             axis.set_zorder(zorder)
         self.stale = True
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def grid(self, visible=None, which='major', axis='both', **kwargs):
         """
         Configure the grid lines.

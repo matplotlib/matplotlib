@@ -351,7 +351,7 @@ class Legend(Artist):
     def __str__(self):
         return "Legend"
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def __init__(
         self, parent, handles, labels,
         *,
@@ -643,7 +643,7 @@ class Legend(Artist):
 
         a.set_transform(self.get_transform())
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def set_loc(self, loc=None):
         """
         Set the location of the legend.
