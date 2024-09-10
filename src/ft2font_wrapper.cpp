@@ -486,11 +486,6 @@ PyFT2Font_get_glyph_name(PyFT2Font *self, unsigned int glyph_number)
 
     buffer.resize(128);
     self->x->get_glyph_name(glyph_number, buffer, fallback);
-    // pybind11 uses the entire string's size(), so trim all the NULLs off the end.
-    auto len = buffer.find('\0');
-    if (len != buffer.npos) {
-        buffer.resize(len);
-    }
     return buffer;
 }
 
