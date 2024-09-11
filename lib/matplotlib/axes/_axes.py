@@ -3049,7 +3049,7 @@ class Axes(_AxesBase):
         return col
 
     def grouped_bar(self, x, heights, *, group_spacing=1.5, bar_spacing=0,
-                    dataset_labels=None, orientation="vertical", colors=None,
+                    labels=None, orientation="vertical", colors=None,
                     **kwargs):
         """
         Make a grouped bar plot.
@@ -3119,8 +3119,12 @@ class Axes(_AxesBase):
         bar_spacing : float
             The space between bars in units of bar width.
 
-        dataset_labels : array-like of str, optional
-            The labels of the datasets.
+        labels : array-like of str, optional
+            The labels of the datasets, i.e. the bars within one group.
+            These will show up in the legend.
+
+            Note: The "other" label dimension are the group labels, which
+            can be set via *x*.
 
         orientation : {"vertical", "horizontal"}, default: vertical
 
@@ -3138,10 +3142,10 @@ class Axes(_AxesBase):
 
         """
         if hasattr(heights, 'keys'):
-            if dataset_labels is not None:
+            if labels is not None:
                 raise ValueError(
-                    "'dataset_labels' cannot be used if 'heights' are a mapping")
-            dataset_labels = heights.keys()
+                    "'labels' cannot be used if 'heights' are a mapping")
+            labels = heights.keys()
             heights = heights.values()
         elif hasattr(heights, 'shape'):
             heights = heights.T
@@ -3185,23 +3189,23 @@ class Axes(_AxesBase):
         bar_spacing_abs = bar_spacing * bar_width
         margin_abs = 0.5 * group_spacing * bar_width
 
-        if dataset_labels is None:
-            dataset_labels = [None] * num_datasets
+        if labels is None:
+            labels = [None] * num_datasets
         else:
-            assert len(dataset_labels) == num_datasets
+            assert len(labels) == num_datasets
 
         # place the bars, but only use numerical positions, categorical tick labels
         # are handled separately below
-        for i, (hs, dataset_label, color) in enumerate(
-                zip(heights, dataset_labels, colors)):
+        for i, (hs, label, color) in enumerate(
+                zip(heights, labels, colors)):
             lefts = (group_centers - 0.5 * group_distance + margin_abs
                      + i * (bar_width + bar_spacing_abs))
             if orientation == "vertical":
                 self.bar(lefts, hs, width=bar_width, align="edge",
-                         label=dataset_label, color=color, **kwargs)
+                         label=label, color=color, **kwargs)
             else:
                 self.barh(lefts, hs, height=bar_width, align="edge",
-                          label=dataset_label, color=color, **kwargs)
+                          label=label, color=color, **kwargs)
 
         if tick_labels is not None:
             if orientation == "vertical":

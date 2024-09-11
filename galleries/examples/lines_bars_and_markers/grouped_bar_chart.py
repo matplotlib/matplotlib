@@ -35,7 +35,7 @@ axs[0].legend()
 # grouped_bar() with list of datasets
 # note also that this is a straight-forward generalization of the single-dataset case:
 #   bar(x, data1, label="data1")
-axs[1].grouped_bar(x, [data1, data2, data3], dataset_labels=["data1", "data2", "data3"])
+axs[1].grouped_bar(x, [data1, data2, data3], labels=["data1", "data2", "data3"])
 
 
 # %%
@@ -57,7 +57,7 @@ datasets = {
 fig, axs = plt.subplots(1, 2)
 
 # explicitly extract values and labels from a dict and feed to grouped_bar():
-axs[0].grouped_bar(x, datasets.values(), dataset_labels=datasets.keys())
+axs[0].grouped_bar(x, datasets.values(), labels=datasets.keys())
 # accepting a dict as input
 axs[1].grouped_bar(x, datasets)
 
@@ -94,7 +94,7 @@ data = np.array([
 columns = ["data1", "data2", "data3"]
 
 fig, ax = plt.subplots()
-ax.grouped_bar(x, data, dataset_labels=columns)
+ax.grouped_bar(x, data, labels=columns)
 
 # %%
 # This creates the same plot as pandas (code cannot be executed because pandas

@@ -286,7 +286,7 @@ class Axes(_AxesBase):
         *,
         group_spacing : float | None = ...,
         bar_spacing : float | None = ...,
-        dataset_labels : Sequence[str] | None = ...,
+        labels : Sequence[str] | None = ...,
         orientation: Literal["vertical", "horizontal"] = ...,
         colors: Iterable[ColorType] | None = ...,
         **kwargs
