@@ -42,7 +42,7 @@ axs[1].grouped_bar(x, [data1, data2, data3], labels=["data1", "data2", "data3"])
 # Case 1b: multiple datasets as dict
 # ----------------------------------
 # instead of carrying a list of datasets and a list of dataset labels, users may
-# want to organized their datasets in a dict.
+# want to organize their datasets in a dict.
 
 datasets = {
     'data1': data1,
@@ -150,7 +150,7 @@ axs[1, 1].grouped_bar(x, data, group_spacing=0.5, bar_spacing=0.1)
 # -------
 # The bars can be styled through additional keyword arguments. Currently,
 # the only per-dataset setting is ``colors``. Additionally, all
-# `.Rectangle parameters` are passed through and applied to all datasets.
+# `.Rectangle` parameters are passed through and applied to all datasets.
 
 x = ['A', 'B', 'C']
 data = {

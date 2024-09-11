@@ -282,7 +282,7 @@ class Axes(_AxesBase):
     def grouped_bar(
         self,
         x : ArrayLike,
-        heights : ArrayLike,
+        heights : Sequence[ArrayLike] | dict[str, ArrayLike] | np.ndarray,
         *,
         group_spacing : float | None = ...,
         bar_spacing : float | None = ...,

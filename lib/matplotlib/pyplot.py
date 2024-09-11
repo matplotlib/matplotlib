@@ -3392,7 +3392,7 @@ def grid(
 @_copy_docstring_and_deprecators(Axes.grouped_bar)
 def grouped_bar(
     x: ArrayLike,
-    heights: ArrayLike,
+    heights: Sequence[ArrayLike] | dict[str, ArrayLike] | np.ndarray,
     *,
     group_spacing: float | None = 1.5,
     bar_spacing: float | None = 0,
