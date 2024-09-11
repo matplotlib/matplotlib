@@ -489,21 +489,6 @@ int convert_gcagg(PyObject *pygc, void *gcp)
     return 1;
 }
 
-int convert_face(PyObject *color, GCAgg &gc, agg::rgba *rgba)
-{
-    if (!convert_rgba(color, rgba)) {
-        return 0;
-    }
-
-    if (color != NULL && color != Py_None) {
-        if (gc.forced_alpha || PySequence_Size(color) == 3) {
-            rgba->a = gc.alpha;
-        }
-    }
-
-    return 1;
-}
-
 int convert_points(PyObject *obj, void *pointsp)
 {
     numpy::array_view<double, 2> *points = (numpy::array_view<double, 2> *)pointsp;

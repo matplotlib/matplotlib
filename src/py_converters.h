@@ -41,8 +41,6 @@ int convert_points(PyObject *pygc, void *pointsp);
 int convert_transforms(PyObject *pygc, void *transp);
 int convert_bboxes(PyObject *pygc, void *bboxp);
 int convert_colors(PyObject *pygc, void *colorsp);
-
-int convert_face(PyObject *color, GCAgg &gc, agg::rgba *rgba);
 }
 
 #endif

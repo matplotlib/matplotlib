@@ -45,12 +45,13 @@ PyRendererAgg_draw_path(RendererAgg *self,
                         GCAgg &gc,
                         mpl::PathIterator path,
                         agg::trans_affine trans,
-                        py::object face_obj)
+                        py::object rgbFace)
 {
-    agg::rgba face;
-
-    if (!convert_face(face_obj.ptr(), gc, &face)) {
-        throw py::error_already_set();
+    agg::rgba face = rgbFace.cast<agg::rgba>();
+    if (!rgbFace.is_none()) {
+        if (gc.forced_alpha || rgbFace.cast<py::sequence>().size() == 3) {
+            face.a = gc.alpha;
+        }
     }
 
     self->draw_path(gc, path, trans, face);
@@ -80,12 +81,13 @@ PyRendererAgg_draw_markers(RendererAgg *self,
                            agg::trans_affine marker_path_trans,
                            mpl::PathIterator path,
                            agg::trans_affine trans,
-                           py::object face_obj)
+                           py::object rgbFace)
 {
-    agg::rgba face;
-
-    if (!convert_face(face_obj.ptr(), gc, &face)) {
-        throw py::error_already_set();
+    agg::rgba face = rgbFace.cast<agg::rgba>();
+    if (!rgbFace.is_none()) {
+        if (gc.forced_alpha || rgbFace.cast<py::sequence>().size() == 3) {
+            face.a = gc.alpha;
+        }
     }
 
     self->draw_markers(gc, marker_path, marker_path_trans, path, trans, face);
