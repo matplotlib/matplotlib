@@ -118,3 +118,43 @@ data = {
 
 fig, ax = plt.subplots()
 ax.grouped_bar(x, data)
+
+
+# %%
+# Bar width and spacing
+# ---------------------
+# The center positions of the bar groups are given by x. We can still choose
+# two of the following properties: bar width, spacing between groups, and
+# spacing between bars.
+#
+# We believe the most convenient approach is defining spacing between groups
+# and spacing between bars as fraction of the bar width.
+
+x = ['A', 'B', 'C']
+data = {
+    'data1': [1, 2, 3],
+    'data2': [1.2, 2.2, 3.2],
+    'data3': [1.4, 2.4, 3.4],
+    'data4': [1.6, 2.6, 3.6],
+}
+
+fig, axs = plt.subplots(2, 2)
+axs[0, 0].grouped_bar(x, data)
+axs[0, 1].grouped_bar(x, data, group_spacing=0.5)
+axs[1, 0].grouped_bar(x, data, bar_spacing=0.2)
+axs[1, 1].grouped_bar(x, data, group_spacing=0.5, bar_spacing=0.1)
+
+
+# %%
+# Horizontal grouped bars
+# -----------------------
+# Use ``orientation="horizontal"`` to create horizontal grouped bar charts.
+
+x = ['A', 'B', 'C']
+data = {
+    'data1': [1, 2, 3],
+    'data2': [1.2, 2.2, 3.2],
+}
+
+fig, ax = plt.subplots()
+ax.grouped_bar(x, data, orientation="horizontal")

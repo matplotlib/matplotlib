@@ -3048,7 +3048,8 @@ class Axes(_AxesBase):
 
         return col
 
-    def grouped_bar(self, x, heights, dataset_labels=None):
+    def grouped_bar(self, x, heights, *, group_spacing=1.5, bar_spacing=0,
+                    dataset_labels=None, orientation="vertical"):
         """
         Parameters
         -----------
@@ -3104,9 +3105,20 @@ class Axes(_AxesBase):
 
             An iterable of array-like: The iteration runs over the groups.
             Each individual array-like is the list of label values for that group.
+
+        group_spacing : float
+            The space between two bar groups in units of bar width.
+
+        bar_spacing : float
+            The space between bars in units of bar width.
+
         dataset_labels : array-like of str, optional
             The labels of the datasets.
+
+        orientation : {"vertical", "horizontal"}, default: vertical
         """
+        _api.check_in_list(["vertical", "horizontal"], orientation=orientation)
+
         if hasattr(heights, 'keys'):
             if dataset_labels is not None:
                 raise ValueError(
@@ -3122,11 +3134,15 @@ class Axes(_AxesBase):
         if isinstance(x[0], str):
             tick_labels = x
             group_centers = np.arange(num_groups)
+            group_distance = 1
         else:
             if num_groups > 1:
                 d = np.diff(x)
                 if not np.allclose(d, d.mean()):
                     raise ValueError("'x' must be equidistant")
+                group_distance = d[0]
+            else:
+                group_distance = 1
             group_centers = np.asarray(x)
             tick_labels = None
 
@@ -3137,19 +3153,33 @@ class Axes(_AxesBase):
                     f"has {len(dataset)} groups"
                 )
 
-        margin = 0.1
-        bar_width = (1 - 2 * margin) / num_datasets
+        bar_width = (group_distance /
+                     (num_datasets + (num_datasets - 1) * bar_spacing + group_spacing))
+        bar_spacing_abs = bar_spacing * bar_width
+        margin_abs = 0.5 * group_spacing * bar_width
 
         if dataset_labels is None:
             dataset_labels = [None] * num_datasets
         else:
             assert len(dataset_labels) == num_datasets
 
+        # place the bars, but only use numerical positions, categorical tick labels
+        # are handled separately below
         for i, (hs, dataset_label) in enumerate(zip(heights, dataset_labels)):
-            lefts = group_centers - 0.5 + margin + i * bar_width
-            self.bar(lefts, hs, width=bar_width, align="edge", label=dataset_label)
+            lefts = (group_centers - 0.5 * group_distance + margin_abs
+                     + i * (bar_width + bar_spacing_abs))
+            if orientation == "vertical":
+                self.bar(lefts, hs, width=bar_width, align="edge",
+                         label=dataset_label)
+            else:
+                self.barh(lefts, hs, height=bar_width, align="edge",
+                          label=dataset_label)
 
-        self.xaxis.set_ticks(group_centers, labels=tick_labels)
+        if tick_labels is not None:
+            if orientation == "vertical":
+                self.xaxis.set_ticks(group_centers, labels=tick_labels)
+            else:
+                self.yaxis.set_ticks(group_centers, labels=tick_labels)
 
         # TODO: does not return anything for now
 
