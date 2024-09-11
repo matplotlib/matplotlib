@@ -146,6 +146,25 @@ axs[1, 1].grouped_bar(x, data, group_spacing=0.5, bar_spacing=0.1)
 
 
 # %%
+# Styling
+# -------
+# The bars can be styled through additional keyword arguments. Currently,
+# the only per-dataset setting is ``colors``. Additionally, all
+# `.Rectangle parameters` are passed through and applied to all datasets.
+
+x = ['A', 'B', 'C']
+data = {
+    'data1': [1, 2, 3],
+    'data2': [1.2, 2.2, 3.2],
+    'data3': [1.4, 2.4, 3.4],
+    'data4': [1.6, 2.6, 3.6],
+}
+
+fig, ax = plt.subplots()
+ax.grouped_bar(x, data, colors=["r", "g", "b", "m"], edgecolor="black")
+
+
+# %%
 # Horizontal grouped bars
 # -----------------------
 # Use ``orientation="horizontal"`` to create horizontal grouped bar charts.

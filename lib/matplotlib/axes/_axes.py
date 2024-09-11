@@ -3049,10 +3049,17 @@ class Axes(_AxesBase):
         return col
 
     def grouped_bar(self, x, heights, *, group_spacing=1.5, bar_spacing=0,
-                    dataset_labels=None, orientation="vertical"):
+                    dataset_labels=None, orientation="vertical", colors=None,
+                    **kwargs):
         """
+        Make a grouped bar plot.
+
+        .. note::
+            This function is new in v3.10, and the API is still provisional.
+            We may still fine-tune some aspects based on user-feedback.
+
         Parameters
-        -----------
+        ----------
         x : array-like or list of str
             The center positions of the bar groups. If these are numeric values,
             they have to be equidistant. As with `~.Axes.bar`, you can provide
@@ -3116,9 +3123,20 @@ class Axes(_AxesBase):
             The labels of the datasets.
 
         orientation : {"vertical", "horizontal"}, default: vertical
-        """
-        _api.check_in_list(["vertical", "horizontal"], orientation=orientation)
 
+        colors : list of :mpltype:`color`, optional
+            A sequence of colors to be cycled through and used to color bars
+            of the different datasets. The sequence need not be exactly the
+            same length as the number of provided y, in which case the colors
+            will repeat from the beginning.
+
+            If not specified, the colors from the Axes property cycle will be used.
+
+        **kwargs : `.Rectangle` properties
+
+            %(Rectangle:kwdoc)s
+
+        """
         if hasattr(heights, 'keys'):
             if dataset_labels is not None:
                 raise ValueError(
@@ -3153,6 +3171,15 @@ class Axes(_AxesBase):
                     f"has {len(dataset)} groups"
                 )
 
+        _api.check_in_list(["vertical", "horizontal"], orientation=orientation)
+
+        if colors is None:
+            colors = itertools.cycle([None])
+        else:
+            # Note: This is equivalent to the behavior in stackplot
+            # TODO: do we want to be more restrictive and check lengths?
+            colors = itertools.cycle(colors)
+
         bar_width = (group_distance /
                      (num_datasets + (num_datasets - 1) * bar_spacing + group_spacing))
         bar_spacing_abs = bar_spacing * bar_width
@@ -3165,15 +3192,16 @@ class Axes(_AxesBase):
 
         # place the bars, but only use numerical positions, categorical tick labels
         # are handled separately below
-        for i, (hs, dataset_label) in enumerate(zip(heights, dataset_labels)):
+        for i, (hs, dataset_label, color) in enumerate(
+                zip(heights, dataset_labels, colors)):
             lefts = (group_centers - 0.5 * group_distance + margin_abs
                      + i * (bar_width + bar_spacing_abs))
             if orientation == "vertical":
                 self.bar(lefts, hs, width=bar_width, align="edge",
-                         label=dataset_label)
+                         label=dataset_label, color=color, **kwargs)
             else:
                 self.barh(lefts, hs, height=bar_width, align="edge",
-                          label=dataset_label)
+                          label=dataset_label, color=color, **kwargs)
 
         if tick_labels is not None:
             if orientation == "vertical":

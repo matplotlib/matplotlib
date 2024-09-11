@@ -279,6 +279,18 @@ class Axes(_AxesBase):
         data=...,
         **kwargs
     ) -> PolyCollection: ...
+    def grouped_bar(
+        self,
+        x : ArrayLike,
+        heights : ArrayLike,
+        *,
+        group_spacing : float | None = ...,
+        bar_spacing : float | None = ...,
+        dataset_labels : Sequence[str] | None = ...,
+        orientation: Literal["vertical", "horizontal"] = ...,
+        colors: Iterable[ColorType] | None = ...,
+        **kwargs
+    ) -> None: ...
     def stem(
         self,
         *args: ArrayLike | str,
