@@ -71,6 +71,12 @@ inline int prepare_and_add_type(PyTypeObject *type, PyObject *module)
 template<typename T>
 inline bool check_trailing_shape(T array, char const* name, long d1)
 {
+    if (array.ndim() != 2) {
+        PyErr_Format(PyExc_ValueError,
+                     "Expected 2-dimensional array, got %ld",
+                     array.ndim());
+        return false;
+    }
     if (array.shape(1) != d1) {
         PyErr_Format(PyExc_ValueError,
                      "%s must have shape (N, %ld), got (%ld, %ld)",
@@ -83,6 +89,12 @@ inline bool check_trailing_shape(T array, char const* name, long d1)
 template<typename T>
 inline bool check_trailing_shape(T array, char const* name, long d1, long d2)
 {
+    if (array.ndim() != 3) {
+        PyErr_Format(PyExc_ValueError,
+                     "Expected 3-dimensional array, got %ld",
+                     array.ndim());
+        return false;
+    }
     if (array.shape(1) != d1 || array.shape(2) != d2) {
         PyErr_Format(PyExc_ValueError,
                      "%s must have shape (N, %ld, %ld), got (%ld, %ld, %ld)",

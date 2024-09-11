@@ -365,10 +365,6 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
   public:
     typedef T value_type;
 
-    enum {
-        ndim = ND
-    };
-
     array_view() : m_arr(NULL), m_data(NULL)
     {
         m_shape = zeros;
@@ -490,6 +486,10 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         }
 
         return true;
+    }
+
+    npy_intp ndim() const {
+        return ND;
     }
 
     npy_intp shape(size_t i) const
