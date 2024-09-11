@@ -3140,6 +3140,10 @@ class Axes(_AxesBase):
 
             %(Rectangle:kwdoc)s
 
+        Returns
+        -------
+            A list of `.BarContainer` instances, one for each dataset.
+
         """
         if hasattr(heights, 'keys'):
             if labels is not None:
@@ -3196,16 +3200,18 @@ class Axes(_AxesBase):
 
         # place the bars, but only use numerical positions, categorical tick labels
         # are handled separately below
+        result = []
         for i, (hs, label, color) in enumerate(
                 zip(heights, labels, colors)):
             lefts = (group_centers - 0.5 * group_distance + margin_abs
                      + i * (bar_width + bar_spacing_abs))
             if orientation == "vertical":
-                self.bar(lefts, hs, width=bar_width, align="edge",
-                         label=label, color=color, **kwargs)
+                bc = self.bar(lefts, hs, width=bar_width, align="edge",
+                              label=label, color=color, **kwargs)
             else:
-                self.barh(lefts, hs, height=bar_width, align="edge",
-                          label=label, color=color, **kwargs)
+                bc = self.barh(lefts, hs, height=bar_width, align="edge",
+                               label=label, color=color, **kwargs)
+            result.append(bc)
 
         if tick_labels is not None:
             if orientation == "vertical":
@@ -3213,7 +3219,7 @@ class Axes(_AxesBase):
             else:
                 self.yaxis.set_ticks(group_centers, labels=tick_labels)
 
-        # TODO: does not return anything for now
+        return result
 
     @_preprocess_data()
     def stem(self, *args, linefmt=None, markerfmt=None, basefmt=None, bottom=0,

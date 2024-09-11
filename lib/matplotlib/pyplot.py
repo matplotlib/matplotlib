@@ -3400,8 +3400,8 @@ def grouped_bar(
     orientation: Literal["vertical", "horizontal"] = "vertical",
     colors: Iterable[ColorType] | None = None,
     **kwargs,
-) -> None:
-    gca().grouped_bar(
+) -> list[BarContainer]:
+    return gca().grouped_bar(
         x,
         heights,
         group_spacing=group_spacing,
