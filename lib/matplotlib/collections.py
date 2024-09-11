@@ -1328,7 +1328,7 @@ class FillBetweenPolyCollection(PolyCollection):
         .Axes.fill_between, .Axes.fill_betweenx
         """
         self.t_direction = t_direction
-        kwargs = self._normalise_kwargs(axes, **kwargs)
+        kwargs = self._normalize_kwargs(axes, **kwargs)
         polys, pts = self._make_verts_and_pts(
             t, f1, f2, where, interpolate, step, axes, **kwargs)
         super().__init__(polys, **kwargs)
@@ -1406,7 +1406,7 @@ class FillBetweenPolyCollection(PolyCollection):
         --------
         .PolyCollection.set_verts, .Line2D.set_data
         """
-        kwargs = self._normalise_kwargs(self.axes, **kwargs)
+        kwargs = self._normalize_kwargs(self.axes, **kwargs)
         polys, _ = self._make_verts_and_pts(
             t, f1, f2, where, interpolate, step, self.axes, **kwargs)
         self.set_verts(polys)
@@ -1446,14 +1446,14 @@ class FillBetweenPolyCollection(PolyCollection):
             for idx0, idx1 in cbook.contiguous_regions(where)
         ]
 
-        pts = self._normalise_pts(np.vstack([
+        pts = self._normalize_pts(np.vstack([
             np.hstack([t[where, None], f[where, None]]) for f in (f1, f2)]))
 
         return polys, pts
 
     @staticmethod
-    def _normalise_kwargs(axes, **kwargs):
-        """Normalise keyword arguments."""
+    def _normalize_kwargs(axes, **kwargs):
+        """Normalize keyword arguments."""
         if not mpl.rcParams["_internal.classic_mode"]:
             kwargs = cbook.normalize_kwargs(kwargs, Collection)
             if axes and not any(c in kwargs for c in ("color", "facecolor")):
@@ -1493,7 +1493,7 @@ class FillBetweenPolyCollection(PolyCollection):
         pts[size+2:, 0] = t_slice[::-1]
         pts[size+2:, 1] = f2_slice[::-1]
 
-        return self._normalise_pts(pts)
+        return self._normalize_pts(pts)
 
     @staticmethod
     def _get_interp_point(t, f1, f2, idx):
@@ -1515,7 +1515,7 @@ class FillBetweenPolyCollection(PolyCollection):
         diff_root_f = np.interp(diff_root_t, t_values[t_order], f1_values[t_order])
         return diff_root_t, diff_root_f
 
-    def _normalise_pts(self, pts):
+    def _normalize_pts(self, pts):
         """
         Fix pts calculation results with `self.t_direction`.
 
