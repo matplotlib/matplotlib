@@ -3,9 +3,12 @@
 Grouped bar chart
 =================
 
-This example serves to develop and discuss the API. It's geared towards illustating
+This example serves to showcase and discuss the API. It's geared towards illustating
 API usage and design decisions only through the development phase. It's not intended
 to go into the final PR in this form.
+
+Input data formats
+==================
 
 Case 1: multiple separate datasets
 ----------------------------------
@@ -36,6 +39,7 @@ axs[0].legend()
 # note also that this is a straight-forward generalization of the single-dataset case:
 #   bar(x, data1, label="data1")
 axs[1].grouped_bar(x, [data1, data2, data3], labels=["data1", "data2", "data3"])
+axs[1].legend()
 
 
 # %%
@@ -58,8 +62,10 @@ fig, axs = plt.subplots(1, 2)
 
 # explicitly extract values and labels from a dict and feed to grouped_bar():
 axs[0].grouped_bar(x, datasets.values(), labels=datasets.keys())
+axs[0].legend()
 # accepting a dict as input
 axs[1].grouped_bar(x, datasets)
+axs[1].legend()
 
 # %%
 # Case 2: 2D array data
@@ -122,7 +128,7 @@ ax.grouped_bar(x, data)
 
 # %%
 # Bar width and spacing
-# ---------------------
+# =====================
 # The center positions of the bar groups are given by x. We can still choose
 # two of the following properties: bar width, spacing between groups, and
 # spacing between bars.
@@ -147,7 +153,7 @@ axs[1, 1].grouped_bar(x, data, group_spacing=0.5, bar_spacing=0.1)
 
 # %%
 # Styling
-# -------
+# =======
 # The bars can be styled through additional keyword arguments. Currently,
 # the only per-dataset setting is ``colors``. Additionally, all
 # `.Rectangle` parameters are passed through and applied to all datasets.
@@ -166,7 +172,7 @@ ax.grouped_bar(x, data, colors=["r", "g", "b", "m"], edgecolor="black")
 
 # %%
 # Horizontal grouped bars
-# -----------------------
+# =======================
 # Use ``orientation="horizontal"`` to create horizontal grouped bar charts.
 
 x = ['A', 'B', 'C']
