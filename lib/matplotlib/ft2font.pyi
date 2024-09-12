@@ -8,19 +8,27 @@ from numpy.typing import NDArray
 
 __freetype_build_type__: str
 __freetype_version__: str
-BOLD: int
-EXTERNAL_STREAM: int
-FAST_GLYPHS: int
-FIXED_SIZES: int
-FIXED_WIDTH: int
-GLYPH_NAMES: int
-HORIZONTAL: int
-ITALIC: int
-KERNING: int
-MULTIPLE_MASTERS: int
-SCALABLE: int
-SFNT: int
-VERTICAL: int
+
+class FaceFlags(Flag):
+    SCALABLE: int
+    FIXED_SIZES: int
+    FIXED_WIDTH: int
+    SFNT: int
+    HORIZONTAL: int
+    VERTICAL: int
+    KERNING: int
+    FAST_GLYPHS: int
+    MULTIPLE_MASTERS: int
+    GLYPH_NAMES: int
+    EXTERNAL_STREAM: int
+    HINTER: int
+    CID_KEYED: int
+    TRICKY: int
+    COLOR: int
+    # VARIATION: int  # FT 2.9
+    # SVG: int  # FT 2.12
+    # SBIX: int  # FT 2.12
+    # SBIX_OVERLAY: int  # FT 2.12
 
 class Kerning(Enum):
     DEFAULT: int
@@ -53,6 +61,11 @@ class LoadFlags(Flag):
     TARGET_MONO: int
     TARGET_LCD: int
     TARGET_LCD_V: int
+
+class StyleFlags(Flag):
+    NORMAL: int
+    ITALIC: int
+    BOLD: int
 
 class _SfntHeadDict(TypedDict):
     version: tuple[int, int]
@@ -232,7 +245,7 @@ class FT2Font(Buffer):
     @property
     def descender(self) -> int: ...
     @property
-    def face_flags(self) -> int: ...
+    def face_flags(self) -> FaceFlags: ...
     @property
     def family_name(self) -> str: ...
     @property
@@ -256,7 +269,7 @@ class FT2Font(Buffer):
     @property
     def scalable(self) -> bool: ...
     @property
-    def style_flags(self) -> int: ...
+    def style_flags(self) -> StyleFlags: ...
     @property
     def style_name(self) -> str: ...
     @property

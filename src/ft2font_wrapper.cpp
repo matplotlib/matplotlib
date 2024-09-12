@@ -33,6 +33,74 @@ P11X_DECLARE_ENUM(
     {"UNSCALED", FT_KERNING_UNSCALED},
 );
 
+const char *FaceFlags__doc__ = R"""(
+    Flags returned by `FT2Font.face_flags`.
+
+    For more information, see `the FreeType documentation
+    <https://freetype.org/freetype2/docs/reference/ft2-face_creation.html#ft_face_flag_xxx>`_.
+
+    .. versionadded:: 3.10
+)""";
+
+enum class FaceFlags : FT_Long {
+#define DECLARE_FLAG(name) name = FT_FACE_FLAG_##name
+    DECLARE_FLAG(SCALABLE),
+    DECLARE_FLAG(FIXED_SIZES),
+    DECLARE_FLAG(FIXED_WIDTH),
+    DECLARE_FLAG(SFNT),
+    DECLARE_FLAG(HORIZONTAL),
+    DECLARE_FLAG(VERTICAL),
+    DECLARE_FLAG(KERNING),
+    DECLARE_FLAG(FAST_GLYPHS),
+    DECLARE_FLAG(MULTIPLE_MASTERS),
+    DECLARE_FLAG(GLYPH_NAMES),
+    DECLARE_FLAG(EXTERNAL_STREAM),
+    DECLARE_FLAG(HINTER),
+    DECLARE_FLAG(CID_KEYED),
+    DECLARE_FLAG(TRICKY),
+    DECLARE_FLAG(COLOR),
+#ifdef FT_FACE_FLAG_VARIATION  // backcompat: ft 2.9.0.
+    DECLARE_FLAG(VARIATION),
+#endif
+#ifdef FT_FACE_FLAG_SVG  // backcompat: ft 2.12.0.
+    DECLARE_FLAG(SVG),
+#endif
+#ifdef FT_FACE_FLAG_SBIX  // backcompat: ft 2.12.0.
+    DECLARE_FLAG(SBIX),
+#endif
+#ifdef FT_FACE_FLAG_SBIX_OVERLAY  // backcompat: ft 2.12.0.
+    DECLARE_FLAG(SBIX_OVERLAY),
+#endif
+#undef DECLARE_FLAG
+};
+
+P11X_DECLARE_ENUM(
+    "FaceFlags", "Flag",
+    {"SCALABLE", FaceFlags::SCALABLE},
+    {"FIXED_SIZES", FaceFlags::FIXED_SIZES},
+    {"FIXED_WIDTH", FaceFlags::FIXED_WIDTH},
+    {"SFNT", FaceFlags::SFNT},
+    {"HORIZONTAL", FaceFlags::HORIZONTAL},
+    {"VERTICAL", FaceFlags::VERTICAL},
+    {"KERNING", FaceFlags::KERNING},
+    {"FAST_GLYPHS", FaceFlags::FAST_GLYPHS},
+    {"MULTIPLE_MASTERS", FaceFlags::MULTIPLE_MASTERS},
+    {"GLYPH_NAMES", FaceFlags::GLYPH_NAMES},
+    {"EXTERNAL_STREAM", FaceFlags::EXTERNAL_STREAM},
+    {"HINTER", FaceFlags::HINTER},
+    {"CID_KEYED", FaceFlags::CID_KEYED},
+    {"TRICKY", FaceFlags::TRICKY},
+    {"COLOR", FaceFlags::COLOR},
+    // backcompat: ft 2.9.0.
+    // {"VARIATION", FaceFlags::VARIATION},
+    // backcompat: ft 2.12.0.
+    // {"SVG", FaceFlags::SVG},
+    // backcompat: ft 2.12.0.
+    // {"SBIX", FaceFlags::SBIX},
+    // backcompat: ft 2.12.0.
+    // {"SBIX_OVERLAY", FaceFlags::SBIX_OVERLAY},
+);
+
 const char *LoadFlags__doc__ = R"""(
     Flags for `FT2Font.load_char`, `FT2Font.load_glyph`, and `FT2Font.set_text`.
 
@@ -108,6 +176,30 @@ P11X_DECLARE_ENUM(
     {"TARGET_MONO", LoadFlags::TARGET_MONO},
     {"TARGET_LCD", LoadFlags::TARGET_LCD},
     {"TARGET_LCD_V", LoadFlags::TARGET_LCD_V},
+);
+
+const char *StyleFlags__doc__ = R"""(
+    Flags returned by `FT2Font.style_flags`.
+
+    For more information, see `the FreeType documentation
+    <https://freetype.org/freetype2/docs/reference/ft2-face_creation.html#ft_style_flag_xxx>`_.
+
+    .. versionadded:: 3.10
+)""";
+
+enum class StyleFlags : FT_Long {
+#define DECLARE_FLAG(name) name = FT_STYLE_FLAG_##name
+    NORMAL = 0,
+    DECLARE_FLAG(ITALIC),
+    DECLARE_FLAG(BOLD),
+#undef DECLARE_FLAG
+};
+
+P11X_DECLARE_ENUM(
+    "StyleFlags", "Flag",
+    {"NORMAL", StyleFlags::NORMAL},
+    {"ITALIC", StyleFlags::ITALIC},
+    {"BOLD", StyleFlags::BOLD},
 );
 
 /**********************************************************************
@@ -1339,16 +1431,16 @@ PyFT2Font_style_name(PyFT2Font *self)
     return name;
 }
 
-static FT_Long
+static FaceFlags
 PyFT2Font_face_flags(PyFT2Font *self)
 {
-    return self->x->get_face()->face_flags;
+    return static_cast<FaceFlags>(self->x->get_face()->face_flags);
 }
 
-static FT_Long
+static StyleFlags
 PyFT2Font_style_flags(PyFT2Font *self)
 {
-    return self->x->get_face()->style_flags;
+    return static_cast<StyleFlags>(self->x->get_face()->style_flags);
 }
 
 static FT_Long
@@ -1495,6 +1587,20 @@ ft2font__getattr__(std::string name) {
     DEPRECATE_ATTR_FROM_FLAG(LOAD_TARGET_LCD, LoadFlags, TARGET_LCD);
     DEPRECATE_ATTR_FROM_FLAG(LOAD_TARGET_LCD_V, LoadFlags, TARGET_LCD_V);
 
+    DEPRECATE_ATTR_FROM_FLAG(SCALABLE, FaceFlags, SCALABLE);
+    DEPRECATE_ATTR_FROM_FLAG(FIXED_SIZES, FaceFlags, FIXED_SIZES);
+    DEPRECATE_ATTR_FROM_FLAG(FIXED_WIDTH, FaceFlags, FIXED_WIDTH);
+    DEPRECATE_ATTR_FROM_FLAG(SFNT, FaceFlags, SFNT);
+    DEPRECATE_ATTR_FROM_FLAG(HORIZONTAL, FaceFlags, HORIZONTAL);
+    DEPRECATE_ATTR_FROM_FLAG(VERTICAL, FaceFlags, VERTICAL);
+    DEPRECATE_ATTR_FROM_FLAG(KERNING, FaceFlags, KERNING);
+    DEPRECATE_ATTR_FROM_FLAG(FAST_GLYPHS, FaceFlags, FAST_GLYPHS);
+    DEPRECATE_ATTR_FROM_FLAG(MULTIPLE_MASTERS, FaceFlags, MULTIPLE_MASTERS);
+    DEPRECATE_ATTR_FROM_FLAG(GLYPH_NAMES, FaceFlags, GLYPH_NAMES);
+    DEPRECATE_ATTR_FROM_FLAG(EXTERNAL_STREAM, FaceFlags, EXTERNAL_STREAM);
+
+    DEPRECATE_ATTR_FROM_FLAG(ITALIC, StyleFlags, ITALIC);
+    DEPRECATE_ATTR_FROM_FLAG(BOLD, StyleFlags, BOLD);
 #undef DEPRECATE_ATTR_FROM_FLAG
 
     throw py::attribute_error(
@@ -1514,6 +1620,8 @@ PYBIND11_MODULE(ft2font, m)
     p11x::bind_enums(m);
     p11x::enums["Kerning"].attr("__doc__") = Kerning__doc__;
     p11x::enums["LoadFlags"].attr("__doc__") = LoadFlags__doc__;
+    p11x::enums["FaceFlags"].attr("__doc__") = FaceFlags__doc__;
+    p11x::enums["StyleFlags"].attr("__doc__") = StyleFlags__doc__;
 
     py::class_<FT2Image>(m, "FT2Image", py::is_final(), py::buffer_protocol(),
                          PyFT2Image__doc__)
@@ -1613,9 +1721,9 @@ PYBIND11_MODULE(ft2font, m)
         .def_property_readonly("style_name", &PyFT2Font_style_name,
                                "Style name.")
         .def_property_readonly("face_flags", &PyFT2Font_face_flags,
-                               "Face flags; see the ft2font constants.")
+                               "Face flags; see `.FaceFlags`.")
         .def_property_readonly("style_flags", &PyFT2Font_style_flags,
-                               "Style flags; see the ft2font constants.")
+                               "Style flags; see `.StyleFlags`.")
         .def_property_readonly("num_glyphs", &PyFT2Font_num_glyphs,
                                "Number of glyphs in the face.")
         .def_property_readonly("num_fixed_sizes", &PyFT2Font_num_fixed_sizes,
@@ -1657,17 +1765,4 @@ PYBIND11_MODULE(ft2font, m)
     m.attr("__freetype_version__") = version_string;
     m.attr("__freetype_build_type__") = FREETYPE_BUILD_TYPE;
     m.def("__getattr__", ft2font__getattr__);
-    m.attr("SCALABLE") = FT_FACE_FLAG_SCALABLE;
-    m.attr("FIXED_SIZES") = FT_FACE_FLAG_FIXED_SIZES;
-    m.attr("FIXED_WIDTH") = FT_FACE_FLAG_FIXED_WIDTH;
-    m.attr("SFNT") = FT_FACE_FLAG_SFNT;
-    m.attr("HORIZONTAL") = FT_FACE_FLAG_HORIZONTAL;
-    m.attr("VERTICAL") = FT_FACE_FLAG_VERTICAL;
-    m.attr("KERNING") = FT_FACE_FLAG_KERNING;
-    m.attr("FAST_GLYPHS") = FT_FACE_FLAG_FAST_GLYPHS;
-    m.attr("MULTIPLE_MASTERS") = FT_FACE_FLAG_MULTIPLE_MASTERS;
-    m.attr("GLYPH_NAMES") = FT_FACE_FLAG_GLYPH_NAMES;
-    m.attr("EXTERNAL_STREAM") = FT_FACE_FLAG_EXTERNAL_STREAM;
-    m.attr("ITALIC") = FT_STYLE_FLAG_ITALIC;
-    m.attr("BOLD") = FT_STYLE_FLAG_BOLD;
 }

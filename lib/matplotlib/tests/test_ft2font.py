@@ -44,10 +44,11 @@ def test_ft2font_dejavu_attrs():
     assert font.num_fixed_sizes == 0  # All glyphs are scalable.
     assert font.num_charmaps == 5
     # Other internal flags are set, so only check the ones we're allowed to test.
-    expected_flags = (ft2font.SCALABLE | ft2font.SFNT | ft2font.HORIZONTAL |
-                      ft2font.KERNING | ft2font.GLYPH_NAMES)
-    assert (font.face_flags & expected_flags) == expected_flags
-    assert font.style_flags == 0  # Not italic or bold.
+    expected_flags = (ft2font.FaceFlags.SCALABLE | ft2font.FaceFlags.SFNT |
+                      ft2font.FaceFlags.HORIZONTAL | ft2font.FaceFlags.KERNING |
+                      ft2font.FaceFlags.GLYPH_NAMES)
+    assert expected_flags in font.face_flags
+    assert font.style_flags == ft2font.StyleFlags.NORMAL
     assert font.scalable
     # From FontForge: Font Information → General tab → entry name below.
     assert font.units_per_EM == 2048  # Em Size.
@@ -76,10 +77,10 @@ def test_ft2font_cm_attrs():
     assert font.num_fixed_sizes == 0  # All glyphs are scalable.
     assert font.num_charmaps == 2
     # Other internal flags are set, so only check the ones we're allowed to test.
-    expected_flags = (ft2font.SCALABLE | ft2font.SFNT | ft2font.HORIZONTAL |
-                      ft2font.GLYPH_NAMES)
-    assert (font.face_flags & expected_flags) == expected_flags, font.face_flags
-    assert font.style_flags == 0  # Not italic or bold.
+    expected_flags = (ft2font.FaceFlags.SCALABLE | ft2font.FaceFlags.SFNT |
+                      ft2font.FaceFlags.HORIZONTAL | ft2font.FaceFlags.GLYPH_NAMES)
+    assert expected_flags in font.face_flags
+    assert font.style_flags == ft2font.StyleFlags.NORMAL
     assert font.scalable
     # From FontForge: Font Information → General tab → entry name below.
     assert font.units_per_EM == 2048  # Em Size.
@@ -108,10 +109,10 @@ def test_ft2font_stix_bold_attrs():
     assert font.num_fixed_sizes == 0  # All glyphs are scalable.
     assert font.num_charmaps == 3
     # Other internal flags are set, so only check the ones we're allowed to test.
-    expected_flags = (ft2font.SCALABLE | ft2font.SFNT | ft2font.HORIZONTAL |
-                      ft2font.GLYPH_NAMES)
-    assert (font.face_flags & expected_flags) == expected_flags, font.face_flags
-    assert font.style_flags == ft2font.BOLD
+    expected_flags = (ft2font.FaceFlags.SCALABLE | ft2font.FaceFlags.SFNT |
+                      ft2font.FaceFlags.HORIZONTAL | ft2font.FaceFlags.GLYPH_NAMES)
+    assert expected_flags in font.face_flags
+    assert font.style_flags == ft2font.StyleFlags.BOLD
     assert font.scalable
     # From FontForge: Font Information → General tab → entry name below.
     assert font.units_per_EM == 1000  # Em Size.
