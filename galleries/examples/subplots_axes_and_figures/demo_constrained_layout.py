@@ -69,3 +69,10 @@ plt.show()
 #
 #    - `matplotlib.gridspec.GridSpec`
 #    - `matplotlib.gridspec.GridSpecFromSubplotSpec`
+#
+# .. tags::
+#
+#    component: axes
+#    component: subplot
+#    styling: size
+#    level: beginner

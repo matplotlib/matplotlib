@@ -86,3 +86,11 @@ plt.show()
 #    - `matplotlib.axes.Axes.use_sticky_edges`
 #    - `matplotlib.axes.Axes.pcolor` / `matplotlib.pyplot.pcolor`
 #    - `matplotlib.patches.Polygon`
+#
+# .. tags::
+#
+#    component: axes
+#    plot-type: line
+#    plot-type: imshow
+#    plot-type: pcolor
+#    level: beginner

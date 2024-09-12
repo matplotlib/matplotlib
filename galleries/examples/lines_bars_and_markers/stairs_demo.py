@@ -90,3 +90,8 @@ plt.show()
 #
 #    - `matplotlib.axes.Axes.stairs` / `matplotlib.pyplot.stairs`
 #    - `matplotlib.patches.StepPatch`
+#
+# .. tags::
+#
+#    plot-type: stairs
+#    level: intermediate
