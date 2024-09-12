@@ -32,3 +32,9 @@ fig.suptitle("GridSpec")
 format_axes(fig)
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: subplot
+#    level: intermediate

@@ -103,7 +103,6 @@ substring of 'BRTL'
                           text=text, fontproperties=fontproperties,
                           horizontalalignment=loc, verticalalignment='center')
 
-    @_api.rename_parameter("3.8", "trans", "t")
     def set_transform(self, t):
         super().set_transform(t)
         # the text does not get the transform!
@@ -303,7 +302,7 @@ class Table(Artist):
                     "Unrecognized location {!r}. Valid locations are\n\t{}"
                     .format(loc, '\n\t'.join(self.codes)))
             loc = self.codes[loc]
-        self.set_figure(ax.figure)
+        self.set_figure(ax.get_figure(root=False))
         self._axes = ax
         self._loc = loc
         self._bbox = bbox
@@ -354,7 +353,7 @@ class Table(Artist):
         except Exception as err:
             raise KeyError('Only tuples length 2 are accepted as '
                            'coordinates') from err
-        cell.set_figure(self.figure)
+        cell.set_figure(self.get_figure(root=False))
         cell.set_transform(self.get_transform())
         cell.set_clip_on(False)
         self._cells[row, col] = cell
@@ -389,7 +388,7 @@ class Table(Artist):
         self.stale = True
 
     def _approx_text_height(self):
-        return (self.FONTSIZE / 72.0 * self.figure.dpi /
+        return (self.FONTSIZE / 72.0 * self.get_figure(root=True).dpi /
                 self._axes.bbox.height * 1.2)
 
     @allow_rasterization
@@ -399,7 +398,7 @@ class Table(Artist):
         # Need a renderer to do hit tests on mouseevent; assume the last one
         # will do
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         if renderer is None:
             raise RuntimeError('No renderer defined')
 
@@ -432,7 +431,7 @@ class Table(Artist):
             return False, {}
         # TODO: Return index of the cell containing the cursor so that the user
         # doesn't have to bind to each one individually.
-        renderer = self.figure._get_renderer()
+        renderer = self.get_figure(root=True)._get_renderer()
         if renderer is not None:
             boxes = [cell.get_window_extent(renderer)
                      for (row, col), cell in self._cells.items()
@@ -449,7 +448,7 @@ class Table(Artist):
     def get_window_extent(self, renderer=None):
         # docstring inherited
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         self._update_positions(renderer)
         boxes = [cell.get_window_extent(renderer)
                  for cell in self._cells.values()]

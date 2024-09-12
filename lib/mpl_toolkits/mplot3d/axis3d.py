@@ -586,7 +586,7 @@ class Axis(maxis.XAxis):
 
         # Calculate offset distances
         # A rough estimate; points are ambiguous since 3D plots rotate
-        reltoinches = self.figure.dpi_scale_trans.inverted()
+        reltoinches = self.get_figure(root=False).dpi_scale_trans.inverted()
         ax_inches = reltoinches.transform(self.axes.bbox.size)
         ax_points_estimate = sum(72. * ax_inches)
         deltas_per_point = 48 / ax_points_estimate

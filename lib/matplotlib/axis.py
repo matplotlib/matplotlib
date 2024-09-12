@@ -96,7 +96,7 @@ class Tick(martist.Artist):
             else:
                 gridOn = False
 
-        self.set_figure(axes.figure)
+        self.set_figure(axes.get_figure(root=False))
         self.axes = axes
 
         self._loc = loc
@@ -231,7 +231,6 @@ class Tick(martist.Artist):
                     self.gridline, self.label1, self.label2]
         return children
 
-    @_api.rename_parameter("3.8", "clippath", "path")
     def set_clip_path(self, path, transform=None):
         # docstring inherited
         super().set_clip_path(path, transform)
@@ -278,32 +277,6 @@ class Tick(martist.Artist):
         renderer.close_group(self.__name__)
         self.stale = False
 
-    @_api.deprecated("3.8")
-    def set_label1(self, s):
-        """
-        Set the label1 text.
-
-        Parameters
-        ----------
-        s : str
-        """
-        self.label1.set_text(s)
-        self.stale = True
-
-    set_label = set_label1
-
-    @_api.deprecated("3.8")
-    def set_label2(self, s):
-        """
-        Set the label2 text.
-
-        Parameters
-        ----------
-        s : str
-        """
-        self.label2.set_text(s)
-        self.stale = True
-
     def set_url(self, url):
         """
         Set the url of label1 and label2.
@@ -318,7 +291,7 @@ class Tick(martist.Artist):
         self.stale = True
 
     def _set_artist_props(self, a):
-        a.set_figure(self.figure)
+        a.set_figure(self.get_figure(root=False))
 
     def get_view_interval(self):
         """
@@ -648,7 +621,7 @@ class Axis(martist.Artist):
         super().__init__()
         self._remove_overlapping_locs = True
 
-        self.set_figure(axes.figure)
+        self.set_figure(axes.get_figure(root=False))
 
         self.isDefault_label = True
 
@@ -833,6 +806,10 @@ class Axis(martist.Artist):
                 **{f"scale{k}": k == name for k in self.axes._axis_names})
 
     def limit_range_for_scale(self, vmin, vmax):
+        """
+        Return the range *vmin*, *vmax*, restricted to the domain supported by the
+        current scale.
+        """
         return self._scale.limit_range_for_scale(vmin, vmax, self.get_minpos())
 
     def _get_autoscale_on(self):
@@ -841,8 +818,9 @@ class Axis(martist.Artist):
 
     def _set_autoscale_on(self, b):
         """
-        Set whether this Axis is autoscaled when drawing or by
-        `.Axes.autoscale_view`. If b is None, then the value is not changed.
+        Set whether this Axis is autoscaled when drawing or by `.Axes.autoscale_view`.
+
+        If b is None, then the value is not changed.
 
         Parameters
         ----------
@@ -1131,7 +1109,6 @@ class Axis(martist.Artist):
         kwtrans.update(kw_)
         return kwtrans
 
-    @_api.rename_parameter("3.8", "clippath", "path")
     def set_clip_path(self, path, transform=None):
         super().set_clip_path(path, transform)
         for child in self.majorTicks + self.minorTicks:
@@ -1281,8 +1258,9 @@ class Axis(martist.Artist):
                 other._axis_map[name]._set_lim(v0, v1, emit=False, auto=auto)
                 if emit:
                     other.callbacks.process(f"{name}lim_changed", other)
-                if other.figure != self.figure:
-                    other.figure.canvas.draw_idle()
+                if ((other_fig := other.get_figure(root=False)) !=
+                        self.get_figure(root=False)):
+                    other_fig.canvas.draw_idle()
 
         self.stale = True
         return v0, v1
@@ -1290,7 +1268,7 @@ class Axis(martist.Artist):
     def _set_artist_props(self, a):
         if a is None:
             return
-        a.set_figure(self.figure)
+        a.set_figure(self.get_figure(root=False))
 
     def _update_ticks(self):
         """
@@ -1347,7 +1325,7 @@ class Axis(martist.Artist):
     def _get_ticklabel_bboxes(self, ticks, renderer=None):
         """Return lists of bboxes for ticks' label1's and label2's."""
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         return ([tick.label1.get_window_extent(renderer)
                  for tick in ticks if tick.label1.get_visible()],
                 [tick.label2.get_window_extent(renderer)
@@ -1366,7 +1344,7 @@ class Axis(martist.Artist):
         if not self.get_visible() or for_layout_only and not self.get_in_layout():
             return
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         ticks_to_draw = self._update_ticks()
 
         self._update_label_position(renderer)
@@ -2194,9 +2172,9 @@ class Axis(martist.Artist):
         """
         # Get the Grouper keeping track of x or y label groups for this figure.
         name = self._get_axis_name()
-        if name not in self.figure._align_label_groups:
+        if name not in self.get_figure(root=False)._align_label_groups:
             return [], []
-        grouper = self.figure._align_label_groups[name]
+        grouper = self.get_figure(root=False)._align_label_groups[name]
         bboxes = []
         bboxes2 = []
         # If we want to align labels from other Axes:
@@ -2417,12 +2395,14 @@ class XAxis(Axis):
             # Union with extents of the bottom spine if present, of the axes otherwise.
             bbox = mtransforms.Bbox.union([
                 *bboxes, self.axes.spines.get("bottom", self.axes).get_window_extent()])
-            self.label.set_position((x, bbox.y0 - self.labelpad * self.figure.dpi / 72))
+            self.label.set_position(
+                (x, bbox.y0 - self.labelpad * self.get_figure(root=True).dpi / 72))
         else:
             # Union with extents of the top spine if present, of the axes otherwise.
             bbox = mtransforms.Bbox.union([
                 *bboxes2, self.axes.spines.get("top", self.axes).get_window_extent()])
-            self.label.set_position((x, bbox.y1 + self.labelpad * self.figure.dpi / 72))
+            self.label.set_position(
+                (x, bbox.y1 + self.labelpad * self.get_figure(root=True).dpi / 72))
 
     def _update_offset_text_position(self, bboxes, bboxes2):
         """
@@ -2438,14 +2418,14 @@ class XAxis(Axis):
             else:
                 bbox = mtransforms.Bbox.union(bboxes)
                 bottom = bbox.y0
-            y = bottom - self.OFFSETTEXTPAD * self.figure.dpi / 72
+            y = bottom - self.OFFSETTEXTPAD * self.get_figure(root=True).dpi / 72
         else:
             if not len(bboxes2):
                 top = self.axes.bbox.ymax
             else:
                 bbox = mtransforms.Bbox.union(bboxes2)
                 top = bbox.y1
-            y = top + self.OFFSETTEXTPAD * self.figure.dpi / 72
+            y = top + self.OFFSETTEXTPAD * self.get_figure(root=True).dpi / 72
         self.offsetText.set_position((x, y))
 
     def set_ticks_position(self, position):
@@ -2542,7 +2522,7 @@ class XAxis(Axis):
 
     def get_tick_space(self):
         ends = mtransforms.Bbox.unit().transformed(
-            self.axes.transAxes - self.figure.dpi_scale_trans)
+            self.axes.transAxes - self.get_figure(root=False).dpi_scale_trans)
         length = ends.width * 72
         # There is a heuristic here that the aspect ratio of tick text
         # is no more than 3:1
@@ -2642,12 +2622,14 @@ class YAxis(Axis):
             # Union with extents of the left spine if present, of the axes otherwise.
             bbox = mtransforms.Bbox.union([
                 *bboxes, self.axes.spines.get("left", self.axes).get_window_extent()])
-            self.label.set_position((bbox.x0 - self.labelpad * self.figure.dpi / 72, y))
+            self.label.set_position(
+                (bbox.x0 - self.labelpad * self.get_figure(root=True).dpi / 72, y))
         else:
             # Union with extents of the right spine if present, of the axes otherwise.
             bbox = mtransforms.Bbox.union([
                 *bboxes2, self.axes.spines.get("right", self.axes).get_window_extent()])
-            self.label.set_position((bbox.x1 + self.labelpad * self.figure.dpi / 72, y))
+            self.label.set_position(
+                (bbox.x1 + self.labelpad * self.get_figure(root=True).dpi / 72, y))
 
     def _update_offset_text_position(self, bboxes, bboxes2):
         """
@@ -2662,7 +2644,7 @@ class YAxis(Axis):
             bbox = self.axes.bbox
         top = bbox.ymax
         self.offsetText.set_position(
-            (x, top + self.OFFSETTEXTPAD * self.figure.dpi / 72)
+            (x, top + self.OFFSETTEXTPAD * self.get_figure(root=True).dpi / 72)
         )
 
     def set_offset_position(self, position):
@@ -2770,7 +2752,7 @@ class YAxis(Axis):
 
     def get_tick_space(self):
         ends = mtransforms.Bbox.unit().transformed(
-            self.axes.transAxes - self.figure.dpi_scale_trans)
+            self.axes.transAxes - self.get_figure(root=False).dpi_scale_trans)
         length = ends.height * 72
         # Having a spacing of at least 2 just looks good.
         size = self._get_tick_label_size('y') * 2

@@ -393,8 +393,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
             else:
                 combined_transform = transform
             extents = paths[0].get_extents(combined_transform)
-            if (extents.width < self.figure.bbox.width
-                    and extents.height < self.figure.bbox.height):
+            if (extents.width < self.get_figure(root=True).bbox.width
+                    and extents.height < self.get_figure(root=True).bbox.height):
                 do_single_path_optimization = True
 
         if self._joinstyle:
@@ -1002,7 +1002,7 @@ class _CollectionWithSizes(Collection):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        self.set_sizes(self._sizes, self.figure.dpi)
+        self.set_sizes(self._sizes, self.get_figure(root=True).dpi)
         super().draw(renderer)
 
 
@@ -1565,7 +1565,7 @@ class RegularPolyCollection(_CollectionWithSizes):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        self.set_sizes(self._sizes, self.figure.dpi)
+        self.set_sizes(self._sizes, self.get_figure(root=True).dpi)
         self._transforms = [
             transforms.Affine2D(x).rotate(-self._rotation).get_matrix()
             for x in self._transforms
@@ -2012,7 +2012,7 @@ class EllipseCollection(Collection):
         """Calculate transforms immediately before drawing."""
 
         ax = self.axes
-        fig = self.figure
+        fig = self.get_figure(root=False)
 
         if self._units == 'xy':
             sc = 1

@@ -1311,6 +1311,12 @@ class Animation:
             What to do when the animation ends. Must be one of ``{'loop',
             'once', 'reflect'}``. Defaults to ``'loop'`` if the *repeat*
             parameter is True, otherwise ``'once'``.
+
+        Returns
+        -------
+        str
+            An HTML representation of the animation embedded as a js object as
+            produced with the `.HTMLWriter`.
         """
         if fps is None and hasattr(self, '_interval'):
             # Convert interval in ms to frames per second

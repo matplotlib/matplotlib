@@ -625,7 +625,7 @@ default: %(va)s
         if isinstance(args[0], Axes):
             a, *extra_args = args
             key = a._projection_init
-            if a.get_figure() is not self:
+            if a.get_figure(root=False) is not self:
                 raise ValueError(
                     "The Axes must have been created in the present figure")
         else:
@@ -756,7 +756,7 @@ default: %(va)s
                 and args[0].get_subplotspec()):
             ax = args[0]
             key = ax._projection_init
-            if ax.get_figure() is not self:
+            if ax.get_figure(root=False) is not self:
                 raise ValueError("The Axes must have been created in "
                                  "the present figure")
         else:
@@ -947,7 +947,7 @@ default: %(va)s
 
         self._axobservers.process("_axes_change_event", self)
         self.stale = True
-        self.canvas.release_mouse(ax)
+        self._root_figure.canvas.release_mouse(ax)
 
         for name in ax._axis_names:  # Break link between any shared Axes
             grouper = ax._shared_axes[name]
@@ -1282,7 +1282,7 @@ default: %(va)s
             fig = (  # Figure of first Axes; logic copied from make_axes.
                 [*ax.flat] if isinstance(ax, np.ndarray)
                 else [*ax] if np.iterable(ax)
-                else [ax])[0].figure
+                else [ax])[0].get_figure(root=False)
             current_ax = fig.gca()
             if (fig.get_layout_engine() is not None and
                     not fig.get_layout_engine().colorbar_gridspec):
@@ -1297,24 +1297,21 @@ default: %(va)s
             fig.sca(current_ax)
             cax.grid(visible=False, which='both', axis='both')
 
-        if hasattr(mappable, "figure") and mappable.figure is not None:
-            # Get top level artists
-            mappable_host_fig = mappable.figure
-            if isinstance(mappable_host_fig, mpl.figure.SubFigure):
-                mappable_host_fig = mappable_host_fig.figure
+        if (hasattr(mappable, "get_figure") and
+                (mappable_host_fig := mappable.get_figure(root=True)) is not None):
             # Warn in case of mismatch
-            if mappable_host_fig is not self.figure:
+            if mappable_host_fig is not self._root_figure:
                 _api.warn_external(
                         f'Adding colorbar to a different Figure '
-                        f'{repr(mappable.figure)} than '
-                        f'{repr(self.figure)} which '
+                        f'{repr(mappable_host_fig)} than '
+                        f'{repr(self._root_figure)} which '
                         f'fig.colorbar is called on.')
 
         NON_COLORBAR_KEYS = [  # remove kws that cannot be passed to Colorbar
             'fraction', 'pad', 'shrink', 'aspect', 'anchor', 'panchor']
         cb = cbar.Colorbar(cax, mappable, **{
             k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS})
-        cax.figure.stale = True
+        cax.get_figure(root=False).stale = True
         return cb
 
     def subplots_adjust(self, left=None, bottom=None, right=None, top=None,
@@ -1800,8 +1797,7 @@ default: %(va)s
                 bbox_artists.extend(ax.get_default_bbox_extra_artists())
         return bbox_artists
 
-    @_api.make_keyword_only("3.8", "bbox_extra_artists")
-    def get_tightbbox(self, renderer=None, bbox_extra_artists=None):
+    def get_tightbbox(self, renderer=None, *, bbox_extra_artists=None):
         """
         Return a (tight) bounding box of the figure *in inches*.
 
@@ -1829,7 +1825,7 @@ default: %(va)s
         """
 
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
 
         bb = []
         if bbox_extra_artists is None:
@@ -2421,7 +2417,7 @@ class SubFigure(FigureBase):
             renderer.open_group('subfigure', gid=self.get_gid())
             self.patch.draw(renderer)
             mimage._draw_list_compositing_images(
-                renderer, self, artists, self.figure.suppressComposite)
+                renderer, self, artists, self.get_figure(root=True).suppressComposite)
             renderer.close_group('subfigure')
 
         finally:

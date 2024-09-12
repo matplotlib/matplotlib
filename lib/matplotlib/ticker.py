@@ -2275,8 +2275,7 @@ class LogLocator(Locator):
     Places ticks at the values ``subs[j] * base**i``.
     """
 
-    @_api.delete_parameter("3.8", "numdecs")
-    def __init__(self, base=10.0, subs=(1.0,), numdecs=4, numticks=None):
+    def __init__(self, base=10.0, subs=(1.0,), *, numticks=None):
         """
         Parameters
         ----------
@@ -2305,23 +2304,16 @@ class LogLocator(Locator):
                 numticks = 'auto'
         self._base = float(base)
         self._set_subs(subs)
-        self._numdecs = numdecs
         self.numticks = numticks
 
-    @_api.delete_parameter("3.8", "numdecs")
-    def set_params(self, base=None, subs=None, numdecs=None, numticks=None):
+    def set_params(self, base=None, subs=None, *, numticks=None):
         """Set parameters within this locator."""
         if base is not None:
             self._base = float(base)
         if subs is not None:
             self._set_subs(subs)
-        if numdecs is not None:
-            self._numdecs = numdecs
         if numticks is not None:
             self.numticks = numticks
-
-    numdecs = _api.deprecate_privatize_attribute(
-        "3.8", addendum="This attribute has no effect.")
 
     def _set_subs(self, subs):
         """

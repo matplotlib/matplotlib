@@ -115,7 +115,7 @@ class _TransformedBoundsLocator:
         # time as transSubfigure may otherwise change after this is evaluated.
         return mtransforms.TransformedBbox(
             mtransforms.Bbox.from_bounds(*self._bounds),
-            self._transform - ax.figure.transSubfigure)
+            self._transform - ax.get_figure(root=False).transSubfigure)
 
 
 def _process_plot_format(fmt, *, ambiguous_fmt_datakey=False):
@@ -788,7 +788,7 @@ class _AxesBase(martist.Artist):
     def set_subplotspec(self, subplotspec):
         """Set the `.SubplotSpec`. associated with the subplot."""
         self._subplotspec = subplotspec
-        self._set_position(subplotspec.get_position(self.figure))
+        self._set_position(subplotspec.get_position(self.get_figure(root=False)))
 
     def get_gridspec(self):
         """Return the `.GridSpec` associated with the subplot, or None."""
@@ -959,8 +959,9 @@ class _AxesBase(martist.Artist):
         """
         labels_align = mpl.rcParams["xtick.alignment"]
         return (self.get_xaxis_transform(which='tick1') +
-                mtransforms.ScaledTranslation(0, -1 * pad_points / 72,
-                                              self.figure.dpi_scale_trans),
+                mtransforms.ScaledTranslation(
+                    0, -1 * pad_points / 72,
+                    self.get_figure(root=False).dpi_scale_trans),
                 "top", labels_align)
 
     def get_xaxis_text2_transform(self, pad_points):
@@ -985,8 +986,9 @@ class _AxesBase(martist.Artist):
         """
         labels_align = mpl.rcParams["xtick.alignment"]
         return (self.get_xaxis_transform(which='tick2') +
-                mtransforms.ScaledTranslation(0, pad_points / 72,
-                                              self.figure.dpi_scale_trans),
+                mtransforms.ScaledTranslation(
+                    0, pad_points / 72,
+                    self.get_figure(root=False).dpi_scale_trans),
                 "bottom", labels_align)
 
     def get_yaxis_transform(self, which='grid'):
@@ -1039,8 +1041,9 @@ class _AxesBase(martist.Artist):
         """
         labels_align = mpl.rcParams["ytick.alignment"]
         return (self.get_yaxis_transform(which='tick1') +
-                mtransforms.ScaledTranslation(-1 * pad_points / 72, 0,
-                                              self.figure.dpi_scale_trans),
+                mtransforms.ScaledTranslation(
+                    -1 * pad_points / 72, 0,
+                    self.get_figure(root=False).dpi_scale_trans),
                 labels_align, "right")
 
     def get_yaxis_text2_transform(self, pad_points):
@@ -1065,8 +1068,9 @@ class _AxesBase(martist.Artist):
         """
         labels_align = mpl.rcParams["ytick.alignment"]
         return (self.get_yaxis_transform(which='tick2') +
-                mtransforms.ScaledTranslation(pad_points / 72, 0,
-                                              self.figure.dpi_scale_trans),
+                mtransforms.ScaledTranslation(
+                    pad_points / 72, 0,
+                    self.get_figure(root=False).dpi_scale_trans),
                 labels_align, "left")
 
     def _update_transScale(self):
@@ -1173,7 +1177,7 @@ class _AxesBase(martist.Artist):
 
     def _set_artist_props(self, a):
         """Set the boilerplate props for artists added to Axes."""
-        a.set_figure(self.figure)
+        a.set_figure(self.get_figure(root=False))
         if not a.is_transform_set():
             a.set_transform(self.transData)
 
@@ -1347,7 +1351,7 @@ class _AxesBase(martist.Artist):
         # the other artists.  We use the frame to draw the edges so we are
         # setting the edgecolor to None.
         self.patch = self._gen_axes_patch()
-        self.patch.set_figure(self.figure)
+        self.patch.set_figure(self.get_figure(root=False))
         self.patch.set_facecolor(self._facecolor)
         self.patch.set_edgecolor('none')
         self.patch.set_linewidth(0)
@@ -1522,7 +1526,7 @@ class _AxesBase(martist.Artist):
         """
         self.titleOffsetTrans = mtransforms.ScaledTranslation(
                 0.0, title_offset_points / 72,
-                self.figure.dpi_scale_trans)
+                self.get_figure(root=False).dpi_scale_trans)
         for _title in (self.title, self._left_title, self._right_title):
             _title.set_transform(self.transAxes + self.titleOffsetTrans)
             _title.set_clip_box(None)
@@ -1937,7 +1941,7 @@ class _AxesBase(martist.Artist):
             self._set_position(position, which='active')
             return
 
-        trans = self.get_figure().transSubfigure
+        trans = self.get_figure(root=False).transSubfigure
         bb = mtransforms.Bbox.unit().transformed(trans)
         # this is the physical aspect of the panel (or figure):
         fig_aspect = bb.height / bb.width
@@ -2274,7 +2278,7 @@ class _AxesBase(martist.Artist):
 
         self.child_axes.append(ax)
         ax._remove_method = functools.partial(
-            self.figure._remove_axes, owners=[self.child_axes])
+            self.get_figure(root=False)._remove_axes, owners=[self.child_axes])
         self.stale = True
         return ax
 
@@ -3022,7 +3026,8 @@ class _AxesBase(martist.Artist):
         axs = set()
         axs.update(self.child_axes)
         axs.update(self._twinned_axes.get_siblings(self))
-        axs.update(self.figure._align_label_groups['title'].get_siblings(self))
+        axs.update(
+            self.get_figure(root=False)._align_label_groups['title'].get_siblings(self))
 
         for ax in self.child_axes:  # Child positions must be updated first.
             locator = ax.get_axes_locator()
@@ -3108,7 +3113,7 @@ class _AxesBase(martist.Artist):
             for _axis in self._axis_map.values():
                 artists.remove(_axis)
 
-        if not self.figure.canvas.is_saving():
+        if not self.get_figure(root=True).canvas.is_saving():
             artists = [
                 a for a in artists
                 if not a.get_animated() or isinstance(a, mimage.AxesImage)]
@@ -3136,10 +3141,10 @@ class _AxesBase(martist.Artist):
                 artists = [self.patch] + artists
 
         if artists_rasterized:
-            _draw_rasterized(self.figure, artists_rasterized, renderer)
+            _draw_rasterized(self.get_figure(root=True), artists_rasterized, renderer)
 
         mimage._draw_list_compositing_images(
-            renderer, self, artists, self.figure.suppressComposite)
+            renderer, self, artists, self.get_figure(root=True).suppressComposite)
 
         renderer.close_group('axes')
         self.stale = False
@@ -3148,7 +3153,7 @@ class _AxesBase(martist.Artist):
         """
         Efficiently redraw a single artist.
         """
-        a.draw(self.figure.canvas.get_renderer())
+        a.draw(self.get_figure(root=True).canvas.get_renderer())
 
     def redraw_in_frame(self):
         """
@@ -3158,7 +3163,7 @@ class _AxesBase(martist.Artist):
             for artist in [*self._axis_map.values(),
                            self.title, self._left_title, self._right_title]:
                 stack.enter_context(artist._cm_set(visible=False))
-            self.draw(self.figure.canvas.get_renderer())
+            self.draw(self.get_figure(root=True).canvas.get_renderer())
 
     # Axes rectangle characteristics
 
@@ -4420,9 +4425,8 @@ class _AxesBase(martist.Artist):
         return [a for a in artists if a.get_visible() and a.get_in_layout()
                 and (isinstance(a, noclip) or not a._fully_clipped_to_axes())]
 
-    @_api.make_keyword_only("3.8", "call_axes_locator")
-    def get_tightbbox(self, renderer=None, call_axes_locator=True,
-                      bbox_extra_artists=None, *, for_layout_only=False):
+    def get_tightbbox(self, renderer=None, *, call_axes_locator=True,
+                      bbox_extra_artists=None, for_layout_only=False):
         """
         Return the tight bounding box of the Axes, including axis and their
         decorators (xlabel, title, etc).
@@ -4466,7 +4470,7 @@ class _AxesBase(martist.Artist):
 
         bb = []
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
 
         if not self.get_visible():
             return None
@@ -4517,9 +4521,9 @@ class _AxesBase(martist.Artist):
                 raise ValueError("Twinned Axes may share only one axis")
         ss = self.get_subplotspec()
         if ss:
-            twin = self.figure.add_subplot(ss, *args, **kwargs)
+            twin = self.get_figure(root=False).add_subplot(ss, *args, **kwargs)
         else:
-            twin = self.figure.add_axes(
+            twin = self.get_figure(root=False).add_axes(
                 self.get_position(True), *args, **kwargs,
                 axes_locator=_TransformedBoundsLocator(
                     [0, 0, 1, 1], self.transAxes))
@@ -4747,6 +4751,12 @@ def _draw_rasterized(figure, artists, renderer):
         def __init__(self, figure, artists):
             self.figure = figure
             self.artists = artists
+
+        def get_figure(self, root=False):
+            if root:
+                return self.figure.get_figure(root=True)
+            else:
+                return self.figure
 
         @martist.allow_rasterization
         def draw(self, renderer):

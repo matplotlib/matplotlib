@@ -34,3 +34,9 @@ ax.set_title("Number of penguins with above average body mass")
 ax.legend(loc="upper right")
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    plot-type: bar
+#    level: beginner

@@ -43,3 +43,11 @@ left_inset_ax.plot(t[:len(r)], r)
 left_inset_ax.set(title='Impulse response', xlim=(0, .2), xticks=[], yticks=[])
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: axes
+#    plot-type: line
+#    plot-type: histogram
+#    level: beginner
