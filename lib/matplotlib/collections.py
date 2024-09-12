@@ -1417,8 +1417,6 @@ class FillBetweenPolyCollection(PolyCollection):
         """
         Make verts that can be forwarded to `.PolyCollection`.
         """
-        t, f1, f2 = map(np.ma.masked_invalid, [t, f1, f2])
-
         dirs = (self.t_direction, self._f_direction, self._f_direction)
         names = (d + s for d, s in zip(dirs, ("", "1", "2")))
         for name, array in zip(names, [t, f1, f2]):
@@ -1443,10 +1441,8 @@ class FillBetweenPolyCollection(PolyCollection):
         ]
 
         # prepare the datalim for autoscale
-        bbox = transforms.Bbox.null()
-        bbox.update_from_data_xy(self._normalize_pts(np.vstack([
-            np.hstack([t[where, None], f[where, None]]) for f in (f1, f2)])))
-        self._dataLim = bbox.corners()
+        self._xys_for_datalim = self._normalize_pts(np.vstack([
+            np.hstack([t[where, None], f[where, None]]) for f in (f1, f2)]))
 
         return verts
 
