@@ -16,8 +16,25 @@ using namespace pybind11::literals;
  * FT2Image
  * */
 
-const char *PyFT2Image_draw_rect_filled__doc__ =
-    "Draw a filled rectangle to the image.";
+const char *PyFT2Image__doc__ = R"""(
+    An image buffer for drawing glyphs.
+)""";
+
+const char *PyFT2Image_init__doc__ = R"""(
+    Parameters
+    ----------
+    width, height : int
+        The dimensions of the image buffer.
+)""";
+
+const char *PyFT2Image_draw_rect_filled__doc__ = R"""(
+    Draw a filled rectangle to the image.
+
+    Parameters
+    ----------
+    x0, y0, x1, y1 : float
+        The bounds of the rectangle from (x0, y0) to (x1, y1).
+)""";
 
 static void
 PyFT2Image_draw_rect_filled(FT2Image *self, double x0, double y0, double x1, double y1)
@@ -43,6 +60,17 @@ typedef struct
     long vertAdvance;
     FT_BBox bbox;
 } PyGlyph;
+
+const char *PyGlyph__doc__ = R"""(
+    Information about a single glyph.
+
+    You cannot create instances of this object yourself, but must use
+    `.FT2Font.load_char` or `.FT2Font.load_glyph` to generate one. This object may be
+    used in a call to `.FT2Font.draw_glyph_to_bitmap`.
+
+    For more information on the various metrics, see `the FreeType documentation
+    <https://freetype.org/freetype2/docs/glyphs/glyphs-3.html>`_.
+)""";
 
 static PyGlyph *
 PyGlyph_from_FT2Font(const FT2Font *font)
@@ -92,6 +120,26 @@ struct PyFT2Font
         delete this->x;
     }
 };
+
+const char *PyFT2Font__doc__ = R"""(
+    An object representing a single font face.
+
+    Outside of the font itself and querying its properties, this object provides methods
+    for processing text strings into glyph shapes.
+
+    Commonly, one will use `FT2Font.set_text` to load some glyph metrics and outlines.
+    Then `FT2Font.draw_glyphs_to_bitmap` and `FT2Font.get_image` may be used to get a
+    rendered form of the loaded string.
+
+    For single characters, `FT2Font.load_char` or `FT2Font.load_glyph` may be used,
+    either directly for their return values, or to use `FT2Font.draw_glyph_to_bitmap` or
+    `FT2Font.get_path`.
+
+    Useful metrics may be examined via the `Glyph` return values or
+    `FT2Font.get_kerning`. Most dimensions are given in 26.6 or 16.6 fixed-point
+    integers representing subpixels. Divide these values by 64 to produce floating-point
+    pixels.
+)""";
 
 static unsigned long
 read_from_file_callback(FT_Stream stream, unsigned long offset, unsigned char *buffer,
@@ -146,28 +194,27 @@ ft_glyph_warn(FT_ULong charcode, std::set<FT_String*> family_names)
     warn_on_missing_glyph(charcode, ss.str());
 }
 
-const char *PyFT2Font_init__doc__ =
-    "Create a new FT2Font object.\n"
-    "\n"
-    "Parameters\n"
-    "----------\n"
-    "filename : str or file-like\n"
-    "    The source of the font data in a format (ttf or ttc) that FreeType can read\n"
-    "\n"
-    "hinting_factor : int, optional\n"
-    "    Must be positive. Used to scale the hinting in the x-direction\n"
-    "_fallback_list : list of FT2Font, optional\n"
-    "    A list of FT2Font objects used to find missing glyphs.\n"
-    "\n"
-    "    .. warning::\n"
-    "        This API is both private and provisional: do not use it directly\n"
-    "\n"
-    "_kerning_factor : int, optional\n"
-    "    Used to adjust the degree of kerning.\n"
-    "\n"
-    "    .. warning::\n"
-    "        This API is private: do not use it directly\n"
-;
+const char *PyFT2Font_init__doc__ = R"""(
+    Parameters
+    ----------
+    filename : str or file-like
+        The source of the font data in a format (ttf or ttc) that FreeType can read.
+
+    hinting_factor : int, optional
+        Must be positive. Used to scale the hinting in the x-direction.
+
+    _fallback_list : list of FT2Font, optional
+        A list of FT2Font objects used to find missing glyphs.
+
+        .. warning::
+            This API is both private and provisional: do not use it directly.
+
+    _kerning_factor : int, optional
+        Used to adjust the degree of kerning.
+
+        .. warning::
+            This API is private: do not use it directly.
+)""";
 
 static PyFT2Font *
 PyFT2Font_init(py::object filename, long hinting_factor = 8,
@@ -237,8 +284,16 @@ PyFT2Font_clear(PyFT2Font *self)
     self->x->clear();
 }
 
-const char *PyFT2Font_set_size__doc__ =
-    "Set the point size and dpi of the text.";
+const char *PyFT2Font_set_size__doc__ = R"""(
+    Set the size of the text.
+
+    Parameters
+    ----------
+    ptsize : float
+        The size of the text in points.
+    dpi : float
+        The DPI used for rendering the text.
+)""";
 
 static void
 PyFT2Font_set_size(PyFT2Font *self, double ptsize, double dpi)
@@ -246,8 +301,23 @@ PyFT2Font_set_size(PyFT2Font *self, double ptsize, double dpi)
     self->x->set_size(ptsize, dpi);
 }
 
-const char *PyFT2Font_set_charmap__doc__ =
-    "Make the i-th charmap current.";
+const char *PyFT2Font_set_charmap__doc__ = R"""(
+    Make the i-th charmap current.
+
+    For more details on character mapping, see the `FreeType documentation
+    <https://freetype.org/freetype2/docs/reference/ft2-character_mapping.html>`_.
+
+    Parameters
+    ----------
+    i : int
+        The charmap number in the range [0, `.num_charmaps`).
+
+    See Also
+    --------
+    .num_charmaps
+    .select_charmap
+    .get_charmap
+)""";
 
 static void
 PyFT2Font_set_charmap(PyFT2Font *self, int i)
@@ -255,8 +325,23 @@ PyFT2Font_set_charmap(PyFT2Font *self, int i)
     self->x->set_charmap(i);
 }
 
-const char *PyFT2Font_select_charmap__doc__ =
-    "Select a charmap by its FT_Encoding number.";
+const char *PyFT2Font_select_charmap__doc__ = R"""(
+    Select a charmap by its FT_Encoding number.
+
+    For more details on character mapping, see the `FreeType documentation
+    <https://freetype.org/freetype2/docs/reference/ft2-character_mapping.html>`_.
+
+    Parameters
+    ----------
+    i : int
+        The charmap in the form defined by FreeType:
+        https://freetype.org/freetype2/docs/reference/ft2-character_mapping.html#ft_encoding
+
+    See Also
+    --------
+    .set_charmap
+    .get_charmap
+)""";
 
 static void
 PyFT2Font_select_charmap(PyFT2Font *self, unsigned long i)
@@ -264,14 +349,27 @@ PyFT2Font_select_charmap(PyFT2Font *self, unsigned long i)
     self->x->select_charmap(i);
 }
 
-const char *PyFT2Font_get_kerning__doc__ =
-    "Get the kerning between *left* and *right* glyph indices.\n"
-    "\n"
-    "*mode* is a kerning mode constant:\n"
-    "\n"
-    "- KERNING_DEFAULT  - Return scaled and grid-fitted kerning distances\n"
-    "- KERNING_UNFITTED - Return scaled but un-grid-fitted kerning distances\n"
-    "- KERNING_UNSCALED - Return the kerning vector in original font units\n";
+const char *PyFT2Font_get_kerning__doc__ = R"""(
+    Get the kerning between two glyphs.
+
+    Parameters
+    ----------
+    left, right : int
+        The glyph indices. Note these are not characters nor character codes.
+        Use `.get_char_index` to convert character codes to glyph indices.
+
+    mode : int
+        A kerning mode constant:
+
+        - ``KERNING_DEFAULT``  - Return scaled and grid-fitted kerning distances
+        - ``KERNING_UNFITTED`` - Return scaled but un-grid-fitted kerning distances
+        - ``KERNING_UNSCALED`` - Return the kerning vector in original font units
+
+    Returns
+    -------
+    int
+        The kerning adjustment between the two glyphs.
+)""";
 
 static int
 PyFT2Font_get_kerning(PyFT2Font *self, FT_UInt left, FT_UInt right, FT_UInt mode)
@@ -281,9 +379,23 @@ PyFT2Font_get_kerning(PyFT2Font *self, FT_UInt left, FT_UInt right, FT_UInt mode
     return self->x->get_kerning(left, right, mode, fallback);
 }
 
-const char *PyFT2Font_get_fontmap__doc__ =
-    "Get a mapping between characters and the font that includes them.\n"
-    "A dictionary mapping unicode characters to PyFT2Font objects.";
+const char *PyFT2Font_get_fontmap__doc__ = R"""(
+    Get a mapping between characters and the font that includes them.
+
+    .. warning::
+        This API uses the fallback list and is both private and provisional: do not use
+        it directly.
+
+    Parameters
+    ----------
+    text : str
+        The characters for which to find fonts.
+
+    Returns
+    -------
+    dict[str, FT2Font]
+        A dictionary mapping unicode characters to `.FT2Font` objects.
+)""";
 
 static py::dict
 PyFT2Font_get_fontmap(PyFT2Font *self, std::u32string text)
@@ -315,12 +427,25 @@ PyFT2Font_get_fontmap(PyFT2Font *self, std::u32string text)
     return char_to_font;
 }
 
-const char *PyFT2Font_set_text__doc__ =
-    "Set the text *string* and *angle*.\n"
-    "*flags* can be a bitwise-or of the LOAD_XXX constants;\n"
-    "the default value is LOAD_FORCE_AUTOHINT.\n"
-    "You must call this before `.draw_glyphs_to_bitmap`.\n"
-    "A sequence of x,y positions in 26.6 subpixels is returned; divide by 64 for pixels.\n";
+const char *PyFT2Font_set_text__doc__ = R"""(
+    Set the text *string* and *angle*.
+
+    You must call this before `.draw_glyphs_to_bitmap`.
+
+    Parameters
+    ----------
+    string : str
+        The text to prepare rendering information for.
+    angle : float
+        The angle at which to render the supplied text.
+    flags : int, default: ``LOAD_FORCE_AUTOHINT``
+        Any bitwise-OR combination of the ``LOAD_XXX`` constants.
+
+    Returns
+    -------
+    np.ndarray[double]
+        A sequence of x,y glyph positions in 26.6 subpixels; divide by 64 for pixels.
+)""";
 
 static py::array_t<double>
 PyFT2Font_set_text(PyFT2Font *self, std::u32string_view text, double angle = 0.0,
@@ -338,8 +463,7 @@ PyFT2Font_set_text(PyFT2Font *self, std::u32string_view text, double angle = 0.0
     return result;
 }
 
-const char *PyFT2Font_get_num_glyphs__doc__ =
-    "Return the number of loaded glyphs.";
+const char *PyFT2Font_get_num_glyphs__doc__ = "Return the number of loaded glyphs.";
 
 static size_t
 PyFT2Font_get_num_glyphs(PyFT2Font *self)
@@ -347,20 +471,28 @@ PyFT2Font_get_num_glyphs(PyFT2Font *self)
     return self->x->get_num_glyphs();
 }
 
-const char *PyFT2Font_load_char__doc__ =
-    "Load character with *charcode* in current fontfile and set glyph.\n"
-    "*flags* can be a bitwise-or of the LOAD_XXX constants;\n"
-    "the default value is LOAD_FORCE_AUTOHINT.\n"
-    "Return value is a Glyph object, with attributes\n\n"
-    "- width: glyph width\n"
-    "- height: glyph height\n"
-    "- bbox: the glyph bbox (xmin, ymin, xmax, ymax)\n"
-    "- horiBearingX: left side bearing in horizontal layouts\n"
-    "- horiBearingY: top side bearing in horizontal layouts\n"
-    "- horiAdvance: advance width for horizontal layout\n"
-    "- vertBearingX: left side bearing in vertical layouts\n"
-    "- vertBearingY: top side bearing in vertical layouts\n"
-    "- vertAdvance: advance height for vertical layout\n";
+const char *PyFT2Font_load_char__doc__ = R"""(
+    Load character in current fontfile and set glyph.
+
+    Parameters
+    ----------
+    charcode : int
+        The character code to prepare rendering information for. This code must be in
+        the charmap, or else a ``.notdef`` glyph may be returned instead.
+    flags : int, default: ``LOAD_FORCE_AUTOHINT``
+        Any bitwise-OR combination of the ``LOAD_XXX`` constants.
+
+    Returns
+    -------
+    Glyph
+        The glyph information corresponding to the specified character.
+
+    See Also
+    --------
+    .load_glyph
+    .select_charmap
+    .set_charmap
+)""";
 
 static PyGlyph *
 PyFT2Font_load_char(PyFT2Font *self, long charcode,
@@ -374,20 +506,28 @@ PyFT2Font_load_char(PyFT2Font *self, long charcode,
     return PyGlyph_from_FT2Font(ft_object);
 }
 
-const char *PyFT2Font_load_glyph__doc__ =
-    "Load character with *glyphindex* in current fontfile and set glyph.\n"
-    "*flags* can be a bitwise-or of the LOAD_XXX constants;\n"
-    "the default value is LOAD_FORCE_AUTOHINT.\n"
-    "Return value is a Glyph object, with attributes\n\n"
-    "- width: glyph width\n"
-    "- height: glyph height\n"
-    "- bbox: the glyph bbox (xmin, ymin, xmax, ymax)\n"
-    "- horiBearingX: left side bearing in horizontal layouts\n"
-    "- horiBearingY: top side bearing in horizontal layouts\n"
-    "- horiAdvance: advance width for horizontal layout\n"
-    "- vertBearingX: left side bearing in vertical layouts\n"
-    "- vertBearingY: top side bearing in vertical layouts\n"
-    "- vertAdvance: advance height for vertical layout\n";
+const char *PyFT2Font_load_glyph__doc__ = R"""(
+    Load glyph index in current fontfile and set glyph.
+
+    Note that the glyph index is specific to a font, and not universal like a Unicode
+    code point.
+
+    Parameters
+    ----------
+    glyph_index : int
+        The glyph index to prepare rendering information for.
+    flags : int, default: ``LOAD_FORCE_AUTOHINT``
+        Any bitwise-OR combination of the ``LOAD_XXX`` constants.
+
+    Returns
+    -------
+    Glyph
+        The glyph information corresponding to the specified index.
+
+    See Also
+    --------
+    .load_char
+)""";
 
 static PyGlyph *
 PyFT2Font_load_glyph(PyFT2Font *self, FT_UInt glyph_index,
@@ -401,10 +541,22 @@ PyFT2Font_load_glyph(PyFT2Font *self, FT_UInt glyph_index,
     return PyGlyph_from_FT2Font(ft_object);
 }
 
-const char *PyFT2Font_get_width_height__doc__ =
-    "Get the width and height in 26.6 subpixels of the current string set by `.set_text`.\n"
-    "The rotation of the string is accounted for.  To get width and height\n"
-    "in pixels, divide these values by 64.\n";
+const char *PyFT2Font_get_width_height__doc__ = R"""(
+    Get the dimensions of the current string set by `.set_text`.
+
+    The rotation of the string is accounted for.
+
+    Returns
+    -------
+    width, height : float
+        The width and height in 26.6 subpixels of the current string. To get width and
+        height in pixels, divide these values by 64.
+
+    See Also
+    --------
+    .get_bitmap_offset
+    .get_descent
+)""";
 
 static py::tuple
 PyFT2Font_get_width_height(PyFT2Font *self)
@@ -416,9 +568,22 @@ PyFT2Font_get_width_height(PyFT2Font *self)
     return py::make_tuple(width, height);
 }
 
-const char *PyFT2Font_get_bitmap_offset__doc__ =
-    "Get the (x, y) offset in 26.6 subpixels for the bitmap if ink hangs left or below (0, 0).\n"
-    "Since Matplotlib only supports left-to-right text, y is always 0.\n";
+const char *PyFT2Font_get_bitmap_offset__doc__ = R"""(
+    Get the (x, y) offset for the bitmap if ink hangs left or below (0, 0).
+
+    Since Matplotlib only supports left-to-right text, y is always 0.
+
+    Returns
+    -------
+    x, y : float
+        The x and y offset in 26.6 subpixels of the bitmap. To get x and y in pixels,
+        divide these values by 64.
+
+    See Also
+    --------
+    .get_width_height
+    .get_descent
+)""";
 
 static py::tuple
 PyFT2Font_get_bitmap_offset(PyFT2Font *self)
@@ -430,10 +595,22 @@ PyFT2Font_get_bitmap_offset(PyFT2Font *self)
     return py::make_tuple(x, y);
 }
 
-const char *PyFT2Font_get_descent__doc__ =
-    "Get the descent in 26.6 subpixels of the current string set by `.set_text`.\n"
-    "The rotation of the string is accounted for.  To get the descent\n"
-    "in pixels, divide this value by 64.\n";
+const char *PyFT2Font_get_descent__doc__ = R"""(
+    Get the descent of the current string set by `.set_text`.
+
+    The rotation of the string is accounted for.
+
+    Returns
+    -------
+    int
+        The descent in 26.6 subpixels of the bitmap. To get the descent in pixels,
+        divide these values by 64.
+
+    See Also
+    --------
+    .get_bitmap_offset
+    .get_width_height
+)""";
 
 static long
 PyFT2Font_get_descent(PyFT2Font *self)
@@ -441,10 +618,20 @@ PyFT2Font_get_descent(PyFT2Font *self)
     return self->x->get_descent();
 }
 
-const char *PyFT2Font_draw_glyphs_to_bitmap__doc__ =
-    "Draw the glyphs that were loaded by `.set_text` to the bitmap.\n"
-    "\n"
-    "The bitmap size will be automatically set to include the glyphs.\n";
+const char *PyFT2Font_draw_glyphs_to_bitmap__doc__ = R"""(
+    Draw the glyphs that were loaded by `.set_text` to the bitmap.
+
+    The bitmap size will be automatically set to include the glyphs.
+
+    Parameters
+    ----------
+    antialiased : bool, default: True
+        Whether to render glyphs 8-bit antialiased or in pure black-and-white.
+
+    See Also
+    --------
+    .draw_glyph_to_bitmap
+)""";
 
 static void
 PyFT2Font_draw_glyphs_to_bitmap(PyFT2Font *self, bool antialiased = true)
@@ -452,16 +639,31 @@ PyFT2Font_draw_glyphs_to_bitmap(PyFT2Font *self, bool antialiased = true)
     self->x->draw_glyphs_to_bitmap(antialiased);
 }
 
-const char *PyFT2Font_draw_glyph_to_bitmap__doc__ =
-    "Draw a single glyph to the bitmap at pixel locations x, y.\n"
-    "\n"
-    "Note it is your responsibility to create the image manually\n"
-    "with the correct size before this call is made.\n"
-    "\n"
-    "If you want automatic layout, use `.set_text` in combinations with\n"
-    "`.draw_glyphs_to_bitmap`.  This function is instead intended for people\n"
-    "who want to render individual glyphs (e.g., returned by `.load_char`)\n"
-    "at precise locations.\n";
+const char *PyFT2Font_draw_glyph_to_bitmap__doc__ = R"""(
+    Draw a single glyph to the bitmap at pixel locations x, y.
+
+    Note it is your responsibility to create the image manually with the correct size
+    before this call is made.
+
+    If you want automatic layout, use `.set_text` in combinations with
+    `.draw_glyphs_to_bitmap`. This function is instead intended for people who want to
+    render individual glyphs (e.g., returned by `.load_char`) at precise locations.
+
+    Parameters
+    ----------
+    image : FT2Image
+        The image buffer on which to draw the glyph.
+    x, y : float
+        The pixel location at which to draw the glyph.
+    glyph : Glyph
+        The glyph to draw.
+    antialiased : bool, default: True
+        Whether to render glyphs 8-bit antialiased or in pure black-and-white.
+
+    See Also
+    --------
+    .draw_glyphs_to_bitmap
+)""";
 
 static void
 PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, FT2Image &image, double xd, double yd,
@@ -470,12 +672,28 @@ PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, FT2Image &image, double xd, doub
     self->x->draw_glyph_to_bitmap(image, xd, yd, glyph->glyphInd, antialiased);
 }
 
-const char *PyFT2Font_get_glyph_name__doc__ =
-    "Retrieve the ASCII name of a given glyph *index* in a face.\n"
-    "\n"
-    "Due to Matplotlib's internal design, for fonts that do not contain glyph\n"
-    "names (per FT_FACE_FLAG_GLYPH_NAMES), this returns a made-up name which\n"
-    "does *not* roundtrip through `.get_name_index`.\n";
+const char *PyFT2Font_get_glyph_name__doc__ = R"""(
+    Retrieve the ASCII name of a given glyph *index* in a face.
+
+    Due to Matplotlib's internal design, for fonts that do not contain glyph names (per
+    ``FT_FACE_FLAG_GLYPH_NAMES``), this returns a made-up name which does *not*
+    roundtrip through `.get_name_index`.
+
+    Parameters
+    ----------
+    index : int
+        The glyph number to query.
+
+    Returns
+    -------
+    str
+        The name of the glyph, or if the font does not contain names, a name synthesized
+        by Matplotlib.
+
+    See Also
+    --------
+    .get_name_index
+)""";
 
 static py::str
 PyFT2Font_get_glyph_name(PyFT2Font *self, unsigned int glyph_number)
@@ -488,9 +706,18 @@ PyFT2Font_get_glyph_name(PyFT2Font *self, unsigned int glyph_number)
     return buffer;
 }
 
-const char *PyFT2Font_get_charmap__doc__ =
-    "Return a dict that maps the character codes of the selected charmap\n"
-    "(Unicode by default) to their corresponding glyph indices.\n";
+const char *PyFT2Font_get_charmap__doc__ = R"""(
+    Return a mapping of character codes to glyph indices in the font.
+
+    The charmap is Unicode by default, but may be changed by `.set_charmap` or
+    `.select_charmap`.
+
+    Returns
+    -------
+    dict[int, int]
+        A dictionary of the selected charmap mapping character codes to their
+        corresponding glyph indices.
+)""";
 
 static py::dict
 PyFT2Font_get_charmap(PyFT2Font *self)
@@ -505,9 +732,26 @@ PyFT2Font_get_charmap(PyFT2Font *self)
     return charmap;
 }
 
+const char *PyFT2Font_get_char_index__doc__ = R"""(
+    Return the glyph index corresponding to a character code point.
 
-const char *PyFT2Font_get_char_index__doc__ =
-    "Return the glyph index corresponding to a character *codepoint*.";
+    Parameters
+    ----------
+    codepoint : int
+        A character code point in the current charmap (which defaults to Unicode.)
+
+    Returns
+    -------
+    int
+        The corresponding glyph index.
+
+    See Also
+    --------
+    .set_charmap
+    .select_charmap
+    .get_glyph_name
+    .get_name_index
+)""";
 
 static FT_UInt
 PyFT2Font_get_char_index(PyFT2Font *self, FT_ULong ccode)
@@ -517,11 +761,18 @@ PyFT2Font_get_char_index(PyFT2Font *self, FT_ULong ccode)
     return self->x->get_char_index(ccode, fallback);
 }
 
+const char *PyFT2Font_get_sfnt__doc__ = R"""(
+    Load the entire SFNT names table.
 
-const char *PyFT2Font_get_sfnt__doc__ =
-    "Load the entire SFNT names table, as a dict whose keys are\n"
-    "(platform-ID, ISO-encoding-scheme, language-code, and description)\n"
-    "tuples.\n";
+    Returns
+    -------
+    dict[tuple[int, int, int, int], bytes]
+        The SFNT names table; the dictionary keys are tuples of:
+
+            (platform-ID, ISO-encoding-scheme, language-code, description)
+
+        and the values are the direct information from the font table.
+)""";
 
 static py::dict
 PyFT2Font_get_sfnt(PyFT2Font *self)
@@ -552,9 +803,24 @@ PyFT2Font_get_sfnt(PyFT2Font *self)
     return names;
 }
 
-const char *PyFT2Font_get_name_index__doc__ =
-    "Return the glyph index of a given glyph *name*.\n"
-    "The glyph index 0 means 'undefined character code'.\n";
+const char *PyFT2Font_get_name_index__doc__ = R"""(
+    Return the glyph index of a given glyph *name*.
+
+    Parameters
+    ----------
+    name : str
+        The name of the glyph to query.
+
+    Returns
+    -------
+    int
+        The corresponding glyph index; 0 means 'undefined character code'.
+
+    See Also
+    --------
+    .get_char_index
+    .get_glyph_name
+)""";
 
 static long
 PyFT2Font_get_name_index(PyFT2Font *self, char *glyphname)
@@ -562,8 +828,24 @@ PyFT2Font_get_name_index(PyFT2Font *self, char *glyphname)
     return self->x->get_name_index(glyphname);
 }
 
-const char *PyFT2Font_get_ps_font_info__doc__ =
-    "Return the information in the PS Font Info structure.";
+const char *PyFT2Font_get_ps_font_info__doc__ = R"""(
+    Return the information in the PS Font Info structure.
+
+    For more information, see the `FreeType documentation on this structure
+    <https://freetype.org/freetype2/docs/reference/ft2-type1_tables.html#ps_fontinforec>`_.
+
+    Returns
+    -------
+    version : str
+    notice : str
+    full_name : str
+    family_name : str
+    weight : str
+    italic_angle : int
+    is_fixed_pitch : bool
+    underline_position : int
+    underline_thickness : int
+)""";
 
 static py::tuple
 PyFT2Font_get_ps_font_info(PyFT2Font *self)
@@ -587,9 +869,20 @@ PyFT2Font_get_ps_font_info(PyFT2Font *self)
         fontinfo.underline_thickness);
 }
 
-const char *PyFT2Font_get_sfnt_table__doc__ =
-    "Return one of the following SFNT tables: head, maxp, OS/2, hhea, "
-    "vhea, post, or pclt.";
+const char *PyFT2Font_get_sfnt_table__doc__ = R"""(
+    Return one of the SFNT tables.
+
+    Parameters
+    ----------
+    name : {"head", "maxp", "OS/2", "hhea", "vhea", "post", "pclt"}
+        Which table to return.
+
+    Returns
+    -------
+    dict[str, Any]
+        The corresponding table; for more information, see `the FreeType documentation
+        <https://freetype.org/freetype2/docs/reference/ft2-truetype_tables.html>`_.
+)""";
 
 static std::optional<py::dict>
 PyFT2Font_get_sfnt_table(PyFT2Font *self, std::string tagname)
@@ -770,8 +1063,23 @@ PyFT2Font_get_sfnt_table(PyFT2Font *self, std::string tagname)
     }
 }
 
-const char *PyFT2Font_get_path__doc__ =
-    "Get the path data from the currently loaded glyph as a tuple of vertices, codes.";
+const char *PyFT2Font_get_path__doc__ = R"""(
+    Get the path data from the currently loaded glyph.
+
+    Returns
+    -------
+    vertices : np.ndarray[double]
+        The (N, 2) array of vertices describing the current glyph.
+    codes : np.ndarray[np.uint8]
+        The (N, ) array of codes corresponding to the vertices.
+
+    See Also
+    --------
+    .get_image
+    .load_char
+    .load_glyph
+    .set_text
+)""";
 
 static py::tuple
 PyFT2Font_get_path(PyFT2Font *self)
@@ -796,8 +1104,17 @@ PyFT2Font_get_path(PyFT2Font *self)
     return py::make_tuple(vertices_arr, codes_arr);
 }
 
-const char *PyFT2Font_get_image__doc__ =
-    "Return the underlying image buffer for this font object.";
+const char *PyFT2Font_get_image__doc__ = R"""(
+    Return the underlying image buffer for this font object.
+
+    Returns
+    -------
+    np.ndarray[int]
+
+    See Also
+    --------
+    .get_path
+)""";
 
 static py::array
 PyFT2Font_get_image(PyFT2Font *self)
@@ -962,8 +1279,9 @@ PYBIND11_MODULE(ft2font, m)
     FT_Library_Version(_ft2Library, &major, &minor, &patch);
     snprintf(version_string, sizeof(version_string), "%d.%d.%d", major, minor, patch);
 
-    py::class_<FT2Image>(m, "FT2Image", py::is_final(), py::buffer_protocol())
-        .def(py::init<double, double>(), "width"_a, "height"_a)
+    py::class_<FT2Image>(m, "FT2Image", py::is_final(), py::buffer_protocol(),
+                         PyFT2Image__doc__)
+        .def(py::init<double, double>(), "width"_a, "height"_a, PyFT2Image_init__doc__)
         .def("draw_rect_filled", &PyFT2Image_draw_rect_filled,
              "x0"_a, "y0"_a, "x1"_a, "y1"_a,
              PyFT2Image_draw_rect_filled__doc__)
@@ -973,23 +1291,32 @@ PYBIND11_MODULE(ft2font, m)
             return py::buffer_info(self.get_buffer(), shape, strides);
         });
 
-    py::class_<PyGlyph>(m, "Glyph", py::is_final())
+    py::class_<PyGlyph>(m, "Glyph", py::is_final(), PyGlyph__doc__)
         .def(py::init<>([]() -> PyGlyph {
             // Glyph is not useful from Python, so mark it as not constructible.
             throw std::runtime_error("Glyph is not constructible");
         }))
-        .def_readonly("width", &PyGlyph::width)
-        .def_readonly("height", &PyGlyph::height)
-        .def_readonly("horiBearingX", &PyGlyph::horiBearingX)
-        .def_readonly("horiBearingY", &PyGlyph::horiBearingY)
-        .def_readonly("horiAdvance", &PyGlyph::horiAdvance)
-        .def_readonly("linearHoriAdvance", &PyGlyph::linearHoriAdvance)
-        .def_readonly("vertBearingX", &PyGlyph::vertBearingX)
-        .def_readonly("vertBearingY", &PyGlyph::vertBearingY)
-        .def_readonly("vertAdvance", &PyGlyph::vertAdvance)
-        .def_property_readonly("bbox", &PyGlyph_get_bbox);
+        .def_readonly("width", &PyGlyph::width, "The glyph's width.")
+        .def_readonly("height", &PyGlyph::height, "The glyph's height.")
+        .def_readonly("horiBearingX", &PyGlyph::horiBearingX,
+                      "Left side bearing for horizontal layout.")
+        .def_readonly("horiBearingY", &PyGlyph::horiBearingY,
+                      "Top side bearing for horizontal layout.")
+        .def_readonly("horiAdvance", &PyGlyph::horiAdvance,
+                      "Advance width for horizontal layout.")
+        .def_readonly("linearHoriAdvance", &PyGlyph::linearHoriAdvance,
+                      "The advance width of the unhinted glyph.")
+        .def_readonly("vertBearingX", &PyGlyph::vertBearingX,
+                      "Left side bearing for vertical layout.")
+        .def_readonly("vertBearingY", &PyGlyph::vertBearingY,
+                      "Top side bearing for vertical layout.")
+        .def_readonly("vertAdvance", &PyGlyph::vertAdvance,
+                      "Advance height for vertical layout.")
+        .def_property_readonly("bbox", &PyGlyph_get_bbox,
+                               "The control box of the glyph.");
 
-    py::class_<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol())
+    py::class_<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
+                          PyFT2Font__doc__)
         .def(py::init(&PyFT2Font_init),
              "filename"_a, "hinting_factor"_a=8, py::kw_only(),
              "_fallback_list"_a=py::none(), "_kerning_factor"_a=0,
@@ -1057,7 +1384,8 @@ PYBIND11_MODULE(ft2font, m)
                                "Number of glyphs in the face.")
         .def_property_readonly("num_fixed_sizes", &PyFT2Font_num_fixed_sizes,
                                "Number of bitmap in the face.")
-        .def_property_readonly("num_charmaps", &PyFT2Font_num_charmaps)
+        .def_property_readonly("num_charmaps", &PyFT2Font_num_charmaps,
+                               "Number of charmaps in the face.")
         .def_property_readonly("scalable", &PyFT2Font_scalable,
                                "Whether face is scalable; attributes after this one "
                                "are only defined for scalable faces.")
@@ -1080,7 +1408,8 @@ PYBIND11_MODULE(ft2font, m)
                                "Vertical position of the underline bar.")
         .def_property_readonly("underline_thickness", &PyFT2Font_underline_thickness,
                                "Thickness of the underline bar.")
-        .def_property_readonly("fname", &PyFT2Font_fname)
+        .def_property_readonly("fname", &PyFT2Font_fname,
+                               "The original filename for this object.")
 
         .def_buffer([](PyFT2Font &self) -> py::buffer_info {
             FT2Image &im = self.x->get_image();
