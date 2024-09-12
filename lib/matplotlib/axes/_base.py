@@ -2745,6 +2745,34 @@ class _AxesBase(martist.Artist):
         arguments (positional or otherwise) are provided, the current
         margins will remain unchanged and simply be returned.
 
+        .. plot::
+
+            import numpy as np
+            import matplotlib.pyplot as plt
+
+            x, y = np.meshgrid(np.linspace(0, 1, 10), np.linspace(0, 1, 10))
+            fig, ax = plt.subplots()
+            ax.plot(x, y, 'o', color='lightblue')
+            ax.margins(1.5, 0.5)
+            ax.set_title("margins(x=1.5, y=0.5)")
+
+            def arrow(p1, p2, **props):
+                ax.annotate("", p1, p2,
+                    arrowprops=dict(arrowstyle="<->", shrinkA=0, shrinkB=0, **props))
+
+            arrow((-1.5, 0), (0, 0), color="orange")
+            arrow((0, 0), (1, 0), color="sienna")
+            arrow((1, 0), (2.5, 0), color="orange")
+            ax.text(-0.75, -0.1, "x margin * x data range", ha="center",
+                    color="orange")
+            ax.text(0.5, -0.1, "x data range", ha="center", color="sienna")
+
+            arrow((1, -0.5), (1, 0), color="tab:green")
+            arrow((1, 0), (1, 1), color="darkgreen")
+            arrow((1, 1), (1, 1.5), color="tab:green")
+            ax.text(1.1, 1.25, "y margin * y data range", color="tab:green")
+            ax.text(1.1, 0.5, "y data range", color="darkgreen")
+
         Specifying any margin changes only the autoscaling; for example,
         if *xmargin* is not None, then *xmargin* times the X data
         interval will be added to each end of that interval before
