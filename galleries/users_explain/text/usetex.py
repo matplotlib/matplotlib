@@ -102,6 +102,12 @@ to the extent that they are supported by inputenc_.
    :rc:`text.usetex`.  As noted above, underscores (``_``) do not require
    escaping outside of math mode.
 
+.. note::
+   LaTeX always defaults to using a serif font for math (even when
+   ``rcParams["font.family"] = "sans-serif"``).  If desired, adding
+   ``\usepackage{sfmath}`` to ``rcParams["text.latex.preamble"]`` lets LaTeX
+   output sans-serif math.
+
 PostScript options
 ==================
 
@@ -129,18 +135,12 @@ Possible hangups
   :ref:`setting-windows-environment-variables` for details.
 
 * Using MiKTeX with Computer Modern fonts, if you get odd \*Agg and PNG
-  results, go to MiKTeX/Options and update your format files
+  results, go to MiKTeX/Options and update your format files.
 
 * On Ubuntu and Gentoo, the base texlive install does not ship with
   the type1cm package. You may need to install some of the extra
   packages to get all the goodies that come bundled with other LaTeX
   distributions.
-
-* Some progress has been made so Matplotlib uses the dvi files
-  directly for text layout. This allows LaTeX to be used for text
-  layout with the pdf and svg backends, as well as the \*Agg and PS
-  backends. In the future, a LaTeX installation may be the only
-  external dependency.
 
 .. _usetex-troubleshooting:
 
@@ -150,7 +150,7 @@ Troubleshooting
 * Try deleting your :file:`.matplotlib/tex.cache` directory. If you don't know
   where to find :file:`.matplotlib`, see :ref:`locating-matplotlib-config-dir`.
 
-* Make sure LaTeX, dvipng and ghostscript are each working and on your
+* Make sure LaTeX, dvipng and Ghostscript are each working and on your
   :envvar:`PATH`.
 
 * Make sure what you are trying to do is possible in a LaTeX document,
@@ -159,8 +159,7 @@ Troubleshooting
 
 * :rc:`text.latex.preamble` is not officially supported. This
   option provides lots of flexibility, and lots of ways to cause
-  problems. Please disable this option before reporting problems to
-  the mailing list.
+  problems. Please disable this option before reporting problems.
 
 * If you still need help, please see :ref:`reporting-problems`.
 
