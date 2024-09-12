@@ -379,7 +379,7 @@ def ttfFontProperty(font):
         style = 'italic'
     elif sfnt2.find('regular') >= 0:
         style = 'normal'
-    elif font.style_flags & ft2font.ITALIC:
+    elif ft2font.StyleFlags.ITALIC in font.style_flags:
         style = 'italic'
     else:
         style = 'normal'
@@ -428,7 +428,7 @@ def ttfFontProperty(font):
             for regex, weight in _weight_regexes:
                 if re.search(regex, style, re.I):
                     return weight
-        if font.style_flags & ft2font.BOLD:
+        if ft2font.StyleFlags.BOLD in font.style_flags:
             return 700  # "bold"
         return 500  # "medium", not "regular"!
 

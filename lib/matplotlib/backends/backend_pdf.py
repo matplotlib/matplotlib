@@ -35,7 +35,7 @@ from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
 from matplotlib.font_manager import get_font, fontManager as _fontManager
 from matplotlib._afm import AFM
-from matplotlib.ft2font import FIXED_WIDTH, ITALIC, FT2Font, Kerning, LoadFlags
+from matplotlib.ft2font import FT2Font, FaceFlags, Kerning, LoadFlags, StyleFlags
 from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
 from matplotlib.dates import UTC
@@ -1417,7 +1417,7 @@ end"""
 
         flags = 0
         symbolic = False  # ps_name.name in ('Cmsy10', 'Cmmi10', 'Cmex10')
-        if ff & FIXED_WIDTH:
+        if FaceFlags.FIXED_WIDTH in ff:
             flags |= 1 << 0
         if 0:  # TODO: serif
             flags |= 1 << 1
@@ -1425,7 +1425,7 @@ end"""
             flags |= 1 << 2
         else:
             flags |= 1 << 5
-        if sf & ITALIC:
+        if StyleFlags.ITALIC in sf:
             flags |= 1 << 6
         if 0:  # TODO: all caps
             flags |= 1 << 16

@@ -34,3 +34,22 @@ prefix):
 - ``LOAD_TARGET_MONO``
 - ``LOAD_TARGET_LCD``
 - ``LOAD_TARGET_LCD_V``
+
+The following constants are now part of `.ft2font.FaceFlags`:
+
+- ``EXTERNAL_STREAM``
+- ``FAST_GLYPHS``
+- ``FIXED_SIZES``
+- ``FIXED_WIDTH``
+- ``GLYPH_NAMES``
+- ``HORIZONTAL``
+- ``KERNING``
+- ``MULTIPLE_MASTERS``
+- ``SCALABLE``
+- ``SFNT``
+- ``VERTICAL``
+
+The following constants are now part of `.ft2font.StyleFlags`:
+
+- ``ITALIC``
+- ``BOLD``
