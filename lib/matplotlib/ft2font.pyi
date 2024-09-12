@@ -1,3 +1,4 @@
+from enum import Enum
 import sys
 from typing import BinaryIO, Literal, TypedDict, final, overload
 from typing_extensions import Buffer  # < Py 3.12
@@ -16,9 +17,6 @@ GLYPH_NAMES: int
 HORIZONTAL: int
 ITALIC: int
 KERNING: int
-KERNING_DEFAULT: int
-KERNING_UNFITTED: int
-KERNING_UNSCALED: int
 LOAD_CROP_BITMAP: int
 LOAD_DEFAULT: int
 LOAD_FORCE_AUTOHINT: int
@@ -43,6 +41,11 @@ MULTIPLE_MASTERS: int
 SCALABLE: int
 SFNT: int
 VERTICAL: int
+
+class Kerning(Enum):
+    DEFAULT: int
+    UNFITTED: int
+    UNSCALED: int
 
 class _SfntHeadDict(TypedDict):
     version: tuple[int, int]
@@ -184,7 +187,7 @@ class FT2Font(Buffer):
     def get_descent(self) -> int: ...
     def get_glyph_name(self, index: int) -> str: ...
     def get_image(self) -> NDArray[np.uint8]: ...
-    def get_kerning(self, left: int, right: int, mode: int) -> int: ...
+    def get_kerning(self, left: int, right: int, mode: Kerning) -> int: ...
     def get_name_index(self, name: str) -> int: ...
     def get_num_glyphs(self) -> int: ...
     def get_path(self) -> tuple[NDArray[np.float64], NDArray[np.int8]]: ...

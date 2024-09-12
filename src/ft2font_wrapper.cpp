@@ -4,6 +4,7 @@
 #include <pybind11/stl.h>
 
 #include "ft2font.h"
+#include "_enums.h"
 
 #include <set>
 #include <sstream>
@@ -11,6 +12,26 @@
 
 namespace py = pybind11;
 using namespace pybind11::literals;
+
+/**********************************************************************
+ * Enumerations
+ * */
+
+const char *Kerning__doc__ = R"""(
+    Kerning modes for `.FT2Font.get_kerning`.
+
+    For more information, see `the FreeType documentation
+    <https://freetype.org/freetype2/docs/reference/ft2-glyph_retrieval.html#ft_kerning_mode>`_.
+
+    .. versionadded:: 3.10
+)""";
+
+P11X_DECLARE_ENUM(
+    "Kerning", "Enum",
+    {"DEFAULT", FT_KERNING_DEFAULT},
+    {"UNFITTED", FT_KERNING_UNFITTED},
+    {"UNSCALED", FT_KERNING_UNSCALED},
+);
 
 /**********************************************************************
  * FT2Image
@@ -358,12 +379,15 @@ const char *PyFT2Font_get_kerning__doc__ = R"""(
         The glyph indices. Note these are not characters nor character codes.
         Use `.get_char_index` to convert character codes to glyph indices.
 
-    mode : int
+    mode : Kerning
         A kerning mode constant:
 
-        - ``KERNING_DEFAULT``  - Return scaled and grid-fitted kerning distances
-        - ``KERNING_UNFITTED`` - Return scaled but un-grid-fitted kerning distances
-        - ``KERNING_UNSCALED`` - Return the kerning vector in original font units
+        - ``DEFAULT``  - Return scaled and grid-fitted kerning distances.
+        - ``UNFITTED`` - Return scaled but un-grid-fitted kerning distances.
+        - ``UNSCALED`` - Return the kerning vector in original font units.
+
+        .. versionchanged:: 3.10
+            This now takes a `.ft2font.Kerning` value instead of an `int`.
 
     Returns
     -------
@@ -372,9 +396,26 @@ const char *PyFT2Font_get_kerning__doc__ = R"""(
 )""";
 
 static int
-PyFT2Font_get_kerning(PyFT2Font *self, FT_UInt left, FT_UInt right, FT_UInt mode)
+PyFT2Font_get_kerning(PyFT2Font *self, FT_UInt left, FT_UInt right,
+                      std::variant<FT_Kerning_Mode, FT_UInt> mode_or_int)
 {
     bool fallback = true;
+    FT_Kerning_Mode mode;
+
+    if (auto value = std::get_if<FT_UInt>(&mode_or_int)) {
+        auto api = py::module_::import("matplotlib._api");
+        auto warn = api.attr("warn_deprecated");
+        warn("since"_a="3.10", "name"_a="mode", "obj_type"_a="parameter as int",
+             "alternative"_a="Kerning enum values");
+        mode = static_cast<FT_Kerning_Mode>(*value);
+    } else if (auto value = std::get_if<FT_Kerning_Mode>(&mode_or_int)) {
+        mode = *value;
+    } else {
+        // NOTE: this can never happen as pybind11 would have checked the type in the
+        // Python wrapper before calling this function, but we need to keep the
+        // std::get_if instead of std::get for macOS 10.12 compatibility.
+        throw py::type_error("mode must be Kerning or int");
+    }
 
     return self->x->get_kerning(left, right, mode, fallback);
 }
@@ -1269,6 +1310,29 @@ PyFT2Font_fname(PyFT2Font *self)
     }
 }
 
+static py::object
+ft2font__getattr__(std::string name) {
+    auto api = py::module_::import("matplotlib._api");
+    auto warn = api.attr("warn_deprecated");
+
+#define DEPRECATE_ATTR_FROM_ENUM(attr_, alternative_, real_value_) \
+    do { \
+        if (name == #attr_) { \
+            warn("since"_a="3.10", "name"_a=#attr_, "obj_type"_a="attribute", \
+                 "alternative"_a=#alternative_); \
+            return py::cast(static_cast<int>(real_value_)); \
+        } \
+    } while(0)
+    DEPRECATE_ATTR_FROM_ENUM(KERNING_DEFAULT, Kerning.DEFAULT, FT_KERNING_DEFAULT);
+    DEPRECATE_ATTR_FROM_ENUM(KERNING_UNFITTED, Kerning.UNFITTED, FT_KERNING_UNFITTED);
+    DEPRECATE_ATTR_FROM_ENUM(KERNING_UNSCALED, Kerning.UNSCALED, FT_KERNING_UNSCALED);
+
+#undef DEPRECATE_ATTR_FROM_ENUM
+
+    throw py::attribute_error(
+        "module 'matplotlib.ft2font' has no attribute {!r}"_s.format(name));
+}
+
 PYBIND11_MODULE(ft2font, m)
 {
     if (FT_Init_FreeType(&_ft2Library)) {  // initialize library
@@ -1278,6 +1342,9 @@ PYBIND11_MODULE(ft2font, m)
     char version_string[64];
     FT_Library_Version(_ft2Library, &major, &minor, &patch);
     snprintf(version_string, sizeof(version_string), "%d.%d.%d", major, minor, patch);
+
+    p11x::bind_enums(m);
+    p11x::enums["Kerning"].attr("__doc__") = Kerning__doc__;
 
     py::class_<FT2Image>(m, "FT2Image", py::is_final(), py::buffer_protocol(),
                          PyFT2Image__doc__)
@@ -1420,6 +1487,7 @@ PYBIND11_MODULE(ft2font, m)
 
     m.attr("__freetype_version__") = version_string;
     m.attr("__freetype_build_type__") = FREETYPE_BUILD_TYPE;
+    m.def("__getattr__", ft2font__getattr__);
     m.attr("SCALABLE") = FT_FACE_FLAG_SCALABLE;
     m.attr("FIXED_SIZES") = FT_FACE_FLAG_FIXED_SIZES;
     m.attr("FIXED_WIDTH") = FT_FACE_FLAG_FIXED_WIDTH;
@@ -1433,9 +1501,6 @@ PYBIND11_MODULE(ft2font, m)
     m.attr("EXTERNAL_STREAM") = FT_FACE_FLAG_EXTERNAL_STREAM;
     m.attr("ITALIC") = FT_STYLE_FLAG_ITALIC;
     m.attr("BOLD") = FT_STYLE_FLAG_BOLD;
-    m.attr("KERNING_DEFAULT") = (int)FT_KERNING_DEFAULT;
-    m.attr("KERNING_UNFITTED") = (int)FT_KERNING_UNFITTED;
-    m.attr("KERNING_UNSCALED") = (int)FT_KERNING_UNSCALED;
     m.attr("LOAD_DEFAULT") = FT_LOAD_DEFAULT;
     m.attr("LOAD_NO_SCALE") = FT_LOAD_NO_SCALE;
     m.attr("LOAD_NO_HINTING") = FT_LOAD_NO_HINTING;
