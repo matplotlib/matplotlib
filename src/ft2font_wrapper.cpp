@@ -402,12 +402,12 @@ PyFT2Font_get_fontmap(PyFT2Font *self, std::u32string text)
 {
     std::set<FT_ULong> codepoints;
 
-    for (auto code : text) {
-        codepoints.insert(code);
-    }
-
     py::dict char_to_font;
-    for (auto code : codepoints) {
+    for (auto code : text) {
+        if (!codepoints.insert(code).second) {
+            continue;
+        }
+
         py::object target_font;
         int index;
         if (self->x->get_char_fallback_index(code, index)) {
