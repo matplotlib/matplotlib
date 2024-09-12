@@ -5597,10 +5597,28 @@ class Axes(_AxesBase):
         fill_between : Fill between two sets of y-values.
         fill_betweenx : Fill between two sets of x-values.
         """
+        dep_dir = mcoll.FillBetweenPolyCollection._f_dir_from_t(ind_dir)
+
+        if not mpl.rcParams["_internal.classic_mode"]:
+            kwargs = cbook.normalize_kwargs(kwargs, mcoll.Collection)
+            if not any(c in kwargs for c in ("color", "facecolor")):
+                kwargs["facecolor"] = self._get_patches_for_fill.get_next_color()
+
+        # Handle united data, such as dates
+        ind, dep1, dep2 = map(
+            np.ma.masked_invalid, self._process_unit_info(
+                [(ind_dir, ind), (dep_dir, dep1), (dep_dir, dep2)], kwargs))
+
         collection = mcoll.FillBetweenPolyCollection(
             ind_dir, ind, dep1, dep2,
-            where=where, interpolate=interpolate, step=step, axes=self, **kwargs)
+            where=where, interpolate=interpolate, step=step, **kwargs)
 
+        # now update the datalim and autoscale
+        if transform := kwargs.get("transform"):
+            up_x, up_y = transform.contains_branch_seperately(self.transData)
+        else:
+            up_x = up_y = True
+        self.update_datalim(collection._dataLim, updatex=up_x, updatey=up_y)
         self.add_collection(collection, autolim=False)
         self._request_autoscale_view()
         return collection

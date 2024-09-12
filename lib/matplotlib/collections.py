@@ -1261,7 +1261,7 @@ class FillBetweenPolyCollection(PolyCollection):
     """
     def __init__(
             self, t_direction, t, f1, f2, *,
-            where=None, interpolate=False, step=None, axes=None, **kwargs):
+            where=None, interpolate=False, step=None, **kwargs):
         """
         Parameters
         ----------
@@ -1316,10 +1316,6 @@ class FillBetweenPolyCollection(PolyCollection):
               value ``f[i]``.
             - 'mid': Steps occur half-way between the *t* positions.
 
-        axes : `~matplotlib.axes.Axes` or None
-            The owning Axes to which the collection belongs, or None if there is
-            no Axes upon instantiation.
-
         **kwargs
             Forwarded to `.PolyCollection`.
 
@@ -1328,23 +1324,24 @@ class FillBetweenPolyCollection(PolyCollection):
         .Axes.fill_between, .Axes.fill_betweenx
         """
         self.t_direction = t_direction
-        kwargs = self._normalize_kwargs(axes, **kwargs)
-        polys, pts = self._make_verts_and_pts(
-            t, f1, f2, where, interpolate, step, axes, **kwargs)
-        super().__init__(polys, **kwargs)
-        if axes is not None:
-            self._update_axes_datalim(pts, axes, kwargs.get("transform"))
+        verts = self._make_verts(t, f1, f2, where, interpolate, step)
+        super().__init__(verts, **kwargs)
+
+    @staticmethod
+    def _f_dir_from_t(t_direction):
+        """The direction that is other than `t_direction`."""
+        if t_direction == "x":
+            return "y"
+        elif t_direction == "y":
+            return "x"
+        else:
+            msg = f"t_direction must be 'x' or 'y', got {t_direction!r}"
+            raise ValueError(msg)
 
     @property
     def _f_direction(self):
         """The direction that is other than `self.t_direction`."""
-        if self.t_direction == "x":
-            return "y"
-        elif self.t_direction == "y":
-            return "x"
-        else:
-            msg = f"t_direction must be 'x' or 'y', got {self.t_direction!r}"
-            raise ValueError(msg)
+        return self._f_dir_from_t(self.t_direction)
 
     def set_data(
             self, t, f1, f2, *,
@@ -1406,23 +1403,23 @@ class FillBetweenPolyCollection(PolyCollection):
         --------
         .PolyCollection.set_verts, .Line2D.set_data
         """
-        kwargs = self._normalize_kwargs(self.axes, **kwargs)
-        polys, _ = self._make_verts_and_pts(
-            t, f1, f2, where, interpolate, step, self.axes, **kwargs)
-        self.set_verts(polys)
+        if not mpl.rcParams["_internal.classic_mode"]:
+            kwargs = cbook.normalize_kwargs(kwargs, Collection)
 
-    def _make_verts_and_pts(self, t, f1, f2, where, interpolate, step, axes, **kwargs):
-        """
-        Make verts that can be forwarded to `.PolyCollection`,
-        and pts that can be forwarded to `self._update_axes_datalim.
-        """
-        dirs = (self.t_direction, self._f_direction, self._f_direction)
         # Handle united data, such as dates
-        if axes:
-            t, f1, f2 = axes._process_unit_info(
-                [*zip(dirs, [t, f1, f2])], kwargs)
+        dirs = (self.t_direction, self._f_direction, self._f_direction)
+        t, f1, f2 = self.axes._process_unit_info([*zip(dirs, [t, f1, f2])], kwargs)
+
+        verts = self._make_verts(t, f1, f2, where, interpolate, step)
+        self.set_verts(verts)
+
+    def _make_verts(self, t, f1, f2, where, interpolate, step):
+        """
+        Make verts that can be forwarded to `.PolyCollection`.
+        """
         t, f1, f2 = map(np.ma.masked_invalid, [t, f1, f2])
 
+        dirs = (self.t_direction, self._f_direction, self._f_direction)
         names = (d + s for d, s in zip(dirs, ("", "1", "2")))
         for name, array in zip(names, [t, f1, f2]):
             if array.ndim > 1:
@@ -1438,30 +1435,21 @@ class FillBetweenPolyCollection(PolyCollection):
         where = where & ~functools.reduce(
             np.logical_or, map(np.ma.getmaskarray, [t, f1, f2]))
 
-        t, f1, f2 = np.broadcast_arrays(
-            np.atleast_1d(t), f1, f2, subok=True)
+        t, f1, f2 = np.broadcast_arrays(np.atleast_1d(t), f1, f2, subok=True)
 
-        polys = [
-            self._make_pts(t, f1, f2, idx0, idx1, step, interpolate)
+        verts = [
+            self._make_verts_per_region(t, f1, f2, idx0, idx1, step, interpolate)
             for idx0, idx1 in cbook.contiguous_regions(where)
         ]
 
-        pts = self._normalize_pts(np.vstack([
-            np.hstack([t[where, None], f[where, None]]) for f in (f1, f2)]))
+        bbox = transforms.Bbox.null()
+        bbox.update_from_data_xy(self._normalize_pts(np.vstack([
+            np.hstack([t[where, None], f[where, None]]) for f in (f1, f2)])))
+        self._dataLim = bbox.corners()
 
-        return polys, pts
+        return verts
 
-    @staticmethod
-    def _normalize_kwargs(axes, **kwargs):
-        """Normalize keyword arguments."""
-        if not mpl.rcParams["_internal.classic_mode"]:
-            kwargs = cbook.normalize_kwargs(kwargs, Collection)
-            if axes and not any(c in kwargs for c in ("color", "facecolor")):
-                kwargs["facecolor"] = axes._get_patches_for_fill.get_next_color()
-
-        return kwargs
-
-    def _make_pts(self, t, f1, f2, idx0, idx1, step, interpolate):
+    def _make_verts_per_region(self, t, f1, f2, idx0, idx1, step, interpolate):
         """
         Make `verts` from contiguous region between `idx0` and `idx1`, taking
         into account `step` and `interpolate`.
@@ -1523,15 +1511,6 @@ class FillBetweenPolyCollection(PolyCollection):
         is not true, we need to exchange the coordinates.
         """
         return pts[:, ::-1] if self.t_direction == "y" else pts
-
-    @staticmethod
-    def _update_axes_datalim(pts, axes, transform):
-        """Update the datalim of an external axis and autoscale it."""
-        if transform is not None:
-            up_x, up_y = transform.contains_branch_seperately(axes.transData)
-        else:
-            up_x = up_y = True
-        axes.update_datalim(pts, updatex=up_x, updatey=up_y)
 
 
 class RegularPolyCollection(_CollectionWithSizes):
