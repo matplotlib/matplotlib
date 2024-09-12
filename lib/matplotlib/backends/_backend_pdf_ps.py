@@ -123,7 +123,7 @@ class RendererPDFPSBase(RendererBase):
             return w, h, d
         else:
             font = self._get_font_ttf(prop)
-            font.set_text(s, 0.0, flags=ft2font.LOAD_NO_HINTING)
+            font.set_text(s, 0.0, flags=ft2font.LoadFlags.NO_HINTING)
             w, h = font.get_width_height()
             d = font.get_descent()
             scale = 1 / 64

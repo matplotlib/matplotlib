@@ -33,6 +33,83 @@ P11X_DECLARE_ENUM(
     {"UNSCALED", FT_KERNING_UNSCALED},
 );
 
+const char *LoadFlags__doc__ = R"""(
+    Flags for `FT2Font.load_char`, `FT2Font.load_glyph`, and `FT2Font.set_text`.
+
+    For more information, see `the FreeType documentation
+    <https://freetype.org/freetype2/docs/reference/ft2-glyph_retrieval.html#ft_load_xxx>`_.
+
+    .. versionadded:: 3.10
+)""";
+
+enum class LoadFlags : FT_Int32 {
+#define DECLARE_FLAG(name) name = FT_LOAD_##name
+    DECLARE_FLAG(DEFAULT),
+    DECLARE_FLAG(NO_SCALE),
+    DECLARE_FLAG(NO_HINTING),
+    DECLARE_FLAG(RENDER),
+    DECLARE_FLAG(NO_BITMAP),
+    DECLARE_FLAG(VERTICAL_LAYOUT),
+    DECLARE_FLAG(FORCE_AUTOHINT),
+    DECLARE_FLAG(CROP_BITMAP),
+    DECLARE_FLAG(PEDANTIC),
+    DECLARE_FLAG(IGNORE_GLOBAL_ADVANCE_WIDTH),
+    DECLARE_FLAG(NO_RECURSE),
+    DECLARE_FLAG(IGNORE_TRANSFORM),
+    DECLARE_FLAG(MONOCHROME),
+    DECLARE_FLAG(LINEAR_DESIGN),
+    DECLARE_FLAG(NO_AUTOHINT),
+    DECLARE_FLAG(COLOR),
+#ifdef FT_LOAD_COMPUTE_METRICS  // backcompat: ft 2.6.1.
+    DECLARE_FLAG(COMPUTE_METRICS),
+#endif
+#ifdef FT_LOAD_BITMAP_METRICS_ONLY  // backcompat: ft 2.7.1.
+    DECLARE_FLAG(LOAD_BITMAP_METRICS_ONLY),
+#endif
+#ifdef FT_LOAD_NO_SVG  // backcompat: ft 2.13.1.
+    DECLARE_FLAG(LOAD_NO_SVG),
+#endif
+    DECLARE_FLAG(TARGET_NORMAL),
+    DECLARE_FLAG(TARGET_LIGHT),
+    DECLARE_FLAG(TARGET_MONO),
+    DECLARE_FLAG(TARGET_LCD),
+    DECLARE_FLAG(TARGET_LCD_V),
+#undef DECLARE_FLAG
+};
+
+P11X_DECLARE_ENUM(
+    "LoadFlags", "Flag",
+    {"DEFAULT", LoadFlags::DEFAULT},
+    {"NO_SCALE", LoadFlags::NO_SCALE},
+    {"NO_HINTING", LoadFlags::NO_HINTING},
+    {"RENDER", LoadFlags::RENDER},
+    {"NO_BITMAP", LoadFlags::NO_BITMAP},
+    {"VERTICAL_LAYOUT", LoadFlags::VERTICAL_LAYOUT},
+    {"FORCE_AUTOHINT", LoadFlags::FORCE_AUTOHINT},
+    {"CROP_BITMAP", LoadFlags::CROP_BITMAP},
+    {"PEDANTIC", LoadFlags::PEDANTIC},
+    {"IGNORE_GLOBAL_ADVANCE_WIDTH", LoadFlags::IGNORE_GLOBAL_ADVANCE_WIDTH},
+    {"NO_RECURSE", LoadFlags::NO_RECURSE},
+    {"IGNORE_TRANSFORM", LoadFlags::IGNORE_TRANSFORM},
+    {"MONOCHROME", LoadFlags::MONOCHROME},
+    {"LINEAR_DESIGN", LoadFlags::LINEAR_DESIGN},
+    {"NO_AUTOHINT", LoadFlags::NO_AUTOHINT},
+    {"COLOR", LoadFlags::COLOR},
+    // backcompat: ft 2.6.1.
+    {"COMPUTE_METRICS", LoadFlags::COMPUTE_METRICS},
+    // backcompat: ft 2.7.1.
+    // {"BITMAP_METRICS_ONLY", LoadFlags::BITMAP_METRICS_ONLY},
+    // backcompat: ft 2.13.1.
+    // {"NO_SVG", LoadFlags::NO_SVG},
+    // These must be unique, but the others can be OR'd together; I don't know if
+    // there's any way to really enforce that.
+    {"TARGET_NORMAL", LoadFlags::TARGET_NORMAL},
+    {"TARGET_LIGHT", LoadFlags::TARGET_LIGHT},
+    {"TARGET_MONO", LoadFlags::TARGET_MONO},
+    {"TARGET_LCD", LoadFlags::TARGET_LCD},
+    {"TARGET_LCD_V", LoadFlags::TARGET_LCD_V},
+);
+
 /**********************************************************************
  * FT2Image
  * */
@@ -479,8 +556,11 @@ const char *PyFT2Font_set_text__doc__ = R"""(
         The text to prepare rendering information for.
     angle : float
         The angle at which to render the supplied text.
-    flags : int, default: ``LOAD_FORCE_AUTOHINT``
-        Any bitwise-OR combination of the ``LOAD_XXX`` constants.
+    flags : LoadFlags, default: `.LoadFlags.FORCE_AUTOHINT`
+        Any bitwise-OR combination of the `.LoadFlags` flags.
+
+        .. versionchanged:: 3.10
+            This now takes an `.ft2font.LoadFlags` instead of an int.
 
     Returns
     -------
@@ -490,11 +570,27 @@ const char *PyFT2Font_set_text__doc__ = R"""(
 
 static py::array_t<double>
 PyFT2Font_set_text(PyFT2Font *self, std::u32string_view text, double angle = 0.0,
-                   FT_Int32 flags = FT_LOAD_FORCE_AUTOHINT)
+                   std::variant<LoadFlags, FT_Int32> flags_or_int = LoadFlags::FORCE_AUTOHINT)
 {
     std::vector<double> xys;
+    LoadFlags flags;
 
-    self->x->set_text(text, angle, flags, xys);
+    if (auto value = std::get_if<FT_Int32>(&flags_or_int)) {
+        auto api = py::module_::import("matplotlib._api");
+        auto warn = api.attr("warn_deprecated");
+        warn("since"_a="3.10", "name"_a="flags", "obj_type"_a="parameter as int",
+             "alternative"_a="LoadFlags enum values");
+        flags = static_cast<LoadFlags>(*value);
+    } else if (auto value = std::get_if<LoadFlags>(&flags_or_int)) {
+        flags = *value;
+    } else {
+        // NOTE: this can never happen as pybind11 would have checked the type in the
+        // Python wrapper before calling this function, but we need to keep the
+        // std::get_if instead of std::get for macOS 10.12 compatibility.
+        throw py::type_error("flags must be LoadFlags or int");
+    }
+
+    self->x->set_text(text, angle, static_cast<FT_Int32>(flags), xys);
 
     py::ssize_t dims[] = { static_cast<py::ssize_t>(xys.size()) / 2, 2 };
     py::array_t<double> result(dims);
@@ -520,8 +616,11 @@ const char *PyFT2Font_load_char__doc__ = R"""(
     charcode : int
         The character code to prepare rendering information for. This code must be in
         the charmap, or else a ``.notdef`` glyph may be returned instead.
-    flags : int, default: ``LOAD_FORCE_AUTOHINT``
-        Any bitwise-OR combination of the ``LOAD_XXX`` constants.
+    flags : LoadFlags, default: `.LoadFlags.FORCE_AUTOHINT`
+        Any bitwise-OR combination of the `.LoadFlags` flags.
+
+        .. versionchanged:: 3.10
+            This now takes an `.ft2font.LoadFlags` instead of an int.
 
     Returns
     -------
@@ -537,12 +636,28 @@ const char *PyFT2Font_load_char__doc__ = R"""(
 
 static PyGlyph *
 PyFT2Font_load_char(PyFT2Font *self, long charcode,
-                    FT_Int32 flags = FT_LOAD_FORCE_AUTOHINT)
+                    std::variant<LoadFlags, FT_Int32> flags_or_int = LoadFlags::FORCE_AUTOHINT)
 {
     bool fallback = true;
     FT2Font *ft_object = NULL;
+    LoadFlags flags;
 
-    self->x->load_char(charcode, flags, ft_object, fallback);
+    if (auto value = std::get_if<FT_Int32>(&flags_or_int)) {
+        auto api = py::module_::import("matplotlib._api");
+        auto warn = api.attr("warn_deprecated");
+        warn("since"_a="3.10", "name"_a="flags", "obj_type"_a="parameter as int",
+             "alternative"_a="LoadFlags enum values");
+        flags = static_cast<LoadFlags>(*value);
+    } else if (auto value = std::get_if<LoadFlags>(&flags_or_int)) {
+        flags = *value;
+    } else {
+        // NOTE: this can never happen as pybind11 would have checked the type in the
+        // Python wrapper before calling this function, but we need to keep the
+        // std::get_if instead of std::get for macOS 10.12 compatibility.
+        throw py::type_error("flags must be LoadFlags or int");
+    }
+
+    self->x->load_char(charcode, static_cast<FT_Int32>(flags), ft_object, fallback);
 
     return PyGlyph_from_FT2Font(ft_object);
 }
@@ -557,8 +672,11 @@ const char *PyFT2Font_load_glyph__doc__ = R"""(
     ----------
     glyph_index : int
         The glyph index to prepare rendering information for.
-    flags : int, default: ``LOAD_FORCE_AUTOHINT``
-        Any bitwise-OR combination of the ``LOAD_XXX`` constants.
+    flags : LoadFlags, default: `.LoadFlags.FORCE_AUTOHINT`
+        Any bitwise-OR combination of the `.LoadFlags` flags.
+
+        .. versionchanged:: 3.10
+            This now takes an `.ft2font.LoadFlags` instead of an int.
 
     Returns
     -------
@@ -572,12 +690,28 @@ const char *PyFT2Font_load_glyph__doc__ = R"""(
 
 static PyGlyph *
 PyFT2Font_load_glyph(PyFT2Font *self, FT_UInt glyph_index,
-                     FT_Int32 flags = FT_LOAD_FORCE_AUTOHINT)
+                     std::variant<LoadFlags, FT_Int32> flags_or_int = LoadFlags::FORCE_AUTOHINT)
 {
     bool fallback = true;
     FT2Font *ft_object = NULL;
+    LoadFlags flags;
 
-    self->x->load_glyph(glyph_index, flags, ft_object, fallback);
+    if (auto value = std::get_if<FT_Int32>(&flags_or_int)) {
+        auto api = py::module_::import("matplotlib._api");
+        auto warn = api.attr("warn_deprecated");
+        warn("since"_a="3.10", "name"_a="flags", "obj_type"_a="parameter as int",
+             "alternative"_a="LoadFlags enum values");
+        flags = static_cast<LoadFlags>(*value);
+    } else if (auto value = std::get_if<LoadFlags>(&flags_or_int)) {
+        flags = *value;
+    } else {
+        // NOTE: this can never happen as pybind11 would have checked the type in the
+        // Python wrapper before calling this function, but we need to keep the
+        // std::get_if instead of std::get for macOS 10.12 compatibility.
+        throw py::type_error("flags must be LoadFlags or int");
+    }
+
+    self->x->load_glyph(glyph_index, static_cast<FT_Int32>(flags), ft_object, fallback);
 
     return PyGlyph_from_FT2Font(ft_object);
 }
@@ -1329,6 +1463,40 @@ ft2font__getattr__(std::string name) {
 
 #undef DEPRECATE_ATTR_FROM_ENUM
 
+#define DEPRECATE_ATTR_FROM_FLAG(attr_, enum_, value_) \
+    do { \
+        if (name == #attr_) { \
+            warn("since"_a="3.10", "name"_a=#attr_, "obj_type"_a="attribute", \
+                 "alternative"_a=#enum_ "." #value_); \
+            return py::cast(enum_::value_); \
+        } \
+    } while(0)
+
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_DEFAULT, LoadFlags, DEFAULT);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_NO_SCALE, LoadFlags, NO_SCALE);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_NO_HINTING, LoadFlags, NO_HINTING);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_RENDER, LoadFlags, RENDER);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_NO_BITMAP, LoadFlags, NO_BITMAP);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_VERTICAL_LAYOUT, LoadFlags, VERTICAL_LAYOUT);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_FORCE_AUTOHINT, LoadFlags, FORCE_AUTOHINT);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_CROP_BITMAP, LoadFlags, CROP_BITMAP);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_PEDANTIC, LoadFlags, PEDANTIC);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH, LoadFlags,
+                             IGNORE_GLOBAL_ADVANCE_WIDTH);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_NO_RECURSE, LoadFlags, NO_RECURSE);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_IGNORE_TRANSFORM, LoadFlags, IGNORE_TRANSFORM);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_MONOCHROME, LoadFlags, MONOCHROME);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_LINEAR_DESIGN, LoadFlags, LINEAR_DESIGN);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_NO_AUTOHINT, LoadFlags, NO_AUTOHINT);
+
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_TARGET_NORMAL, LoadFlags, TARGET_NORMAL);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_TARGET_LIGHT, LoadFlags, TARGET_LIGHT);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_TARGET_MONO, LoadFlags, TARGET_MONO);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_TARGET_LCD, LoadFlags, TARGET_LCD);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_TARGET_LCD_V, LoadFlags, TARGET_LCD_V);
+
+#undef DEPRECATE_ATTR_FROM_FLAG
+
     throw py::attribute_error(
         "module 'matplotlib.ft2font' has no attribute {!r}"_s.format(name));
 }
@@ -1345,6 +1513,7 @@ PYBIND11_MODULE(ft2font, m)
 
     p11x::bind_enums(m);
     p11x::enums["Kerning"].attr("__doc__") = Kerning__doc__;
+    p11x::enums["LoadFlags"].attr("__doc__") = LoadFlags__doc__;
 
     py::class_<FT2Image>(m, "FT2Image", py::is_final(), py::buffer_protocol(),
                          PyFT2Image__doc__)
@@ -1398,16 +1567,16 @@ PYBIND11_MODULE(ft2font, m)
         .def("get_kerning", &PyFT2Font_get_kerning, "left"_a, "right"_a, "mode"_a,
              PyFT2Font_get_kerning__doc__)
         .def("set_text", &PyFT2Font_set_text,
-             "string"_a, "angle"_a=0.0, "flags"_a=FT_LOAD_FORCE_AUTOHINT,
+             "string"_a, "angle"_a=0.0, "flags"_a=LoadFlags::FORCE_AUTOHINT,
              PyFT2Font_set_text__doc__)
         .def("_get_fontmap", &PyFT2Font_get_fontmap, "string"_a,
              PyFT2Font_get_fontmap__doc__)
         .def("get_num_glyphs", &PyFT2Font_get_num_glyphs, PyFT2Font_get_num_glyphs__doc__)
         .def("load_char", &PyFT2Font_load_char,
-             "charcode"_a, "flags"_a=FT_LOAD_FORCE_AUTOHINT,
+             "charcode"_a, "flags"_a=LoadFlags::FORCE_AUTOHINT,
              PyFT2Font_load_char__doc__)
         .def("load_glyph", &PyFT2Font_load_glyph,
-             "glyph_index"_a, "flags"_a=FT_LOAD_FORCE_AUTOHINT,
+             "glyph_index"_a, "flags"_a=LoadFlags::FORCE_AUTOHINT,
              PyFT2Font_load_glyph__doc__)
         .def("get_width_height", &PyFT2Font_get_width_height,
              PyFT2Font_get_width_height__doc__)
@@ -1501,24 +1670,4 @@ PYBIND11_MODULE(ft2font, m)
     m.attr("EXTERNAL_STREAM") = FT_FACE_FLAG_EXTERNAL_STREAM;
     m.attr("ITALIC") = FT_STYLE_FLAG_ITALIC;
     m.attr("BOLD") = FT_STYLE_FLAG_BOLD;
-    m.attr("LOAD_DEFAULT") = FT_LOAD_DEFAULT;
-    m.attr("LOAD_NO_SCALE") = FT_LOAD_NO_SCALE;
-    m.attr("LOAD_NO_HINTING") = FT_LOAD_NO_HINTING;
-    m.attr("LOAD_RENDER") = FT_LOAD_RENDER;
-    m.attr("LOAD_NO_BITMAP") = FT_LOAD_NO_BITMAP;
-    m.attr("LOAD_VERTICAL_LAYOUT") = FT_LOAD_VERTICAL_LAYOUT;
-    m.attr("LOAD_FORCE_AUTOHINT") = FT_LOAD_FORCE_AUTOHINT;
-    m.attr("LOAD_CROP_BITMAP") = FT_LOAD_CROP_BITMAP;
-    m.attr("LOAD_PEDANTIC") = FT_LOAD_PEDANTIC;
-    m.attr("LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH") = FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH;
-    m.attr("LOAD_NO_RECURSE") = FT_LOAD_NO_RECURSE;
-    m.attr("LOAD_IGNORE_TRANSFORM") = FT_LOAD_IGNORE_TRANSFORM;
-    m.attr("LOAD_MONOCHROME") = FT_LOAD_MONOCHROME;
-    m.attr("LOAD_LINEAR_DESIGN") = FT_LOAD_LINEAR_DESIGN;
-    m.attr("LOAD_NO_AUTOHINT") = (unsigned long)FT_LOAD_NO_AUTOHINT;
-    m.attr("LOAD_TARGET_NORMAL") = (unsigned long)FT_LOAD_TARGET_NORMAL;
-    m.attr("LOAD_TARGET_LIGHT") = (unsigned long)FT_LOAD_TARGET_LIGHT;
-    m.attr("LOAD_TARGET_MONO") = (unsigned long)FT_LOAD_TARGET_MONO;
-    m.attr("LOAD_TARGET_LCD") = (unsigned long)FT_LOAD_TARGET_LCD;
-    m.attr("LOAD_TARGET_LCD_V") = (unsigned long)FT_LOAD_TARGET_LCD_V;
 }

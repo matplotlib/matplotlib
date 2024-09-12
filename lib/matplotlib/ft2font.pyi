@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, Flag
 import sys
 from typing import BinaryIO, Literal, TypedDict, final, overload
 from typing_extensions import Buffer  # < Py 3.12
@@ -17,26 +17,6 @@ GLYPH_NAMES: int
 HORIZONTAL: int
 ITALIC: int
 KERNING: int
-LOAD_CROP_BITMAP: int
-LOAD_DEFAULT: int
-LOAD_FORCE_AUTOHINT: int
-LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH: int
-LOAD_IGNORE_TRANSFORM: int
-LOAD_LINEAR_DESIGN: int
-LOAD_MONOCHROME: int
-LOAD_NO_AUTOHINT: int
-LOAD_NO_BITMAP: int
-LOAD_NO_HINTING: int
-LOAD_NO_RECURSE: int
-LOAD_NO_SCALE: int
-LOAD_PEDANTIC: int
-LOAD_RENDER: int
-LOAD_TARGET_LCD: int
-LOAD_TARGET_LCD_V: int
-LOAD_TARGET_LIGHT: int
-LOAD_TARGET_MONO: int
-LOAD_TARGET_NORMAL: int
-LOAD_VERTICAL_LAYOUT: int
 MULTIPLE_MASTERS: int
 SCALABLE: int
 SFNT: int
@@ -46,6 +26,33 @@ class Kerning(Enum):
     DEFAULT: int
     UNFITTED: int
     UNSCALED: int
+
+class LoadFlags(Flag):
+    DEFAULT: int
+    NO_SCALE: int
+    NO_HINTING: int
+    RENDER: int
+    NO_BITMAP: int
+    VERTICAL_LAYOUT: int
+    FORCE_AUTOHINT: int
+    CROP_BITMAP: int
+    PEDANTIC: int
+    IGNORE_GLOBAL_ADVANCE_WIDTH: int
+    NO_RECURSE: int
+    IGNORE_TRANSFORM: int
+    MONOCHROME: int
+    LINEAR_DESIGN: int
+    NO_AUTOHINT: int
+    COLOR: int
+    COMPUTE_METRICS: int  # FT 2.6.1
+    # BITMAP_METRICS_ONLY: int  # FT 2.7.1
+    # NO_SVG: int  # FT 2.13.1
+    # The following should be unique, but the above can be OR'd together.
+    TARGET_NORMAL: int
+    TARGET_LIGHT: int
+    TARGET_MONO: int
+    TARGET_LCD: int
+    TARGET_LCD_V: int
 
 class _SfntHeadDict(TypedDict):
     version: tuple[int, int]
@@ -210,13 +217,13 @@ class FT2Font(Buffer):
     @overload
     def get_sfnt_table(self, name: Literal["pclt"]) -> _SfntPcltDict | None: ...
     def get_width_height(self) -> tuple[int, int]: ...
-    def load_char(self, charcode: int, flags: int = ...) -> Glyph: ...
-    def load_glyph(self, glyphindex: int, flags: int = ...) -> Glyph: ...
+    def load_char(self, charcode: int, flags: LoadFlags = ...) -> Glyph: ...
+    def load_glyph(self, glyphindex: int, flags: LoadFlags = ...) -> Glyph: ...
     def select_charmap(self, i: int) -> None: ...
     def set_charmap(self, i: int) -> None: ...
     def set_size(self, ptsize: float, dpi: float) -> None: ...
     def set_text(
-        self, string: str, angle: float = ..., flags: int = ...
+        self, string: str, angle: float = ..., flags: LoadFlags = ...
     ) -> NDArray[np.float64]: ...
     @property
     def ascender(self) -> int: ...
