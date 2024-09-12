@@ -1442,6 +1442,7 @@ class FillBetweenPolyCollection(PolyCollection):
             for idx0, idx1 in cbook.contiguous_regions(where)
         ]
 
+        # prepare the datalim for autoscale
         bbox = transforms.Bbox.null()
         bbox.update_from_data_xy(self._normalize_pts(np.vstack([
             np.hstack([t[where, None], f[where, None]]) for f in (f1, f2)])))
@@ -1461,9 +1462,6 @@ class FillBetweenPolyCollection(PolyCollection):
             step_func = cbook.STEP_LOOKUP_MAP["steps-" + step]
             t_slice, f1_slice, f2_slice = step_func(t_slice, f1_slice, f2_slice)
 
-        size = len(t_slice)
-        pts = np.zeros((2 * size + 2, 2))
-
         if interpolate:
             start = self._get_interp_point(t, f1, f2, idx0)
             end = self._get_interp_point(t, f1, f2, idx1)
@@ -1473,13 +1471,11 @@ class FillBetweenPolyCollection(PolyCollection):
             start = t_slice[0], f2_slice[0]
             end = t_slice[-1], f2_slice[-1]
 
-        pts[0] = start
-        pts[size + 1] = end
-
-        pts[1:size+1, 0] = t_slice
-        pts[1:size+1, 1] = f1_slice
-        pts[size+2:, 0] = t_slice[::-1]
-        pts[size+2:, 1] = f2_slice[::-1]
+        pts = np.concatenate((
+            np.asarray([start]),
+            np.stack((t_slice, f1_slice), axis=-1),
+            np.asarray([end]),
+            np.stack((t_slice, f2_slice), axis=-1)[::-1]))
 
         return self._normalize_pts(pts)
 
