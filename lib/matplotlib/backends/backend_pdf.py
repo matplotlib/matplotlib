@@ -35,8 +35,7 @@ from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
 from matplotlib.font_manager import get_font, fontManager as _fontManager
 from matplotlib._afm import AFM
-from matplotlib.ft2font import (FIXED_WIDTH, ITALIC, LOAD_NO_SCALE,
-                                LOAD_NO_HINTING, FT2Font, Kerning)
+from matplotlib.ft2font import FIXED_WIDTH, ITALIC, FT2Font, Kerning, LoadFlags
 from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
 from matplotlib.dates import UTC
@@ -617,7 +616,7 @@ def _get_pdf_charprocs(font_path, glyph_ids):
     conv = 1000 / font.units_per_EM  # Conversion to PS units (1/1000's).
     procs = {}
     for glyph_id in glyph_ids:
-        g = font.load_glyph(glyph_id, LOAD_NO_SCALE)
+        g = font.load_glyph(glyph_id, LoadFlags.NO_SCALE)
         # NOTE: We should be using round(), but instead use
         # "(x+.5).astype(int)" to keep backcompat with the old ttconv code
         # (this is different for negative x's).
@@ -1185,7 +1184,7 @@ end"""
             def get_char_width(charcode):
                 s = ord(cp1252.decoding_table[charcode])
                 width = font.load_char(
-                    s, flags=LOAD_NO_SCALE | LOAD_NO_HINTING).horiAdvance
+                    s, flags=LoadFlags.NO_SCALE | LoadFlags.NO_HINTING).horiAdvance
                 return cvt(width)
             with warnings.catch_warnings():
                 # Ignore 'Required glyph missing from current font' warning
@@ -1322,7 +1321,7 @@ end"""
                 ccode = c
                 gind = font.get_char_index(ccode)
                 glyph = font.load_char(ccode,
-                                       flags=LOAD_NO_SCALE | LOAD_NO_HINTING)
+                                       flags=LoadFlags.NO_SCALE | LoadFlags.NO_HINTING)
                 widths.append((ccode, cvt(glyph.horiAdvance)))
                 if ccode < 65536:
                     cid_to_gid_map[ccode] = chr(gind)

@@ -7,7 +7,7 @@ from __future__ import annotations
 import dataclasses
 
 from . import _api
-from .ft2font import LOAD_NO_HINTING, FT2Font, Kerning
+from .ft2font import FT2Font, Kerning, LoadFlags
 
 
 @dataclasses.dataclass(frozen=True)
@@ -76,7 +76,7 @@ def layout(string, font, *, kern_mode=Kerning.DEFAULT):
             if prev_glyph_idx is not None else 0.
         )
         x += kern
-        glyph = font.load_glyph(glyph_idx, flags=LOAD_NO_HINTING)
+        glyph = font.load_glyph(glyph_idx, flags=LoadFlags.NO_HINTING)
         yield LayoutItem(font, char, glyph_idx, x, kern)
         x += glyph.linearHoriAdvance / 65536
         prev_glyph_idx = glyph_idx
