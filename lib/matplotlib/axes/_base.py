@@ -2736,47 +2736,22 @@ class _AxesBase(martist.Artist):
 
     def margins(self, *margins, x=None, y=None, tight=True):
         """
-        Set or retrieve autoscaling margins.
+        Set or retrieve margins around the data for autoscaling axis limits.
 
-        The padding added to each limit of the Axes is the *margin*
-        times the data interval. All input parameters must be floats
-        greater than -0.5. Passing both positional and keyword
-        arguments is invalid and will raise a TypeError. If no
-        arguments (positional or otherwise) are provided, the current
+        This allows to configure the padding around the data without having to
+        set explicit limits using `~.Axes.set_xlim` / `~.Axes.set_ylim`.
+
+        Autoscaling determines the axis limits by adding *margin* times the
+        data interval as padding around the data. See the following illustration:
+
+        .. plot:: _embedded_plots/axes_margins.py
+
+        All input parameters must be floats greater than -0.5. Passing both
+        positional and keyword arguments is invalid and will raise a TypeError.
+        If no arguments (positional or otherwise) are provided, the current
         margins will remain unchanged and simply be returned.
 
-        .. plot::
-
-            import numpy as np
-            import matplotlib.pyplot as plt
-
-            x, y = np.meshgrid(np.linspace(0, 1, 10), np.linspace(0, 1, 10))
-            fig, ax = plt.subplots()
-            ax.plot(x, y, 'o', color='lightblue')
-            ax.margins(1.5, 0.5)
-            ax.set_title("margins(x=1.5, y=0.5)")
-
-            def arrow(p1, p2, **props):
-                ax.annotate("", p1, p2,
-                    arrowprops=dict(arrowstyle="<->", shrinkA=0, shrinkB=0, **props))
-
-            arrow((-1.5, 0), (0, 0), color="orange")
-            arrow((0, 0), (1, 0), color="sienna")
-            arrow((1, 0), (2.5, 0), color="orange")
-            ax.text(-0.75, -0.1, "x margin * x data range", ha="center",
-                    color="orange")
-            ax.text(0.5, -0.1, "x data range", ha="center", color="sienna")
-
-            arrow((1, -0.5), (1, 0), color="tab:green")
-            arrow((1, 0), (1, 1), color="darkgreen")
-            arrow((1, 1), (1, 1.5), color="tab:green")
-            ax.text(1.1, 1.25, "y margin * y data range", color="tab:green")
-            ax.text(1.1, 0.5, "y data range", color="darkgreen")
-
-        Specifying any margin changes only the autoscaling; for example,
-        if *xmargin* is not None, then *xmargin* times the X data
-        interval will be added to each end of that interval before
-        it is used in autoscaling.
+        The default margins are :rc:`axes.xmargin` and :rc:`axes.ymargin`.
 
         Parameters
         ----------
@@ -2808,10 +2783,14 @@ class _AxesBase(martist.Artist):
         Notes
         -----
         If a previously used Axes method such as :meth:`pcolor` has set
-        :attr:`use_sticky_edges` to `True`, only the limits not set by
-        the "sticky artists" will be modified. To force all of the
-        margins to be set, set :attr:`use_sticky_edges` to `False`
+        `~.Axes.use_sticky_edges` to `True`, only the limits not set by
+        the "sticky artists" will be modified. To force all
+        margins to be set, set `~.Axes.use_sticky_edges` to `False`
         before calling :meth:`margins`.
+
+        See Also
+        --------
+        .Axes.set_xmargin, .Axes.set_ymargin
         """
 
         if margins and (x is not None or y is not None):
