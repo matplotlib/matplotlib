@@ -5618,6 +5618,7 @@ class Axes(_AxesBase):
             up_x, up_y = transform.contains_branch_seperately(self.transData)
         else:
             up_x = up_y = True
+
         self.update_datalim(collection._dataLim, updatex=up_x, updatey=up_y)
         self.add_collection(collection, autolim=False)
         self._request_autoscale_view()
