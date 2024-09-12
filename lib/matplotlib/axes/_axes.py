@@ -3048,6 +3048,7 @@ class Axes(_AxesBase):
 
         return col
 
+    @_docstring.interpd
     def grouped_bar(self, x, heights, *, group_spacing=1.5, bar_spacing=0,
                     labels=None, orientation="vertical", colors=None,
                     **kwargs):
@@ -3057,6 +3058,10 @@ class Axes(_AxesBase):
         .. note::
             This function is new in v3.10, and the API is still provisional.
             We may still fine-tune some aspects based on user-feedback.
+
+        This is a convenience function to plot bar charts for multiple datasets
+        into one Axes. In particular, it simplifies positioning of the bars
+        compared to individual `~.Axes.bar` plots.
 
         Parameters
         ----------
@@ -3074,44 +3079,57 @@ class Axes(_AxesBase):
 
               .. code-block:: none
 
-                 x = ['a', 'b']
-                 group_labels = ['ds0', 'ds1', 'ds2']
+                  x = ["a", "b"]
 
-                 # group_labels: ds0   ds1        dw2
-                 heights = [dataset_0, dataset_1, dataset_2]
+                  #            x[0]   x[1]
+                  dataset_0 = [ds0_a, ds0_b]
+                  dataset_1 = [ds1_a, ds1_b]
+                  dataset_2 = [ds2_a, ds2_b]
 
-                 #            x[0]   x[1]
-                 dataset_0 = [ds0_a, ds0_b]
+                  heights = [dataset_0, dataset_1, dataset_2]
 
-                 #           x[0]   x[1]
-                 heights = [[ds0_a, ds0_b],  # dataset_0
-                            [ds1_a, ds1_b],  # dataset_1
-                            [ds2_a, ds2_b],  # dataset_2
-                            ]
+              Example call::
 
-            - dict of array-like: A names to datasets, each dataset (dict value)
-              must have ``len(x)`` elements.
+                  grouped_bar(x, [dataset_0, dataset_1, dataset_2])
 
-              group_labels = heights.keys()
-              heights = heights.values()
+            - dict of array-like: A mapping names to datasets. Each dataset
+              (dict value) must have ``len(x)`` elements.
 
-            - a 2D array: columns map to *x*, columns are the different datasets.
+              This is similar to passing a list of array-like, with the addition that
+              each dataset gets a name.
+
+              Example call::
+
+                grouped_bar(x, {'ds0': dataset_0, 'ds1': dataset_1, 'ds2': dataset_2]})
+
+              The names are used as *labels*, i.e. the following two calls are
+              equivalent::
+
+                data_dict = {'ds0': dataset_0, 'ds1': dataset_1, 'ds2': dataset_2]}
+                grouped_bar(x, data_dict)
+                grouped_bar(x, data_dict.values(), labels=data_dict.keys())
+
+              When using a dict-like input, you must not pass *labels* explicitly.
+
+            - a 2D array: The columns are the different datasets.
 
               .. code-block:: none
 
                           dataset_0 dataset_1 dataset_2
-                 x[0]='a'  ds0_a     ds1_a     ds2_a
-                 x[1]='b'  ds0_b     ds1_b     ds2_b
+                 x[0]="a"   ds0_a     ds1_a     ds2_a
+                 x[1]="b"   ds0_b     ds1_b     ds2_b
+
+              .. code-block::
+
+                  x = ["a", "b"]
+                  dataset_labels = ["dataset_0", "dataset_1", "dataset_2"]
+                  array = np.random.random((2, 3))
 
               Note that this is consistent with pandas. These two calls produce
               the same bar plot structure::
 
-                  grouped_bar(x, array, group_labels=group_labels)
-                  pd.DataFrame(array, index=x, columns=group_labels).plot.bar()
-
-
-            An iterable of array-like: The iteration runs over the groups.
-            Each individual array-like is the list of label values for that group.
+                  grouped_bar(x, array, labels=dataset_labels)
+                  pd.DataFrame(array, index=x, columns=dataset_labels).plot.bar()
 
         group_spacing : float
             The space between two bar groups in units of bar width.
@@ -3126,7 +3144,8 @@ class Axes(_AxesBase):
             Note: The "other" label dimension are the group labels, which
             can be set via *x*.
 
-        orientation : {"vertical", "horizontal"}, default: vertical
+        orientation : {"vertical", "horizontal"}, default: "vertical"
+            The direction of the bars.
 
         colors : list of :mpltype:`color`, optional
             A sequence of colors to be cycled through and used to color bars
@@ -3142,7 +3161,12 @@ class Axes(_AxesBase):
 
         Returns
         -------
-            A list of `.BarContainer` instances, one for each dataset.
+            list of `.BarContainer`
+                The results of the individual `~.Axes.bar` calls for each dataset.
+
+                .. warning::
+                    The return type is provisional and will likely be replaced
+                    by a more convenient object.
 
         """
         if hasattr(heights, 'keys'):
