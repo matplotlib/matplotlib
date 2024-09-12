@@ -29,7 +29,7 @@ from . import cbook
 from ._mathtext_data import (
     latex_to_bakoma, stix_glyph_fixes, stix_virtual_fonts, tex2uni)
 from .font_manager import FontProperties, findfont, get_font
-from .ft2font import FT2Font, FT2Image, KERNING_DEFAULT
+from .ft2font import FT2Font, FT2Image, Kerning
 
 from packaging.version import parse as parse_version
 from pyparsing import __version__ as pyparsing_version
@@ -426,7 +426,7 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
             info1 = self._get_info(font1, fontclass1, sym1, fontsize1, dpi)
             info2 = self._get_info(font2, fontclass2, sym2, fontsize2, dpi)
             font = info1.font
-            return font.get_kerning(info1.num, info2.num, KERNING_DEFAULT) / 64
+            return font.get_kerning(info1.num, info2.num, Kerning.DEFAULT) / 64
         return super().get_kern(font1, fontclass1, sym1, fontsize1,
                                 font2, fontclass2, sym2, fontsize2, dpi)
 

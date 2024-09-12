@@ -1,0 +1,12 @@
+ft2font module-level constants replaced by enums
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `.ft2font`-level constants have been converted to `enum` classes, and all API using
+them now take/return the new types.
+
+The following constants are now part of `.ft2font.Kerning` (without the ``KERNING_``
+prefix):
+
+- ``KERNING_DEFAULT``
+- ``KERNING_UNFITTED``
+- ``KERNING_UNSCALED``
