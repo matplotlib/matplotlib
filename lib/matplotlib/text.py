@@ -1853,7 +1853,6 @@ or callable, default: value of *xycoords*
         # Must come last, as some kwargs may be propagated to arrow_patch.
         Text.__init__(self, x, y, text, **kwargs)
 
-    @_api.rename_parameter("3.8", "event", "mouseevent")
     def contains(self, mouseevent):
         if self._different_canvas(mouseevent):
             return False, {}

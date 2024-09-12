@@ -3758,9 +3758,8 @@ class Axes3D(Axes):
 
         return errlines, caplines, limmarks
 
-    @_api.make_keyword_only("3.8", "call_axes_locator")
-    def get_tightbbox(self, renderer=None, call_axes_locator=True,
-                      bbox_extra_artists=None, *, for_layout_only=False):
+    def get_tightbbox(self, renderer=None, *, call_axes_locator=True,
+                      bbox_extra_artists=None, for_layout_only=False):
         ret = super().get_tightbbox(renderer,
                                     call_axes_locator=call_axes_locator,
                                     bbox_extra_artists=bbox_extra_artists,

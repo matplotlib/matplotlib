@@ -118,12 +118,6 @@ the toolbar pan and zoom buttons are not used.
    :template: autosummary.rst
 
    proj3d.inv_transform
-   proj3d.persp_transformation
-   proj3d.proj_points
-   proj3d.proj_trans_points
    proj3d.proj_transform
    proj3d.proj_transform_clip
-   proj3d.rot_x
-   proj3d.transform
-   proj3d.view_transformation
    proj3d.world_transformation
