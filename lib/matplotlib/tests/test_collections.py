@@ -844,16 +844,18 @@ def test_fill_between_poly_collection_set_data(fig_test, fig_ref, kwargs):
     coll.set_data(t, f1, f2)
 
 
-@pytest.mark.parametrize(("t_direction", "shape", "where", "msg"), [
-    ("z", (-1,), None, "t_direction must"),
-    ("x", (-1, 1), None, "'x' is not"),
-    ("x", (-1,), [False]*3, "where size"),
+@pytest.mark.parametrize(("t_direction", "f1", "shape", "where", "msg"), [
+    ("z", None, None, None, r"t_direction must be 'x' or 'y', got 'z'"),
+    ("x", None, (-1, 1), None, r"'x' is not 1-dimensional"),
+    ("x", None, None, [False] * 3, r"where size \(3\) does not match 'x' size \(\d+\)"),
+    ("y", [1, 2], None, None, r"'y' has size \d+, but 'x1' has an unequal size of \d+"),
 ])
-def test_fill_between_poly_collection_raise(t_direction, shape, where, msg):
+def test_fill_between_poly_collection_raise(t_direction, f1, shape, where, msg):
     t = np.linspace(0, 16)
-    f1 = np.sin(t)
+    f1 = np.sin(t) if f1 is None else np.asarray(f1)
     f2 = f1 + 0.2
-    t = t.reshape(*shape)
+    if shape:
+        t = t.reshape(*shape)
     with pytest.raises(ValueError, match=msg):
         FillBetweenPolyCollection(t_direction, t, f1, f2, where=where)
 

@@ -1406,7 +1406,7 @@ class FillBetweenPolyCollection(PolyCollection):
         else:
             where = np.asarray(where, dtype=bool)
             if where.size != t.size:
-                msg = "where size ({}) does not match {} size ({})".format(
+                msg = "where size ({}) does not match {!r} size ({})".format(
                     where.size, self.t_direction, t.size)
                 raise ValueError(msg)
         return where & ~functools.reduce(
@@ -1414,11 +1414,15 @@ class FillBetweenPolyCollection(PolyCollection):
 
     @staticmethod
     def _validate_dimensions(t_dir, f_dir, t, f1, f2):
-        """Validate dimensions of t- and f-data."""
+        """Validate that t, f1 and f2 are 1-dimensional and have the same length."""
         names = (d + s for d, s in zip((t_dir, f_dir, f_dir), ("", "1", "2")))
         for name, array in zip(names, [t, f1, f2]):
             if array.ndim > 1:
                 raise ValueError(f"{name!r} is not 1-dimensional")
+            if t.size > 1 and array.size > 1 and t.size != array.size:
+                msg = "{!r} has size {}, but {!r} has an unequal size of {}".format(
+                    t_dir, t.size, name, array.size)
+                raise ValueError(msg)
 
     def _make_verts_per_region(self, t, f1, f2, idx0, idx1):
         """
