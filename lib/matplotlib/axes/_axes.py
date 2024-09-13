@@ -5620,6 +5620,7 @@ class Axes(_AxesBase):
         else:
             up_x = up_y = True
         self.update_datalim(collection._xys_for_datalim, updatex=up_x, updatey=up_y)
+        delattr(collection, "_xys_for_datalim")
 
         self.add_collection(collection, autolim=False)
         self._request_autoscale_view()
