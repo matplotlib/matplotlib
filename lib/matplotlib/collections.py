@@ -1440,8 +1440,8 @@ class FillBetweenPolyCollection(PolyCollection):
             for idx0, idx1 in cbook.contiguous_regions(where)
         ]
 
-        # prepare the datalim for autoscale when called from _fill_between_x_or_y
-        if not hasattr(self, "axes"):
+        # Prepare the datalim for autoscale when called from _fill_between_x_or_y
+        if getattr(self, "axes", None) is None:
             self._xys_for_datalim = self._normalize_pts(np.concatenate([
                 np.stack((t[where], f[where]), axis=-1) for f in (f1, f2)]))
 
