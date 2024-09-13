@@ -5605,10 +5605,8 @@ class Axes(_AxesBase):
             if not any(c in kwargs for c in ("color", "facecolor")):
                 kwargs["facecolor"] = self._get_patches_for_fill.get_next_color()
 
-        # Handle united data, such as dates
-        ind, dep1, dep2 = map(
-            np.ma.masked_invalid, self._process_unit_info(
-                [(ind_dir, ind), (dep_dir, dep1), (dep_dir, dep2)], kwargs))
+        ind, dep1, dep2 = self._fill_between_process_units(
+            ind_dir, dep_dir, ind, dep1, dep2, kwargs)
 
         collection = mcoll.FillBetweenPolyCollection(
             ind_dir, ind, dep1, dep2,
@@ -5625,6 +5623,11 @@ class Axes(_AxesBase):
         self.add_collection(collection, autolim=False)
         self._request_autoscale_view()
         return collection
+
+    def _fill_between_process_units(self, ind_dir, dep_dir, ind, dep1, dep2, kwargs):
+        """Handle united data, such as dates."""
+        return map(np.ma.masked_invalid, self._process_unit_info(
+            [(ind_dir, ind), (dep_dir, dep1), (dep_dir, dep2)], kwargs))
 
     def fill_between(self, x, y1, y2=0, where=None, interpolate=False,
                      step=None, **kwargs):

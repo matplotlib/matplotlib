@@ -1406,9 +1406,8 @@ class FillBetweenPolyCollection(PolyCollection):
         if not mpl.rcParams["_internal.classic_mode"]:
             kwargs = cbook.normalize_kwargs(kwargs, Collection)
 
-        # Handle united data, such as dates
-        dirs = (self.t_direction, self._f_direction, self._f_direction)
-        t, f1, f2 = self.axes._process_unit_info([*zip(dirs, [t, f1, f2])], kwargs)
+        t, f1, f2 = self.axes._fill_between_process_units(
+            self.t_direction, self._f_direction, t, f1, f2, kwargs)
 
         verts = self._make_verts(t, f1, f2, where, interpolate, step)
         self.set_verts(verts)
@@ -1417,11 +1416,7 @@ class FillBetweenPolyCollection(PolyCollection):
         """
         Make verts that can be forwarded to `.PolyCollection`.
         """
-        dirs = (self.t_direction, self._f_direction, self._f_direction)
-        names = (d + s for d, s in zip(dirs, ("", "1", "2")))
-        for name, array in zip(names, [t, f1, f2]):
-            if array.ndim > 1:
-                raise ValueError(f"{name!r} is not 1-dimensional")
+        self._validate_dimensions(self.t_direction, self._f_direction, t, f1, f2)
 
         if where is None:
             where = True
@@ -1446,6 +1441,14 @@ class FillBetweenPolyCollection(PolyCollection):
                 np.stack((t[where], f[where]), axis=-1) for f in (f1, f2)]))
 
         return verts
+
+    @staticmethod
+    def _validate_dimensions(t_dir, f_dir, t, f1, f2):
+        """Validate dimensions of t- and f-data."""
+        names = (d + s for d, s in zip((t_dir, f_dir, f_dir), ("", "1", "2")))
+        for name, array in zip(names, [t, f1, f2]):
+            if array.ndim > 1:
+                raise ValueError(f"{name!r} is not 1-dimensional")
 
     def _make_verts_per_region(self, t, f1, f2, idx0, idx1, step, interpolate):
         """
@@ -1476,8 +1479,8 @@ class FillBetweenPolyCollection(PolyCollection):
 
         return self._normalize_pts(pts)
 
-    @staticmethod
-    def _get_interp_point(t, f1, f2, idx):
+    @classmethod
+    def _get_interp_point(cls, t, f1, f2, idx):
         """Calculate interpolating points."""
         im1 = max(idx - 1, 0)
         t_values = t[im1:idx+1]
@@ -1490,11 +1493,15 @@ class FillBetweenPolyCollection(PolyCollection):
             elif np.ma.is_masked(diff_values[0]):
                 return t[idx], f1[idx]
 
-        diff_order = diff_values.argsort()
-        diff_root_t = np.interp(0, diff_values[diff_order], t_values[diff_order])
-        t_order = t_values.argsort()
-        diff_root_f = np.interp(diff_root_t, t_values[t_order], f1_values[t_order])
+        diff_root_t = cls._get_diff_root(0, diff_values, t_values)
+        diff_root_f = cls._get_diff_root(diff_root_t, t_values, f1_values)
         return diff_root_t, diff_root_f
+
+    @staticmethod
+    def _get_diff_root(x, xp, fp):
+        """Calculate diff root."""
+        order = xp.argsort()
+        return np.interp(x, xp[order], fp[order])
 
     def _normalize_pts(self, pts):
         """
