@@ -128,9 +128,6 @@ class FillBetweenPolyCollection(PolyCollection):
         f2: ArrayLike,
         *,
         where: Sequence[bool] | None = ...,
-        interpolate: bool = ...,
-        step: Literal["pre", "post", "mid"] | None = ...,
-        **kwargs
     ) -> None: ...
 
 class RegularPolyCollection(_CollectionWithSizes):

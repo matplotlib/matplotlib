@@ -1324,7 +1324,9 @@ class FillBetweenPolyCollection(PolyCollection):
         .Axes.fill_between, .Axes.fill_betweenx
         """
         self.t_direction = t_direction
-        verts = self._make_verts(t, f1, f2, where, interpolate, step)
+        self._interpolate = interpolate
+        self._step = step
+        verts = self._make_verts(t, f1, f2, where)
         super().__init__(verts, **kwargs)
 
     @staticmethod
@@ -1343,9 +1345,7 @@ class FillBetweenPolyCollection(PolyCollection):
         """The direction that is other than `self.t_direction`."""
         return self._f_dir_from_t(self.t_direction)
 
-    def set_data(
-            self, t, f1, f2, *,
-            where=None, interpolate=False, step=None, **kwargs):
+    def set_data(self, t, f1, f2, *, where=None):
         """
         Set the two curves and update the collection.
 
@@ -1369,69 +1369,26 @@ class FillBetweenPolyCollection(PolyCollection):
             will not result in filling.  Both sides of the *True* position
             remain unfilled due to the adjacent *False* values.
 
-        interpolate : bool, default: False
-            This option is only relevant if *where* is used and the two curves
-            are crossing each other.
-
-            Semantically, *where* is often used for *f1* > *f2* or
-            similar.  By default, the nodes of the polygon defining the filled
-            region will only be placed at the positions in the *t* array.
-            Such a polygon cannot describe the above semantics close to the
-            intersection.  The t-sections containing the intersection are
-            simply clipped.
-
-            Setting *interpolate* to *True* will calculate the actual
-            intersection point and extend the filled region up to this point.
-
-        step : {{'pre', 'post', 'mid'}}, optional
-            Define *step* if the filling should be a step function,
-            i.e. constant in between *t*.  The value determines where the
-            step will occur:
-
-            - 'pre': The f value is continued constantly to the left from
-              every *t* position, i.e. the interval ``(t[i-1], t[i]]`` has the
-              value ``f[i]``.
-            - 'post': The y value is continued constantly to the right from
-              every *x* position, i.e. the interval ``[t[i], t[i+1])`` has the
-              value ``f[i]``.
-            - 'mid': Steps occur half-way between the *t* positions.
-
-        **kwargs
-            Forwarded to `.PolyCollection`.
-
         See Also
         --------
         .PolyCollection.set_verts, .Line2D.set_data
         """
-        if not mpl.rcParams["_internal.classic_mode"]:
-            kwargs = cbook.normalize_kwargs(kwargs, Collection)
-
         t, f1, f2 = self.axes._fill_between_process_units(
-            self.t_direction, self._f_direction, t, f1, f2, kwargs)
+            self.t_direction, self._f_direction, t, f1, f2)
 
-        verts = self._make_verts(t, f1, f2, where, interpolate, step)
+        verts = self._make_verts(t, f1, f2, where)
         self.set_verts(verts)
 
-    def _make_verts(self, t, f1, f2, where, interpolate, step):
+    def _make_verts(self, t, f1, f2, where):
         """
         Make verts that can be forwarded to `.PolyCollection`.
         """
         self._validate_dimensions(self.t_direction, self._f_direction, t, f1, f2)
 
-        if where is None:
-            where = True
-        else:
-            where = np.asarray(where, dtype=bool)
-            if where.size != t.size:
-                raise ValueError(f"where size ({where.size}) does not match "
-                                 f"{self.t_direction} size ({t.size})")
-        where = where & ~functools.reduce(
-            np.logical_or, map(np.ma.getmaskarray, [t, f1, f2]))
-
+        where = self._normalized_where(t, f1, f2, where)
         t, f1, f2 = np.broadcast_arrays(np.atleast_1d(t), f1, f2, subok=True)
-
         verts = [
-            self._make_verts_per_region(t, f1, f2, idx0, idx1, step, interpolate)
+            self._make_verts_per_region(t, f1, f2, idx0, idx1)
             for idx0, idx1 in cbook.contiguous_regions(where)
         ]
 
@@ -1442,6 +1399,19 @@ class FillBetweenPolyCollection(PolyCollection):
 
         return verts
 
+    def _normalized_where(self, t, f1, f2, where):
+        """Align ``where`` with the masks of ``t``, ``f1`` and ``f2``."""
+        if where is None:
+            where = True
+        else:
+            where = np.asarray(where, dtype=bool)
+            if where.size != t.size:
+                msg = "where size ({}) does not match {} size ({})".format(
+                    where.size, self.t_direction, t.size)
+                raise ValueError(msg)
+        return where & ~functools.reduce(
+            np.logical_or, map(np.ma.getmaskarray, [t, f1, f2]))
+
     @staticmethod
     def _validate_dimensions(t_dir, f_dir, t, f1, f2):
         """Validate dimensions of t- and f-data."""
@@ -1450,7 +1420,7 @@ class FillBetweenPolyCollection(PolyCollection):
             if array.ndim > 1:
                 raise ValueError(f"{name!r} is not 1-dimensional")
 
-    def _make_verts_per_region(self, t, f1, f2, idx0, idx1, step, interpolate):
+    def _make_verts_per_region(self, t, f1, f2, idx0, idx1):
         """
         Make `verts` from contiguous region between `idx0` and `idx1`, taking
         into account `step` and `interpolate`.
@@ -1458,11 +1428,11 @@ class FillBetweenPolyCollection(PolyCollection):
         t_slice = t[idx0:idx1]
         f1_slice = f1[idx0:idx1]
         f2_slice = f2[idx0:idx1]
-        if step is not None:
-            step_func = cbook.STEP_LOOKUP_MAP["steps-" + step]
+        if self._step is not None:
+            step_func = cbook.STEP_LOOKUP_MAP["steps-" + self._step]
             t_slice, f1_slice, f2_slice = step_func(t_slice, f1_slice, f2_slice)
 
-        if interpolate:
+        if self._interpolate:
             start = self._get_interp_point(t, f1, f2, idx0)
             end = self._get_interp_point(t, f1, f2, idx1)
         else:

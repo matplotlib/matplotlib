@@ -5606,7 +5606,7 @@ class Axes(_AxesBase):
                 kwargs["facecolor"] = self._get_patches_for_fill.get_next_color()
 
         ind, dep1, dep2 = self._fill_between_process_units(
-            ind_dir, dep_dir, ind, dep1, dep2, kwargs)
+            ind_dir, dep_dir, ind, dep1, dep2, **kwargs)
 
         collection = mcoll.FillBetweenPolyCollection(
             ind_dir, ind, dep1, dep2,
@@ -5624,7 +5624,7 @@ class Axes(_AxesBase):
         self._request_autoscale_view()
         return collection
 
-    def _fill_between_process_units(self, ind_dir, dep_dir, ind, dep1, dep2, kwargs):
+    def _fill_between_process_units(self, ind_dir, dep_dir, ind, dep1, dep2, **kwargs):
         """Handle united data, such as dates."""
         return map(np.ma.masked_invalid, self._process_unit_info(
             [(ind_dir, ind), (dep_dir, dep1), (dep_dir, dep2)], kwargs))
