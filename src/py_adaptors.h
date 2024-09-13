@@ -8,16 +8,12 @@
  * structures to C++ and Agg-friendly interfaces.
  */
 
-#include <Python.h>
-
-#include "numpy/arrayobject.h"
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
 
 #include "agg_basics.h"
-#include "py_exceptions.h"
 
-extern "C" {
-int convert_path(PyObject *obj, void *pathp);
-}
+namespace py = pybind11;
 
 namespace mpl {
 
@@ -35,8 +31,8 @@ class PathIterator
        underlying data arrays, so that Python reference counting
        can work.
     */
-    PyArrayObject *m_vertices;
-    PyArrayObject *m_codes;
+    py::array_t<double> m_vertices;
+    py::array_t<uint8_t> m_codes;
 
     unsigned m_iterator;
     unsigned m_total_vertices;
@@ -50,38 +46,29 @@ class PathIterator
 
   public:
     inline PathIterator()
-        : m_vertices(NULL),
-          m_codes(NULL),
-          m_iterator(0),
+        : m_iterator(0),
           m_total_vertices(0),
           m_should_simplify(false),
           m_simplify_threshold(1.0 / 9.0)
     {
     }
 
-    inline PathIterator(PyObject *vertices,
-                        PyObject *codes,
-                        bool should_simplify,
+    inline PathIterator(py::object vertices, py::object codes, bool should_simplify,
                         double simplify_threshold)
-        : m_vertices(NULL), m_codes(NULL), m_iterator(0)
+        : m_iterator(0)
     {
-        if (!set(vertices, codes, should_simplify, simplify_threshold))
-            throw mpl::exception();
+        set(vertices, codes, should_simplify, simplify_threshold);
     }
 
-    inline PathIterator(PyObject *vertices, PyObject *codes)
-        : m_vertices(NULL), m_codes(NULL), m_iterator(0)
+    inline PathIterator(py::object vertices, py::object codes)
+        : m_iterator(0)
     {
-        if (!set(vertices, codes))
-            throw mpl::exception();
+        set(vertices, codes);
     }
 
     inline PathIterator(const PathIterator &other)
     {
-        Py_XINCREF(other.m_vertices);
         m_vertices = other.m_vertices;
-
-        Py_XINCREF(other.m_codes);
         m_codes = other.m_codes;
 
         m_iterator = 0;
@@ -91,47 +78,45 @@ class PathIterator
         m_simplify_threshold = other.m_simplify_threshold;
     }
 
-    ~PathIterator()
+    inline void
+    set(py::object vertices, py::object codes, bool should_simplify, double simplify_threshold)
     {
-        Py_XDECREF(m_vertices);
-        Py_XDECREF(m_codes);
+        m_should_simplify = should_simplify;
+        m_simplify_threshold = simplify_threshold;
+
+        m_vertices = vertices.cast<py::array_t<double>>();
+        if (m_vertices.ndim() != 2 || m_vertices.shape(1) != 2) {
+            throw py::value_error("Invalid vertices array");
+        }
+        m_total_vertices = m_vertices.shape(0);
+
+        m_codes.release().dec_ref();
+        if (!codes.is_none()) {
+            m_codes = codes.cast<py::array_t<uint8_t>>();
+            if (m_codes.ndim() != 1 || m_codes.shape(0) != m_total_vertices) {
+                throw py::value_error("Invalid codes array");
+            }
+        }
+
+        m_iterator = 0;
     }
 
     inline int
     set(PyObject *vertices, PyObject *codes, bool should_simplify, double simplify_threshold)
     {
-        m_should_simplify = should_simplify;
-        m_simplify_threshold = simplify_threshold;
-
-        Py_XDECREF(m_vertices);
-        m_vertices = (PyArrayObject *)PyArray_FromObject(vertices, NPY_DOUBLE, 2, 2);
-
-        if (!m_vertices || PyArray_DIM(m_vertices, 1) != 2) {
-            PyErr_SetString(PyExc_ValueError, "Invalid vertices array");
+        try {
+            set(py::reinterpret_borrow<py::object>(vertices),
+                py::reinterpret_borrow<py::object>(codes),
+                should_simplify, simplify_threshold);
+        } catch(const py::error_already_set &) {
             return 0;
         }
-
-        Py_XDECREF(m_codes);
-        m_codes = NULL;
-
-        if (codes != NULL && codes != Py_None) {
-            m_codes = (PyArrayObject *)PyArray_FromObject(codes, NPY_UINT8, 1, 1);
-
-            if (!m_codes || PyArray_DIM(m_codes, 0) != PyArray_DIM(m_vertices, 0)) {
-                PyErr_SetString(PyExc_ValueError, "Invalid codes array");
-                return 0;
-            }
-        }
-
-        m_total_vertices = (unsigned)PyArray_DIM(m_vertices, 0);
-        m_iterator = 0;
-
         return 1;
     }
 
-    inline int set(PyObject *vertices, PyObject *codes)
+    inline void set(py::object vertices, py::object codes)
     {
-        return set(vertices, codes, false, 0.0);
+        set(vertices, codes, false, 0.0);
     }
 
     inline unsigned vertex(double *x, double *y)
@@ -144,12 +129,11 @@ class PathIterator
 
         const size_t idx = m_iterator++;
 
-        char *pair = (char *)PyArray_GETPTR2(m_vertices, idx, 0);
-        *x = *(double *)pair;
-        *y = *(double *)(pair + PyArray_STRIDE(m_vertices, 1));
+        *x = *m_vertices.data(idx, 0);
+        *y = *m_vertices.data(idx, 1);
 
-        if (m_codes != NULL) {
-            return (unsigned)(*(char *)PyArray_GETPTR1(m_codes, idx));
+        if (m_codes) {
+            return *m_codes.data(idx);
         } else {
             return idx == 0 ? agg::path_cmd_move_to : agg::path_cmd_line_to;
         }
@@ -177,42 +161,38 @@ class PathIterator
 
     inline bool has_codes() const
     {
-        return m_codes != NULL;
+        return bool(m_codes);
     }
 
     inline void *get_id()
     {
-        return (void *)m_vertices;
+        return (void *)m_vertices.ptr();
     }
 };
 
 class PathGenerator
 {
-    PyObject *m_paths;
+    py::sequence m_paths;
     Py_ssize_t m_npaths;
 
   public:
     typedef PathIterator path_iterator;
 
-    PathGenerator() : m_paths(NULL), m_npaths(0) {}
+    PathGenerator() : m_npaths(0) {}
 
-    ~PathGenerator()
+    void set(py::object obj)
     {
-        Py_XDECREF(m_paths);
+        m_paths = obj.cast<py::sequence>();
+        m_npaths = m_paths.size();
     }
 
     int set(PyObject *obj)
     {
-        if (!PySequence_Check(obj)) {
+        try {
+            set(py::reinterpret_borrow<py::object>(obj));
+        } catch(const py::error_already_set &) {
             return 0;
         }
-
-        Py_XDECREF(m_paths);
-        m_paths = obj;
-        Py_INCREF(m_paths);
-
-        m_npaths = PySequence_Size(m_paths);
-
         return 1;
     }
 
@@ -229,20 +209,44 @@ class PathGenerator
     path_iterator operator()(size_t i)
     {
         path_iterator path;
-        PyObject *item;
 
-        item = PySequence_GetItem(m_paths, i % m_npaths);
-        if (item == NULL) {
-            throw mpl::exception();
-        }
-        if (!convert_path(item, &path)) {
-            Py_DECREF(item);
-            throw mpl::exception();
-        }
-        Py_DECREF(item);
+        auto item = m_paths[i % m_npaths];
+        path = item.cast<path_iterator>();
         return path;
     }
 };
 }
+
+namespace PYBIND11_NAMESPACE { namespace detail {
+    template <> struct type_caster<mpl::PathIterator> {
+    public:
+        PYBIND11_TYPE_CASTER(mpl::PathIterator, const_name("PathIterator"));
+
+        bool load(handle src, bool) {
+            if (src.is_none()) {
+                return true;
+            }
+
+            py::object vertices = src.attr("vertices");
+            py::object codes = src.attr("codes");
+            auto should_simplify = src.attr("should_simplify").cast<bool>();
+            auto simplify_threshold = src.attr("simplify_threshold").cast<double>();
+
+            value.set(vertices, codes, should_simplify, simplify_threshold);
+
+            return true;
+        }
+    };
+
+    template <> struct type_caster<mpl::PathGenerator> {
+    public:
+        PYBIND11_TYPE_CASTER(mpl::PathGenerator, const_name("PathGenerator"));
+
+        bool load(handle src, bool) {
+            value.set(py::reinterpret_borrow<py::object>(src));
+            return true;
+        }
+    };
+}} // namespace PYBIND11_NAMESPACE::detail
 
 #endif
