@@ -519,13 +519,15 @@ def _get_xdg_cache_dir():
 def _get_config_or_cache_dir(xdg_base_getter):
     configdir = os.environ.get('MPLCONFIGDIR')
     if configdir:
-        configdir = Path(configdir).resolve()
+        configdir = Path(configdir)
     elif sys.platform.startswith(('linux', 'freebsd')):
         # Only call _xdg_base_getter here so that MPLCONFIGDIR is tried first,
         # as _xdg_base_getter can throw.
         configdir = Path(xdg_base_getter(), "matplotlib")
     else:
         configdir = Path.home() / ".matplotlib"
+    # Resolve the path to handle potential issues with inaccessible symlinks.
+    configdir = configdir.resolve()
     try:
         configdir.mkdir(parents=True, exist_ok=True)
     except OSError:
