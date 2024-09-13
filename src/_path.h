@@ -245,8 +245,7 @@ inline void points_in_path(PointArray &points,
     typedef agg::conv_curve<no_nans_t> curve_t;
     typedef agg::conv_contour<curve_t> contour_t;
 
-    size_t i;
-    for (i = 0; i < safe_first_shape(points); ++i) {
+    for (auto i = 0; i < safe_first_shape(points); ++i) {
         result[i] = false;
     }
 
@@ -270,10 +269,11 @@ template <class PathIterator>
 inline bool point_in_path(
     double x, double y, const double r, PathIterator &path, agg::trans_affine &trans)
 {
-    npy_intp shape[] = {1, 2};
-    numpy::array_view<double, 2> points(shape);
-    points(0, 0) = x;
-    points(0, 1) = y;
+    py::ssize_t shape[] = {1, 2};
+    py::array_t<double> points_arr(shape);
+    *points_arr.mutable_data(0, 0) = x;
+    *points_arr.mutable_data(0, 1) = y;
+    auto points = points_arr.mutable_unchecked<2>();
 
     int result[1];
     result[0] = 0;
@@ -292,10 +292,11 @@ inline bool point_on_path(
     typedef agg::conv_curve<no_nans_t> curve_t;
     typedef agg::conv_stroke<curve_t> stroke_t;
 
-    npy_intp shape[] = {1, 2};
-    numpy::array_view<double, 2> points(shape);
-    points(0, 0) = x;
-    points(0, 1) = y;
+    py::ssize_t shape[] = {1, 2};
+    py::array_t<double> points_arr(shape);
+    *points_arr.mutable_data(0, 0) = x;
+    *points_arr.mutable_data(0, 1) = y;
+    auto points = points_arr.mutable_unchecked<2>();
 
     int result[1];
     result[0] = 0;
@@ -382,20 +383,19 @@ void get_path_collection_extents(agg::trans_affine &master_transform,
         throw std::runtime_error("Offsets array must have shape (N, 2)");
     }
 
-    size_t Npaths = paths.size();
-    size_t Noffsets = safe_first_shape(offsets);
-    size_t N = std::max(Npaths, Noffsets);
-    size_t Ntransforms = std::min(safe_first_shape(transforms), N);
-    size_t i;
+    auto Npaths = paths.size();
+    auto Noffsets = safe_first_shape(offsets);
+    auto N = std::max(Npaths, Noffsets);
+    auto Ntransforms = std::min(safe_first_shape(transforms), N);
 
     agg::trans_affine trans;
 
     reset_limits(extent);
 
-    for (i = 0; i < N; ++i) {
+    for (auto i = 0; i < N; ++i) {
         typename PathGenerator::path_iterator path(paths(i % Npaths));
         if (Ntransforms) {
-            size_t ti = i % Ntransforms;
+            py::ssize_t ti = i % Ntransforms;
             trans = agg::trans_affine(transforms(ti, 0, 0),
                                       transforms(ti, 1, 0),
                                       transforms(ti, 0, 1),
@@ -429,24 +429,23 @@ void point_in_path_collection(double x,
                               bool filled,
                               std::vector<int> &result)
 {
-    size_t Npaths = paths.size();
+    auto Npaths = paths.size();
 
     if (Npaths == 0) {
         return;
     }
 
-    size_t Noffsets = safe_first_shape(offsets);
-    size_t N = std::max(Npaths, Noffsets);
-    size_t Ntransforms = std::min(safe_first_shape(transforms), N);
-    size_t i;
+    auto Noffsets = safe_first_shape(offsets);
+    auto N = std::max(Npaths, Noffsets);
+    auto Ntransforms = std::min(safe_first_shape(transforms), N);
 
     agg::trans_affine trans;
 
-    for (i = 0; i < N; ++i) {
+    for (auto i = 0; i < N; ++i) {
         typename PathGenerator::path_iterator path = paths(i % Npaths);
 
         if (Ntransforms) {
-            size_t ti = i % Ntransforms;
+            auto ti = i % Ntransforms;
             trans = agg::trans_affine(transforms(ti, 0, 0),
                                       transforms(ti, 1, 0),
                                       transforms(ti, 0, 1),

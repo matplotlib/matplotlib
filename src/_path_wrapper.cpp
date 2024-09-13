@@ -44,17 +44,9 @@ static py::array_t<double>
 Py_points_in_path(py::array_t<double> points_obj, double r, mpl::PathIterator path,
                   agg::trans_affine trans)
 {
-    numpy::array_view<double, 2> points;
+    auto points = convert_points(points_obj);
 
-    if (!convert_points(points_obj.ptr(), &points)) {
-        throw py::error_already_set();
-    }
-
-    if (!check_trailing_shape(points, "points", 2)) {
-        throw py::error_already_set();
-    }
-
-    py::ssize_t dims[] = { static_cast<py::ssize_t>(points.size()) };
+    py::ssize_t dims[] = { points.shape(0) };
     py::array_t<uint8_t> results(dims);
     auto results_mutable = results.mutable_unchecked<1>();
 
@@ -123,19 +115,14 @@ Py_update_path_extents(mpl::PathIterator path, agg::trans_affine trans,
 
 static py::tuple
 Py_get_path_collection_extents(agg::trans_affine master_transform,
-                               mpl::PathGenerator paths, py::object transforms_obj,
-                               py::object offsets_obj, agg::trans_affine offset_trans)
+                               mpl::PathGenerator paths,
+                               py::array_t<double> transforms_obj,
+                               py::array_t<double> offsets_obj,
+                               agg::trans_affine offset_trans)
 {
-    numpy::array_view<const double, 3> transforms;
-    numpy::array_view<const double, 2> offsets;
+    auto transforms = convert_transforms(transforms_obj);
+    auto offsets = convert_points(offsets_obj);
     extent_limits e;
-
-    if (!convert_transforms(transforms_obj.ptr(), &transforms)) {
-        throw py::error_already_set();
-    }
-    if (!convert_points(offsets_obj.ptr(), &offsets)) {
-        throw py::error_already_set();
-    }
 
     get_path_collection_extents(
         master_transform, paths, transforms, offsets, offset_trans, e);
@@ -158,19 +145,13 @@ Py_get_path_collection_extents(agg::trans_affine master_transform,
 static py::object
 Py_point_in_path_collection(double x, double y, double radius,
                             agg::trans_affine master_transform, mpl::PathGenerator paths,
-                            py::object transforms_obj, py::object offsets_obj,
+                            py::array_t<double> transforms_obj,
+                            py::array_t<double> offsets_obj,
                             agg::trans_affine offset_trans, bool filled)
 {
-    numpy::array_view<const double, 3> transforms;
-    numpy::array_view<const double, 2> offsets;
+    auto transforms = convert_transforms(transforms_obj);
+    auto offsets = convert_points(offsets_obj);
     std::vector<int> result;
-
-    if (!convert_transforms(transforms_obj.ptr(), &transforms)) {
-        throw py::error_already_set();
-    }
-    if (!convert_points(offsets_obj.ptr(), &offsets)) {
-        throw py::error_already_set();
-    }
 
     point_in_path_collection(x, y, radius, master_transform, paths, transforms, offsets,
                              offset_trans, filled, result);
@@ -229,13 +210,9 @@ Py_affine_transform(py::array_t<double, py::array::c_style | py::array::forcecas
 }
 
 static int
-Py_count_bboxes_overlapping_bbox(agg::rect_d bbox, py::object bboxes_obj)
+Py_count_bboxes_overlapping_bbox(agg::rect_d bbox, py::array_t<double> bboxes_obj)
 {
-    numpy::array_view<const double, 3> bboxes;
-
-    if (!convert_bboxes(bboxes_obj.ptr(), &bboxes)) {
-        throw py::error_already_set();
-    }
+    auto bboxes = convert_bboxes(bboxes_obj);
 
     return count_bboxes_overlapping_bbox(bbox, bboxes);
 }
