@@ -59,17 +59,14 @@ PyRendererAgg_draw_path(RendererAgg *self,
 
 static void
 PyRendererAgg_draw_text_image(RendererAgg *self,
-                              py::array_t<agg::int8u, py::array::c_style> image_obj,
+                              py::array_t<agg::int8u, py::array::c_style | py::array::forcecast> image_obj,
                               double x,
                               double y,
                               double angle,
                               GCAgg &gc)
 {
-    numpy::array_view<agg::int8u, 2> image;
-
-    if (!image.converter_contiguous(image_obj.ptr(), &image)) {
-        throw py::error_already_set();
-    }
+    // TODO: This really shouldn't be mutable, but Agg's renderer buffers aren't const.
+    auto image = image_obj.mutable_unchecked<2>();
 
     self->draw_text_image(gc, image, x, y, angle);
 }
@@ -98,13 +95,10 @@ PyRendererAgg_draw_image(RendererAgg *self,
                          GCAgg &gc,
                          double x,
                          double y,
-                         py::array_t<agg::int8u, py::array::c_style> image_obj)
+                         py::array_t<agg::int8u, py::array::c_style | py::array::forcecast> image_obj)
 {
-    numpy::array_view<agg::int8u, 3> image;
-
-    if (!image.set(image_obj.ptr())) {
-        throw py::error_already_set();
-    }
+    // TODO: This really shouldn't be mutable, but Agg's renderer buffers aren't const.
+    auto image = image_obj.mutable_unchecked<3>();
 
     x = mpl_round(x);
     y = mpl_round(y);
@@ -179,21 +173,18 @@ PyRendererAgg_draw_quad_mesh(RendererAgg *self,
                              agg::trans_affine master_transform,
                              unsigned int mesh_width,
                              unsigned int mesh_height,
-                             py::object coordinates_obj,
+                             py::array_t<double, py::array::c_style | py::array::forcecast> coordinates_obj,
                              py::object offsets_obj,
                              agg::trans_affine offset_trans,
                              py::object facecolors_obj,
                              bool antialiased,
                              py::object edgecolors_obj)
 {
-    numpy::array_view<const double, 3> coordinates;
     numpy::array_view<const double, 2> offsets;
     numpy::array_view<const double, 2> facecolors;
     numpy::array_view<const double, 2> edgecolors;
 
-    if (!coordinates.converter(coordinates_obj.ptr(), &coordinates)) {
-        throw py::error_already_set();
-    }
+    auto coordinates = coordinates_obj.mutable_unchecked<3>();
     if (!convert_points(offsets_obj.ptr(), &offsets)) {
         throw py::error_already_set();
     }
@@ -219,19 +210,12 @@ PyRendererAgg_draw_quad_mesh(RendererAgg *self,
 static void
 PyRendererAgg_draw_gouraud_triangles(RendererAgg *self,
                                      GCAgg &gc,
-                                     py::object points_obj,
-                                     py::object colors_obj,
+                                     py::array_t<double> points_obj,
+                                     py::array_t<double> colors_obj,
                                      agg::trans_affine trans)
 {
-    numpy::array_view<const double, 3> points;
-    numpy::array_view<const double, 3> colors;
-
-    if (!points.converter(points_obj.ptr(), &points)) {
-        throw py::error_already_set();
-    }
-    if (!colors.converter(colors_obj.ptr(), &colors)) {
-        throw py::error_already_set();
-    }
+    auto points = points_obj.unchecked<3>();
+    auto colors = colors_obj.unchecked<3>();
 
     self->draw_gouraud_triangles(gc, points, colors, trans);
 }
