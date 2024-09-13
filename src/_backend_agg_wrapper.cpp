@@ -111,7 +111,7 @@ static void
 PyRendererAgg_draw_path_collection(RendererAgg *self,
                                    GCAgg &gc,
                                    agg::trans_affine master_transform,
-                                   py::object paths_obj,
+                                   mpl::PathGenerator paths,
                                    py::object transforms_obj,
                                    py::object offsets_obj,
                                    agg::trans_affine offset_trans,
@@ -124,7 +124,6 @@ PyRendererAgg_draw_path_collection(RendererAgg *self,
                                    // offset position is no longer used
                                    py::object Py_UNUSED(offset_position_obj))
 {
-    mpl::PathGenerator paths;
     numpy::array_view<const double, 3> transforms;
     numpy::array_view<const double, 2> offsets;
     numpy::array_view<const double, 2> facecolors;
@@ -132,9 +131,6 @@ PyRendererAgg_draw_path_collection(RendererAgg *self,
     numpy::array_view<const double, 1> linewidths;
     numpy::array_view<const uint8_t, 1> antialiaseds;
 
-    if (!convert_pathgen(paths_obj.ptr(), &paths)) {
-        throw py::error_already_set();
-    }
     if (!convert_transforms(transforms_obj.ptr(), &transforms)) {
         throw py::error_already_set();
     }

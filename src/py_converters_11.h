@@ -167,29 +167,6 @@ namespace PYBIND11_NAMESPACE { namespace detail {
             return true;
         }
     };
-
-    template <> struct type_caster<mpl::PathIterator> {
-    public:
-        PYBIND11_TYPE_CASTER(mpl::PathIterator, const_name("PathIterator"));
-
-        bool load(handle src, bool) {
-            if (src.is_none()) {
-                return true;
-            }
-
-            py::object vertices = src.attr("vertices");
-            py::object codes = src.attr("codes");
-            auto should_simplify = src.attr("should_simplify").cast<bool>();
-            auto simplify_threshold = src.attr("simplify_threshold").cast<double>();
-
-            if (!value.set(vertices.inc_ref().ptr(), codes.inc_ref().ptr(),
-                           should_simplify, simplify_threshold)) {
-                throw py::error_already_set();
-            }
-
-            return true;
-        }
-    };
 #endif
 
 /* Remove all this macro magic after dropping NumPy usage and just include `_backend_agg_basic_types.h`. */

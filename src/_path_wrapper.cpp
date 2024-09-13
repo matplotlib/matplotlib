@@ -123,17 +123,13 @@ Py_update_path_extents(mpl::PathIterator path, agg::trans_affine trans,
 
 static py::tuple
 Py_get_path_collection_extents(agg::trans_affine master_transform,
-                               py::object paths_obj, py::object transforms_obj,
+                               mpl::PathGenerator paths, py::object transforms_obj,
                                py::object offsets_obj, agg::trans_affine offset_trans)
 {
-    mpl::PathGenerator paths;
     numpy::array_view<const double, 3> transforms;
     numpy::array_view<const double, 2> offsets;
     extent_limits e;
 
-    if (!convert_pathgen(paths_obj.ptr(), &paths)) {
-        throw py::error_already_set();
-    }
     if (!convert_transforms(transforms_obj.ptr(), &transforms)) {
         throw py::error_already_set();
     }
@@ -161,18 +157,14 @@ Py_get_path_collection_extents(agg::trans_affine master_transform,
 
 static py::object
 Py_point_in_path_collection(double x, double y, double radius,
-                            agg::trans_affine master_transform, py::object paths_obj,
+                            agg::trans_affine master_transform, mpl::PathGenerator paths,
                             py::object transforms_obj, py::object offsets_obj,
                             agg::trans_affine offset_trans, bool filled)
 {
-    mpl::PathGenerator paths;
     numpy::array_view<const double, 3> transforms;
     numpy::array_view<const double, 2> offsets;
     std::vector<int> result;
 
-    if (!convert_pathgen(paths_obj.ptr(), &paths)) {
-        throw py::error_already_set();
-    }
     if (!convert_transforms(transforms_obj.ptr(), &transforms)) {
         throw py::error_already_set();
     }
