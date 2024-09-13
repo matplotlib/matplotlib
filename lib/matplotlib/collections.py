@@ -1265,7 +1265,7 @@ class FillBetweenPolyCollection(PolyCollection):
         """
         Parameters
         ----------
-        t_direction : {'x', 'y'}
+        t_direction : {{'x', 'y'}}
             The axes on which the variable lies.
 
             - 'x': the curves are ``(t, f1)`` and ``(t, f2)``.
