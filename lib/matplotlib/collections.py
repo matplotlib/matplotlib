@@ -1388,7 +1388,7 @@ class FillBetweenPolyCollection(PolyCollection):
         where = self._normalized_where(t, f1, f2, where)
         t, f1, f2 = np.broadcast_arrays(np.atleast_1d(t), f1, f2, subok=True)
         verts = [
-            self._make_verts_per_region(t, f1, f2, idx0, idx1)
+            self._make_verts_for_region(t, f1, f2, idx0, idx1)
             for idx0, idx1 in cbook.contiguous_regions(where)
         ]
 
@@ -1424,10 +1424,10 @@ class FillBetweenPolyCollection(PolyCollection):
                     t_dir, t.size, name, array.size)
                 raise ValueError(msg)
 
-    def _make_verts_per_region(self, t, f1, f2, idx0, idx1):
+    def _make_verts_for_region(self, t, f1, f2, idx0, idx1):
         """
-        Make `verts` from contiguous region between `idx0` and `idx1`, taking
-        into account `step` and `interpolate`.
+        Make ``verts`` for a contiguous region between ``idx0`` and ``idx1``, taking
+        into account ``step`` and ``interpolate``.
         """
         t_slice = t[idx0:idx1]
         f1_slice = f1[idx0:idx1]
