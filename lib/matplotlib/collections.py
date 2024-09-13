@@ -1347,7 +1347,7 @@ class FillBetweenPolyCollection(PolyCollection):
 
     def set_data(self, t, f1, f2, *, where=None):
         """
-        Set the two curves and update the collection.
+        Set new values for the two bounding curves.
 
         Parameters
         ----------
