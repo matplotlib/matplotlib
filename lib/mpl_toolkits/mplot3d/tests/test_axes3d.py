@@ -1950,10 +1950,10 @@ def test_rotate():
     for roll, dx, dy, new_elev, new_azim, new_roll in [
             [0, 0.5, 0, 0, -90, 0],
             [30, 0.5, 0, 30, -90, 0],
-            [0, 0, 0.5, -90, 0, 0],
+            [0, 0, 0.5, -90, -180, 180],
             [30, 0, 0.5, -60, -90, 90],
-            [0, 0.5, 0.5, -45, -90, 45],
-            [30, 0.5, 0.5, -15, -90, 45]]:
+            [0, np.sqrt(2)/4, np.sqrt(2)/4, -45, -90, 45],
+            [30, np.sqrt(2)/4, np.sqrt(2)/4, -15, -90, 45]]:
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1, projection='3d')
         ax.view_init(0, 0, roll)
@@ -1967,9 +1967,8 @@ def test_rotate():
                            xdata=dx*ax._pseudo_w, ydata=dy*ax._pseudo_h))
         fig.canvas.draw()
 
-        assert np.isclose(ax.elev, new_elev)
-        assert np.isclose(ax.azim, new_azim)
-        assert np.isclose(ax.roll, new_roll)
+        np.testing.assert_allclose((ax.elev, ax.azim, ax.roll),
+                                   (new_elev, new_azim, new_roll), atol=1e-6)
 
 
 def test_pan():

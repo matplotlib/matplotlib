@@ -1568,10 +1568,11 @@ class Axes3D(Axes):
             q = _Quaternion.from_cardan_angles(elev, azim, roll)
 
             # Update quaternion - a variation on Ken Shoemake's ARCBALL
-            current_vec = self._arcball(self._sx/w, self._sy/h)
-            new_vec = self._arcball(x/w, y/h)
+            scale = np.sqrt(2)/2  # slow down the rate of rotation
+            current_vec = self._arcball(self._sx*scale/w, self._sy*scale/h)
+            new_vec = self._arcball(x*scale/w, y*scale/h)
             dq = _Quaternion.rotate_from_to(current_vec, new_vec)
-            q = dq * q
+            q = dq * dq * q
 
             # Convert to elev, azim, roll
             elev, azim, roll = q.as_cardan_angles()
@@ -4020,11 +4021,14 @@ class _Quaternion:
     def as_cardan_angles(self):
         """
         The inverse of `from_cardan_angles()`.
+        This function acts on the quaternion as if it were unit normed.
         Note that the angles returned are in radians, not degrees.
         """
         qw = self.scalar
         qx, qy, qz = self.vector[..., :]
         azim = np.arctan2(2*(-qw*qz+qx*qy), qw*qw+qx*qx-qy*qy-qz*qz)
-        elev = np.arcsin( 2*( qw*qy+qz*qx)/(qw*qw+qx*qx+qy*qy+qz*qz))  # noqa E201
+        # Clip below is to avoid floating point round-off errors
+        elev = np.arcsin(np.clip(2*(qw*qy+qz*qx)
+                                  / (qw*qw+qx*qx+qy*qy+qz*qz), -1, 1))
         roll = np.arctan2(2*( qw*qx-qy*qz), qw*qw-qx*qx-qy*qy+qz*qz)   # noqa E201
         return elev, azim, roll
