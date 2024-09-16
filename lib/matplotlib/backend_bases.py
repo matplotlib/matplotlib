@@ -690,7 +690,7 @@ class GraphicsContextBase:
         self._linewidth = 1
         self._rgb = (0.0, 0.0, 0.0, 1.0)
         self._hatch = None
-        self._hatch_color = (0.0, 0.0, 0.0, 1.0)
+        self._hatch_color = None
         self._hatch_linewidth = rcParams['hatch.linewidth']
         self._url = None
         self._gid = None
