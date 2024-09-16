@@ -338,10 +338,6 @@
     "Artist.stale_callback": [
       "doc/users/explain/figure/interactive_guide.rst:323"
     ],
-    "Axes.dataLim": [
-      "doc/api/axes_api.rst:293:<autosummary>:1",
-      "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes._base._AxesBase.update_datalim:2"
-    ],
     "AxesBase": [
       "doc/api/axes_api.rst:448:<autosummary>:1",
       "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes._base._AxesBase.add_child_axes:2"

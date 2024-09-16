@@ -85,13 +85,6 @@ class Axes(_AxesBase):
         methods instead; e.g. from `.pyplot` or `.Figure`:
         `~.pyplot.subplots`, `~.pyplot.subplot_mosaic` or `.Figure.add_axes`.
 
-    Attributes
-    ----------
-    dataLim : `.Bbox`
-        The bounding box enclosing all data displayed in the Axes.
-    viewLim : `.Bbox`
-        The view limits in data coordinates.
-
     """
     ### Labelling, legend and texts
 
