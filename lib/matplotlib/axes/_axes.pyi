@@ -1,4 +1,4 @@
-from matplotlib.axes._base import _AxesBase, coords_type
+from matplotlib.axes._base import _AxesBase
 from matplotlib.axes._secondary_axes import SecondaryAxis
 
 from matplotlib.artist import Artist

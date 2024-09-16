@@ -120,7 +120,13 @@ if TYPE_CHECKING:
     from matplotlib.patches import FancyArrow, StepPatch, Wedge
     from matplotlib.quiver import Barbs, Quiver, QuiverKey
     from matplotlib.scale import ScaleBase
-    from matplotlib.typing import ColorType, CoordsType, LineStyleType, MarkerType, HashableList
+    from matplotlib.typing import (
+        ColorType,
+        CoordsType,
+        HashableList,
+        LineStyleType,
+        MarkerType,
+    )
     from matplotlib.widgets import SubplotTool
 
     _P = ParamSpec('_P')
