@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-import sys
 import itertools
+import pathlib
 import pickle
+import sys
 
 from typing import Any
 from unittest.mock import patch, Mock
@@ -466,8 +467,7 @@ pass_mapping: tuple[tuple[Any, dict, dict], ...] = (
 
 @pytest.mark.parametrize('inp, kwargs_to_norm', fail_mapping)
 def test_normalize_kwargs_fail(inp, kwargs_to_norm):
-    with pytest.raises(TypeError), \
-         _api.suppress_matplotlib_deprecation_warning():
+    with pytest.raises(TypeError), _api.suppress_matplotlib_deprecation_warning():
         cbook.normalize_kwargs(inp, **kwargs_to_norm)
 
 
@@ -477,6 +477,22 @@ def test_normalize_kwargs_pass(inp, expected, kwargs_to_norm):
     with _api.suppress_matplotlib_deprecation_warning():
         # No other warning should be emitted.
         assert expected == cbook.normalize_kwargs(inp, **kwargs_to_norm)
+
+
+def test_warn_external(recwarn):
+    _api.warn_external("oops")
+    assert len(recwarn) == 1
+    if sys.version_info[:2] >= (3, 12):
+        # With Python 3.12, we let Python figure out the stacklevel using the
+        # `skip_file_prefixes` argument, which cannot exempt tests, so just confirm
+        # the filename is not in the package.
+        basedir = pathlib.Path(__file__).parents[2]
+        assert not recwarn[0].filename.startswith((str(basedir / 'matplotlib'),
+                                                   str(basedir / 'mpl_toolkits')))
+    else:
+        # On older Python versions, we manually calculated the stacklevel, and had an
+        # exception for our own tests.
+        assert recwarn[0].filename == __file__
 
 
 def test_warn_external_frame_embedded_python():
@@ -785,12 +801,6 @@ def test_safe_first_element_pandas_series(pd):
     assert actual == 0
 
 
-def test_warn_external(recwarn):
-    _api.warn_external("oops")
-    assert len(recwarn) == 1
-    assert recwarn[0].filename == __file__
-
-
 def test_array_patch_perimeters():
     # This compares the old implementation as a reference for the
     # vectorized one.
@@ -799,8 +809,8 @@ def test_array_patch_perimeters():
         row_inds = [*range(0, rows-1, rstride), rows-1]
         col_inds = [*range(0, cols-1, cstride), cols-1]
         polys = []
-        for rs, rs_next in zip(row_inds[:-1], row_inds[1:]):
-            for cs, cs_next in zip(col_inds[:-1], col_inds[1:]):
+        for rs, rs_next in itertools.pairwise(row_inds):
+            for cs, cs_next in itertools.pairwise(col_inds):
                 # +1 ensures we share edges between polygons
                 ps = cbook._array_perimeter(x[rs:rs_next+1, cs:cs_next+1]).T
                 polys.append(ps)

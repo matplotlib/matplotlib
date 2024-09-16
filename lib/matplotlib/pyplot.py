@@ -55,8 +55,9 @@ import matplotlib
 import matplotlib.colorbar
 import matplotlib.image
 from matplotlib import _api
-from matplotlib import (  # noqa: F401 Re-exported for typing.
-    cm as cm, get_backend as get_backend, rcParams as rcParams, style as style)
+# Re-exported (import x as x) for typing.
+from matplotlib import cm as cm, get_backend as get_backend, rcParams as rcParams
+from matplotlib import style as style  # noqa: F401
 from matplotlib import _pylab_helpers
 from matplotlib import interactive  # noqa: F401
 from matplotlib import cbook
@@ -408,8 +409,7 @@ def switch_backend(newbackend: str) -> None:
             switch_backend("agg")
             rcParamsOrig["backend"] = "agg"
             return
-    # have to escape the switch on access logic
-    old_backend = dict.__getitem__(rcParams, 'backend')
+    old_backend = rcParams._get('backend')  # get without triggering backend resolution
 
     module = backend_registry.load_backend_module(newbackend)
     canvas_class = module.FigureCanvas
@@ -839,7 +839,7 @@ def xkcd(
             "xkcd mode is not compatible with text.usetex = True")
 
     stack = ExitStack()
-    stack.callback(dict.update, rcParams, rcParams.copy())  # type: ignore[arg-type]
+    stack.callback(rcParams._update_raw, rcParams.copy())  # type: ignore[arg-type]
 
     from matplotlib import patheffects
     rcParams.update({
@@ -988,15 +988,16 @@ default: None
 
     if isinstance(num, FigureBase):
         # type narrowed to `Figure | SubFigure` by combination of input and isinstance
-        if num.canvas.manager is None:
+        root_fig = num.get_figure(root=True)
+        if root_fig.canvas.manager is None:
             raise ValueError("The passed figure is not managed by pyplot")
         elif any([figsize, dpi, facecolor, edgecolor, not frameon,
-                  kwargs]) and num.canvas.manager.num in allnums:
+                  kwargs]) and root_fig.canvas.manager.num in allnums:
             _api.warn_external(
-                "Ignoring specified arguments in this call "
-                f"because figure with num: {num.canvas.manager.num} already exists")
-        _pylab_helpers.Gcf.set_active(num.canvas.manager)
-        return num.figure
+                "Ignoring specified arguments in this call because figure "
+                f"with num: {root_fig.canvas.manager.num} already exists")
+        _pylab_helpers.Gcf.set_active(root_fig.canvas.manager)
+        return root_fig
 
     next_num = max(allnums) + 1 if allnums else 1
     fig_label = ''
@@ -1361,8 +1362,9 @@ def sca(ax: Axes) -> None:
     # Mypy sees ax.figure as potentially None,
     # but if you are calling this, it won't be None
     # Additionally the slight difference between `Figure` and `FigureBase` mypy catches
-    figure(ax.figure)  # type: ignore[arg-type]
-    ax.figure.sca(ax)  # type: ignore[union-attr]
+    fig = ax.get_figure(root=False)
+    figure(fig)  # type: ignore[arg-type]
+    fig.sca(ax)  # type: ignore[union-attr]
 
 
 def cla() -> None:
@@ -1608,7 +1610,7 @@ def subplots(
     subplot_kw: dict[str, Any] | None = ...,
     gridspec_kw: dict[str, Any] | None = ...,
     **fig_kw
-) -> tuple[Figure, Axes | np.ndarray]:
+) -> tuple[Figure, Any]:
     ...
 
 
@@ -3555,7 +3557,7 @@ def imshow(
     vmax: float | None = None,
     origin: Literal["upper", "lower"] | None = None,
     extent: tuple[float, float, float, float] | None = None,
-    interpolation_stage: Literal["data", "rgba"] | None = None,
+    interpolation_stage: Literal["data", "rgba", "auto"] | None = None,
     filternorm: bool = True,
     filterrad: float = 4.0,
     resample: bool | None = None,
@@ -4007,7 +4009,7 @@ def spy(
         **kwargs,
     )
     if isinstance(__ret, cm.ScalarMappable):
-        sci(__ret)  # noqa
+        sci(__ret)
     return __ret
 
 

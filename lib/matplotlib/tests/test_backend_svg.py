@@ -343,13 +343,17 @@ def test_url():
     s.set_urls(['https://example.com/foo', 'https://example.com/bar', None])
 
     # Line2D
-    p, = plt.plot([1, 3], [6, 5])
+    p, = plt.plot([2, 3, 4], [4, 5, 6])
     p.set_url('https://example.com/baz')
+
+    # Line2D markers-only
+    p, = plt.plot([3, 4, 5], [4, 5, 6], linestyle='none', marker='x')
+    p.set_url('https://example.com/quux')
 
     b = BytesIO()
     fig.savefig(b, format='svg')
     b = b.getvalue()
-    for v in [b'foo', b'bar', b'baz']:
+    for v in [b'foo', b'bar', b'baz', b'quux']:
         assert b'https://example.com/' + v in b
 
 
@@ -631,12 +635,13 @@ def test_svg_font_string(font_str, include_generic):
     text_count = 0
     for text_element in tree.findall(f".//{{{ns}}}text"):
         text_count += 1
-        font_info = dict(
+        font_style = dict(
             map(lambda x: x.strip(), _.strip().split(":"))
             for _ in dict(text_element.items())["style"].split(";")
-        )["font"]
+        )
 
-        assert font_info == f"{size}px {font_str}"
+        assert font_style["font-size"] == f"{size}px"
+        assert font_style["font-family"] == font_str
     assert text_count == len(ax.texts)
 
 
@@ -669,3 +674,34 @@ def test_annotationbbox_gid():
 
     expected = '<g id="a test for issue 20044">'
     assert expected in buf
+
+
+def test_svgid():
+    """Test that `svg.id` rcparam appears in output svg if not None."""
+
+    fig, ax = plt.subplots()
+    ax.plot([1, 2, 3], [3, 2, 1])
+    fig.canvas.draw()
+
+    # Default: svg.id = None
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg')
+        buf = fd.getvalue().decode()
+
+    tree = xml.etree.ElementTree.fromstring(buf)
+
+    assert plt.rcParams['svg.id'] is None
+    assert not tree.findall('.[@id]')
+
+    # String: svg.id = str
+    svg_id = 'a test for issue 28535'
+    plt.rc('svg', id=svg_id)
+
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg')
+        buf = fd.getvalue().decode()
+
+    tree = xml.etree.ElementTree.fromstring(buf)
+
+    assert plt.rcParams['svg.id'] == svg_id
+    assert tree.findall(f'.[@id="{svg_id}"]')

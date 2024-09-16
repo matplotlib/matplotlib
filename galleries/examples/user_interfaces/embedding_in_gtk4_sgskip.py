@@ -1,7 +1,7 @@
 """
-=================
-Embedding in GTK4
-=================
+=============
+Embed in GTK4
+=============
 
 Demonstrate adding a FigureCanvasGTK4Agg widget to a Gtk.ScrolledWindow using
 GTK4 accessed via pygobject.
@@ -22,7 +22,7 @@ from matplotlib.figure import Figure
 def on_activate(app):
     win = Gtk.ApplicationWindow(application=app)
     win.set_default_size(400, 300)
-    win.set_title("Embedding in GTK4")
+    win.set_title("Embedded in GTK4")
 
     fig = Figure(figsize=(5, 4), dpi=100)
     ax = fig.add_subplot()

@@ -67,3 +67,9 @@ plt.show()
 #    - `matplotlib.projections.polar.PolarAxes.set_theta_zero_location`
 #    - `matplotlib.projections.polar.PolarAxes.set_thetamin`
 #    - `matplotlib.projections.polar.PolarAxes.set_thetamax`
+#
+# .. tags::
+#
+#    plot-style: polar
+#    plot-style: scatter
+#    level: beginner

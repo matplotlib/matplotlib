@@ -1,7 +1,7 @@
 """
-=============================================
-Embedding in a web application server (Flask)
-=============================================
+=========================================
+Embed in a web application server (Flask)
+=========================================
 
 When using Matplotlib in a web server it is strongly recommended to not use
 pyplot (pyplot maintains references to the opened figures to make

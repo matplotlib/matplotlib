@@ -1,7 +1,7 @@
 # Extra pip requirements for the GitHub Actions mypy build
 
-mypy==1.1.1
-typing-extensions>=4.1,<5
+mypy>=1.9
+typing-extensions>=4.1
 
 # Extra stubs distributed separately from the main pypi package
 pandas-stubs
@@ -25,5 +25,3 @@ pyparsing>=2.3.1
 python-dateutil>=2.7
 setuptools_scm>=7
 setuptools>=64
-
-importlib-resources>=3.2.0 ; python_version < "3.10"

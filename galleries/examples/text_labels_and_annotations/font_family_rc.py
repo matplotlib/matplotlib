@@ -1,7 +1,7 @@
 """
-===========================
-Configuring the font family
-===========================
+=========================
+Configure the font family
+=========================
 
 You can explicitly set which font family is picked up, either by specifying
 family names of fonts installed on user's system, or generic-families

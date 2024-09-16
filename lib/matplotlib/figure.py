@@ -30,6 +30,7 @@ list of examples) .  More information about Figures can be found at
 from contextlib import ExitStack
 import inspect
 import itertools
+import functools
 import logging
 from numbers import Integral
 import threading
@@ -63,8 +64,8 @@ _log = logging.getLogger(__name__)
 
 
 def _stale_figure_callback(self, val):
-    if self.figure:
-        self.figure.stale = val
+    if (fig := self.get_figure(root=False)) is not None:
+        fig.stale = val
 
 
 class _AxesStack:
@@ -226,6 +227,67 @@ class FigureBase(Artist):
                 *self.images,
                 *self.legends,
                 *self.subfigs]
+
+    def get_figure(self, root=None):
+        """
+        Return the `.Figure` or `.SubFigure` instance the (Sub)Figure belongs to.
+
+        Parameters
+        ----------
+        root : bool, default=True
+            If False, return the (Sub)Figure this artist is on.  If True,
+            return the root Figure for a nested tree of SubFigures.
+
+            .. deprecated:: 3.10
+
+                From version 3.12 *root* will default to False.
+        """
+        if self._root_figure is self:
+            # Top level Figure
+            return self
+
+        if self._parent is self._root_figure:
+            # Return early to prevent the deprecation warning when *root* does not
+            # matter
+            return self._parent
+
+        if root is None:
+            # When deprecation expires, consider removing the docstring and just
+            # inheriting the one from Artist.
+            message = ('From Matplotlib 3.12 SubFigure.get_figure will by default '
+                       'return the direct parent figure, which may be a SubFigure. '
+                       'To suppress this warning, pass the root parameter.  Pass '
+                       '`True` to maintain the old behavior and `False` to opt-in to '
+                       'the future behavior.')
+            _api.warn_deprecated('3.10', message=message)
+            root = True
+
+        if root:
+            return self._root_figure
+
+        return self._parent
+
+    def set_figure(self, fig):
+        """
+        .. deprecated:: 3.10
+            Currently this method will raise an exception if *fig* is anything other
+            than the root `.Figure` this (Sub)Figure is on.  In future it will always
+            raise an exception.
+        """
+        no_switch = ("The parent and root figures of a (Sub)Figure are set at "
+                     "instantiation and cannot be changed.")
+        if fig is self._root_figure:
+            _api.warn_deprecated(
+                "3.10",
+                message=(f"{no_switch} From Matplotlib 3.12 this operation will raise "
+                         "an exception."))
+            return
+
+        raise ValueError(no_switch)
+
+    figure = property(functools.partial(get_figure, root=True), set_figure,
+                      doc=("The root `Figure`.  To get the parent of a `SubFigure`, "
+                           "use the `get_figure` method."))
 
     def contains(self, mouseevent):
         """
@@ -563,7 +625,7 @@ default: %(va)s
         if isinstance(args[0], Axes):
             a, *extra_args = args
             key = a._projection_init
-            if a.get_figure() is not self:
+            if a.get_figure(root=False) is not self:
                 raise ValueError(
                     "The Axes must have been created in the present figure")
         else:
@@ -694,7 +756,7 @@ default: %(va)s
                 and args[0].get_subplotspec()):
             ax = args[0]
             key = ax._projection_init
-            if ax.get_figure() is not self:
+            if ax.get_figure(root=False) is not self:
                 raise ValueError("The Axes must have been created in "
                                  "the present figure")
         else:
@@ -885,7 +947,7 @@ default: %(va)s
 
         self._axobservers.process("_axes_change_event", self)
         self.stale = True
-        self.canvas.release_mouse(ax)
+        self._root_figure.canvas.release_mouse(ax)
 
         for name in ax._axis_names:  # Break link between any shared Axes
             grouper = ax._shared_axes[name]
@@ -1220,7 +1282,7 @@ default: %(va)s
             fig = (  # Figure of first Axes; logic copied from make_axes.
                 [*ax.flat] if isinstance(ax, np.ndarray)
                 else [*ax] if np.iterable(ax)
-                else [ax])[0].figure
+                else [ax])[0].get_figure(root=False)
             current_ax = fig.gca()
             if (fig.get_layout_engine() is not None and
                     not fig.get_layout_engine().colorbar_gridspec):
@@ -1235,24 +1297,21 @@ default: %(va)s
             fig.sca(current_ax)
             cax.grid(visible=False, which='both', axis='both')
 
-        if hasattr(mappable, "figure") and mappable.figure is not None:
-            # Get top level artists
-            mappable_host_fig = mappable.figure
-            if isinstance(mappable_host_fig, mpl.figure.SubFigure):
-                mappable_host_fig = mappable_host_fig.figure
+        if (hasattr(mappable, "get_figure") and
+                (mappable_host_fig := mappable.get_figure(root=True)) is not None):
             # Warn in case of mismatch
-            if mappable_host_fig is not self.figure:
+            if mappable_host_fig is not self._root_figure:
                 _api.warn_external(
                         f'Adding colorbar to a different Figure '
-                        f'{repr(mappable.figure)} than '
-                        f'{repr(self.figure)} which '
+                        f'{repr(mappable_host_fig)} than '
+                        f'{repr(self._root_figure)} which '
                         f'fig.colorbar is called on.')
 
         NON_COLORBAR_KEYS = [  # remove kws that cannot be passed to Colorbar
             'fraction', 'pad', 'shrink', 'aspect', 'anchor', 'panchor']
         cb = cbar.Colorbar(cax, mappable, **{
             k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS})
-        cax.figure.stale = True
+        cax.get_figure(root=False).stale = True
         return cb
 
     def subplots_adjust(self, left=None, bottom=None, right=None, top=None,
@@ -1738,8 +1797,7 @@ default: %(va)s
                 bbox_artists.extend(ax.get_default_bbox_extra_artists())
         return bbox_artists
 
-    @_api.make_keyword_only("3.8", "bbox_extra_artists")
-    def get_tightbbox(self, renderer=None, bbox_extra_artists=None):
+    def get_tightbbox(self, renderer=None, *, bbox_extra_artists=None):
         """
         Return a (tight) bounding box of the figure *in inches*.
 
@@ -1767,7 +1825,7 @@ default: %(va)s
         """
 
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
 
         bb = []
         if bbox_extra_artists is None:
@@ -2222,7 +2280,7 @@ class SubFigure(FigureBase):
 
         self._subplotspec = subplotspec
         self._parent = parent
-        self.figure = parent.figure
+        self._root_figure = parent._root_figure
 
         # subfigures use the parent axstack
         self._axstack = parent._axstack
@@ -2359,7 +2417,7 @@ class SubFigure(FigureBase):
             renderer.open_group('subfigure', gid=self.get_gid())
             self.patch.draw(renderer)
             mimage._draw_list_compositing_images(
-                renderer, self, artists, self.figure.suppressComposite)
+                renderer, self, artists, self.get_figure(root=True).suppressComposite)
             renderer.close_group('subfigure')
 
         finally:
@@ -2503,7 +2561,7 @@ None}, default: None
             %(Figure:kwdoc)s
         """
         super().__init__(**kwargs)
-        self.figure = self
+        self._root_figure = self
         self._layout_engine = None
 
         if layout is not None:

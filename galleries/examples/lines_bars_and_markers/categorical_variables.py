@@ -32,3 +32,9 @@ ax.plot(activity, cat, label="cat")
 ax.legend()
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    plot-type: specialty
+#    level: beginner

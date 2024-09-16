@@ -1,5 +1,6 @@
 import functools
 import io
+import operator
 from unittest import mock
 
 import matplotlib as mpl
@@ -862,7 +863,7 @@ def test_tool_line_handle(ax):
 def test_span_selector_bound(direction):
     fig, ax = plt.subplots(1, 1)
     ax.plot([10, 20], [10, 30])
-    ax.figure.canvas.draw()
+    fig.canvas.draw()
     x_bound = ax.get_xbound()
     y_bound = ax.get_ybound()
 
@@ -1109,7 +1110,7 @@ def test_RadioButtons(ax):
 @image_comparison(['check_radio_buttons.png'], style='mpl20', remove_text=True)
 def test_check_radio_buttons_image():
     ax = get_ax()
-    fig = ax.figure
+    fig = ax.get_figure(root=False)
     fig.subplots_adjust(left=0.3)
 
     rax1 = fig.add_axes((0.05, 0.7, 0.2, 0.15))
@@ -1573,7 +1574,7 @@ def test_polygon_selector_remove(idx, draw_bounding_box):
     # Remove the extra point
     event_sequence.append(polygon_remove_vertex(200, 200))
     # Flatten list of lists
-    event_sequence = sum(event_sequence, [])
+    event_sequence = functools.reduce(operator.iadd, event_sequence, [])
     check_polygon_selector(event_sequence, verts, 2,
                            draw_bounding_box=draw_bounding_box)
 
@@ -1660,7 +1661,7 @@ def test_polygon_selector_box(ax):
     # In order to trigger the correct callbacks, trigger events on the canvas
     # instead of the individual tools
     t = ax.transData
-    canvas = ax.figure.canvas
+    canvas = ax.get_figure(root=True).canvas
 
     # Scale to half size using the top right corner of the bounding box
     MouseEvent(
@@ -1722,7 +1723,8 @@ def test_polygon_selector_clear_method(ax):
 @pytest.mark.parametrize("horizOn", [False, True])
 @pytest.mark.parametrize("vertOn", [False, True])
 def test_MultiCursor(horizOn, vertOn):
-    (ax1, ax3) = plt.figure().subplots(2, sharex=True)
+    fig = plt.figure()
+    (ax1, ax3) = fig.subplots(2, sharex=True)
     ax2 = plt.figure().subplots()
 
     # useblit=false to avoid having to draw the figure to cache the renderer
@@ -1740,7 +1742,7 @@ def test_MultiCursor(horizOn, vertOn):
     event = mock_event(ax1, xdata=.5, ydata=.25)
     multi.onmove(event)
     # force a draw + draw event to exercise clear
-    ax1.figure.canvas.draw()
+    fig.canvas.draw()
 
     # the lines in the first two ax should both move
     for l in multi.vlines:

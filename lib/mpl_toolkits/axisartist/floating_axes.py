@@ -266,7 +266,7 @@ class FloatingAxesBase:
         # The original patch is not in the draw tree; it is only used for
         # clipping purposes.
         orig_patch = super()._gen_axes_patch()
-        orig_patch.set_figure(self.figure)
+        orig_patch.set_figure(self.get_figure(root=False))
         orig_patch.set_transform(self.transAxes)
         self.patch.set_clip_path(orig_patch)
         self.gridlines.set_clip_path(orig_patch)

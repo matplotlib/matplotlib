@@ -194,7 +194,7 @@ class Axes(_AxesBase):
         *args: float | ArrayLike | str,
         scalex: bool = ...,
         scaley: bool = ...,
-        data = ...,
+        data=...,
         **kwargs
     ) -> list[Line2D]: ...
     def plot_date(
@@ -224,7 +224,7 @@ class Axes(_AxesBase):
         detrend: Callable[[ArrayLike], ArrayLike] = ...,
         usevlines: bool = ...,
         maxlags: int = ...,
-        data = ...,
+        data=...,
         **kwargs
     ) -> tuple[np.ndarray, np.ndarray, LineCollection | Line2D, Line2D | None]: ...
     def step(
@@ -233,7 +233,7 @@ class Axes(_AxesBase):
         y: ArrayLike,
         *args,
         where: Literal["pre", "post", "mid"] = ...,
-        data = ...,
+        data=...,
         **kwargs
     ) -> list[Line2D]: ...
     def bar(
@@ -244,7 +244,7 @@ class Axes(_AxesBase):
         bottom: float | ArrayLike | None = ...,
         *,
         align: Literal["center", "edge"] = ...,
-        data = ...,
+        data=...,
         **kwargs
     ) -> BarContainer: ...
     def barh(
@@ -255,7 +255,7 @@ class Axes(_AxesBase):
         left: float | ArrayLike | None = ...,
         *,
         align: Literal["center", "edge"] = ...,
-        data = ...,
+        data=...,
         **kwargs
     ) -> BarContainer: ...
     def bar_label(
@@ -484,7 +484,7 @@ class Axes(_AxesBase):
         vmax: float | None = ...,
         origin: Literal["upper", "lower"] | None = ...,
         extent: tuple[float, float, float, float] | None = ...,
-        interpolation_stage: Literal["data", "rgba"] | None = ...,
+        interpolation_stage: Literal["data", "rgba", "auto"] | None = ...,
         filternorm: bool = ...,
         filterrad: float = ...,
         resample: bool | None = ...,

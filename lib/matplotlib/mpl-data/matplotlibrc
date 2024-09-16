@@ -602,8 +602,8 @@
 ## * IMAGES                                                                  *
 ## ***************************************************************************
 #image.aspect:          equal        # {equal, auto} or a number
-#image.interpolation:   antialiased  # see help(imshow) for options
-#image.interpolation_stage: data     # see help(imshow) for options
+#image.interpolation:   auto         # see help(imshow) for options
+#image.interpolation_stage: auto     # see help(imshow) for options
 #image.cmap:            viridis      # A colormap name (plasma, magma, etc.)
 #image.lut:             256          # the size of the colormap lookup table
 #image.origin:          upper        # {lower, upper}
@@ -671,7 +671,7 @@
                   # to the nearest pixel when certain criteria are met.
                   # When False, paths will never be snapped.
 #path.sketch: None  # May be None, or a tuple of the form:
-                    #  path.sketch: (scale, length, randomness) 
+                    #  path.sketch: (scale, length, randomness)
                     # - *scale* is the amplitude of the wiggle
                     #    perpendicular to the line (in pixels).
                     # - *length* is the length of the wiggle along the
@@ -735,6 +735,8 @@
                          #     None: Assume fonts are installed on the
                          #           machine where the SVG will be viewed.
 #svg.hashsalt: None      # If not None, use this string as hash salt instead of uuid4
+#svg.id: None            # If not None, use this string as the value for the `id`
+                         # attribute in the top <svg> tag
 
 ### pgf parameter
 ## See https://matplotlib.org/stable/tutorials/text/pgf.html for more information.

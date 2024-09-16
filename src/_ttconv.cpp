@@ -7,8 +7,8 @@
  */
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 #include "pprdrv.h"
-#include <vector>
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -40,25 +40,20 @@ static void convert_ttf_to_ps(
     const char *filename,
     py::object &output,
     int fonttype,
-    py::iterable* glyph_ids)
+    std::optional<std::vector<int>> glyph_ids_or_none)
 {
     PythonFileWriter output_(output);
-
-    std::vector<int> glyph_ids_;
-    if (glyph_ids) {
-        for (py::handle glyph_id: *glyph_ids) {
-            glyph_ids_.push_back(glyph_id.cast<int>());
-        }
-    }
 
     if (fonttype != 3 && fonttype != 42) {
         throw py::value_error(
             "fonttype must be either 3 (raw Postscript) or 42 (embedded Truetype)");
     }
 
+    auto glyph_ids = glyph_ids_or_none.value_or(std::vector<int>{});
+
     try
     {
-        insert_ttfont(filename, output_, static_cast<font_type_enum>(fonttype), glyph_ids_);
+        insert_ttfont(filename, output_, static_cast<font_type_enum>(fonttype), glyph_ids);
     }
     catch (TTException &e)
     {

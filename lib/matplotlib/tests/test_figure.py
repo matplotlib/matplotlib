@@ -1735,6 +1735,22 @@ def test_warn_colorbar_mismatch():
         subfig3_1.colorbar(im4_1)
 
 
+def test_set_figure():
+    fig = plt.figure()
+    sfig1 = fig.subfigures()
+    sfig2 = sfig1.subfigures()
+
+    for f in fig, sfig1, sfig2:
+        with pytest.warns(mpl.MatplotlibDeprecationWarning):
+            f.set_figure(fig)
+
+    with pytest.raises(ValueError, match="cannot be changed"):
+        sfig2.set_figure(sfig1)
+
+    with pytest.raises(ValueError, match="cannot be changed"):
+        sfig1.set_figure(plt.figure())
+
+
 def test_subfigure_row_order():
     # Test that subfigures are drawn in row-major order.
     fig = plt.figure()
@@ -1758,10 +1774,13 @@ def test_subfigure_stale_propagation():
 
     sfig2 = sfig1.subfigures()
     assert fig.stale
+    assert sfig1.stale
 
     fig.draw_without_rendering()
     assert not fig.stale
+    assert not sfig1.stale
     assert not sfig2.stale
 
     sfig2.stale = True
+    assert sfig1.stale
     assert fig.stale

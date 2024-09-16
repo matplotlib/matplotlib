@@ -1,7 +1,7 @@
 """
-==============================
-Text Rotation Relative To Line
-==============================
+=======================================
+Text rotation angle in data coordinates
+=======================================
 
 Text objects in matplotlib are normally rotated with respect to the
 screen coordinate system (i.e., 45 degrees rotation plots text along a

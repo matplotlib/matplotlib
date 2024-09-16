@@ -849,8 +849,8 @@ class FigureCanvasPgf(FigureCanvasBase):
             cbook._check_and_log_subprocess(
                 [texcommand, "-interaction=nonstopmode", "-halt-on-error",
                  "figure.tex"], _log, cwd=tmpdir)
-            with (tmppath / "figure.pdf").open("rb") as orig, \
-                 cbook.open_file_cm(fname_or_fh, "wb") as dest:
+            with ((tmppath / "figure.pdf").open("rb") as orig,
+                  cbook.open_file_cm(fname_or_fh, "wb") as dest):
                 shutil.copyfileobj(orig, dest)  # copy file contents to target
 
     def print_png(self, fname_or_fh, **kwargs):
@@ -862,8 +862,8 @@ class FigureCanvasPgf(FigureCanvasBase):
             png_path = tmppath / "figure.png"
             self.print_pdf(pdf_path, **kwargs)
             converter(pdf_path, png_path, dpi=self.figure.dpi)
-            with png_path.open("rb") as orig, \
-                 cbook.open_file_cm(fname_or_fh, "wb") as dest:
+            with (png_path.open("rb") as orig,
+                  cbook.open_file_cm(fname_or_fh, "wb") as dest):
                 shutil.copyfileobj(orig, dest)  # copy file contents to target
 
     def get_renderer(self):

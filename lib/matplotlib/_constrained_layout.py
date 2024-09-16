@@ -140,6 +140,13 @@ def do_constrained_layout(fig, h_pad, w_pad,
                                     w_pad=w_pad, hspace=hspace, wspace=wspace)
                 else:
                     _api.warn_external(warn_collapsed)
+
+                if ((suptitle := fig._suptitle) is not None and
+                        suptitle.get_in_layout() and suptitle._autopos):
+                    x, _ = suptitle.get_position()
+                    suptitle.set_position(
+                        (x, layoutgrids[fig].get_inner_bbox().y1 + h_pad))
+                    suptitle.set_verticalalignment('bottom')
         else:
             _api.warn_external(warn_collapsed)
         reset_margins(layoutgrids, fig)
@@ -627,7 +634,7 @@ def get_pos_and_bbox(ax, renderer):
     bbox : `~matplotlib.transforms.Bbox`
         Tight bounding box in figure coordinates.
     """
-    fig = ax.figure
+    fig = ax.get_figure(root=False)
     pos = ax.get_position(original=True)
     # pos is in panel co-ords, but we need in figure for the layout
     pos = pos.transformed(fig.transSubfigure - fig.transFigure)
@@ -699,7 +706,7 @@ def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None):
 
     parents = cbax._colorbar_info['parents']
     gs = parents[0].get_gridspec()
-    fig = cbax.figure
+    fig = cbax.get_figure(root=False)
     trans_fig_to_subfig = fig.transFigure - fig.transSubfigure
 
     cb_rspans, cb_cspans = get_cb_parent_spans(cbax)

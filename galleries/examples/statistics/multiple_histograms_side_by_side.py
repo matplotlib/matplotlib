@@ -1,7 +1,7 @@
 """
-==========================================
-Producing multiple histograms side by side
-==========================================
+================================
+Multiple histograms side by side
+================================
 
 This example plots horizontal histograms of different samples along
 a categorical x-axis. Additionally, the histograms are plotted to

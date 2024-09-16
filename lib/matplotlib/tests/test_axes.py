@@ -701,6 +701,16 @@ def test_sticky_tolerance():
     axs.flat[3].barh(y=1, width=width, left=-20000.1)
 
 
+@image_comparison(['sticky_tolerance_cf.png'], remove_text=True, style="mpl20")
+def test_sticky_tolerance_contourf():
+    fig, ax = plt.subplots()
+
+    x = y = [14496.71, 14496.75]
+    data = [[0, 1], [2, 3]]
+
+    ax.contourf(x, y, data)
+
+
 def test_nargs_stem():
     with pytest.raises(TypeError, match='0 were given'):
         # stem() takes 1-3 arguments.
@@ -1206,7 +1216,7 @@ def test_imshow():
 
 @image_comparison(
     ['imshow_clip'], style='mpl20',
-    tol=1.24 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
+    tol=1.24 if platform.machine() in ('aarch64', 'arm64', 'ppc64le', 's390x') else 0)
 def test_imshow_clip():
     # As originally reported by Gellule Xg <gellule.xg@free.fr>
     # use former defaults to match existing baseline image
@@ -2603,7 +2613,7 @@ def test_contour_hatching():
 
 @image_comparison(
     ['contour_colorbar'], style='mpl20',
-    tol=0.54 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
+    tol=0.54 if platform.machine() in ('aarch64', 'arm64', 'ppc64le', 's390x') else 0)
 def test_contour_colorbar():
     x, y, z = contour_dat()
 
@@ -3076,10 +3086,10 @@ def test_log_scales():
     ax.set_yscale('log', base=5.5)
     ax.invert_yaxis()
     ax.set_xscale('log', base=9.0)
-    xticks, yticks = [
+    xticks, yticks = (
         [(t.get_loc(), t.label1.get_text()) for t in axis._update_ticks()]
         for axis in [ax.xaxis, ax.yaxis]
-    ]
+    )
     assert xticks == [
         (1.0, '$\\mathdefault{9^{0}}$'),
         (9.0, '$\\mathdefault{9^{1}}$'),
@@ -4622,6 +4632,64 @@ def test_hist_stacked_bar():
     ax.legend(loc='upper right', bbox_to_anchor=(1.0, 1.0), ncols=1)
 
 
+@pytest.mark.parametrize('kwargs', ({'facecolor': ["b", "g", "r"]},
+                                    {'edgecolor': ["b", "g", "r"]},
+                                    {'hatch': ["/", "\\", "."]},
+                                    {'linestyle': ["-", "--", ":"]},
+                                    {'linewidth': [1, 1.5, 2]},
+                                    {'color': ["b", "g", "r"]}))
+@check_figures_equal(extensions=["png"])
+def test_hist_vectorized_params(fig_test, fig_ref, kwargs):
+    np.random.seed(19680801)
+    xs = [np.random.randn(n) for n in [20, 50, 100]]
+
+    (axt1, axt2) = fig_test.subplots(2)
+    (axr1, axr2) = fig_ref.subplots(2)
+
+    for histtype, axt, axr in [("stepfilled", axt1, axr1), ("step", axt2, axr2)]:
+        _, bins, _ = axt.hist(xs, bins=10, histtype=histtype, **kwargs)
+
+        kw, values = next(iter(kwargs.items()))
+        for i, (x, value) in enumerate(zip(xs, values)):
+            axr.hist(x, bins=bins, histtype=histtype, **{kw: value},
+                     zorder=(len(xs)-i)/2)
+
+
+@pytest.mark.parametrize('kwargs, patch_face, patch_edge',
+                         # 'C0'(blue) stands for the first color of the
+                         # default color cycle as well as the patch.facecolor rcParam
+                         # When the expected edgecolor is 'k'(black),
+                         # it corresponds to the patch.edgecolor rcParam
+                         [({'histtype': 'stepfilled', 'color': 'r',
+                            'facecolor': 'y', 'edgecolor': 'g'}, 'y', 'g'),
+                          ({'histtype': 'step', 'color': 'r',
+                            'facecolor': 'y', 'edgecolor': 'g'}, ('y', 0), 'g'),
+                          ({'histtype': 'stepfilled', 'color': 'r',
+                            'edgecolor': 'g'}, 'r', 'g'),
+                          ({'histtype': 'step', 'color': 'r',
+                            'edgecolor': 'g'}, ('r', 0), 'g'),
+                          ({'histtype': 'stepfilled', 'color': 'r',
+                            'facecolor': 'y'}, 'y', 'k'),
+                          ({'histtype': 'step', 'color': 'r',
+                            'facecolor': 'y'}, ('y', 0), 'r'),
+                          ({'histtype': 'stepfilled',
+                            'facecolor': 'y', 'edgecolor': 'g'}, 'y', 'g'),
+                          ({'histtype': 'step', 'facecolor': 'y',
+                            'edgecolor': 'g'}, ('y', 0), 'g'),
+                          ({'histtype': 'stepfilled', 'color': 'r'}, 'r', 'k'),
+                          ({'histtype': 'step', 'color': 'r'}, ('r', 0), 'r'),
+                          ({'histtype': 'stepfilled', 'facecolor': 'y'}, 'y', 'k'),
+                          ({'histtype': 'step', 'facecolor': 'y'}, ('y', 0), 'C0'),
+                          ({'histtype': 'stepfilled', 'edgecolor': 'g'}, 'C0', 'g'),
+                          ({'histtype': 'step', 'edgecolor': 'g'}, ('C0', 0), 'g'),
+                          ({'histtype': 'stepfilled'}, 'C0', 'k'),
+                          ({'histtype': 'step'}, ('C0', 0), 'C0')])
+def test_hist_color_semantics(kwargs, patch_face, patch_edge):
+    _, _, patches = plt.figure().subplots().hist([1, 2, 3], **kwargs)
+    assert all(mcolors.same_color([p.get_facecolor(), p.get_edgecolor()],
+                                  [patch_face, patch_edge]) for p in patches)
+
+
 def test_hist_barstacked_bottom_unchanged():
     b = np.array([10, 20])
     plt.hist([[0, 1], [0, 1]], 2, histtype="barstacked", bottom=b)
@@ -4631,6 +4699,15 @@ def test_hist_barstacked_bottom_unchanged():
 def test_hist_emptydata():
     fig, ax = plt.subplots()
     ax.hist([[], range(10), range(10)], histtype="step")
+
+
+def test_hist_unused_labels():
+    # When a list with one dataset and N elements is provided and N labels, ensure
+    # that the first label is used for the dataset and all other labels are ignored
+    fig, ax = plt.subplots()
+    ax.hist([[1, 2, 3]], label=["values", "unused", "also unused"])
+    _, labels = ax.get_legend_handles_labels()
+    assert labels == ["values"]
 
 
 def test_hist_labels():
@@ -5664,6 +5741,28 @@ def test_reset_ticks(fig_test, fig_ref):
         ax.yaxis.reset_ticks()
 
 
+@mpl.style.context('mpl20')
+def test_context_ticks():
+    with plt.rc_context({
+            'xtick.direction': 'in', 'xtick.major.size': 30, 'xtick.major.width': 5,
+            'xtick.color': 'C0', 'xtick.major.pad': 12,
+            'xtick.bottom': True, 'xtick.top': True,
+            'xtick.labelsize': 14, 'xtick.labelcolor': 'C1'}):
+        fig, ax = plt.subplots()
+    # Draw outside the context so that all-but-first tick are generated with the normal
+    # mpl20 style in place.
+    fig.draw_without_rendering()
+
+    first_tick = ax.xaxis.majorTicks[0]
+    for tick in ax.xaxis.majorTicks[1:]:
+        assert tick._size == first_tick._size
+        assert tick._width == first_tick._width
+        assert tick._base_pad == first_tick._base_pad
+        assert tick._labelrotation == first_tick._labelrotation
+        assert tick._zorder == first_tick._zorder
+        assert tick._tickdir == first_tick._tickdir
+
+
 def test_vline_limit():
     fig = plt.figure()
     ax = fig.gca()
@@ -6216,7 +6315,7 @@ def test_tick_label_update():
     ax.set_xticks([-1, 0, 1, 2, 3])
     ax.set_xlim(-0.5, 2.5)
 
-    ax.figure.canvas.draw()
+    fig.canvas.draw()
     tick_texts = [tick.get_text() for tick in ax.xaxis.get_ticklabels()]
     assert tick_texts == ["", "", "unit value", "", ""]
 
@@ -8846,11 +8945,11 @@ def test_cla_clears_children_axes_and_fig():
     img = ax.imshow([[1]])
     for art in lines + [img]:
         assert art.axes is ax
-        assert art.figure is fig
+        assert art.get_figure() is fig
     ax.clear()
     for art in lines + [img]:
         assert art.axes is None
-        assert art.figure is None
+        assert art.get_figure() is None
 
 
 def test_child_axes_removal():

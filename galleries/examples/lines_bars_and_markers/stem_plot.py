@@ -1,6 +1,6 @@
 """
 =========
-Stem Plot
+Stem plot
 =========
 
 `~.pyplot.stem` plots vertical lines from a baseline to the y-coordinate and
@@ -36,3 +36,8 @@ plt.show()
 #    in this example:
 #
 #    - `matplotlib.axes.Axes.stem` / `matplotlib.pyplot.stem`
+#
+# .. tags::
+#
+#    plot-type: stem
+#    level: beginner

@@ -14,7 +14,7 @@ import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
-import matplotlib.dates  # noqa # Register date unit converter as side effect.
+import matplotlib.dates  # noqa: F401, Register date unit converter as side effect.
 import matplotlib.image as mimage
 import matplotlib.legend as mlegend
 import matplotlib.lines as mlines
@@ -406,8 +406,9 @@ class Axes(_AxesBase):
         # This puts the rectangle into figure-relative coordinates.
         inset_locator = _TransformedBoundsLocator(bounds, transform)
         bounds = inset_locator(self, None).bounds
-        projection_class, pkw = self.figure._process_projection_requirements(**kwargs)
-        inset_ax = projection_class(self.figure, bounds, zorder=zorder, **pkw)
+        fig = self.get_figure(root=False)
+        projection_class, pkw = fig._process_projection_requirements(**kwargs)
+        inset_ax = projection_class(fig, bounds, zorder=zorder, **pkw)
 
         # this locator lets the axes move if in data coordinates.
         # it gets called in `ax.apply_aspect() (of all places)
@@ -452,8 +453,10 @@ class Axes(_AxesBase):
         edgecolor : :mpltype:`color`, default: '0.5'
             Color of the rectangle and color of the connecting lines.
 
-        alpha : float, default: 0.5
-            Transparency of the rectangle and connector lines.
+        alpha : float or None, default: 0.5
+            Transparency of the rectangle and connector lines.  If not
+            ``None``, this overrides any alpha value included in the
+            *facecolor* and *edgecolor* parameters.
 
         zorder : float, default: 4.99
             Drawing order of the rectangle and connector lines.  The default,
@@ -515,7 +518,7 @@ class Axes(_AxesBase):
 
             # decide which two of the lines to keep visible....
             pos = inset_ax.get_position()
-            bboxins = pos.transformed(self.figure.transSubfigure)
+            bboxins = pos.transformed(self.get_figure(root=False).transSubfigure)
             rectbbox = mtransforms.Bbox.from_bounds(
                 *bounds
             ).transformed(transform)
@@ -765,20 +768,25 @@ class Axes(_AxesBase):
     @_docstring.dedent_interpd
     def axhline(self, y=0, xmin=0, xmax=1, **kwargs):
         """
-        Add a horizontal line across the Axes.
+        Add a horizontal line spanning the whole or fraction of the Axes.
+
+        Note: If you want to set x-limits in data coordinates, use
+        `~.Axes.hlines` instead.
 
         Parameters
         ----------
         y : float, default: 0
-            y position in data coordinates of the horizontal line.
+            y position in :ref:`data coordinates <coordinate-systems>`.
 
         xmin : float, default: 0
-            Should be between 0 and 1, 0 being the far left of the plot, 1 the
-            far right of the plot.
+            The start x-position in :ref:`axes coordinates <coordinate-systems>`.
+            Should be between 0 and 1, 0 being the far left of the plot,
+            1 the far right of the plot.
 
         xmax : float, default: 1
-            Should be between 0 and 1, 0 being the far left of the plot, 1 the
-            far right of the plot.
+            The end x-position in :ref:`axes coordinates <coordinate-systems>`.
+            Should be between 0 and 1, 0 being the far left of the plot,
+            1 the far right of the plot.
 
         Returns
         -------
@@ -834,18 +842,23 @@ class Axes(_AxesBase):
     @_docstring.dedent_interpd
     def axvline(self, x=0, ymin=0, ymax=1, **kwargs):
         """
-        Add a vertical line across the Axes.
+        Add a vertical line spanning the whole or fraction of the Axes.
+
+        Note: If you want to set y-limits in data coordinates, use
+        `~.Axes.vlines` instead.
 
         Parameters
         ----------
         x : float, default: 0
-            x position in data coordinates of the vertical line.
+            y position in :ref:`data coordinates <coordinate-systems>`.
 
         ymin : float, default: 0
+            The start y-position in :ref:`axes coordinates <coordinate-systems>`.
             Should be between 0 and 1, 0 being the bottom of the plot, 1 the
             top of the plot.
 
         ymax : float, default: 1
+            The end y-position in :ref:`axes coordinates <coordinate-systems>`.
             Should be between 0 and 1, 0 being the bottom of the plot, 1 the
             top of the plot.
 
@@ -5799,7 +5812,7 @@ class Axes(_AxesBase):
         interpolation : str, default: :rc:`image.interpolation`
             The interpolation method used.
 
-            Supported values are 'none', 'antialiased', 'nearest', 'bilinear',
+            Supported values are 'none', 'auto', 'nearest', 'bilinear',
             'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
             'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
             'sinc', 'lanczos', 'blackman'.
@@ -5814,7 +5827,7 @@ class Axes(_AxesBase):
             pdf, and svg viewers may display these raw pixels differently. On
             other backends, 'none' is the same as 'nearest'.
 
-            If *interpolation* is the default 'antialiased', then 'nearest'
+            If *interpolation* is the default 'auto', then 'nearest'
             interpolation is used if the image is upsampled by more than a
             factor of three (i.e. the number of display pixels is at least
             three times the size of the data array).  If the upsampling rate is
@@ -5832,11 +5845,20 @@ class Axes(_AxesBase):
             which can be set by *filterrad*. Additionally, the antigrain image
             resize filter is controlled by the parameter *filternorm*.
 
-        interpolation_stage : {'data', 'rgba'}, default: 'data'
-            If 'data', interpolation
-            is carried out on the data provided by the user.  If 'rgba', the
-            interpolation is carried out after the colormapping has been
-            applied (visual interpolation).
+        interpolation_stage : {'auto', 'data', 'rgba'}, default: 'auto'
+            Supported values:
+
+            - 'data': Interpolation is carried out on the data provided by the user
+              This is useful if interpolating between pixels during upsampling.
+            - 'rgba': The interpolation is carried out in RGBA-space after the
+              color-mapping has been applied. This is useful if downsampling and
+              combining pixels visually.
+            - 'auto': Select a suitable interpolation stage automatically. This uses
+              'rgba' when downsampling, or upsampling at a rate less than 3, and
+              'data' when upsampling at a higher rate.
+
+            See :doc:`/gallery/images_contours_and_fields/image_antialiasing` for
+            a discussion of image antialiasing.
 
         alpha : float or array-like, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).
@@ -5991,7 +6013,7 @@ class Axes(_AxesBase):
             # unit conversion allows e.g. datetime objects as axis values
             X, Y = args[:2]
             X, Y = self._process_unit_info([("x", X), ("y", Y)], kwargs)
-            X, Y = [cbook.safe_masked_invalid(a, copy=True) for a in [X, Y]]
+            X, Y = (cbook.safe_masked_invalid(a, copy=True) for a in [X, Y])
 
             if funcname == 'pcolormesh':
                 if np.ma.is_masked(X) or np.ma.is_masked(Y):
@@ -6937,7 +6959,13 @@ such objects
             DATA_PARAMETER_PLACEHOLDER
 
         **kwargs
-            `~matplotlib.patches.Patch` properties
+            `~matplotlib.patches.Patch` properties. The following properties
+            additionally accept a sequence of values corresponding to the
+            datasets in *x*:
+            *edgecolors*, *facecolors*, *lines*, *linestyles*, *hatches*.
+
+            .. versionadded:: 3.10
+               Allowing sequences of values in above listed Patch properties.
 
         See Also
         --------
@@ -7210,15 +7238,35 @@ such objects
         # If None, make all labels None (via zip_longest below); otherwise,
         # cast each element to str, but keep a single str as it.
         labels = [] if label is None else np.atleast_1d(np.asarray(label, str))
+
+        if histtype == "step":
+            edgecolors = itertools.cycle(np.atleast_1d(kwargs.get('edgecolor',
+                                                                  colors)))
+        else:
+            edgecolors = itertools.cycle(np.atleast_1d(kwargs.get("edgecolor", None)))
+
+        facecolors = itertools.cycle(np.atleast_1d(kwargs.get('facecolor', colors)))
+        hatches = itertools.cycle(np.atleast_1d(kwargs.get('hatch', None)))
+        linewidths = itertools.cycle(np.atleast_1d(kwargs.get('linewidth', None)))
+        linestyles = itertools.cycle(np.atleast_1d(kwargs.get('linestyle', None)))
+
         for patch, lbl in itertools.zip_longest(patches, labels):
-            if patch:
-                p = patch[0]
+            if not patch:
+                continue
+            p = patch[0]
+            kwargs.update({
+                'hatch': next(hatches),
+                'linewidth': next(linewidths),
+                'linestyle': next(linestyles),
+                'edgecolor': next(edgecolors),
+                'facecolor': next(facecolors),
+            })
+            p._internal_update(kwargs)
+            if lbl is not None:
+                p.set_label(lbl)
+            for p in patch[1:]:
                 p._internal_update(kwargs)
-                if lbl is not None:
-                    p.set_label(lbl)
-                for p in patch[1:]:
-                    p._internal_update(kwargs)
-                    p.set_label('_nolegend_')
+                p.set_label('_nolegend_')
 
         if nx == 1:
             return tops[0], bins, patches[0]
@@ -8100,6 +8148,11 @@ such objects
 
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
+
+        vmin, vmax : float, optional
+            vmin and vmax define the data range that the colormap covers.
+            By default, the colormap covers the complete value range of the
+            data.
 
         **kwargs
             Additional keyword arguments are passed on to `~.axes.Axes.imshow`

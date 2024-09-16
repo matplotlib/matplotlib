@@ -29,7 +29,8 @@ cmaps = [('Perceptually Uniform Sequential', [
             'hot', 'afmhot', 'gist_heat', 'copper']),
          ('Diverging', [
             'PiYG', 'PRGn', 'BrBG', 'PuOr', 'RdGy', 'RdBu',
-            'RdYlBu', 'RdYlGn', 'Spectral', 'coolwarm', 'bwr', 'seismic']),
+            'RdYlBu', 'RdYlGn', 'Spectral', 'coolwarm', 'bwr', 'seismic',
+            'berlin', 'managua', 'vanimo']),
          ('Cyclic', ['twilight', 'twilight_shifted', 'hsv']),
          ('Qualitative', [
             'Pastel1', 'Pastel2', 'Paired', 'Accent',
@@ -94,3 +95,8 @@ plot_color_gradients("Original and reversed ", ['viridis', 'viridis_r'])
 #    - `matplotlib.axes.Axes.imshow`
 #    - `matplotlib.figure.Figure.text`
 #    - `matplotlib.axes.Axes.set_axis_off`
+#
+# .. tags::
+#
+#    styling: colormap
+#    purpose: reference

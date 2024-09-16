@@ -2161,7 +2161,7 @@ class Arc(Ellipse):
         # the unit circle in the same way that it is relative to the desired
         # ellipse.
         box_path_transform = (
-            transforms.BboxTransformTo((self.axes or self.figure).bbox)
+            transforms.BboxTransformTo((self.axes or self.get_figure(root=False)).bbox)
             - self.get_transform())
         box_path = Path.unit_rectangle().transformed(box_path_transform)
 
@@ -2347,6 +2347,11 @@ class _Style:
         return textwrap.indent(rst_table, prefix=' ' * 4)
 
     @classmethod
+    @_api.deprecated(
+        '3.10.0',
+        message="This method is never used internally.",
+        alternative="No replacement.  Please open an issue if you use this."
+    )
     def register(cls, name, style):
         """Register a new style."""
         if not issubclass(style, cls._Base):
@@ -4321,6 +4326,7 @@ default: 'arc3'
         """Return the `ConnectionStyle` used."""
         return self._connector
 
+    @_docstring.dedent_interpd
     def set_arrowstyle(self, arrowstyle=None, **kwargs):
         """
         Set the arrow style, possibly with further attributes.
@@ -4574,13 +4580,14 @@ class ConnectionPatch(FancyArrowPatch):
         if axes is None:
             axes = self.axes
         xy = np.array(xy)
+        fig = self.get_figure(root=False)
         if s in ["figure points", "axes points"]:
-            xy *= self.figure.dpi / 72
+            xy *= fig.dpi / 72
             s = s.replace("points", "pixels")
         elif s == "figure fraction":
-            s = self.figure.transFigure
+            s = fig.transFigure
         elif s == "subfigure fraction":
-            s = self.figure.transSubfigure
+            s = fig.transSubfigure
         elif s == "axes fraction":
             s = axes.transAxes
         x, y = xy
@@ -4595,7 +4602,7 @@ class ConnectionPatch(FancyArrowPatch):
                 return self._get_xy(self.xy, 'data')
             return (
                 self._get_xy(self.xy, self.xycoords)  # converted data point
-                + xy * self.figure.dpi / 72)  # converted offset
+                + xy * self.get_figure(root=True).dpi / 72)  # converted offset
         elif s == 'polar':
             theta, r = x, y
             x = r * np.cos(theta)
@@ -4604,13 +4611,13 @@ class ConnectionPatch(FancyArrowPatch):
             return trans.transform((x, y))
         elif s == 'figure pixels':
             # pixels from the lower left corner of the figure
-            bb = self.figure.figbbox
+            bb = self.get_figure(root=False).figbbox
             x = bb.x0 + x if x >= 0 else bb.x1 + x
             y = bb.y0 + y if y >= 0 else bb.y1 + y
             return x, y
         elif s == 'subfigure pixels':
             # pixels from the lower left corner of the figure
-            bb = self.figure.bbox
+            bb = self.get_figure(root=False).bbox
             x = bb.x0 + x if x >= 0 else bb.x1 + x
             y = bb.y0 + y if y >= 0 else bb.y1 + y
             return x, y

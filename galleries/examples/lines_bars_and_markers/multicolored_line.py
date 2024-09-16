@@ -188,3 +188,11 @@ ax2.set_ylim(-1.1, 1.1)
 ax2.set_title("Color between points")
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    styling: color
+#    styling: linestyle
+#    plot-type: line
+#    level: intermediate

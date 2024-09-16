@@ -1,7 +1,7 @@
 """
-===============
-Embedding in Tk
-===============
+===========
+Embed in Tk
+===========
 
 """
 
@@ -16,7 +16,7 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
 from matplotlib.figure import Figure
 
 root = tkinter.Tk()
-root.wm_title("Embedding in Tk")
+root.wm_title("Embedded in Tk")
 
 fig = Figure(figsize=(5, 4), dpi=100)
 t = np.arange(0, 3, .01)

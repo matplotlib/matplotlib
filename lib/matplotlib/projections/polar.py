@@ -79,7 +79,6 @@ class PolarTransform(mtransforms.Transform):
         return self._scale_transform.transform(
             (0, self._axis.get_rorigin()))[1]
 
-    @_api.rename_parameter("3.8", "tr", "values")
     def transform_non_affine(self, values):
         # docstring inherited
         theta, r = np.transpose(values)
@@ -235,7 +234,6 @@ class InvertedPolarTransform(mtransforms.Transform):
         use_rmin="_use_rmin",
         apply_theta_transforms="_apply_theta_transforms")
 
-    @_api.rename_parameter("3.8", "xy", "values")
     def transform_non_affine(self, values):
         # docstring inherited
         x, y = values.T
@@ -341,9 +339,9 @@ class ThetaTick(maxis.XTick):
 
     def __init__(self, axes, *args, **kwargs):
         self._text1_translate = mtransforms.ScaledTranslation(
-            0, 0, axes.figure.dpi_scale_trans)
+            0, 0, axes.get_figure(root=False).dpi_scale_trans)
         self._text2_translate = mtransforms.ScaledTranslation(
-            0, 0, axes.figure.dpi_scale_trans)
+            0, 0, axes.get_figure(root=False).dpi_scale_trans)
         super().__init__(axes, *args, **kwargs)
         self.label1.set(
             rotation_mode='anchor',
@@ -530,7 +528,7 @@ class _ThetaShift(mtransforms.ScaledTranslation):
         of the axes, or using the rlabel position (``'rlabel'``).
     """
     def __init__(self, axes, pad, mode):
-        super().__init__(pad, pad, axes.figure.dpi_scale_trans)
+        super().__init__(pad, pad, axes.get_figure(root=False).dpi_scale_trans)
         self.set_children(axes._realViewLim)
         self.axes = axes
         self.mode = mode
