@@ -64,6 +64,23 @@ def _make_axes_method(func):
     return func
 
 
+class _GroupedBarReturn:
+    """
+    A provisional result object for `.Axes.grouped_bar`.
+
+    This is a placeholder for a future better return type. We try to build in
+    backward compatibility / migration possibilities.
+
+    The only public interfaces are the ``bar_containers`` attribute and the
+    ``remove()`` method.
+    """
+    def __init__(self, bar_containers):
+        self.bar_containers = bar_containers
+
+    def remove(self):
+        [b.remove() for b in self.bars]
+
+
 @_docstring.interpd
 class Axes(_AxesBase):
     """
@@ -3161,12 +3178,17 @@ class Axes(_AxesBase):
 
         Returns
         -------
-            list of `.BarContainer`
-                The results of the individual `~.Axes.bar` calls for each dataset.
+            _GroupedBarReturn
 
-                .. warning::
-                    The return type is provisional and will likely be replaced
-                    by a more convenient object.
+                A provisional result object. This will be refined in the future.
+                For now, the API is limited to
+
+                - the attribute ``bar_containers``, which is a list of
+                  `.BarContainer`, i.e. the results of the individual `~.Axes.bar`
+                  calls for each dataset.
+
+                - a ``remove()`` method, that remove all bars from the Axes.
+                  See also `.Artist.remove()`.
 
         """
         if hasattr(heights, 'keys'):
