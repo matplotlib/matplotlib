@@ -45,4 +45,5 @@ plt.show()
 # .. tags::
 #
 #    plot-type: specialty
+#    component: projection
 #    domain: cartography

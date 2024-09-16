@@ -213,8 +213,10 @@ plt.show()
 # %%
 # .. tags::
 #
-#    component: subplot
-#    plot-type: line
+#    component: subplot,
+#    component: axes,
+#    component: axis
+#    plot-type: line,
 #    plot-type: polar
 #    level: beginner
 #    purpose: showcase
