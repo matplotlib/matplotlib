@@ -8,6 +8,7 @@ from matplotlib.font_manager import FontProperties
 from matplotlib.image import BboxImage
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 from matplotlib.transforms import Bbox, BboxBase, Transform
+from matplotlib.typing import CoordsType
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -220,7 +221,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
     offsetbox: OffsetBox
     arrowprops: dict[str, Any] | None
     xybox: tuple[float, float]
-    boxcoords: coords_type
+    boxcoords: CoordsType
     arrow_patch: FancyArrowPatch | None
     patch: FancyBboxPatch
     prop: FontProperties
@@ -229,8 +230,8 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         offsetbox: OffsetBox,
         xy: tuple[float, float],
         xybox: tuple[float, float] | None = ...,
-        xycoords: coords_type = ...,
-        boxcoords: coords_type | None = ...,
+        xycoords: CoordsType = ...,
+        boxcoords: CoordsType | None = ...,
         *,
         frameon: bool = ...,
         pad: float = ...,
@@ -248,11 +249,11 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
     @property
     def anncoords(
         self,
-    ) -> coords_type: ...
+    ) -> CoordsType: ...
     @anncoords.setter
     def anncoords(
         self,
-        coords: coords_type,
+        coords: CoordsType,
     ) -> None: ...
     def get_children(self) -> list[martist.Artist]: ...
     def set_figure(self, fig: Figure) -> None: ...

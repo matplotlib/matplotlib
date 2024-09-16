@@ -7,7 +7,6 @@ from numbers import Real
 from operator import attrgetter
 import re
 import types
-from typing import Callable, Union
 
 import numpy as np
 
@@ -15,7 +14,6 @@ import matplotlib as mpl
 from matplotlib import _api, cbook, _docstring, offsetbox
 import matplotlib.artist as martist
 import matplotlib.axis as maxis
-from matplotlib import backend_bases
 from matplotlib.cbook import _OrderedSet, _check_1d, index_of
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
@@ -32,21 +30,6 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 
 _log = logging.getLogger(__name__)
-
-
-coords_type_base = Union[
-    str,
-    martist.Artist,
-    mtransforms.Transform,
-    Callable[
-        [backend_bases.RendererBase],
-        Union[mtransforms.Bbox, mtransforms.Transform]
-    ]
-]
-coords_type = Union[
-    coords_type_base,
-    tuple[coords_type_base, coords_type_base]
-]
 
 
 class _axis_method_wrapper:

@@ -11,11 +11,14 @@ downstream libraries.
 """
 from collections.abc import Hashable, Sequence
 import pathlib
-from typing import Any, Literal, TypeVar, Union
+from typing import Any, Callable, Literal, TypeVar, Union
 
 from . import path
 from ._enums import JoinStyle, CapStyle
+from .artist import Artist
+from .backend_bases import RendererBase
 from .markers import MarkerStyle
+from .transforms import Bbox, Transform
 
 # The following are type aliases. Once python 3.9 is dropped, they should be annotated
 # using ``typing.TypeAlias`` and Unions should be converted to using ``|`` syntax.
@@ -47,6 +50,20 @@ MarkerType = Union[str, path.Path, MarkerStyle]
 FillStyleType = Literal["full", "left", "right", "bottom", "top", "none"]
 JoinStyleType = Union[JoinStyle, Literal["miter", "round", "bevel"]]
 CapStyleType = Union[CapStyle, Literal["butt", "projecting", "round"]]
+
+CoordsBaseType = Union[
+    str,
+    Artist,
+    Transform,
+    Callable[
+        [RendererBase],
+        Union[Bbox, Transform]
+    ]
+]
+CoordsType = Union[
+    CoordsBaseType,
+    tuple[CoordsBaseType, CoordsBaseType]
+]
 
 RcStyleType = Union[
     str,

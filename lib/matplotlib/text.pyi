@@ -1,5 +1,4 @@
 from .artist import Artist
-from .axes._base import coords_type
 from .backend_bases import RendererBase
 from .font_manager import FontProperties
 from .offsetbox import DraggableAnnotation
@@ -17,7 +16,7 @@ from .transforms import (
 
 from collections.abc import Callable, Iterable
 from typing import Any, Literal
-from .typing import ColorType
+from .typing import ColorType, CoordsType
 
 class Text(Artist):
     zorder: float
@@ -121,11 +120,11 @@ class OffsetFrom:
 
 class _AnnotationBase:
     xy: tuple[float, float]
-    xycoords: coords_type
+    xycoords: CoordsType
     def __init__(
         self,
         xy,
-        xycoords: coords_type = ...,
+        xycoords: CoordsType = ...,
         annotation_clip: bool | None = ...,
     ) -> None: ...
     def set_annotation_clip(self, b: bool | None) -> None: ...
@@ -142,8 +141,8 @@ class Annotation(Text, _AnnotationBase):
         text: str,
         xy: tuple[float, float],
         xytext: tuple[float, float] | None = ...,
-        xycoords: coords_type = ...,
-        textcoords: coords_type | None = ...,
+        xycoords: CoordsType = ...,
+        textcoords: CoordsType | None = ...,
         arrowprops: dict[str, Any] | None = ...,
         annotation_clip: bool | None = ...,
         **kwargs
@@ -151,11 +150,11 @@ class Annotation(Text, _AnnotationBase):
     @property
     def xycoords(
         self,
-    ) -> coords_type: ...
+    ) -> CoordsType: ...
     @xycoords.setter
     def xycoords(
         self,
-        xycoords: coords_type,
+        xycoords: CoordsType,
     ) -> None: ...
     @property
     def xyann(self) -> tuple[float, float]: ...
@@ -163,19 +162,19 @@ class Annotation(Text, _AnnotationBase):
     def xyann(self, xytext: tuple[float, float]) -> None: ...
     def get_anncoords(
         self,
-    ) -> coords_type: ...
+    ) -> CoordsType: ...
     def set_anncoords(
         self,
-        coords: coords_type,
+        coords: CoordsType,
     ) -> None: ...
     @property
     def anncoords(
         self,
-    ) -> coords_type: ...
+    ) -> CoordsType: ...
     @anncoords.setter
     def anncoords(
         self,
-        coords: coords_type,
+        coords: CoordsType,
     ) -> None: ...
     def update_positions(self, renderer: RendererBase) -> None: ...
     # Drops `dpi` parameter from superclass
