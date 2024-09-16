@@ -424,12 +424,11 @@ class Patch(artist.Artist):
         self.set_facecolor(c)
 
     def _set_hatchcolor(self, color):
-        color = mpl._val_or_rc(color, "hatch.color")
-        if color == 'inherit':
+        if color is None:
             if self._original_edgecolor is not None:
                 color = self._original_edgecolor
             else:
-                color = mpl.rcParams['patch.edgecolor']
+                color = mpl.rcParams['hatch.color']
         else:
             self._original_hatchcolor = color
         self._hatch_color = colors.to_rgba(color, self._alpha)

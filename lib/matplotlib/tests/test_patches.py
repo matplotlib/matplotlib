@@ -1041,4 +1041,4 @@ def test_patch_hatchcolor(fig_test, fig_ref):
 
     # Test for default hatch color when edgecolor and hatchcolor is not set
     rect = Rectangle((0, 0), 1, 1, hatch='//')
-    assert rect._hatch_color == mcolors.to_rgba(mpl.rcParams['patch.edgecolor'])
+    assert rect._hatch_color == mcolors.to_rgba(mpl.rcParams['hatch.color'])
