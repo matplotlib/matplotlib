@@ -25,6 +25,7 @@ Thanks to John Gill for providing the class and table.
 """
 
 import numpy as np
+import pandas as pd
 
 from . import _api, _docstring
 from .artist import Artist, allow_rasterization
@@ -655,7 +656,7 @@ def table(ax,
           cellLoc='right', colWidths=None,
           rowLabels=None, rowColours=None, rowLoc='left',
           colLabels=None, colColours=None, colLoc='center',
-          loc='bottom', bbox=None, edges='closed',
+          loc='bottom', bbox=None, edges='closed', df=None,
           **kwargs):
     """
     Add a table to an `~.axes.Axes`.
@@ -674,7 +675,7 @@ def table(ax,
 
     Parameters
     ----------
-    cellText : 2D list of str, optional
+    cellText : 2D list of str, Pandas.DataFrame, optional
         The texts to place into the table cells.
 
         *Note*: Line breaks in the strings are currently not accounted for and
@@ -743,6 +744,11 @@ def table(ax,
         rows = len(cellColours)
         cols = len(cellColours[0])
         cellText = [[''] * cols] * rows
+    # Convert the Pandas dataframe to a 2d string array
+    elif isinstance(cellText, pd.DataFrame):
+        headers = cellText.columns.tolist()
+        data = cellText.map(str).values
+        cellText = np.vstack([headers, data])
 
     rows = len(cellText)
     cols = len(cellText[0])
