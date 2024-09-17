@@ -918,7 +918,7 @@ Pull Requests (1066):
 * :ghpull:`16277`: Prefer using MouseButton to numeric values in docs and defaults.
 * :ghpull:`16270`: numpydoc-ify SymLogNorm
 * :ghpull:`16274`: Tiny cleanups to set_xlabel(..., loc=...).
-* :ghpull:`16273`: DOC: Changing the spelling of coordinates.
+* :ghpull:`16273`: DOC: Changing the spelling of co-ordinates.
 * :ghpull:`15974`: Enable set_{x|y|}label(loc={'left'|'right'|'center'}...)
 * :ghpull:`16248`: Update matplotlib.__doc__.
 * :ghpull:`16262`: Dedupe update of rcParams["backend"] in use() and in switch_backend()
