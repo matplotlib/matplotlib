@@ -15,7 +15,7 @@ from .parasite_axes import HostAxes
 
 @_api.deprecated("3.8", alternative="Axes.inset_axes")
 class InsetPosition:
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def __init__(self, parent, lbwh):
         """
         An object for positioning an inset axes.
@@ -131,7 +131,7 @@ class AnchoredZoomLocator(AnchoredLocatorBase):
 
 
 class BboxPatch(Patch):
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def __init__(self, bbox, **kwargs):
         """
         Patch showing the shape bounded by a Bbox.
@@ -193,7 +193,7 @@ class BboxConnector(Patch):
         x2, y2 = BboxConnector.get_bbox_edge_pos(bbox2, loc2)
         return Path([[x1, y1], [x2, y2]])
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def __init__(self, bbox1, bbox2, loc1, loc2=None, **kwargs):
         """
         Connect two bboxes with a straight line.
@@ -237,7 +237,7 @@ class BboxConnector(Patch):
 
 
 class BboxConnectorPatch(BboxConnector):
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def __init__(self, bbox1, bbox2, loc1a, loc2a, loc1b, loc2b, **kwargs):
         """
         Connect two bboxes with a quadrilateral.
@@ -295,7 +295,7 @@ def _add_inset_axes(parent_axes, axes_class, axes_kwargs, axes_locator):
     return fig.add_axes(inset_axes)
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def inset_axes(parent_axes, width, height, loc='upper right',
                bbox_to_anchor=None, bbox_transform=None,
                axes_class=None, axes_kwargs=None,
@@ -419,7 +419,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
             bbox_transform=bbox_transform, borderpad=borderpad))
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
                       bbox_to_anchor=None, bbox_transform=None,
                       axes_class=None, axes_kwargs=None,
@@ -512,7 +512,7 @@ class _TransformedBboxWithCallback(TransformedBbox):
         return super().get_points()
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
     """
     Draw a box to mark the location of an area represented by an inset axes.

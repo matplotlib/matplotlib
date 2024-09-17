@@ -555,7 +555,7 @@ layers : array
 """)
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 class ContourSet(ContourLabeler, mcoll.Collection):
     """
     Store a set of contour lines or filled regions.
@@ -1269,7 +1269,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                 super().draw(renderer)
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 class QuadContourSet(ContourSet):
     """
     Create and store a set of contour lines or filled regions.

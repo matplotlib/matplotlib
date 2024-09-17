@@ -175,7 +175,7 @@ substring of 'BRTL'
         l, b, w, h = self.get_text_bounds(renderer)
         return w * (1.0 + (2.0 * self.PAD))
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def set_text_props(self, **kwargs):
         """
         Update the text properties.
@@ -649,7 +649,7 @@ class Table(Artist):
         return self._cells
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def table(ax,
           cellText=None, cellColours=None,
           cellLoc='right', colWidths=None,
