@@ -518,35 +518,38 @@ def _get_xdg_cache_dir():
 def _get_config_or_cache_dir(xdg_base_getter):
     configdir = os.environ.get('MPLCONFIGDIR')
     if configdir:
-        configdir = Path(configdir).resolve()
+        configdir = Path(configdir)
     elif sys.platform.startswith(('linux', 'freebsd')):
         # Only call _xdg_base_getter here so that MPLCONFIGDIR is tried first,
         # as _xdg_base_getter can throw.
         configdir = Path(xdg_base_getter(), "matplotlib")
     else:
         configdir = Path.home() / ".matplotlib"
+    # Resolve the path to handle potential issues with inaccessible symlinks.
+    configdir = configdir.resolve()
     try:
         configdir.mkdir(parents=True, exist_ok=True)
-    except OSError:
-        pass
+    except OSError as exc:
+        _log.warning("mkdir -p failed for path %s: %s", configdir, exc)
     else:
         if os.access(str(configdir), os.W_OK) and configdir.is_dir():
             return str(configdir)
+        _log.warning("%s is not a writable directory", configdir)
     # If the config or cache directory cannot be created or is not a writable
     # directory, create a temporary one.
     try:
         tmpdir = tempfile.mkdtemp(prefix="matplotlib-")
     except OSError as exc:
         raise OSError(
-            f"Matplotlib requires access to a writable cache directory, but the "
-            f"default path ({configdir}) is not a writable directory, and a temporary "
+            f"Matplotlib requires access to a writable cache directory, but there "
+            f"was an issue with the default path ({configdir}), and a temporary "
             f"directory could not be created; set the MPLCONFIGDIR environment "
             f"variable to a writable directory") from exc
     os.environ["MPLCONFIGDIR"] = tmpdir
     atexit.register(shutil.rmtree, tmpdir)
     _log.warning(
-        "Matplotlib created a temporary cache directory at %s because the default path "
-        "(%s) is not a writable directory; it is highly recommended to set the "
+        "Matplotlib created a temporary cache directory at %s because there was "
+        "an issue with the default path (%s); it is highly recommended to set the "
         "MPLCONFIGDIR environment variable to a writable directory, in particular to "
         "speed up the import of Matplotlib and to better support multiprocessing.",
         tmpdir, configdir)
