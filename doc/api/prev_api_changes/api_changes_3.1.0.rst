@@ -800,7 +800,7 @@ Changes in parameter names
   `.bezier.split_bezier_intersecting_with_closedpath`,
   ``bezier.find_r_to_boundary_of_closedpath``,
   `.bezier.split_path_inout` and `.bezier.check_if_parallel` has been renamed to
-  *tolerence*.
+  *tolerance*.
 
 In each case, the old parameter name remains supported (it cannot be used
 simultaneously with the new name), but support for it will be dropped in
