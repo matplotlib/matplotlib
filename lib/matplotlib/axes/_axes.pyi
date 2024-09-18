@@ -15,6 +15,7 @@ from matplotlib.colors import Colormap, Normalize
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.contour import ContourSet, QuadContourSet
 from matplotlib.image import AxesImage, PcolorImage
+from matplotlib.inset import InsetIndicator
 from matplotlib.legend import Legend
 from matplotlib.legend_handler import HandlerBase
 from matplotlib.lines import Line2D, AxLine
@@ -75,17 +76,17 @@ class Axes(_AxesBase):
     ) -> Axes: ...
     def indicate_inset(
         self,
-        bounds: tuple[float, float, float, float],
+        bounds: tuple[float, float, float, float] | None = ...,
         inset_ax: Axes | None = ...,
         *,
         transform: Transform | None = ...,
         facecolor: ColorType = ...,
         edgecolor: ColorType = ...,
         alpha: float = ...,
-        zorder: float = ...,
+        zorder: float | None = ...,
         **kwargs
-    ) -> Rectangle: ...
-    def indicate_inset_zoom(self, inset_ax: Axes, **kwargs) -> Rectangle: ...
+    ) -> InsetIndicator: ...
+    def indicate_inset_zoom(self, inset_ax: Axes, **kwargs) -> InsetIndicator: ...
     def secondary_xaxis(
         self,
         location: Literal["top", "bottom"] | float,
