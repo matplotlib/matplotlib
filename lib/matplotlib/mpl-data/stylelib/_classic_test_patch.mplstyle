@@ -4,3 +4,5 @@
 text.kerning_factor : 6
 
 ytick.alignment: center_baseline
+
+hatch.color: inherit

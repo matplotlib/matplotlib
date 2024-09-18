@@ -1039,6 +1039,21 @@ def test_patch_hatchcolor(fig_test, fig_ref):
     assert rect._hatch_color == mcolors.to_rgba('purple')
     ax_test.add_patch(rect)
 
-    # Test for default hatch color when edgecolor and hatchcolor is not set
+    # Test that hatchcolor parameter takes precedence over rcParam
+    # When edgecolor is not set
+    with mpl.rc_context({'hatch.color': 'blue'}):
+        rect = Rectangle((0, 0), 1, 1, hatch='//', hatchcolor='green')
+    assert rect._hatch_color == mcolors.to_rgba('green')
+    # When edgecolor is set
+    with mpl.rc_context({'hatch.color': 'yellow'}):
+        rect = Rectangle((0, 0), 1, 1, hatch='//', hatchcolor='green', edgecolor='red')
+    assert rect._hatch_color == mcolors.to_rgba('green')
+
+    # Test that hatchcolor is not overridden by edgecolor when using rcParam
+    with mpl.rc_context({'hatch.color': 'blue'}):
+        rect = Rectangle((0, 0), 1, 1, hatch='//', edgecolor='red')
+    assert rect._hatch_color == mcolors.to_rgba('blue')
+
+    # Test for default hatch color when both edgecolor and hatchcolor is not set
     rect = Rectangle((0, 0), 1, 1, hatch='//')
-    assert rect._hatch_color == mcolors.to_rgba(mpl.rcParams['hatch.color'])
+    assert rect._hatch_color == mcolors.to_rgba(mpl.rcParams['patch.edgecolor'])
