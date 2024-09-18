@@ -773,12 +773,6 @@ class _WedgeBbox(mtransforms.Bbox):
                 wedge.set_width(width)
             self.update_from_path(wedge.get_path(), ignore=True)
 
-            # Ensure equal aspect ratio.
-            w, h = self._points[1] - self._points[0]
-            deltah = max(w - h, 0) / 2
-            deltaw = max(h - w, 0) / 2
-            self._points += np.array([[-deltaw, -deltah], [deltaw, deltah]])
-
             self._invalid = 0
 
         return self._points
@@ -974,6 +968,7 @@ class PolarAxes(Axes):
     def draw(self, renderer):
         self._unstale_viewLim()
         self.axesLim.get_points()  # Unstale bbox and Axes patch.
+        self.set_aspect(self.axesLim.height / self.axesLim.width)
         if isinstance(self.patch, mpatches.Wedge):
             # Backwards-compatibility: Any subclassed Axes might override the
             # patch to not be the Wedge that PolarAxes uses.
