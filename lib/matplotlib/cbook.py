@@ -2406,7 +2406,11 @@ def _unpack_to_numpy(x):
         # so in this case we do not want to return a function
         if isinstance(xtmp, np.ndarray):
             return xtmp
-    if _is_torch_array(x) or _is_jax_array(x) or _is_tensorflow_array(x):
+    if (_is_torch_array(x) or
+            _is_jax_array(x) or
+            _is_tensorflow_array(x) or
+            _is_pandas_dataframe(x)):
+
         # using np.asarray() instead of explicitly __array__(), as the latter is
         # only _one_ of many methods, and it's the last resort, see also
         # https://numpy.org/devdocs/user/basics.interoperability.html#using-arbitrary-objects-in-numpy
@@ -2444,3 +2448,15 @@ def _auto_format_str(fmt, value):
         return fmt % (value,)
     except (TypeError, ValueError):
         return fmt.format(value)
+
+
+def _is_pandas_dataframe(x):
+    """Check if 'x' is a Pandas DataFrame."""
+    try:
+        # we're intentionally not attempting to import Pandas. If somebody
+        # has created a Pandas DataFrame, Pandas should already be in sys.modules
+        return isinstance(x, sys.modules['pandas'].DataFrame)
+    except Exception:  # TypeError, KeyError, AttributeError, maybe others?
+        # we're attempting to access attributes on imported modules which
+        # may have arbitrary user code, so we deliberately catch all exceptions
+        return False

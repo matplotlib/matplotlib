@@ -1034,3 +1034,30 @@ def test_unpack_to_numpy_from_tensorflow():
     # if not mocked, and the implementation does not guarantee it
     # is the same Python object, just the same values.
     assert_array_equal(result, data)
+
+
+def test_unpack_to_numpy_from_pandas():
+    """
+    Test that Pandas DataFrame are converted to NumPy arrays.
+
+    We don't want to create a dependency on Pandas in the test suite, so we mock it.
+    """
+    class Pandas:
+        def __init__(self, data):
+            self.data = data
+
+        def __array__(self):
+            return self.data
+
+    pandas = ModuleType('pandas')
+    pandas.Pandas = Pandas
+    sys.modules['pandas'] = pandas
+
+    data = np.arange(10)
+    pandas_dataframe = pandas.Pandas(data)
+
+    result = cbook._unpack_to_numpy(pandas_dataframe)
+    # compare results, do not check for identity: the latter would fail
+    # if not mocked, and the implementation does not guarantee it
+    # is the same Python object, just the same values.
+    assert_array_equal(result, data)
