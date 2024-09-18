@@ -585,18 +585,22 @@ class FontProperties:
     approach allows all text sizes to be made larger or smaller based
     on the font manager's default font size.
 
-    This class will also accept a fontconfig_ pattern_, if it is the only
-    argument provided.  This support does not depend on fontconfig; we are
-    merely borrowing its pattern syntax for use here.
+    .. deprecated:: 3.10
 
-    .. _fontconfig: https://www.freedesktop.org/wiki/Software/fontconfig/
-    .. _pattern:
-       https://www.freedesktop.org/software/fontconfig/fontconfig-user.html
+        **Use `.FontProperties.from_pattern` instead.**
 
-    Note that Matplotlib's internal font manager and fontconfig use a
-    different algorithm to lookup fonts, so the results of the same pattern
-    may be different in Matplotlib than in other applications that use
-    fontconfig.
+        This class will also accept a fontconfig_ pattern_, if it is the only
+        argument provided.  This support does not depend on fontconfig; we are
+        merely borrowing its pattern syntax for use here.
+
+        .. _fontconfig: https://www.freedesktop.org/wiki/Software/fontconfig/
+        .. _pattern:
+           https://www.freedesktop.org/software/fontconfig/fontconfig-user.html
+
+        Note that Matplotlib's internal font manager and fontconfig use a
+        different algorithm to lookup fonts, so the results of the same pattern
+        may be different in Matplotlib than in other applications that use
+        fontconfig.
     """
 
     def __init__(self, family=None, style=None, variant=None, weight=None,
@@ -617,7 +621,33 @@ class FontProperties:
         if (isinstance(family, str)
                 and style is None and variant is None and weight is None
                 and stretch is None and size is None and fname is None):
+            _api.warn_deprecated(
+                "3.10",
+                message="Passing a single string as fontconfig pattern to "
+                        "FontProperties is deprecated. Use "
+                        "FontProperties.from_pattern() instead.")
             self.set_fontconfig_pattern(family)
+
+    @classmethod
+    def from_pattern(cls, pattern):
+        """
+        Create FontProperties from a fontconfig_ pattern_.
+
+        .. _fontconfig: https://www.freedesktop.org/wiki/Software/fontconfig/
+        .. _pattern:
+           https://www.freedesktop.org/software/fontconfig/fontconfig-user.html
+
+        This support does not depend on fontconfig; we are merely borrowing its
+        pattern syntax for use here.
+
+        Note that Matplotlib's internal font manager and fontconfig use a
+        different algorithm to lookup fonts, so the results of the same pattern
+        may be different in Matplotlib than in other applications that use
+        fontconfig.
+        """
+        prop = FontProperties()
+        prop.set_fontconfig_pattern(pattern)
+        return prop
 
     @classmethod
     def _from_any(cls, arg):

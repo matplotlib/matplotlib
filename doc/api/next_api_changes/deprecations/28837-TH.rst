@@ -1,0 +1,5 @@
+FontProperties(pattern)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Passing a single string parameter as fontconfig pattern to `.FontProperties` is
+deprecated. Use `.FontProperties.from_pattern` instead.

@@ -1,5 +1,6 @@
 import pytest
 
+from matplotlib import _api
 from matplotlib.font_manager import FontProperties
 
 
@@ -21,7 +22,7 @@ def test_fontconfig_pattern():
     f1 = FontProperties()
     s = str(f1)
 
-    f2 = FontProperties(s)
+    f2 = FontProperties.from_pattern(s)
     for k in keys:
         assert getattr(f1, k)() == getattr(f2, k)(), test + k
 
@@ -30,7 +31,7 @@ def test_fontconfig_pattern():
     f1 = FontProperties(family="serif", size=20, style="italic")
     s = str(f1)
 
-    f2 = FontProperties(s)
+    f2 = FontProperties.from_pattern(s)
     for k in keys:
         assert getattr(f1, k)() == getattr(f2, k)(), test + k
 
@@ -41,9 +42,24 @@ def test_fontconfig_pattern():
                         stretch="expanded")
     s = str(f1)
 
-    f2 = FontProperties(s)
+    f2 = FontProperties.from_pattern(s)
     for k in keys:
         assert getattr(f1, k)() == getattr(f2, k)(), test + k
+
+
+def test_fontconfig_pattern_deprecated():
+    """
+    Make sure (at one example) that the deprecated API still works.
+
+    Same test as test_fontconfig_pattern test="basic", but with the deprecate API.
+    """
+    f1 = FontProperties(family="serif", size=20, style="italic")
+    s = str(f1)
+
+    with _api.suppress_matplotlib_deprecation_warning:
+        f2 = FontProperties(s)
+    for k in keys:
+        assert getattr(f1, k)() == getattr(f2, k)()
 
 
 def test_fontconfig_str():
@@ -56,7 +72,7 @@ def test_fontconfig_str():
     test = "defaults "
     s = ("sans\\-serif:style=normal:variant=normal:weight=normal"
          ":stretch=normal:size=12.0")
-    font = FontProperties(s)
+    font = FontProperties.from_pattern(s)
     right = FontProperties()
     for k in keys:
         assert getattr(font, k)() == getattr(right, k)(), test + k
@@ -64,7 +80,7 @@ def test_fontconfig_str():
     test = "full "
     s = ("serif-24:style=oblique:variant=small-caps:weight=bold"
          ":stretch=expanded")
-    font = FontProperties(s)
+    font = FontProperties.from_pattern(s)
     right = FontProperties(family="serif", size=24, weight="bold",
                            style="oblique", variant="small-caps",
                            stretch="expanded")
@@ -74,4 +90,10 @@ def test_fontconfig_str():
 
 def test_fontconfig_unknown_constant():
     with pytest.raises(ValueError, match="ParseException"):
-        FontProperties(":unknown")
+        FontProperties.from_pattern(":unknown")
+
+
+def test_fontconfig_unknown_constant_depreacted():
+    with _api.suppress_matplotlib_warnings():
+        with pytest.raises(ValueError, match="ParseException"):
+            FontProperties(":unknown")
