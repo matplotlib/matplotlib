@@ -717,6 +717,8 @@ class _WedgeBbox(mtransforms.Bbox):
     """
     Transform (theta, r) wedge Bbox into Axes bounding box.
 
+    Additionally, this class will update the Axes patch, if set by `_set_wedge`.
+
     Parameters
     ----------
     center : (float, float)
@@ -731,6 +733,7 @@ class _WedgeBbox(mtransforms.Bbox):
         self._center = center
         self._viewLim = viewLim
         self._originLim = originLim
+        self._wedge = None
         self.set_children(viewLim, originLim)
 
     __str__ = mtransforms._make_str_method("_center", "_viewLim", "_originLim")
@@ -753,10 +756,22 @@ class _WedgeBbox(mtransforms.Bbox):
             width = min(points[1, 1] - points[0, 1], 0.5)
 
             # Generate bounding box for wedge.
-            wedge = mpatches.Wedge(self._center, points[1, 1],
-                                   points[0, 0], points[1, 0],
-                                   width=width)
-            self.update_from_path(wedge.get_path())
+            if self._wedge is None:
+                # A PolarAxes subclass may not generate a Wedge as Axes patch and call
+                # _WedgeBbox._set_wedge, so use a temporary instance to calculate the
+                # bounds instead.
+                wedge = mpatches.Wedge(self._center, points[1, 1],
+                                       points[0, 0], points[1, 0],
+                                       width=width)
+            else:
+                # Update the owning Axes' patch.
+                wedge = self._wedge
+                wedge.set_center(self._center)
+                wedge.set_theta1(points[0, 0])
+                wedge.set_theta2(points[1, 0])
+                wedge.set_radius(points[1, 1])
+                wedge.set_width(width)
+            self.update_from_path(wedge.get_path(), ignore=True)
 
             # Ensure equal aspect ratio.
             w, h = self._points[1] - self._points[0]
@@ -767,6 +782,11 @@ class _WedgeBbox(mtransforms.Bbox):
             self._invalid = 0
 
         return self._points
+
+    def _set_wedge(self, wedge):
+        """Set the wedge patch to update when the transform changes."""
+        _api.check_isinstance(mpatches.Wedge, wedge=wedge)
+        self._wedge = wedge
 
 
 class PolarAxes(Axes):
@@ -958,31 +978,15 @@ class PolarAxes(Axes):
 
     def draw(self, renderer):
         self._unstale_viewLim()
-        thetamin, thetamax = np.rad2deg(self._realViewLim.intervalx)
-        if thetamin > thetamax:
-            thetamin, thetamax = thetamax, thetamin
-        rmin, rmax = ((self._realViewLim.intervaly - self.get_rorigin()) *
-                      self.get_rsign())
+        self.axesLim.get_points()  # Unstale bbox and Axes patch.
         if isinstance(self.patch, mpatches.Wedge):
             # Backwards-compatibility: Any subclassed Axes might override the
             # patch to not be the Wedge that PolarAxes uses.
-            center = self.transWedge.transform((0.5, 0.5))
-            self.patch.set_center(center)
-            self.patch.set_theta1(thetamin)
-            self.patch.set_theta2(thetamax)
-
-            edge, _ = self.transWedge.transform((1, 0))
-            radius = edge - center[0]
-            width = min(radius * (rmax - rmin) / rmax, radius)
-            self.patch.set_radius(radius)
-            self.patch.set_width(width)
-
-            inner_width = radius - width
             inner = self.spines.get('inner', None)
             if inner:
-                inner.set_visible(inner_width != 0.0)
+                inner.set_visible(self.patch.r != self.patch.width)
 
-        visible = not _is_full_circle_deg(thetamin, thetamax)
+        visible = not _is_full_circle_rad(*self._realViewLim.intervalx)
         # For backwards compatibility, any subclassed Axes might override the
         # spines to not include start/end that PolarAxes uses.
         start = self.spines.get('start', None)
@@ -1002,8 +1006,20 @@ class PolarAxes(Axes):
 
         super().draw(renderer)
 
+    def _wedge_get_patch_transform(self):
+        # See _gen_axes_patch for the use of this function. It's not a lambda or nested
+        # function to not break pickling.
+        return self.transWedge
+
     def _gen_axes_patch(self):
-        return mpatches.Wedge((0.5, 0.5), 0.5, 0.0, 360.0)
+        wedge = mpatches.Wedge((0.5, 0.5), 0.5, 0.0, 360.0)
+        self.axesLim._set_wedge(wedge)
+        # The caller of this function will set the wedge's transform directly to
+        # `self.transAxes`, but `self.axesLim` will update to a pre-`self.transWedge`
+        # coordinate space, so override the patch transform (which is otherwise always
+        # an identity transform) to get the wedge in the right coordinate space.
+        wedge.get_patch_transform = self._wedge_get_patch_transform
+        return wedge
 
     def _gen_axes_spines(self):
         spines = {
