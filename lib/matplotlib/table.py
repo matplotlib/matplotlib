@@ -25,7 +25,6 @@ Thanks to John Gill for providing the class and table.
 """
 
 import numpy as np
-import pandas as pd
 
 from . import _api, _docstring
 from .artist import Artist, allow_rasterization
@@ -33,6 +32,8 @@ from .patches import Rectangle
 from .text import Text
 from .transforms import Bbox
 from .path import Path
+
+from .cbook import _unpack_to_numpy, _is_pandas_dataframe
 
 
 class Cell(Rectangle):
@@ -656,7 +657,7 @@ def table(ax,
           cellLoc='right', colWidths=None,
           rowLabels=None, rowColours=None, rowLoc='left',
           colLabels=None, colColours=None, colLoc='center',
-          loc='bottom', bbox=None, edges='closed', df=None,
+          loc='bottom', bbox=None, edges='closed',
           **kwargs):
     """
     Add a table to an `~.axes.Axes`.
@@ -744,11 +745,13 @@ def table(ax,
         rows = len(cellColours)
         cols = len(cellColours[0])
         cellText = [[''] * cols] * rows
-    # Convert the Pandas dataframe to a 2d string array
-    elif isinstance(cellText, pd.DataFrame):
-        headers = cellText.columns.tolist()
-        data = cellText.map(str).values
-        cellText = np.vstack([headers, data])
+
+    # Check if we have a Pandas DataFrame
+    if _is_pandas_dataframe(cellText):
+        # Convert to numpy array
+        header = _unpack_to_numpy(cellText.columns)
+        data = _unpack_to_numpy(cellText)
+        cellText = np.vstack([header, data])
 
     rows = len(cellText)
     cols = len(cellText[0])

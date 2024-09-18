@@ -264,3 +264,27 @@ def test_table_unit(fig_test, fig_ref):
 
     munits.registry.pop(FakeUnit)
     assert not munits.registry.get_converter(FakeUnit)
+
+
+def test_table_dataframe():
+    # Test if Pandas Data Frame can be passed in cellText
+    import pandas as pd
+
+    data = {
+        'Letter': ['A', 'B', 'C'],
+        'Number': [100, 200, 300]
+    }
+
+    df = pd.DataFrame(data)
+    fig, ax = plt.subplots()
+    ax.axis('off')
+    table = ax.table(df, loc='center')
+
+    assert table[0, 0].get_text().get_text() == 'Letter'
+    assert table[0, 1].get_text().get_text() == 'Number'
+    assert table[1, 0].get_text().get_text() == 'A'
+    assert table[1, 1].get_text().get_text() == str(100)
+    assert table[2, 0].get_text().get_text() == 'B'
+    assert table[2, 1].get_text().get_text() == str(200)
+    assert table[3, 0].get_text().get_text() == 'C'
+    assert table[3, 1].get_text().get_text() == str(300)
