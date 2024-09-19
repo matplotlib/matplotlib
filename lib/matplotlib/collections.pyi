@@ -119,8 +119,6 @@ class FillBetweenPolyCollection(PolyCollection):
         step: Literal["pre", "post", "mid"] | None = ...,
         **kwargs,
     ) -> None: ...
-    @property
-    def _f_direction(self) -> Literal["x", "y"]: ...
     def set_data(
         self,
         t: ArrayLike,
