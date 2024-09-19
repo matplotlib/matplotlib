@@ -5612,15 +5612,7 @@ class Axes(_AxesBase):
             ind_dir, ind, dep1, dep2,
             where=where, interpolate=interpolate, step=step, **kwargs)
 
-        # now update the datalim and autoscale
-        if transform := kwargs.get("transform"):
-            up_x, up_y = transform.contains_branch_seperately(self.transData)
-        else:
-            up_x = up_y = True
-        xys = np.concatenate([collection._bbox, collection._bbox.minpos.reshape(-1, 2)])
-        self.update_datalim(xys, updatex=up_x, updatey=up_y)
-
-        self.add_collection(collection, autolim=False)
+        self.add_collection(collection)
         self._request_autoscale_view()
         return collection
 

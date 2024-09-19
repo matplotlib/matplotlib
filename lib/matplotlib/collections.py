@@ -1379,6 +1379,13 @@ class FillBetweenPolyCollection(PolyCollection):
         verts = self._make_verts(t, f1, f2, where)
         self.set_verts(verts)
 
+    def get_datalim(self, transData):
+        """Calculate the data limits and return them as a `.Bbox`."""
+        datalim = transforms.Bbox.null()
+        datalim.update_from_data_xy((self.get_transform() - transData).transform(
+            np.concatenate([self._bbox, [self._bbox.minpos]])))
+        return datalim
+
     def _make_verts(self, t, f1, f2, where):
         """
         Make verts that can be forwarded to `.PolyCollection`.

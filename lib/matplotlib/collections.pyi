@@ -129,6 +129,7 @@ class FillBetweenPolyCollection(PolyCollection):
         *,
         where: Sequence[bool] | None = ...,
     ) -> None: ...
+    def get_datalim(self, transData: transforms.Transform) -> transforms.Bbox: ...
 
 class RegularPolyCollection(_CollectionWithSizes):
     def __init__(
