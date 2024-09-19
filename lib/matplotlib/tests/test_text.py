@@ -912,6 +912,7 @@ def test_metrics_cache():
 
 
 def test_metrics_cache2():
+    plt.close('all')
     # dig into the signature to get the mutable default used as a cache
     renderer_cache = inspect.signature(
         mpl.text._get_text_metrics_function
