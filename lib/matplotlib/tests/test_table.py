@@ -277,7 +277,6 @@ def test_table_dataframe():
 
     df = pd.DataFrame(data)
     fig, ax = plt.subplots()
-    ax.axis('off')
     table = ax.table(df, loc='center')
 
     assert table[0, 0].get_text().get_text() == 'Letter'

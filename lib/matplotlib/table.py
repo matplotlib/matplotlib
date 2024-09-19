@@ -33,7 +33,7 @@ from .text import Text
 from .transforms import Bbox
 from .path import Path
 
-from .cbook import _unpack_to_numpy, _is_pandas_dataframe
+from .cbook import _is_pandas_dataframe
 
 
 class Cell(Rectangle):
@@ -749,8 +749,8 @@ def table(ax,
     # Check if we have a Pandas DataFrame
     if _is_pandas_dataframe(cellText):
         # Convert to numpy array
-        header = _unpack_to_numpy(cellText.columns)
-        data = _unpack_to_numpy(cellText)
+        header = cellText.columns.to_numpy()
+        data = cellText.to_numpy()
         cellText = np.vstack([header, data])
 
     rows = len(cellText)

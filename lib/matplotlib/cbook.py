@@ -2406,11 +2406,7 @@ def _unpack_to_numpy(x):
         # so in this case we do not want to return a function
         if isinstance(xtmp, np.ndarray):
             return xtmp
-    if (_is_torch_array(x) or
-            _is_jax_array(x) or
-            _is_tensorflow_array(x) or
-            _is_pandas_dataframe(x)):
-
+    if _is_torch_array(x) or _is_jax_array(x) or _is_tensorflow_array(x):
         # using np.asarray() instead of explicitly __array__(), as the latter is
         # only _one_ of many methods, and it's the last resort, see also
         # https://numpy.org/devdocs/user/basics.interoperability.html#using-arbitrary-objects-in-numpy
