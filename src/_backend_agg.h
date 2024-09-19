@@ -6,8 +6,11 @@
 #ifndef MPL_BACKEND_AGG_H
 #define MPL_BACKEND_AGG_H
 
+#include <pybind11/pybind11.h>
+
 #include <cmath>
 #include <algorithm>
+#include <functional>
 
 #include "agg_alpha_mask_u8.h"
 #include "agg_conv_curve.h"
@@ -39,6 +42,8 @@
 #include "path_converters.h"
 #include "array.h"
 #include "agg_workaround.h"
+
+namespace py = pybind11;
 
 /**********************************************************************/
 
@@ -728,7 +733,7 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
     rendererBase.reset_clipping(true);
     if (angle != 0.0) {
         agg::rendering_buffer srcbuf(
-                image.data(), (unsigned)image.shape(1),
+                image.mutable_data(0, 0), (unsigned)image.shape(1),
                 (unsigned)image.shape(0), (unsigned)image.shape(1));
         agg::pixfmt_gray8 pixf_img(srcbuf);
 
@@ -828,8 +833,9 @@ inline void RendererAgg::draw_image(GCAgg &gc,
     bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans, gc.snap_mode);
 
     agg::rendering_buffer buffer;
-    buffer.attach(
-        image.data(), (unsigned)image.shape(1), (unsigned)image.shape(0), -(int)image.shape(1) * 4);
+    buffer.attach(image.mutable_data(0, 0, 0),
+                  (unsigned)image.shape(1), (unsigned)image.shape(0),
+                  -(int)image.shape(1) * 4);
     pixfmt pixf(buffer);
 
     if (has_clippath) {
@@ -1226,14 +1232,27 @@ inline void RendererAgg::draw_gouraud_triangles(GCAgg &gc,
                                                 ColorArray &colors,
                                                 agg::trans_affine &trans)
 {
+    if (points.shape(0) && !check_trailing_shape(points, "points", 3, 2)) {
+        throw py::error_already_set();
+    }
+    if (colors.shape(0) && !check_trailing_shape(colors, "colors", 3, 4)) {
+        throw py::error_already_set();
+    }
+    if (points.shape(0) != colors.shape(0)) {
+        throw py::value_error(
+            "points and colors arrays must be the same length, got " +
+            std::to_string(points.shape(0)) + " points and " +
+            std::to_string(colors.shape(0)) + "colors");
+    }
+
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
     set_clipbox(gc.cliprect, theRasterizer);
     bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans, gc.snap_mode);
 
     for (int i = 0; i < points.shape(0); ++i) {
-        typename PointArray::sub_t point = points.subarray(i);
-        typename ColorArray::sub_t color = colors.subarray(i);
+        auto point = std::bind(points, i, std::placeholders::_1, std::placeholders::_2);
+        auto color = std::bind(colors, i, std::placeholders::_1, std::placeholders::_2);
 
         _draw_gouraud_triangle(point, color, trans, has_clippath);
     }
