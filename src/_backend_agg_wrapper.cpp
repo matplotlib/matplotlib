@@ -472,6 +472,12 @@ static PyObject *PyRendererAgg_clear(PyRendererAgg *self, PyObject *args)
 
 static PyObject *PyRendererAgg_copy_from_bbox(PyRendererAgg *self, PyObject *args)
 {
+    // Note that whilst the copy_from_bbox call can technically return an image that
+    // is of a different rect than was requested, this is not used in the underlying
+    // backend. In the future, this copy_from_bbox will not return a PyBufferRegion,
+    // and instead simply return an image (the renderer interface may still expose a
+    // bbox in the response for convenience, but this doesn't need to be a special
+    // type at the C++ level).
     agg::rect_d bbox;
     BufferRegion *reg;
     PyObject *regobj;
