@@ -1321,6 +1321,8 @@ default: %(va)s
         Unset parameters are left unmodified; initial values are given by
         :rc:`figure.subplot.[name]`.
 
+        .. plot:: _embedded_plots/figure_subplots_adjust.py
+
         Parameters
         ----------
         left : float, optional
