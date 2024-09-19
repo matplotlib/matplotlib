@@ -173,9 +173,10 @@ class RendererAgg
                               ColorArray &edgecolors,
                               LineWidthArray &linewidths,
                               DashesVector &linestyles,
-                              AntialiasedArray &antialiaseds);
+                              AntialiasedArray &antialiaseds,
+                              PathGenerator &hatch_paths);
 
-    template <class CoordinateArray, class OffsetArray, class ColorArray>
+    template <class CoordinateArray, class OffsetArray, class ColorArray, class PathGenerator>
     void draw_quad_mesh(GCAgg &gc,
                         agg::trans_affine &master_transform,
                         unsigned int mesh_width,
@@ -185,7 +186,8 @@ class RendererAgg
                         agg::trans_affine &offset_trans,
                         ColorArray &facecolors,
                         bool antialiased,
-                        ColorArray &edgecolors);
+                        ColorArray &edgecolors,
+                        PathGenerator &hatch_paths);
 
     template <class PointArray, class ColorArray>
     void draw_gouraud_triangles(GCAgg &gc,
@@ -267,6 +269,7 @@ class RendererAgg
                                        LineWidthArray &linewidths,
                                        DashesVector &linestyles,
                                        AntialiasedArray &antialiaseds,
+                                       mpl::PathGenerator &hatch_paths,
                                        bool check_snap,
                                        bool has_codes);
 
@@ -904,6 +907,7 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
                                                        LineWidthArray &linewidths,
                                                        DashesVector &linestyles,
                                                        AntialiasedArray &antialiaseds,
+                                                       mpl::PathGenerator &hatch_paths,
                                                        bool check_snap,
                                                        bool has_codes)
 {
@@ -923,6 +927,7 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
     size_t Nedgecolors = safe_first_shape(edgecolors);
     size_t Nlinewidths = safe_first_shape(linewidths);
     size_t Nlinestyles = std::min(linestyles.size(), N);
+    size_t Nhatchs = hatch_paths.num_paths();
     size_t Naa = safe_first_shape(antialiaseds);
 
     if ((Nfacecolors == 0 && Nedgecolors == 0) || Npaths == 0) {
@@ -988,6 +993,10 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
             }
         }
 
+        if (Nhatchs) {
+            gc.hatchpath = hatch_paths(i % Nhatchs);
+        }
+
         if (check_snap) {
             gc.isaa = antialiaseds(i % Naa);
 
@@ -1034,7 +1043,8 @@ inline void RendererAgg::draw_path_collection(GCAgg &gc,
                                               ColorArray &edgecolors,
                                               LineWidthArray &linewidths,
                                               DashesVector &linestyles,
-                                              AntialiasedArray &antialiaseds)
+                                              AntialiasedArray &antialiaseds,
+                                              PathGenerator &hatch_paths)
 {
     _draw_path_collection_generic(gc,
                                   master_transform,
@@ -1050,6 +1060,7 @@ inline void RendererAgg::draw_path_collection(GCAgg &gc,
                                   linewidths,
                                   linestyles,
                                   antialiaseds,
+                                  hatch_paths,
                                   true,
                                   true);
 }
@@ -1127,7 +1138,7 @@ class QuadMeshGenerator
     }
 };
 
-template <class CoordinateArray, class OffsetArray, class ColorArray>
+template <class CoordinateArray, class OffsetArray, class ColorArray, class PathGenerator>
 inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
                                         agg::trans_affine &master_transform,
                                         unsigned int mesh_width,
@@ -1137,7 +1148,8 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
                                         agg::trans_affine &offset_trans,
                                         ColorArray &facecolors,
                                         bool antialiased,
-                                        ColorArray &edgecolors)
+                                        ColorArray &edgecolors,
+                                        PathGenerator &hatch_paths)
 {
     QuadMeshGenerator<CoordinateArray> path_generator(mesh_width, mesh_height, coordinates);
 
@@ -1160,6 +1172,7 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
                                   linewidths,
                                   linestyles,
                                   antialiaseds,
+                                  hatch_paths,
                                   true, // check_snap
                                   false);
 }

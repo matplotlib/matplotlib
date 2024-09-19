@@ -734,7 +734,7 @@ class RendererSVG(RendererBase):
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offset_trans, facecolors, edgecolors,
-                             linewidths, linestyles, antialiaseds, urls,
+                             linewidths, linestyles, antialiaseds, hatches, urls,
                              offset_position):
         # Is the optimization worth it? Rough calculation:
         # cost of emitting a path in-line is
@@ -750,7 +750,7 @@ class RendererSVG(RendererBase):
             return super().draw_path_collection(
                 gc, master_transform, paths, all_transforms,
                 offsets, offset_trans, facecolors, edgecolors,
-                linewidths, linestyles, antialiaseds, urls,
+                linewidths, linestyles, antialiaseds, hatches, urls,
                 offset_position)
 
         writer = self.writer
@@ -769,7 +769,7 @@ class RendererSVG(RendererBase):
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
                 gc, path_codes, offsets, offset_trans,
                 facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position):
+                antialiaseds, hatches, urls, offset_position):
             url = gc0.get_url()
             if url is not None:
                 writer.start('a', attrib={'xlink:href': url})

@@ -180,7 +180,7 @@ _hatch_types = [
 
 
 def _validate_hatch_pattern(hatch):
-    valid_hatch_patterns = set(r'-+|/\xXoO.*')
+    valid_hatch_patterns = set(r'-+|/\xXoO.*').union({None})
     if hatch is not None:
         invalids = set(hatch).difference(valid_hatch_patterns)
         if invalids:
