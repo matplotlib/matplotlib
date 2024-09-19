@@ -20,21 +20,21 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 fig, (ax, ax2) = plt.subplots(1, 2, figsize=[5.5, 2.8])
 
 # Create inset of width 1.3 inches and height 0.9 inches
-# at the default upper right location
+# at the default upper right location.
 axins = inset_axes(ax, width=1.3, height=0.9)
 
 # Create inset of width 30% and height 40% of the parent Axes' bounding box
-# at the lower left corner (loc=3)
-axins2 = inset_axes(ax, width="30%", height="40%", loc=3)
+# at the lower left corner.
+axins2 = inset_axes(ax, width="30%", height="40%", loc="lower left")
 
 # Create inset of mixed specifications in the second subplot;
 # width is 30% of parent Axes' bounding box and
-# height is 1 inch at the upper left corner (loc=2)
-axins3 = inset_axes(ax2, width="30%", height=1., loc=2)
+# height is 1 inch at the upper left corner.
+axins3 = inset_axes(ax2, width="30%", height=1., loc="upper left")
 
-# Create an inset in the lower right corner (loc=4) with borderpad=1, i.e.
-# 10 points padding (as 10pt is the default fontsize) to the parent Axes
-axins4 = inset_axes(ax2, width="20%", height="20%", loc=4, borderpad=1)
+# Create an inset in the lower right corner with borderpad=1, i.e.
+# 10 points padding (as 10pt is the default fontsize) to the parent Axes.
+axins4 = inset_axes(ax2, width="20%", height="20%", loc="lower right", borderpad=1)
 
 # Turn ticklabels of insets off
 for axi in [axins, axins2, axins3, axins4]:
@@ -61,12 +61,12 @@ ax = fig.add_subplot(121)
 # in those coordinates.
 # Inside this bounding box an inset of half the bounding box' width and
 # three quarters of the bounding box' height is created. The lower left corner
-# of the inset is aligned to the lower left corner of the bounding box (loc=3).
+# of the inset is aligned to the lower left corner of the bounding box.
 # The inset is then offset by the default 0.5 in units of the font size.
 
 axins = inset_axes(ax, width="50%", height="75%",
                    bbox_to_anchor=(.2, .4, .6, .5),
-                   bbox_transform=ax.transAxes, loc=3)
+                   bbox_transform=ax.transAxes, loc="lower left")
 
 # For visualization purposes we mark the bounding box by a rectangle
 ax.add_patch(plt.Rectangle((.2, .4), .6, .5, ls="--", ec="c", fc="none",
@@ -113,7 +113,7 @@ ax = fig.add_subplot(131)
 # Create an inset outside the Axes
 axins = inset_axes(ax, width="100%", height="100%",
                    bbox_to_anchor=(1.05, .6, .5, .4),
-                   bbox_transform=ax.transAxes, loc=2, borderpad=0)
+                   bbox_transform=ax.transAxes, loc="upper left", borderpad=0)
 axins.tick_params(left=False, right=True, labelleft=False, labelright=True)
 
 # Create an inset with a 2-tuple bounding box. Note that this creates a
@@ -121,7 +121,7 @@ axins.tick_params(left=False, right=True, labelleft=False, labelright=True)
 # width and height in absolute units (inches).
 axins2 = inset_axes(ax, width=0.5, height=0.4,
                     bbox_to_anchor=(0.33, 0.25),
-                    bbox_transform=ax.transAxes, loc=3, borderpad=0)
+                    bbox_transform=ax.transAxes, loc="lower left", borderpad=0)
 
 
 ax2 = fig.add_subplot(133)
@@ -131,7 +131,7 @@ ax2.set(xlim=(1e-6, 1e6), ylim=(-2, 6))
 # Create inset in data coordinates using ax.transData as transform
 axins3 = inset_axes(ax2, width="100%", height="100%",
                     bbox_to_anchor=(1e-2, 2, 1e3, 3),
-                    bbox_transform=ax2.transData, loc=2, borderpad=0)
+                    bbox_transform=ax2.transData, loc="upper left", borderpad=0)
 
 # Create an inset horizontally centered in figure coordinates and vertically
 # bound to line up with the Axes.
@@ -140,6 +140,6 @@ from matplotlib.transforms import blended_transform_factory  # noqa
 transform = blended_transform_factory(fig.transFigure, ax2.transAxes)
 axins4 = inset_axes(ax2, width="16%", height="34%",
                     bbox_to_anchor=(0, 0, 1, 1),
-                    bbox_transform=transform, loc=8, borderpad=0)
+                    bbox_transform=transform, loc="lower center", borderpad=0)
 
 plt.show()
