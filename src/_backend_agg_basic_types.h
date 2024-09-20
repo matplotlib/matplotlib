@@ -59,9 +59,7 @@ class Dashes
     void dash_to_stroke(T &stroke, double dpi, bool isaa)
     {
         double scaleddpi = dpi / 72.0;
-        for (dash_t::const_iterator i = dashes.begin(); i != dashes.end(); ++i) {
-            double val0 = i->first;
-            double val1 = i->second;
+        for (auto [val0, val1] : dashes) {
             val0 = val0 * scaleddpi;
             val1 = val1 * scaleddpi;
             if (!isaa) {

@@ -602,7 +602,6 @@ struct ygt : public bisecty
 template <class Filter>
 inline void clip_to_rect_one_step(const Polygon &polygon, Polygon &result, const Filter &filter)
 {
-    double sx, sy, px, py, bx, by;
     bool sinside, pinside;
     result.clear();
 
@@ -610,16 +609,13 @@ inline void clip_to_rect_one_step(const Polygon &polygon, Polygon &result, const
         return;
     }
 
-    sx = polygon.back().x;
-    sy = polygon.back().y;
-    for (Polygon::const_iterator i = polygon.begin(); i != polygon.end(); ++i) {
-        px = i->x;
-        py = i->y;
-
+    auto [sx, sy] = polygon.back();
+    for (auto [px, py] : polygon) {
         sinside = filter.is_inside(sx, sy);
         pinside = filter.is_inside(px, py);
 
         if (sinside ^ pinside) {
+            double bx, by;
             filter.bisect(sx, sy, px, py, &bx, &by);
             result.push_back(XY(bx, by));
         }

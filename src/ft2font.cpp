@@ -293,8 +293,8 @@ FT2Font::FT2Font(FT_Open_Args &open_args,
 
 FT2Font::~FT2Font()
 {
-    for (size_t i = 0; i < glyphs.size(); i++) {
-        FT_Done_Glyph(glyphs[i]);
+    for (auto & glyph : glyphs) {
+        FT_Done_Glyph(glyph);
     }
 
     if (face) {
@@ -308,16 +308,16 @@ void FT2Font::clear()
     bbox.xMin = bbox.yMin = bbox.xMax = bbox.yMax = 0;
     advance = 0;
 
-    for (size_t i = 0; i < glyphs.size(); i++) {
-        FT_Done_Glyph(glyphs[i]);
+    for (auto & glyph : glyphs) {
+        FT_Done_Glyph(glyph);
     }
 
     glyphs.clear();
     glyph_to_font.clear();
     char_to_font.clear();
 
-    for (size_t i = 0; i < fallbacks.size(); i++) {
-        fallbacks[i]->clear();
+    for (auto & fallback : fallbacks) {
+        fallback->clear();
     }
 }
 
@@ -331,8 +331,8 @@ void FT2Font::set_size(double ptsize, double dpi)
     FT_Matrix transform = { 65536 / hinting_factor, 0, 0, 65536 };
     FT_Set_Transform(face, &transform, 0);
 
-    for (size_t i = 0; i < fallbacks.size(); i++) {
-        fallbacks[i]->set_size(ptsize, dpi);
+    for (auto & fallback : fallbacks) {
+        fallback->set_size(ptsize, dpi);
     }
 }
 
@@ -393,8 +393,8 @@ int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_Kerning_Mode mode,
 void FT2Font::set_kerning_factor(int factor)
 {
     kerning_factor = factor;
-    for (size_t i = 0; i < fallbacks.size(); i++) {
-        fallbacks[i]->set_kerning_factor(factor);
+    for (auto & fallback : fallbacks) {
+        fallback->set_kerning_factor(factor);
     }
 }
 
@@ -594,8 +594,8 @@ bool FT2Font::load_char_with_fallback(FT2Font *&ft_object_with_glyph,
         return true;
     }
     else {
-        for (size_t i = 0; i < fallbacks.size(); ++i) {
-            bool was_found = fallbacks[i]->load_char_with_fallback(
+        for (auto & fallback : fallbacks) {
+            bool was_found = fallback->load_char_with_fallback(
                 ft_object_with_glyph, final_glyph_index, parent_glyphs,
                 parent_char_to_font, parent_glyph_to_font, charcode, flags,
                 charcode_error, glyph_error, glyph_seen_fonts, override);
@@ -674,14 +674,14 @@ void FT2Font::draw_glyphs_to_bitmap(bool antialiased)
 
     image.resize(width, height);
 
-    for (size_t n = 0; n < glyphs.size(); n++) {
+    for (auto & glyph : glyphs) {
         FT_Error error = FT_Glyph_To_Bitmap(
-            &glyphs[n], antialiased ? FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO, 0, 1);
+            &glyph, antialiased ? FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO, 0, 1);
         if (error) {
             throw_ft_error("Could not convert glyph to bitmap", error);
         }
 
-        FT_BitmapGlyph bitmap = (FT_BitmapGlyph)glyphs[n];
+        FT_BitmapGlyph bitmap = (FT_BitmapGlyph)glyph;
         // now, draw to our target surface (convert position)
 
         // bitmap left and top in pixel, string bbox in subpixel

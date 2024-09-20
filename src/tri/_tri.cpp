@@ -184,8 +184,9 @@ void ContourLine::push_back(const XY& point)
 void ContourLine::write() const
 {
     std::cout << "ContourLine of " << size() << " points:";
-    for (const_iterator it = begin(); it != end(); ++it)
-        std::cout << ' ' << *it;
+    for (const auto & it : *this) {
+        std::cout << ' ' << it;
+    }
     std::cout << std::endl;
 }
 
@@ -194,8 +195,9 @@ void ContourLine::write() const
 void write_contour(const Contour& contour)
 {
     std::cout << "Contour of " << contour.size() << " lines." << std::endl;
-    for (Contour::const_iterator it = contour.begin(); it != contour.end(); ++it)
-        it->write();
+    for (const auto & it : contour) {
+        it.write();
+    }
 }
 
 
@@ -264,7 +266,7 @@ void Triangulation::calculate_boundaries()
     // time, initialise the _tri_edge_to_boundary_map.
     while (!boundary_edges.empty()) {
         // Start of new boundary.
-        BoundaryEdges::iterator it = boundary_edges.begin();
+        auto it = boundary_edges.cbegin();
         int tri = it->tri;
         int edge = it->edge;
         _boundaries.push_back(Boundary());
@@ -321,9 +323,9 @@ void Triangulation::calculate_edges()
     auto edges = _edges.mutable_data();
 
     int i = 0;
-    for (EdgeSet::const_iterator it = edge_set.begin(); it != edge_set.end(); ++it) {
-        edges[i++] = it->start;
-        edges[i++] = it->end;
+    for (const auto & it : edge_set) {
+        edges[i++] = it.start;
+        edges[i++] = it.end;
     }
 }
 
@@ -351,8 +353,7 @@ void Triangulation::calculate_neighbors()
             for (edge = 0; edge < 3; ++edge) {
                 int start = get_triangle_point(tri, edge);
                 int end   = get_triangle_point(tri, (edge+1)%3);
-                EdgeToTriEdgeMap::iterator it =
-                    edge_to_tri_edge_map.find(Edge(end,start));
+                const auto it = edge_to_tri_edge_map.find(Edge(end, start));
                 if (it == edge_to_tri_edge_map.end()) {
                     // No neighbor edge exists in the edge_to_tri_edge_map, so
                     // add this edge to it.
@@ -464,10 +465,8 @@ void Triangulation::get_boundary_edge(const TriEdge& triEdge,
                                       int& edge) const
 {
     get_boundaries();  // Ensure _tri_edge_to_boundary_map has been created.
-    TriEdgeToBoundaryMap::const_iterator it =
-        _tri_edge_to_boundary_map.find(triEdge);
-    assert(it != _tri_edge_to_boundary_map.end() &&
-           "TriEdge is not on a boundary");
+    const auto it = _tri_edge_to_boundary_map.find(triEdge);
+    assert(it != _tri_edge_to_boundary_map.end() && "TriEdge is not on a boundary");
     boundary = it->second.boundary;
     edge = it->second.edge;
 }
@@ -587,13 +586,12 @@ void Triangulation::set_mask(const MaskArray& mask)
 
 void Triangulation::write_boundaries() const
 {
-    const Boundaries& bs = get_boundaries();
-    std::cout << "Number of boundaries: " << bs.size() << std::endl;
-    for (Boundaries::const_iterator it = bs.begin(); it != bs.end(); ++it) {
-        const Boundary& b = *it;
-        std::cout << "  Boundary of " << b.size() << " points: ";
-        for (Boundary::const_iterator itb = b.begin(); itb != b.end(); ++itb) {
-            std::cout << *itb << ", ";
+    const Boundaries& boundaries = get_boundaries();
+    std::cout << "Number of boundaries: " << boundaries.size() << std::endl;
+    for (const auto & boundary : boundaries) {
+        std::cout << "  Boundary of " << boundary.size() << " points: ";
+        for (const auto & point : boundary) {
+            std::cout << point << ", ";
         }
         std::cout << std::endl;
     }
@@ -625,18 +623,18 @@ void TriContourGenerator::clear_visited_flags(bool include_boundaries)
 
             // Initialise _boundaries_visited.
             _boundaries_visited.reserve(boundaries.size());
-            for (Boundaries::const_iterator it = boundaries.begin();
-                    it != boundaries.end(); ++it)
-                _boundaries_visited.push_back(BoundaryVisited(it->size()));
+            for (const auto & boundary : boundaries) {
+                _boundaries_visited.push_back(BoundaryVisited(boundary.size()));
+            }
 
             // Initialise _boundaries_used.
             _boundaries_used = BoundariesUsed(boundaries.size());
         }
 
         // Clear _boundaries_visited.
-        for (BoundariesVisited::iterator it = _boundaries_visited.begin();
-                it != _boundaries_visited.end(); ++it)
-            std::fill(it->begin(), it->end(), false);
+        for (auto & it : _boundaries_visited) {
+            std::fill(it.begin(), it.end(), false);
+        }
 
         // Clear _boundaries_used.
         std::fill(_boundaries_used.begin(), _boundaries_used.end(), false);
@@ -672,11 +670,13 @@ py::tuple TriContourGenerator::contour_line_to_segs_and_kinds(const Contour& con
         CodeArray codes(codes_dims);
         unsigned char* codes_ptr = codes.mutable_data();
 
-        for (ContourLine::const_iterator it = contour_line.begin();
-             it != contour_line.end(); ++it) {
-            *segs_ptr++ = it->x;
-            *segs_ptr++ = it->y;
-            *codes_ptr++ = (it == contour_line.begin() ? MOVETO : LINETO);
+        for (const auto & point : contour_line) {
+            *segs_ptr++ = point.x;
+            *segs_ptr++ = point.y;
+            *codes_ptr++ = LINETO;
+        }
+        if (npoints > 0) {
+            *codes.mutable_data(0) = MOVETO;
         }
 
         // Closed line loop has identical first and last (x, y) points.
@@ -707,13 +707,11 @@ py::tuple TriContourGenerator::contour_to_segs_and_kinds(const Contour& contour)
     // and they are returned in the Python lists vertices_list and codes_list
     // respectively.
 
-    Contour::const_iterator line;
-    ContourLine::const_iterator point;
-
     // Find total number of points in all contour lines.
     py::ssize_t n_points = 0;
-    for (line = contour.begin(); line != contour.end(); ++line)
-        n_points += static_cast<py::ssize_t>(line->size());
+    for (const auto & line : contour) {
+        n_points += static_cast<py::ssize_t>(line.size());
+    }
 
     // Create segs array for point coordinates.
     py::ssize_t segs_dims[2] = {n_points, 2};
@@ -725,15 +723,16 @@ py::tuple TriContourGenerator::contour_to_segs_and_kinds(const Contour& contour)
     CodeArray codes(codes_dims);
     unsigned char* codes_ptr = codes.mutable_data();
 
-    for (line = contour.begin(); line != contour.end(); ++line) {
-        for (point = line->begin(); point != line->end(); point++) {
+    for (const auto & line : contour) {
+        for (auto point = line.cbegin(); point != line.cend(); point++) {
             *segs_ptr++ = point->x;
             *segs_ptr++ = point->y;
-            *codes_ptr++ = (point == line->begin() ? MOVETO : LINETO);
+            *codes_ptr++ = (point == line.cbegin() ? MOVETO : LINETO);
         }
 
-        if (line->size() > 1)
+        if (line.size() > 1) {
             *(codes_ptr-1) = CLOSEPOLY;
+        }
     }
 
     py::list vertices_list(1);
@@ -787,13 +786,10 @@ void TriContourGenerator::find_boundary_lines(Contour& contour,
     // line to its end before continuing.
     const Triangulation& triang = _triangulation;
     const Boundaries& boundaries = get_boundaries();
-    for (Boundaries::const_iterator it = boundaries.begin();
-            it != boundaries.end(); ++it) {
-        const Boundary& boundary = *it;
+    for (const auto & boundary : boundaries) {
         bool startAbove, endAbove = false;
-        for (Boundary::const_iterator itb = boundary.begin();
-                itb != boundary.end(); ++itb) {
-            if (itb == boundary.begin())
+        for (auto itb = boundary.cbegin(); itb != boundary.cend(); ++itb) {
+            if (itb == boundary.cbegin())
                 startAbove = get_z(triang.get_triangle_point(*itb)) >= level;
             else
                 startAbove = endAbove;
@@ -867,9 +863,10 @@ void TriContourGenerator::find_boundary_lines_filled(Contour& contour,
             if (z >= lower_level && z < upper_level) {
                 contour.push_back(ContourLine());
                 ContourLine& contour_line = contour.back();
-                for (Boundary::size_type j = 0; j < boundary.size(); ++j)
+                for (auto edge : boundary) {
                     contour_line.push_back(triang.get_point_coords(
-                                      triang.get_triangle_point(boundary[j])));
+                                      triang.get_triangle_point(edge)));
+                }
 
                 // Close polygon.
                 contour_line.push_back(contour_line.front());
@@ -1638,9 +1635,7 @@ TrapezoidMapTriFinder::Node::assert_valid(bool tree_complete) const
 {
 #ifndef NDEBUG
     // Check parents.
-    for (Parents::const_iterator it = _parents.begin();
-         it != _parents.end(); ++it) {
-        Node* parent = *it;
+    for (const auto & parent : _parents) {
         assert(parent != this && "Cannot be parent of self");
         assert(parent->has_child(this) && "Parent missing child");
     }
@@ -1779,7 +1774,7 @@ TrapezoidMapTriFinder::Node::remove_parent(Node* parent)
 {
     assert(parent != 0 && "Null parent");
     assert(parent != this && "Cannot be parent of self");
-    Parents::iterator it = std::find(_parents.begin(), _parents.end(), parent);
+    auto it = std::find(_parents.begin(), _parents.end(), parent);
     assert(it != _parents.end() && "Parent not in collection");
     _parents.erase(it);
     return _parents.empty();
