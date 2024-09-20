@@ -6634,6 +6634,15 @@ class Axes(_AxesBase):
                 if x.size == 2 and y.size == 2:
                     style = "image"
                 else:
+                    if x.size != nc + 1:
+                        raise ValueError(
+                            f"Length of X ({x.size}) must be one larger than the "
+                            f"number of columns in C ({nc})")
+                    if y.size != nr + 1:
+                        raise ValueError(
+                            f"Length of Y ({y.size}) must be one larger than the "
+                            f"number of rows in C ({nr})"
+                        )
                     dx = np.diff(x)
                     dy = np.diff(y)
                     if (np.ptp(dx) < 0.01 * abs(dx.mean()) and
