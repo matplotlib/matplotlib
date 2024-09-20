@@ -617,11 +617,11 @@ inline void clip_to_rect_one_step(const Polygon &polygon, Polygon &result, const
         if (sinside ^ pinside) {
             double bx, by;
             filter.bisect(sx, sy, px, py, &bx, &by);
-            result.push_back(XY(bx, by));
+            result.emplace_back(bx, by);
         }
 
         if (pinside) {
-            result.push_back(XY(px, py));
+            result.emplace_back(px, py);
         }
 
         sx = px;
@@ -668,7 +668,7 @@ clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside, std::vecto
         polygon1.clear();
         do {
             if (code == agg::path_cmd_move_to) {
-                polygon1.push_back(XY(x, y));
+                polygon1.emplace_back(x, y);
             }
 
             code = curve.vertex(&x, &y);
@@ -678,7 +678,7 @@ clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside, std::vecto
             }
 
             if (code != agg::path_cmd_move_to) {
-                polygon1.push_back(XY(x, y));
+                polygon1.emplace_back(x, y);
             }
         } while ((code & agg::path_cmd_end_poly) != agg::path_cmd_end_poly);
 
@@ -974,23 +974,20 @@ void convert_path_to_polygons(PathIterator &path,
     simplify_t simplified(clipped, simplify, path.simplify_threshold());
     curve_t curve(simplified);
 
-    result.push_back(Polygon());
-    Polygon *polygon = &result.back();
+    Polygon *polygon = &result.emplace_back();
     double x, y;
     unsigned code;
 
     while ((code = curve.vertex(&x, &y)) != agg::path_cmd_stop) {
         if ((code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly) {
             _finalize_polygon(result, 1);
-            result.push_back(Polygon());
-            polygon = &result.back();
+            polygon = &result.emplace_back();
         } else {
             if (code == agg::path_cmd_move_to) {
                 _finalize_polygon(result, closed_only);
-                result.push_back(Polygon());
-                polygon = &result.back();
+                polygon = &result.emplace_back();
             }
-            polygon->push_back(XY(x, y));
+            polygon->emplace_back(x, y);
         }
     }
 

@@ -48,7 +48,7 @@ class Dashes
     }
     void add_dash_pair(double length, double skip)
     {
-        dashes.push_back(std::make_pair(length, skip));
+        dashes.emplace_back(length, skip);
     }
     size_t size() const
     {

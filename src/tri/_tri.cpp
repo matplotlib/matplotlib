@@ -269,11 +269,10 @@ void Triangulation::calculate_boundaries()
         auto it = boundary_edges.cbegin();
         int tri = it->tri;
         int edge = it->edge;
-        _boundaries.push_back(Boundary());
-        Boundary& boundary = _boundaries.back();
+        Boundary& boundary = _boundaries.emplace_back();
 
         while (true) {
-            boundary.push_back(TriEdge(tri, edge));
+            boundary.emplace_back(tri, edge);
             boundary_edges.erase(it);
             _tri_edge_to_boundary_map[TriEdge(tri, edge)] =
                 BoundaryEdge(_boundaries.size()-1, boundary.size()-1);
@@ -624,7 +623,7 @@ void TriContourGenerator::clear_visited_flags(bool include_boundaries)
             // Initialise _boundaries_visited.
             _boundaries_visited.reserve(boundaries.size());
             for (const auto & boundary : boundaries) {
-                _boundaries_visited.push_back(BoundaryVisited(boundary.size()));
+                _boundaries_visited.emplace_back(boundary.size());
             }
 
             // Initialise _boundaries_used.
@@ -798,8 +797,7 @@ void TriContourGenerator::find_boundary_lines(Contour& contour,
             if (startAbove && !endAbove) {
                 // This boundary edge is the start point for a contour line,
                 // so follow the line.
-                contour.push_back(ContourLine());
-                ContourLine& contour_line = contour.back();
+                ContourLine& contour_line = contour.emplace_back();
                 TriEdge tri_edge = *itb;
                 follow_interior(contour_line, tri_edge, true, level, false);
             }
@@ -832,8 +830,7 @@ void TriContourGenerator::find_boundary_lines_filled(Contour& contour,
 
                 if (decr_lower || incr_upper) {
                     // Start point for contour line, so follow it.
-                    contour.push_back(ContourLine());
-                    ContourLine& contour_line = contour.back();
+                    ContourLine& contour_line = contour.emplace_back();
                     TriEdge start_tri_edge = boundary[j];
                     TriEdge tri_edge = start_tri_edge;
 
@@ -861,8 +858,7 @@ void TriContourGenerator::find_boundary_lines_filled(Contour& contour,
             const Boundary& boundary = boundaries[i];
             double z = get_z(triang.get_triangle_point(boundary[0]));
             if (z >= lower_level && z < upper_level) {
-                contour.push_back(ContourLine());
-                ContourLine& contour_line = contour.back();
+                ContourLine& contour_line = contour.emplace_back();
                 for (auto edge : boundary) {
                     contour_line.push_back(triang.get_point_coords(
                                       triang.get_triangle_point(edge)));
@@ -896,8 +892,7 @@ void TriContourGenerator::find_interior_lines(Contour& contour,
             continue;  // Contour does not pass through this triangle.
 
         // Found start of new contour line loop.
-        contour.push_back(ContourLine());
-        ContourLine& contour_line = contour.back();
+        ContourLine& contour_line = contour.emplace_back();
         TriEdge tri_edge = triang.get_neighbor_edge(tri, edge);
         follow_interior(contour_line, tri_edge, false, level, on_upper);
 
@@ -1436,10 +1431,10 @@ TrapezoidMapTriFinder::initialize()
 
     // Set up edges array.
     // First the bottom and top edges of the enclosing rectangle.
-    _edges.push_back(Edge(&_points[npoints],   &_points[npoints+1], -1, -1,
-                          nullptr, nullptr));
-    _edges.push_back(Edge(&_points[npoints+2], &_points[npoints+3], -1, -1,
-                          nullptr, nullptr));
+    _edges.emplace_back(&_points[npoints],   &_points[npoints+1], -1, -1,
+                        nullptr, nullptr);
+    _edges.emplace_back(&_points[npoints+2], &_points[npoints+3], -1, -1,
+                        nullptr, nullptr);
 
     // Add all edges in the triangulation that point to the right.  Do not
     // explicitly include edges that point to the left as the neighboring
@@ -1458,11 +1453,12 @@ TrapezoidMapTriFinder::initialize()
                     const Point* neighbor_point_below = (neighbor.tri == -1) ?
                         nullptr : _points + triang.get_triangle_point(
                                           neighbor.tri, (neighbor.edge+2)%3);
-                    _edges.push_back(Edge(start, end, neighbor.tri, tri,
-                                          neighbor_point_below, other));
+                    _edges.emplace_back(start, end, neighbor.tri, tri,
+                                        neighbor_point_below, other);
                 }
-                else if (neighbor.tri == -1)
-                    _edges.push_back(Edge(end, start, tri, -1, other, nullptr));
+                else if (neighbor.tri == -1) {
+                    _edges.emplace_back(end, start, tri, -1, other, nullptr);
+                }
 
                 // Set triangle associated with start point if not already set.
                 if (start->tri == -1)
