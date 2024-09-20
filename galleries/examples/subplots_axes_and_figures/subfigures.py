@@ -13,9 +13,6 @@ Matplotlib also has "subfigures", accessed by calling
 `matplotlib.figure.Figure.subfigures` to make an array of subfigures.  Note
 that subfigures can also have their own child subfigures.
 
-.. note::
-    The *subfigure* concept is new in v3.4, and the API is still provisional.
-
 """
 import matplotlib.pyplot as plt
 import numpy as np
