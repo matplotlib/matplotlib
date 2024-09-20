@@ -2091,12 +2091,15 @@ class MultiCursor(Widget):
 
 class _SelectorWidget(AxesWidget):
 
-    def __init__(self, ax, onselect, useblit=False, button=None,
+    def __init__(self, ax, onselect=None, useblit=False, button=None,
                  state_modifier_keys=None, use_data_coordinates=False):
         super().__init__(ax)
 
         self._visible = True
-        self.onselect = onselect
+        if onselect is None:
+            self.onselect = lambda *args: None
+        else:
+            self.onselect = onselect
         self.useblit = useblit and self.canvas.supports_blit
         self.connect_default_events()
 
@@ -3041,7 +3044,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
     ax : `~matplotlib.axes.Axes`
         The parent Axes for the widget.
 
-    onselect : function
+    onselect : function, optional
         A callback function that is called after a release event and the
         selection is created, changed or removed.
         It must have the signature::
@@ -3154,7 +3157,8 @@ class RectangleSelector(_SelectorWidget):
     See also: :doc:`/gallery/widgets/rectangle_selector`
     """
 
-    def __init__(self, ax, onselect, *, minspanx=0, minspany=0, useblit=False,
+    def __init__(self, ax, onselect=None, *, minspanx=0,
+                 minspany=0, useblit=False,
                  props=None, spancoords='data', button=None, grab_range=10,
                  handle_props=None, interactive=False,
                  state_modifier_keys=None, drag_from_anywhere=False,
@@ -3676,7 +3680,7 @@ class LassoSelector(_SelectorWidget):
     ----------
     ax : `~matplotlib.axes.Axes`
         The parent Axes for the widget.
-    onselect : function
+    onselect : function, optional
         Whenever the lasso is released, the *onselect* function is called and
         passed the vertices of the selected path.
     useblit : bool, default: True
@@ -3691,7 +3695,7 @@ class LassoSelector(_SelectorWidget):
         which corresponds to all buttons.
     """
 
-    def __init__(self, ax, onselect, *, useblit=True, props=None, button=None):
+    def __init__(self, ax, onselect=None, *, useblit=True, props=None, button=None):
         super().__init__(ax, onselect, useblit=useblit, button=button)
         self.verts = None
         props = {
@@ -3749,7 +3753,7 @@ class PolygonSelector(_SelectorWidget):
     ax : `~matplotlib.axes.Axes`
         The parent Axes for the widget.
 
-    onselect : function
+    onselect : function, optional
         When a polygon is completed or modified after completion,
         the *onselect* function is called and passed a list of the vertices as
         ``(xdata, ydata)`` tuples.
@@ -3801,7 +3805,7 @@ class PolygonSelector(_SelectorWidget):
     point.
     """
 
-    def __init__(self, ax, onselect, *, useblit=False,
+    def __init__(self, ax, onselect=None, *, useblit=False,
                  props=None, handle_props=None, grab_range=10,
                  draw_bounding_box=False, box_handle_props=None,
                  box_props=None):
@@ -3851,7 +3855,6 @@ class PolygonSelector(_SelectorWidget):
 
     def _add_box(self):
         self._box = RectangleSelector(self.ax,
-                                      onselect=lambda *args, **kwargs: None,
                                       useblit=self.useblit,
                                       grab_range=self.grab_range,
                                       handle_props=self._box_handle_props,
