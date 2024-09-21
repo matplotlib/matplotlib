@@ -3,6 +3,8 @@
 #ifndef MPL_PATH_CONVERTERS_H
 #define MPL_PATH_CONVERTERS_H
 
+#include <pybind11/pybind11.h>
+
 #include <cmath>
 #include <cstdint>
 #include <limits>
@@ -529,6 +531,24 @@ enum e_snap_mode {
     SNAP_FALSE,
     SNAP_TRUE
 };
+
+namespace PYBIND11_NAMESPACE { namespace detail {
+    template <> struct type_caster<e_snap_mode> {
+    public:
+        PYBIND11_TYPE_CASTER(e_snap_mode, const_name("e_snap_mode"));
+
+        bool load(handle src, bool) {
+            if (src.is_none()) {
+                value = SNAP_AUTO;
+                return true;
+            }
+
+            value = src.cast<bool>() ? SNAP_TRUE : SNAP_FALSE;
+
+            return true;
+        }
+    };
+}} // namespace PYBIND11_NAMESPACE::detail
 
 template <class VertexSource>
 class PathSnapper
