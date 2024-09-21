@@ -6637,13 +6637,13 @@ def test_pcolorfast_regular_xy_incompatible_size():
     """
     fig, ax = plt.subplots()
     with pytest.raises(
-            ValueError, match="Length of X (5) must be one larger than the "
-                              "number of columns in C (20)"):
+            ValueError, match=r"Length of X \(5\) must be one larger than the "
+                              r"number of columns in C \(20\)"):
         ax.pcolorfast(np.arange(5), np.arange(11), np.random.rand(10, 20))
 
     with pytest.raises(
-        ValueError, match="Length of Y (5) must be one larger than the "
-                          "number rows in C (10)"):
+            ValueError, match=r"Length of Y \(5\) must be one larger than the "
+                              r"number of rows in C \(10\)"):
         ax.pcolorfast(np.arange(21), np.arange(5), np.random.rand(10, 20))
 
 
