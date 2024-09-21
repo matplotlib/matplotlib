@@ -2,7 +2,7 @@
 #include <pybind11/numpy.h>
 
 #include "_image_resample.h"
-#include "py_converters_11.h"
+#include "py_converters.h"
 
 namespace py = pybind11;
 using namespace pybind11::literals;

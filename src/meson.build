@@ -73,8 +73,6 @@ extension_data = {
   '_backend_agg': {
     'subdir': 'matplotlib/backends',
     'sources': files(
-      'py_converters.cpp',
-      'py_converters_11.cpp',
       '_backend_agg.cpp',
       '_backend_agg_wrapper.cpp',
     ),
@@ -92,7 +90,6 @@ extension_data = {
     'sources': files(
       'ft2font.cpp',
       'ft2font_wrapper.cpp',
-      'py_converters.cpp',
     ),
     'dependencies': [
       freetype_dep, pybind11_dep, numpy_dep, agg_dep.partial_dependency(includes: true),
@@ -107,7 +104,7 @@ extension_data = {
     'subdir': 'matplotlib',
     'sources': files(
       '_image_wrapper.cpp',
-      'py_converters_11.cpp',
+      'py_converters.cpp',
     ),
     'dependencies': [
       pybind11_dep,
@@ -118,8 +115,6 @@ extension_data = {
   '_path': {
     'subdir': 'matplotlib',
     'sources': files(
-      'py_converters.cpp',
-      'py_converters_11.cpp',
       '_path_wrapper.cpp',
     ),
     'dependencies': [numpy_dep, agg_dep, pybind11_dep],
