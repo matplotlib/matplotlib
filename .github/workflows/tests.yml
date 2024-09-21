@@ -260,7 +260,7 @@ jobs:
           # Preinstall build requirements to enable no-build-isolation builds.
           python -m pip install --upgrade $PRE \
             'contourpy>=1.0.1' cycler fonttools kiwisolver importlib_resources \
-            numpy packaging pillow 'pyparsing!=3.1.0' python-dateutil setuptools-scm \
+            packaging pillow 'pyparsing!=3.1.0' python-dateutil setuptools-scm \
             'meson-python>=0.13.1' 'pybind11>=2.6' \
             -r requirements/testing/all.txt \
             ${{ matrix.extra-requirements }}

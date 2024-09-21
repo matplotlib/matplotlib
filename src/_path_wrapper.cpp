@@ -7,8 +7,6 @@
 #include <string>
 #include <vector>
 
-#include "numpy_cpp.h"
-
 #include "_path.h"
 
 #include "_backend_agg_basic_types.h"
@@ -266,7 +264,7 @@ Py_cleanup_path(mpl::PathIterator path, agg::trans_affine trans, bool remove_nan
     bool do_clip = (clip_rect.x1 < clip_rect.x2 && clip_rect.y1 < clip_rect.y2);
 
     std::vector<double> vertices;
-    std::vector<npy_uint8> codes;
+    std::vector<uint8_t> codes;
 
     cleanup_path(path, trans, remove_nans, do_clip, clip_rect, snap_mode, stroke_width,
                  *simplify, return_curves, sketch, vertices, codes);
@@ -374,14 +372,6 @@ Py_is_sorted_and_has_non_nan(py::object obj)
 
 PYBIND11_MODULE(_path, m)
 {
-    auto ia = [m]() -> const void* {
-        import_array();
-        return &m;
-    };
-    if (ia() == NULL) {
-        throw py::error_already_set();
-    }
-
     m.def("point_in_path", &Py_point_in_path,
           "x"_a, "y"_a, "radius"_a, "path"_a, "trans"_a);
     m.def("points_in_path", &Py_points_in_path,

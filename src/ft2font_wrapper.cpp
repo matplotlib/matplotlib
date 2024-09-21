@@ -4,7 +4,6 @@
 #include <pybind11/stl.h>
 
 #include "ft2font.h"
-#include "numpy/arrayobject.h"
 
 #include <set>
 #include <sstream>
@@ -955,14 +954,6 @@ PyFT2Font_fname(PyFT2Font *self)
 
 PYBIND11_MODULE(ft2font, m)
 {
-    auto ia = [m]() -> const void* {
-        import_array();
-        return &m;
-    };
-    if (ia() == NULL) {
-        throw py::error_already_set();
-    }
-
     if (FT_Init_FreeType(&_ft2Library)) {  // initialize library
         throw std::runtime_error("Could not initialize the freetype2 library");
     }
