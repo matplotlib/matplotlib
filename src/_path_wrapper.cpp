@@ -181,9 +181,7 @@ Py_affine_transform(py::array_t<double, py::array::c_style | py::array::forcecas
     if (vertices_arr.ndim() == 2) {
         auto vertices = vertices_arr.unchecked<2>();
 
-        if(!check_trailing_shape(vertices, "vertices", 2)) {
-            throw py::error_already_set();
-        }
+        check_trailing_shape(vertices, "vertices", 2);
 
         py::ssize_t dims[] = { vertices.shape(0), 2 };
         py::array_t<double> result(dims);

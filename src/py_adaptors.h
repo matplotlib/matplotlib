@@ -101,19 +101,6 @@ class PathIterator
         m_iterator = 0;
     }
 
-    inline int
-    set(PyObject *vertices, PyObject *codes, bool should_simplify, double simplify_threshold)
-    {
-        try {
-            set(py::reinterpret_borrow<py::object>(vertices),
-                py::reinterpret_borrow<py::object>(codes),
-                should_simplify, simplify_threshold);
-        } catch(const py::error_already_set &) {
-            return 0;
-        }
-        return 1;
-    }
-
     inline void set(py::object vertices, py::object codes)
     {
         set(vertices, codes, false, 0.0);
@@ -184,16 +171,6 @@ class PathGenerator
     {
         m_paths = obj.cast<py::sequence>();
         m_npaths = m_paths.size();
-    }
-
-    int set(PyObject *obj)
-    {
-        try {
-            set(py::reinterpret_borrow<py::object>(obj));
-        } catch(const py::error_already_set &) {
-            return 0;
-        }
-        return 1;
     }
 
     Py_ssize_t num_paths() const
