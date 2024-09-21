@@ -350,40 +350,25 @@ Py_is_sorted_and_has_non_nan(py::object obj)
 {
     bool result;
 
-    PyArrayObject *array = (PyArrayObject *)PyArray_CheckFromAny(
-        obj.ptr(), NULL, 1, 1, NPY_ARRAY_NOTSWAPPED, NULL);
-
-    if (array == NULL) {
-        throw py::error_already_set();
+    py::array array = py::array::ensure(obj);
+    if (array.ndim() != 1) {
+        throw std::invalid_argument("array must be 1D");
     }
 
+    auto dtype = array.dtype();
     /* Handle just the most common types here, otherwise coerce to double */
-    switch (PyArray_TYPE(array)) {
-    case NPY_INT:
-        result = is_sorted_and_has_non_nan<npy_int>(array);
-        break;
-    case NPY_LONG:
-        result = is_sorted_and_has_non_nan<npy_long>(array);
-        break;
-    case NPY_LONGLONG:
-        result = is_sorted_and_has_non_nan<npy_longlong>(array);
-        break;
-    case NPY_FLOAT:
-        result = is_sorted_and_has_non_nan<npy_float>(array);
-        break;
-    case NPY_DOUBLE:
-        result = is_sorted_and_has_non_nan<npy_double>(array);
-        break;
-    default:
-        Py_DECREF(array);
-        array = (PyArrayObject *)PyArray_FromObject(obj.ptr(), NPY_DOUBLE, 1, 1);
-        if (array == NULL) {
-            throw py::error_already_set();
-        }
-        result = is_sorted_and_has_non_nan<npy_double>(array);
+    if (dtype.equal(py::dtype::of<std::int32_t>())) {
+        result = is_sorted_and_has_non_nan<int32_t>(array);
+    } else if (dtype.equal(py::dtype::of<std::int64_t>())) {
+        result = is_sorted_and_has_non_nan<int64_t>(array);
+    } else if (dtype.equal(py::dtype::of<float>())) {
+        result = is_sorted_and_has_non_nan<float>(array);
+    } else if (dtype.equal(py::dtype::of<double>())) {
+        result = is_sorted_and_has_non_nan<double>(array);
+    } else {
+        array = py::array_t<double>::ensure(obj);
+        result = is_sorted_and_has_non_nan<double>(array);
     }
-
-    Py_DECREF(array);
 
     return result;
 }
