@@ -868,8 +868,8 @@ def test_legend_pathcollection_labelcolor_linecolor_iterable():
     # test the labelcolor for labelcolor='linecolor' on PathCollection
     # with iterable colors
     fig, ax = plt.subplots()
-    colors = np.random.default_rng().choice(['r', 'g', 'b'], 10)
-    ax.scatter(np.arange(10), np.arange(10)*1, label='#1', c=colors)
+    colors = np.array(['r', 'g', 'b', 'c', 'm'] * 2)
+    ax.scatter(np.arange(10), np.arange(10), label='#1', c=colors)
 
     leg = ax.legend(labelcolor='linecolor')
     text, = leg.get_texts()
@@ -915,8 +915,8 @@ def test_legend_pathcollection_labelcolor_markeredgecolor_iterable():
     # test the labelcolor for labelcolor='markeredgecolor' on PathCollection
     # with iterable colors
     fig, ax = plt.subplots()
-    colors = np.random.default_rng().choice(['r', 'g', 'b'], 10)
-    ax.scatter(np.arange(10), np.arange(10)*1, label='#1', edgecolor=colors)
+    colors = np.array(['r', 'g', 'b', 'c', 'm'] * 2)
+    ax.scatter(np.arange(10), np.arange(10), label='#1', edgecolor=colors)
 
     leg = ax.legend(labelcolor='markeredgecolor')
     for text, color in zip(leg.get_texts(), ['k']):
@@ -970,8 +970,8 @@ def test_legend_pathcollection_labelcolor_markerfacecolor_iterable():
     # test the labelcolor for labelcolor='markerfacecolor' on PathCollection
     # with iterable colors
     fig, ax = plt.subplots()
-    colors = np.random.default_rng().choice(['r', 'g', 'b'], 10)
-    ax.scatter(np.arange(10), np.arange(10)*1, label='#1', facecolor=colors)
+    colors = np.array(['r', 'g', 'b', 'c', 'm'] * 2)
+    ax.scatter(np.arange(10), np.arange(10), label='#1', facecolor=colors)
 
     leg = ax.legend(labelcolor='markerfacecolor')
     for text, color in zip(leg.get_texts(), ['k']):
