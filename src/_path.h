@@ -1223,17 +1223,15 @@ bool convert_to_string(PathIterator &path,
 }
 
 template<class T>
-bool is_sorted_and_has_non_nan(PyArrayObject *array)
+bool is_sorted_and_has_non_nan(py::array_t<T> array)
 {
-    char* ptr = PyArray_BYTES(array);
-    npy_intp size = PyArray_DIM(array, 0),
-             stride = PyArray_STRIDE(array, 0);
+    auto size = array.shape(0);
     using limits = std::numeric_limits<T>;
     T last = limits::has_infinity ? -limits::infinity() : limits::min();
     bool found_non_nan = false;
 
-    for (npy_intp i = 0; i < size; ++i, ptr += stride) {
-        T current = *(T*)ptr;
+    for (auto i = 0; i < size; ++i) {
+        T current = *array.data(i);
         // The following tests !isnan(current), but also works for integral
         // types.  (The isnan(IntegralType) overload is absent on MSVC.)
         if (current == current) {
