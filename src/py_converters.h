@@ -23,33 +23,25 @@ void convert_trans_affine(const py::object& transform, agg::trans_affine& affine
 
 inline auto convert_points(py::array_t<double> obj)
 {
-    if (!check_trailing_shape(obj, "points", 2)) {
-        throw py::error_already_set();
-    }
+    check_trailing_shape(obj, "points", 2);
     return obj.unchecked<2>();
 }
 
 inline auto convert_transforms(py::array_t<double> obj)
 {
-    if (!check_trailing_shape(obj, "transforms", 3, 3)) {
-        throw py::error_already_set();
-    }
+    check_trailing_shape(obj, "transforms", 3, 3);
     return obj.unchecked<3>();
 }
 
 inline auto convert_bboxes(py::array_t<double> obj)
 {
-    if (!check_trailing_shape(obj, "bbox array", 2, 2)) {
-        throw py::error_already_set();
-    }
+    check_trailing_shape(obj, "bbox array", 2, 2);
     return obj.unchecked<3>();
 }
 
 inline auto convert_colors(py::array_t<double> obj)
 {
-    if (!check_trailing_shape(obj, "colors", 4)) {
-        throw py::error_already_set();
-    }
+    check_trailing_shape(obj, "colors", 4);
     return obj.unchecked<2>();
 }
 
