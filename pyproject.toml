@@ -47,7 +47,6 @@ requires-python = ">=3.10"
 # Should be a copy of the build dependencies below.
 dev = [
     "meson-python>=0.13.1",
-    "numpy>=1.25",
     "pybind11>=2.6,!=2.13.3",
     "setuptools_scm>=7",
     # Not required by us but setuptools_scm without a version, cso _if_
@@ -74,18 +73,6 @@ requires = [
     "meson-python>=0.13.1",
     "pybind11>=2.6,!=2.13.3",
     "setuptools_scm>=7",
-
-    # Comments on numpy build requirement range:
-    #
-    #   1. >=2.0.x is the numpy requirement for wheel builds for distribution
-    #      on PyPI - building against 2.x yields wheels that are also
-    #      ABI-compatible with numpy 1.x at runtime.
-    #   2. Note that building against numpy 1.x works fine too - users and
-    #      redistributors can do this by installing the numpy version they like
-    #      and disabling build isolation.
-    #   3. The <2.3 upper bound is for matching the numpy deprecation policy,
-    #      it should not be loosened.
-    "numpy>=2.0.0rc1,<2.3",
 ]
 
 [tool.meson-python.args]
