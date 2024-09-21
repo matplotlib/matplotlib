@@ -77,6 +77,11 @@ inline bool check_trailing_shape(T array, char const* name, long d1)
                      array.ndim());
         return false;
     }
+    if (array.size() == 0) {
+        // Sometimes things come through as atleast_2d, etc., but they're empty, so
+        // don't bother enforcing the trailing shape.
+        return true;
+    }
     if (array.shape(1) != d1) {
         PyErr_Format(PyExc_ValueError,
                      "%s must have shape (N, %ld), got (%ld, %ld)",
@@ -94,6 +99,11 @@ inline bool check_trailing_shape(T array, char const* name, long d1, long d2)
                      "Expected 3-dimensional array, got %ld",
                      array.ndim());
         return false;
+    }
+    if (array.size() == 0) {
+        // Sometimes things come through as atleast_3d, etc., but they're empty, so
+        // don't bother enforcing the trailing shape.
+        return true;
     }
     if (array.shape(1) != d1 || array.shape(2) != d2) {
         PyErr_Format(PyExc_ValueError,
