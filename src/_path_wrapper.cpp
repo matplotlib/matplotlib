@@ -14,7 +14,6 @@
 #include "_backend_agg_basic_types.h"
 #include "py_adaptors.h"
 #include "py_converters.h"
-#include "py_converters_11.h"
 
 namespace py = pybind11;
 using namespace pybind11::literals;

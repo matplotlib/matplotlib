@@ -5,7 +5,6 @@
 #include "numpy_cpp.h"
 #include "py_converters.h"
 #include "_backend_agg.h"
-#include "py_converters_11.h"
 
 namespace py = pybind11;
 using namespace pybind11::literals;
