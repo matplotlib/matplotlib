@@ -1447,8 +1447,8 @@ class FillBetweenPolyCollection(PolyCollection):
             t_slice, f1_slice, f2_slice = step_func(t_slice, f1_slice, f2_slice)
 
         if self._interpolate:
-            start = self._get_interp_point(t, f1, f2, idx0)
-            end = self._get_interp_point(t, f1, f2, idx1)
+            start = self._get_interpolating_points(t, f1, f2, idx0)
+            end = self._get_interpolating_points(t, f1, f2, idx1)
         else:
             # Handle scalar f2 (e.g. 0): the fill should go all
             # the way down to 0 even if none of the dep1 sample points do.
@@ -1464,7 +1464,7 @@ class FillBetweenPolyCollection(PolyCollection):
         return self._normalize_pts(pts)
 
     @classmethod
-    def _get_interp_point(cls, t, f1, f2, idx):
+    def _get_interpolating_points(cls, t, f1, f2, idx):
         """Calculate interpolating points."""
         im1 = max(idx - 1, 0)
         t_values = t[im1:idx+1]
