@@ -1,5 +1,5 @@
 ``FillBetweenPolyCollection``
---------------------------------
+-----------------------------
 
 The new class :class:`matplotlib.collections.FillBetweenPolyCollection` provides
 the ``set_data`` method, enabling e.g. resampling
