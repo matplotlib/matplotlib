@@ -46,9 +46,17 @@ class exception : public std::exception
         }                                                                    \
         return (errorcode);                                                  \
     }                                                                        \
+    catch (const std::range_error &e)                                        \
+    {                                                                        \
+        PyErr_Format(PyExc_ValueError, "In %s: %s", (name), e.what());       \
+        {                                                                    \
+            cleanup;                                                         \
+        }                                                                    \
+        return (errorcode);                                                  \
+    }                                                                        \
     catch (const std::runtime_error &e)                                      \
     {                                                                        \
-        PyErr_Format(PyExc_RuntimeError, "In %s: %s", (name), e.what());    \
+        PyErr_Format(PyExc_RuntimeError, "In %s: %s", (name), e.what());     \
         {                                                                    \
             cleanup;                                                         \
         }                                                                    \

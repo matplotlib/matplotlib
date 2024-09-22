@@ -6,9 +6,8 @@
     Many methods are implemented in `FigureBase`.
 
 `SubFigure`
-    A logical figure inside a figure, usually added to a figure (or parent
-    `SubFigure`) with `Figure.add_subfigure` or `Figure.subfigures` methods
-    (provisional API v3.4).
+    A logical figure inside a figure, usually added to a figure (or parent `SubFigure`)
+    with `Figure.add_subfigure` or `Figure.subfigures` methods.
 
 Figures are typically created using pyplot methods `~.pyplot.figure`,
 `~.pyplot.subplots`, and `~.pyplot.subplot_mosaic`.
@@ -527,7 +526,7 @@ default: %(va)s
         self.stale = True
         return artist
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def add_axes(self, *args, **kwargs):
         """
         Add an `~.axes.Axes` to the figure.
@@ -645,7 +644,7 @@ default: %(va)s
                 addendum="Any additional positional arguments are currently ignored.")
         return self._add_axes_internal(a, key)
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def add_subplot(self, *args, **kwargs):
         """
         Add an `~.axes.Axes` to the figure as part of a subplot arrangement.
@@ -1024,7 +1023,7 @@ default: %(va)s
     #    " legend(" -> " figlegend(" for the signatures
     #    "fig.legend(" -> "plt.figlegend" for the code examples
     #    "ax.plot" -> "plt.plot" for consistency in using pyplot when able
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def legend(self, *args, **kwargs):
         """
         Place a legend on the figure.
@@ -1144,7 +1143,7 @@ default: %(va)s
         self.stale = True
         return l
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def text(self, x, y, s, fontdict=None, **kwargs):
         """
         Add text to figure.
@@ -1194,7 +1193,7 @@ default: %(va)s
         self.stale = True
         return text
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def colorbar(
             self, mappable, cax=None, ax=None, use_gridspec=True, **kwargs):
         """
@@ -1321,6 +1320,8 @@ default: %(va)s
 
         Unset parameters are left unmodified; initial values are given by
         :rc:`figure.subplot.[name]`.
+
+        .. plot:: _embedded_plots/figure_subplots_adjust.py
 
         Parameters
         ----------
@@ -1607,9 +1608,6 @@ default: %(va)s
         A subfigure has the same artist methods as a figure, and is logically
         the same as a figure, but cannot print itself.
         See :doc:`/gallery/subplots_axes_and_figures/subfigures`.
-
-        .. note::
-            The *subfigure* concept is new in v3.4, and the API is still provisional.
 
         .. versionchanged:: 3.10
             subfigures are now added in row-major order.
@@ -2229,9 +2227,6 @@ class SubFigure(FigureBase):
         axsR = sfigs[1].subplots(2, 1)
 
     See :doc:`/gallery/subplots_axes_and_figures/subfigures`
-
-    .. note::
-        The *subfigure* concept is new in v3.4, and the API is still provisional.
     """
 
     def __init__(self, parent, subplotspec, *,

@@ -50,6 +50,7 @@ plt.show()
 # .. tags::
 #
 #    component: marker
-#    styling: color
+#    styling: color,
+#    styling: shape
 #    level: beginner
 #    purpose: fun

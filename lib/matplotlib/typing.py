@@ -11,11 +11,14 @@ downstream libraries.
 """
 from collections.abc import Hashable, Sequence
 import pathlib
-from typing import Any, Literal, TypeAlias, TypeVar
+from typing import Any, Callable, Literal, TypeAlias, TypeVar, Union
 
 from . import path
 from ._enums import JoinStyle, CapStyle
+from .artist import Artist
+from .backend_bases import RendererBase
 from .markers import MarkerStyle
+from .transforms import Bbox, Transform
 
 RGBColorType: TypeAlias = tuple[float, float, float] | str
 RGBAColorType: TypeAlias = (
@@ -48,6 +51,20 @@ MarkerType: TypeAlias = str | path.Path | MarkerStyle
 FillStyleType: TypeAlias = Literal["full", "left", "right", "bottom", "top", "none"]
 JoinStyleType: TypeAlias = JoinStyle | Literal["miter", "round", "bevel"]
 CapStyleType: TypeAlias = CapStyle | Literal["butt", "projecting", "round"]
+
+CoordsBaseType = Union[
+    str,
+    Artist,
+    Transform,
+    Callable[
+        [RendererBase],
+        Union[Bbox, Transform]
+    ]
+]
+CoordsType = Union[
+    CoordsBaseType,
+    tuple[CoordsBaseType, CoordsBaseType]
+]
 
 RcStyleType: TypeAlias = (
     str |

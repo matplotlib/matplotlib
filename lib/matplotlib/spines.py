@@ -32,7 +32,7 @@ class Spine(mpatches.Patch):
     def __str__(self):
         return "Spine"
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def __init__(self, axes, spine_type, path, **kwargs):
         """
         Parameters

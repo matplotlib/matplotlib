@@ -220,7 +220,6 @@ class ResizeEvent(Event):
 class CloseEvent(Event): ...
 
 class LocationEvent(Event):
-    lastevent: Event | None
     x: int
     y: int
     inaxes: Axes | None
