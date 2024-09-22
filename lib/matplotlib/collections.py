@@ -1396,7 +1396,7 @@ class FillBetweenPolyCollection(PolyCollection):
         t, f1, f2 = np.broadcast_arrays(np.atleast_1d(t), f1, f2, subok=True)
 
         self._bbox = transforms.Bbox.null()
-        self._bbox.update_from_data_xy(self._normalize_pts(np.concatenate([
+        self._bbox.update_from_data_xy(self._fix_pts_xy_order(np.concatenate([
             np.stack((t[where], f[where]), axis=-1) for f in (f1, f2)])))
 
         return [
@@ -1461,7 +1461,7 @@ class FillBetweenPolyCollection(PolyCollection):
             np.asarray([end]),
             np.stack((t_slice, f2_slice), axis=-1)[::-1]))
 
-        return self._normalize_pts(pts)
+        return self._fix_pts_xy_order(pts)
 
     @classmethod
     def _get_interpolating_points(cls, t, f1, f2, idx):
@@ -1487,7 +1487,7 @@ class FillBetweenPolyCollection(PolyCollection):
         order = xp.argsort()
         return np.interp(x, xp[order], fp[order])
 
-    def _normalize_pts(self, pts):
+    def _fix_pts_xy_order(self, pts):
         """
         Fix pts calculation results with `self.t_direction`.
 
