@@ -1390,7 +1390,7 @@ class FillBetweenPolyCollection(PolyCollection):
         """
         Make verts that can be forwarded to `.PolyCollection`.
         """
-        self._validate_dimensions(self.t_direction, self._f_direction, t, f1, f2)
+        self._validate_shapes(self.t_direction, self._f_direction, t, f1, f2)
 
         where = self._get_data_mask(t, f1, f2, where)
         t, f1, f2 = np.broadcast_arrays(np.atleast_1d(t), f1, f2, subok=True)
@@ -1423,7 +1423,7 @@ class FillBetweenPolyCollection(PolyCollection):
             np.logical_or, map(np.ma.getmaskarray, [t, f1, f2]))
 
     @staticmethod
-    def _validate_dimensions(t_dir, f_dir, t, f1, f2):
+    def _validate_shapes(t_dir, f_dir, t, f1, f2):
         """Validate that t, f1 and f2 are 1-dimensional and have the same length."""
         names = (d + s for d, s in zip((t_dir, f_dir, f_dir), ("", "1", "2")))
         for name, array in zip(names, [t, f1, f2]):
