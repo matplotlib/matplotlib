@@ -1392,7 +1392,7 @@ class FillBetweenPolyCollection(PolyCollection):
         """
         self._validate_dimensions(self.t_direction, self._f_direction, t, f1, f2)
 
-        where = self._normalized_where(t, f1, f2, where)
+        where = self._get_data_mask(t, f1, f2, where)
         t, f1, f2 = np.broadcast_arrays(np.atleast_1d(t), f1, f2, subok=True)
 
         self._bbox = transforms.Bbox.null()
@@ -1404,8 +1404,13 @@ class FillBetweenPolyCollection(PolyCollection):
             for idx0, idx1 in cbook.contiguous_regions(where)
         ]
 
-    def _normalized_where(self, t, f1, f2, where):
-        """Align ``where`` with the masks of ``t``, ``f1`` and ``f2``."""
+    def _get_data_mask(self, t, f1, f2, where):
+        """
+        Return a bool array, with True at all points that should eventually be rendered.
+
+        The array is True at a point if none of the data inputs
+        *t*, *f1*, *f2* is masked and if the input *where* is true at that point.
+        """
         if where is None:
             where = True
         else:
