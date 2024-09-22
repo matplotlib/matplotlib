@@ -1394,16 +1394,15 @@ class FillBetweenPolyCollection(PolyCollection):
 
         where = self._normalized_where(t, f1, f2, where)
         t, f1, f2 = np.broadcast_arrays(np.atleast_1d(t), f1, f2, subok=True)
-        verts = [
-            self._make_verts_for_region(t, f1, f2, idx0, idx1)
-            for idx0, idx1 in cbook.contiguous_regions(where)
-        ]
 
         self._bbox = transforms.Bbox.null()
         self._bbox.update_from_data_xy(self._normalize_pts(np.concatenate([
             np.stack((t[where], f[where]), axis=-1) for f in (f1, f2)])))
 
-        return verts
+        return [
+            self._make_verts_for_region(t, f1, f2, idx0, idx1)
+            for idx0, idx1 in cbook.contiguous_regions(where)
+        ]
 
     def _normalized_where(self, t, f1, f2, where):
         """Align ``where`` with the masks of ``t``, ``f1`` and ``f2``."""
