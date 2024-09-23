@@ -1298,11 +1298,12 @@ class _AxesBase(martist.Artist):
         self._get_patches_for_fill = _process_plot_var_args('fill')
 
         self._gridOn = mpl.rcParams['axes.grid']
-        for chld in self._children:
+        # Swap children to minimize time we spend in an invalid state
+        old_children, self._children = self._children, []
+        for chld in old_children:
             chld.axes = chld._parent_figure = None
-        # Use list.clear instead of setting _children to empty list to
-        # break the `artist._remove_method` reference cycle
-        self._children.clear()
+        # Use list.clear to break the `artist._remove_method` reference cycle
+        old_children.clear()
         self._mouseover_set = _OrderedSet()
         self.child_axes = []
         self._current_image = None  # strictly for pyplot via _sci, _gci
