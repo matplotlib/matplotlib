@@ -51,7 +51,9 @@ jobs:
           - name-suffix: "(Minimum Versions)"
             os: ubuntu-20.04
             python-version: '3.10'
-            extra-requirements: '-c requirements/testing/minver.txt'
+            extra-requirements:
+              - '-c requirements/testing/minver.txt'
+              - '-r requirements/testing/extra.txt'
             delete-font-cache: true
             # Oldest versions with Py3.10 wheels.
             pyqt5-ver: '==5.15.5 sip==6.3.0'
@@ -85,12 +87,14 @@ jobs:
             pyqt6-ver: '!=6.6.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
+            extra-requirements: '-r requirements/testing/extra.txt'
           - os: ubuntu-22.04
             python-version: '3.13'
             # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
             pyqt6-ver: '!=6.6.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
+            extra-requirements: '-r requirements/testing/extra.txt'
           - name-suffix: "Free-threaded"
             os: ubuntu-22.04
             python-version: '3.13t'
@@ -98,18 +102,22 @@ jobs:
             pyqt6-ver: '!=6.6.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
+            extra-requirements: '-r requirements/testing/extra.txt'
           - os: macos-12  # This runner is on Intel chips.
             python-version: '3.10'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
+            extra-requirements: '-r requirements/testing/extra.txt'
           - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.12'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
+            extra-requirements: '-r requirements/testing/extra.txt'
           - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.13'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
+            extra-requirements: '-r requirements/testing/extra.txt'
 
     steps:
       - uses: actions/checkout@v4

@@ -13,4 +13,3 @@ pillow==8.3.2
 pyparsing==2.3.1
 pytest==7.0.0
 python-dateutil==2.7
-pandas!=0.25.0
