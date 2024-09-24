@@ -566,7 +566,8 @@ public:
     {
         if (m_alpha != 1.0) {
             do {
-                span->a *= m_alpha;
+                span->a = static_cast<typename color_type::value_type>(
+                    static_cast<typename color_type::calc_type>(span->a) * m_alpha);
                 ++span;
             } while (--len);
         }
