@@ -266,9 +266,8 @@ def test_table_unit(fig_test, fig_ref):
     assert not munits.registry.get_converter(FakeUnit)
 
 
-def test_table_dataframe():
+def test_table_dataframe(pd):
     # Test if Pandas Data Frame can be passed in cellText
-    pd = pytest.importorskip("pandas")
 
     data = {
         'Letter': ['A', 'B', 'C'],
