@@ -9186,20 +9186,22 @@ def test_axes_clear_reference_cycle():
         return False
     fig = Figure()
     ax = fig.add_subplot()
-    ax.plot(np.random.rand(1000))
+    points = np.random.rand(1000)
+    ax.plot(points, points)
+    ax.scatter(points, points)
     ax_children = ax.get_children()
     fig.clear()  # This should break the reference cycle
 
     # Care most about the objects that scale with number of points
-    line_artists = list(
+    big_artists = list(
         filter(
             lambda a: isinstance(a, Line2D) or isinstance(a, PathCollection),
             ax_children,
         )
     )
-    assert len(line_artists) > 0
-    for line_artist in line_artists:
-        assert not is_in_reference_cycle(line_artist)
+    assert len(big_artists) > 0
+    for big_artist in big_artists:
+        assert not is_in_reference_cycle(big_artist)
     assert len(ax_children) > 0
     for child in ax_children:
         # make sure this doesn't raise a ValueError because the list is empty
