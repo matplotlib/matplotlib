@@ -4028,7 +4028,7 @@ class FancyBboxPatch(Patch):
                         self._width * m_aspect,
                         self._height / m_aspect,
                         self.get_mutation_scale())
-        return Path(path.vertices * [1 / m_aspect, m_aspect], path.codes)  # Unsqueeze y.
+        return Path(path.vertices * [1 / m_aspect, m_aspect], path.codes)
 
     # Following methods are borrowed from the Rectangle class.
 
