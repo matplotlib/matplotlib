@@ -1,8 +1,9 @@
 import contextlib
-from collections import namedtuple
+from collections import namedtuple, deque
 import datetime
 from decimal import Decimal
 from functools import partial
+import gc
 import inspect
 import io
 from itertools import product
@@ -23,6 +24,8 @@ import matplotlib.colors as mcolors
 import matplotlib.dates as mdates
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
+from matplotlib.lines import Line2D
+from matplotlib.collections import PathCollection
 import matplotlib.font_manager as mfont_manager
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
@@ -9164,6 +9167,46 @@ def test_axes_clear_behavior(fig_ref, fig_test, which):
 
     ax_ref.grid(True)
     ax_test.grid(True)
+
+
+def test_axes_clear_reference_cycle():
+    def is_in_reference_cycle(start):
+        # Breadth first search. Return True if we encounter the starting node
+        to_visit = deque([start])
+        explored = set()
+        while len(to_visit) > 0:
+            parent = to_visit.popleft()
+            for child in gc.get_referents(parent):
+                if id(child) in explored:
+                    continue
+                if child is start:
+                    return True
+                explored.add(id(child))
+                to_visit.append(child)
+        return False
+    fig = Figure()
+    ax = fig.add_subplot()
+    ax.plot(np.random.rand(1000))
+    ax_children = ax.get_children()
+    fig.clear()  # This should break the reference cycle
+
+    # Care most about the objects that scale with number of points
+    line_artists = list(
+        filter(
+            lambda a: isinstance(a, Line2D) or isinstance(a, PathCollection),
+            ax_children,
+        )
+    )
+    assert len(line_artists) > 0
+    for line_artist in line_artists:
+        assert not is_in_reference_cycle(line_artist)
+    assert len(ax_children) > 0
+    for child in ax_children:
+        # make sure this doesn't raise a ValueError because the list is empty
+        try:
+            child.remove()
+        except NotImplementedError:
+            pass  # not implemented is expected for some artists
 
 
 def test_boxplot_tick_labels():

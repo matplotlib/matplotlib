@@ -1301,7 +1301,9 @@ class _AxesBase(martist.Artist):
         # Swap children to minimize time we spend in an invalid state
         old_children, self._children = self._children, []
         for chld in old_children:
-            chld.axes = chld._parent_figure = None
+            chld._parent_figure = None
+            chld.axes = None
+            chld._remove_method = None
         # Use list.clear to break the `artist._remove_method` reference cycle
         old_children.clear()
         self._mouseover_set = _OrderedSet()
