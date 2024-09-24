@@ -37,3 +37,10 @@
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+Data container testing fixtures
+==================================
+
+.. autofunction:: matplotlib.testing.conftest.pd
+.. autofunction:: matplotlib.testing.conftest.xr
