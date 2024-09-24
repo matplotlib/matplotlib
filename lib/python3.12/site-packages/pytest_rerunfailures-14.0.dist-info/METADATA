@@ -1,0 +1,723 @@
+Metadata-Version: 2.1
+Name: pytest-rerunfailures
+Version: 14.0
+Summary: pytest plugin to re-run tests to eliminate flaky failures
+Author-email: Leah Klearman <lklrmn@gmail.com>
+License: Mozilla Public License 2.0 (MPL 2.0)
+Project-URL: Homepage, https://github.com/pytest-dev/pytest-rerunfailures
+Keywords: failures,flaky,pytest,pytest,rerun
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Framework :: Pytest
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: Topic :: Software Development :: Quality Assurance
+Classifier: Topic :: Software Development :: Testing
+Classifier: Topic :: Utilities
+Requires-Python: >=3.8
+Description-Content-Type: text/x-rst
+License-File: LICENSE
+Requires-Dist: packaging >=17.1
+Requires-Dist: pytest >=7.2
+
+.. contents::
+
+pytest-rerunfailures
+====================
+
+pytest-rerunfailures is a plugin for `pytest <https://pytest.org>`_ that
+re-runs tests to eliminate intermittent failures.
+
+.. image:: https://img.shields.io/badge/license-MPL%202.0-blue.svg
+   :target: https://github.com/pytest-dev/pytest-rerunfailures/blob/master/LICENSE
+   :alt: License
+.. image:: https://img.shields.io/pypi/v/pytest-rerunfailures.svg
+   :target: https://pypi.python.org/pypi/pytest-rerunfailures/
+   :alt: PyPI
+.. image:: https://github.com/pytest-dev/pytest-rerunfailures/workflows/Test/badge.svg
+   :target: https://github.com/pytest-dev/pytest-rerunfailures/actions
+   :alt: GitHub Actions
+
+Requirements
+------------
+
+You will need the following prerequisites in order to use pytest-rerunfailures:
+
+- Python 3.8+ or PyPy3
+- pytest 7.2 or newer
+
+This plugin can recover from a hard crash with the following optional
+prerequisites:
+
+- pytest-xdist 2.3.0 or newer
+
+This package is currently tested against the last 5 minor pytest releases. In
+case you work with an older version of pytest you should consider updating or
+use one of the earlier versions of this package.
+
+Installation
+------------
+
+To install pytest-rerunfailures:
+
+.. code-block:: bash
+
+  $ pip install pytest-rerunfailures
+
+Recover from hard crashes
+-------------------------
+
+If one or more tests trigger a hard crash (for example: segfault), this plugin
+will ordinarily be unable to rerun the test. However, if a compatible version of
+pytest-xdist is installed, and the tests are run within pytest-xdist using the ``-n``
+flag, this plugin will be able to rerun crashed tests, assuming the workers and
+controller are on the same LAN (this assumption is valid for almost all cases
+because most of the time the workers and controller are on the same computer).
+If this assumption is not the case, then this functionality may not operate.
+
+Re-run all failures
+-------------------
+
+To re-run all test failures, use the ``--reruns`` command line option with the
+maximum number of times you'd like the tests to run:
+
+.. code-block:: bash
+
+  $ pytest --reruns 5
+
+Failed fixture or setup_class will also be re-executed.
+
+To add a delay time between re-runs use the ``--reruns-delay`` command line
+option with the amount of seconds that you would like wait before the next
+test re-run is launched:
+
+.. code-block:: bash
+
+   $ pytest --reruns 5 --reruns-delay 1
+
+Re-run all failures matching certain expressions
+------------------------------------------------
+
+To re-run only those failures that match a certain list of expressions, use the
+``--only-rerun`` flag and pass it a regular expression. For example,
+the following would only rerun those errors that match ``AssertionError``:
+
+.. code-block:: bash
+
+   $ pytest --reruns 5 --only-rerun AssertionError
+
+Passing the flag multiple times accumulates the arguments, so the following
+would only rerun those errors that match ``AssertionError`` or ``ValueError``:
+
+.. code-block:: bash
+
+   $ pytest --reruns 5 --only-rerun AssertionError --only-rerun ValueError
+
+Re-run all failures other than matching certain expressions
+-----------------------------------------------------------
+
+To re-run only those failures that do not match a certain list of expressions, use the
+``--rerun-except`` flag and pass it a regular expression. For example,
+the following would only rerun errors other than that match ``AssertionError``:
+
+.. code-block:: bash
+
+   $ pytest --reruns 5 --rerun-except AssertionError
+
+Passing the flag multiple times accumulates the arguments, so the following
+would only rerun those errors that does not match with ``AssertionError`` or ``OSError``:
+
+.. code-block:: bash
+
+   $ pytest --reruns 5 --rerun-except AssertionError --rerun-except OSError
+
+.. note::
+
+   When the ```AssertionError``` comes from the use of the ``assert`` keyword,
+   use ``--rerun-except assert`` instead::
+
+   $ pytest --reruns 5 --rerun-except assert
+
+Re-run individual failures
+--------------------------
+
+To mark individual tests as flaky, and have them automatically re-run when they
+fail, add the ``flaky`` mark with the maximum number of times you'd like the
+test to run:
+
+.. code-block:: python
+
+  @pytest.mark.flaky(reruns=5)
+  def test_example():
+      import random
+      assert random.choice([True, False])
+
+Note that when teardown fails, two reports are generated for the case, one for
+the test case and the other for the teardown error.
+
+You can also specify the re-run delay time in the marker:
+
+.. code-block:: python
+
+  @pytest.mark.flaky(reruns=5, reruns_delay=2)
+  def test_example():
+      import random
+      assert random.choice([True, False])
+
+You can also specify an optional ``condition`` in the re-run marker:
+
+.. code-block:: python
+
+   @pytest.mark.flaky(reruns=5, condition=sys.platform.startswith("win32"))
+   def test_example():
+      import random
+      assert random.choice([True, False])
+
+Exception filtering can be accomplished by specifying regular expressions for
+``only_rerun`` and ``rerun_except``. They override the ``--only-rerun`` and
+``--rerun-except`` command line arguments, respectively.
+
+Arguments can be a single string:
+
+.. code-block:: python
+
+   @pytest.mark.flaky(rerun_except="AssertionError")
+   def test_example():
+       raise AssertionError()
+
+Or a list of strings:
+
+.. code-block:: python
+
+   @pytest.mark.flaky(only_rerun=["AssertionError", "ValueError"])
+   def test_example():
+       raise AssertionError()
+
+
+You can use ``@pytest.mark.flaky(condition)`` similarly as ``@pytest.mark.skipif(condition)``, see `pytest-mark-skipif <https://docs.pytest.org/en/6.2.x/reference.html#pytest-mark-skipif>`_
+
+.. code-block:: python
+
+    @pytest.mark.flaky(reruns=2,condition="sys.platform.startswith('win32')")
+    def test_example():
+        import random
+        assert random.choice([True, False])
+    # totally same as the above
+    @pytest.mark.flaky(reruns=2,condition=sys.platform.startswith("win32"))
+    def test_example():
+      import random
+      assert random.choice([True, False])
+
+Note that the test will re-run for any ``condition`` that is truthy.
+
+Output
+------
+
+Here's an example of the output provided by the plugin when run with
+``--reruns 2`` and ``-r aR``::
+
+  test_report.py RRF
+
+  ================================== FAILURES ==================================
+  __________________________________ test_fail _________________________________
+
+      def test_fail():
+  >       assert False
+  E       assert False
+
+  test_report.py:9: AssertionError
+  ============================ rerun test summary info =========================
+  RERUN test_report.py::test_fail
+  RERUN test_report.py::test_fail
+  ============================ short test summary info =========================
+  FAIL test_report.py::test_fail
+  ======================= 1 failed, 2 rerun in 0.02 seconds ====================
+
+Note that output will show all re-runs. Tests that fail on all the re-runs will
+be marked as failed.
+
+Compatibility
+-------------
+
+* This plugin may *not* be used with class, module, and package level fixtures.
+* This plugin is *not* compatible with pytest-xdist's --looponfail flag.
+* This plugin is *not* compatible with the core --pdb flag.
+* This plugin is *not* compatible with the plugin
+  `flaky <https://pypi.org/project/flaky/>`_, you can only have
+  ``pytest-rerunfailures`` or ``flaky`` but not both.
+
+Resources
+---------
+
+- `Issue Tracker <https://github.com/pytest-dev/pytest-rerunfailures/issues>`_
+- `Code <https://github.com/pytest-dev/pytest-rerunfailures/>`_
+
+Development
+-----------
+
+* Test execution count can be retrieved from the ``execution_count`` attribute
+  in test ``item``'s object. Example:
+
+  .. code-block:: python
+
+    @hookimpl(tryfirst=True)
+    def pytest_runtest_makereport(item, call):
+        print(item.execution_count)
+
+Changelog
+=========
+
+14.0 (2024-03-13)
+-----------------
+
+Bug fixes
++++++++++
+
+- Fix missing teardown for non-function scoped fixtures when using only_rerun or rerun_except queries.
+  (`#234 <https://github.com/pytest-dev/pytest-rerunfailures/issues/234>`_)
+  and (`#241 <https://github.com/pytest-dev/pytest-rerunfailures/issues/241>`_)
+
+Breaking changes
+++++++++++++++++
+
+- Drop support for Python 3.7.
+
+- Drop support for pytest < 7.2.
+
+Features
+++++++++
+
+- Add support for pytest 8.0, 8.1.
+
+
+13.0 (2023-11-22)
+-----------------
+
+Breaking changes
+++++++++++++++++
+
+- Drop support for pytest < 7.0.
+
+Features
+++++++++
+
+- Add support for Python 3.12.
+
+Bug fixes
++++++++++
+
+- Fix crashitem names mismatch between client and server.
+  (`#172 <https://github.com/pytest-dev/pytest-rerunfailures/issues/172>`_)
+
+- Fix crash when setup fails with --rerun-except flag.
+  (`#230 <https://github.com/pytest-dev/pytest-rerunfailures/issues/230>`_)
+
+12.0 (2023-07-05)
+-----------------
+
+Breaking changes
+++++++++++++++++
+
+- Drop support for pytest < 6.2.
+
+Features
+++++++++
+
+- Add ``only_rerun`` and ``rerun_except`` arguments to ``@pytest.mark.flaky`` marker.
+
+- Add support for pytest 7.3, 7.4.
+
+Bug fixes
++++++++++
+
+- Failures are now rerun only if they match at least one ``--only-rerun``
+  pattern (if given) and none of the ``--rerun-except`` patterns. Previously,
+  using both ``--only-rerun`` and ``--rerun-except`` together could cause
+  failures to be rerun even if they did not match any ``--only-rerun``
+  pattern, and when using multiple ``--rerun-except`` patterns, all failures
+  would be rerun unless they matched every pattern.
+  (`#225 <https://github.com/pytest-dev/pytest-rerunfailures/issues/225>`_)
+
+
+11.1.2 (2023-03-09)
+-------------------
+
+Bug fixes
++++++++++
+
+- Execute teardown when test was skipped in setup phase of a fixture.
+
+
+11.1.1 (2023-02-17)
+-------------------
+
+Bug fixes
++++++++++
+
+- Fix crash during teardown when runtest protocol hook is overwritten by
+  another plugin.
+
+- Fix crash during teardown when TestCase class is used as base class.
+
+
+11.1 (2023-02-09)
+-----------------
+
+Bug fixes
++++++++++
+
+- Run teardown of session, class, ... scoped fixtures only once after rerunning tests
+
+Features
+++++++++
+
+- Expose ``reruns`` and ``reruns_delay`` through ``pytest.ini`` file.
+
+
+11.0 (2023-01-12)
+-----------------
+
+Breaking changes
+++++++++++++++++
+
+- Drop support for Python 3.6.
+
+- Drop support for pytest < 6.
+
+Bug fixes
++++++++++
+
+- Fix crash when pytest-xdist is installed but disabled.
+  (Thanks to `@mgorny <https://github.com/mgorny>`_ for the PR.)
+
+- Fix crash when xfail(strict=True) mark is used with --rerun-only flag.
+
+Features
+++++++++
+
+- Added option ``--rerun-except`` to rerun failed tests those are other than the mentioned Error.
+
+- Add support for Python 3.11.
+
+- Add support for pytest 7.0, 7.1, 7.2.
+
+
+10.2 (2021-09-17)
+-----------------
+
+Features
+++++++++
+
+- Allow recovery from crashed tests with pytest-xdist.
+- Add support for Python 3.10 (as of Python 3.10.rc2).
+  (Thanks to `@hugovk <https://github.com/hugovk>`_ for the PR.)
+
+
+10.1 (2021-07-02)
+-----------------
+
+Features
+++++++++
+
+- Allows using a ``str`` as condition for
+  ``@pytest.mark.flaky(condition)``
+  which gets evaluated dynamically similarly to
+  ``@pytest.mark.skipif(condition)``.
+  (`#162 <https://github.com/pytest-dev/pytest-rerunfailures/pull/162>`_
+  provided by `@15klli <https://github.com/15klli>`_)
+
+10.0 (2021-05-26)
+-----------------
+
+Backwards incompatible changes
+++++++++++++++++++++++++++++++
+
+- Drop support for Python 3.5.
+
+- Drop support for pytest < 5.3.
+
+Features
+++++++++
+
+- Add ``condition`` keyword argument to the re-run marker.
+  (Thanks to `@BeyondEvil`_ for the PR.)
+
+- Add support for Python 3.9.
+  (Thanks to `@digitronik`_ for the PR.)
+
+- Add support for pytest 6.3.
+  (Thanks to `@bluetech`_ for the PR.)
+
+- Add compatibility with ``pytest-xdist >= 2.0``.
+  (Thanks to `@bluetech`_ for the PR.)
+
+Other changes
++++++++++++++
+
+- Check for the resultlog by feature and not by version as pytest master does
+  not provide a consistent version.
+
+.. _@BeyondEvil: https://github.com/BeyondEvil
+.. _@digitronik: https://github.com/digitronik
+.. _@bluetech: https://github.com/bluetech
+
+9.1.1 (2020-09-29)
+------------------
+
+Compatibility fix.
+++++++++++++++++++
+
+- Ignore ``--result-log`` command line option when used together with ``pytest
+  >= 6.1.0``, as it was removed there. This is a quick fix, use an older
+  version of pytest, if you want to keep this feature for now.
+  (Thanks to `@ntessore`_ for the PR)
+
+- Support up to pytest 6.1.0.
+
+.. _@ntessore: https://github.com/ntessore
+
+
+9.1 (2020-08-26)
+----------------
+
+Features
+++++++++
+
+- Add a new flag ``--only-rerun`` to allow for users to rerun only certain
+  errors.
+
+Other changes
++++++++++++++
+
+- Drop dependency on ``mock``.
+
+- Add support for pre-commit and add a linting tox target.
+  (`#117 <https://github.com/pytest-dev/pytest-rerunfailures/pull/117>`_)
+  (PR from `@gnikonorov`_)
+
+.. _@gnikonorov: https://github.com/gnikonorov
+
+
+9.0 (2020-03-18)
+----------------
+
+Backwards incompatible changes
+++++++++++++++++++++++++++++++
+
+- Drop support for pytest version 4.4, 4.5 and 4.6.
+
+- Drop support for Python 2.7.
+
+
+Features
+++++++++
+
+- Add support for pytest 5.4.
+
+- Add support for Python 3.8.
+
+
+8.0 (2019-11-18)
+----------------
+
+Backwards incompatible changes
+++++++++++++++++++++++++++++++
+
+- Drop support for pytest version 3.10, 4.0, 4.1, 4.2 and 4.3
+
+- Drop support for Python 3.4.
+
+Features
+++++++++
+
+- Add support for pytest version 4.4, 4.5, 4.6, 5.0, 5.1 and 5.2.
+
+Bug fixes
++++++++++
+
+- Explicitly depend on setuptools to ensure installation when working in
+  environments without it.
+  (`#98 <https://github.com/pytest-dev/pytest-rerunfailures/pull/98>`_)
+  (PR from `@Eric-Arellano`_)
+
+.. _@Eric-Arellano: https://github.com/Eric-Arellano
+
+
+7.0 (2019-03-28)
+----------------
+
+Backwards incompatible changes
+++++++++++++++++++++++++++++++
+
+- Drop support for pytest version 3.8 and 3.9.
+
+Features
+++++++++
+
+- Add support for pytest version 4.2 and 4.3.
+
+Bug fixes
++++++++++
+
+- Fixed #83 issue about ignored ``pytest_runtest_logfinish`` hooks.
+  (`#83 <https://github.com/pytest-dev/pytest-rerunfailures/issues/83>`_)
+  (PR from `@KillAChicken`_)
+
+.. _@KillAChicken: https://github.com/KillAChicken
+
+
+6.0 (2019-01-08)
+----------------
+
+Backwards incompatible changes
+++++++++++++++++++++++++++++++
+
+- Drop support for pytest version 3.6 and 3.7.
+
+Features
+++++++++
+
+- Add support for pytest version 4.0 and 4.1.
+
+Bug fixes
++++++++++
+
+- Fixed #77 regression issue introduced in 4.2 related to the ``rerun``
+  attribute on the test report.
+  (`#77 <https://github.com/pytest-dev/pytest-rerunfailures/issues/77>`_)
+  (Thanks to `@RibeiroAna`_ for the PR).
+
+.. _@RibeiroAna: https://github.com/RibeiroAna
+
+
+5.0 (2018-11-06)
+----------------
+
+- Drop support for pytest versions < 3.6 to reduce the maintenance burden.
+
+- Add support up to pytest version 3.10. Thus supporting the newest 5 pytest
+  releases.
+
+- Add support for Python 3.7.
+
+- Fix issue can occur when used together with ``pytest-flake8``
+  (`#73 <https://github.com/pytest-dev/pytest-rerunfailures/issues/73>`_)
+
+
+4.2 (2018-10-04)
+----------------
+
+- Fixed #64 issue related to ``setup_class`` and ``fixture`` executions on
+  rerun (Thanks to `@OlegKuzovkov`_ for the PR).
+
+- Added new ``execution_count`` attribute to reflect the number of test case
+  executions according to #67 issue. (Thanks to `@OlegKuzovkov`_ for the PR).
+
+.. _@OlegKuzovkov: https://github.com/OlegKuzovkov
+
+
+4.1 (2018-05-23)
+----------------
+
+- Add support for pytest 3.6 by using ``Node.get_closest_marker()`` (Thanks to
+  `@The-Compiler`_ for the PR).
+
+.. _@The-Compiler: https://github.com/The-Compiler
+
+4.0 (2017-12-23)
+----------------
+
+- Added option to add a delay time between test re-runs (Thanks to `@Kanguros`_
+  for the PR).
+
+- Added support for pytest >= 3.3.
+
+- Drop support for pytest < 2.8.7.
+
+.. _@Kanguros: https://github.com/Kanguros
+
+
+3.1 (2017-08-29)
+----------------
+
+- Restored compatibility with pytest-xdist. (Thanks to `@davehunt`_ for the PR)
+
+.. _@davehunt: https://github.com/davehunt
+
+
+3.0 (2017-08-17)
+----------------
+
+- Add support for Python 3.6.
+
+- Add support for pytest 2.9 up to 3.2
+
+- Drop support for Python 2.6 and 3.3.
+
+- Drop support for pytest < 2.7.
+
+
+2.2 (2017-06-23)
+----------------
+
+- Ensure that other plugins can run after this one, in case of a global setting
+  ``--rerun=0``. (Thanks to `@sublee`_ for the PR)
+
+.. _@sublee: https://github.com/sublee
+
+2.1.0 (2016-11-01)
+------------------
+
+- Add default value of ``reruns=1`` if ``pytest.mark.flaky()`` is called
+  without arguments.
+
+- Also offer a distribution as universal wheel. (Thanks to `@tltx`_ for the PR)
+
+.. _@tltx: https://github.com/tltx
+
+
+2.0.1 (2016-08-10)
+-----------------------------
+
+- Prepare CLI options to pytest 3.0, to avoid a deprecation warning.
+
+- Fix error due to missing CHANGES.rst when creating the source distribution
+  by adding a MANIFEST.in.
+
+
+2.0.0 (2016-04-06)
+------------------
+
+- Drop support for Python 3.2, since supporting it became too much of a hassle.
+  (Reason: Virtualenv 14+ / PIP 8+ do not support Python 3.2 anymore.)
+
+
+1.0.2 (2016-03-29)
+------------------
+
+- Add support for ``--resultlog`` option by parsing reruns accordingly. (#28)
+
+
+1.0.1 (2016-02-02)
+------------------
+
+- Improve package description and include CHANGELOG into description.
+
+
+1.0.0 (2016-02-02)
+------------------
+
+- Rewrite to use newer API of pytest >= 2.3.0
+
+- Improve support for pytest-xdist by only logging the final result.
+  (Logging intermediate results will finish the test rather rerunning it.)

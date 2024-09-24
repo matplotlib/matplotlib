@@ -1,0 +1,4159 @@
+# Translations template for Sphinx.
+# Copyright (C) 2024 ORGANIZATION
+# This file is distributed under the same license as the Sphinx project.
+# 
+# Translators:
+# Ajay Singh <ajaysajay@gmail.com>, 2019
+# Purnank H. Ghumalia <me@purnank.in>, 2015-2016
+# Sumanjali Damarla <damarlasumanjali@gmail.com>, 2020
+# Komiya Takeshi <i.tkomiya@gmail.com>, 2019
+msgid ""
+msgstr ""
+"Project-Id-Version: Sphinx\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2024-07-29 17:39+0000\n"
+"PO-Revision-Date: 2013-04-02 08:44+0000\n"
+"Last-Translator: Sumanjali Damarla <damarlasumanjali@gmail.com>, 2020\n"
+"Language-Team: Hindi (http://app.transifex.com/sphinx-doc/sphinx-1/language/hi/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.15.0\n"
+"Language: hi\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:121
+#, python-format
+msgid ""
+"Theme configuration sections other than [theme] and [options] are not "
+"supported (tried to get a value from %r)."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:127
+#, python-format
+msgid "setting %s.%s occurs in none of the searched theme configs"
+msgstr "विन्यास मान %s.%s खोजे गए किसी भी रूप विन्यास में नहीं दिखा"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:142
+#, python-format
+msgid "unsupported theme option %r given"
+msgstr "विन्यास का असमर्थित रूप विकल्प %r दिया गया"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:215
+#, python-format
+msgid "file %r on theme path is not a valid zipfile or contains no theme"
+msgstr "रुपविन्यास के पथ में फाइल %r कोई प्रमाणिक ज़िप फाइल नहीं है या इसमें कोई रुपविन्यास नहीं सहेजा गया है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:236
+#, python-format
+msgid "no theme named %r found (missing theme.toml?)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:276
+#, python-format
+msgid "The %r theme has circular inheritance"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:283
+#, python-format
+msgid ""
+"The %r theme inherits from %r, which is not a loaded theme. Loaded themes "
+"are: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:290
+#, python-format
+msgid "The %r theme has too many ancestors"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:316
+#, python-format
+msgid "no theme configuration file found in %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:344
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:395
+#, python-format
+msgid "theme %r doesn't have the \"theme\" table"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:348
+#, python-format
+msgid "The %r theme \"[theme]\" table is not a table"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:352
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:398
+#, python-format
+msgid "The %r theme must define the \"theme.inherit\" setting"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:356
+#, python-format
+msgid "The %r theme \"[options]\" table is not a table"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:374
+#, python-format
+msgid "The \"theme.pygments_style\" setting must be a table. Hint: \"%s\""
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/highlighting.py:155
+#, python-format
+msgid "Pygments lexer name %r is not known"
+msgstr "पिगमेंटस लेक्सर नाम %r अज्ञात है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/highlighting.py:189
+#, python-format
+msgid ""
+"Lexing literal_block %r as \"%s\" resulted in an error at token: %r. "
+"Retrying in relaxed mode."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/extension.py:55
+#, python-format
+msgid ""
+"The %s extension is required by needs_extensions settings, but it is not "
+"loaded."
+msgstr "आयाम %s की needs_extensions मान में आवश्कता है, पर यह नहीं चढ़ाया गया है."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/extension.py:76
+#, python-format
+msgid ""
+"This project needs the extension %s at least in version %s and therefore "
+"cannot be built with the loaded version (%s)."
+msgstr "इस परियोजना में आयाम %s का कम से कम %s संस्करण चाहिए इसलिए उपलब्ध संस्करण (%s) से बनाना संभव नहीं है."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/events.py:67
+#, python-format
+msgid "Event %r already present"
+msgstr "%r घटना पहले से विद्यमान है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/events.py:73
+#, python-format
+msgid "Unknown event name: %s"
+msgstr "अज्ञात घटना नाम: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/events.py:112
+#, python-format
+msgid "Handler %r for event %r threw an exception"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:314
+#, python-format
+msgid "config directory doesn't contain a conf.py file (%s)"
+msgstr "विन्यास निर्देशिका में कोन्फ़.पाय #conf.py# फाइल (%s) नहीं है "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:323
+msgid ""
+"Invalid configuration value found: 'language = None'. Update your "
+"configuration to a valid language code. Falling back to 'en' (English)."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:346
+#, python-format
+msgid ""
+"cannot override dictionary config setting %r, ignoring (use %r to set "
+"individual elements)"
+msgstr "शब्दकोष विन्यास मान %r की उल्लंघन नहीं किया जा सकता, अनदेखा किया गया (प्रत्येक अवयव का मान रखने के लिए %r का उपयोग करें)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:355
+#, python-format
+msgid "invalid number %r for config value %r, ignoring"
+msgstr "विन्यास मान %r के लिए अमान्य संख्या %r, अनदेखा किया गया"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:361
+#, python-format
+msgid "cannot override config setting %r with unsupported type, ignoring"
+msgstr "असमर्थित प्रकार के साथ विन्यास मान %r का उल्लंघन नहीं किया जा सकता, अनदेखा किया गया"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:382
+#, python-format
+msgid "unknown config value %r in override, ignoring"
+msgstr "आरोहण में अज्ञात विन्यास मान %r, अनदेखा किया गया"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:435
+#, python-format
+msgid "No such config value: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:458
+#, python-format
+msgid "Config value %r already present"
+msgstr "विन्यास मान %r पहले से विद्यमान है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:494
+#, python-format
+msgid ""
+"cannot cache unpickable configuration value: %r (because it contains a "
+"function, class, or module object)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:531
+#, python-format
+msgid "There is a syntax error in your configuration file: %s\n"
+msgstr "आपकी विन्यास फाइल में रचनाक्रम की त्रुटि है: %s\n"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:534
+msgid ""
+"The configuration file (or one of the modules it imports) called sys.exit()"
+msgstr "विन्यास फाइल (अथवा इसके द्वारा आयातित प्रभागों) द्वारा sys.exit() का आह्वान किया गया"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:541
+#, python-format
+msgid ""
+"There is a programmable error in your configuration file:\n"
+"\n"
+"%s"
+msgstr "विन्यास फाइल में प्रोग्राम के योग्य त्रुटि है:\n\n%s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:564
+#, python-format
+msgid "Failed to convert %r to a set or tuple"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:585
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:590
+#, python-format
+msgid "Converting `source_suffix = %r` to `source_suffix = %r`."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:593
+#, python-format
+msgid ""
+"The config value `source_suffix' expects a dictionary, a string, or a list "
+"of strings. Got `%r' instead (type %s)."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:612
+#, python-format
+msgid "Section %s"
+msgstr "भाग %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:613
+#, python-format
+msgid "Fig. %s"
+msgstr "चित्र %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:614
+#, python-format
+msgid "Table %s"
+msgstr "सारणी %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:615
+#, python-format
+msgid "Listing %s"
+msgstr "सूची %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:690
+msgid ""
+"The config value `{name}` has to be a one of {candidates}, but `{current}` "
+"is given."
+msgstr "`{name}` विन्यास मान, {candidates} में से एक होना चाहिए, परन्तु `{current}` दिया गया है."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:714
+msgid ""
+"The config value `{name}' has type `{current.__name__}'; expected "
+"{permitted}."
+msgstr "विन्यास मान `{name}' का प्रकार `{current.__name__}' है; अपेक्षित {permitted}."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:727
+msgid ""
+"The config value `{name}' has type `{current.__name__}', defaults to "
+"`{default.__name__}'."
+msgstr "विन्यास मान `{name}' का प्रकार `{current.__name__}' है; मानक `{default.__name__}' का प्रयोग किया गया."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:738
+#, python-format
+msgid "primary_domain %r not found, ignored."
+msgstr "primary_domain %r नहीं मिला, अनदेखा किया गया."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:750
+msgid ""
+"Since v2.0, Sphinx uses \"index\" as root_doc by default. Please add "
+"\"root_doc = 'contents'\" to your conf.py."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:181
+#, python-format
+msgid "Cannot find source directory (%s)"
+msgstr "स्रोत निर्देशिका (%s) नहीं मिली"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:185
+#, python-format
+msgid "Output directory (%s) is not a directory"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:189
+msgid "Source directory and destination directory cannot be identical"
+msgstr "स्रोत निर्देशिका और गंतव्य निर्देशिका समरूप नहीं हो सकतीं"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:221
+#, python-format
+msgid "Running Sphinx v%s"
+msgstr "स्फिंक्स %s संस्करण चल रहा है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:243
+#, python-format
+msgid ""
+"This project needs at least Sphinx v%s and therefore cannot be built with "
+"this version."
+msgstr "इस परियोजना में स्फिंक्स का कम से कम %s संस्करण चाहिए और इसलिए इस संस्करण से बनाना संभव नहीं है."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:259
+msgid "making output directory"
+msgstr "परिणाम निर्देशिका बनाई जा रही है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:264
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:445
+#, python-format
+msgid "while setting up extension %s:"
+msgstr "%s आयाम को स्थापित करते हुए:"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:270
+msgid ""
+"'setup' as currently defined in conf.py isn't a Python callable. Please "
+"modify its definition to make it a callable function. This is needed for "
+"conf.py to behave as a Sphinx extension."
+msgstr "'स्थापना' को जैसा कि अभी कोन्फ़.पाई में परिभाषित किया गया है, पाइथन से निर्देशित नहीं है. कृपया इसकी परिभाषा में परिवर्तन करके इसे निर्देश योग्य कर्म बनाएं. कोन्फ़.पाई को स्फिंक्स के आयाम की तरह व्यवहार के लिए इसकी आवश्कयता है."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:305
+#, python-format
+msgid "loading translations [%s]... "
+msgstr "[%s] अनुवाद पढ़ा जा रहा है..."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:322
+#: /home/runner/work/sphinx/sphinx/sphinx/util/display.py:90
+msgid "done"
+msgstr "संपन्न"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:324
+msgid "not available for built-in messages"
+msgstr "अंतर्निर्मित संदेशों में उपलब्ध नहीं है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:338
+msgid "loading pickled environment"
+msgstr "रक्षित स्थिति को लागू किया जा रहा है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:346
+#, python-format
+msgid "failed: %s"
+msgstr "असफल: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:359
+msgid "No builder selected, using default: html"
+msgstr "किसी निर्माता को नहीं चुना गया, मानक उपयोग: एच्.टी.ऍम.एल."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:392
+msgid "succeeded"
+msgstr "सफल हुआ"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:393
+msgid "finished with problems"
+msgstr "समस्याओं के साथ समाप्त हुआ"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:397
+#, python-format
+msgid "build %s, %s warning (with warnings treated as errors)."
+msgstr "%s निर्माण, चेतावनी %s (चेतावनी को गलती माने)| "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:399
+#, python-format
+msgid "build %s, %s warnings (with warnings treated as errors)."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:402
+#, python-format
+msgid "build %s, %s warning."
+msgstr "%s सम्पूर्ण, %s चेतावनी."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:404
+#, python-format
+msgid "build %s, %s warnings."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:408
+#, python-format
+msgid "build %s."
+msgstr "%s निर्मित."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:643
+#, python-format
+msgid "node class %r is already registered, its visitors will be overridden"
+msgstr "निर्देशक कक्षा #node class# %r पहले से पंजीकृत है, इसके अभ्यागत निरस्त हो जाएंगे "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:722
+#, python-format
+msgid "directive %r is already registered, it will be overridden"
+msgstr "निर्देश %r पहले से पंजीकृत है, यह निरस्त हो जाएगा"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:744
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:769
+#, python-format
+msgid "role %r is already registered, it will be overridden"
+msgstr "भूमिका %r पहले से पंजीकृत है, यह निरस्त हो जाएगी"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:1317
+#, python-format
+msgid ""
+"the %s extension does not declare if it is safe for parallel reading, "
+"assuming it isn't - please ask the extension author to check and make it "
+"explicit"
+msgstr "%s आयाम यह घोषित नहीं करता कि यह समानांतर पाठन के लिए सुरक्षित है. यह मानते हुए की ऐसा नहीं है - कृपया आयाम के लेखक को जांच करने और स्पष्ट व्यक्त करने के लिए कहें."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:1321
+#, python-format
+msgid "the %s extension is not safe for parallel reading"
+msgstr "समानांतर पठन के लिए यह %s विस्तार अथवा आयाम सुरक्षित नहीं है | "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:1324
+#, python-format
+msgid ""
+"the %s extension does not declare if it is safe for parallel writing, "
+"assuming it isn't - please ask the extension author to check and make it "
+"explicit"
+msgstr "%s आयाम यह घोषित नहीं करता कि यह समानांतर लेखन के लिए सुरक्षित है. यह मानते हुए की ऐसा नहीं है - कृपया आयाम के लेखक को जांच करने और स्पष्ट व्यक्त करने के लिए कहें."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:1328
+#, python-format
+msgid "the %s extension is not safe for parallel writing"
+msgstr "समानांतर लेखन के लिए  %s विस्तार अथवा आयाम सुरक्षित नहीं है | "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:1336
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:1340
+#, python-format
+msgid "doing serial %s"
+msgstr "%s पर काम कर रहे हैं"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/roles.py:201
+#, python-format
+msgid "Python Enhancement Proposals; PEP %s"
+msgstr "पाइथन अभिवृद्धि प्रस्ताव; पी.ई.पी. %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/roles.py:222
+#, python-format
+msgid "invalid PEP number %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/roles.py:257
+#, python-format
+msgid "invalid RFC number %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:137
+#, python-format
+msgid "Builder class %s has no \"name\" attribute"
+msgstr "निर्माण वर्ग %s का कोई \"नाम\" भाव नहीं है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:139
+#, python-format
+msgid "Builder %r already exists (in module %s)"
+msgstr "निर्माता %r पहले से (%s प्रभाग में) उपलब्ध है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:152
+#, python-format
+msgid "Builder name %s not registered or available through entry point"
+msgstr "निर्माता नाम %s पंजीकृत नहीं है अथवा प्रवेश स्थान पर उपलब्ध नहीं है."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:159
+#, python-format
+msgid "Builder name %s not registered"
+msgstr "निर्माता नाम %s पंजीकृत नहीं है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:166
+#, python-format
+msgid "domain %s already registered"
+msgstr "अधिकारक्षेत्र %s पहले से पंजीकृत है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:189
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:202
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:213
+#, python-format
+msgid "domain %s not yet registered"
+msgstr "अधिकारक्षेत्र %s अभी पंजीकृत नहीं है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:193
+#, python-format
+msgid "The %r directive is already registered to domain %s"
+msgstr "%r निर्देश पहले से अधिकार-क्षेत्र %s में पंजीकृत है, "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:205
+#, python-format
+msgid "The %r role is already registered to domain %s"
+msgstr "%r भूमिका पहले से अधिकार-क्षेत्र %s में पंजीकृत है, "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:216
+#, python-format
+msgid "The %r index is already registered to domain %s"
+msgstr "%r अनुक्रमणिका  पहले से अधिकार-क्षेत्र %s में पंजीकृत है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:247
+#, python-format
+msgid "The %r object_type is already registered"
+msgstr "%r object_type पहले से पंजीकृत है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:273
+#, python-format
+msgid "The %r crossref_type is already registered"
+msgstr "%r crossref_type पहले से पंजीकृत है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:280
+#, python-format
+msgid "source_suffix %r is already registered"
+msgstr "source_suffix %r पहले से पंजीकृत है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:289
+#, python-format
+msgid "source_parser for %r is already registered"
+msgstr "%r का source_parser पहले से पंजीकृत है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:297
+#, python-format
+msgid "Source parser for %s not registered"
+msgstr "%s का स्रोत व्याख्याता पंजीकृत नहीं है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:313
+#, python-format
+msgid "Translator for %r already exists"
+msgstr "%r के लिए अनुवादक पहले से विद्यमान है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:329
+#, python-format
+msgid "kwargs for add_node() must be a (visit, depart) function tuple: %r=%r"
+msgstr "add_node() के kwargs एक (visit, depart) फंक्शन टपल #function tuple# होने चाहिए: %r=%r"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:412
+#, python-format
+msgid "enumerable_node %r already registered"
+msgstr "enumerable_node %r पहले से पंजीकृत है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:424
+#, python-format
+msgid "math renderer %s is already registered"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:439
+#, python-format
+msgid ""
+"the extension %r was already merged with Sphinx since version %s; this "
+"extension is ignored."
+msgstr "%r आयाम को %sसंस्करण से स्फिंक्स में सम्मिलित किया जा चुका है; आयाम की उपेक्षा की गयी."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:450
+msgid "Original exception:\n"
+msgstr "मौलिक अपवाद:\n"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:451
+#, python-format
+msgid "Could not import extension %s"
+msgstr "%s आयाम का आयात नहीं किया जा सका"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:456
+#, python-format
+msgid ""
+"extension %r has no setup() function; is it really a Sphinx extension "
+"module?"
+msgstr "आयाम %r में कोई सेटअप #setup()# कारक नहीं है; क्या यह वास्तव में स्फिंक्स का परिवर्धक प्रभाग है?"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:465
+#, python-format
+msgid ""
+"The %s extension used by this project needs at least Sphinx v%s; it "
+"therefore cannot be built with this version."
+msgstr "इस परियोजना में प्रयुक्त %s परिवर्धक को स्फिंक्स का कम से कम %s संस्करण चाहिए; इसलिए इस संस्करण से बनाना संभव नहीं है."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:473
+#, python-format
+msgid ""
+"extension %r returned an unsupported object from its setup() function; it "
+"should return None or a metadata dictionary"
+msgstr "परिवर्धक %r के सेटअप() कर्म से एक असहाय वस्तु वापस मिली है; इसको 'कुछ नहीं' अथवा मेटाडाटा कोश भेजना चाहिए था"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:507
+#, python-format
+msgid "`None` is not a valid filetype for %r."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/project.py:69
+#, python-format
+msgid ""
+"multiple files found for the document \"%s\": %s\n"
+"Use %r for the build."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/project.py:85
+#, python-format
+msgid "Ignored unreadable document %r."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:42
+msgid "automatically insert docstrings from modules"
+msgstr "प्रभागों में से डॉक्-स्ट्रिंग स्वतःसम्मिलित करें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:43
+msgid "automatically test code snippets in doctest blocks"
+msgstr "डॉक्-टेस्ट अंशों के निर्देश भाग की स्वतः जाँच करें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:44
+msgid "link between Sphinx documentation of different projects"
+msgstr "भिन्न परियोजनाओं के स्फिंक्स प्रलेखों का पारस्परिक सम्बन्ध करने दें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:45
+msgid "write \"todo\" entries that can be shown or hidden on build"
+msgstr "वह \"शेष\" प्रविष्टियाँ लिख लें, जिन्हें निर्माण के समय दिखाया या छिपाया जा सकता है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:46
+msgid "checks for documentation coverage"
+msgstr "प्रलेखों की व्याप्ति की जाँच करें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:47
+msgid "include math, rendered as PNG or SVG images"
+msgstr "गणित को सम्मिलित करें, पी.एन.जी. अथवा एस.वी.जी. में चित्रित"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:48
+msgid "include math, rendered in the browser by MathJax"
+msgstr "गणित को सम्मिलित करें, दिग्दर्शक में मैथजाक्स #MathJax# द्वारा प्रदर्शित"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:49
+msgid "conditional inclusion of content based on config values"
+msgstr "विन्यास मान के आधार पर सामिग्री का सशर्त समावेश"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:50
+msgid "include links to the source code of documented Python objects"
+msgstr "पाइथन विषयवस्तुओं के प्रलेखों के स्रोत निर्देश की कड़ी जोड़ें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:51
+msgid "create .nojekyll file to publish the document on GitHub pages"
+msgstr "गिटहब GitHub पर लेखपत्र प्रकाशित करने के लिए .nojekyll फाइल बनाएं"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:93
+msgid "Please enter a valid path name."
+msgstr "कृपया एक मान्य पथ का नाम दें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:109
+msgid "Please enter some text."
+msgstr "कृपया कुछ वाक्यांश लिखें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:116
+#, python-format
+msgid "Please enter one of %s."
+msgstr "%s में से एक चुनें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:123
+msgid "Please enter either 'y' or 'n'."
+msgstr "कृपया हाँ के लिए 'y' अथवा नहीं के लिए 'n' मात्र दें. "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:129
+msgid "Please enter a file suffix, e.g. '.rst' or '.txt'."
+msgstr "कृपया एक फाइल प्रत्यय दें, जैसे कि '.rst' अथवा '.txt'."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:208
+#, python-format
+msgid "Welcome to the Sphinx %s quickstart utility."
+msgstr "स्फिंक्स %s त्वरित-आरंभ #sphinx-quickstart# उपकरण के लिए अभिनन्दन"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:210
+msgid ""
+"Please enter values for the following settings (just press Enter to\n"
+"accept a default value, if one is given in brackets)."
+msgstr "कृपया निम्न विन्यासों के लिए मान प्रदान करें (मानक मान, यदि कोष्ठक में हो तो, स्वीकार करने के लिए एन्टर दबाएँ)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:215
+#, python-format
+msgid "Selected root path: %s"
+msgstr "चुना हुआ बुनियादी तथा मूल स्थान: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:218
+msgid "Enter the root path for documentation."
+msgstr "आलेख का बुनियादी स्थान बताएं."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:219
+msgid "Root path for the documentation"
+msgstr "आलेख का बुनियादी पथ"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:224
+msgid "Error: an existing conf.py has been found in the selected root path."
+msgstr "त्रुटि: एक मौजूदा conf.py फाइल दिए गए मूल पथ में प्राप्त हुई है."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:226
+msgid "sphinx-quickstart will not overwrite existing Sphinx projects."
+msgstr "स्फिंक्स-त्वरित-आरम्भ #sphinx-quickstart# मौजूदा स्फिंक्स परियोजनाओं पर पुनर्लेखन नहीं करेगा."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:228
+msgid "Please enter a new root path (or just Enter to exit)"
+msgstr "कृपया एक नया मूल पथ दें (अथवा निकलने हेतु सिर्फ एन्टर #Enter# कर दें)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:235
+msgid ""
+"You have two options for placing the build directory for Sphinx output.\n"
+"Either, you use a directory \"_build\" within the root path, or you separate\n"
+"\"source\" and \"build\" directories within the root path."
+msgstr "आपके पास Sphinx द्वारा बनाई गई फाइलों को सहेजने के लिए दो विकल्प हैं.\nया तो आप मूल स्थान में ही \"_build\" निर्देशिका प्रयोग करें, अथवा\nमूल पथ में भिन्न \"स्रोत\" और \"build\" निर्देशिका प्रयोग करें."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:238
+msgid "Separate source and build directories (y/n)"
+msgstr "विभिन्न स्रोत और निर्माण डायरेक्टरी (y/n)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:242
+msgid ""
+"Inside the root directory, two more directories will be created; \"_templates\"\n"
+"for custom HTML templates and \"_static\" for custom stylesheets and other static\n"
+"files. You can enter another prefix (such as \".\") to replace the underscore."
+msgstr "मूल निर्देशिका के अन्दर, दो और निर्देशिका बनाई जाएँगी;\nपरिवर्धित एच.टी.एम्.एल. नमूनों के लिए \"_templates\" और परिवर्धित रुपपत्रों और अन्य स्थैतिक फाइलों के लिए \"_static\"\nआप अधोरेखा के स्थान पर अन्य पूर्व-प्रत्यय (जैसे कि \".\") का प्रयोग कर सकते हैं."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:245
+msgid "Name prefix for templates and static dir"
+msgstr "नमूने और स्थैतिक डायरेक्टरी के लिए पूर्व-प्रत्यय"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:249
+msgid ""
+"The project name will occur in several places in the built documentation."
+msgstr "परियोजना का नाम बनाये गए प्रपत्रों में बहुत से स्थानों पर प्रयुक्त होगा."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:250
+msgid "Project name"
+msgstr "परियोजना का नाम"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:252
+msgid "Author name(s)"
+msgstr "लेखक(कों) का नाम"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:256
+msgid ""
+"Sphinx has the notion of a \"version\" and a \"release\" for the\n"
+"software. Each version can have multiple releases. For example, for\n"
+"Python the version is something like 2.5 or 3.0, while the release is\n"
+"something like 2.5.1 or 3.0a1. If you don't need this dual structure,\n"
+"just set both to the same value."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:261
+msgid "Project version"
+msgstr "परियोजना संस्करण"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:263
+msgid "Project release"
+msgstr "परियोजना आवृत्ति"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:267
+msgid ""
+"If the documents are to be written in a language other than English,\n"
+"you can select a language here by its language code. Sphinx will then\n"
+"translate text that it generates into that language.\n"
+"\n"
+"For a list of supported codes, see\n"
+"https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language."
+msgstr "यदि प्रलेखों को अंग्रेजी के अलावा अन्य किसी भाषा में लिखा जाना है,\nतो यहाँ पर आप भाषा का कूटशब्द दे सकते हैं. स्फिंक्स तदपुरांत,\nजो वाक्यांश बनाता है उसे उस भाषा में अनुवादित करेगा.\n\nमान्य भाषा कूटशब्द सूची यहाँ पर देखें\nhttps://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:275
+msgid "Project language"
+msgstr "परियोजना की भाषा"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:281
+msgid ""
+"The file name suffix for source files. Commonly, this is either \".txt\"\n"
+"or \".rst\". Only files with this suffix are considered documents."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:283
+msgid "Source file suffix"
+msgstr "स्रोत फाइल का प्रत्यय"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:287
+msgid ""
+"One document is special in that it is considered the top node of the\n"
+"\"contents tree\", that is, it is the root of the hierarchical structure\n"
+"of the documents. Normally, this is \"index\", but if your \"index\"\n"
+"document is a custom template, you can also set this to another filename."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:291
+msgid "Name of your master document (without suffix)"
+msgstr "आपने मुख्य लेखपत्र का नाम दें (प्रत्यय रहित)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:296
+#, python-format
+msgid ""
+"Error: the master file %s has already been found in the selected root path."
+msgstr "त्रुटि: मुख्य फाइल %s चुने हुए मूल पथ में पहले से उपलब्ध है."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:298
+msgid "sphinx-quickstart will not overwrite the existing file."
+msgstr "स्फिंक्स-त्वरित-आरम्भ मौजूदा फाइलों पर पुनर्लेखन नहीं करेगा."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:300
+msgid ""
+"Please enter a new file name, or rename the existing file and press Enter"
+msgstr "कृपया एक नया फाइल नाम दें, अथवा मौजूदा फाइल का पुनर्नामकरण करें और एन्टर दबाएँ"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:304
+msgid "Indicate which of the following Sphinx extensions should be enabled:"
+msgstr "इनमें से कौन सा स्फिंक्स आयाम प्रयोग करना है, इंगित करें:"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:312
+msgid ""
+"Note: imgmath and mathjax cannot be enabled at the same time. imgmath has "
+"been deselected."
+msgstr "टिप्पणी: imgmath और mathjax एक साथ समर्थ नहीं हो सकते. imgmath को अचिन्हित कर दिया गया है."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:318
+msgid ""
+"A Makefile and a Windows command file can be generated for you so that you\n"
+"only have to run e.g. `make html' instead of invoking sphinx-build\n"
+"directly."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:321
+msgid "Create Makefile? (y/n)"
+msgstr "मेकफाइल बनाएं? (हाँ के लिए y/ ना के लिए n)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:324
+msgid "Create Windows command file? (y/n)"
+msgstr "विंडोज़ कमांड फाइल बनाएं? (हाँ के लिए y/ ना के लिए n)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:371
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:92
+#, python-format
+msgid "Creating file %s."
+msgstr "फाइल बनाई जा रही है ...%s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:376
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:89
+#, python-format
+msgid "File %s already exists, skipping."
+msgstr "फाइल %s पहले से उपस्थित है, छोड़ दी गई."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:414
+msgid "Finished: An initial directory structure has been created."
+msgstr "समाप्त: एक प्रारंभिक निर्देशिका का ढांचा बना दिया गया है."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:416
+#, python-format
+msgid ""
+"You should now populate your master file %s and create other documentation\n"
+"source files. "
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:419
+msgid ""
+"Use the Makefile to build the docs, like so:\n"
+"   make builder"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:422
+#, python-format
+msgid ""
+"Use the sphinx-build command to build the docs, like so:\n"
+"   sphinx-build -b builder %s %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:424
+msgid ""
+"where \"builder\" is one of the supported builders, e.g. html, latex or "
+"linkcheck."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:456
+msgid ""
+"\n"
+"Generate required files for a Sphinx project.\n"
+"\n"
+"sphinx-quickstart is an interactive tool that asks some questions about your\n"
+"project and then generates a complete documentation directory and sample\n"
+"Makefile to be used with sphinx-build.\n"
+msgstr "\nस्फिंक्स परियोजना के लिए आवश्यक फाइल बनाएं.\n\nस्फिंक्स-त्वरित-आरम्भ एक संवादपूर्ण उपकरण है जो आपकी परियोजना के \nबारे में कुछ प्रश्न पूछकर पूरी प्रलेखों की निर्देशिका और नमूना मेकफाइल \nबना देता है जिसे स्फिंक्स-बिल्ड में प्रयोग किया जा सकता है.\n"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:117
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:466
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:365
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:753
+msgid "For more information, visit <https://www.sphinx-doc.org/>."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:471
+msgid "quiet mode"
+msgstr "शांत ढंग "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:476
+msgid "project root"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:478
+msgid "Structure options"
+msgstr "ढांचे के विकल्प"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:480
+msgid "if specified, separate source and build dirs"
+msgstr "यदि निर्दिष्ट हो तो विभिन्न स्रोत और निर्माण पथ"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:482
+msgid "if specified, create build dir under source dir"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:484
+msgid "replacement for dot in _templates etc."
+msgstr "_templates आदि में बिंदु का बदलाव"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:486
+msgid "Project basic options"
+msgstr "परोयोजना के मूलभूत विकल्प"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:488
+msgid "project name"
+msgstr "परियोजना का नाम"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:490
+msgid "author names"
+msgstr "लेखकों के नाम"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:492
+msgid "version of project"
+msgstr "परियोजना का संस्करण"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:494
+msgid "release of project"
+msgstr "परियोजना की आवृत्ति"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:496
+msgid "document language"
+msgstr "लेखपत्र की भाषा"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:498
+msgid "source file suffix"
+msgstr "स्रोत फाइल का प्रत्यय"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:500
+msgid "master document name"
+msgstr "मुख्य लेखपत्र का नाम"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:502
+msgid "use epub"
+msgstr "ई-पब प्रयोग करें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:504
+msgid "Extension options"
+msgstr "आयाम के विकल्प"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:508
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:559
+#, python-format
+msgid "enable %s extension"
+msgstr "आयाम %s सक्षम करें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:510
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:551
+msgid "enable arbitrary extensions"
+msgstr "स्वेच्छित आयाम सक्षम करें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:512
+msgid "Makefile and Batchfile creation"
+msgstr "मेकफाइल और बैचफाइल का सर्जन"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:514
+msgid "create makefile"
+msgstr "मेकफाइल बनाएं"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:516
+msgid "do not create makefile"
+msgstr "मेकफाइल नहीं बनाएं"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:518
+msgid "create batchfile"
+msgstr "बैचफाइल बनाएं"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:521
+msgid "do not create batchfile"
+msgstr "बैचफाइल नहीं बनाएं"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:525
+msgid "use make-mode for Makefile/make.bat"
+msgstr "Makefile/make.bat के लिए make-mode का प्रयोग करें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:527
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:562
+msgid "Project templating"
+msgstr "परियोजना नमूनावृत्ति"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:530
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:568
+msgid "template directory for template files"
+msgstr "नमूना फाइलों के लिए नमूना निर्देशिका"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:533
+msgid "define a template variable"
+msgstr "नमूना चर-पद का निरूपण करें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:566
+msgid "\"quiet\" is specified, but any of \"project\" or \"author\" is not specified."
+msgstr "\"शांत\" निर्दिष्ट है, परन्तु कोई भी \"परियोजना\" अथवा \"लेखक\" निर्दिष्ट नहीं है."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:580
+msgid ""
+"Error: specified path is not a directory, or sphinx files already exist."
+msgstr "त्रुटि: दिया गया पथ निर्देशिका नहीं है, अथवा स्फिंक्स फाइलें पहले से उपस्थित हैं."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:582
+msgid ""
+"sphinx-quickstart only generate into a empty directory. Please specify a new"
+" root path."
+msgstr "स्फिंक्स-त्वरित-आरम्भ केवल एक खाली निर्देशिका में कार्यशील हो सकती है. कृपया एक नया मूल पथ निर्दिष्ट करें."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:597
+#, python-format
+msgid "Invalid template variable: %s"
+msgstr "अमान्य नमूना चर-पद: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:46
+msgid "Exception occurred while building, starting debugger:"
+msgstr "निर्माण के दौरान अपवाद घटित हुआ है, दोष-मुक्तक चालू किया जा रहा "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/util/errors.py:124
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:61
+msgid "Interrupted!"
+msgstr "कार्य खंडित "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:63
+msgid "reST markup error:"
+msgstr "रेस्ट सुसज्जा त्रुटि:"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/util/errors.py:138
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:69
+msgid "Encoding error:"
+msgstr "कूटलेखन त्रुटि:"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:72
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:87
+#, python-format
+msgid ""
+"The full traceback has been saved in %s, if you want to report the issue to "
+"the developers."
+msgstr "यदि आप इस विषय को कूटलिपिकारों के संज्ञान में लाना चाहते है तो   पिछला पूरा विवरण %s में सहेज दिया गया है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/util/errors.py:143
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:76
+msgid "Recursion error:"
+msgstr "पुनरावर्तन त्रुटि:"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/util/errors.py:146
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:79
+msgid ""
+"This can happen with very large or deeply nested source files. You can "
+"carefully increase the default Python recursion limit of 1000 in conf.py "
+"with e.g.:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/util/errors.py:156
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:84
+msgid "Exception occurred:"
+msgstr "अपवाद घटित:"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/util/errors.py:164
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:90
+msgid ""
+"Please also report this if it was a user error, so that a better error "
+"message can be provided next time."
+msgstr "यदि यह प्रयोक्ता की गलती थी तो कृपया इसको भी रिपोर्ट करें ताकि अगली बार गलती होने पर अधिक अर्थपूर्ण सन्देश दिया जा सके."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:93
+msgid ""
+"A bug report can be filed in the tracker at <https://github.com/sphinx-"
+"doc/sphinx/issues>. Thanks!"
+msgstr "त्रुटि की सूचना <https://github.com/sphinx-doc/sphinx/issues> पर उपस्थित पंजिका में दर्ज की जा सकती है. धन्यवाद!"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:109
+msgid "job number should be a positive number"
+msgstr "कार्य संख्या एक धनात्मक संख्या होनी चाहिए"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:118
+msgid ""
+"\n"
+"Generate documentation from source files.\n"
+"\n"
+"sphinx-build generates documentation from the files in SOURCEDIR and places it\n"
+"in OUTPUTDIR. It looks for 'conf.py' in SOURCEDIR for the configuration\n"
+"settings. The 'sphinx-quickstart' tool may be used to generate template files,\n"
+"including 'conf.py'\n"
+"\n"
+"sphinx-build can create documentation in different formats. A format is\n"
+"selected by specifying the builder name on the command line; it defaults to\n"
+"HTML. Builders can also perform other tasks related to documentation\n"
+"processing.\n"
+"\n"
+"By default, everything that is outdated is built. Output only for selected\n"
+"files can be built by specifying individual filenames.\n"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:139
+msgid "path to documentation source files"
+msgstr "अभिलेख की स्रोत फाइलों का पथ"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:141
+msgid "path to output directory"
+msgstr "परिणाम निर्देशिका का पथ"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:143
+msgid ""
+"(optional) a list of specific files to rebuild. Ignored if --write-all is "
+"specified"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:146
+msgid "general options"
+msgstr "सामान्य विकल्प"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:149
+msgid "builder to use (default: 'html')"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:152
+msgid ""
+"run in parallel with N processes, when possible. 'auto' uses the number of "
+"CPU cores"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:155
+msgid "write all files (default: only write new and changed files)"
+msgstr "सभी फाइलें लिखें (मानक: केवल नई और परिवर्तित फाइलें लिखें)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:158
+msgid "don't use a saved environment, always read all files"
+msgstr "सहेजी गयी परिस्थिति का प्रयोग न करें, सदैव सभी फाइलों को पढ़ें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:161
+msgid "path options"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:163
+msgid ""
+"directory for doctree and environment files (default: OUTPUT_DIR/.doctrees)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:166
+msgid "directory for the configuration file (conf.py) (default: SOURCE_DIR)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:171
+msgid "use no configuration file, only use settings from -D options"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:174
+msgid "override a setting in configuration file"
+msgstr "विन्यास फाइल के एक मान का उल्लंघन करें "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:177
+msgid "pass a value into HTML templates"
+msgstr "एच.टी.एम्.एल. के नमूने में राशि प्रेषित करें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:180
+msgid "define tag: include \"only\" blocks with TAG"
+msgstr "नाम-पत्र परिभाषित करें: केवल नाम-पत्र वाले खण्डों का समावेश करें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:182
+msgid "nitpicky mode: warn about all missing references"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:184
+msgid "console output options"
+msgstr "प्रदर्शित परिणामों के विकल्प"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:187
+msgid "increase verbosity (can be repeated)"
+msgstr "शब्द-प्रयोग बढ़ाएं (पुनरावृत्ति की जा सकती है) "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:189
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:402
+msgid "no output on stdout, just warnings on stderr"
+msgstr "एस.टी.डी आउट #stdout# पर कोई परिणाम नहीं, एस.टी.डी एरर #stderr# पर चेतावनियाँ "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:191
+msgid "no output at all, not even warnings"
+msgstr "कुछ भी निर्गमित नहीं, यहाँ तक कि चेतावनी भी नहीं"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:194
+msgid "do emit colored output (default: auto-detect)"
+msgstr "रंगीन परिणाम ही दिखाएँ (मानक: स्वतः अनुमानित)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:197
+msgid "do not emit colored output (default: auto-detect)"
+msgstr "रंगीन परिणाम नहीं दिखाएँ (मानक: स्वतः अनुमानित)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:199
+msgid "warning control options"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:201
+msgid "write warnings (and errors) to given file"
+msgstr "चेतावनियाँ (और त्रुटियाँ) दी गई फाइल में लिखें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:203
+msgid "turn warnings into errors"
+msgstr "चेतावनियों को अशुद्धि मानें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:205
+msgid "with --fail-on-warning, keep going when getting warnings"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:207
+msgid "show full traceback on exception"
+msgstr "अपवाद होने पर पूरा विलोम-अनुगमन देखें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:209
+msgid "run Pdb on exception"
+msgstr "अपवाद होने पर पी.डी.बी. चलाएं"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:244
+msgid "cannot combine -a option and filenames"
+msgstr "-a विकल्प और फाइल के नामों को सम्मिलित नहीं किया जा सकता"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:276
+#, python-format
+msgid "cannot open warning file %r: %s"
+msgstr "चेतावनी फाइल %r नहीं खोली जा सकी: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:296
+msgid "-D option argument must be in the form name=value"
+msgstr "-D विकल्प का मान नाम = मान के रूप में होना आवश्यक है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:303
+msgid "-A option argument must be in the form name=value"
+msgstr "-A विकल्प का मान नाम = मान के रूप में होना आवश्यक है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/i18n.py:205
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/i18n.py:270
+msgid ""
+"inconsistent footnote references in translated message. original: {0}, "
+"translated: {1}"
+msgstr "अनुवादित संदेश में असंगत पाद-टिप्पणी के प्रसंग. मूल: {0}, अनुवादित: {1}"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/i18n.py:245
+msgid ""
+"inconsistent references in translated message. original: {0}, translated: "
+"{1}"
+msgstr "अनुवादित संदेश में असंगत प्रसंग. मूल: {0}, अनुवादित: {1}"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/i18n.py:285
+msgid ""
+"inconsistent citation references in translated message. original: {0}, "
+"translated: {1}"
+msgstr "अनुवादित संदेश में असंगत उद्धरण के प्रसंग. मूल: {0}, अनुवादित: {1}"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/i18n.py:302
+msgid ""
+"inconsistent term references in translated message. original: {0}, "
+"translated: {1}"
+msgstr "अनुवादित संदेश में असंगत शब्द के प्रसंग. मूल: {0}, अनुवादित: {1}"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:496
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:189
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/__init__.py:131
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/manpage.py:101
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/texinfo.py:227
+#, python-format
+msgid "%b %d, %Y"
+msgstr "%b %d, %Y"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/__init__.py:142
+msgid "could not calculate translation progress!"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/__init__.py:147
+msgid "no translated elements!"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/__init__.py:264
+#, python-format
+msgid ""
+"4 column based index found. It might be a bug of extensions you use: %r"
+msgstr "4 पंक्तिबद्ध सूचियाँ मिलीं. यह आपके द्वारा उपयोग किए गए आयाम की त्रुटि हो सकती है: %r"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/__init__.py:305
+#, python-format
+msgid "Footnote [%s] is not referenced."
+msgstr "पाद-टिप्पणी [%s] का कोई सन्दर्भ नहीं है."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/__init__.py:311
+msgid "Footnote [#] is not referenced."
+msgstr "पाद-टिप्पणी [#] सन्दर्भ कहीं नहीं है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/docfields.py:87
+#, python-format
+msgid ""
+"Problem in %s domain: field is supposed to use role '%s', but that role is "
+"not in the domain."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/inventory.py:165
+#, python-format
+msgid "inventory <%s> contains duplicate definitions of %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/inventory.py:175
+#, python-format
+msgid "inventory <%s> contains multiple definitions for %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/nodes.py:383
+#, python-format
+msgid ""
+"%r is deprecated for index entries (from entry %r). Use 'pair: %s' instead."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/nodes.py:436
+#, python-format
+msgid "toctree contains ref to nonexisting file %r"
+msgstr "विषय-सूची-संरचना में अविद्यमान फाइल %r का सन्दर्भ है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/nodes.py:634
+#, python-format
+msgid "exception while evaluating only directive expression: %s"
+msgstr "केवल निर्देशक भाव का मूल्यांकन करते समय अपवाद: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/fileutil.py:76
+#, python-format
+msgid ""
+"Aborted attempted copy from rendered template %s to %s (the destination path"
+" has existing data)."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/osutil.py:129
+#, python-format
+msgid ""
+"Aborted attempted copy from %s to %s (the destination path has existing "
+"data)."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/i18n.py:99
+#, python-format
+msgid "reading error: %s, %s"
+msgstr "अशुद्धि पाठन: %s, %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/i18n.py:106
+#, python-format
+msgid "writing error: %s, %s"
+msgstr "अशुद्धि लेखन: %s, %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/i18n.py:130
+#, python-format
+msgid "locale_dir %s does not exist"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/i18n.py:220
+#, python-format
+msgid ""
+"Invalid date format. Quote the string by single quote if you want to output "
+"it directly: %s"
+msgstr "अमान्य तिथि प्रारूप. यदि आप सीधे परिणाम में दर्शाना चाहते हैं तो अक्षरमाला को एकाकी उद्धरण चिन्ह द्वारा चिन्हित करें: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/docutils.py:261
+#, python-format
+msgid "unknown directive or role name: %s:%s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/docutils.py:673
+#, python-format
+msgid "unknown node type: %r"
+msgstr "अज्ञात बिंदु प्रकार: %r"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/rst.py:71
+#, python-format
+msgid "default role %s not found"
+msgstr "मानक भूमिका '%s' नहीं मिली"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/__init__.py:162
+#, python-format
+msgid "undecodable source characters, replacing with \"?\": %r"
+msgstr "असाधनीय स्रोत अक्षर, \"?\" द्वारा बदले जा रहे हैं: %r"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/display.py:83
+msgid "skipped"
+msgstr "छोड़ा "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/display.py:88
+msgid "failed"
+msgstr "असफल"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/locale/__init__.py:225
+msgid "Attention"
+msgstr "सावधानी"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/locale/__init__.py:226
+msgid "Caution"
+msgstr "चेतावनी"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/locale/__init__.py:227
+msgid "Danger"
+msgstr "खतरा"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/locale/__init__.py:228
+msgid "Error"
+msgstr "गलती"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/locale/__init__.py:229
+msgid "Hint"
+msgstr "संकेत"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/locale/__init__.py:230
+msgid "Important"
+msgstr "महत्त्वपूर्ण"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/locale/__init__.py:231
+msgid "Note"
+msgstr "टिप्पणी "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/locale/__init__.py:232
+msgid "See also"
+msgstr "यह भी देखिए"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/locale/__init__.py:233
+msgid "Tip"
+msgstr "सलाह"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/locale/__init__.py:234
+msgid "Warning"
+msgstr "चेतावनी"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/__init__.py:73
+msgid "new config"
+msgstr "नव विन्यास"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/__init__.py:74
+msgid "config changed"
+msgstr "विन्यास परिवर्तित"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/__init__.py:75
+msgid "extensions changed"
+msgstr "आयाम परिवर्तित"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/__init__.py:293
+msgid "build environment version not current"
+msgstr "निर्मित परिस्थिति वर्तमान संस्करण नहीं है "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/__init__.py:295
+msgid "source directory has changed"
+msgstr "स्रोत निर्देशिका परिवर्तित हो चुकी है "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/__init__.py:376
+msgid ""
+"This environment is incompatible with the selected builder, please choose "
+"another doctree directory."
+msgstr "यह परिस्थिति चुने गए निर्माता से मेल नहीं खाती, कृपया दूसरी डॉक-ट्री निर्देशिका चुनें. "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/__init__.py:475
+#, python-format
+msgid "Failed to scan documents in %s: %r"
+msgstr "लेखपत्रों के पर्यवेक्षण में असफलता %s: %r"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/__init__.py:619
+#, python-format
+msgid "Domain %r is not registered"
+msgstr "अधिकारक्षेत्र %r पंजीकृत नहीं है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/__init__.py:753
+msgid "document isn't included in any toctree"
+msgstr "लेखपत्र किसी भी विषय-सूची-संरचना में सम्मिलित नहीं है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/__init__.py:769
+msgid "self referenced toctree found. Ignored."
+msgstr "स्वयं-संदर्भित विषय-सूची-संरचना मिली है. उपेक्षा की गई."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/citation.py:71
+#, python-format
+msgid "duplicate citation %s, other instance in %s"
+msgstr "प्रतिरूप उद्धरण %s, दूसरी प्रतिकृति %s में है "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/citation.py:82
+#, python-format
+msgid "Citation [%s] is not referenced."
+msgstr "उद्धरण [%s] सन्दर्भ कहीं नहीं है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:165
+#, python-format
+msgid "%s() (built-in function)"
+msgstr "%s() (अंतर्निर्मित फंक्शन)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:166
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:253
+#, python-format
+msgid "%s() (%s method)"
+msgstr "%s() (%s विधि)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:168
+#, python-format
+msgid "%s() (class)"
+msgstr "%s() (वर्ग)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:170
+#, python-format
+msgid "%s (global variable or constant)"
+msgstr "%s (वैश्विक चरपद अथवा अचर) "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:172
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:338
+#, python-format
+msgid "%s (%s attribute)"
+msgstr "%s (%s लक्षण)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:255
+msgid "Arguments"
+msgstr "चर "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:442
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:258
+msgid "Throws"
+msgstr "देता है "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:304
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:453
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:261
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/_object.py:176
+msgid "Returns"
+msgstr "प्रदत्त "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:306
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:263
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/_object.py:178
+msgid "Return type"
+msgstr "प्रदत्त प्रकार "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:328
+#, python-format
+msgid "%s (module)"
+msgstr "%s (प्रभाग)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:675
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:855
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:365
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:623
+msgid "function"
+msgstr "फंक्शन"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:366
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:627
+msgid "method"
+msgstr "पद्धति"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:853
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:367
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:625
+msgid "class"
+msgstr "वर्ग"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:368
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:624
+msgid "data"
+msgstr "आंकड़े "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:369
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:630
+msgid "attribute"
+msgstr "लक्षण"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:370
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:633
+msgid "module"
+msgstr "प्रभाग"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:401
+#, python-format
+msgid "duplicate %s description of %s, other %s in %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/math.py:63
+#, python-format
+msgid "duplicate label of equation %s, other instance in %s"
+msgstr "समीकरण का प्रतिरूप शीर्षक %s, दूसरी प्रतिकृति %s में है "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/math.py:119
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:2293
+#, python-format
+msgid "Invalid math_eqref_format: %r"
+msgstr "अमान्य math_eqref_format: %r"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/changeset.py:23
+#, python-format
+msgid "Added in version %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/changeset.py:24
+#, python-format
+msgid "Changed in version %s"
+msgstr "संस्करण %s से अलग "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/changeset.py:25
+#, python-format
+msgid "Deprecated since version %s"
+msgstr "संस्करण %s से प्रतिबंधित "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/changeset.py:26
+#, python-format
+msgid "Removed in version %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/rst.py:127
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/rst.py:184
+#, python-format
+msgid "%s (directive)"
+msgstr "%s (निर्देश)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/rst.py:185
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/rst.py:189
+#, python-format
+msgid ":%s: (directive option)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/rst.py:213
+#, python-format
+msgid "%s (role)"
+msgstr "%s (भूमिका)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/rst.py:223
+msgid "directive"
+msgstr "निर्देश"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/rst.py:224
+msgid "directive-option"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/rst.py:225
+msgid "role"
+msgstr "भूमिका"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/rst.py:247
+#, python-format
+msgid "duplicate description of %s %s, other instance in %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/__init__.py:399
+#, python-format
+msgid "%s %s"
+msgstr "%s %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/imgmath.py:369
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/mathjax.py:53
+msgid "Link to this equation"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/linkcode.py:69
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/viewcode.py:200
+msgid "[source]"
+msgstr "[स्रोत]"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/viewcode.py:257
+msgid "highlighting module code... "
+msgstr "प्रभाग निर्देश विशिष्ट रूप से दर्शाया जा रहा है..."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/viewcode.py:285
+msgid "[docs]"
+msgstr "[docs]"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/viewcode.py:305
+msgid "Module code"
+msgstr "प्रभाग निर्देश"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/viewcode.py:311
+#, python-format
+msgid "<h1>Source code for %s</h1>"
+msgstr "<h1>%s का स्रोत निर्देश </h1>"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/viewcode.py:337
+msgid "Overview: module code"
+msgstr "सिंहावलोकन: प्रभाग निर्देश"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/viewcode.py:338
+msgid "<h1>All modules for which code is available</h1>"
+msgstr "<h1>सभी प्रभाग जिनके लिए निर्देश उपलब्ध है</h1>"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/todo.py:69
+msgid "Todo"
+msgstr "अपूर्ण "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/todo.py:102
+#, python-format
+msgid "TODO entry found: %s"
+msgstr "अपूर्ण प्रविष्टि मिली: %s "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/todo.py:161
+msgid "<<original entry>>"
+msgstr "<<मूल प्रविष्टि>>"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/todo.py:163
+#, python-format
+msgid "(The <<original entry>> is located in %s, line %d.)"
+msgstr "(<<मूल प्रविष्टि>> %s, पंक्ति %d में उपस्थित है.)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/todo.py:173
+msgid "original entry"
+msgstr "मौलिक प्रविष्टि"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:85
+#, python-format
+msgid "Would create file %s."
+msgstr "%s फाइल बन जाएगी."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:366
+msgid ""
+"\n"
+"Look recursively in <MODULE_PATH> for Python modules and packages and create\n"
+"one reST file with automodule directives per package in the <OUTPUT_PATH>.\n"
+"\n"
+"The <EXCLUDE_PATTERN>s can be file and/or directory patterns that will be\n"
+"excluded from generation.\n"
+"\n"
+"Note: By default this script will not overwrite already created files."
+msgstr "\n<MODULE_PATH> में पाइथन प्रभाग और पैकेज की पुनरावर्तित खोज करें और\nस्वतःप्रभाग निर्देश द्वारा <OUTPUT_PATH> में प्रति पैकेज एक रेस्ट #reST# फाइल बनाएं.\n\n<EXCLUDE_PATTERN> फाइल और/ अथवा निर्देशिका स्वरुप हो सकते हैं\nजो निर्माण प्रकिया में छोड़ दिए जाएंगे.\n\nनोट: सामान्यतया यह स्क्रिप्ट किसी पहले से बनाई गई फाइल पर पुनर्लेखन नहीं करती."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:383
+msgid "path to module to document"
+msgstr "प्रभाग से लेखपत्र का पथ"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:387
+msgid ""
+"fnmatch-style file and/or directory patterns to exclude from generation"
+msgstr "fnmatch-style फाइल और/ अथवा निर्देशिका स्वरुप जो निर्माण प्रक्रिया से छोड़ने हैं"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:396
+msgid "directory to place all output"
+msgstr "सभी परिणामों को सहेजने के लिए निर्देशिका"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:411
+msgid "maximum depth of submodules to show in the TOC (default: 4)"
+msgstr "विषय-सूची में दिखाए जाने वाले उपप्रभागों की अधिकतम गहराई (मानक: 4)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:414
+msgid "overwrite existing files"
+msgstr "मौजूदा फाइलों पर पुनर्लेखन करें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:422
+msgid ""
+"follow symbolic links. Powerful when combined with "
+"collective.recipe.omelette."
+msgstr "सांकेतिक कड़ियों का अनुसरण करें. कलेक्टिव.रेसिपी.ऑमलेट के साथ प्रभावशाली. "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:431
+msgid "run the script without creating files"
+msgstr "फाइलों को बनाए बिना स्क्रिप्ट चलाएं "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:438
+msgid "put documentation for each module on its own page"
+msgstr "प्रत्येक प्रभाग के आलेख उसके अपने पृष्ठ में रखें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:445
+msgid "include \"_private\" modules"
+msgstr "\"_private\" प्रभाग को सम्मिलित करें "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:452
+msgid "filename of table of contents (default: modules)"
+msgstr "विषय-सूची की फाइल का नाम (मानक: प्रभाग) "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:459
+msgid "don't create a table of contents file"
+msgstr "विषय-सूची की फाइल न बनाएं "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:466
+msgid ""
+"don't create headings for the module/package packages (e.g. when the "
+"docstrings already contain them)"
+msgstr "प्रभाग/पैकेज पैकेजों का शीर्षक न बनाएं (उदाहरणार्थ, जब डॉकस्ट्रिंग्स में यह पहले से हों) "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:477
+msgid "put module documentation before submodule documentation"
+msgstr " मुख्य प्रभाग के आलेख को उपप्रभाग के आलेख से पहले रखें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:483
+msgid ""
+"interpret module paths according to PEP-0420 implicit namespaces "
+"specification"
+msgstr "प्रभाग पथ की व्याख्या 'पी.ई.पी.-0420 निहित नामराशि विवरण' के आधार पर करें "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:493
+msgid "file suffix (default: rst)"
+msgstr "फाइल प्रत्यय (मानक: rst)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:500
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:826
+msgid "Remove existing files in the output directory that were not generated"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:507
+msgid "generate a full project with sphinx-quickstart"
+msgstr "स्फिंक्स-त्वरित-आरम्भ के साथ पूर्ण परियोजना उत्पन्न करें "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:514
+msgid "append module_path to sys.path, used when --full is given"
+msgstr "मोड्यूल_पाथ #module_path# को सिस.पाथ #sys.path# में जोड़ें, जब --full दिया जाता है तब इसका प्रयोग होता है "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:521
+msgid "project name (default: root module name)"
+msgstr "परियोजना का नाम (मानक: मूल प्रभाग का नाम) "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:528
+msgid "project author(s), used when --full is given"
+msgstr "परियोजना लेखक(गण), जब --full दिया जाता है तब इसका प्रयोग होता है "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:535
+msgid "project version, used when --full is given"
+msgstr "परियोजना संस्करण, जब --full दिया जाता है तब इसका प्रयोग होता है "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:542
+msgid "project release, used when --full is given, defaults to --doc-version"
+msgstr "परियोजना आवृत्ति, जब --full दिया जाता है तब इसका प्रयोग होता है "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:545
+msgid "extension options"
+msgstr "आयाम विकल्प "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:620
+#, python-format
+msgid "%s is not a directory."
+msgstr "%s एक निर्देशिका नहीं है. "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:686
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:860
+#, python-format
+msgid "Failed to remove %s: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:135
+msgid "Graphviz directive cannot have both content and a filename argument"
+msgstr "ग्राफविज़ निर्देश में दोनों मापदंड, विषय-वस्तु और फाइल का नाम, नहीं हो सकते"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:145
+#, python-format
+msgid "External Graphviz file %r not found or reading it failed"
+msgstr "बाहरी ग्राफविज़ फाइल %r नहीं मिली अथवा पढने में असफलता मिली"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:152
+msgid "Ignoring \"graphviz\" directive without content."
+msgstr "विषय-वस्तु के बिना ग्राफविज़ निर्देश की उपेक्षा की जा रही है. "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:268
+#, python-format
+msgid "graphviz_dot executable path must be set! %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:303
+#, python-format
+msgid ""
+"dot command %r cannot be run (needed for graphviz output), check the "
+"graphviz_dot setting"
+msgstr "डॉट निर्देश %r नहीं चलाया जा सकता (ग्राफविज़ परिणाम के लिए आवश्यक), ग्राफविज़_डॉट मान की जांच करें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:310
+#, python-format
+msgid ""
+"dot exited with error:\n"
+"[stderr]\n"
+"%r\n"
+"[stdout]\n"
+"%r"
+msgstr "डॉट त्रुटि के साथ बहार आ गया:\n[stderr]\n%r\n[stdout]\n%r"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:313
+#, python-format
+msgid ""
+"dot did not produce an output file:\n"
+"[stderr]\n"
+"%r\n"
+"[stdout]\n"
+"%r"
+msgstr "डॉट ने किसी परिणाम फाइल का नहीं बनाया:\n[stderr]\n%r\n[stdout]\n%r"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:329
+#, python-format
+msgid "graphviz_output_format must be one of 'png', 'svg', but is %r"
+msgstr "ग्राफविज़_आउटपुट_फॉर्मेट का 'पी.एन.जी', 'एस.वी.जी.', होना आवश्यक है, पर यह %r है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:333
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:386
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:423
+#, python-format
+msgid "dot code %r: %s"
+msgstr "डॉट निर्देश %r: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:436
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:444
+#, python-format
+msgid "[graph: %s]"
+msgstr "[graph: %s]"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:438
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:446
+msgid "[graph]"
+msgstr "[graph]"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/imgconverter.py:40
+#, python-format
+msgid ""
+"Unable to run the image conversion command %r. 'sphinx.ext.imgconverter' requires ImageMagick by default. Ensure it is installed, or set the 'image_converter' option to a custom conversion command.\n"
+"\n"
+"Traceback: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/imgconverter.py:49
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/imgconverter.py:73
+#, python-format
+msgid ""
+"convert exited with error:\n"
+"[stderr]\n"
+"%r\n"
+"[stdout]\n"
+"%r"
+msgstr "परिवर्तक त्रुटि के साथ बहार आ गया:\n[stderr]\n%r\n[stdout]\n%r"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/imgconverter.py:68
+#, python-format
+msgid "convert command %r cannot be run, check the image_converter setting"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/duration.py:84
+msgid ""
+"====================== slowest reading durations ======================="
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/doctest.py:115
+#, python-format
+msgid "missing '+' or '-' in '%s' option."
+msgstr "'%s' विकल्प में अनुपस्थित '+' या '-'."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/doctest.py:120
+#, python-format
+msgid "'%s' is not a valid option."
+msgstr "'%s' एक मान्य विकल्प नहीं है."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/doctest.py:134
+#, python-format
+msgid "'%s' is not a valid pyversion option"
+msgstr "'%s' एक मान्य पाईवर्शन #pyversion# विकल्प नहीं है. "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/doctest.py:220
+msgid "invalid TestCode type"
+msgstr "अमान्य टेस्टकोड का प्रकार "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/doctest.py:281
+#, python-format
+msgid ""
+"Testing of doctests in the sources finished, look at the results in "
+"%(outdir)s/output.txt."
+msgstr "स्रोतों में डॉकटेस्ट्स की जांच पूरी, परिणाम %(outdir)s/output.txt में देखें. "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/doctest.py:438
+#, python-format
+msgid "no code/output in %s block at %s:%s"
+msgstr "%s भाग में %s पर कोई निर्देश / परिणाम नहीं: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/doctest.py:526
+#, python-format
+msgid "ignoring invalid doctest code: %r"
+msgstr "अमान्य डॉकटेस्ट निर्देश की उपेक्षा की जा रही है: %r"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/extlinks.py:82
+#, python-format
+msgid ""
+"hardcoded link %r could be replaced by an extlink (try using %r instead)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:47
+#, python-format
+msgid "invalid regex %r in %s"
+msgstr "अमान्य रेगएक्स #regex# %r, %s में "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:134
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:280
+#, python-format
+msgid "module %s could not be imported: %s"
+msgstr "प्रभाग %s का आयत नहीं किया जा सका: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:141
+#, python-format
+msgid ""
+"the following modules are documented but were not specified in "
+"coverage_modules: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:149
+msgid ""
+"the following modules are specified in coverage_modules but were not "
+"documented"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:163
+#, python-format
+msgid ""
+"Testing of coverage in the sources finished, look at the results in "
+"%(outdir)spython.txt."
+msgstr "स्रोतों की व्यापकता की जांच पूरी, परिणाम %(outdir)spython.txt में देखें. "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:177
+#, python-format
+msgid "invalid regex %r in coverage_c_regexes"
+msgstr "अमान्य रेगएक्स #regex# %r, coverage_c_regexes में "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:245
+#, python-format
+msgid "undocumented c api: %s [%s] in file %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:429
+#, python-format
+msgid "undocumented python function: %s :: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:445
+#, python-format
+msgid "undocumented python class: %s :: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:458
+#, python-format
+msgid "undocumented python method: %s :: %s :: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/imgmath.py:159
+#, python-format
+msgid ""
+"LaTeX command %r cannot be run (needed for math display), check the "
+"imgmath_latex setting"
+msgstr "लाटेक्स आदेश %r नहीं चलाया जा सकता (गणित दिखाने के लिए आवश्यक). आई.एम्.जी.मैथ_लाटेक्स मान की जाँच करें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/imgmath.py:174
+#, python-format
+msgid ""
+"%s command %r cannot be run (needed for math display), check the imgmath_%s "
+"setting"
+msgstr "%s आदेश %r नहीं चलाया जा सकता (गणित दिखाने के लिए आवश्यक). imgmath_%s मान की जाँच करें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/imgmath.py:328
+#, python-format
+msgid "display latex %r: %s"
+msgstr "लाटेक्स दिखाएँ %r: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/imgmath.py:362
+#, python-format
+msgid "inline latex %r: %s"
+msgstr "पंक्तिबद्ध लाटेक्स %r: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosectionlabel.py:49
+#, python-format
+msgid "section \"%s\" gets labeled as \"%s\""
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:697
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:803
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosectionlabel.py:53
+#, python-format
+msgid "duplicate label %s, other instance in %s"
+msgstr "प्रतिरूप शीर्षक %s, दूसरी प्रतिकृति %s में है "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:336
+#, python-format
+msgid "unknown %r toplevel_sectioning for class %r"
+msgstr "अज्ञात %r उच्चतमस्तर_विभाजन #toplevel_sectioning# %r वर्ग के लिए"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:213
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:371
+#, python-format
+msgid "no Babel option known for language %r"
+msgstr "%r भाषा के लिए कोई बाबेल विकल्प नहीं "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:387
+msgid "too large :maxdepth:, ignored."
+msgstr "अत्याधिक अधिकतम गहराई # :maxdepth: #, उपेक्षित किया गया."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:531
+#, python-format
+msgid "template %s not found; loading from legacy %s instead"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:635
+msgid "document title is not a single Text node"
+msgstr "लेखपत्र का शीर्षक एकल पाठ बिंदु नहीं है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:666
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/texinfo.py:631
+msgid ""
+"encountered title node not in section, topic, table, admonition or sidebar"
+msgstr "पाया गया शीर्ष बिंदु किसी भाग, प्रसंग, तालिका, विषय-प्रबोध अथवा पार्श्व-स्थान में नहीं है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:981
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/manpage.py:259
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/texinfo.py:646
+msgid "Footnotes"
+msgstr "पाद टिप्पणियां"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:520
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:990
+#, python-format
+msgid "unsupported rubric heading level: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:1063
+msgid ""
+"both tabularcolumns and :widths: option are given. :widths: is ignored."
+msgstr "दोनों तालिका-स्तंभ और :चौड़ाई: विकल्प दिए गए हैं. :चौड़ाई:  मान की उपेक्षा की जाएगी."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:1423
+#, python-format
+msgid "dimension unit %s is invalid. Ignored."
+msgstr "परिमाण मात्रक %s अमान्य है. उपेक्षा की जाएगी."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:1763
+#, python-format
+msgid "unknown index entry type %s found"
+msgstr "अनुक्रमणिका की प्रविष्टि का प्रकार %s मिला"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/manpage.py:305
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/text.py:907
+#, python-format
+msgid "[image: %s]"
+msgstr "[चित्र: %s]"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/manpage.py:306
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/text.py:908
+msgid "[image]"
+msgstr "[चित्र]"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:99
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:108
+msgid "Link to this definition"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:398
+#, python-format
+msgid "numfig_format is not defined for %s"
+msgstr "%s के लिए नमफिग_फॉर्मेट नहीं बताया गया है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:408
+#, python-format
+msgid "Any IDs not assigned for %s node"
+msgstr "%s बिंदु के लिए कोई पहचान-चिन्ह नहीं दिया गया"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:463
+msgid "Link to this term"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:497
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:502
+msgid "Link to this heading"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:506
+msgid "Link to this table"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:573
+msgid "Link to this code"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:575
+msgid "Link to this image"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:577
+msgid "Link to this toctree"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:713
+msgid "Could not obtain image size. :scale: option is ignored."
+msgstr "चित्र का आकार नहीं मिल सका. :scale: विकल्प की उपेक्षा की जा रही है."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:196
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:640
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:652
+#: /home/runner/work/sphinx/sphinx/sphinx/templates/latex/latex.tex.jinja:106
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex-single.html:30
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex-single.html:56
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex-split.html:11
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex-split.html:14
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex.html:11
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex.html:34
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex.html:67
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:135
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/texinfo.py:502
+msgid "Index"
+msgstr "अनुक्रमणिका"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/texinfo.py:1202
+msgid "caption not inside a figure."
+msgstr "शीर्षक रेखाचित्र के भीतर नहीं है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/texinfo.py:1289
+#, python-format
+msgid "unimplemented node type: %r"
+msgstr "अकार्यान्वित बिंदु प्रकार: %r"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:72
+msgid "Usage:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:74
+msgid "{0} [OPTIONS] <COMMAND> [<ARGS>]"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:77
+msgid "  The Sphinx documentation generator."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:85
+msgid "Commands:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:96
+msgid "Options"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:107
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:175
+msgid "For more information, visit https://www.sphinx-doc.org/en/master/man/."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:164
+msgid ""
+"{0}: error: {1}\n"
+"Run '{0} --help' for information"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:174
+msgid "   Manage documentation with Sphinx."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:183
+msgid "Show the version and exit."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:189
+msgid "Show this message and exit."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:193
+msgid "Logging"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:199
+msgid "Increase verbosity (can be repeated)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:206
+msgid "Only print errors and warnings."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:213
+msgid "No output at all"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:219
+msgid "<command>"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:248
+msgid "See 'sphinx --help'.\n"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:216
+#, python-format
+msgid "duplicated ToC entry found: %s"
+msgstr "विषय-सूची प्रविष्टि की प्रतिलिपि पायी गई: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:405
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:768
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:444
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:186
+msgid "copying images... "
+msgstr "चित्रों की प्रतिलिपि बनाई जा रही है..."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:412
+#, python-format
+msgid "cannot read image file %r: copying it instead"
+msgstr "चित्रलेख फाइल %r नहीं पढ़ा जा सका: इसकी प्रतिलिपि बनाई जा रही है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:421
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:455
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:199
+#, python-format
+msgid "cannot copy image file %r: %s"
+msgstr "चित्रलेख फाइल %r की प्रतिलिपि नहीं की जा सकी:%s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:438
+#, python-format
+msgid "cannot write image file %r: %s"
+msgstr "चित्रलेख फाइल %r नहीं लिखा जा सका:%s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:448
+msgid "Pillow not found - copying image files"
+msgstr "पिलो नहीं मिला - चित्र फाइलों की प्रतिलिपि बनाई जा रही है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:480
+msgid "writing mimetype file..."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:489
+msgid "writing META-INF/container.xml file..."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:526
+msgid "writing content.opf file..."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:557
+#, python-format
+msgid "unknown mimetype for %s, ignoring"
+msgstr "%s के लिए अज्ञात लेख प्रकार, छोड़ा गया"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:709
+msgid "writing toc.ncx file..."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:738
+#, python-format
+msgid "writing %s file..."
+msgstr "%s फाइल को लिखा जा रहा है..."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/xml.py:40
+#, python-format
+msgid "The XML files are in %(outdir)s."
+msgstr "एक्स.एम्.एल. लेखपत्र %(outdir)s में हैं."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1179
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/text.py:81
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/xml.py:100
+#, python-format
+msgid "error writing file %s: %s"
+msgstr "%s फाइल लिखने में व्यवधान: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/xml.py:113
+#, python-format
+msgid "The pseudo-XML files are in %(outdir)s."
+msgstr "छद्म-एक्स.एम्.एल. लेखपत्र %(outdir)s में हैं."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/manpage.py:37
+#, python-format
+msgid "The manual pages are in %(outdir)s."
+msgstr "पुस्तिका पृष्ठ %(outdir)sमें हैं."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/manpage.py:44
+msgid "no \"man_pages\" config value found; no manual pages will be written"
+msgstr "कोई \"man_pages\" विन्यास मान नहीं मिला; कोई नियमावली पृष्ठ नहीं लिखे जाएंगे"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:314
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/manpage.py:53
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/singlehtml.py:165
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:111
+msgid "writing"
+msgstr "लिखा जा रहा है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/manpage.py:68
+#, python-format
+msgid "\"man_pages\" config value references unknown document %s"
+msgstr "\"man_pages\" विन्यास मान अज्ञात लेखपत्र %s का सन्दर्भ है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/dummy.py:19
+msgid "The dummy builder generates no files."
+msgstr "मूक निर्माता से किसी फाइलों की उत्पत्ति नहीं होती."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:81
+#, python-format
+msgid "The ePub file is in %(outdir)s."
+msgstr "ई-पब फाइल %(outdir)s में है."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:185
+msgid "writing nav.xhtml file..."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:215
+msgid "conf value \"epub_language\" (or \"language\") should not be empty for EPUB3"
+msgstr "ई-पब3 के लिए विन्यास मान \"epub_language\" (अथवा \"language\") खाली नहीं होना चाहिए"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:219
+msgid "conf value \"epub_uid\" should be XML NAME for EPUB3"
+msgstr "ई-पब3 के लिए विन्यास मान \"epub_uid\" एक्स.एम्.एल. नाम होना चाहिए"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:222
+msgid "conf value \"epub_title\" (or \"html_title\") should not be empty for EPUB3"
+msgstr "ई-पब3 के लिए विन्यास मान \"epub_title\" (अथवा \"html_title\") खाली नहीं होना चाहिए"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:226
+msgid "conf value \"epub_author\" should not be empty for EPUB3"
+msgstr "ई-पब3 के लिए विन्यास मान \"epub_author\" खाली नहीं होना चाहिए"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:229
+msgid "conf value \"epub_contributor\" should not be empty for EPUB3"
+msgstr "ई-पब3 के लिए विन्यास मान \"epub_contributor\" खाली नहीं होना चाहिए"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:232
+msgid "conf value \"epub_description\" should not be empty for EPUB3"
+msgstr "ई-पब3 के लिए विन्यास मान \"epub_description\" खाली नहीं होना चाहिए"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:235
+msgid "conf value \"epub_publisher\" should not be empty for EPUB3"
+msgstr "ई-पब3 के लिए विन्यास मान \"epub_publisher\" खाली नहीं होना चाहिए"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:238
+msgid "conf value \"epub_copyright\" (or \"copyright\")should not be empty for EPUB3"
+msgstr "ई-पब3 के लिए विन्यास मान \"epub_copyright\" (अथवा \"copyright\") खाली नहीं होना चाहिए"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:242
+msgid "conf value \"epub_identifier\" should not be empty for EPUB3"
+msgstr "ई-पब3 के लिए विन्यास मान \"epub_identifier\" खाली नहीं होना चाहिए"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:245
+msgid "conf value \"version\" should not be empty for EPUB3"
+msgstr "ई-पब3 के लिए विन्यास मान \"version\" खाली नहीं होना चाहिए"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:259
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1228
+#, python-format
+msgid "invalid css_file: %r, ignored"
+msgstr "अमान्य css_file: %r, उपेक्षित"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/linkcheck.py:58
+#, python-format
+msgid "Look for any errors in the above output or in %(outdir)s/output.txt"
+msgstr "उपरोक्त परिणाम में अथवा %(outdir)s /output.txt में त्रुटियाँ ढूँढने का प्रयास "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/linkcheck.py:119
+#, python-format
+msgid "broken link: %s (%s)"
+msgstr "खंडित कड़ी: %s (%s)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/linkcheck.py:464
+#, python-format
+msgid "Anchor '%s' not found"
+msgstr "लक्ष्य '%s' नहीं मिला"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/linkcheck.py:654
+#, python-format
+msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/changes.py:32
+#, python-format
+msgid "The overview file is in %(outdir)s."
+msgstr "संक्षिप्त विवरण फाइल %(outdir)s में है."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/changes.py:59
+#, python-format
+msgid "no changes in version %s."
+msgstr "%s संस्करण में कोई परिवर्तन नहीं हैं."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/changes.py:61
+msgid "writing summary file..."
+msgstr "सार फाइल को लिखा जा रहा है..."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/changes.py:76
+msgid "Builtins"
+msgstr "अंतर्निर्मित"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/changes.py:78
+msgid "Module level"
+msgstr "प्रभाग स्तर"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/changes.py:123
+msgid "copying source files..."
+msgstr "स्रोत फाइलों की प्रतिलिपि बनाई जा रही है..."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/changes.py:130
+#, python-format
+msgid "could not read %r for changelog creation"
+msgstr "परिवर्तन सूची बनाने के लिए %r को नहीं पढ़ा जा सका"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/text.py:34
+#, python-format
+msgid "The text files are in %(outdir)s."
+msgstr "पाठ फाइल %(outdir)s में हैं."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/gettext.py:222
+#, python-format
+msgid "The message catalogs are in %(outdir)s."
+msgstr "सन्देश सूचीपत्र %(outdir)s में हैं."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:313
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/gettext.py:243
+#, python-format
+msgid "building [%s]: "
+msgstr "निर्माणाधीन [%s]: "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/gettext.py:244
+#, python-format
+msgid "targets for %d template files"
+msgstr "%d नमूना फाइलों के लक्ष्य"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/gettext.py:248
+msgid "reading templates... "
+msgstr "नमूनों को पढ़ा जा रहा है..."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/gettext.py:282
+msgid "writing message catalogs... "
+msgstr "सन्देश सूचीपत्रों को लिखा जा रहा है..."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:183
+#, python-format
+msgid "a suitable image for %s builder not found: %s (%s)"
+msgstr "%s निर्माता के लिए योग्य चित्र नहीं मिला: %s.(%s)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:187
+#, python-format
+msgid "a suitable image for %s builder not found: %s"
+msgstr "%s निर्माता के लिए योग्य चित्र नहीं मिला: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:207
+msgid "building [mo]: "
+msgstr "निर्माणाधीन [mo]: "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:208
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:617
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:644
+msgid "writing output... "
+msgstr "परिणाम लिखा जा रहा है..."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:217
+#, python-format
+msgid "all of %d po files"
+msgstr "सभी %d पी.ओ. फाइलें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:235
+#, python-format
+msgid "targets for %d po files that are specified"
+msgstr "निर्दिष्ट %d पी.ओ. फाइलों के लक्ष्य"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:243
+#, python-format
+msgid "targets for %d po files that are out of date"
+msgstr "%d पी.ओ. फाइलों के लक्ष्य कालातीत है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:253
+msgid "all source files"
+msgstr "सभी स्रोत फाइलें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:264
+#, python-format
+msgid "file %r given on command line does not exist, "
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:269
+#, python-format
+msgid ""
+"file %r given on command line is not under the source directory, ignoring"
+msgstr "आदेश स्थान में दी गयी फाइल %r स्रोत निर्देशिका में नहीं है, उपेक्षा की जा रही है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:275
+#, python-format
+msgid "file %r given on command line is not a valid document, ignoring"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:284
+#, python-format
+msgid "%d source files given on command line"
+msgstr "%d स्रोत फाइलें आदेश स्थान में दी "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:297
+#, python-format
+msgid "targets for %d source files that are out of date"
+msgstr "%d  फाइलों के लक्ष्य कालातीत है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:320
+msgid "looking for now-outdated files... "
+msgstr "अप्रचलित फाइलों को चिन्हित किया जा रहा है..."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:324
+#, python-format
+msgid "%d found"
+msgstr "%d मिला"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:326
+msgid "none found"
+msgstr "एक भी नहीं मिला"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:331
+msgid "pickling environment"
+msgstr "स्थिति को परिरक्षित किया जा रहा है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:337
+msgid "checking consistency"
+msgstr "संगतता की जांच की जा रही है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:341
+msgid "no targets are out of date."
+msgstr "कोई प्रयोजन कालातीत नहीं है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:381
+msgid "updating environment: "
+msgstr "स्थिति का नवीनीकरण किया जा रहा है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:402
+#, python-format
+msgid "%s added, %s changed, %s removed"
+msgstr "%s जोड़ा गया, %s बदला गया, %s हटाया गया"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:435
+#, python-format
+msgid ""
+"Sphinx is unable to load the master document (%s) because it matches a "
+"built-in exclude pattern %r. Please move your master document to a different"
+" location."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:442
+#, python-format
+msgid ""
+"Sphinx is unable to load the master document (%s) because it matches an "
+"exclude pattern specified in conf.py, %r. Please remove this pattern from "
+"conf.py."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:451
+#, python-format
+msgid ""
+"Sphinx is unable to load the master document (%s) because it is not included"
+" in the custom include_patterns = %r. Ensure that a pattern in "
+"include_patterns matches the master document."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:456
+#, python-format
+msgid ""
+"Sphinx is unable to load the master document (%s). The master document must "
+"be within the source directory or a subdirectory of it."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:471
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:483
+msgid "reading sources... "
+msgstr "स्रोतों को पढ़ा जा रहा है..."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:592
+#, python-format
+msgid "docnames to write: %s"
+msgstr "लेखन के लिए शेष लेखपत्र: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:601
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/singlehtml.py:157
+msgid "preparing documents"
+msgstr "लेखपत्र बनाए जा रहे हैं"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:604
+msgid "copying assets"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:47
+#, python-format
+msgid "The Texinfo files are in %(outdir)s."
+msgstr "टेक्सइन्फो पृष्ठ %(outdir)sमें हैं."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:49
+msgid ""
+"\n"
+"Run 'make' in that directory to run these through makeinfo\n"
+"(use 'make info' here to do that automatically)."
+msgstr "\nइन्हें मेकइन्फो से चलाने के लिए उस निर्देशिका में 'मेक' आदेश चलायें\n(ऐसा स्वचालित रूप से करने के लिए यहाँ 'मेक इन्फो' आदेश का उपयोग करें)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:76
+msgid "no \"texinfo_documents\" config value found; no documents will be written"
+msgstr "कोई \"texinfo_documents\" विन्यास मान नहीं मिला; कोई लेखपत्र नहीं लिखे जाएंगे"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:84
+#, python-format
+msgid "\"texinfo_documents\" config value references unknown document %s"
+msgstr "\"texinfo_documents\" विन्यास मान अज्ञात लेखपत्र %s का सन्दर्भ है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:296
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:107
+#, python-format
+msgid "processing %s"
+msgstr "%s की प्रक्रिया जारी"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:369
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:160
+msgid "resolving references..."
+msgstr "सन्दर्भों का विश्लेषण किया जा रहा है..."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:380
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:170
+msgid " (in "
+msgstr " (में"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:204
+msgid "copying Texinfo support files"
+msgstr "टेक्सइन्फो सहायक फाइलों की प्रतिलिपि की जा रही है..."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:212
+#, python-format
+msgid "error writing file Makefile: %s"
+msgstr "मेकफाइल लिखने में त्रुटि: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/singlehtml.py:34
+#, python-format
+msgid "The HTML page is in %(outdir)s."
+msgstr "एच.टी.एम्.एल. पृष्ठ %(outdir)sमें है."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/singlehtml.py:160
+msgid "assembling single document"
+msgstr "एकल लेखपत्र संकलन किया जा रहा है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/singlehtml.py:178
+msgid "writing additional files"
+msgstr "अतिरिक्त फाइलों को लिखा जा रहा है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/patches.py:66
+msgid ""
+"\":file:\" option for csv-table directive now recognizes an absolute path as"
+" a relative path from source directory. Please update your document."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:60
+msgid "non-whitespace stripped by dedent"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:80
+#, python-format
+msgid "Invalid caption: %s"
+msgstr "अमान्य शीर्षक: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:124
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:274
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:450
+#, python-format
+msgid "line number spec is out of range(1-%d): %r"
+msgstr "पंक्ति संख्या का ब्यौरा सीमा से बाहर है (1-%d): %r"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:203
+#, python-format
+msgid "Cannot use both \"%s\" and \"%s\" options"
+msgstr "दोनों \"%s\" और \"%s\" विकल्पों का प्रयोग नहीं किया जा सकता"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:217
+#, python-format
+msgid "Include file %r not found or reading it failed"
+msgstr "समावेशित फाइल %r नहीं मिली अथवा पढने में असफलता मिली"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:220
+#, python-format
+msgid ""
+"Encoding %r used for reading included file %r seems to be wrong, try giving "
+"an :encoding: option"
+msgstr "कूटलेखन %r जो कि सम्मिलित फाइल %r में प्रयुक्त है, अशुद्ध प्रतीत हो रही है, एक :encoding: विकल्प देकर प्रयत्न करें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:257
+#, python-format
+msgid "Object named %r not found in include file %r"
+msgstr "%r नामक विषयवस्तु सम्मिलित फाइल %r में नहीं मिली"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:283
+msgid "Cannot use \"lineno-match\" with a disjoint set of \"lines\""
+msgstr "\"lineno-match\" का प्रयोग बिना जुडी \"lines\" के युग्म के साथ नहीं हो सकता"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:288
+#, python-format
+msgid "Line spec %r: no lines pulled from include file %r"
+msgstr "लाइन ब्यौरा %r: सम्मिलित फाइल %r से कोई लाइन नहीं ली जा सकीं"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/other.py:122
+#, python-format
+msgid "toctree glob pattern %r didn't match any documents"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/other.py:148
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/adapters/toctree.py:324
+#, python-format
+msgid "toctree contains reference to excluded document %r"
+msgstr "विषय-सूची-संरचना में छोड़े गए लेखपत्र %r का सन्दर्भ है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/other.py:151
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/adapters/toctree.py:328
+#, python-format
+msgid "toctree contains reference to nonexisting document %r"
+msgstr "विषय-सूची-संरचना में अविद्यमान लेखपत्र %r का सन्दर्भ है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/other.py:162
+#, python-format
+msgid "duplicated entry found in toctree: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/other.py:195
+msgid "Section author: "
+msgstr "भाग के लेखक:"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/other.py:197
+msgid "Module author: "
+msgstr "प्रभाग लेखक:"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/other.py:199
+msgid "Code author: "
+msgstr "निर्देश लेखक:"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/other.py:201
+msgid "Author: "
+msgstr "लेखक:"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/other.py:274
+msgid ".. acks content is not a list"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/other.py:297
+msgid ".. hlist content is not a list"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/post_transforms/images.py:83
+#, python-format
+msgid "Could not fetch remote image: %s [%d]"
+msgstr "दूरस्थ चित्र नहीं लाया जा सका: %s [%d]"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/post_transforms/images.py:111
+#, python-format
+msgid "Could not fetch remote image: %s [%s]"
+msgstr "दूरस्थ चित्र नहीं लाया जा सका: %s [%s]"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/post_transforms/images.py:127
+#, python-format
+msgid "Unknown image format: %s..."
+msgstr "अज्ञात चित्र प्रारूप: %s..."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/post_transforms/__init__.py:116
+msgid ""
+"Could not determine the fallback text for the cross-reference. Might be a "
+"bug."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/post_transforms/__init__.py:158
+#, python-format
+msgid "more than one target found for 'any' cross-reference %r: could be %s"
+msgstr "किसी भी पारस्परिक-सन्दर्भ के लिए एक से अधिक लक्ष्य मिले %r: %s संभव"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/post_transforms/__init__.py:209
+#, python-format
+msgid "%s:%s reference target not found: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/post_transforms/__init__.py:212
+#, python-format
+msgid "%r reference target not found: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/agogo/layout.html:38
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/globaltoc.html:10
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/localtoc.html:12
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/scrolls/layout.html:41
+msgid "Table of Contents"
+msgstr "विषय-सूची"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/agogo/layout.html:43
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:138
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/search.html:11
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/search.html:23
+msgid "Search"
+msgstr "खोज"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/agogo/layout.html:46
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/searchbox.html:16
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/searchfield.html:18
+msgid "Go"
+msgstr "चलिए"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/agogo/layout.html:90
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/sourcelink.html:15
+msgid "Show Source"
+msgstr "स्रोत दिखाएँ"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/haiku/layout.html:24
+msgid "Contents"
+msgstr "विषय सामिग्री"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/classic/layout.html:20
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/classic/static/sidebar.js.jinja:57
+msgid "Collapse sidebar"
+msgstr "किनारे का स्थान घटाएं"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/opensearch.xml:4
+#, python-format
+msgid "Search %(docstitle)s"
+msgstr " %(docstitle)s में खोजें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/searchbox.html:12
+msgid "Quick search"
+msgstr "त्वरित खोज"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:11
+msgid "Overview"
+msgstr "सिंहावलोकन"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:15
+msgid "Welcome! This is"
+msgstr "नमस्ते! यह है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:16
+msgid "the documentation for"
+msgstr "आलेख विषय"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:17
+msgid "last updated"
+msgstr "अंतिम परिवर्धन"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:20
+msgid "Indices and tables:"
+msgstr "सूचियाँ और सारणियाँ:"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:23
+msgid "Complete Table of Contents"
+msgstr "विस्तृत विषय-सूची"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:24
+msgid "lists all sections and subsections"
+msgstr "सभी अनुभागों एवं उप-अनुभागों की सूची"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:642
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:654
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:25
+msgid "Search Page"
+msgstr "खोज पृष्ठ"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:26
+msgid "search this documentation"
+msgstr "इस आलेख में खोजें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:28
+msgid "Global Module Index"
+msgstr "सार्वभौमिक प्रभाग सूची"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:29
+msgid "quick access to all modules"
+msgstr "सभी प्रभाग तक तुरंत पहुँच"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:515
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:30
+msgid "General Index"
+msgstr "सामान्य अनुक्रमाणिका"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:31
+msgid "all functions, classes, terms"
+msgstr "सभी कार्ययुक्तियां, वर्ग, शब्द"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex-single.html:34
+#, python-format
+msgid "Index &#x2013; %(key)s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex-single.html:62
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex-split.html:24
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex-split.html:38
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex.html:73
+msgid "Full index on one page"
+msgstr "एक पृष्ठ पर पूरी अनुक्रमणिका"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/relations.html:12
+msgid "Previous topic"
+msgstr "पिछला प्रकरण"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/relations.html:14
+msgid "previous chapter"
+msgstr "पिछला अध्याय"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/relations.html:19
+msgid "Next topic"
+msgstr "अगला प्रकरण"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/relations.html:21
+msgid "next chapter"
+msgstr "अगला अध्याय"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/search.html:28
+msgid ""
+"Please activate JavaScript to enable the search\n"
+"    functionality."
+msgstr "खोज कार्य के लिए जावा स्क्रिप्ट का होना आवश्यक है. कृपया जावा स्क्रिप्ट को शुरू करें."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/search.html:36
+msgid ""
+"Searching for multiple words only shows matches that contain\n"
+"    all words."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/search.html:43
+msgid "search"
+msgstr "खोज"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/sourcelink.html:12
+msgid "This Page"
+msgstr "यह पृष्ठ "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex-split.html:16
+msgid "Index pages by letter"
+msgstr "अक्षर द्वारा अनुक्रमित पृष्ठ"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex-split.html:25
+msgid "can be huge"
+msgstr "बृहदाकार हो सकता है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:26
+msgid "Navigation"
+msgstr "संचालन"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:123
+#, python-format
+msgid "Search within %(docstitle)s"
+msgstr "%(docstitle)s में खोजें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:132
+msgid "About these documents"
+msgstr "इन लेखपत्रों के बारे में"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:141
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:185
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:187
+msgid "Copyright"
+msgstr "सर्वाधिकार"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:191
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:197
+#, python-format
+msgid "&#169; %(copyright_prefix)s %(copyright)s."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:209
+#, python-format
+msgid "Last updated on %(last_updated)s."
+msgstr "अंतिम बार सम्पादित %(last_updated)s."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:212
+#, python-format
+msgid ""
+"Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> "
+"%(sphinx_version)s."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/classic/static/sidebar.js.jinja:48
+msgid "Expand sidebar"
+msgstr "किनारे का स्थान बढ़ाएं"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/changes/rstsource.html:5
+#, python-format
+msgid "%(filename)s &#8212; %(docstitle)s"
+msgstr "%(filename)s &#8212; %(docstitle)s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/changes/frameset.html:5
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/changes/versionchanges.html:12
+#, python-format
+msgid "Changes in Version %(version)s &#8212; %(docstitle)s"
+msgstr "परिवर्तित संस्करण %(version)s &#8212; %(docstitle)s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/changes/versionchanges.html:17
+#, python-format
+msgid "Automatically generated list of changes in version %(version)s"
+msgstr "संस्करण %(version)s में स्वतः रचित परिवर्तनों की सूची"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/changes/versionchanges.html:18
+msgid "Library changes"
+msgstr "पुस्तकालय में परिवर्तन"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/changes/versionchanges.html:23
+msgid "C API changes"
+msgstr "सी ऐ.पी.आई. परिवर्तन"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/changes/versionchanges.html:25
+msgid "Other changes"
+msgstr "अन्य परिवर्तन"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/static/sphinx_highlight.js:112
+msgid "Hide Search Matches"
+msgstr "खोजे गए जोड़े छिपाएं"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/static/searchtools.js:112
+msgid "Search Results"
+msgstr "खोज परीणाम "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/static/searchtools.js:114
+msgid ""
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
+msgstr "आपके खोज परिणामों में कोई प्रलेख नहीं मिला. कृपया सुनिश्चित करें कि सभी शब्दों की वर्तनी शुद्ध है और आपने यथेष्ट श्रेणियां चुनी हैं."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/static/searchtools.js:118
+msgid ""
+"Search finished, found ${resultCount} page(s) matching the search query."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/static/searchtools.js:246
+msgid "Searching"
+msgstr "खोज जारी"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/static/searchtools.js:262
+msgid "Preparing search..."
+msgstr "खोज की तैयारी"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/static/searchtools.js:464
+msgid ", in "
+msgstr ", में "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/collectors/asset.py:89
+#, python-format
+msgid "image file not readable: %s"
+msgstr "चित्र फाइल पठनीय नहीं है: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/collectors/asset.py:108
+#, python-format
+msgid "image file %s not readable: %s"
+msgstr "चित्र फाइल %s पठनीय नहीं है: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/collectors/asset.py:134
+#, python-format
+msgid "download file not readable: %s"
+msgstr "उतारी गई फाइल पठनीय नहीं है: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/collectors/toctree.py:238
+#, python-format
+msgid "%s is already assigned section numbers (nested numbered toctree?)"
+msgstr "%s में पहले से भाग संख्या नियत है (एक के अन्दर दूसरा अंकित विषय-सूची-संरचना)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/adapters/toctree.py:297
+#, python-format
+msgid "circular toctree references detected, ignoring: %s <- %s"
+msgstr "पारस्परिक संदर्भित विषय-सूची-संरचना सन्दर्भ पाए गए, उपेक्षा की जा रही है: %s <- %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/adapters/toctree.py:317
+#, python-format
+msgid ""
+"toctree contains reference to document %r that doesn't have a title: no link"
+" will be generated"
+msgstr "विषय-सूची-संरचना में लेखपत्र %r, जिसका कोई शीर्षक नहीं है, का सन्दर्भ है: कोई सम्बन्ध नहीं बनाया जा सकेगा"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/adapters/toctree.py:326
+#, python-format
+msgid "toctree contains reference to non-included document %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/adapters/indexentries.py:103
+#, python-format
+msgid "see %s"
+msgstr "%s देखिए"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/adapters/indexentries.py:107
+#, python-format
+msgid "see also %s"
+msgstr "%s भी देखिए"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/adapters/indexentries.py:110
+#, python-format
+msgid "unknown index entry type %r"
+msgstr "अनुक्रमणिका की प्रविष्टि का प्रकार अज्ञात %r"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/adapters/indexentries.py:232
+#: /home/runner/work/sphinx/sphinx/sphinx/templates/latex/sphinxmessages.sty.jinja:11
+msgid "Symbols"
+msgstr "संकेत "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:360
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/_symbol.py:793
+#, python-format
+msgid ""
+"Duplicate C++ declaration, also defined at %s:%s.\n"
+"Declaration is '.. cpp:%s:: %s'."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:155
+msgid "Template Parameters"
+msgstr "नमूना मानदण्ड "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:277
+#, python-format
+msgid "%s (C++ %s)"
+msgstr "%s (C++ %s)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:298
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:436
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/_object.py:164
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:762
+msgid "Parameters"
+msgstr "मापदण्ड"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:301
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:449
+msgid "Return values"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:678
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:854
+msgid "union"
+msgstr "युग्म"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:673
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:856
+msgid "member"
+msgstr "सदस्य"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:681
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:857
+msgid "type"
+msgstr "प्रकार"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:858
+msgid "concept"
+msgstr "अवधारणा "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:679
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:859
+msgid "enum"
+msgstr "गणक"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:680
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:860
+msgid "enumerator"
+msgstr "प्रगणक "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:683
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:862
+msgid "function parameter"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:863
+msgid "template parameter"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/_object.py:169
+msgid "Variables"
+msgstr "चर पद "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/_object.py:173
+msgid "Raises"
+msgstr "उभारता है "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:107
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:244
+#, python-format
+msgid "%s() (in module %s)"
+msgstr "%s() (%s प्रभाग में )"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:167
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:334
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:385
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:424
+#, python-format
+msgid "%s (in module %s)"
+msgstr "%s (%s प्रभाग में )"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:169
+#, python-format
+msgid "%s (built-in variable)"
+msgstr "%s (अंतर्निर्मित चर पद)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:194
+#, python-format
+msgid "%s (built-in class)"
+msgstr "%s (अंतर्निर्मित वर्ग)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:195
+#, python-format
+msgid "%s (class in %s)"
+msgstr "%s (%s वर्ग में)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:249
+#, python-format
+msgid "%s() (%s class method)"
+msgstr "%s() (%s वर्ग विधि) "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:251
+#, python-format
+msgid "%s() (%s static method)"
+msgstr "%s() (%s स्थैतिक विधि)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:389
+#, python-format
+msgid "%s (%s property)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:428
+#, python-format
+msgid "%s (type alias in %s)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:551
+msgid "Python Module Index"
+msgstr "पाइथन प्रभाग सूची"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:552
+msgid "modules"
+msgstr "प्रभाग"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:601
+msgid "Deprecated"
+msgstr "अवमानित "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:626
+msgid "exception"
+msgstr "अपवाद "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:628
+msgid "class method"
+msgstr "वर्ग विधि"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:629
+msgid "static method"
+msgstr "स्थैतिक पद्धति"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:631
+msgid "property"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:632
+msgid "type alias"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:692
+#, python-format
+msgid ""
+"duplicate object description of %s, other instance in %s, use :no-index: for"
+" one of them"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:812
+#, python-format
+msgid "more than one target found for cross-reference %r: %s"
+msgstr "पारस्परिक-सन्दर्भों के लिए एक से अधिक लक्ष्य मिले %r: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:873
+msgid " (deprecated)"
+msgstr "(अवमानित)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:81
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:98
+#, python-format
+msgid "environment variable; %s"
+msgstr "परिस्थिति चर पद; %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:106
+#, python-format
+msgid "%s; configuration value"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:159
+msgid "Type"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:169
+msgid "Default"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:228
+#, python-format
+msgid ""
+"Malformed option description %r, should look like \"opt\", \"-opt args\", \""
+"--opt args\", \"/opt args\" or \"+opt args\""
+msgstr "अशुद्ध रूप विकल्प विवरण %r, अपेक्षित प्रारूप \"opt\", \"-opt args\", \"--opt args\", \"/opt args\" अथवा \"+opt args\""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:299
+#, python-format
+msgid "%s command line option"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:301
+msgid "command line option"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:424
+msgid "glossary term must be preceded by empty line"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:432
+msgid "glossary terms must not be separated by empty lines"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:438
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:451
+msgid "glossary seems to be misformatted, check indentation"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:596
+msgid "glossary term"
+msgstr "पारिभाषिक पद"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:597
+msgid "grammar token"
+msgstr "व्याकरण संकेत "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:598
+msgid "reference label"
+msgstr "सन्दर्भ शीर्षक"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:601
+msgid "environment variable"
+msgstr "परिस्थिति चर पद "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:602
+msgid "program option"
+msgstr "प्रोग्राम विकल्प "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:603
+msgid "document"
+msgstr "लेखपत्र"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:641
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:653
+msgid "Module Index"
+msgstr "प्रभाग सूची"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:716
+#, python-format
+msgid "duplicate %s description of %s, other instance in %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:921
+msgid "numfig is disabled. :numref: is ignored."
+msgstr "numfig असमर्थ है. :numref: उपेक्षित है."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:929
+#, python-format
+msgid "Failed to create a cross reference. Any number is not assigned: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:941
+#, python-format
+msgid "the link has no caption: %s"
+msgstr "कड़ी का कोई शीर्षक नहीं है: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:955
+#, python-format
+msgid "invalid numfig_format: %s (%r)"
+msgstr "अमान्य numfig_format: %s (%r)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:958
+#, python-format
+msgid "invalid numfig_format: %s"
+msgstr "अमान्य numfig_format: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:1189
+#, python-format
+msgid "undefined label: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:1191
+#, python-format
+msgid "Failed to create a cross reference. A title or caption not found: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:260
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/_symbol.py:510
+#, python-format
+msgid ""
+"Duplicate C declaration, also defined at %s:%s.\n"
+"Declaration is '.. c:%s:: %s'."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:199
+#, python-format
+msgid "%s (C %s)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:674
+msgid "variable"
+msgstr "चर पद"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:676
+msgid "macro"
+msgstr "मैक्रो"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:677
+msgid "struct"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/templates/latex/longtable.tex.jinja:52
+#: /home/runner/work/sphinx/sphinx/sphinx/templates/latex/sphinxmessages.sty.jinja:8
+msgid "continued from previous page"
+msgstr "पिछले पृष्ठ से जारी"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/templates/latex/longtable.tex.jinja:63
+#: /home/runner/work/sphinx/sphinx/sphinx/templates/latex/sphinxmessages.sty.jinja:9
+msgid "continues on next page"
+msgstr "अगले पृष्ठ पर जारी"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/templates/latex/sphinxmessages.sty.jinja:10
+msgid "Non-alphabetical"
+msgstr "अकारादि-क्रमहीन "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/templates/latex/sphinxmessages.sty.jinja:12
+msgid "Numbers"
+msgstr "संख्याएं "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/templates/latex/sphinxmessages.sty.jinja:13
+msgid "page"
+msgstr "पृष्ठ"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:199
+#: /home/runner/work/sphinx/sphinx/sphinx/templates/latex/latex.tex.jinja:91
+msgid "Release"
+msgstr "आवृत्ति"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:682
+msgid "Example"
+msgstr "उदाहरण"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:683
+msgid "Examples"
+msgstr "कुछ उदाहरण"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/__init__.py:341
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:728
+msgid "Keyword Arguments"
+msgstr "मुख्य शब्दों के चर-पद"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:744
+msgid "Notes"
+msgstr "टिप्पणियाँ"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:753
+msgid "Other Parameters"
+msgstr "अन्य मापदण्ड"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:789
+msgid "Receives"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:793
+msgid "References"
+msgstr "सन्दर्भ"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:825
+msgid "Warns"
+msgstr "चेतावनी देता है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:829
+msgid "Yields"
+msgstr "मिलता है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:987
+#, python-format
+msgid "invalid value set (missing closing brace): %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:994
+#, python-format
+msgid "invalid value set (missing opening brace): %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:1001
+#, python-format
+msgid "malformed string literal (missing closing quote): %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:1008
+#, python-format
+msgid "malformed string literal (missing opening quote): %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_resolve.py:43
+#, python-format
+msgid "(in %s v%s)"
+msgstr "(%s v%s में)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_resolve.py:45
+#, python-format
+msgid "(in %s)"
+msgstr "(%s में)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_resolve.py:86
+#, python-format
+msgid "inventory '%s': multiple matches found for %s:%s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_resolve.py:282
+#, python-format
+msgid "inventory for external cross-reference not found: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_resolve.py:290
+#, python-format
+msgid "invalid external cross-reference suffix: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_resolve.py:301
+#, python-format
+msgid "domain for external cross-reference not found: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_resolve.py:494
+#, python-format
+msgid "external %s:%s reference target not found: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:59
+#, python-format
+msgid ""
+"Invalid intersphinx project identifier `%r` in intersphinx_mapping. Project "
+"identifiers must be non-empty strings."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:70
+#, python-format
+msgid ""
+"Invalid value `%r` in intersphinx_mapping[%r]. Expected a two-element tuple "
+"or list."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:81
+#, python-format
+msgid ""
+"Invalid value `%r` in intersphinx_mapping[%r]. Values must be a (target URI,"
+" inventory locations) pair."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:92
+#, python-format
+msgid ""
+"Invalid target URI value `%r` in intersphinx_mapping[%r][0]. Target URIs "
+"must be unique non-empty strings."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:99
+#, python-format
+msgid ""
+"Invalid target URI value `%r` in intersphinx_mapping[%r][0]. Target URIs "
+"must be unique (other instance in intersphinx_mapping[%r])."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:115
+#, python-format
+msgid ""
+"Invalid inventory location value `%r` in intersphinx_mapping[%r][1]. "
+"Inventory locations must be non-empty strings or None."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:126
+msgid "Invalid `intersphinx_mapping` configuration (1 error)."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:129
+#, python-format
+msgid "Invalid `intersphinx_mapping` configuration (%s errors)."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:148
+msgid "An invalid intersphinx_mapping entry was added after normalisation."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:220
+#, python-format
+msgid "loading intersphinx inventory '%s' from %s ..."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:242
+msgid ""
+"encountered some issues with some of the inventories, but they had working "
+"alternatives:"
+msgstr "कुछ चीजों के साथ कुछ समस्या है, लेकिन काम के दूसरे विकल्प उपलब्ध हैं: "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:248
+msgid "failed to reach any of the inventories with the following issues:"
+msgstr "कुछ चीजों पहुँचने में असफलता मिली और यह समस्याएँ मिलीं: "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:286
+#, python-format
+msgid "intersphinx inventory has moved: %s -> %s"
+msgstr "इन्टरस्फिंक्स सामान स्थानांतरित हो चुका है: %s -> %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/type_comment.py:132
+#, python-format
+msgid "Failed to update signature for %r: parameter not found: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/type_comment.py:135
+#, python-format
+msgid "Failed to parse type_comment for %r: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/preserve_defaults.py:190
+#, python-format
+msgid "Failed to parse a default argument value for %r: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:133
+#, python-format
+msgid "invalid value for member-order option: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:141
+#, python-format
+msgid "invalid value for class-doc-from option: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:384
+#, python-format
+msgid "invalid signature for auto%s (%r)"
+msgstr "स्वतः %s (%r) के लिए अमान्य हस्ताक्षर"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:500
+#, python-format
+msgid "error while formatting arguments for %s: %s"
+msgstr "%s के पदों का प्रारूप बनाने में व्यवधान: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:770
+#, python-format
+msgid ""
+"autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
+"%s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:865
+#, python-format
+msgid ""
+"don't know which module to import for autodocumenting %r (try placing a "
+"\"module\" or \"currentmodule\" directive in the document, or giving an "
+"explicit module name)"
+msgstr "पता नहीं है कि कौन सा प्रभाग स्वतःप्रलेखन %r के लिए आयात करना है (लेखपत्र में \"प्रभाग\" या \"वर्तमान-प्रभाग\" निर्देश रख कर देखें; अथवा स्पष्ट प्रभाग नाम देकर देखें)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:909
+#, python-format
+msgid "A mocked object is detected: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:928
+#, python-format
+msgid "error while formatting signature for %s: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:991
+msgid "\"::\" in automodule name doesn't make sense"
+msgstr "स्वतः प्रभाग नाम में \"::\"  विवेकहीन है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:998
+#, python-format
+msgid "signature arguments or return annotation given for automodule %s"
+msgstr "स्वतः-प्रभाग %s के लिए हस्ताक्षर पद अथवा प्रत्युत्तरित टिप्पणी प्रदान की गई"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1011
+#, python-format
+msgid ""
+"__all__ should be a list of strings, not %r (in module %s) -- ignoring "
+"__all__"
+msgstr "__all__ अंतिम अक्षरमाला होनी चाहिए, न कि %r (%s प्रभाग में) --  __all__ की उपेक्षा की जाएगी"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1077
+#, python-format
+msgid ""
+"missing attribute mentioned in :members: option: module %s, attribute %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1299
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1376
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:2782
+#, python-format
+msgid "Failed to get a function signature for %s: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1590
+#, python-format
+msgid "Failed to get a constructor signature for %s: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1717
+#, python-format
+msgid "Bases: %s"
+msgstr "आधार: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1731
+#, python-format
+msgid "missing attribute %s in object %s"
+msgstr "%s गुण %s वस्तु में अनुपस्थित"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1812
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1849
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1944
+#, python-format
+msgid "alias of %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1832
+#, python-format
+msgid "alias of TypeVar(%s)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:2172
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:2272
+#, python-format
+msgid "Failed to get a method signature for %s: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:2403
+#, python-format
+msgid "Invalid __slots__ found on %s. Ignored."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:212
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:384
+#, python-format
+msgid ""
+"autosummary: failed to determine %r to be documented, the following exception was raised:\n"
+"%s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:514
+#, python-format
+msgid "[autosummary] generating autosummary for: %s"
+msgstr "[ऑटोसमरी] अब इसका स्वतःसारांश बना रहा है: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:517
+#, python-format
+msgid "[autosummary] writing to %s"
+msgstr "[ऑटोसमरी] %s पर लिख रहा है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:559
+#, python-format
+msgid ""
+"[autosummary] failed to import %s.\n"
+"Possible hints:\n"
+"%s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:754
+msgid ""
+"\n"
+"Generate ReStructuredText using autosummary directives.\n"
+"\n"
+"sphinx-autogen is a frontend to sphinx.ext.autosummary.generate. It generates\n"
+"the reStructuredText files from the autosummary directives contained in the\n"
+"given input files.\n"
+"\n"
+"The format of the autosummary directive is documented in the\n"
+"``sphinx.ext.autosummary`` Python module and can be read using::\n"
+"\n"
+"  pydoc sphinx.ext.autosummary\n"
+msgstr "\nस्वतः सारांश #autosummary# निर्देश का प्रयोग करते हुए पुर्नसरंचितपाठ बनाता है.\n\nस्फिंक्स-ऑटोजेन स्फिंक्स.एक्स्ट.ऑटोसमरी.जेनेरेट का मुखड़ा है.\nयह प्रदत्त फाइलों में सम्मिलित ऑटो समरी निर्देशों के अनुसार पुर्नसरंचितपाठ बनाता है\n\nस्वतः सारांश #autosummary# निर्देश का प्रारूप स्फिंक्स.एक्स्ट.ऑटोसमरी \nपाइथन प्रभाग में निबंधित है और इसे आप निम्नलिखित माध्यम से पढ़ सकते हैं:\n\n  pydoc sphinx.ext.autosummary\n"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:776
+msgid "source files to generate rST files for"
+msgstr "आर.एस.टी. फाइलें बनाने के लिए स्रोत फाइलें"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:784
+msgid "directory to place all output in"
+msgstr "सभी परिणाम रखने के लिए निर्देशिका"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:792
+#, python-format
+msgid "default suffix for files (default: %(default)s)"
+msgstr "फाइलों के लिए मानक प्रत्यय (मानक: %(default)s)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:800
+#, python-format
+msgid "custom template directory (default: %(default)s)"
+msgstr "पारंपरिक प्रारूप निर्देशिका (मानक: %(default)s)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:808
+#, python-format
+msgid "document imported members (default: %(default)s)"
+msgstr "लेखपत्र आयातित सदस्य (मानक: %(default)s)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:816
+#, python-format
+msgid ""
+"document exactly the members in module __all__ attribute. (default: "
+"%(default)s)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/__init__.py:253
+#, python-format
+msgid "autosummary references excluded document %r. Ignored."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/__init__.py:255
+#, python-format
+msgid ""
+"autosummary: stub file not found %r. Check your autosummary_generate "
+"setting."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/__init__.py:274
+msgid "A captioned autosummary requires :toctree: option. ignored."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/__init__.py:327
+#, python-format
+msgid ""
+"autosummary: failed to import %s.\n"
+"Possible hints:\n"
+"%s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/__init__.py:341
+#, python-format
+msgid "failed to parse name %s"
+msgstr "पद-विच्छेदन में असफलता: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/__init__.py:346
+#, python-format
+msgid "failed to import object %s"
+msgstr "विषय-वस्तु के आयात में असफलता: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/__init__.py:645
+#, python-format
+msgid ""
+"Summarised items should not include the current module. Replace %r with %r."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/__init__.py:816
+#, python-format
+msgid "autosummary_generate: file not found: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/__init__.py:824
+msgid ""
+"autosummary generates .rst files internally. But your source_suffix does not"
+" contain .rst. Skipped."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/util/errors.py:119
+msgid "Exception occurred, starting debugger:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/util/errors.py:128
+msgid "reStructuredText markup error:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/util/errors.py:159
+msgid "The full traceback has been saved in:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/util/errors.py:162
+msgid ""
+"To report this error to the developers, please open an issue at "
+"<https://github.com/sphinx-doc/sphinx/issues/>. Thanks!"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/theming.py:87
+#, python-format
+msgid "%r doesn't have \"theme\" setting"
+msgstr "%r में कोई \"रूप\" मान नहीं है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/theming.py:90
+#, python-format
+msgid "%r doesn't have \"%s\" setting"
+msgstr "%r में कोई \"%s \" मान नहीं है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/transforms.py:120
+msgid "Failed to get a docname!"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/transforms.py:121
+msgid "Failed to get a docname for source {source!r}!"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/transforms.py:482
+#, python-format
+msgid "No footnote was found for given reference node %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:115
+#, python-format
+msgid "The LaTeX files are in %(outdir)s."
+msgstr "लाटेक्स लेखपत्र %(outdir)s में हैं."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:117
+msgid ""
+"\n"
+"Run 'make' in that directory to run these through (pdf)latex\n"
+"(use `make latexpdf' here to do that automatically)."
+msgstr "\nइन्हें (pdf)latex से चलाने के लिए उस निर्देशिका में 'मेक' आदेश चलायें\n(ऐसा स्वचालित रूप से करने के लिए यहाँ 'make latexpdf' आदेश का उपयोग करें)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:152
+msgid "no \"latex_documents\" config value found; no documents will be written"
+msgstr "कोई \"latex_documents\" विन्यास मान नहीं मिला; कोई  नहीं लिखे जाएंगे"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:160
+#, python-format
+msgid "\"latex_documents\" config value references unknown document %s"
+msgstr "\"latex_documents\" विन्यास मान अज्ञात लेखपत्र %s का सन्दर्भ है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:394
+msgid "copying TeX support files"
+msgstr "टेक्स सहायक फाइलों की प्रतिलिपि की जा रही है..."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:430
+msgid "copying additional files"
+msgstr "अतिरिक्त फाइलों की प्रतिकृति बनाई जा रही है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1310
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:459
+#, python-format
+msgid "logo file %r does not exist"
+msgstr "प्रतीकचिन्ह फाइल %r का अस्तित्व नहीं है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:492
+#, python-format
+msgid "Unknown configure key: latex_elements[%r], ignored."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:500
+#, python-format
+msgid "Unknown theme option: latex_theme_options[%r], ignored."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:139
+#, python-format
+msgid "build info file is broken: %r"
+msgstr "निर्माण सूचनापत्र फाइल खंडित है: %r"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:177
+#, python-format
+msgid "The HTML pages are in %(outdir)s."
+msgstr "एच.टी.एम्.एल. पृष्ठ %(outdir)sमें हैं."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:401
+#, python-format
+msgid "Failed to read build info file: %r"
+msgstr "निर्माण सूचनापत्र फाइल को नहीं पढ़ा जा सका: %r"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:515
+msgid "index"
+msgstr "अनुक्रमणिका"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:564
+#, python-format
+msgid "Logo of %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:589
+msgid "next"
+msgstr "आगामी"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:598
+msgid "previous"
+msgstr "पूर्ववर्ती"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:694
+msgid "generating indices"
+msgstr "अनुक्रमाणिका निर्मित की जा रही है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:709
+msgid "writing additional pages"
+msgstr "अतिरिक्त पृष्ठ लिखे जा रहे हैं"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:779
+#, python-format
+msgid "cannot copy image file '%s': %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:789
+msgid "copying downloadable files... "
+msgstr "उतारी गई फाइलों की प्रतिलिपि बनाई जा रही है..."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:797
+#, python-format
+msgid "cannot copy downloadable file %r: %s"
+msgstr "उतारी गई फाइलों %r की प्रतिलिपि नहीं की जा सकी: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:842
+#, python-format
+msgid "Failed to copy a file in the theme's 'static' directory: %s: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:857
+#, python-format
+msgid "Failed to copy a file in html_static_file: %s: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:890
+msgid "copying static files"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:906
+#, python-format
+msgid "cannot copy static file %r"
+msgstr "स्थैतिक फाइल %r की प्रतिलिपि नहीं की जा सकी"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:911
+msgid "copying extra files"
+msgstr "अतिरिक्त फाइलों की प्रतिलिपियां बनाये जा रहे है| "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:921
+#, python-format
+msgid "cannot copy extra file %r"
+msgstr "अतिरिक्त फाइल %r की प्रतिलिपि नहीं की जा सकी"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:928
+#, python-format
+msgid "Failed to write build info file: %r"
+msgstr "निर्माण फाइल को नहीं लिखा जा सका: %r"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:977
+msgid ""
+"search index couldn't be loaded, but not all documents will be built: the "
+"index will be incomplete."
+msgstr "खोज अनुक्रमाणिका नहीं चढाई जा सकी, लेकिन सभी लेखपत्र नहीं बनाए जाएंगे: अनुक्रमणिका अपूर्ण रहेगी."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1015
+#, python-format
+msgid "page %s matches two patterns in html_sidebars: %r and %r"
+msgstr "पृष्ठ %s html_sidebars में दो आकृतियों से मिलता है: %r  %r"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1162
+#, python-format
+msgid ""
+"a Unicode error occurred when rendering the page %s. Please make sure all "
+"config values that contain non-ASCII content are Unicode strings."
+msgstr "पृष्ठ %s की प्रस्तुति करते समय यूनिकोड त्रुटि हुई. कृपया यह सुनिश्चित कर लें कि सभी नॉन-असकी #non-ASCII# विहित विन्यास मान यूनिकोड अक्षरों में हैं."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1167
+#, python-format
+msgid ""
+"An error happened in rendering the page %s.\n"
+"Reason: %r"
+msgstr "पृष्ठ %s की प्रस्तुति करते समय एक त्रुटि हुई.\nकारण: %r"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1195
+msgid "dumping object inventory"
+msgstr "विषयवस्तुओं का भंडार बनाया जा रहा है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1203
+#, python-format
+msgid "dumping search index in %s"
+msgstr "%s में खोज अनुक्रमाणिका भंडार बनाया जा रहा है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1245
+#, python-format
+msgid "invalid js_file: %r, ignored"
+msgstr "अमान्य js_file: %r, उपेक्षित"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1273
+msgid "Many math_renderers are registered. But no math_renderer is selected."
+msgstr "कई math_renderers पंजीकृत हैं. लेकिन कोई math_renderers नहीं चुना गया है."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1276
+#, python-format
+msgid "Unknown math_renderer %r is given."
+msgstr "अज्ञात math_renderer %r दिया गया."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1284
+#, python-format
+msgid "html_extra_path entry %r does not exist"
+msgstr "html_extra_path प्रविष्टि %r का अस्तित्व नहीं है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1288
+#, python-format
+msgid "html_extra_path entry %r is placed inside outdir"
+msgstr "html_extra_path का प्रविष्टि %r outdir में है|  "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1297
+#, python-format
+msgid "html_static_path entry %r does not exist"
+msgstr "html_static_path प्रविष्टि %r का अस्तित्व नहीं है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1301
+#, python-format
+msgid "html_static_path entry %r is placed inside outdir"
+msgstr "html_static_path का  प्रविष्टि %r outdir में है|  "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1319
+#, python-format
+msgid "favicon file %r does not exist"
+msgstr "इष्ट चिन्ह फाइल %r का अस्तित्व नहीं है"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1331
+#, python-format
+msgid ""
+"Values in 'html_sidebars' must be a list of strings. At least one pattern "
+"has a string value: %s. Change to `html_sidebars = %r`."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1342
+msgid ""
+"HTML 4 is no longer supported by Sphinx. (\"html4_writer=True\" detected in "
+"configuration options)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1357
+#, python-format
+msgid "%s %s documentation"
+msgstr "%s %s दिग्दर्शिका"

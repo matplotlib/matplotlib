@@ -1,0 +1,4157 @@
+# Translations template for Sphinx.
+# Copyright (C) 2024 ORGANIZATION
+# This file is distributed under the same license as the Sphinx project.
+# 
+# Translators:
+# Risto Pejasinovic <risto.pejasinovic@gmail.com>, 2019
+# Vladimir Milovanović <vmilovanovic@gmail.com>, 2020
+msgid ""
+msgstr ""
+"Project-Id-Version: Sphinx\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2024-07-29 17:39+0000\n"
+"PO-Revision-Date: 2013-04-02 08:44+0000\n"
+"Last-Translator: Vladimir Milovanović <vmilovanovic@gmail.com>, 2020\n"
+"Language-Team: Serbian (http://app.transifex.com/sphinx-doc/sphinx-1/language/sr/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.15.0\n"
+"Language: sr\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:121
+#, python-format
+msgid ""
+"Theme configuration sections other than [theme] and [options] are not "
+"supported (tried to get a value from %r)."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:127
+#, python-format
+msgid "setting %s.%s occurs in none of the searched theme configs"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:142
+#, python-format
+msgid "unsupported theme option %r given"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:215
+#, python-format
+msgid "file %r on theme path is not a valid zipfile or contains no theme"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:236
+#, python-format
+msgid "no theme named %r found (missing theme.toml?)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:276
+#, python-format
+msgid "The %r theme has circular inheritance"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:283
+#, python-format
+msgid ""
+"The %r theme inherits from %r, which is not a loaded theme. Loaded themes "
+"are: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:290
+#, python-format
+msgid "The %r theme has too many ancestors"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:316
+#, python-format
+msgid "no theme configuration file found in %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:344
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:395
+#, python-format
+msgid "theme %r doesn't have the \"theme\" table"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:348
+#, python-format
+msgid "The %r theme \"[theme]\" table is not a table"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:352
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:398
+#, python-format
+msgid "The %r theme must define the \"theme.inherit\" setting"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:356
+#, python-format
+msgid "The %r theme \"[options]\" table is not a table"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/theming.py:374
+#, python-format
+msgid "The \"theme.pygments_style\" setting must be a table. Hint: \"%s\""
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/highlighting.py:155
+#, python-format
+msgid "Pygments lexer name %r is not known"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/highlighting.py:189
+#, python-format
+msgid ""
+"Lexing literal_block %r as \"%s\" resulted in an error at token: %r. "
+"Retrying in relaxed mode."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/extension.py:55
+#, python-format
+msgid ""
+"The %s extension is required by needs_extensions settings, but it is not "
+"loaded."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/extension.py:76
+#, python-format
+msgid ""
+"This project needs the extension %s at least in version %s and therefore "
+"cannot be built with the loaded version (%s)."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/events.py:67
+#, python-format
+msgid "Event %r already present"
+msgstr "Догађај %r већ постоји"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/events.py:73
+#, python-format
+msgid "Unknown event name: %s"
+msgstr "Непознат догађај: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/events.py:112
+#, python-format
+msgid "Handler %r for event %r threw an exception"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:314
+#, python-format
+msgid "config directory doesn't contain a conf.py file (%s)"
+msgstr "Конфигурациони директоријум не садржи conf.py датотеку (%s)."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:323
+msgid ""
+"Invalid configuration value found: 'language = None'. Update your "
+"configuration to a valid language code. Falling back to 'en' (English)."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:346
+#, python-format
+msgid ""
+"cannot override dictionary config setting %r, ignoring (use %r to set "
+"individual elements)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:355
+#, python-format
+msgid "invalid number %r for config value %r, ignoring"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:361
+#, python-format
+msgid "cannot override config setting %r with unsupported type, ignoring"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:382
+#, python-format
+msgid "unknown config value %r in override, ignoring"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:435
+#, python-format
+msgid "No such config value: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:458
+#, python-format
+msgid "Config value %r already present"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:494
+#, python-format
+msgid ""
+"cannot cache unpickable configuration value: %r (because it contains a "
+"function, class, or module object)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:531
+#, python-format
+msgid "There is a syntax error in your configuration file: %s\n"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:534
+msgid ""
+"The configuration file (or one of the modules it imports) called sys.exit()"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:541
+#, python-format
+msgid ""
+"There is a programmable error in your configuration file:\n"
+"\n"
+"%s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:564
+#, python-format
+msgid "Failed to convert %r to a set or tuple"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:585
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:590
+#, python-format
+msgid "Converting `source_suffix = %r` to `source_suffix = %r`."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:593
+#, python-format
+msgid ""
+"The config value `source_suffix' expects a dictionary, a string, or a list "
+"of strings. Got `%r' instead (type %s)."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:612
+#, python-format
+msgid "Section %s"
+msgstr "Одељак %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:613
+#, python-format
+msgid "Fig. %s"
+msgstr "Сл. %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:614
+#, python-format
+msgid "Table %s"
+msgstr "Табела %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:615
+#, python-format
+msgid "Listing %s"
+msgstr "Списак %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:690
+msgid ""
+"The config value `{name}` has to be a one of {candidates}, but `{current}` "
+"is given."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:714
+msgid ""
+"The config value `{name}' has type `{current.__name__}'; expected "
+"{permitted}."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:727
+msgid ""
+"The config value `{name}' has type `{current.__name__}', defaults to "
+"`{default.__name__}'."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:738
+#, python-format
+msgid "primary_domain %r not found, ignored."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/config.py:750
+msgid ""
+"Since v2.0, Sphinx uses \"index\" as root_doc by default. Please add "
+"\"root_doc = 'contents'\" to your conf.py."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:181
+#, python-format
+msgid "Cannot find source directory (%s)"
+msgstr "Нема изворног директоријума (%s)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:185
+#, python-format
+msgid "Output directory (%s) is not a directory"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:189
+msgid "Source directory and destination directory cannot be identical"
+msgstr "Изворни и одредишни директоријум не могу бити једнаки"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:221
+#, python-format
+msgid "Running Sphinx v%s"
+msgstr "Покрећем Sphinx v%s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:243
+#, python-format
+msgid ""
+"This project needs at least Sphinx v%s and therefore cannot be built with "
+"this version."
+msgstr "Овај пројекат захтева верзију Sphinx v%s или већу, не може се изградити инсталираном верзијом."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:259
+msgid "making output directory"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:264
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:445
+#, python-format
+msgid "while setting up extension %s:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:270
+msgid ""
+"'setup' as currently defined in conf.py isn't a Python callable. Please "
+"modify its definition to make it a callable function. This is needed for "
+"conf.py to behave as a Sphinx extension."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:305
+#, python-format
+msgid "loading translations [%s]... "
+msgstr "учитавање превода [%s]... "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:322
+#: /home/runner/work/sphinx/sphinx/sphinx/util/display.py:90
+msgid "done"
+msgstr "готово"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:324
+msgid "not available for built-in messages"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:338
+msgid "loading pickled environment"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:346
+#, python-format
+msgid "failed: %s"
+msgstr "Неуспешно: %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:359
+msgid "No builder selected, using default: html"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:392
+msgid "succeeded"
+msgstr "успешно"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:393
+msgid "finished with problems"
+msgstr "са грешкама"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:397
+#, python-format
+msgid "build %s, %s warning (with warnings treated as errors)."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:399
+#, python-format
+msgid "build %s, %s warnings (with warnings treated as errors)."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:402
+#, python-format
+msgid "build %s, %s warning."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:404
+#, python-format
+msgid "build %s, %s warnings."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:408
+#, python-format
+msgid "build %s."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:643
+#, python-format
+msgid "node class %r is already registered, its visitors will be overridden"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:722
+#, python-format
+msgid "directive %r is already registered, it will be overridden"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:744
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:769
+#, python-format
+msgid "role %r is already registered, it will be overridden"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:1317
+#, python-format
+msgid ""
+"the %s extension does not declare if it is safe for parallel reading, "
+"assuming it isn't - please ask the extension author to check and make it "
+"explicit"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:1321
+#, python-format
+msgid "the %s extension is not safe for parallel reading"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:1324
+#, python-format
+msgid ""
+"the %s extension does not declare if it is safe for parallel writing, "
+"assuming it isn't - please ask the extension author to check and make it "
+"explicit"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:1328
+#, python-format
+msgid "the %s extension is not safe for parallel writing"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:1336
+#: /home/runner/work/sphinx/sphinx/sphinx/application.py:1340
+#, python-format
+msgid "doing serial %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/roles.py:201
+#, python-format
+msgid "Python Enhancement Proposals; PEP %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/roles.py:222
+#, python-format
+msgid "invalid PEP number %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/roles.py:257
+#, python-format
+msgid "invalid RFC number %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:137
+#, python-format
+msgid "Builder class %s has no \"name\" attribute"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:139
+#, python-format
+msgid "Builder %r already exists (in module %s)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:152
+#, python-format
+msgid "Builder name %s not registered or available through entry point"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:159
+#, python-format
+msgid "Builder name %s not registered"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:166
+#, python-format
+msgid "domain %s already registered"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:189
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:202
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:213
+#, python-format
+msgid "domain %s not yet registered"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:193
+#, python-format
+msgid "The %r directive is already registered to domain %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:205
+#, python-format
+msgid "The %r role is already registered to domain %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:216
+#, python-format
+msgid "The %r index is already registered to domain %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:247
+#, python-format
+msgid "The %r object_type is already registered"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:273
+#, python-format
+msgid "The %r crossref_type is already registered"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:280
+#, python-format
+msgid "source_suffix %r is already registered"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:289
+#, python-format
+msgid "source_parser for %r is already registered"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:297
+#, python-format
+msgid "Source parser for %s not registered"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:313
+#, python-format
+msgid "Translator for %r already exists"
+msgstr "Преводилац за %r већ постоји"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:329
+#, python-format
+msgid "kwargs for add_node() must be a (visit, depart) function tuple: %r=%r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:412
+#, python-format
+msgid "enumerable_node %r already registered"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:424
+#, python-format
+msgid "math renderer %s is already registered"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:439
+#, python-format
+msgid ""
+"the extension %r was already merged with Sphinx since version %s; this "
+"extension is ignored."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:450
+msgid "Original exception:\n"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:451
+#, python-format
+msgid "Could not import extension %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:456
+#, python-format
+msgid ""
+"extension %r has no setup() function; is it really a Sphinx extension "
+"module?"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:465
+#, python-format
+msgid ""
+"The %s extension used by this project needs at least Sphinx v%s; it "
+"therefore cannot be built with this version."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:473
+#, python-format
+msgid ""
+"extension %r returned an unsupported object from its setup() function; it "
+"should return None or a metadata dictionary"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/registry.py:507
+#, python-format
+msgid "`None` is not a valid filetype for %r."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/project.py:69
+#, python-format
+msgid ""
+"multiple files found for the document \"%s\": %s\n"
+"Use %r for the build."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/project.py:85
+#, python-format
+msgid "Ignored unreadable document %r."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:42
+msgid "automatically insert docstrings from modules"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:43
+msgid "automatically test code snippets in doctest blocks"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:44
+msgid "link between Sphinx documentation of different projects"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:45
+msgid "write \"todo\" entries that can be shown or hidden on build"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:46
+msgid "checks for documentation coverage"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:47
+msgid "include math, rendered as PNG or SVG images"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:48
+msgid "include math, rendered in the browser by MathJax"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:49
+msgid "conditional inclusion of content based on config values"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:50
+msgid "include links to the source code of documented Python objects"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:51
+msgid "create .nojekyll file to publish the document on GitHub pages"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:93
+msgid "Please enter a valid path name."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:109
+msgid "Please enter some text."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:116
+#, python-format
+msgid "Please enter one of %s."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:123
+msgid "Please enter either 'y' or 'n'."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:129
+msgid "Please enter a file suffix, e.g. '.rst' or '.txt'."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:208
+#, python-format
+msgid "Welcome to the Sphinx %s quickstart utility."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:210
+msgid ""
+"Please enter values for the following settings (just press Enter to\n"
+"accept a default value, if one is given in brackets)."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:215
+#, python-format
+msgid "Selected root path: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:218
+msgid "Enter the root path for documentation."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:219
+msgid "Root path for the documentation"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:224
+msgid "Error: an existing conf.py has been found in the selected root path."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:226
+msgid "sphinx-quickstart will not overwrite existing Sphinx projects."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:228
+msgid "Please enter a new root path (or just Enter to exit)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:235
+msgid ""
+"You have two options for placing the build directory for Sphinx output.\n"
+"Either, you use a directory \"_build\" within the root path, or you separate\n"
+"\"source\" and \"build\" directories within the root path."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:238
+msgid "Separate source and build directories (y/n)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:242
+msgid ""
+"Inside the root directory, two more directories will be created; \"_templates\"\n"
+"for custom HTML templates and \"_static\" for custom stylesheets and other static\n"
+"files. You can enter another prefix (such as \".\") to replace the underscore."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:245
+msgid "Name prefix for templates and static dir"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:249
+msgid ""
+"The project name will occur in several places in the built documentation."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:250
+msgid "Project name"
+msgstr "Име пројекта"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:252
+msgid "Author name(s)"
+msgstr "Име(на) аутора"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:256
+msgid ""
+"Sphinx has the notion of a \"version\" and a \"release\" for the\n"
+"software. Each version can have multiple releases. For example, for\n"
+"Python the version is something like 2.5 or 3.0, while the release is\n"
+"something like 2.5.1 or 3.0a1. If you don't need this dual structure,\n"
+"just set both to the same value."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:261
+msgid "Project version"
+msgstr "Верзија пројекта"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:263
+msgid "Project release"
+msgstr "Издање пројекта"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:267
+msgid ""
+"If the documents are to be written in a language other than English,\n"
+"you can select a language here by its language code. Sphinx will then\n"
+"translate text that it generates into that language.\n"
+"\n"
+"For a list of supported codes, see\n"
+"https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:275
+msgid "Project language"
+msgstr "Језик пројекта"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:281
+msgid ""
+"The file name suffix for source files. Commonly, this is either \".txt\"\n"
+"or \".rst\". Only files with this suffix are considered documents."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:283
+msgid "Source file suffix"
+msgstr "Суфикс изворне датотеке"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:287
+msgid ""
+"One document is special in that it is considered the top node of the\n"
+"\"contents tree\", that is, it is the root of the hierarchical structure\n"
+"of the documents. Normally, this is \"index\", but if your \"index\"\n"
+"document is a custom template, you can also set this to another filename."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:291
+msgid "Name of your master document (without suffix)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:296
+#, python-format
+msgid ""
+"Error: the master file %s has already been found in the selected root path."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:298
+msgid "sphinx-quickstart will not overwrite the existing file."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:300
+msgid ""
+"Please enter a new file name, or rename the existing file and press Enter"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:304
+msgid "Indicate which of the following Sphinx extensions should be enabled:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:312
+msgid ""
+"Note: imgmath and mathjax cannot be enabled at the same time. imgmath has "
+"been deselected."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:318
+msgid ""
+"A Makefile and a Windows command file can be generated for you so that you\n"
+"only have to run e.g. `make html' instead of invoking sphinx-build\n"
+"directly."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:321
+msgid "Create Makefile? (y/n)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:324
+msgid "Create Windows command file? (y/n)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:371
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:92
+#, python-format
+msgid "Creating file %s."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:376
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:89
+#, python-format
+msgid "File %s already exists, skipping."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:414
+msgid "Finished: An initial directory structure has been created."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:416
+#, python-format
+msgid ""
+"You should now populate your master file %s and create other documentation\n"
+"source files. "
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:419
+msgid ""
+"Use the Makefile to build the docs, like so:\n"
+"   make builder"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:422
+#, python-format
+msgid ""
+"Use the sphinx-build command to build the docs, like so:\n"
+"   sphinx-build -b builder %s %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:424
+msgid ""
+"where \"builder\" is one of the supported builders, e.g. html, latex or "
+"linkcheck."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:456
+msgid ""
+"\n"
+"Generate required files for a Sphinx project.\n"
+"\n"
+"sphinx-quickstart is an interactive tool that asks some questions about your\n"
+"project and then generates a complete documentation directory and sample\n"
+"Makefile to be used with sphinx-build.\n"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:117
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:466
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:365
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:753
+msgid "For more information, visit <https://www.sphinx-doc.org/>."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:471
+msgid "quiet mode"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:476
+msgid "project root"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:478
+msgid "Structure options"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:480
+msgid "if specified, separate source and build dirs"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:482
+msgid "if specified, create build dir under source dir"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:484
+msgid "replacement for dot in _templates etc."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:486
+msgid "Project basic options"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:488
+msgid "project name"
+msgstr "име пројекта"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:490
+msgid "author names"
+msgstr "имена аутора"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:492
+msgid "version of project"
+msgstr "верзија пројекта"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:494
+msgid "release of project"
+msgstr "издање пројекта"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:496
+msgid "document language"
+msgstr "језик пројекта"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:498
+msgid "source file suffix"
+msgstr "суфикс изворне датотеке"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:500
+msgid "master document name"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:502
+msgid "use epub"
+msgstr "користи epub"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:504
+msgid "Extension options"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:508
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:559
+#, python-format
+msgid "enable %s extension"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:510
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:551
+msgid "enable arbitrary extensions"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:512
+msgid "Makefile and Batchfile creation"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:514
+msgid "create makefile"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:516
+msgid "do not create makefile"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:518
+msgid "create batchfile"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:521
+msgid "do not create batchfile"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:525
+msgid "use make-mode for Makefile/make.bat"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:527
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:562
+msgid "Project templating"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:530
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:568
+msgid "template directory for template files"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:533
+msgid "define a template variable"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:566
+msgid "\"quiet\" is specified, but any of \"project\" or \"author\" is not specified."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:580
+msgid ""
+"Error: specified path is not a directory, or sphinx files already exist."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:582
+msgid ""
+"sphinx-quickstart only generate into a empty directory. Please specify a new"
+" root path."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/quickstart.py:597
+#, python-format
+msgid "Invalid template variable: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:46
+msgid "Exception occurred while building, starting debugger:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/util/errors.py:124
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:61
+msgid "Interrupted!"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:63
+msgid "reST markup error:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/util/errors.py:138
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:69
+msgid "Encoding error:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:72
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:87
+#, python-format
+msgid ""
+"The full traceback has been saved in %s, if you want to report the issue to "
+"the developers."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/util/errors.py:143
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:76
+msgid "Recursion error:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/util/errors.py:146
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:79
+msgid ""
+"This can happen with very large or deeply nested source files. You can "
+"carefully increase the default Python recursion limit of 1000 in conf.py "
+"with e.g.:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/util/errors.py:156
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:84
+msgid "Exception occurred:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/util/errors.py:164
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:90
+msgid ""
+"Please also report this if it was a user error, so that a better error "
+"message can be provided next time."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:93
+msgid ""
+"A bug report can be filed in the tracker at <https://github.com/sphinx-"
+"doc/sphinx/issues>. Thanks!"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:109
+msgid "job number should be a positive number"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:118
+msgid ""
+"\n"
+"Generate documentation from source files.\n"
+"\n"
+"sphinx-build generates documentation from the files in SOURCEDIR and places it\n"
+"in OUTPUTDIR. It looks for 'conf.py' in SOURCEDIR for the configuration\n"
+"settings. The 'sphinx-quickstart' tool may be used to generate template files,\n"
+"including 'conf.py'\n"
+"\n"
+"sphinx-build can create documentation in different formats. A format is\n"
+"selected by specifying the builder name on the command line; it defaults to\n"
+"HTML. Builders can also perform other tasks related to documentation\n"
+"processing.\n"
+"\n"
+"By default, everything that is outdated is built. Output only for selected\n"
+"files can be built by specifying individual filenames.\n"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:139
+msgid "path to documentation source files"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:141
+msgid "path to output directory"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:143
+msgid ""
+"(optional) a list of specific files to rebuild. Ignored if --write-all is "
+"specified"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:146
+msgid "general options"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:149
+msgid "builder to use (default: 'html')"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:152
+msgid ""
+"run in parallel with N processes, when possible. 'auto' uses the number of "
+"CPU cores"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:155
+msgid "write all files (default: only write new and changed files)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:158
+msgid "don't use a saved environment, always read all files"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:161
+msgid "path options"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:163
+msgid ""
+"directory for doctree and environment files (default: OUTPUT_DIR/.doctrees)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:166
+msgid "directory for the configuration file (conf.py) (default: SOURCE_DIR)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:171
+msgid "use no configuration file, only use settings from -D options"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:174
+msgid "override a setting in configuration file"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:177
+msgid "pass a value into HTML templates"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:180
+msgid "define tag: include \"only\" blocks with TAG"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:182
+msgid "nitpicky mode: warn about all missing references"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:184
+msgid "console output options"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:187
+msgid "increase verbosity (can be repeated)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:189
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:402
+msgid "no output on stdout, just warnings on stderr"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:191
+msgid "no output at all, not even warnings"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:194
+msgid "do emit colored output (default: auto-detect)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:197
+msgid "do not emit colored output (default: auto-detect)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:199
+msgid "warning control options"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:201
+msgid "write warnings (and errors) to given file"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:203
+msgid "turn warnings into errors"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:205
+msgid "with --fail-on-warning, keep going when getting warnings"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:207
+msgid "show full traceback on exception"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:209
+msgid "run Pdb on exception"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:244
+msgid "cannot combine -a option and filenames"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:276
+#, python-format
+msgid "cannot open warning file %r: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:296
+msgid "-D option argument must be in the form name=value"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/cmd/build.py:303
+msgid "-A option argument must be in the form name=value"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/i18n.py:205
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/i18n.py:270
+msgid ""
+"inconsistent footnote references in translated message. original: {0}, "
+"translated: {1}"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/i18n.py:245
+msgid ""
+"inconsistent references in translated message. original: {0}, translated: "
+"{1}"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/i18n.py:285
+msgid ""
+"inconsistent citation references in translated message. original: {0}, "
+"translated: {1}"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/i18n.py:302
+msgid ""
+"inconsistent term references in translated message. original: {0}, "
+"translated: {1}"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:496
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:189
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/__init__.py:131
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/manpage.py:101
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/texinfo.py:227
+#, python-format
+msgid "%b %d, %Y"
+msgstr "%b %d, %Y"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/__init__.py:142
+msgid "could not calculate translation progress!"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/__init__.py:147
+msgid "no translated elements!"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/__init__.py:264
+#, python-format
+msgid ""
+"4 column based index found. It might be a bug of extensions you use: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/__init__.py:305
+#, python-format
+msgid "Footnote [%s] is not referenced."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/__init__.py:311
+msgid "Footnote [#] is not referenced."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/docfields.py:87
+#, python-format
+msgid ""
+"Problem in %s domain: field is supposed to use role '%s', but that role is "
+"not in the domain."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/inventory.py:165
+#, python-format
+msgid "inventory <%s> contains duplicate definitions of %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/inventory.py:175
+#, python-format
+msgid "inventory <%s> contains multiple definitions for %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/nodes.py:383
+#, python-format
+msgid ""
+"%r is deprecated for index entries (from entry %r). Use 'pair: %s' instead."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/nodes.py:436
+#, python-format
+msgid "toctree contains ref to nonexisting file %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/nodes.py:634
+#, python-format
+msgid "exception while evaluating only directive expression: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/fileutil.py:76
+#, python-format
+msgid ""
+"Aborted attempted copy from rendered template %s to %s (the destination path"
+" has existing data)."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/osutil.py:129
+#, python-format
+msgid ""
+"Aborted attempted copy from %s to %s (the destination path has existing "
+"data)."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/i18n.py:99
+#, python-format
+msgid "reading error: %s, %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/i18n.py:106
+#, python-format
+msgid "writing error: %s, %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/i18n.py:130
+#, python-format
+msgid "locale_dir %s does not exist"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/i18n.py:220
+#, python-format
+msgid ""
+"Invalid date format. Quote the string by single quote if you want to output "
+"it directly: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/docutils.py:261
+#, python-format
+msgid "unknown directive or role name: %s:%s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/docutils.py:673
+#, python-format
+msgid "unknown node type: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/rst.py:71
+#, python-format
+msgid "default role %s not found"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/__init__.py:162
+#, python-format
+msgid "undecodable source characters, replacing with \"?\": %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/display.py:83
+msgid "skipped"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/util/display.py:88
+msgid "failed"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/locale/__init__.py:225
+msgid "Attention"
+msgstr "Пажња"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/locale/__init__.py:226
+msgid "Caution"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/locale/__init__.py:227
+msgid "Danger"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/locale/__init__.py:228
+msgid "Error"
+msgstr "Грешка"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/locale/__init__.py:229
+msgid "Hint"
+msgstr "Путоказ"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/locale/__init__.py:230
+msgid "Important"
+msgstr "Важно"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/locale/__init__.py:231
+msgid "Note"
+msgstr "Белешка"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/locale/__init__.py:232
+msgid "See also"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/locale/__init__.py:233
+msgid "Tip"
+msgstr "Савет"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/locale/__init__.py:234
+msgid "Warning"
+msgstr "Упозорење"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/__init__.py:73
+msgid "new config"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/__init__.py:74
+msgid "config changed"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/__init__.py:75
+msgid "extensions changed"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/__init__.py:293
+msgid "build environment version not current"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/__init__.py:295
+msgid "source directory has changed"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/__init__.py:376
+msgid ""
+"This environment is incompatible with the selected builder, please choose "
+"another doctree directory."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/__init__.py:475
+#, python-format
+msgid "Failed to scan documents in %s: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/__init__.py:619
+#, python-format
+msgid "Domain %r is not registered"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/__init__.py:753
+msgid "document isn't included in any toctree"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/__init__.py:769
+msgid "self referenced toctree found. Ignored."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/citation.py:71
+#, python-format
+msgid "duplicate citation %s, other instance in %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/citation.py:82
+#, python-format
+msgid "Citation [%s] is not referenced."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:165
+#, python-format
+msgid "%s() (built-in function)"
+msgstr "%s() (уграђена функција)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:166
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:253
+#, python-format
+msgid "%s() (%s method)"
+msgstr "%s() (%s метода)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:168
+#, python-format
+msgid "%s() (class)"
+msgstr "%s() (класа)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:170
+#, python-format
+msgid "%s (global variable or constant)"
+msgstr "%s (глобална променљива или константа)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:172
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:338
+#, python-format
+msgid "%s (%s attribute)"
+msgstr "%s (атрибут %s)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:255
+msgid "Arguments"
+msgstr "Аргументи"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:442
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:258
+msgid "Throws"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:304
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:453
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:261
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/_object.py:176
+msgid "Returns"
+msgstr "Резултат"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:306
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:263
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/_object.py:178
+msgid "Return type"
+msgstr "Тип резултата"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:328
+#, python-format
+msgid "%s (module)"
+msgstr "%s (модул)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:675
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:855
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:365
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:623
+msgid "function"
+msgstr "функција"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:366
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:627
+msgid "method"
+msgstr "метода"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:853
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:367
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:625
+msgid "class"
+msgstr "класа"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:368
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:624
+msgid "data"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:369
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:630
+msgid "attribute"
+msgstr "атрибут"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:370
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:633
+msgid "module"
+msgstr "модул"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/javascript.py:401
+#, python-format
+msgid "duplicate %s description of %s, other %s in %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/math.py:63
+#, python-format
+msgid "duplicate label of equation %s, other instance in %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/math.py:119
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:2293
+#, python-format
+msgid "Invalid math_eqref_format: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/changeset.py:23
+#, python-format
+msgid "Added in version %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/changeset.py:24
+#, python-format
+msgid "Changed in version %s"
+msgstr "Измењено у верзији %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/changeset.py:25
+#, python-format
+msgid "Deprecated since version %s"
+msgstr "Застарело почевши од верзије %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/changeset.py:26
+#, python-format
+msgid "Removed in version %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/rst.py:127
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/rst.py:184
+#, python-format
+msgid "%s (directive)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/rst.py:185
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/rst.py:189
+#, python-format
+msgid ":%s: (directive option)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/rst.py:213
+#, python-format
+msgid "%s (role)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/rst.py:223
+msgid "directive"
+msgstr "директива"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/rst.py:224
+msgid "directive-option"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/rst.py:225
+msgid "role"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/rst.py:247
+#, python-format
+msgid "duplicate description of %s %s, other instance in %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/__init__.py:399
+#, python-format
+msgid "%s %s"
+msgstr "%s %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/imgmath.py:369
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/mathjax.py:53
+msgid "Link to this equation"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/linkcode.py:69
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/viewcode.py:200
+msgid "[source]"
+msgstr "[изворни код]"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/viewcode.py:257
+msgid "highlighting module code... "
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/viewcode.py:285
+msgid "[docs]"
+msgstr "[документација]"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/viewcode.py:305
+msgid "Module code"
+msgstr "Код модула"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/viewcode.py:311
+#, python-format
+msgid "<h1>Source code for %s</h1>"
+msgstr "<h1>Изворни код %s</h1>"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/viewcode.py:337
+msgid "Overview: module code"
+msgstr "Преглед: код модула"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/viewcode.py:338
+msgid "<h1>All modules for which code is available</h1>"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/todo.py:69
+msgid "Todo"
+msgstr "План"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/todo.py:102
+#, python-format
+msgid "TODO entry found: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/todo.py:161
+msgid "<<original entry>>"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/todo.py:163
+#, python-format
+msgid "(The <<original entry>> is located in %s, line %d.)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/todo.py:173
+msgid "original entry"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:85
+#, python-format
+msgid "Would create file %s."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:366
+msgid ""
+"\n"
+"Look recursively in <MODULE_PATH> for Python modules and packages and create\n"
+"one reST file with automodule directives per package in the <OUTPUT_PATH>.\n"
+"\n"
+"The <EXCLUDE_PATTERN>s can be file and/or directory patterns that will be\n"
+"excluded from generation.\n"
+"\n"
+"Note: By default this script will not overwrite already created files."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:383
+msgid "path to module to document"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:387
+msgid ""
+"fnmatch-style file and/or directory patterns to exclude from generation"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:396
+msgid "directory to place all output"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:411
+msgid "maximum depth of submodules to show in the TOC (default: 4)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:414
+msgid "overwrite existing files"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:422
+msgid ""
+"follow symbolic links. Powerful when combined with "
+"collective.recipe.omelette."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:431
+msgid "run the script without creating files"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:438
+msgid "put documentation for each module on its own page"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:445
+msgid "include \"_private\" modules"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:452
+msgid "filename of table of contents (default: modules)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:459
+msgid "don't create a table of contents file"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:466
+msgid ""
+"don't create headings for the module/package packages (e.g. when the "
+"docstrings already contain them)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:477
+msgid "put module documentation before submodule documentation"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:483
+msgid ""
+"interpret module paths according to PEP-0420 implicit namespaces "
+"specification"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:493
+msgid "file suffix (default: rst)"
+msgstr "суфикс датотеке (подразумевани: rst)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:500
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:826
+msgid "Remove existing files in the output directory that were not generated"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:507
+msgid "generate a full project with sphinx-quickstart"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:514
+msgid "append module_path to sys.path, used when --full is given"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:521
+msgid "project name (default: root module name)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:528
+msgid "project author(s), used when --full is given"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:535
+msgid "project version, used when --full is given"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:542
+msgid "project release, used when --full is given, defaults to --doc-version"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:545
+msgid "extension options"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:620
+#, python-format
+msgid "%s is not a directory."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/apidoc.py:686
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:860
+#, python-format
+msgid "Failed to remove %s: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:135
+msgid "Graphviz directive cannot have both content and a filename argument"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:145
+#, python-format
+msgid "External Graphviz file %r not found or reading it failed"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:152
+msgid "Ignoring \"graphviz\" directive without content."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:268
+#, python-format
+msgid "graphviz_dot executable path must be set! %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:303
+#, python-format
+msgid ""
+"dot command %r cannot be run (needed for graphviz output), check the "
+"graphviz_dot setting"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:310
+#, python-format
+msgid ""
+"dot exited with error:\n"
+"[stderr]\n"
+"%r\n"
+"[stdout]\n"
+"%r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:313
+#, python-format
+msgid ""
+"dot did not produce an output file:\n"
+"[stderr]\n"
+"%r\n"
+"[stdout]\n"
+"%r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:329
+#, python-format
+msgid "graphviz_output_format must be one of 'png', 'svg', but is %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:333
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:386
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:423
+#, python-format
+msgid "dot code %r: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:436
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:444
+#, python-format
+msgid "[graph: %s]"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:438
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/graphviz.py:446
+msgid "[graph]"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/imgconverter.py:40
+#, python-format
+msgid ""
+"Unable to run the image conversion command %r. 'sphinx.ext.imgconverter' requires ImageMagick by default. Ensure it is installed, or set the 'image_converter' option to a custom conversion command.\n"
+"\n"
+"Traceback: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/imgconverter.py:49
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/imgconverter.py:73
+#, python-format
+msgid ""
+"convert exited with error:\n"
+"[stderr]\n"
+"%r\n"
+"[stdout]\n"
+"%r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/imgconverter.py:68
+#, python-format
+msgid "convert command %r cannot be run, check the image_converter setting"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/duration.py:84
+msgid ""
+"====================== slowest reading durations ======================="
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/doctest.py:115
+#, python-format
+msgid "missing '+' or '-' in '%s' option."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/doctest.py:120
+#, python-format
+msgid "'%s' is not a valid option."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/doctest.py:134
+#, python-format
+msgid "'%s' is not a valid pyversion option"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/doctest.py:220
+msgid "invalid TestCode type"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/doctest.py:281
+#, python-format
+msgid ""
+"Testing of doctests in the sources finished, look at the results in "
+"%(outdir)s/output.txt."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/doctest.py:438
+#, python-format
+msgid "no code/output in %s block at %s:%s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/doctest.py:526
+#, python-format
+msgid "ignoring invalid doctest code: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/extlinks.py:82
+#, python-format
+msgid ""
+"hardcoded link %r could be replaced by an extlink (try using %r instead)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:47
+#, python-format
+msgid "invalid regex %r in %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:134
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:280
+#, python-format
+msgid "module %s could not be imported: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:141
+#, python-format
+msgid ""
+"the following modules are documented but were not specified in "
+"coverage_modules: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:149
+msgid ""
+"the following modules are specified in coverage_modules but were not "
+"documented"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:163
+#, python-format
+msgid ""
+"Testing of coverage in the sources finished, look at the results in "
+"%(outdir)spython.txt."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:177
+#, python-format
+msgid "invalid regex %r in coverage_c_regexes"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:245
+#, python-format
+msgid "undocumented c api: %s [%s] in file %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:429
+#, python-format
+msgid "undocumented python function: %s :: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:445
+#, python-format
+msgid "undocumented python class: %s :: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/coverage.py:458
+#, python-format
+msgid "undocumented python method: %s :: %s :: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/imgmath.py:159
+#, python-format
+msgid ""
+"LaTeX command %r cannot be run (needed for math display), check the "
+"imgmath_latex setting"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/imgmath.py:174
+#, python-format
+msgid ""
+"%s command %r cannot be run (needed for math display), check the imgmath_%s "
+"setting"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/imgmath.py:328
+#, python-format
+msgid "display latex %r: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/imgmath.py:362
+#, python-format
+msgid "inline latex %r: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosectionlabel.py:49
+#, python-format
+msgid "section \"%s\" gets labeled as \"%s\""
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:697
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:803
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosectionlabel.py:53
+#, python-format
+msgid "duplicate label %s, other instance in %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:336
+#, python-format
+msgid "unknown %r toplevel_sectioning for class %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:213
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:371
+#, python-format
+msgid "no Babel option known for language %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:387
+msgid "too large :maxdepth:, ignored."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:531
+#, python-format
+msgid "template %s not found; loading from legacy %s instead"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:635
+msgid "document title is not a single Text node"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:666
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/texinfo.py:631
+msgid ""
+"encountered title node not in section, topic, table, admonition or sidebar"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:981
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/manpage.py:259
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/texinfo.py:646
+msgid "Footnotes"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:520
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:990
+#, python-format
+msgid "unsupported rubric heading level: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:1063
+msgid ""
+"both tabularcolumns and :widths: option are given. :widths: is ignored."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:1423
+#, python-format
+msgid "dimension unit %s is invalid. Ignored."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/latex.py:1763
+#, python-format
+msgid "unknown index entry type %s found"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/manpage.py:305
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/text.py:907
+#, python-format
+msgid "[image: %s]"
+msgstr "[слика: %s]"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/manpage.py:306
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/text.py:908
+msgid "[image]"
+msgstr "[слика]"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:99
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:108
+msgid "Link to this definition"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:398
+#, python-format
+msgid "numfig_format is not defined for %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:408
+#, python-format
+msgid "Any IDs not assigned for %s node"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:463
+msgid "Link to this term"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:497
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:502
+msgid "Link to this heading"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:506
+msgid "Link to this table"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:573
+msgid "Link to this code"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:575
+msgid "Link to this image"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:577
+msgid "Link to this toctree"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/html5.py:713
+msgid "Could not obtain image size. :scale: option is ignored."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:196
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:640
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:652
+#: /home/runner/work/sphinx/sphinx/sphinx/templates/latex/latex.tex.jinja:106
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex-single.html:30
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex-single.html:56
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex-split.html:11
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex-split.html:14
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex.html:11
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex.html:34
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex.html:67
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:135
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/texinfo.py:502
+msgid "Index"
+msgstr "Индекс"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/texinfo.py:1202
+msgid "caption not inside a figure."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/writers/texinfo.py:1289
+#, python-format
+msgid "unimplemented node type: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:72
+msgid "Usage:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:74
+msgid "{0} [OPTIONS] <COMMAND> [<ARGS>]"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:77
+msgid "  The Sphinx documentation generator."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:85
+msgid "Commands:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:96
+msgid "Options"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:107
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:175
+msgid "For more information, visit https://www.sphinx-doc.org/en/master/man/."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:164
+msgid ""
+"{0}: error: {1}\n"
+"Run '{0} --help' for information"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:174
+msgid "   Manage documentation with Sphinx."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:183
+msgid "Show the version and exit."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:189
+msgid "Show this message and exit."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:193
+msgid "Logging"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:199
+msgid "Increase verbosity (can be repeated)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:206
+msgid "Only print errors and warnings."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:213
+msgid "No output at all"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:219
+msgid "<command>"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/__init__.py:248
+msgid "See 'sphinx --help'.\n"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:216
+#, python-format
+msgid "duplicated ToC entry found: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:405
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:768
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:444
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:186
+msgid "copying images... "
+msgstr "пребацивање слика... "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:412
+#, python-format
+msgid "cannot read image file %r: copying it instead"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:421
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:455
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:199
+#, python-format
+msgid "cannot copy image file %r: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:438
+#, python-format
+msgid "cannot write image file %r: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:448
+msgid "Pillow not found - copying image files"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:480
+msgid "writing mimetype file..."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:489
+msgid "writing META-INF/container.xml file..."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:526
+msgid "writing content.opf file..."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:557
+#, python-format
+msgid "unknown mimetype for %s, ignoring"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:709
+msgid "writing toc.ncx file..."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/_epub_base.py:738
+#, python-format
+msgid "writing %s file..."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/xml.py:40
+#, python-format
+msgid "The XML files are in %(outdir)s."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1179
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/text.py:81
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/xml.py:100
+#, python-format
+msgid "error writing file %s: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/xml.py:113
+#, python-format
+msgid "The pseudo-XML files are in %(outdir)s."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/manpage.py:37
+#, python-format
+msgid "The manual pages are in %(outdir)s."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/manpage.py:44
+msgid "no \"man_pages\" config value found; no manual pages will be written"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:314
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/manpage.py:53
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/singlehtml.py:165
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:111
+msgid "writing"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/manpage.py:68
+#, python-format
+msgid "\"man_pages\" config value references unknown document %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/dummy.py:19
+msgid "The dummy builder generates no files."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:81
+#, python-format
+msgid "The ePub file is in %(outdir)s."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:185
+msgid "writing nav.xhtml file..."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:215
+msgid "conf value \"epub_language\" (or \"language\") should not be empty for EPUB3"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:219
+msgid "conf value \"epub_uid\" should be XML NAME for EPUB3"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:222
+msgid "conf value \"epub_title\" (or \"html_title\") should not be empty for EPUB3"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:226
+msgid "conf value \"epub_author\" should not be empty for EPUB3"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:229
+msgid "conf value \"epub_contributor\" should not be empty for EPUB3"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:232
+msgid "conf value \"epub_description\" should not be empty for EPUB3"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:235
+msgid "conf value \"epub_publisher\" should not be empty for EPUB3"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:238
+msgid "conf value \"epub_copyright\" (or \"copyright\")should not be empty for EPUB3"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:242
+msgid "conf value \"epub_identifier\" should not be empty for EPUB3"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:245
+msgid "conf value \"version\" should not be empty for EPUB3"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/epub3.py:259
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1228
+#, python-format
+msgid "invalid css_file: %r, ignored"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/linkcheck.py:58
+#, python-format
+msgid "Look for any errors in the above output or in %(outdir)s/output.txt"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/linkcheck.py:119
+#, python-format
+msgid "broken link: %s (%s)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/linkcheck.py:464
+#, python-format
+msgid "Anchor '%s' not found"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/linkcheck.py:654
+#, python-format
+msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/changes.py:32
+#, python-format
+msgid "The overview file is in %(outdir)s."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/changes.py:59
+#, python-format
+msgid "no changes in version %s."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/changes.py:61
+msgid "writing summary file..."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/changes.py:76
+msgid "Builtins"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/changes.py:78
+msgid "Module level"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/changes.py:123
+msgid "copying source files..."
+msgstr "пребацивање изворних датотека..."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/changes.py:130
+#, python-format
+msgid "could not read %r for changelog creation"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/text.py:34
+#, python-format
+msgid "The text files are in %(outdir)s."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/gettext.py:222
+#, python-format
+msgid "The message catalogs are in %(outdir)s."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:313
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/gettext.py:243
+#, python-format
+msgid "building [%s]: "
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/gettext.py:244
+#, python-format
+msgid "targets for %d template files"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/gettext.py:248
+msgid "reading templates... "
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/gettext.py:282
+msgid "writing message catalogs... "
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:183
+#, python-format
+msgid "a suitable image for %s builder not found: %s (%s)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:187
+#, python-format
+msgid "a suitable image for %s builder not found: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:207
+msgid "building [mo]: "
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:208
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:617
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:644
+msgid "writing output... "
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:217
+#, python-format
+msgid "all of %d po files"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:235
+#, python-format
+msgid "targets for %d po files that are specified"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:243
+#, python-format
+msgid "targets for %d po files that are out of date"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:253
+msgid "all source files"
+msgstr "све изворне датотеке"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:264
+#, python-format
+msgid "file %r given on command line does not exist, "
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:269
+#, python-format
+msgid ""
+"file %r given on command line is not under the source directory, ignoring"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:275
+#, python-format
+msgid "file %r given on command line is not a valid document, ignoring"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:284
+#, python-format
+msgid "%d source files given on command line"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:297
+#, python-format
+msgid "targets for %d source files that are out of date"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:320
+msgid "looking for now-outdated files... "
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:324
+#, python-format
+msgid "%d found"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:326
+msgid "none found"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:331
+msgid "pickling environment"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:337
+msgid "checking consistency"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:341
+msgid "no targets are out of date."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:381
+msgid "updating environment: "
+msgstr "ажурирање окружења: "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:402
+#, python-format
+msgid "%s added, %s changed, %s removed"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:435
+#, python-format
+msgid ""
+"Sphinx is unable to load the master document (%s) because it matches a "
+"built-in exclude pattern %r. Please move your master document to a different"
+" location."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:442
+#, python-format
+msgid ""
+"Sphinx is unable to load the master document (%s) because it matches an "
+"exclude pattern specified in conf.py, %r. Please remove this pattern from "
+"conf.py."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:451
+#, python-format
+msgid ""
+"Sphinx is unable to load the master document (%s) because it is not included"
+" in the custom include_patterns = %r. Ensure that a pattern in "
+"include_patterns matches the master document."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:456
+#, python-format
+msgid ""
+"Sphinx is unable to load the master document (%s). The master document must "
+"be within the source directory or a subdirectory of it."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:471
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:483
+msgid "reading sources... "
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:592
+#, python-format
+msgid "docnames to write: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:601
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/singlehtml.py:157
+msgid "preparing documents"
+msgstr "припремање докумената"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/__init__.py:604
+msgid "copying assets"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:47
+#, python-format
+msgid "The Texinfo files are in %(outdir)s."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:49
+msgid ""
+"\n"
+"Run 'make' in that directory to run these through makeinfo\n"
+"(use 'make info' here to do that automatically)."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:76
+msgid "no \"texinfo_documents\" config value found; no documents will be written"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:84
+#, python-format
+msgid "\"texinfo_documents\" config value references unknown document %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:296
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:107
+#, python-format
+msgid "processing %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:369
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:160
+msgid "resolving references..."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:380
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:170
+msgid " (in "
+msgstr " (у "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:204
+msgid "copying Texinfo support files"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/texinfo.py:212
+#, python-format
+msgid "error writing file Makefile: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/singlehtml.py:34
+#, python-format
+msgid "The HTML page is in %(outdir)s."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/singlehtml.py:160
+msgid "assembling single document"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/singlehtml.py:178
+msgid "writing additional files"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/patches.py:66
+msgid ""
+"\":file:\" option for csv-table directive now recognizes an absolute path as"
+" a relative path from source directory. Please update your document."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:60
+msgid "non-whitespace stripped by dedent"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:80
+#, python-format
+msgid "Invalid caption: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:124
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:274
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:450
+#, python-format
+msgid "line number spec is out of range(1-%d): %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:203
+#, python-format
+msgid "Cannot use both \"%s\" and \"%s\" options"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:217
+#, python-format
+msgid "Include file %r not found or reading it failed"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:220
+#, python-format
+msgid ""
+"Encoding %r used for reading included file %r seems to be wrong, try giving "
+"an :encoding: option"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:257
+#, python-format
+msgid "Object named %r not found in include file %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:283
+msgid "Cannot use \"lineno-match\" with a disjoint set of \"lines\""
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/code.py:288
+#, python-format
+msgid "Line spec %r: no lines pulled from include file %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/other.py:122
+#, python-format
+msgid "toctree glob pattern %r didn't match any documents"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/other.py:148
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/adapters/toctree.py:324
+#, python-format
+msgid "toctree contains reference to excluded document %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/other.py:151
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/adapters/toctree.py:328
+#, python-format
+msgid "toctree contains reference to nonexisting document %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/other.py:162
+#, python-format
+msgid "duplicated entry found in toctree: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/other.py:195
+msgid "Section author: "
+msgstr "Аутор одељка: "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/other.py:197
+msgid "Module author: "
+msgstr "Аутор модула: "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/other.py:199
+msgid "Code author: "
+msgstr "Аутор кода: "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/other.py:201
+msgid "Author: "
+msgstr "Аутор: "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/other.py:274
+msgid ".. acks content is not a list"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/directives/other.py:297
+msgid ".. hlist content is not a list"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/post_transforms/images.py:83
+#, python-format
+msgid "Could not fetch remote image: %s [%d]"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/post_transforms/images.py:111
+#, python-format
+msgid "Could not fetch remote image: %s [%s]"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/post_transforms/images.py:127
+#, python-format
+msgid "Unknown image format: %s..."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/post_transforms/__init__.py:116
+msgid ""
+"Could not determine the fallback text for the cross-reference. Might be a "
+"bug."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/post_transforms/__init__.py:158
+#, python-format
+msgid "more than one target found for 'any' cross-reference %r: could be %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/post_transforms/__init__.py:209
+#, python-format
+msgid "%s:%s reference target not found: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/transforms/post_transforms/__init__.py:212
+#, python-format
+msgid "%r reference target not found: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/agogo/layout.html:38
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/globaltoc.html:10
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/localtoc.html:12
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/scrolls/layout.html:41
+msgid "Table of Contents"
+msgstr "Садржај"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/agogo/layout.html:43
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:138
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/search.html:11
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/search.html:23
+msgid "Search"
+msgstr "Претрага"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/agogo/layout.html:46
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/searchbox.html:16
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/searchfield.html:18
+msgid "Go"
+msgstr "Тражи"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/agogo/layout.html:90
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/sourcelink.html:15
+msgid "Show Source"
+msgstr "Изворни код"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/haiku/layout.html:24
+msgid "Contents"
+msgstr "Садржај"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/classic/layout.html:20
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/classic/static/sidebar.js.jinja:57
+msgid "Collapse sidebar"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/opensearch.xml:4
+#, python-format
+msgid "Search %(docstitle)s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/searchbox.html:12
+msgid "Quick search"
+msgstr "Брза претрага"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:11
+msgid "Overview"
+msgstr "Преглед"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:15
+msgid "Welcome! This is"
+msgstr "Добро дошли! Ово је"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:16
+msgid "the documentation for"
+msgstr "документација"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:17
+msgid "last updated"
+msgstr "последња измена"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:20
+msgid "Indices and tables:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:23
+msgid "Complete Table of Contents"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:24
+msgid "lists all sections and subsections"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:642
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:654
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:25
+msgid "Search Page"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:26
+msgid "search this documentation"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:28
+msgid "Global Module Index"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:29
+msgid "quick access to all modules"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:515
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:30
+msgid "General Index"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/defindex.html:31
+msgid "all functions, classes, terms"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex-single.html:34
+#, python-format
+msgid "Index &#x2013; %(key)s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex-single.html:62
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex-split.html:24
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex-split.html:38
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex.html:73
+msgid "Full index on one page"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/relations.html:12
+msgid "Previous topic"
+msgstr "Претходни одељак"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/relations.html:14
+msgid "previous chapter"
+msgstr "претходна глава"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/relations.html:19
+msgid "Next topic"
+msgstr "Следећи одељак"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/relations.html:21
+msgid "next chapter"
+msgstr "наредна глава"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/search.html:28
+msgid ""
+"Please activate JavaScript to enable the search\n"
+"    functionality."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/search.html:36
+msgid ""
+"Searching for multiple words only shows matches that contain\n"
+"    all words."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/search.html:43
+msgid "search"
+msgstr "тражи"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/sourcelink.html:12
+msgid "This Page"
+msgstr "Ова страница"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex-split.html:16
+msgid "Index pages by letter"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/genindex-split.html:25
+msgid "can be huge"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:26
+msgid "Navigation"
+msgstr "Навигација"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:123
+#, python-format
+msgid "Search within %(docstitle)s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:132
+msgid "About these documents"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:141
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:185
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:187
+msgid "Copyright"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:191
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:197
+#, python-format
+msgid "&#169; %(copyright_prefix)s %(copyright)s."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:209
+#, python-format
+msgid "Last updated on %(last_updated)s."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/layout.html:212
+#, python-format
+msgid ""
+"Created using <a href=\"https://www.sphinx-doc.org/\">Sphinx</a> "
+"%(sphinx_version)s."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/classic/static/sidebar.js.jinja:48
+msgid "Expand sidebar"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/changes/rstsource.html:5
+#, python-format
+msgid "%(filename)s &#8212; %(docstitle)s"
+msgstr "%(filename)s &#8212; %(docstitle)s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/changes/frameset.html:5
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/changes/versionchanges.html:12
+#, python-format
+msgid "Changes in Version %(version)s &#8212; %(docstitle)s"
+msgstr "Измене у верзији %(version)s &#8212; %(docstitle)s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/changes/versionchanges.html:17
+#, python-format
+msgid "Automatically generated list of changes in version %(version)s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/changes/versionchanges.html:18
+msgid "Library changes"
+msgstr "Измене у библиотеци"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/changes/versionchanges.html:23
+msgid "C API changes"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/changes/versionchanges.html:25
+msgid "Other changes"
+msgstr "Друге измене"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/static/sphinx_highlight.js:112
+msgid "Hide Search Matches"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/static/searchtools.js:112
+msgid "Search Results"
+msgstr "Резултати претраге"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/static/searchtools.js:114
+msgid ""
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/static/searchtools.js:118
+msgid ""
+"Search finished, found ${resultCount} page(s) matching the search query."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/static/searchtools.js:246
+msgid "Searching"
+msgstr "Претражује се"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/static/searchtools.js:262
+msgid "Preparing search..."
+msgstr "Припрема претраге..."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/themes/basic/static/searchtools.js:464
+msgid ", in "
+msgstr ", у "
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/collectors/asset.py:89
+#, python-format
+msgid "image file not readable: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/collectors/asset.py:108
+#, python-format
+msgid "image file %s not readable: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/collectors/asset.py:134
+#, python-format
+msgid "download file not readable: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/collectors/toctree.py:238
+#, python-format
+msgid "%s is already assigned section numbers (nested numbered toctree?)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/adapters/toctree.py:297
+#, python-format
+msgid "circular toctree references detected, ignoring: %s <- %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/adapters/toctree.py:317
+#, python-format
+msgid ""
+"toctree contains reference to document %r that doesn't have a title: no link"
+" will be generated"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/adapters/toctree.py:326
+#, python-format
+msgid "toctree contains reference to non-included document %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/adapters/indexentries.py:103
+#, python-format
+msgid "see %s"
+msgstr "погледајте %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/adapters/indexentries.py:107
+#, python-format
+msgid "see also %s"
+msgstr "такође погледајте %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/adapters/indexentries.py:110
+#, python-format
+msgid "unknown index entry type %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/environment/adapters/indexentries.py:232
+#: /home/runner/work/sphinx/sphinx/sphinx/templates/latex/sphinxmessages.sty.jinja:11
+msgid "Symbols"
+msgstr "Симболи"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:360
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/_symbol.py:793
+#, python-format
+msgid ""
+"Duplicate C++ declaration, also defined at %s:%s.\n"
+"Declaration is '.. cpp:%s:: %s'."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:155
+msgid "Template Parameters"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:277
+#, python-format
+msgid "%s (C++ %s)"
+msgstr "%s (C++ %s)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:298
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:436
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/_object.py:164
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:762
+msgid "Parameters"
+msgstr "Параметри"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:301
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:449
+msgid "Return values"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:678
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:854
+msgid "union"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:673
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:856
+msgid "member"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:681
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:857
+msgid "type"
+msgstr "тип"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:858
+msgid "concept"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:679
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:859
+msgid "enum"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:680
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:860
+msgid "enumerator"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:683
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:862
+msgid "function parameter"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/cpp/__init__.py:863
+msgid "template parameter"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/_object.py:169
+msgid "Variables"
+msgstr "Променљиве"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/_object.py:173
+msgid "Raises"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:107
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:244
+#, python-format
+msgid "%s() (in module %s)"
+msgstr "%s() (у модулу %s)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:167
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:334
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:385
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:424
+#, python-format
+msgid "%s (in module %s)"
+msgstr "%s (у модулу %s)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:169
+#, python-format
+msgid "%s (built-in variable)"
+msgstr "%s (уграђена променљива)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:194
+#, python-format
+msgid "%s (built-in class)"
+msgstr "%s (уграђена класа)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:195
+#, python-format
+msgid "%s (class in %s)"
+msgstr "%s (класа у %s)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:249
+#, python-format
+msgid "%s() (%s class method)"
+msgstr "%s() (метода класе %s)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:251
+#, python-format
+msgid "%s() (%s static method)"
+msgstr "%s() (статичка метода %s)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:389
+#, python-format
+msgid "%s (%s property)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:428
+#, python-format
+msgid "%s (type alias in %s)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:551
+msgid "Python Module Index"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:552
+msgid "modules"
+msgstr "модули"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:601
+msgid "Deprecated"
+msgstr "Застарело"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:626
+msgid "exception"
+msgstr "изузетак"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:628
+msgid "class method"
+msgstr "метода класе"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:629
+msgid "static method"
+msgstr "статичка метода"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:631
+msgid "property"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:632
+msgid "type alias"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:692
+#, python-format
+msgid ""
+"duplicate object description of %s, other instance in %s, use :no-index: for"
+" one of them"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:812
+#, python-format
+msgid "more than one target found for cross-reference %r: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/python/__init__.py:873
+msgid " (deprecated)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:81
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:98
+#, python-format
+msgid "environment variable; %s"
+msgstr "променљива окружења; %s"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:106
+#, python-format
+msgid "%s; configuration value"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:159
+msgid "Type"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:169
+msgid "Default"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:228
+#, python-format
+msgid ""
+"Malformed option description %r, should look like \"opt\", \"-opt args\", \""
+"--opt args\", \"/opt args\" or \"+opt args\""
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:299
+#, python-format
+msgid "%s command line option"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:301
+msgid "command line option"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:424
+msgid "glossary term must be preceded by empty line"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:432
+msgid "glossary terms must not be separated by empty lines"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:438
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:451
+msgid "glossary seems to be misformatted, check indentation"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:596
+msgid "glossary term"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:597
+msgid "grammar token"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:598
+msgid "reference label"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:601
+msgid "environment variable"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:602
+msgid "program option"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:603
+msgid "document"
+msgstr "документ"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:641
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:653
+msgid "Module Index"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:716
+#, python-format
+msgid "duplicate %s description of %s, other instance in %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:921
+msgid "numfig is disabled. :numref: is ignored."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:929
+#, python-format
+msgid "Failed to create a cross reference. Any number is not assigned: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:941
+#, python-format
+msgid "the link has no caption: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:955
+#, python-format
+msgid "invalid numfig_format: %s (%r)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:958
+#, python-format
+msgid "invalid numfig_format: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:1189
+#, python-format
+msgid "undefined label: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/std/__init__.py:1191
+#, python-format
+msgid "Failed to create a cross reference. A title or caption not found: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:260
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/_symbol.py:510
+#, python-format
+msgid ""
+"Duplicate C declaration, also defined at %s:%s.\n"
+"Declaration is '.. c:%s:: %s'."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:199
+#, python-format
+msgid "%s (C %s)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:674
+msgid "variable"
+msgstr "променљива"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:676
+msgid "macro"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/domains/c/__init__.py:677
+msgid "struct"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/templates/latex/longtable.tex.jinja:52
+#: /home/runner/work/sphinx/sphinx/sphinx/templates/latex/sphinxmessages.sty.jinja:8
+msgid "continued from previous page"
+msgstr "настављено са претходне стране"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/templates/latex/longtable.tex.jinja:63
+#: /home/runner/work/sphinx/sphinx/sphinx/templates/latex/sphinxmessages.sty.jinja:9
+msgid "continues on next page"
+msgstr "наставак на следећој страни"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/templates/latex/sphinxmessages.sty.jinja:10
+msgid "Non-alphabetical"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/templates/latex/sphinxmessages.sty.jinja:12
+msgid "Numbers"
+msgstr "Бројеви"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/templates/latex/sphinxmessages.sty.jinja:13
+msgid "page"
+msgstr "страна"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:199
+#: /home/runner/work/sphinx/sphinx/sphinx/templates/latex/latex.tex.jinja:91
+msgid "Release"
+msgstr "Издање"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:682
+msgid "Example"
+msgstr "Пример"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:683
+msgid "Examples"
+msgstr "Примери"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/__init__.py:341
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:728
+msgid "Keyword Arguments"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:744
+msgid "Notes"
+msgstr "Белешке"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:753
+msgid "Other Parameters"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:789
+msgid "Receives"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:793
+msgid "References"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:825
+msgid "Warns"
+msgstr "Упозорења"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:829
+msgid "Yields"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:987
+#, python-format
+msgid "invalid value set (missing closing brace): %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:994
+#, python-format
+msgid "invalid value set (missing opening brace): %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:1001
+#, python-format
+msgid "malformed string literal (missing closing quote): %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/napoleon/docstring.py:1008
+#, python-format
+msgid "malformed string literal (missing opening quote): %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_resolve.py:43
+#, python-format
+msgid "(in %s v%s)"
+msgstr "(у %s v%s)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_resolve.py:45
+#, python-format
+msgid "(in %s)"
+msgstr "(у %s)"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_resolve.py:86
+#, python-format
+msgid "inventory '%s': multiple matches found for %s:%s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_resolve.py:282
+#, python-format
+msgid "inventory for external cross-reference not found: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_resolve.py:290
+#, python-format
+msgid "invalid external cross-reference suffix: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_resolve.py:301
+#, python-format
+msgid "domain for external cross-reference not found: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_resolve.py:494
+#, python-format
+msgid "external %s:%s reference target not found: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:59
+#, python-format
+msgid ""
+"Invalid intersphinx project identifier `%r` in intersphinx_mapping. Project "
+"identifiers must be non-empty strings."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:70
+#, python-format
+msgid ""
+"Invalid value `%r` in intersphinx_mapping[%r]. Expected a two-element tuple "
+"or list."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:81
+#, python-format
+msgid ""
+"Invalid value `%r` in intersphinx_mapping[%r]. Values must be a (target URI,"
+" inventory locations) pair."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:92
+#, python-format
+msgid ""
+"Invalid target URI value `%r` in intersphinx_mapping[%r][0]. Target URIs "
+"must be unique non-empty strings."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:99
+#, python-format
+msgid ""
+"Invalid target URI value `%r` in intersphinx_mapping[%r][0]. Target URIs "
+"must be unique (other instance in intersphinx_mapping[%r])."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:115
+#, python-format
+msgid ""
+"Invalid inventory location value `%r` in intersphinx_mapping[%r][1]. "
+"Inventory locations must be non-empty strings or None."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:126
+msgid "Invalid `intersphinx_mapping` configuration (1 error)."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:129
+#, python-format
+msgid "Invalid `intersphinx_mapping` configuration (%s errors)."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:148
+msgid "An invalid intersphinx_mapping entry was added after normalisation."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:220
+#, python-format
+msgid "loading intersphinx inventory '%s' from %s ..."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:242
+msgid ""
+"encountered some issues with some of the inventories, but they had working "
+"alternatives:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:248
+msgid "failed to reach any of the inventories with the following issues:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/intersphinx/_load.py:286
+#, python-format
+msgid "intersphinx inventory has moved: %s -> %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/type_comment.py:132
+#, python-format
+msgid "Failed to update signature for %r: parameter not found: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/type_comment.py:135
+#, python-format
+msgid "Failed to parse type_comment for %r: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/preserve_defaults.py:190
+#, python-format
+msgid "Failed to parse a default argument value for %r: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:133
+#, python-format
+msgid "invalid value for member-order option: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:141
+#, python-format
+msgid "invalid value for class-doc-from option: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:384
+#, python-format
+msgid "invalid signature for auto%s (%r)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:500
+#, python-format
+msgid "error while formatting arguments for %s: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:770
+#, python-format
+msgid ""
+"autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
+"%s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:865
+#, python-format
+msgid ""
+"don't know which module to import for autodocumenting %r (try placing a "
+"\"module\" or \"currentmodule\" directive in the document, or giving an "
+"explicit module name)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:909
+#, python-format
+msgid "A mocked object is detected: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:928
+#, python-format
+msgid "error while formatting signature for %s: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:991
+msgid "\"::\" in automodule name doesn't make sense"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:998
+#, python-format
+msgid "signature arguments or return annotation given for automodule %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1011
+#, python-format
+msgid ""
+"__all__ should be a list of strings, not %r (in module %s) -- ignoring "
+"__all__"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1077
+#, python-format
+msgid ""
+"missing attribute mentioned in :members: option: module %s, attribute %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1299
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1376
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:2782
+#, python-format
+msgid "Failed to get a function signature for %s: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1590
+#, python-format
+msgid "Failed to get a constructor signature for %s: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1717
+#, python-format
+msgid "Bases: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1731
+#, python-format
+msgid "missing attribute %s in object %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1812
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1849
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1944
+#, python-format
+msgid "alias of %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:1832
+#, python-format
+msgid "alias of TypeVar(%s)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:2172
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:2272
+#, python-format
+msgid "Failed to get a method signature for %s: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autodoc/__init__.py:2403
+#, python-format
+msgid "Invalid __slots__ found on %s. Ignored."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:212
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:384
+#, python-format
+msgid ""
+"autosummary: failed to determine %r to be documented, the following exception was raised:\n"
+"%s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:514
+#, python-format
+msgid "[autosummary] generating autosummary for: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:517
+#, python-format
+msgid "[autosummary] writing to %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:559
+#, python-format
+msgid ""
+"[autosummary] failed to import %s.\n"
+"Possible hints:\n"
+"%s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:754
+msgid ""
+"\n"
+"Generate ReStructuredText using autosummary directives.\n"
+"\n"
+"sphinx-autogen is a frontend to sphinx.ext.autosummary.generate. It generates\n"
+"the reStructuredText files from the autosummary directives contained in the\n"
+"given input files.\n"
+"\n"
+"The format of the autosummary directive is documented in the\n"
+"``sphinx.ext.autosummary`` Python module and can be read using::\n"
+"\n"
+"  pydoc sphinx.ext.autosummary\n"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:776
+msgid "source files to generate rST files for"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:784
+msgid "directory to place all output in"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:792
+#, python-format
+msgid "default suffix for files (default: %(default)s)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:800
+#, python-format
+msgid "custom template directory (default: %(default)s)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:808
+#, python-format
+msgid "document imported members (default: %(default)s)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/generate.py:816
+#, python-format
+msgid ""
+"document exactly the members in module __all__ attribute. (default: "
+"%(default)s)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/__init__.py:253
+#, python-format
+msgid "autosummary references excluded document %r. Ignored."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/__init__.py:255
+#, python-format
+msgid ""
+"autosummary: stub file not found %r. Check your autosummary_generate "
+"setting."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/__init__.py:274
+msgid "A captioned autosummary requires :toctree: option. ignored."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/__init__.py:327
+#, python-format
+msgid ""
+"autosummary: failed to import %s.\n"
+"Possible hints:\n"
+"%s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/__init__.py:341
+#, python-format
+msgid "failed to parse name %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/__init__.py:346
+#, python-format
+msgid "failed to import object %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/__init__.py:645
+#, python-format
+msgid ""
+"Summarised items should not include the current module. Replace %r with %r."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/__init__.py:816
+#, python-format
+msgid "autosummary_generate: file not found: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/ext/autosummary/__init__.py:824
+msgid ""
+"autosummary generates .rst files internally. But your source_suffix does not"
+" contain .rst. Skipped."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/util/errors.py:119
+msgid "Exception occurred, starting debugger:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/util/errors.py:128
+msgid "reStructuredText markup error:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/util/errors.py:159
+msgid "The full traceback has been saved in:"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/_cli/util/errors.py:162
+msgid ""
+"To report this error to the developers, please open an issue at "
+"<https://github.com/sphinx-doc/sphinx/issues/>. Thanks!"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/theming.py:87
+#, python-format
+msgid "%r doesn't have \"theme\" setting"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/theming.py:90
+#, python-format
+msgid "%r doesn't have \"%s\" setting"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/transforms.py:120
+msgid "Failed to get a docname!"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/transforms.py:121
+msgid "Failed to get a docname for source {source!r}!"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/transforms.py:482
+#, python-format
+msgid "No footnote was found for given reference node %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:115
+#, python-format
+msgid "The LaTeX files are in %(outdir)s."
+msgstr "LaTeX датотеке су у %(outdir)s."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:117
+msgid ""
+"\n"
+"Run 'make' in that directory to run these through (pdf)latex\n"
+"(use `make latexpdf' here to do that automatically)."
+msgstr "\nПокрените 'make' у том директоријуму да бисте их пропустили кроз (pdf)latex\n(или употребите `make latexpdf' овде да се то одради аутоматски)."
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:152
+msgid "no \"latex_documents\" config value found; no documents will be written"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:160
+#, python-format
+msgid "\"latex_documents\" config value references unknown document %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:394
+msgid "copying TeX support files"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:430
+msgid "copying additional files"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1310
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:459
+#, python-format
+msgid "logo file %r does not exist"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:492
+#, python-format
+msgid "Unknown configure key: latex_elements[%r], ignored."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/latex/__init__.py:500
+#, python-format
+msgid "Unknown theme option: latex_theme_options[%r], ignored."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:139
+#, python-format
+msgid "build info file is broken: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:177
+#, python-format
+msgid "The HTML pages are in %(outdir)s."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:401
+#, python-format
+msgid "Failed to read build info file: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:515
+msgid "index"
+msgstr "индекс"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:564
+#, python-format
+msgid "Logo of %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:589
+msgid "next"
+msgstr "напред"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:598
+msgid "previous"
+msgstr "назад"
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:694
+msgid "generating indices"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:709
+msgid "writing additional pages"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:779
+#, python-format
+msgid "cannot copy image file '%s': %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:789
+msgid "copying downloadable files... "
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:797
+#, python-format
+msgid "cannot copy downloadable file %r: %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:842
+#, python-format
+msgid "Failed to copy a file in the theme's 'static' directory: %s: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:857
+#, python-format
+msgid "Failed to copy a file in html_static_file: %s: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:890
+msgid "copying static files"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:906
+#, python-format
+msgid "cannot copy static file %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:911
+msgid "copying extra files"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:921
+#, python-format
+msgid "cannot copy extra file %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:928
+#, python-format
+msgid "Failed to write build info file: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:977
+msgid ""
+"search index couldn't be loaded, but not all documents will be built: the "
+"index will be incomplete."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1015
+#, python-format
+msgid "page %s matches two patterns in html_sidebars: %r and %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1162
+#, python-format
+msgid ""
+"a Unicode error occurred when rendering the page %s. Please make sure all "
+"config values that contain non-ASCII content are Unicode strings."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1167
+#, python-format
+msgid ""
+"An error happened in rendering the page %s.\n"
+"Reason: %r"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1195
+msgid "dumping object inventory"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1203
+#, python-format
+msgid "dumping search index in %s"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1245
+#, python-format
+msgid "invalid js_file: %r, ignored"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1273
+msgid "Many math_renderers are registered. But no math_renderer is selected."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1276
+#, python-format
+msgid "Unknown math_renderer %r is given."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1284
+#, python-format
+msgid "html_extra_path entry %r does not exist"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1288
+#, python-format
+msgid "html_extra_path entry %r is placed inside outdir"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1297
+#, python-format
+msgid "html_static_path entry %r does not exist"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1301
+#, python-format
+msgid "html_static_path entry %r is placed inside outdir"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1319
+#, python-format
+msgid "favicon file %r does not exist"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1331
+#, python-format
+msgid ""
+"Values in 'html_sidebars' must be a list of strings. At least one pattern "
+"has a string value: %s. Change to `html_sidebars = %r`."
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1342
+msgid ""
+"HTML 4 is no longer supported by Sphinx. (\"html4_writer=True\" detected in "
+"configuration options)"
+msgstr ""
+
+#: /home/runner/work/sphinx/sphinx/sphinx/builders/html/__init__.py:1357
+#, python-format
+msgid "%s %s documentation"
+msgstr "документација %s %s"

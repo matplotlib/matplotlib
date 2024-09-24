@@ -1,0 +1,2 @@
+[sphinx.html_themes]
+mpl_sphinx_theme = mpl_sphinx_theme
