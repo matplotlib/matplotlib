@@ -153,7 +153,7 @@ class Output:
         w = xmax - xmin
         h = ymax - ymin - self.box.depth
         d = ymax - ymin - self.box.height
-        image = FT2Image(np.ceil(w), np.ceil(h + max(d, 0)))
+        image = FT2Image(int(np.ceil(w)), int(np.ceil(h + max(d, 0))))
 
         # Ideally, we could just use self.glyphs and self.rects here, shifting
         # their coordinates by (-xmin, -ymin), but this yields slightly
@@ -163,7 +163,7 @@ class Output:
 
         for ox, oy, info in shifted.glyphs:
             info.font.draw_glyph_to_bitmap(
-                image, ox, oy - info.metrics.iceberg, info.glyph,
+                image, int(ox), int(oy - info.metrics.iceberg), info.glyph,
                 antialiased=antialiased)
         for x1, y1, x2, y2 in shifted.rects:
             height = max(int(y2 - y1) - 1, 0)
@@ -172,7 +172,7 @@ class Output:
                 y = int(center - (height + 1) / 2)
             else:
                 y = int(y1)
-            image.draw_rect_filled(int(x1), y, np.ceil(x2), y + height)
+            image.draw_rect_filled(int(x1), y, int(np.ceil(x2)), y + height)
         return RasterParse(0, 0, w, h + d, d, image)
 
 
