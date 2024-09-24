@@ -5,7 +5,7 @@ from matplotlib.contour import ContourSet
 from matplotlib.tri._triangulation import Triangulation
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 class TriContourSet(ContourSet):
     """
     Create and store a set of contour lines or filled regions for
@@ -218,7 +218,7 @@ antialiased : bool, optional
 
 
 @_docstring.Substitution(func='tricontour', type='lines')
-@_docstring.dedent_interpd
+@_docstring.interpd
 def tricontour(ax, *args, **kwargs):
     """
     %(_tricontour_doc)s
@@ -247,7 +247,7 @@ def tricontour(ax, *args, **kwargs):
 
 
 @_docstring.Substitution(func='tricontourf', type='regions')
-@_docstring.dedent_interpd
+@_docstring.interpd
 def tricontourf(ax, *args, **kwargs):
     """
     %(_tricontour_doc)s

@@ -467,11 +467,12 @@ class Line2D(Artist):
         yt = xy[:, 1]
 
         # Convert pick radius from points to pixels
-        if self.figure is None:
+        fig = self.get_figure(root=True)
+        if fig is None:
             _log.warning('no figure set when check if mouse is on line')
             pixels = self._pickradius
         else:
-            pixels = self.figure.dpi / 72. * self._pickradius
+            pixels = fig.dpi / 72. * self._pickradius
 
         # The math involved in checking for containment (here and inside of
         # segment_hits) assumes that it is OK to overflow, so temporarily set
@@ -640,7 +641,7 @@ class Line2D(Artist):
                                  ignore=True)
         # correct for marker size, if any
         if self._marker:
-            ms = (self._markersize / 72.0 * self.figure.dpi) * 0.5
+            ms = (self._markersize / 72.0 * self.get_figure(root=True).dpi) * 0.5
             bbox = bbox.padded(ms)
         return bbox
 
@@ -1568,6 +1569,12 @@ class AxLine(Line2D):
         """
         Set the *xy2* value of the line.
 
+        .. note::
+
+            You can only set *xy2* if the line was created using the *xy2*
+            parameter. If the line was created using *slope*, please use
+            `~.AxLine.set_slope`.
+
         Parameters
         ----------
         x, y : float
@@ -1582,6 +1589,12 @@ class AxLine(Line2D):
     def set_slope(self, slope):
         """
         Set the *slope* value of the line.
+
+        .. note::
+
+            You can only set *slope* if the line was created using the *slope*
+            parameter. If the line was created using *xy2*, please use
+            `~.AxLine.set_xy2`.
 
         Parameters
         ----------
@@ -1643,7 +1656,7 @@ class VertexSelector:
             'pick_event', self.onpick)
         self.ind = set()
 
-    canvas = property(lambda self: self.axes.figure.canvas)
+    canvas = property(lambda self: self.axes.get_figure(root=True).canvas)
 
     def process_selected(self, ind, xs, ys):
         """

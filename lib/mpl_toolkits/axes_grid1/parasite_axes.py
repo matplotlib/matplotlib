@@ -13,7 +13,8 @@ class ParasiteAxesBase:
         self.transAux = aux_transform
         self.set_viewlim_mode(viewlim_mode)
         kwargs["frameon"] = False
-        super().__init__(parent_axes.figure, parent_axes._position, **kwargs)
+        super().__init__(parent_axes.get_figure(root=False),
+                         parent_axes._position, **kwargs)
 
     def clear(self):
         super().clear()
@@ -215,8 +216,7 @@ class HostAxesBase:
         self.axis[tuple(restore)].set_visible(True)
         self.axis[tuple(restore)].toggle(ticklabels=False, label=False)
 
-    @_api.make_keyword_only("3.8", "call_axes_locator")
-    def get_tightbbox(self, renderer=None, call_axes_locator=True,
+    def get_tightbbox(self, renderer=None, *, call_axes_locator=True,
                       bbox_extra_artists=None):
         bbs = [
             *[ax.get_tightbbox(renderer, call_axes_locator=call_axes_locator)

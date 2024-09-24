@@ -69,3 +69,6 @@ fig, ax = plt.subplots()
 ud = UpdateDist(ax, prob=0.7)
 anim = FuncAnimation(fig, ud, init_func=ud.start, frames=100, interval=100, blit=True)
 plt.show()
+
+# %%
+# .. tags:: animation, plot-type: line

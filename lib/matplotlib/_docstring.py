@@ -122,4 +122,4 @@ def copy(source):
 
 # Create a decorator that will house the various docstring snippets reused
 # throughout Matplotlib.
-dedent_interpd = interpd = _ArtistPropertiesSubstitution()
+interpd = _ArtistPropertiesSubstitution()

@@ -46,3 +46,6 @@ matplotlib.spines.Spine._T
 
 # Parameter inconsistency due to 3.10 deprecation
 matplotlib.figure.FigureBase.get_figure
+
+# getitem method only exists for 3.10 deprecation backcompatability
+matplotlib.inset.InsetIndicator.__getitem__

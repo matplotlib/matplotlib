@@ -79,7 +79,6 @@ Alphabetical list of modules:
    :maxdepth: 1
 
    matplotlib_configuration_api.rst
-   afm_api.rst
    animation_api.rst
    artist_api.rst
    axes_api.rst
@@ -98,7 +97,6 @@ Alphabetical list of modules:
    container_api.rst
    contour_api.rst
    dates_api.rst
-   docstring_api.rst
    dviread.rst
    figure_api.rst
    font_manager_api.rst
@@ -106,6 +104,7 @@ Alphabetical list of modules:
    gridspec_api.rst
    hatch_api.rst
    image_api.rst
+   inset_api.rst
    layout_engine_api.rst
    legend_api.rst
    legend_handler_api.rst
@@ -134,16 +133,18 @@ Alphabetical list of modules:
    text_api.rst
    texmanager_api.rst
    ticker_api.rst
-   tight_bbox_api.rst
-   tight_layout_api.rst
    transformations.rst
    tri_api.rst
-   type1font.rst
    typing_api.rst
    units_api.rst
    widgets_api.rst
+   _afm_api.rst
    _api_api.rst
+   _docstring_api.rst
    _enums_api.rst
+   _type1font.rst
+   _tight_bbox_api.rst
+   _tight_layout_api.rst
    toolkits/mplot3d.rst
    toolkits/axes_grid1.rst
    toolkits/axisartist.rst

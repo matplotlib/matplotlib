@@ -154,3 +154,9 @@ plt.show()
 #    in this example:
 #
 #    - `matplotlib.axes.Axes.set_box_aspect`
+#
+# .. tags::
+#
+#    component: axes
+#    styling: size
+#    level: beginner

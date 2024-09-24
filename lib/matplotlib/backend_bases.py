@@ -1271,10 +1271,6 @@ class LocationEvent(Event):
         The keyboard modifiers currently being pressed (except for KeyEvent).
     """
 
-    # Fully delete all occurrences of lastevent after deprecation elapses.
-    _lastevent = None
-    lastevent = _api.deprecated("3.8")(
-        _api.classproperty(lambda cls: cls._lastevent))
     _last_axes_ref = None
 
     def __init__(self, name, canvas, x, y, guiEvent=None, *, modifiers=None):
@@ -1514,21 +1510,19 @@ def _mouse_handler(event):
                 # done with the internal _set_inaxes method which ensures that
                 # the xdata and ydata attributes are also correct.
                 try:
+                    canvas = last_axes.get_figure(root=True).canvas
                     leave_event = LocationEvent(
-                        "axes_leave_event", last_axes.figure.canvas,
+                        "axes_leave_event", canvas,
                         event.x, event.y, event.guiEvent,
                         modifiers=event.modifiers)
                     leave_event._set_inaxes(last_axes)
-                    last_axes.figure.canvas.callbacks.process(
-                        "axes_leave_event", leave_event)
+                    canvas.callbacks.process("axes_leave_event", leave_event)
                 except Exception:
                     pass  # The last canvas may already have been torn down.
             if event.inaxes is not None:
                 event.canvas.callbacks.process("axes_enter_event", event)
         LocationEvent._last_axes_ref = (
             weakref.ref(event.inaxes) if event.inaxes else None)
-        LocationEvent._lastevent = (
-            None if event.name == "figure_leave_event" else event)
 
 
 def _get_renderer(figure, print_method=None):
@@ -2496,27 +2490,27 @@ def key_press_handler(event, canvas=None, toolbar=None):
         scale = ax.get_yscale()
         if scale == 'log':
             ax.set_yscale('linear')
-            ax.figure.canvas.draw_idle()
+            ax.get_figure(root=True).canvas.draw_idle()
         elif scale == 'linear':
             try:
                 ax.set_yscale('log')
             except ValueError as exc:
                 _log.warning(str(exc))
                 ax.set_yscale('linear')
-            ax.figure.canvas.draw_idle()
+            ax.get_figure(root=True).canvas.draw_idle()
     # toggle scaling of x-axes between 'log and 'linear' (default key 'k')
     elif event.key in rcParams['keymap.xscale']:
         scalex = ax.get_xscale()
         if scalex == 'log':
             ax.set_xscale('linear')
-            ax.figure.canvas.draw_idle()
+            ax.get_figure(root=True).canvas.draw_idle()
         elif scalex == 'linear':
             try:
                 ax.set_xscale('log')
             except ValueError as exc:
                 _log.warning(str(exc))
                 ax.set_xscale('linear')
-            ax.figure.canvas.draw_idle()
+            ax.get_figure(root=True).canvas.draw_idle()
 
 
 def button_press_handler(event, canvas=None, toolbar=None):

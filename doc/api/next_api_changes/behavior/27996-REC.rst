@@ -1,0 +1,8 @@
+``InsetIndicator`` artist
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`~.Axes.indicate_inset` and `~.Axes.indicate_inset_zoom` now return an instance
+of `~matplotlib.inset.InsetIndicator`.  Use the
+`~matplotlib.inset.InsetIndicator.rectangle` and
+`~matplotlib.inset.InsetIndicator.connectors` properties of this artist to
+access the objects that were previously returned directly.

@@ -132,3 +132,10 @@ plt.show()
 #
 #    - `matplotlib.axes.Axes.pie` / `matplotlib.pyplot.pie`
 #    - `matplotlib.axes.Axes.legend` / `matplotlib.pyplot.legend`
+#
+# .. tags::
+#
+#    component: label
+#    component: annotation
+#    plot-type: pie
+#    level: beginner

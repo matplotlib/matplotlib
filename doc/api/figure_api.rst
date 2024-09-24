@@ -91,7 +91,7 @@ Figure geometry
    Figure.get_figwidth
    Figure.dpi
    Figure.set_dpi
-   Figure.set_dpi
+   Figure.get_dpi
 
 Subplot layout
 --------------

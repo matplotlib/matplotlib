@@ -137,3 +137,11 @@ ax.grid()
 # :doc:`/gallery/subplots_axes_and_figures/axhspan_demo`.
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    styling: alpha
+#    plot-type: fill_between
+#    level: intermediate
+#    purpose: showcase

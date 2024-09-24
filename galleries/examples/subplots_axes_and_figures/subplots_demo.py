@@ -209,3 +209,14 @@ ax1.plot(x, y)
 ax2.plot(x, y ** 2)
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: subplot,
+#    component: axes,
+#    component: axis
+#    plot-type: line,
+#    plot-type: polar
+#    level: beginner
+#    purpose: showcase

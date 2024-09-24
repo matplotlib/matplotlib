@@ -6,8 +6,6 @@ Frame grabbing
 Use a MovieWriter directly to grab individual frames and write them to a
 file.  This avoids any event loop integration, and thus works even with the Agg
 backend.  This is not recommended for use in an interactive setting.
-
-Output generated via `matplotlib.animation.Animation.to_jshtml`.
 """
 
 import numpy as np
@@ -39,5 +37,5 @@ with writer.saving(fig, "writer_test.mp4", 100):
     for i in range(100):
         x0 += 0.1 * np.random.randn()
         y0 += 0.1 * np.random.randn()
-        l.set_data(x0, y0)
+        l.set_data([x0], [y0])
         writer.grab_frame()

@@ -230,6 +230,20 @@ warnings.filterwarnings('ignore', category=DeprecationWarning,
 autodoc_docstring_signature = True
 autodoc_default_options = {'members': None, 'undoc-members': None}
 
+
+def autodoc_process_bases(app, name, obj, options, bases):
+    """
+    Hide pybind11 base object from inheritance tree.
+
+    Note, *bases* must be modified in place.
+    """
+    for cls in bases[:]:
+        if not isinstance(cls, type):
+            continue
+        if cls.__module__ == 'pybind11_builtins' and cls.__name__ == 'pybind11_object':
+            bases.remove(cls)
+
+
 # make sure to ignore warnings that stem from simply inspecting deprecated
 # class-level attributes
 warnings.filterwarnings('ignore', category=DeprecationWarning,
@@ -847,5 +861,6 @@ def setup(app):
         bld_type = 'rel'
     app.add_config_value('skip_sub_dirs', 0, '')
     app.add_config_value('releaselevel', bld_type, 'env')
+    app.connect('autodoc-process-bases', autodoc_process_bases)
     if sphinx.version_info[:2] < (7, 1):
         app.connect('html-page-context', add_html_cache_busting, priority=1000)

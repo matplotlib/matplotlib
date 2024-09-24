@@ -6149,6 +6149,27 @@ def test_pie_get_negative_values():
         ax.pie([5, 5, -3], explode=[0, .1, .2])
 
 
+def test_pie_invalid_explode():
+    # Test ValueError raised when feeding short explode list to axes.pie
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError):
+        ax.pie([1, 2, 3], explode=[0.1, 0.1])
+
+
+def test_pie_invalid_labels():
+    # Test ValueError raised when feeding short labels list to axes.pie
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError):
+        ax.pie([1, 2, 3], labels=["One", "Two"])
+
+
+def test_pie_invalid_radius():
+    # Test ValueError raised when feeding negative radius to axes.pie
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError):
+        ax.pie([1, 2, 3], radius=-5)
+
+
 def test_normalize_kwarg_pie():
     fig, ax = plt.subplots()
     x = [0.3, 0.3, 0.1]
@@ -6315,7 +6336,7 @@ def test_tick_label_update():
     ax.set_xticks([-1, 0, 1, 2, 3])
     ax.set_xlim(-0.5, 2.5)
 
-    ax.figure.canvas.draw()
+    fig.canvas.draw()
     tick_texts = [tick.get_text() for tick in ax.xaxis.get_ticklabels()]
     assert tick_texts == ["", "", "unit value", "", ""]
 
@@ -7513,12 +7534,12 @@ def test_inset():
 
     rect = [xlim[0], ylim[0], xlim[1] - xlim[0], ylim[1] - ylim[0]]
 
-    rec, connectors = ax.indicate_inset(bounds=rect)
-    assert connectors is None
+    inset = ax.indicate_inset(bounds=rect)
+    assert inset.connectors is None
     fig.canvas.draw()
     xx = np.array([[1.5, 2.],
                    [2.15, 2.5]])
-    assert np.all(rec.get_bbox().get_points() == xx)
+    assert np.all(inset.rectangle.get_bbox().get_points() == xx)
 
 
 def test_zoom_inset():
@@ -7542,9 +7563,10 @@ def test_zoom_inset():
     axin1.set_ylim([2, 2.5])
     axin1.set_aspect(ax.get_aspect())
 
-    rec, connectors = ax.indicate_inset_zoom(axin1)
-    assert len(connectors) == 4
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        rec, connectors = ax.indicate_inset_zoom(axin1)
     fig.canvas.draw()
+    assert len(connectors) == 4
     xx = np.array([[1.5,  2.],
                    [2.15, 2.5]])
     assert np.all(rec.get_bbox().get_points() == xx)
@@ -7594,8 +7616,8 @@ def test_indicate_inset_inverted(x_inverted, y_inverted):
     if y_inverted:
         ax1.invert_yaxis()
 
-    rect, bounds = ax1.indicate_inset([2, 2, 5, 4], ax2)
-    lower_left, upper_left, lower_right, upper_right = bounds
+    inset = ax1.indicate_inset([2, 2, 5, 4], ax2)
+    lower_left, upper_left, lower_right, upper_right = inset.connectors
 
     sign_x = -1 if x_inverted else 1
     sign_y = -1 if y_inverted else 1
@@ -8945,11 +8967,11 @@ def test_cla_clears_children_axes_and_fig():
     img = ax.imshow([[1]])
     for art in lines + [img]:
         assert art.axes is ax
-        assert art.figure is fig
+        assert art.get_figure() is fig
     ax.clear()
     for art in lines + [img]:
         assert art.axes is None
-        assert art.figure is None
+        assert art.get_figure() is None
 
 
 def test_child_axes_removal():

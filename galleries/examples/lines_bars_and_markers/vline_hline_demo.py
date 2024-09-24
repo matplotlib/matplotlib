@@ -32,3 +32,9 @@ hax.set_xlabel('time (s)')
 hax.set_title('Horizontal lines demo')
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    plot-type: line
+#    level: beginner

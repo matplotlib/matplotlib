@@ -74,10 +74,11 @@ extension_data = {
     'subdir': 'matplotlib/backends',
     'sources': files(
       'py_converters.cpp',
+      'py_converters_11.cpp',
       '_backend_agg.cpp',
       '_backend_agg_wrapper.cpp',
     ),
-    'dependencies': [agg_dep, numpy_dep, freetype_dep],
+    'dependencies': [agg_dep, numpy_dep, freetype_dep, pybind11_dep],
   },
   '_c_internal_utils': {
     'subdir': 'matplotlib',
@@ -94,7 +95,7 @@ extension_data = {
       'py_converters.cpp',
     ),
     'dependencies': [
-      freetype_dep, numpy_dep, agg_dep.partial_dependency(includes: true),
+      freetype_dep, pybind11_dep, numpy_dep, agg_dep.partial_dependency(includes: true),
     ],
     'cpp_args': [
       '-DFREETYPE_BUILD_TYPE="@0@"'.format(

@@ -177,10 +177,7 @@ plt.show()
 
 from matplotlib.font_manager import FontProperties
 
-font = FontProperties()
-font.set_family('serif')
-font.set_name('Times New Roman')
-font.set_style('italic')
+font = FontProperties(family='Times New Roman', style='italic')
 
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(bottom=0.15, left=0.2)

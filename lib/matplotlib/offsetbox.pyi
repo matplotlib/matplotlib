@@ -7,6 +7,7 @@ from matplotlib.font_manager import FontProperties
 from matplotlib.image import BboxImage
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 from matplotlib.transforms import Bbox, BboxBase, Transform
+from matplotlib.typing import CoordsType
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -219,9 +220,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
     offsetbox: OffsetBox
     arrowprops: dict[str, Any] | None
     xybox: tuple[float, float]
-    boxcoords: str | tuple[str, str] | martist.Artist | Transform | Callable[
-        [RendererBase], Bbox | Transform
-    ]
+    boxcoords: CoordsType
     arrow_patch: FancyArrowPatch | None
     patch: FancyBboxPatch
     prop: FontProperties
@@ -230,17 +229,8 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         offsetbox: OffsetBox,
         xy: tuple[float, float],
         xybox: tuple[float, float] | None = ...,
-        xycoords: str
-        | tuple[str, str]
-        | martist.Artist
-        | Transform
-        | Callable[[RendererBase], Bbox | Transform] = ...,
-        boxcoords: str
-        | tuple[str, str]
-        | martist.Artist
-        | Transform
-        | Callable[[RendererBase], Bbox | Transform]
-        | None = ...,
+        xycoords: CoordsType = ...,
+        boxcoords: CoordsType | None = ...,
         *,
         frameon: bool = ...,
         pad: float = ...,
@@ -258,17 +248,11 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
     @property
     def anncoords(
         self,
-    ) -> str | tuple[str, str] | martist.Artist | Transform | Callable[
-        [RendererBase], Bbox | Transform
-    ]: ...
+    ) -> CoordsType: ...
     @anncoords.setter
     def anncoords(
         self,
-        coords: str
-        | tuple[str, str]
-        | martist.Artist
-        | Transform
-        | Callable[[RendererBase], Bbox | Transform],
+        coords: CoordsType,
     ) -> None: ...
     def get_children(self) -> list[martist.Artist]: ...
     def set_figure(self, fig: Figure | SubFigure) -> None: ...

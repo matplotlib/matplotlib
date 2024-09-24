@@ -50,3 +50,10 @@ plt.show()
 #    - `matplotlib.axes.Axes.axvline` / `matplotlib.pyplot.axvline`
 #    - `matplotlib.axes.Axes.set_facecolor`
 #    - `matplotlib.figure.Figure.suptitle`
+#
+# .. tags::
+#
+#    styling: color
+#    styling: colormap
+#    plot-type: line
+#    level: beginner

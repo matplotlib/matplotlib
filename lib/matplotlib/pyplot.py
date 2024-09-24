@@ -96,7 +96,7 @@ if TYPE_CHECKING:
     import matplotlib.backend_bases
     from matplotlib.axis import Tick
     from matplotlib.axes._base import _AxesBase
-    from matplotlib.backend_bases import RendererBase, Event
+    from matplotlib.backend_bases import Event
     from matplotlib.cm import ScalarMappable
     from matplotlib.contour import ContourSet, QuadContourSet
     from matplotlib.collections import (
@@ -120,8 +120,13 @@ if TYPE_CHECKING:
     from matplotlib.patches import FancyArrow, StepPatch, Wedge
     from matplotlib.quiver import Barbs, Quiver, QuiverKey
     from matplotlib.scale import ScaleBase
-    from matplotlib.transforms import Transform, Bbox
-    from matplotlib.typing import ColorType, LineStyleType, MarkerType, HashableList
+    from matplotlib.typing import (
+        ColorType,
+        CoordsType,
+        HashableList,
+        LineStyleType,
+        MarkerType,
+    )
     from matplotlib.widgets import SubplotTool
 
     _P = ParamSpec('_P')
@@ -989,15 +994,16 @@ default: None
 
     if isinstance(num, FigureBase):
         # type narrowed to `Figure | SubFigure` by combination of input and isinstance
-        if num.canvas.manager is None:
+        root_fig = num.get_figure(root=True)
+        if root_fig.canvas.manager is None:
             raise ValueError("The passed figure is not managed by pyplot")
         elif any([figsize, dpi, facecolor, edgecolor, not frameon,
-                  kwargs]) and num.canvas.manager.num in allnums:
+                  kwargs]) and root_fig.canvas.manager.num in allnums:
             _api.warn_external(
-                "Ignoring specified arguments in this call "
-                f"because figure with num: {num.canvas.manager.num} already exists")
-        _pylab_helpers.Gcf.set_active(num.canvas.manager)
-        return num.figure
+                "Ignoring specified arguments in this call because figure "
+                f"with num: {root_fig.canvas.manager.num} already exists")
+        _pylab_helpers.Gcf.set_active(root_fig.canvas.manager)
+        return root_fig
 
     next_num = max(allnums) + 1 if allnums else 1
     fig_label = ''
@@ -1256,7 +1262,7 @@ if Figure.legend.__doc__:
 
 ## Axes ##
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def axes(
     arg: None | tuple[float, float, float, float] = None,
     **kwargs
@@ -1362,8 +1368,9 @@ def sca(ax: Axes) -> None:
     # Mypy sees ax.figure as potentially None,
     # but if you are calling this, it won't be None
     # Additionally the slight difference between `Figure` and `FigureBase` mypy catches
-    figure(ax.figure)  # type: ignore[arg-type]
-    ax.figure.sca(ax)  # type: ignore[union-attr]
+    fig = ax.get_figure(root=False)
+    figure(fig)  # type: ignore[arg-type]
+    fig.sca(ax)  # type: ignore[union-attr]
 
 
 def cla() -> None:
@@ -1374,7 +1381,7 @@ def cla() -> None:
 
 ## More ways of creating Axes ##
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def subplot(*args, **kwargs) -> Axes:
     """
     Add an Axes to the current figure or retrieve an existing Axes.
@@ -2858,17 +2865,8 @@ def annotate(
     text: str,
     xy: tuple[float, float],
     xytext: tuple[float, float] | None = None,
-    xycoords: str
-    | Artist
-    | Transform
-    | Callable[[RendererBase], Bbox | Transform]
-    | tuple[float, float] = "data",
-    textcoords: str
-    | Artist
-    | Transform
-    | Callable[[RendererBase], Bbox | Transform]
-    | tuple[float, float]
-    | None = None,
+    xycoords: CoordsType = "data",
+    textcoords: CoordsType | None = None,
     arrowprops: dict[str, Any] | None = None,
     annotation_clip: bool | None = None,
     **kwargs,

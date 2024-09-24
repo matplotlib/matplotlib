@@ -27,7 +27,7 @@ import matplotlib.transforms as mtransforms
 
 
 def _contour_labeler_event_handler(cs, inline, inline_spacing, event):
-    canvas = cs.axes.figure.canvas
+    canvas = cs.axes.get_figure(root=True).canvas
     is_button = event.name == "button_press_event"
     is_key = event.name == "key_press_event"
     # Quit (even if not in infinite mode; this is consistent with
@@ -199,7 +199,8 @@ class ContourLabeler:
             if not inline:
                 print('Remove last label by clicking third mouse button.')
             mpl._blocking_input.blocking_input_loop(
-                self.axes.figure, ["button_press_event", "key_press_event"],
+                self.axes.get_figure(root=True),
+                ["button_press_event", "key_press_event"],
                 timeout=-1, handler=functools.partial(
                     _contour_labeler_event_handler,
                     self, inline, inline_spacing))
@@ -222,8 +223,8 @@ class ContourLabeler:
 
     def _get_nth_label_width(self, nth):
         """Return the width of the *nth* label, in pixels."""
-        fig = self.axes.figure
-        renderer = fig._get_renderer()
+        fig = self.axes.get_figure(root=False)
+        renderer = fig.get_figure(root=True)._get_renderer()
         return (Text(0, 0,
                      self.get_text(self.labelLevelList[nth], self.labelFmt),
                      figure=fig, fontproperties=self._label_font_props)
@@ -310,14 +311,6 @@ class ContourLabeler:
         determine rotation and then to break contour if desired.  The extra spacing is
         taken into account when breaking the path, but not when computing the angle.
         """
-        if hasattr(self, "_old_style_split_collections"):
-            vis = False
-            for coll in self._old_style_split_collections:
-                vis |= coll.get_visible()
-                coll.remove()
-            self.set_visible(vis)
-            del self._old_style_split_collections  # Invalidate them.
-
         xys = path.vertices
         codes = path.codes
 
@@ -406,97 +399,6 @@ class ContourLabeler:
 
         return angle, Path(xys, codes)
 
-    @_api.deprecated("3.8")
-    def calc_label_rot_and_inline(self, slc, ind, lw, lc=None, spacing=5):
-        """
-        Calculate the appropriate label rotation given the linecontour
-        coordinates in screen units, the index of the label location and the
-        label width.
-
-        If *lc* is not None or empty, also break contours and compute
-        inlining.
-
-        *spacing* is the empty space to leave around the label, in pixels.
-
-        Both tasks are done together to avoid calculating path lengths
-        multiple times, which is relatively costly.
-
-        The method used here involves computing the path length along the
-        contour in pixel coordinates and then looking approximately (label
-        width / 2) away from central point to determine rotation and then to
-        break contour if desired.
-        """
-
-        if lc is None:
-            lc = []
-        # Half the label width
-        hlw = lw / 2.0
-
-        # Check if closed and, if so, rotate contour so label is at edge
-        closed = _is_closed_polygon(slc)
-        if closed:
-            slc = np.concatenate([slc[ind:-1], slc[:ind + 1]])
-            if len(lc):  # Rotate lc also if not empty
-                lc = np.concatenate([lc[ind:-1], lc[:ind + 1]])
-            ind = 0
-
-        # Calculate path lengths
-        pl = np.zeros(slc.shape[0], dtype=float)
-        dx = np.diff(slc, axis=0)
-        pl[1:] = np.cumsum(np.hypot(dx[:, 0], dx[:, 1]))
-        pl = pl - pl[ind]
-
-        # Use linear interpolation to get points around label
-        xi = np.array([-hlw, hlw])
-        if closed:  # Look at end also for closed contours
-            dp = np.array([pl[-1], 0])
-        else:
-            dp = np.zeros_like(xi)
-
-        # Get angle of vector between the two ends of the label - must be
-        # calculated in pixel space for text rotation to work correctly.
-        (dx,), (dy,) = (np.diff(np.interp(dp + xi, pl, slc_col))
-                        for slc_col in slc.T)
-        rotation = np.rad2deg(np.arctan2(dy, dx))
-
-        if self.rightside_up:
-            # Fix angle so text is never upside-down
-            rotation = (rotation + 90) % 180 - 90
-
-        # Break contour if desired
-        nlc = []
-        if len(lc):
-            # Expand range by spacing
-            xi = dp + xi + np.array([-spacing, spacing])
-
-            # Get (integer) indices near points of interest; use -1 as marker
-            # for out of bounds.
-            I = np.interp(xi, pl, np.arange(len(pl)), left=-1, right=-1)
-            I = [np.floor(I[0]).astype(int), np.ceil(I[1]).astype(int)]
-            if I[0] != -1:
-                xy1 = [np.interp(xi[0], pl, lc_col) for lc_col in lc.T]
-            if I[1] != -1:
-                xy2 = [np.interp(xi[1], pl, lc_col) for lc_col in lc.T]
-
-            # Actually break contours
-            if closed:
-                # This will remove contour if shorter than label
-                if all(i != -1 for i in I):
-                    nlc.append(np.vstack([xy2, lc[I[1]:I[0]+1], xy1]))
-            else:
-                # These will remove pieces of contour if they have length zero
-                if I[0] != -1:
-                    nlc.append(np.vstack([lc[:I[0]+1], xy1]))
-                if I[1] != -1:
-                    nlc.append(np.vstack([xy2, lc[I[1]:]]))
-
-            # The current implementation removes contours completely
-            # covered by labels.  Uncomment line below to keep
-            # original contour if this is the preferred behavior.
-            # if not len(nlc): nlc = [lc]
-
-        return rotation, nlc
-
     def add_label(self, x, y, rotation, lev, cvalue):
         """Add a contour label, respecting whether *use_clabeltext* was set."""
         data_x, data_y = self.axes.transData.inverted().transform((x, y))
@@ -518,12 +420,6 @@ class ContourLabeler:
         self.labelXYs.append((x, y))
         # Add label to plot here - useful for manual mode label selection
         self.axes.add_artist(t)
-
-    @_api.deprecated("3.8", alternative="add_label")
-    def add_label_clabeltext(self, x, y, rotation, lev, cvalue):
-        """Add contour label with `.Text.set_transform_rotates_text`."""
-        with cbook._setattr_cm(self, _use_clabeltext=True):
-            self.add_label(x, y, rotation, lev, cvalue)
 
     def add_label_near(self, x, y, inline=True, inline_spacing=5,
                        transform=None):
@@ -604,15 +500,6 @@ class ContourLabeler:
             text.remove()
 
 
-def _is_closed_polygon(X):
-    """
-    Return whether first and last object in a sequence are the same. These are
-    presumably coordinates on a polygonal curve, in which case this function
-    tests if that curve is closed.
-    """
-    return np.allclose(X[0], X[-1], rtol=1e-10, atol=1e-13)
-
-
 def _find_closest_point_on_path(xys, p):
     """
     Parameters
@@ -668,7 +555,7 @@ layers : array
 """)
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 class ContourSet(ContourLabeler, mcoll.Collection):
     """
     Store a set of contour lines or filled regions.
@@ -816,6 +703,11 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         self._extend_min = self.extend in ['min', 'both']
         self._extend_max = self.extend in ['max', 'both']
         if self.colors is not None:
+            if mcolors.is_color_like(self.colors):
+                color_sequence = [self.colors]
+            else:
+                color_sequence = self.colors
+
             ncolors = len(self.levels)
             if self.filled:
                 ncolors -= 1
@@ -832,19 +724,19 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             total_levels = (ncolors +
                             int(self._extend_min) +
                             int(self._extend_max))
-            if (len(self.colors) == total_levels and
+            if (len(color_sequence) == total_levels and
                     (self._extend_min or self._extend_max)):
                 use_set_under_over = True
                 if self._extend_min:
                     i0 = 1
 
-            cmap = mcolors.ListedColormap(self.colors[i0:None], N=ncolors)
+            cmap = mcolors.ListedColormap(color_sequence[i0:None], N=ncolors)
 
             if use_set_under_over:
                 if self._extend_min:
-                    cmap.set_under(self.colors[0])
+                    cmap.set_under(color_sequence[0])
                 if self._extend_max:
-                    cmap.set_over(self.colors[-1])
+                    cmap.set_over(color_sequence[-1])
 
         # label lists must be initialized here
         self.labelTexts = []
@@ -906,56 +798,8 @@ class ContourSet(ContourLabeler, mcoll.Collection):
     allkinds = property(lambda self: [
         [subp.codes for subp in p._iter_connected_components()]
         for p in self.get_paths()])
-    tcolors = _api.deprecated("3.8")(property(lambda self: [
-        (tuple(rgba),) for rgba in self.to_rgba(self.cvalues, self.alpha)]))
-    tlinewidths = _api.deprecated("3.8")(property(lambda self: [
-        (w,) for w in self.get_linewidths()]))
     alpha = property(lambda self: self.get_alpha())
     linestyles = property(lambda self: self._orig_linestyles)
-
-    @_api.deprecated("3.8", alternative="set_antialiased or get_antialiased",
-                     addendum="Note that get_antialiased returns an array.")
-    @property
-    def antialiased(self):
-        return all(self.get_antialiased())
-
-    @antialiased.setter
-    def antialiased(self, aa):
-        self.set_antialiased(aa)
-
-    @_api.deprecated("3.8")
-    @property
-    def collections(self):
-        # On access, make oneself invisible and instead add the old-style collections
-        # (one PathCollection per level).  We do not try to further split contours into
-        # connected components as we already lost track of what pairs of contours need
-        # to be considered as single units to draw filled regions with holes.
-        if not hasattr(self, "_old_style_split_collections"):
-            self.set_visible(False)
-            fcs = self.get_facecolor()
-            ecs = self.get_edgecolor()
-            lws = self.get_linewidth()
-            lss = self.get_linestyle()
-            self._old_style_split_collections = []
-            for idx, path in enumerate(self._paths):
-                pc = mcoll.PathCollection(
-                    [path] if len(path.vertices) else [],
-                    alpha=self.get_alpha(),
-                    antialiaseds=self._antialiaseds[idx % len(self._antialiaseds)],
-                    transform=self.get_transform(),
-                    zorder=self.get_zorder(),
-                    label="_nolegend_",
-                    facecolor=fcs[idx] if len(fcs) else "none",
-                    edgecolor=ecs[idx] if len(ecs) else "none",
-                    linewidths=[lws[idx % len(lws)]],
-                    linestyles=[lss[idx % len(lss)]],
-                )
-                if self.filled:
-                    pc.set(hatch=self.hatches[idx % len(self.hatches)])
-                self._old_style_split_collections.append(pc)
-            for col in self._old_style_split_collections:
-                self.axes.add_collection(col)
-        return self._old_style_split_collections
 
     def get_transform(self):
         """Return the `.Transform` instance used by this ContourSet."""
@@ -1425,7 +1269,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                 super().draw(renderer)
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 class QuadContourSet(ContourSet):
     """
     Create and store a set of contour lines or filled regions.
@@ -1660,10 +1504,12 @@ colors : :mpltype:`color` or list of :mpltype:`color`, optional
     The sequence is cycled for the levels in ascending order. If the
     sequence is shorter than the number of levels, it's repeated.
 
-    As a shortcut, single color strings may be used in place of
-    one-element lists, i.e. ``'red'`` instead of ``['red']`` to color
-    all levels with the same color. This shortcut does only work for
-    color strings, not for other ways of specifying colors.
+    As a shortcut, a single color may be used in place of one-element lists, i.e.
+    ``'red'`` instead of ``['red']`` to color all levels with the same color.
+
+    .. versionchanged:: 3.10
+        Previously a single color had to be expressed as a string, but now any
+        valid color format may be passed.
 
     By default (value *None*), the colormap specified by *cmap*
     will be used.
@@ -1731,10 +1577,10 @@ extend : {'neither', 'both', 'min', 'max'}, default: 'neither'
 
         An existing `.QuadContourSet` does not get notified if
         properties of its colormap are changed. Therefore, an explicit
-        call `.QuadContourSet.changed()` is needed after modifying the
+        call ``QuadContourSet.changed()`` is needed after modifying the
         colormap. The explicit call can be left out, if a colorbar is
         assigned to the `.QuadContourSet` because it internally calls
-        `.QuadContourSet.changed()`.
+        ``QuadContourSet.changed()``.
 
     Example::
 

@@ -98,8 +98,8 @@ class DraggableLegend(DraggableOffsetBox):
 _legend_kw_doc_base = """
 bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
     Box that is used to position the legend in conjunction with *loc*.
-    Defaults to `axes.bbox` (if called as a method to `.Axes.legend`) or
-    `figure.bbox` (if `.Figure.legend`).  This argument allows arbitrary
+    Defaults to ``axes.bbox`` (if called as a method to `.Axes.legend`) or
+    ``figure.bbox`` (if ``figure.legend``).  This argument allows arbitrary
     placement of the legend.
 
     Bbox coordinates are interpreted in the coordinate system given by
@@ -351,7 +351,7 @@ class Legend(Artist):
     def __str__(self):
         return "Legend"
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def __init__(
         self, parent, handles, labels,
         *,
@@ -497,7 +497,7 @@ class Legend(Artist):
         if isinstance(parent, Axes):
             self.isaxes = True
             self.axes = parent
-            self.set_figure(parent.figure)
+            self.set_figure(parent.get_figure(root=False))
         elif isinstance(parent, FigureBase):
             self.isaxes = False
             self.set_figure(parent)
@@ -637,13 +637,13 @@ class Legend(Artist):
         """
         Set the boilerplate props for artists added to Axes.
         """
-        a.set_figure(self.figure)
+        a.set_figure(self.get_figure(root=False))
         if self.isaxes:
             a.axes = self.axes
 
         a.set_transform(self.get_transform())
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def set_loc(self, loc=None):
         """
         Set the location of the legend.
@@ -943,7 +943,7 @@ class Legend(Artist):
                                    align=self._alignment,
                                    children=[self._legend_title_box,
                                              self._legend_handle_box])
-        self._legend_box.set_figure(self.figure)
+        self._legend_box.set_figure(self.get_figure(root=False))
         self._legend_box.axes = self.axes
         self.texts = text_list
         self.legend_handles = handle_list
@@ -1065,7 +1065,7 @@ class Legend(Artist):
     def get_window_extent(self, renderer=None):
         # docstring inherited
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         return self._legend_box.get_window_extent(renderer=renderer)
 
     def get_tightbbox(self, renderer=None):
@@ -1196,7 +1196,6 @@ class Legend(Artist):
 
         return l, b
 
-    @_api.rename_parameter("3.8", "event", "mouseevent")
     def contains(self, mouseevent):
         return self.legendPatch.contains(mouseevent)
 
