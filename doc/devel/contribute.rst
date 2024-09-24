@@ -118,7 +118,7 @@ First Contributions & New Contributors
 --------------------------------------
 
 If this is your first open source contribution, or first time contributing to Matplotlib,
-and you need help or guidance finding a good first issue, look no further. This section will 
+and you need help or guidance finding a good first issue, look no further. This section will
 guide you through each step.
 
 1. Navigate to the `issues page <https://github.com/matplotlib/matplotlib/issues/>`_.
@@ -414,8 +414,3 @@ please cite us following the :doc:`/project/citing` guidelines.
 
 If you have developed an extension to Matplotlib, please consider adding it to our
 `third party package <https://github.com/matplotlib/mpl-third-party>`_  list.
-
-
-
-
-
