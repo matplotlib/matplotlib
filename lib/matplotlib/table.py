@@ -676,7 +676,7 @@ def table(ax,
 
     Parameters
     ----------
-    cellText : 2D list of str, Pandas.DataFrame, optional
+    cellText : 2D list of str or pandas.DataFrame, optional
         The texts to place into the table cells.
 
         *Note*: Line breaks in the strings are currently not accounted for and

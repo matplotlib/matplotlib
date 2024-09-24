@@ -268,7 +268,7 @@ def test_table_unit(fig_test, fig_ref):
 
 def test_table_dataframe():
     # Test if Pandas Data Frame can be passed in cellText
-    import pandas as pd
+    pd = pytest.importorskip("pandas")
 
     data = {
         'Letter': ['A', 'B', 'C'],

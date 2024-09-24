@@ -1,9 +1,8 @@
-New Feature - passing Pandas.DataFrame into ax.table(...)
-----------------------------------------------------------
+``ax.table`` will accept a pandas dataframe
+--------------------------------------------
 
-Pandas.DataFrame objects can now be passed directly to the ax.table
-plotting method via the cellText argument. See the following code
-block for an example implementation.
+The `~Axes.axes.table` method can now accept a data frame for the ``cellText`` method, which
+it attempts to render with column headers set by ``df.columns.to_numpy()`` and cell data set by ``df.to_numpy()``.
 
 .. code-block:: python
 
