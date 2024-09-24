@@ -124,10 +124,9 @@ guide you through each step.
 1. Navigate to the `issues page <https://github.com/matplotlib/matplotlib/issues/>`_.
 2. Filter labels with `"Difficulty: Easy" <https://github.com/matplotlib/matplotlib/labels/Difficulty%3A%20Easy>`_ & `"Good first Issue" <https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_ (optional).
 3. Click on an issue you would like to work on, and check to see if the issue is already claimed.
-4. If the issue is claimed, tag the user working on the issue,
-5.  and ask to collaborate (optional).
-6. Check the `pull requests (i.e. #28476) <https://github.com/matplotlib/matplotlib/pulls?q=is%3Apr+is%3Aopen+%2328476>`_ and filter by the issue number to make sure the issue is not in progress.
-7. After steps 3 & 4 are done, and no one is working on the issue, comment on the issue to state you are working on it.
+4. If the issue is claimed, tag the user working on the issue, and ask to collaborate (optional).
+5. Check the `pull requests (i.e. #28476) <https://github.com/matplotlib/matplotlib/pulls?q=is%3Apr+is%3Aopen+%2328476>`_ and filter by the issue number to make sure the issue is not in progress.
+6. After steps 3 & 4 are done, and no one is working on the issue, comment on the issue to state you are working on it.
 
 .. _how-to-pull-request:
 
@@ -301,7 +300,7 @@ Ways to contribute
       choosing something to focus on (3d, testing, documentation, animations, etc.)
       and gaining context on this area by reading the issues and pull requests
       touching these subjects is a reasonable approach.
-      
+
 .. _contribute_code:
 
 Code
