@@ -1,0 +1,33 @@
+``axes_grid1`` API changes
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``anchored_artists.AnchoredEllipse`` has been removed. Instead, directly construct an
+`.AnchoredOffsetbox`, an `.AuxTransformBox`, and an `~.patches.Ellipse`, as demonstrated
+in :doc:`/gallery/misc/anchored_artists`.
+
+The ``axes_divider.AxesLocator`` class has been removed.  The ``new_locator`` method of
+divider instances now instead returns an opaque callable (which can still be passed to
+``ax.set_axes_locator``).
+
+``axes_divider.Divider.locate`` has been removed; use ``Divider.new_locator(...)(ax,
+renderer)`` instead.
+
+``axes_grid.CbarAxesBase.toggle_label`` has been removed. Instead, use standard methods
+for manipulating colorbar labels (`.Colorbar.set_label`) and tick labels
+(`.Axes.tick_params`).
+
+``inset_location.InsetPosition`` has been removed; use `~.Axes.inset_axes` instead.
+
+
+``axisartist`` API changes
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``axisartist.axes_grid`` and ``axisartist.axes_rgb`` modules, which provide wrappers
+combining the functionality of `.axes_grid1` and `.axisartist`, have been removed;
+directly use e.g. ``AxesGrid(..., axes_class=axislines.Axes)`` instead.
+
+Calling an axisartist Axes to mean `~matplotlib.pyplot.axis` has been removed; explicitly
+call the method instead.
+
+``floating_axes.GridHelperCurveLinear.get_data_boundary`` has been removed.  Use
+``grid_finder.extreme_finder(*[None] * 5)`` to get the extremes of the grid.
