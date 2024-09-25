@@ -9172,18 +9172,22 @@ def test_axes_clear_behavior(fig_ref, fig_test, which):
 def test_axes_clear_reference_cycle():
     def is_in_reference_cycle(start):
         # Breadth first search. Return True if we encounter the starting node
-        to_visit = deque([start])
-        explored = set()
-        while len(to_visit) > 0:
-            parent = to_visit.popleft()
-            for child in gc.get_referents(parent):
-                if id(child) in explored:
-                    continue
-                if child is start:
-                    return True
-                explored.add(id(child))
-                to_visit.append(child)
-        return False
+        try:
+            gc.disable()
+            to_visit = deque([start])
+            explored = set()
+            while len(to_visit) > 0:
+                parent = to_visit.popleft()
+                for child in gc.get_referents(parent):
+                    if id(child) in explored:
+                        continue
+                    if child is start:
+                        return True
+                    explored.add(id(child))
+                    to_visit.append(child)
+            return False
+        finally:
+            gc.enable()
     fig = Figure()
     ax = fig.add_subplot()
     points = np.random.rand(1000)
@@ -9193,18 +9197,16 @@ def test_axes_clear_reference_cycle():
     fig.clear()  # This should break the reference cycle
 
     # Care most about the objects that scale with number of points
-    big_artists = list(
-        filter(
-            lambda a: isinstance(a, Line2D) or isinstance(a, PathCollection),
-            ax_children,
-        )
-    )
+    big_artists = [
+        a for a in ax_children
+        if isinstance(a, (Line2D, PathCollection))
+    ]
     assert len(big_artists) > 0
     for big_artist in big_artists:
         assert not is_in_reference_cycle(big_artist)
     assert len(ax_children) > 0
     for child in ax_children:
-        # make sure this doesn't raise a ValueError because the list is empty
+        # Make sure this doesn't raise because the child is already removed.
         try:
             child.remove()
         except NotImplementedError:
