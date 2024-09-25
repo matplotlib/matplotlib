@@ -266,10 +266,6 @@ class RendererAgg(RendererBase):
     def tostring_argb(self):
         return np.asarray(self._renderer).take([3, 0, 1, 2], axis=2).tobytes()
 
-    @_api.deprecated("3.8", alternative="buffer_rgba")
-    def tostring_rgb(self):
-        return np.asarray(self._renderer).take([0, 1, 2], axis=2).tobytes()
-
     def clear(self):
         self._renderer.clear()
 
@@ -397,16 +393,6 @@ class FigureCanvasAgg(FigureCanvasBase):
             self.renderer = RendererAgg(w, h, self.figure.dpi)
             self._lastKey = key
         return self.renderer
-
-    @_api.deprecated("3.8", alternative="buffer_rgba")
-    def tostring_rgb(self):
-        """
-        Get the image as RGB `bytes`.
-
-        `draw` must be called at least once before this function will work and
-        to update the renderer for any subsequent changes to the Figure.
-        """
-        return self.renderer.tostring_rgb()
 
     def tostring_argb(self):
         """

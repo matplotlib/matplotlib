@@ -1178,26 +1178,12 @@ class Event:
     def __init__(self, name, canvas, guiEvent=None):
         self.name = name
         self.canvas = canvas
-        self._guiEvent = guiEvent
-        self._guiEvent_deleted = False
+        self.guiEvent = guiEvent
 
     def _process(self):
         """Process this event on ``self.canvas``, then unset ``guiEvent``."""
         self.canvas.callbacks.process(self.name, self)
-        self._guiEvent_deleted = True
-
-    @property
-    def guiEvent(self):
-        # After deprecation elapses: remove _guiEvent_deleted; make guiEvent a plain
-        # attribute set to None by _process.
-        if self._guiEvent_deleted:
-            _api.warn_deprecated(
-                "3.8", message="Accessing guiEvent outside of the original GUI event "
-                "handler is unsafe and deprecated since %(since)s; in the future, the "
-                "attribute will be set to None after quitting the event handler.  You "
-                "may separately record the value of the guiEvent attribute at your own "
-                "risk.")
-        return self._guiEvent
+        self.guiEvent = None
 
 
 class DrawEvent(Event):
@@ -2097,12 +2083,6 @@ class FigureCanvasBase:
         if dpi == 'figure':
             dpi = getattr(self.figure, '_original_dpi', self.figure.dpi)
 
-        if kwargs.get("papertype") == 'auto':
-            # When deprecation elapses, remove backend_ps._get_papertype & its callers.
-            _api.warn_deprecated(
-                "3.8", name="papertype='auto'", addendum="Pass an explicit paper type, "
-                "'figure', or omit the *papertype* argument entirely.")
-
         # Remove the figure manager, if any, to avoid resizing the GUI widget.
         with (cbook._setattr_cm(self, manager=None),
               self._switch_canvas_and_return_print_method(format, backend)
@@ -2206,20 +2186,6 @@ class FigureCanvasBase:
             {ord(c): "_" for c in removed_chars})
         default_filetype = self.get_default_filetype()
         return f'{default_basename}.{default_filetype}'
-
-    @_api.deprecated("3.8")
-    def switch_backends(self, FigureCanvasClass):
-        """
-        Instantiate an instance of FigureCanvasClass
-
-        This is used for backend switching, e.g., to instantiate a
-        FigureCanvasPS from a FigureCanvasGTK.  Note, deep copying is
-        not done, so any changes to one of the instances (e.g., setting
-        figure size or line props), will be reflected in the other
-        """
-        newCanvas = FigureCanvasClass(self.figure)
-        newCanvas._is_saving = self._is_saving
-        return newCanvas
 
     def mpl_connect(self, s, func):
         """

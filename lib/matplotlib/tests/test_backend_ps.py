@@ -371,10 +371,10 @@ def test_colorbar_shift(tmp_path):
     plt.colorbar()
 
 
-def test_auto_papersize_deprecation():
+def test_auto_papersize_removal():
     fig = plt.figure()
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+    with pytest.raises(ValueError, match="'auto' is not a valid value"):
         fig.savefig(io.BytesIO(), format='eps', papertype='auto')
 
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+    with pytest.raises(ValueError, match="'auto' is not a valid value"):
         mpl.rcParams['ps.papersize'] = 'auto'
