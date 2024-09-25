@@ -6925,7 +6925,7 @@ such objects
             `~matplotlib.patches.Patch` properties. The following properties
             additionally accept a sequence of values corresponding to the
             datasets in *x*:
-            *edgecolors*, *facecolors*, *lines*, *linestyles*, *hatches*.
+            *edgecolor*, *facecolor*, *linewidth*, *linestyle*, *hatch*.
 
             .. versionadded:: 3.10
                Allowing sequences of values in above listed Patch properties.
