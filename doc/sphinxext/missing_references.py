@@ -100,10 +100,11 @@ def handle_missing_reference(app, domain, node):
     #. record missing references for saving/comparing with ignored list.
     #. prevent Sphinx from raising a warning on ignored references.
     """
-    typ = node["reftype"]
+    refdomain = node["refdomain"]
+    reftype = node["reftype"]
     target = node["reftarget"]
     location = get_location(node, app)
-    domain_type = f"{domain.name}:{typ}"
+    domain_type = f"{refdomain}:{reftype}"
 
     app.env.missing_references_events[(domain_type, target)].add(location)
 

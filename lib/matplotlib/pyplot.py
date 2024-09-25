@@ -96,7 +96,7 @@ if TYPE_CHECKING:
     import matplotlib.backend_bases
     from matplotlib.axis import Tick
     from matplotlib.axes._base import _AxesBase
-    from matplotlib.backend_bases import RendererBase, Event
+    from matplotlib.backend_bases import Event
     from matplotlib.cm import ScalarMappable
     from matplotlib.contour import ContourSet, QuadContourSet
     from matplotlib.collections import (
@@ -120,8 +120,13 @@ if TYPE_CHECKING:
     from matplotlib.patches import FancyArrow, StepPatch, Wedge
     from matplotlib.quiver import Barbs, Quiver, QuiverKey
     from matplotlib.scale import ScaleBase
-    from matplotlib.transforms import Transform, Bbox
-    from matplotlib.typing import ColorType, LineStyleType, MarkerType, HashableList
+    from matplotlib.typing import (
+        ColorType,
+        CoordsType,
+        HashableList,
+        LineStyleType,
+        MarkerType,
+    )
     from matplotlib.widgets import SubplotTool
 
     _P = ParamSpec('_P')
@@ -1257,7 +1262,7 @@ if Figure.legend.__doc__:
 
 ## Axes ##
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def axes(
     arg: None | tuple[float, float, float, float] = None,
     **kwargs
@@ -1376,7 +1381,7 @@ def cla() -> None:
 
 ## More ways of creating Axes ##
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def subplot(*args, **kwargs) -> Axes:
     """
     Add an Axes to the current figure or retrieve an existing Axes.
@@ -2860,17 +2865,8 @@ def annotate(
     text: str,
     xy: tuple[float, float],
     xytext: tuple[float, float] | None = None,
-    xycoords: str
-    | Artist
-    | Transform
-    | Callable[[RendererBase], Bbox | Transform]
-    | tuple[float, float] = "data",
-    textcoords: str
-    | Artist
-    | Transform
-    | Callable[[RendererBase], Bbox | Transform]
-    | tuple[float, float]
-    | None = None,
+    xycoords: CoordsType = "data",
+    textcoords: CoordsType | None = None,
     arrowprops: dict[str, Any] | None = None,
     annotation_clip: bool | None = None,
     **kwargs,

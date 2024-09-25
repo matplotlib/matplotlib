@@ -268,6 +268,9 @@
       "<unknown>:1",
       "doc/api/_as_gen/mpl_toolkits.axisartist.floating_axes.rst:32:<autosummary>:1"
     ],
+    "numpy.float64": [
+      "doc/docstring of matplotlib.ft2font.PyCapsule.set_text:1"
+    ],
     "numpy.uint8": [
       "<unknown>:1"
     ]
@@ -338,19 +341,12 @@
     "Artist.stale_callback": [
       "doc/users/explain/figure/interactive_guide.rst:323"
     ],
-    "Axes.dataLim": [
-      "doc/api/axes_api.rst:293:<autosummary>:1",
-      "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes._base._AxesBase.update_datalim:2"
-    ],
     "AxesBase": [
       "doc/api/axes_api.rst:448:<autosummary>:1",
       "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes._base._AxesBase.add_child_axes:2"
     ],
     "Figure.stale_callback": [
       "doc/users/explain/figure/interactive_guide.rst:333"
-    ],
-    "Glyph": [
-      "doc/gallery/misc/ftface_props.rst:25"
     ],
     "Image": [
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.gci:4"

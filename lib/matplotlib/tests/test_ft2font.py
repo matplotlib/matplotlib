@@ -130,6 +130,8 @@ def test_ft2font_invalid_args(tmp_path):
     # filename argument.
     with pytest.raises(TypeError, match='to a font file or a binary-mode file object'):
         ft2font.FT2Font(None)
+    with pytest.raises(TypeError, match='to a font file or a binary-mode file object'):
+        ft2font.FT2Font(object())  # Not bytes or string, and has no read() method.
     file = tmp_path / 'invalid-font.ttf'
     file.write_text('This is not a valid font file.')
     with (pytest.raises(TypeError, match='to a font file or a binary-mode file object'),
@@ -145,19 +147,19 @@ def test_ft2font_invalid_args(tmp_path):
     file = fm.findfont('DejaVu Sans')
 
     # hinting_factor argument.
-    with pytest.raises(TypeError, match='cannot be interpreted as an integer'):
+    with pytest.raises(TypeError, match='incompatible constructor arguments'):
         ft2font.FT2Font(file, 1.3)
     with pytest.raises(ValueError, match='hinting_factor must be greater than 0'):
         ft2font.FT2Font(file, 0)
 
-    with pytest.raises(TypeError, match='Fallback list must be a list'):
+    with pytest.raises(TypeError, match='incompatible constructor arguments'):
         # failing to be a list will fail before the 0
         ft2font.FT2Font(file, _fallback_list=(0,))  # type: ignore[arg-type]
-    with pytest.raises(TypeError, match='Fallback fonts must be FT2Font objects.'):
+    with pytest.raises(TypeError, match='incompatible constructor arguments'):
         ft2font.FT2Font(file, _fallback_list=[0])  # type: ignore[list-item]
 
     # kerning_factor argument.
-    with pytest.raises(TypeError, match='cannot be interpreted as an integer'):
+    with pytest.raises(TypeError, match='incompatible constructor arguments'):
         ft2font.FT2Font(file, _kerning_factor=1.3)
 
 

@@ -9,13 +9,8 @@ if the added benefit is worth the effort of adapting existing code.
 
 Because we are a visualization library, our primary output is the final
 visualization the user sees; therefore, the appearance of the figure is part of
-the API and any changes, either semantic or :ref:`aesthetic <color_changes>`,
-are backwards-incompatible API changes.
-
-.. toctree::
-   :hidden:
-
-   color_changes.rst
+the API and any changes, either semantic or aesthetic, are backwards-incompatible
+API changes.
 
 
 Add new API and features
@@ -36,6 +31,23 @@ take particular care when adding new API:
 
   __ https://emptysqua.re/blog/api-evolution-the-right-way/#adding-parameters
 
+
+Add or change colormaps, color sequences, and styles
+----------------------------------------------------
+Visual changes are considered an API break. Therefore, we generally do not modify
+existing colormaps, color sequences, or styles.
+
+We put a high bar on adding new colormaps and styles to prevent excessively growing
+them. While the decision is case-by-case, evaluation criteria include:
+
+- novelty: Does it support a new use case? e.g. slight variations of existing maps,
+  sequences and styles are likely not accepted.
+- usability and accessibility: Are colors of sequences sufficiently distinct? Has
+  colorblindness been considered?
+- evidence of wide spread usage: for example academic papers, industry blogs and
+  whitepapers, or inclusion in other visualization libraries or domain specific tools
+- open license: colormaps, sequences, and styles must have a BSD compatible license
+  (see :ref:`license-discussion`)
 
 .. _deprecation-guidelines:
 

@@ -551,6 +551,9 @@ class _AxesBase(martist.Artist):
 
     _subclass_uses_cla = False
 
+    dataLim: mtransforms.Bbox
+    """The bounding `.Bbox` enclosing all data displayed in the Axes."""
+
     @property
     def _axis_map(self):
         """A mapping of axis names, e.g. 'x', to `Axis` instances."""
@@ -849,6 +852,7 @@ class _AxesBase(martist.Artist):
 
     @property
     def viewLim(self):
+        """The view limits as `.Bbox` in data coordinates."""
         self._unstale_viewLim()
         return self._viewLim
 
@@ -2270,7 +2274,7 @@ class _AxesBase(martist.Artist):
 
     def add_child_axes(self, ax):
         """
-        Add an `.AxesBase` to the Axes' children; return the child Axes.
+        Add an `.Axes` to the Axes' children; return the child Axes.
 
         This is the lowlevel version.  See `.axes.Axes.inset_axes`.
         """
@@ -3247,7 +3251,7 @@ class _AxesBase(martist.Artist):
             axis.set_zorder(zorder)
         self.stale = True
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def grid(self, visible=None, which='major', axis='both', **kwargs):
         """
         Configure the grid lines.

@@ -6,12 +6,9 @@
 #ifndef MPL_FT2FONT_H
 #define MPL_FT2FONT_H
 
-#define PY_SSIZE_T_CLEAN
-#include <Python.h>
-
-#include <cstdint>
 #include <set>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -80,8 +77,8 @@ class FT2Font
     void set_size(double ptsize, double dpi);
     void set_charmap(int i);
     void select_charmap(unsigned long i);
-    void set_text(
-        size_t N, uint32_t *codepoints, double angle, FT_Int32 flags, std::vector<double> &xys);
+    void set_text(std::u32string_view codepoints, double angle, FT_Int32 flags,
+                  std::vector<double> &xys);
     int get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode, bool fallback);
     int get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode, FT_Vector &delta);
     void set_kerning_factor(int factor);
