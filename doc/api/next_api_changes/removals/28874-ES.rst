@@ -1,3 +1,66 @@
+Auto-closing of figures when switching backend
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Allowable backend switches (i.e. those that do not swap a GUI event loop with another
+one) will not close existing figures. If necessary, call ``plt.close("all")`` before
+switching.
+
+
+``FigureCanvasBase.switch_backends``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... has been removed with no replacement.
+
+
+Accessing ``event.guiEvent`` after event handlers return
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... is no longer supported, and ``event.guiEvent`` will be set to None once the event
+handlers return. For some GUI toolkits, it is unsafe to use the event, though you may
+separately stash the object at your own risk.
+
+
+``PdfPages(keep_empty=True)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A zero-page PDF is not valid, thus passing ``keep_empty=True`` to `.backend_pdf.PdfPages`
+and `.backend_pgf.PdfPages`, and the ``keep_empty`` attribute of these classes, is no
+longer allowed, and empty PDF files will not be created.
+
+Furthermore, `.backend_pdf.PdfPages` no longer immediately creates the target file upon
+instantiation, but only when the first figure is saved.  To fully control file creation,
+directly pass an opened file object as argument (``with open(path, "wb") as file,
+PdfPages(file) as pdf: ...``).
+
+
+``backend_ps.psDefs``
+~~~~~~~~~~~~~~~~~~~~~
+
+The ``psDefs`` module-level variable in ``backend_ps`` has been removed with no
+replacement.
+
+
+Automatic papersize selection in PostScript
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Setting :rc:`ps.papersize` to ``'auto'`` or passing ``papersize='auto'`` to
+`.Figure.savefig` is no longer supported. Either pass an explicit paper type name, or
+omit this parameter to use the default from the rcParam.
+
+
+``RendererAgg.tostring_rgb`` and ``FigureCanvasAgg.tostring_rgb``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... have been remove with no direct replacement. Consider using ``buffer_rgba`` instead,
+which should cover most use cases.
+
+
+``NavigationToolbar2QT.message`` has been removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... with no replacement.
+
+
 ``axes_grid1`` API changes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
