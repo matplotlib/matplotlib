@@ -57,6 +57,8 @@ class _WaitForStringPopen(subprocess.Popen):
 def _get_available_interactive_backends():
     _is_linux_and_display_invalid = (sys.platform == "linux" and
                                      not _c_internal_utils.display_is_valid())
+    _is_linux_and_xdisplay_invalid = (sys.platform == "linux" and
+                                      not _c_internal_utils.xdisplay_is_valid())
     envs = []
     for deps, env in [
             *[([qt_api],
@@ -74,10 +76,12 @@ def _get_available_interactive_backends():
     ]:
         reason = None
         missing = [dep for dep in deps if not importlib.util.find_spec(dep)]
-        if _is_linux_and_display_invalid:
-            reason = "$DISPLAY and $WAYLAND_DISPLAY are unset"
-        elif missing:
+        if missing:
             reason = "{} cannot be imported".format(", ".join(missing))
+        elif env["MPLBACKEND"] == "tkagg" and _is_linux_and_xdisplay_invalid:
+            reason = "$DISPLAY is unset"
+        elif _is_linux_and_display_invalid:
+            reason = "$DISPLAY and $WAYLAND_DISPLAY are unset"
         elif env["MPLBACKEND"] == 'macosx' and os.environ.get('TF_BUILD'):
             reason = "macosx backend fails on Azure"
         elif env["MPLBACKEND"].startswith('gtk'):
