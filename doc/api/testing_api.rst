@@ -39,8 +39,9 @@
    :show-inheritance:
 
 
-Data container testing fixtures
+Testing with optional dependencies
 ==================================
+For more information on fixtures, see :external+pytest:ref:`pytest fixtures <about-fixtures>`.
 
 .. autofunction:: matplotlib.testing.conftest.pd
 .. autofunction:: matplotlib.testing.conftest.xr
