@@ -75,8 +75,8 @@ class ToolXScale(AxisScaleBase):
     def set_scale(self, ax, scale: str | ScaleBase) -> None: ...
 
 class ToolViewsPositions(ToolBase):
-    views: dict[Figure | Axes, cbook.Stack]
-    positions: dict[Figure | Axes, cbook.Stack]
+    views: dict[Figure | Axes, cbook._Stack]
+    positions: dict[Figure | Axes, cbook._Stack]
     home_views: dict[Figure, dict[Axes, tuple[float, float, float, float]]]
     def add_figure(self, figure: Figure) -> None: ...
     def clear(self, figure: Figure) -> None: ...
