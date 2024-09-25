@@ -518,12 +518,10 @@ def test_invalid_figure_add_axes():
         fig.add_axes(ax)
 
     fig2.delaxes(ax)
-    with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match="Passing more than one positional argument"):
+    with pytest.raises(TypeError, match=r"add_axes\(\) takes 1 positional arguments"):
         fig2.add_axes(ax, "extra positional argument")
 
-    with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match="Passing more than one positional argument"):
+    with pytest.raises(TypeError, match=r"add_axes\(\) takes 1 positional arguments"):
         fig.add_axes([0, 0, 1, 1], "extra positional argument")
 
 

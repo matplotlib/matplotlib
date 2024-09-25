@@ -454,24 +454,10 @@ class Legend(Artist):
         self.borderaxespad = mpl._val_or_rc(borderaxespad, 'legend.borderaxespad')
         self.columnspacing = mpl._val_or_rc(columnspacing, 'legend.columnspacing')
         self.shadow = mpl._val_or_rc(shadow, 'legend.shadow')
-        # trim handles and labels if illegal label...
-        _lab, _hand = [], []
-        for label, handle in zip(labels, handles):
-            if isinstance(label, str) and label.startswith('_'):
-                _api.warn_deprecated("3.8", message=(
-                    "An artist whose label starts with an underscore was passed to "
-                    "legend(); such artists will no longer be ignored in the future.  "
-                    "To suppress this warning, explicitly filter out such artists, "
-                    "e.g. with `[art for art in artists if not "
-                    "art.get_label().startswith('_')]`."))
-            else:
-                _lab.append(label)
-                _hand.append(handle)
-        labels, handles = _lab, _hand
 
         if reverse:
-            labels.reverse()
-            handles.reverse()
+            labels = [*reversed(labels)]
+            handles = [*reversed(handles)]
 
         if len(handles) < 2:
             ncols = 1

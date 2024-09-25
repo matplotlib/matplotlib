@@ -613,22 +613,22 @@ default: %(va)s
         """
 
         if not len(args) and 'rect' not in kwargs:
-            raise TypeError(
-                "add_axes() missing 1 required positional argument: 'rect'")
+            raise TypeError("add_axes() missing 1 required positional argument: 'rect'")
         elif 'rect' in kwargs:
             if len(args):
-                raise TypeError(
-                    "add_axes() got multiple values for argument 'rect'")
+                raise TypeError("add_axes() got multiple values for argument 'rect'")
             args = (kwargs.pop('rect'), )
+        if len(args) != 1:
+            raise _api.nargs_error("add_axes", 1, len(args))
 
         if isinstance(args[0], Axes):
-            a, *extra_args = args
+            a, = args
             key = a._projection_init
             if a.get_figure(root=False) is not self:
                 raise ValueError(
                     "The Axes must have been created in the present figure")
         else:
-            rect, *extra_args = args
+            rect, = args
             if not np.isfinite(rect).all():
                 raise ValueError(f'all entries in rect must be finite not {rect}')
             projection_class, pkw = self._process_projection_requirements(**kwargs)
@@ -637,11 +637,6 @@ default: %(va)s
             a = projection_class(self, rect, **pkw)
             key = (projection_class, pkw)
 
-        if extra_args:
-            _api.warn_deprecated(
-                "3.8",
-                name="Passing more than one positional argument to Figure.add_axes",
-                addendum="Any additional positional arguments are currently ignored.")
         return self._add_axes_internal(a, key)
 
     @_docstring.interpd

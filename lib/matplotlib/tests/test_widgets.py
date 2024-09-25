@@ -3,7 +3,6 @@ import io
 import operator
 from unittest import mock
 
-import matplotlib as mpl
 from matplotlib.backend_bases import MouseEvent
 import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
@@ -129,16 +128,6 @@ def test_rectangle_minspan(ax, spancoords, minspanx, x1, minspany, y1):
     assert erelease.xdata == x1
     assert erelease.ydata == y1
     assert kwargs == {}
-
-
-def test_deprecation_selector_visible_attribute(ax):
-    tool = widgets.RectangleSelector(ax)
-
-    assert tool.get_visible()
-
-    with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match="was deprecated in Matplotlib 3.8"):
-        tool.visible
 
 
 @pytest.mark.parametrize('drag_from_anywhere, new_center',
