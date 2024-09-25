@@ -1337,7 +1337,7 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
         _api.warn_deprecated("3.9", message=(
             "You have mixed positional and keyword arguments, some input may "
             "be discarded.  This is deprecated since %(since)s and will "
-            "become an error %(removal)s."))
+            "become an error in %(removal)s."))
 
     if (hasattr(handles, "__len__") and
             hasattr(labels, "__len__") and
