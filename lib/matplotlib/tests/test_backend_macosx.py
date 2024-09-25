@@ -3,11 +3,18 @@ import os
 import pytest
 
 import matplotlib as mpl
+from matplotlib import _c_internal_utils
 import matplotlib.pyplot as plt
 try:
     from matplotlib.backends import _macosx
 except ImportError:
     pytest.skip("These are mac only tests", allow_module_level=True)
+
+
+pytestmark = [
+    pytest.mark.skipif(not _c_internal_utils.display_is_valid(),
+                       reason="Display is unavailable")
+]
 
 
 @pytest.mark.backend('macosx')

@@ -535,9 +535,7 @@ def test_backend_fallback_headless(tmp_path):
             env=env, check=True, stderr=subprocess.DEVNULL)
 
 
-@pytest.mark.skipif(
-    sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
-    reason="headless")
+@pytest.mark.skipif(not _c_internal_utils.display_is_valid(), reason="headless")
 def test_backend_fallback_headful(tmp_path):
     pytest.importorskip("tkinter")
     env = {**os.environ, "MPLBACKEND": "", "MPLCONFIGDIR": str(tmp_path)}
