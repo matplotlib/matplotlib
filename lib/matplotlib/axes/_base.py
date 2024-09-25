@@ -2251,8 +2251,8 @@ class _AxesBase(martist.Artist):
 
         Use `add_artist` only for artists for which there is no dedicated
         "add" method; and if necessary, use a method such as `update_datalim`
-        to manually update the dataLim if the artist is to be included in
-        autoscaling.
+        to manually update the `~.Axes.dataLim` if the artist is to be included
+        in autoscaling.
 
         If no ``transform`` has been specified when creating the artist (e.g.
         ``artist.get_transform() == None``) then the transform is set to
@@ -2365,7 +2365,7 @@ class _AxesBase(martist.Artist):
 
     def _update_line_limits(self, line):
         """
-        Figures out the data limit of the given line, updating self.dataLim.
+        Figures out the data limit of the given line, updating `.Axes.dataLim`.
         """
         path = line.get_path()
         if path.vertices.size == 0:
