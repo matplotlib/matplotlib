@@ -15,7 +15,7 @@ the ``set_data`` method, enabling e.g. resampling
     t = np.linspace(0, 1)
 
     fig, ax = plt.subplots()
-    coll = ax.fill_between(t, -t, t)
+    coll = ax.fill_between(t, -t**2, t**2)
     fig.savefig("before.png")
 
     coll.set_data(t, -t**4, t**4)
