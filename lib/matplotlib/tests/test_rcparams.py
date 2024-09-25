@@ -536,7 +536,7 @@ def test_backend_fallback_headless(tmp_path):
 
 
 @pytest.mark.skipif(
-    sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
+    sys.platform == "linux" and not _c_internal_utils.xdisplay_is_valid(),
     reason="headless")
 def test_backend_fallback_headful(tmp_path):
     pytest.importorskip("tkinter")
