@@ -61,6 +61,19 @@ which should cover most use cases.
 ... with no replacement.
 
 
+``cbook`` API changes
+~~~~~~~~~~~~~~~~~~~~~
+
+``cbook.Stack`` has been removed with no replacement.
+
+``Grouper.clean()`` has been removed with no replacement. The Grouper class now cleans
+itself up automatically.
+
+The *np_load* parameter of ``cbook.get_sample_data`` has been removed; `.get_sample_data`
+now auto-loads numpy arrays. Use ``get_sample_data(..., asfileobj=False)`` instead to get
+the filename of the data file, which can then be passed to `open`, if desired.
+
+
 ``axes_grid1`` API changes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
