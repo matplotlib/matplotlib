@@ -574,7 +574,7 @@ class ScalarFormatter(Formatter):
                     from matplotlib import font_manager
                     ufont = font_manager.findfont(
                         font_manager.FontProperties(
-                            mpl.rcParams["font.family"]
+                            family=mpl.rcParams["font.family"]
                         ),
                         fallback_to_default=False,
                     )
