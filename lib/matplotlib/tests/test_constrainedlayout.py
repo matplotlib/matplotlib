@@ -719,3 +719,29 @@ def test_layout_leak():
     gc.collect()
     assert not any(isinstance(obj, mpl._layoutgrid.LayoutGrid)
                    for obj in gc.get_objects())
+
+
+@image_comparison(['gridspecfromsubplotspec_wspace.png'])
+def test_gridspecfromsubplotspec_wspace_hspace():
+    fig = plt.figure(figsize=[10, 6], layout="constrained")
+    a0, a1 = fig.subplots(
+        nrows=1,
+        ncols=2,
+        gridspec_kw={"wspace": 0.3, "hspace": 0.3},
+        width_ratios=[2, 1],
+    )
+
+    for axis in [a0, a1]:
+        axis.get_xaxis().set_visible(False)
+        axis.get_yaxis().set_visible(False)
+        for s in axis.spines.values():
+            s.set(color="r", lw=10)
+
+        subplot_spec = axis.get_subplotspec()
+        subgrid_spec = subplot_spec.subgridspec(
+            nrows=3,
+            ncols=3,
+            wspace=0.1,
+            hspace=0.1,
+        )
+        axis_array = subgrid_spec.subplots()
