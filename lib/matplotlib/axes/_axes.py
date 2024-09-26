@@ -3770,9 +3770,9 @@ class Axes(_AxesBase):
                 for l in caplines[axis]:
                     # Rotate caps to be perpendicular to the error bars
                     for theta, r in zip(l.get_xdata(), l.get_ydata()):
-                        rotation = mtransforms.Affine2D().rotate(theta)
+                        rotation = mtransforms.Affine2D().rotate(theta + np.pi / 2)
                         if axis == 'y':
-                            rotation.rotate(-np.pi / 2)
+                            rotation.rotate(np.pi / 2)#changed sign on "np.pi"
                         ms = mmarkers.MarkerStyle(marker=marker,
                                                   transform=rotation)
                         self.add_line(mlines.Line2D([theta], [r], marker=ms,
