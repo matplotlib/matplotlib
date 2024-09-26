@@ -155,18 +155,19 @@ The simplest way to do this is to use either Python's virtual environment
 
 Remember to activate the environment whenever you start working on Matplotlib.
 
-Install Dependencies
-====================
+Install external dependencies
+=============================
 
-Most Python dependencies will be installed when :ref:`setting up the environment <dev-environment>`
-but non-Python dependencies like C++ compilers, LaTeX, and other system applications
-must be installed separately.
+Python dependencies were installed as part of :ref:`setting up the environment <dev-environment>`.
+Additionally, the following non-Python dependencies must also be installed:
 
-.. toctree::
-  :maxdepth: 2
+.. rst-class:: checklist
 
-  ../install/dependencies
+* :ref:`c++ compiler<compile-dependencies>`
+* :ref:`documentation build dependencies <doc-dependencies-external>`
 
+
+For a full list of dependencies, see :ref:`dependencies`.
 
 .. _development-install:
 

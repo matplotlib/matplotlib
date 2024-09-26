@@ -250,37 +250,38 @@ development environment that must be installed before a compiler can be installe
 You may also need to install headers for various libraries used in the compiled extension
 source files.
 
+.. _dev-compiler:
 .. tab-set::
 
-    .. tab-item:: Linux
+   .. tab-item:: Linux
 
-        On some Linux systems, you can install a meta-build package. For example,
-        on  Ubuntu ``apt install build-essential``
+      On some Linux systems, you can install a meta-build package. For example,
+      on  Ubuntu ``apt install build-essential``
 
-        Otherwise, use the system distribution's package manager to install
-        :ref:`gcc <compiler-table>`.
+      Otherwise, use the system distribution's package manager to install
+      :ref:`gcc <compiler-table>`.
 
-    .. tab-item:: macOS
+   .. tab-item:: macOS
 
-        Install `Xcode <https://developer.apple.com/xcode/>`_ for Apple platform development.
+      Install `Xcode <https://developer.apple.com/xcode/>`_ for Apple platform development.
 
-    .. tab-item:: Windows
+   .. tab-item:: Windows
 
-        Install `Visual Studio Build Tools <https://visualstudio.microsoft.com/downloads/?q=build+tools>`_
+      Install `Visual Studio Build Tools <https://visualstudio.microsoft.com/downloads/?q=build+tools>`_
 
-        Make sure "Desktop development with C++" is selected, and that the latest MSVC,
-        "C++ CMake tools for Windows," and a Windows SDK compatible with your version
-        of Windows are selected and installed. They should be selected by default under
-        the "Optional" subheading, but are required to build Matplotlib from source.
+      Make sure "Desktop development with C++" is selected, and that the latest MSVC,
+      "C++ CMake tools for Windows," and a Windows SDK compatible with your version
+      of Windows are selected and installed. They should be selected by default under
+      the "Optional" subheading, but are required to build Matplotlib from source.
 
-        Alternatively, you can install a Linux-like environment such as `CygWin <https://www.cygwin.com/>`_
-        or `Windows Subsystem for Linux <https://learn.microsoft.com/en-us/windows/wsl/install>`_.
-        If using `MinGW-64 <https://www.mingw-w64.org/>`_, we require **v6** of the
-        ```Mingw-w64-x86_64-headers``.
+      Alternatively, you can install a Linux-like environment such as `CygWin <https://www.cygwin.com/>`_
+      or `Windows Subsystem for Linux <https://learn.microsoft.com/en-us/windows/wsl/install>`_.
+      If using `MinGW-64 <https://www.mingw-w64.org/>`_, we require **v6** of the
+      ```Mingw-w64-x86_64-headers``.
 
 
-We highly recommend that you install a compiler using your platform tool, i.e.,
-Xcode, VS Code or Linux package manager. Choose **one** compiler from this list:
+We highly recommend that you install a compiler using your platform tool, i.e., Xcode,
+VS Code or Linux package manager. Choose **one** compiler from this list:
 
 .. _compiler-table:
 
@@ -307,7 +308,6 @@ Xcode, VS Code or Linux package manager. Choose **one** compiler from this list:
      - `Visual Studio 2019 C++ <https://docs.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-160>`_
 
 
-
 .. _test-dependencies:
 
 Test dependencies
@@ -327,8 +327,11 @@ Optional
 In addition to all of the optional dependencies on the main library, for
 testing the following will be used if they are installed.
 
-- Ghostscript_ (>= 9.0, to render PDF files)
-- Inkscape_ (to render SVG files)
+Python
+^^^^^^
+These packages are installed when :ref:`creating a virtual environment <dev-environment>`,
+otherwise they must be installed manually:
+
 - nbformat_ and nbconvert_ used to test the notebook backend
 - pandas_ used to test compatibility with Pandas
 - pikepdf_ used in some tests for the pgf and pdf backends
@@ -340,9 +343,14 @@ testing the following will be used if they are installed.
 - pytest-xvfb_ to run tests without windows popping up (Linux)
 - pytz_ used to test pytz int
 - sphinx_ used to test our sphinx extensions
+- xarray_ used to test compatibility with xarray
+
+External tools
+^^^^^^^^^^^^^^
+- Ghostscript_ (>= 9.0, to render PDF files)
+- Inkscape_ (to render SVG files)
 - `WenQuanYi Zen Hei`_ and `Noto Sans CJK`_ fonts for testing font fallback and
   non-Western fonts
-- xarray_ used to test compatibility with xarray
 
 If any of these dependencies are not discovered, then the tests that rely on
 them will be skipped by pytest.
@@ -355,6 +363,7 @@ them will be skipped by pytest.
 
 .. _Ghostscript: https://ghostscript.com/
 .. _Inkscape: https://inkscape.org
+.. _WenQuanYi Zen Hei: http://wenq.org/en/
 .. _flake8: https://pypi.org/project/flake8/
 .. _nbconvert: https://pypi.org/project/nbconvert/
 .. _nbformat: https://pypi.org/project/nbformat/
@@ -369,7 +378,6 @@ them will be skipped by pytest.
 .. _pytest-xvfb: https://pypi.org/project/pytest-xvfb/
 .. _pytest: http://doc.pytest.org/en/latest/
 .. _sphinx: https://pypi.org/project/Sphinx/
-.. _WenQuanYi Zen Hei: http://wenq.org/en/
 .. _Noto Sans CJK: https://fonts.google.com/noto/use
 .. _xarray: https://pypi.org/project/xarray/
 
@@ -394,14 +402,15 @@ The content of :file:`doc-requirements.txt` is also shown below:
    :literal:
 
 
+.. _doc-dependencies-external:
+
 External tools
 --------------
 
-The documentation requires LaTeX and Graphviz.  These are not
-Python packages and must be installed separately.
-
 Required
 ^^^^^^^^
+The documentation requires LaTeX and Graphviz.  These are not
+Python packages and must be installed separately.
 
 * `Graphviz <http://www.graphviz.org/download>`_
 * a minimal working LaTeX distribution, e.g. `TeX Live <https://www.tug.org/texlive/>`_ or
@@ -409,14 +418,13 @@ Required
 
 The following LaTeX packages:
 
-  * `dvipng <https://ctan.org/pkg/dvipng>`_
-  * `underscore <https://ctan.org/pkg/underscore>`_
-  * `cm-super <https://ctan.org/pkg/cm-super>`_
-  * ``collection-fontsrecommended``
+* `dvipng <https://ctan.org/pkg/dvipng>`_
+* `underscore <https://ctan.org/pkg/underscore>`_
+* `cm-super <https://ctan.org/pkg/cm-super>`_
+* ``collection-fontsrecommended``
 
 The complete version of many LaTex distribution installers, e.g.
 "texlive-full" or "texlive-all", will often automatically include these packages.
-
 
 Optional
 ^^^^^^^^
