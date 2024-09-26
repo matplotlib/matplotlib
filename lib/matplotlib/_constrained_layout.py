@@ -232,6 +232,7 @@ def make_layoutgrids_gs(layoutgrids, gs):
         if rep not in layoutgrids:
             layoutgrids[rep] = mlayoutgrid.LayoutGrid(
                 parent=subspeclb,
+                parent_inner=True,
                 name='top',
                 nrows=1, ncols=1,
                 parent_pos=(subplot_spec.rowspan, subplot_spec.colspan))
