@@ -751,6 +751,9 @@ def test_gridspecfromsubplotspec_wspace_hspace():
             hspace=0.1,
         )
         axis_array = subgrid_spec.subplots()
+        for a in axis_array.flat:
+            a.get_xaxis().set_visible(False)
+            a.get_yaxis().set_visible(False)
 
 
 @image_comparison(['gridspecfromsubplotspec_pad.png'])
