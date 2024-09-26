@@ -8,6 +8,7 @@ import inspect
 import io
 from itertools import product
 import platform
+import sys
 from types import SimpleNamespace
 
 import dateutil.tz
@@ -9191,6 +9192,13 @@ def test_axes_clear_behavior(fig_ref, fig_test, which):
     ax_test.grid(True)
 
 
+@pytest.mark.skipif(
+    sys.version_info.major == 3 and
+    sys.version_info.minor == 13 and
+    sys.version_info.micro == 0 and
+    sys.version_info.releaselevel != "final",
+    reason="https://github.com/python/cpython/issues/124538",
+)
 def test_axes_clear_reference_cycle():
     def is_in_reference_cycle(start):
         # Breadth first search. Return True if we encounter the starting node
@@ -9207,33 +9215,29 @@ def test_axes_clear_reference_cycle():
                 to_visit.append(child)
         return False
 
-    try:
-        gc.disable()
-        fig = Figure()
-        ax = fig.add_subplot()
-        points = np.random.rand(1000)
-        ax.plot(points, points)
-        ax.scatter(points, points)
-        ax_children = ax.get_children()
-        fig.clear()  # This should break the reference cycle
+    fig = Figure()
+    ax = fig.add_subplot()
+    points = np.random.rand(1000)
+    ax.plot(points, points)
+    ax.scatter(points, points)
+    ax_children = ax.get_children()
+    fig.clear()  # This should break the reference cycle
 
-        # Care most about the objects that scale with number of points
-        big_artists = [
-            a for a in ax_children
-            if isinstance(a, (Line2D, PathCollection))
-        ]
-        assert len(big_artists) > 0
-        for big_artist in big_artists:
-            assert not is_in_reference_cycle(big_artist)
-        assert len(ax_children) > 0
-        for child in ax_children:
-            # Make sure this doesn't raise because the child is already removed.
-            try:
-                child.remove()
-            except NotImplementedError:
-                pass  # not implemented is expected for some artists
-    finally:
-        gc.enable()
+    # Care most about the objects that scale with number of points
+    big_artists = [
+        a for a in ax_children
+        if isinstance(a, (Line2D, PathCollection))
+    ]
+    assert len(big_artists) > 0
+    for big_artist in big_artists:
+        assert not is_in_reference_cycle(big_artist)
+    assert len(ax_children) > 0
+    for child in ax_children:
+        # Make sure this doesn't raise because the child is already removed.
+        try:
+            child.remove()
+        except NotImplementedError:
+            pass  # not implemented is expected for some artists
 
 
 def test_boxplot_tick_labels():
