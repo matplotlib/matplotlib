@@ -9193,10 +9193,7 @@ def test_axes_clear_behavior(fig_ref, fig_test, which):
 
 
 @pytest.mark.skipif(
-    sys.version_info.major == 3 and
-    sys.version_info.minor == 13 and
-    sys.version_info.micro == 0 and
-    sys.version_info.releaselevel != "final",
+    sys.version_info[:3] == (3, 13, 0) and sys.version_info.releaselevel != "final",
     reason="https://github.com/python/cpython/issues/124538",
 )
 def test_axes_clear_reference_cycle():
