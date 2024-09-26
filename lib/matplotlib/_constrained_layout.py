@@ -54,6 +54,7 @@ import numpy as np
 from matplotlib import _api, artist as martist
 import matplotlib.transforms as mtransforms
 import matplotlib._layoutgrid as mlayoutgrid
+import matplotlib.gridspec as mgridspec
 
 
 _log = logging.getLogger(__name__)
@@ -326,6 +327,17 @@ def get_margin_from_padding(obj, *, w_pad=0, h_pad=0,
               'bottomcb': h_pad, 'topcb': h_pad,
               'left': 0, 'right': 0,
               'top': 0, 'bottom': 0}
+
+    if isinstance(gs, mgridspec.GridSpecFromSubplotSpec):
+        if ss.is_first_col():
+            margin['leftcb'] = 0
+        if ss.is_last_col():
+            margin['rightcb'] = 0
+        if ss.is_first_row():
+            margin['topcb'] = 0
+        if ss.is_last_row():
+            margin['bottomcb'] = 0
+
     if _wspace / ncols > w_pad:
         if ss.colspan.start > 0:
             margin['leftcb'] = _wspace / ncols
