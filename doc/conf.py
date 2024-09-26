@@ -220,6 +220,7 @@ logger.addFilter(tutorials_download_error)
 
 autosummary_generate = True
 autodoc_typehints = "none"
+autodoc_mock_imports = ["pytest"]
 
 # we should ignore warnings coming from importing deprecated modules for
 # autodoc purposes, as this will disappear automatically when they are removed
