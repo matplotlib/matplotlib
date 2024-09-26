@@ -745,3 +745,31 @@ def test_gridspecfromsubplotspec_wspace_hspace():
             hspace=0.1,
         )
         axis_array = subgrid_spec.subplots()
+
+
+@image_comparison(['gridspecfromsubplotspec_pad.png'])
+def test_gridspecfromsubplotspec_pad():
+    rng = np.random.default_rng(0)
+
+    def add_subplots(axis, nx, ny):
+        axis.clear()
+        axis.set_axis_off()
+        subplot_spec = axis.get_subplotspec()
+        subgrid_spec = subplot_spec.subgridspec(nx, ny)
+        axis_list = subgrid_spec.subplots().flatten().tolist()
+        for a in axis_list:
+            show_random_image(a)
+
+        return axis_list
+
+    def show_random_image(axis):
+        axis.pcolormesh(rng.uniform(0, 1, [10, 10]))
+        axis.set_axis_off()
+
+    fig = plt.figure(figsize=[10, 6], layout="constrained")
+    fig.get_layout_engine().set(w_pad=0.2, h_pad=0.2)
+
+    axes = fig.subplots(1, 2, width_ratios=[1, 2])
+    show_random_image(axes[0])
+    axes = add_subplots(axes[1], 2, 2)
+    axes = add_subplots(axes[1], 2, 2)
