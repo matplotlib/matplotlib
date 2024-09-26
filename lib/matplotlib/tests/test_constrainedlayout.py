@@ -758,8 +758,6 @@ def test_gridspecfromsubplotspec_wspace_hspace():
 
 @image_comparison(['gridspecfromsubplotspec_pad.png'])
 def test_gridspecfromsubplotspec_pad():
-    rng = np.random.default_rng(0)
-
     def add_subplots(axis, nx, ny):
         axis.clear()
         axis.set_axis_off()
@@ -772,7 +770,8 @@ def test_gridspecfromsubplotspec_pad():
         return axis_list
 
     def show_random_image(axis):
-        axis.pcolormesh(rng.uniform(0, 1, [10, 10]))
+        z = np.linspace(0, 1, 30).reshape(10, 3)
+        axis.pcolormesh(z, cmap="plasma")
         axis.set_axis_off()
 
     fig = plt.figure(figsize=[10, 6], layout="constrained")
