@@ -226,21 +226,12 @@ def make_layoutgrids_gs(layoutgrids, gs):
         if parentgs not in layoutgrids:
             layoutgrids = make_layoutgrids_gs(layoutgrids, parentgs)
         subspeclb = layoutgrids[parentgs]
-        # gridspecfromsubplotspec need an outer container:
-        # get a unique representation:
-        rep = (gs, 'top')
-        if rep not in layoutgrids:
-            layoutgrids[rep] = mlayoutgrid.LayoutGrid(
-                parent=subspeclb,
-                parent_flush=True,
-                name='top',
-                nrows=1, ncols=1,
-                parent_pos=(subplot_spec.rowspan, subplot_spec.colspan))
         layoutgrids[gs] = mlayoutgrid.LayoutGrid(
-                parent=layoutgrids[rep],
+                parent=subspeclb,
                 parent_flush=True,
                 name='gridspec',
                 nrows=gs._nrows, ncols=gs._ncols,
+                parent_pos=(subplot_spec.rowspan, subplot_spec.colspan),
                 width_ratios=gs.get_width_ratios(),
                 height_ratios=gs.get_height_ratios())
     return layoutgrids
