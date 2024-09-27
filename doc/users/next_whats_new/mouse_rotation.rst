@@ -8,7 +8,37 @@ degrees of freedom (azimuth, elevation, and roll). By default,
 it uses a variation on Ken Shoemake's ARCBALL [1]_.
 The particular style of mouse rotation can be set via
 ``rcParams.axes3d.mouserotationstyle``.
-See also :doc:`/api/toolkits/mplot3d/view_angles`.
+See also :ref:`toolkit_mouse-rotation`.
+
+To revert to the original mouse rotation style,
+create a file ``matplotlibrc`` with contents::
+
+    axes3d.mouserotationstyle: azel
+
+To try out one of the various mouse rotation styles:
+
+.. code::
+
+    import matplotlib as mpl
+    mpl.rcParams['axes3d.mouserotationstyle'] = 'trackball'  # 'azel', 'trackball', 'arcball', 'Shoemake', or 'Holroyd'
+
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from matplotlib import cm
+
+    ax = plt.figure().add_subplot(projection='3d')
+
+    X = np.arange(-5, 5, 0.25)
+    Y = np.arange(-5, 5, 0.25)
+    X, Y = np.meshgrid(X, Y)
+    R = np.sqrt(X**2 + Y**2)
+    Z = np.sin(R)
+
+    surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm,
+                           linewidth=0, antialiased=False)
+
+    plt.show()
+
 
 .. [1] Ken Shoemake, "ARCBALL: A user interface for specifying
   three-dimensional rotation using a mouse", in Proceedings of Graphics

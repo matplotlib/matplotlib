@@ -40,6 +40,8 @@ further documented in the `.mplot3d.axes3d.Axes3D.view_init` API.
    :align: center
 
 
+.. _toolkit_mouse-rotation:
+
 Rotation with mouse
 ===================
 
@@ -48,99 +50,132 @@ There are various ways to accomplish this; the style of mouse rotation
 can be specified by setting ``rcParams.axes3d.mouserotationstyle``, see
 :doc:`/users/explain/customizing`.
 
-Originally (with ``mouserotationstyle: azel``), the 2D mouse position
-corresponded directly to azimuth and elevation; this is also how it is done
+Originally (prior to v3.10), the 2D mouse position corresponded directly
+to azimuth and elevation; this is also how it is done
 in `MATLAB <https://www.mathworks.com/help/matlab/ref/view.html>`_.
+To keep it this way, set ``mouserotationstyle: azel``.
 This approach works fine for polar plots, where the *z* axis is special;
 however, it leads to a kind of 'gimbal lock' when looking down the *z* axis:
 the plot reacts differently to mouse movement, dependent on the particular
 orientation at hand. Also, 'roll' cannot be controlled.
 
 As an alternative, there are various mouse rotation styles where the mouse
-manipulates a 'trackball'. In its simplest form (``mouserotationstyle: trackball``),
+manipulates a virtual 'trackball'. In its simplest form (``mouserotationstyle: trackball``),
 the trackball rotates around an in-plane axis perpendicular to the mouse motion
 (it is as if there is a plate laying on the trackball; the plate itself is fixed
 in orientation, but you can drag the plate with the mouse, thus rotating the ball).
 This is more natural to work with than the ``azel`` style; however,
 the plot cannot be easily rotated around the viewing direction - one has to
-drag the mouse in circles with a handedness opposite to the desired rotation.
+move the mouse in circles with a handedness opposite to the desired rotation,
+counterintuitively.
 
 A different variety of trackball rotates along the shortest arc on the virtual
 sphere (``mouserotationstyle: arcball``); it is a variation on Ken Shoemake's
 ARCBALL [Shoemake1992]_. Rotating around the viewing direction is straightforward
-with it. Shoemake's original arcball is also available
-(``mouserotationstyle: Shoemake``); it is free of hysteresis, i.e.,
-returning mouse to the original position returns the figure to its original
-orientation, the rotation is independent of the details of the path the mouse
-took. However, Shoemake's arcball rotates at twice the angular rate of the
-mouse movement (it is quite noticeable, especially when adjusting roll).
+with it (grab the ball near its edge instead of near the center).
+
+Shoemake's original arcball is also available (``mouserotationstyle: Shoemake``);
+it is free of hysteresis, i.e., returning mouse to the original position
+returns the figure to its original orientation, the rotation is independent
+of the details of the path the mouse took, which could be desirable.
+However, Shoemake's arcball rotates at twice the angular rate of the
+mouse movement (it is quite noticeable, especially when adjusting roll),
+and it lacks an obvious mechanical equivalent; arguably, the path-independent rotation is unnatural.
 So it is a trade-off.
 
 Shoemake's arcball has an abrupt edge; this is remedied in Holroyd's arcball
 (``mouserotationstyle: Holroyd``).
 
-Henriksen et al. [Henriksen2002]_ provide an overview.
-
-In summary:
+Henriksen et al. [Henriksen2002]_ provide an overview. In summary:
 
 .. list-table::
    :width: 100%
-   :widths: 30 20 20 20 35
+   :widths: 30 20 20 20 20 35
 
    * - Style
      - traditional [1]_
      - incl. roll [2]_
      - uniform [3]_
      - path independent [4]_
+     - mechanical counterpart [5]_
    * - azel
      - ✔️
      - ❌
      - ❌
      - ✔️
+     - ✔️
    * - trackball
      - ❌
-     - ～
+     - ✓ [6]_
      - ✔️
      - ❌
+     - ✔️
    * - arcball
      - ❌
      - ✔️
      - ✔️
      - ❌
+     - ✔️
    * - Shoemake
      - ❌
      - ✔️
      - ✔️
      - ✔️
+     - ❌
    * - Holroyd
      - ❌
      - ✔️
      - ✔️
      - ✔️
+     - ❌
 
 
-.. [1] The way it was historically; this is also MATLAB's style
+.. [1] The way it was prior to v3.10; this is also MATLAB's style
 .. [2] Mouse controls roll too (not only azimuth and elevation)
 .. [3] Figure reacts the same way to mouse movements, regardless of orientation (no difference between 'poles' and 'equator')
 .. [4] Returning mouse to original position returns figure to original orientation (no hysteresis: rotation is independent of the details of the path the mouse took)
+.. [5] The style has a corresponding natural implementation as a mechanical device
+.. [6] While it is possible to control roll with the ``trackball`` style, this is not very intuitive (it requires moving the mouse in large circles) and the resulting roll is in the opposite direction
 
-Try it out by adding a file ``matplotlibrc`` to folder ``matplotlib\galleries\examples\mplot3d``,
-with contents::
+You can try out one of the various mouse rotation styles using::
+
+.. code::
+
+    import matplotlib as mpl
+    mpl.rcParams['axes3d.mouserotationstyle'] = 'trackball'  # 'azel', 'trackball', 'arcball', 'Shoemake', or 'Holroyd'
+
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from matplotlib import cm
+
+    ax = plt.figure().add_subplot(projection='3d')
+
+    X = np.arange(-5, 5, 0.25)
+    Y = np.arange(-5, 5, 0.25)
+    X, Y = np.meshgrid(X, Y)
+    R = np.sqrt(X**2 + Y**2)
+    Z = np.sin(R)
+
+    surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm,
+                           linewidth=0, antialiased=False)
+
+    plt.show()
+
+Alternatively, create a file ``matplotlibrc``, with contents::
 
     axes3d.mouserotationstyle: arcball
 
-(or any of the other styles), and run a suitable example, e.g.::
+(or any of the other styles, instead of ``arcball``), and then run any of
+the :ref:`mplot3d-examples-index` examples.
 
-    python surfaced3d.py
-
-(If eternal compatibility with the horrors of the past is less of a consideration
-for you, then it is likely that you would want to go with ``arcball``, ``Shoemake``,
-or ``Holroyd``.)
-
-The size of the trackball or arcball can be adjusted by setting
-``rcParams.axes3d.trackballsize``, in units of the Axes bounding box;
+The size of the virtual trackball or arcball can be adjusted as well,
+by setting ``rcParams.axes3d.trackballsize``. This specifies how much
+mouse motion is needed to obtain a given rotation angle (when near the center),
+and it controls where the edge of the arcball is (how far from the center,
+how close to the plot edge).
+The size is specified in units of the Axes bounding box,
 i.e., to make the trackball span the whole bounding box, set it to 1.
-A size of ca. 2/3 appears to work reasonably well.
+A size of about 2/3 appears to work reasonably well; this is the default.
 
 ----
 
@@ -149,8 +184,10 @@ A size of ca. 2/3 appears to work reasonably well.
   Interface '92, 1992, pp. 151-156, https://doi.org/10.20380/GI1992.18
 
 .. [Henriksen2002] Knud Henriksen, Jon Sporring, Kasper Hornbæk,
-  "Virtual Trackballs Revisited", in Proceedings of DSAGM'2002:
-  http://www.diku.dk/~kash/papers/DSAGM2002_henriksen.pdf;
-  and in IEEE Transactions on Visualization
-  and Computer Graphics, Volume 10, Issue 2, March-April 2004, pp. 206-216,
+  "Virtual Trackballs Revisited", in Proceedings of DSAGM'2002
+  `[pdf]`__;
+  and in IEEE Transactions on Visualization and Computer Graphics,
+  Volume 10, Issue 2, March-April 2004, pp. 206-216,
   https://doi.org/10.1109/TVCG.2004.1260772
+
+__ https://web.archive.org/web/20240607102518/http://hjemmesider.diku.dk/~kash/papers/DSAGM2002_henriksen.pdf

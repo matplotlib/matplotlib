@@ -1508,10 +1508,11 @@ class Axes3D(Axes):
         p2 = p1 - scale*vec
         return p2, pane_idx
 
-    def _arcball(self, x: float, y: float, Holroyd: bool) -> np.ndarray:
+    def _arcball(self, x: float, y: float, style: str) -> np.ndarray:
         """
         Convert a point (x, y) to a point on a virtual trackball
-        This is Ken Shoemake's arcball
+        either Ken Shoemake's arcball (a sphere) or
+        Tom Holroyd's (a sphere combined with a hyperbola).
         See: Ken Shoemake, "ARCBALL: A user interface for specifying
         three-dimensional rotation using a mouse." in
         Proceedings of Graphics Interface '92, 1992, pp. 151-156,
@@ -1521,12 +1522,12 @@ class Axes3D(Axes):
         x /= s
         y /= s
         r2 = x*x + y*y
-        if Holroyd:
+        if style == 'Holroyd':
             if r2 > 0.5:
                 p = np.array([1/(2*math.sqrt(r2)), x, y])/math.sqrt(1/(4*r2)+r2)
             else:
                 p = np.array([math.sqrt(1-r2), x, y])
-        else:  # Shoemake
+        else:  # 'arcball', 'Shoemake'
             if r2 > 1:
                 p = np.array([0, x/math.sqrt(r2), y/math.sqrt(r2)])
             else:
@@ -1577,38 +1578,24 @@ class Axes3D(Axes):
                 azim = self.azim + dazim
                 roll = self.roll
             else:
-                # Convert to quaternion
-                elev = np.deg2rad(self.elev)
-                azim = np.deg2rad(self.azim)
-                roll = np.deg2rad(self.roll)
-                q = _Quaternion.from_cardan_angles(elev, azim, roll)
+                q = _Quaternion.from_cardan_angles(
+                        *np.deg2rad((self.elev, self.azim, self.roll)))
 
-                if style in ['arcball', 'Shoemake', 'Holroyd']:
-                    # Update quaternion
-                    is_Holroyd = (style == 'Holroyd')
-                    current_vec = self._arcball(self._sx/w, self._sy/h, is_Holroyd)
-                    new_vec = self._arcball(x/w, y/h, is_Holroyd)
+                if style == 'trackball':
+                    k = np.array([0, -dy/h, dx/w])
+                    nk = np.linalg.norm(k)
+                    th = nk / mpl.rcParams['axes3d.trackballsize']
+                    dq = _Quaternion(np.cos(th), k*np.sin(th)/nk)
+                else:  # 'arcball', 'Shoemake', 'Holroyd'
+                    current_vec = self._arcball(self._sx/w, self._sy/h, style)
+                    new_vec = self._arcball(x/w, y/h, style)
                     if style == 'arcball':
                         dq = _Quaternion.rotate_from_to(current_vec, new_vec)
                     else:  # 'Shoemake', 'Holroyd'
                         dq = _Quaternion(0, new_vec) * _Quaternion(0, -current_vec)
-                    q = dq * q
-                elif style == 'trackball':
-                    s = mpl.rcParams['axes3d.trackballsize'] / 2
-                    k = np.array([0, -(y-self._sy)/h, (x-self._sx)/w]) / s
-                    nk = np.linalg.norm(k)
-                    th = nk / 2
-                    dq = _Quaternion(math.cos(th), k*math.sin(th)/nk)
-                    q = dq * q
-                else:
-                    warnings.warn("Mouse rotation style (axes3d.mouserotationstyle: " +
-                                  style + ") not recognized.")
 
-                # Convert to elev, azim, roll
-                elev, azim, roll = q.as_cardan_angles()
-                elev = np.rad2deg(elev)
-                azim = np.rad2deg(azim)
-                roll = np.rad2deg(roll)
+                q = dq * q
+                elev, azim, roll = np.rad2deg(q.as_cardan_angles())
 
             # update view
             vertical_axis = self._axis_names[self._vertical_axis]
