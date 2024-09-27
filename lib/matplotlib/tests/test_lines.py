@@ -438,20 +438,12 @@ def test_axline_setters():
         line2.set_slope(3)
 
 
-def test_line_slope():
-    slopes_to_test = [1E-8, 1E-9, 1E-10, 1E-11, 1E-12, 1E-13, 1E-14, 1E-15]
-
-    for slope in slopes_to_test:
-        fig, ax = plt.subplots()
-        line = ax.axline(xy1=(0, 0), slope=slope)
-
-        # Extract the slope from the line's properties
-        calculated_slope = line.get_slope()
-
-        if calculated_slope == 0:
-            with pytest.raises(ValueError, match="line should not be horizontal"):
-                raise ValueError("line should not be horizontal")
-        else:
-            print(f"Slope {slope} correctly processed as {calculated_slope}")
-
-        plt.close(fig)  # Close the figure after each test to free up resources
+def test_axline_small_slope():
+    """Test that small slopes are not coerced to zero in the transform."""
+    line = plt.axline((0, 0), slope=1e-14)
+    p1 = line.get_transform().transform_point((0, 0))
+    p2 = line.get_transform().transform_point((1, 1))
+    # y-values must be slightly different
+    dy = p2[1] - p1[1]
+    assert dy > 0
+    assert dy < 4e-12
