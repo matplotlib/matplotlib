@@ -204,23 +204,34 @@ class LayoutGrid:
                   self.tops[0] == top,
                   self.bottoms[-1] == bottom]
             if self.parent_flush:
-                left = parent.lefts[cols[0]]
-                left += parent.margins['left'][cols[0]]
-                left += parent.margins['leftcb'][cols[0]]
-                right = parent.rights[cols[-1]]
-                right -= parent.margins['right'][cols[-1]]
-                right -= parent.margins['rightcb'][cols[-1]]
-                top = parent.tops[rows[0]]
-                top -= parent.margins['top'][rows[0]]
-                top -= parent.margins['topcb'][rows[0]]
-                bottom = parent.bottoms[rows[-1]]
-                bottom += parent.margins['bottom'][rows[-1]]
-                bottom += parent.margins['bottomcb'][rows[-1]]
-                hc += [self.lefts[0] + self.margins["left"][0] + self.margins["leftcb"][0] == left,
-                       self.rights[-1] - self.margins["right"][-1] - self.margins["rightcb"][-1] == right,
-                       # from top to bottom
-                       self.tops[0] - self.margins["top"][0] - self.margins["topcb"][0] == top,
-                       self.bottoms[-1] + self.margins["bottom"][-1] + self.margins["bottomcb"][-1] == bottom]
+                left_outer = (parent.lefts[cols[0]] +
+                              parent.margins['left'][cols[0]] +
+                              parent.margins['leftcb'][cols[0]])
+                right_outer = (parent.rights[cols[-1]] -
+                               parent.margins['right'][cols[-1]] -
+                               parent.margins['rightcb'][cols[-1]])
+                top_outer = (parent.tops[rows[0]] -
+                             parent.margins['top'][rows[0]] -
+                             parent.margins['topcb'][rows[0]])
+                bottom_outer = (parent.bottoms[rows[-1]] +
+                                parent.margins['bottom'][rows[-1]] +
+                                parent.margins['bottomcb'][rows[-1]])
+                left_inner = (self.lefts[0] +
+                              self.margins['left'][0] +
+                              self.margins['leftcb'][0])
+                right_inner = (self.rights[-1] -
+                               self.margins['right'][-1] -
+                               self.margins['rightcb'][-1])
+                top_inner = (self.tops[0] -
+                             self.margins['top'][0] -
+                             self.margins['topcb'][0])
+                bottom_inner = (self.bottoms[-1] +
+                                self.margins['bottom'][-1] +
+                                self.margins['bottomcb'][-1])
+                hc += [left_outer == left_inner,
+                       right_outer == right_inner,
+                       top_outer == top_inner,
+                       bottom_outer == bottom_inner]
         for c in hc:
             self.solver.addConstraint(c | 'required')
 
