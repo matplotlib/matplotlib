@@ -436,14 +436,16 @@ def make_layout_margins(layoutgrids, fig, renderer, *, w_pad=0, h_pad=0,
                 if (cbp_rspan.start == ss.rowspan.start and
                         cbbbox.y1 > bbox.y1):
                     margin['top'] += cbbbox.y1 - bbox.y1
-        # pass the new margins down to the layout grid for the solution...
-        layoutgrids[gs].edit_outer_margin_mins(margin, ss)
+
         if layoutgrids[gs].parent_flush:
             inner_lb = layoutgrids[gs]
             parent_ss = gs._subplot_spec
             parent_gs = parent_ss.get_gridspec()
             parent_lb = layoutgrids[parent_gs]
             match_nested_margins(inner_lb, parent_lb, parent_ss)
+
+        # pass the new margins down to the layout grid for the solution...
+        layoutgrids[gs].edit_outer_margin_mins(margin, ss)
 
     # make margins for figure-level legends:
     for leg in fig.legends:
@@ -467,8 +469,11 @@ def make_layout_margins(layoutgrids, fig, renderer, *, w_pad=0, h_pad=0,
 
 def match_nested_margins(inner_lb, parent_lb, parent_ss):
     def _match(loc, inner_cell, parent_cell):
-        size = parent_lb.get_margins(loc, parent_cell)
+        inner_size = inner_lb.get_margins(loc, inner_cell)
+        parent_size = parent_lb.get_margins(loc, parent_cell)
+        size = max(parent_size, inner_size)
         inner_lb.edit_margin_min(loc, size, inner_cell)
+        parent_lb.edit_margin_min(loc, size, parent_cell)
 
     _match('left',      0, parent_ss.colspan.start)
     _match('leftcb',    0, parent_ss.colspan.start)
