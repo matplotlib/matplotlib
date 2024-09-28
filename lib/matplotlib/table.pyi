@@ -8,7 +8,12 @@ from .transforms import Bbox
 from .typing import ColorType
 
 from collections.abc import Sequence
-from typing import Any, Literal
+from typing import Any, Literal, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pandas import DataFrame
+else:
+    DataFrame = None
 
 class Cell(Rectangle):
     PAD: float
@@ -68,7 +73,7 @@ class Table(Artist):
 
 def table(
     ax: Axes,
-    cellText: Sequence[Sequence[str]] | None = ...,
+    cellText: Sequence[Sequence[str]] | DataFrame | None = ...,
     cellColours: Sequence[Sequence[ColorType]] | None = ...,
     cellLoc: Literal["left", "center", "right"] = ...,
     colWidths: Sequence[float] | None = ...,
