@@ -340,7 +340,7 @@ class Dvi:
             byte = self.file.read(1)[0]
             self._dtable[byte](self, byte)
             if self._missing_font:
-                raise self._missing_font
+                raise self._missing_font.to_exception()
             name = self._dtable[byte].__name__
             if name == "_push":
                 down_stack.append(down_stack[-1])
@@ -368,14 +368,14 @@ class Dvi:
     @_dispatch(min=0, max=127, state=_dvistate.inpage)
     def _set_char_immediate(self, char):
         self._put_char_real(char)
-        if isinstance(self.fonts[self.f], FileNotFoundError):
+        if isinstance(self.fonts[self.f], cbook._ExceptionInfo):
             return
         self.h += self.fonts[self.f]._width_of(char)
 
     @_dispatch(min=128, max=131, state=_dvistate.inpage, args=('olen1',))
     def _set_char(self, char):
         self._put_char_real(char)
-        if isinstance(self.fonts[self.f], FileNotFoundError):
+        if isinstance(self.fonts[self.f], cbook._ExceptionInfo):
             return
         self.h += self.fonts[self.f]._width_of(char)
 
@@ -390,7 +390,7 @@ class Dvi:
 
     def _put_char_real(self, char):
         font = self.fonts[self.f]
-        if isinstance(font, FileNotFoundError):
+        if isinstance(font, cbook._ExceptionInfo):
             self._missing_font = font
         elif font._vf is None:
             self.text.append(Text(self.h, self.v, font, char,
@@ -504,7 +504,7 @@ class Dvi:
             # and throw that error in Dvi._read.  For Vf, _finalize_packet
             # checks whether a missing glyph has been used, and in that case
             # skips the glyph definition.
-            self.fonts[k] = exc.with_traceback(None)
+            self.fonts[k] = cbook._ExceptionInfo.from_exception(exc)
             return
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
             raise ValueError(f'tfm checksum mismatch: {n}')
