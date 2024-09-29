@@ -1718,7 +1718,8 @@ class _AxesBase(martist.Artist):
         ----------
         adjustable : {'box', 'datalim'}
             If 'box', change the physical dimensions of the Axes.
-            If 'datalim', change the ``x`` or ``y`` data limits.
+            If 'datalim', change the ``x`` or ``y`` data limits. This
+            may ignore explicitly defined axis limits.
 
         share : bool, default: False
             If ``True``, apply the settings to all shared Axes.
@@ -2035,11 +2036,17 @@ class _AxesBase(martist.Artist):
             yc = 0.5 * (ymin + ymax)
             y0 = yc - Ysize / 2.0
             y1 = yc + Ysize / 2.0
+            if not self.get_autoscaley_on():
+                _log.warning("Ignoring fixed y limits to fulfill fixed data aspect "
+                             "with adjustable data limits.")
             self.set_ybound(y_trf.inverted().transform([y0, y1]))
         else:
             xc = 0.5 * (xmin + xmax)
             x0 = xc - Xsize / 2.0
             x1 = xc + Xsize / 2.0
+            if not self.get_autoscalex_on():
+                _log.warning("Ignoring fixed x limits to fulfill fixed data aspect "
+                             "with adjustable data limits.")
             self.set_xbound(x_trf.inverted().transform([x0, x1]))
 
     def axis(self, arg=None, /, *, emit=True, **kwargs):
@@ -2256,8 +2263,8 @@ class _AxesBase(martist.Artist):
 
         Use `add_artist` only for artists for which there is no dedicated
         "add" method; and if necessary, use a method such as `update_datalim`
-        to manually update the dataLim if the artist is to be included in
-        autoscaling.
+        to manually update the `~.Axes.dataLim` if the artist is to be included
+        in autoscaling.
 
         If no ``transform`` has been specified when creating the artist (e.g.
         ``artist.get_transform() == None``) then the transform is set to
@@ -2370,7 +2377,7 @@ class _AxesBase(martist.Artist):
 
     def _update_line_limits(self, line):
         """
-        Figures out the data limit of the given line, updating self.dataLim.
+        Figures out the data limit of the given line, updating `.Axes.dataLim`.
         """
         path = line.get_path()
         if path.vertices.size == 0:
