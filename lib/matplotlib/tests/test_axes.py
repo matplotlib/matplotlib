@@ -9197,7 +9197,7 @@ def test_axes_clear_behavior(fig_ref, fig_test, which):
     reason="https://github.com/python/cpython/issues/124538",
 )
 def test_axes_clear_reference_cycle():
-    def is_in_reference_cycle(start):
+    def assert_not_in_reference_cycle(start):
         # Breadth first search. Return True if we encounter the starting node
         to_visit = deque([start])
         explored = set()
@@ -9206,11 +9206,9 @@ def test_axes_clear_reference_cycle():
             for child in gc.get_referents(parent):
                 if id(child) in explored:
                     continue
-                if child is start:
-                    return True
+                assert child is not start
                 explored.add(id(child))
                 to_visit.append(child)
-        return False
 
     fig = Figure()
     ax = fig.add_subplot()
@@ -9227,7 +9225,7 @@ def test_axes_clear_reference_cycle():
     ]
     assert len(big_artists) > 0
     for big_artist in big_artists:
-        assert not is_in_reference_cycle(big_artist)
+        assert_not_in_reference_cycle(big_artist)
     assert len(ax_children) > 0
     for child in ax_children:
         # Make sure this doesn't raise because the child is already removed.
