@@ -17,8 +17,8 @@ import warnings
 import numpy as np
 
 import matplotlib as mpl
-from . import (_api, _path, artist, cbook, cm, colors as mcolors, _docstring,
-               hatch as mhatch, lines as mlines, path as mpath, transforms)
+from . import (_api, _path, artist, cbook, colorizer as mcolorizer, colors as mcolors,
+               _docstring, hatch as mhatch, lines as mlines, path as mpath, transforms)
 from ._enums import JoinStyle, CapStyle
 
 
@@ -32,7 +32,7 @@ from ._enums import JoinStyle, CapStyle
     "linewidth": ["linewidths", "lw"],
     "offset_transform": ["transOffset"],
 })
-class Collection(artist.Artist, cm.ScalarMappable):
+class Collection(mcolorizer.ColorizingArtist):
     r"""
     Base class for Collections. Must be subclassed to be usable.
 
@@ -87,6 +87,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  offset_transform=None,
                  norm=None,  # optional for ScalarMappable
                  cmap=None,  # ditto
+                 colorizer=None,
                  pickradius=5.0,
                  hatch=None,
                  urls=None,
@@ -155,8 +156,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
             Remaining keyword arguments will be used to set properties as
             ``Collection.set_{key}(val)`` for each key-value pair in *kwargs*.
         """
-        artist.Artist.__init__(self)
-        cm.ScalarMappable.__init__(self, norm, cmap)
+
+        super().__init__(self._get_colorizer(cmap, norm, colorizer))
         # list of un-scaled dash patterns
         # this is needed scaling the dash pattern by linewidth
         self._us_linestyles = [(0, None)]

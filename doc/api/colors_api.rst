@@ -32,8 +32,8 @@ Color norms
    SymLogNorm
    TwoSlopeNorm
 
-Colormaps
----------
+Univariate Colormaps
+--------------------
 
 .. autosummary::
    :toctree: _as_gen/
@@ -42,6 +42,17 @@ Colormaps
    Colormap
    LinearSegmentedColormap
    ListedColormap
+
+Multivariate Colormaps
+----------------------
+
+.. autosummary::
+   :toctree: _as_gen/
+   :template: autosummary.rst
+
+   BivarColormap
+   SegmentedBivarColormap
+   BivarColormapFromImage
 
 Other classes
 -------------

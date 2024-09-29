@@ -4,7 +4,7 @@ from typing import Literal
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
-from . import artist, cm, transforms
+from . import colorizer, transforms
 from .backend_bases import MouseEvent
 from .artist import Artist
 from .colors import Normalize, Colormap
@@ -15,7 +15,7 @@ from .ticker import Locator, Formatter
 from .tri import Triangulation
 from .typing import ColorType, LineStyleType, CapStyleType, JoinStyleType
 
-class Collection(artist.Artist, cm.ScalarMappable):
+class Collection(colorizer.ColorizingArtist):
     def __init__(
         self,
         *,
@@ -30,6 +30,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         offset_transform: transforms.Transform | None = ...,
         norm: Normalize | None = ...,
         cmap: Colormap | None = ...,
+        colorizer: colorizer.Colorizer | None = ...,
         pickradius: float = ...,
         hatch: str | None = ...,
         urls: Sequence[str] | None = ...,

@@ -603,8 +603,8 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                  levels=None, filled=False, linewidths=None, linestyles=None,
                  hatches=(None,), alpha=None, origin=None, extent=None,
                  cmap=None, colors=None, norm=None, vmin=None, vmax=None,
-                 extend='neither', antialiased=None, nchunk=0, locator=None,
-                 transform=None, negative_linestyles=None, clip_path=None,
+                 colorizer=None, extend='neither', antialiased=None, nchunk=0,
+                 locator=None, transform=None, negative_linestyles=None, clip_path=None,
                  **kwargs):
         """
         Draw contour lines or filled regions, depending on
@@ -660,6 +660,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             alpha=alpha,
             clip_path=clip_path,
             transform=transform,
+            colorizer=colorizer,
         )
         self.axes = ax
         self.levels = levels
@@ -672,6 +673,13 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         self.nchunk = nchunk
         self.locator = locator
+
+        if colorizer:
+            self._set_colorizer_check_keywords(colorizer, cmap=cmap,
+                                               norm=norm, vmin=vmin,
+                                               vmax=vmax, colors=colors)
+            norm = colorizer.norm
+            cmap = colorizer.cmap
         if (isinstance(norm, mcolors.LogNorm)
                 or isinstance(self.locator, ticker.LogLocator)):
             self.logscale = True
@@ -1532,6 +1540,10 @@ alpha : float, default: 1
 
     This parameter is ignored if *colors* is set.
 
+%(colorizer_doc)s
+
+    This parameter is ignored if *colors* is set.
+
 origin : {*None*, 'upper', 'lower', 'image'}, default: None
     Determines the orientation and exact position of *Z* by specifying
     the position of ``Z[0, 0]``.  This is only relevant, if *X*, *Y*
@@ -1577,10 +1589,10 @@ extend : {'neither', 'both', 'min', 'max'}, default: 'neither'
 
         An existing `.QuadContourSet` does not get notified if
         properties of its colormap are changed. Therefore, an explicit
-        call ``QuadContourSet.changed()`` is needed after modifying the
+        call `~.ContourSet.changed()` is needed after modifying the
         colormap. The explicit call can be left out, if a colorbar is
         assigned to the `.QuadContourSet` because it internally calls
-        ``QuadContourSet.changed()``.
+        `~.ContourSet.changed()`.
 
     Example::
 
