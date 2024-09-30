@@ -651,7 +651,7 @@ class ScalarMappable:
 
 
 # The docstrings here must be generic enough to apply to all relevant methods.
-mpl._docstring.interpd.update(
+mpl._docstring.interpd.register(
     cmap_doc="""\
 cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
     The Colormap instance or registered colormap name used to map scalar data
