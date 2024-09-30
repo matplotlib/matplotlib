@@ -1421,8 +1421,21 @@ class Axis(martist.Artist):
         return cbook.silent_list('Line2D gridline',
                                  [tick.gridline for tick in ticks])
 
+    def set_label(self, s):
+        """Assigning legend labels is not supported. Raises RuntimeError."""
+        raise RuntimeError(
+            "A legend label cannot be assigned to an Axis. Did you mean to "
+            "set the axis label via set_label_text()?")
+
     def get_label(self):
-        """Return the axis label as a Text instance."""
+        """
+        Return the axis label as a Text instance.
+
+        .. admonition:: Discouraged
+
+           This overrides `.Artist.get_label`, which is for legend labels, with a new
+           semantic. It is recommended to use the attribute ``Axis.label`` instead.
+        """
         return self.label
 
     def get_offset_text(self):

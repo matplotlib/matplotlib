@@ -54,7 +54,7 @@ def figure_edit(axes, parent=None):
                 (None, f"<b>{name.title()}-Axis</b>"),
                 ('Min', axis_limits[name][0]),
                 ('Max', axis_limits[name][1]),
-                ('Label', axis.get_label().get_text()),
+                ('Label', axis.label.get_text()),
                 ('Scale', [axis.get_scale(),
                            'linear', 'log', 'symlog', 'logit']),
                 sep,
