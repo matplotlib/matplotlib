@@ -143,7 +143,7 @@ jobs:
           path: dist/
 
       - name: Build wheels for CPython 3.13
-        uses: pypa/cibuildwheel@bd033a44476646b606efccdd5eed92d5ea1d77ad  # v2.20.0
+        uses: pypa/cibuildwheel@d4a2945fcc8d13f20a1b99d461b8e844d5fc6e23  # v2.21.1
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -163,7 +163,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.12
-        uses: pypa/cibuildwheel@bd033a44476646b606efccdd5eed92d5ea1d77ad  # v2.20.0
+        uses: pypa/cibuildwheel@d4a2945fcc8d13f20a1b99d461b8e844d5fc6e23  # v2.21.1
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -171,7 +171,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.11
-        uses: pypa/cibuildwheel@bd033a44476646b606efccdd5eed92d5ea1d77ad  # v2.20.0
+        uses: pypa/cibuildwheel@d4a2945fcc8d13f20a1b99d461b8e844d5fc6e23  # v2.21.1
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -179,7 +179,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.10
-        uses: pypa/cibuildwheel@bd033a44476646b606efccdd5eed92d5ea1d77ad  # v2.20.0
+        uses: pypa/cibuildwheel@d4a2945fcc8d13f20a1b99d461b8e844d5fc6e23  # v2.21.1
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -187,7 +187,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for PyPy
-        uses: pypa/cibuildwheel@bd033a44476646b606efccdd5eed92d5ea1d77ad  # v2.20.0
+        uses: pypa/cibuildwheel@d4a2945fcc8d13f20a1b99d461b8e844d5fc6e23  # v2.21.1
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -231,9 +231,9 @@ jobs:
         run: ls dist
 
       - name: Generate artifact attestation for sdist and wheel
-        uses: actions/attest-build-provenance@310b0a4a3b0b78ef57ecda988ee04b132db73ef8  # v1.4.1
+        uses: actions/attest-build-provenance@1c608d11d69870c2092266b3f9a6f3abbf17002c  # v1.4.3
         with:
           subject-path: dist/matplotlib-*
 
       - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@ec4db0b4ddc65acdf4bff5fa45ac92d78b56bdf0  # v1.9.0
+        uses: pypa/gh-action-pypi-publish@897895f1e160c830e369f9779632ebc134688e1b  # v1.10.2
