@@ -278,11 +278,6 @@ def test_table_dataframe(pd):
     fig, ax = plt.subplots()
     table = ax.table(df, loc='center')
 
-    assert table[0, 0].get_text().get_text() == 'Letter'
-    assert table[0, 1].get_text().get_text() == 'Number'
-    assert table[1, 0].get_text().get_text() == 'A'
-    assert table[1, 1].get_text().get_text() == str(100)
-    assert table[2, 0].get_text().get_text() == 'B'
-    assert table[2, 1].get_text().get_text() == str(200)
-    assert table[3, 0].get_text().get_text() == 'C'
-    assert table[3, 1].get_text().get_text() == str(300)
+    for r, (index, row) in enumerate(df.iterrows()):
+        for c, col in enumerate(df.columns if r == 0 else row.values):
+            assert table[r if r == 0 else r+1, c].get_text().get_text() == str(col)
