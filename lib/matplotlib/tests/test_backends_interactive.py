@@ -170,7 +170,8 @@ def _test_interactive_impl():
 
     if backend.endswith("agg") and not backend.startswith(("gtk", "web")):
         # Force interactive framework setup.
-        plt.figure()
+        fig = plt.figure()
+        plt.close(fig)
 
         # Check that we cannot switch to a backend using another interactive
         # framework, but can switch to a backend using cairo instead of agg,
@@ -228,10 +229,7 @@ def _test_interactive_impl():
     result_after = io.BytesIO()
     fig.savefig(result_after, format='png')
 
-    if not backend.startswith('qt5') and sys.platform == 'darwin':
-        # FIXME: This should be enabled everywhere once Qt5 is fixed on macOS
-        # to not resize incorrectly.
-        assert result.getvalue() == result_after.getvalue()
+    assert result.getvalue() == result_after.getvalue()
 
 
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
@@ -448,8 +446,7 @@ def qt5_and_qt6_pairs():
 
     for qt5 in qt5_bindings:
         for qt6 in qt6_bindings:
-            for pair in ([qt5, qt6], [qt6, qt5]):
-                yield pair
+            yield from ([qt5, qt6], [qt6, qt5])
 
 
 @pytest.mark.parametrize('host, mpl', [*qt5_and_qt6_pairs()])
