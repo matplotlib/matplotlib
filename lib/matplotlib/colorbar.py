@@ -26,7 +26,7 @@ from matplotlib import _docstring
 
 _log = logging.getLogger(__name__)
 
-_docstring.interpd.update(
+_docstring.interpd.register(
     _make_axes_kw_doc="""
 location : None or {'left', 'right', 'top', 'bottom'}
     The location, relative to the parent Axes, where the colorbar Axes

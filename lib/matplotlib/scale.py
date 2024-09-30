@@ -742,7 +742,7 @@ def _get_scale_docs():
     return "\n".join(docs)
 
 
-_docstring.interpd.update(
+_docstring.interpd.register(
     scale_type='{%s}' % ', '.join([repr(x) for x in get_scale_names()]),
     scale_docs=_get_scale_docs().rstrip(),
     )
