@@ -316,7 +316,7 @@
       "lib/matplotlib/collections.py:docstring of matplotlib.artist.PolyQuadMesh.set:44",
       "lib/matplotlib/collections.py:docstring of matplotlib.artist.RegularPolyCollection.set:44",
       "lib/matplotlib/collections.py:docstring of matplotlib.artist.StarPolygonCollection.set:44",
-      "lib/matplotlib/collections.py:docstring of matplotlib.artist.FillBetweenPolyCollection.set:44",
+      "lib/matplotlib/collections.py:docstring of matplotlib.artist.FillBetweenPolyCollection.set:45",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.barbs:179",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.broken_barh:84",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.fill_between:121",
