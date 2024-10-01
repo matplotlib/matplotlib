@@ -7,7 +7,7 @@ particular orientation at hand; and it is possible to control all 3 rotational
 degrees of freedom (azimuth, elevation, and roll). By default,
 it uses a variation on Ken Shoemake's ARCBALL [1]_.
 The particular style of mouse rotation can be set via
-``rcParams.axes3d.mouserotationstyle``.
+:rc:`axes3d.mouserotationstyle`.
 See also :ref:`toolkit_mouse-rotation`.
 
 To revert to the original mouse rotation style,
