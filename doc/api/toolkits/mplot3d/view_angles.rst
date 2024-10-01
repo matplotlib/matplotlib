@@ -54,7 +54,7 @@ Originally (prior to v3.10), the 2D mouse position corresponded directly
 to azimuth and elevation; this is also how it is done
 in `MATLAB <https://www.mathworks.com/help/matlab/ref/view.html>`_.
 To keep it this way, set ``mouserotationstyle: azel``.
-This approach works fine for polar plots, where the *z* axis is special;
+This approach works fine for spherical coordinate plots, where the *z* axis is special;
 however, it leads to a kind of 'gimbal lock' when looking down the *z* axis:
 the plot reacts differently to mouse movement, dependent on the particular
 orientation at hand. Also, 'roll' cannot be controlled.
