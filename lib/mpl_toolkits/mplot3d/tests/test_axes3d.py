@@ -1971,7 +1971,7 @@ def test_rotate(style):
                 mock_event(ax, button=MouseButton.LEFT, xdata=0, ydata=0))
             ax._on_move(
                 mock_event(ax, button=MouseButton.LEFT,
-                               xdata=s*dx*ax._pseudo_w, ydata=s*dy*ax._pseudo_h))
+                           xdata=s*dx*ax._pseudo_w, ydata=s*dy*ax._pseudo_h))
             ax.figure.canvas.draw()
 
             c = np.sqrt(3)/2
