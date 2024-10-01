@@ -1510,8 +1510,9 @@ class Axes3D(Axes):
 
     def _arcball(self, x: float, y: float, style: str) -> np.ndarray:
         """
-        Convert a point (x, y) to a point on a virtual trackball
-        either Ken Shoemake's arcball (a sphere) or
+        Convert a point (x, y) to a point on a virtual trackball.
+
+        This is either Ken Shoemake's arcball (a sphere) or
         Tom Holroyd's (a sphere combined with a hyperbola).
         See: Ken Shoemake, "ARCBALL: A user interface for specifying
         three-dimensional rotation using a mouse." in

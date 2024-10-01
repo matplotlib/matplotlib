@@ -47,7 +47,7 @@ Rotation with mouse
 
 3D plots can be reoriented by dragging the mouse.
 There are various ways to accomplish this; the style of mouse rotation
-can be specified by setting ``rcParams.axes3d.mouserotationstyle``, see
+can be specified by setting :rc:`axes3d.mouserotationstyle`, see
 :doc:`/users/explain/customizing`.
 
 Prior to v3.10, the 2D mouse position corresponded directly
@@ -169,7 +169,7 @@ Alternatively, create a file ``matplotlibrc``, with contents::
 the :ref:`mplot3d-examples-index` examples.
 
 The size of the virtual trackball or arcball can be adjusted as well,
-by setting ``rcParams.axes3d.trackballsize``. This specifies how much
+by setting :rc:`axes3d.trackballsize`. This specifies how much
 mouse motion is needed to obtain a given rotation angle (when near the center),
 and it controls where the edge of the arcball is (how far from the center,
 how close to the plot edge).
