@@ -637,7 +637,8 @@ class Axis(martist.Artist):
             fontsize=mpl.rcParams['axes.labelsize'],
             fontweight=mpl.rcParams['axes.labelweight'],
             color=mpl.rcParams['axes.labelcolor'],
-        )
+        )  #: The `.Text` object of the axis label.
+
         self._set_artist_props(self.label)
         self.offsetText = mtext.Text(np.nan, np.nan)
         self._set_artist_props(self.offsetText)
