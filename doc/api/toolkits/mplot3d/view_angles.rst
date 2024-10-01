@@ -50,7 +50,7 @@ There are various ways to accomplish this; the style of mouse rotation
 can be specified by setting ``rcParams.axes3d.mouserotationstyle``, see
 :doc:`/users/explain/customizing`.
 
-Originally (prior to v3.10), the 2D mouse position corresponded directly
+Prior to v3.10, the 2D mouse position corresponded directly
 to azimuth and elevation; this is also how it is done
 in `MATLAB <https://www.mathworks.com/help/matlab/ref/view.html>`_.
 To keep it this way, set ``mouserotationstyle: azel``.
