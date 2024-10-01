@@ -230,7 +230,7 @@ get other head shapes:
   of the head in forward direction so that the arrow head looks broken.
 """ % _docstring.interpd.params
 
-_docstring.interpd.update(quiver_doc=_quiver_doc)
+_docstring.interpd.register(quiver_doc=_quiver_doc)
 
 
 class QuiverKey(martist.Artist):
@@ -865,7 +865,7 @@ data : indexable object, optional
     %(PolyCollection:kwdoc)s
 """ % _docstring.interpd.params
 
-_docstring.interpd.update(barbs_doc=_barbs_doc)
+_docstring.interpd.register(barbs_doc=_barbs_doc)
 
 
 class Barbs(mcollections.PolyCollection):

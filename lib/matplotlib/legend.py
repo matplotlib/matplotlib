@@ -305,7 +305,7 @@ _legend_kw_axes_st = (
     _loc_doc_base.format(parent='axes', default=':rc:`legend.loc`',
                          best=_loc_doc_best, outside='') +
     _legend_kw_doc_base)
-_docstring.interpd.update(_legend_kw_axes=_legend_kw_axes_st)
+_docstring.interpd.register(_legend_kw_axes=_legend_kw_axes_st)
 
 _outside_doc = """
     If a figure is using the constrained layout manager, the string codes
@@ -323,20 +323,20 @@ _legend_kw_figure_st = (
     _loc_doc_base.format(parent='figure', default="'upper right'",
                          best='', outside=_outside_doc) +
     _legend_kw_doc_base)
-_docstring.interpd.update(_legend_kw_figure=_legend_kw_figure_st)
+_docstring.interpd.register(_legend_kw_figure=_legend_kw_figure_st)
 
 _legend_kw_both_st = (
     _loc_doc_base.format(parent='axes/figure',
                          default=":rc:`legend.loc` for Axes, 'upper right' for Figure",
                          best=_loc_doc_best, outside=_outside_doc) +
     _legend_kw_doc_base)
-_docstring.interpd.update(_legend_kw_doc=_legend_kw_both_st)
+_docstring.interpd.register(_legend_kw_doc=_legend_kw_both_st)
 
 _legend_kw_set_loc_st = (
     _loc_doc_base.format(parent='axes/figure',
                          default=":rc:`legend.loc` for Axes, 'upper right' for Figure",
                          best=_loc_doc_best, outside=_outside_doc))
-_docstring.interpd.update(_legend_kw_set_loc_doc=_legend_kw_set_loc_st)
+_docstring.interpd.register(_legend_kw_set_loc_doc=_legend_kw_set_loc_st)
 
 
 class Legend(Artist):
@@ -1337,7 +1337,7 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
         _api.warn_deprecated("3.9", message=(
             "You have mixed positional and keyword arguments, some input may "
             "be discarded.  This is deprecated since %(since)s and will "
-            "become an error %(removal)s."))
+            "become an error in %(removal)s."))
 
     if (hasattr(handles, "__len__") and
             hasattr(labels, "__len__") and

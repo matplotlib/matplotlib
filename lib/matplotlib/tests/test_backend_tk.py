@@ -35,8 +35,8 @@ def _isolated_tk_test(success_count, func=None):
         reason="missing tkinter"
     )
     @pytest.mark.skipif(
-        sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
-        reason="$DISPLAY and $WAYLAND_DISPLAY are unset"
+        sys.platform == "linux" and not _c_internal_utils.xdisplay_is_valid(),
+        reason="$DISPLAY is unset"
     )
     @pytest.mark.xfail(  # https://github.com/actions/setup-python/issues/649
         ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and

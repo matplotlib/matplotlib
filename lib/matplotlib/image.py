@@ -919,10 +919,10 @@ class AxesImage(_ImageBase):
 
         Notes
         -----
-        This updates ``ax.dataLim``, and, if autoscaling, sets ``ax.viewLim``
-        to tightly fit the image, regardless of ``dataLim``.  Autoscaling
-        state is not changed, so following this with ``ax.autoscale_view()``
-        will redo the autoscaling in accord with ``dataLim``.
+        This updates `.Axes.dataLim`, and, if autoscaling, sets `.Axes.viewLim`
+        to tightly fit the image, regardless of `~.Axes.dataLim`.  Autoscaling
+        state is not changed, so a subsequent call to `.Axes.autoscale_view`
+        will redo the autoscaling in accord with `~.Axes.dataLim`.
         """
         (xmin, xmax), (ymin, ymax) = self.axes._process_unit_info(
             [("x", [extent[0], extent[1]]),

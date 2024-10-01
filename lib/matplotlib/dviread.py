@@ -504,7 +504,7 @@ class Dvi:
             # and throw that error in Dvi._read.  For Vf, _finalize_packet
             # checks whether a missing glyph has been used, and in that case
             # skips the glyph definition.
-            self.fonts[k] = exc
+            self.fonts[k] = exc.with_traceback(None)
             return
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
             raise ValueError(f'tfm checksum mismatch: {n}')

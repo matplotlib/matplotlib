@@ -85,13 +85,6 @@ class Axes(_AxesBase):
         methods instead; e.g. from `.pyplot` or `.Figure`:
         `~.pyplot.subplots`, `~.pyplot.subplot_mosaic` or `.Figure.add_axes`.
 
-    Attributes
-    ----------
-    dataLim : `.Bbox`
-        The bounding box enclosing all data displayed in the Axes.
-    viewLim : `.Bbox`
-        The view limits in data coordinates.
-
     """
     ### Labelling, legend and texts
 
@@ -3282,9 +3275,9 @@ class Axes(_AxesBase):
         if explode is None:
             explode = [0] * len(x)
         if len(x) != len(labels):
-            raise ValueError("'label' must be of length 'x'")
+            raise ValueError(f"'labels' must be of length 'x', not {len(labels)}")
         if len(x) != len(explode):
-            raise ValueError("'explode' must be of length 'x'")
+            raise ValueError(f"'explode' must be of length 'x', not {len(explode)}")
         if colors is None:
             get_next_color = self._get_patches_for_fill.get_next_color
         else:
@@ -3297,7 +3290,7 @@ class Axes(_AxesBase):
 
         _api.check_isinstance(Real, radius=radius, startangle=startangle)
         if radius <= 0:
-            raise ValueError(f'radius must be a positive number, not {radius}')
+            raise ValueError(f"'radius' must be a positive number, not {radius}")
 
         # Starting theta1 is the start fraction of the circle
         theta1 = startangle / 360
@@ -6548,6 +6541,15 @@ class Axes(_AxesBase):
                 if x.size == 2 and y.size == 2:
                     style = "image"
                 else:
+                    if x.size != nc + 1:
+                        raise ValueError(
+                            f"Length of X ({x.size}) must be one larger than the "
+                            f"number of columns in C ({nc})")
+                    if y.size != nr + 1:
+                        raise ValueError(
+                            f"Length of Y ({y.size}) must be one larger than the "
+                            f"number of rows in C ({nr})"
+                        )
                     dx = np.diff(x)
                     dy = np.diff(y)
                     if (np.ptp(dx) < 0.01 * abs(dx.mean()) and
@@ -6846,7 +6848,7 @@ such objects
             `~matplotlib.patches.Patch` properties. The following properties
             additionally accept a sequence of values corresponding to the
             datasets in *x*:
-            *edgecolors*, *facecolors*, *lines*, *linestyles*, *hatches*.
+            *edgecolor*, *facecolor*, *linewidth*, *linestyle*, *hatch*.
 
             .. versionadded:: 3.10
                Allowing sequences of values in above listed Patch properties.

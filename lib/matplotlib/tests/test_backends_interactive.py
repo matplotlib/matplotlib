@@ -57,6 +57,8 @@ class _WaitForStringPopen(subprocess.Popen):
 def _get_available_interactive_backends():
     _is_linux_and_display_invalid = (sys.platform == "linux" and
                                      not _c_internal_utils.display_is_valid())
+    _is_linux_and_xdisplay_invalid = (sys.platform == "linux" and
+                                      not _c_internal_utils.xdisplay_is_valid())
     envs = []
     for deps, env in [
             *[([qt_api],
@@ -74,10 +76,12 @@ def _get_available_interactive_backends():
     ]:
         reason = None
         missing = [dep for dep in deps if not importlib.util.find_spec(dep)]
-        if _is_linux_and_display_invalid:
-            reason = "$DISPLAY and $WAYLAND_DISPLAY are unset"
-        elif missing:
+        if missing:
             reason = "{} cannot be imported".format(", ".join(missing))
+        elif env["MPLBACKEND"] == "tkagg" and _is_linux_and_xdisplay_invalid:
+            reason = "$DISPLAY is unset"
+        elif _is_linux_and_display_invalid:
+            reason = "$DISPLAY and $WAYLAND_DISPLAY are unset"
         elif env["MPLBACKEND"] == 'macosx' and os.environ.get('TF_BUILD'):
             reason = "macosx backend fails on Azure"
         elif env["MPLBACKEND"].startswith('gtk'):
@@ -166,7 +170,8 @@ def _test_interactive_impl():
 
     if backend.endswith("agg") and not backend.startswith(("gtk", "web")):
         # Force interactive framework setup.
-        plt.figure()
+        fig = plt.figure()
+        plt.close(fig)
 
         # Check that we cannot switch to a backend using another interactive
         # framework, but can switch to a backend using cairo instead of agg,
@@ -224,10 +229,7 @@ def _test_interactive_impl():
     result_after = io.BytesIO()
     fig.savefig(result_after, format='png')
 
-    if not backend.startswith('qt5') and sys.platform == 'darwin':
-        # FIXME: This should be enabled everywhere once Qt5 is fixed on macOS
-        # to not resize incorrectly.
-        assert result.getvalue() == result_after.getvalue()
+    assert result.getvalue() == result_after.getvalue()
 
 
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
@@ -444,8 +446,7 @@ def qt5_and_qt6_pairs():
 
     for qt5 in qt5_bindings:
         for qt6 in qt6_bindings:
-            for pair in ([qt5, qt6], [qt6, qt5]):
-                yield pair
+            yield from ([qt5, qt6], [qt6, qt5])
 
 
 @pytest.mark.parametrize('host, mpl', [*qt5_and_qt6_pairs()])

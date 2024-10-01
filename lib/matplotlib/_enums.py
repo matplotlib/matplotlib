@@ -181,5 +181,7 @@ CapStyle.input_description = "{" \
         + ", ".join([f"'{cs.name}'" for cs in CapStyle]) \
         + "}"
 
-_docstring.interpd.update({'JoinStyle': JoinStyle.input_description,
-                          'CapStyle': CapStyle.input_description})
+_docstring.interpd.register(
+    JoinStyle=JoinStyle.input_description,
+    CapStyle=CapStyle.input_description,
+)

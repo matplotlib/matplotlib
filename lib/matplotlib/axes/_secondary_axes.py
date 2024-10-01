@@ -319,4 +319,4 @@ Other Parameters
 **kwargs : `~matplotlib.axes.Axes` properties.
     Other miscellaneous Axes parameters.
 '''
-_docstring.interpd.update(_secax_docstring=_secax_docstring)
+_docstring.interpd.register(_secax_docstring=_secax_docstring)
