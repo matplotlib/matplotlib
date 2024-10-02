@@ -416,4 +416,4 @@ guide you through each step.
 3. Click on an issue you would like to work on, and check to see if the issue a PR has been opened to resolve the issue.
 4. If the issue is a work in progress, tag the user working on the issue, and ask to collaborate (optional).
 5. Check the pull requests (i.e. :ghpull:`28476`)  and filter by the issue number to make sure the issue is not in progress.
-6. After steps 3 & 5 are done, and a PR does not exist, open a 'draft (incomeplete) PR <https://matplotlib.org/devdocs/devel/pr_guide.html>'_.
+6. After steps 3 & 5 are done, and a PR does not exist, create a `draft PR <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests>`_ and follow the `pull request guidelines <https://matplotlib.org/devdocs/devel/pr_guide.html>`_ .
