@@ -152,7 +152,6 @@ namespace PYBIND11_NAMESPACE { namespace detail {
                 {"round", agg::round_join},
                 {"bevel", agg::bevel_join},
             };
-            value = agg::miter_join_revert;
             value = enum_values.at(src.cast<std::string>());
             return true;
         }
@@ -167,13 +166,12 @@ namespace PYBIND11_NAMESPACE { namespace detail {
                 return true;
             }
 
-            auto clippath_tuple = src.cast<py::tuple>();
-
-            auto path = clippath_tuple[0];
-            if (!path.is_none()) {
-                value.path = path.cast<mpl::PathIterator>();
+            auto [path, trans] =
+                src.cast<std::pair<std::optional<mpl::PathIterator>, agg::trans_affine>>();
+            if (path) {
+                value.path = *path;
             }
-            value.trans = clippath_tuple[1].cast<agg::trans_affine>();
+            value.trans = trans;
 
             return true;
         }
@@ -184,15 +182,14 @@ namespace PYBIND11_NAMESPACE { namespace detail {
         PYBIND11_TYPE_CASTER(Dashes, const_name("Dashes"));
 
         bool load(handle src, bool) {
-            auto dash_tuple = src.cast<py::tuple>();
-            auto dash_offset = dash_tuple[0].cast<double>();
-            auto dashes_seq_or_none = dash_tuple[1];
+            auto [dash_offset, dashes_seq_or_none] =
+                src.cast<std::pair<double, std::optional<py::sequence>>>();
 
-            if (dashes_seq_or_none.is_none()) {
+            if (!dashes_seq_or_none) {
                 return true;
             }
 
-            auto dashes_seq = dashes_seq_or_none.cast<py::sequence>();
+            auto dashes_seq = *dashes_seq_or_none;
 
             auto nentries = dashes_seq.size();
             // If the dashpattern has odd length, iterate through it twice (in
