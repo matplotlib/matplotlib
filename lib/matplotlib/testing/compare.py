@@ -366,7 +366,7 @@ def crop_to_same(actual_path, actual_image, expected_path, expected_image):
     return actual_image, expected_image
 
 
-def calculate_rms(expected_image, actual_image):
+def calculate_rms(expected_image, actual_image, *, deadband=0):
     """
     Calculate the per-pixel errors, then compute the root mean square error.
     """
@@ -374,8 +374,12 @@ def calculate_rms(expected_image, actual_image):
         raise ImageComparisonFailure(
             f"Image sizes do not match expected size: {expected_image.shape} "
             f"actual size {actual_image.shape}")
+    diff = expected_image - actual_image
+    if deadband > 0:
+        # ignore small color differences
+        diff[np.abs(diff) <= deadband] = 0
     # Convert to float to avoid overflowing finite integer types.
-    return np.sqrt(((expected_image - actual_image).astype(float) ** 2).mean())
+    return np.sqrt(((diff).astype(float) ** 2).mean())
 
 
 # NOTE: compare_image and save_diff_image assume that the image does not have
@@ -392,7 +396,7 @@ def _load_image(path):
     return np.asarray(img)
 
 
-def compare_images(expected, actual, tol, in_decorator=False):
+def compare_images(expected, actual, tol, in_decorator=False, *, deadband=0):
     """
     Compare two "image" files checking differences within a tolerance.
 
