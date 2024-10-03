@@ -260,8 +260,7 @@ Default minor tick spacing was changed from 0.625 to 0.5 for major ticks spaced
 
 A public API has been added to `.EngFormatter` to control how the numbers in
 the ticklabels will be rendered. By default, *useMathText* evaluates to
-:rc:`axes.formatter.use_mathtext'` and *usetex* evaluates to
-:rc:`'text.usetex'`.
+:rc:`axes.formatter.use_mathtext` and *usetex* evaluates to :rc:`text.usetex`.
 
 If either is `True` then the numbers will be encapsulated by ``$``
 signs.  When using ``TeX`` this implies that the numbers will be shown

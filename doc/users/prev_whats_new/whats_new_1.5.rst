@@ -190,8 +190,8 @@ Some parameters have been added, others have been improved.
 +---------------------------+--------------------------------------------------+
 | Parameter                 | Description                                      |
 +===========================+==================================================+
-|:rc:`xaxis.labelpad`,      | mplot3d now respects these parameters            |
-|:rc:`yaxis.labelpad`       |                                                  |
+|``xaxis.labelpad``,        | mplot3d now respects these attributes, which     |
+|``yaxis.labelpad``         | default to :rc:`axes.labelpad`                   |
 +---------------------------+--------------------------------------------------+
 |:rc:`axes.labelpad`        | Default space between the axis and the label     |
 +---------------------------+--------------------------------------------------+
