@@ -108,10 +108,10 @@ plotting_function()
 # ignored in style sheets see `matplotlib.style.use`.
 #
 # There are a number of pre-defined styles :doc:`provided by Matplotlib
-# </gallery/style_sheets/style_sheets_reference>`. For
-# example, there's a pre-defined style called "ggplot", which emulates the
-# aesthetics of ggplot_ (a popular plotting package for R_). To use this
-# style, add:
+# </gallery/style_sheets/style_sheets_reference>`. For example, there's a pre-defined
+# style called "ggplot", which emulates the aesthetics of `ggplot
+# <https://ggplot2.tidyverse.org/>`_ (a popular plotting package for `R
+# <https://www.r-project.org/>`_). To use this style, add:
 
 plt.style.use('ggplot')
 
@@ -259,11 +259,10 @@ plt.show()
 #
 # .. _matplotlibrc-sample:
 #
-# The default :file:`matplotlibrc` file
-# -------------------------------------
-#
-# .. literalinclude:: ../../../lib/matplotlib/mpl-data/matplotlibrc
+# Available ``rcParams``
+# ----------------------
 #
 #
-# .. _ggplot: https://ggplot2.tidyverse.org/
-# .. _R: https://www.r-project.org/
+# .. rcparams::
+#
+#

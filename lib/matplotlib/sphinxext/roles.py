@@ -89,7 +89,11 @@ def _rcparam_role(name, rawtext, text, lineno, inliner, options=None, content=No
     # Generate a pending cross-reference so that Sphinx will ensure this link
     # isn't broken at some point in the future.
     title = f'rcParams["{text}"]'
-    target = 'matplotlibrc-sample'
+    target = f'rc-{text}'
+    if '.*' in target:
+        target = target.split('.*')[0]
+    elif ']' in target:
+        target = target.split('.[')[0]
     ref_nodes, messages = inliner.interpreted(title, f'{title} <{target}>',
                                               'ref', lineno)
 

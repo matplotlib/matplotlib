@@ -74,6 +74,10 @@ class ValidateInStrings:
                 return s
         self.valid = {func(k): k for k in valid}
 
+    def __str__(self):
+        return '{' + ', '.join(repr(v) for v in self.valid.values()) + '}, case ' + (
+            'ignored' if self.ignorecase else 'sensitive')
+
     def __call__(self, s):
         if self._deprecated_since:
             name, = (k for k, v in globals().items() if v is self)
@@ -130,7 +134,7 @@ def _listify_validator(scalar_validator, allow_stringlist=False, *,
     except AttributeError:  # class instance.
         f.__name__ = f"{type(scalar_validator).__name__}List"
     f.__qualname__ = f.__qualname__.rsplit(".", 1)[0] + "." + f.__name__
-    f.__doc__ = doc if doc is not None else scalar_validator.__doc__
+    f.__doc__ = doc if doc is not None else f'list of {scalar_validator.__doc__}'
     return f
 
 
@@ -148,8 +152,8 @@ def _validate_date(s):
             f'{s!r} should be a string that can be parsed by numpy.datetime64')
 
 
-def validate_bool(b):
-    """Convert b to ``bool`` or raise."""
+def _validate_bool(b):
+    """bool"""
     if isinstance(b, str):
         b = b.lower()
     if b in ('t', 'y', 'yes', 'on', 'true', '1', 1, True):
@@ -160,9 +164,14 @@ def validate_bool(b):
         raise ValueError(f'Cannot convert {b!r} to bool')
 
 
+def validate_bool(b):
+    """Convert b to ``bool`` or raise."""
+    return _validate_bool(b)
+
+
 def validate_axisbelow(s):
     try:
-        return validate_bool(s)
+        return _validate_bool(s)
     except ValueError:
         if isinstance(s, str):
             if s == 'line':
@@ -210,17 +219,26 @@ def _make_type_validator(cls, *, allow_none=False):
 
 validate_string = _make_type_validator(str)
 validate_string_or_None = _make_type_validator(str, allow_none=True)
-validate_stringlist = _listify_validator(
-    validate_string, doc='return a list of strings')
+_validate_stringlist = _listify_validator(validate_string, doc='list of str')
 validate_int = _make_type_validator(int)
 validate_int_or_None = _make_type_validator(int, allow_none=True)
 validate_float = _make_type_validator(float)
 validate_float_or_None = _make_type_validator(float, allow_none=True)
-validate_floatlist = _listify_validator(
-    validate_float, doc='return a list of floats')
+_validate_floatlist = _listify_validator(validate_float, doc='list of float')
+
+
+def validate_stringlist(s):
+    """Return a list of strings."""
+    return _validate_stringlist(s)
+
+
+def validate_floatlist(s):
+    """Return a list of floats."""
+    return _validate_floatlist(s)
 
 
 def _validate_marker(s):
+    """int or str"""
     try:
         return validate_int(s)
     except ValueError as e:
@@ -230,8 +248,7 @@ def _validate_marker(s):
             raise ValueError('Supported markers are [string, int]') from e
 
 
-_validate_markerlist = _listify_validator(
-    _validate_marker, doc='return a list of markers')
+_validate_markerlist = _listify_validator(_validate_marker, doc='list of int or str')
 
 
 def _validate_pathlike(s):
@@ -633,7 +650,7 @@ def validate_hatch(s):
 
 
 validate_hatchlist = _listify_validator(validate_hatch)
-validate_dashlist = _listify_validator(validate_floatlist)
+validate_dashlist = _listify_validator(_validate_floatlist)
 
 
 def _validate_minor_tick_ndivs(n):
@@ -657,7 +674,7 @@ def _validate_minor_tick_ndivs(n):
 _prop_validators = {
         'color': _listify_validator(validate_color_for_prop_cycle,
                                     allow_stringlist=True),
-        'linewidth': validate_floatlist,
+        'linewidth': _validate_floatlist,
         'linestyle': _listify_validator(_validate_linestyle),
         'facecolor': validate_colorlist,
         'edgecolor': validate_colorlist,
@@ -665,11 +682,11 @@ _prop_validators = {
         'capstyle': _listify_validator(CapStyle),
         'fillstyle': validate_fillstylelist,
         'markerfacecolor': validate_colorlist,
-        'markersize': validate_floatlist,
-        'markeredgewidth': validate_floatlist,
+        'markersize': _validate_floatlist,
+        'markeredgewidth': _validate_floatlist,
         'markeredgecolor': validate_colorlist,
         'markevery': validate_markeverylist,
-        'alpha': validate_floatlist,
+        'alpha': _validate_floatlist,
         'marker': _validate_markerlist,
         'hatch': validate_hatchlist,
         'dashes': validate_dashlist,
@@ -892,7 +909,7 @@ def validate_hist_bins(s):
     except (TypeError, ValueError):
         pass
     try:
-        return validate_floatlist(s)
+        return _validate_floatlist(s)
     except ValueError:
         pass
     raise ValueError(f"'hist.bins' must be one of {valid_strs}, an int or"
@@ -918,15 +935,15 @@ def _convert_validator_spec(key, conv):
 # gets copied to matplotlib/mpl-data/matplotlibrc by the setup script.
 _validators = {
     "backend":           validate_backend,
-    "backend_fallback":  validate_bool,
-    "figure.hooks":      validate_stringlist,
+    "backend_fallback":  _validate_bool,
+    "figure.hooks":      _validate_stringlist,
     "toolbar":           _validate_toolbar,
-    "interactive":       validate_bool,
+    "interactive":       _validate_bool,
     "timezone":          validate_string,
 
     "webagg.port":            validate_int,
     "webagg.address":         validate_string,
-    "webagg.open_in_browser": validate_bool,
+    "webagg.open_in_browser": _validate_bool,
     "webagg.port_retries":    validate_int,
 
     # line props
@@ -938,29 +955,29 @@ _validators = {
     "lines.markeredgecolor": validate_color_or_auto,  # default color
     "lines.markeredgewidth": validate_float,
     "lines.markersize":      validate_float,  # markersize, in points
-    "lines.antialiased":     validate_bool,  # antialiased (no jaggies)
+    "lines.antialiased":     _validate_bool,  # antialiased (no jaggies)
     "lines.dash_joinstyle":  JoinStyle,
     "lines.solid_joinstyle": JoinStyle,
     "lines.dash_capstyle":   CapStyle,
     "lines.solid_capstyle":  CapStyle,
-    "lines.dashed_pattern":  validate_floatlist,
-    "lines.dashdot_pattern": validate_floatlist,
-    "lines.dotted_pattern":  validate_floatlist,
-    "lines.scale_dashes":    validate_bool,
+    "lines.dashed_pattern":  _validate_floatlist,
+    "lines.dashdot_pattern": _validate_floatlist,
+    "lines.dotted_pattern":  _validate_floatlist,
+    "lines.scale_dashes":    _validate_bool,
 
     # marker props
     "markers.fillstyle": validate_fillstyle,
 
     ## pcolor(mesh) props:
     "pcolor.shading": ["auto", "flat", "nearest", "gouraud"],
-    "pcolormesh.snap": validate_bool,
+    "pcolormesh.snap": _validate_bool,
 
     ## patch props
     "patch.linewidth":       validate_float,  # line width in points
     "patch.edgecolor":       validate_color,
-    "patch.force_edgecolor": validate_bool,
+    "patch.force_edgecolor": _validate_bool,
     "patch.facecolor":       validate_color,  # first color in cycle
-    "patch.antialiased":     validate_bool,  # antialiased (no jaggies)
+    "patch.antialiased":     _validate_bool,  # antialiased (no jaggies)
 
     ## hatch props
     "hatch.color":     validate_color,
@@ -970,16 +987,16 @@ _validators = {
     "hist.bins": validate_hist_bins,
 
     ## Boxplot properties
-    "boxplot.notch":       validate_bool,
-    "boxplot.vertical":    validate_bool,
+    "boxplot.notch":       _validate_bool,
+    "boxplot.vertical":    _validate_bool,
     "boxplot.whiskers":    validate_whiskers,
     "boxplot.bootstrap":   validate_int_or_None,
-    "boxplot.patchartist": validate_bool,
-    "boxplot.showmeans":   validate_bool,
-    "boxplot.showcaps":    validate_bool,
-    "boxplot.showbox":     validate_bool,
-    "boxplot.showfliers":  validate_bool,
-    "boxplot.meanline":    validate_bool,
+    "boxplot.patchartist": _validate_bool,
+    "boxplot.showmeans":   _validate_bool,
+    "boxplot.showcaps":    _validate_bool,
+    "boxplot.showbox":     _validate_bool,
+    "boxplot.showfliers":  _validate_bool,
+    "boxplot.meanline":    _validate_bool,
 
     "boxplot.flierprops.color":           validate_color,
     "boxplot.flierprops.marker":          _validate_marker,
@@ -1015,28 +1032,28 @@ _validators = {
     "boxplot.meanprops.linewidth":       validate_float,
 
     ## font props
-    "font.family":     validate_stringlist,  # used by text object
+    "font.family":     _validate_stringlist,  # used by text object
     "font.style":      validate_string,
     "font.variant":    validate_string,
     "font.stretch":    validate_fontstretch,
     "font.weight":     validate_fontweight,
     "font.size":       validate_float,  # Base font size in points
-    "font.serif":      validate_stringlist,
-    "font.sans-serif": validate_stringlist,
-    "font.cursive":    validate_stringlist,
-    "font.fantasy":    validate_stringlist,
-    "font.monospace":  validate_stringlist,
+    "font.serif":      _validate_stringlist,
+    "font.sans-serif": _validate_stringlist,
+    "font.cursive":    _validate_stringlist,
+    "font.fantasy":    _validate_stringlist,
+    "font.monospace":  _validate_stringlist,
 
     # text props
     "text.color":          validate_color,
-    "text.usetex":         validate_bool,
+    "text.usetex":         _validate_bool,
     "text.latex.preamble": validate_string,
     "text.hinting":        ["default", "no_autohint", "force_autohint",
                             "no_hinting", "auto", "native", "either", "none"],
     "text.hinting_factor": validate_int,
     "text.kerning_factor": validate_int,
-    "text.antialiased":    validate_bool,
-    "text.parse_math":     validate_bool,
+    "text.antialiased":    _validate_bool,
+    "text.parse_math":     _validate_bool,
 
     "mathtext.cal":            validate_font_properties,
     "mathtext.rm":             validate_font_properties,
@@ -1057,14 +1074,14 @@ _validators = {
     "image.cmap":                _validate_cmap,  # gray, jet, etc.
     "image.lut":                 validate_int,  # lookup table
     "image.origin":              ["upper", "lower"],
-    "image.resample":            validate_bool,
+    "image.resample":            _validate_bool,
     # Specify whether vector graphics backends will combine all images on a
     # set of Axes into a single composite image
-    "image.composite_image": validate_bool,
+    "image.composite_image": _validate_bool,
 
     # contour props
     "contour.negative_linestyle": _validate_linestyle,
-    "contour.corner_mask":        validate_bool,
+    "contour.corner_mask":        _validate_bool,
     "contour.linewidth":          validate_float_or_None,
     "contour.algorithm":          ["mpl2005", "mpl2014", "serial", "threaded"],
 
@@ -1082,10 +1099,10 @@ _validators = {
     "axes.edgecolor":        validate_color,  # edge color
     "axes.linewidth":        validate_float,  # edge linewidth
 
-    "axes.spines.left":      validate_bool,  # Set visibility of axes spines,
-    "axes.spines.right":     validate_bool,  # i.e., the lines around the chart
-    "axes.spines.bottom":    validate_bool,  # denoting data boundary.
-    "axes.spines.top":       validate_bool,
+    "axes.spines.left":      _validate_bool,  # Set visibility of axes spines,
+    "axes.spines.right":     _validate_bool,  # i.e., the lines around the chart
+    "axes.spines.bottom":    _validate_bool,  # denoting data boundary.
+    "axes.spines.top":       _validate_bool,
 
     "axes.titlesize":     validate_fontsize,  # Axes title fontsize
     "axes.titlelocation": ["left", "center", "right"],  # Axes title alignment
@@ -1095,7 +1112,7 @@ _validators = {
     "axes.titley":        validate_float_or_None,
     # pad from Axes top decoration to title in points
     "axes.titlepad":      validate_float,
-    "axes.grid":          validate_bool,  # display grid or not
+    "axes.grid":          _validate_bool,  # display grid or not
     "axes.grid.which":    ["minor", "both", "major"],  # which grids are drawn
     "axes.grid.axis":     ["x", "y", "both"],  # grid type
     "axes.labelsize":     validate_fontsize,  # fontsize of x & y labels
@@ -1106,13 +1123,13 @@ _validators = {
     # first or larger than the second
     "axes.formatter.limits": _listify_validator(validate_int, n=2),
     # use current locale to format ticks
-    "axes.formatter.use_locale": validate_bool,
-    "axes.formatter.use_mathtext": validate_bool,
+    "axes.formatter.use_locale": _validate_bool,
+    "axes.formatter.use_mathtext": _validate_bool,
     # minimum exponent to format in scientific notation
     "axes.formatter.min_exponent": validate_int,
-    "axes.formatter.useoffset": validate_bool,
+    "axes.formatter.useoffset": _validate_bool,
     "axes.formatter.offset_threshold": validate_int,
-    "axes.unicode_minus": validate_bool,
+    "axes.unicode_minus": _validate_bool,
     # This entry can be either a cycler object or a string repr of a
     # cycler-object, which gets eval()'ed to create the object.
     "axes.prop_cycle": validate_cycler,
@@ -1123,9 +1140,9 @@ _validators = {
     "axes.ymargin": _validate_greaterthan_minushalf,  # margin added to yaxis
     "axes.zmargin": _validate_greaterthan_minushalf,  # margin added to zaxis
 
-    "polaraxes.grid":    validate_bool,  # display polar grid or not
-    "axes3d.grid":       validate_bool,  # display 3d grid
-    "axes3d.automargin": validate_bool,  # automatically add margin when
+    "polaraxes.grid":    _validate_bool,  # display polar grid or not
+    "axes3d.grid":       _validate_bool,  # display 3d grid
+    "axes3d.automargin": _validate_bool,  # automatically add margin when
                                          # manually setting 3D axis limits
 
     "axes3d.xaxis.panecolor":    validate_color,  # 3d background pane
@@ -1147,10 +1164,10 @@ _validators = {
 
     'date.converter':          ['auto', 'concise'],
     # for auto date locator, choose interval_multiples
-    'date.interval_multiples': validate_bool,
+    'date.interval_multiples': _validate_bool,
 
     # legend properties
-    "legend.fancybox": validate_bool,
+    "legend.fancybox": _validate_bool,
     "legend.loc": _validate_legend_loc,
 
     # the number of points in the legend line
@@ -1164,9 +1181,9 @@ _validators = {
     # the relative size of legend markers vs. original
     "legend.markerscale":    validate_float,
     # using dict in rcParams not yet supported, so make sure it is bool
-    "legend.shadow":         validate_bool,
+    "legend.shadow":         _validate_bool,
     # whether or not to draw a frame around legend
-    "legend.frameon":        validate_bool,
+    "legend.frameon":        _validate_bool,
     # alpha value of the legend frame
     "legend.framealpha":     validate_float_or_None,
 
@@ -1188,10 +1205,10 @@ _validators = {
     "legend.edgecolor":      validate_color_or_inherit,
 
     # tick properties
-    "xtick.top":           validate_bool,      # draw ticks on top side
-    "xtick.bottom":        validate_bool,      # draw ticks on bottom side
-    "xtick.labeltop":      validate_bool,      # draw label on top
-    "xtick.labelbottom":   validate_bool,      # draw label on bottom
+    "xtick.top":           _validate_bool,      # draw ticks on top side
+    "xtick.bottom":        _validate_bool,      # draw ticks on bottom side
+    "xtick.labeltop":      _validate_bool,      # draw label on top
+    "xtick.labelbottom":   _validate_bool,      # draw label on bottom
     "xtick.major.size":    validate_float,     # major xtick size in points
     "xtick.minor.size":    validate_float,     # minor xtick size in points
     "xtick.major.width":   validate_float,     # major xtick width in points
@@ -1200,21 +1217,21 @@ _validators = {
     "xtick.minor.pad":     validate_float,     # distance to label in points
     "xtick.color":         validate_color,     # color of xticks
     "xtick.labelcolor":    validate_color_or_inherit,  # color of xtick labels
-    "xtick.minor.visible": validate_bool,      # visibility of minor xticks
-    "xtick.minor.top":     validate_bool,      # draw top minor xticks
-    "xtick.minor.bottom":  validate_bool,      # draw bottom minor xticks
-    "xtick.major.top":     validate_bool,      # draw top major xticks
-    "xtick.major.bottom":  validate_bool,      # draw bottom major xticks
+    "xtick.minor.visible": _validate_bool,      # visibility of minor xticks
+    "xtick.minor.top":     _validate_bool,      # draw top minor xticks
+    "xtick.minor.bottom":  _validate_bool,      # draw bottom minor xticks
+    "xtick.major.top":     _validate_bool,      # draw top major xticks
+    "xtick.major.bottom":  _validate_bool,      # draw bottom major xticks
     # number of minor xticks
     "xtick.minor.ndivs":   _validate_minor_tick_ndivs,
     "xtick.labelsize":     validate_fontsize,  # fontsize of xtick labels
     "xtick.direction":     ["out", "in", "inout"],  # direction of xticks
     "xtick.alignment":     ["center", "right", "left"],
 
-    "ytick.left":          validate_bool,      # draw ticks on left side
-    "ytick.right":         validate_bool,      # draw ticks on right side
-    "ytick.labelleft":     validate_bool,      # draw tick labels on left side
-    "ytick.labelright":    validate_bool,      # draw tick labels on right side
+    "ytick.left":          _validate_bool,      # draw ticks on left side
+    "ytick.right":         _validate_bool,      # draw ticks on right side
+    "ytick.labelleft":     _validate_bool,      # draw tick labels on left side
+    "ytick.labelright":    _validate_bool,      # draw tick labels on right side
     "ytick.major.size":    validate_float,     # major ytick size in points
     "ytick.minor.size":    validate_float,     # minor ytick size in points
     "ytick.major.width":   validate_float,     # major ytick width in points
@@ -1223,11 +1240,11 @@ _validators = {
     "ytick.minor.pad":     validate_float,     # distance to label in points
     "ytick.color":         validate_color,     # color of yticks
     "ytick.labelcolor":    validate_color_or_inherit,  # color of ytick labels
-    "ytick.minor.visible": validate_bool,      # visibility of minor yticks
-    "ytick.minor.left":    validate_bool,      # draw left minor yticks
-    "ytick.minor.right":   validate_bool,      # draw right minor yticks
-    "ytick.major.left":    validate_bool,      # draw left major yticks
-    "ytick.major.right":   validate_bool,      # draw right major yticks
+    "ytick.minor.visible": _validate_bool,      # visibility of minor yticks
+    "ytick.minor.left":    _validate_bool,      # draw left minor yticks
+    "ytick.minor.right":   _validate_bool,      # draw right minor yticks
+    "ytick.major.left":    _validate_bool,      # draw left major yticks
+    "ytick.major.right":   _validate_bool,      # draw right major yticks
     # number of minor yticks
     "ytick.minor.ndivs":   _validate_minor_tick_ndivs,
     "ytick.labelsize":     validate_fontsize,  # fontsize of ytick labels
@@ -1254,10 +1271,10 @@ _validators = {
     "figure.dpi":              validate_float,
     "figure.facecolor":        validate_color,
     "figure.edgecolor":        validate_color,
-    "figure.frameon":          validate_bool,
-    "figure.autolayout":       validate_bool,
+    "figure.frameon":          _validate_bool,
+    "figure.autolayout":       _validate_bool,
     "figure.max_open_warning": validate_int,
-    "figure.raise_window":     validate_bool,
+    "figure.raise_window":     _validate_bool,
     "macosx.window_mode":      ["system", "tab", "window"],
 
     "figure.subplot.left":   validate_float,
@@ -1267,7 +1284,7 @@ _validators = {
     "figure.subplot.wspace": validate_float,
     "figure.subplot.hspace": validate_float,
 
-    "figure.constrained_layout.use": validate_bool,  # run constrained_layout?
+    "figure.constrained_layout.use": _validate_bool,  # run constrained_layout?
     # wspace and hspace are fraction of adjacent subplots to use for space.
     # Much smaller than above because we don't need room for the text.
     "figure.constrained_layout.hspace": validate_float,
@@ -1286,59 +1303,59 @@ _validators = {
     "savefig.pad_inches":   validate_float,
     # default directory in savefig dialog box
     "savefig.directory":    _validate_pathlike,
-    "savefig.transparent":  validate_bool,
+    "savefig.transparent":  _validate_bool,
 
-    "tk.window_focus": validate_bool,  # Maintain shell focus for TkAgg
+    "tk.window_focus": _validate_bool,  # Maintain shell focus for TkAgg
 
     # Set the papersize/type
     "ps.papersize":       _validate_papersize,
-    "ps.useafm":          validate_bool,
+    "ps.useafm":          _validate_bool,
     # use ghostscript or xpdf to distill ps output
     "ps.usedistiller":    validate_ps_distiller,
     "ps.distiller.res":   validate_int,  # dpi
     "ps.fonttype":        validate_fonttype,  # 3 (Type3) or 42 (Truetype)
     "pdf.compression":    validate_int,  # 0-9 compression level; 0 to disable
-    "pdf.inheritcolor":   validate_bool,  # skip color setting commands
+    "pdf.inheritcolor":   _validate_bool,  # skip color setting commands
     # use only the 14 PDF core fonts embedded in every PDF viewing application
-    "pdf.use14corefonts": validate_bool,
+    "pdf.use14corefonts": _validate_bool,
     "pdf.fonttype":       validate_fonttype,  # 3 (Type3) or 42 (Truetype)
 
     "pgf.texsystem": ["xelatex", "lualatex", "pdflatex"],  # latex variant used
-    "pgf.rcfonts":   validate_bool,  # use mpl's rc settings for font config
+    "pgf.rcfonts":   _validate_bool,  # use mpl's rc settings for font config
     "pgf.preamble":  validate_string,  # custom LaTeX preamble
 
     # write raster image data into the svg file
-    "svg.image_inline": validate_bool,
+    "svg.image_inline": _validate_bool,
     "svg.fonttype": ["none", "path"],  # save text as text ("none") or "paths"
     "svg.hashsalt": validate_string_or_None,
     "svg.id": validate_string_or_None,
 
     # set this when you want to generate hardcopy docstring
-    "docstring.hardcopy": validate_bool,
+    "docstring.hardcopy": _validate_bool,
 
-    "path.simplify":           validate_bool,
+    "path.simplify":           _validate_bool,
     "path.simplify_threshold": _validate_greaterequal0_lessequal1,
-    "path.snap":               validate_bool,
+    "path.snap":               _validate_bool,
     "path.sketch":             validate_sketch,
     "path.effects":            validate_anylist,
     "agg.path.chunksize":      validate_int,  # 0 to disable chunking
 
     # key-mappings (multi-character mappings should be a list/tuple)
-    "keymap.fullscreen": validate_stringlist,
-    "keymap.home":       validate_stringlist,
-    "keymap.back":       validate_stringlist,
-    "keymap.forward":    validate_stringlist,
-    "keymap.pan":        validate_stringlist,
-    "keymap.zoom":       validate_stringlist,
-    "keymap.save":       validate_stringlist,
-    "keymap.quit":       validate_stringlist,
-    "keymap.quit_all":   validate_stringlist,  # e.g.: "W", "cmd+W", "Q"
-    "keymap.grid":       validate_stringlist,
-    "keymap.grid_minor": validate_stringlist,
-    "keymap.yscale":     validate_stringlist,
-    "keymap.xscale":     validate_stringlist,
-    "keymap.help":       validate_stringlist,
-    "keymap.copy":       validate_stringlist,
+    "keymap.fullscreen": _validate_stringlist,
+    "keymap.home":       _validate_stringlist,
+    "keymap.back":       _validate_stringlist,
+    "keymap.forward":    _validate_stringlist,
+    "keymap.pan":        _validate_stringlist,
+    "keymap.zoom":       _validate_stringlist,
+    "keymap.save":       _validate_stringlist,
+    "keymap.quit":       _validate_stringlist,
+    "keymap.quit_all":   _validate_stringlist,  # e.g.: "W", "cmd+W", "Q"
+    "keymap.grid":       _validate_stringlist,
+    "keymap.grid_minor": _validate_stringlist,
+    "keymap.yscale":     _validate_stringlist,
+    "keymap.xscale":     _validate_stringlist,
+    "keymap.help":       _validate_stringlist,
+    "keymap.copy":       _validate_stringlist,
 
     # Animation settings
     "animation.html":         ["html5", "jshtml", "none"],
@@ -1354,17 +1371,17 @@ _validators = {
     # Path to ffmpeg binary. If just binary name, subprocess uses $PATH.
     "animation.ffmpeg_path":  _validate_pathlike,
     # Additional arguments for ffmpeg movie writer (using pipes)
-    "animation.ffmpeg_args":  validate_stringlist,
+    "animation.ffmpeg_args":  _validate_stringlist,
      # Path to convert binary. If just binary name, subprocess uses $PATH.
     "animation.convert_path": _validate_pathlike,
      # Additional arguments for convert movie writer (using pipes)
-    "animation.convert_args": validate_stringlist,
+    "animation.convert_args": _validate_stringlist,
 
     # Classic (pre 2.0) compatibility mode
     # This is used for things that are hard to make backward compatible
     # with a sane rcParam alone.  This does *not* turn on classic mode
     # altogether.  For that use `matplotlib.style.use("classic")`.
-    "_internal.classic_mode": validate_bool
+    "_internal.classic_mode": _validate_bool
 }
 _hardcoded_defaults = {  # Defaults not inferred from
     # lib/matplotlib/mpl-data/matplotlibrc...
