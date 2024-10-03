@@ -287,16 +287,17 @@ class FigureBase(Artist):
     figure = property(functools.partial(get_figure, root=True), set_figure,
                       doc=("The root `Figure`.  To get the parent of a `SubFigure`, "
                            "use the `get_figure` method."))
+
     def set_subplotparams(self, subplotparams={}):
         """
-        Set the subplot layout parameters.
-        Accepts either a `.SubplotParams` object, from which the relevant
-        parameters are copied, or a dictionary of subplot layout parameters.
-        If a dictionary is provided, this function is a convenience wrapper for
-        `matplotlib.figure.Figure.subplots_adjust`
+        .. Set the subplot layout parameters.
+            Accepts either a `.SubplotParams` object, from which the relevant
+            parameters are copied, or a dictionary of subplot layout parameters.
+            If a dictionary is provided, this function is a convenience wrapper for
+            `matplotlib.figure.Figure.subplots_adjust`
         Parameters
         ----------
- subplotparams : `~matplotlib.figure.SubplotParams` or dict with keys
+         subplotparams : `~matplotlib.figure.SubplotParams` or dict with keys
         "left", "bottom", "right", 'top", "wspace", "hspace"] , optional
         SubplotParams object to copy new subplot parameters from, or a dict
         of SubplotParams constructor arguments.
@@ -304,7 +305,7 @@ class FigureBase(Artist):
         current state of the figure's `.SubplotParams`
         See Also
         --------
-matplotlib.figure.Figure.subplots_adjust
+        matplotlib.figure.Figure.subplots_adjust
         matplotlib.figure.Figure.get_subplotparams
         """
 
@@ -2922,6 +2923,7 @@ None}, default: None
         _tight_parameters = tight if isinstance(tight, dict) else {}
         self.set_layout_engine(_tight, **_tight_parameters)
         self.stale = True
+
     def get_subplotparams(self):
         """
         Return the `.SubplotParams` object associated with the Figure.
@@ -2933,20 +2935,18 @@ None}, default: None
         matplotlib.figure.Figure.subplots_adjust
         matplotlib.figure.Figure.get_subplotparams
         """
-
-
         return self.subplotpars
 
         def set_subplotparams(self, subplotparams={}):
             """
-            Set the subplot layout parameters.
-            Accepts either a `.SubplotParams` object, from which the relevant
-            parameters are copied, or a dictionary of subplot layout parameters.
-            If a dictionary is provided, this function is a convenience wrapper for
-            `matplotlib.figure.Figure.subplots_adjust`
-            Parameters
+            .. Set the subplot layout parameters.
+                Accepts either a `.SubplotParams` object, from which the relevant
+                parameters are copied, or a dictionary of subplot layout parameters.
+                If a dictionary is provided, this function is a convenience wrapper for
+                `matplotlib.figure.Figure.subplots_adjust`
+                Parameters
             ----------
-     subplotparams : `~matplotlib.figure.SubplotParams` or dict with keys
+            subplotparams : `~matplotlib.figure.SubplotParams` or dict with keys
             "left", "bottom", "right", 'top", "wspace", "hspace"] , optional
             SubplotParams object to copy new subplot parameters from, or a dict
             of SubplotParams constructor arguments.
@@ -2954,10 +2954,9 @@ None}, default: None
             current state of the figure's `.SubplotParams`
             See Also
             --------
-    matplotlib.figure.Figure.subplots_adjust
+            matplotlib.figure.Figure.subplots_adjust
             matplotlib.figure.Figure.get_subplotparams
             """
-
             subplotparams_args = ["left", "bottom", "right",
                                   "top", "wspace", "hspace"]
             kwargs = {}
@@ -2983,6 +2982,7 @@ None}, default: None
     @property
     def get_figsize(self):
         return self.get_size_inches()
+
     @property
     def set_figsize(self, w, h=None, forward=True):
         self.set_size_inches(self, w, h=None, forward=True)
