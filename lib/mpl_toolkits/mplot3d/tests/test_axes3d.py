@@ -1,6 +1,7 @@
 import functools
 import itertools
 import platform
+import sys
 
 import pytest
 
@@ -115,7 +116,7 @@ def test_axes3d_repr():
 
 
 @mpl3d_image_comparison(['axes3d_primary_views.png'], style='mpl20',
-                        tol=0.05 if platform.machine() == "arm64" else 0)
+                        tol=0.05 if sys.platform == "darwin" else 0)
 def test_axes3d_primary_views():
     # (elev, azim, roll)
     views = [(90, -90, 0),  # XY
