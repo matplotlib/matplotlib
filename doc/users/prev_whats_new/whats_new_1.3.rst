@@ -292,9 +292,9 @@ rcParam has been set, and will not retroactively affect already
 existing text objects.  This brings their behavior in line with most
 other rcParams.
 
-Added :rc:`savefig.jpeg_quality`
-````````````````````````````````
-rcParam value :rc:`savefig.jpeg_quality` was added so that the user can
+Added ``savefig.jpeg_quality`` rcParam
+``````````````````````````````````````
+The ``savefig.jpeg_quality`` rcParam was added so that the user can
 configure the default quality used when a figure is written as a JPEG.
 The default quality is 95; previously, the default quality was 75.
 This change minimizes the artifacting inherent in JPEG images,

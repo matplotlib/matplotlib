@@ -574,7 +574,7 @@ class Axis(martist.Artist):
         The axis label.
     labelpad : float
         The distance between the axis label and the tick labels.
-        Defaults to :rc:`axes.labelpad` = 4.
+        Defaults to :rc:`axes.labelpad`.
     offsetText : `~matplotlib.text.Text`
         A `.Text` object containing the data offset of the ticks (if any).
     pickradius : float

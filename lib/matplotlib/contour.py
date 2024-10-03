@@ -1643,7 +1643,7 @@ negative_linestyles : {*None*, 'solid', 'dashed', 'dashdot', 'dotted'}, \
     specifies the line style for negative contours.
 
     If *negative_linestyles* is *None*, the default is taken from
-    :rc:`contour.negative_linestyles`.
+    :rc:`contour.negative_linestyle`.
 
     *negative_linestyles* can also be an iterable of the above strings
     specifying a set of linestyles to be used. If this iterable is shorter than
