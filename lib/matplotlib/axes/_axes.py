@@ -3766,17 +3766,23 @@ class Axes(_AxesBase):
                     caplines[dep_axis].append(mlines.Line2D(
                         x_masked, y_masked, marker=marker, **eb_cap_style))
         if self.name == 'polar':
+            # Get theta direction and theta offset for proper cap alignment
+            theta_direction = self.get_theta_direction()
+            theta_offset = self.get_theta_offset()
+
             for axis in caplines:
                 for l in caplines[axis]:
                     # Rotate caps to be perpendicular to the error bars
                     for theta, r in zip(l.get_xdata(), l.get_ydata()):
-                        rotation = mtransforms.Affine2D().rotate(theta)
+                        # Adjust rotation using theta direction and offset
+                        rotation = mtransforms.Affine2D().rotate((theta * theta_direction) + theta_offset)
+                        
                         if axis == 'y':
                             rotation.rotate(-np.pi / 2)
-                        ms = mmarkers.MarkerStyle(marker=marker,
-                                                  transform=rotation)
-                        self.add_line(mlines.Line2D([theta], [r], marker=ms,
-                                                    **eb_cap_style))
+
+                        ms = mmarkers.MarkerStyle(marker=marker, transform=rotation)
+                        self.add_line(mlines.Line2D([theta], [r], marker=ms, **eb_cap_style))
+
         else:
             for axis in caplines:
                 for l in caplines[axis]:
