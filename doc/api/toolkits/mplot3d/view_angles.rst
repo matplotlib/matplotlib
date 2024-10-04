@@ -83,8 +83,9 @@ mouse movement (it is quite noticeable, especially when adjusting roll),
 and it lacks an obvious mechanical equivalent; arguably, the path-independent rotation is unnatural.
 So it is a trade-off.
 
-Shoemake's arcball has an abrupt edge; this is remedied in Holroyd's arcball
-(``mouserotationstyle: Holroyd``).
+Shoemake's arcball has an abrupt edge; this is remedied in Gavin Bell's arcball
+(``mouserotationstyle: Bell``), originally written for OpenGL [Bell1988]_. It is used
+in Blender and Meshlab.
 
 Henriksen et al. [Henriksen2002]_ provide an overview. In summary:
 
@@ -122,7 +123,7 @@ Henriksen et al. [Henriksen2002]_ provide an overview. In summary:
      - ✔️
      - ✔️
      - ❌
-   * - Holroyd
+   * - Bell
      - ❌
      - ✔️
      - ✔️
@@ -142,7 +143,7 @@ You can try out one of the various mouse rotation styles using::
 .. code::
 
     import matplotlib as mpl
-    mpl.rcParams['axes3d.mouserotationstyle'] = 'trackball'  # 'azel', 'trackball', 'arcball', 'Shoemake', or 'Holroyd'
+    mpl.rcParams['axes3d.mouserotationstyle'] = 'trackball'  # 'azel', 'trackball', 'arcball', 'Shoemake', or 'Bell'
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -183,11 +184,14 @@ A size of about 2/3 appears to work reasonably well; this is the default.
   three-dimensional rotation using a mouse", in Proceedings of Graphics
   Interface '92, 1992, pp. 151-156, https://doi.org/10.20380/GI1992.18
 
-.. [Henriksen2002] Knud Henriksen, Jon Sporring, Kasper Hornbæk,
-  "Virtual Trackballs Revisited", in Proceedings of DSAGM'2002
-  `[pdf]`__;
-  and in IEEE Transactions on Visualization and Computer Graphics,
-  Volume 10, Issue 2, March-April 2004, pp. 206-216,
-  https://doi.org/10.1109/TVCG.2004.1260772
 
-__ https://web.archive.org/web/20240607102518/http://hjemmesider.diku.dk/~kash/papers/DSAGM2002_henriksen.pdf
+.. [Bell1988] Gavin Bell, in the examples included with the GLUT (OpenGL
+  Utility Toolkit) library,
+  https://github.com/markkilgard/glut/blob/master/progs/examples/trackball.h
+
+.. [Henriksen2002] Knud Henriksen, Jon Sporring, Kasper Hornbæk,
+  "Virtual Trackballs Revisited", in IEEE Transactions on Visualization
+  and Computer Graphics, Volume 10, Issue 2, March-April 2004, pp. 206-216,
+  https://doi.org/10.1109/TVCG.2004.1260772 `[full-text]`__;
+
+__ https://www.researchgate.net/publication/8329656_Virtual_Trackballs_Revisited#fullTextFileContent

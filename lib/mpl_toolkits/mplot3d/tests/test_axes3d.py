@@ -1944,7 +1944,7 @@ def test_quaternion():
 
 
 @pytest.mark.parametrize('style',
-                         ('azel', 'trackball', 'arcball', 'Shoemake', 'Holroyd'))
+                         ('azel', 'trackball', 'arcball', 'Shoemake', 'Bell'))
 def test_rotate(style):
     """Test rotating using the left mouse button."""
     if style == 'azel':
@@ -2008,13 +2008,13 @@ def test_rotate(style):
                 ('Shoemake', 30, 0, 1): (-48.590378, -40.893395, 49.106605),
                 ('Shoemake', 30, 0.5, c): (-25.658906, -56.309932, 43.897886),
 
-                ('Holroyd', 0, 1, 0): (0, -60, 0),
-                ('Holroyd', 0, 0, 1): (-60, 0, 0),
-                ('Holroyd', 0, 0.5, c): (-48.590378, -40.893395, 19.106605),
-                ('Holroyd', 0, 2, 0): (0, -126.869898, 0),
-                ('Holroyd', 30, 1, 0):  (25.658906, -56.309932, 16.102114),
-                ('Holroyd', 30, 0, 1): (-48.590378, -40.893395, 49.106605),
-                ('Holroyd', 30, 0.5, c): (-25.658906, -56.309932, 43.897886)}
+                ('Bell', 0, 1, 0): (0, -60, 0),
+                ('Bell', 0, 0, 1): (-60, 0, 0),
+                ('Bell', 0, 0.5, c): (-48.590378, -40.893395, 19.106605),
+                ('Bell', 0, 2, 0): (0, -126.869898, 0),
+                ('Bell', 30, 1, 0):  (25.658906, -56.309932, 16.102114),
+                ('Bell', 30, 0, 1): (-48.590378, -40.893395, 49.106605),
+                ('Bell', 30, 0.5, c): (-25.658906, -56.309932, 43.897886)}
             new_elev, new_azim, new_roll = expectations[(style, roll, dx, dy)]
             np.testing.assert_allclose((ax.elev, ax.azim, ax.roll),
                                        (new_elev, new_azim, new_roll), atol=1e-6)

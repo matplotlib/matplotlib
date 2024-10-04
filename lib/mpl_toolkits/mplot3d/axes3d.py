@@ -1513,7 +1513,7 @@ class Axes3D(Axes):
         Convert a point (x, y) to a point on a virtual trackball.
 
         This is either Ken Shoemake's arcball (a sphere) or
-        Tom Holroyd's (a sphere combined with a hyperbola).
+        Gavin Bell's (a sphere combined with a hyperbola).
         See: Ken Shoemake, "ARCBALL: A user interface for specifying
         three-dimensional rotation using a mouse." in
         Proceedings of Graphics Interface '92, 1992, pp. 151-156,
@@ -1523,7 +1523,7 @@ class Axes3D(Axes):
         x /= s
         y /= s
         r2 = x*x + y*y
-        if style == 'Holroyd':
+        if style == 'Bell':
             if r2 > 0.5:
                 p = np.array([1/(2*math.sqrt(r2)), x, y])/math.sqrt(1/(4*r2)+r2)
             else:
@@ -1587,12 +1587,12 @@ class Axes3D(Axes):
                     nk = np.linalg.norm(k)
                     th = nk / mpl.rcParams['axes3d.trackballsize']
                     dq = _Quaternion(np.cos(th), k*np.sin(th)/nk)
-                else:  # 'arcball', 'Shoemake', 'Holroyd'
+                else:  # 'arcball', 'Shoemake', 'Bell'
                     current_vec = self._arcball(self._sx/w, self._sy/h, style)
                     new_vec = self._arcball(x/w, y/h, style)
                     if style == 'arcball':
                         dq = _Quaternion.rotate_from_to(current_vec, new_vec)
-                    else:  # 'Shoemake', 'Holroyd'
+                    else:  # 'Shoemake', 'Bell'
                         dq = _Quaternion(0, new_vec) * _Quaternion(0, -current_vec)
 
                 q = dq * q
