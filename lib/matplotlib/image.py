@@ -669,7 +669,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             The image array
         """
         return self._A
-    
+
     def get_array(self):
         """
         Retained for backwards compatibility - use get_data instead.
