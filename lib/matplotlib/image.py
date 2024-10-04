@@ -659,6 +659,26 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 A = A.astype(np.uint8)
         return A
 
+    def get_data(self):
+        """
+        Get the image array.
+
+        Returns
+        -------
+        array-like
+        """
+        return self._A
+    
+    def get_array(self):
+        """
+        Retained for backwards compatibility - use get_data instead.
+
+        Returns
+        -------
+        array-like
+        """
+        return self.get_data()
+
     def set_data(self, A):
         """
         Set the image array.
