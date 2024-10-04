@@ -23,10 +23,12 @@ Check out our [home page](https://matplotlib.org/) for more information.
 
 ![image](https://matplotlib.org/_static/readme_preview.png)
 
-Matplotlib produces publication-quality figures in a variety of hardcopy
+Matplotlib produces publication-quality figures in various hardcopy
 formats and interactive environments across platforms. Matplotlib can be
 used in Python scripts, Python/IPython shells, web application servers,
 and various graphical user interface toolkits.
+
+To get started. 
 
 ## Install
 
@@ -61,8 +63,8 @@ Our active mailing lists (which are mirrored on Discourse) are:
     mailing list: <matplotlib-devel@python.org>
 
 [Gitter](https://gitter.im/matplotlib/matplotlib) is for coordinating
-development and asking questions directly related to contributing to
-matplotlib.
+development and asking questions directly related
+matplotlib contribution.
 
 ## Citing Matplotlib
 
