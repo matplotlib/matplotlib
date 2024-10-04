@@ -665,7 +665,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Returns
         -------
-        array-like
+        `numpy.array`
+            The image array
         """
         return self._A
     
@@ -675,7 +676,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Returns
         -------
-        array-like
+        `numpy.array`
+            The image array
         """
         return self.get_data()
 
