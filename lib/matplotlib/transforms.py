@@ -49,6 +49,7 @@ from numpy.linalg import inv
 from matplotlib import _api
 from matplotlib._path import (
     affine_transform, count_bboxes_overlapping_bbox, update_path_extents)
+from matplotlib import transforms as mtransforms
 from .path import Path
 
 DEBUG = False
@@ -2984,3 +2985,28 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
         y /= 72.0
     # Default units are 'inches'
     return trans + ScaledTranslation(x, y, fig.dpi_scale_trans)
+
+
+class OffsetRotation(Affine2DBase):
+    """
+    A transformation that applies offset and direction
+    based on *trans_shift*.
+    """
+    def __init__(self, theta, trans_shift, is_radial):
+        super().__init__()
+        self._theta = theta
+        self._trans_shift = trans_shift
+        self._is_radial = is_radial
+        self._mtx = np.identity(3)
+        self._invalid = True
+
+    def get_matrix(self):
+        if self._invalid:
+            transformed_coords = self._trans_shift.transform([[self._theta, 0]])[0]
+            adjusted_theta = transformed_coords[0]
+            if self._is_radial:
+                adjusted_theta -= np.pi / 2
+            rotation = mtransforms.Affine2D().rotate(adjusted_theta)
+            self._mtx[:2, :2] = rotation.get_matrix()[:2, :2]
+            self._invalid = False
+        return self._mtx

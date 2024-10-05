@@ -37,6 +37,7 @@ from matplotlib.axes._base import (
     _AxesBase, _TransformedBoundsLocator, _process_plot_format)
 from matplotlib.axes._secondary_axes import SecondaryAxis
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
+from matplotlib.transforms import OffsetRotation
 
 _log = logging.getLogger(__name__)
 
@@ -3766,21 +3767,19 @@ class Axes(_AxesBase):
                     caplines[dep_axis].append(mlines.Line2D(
                         x_masked, y_masked, marker=marker, **eb_cap_style))
         if self.name == 'polar':
-            theta_offset = self.get_theta_offset()
-            theta_direction = self.get_theta_direction()
             for axis in caplines:
                 for l in caplines[axis]:
                     for theta, r in zip(l.get_xdata(), l.get_ydata()):
-                        adjusted_theta = theta_direction * theta + theta_offset
-                        if axis == 'y':
-                            rotation = (mtransforms.Affine2D()
-                                        .rotate(adjusted_theta - np.pi / 2))
-                        else:
-                            rotation = mtransforms.Affine2D().rotate(adjusted_theta)
-                        ms = mmarkers.MarkerStyle(marker=marker, transform=rotation)
-                        self.add_line(mlines.Line2D([theta], [r], marker=ms,
-                                                    **eb_cap_style))
-
+                        trans_shift = self.transShift
+                        rotation_transform = OffsetRotation(
+                            theta=theta,
+                            trans_shift=trans_shift,
+                            is_radial=(axis == 'y')
+                        )
+                        ms = mmarkers.MarkerStyle(
+                            marker=marker, transform=rotation_transform)
+                        self.add_line(
+                            mlines.Line2D([theta], [r], marker=ms, **eb_cap_style))
         else:
             for axis in caplines:
                 for l in caplines[axis]:
