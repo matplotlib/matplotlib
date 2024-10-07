@@ -3102,7 +3102,7 @@ def rgb_to_hsv(arr):
     arr_max = arr.max(-1)
     arr_min = arr.min(-1)
     # Check if input is in the expected range
-    if arr_max > 1:
+    if np.any(arr_max > 1):
         raise ValueError(
             "Input array must be in the range [0, 1]. "
             f"Found a maximum value of {arr_max}"
