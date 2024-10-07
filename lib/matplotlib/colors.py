@@ -3100,7 +3100,6 @@ def rgb_to_hsv(arr):
 
     out = np.zeros_like(arr)
     arr_max = arr.max(-1)
-    arr_min = arr.min(-1)
     # Check if input is in the expected range
     if np.any(arr_max > 1):
         raise ValueError(
