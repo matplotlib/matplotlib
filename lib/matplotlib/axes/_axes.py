@@ -754,6 +754,15 @@ class Axes(_AxesBase):
         Returns
         -------
         `~matplotlib.lines.Line2D`
+            A `.Line2D` specified via two points ``(xmin, y)``, ``(xmax, y)``.
+            Its transform is set such that *x* is in
+            :ref:`axes coordinates <coordinate-systems>` and *y* is in
+            :ref:`data coordinates <coordinate-systems>`.
+
+            This is still a generic line and the horizontal character is only
+            realized through using identical *y* values for both points. Thus,
+            if you want to change the *y* value later, you have to provide two
+            values ``line.set_ydata([3, 3])``.
 
         Other Parameters
         ----------------
@@ -828,6 +837,15 @@ class Axes(_AxesBase):
         Returns
         -------
         `~matplotlib.lines.Line2D`
+            A `.Line2D` specified via two points ``(x, ymin)``, ``(x, ymax)``.
+            Its transform is set such that *x* is in
+            :ref:`data coordinates <coordinate-systems>` and *y* is in
+            :ref:`axes coordinates <coordinate-systems>`.
+
+            This is still a generic line and the vertical character is only
+            realized through using identical *x* values for both points. Thus,
+            if you want to change the *x* value later, you have to provide two
+            values ``line.set_xdata([3, 3])``.
 
         Other Parameters
         ----------------
