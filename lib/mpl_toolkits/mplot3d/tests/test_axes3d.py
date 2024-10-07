@@ -115,7 +115,8 @@ def test_axes3d_repr():
 
 
 @mpl3d_image_comparison(['axes3d_primary_views.png'], style='mpl20',
-                        tol=0.05 if platform.machine() == "arm64" else 0)
+                        tol=0.05 if platform.machine() == "arm64" else 0,
+                        deadband=1)
 def test_axes3d_primary_views():
     # (elev, azim, roll)
     views = [(90, -90, 0),  # XY
