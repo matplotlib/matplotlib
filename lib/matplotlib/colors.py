@@ -3097,8 +3097,15 @@ def rgb_to_hsv(arr):
         dtype=np.promote_types(arr.dtype, np.float32),  # Don't work on ints.
         ndmin=2,  # In case input was 1D.
     )
-    out = np.zeros_like(arr)
+    
+    # Calculate arr_max to check if values are in the [0, 1] range
     arr_max = arr.max(-1)
+    
+    if np.any(arr_max > 1) or np.any(arr < 0):
+        raise ValueError("Input RGB values must be in the range [0, 1]. "
+                         f"Found values out of range in array: {arr}")
+
+    out = np.zeros_like(arr)
     ipos = arr_max > 0
     delta = np.ptp(arr, -1)
     s = np.zeros_like(delta)
@@ -3119,6 +3126,7 @@ def rgb_to_hsv(arr):
     out[..., 2] = arr_max
 
     return out.reshape(in_shape)
+
 
 
 def hsv_to_rgb(hsv):
