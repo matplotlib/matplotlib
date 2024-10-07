@@ -3128,7 +3128,6 @@ def rgb_to_hsv(arr):
     return out.reshape(in_shape)
 
 
-
 def hsv_to_rgb(hsv):
     """
     Convert HSV values to RGB.
