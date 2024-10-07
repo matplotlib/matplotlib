@@ -113,10 +113,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
             where *onoffseq* is an even length tuple of on and off ink lengths
             in points. For examples, see
             :doc:`/gallery/lines_bars_and_markers/linestyles`.
-        capstyle : `.CapStyle`-like, default: :rc:`patch.capstyle`
+        capstyle : `.CapStyle`-like, default: 'butt'
             Style to use for capping lines for all paths in the collection.
             Allowed values are %(CapStyle)s.
-        joinstyle : `.JoinStyle`-like, default: :rc:`patch.joinstyle`
+        joinstyle : `.JoinStyle`-like, default: 'round'
             Style to use for joining lines for all paths in the collection.
             Allowed values are %(JoinStyle)s.
         antialiaseds : bool or list of bool, default: :rc:`patch.antialiased`
