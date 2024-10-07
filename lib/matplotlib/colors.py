@@ -3097,7 +3097,7 @@ def rgb_to_hsv(arr):
         dtype=np.promote_types(arr.dtype, np.float32),  # Don't work on ints.
         ndmin=2,  # In case input was 1D.
     )
-    
+
     out = np.zeros_like(arr)
     arr_max = arr.max(-1)
     # Check if input is in the expected range
