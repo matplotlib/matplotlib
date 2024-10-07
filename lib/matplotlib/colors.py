@@ -3100,13 +3100,10 @@ def rgb_to_hsv(arr):
     
     out = np.zeros_like(arr)
     arr_max = arr.max(-1)
-    
     # Check if input is in the expected range
     if np.any(arr_max > 1) or np.any(arr < 0):
         raise ValueError("Input RGB values must be in the range [0, 1]. "
                          f"Found values out of range in array: {arr}")
-
-    
     ipos = arr_max > 0
     delta = np.ptp(arr, -1)
     s = np.zeros_like(delta)
