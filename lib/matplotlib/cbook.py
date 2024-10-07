@@ -32,6 +32,29 @@ import matplotlib
 from matplotlib import _api, _c_internal_utils
 
 
+class _ExceptionInfo:
+    """
+    A class to carry exception information around.
+
+    This is used to store and later raise exceptions. It's an alternative to
+    directly storing Exception instances that circumvents traceback-related
+    issues: caching tracebacks can keep user's objects in local namespaces
+    alive indefinitely, which can lead to very surprising memory issues for
+    users and result in incorrect tracebacks.
+    """
+
+    def __init__(self, cls, *args):
+        self._cls = cls
+        self._args = args
+
+    @classmethod
+    def from_exception(cls, exc):
+        return cls(type(exc), *exc.args)
+
+    def to_exception(self):
+        return self._cls(*self._args)
+
+
 def _get_running_interactive_framework():
     """
     Return the interactive framework whose event loop is currently running, if

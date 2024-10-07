@@ -28,7 +28,6 @@ Future versions may implement the Level 2 or 2.1 specifications.
 from __future__ import annotations
 
 from base64 import b64encode
-from collections import namedtuple
 import copy
 import dataclasses
 from functools import lru_cache
@@ -132,8 +131,6 @@ font_family_aliases = {
     'monospace',
     'sans',
 }
-
-_ExceptionProxy = namedtuple('_ExceptionProxy', ['klass', 'message'])
 
 # OS Font paths
 try:
@@ -1355,8 +1352,8 @@ class FontManager:
         ret = self._findfont_cached(
             prop, fontext, directory, fallback_to_default, rebuild_if_missing,
             rc_params)
-        if isinstance(ret, _ExceptionProxy):
-            raise ret.klass(ret.message)
+        if isinstance(ret, cbook._ExceptionInfo):
+            raise ret.to_exception()
         return ret
 
     def get_font_names(self):
@@ -1509,7 +1506,7 @@ class FontManager:
                 # This return instead of raise is intentional, as we wish to
                 # cache that it was not found, which will not occur if it was
                 # actually raised.
-                return _ExceptionProxy(
+                return cbook._ExceptionInfo(
                     ValueError,
                     f"Failed to find font {prop}, and fallback to the default font was "
                     f"disabled"
@@ -1535,7 +1532,7 @@ class FontManager:
                 # This return instead of raise is intentional, as we wish to
                 # cache that it was not found, which will not occur if it was
                 # actually raised.
-                return _ExceptionProxy(ValueError, "No valid font could be found")
+                return cbook._ExceptionInfo(ValueError, "No valid font could be found")
 
         return _cached_realpath(result)
 
