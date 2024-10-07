@@ -3108,10 +3108,10 @@ def rgb_to_hsv(arr):
             f"Found a maximum value of {arr_max}"
         )
 
-    if arr_min < 0:
+    if arr.min() < 0:
         raise ValueError(
             "Input array must be in the range [0, 1]. "
-            f"Found a minimum value of {arr_min}"
+            f"Found a minimum value of {arr.min()}"
         )
 
     ipos = arr_max > 0
