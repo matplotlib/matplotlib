@@ -111,48 +111,25 @@ static void
 PyRendererAgg_draw_path_collection(RendererAgg *self,
                                    GCAgg &gc,
                                    agg::trans_affine master_transform,
-                                   py::object paths_obj,
-                                   py::object transforms_obj,
-                                   py::object offsets_obj,
+                                   mpl::PathGenerator paths,
+                                   py::array_t<double> transforms_obj,
+                                   py::array_t<double> offsets_obj,
                                    agg::trans_affine offset_trans,
-                                   py::object facecolors_obj,
-                                   py::object edgecolors_obj,
-                                   py::object linewidths_obj,
+                                   py::array_t<double> facecolors_obj,
+                                   py::array_t<double> edgecolors_obj,
+                                   py::array_t<double> linewidths_obj,
                                    DashesVector dashes,
-                                   py::object antialiaseds_obj,
+                                   py::array_t<uint8_t> antialiaseds_obj,
                                    py::object Py_UNUSED(ignored_obj),
                                    // offset position is no longer used
                                    py::object Py_UNUSED(offset_position_obj))
 {
-    mpl::PathGenerator paths;
-    numpy::array_view<const double, 3> transforms;
-    numpy::array_view<const double, 2> offsets;
-    numpy::array_view<const double, 2> facecolors;
-    numpy::array_view<const double, 2> edgecolors;
-    numpy::array_view<const double, 1> linewidths;
-    numpy::array_view<const uint8_t, 1> antialiaseds;
-
-    if (!convert_pathgen(paths_obj.ptr(), &paths)) {
-        throw py::error_already_set();
-    }
-    if (!convert_transforms(transforms_obj.ptr(), &transforms)) {
-        throw py::error_already_set();
-    }
-    if (!convert_points(offsets_obj.ptr(), &offsets)) {
-        throw py::error_already_set();
-    }
-    if (!convert_colors(facecolors_obj.ptr(), &facecolors)) {
-        throw py::error_already_set();
-    }
-    if (!convert_colors(edgecolors_obj.ptr(), &edgecolors)) {
-        throw py::error_already_set();
-    }
-    if (!linewidths.converter(linewidths_obj.ptr(), &linewidths)) {
-        throw py::error_already_set();
-    }
-    if (!antialiaseds.converter(antialiaseds_obj.ptr(), &antialiaseds)) {
-        throw py::error_already_set();
-    }
+    auto transforms = convert_transforms(transforms_obj);
+    auto offsets = convert_points(offsets_obj);
+    auto facecolors = convert_colors(facecolors_obj);
+    auto edgecolors = convert_colors(edgecolors_obj);
+    auto linewidths = linewidths_obj.unchecked<1>();
+    auto antialiaseds = antialiaseds_obj.unchecked<1>();
 
     self->draw_path_collection(gc,
             master_transform,
@@ -174,26 +151,16 @@ PyRendererAgg_draw_quad_mesh(RendererAgg *self,
                              unsigned int mesh_width,
                              unsigned int mesh_height,
                              py::array_t<double, py::array::c_style | py::array::forcecast> coordinates_obj,
-                             py::object offsets_obj,
+                             py::array_t<double> offsets_obj,
                              agg::trans_affine offset_trans,
-                             py::object facecolors_obj,
+                             py::array_t<double> facecolors_obj,
                              bool antialiased,
-                             py::object edgecolors_obj)
+                             py::array_t<double> edgecolors_obj)
 {
-    numpy::array_view<const double, 2> offsets;
-    numpy::array_view<const double, 2> facecolors;
-    numpy::array_view<const double, 2> edgecolors;
-
     auto coordinates = coordinates_obj.mutable_unchecked<3>();
-    if (!convert_points(offsets_obj.ptr(), &offsets)) {
-        throw py::error_already_set();
-    }
-    if (!convert_colors(facecolors_obj.ptr(), &facecolors)) {
-        throw py::error_already_set();
-    }
-    if (!convert_colors(edgecolors_obj.ptr(), &edgecolors)) {
-        throw py::error_already_set();
-    }
+    auto offsets = convert_points(offsets_obj);
+    auto facecolors = convert_colors(facecolors_obj);
+    auto edgecolors = convert_colors(edgecolors_obj);
 
     self->draw_quad_mesh(gc,
             master_transform,
