@@ -312,7 +312,7 @@ transform : `.Transform`, optional
 
 Returns
 -------
-ax : axes._secondary_axes.SecondaryAxis
+ax : axes._secondary_axes.SecondaryAxis, an `.Axes` subclass
 
 Other Parameters
 ----------------
