@@ -39,12 +39,6 @@ _log = logging.getLogger(__name__)
 debugPS = False
 
 
-@_api.caching_module_getattr
-class __getattr__:
-    # module-level deprecations
-    psDefs = _api.deprecated("3.8", obj_type="")(property(lambda self: _psDefs))
-
-
 papersize = {'letter': (8.5, 11),
              'legal': (8.5, 14),
              'ledger': (11, 17),
@@ -70,15 +64,6 @@ papersize = {'letter': (8.5, 11),
              'b8': (2.51, 3.58),
              'b9': (1.76, 2.51),
              'b10': (1.26, 1.76)}
-
-
-def _get_papertype(w, h):
-    for key, (pw, ph) in sorted(papersize.items(), reverse=True):
-        if key.startswith('l'):
-            continue
-        if w < pw and h < ph:
-            return key
-    return 'a0'
 
 
 def _nums_to_str(*args, sep=" "):
@@ -828,7 +813,7 @@ class FigureCanvasPS(FigureCanvasBase):
         if papertype is None:
             papertype = mpl.rcParams['ps.papersize']
         papertype = papertype.lower()
-        _api.check_in_list(['figure', 'auto', *papersize], papertype=papertype)
+        _api.check_in_list(['figure', *papersize], papertype=papertype)
 
         orientation = _api.check_getitem(
             _Orientation, orientation=orientation.lower())
@@ -858,9 +843,6 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # find the appropriate papertype
         width, height = self.figure.get_size_inches()
-        if papertype == 'auto':
-            papertype = _get_papertype(*orientation.swap_if_landscape((width, height)))
-
         if is_eps or papertype == 'figure':
             paper_width, paper_height = width, height
         else:
@@ -1041,8 +1023,6 @@ showpage
                 paper_width, paper_height = orientation.swap_if_landscape(
                     self.figure.get_size_inches())
             else:
-                if papertype == 'auto':
-                    papertype = _get_papertype(width, height)
                 paper_width, paper_height = papersize[papertype]
 
             psfrag_rotated = _convert_psfrags(

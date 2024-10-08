@@ -514,14 +514,6 @@ def switch_backend(newbackend: str) -> None:
     # See https://github.com/matplotlib/matplotlib/issues/6092
     matplotlib.backends.backend = newbackend  # type: ignore[attr-defined]
 
-    if not cbook._str_equal(old_backend, newbackend):
-        if get_fignums():
-            _api.warn_deprecated("3.8", message=(
-                "Auto-close()ing of figures upon backend switching is deprecated since "
-                "%(since)s and will be removed %(removal)s.  To suppress this warning, "
-                "explicitly call plt.close('all') first."))
-        close("all")
-
     # Make sure the repl display hook is installed in case we become interactive.
     install_repl_displayhook()
 

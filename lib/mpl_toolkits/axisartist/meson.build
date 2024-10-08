@@ -2,8 +2,6 @@ python_sources = [
   '__init__.py',
   'angle_helper.py',
   'axes_divider.py',
-  'axes_grid.py',
-  'axes_rgb.py',
   'axis_artist.py',
   'axislines.py',
   'axisline_style.py',

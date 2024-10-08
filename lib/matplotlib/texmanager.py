@@ -31,7 +31,7 @@ from tempfile import TemporaryDirectory
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, dviread
+from matplotlib import cbook, dviread
 
 _log = logging.getLogger(__name__)
 
@@ -63,7 +63,6 @@ class TexManager:
     Repeated calls to this constructor always return the same instance.
     """
 
-    texcache = _api.deprecate_privatize_attribute("3.8")
     _texcache = os.path.join(mpl.get_cachedir(), 'tex.cache')
     _grey_arrayd = {}
 
