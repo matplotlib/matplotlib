@@ -32,7 +32,7 @@ class Spine(mpatches.Patch):
     def __str__(self):
         return "Spine"
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def __init__(self, axes, spine_type, path, **kwargs):
         """
         Parameters
@@ -53,7 +53,7 @@ class Spine(mpatches.Patch):
         """
         super().__init__(**kwargs)
         self.axes = axes
-        self.set_figure(self.axes.figure)
+        self.set_figure(self.axes.get_figure(root=False))
         self.spine_type = spine_type
         self.set_facecolor('none')
         self.set_edgecolor(mpl.rcParams['axes.edgecolor'])
@@ -174,8 +174,9 @@ class Spine(mpatches.Patch):
             else:
                 padout = 0.5
                 padin = 0.5
-            padout = padout * tickl / 72 * self.figure.dpi
-            padin = padin * tickl / 72 * self.figure.dpi
+            dpi = self.get_figure(root=True).dpi
+            padout = padout * tickl / 72 * dpi
+            padin = padin * tickl / 72 * dpi
 
             if tick.tick1line.get_visible():
                 if self.spine_type == 'left':
@@ -368,7 +369,7 @@ class Spine(mpatches.Patch):
                 offset_dots = amount * np.array(offset_vec) / 72
                 return (base_transform
                         + mtransforms.ScaledTranslation(
-                            *offset_dots, self.figure.dpi_scale_trans))
+                            *offset_dots, self.get_figure(root=False).dpi_scale_trans))
         elif position_type == 'axes':
             if self.spine_type in ['left', 'right']:
                 # keep y unchanged, fix x at amount

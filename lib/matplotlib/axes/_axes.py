@@ -14,8 +14,9 @@ import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
-import matplotlib.dates  # noqa # Register date unit converter as side effect.
+import matplotlib.dates  # noqa: F401, Register date unit converter as side effect.
 import matplotlib.image as mimage
+import matplotlib.inset as minset
 import matplotlib.legend as mlegend
 import matplotlib.lines as mlines
 import matplotlib.markers as mmarkers
@@ -84,13 +85,6 @@ class Axes(_AxesBase):
         As a user, you do not instantiate Axes directly, but use Axes creation
         methods instead; e.g. from `.pyplot` or `.Figure`:
         `~.pyplot.subplots`, `~.pyplot.subplot_mosaic` or `.Figure.add_axes`.
-
-    Attributes
-    ----------
-    dataLim : `.Bbox`
-        The bounding box enclosing all data displayed in the Axes.
-    viewLim : `.Bbox`
-        The view limits in data coordinates.
 
     """
     ### Labelling, legend and texts
@@ -220,7 +214,7 @@ class Axes(_AxesBase):
             [self], legend_handler_map)
         return handles, labels
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def legend(self, *args, **kwargs):
         """
         Place a legend on the Axes.
@@ -406,8 +400,9 @@ class Axes(_AxesBase):
         # This puts the rectangle into figure-relative coordinates.
         inset_locator = _TransformedBoundsLocator(bounds, transform)
         bounds = inset_locator(self, None).bounds
-        projection_class, pkw = self.figure._process_projection_requirements(**kwargs)
-        inset_ax = projection_class(self.figure, bounds, zorder=zorder, **pkw)
+        fig = self.get_figure(root=False)
+        projection_class, pkw = fig._process_projection_requirements(**kwargs)
+        inset_ax = projection_class(fig, bounds, zorder=zorder, **pkw)
 
         # this locator lets the axes move if in data coordinates.
         # it gets called in `ax.apply_aspect() (of all places)
@@ -417,10 +412,10 @@ class Axes(_AxesBase):
 
         return inset_ax
 
-    @_docstring.dedent_interpd
-    def indicate_inset(self, bounds, inset_ax=None, *, transform=None,
+    @_docstring.interpd
+    def indicate_inset(self, bounds=None, inset_ax=None, *, transform=None,
                        facecolor='none', edgecolor='0.5', alpha=0.5,
-                       zorder=4.99, **kwargs):
+                       zorder=None, **kwargs):
         """
         Add an inset indicator to the Axes.  This is a rectangle on the plot
         at the position indicated by *bounds* that optionally has lines that
@@ -432,18 +427,19 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        bounds : [x0, y0, width, height]
+        bounds : [x0, y0, width, height], optional
             Lower-left corner of rectangle to be marked, and its width
-            and height.
+            and height.  If not set, the bounds will be calculated from the
+            data limits of *inset_ax*, which must be supplied.
 
-        inset_ax : `.Axes`
+        inset_ax : `.Axes`, optional
             An optional inset Axes to draw connecting lines to.  Two lines are
             drawn connecting the indicator box to the inset Axes on corners
             chosen so as to not overlap with the indicator box.
 
         transform : `.Transform`
             Transform for the rectangle coordinates. Defaults to
-            `ax.transAxes`, i.e. the units of *rect* are in Axes-relative
+            ``ax.transAxes``, i.e. the units of *rect* are in Axes-relative
             coordinates.
 
         facecolor : :mpltype:`color`, default: 'none'
@@ -452,8 +448,10 @@ class Axes(_AxesBase):
         edgecolor : :mpltype:`color`, default: '0.5'
             Color of the rectangle and color of the connecting lines.
 
-        alpha : float, default: 0.5
-            Transparency of the rectangle and connector lines.
+        alpha : float or None, default: 0.5
+            Transparency of the rectangle and connector lines.  If not
+            ``None``, this overrides any alpha value included in the
+            *facecolor* and *edgecolor* parameters.
 
         zorder : float, default: 4.99
             Drawing order of the rectangle and connector lines.  The default,
@@ -466,15 +464,20 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        rectangle_patch : `.patches.Rectangle`
-             The indicator frame.
+        inset_indicator : `.inset.InsetIndicator`
+            An artist which contains
 
-        connector_lines : 4-tuple of `.patches.ConnectionPatch`
-            The four connector lines connecting to (lower_left, upper_left,
-            lower_right upper_right) corners of *inset_ax*. Two lines are
-            set with visibility to *False*,  but the user can set the
-            visibility to True if the automatic choice is not deemed correct.
+            inset_indicator.rectangle : `.Rectangle`
+                The indicator frame.
 
+            inset_indicator.connectors : 4-tuple of `.patches.ConnectionPatch`
+                The four connector lines connecting to (lower_left, upper_left,
+                lower_right upper_right) corners of *inset_ax*. Two lines are
+                set with visibility to *False*,  but the user can set the
+                visibility to True if the automatic choice is not deemed correct.
+
+            .. versionchanged:: 3.10
+                Previously the rectangle and connectors tuple were returned.
         """
         # to make the Axes connectors work, we need to apply the aspect to
         # the parent Axes.
@@ -484,51 +487,13 @@ class Axes(_AxesBase):
             transform = self.transData
         kwargs.setdefault('label', '_indicate_inset')
 
-        x, y, width, height = bounds
-        rectangle_patch = mpatches.Rectangle(
-            (x, y), width, height,
+        indicator_patch = minset.InsetIndicator(
+            bounds, inset_ax=inset_ax,
             facecolor=facecolor, edgecolor=edgecolor, alpha=alpha,
             zorder=zorder, transform=transform, **kwargs)
-        self.add_patch(rectangle_patch)
+        self.add_artist(indicator_patch)
 
-        connects = []
-
-        if inset_ax is not None:
-            # connect the inset_axes to the rectangle
-            for xy_inset_ax in [(0, 0), (0, 1), (1, 0), (1, 1)]:
-                # inset_ax positions are in axes coordinates
-                # The 0, 1 values define the four edges if the inset_ax
-                # lower_left, upper_left, lower_right upper_right.
-                ex, ey = xy_inset_ax
-                if self.xaxis.get_inverted():
-                    ex = 1 - ex
-                if self.yaxis.get_inverted():
-                    ey = 1 - ey
-                xy_data = x + ex * width, y + ey * height
-                p = mpatches.ConnectionPatch(
-                    xyA=xy_inset_ax, coordsA=inset_ax.transAxes,
-                    xyB=xy_data, coordsB=self.transData,
-                    arrowstyle="-", zorder=zorder,
-                    edgecolor=edgecolor, alpha=alpha)
-                connects.append(p)
-                self.add_patch(p)
-
-            # decide which two of the lines to keep visible....
-            pos = inset_ax.get_position()
-            bboxins = pos.transformed(self.figure.transSubfigure)
-            rectbbox = mtransforms.Bbox.from_bounds(
-                *bounds
-            ).transformed(transform)
-            x0 = rectbbox.x0 < bboxins.x0
-            x1 = rectbbox.x1 < bboxins.x1
-            y0 = rectbbox.y0 < bboxins.y0
-            y1 = rectbbox.y1 < bboxins.y1
-            connects[0].set_visible(x0 ^ y0)
-            connects[1].set_visible(x0 == y1)
-            connects[2].set_visible(x1 == y0)
-            connects[3].set_visible(x1 ^ y1)
-
-        return rectangle_patch, tuple(connects) if connects else None
+        return indicator_patch
 
     def indicate_inset_zoom(self, inset_ax, **kwargs):
         """
@@ -552,24 +517,25 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        rectangle_patch : `.patches.Rectangle`
-             Rectangle artist.
+        inset_indicator : `.inset.InsetIndicator`
+            An artist which contains
 
-        connector_lines : 4-tuple of `.patches.ConnectionPatch`
-            Each of four connector lines coming from the rectangle drawn on
-            this axis, in the order lower left, upper left, lower right,
-            upper right.
-            Two are set with visibility to *False*,  but the user can
-            set the visibility to *True* if the automatic choice is not deemed
-            correct.
+            inset_indicator.rectangle : `.Rectangle`
+                The indicator frame.
+
+            inset_indicator.connectors : 4-tuple of `.patches.ConnectionPatch`
+                The four connector lines connecting to (lower_left, upper_left,
+                lower_right upper_right) corners of *inset_ax*. Two lines are
+                set with visibility to *False*,  but the user can set the
+                visibility to True if the automatic choice is not deemed correct.
+
+            .. versionchanged:: 3.10
+                Previously the rectangle and connectors tuple were returned.
         """
 
-        xlim = inset_ax.get_xlim()
-        ylim = inset_ax.get_ylim()
-        rect = (xlim[0], ylim[0], xlim[1] - xlim[0], ylim[1] - ylim[0])
-        return self.indicate_inset(rect, inset_ax, **kwargs)
+        return self.indicate_inset(None, inset_ax, **kwargs)
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def secondary_xaxis(self, location, functions=None, *, transform=None, **kwargs):
         """
         Add a second x-axis to this `~.axes.Axes`.
@@ -623,7 +589,7 @@ class Axes(_AxesBase):
         self.add_child_axes(secondary_ax)
         return secondary_ax
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def secondary_yaxis(self, location, functions=None, *, transform=None, **kwargs):
         """
         Add a second y-axis to this `~.axes.Axes`.
@@ -667,7 +633,7 @@ class Axes(_AxesBase):
         self.add_child_axes(secondary_ax)
         return secondary_ax
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def text(self, x, y, s, fontdict=None, **kwargs):
         """
         Add text to the Axes.
@@ -746,7 +712,7 @@ class Axes(_AxesBase):
         self._add_text(t)
         return t
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def annotate(self, text, xy, xytext=None, xycoords='data', textcoords=None,
                  arrowprops=None, annotation_clip=None, **kwargs):
         # Signature must match Annotation. This is verified in
@@ -762,27 +728,41 @@ class Axes(_AxesBase):
     annotate.__doc__ = mtext.Annotation.__init__.__doc__
     #### Lines and spans
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def axhline(self, y=0, xmin=0, xmax=1, **kwargs):
         """
-        Add a horizontal line across the Axes.
+        Add a horizontal line spanning the whole or fraction of the Axes.
+
+        Note: If you want to set x-limits in data coordinates, use
+        `~.Axes.hlines` instead.
 
         Parameters
         ----------
         y : float, default: 0
-            y position in data coordinates of the horizontal line.
+            y position in :ref:`data coordinates <coordinate-systems>`.
 
         xmin : float, default: 0
-            Should be between 0 and 1, 0 being the far left of the plot, 1 the
-            far right of the plot.
+            The start x-position in :ref:`axes coordinates <coordinate-systems>`.
+            Should be between 0 and 1, 0 being the far left of the plot,
+            1 the far right of the plot.
 
         xmax : float, default: 1
-            Should be between 0 and 1, 0 being the far left of the plot, 1 the
-            far right of the plot.
+            The end x-position in :ref:`axes coordinates <coordinate-systems>`.
+            Should be between 0 and 1, 0 being the far left of the plot,
+            1 the far right of the plot.
 
         Returns
         -------
         `~matplotlib.lines.Line2D`
+            A `.Line2D` specified via two points ``(xmin, y)``, ``(xmax, y)``.
+            Its transform is set such that *x* is in
+            :ref:`axes coordinates <coordinate-systems>` and *y* is in
+            :ref:`data coordinates <coordinate-systems>`.
+
+            This is still a generic line and the horizontal character is only
+            realized through using identical *y* values for both points. Thus,
+            if you want to change the *y* value later, you have to provide two
+            values ``line.set_ydata([3, 3])``.
 
         Other Parameters
         ----------------
@@ -831,27 +811,41 @@ class Axes(_AxesBase):
             self._request_autoscale_view("y")
         return l
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def axvline(self, x=0, ymin=0, ymax=1, **kwargs):
         """
-        Add a vertical line across the Axes.
+        Add a vertical line spanning the whole or fraction of the Axes.
+
+        Note: If you want to set y-limits in data coordinates, use
+        `~.Axes.vlines` instead.
 
         Parameters
         ----------
         x : float, default: 0
-            x position in data coordinates of the vertical line.
+            y position in :ref:`data coordinates <coordinate-systems>`.
 
         ymin : float, default: 0
+            The start y-position in :ref:`axes coordinates <coordinate-systems>`.
             Should be between 0 and 1, 0 being the bottom of the plot, 1 the
             top of the plot.
 
         ymax : float, default: 1
+            The end y-position in :ref:`axes coordinates <coordinate-systems>`.
             Should be between 0 and 1, 0 being the bottom of the plot, 1 the
             top of the plot.
 
         Returns
         -------
         `~matplotlib.lines.Line2D`
+            A `.Line2D` specified via two points ``(x, ymin)``, ``(x, ymax)``.
+            Its transform is set such that *x* is in
+            :ref:`data coordinates <coordinate-systems>` and *y* is in
+            :ref:`axes coordinates <coordinate-systems>`.
+
+            This is still a generic line and the vertical character is only
+            realized through using identical *x* values for both points. Thus,
+            if you want to change the *x* value later, you have to provide two
+            values ``line.set_xdata([3, 3])``.
 
         Other Parameters
         ----------------
@@ -908,7 +902,7 @@ class Axes(_AxesBase):
                 raise ValueError(f"{name} must be a single scalar value, "
                                  f"but got {val}")
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def axline(self, xy1, xy2=None, *, slope=None, **kwargs):
         """
         Add an infinitely long straight line.
@@ -982,7 +976,7 @@ class Axes(_AxesBase):
         self._request_autoscale_view()
         return line
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def axhspan(self, ymin, ymax, xmin=0, xmax=1, **kwargs):
         """
         Add a horizontal span (rectangle) across the Axes.
@@ -1037,7 +1031,7 @@ class Axes(_AxesBase):
         self._request_autoscale_view("y")
         return p
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def axvspan(self, xmin, xmax, ymin=0, ymax=1, **kwargs):
         """
         Add a vertical span (rectangle) across the Axes.
@@ -1288,7 +1282,7 @@ class Axes(_AxesBase):
     @_preprocess_data(replace_names=["positions", "lineoffsets",
                                      "linelengths", "linewidths",
                                      "colors", "linestyles"])
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def eventplot(self, positions, orientation='horizontal', lineoffsets=1,
                   linelengths=1, linewidths=None, colors=None, alpha=None,
                   linestyles='solid', **kwargs):
@@ -1534,7 +1528,7 @@ class Axes(_AxesBase):
 
     # Uses a custom implementation of data-kwarg handling in
     # _process_plot_var_args.
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def plot(self, *args, scalex=True, scaley=True, data=None, **kwargs):
         """
         Plot y versus x as lines and/or markers.
@@ -1790,7 +1784,7 @@ class Axes(_AxesBase):
 
     @_api.deprecated("3.9", alternative="plot")
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def plot_date(self, x, y, fmt='o', tz=None, xdate=True, ydate=False,
                   **kwargs):
         """
@@ -1870,7 +1864,7 @@ class Axes(_AxesBase):
         return self.plot(x, y, fmt, **kwargs)
 
     # @_preprocess_data() # let 'plot' do the unpacking..
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def loglog(self, *args, **kwargs):
         """
         Make a plot with log scaling on both the x- and y-axis.
@@ -1924,7 +1918,7 @@ class Axes(_AxesBase):
             *args, **{k: v for k, v in kwargs.items() if k not in {*dx, *dy}})
 
     # @_preprocess_data() # let 'plot' do the unpacking..
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def semilogx(self, *args, **kwargs):
         """
         Make a plot with log scaling on the x-axis.
@@ -1971,7 +1965,7 @@ class Axes(_AxesBase):
             *args, **{k: v for k, v in kwargs.items() if k not in d})
 
     # @_preprocess_data() # let 'plot' do the unpacking..
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def semilogy(self, *args, **kwargs):
         """
         Make a plot with log scaling on the y-axis.
@@ -2327,7 +2321,7 @@ class Axes(_AxesBase):
         return dx
 
     @_preprocess_data()
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def bar(self, x, height, width=0.8, bottom=None, *, align="center",
             **kwargs):
         r"""
@@ -2639,7 +2633,7 @@ class Axes(_AxesBase):
         return bar_container
 
     # @_preprocess_data() # let 'bar' do the unpacking..
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def barh(self, y, width, height=0.8, left=None, *, align="center",
              data=None, **kwargs):
         r"""
@@ -2933,7 +2927,7 @@ class Axes(_AxesBase):
         return annotations
 
     @_preprocess_data()
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def broken_barh(self, xranges, yrange, **kwargs):
         """
         Plot a horizontal sequence of rectangles.
@@ -3300,9 +3294,9 @@ class Axes(_AxesBase):
         if explode is None:
             explode = [0] * len(x)
         if len(x) != len(labels):
-            raise ValueError("'label' must be of length 'x'")
+            raise ValueError(f"'labels' must be of length 'x', not {len(labels)}")
         if len(x) != len(explode):
-            raise ValueError("'explode' must be of length 'x'")
+            raise ValueError(f"'explode' must be of length 'x', not {len(explode)}")
         if colors is None:
             get_next_color = self._get_patches_for_fill.get_next_color
         else:
@@ -3315,7 +3309,7 @@ class Axes(_AxesBase):
 
         _api.check_isinstance(Real, radius=radius, startangle=startangle)
         if radius <= 0:
-            raise ValueError(f'radius must be a positive number, not {radius}')
+            raise ValueError(f"'radius' must be a positive number, not {radius}")
 
         # Starting theta1 is the start fraction of the circle
         theta1 = startangle / 360
@@ -3442,7 +3436,7 @@ class Axes(_AxesBase):
     @_api.make_keyword_only("3.9", "ecolor")
     @_preprocess_data(replace_names=["x", "y", "xerr", "yerr"],
                       label_namer="y")
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def errorbar(self, x, y, yerr=None, xerr=None,
                  fmt='', ecolor=None, elinewidth=None, capsize=None,
                  barsabove=False, lolims=False, uplims=False,
@@ -4972,7 +4966,7 @@ class Axes(_AxesBase):
 
     @_api.make_keyword_only("3.9", "gridsize")
     @_preprocess_data(replace_names=["x", "y", "C"], label_namer="y")
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def hexbin(self, x, y, C=None, gridsize=100, bins=None,
                xscale='linear', yscale='linear', extent=None,
                cmap=None, norm=None, vmin=None, vmax=None,
@@ -5367,7 +5361,7 @@ class Axes(_AxesBase):
 
         return collection
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def arrow(self, x, y, dx, dy, **kwargs):
         """
         Add an arrow to the Axes.
@@ -5422,7 +5416,7 @@ class Axes(_AxesBase):
 
     # args can be a combination of X, Y, U, V, C and all should be replaced
     @_preprocess_data()
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def quiver(self, *args, **kwargs):
         """%(quiver_doc)s"""
         # Make sure units are handled for x and y values
@@ -5434,7 +5428,7 @@ class Axes(_AxesBase):
 
     # args can be some combination of X, Y, U, V, C and all should be replaced
     @_preprocess_data()
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def barbs(self, *args, **kwargs):
         """%(barbs_doc)s"""
         # Make sure units are handled for x and y values
@@ -5705,7 +5699,7 @@ class Axes(_AxesBase):
             dir="horizontal", ind="x", dep="y"
         )
     fill_between = _preprocess_data(
-        _docstring.dedent_interpd(fill_between),
+        _docstring.interpd(fill_between),
         replace_names=["x", "y1", "y2", "where"])
 
     def fill_betweenx(self, y, x1, x2=0, where=None,
@@ -5719,7 +5713,7 @@ class Axes(_AxesBase):
             dir="vertical", ind="y", dep="x"
         )
     fill_betweenx = _preprocess_data(
-        _docstring.dedent_interpd(fill_betweenx),
+        _docstring.interpd(fill_betweenx),
         replace_names=["y", "x1", "x2", "where"])
 
     #### plotting z(x, y): imshow, pcolor and relatives, contour
@@ -5799,7 +5793,7 @@ class Axes(_AxesBase):
         interpolation : str, default: :rc:`image.interpolation`
             The interpolation method used.
 
-            Supported values are 'none', 'antialiased', 'nearest', 'bilinear',
+            Supported values are 'none', 'auto', 'nearest', 'bilinear',
             'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
             'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
             'sinc', 'lanczos', 'blackman'.
@@ -5814,7 +5808,7 @@ class Axes(_AxesBase):
             pdf, and svg viewers may display these raw pixels differently. On
             other backends, 'none' is the same as 'nearest'.
 
-            If *interpolation* is the default 'antialiased', then 'nearest'
+            If *interpolation* is the default 'auto', then 'nearest'
             interpolation is used if the image is upsampled by more than a
             factor of three (i.e. the number of display pixels is at least
             three times the size of the data array).  If the upsampling rate is
@@ -5832,11 +5826,20 @@ class Axes(_AxesBase):
             which can be set by *filterrad*. Additionally, the antigrain image
             resize filter is controlled by the parameter *filternorm*.
 
-        interpolation_stage : {'data', 'rgba'}, default: 'data'
-            If 'data', interpolation
-            is carried out on the data provided by the user.  If 'rgba', the
-            interpolation is carried out after the colormapping has been
-            applied (visual interpolation).
+        interpolation_stage : {'auto', 'data', 'rgba'}, default: 'auto'
+            Supported values:
+
+            - 'data': Interpolation is carried out on the data provided by the user
+              This is useful if interpolating between pixels during upsampling.
+            - 'rgba': The interpolation is carried out in RGBA-space after the
+              color-mapping has been applied. This is useful if downsampling and
+              combining pixels visually.
+            - 'auto': Select a suitable interpolation stage automatically. This uses
+              'rgba' when downsampling, or upsampling at a rate less than 3, and
+              'data' when upsampling at a higher rate.
+
+            See :doc:`/gallery/images_contours_and_fields/image_antialiasing` for
+            a discussion of image antialiasing.
 
         alpha : float or array-like, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).
@@ -5991,7 +5994,7 @@ class Axes(_AxesBase):
             # unit conversion allows e.g. datetime objects as axis values
             X, Y = args[:2]
             X, Y = self._process_unit_info([("x", X), ("y", Y)], kwargs)
-            X, Y = [cbook.safe_masked_invalid(a, copy=True) for a in [X, Y]]
+            X, Y = (cbook.safe_masked_invalid(a, copy=True) for a in [X, Y])
 
             if funcname == 'pcolormesh':
                 if np.ma.is_masked(X) or np.ma.is_masked(Y):
@@ -6071,7 +6074,7 @@ class Axes(_AxesBase):
         return X, Y, C, shading
 
     @_preprocess_data()
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def pcolor(self, *args, shading=None, alpha=None, norm=None, cmap=None,
                vmin=None, vmax=None, **kwargs):
         r"""
@@ -6288,7 +6291,7 @@ class Axes(_AxesBase):
         return collection
 
     @_preprocess_data()
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def pcolormesh(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
                    vmax=None, shading=None, antialiased=False, **kwargs):
         """
@@ -6515,7 +6518,7 @@ class Axes(_AxesBase):
         return collection
 
     @_preprocess_data()
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def pcolorfast(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
                    vmax=None, **kwargs):
         """
@@ -6642,6 +6645,15 @@ class Axes(_AxesBase):
                 if x.size == 2 and y.size == 2:
                     style = "image"
                 else:
+                    if x.size != nc + 1:
+                        raise ValueError(
+                            f"Length of X ({x.size}) must be one larger than the "
+                            f"number of columns in C ({nc})")
+                    if y.size != nr + 1:
+                        raise ValueError(
+                            f"Length of Y ({y.size}) must be one larger than the "
+                            f"number of rows in C ({nr})"
+                        )
                     dx = np.diff(x)
                     dy = np.diff(y)
                     if (np.ptp(dx) < 0.01 * abs(dx.mean()) and
@@ -6702,7 +6714,7 @@ class Axes(_AxesBase):
         return ret
 
     @_preprocess_data()
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def contour(self, *args, **kwargs):
         """
         Plot contour lines.
@@ -6720,7 +6732,7 @@ class Axes(_AxesBase):
         return contours
 
     @_preprocess_data()
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def contourf(self, *args, **kwargs):
         """
         Plot filled contours.
@@ -6937,7 +6949,13 @@ such objects
             DATA_PARAMETER_PLACEHOLDER
 
         **kwargs
-            `~matplotlib.patches.Patch` properties
+            `~matplotlib.patches.Patch` properties. The following properties
+            additionally accept a sequence of values corresponding to the
+            datasets in *x*:
+            *edgecolor*, *facecolor*, *linewidth*, *linestyle*, *hatch*.
+
+            .. versionadded:: 3.10
+               Allowing sequences of values in above listed Patch properties.
 
         See Also
         --------
@@ -7210,15 +7228,35 @@ such objects
         # If None, make all labels None (via zip_longest below); otherwise,
         # cast each element to str, but keep a single str as it.
         labels = [] if label is None else np.atleast_1d(np.asarray(label, str))
+
+        if histtype == "step":
+            edgecolors = itertools.cycle(np.atleast_1d(kwargs.get('edgecolor',
+                                                                  colors)))
+        else:
+            edgecolors = itertools.cycle(np.atleast_1d(kwargs.get("edgecolor", None)))
+
+        facecolors = itertools.cycle(np.atleast_1d(kwargs.get('facecolor', colors)))
+        hatches = itertools.cycle(np.atleast_1d(kwargs.get('hatch', None)))
+        linewidths = itertools.cycle(np.atleast_1d(kwargs.get('linewidth', None)))
+        linestyles = itertools.cycle(np.atleast_1d(kwargs.get('linestyle', None)))
+
         for patch, lbl in itertools.zip_longest(patches, labels):
-            if patch:
-                p = patch[0]
+            if not patch:
+                continue
+            p = patch[0]
+            kwargs.update({
+                'hatch': next(hatches),
+                'linewidth': next(linewidths),
+                'linestyle': next(linestyles),
+                'edgecolor': next(edgecolors),
+                'facecolor': next(facecolors),
+            })
+            p._internal_update(kwargs)
+            if lbl is not None:
+                p.set_label(lbl)
+            for p in patch[1:]:
                 p._internal_update(kwargs)
-                if lbl is not None:
-                    p.set_label(lbl)
-                for p in patch[1:]:
-                    p._internal_update(kwargs)
-                    p.set_label('_nolegend_')
+                p.set_label('_nolegend_')
 
         if nx == 1:
             return tops[0], bins, patches[0]
@@ -7326,7 +7364,7 @@ such objects
 
     @_api.make_keyword_only("3.9", "range")
     @_preprocess_data(replace_names=["x", "y", "weights"])
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def hist2d(self, x, y, bins=10, range=None, density=False, weights=None,
                cmin=None, cmax=None, **kwargs):
         """
@@ -7433,7 +7471,7 @@ such objects
         return h, xedges, yedges, pc
 
     @_preprocess_data(replace_names=["x", "weights"], label_namer="x")
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def ecdf(self, x, weights=None, *, complementary=False,
              orientation="vertical", compress=False, **kwargs):
         """
@@ -7536,7 +7574,7 @@ such objects
 
     @_api.make_keyword_only("3.9", "NFFT")
     @_preprocess_data(replace_names=["x"])
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def psd(self, x, NFFT=None, Fs=None, Fc=None, detrend=None,
             window=None, noverlap=None, pad_to=None,
             sides=None, scale_by_freq=None, return_line=None, **kwargs):
@@ -7648,7 +7686,7 @@ such objects
 
     @_api.make_keyword_only("3.9", "NFFT")
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def csd(self, x, y, NFFT=None, Fs=None, Fc=None, detrend=None,
             window=None, noverlap=None, pad_to=None,
             sides=None, scale_by_freq=None, return_line=None, **kwargs):
@@ -7751,7 +7789,7 @@ such objects
 
     @_api.make_keyword_only("3.9", "Fs")
     @_preprocess_data(replace_names=["x"])
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def magnitude_spectrum(self, x, Fs=None, Fc=None, window=None,
                            pad_to=None, sides=None, scale=None,
                            **kwargs):
@@ -7838,7 +7876,7 @@ such objects
 
     @_api.make_keyword_only("3.9", "Fs")
     @_preprocess_data(replace_names=["x"])
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def angle_spectrum(self, x, Fs=None, Fc=None, window=None,
                        pad_to=None, sides=None, **kwargs):
         """
@@ -7908,7 +7946,7 @@ such objects
 
     @_api.make_keyword_only("3.9", "Fs")
     @_preprocess_data(replace_names=["x"])
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def phase_spectrum(self, x, Fs=None, Fc=None, window=None,
                        pad_to=None, sides=None, **kwargs):
         """
@@ -7978,7 +8016,7 @@ such objects
 
     @_api.make_keyword_only("3.9", "NFFT")
     @_preprocess_data(replace_names=["x", "y"])
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def cohere(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                window=mlab.window_hanning, noverlap=0, pad_to=None,
                sides='default', scale_by_freq=None, **kwargs):
@@ -8043,7 +8081,7 @@ such objects
 
     @_api.make_keyword_only("3.9", "NFFT")
     @_preprocess_data(replace_names=["x"])
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def specgram(self, x, NFFT=None, Fs=None, Fc=None, detrend=None,
                  window=None, noverlap=None,
                  cmap=None, xextent=None, pad_to=None, sides=None,
@@ -8100,6 +8138,11 @@ such objects
 
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
+
+        vmin, vmax : float, optional
+            vmin and vmax define the data range that the colormap covers.
+            By default, the colormap covers the complete value range of the
+            data.
 
         **kwargs
             Additional keyword arguments are passed on to `~.axes.Axes.imshow`
@@ -8199,7 +8242,7 @@ such objects
         return spec, freqs, t, im
 
     @_api.make_keyword_only("3.9", "precision")
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def spy(self, Z, precision=0, marker=None, markersize=None,
             aspect='equal', origin="upper", **kwargs):
         """

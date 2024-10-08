@@ -1,7 +1,7 @@
 """
-==================================
-Rendering math equations using TeX
-==================================
+===============================
+Render math equations using TeX
+===============================
 
 You can use TeX to render all of your Matplotlib text by setting
 :rc:`text.usetex` to True.  This requires that you have TeX and the other

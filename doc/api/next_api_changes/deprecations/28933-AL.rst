@@ -1,0 +1,5 @@
+``AxLine`` ``xy1`` and ``xy2`` setters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These setters now each take a single argument, ``xy1`` or ``xy2`` as a tuple.
+The old form, where ``x`` and ``y`` were passed as separate arguments, is
+deprecated.

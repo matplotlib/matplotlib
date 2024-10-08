@@ -29,3 +29,9 @@ plt.show()
 #    in this example:
 #
 #    - `matplotlib.axes.Axes.fill_between`
+#
+# .. tags::
+#
+#    styling: conditional
+#    plot-style: fill_between
+#    level: beginner

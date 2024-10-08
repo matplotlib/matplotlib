@@ -1,7 +1,7 @@
 """
-=================
-Embedding in GTK3
-=================
+=============
+Embed in GTK3
+=============
 
 Demonstrate adding a FigureCanvasGTK3Agg widget to a Gtk.ScrolledWindow using
 GTK3 accessed via pygobject.
@@ -21,7 +21,7 @@ from matplotlib.figure import Figure
 win = Gtk.Window()
 win.connect("delete-event", Gtk.main_quit)
 win.set_default_size(400, 300)
-win.set_title("Embedding in GTK3")
+win.set_title("Embedded in GTK3")
 
 fig = Figure(figsize=(5, 4), dpi=100)
 ax = fig.add_subplot()

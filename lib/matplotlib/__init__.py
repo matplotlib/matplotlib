@@ -129,6 +129,8 @@ __all__ = [
     "interactive",
     "is_interactive",
     "colormaps",
+    "multivar_colormaps",
+    "bivar_colormaps",
     "color_sequences",
 ]
 
@@ -157,10 +159,8 @@ from packaging.version import parse as parse_version
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
 from . import _api, _version, cbook, _docstring, rcsetup
-from matplotlib.cbook import sanitize_sequence
 from matplotlib._api import MatplotlibDeprecationWarning
 from matplotlib.rcsetup import cycler  # noqa: F401
-from matplotlib.rcsetup import validate_backend
 
 
 _log = logging.getLogger(__name__)
@@ -225,6 +225,7 @@ def _get_version():
         else:
             return setuptools_scm.get_version(
                 root=root,
+                dist_name="matplotlib",
                 version_scheme="release-branch-semver",
                 local_scheme="node-and-date",
                 fallback_version=_version.version,
@@ -518,35 +519,38 @@ def _get_xdg_cache_dir():
 def _get_config_or_cache_dir(xdg_base_getter):
     configdir = os.environ.get('MPLCONFIGDIR')
     if configdir:
-        configdir = Path(configdir).resolve()
+        configdir = Path(configdir)
     elif sys.platform.startswith(('linux', 'freebsd')):
         # Only call _xdg_base_getter here so that MPLCONFIGDIR is tried first,
         # as _xdg_base_getter can throw.
         configdir = Path(xdg_base_getter(), "matplotlib")
     else:
         configdir = Path.home() / ".matplotlib"
+    # Resolve the path to handle potential issues with inaccessible symlinks.
+    configdir = configdir.resolve()
     try:
         configdir.mkdir(parents=True, exist_ok=True)
-    except OSError:
-        pass
+    except OSError as exc:
+        _log.warning("mkdir -p failed for path %s: %s", configdir, exc)
     else:
         if os.access(str(configdir), os.W_OK) and configdir.is_dir():
             return str(configdir)
+        _log.warning("%s is not a writable directory", configdir)
     # If the config or cache directory cannot be created or is not a writable
     # directory, create a temporary one.
     try:
         tmpdir = tempfile.mkdtemp(prefix="matplotlib-")
     except OSError as exc:
         raise OSError(
-            f"Matplotlib requires access to a writable cache directory, but the "
-            f"default path ({configdir}) is not a writable directory, and a temporary "
+            f"Matplotlib requires access to a writable cache directory, but there "
+            f"was an issue with the default path ({configdir}), and a temporary "
             f"directory could not be created; set the MPLCONFIGDIR environment "
             f"variable to a writable directory") from exc
     os.environ["MPLCONFIGDIR"] = tmpdir
     atexit.register(shutil.rmtree, tmpdir)
     _log.warning(
-        "Matplotlib created a temporary cache directory at %s because the default path "
-        "(%s) is not a writable directory; it is highly recommended to set the "
+        "Matplotlib created a temporary cache directory at %s because there was "
+        "an issue with the default path (%s); it is highly recommended to set the "
         "MPLCONFIGDIR environment variable to a writable directory, in particular to "
         "speed up the import of Matplotlib and to better support multiprocessing.",
         tmpdir, configdir)
@@ -711,6 +715,35 @@ class RcParams(MutableMapping, dict):
         :meta public:
         """
         return dict.__getitem__(self, key)
+
+    def _update_raw(self, other_params):
+        """
+        Directly update the data from *other_params*, bypassing deprecation,
+        backend and validation logic on both sides.
+
+        This ``rcParams._update_raw(params)`` replaces the previous pattern
+        ``dict.update(rcParams, params)``.
+
+        Parameters
+        ----------
+        other_params : dict or `.RcParams`
+            The input mapping from which to update.
+        """
+        if isinstance(other_params, RcParams):
+            other_params = dict.items(other_params)
+        dict.update(self, other_params)
+
+    def _ensure_has_backend(self):
+        """
+        Ensure that a "backend" entry exists.
+
+        Normally, the default matplotlibrc file contains *no* entry for "backend" (the
+        corresponding line starts with ##, not #; we fill in _auto_backend_sentinel
+        in that case.  However, packagers can set a different default backend
+        (resulting in a normal `#backend: foo` line) in which case we should *not*
+        fill in _auto_backend_sentinel.
+        """
+        dict.setdefault(self, "backend", rcsetup._auto_backend_sentinel)
 
     def __setitem__(self, key, val):
         try:
@@ -961,24 +994,17 @@ Please do not ask for support with these customizations active.
     return config
 
 
-# When constructing the global instances, we need to perform certain updates
-# by explicitly calling the superclass (dict.update, dict.items) to avoid
-# triggering resolution of _auto_backend_sentinel.
 rcParamsDefault = _rc_params_in_file(
     cbook._get_data_path("matplotlibrc"),
     # Strip leading comment.
     transform=lambda line: line[1:] if line.startswith("#") else line,
     fail_on_error=True)
-dict.update(rcParamsDefault, rcsetup._hardcoded_defaults)
-# Normally, the default matplotlibrc file contains *no* entry for backend (the
-# corresponding line starts with ##, not #; we fill on _auto_backend_sentinel
-# in that case.  However, packagers can set a different default backend
-# (resulting in a normal `#backend: foo` line) in which case we should *not*
-# fill in _auto_backend_sentinel.
-dict.setdefault(rcParamsDefault, "backend", rcsetup._auto_backend_sentinel)
+rcParamsDefault._update_raw(rcsetup._hardcoded_defaults)
+rcParamsDefault._ensure_has_backend()
+
 rcParams = RcParams()  # The global instance.
-dict.update(rcParams, dict.items(rcParamsDefault))
-dict.update(rcParams, _rc_params_in_file(matplotlib_fname()))
+rcParams._update_raw(rcParamsDefault)
+rcParams._update_raw(_rc_params_in_file(matplotlib_fname()))
 rcParamsOrig = rcParams.copy()
 with _api.suppress_matplotlib_deprecation_warning():
     # This also checks that all rcParams are indeed listed in the template.
@@ -1190,7 +1216,7 @@ def rc_context(rc=None, fname=None):
             rcParams.update(rc)
         yield
     finally:
-        dict.update(rcParams, orig)  # Revert to the original rcs.
+        rcParams._update_raw(orig)  # Revert to the original rcs.
 
 
 def use(backend, *, force=True):
@@ -1236,7 +1262,7 @@ def use(backend, *, force=True):
     matplotlib.pyplot.switch_backend
 
     """
-    name = validate_backend(backend)
+    name = rcsetup.validate_backend(backend)
     # don't (prematurely) resolve the "auto" backend setting
     if rcParams._get_backend_or_none() == name:
         # Nothing to do if the requested backend is already set
@@ -1340,7 +1366,7 @@ def _replacer(data, value):
     except Exception:
         # key does not exist, silently fall back to key
         pass
-    return sanitize_sequence(value)
+    return cbook.sanitize_sequence(value)
 
 
 def _label_from_arg(y, default_name):
@@ -1472,8 +1498,8 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
         if data is None:
             return func(
                 ax,
-                *map(sanitize_sequence, args),
-                **{k: sanitize_sequence(v) for k, v in kwargs.items()})
+                *map(cbook.sanitize_sequence, args),
+                **{k: cbook.sanitize_sequence(v) for k, v in kwargs.items()})
 
         bound = new_sig.bind(ax, *args, **kwargs)
         auto_label = (bound.arguments.get(label_namer)
@@ -1510,7 +1536,19 @@ _log.debug('interactive is %s', is_interactive())
 _log.debug('platform is %s', sys.platform)
 
 
+@_api.deprecated("3.10", alternative="matplotlib.cbook.sanitize_sequence")
+def sanitize_sequence(data):
+    return cbook.sanitize_sequence(data)
+
+
+@_api.deprecated("3.10", alternative="matplotlib.rcsetup.validate_backend")
+def validate_backend(s):
+    return rcsetup.validate_backend(s)
+
+
 # workaround: we must defer colormaps import to after loading rcParams, because
 # colormap creation depends on rcParams
 from matplotlib.cm import _colormaps as colormaps  # noqa: E402
+from matplotlib.cm import _multivar_colormaps as multivar_colormaps  # noqa: E402
+from matplotlib.cm import _bivar_colormaps as bivar_colormaps  # noqa: E402
 from matplotlib.colors import _color_sequences as color_sequences  # noqa: E402

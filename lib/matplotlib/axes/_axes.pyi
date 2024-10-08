@@ -15,6 +15,7 @@ from matplotlib.colors import Colormap, Normalize
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.contour import ContourSet, QuadContourSet
 from matplotlib.image import AxesImage, PcolorImage
+from matplotlib.inset import InsetIndicator
 from matplotlib.legend import Legend
 from matplotlib.legend_handler import HandlerBase
 from matplotlib.lines import Line2D, AxLine
@@ -22,7 +23,8 @@ from matplotlib.mlab import GaussianKDE
 from matplotlib.patches import Rectangle, FancyArrow, Polygon, StepPatch, Wedge
 from matplotlib.quiver import Quiver, QuiverKey, Barbs
 from matplotlib.text import Annotation, Text
-from matplotlib.transforms import Transform, Bbox
+from matplotlib.transforms import Transform
+from matplotlib.typing import CoordsType
 import matplotlib.tri as mtri
 import matplotlib.table as mtable
 import matplotlib.stackplot as mstack
@@ -74,17 +76,17 @@ class Axes(_AxesBase):
     ) -> Axes: ...
     def indicate_inset(
         self,
-        bounds: tuple[float, float, float, float],
+        bounds: tuple[float, float, float, float] | None = ...,
         inset_ax: Axes | None = ...,
         *,
         transform: Transform | None = ...,
         facecolor: ColorType = ...,
         edgecolor: ColorType = ...,
         alpha: float = ...,
-        zorder: float = ...,
+        zorder: float | None = ...,
         **kwargs
-    ) -> Rectangle: ...
-    def indicate_inset_zoom(self, inset_ax: Axes, **kwargs) -> Rectangle: ...
+    ) -> InsetIndicator: ...
+    def indicate_inset_zoom(self, inset_ax: Axes, **kwargs) -> InsetIndicator: ...
     def secondary_xaxis(
         self,
         location: Literal["top", "bottom"] | float,
@@ -122,17 +124,8 @@ class Axes(_AxesBase):
         text: str,
         xy: tuple[float, float],
         xytext: tuple[float, float] | None = ...,
-        xycoords: str
-        | Artist
-        | Transform
-        | Callable[[RendererBase], Bbox | Transform]
-        | tuple[float, float] = ...,
-        textcoords: str
-        | Artist
-        | Transform
-        | Callable[[RendererBase], Bbox | Transform]
-        | tuple[float, float]
-        | None = ...,
+        xycoords: CoordsType = ...,
+        textcoords: CoordsType | None = ...,
         arrowprops: dict[str, Any] | None = ...,
         annotation_clip: bool | None = ...,
         **kwargs
@@ -202,7 +195,7 @@ class Axes(_AxesBase):
         *args: float | ArrayLike | str,
         scalex: bool = ...,
         scaley: bool = ...,
-        data = ...,
+        data=...,
         **kwargs
     ) -> list[Line2D]: ...
     def plot_date(
@@ -232,7 +225,7 @@ class Axes(_AxesBase):
         detrend: Callable[[ArrayLike], ArrayLike] = ...,
         usevlines: bool = ...,
         maxlags: int = ...,
-        data = ...,
+        data=...,
         **kwargs
     ) -> tuple[np.ndarray, np.ndarray, LineCollection | Line2D, Line2D | None]: ...
     def step(
@@ -241,7 +234,7 @@ class Axes(_AxesBase):
         y: ArrayLike,
         *args,
         where: Literal["pre", "post", "mid"] = ...,
-        data = ...,
+        data=...,
         **kwargs
     ) -> list[Line2D]: ...
     def bar(
@@ -252,7 +245,7 @@ class Axes(_AxesBase):
         bottom: float | ArrayLike | None = ...,
         *,
         align: Literal["center", "edge"] = ...,
-        data = ...,
+        data=...,
         **kwargs
     ) -> BarContainer: ...
     def barh(
@@ -263,7 +256,7 @@ class Axes(_AxesBase):
         left: float | ArrayLike | None = ...,
         *,
         align: Literal["center", "edge"] = ...,
-        data = ...,
+        data=...,
         **kwargs
     ) -> BarContainer: ...
     def bar_label(
@@ -492,7 +485,7 @@ class Axes(_AxesBase):
         vmax: float | None = ...,
         origin: Literal["upper", "lower"] | None = ...,
         extent: tuple[float, float, float, float] | None = ...,
-        interpolation_stage: Literal["data", "rgba"] | None = ...,
+        interpolation_stage: Literal["data", "rgba", "auto"] | None = ...,
         filternorm: bool = ...,
         filterrad: float = ...,
         resample: bool | None = ...,

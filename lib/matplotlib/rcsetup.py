@@ -1053,7 +1053,7 @@ _validators = {
 
     "image.aspect":              validate_aspect,  # equal, auto, a number
     "image.interpolation":       validate_string,
-    "image.interpolation_stage": ["data", "rgba"],
+    "image.interpolation_stage": ["auto", "data", "rgba"],
     "image.cmap":                _validate_cmap,  # gray, jet, etc.
     "image.lut":                 validate_int,  # lookup table
     "image.origin":              ["upper", "lower"],
@@ -1311,6 +1311,7 @@ _validators = {
     "svg.image_inline": validate_bool,
     "svg.fonttype": ["none", "path"],  # save text as text ("none") or "paths"
     "svg.hashsalt": validate_string_or_None,
+    "svg.id": validate_string_or_None,
 
     # set this when you want to generate hardcopy docstring
     "docstring.hardcopy": validate_bool,

@@ -1,7 +1,7 @@
 """
-================
-Annotation Polar
-================
+====================
+Annotate polar plots
+====================
 
 This example shows how to create an annotation on a polar graph.
 

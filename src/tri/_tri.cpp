@@ -1314,7 +1314,7 @@ TrapezoidMapTriFinder::TriIndexArray
 TrapezoidMapTriFinder::find_many(const CoordinateArray& x,
                                  const CoordinateArray& y)
 {
-    if (x.ndim() != 1 || x.shape(0) != y.shape(0))
+    if (x.ndim() != 1 || y.ndim() != 1 || x.shape(0) != y.shape(0))
         throw std::invalid_argument(
             "x and y must be array-like with same shape");
 

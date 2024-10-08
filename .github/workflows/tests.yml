@@ -50,29 +50,26 @@ jobs:
         include:
           - name-suffix: "(Minimum Versions)"
             os: ubuntu-20.04
-            python-version: 3.9
+            python-version: '3.10'
             extra-requirements: '-c requirements/testing/minver.txt'
-            pyqt5-ver: '==5.12.2 sip==5.0.0'  # oldest versions with a Py3.9 wheel.
-            pyqt6-ver: '==6.1.0 PyQt6-Qt6==6.1.0'
-            pyside2-ver: '==5.15.1'  # oldest version with working Py3.9 wheel.
-            pyside6-ver: '==6.0.0'
             delete-font-cache: true
+            # Oldest versions with Py3.10 wheels.
+            pyqt5-ver: '==5.15.5 sip==6.3.0'
+            pyqt6-ver: '==6.2.0 PyQt6-Qt6==6.2.0'
+            pyside2-ver: '==5.15.2.1'
+            pyside6-ver: '==6.2.0'
           - os: ubuntu-20.04
-            python-version: 3.9
+            python-version: '3.10'
             # One CI run tests ipython/matplotlib-inline before backend mapping moved to mpl
-            extra-requirements: '-r requirements/testing/extra.txt "ipython==7.19" "matplotlib-inline<0.1.7"'
+            extra-requirements:
+              -r requirements/testing/extra.txt
+              "ipython==7.29.0"
+              "ipykernel==5.5.6"
+              "matplotlib-inline<0.1.7"
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
             # https://github.com/matplotlib/matplotlib/pull/26052#issuecomment-1574595954
             # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
-            pyqt6-ver: '!=6.5.1,!=6.6.0'
-            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
-            pyside6-ver: '!=6.5.1'
-          - os: ubuntu-20.04
-            python-version: '3.10'
-            extra-requirements: '-r requirements/testing/extra.txt'
-            # https://github.com/matplotlib/matplotlib/pull/26052#issuecomment-1574595954
-            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
-            pyqt6-ver: '!=6.5.1,!=6.6.0'
+            pyqt6-ver: '!=6.5.1,!=6.6.0,!=6.7.1'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
           - os: ubuntu-22.04
@@ -88,12 +85,29 @@ jobs:
             pyqt6-ver: '!=6.6.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
-          - os: macos-12  # This runnre is on Intel chips.
-            python-version: 3.9
+          - os: ubuntu-22.04
+            python-version: '3.13'
+            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
+            pyqt6-ver: '!=6.6.0'
+            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
+            pyside6-ver: '!=6.5.1'
+          - name-suffix: "Free-threaded"
+            os: ubuntu-22.04
+            python-version: '3.13t'
+            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
+            pyqt6-ver: '!=6.6.0'
+            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
+            pyside6-ver: '!=6.5.1'
+          - os: macos-12  # This runner is on Intel chips.
+            python-version: '3.10'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
           - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.12'
+            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
+            pyside6-ver: '!=6.5.1'
+          - os: macos-14  # This runner is on M1 (arm64) chips.
+            python-version: '3.13'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
 
@@ -104,8 +118,17 @@ jobs:
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
+        if: matrix.python-version != '3.13t'
         with:
           python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: deadsnakes/action@e640ac8743173a67cca4d7d77cd837e514bf98e8  # v3.2.0
+        if: matrix.python-version == '3.13t'
+        with:
+          python-version: '3.13'
+          nogil: true
 
       - name: Install OS dependencies
         run: |
@@ -152,6 +175,11 @@ jobs:
               texlive-luatex \
               texlive-pictures \
               texlive-xetex
+            if [[ "${{ matrix.python-version }}" = '3.13t' ]]; then
+              # TODO: Remove this once setup-python supports nogil distributions.
+              sudo apt-get install -yy --no-install-recommends \
+                python3.13-tk-nogil
+            fi
             if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
               sudo apt-get install -yy --no-install-recommends libopengl0
             else  # ubuntu-22.04
@@ -161,7 +189,13 @@ jobs:
             ;;
           macOS)
             brew update
-            brew install ccache ghostscript gobject-introspection gtk4 ninja
+            export HOMEBREW_NO_INSTALL_UPGRADE=1 HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
+            brew install ccache ghostscript ninja
+            # The macOS 12 images have an older Python, and this causes homebrew to generate conflicts.
+            # We'll just skip GTK for now, to not pull in Python updates.
+            if [[ "${{ matrix.os }}" = macos-14 ]]; then
+              brew install gobject-introspection gtk4
+            fi
             brew install --cask font-noto-sans-cjk inkscape
             ;;
           esac
@@ -202,6 +236,15 @@ jobs:
             4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
             4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-
 
+      - name: Install the nightly dependencies
+        if: matrix.python-version == '3.13t'
+        run: |
+          python -m pip install pytz tzdata python-dateutil  # Must be installed for Pandas.
+          python -m pip install \
+              --pre \
+              --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
+              --upgrade --only-binary=:all: numpy pandas pillow contourpy
+
       - name: Install Python dependencies
         run: |
           # Upgrade pip and setuptools and wheel to get as clean an install as
@@ -227,6 +270,7 @@ jobs:
           # Sphinx is needed to run sphinxext tests
           python -m pip install --upgrade sphinx!=6.1.2
 
+          if [[ "${{ matrix.python-version }}" != '3.13t' ]]; then
           # GUI toolkits are pip-installable only for some versions of Python
           # so don't fail if we can't install them.  Make it easier to check
           # whether the install was successful by trying to import the toolkit
@@ -246,11 +290,11 @@ jobs:
             python -c 'import PyQt5.QtCore' &&
             echo 'PyQt5 is available' ||
             echo 'PyQt5 is not available'
-          # Even though PySide2 wheels can be installed on Python 3.12, they are broken and since PySide2 is
+          # Even though PySide2 wheels can be installed on Python 3.12+, they are broken and since PySide2 is
           # deprecated, they are unlikely to be fixed. For the same deprecation reason, there are no wheels
           # on M1 macOS, so don't bother there either.
           if [[ "${{ matrix.os }}" != 'macos-14'
-                && "${{ matrix.python-version }}" != '3.12' ]]; then
+                && "${{ matrix.python-version }}" != '3.12' && "${{ matrix.python-version }}" != '3.13' ]]; then
             python -mpip install --upgrade pyside2${{ matrix.pyside2-ver }} &&
               python -c 'import PySide2.QtCore' &&
               echo 'PySide2 is available' ||
@@ -271,6 +315,8 @@ jobs:
             python -c 'import wx' &&
             echo 'wxPython is available' ||
             echo 'wxPython is not available'
+
+          fi  # Skip backends on Python 3.13t.
 
       - name: Install the nightly dependencies
         # Only install the nightly dependencies during the scheduled event
@@ -310,6 +356,9 @@ jobs:
 
       - name: Run pytest
         run: |
+          if [[ "${{ matrix.python-version }}" == '3.13t' ]]; then
+            export PYTHON_GIL=0
+          fi
           pytest -rfEsXR -n auto \
             --maxfail=50 --timeout=300 --durations=25 \
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes

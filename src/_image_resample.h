@@ -3,6 +3,8 @@
 #ifndef MPL_RESAMPLE_H
 #define MPL_RESAMPLE_H
 
+#define MPL_DISABLE_AGG_GRAY_CLIPPING
+
 #include "agg_image_accessors.h"
 #include "agg_path_storage.h"
 #include "agg_pixfmt_gray.h"
@@ -500,7 +502,7 @@ typedef enum {
 
 // T is rgba if and only if it has an T::r field.
 template<typename T, typename = void> struct is_grayscale : std::true_type {};
-template<typename T> struct is_grayscale<T, decltype(T::r, void())> : std::false_type {};
+template<typename T> struct is_grayscale<T, std::void_t<decltype(T::r)>> : std::false_type {};
 
 
 template<typename color_type>

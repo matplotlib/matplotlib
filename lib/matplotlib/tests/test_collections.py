@@ -518,7 +518,7 @@ def test_regularpolycollection_scale():
             """Return transform scaling circle areas to data space."""
             ax = self.axes
 
-            pts2pixels = 72.0 / ax.figure.dpi
+            pts2pixels = 72.0 / ax.get_figure(root=True).dpi
 
             scale_x = pts2pixels * ax.bbox.width / ax.viewLim.width
             scale_y = pts2pixels * ax.bbox.height / ax.viewLim.height
@@ -965,11 +965,6 @@ def test_polyquadmesh_masked_vertices_array():
     # Poly version should have the same facecolors as the end of the quadmesh
     assert_array_equal(quadmesh_fc, polymesh.get_facecolor())
 
-    # Setting array with 1D compressed values is deprecated
-    with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match="Setting a PolyQuadMesh"):
-        polymesh.set_array(np.ones(5))
-
     # We should also be able to call set_array with a new mask and get
     # updated polys
     # Remove mask, should add all polys back
@@ -1316,7 +1311,6 @@ def test_check_offsets_dtype():
 
 @pytest.mark.parametrize('gapcolor', ['orange', ['r', 'k']])
 @check_figures_equal(extensions=['png'])
-@mpl.rc_context({'lines.linewidth': 20})
 def test_striped_lines(fig_test, fig_ref, gapcolor):
     ax_test = fig_test.add_subplot(111)
     ax_ref = fig_ref.add_subplot(111)
@@ -1328,11 +1322,12 @@ def test_striped_lines(fig_test, fig_ref, gapcolor):
     x = range(1, 6)
     linestyles = [':', '-', '--']
 
-    ax_test.vlines(x, 0, 1, linestyle=linestyles, gapcolor=gapcolor, alpha=0.5)
+    ax_test.vlines(x, 0, 1, linewidth=20, linestyle=linestyles, gapcolor=gapcolor,
+                   alpha=0.5)
 
     if isinstance(gapcolor, str):
         gapcolor = [gapcolor]
 
     for x, gcol, ls in zip(x, itertools.cycle(gapcolor),
                            itertools.cycle(linestyles)):
-        ax_ref.axvline(x, 0, 1, linestyle=ls, gapcolor=gcol, alpha=0.5)
+        ax_ref.axvline(x, 0, 1, linewidth=20, linestyle=ls, gapcolor=gcol, alpha=0.5)

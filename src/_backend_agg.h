@@ -6,8 +6,11 @@
 #ifndef MPL_BACKEND_AGG_H
 #define MPL_BACKEND_AGG_H
 
+#include <pybind11/pybind11.h>
+
 #include <cmath>
 #include <algorithm>
+#include <functional>
 
 #include "agg_alpha_mask_u8.h"
 #include "agg_conv_curve.h"
@@ -39,6 +42,8 @@
 #include "path_converters.h"
 #include "array.h"
 #include "agg_workaround.h"
+
+namespace py = pybind11;
 
 /**********************************************************************/
 
@@ -728,7 +733,7 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
     rendererBase.reset_clipping(true);
     if (angle != 0.0) {
         agg::rendering_buffer srcbuf(
-                image.data(), (unsigned)image.shape(1),
+                image.mutable_data(0, 0), (unsigned)image.shape(1),
                 (unsigned)image.shape(0), (unsigned)image.shape(1));
         agg::pixfmt_gray8 pixf_img(srcbuf);
 
@@ -828,8 +833,9 @@ inline void RendererAgg::draw_image(GCAgg &gc,
     bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans, gc.snap_mode);
 
     agg::rendering_buffer buffer;
-    buffer.attach(
-        image.data(), (unsigned)image.shape(1), (unsigned)image.shape(0), -(int)image.shape(1) * 4);
+    buffer.attach(image.mutable_data(0, 0, 0),
+                  (unsigned)image.shape(1), (unsigned)image.shape(0),
+                  -(int)image.shape(1) * 4);
     pixfmt pixf(buffer);
 
     if (has_clippath) {
@@ -913,6 +919,10 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
     typedef PathSnapper<clipped_t> snapped_t;
     typedef agg::conv_curve<snapped_t> snapped_curve_t;
     typedef agg::conv_curve<clipped_t> curve_t;
+    typedef Sketch<clipped_t> sketch_clipped_t;
+    typedef Sketch<curve_t> sketch_curve_t;
+    typedef Sketch<snapped_t> sketch_snapped_t;
+    typedef Sketch<snapped_curve_t> sketch_snapped_curve_t;
 
     size_t Npaths = path_generator.num_paths();
     size_t Noffsets = safe_first_shape(offsets);
@@ -988,31 +998,29 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
             }
         }
 
+        gc.isaa = antialiaseds(i % Naa);
+        transformed_path_t tpath(path, trans);
+        nan_removed_t nan_removed(tpath, true, has_codes);
+        clipped_t clipped(nan_removed, do_clip, width, height);
         if (check_snap) {
-            gc.isaa = antialiaseds(i % Naa);
-
-            transformed_path_t tpath(path, trans);
-            nan_removed_t nan_removed(tpath, true, has_codes);
-            clipped_t clipped(nan_removed, do_clip, width, height);
             snapped_t snapped(
                 clipped, gc.snap_mode, path.total_vertices(), points_to_pixels(gc.linewidth));
             if (has_codes) {
                 snapped_curve_t curve(snapped);
-                _draw_path(curve, has_clippath, face, gc);
+                sketch_snapped_curve_t sketch(curve, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness);
+                _draw_path(sketch, has_clippath, face, gc);
             } else {
-                _draw_path(snapped, has_clippath, face, gc);
+                sketch_snapped_t sketch(snapped, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness);
+                _draw_path(sketch, has_clippath, face, gc);
             }
         } else {
-            gc.isaa = antialiaseds(i % Naa);
-
-            transformed_path_t tpath(path, trans);
-            nan_removed_t nan_removed(tpath, true, has_codes);
-            clipped_t clipped(nan_removed, do_clip, width, height);
             if (has_codes) {
                 curve_t curve(clipped);
-                _draw_path(curve, has_clippath, face, gc);
+                sketch_curve_t sketch(curve, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness);
+                _draw_path(sketch, has_clippath, face, gc);
             } else {
-                _draw_path(clipped, has_clippath, face, gc);
+                sketch_clipped_t sketch(clipped, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness);
+                _draw_path(sketch, has_clippath, face, gc);
             }
         }
     }
@@ -1226,14 +1234,27 @@ inline void RendererAgg::draw_gouraud_triangles(GCAgg &gc,
                                                 ColorArray &colors,
                                                 agg::trans_affine &trans)
 {
+    if (points.shape(0) && !check_trailing_shape(points, "points", 3, 2)) {
+        throw py::error_already_set();
+    }
+    if (colors.shape(0) && !check_trailing_shape(colors, "colors", 3, 4)) {
+        throw py::error_already_set();
+    }
+    if (points.shape(0) != colors.shape(0)) {
+        throw py::value_error(
+            "points and colors arrays must be the same length, got " +
+            std::to_string(points.shape(0)) + " points and " +
+            std::to_string(colors.shape(0)) + "colors");
+    }
+
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
     set_clipbox(gc.cliprect, theRasterizer);
     bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans, gc.snap_mode);
 
     for (int i = 0; i < points.shape(0); ++i) {
-        typename PointArray::sub_t point = points.subarray(i);
-        typename ColorArray::sub_t color = colors.subarray(i);
+        auto point = std::bind(points, i, std::placeholders::_1, std::placeholders::_2);
+        auto color = std::bind(colors, i, std::placeholders::_1, std::placeholders::_2);
 
         _draw_gouraud_triangle(point, color, trans, has_clippath);
     }

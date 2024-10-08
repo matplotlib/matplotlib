@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 import logging
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -194,6 +195,11 @@ else:
         subsectionorder as gallery_order_subsectionorder)
     from sphinxext.util import clear_basic_units, matplotlib_reduced_latex_scraper
 
+if parse_version(sphinx_gallery.__version__) >= parse_version('0.17.0'):
+    sg_matplotlib_animations = (True, 'mp4')
+else:
+    sg_matplotlib_animations = True
+
 # The following import is only necessary to monkey patch the signature later on
 from sphinx_gallery import gen_rst
 
@@ -201,8 +207,20 @@ from sphinx_gallery import gen_rst
 warnings.filterwarnings('ignore', category=UserWarning,
                         message=r'(\n|.)*is non-interactive, and thus cannot be shown')
 
+
+# hack to catch sphinx-gallery 17.0 warnings
+def tutorials_download_error(record):
+    if re.match("download file not readable: .*tutorials_(python|jupyter).zip",
+                record.msg):
+        return False
+
+
+logger = logging.getLogger('sphinx')
+logger.addFilter(tutorials_download_error)
+
 autosummary_generate = True
 autodoc_typehints = "none"
+autodoc_mock_imports = ["pytest"]
 
 # we should ignore warnings coming from importing deprecated modules for
 # autodoc purposes, as this will disappear automatically when they are removed
@@ -212,6 +230,20 @@ warnings.filterwarnings('ignore', category=DeprecationWarning,
 
 autodoc_docstring_signature = True
 autodoc_default_options = {'members': None, 'undoc-members': None}
+
+
+def autodoc_process_bases(app, name, obj, options, bases):
+    """
+    Hide pybind11 base object from inheritance tree.
+
+    Note, *bases* must be modified in place.
+    """
+    for cls in bases[:]:
+        if not isinstance(cls, type):
+            continue
+        if cls.__module__ == 'pybind11_builtins' and cls.__name__ == 'pybind11_object':
+            bases.remove(cls)
+
 
 # make sure to ignore warnings that stem from simply inspecting deprecated
 # class-level attributes
@@ -261,10 +293,11 @@ sphinx_gallery_conf = {
     'image_scrapers': (matplotlib_reduced_latex_scraper, ),
     'image_srcset': ["2x"],
     'junit': '../test-results/sphinx-gallery/junit.xml' if CIRCLECI else '',
-    'matplotlib_animations': True,
+    'matplotlib_animations': sg_matplotlib_animations,
     'min_reported_time': 1,
     'plot_gallery': 'True',  # sphinx-gallery/913
-    'reference_url': {'matplotlib': None},
+    'reference_url': {'matplotlib': None, 'mpl_toolkits': None},
+    'prefer_full_module': {r'mpl_toolkits\.'},
     'remove_config_comments': True,
     'reset_modules': ('matplotlib', clear_basic_units),
     'subsection_order': gallery_order_sectionorder,
@@ -273,6 +306,11 @@ sphinx_gallery_conf = {
     'capture_repr': (),
     'copyfile_regex': r'.*\.rst',
 }
+
+if parse_version(sphinx_gallery.__version__) >= parse_version('0.17.0'):
+    sphinx_gallery_conf['parallel'] = True
+    # Any warnings from joblib turned into errors may cause a deadlock.
+    warnings.filterwarnings('default', category=UserWarning, module='joblib')
 
 if 'plot_gallery=0' in sys.argv:
     # Gallery images are not created.  Suppress warnings triggered where other
@@ -343,8 +381,8 @@ source_suffix = '.rst'
 # This is the default encoding, but it doesn't hurt to be explicit
 source_encoding = "utf-8"
 
-# The toplevel toctree document (renamed to root_doc in Sphinx 4.0)
-root_doc = master_doc = 'index'
+# The toplevel toctree document.
+root_doc = 'index'
 
 # General substitutions.
 try:
@@ -497,10 +535,9 @@ html_theme_options = {
             f"https://matplotlib.org/devdocs/_static/switcher.json?{SHA}"
         ),
         "version_match": (
-            # The start version to show. This must be in switcher.json.
-            # We either go to 'stable' or to 'devdocs'
-            'stable' if matplotlib.__version_info__.releaselevel == 'final'
-            else 'devdocs')
+            matplotlib.__version__
+            if matplotlib.__version_info__.releaselevel == 'final'
+            else 'dev')
     },
     "navbar_end": ["theme-switcher", "version-switcher", "mpl_icon_links"],
     "navbar_persistent": ["search-button"],
@@ -825,5 +862,6 @@ def setup(app):
         bld_type = 'rel'
     app.add_config_value('skip_sub_dirs', 0, '')
     app.add_config_value('releaselevel', bld_type, 'env')
+    app.connect('autodoc-process-bases', autodoc_process_bases)
     if sphinx.version_info[:2] < (7, 1):
         app.connect('html-page-context', add_html_cache_busting, priority=1000)

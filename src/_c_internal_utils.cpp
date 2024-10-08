@@ -7,7 +7,14 @@
 #define WIN32_LEAN_AND_MEAN
 // Windows 10, for latest HiDPI API support.
 #define WINVER 0x0A00
-#define _WIN32_WINNT 0x0A00
+#if defined(_WIN32_WINNT)
+#if _WIN32_WINNT < WINVER
+#undef _WIN32_WINNT
+#define _WIN32_WINNT WINVER
+#endif
+#else
+#define _WIN32_WINNT WINVER
+#endif
 #endif
 #include <pybind11/pybind11.h>
 #ifdef __linux__
@@ -26,7 +33,7 @@ namespace py = pybind11;
 using namespace pybind11::literals;
 
 static bool
-mpl_display_is_valid(void)
+mpl_xdisplay_is_valid(void)
 {
 #ifdef __linux__
     void* libX11;
@@ -49,6 +56,19 @@ mpl_display_is_valid(void)
         if (display) {
             return true;
         }
+    }
+    return false;
+#else
+    return true;
+#endif
+}
+
+static bool
+mpl_display_is_valid(void)
+{
+#ifdef __linux__
+    if (mpl_xdisplay_is_valid()) {
+        return true;
     }
     void* libwayland_client;
     if (getenv("WAYLAND_DISPLAY")
@@ -125,7 +145,7 @@ static void
 mpl_SetForegroundWindow(py::capsule UNUSED_ON_NON_WINDOWS(handle_p))
 {
 #ifdef _WIN32
-    if (handle_p.name() != "HWND") {
+    if (strcmp(handle_p.name(), "HWND") != 0) {
         throw std::runtime_error("Handle must be a value returned from Win32_GetForegroundWindow");
     }
     HWND handle = static_cast<HWND>(handle_p.get_pointer());
@@ -158,7 +178,7 @@ mpl_SetProcessDpiAwareness_max(void)
         DPI_AWARENESS_CONTEXT_SYSTEM_AWARE};         // Win10
     if (IsValidDpiAwarenessContextPtr != NULL
             && SetProcessDpiAwarenessContextPtr != NULL) {
-        for (int i = 0; i < sizeof(ctxs) / sizeof(DPI_AWARENESS_CONTEXT); ++i) {
+        for (size_t i = 0; i < sizeof(ctxs) / sizeof(DPI_AWARENESS_CONTEXT); ++i) {
             if (IsValidDpiAwarenessContextPtr(ctxs[i])) {
                 SetProcessDpiAwarenessContextPtr(ctxs[i]);
                 break;
@@ -186,6 +206,16 @@ PYBIND11_MODULE(_c_internal_utils, m)
         On Linux, returns True if either $DISPLAY is set and XOpenDisplay(NULL)
         succeeds, or $WAYLAND_DISPLAY is set and wl_display_connect(NULL)
         succeeds.
+
+        On other platforms, always returns True.)""");
+    m.def(
+        "xdisplay_is_valid", &mpl_xdisplay_is_valid,
+        R"""(        --
+        Check whether the current X11 display is valid.
+
+        On Linux, returns True if either $DISPLAY is set and XOpenDisplay(NULL)
+        succeeds. Use this function if you need to specifically check for X11
+        only (e.g., for Tkinter).
 
         On other platforms, always returns True.)""");
     m.def(

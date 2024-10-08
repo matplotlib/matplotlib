@@ -54,7 +54,7 @@ def get_intersection(cx1, cy1, cos_t1, sin_t1,
     # rhs_inverse
     a_, b_ = d, -b
     c_, d_ = -c, a
-    a_, b_, c_, d_ = [k / ad_bc for k in [a_, b_, c_, d_]]
+    a_, b_, c_, d_ = (k / ad_bc for k in [a_, b_, c_, d_])
 
     x = a_ * line1_rhs + b_ * line2_rhs
     y = c_ * line1_rhs + d_ * line2_rhs

@@ -73,10 +73,10 @@ Axis Label
    :template: autosummary.rst
    :nosignatures:
 
+   Axis.label
    Axis.set_label_coords
    Axis.set_label_position
    Axis.set_label_text
-   Axis.get_label
    Axis.get_label_position
    Axis.get_label_text
 
@@ -217,6 +217,7 @@ Other
    Axis.axes
    Axis.limit_range_for_scale
    Axis.reset_ticks
+   Axis.set_clip_path
    Axis.set_default_intervals
 
 Discouraged
@@ -234,6 +235,8 @@ specify a matching series of labels.  Calling ``set_ticks`` makes a
    :template: autosummary.rst
    :nosignatures:
 
+   Axis.get_label
+   Axis.set_label
    Axis.set_ticks
    Axis.set_ticklabels
 
@@ -263,8 +266,7 @@ specify a matching series of labels.  Calling ``set_ticks`` makes a
    Tick.get_tick_padding
    Tick.get_tickdir
    Tick.get_view_interval
-   Tick.set_label1
-   Tick.set_label2
+   Tick.set_clip_path
    Tick.set_pad
    Tick.set_url
    Tick.update_position

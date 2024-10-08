@@ -1,7 +1,7 @@
 """
-=========================================
-Labeling ticks using engineering notation
-=========================================
+=======================================
+Format ticks using engineering notation
+=======================================
 
 Use of the engineering Formatter.
 """

@@ -89,6 +89,7 @@
           - 'doc/conf.py'
           - 'doc/Makefile'
           - 'doc/make.bat'
+          - 'doc/sphinxext/**'
 "Documentation: devdocs":
   - changed-files:
       - any-glob-to-any-file:

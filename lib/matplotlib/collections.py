@@ -113,10 +113,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
             where *onoffseq* is an even length tuple of on and off ink lengths
             in points. For examples, see
             :doc:`/gallery/lines_bars_and_markers/linestyles`.
-        capstyle : `.CapStyle`-like, default: :rc:`patch.capstyle`
+        capstyle : `.CapStyle`-like, default: 'butt'
             Style to use for capping lines for all paths in the collection.
             Allowed values are %(CapStyle)s.
-        joinstyle : `.JoinStyle`-like, default: :rc:`patch.joinstyle`
+        joinstyle : `.JoinStyle`-like, default: 'round'
             Style to use for joining lines for all paths in the collection.
             Allowed values are %(JoinStyle)s.
         antialiaseds : bool or list of bool, default: :rc:`patch.antialiased`
@@ -392,8 +392,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
             else:
                 combined_transform = transform
             extents = paths[0].get_extents(combined_transform)
-            if (extents.width < self.figure.bbox.width
-                    and extents.height < self.figure.bbox.height):
+            if (extents.width < self.get_figure(root=True).bbox.width
+                    and extents.height < self.get_figure(root=True).bbox.height):
                 do_single_path_optimization = True
 
         if self._joinstyle:
@@ -1001,7 +1001,7 @@ class _CollectionWithSizes(Collection):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        self.set_sizes(self._sizes, self.figure.dpi)
+        self.set_sizes(self._sizes, self.get_figure(root=True).dpi)
         super().draw(renderer)
 
 
@@ -1310,7 +1310,7 @@ class RegularPolyCollection(_CollectionWithSizes):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        self.set_sizes(self._sizes, self.figure.dpi)
+        self.set_sizes(self._sizes, self.get_figure(root=True).dpi)
         self._transforms = [
             transforms.Affine2D(x).rotate(-self._rotation).get_matrix()
             for x in self._transforms
@@ -1757,7 +1757,7 @@ class EllipseCollection(Collection):
         """Calculate transforms immediately before drawing."""
 
         ax = self.axes
-        fig = self.figure
+        fig = self.get_figure(root=False)
 
         if self._units == 'xy':
             sc = 1
@@ -2252,14 +2252,8 @@ class PolyQuadMesh(_MeshData, PolyCollection):
     """
 
     def __init__(self, coordinates, **kwargs):
-        # We need to keep track of whether we are using deprecated compression
-        # Update it after the initializers
-        self._deprecated_compression = False
         super().__init__(coordinates=coordinates)
         PolyCollection.__init__(self, verts=[], **kwargs)
-        # Store this during the compression deprecation period
-        self._original_mask = ~self._get_unmasked_polys()
-        self._deprecated_compression = np.any(self._original_mask)
         # Setting the verts updates the paths of the PolyCollection
         # This is called after the initializers to make sure the kwargs
         # have all been processed and available for the masking calculations
@@ -2272,14 +2266,7 @@ class PolyQuadMesh(_MeshData, PolyCollection):
 
         # We want the shape of the polygon, which is the corner of each X/Y array
         mask = (mask[0:-1, 0:-1] | mask[1:, 1:] | mask[0:-1, 1:] | mask[1:, 0:-1])
-
-        if (getattr(self, "_deprecated_compression", False) and
-                np.any(self._original_mask)):
-            return ~(mask | self._original_mask)
-        # Take account of the array data too, temporarily avoiding
-        # the compression warning and resetting the variable after the call
-        with cbook._setattr_cm(self, _deprecated_compression=False):
-            arr = self.get_array()
+        arr = self.get_array()
         if arr is not None:
             arr = np.ma.getmaskarray(arr)
             if arr.ndim == 3:
@@ -2335,42 +2322,8 @@ class PolyQuadMesh(_MeshData, PolyCollection):
     def set_array(self, A):
         # docstring inherited
         prev_unmask = self._get_unmasked_polys()
-        # MPL <3.8 compressed the mask, so we need to handle flattened 1d input
-        # until the deprecation expires, also only warning when there are masked
-        # elements and thus compression occurring.
-        if self._deprecated_compression and np.ndim(A) == 1:
-            _api.warn_deprecated("3.8", message="Setting a PolyQuadMesh array using "
-                                 "the compressed values is deprecated. "
-                                 "Pass the full 2D shape of the original array "
-                                 f"{prev_unmask.shape} including the masked elements.")
-            Afull = np.empty(self._original_mask.shape)
-            Afull[~self._original_mask] = A
-            # We also want to update the mask with any potential
-            # new masked elements that came in. But, we don't want
-            # to update any of the compression from the original
-            mask = self._original_mask.copy()
-            mask[~self._original_mask] |= np.ma.getmask(A)
-            A = np.ma.array(Afull, mask=mask)
-            return super().set_array(A)
-        self._deprecated_compression = False
         super().set_array(A)
         # If the mask has changed at all we need to update
         # the set of Polys that we are drawing
         if not np.array_equal(prev_unmask, self._get_unmasked_polys()):
             self._set_unmasked_verts()
-
-    def get_array(self):
-        # docstring inherited
-        # Can remove this entire function once the deprecation period ends
-        A = super().get_array()
-        if A is None:
-            return
-        if self._deprecated_compression and np.any(np.ma.getmask(A)):
-            _api.warn_deprecated("3.8", message=(
-                "Getting the array from a PolyQuadMesh will return the full "
-                "array in the future (uncompressed). To get this behavior now "
-                "set the PolyQuadMesh with a 2D array .set_array(data2d)."))
-            # Setting an array of a polycollection required
-            # compressing the array
-            return np.ma.compressed(A)
-        return A

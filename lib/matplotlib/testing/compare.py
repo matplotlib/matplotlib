@@ -13,6 +13,7 @@ import subprocess
 import sys
 from tempfile import TemporaryDirectory, TemporaryFile
 import weakref
+import re
 
 import numpy as np
 from PIL import Image
@@ -305,7 +306,15 @@ def convert(filename, cache):
             # re-generate any SVG test files using this mode, or else such tests will
             # fail to use the converter for the expected images (but will for the
             # results), and the tests will fail strangely.
-            if 'style="font:' in contents:
+            if re.search(
+                # searches for attributes :
+                #   style=[font|font-size|font-weight|
+                #          font-family|font-variant|font-style]
+                # taking care of the possibility of multiple style attributes
+                # before the font styling (i.e. opacity)
+                r'style="[^"]*font(|-size|-weight|-family|-variant|-style):',
+                contents  # raw contents of the svg file
+                    ):
                 # for svg.fonttype = none, we explicitly patch the font search
                 # path so that fonts shipped by Matplotlib are found.
                 convert = _svg_with_matplotlib_fonts_converter

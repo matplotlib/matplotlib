@@ -90,22 +90,6 @@ class Widget:
         """
         return not self.active
 
-    def _changed_canvas(self):
-        """
-        Someone has switched the canvas on us!
-
-        This happens if `savefig` needs to save to a format the previous
-        backend did not support (e.g. saving a figure using an Agg based
-        backend saved to a vector format).
-
-        Returns
-        -------
-        bool
-           True if the canvas has been changed.
-
-        """
-        return self.canvas is not self.ax.figure.canvas
-
 
 class AxesWidget(Widget):
     """
@@ -131,8 +115,9 @@ class AxesWidget(Widget):
 
     def __init__(self, ax):
         self.ax = ax
-        self.canvas = ax.figure.canvas
         self._cids = []
+
+    canvas = property(lambda self: self.ax.get_figure(root=True).canvas)
 
     def connect_event(self, event, callback):
         """
@@ -584,7 +569,7 @@ class Slider(SliderBase):
             self._handle.set_xdata([val])
         self.valtext.set_text(self._format(val))
         if self.drawon:
-            self.ax.figure.canvas.draw_idle()
+            self.ax.get_figure(root=True).canvas.draw_idle()
         self.val = val
         if self.eventson:
             self._observers.process('changed', val)
@@ -960,7 +945,7 @@ class RangeSlider(SliderBase):
         self.valtext.set_text(self._format((vmin, vmax)))
 
         if self.drawon:
-            self.ax.figure.canvas.draw_idle()
+            self.ax.get_figure(root=True).canvas.draw_idle()
         self.val = (vmin, vmax)
         if self.eventson:
             self._observers.process("changed", (vmin, vmax))
@@ -1100,7 +1085,7 @@ class CheckButtons(AxesWidget):
 
     def _clear(self, event):
         """Internal event handler to clear the buttons."""
-        if self.ignore(event) or self._changed_canvas():
+        if self.ignore(event) or self.canvas.is_saving():
             return
         self._background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self._checks)
@@ -1385,8 +1370,9 @@ class TextBox(AxesWidget):
         # This causes a single extra draw if the figure has never been rendered
         # yet, which should be fine as we're going to repeatedly re-render the
         # figure later anyways.
-        if self.ax.figure._get_renderer() is None:
-            self.ax.figure.canvas.draw()
+        fig = self.ax.get_figure(root=True)
+        if fig._get_renderer() is None:
+            fig.canvas.draw()
 
         text = self.text_disp.get_text()  # Save value before overwriting it.
         widthtext = text[:self.cursor_index]
@@ -1408,7 +1394,7 @@ class TextBox(AxesWidget):
             visible=True)
         self.text_disp.set_text(text)
 
-        self.ax.figure.canvas.draw()
+        fig.canvas.draw()
 
     def _release(self, event):
         if self.ignore(event):
@@ -1471,7 +1457,7 @@ class TextBox(AxesWidget):
         stack = ExitStack()  # Register cleanup actions when user stops typing.
         self._on_stop_typing = stack.close
         toolmanager = getattr(
-            self.ax.figure.canvas.manager, "toolmanager", None)
+            self.ax.get_figure(root=True).canvas.manager, "toolmanager", None)
         if toolmanager is not None:
             # If using toolmanager, lock keypresses, and plan to release the
             # lock when typing stops.
@@ -1493,7 +1479,7 @@ class TextBox(AxesWidget):
             notifysubmit = False
         self.capturekeystrokes = False
         self.cursor.set_visible(False)
-        self.ax.figure.canvas.draw()
+        self.ax.get_figure(root=True).canvas.draw()
         if notifysubmit and self.eventson:
             # Because process() might throw an error in the user's code, only
             # call it once we've already done our cleanup.
@@ -1524,7 +1510,7 @@ class TextBox(AxesWidget):
         if not colors.same_color(c, self.ax.get_facecolor()):
             self.ax.set_facecolor(c)
             if self.drawon:
-                self.ax.figure.canvas.draw()
+                self.ax.get_figure(root=True).canvas.draw()
 
     def on_text_change(self, func):
         """
@@ -1677,7 +1663,7 @@ class RadioButtons(AxesWidget):
 
     def _clear(self, event):
         """Internal event handler to clear the buttons."""
-        if self.ignore(event) or self._changed_canvas():
+        if self.ignore(event) or self.canvas.is_saving():
             return
         self._background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self._buttons)
@@ -1933,7 +1919,7 @@ class Cursor(AxesWidget):
 
     def clear(self, event):
         """Internal event handler to clear the cursor."""
-        if self.ignore(event) or self._changed_canvas():
+        if self.ignore(event) or self.canvas.is_saving():
             return
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
@@ -2018,7 +2004,8 @@ class MultiCursor(Widget):
         self.vertOn = vertOn
 
         self._canvas_infos = {
-            ax.figure.canvas: {"cids": [], "background": None} for ax in axes}
+            ax.get_figure(root=True).canvas:
+                {"cids": [], "background": None} for ax in axes}
 
         xmin, xmax = axes[-1].get_xlim()
         ymin, ymax = axes[-1].get_ylim()
@@ -2104,12 +2091,15 @@ class MultiCursor(Widget):
 
 class _SelectorWidget(AxesWidget):
 
-    def __init__(self, ax, onselect, useblit=False, button=None,
+    def __init__(self, ax, onselect=None, useblit=False, button=None,
                  state_modifier_keys=None, use_data_coordinates=False):
         super().__init__(ax)
 
         self._visible = True
-        self.onselect = onselect
+        if onselect is None:
+            self.onselect = lambda *args: None
+        else:
+            self.onselect = onselect
         self.useblit = useblit and self.canvas.supports_blit
         self.connect_default_events()
 
@@ -2216,7 +2206,7 @@ class _SelectorWidget(AxesWidget):
     def update(self):
         """Draw using blit() or draw_idle(), depending on ``self.useblit``."""
         if (not self.ax.get_visible() or
-                self.ax.figure._get_renderer() is None):
+                self.ax.get_figure(root=True)._get_renderer() is None):
             return
         if self.useblit:
             if self.background is not None:
@@ -2573,9 +2563,7 @@ class SpanSelector(_SelectorWidget):
         self.drag_from_anywhere = drag_from_anywhere
         self.ignore_event_outside = ignore_event_outside
 
-        # Reset canvas so that `new_axes` connects events.
-        self.canvas = None
-        self.new_axes(ax, _props=props)
+        self.new_axes(ax, _props=props, _init=True)
 
         # Setup handles
         self._handle_props = {
@@ -2588,14 +2576,15 @@ class SpanSelector(_SelectorWidget):
 
         self._active_handle = None
 
-    def new_axes(self, ax, *, _props=None):
+    def new_axes(self, ax, *, _props=None, _init=False):
         """Set SpanSelector to operate on a new Axes."""
-        self.ax = ax
-        if self.canvas is not ax.figure.canvas:
+        reconnect = False
+        if _init or self.canvas is not ax.get_figure(root=True).canvas:
             if self.canvas is not None:
                 self.disconnect_events()
-
-            self.canvas = ax.figure.canvas
+            reconnect = True
+        self.ax = ax
+        if reconnect:
             self.connect_default_events()
 
         # Reset
@@ -2643,7 +2632,7 @@ class SpanSelector(_SelectorWidget):
         else:
             cursor = backend_tools.Cursors.POINTER
 
-        self.ax.figure.canvas.set_cursor(cursor)
+        self.ax.get_figure(root=True).canvas.set_cursor(cursor)
 
     def connect_default_events(self):
         # docstring inherited
@@ -4079,7 +4068,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
     ax : `~matplotlib.axes.Axes`
         The parent Axes for the widget.
 
-    onselect : function
+    onselect : function, optional
         A callback function that is called after a release event and the
         selection is created, changed or removed.
         It must have the signature::
@@ -4192,7 +4181,8 @@ class RectangleSelector(_SelectorWidget):
     See also: :doc:`/gallery/widgets/rectangle_selector`
     """
 
-    def __init__(self, ax, onselect, *, minspanx=0, minspany=0, useblit=False,
+    def __init__(self, ax, onselect=None, *, minspanx=0,
+                 minspany=0, useblit=False,
                  props=None, spancoords='data', button=None, grab_range=10,
                  handle_props=None, interactive=False,
                  state_modifier_keys=None, drag_from_anywhere=False,
@@ -4714,7 +4704,7 @@ class LassoSelector(_SelectorWidget):
     ----------
     ax : `~matplotlib.axes.Axes`
         The parent Axes for the widget.
-    onselect : function
+    onselect : function, optional
         Whenever the lasso is released, the *onselect* function is called and
         passed the vertices of the selected path.
     useblit : bool, default: True
@@ -4729,7 +4719,7 @@ class LassoSelector(_SelectorWidget):
         which corresponds to all buttons.
     """
 
-    def __init__(self, ax, onselect, *, useblit=True, props=None, button=None):
+    def __init__(self, ax, onselect=None, *, useblit=True, props=None, button=None):
         super().__init__(ax, onselect, useblit=useblit, button=button)
         self.verts = None
         props = {
@@ -4787,7 +4777,7 @@ class PolygonSelector(_SelectorWidget):
     ax : `~matplotlib.axes.Axes`
         The parent Axes for the widget.
 
-    onselect : function
+    onselect : function, optional
         When a polygon is completed or modified after completion,
         the *onselect* function is called and passed a list of the vertices as
         ``(xdata, ydata)`` tuples.
@@ -4839,7 +4829,7 @@ class PolygonSelector(_SelectorWidget):
     point.
     """
 
-    def __init__(self, ax, onselect, *, useblit=False,
+    def __init__(self, ax, onselect=None, *, useblit=False,
                  props=None, handle_props=None, grab_range=10,
                  draw_bounding_box=False, box_handle_props=None,
                  box_props=None):
@@ -4889,7 +4879,6 @@ class PolygonSelector(_SelectorWidget):
 
     def _add_box(self):
         self._box = RectangleSelector(self.ax,
-                                      onselect=lambda *args, **kwargs: None,
                                       useblit=self.useblit,
                                       grab_range=self.grab_range,
                                       handle_props=self._box_handle_props,
@@ -5011,11 +5000,17 @@ class PolygonSelector(_SelectorWidget):
         # needs to process the move callback even if there is no button press.
         # _SelectorWidget.onmove include logic to ignore move event if
         # _eventpress is None.
-        if not self.ignore(event):
+        if self.ignore(event):
+            # Hide the cursor when interactive zoom/pan is active
+            if not self.canvas.widgetlock.available(self) and self._xys:
+                self._xys[-1] = (np.nan, np.nan)
+                self._draw_polygon()
+            return False
+
+        else:
             event = self._clean_event(event)
             self._onmove(event)
             return True
-        return False
 
     def _onmove(self, event):
         """Cursor move event handler."""
