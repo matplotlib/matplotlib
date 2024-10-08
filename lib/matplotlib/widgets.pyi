@@ -6,6 +6,7 @@ from .figure import Figure
 from .lines import Line2D
 from .patches import Circle, Polygon, Rectangle
 from .text import Text
+from .colors import Colormap
 
 import PIL.Image
 
@@ -386,6 +387,34 @@ class ToolHandles:
     def set_visible(self, val: bool) -> None: ...
     def set_animated(self, val: bool) -> None: ...
     def closest(self, x: float, y: float) -> tuple[int, float]: ...
+
+class NSpanSelector(SpanSelector):
+    def __init__(
+        self,
+        N: int,
+        ax: Axes,
+        onselect: Callable[[float, float], Any] | list[Callable[[float, float], Any]],
+        direction: Literal["horizontal"] | Literal["vertical"],
+        callback_at_selection_complete: bool,
+        minspan: float = ...,
+        useblit: bool = ...,
+        props: dict[str, Any] | None = ...,
+        onmove_callback: Callable[[float, float], Any] | list[Callable[[float, float], Any]] | None = ...,
+        interactive: bool = ...,
+        button: MouseButton | Collection[MouseButton] | None = ...,
+        handle_props: dict[str, Any] | None = ...,
+        grab_range: float = ...,
+        state_modifier_keys: dict[str, str] | None = ...,
+        drag_from_anywhere: bool = ...,
+        ignore_event_outside: bool = ...,
+        snap_values: ArrayLike | None = ...,
+        colors: ColorType | Colormap | None = ...
+    ) -> None: ...
+    def color_spans(
+        self,
+        rect_colors: list[ColorType] | ColorType | Colormap = ...,
+        handle_colors: list[ColorType] | ColorType | Colormap = ...,
+    ) -> None: ...
 
 class RectangleSelector(_SelectorWidget):
     drag_from_anywhere: bool

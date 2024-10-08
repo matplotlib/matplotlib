@@ -658,6 +658,32 @@ def test_span_selector(ax, orientation, onmove_callback, kwargs):
     if onmove_callback:
         onmove.assert_called_once_with(100, 199)
 
+# @pytest.mark.parametrize('orientation', 'onmove_callback', 'kwargs', [
+#     ('')
+# ])
+# def test_n_span_selector(ax, orientation, onmove_callback, kwargs):
+#     # Run tests for multiple Span Selectors.
+#     n = 3
+#     onselects = [mock.Mock(spec=noop, return_value=None) for _ in range(n)]
+#     onmove = [mock.Mock(spec=noop, return_value=None) for _ in range(n)]
+#     if onmove_callback:
+#         kwargs['onmove_callback'] = onmove
+
+#     ax.set_aspect("auto")
+#     tax = ax.twinx()
+
+#     tool = widgets.NSpanSelector(N, ax, onselects, orientation, **kwargs)
+#     for i in range(n):
+#         do_event(tool, 'press', xdata=100, ydata=100, button=1)
+#         # move outside of axis
+#         do_event(tool, 'onmove', xdata=199, ydata=199, button=1)
+#         do_event(tool, 'release', xdata=250, ydata=250, button=1)
+
+#     for i in range(n):
+#         onselects[i].assert_called_once_with(100, 199)
+#         if onmove_callback:
+#             onmove[i].assert_called_once_with(100, 199)
+
 
 @pytest.mark.parametrize('interactive', [True, False])
 def test_span_selector_onselect(ax, interactive):
