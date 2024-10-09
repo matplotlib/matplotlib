@@ -794,8 +794,8 @@ def setp(obj, *args, **kwargs):
 
 
 def xkcd(
-    scale: float = 1, length: float = 100, randomness: float = 2
-) -> ExitStack:
+    scale: float = 1, length: float = 100, randomness: float = 2,
+     seed: int | None = None) -> ExitStack:
     """
     Turn on `xkcd <https://xkcd.com/>`_ sketch-style drawing mode.
 
@@ -812,6 +812,8 @@ def xkcd(
         The length of the wiggle along the line.
     randomness : float, optional
         The scale factor by which the length is shrunken or expanded.
+    seed: int, optional
+        Seed for the internal pseudo-random number generator.
 
     Notes
     -----
@@ -831,6 +833,9 @@ def xkcd(
     """
     # This cannot be implemented in terms of contextmanager() or rc_context()
     # because this needs to work as a non-contextmanager too.
+
+    if seed is not None:
+        rcParams['path.sketch_seed'] = seed
 
     if rcParams['text.usetex']:
         raise RuntimeError(
