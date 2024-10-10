@@ -37,7 +37,7 @@ from matplotlib.axes._base import (
     _AxesBase, _TransformedBoundsLocator, _process_plot_format)
 from matplotlib.axes._secondary_axes import SecondaryAxis
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
-from matplotlib.transforms import OffsetRotation
+from matplotlib.transforms import ScaledRotation
 
 _log = logging.getLogger(__name__)
 
@@ -3789,7 +3789,7 @@ class Axes(_AxesBase):
                 for l in caplines[axis]:
                     for theta, r in zip(l.get_xdata(), l.get_ydata()):
                         trans_shift = self.transShift
-                        rotation_transform = OffsetRotation(
+                        rotation_transform = ScaledRotation(
                             theta=theta,
                             trans_shift=trans_shift,
                             is_radial=(axis == 'y')

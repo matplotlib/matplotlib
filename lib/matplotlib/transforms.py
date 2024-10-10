@@ -2978,7 +2978,7 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     return trans + ScaledTranslation(x, y, fig.dpi_scale_trans)
 
 
-class OffsetRotation(Affine2DBase):
+class ScaledRotation(Affine2DBase):
     """
     A transformation that applies offset and direction
     based on *trans_shift*.
