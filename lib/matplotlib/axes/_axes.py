@@ -37,6 +37,7 @@ from matplotlib.axes._base import (
     _AxesBase, _TransformedBoundsLocator, _process_plot_format)
 from matplotlib.axes._secondary_axes import SecondaryAxis
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
+from matplotlib.transforms import ScaledRotation
 
 _log = logging.getLogger(__name__)
 
@@ -3786,15 +3787,17 @@ class Axes(_AxesBase):
         if self.name == 'polar':
             for axis in caplines:
                 for l in caplines[axis]:
-                    # Rotate caps to be perpendicular to the error bars
                     for theta, r in zip(l.get_xdata(), l.get_ydata()):
-                        rotation = mtransforms.Affine2D().rotate(theta)
-                        if axis == 'y':
-                            rotation.rotate(-np.pi / 2)
-                        ms = mmarkers.MarkerStyle(marker=marker,
-                                                  transform=rotation)
-                        self.add_line(mlines.Line2D([theta], [r], marker=ms,
-                                                    **eb_cap_style))
+                        trans_shift = self.transShift
+                        rotation_transform = ScaledRotation(
+                            theta=theta,
+                            trans_shift=trans_shift,
+                            is_radial=(axis == 'y')
+                        )
+                        ms = mmarkers.MarkerStyle(
+                            marker=marker, transform=rotation_transform)
+                        self.add_line(
+                            mlines.Line2D([theta], [r], marker=ms, **eb_cap_style))
         else:
             for axis in caplines:
                 for l in caplines[axis]:
