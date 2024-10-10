@@ -38,3 +38,9 @@ ax.set_zlim(-1, 1)
 ax.zaxis.set_major_locator(LinearLocator(6))
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    styling: color, styling: texture,
+#    level: intermediate

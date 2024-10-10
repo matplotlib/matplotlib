@@ -18,3 +18,8 @@ X, Y, Z = axes3d.get_test_data(0.05)
 ax.contour(X, Y, Z, cmap=cm.coolwarm)  # Plot contour curves
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    level: beginner

@@ -35,3 +35,8 @@ ax.set_ylabel(r'$\phi_\mathrm{im}$')
 ax.set_zlabel(r'$V(\phi)$')
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D, plot-type: polar,
+#    level: beginner

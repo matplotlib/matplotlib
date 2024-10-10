@@ -20,3 +20,8 @@ X, Y, Z = axes3d.get_test_data(0.05)
 ax.contourf(X, Y, Z, cmap=cm.coolwarm)
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    level: beginner

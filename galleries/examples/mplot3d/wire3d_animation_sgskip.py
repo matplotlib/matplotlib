@@ -39,3 +39,9 @@ for phi in np.linspace(0, 180. / np.pi, 100):
     plt.pause(.001)
 
 print('Average FPS: %f' % (100 / (time.time() - tstart)))
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    component: animation,
+#    level: beginner

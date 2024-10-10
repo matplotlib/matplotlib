@@ -59,3 +59,8 @@ ax.set_zlabel("Z Axis")
 ax.set_title("Lorenz Attractor")
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    level: intermediate

@@ -69,3 +69,9 @@ ax.set_ylim(0, 10)
 ax.set_zlim(0, 10)
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    component: label,
+#    level: advanced

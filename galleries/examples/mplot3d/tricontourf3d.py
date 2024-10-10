@@ -44,3 +44,8 @@ ax.tricontourf(triang, z, cmap=plt.cm.CMRmap)
 ax.view_init(elev=45.)
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D, plot-type: specialty,
+#    level: intermediate

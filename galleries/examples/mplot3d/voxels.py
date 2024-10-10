@@ -32,3 +32,8 @@ ax = plt.figure().add_subplot(projection='3d')
 ax.voxels(voxelarray, facecolors=colors, edgecolor='k')
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    level: beginner

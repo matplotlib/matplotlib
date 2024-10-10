@@ -33,3 +33,9 @@ ax.add_collection3d(poly)
 ax.set_aspect('equalxy')
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    styling: colormap,
+#    level: intermediate

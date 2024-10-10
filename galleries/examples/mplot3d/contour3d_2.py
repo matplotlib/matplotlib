@@ -17,3 +17,8 @@ X, Y, Z = axes3d.get_test_data(0.05)
 ax.contour(X, Y, Z, extend3d=True, cmap=cm.coolwarm)
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    level: beginner

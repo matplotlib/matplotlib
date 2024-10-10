@@ -53,3 +53,8 @@ plt.show()
 #    - `matplotlib.axis.Axis.set_major_locator`
 #    - `matplotlib.ticker.LinearLocator`
 #    - `matplotlib.ticker.StrMethodFormatter`
+#
+# .. tags::
+#    plot-type: 3D,
+#    styling: colormap,
+#    level: advanced

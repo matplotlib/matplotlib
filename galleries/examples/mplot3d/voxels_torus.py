@@ -44,3 +44,9 @@ ax.voxels(x, y, z, sphere,
           linewidth=0.5)
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    styling: color,
+#    level: intermediate

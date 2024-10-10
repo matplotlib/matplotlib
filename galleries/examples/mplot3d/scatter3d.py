@@ -38,3 +38,8 @@ ax.set_ylabel('Y Label')
 ax.set_zlabel('Z Label')
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D, plot-type: scatter,
+#    level: beginner

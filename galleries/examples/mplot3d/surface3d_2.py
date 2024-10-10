@@ -26,3 +26,8 @@ ax.plot_surface(x, y, z)
 ax.set_aspect('equal')
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    level: beginner

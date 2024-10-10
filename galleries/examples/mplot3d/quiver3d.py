@@ -25,3 +25,8 @@ w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
 ax.quiver(x, y, z, u, v, w, length=0.1, normalize=True)
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    level: beginner

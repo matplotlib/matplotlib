@@ -77,3 +77,8 @@ ax.plot_trisurf(triang, z, cmap=plt.cm.CMRmap)
 
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D, plot-type: specialty,
+#    level: intermediate

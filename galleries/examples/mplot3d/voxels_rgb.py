@@ -42,3 +42,8 @@ ax.set(xlabel='r', ylabel='g', zlabel='b')
 ax.set_aspect('equal')
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    styling: color
