@@ -123,7 +123,7 @@ jobs:
           - os: ubuntu-20.04
             cibw_archs: "aarch64"
           - os: windows-latest
-            cibw_archs: "auto64"
+            cibw_archs: "AMD64 ARM64"
           - os: macos-12
             cibw_archs: "x86_64"
           - os: macos-14
@@ -161,6 +161,7 @@ jobs:
             --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
             contourpy numpy pillow
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          CIBW_BUILD_VERBOSITY: 1
 
       - name: Build wheels for CPython 3.12
         uses: pypa/cibuildwheel@f1859528322d7b29d4493ee241a167807661dfb4  # v2.21.2
