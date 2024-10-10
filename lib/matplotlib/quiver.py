@@ -88,13 +88,14 @@ angles : {'uv', 'xy'} or array-like, default: 'uv'
     Method for determining the angle of the arrows.
 
     - 'uv': Arrow direction in screen coordinates. Use this if the arrows
-      symbolize a quantity that is not based on *X*, *Y* data coordinates.
+      symbolize normalized x-y components.
 
       If *U* == *V* the orientation of the arrow on the plot is 45 degrees
       counter-clockwise from the horizontal axis (positive to the right).
 
     - 'xy': Arrow direction in data coordinates, i.e. the arrows point from
-      (x, y) to (x+u, y+v). Use this e.g. for plotting a gradient field.
+      (x, y) to (x+u, y+v). Use this if the arrows are based on *X*, *Y* data
+      coordinates.
 
     - Arbitrary angles may be specified explicitly as an array of values
       in degrees, counter-clockwise from the horizontal axis.
