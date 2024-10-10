@@ -71,7 +71,7 @@ Since Matplotlib is an open source project with limited resources, we encourage 
 to also :ref:`participate <contribute_code>` in fixing bugs and implementing new
 features.
 
-Contributing guide
+Contribution guide
 ==================
 
 We welcome you to get more involved with the Matplotlib project! If you are new
@@ -101,7 +101,7 @@ to contributing, we recommend that you first read our
 
          .. grid-item::
 
-            :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I work on an issue? <managing_issues_prs>`
+            :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I choose an issue? <managing_issues_prs>`
 
          .. grid-item::
 
