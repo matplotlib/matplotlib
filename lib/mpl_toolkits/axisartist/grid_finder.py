@@ -77,20 +77,21 @@ class ExtremeFinderSimple:
         extremal coordinates; then adding some padding to take into account the
         finite sampling.
 
-        As each sampling step covers a relative range of *1/nx* or *1/ny*,
+        As each sampling step covers a relative range of ``1/nx`` or ``1/ny``,
         the padding is computed by expanding the span covered by the extremal
         coordinates by these fractions.
         """
-        x, y = np.meshgrid(
-            np.linspace(x1, x2, self.nx), np.linspace(y1, y2, self.ny))
-        xt, yt = transform_xy(np.ravel(x), np.ravel(y))
-        return self._add_pad(xt.min(), xt.max(), yt.min(), yt.max())
+        tbbox = self._find_transformed_bbox(
+            _User2DTransform(transform_xy, None), Bbox.from_extents(x1, y1, x2, y2))
+        return tbbox.x0, tbbox.x1, tbbox.y0, tbbox.y1
 
-    def _add_pad(self, x_min, x_max, y_min, y_max):
-        """Perform the padding mentioned in `__call__`."""
-        dx = (x_max - x_min) / self.nx
-        dy = (y_max - y_min) / self.ny
-        return x_min - dx, x_max + dx, y_min - dy, y_max + dy
+    def _find_transformed_bbox(self, trans, bbox):
+        grid = np.reshape(np.meshgrid(np.linspace(bbox.x0, bbox.x1, self.nx),
+                                      np.linspace(bbox.y0, bbox.y1, self.ny)),
+                          (2, -1)).T
+        tbbox = Bbox.null()
+        tbbox.update_from_data_xy(trans.transform(grid))
+        return tbbox.expanded(1 + 2 / self.nx, 1 + 2 / self.ny)
 
 
 class _User2DTransform(Transform):
@@ -170,42 +171,31 @@ class GridFinder:
                            rough number of grids in each direction.
         """
 
-        extremes = self.extreme_finder(self.inv_transform_xy, x1, y1, x2, y2)
+        bbox = Bbox.from_extents(x1, y1, x2, y2)
+        tbbox = self.extreme_finder._find_transformed_bbox(
+            self.get_transform().inverted(), bbox)
 
-        # min & max rage of lat (or lon) for each grid line will be drawn.
-        # i.e., gridline of lon=0 will be drawn from lat_min to lat_max.
+        lon_levs, lon_n, lon_factor = self.grid_locator1(*tbbox.intervalx)
+        lat_levs, lat_n, lat_factor = self.grid_locator2(*tbbox.intervaly)
 
-        lon_min, lon_max, lat_min, lat_max = extremes
-        lon_levs, lon_n, lon_factor = self.grid_locator1(lon_min, lon_max)
-        lon_levs = np.asarray(lon_levs)
-        lat_levs, lat_n, lat_factor = self.grid_locator2(lat_min, lat_max)
-        lat_levs = np.asarray(lat_levs)
+        lon_values = np.asarray(lon_levs[:lon_n]) / lon_factor
+        lat_values = np.asarray(lat_levs[:lat_n]) / lat_factor
 
-        lon_values = lon_levs[:lon_n] / lon_factor
-        lat_values = lat_levs[:lat_n] / lat_factor
+        lon_lines, lat_lines = self._get_raw_grid_lines(lon_values, lat_values, tbbox)
 
-        lon_lines, lat_lines = self._get_raw_grid_lines(lon_values,
-                                                        lat_values,
-                                                        lon_min, lon_max,
-                                                        lat_min, lat_max)
-
-        bb = Bbox.from_extents(x1, y1, x2, y2).expanded(1 + 2e-10, 1 + 2e-10)
-
-        grid_info = {
-            "extremes": extremes,
-            # "lon", "lat", filled below.
-        }
+        bbox_expanded = bbox.expanded(1 + 2e-10, 1 + 2e-10)
+        grid_info = {"extremes": tbbox}  # "lon", "lat" keys filled below.
 
         for idx, lon_or_lat, levs, factor, values, lines in [
                 (1, "lon", lon_levs, lon_factor, lon_values, lon_lines),
                 (2, "lat", lat_levs, lat_factor, lat_values, lat_lines),
         ]:
             grid_info[lon_or_lat] = gi = {
-                "lines": [[l] for l in lines],
+                "lines": lines,
                 "ticks": {"left": [], "right": [], "bottom": [], "top": []},
             }
-            for (lx, ly), v, level in zip(lines, values, levs):
-                all_crossings = _find_line_box_crossings(np.column_stack([lx, ly]), bb)
+            for xys, v, level in zip(lines, values, levs):
+                all_crossings = _find_line_box_crossings(xys, bbox_expanded)
                 for side, crossings in zip(
                         ["left", "right", "bottom", "top"], all_crossings):
                     for crossing in crossings:
@@ -218,18 +208,14 @@ class GridFinder:
 
         return grid_info
 
-    def _get_raw_grid_lines(self,
-                            lon_values, lat_values,
-                            lon_min, lon_max, lat_min, lat_max):
-
-        lons_i = np.linspace(lon_min, lon_max, 100)  # for interpolation
-        lats_i = np.linspace(lat_min, lat_max, 100)
-
-        lon_lines = [self.transform_xy(np.full_like(lats_i, lon), lats_i)
+    def _get_raw_grid_lines(self, lon_values, lat_values, bbox):
+        trans = self.get_transform()
+        lons = np.linspace(bbox.x0, bbox.x1, 100)  # for interpolation
+        lats = np.linspace(bbox.y0, bbox.y1, 100)
+        lon_lines = [trans.transform(np.column_stack([np.full_like(lats, lon), lats]))
                      for lon in lon_values]
-        lat_lines = [self.transform_xy(lons_i, np.full_like(lons_i, lat))
+        lat_lines = [trans.transform(np.column_stack([lons, np.full_like(lons, lat)]))
                      for lat in lat_values]
-
         return lon_lines, lat_lines
 
     def set_transform(self, aux_trans):
@@ -246,9 +232,11 @@ class GridFinder:
 
     update_transform = set_transform  # backcompat alias.
 
+    @_api.deprecated("3.9", alternative="grid_finder.get_transform()")
     def transform_xy(self, x, y):
         return self._aux_transform.transform(np.column_stack([x, y])).T
 
+    @_api.deprecated("3.9", alternative="grid_finder.get_transform().inverted()")
     def inv_transform_xy(self, x, y):
         return self._aux_transform.inverted().transform(
             np.column_stack([x, y])).T
