@@ -1510,20 +1510,35 @@ class Axes3D(Axes):
 
     def _arcball(self, x: float, y: float) -> np.ndarray:
         """
-        Convert a point (x, y) to a point on a virtual trackball
-        This is Ken Shoemake's arcball
+        Convert a point (x, y) to a point on a virtual trackball.
+
+        This is Ken Shoemake's arcball (a sphere), modified
+        to soften the abrupt edge (optionally).
         See: Ken Shoemake, "ARCBALL: A user interface for specifying
         three-dimensional rotation using a mouse." in
         Proceedings of Graphics Interface '92, 1992, pp. 151-156,
         https://doi.org/10.20380/GI1992.18
+        The smoothing of the edge is inspired by Gavin Bell's arcball
+        (a sphere combined with a hyperbola), but here, the sphere
+        is combined with a section of a cylinder, so it has finite support.
         """
-        x *= 2
-        y *= 2
+        s = mpl.rcParams['axes3d.trackballsize'] / 2
+        b = mpl.rcParams['axes3d.trackballborder'] / s
+        x /= s
+        y /= s
         r2 = x*x + y*y
-        if r2 > 1:
-            p = np.array([0, x/math.sqrt(r2), y/math.sqrt(r2)])
+        r = np.sqrt(r2)
+        ra = 1 + b
+        a = b * (1 + b/2)
+        ri = 2/(ra + 1/ra)
+        if r < ri:
+            p = np.array([np.sqrt(1 - r2), x, y])
+        elif r < ra:
+            dr = ra - r
+            p = np.array([a - np.sqrt((a + dr) * (a - dr)), x, y])
+            p /= np.linalg.norm(p)
         else:
-            p = np.array([math.sqrt(1-r2), x, y])
+            p = np.array([0, x/r, y/r])
         return p
 
     def _on_move(self, event):
@@ -1561,23 +1576,35 @@ class Axes3D(Axes):
             if dx == 0 and dy == 0:
                 return
 
-            # Convert to quaternion
-            elev = np.deg2rad(self.elev)
-            azim = np.deg2rad(self.azim)
-            roll = np.deg2rad(self.roll)
-            q = _Quaternion.from_cardan_angles(elev, azim, roll)
+            style = mpl.rcParams['axes3d.mouserotationstyle']
+            if style == 'azel':
+                roll = np.deg2rad(self.roll)
+                delev = -(dy/h)*180*np.cos(roll) + (dx/w)*180*np.sin(roll)
+                dazim = -(dy/h)*180*np.sin(roll) - (dx/w)*180*np.cos(roll)
+                elev = self.elev + delev
+                azim = self.azim + dazim
+                roll = self.roll
+            else:
+                q = _Quaternion.from_cardan_angles(
+                        *np.deg2rad((self.elev, self.azim, self.roll)))
 
-            # Update quaternion - a variation on Ken Shoemake's ARCBALL
-            current_vec = self._arcball(self._sx/w, self._sy/h)
-            new_vec = self._arcball(x/w, y/h)
-            dq = _Quaternion.rotate_from_to(current_vec, new_vec)
-            q = dq * q
+                if style == 'trackball':
+                    k = np.array([0, -dy/h, dx/w])
+                    nk = np.linalg.norm(k)
+                    th = nk / mpl.rcParams['axes3d.trackballsize']
+                    dq = _Quaternion(np.cos(th), k*np.sin(th)/nk)
+                else:  # 'sphere', 'arcball'
+                    current_vec = self._arcball(self._sx/w, self._sy/h)
+                    new_vec = self._arcball(x/w, y/h)
+                    if style == 'sphere':
+                        dq = _Quaternion.rotate_from_to(current_vec, new_vec)
+                    else:  # 'arcball'
+                        dq = _Quaternion(0, new_vec) * _Quaternion(0, -current_vec)
 
-            # Convert to elev, azim, roll
-            elev, azim, roll = q.as_cardan_angles()
-            azim = np.rad2deg(azim)
-            elev = np.rad2deg(elev)
-            roll = np.rad2deg(roll)
+                q = dq * q
+                elev, azim, roll = np.rad2deg(q.as_cardan_angles())
+
+            # update view
             vertical_axis = self._axis_names[self._vertical_axis]
             self.view_init(
                 elev=elev,
@@ -4088,7 +4115,7 @@ class _Quaternion:
         k = np.cross(r1, r2)
         nk = np.linalg.norm(k)
         th = np.arctan2(nk, np.dot(r1, r2))
-        th = th/2
+        th /= 2
         if nk == 0:  # r1 and r2 are parallel or anti-parallel
             if np.dot(r1, r2) < 0:
                 warnings.warn("Rotation defined by anti-parallel vectors is ambiguous")
@@ -4100,7 +4127,7 @@ class _Quaternion:
             else:
                 q = cls(1, [0, 0, 0])  # = 1, no rotation
         else:
-            q = cls(math.cos(th), k*math.sin(th)/nk)
+            q = cls(np.cos(th), k*np.sin(th)/nk)
         return q
 
     @classmethod
@@ -4125,10 +4152,11 @@ class _Quaternion:
         """
         The inverse of `from_cardan_angles()`.
         Note that the angles returned are in radians, not degrees.
+        The angles are not sensitive to the quaternion's norm().
         """
         qw = self.scalar
         qx, qy, qz = self.vector[..., :]
         azim = np.arctan2(2*(-qw*qz+qx*qy), qw*qw+qx*qx-qy*qy-qz*qz)
-        elev = np.arcsin( 2*( qw*qy+qz*qx)/(qw*qw+qx*qx+qy*qy+qz*qz))  # noqa E201
-        roll = np.arctan2(2*( qw*qx-qy*qz), qw*qw-qx*qx-qy*qy+qz*qz)   # noqa E201
+        elev = np.arcsin(np.clip(2*(qw*qy+qz*qx)/(qw*qw+qx*qx+qy*qy+qz*qz), -1, 1))
+        roll = np.arctan2(2*(qw*qx-qy*qz), qw*qw-qx*qx-qy*qy+qz*qz)
         return elev, azim, roll

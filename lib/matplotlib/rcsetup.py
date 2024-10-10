@@ -1119,6 +1119,10 @@ _validators = {
     "axes3d.yaxis.panecolor":    validate_color,  # 3d background pane
     "axes3d.zaxis.panecolor":    validate_color,  # 3d background pane
 
+    "axes3d.mouserotationstyle": ["azel", "trackball", "sphere", "arcball"],
+    "axes3d.trackballsize": validate_float,
+    "axes3d.trackballborder": validate_float,
+
     # scatter props
     "scatter.marker":     _validate_marker,
     "scatter.edgecolors": validate_string,

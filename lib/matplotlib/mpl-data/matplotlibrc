@@ -433,6 +433,11 @@
 #axes3d.yaxis.panecolor:    (0.90, 0.90, 0.90, 0.5)  # background pane on 3D axes
 #axes3d.zaxis.panecolor:    (0.925, 0.925, 0.925, 0.5)  # background pane on 3D axes
 
+#axes3d.mouserotationstyle: arcball  # {azel, trackball, sphere, arcball}
+                            # See also https://matplotlib.org/stable/api/toolkits/mplot3d/view_angles.html#rotation-with-mouse
+#axes3d.trackballsize: 0.667  # trackball diameter, in units of the Axes bbox
+#axes3d.trackballborder: 0.2  # trackball border width, in units of the Axes bbox (only for 'sphere' and 'arcball' style)
+
 ## ***************************************************************************
 ## * AXIS                                                                    *
 ## ***************************************************************************
