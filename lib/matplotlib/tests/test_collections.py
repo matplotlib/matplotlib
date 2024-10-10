@@ -17,6 +17,7 @@ import matplotlib.path as mpath
 import matplotlib.transforms as mtransforms
 from matplotlib.collections import (Collection, LineCollection,
                                     EventCollection, PolyCollection)
+from matplotlib.collections import FillBetweenPolyCollection
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 
@@ -828,6 +829,35 @@ def test_collection_set_verts_array():
     for ap, atp in zip(col_arr._paths, col_arr_tuple._paths):
         assert np.array_equal(ap._vertices, atp._vertices)
         assert np.array_equal(ap._codes, atp._codes)
+
+
+@check_figures_equal(extensions=["png"])
+@pytest.mark.parametrize("kwargs", [{}, {"step": "pre"}])
+def test_fill_between_poly_collection_set_data(fig_test, fig_ref, kwargs):
+    t = np.linspace(0, 16)
+    f1 = np.sin(t)
+    f2 = f1 + 0.2
+
+    fig_ref.subplots().fill_between(t, f1, f2, **kwargs)
+
+    coll = fig_test.subplots().fill_between(t, -1, 1.2, **kwargs)
+    coll.set_data(t, f1, f2)
+
+
+@pytest.mark.parametrize(("t_direction", "f1", "shape", "where", "msg"), [
+    ("z", None, None, None, r"t_direction must be 'x' or 'y', got 'z'"),
+    ("x", None, (-1, 1), None, r"'x' is not 1-dimensional"),
+    ("x", None, None, [False] * 3, r"where size \(3\) does not match 'x' size \(\d+\)"),
+    ("y", [1, 2], None, None, r"'y' has size \d+, but 'x1' has an unequal size of \d+"),
+])
+def test_fill_between_poly_collection_raise(t_direction, f1, shape, where, msg):
+    t = np.linspace(0, 16)
+    f1 = np.sin(t) if f1 is None else np.asarray(f1)
+    f2 = f1 + 0.2
+    if shape:
+        t = t.reshape(*shape)
+    with pytest.raises(ValueError, match=msg):
+        FillBetweenPolyCollection(t_direction, t, f1, f2, where=where)
 
 
 def test_collection_set_array():

@@ -6,7 +6,6 @@ from numbers import Integral, Number, Real
 
 import re
 import numpy as np
-from numpy import ma
 
 import matplotlib as mpl
 import matplotlib.category  # Register category unit converter as side effect.
@@ -5551,18 +5550,18 @@ class Axes(_AxesBase):
             i.e. constant in between *{ind}*.  The value determines where the
             step will occur:
 
-            - 'pre': The y value is continued constantly to the left from
-              every *x* position, i.e. the interval ``(x[i-1], x[i]]`` has the
-              value ``y[i]``.
+            - 'pre': The {dep} value is continued constantly to the left from
+              every *{ind}* position, i.e. the interval ``({ind}[i-1], {ind}[i]]``
+              has the value ``{dep}[i]``.
             - 'post': The y value is continued constantly to the right from
-              every *x* position, i.e. the interval ``[x[i], x[i+1])`` has the
-              value ``y[i]``.
-            - 'mid': Steps occur half-way between the *x* positions.
+              every *{ind}* position, i.e. the interval ``[{ind}[i], {ind}[i+1])``
+              has the value ``{dep}[i]``.
+            - 'mid': Steps occur half-way between the *{ind}* positions.
 
         Returns
         -------
-        `.PolyCollection`
-            A `.PolyCollection` containing the plotted polygons.
+        `.FillBetweenPolyCollection`
+            A `.FillBetweenPolyCollection` containing the plotted polygons.
 
         Other Parameters
         ----------------
@@ -5570,123 +5569,38 @@ class Axes(_AxesBase):
             DATA_PARAMETER_PLACEHOLDER
 
         **kwargs
-            All other keyword arguments are passed on to `.PolyCollection`.
-            They control the `.Polygon` properties:
+            All other keyword arguments are passed on to
+            `.FillBetweenPolyCollection`. They control the `.Polygon` properties:
 
-            %(PolyCollection:kwdoc)s
+            %(FillBetweenPolyCollection:kwdoc)s
 
         See Also
         --------
         fill_between : Fill between two sets of y-values.
         fill_betweenx : Fill between two sets of x-values.
         """
-
-        dep_dir = {"x": "y", "y": "x"}[ind_dir]
+        dep_dir = mcoll.FillBetweenPolyCollection._f_dir_from_t(ind_dir)
 
         if not mpl.rcParams["_internal.classic_mode"]:
             kwargs = cbook.normalize_kwargs(kwargs, mcoll.Collection)
             if not any(c in kwargs for c in ("color", "facecolor")):
-                kwargs["facecolor"] = \
-                    self._get_patches_for_fill.get_next_color()
+                kwargs["facecolor"] = self._get_patches_for_fill.get_next_color()
 
-        # Handle united data, such as dates
-        ind, dep1, dep2 = map(
-            ma.masked_invalid, self._process_unit_info(
-                [(ind_dir, ind), (dep_dir, dep1), (dep_dir, dep2)], kwargs))
+        ind, dep1, dep2 = self._fill_between_process_units(
+            ind_dir, dep_dir, ind, dep1, dep2, **kwargs)
 
-        for name, array in [
-                (ind_dir, ind), (f"{dep_dir}1", dep1), (f"{dep_dir}2", dep2)]:
-            if array.ndim > 1:
-                raise ValueError(f"{name!r} is not 1-dimensional")
+        collection = mcoll.FillBetweenPolyCollection(
+            ind_dir, ind, dep1, dep2,
+            where=where, interpolate=interpolate, step=step, **kwargs)
 
-        if where is None:
-            where = True
-        else:
-            where = np.asarray(where, dtype=bool)
-            if where.size != ind.size:
-                raise ValueError(f"where size ({where.size}) does not match "
-                                 f"{ind_dir} size ({ind.size})")
-        where = where & ~functools.reduce(
-            np.logical_or, map(np.ma.getmaskarray, [ind, dep1, dep2]))
-
-        ind, dep1, dep2 = np.broadcast_arrays(
-            np.atleast_1d(ind), dep1, dep2, subok=True)
-
-        polys = []
-        for idx0, idx1 in cbook.contiguous_regions(where):
-            indslice = ind[idx0:idx1]
-            dep1slice = dep1[idx0:idx1]
-            dep2slice = dep2[idx0:idx1]
-            if step is not None:
-                step_func = cbook.STEP_LOOKUP_MAP["steps-" + step]
-                indslice, dep1slice, dep2slice = \
-                    step_func(indslice, dep1slice, dep2slice)
-
-            if not len(indslice):
-                continue
-
-            N = len(indslice)
-            pts = np.zeros((2 * N + 2, 2))
-
-            if interpolate:
-                def get_interp_point(idx):
-                    im1 = max(idx - 1, 0)
-                    ind_values = ind[im1:idx+1]
-                    diff_values = dep1[im1:idx+1] - dep2[im1:idx+1]
-                    dep1_values = dep1[im1:idx+1]
-
-                    if len(diff_values) == 2:
-                        if np.ma.is_masked(diff_values[1]):
-                            return ind[im1], dep1[im1]
-                        elif np.ma.is_masked(diff_values[0]):
-                            return ind[idx], dep1[idx]
-
-                    diff_order = diff_values.argsort()
-                    diff_root_ind = np.interp(
-                        0, diff_values[diff_order], ind_values[diff_order])
-                    ind_order = ind_values.argsort()
-                    diff_root_dep = np.interp(
-                        diff_root_ind,
-                        ind_values[ind_order], dep1_values[ind_order])
-                    return diff_root_ind, diff_root_dep
-
-                start = get_interp_point(idx0)
-                end = get_interp_point(idx1)
-            else:
-                # Handle scalar dep2 (e.g. 0): the fill should go all
-                # the way down to 0 even if none of the dep1 sample points do.
-                start = indslice[0], dep2slice[0]
-                end = indslice[-1], dep2slice[-1]
-
-            pts[0] = start
-            pts[N + 1] = end
-
-            pts[1:N+1, 0] = indslice
-            pts[1:N+1, 1] = dep1slice
-            pts[N+2:, 0] = indslice[::-1]
-            pts[N+2:, 1] = dep2slice[::-1]
-
-            if ind_dir == "y":
-                pts = pts[:, ::-1]
-
-            polys.append(pts)
-
-        collection = mcoll.PolyCollection(polys, **kwargs)
-
-        # now update the datalim and autoscale
-        pts = np.vstack([np.hstack([ind[where, None], dep1[where, None]]),
-                         np.hstack([ind[where, None], dep2[where, None]])])
-        if ind_dir == "y":
-            pts = pts[:, ::-1]
-
-        up_x = up_y = True
-        if "transform" in kwargs:
-            up_x, up_y = kwargs["transform"].contains_branch_seperately(self.transData)
-        self.update_datalim(pts, updatex=up_x, updatey=up_y)
-
-        self.add_collection(collection, autolim=False)
+        self.add_collection(collection)
         self._request_autoscale_view()
         return collection
+
+    def _fill_between_process_units(self, ind_dir, dep_dir, ind, dep1, dep2, **kwargs):
+        """Handle united data, such as dates."""
+        return map(np.ma.masked_invalid, self._process_unit_info(
+            [(ind_dir, ind), (dep_dir, dep1), (dep_dir, dep2)], kwargs))
 
     def fill_between(self, x, y1, y2=0, where=None, interpolate=False,
                      step=None, **kwargs):

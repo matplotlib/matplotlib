@@ -5,6 +5,7 @@ from matplotlib.artist import Artist
 from matplotlib.backend_bases import RendererBase
 from matplotlib.collections import (
     Collection,
+    FillBetweenPolyCollection,
     LineCollection,
     PathCollection,
     PolyCollection,
@@ -459,7 +460,7 @@ class Axes(_AxesBase):
         *,
         data=...,
         **kwargs
-    ) -> PolyCollection: ...
+    ) -> FillBetweenPolyCollection: ...
     def fill_betweenx(
         self,
         y: ArrayLike,
@@ -471,7 +472,7 @@ class Axes(_AxesBase):
         *,
         data=...,
         **kwargs
-    ) -> PolyCollection: ...
+    ) -> FillBetweenPolyCollection: ...
     def imshow(
         self,
         X: ArrayLike | PIL.Image.Image,
