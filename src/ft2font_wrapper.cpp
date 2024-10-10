@@ -4,6 +4,7 @@
 #include <pybind11/stl.h>
 
 #include "ft2font.h"
+#include "_enums.h"
 
 #include <set>
 #include <sstream>
@@ -13,11 +14,217 @@ namespace py = pybind11;
 using namespace pybind11::literals;
 
 /**********************************************************************
+ * Enumerations
+ * */
+
+const char *Kerning__doc__ = R"""(
+    Kerning modes for `.FT2Font.get_kerning`.
+
+    For more information, see `the FreeType documentation
+    <https://freetype.org/freetype2/docs/reference/ft2-glyph_retrieval.html#ft_kerning_mode>`_.
+
+    .. versionadded:: 3.10
+)""";
+
+P11X_DECLARE_ENUM(
+    "Kerning", "Enum",
+    {"DEFAULT", FT_KERNING_DEFAULT},
+    {"UNFITTED", FT_KERNING_UNFITTED},
+    {"UNSCALED", FT_KERNING_UNSCALED},
+);
+
+const char *FaceFlags__doc__ = R"""(
+    Flags returned by `FT2Font.face_flags`.
+
+    For more information, see `the FreeType documentation
+    <https://freetype.org/freetype2/docs/reference/ft2-face_creation.html#ft_face_flag_xxx>`_.
+
+    .. versionadded:: 3.10
+)""";
+
+enum class FaceFlags : FT_Long {
+#define DECLARE_FLAG(name) name = FT_FACE_FLAG_##name
+    DECLARE_FLAG(SCALABLE),
+    DECLARE_FLAG(FIXED_SIZES),
+    DECLARE_FLAG(FIXED_WIDTH),
+    DECLARE_FLAG(SFNT),
+    DECLARE_FLAG(HORIZONTAL),
+    DECLARE_FLAG(VERTICAL),
+    DECLARE_FLAG(KERNING),
+    DECLARE_FLAG(FAST_GLYPHS),
+    DECLARE_FLAG(MULTIPLE_MASTERS),
+    DECLARE_FLAG(GLYPH_NAMES),
+    DECLARE_FLAG(EXTERNAL_STREAM),
+    DECLARE_FLAG(HINTER),
+    DECLARE_FLAG(CID_KEYED),
+    DECLARE_FLAG(TRICKY),
+    DECLARE_FLAG(COLOR),
+#ifdef FT_FACE_FLAG_VARIATION  // backcompat: ft 2.9.0.
+    DECLARE_FLAG(VARIATION),
+#endif
+#ifdef FT_FACE_FLAG_SVG  // backcompat: ft 2.12.0.
+    DECLARE_FLAG(SVG),
+#endif
+#ifdef FT_FACE_FLAG_SBIX  // backcompat: ft 2.12.0.
+    DECLARE_FLAG(SBIX),
+#endif
+#ifdef FT_FACE_FLAG_SBIX_OVERLAY  // backcompat: ft 2.12.0.
+    DECLARE_FLAG(SBIX_OVERLAY),
+#endif
+#undef DECLARE_FLAG
+};
+
+P11X_DECLARE_ENUM(
+    "FaceFlags", "Flag",
+    {"SCALABLE", FaceFlags::SCALABLE},
+    {"FIXED_SIZES", FaceFlags::FIXED_SIZES},
+    {"FIXED_WIDTH", FaceFlags::FIXED_WIDTH},
+    {"SFNT", FaceFlags::SFNT},
+    {"HORIZONTAL", FaceFlags::HORIZONTAL},
+    {"VERTICAL", FaceFlags::VERTICAL},
+    {"KERNING", FaceFlags::KERNING},
+    {"FAST_GLYPHS", FaceFlags::FAST_GLYPHS},
+    {"MULTIPLE_MASTERS", FaceFlags::MULTIPLE_MASTERS},
+    {"GLYPH_NAMES", FaceFlags::GLYPH_NAMES},
+    {"EXTERNAL_STREAM", FaceFlags::EXTERNAL_STREAM},
+    {"HINTER", FaceFlags::HINTER},
+    {"CID_KEYED", FaceFlags::CID_KEYED},
+    {"TRICKY", FaceFlags::TRICKY},
+    {"COLOR", FaceFlags::COLOR},
+    // backcompat: ft 2.9.0.
+    // {"VARIATION", FaceFlags::VARIATION},
+    // backcompat: ft 2.12.0.
+    // {"SVG", FaceFlags::SVG},
+    // backcompat: ft 2.12.0.
+    // {"SBIX", FaceFlags::SBIX},
+    // backcompat: ft 2.12.0.
+    // {"SBIX_OVERLAY", FaceFlags::SBIX_OVERLAY},
+);
+
+const char *LoadFlags__doc__ = R"""(
+    Flags for `FT2Font.load_char`, `FT2Font.load_glyph`, and `FT2Font.set_text`.
+
+    For more information, see `the FreeType documentation
+    <https://freetype.org/freetype2/docs/reference/ft2-glyph_retrieval.html#ft_load_xxx>`_.
+
+    .. versionadded:: 3.10
+)""";
+
+enum class LoadFlags : FT_Int32 {
+#define DECLARE_FLAG(name) name = FT_LOAD_##name
+    DECLARE_FLAG(DEFAULT),
+    DECLARE_FLAG(NO_SCALE),
+    DECLARE_FLAG(NO_HINTING),
+    DECLARE_FLAG(RENDER),
+    DECLARE_FLAG(NO_BITMAP),
+    DECLARE_FLAG(VERTICAL_LAYOUT),
+    DECLARE_FLAG(FORCE_AUTOHINT),
+    DECLARE_FLAG(CROP_BITMAP),
+    DECLARE_FLAG(PEDANTIC),
+    DECLARE_FLAG(IGNORE_GLOBAL_ADVANCE_WIDTH),
+    DECLARE_FLAG(NO_RECURSE),
+    DECLARE_FLAG(IGNORE_TRANSFORM),
+    DECLARE_FLAG(MONOCHROME),
+    DECLARE_FLAG(LINEAR_DESIGN),
+    DECLARE_FLAG(NO_AUTOHINT),
+    DECLARE_FLAG(COLOR),
+#ifdef FT_LOAD_COMPUTE_METRICS  // backcompat: ft 2.6.1.
+    DECLARE_FLAG(COMPUTE_METRICS),
+#endif
+#ifdef FT_LOAD_BITMAP_METRICS_ONLY  // backcompat: ft 2.7.1.
+    DECLARE_FLAG(LOAD_BITMAP_METRICS_ONLY),
+#endif
+#ifdef FT_LOAD_NO_SVG  // backcompat: ft 2.13.1.
+    DECLARE_FLAG(LOAD_NO_SVG),
+#endif
+    DECLARE_FLAG(TARGET_NORMAL),
+    DECLARE_FLAG(TARGET_LIGHT),
+    DECLARE_FLAG(TARGET_MONO),
+    DECLARE_FLAG(TARGET_LCD),
+    DECLARE_FLAG(TARGET_LCD_V),
+#undef DECLARE_FLAG
+};
+
+P11X_DECLARE_ENUM(
+    "LoadFlags", "Flag",
+    {"DEFAULT", LoadFlags::DEFAULT},
+    {"NO_SCALE", LoadFlags::NO_SCALE},
+    {"NO_HINTING", LoadFlags::NO_HINTING},
+    {"RENDER", LoadFlags::RENDER},
+    {"NO_BITMAP", LoadFlags::NO_BITMAP},
+    {"VERTICAL_LAYOUT", LoadFlags::VERTICAL_LAYOUT},
+    {"FORCE_AUTOHINT", LoadFlags::FORCE_AUTOHINT},
+    {"CROP_BITMAP", LoadFlags::CROP_BITMAP},
+    {"PEDANTIC", LoadFlags::PEDANTIC},
+    {"IGNORE_GLOBAL_ADVANCE_WIDTH", LoadFlags::IGNORE_GLOBAL_ADVANCE_WIDTH},
+    {"NO_RECURSE", LoadFlags::NO_RECURSE},
+    {"IGNORE_TRANSFORM", LoadFlags::IGNORE_TRANSFORM},
+    {"MONOCHROME", LoadFlags::MONOCHROME},
+    {"LINEAR_DESIGN", LoadFlags::LINEAR_DESIGN},
+    {"NO_AUTOHINT", LoadFlags::NO_AUTOHINT},
+    {"COLOR", LoadFlags::COLOR},
+    // backcompat: ft 2.6.1.
+    {"COMPUTE_METRICS", LoadFlags::COMPUTE_METRICS},
+    // backcompat: ft 2.7.1.
+    // {"BITMAP_METRICS_ONLY", LoadFlags::BITMAP_METRICS_ONLY},
+    // backcompat: ft 2.13.1.
+    // {"NO_SVG", LoadFlags::NO_SVG},
+    // These must be unique, but the others can be OR'd together; I don't know if
+    // there's any way to really enforce that.
+    {"TARGET_NORMAL", LoadFlags::TARGET_NORMAL},
+    {"TARGET_LIGHT", LoadFlags::TARGET_LIGHT},
+    {"TARGET_MONO", LoadFlags::TARGET_MONO},
+    {"TARGET_LCD", LoadFlags::TARGET_LCD},
+    {"TARGET_LCD_V", LoadFlags::TARGET_LCD_V},
+);
+
+const char *StyleFlags__doc__ = R"""(
+    Flags returned by `FT2Font.style_flags`.
+
+    For more information, see `the FreeType documentation
+    <https://freetype.org/freetype2/docs/reference/ft2-face_creation.html#ft_style_flag_xxx>`_.
+
+    .. versionadded:: 3.10
+)""";
+
+enum class StyleFlags : FT_Long {
+#define DECLARE_FLAG(name) name = FT_STYLE_FLAG_##name
+    NORMAL = 0,
+    DECLARE_FLAG(ITALIC),
+    DECLARE_FLAG(BOLD),
+#undef DECLARE_FLAG
+};
+
+P11X_DECLARE_ENUM(
+    "StyleFlags", "Flag",
+    {"NORMAL", StyleFlags::NORMAL},
+    {"ITALIC", StyleFlags::ITALIC},
+    {"BOLD", StyleFlags::BOLD},
+);
+
+/**********************************************************************
  * FT2Image
  * */
 
-const char *PyFT2Image_draw_rect_filled__doc__ =
-    "Draw a filled rectangle to the image.";
+const char *PyFT2Image__doc__ = R"""(
+    An image buffer for drawing glyphs.
+)""";
+
+const char *PyFT2Image_init__doc__ = R"""(
+    Parameters
+    ----------
+    width, height : int
+        The dimensions of the image buffer.
+)""";
+
+const char *PyFT2Image_draw_rect_filled__doc__ = R"""(
+    Draw a filled rectangle to the image.
+
+    Parameters
+    ----------
+    x0, y0, x1, y1 : float
+        The bounds of the rectangle from (x0, y0) to (x1, y1).
+)""";
 
 static void
 PyFT2Image_draw_rect_filled(FT2Image *self, double x0, double y0, double x1, double y1)
@@ -43,6 +250,17 @@ typedef struct
     long vertAdvance;
     FT_BBox bbox;
 } PyGlyph;
+
+const char *PyGlyph__doc__ = R"""(
+    Information about a single glyph.
+
+    You cannot create instances of this object yourself, but must use
+    `.FT2Font.load_char` or `.FT2Font.load_glyph` to generate one. This object may be
+    used in a call to `.FT2Font.draw_glyph_to_bitmap`.
+
+    For more information on the various metrics, see `the FreeType documentation
+    <https://freetype.org/freetype2/docs/glyphs/glyphs-3.html>`_.
+)""";
 
 static PyGlyph *
 PyGlyph_from_FT2Font(const FT2Font *font)
@@ -92,6 +310,26 @@ struct PyFT2Font
         delete this->x;
     }
 };
+
+const char *PyFT2Font__doc__ = R"""(
+    An object representing a single font face.
+
+    Outside of the font itself and querying its properties, this object provides methods
+    for processing text strings into glyph shapes.
+
+    Commonly, one will use `FT2Font.set_text` to load some glyph metrics and outlines.
+    Then `FT2Font.draw_glyphs_to_bitmap` and `FT2Font.get_image` may be used to get a
+    rendered form of the loaded string.
+
+    For single characters, `FT2Font.load_char` or `FT2Font.load_glyph` may be used,
+    either directly for their return values, or to use `FT2Font.draw_glyph_to_bitmap` or
+    `FT2Font.get_path`.
+
+    Useful metrics may be examined via the `Glyph` return values or
+    `FT2Font.get_kerning`. Most dimensions are given in 26.6 or 16.6 fixed-point
+    integers representing subpixels. Divide these values by 64 to produce floating-point
+    pixels.
+)""";
 
 static unsigned long
 read_from_file_callback(FT_Stream stream, unsigned long offset, unsigned char *buffer,
@@ -146,28 +384,27 @@ ft_glyph_warn(FT_ULong charcode, std::set<FT_String*> family_names)
     warn_on_missing_glyph(charcode, ss.str());
 }
 
-const char *PyFT2Font_init__doc__ =
-    "Create a new FT2Font object.\n"
-    "\n"
-    "Parameters\n"
-    "----------\n"
-    "filename : str or file-like\n"
-    "    The source of the font data in a format (ttf or ttc) that FreeType can read\n"
-    "\n"
-    "hinting_factor : int, optional\n"
-    "    Must be positive. Used to scale the hinting in the x-direction\n"
-    "_fallback_list : list of FT2Font, optional\n"
-    "    A list of FT2Font objects used to find missing glyphs.\n"
-    "\n"
-    "    .. warning::\n"
-    "        This API is both private and provisional: do not use it directly\n"
-    "\n"
-    "_kerning_factor : int, optional\n"
-    "    Used to adjust the degree of kerning.\n"
-    "\n"
-    "    .. warning::\n"
-    "        This API is private: do not use it directly\n"
-;
+const char *PyFT2Font_init__doc__ = R"""(
+    Parameters
+    ----------
+    filename : str or file-like
+        The source of the font data in a format (ttf or ttc) that FreeType can read.
+
+    hinting_factor : int, optional
+        Must be positive. Used to scale the hinting in the x-direction.
+
+    _fallback_list : list of FT2Font, optional
+        A list of FT2Font objects used to find missing glyphs.
+
+        .. warning::
+            This API is both private and provisional: do not use it directly.
+
+    _kerning_factor : int, optional
+        Used to adjust the degree of kerning.
+
+        .. warning::
+            This API is private: do not use it directly.
+)""";
 
 static PyFT2Font *
 PyFT2Font_init(py::object filename, long hinting_factor = 8,
@@ -237,8 +474,16 @@ PyFT2Font_clear(PyFT2Font *self)
     self->x->clear();
 }
 
-const char *PyFT2Font_set_size__doc__ =
-    "Set the point size and dpi of the text.";
+const char *PyFT2Font_set_size__doc__ = R"""(
+    Set the size of the text.
+
+    Parameters
+    ----------
+    ptsize : float
+        The size of the text in points.
+    dpi : float
+        The DPI used for rendering the text.
+)""";
 
 static void
 PyFT2Font_set_size(PyFT2Font *self, double ptsize, double dpi)
@@ -246,8 +491,23 @@ PyFT2Font_set_size(PyFT2Font *self, double ptsize, double dpi)
     self->x->set_size(ptsize, dpi);
 }
 
-const char *PyFT2Font_set_charmap__doc__ =
-    "Make the i-th charmap current.";
+const char *PyFT2Font_set_charmap__doc__ = R"""(
+    Make the i-th charmap current.
+
+    For more details on character mapping, see the `FreeType documentation
+    <https://freetype.org/freetype2/docs/reference/ft2-character_mapping.html>`_.
+
+    Parameters
+    ----------
+    i : int
+        The charmap number in the range [0, `.num_charmaps`).
+
+    See Also
+    --------
+    .num_charmaps
+    .select_charmap
+    .get_charmap
+)""";
 
 static void
 PyFT2Font_set_charmap(PyFT2Font *self, int i)
@@ -255,8 +515,23 @@ PyFT2Font_set_charmap(PyFT2Font *self, int i)
     self->x->set_charmap(i);
 }
 
-const char *PyFT2Font_select_charmap__doc__ =
-    "Select a charmap by its FT_Encoding number.";
+const char *PyFT2Font_select_charmap__doc__ = R"""(
+    Select a charmap by its FT_Encoding number.
+
+    For more details on character mapping, see the `FreeType documentation
+    <https://freetype.org/freetype2/docs/reference/ft2-character_mapping.html>`_.
+
+    Parameters
+    ----------
+    i : int
+        The charmap in the form defined by FreeType:
+        https://freetype.org/freetype2/docs/reference/ft2-character_mapping.html#ft_encoding
+
+    See Also
+    --------
+    .set_charmap
+    .get_charmap
+)""";
 
 static void
 PyFT2Font_select_charmap(PyFT2Font *self, unsigned long i)
@@ -264,38 +539,85 @@ PyFT2Font_select_charmap(PyFT2Font *self, unsigned long i)
     self->x->select_charmap(i);
 }
 
-const char *PyFT2Font_get_kerning__doc__ =
-    "Get the kerning between *left* and *right* glyph indices.\n"
-    "\n"
-    "*mode* is a kerning mode constant:\n"
-    "\n"
-    "- KERNING_DEFAULT  - Return scaled and grid-fitted kerning distances\n"
-    "- KERNING_UNFITTED - Return scaled but un-grid-fitted kerning distances\n"
-    "- KERNING_UNSCALED - Return the kerning vector in original font units\n";
+const char *PyFT2Font_get_kerning__doc__ = R"""(
+    Get the kerning between two glyphs.
+
+    Parameters
+    ----------
+    left, right : int
+        The glyph indices. Note these are not characters nor character codes.
+        Use `.get_char_index` to convert character codes to glyph indices.
+
+    mode : Kerning
+        A kerning mode constant:
+
+        - ``DEFAULT``  - Return scaled and grid-fitted kerning distances.
+        - ``UNFITTED`` - Return scaled but un-grid-fitted kerning distances.
+        - ``UNSCALED`` - Return the kerning vector in original font units.
+
+        .. versionchanged:: 3.10
+            This now takes a `.ft2font.Kerning` value instead of an `int`.
+
+    Returns
+    -------
+    int
+        The kerning adjustment between the two glyphs.
+)""";
 
 static int
-PyFT2Font_get_kerning(PyFT2Font *self, FT_UInt left, FT_UInt right, FT_UInt mode)
+PyFT2Font_get_kerning(PyFT2Font *self, FT_UInt left, FT_UInt right,
+                      std::variant<FT_Kerning_Mode, FT_UInt> mode_or_int)
 {
     bool fallback = true;
+    FT_Kerning_Mode mode;
+
+    if (auto value = std::get_if<FT_UInt>(&mode_or_int)) {
+        auto api = py::module_::import("matplotlib._api");
+        auto warn = api.attr("warn_deprecated");
+        warn("since"_a="3.10", "name"_a="mode", "obj_type"_a="parameter as int",
+             "alternative"_a="Kerning enum values");
+        mode = static_cast<FT_Kerning_Mode>(*value);
+    } else if (auto value = std::get_if<FT_Kerning_Mode>(&mode_or_int)) {
+        mode = *value;
+    } else {
+        // NOTE: this can never happen as pybind11 would have checked the type in the
+        // Python wrapper before calling this function, but we need to keep the
+        // std::get_if instead of std::get for macOS 10.12 compatibility.
+        throw py::type_error("mode must be Kerning or int");
+    }
 
     return self->x->get_kerning(left, right, mode, fallback);
 }
 
-const char *PyFT2Font_get_fontmap__doc__ =
-    "Get a mapping between characters and the font that includes them.\n"
-    "A dictionary mapping unicode characters to PyFT2Font objects.";
+const char *PyFT2Font_get_fontmap__doc__ = R"""(
+    Get a mapping between characters and the font that includes them.
+
+    .. warning::
+        This API uses the fallback list and is both private and provisional: do not use
+        it directly.
+
+    Parameters
+    ----------
+    text : str
+        The characters for which to find fonts.
+
+    Returns
+    -------
+    dict[str, FT2Font]
+        A dictionary mapping unicode characters to `.FT2Font` objects.
+)""";
 
 static py::dict
 PyFT2Font_get_fontmap(PyFT2Font *self, std::u32string text)
 {
     std::set<FT_ULong> codepoints;
 
-    for (auto code : text) {
-        codepoints.insert(code);
-    }
-
     py::dict char_to_font;
-    for (auto code : codepoints) {
+    for (auto code : text) {
+        if (!codepoints.insert(code).second) {
+            continue;
+        }
+
         py::object target_font;
         int index;
         if (self->x->get_char_fallback_index(code, index)) {
@@ -315,20 +637,52 @@ PyFT2Font_get_fontmap(PyFT2Font *self, std::u32string text)
     return char_to_font;
 }
 
-const char *PyFT2Font_set_text__doc__ =
-    "Set the text *string* and *angle*.\n"
-    "*flags* can be a bitwise-or of the LOAD_XXX constants;\n"
-    "the default value is LOAD_FORCE_AUTOHINT.\n"
-    "You must call this before `.draw_glyphs_to_bitmap`.\n"
-    "A sequence of x,y positions in 26.6 subpixels is returned; divide by 64 for pixels.\n";
+const char *PyFT2Font_set_text__doc__ = R"""(
+    Set the text *string* and *angle*.
+
+    You must call this before `.draw_glyphs_to_bitmap`.
+
+    Parameters
+    ----------
+    string : str
+        The text to prepare rendering information for.
+    angle : float
+        The angle at which to render the supplied text.
+    flags : LoadFlags, default: `.LoadFlags.FORCE_AUTOHINT`
+        Any bitwise-OR combination of the `.LoadFlags` flags.
+
+        .. versionchanged:: 3.10
+            This now takes an `.ft2font.LoadFlags` instead of an int.
+
+    Returns
+    -------
+    np.ndarray[double]
+        A sequence of x,y glyph positions in 26.6 subpixels; divide by 64 for pixels.
+)""";
 
 static py::array_t<double>
 PyFT2Font_set_text(PyFT2Font *self, std::u32string_view text, double angle = 0.0,
-                   FT_Int32 flags = FT_LOAD_FORCE_AUTOHINT)
+                   std::variant<LoadFlags, FT_Int32> flags_or_int = LoadFlags::FORCE_AUTOHINT)
 {
     std::vector<double> xys;
+    LoadFlags flags;
 
-    self->x->set_text(text, angle, flags, xys);
+    if (auto value = std::get_if<FT_Int32>(&flags_or_int)) {
+        auto api = py::module_::import("matplotlib._api");
+        auto warn = api.attr("warn_deprecated");
+        warn("since"_a="3.10", "name"_a="flags", "obj_type"_a="parameter as int",
+             "alternative"_a="LoadFlags enum values");
+        flags = static_cast<LoadFlags>(*value);
+    } else if (auto value = std::get_if<LoadFlags>(&flags_or_int)) {
+        flags = *value;
+    } else {
+        // NOTE: this can never happen as pybind11 would have checked the type in the
+        // Python wrapper before calling this function, but we need to keep the
+        // std::get_if instead of std::get for macOS 10.12 compatibility.
+        throw py::type_error("flags must be LoadFlags or int");
+    }
+
+    self->x->set_text(text, angle, static_cast<FT_Int32>(flags), xys);
 
     py::ssize_t dims[] = { static_cast<py::ssize_t>(xys.size()) / 2, 2 };
     py::array_t<double> result(dims);
@@ -338,8 +692,7 @@ PyFT2Font_set_text(PyFT2Font *self, std::u32string_view text, double angle = 0.0
     return result;
 }
 
-const char *PyFT2Font_get_num_glyphs__doc__ =
-    "Return the number of loaded glyphs.";
+const char *PyFT2Font_get_num_glyphs__doc__ = "Return the number of loaded glyphs.";
 
 static size_t
 PyFT2Font_get_num_glyphs(PyFT2Font *self)
@@ -347,64 +700,130 @@ PyFT2Font_get_num_glyphs(PyFT2Font *self)
     return self->x->get_num_glyphs();
 }
 
-const char *PyFT2Font_load_char__doc__ =
-    "Load character with *charcode* in current fontfile and set glyph.\n"
-    "*flags* can be a bitwise-or of the LOAD_XXX constants;\n"
-    "the default value is LOAD_FORCE_AUTOHINT.\n"
-    "Return value is a Glyph object, with attributes\n\n"
-    "- width: glyph width\n"
-    "- height: glyph height\n"
-    "- bbox: the glyph bbox (xmin, ymin, xmax, ymax)\n"
-    "- horiBearingX: left side bearing in horizontal layouts\n"
-    "- horiBearingY: top side bearing in horizontal layouts\n"
-    "- horiAdvance: advance width for horizontal layout\n"
-    "- vertBearingX: left side bearing in vertical layouts\n"
-    "- vertBearingY: top side bearing in vertical layouts\n"
-    "- vertAdvance: advance height for vertical layout\n";
+const char *PyFT2Font_load_char__doc__ = R"""(
+    Load character in current fontfile and set glyph.
+
+    Parameters
+    ----------
+    charcode : int
+        The character code to prepare rendering information for. This code must be in
+        the charmap, or else a ``.notdef`` glyph may be returned instead.
+    flags : LoadFlags, default: `.LoadFlags.FORCE_AUTOHINT`
+        Any bitwise-OR combination of the `.LoadFlags` flags.
+
+        .. versionchanged:: 3.10
+            This now takes an `.ft2font.LoadFlags` instead of an int.
+
+    Returns
+    -------
+    Glyph
+        The glyph information corresponding to the specified character.
+
+    See Also
+    --------
+    .load_glyph
+    .select_charmap
+    .set_charmap
+)""";
 
 static PyGlyph *
 PyFT2Font_load_char(PyFT2Font *self, long charcode,
-                    FT_Int32 flags = FT_LOAD_FORCE_AUTOHINT)
+                    std::variant<LoadFlags, FT_Int32> flags_or_int = LoadFlags::FORCE_AUTOHINT)
 {
     bool fallback = true;
     FT2Font *ft_object = NULL;
+    LoadFlags flags;
 
-    self->x->load_char(charcode, flags, ft_object, fallback);
+    if (auto value = std::get_if<FT_Int32>(&flags_or_int)) {
+        auto api = py::module_::import("matplotlib._api");
+        auto warn = api.attr("warn_deprecated");
+        warn("since"_a="3.10", "name"_a="flags", "obj_type"_a="parameter as int",
+             "alternative"_a="LoadFlags enum values");
+        flags = static_cast<LoadFlags>(*value);
+    } else if (auto value = std::get_if<LoadFlags>(&flags_or_int)) {
+        flags = *value;
+    } else {
+        // NOTE: this can never happen as pybind11 would have checked the type in the
+        // Python wrapper before calling this function, but we need to keep the
+        // std::get_if instead of std::get for macOS 10.12 compatibility.
+        throw py::type_error("flags must be LoadFlags or int");
+    }
+
+    self->x->load_char(charcode, static_cast<FT_Int32>(flags), ft_object, fallback);
 
     return PyGlyph_from_FT2Font(ft_object);
 }
 
-const char *PyFT2Font_load_glyph__doc__ =
-    "Load character with *glyphindex* in current fontfile and set glyph.\n"
-    "*flags* can be a bitwise-or of the LOAD_XXX constants;\n"
-    "the default value is LOAD_FORCE_AUTOHINT.\n"
-    "Return value is a Glyph object, with attributes\n\n"
-    "- width: glyph width\n"
-    "- height: glyph height\n"
-    "- bbox: the glyph bbox (xmin, ymin, xmax, ymax)\n"
-    "- horiBearingX: left side bearing in horizontal layouts\n"
-    "- horiBearingY: top side bearing in horizontal layouts\n"
-    "- horiAdvance: advance width for horizontal layout\n"
-    "- vertBearingX: left side bearing in vertical layouts\n"
-    "- vertBearingY: top side bearing in vertical layouts\n"
-    "- vertAdvance: advance height for vertical layout\n";
+const char *PyFT2Font_load_glyph__doc__ = R"""(
+    Load glyph index in current fontfile and set glyph.
+
+    Note that the glyph index is specific to a font, and not universal like a Unicode
+    code point.
+
+    Parameters
+    ----------
+    glyph_index : int
+        The glyph index to prepare rendering information for.
+    flags : LoadFlags, default: `.LoadFlags.FORCE_AUTOHINT`
+        Any bitwise-OR combination of the `.LoadFlags` flags.
+
+        .. versionchanged:: 3.10
+            This now takes an `.ft2font.LoadFlags` instead of an int.
+
+    Returns
+    -------
+    Glyph
+        The glyph information corresponding to the specified index.
+
+    See Also
+    --------
+    .load_char
+)""";
 
 static PyGlyph *
 PyFT2Font_load_glyph(PyFT2Font *self, FT_UInt glyph_index,
-                     FT_Int32 flags = FT_LOAD_FORCE_AUTOHINT)
+                     std::variant<LoadFlags, FT_Int32> flags_or_int = LoadFlags::FORCE_AUTOHINT)
 {
     bool fallback = true;
     FT2Font *ft_object = NULL;
+    LoadFlags flags;
 
-    self->x->load_glyph(glyph_index, flags, ft_object, fallback);
+    if (auto value = std::get_if<FT_Int32>(&flags_or_int)) {
+        auto api = py::module_::import("matplotlib._api");
+        auto warn = api.attr("warn_deprecated");
+        warn("since"_a="3.10", "name"_a="flags", "obj_type"_a="parameter as int",
+             "alternative"_a="LoadFlags enum values");
+        flags = static_cast<LoadFlags>(*value);
+    } else if (auto value = std::get_if<LoadFlags>(&flags_or_int)) {
+        flags = *value;
+    } else {
+        // NOTE: this can never happen as pybind11 would have checked the type in the
+        // Python wrapper before calling this function, but we need to keep the
+        // std::get_if instead of std::get for macOS 10.12 compatibility.
+        throw py::type_error("flags must be LoadFlags or int");
+    }
+
+    self->x->load_glyph(glyph_index, static_cast<FT_Int32>(flags), ft_object, fallback);
 
     return PyGlyph_from_FT2Font(ft_object);
 }
 
-const char *PyFT2Font_get_width_height__doc__ =
-    "Get the width and height in 26.6 subpixels of the current string set by `.set_text`.\n"
-    "The rotation of the string is accounted for.  To get width and height\n"
-    "in pixels, divide these values by 64.\n";
+const char *PyFT2Font_get_width_height__doc__ = R"""(
+    Get the dimensions of the current string set by `.set_text`.
+
+    The rotation of the string is accounted for.
+
+    Returns
+    -------
+    width, height : float
+        The width and height in 26.6 subpixels of the current string. To get width and
+        height in pixels, divide these values by 64.
+
+    See Also
+    --------
+    .get_bitmap_offset
+    .get_descent
+)""";
 
 static py::tuple
 PyFT2Font_get_width_height(PyFT2Font *self)
@@ -416,9 +835,22 @@ PyFT2Font_get_width_height(PyFT2Font *self)
     return py::make_tuple(width, height);
 }
 
-const char *PyFT2Font_get_bitmap_offset__doc__ =
-    "Get the (x, y) offset in 26.6 subpixels for the bitmap if ink hangs left or below (0, 0).\n"
-    "Since Matplotlib only supports left-to-right text, y is always 0.\n";
+const char *PyFT2Font_get_bitmap_offset__doc__ = R"""(
+    Get the (x, y) offset for the bitmap if ink hangs left or below (0, 0).
+
+    Since Matplotlib only supports left-to-right text, y is always 0.
+
+    Returns
+    -------
+    x, y : float
+        The x and y offset in 26.6 subpixels of the bitmap. To get x and y in pixels,
+        divide these values by 64.
+
+    See Also
+    --------
+    .get_width_height
+    .get_descent
+)""";
 
 static py::tuple
 PyFT2Font_get_bitmap_offset(PyFT2Font *self)
@@ -430,10 +862,22 @@ PyFT2Font_get_bitmap_offset(PyFT2Font *self)
     return py::make_tuple(x, y);
 }
 
-const char *PyFT2Font_get_descent__doc__ =
-    "Get the descent in 26.6 subpixels of the current string set by `.set_text`.\n"
-    "The rotation of the string is accounted for.  To get the descent\n"
-    "in pixels, divide this value by 64.\n";
+const char *PyFT2Font_get_descent__doc__ = R"""(
+    Get the descent of the current string set by `.set_text`.
+
+    The rotation of the string is accounted for.
+
+    Returns
+    -------
+    int
+        The descent in 26.6 subpixels of the bitmap. To get the descent in pixels,
+        divide these values by 64.
+
+    See Also
+    --------
+    .get_bitmap_offset
+    .get_width_height
+)""";
 
 static long
 PyFT2Font_get_descent(PyFT2Font *self)
@@ -441,10 +885,20 @@ PyFT2Font_get_descent(PyFT2Font *self)
     return self->x->get_descent();
 }
 
-const char *PyFT2Font_draw_glyphs_to_bitmap__doc__ =
-    "Draw the glyphs that were loaded by `.set_text` to the bitmap.\n"
-    "\n"
-    "The bitmap size will be automatically set to include the glyphs.\n";
+const char *PyFT2Font_draw_glyphs_to_bitmap__doc__ = R"""(
+    Draw the glyphs that were loaded by `.set_text` to the bitmap.
+
+    The bitmap size will be automatically set to include the glyphs.
+
+    Parameters
+    ----------
+    antialiased : bool, default: True
+        Whether to render glyphs 8-bit antialiased or in pure black-and-white.
+
+    See Also
+    --------
+    .draw_glyph_to_bitmap
+)""";
 
 static void
 PyFT2Font_draw_glyphs_to_bitmap(PyFT2Font *self, bool antialiased = true)
@@ -452,16 +906,31 @@ PyFT2Font_draw_glyphs_to_bitmap(PyFT2Font *self, bool antialiased = true)
     self->x->draw_glyphs_to_bitmap(antialiased);
 }
 
-const char *PyFT2Font_draw_glyph_to_bitmap__doc__ =
-    "Draw a single glyph to the bitmap at pixel locations x, y.\n"
-    "\n"
-    "Note it is your responsibility to create the image manually\n"
-    "with the correct size before this call is made.\n"
-    "\n"
-    "If you want automatic layout, use `.set_text` in combinations with\n"
-    "`.draw_glyphs_to_bitmap`.  This function is instead intended for people\n"
-    "who want to render individual glyphs (e.g., returned by `.load_char`)\n"
-    "at precise locations.\n";
+const char *PyFT2Font_draw_glyph_to_bitmap__doc__ = R"""(
+    Draw a single glyph to the bitmap at pixel locations x, y.
+
+    Note it is your responsibility to create the image manually with the correct size
+    before this call is made.
+
+    If you want automatic layout, use `.set_text` in combinations with
+    `.draw_glyphs_to_bitmap`. This function is instead intended for people who want to
+    render individual glyphs (e.g., returned by `.load_char`) at precise locations.
+
+    Parameters
+    ----------
+    image : FT2Image
+        The image buffer on which to draw the glyph.
+    x, y : float
+        The pixel location at which to draw the glyph.
+    glyph : Glyph
+        The glyph to draw.
+    antialiased : bool, default: True
+        Whether to render glyphs 8-bit antialiased or in pure black-and-white.
+
+    See Also
+    --------
+    .draw_glyphs_to_bitmap
+)""";
 
 static void
 PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, FT2Image &image, double xd, double yd,
@@ -470,12 +939,28 @@ PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, FT2Image &image, double xd, doub
     self->x->draw_glyph_to_bitmap(image, xd, yd, glyph->glyphInd, antialiased);
 }
 
-const char *PyFT2Font_get_glyph_name__doc__ =
-    "Retrieve the ASCII name of a given glyph *index* in a face.\n"
-    "\n"
-    "Due to Matplotlib's internal design, for fonts that do not contain glyph\n"
-    "names (per FT_FACE_FLAG_GLYPH_NAMES), this returns a made-up name which\n"
-    "does *not* roundtrip through `.get_name_index`.\n";
+const char *PyFT2Font_get_glyph_name__doc__ = R"""(
+    Retrieve the ASCII name of a given glyph *index* in a face.
+
+    Due to Matplotlib's internal design, for fonts that do not contain glyph names (per
+    ``FT_FACE_FLAG_GLYPH_NAMES``), this returns a made-up name which does *not*
+    roundtrip through `.get_name_index`.
+
+    Parameters
+    ----------
+    index : int
+        The glyph number to query.
+
+    Returns
+    -------
+    str
+        The name of the glyph, or if the font does not contain names, a name synthesized
+        by Matplotlib.
+
+    See Also
+    --------
+    .get_name_index
+)""";
 
 static py::str
 PyFT2Font_get_glyph_name(PyFT2Font *self, unsigned int glyph_number)
@@ -488,9 +973,18 @@ PyFT2Font_get_glyph_name(PyFT2Font *self, unsigned int glyph_number)
     return buffer;
 }
 
-const char *PyFT2Font_get_charmap__doc__ =
-    "Return a dict that maps the character codes of the selected charmap\n"
-    "(Unicode by default) to their corresponding glyph indices.\n";
+const char *PyFT2Font_get_charmap__doc__ = R"""(
+    Return a mapping of character codes to glyph indices in the font.
+
+    The charmap is Unicode by default, but may be changed by `.set_charmap` or
+    `.select_charmap`.
+
+    Returns
+    -------
+    dict[int, int]
+        A dictionary of the selected charmap mapping character codes to their
+        corresponding glyph indices.
+)""";
 
 static py::dict
 PyFT2Font_get_charmap(PyFT2Font *self)
@@ -505,9 +999,26 @@ PyFT2Font_get_charmap(PyFT2Font *self)
     return charmap;
 }
 
+const char *PyFT2Font_get_char_index__doc__ = R"""(
+    Return the glyph index corresponding to a character code point.
 
-const char *PyFT2Font_get_char_index__doc__ =
-    "Return the glyph index corresponding to a character *codepoint*.";
+    Parameters
+    ----------
+    codepoint : int
+        A character code point in the current charmap (which defaults to Unicode.)
+
+    Returns
+    -------
+    int
+        The corresponding glyph index.
+
+    See Also
+    --------
+    .set_charmap
+    .select_charmap
+    .get_glyph_name
+    .get_name_index
+)""";
 
 static FT_UInt
 PyFT2Font_get_char_index(PyFT2Font *self, FT_ULong ccode)
@@ -517,11 +1028,18 @@ PyFT2Font_get_char_index(PyFT2Font *self, FT_ULong ccode)
     return self->x->get_char_index(ccode, fallback);
 }
 
+const char *PyFT2Font_get_sfnt__doc__ = R"""(
+    Load the entire SFNT names table.
 
-const char *PyFT2Font_get_sfnt__doc__ =
-    "Load the entire SFNT names table, as a dict whose keys are\n"
-    "(platform-ID, ISO-encoding-scheme, language-code, and description)\n"
-    "tuples.\n";
+    Returns
+    -------
+    dict[tuple[int, int, int, int], bytes]
+        The SFNT names table; the dictionary keys are tuples of:
+
+            (platform-ID, ISO-encoding-scheme, language-code, description)
+
+        and the values are the direct information from the font table.
+)""";
 
 static py::dict
 PyFT2Font_get_sfnt(PyFT2Font *self)
@@ -552,9 +1070,24 @@ PyFT2Font_get_sfnt(PyFT2Font *self)
     return names;
 }
 
-const char *PyFT2Font_get_name_index__doc__ =
-    "Return the glyph index of a given glyph *name*.\n"
-    "The glyph index 0 means 'undefined character code'.\n";
+const char *PyFT2Font_get_name_index__doc__ = R"""(
+    Return the glyph index of a given glyph *name*.
+
+    Parameters
+    ----------
+    name : str
+        The name of the glyph to query.
+
+    Returns
+    -------
+    int
+        The corresponding glyph index; 0 means 'undefined character code'.
+
+    See Also
+    --------
+    .get_char_index
+    .get_glyph_name
+)""";
 
 static long
 PyFT2Font_get_name_index(PyFT2Font *self, char *glyphname)
@@ -562,8 +1095,24 @@ PyFT2Font_get_name_index(PyFT2Font *self, char *glyphname)
     return self->x->get_name_index(glyphname);
 }
 
-const char *PyFT2Font_get_ps_font_info__doc__ =
-    "Return the information in the PS Font Info structure.";
+const char *PyFT2Font_get_ps_font_info__doc__ = R"""(
+    Return the information in the PS Font Info structure.
+
+    For more information, see the `FreeType documentation on this structure
+    <https://freetype.org/freetype2/docs/reference/ft2-type1_tables.html#ps_fontinforec>`_.
+
+    Returns
+    -------
+    version : str
+    notice : str
+    full_name : str
+    family_name : str
+    weight : str
+    italic_angle : int
+    is_fixed_pitch : bool
+    underline_position : int
+    underline_thickness : int
+)""";
 
 static py::tuple
 PyFT2Font_get_ps_font_info(PyFT2Font *self)
@@ -587,9 +1136,20 @@ PyFT2Font_get_ps_font_info(PyFT2Font *self)
         fontinfo.underline_thickness);
 }
 
-const char *PyFT2Font_get_sfnt_table__doc__ =
-    "Return one of the following SFNT tables: head, maxp, OS/2, hhea, "
-    "vhea, post, or pclt.";
+const char *PyFT2Font_get_sfnt_table__doc__ = R"""(
+    Return one of the SFNT tables.
+
+    Parameters
+    ----------
+    name : {"head", "maxp", "OS/2", "hhea", "vhea", "post", "pclt"}
+        Which table to return.
+
+    Returns
+    -------
+    dict[str, Any]
+        The corresponding table; for more information, see `the FreeType documentation
+        <https://freetype.org/freetype2/docs/reference/ft2-truetype_tables.html>`_.
+)""";
 
 static std::optional<py::dict>
 PyFT2Font_get_sfnt_table(PyFT2Font *self, std::string tagname)
@@ -770,8 +1330,23 @@ PyFT2Font_get_sfnt_table(PyFT2Font *self, std::string tagname)
     }
 }
 
-const char *PyFT2Font_get_path__doc__ =
-    "Get the path data from the currently loaded glyph as a tuple of vertices, codes.";
+const char *PyFT2Font_get_path__doc__ = R"""(
+    Get the path data from the currently loaded glyph.
+
+    Returns
+    -------
+    vertices : np.ndarray[double]
+        The (N, 2) array of vertices describing the current glyph.
+    codes : np.ndarray[np.uint8]
+        The (N, ) array of codes corresponding to the vertices.
+
+    See Also
+    --------
+    .get_image
+    .load_char
+    .load_glyph
+    .set_text
+)""";
 
 static py::tuple
 PyFT2Font_get_path(PyFT2Font *self)
@@ -796,8 +1371,17 @@ PyFT2Font_get_path(PyFT2Font *self)
     return py::make_tuple(vertices_arr, codes_arr);
 }
 
-const char *PyFT2Font_get_image__doc__ =
-    "Return the underlying image buffer for this font object.";
+const char *PyFT2Font_get_image__doc__ = R"""(
+    Return the underlying image buffer for this font object.
+
+    Returns
+    -------
+    np.ndarray[int]
+
+    See Also
+    --------
+    .get_path
+)""";
 
 static py::array
 PyFT2Font_get_image(PyFT2Font *self)
@@ -847,16 +1431,16 @@ PyFT2Font_style_name(PyFT2Font *self)
     return name;
 }
 
-static FT_Long
+static FaceFlags
 PyFT2Font_face_flags(PyFT2Font *self)
 {
-    return self->x->get_face()->face_flags;
+    return static_cast<FaceFlags>(self->x->get_face()->face_flags);
 }
 
-static FT_Long
+static StyleFlags
 PyFT2Font_style_flags(PyFT2Font *self)
 {
-    return self->x->get_face()->style_flags;
+    return static_cast<StyleFlags>(self->x->get_face()->style_flags);
 }
 
 static FT_Long
@@ -952,6 +1536,77 @@ PyFT2Font_fname(PyFT2Font *self)
     }
 }
 
+static py::object
+ft2font__getattr__(std::string name) {
+    auto api = py::module_::import("matplotlib._api");
+    auto warn = api.attr("warn_deprecated");
+
+#define DEPRECATE_ATTR_FROM_ENUM(attr_, alternative_, real_value_) \
+    do { \
+        if (name == #attr_) { \
+            warn("since"_a="3.10", "name"_a=#attr_, "obj_type"_a="attribute", \
+                 "alternative"_a=#alternative_); \
+            return py::cast(static_cast<int>(real_value_)); \
+        } \
+    } while(0)
+    DEPRECATE_ATTR_FROM_ENUM(KERNING_DEFAULT, Kerning.DEFAULT, FT_KERNING_DEFAULT);
+    DEPRECATE_ATTR_FROM_ENUM(KERNING_UNFITTED, Kerning.UNFITTED, FT_KERNING_UNFITTED);
+    DEPRECATE_ATTR_FROM_ENUM(KERNING_UNSCALED, Kerning.UNSCALED, FT_KERNING_UNSCALED);
+
+#undef DEPRECATE_ATTR_FROM_ENUM
+
+#define DEPRECATE_ATTR_FROM_FLAG(attr_, enum_, value_) \
+    do { \
+        if (name == #attr_) { \
+            warn("since"_a="3.10", "name"_a=#attr_, "obj_type"_a="attribute", \
+                 "alternative"_a=#enum_ "." #value_); \
+            return py::cast(enum_::value_); \
+        } \
+    } while(0)
+
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_DEFAULT, LoadFlags, DEFAULT);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_NO_SCALE, LoadFlags, NO_SCALE);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_NO_HINTING, LoadFlags, NO_HINTING);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_RENDER, LoadFlags, RENDER);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_NO_BITMAP, LoadFlags, NO_BITMAP);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_VERTICAL_LAYOUT, LoadFlags, VERTICAL_LAYOUT);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_FORCE_AUTOHINT, LoadFlags, FORCE_AUTOHINT);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_CROP_BITMAP, LoadFlags, CROP_BITMAP);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_PEDANTIC, LoadFlags, PEDANTIC);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH, LoadFlags,
+                             IGNORE_GLOBAL_ADVANCE_WIDTH);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_NO_RECURSE, LoadFlags, NO_RECURSE);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_IGNORE_TRANSFORM, LoadFlags, IGNORE_TRANSFORM);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_MONOCHROME, LoadFlags, MONOCHROME);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_LINEAR_DESIGN, LoadFlags, LINEAR_DESIGN);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_NO_AUTOHINT, LoadFlags, NO_AUTOHINT);
+
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_TARGET_NORMAL, LoadFlags, TARGET_NORMAL);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_TARGET_LIGHT, LoadFlags, TARGET_LIGHT);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_TARGET_MONO, LoadFlags, TARGET_MONO);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_TARGET_LCD, LoadFlags, TARGET_LCD);
+    DEPRECATE_ATTR_FROM_FLAG(LOAD_TARGET_LCD_V, LoadFlags, TARGET_LCD_V);
+
+    DEPRECATE_ATTR_FROM_FLAG(SCALABLE, FaceFlags, SCALABLE);
+    DEPRECATE_ATTR_FROM_FLAG(FIXED_SIZES, FaceFlags, FIXED_SIZES);
+    DEPRECATE_ATTR_FROM_FLAG(FIXED_WIDTH, FaceFlags, FIXED_WIDTH);
+    DEPRECATE_ATTR_FROM_FLAG(SFNT, FaceFlags, SFNT);
+    DEPRECATE_ATTR_FROM_FLAG(HORIZONTAL, FaceFlags, HORIZONTAL);
+    DEPRECATE_ATTR_FROM_FLAG(VERTICAL, FaceFlags, VERTICAL);
+    DEPRECATE_ATTR_FROM_FLAG(KERNING, FaceFlags, KERNING);
+    DEPRECATE_ATTR_FROM_FLAG(FAST_GLYPHS, FaceFlags, FAST_GLYPHS);
+    DEPRECATE_ATTR_FROM_FLAG(MULTIPLE_MASTERS, FaceFlags, MULTIPLE_MASTERS);
+    DEPRECATE_ATTR_FROM_FLAG(GLYPH_NAMES, FaceFlags, GLYPH_NAMES);
+    DEPRECATE_ATTR_FROM_FLAG(EXTERNAL_STREAM, FaceFlags, EXTERNAL_STREAM);
+
+    DEPRECATE_ATTR_FROM_FLAG(ITALIC, StyleFlags, ITALIC);
+    DEPRECATE_ATTR_FROM_FLAG(BOLD, StyleFlags, BOLD);
+#undef DEPRECATE_ATTR_FROM_FLAG
+
+    throw py::attribute_error(
+        "module 'matplotlib.ft2font' has no attribute {!r}"_s.format(name));
+}
+
 PYBIND11_MODULE(ft2font, m)
 {
     if (FT_Init_FreeType(&_ft2Library)) {  // initialize library
@@ -962,8 +1617,15 @@ PYBIND11_MODULE(ft2font, m)
     FT_Library_Version(_ft2Library, &major, &minor, &patch);
     snprintf(version_string, sizeof(version_string), "%d.%d.%d", major, minor, patch);
 
-    py::class_<FT2Image>(m, "FT2Image", py::is_final(), py::buffer_protocol())
-        .def(py::init<double, double>(), "width"_a, "height"_a)
+    p11x::bind_enums(m);
+    p11x::enums["Kerning"].attr("__doc__") = Kerning__doc__;
+    p11x::enums["LoadFlags"].attr("__doc__") = LoadFlags__doc__;
+    p11x::enums["FaceFlags"].attr("__doc__") = FaceFlags__doc__;
+    p11x::enums["StyleFlags"].attr("__doc__") = StyleFlags__doc__;
+
+    py::class_<FT2Image>(m, "FT2Image", py::is_final(), py::buffer_protocol(),
+                         PyFT2Image__doc__)
+        .def(py::init<double, double>(), "width"_a, "height"_a, PyFT2Image_init__doc__)
         .def("draw_rect_filled", &PyFT2Image_draw_rect_filled,
              "x0"_a, "y0"_a, "x1"_a, "y1"_a,
              PyFT2Image_draw_rect_filled__doc__)
@@ -973,23 +1635,32 @@ PYBIND11_MODULE(ft2font, m)
             return py::buffer_info(self.get_buffer(), shape, strides);
         });
 
-    py::class_<PyGlyph>(m, "Glyph", py::is_final())
+    py::class_<PyGlyph>(m, "Glyph", py::is_final(), PyGlyph__doc__)
         .def(py::init<>([]() -> PyGlyph {
             // Glyph is not useful from Python, so mark it as not constructible.
             throw std::runtime_error("Glyph is not constructible");
         }))
-        .def_readonly("width", &PyGlyph::width)
-        .def_readonly("height", &PyGlyph::height)
-        .def_readonly("horiBearingX", &PyGlyph::horiBearingX)
-        .def_readonly("horiBearingY", &PyGlyph::horiBearingY)
-        .def_readonly("horiAdvance", &PyGlyph::horiAdvance)
-        .def_readonly("linearHoriAdvance", &PyGlyph::linearHoriAdvance)
-        .def_readonly("vertBearingX", &PyGlyph::vertBearingX)
-        .def_readonly("vertBearingY", &PyGlyph::vertBearingY)
-        .def_readonly("vertAdvance", &PyGlyph::vertAdvance)
-        .def_property_readonly("bbox", &PyGlyph_get_bbox);
+        .def_readonly("width", &PyGlyph::width, "The glyph's width.")
+        .def_readonly("height", &PyGlyph::height, "The glyph's height.")
+        .def_readonly("horiBearingX", &PyGlyph::horiBearingX,
+                      "Left side bearing for horizontal layout.")
+        .def_readonly("horiBearingY", &PyGlyph::horiBearingY,
+                      "Top side bearing for horizontal layout.")
+        .def_readonly("horiAdvance", &PyGlyph::horiAdvance,
+                      "Advance width for horizontal layout.")
+        .def_readonly("linearHoriAdvance", &PyGlyph::linearHoriAdvance,
+                      "The advance width of the unhinted glyph.")
+        .def_readonly("vertBearingX", &PyGlyph::vertBearingX,
+                      "Left side bearing for vertical layout.")
+        .def_readonly("vertBearingY", &PyGlyph::vertBearingY,
+                      "Top side bearing for vertical layout.")
+        .def_readonly("vertAdvance", &PyGlyph::vertAdvance,
+                      "Advance height for vertical layout.")
+        .def_property_readonly("bbox", &PyGlyph_get_bbox,
+                               "The control box of the glyph.");
 
-    py::class_<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol())
+    py::class_<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
+                          PyFT2Font__doc__)
         .def(py::init(&PyFT2Font_init),
              "filename"_a, "hinting_factor"_a=8, py::kw_only(),
              "_fallback_list"_a=py::none(), "_kerning_factor"_a=0,
@@ -1004,16 +1675,16 @@ PYBIND11_MODULE(ft2font, m)
         .def("get_kerning", &PyFT2Font_get_kerning, "left"_a, "right"_a, "mode"_a,
              PyFT2Font_get_kerning__doc__)
         .def("set_text", &PyFT2Font_set_text,
-             "string"_a, "angle"_a=0.0, "flags"_a=FT_LOAD_FORCE_AUTOHINT,
+             "string"_a, "angle"_a=0.0, "flags"_a=LoadFlags::FORCE_AUTOHINT,
              PyFT2Font_set_text__doc__)
         .def("_get_fontmap", &PyFT2Font_get_fontmap, "string"_a,
              PyFT2Font_get_fontmap__doc__)
         .def("get_num_glyphs", &PyFT2Font_get_num_glyphs, PyFT2Font_get_num_glyphs__doc__)
         .def("load_char", &PyFT2Font_load_char,
-             "charcode"_a, "flags"_a=FT_LOAD_FORCE_AUTOHINT,
+             "charcode"_a, "flags"_a=LoadFlags::FORCE_AUTOHINT,
              PyFT2Font_load_char__doc__)
         .def("load_glyph", &PyFT2Font_load_glyph,
-             "glyph_index"_a, "flags"_a=FT_LOAD_FORCE_AUTOHINT,
+             "glyph_index"_a, "flags"_a=LoadFlags::FORCE_AUTOHINT,
              PyFT2Font_load_glyph__doc__)
         .def("get_width_height", &PyFT2Font_get_width_height,
              PyFT2Font_get_width_height__doc__)
@@ -1050,14 +1721,15 @@ PYBIND11_MODULE(ft2font, m)
         .def_property_readonly("style_name", &PyFT2Font_style_name,
                                "Style name.")
         .def_property_readonly("face_flags", &PyFT2Font_face_flags,
-                               "Face flags; see the ft2font constants.")
+                               "Face flags; see `.FaceFlags`.")
         .def_property_readonly("style_flags", &PyFT2Font_style_flags,
-                               "Style flags; see the ft2font constants.")
+                               "Style flags; see `.StyleFlags`.")
         .def_property_readonly("num_glyphs", &PyFT2Font_num_glyphs,
                                "Number of glyphs in the face.")
         .def_property_readonly("num_fixed_sizes", &PyFT2Font_num_fixed_sizes,
                                "Number of bitmap in the face.")
-        .def_property_readonly("num_charmaps", &PyFT2Font_num_charmaps)
+        .def_property_readonly("num_charmaps", &PyFT2Font_num_charmaps,
+                               "Number of charmaps in the face.")
         .def_property_readonly("scalable", &PyFT2Font_scalable,
                                "Whether face is scalable; attributes after this one "
                                "are only defined for scalable faces.")
@@ -1080,7 +1752,8 @@ PYBIND11_MODULE(ft2font, m)
                                "Vertical position of the underline bar.")
         .def_property_readonly("underline_thickness", &PyFT2Font_underline_thickness,
                                "Thickness of the underline bar.")
-        .def_property_readonly("fname", &PyFT2Font_fname)
+        .def_property_readonly("fname", &PyFT2Font_fname,
+                               "The original filename for this object.")
 
         .def_buffer([](PyFT2Font &self) -> py::buffer_info {
             FT2Image &im = self.x->get_image();
@@ -1091,40 +1764,5 @@ PYBIND11_MODULE(ft2font, m)
 
     m.attr("__freetype_version__") = version_string;
     m.attr("__freetype_build_type__") = FREETYPE_BUILD_TYPE;
-    m.attr("SCALABLE") = FT_FACE_FLAG_SCALABLE;
-    m.attr("FIXED_SIZES") = FT_FACE_FLAG_FIXED_SIZES;
-    m.attr("FIXED_WIDTH") = FT_FACE_FLAG_FIXED_WIDTH;
-    m.attr("SFNT") = FT_FACE_FLAG_SFNT;
-    m.attr("HORIZONTAL") = FT_FACE_FLAG_HORIZONTAL;
-    m.attr("VERTICAL") = FT_FACE_FLAG_VERTICAL;
-    m.attr("KERNING") = FT_FACE_FLAG_KERNING;
-    m.attr("FAST_GLYPHS") = FT_FACE_FLAG_FAST_GLYPHS;
-    m.attr("MULTIPLE_MASTERS") = FT_FACE_FLAG_MULTIPLE_MASTERS;
-    m.attr("GLYPH_NAMES") = FT_FACE_FLAG_GLYPH_NAMES;
-    m.attr("EXTERNAL_STREAM") = FT_FACE_FLAG_EXTERNAL_STREAM;
-    m.attr("ITALIC") = FT_STYLE_FLAG_ITALIC;
-    m.attr("BOLD") = FT_STYLE_FLAG_BOLD;
-    m.attr("KERNING_DEFAULT") = (int)FT_KERNING_DEFAULT;
-    m.attr("KERNING_UNFITTED") = (int)FT_KERNING_UNFITTED;
-    m.attr("KERNING_UNSCALED") = (int)FT_KERNING_UNSCALED;
-    m.attr("LOAD_DEFAULT") = FT_LOAD_DEFAULT;
-    m.attr("LOAD_NO_SCALE") = FT_LOAD_NO_SCALE;
-    m.attr("LOAD_NO_HINTING") = FT_LOAD_NO_HINTING;
-    m.attr("LOAD_RENDER") = FT_LOAD_RENDER;
-    m.attr("LOAD_NO_BITMAP") = FT_LOAD_NO_BITMAP;
-    m.attr("LOAD_VERTICAL_LAYOUT") = FT_LOAD_VERTICAL_LAYOUT;
-    m.attr("LOAD_FORCE_AUTOHINT") = FT_LOAD_FORCE_AUTOHINT;
-    m.attr("LOAD_CROP_BITMAP") = FT_LOAD_CROP_BITMAP;
-    m.attr("LOAD_PEDANTIC") = FT_LOAD_PEDANTIC;
-    m.attr("LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH") = FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH;
-    m.attr("LOAD_NO_RECURSE") = FT_LOAD_NO_RECURSE;
-    m.attr("LOAD_IGNORE_TRANSFORM") = FT_LOAD_IGNORE_TRANSFORM;
-    m.attr("LOAD_MONOCHROME") = FT_LOAD_MONOCHROME;
-    m.attr("LOAD_LINEAR_DESIGN") = FT_LOAD_LINEAR_DESIGN;
-    m.attr("LOAD_NO_AUTOHINT") = (unsigned long)FT_LOAD_NO_AUTOHINT;
-    m.attr("LOAD_TARGET_NORMAL") = (unsigned long)FT_LOAD_TARGET_NORMAL;
-    m.attr("LOAD_TARGET_LIGHT") = (unsigned long)FT_LOAD_TARGET_LIGHT;
-    m.attr("LOAD_TARGET_MONO") = (unsigned long)FT_LOAD_TARGET_MONO;
-    m.attr("LOAD_TARGET_LCD") = (unsigned long)FT_LOAD_TARGET_LCD;
-    m.attr("LOAD_TARGET_LCD_V") = (unsigned long)FT_LOAD_TARGET_LCD_V;
+    m.def("__getattr__", ft2font__getattr__);
 }
