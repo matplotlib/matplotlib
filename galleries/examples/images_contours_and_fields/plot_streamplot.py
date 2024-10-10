@@ -23,7 +23,7 @@ U = -1 - X**2 + Y
 V = 1 + X - Y**2
 speed = np.sqrt(U**2 + V**2)
 
-fig, axs = plt.subplots(3, 2, figsize=(7, 9), height_ratios=[1, 1, 2])
+fig, axs = plt.subplots(4, 2, figsize=(7, 12), height_ratios=[1, 1, 1, 2])
 axs = axs.flat
 
 #  Varying density along a streamline
@@ -52,21 +52,27 @@ axs[3].set_title('Controlling Starting Points')
 axs[3].plot(seed_points[0], seed_points[1], 'bo')
 axs[3].set(xlim=(-w, w), ylim=(-w, w))
 
+# Adding more than one arrow to each streamline
+axs[4].streamplot(X, Y, U, V, n_arrows=3)
+axs[4].set_title('Multiple arrows')
+
+axs[5].axis("off")
+
 # Create a mask
 mask = np.zeros(U.shape, dtype=bool)
 mask[40:60, 40:60] = True
 U[:20, :20] = np.nan
 U = np.ma.array(U, mask=mask)
 
-axs[4].streamplot(X, Y, U, V, color='r')
-axs[4].set_title('Streamplot with Masking')
+axs[6].streamplot(X, Y, U, V, color='r')
+axs[6].set_title('Streamplot with Masking')
 
-axs[4].imshow(~mask, extent=(-w, w, -w, w), alpha=0.5, cmap='gray',
+axs[6].imshow(~mask, extent=(-w, w, -w, w), alpha=0.5, cmap='gray',
               aspect='auto')
-axs[4].set_aspect('equal')
+axs[6].set_aspect('equal')
 
-axs[5].streamplot(X, Y, U, V, broken_streamlines=False)
-axs[5].set_title('Streamplot with unbroken streamlines')
+axs[7].streamplot(X, Y, U, V, broken_streamlines=False)
+axs[7].set_title('Streamplot with unbroken streamlines')
 
 plt.tight_layout()
 plt.show()
