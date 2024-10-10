@@ -251,3 +251,8 @@ plt.show()
 #            writer="imagemagick", extra_args=["-quality", "100"])
 #
 # (the ``extra_args`` for *apng* are needed to reduce filesize by ~10x)
+#
+# Note that *ffmpeg* and *imagemagick* need to be separately installed.
+# A cross-platform way to obtain *ffmpeg* is to install the ``imageio_ffmpeg``
+# PyPI package, and then to set
+# ``rcParams["animation.ffmpeg_path"] = imageio_ffmpeg.get_ffmpeg_exe()``.
