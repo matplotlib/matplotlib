@@ -108,13 +108,6 @@ extension_data = {
     ),
     'dependencies': [pybind11_dep],
   },
-  '_ttconv': {
-    'subdir': 'matplotlib',
-    'sources': files(
-      '_ttconv.cpp',
-    ),
-    'dependencies': [ttconv_dep, pybind11_dep],
-  },
 }
 
 foreach ext, kwargs : extension_data

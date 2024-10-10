@@ -1,0 +1,7 @@
+ttconv removed
+~~~~~~~~~~~~~~
+
+The ``matplotlib._ttconv`` extension has been removed. Most of its
+functionaliy was already replaced by other code, and the only thing left
+was embedding TTF fonts in PostScript in Type 42 format. This is now
+done in the PS backend using the FontTools library.
