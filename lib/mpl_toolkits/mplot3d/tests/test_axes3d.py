@@ -1944,7 +1944,7 @@ def test_quaternion():
 
 
 @pytest.mark.parametrize('style',
-                         ('azel', 'trackball', 'arcball', 'Shoemake', 'Bell'))
+                         ('azel', 'trackball', 'sphere', 'arcball'))
 def test_rotate(style):
     """Test rotating using the left mouse button."""
     if style == 'azel':
@@ -1952,6 +1952,7 @@ def test_rotate(style):
     else:
         s = mpl.rcParams['axes3d.trackballsize'] / 2
     s *= 0.5
+    mpl.rcParams['axes3d.trackballborder'] = 0
     with mpl.rc_context({'axes3d.mouserotationstyle': style}):
         for roll, dx, dy in [
                 [0, 1, 0],
@@ -1992,29 +1993,21 @@ def test_rotate(style):
                 ('trackball', 30, 0, 1): (-24.531578, -15.277726, 33.340403),
                 ('trackball', 30, 0.5, c): (-13.869588, -25.319385, 33.129920),
 
-                ('arcball', 0, 1, 0): (0, -30, 0),
-                ('arcball', 0, 0, 1): (-30, 0, 0),
-                ('arcball', 0, 0.5, c): (-25.658906, -16.102114, 3.690068),
-                ('arcball', 0, 2, 0): (0, -90, 0),
-                ('arcball', 30, 1, 0): (14.477512, -26.565051, 26.565051),
-                ('arcball', 30, 0, 1): (-25.658906, -16.102114, 33.690068),
-                ('arcball', 30, 0.5, c): (-14.477512, -26.565051, 33.434949),
+                ('sphere', 0, 1, 0): (0, -30, 0),
+                ('sphere', 0, 0, 1): (-30, 0, 0),
+                ('sphere', 0, 0.5, c): (-25.658906, -16.102114, 3.690068),
+                ('sphere', 0, 2, 0): (0, -90, 0),
+                ('sphere', 30, 1, 0): (14.477512, -26.565051, 26.565051),
+                ('sphere', 30, 0, 1): (-25.658906, -16.102114, 33.690068),
+                ('sphere', 30, 0.5, c): (-14.477512, -26.565051, 33.434949),
 
-                ('Shoemake', 0, 1, 0): (0, -60, 0),
-                ('Shoemake', 0, 0, 1): (-60, 0, 0),
-                ('Shoemake', 0, 0.5, c): (-48.590378, -40.893395, 19.106605),
-                ('Shoemake', 0, 2, 0): (0, 180, 0),
-                ('Shoemake', 30, 1, 0): (25.658906, -56.309932, 16.102114),
-                ('Shoemake', 30, 0, 1): (-48.590378, -40.893395, 49.106605),
-                ('Shoemake', 30, 0.5, c): (-25.658906, -56.309932, 43.897886),
-
-                ('Bell', 0, 1, 0): (0, -60, 0),
-                ('Bell', 0, 0, 1): (-60, 0, 0),
-                ('Bell', 0, 0.5, c): (-48.590378, -40.893395, 19.106605),
-                ('Bell', 0, 2, 0): (0, -126.869898, 0),
-                ('Bell', 30, 1, 0):  (25.658906, -56.309932, 16.102114),
-                ('Bell', 30, 0, 1): (-48.590378, -40.893395, 49.106605),
-                ('Bell', 30, 0.5, c): (-25.658906, -56.309932, 43.897886)}
+                ('arcball', 0, 1, 0): (0, -60, 0),
+                ('arcball', 0, 0, 1): (-60, 0, 0),
+                ('arcball', 0, 0.5, c): (-48.590378, -40.893395, 19.106605),
+                ('arcball', 0, 2, 0): (0, 180, 0),
+                ('arcball', 30, 1, 0): (25.658906, -56.309932, 16.102114),
+                ('arcball', 30, 0, 1): (-48.590378, -40.893395, 49.106605),
+                ('arcball', 30, 0.5, c): (-25.658906, -56.309932, 43.897886)}
             new_elev, new_azim, new_roll = expectations[(style, roll, dx, dy)]
             np.testing.assert_allclose((ax.elev, ax.azim, ax.roll),
                                        (new_elev, new_azim, new_roll), atol=1e-6)

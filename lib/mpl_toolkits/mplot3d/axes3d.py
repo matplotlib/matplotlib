@@ -1508,31 +1508,37 @@ class Axes3D(Axes):
         p2 = p1 - scale*vec
         return p2, pane_idx
 
-    def _arcball(self, x: float, y: float, style: str) -> np.ndarray:
+    def _arcball(self, x: float, y: float) -> np.ndarray:
         """
         Convert a point (x, y) to a point on a virtual trackball.
 
-        This is either Ken Shoemake's arcball (a sphere) or
-        Gavin Bell's (a sphere combined with a hyperbola).
+        This is Ken Shoemake's arcball (a sphere), modified
+        to soften the abrupt edge (optionally).
         See: Ken Shoemake, "ARCBALL: A user interface for specifying
         three-dimensional rotation using a mouse." in
         Proceedings of Graphics Interface '92, 1992, pp. 151-156,
         https://doi.org/10.20380/GI1992.18
+        The smoothing of the edge is inspired by Gavin Bell's arcball
+        (a sphere combined with a hyperbola), but here, the sphere
+        is combined with a section of a cylinder, so it has finite support.
         """
         s = mpl.rcParams['axes3d.trackballsize'] / 2
+        b = mpl.rcParams['axes3d.trackballborder'] / s
         x /= s
         y /= s
         r2 = x*x + y*y
-        if style == 'Bell':
-            if r2 > 0.5:
-                p = np.array([1/(2*math.sqrt(r2)), x, y])/math.sqrt(1/(4*r2)+r2)
-            else:
-                p = np.array([math.sqrt(1-r2), x, y])
-        else:  # 'arcball', 'Shoemake'
-            if r2 > 1:
-                p = np.array([0, x/math.sqrt(r2), y/math.sqrt(r2)])
-            else:
-                p = np.array([math.sqrt(1-r2), x, y])
+        r = np.sqrt(r2)
+        ra = 1 + b
+        a = b * (1 + b/2)
+        ri = 2/(ra + 1/ra)
+        if r < ri:
+            p = np.array([np.sqrt(1 - r2), x, y])
+        elif r < ra:
+            dr = ra - r
+            p = np.array([a - np.sqrt((a + dr) * (a - dr)), x, y])
+            p /= np.linalg.norm(p)
+        else:
+            p = np.array([0, x/r, y/r])
         return p
 
     def _on_move(self, event):
@@ -1587,12 +1593,12 @@ class Axes3D(Axes):
                     nk = np.linalg.norm(k)
                     th = nk / mpl.rcParams['axes3d.trackballsize']
                     dq = _Quaternion(np.cos(th), k*np.sin(th)/nk)
-                else:  # 'arcball', 'Shoemake', 'Bell'
-                    current_vec = self._arcball(self._sx/w, self._sy/h, style)
-                    new_vec = self._arcball(x/w, y/h, style)
-                    if style == 'arcball':
+                else:  # 'sphere', 'arcball'
+                    current_vec = self._arcball(self._sx/w, self._sy/h)
+                    new_vec = self._arcball(x/w, y/h)
+                    if style == 'sphere':
                         dq = _Quaternion.rotate_from_to(current_vec, new_vec)
-                    else:  # 'Shoemake', 'Bell'
+                    else:  # 'arcball'
                         dq = _Quaternion(0, new_vec) * _Quaternion(0, -current_vec)
 
                 q = dq * q
@@ -4017,7 +4023,7 @@ class _Quaternion:
             else:
                 q = cls(1, [0, 0, 0])  # = 1, no rotation
         else:
-            q = cls(math.cos(th), k*math.sin(th)/nk)
+            q = cls(np.cos(th), k*np.sin(th)/nk)
         return q
 
     @classmethod

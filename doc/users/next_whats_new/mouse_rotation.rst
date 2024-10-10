@@ -20,7 +20,7 @@ To try out one of the various mouse rotation styles:
 .. code::
 
     import matplotlib as mpl
-    mpl.rcParams['axes3d.mouserotationstyle'] = 'trackball'  # 'azel', 'trackball', 'arcball', 'Shoemake', or 'Bell'
+    mpl.rcParams['axes3d.mouserotationstyle'] = 'trackball'  # 'azel', 'trackball', 'sphere', or 'arcball'
 
     import numpy as np
     import matplotlib.pyplot as plt

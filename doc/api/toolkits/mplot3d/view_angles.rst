@@ -70,22 +70,19 @@ move the mouse in circles with a handedness opposite to the desired rotation,
 counterintuitively.
 
 A different variety of trackball rotates along the shortest arc on the virtual
-sphere (``mouserotationstyle: arcball``); it is a variation on Ken Shoemake's
-ARCBALL [Shoemake1992]_. Rotating around the viewing direction is straightforward
-with it (grab the ball near its edge instead of near the center).
+sphere (``mouserotationstyle: sphere``). Rotating around the viewing direction
+is straightforward with it: grab the ball near its edge instead of near the center.
 
-Shoemake's original arcball is also available (``mouserotationstyle: Shoemake``);
-it is free of hysteresis, i.e., returning mouse to the original position
-returns the figure to its original orientation, the rotation is independent
+Ken Shoemake's ARCBALL [Shoemake1992]_ is also available (``mouserotationstyle: Shoemake``);
+it resembles the ``sphere`` style, but is free of hysteresis,
+i.e., returning mouse to the original position
+returns the figure to its original orientation; the rotation is independent
 of the details of the path the mouse took, which could be desirable.
 However, Shoemake's arcball rotates at twice the angular rate of the
 mouse movement (it is quite noticeable, especially when adjusting roll),
-and it lacks an obvious mechanical equivalent; arguably, the path-independent rotation is unnatural.
+and it lacks an obvious mechanical equivalent; arguably, the path-independent
+rotation is not natural (however convenient), it could take some getting used to.
 So it is a trade-off.
-
-Shoemake's arcball has an abrupt edge; this is remedied in Gavin Bell's arcball
-(``mouserotationstyle: Bell``), originally written for OpenGL [Bell1988]_. It is used
-in Blender and Meshlab.
 
 Henriksen et al. [Henriksen2002]_ provide an overview. In summary:
 
@@ -111,19 +108,13 @@ Henriksen et al. [Henriksen2002]_ provide an overview. In summary:
      - ✔️
      - ❌
      - ✔️
+   * - sphere
+     - ❌
+     - ✔️
+     - ✔️
+     - ❌
+     - ✔️
    * - arcball
-     - ❌
-     - ✔️
-     - ✔️
-     - ❌
-     - ✔️
-   * - Shoemake
-     - ❌
-     - ✔️
-     - ✔️
-     - ✔️
-     - ❌
-   * - Bell
      - ❌
      - ✔️
      - ✔️
@@ -134,16 +125,16 @@ Henriksen et al. [Henriksen2002]_ provide an overview. In summary:
 .. [1] The way it was prior to v3.10; this is also MATLAB's style
 .. [2] Mouse controls roll too (not only azimuth and elevation)
 .. [3] Figure reacts the same way to mouse movements, regardless of orientation (no difference between 'poles' and 'equator')
-.. [4] Returning mouse to original position returns figure to original orientation (no hysteresis: rotation is independent of the details of the path the mouse took)
+.. [4] Returning mouse to original position returns figure to original orientation (rotation is independent of the details of the path the mouse took)
 .. [5] The style has a corresponding natural implementation as a mechanical device
-.. [6] While it is possible to control roll with the ``trackball`` style, this is not very intuitive (it requires moving the mouse in large circles) and the resulting roll is in the opposite direction
+.. [6] While it is possible to control roll with the ``trackball`` style, this is not immediately obvious (it requires moving the mouse in large circles) and a bit counterintuitive (the resulting roll is in the opposite direction)
 
 You can try out one of the various mouse rotation styles using::
 
 .. code::
 
     import matplotlib as mpl
-    mpl.rcParams['axes3d.mouserotationstyle'] = 'trackball'  # 'azel', 'trackball', 'arcball', 'Shoemake', or 'Bell'
+    mpl.rcParams['axes3d.mouserotationstyle'] = 'trackball'  # 'azel', 'trackball', 'sphere', or 'arcball'
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -169,21 +160,36 @@ Alternatively, create a file ``matplotlibrc``, with contents::
 (or any of the other styles, instead of ``arcball``), and then run any of
 the :ref:`mplot3d-examples-index` examples.
 
-The size of the virtual trackball or arcball can be adjusted as well,
+The size of the virtual trackball, sphere, or arcball can be adjusted
 by setting :rc:`axes3d.trackballsize`. This specifies how much
 mouse motion is needed to obtain a given rotation angle (when near the center),
-and it controls where the edge of the arcball is (how far from the center,
-how close to the plot edge).
+and it controls where the edge of the sphere or arcball is (how far from
+the center, hence how close to the plot edge).
 The size is specified in units of the Axes bounding box,
-i.e., to make the trackball span the whole bounding box, set it to 1.
+i.e., to make the arcball span the whole bounding box, set it to 1.
 A size of about 2/3 appears to work reasonably well; this is the default.
 
-----
+Both arcballs (``mouserotationstyle: sphere`` and
+``mouserotationstyle: arcball``) have a noticeable edge; the edge can be made
+less abrupt by specifying a border width, :rc:`axes3d.trackballborder`.
+This works somewhat like Gavin Bell's arcball, which was
+originally written for OpenGL [Bell1988]_, and is used in Blender and Meshlab.
+Bell's arcball extends the arcball's spherical control surface with a hyperbola;
+the two are smoothly joined. However, the hyperbola extends all the way beyond
+the edge of the plot. In the mplot3d sphere and arcball style, the border extends
+to a radius :rc:`axes3d.trackballsize`/2 + :rc:`axes3d.trackballborder`.
+Beyond the border, the style works like the original: it controls roll only.
+A border width of about 0.2 appears to work well; this is the default.
+To obtain the original Shoemake's arcball with a sharp border,
+set the border width to 0.
+For an extended border similar to Bell's arcball, where the transition from
+the arcball to the border occurs at 45°, set the border width to
+$\sqrt 2 \approx 1.414$.
+
 
 .. [Shoemake1992] Ken Shoemake, "ARCBALL: A user interface for specifying
   three-dimensional rotation using a mouse", in Proceedings of Graphics
   Interface '92, 1992, pp. 151-156, https://doi.org/10.20380/GI1992.18
-
 
 .. [Bell1988] Gavin Bell, in the examples included with the GLUT (OpenGL
   Utility Toolkit) library,
