@@ -2,7 +2,8 @@
 
 using namespace pybind11::literals;
 
-PYBIND11_MODULE(_tri, m) {
+PYBIND11_MODULE(_tri, m, py::mod_gil_not_used())
+{
     py::class_<Triangulation>(m, "Triangulation", py::is_final())
         .def(py::init<const Triangulation::CoordinateArray&,
                       const Triangulation::CoordinateArray&,

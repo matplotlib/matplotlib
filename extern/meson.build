@@ -1,6 +1,5 @@
 # Bundled code.
 subdir('agg24-svn')
-subdir('ttconv')
 
 # External code.
 
