@@ -658,9 +658,6 @@ class FigureManagerQT(FigureManagerBase):
 
 
 class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
-    _message = QtCore.Signal(str)  # Remove once deprecation below elapses.
-    message = _api.deprecate_privatize_attribute("3.8")
-
     toolitems = [*NavigationToolbar2.toolitems]
     toolitems.insert(
         # Add 'customize' action after 'subplots'
@@ -783,7 +780,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self._update_buttons_checked()
 
     def set_message(self, s):
-        self._message.emit(s)
         if self.coordinates:
             self.locLabel.setText(s)
 

@@ -1849,10 +1849,6 @@ or callable, default: value of *xycoords*
                 # modified YAArrow API to be used with FancyArrowPatch
                 for key in ['width', 'headwidth', 'headlength', 'shrink']:
                     arrowprops.pop(key, None)
-                if 'frac' in arrowprops:
-                    _api.warn_deprecated(
-                        "3.8", name="the (unused) 'frac' key in 'arrowprops'")
-                    arrowprops.pop("frac")
             self.arrow_patch = FancyArrowPatch((0, 0), (1, 1), **arrowprops)
         else:
             self.arrow_patch = None

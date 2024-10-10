@@ -93,9 +93,6 @@ class TransformNode:
     # Invalidation may affect only the affine part.  If the
     # invalidation was "affine-only", the _invalid member is set to
     # INVALID_AFFINE_ONLY
-    INVALID_NON_AFFINE = _api.deprecated("3.8")(_api.classproperty(lambda cls: 1))
-    INVALID_AFFINE = _api.deprecated("3.8")(_api.classproperty(lambda cls: 2))
-    INVALID = _api.deprecated("3.8")(_api.classproperty(lambda cls: 3))
 
     # Possible values for the _invalid attribute.
     _VALID, _INVALID_AFFINE_ONLY, _INVALID_FULL = range(3)
@@ -480,7 +477,7 @@ class BboxBase(TransformNode):
              'NW': (0, 1.0),
              'W':  (0, 0.5)}
 
-    def anchored(self, c, container=None):
+    def anchored(self, c, container):
         """
         Return a copy of the `Bbox` anchored to *c* within *container*.
 
@@ -490,19 +487,13 @@ class BboxBase(TransformNode):
             Either an (*x*, *y*) pair of relative coordinates (0 is left or
             bottom, 1 is right or top), 'C' (center), or a cardinal direction
             ('SW', southwest, is bottom left, etc.).
-        container : `Bbox`, optional
+        container : `Bbox`
             The box within which the `Bbox` is positioned.
 
         See Also
         --------
         .Axes.set_anchor
         """
-        if container is None:
-            _api.warn_deprecated(
-                "3.8", message="Calling anchored() with no container bbox "
-                "returns a frozen copy of the original bbox and is deprecated "
-                "since %(since)s.")
-            container = self
         l, b, w, h = container.bounds
         L, B, W, H = self.bounds
         cx, cy = self.coefs[c] if isinstance(c, str) else c

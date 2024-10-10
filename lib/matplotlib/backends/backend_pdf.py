@@ -2663,9 +2663,9 @@ class PdfPages:
     confusion when using `~.pyplot.savefig` and forgetting the format argument.
     """
 
-    _UNSET = object()
-
-    def __init__(self, filename, keep_empty=_UNSET, metadata=None):
+    @_api.delete_parameter("3.10", "keep_empty",
+                           addendum="This parameter does nothing.")
+    def __init__(self, filename, keep_empty=None, metadata=None):
         """
         Create a new PdfPages object.
 
@@ -2675,10 +2675,6 @@ class PdfPages:
             Plots using `PdfPages.savefig` will be written to a file at this location.
             The file is opened when a figure is saved for the first time (overwriting
             any older file with the same name).
-
-        keep_empty : bool, optional
-            If set to False, then empty pdf files will be deleted automatically
-            when closed.
 
         metadata : dict, optional
             Information dictionary object (see PDF reference section 10.2.1
@@ -2693,13 +2689,6 @@ class PdfPages:
         self._filename = filename
         self._metadata = metadata
         self._file = None
-        if keep_empty and keep_empty is not self._UNSET:
-            _api.warn_deprecated("3.8", message=(
-                "Keeping empty pdf files is deprecated since %(since)s and support "
-                "will be removed %(removal)s."))
-        self._keep_empty = keep_empty
-
-    keep_empty = _api.deprecate_privatize_attribute("3.8")
 
     def __enter__(self):
         return self
@@ -2721,11 +2710,6 @@ class PdfPages:
             self._file.finalize()
             self._file.close()
             self._file = None
-        elif self._keep_empty:  # True *or* UNSET.
-            _api.warn_deprecated("3.8", message=(
-                "Keeping empty pdf files is deprecated since %(since)s and support "
-                "will be removed %(removal)s."))
-            PdfFile(self._filename, metadata=self._metadata).close()  # touch the file.
 
     def infodict(self):
         """

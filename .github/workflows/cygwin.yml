@@ -29,7 +29,6 @@ on:
     # 5:47 UTC on Saturdays
     - cron: "47 5 * * 6"
   workflow_dispatch:
-    workflow: "*"
 
 permissions:
   contents: read

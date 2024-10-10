@@ -439,9 +439,8 @@ def test_switch_backend_no_close():
     assert len(plt.get_fignums()) == 2
     plt.switch_backend('agg')
     assert len(plt.get_fignums()) == 2
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        plt.switch_backend('svg')
-    assert len(plt.get_fignums()) == 0
+    plt.switch_backend('svg')
+    assert len(plt.get_fignums()) == 2
 
 
 def figure_hook_example(figure):

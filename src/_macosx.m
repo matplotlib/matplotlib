@@ -1236,7 +1236,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     CGContextRef cr = [[NSGraphicsContext currentContext] CGContext];
 
     if (!(renderer = PyObject_CallMethod(canvas, "get_renderer", ""))
-        || !(renderer_buffer = PyObject_GetAttrString(renderer, "_renderer"))) {
+        || !(renderer_buffer = PyObject_CallMethod(renderer, "buffer_rgba", ""))) {
         PyErr_Print();
         goto exit;
     }
