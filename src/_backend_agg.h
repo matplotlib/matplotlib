@@ -1234,11 +1234,11 @@ inline void RendererAgg::draw_gouraud_triangles(GCAgg &gc,
                                                 ColorArray &colors,
                                                 agg::trans_affine &trans)
 {
-    if (points.shape(0) && !check_trailing_shape(points, "points", 3, 2)) {
-        throw py::error_already_set();
+    if (points.shape(0)) {
+        check_trailing_shape(points, "points", 3, 2);
     }
-    if (colors.shape(0) && !check_trailing_shape(colors, "colors", 3, 4)) {
-        throw py::error_already_set();
+    if (colors.shape(0)) {
+        check_trailing_shape(colors, "colors", 3, 4);
     }
     if (points.shape(0) != colors.shape(0)) {
         throw py::value_error(

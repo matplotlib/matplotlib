@@ -7,14 +7,11 @@
 #include <string>
 #include <vector>
 
-#include "numpy_cpp.h"
-
 #include "_path.h"
 
 #include "_backend_agg_basic_types.h"
 #include "py_adaptors.h"
 #include "py_converters.h"
-#include "py_converters_11.h"
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -184,9 +181,7 @@ Py_affine_transform(py::array_t<double, py::array::c_style | py::array::forcecas
     if (vertices_arr.ndim() == 2) {
         auto vertices = vertices_arr.unchecked<2>();
 
-        if(!check_trailing_shape(vertices, "vertices", 2)) {
-            throw py::error_already_set();
-        }
+        check_trailing_shape(vertices, "vertices", 2);
 
         py::ssize_t dims[] = { vertices.shape(0), 2 };
         py::array_t<double> result(dims);
@@ -267,7 +262,7 @@ Py_cleanup_path(mpl::PathIterator path, agg::trans_affine trans, bool remove_nan
     bool do_clip = (clip_rect.x1 < clip_rect.x2 && clip_rect.y1 < clip_rect.y2);
 
     std::vector<double> vertices;
-    std::vector<npy_uint8> codes;
+    std::vector<uint8_t> codes;
 
     cleanup_path(path, trans, remove_nans, do_clip, clip_rect, snap_mode, stroke_width,
                  *simplify, return_curves, sketch, vertices, codes);
@@ -375,14 +370,6 @@ Py_is_sorted_and_has_non_nan(py::object obj)
 
 PYBIND11_MODULE(_path, m)
 {
-    auto ia = [m]() -> const void* {
-        import_array();
-        return &m;
-    };
-    if (ia() == NULL) {
-        throw py::error_already_set();
-    }
-
     m.def("point_in_path", &Py_point_in_path,
           "x"_a, "y"_a, "radius"_a, "path"_a, "trans"_a);
     m.def("points_in_path", &Py_points_in_path,

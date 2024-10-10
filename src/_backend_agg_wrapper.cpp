@@ -2,10 +2,8 @@
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 #include "mplutils.h"
-#include "numpy_cpp.h"
 #include "py_converters.h"
 #include "_backend_agg.h"
-#include "py_converters_11.h"
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -189,14 +187,6 @@ PyRendererAgg_draw_gouraud_triangles(RendererAgg *self,
 
 PYBIND11_MODULE(_backend_agg, m)
 {
-    auto ia = [m]() -> const void* {
-        import_array();
-        return &m;
-    };
-    if (ia() == NULL) {
-        throw py::error_already_set();
-    }
-
     py::class_<RendererAgg>(m, "RendererAgg", py::buffer_protocol())
         .def(py::init<unsigned int, unsigned int, double>(),
              "width"_a, "height"_a, "dpi"_a)

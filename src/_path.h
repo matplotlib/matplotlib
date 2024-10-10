@@ -18,7 +18,6 @@
 
 #include "path_converters.h"
 #include "_backend_agg_basic_types.h"
-#include "numpy_cpp.h"
 
 const size_t NUM_VERTICES[] = { 1, 1, 1, 2, 3 };
 
@@ -1004,7 +1003,7 @@ void convert_path_to_polygons(PathIterator &path,
 
 template <class VertexSource>
 void
-__cleanup_path(VertexSource &source, std::vector<double> &vertices, std::vector<npy_uint8> &codes)
+__cleanup_path(VertexSource &source, std::vector<double> &vertices, std::vector<uint8_t> &codes)
 {
     unsigned code;
     double x, y;
@@ -1012,7 +1011,7 @@ __cleanup_path(VertexSource &source, std::vector<double> &vertices, std::vector<
         code = source.vertex(&x, &y);
         vertices.push_back(x);
         vertices.push_back(y);
-        codes.push_back((npy_uint8)code);
+        codes.push_back(static_cast<uint8_t>(code));
     } while (code != agg::path_cmd_stop);
 }
 
