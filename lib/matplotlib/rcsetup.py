@@ -950,7 +950,7 @@ _validators = {
     "patch.antialiased":     validate_bool,  # antialiased (no jaggies)
 
     ## hatch props
-    "hatch.color":     validate_color,
+    "hatch.color":     validate_color_or_inherit,
     "hatch.linewidth": validate_float,
 
     ## Histogram properties
