@@ -98,6 +98,7 @@ class Tick(martist.Artist):
 
         self.set_figure(axes.get_figure(root=False))
         self.axes = axes
+        self.converter = None
 
         self._loc = loc
         self._major = major
@@ -1918,6 +1919,13 @@ class Axis(martist.Artist):
                 and not isinstance(level.locator, mticker.FixedLocator)):
             _api.warn_external('FixedFormatter should only be used together '
                                'with FixedLocator')
+
+        if hasattr(self, "converter") and self.converter is not None:
+            if not self.converter.validate_formatter(formatter):
+                _api.warn_external(
+                    f'Converter {self.converter.__class__.__name__!r} got unexpected '
+                    f'formatter {formatter.__class__.__name__!r}'
+                )
 
         if level == self.major:
             self.isDefault_majfmt = False
