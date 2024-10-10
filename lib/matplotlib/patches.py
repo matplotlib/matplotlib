@@ -1114,6 +1114,126 @@ class StepPatch(PathPatch):
         self.stale = True
 
 
+class BoundedSemiplane(Patch):
+    """A semiplane bounded by a polyline on one side."""
+    def __str__(self):
+        if len(self._path.vertices):
+            s = "Line%d((%g, %g) ...)"
+            return s % (len(self._path.vertices), *self._path.vertices[0])
+        else:
+            return "Line0()"
+
+    @_docstring.dedent_interpd
+    def __init__(self, xy, direction, **kwargs):
+        """
+        *xy* is a numpy array with shape Nx2.
+
+        *direction* determines bounding direction of the semiplane
+        """
+        super().__init__(**kwargs)
+        self.set_direction(direction)
+        self.set_polyline(xy)
+        self._update_bounded_path()
+
+    def set_direction(self, direction):
+        """
+        Set the direction of the patch's bound.
+
+        Parameters
+        ----------
+        direction : {{'top', 'bottom'}}
+            - 'top': Semiplane is upper bounded by the specified polyline
+            - 'bottom': Semiplane is lower bounded by the specified polyline
+        """
+        if direction not in ['top', 'bottom']:
+            raise ValueError(f"{direction!r} is not 'top' or 'bottom'")
+        self._direction = direction
+        self.stale = True
+
+    def get_direction(self):
+        """
+        Get the direction of the patch's bound.
+
+        Returns
+        -------
+        {{'top', 'bottom'}}
+        """
+        return self._direction
+
+    def set_polyline(self, xy):
+        """
+        Set the vertices of the polyline.
+
+        Parameters
+        ----------
+        xy : (N, 2) array-like
+            The vertices of polyline.
+
+        Notes
+        -----
+        *xy* is stably sorted by *x* first before setting the polyline. This is
+        to ensure the fill does not cover any vertices.
+        """
+        xy = np.asarray(xy)
+        sorted_idxs = np.argsort(xy[:, 0], kind='stable')
+        xy = xy[sorted_idxs]
+        self._polyline = xy
+        self.stale = True
+
+    def get_polyline(self):
+        """
+        Get the bounding polyline.
+
+        Returns
+        -------
+        (N, 2) numpy array
+            The vertices of polyline.
+        """
+        return self._polyline
+
+    def get_path(self):
+        """
+        Get the `.Path` of the patch.
+
+        Returns
+        -------
+        `.Path`
+
+        Notes
+        -----
+        Returns the `.Path` defined by the bounding polyline if there is no
+        containing `.Axes`. Otherwise, the path is defined by the polyline, and
+        two extra endpoints from projecting the polyline's endpoints to the
+        bound of the axes container.
+        """
+        self._update_bounded_path()
+        return self._path
+
+    def _update_bounded_path(self):
+        """
+        Updates the bounded path according to the container limits
+        """
+        container = self.axes
+        if container is None:
+            self._path = Path(self._polyline)
+            return
+
+        bottom, top = container.get_ylim()
+        bound_dict = {'top': bottom, 'bottom': top}
+        bound = bound_dict[self._direction]
+
+        N, _ = self._polyline.shape
+        left_x = self._polyline[0, 0]
+        right_x = self._polyline[N-1, 0]
+        verts = np.empty((N+2, 2))
+
+        verts[1:N+1] = self._polyline
+        verts[0] = [left_x, bound]
+        verts[N+1] = [right_x, bound]
+
+        self._path = Path(verts)
+
+
 class Polygon(Patch):
     """A general polygon patch."""
 
