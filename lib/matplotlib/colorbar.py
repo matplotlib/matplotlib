@@ -431,43 +431,50 @@ class Colorbar:
             "ylim_changed", self._do_extends)
 
     @property
+    def long_axis(self):
+        """Axis that has decorations (ticks, etc) on it."""
+        if self.orientation == 'vertical':
+            return self.ax.yaxis
+        return self.ax.xaxis
+
+    @property
     def locator(self):
         """Major tick `.Locator` for the colorbar."""
-        return self._long_axis().get_major_locator()
+        return self.long_axis.get_major_locator()
 
     @locator.setter
     def locator(self, loc):
-        self._long_axis().set_major_locator(loc)
+        self.long_axis.set_major_locator(loc)
         self._locator = loc
 
     @property
     def minorlocator(self):
         """Minor tick `.Locator` for the colorbar."""
-        return self._long_axis().get_minor_locator()
+        return self.long_axis.get_minor_locator()
 
     @minorlocator.setter
     def minorlocator(self, loc):
-        self._long_axis().set_minor_locator(loc)
+        self.long_axis.set_minor_locator(loc)
         self._minorlocator = loc
 
     @property
     def formatter(self):
         """Major tick label `.Formatter` for the colorbar."""
-        return self._long_axis().get_major_formatter()
+        return self.long_axis.get_major_formatter()
 
     @formatter.setter
     def formatter(self, fmt):
-        self._long_axis().set_major_formatter(fmt)
+        self.long_axis.set_major_formatter(fmt)
         self._formatter = fmt
 
     @property
     def minorformatter(self):
         """Minor tick `.Formatter` for the colorbar."""
-        return self._long_axis().get_minor_formatter()
+        return self.long_axis.get_minor_formatter()
 
     @minorformatter.setter
     def minorformatter(self, fmt):
-        self._long_axis().set_minor_formatter(fmt)
+        self.long_axis.set_minor_formatter(fmt)
         self._minorformatter = fmt
 
     def _cbar_cla(self):
@@ -517,7 +524,7 @@ class Colorbar:
         else:
             if mpl.rcParams['xtick.minor.visible']:
                 self.minorticks_on()
-        self._long_axis().set(label_position=self.ticklocation,
+        self.long_axis.set(label_position=self.ticklocation,
                               ticks_position=self.ticklocation)
         self._short_axis().set_ticks([])
         self._short_axis().set_ticks([], minor=True)
@@ -536,7 +543,7 @@ class Colorbar:
         # also adds the outline path to self.outline spine:
         self._do_extends()
         lower, upper = self.vmin, self.vmax
-        if self._long_axis().get_inverted():
+        if self.long_axis.get_inverted():
             # If the axis is inverted, we need to swap the vmin/vmax
             lower, upper = upper, lower
         if self.orientation == 'vertical':
@@ -677,7 +684,7 @@ class Colorbar:
             if self.orientation == 'horizontal':
                 xy = xy[:, ::-1]
             # add the patch
-            val = -1 if self._long_axis().get_inverted() else 0
+            val = -1 if self.long_axis.get_inverted() else 0
             color = self.cmap(self.norm(self._values[val]))
             patch = mpatches.PathPatch(
                 mpath.Path(xy), facecolor=color, alpha=self.alpha,
@@ -701,7 +708,7 @@ class Colorbar:
             if self.orientation == 'horizontal':
                 xy = xy[:, ::-1]
             # add the patch
-            val = 0 if self._long_axis().get_inverted() else -1
+            val = 0 if self.long_axis.get_inverted() else -1
             color = self.cmap(self.norm(self._values[val]))
             hatch_idx = len(self._y) - 1
             patch = mpatches.PathPatch(
@@ -803,9 +810,9 @@ class Colorbar:
         """
         # Get the locator and formatter; defaults to self._locator if not None.
         self._get_ticker_locator_formatter()
-        self._long_axis().set_major_locator(self._locator)
-        self._long_axis().set_minor_locator(self._minorlocator)
-        self._long_axis().set_major_formatter(self._formatter)
+        self.long_axis.set_major_locator(self._locator)
+        self.long_axis.set_minor_locator(self._minorlocator)
+        self.long_axis.set_major_formatter(self._formatter)
 
     def _get_ticker_locator_formatter(self):
         """
@@ -840,15 +847,15 @@ class Colorbar:
             if locator is None:
                 # we haven't set the locator explicitly, so use the default
                 # for this axis:
-                locator = self._long_axis().get_major_locator()
+                locator = self.long_axis.get_major_locator()
             if minorlocator is None:
-                minorlocator = self._long_axis().get_minor_locator()
+                minorlocator = self.long_axis.get_minor_locator()
 
         if minorlocator is None:
             minorlocator = ticker.NullLocator()
 
         if formatter is None:
-            formatter = self._long_axis().get_major_formatter()
+            formatter = self.long_axis.get_major_formatter()
 
         self._locator = locator
         self._formatter = formatter
@@ -872,12 +879,12 @@ class Colorbar:
             pass *labels*. In other cases, please use `~.Axes.tick_params`.
         """
         if np.iterable(ticks):
-            self._long_axis().set_ticks(ticks, labels=labels, minor=minor,
+            self.long_axis.set_ticks(ticks, labels=labels, minor=minor,
                                         **kwargs)
-            self._locator = self._long_axis().get_major_locator()
+            self._locator = self.long_axis.get_major_locator()
         else:
             self._locator = ticks
-            self._long_axis().set_major_locator(self._locator)
+            self.long_axis.set_major_locator(self._locator)
         self.stale = True
 
     def get_ticks(self, minor=False):
@@ -890,9 +897,9 @@ class Colorbar:
             if True return the minor ticks.
         """
         if minor:
-            return self._long_axis().get_minorticklocs()
+            return self.long_axis.get_minorticklocs()
         else:
-            return self._long_axis().get_majorticklocs()
+            return self.long_axis.get_majorticklocs()
 
     def set_ticklabels(self, ticklabels, *, minor=False, **kwargs):
         """
@@ -927,7 +934,7 @@ class Colorbar:
         **kwargs
             `.Text` properties for the labels.
         """
-        self._long_axis().set_ticklabels(ticklabels, minor=minor, **kwargs)
+        self.long_axis.set_ticklabels(ticklabels, minor=minor, **kwargs)
 
     def minorticks_on(self):
         """
@@ -939,7 +946,7 @@ class Colorbar:
     def minorticks_off(self):
         """Turn the minor ticks of the colorbar off."""
         self._minorlocator = ticker.NullLocator()
-        self._long_axis().set_minor_locator(self._minorlocator)
+        self.long_axis.set_minor_locator(self._minorlocator)
 
     def set_label(self, label, *, loc=None, **kwargs):
         """
@@ -1004,7 +1011,7 @@ class Colorbar:
         `matplotlib.scale.register_scale`. These scales can then also
         be used here.
         """
-        self._long_axis()._set_axes_scale(scale, **kwargs)
+        self.long_axis._set_axes_scale(scale, **kwargs)
 
     def remove(self):
         """
@@ -1276,19 +1283,13 @@ class Colorbar:
 
     def _extend_lower(self):
         """Return whether the lower limit is open ended."""
-        minmax = "max" if self._long_axis().get_inverted() else "min"
+        minmax = "max" if self.long_axis.get_inverted() else "min"
         return self.extend in ('both', minmax)
 
     def _extend_upper(self):
         """Return whether the upper limit is open ended."""
-        minmax = "min" if self._long_axis().get_inverted() else "max"
+        minmax = "min" if self.long_axis.get_inverted() else "max"
         return self.extend in ('both', minmax)
-
-    def _long_axis(self):
-        """Return the long axis"""
-        if self.orientation == 'vertical':
-            return self.ax.yaxis
-        return self.ax.xaxis
 
     def _short_axis(self):
         """Return the short axis"""
