@@ -167,6 +167,7 @@ convention = "numpy"
 "galleries/examples/style_sheets/bmh.py" = ["E501"]
 "galleries/examples/subplots_axes_and_figures/demo_constrained_layout.py" = ["E402"]
 "galleries/examples/text_labels_and_annotations/custom_legends.py" = ["E402"]
+"galleries/examples/text_labels_and_annotations/rainbow_text.py" = ["E402"]
 "galleries/examples/ticks/date_concise_formatter.py" = ["E402"]
 "galleries/examples/ticks/date_formatters_locators.py" = ["F401"]
 "galleries/examples/user_interfaces/embedding_in_gtk3_panzoom_sgskip.py" = ["E402"]
