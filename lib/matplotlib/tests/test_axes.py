@@ -3020,6 +3020,8 @@ del _result
      (dict(c='b', edgecolor='r', edgecolors='g'), 'r'),
      (dict(color='r'), 'r'),
      (dict(color='r', edgecolor='g'), 'g'),
+     (dict(facecolors='none'), None),
+     (dict(c='b', facecolors='none'), np.array([[0, 0, 1, 1]]))
      ])
 def test_parse_scatter_color_args_edgecolors(kwargs, expected_edgecolors):
     def get_next_color():
@@ -3030,7 +3032,10 @@ def test_parse_scatter_color_args_edgecolors(kwargs, expected_edgecolors):
     _, _, result_edgecolors = \
         mpl.axes.Axes._parse_scatter_color_args(
             c, edgecolors, kwargs, xsize=2, get_next_color_func=get_next_color)
-    assert result_edgecolors == expected_edgecolors
+    if isinstance(expected_edgecolors, np.ndarray):
+        assert_allclose(result_edgecolors, expected_edgecolors)
+    else:
+        assert result_edgecolors == expected_edgecolors
 
 
 def test_parse_scatter_color_args_error():
