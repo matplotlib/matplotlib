@@ -8,14 +8,62 @@ from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
 import matplotlib as mpl
-from matplotlib.patches import (Annulus, Ellipse, Patch, Polygon, Rectangle,
-                                FancyArrowPatch, FancyArrow, BoxStyle, Arc)
+from matplotlib.patches import (Annulus, Ellipse, BoundedSemiplane, Patch,
+                                Polygon, Rectangle, FancyArrowPatch,
+                                FancyArrow, BoxStyle, Arc)
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.transforms import Bbox
 import matplotlib.pyplot as plt
 from matplotlib import (
     collections as mcollections, colors as mcolors, patches as mpatches,
     path as mpath, transforms as mtransforms, rcParams)
+
+
+def test_BoundedSemiplane_set_direction():
+    xy = [(0, 0), (0, 1), (1, 1)]
+    l = BoundedSemiplane(xy, 'bottom')
+    l.stale = False
+    l.set_direction('top')
+    assert l.stale
+    assert l._direction == 'top'
+
+
+def test_BoundedSemiplane_get_direction():
+    xy = [(0, 0), (0, 1), (1, 1)]
+    l = BoundedSemiplane(xy, 'bottom')
+    assert l.get_direction()
+
+
+def test_BoundedSemiplane_get_xy():
+    xy = [(0, 0), (0, 1), (1, 1)]
+    l = BoundedSemiplane(xy, 'bottom')
+    l.set_polyline(xy)
+    assert_array_equal(l.get_polyline(), [[0, 0], [0, 1], [1, 1]])
+
+
+def test_BoundedSemiplane_update_bounded_path():
+    xy = [(0, 0), (0, 1), (1, 1)]
+    _, ax = plt.subplots()
+    plt.ylim(0, 6)
+    plt.xlim(0, 6)
+
+    l_bottom = BoundedSemiplane(xy, 'bottom')
+    ax.add_patch(l_bottom)
+    xy1 = np.array([[2, 2], [3, 3], [4, 4]])
+    l_bottom._polyline = xy1
+    l_bottom._update_bounded_path()
+    assert_array_equal(l_bottom._path.vertices, [[2, 6], [2, 2], [3, 3],
+                                                 [4, 4], [4, 6]])
+
+
+def test_Lines_set_xy():
+    xy = [[1, 1], [0, 1], [0, 0]]
+    xy_sorted = np.array([[0, 1], [0, 0], [1, 1]])
+    l = BoundedSemiplane(xy, 'top')
+
+    l.set_polyline(xy)
+    assert_array_equal(l._polyline, xy_sorted)
+    assert l.stale
 
 
 def test_Polygon_close():
