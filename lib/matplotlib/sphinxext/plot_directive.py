@@ -50,8 +50,8 @@ The ``.. plot::`` directive supports the following options:
 ``:output-base-name:`` : str
     The base name (without the extension) of the outputted image files. The
     default is to use the same name as the input script, or the name of
-    the RST document if no script is provided. Note: two plots with the same
-    output-base-name may overwrite each other.
+    the RST document if no script is provided. The output-base-name for each
+    plot directive must be unique.
 
 ``:format:`` : {'python', 'doctest'}
     The format of the input.  If unset, the format is auto-detected.
@@ -171,6 +171,7 @@ be customized by changing the *plot_template*.  See the source of
 and *TEMPLATE_SRCSET*.
 """
 
+from collections import defaultdict
 import contextlib
 import doctest
 from io import StringIO
@@ -188,6 +189,7 @@ from docutils.parsers.rst import directives, Directive
 from docutils.parsers.rst.directives.images import Image
 import jinja2  # Sphinx dependency.
 
+from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.errors import ExtensionError
 
 import matplotlib
@@ -319,8 +321,34 @@ def setup(app):
     app.connect('build-finished', _copy_css_file)
     metadata = {'parallel_read_safe': True, 'parallel_write_safe': True,
                 'version': matplotlib.__version__}
+    app.connect('builder-inited', init_filename_registry)
+    app.add_env_collector(FilenameCollector)
     return metadata
 
+
+# -----------------------------------------------------------------------------
+# Handle Duplicate Filenames
+# -----------------------------------------------------------------------------
+
+def init_filename_registry(app):
+    env = app.builder.env
+    if not hasattr(env, 'mpl_custom_base_names'):
+        env.mpl_custom_base_names = defaultdict(set)
+
+class FilenameCollector(EnvironmentCollector):
+    def process_doc(self, app, doctree):
+        pass
+
+    def clear_doc(self, app, env, docname):
+        if docname in env.mpl_custom_base_names:
+            del env.mpl_custom_base_names[docname]
+
+    def merge_other(self, app, env, docnames, other):
+        for docname in docnames:
+            if docname in other.mpl_custom_base_names:
+                if docname not in env.mpl_custom_base_names:
+                    env.mpl_custom_base_names[docname] = set()
+                env.mpl_custom_base_names[docname].update(other.mpl_custom_base_names[docname])
 
 # -----------------------------------------------------------------------------
 # Doctest handling
@@ -606,6 +634,16 @@ def _parse_srcset(entries):
             raise ExtensionError(f'srcset argument {entry!r} is invalid.')
     return srcset
 
+def check_output_base_name(env, output_base):
+    docname = env.docname
+
+    for d in env.mpl_custom_base_names:
+        if output_base in env.mpl_custom_base_names[d]:
+            if d == docname:
+                raise PlotError(f"The output-base-name '{output_base}' is used multiple times.")
+            raise PlotError(f"The output-base-name '{output_base}' is used multiple times (it is also used in {env.doc2path(d)}).")
+
+    env.mpl_custom_base_names[docname].add(output_base)
 
 def render_figures(code, code_path, output_dir, output_base, context,
                    function_name, config, context_reset=False,
@@ -730,6 +768,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
 def run(arguments, content, options, state_machine, state, lineno):
     document = state_machine.document
     config = document.settings.env.config
+    env = document.settings.env
     nofigs = 'nofigs' in options
 
     if config.plot_srcset and setup.app.builder.name == 'singlehtml':
@@ -785,6 +824,7 @@ def run(arguments, content, options, state_machine, state, lineno):
         code = Path(source_file_name).read_text(encoding='utf-8')
         if options['output-base-name']:
             output_base = options['output-base-name']
+            check_output_base_name(env, output_base)
         else:
             output_base = os.path.basename(source_file_name)
     else:
@@ -793,6 +833,7 @@ def run(arguments, content, options, state_machine, state, lineno):
         base, ext = os.path.splitext(os.path.basename(source_file_name))
         if options['output-base-name']:
             output_base = options['output-base-name']
+            check_output_base_name(env, output_base)
         else:
             counter = document.attributes.get('_plot_counter', 0) + 1
             document.attributes['_plot_counter'] = counter
