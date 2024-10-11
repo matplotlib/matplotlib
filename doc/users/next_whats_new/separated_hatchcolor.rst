@@ -7,24 +7,25 @@ for hatches and edges by explicitly setting the ``hatchcolor`` parameter.
 
 Inherit Logic
 ~~~~~~~~~~~~~
-When the `hatchcolor` parameter is specified, it will be used for the hatch.
-If it is not specified, it will fallback to using the `hatch.color` rcParam value.
+When the *hatchcolor* parameter is specified, it will be used for the hatch.
+If it is not specified, it will fallback to using :rc:`hatch.color`.
 If this is a valid color, it will be used for the hatch.
 
-If the `hatch.color` rcParam is not set, then its default value will be used,
-which is `inherit`. In this case, hatchcolor will try to inherit from `edgecolor`
-of the patch if it is specified. If `edgecolor` is also not specified,
-hatchcolor will fallback to the `patch.edgecolor` rcParam, which is black by default.
+If the *hatch.color* rcParam is not set, then its default value will be used,
+which is *inherit*. In this case, *hatchcolor* will try to inherit from *edgecolor*
+of the patch if it is specified. If *edgecolor* is also not specified,
+*hatchcolor* will fallback to :rc:`patch.edgecolor`.
 
 If the patch inherits hatchcolor from edgecolor, hatchcolor will
-be updated if edgecolor is changed (for example: by calling `set_edgecolor()`).
-But if hatchcolor is explicitly set (for example: by calling `set_hatchcolor()`
-or by using `hatch.color` rcParam), it will not be updated when edgecolor changes.
+be updated if edgecolor is changed (for example: by calling *set_edgecolor()*).
+But if hatchcolor is explicitly set (for example: by calling *set_hatchcolor()*
+or by using *hatch.color* rcParam), it will not be updated when edgecolor changes.
 
 .. plot::
     :include-source: true
     :alt: Example of using the hatchcolor parameter in a Rectangle
 
+    import matplotlib as mpl
     import matplotlib.pyplot as plt
     from matplotlib.patches import Rectangle
 
@@ -52,7 +53,7 @@ or by using `hatch.color` rcParam), it will not be updated when edgecolor change
     with plt.rc_context({'hatch.color': 'black'}):
         patch4 = Rectangle((0.6, 0.6), 0.3, 0.3, edgecolor='blue', linewidth=2,
                            hatch='//', facecolor='none')
-                           
+
     # hatchcolor is black (it uses the `hatch.color` rcParam value)
     assert patch4._hatch_color == mpl.colors.to_rgba('black')
     patch4.set_edgecolor('blue')
