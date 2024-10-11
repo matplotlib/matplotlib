@@ -346,6 +346,11 @@ class Tick(martist.Artist):
                    if k in _gridline_param_names}
         self.gridline.set(**grid_kw)
 
+        if 'rotation_mode' in kwargs:
+            rotation_mode = kwargs.pop('rotation_mode')
+            self.label1.set_rotation_mode(rotation_mode)
+            self.label2.set_rotation_mode(rotation_mode)
+
     def update_position(self, loc):
         """Set the location of tick in data coords with scalar *loc*."""
         raise NotImplementedError('Derived must override')
@@ -1041,14 +1046,15 @@ class Axis(martist.Artist):
 
         """
         _api.check_in_list(['major', 'minor'], which=which)
+        is_x_axis = True if isinstance(self, XAxis) else False
         if which == 'major':
             return self._translate_tick_params(
-                self._major_tick_kw, reverse=True
-            )
-        return self._translate_tick_params(self._minor_tick_kw, reverse=True)
+                self._major_tick_kw, reverse=True, is_x_axis=is_x_axis)
+        return self._translate_tick_params(
+                self._minor_tick_kw, reverse=True, is_x_axis=is_x_axis)
 
     @staticmethod
-    def _translate_tick_params(kw, reverse=False):
+    def _translate_tick_params(kw, reverse=False, is_x_axis=None):
         """
         Translate the kwargs supported by `.Axis.set_tick_params` to kwargs
         supported by `.Tick._apply_params`.
@@ -1072,7 +1078,7 @@ class Axis(martist.Artist):
             'tick1On', 'tick2On', 'label1On', 'label2On',
             'length', 'direction', 'left', 'bottom', 'right', 'top',
             'labelleft', 'labelbottom', 'labelright', 'labeltop',
-            'labelrotation',
+            'labelrotation', 'rotation_mode',
             *_gridline_param_names]
 
         keymap = {
@@ -1090,10 +1096,19 @@ class Axis(martist.Artist):
             'labeltop': 'label2On',
         }
         if reverse:
-            kwtrans = {
-                oldkey: kw_.pop(newkey)
-                for oldkey, newkey in keymap.items() if newkey in kw_
-            }
+            kwtrans = {}
+            for oldkey, newkey in keymap.items():
+                if newkey in kw_:
+                    if is_x_axis and newkey == 'label1On':
+                        kwtrans['labelbottom'] = kw_.pop(newkey)
+                    elif is_x_axis and newkey == 'tick1On':
+                        kwtrans['bottom'] = kw_.pop(newkey)
+                    elif is_x_axis and newkey == 'label2On':
+                        kwtrans['labeltop'] = kw_.pop(newkey)
+                    elif is_x_axis and newkey == 'tick2On':
+                        kwtrans['top'] = kw_.pop(newkey)
+                    else:
+                        kwtrans[oldkey] = kw_.pop(newkey)
         else:
             kwtrans = {
                 newkey: kw_.pop(oldkey)
@@ -2095,6 +2110,8 @@ class Axis(martist.Artist):
         for pos, (loc, tick) in enumerate(zip(locs, ticks)):
             tick.update_position(loc)
             tick_label = formatter(loc, pos)
+            tick.label1.axes = self.axes
+            tick.label2.axes = self.axes
             # deal with label1
             tick.label1.set_text(tick_label)
             tick.label1._internal_update(kwargs)
