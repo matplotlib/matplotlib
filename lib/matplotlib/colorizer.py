@@ -27,7 +27,7 @@ from numpy import ma
 from matplotlib import _api, colors, cbook, scale, artist
 import matplotlib as mpl
 
-mpl._docstring.interpd.update(
+mpl._docstring.interpd.register(
     colorizer_doc="""\
 colorizer : `~matplotlib.colorizer.Colorizer` or None, default: None
     The Colorizer object used to map color to data. If None, a Colorizer
@@ -599,7 +599,7 @@ class _ScalarMappable(_ColorizerInterface):
         return Colorizer(cmap, norm)
 
 # The docstrings here must be generic enough to apply to all relevant methods.
-mpl._docstring.interpd.update(
+mpl._docstring.interpd.register(
     cmap_doc="""\
 cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
     The Colormap instance or registered colormap name used to map scalar data
