@@ -149,7 +149,7 @@ class Tick(martist.Artist):
             #   grid(color=(1, 1, 1, 0.5), alpha=rcParams['grid.alpha'])
             # so the that the rcParams default would override color alpha.
             grid_alpha = mpl.rcParams["grid.alpha"]
-        grid_kw = {k[5:]: v for k, v in kwargs.items()}
+        grid_kw = {k[5:]: v for k, v in kwargs.items() if k != "rotation_mode"}
 
         self.tick1line = mlines.Line2D(
             [], [],
@@ -1078,7 +1078,7 @@ class Axis(martist.Artist):
             'tick1On', 'tick2On', 'label1On', 'label2On',
             'length', 'direction', 'left', 'bottom', 'right', 'top',
             'labelleft', 'labelbottom', 'labelright', 'labeltop',
-            'labelrotation',
+            'labelrotation', 'rotation_mode',
             *_gridline_param_names]
 
         keymap = {
