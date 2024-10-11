@@ -101,6 +101,7 @@ if TYPE_CHECKING:
     from matplotlib.contour import ContourSet, QuadContourSet
     from matplotlib.collections import (
         Collection,
+        FillBetweenPolyCollection,
         LineCollection,
         PolyCollection,
         PathCollection,
@@ -3315,7 +3316,7 @@ def fill_between(
     *,
     data=None,
     **kwargs,
-) -> PolyCollection:
+) -> FillBetweenPolyCollection:
     return gca().fill_between(
         x,
         y1,
@@ -3340,7 +3341,7 @@ def fill_betweenx(
     *,
     data=None,
     **kwargs,
-) -> PolyCollection:
+) -> FillBetweenPolyCollection:
     return gca().fill_betweenx(
         y,
         x1,
