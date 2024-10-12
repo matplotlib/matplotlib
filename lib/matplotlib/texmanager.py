@@ -31,7 +31,7 @@ from tempfile import TemporaryDirectory
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, dviread
+from matplotlib import cbook, dviread
 
 _log = logging.getLogger(__name__)
 
@@ -63,7 +63,6 @@ class TexManager:
     Repeated calls to this constructor always return the same instance.
     """
 
-    texcache = _api.deprecate_privatize_attribute("3.8")
     _texcache = os.path.join(mpl.get_cachedir(), 'tex.cache')
     _grey_arrayd = {}
 
@@ -134,18 +133,16 @@ class TexManager:
                 preambles[font_family] = cls._font_preambles[
                     mpl.rcParams['font.family'][0].lower()]
             else:
-                for font in mpl.rcParams['font.' + font_family]:
-                    if font.lower() in cls._font_preambles:
-                        preambles[font_family] = \
-                            cls._font_preambles[font.lower()]
+                rcfonts = mpl.rcParams[f"font.{font_family}"]
+                for i, font in enumerate(map(str.lower, rcfonts)):
+                    if font in cls._font_preambles:
+                        preambles[font_family] = cls._font_preambles[font]
                         _log.debug(
-                            'family: %s, font: %s, info: %s',
-                            font_family, font,
-                            cls._font_preambles[font.lower()])
+                            'family: %s, package: %s, font: %s, skipped: %s',
+                            font_family, cls._font_preambles[font], rcfonts[i],
+                            ', '.join(rcfonts[:i]),
+                        )
                         break
-                    else:
-                        _log.debug('%s font is not compatible with usetex.',
-                                   font)
                 else:
                     _log.info('No LaTeX-compatible font found for the %s font'
                               'family in rcParams. Using default.',

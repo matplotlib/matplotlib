@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 import logging
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -22,6 +23,7 @@ import time
 from urllib.parse import urlsplit, urlunsplit
 import warnings
 
+from packaging.version import parse as parse_version
 import sphinx
 import yaml
 
@@ -115,9 +117,9 @@ extensions = [
     'sphinx_gallery.gen_gallery',
     'matplotlib.sphinxext.mathmpl',
     'matplotlib.sphinxext.plot_directive',
+    'matplotlib.sphinxext.roles',
     'matplotlib.sphinxext.figmpl_directive',
     'sphinxcontrib.inkscapeconverter',
-    'sphinxext.custom_roles',
     'sphinxext.github',
     'sphinxext.math_symbol_table',
     'sphinxext.missing_references',
@@ -178,9 +180,25 @@ _check_dependencies()
 
 
 # Import only after checking for dependencies.
-# gallery_order.py from the sphinxext folder provides the classes that
-# allow custom ordering of sections and subsections of the gallery
-import sphinxext.gallery_order as gallery_order
+import sphinx_gallery
+
+if parse_version(sphinx_gallery.__version__) >= parse_version('0.16.0'):
+    gallery_order_sectionorder = 'sphinxext.gallery_order.sectionorder'
+    gallery_order_subsectionorder = 'sphinxext.gallery_order.subsectionorder'
+    clear_basic_units = 'sphinxext.util.clear_basic_units'
+    matplotlib_reduced_latex_scraper = 'sphinxext.util.matplotlib_reduced_latex_scraper'
+else:
+    # gallery_order.py from the sphinxext folder provides the classes that
+    # allow custom ordering of sections and subsections of the gallery
+    from sphinxext.gallery_order import (
+        sectionorder as gallery_order_sectionorder,
+        subsectionorder as gallery_order_subsectionorder)
+    from sphinxext.util import clear_basic_units, matplotlib_reduced_latex_scraper
+
+if parse_version(sphinx_gallery.__version__) >= parse_version('0.17.0'):
+    sg_matplotlib_animations = (True, 'mp4')
+else:
+    sg_matplotlib_animations = True
 
 # The following import is only necessary to monkey patch the signature later on
 from sphinx_gallery import gen_rst
@@ -189,8 +207,20 @@ from sphinx_gallery import gen_rst
 warnings.filterwarnings('ignore', category=UserWarning,
                         message=r'(\n|.)*is non-interactive, and thus cannot be shown')
 
+
+# hack to catch sphinx-gallery 17.0 warnings
+def tutorials_download_error(record):
+    if re.match("download file not readable: .*tutorials_(python|jupyter).zip",
+                record.msg):
+        return False
+
+
+logger = logging.getLogger('sphinx')
+logger.addFilter(tutorials_download_error)
+
 autosummary_generate = True
 autodoc_typehints = "none"
+autodoc_mock_imports = ["pytest"]
 
 # we should ignore warnings coming from importing deprecated modules for
 # autodoc purposes, as this will disappear automatically when they are removed
@@ -200,6 +230,20 @@ warnings.filterwarnings('ignore', category=DeprecationWarning,
 
 autodoc_docstring_signature = True
 autodoc_default_options = {'members': None, 'undoc-members': None}
+
+
+def autodoc_process_bases(app, name, obj, options, bases):
+    """
+    Hide pybind11 base object from inheritance tree.
+
+    Note, *bases* must be modified in place.
+    """
+    for cls in bases[:]:
+        if not isinstance(cls, type):
+            continue
+        if cls.__module__ == 'pybind11_builtins' and cls.__name__ == 'pybind11_object':
+            bases.remove(cls)
+
 
 # make sure to ignore warnings that stem from simply inspecting deprecated
 # class-level attributes
@@ -224,25 +268,10 @@ intersphinx_mapping = {
     'scipy': ('https://docs.scipy.org/doc/scipy/', None),
     'tornado': ('https://www.tornadoweb.org/en/stable/', None),
     'xarray': ('https://docs.xarray.dev/en/stable/', None),
-    'meson-python': ('https://meson-python.readthedocs.io/en/stable/', None)
+    'meson-python': ('https://meson-python.readthedocs.io/en/stable/', None),
+    'pip': ('https://pip.pypa.io/en/stable/', None),
 }
 
-
-# Sphinx gallery configuration
-
-def matplotlib_reduced_latex_scraper(block, block_vars, gallery_conf,
-                                     **kwargs):
-    """
-    Reduce srcset when creating a PDF.
-
-    Because sphinx-gallery runs *very* early, we cannot modify this even in the
-    earliest builder-inited signal. Thus we do it at scraping time.
-    """
-    from sphinx_gallery.scrapers import matplotlib_scraper
-
-    if gallery_conf['builder_name'] == 'latex':
-        gallery_conf['image_srcset'] = []
-    return matplotlib_scraper(block, block_vars, gallery_conf, **kwargs)
 
 gallery_dirs = [f'{ed}' for ed in
                 ['gallery', 'tutorials', 'plot_types', 'users/explain']
@@ -254,7 +283,7 @@ for gd in gallery_dirs:
     example_dirs += [f'../galleries/{gd}']
 
 sphinx_gallery_conf = {
-    'backreferences_dir': Path('api') / Path('_as_gen'),
+    'backreferences_dir': Path('api', '_as_gen'),
     # Compression is a significant effort that we skip for local and CI builds.
     'compress_images': ('thumbnails', 'images') if is_release_build else (),
     'doc_module': ('matplotlib', 'mpl_toolkits'),
@@ -264,22 +293,24 @@ sphinx_gallery_conf = {
     'image_scrapers': (matplotlib_reduced_latex_scraper, ),
     'image_srcset': ["2x"],
     'junit': '../test-results/sphinx-gallery/junit.xml' if CIRCLECI else '',
-    'matplotlib_animations': True,
+    'matplotlib_animations': sg_matplotlib_animations,
     'min_reported_time': 1,
     'plot_gallery': 'True',  # sphinx-gallery/913
-    'reference_url': {'matplotlib': None},
+    'reference_url': {'matplotlib': None, 'mpl_toolkits': None},
+    'prefer_full_module': {r'mpl_toolkits\.'},
     'remove_config_comments': True,
-    'reset_modules': (
-        'matplotlib',
-        # clear basic_units module to re-register with unit registry on import
-        lambda gallery_conf, fname: sys.modules.pop('basic_units', None)
-    ),
-    'subsection_order': gallery_order.sectionorder,
+    'reset_modules': ('matplotlib', clear_basic_units),
+    'subsection_order': gallery_order_sectionorder,
     'thumbnail_size': (320, 224),
-    'within_subsection_order': gallery_order.subsectionorder,
+    'within_subsection_order': gallery_order_subsectionorder,
     'capture_repr': (),
     'copyfile_regex': r'.*\.rst',
 }
+
+if parse_version(sphinx_gallery.__version__) >= parse_version('0.17.0'):
+    sphinx_gallery_conf['parallel'] = True
+    # Any warnings from joblib turned into errors may cause a deadlock.
+    warnings.filterwarnings('default', category=UserWarning, module='joblib')
 
 if 'plot_gallery=0' in sys.argv:
     # Gallery images are not created.  Suppress warnings triggered where other
@@ -333,7 +364,7 @@ gen_rst.EXAMPLE_HEADER = """
         :class: sphx-glr-download-link-note
 
         :ref:`Go to the end <sphx_glr_download_{1}>`
-        to download the full example code{2}
+        to download the full example code.{2}
 
 .. rst-class:: sphx-glr-example-title
 
@@ -350,8 +381,8 @@ source_suffix = '.rst'
 # This is the default encoding, but it doesn't hurt to be explicit
 source_encoding = "utf-8"
 
-# The toplevel toctree document (renamed to root_doc in Sphinx 4.0)
-root_doc = master_doc = 'index'
+# The toplevel toctree document.
+root_doc = 'index'
 
 # General substitutions.
 try:
@@ -504,10 +535,9 @@ html_theme_options = {
             f"https://matplotlib.org/devdocs/_static/switcher.json?{SHA}"
         ),
         "version_match": (
-            # The start version to show. This must be in switcher.json.
-            # We either go to 'stable' or to 'devdocs'
-            'stable' if matplotlib.__version_info__.releaselevel == 'final'
-            else 'devdocs')
+            matplotlib.__version__
+            if matplotlib.__version_info__.releaselevel == 'final'
+            else 'dev')
     },
     "navbar_end": ["theme-switcher", "version-switcher", "mpl_icon_links"],
     "navbar_persistent": ["search-button"],
@@ -516,6 +546,7 @@ html_theme_options = {
     # this special value indicates the use of the unreleased banner. If we need
     # an actual announcement, then just place the text here as usual.
     "announcement": "unreleased" if not is_release_build else "",
+    "show_version_warning_banner": True,
 }
 include_analytics = is_release_build
 if include_analytics:
@@ -758,7 +789,6 @@ link_github = True
 
 if link_github:
     import inspect
-    from packaging.version import parse
 
     extensions.append('sphinx.ext.linkcode')
 
@@ -814,7 +844,7 @@ if link_github:
         if not fn.startswith(('matplotlib/', 'mpl_toolkits/')):
             return None
 
-        version = parse(matplotlib.__version__)
+        version = parse_version(matplotlib.__version__)
         tag = 'main' if version.is_devrelease else f'v{version.public}'
         return ("https://github.com/matplotlib/matplotlib/blob"
                 f"/{tag}/lib/{fn}{linespec}")
@@ -832,5 +862,6 @@ def setup(app):
         bld_type = 'rel'
     app.add_config_value('skip_sub_dirs', 0, '')
     app.add_config_value('releaselevel', bld_type, 'env')
+    app.connect('autodoc-process-bases', autodoc_process_bases)
     if sphinx.version_info[:2] < (7, 1):
         app.connect('html-page-context', add_html_cache_busting, priority=1000)

@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 import matplotlib.scale as mscale
 from matplotlib.rcsetup import cycler
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
-from matplotlib.colors import to_rgba_array
+from matplotlib.colors import is_color_like, to_rgba_array
 
 
 @pytest.mark.parametrize('N, result', [
@@ -1634,7 +1634,7 @@ def test_color_sequences():
     assert plt.color_sequences is matplotlib.color_sequences  # same registry
     assert list(plt.color_sequences) == [
         'tab10', 'tab20', 'tab20b', 'tab20c', 'Pastel1', 'Pastel2', 'Paired',
-        'Accent', 'Dark2', 'Set1', 'Set2', 'Set3']
+        'Accent', 'Dark2', 'Set1', 'Set2', 'Set3', 'petroff10']
     assert len(plt.color_sequences['tab10']) == 10
     assert len(plt.color_sequences['tab20']) == 20
 
@@ -1702,3 +1702,16 @@ def test_to_rgba_array_none_color_with_alpha_param():
     assert_array_equal(
         to_rgba_array(c, alpha), [[0., 0., 1., 1.], [0., 0., 0., 0.]]
     )
+
+
+@pytest.mark.parametrize('input, expected',
+                         [('red', True),
+                          (('red', 0.5), True),
+                          (('red', 2), False),
+                          (['red', 0.5], False),
+                          (('red', 'blue'), False),
+                          (['red', 'blue'], False),
+                          ('C3', True),
+                          (('C3', 0.5), True)])
+def test_is_color_like(input, expected):
+    assert is_color_like(input) is expected

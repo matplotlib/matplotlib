@@ -159,10 +159,10 @@ Passing ``None`` as ``rotation_mode`` to `.Text` (the default value) or passing 
 `.Text.set_rotation_mode` will make `.Text.get_rotation_mode` return ``"default"``
 instead of ``None``. The behaviour otherwise is the same.
 
-PostScript paper type adds option to use figure size
+PostScript paper size adds option to use figure size
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The :rc:`ps.papertype` rcParam can now be set to ``'figure'``, which will use
+The :rc:`ps.papersize` rcParam can now be set to ``'figure'``, which will use
 a paper size that corresponds exactly with the size of the figure that is being
 saved.
 

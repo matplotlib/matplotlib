@@ -1,0 +1,9 @@
+``boxplot`` and ``bxp`` *vert* parameter, and ``rcParams["boxplot.vertical"]``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The parameter *vert: bool* has been deprecated on `~.Axes.boxplot` and
+`~.Axes.bxp`. It is replaced by *orientation: {"vertical", "horizontal"}*
+for API consistency.
+
+``rcParams["boxplot.vertical"]``, which controlled the orientation of ``boxplot``,
+is deprecated without replacement.

@@ -380,7 +380,6 @@ boxplot.showbox: True
 boxplot.showcaps: True
 boxplot.showfliers: True
 boxplot.showmeans: False
-boxplot.vertical: True
 boxplot.whiskerprops.color: b
 boxplot.whiskerprops.linestyle: --
 boxplot.whiskerprops.linewidth: 1.0

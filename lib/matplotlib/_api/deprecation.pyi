@@ -1,8 +1,7 @@
 from collections.abc import Callable
 import contextlib
-from typing import Any, TypedDict, TypeVar, overload
+from typing import Any, Literal, ParamSpec, TypedDict, TypeVar, overload
 from typing_extensions import (
-    ParamSpec,  # < Py 3.10
     Unpack,  # < Py 3.11
 )
 
@@ -18,7 +17,7 @@ class DeprecationKwargs(TypedDict, total=False):
     pending: bool
     obj_type: str
     addendum: str
-    removal: str
+    removal: str | Literal[False]
 
 class NamedDeprecationKwargs(DeprecationKwargs, total=False):
     name: str

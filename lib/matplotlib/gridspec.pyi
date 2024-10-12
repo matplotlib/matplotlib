@@ -3,7 +3,7 @@ from typing import Any, Literal, overload
 from numpy.typing import ArrayLike
 import numpy as np
 
-from matplotlib.axes import Axes, SubplotBase
+from matplotlib.axes import Axes
 from matplotlib.backend_bases import RendererBase
 from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
@@ -54,7 +54,7 @@ class GridSpecBase:
         sharey: bool | Literal["all", "row", "col", "none"] = ...,
         squeeze: Literal[True] = ...,
         subplot_kw: dict[str, Any] | None = ...
-    ) -> np.ndarray | SubplotBase | Axes: ...
+    ) -> np.ndarray | Axes: ...
 
 class GridSpec(GridSpecBase):
     left: float | None

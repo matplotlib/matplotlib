@@ -236,7 +236,7 @@ which would poll for new data and update the figure at 1Hz.
 
 .. _spin_event_loop:
 
-Explicitly spinning the event Loop
+Explicitly spinning the event loop
 ----------------------------------
 
 .. autosummary::

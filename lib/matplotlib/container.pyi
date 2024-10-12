@@ -34,12 +34,12 @@ class BarContainer(Container):
     ) -> None: ...
 
 class ErrorbarContainer(Container):
-    lines: tuple[Line2D, Line2D, LineCollection]
+    lines: tuple[Line2D, tuple[Line2D, ...], tuple[LineCollection, ...]]
     has_xerr: bool
     has_yerr: bool
     def __init__(
         self,
-        lines: tuple[Line2D, Line2D, LineCollection],
+        lines: tuple[Line2D, tuple[Line2D, ...], tuple[LineCollection, ...]],
         has_xerr: bool = ...,
         has_yerr: bool = ...,
         **kwargs

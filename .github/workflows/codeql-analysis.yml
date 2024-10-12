@@ -32,7 +32,6 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-          setup-python-dependencies: false
 
       - name: Build compiled code
         if: matrix.language == 'c-cpp'

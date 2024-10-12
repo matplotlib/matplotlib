@@ -49,29 +49,20 @@ stages:
       - job: Pytest
         strategy:
           matrix:
-            Linux_py39:
-              vmImage: 'ubuntu-20.04'  # keep one job pinned to the oldest image
-              python.version: '3.9'
             Linux_py310:
-              vmImage: 'ubuntu-latest'
+              vmImage: 'ubuntu-20.04'  # keep one job pinned to the oldest image
               python.version: '3.10'
             Linux_py311:
               vmImage: 'ubuntu-latest'
               python.version: '3.11'
-            macOS_py39:
-              vmImage: 'macOS-latest'
-              python.version: '3.9'
             macOS_py310:
               vmImage: 'macOS-latest'
               python.version: '3.10'
             macOS_py311:
               vmImage: 'macOS-latest'
               python.version: '3.11'
-            Windows_py39:
-              vmImage: 'windows-2019'  # keep one job pinned to the oldest image
-              python.version: '3.9'
             Windows_py310:
-              vmImage: 'windows-latest'
+              vmImage: 'windows-2019'  # keep one job pinned to the oldest image
               python.version: '3.10'
             Windows_py311:
               vmImage: 'windows-latest'
@@ -119,10 +110,11 @@ stages:
                   texlive-xetex
                 ;;
               Darwin)
+                brew update
+                export HOMEBREW_NO_INSTALL_UPGRADE=1 HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
                 brew install --cask xquartz
                 brew install ccache ffmpeg imagemagick mplayer ninja pkg-config
-                brew tap homebrew/cask-fonts
-                brew install font-noto-sans-cjk-sc
+                brew install --cask font-noto-sans-cjk-sc
                 ;;
               Windows_NT)
                 choco install ninja
@@ -135,7 +127,7 @@ stages:
 
           - bash: |
               python -m pip install --upgrade pip
-              python -m pip install --upgrade meson-python numpy pybind11 setuptools-scm
+              python -m pip install --upgrade -r requirements/dev/build-requirements.txt
               python -m pip install -r requirements/testing/all.txt -r requirements/testing/extra.txt
             displayName: 'Install dependencies with pip'
 
@@ -268,11 +260,13 @@ stages:
                 ;;
               esac
             displayName: 'Filter C coverage'
+            condition: succeededOrFailed()
           - bash: |
               bash <(curl -s https://codecov.io/bash) \
                 -n "$PYTHON_VERSION $AGENT_OS" \
                 -f 'coverage.xml' -f 'extensions.xml'
             displayName: 'Upload to codecov.io'
+            condition: succeededOrFailed()
 
           - task: PublishTestResults@2
             inputs:

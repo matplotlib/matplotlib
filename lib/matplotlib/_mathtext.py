@@ -376,30 +376,30 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
         font.set_size(fontsize, dpi)
         glyph = font.load_char(num, flags=self.load_glyph_flags)
 
-        xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
+        xmin, ymin, xmax, ymax = (val / 64 for val in glyph.bbox)
         offset = self._get_offset(font, glyph, fontsize, dpi)
         metrics = FontMetrics(
-            advance = glyph.linearHoriAdvance/65536.0,
-            height  = glyph.height/64.0,
-            width   = glyph.width/64.0,
-            xmin    = xmin,
-            xmax    = xmax,
-            ymin    = ymin+offset,
-            ymax    = ymax+offset,
+            advance=glyph.linearHoriAdvance / 65536,
+            height=glyph.height / 64,
+            width=glyph.width / 64,
+            xmin=xmin,
+            xmax=xmax,
+            ymin=ymin + offset,
+            ymax=ymax + offset,
             # iceberg is the equivalent of TeX's "height"
-            iceberg = glyph.horiBearingY/64.0 + offset,
-            slanted = slanted
-            )
+            iceberg=glyph.horiBearingY / 64 + offset,
+            slanted=slanted
+        )
 
         return FontInfo(
-            font            = font,
-            fontsize        = fontsize,
-            postscript_name = font.postscript_name,
-            metrics         = metrics,
-            num             = num,
-            glyph           = glyph,
-            offset          = offset
-            )
+            font=font,
+            fontsize=fontsize,
+            postscript_name=font.postscript_name,
+            metrics=metrics,
+            num=num,
+            glyph=glyph,
+            offset=offset
+        )
 
     def get_xheight(self, fontname: str, fontsize: float, dpi: float) -> float:
         font = self._get_font(fontname)
@@ -2278,14 +2278,14 @@ class Parser:
 
         if c in self._spaced_symbols:
             # iterate until we find previous character, needed for cases
-            # such as ${ -2}$, $ -2$, or $   -2$.
+            # such as $=-2$, ${ -2}$, $ -2$, or $   -2$.
             prev_char = next((c for c in s[:loc][::-1] if c != ' '), '')
             # Binary operators at start of string should not be spaced
             # Also, operators in sub- or superscripts should not be spaced
             if (self._in_subscript_or_superscript or (
                     c in self._binary_operators and (
-                    len(s[:loc].split()) == 0 or prev_char == '{' or
-                    prev_char in self._left_delims))):
+                    len(s[:loc].split()) == 0 or prev_char in {
+                        '{', *self._left_delims, *self._relation_symbols}))):
                 return [char]
             else:
                 return [Hlist([self._make_space(0.2),
@@ -2645,7 +2645,7 @@ class Parser:
             if rdelim == '':
                 rdelim = '.'
             return self._auto_sized_delimiter(ldelim,
-                                              T.cast(list[T.Union[Box, Char, str]],
+                                              T.cast(list[Box | Char | str],
                                                      result),
                                               rdelim)
         return result
@@ -2786,7 +2786,7 @@ class Parser:
                     del middle[idx]
             # There should only be \middle and its delimiter as str, which have
             # just been removed.
-            middle_part = T.cast(list[T.Union[Box, Char]], middle)
+            middle_part = T.cast(list[Box | Char], middle)
         else:
             height = 0
             depth = 0

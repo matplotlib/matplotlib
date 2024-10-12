@@ -1,6 +1,6 @@
 """
 =============
-Loglog Aspect
+Loglog aspect
 =============
 
 """

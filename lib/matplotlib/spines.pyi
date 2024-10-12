@@ -1,5 +1,5 @@
 from collections.abc import Callable, Iterator, MutableMapping
-from typing import Any, Literal, TypeVar, overload
+from typing import Literal, TypeVar, overload
 
 import matplotlib.patches as mpatches
 from matplotlib.axes import Axes

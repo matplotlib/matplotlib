@@ -45,3 +45,12 @@ ax.set_xlabel("X position [m]")
 ax.set_ylabel("Y position [m]")
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: marker
+#    styling: color,
+#    styling: shape
+#    level: beginner
+#    purpose: fun

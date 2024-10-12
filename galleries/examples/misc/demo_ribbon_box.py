@@ -1,6 +1,6 @@
 """
 ==========
-Ribbon Box
+Ribbon box
 ==========
 
 """

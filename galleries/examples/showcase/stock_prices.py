@@ -42,7 +42,7 @@ stocks_ticker = ['IBM', 'AAPL', 'MSFT', 'XRX', 'AMZN', 'DELL', 'GOOGL',
                  'ADBE', 'GSPC', 'IXIC']
 
 # Manually adjust the label positions vertically (units are points = 1/72 inch)
-y_offsets = {k: 0 for k in stocks_ticker}
+y_offsets = dict.fromkeys(stocks_ticker, 0)
 y_offsets['IBM'] = 5
 y_offsets['AAPL'] = -5
 y_offsets['AMZN'] = -6

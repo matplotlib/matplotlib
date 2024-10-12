@@ -182,17 +182,28 @@ circle: plotting a circle using a `matplotlib.patches.Circle` patch
 vs plotting the circle using the parametric equation of a circle ::
 
    from matplotlib.testing.decorators import check_figures_equal
-   import matplotib.patches as mpatches
+   import matplotlib.patches as mpatches
    import matplotlib.pyplot as plt
    import numpy as np
 
-   @check_figures_equal(extensions=['png'], tol=100)
+   @check_figures_equal()
    def test_parametric_circle_plot(fig_test, fig_ref):
-       red_circle_ref = mpatches.Circle((0, 0), 0.2, color='r', clip_on=False)
-       fig_ref.add_artist(red_circle_ref)
-       theta = np.linspace(0, 2 * np.pi, 150)
+
+       xo, yo= (.5, .5)
        radius = 0.4
-       fig_test.plot(radius * np.cos(theta), radius * np.sin(theta), color='r')
+
+       ax_test = fig_test.subplots()
+       theta = np.linspace(0, 2 * np.pi, 150)
+       l, = ax_test.plot(xo + (radius * np.cos(theta)),
+                         yo + (radius * np.sin(theta)), c='r')
+
+       ax_ref = fig_ref.subplots()
+       red_circle_ref = mpatches.Circle((xo, yo), radius, ec='r', fc='none',
+                                        lw=l.get_linewidth())
+       ax_ref.add_artist(red_circle_ref)
+
+       for ax in [ax_ref, ax_test]:
+           ax.set(xlim=(0,1), ylim=(0,1), aspect='equal')
 
 Both comparison decorators have a tolerance argument ``tol`` that is used to specify the
 tolerance for difference in color value between the two images, where 255 is the maximal
@@ -241,7 +252,7 @@ Using tox
 
 `Tox <https://tox.readthedocs.io/en/latest/>`_ is a tool for running tests
 against multiple Python environments, including multiple versions of Python
-(e.g., 3.7, 3.8) and even different Python implementations altogether
+(e.g., 3.10, 3.11) and even different Python implementations altogether
 (e.g., CPython, PyPy, Jython, etc.), as long as all these versions are
 available on your system's $PATH (consider using your system package manager,
 e.g. apt-get, yum, or Homebrew, to install them).
@@ -258,7 +269,7 @@ You can also run tox on a subset of environments:
 
 .. code-block:: bash
 
-    $ tox -e py38,py39
+    $ tox -e py310,py311
 
 Tox processes everything serially so it can take a long time to test
 several environments. To speed it up, you might try using a new,

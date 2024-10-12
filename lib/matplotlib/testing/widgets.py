@@ -16,7 +16,7 @@ def get_ax():
     fig, ax = plt.subplots(1, 1)
     ax.plot([0, 200], [0, 200])
     ax.set_aspect(1.0)
-    ax.figure.canvas.draw()
+    fig.canvas.draw()
     return ax
 
 
@@ -57,7 +57,7 @@ def mock_event(ax, button=1, xdata=0, ydata=0, key=None, step=1):
                                                (xdata, ydata)])[0]
     event.xdata, event.ydata = xdata, ydata
     event.inaxes = ax
-    event.canvas = ax.figure.canvas
+    event.canvas = ax.get_figure(root=True).canvas
     event.key = key
     event.step = step
     event.guiEvent = None

@@ -1,7 +1,7 @@
 """
-===============================================
-Programmatically controlling subplot adjustment
-===============================================
+===========================================
+Programmatically control subplot adjustment
+===========================================
 
 .. note::
 
@@ -85,3 +85,10 @@ plt.show()
 #    - `matplotlib.figure.Figure.subplots_adjust`
 #    - `matplotlib.gridspec.SubplotParams`
 #    - `matplotlib.backend_bases.FigureCanvasBase.mpl_connect`
+#
+# .. tags::
+#
+#    component: subplot
+#    plot-type: line
+#    styling: position
+#    level: advanced

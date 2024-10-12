@@ -79,3 +79,9 @@ plt.show()
 #    - `matplotlib.pyplot.figure`
 #    - `matplotlib.pyplot.subplots`
 #    - `matplotlib.pyplot.subplot_mosaic`
+#
+# .. tags::
+#
+#    component: figure
+#    styling: size
+#    level: beginner

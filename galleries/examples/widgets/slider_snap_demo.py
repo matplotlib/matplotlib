@@ -1,7 +1,7 @@
 """
-===================================
-Snapping Sliders to Discrete Values
-===================================
+===============================
+Snap sliders to discrete values
+===============================
 
 You can snap slider values to discrete values using the ``valstep`` argument.
 

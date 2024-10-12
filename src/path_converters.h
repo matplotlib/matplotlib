@@ -3,8 +3,11 @@
 #ifndef MPL_PATH_CONVERTERS_H
 #define MPL_PATH_CONVERTERS_H
 
+#include <pybind11/pybind11.h>
+
 #include <cmath>
 #include <cstdint>
+#include <limits>
 
 #include "agg_clip_liang_barsky.h"
 #include "mplutils.h"
@@ -529,6 +532,24 @@ enum e_snap_mode {
     SNAP_TRUE
 };
 
+namespace PYBIND11_NAMESPACE { namespace detail {
+    template <> struct type_caster<e_snap_mode> {
+    public:
+        PYBIND11_TYPE_CASTER(e_snap_mode, const_name("e_snap_mode"));
+
+        bool load(handle src, bool) {
+            if (src.is_none()) {
+                value = SNAP_AUTO;
+                return true;
+            }
+
+            value = src.cast<bool>() ? SNAP_TRUE : SNAP_FALSE;
+
+            return true;
+        }
+    };
+}} // namespace PYBIND11_NAMESPACE::detail
+
 template <class VertexSource>
 class PathSnapper
 {
@@ -1019,8 +1040,18 @@ class Sketch
     {
         rewind(0);
         const double d_M_PI = 3.14159265358979323846;
-        m_p_scale = (2.0 * d_M_PI) / (m_length * m_randomness);
-        m_log_randomness = 2.0 * log(m_randomness);
+        // Set derived values to zero if m_length or m_randomness are zero to
+        // avoid divide-by-zero errors when a sketch is created but not used.
+        if (m_length <= std::numeric_limits<double>::epsilon() || m_randomness <= std::numeric_limits<double>::epsilon()) {
+            m_p_scale = 0.0;
+        } else {
+            m_p_scale = (2.0 * d_M_PI) / (m_length * m_randomness);
+        }
+        if (m_randomness <= std::numeric_limits<double>::epsilon()) {
+            m_log_randomness = 0.0;
+        } else {
+            m_log_randomness = 2.0 * log(m_randomness);
+        }
     }
 
     unsigned vertex(double *x, double *y)

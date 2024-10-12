@@ -1,4 +1,4 @@
-from collections.abc import Callable, Hashable, Iterable
+from collections.abc import Callable, Hashable, Iterable, Sequence
 import os
 from typing import Any, IO, Literal, TypeVar, overload
 
@@ -6,7 +6,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from matplotlib.artist import Artist
-from matplotlib.axes import Axes, SubplotBase
+from matplotlib.axes import Axes
 from matplotlib.backend_bases import (
     FigureCanvasBase,
     MouseButton,
@@ -61,6 +61,12 @@ class FigureBase(Artist):
     def get_linewidth(self) -> float: ...
     def set_edgecolor(self, color: ColorType) -> None: ...
     def set_facecolor(self, color: ColorType) -> None: ...
+    @overload
+    def get_figure(self, root: Literal[True]) -> Figure: ...
+    @overload
+    def get_figure(self, root: Literal[False]) -> Figure | SubFigure: ...
+    @overload
+    def get_figure(self, root: bool = ...) -> Figure | SubFigure: ...
     def set_frameon(self, b: bool) -> None: ...
     @property
     def frameon(self) -> bool: ...
@@ -94,17 +100,31 @@ class FigureBase(Artist):
     @overload
     def subplots(
         self,
+        nrows: Literal[1] = ...,
+        ncols: Literal[1] = ...,
+        *,
+        sharex: bool | Literal["none", "all", "row", "col"] = ...,
+        sharey: bool | Literal["none", "all", "row", "col"] = ...,
+        squeeze: Literal[True] = ...,
+        width_ratios: Sequence[float] | None = ...,
+        height_ratios: Sequence[float] | None = ...,
+        subplot_kw: dict[str, Any] | None = ...,
+        gridspec_kw: dict[str, Any] | None = ...,
+    ) -> Axes: ...
+    @overload
+    def subplots(
+        self,
         nrows: int = ...,
         ncols: int = ...,
         *,
         sharex: bool | Literal["none", "all", "row", "col"] = ...,
         sharey: bool | Literal["none", "all", "row", "col"] = ...,
         squeeze: Literal[False],
-        width_ratios: ArrayLike | None = ...,
-        height_ratios: ArrayLike | None = ...,
+        width_ratios: Sequence[float] | None = ...,
+        height_ratios: Sequence[float] | None = ...,
         subplot_kw: dict[str, Any] | None = ...,
-        gridspec_kw: dict[str, Any] | None = ...
-    ) -> np.ndarray: ...
+        gridspec_kw: dict[str, Any] | None = ...,
+    ) -> np.ndarray: ...  # TODO numpy/numpy#24738
     @overload
     def subplots(
         self,
@@ -114,11 +134,11 @@ class FigureBase(Artist):
         sharex: bool | Literal["none", "all", "row", "col"] = ...,
         sharey: bool | Literal["none", "all", "row", "col"] = ...,
         squeeze: bool = ...,
-        width_ratios: ArrayLike | None = ...,
-        height_ratios: ArrayLike | None = ...,
+        width_ratios: Sequence[float] | None = ...,
+        height_ratios: Sequence[float] | None = ...,
         subplot_kw: dict[str, Any] | None = ...,
-        gridspec_kw: dict[str, Any] | None = ...
-    ) -> np.ndarray | SubplotBase | Axes: ...
+        gridspec_kw: dict[str, Any] | None = ...,
+    ) -> Any: ...
     def delaxes(self, ax: Axes) -> None: ...
     def clear(self, keep_observers: bool = ...) -> None: ...
     def clf(self, keep_observers: bool = ...) -> None: ...
@@ -246,10 +266,10 @@ class FigureBase(Artist):
     ) -> dict[Hashable, Axes]: ...
 
 class SubFigure(FigureBase):
-    figure: Figure
+    @property
+    def figure(self) -> Figure: ...
     subplotpars: SubplotParams
     dpi_scale_trans: Affine2D
-    canvas: FigureCanvasBase
     transFigure: Transform
     bbox_relative: Bbox
     figbbox: BboxBase
@@ -268,6 +288,8 @@ class SubFigure(FigureBase):
         **kwargs
     ) -> None: ...
     @property
+    def canvas(self) -> FigureCanvasBase: ...
+    @property
     def dpi(self) -> float: ...
     @dpi.setter
     def dpi(self, value: float) -> None: ...
@@ -283,7 +305,8 @@ class SubFigure(FigureBase):
     def get_axes(self) -> list[Axes]: ...
 
 class Figure(FigureBase):
-    figure: Figure
+    @property
+    def figure(self) -> Figure: ...
     bbox_inches: Bbox
     dpi_scale_trans: Affine2D
     bbox: BboxBase

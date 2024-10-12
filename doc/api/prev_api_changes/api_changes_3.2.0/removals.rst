@@ -61,7 +61,7 @@ The following API elements have been removed:
 - passing ``(verts, 0)`` or ``(..., 3)`` when specifying a marker to specify a
   path or a circle, respectively (instead, use ``verts`` or ``"o"``,
   respectively)
-- :rc:`examples.directory`
+- the ``examples.directory`` rcParam
 
 The following members of ``matplotlib.backends.backend_pdf.PdfFile`` were removed:
 

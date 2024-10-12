@@ -121,22 +121,20 @@ Before trying to install Matplotlib, please install the :ref:`dependencies`.
 To build from a tarball, download the latest *tar.gz* release
 file from `the PyPI files page <https://pypi.org/project/matplotlib/>`_.
 
-We provide a `mplsetup.cfg`_ file which you can use to customize the build
-process. For example, which default backend to use, whether some of the
-optional libraries that Matplotlib ships with are installed, and so on. This
-file will be particularly useful to those packaging Matplotlib.
-
-.. _mplsetup.cfg: https://raw.githubusercontent.com/matplotlib/matplotlib/main/mplsetup.cfg.template
-
 If you are building your own Matplotlib wheels (or sdists) on Windows, note
 that any DLLs that you copy into the source tree will be packaged too.
-
 
 Configure build and behavior defaults
 =====================================
 
-Aspects of the build and install process and some behaviorial defaults of the
-library can be configured via:
+We provide a `meson.options`_ file containing options with which you can use to
+customize the build process. For example, which default backend to use, whether some of
+the optional libraries that Matplotlib ships with are installed, and so on. These
+options will be particularly useful to those packaging Matplotlib.
+
+.. _meson.options: https://github.com/matplotlib/matplotlib/blob/main/meson.options
+
+Aspects of some behaviorial defaults of the library can be configured via:
 
 .. toctree::
   :maxdepth: 2
@@ -269,9 +267,9 @@ at the Terminal.app command line::
 
 You should see something like ::
 
-  3.6.0 /Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/matplotlib/__init__.py
+  3.10.0 /Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/matplotlib/__init__.py
 
-where ``3.6.0`` is the Matplotlib version you just installed, and the path
+where ``3.10.0`` is the Matplotlib version you just installed, and the path
 following depends on whether you are using Python.org Python, Homebrew or
 Macports.  If you see another version, or you get an error like ::
 

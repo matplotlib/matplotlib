@@ -12,8 +12,8 @@ The position of the viewport "camera" in a 3D plot is defined by three angles:
 points towards the center of the plot box volume. The angle direction is a
 common convention, and is shared with
 `PyVista <https://docs.pyvista.org/api/core/camera.html>`_ and
-`MATLAB <https://www.mathworks.com/help/matlab/ref/view.html>`_
-(though MATLAB lacks a roll angle). Note that a positive roll angle rotates the
+`MATLAB <https://www.mathworks.com/help/matlab/ref/view.html>`_.
+Note that a positive roll angle rotates the
 viewing plane clockwise, so the 3d axes will appear to rotate
 counter-clockwise.
 
@@ -21,8 +21,8 @@ counter-clockwise.
    :align: center
    :scale: 50
 
-Rotating the plot using the mouse will control only the azimuth and elevation,
-but all three angles can be set programmatically::
+Rotating the plot using the mouse will control azimuth, elevation,
+as well as roll, and all three angles can be set programmatically::
 
     import matplotlib.pyplot as plt
     ax = plt.figure().add_subplot(projection='3d')

@@ -91,6 +91,8 @@ The pgf backend also supports multipage pdf files using
         pdf.savefig(fig2)
 
 
+.. redirect-from:: /gallery/userdemo/pgf_fonts
+
 Font specification
 ==================
 
@@ -107,9 +109,29 @@ __ https://sourceforge.net/projects/cm-unicode/
 When saving to ``.pgf``, the font configuration Matplotlib used for the
 layout of the figure is included in the header of the text file.
 
-.. literalinclude:: /gallery/userdemo/pgf_fonts.py
-   :end-before: fig.savefig
+.. code-block:: python
 
+    import matplotlib.pyplot as plt
+
+    plt.rcParams.update({
+        "font.family": "serif",
+        # Use LaTeX default serif font.
+        "font.serif": [],
+        # Use specific cursive fonts.
+        "font.cursive": ["Comic Neue", "Comic Sans MS"],
+    })
+
+    fig, ax = plt.subplots(figsize=(4.5, 2.5))
+
+    ax.plot(range(5))
+
+    ax.text(0.5, 3., "serif")
+    ax.text(0.5, 2., "monospace", family="monospace")
+    ax.text(2.5, 2., "sans-serif", family="DejaVu Sans")  # Use specific sans font.
+    ax.text(2.5, 1., "comic", family="cursive")
+    ax.set_xlabel("µ is not $\\mu$")
+
+.. redirect-from:: /gallery/userdemo/pgf_preamble_sgskip
 
 .. _pgf-preamble:
 
@@ -122,16 +144,33 @@ using ``unicode-math`` for example, or for loading additional packages. Also,
 if you want to do the font configuration yourself instead of using the fonts
 specified in the rc parameters, make sure to disable :rc:`pgf.rcfonts`.
 
-.. only:: html
+.. code-block:: python
 
-    .. literalinclude:: /gallery/userdemo/pgf_preamble_sgskip.py
-        :end-before: fig.savefig
+    import matplotlib as mpl
 
-.. only:: latex
+    mpl.use("pgf")
+    import matplotlib.pyplot as plt
 
-    .. literalinclude:: /gallery/userdemo/pgf_preamble_sgskip.py
-        :end-before: import matplotlib.pyplot as plt
+    plt.rcParams.update({
+        "font.family": "serif",  # use serif/main font for text elements
+        "text.usetex": True,     # use inline math for ticks
+        "pgf.rcfonts": False,    # don't setup fonts from rc parameters
+        "pgf.preamble": "\n".join([
+             r"\usepackage{url}",            # load additional packages
+             r"\usepackage{unicode-math}",   # unicode math setup
+             r"\setmainfont{DejaVu Serif}",  # serif font via preamble
+        ])
+    })
 
+    fig, ax = plt.subplots(figsize=(4.5, 2.5))
+
+    ax.plot(range(5))
+
+    ax.set_xlabel("unicode text: я, ψ, €, ü")
+    ax.set_ylabel(r"\url{https://matplotlib.org}")
+    ax.legend(["unicode math: $λ=∑_i^∞ μ_i^2$"])
+
+.. redirect-from:: /gallery/userdemo/pgf_texsystem
 
 .. _pgf-texsystem:
 
@@ -143,9 +182,27 @@ Possible values are ``'xelatex'`` (default), ``'lualatex'`` and ``'pdflatex'``.
 Please note that when selecting pdflatex, the fonts and Unicode handling must
 be configured in the preamble.
 
-.. literalinclude:: /gallery/userdemo/pgf_texsystem.py
-   :end-before: fig.savefig
+.. code-block:: python
 
+    import matplotlib.pyplot as plt
+
+    plt.rcParams.update({
+        "pgf.texsystem": "pdflatex",
+        "pgf.preamble": "\n".join([
+             r"\usepackage[utf8x]{inputenc}",
+             r"\usepackage[T1]{fontenc}",
+             r"\usepackage{cmbright}",
+        ]),
+    })
+
+    fig, ax = plt.subplots(figsize=(4.5, 2.5))
+
+    ax.plot(range(5))
+
+    ax.text(0.5, 3., "serif", family="serif")
+    ax.text(0.5, 2., "monospace", family="monospace")
+    ax.text(2.5, 2., "sans-serif", family="sans-serif")
+    ax.set_xlabel(r"µ is not $\mu$")
 
 .. _pgf-troubleshooting:
 

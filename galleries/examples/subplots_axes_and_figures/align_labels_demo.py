@@ -1,7 +1,7 @@
 """
-==========================
-Aligning Labels and Titles
-==========================
+=======================
+Align labels and titles
+=======================
 
 Aligning xlabel, ylabel, and title using `.Figure.align_xlabels`,
 `.Figure.align_ylabels`, and `.Figure.align_titles`.
@@ -41,3 +41,11 @@ fig.align_labels()  # same as fig.align_xlabels(); fig.align_ylabels()
 fig.align_titles()
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: label
+#    component: title
+#    styling: position
+#    level: beginner

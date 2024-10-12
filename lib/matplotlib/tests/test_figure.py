@@ -518,12 +518,10 @@ def test_invalid_figure_add_axes():
         fig.add_axes(ax)
 
     fig2.delaxes(ax)
-    with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match="Passing more than one positional argument"):
+    with pytest.raises(TypeError, match=r"add_axes\(\) takes 1 positional arguments"):
         fig2.add_axes(ax, "extra positional argument")
 
-    with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match="Passing more than one positional argument"):
+    with pytest.raises(TypeError, match=r"add_axes\(\) takes 1 positional arguments"):
         fig.add_axes([0, 0, 1, 1], "extra positional argument")
 
 
@@ -1733,3 +1731,54 @@ def test_warn_colorbar_mismatch():
     subfig3_1.colorbar(im3_2)   # should not warn
     with pytest.warns(UserWarning, match="different Figure"):
         subfig3_1.colorbar(im4_1)
+
+
+def test_set_figure():
+    fig = plt.figure()
+    sfig1 = fig.subfigures()
+    sfig2 = sfig1.subfigures()
+
+    for f in fig, sfig1, sfig2:
+        with pytest.warns(mpl.MatplotlibDeprecationWarning):
+            f.set_figure(fig)
+
+    with pytest.raises(ValueError, match="cannot be changed"):
+        sfig2.set_figure(sfig1)
+
+    with pytest.raises(ValueError, match="cannot be changed"):
+        sfig1.set_figure(plt.figure())
+
+
+def test_subfigure_row_order():
+    # Test that subfigures are drawn in row-major order.
+    fig = plt.figure()
+    sf_arr = fig.subfigures(4, 3)
+    for a, b in zip(sf_arr.ravel(), fig.subfigs):
+        assert a is b
+
+
+def test_subfigure_stale_propagation():
+    fig = plt.figure()
+
+    fig.draw_without_rendering()
+    assert not fig.stale
+
+    sfig1 = fig.subfigures()
+    assert fig.stale
+
+    fig.draw_without_rendering()
+    assert not fig.stale
+    assert not sfig1.stale
+
+    sfig2 = sfig1.subfigures()
+    assert fig.stale
+    assert sfig1.stale
+
+    fig.draw_without_rendering()
+    assert not fig.stale
+    assert not sfig1.stale
+    assert not sfig2.stale
+
+    sfig2.stale = True
+    assert sfig1.stale
+    assert fig.stale

@@ -14,8 +14,11 @@ Selecting different bin counts and sizes can significantly affect the
 shape of a histogram. The Astropy docs have a great section on how to
 select these parameters:
 http://docs.astropy.org/en/stable/visualization/histogram.html
-"""
 
+.. redirect-from:: /gallery/lines_bars_and_markers/filled_step
+
+"""
+# %%
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -43,6 +46,94 @@ ax3.hist(x_multi, n_bins, histtype='bar')
 ax3.set_title('different sample sizes')
 
 fig.tight_layout()
+plt.show()
+
+# %%
+# -----------------------------------
+# Setting properties for each dataset
+# -----------------------------------
+#
+# You can style the histograms individually by passing a list of values to the
+# following parameters:
+#
+# * edgecolor
+# * facecolor
+# * hatch
+# * linewidth
+# * linestyle
+#
+#
+# edgecolor
+# .........
+
+fig, ax = plt.subplots()
+
+edgecolors = ['green', 'red', 'blue']
+
+ax.hist(x, n_bins, fill=False, histtype="step", stacked=True,
+        edgecolor=edgecolors, label=edgecolors)
+ax.legend()
+ax.set_title('Stacked Steps with Edgecolors')
+
+plt.show()
+
+# %%
+# facecolor
+# .........
+
+fig, ax = plt.subplots()
+
+facecolors = ['green', 'red', 'blue']
+
+ax.hist(x, n_bins, histtype="barstacked", facecolor=facecolors, label=facecolors)
+ax.legend()
+ax.set_title("Bars with different Facecolors")
+
+plt.show()
+
+# %%
+# hatch
+# .....
+
+fig, ax = plt.subplots()
+
+hatches = [".", "o", "x"]
+
+ax.hist(x, n_bins, histtype="barstacked", hatch=hatches, label=hatches)
+ax.legend()
+ax.set_title("Hatches on Stacked Bars")
+
+plt.show()
+
+# %%
+# linewidth
+# .........
+
+fig, ax = plt.subplots()
+
+linewidths = [1, 2, 3]
+edgecolors = ["green", "red", "blue"]
+
+ax.hist(x, n_bins, fill=False, histtype="bar", linewidth=linewidths,
+        edgecolor=edgecolors, label=linewidths)
+ax.legend()
+ax.set_title("Bars with Linewidths")
+
+plt.show()
+
+# %%
+# linestyle
+# .........
+
+fig, ax = plt.subplots()
+
+linestyles = ['-', ':', '--']
+
+ax.hist(x, n_bins, fill=False, histtype='bar', linestyle=linestyles,
+        edgecolor=edgecolors, label=linestyles)
+ax.legend()
+ax.set_title('Bars with Linestyles')
+
 plt.show()
 
 # %%

@@ -1,3 +1,0 @@
-``backend_ps.get_bbox_header``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... is deprecated, as it is considered an internal helper.

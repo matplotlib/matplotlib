@@ -17,13 +17,8 @@ class CbarAxesBase:
         super().__init__(*args, **kwargs)
 
     def colorbar(self, mappable, **kwargs):
-        return self.figure.colorbar(
+        return self.get_figure(root=False).colorbar(
             mappable, cax=self, location=self.orientation, **kwargs)
-
-    @_api.deprecated("3.8", alternative="ax.tick_params and colorbar.set_label")
-    def toggle_label(self, b):
-        axis = self.axis[self.orientation]
-        axis.toggle(ticklabels=b, label=b)
 
 
 _cbaraxes_class_factory = cbook._make_class_factory(CbarAxesBase, "Cbar{}")
@@ -358,6 +353,11 @@ class ImageGrid(Grid):
         cbar_location : {"left", "right", "bottom", "top"}, default: "right"
         cbar_pad : float, default: None
             Padding between the image axes and the colorbar axes.
+
+            .. versionchanged:: 3.10
+                ``cbar_mode="single"`` no longer adds *axes_pad* between the axes
+                and the colorbar if the *cbar_location* is "left" or "bottom".
+
         cbar_size : size specification (see `.Size.from_any`), default: "5%"
             Colorbar size.
         cbar_set_cax : bool, default: True
@@ -410,7 +410,7 @@ class ImageGrid(Grid):
                 self._colorbar_pad = self._vert_pad_size.fixed_size
         self.cbar_axes = [
             _cbaraxes_class_factory(self._defaultAxesClass)(
-                self.axes_all[0].figure, self._divider.get_position(),
+                self.axes_all[0].get_figure(root=False), self._divider.get_position(),
                 orientation=self._colorbar_location)
             for _ in range(self.ngrids)]
 
@@ -439,7 +439,7 @@ class ImageGrid(Grid):
             self.cbar_axes[0].set_visible(True)
 
         for col, ax in enumerate(self.axes_row[0]):
-            if h:
+            if col != 0:
                 h.append(self._horiz_pad_size)
 
             if ax:
@@ -468,7 +468,7 @@ class ImageGrid(Grid):
         v_ax_pos = []
         v_cb_pos = []
         for row, ax in enumerate(self.axes_column[0][::-1]):
-            if v:
+            if row != 0:
                 v.append(self._vert_pad_size)
 
             if ax:

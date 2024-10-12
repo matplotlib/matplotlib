@@ -16,10 +16,10 @@ classifiers=[
     "License :: OSI Approved :: Python Software Foundation License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Visualization",
 ]
 
@@ -40,16 +40,14 @@ dependencies = [
     "pillow >= 8",
     "pyparsing >= 2.3.1",
     "python-dateutil >= 2.7",
-    "importlib-resources >= 3.2.0; python_version < '3.10'",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 [project.optional-dependencies]
 # Should be a copy of the build dependencies below.
 dev = [
     "meson-python>=0.13.1",
-    "numpy>=1.25",
-    "pybind11>=2.6",
+    "pybind11>=2.6,!=2.13.3",
     "setuptools_scm>=7",
     # Not required by us but setuptools_scm without a version, cso _if_
     # installed, then setuptools_scm 8 requires at least this version.
@@ -73,20 +71,8 @@ build-backend = "mesonpy"
 # Also keep in sync with optional dependencies above.
 requires = [
     "meson-python>=0.13.1",
-    "pybind11>=2.6",
+    "pybind11>=2.6,!=2.13.3",
     "setuptools_scm>=7",
-
-    # Comments on numpy build requirement range:
-    #
-    #   1. >=2.0.x is the numpy requirement for wheel builds for distribution
-    #      on PyPI - building against 2.x yields wheels that are also
-    #      ABI-compatible with numpy 1.x at runtime.
-    #   2. Note that building against numpy 1.x works fine too - users and
-    #      redistributors can do this by installing the numpy version they like
-    #      and disabling build isolation.
-    #   3. The <2.3 upper bound is for matching the numpy deprecation policy,
-    #      it should not be loosened.
-    "numpy>=2.0.0rc1,<2.3",
 ]
 
 [tool.meson-python.args]
@@ -95,7 +81,6 @@ install = ['--tags=data,python-runtime,runtime']
 [tool.setuptools_scm]
 version_scheme = "release-branch-semver"
 local_scheme = "node-and-date"
-write_to = "lib/matplotlib/_version.py"
 parentdir_prefix_version = "matplotlib-"
 fallback_version = "0.0+UNKNOWN"
 
@@ -115,6 +100,10 @@ exclude = [
     ".tox",
     ".eggs",
 ]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
 ignore = [
     "D100",
     "D101",
@@ -135,42 +124,46 @@ ignore = [
     "E741",
     "F841",
 ]
-line-length = 88
+preview = true
+explicit-preview-rules = true
 select = [
     "D",
     "E",
     "F",
     "W",
+    # The following error codes require the preview mode to be enabled.
+    "E201",
+    "E202",
+    "E203",
+    "E221",
+    "E251",
+    "E261",
+    "E272",
+    "E703",
 ]
 
-# The following error codes are not supported by ruff v0.0.240
+# The following error codes are not supported by ruff v0.2.0
 # They are planned and should be selected once implemented
 # even if they are deselected by default.
 # These are primarily whitespace/corrected by autoformatters (which we don't use).
 # See https://github.com/charliermarsh/ruff/issues/2402 for status on implementation
 external = [
   "E122",
-  "E201",
-  "E202",
-  "E203",
-  "E221",
-  "E251",
-  "E261",
-  "E272",
   "E302",
-  "E703",
 ]
 
-target-version = "py39"
-
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "numpy"
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "doc/conf.py" = ["E402"]
 "galleries/examples/animation/frame_grabbing_sgskip.py" = ["E402"]
+"galleries/examples/images_contours_and_fields/tricontour_demo.py" = ["E201"]
+"galleries/examples/images_contours_and_fields/tripcolor_demo.py" = ["E201"]
+"galleries/examples/images_contours_and_fields/triplot_demo.py" = ["E201"]
 "galleries/examples/lines_bars_and_markers/marker_reference.py" = ["E402"]
 "galleries/examples/misc/print_stdout_sgskip.py" = ["E402"]
+"galleries/examples/misc/table_demo.py" = ["E201"]
 "galleries/examples/style_sheets/bmh.py" = ["E501"]
 "galleries/examples/subplots_axes_and_figures/demo_constrained_layout.py" = ["E402"]
 "galleries/examples/text_labels_and_annotations/custom_legends.py" = ["E402"]
@@ -187,18 +180,18 @@ convention = "numpy"
 "galleries/examples/user_interfaces/pylab_with_gtk4_sgskip.py" = ["E402"]
 "galleries/examples/userdemo/pgf_preamble_sgskip.py" = ["E402"]
 
-"lib/matplotlib/__init__.py" = ["E402", "F401"]
-"lib/matplotlib/_animation_data.py" = ["E501"]
-"lib/matplotlib/_api/__init__.py" = ["F401"]
-"lib/matplotlib/axes/__init__.py" = ["F401", "F403"]
+"lib/matplotlib/_cm.py" = ["E202", "E203"]
+"lib/matplotlib/_mathtext.py" = ["E221"]
+"lib/matplotlib/_mathtext_data.py" = ["E203"]
 "lib/matplotlib/backends/backend_template.py" = ["F401"]
-"lib/matplotlib/font_manager.py" = ["E501"]
-"lib/matplotlib/image.py" = ["F401", "F403"]
 "lib/matplotlib/pylab.py" = ["F401", "F403"]
-"lib/matplotlib/pyplot.py" = ["F401", "F811"]
+"lib/matplotlib/pyplot.py" = ["F811"]
 "lib/matplotlib/tests/test_mathtext.py" = ["E501"]
-"lib/mpl_toolkits/axisartist/__init__.py" = ["F401"]
-"lib/pylab.py" = ["F401", "F403"]
+"lib/matplotlib/transforms.py" = ["E201"]
+"lib/matplotlib/tri/_triinterpolate.py" = ["E201", "E221"]
+"lib/mpl_toolkits/axes_grid1/axes_size.py" = ["E272"]
+"lib/mpl_toolkits/axisartist/angle_helper.py" = ["E221"]
+"lib/mpl_toolkits/mplot3d/proj3d.py" = ["E201"]
 
 "galleries/users_explain/artists/paths.py" = ["E402"]
 "galleries/users_explain/artists/patheffects_guide.py" = ["E402"]
@@ -260,6 +253,7 @@ ignore_directives = [
     # sphinxext.redirect_from
     "redirect-from",
     # sphinx-design
+    "card",
     "dropdown",
     "grid",
     "tab-set",
@@ -280,15 +274,17 @@ ignore_directives = [
     "ifconfig",
     # sphinx.ext.inheritance_diagram
     "inheritance-diagram",
+    # sphinx-tags
+    "tags",
     # include directive is causing attribute errors
     "include"
 ]
 ignore_roles = [
-    # sphinxext.custom_roles
-    "rc",
     # matplotlib.sphinxext.mathmpl
     "mathmpl",
     "math-stix",
+    # matplotlib.sphinxext.roles
+    "rc",
     # sphinxext.github
     "ghissue",
     "ghpull",

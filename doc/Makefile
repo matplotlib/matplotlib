@@ -18,6 +18,7 @@ help:
 clean:
 	@$(SPHINXBUILD) -M clean "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	rm -rf "$(SOURCEDIR)/build"
+	rm -rf "$(SOURCEDIR)/_tags"
 	rm -rf "$(SOURCEDIR)/api/_as_gen"
 	rm -rf "$(SOURCEDIR)/gallery"
 	rm -rf "$(SOURCEDIR)/plot_types"

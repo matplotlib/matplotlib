@@ -31,6 +31,7 @@ Install
 
     .. tab-item:: other
 
+        .. rst-class:: section-toc
         .. toctree::
             :maxdepth: 2
 
@@ -106,6 +107,7 @@ Community
 
     .. grid-item::
 
+        .. rst-class:: section-toc
         .. toctree::
             :maxdepth: 2
 
@@ -144,11 +146,11 @@ Contribute
 
     .. grid-item::
 
-        Matplotlib is a community project maintained for and by its users.
-
-        There are many ways you can help!
+        Matplotlib is a community project maintained for and by its users. See
+        :ref:`developers-guide-index` for the many ways you can help!
 
     .. grid-item::
+        .. rst-class:: section-toc
         .. toctree::
             :maxdepth: 2
 
@@ -168,7 +170,7 @@ About us
         and hard things possible.
 
     .. grid-item::
-
+        .. rst-class:: section-toc
         .. toctree::
             :maxdepth: 2
 

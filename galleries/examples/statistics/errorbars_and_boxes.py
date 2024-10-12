@@ -1,7 +1,7 @@
 """
-====================================================
-Creating boxes from error bars using PatchCollection
-====================================================
+==================================================
+Create boxes from error bars using PatchCollection
+==================================================
 
 In this example, we snazz up a pretty standard error bar plot by adding
 a rectangle patch defined by the limits of the bars in both the x- and
