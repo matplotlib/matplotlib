@@ -1464,8 +1464,8 @@ class EngFormatter(ScalarFormatter):
 
     # Simplify a bit ScalarFormatter.get_offset: We always want to use
     # self.format_data. Also we want to return a non-empty string only if there
-    # is an offset, no matter what is self.orderOfMagnitude. if there is an
-    # offset OTH, self.orderOfMagnitude is consulted. This behavior is verified
+    # is an offset, no matter what is self.orderOfMagnitude. If there _is_ an
+    # offset, self.orderOfMagnitude is consulted. This behavior is verified
     # in `test_ticker.py`.
     def get_offset(self):
         # docstring inherited

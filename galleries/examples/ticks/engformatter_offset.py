@@ -16,6 +16,7 @@ import numpy as np
 
 import matplotlib.ticker as mticker
 
+# Fixing random state for reproducibility
 np.random.seed(19680801)
 
 UNIT = "Hz"
