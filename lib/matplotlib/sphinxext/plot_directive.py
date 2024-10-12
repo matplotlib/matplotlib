@@ -335,6 +335,7 @@ def init_filename_registry(app):
     if not hasattr(env, 'mpl_custom_base_names'):
         env.mpl_custom_base_names = defaultdict(set)
 
+
 class FilenameCollector(EnvironmentCollector):
     def process_doc(self, app, doctree):
         pass
@@ -348,7 +349,8 @@ class FilenameCollector(EnvironmentCollector):
             if docname in other.mpl_custom_base_names:
                 if docname not in env.mpl_custom_base_names:
                     env.mpl_custom_base_names[docname] = set()
-                env.mpl_custom_base_names[docname].update(other.mpl_custom_base_names[docname])
+                env.mpl_custom_base_names[docname].update(
+                    other.mpl_custom_base_names[docname])
 
 # -----------------------------------------------------------------------------
 # Doctest handling
@@ -634,16 +636,22 @@ def _parse_srcset(entries):
             raise ExtensionError(f'srcset argument {entry!r} is invalid.')
     return srcset
 
+
 def check_output_base_name(env, output_base):
     docname = env.docname
 
     for d in env.mpl_custom_base_names:
         if output_base in env.mpl_custom_base_names[d]:
             if d == docname:
-                raise PlotError(f"The output-base-name '{output_base}' is used multiple times.")
-            raise PlotError(f"The output-base-name '{output_base}' is used multiple times (it is also used in {env.doc2path(d)}).")
+                raise PlotError(
+                    f"The output-base-name "
+                    f"{output_base}' is used multiple times.")
+            raise PlotError(f"The output-base-name "
+                            f"'{output_base}' is used multiple times "
+                            f"(it is also used in {env.doc2path(d)}).")
 
     env.mpl_custom_base_names[docname].add(output_base)
+
 
 def render_figures(code, code_path, output_dir, output_base, context,
                    function_name, config, context_reset=False,
