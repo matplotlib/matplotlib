@@ -3,7 +3,7 @@
 SI prefixed offsets and natural order of magnitudes
 ===================================================
 
-:class:`matplotlib.ticker.EngFormatter` is capable of computing a natural
+`matplotlib.ticker.EngFormatter` is capable of computing a natural
 offset for your axis data, and presenting it with a standard SI prefix
 automatically calculated.
 

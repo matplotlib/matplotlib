@@ -1415,7 +1415,7 @@ class EngFormatter(ScalarFormatter):
             guaranteed to get an offset which will make the tick labels exceed
             3 digits. See also `.set_useOffset`.
 
-        .. versionadded:: 3.10
+            .. versionadded:: 3.10
         """
         self.unit = unit
         self.places = places
@@ -1429,9 +1429,10 @@ class EngFormatter(ScalarFormatter):
 
     def __call__(self, x, pos=None):
         """
-        Return the format for tick value *x* at position *pos*. If there is no
-        currently offset in the data, it returns the best engineering formatting
-        that fits the given argument, independently.
+        Return the format for tick value *x* at position *pos*.
+
+        If there is no currently offset in the data, it returns the best
+        engineering formatting that fits the given argument, independently.
         """
         if len(self.locs) == 0 or self.offset == 0:
             return self.fix_minus(self.format_data(x))
