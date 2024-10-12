@@ -1642,6 +1642,9 @@ def test_engformatter_offset_oom(
     # only makes sure that offset text and the ticks gets the correct unit
     # prefixes and the ticks.
     if formatter.offset:
+        # These prefix_ variables are used only once, so we could have inlined
+        # them all, but it is more comfortable in case of tests breakages to
+        # view their values with pytest --showlocals.
         prefix_noise_got = offset_got[2]
         prefix_noise_desired = formatter.ENG_PREFIXES[oom_noise_desired]
         prefix_center_got = offset_got[-1-len(UNIT)]
@@ -1656,7 +1659,8 @@ def test_engformatter_offset_oom(
         assert offset_got == ""
         # Make sure the ticks contain now the prefixes
         for tick in ticks_got:
-            # 0 is zero on all orders of magnitudes, no
+            # 0 is zero on all orders of magnitudes, no matter what is
+            # oom_noise_desired
             if tick[0] == "0":
                 prefix_idx = 0
             else:
