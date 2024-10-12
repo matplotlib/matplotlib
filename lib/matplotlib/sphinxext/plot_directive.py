@@ -322,7 +322,7 @@ def setup(app):
     metadata = {'parallel_read_safe': True, 'parallel_write_safe': True,
                 'version': matplotlib.__version__}
     app.connect('builder-inited', init_filename_registry)
-    app.add_env_collector(FilenameCollector)
+    app.add_env_collector(_FilenameCollector)
     return metadata
 
 
@@ -336,7 +336,7 @@ def init_filename_registry(app):
         env.mpl_custom_base_names = defaultdict(set)
 
 
-class FilenameCollector(EnvironmentCollector):
+class _FilenameCollector(EnvironmentCollector):
     def process_doc(self, app, doctree):
         pass
 
