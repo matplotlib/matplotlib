@@ -468,10 +468,7 @@ class ScalarFormatter(Formatter):
         return self._usetex
 
     def set_usetex(self, val):
-        if val is None:
-            self._usetex = mpl.rcParams['text.usetex']
-        else:
-            self._usetex = val
+        self._usetex = mpl._val_or_rc(val, 'text.usetex')
 
     usetex = property(fget=get_usetex, fset=set_usetex)
 
@@ -1481,9 +1478,9 @@ class EngFormatter(ScalarFormatter):
             if self._useMathText or self._usetex:
                 if sciNotStr != '':
                     sciNotStr = r'\times%s' % sciNotStr
-                s = fr'${sciNotStr}{offsetStr}$'
+                s = f'${sciNotStr}{offsetStr}$'
             else:
-                s = ''.join((sciNotStr, offsetStr))
+                s = sciNotStr + offsetStr
             return self.fix_minus(s)
         return ''
 
