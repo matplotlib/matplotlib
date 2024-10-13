@@ -129,7 +129,7 @@ Henriksen et al. [Henriksen2002]_ provide an overview. In summary:
 .. [5] The style has a corresponding natural implementation as a mechanical device
 .. [6] While it is possible to control roll with the ``trackball`` style, this is not immediately obvious (it requires moving the mouse in large circles) and a bit counterintuitive (the resulting roll is in the opposite direction)
 
-You can try out one of the various mouse rotation styles using::
+You can try out one of the various mouse rotation styles using:
 
 .. code::
 
@@ -155,9 +155,9 @@ You can try out one of the various mouse rotation styles using::
 
 Alternatively, create a file ``matplotlibrc``, with contents::
 
-    axes3d.mouserotationstyle: arcball
+    axes3d.mouserotationstyle: trackball
 
-(or any of the other styles, instead of ``arcball``), and then run any of
+(or any of the other styles, instead of ``trackball``), and then run any of
 the :ref:`mplot3d-examples-index` examples.
 
 The size of the virtual trackball, sphere, or arcball can be adjusted
@@ -177,14 +177,14 @@ originally written for OpenGL [Bell1988]_, and is used in Blender and Meshlab.
 Bell's arcball extends the arcball's spherical control surface with a hyperbola;
 the two are smoothly joined. However, the hyperbola extends all the way beyond
 the edge of the plot. In the mplot3d sphere and arcball style, the border extends
-to a radius :rc:`axes3d.trackballsize`/2 + :rc:`axes3d.trackballborder`.
+to a radius `trackballsize/2 + trackballborder`.
 Beyond the border, the style works like the original: it controls roll only.
 A border width of about 0.2 appears to work well; this is the default.
 To obtain the original Shoemake's arcball with a sharp border,
 set the border width to 0.
 For an extended border similar to Bell's arcball, where the transition from
 the arcball to the border occurs at 45°, set the border width to
-$\sqrt 2 \approx 1.414$.
+:math:`\sqrt 2 \approx 1.414`.
 
 
 .. [Shoemake1992] Ken Shoemake, "ARCBALL: A user interface for specifying
