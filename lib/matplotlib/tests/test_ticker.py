@@ -1623,11 +1623,10 @@ def test_engformatter_offset_oom(
 ):
     UNIT = "eV"
     # Doesn't really matter here, but should be of order of magnitude ~= 1
-    r = range(-5, 7)
     fig, ax = plt.subplots()
     # Use some random ugly number
     data_offset = 2.7149*10**oom_center
-    ydata = data_offset + np.array(r, dtype=float)*10**oom_noise
+    ydata = data_offset + np.arange(-5, 7, dtype=float)*10**oom_noise
     ax.plot(ydata)
     formatter = mticker.EngFormatter(useOffset=True, unit=UNIT)
     # So that offset strings will always have the same size
@@ -1661,10 +1660,7 @@ def test_engformatter_offset_oom(
         for tick in ticks_got:
             # 0 is zero on all orders of magnitudes, no matter what is
             # oom_noise_desired
-            if tick[0] == "0":
-                prefix_idx = 0
-            else:
-                prefix_idx = oom_noise_desired
+            prefix_idx = 0 if tick[0] == "0" else oom_noise_desired
             assert tick.endswith(formatter.ENG_PREFIXES[prefix_idx] + UNIT)
 
 
