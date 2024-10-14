@@ -177,7 +177,7 @@ originally written for OpenGL [Bell1988]_, and is used in Blender and Meshlab.
 Bell's arcball extends the arcball's spherical control surface with a hyperbola;
 the two are smoothly joined. However, the hyperbola extends all the way beyond
 the edge of the plot. In the mplot3d sphere and arcball style, the border extends
-to a radius `trackballsize/2 + trackballborder`.
+to a radius ``trackballsize/2 + trackballborder``.
 Beyond the border, the style works like the original: it controls roll only.
 A border width of about 0.2 appears to work well; this is the default.
 To obtain the original Shoemake's arcball with a sharp border,
@@ -185,6 +185,8 @@ set the border width to 0.
 For an extended border similar to Bell's arcball, where the transition from
 the arcball to the border occurs at 45°, set the border width to
 :math:`\sqrt 2 \approx 1.414`.
+The border is a circular arc, wrapped around the arcball sphere cylindrically
+(like a doughnut), joined smoothly to the sphere, much like Bell's hyperbola.
 
 
 .. [Shoemake1992] Ken Shoemake, "ARCBALL: A user interface for specifying
