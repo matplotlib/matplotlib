@@ -305,7 +305,7 @@ _legend_kw_axes_st = (
     _loc_doc_base.format(parent='axes', default=':rc:`legend.loc`',
                          best=_loc_doc_best, outside='') +
     _legend_kw_doc_base)
-_docstring.interpd.update(_legend_kw_axes=_legend_kw_axes_st)
+_docstring.interpd.register(_legend_kw_axes=_legend_kw_axes_st)
 
 _outside_doc = """
     If a figure is using the constrained layout manager, the string codes
@@ -323,20 +323,20 @@ _legend_kw_figure_st = (
     _loc_doc_base.format(parent='figure', default="'upper right'",
                          best='', outside=_outside_doc) +
     _legend_kw_doc_base)
-_docstring.interpd.update(_legend_kw_figure=_legend_kw_figure_st)
+_docstring.interpd.register(_legend_kw_figure=_legend_kw_figure_st)
 
 _legend_kw_both_st = (
     _loc_doc_base.format(parent='axes/figure',
                          default=":rc:`legend.loc` for Axes, 'upper right' for Figure",
                          best=_loc_doc_best, outside=_outside_doc) +
     _legend_kw_doc_base)
-_docstring.interpd.update(_legend_kw_doc=_legend_kw_both_st)
+_docstring.interpd.register(_legend_kw_doc=_legend_kw_both_st)
 
 _legend_kw_set_loc_st = (
     _loc_doc_base.format(parent='axes/figure',
                          default=":rc:`legend.loc` for Axes, 'upper right' for Figure",
                          best=_loc_doc_best, outside=_outside_doc))
-_docstring.interpd.update(_legend_kw_set_loc_doc=_legend_kw_set_loc_st)
+_docstring.interpd.register(_legend_kw_set_loc_doc=_legend_kw_set_loc_st)
 
 
 class Legend(Artist):
@@ -454,24 +454,10 @@ class Legend(Artist):
         self.borderaxespad = mpl._val_or_rc(borderaxespad, 'legend.borderaxespad')
         self.columnspacing = mpl._val_or_rc(columnspacing, 'legend.columnspacing')
         self.shadow = mpl._val_or_rc(shadow, 'legend.shadow')
-        # trim handles and labels if illegal label...
-        _lab, _hand = [], []
-        for label, handle in zip(labels, handles):
-            if isinstance(label, str) and label.startswith('_'):
-                _api.warn_deprecated("3.8", message=(
-                    "An artist whose label starts with an underscore was passed to "
-                    "legend(); such artists will no longer be ignored in the future.  "
-                    "To suppress this warning, explicitly filter out such artists, "
-                    "e.g. with `[art for art in artists if not "
-                    "art.get_label().startswith('_')]`."))
-            else:
-                _lab.append(label)
-                _hand.append(handle)
-        labels, handles = _lab, _hand
 
         if reverse:
-            labels.reverse()
-            handles.reverse()
+            labels = [*reversed(labels)]
+            handles = [*reversed(handles)]
 
         if len(handles) < 2:
             ncols = 1

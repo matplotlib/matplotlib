@@ -32,6 +32,29 @@ import matplotlib
 from matplotlib import _api, _c_internal_utils
 
 
+class _ExceptionInfo:
+    """
+    A class to carry exception information around.
+
+    This is used to store and later raise exceptions. It's an alternative to
+    directly storing Exception instances that circumvents traceback-related
+    issues: caching tracebacks can keep user's objects in local namespaces
+    alive indefinitely, which can lead to very surprising memory issues for
+    users and result in incorrect tracebacks.
+    """
+
+    def __init__(self, cls, *args):
+        self._cls = cls
+        self._args = args
+
+    @classmethod
+    def from_exception(cls, exc):
+        return cls(type(exc), *exc.args)
+
+    def to_exception(self):
+        return self._cls(*self._args)
+
+
 def _get_running_interactive_framework():
     """
     Return the interactive framework whose event loop is currently running, if
@@ -543,9 +566,7 @@ def is_scalar_or_string(val):
     return isinstance(val, str) or not np.iterable(val)
 
 
-@_api.delete_parameter(
-    "3.8", "np_load", alternative="open(get_sample_data(..., asfileobj=False))")
-def get_sample_data(fname, asfileobj=True, *, np_load=True):
+def get_sample_data(fname, asfileobj=True):
     """
     Return a sample data file.  *fname* is a path relative to the
     :file:`mpl-data/sample_data` directory.  If *asfileobj* is `True`
@@ -564,10 +585,7 @@ def get_sample_data(fname, asfileobj=True, *, np_load=True):
         if suffix == '.gz':
             return gzip.open(path)
         elif suffix in ['.npy', '.npz']:
-            if np_load:
-                return np.load(path)
-            else:
-                return path.open('rb')
+            return np.load(path)
         elif suffix in ['.csv', '.xrc', '.txt']:
             return path.open('r')
         else:
@@ -605,113 +623,6 @@ def flatten(seq, scalarp=is_scalar_or_string):
             yield item
         else:
             yield from flatten(item, scalarp)
-
-
-@_api.deprecated("3.8")
-class Stack:
-    """
-    Stack of elements with a movable cursor.
-
-    Mimics home/back/forward in a web browser.
-    """
-
-    def __init__(self, default=None):
-        self.clear()
-        self._default = default
-
-    def __call__(self):
-        """Return the current element, or None."""
-        if not self._elements:
-            return self._default
-        else:
-            return self._elements[self._pos]
-
-    def __len__(self):
-        return len(self._elements)
-
-    def __getitem__(self, ind):
-        return self._elements[ind]
-
-    def forward(self):
-        """Move the position forward and return the current element."""
-        self._pos = min(self._pos + 1, len(self._elements) - 1)
-        return self()
-
-    def back(self):
-        """Move the position back and return the current element."""
-        if self._pos > 0:
-            self._pos -= 1
-        return self()
-
-    def push(self, o):
-        """
-        Push *o* to the stack at current position.  Discard all later elements.
-
-        *o* is returned.
-        """
-        self._elements = self._elements[:self._pos + 1] + [o]
-        self._pos = len(self._elements) - 1
-        return self()
-
-    def home(self):
-        """
-        Push the first element onto the top of the stack.
-
-        The first element is returned.
-        """
-        if not self._elements:
-            return
-        self.push(self._elements[0])
-        return self()
-
-    def empty(self):
-        """Return whether the stack is empty."""
-        return len(self._elements) == 0
-
-    def clear(self):
-        """Empty the stack."""
-        self._pos = -1
-        self._elements = []
-
-    def bubble(self, o):
-        """
-        Raise all references of *o* to the top of the stack, and return it.
-
-        Raises
-        ------
-        ValueError
-            If *o* is not in the stack.
-        """
-        if o not in self._elements:
-            raise ValueError('Given element not contained in the stack')
-        old_elements = self._elements.copy()
-        self.clear()
-        top_elements = []
-        for elem in old_elements:
-            if elem == o:
-                top_elements.append(elem)
-            else:
-                self.push(elem)
-        for _ in top_elements:
-            self.push(o)
-        return o
-
-    def remove(self, o):
-        """
-        Remove *o* from the stack.
-
-        Raises
-        ------
-        ValueError
-            If *o* is not in the stack.
-        """
-        if o not in self._elements:
-            raise ValueError('Given element not contained in the stack')
-        old_elements = self._elements.copy()
-        self.clear()
-        for elem in old_elements:
-            if elem != o:
-                self.push(elem)
 
 
 class _Stack:
@@ -912,10 +823,6 @@ class Grouper:
 
     def __contains__(self, item):
         return item in self._mapping
-
-    @_api.deprecated("3.8", alternative="none, you no longer need to clean a Grouper")
-    def clean(self):
-        """Clean dead weak references from the dictionary."""
 
     def join(self, a, *args):
         """

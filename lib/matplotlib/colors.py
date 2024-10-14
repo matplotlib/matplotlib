@@ -3097,8 +3097,22 @@ def rgb_to_hsv(arr):
         dtype=np.promote_types(arr.dtype, np.float32),  # Don't work on ints.
         ndmin=2,  # In case input was 1D.
     )
+
     out = np.zeros_like(arr)
     arr_max = arr.max(-1)
+    # Check if input is in the expected range
+    if np.any(arr_max > 1):
+        raise ValueError(
+            "Input array must be in the range [0, 1]. "
+            f"Found a maximum value of {arr_max.max()}"
+        )
+
+    if arr.min() < 0:
+        raise ValueError(
+            "Input array must be in the range [0, 1]. "
+            f"Found a minimum value of {arr.min()}"
+        )
+
     ipos = arr_max > 0
     delta = np.ptp(arr, -1)
     s = np.zeros_like(delta)

@@ -26,7 +26,7 @@ from matplotlib import _docstring
 
 _log = logging.getLogger(__name__)
 
-_docstring.interpd.update(
+_docstring.interpd.register(
     _make_axes_kw_doc="""
 location : None or {'left', 'right', 'top', 'bottom'}
     The location, relative to the parent Axes, where the colorbar Axes
@@ -86,11 +86,6 @@ extendrect : bool
     If *False* the minimum and maximum colorbar extensions will be triangular
     (the default).  If *True* the extensions will be rectangular.
 
-spacing : {'uniform', 'proportional'}
-    For discrete colorbars (`.BoundaryNorm` or contours), 'uniform' gives each
-    color the same space; 'proportional' makes the space proportional to the
-    data interval.
-
 ticks : None or list of ticks or Locator
     If None, ticks are determined automatically from the input.
 
@@ -109,9 +104,15 @@ boundaries, values : None or a sequence
     If unset, the colormap will be displayed on a 0-1 scale.
     If sequences, *values* must have a length 1 less than *boundaries*.  For
     each region delimited by adjacent entries in *boundaries*, the color mapped
-    to the corresponding value in values will be used.
+    to the corresponding value in *values* will be used.  The size of each
+    region is determined by the *spacing* parameter.
     Normally only useful for indexed colors (i.e. ``norm=NoNorm()``) or other
-    unusual circumstances.""")
+    unusual circumstances.
+
+spacing : {'uniform', 'proportional'}
+    For discrete colorbars (`.BoundaryNorm` or contours), 'uniform' gives each
+    color the same space; 'proportional' makes the space proportional to the
+    data interval.""")
 
 
 def _set_ticks_on_axis_warn(*args, **kwargs):

@@ -370,10 +370,6 @@ class GridHelperRectlinear(GridHelperBase):
 
 class Axes(maxes.Axes):
 
-    @_api.deprecated("3.8", alternative="ax.axis")
-    def __call__(self, *args, **kwargs):
-        return maxes.Axes.axis(self.axes, *args, **kwargs)
-
     def __init__(self, *args, grid_helper=None, **kwargs):
         self._axisline_on = True
         self._grid_helper = grid_helper if grid_helper else GridHelperRectlinear(self)

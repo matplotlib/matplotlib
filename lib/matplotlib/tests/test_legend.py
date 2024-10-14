@@ -19,7 +19,7 @@ import matplotlib.collections as mcollections
 import matplotlib.lines as mlines
 from matplotlib.legend_handler import HandlerTuple
 import matplotlib.legend as mlegend
-from matplotlib import _api, rc_context
+from matplotlib import rc_context
 from matplotlib.font_manager import FontProperties
 
 
@@ -136,19 +136,6 @@ def test_various_labels():
     ax.plot(np.linspace(4, 4.1), 'o', label='Développés')
     ax.plot(np.arange(4, 1, -1), 'o', label='__nolegend__')
     ax.legend(numpoints=1, loc='best')
-
-
-def test_legend_label_with_leading_underscore():
-    """
-    Test that artists with labels starting with an underscore are not added to
-    the legend, and that a warning is issued if one tries to add them
-    explicitly.
-    """
-    fig, ax = plt.subplots()
-    line, = ax.plot([0, 1], label='_foo')
-    with pytest.warns(_api.MatplotlibDeprecationWarning, match="with an underscore"):
-        legend = ax.legend(handles=[line])
-    assert len(legend.legend_handles) == 0
 
 
 @image_comparison(['legend_labels_first.png'], remove_text=True,

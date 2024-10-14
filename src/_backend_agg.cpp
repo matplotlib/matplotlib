@@ -33,10 +33,10 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi)
         throw std::range_error("dpi must be positive");
     }
 
-    if (width >= 1 << 16 || height >= 1 << 16) {
+    if (width >= 1 << 23 || height >= 1 << 23) {
         throw std::range_error(
             "Image size of " + std::to_string(width) + "x" + std::to_string(height) +
-            " pixels is too large. It must be less than 2^16 in each direction.");
+            " pixels is too large. It must be less than 2^23 in each direction.");
     }
 
     unsigned stride(width * 4);

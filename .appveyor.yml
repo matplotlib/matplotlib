@@ -17,7 +17,7 @@ skip_commits:
 
 clone_depth: 50
 
-image: Visual Studio 2017
+image: Visual Studio 2019
 
 environment:
 
@@ -45,8 +45,9 @@ cache:
 
 init:
   - ps:
+      # Pinned due to https://github.com/mamba-org/mamba/issues/3467
       Invoke-Webrequest
-      -URI https://micro.mamba.pm/api/micromamba/win-64/latest
+      -URI https://github.com/mamba-org/micromamba-releases/releases/download/1.5.10-0/micromamba-win-64.tar.bz2
       -OutFile C:\projects\micromamba.tar.bz2
   - ps: C:\PROGRA~1\7-Zip\7z.exe x C:\projects\micromamba.tar.bz2 -aoa -oC:\projects\
   - ps: C:\PROGRA~1\7-Zip\7z.exe x C:\projects\micromamba.tar -ttar -aoa -oC:\projects\

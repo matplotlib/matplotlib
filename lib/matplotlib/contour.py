@@ -536,7 +536,7 @@ def _find_closest_point_on_path(xys, p):
     return (d2s[imin], projs[imin], (imin, imin+1))
 
 
-_docstring.interpd.update(contour_set_attributes=r"""
+_docstring.interpd.register(contour_set_attributes=r"""
 Attributes
 ----------
 ax : `~matplotlib.axes.Axes`
@@ -1450,7 +1450,7 @@ class QuadContourSet(ContourSet):
         return np.meshgrid(x, y)
 
 
-_docstring.interpd.update(contour_doc="""
+_docstring.interpd.register(contour_doc="""
 `.contour` and `.contourf` draw contour lines and filled contours,
 respectively.  Except as noted, function signatures and return values
 are the same for both versions.
@@ -1643,7 +1643,7 @@ negative_linestyles : {*None*, 'solid', 'dashed', 'dashdot', 'dotted'}, \
     specifies the line style for negative contours.
 
     If *negative_linestyles* is *None*, the default is taken from
-    :rc:`contour.negative_linestyles`.
+    :rc:`contour.negative_linestyle`.
 
     *negative_linestyles* can also be an iterable of the above strings
     specifying a set of linestyles to be used. If this iterable is shorter than

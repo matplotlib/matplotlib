@@ -73,10 +73,10 @@ Axis Label
    :template: autosummary.rst
    :nosignatures:
 
+   Axis.label
    Axis.set_label_coords
    Axis.set_label_position
    Axis.set_label_text
-   Axis.get_label
    Axis.get_label_position
    Axis.get_label_text
 
@@ -235,6 +235,8 @@ specify a matching series of labels.  Calling ``set_ticks`` makes a
    :template: autosummary.rst
    :nosignatures:
 
+   Axis.get_label
+   Axis.set_label
    Axis.set_ticks
    Axis.set_ticklabels
 

@@ -147,17 +147,6 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
                          tick_formatter1=tick_formatter1,
                          tick_formatter2=tick_formatter2)
 
-    @_api.deprecated("3.8")
-    def get_data_boundary(self, side):
-        """
-        Return v=0, nth=1.
-        """
-        lon1, lon2, lat1, lat2 = self.grid_finder.extreme_finder(*[None] * 5)
-        return dict(left=(lon1, 0),
-                    right=(lon2, 0),
-                    bottom=(lat1, 1),
-                    top=(lat2, 1))[side]
-
     def new_fixed_axis(
             self, loc, nth_coord=None, axis_direction=None, offset=None, axes=None):
         if axes is None:

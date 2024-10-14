@@ -121,6 +121,8 @@ See `.Axes3D.fill_between` for API documentation.
    :target: /gallery/mplot3d/fillbetween3d.html
    :align: center
 
+.. versionadded:: 3.10
+
 .. _polygon3d:
 
 Polygon plots

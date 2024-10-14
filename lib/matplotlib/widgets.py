@@ -2350,11 +2350,6 @@ class _SelectorWidget(AxesWidget):
         """Get the visibility of the selector artists."""
         return self._visible
 
-    @property
-    def visible(self):
-        _api.warn_deprecated("3.8", alternative="get_visible")
-        return self.get_visible()
-
     def clear(self):
         """Clear the selection and set the selector ready to make a new one."""
         self._clear_without_update()

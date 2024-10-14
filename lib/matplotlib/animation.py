@@ -28,13 +28,6 @@ _log = logging.getLogger(__name__)
 subprocess_creation_flags = (
     subprocess.CREATE_NO_WINDOW if sys.platform == 'win32' else 0)
 
-# Other potential writing methods:
-# * http://pymedia.org/
-# * libming (produces swf) python wrappers: https://github.com/libming/libming
-# * Wrap x264 API:
-
-# (https://stackoverflow.com/q/2940671/)
-
 
 def adjusted_figsize(w, h, dpi, n):
     """

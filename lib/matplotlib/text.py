@@ -754,9 +754,16 @@ class Text(Artist):
 
             # don't use self.get_position here, which refers to text
             # position in Text:
-            posx = float(self.convert_xunits(self._x))
-            posy = float(self.convert_yunits(self._y))
+            x, y = self._x, self._y
+            if np.ma.is_masked(x):
+                x = np.nan
+            if np.ma.is_masked(y):
+                y = np.nan
+            posx = float(self.convert_xunits(x))
+            posy = float(self.convert_yunits(y))
             posx, posy = trans.transform((posx, posy))
+            if np.isnan(posx) or np.isnan(posy):
+                return  # don't throw a warning here
             if not np.isfinite(posx) or not np.isfinite(posy):
                 _log.warning("posx and posy should be finite values")
                 return
@@ -1842,10 +1849,6 @@ or callable, default: value of *xycoords*
                 # modified YAArrow API to be used with FancyArrowPatch
                 for key in ['width', 'headwidth', 'headlength', 'shrink']:
                     arrowprops.pop(key, None)
-                if 'frac' in arrowprops:
-                    _api.warn_deprecated(
-                        "3.8", name="the (unused) 'frac' key in 'arrowprops'")
-                    arrowprops.pop("frac")
             self.arrow_patch = FancyArrowPatch((0, 0), (1, 1), **arrowprops)
         else:
             self.arrow_patch = None
@@ -2029,4 +2032,4 @@ or callable, default: value of *xycoords*
         return super().get_tightbbox(renderer)
 
 
-_docstring.interpd.update(Annotation=Annotation.__init__.__doc__)
+_docstring.interpd.register(Annotation=Annotation.__init__.__doc__)

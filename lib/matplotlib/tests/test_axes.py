@@ -140,20 +140,20 @@ def test_label_shift():
     # Test label re-centering on x-axis
     ax.set_xlabel("Test label", loc="left")
     ax.set_xlabel("Test label", loc="center")
-    assert ax.xaxis.get_label().get_horizontalalignment() == "center"
+    assert ax.xaxis.label.get_horizontalalignment() == "center"
     ax.set_xlabel("Test label", loc="right")
-    assert ax.xaxis.get_label().get_horizontalalignment() == "right"
+    assert ax.xaxis.label.get_horizontalalignment() == "right"
     ax.set_xlabel("Test label", loc="center")
-    assert ax.xaxis.get_label().get_horizontalalignment() == "center"
+    assert ax.xaxis.label.get_horizontalalignment() == "center"
 
     # Test label re-centering on y-axis
     ax.set_ylabel("Test label", loc="top")
     ax.set_ylabel("Test label", loc="center")
-    assert ax.yaxis.get_label().get_horizontalalignment() == "center"
+    assert ax.yaxis.label.get_horizontalalignment() == "center"
     ax.set_ylabel("Test label", loc="bottom")
-    assert ax.yaxis.get_label().get_horizontalalignment() == "left"
+    assert ax.yaxis.label.get_horizontalalignment() == "left"
     ax.set_ylabel("Test label", loc="center")
-    assert ax.yaxis.get_label().get_horizontalalignment() == "center"
+    assert ax.yaxis.label.get_horizontalalignment() == "center"
 
 
 @check_figures_equal(extensions=["png"])
@@ -6651,6 +6651,27 @@ def test_pcolorfast_bad_dims():
         ax.pcolorfast(np.empty(6), np.empty((4, 7)), np.empty((8, 8)))
 
 
+def test_pcolorfast_regular_xy_incompatible_size():
+    """
+    Test that the sizes of X, Y, C are compatible for regularly spaced X, Y.
+
+    Note that after the regualar-spacing check, pcolorfast may go into the
+    fast "image" mode, where the individual X, Y positions are not used anymore.
+    Therefore, the algorithm had worked with any regularly number of regularly
+    spaced values, but discarded their values.
+    """
+    fig, ax = plt.subplots()
+    with pytest.raises(
+            ValueError, match=r"Length of X \(5\) must be one larger than the "
+                              r"number of columns in C \(20\)"):
+        ax.pcolorfast(np.arange(5), np.arange(11), np.random.rand(10, 20))
+
+    with pytest.raises(
+            ValueError, match=r"Length of Y \(5\) must be one larger than the "
+                              r"number of rows in C \(10\)"):
+        ax.pcolorfast(np.arange(21), np.arange(5), np.random.rand(10, 20))
+
+
 def test_shared_scale():
     fig, axs = plt.subplots(2, 2, sharex=True, sharey=True)
 
@@ -8446,7 +8467,7 @@ def test_ylabel_ha_with_position(ha):
     ax = fig.subplots()
     ax.set_ylabel("test", y=1, ha=ha)
     ax.yaxis.set_label_position("right")
-    assert ax.yaxis.get_label().get_ha() == ha
+    assert ax.yaxis.label.get_ha() == ha
 
 
 def test_bar_label_location_vertical():
