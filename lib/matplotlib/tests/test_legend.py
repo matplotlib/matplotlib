@@ -402,7 +402,7 @@ class TestLegendFunction:
             "be discarded.")
 
     def test_parasite(self):
-        from mpl_toolkits.axes_grid1 import host_subplot  # type: ignore
+        from mpl_toolkits.axes_grid1 import host_subplot  # type: ignore[import]
 
         host = host_subplot(111)
         par = host.twinx()

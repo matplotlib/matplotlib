@@ -17,7 +17,7 @@ from matplotlib.lines import VertexSelector
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import matplotlib.figure as mfigure
-from mpl_toolkits.axes_grid1 import axes_divider, parasite_axes  # type: ignore
+from mpl_toolkits.axes_grid1 import axes_divider, parasite_axes  # type: ignore[import]
 
 
 def test_simple():

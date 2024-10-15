@@ -33,7 +33,7 @@ import matplotlib.pyplot as plt
 import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
-import mpl_toolkits.axisartist as AA  # type: ignore
+import mpl_toolkits.axisartist as AA  # type: ignore[import]
 from numpy.testing import (
     assert_allclose, assert_array_equal, assert_array_almost_equal)
 from matplotlib.testing.decorators import (
@@ -2976,7 +2976,7 @@ class TestScatter:
 
 
 def _params(c=None, xsize=2, *, edgecolors=None, **kwargs):
-    return (c, edgecolors, kwargs if kwargs is not None else {}, xsize)
+    return (c, edgecolors, kwargs, xsize)
 _result = namedtuple('_result', 'c, colors')
 
 
