@@ -186,7 +186,7 @@ class Hashable:
 
 
 class Unhashable:
-    __hash__ = None  # type: ignore
+    __hash__ = None  # type: ignore[assignment]
     def dummy(self): pass
 
 

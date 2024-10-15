@@ -86,7 +86,7 @@ def _get_available_interactive_backends():
             reason = "macosx backend fails on Azure"
         elif env["MPLBACKEND"].startswith('gtk'):
             try:
-                import gi  # type: ignore
+                import gi  # type: ignore[import]
             except ImportError:
                 # Though we check that `gi` exists above, it is possible that its
                 # C-level dependencies are not available, and then it still raises an

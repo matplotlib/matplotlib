@@ -7,7 +7,7 @@ import pytest
 def test_correct_key():
     pytest.xfail("test_widget_send_event is not triggering key_press_event")
 
-    from gi.repository import Gdk, Gtk  # type: ignore
+    from gi.repository import Gdk, Gtk  # type: ignore[import]
     fig = plt.figure()
     buf = []
 
