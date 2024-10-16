@@ -14,9 +14,9 @@ import numpy as np
 fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
 # Make the data
-X = np.arange(-5, 5, 0.5)
-Y = np.arange(-5, 5, 0.5)
-X, Y = np.meshgrid(X, Y)
+x = np.arange(-5, 5, 0.5)
+y = np.arange(-5, 5, 0.5)
+X, Y = np.meshgrid(x, y)
 R = np.sqrt(X**2 + Y**2)
 Z = np.sin(R)
 
@@ -28,7 +28,7 @@ ax.plot_wireframe(X, Y, Z, color='C0')
 # if one of their vertices is outside the limits (not shown).
 ax.plot_wireframe(X, Y, Z, color='C1', axlim_clip=True)
 
-# In this example, data where x < 0 or z > 0.5 will be clipped.
+# In this example, data where x < 0 or z > 0.5 is clipped
 ax.set(xlim=(0, 10), ylim=(-5, 5), zlim=(-1, 0.5))
 ax.legend(['axlim_clip=False (default)', 'axlim_clip=True'])
 

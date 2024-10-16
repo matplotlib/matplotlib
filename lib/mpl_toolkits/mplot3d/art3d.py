@@ -455,7 +455,7 @@ class Line3DCollection(LineCollection):
             all_points = np.ma.vstack(segments)
             masked_points = np.ma.column_stack([*_viewlim_mask(*all_points.T,
                                                                self.axes)])
-            segment_lengths = [segment.shape[0] for segment in segments]
+            segment_lengths = [np.shape(segment)[0] for segment in segments]
             segments = np.split(masked_points, np.cumsum(segment_lengths[:-1]))
         xyslist = [proj3d._proj_trans_points(points, self.axes.M)
                    for points in segments]
