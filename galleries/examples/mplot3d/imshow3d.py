@@ -86,3 +86,9 @@ imshow3d(ax, data_yz, value_direction='x', cmap='magma')
 imshow3d(ax, data_zx, value_direction='y', pos=ny, cmap='plasma')
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    styling: colormap,
+#    level: advanced

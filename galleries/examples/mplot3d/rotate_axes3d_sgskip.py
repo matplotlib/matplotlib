@@ -49,3 +49,10 @@ for angle in range(0, 360*4 + 1):
 
     plt.draw()
     plt.pause(.001)
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    component: animation,
+#    level: advanced,
+#    internal: high-bandwidth
