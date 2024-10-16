@@ -6,14 +6,12 @@ authors = [
 ]
 description = "Python plotting package"
 readme = "README.md"
-license = { file = "LICENSE/LICENSE" }
-dynamic = ["version"]
+dynamic = ["version", "license", "license-files"]
 classifiers=[
     "Development Status :: 5 - Production/Stable",
     "Framework :: Matplotlib",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Education",
-    "License :: OSI Approved :: Python Software Foundation License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
@@ -46,10 +44,10 @@ requires-python = ">=3.11"
 [project.optional-dependencies]
 # Should be a copy of the build dependencies below.
 dev = [
-    "meson-python>=0.13.1,!=0.17.*",
+    "meson-python>=0.18.0",
     "pybind11>=2.13.2,!=2.13.3",
     "setuptools_scm>=7",
-    # Not required by us but setuptools_scm without a version, cso _if_
+    # Not required by us but setuptools_scm without a version, so _if_
     # installed, then setuptools_scm 8 requires at least this version.
     # Unfortunately, we can't do a sort of minimum-if-installed dependency, so
     # we need to keep this for now until setuptools_scm _fully_ drops
@@ -70,9 +68,7 @@ dev = [
 build-backend = "mesonpy"
 # Also keep in sync with optional dependencies above.
 requires = [
-    # meson-python 0.17.x breaks symlinks in sdists. You can remove this pin if
-    # you really need it and aren't using an sdist.
-    "meson-python>=0.13.1,!=0.17.*",
+    "meson-python>=0.18.0",
     "pybind11>=2.13.2,!=2.13.3",
     "setuptools_scm>=7",
 ]
@@ -93,7 +89,7 @@ manylinux-x86_64-image = "manylinux2014"
 
 before-build = "rm -rf {package}/build"
 test-command = [
-    # "python {package}/ci/check_wheel_licenses.py {wheel}",
+    "python {package}/ci/check_wheel_licenses.py {wheel}",
     "python {package}/ci/check_version_number.py",
 ]
 test-environment = "PIP_PREFER_BINARY=true"

@@ -51,14 +51,6 @@ jobs:
         with:
           python-version: '3.11'
 
-      # Something changed somewhere that prevents the downloaded-at-build-time
-      # licenses from being included in built wheels, so pre-download them so
-      # that they exist before the build and are included.
-      - name: Pre-download bundled licenses
-        run: >
-          curl -Lo LICENSE/LICENSE_QHULL
-          https://github.com/qhull/qhull/raw/2020.2/COPYING.txt
-
       - name: Install dependencies
         run: python -m pip install build twine
 
