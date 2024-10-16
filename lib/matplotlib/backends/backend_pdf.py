@@ -1270,7 +1270,8 @@ end"""
 
             subset_str = "".join(chr(c) for c in characters)
             _log.debug("SUBSET %s characters: %s", filename, subset_str)
-            fontdata = _backend_pdf_ps.get_glyphs_subset(filename, subset_str)
+            with _backend_pdf_ps.get_glyphs_subset(filename, subset_str) as subset:
+                fontdata = _backend_pdf_ps.font_as_file(subset)
             _log.debug(
                 "SUBSET %s %d -> %d", filename,
                 os.stat(filename).st_size, fontdata.getbuffer().nbytes
