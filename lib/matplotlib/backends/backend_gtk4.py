@@ -115,6 +115,7 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         MouseEvent(
             "scroll_event", self, *self._mpl_coords(), step=dy,
             modifiers=self._mpl_modifiers(controller),
+            guiEvent=controller.get_current_event(),
         )._process()
         return True
 
@@ -123,6 +124,7 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
             "button_press_event", self, *self._mpl_coords((x, y)),
             controller.get_current_button(),
             modifiers=self._mpl_modifiers(controller),
+            guiEvent=controller.get_current_event(),
         )._process()
         self.grab_focus()
 
@@ -131,12 +133,14 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
             "button_release_event", self, *self._mpl_coords((x, y)),
             controller.get_current_button(),
             modifiers=self._mpl_modifiers(controller),
+            guiEvent=controller.get_current_event(),
         )._process()
 
     def key_press_event(self, controller, keyval, keycode, state):
         KeyEvent(
             "key_press_event", self, self._get_key(keyval, keycode, state),
             *self._mpl_coords(),
+            guiEvent=controller.get_current_event(),
         )._process()
         return True
 
@@ -144,6 +148,7 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         KeyEvent(
             "key_release_event", self, self._get_key(keyval, keycode, state),
             *self._mpl_coords(),
+            guiEvent=controller.get_current_event(),
         )._process()
         return True
 
@@ -151,18 +156,21 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         MouseEvent(
             "motion_notify_event", self, *self._mpl_coords((x, y)),
             modifiers=self._mpl_modifiers(controller),
+            guiEvent=controller.get_current_event(),
         )._process()
 
     def enter_notify_event(self, controller, x, y):
         LocationEvent(
             "figure_enter_event", self, *self._mpl_coords((x, y)),
             modifiers=self._mpl_modifiers(),
+            guiEvent=controller.get_current_event(),
         )._process()
 
     def leave_notify_event(self, controller):
         LocationEvent(
             "figure_leave_event", self, *self._mpl_coords(),
             modifiers=self._mpl_modifiers(),
+            guiEvent=controller.get_current_event(),
         )._process()
 
     def resize_event(self, area, width, height):
