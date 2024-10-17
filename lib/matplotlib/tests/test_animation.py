@@ -55,11 +55,12 @@ class NullMovieWriter(animation.AbstractMovieWriter):
     it cannot be added to the 'writers' registry.
     """
 
-    def setup(self, fig, outfile, dpi, *args):
+    def setup(self, fig, outfile, dpi, *args, **kwargs):
         self.fig = fig
         self.outfile = outfile
         self.dpi = dpi
         self.args = args
+        self.kwargs = kwargs
         self._count = 0
 
     def grab_frame(self, **savefig_kwargs):
@@ -78,15 +79,17 @@ def test_null_movie_writer(anim):
     filename = "unused.null"
     dpi = 50
     savefig_kwargs = dict(foo=0)
+    setup_kwargs = dict(bar=1)
     writer = NullMovieWriter()
 
     anim.save(filename, dpi=dpi, writer=writer,
-              savefig_kwargs=savefig_kwargs)
+              savefig_kwargs=savefig_kwargs, **setup_kwargs)
 
     assert writer.fig == plt.figure(1)  # The figure used by anim fixture
     assert writer.outfile == filename
     assert writer.dpi == dpi
     assert writer.args == ()
+    assert writer.kwargs == setup_kwargs
     # we enrich the savefig kwargs to ensure we composite transparent
     # output to an opaque background
     for k, v in savefig_kwargs.items():
@@ -175,7 +178,7 @@ def gen_writers():
 # matplotlib.testing.image_comparison
 @pytest.mark.parametrize('writer, frame_format, output', gen_writers())
 @pytest.mark.parametrize('anim', [dict(klass=dict)], indirect=['anim'])
-def test_save_animation_smoketest(tmpdir, writer, frame_format, output, anim):
+def test_save_animation_smoketest(tmp_path, writer, frame_format, output, anim):
     if frame_format is not None:
         plt.rcParams["animation.frame_format"] = frame_format
     anim = animation.FuncAnimation(**anim)
@@ -187,11 +190,18 @@ def test_save_animation_smoketest(tmpdir, writer, frame_format, output, anim):
         dpi = 100.
         codec = 'h264'
 
-    # Use temporary directory for the file-based writers, which produce a file
-    # per frame with known names.
-    with tmpdir.as_cwd():
-        anim.save(output, fps=30, writer=writer, bitrate=500, dpi=dpi,
-                  codec=codec)
+    setup_kwargs = {}
+    if writer.endswith('_file'):
+        assert len([*tmp_path.glob('example*')]) == 0
+        # Test that kwargs are passed to `MovieFileWriter.setup` so that the automatic
+        # temporary directory isn't used.
+        setup_kwargs['frame_prefix'] = str(tmp_path / 'example')
+
+    anim.save(tmp_path / output, fps=30, writer=writer, bitrate=500, dpi=dpi,
+              codec=codec, **setup_kwargs)
+
+    if writer.endswith('_file'):
+        assert len([*tmp_path.glob('example*')]) == anim._save_count
 
     del anim
 
