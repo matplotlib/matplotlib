@@ -2679,17 +2679,28 @@ def polar(*args, **kwargs) -> list[Line2D]:
 
     call signature::
 
-      polar(theta, r, **kwargs)
+      polar(theta, r, [fmt], **kwargs)
 
-    Multiple *theta*, *r* arguments are supported, with format strings, as in
-    `plot`.
+    This is a convenience wrapper around `.pyplot.plot`. It ensures that the
+    current Axes is polar (or creates one if needed) and then passes all parameters
+    to ``.pyplot.plot``.
+
+    .. note::
+        When making polar plots using the :ref:`pyplot API <pyplot_interface>`,
+        ``polar()`` should typically be the first command because that makes sure
+        a polar Axes is created. Using other commands such as ``plt.title()``
+        before this can lead to the implicit creation of a rectangular Axes, in which
+        case a subsequent ``polar()`` call will fail.
     """
     # If an axis already exists, check if it has a polar projection
     if gcf().get_axes():
         ax = gca()
         if not isinstance(ax, PolarAxes):
-            _api.warn_external('Trying to create polar plot on an Axes '
-                               'that does not have a polar projection.')
+            raise RuntimeError(
+                "There exists a non-polar current Axes. 'polar()' cannot plot "
+                "into this. You likely should call 'polar()' before any other "
+                "plotting commands."
+            )
     else:
         ax = axes(projection="polar")
     return ax.plot(*args, **kwargs)
