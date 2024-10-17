@@ -640,6 +640,11 @@ def _parse_srcset(entries):
 def check_output_base_name(env, output_base):
     docname = env.docname
 
+    if '.' in output_base or '/' in output_base:
+        raise PlotError(
+            f"The output-base-name '{output_base}' is invalid. "
+            f"It must not contain dots or slashes.")
+
     for d in env.mpl_custom_base_names:
         if output_base in env.mpl_custom_base_names[d]:
             if d == docname:
