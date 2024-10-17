@@ -19,7 +19,7 @@ import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook, _c_internal_utils
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    TimerBase, ToolContainerBase, cursors, _Mode,
+    TimerBase, ToolContainerBase, cursors, _Mode, MouseButton,
     CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 from matplotlib._pylab_helpers import Gcf
 from . import _tkagg
@@ -296,6 +296,7 @@ class FigureCanvasTk(FigureCanvasBase):
     def motion_notify_event(self, event):
         MouseEvent("motion_notify_event", self,
                    *self._event_mpl_coords(event),
+                   buttons=self._mpl_buttons(event),
                    modifiers=self._mpl_modifiers(event),
                    guiEvent=event)._process()
 
@@ -358,12 +359,24 @@ class FigureCanvasTk(FigureCanvasBase):
                    guiEvent=event)._process()
 
     @staticmethod
+    def _mpl_buttons(event):  # See _mpl_modifiers.
+        # NOTE: This fails to report multiclicks on macOS; only one button is
+        # reported (multiclicks work correctly on Linux & Windows).
+        modifiers = [
+            (MouseButton.LEFT, 1 << 8),
+            (MouseButton.RIGHT, 1 << 9),
+            (MouseButton.MIDDLE, 1 << 10),
+            (MouseButton.BACK, 1 << 11),
+            (MouseButton.FORWARD, 1 << 12),
+        ]
+        # State *before* press/release.
+        return [name for name, mask in modifiers if event.state & mask]
+
+    @staticmethod
     def _mpl_modifiers(event, *, exclude=None):
-        # add modifier keys to the key string. Bit details originate from
-        # http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm
-        # BIT_SHIFT = 0x001; BIT_CAPSLOCK = 0x002; BIT_CONTROL = 0x004;
-        # BIT_LEFT_ALT = 0x008; BIT_NUMLOCK = 0x010; BIT_RIGHT_ALT = 0x080;
-        # BIT_MB_1 = 0x100; BIT_MB_2 = 0x200; BIT_MB_3 = 0x400;
+        # Add modifier keys to the key string. Bit values are inferred from
+        # the implementation of tkinter.Event.__repr__ (1, 2, 4, 8, ... =
+        # Shift, Lock, Control, Mod1, ..., Mod5, Button1, ..., Button5)
         # In general, the modifier key is excluded from the modifier flag,
         # however this is not the case on "darwin", so double check that
         # we aren't adding repeat modifier flags to a modifier key.
