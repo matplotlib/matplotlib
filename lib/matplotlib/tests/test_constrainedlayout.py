@@ -211,11 +211,14 @@ def test_constrained_layout10():
 def test_constrained_layout11():
     """Test for multiple nested gridspecs"""
 
+    def inner_sp(sp):
+        return gridspec.GridSpecFromSubplotSpec(1, 1, sp)[0]
+
     fig = plt.figure(layout="constrained", figsize=(13, 3))
     gs0 = gridspec.GridSpec(1, 2, figure=fig)
     gsl = gridspec.GridSpecFromSubplotSpec(1, 2, gs0[0])
     gsl0 = gridspec.GridSpecFromSubplotSpec(2, 2, gsl[1])
-    ax = fig.add_subplot(gs0[1])
+    ax = fig.add_subplot(inner_sp(gs0[1]))
     example_plot(ax, fontsize=9)
     axs = []
     for gs in gsl0:
@@ -223,7 +226,7 @@ def test_constrained_layout11():
         axs += [ax]
         pcm = example_pcolor(ax, fontsize=9)
     fig.colorbar(pcm, ax=axs, shrink=0.6, aspect=70.)
-    ax = fig.add_subplot(gsl[0])
+    ax = fig.add_subplot(inner_sp(gsl[0]))
     example_plot(ax, fontsize=9)
 
 
@@ -231,11 +234,14 @@ def test_constrained_layout11():
 def test_constrained_layout11rat():
     """Test for multiple nested gridspecs with width_ratios"""
 
+    def inner_sp(sp):
+        return gridspec.GridSpecFromSubplotSpec(1, 1, sp)[0]
+
     fig = plt.figure(layout="constrained", figsize=(10, 3))
     gs0 = gridspec.GridSpec(1, 2, figure=fig, width_ratios=[6, 1])
     gsl = gridspec.GridSpecFromSubplotSpec(1, 2, gs0[0])
     gsl0 = gridspec.GridSpecFromSubplotSpec(2, 2, gsl[1], height_ratios=[2, 1])
-    ax = fig.add_subplot(gs0[1])
+    ax = fig.add_subplot(inner_sp(gs0[1]))
     example_plot(ax, fontsize=9)
     axs = []
     for gs in gsl0:
@@ -243,7 +249,7 @@ def test_constrained_layout11rat():
         axs += [ax]
         pcm = example_pcolor(ax, fontsize=9)
     fig.colorbar(pcm, ax=axs, shrink=0.6, aspect=70.)
-    ax = fig.add_subplot(gsl[0])
+    ax = fig.add_subplot(inner_sp(gsl[0]))
     example_plot(ax, fontsize=9)
 
 
@@ -719,3 +725,59 @@ def test_layout_leak():
     gc.collect()
     assert not any(isinstance(obj, mpl._layoutgrid.LayoutGrid)
                    for obj in gc.get_objects())
+
+
+@image_comparison(['gridspecfromsubplotspec_wspace.png'])
+def test_gridspecfromsubplotspec_wspace_hspace():
+    fig = plt.figure(figsize=[10, 6], layout="constrained")
+    a0, a1 = fig.subplots(
+        nrows=1,
+        ncols=2,
+        gridspec_kw={"wspace": 0.3, "hspace": 0.3},
+        width_ratios=[2, 1],
+    )
+
+    for axis in [a0, a1]:
+        axis.get_xaxis().set_visible(False)
+        axis.get_yaxis().set_visible(False)
+        for s in axis.spines.values():
+            s.set(color="r", lw=10)
+
+        subplot_spec = axis.get_subplotspec()
+        subgrid_spec = subplot_spec.subgridspec(
+            nrows=3,
+            ncols=3,
+            wspace=0.1,
+            hspace=0.1,
+        )
+        axis_array = subgrid_spec.subplots()
+        for a in axis_array.flat:
+            a.get_xaxis().set_visible(False)
+            a.get_yaxis().set_visible(False)
+
+
+@image_comparison(['gridspecfromsubplotspec_pad.png'])
+def test_gridspecfromsubplotspec_pad():
+    def add_subplots(axis, nx, ny):
+        axis.clear()
+        axis.set_axis_off()
+        subplot_spec = axis.get_subplotspec()
+        subgrid_spec = subplot_spec.subgridspec(nx, ny)
+        axis_list = subgrid_spec.subplots().flatten().tolist()
+        for a in axis_list:
+            show_random_image(a)
+
+        return axis_list
+
+    def show_random_image(axis):
+        z = np.linspace(0, 1, 30).reshape(10, 3)
+        axis.pcolormesh(z, cmap="plasma")
+        axis.set_axis_off()
+
+    fig = plt.figure(figsize=[10, 6], layout="constrained")
+    fig.get_layout_engine().set(w_pad=0.2, h_pad=0.2)
+
+    axes = fig.subplots(1, 2, width_ratios=[1, 2])
+    show_random_image(axes[0])
+    axes = add_subplots(axes[1], 2, 2)
+    axes = add_subplots(axes[1], 2, 2)
