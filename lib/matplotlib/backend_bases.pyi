@@ -199,12 +199,10 @@ class TimerBase:
 class Event:
     name: str
     canvas: FigureCanvasBase
+    guiEvent: Any
     def __init__(
         self, name: str, canvas: FigureCanvasBase, guiEvent: Any | None = ...
     ) -> None: ...
-
-    @property
-    def guiEvent(self) -> Any: ...
 
 class DrawEvent(Event):
     renderer: RendererBase
@@ -220,7 +218,6 @@ class ResizeEvent(Event):
 class CloseEvent(Event): ...
 
 class LocationEvent(Event):
-    lastevent: Event | None
     x: int
     y: int
     inaxes: Axes | None
@@ -349,7 +346,6 @@ class FigureCanvasBase:
     def get_default_filetype(cls) -> str: ...
     def get_default_filename(self) -> str: ...
     _T = TypeVar("_T", bound=FigureCanvasBase)
-    def switch_backends(self, FigureCanvasClass: type[_T]) -> _T: ...
     def mpl_connect(self, s: str, func: Callable[[Event], Any]) -> int: ...
     def mpl_disconnect(self, cid: int) -> None: ...
     def new_timer(

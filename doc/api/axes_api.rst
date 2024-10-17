@@ -28,6 +28,17 @@ The Axes class
 
    Axes
 
+Attributes
+----------
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   Axes.viewLim
+   Axes.dataLim
+
 Plotting
 ========
 

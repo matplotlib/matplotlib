@@ -6,9 +6,8 @@
     Many methods are implemented in `FigureBase`.
 
 `SubFigure`
-    A logical figure inside a figure, usually added to a figure (or parent
-    `SubFigure`) with `Figure.add_subfigure` or `Figure.subfigures` methods
-    (provisional API v3.4).
+    A logical figure inside a figure, usually added to a figure (or parent `SubFigure`)
+    with `Figure.add_subfigure` or `Figure.subfigures` methods.
 
 Figures are typically created using pyplot methods `~.pyplot.figure`,
 `~.pyplot.subplots`, and `~.pyplot.subplot_mosaic`.
@@ -30,6 +29,7 @@ list of examples) .  More information about Figures can be found at
 from contextlib import ExitStack
 import inspect
 import itertools
+import functools
 import logging
 from numbers import Integral
 import threading
@@ -63,8 +63,8 @@ _log = logging.getLogger(__name__)
 
 
 def _stale_figure_callback(self, val):
-    if self.figure:
-        self.figure.stale = val
+    if (fig := self.get_figure(root=False)) is not None:
+        fig.stale = val
 
 
 class _AxesStack:
@@ -226,6 +226,67 @@ class FigureBase(Artist):
                 *self.images,
                 *self.legends,
                 *self.subfigs]
+
+    def get_figure(self, root=None):
+        """
+        Return the `.Figure` or `.SubFigure` instance the (Sub)Figure belongs to.
+
+        Parameters
+        ----------
+        root : bool, default=True
+            If False, return the (Sub)Figure this artist is on.  If True,
+            return the root Figure for a nested tree of SubFigures.
+
+            .. deprecated:: 3.10
+
+                From version 3.12 *root* will default to False.
+        """
+        if self._root_figure is self:
+            # Top level Figure
+            return self
+
+        if self._parent is self._root_figure:
+            # Return early to prevent the deprecation warning when *root* does not
+            # matter
+            return self._parent
+
+        if root is None:
+            # When deprecation expires, consider removing the docstring and just
+            # inheriting the one from Artist.
+            message = ('From Matplotlib 3.12 SubFigure.get_figure will by default '
+                       'return the direct parent figure, which may be a SubFigure. '
+                       'To suppress this warning, pass the root parameter.  Pass '
+                       '`True` to maintain the old behavior and `False` to opt-in to '
+                       'the future behavior.')
+            _api.warn_deprecated('3.10', message=message)
+            root = True
+
+        if root:
+            return self._root_figure
+
+        return self._parent
+
+    def set_figure(self, fig):
+        """
+        .. deprecated:: 3.10
+            Currently this method will raise an exception if *fig* is anything other
+            than the root `.Figure` this (Sub)Figure is on.  In future it will always
+            raise an exception.
+        """
+        no_switch = ("The parent and root figures of a (Sub)Figure are set at "
+                     "instantiation and cannot be changed.")
+        if fig is self._root_figure:
+            _api.warn_deprecated(
+                "3.10",
+                message=(f"{no_switch} From Matplotlib 3.12 this operation will raise "
+                         "an exception."))
+            return
+
+        raise ValueError(no_switch)
+
+    figure = property(functools.partial(get_figure, root=True), set_figure,
+                      doc=("The root `Figure`.  To get the parent of a `SubFigure`, "
+                           "use the `get_figure` method."))
 
     def contains(self, mouseevent):
         """
@@ -465,7 +526,7 @@ default: %(va)s
         self.stale = True
         return artist
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def add_axes(self, *args, **kwargs):
         """
         Add an `~.axes.Axes` to the figure.
@@ -552,22 +613,22 @@ default: %(va)s
         """
 
         if not len(args) and 'rect' not in kwargs:
-            raise TypeError(
-                "add_axes() missing 1 required positional argument: 'rect'")
+            raise TypeError("add_axes() missing 1 required positional argument: 'rect'")
         elif 'rect' in kwargs:
             if len(args):
-                raise TypeError(
-                    "add_axes() got multiple values for argument 'rect'")
+                raise TypeError("add_axes() got multiple values for argument 'rect'")
             args = (kwargs.pop('rect'), )
+        if len(args) != 1:
+            raise _api.nargs_error("add_axes", 1, len(args))
 
         if isinstance(args[0], Axes):
-            a, *extra_args = args
+            a, = args
             key = a._projection_init
-            if a.get_figure() is not self:
+            if a.get_figure(root=False) is not self:
                 raise ValueError(
                     "The Axes must have been created in the present figure")
         else:
-            rect, *extra_args = args
+            rect, = args
             if not np.isfinite(rect).all():
                 raise ValueError(f'all entries in rect must be finite not {rect}')
             projection_class, pkw = self._process_projection_requirements(**kwargs)
@@ -576,14 +637,9 @@ default: %(va)s
             a = projection_class(self, rect, **pkw)
             key = (projection_class, pkw)
 
-        if extra_args:
-            _api.warn_deprecated(
-                "3.8",
-                name="Passing more than one positional argument to Figure.add_axes",
-                addendum="Any additional positional arguments are currently ignored.")
         return self._add_axes_internal(a, key)
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def add_subplot(self, *args, **kwargs):
         """
         Add an `~.axes.Axes` to the figure as part of a subplot arrangement.
@@ -694,7 +750,7 @@ default: %(va)s
                 and args[0].get_subplotspec()):
             ax = args[0]
             key = ax._projection_init
-            if ax.get_figure() is not self:
+            if ax.get_figure(root=False) is not self:
                 raise ValueError("The Axes must have been created in "
                                  "the present figure")
         else:
@@ -754,6 +810,8 @@ default: %(va)s
 
             When subplots have a shared axis that has units, calling
             `.Axis.set_units` will update each axis with the new units.
+
+            Note that it is not possible to unshare axes.
 
         squeeze : bool, default: True
             - If True, extra dimensions are squeezed out from the returned
@@ -883,7 +941,7 @@ default: %(va)s
 
         self._axobservers.process("_axes_change_event", self)
         self.stale = True
-        self.canvas.release_mouse(ax)
+        self._root_figure.canvas.release_mouse(ax)
 
         for name in ax._axis_names:  # Break link between any shared Axes
             grouper = ax._shared_axes[name]
@@ -960,7 +1018,7 @@ default: %(va)s
     #    " legend(" -> " figlegend(" for the signatures
     #    "fig.legend(" -> "plt.figlegend" for the code examples
     #    "ax.plot" -> "plt.plot" for consistency in using pyplot when able
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def legend(self, *args, **kwargs):
         """
         Place a legend on the figure.
@@ -1080,7 +1138,7 @@ default: %(va)s
         self.stale = True
         return l
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def text(self, x, y, s, fontdict=None, **kwargs):
         """
         Add text to figure.
@@ -1130,7 +1188,7 @@ default: %(va)s
         self.stale = True
         return text
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def colorbar(
             self, mappable, cax=None, ax=None, use_gridspec=True, **kwargs):
         """
@@ -1218,7 +1276,7 @@ default: %(va)s
             fig = (  # Figure of first Axes; logic copied from make_axes.
                 [*ax.flat] if isinstance(ax, np.ndarray)
                 else [*ax] if np.iterable(ax)
-                else [ax])[0].figure
+                else [ax])[0].get_figure(root=False)
             current_ax = fig.gca()
             if (fig.get_layout_engine() is not None and
                     not fig.get_layout_engine().colorbar_gridspec):
@@ -1233,24 +1291,21 @@ default: %(va)s
             fig.sca(current_ax)
             cax.grid(visible=False, which='both', axis='both')
 
-        if hasattr(mappable, "figure") and mappable.figure is not None:
-            # Get top level artists
-            mappable_host_fig = mappable.figure
-            if isinstance(mappable_host_fig, mpl.figure.SubFigure):
-                mappable_host_fig = mappable_host_fig.figure
+        if (hasattr(mappable, "get_figure") and
+                (mappable_host_fig := mappable.get_figure(root=True)) is not None):
             # Warn in case of mismatch
-            if mappable_host_fig is not self.figure:
+            if mappable_host_fig is not self._root_figure:
                 _api.warn_external(
                         f'Adding colorbar to a different Figure '
-                        f'{repr(mappable.figure)} than '
-                        f'{repr(self.figure)} which '
+                        f'{repr(mappable_host_fig)} than '
+                        f'{repr(self._root_figure)} which '
                         f'fig.colorbar is called on.')
 
         NON_COLORBAR_KEYS = [  # remove kws that cannot be passed to Colorbar
             'fraction', 'pad', 'shrink', 'aspect', 'anchor', 'panchor']
         cb = cbar.Colorbar(cax, mappable, **{
             k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS})
-        cax.figure.stale = True
+        cax.get_figure(root=False).stale = True
         return cb
 
     def subplots_adjust(self, left=None, bottom=None, right=None, top=None,
@@ -1260,6 +1315,8 @@ default: %(va)s
 
         Unset parameters are left unmodified; initial values are given by
         :rc:`figure.subplot.[name]`.
+
+        .. plot:: _embedded_plots/figure_subplots_adjust.py
 
         Parameters
         ----------
@@ -1547,8 +1604,8 @@ default: %(va)s
         the same as a figure, but cannot print itself.
         See :doc:`/gallery/subplots_axes_and_figures/subfigures`.
 
-        .. note::
-            The *subfigure* concept is new in v3.4, and the API is still provisional.
+        .. versionchanged:: 3.10
+            subfigures are now added in row-major order.
 
         Parameters
         ----------
@@ -1583,9 +1640,9 @@ default: %(va)s
                       left=0, right=1, bottom=0, top=1)
 
         sfarr = np.empty((nrows, ncols), dtype=object)
-        for i in range(ncols):
-            for j in range(nrows):
-                sfarr[j, i] = self.add_subfigure(gs[j, i], **kwargs)
+        for i in range(nrows):
+            for j in range(ncols):
+                sfarr[i, j] = self.add_subfigure(gs[i, j], **kwargs)
 
         if self.get_layout_engine() is None and (wspace is not None or
                                                  hspace is not None):
@@ -1631,6 +1688,8 @@ default: %(va)s
         sf = SubFigure(self, subplotspec, **kwargs)
         self.subfigs += [sf]
         sf._remove_method = self.subfigs.remove
+        sf.stale_callback = _stale_figure_callback
+        self.stale = True
         return sf
 
     def sca(self, a):
@@ -1731,8 +1790,7 @@ default: %(va)s
                 bbox_artists.extend(ax.get_default_bbox_extra_artists())
         return bbox_artists
 
-    @_api.make_keyword_only("3.8", "bbox_extra_artists")
-    def get_tightbbox(self, renderer=None, bbox_extra_artists=None):
+    def get_tightbbox(self, renderer=None, *, bbox_extra_artists=None):
         """
         Return a (tight) bounding box of the figure *in inches*.
 
@@ -1760,7 +1818,7 @@ default: %(va)s
         """
 
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
 
         bb = []
         if bbox_extra_artists is None:
@@ -2164,9 +2222,6 @@ class SubFigure(FigureBase):
         axsR = sfigs[1].subplots(2, 1)
 
     See :doc:`/gallery/subplots_axes_and_figures/subfigures`
-
-    .. note::
-        The *subfigure* concept is new in v3.4, and the API is still provisional.
     """
 
     def __init__(self, parent, subplotspec, *,
@@ -2215,14 +2270,13 @@ class SubFigure(FigureBase):
 
         self._subplotspec = subplotspec
         self._parent = parent
-        self.figure = parent.figure
+        self._root_figure = parent._root_figure
 
         # subfigures use the parent axstack
         self._axstack = parent._axstack
         self.subplotpars = parent.subplotpars
         self.dpi_scale_trans = parent.dpi_scale_trans
         self._axobservers = parent._axobservers
-        self.canvas = parent.canvas
         self.transFigure = parent.transFigure
         self.bbox_relative = Bbox.null()
         self._redo_transform_rel_fig()
@@ -2238,6 +2292,10 @@ class SubFigure(FigureBase):
             in_layout=False, transform=self.transSubfigure)
         self._set_artist_props(self.patch)
         self.patch.set_antialiased(False)
+
+    @property
+    def canvas(self):
+        return self._parent.canvas
 
     @property
     def dpi(self):
@@ -2349,7 +2407,7 @@ class SubFigure(FigureBase):
             renderer.open_group('subfigure', gid=self.get_gid())
             self.patch.draw(renderer)
             mimage._draw_list_compositing_images(
-                renderer, self, artists, self.figure.suppressComposite)
+                renderer, self, artists, self.get_figure(root=True).suppressComposite)
             renderer.close_group('subfigure')
 
         finally:
@@ -2493,7 +2551,7 @@ None}, default: None
             %(Figure:kwdoc)s
         """
         super().__init__(**kwargs)
-        self.figure = self
+        self._root_figure = self
         self._layout_engine = None
 
         if layout is not None:

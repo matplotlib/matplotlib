@@ -400,7 +400,7 @@ def _single_spectrum_helper(
 
 
 # Split out these keyword docs so that they can be used elsewhere
-_docstring.interpd.update(
+_docstring.interpd.register(
     Spectral="""\
 Fs : float, default: 2
     The sampling frequency (samples per time unit).  It is used to calculate
@@ -458,7 +458,7 @@ scale_by_freq : bool, default: True
     MATLAB compatibility.""")
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
         noverlap=None, pad_to=None, sides=None, scale_by_freq=None):
     r"""
@@ -514,7 +514,7 @@ def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
     return Pxx.real, freqs
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
         noverlap=None, pad_to=None, sides=None, scale_by_freq=None):
     """
@@ -634,7 +634,7 @@ phase_spectrum.__doc__ = _single_spectrum_docs.format(
     **_docstring.interpd.params)
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
              noverlap=None, pad_to=None, sides=None, scale_by_freq=None,
              mode=None):
@@ -717,7 +717,7 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
     return spec, freqs, t
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
            noverlap=0, pad_to=None, sides='default', scale_by_freq=None):
     r"""

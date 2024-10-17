@@ -96,6 +96,13 @@ class PathEffectRenderer(RendererBase):
     def copy_with_path_effect(self, path_effects):
         return self.__class__(path_effects, self._renderer)
 
+    def __getattribute__(self, name):
+        if name in ['flipy', 'get_canvas_width_height', 'new_gc',
+                    'points_to_pixels', '_text2path', 'height', 'width']:
+            return getattr(self._renderer, name)
+        else:
+            return object.__getattribute__(self, name)
+
     def draw_path(self, gc, tpath, affine, rgbFace=None):
         for path_effect in self._path_effects:
             path_effect.draw_path(self._renderer, gc, tpath, affine,
@@ -136,21 +143,6 @@ class PathEffectRenderer(RendererBase):
             # one path effect.
             renderer.draw_path_collection(gc, master_transform, paths,
                                           *args, **kwargs)
-
-    def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):
-        # Implements the naive text drawing as is found in RendererBase.
-        path, transform = self._get_text_path_transform(x, y, s, prop,
-                                                        angle, ismath)
-        color = gc.get_rgb()
-        gc.set_linewidth(0.0)
-        self.draw_path(gc, path, transform, rgbFace=color)
-
-    def __getattribute__(self, name):
-        if name in ['flipy', 'get_canvas_width_height', 'new_gc',
-                    'points_to_pixels', '_text2path', 'height', 'width']:
-            return getattr(self._renderer, name)
-        else:
-            return object.__getattribute__(self, name)
 
     def open_group(self, s, gid=None):
         return self._renderer.open_group(s, gid)

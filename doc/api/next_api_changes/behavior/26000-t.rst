@@ -1,0 +1,5 @@
+onselect argument to selector widgets made optional
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The *onselect* argument to `.EllipseSelector`, `.LassoSelector`, `.PolygonSelector`, and
+`.RectangleSelector` is no longer required.

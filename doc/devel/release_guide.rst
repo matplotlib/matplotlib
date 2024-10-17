@@ -143,7 +143,8 @@ prepare this list:
            --project 'matplotlib/matplotlib' --links > doc/users/github_stats.rst
 
 3. Review and commit changes. Some issue/PR titles may not be valid reST (the most
-   common issue is ``*`` which is interpreted as unclosed markup).
+   common issue is ``*`` which is interpreted as unclosed markup). Also confirm that
+   ``codespell`` does not find any issues.
 
 .. note::
 
@@ -450,7 +451,7 @@ which will copy the built docs over.  If this is a final release, link the
   rm stable
   ln -s 3.7.0 stable
 
-You will also need to edit :file:`sitemap.xml` to include
+You will also need to edit :file:`sitemap.xml` and :file:`versions.html` to include
 the newly released version.  Now commit and push everything to GitHub ::
 
   git add *

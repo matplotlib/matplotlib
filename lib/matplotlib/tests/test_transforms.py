@@ -341,6 +341,31 @@ class TestAffine2D:
         assert_array_equal(s.get_matrix(), a.get_matrix())
 
 
+class TestAffineDeltaTransform:
+    def test_invalidate(self):
+        before = np.array([[1.0, 4.0, 0.0],
+                           [5.0, 1.0, 0.0],
+                           [0.0, 0.0, 1.0]])
+        after = np.array([[1.0, 3.0, 0.0],
+                          [5.0, 1.0, 0.0],
+                          [0.0, 0.0, 1.0]])
+
+        # Translation and skew present
+        base = mtransforms.Affine2D.from_values(1, 5, 4, 1, 2, 3)
+        t = mtransforms.AffineDeltaTransform(base)
+        assert_array_equal(t.get_matrix(), before)
+
+        # Mess with the internal structure of `base` without invalidating
+        # This should not affect this transform because it's a passthrough:
+        # it's always invalid
+        base.get_matrix()[0, 1:] = 3
+        assert_array_equal(t.get_matrix(), after)
+
+        # Invalidate the base
+        base.invalidate()
+        assert_array_equal(t.get_matrix(), after)
+
+
 def test_non_affine_caching():
     class AssertingNonAffineTransform(mtransforms.Transform):
         """
@@ -666,6 +691,13 @@ class TestBasicTransform:
         assert self.stack2.contains_branch(self.ta2 + self.ta3)
 
         assert not self.stack1.contains_branch(self.tn1 + self.ta2)
+
+        blend = mtransforms.BlendedGenericTransform(self.tn2, self.stack2)
+        x, y = blend.contains_branch_seperately(self.stack2_subset)
+        stack_blend = self.tn3 + blend
+        sx, sy = stack_blend.contains_branch_seperately(self.stack2_subset)
+        assert x is sx is False
+        assert y is sy is True
 
     def test_affine_simplification(self):
         # tests that a transform stack only calls as much is absolutely

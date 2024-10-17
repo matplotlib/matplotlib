@@ -63,3 +63,10 @@ plt.show()
 #
 #    - `matplotlib.colors.Colormap`
 #    - `matplotlib.colors.Colormap.resampled`
+#
+# .. tags::
+#
+#    component: colormap
+#    styling: color
+#    plot-type: line
+#    level: intermediate

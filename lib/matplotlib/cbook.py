@@ -32,6 +32,29 @@ import matplotlib
 from matplotlib import _api, _c_internal_utils
 
 
+class _ExceptionInfo:
+    """
+    A class to carry exception information around.
+
+    This is used to store and later raise exceptions. It's an alternative to
+    directly storing Exception instances that circumvents traceback-related
+    issues: caching tracebacks can keep user's objects in local namespaces
+    alive indefinitely, which can lead to very surprising memory issues for
+    users and result in incorrect tracebacks.
+    """
+
+    def __init__(self, cls, *args):
+        self._cls = cls
+        self._args = args
+
+    @classmethod
+    def from_exception(cls, exc):
+        return cls(type(exc), *exc.args)
+
+    def to_exception(self):
+        return self._cls(*self._args)
+
+
 def _get_running_interactive_framework():
     """
     Return the interactive framework whose event loop is currently running, if
@@ -72,7 +95,7 @@ def _get_running_interactive_framework():
                 if frame.f_code in codes:
                     return "tk"
                 frame = frame.f_back
-        # premetively break reference cycle between locals and the frame
+        # Preemptively break reference cycle between locals and the frame.
         del frame
     macosx = sys.modules.get("matplotlib.backends._macosx")
     if macosx and macosx.event_loop_is_running():
@@ -115,6 +138,61 @@ def _weak_or_strong_ref(func, callback):
         return weakref.WeakMethod(func, callback)
     except TypeError:
         return _StrongRef(func)
+
+
+class _UnhashDict:
+    """
+    A minimal dict-like class that also supports unhashable keys, storing them
+    in a list of key-value pairs.
+
+    This class only implements the interface needed for `CallbackRegistry`, and
+    tries to minimize the overhead for the hashable case.
+    """
+
+    def __init__(self, pairs):
+        self._dict = {}
+        self._pairs = []
+        for k, v in pairs:
+            self[k] = v
+
+    def __setitem__(self, key, value):
+        try:
+            self._dict[key] = value
+        except TypeError:
+            for i, (k, v) in enumerate(self._pairs):
+                if k == key:
+                    self._pairs[i] = (key, value)
+                    break
+            else:
+                self._pairs.append((key, value))
+
+    def __getitem__(self, key):
+        try:
+            return self._dict[key]
+        except TypeError:
+            pass
+        for k, v in self._pairs:
+            if k == key:
+                return v
+        raise KeyError(key)
+
+    def pop(self, key, *args):
+        try:
+            if key in self._dict:
+                return self._dict.pop(key)
+        except TypeError:
+            for i, (k, v) in enumerate(self._pairs):
+                if k == key:
+                    del self._pairs[i]
+                    return v
+        if args:
+            return args[0]
+        raise KeyError(key)
+
+    def __iter__(self):
+        yield from self._dict
+        for k, v in self._pairs:
+            yield k
 
 
 class CallbackRegistry:
@@ -176,14 +254,14 @@ class CallbackRegistry:
 
     # We maintain two mappings:
     #   callbacks: signal -> {cid -> weakref-to-callback}
-    #   _func_cid_map: signal -> {weakref-to-callback -> cid}
+    #   _func_cid_map: {(signal, weakref-to-callback) -> cid}
 
     def __init__(self, exception_handler=_exception_printer, *, signals=None):
         self._signals = None if signals is None else list(signals)  # Copy it.
         self.exception_handler = exception_handler
         self.callbacks = {}
         self._cid_gen = itertools.count()
-        self._func_cid_map = {}
+        self._func_cid_map = _UnhashDict([])
         # A hidden variable that marks cids that need to be pickled.
         self._pickled_cids = set()
 
@@ -204,27 +282,25 @@ class CallbackRegistry:
         cid_count = state.pop('_cid_gen')
         vars(self).update(state)
         self.callbacks = {
-            s: {cid: _weak_or_strong_ref(func, self._remove_proxy)
+            s: {cid: _weak_or_strong_ref(func, functools.partial(self._remove_proxy, s))
                 for cid, func in d.items()}
             for s, d in self.callbacks.items()}
-        self._func_cid_map = {
-            s: {proxy: cid for cid, proxy in d.items()}
-            for s, d in self.callbacks.items()}
+        self._func_cid_map = _UnhashDict(
+            ((s, proxy), cid)
+            for s, d in self.callbacks.items() for cid, proxy in d.items())
         self._cid_gen = itertools.count(cid_count)
 
     def connect(self, signal, func):
         """Register *func* to be called when signal *signal* is generated."""
         if self._signals is not None:
             _api.check_in_list(self._signals, signal=signal)
-        self._func_cid_map.setdefault(signal, {})
-        proxy = _weak_or_strong_ref(func, self._remove_proxy)
-        if proxy in self._func_cid_map[signal]:
-            return self._func_cid_map[signal][proxy]
-        cid = next(self._cid_gen)
-        self._func_cid_map[signal][proxy] = cid
-        self.callbacks.setdefault(signal, {})
-        self.callbacks[signal][cid] = proxy
-        return cid
+        proxy = _weak_or_strong_ref(func, functools.partial(self._remove_proxy, signal))
+        try:
+            return self._func_cid_map[signal, proxy]
+        except KeyError:
+            cid = self._func_cid_map[signal, proxy] = next(self._cid_gen)
+            self.callbacks.setdefault(signal, {})[cid] = proxy
+            return cid
 
     def _connect_picklable(self, signal, func):
         """
@@ -238,23 +314,18 @@ class CallbackRegistry:
 
     # Keep a reference to sys.is_finalizing, as sys may have been cleared out
     # at that point.
-    def _remove_proxy(self, proxy, *, _is_finalizing=sys.is_finalizing):
+    def _remove_proxy(self, signal, proxy, *, _is_finalizing=sys.is_finalizing):
         if _is_finalizing():
             # Weakrefs can't be properly torn down at that point anymore.
             return
-        for signal, proxy_to_cid in list(self._func_cid_map.items()):
-            cid = proxy_to_cid.pop(proxy, None)
-            if cid is not None:
-                del self.callbacks[signal][cid]
-                self._pickled_cids.discard(cid)
-                break
-        else:
-            # Not found
+        cid = self._func_cid_map.pop((signal, proxy), None)
+        if cid is not None:
+            del self.callbacks[signal][cid]
+            self._pickled_cids.discard(cid)
+        else:  # Not found
             return
-        # Clean up empty dicts
-        if len(self.callbacks[signal]) == 0:
+        if len(self.callbacks[signal]) == 0:  # Clean up empty dicts
             del self.callbacks[signal]
-            del self._func_cid_map[signal]
 
     def disconnect(self, cid):
         """
@@ -263,24 +334,16 @@ class CallbackRegistry:
         No error is raised if such a callback does not exist.
         """
         self._pickled_cids.discard(cid)
-        # Clean up callbacks
-        for signal, cid_to_proxy in list(self.callbacks.items()):
-            proxy = cid_to_proxy.pop(cid, None)
-            if proxy is not None:
+        for signal, proxy in self._func_cid_map:
+            if self._func_cid_map[signal, proxy] == cid:
                 break
-        else:
-            # Not found
+        else:  # Not found
             return
-
-        proxy_to_cid = self._func_cid_map[signal]
-        for current_proxy, current_cid in list(proxy_to_cid.items()):
-            if current_cid == cid:
-                assert proxy is current_proxy
-                del proxy_to_cid[current_proxy]
-        # Clean up empty dicts
-        if len(self.callbacks[signal]) == 0:
+        assert self.callbacks[signal][cid] == proxy
+        del self.callbacks[signal][cid]
+        self._func_cid_map.pop((signal, proxy))
+        if len(self.callbacks[signal]) == 0:  # Clean up empty dicts
             del self.callbacks[signal]
-            del self._func_cid_map[signal]
 
     def process(self, s, *args, **kwargs):
         """
@@ -503,9 +566,7 @@ def is_scalar_or_string(val):
     return isinstance(val, str) or not np.iterable(val)
 
 
-@_api.delete_parameter(
-    "3.8", "np_load", alternative="open(get_sample_data(..., asfileobj=False))")
-def get_sample_data(fname, asfileobj=True, *, np_load=True):
+def get_sample_data(fname, asfileobj=True):
     """
     Return a sample data file.  *fname* is a path relative to the
     :file:`mpl-data/sample_data` directory.  If *asfileobj* is `True`
@@ -524,10 +585,7 @@ def get_sample_data(fname, asfileobj=True, *, np_load=True):
         if suffix == '.gz':
             return gzip.open(path)
         elif suffix in ['.npy', '.npz']:
-            if np_load:
-                return np.load(path)
-            else:
-                return path.open('rb')
+            return np.load(path)
         elif suffix in ['.csv', '.xrc', '.txt']:
             return path.open('r')
         else:
@@ -565,113 +623,6 @@ def flatten(seq, scalarp=is_scalar_or_string):
             yield item
         else:
             yield from flatten(item, scalarp)
-
-
-@_api.deprecated("3.8")
-class Stack:
-    """
-    Stack of elements with a movable cursor.
-
-    Mimics home/back/forward in a web browser.
-    """
-
-    def __init__(self, default=None):
-        self.clear()
-        self._default = default
-
-    def __call__(self):
-        """Return the current element, or None."""
-        if not self._elements:
-            return self._default
-        else:
-            return self._elements[self._pos]
-
-    def __len__(self):
-        return len(self._elements)
-
-    def __getitem__(self, ind):
-        return self._elements[ind]
-
-    def forward(self):
-        """Move the position forward and return the current element."""
-        self._pos = min(self._pos + 1, len(self._elements) - 1)
-        return self()
-
-    def back(self):
-        """Move the position back and return the current element."""
-        if self._pos > 0:
-            self._pos -= 1
-        return self()
-
-    def push(self, o):
-        """
-        Push *o* to the stack at current position.  Discard all later elements.
-
-        *o* is returned.
-        """
-        self._elements = self._elements[:self._pos + 1] + [o]
-        self._pos = len(self._elements) - 1
-        return self()
-
-    def home(self):
-        """
-        Push the first element onto the top of the stack.
-
-        The first element is returned.
-        """
-        if not self._elements:
-            return
-        self.push(self._elements[0])
-        return self()
-
-    def empty(self):
-        """Return whether the stack is empty."""
-        return len(self._elements) == 0
-
-    def clear(self):
-        """Empty the stack."""
-        self._pos = -1
-        self._elements = []
-
-    def bubble(self, o):
-        """
-        Raise all references of *o* to the top of the stack, and return it.
-
-        Raises
-        ------
-        ValueError
-            If *o* is not in the stack.
-        """
-        if o not in self._elements:
-            raise ValueError('Given element not contained in the stack')
-        old_elements = self._elements.copy()
-        self.clear()
-        top_elements = []
-        for elem in old_elements:
-            if elem == o:
-                top_elements.append(elem)
-            else:
-                self.push(elem)
-        for _ in top_elements:
-            self.push(o)
-        return o
-
-    def remove(self, o):
-        """
-        Remove *o* from the stack.
-
-        Raises
-        ------
-        ValueError
-            If *o* is not in the stack.
-        """
-        if o not in self._elements:
-            raise ValueError('Given element not contained in the stack')
-        old_elements = self._elements.copy()
-        self.clear()
-        for elem in old_elements:
-            if elem != o:
-                self.push(elem)
 
 
 class _Stack:
@@ -872,10 +823,6 @@ class Grouper:
 
     def __contains__(self, item):
         return item in self._mapping
-
-    @_api.deprecated("3.8", alternative="none, you no longer need to clean a Grouper")
-    def clean(self):
-        """Clean dead weak references from the dictionary."""
 
     def join(self, a, *args):
         """
@@ -2252,6 +2199,10 @@ def _g_sig_digits(value, delta):
     it is known with an error of *delta*.
     """
     if delta == 0:
+        if value == 0:
+            # if both value and delta are 0, np.spacing below returns 5e-324
+            # which results in rather silly results
+            return 3
         # delta = 0 may occur when trying to format values over a tiny range;
         # in that case, replace it by the distance to the closest float.
         delta = abs(np.spacing(value))

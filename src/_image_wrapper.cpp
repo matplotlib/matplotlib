@@ -2,7 +2,7 @@
 #include <pybind11/numpy.h>
 
 #include "_image_resample.h"
-#include "py_converters_11.h"
+#include "py_converters.h"
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -173,20 +173,20 @@ image_resample(py::array input_array,
 
     if (auto resampler =
             (ndim == 2) ? (
-                (dtype.is(py::dtype::of<std::uint8_t>())) ? resample<agg::gray8> :
-                (dtype.is(py::dtype::of<std::int8_t>())) ? resample<agg::gray8> :
-                (dtype.is(py::dtype::of<std::uint16_t>())) ? resample<agg::gray16> :
-                (dtype.is(py::dtype::of<std::int16_t>())) ? resample<agg::gray16> :
-                (dtype.is(py::dtype::of<float>())) ? resample<agg::gray32> :
-                (dtype.is(py::dtype::of<double>())) ? resample<agg::gray64> :
+                (dtype.equal(py::dtype::of<std::uint8_t>())) ? resample<agg::gray8> :
+                (dtype.equal(py::dtype::of<std::int8_t>())) ? resample<agg::gray8> :
+                (dtype.equal(py::dtype::of<std::uint16_t>())) ? resample<agg::gray16> :
+                (dtype.equal(py::dtype::of<std::int16_t>())) ? resample<agg::gray16> :
+                (dtype.equal(py::dtype::of<float>())) ? resample<agg::gray32> :
+                (dtype.equal(py::dtype::of<double>())) ? resample<agg::gray64> :
                 nullptr) : (
             // ndim == 3
-                (dtype.is(py::dtype::of<std::uint8_t>())) ? resample<agg::rgba8> :
-                (dtype.is(py::dtype::of<std::int8_t>())) ? resample<agg::rgba8> :
-                (dtype.is(py::dtype::of<std::uint16_t>())) ? resample<agg::rgba16> :
-                (dtype.is(py::dtype::of<std::int16_t>())) ? resample<agg::rgba16> :
-                (dtype.is(py::dtype::of<float>())) ? resample<agg::rgba32> :
-                (dtype.is(py::dtype::of<double>())) ? resample<agg::rgba64> :
+                (dtype.equal(py::dtype::of<std::uint8_t>())) ? resample<agg::rgba8> :
+                (dtype.equal(py::dtype::of<std::int8_t>())) ? resample<agg::rgba8> :
+                (dtype.equal(py::dtype::of<std::uint16_t>())) ? resample<agg::rgba16> :
+                (dtype.equal(py::dtype::of<std::int16_t>())) ? resample<agg::rgba16> :
+                (dtype.equal(py::dtype::of<float>())) ? resample<agg::rgba32> :
+                (dtype.equal(py::dtype::of<double>())) ? resample<agg::rgba64> :
                 nullptr)) {
         Py_BEGIN_ALLOW_THREADS
         resampler(

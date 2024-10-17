@@ -30,6 +30,7 @@ Plotting
    plot_surface
    plot_wireframe
    plot_trisurf
+   fill_between
 
    clabel
    contour

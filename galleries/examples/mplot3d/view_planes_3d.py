@@ -55,3 +55,9 @@ annotate_axes(axd['L'], label, fontsize=18)
 axd['L'].set_axis_off()
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    component: axes, component: subplot,
+#    level: beginner

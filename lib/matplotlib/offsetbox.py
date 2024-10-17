@@ -363,7 +363,7 @@ class OffsetBox(martist.Artist):
     def get_window_extent(self, renderer=None):
         # docstring inherited
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         bbox = self.get_bbox(renderer)
         try:  # Some subclasses redefine get_offset to take no args.
             px, py = self.get_offset(bbox, renderer)
@@ -644,7 +644,7 @@ class DrawingArea(OffsetBox):
             a.set_transform(self.get_transform())
         if self.axes is not None:
             a.axes = self.axes
-        fig = self.figure
+        fig = self.get_figure(root=False)
         if fig is not None:
             a.set_figure(fig)
 
@@ -1191,7 +1191,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
     def __str__(self):
         return f"AnnotationBbox({self.xy[0]:g},{self.xy[1]:g})"
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def __init__(self, offsetbox, xy, xybox=None, xycoords='data', boxcoords=None, *,
                  frameon=True, pad=0.4,  # FancyBboxPatch boxstyle.
                  annotation_clip=None,
@@ -1356,7 +1356,7 @@ or callable, default: value of *xycoords*
     def get_window_extent(self, renderer=None):
         # docstring inherited
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         self.update_positions(renderer)
         return Bbox.union([child.get_window_extent(renderer)
                            for child in self.get_children()])
@@ -1364,7 +1364,7 @@ or callable, default: value of *xycoords*
     def get_tightbbox(self, renderer=None):
         # docstring inherited
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         self.update_positions(renderer)
         return Bbox.union([child.get_tightbbox(renderer)
                            for child in self.get_children()])
@@ -1412,8 +1412,9 @@ or callable, default: value of *xycoords*
         renderer.open_group(self.__class__.__name__, gid=self.get_gid())
         self.update_positions(renderer)
         if self.arrow_patch is not None:
-            if self.arrow_patch.figure is None and self.figure is not None:
-                self.arrow_patch.figure = self.figure
+            if (self.arrow_patch.get_figure(root=False) is None and
+                    (fig := self.get_figure(root=False)) is not None):
+                self.arrow_patch.set_figure(fig)
             self.arrow_patch.draw(renderer)
         self.patch.draw(renderer)
         self.offsetbox.draw(renderer)
@@ -1468,7 +1469,7 @@ class DraggableBase:
         ]
 
     # A property, not an attribute, to maintain picklability.
-    canvas = property(lambda self: self.ref_artist.figure.canvas)
+    canvas = property(lambda self: self.ref_artist.get_figure(root=True).canvas)
     cids = property(lambda self: [
         disconnect.args[0] for disconnect in self._disconnectors[:2]])
 
@@ -1480,35 +1481,38 @@ class DraggableBase:
             if self._use_blit:
                 self.canvas.restore_region(self.background)
                 self.ref_artist.draw(
-                    self.ref_artist.figure._get_renderer())
+                    self.ref_artist.get_figure(root=True)._get_renderer())
                 self.canvas.blit()
             else:
                 self.canvas.draw()
 
     def on_pick(self, evt):
-        if self._check_still_parented() and evt.artist == self.ref_artist:
-            self.mouse_x = evt.mouseevent.x
-            self.mouse_y = evt.mouseevent.y
-            self.got_artist = True
-            if self._use_blit:
+        if self._check_still_parented():
+            if evt.artist == self.ref_artist:
+                self.mouse_x = evt.mouseevent.x
+                self.mouse_y = evt.mouseevent.y
+                self.save_offset()
+                self.got_artist = True
+            if self.got_artist and self._use_blit:
                 self.ref_artist.set_animated(True)
                 self.canvas.draw()
-                self.background = \
-                    self.canvas.copy_from_bbox(self.ref_artist.figure.bbox)
-                self.ref_artist.draw(
-                    self.ref_artist.figure._get_renderer())
+                fig = self.ref_artist.get_figure(root=False)
+                self.background = self.canvas.copy_from_bbox(fig.bbox)
+                self.ref_artist.draw(fig._get_renderer())
                 self.canvas.blit()
-            self.save_offset()
 
     def on_release(self, event):
         if self._check_still_parented() and self.got_artist:
             self.finalize_offset()
             self.got_artist = False
             if self._use_blit:
+                self.canvas.restore_region(self.background)
+                self.ref_artist.draw(self.ref_artist.figure._get_renderer())
+                self.canvas.blit()
                 self.ref_artist.set_animated(False)
 
     def _check_still_parented(self):
-        if self.ref_artist.figure is None:
+        if self.ref_artist.get_figure(root=False) is None:
             self.disconnect()
             return False
         else:
@@ -1536,7 +1540,7 @@ class DraggableOffsetBox(DraggableBase):
 
     def save_offset(self):
         offsetbox = self.offsetbox
-        renderer = offsetbox.figure._get_renderer()
+        renderer = offsetbox.get_figure(root=True)._get_renderer()
         offset = offsetbox.get_offset(offsetbox.get_bbox(renderer), renderer)
         self.offsetbox_x, self.offsetbox_y = offset
         self.offsetbox.set_offset(offset)
@@ -1547,7 +1551,7 @@ class DraggableOffsetBox(DraggableBase):
 
     def get_loc_in_canvas(self):
         offsetbox = self.offsetbox
-        renderer = offsetbox.figure._get_renderer()
+        renderer = offsetbox.get_figure(root=True)._get_renderer()
         bbox = offsetbox.get_bbox(renderer)
         ox, oy = offsetbox._offset
         loc_in_canvas = (ox + bbox.x0, oy + bbox.y0)

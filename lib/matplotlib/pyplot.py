@@ -55,8 +55,9 @@ import matplotlib
 import matplotlib.colorbar
 import matplotlib.image
 from matplotlib import _api
-from matplotlib import (  # noqa: F401 Re-exported for typing.
-    cm as cm, get_backend as get_backend, rcParams as rcParams, style as style)
+# Re-exported (import x as x) for typing.
+from matplotlib import cm as cm, get_backend as get_backend, rcParams as rcParams
+from matplotlib import style as style  # noqa: F401
 from matplotlib import _pylab_helpers
 from matplotlib import interactive  # noqa: F401
 from matplotlib import cbook
@@ -95,11 +96,12 @@ if TYPE_CHECKING:
     import matplotlib.backend_bases
     from matplotlib.axis import Tick
     from matplotlib.axes._base import _AxesBase
-    from matplotlib.backend_bases import RendererBase, Event
+    from matplotlib.backend_bases import Event
     from matplotlib.cm import ScalarMappable
     from matplotlib.contour import ContourSet, QuadContourSet
     from matplotlib.collections import (
         Collection,
+        FillBetweenPolyCollection,
         LineCollection,
         PolyCollection,
         PathCollection,
@@ -119,8 +121,13 @@ if TYPE_CHECKING:
     from matplotlib.patches import FancyArrow, StepPatch, Wedge
     from matplotlib.quiver import Barbs, Quiver, QuiverKey
     from matplotlib.scale import ScaleBase
-    from matplotlib.transforms import Transform, Bbox
-    from matplotlib.typing import ColorType, LineStyleType, MarkerType, HashableList
+    from matplotlib.typing import (
+        ColorType,
+        CoordsType,
+        HashableList,
+        LineStyleType,
+        MarkerType,
+    )
     from matplotlib.widgets import SubplotTool
 
     _P = ParamSpec('_P')
@@ -409,8 +416,7 @@ def switch_backend(newbackend: str) -> None:
             switch_backend("agg")
             rcParamsOrig["backend"] = "agg"
             return
-    # have to escape the switch on access logic
-    old_backend = dict.__getitem__(rcParams, 'backend')
+    old_backend = rcParams._get('backend')  # get without triggering backend resolution
 
     module = backend_registry.load_backend_module(newbackend)
     canvas_class = module.FigureCanvas
@@ -508,14 +514,6 @@ def switch_backend(newbackend: str) -> None:
     # Need to keep a global reference to the backend for compatibility reasons.
     # See https://github.com/matplotlib/matplotlib/issues/6092
     matplotlib.backends.backend = newbackend  # type: ignore[attr-defined]
-
-    if not cbook._str_equal(old_backend, newbackend):
-        if get_fignums():
-            _api.warn_deprecated("3.8", message=(
-                "Auto-close()ing of figures upon backend switching is deprecated since "
-                "%(since)s and will be removed %(removal)s.  To suppress this warning, "
-                "explicitly call plt.close('all') first."))
-        close("all")
 
     # Make sure the repl display hook is installed in case we become interactive.
     install_repl_displayhook()
@@ -840,7 +838,7 @@ def xkcd(
             "xkcd mode is not compatible with text.usetex = True")
 
     stack = ExitStack()
-    stack.callback(dict.update, rcParams, rcParams.copy())  # type: ignore[arg-type]
+    stack.callback(rcParams._update_raw, rcParams.copy())  # type: ignore[arg-type]
 
     from matplotlib import patheffects
     rcParams.update({
@@ -989,15 +987,16 @@ default: None
 
     if isinstance(num, FigureBase):
         # type narrowed to `Figure | SubFigure` by combination of input and isinstance
-        if num.canvas.manager is None:
+        root_fig = num.get_figure(root=True)
+        if root_fig.canvas.manager is None:
             raise ValueError("The passed figure is not managed by pyplot")
         elif any([figsize, dpi, facecolor, edgecolor, not frameon,
-                  kwargs]) and num.canvas.manager.num in allnums:
+                  kwargs]) and root_fig.canvas.manager.num in allnums:
             _api.warn_external(
-                "Ignoring specified arguments in this call "
-                f"because figure with num: {num.canvas.manager.num} already exists")
-        _pylab_helpers.Gcf.set_active(num.canvas.manager)
-        return num.figure
+                "Ignoring specified arguments in this call because figure "
+                f"with num: {root_fig.canvas.manager.num} already exists")
+        _pylab_helpers.Gcf.set_active(root_fig.canvas.manager)
+        return root_fig
 
     next_num = max(allnums) + 1 if allnums else 1
     fig_label = ''
@@ -1256,7 +1255,7 @@ if Figure.legend.__doc__:
 
 ## Axes ##
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def axes(
     arg: None | tuple[float, float, float, float] = None,
     **kwargs
@@ -1362,8 +1361,9 @@ def sca(ax: Axes) -> None:
     # Mypy sees ax.figure as potentially None,
     # but if you are calling this, it won't be None
     # Additionally the slight difference between `Figure` and `FigureBase` mypy catches
-    figure(ax.figure)  # type: ignore[arg-type]
-    ax.figure.sca(ax)  # type: ignore[union-attr]
+    fig = ax.get_figure(root=False)
+    figure(fig)  # type: ignore[arg-type]
+    fig.sca(ax)  # type: ignore[union-attr]
 
 
 def cla() -> None:
@@ -1374,7 +1374,7 @@ def cla() -> None:
 
 ## More ways of creating Axes ##
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def subplot(*args, **kwargs) -> Axes:
     """
     Add an Axes to the current figure or retrieve an existing Axes.
@@ -1609,7 +1609,7 @@ def subplots(
     subplot_kw: dict[str, Any] | None = ...,
     gridspec_kw: dict[str, Any] | None = ...,
     **fig_kw
-) -> tuple[Figure, Axes | np.ndarray]:
+) -> tuple[Figure, Any]:
     ...
 
 
@@ -1651,8 +1651,9 @@ def subplots(
         on, use `~matplotlib.axes.Axes.tick_params`.
 
         When subplots have a shared axis that has units, calling
-        `~matplotlib.axis.Axis.set_units` will update each axis with the
-        new units.
+        `.Axis.set_units` will update each axis with the new units.
+
+        Note that it is not possible to unshare axes.
 
     squeeze : bool, default: True
         - If True, extra dimensions are squeezed out from the returned
@@ -2181,6 +2182,21 @@ def xticks(
     **kwargs
         `.Text` properties can be used to control the appearance of the labels.
 
+        .. warning::
+
+            This only sets the properties of the current ticks, which is
+            only sufficient if you either pass *ticks*, resulting in a
+            fixed list of ticks, or if the plot is static.
+
+            Ticks are not guaranteed to be persistent. Various operations
+            can create, delete and modify the Tick instances. There is an
+            imminent risk that these settings can get lost if you work on
+            the figure further (including also panning/zooming on a
+            displayed figure).
+
+            Use `~.pyplot.tick_params` instead if possible.
+
+
     Returns
     -------
     locs
@@ -2251,6 +2267,20 @@ def yticks(
         ticks/labels.
     **kwargs
         `.Text` properties can be used to control the appearance of the labels.
+
+        .. warning::
+
+            This only sets the properties of the current ticks, which is
+            only sufficient if you either pass *ticks*, resulting in a
+            fixed list of ticks, or if the plot is static.
+
+            Ticks are not guaranteed to be persistent. Various operations
+            can create, delete and modify the Tick instances. There is an
+            imminent risk that these settings can get lost if you work on
+            the figure further (including also panning/zooming on a
+            displayed figure).
+
+            Use `~.pyplot.tick_params` instead if possible.
 
     Returns
     -------
@@ -2828,17 +2858,8 @@ def annotate(
     text: str,
     xy: tuple[float, float],
     xytext: tuple[float, float] | None = None,
-    xycoords: str
-    | Artist
-    | Transform
-    | Callable[[RendererBase], Bbox | Transform]
-    | tuple[float, float] = "data",
-    textcoords: str
-    | Artist
-    | Transform
-    | Callable[[RendererBase], Bbox | Transform]
-    | tuple[float, float]
-    | None = None,
+    xycoords: CoordsType = "data",
+    textcoords: CoordsType | None = None,
     arrowprops: dict[str, Any] | None = None,
     annotation_clip: bool | None = None,
     **kwargs,
@@ -2881,7 +2902,7 @@ def axhline(y: float = 0, xmin: float = 0, xmax: float = 1, **kwargs) -> Line2D:
 @_copy_docstring_and_deprecators(Axes.axhspan)
 def axhspan(
     ymin: float, ymax: float, xmin: float = 0, xmax: float = 1, **kwargs
-) -> Polygon:
+) -> Rectangle:
     return gca().axhspan(ymin, ymax, xmin=xmin, xmax=xmax, **kwargs)
 
 
@@ -2919,7 +2940,7 @@ def axvline(x: float = 0, ymin: float = 0, ymax: float = 1, **kwargs) -> Line2D:
 @_copy_docstring_and_deprecators(Axes.axvspan)
 def axvspan(
     xmin: float, xmax: float, ymin: float = 0, ymax: float = 1, **kwargs
-) -> Polygon:
+) -> Rectangle:
     return gca().axvspan(xmin, xmax, ymin=ymin, ymax=ymax, **kwargs)
 
 
@@ -3295,7 +3316,7 @@ def fill_between(
     *,
     data=None,
     **kwargs,
-) -> PolyCollection:
+) -> FillBetweenPolyCollection:
     return gca().fill_between(
         x,
         y1,
@@ -3320,7 +3341,7 @@ def fill_betweenx(
     *,
     data=None,
     **kwargs,
-) -> PolyCollection:
+) -> FillBetweenPolyCollection:
     return gca().fill_betweenx(
         y,
         x1,
@@ -3535,7 +3556,7 @@ def imshow(
     vmax: float | None = None,
     origin: Literal["upper", "lower"] | None = None,
     extent: tuple[float, float, float, float] | None = None,
-    interpolation_stage: Literal["data", "rgba"] | None = None,
+    interpolation_stage: Literal["data", "rgba", "auto"] | None = None,
     filternorm: bool = True,
     filterrad: float = 4.0,
     resample: bool | None = None,
@@ -3987,7 +4008,7 @@ def spy(
         **kwargs,
     )
     if isinstance(__ret, cm.ScalarMappable):
-        sci(__ret)  # noqa
+        sci(__ret)
     return __ret
 
 

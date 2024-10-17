@@ -40,3 +40,9 @@ ax.set_zlabel('Z')
 ax.set_yticks(yticks)
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D, plot-type: bar,
+#    styling: color,
+#    level: beginner

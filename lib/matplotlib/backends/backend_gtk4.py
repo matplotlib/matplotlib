@@ -34,7 +34,6 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
     required_interactive_framework = "gtk4"
     supports_blit = False
     manager_class = _api.classproperty(lambda cls: FigureManagerGTK4)
-    _context_is_scaled = False
 
     def __init__(self, figure=None):
         super().__init__(figure=figure)
@@ -116,6 +115,7 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         MouseEvent(
             "scroll_event", self, *self._mpl_coords(), step=dy,
             modifiers=self._mpl_modifiers(controller),
+            guiEvent=controller.get_current_event(),
         )._process()
         return True
 
@@ -124,6 +124,7 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
             "button_press_event", self, *self._mpl_coords((x, y)),
             controller.get_current_button(),
             modifiers=self._mpl_modifiers(controller),
+            guiEvent=controller.get_current_event(),
         )._process()
         self.grab_focus()
 
@@ -132,12 +133,14 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
             "button_release_event", self, *self._mpl_coords((x, y)),
             controller.get_current_button(),
             modifiers=self._mpl_modifiers(controller),
+            guiEvent=controller.get_current_event(),
         )._process()
 
     def key_press_event(self, controller, keyval, keycode, state):
         KeyEvent(
             "key_press_event", self, self._get_key(keyval, keycode, state),
             *self._mpl_coords(),
+            guiEvent=controller.get_current_event(),
         )._process()
         return True
 
@@ -145,6 +148,7 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         KeyEvent(
             "key_release_event", self, self._get_key(keyval, keycode, state),
             *self._mpl_coords(),
+            guiEvent=controller.get_current_event(),
         )._process()
         return True
 
@@ -152,18 +156,21 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         MouseEvent(
             "motion_notify_event", self, *self._mpl_coords((x, y)),
             modifiers=self._mpl_modifiers(controller),
+            guiEvent=controller.get_current_event(),
         )._process()
 
     def enter_notify_event(self, controller, x, y):
         LocationEvent(
             "figure_enter_event", self, *self._mpl_coords((x, y)),
             modifiers=self._mpl_modifiers(),
+            guiEvent=controller.get_current_event(),
         )._process()
 
     def leave_notify_event(self, controller):
         LocationEvent(
             "figure_leave_event", self, *self._mpl_coords(),
             modifiers=self._mpl_modifiers(),
+            guiEvent=controller.get_current_event(),
         )._process()
 
     def resize_event(self, area, width, height):
@@ -228,13 +235,8 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
 
         lw = 1
         dash = 3
-        if not self._context_is_scaled:
-            x0, y0, w, h = (dim / self.device_pixel_ratio
-                            for dim in self._rubberband_rect)
-        else:
-            x0, y0, w, h = self._rubberband_rect
-            lw *= self.device_pixel_ratio
-            dash *= self.device_pixel_ratio
+        x0, y0, w, h = (dim / self.device_pixel_ratio
+                        for dim in self._rubberband_rect)
         x1 = x0 + w
         y1 = y0 + h
 

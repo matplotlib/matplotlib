@@ -49,3 +49,10 @@ plt.xlabel('time (s)')
 plt.ylabel('Undamped')
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: subplot
+#    plot-type: line
+#    level: beginner

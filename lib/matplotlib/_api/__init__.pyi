@@ -1,9 +1,10 @@
-from collections.abc import Callable, Generator, Mapping, Sequence
-from typing import Any, Iterable, TypeVar, overload
+from collections.abc import Callable, Generator, Iterable, Mapping, Sequence
+from typing import Any, TypeVar, overload
+from typing_extensions import Self  # < Py 3.11
 
 from numpy.typing import NDArray
 
-from .deprecation import (  # noqa: re-exported API
+from .deprecation import (  # noqa: F401, re-exported API
     deprecated as deprecated,
     warn_deprecated as warn_deprecated,
     rename_parameter as rename_parameter,
@@ -25,9 +26,8 @@ class classproperty(Any):
         fdel: None = ...,
         doc: str | None = None,
     ): ...
-    # Replace return with Self when py3.9 is dropped
     @overload
-    def __get__(self, instance: None, owner: None) -> classproperty: ...
+    def __get__(self, instance: None, owner: None) -> Self: ...
     @overload
     def __get__(self, instance: object, owner: type[object]) -> Any: ...
     @property

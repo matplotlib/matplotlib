@@ -2,6 +2,7 @@ from matplotlib.axes import Axes
 
 from collections.abc import Callable, Iterable
 from typing import Any
+from typing_extensions import Self  # < Py 3.11
 
 import numpy as np
 
@@ -56,6 +57,5 @@ class Sankey:
         connect: tuple[int, int] = ...,
         rotation: float = ...,
         **kwargs
-        # Replace return with Self when py3.9 is dropped
-    ) -> Sankey: ...
+    ) -> Self: ...
     def finish(self) -> list[Any]: ...

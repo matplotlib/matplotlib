@@ -393,7 +393,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         w, h = self.get_width_height()
         return QtCore.QSize(w, h)
 
-    def minumumSizeHint(self):
+    def minimumSizeHint(self):
         return QtCore.QSize(10, 10)
 
     @staticmethod
@@ -483,7 +483,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         if bbox is None and self.figure:
             bbox = self.figure.bbox  # Blit the entire canvas if bbox is None.
         # repaint uses logical pixels, not physical pixels like the renderer.
-        l, b, w, h = [int(pt / self.device_pixel_ratio) for pt in bbox.bounds]
+        l, b, w, h = (int(pt / self.device_pixel_ratio) for pt in bbox.bounds)
         t = b + h
         self.repaint(l, self.rect().height() - t, w, h)
 
@@ -492,7 +492,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             if not self._draw_pending:
                 return
             self._draw_pending = False
-            if self.height() < 0 or self.width() < 0:
+            if self.height() <= 0 or self.width() <= 0:
                 return
             try:
                 self.draw()
@@ -504,7 +504,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         # Draw the zoom rectangle to the QPainter.  _draw_rect_callback needs
         # to be called at the end of paintEvent.
         if rect is not None:
-            x0, y0, w, h = [int(pt / self.device_pixel_ratio) for pt in rect]
+            x0, y0, w, h = (int(pt / self.device_pixel_ratio) for pt in rect)
             x1 = x0 + w
             y1 = y0 + h
             def _draw_rect_callback(painter):
@@ -658,9 +658,6 @@ class FigureManagerQT(FigureManagerBase):
 
 
 class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
-    _message = QtCore.Signal(str)  # Remove once deprecation below elapses.
-    message = _api.deprecate_privatize_attribute("3.8")
-
     toolitems = [*NavigationToolbar2.toolitems]
     toolitems.insert(
         # Add 'customize' action after 'subplots'
@@ -783,7 +780,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self._update_buttons_checked()
 
     def set_message(self, s):
-        self._message.emit(s)
         if self.coordinates:
             self.locLabel.setText(s)
 

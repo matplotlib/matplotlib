@@ -37,7 +37,7 @@ year 0001 and 9999 can be represented.  Microsecond precision
 is achievable for (approximately) 70 years on either side of the epoch, and
 20 microseconds for the rest of the allowable range of dates (year 0001 to
 9999). The epoch can be changed at import time via `.dates.set_epoch` or
-:rc:`dates.epoch` to other dates if necessary; see
+:rc:`date.epoch` to other dates if necessary; see
 :doc:`/gallery/ticks/date_precision_and_epochs` for a discussion.
 
 .. note::
@@ -267,7 +267,7 @@ def set_epoch(epoch):
     """
     Set the epoch (origin for dates) for datetime calculations.
 
-    The default epoch is :rc:`dates.epoch` (by default 1970-01-01T00:00).
+    The default epoch is :rc:`date.epoch`.
 
     If microsecond accuracy is desired, the date being plotted needs to be
     within approximately 70 years of the epoch. Matplotlib internally
@@ -796,7 +796,12 @@ class ConciseDateFormatter(ticker.Formatter):
 
         if show_offset:
             # set the offset string:
-            self.offset_string = tickdatetime[-1].strftime(offsetfmts[level])
+            if (self._locator.axis and
+                    self._locator.axis.__name__ in ('xaxis', 'yaxis')
+                    and self._locator.axis.get_inverted()):
+                self.offset_string = tickdatetime[0].strftime(offsetfmts[level])
+            else:
+                self.offset_string = tickdatetime[-1].strftime(offsetfmts[level])
             if self._usetex:
                 self.offset_string = _wrap_in_tex(self.offset_string)
         else:

@@ -1,23 +1,3 @@
-# TODO:
-# * Documentation -- this will need a new section of the User's Guide.
-#      Both for Animations and just timers.
-#   - Also need to update
-#     https://scipy-cookbook.readthedocs.io/items/Matplotlib_Animations.html
-# * Blit
-#   * Currently broken with Qt4 for widgets that don't start on screen
-#   * Still a few edge cases that aren't working correctly
-#   * Can this integrate better with existing matplotlib animation artist flag?
-#     - If animated removes from default draw(), perhaps we could use this to
-#       simplify initial draw.
-# * Example
-#   * Frameless animation - pure procedural with no loop
-#   * Need example that uses something like inotify or subprocess
-#   * Complex syncing examples
-# * Movies
-#   * Can blit be enabled for movies?
-# * Need to consider event sources to allow clicking through multiple figures
-
-
 import abc
 import base64
 import contextlib
@@ -47,13 +27,6 @@ _log = logging.getLogger(__name__)
 # window. See for example https://stackoverflow.com/q/24130623/
 subprocess_creation_flags = (
     subprocess.CREATE_NO_WINDOW if sys.platform == 'win32' else 0)
-
-# Other potential writing methods:
-# * http://pymedia.org/
-# * libming (produces swf) python wrappers: https://github.com/libming/libming
-# * Wrap x264 API:
-
-# (https://stackoverflow.com/q/2940671/)
 
 
 def adjusted_figsize(w, h, dpi, n):
@@ -1086,8 +1059,8 @@ class Animation:
         # canvas._is_saving = True makes the draw_event animation-starting
         # callback a no-op; canvas.manager = None prevents resizing the GUI
         # widget (both are likewise done in savefig()).
-        with writer.saving(self._fig, filename, dpi), \
-             cbook._setattr_cm(self._fig.canvas, _is_saving=True, manager=None):
+        with (writer.saving(self._fig, filename, dpi),
+              cbook._setattr_cm(self._fig.canvas, _is_saving=True, manager=None)):
             for anim in all_anim:
                 anim._init_draw()  # Clear the initial frame
             frame_number = 0
@@ -1331,6 +1304,12 @@ class Animation:
             What to do when the animation ends. Must be one of ``{'loop',
             'once', 'reflect'}``. Defaults to ``'loop'`` if the *repeat*
             parameter is True, otherwise ``'once'``.
+
+        Returns
+        -------
+        str
+            An HTML representation of the animation embedded as a js object as
+            produced with the `.HTMLWriter`.
         """
         if fps is None and hasattr(self, '_interval'):
             # Convert interval in ms to frames per second

@@ -1,7 +1,7 @@
 """
-=====================================
-Resizing Axes with constrained layout
-=====================================
+===================================
+Resize Axes with constrained layout
+===================================
 
 *Constrained layout* attempts to resize subplots in
 a figure so that there are no overlaps between Axes objects and labels
@@ -69,3 +69,10 @@ plt.show()
 #
 #    - `matplotlib.gridspec.GridSpec`
 #    - `matplotlib.gridspec.GridSpecFromSubplotSpec`
+#
+# .. tags::
+#
+#    component: axes
+#    component: subplot
+#    styling: size
+#    level: beginner
