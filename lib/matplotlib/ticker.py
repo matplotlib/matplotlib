@@ -407,6 +407,11 @@ class ScalarFormatter(Formatter):
     useLocale : bool, default: :rc:`axes.formatter.use_locale`.
         Whether to use locale settings for decimal sign and positive sign.
         See `.set_useLocale`.
+    usetex : bool, default: :rc:`text.usetex`
+        To enable/disable the use of TeX's math mode for rendering the
+        numbers in the formatter.
+
+        .. versionadded:: 3.10
 
     Notes
     -----
@@ -444,19 +449,28 @@ class ScalarFormatter(Formatter):
 
     """
 
-    def __init__(self, useOffset=None, useMathText=None, useLocale=None):
+    def __init__(self, useOffset=None, useMathText=None, useLocale=None, *,
+                 usetex=None):
         if useOffset is None:
             useOffset = mpl.rcParams['axes.formatter.useoffset']
         self._offset_threshold = \
             mpl.rcParams['axes.formatter.offset_threshold']
         self.set_useOffset(useOffset)
-        self._usetex = mpl.rcParams['text.usetex']
+        self.set_usetex(usetex)
         self.set_useMathText(useMathText)
         self.orderOfMagnitude = 0
         self.format = ''
         self._scientific = True
         self._powerlimits = mpl.rcParams['axes.formatter.limits']
         self.set_useLocale(useLocale)
+
+    def get_usetex(self):
+        return self._usetex
+
+    def set_usetex(self, val):
+        self._usetex = mpl._val_or_rc(val, 'text.usetex')
+
+    usetex = property(fget=get_usetex, fset=set_usetex)
 
     def get_useOffset(self):
         """
@@ -1324,7 +1338,7 @@ class LogitFormatter(Formatter):
         return f"1-{1 - value:e}"
 
 
-class EngFormatter(Formatter):
+class EngFormatter(ScalarFormatter):
     """
     Format axis values using engineering prefixes to represent powers
     of 1000, plus a specified unit, e.g., 10 MHz instead of 1e7.
@@ -1356,7 +1370,7 @@ class EngFormatter(Formatter):
     }
 
     def __init__(self, unit="", places=None, sep=" ", *, usetex=None,
-                 useMathText=None):
+                 useMathText=None, useOffset=False):
         r"""
         Parameters
         ----------
@@ -1390,76 +1404,124 @@ class EngFormatter(Formatter):
         useMathText : bool, default: :rc:`axes.formatter.use_mathtext`
             To enable/disable the use mathtext for rendering the numbers in
             the formatter.
+        useOffset : bool or float, default: False
+            Whether to use offset notation with :math:`10^{3*N}` based prefixes.
+            This features allows showing an offset with standard SI order of
+            magnitude prefix near the axis. Offset is computed similarly to
+            how `ScalarFormatter` computes it internally, but here you are
+            guaranteed to get an offset which will make the tick labels exceed
+            3 digits. See also `.set_useOffset`.
+
+            .. versionadded:: 3.10
         """
         self.unit = unit
         self.places = places
         self.sep = sep
-        self.set_usetex(usetex)
-        self.set_useMathText(useMathText)
-
-    def get_usetex(self):
-        return self._usetex
-
-    def set_usetex(self, val):
-        if val is None:
-            self._usetex = mpl.rcParams['text.usetex']
-        else:
-            self._usetex = val
-
-    usetex = property(fget=get_usetex, fset=set_usetex)
-
-    def get_useMathText(self):
-        return self._useMathText
-
-    def set_useMathText(self, val):
-        if val is None:
-            self._useMathText = mpl.rcParams['axes.formatter.use_mathtext']
-        else:
-            self._useMathText = val
-
-    useMathText = property(fget=get_useMathText, fset=set_useMathText)
+        super().__init__(
+            useOffset=useOffset,
+            useMathText=useMathText,
+            useLocale=False,
+            usetex=usetex,
+        )
 
     def __call__(self, x, pos=None):
-        s = f"{self.format_eng(x)}{self.unit}"
-        # Remove the trailing separator when there is neither prefix nor unit
-        if self.sep and s.endswith(self.sep):
-            s = s[:-len(self.sep)]
-        return self.fix_minus(s)
+        """
+        Return the format for tick value *x* at position *pos*.
+
+        If there is no currently offset in the data, it returns the best
+        engineering formatting that fits the given argument, independently.
+        """
+        if len(self.locs) == 0 or self.offset == 0:
+            return self.fix_minus(self.format_data(x))
+        else:
+            xp = (x - self.offset) / (10. ** self.orderOfMagnitude)
+            if abs(xp) < 1e-8:
+                xp = 0
+            return self._format_maybe_minus_and_locale(self.format, xp)
+
+    def set_locs(self, locs):
+        # docstring inherited
+        self.locs = locs
+        if len(self.locs) > 0:
+            vmin, vmax = sorted(self.axis.get_view_interval())
+            if self._useOffset:
+                self._compute_offset()
+                if self.offset != 0:
+                    # We don't want to use the offset computed by
+                    # self._compute_offset because it rounds the offset unaware
+                    # of our engineering prefixes preference, and this can
+                    # cause ticks with 4+ digits to appear. These ticks are
+                    # slightly less readable, so if offset is justified
+                    # (decided by self._compute_offset) we set it to better
+                    # value:
+                    self.offset = round((vmin + vmax)/2, 3)
+            # Use log1000 to use engineers' oom standards
+            self.orderOfMagnitude = math.floor(math.log(vmax - vmin, 1000))*3
+            self._set_format()
+
+    # Simplify a bit ScalarFormatter.get_offset: We always want to use
+    # self.format_data. Also we want to return a non-empty string only if there
+    # is an offset, no matter what is self.orderOfMagnitude. If there _is_ an
+    # offset, self.orderOfMagnitude is consulted. This behavior is verified
+    # in `test_ticker.py`.
+    def get_offset(self):
+        # docstring inherited
+        if len(self.locs) == 0:
+            return ''
+        if self.offset:
+            offsetStr = ''
+            if self.offset:
+                offsetStr = self.format_data(self.offset)
+                if self.offset > 0:
+                    offsetStr = '+' + offsetStr
+            sciNotStr = self.format_data(10 ** self.orderOfMagnitude)
+            if self._useMathText or self._usetex:
+                if sciNotStr != '':
+                    sciNotStr = r'\times%s' % sciNotStr
+                s = f'${sciNotStr}{offsetStr}$'
+            else:
+                s = sciNotStr + offsetStr
+            return self.fix_minus(s)
+        return ''
 
     def format_eng(self, num):
+        """Alias to EngFormatter.format_data"""
+        return self.format_data(num)
+
+    def format_data(self, value):
         """
         Format a number in engineering notation, appending a letter
         representing the power of 1000 of the original number.
         Some examples:
 
-        >>> format_eng(0)        # for self.places = 0
+        >>> format_data(0)        # for self.places = 0
         '0'
 
-        >>> format_eng(1000000)  # for self.places = 1
+        >>> format_data(1000000)  # for self.places = 1
         '1.0 M'
 
-        >>> format_eng(-1e-6)  # for self.places = 2
+        >>> format_data(-1e-6)  # for self.places = 2
         '-1.00 \N{MICRO SIGN}'
         """
         sign = 1
         fmt = "g" if self.places is None else f".{self.places:d}f"
 
-        if num < 0:
+        if value < 0:
             sign = -1
-            num = -num
+            value = -value
 
-        if num != 0:
-            pow10 = int(math.floor(math.log10(num) / 3) * 3)
+        if value != 0:
+            pow10 = int(math.floor(math.log10(value) / 3) * 3)
         else:
             pow10 = 0
-            # Force num to zero, to avoid inconsistencies like
+            # Force value to zero, to avoid inconsistencies like
             # format_eng(-0) = "0" and format_eng(0.0) = "0"
             # but format_eng(-0.0) = "-0.0"
-            num = 0.0
+            value = 0.0
 
         pow10 = np.clip(pow10, min(self.ENG_PREFIXES), max(self.ENG_PREFIXES))
 
-        mant = sign * num / (10.0 ** pow10)
+        mant = sign * value / (10.0 ** pow10)
         # Taking care of the cases like 999.9..., which may be rounded to 1000
         # instead of 1 k.  Beware of the corner case of values that are beyond
         # the range of SI prefixes (i.e. > 'Y').
@@ -1468,13 +1530,15 @@ class EngFormatter(Formatter):
             mant /= 1000
             pow10 += 3
 
-        prefix = self.ENG_PREFIXES[int(pow10)]
-        if self._usetex or self._useMathText:
-            formatted = f"${mant:{fmt}}${self.sep}{prefix}"
+        unit_prefix = self.ENG_PREFIXES[int(pow10)]
+        if self.unit or unit_prefix:
+            suffix = f"{self.sep}{unit_prefix}{self.unit}"
         else:
-            formatted = f"{mant:{fmt}}{self.sep}{prefix}"
-
-        return formatted
+            suffix = ""
+        if self._usetex or self._useMathText:
+            return f"${mant:{fmt}}${suffix}"
+        else:
+            return f"{mant:{fmt}}{suffix}"
 
 
 class PercentFormatter(Formatter):
