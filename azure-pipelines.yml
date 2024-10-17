@@ -111,7 +111,17 @@ stages:
                 ;;
               Darwin)
                 brew update
-                export HOMEBREW_NO_INSTALL_UPGRADE=1 HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
+                # Periodically, Homebrew updates Python and fails to overwrite the
+                # existing not-managed-by-Homebrew copy without explicitly being told
+                # to do so. GitHub/Azure continues to avoid fixing their runner images:
+                # https://github.com/actions/runner-images/issues/9966
+                # so force an overwrite even if there are no Python updates.
+                # We don't even care about Homebrew's Python because we use the one
+                # from UsePythonVersion.
+                for python_package in $(brew list | grep python@); do
+                  brew unlink ${python_package}
+                  brew link --overwrite ${python_package}
+                done
                 brew install --cask xquartz
                 brew install ccache ffmpeg imagemagick mplayer ninja pkg-config
                 brew install --cask font-noto-sans-cjk-sc
