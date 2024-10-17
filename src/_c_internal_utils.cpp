@@ -196,7 +196,7 @@ mpl_SetProcessDpiAwareness_max(void)
 #endif
 }
 
-PYBIND11_MODULE(_c_internal_utils, m)
+PYBIND11_MODULE(_c_internal_utils, m, py::mod_gil_not_used())
 {
     m.def(
         "display_is_valid", &mpl_display_is_valid,

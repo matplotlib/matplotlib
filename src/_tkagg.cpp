@@ -333,7 +333,7 @@ load_tkinter_funcs()
 }
 #endif // end not Windows
 
-PYBIND11_MODULE(_tkagg, m)
+PYBIND11_MODULE(_tkagg, m, py::mod_gil_not_used())
 {
     try {
         load_tkinter_funcs();

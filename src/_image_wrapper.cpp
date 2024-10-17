@@ -200,7 +200,8 @@ image_resample(py::array input_array,
 }
 
 
-PYBIND11_MODULE(_image, m) {
+PYBIND11_MODULE(_image, m, py::mod_gil_not_used())
+{
     py::enum_<interpolation_e>(m, "_InterpolationType")
         .value("NEAREST", NEAREST)
         .value("BILINEAR", BILINEAR)

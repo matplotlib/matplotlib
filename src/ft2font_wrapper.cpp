@@ -952,7 +952,7 @@ PyFT2Font_fname(PyFT2Font *self)
     }
 }
 
-PYBIND11_MODULE(ft2font, m)
+PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
 {
     if (FT_Init_FreeType(&_ft2Library)) {  // initialize library
         throw std::runtime_error("Could not initialize the freetype2 library");

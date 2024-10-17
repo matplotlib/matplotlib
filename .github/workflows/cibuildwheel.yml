@@ -148,8 +148,6 @@ jobs:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
           CIBW_BUILD: "cp313-* cp313t-*"
-          # No free-threading wheels for NumPy; musllinux skipped for main builds also.
-          CIBW_SKIP: "cp313t-win_amd64 *-musllinux_aarch64"
           CIBW_BUILD_FRONTEND:
             "pip; args: --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple"
           CIBW_FREE_THREADED_SUPPORT: true
