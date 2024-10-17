@@ -88,6 +88,10 @@ static int wait_for_stdin() {
                 if (!event) { break; }
                 [NSApp sendEvent: event];
             }
+            // We need to run the run loop for a short time to allow the
+            // events to be processed and keep flushing them while we wait for stdin
+            // without this, the CPU usage will be very high constantly polling this loop
+            [[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 0.01]];
         }
         // Remove the input handler as an observer
         [[NSNotificationCenter defaultCenter] removeObserver: stdinHandle];
@@ -192,16 +196,16 @@ void process_event(char const* cls_name, char const* fmt, ...)
 static bool backend_inited = false;
 
 static void lazy_init(void) {
+    // Run our own event loop while waiting for stdin on the Python side
+    // this is needed to keep the application responsive while waiting for input
+    PyOS_InputHook = wait_for_stdin;
+
     if (backend_inited) { return; }
     backend_inited = true;
 
     NSApp = [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
     [NSApp setDelegate: [[[MatplotlibAppDelegate alloc] init] autorelease]];
-
-    // Run our own event loop while waiting for stdin on the Python side
-    // this is needed to keep the application responsive while waiting for input
-    PyOS_InputHook = wait_for_stdin;
 }
 
 static PyObject*
@@ -236,6 +240,8 @@ wake_on_fd_write(PyObject* unused, PyObject* args)
 static PyObject*
 stop(PyObject* self)
 {
+    // Remove our input hook and stop the event loop.
+    PyOS_InputHook = NULL;
     [NSApp stop: nil];
     // Post an event to trigger the actual stopping.
     [NSApp postEvent: [NSEvent otherEventWithType: NSEventTypeApplicationDefined
@@ -1122,7 +1128,7 @@ choose_save_file(PyObject* unused, PyObject* args)
 {
     [super close];
     --FigureWindowCount;
-    if (!FigureWindowCount) [NSApp stop: self];
+    if (!FigureWindowCount) stop(NULL);
     /* This is needed for show(), which should exit from [NSApp run]
      * after all windows are closed.
      */
