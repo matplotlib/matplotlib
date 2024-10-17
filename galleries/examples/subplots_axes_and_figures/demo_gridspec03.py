@@ -8,6 +8,8 @@ the control of the relative sizes of subplots with *width_ratios* and
 *height_ratios*, and the control of the spacing around and between subplots
 using subplot params (*left*, *right*, *bottom*, *top*, *wspace*, and
 *hspace*).
+
+.. redirect-from:: /gallery/userdemo/demo_gridspec03
 """
 
 import matplotlib.pyplot as plt
