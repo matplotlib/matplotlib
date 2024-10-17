@@ -1506,8 +1506,8 @@ class AxLine(Line2D):
                 points_transform.transform([self._xy1, self._xy2])
             dx = x2 - x1
             dy = y2 - y1
-            if np.allclose(x1, x2):
-                if np.allclose(y1, y2):
+            if dx == 0:
+                if dy == 0:
                     raise ValueError(
                         f"Cannot draw a line through two identical points "
                         f"(x={(x1, x2)}, y={(y1, y2)})")
