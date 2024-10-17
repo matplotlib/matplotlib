@@ -1270,6 +1270,14 @@ class _AxesBase(martist.Artist):
         # deprecation on cla() subclassing expires.
 
         # stash the current visibility state
+
+        # A twinx-copied axis title set to the right will move back the
+        # left if it is cleared.
+        set_right_label_again = False
+        if 'y' in self._axis_map:
+            set_right_label_again = \
+                (self._axis_map['y'].get_label_position() == 'right')
+
         if hasattr(self, 'patch'):
             patch_visible = self.patch.get_visible()
         else:
@@ -1386,6 +1394,9 @@ class _AxesBase(martist.Artist):
                     axis._set_scale("linear")
                 axis._set_lim(0, 1, auto=True)
         self._update_transScale()
+
+        if set_right_label_again:
+            self._axis_map['y'].set_label_position('right')
 
         self.stale = True
 
