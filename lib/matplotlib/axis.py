@@ -346,6 +346,11 @@ class Tick(martist.Artist):
                    if k in _gridline_param_names}
         self.gridline.set(**grid_kw)
 
+        if 'rotation_mode' in kwargs:
+            rotation_mode = kwargs.pop('rotation_mode')
+            self.label1.set_rotation_mode(rotation_mode)
+            self.label2.set_rotation_mode(rotation_mode)
+
     def update_position(self, loc):
         """Set the location of tick in data coords with scalar *loc*."""
         raise NotImplementedError('Derived must override')
@@ -1072,7 +1077,7 @@ class Axis(martist.Artist):
             'tick1On', 'tick2On', 'label1On', 'label2On',
             'length', 'direction', 'left', 'bottom', 'right', 'top',
             'labelleft', 'labelbottom', 'labelright', 'labeltop',
-            'labelrotation',
+            'labelrotation', 'rotation_mode',
             *_gridline_param_names]
 
         keymap = {
