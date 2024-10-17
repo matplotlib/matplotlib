@@ -4540,6 +4540,8 @@ class Axes(_AxesBase):
 
         Argument precedence for facecolors:
 
+        - kwargs['facecolor'] if 'none'
+        - kwargs['facecolors'] if 'none'
         - c (if not None)
         - kwargs['facecolor']
         - kwargs['facecolors']
@@ -4551,6 +4553,7 @@ class Axes(_AxesBase):
         - kwargs['edgecolor']
         - edgecolors (is an explicit kw argument in scatter())
         - kwargs['color'] (==kwcolor)
+        - c (if not None)
         - 'face' if not in classic mode else None
 
         Parameters
@@ -4584,7 +4587,7 @@ class Axes(_AxesBase):
         colors : array(N, 4) or None
             The facecolors as RGBA values, or *None* if a colormap is used.
         edgecolors
-            The edgecolor.
+            The edgecolor, or *None* if a colormap is used.
 
         """
         facecolors = kwargs.pop('facecolors', None)
@@ -4611,7 +4614,12 @@ class Axes(_AxesBase):
             if facecolors is None:
                 facecolors = kwcolor
 
-        if edgecolors is None and not mpl.rcParams['_internal.classic_mode']:
+        edge_from_c = edgecolors is None and c is not None
+
+        facecolors_none = cbook._str_lower_equal(facecolors, 'none')
+        if (edgecolors is None and not mpl.rcParams['_internal.classic_mode']
+                and (not edge_from_c or not facecolors_none)):
+
             edgecolors = mpl.rcParams['scatter.edgecolors']
 
         c_was_none = c is None
@@ -4662,6 +4670,8 @@ class Axes(_AxesBase):
         if not c_is_mapped:
             try:  # Is 'c' acceptable as PathCollection facecolors?
                 colors = mcolors.to_rgba_array(c)
+                if edge_from_c and facecolors is not None:
+                    edgecolors = mcolors.to_rgba_array(c)
             except (TypeError, ValueError) as err:
                 if "RGBA values should be within 0-1 range" in str(err):
                     raise
@@ -4680,6 +4690,8 @@ class Axes(_AxesBase):
                     raise invalid_shape_exception(len(colors), xsize)
         else:
             colors = None  # use cmap, norm after collection is created
+        if cbook._str_lower_equal(facecolors, 'none'):
+            colors = facecolors
         return c, colors, edgecolors
 
     @_api.make_keyword_only("3.9", "marker")
@@ -4853,10 +4865,22 @@ class Axes(_AxesBase):
                 c, edgecolors, kwargs, x.size,
                 get_next_color_func=self._get_patches_for_fill.get_next_color)
 
-        if plotnonfinite and colors is None:
+        if cmap and norm and not orig_edgecolor:
+            # override edgecolor based on cmap and norm presence
+            edgecolors = 'face'
+
+        if plotnonfinite and (colors is None and edgecolors is None):
+            c = np.ma.masked_invalid(c)
+            x, y, s, linewidths = \
+                cbook._combine_masks(x, y, s, linewidths)
+        elif plotnonfinite and colors is None:
             c = np.ma.masked_invalid(c)
             x, y, s, edgecolors, linewidths = \
                 cbook._combine_masks(x, y, s, edgecolors, linewidths)
+        elif plotnonfinite and edgecolors is None:
+            c = np.ma.masked_invalid(c)
+            x, y, s, colors, linewidths = \
+                cbook._combine_masks(x, y, s, colors, linewidths)
         else:
             x, y, s, c, colors, edgecolors, linewidths = \
                 cbook._combine_masks(
@@ -4930,7 +4954,9 @@ class Axes(_AxesBase):
             alpha=alpha,
         )
         collection.set_transform(mtransforms.IdentityTransform())
-        if colors is None:
+
+        if ((colors is None or edgecolors is None) and not mcolors.is_color_like(c) and
+                (not isinstance(c, np.ndarray) or isinstance(c, np.ma.MaskedArray))):
             collection.set_array(c)
             collection.set_cmap(cmap)
             collection.set_norm(norm)
