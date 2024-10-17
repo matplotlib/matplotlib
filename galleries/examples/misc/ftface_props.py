@@ -46,18 +46,10 @@ if font.scalable:
     # vertical thickness of the underline
     print('Underline thickness:', font.underline_thickness)
 
-for style in ('Italic',
-              'Bold',
-              'Scalable',
-              'Fixed sizes',
-              'Fixed width',
-              'SFNT',
-              'Horizontal',
-              'Vertical',
-              'Kerning',
-              'Fast glyphs',
-              'Multiple masters',
-              'Glyph names',
-              'External stream'):
-    bitpos = getattr(ft, style.replace(' ', '_').upper()) - 1
-    print(f"{style+':':17}", bool(font.style_flags & (1 << bitpos)))
+for flag in ft.StyleFlags:
+    name = flag.name.replace('_', ' ').title() + ':'
+    print(f"{name:17}", flag in font.style_flags)
+
+for flag in ft.FaceFlags:
+    name = flag.name.replace('_', ' ').title() + ':'
+    print(f"{name:17}", flag in font.face_flags)
