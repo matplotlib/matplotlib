@@ -3814,7 +3814,7 @@ class Axes(_AxesBase):
     @_api.rename_parameter("3.9", "labels", "tick_labels")
     def boxplot(self, x, notch=None, sym=None, vert=None,
                 orientation='vertical', whis=None, positions=None,
-                widths=None, patch_artist=None, bootstrap=None,
+                widths=None, patch_artist='auto', bootstrap=None,
                 usermedians=None, conf_intervals=None,
                 meanline=None, showmeans=None, showcaps=None,
                 showbox=None, showfliers=None, boxprops=None,
@@ -3940,9 +3940,12 @@ class Axes(_AxesBase):
             The widths of the boxes.  The default is 0.5, or ``0.15*(distance
             between extreme positions)``, if that is smaller.
 
-        patch_artist : bool, default: :rc:`boxplot.patchartist`
-            If `False` produces boxes with the Line2D artist. Otherwise,
-            boxes are drawn with Patch artists.
+        patch_artist : bool, default: 'auto'
+            If 'auto', boxes are drawn with the Patch artist if a parameter
+            that needs the Patch artist is passed, otherwise they are drawn
+            with the Line2D artist.
+            If `True` produces boxes with the Patch artist.
+            If `False` produces boxes with the Line2D artist.
 
         tick_labels : list of str, optional
             The tick labels of each boxplot.
@@ -4053,8 +4056,6 @@ class Axes(_AxesBase):
                                        labels=tick_labels, autorange=autorange)
         if notch is None:
             notch = mpl.rcParams['boxplot.notch']
-        if patch_artist is None:
-            patch_artist = mpl.rcParams['boxplot.patchartist']
         if meanline is None:
             meanline = mpl.rcParams['boxplot.meanline']
         if showmeans is None:
@@ -4079,7 +4080,12 @@ class Axes(_AxesBase):
         if flierprops is None:
             flierprops = {}
 
-        if patch_artist:
+        if patch_artist == 'auto':
+            patch_artist = mpl.rcParams['boxplot.patchartist']
+            require_patch = {'edgecolor', 'facecolor'}
+            if require_patch.intersection(boxprops):
+                patch_artist = True
+        if patch_artist is True:
             boxprops['linestyle'] = 'solid'  # Not consistent with bxp.
             if 'color' in boxprops:
                 boxprops['edgecolor'] = boxprops.pop('color')
@@ -4340,7 +4346,7 @@ class Axes(_AxesBase):
                           else mpl.rcParams['patch.facecolor']),
             'zorder': zorder,
             **cbook.normalize_kwargs(boxprops, mpatches.PathPatch)
-        } if patch_artist else merge_kw_rc('box', boxprops, usemarker=False)
+        } if patch_artist is True else merge_kw_rc('box', boxprops, usemarker=False)
         whisker_kw = merge_kw_rc('whisker', whiskerprops, usemarker=False)
         cap_kw = merge_kw_rc('cap', capprops, usemarker=False)
         flier_kw = merge_kw_rc('flier', flierprops)
@@ -4455,7 +4461,7 @@ class Axes(_AxesBase):
 
             # maybe draw the box
             if showbox:
-                do_box = do_patch if patch_artist else do_plot
+                do_box = do_patch if patch_artist is True else do_plot
                 boxes.append(do_box(box_x, box_y, **box_kw))
                 median_kw.setdefault('label', '_nolegend_')
             # draw the whiskers
