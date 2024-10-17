@@ -13,9 +13,8 @@ import matplotlib as mpl
 from matplotlib import _api, cbook
 import matplotlib.patches as mpatches
 from matplotlib.path import Path
-
+from matplotlib.transforms import Bbox
 from mpl_toolkits.axes_grid1.parasite_axes import host_axes_class_factory
-
 from . import axislines, grid_helper_curvelinear
 from .axis_artist import AxisArtist
 from .grid_finder import ExtremeFinderSimple
@@ -109,8 +108,7 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
                     right=("lon_lines0", 1),
                     bottom=("lat_lines0", 0),
                     top=("lat_lines0", 1))[self._side]
-        xx, yy = self._grid_info[k][v]
-        return Path(np.column_stack([xx, yy]))
+        return Path(self._grid_info[k][v])
 
 
 class ExtremeFinderFixed(ExtremeFinderSimple):
@@ -125,11 +123,12 @@ class ExtremeFinderFixed(ExtremeFinderSimple):
         extremes : (float, float, float, float)
             The bounding box that this helper always returns.
         """
-        self._extremes = extremes
+        x0, x1, y0, y1 = extremes
+        self._tbbox = Bbox.from_extents(x0, y0, x1, y1)
 
-    def __call__(self, transform_xy, x1, y1, x2, y2):
+    def _find_transformed_bbox(self, trans, bbox):
         # docstring inherited
-        return self._extremes
+        return self._tbbox
 
 
 class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
@@ -184,18 +183,16 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
         grid_info = self._grid_info
 
         grid_finder = self.grid_finder
-        extremes = grid_finder.extreme_finder(grid_finder.inv_transform_xy,
-                                              x1, y1, x2, y2)
+        tbbox = grid_finder.extreme_finder._find_transformed_bbox(
+            grid_finder.get_transform().inverted(), Bbox.from_extents(x1, y1, x2, y2))
 
-        lon_min, lon_max = sorted(extremes[:2])
-        lat_min, lat_max = sorted(extremes[2:])
-        grid_info["extremes"] = lon_min, lon_max, lat_min, lat_max  # extremes
+        lon_min, lat_min = tbbox.min
+        lon_max, lat_max = tbbox.max
+        grid_info["extremes"] = Bbox.from_extents(lon_min, lat_min, lon_max, lat_max)
 
-        lon_levs, lon_n, lon_factor = \
-            grid_finder.grid_locator1(lon_min, lon_max)
+        lon_levs, lon_n, lon_factor = grid_finder.grid_locator1(lon_min, lon_max)
         lon_levs = np.asarray(lon_levs)
-        lat_levs, lat_n, lat_factor = \
-            grid_finder.grid_locator2(lat_min, lat_max)
+        lat_levs, lat_n, lat_factor = grid_finder.grid_locator2(lat_min, lat_max)
         lat_levs = np.asarray(lat_levs)
 
         grid_info["lon_info"] = lon_levs, lon_n, lon_factor
@@ -212,14 +209,13 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
         lon_lines, lat_lines = grid_finder._get_raw_grid_lines(
             lon_values[(lon_min < lon_values) & (lon_values < lon_max)],
             lat_values[(lat_min < lat_values) & (lat_values < lat_max)],
-            lon_min, lon_max, lat_min, lat_max)
+            tbbox)
 
         grid_info["lon_lines"] = lon_lines
         grid_info["lat_lines"] = lat_lines
 
         lon_lines, lat_lines = grid_finder._get_raw_grid_lines(
-            # lon_min, lon_max, lat_min, lat_max)
-            extremes[:2], extremes[2:], *extremes)
+            tbbox.intervalx, tbbox.intervaly, tbbox)
 
         grid_info["lon_lines0"] = lon_lines
         grid_info["lat_lines0"] = lat_lines
@@ -227,9 +223,9 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
     def get_gridlines(self, which="major", axis="both"):
         grid_lines = []
         if axis in ["both", "x"]:
-            grid_lines.extend(self._grid_info["lon_lines"])
+            grid_lines.extend(map(np.transpose, self._grid_info["lon_lines"]))
         if axis in ["both", "y"]:
-            grid_lines.extend(self._grid_info["lat_lines"])
+            grid_lines.extend(map(np.transpose, self._grid_info["lat_lines"]))
         return grid_lines
 
 
