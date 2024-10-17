@@ -110,7 +110,6 @@ jobs:
         setup-args="-Db_vscrt=mt"
         setup-args="-Dcpp_link_args=['ucrt.lib','vcruntime.lib','/nodefaultlib:libucrt.lib','/nodefaultlib:libvcruntime.lib']"
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-      CIBW_SKIP: "*-musllinux_aarch64"
       CIBW_TEST_COMMAND: >-
         python {package}/ci/check_version_number.py
       MACOSX_DEPLOYMENT_TARGET: "10.12"
