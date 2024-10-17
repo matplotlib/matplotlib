@@ -97,7 +97,7 @@ jobs:
             pyqt6-ver: '!=6.6.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
-          - os: macos-12  # This runner is on Intel chips.
+          - os: macos-13  # This runner is on Intel chips.
             python-version: '3.10'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
@@ -188,13 +188,18 @@ jobs:
             ;;
           macOS)
             brew update
-            export HOMEBREW_NO_INSTALL_UPGRADE=1 HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
-            brew install ccache ghostscript ninja
-            # The macOS 12 images have an older Python, and this causes homebrew to generate conflicts.
-            # We'll just skip GTK for now, to not pull in Python updates.
-            if [[ "${{ matrix.os }}" = macos-14 ]]; then
-              brew install gobject-introspection gtk4
-            fi
+            # Periodically, Homebrew updates Python and fails to overwrite the
+            # existing not-managed-by-Homebrew copy without explicitly being told
+            # to do so. GitHub/Azure continues to avoid fixing their runner images:
+            # https://github.com/actions/runner-images/issues/9966
+            # so force an overwrite even if there are no Python updates.
+            # We don't even care about Homebrew's Python because we use the one
+            # from actions/setup-python.
+            for python_package in $(brew list | grep python@); do
+              brew unlink ${python_package}
+              brew link --overwrite ${python_package}
+            done
+            brew install ccache ghostscript gobject-introspection gtk4 ninja
             brew install --cask font-noto-sans-cjk inkscape
             ;;
           esac
