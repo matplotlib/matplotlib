@@ -2191,7 +2191,7 @@ class Axes(_AxesBase):
             b = self.axhline(**kwargs)
         else:
             kwargs.setdefault('marker', 'o')
-            kwargs.setdefault('linestyle', 'None')
+            kwargs.setdefault('linestyle', 'none')
             a, = self.plot(lags, correls, **kwargs)
             b = None
         return lags, correls, a, b
@@ -8273,7 +8273,7 @@ such objects
             if 'linestyle' in kwargs:
                 raise _api.kwarg_error("spy", "linestyle")
             ret = mlines.Line2D(
-                x, y, linestyle='None', marker=marker, markersize=markersize,
+                x, y, linestyle='none', marker=marker, markersize=markersize,
                 **kwargs)
             self.add_line(ret)
             nr, nc = Z.shape
