@@ -1,6 +1,7 @@
 import matplotlib.spines as mspines
 from matplotlib import cm, collections, colors, contour
 from matplotlib.axes import Axes
+from matplotlib.axis import Axis
 from matplotlib.backend_bases import RendererBase
 from matplotlib.patches import Patch
 from matplotlib.ticker import Locator, Formatter
@@ -62,6 +63,8 @@ class Colorbar:
         label: str = ...,
         location: Literal["left", "right", "top", "bottom"] | None = ...
     ) -> None: ...
+    @property
+    def long_axis(self) -> Axis: ...
     @property
     def locator(self) -> Locator: ...
     @locator.setter
