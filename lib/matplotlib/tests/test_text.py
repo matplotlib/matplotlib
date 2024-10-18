@@ -1135,3 +1135,19 @@ def test_font_wrap():
     plt.text(3, 4, t, family='monospace', ha='right', wrap=True)
     plt.text(-1, 0, t, fontsize=14, style='italic', ha='left', rotation=-15,
              wrap=True)
+
+
+def test_ha_for_angle():
+    text_instance = Text()
+    angles = np.arange(0, 360.1, 0.1)
+    for angle in angles:
+        alignment = text_instance.ha_for_angle(angle)
+        assert alignment in ['center', 'left', 'right']
+
+
+def test_va_for_angle():
+    text_instance = Text()
+    angles = np.arange(0, 360.1, 0.1)
+    for angle in angles:
+        alignment = text_instance.va_for_angle(angle)
+        assert alignment in ['center', 'top', 'baseline']

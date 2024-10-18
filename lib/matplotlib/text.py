@@ -310,7 +310,7 @@ class Text(Artist):
         if m is None:
             m = "default"
         else:
-            _api.check_in_list(("anchor", "default"), rotation_mode=m)
+            _api.check_in_list(("anchor", "default", "xtick", "ytick"), rotation_mode=m)
         self._rotation_mode = m
         self.stale = True
 
@@ -454,6 +454,12 @@ class Text(Artist):
 
         rotation_mode = self.get_rotation_mode()
         if rotation_mode != "anchor":
+            if rotation_mode == 'xtick':
+                angle = self.get_rotation()
+                halign = self.ha_for_angle(angle)
+            elif rotation_mode == 'ytick':
+                angle = self.get_rotation()
+                valign = self.va_for_angle(angle)
             # compute the text location in display coords and the offsets
             # necessary to align the bbox with that location
             if halign == 'center':
@@ -1379,6 +1385,30 @@ class Text(Artist):
 
         """
         self.set_fontfamily(fontname)
+
+    def ha_for_angle(self, angle):
+        """
+        Determines horizontal alignment ('ha') based on the angle of rotation.
+        """
+        if (angle < 5 or 85 <= angle < 105 or 355 <= angle <= 360 or
+                170 <= angle < 190 or 265 <= angle < 275):
+            return 'center'
+        elif 5 <= angle < 85 or 190 <= angle < 265:
+            return 'right'
+        elif 105 <= angle < 170 or 275 <= angle < 355:
+            return 'left'
+
+    def va_for_angle(self, angle):
+        """
+        Determines vertical alignment ('va') based on the angle of rotation.
+        """
+        if (angle < 5 or 355 <= angle <= 360 or 170 <= angle < 190
+                or 85 <= angle < 105 or 265 <= angle < 275):
+            return 'center'
+        elif 190 <= angle < 265 or 5 <= angle < 85:
+            return 'top'
+        elif 105 <= angle < 170 or 275 <= angle < 355:
+            return 'baseline'
 
 
 class OffsetFrom:
