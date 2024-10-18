@@ -1591,6 +1591,79 @@ def test_engformatter_usetex_useMathText():
         assert x_tick_label_text == ['$0$', '$500$', '$1$ k']
 
 
+@pytest.mark.parametrize(
+    'oom_center, oom_noise, oom_center_desired, oom_noise_desired', [
+        (11, 1, 9, 0),
+        (13, 7, 12, 6),
+        (1, -2, 0, -3),
+        (3, -2, 3, -3),
+        (5, -3, 3, -3),
+        (2, -3, 0, -3),
+        # The following sets of parameters demonstrates that when oom_center-1
+        # and oom_noise-2 equal a standard 3*N oom, we get that
+        # oom_noise_desired < oom_noise
+        (10, 2, 9, 3),
+        (1, -7, 0, -6),
+        (2, -4, 0, -3),
+        (1, -4, 0, -3),
+        # Tests where oom_center <= oom_noise, those are probably covered by the
+        # part where formatter.offset != 0
+        (4,  4, 0, 3),
+        (1,  4, 0, 3),
+        (1,  3, 0, 3),
+        (1,  2, 0, 0),
+        (1,  1, 0, 0),
+    ]
+)
+def test_engformatter_offset_oom(
+    oom_center,
+    oom_noise,
+    oom_center_desired,
+    oom_noise_desired
+):
+    UNIT = "eV"
+    # Doesn't really matter here, but should be of order of magnitude ~= 1
+    fig, ax = plt.subplots()
+    # Use some random ugly number
+    data_offset = 2.7149*10**oom_center
+    ydata = data_offset + np.arange(-5, 7, dtype=float)*10**oom_noise
+    ax.plot(ydata)
+    formatter = mticker.EngFormatter(useOffset=True, unit=UNIT)
+    # So that offset strings will always have the same size
+    formatter.ENG_PREFIXES[0] = "_"
+    ax.yaxis.set_major_formatter(formatter)
+    fig.canvas.draw()
+    offset_got = formatter.get_offset()
+    ticks_got = [labl.get_text() for labl in ax.get_yticklabels()]
+    # Predicting whether offset should be 0 or not is essentially testing
+    # ScalarFormatter._compute_offset . This function is pretty complex and it
+    # would be nice to test it, but this is out of scope for this test which
+    # only makes sure that offset text and the ticks gets the correct unit
+    # prefixes and the ticks.
+    if formatter.offset:
+        # These prefix_ variables are used only once, so we could have inlined
+        # them all, but it is more comfortable in case of tests breakages to
+        # view their values with pytest --showlocals.
+        prefix_noise_got = offset_got[2]
+        prefix_noise_desired = formatter.ENG_PREFIXES[oom_noise_desired]
+        prefix_center_got = offset_got[-1-len(UNIT)]
+        prefix_center_desired = formatter.ENG_PREFIXES[oom_center_desired]
+        assert prefix_noise_desired == prefix_noise_got
+        assert prefix_center_desired == prefix_center_got
+        # Make sure the ticks didn't get the UNIT
+        for tick in ticks_got:
+            assert UNIT not in tick
+    else:
+        assert oom_center_desired == 0
+        assert offset_got == ""
+        # Make sure the ticks contain now the prefixes
+        for tick in ticks_got:
+            # 0 is zero on all orders of magnitudes, no matter what is
+            # oom_noise_desired
+            prefix_idx = 0 if tick[0] == "0" else oom_noise_desired
+            assert tick.endswith(formatter.ENG_PREFIXES[prefix_idx] + UNIT)
+
+
 class TestPercentFormatter:
     percent_data = [
         # Check explicitly set decimals over different intervals and values
