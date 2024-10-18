@@ -124,7 +124,7 @@ jobs:
             cibw_archs: "aarch64"
           - os: windows-latest
             cibw_archs: "auto64"
-          - os: macos-12
+          - os: macos-13
             cibw_archs: "x86_64"
           - os: macos-14
             cibw_archs: "arm64"
