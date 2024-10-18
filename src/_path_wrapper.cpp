@@ -368,7 +368,7 @@ Py_is_sorted_and_has_non_nan(py::object obj)
     return result;
 }
 
-PYBIND11_MODULE(_path, m)
+PYBIND11_MODULE(_path, m, py::mod_gil_not_used())
 {
     m.def("point_in_path", &Py_point_in_path,
           "x"_a, "y"_a, "radius"_a, "path"_a, "trans"_a);

@@ -185,7 +185,7 @@ PyRendererAgg_draw_gouraud_triangles(RendererAgg *self,
     self->draw_gouraud_triangles(gc, points, colors, trans);
 }
 
-PYBIND11_MODULE(_backend_agg, m)
+PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
 {
     py::class_<RendererAgg>(m, "RendererAgg", py::buffer_protocol())
         .def(py::init<unsigned int, unsigned int, double>(),
