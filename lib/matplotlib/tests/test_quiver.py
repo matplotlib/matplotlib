@@ -379,48 +379,8 @@ def draw_quiverkey_setzorder(fig, zorder=None):
         qk2.set_zorder(zorder)
 
 
+@pytest.mark.parametrize('zorder', [0, 2, 5, None])
 @check_figures_equal(extensions=['png'])
-def test_quiverkey_zorder_default(fig_test, fig_ref):
-    """Check QuiverKey zorder argument"""
-    draw_quiverkey_zorder_argument(fig_test)
-    draw_quiverkey_setzorder(fig_ref)
-
-
-@check_figures_equal(extensions=['png'])
-def test_quiverkey_zorder_zero(fig_test, fig_ref):
-    """
-    Check QuiverKey zorder argument
-    zorder=0 means quiverkey is under quiver.
-    """
-    draw_quiverkey_zorder_argument(fig_test, zorder=0)
-    draw_quiverkey_setzorder(fig_ref, zorder=0)
-
-
-@check_figures_equal(extensions=['png'])
-def test_quiverkey_zorder_two(fig_test, fig_ref):
-    """
-    Check QuiverKey zorder argument
-    zorder=2 means quiverkey is same as default.
-    """
-    draw_quiverkey_zorder_argument(fig_test, zorder=2)
-    draw_quiverkey_setzorder(fig_ref, zorder=2)
-
-
-@check_figures_equal(extensions=['png'])
-def test_quiverkey_zorder_five(fig_test, fig_ref):
-    """
-    Check QuiverKey zorder argument
-    zorder=5 means quiverkey is over ticks.
-    """
-    draw_quiverkey_zorder_argument(fig_test, zorder=5)
-    draw_quiverkey_setzorder(fig_ref, zorder=5)
-
-
-@check_figures_equal(extensions=['png'])
-def test_quiverkey_zorder_None(fig_test, fig_ref):
-    """
-    Check QuiverKey zorder argument
-    zorder=2 means quiverkey is default.
-    """
-    draw_quiverkey_zorder_argument(fig_test, zorder=None)
-    draw_quiverkey_setzorder(fig_ref, zorder=None)
+def test_quiverkey_zorder(fig_test, fig_ref, zorder):
+    draw_quiverkey_zorder_argument(fig_test, zorder=zorder)
+    draw_quiverkey_setzorder(fig_ref, zorder=zorder)
