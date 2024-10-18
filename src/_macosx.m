@@ -257,20 +257,43 @@ static CGFloat _get_device_scale(CGContextRef cr)
     return pixelSize.width;
 }
 
-bool
-mpl_check_modifier(
-        NSUInteger modifiers, NSEventModifierFlags flag,
-        PyObject* list, char const* name)
+bool mpl_check_button(bool present, PyObject* set, char const* name) {
+    PyObject* module = NULL, * cls = NULL, * button = NULL;
+    bool failed = (
+        present
+        && (!(module = PyImport_ImportModule("matplotlib.backend_bases"))
+            || !(cls = PyObject_GetAttrString(module, "MouseButton"))
+            || !(button = PyObject_GetAttrString(cls, name))
+            || PySet_Add(set, button)));
+    Py_XDECREF(module);
+    Py_XDECREF(cls);
+    Py_XDECREF(button);
+    return failed;
+}
+
+PyObject* mpl_buttons()
 {
-    bool failed = false;
-    if (modifiers & flag) {
-        PyObject* py_name = NULL;
-        if (!(py_name = PyUnicode_FromString(name))
-            || PyList_Append(list, py_name)) {
-            failed = true;
-        }
-        Py_XDECREF(py_name);
+    PyGILState_STATE gstate = PyGILState_Ensure();
+    PyObject* set = NULL;
+    NSUInteger buttons = [NSEvent pressedMouseButtons];
+    if (!(set = PySet_New(NULL))
+        || mpl_check_button(buttons & (1 << 0), set, "LEFT")
+        || mpl_check_button(buttons & (1 << 1), set, "RIGHT")
+        || mpl_check_button(buttons & (1 << 2), set, "MIDDLE")) {
+        Py_CLEAR(set);  // On failure, return NULL with an exception set.
     }
+    PyGILState_Release(gstate);
+    return set;
+}
+
+bool mpl_check_modifier(bool present, PyObject* list, char const* name)
+{
+    PyObject* py_name = NULL;
+    bool failed = (
+        present
+        && (!(py_name = PyUnicode_FromString(name))
+            || (PyList_Append(list, py_name))));
+    Py_XDECREF(py_name);
     return failed;
 }
 
@@ -278,17 +301,14 @@ PyObject* mpl_modifiers(NSEvent* event)
 {
     PyGILState_STATE gstate = PyGILState_Ensure();
     PyObject* list = NULL;
-    if (!(list = PyList_New(0))) {
-        goto exit;
-    }
     NSUInteger modifiers = [event modifierFlags];
-    if (mpl_check_modifier(modifiers, NSEventModifierFlagControl, list, "ctrl")
-        || mpl_check_modifier(modifiers, NSEventModifierFlagOption, list, "alt")
-        || mpl_check_modifier(modifiers, NSEventModifierFlagShift, list, "shift")
-        || mpl_check_modifier(modifiers, NSEventModifierFlagCommand, list, "cmd")) {
+    if (!(list = PyList_New(0))
+        || mpl_check_modifier(modifiers & NSEventModifierFlagControl, list, "ctrl")
+        || mpl_check_modifier(modifiers & NSEventModifierFlagOption, list, "alt")
+        || mpl_check_modifier(modifiers & NSEventModifierFlagShift, list, "shift")
+        || mpl_check_modifier(modifiers & NSEventModifierFlagCommand, list, "cmd")) {
         Py_CLEAR(list);  // On failure, return NULL with an exception set.
     }
-exit:
     PyGILState_Release(gstate);
     return list;
 }
@@ -1448,9 +1468,9 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     x = location.x * device_scale;
     y = location.y * device_scale;
     process_event(
-        "MouseEvent", "{s:s, s:O, s:i, s:i, s:N}",
+        "MouseEvent", "{s:s, s:O, s:i, s:i, s:N, s:N}",
         "name", "motion_notify_event", "canvas", canvas, "x", x, "y", y,
-        "modifiers", mpl_modifiers(event));
+        "buttons", mpl_buttons(), "modifiers", mpl_modifiers(event));
 }
 
 - (void)mouseDragged:(NSEvent *)event
@@ -1461,9 +1481,9 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     x = location.x * device_scale;
     y = location.y * device_scale;
     process_event(
-        "MouseEvent", "{s:s, s:O, s:i, s:i, s:N}",
+        "MouseEvent", "{s:s, s:O, s:i, s:i, s:N, s:N}",
         "name", "motion_notify_event", "canvas", canvas, "x", x, "y", y,
-        "modifiers", mpl_modifiers(event));
+        "buttons", mpl_buttons(), "modifiers", mpl_modifiers(event));
 }
 
 - (void)rightMouseDown:(NSEvent *)event { [self mouseDown: event]; }
