@@ -61,6 +61,7 @@ Basic
    bar
    barh
    bar_label
+   grouped_bar
    stem
    eventplot
    pie
