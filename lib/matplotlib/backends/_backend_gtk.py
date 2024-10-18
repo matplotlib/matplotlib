@@ -10,7 +10,7 @@ from matplotlib import _api, backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    TimerBase)
+    TimerBase, WindowBase, ExpandableBase)
 from matplotlib.backend_tools import Cursors
 
 import gi
@@ -118,6 +118,109 @@ class _FigureCanvasGTK(FigureCanvasBase):
     _timer_cls = TimerGTK
 
 
+_flow = [Gtk.Orientation.HORIZONTAL, Gtk.Orientation.VERTICAL]
+
+
+class _WindowGTK(WindowBase, Gtk.Window):
+    # Must be implemented in GTK3/GTK4 backends:
+    # * _add_element - to add an widget to a container
+    # * _setup_signals
+    # * _get_self - a method to ensure that we have been fully initialised
+
+    def __init__(self, title, **kwargs):
+        super().__init__(title=title, **kwargs)
+
+        self.set_window_title(title)
+
+        self._layout = {}
+        self._setup_box('_outer', Gtk.Orientation.VERTICAL, False, None)
+        self._setup_box('north', Gtk.Orientation.VERTICAL, False, '_outer')
+        self._setup_box('_middle', Gtk.Orientation.HORIZONTAL, True, '_outer')
+        self._setup_box('south', Gtk.Orientation.VERTICAL, False, '_outer')
+
+        self._setup_box('west', Gtk.Orientation.HORIZONTAL, False, '_middle')
+        self._setup_box('center', Gtk.Orientation.VERTICAL, True, '_middle')
+        self._setup_box('east', Gtk.Orientation.HORIZONTAL, False, '_middle')
+
+        self.set_child(self._layout['_outer'])
+
+        self._setup_signals()
+
+    def _setup_box(self, name, orientation, grow, parent):
+        self._layout[name] = Gtk.Box(orientation=orientation)
+        if parent:
+            self._add_element(self._layout[parent], self._layout[name], True, grow)
+        self._layout[name].show()
+
+    def add_element(self, element, place):
+        element.show()
+
+        # Get the flow of the element (the opposite of the container)
+        flow_index = not _flow.index(self._layout[place].get_orientation())
+        flow = _flow[flow_index]
+        separator = Gtk.Separator(orientation=flow)
+        separator.show()
+
+        try:
+            element.flow = element.flow_types[flow_index]
+        except AttributeError:
+            pass
+
+        # Determine if this element should fill all the space given to it
+        expand = isinstance(element, ExpandableBase)
+
+        if place in ['north', 'west', 'center']:
+            to_start = True
+        elif place in ['south', 'east']:
+            to_start = False
+        else:
+            raise KeyError('Unknown value for place, %s' % place)
+
+        self._add_element(self._layout[place], element, to_start, expand)
+        self._add_element(self._layout[place], separator, to_start, False)
+
+        h = 0
+        for e in [element, separator]:
+            min_size, nat_size = e.get_preferred_size()
+            h += nat_size.height
+
+        return h
+
+    def set_default_size(self, width, height):
+        Gtk.Window.set_default_size(self, width, height)
+
+    def show(self):
+        # show the window
+        Gtk.Window.show(self)
+        if mpl.rcParams["figure.raise_window"]:
+            if self._get_self():
+                self.present()
+            else:
+                # If this is called by a callback early during init,
+                # self.window (a GtkWindow) may not have an associated
+                # low-level GdkWindow (on GTK3) or GdkSurface (on GTK4) yet,
+                # and present() would crash.
+                _api.warn_external("Cannot raise window yet to be setup")
+
+    def destroy(self):
+        Gtk.Window.destroy(self)
+
+    def set_fullscreen(self, fullscreen):
+        if fullscreen:
+            self.fullscreen()
+        else:
+            self.unfullscreen()
+
+    def get_window_title(self):
+        return self.get_title()
+
+    def set_window_title(self, title):
+        self.set_title(title)
+
+    def resize(self, width, height):
+        Gtk.Window.resize(self, width, height)
+
+
 class _FigureManagerGTK(FigureManagerBase):
     """
     Attributes
@@ -135,51 +238,22 @@ class _FigureManagerGTK(FigureManagerBase):
     """
 
     def __init__(self, canvas, num):
-        self._gtk_ver = gtk_ver = Gtk.get_major_version()
-
         app = _create_application()
-        self.window = Gtk.Window()
+        self.window = self._window_class('Matplotlib Figure Manager')
         app.add_window(self.window)
         super().__init__(canvas, num)
 
-        if gtk_ver == 3:
-            self.window.set_wmclass("matplotlib", "Matplotlib")
-            icon_ext = "png" if sys.platform == "win32" else "svg"
-            self.window.set_icon_from_file(
-                str(cbook._get_data_path(f"images/matplotlib.{icon_ext}")))
-
-        self.vbox = Gtk.Box()
-        self.vbox.set_property("orientation", Gtk.Orientation.VERTICAL)
-
-        if gtk_ver == 3:
-            self.window.add(self.vbox)
-            self.vbox.show()
-            self.canvas.show()
-            self.vbox.pack_start(self.canvas, True, True, 0)
-        elif gtk_ver == 4:
-            self.window.set_child(self.vbox)
-            self.vbox.prepend(self.canvas)
-
-        # calculate size for window
+        self.window.add_element(self.canvas, 'center')
         w, h = self.canvas.get_width_height()
 
-        if self.toolbar is not None:
-            if gtk_ver == 3:
-                self.toolbar.show()
-                self.vbox.pack_end(self.toolbar, False, False, 0)
-            elif gtk_ver == 4:
-                sw = Gtk.ScrolledWindow(vscrollbar_policy=Gtk.PolicyType.NEVER)
-                sw.set_child(self.toolbar)
-                self.vbox.append(sw)
-            min_size, nat_size = self.toolbar.get_preferred_size()
-            h += nat_size.height
+        if self.toolbar:
+            h += self.window.add_element(self.toolbar, 'south')  # put in ScrolledWindow in GTK4?
 
         self.window.set_default_size(w, h)
 
         self._destroying = False
-        self.window.connect("destroy", lambda *args: Gcf.destroy(self))
-        self.window.connect({3: "delete_event", 4: "close-request"}[gtk_ver],
-                            lambda *args: Gcf.destroy(self))
+        self.window.mpl_connect('window_destroy_event', lambda *args: Gcf.destroy(self))
+
         if mpl.is_interactive():
             self.window.show()
             self.canvas.draw_idle()
@@ -220,24 +294,9 @@ class _FigureManagerGTK(FigureManagerBase):
         # show the figure window
         self.window.show()
         self.canvas.draw()
-        if mpl.rcParams["figure.raise_window"]:
-            meth_name = {3: "get_window", 4: "get_surface"}[self._gtk_ver]
-            if getattr(self.window, meth_name)():
-                self.window.present()
-            else:
-                # If this is called by a callback early during init,
-                # self.window (a GtkWindow) may not have an associated
-                # low-level GdkWindow (on GTK3) or GdkSurface (on GTK4) yet,
-                # and present() would crash.
-                _api.warn_external("Cannot raise window yet to be setup")
 
     def full_screen_toggle(self):
-        is_fullscreen = {
-            3: lambda w: (w.get_window().get_state()
-                          & Gdk.WindowState.FULLSCREEN),
-            4: lambda w: w.is_fullscreen(),
-        }[self._gtk_ver]
-        if is_fullscreen(self.window):
+        if self.window.is_fullscreen():
             self.window.unfullscreen()
         else:
             self.window.fullscreen()
@@ -255,7 +314,7 @@ class _FigureManagerGTK(FigureManagerBase):
             min_size, nat_size = self.toolbar.get_preferred_size()
             height += nat_size.height
         canvas_size = self.canvas.get_allocation()
-        if self._gtk_ver >= 4 or canvas_size.width == canvas_size.height == 1:
+        if canvas_size.width == canvas_size.height == 1:
             # A canvas size of (1, 1) cannot exist in most cases, because
             # window decorations would prevent such a small window. This call
             # must be before the window has been mapped and widgets have been
