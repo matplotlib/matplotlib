@@ -29,7 +29,7 @@ from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.cbook import is_writable_file_like, file_requires_unicode
 from matplotlib.font_manager import get_font
-from matplotlib.ft2font import LOAD_NO_SCALE
+from matplotlib.ft2font import LoadFlags
 from matplotlib._mathtext_data import uni2type1
 from matplotlib.path import Path
 from matplotlib.texmanager import TexManager
@@ -148,7 +148,7 @@ FontName currentdict end definefont pop
 
     entries = []
     for glyph_id in glyph_ids:
-        g = font.load_glyph(glyph_id, LOAD_NO_SCALE)
+        g = font.load_glyph(glyph_id, LoadFlags.NO_SCALE)
         v, c = font.get_path()
         entries.append(
             "/%(name)s{%(bbox)s sc\n" % {

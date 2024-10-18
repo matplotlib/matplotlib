@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+import matplotlib as mpl
 from matplotlib import ft2font
 from matplotlib.testing.decorators import check_figures_equal
 import matplotlib.font_manager as fm
@@ -43,10 +44,11 @@ def test_ft2font_dejavu_attrs():
     assert font.num_fixed_sizes == 0  # All glyphs are scalable.
     assert font.num_charmaps == 5
     # Other internal flags are set, so only check the ones we're allowed to test.
-    expected_flags = (ft2font.SCALABLE | ft2font.SFNT | ft2font.HORIZONTAL |
-                      ft2font.KERNING | ft2font.GLYPH_NAMES)
-    assert (font.face_flags & expected_flags) == expected_flags
-    assert font.style_flags == 0  # Not italic or bold.
+    expected_flags = (ft2font.FaceFlags.SCALABLE | ft2font.FaceFlags.SFNT |
+                      ft2font.FaceFlags.HORIZONTAL | ft2font.FaceFlags.KERNING |
+                      ft2font.FaceFlags.GLYPH_NAMES)
+    assert expected_flags in font.face_flags
+    assert font.style_flags == ft2font.StyleFlags.NORMAL
     assert font.scalable
     # From FontForge: Font Information → General tab → entry name below.
     assert font.units_per_EM == 2048  # Em Size.
@@ -75,10 +77,10 @@ def test_ft2font_cm_attrs():
     assert font.num_fixed_sizes == 0  # All glyphs are scalable.
     assert font.num_charmaps == 2
     # Other internal flags are set, so only check the ones we're allowed to test.
-    expected_flags = (ft2font.SCALABLE | ft2font.SFNT | ft2font.HORIZONTAL |
-                      ft2font.GLYPH_NAMES)
-    assert (font.face_flags & expected_flags) == expected_flags, font.face_flags
-    assert font.style_flags == 0  # Not italic or bold.
+    expected_flags = (ft2font.FaceFlags.SCALABLE | ft2font.FaceFlags.SFNT |
+                      ft2font.FaceFlags.HORIZONTAL | ft2font.FaceFlags.GLYPH_NAMES)
+    assert expected_flags in font.face_flags
+    assert font.style_flags == ft2font.StyleFlags.NORMAL
     assert font.scalable
     # From FontForge: Font Information → General tab → entry name below.
     assert font.units_per_EM == 2048  # Em Size.
@@ -107,10 +109,10 @@ def test_ft2font_stix_bold_attrs():
     assert font.num_fixed_sizes == 0  # All glyphs are scalable.
     assert font.num_charmaps == 3
     # Other internal flags are set, so only check the ones we're allowed to test.
-    expected_flags = (ft2font.SCALABLE | ft2font.SFNT | ft2font.HORIZONTAL |
-                      ft2font.GLYPH_NAMES)
-    assert (font.face_flags & expected_flags) == expected_flags, font.face_flags
-    assert font.style_flags == ft2font.BOLD
+    expected_flags = (ft2font.FaceFlags.SCALABLE | ft2font.FaceFlags.SFNT |
+                      ft2font.FaceFlags.HORIZONTAL | ft2font.FaceFlags.GLYPH_NAMES)
+    assert expected_flags in font.face_flags
+    assert font.style_flags == ft2font.StyleFlags.BOLD
     assert font.scalable
     # From FontForge: Font Information → General tab → entry name below.
     assert font.units_per_EM == 1000  # Em Size.
@@ -714,13 +716,37 @@ def test_ft2font_get_kerning(left, right, unscaled, unfitted, default):
     font.set_size(100, 100)
     assert font.get_kerning(font.get_char_index(ord(left)),
                             font.get_char_index(ord(right)),
-                            ft2font.KERNING_UNSCALED) == unscaled
+                            ft2font.Kerning.UNSCALED) == unscaled
     assert font.get_kerning(font.get_char_index(ord(left)),
                             font.get_char_index(ord(right)),
-                            ft2font.KERNING_UNFITTED) == unfitted
+                            ft2font.Kerning.UNFITTED) == unfitted
     assert font.get_kerning(font.get_char_index(ord(left)),
                             font.get_char_index(ord(right)),
-                            ft2font.KERNING_DEFAULT) == default
+                            ft2font.Kerning.DEFAULT) == default
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='Use Kerning.UNSCALED instead'):
+        k = ft2font.KERNING_UNSCALED
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='Use Kerning enum values instead'):
+        assert font.get_kerning(font.get_char_index(ord(left)),
+                                font.get_char_index(ord(right)),
+                                int(k)) == unscaled
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='Use Kerning.UNFITTED instead'):
+        k = ft2font.KERNING_UNFITTED
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='Use Kerning enum values instead'):
+        assert font.get_kerning(font.get_char_index(ord(left)),
+                                font.get_char_index(ord(right)),
+                                int(k)) == unfitted
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='Use Kerning.DEFAULT instead'):
+        k = ft2font.KERNING_DEFAULT
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='Use Kerning enum values instead'):
+        assert font.get_kerning(font.get_char_index(ord(left)),
+                                font.get_char_index(ord(right)),
+                                int(k)) == default
 
 
 def test_ft2font_set_text():

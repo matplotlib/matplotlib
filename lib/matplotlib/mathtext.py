@@ -20,7 +20,7 @@ import logging
 
 import matplotlib as mpl
 from matplotlib import _api, _mathtext
-from matplotlib.ft2font import LOAD_NO_HINTING
+from matplotlib.ft2font import LoadFlags
 from matplotlib.font_manager import FontProperties
 from ._mathtext import (  # noqa: F401, reexported API
     RasterParse, VectorParse, get_unicode_index)
@@ -80,7 +80,7 @@ class MathTextParser:
         antialiased = mpl._val_or_rc(antialiased, 'text.antialiased')
         from matplotlib.backends import backend_agg
         load_glyph_flags = {
-            "vector": LOAD_NO_HINTING,
+            "vector": LoadFlags.NO_HINTING,
             "raster": backend_agg.get_hinting_flag(),
         }[self._output_type]
         return self._parse_cached(s, dpi, prop, antialiased, load_glyph_flags)
