@@ -1,0 +1,15 @@
+lines_bars_and_markers
+images_contours_and_fields
+subplots_axes_and_figures
+statistics
+pie_and_polar_charts
+text_labels_and_annotations
+color
+shapes_and_collections
+style_sheets
+pyplots
+axes_grid1
+axisartist
+showcase
+unsorted
+userdemo
