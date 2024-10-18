@@ -241,7 +241,8 @@ class QuiverKey(martist.Artist):
 
     def __init__(self, Q, X, Y, U, label,
                  *, angle=0, coordinates='axes', color=None, labelsep=0.1,
-                 labelpos='N', labelcolor=None, fontproperties=None, **kwargs):
+                 labelpos='N', labelcolor=None, fontproperties=None,
+                 zorder=None, **kwargs):
         """
         Add a key to a quiver plot.
 
@@ -285,6 +286,8 @@ class QuiverKey(martist.Artist):
             A dictionary with keyword arguments accepted by the
             `~matplotlib.font_manager.FontProperties` initializer:
             *family*, *style*, *variant*, *size*, *weight*.
+        zorder : float
+            The zorder of the key. The default is 0.1 above *Q*.
         **kwargs
             Any additional keyword arguments are used to override vector
             properties taken from *Q*.
@@ -312,7 +315,7 @@ class QuiverKey(martist.Artist):
         if self.labelcolor is not None:
             self.text.set_color(self.labelcolor)
         self._dpi_at_last_init = None
-        self.zorder = Q.zorder + 0.1
+        self.zorder = zorder if zorder is not None else Q.zorder + 0.1
 
     @property
     def labelsep(self):
