@@ -9314,3 +9314,21 @@ def test_boxplot_orientation(fig_test, fig_ref):
 
         ax_test = fig_test.subplots()
         ax_test.boxplot(all_data, orientation='horizontal')
+
+
+def test_patch_artist_auto():
+    # Test patch_artist = 'auto'.
+    fig, axs = plt.subplots(nrows=1, ncols=3)
+    np.random.seed(19680801)
+    all_data = [np.random.normal(0, std, 100) for std in range(7, 10)]
+    # Default 'auto' state, should use Line2D artist.
+    bp0 = axs[0].boxplot(all_data)
+    assert all(isinstance(i, mpl.lines.Line2D) for i in bp0['boxes'])
+    # 'facecolor' in boxprops should turn on patch_artist.
+    bp1 = axs[1].boxplot(all_data, boxprops={'facecolor': 'r'})
+    assert all(i.get_facecolor() == (1.0, 0.0, 0.0, 1) for i in bp1['boxes'])
+    assert all(isinstance(i, mpl.patches.PathPatch) for i in bp1['boxes'])
+    # 'edgecolor' in boxprops should also turn on patch_artist.
+    bp2 = axs[2].boxplot(all_data, boxprops={'edgecolor': 'g'})
+    assert all(i.get_edgecolor() == (0.0, 0.5, 0.0, 1) for i in bp2['boxes'])
+    assert all(isinstance(i, mpl.patches.PathPatch) for i in bp2['boxes'])
