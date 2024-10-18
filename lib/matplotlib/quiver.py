@@ -315,9 +315,7 @@ class QuiverKey(martist.Artist):
         if self.labelcolor is not None:
             self.text.set_color(self.labelcolor)
         self._dpi_at_last_init = None
-        self.zorder = zorder
-        if self.zorder is None:
-            self.zorder = Q.zorder + 0.1
+        self.zorder = zorder if zorder is not None else Q.zorder + 0.1
 
     @property
     def labelsep(self):
