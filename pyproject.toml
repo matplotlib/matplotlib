@@ -6,14 +6,12 @@ authors = [
 ]
 description = "Python plotting package"
 readme = "README.md"
-license = { file = "LICENSE/LICENSE" }
-dynamic = ["version"]
+dynamic = ["version", "license", "license-files"]
 classifiers=[
     "Development Status :: 5 - Production/Stable",
     "Framework :: Matplotlib",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Education",
-    "License :: OSI Approved :: Python Software Foundation License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
@@ -46,7 +44,9 @@ requires-python = ">=3.10"
 [project.optional-dependencies]
 # Should be a copy of the build dependencies below.
 dev = [
-    "meson-python>=0.13.1",
+    "meson-python @ git+https://github.com/dnicolodi/meson-python@pep639",
+    "meson>=1.6.0rc2",
+    "pyproject-metadata>=0.9.0b7",
     "pybind11>=2.6,!=2.13.3",
     "setuptools_scm>=7",
     # Not required by us but setuptools_scm without a version, cso _if_
@@ -70,7 +70,9 @@ dev = [
 build-backend = "mesonpy"
 # Also keep in sync with optional dependencies above.
 requires = [
-    "meson-python>=0.13.1",
+    "meson-python @ git+https://github.com/dnicolodi/meson-python@pep639",
+    "meson>=1.6.0rc2",
+    "pyproject-metadata>=0.9.0b7",
     "pybind11>=2.6,!=2.13.3",
     "setuptools_scm>=7",
 ]
