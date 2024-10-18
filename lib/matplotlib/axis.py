@@ -1047,8 +1047,7 @@ class Axis(martist.Artist):
             )
         return self._translate_tick_params(self._minor_tick_kw, reverse=True)
 
-    @staticmethod
-    def _translate_tick_params(kw, reverse=False):
+    def _translate_tick_params(self, kw, reverse=False):
         """
         Translate the kwargs supported by `.Axis.set_tick_params` to kwargs
         supported by `.Tick._apply_params`.
@@ -1080,15 +1079,27 @@ class Axis(martist.Artist):
             'length': 'size',
             'direction': 'tickdir',
             'rotation': 'labelrotation',
-            'left': 'tick1On',
-            'bottom': 'tick1On',
-            'right': 'tick2On',
-            'top': 'tick2On',
-            'labelleft': 'label1On',
-            'labelbottom': 'label1On',
-            'labelright': 'label2On',
-            'labeltop': 'label2On',
         }
+
+        # axis specific mappings
+        axis_mappings = {
+            'x': {
+                'top': 'tick2On',
+                'bottom': 'tick1On',
+                'labelbottom': 'label1On',
+                'labeltop': 'label2On',
+            },
+            'y': {
+                'left': 'tick1On',
+                'right': 'tick2On',
+                'labelleft': 'label1On',
+                'labelright': 'label2On',
+            }
+        }
+
+        # merge shared keymap pais with axis specific map
+        keymap.update(axis_mappings.get(self.axis_name, {}))
+
         if reverse:
             kwtrans = {
                 oldkey: kw_.pop(newkey)
