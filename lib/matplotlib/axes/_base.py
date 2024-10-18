@@ -3134,7 +3134,7 @@ class _AxesBase(martist.Artist):
         if not self.get_figure(root=True).canvas.is_saving():
             artists = [
                 a for a in artists
-                if not a.get_animated() or isinstance(a, mimage.AxesImage)]
+                if not a.get_animated()]
         artists = sorted(artists, key=attrgetter('zorder'))
 
         # rasterize artists with negative zorder
