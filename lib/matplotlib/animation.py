@@ -848,6 +848,7 @@ class Animation:
         # that cause the frame sequence to be iterated.
         self.frame_seq = self.new_frame_seq()
         self.event_source = event_source
+        self.event_source.add_callback(self._step)
 
         # Instead of starting the event source now, we connect to the figure's
         # draw_event, so that we only start once the figure has been drawn.
@@ -880,13 +881,9 @@ class Animation:
             return
         # First disconnect our draw event handler
         self._fig.canvas.mpl_disconnect(self._first_draw_id)
-
         # Now do any initial draw
         self._init_draw()
-
-        # Add our callback for stepping the animation and
-        # actually start the event_source.
-        self.event_source.add_callback(self._step)
+        # Actually start the event_source.
         self.event_source.start()
 
     def _stop(self, *args):
