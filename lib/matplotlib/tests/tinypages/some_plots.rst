@@ -175,12 +175,12 @@ Plot 22 uses a different specific function in a file with plot commands:
 
 .. plot:: range6.py range10
 
-Plots 23 and 24 use output-base-name.
+Plots 23 and 24 use image-basename.
 
 .. plot::
-   :output-base-name: custom-base-name-6
+   :image-basename: custom-basename-6
 
    plt.plot(range(6))
 
 .. plot:: range4.py
-   :output-base-name: custom-base-name-4
+   :image-basename: custom-basename-4
