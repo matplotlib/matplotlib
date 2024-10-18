@@ -40,6 +40,7 @@ dependencies:
   - sphinx>=3.0.0,!=6.1.2
   - sphinx-copybutton
   - sphinx-gallery>=0.12.0
+  - joblib  # needed for sphinx-gallery[parallel]
   - sphinx-design
   - sphinx-tags>=0.4.0
   - pip
