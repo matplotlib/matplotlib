@@ -40,22 +40,32 @@ static bool keyChangeOption = false;
 static bool keyChangeCapsLock = false;
 /* Keep track of the current mouse up/down state for open/closed cursor hand */
 static bool leftMouseGrabbing = false;
-/* Keep track of whether stdin has been received */
-static bool stdin_received = false;
-static bool stdin_sigint = false;
 // Global variable to store the original SIGINT handler
 static PyOS_sighandler_t originalSigintAction = NULL;
 
+// Stop the current app's run loop, sending an event to ensure it actually stops
+static void stop_with_event() {
+    [NSApp stop: nil];
+    // Post an event to trigger the actual stopping.
+    [NSApp postEvent: [NSEvent otherEventWithType: NSEventTypeApplicationDefined
+                                         location: NSZeroPoint
+                                    modifierFlags: 0
+                                        timestamp: 0
+                                     windowNumber: 0
+                                          context: nil
+                                          subtype: 0
+                                            data1: 0
+                                            data2: 0]
+             atStart: YES];
+}
+
 // Signal handler for SIGINT, only sets a flag to exit the run loop
 static void handleSigint(int signal) {
-    stdin_sigint = true;
+  stop_with_event();
 }
 
 static int wait_for_stdin() {
     @autoreleasepool {
-        stdin_received = false;
-        stdin_sigint = false;
-
         // Set up a SIGINT handler to interrupt the event loop if ctrl+c comes in too
         originalSigintAction = PyOS_setsig(SIGINT, handleSigint);
 
@@ -66,33 +76,14 @@ static int wait_for_stdin() {
         [[NSNotificationCenter defaultCenter] addObserverForName: NSFileHandleDataAvailableNotification
                                                           object: stdinHandle
                                                            queue: [NSOperationQueue mainQueue] // Use the main queue
-                                                      usingBlock: ^(NSNotification *notification) {
-                                                                    // Mark that input has been received
-                                                                    stdin_received = true;
-                                                                    }
+                                                      usingBlock: ^(NSNotification *notification) {stop_with_event();}
         ];
 
         // Wait in the background for anything that happens to stdin
         [stdinHandle waitForDataInBackgroundAndNotify];
 
-        // continuously run an event loop until the stdin_received flag is set to exit
-        while (!stdin_received && !stdin_sigint) {
-            // This loop is similar to the main event loop and flush_events which have
-            // Py_[BEGIN|END]_ALLOW_THREADS surrounding the loop.
-            // This should not be necessary here because PyOS_InputHook releases the GIL for us.
-            while (true) {
-                NSEvent *event = [NSApp nextEventMatchingMask: NSEventMaskAny
-                                                    untilDate: [NSDate distantPast]
-                                                       inMode: NSDefaultRunLoopMode
-                                                      dequeue: YES];
-                if (!event) { break; }
-                [NSApp sendEvent: event];
-            }
-            // We need to run the run loop for a short time to allow the
-            // events to be processed and keep flushing them while we wait for stdin
-            // without this, the CPU usage will be very high constantly polling this loop
-            [[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 0.01]];
-        }
+        [NSApp run];
+
         // Remove the input handler as an observer
         [[NSNotificationCenter defaultCenter] removeObserver: stdinHandle];
 
@@ -240,20 +231,7 @@ wake_on_fd_write(PyObject* unused, PyObject* args)
 static PyObject*
 stop(PyObject* self)
 {
-    // Remove our input hook and stop the event loop.
-    PyOS_InputHook = NULL;
-    [NSApp stop: nil];
-    // Post an event to trigger the actual stopping.
-    [NSApp postEvent: [NSEvent otherEventWithType: NSEventTypeApplicationDefined
-                                         location: NSZeroPoint
-                                    modifierFlags: 0
-                                        timestamp: 0
-                                     windowNumber: 0
-                                          context: nil
-                                          subtype: 0
-                                            data1: 0
-                                            data2: 0]
-             atStart: YES];
+    stop_with_event();
     Py_RETURN_NONE;
 }
 
