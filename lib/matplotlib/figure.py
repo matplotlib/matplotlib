@@ -2972,7 +2972,8 @@ None}, default: None
 
     @_docstring.interpd
     def figimage(self, X, xo=0, yo=0, alpha=None, norm=None, cmap=None,
-                 vmin=None, vmax=None, origin=None, resize=False, **kwargs):
+                 vmin=None, vmax=None, origin=None, resize=False, *,
+                 colorizer=None, **kwargs):
         """
         Add a non-resampled image to the figure.
 
@@ -3015,6 +3016,10 @@ None}, default: None
         resize : bool
             If *True*, resize the figure to match the given image size.
 
+        %(colorizer_doc)s
+
+            This parameter is ignored if *X* is RGB(A).
+
         Returns
         -------
         `matplotlib.image.FigureImage`
@@ -3048,6 +3053,7 @@ None}, default: None
             self.set_size_inches(figsize, forward=True)
 
         im = mimage.FigureImage(self, cmap=cmap, norm=norm,
+                                colorizer=colorizer,
                                 offsetx=xo, offsety=yo,
                                 origin=origin, **kwargs)
         im.stale_callback = _stale_figure_callback
@@ -3055,6 +3061,7 @@ None}, default: None
         im.set_array(X)
         im.set_alpha(alpha)
         if norm is None:
+            im._check_exclusionary_keywords(colorizer, vmin=vmin, vmax=vmax)
             im.set_clim(vmin, vmax)
         self.images.append(im)
         im._remove_method = self.images.remove

@@ -29,7 +29,6 @@ import yaml
 
 import matplotlib
 
-
 # debug that building expected version
 print(f"Building Documentation for Matplotlib: {matplotlib.__version__}")
 
@@ -852,6 +851,58 @@ else:
     extensions.append('sphinx.ext.viewcode')
 
 
+def generate_ScalarMappable_docs():
+
+    import matplotlib.colorizer
+    from numpydoc.docscrape_sphinx import get_doc_object
+    from pathlib import Path
+    import textwrap
+    from sphinx.util.inspect import stringify_signature
+    target_file = Path(__file__).parent / 'api' / 'scalarmappable.gen_rst'
+    with open(target_file, 'w') as fout:
+        fout.write("""
+.. class:: ScalarMappable(colorizer, **kwargs)
+   :canonical: matplotlib.colorizer._ScalarMappable
+
+""")
+        for meth in [
+                matplotlib.colorizer._ScalarMappable.autoscale,
+                matplotlib.colorizer._ScalarMappable.autoscale_None,
+                matplotlib.colorizer._ScalarMappable.changed,
+                """
+   .. attribute:: colorbar
+
+        The last colorbar associated with this ScalarMappable. May be None.
+""",
+                matplotlib.colorizer._ScalarMappable.get_alpha,
+                matplotlib.colorizer._ScalarMappable.get_array,
+                matplotlib.colorizer._ScalarMappable.get_clim,
+                matplotlib.colorizer._ScalarMappable.get_cmap,
+                """
+   .. property:: norm
+""",
+                matplotlib.colorizer._ScalarMappable.set_array,
+                matplotlib.colorizer._ScalarMappable.set_clim,
+                matplotlib.colorizer._ScalarMappable.set_cmap,
+                matplotlib.colorizer._ScalarMappable.set_norm,
+                matplotlib.colorizer._ScalarMappable.to_rgba,
+        ]:
+            if isinstance(meth, str):
+                fout.write(meth)
+            else:
+                name = meth.__name__
+                sig = stringify_signature(inspect.signature(meth))
+                docstring = textwrap.indent(
+                    str(get_doc_object(meth)),
+                    '      '
+                ).rstrip()
+                fout.write(f"""
+   .. method::  {name}{sig}
+{docstring}
+
+""")
+
+
 # -----------------------------------------------------------------------------
 # Sphinx setup
 # -----------------------------------------------------------------------------
@@ -865,3 +916,4 @@ def setup(app):
     app.connect('autodoc-process-bases', autodoc_process_bases)
     if sphinx.version_info[:2] < (7, 1):
         app.connect('html-page-context', add_html_cache_busting, priority=1000)
+    generate_ScalarMappable_docs()
