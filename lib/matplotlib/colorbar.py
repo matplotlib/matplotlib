@@ -478,7 +478,7 @@ class Colorbar:
         del self.ax.cla
         self.ax.cla()
 
-    def update_normal(self, mappable):
+    def update_normal(self, mappable=None):
         """
         Update solid patches, lines, etc.
 
@@ -491,12 +491,21 @@ class Colorbar:
         changes values of *vmin*, *vmax* or *cmap* then the old formatter
         and locator will be preserved.
         """
-        _log.debug('colorbar update normal %r %r', mappable.norm, self.norm)
-        self.mappable = mappable
-        self.set_alpha(mappable.get_alpha())
-        self.cmap = mappable.cmap
-        if mappable.norm != self.norm:
-            self.norm = mappable.norm
+        if mappable:
+            # The mappable keyword argument exists because
+            # ScalarMappable.changed() emits self.callbacks.process('changed', self)
+            # in contrast, ColorizingArtist (and Colorizer) does not use this keyword.
+            # [ColorizingArtist.changed() emits self.callbacks.process('changed')]
+            # Also, there is no test where self.mappable == mappable is not True
+            # and possibly no use case.
+            # Therefore, the mappable keyword can be deprecated if cm.ScalarMappable
+            # is removed.
+            self.mappable = mappable
+        _log.debug('colorbar update normal %r %r', self.mappable.norm, self.norm)
+        self.set_alpha(self.mappable.get_alpha())
+        self.cmap = self.mappable.cmap
+        if self.mappable.norm != self.norm:
+            self.norm = self.mappable.norm
             self._reset_locator_formatter_scale()
 
         self._draw_all()
