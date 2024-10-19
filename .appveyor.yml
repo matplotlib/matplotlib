@@ -45,9 +45,8 @@ cache:
 
 init:
   - ps:
-      # Pinned due to https://github.com/mamba-org/mamba/issues/3467
       Invoke-Webrequest
-      -URI https://github.com/mamba-org/micromamba-releases/releases/download/1.5.10-0/micromamba-win-64.tar.bz2
+      -URI https://micro.mamba.pm/api/micromamba/win-64/latest
       -OutFile C:\projects\micromamba.tar.bz2
   - ps: C:\PROGRA~1\7-Zip\7z.exe x C:\projects\micromamba.tar.bz2 -aoa -oC:\projects\
   - ps: C:\PROGRA~1\7-Zip\7z.exe x C:\projects\micromamba.tar -ttar -aoa -oC:\projects\
@@ -55,6 +54,7 @@ init:
   - micromamba shell init --shell cmd.exe
   - micromamba config set always_yes true
   - micromamba config prepend channels conda-forge
+  - micromamba info
 
 install:
   - micromamba env create -f environment.yml python=%PYTHON_VERSION% pywin32
