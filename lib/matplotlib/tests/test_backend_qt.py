@@ -227,6 +227,20 @@ def test_figureoptions():
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_save_figure_return():
+    fig, ax = plt.subplots()
+    ax.imshow([[1]])
+    prop = "matplotlib.backends.qt_compat.QtWidgets.QFileDialog.getSaveFileName"
+    with mock.patch(prop, return_value=("foobar.png", None)):
+        fname = fig.canvas.manager.toolbar.save_figure()
+        os.remove("foobar.png")
+        assert fname == "foobar.png"
+    with mock.patch(prop, return_value=(None, None)):
+        fname = fig.canvas.manager.toolbar.save_figure()
+        assert fname is None
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_figureoptions_with_datetime_axes():
     fig, ax = plt.subplots()
     xydata = [
