@@ -110,8 +110,29 @@ extension_data = {
   },
 }
 
+if cpp.get_id() == 'msvc'
+  # This flag fixes some bugs with the macro processing, namely
+  # https://learn.microsoft.com/en-us/cpp/preprocessor/preprocessor-experimental-overview?view=msvc-170#macro-arguments-are-unpacked
+  if cpp.has_argument('/Zc:preprocessor')
+    # This flag was added in MSVC 2019 version 16.5, which deprecated the one below.
+    new_preprocessor = '/Zc:preprocessor'
+  else
+    # Since we currently support any version of MSVC 2019 (vc142), we'll stick with the
+    # older flag, added in MSVC 2017 version 15.8.
+    new_preprocessor = '/experimental:preprocessor'
+  endif
+else
+  new_preprocessor = []
+endif
+
 foreach ext, kwargs : extension_data
-  py3.extension_module(ext, install: true, kwargs: kwargs)
+  additions = {
+    'cpp_args': [new_preprocessor] + kwargs.get('cpp_args', []),
+  }
+  py3.extension_module(
+    ext,
+    install: true,
+    kwargs: kwargs + additions)
 endforeach
 
 if get_option('macosx') and host_machine.system() == 'darwin'

@@ -8,7 +8,7 @@ from matplotlib import _text_helpers, dviread
 from matplotlib.font_manager import (
     FontProperties, get_font, fontManager as _fontManager
 )
-from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_TARGET_LIGHT
+from matplotlib.ft2font import LoadFlags
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.texmanager import TexManager
@@ -37,7 +37,7 @@ class TextToPath:
         return font
 
     def _get_hinting_flag(self):
-        return LOAD_NO_HINTING
+        return LoadFlags.NO_HINTING
 
     def _get_char_id(self, font, ccode):
         """
@@ -61,7 +61,7 @@ class TextToPath:
             return width * scale, height * scale, descent * scale
 
         font = self._get_font(prop)
-        font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
+        font.set_text(s, 0.0, flags=LoadFlags.NO_HINTING)
         w, h = font.get_width_height()
         w /= 64.0  # convert from subpixels
         h /= 64.0
@@ -190,7 +190,7 @@ class TextToPath:
             if char_id not in glyph_map:
                 font.clear()
                 font.set_size(self.FONT_SCALE, self.DPI)
-                font.load_char(ccode, flags=LOAD_NO_HINTING)
+                font.load_char(ccode, flags=LoadFlags.NO_HINTING)
                 glyph_map_new[char_id] = font.get_path()
 
             xpositions.append(ox)
@@ -241,11 +241,11 @@ class TextToPath:
                 glyph_name_or_index = text.glyph_name_or_index
                 if isinstance(glyph_name_or_index, str):
                     index = font.get_name_index(glyph_name_or_index)
-                    font.load_glyph(index, flags=LOAD_TARGET_LIGHT)
+                    font.load_glyph(index, flags=LoadFlags.TARGET_LIGHT)
                 elif isinstance(glyph_name_or_index, int):
                     self._select_native_charmap(font)
                     font.load_char(
-                        glyph_name_or_index, flags=LOAD_TARGET_LIGHT)
+                        glyph_name_or_index, flags=LoadFlags.TARGET_LIGHT)
                 else:  # Should not occur.
                     raise TypeError(f"Glyph spec of unexpected type: "
                                     f"{glyph_name_or_index!r}")

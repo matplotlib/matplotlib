@@ -354,7 +354,8 @@ void FT2Font::select_charmap(unsigned long i)
     }
 }
 
-int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode, bool fallback = false)
+int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_Kerning_Mode mode,
+                         bool fallback = false)
 {
     if (fallback && glyph_to_font.find(left) != glyph_to_font.end() &&
         glyph_to_font.find(right) != glyph_to_font.end()) {
@@ -375,7 +376,8 @@ int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode, bool fallbac
     }
 }
 
-int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode, FT_Vector &delta)
+int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_Kerning_Mode mode,
+                         FT_Vector &delta)
 {
     if (!FT_HAS_KERNING(face)) {
         return 0;
