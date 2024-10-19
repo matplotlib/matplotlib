@@ -87,20 +87,28 @@ C : 1D or 2D array-like, optional
 angles : {'uv', 'xy'} or array-like, default: 'uv'
     Method for determining the angle of the arrows.
 
-    - 'uv': Arrow direction in screen coordinates. Use this if the arrows
-      symbolize a quantity that is not based on *X*, *Y* data coordinates.
+    - 'uv':  Arrow directions are based on
+      :ref:`display coordinates <coordinate-systems>`; i.e. a 45° angle will
+      always show up as diagonal on the screen, irrespective of figure or Axes
+      aspect ratio or Axes data ranges. This is useful when the arrows represent
+      a quantity whose direction is not tied to the x and y data coordinates.
 
       If *U* == *V* the orientation of the arrow on the plot is 45 degrees
       counter-clockwise from the horizontal axis (positive to the right).
 
     - 'xy': Arrow direction in data coordinates, i.e. the arrows point from
-      (x, y) to (x+u, y+v). Use this e.g. for plotting a gradient field.
+      (x, y) to (x+u, y+v). This is ideal for vector fields or gradient plots
+      where the arrows should directly represent movements or gradients in the
+      x and y directions.
 
     - Arbitrary angles may be specified explicitly as an array of values
       in degrees, counter-clockwise from the horizontal axis.
 
       In this case *U*, *V* is only used to determine the length of the
       arrows.
+
+      For example, ``angles=[30, 60, 90]`` will orient the arrows at 30, 60, and 90
+      degrees respectively, regardless of the *U* and *V* components.
 
     Note: inverting a data axis will correspondingly invert the
     arrows only with ``angles='xy'``.
@@ -114,26 +122,56 @@ pivot : {'tail', 'mid', 'middle', 'tip'}, default: 'tail'
 scale : float, optional
     Scales the length of the arrow inversely.
 
-    Number of data units per arrow length unit, e.g., m/s per plot width; a
-    smaller scale parameter makes the arrow longer. Default is *None*.
+    Number of data values represented by one unit of arrow length on the plot.
+    For example, if the data represents velocity in meters per second (m/s), the
+    scale parameter determines how many meters per second correspond to one unit of
+    arrow length relative to the width of the plot.
+    Smaller scale parameter makes the arrow longer.
 
-    If *None*, a simple autoscaling algorithm is used, based on the average
-    vector length and the number of vectors. The arrow length unit is given by
-    the *scale_units* parameter.
+    If *None*, a autoscaling algorithm is used to scale the arrow lenght to a
+    reasonable size, which is based on the average vector length and the number of
+    vectors.If the autoscaling does not yield a reasonable result, the user has to
+    manually define a scale.
+
+    The arrow length unit is given by the *scale_units* parameter.
 
 scale_units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'}, optional
-    If the *scale* kwarg is *None*, the arrow length unit. Default is *None*.
+    If scale_units is None, the length of the arrows is effectively same as when it
+    is set to 'width', meaning the arrow length will be relative to the width of
+    the axes.
 
-    e.g. *scale_units* is 'inches', *scale* is 2.0, and ``(u, v) = (1, 0)``,
-    then the vector will be 0.5 inches long.
+    - 'width' or 'height': The arrow length is scaled relative to the width or height
+      of the axes. In this case, the arrow length will be relative to the width or
+      height of the axes.
+      "For example, if *scale_units* is 'width' or 'height' and *scale* is 1.0, will
+      result in an arrow length of width/height of the axes."
+      The generalize formula is as follows:
+            Arrow length in x-direction = :math:`Axes width or height * u/scale`
+            Arrow length in y-direction = :math:`Axes width or height * v/scale`
 
-    If *scale_units* is 'width' or 'height', then the vector will be half the
-    width/height of the axes.
+    - 'dots': The arrow length of the arrows is in measured in display dots (pixels).
 
-    If *scale_units* is 'x' then the vector will be 0.5 x-axis
-    units. To plot vectors in the x-y plane, with u and v having
-    the same units as x and y, use
-    ``angles='xy', scale_units='xy', scale=1``.
+    - 'inches': Arrow lengths are scaled based on the DPI (dots per inch) of the figure.
+      This ensures that the arrows have a consistent physical size on the figure,
+      in inches, regardless of data values or plot scaling.
+      "For example, if scale_units is 'inches', scale is 2.0, and `(u, v) = (1, 0)`,
+      then the vector will be 0.5 inches long."
+
+    - 'x' or 'y': The arrow length is scaled relative to the x or y axis units.
+      For example, if *scale_units* is 'x' and *scale* is 1.0, the vector will be
+      x-axis units long.
+      The generalize formula is as follows:
+            Arrow length in x-direction = :math:`u/scale`
+            Arrow length in y-direction = :math:`v/scale`
+
+    - 'xy': Arrow length will be same as 'x' or 'y' units.
+      This is useful for creating vectors in the x-y plane where u and v have
+      the same units as x and y. To plot vectors in the x-y plane with u and v having
+      the same units as x and y, use ``angles='xy', scale_units='xy', scale=1``.
+
+    Note: setting scale_units without setting scale does not have any effect because
+    the scale units only differ by a constant factor and that is rescaled through
+    autoscaling.
 
 units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'}, default: 'width'
     Affects the arrow size (except for the length). In particular, the shaft
