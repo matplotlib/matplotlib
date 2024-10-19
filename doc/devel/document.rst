@@ -730,13 +730,6 @@ hiding it from the rendered docs.
 Keyword arguments
 -----------------
 
-.. note::
-
-  The information in this section is being actively discussed by the
-  development team, so use the docstring interpolation only if necessary.
-  This section has been left in place for now because this interpolation
-  is part of the existing documentation.
-
 Since Matplotlib uses a lot of pass-through ``kwargs``, e.g., in every function
 that creates a line (`~.pyplot.plot`, `~.pyplot.semilogx`, `~.pyplot.semilogy`,
 etc.), it can be difficult for the new user to know which ``kwargs`` are
@@ -795,6 +788,35 @@ the subclass and its properties are not defined yet at that point.  Instead,
 ``@_docstring.interpd`` can be used to decorate the class itself -- at that
 point, `.kwdoc` can list the properties and interpolate them into
 ``__init__.__doc__``.
+
+
+Create interpolated stubs
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you are contributing code that will require keyword argument forwarding or creating
+an object that may be returned in many places, such as the `.Line2D` artist, then you
+may want to create docstrings that can be interpolated. To add documentation to the
+``interpd`` lookup, add an identifier and the associated docstring:
+
+.. code-block:: python
+
+  from matplotlib import _docstring
+
+  _docstring.interpd.update(new_artist_doc="creates smiley faces")
+
+This now allows the string to be used in any docstring. For example:
+
+.. code-block:: python
+
+  def plot(self, *args, **kwargs):
+    """
+    **kwargs : new artist properties, optional
+        %(new_artist_doc)s
+    """
+
+
+The list of interpolated stubs is stored in the ``_docstring.interpd.params``
+dictionary.
 
 
 Inherit docstrings
