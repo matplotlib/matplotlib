@@ -1,6 +1,7 @@
 import functools
 import logging
 import os
+import sys
 from pathlib import Path
 
 import matplotlib as mpl
@@ -27,7 +28,7 @@ from gi.repository import Gio, GLib, GObject, Gtk, Gdk
 from . import _backend_gtk
 from ._backend_gtk import (  # noqa: F401 # pylint: disable=W0611
     _BackendGTK, _FigureCanvasGTK, _FigureManagerGTK, _NavigationToolbar2GTK,
-    TimerGTK as TimerGTK3,
+    _WindowGTK, TimerGTK as TimerGTK3,
 )
 
 
@@ -39,6 +40,36 @@ def _mpl_to_gtk_cursor(mpl_cursor):
     return Gdk.Cursor.new_from_name(
         Gdk.Display.get_default(),
         _backend_gtk.mpl_to_gtk_cursor_name(mpl_cursor))
+
+
+class WindowGTK3(_WindowGTK):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.set_wmclass("matplotlib", "Matplotlib")
+        icon_ext = "png" if sys.platform == "win32" else "svg"
+        self.set_icon_from_file(
+            str(cbook._get_data_path(f"images/matplotlib.{icon_ext}")))
+
+    def _add_element(self, parent, child, appending, grow):
+        # Helper method to ease compatibility between GTK3 and GTK4
+        if appending:
+            parent.pack_start(child, grow, grow, 0)
+        else:
+            parent.pack_end(child, grow, grow, 0)
+
+    def set_child(self, *args, **kwargs):
+        self.add(*args, **kwargs)
+
+    def _setup_signals(self):
+        self.connect('destroy', self.destroy_event)
+        self.connect('delete_event', self.destroy_event)
+
+    def is_fullscreen(self):
+        return self.get_window().get_state() & Gdk.WindowState.FULLSCREEN
+
+    def _get_self(self):
+        return self.get_window()
 
 
 class FigureCanvasGTK3(_FigureCanvasGTK, Gtk.DrawingArea):
@@ -574,6 +605,7 @@ backend_tools._register_tool_class(
 class FigureManagerGTK3(_FigureManagerGTK):
     _toolbar2_class = NavigationToolbar2GTK3
     _toolmanager_toolbar_class = ToolbarGTK3
+    _window_class = WindowGTK3
 
 
 @_BackendGTK.export
