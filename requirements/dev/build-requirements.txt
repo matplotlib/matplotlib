@@ -1,3 +1,5 @@
 pybind11!=2.13.3
-meson-python
+git+https://github.com/dnicolodi/meson-python@pep639
+meson>=1.6.0rc2
+pyproject-metadata>=0.9.0b7
 setuptools-scm
