@@ -1262,7 +1262,7 @@ class _AxesBase(martist.Artist):
         self.set_ylim(y0, y1, emit=False, auto=other.get_autoscaley_on())
         self.yaxis._scale = other.yaxis._scale
 
-    def __clear(self):
+    def __clear(self, **kwargs):
         """Clear the Axes."""
         # The actual implementation of clear() as long as clear() has to be
         # an adapter delegating to the correct implementation.
@@ -1279,7 +1279,7 @@ class _AxesBase(martist.Artist):
         yaxis_visible = self.yaxis.get_visible()
 
         for axis in self._axis_map.values():
-            axis.clear()  # Also resets the scale to linear.
+            axis.clear(**kwargs)  # Also resets the scale to linear.
         for spine in self.spines.values():
             spine._clear()  # Use _clear to not clear Axis again
 
@@ -1389,23 +1389,23 @@ class _AxesBase(martist.Artist):
 
         self.stale = True
 
-    def clear(self):
+    def clear(self, **kwargs):
         """Clear the Axes."""
         # Act as an alias, or as the superclass implementation depending on the
         # subclass implementation.
         if self._subclass_uses_cla:
-            self.cla()
+            self.cla(**kwargs)
         else:
-            self.__clear()
+            self.__clear(**kwargs)
 
-    def cla(self):
+    def cla(self, **kwargs):
         """Clear the Axes."""
         # Act as an alias, or as the superclass implementation depending on the
         # subclass implementation.
         if self._subclass_uses_cla:
-            self.__clear()
+            self.__clear(**kwargs)
         else:
-            self.clear()
+            self.clear(**kwargs)
 
     class ArtistList(Sequence):
         """
