@@ -329,6 +329,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             return
         MouseEvent("motion_notify_event", self,
                    *self.mouseEventCoords(event),
+                   buttons=self._mpl_buttons(event.buttons()),
                    modifiers=self._mpl_modifiers(),
                    guiEvent=event)._process()
 
@@ -395,6 +396,13 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def minimumSizeHint(self):
         return QtCore.QSize(10, 10)
+
+    @staticmethod
+    def _mpl_buttons(buttons):
+        buttons = _to_int(buttons)
+        # State *after* press/release.
+        return {button for mask, button in FigureCanvasQT.buttond.items()
+                if _to_int(mask) & buttons}
 
     @staticmethod
     def _mpl_modifiers(modifiers=None, *, exclude=None):
