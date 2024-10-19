@@ -1,5 +1,5 @@
-``matplotlib.ticker.EngFormatter`` now computes offset by default
------------------------------------------------------------------
+``matplotlib.ticker.EngFormatter`` can computes offsets now
+-----------------------------------------------------------
 
 `matplotlib.ticker.EngFormatter` has gained the ability to show an offset text near the
 axis. Using logic shared with `matplotlib.ticker.ScalarFormatter`, it is capable of
