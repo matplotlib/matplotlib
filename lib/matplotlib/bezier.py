@@ -111,7 +111,7 @@ def split_de_casteljau(beta, t):
 
 
 def find_bezier_t_intersecting_with_closedpath(
-        bezier_point_at_t, inside_closedpath, t0=0., t1=1., tolerance=0.01):
+        bezier_point_at_t, inside_closedpath, t0=0., t1=1., tolerence=0.01):
     """
     Find the intersection of the Bézier curve with a closed path.
 
@@ -121,7 +121,7 @@ def find_bezier_t_intersecting_with_closedpath(
     Search starts from *t0* and *t1* and uses a simple bisecting algorithm
     therefore one of the end points must be inside the path while the other
     doesn't. The search stops when the distance of the points parametrized by
-    *t0* and *t1* gets smaller than the given *tolerance*.
+    *t0* and *t1* gets smaller than the given *tolerence*.
 
     Parameters
     ----------
