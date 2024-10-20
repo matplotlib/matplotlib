@@ -3,7 +3,7 @@
 .. _contributing:
 
 ******************
-Contributing guide
+Contribution guide
 ******************
 
 
@@ -17,16 +17,8 @@ You want to tell us about it — best of all!
 Below, you can find a number of ways to contribute, and how to connect with the
 Matplotlib community.
 
-.. _start-contributing:
-
-Get started
-===========
-
-There is no pre-defined pathway for new contributors -- we recommend looking at
-existing issue and pull request discussions, and following the conversations
-during pull request reviews to get context. Or you can deep-dive into a subset
-of the code-base to understand what is going on.
-
+Ways to contribute
+==================
 .. dropdown:: Do I really have something to contribute to Matplotlib?
     :open:
     :icon: person-fill
@@ -106,7 +98,7 @@ Code is contributed through pull requests, so we recommend that you start at
 Documentation
 -------------
 
-You as an end-user of Matplotlib can make a valuable contribution because you
+You, as an end-user of Matplotlib can make a valuable contribution because you can
 more clearly see the potential for improvement than a core developer. For example,
 you can:
 
@@ -193,15 +185,28 @@ please cite us following the :doc:`/project/citing` guidelines.
 If you have developed an extension to Matplotlib, please consider adding it to our
 `third party package <https://github.com/matplotlib/mpl-third-party>`_  list.
 
+.. _new_contributors:
 
-.. _get_connected:
+New Contributors
+================
 
-Get connected
-=============
-When in doubt, we recommend going together! Get connected with our community of
-active contributors, many of whom felt just like you when they started out and
-are happy to welcome you and support you as you get to know how we work, and
-where things are.
+.. _new_contributors_meeting:
+
+New Contributors Meeting
+------------------------
+
+Once a month, we host a meeting to discuss topics that interest new
+contributors. Anyone can attend, present, or sit in and listen to the call.
+Among our attendees are fellow new contributors, as well as maintainers, and
+veteran contributors, who are keen to support onboarding of new folks and
+share their experience. You can find our community calendar link at the
+`Scientific Python website <https://scientific-python.org/calendars/>`_, and
+you can browse previous meeting notes on `GitHub
+<https://github.com/matplotlib/ProjectManagement/tree/master/new_contributor_meeting>`_.
+We recommend joining the meeting to clarify any doubts, or lingering
+questions you might have, and to get to know a few of the people behind the
+GitHub handles 😉. You can reach out to us on gitter_ for any clarifications or
+suggestions. We ❤ feedback!
 
 .. _contributor_incubator:
 
@@ -221,40 +226,6 @@ To join, please go to our public community_ channel, and ask to be added to
 
 .. _gitter: https://gitter.im/matplotlib/matplotlib
 .. _community: https://gitter.im/matplotlib/community
-
-
-.. _new_contributors:
-
-New Contributors Meeting
-------------------------
-
-Once a month, we host a meeting to discuss topics that interest new
-contributors. Anyone can attend, present, or sit in and listen to the call.
-Among our attendees are fellow new contributors, as well as maintainers, and
-veteran contributors, who are keen to support onboarding of new folks and
-share their experience. You can find our community calendar link at the
-`Scientific Python website <https://scientific-python.org/calendars/>`_, and
-you can browse previous meeting notes on `GitHub
-<https://github.com/matplotlib/ProjectManagement/tree/master/new_contributor_meeting>`_.
-We recommend joining the meeting to clarify any doubts, or lingering
-questions you might have, and to get to know a few of the people behind the
-GitHub handles 😉. You can reach out to us on gitter_ for any clarifications or
-suggestions. We ❤ feedback!
-
-.. _managing_issues_prs:
-
-Work on an issue
-================
-
-In general, the Matplotlib project does not assign issues. Issues are
-"assigned" or "claimed" by opening a PR; there is no other assignment
-mechanism. If you have opened such a PR, please comment on the issue thread to
-avoid duplication of work. Please check if there is an existing PR for the
-issue you are addressing. If there is, try to work with the author by
-submitting reviews of their code or commenting on the PR rather than opening
-a new PR; duplicate PRs are subject to being closed.  However, if the existing
-PR is an outline, unlikely to work, or stalled, and the original author is
-unresponsive, feel free to open a new PR referencing the old one.
 
 .. _good_first_issues:
 
@@ -279,11 +250,85 @@ though not necessarily all at the same time:
 - It involves Python features such as decorators and context managers, which
   have subtleties due to our implementation decisions.
 
+.. _first_contribution:
+
+First Contributions
+-------------------
+
+If this is your first open source contribution, or first time contributing to Matplotlib,
+and you need help or guidance finding a good first issue, look no further. This section will
+guide you through each step.
+
+1. Navigate to the `issues page <https://github.com/matplotlib/matplotlib/issues/>`_.
+2. Filter labels with `"Difficulty: Easy" <https://github.com/matplotlib/matplotlib/labels/Difficulty%3A%20Easy>`_ & `"Good first Issue" <https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_ (optional).
+3. Click on an issue you would like to work on, and check to see if the issue has a PR opened to resolve the issue.
+4. A good way to judge if you chose a suitable issue is by asking yourself, "Can I independently submit a PR in 1-2 weeks?"
+5. Check the pull requests (i.e. :ghpull:`28476`)  and filter by the issue number to make sure the issue is not in progress.
+6. If the issue has a PR (is in progress), tag the user working on the issue, and ask to collaborate (optional).
+7. After steps 3 & 5 are done, and a PR does not exist, create a `draft PR <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests>`_ and follow the `pull request guidelines <https://matplotlib.org/devdocs/devel/pr_guide.html>`_ .
+8. Please familiarize yourself with the PR Checklist (see below), and ensure you understand/are able to complete the checklist when it comes time to your PR. Additional information can be found in the `pull request guidelines <https://matplotlib.org/devdocs/devel/pr_guide.html>`_.
+
+   .. note::
+     `PR Checklist <https://github.com/matplotlib/matplotlib/blob/main/.github/PULL_REQUEST_TEMPLATE.md>`_
+
+     Please mark any checkboxes that do not apply to this PR as [N/A].
+
+     - [ ] "closes #0000" is in the body of the PR description to `link the related issue <https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue>`_
+
+     - [ ] explain implementation choices in the summary
+
+     - [ ] new and changed code is `tested <https://matplotlib.org/devdocs/devel/testing.html>`_
+
+     - [ ] *Plotting related* features are demonstrated in an `example <https://matplotlib.org/devdocs/devel/document.html#write-examples-and-tutorials>`_
+
+     - [ ] *New Features* and *API Changes* are noted with a `directive and release note <https://matplotlib.org/devdocs/devel/api_changes.html#announce-changes-deprecations-and-new-features>`_
+
+     - [ ] Documentation complies with `general <https://matplotlib.org/devdocs/devel/document.html#write-rest-pages>`_ and `docstring <https://matplotlib.org/devdocs/devel/document.html#write-docstrings>`_ guidelines
+
+.. _start-contributing:
+
+Get started
+===========
+
+There is no pre-defined pathway for new contributors -- we recommend looking at
+existing issue and pull request discussions, and following the conversations
+during pull request reviews to get context. Or you can deep-dive into a subset
+of the code-base to understand what is going on.
+
+.. _get_connected:
+
+Get connected:
+------------------------------------
+
+When in doubt, we recommend going together! Get connected with our community of
+active contributors, many of whom felt just like you when they started out and
+are happy to welcome you and support you as you get to know how we work, and
+where things are. You can reach out on any of our :ref:`communication-channels`.
+For development questions we recommend reaching out on our development gitter_
+chat room and for community questions reach out at community_.
+
+.. _gitter: https://gitter.im/matplotlib/matplotlib
+.. _community: https://gitter.im/matplotlib/community
+
+.. _managing_issues_prs:
+
+Choose an issue
+---------------
+
+In general, the Matplotlib project does not assign issues. Issues are
+"assigned" or "claimed" by opening a PR; there is no other assignment
+mechanism. If you have opened such a PR, please comment on the issue thread to
+avoid duplication of work. Please check if there is an existing PR for the
+issue you are addressing. If there is, try to work with the author by
+submitting reviews of their code or commenting on the PR rather than opening
+a new PR; duplicate PRs are subject to being closed.  However, if the existing
+PR is an outline, unlikely to work, or stalled, and the original author is
+unresponsive, feel free to open a new PR referencing the old one.
 
 .. _how-to-pull-request:
 
 Start a pull request
-====================
+--------------------
 
 The preferred way to contribute to Matplotlib is to fork the `main
 repository <https://github.com/matplotlib/matplotlib/>`__ on GitHub,
@@ -294,7 +339,7 @@ in-browser development environment that comes with the appropriate setup to
 contribute to Matplotlib.
 
 Workflow overview
------------------
+^^^^^^^^^^^^^^^^^
 
 A brief overview of the workflow is as follows.
 
@@ -359,7 +404,7 @@ A brief overview of the workflow is as follows.
      git push -u origin my-feature
 
 GitHub Codespaces workflows
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""""""
 
 If you need to open a GUI window with Matplotlib output on Codespaces, our
 configuration includes a `light-weight Fluxbox-based desktop
@@ -378,16 +423,15 @@ Check the `GitHub instructions
 for more details on connecting to the desktop.
 
 View documentation
-""""""""""""""""""
+''''''''''''''''''
 
 If you also built the documentation pages, you can view them using Codespaces.
 Use the "Extensions" icon in the activity bar to install the "Live Server"
 extension. Locate the ``doc/build/html`` folder in the Explorer, right click
 the file you want to open and select "Open with Live Server."
 
-
 Open a pull request on Matplotlib
----------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Finally, go to the web page of *your fork* of the Matplotlib repo, and click
 **Compare & pull request** to send your changes to the maintainers for review.
