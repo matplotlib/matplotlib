@@ -1422,7 +1422,6 @@ class TimedAnimation(Animation):
                 self.event_source = None
                 return False
 
-        self.event_source.interval = self._interval
         return True
 
 
