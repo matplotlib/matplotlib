@@ -1,0 +1,9 @@
+{# Displays a magnifying glass icon that opens a search overlay when clicked. #}
+{# As this function will only work when JavaScript is enabled, we add it through JavaScript. #}
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="{{ _('Search') }}" aria-label="{{ _('Search') }}" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>

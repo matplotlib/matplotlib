@@ -1,0 +1,35 @@
+/* rgb #11557c */
+html[data-theme="light"] {
+  --pst-color-primary: hsl(202, 76%, 28%);
+  --pst-color-text-base: rgb(51, 51, 51);
+  --sd-color-primary-text: rgb(250, 250, 250);
+  --pst-color-link: hsl(202, 76%, 25%);
+}
+
+html[data-theme="dark"] {
+  --pst-color-primary: rgb(70, 152, 198);
+  --pst-color-text-base: rgb(250, 250, 250);
+  --sd-color-primary-text: rgb(51, 51, 51);
+  --pst-color-link: hsl(202, 53%, 80%);
+}
+
+:root {
+--pst-color-link-hover: var(--pst-color-secondary);
+}
+
+.sidebar-cheatsheets, .sidebar-donate {
+  margin: 2.75rem 0;
+}
+
+#navbar-icon-links {
+    margin-left: 1.5em;
+}
+
+#navbar-icon-links .nav-link {
+  color: #989898;
+}
+
+#navbar-icon-links .nav-link:hover {
+  color: var(--pst-color-primary);
+}
+

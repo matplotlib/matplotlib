@@ -1,0 +1,56 @@
+Metadata-Version: 2.1
+Name: flake8-docstrings
+Version: 1.7.0
+Summary: Extension for flake8 which uses pydocstyle to check docstrings
+Home-page: https://github.com/pycqa/flake8-docstrings
+Author: Simon ANDRÉ
+Author-email: sandre@anybox.fr
+Maintainer: Ian Cordasco
+Maintainer-email: graffatcolmingov@gmail.com
+License: MIT
+Keywords: PEP 257,pydocstyle,pep257,docstrings,flake8
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Provides: flake8_docstrings
+Requires-Python: >=3.7
+Description-Content-Type: text/x-rst
+License-File: LICENSE
+Requires-Dist: flake8 (>=3)
+Requires-Dist: pydocstyle (>=2.1)
+
+flake8-docstrings
+=================
+
+A simple module that adds an extension for the fantastic pydocstyle_ tool to
+flake8_.
+
+Simply install this extension::
+
+    pip install flake8-docstrings
+
+and run flake8.
+
+You can set the pydocstyle convention_ at the command line using::
+
+    $ flake8 --docstring-convention numpy ...
+
+Or, adding ``docstring-convention=numpy`` to your flake8 configuration file.
+The available set of conventions depends on the version of pydocstyle installed.
+The default is ``pep257``, pydocstyle v2.0.0 added ``numpy`` (for the numpydoc
+standard), while pydocstyle v4.0.0 added ``google``.
+
+In order to choose a custom list of error codes, use the special value
+``docstring-convention=all``, then choose the codes you want checked using
+flake8_'s built-in ``--ignore``/``--select`` functionality.
+
+Report any issues on our `bug tracker`_.
+
+.. _pydocstyle: https://github.com/pycqa/pydocstyle
+.. _flake8: https://github.com/pycqa/flake8
+.. _convention: http://www.pydocstyle.org/en/latest/error_codes.html#default-conventions
+.. _bug tracker: https://github.com/pycqa/flake8-docstrings/issues

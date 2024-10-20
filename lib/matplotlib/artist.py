@@ -212,6 +212,28 @@ class Artist:
         self._sticky_edges = _XYPair([], [])
         self._in_layout = True
 
+    def get_data(self):
+        """
+        Este método deve ser sobrescrito por subclasses para fornecer os dados
+        necessários para calcular os limites. Por exemplo, dados x e y.
+        """
+        raise NotImplementedError("Subclasses devem fornecer os dados para cálculo dos limites")
+
+    def get_data_limits(self):
+        """
+        Calcula os limites genéricos de dados (xmin, xmax, ymin, ymax) usando os dados
+        fornecidos pelo método get_data.
+        """
+        xdata, ydata = self.get_data()
+
+        if len(xdata) == 0 or len(ydata) == 0:
+            return None
+
+        xmin, xmax = min(xdata), max(xdata)
+        ymin, ymax = min(ydata), max(ydata)
+
+        return xmin, xmax, ymin, ymax
+
     def __getstate__(self):
         d = self.__dict__.copy()
         d['stale_callback'] = None

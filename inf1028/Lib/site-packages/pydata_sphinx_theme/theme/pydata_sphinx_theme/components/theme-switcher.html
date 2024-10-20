@@ -1,0 +1,11 @@
+{# Displays an icon to switch between light mode, dark mode, and auto (use browser's setting). #}
+{# As the theme switcher will only work when JavaScript is enabled, we add it through JavaScript. #}
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="{{ _('light/dark') }}" aria-label="{{ _('light/dark') }}" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>

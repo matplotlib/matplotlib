@@ -1,0 +1,137 @@
+Metadata-Version: 2.1
+Name: pikepdf
+Version: 9.2.1
+Summary: Read and write PDFs with Python, powered by qpdf
+Author-email: "James R. Barlow" <james@purplerock.ca>
+License: MPL-2.0
+Project-URL: documentation, https://pikepdf.readthedocs.io/
+Project-URL: repository, https://github.com/pikepdf/pikepdf
+Project-URL: changelog, https://pikepdf.readthedocs.io/en/latest/releasenotes/index.html
+Keywords: PDF
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Information Technology
+Classifier: License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)
+Classifier: Programming Language :: C++
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: Topic :: Multimedia :: Graphics
+Classifier: Topic :: Software Development :: Libraries
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+License-File: licenses-for-wheels.txt
+Requires-Dist: Pillow >=10.0.1
+Requires-Dist: Deprecated
+Requires-Dist: lxml >=4.8
+Requires-Dist: packaging
+Provides-Extra: dev
+Requires-Dist: pre-commit ; extra == 'dev'
+Requires-Dist: typer ; extra == 'dev'
+Provides-Extra: docs
+Requires-Dist: Sphinx >=3 ; extra == 'docs'
+Requires-Dist: sphinx-autoapi ; extra == 'docs'
+Requires-Dist: sphinx-design ; extra == 'docs'
+Requires-Dist: sphinx-issues ; extra == 'docs'
+Requires-Dist: sphinx-rtd-theme ; extra == 'docs'
+Requires-Dist: tomli ; (python_version < "3.11") and extra == 'docs'
+Provides-Extra: mypy
+Requires-Dist: lxml-stubs ; extra == 'mypy'
+Requires-Dist: types-Pillow ; extra == 'mypy'
+Requires-Dist: types-requests ; extra == 'mypy'
+Requires-Dist: types-setuptools ; extra == 'mypy'
+Provides-Extra: test
+Requires-Dist: attrs >=20.2.0 ; extra == 'test'
+Requires-Dist: coverage[toml] ; extra == 'test'
+Requires-Dist: hypothesis >=6.36 ; extra == 'test'
+Requires-Dist: pybind11 ; extra == 'test'
+Requires-Dist: pytest >=6.2.5 ; extra == 'test'
+Requires-Dist: pytest-cov >=3.0.0 ; extra == 'test'
+Requires-Dist: pytest-timeout >=2.1.0 ; extra == 'test'
+Requires-Dist: pytest-xdist >=2.5.0 ; extra == 'test'
+Requires-Dist: python-dateutil >=2.8.1 ; extra == 'test'
+Requires-Dist: psutil >=5.9 ; (os_name != "nt") and extra == 'test'
+Requires-Dist: python-xmp-toolkit >=2.0.1 ; (os_name != "nt" and platform_machine == "x86_64") and extra == 'test'
+Requires-Dist: numpy >=1.21.0 ; (platform_machine == "x86_64" and platform_python_implementation == "CPython") and extra == 'test'
+Requires-Dist: tomli ; (python_version < "3.11") and extra == 'test'
+
+<!-- SPDX-FileCopyrightText: 2022 James R. Barlow -->
+<!-- SPDX-License-Identifier: MPL-2.0 -->
+
+pikepdf
+=======
+
+**pikepdf** is a Python library for reading and writing PDF files.
+
+[![Build Status](https://github.com/pikepdf/pikepdf/actions/workflows/build.yml/badge.svg)](https://github.com/pikepdf/pikepdf/actions/workflows/build.yml) [![PyPI](https://img.shields.io/pypi/v/pikepdf.svg)](https://pypi.org/project/pikepdf/) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pikepdf) ![PyPy](https://img.shields.io/badge/3.9-blue) ![PyPI - License](https://img.shields.io/pypi/l/pikepdf) ![PyPI - Downloads](https://img.shields.io/pypi/dm/pikepdf)  [![codecov](https://codecov.io/gh/pikepdf/pikepdf/branch/main/graph/badge.svg?token=8FJ755317J)](https://codecov.io/gh/pikepdf/pikepdf)
+
+pikepdf is based on [qpdf](https://github.com/qpdf/qpdf), a powerful PDF manipulation and repair library.
+
+Python + qpdf = "py" + "qpdf" = "pyqpdf", which looks like a dyslexia test. Say it out loud, and it sounds like "pikepdf".
+
+```python
+# Elegant, Pythonic API
+with pikepdf.open('input.pdf') as pdf:
+    num_pages = len(pdf.pages)
+    del pdf.pages[-1]
+    pdf.save('output.pdf')
+```
+
+**To install:**
+
+```bash
+pip install pikepdf
+```
+
+For users who want to build from source, see [installation](https://pikepdf.readthedocs.io/en/latest/index.html).
+
+pikepdf is [documented](https://pikepdf.readthedocs.io/en/latest/index.html) and actively maintained. Binary wheels are available for all common platforms, both x86-64 and ARM64/Apple Silicon. For information on the latest changes, see the [release notes](https://pikepdf.readthedocs.io/en/latest/releasenotes/index.html).
+
+Commercial support is available.
+
+Features
+--------
+
+This library is similar to pypdf (formerly PyPDF2) - it provides low level access to PDF features and allows editing and content transformation of existing PDFs. Some knowledge of the PDF specification may be helpful. It does not have the capability to render a PDF to image.
+
+| **Feature**                                                         | **pikepdf**           | **pypdf** (PyPDF2)                        |
+| ------------------------------------------------------------------- |-----------------------| ----------------------------------------- |
+| Editing, manipulation and transformation of existing PDFs           | ✔                     | ✔                                         |
+| Based on an existing, mature PDF library                            | qpdf                  | ✘                                         |
+| Implementation                                                      | C++ and Python        | Python                                    |
+| PDF versions supported                                              | 1.1 to 1.7            | 1.1 to 1.7                                |
+| Save and load password protected (encrypted) PDFs                   | ✔ (except public key) | ✔ (except public key)                     |
+| Creates linearized ("fast web view") PDFs                           | ✔                     | ✘                                         |
+| Test suite coverage                                                 | ![codecov][codecov]   | ![codecovpypdf2][codecovpypdf]            |
+| Creates PDFs that pass PDF validation tests                         | ✔                     | ✘                                         |
+| Modifies PDF/A without breaking PDF/A compliance                    | ✔                     | ✘                                         |
+| PDF XMP metadata editing                                            | ✔                     | read-only                                 |
+| Integrates with Jupyter and IPython notebooks for rapid development | ✔                     | ✘                                         |
+
+[codecov]: https://codecov.io/gh/pikepdf/pikepdf/branch/main/graph/badge.svg?token=8FJ755317J
+
+[codecovpypdf]: https://codecov.io/gh/py-pdf/pypdf/branch/main/graph/badge.svg?token=id42cGNZ5Z
+
+Testimonials
+------------
+
+> I decided to try writing a quick Python program with pikepdf to automate [something] and it "just worked". –Jay Berkenbilt, creator of qpdf
+
+> "Thanks for creating a great pdf library, I tested out several and this is the one that was best able to work with whatever I threw at it." –@cfcurtis
+
+In Production
+-------------
+
+* [OCRmyPDF](https://github.com/ocrmypdf/OCRmyPDF) uses pikepdf to graft OCR text layers onto existing PDFs, to examine the contents of input PDFs, and to optimize PDFs.
+
+* [PDF Arranger](https://github.com/jeromerobert/pdfarranger) is a small Python application that provides a graphical user interface to rotate, crop and rearrange PDFs.
+
+* [PDFStitcher](https://github.com/cfcurtis/sewingutils) is a utility for stitching PDF pages into a single document (i.e. N-up or page imposition).
+
+License
+-------
+
+pikepdf is licensed under the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/) license (MPL-2.0) that can be found in the LICENSE file. By using, distributing, or contributing to this project, you agree to the terms and conditions of this license. MPL 2.0 permits you to combine the software with other work, including commercial and closed source software, but asks you to publish source-level modifications you make to pikepdf itself.
+
+Some components of the project may be under other license agreements, as indicated in their SPDX license header or the [`.dep5/reuse`](REUSE) file.

@@ -628,13 +628,13 @@ class Line2D(Artist):
             self.set_pickradius(p)
         self._picker = p
 
-    def get_bbox(self):
+    '''def get_bbox(self):
         """Get the bounding box of this line."""
         bbox = Bbox([[0, 0], [0, 0]])
         bbox.update_from_data_xy(self.get_xydata())
-        return bbox
+        return bbox'''
 
-    def get_window_extent(self, renderer=None):
+    '''def get_window_extent(self, renderer=None):
         bbox = Bbox([[0, 0], [0, 0]])
         trans_data_to_xy = self.get_transform().transform
         bbox.update_from_data_xy(trans_data_to_xy(self.get_xydata()),
@@ -643,7 +643,7 @@ class Line2D(Artist):
         if self._marker:
             ms = (self._markersize / 72.0 * self.get_figure(root=True).dpi) * 0.5
             bbox = bbox.padded(ms)
-        return bbox
+        return bbox'''
 
     def set_data(self, *args):
         """
@@ -997,14 +997,10 @@ class Line2D(Artist):
         See also `~.Line2D.set_markersize`.
         """
         return self._markersize
-
-    def get_data(self, orig=True):
-        """
-        Return the line data as an ``(xdata, ydata)`` pair.
-
-        If *orig* is *True*, return the original data.
-        """
-        return self.get_xdata(orig=orig), self.get_ydata(orig=orig)
+    
+    def get_data(self):
+        """Returns the x and y data for limit calculation."""
+        return self.get_xdata(), self.get_ydata()
 
     def get_xdata(self, orig=True):
         """
@@ -1536,9 +1532,12 @@ class AxLine(Line2D):
             ])
         return (BboxTransformTo(Bbox([start, stop]))
                 + ax.transLimits + ax.transAxes)
-
+    
     def draw(self, renderer):
-        self._transformed_path = None  # Force regen.
+        # Delegar o cálculo de limites para a classe Artist
+        xmin, xmax, ymin, ymax = self.get_data_limits()
+        self.axes.set_xlim(xmin, xmax)
+        self.axes.set_ylim(ymin, ymax)
         super().draw(renderer)
 
     def get_xy1(self):
