@@ -98,7 +98,7 @@ Code is contributed through pull requests, so we recommend that you start at
 Documentation
 -------------
 
-You as an end-user of Matplotlib can make a valuable contribution because you
+You, as an end-user of Matplotlib can make a valuable contribution because you can
 more clearly see the potential for improvement than a core developer. For example,
 you can:
 
@@ -208,6 +208,25 @@ questions you might have, and to get to know a few of the people behind the
 GitHub handles 😉. You can reach out to us on gitter_ for any clarifications or
 suggestions. We ❤ feedback!
 
+.. _contributor_incubator:
+
+Contributor incubator
+---------------------
+
+The incubator is our non-public communication channel for new contributors. It
+is a private gitter_ (chat) room moderated by core Matplotlib developers where
+you can get guidance and support for your first few PRs. It's a place where you
+can ask questions about anything: how to use git, GitHub, how our PR review
+process works, technical questions about the code, what makes for good
+documentation or a blog post, how to get involved in community work, or get a
+"pre-review" on your PR.
+
+To join, please go to our public community_ channel, and ask to be added to
+``#incubator``. One of our core developers will see your message and will add you.
+
+.. _gitter: https://gitter.im/matplotlib/matplotlib
+.. _community: https://gitter.im/matplotlib/community
+
 .. _good_first_issues:
 
 Good first issues
@@ -242,10 +261,27 @@ guide you through each step.
 
 1. Navigate to the `issues page <https://github.com/matplotlib/matplotlib/issues/>`_.
 2. Filter labels with `"Difficulty: Easy" <https://github.com/matplotlib/matplotlib/labels/Difficulty%3A%20Easy>`_ & `"Good first Issue" <https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_ (optional).
-3. Click on an issue you would like to work on, and check to see if the issue a PR has been opened to resolve the issue.
-4. If the issue is a work in progress, tag the user working on the issue, and ask to collaborate (optional).
+3. Click on an issue you would like to work on, and check to see if the issue has a PR opened to resolve the issue.
+4. A good way to judge if you chose a suitable issue is by asking yourself, "Can I independently submit a PR in 1-2 weeks?"
 5. Check the pull requests (i.e. :ghpull:`28476`)  and filter by the issue number to make sure the issue is not in progress.
-6. After steps 3 & 5 are done, and a PR does not exist, create a `draft PR <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests>`_ and follow the `pull request guidelines <https://matplotlib.org/devdocs/devel/pr_guide.html>`_ .
+6. If the issue has a PR (is in progress), tag the user working on the issue, and ask to collaborate (optional).
+7. After steps 3 & 5 are done, and a PR does not exist, create a `draft PR <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests>`_ and follow the `pull request guidelines <https://matplotlib.org/devdocs/devel/pr_guide.html>`_ .
+8. Please familiarize yourself with the PR Checklist (see below), and ensure you understand/are able to complete the checklist when it comes time to your PR. Additional information can be found in the `pull request guidelines <https://matplotlib.org/devdocs/devel/pr_guide.html>`_.
+
+   .. note::
+     `PR Checklist <https://github.com/matplotlib/matplotlib/blob/main/.github/PULL_REQUEST_TEMPLATE.md>`_
+
+     Please mark any checkboxes that do not apply to this PR as [N/A].
+
+     - [ ] "closes #0000" is in the body of the PR description to `link the related issue <https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue>`_
+
+     - [ ] new and changed code is `tested <https://matplotlib.org/devdocs/devel/testing.html>`_
+
+     - [ ] *Plotting related* features are demonstrated in an `example <https://matplotlib.org/devdocs/devel/document.html#write-examples-and-tutorials>`_
+
+     - [ ] *New Features* and *API Changes* are noted with a `directive and release note <https://matplotlib.org/devdocs/devel/api_changes.html#announce-changes-deprecations-and-new-features>`_
+
+     - [ ] Documentation complies with `general <https://matplotlib.org/devdocs/devel/document.html#write-rest-pages>`_ and `docstring <https://matplotlib.org/devdocs/devel/document.html#write-docstrings>`_ guidelines
 
 .. _start-contributing:
 
@@ -259,24 +295,15 @@ of the code-base to understand what is going on.
 
 .. _get_connected:
 
-Get connected: Contributor incubator
+Get connected:
 ------------------------------------
 
 When in doubt, we recommend going together! Get connected with our community of
 active contributors, many of whom felt just like you when they started out and
 are happy to welcome you and support you as you get to know how we work, and
-where things are.
-
-The incubator is our non-public communication channel for new contributors. It
-is a private gitter_ (chat) room moderated by core Matplotlib developers where
-you can get guidance and support for your first few PRs. It's a place where you
-can ask questions about anything: how to use git, GitHub, how our PR review
-process works, technical questions about the code, what makes for good
-documentation or a blog post, how to get involved in community work, or get a
-"pre-review" on your PR.
-
-To join, please go to our public community_ channel, and ask to be added to
-``#incubator``. One of our core developers will see your message and will add you.
+where things are. You can reach out on any of our :ref:`communication-channels`.
+For development questions we recommend reaching out on our development gitter_
+chat room and for community questions reach out at community_.
 
 .. _gitter: https://gitter.im/matplotlib/matplotlib
 .. _community: https://gitter.im/matplotlib/community
