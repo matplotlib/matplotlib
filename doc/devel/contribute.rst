@@ -275,6 +275,8 @@ guide you through each step.
 
      - [ ] "closes #0000" is in the body of the PR description to `link the related issue <https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue>`_
 
+     - [ ] explain implementation choices in the summary
+
      - [ ] new and changed code is `tested <https://matplotlib.org/devdocs/devel/testing.html>`_
 
      - [ ] *Plotting related* features are demonstrated in an `example <https://matplotlib.org/devdocs/devel/document.html#write-examples-and-tutorials>`_
