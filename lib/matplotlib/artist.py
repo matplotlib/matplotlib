@@ -217,6 +217,13 @@ class Artist:
         d['stale_callback'] = None
         return d
 
+    def get_data_limits(self):
+        """
+        Método genérico que retorna limites padrão.
+        Subclasses podem sobrescrever isso, mas por padrão não faz nada.
+        """
+        return None
+    
     def remove(self):
         """
         Remove the artist from the figure if possible.
