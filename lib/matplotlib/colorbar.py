@@ -1047,7 +1047,7 @@ class Colorbar:
         the vmin/vmax of the norm.
         """
         if self.values is not None:
-            # set self._boundaries from the values...
+            # set self._values from the values...
             self._values = np.array(self.values)
             if self.boundaries is None:
                 # bracket values by 1/2 dv:
@@ -1072,29 +1072,50 @@ class Colorbar:
             # otherwise make the boundaries from the size of the cmap:
             N = self.cmap.N + 1
             b, _ = self._uniform_y(N)
-        # add extra boundaries if needed:
+
+        # Add extra boundaries if needed:
         if self._extend_lower():
             b = np.hstack((b[0] - 1, b))
         if self._extend_upper():
             b = np.hstack((b, b[-1] + 1))
 
-        # transform from 0-1 to vmin-vmax:
+        # Transform from 0-1 to vmin-vmax:
         if self.mappable.get_array() is not None:
             self.mappable.autoscale_None()
+
         if not self.norm.scaled():
             # If we still aren't scaled after autoscaling, use 0, 1 as default
             self.norm.vmin = 0
             self.norm.vmax = 1
-        self.norm.vmin, self.norm.vmax = mtransforms.nonsingular(
-            self.norm.vmin, self.norm.vmax, expander=0.1)
-        if (not isinstance(self.norm, colors.BoundaryNorm) and
-                (self.boundaries is None)):
+
+        # Check if cmap is divergent to handle Tim's concern
+        cmap_is_divergent = self.cmap.name in ['coolwarm', 'seismic', 'bwr', 'PiYG', 'PRGn', 'RdBu']
+        
+        # If cmap is divergent, maintain center collapse behavior
+        if cmap_is_divergent:
+            # Ensure singular values collapse to center (Tim's preference)
+            if self.norm.vmin == self.norm.vmax:
+                self.norm.vmin = 0
+                self.norm.vmax = 1  # Default behavior for singular norms in divergent colormaps
+        else:
+            # Only expand vmax if needed, for non-divergent colormaps
+            vmin, vmax = sorted([self.norm.vmin, self.norm.vmax])
+            self.norm.vmin = vmin
+            _, self.norm.vmax = mtransforms.nonsingular(vmin, vmax, expander=0.1)
+
+            # Emit log message 
+            if vmin == vmax:
+                print("Note: Norm with vmin == vmax detected. Automatically expanding values.")
+
+        # Transform boundaries back from norm space
+        if not isinstance(self.norm, colors.BoundaryNorm) and self.boundaries is None:
             b = self.norm.inverse(b)
 
         self._boundaries = np.asarray(b, dtype=float)
         self._values = 0.5 * (self._boundaries[:-1] + self._boundaries[1:])
+        
         if isinstance(self.norm, colors.NoNorm):
-            self._values = (self._values + 0.00001).astype(np.int16)
+            self._values = (self._values + 0.00001).ast
 
     def _mesh(self):
         """
