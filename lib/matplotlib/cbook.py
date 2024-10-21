@@ -2391,3 +2391,15 @@ def _auto_format_str(fmt, value):
         return fmt % (value,)
     except (TypeError, ValueError):
         return fmt.format(value)
+
+
+def _is_pandas_dataframe(x):
+    """Check if 'x' is a Pandas DataFrame."""
+    try:
+        # we're intentionally not attempting to import Pandas. If somebody
+        # has created a Pandas DataFrame, Pandas should already be in sys.modules
+        return isinstance(x, sys.modules['pandas'].DataFrame)
+    except Exception:  # TypeError, KeyError, AttributeError, maybe others?
+        # we're attempting to access attributes on imported modules which
+        # may have arbitrary user code, so we deliberately catch all exceptions
+        return False
