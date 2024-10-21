@@ -345,12 +345,10 @@ class _FilenameCollector(EnvironmentCollector):
             del env.mpl_plot_image_basenames[docname]
 
     def merge_other(self, app, env, docnames, other):
-        for docname in docnames:
-            if docname in other.mpl_plot_image_basenames:
-                if docname not in env.mpl_plot_image_basenames:
-                    env.mpl_plot_image_basenames[docname] = set()
-                env.mpl_plot_image_basenames[docname].update(
-                    other.mpl_plot_image_basenames[docname])
+        for docname in other.mpl_plot_image_basenames:
+            env.mpl_plot_image_basenames[docname].update(
+                other.mpl_plot_image_basenames[docname])
+
 
 # -----------------------------------------------------------------------------
 # Doctest handling
