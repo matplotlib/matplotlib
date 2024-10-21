@@ -174,3 +174,13 @@ Plot 21 is generated via an include directive:
 Plot 22 uses a different specific function in a file with plot commands:
 
 .. plot:: range6.py range10
+
+Plots 23 and 24 use image-basename.
+
+.. plot::
+   :image-basename: custom-basename-6
+
+   plt.plot(range(6))
+
+.. plot:: range4.py
+   :image-basename: custom-basename-4
