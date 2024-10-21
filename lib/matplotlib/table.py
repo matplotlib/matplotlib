@@ -748,10 +748,18 @@ def table(ax,
 
     # Check if we have a Pandas DataFrame
     if _is_pandas_dataframe(cellText):
-        # Convert to numpy array
-        header = cellText.columns.to_numpy()
-        data = cellText.to_numpy()
-        cellText = np.vstack([header, data])
+        # if rowLabels/colLabels are empty, use DataFrame entries.
+        # Otherwise, throw an error.
+        if rowLabels is None:
+            rowLabels = cellText.index
+        else:
+            raise ValueError("rowLabels cannot be used alongside Pandas DataFrame")
+        if colLabels is None:
+            colLabels = cellText.columns
+        else:
+            raise ValueError("colLabels cannot be used alongside Pandas DataFrame")
+        # Update cellText with only values
+        cellText = cellText.values
 
     rows = len(cellText)
     cols = len(cellText[0])
