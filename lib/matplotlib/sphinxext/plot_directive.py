@@ -332,8 +332,8 @@ def setup(app):
 
 def init_filename_registry(app):
     env = app.builder.env
-    if not hasattr(env, 'mpl_custom_base_names'):
-        env.mpl_custom_base_names = defaultdict(set)
+    if not hasattr(env, 'mpl_plot_image_basenames'):
+        env.mpl_plot_image_basenames = defaultdict(set)
 
 
 class _FilenameCollector(EnvironmentCollector):
@@ -341,16 +341,16 @@ class _FilenameCollector(EnvironmentCollector):
         pass
 
     def clear_doc(self, app, env, docname):
-        if docname in env.mpl_custom_base_names:
-            del env.mpl_custom_base_names[docname]
+        if docname in env.mpl_plot_image_basenames:
+            del env.mpl_plot_image_basenames[docname]
 
     def merge_other(self, app, env, docnames, other):
         for docname in docnames:
-            if docname in other.mpl_custom_base_names:
-                if docname not in env.mpl_custom_base_names:
-                    env.mpl_custom_base_names[docname] = set()
-                env.mpl_custom_base_names[docname].update(
-                    other.mpl_custom_base_names[docname])
+            if docname in other.mpl_plot_image_basenames:
+                if docname not in env.mpl_plot_image_basenames:
+                    env.mpl_plot_image_basenames[docname] = set()
+                env.mpl_plot_image_basenames[docname].update(
+                    other.mpl_plot_image_basenames[docname])
 
 # -----------------------------------------------------------------------------
 # Doctest handling
@@ -645,8 +645,8 @@ def check_output_base_name(env, output_base):
             f"The image-basename '{output_base}' is invalid. "
             f"It must not contain dots or slashes.")
 
-    for d in env.mpl_custom_base_names:
-        if output_base in env.mpl_custom_base_names[d]:
+    for d in env.mpl_plot_image_basenames:
+        if output_base in env.mpl_plot_image_basenames[d]:
             if d == docname:
                 raise PlotError(
                     f"The image-basename "
@@ -655,7 +655,7 @@ def check_output_base_name(env, output_base):
                             f"'{output_base}' is used multiple times "
                             f"(it is also used in {env.doc2path(d)}).")
 
-    env.mpl_custom_base_names[docname].add(output_base)
+    env.mpl_plot_image_basenames[docname].add(output_base)
 
 
 def render_figures(code, code_path, output_dir, output_base, context,
