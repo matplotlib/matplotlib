@@ -1,8 +1,8 @@
 import platform
 
 import numpy as np
-
-from matplotlib.testing.decorators import image_comparison
+import pytest
+from matplotlib.testing.decorators import image_comparison, check_figures_equal
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
 from matplotlib.path import Path
@@ -214,3 +214,23 @@ def test_patheffects_overridden_methods_open_close_group():
 
     assert renderer.open_group('s') == "open_group overridden"
     assert renderer.close_group('s') == "close_group overridden"
+
+
+@pytest.mark.xfail(reason="figures are not meant to be equal")
+@check_figures_equal()
+def test_simpleLineShadow_plot(fig_test, fig_ref):
+    # Create the plots
+    ax_ref = fig_ref.add_subplot()
+    ax_test = fig_test.add_subplot()
+
+    # Generate Gaussian distribution data
+    x = np.linspace(-5, 5, 500)
+    y = np.exp(-x**2)
+
+    # Plot the Gaussian line simply
+    ax_ref.plot(x, y, linewidth=5, color='blue')
+
+    # Plot the Gaussian line with the SimpleLineShadow path effect
+    line, = ax_test.plot(x, y, linewidth=5, color='blue')
+    line.set_path_effects([path_effects.SimpleLineShadow(
+                            offset=(0, 0), shadow_color=None, rho=0.6)])
