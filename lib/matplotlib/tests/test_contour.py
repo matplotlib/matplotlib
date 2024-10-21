@@ -171,6 +171,14 @@ def test_given_colors_levels_and_extends():
         plt.colorbar(c, ax=ax)
 
 
+@image_comparison(['contourf_hatch_colors'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_hatch_colors():
+    fig, ax = plt.subplots()
+    cf = ax.contourf([[0, 1], [1, 2]], hatches=['-', '/', '\\', '//'], cmap='gray')
+    cf.set_edgecolors(["blue", "grey", "yellow", "red"])
+
+
 @pytest.mark.parametrize('color, extend', [('darkred', 'neither'),
                                            ('darkred', 'both'),
                                            (('r', 0.5), 'neither'),
