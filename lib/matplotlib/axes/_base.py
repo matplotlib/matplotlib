@@ -1546,7 +1546,7 @@ class _AxesBase(martist.Artist):
         Call signatures::
 
           set_prop_cycle(cycler)
-          set_prop_cycle(label=values[, label2=values2[, ...]])
+          set_prop_cycle(label=values, label2=values2, ...)
           set_prop_cycle(label, values)
 
         Form 1 sets given `~cycler.Cycler` object.
