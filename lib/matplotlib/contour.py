@@ -1415,12 +1415,16 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             super().draw(renderer)
             return
         # In presence of hatching, draw contours one at a time.
+        edgecolors = self.get_edgecolors()
+        if edgecolors.size == 0:
+            edgecolors = ("none",)
         for idx in range(n_paths):
             with cbook._setattr_cm(self, _paths=[paths[idx]]), self._cm_set(
                 hatch=self.hatches[idx % len(self.hatches)],
                 array=[self.get_array()[idx]],
                 linewidths=[self.get_linewidths()[idx % len(self.get_linewidths())]],
                 linestyles=[self.get_linestyles()[idx % len(self.get_linestyles())]],
+                edgecolors=edgecolors[idx % len(edgecolors)],
             ):
                 super().draw(renderer)
 

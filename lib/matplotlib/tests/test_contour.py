@@ -198,6 +198,14 @@ def test_given_colors_levels_and_extends(split_collections):
     _maybe_split_collections(split_collections)
 
 
+@image_comparison(['contourf_hatch_colors'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_hatch_colors():
+    fig, ax = plt.subplots()
+    cf = ax.contourf([[0, 1], [1, 2]], hatches=['-', '/', '\\', '//'], cmap='gray')
+    cf.set_edgecolors(["blue", "grey", "yellow", "red"])
+
+
 @pytest.mark.parametrize("split_collections", [False, True])
 @image_comparison(['contour_log_locator.svg'], style='mpl20', remove_text=False)
 def test_log_locator_levels(split_collections):
