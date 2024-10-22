@@ -545,11 +545,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return self._hatch
 
     def set_hatch_linewidth(self, lw):
-        """Set the hatch linewidth"""
+        """Set the hatch linewidth."""
         self._hatch_linewidth = lw
 
     def get_hatch_linewidth(self):
-        """Return the hatch linewidth"""
+        """Return the hatch linewidth."""
         return self._hatch_linewidth
 
     def set_offsets(self, offsets):

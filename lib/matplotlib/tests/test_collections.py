@@ -1373,12 +1373,11 @@ def test_hatch_linewidth(fig_test, fig_ref):
     ref = mcollections.CircleCollection(sizes=[1, 2, 3, 4, 5], hatch='x')
     ref.set_linewidth(2)
 
-    with mpl.rc_context({'hatch.linewidth': lw}):
-        test = mcollections.CircleCollection(sizes=[1, 2, 3, 4, 5], hatch='x')
-        test.set_linewidth(2)
+    with mpl.rc_context({"hatch.linewidth": lw}):
+        test = PolyCollection(polygons, hatch="x")
 
     # Add the collection to the axes
     ax_ref.add_collection(ref)
     ax_test.add_collection(test)
 
-    assert ((test.get_linewidth() == lw) and (ref.get_linewidth() == lw))
+    assert test.get_hatch_linewidth() == ref.get_hatch_linewidth() == lw

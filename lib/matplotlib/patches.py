@@ -572,12 +572,12 @@ class Patch(artist.Artist):
         """Return the hatching pattern."""
         return self._hatch
 
-    def set_hatch_linewidth(self, hatch_linewidth):
-        """Set the hatch linewidth"""
-        self._hatch_linewidth = hatch_linewidth
+    def set_hatch_linewidth(self, lw):
+        """Set the hatch linewidth."""
+        self._hatch_linewidth = lw
 
     def get_hatch_linewidth(self):
-        """Return the hatch linewidth"""
+        """Return the hatch linewidth."""
         return self._hatch_linewidth
 
     def _draw_paths_with_artist_properties(
