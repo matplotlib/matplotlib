@@ -935,7 +935,6 @@ grestore
         if hatch:
             hatch_name = self.create_hatch(hatch, gc)
             write("gsave\n")
-            write("%f setlinewidth" % gc.get_hatch_linewidth())
             write(_nums_to_str(*gc.get_hatch_color()[:3]))
             write(f" {hatch_name} setpattern fill grestore\n")
 
