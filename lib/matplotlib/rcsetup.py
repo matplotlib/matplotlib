@@ -682,7 +682,7 @@ def cycler(*args, **kwargs):
     Call signatures::
 
       cycler(cycler)
-      cycler(label=values[, label2=values2[, ...]])
+      cycler(label=values, label2=values2, ...)
       cycler(label, values)
 
     Form 1 copies a given `~cycler.Cycler` object.
