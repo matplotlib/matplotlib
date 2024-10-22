@@ -2575,16 +2575,16 @@ class GraphicsContextPdf(GraphicsContextBase):
 
     commands = (
         # must come first since may pop
-        (("_cliprect", "_clippath"), clip_cmd),
-        (("_alpha", "_forced_alpha", "_effective_alphas"), alpha_cmd),
-        (("_capstyle",), capstyle_cmd),
-        (("_fillcolor",), fillcolor_cmd),
-        (("_joinstyle",), joinstyle_cmd),
-        (("_linewidth",), linewidth_cmd),
-        (("_dashes",), dash_cmd),
-        (("_rgb",), rgb_cmd),
+        (('_cliprect', '_clippath'), clip_cmd),
+        (('_alpha', '_forced_alpha', '_effective_alphas'), alpha_cmd),
+        (('_capstyle',), capstyle_cmd),
+        (('_fillcolor',), fillcolor_cmd),
+        (('_joinstyle',), joinstyle_cmd),
+        (('_linewidth',), linewidth_cmd),
+        (('_dashes',), dash_cmd),
+        (('_rgb',), rgb_cmd),
         # must come after fillcolor and rgb
-        (("_hatch", "_hatch_color", "_hatch_linewidth"), hatch_cmd),
+        (('_hatch', '_hatch_color', '_hatch_linewidth'), hatch_cmd),
     )
 
     def delta(self, other):
