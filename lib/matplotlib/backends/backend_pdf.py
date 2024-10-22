@@ -1535,13 +1535,12 @@ end"""
 
     def hatchPattern(self, hatch_style):
         # The colors may come in as numpy arrays, which aren't hashable
-        if hatch_style is not None:
-            edge, face, hatch, lw = hatch_style
-            if edge is not None:
-                edge = tuple(edge)
-            if face is not None:
-                face = tuple(face)
-            hatch_style = (edge, face, hatch, lw)
+        edge, face, hatch, lw = hatch_style
+        if edge is not None:
+            edge = tuple(edge)
+        if face is not None:
+            face = tuple(face)
+        hatch_style = (edge, face, hatch, lw)
 
         pattern = self._hatch_patterns.get(hatch_style, None)
         if pattern is not None:
@@ -2520,8 +2519,7 @@ class GraphicsContextPdf(GraphicsContextBase):
             else:
                 return [Name('DeviceRGB'), Op.setcolorspace_nonstroke]
         else:
-            hatch_style = (hatch_color, self._fillcolor, hatch,
-                           hatch_linewidth)
+            hatch_style = (hatch_color, self._fillcolor, hatch, hatch_linewidth)
             name = self.file.hatchPattern(hatch_style)
             return [Name('Pattern'), Op.setcolorspace_nonstroke,
                     name, Op.setcolor_nonstroke]

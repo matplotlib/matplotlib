@@ -614,7 +614,7 @@ class Patch(artist.Artist):
         if self._hatch:
             gc.set_hatch(self._hatch)
             gc.set_hatch_color(self._hatch_color)
-            gc._set_hatch_linewidth(self._hatch_linewidth)
+            gc.set_hatch_linewidth(self._hatch_linewidth)
 
         if self.get_sketch_params() is not None:
             gc.set_sketch_params(*self.get_sketch_params())

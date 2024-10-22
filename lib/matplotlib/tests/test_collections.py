@@ -1370,13 +1370,16 @@ def test_hatch_linewidth(fig_test, fig_ref):
 
     lw = 2.0
 
-    ref = mcollections.CircleCollection(sizes=[1, 2, 3, 4, 5], hatch='x')
-    ref.set_linewidth(2)
+    polygons = [
+        [(0.1, 0.1), (0.1, 0.4), (0.4, 0.4), (0.4, 0.1)],
+        [(0.6, 0.6), (0.6, 0.9), (0.9, 0.9), (0.9, 0.6)],
+    ]
+    ref = PolyCollection(polygons, hatch="x")
+    ref.set_hatch_linewidth(lw)
 
     with mpl.rc_context({"hatch.linewidth": lw}):
         test = PolyCollection(polygons, hatch="x")
 
-    # Add the collection to the axes
     ax_ref.add_collection(ref)
     ax_test.add_collection(test)
 

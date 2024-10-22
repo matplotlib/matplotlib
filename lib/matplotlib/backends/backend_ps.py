@@ -505,12 +505,12 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
                 self.fontname = fontname
                 self.fontsize = fontsize
 
-    def create_hatch(self, hatch):
+    def create_hatch(self, hatch, gc=None):
         sidelen = 72
         if hatch in self._hatches:
             return self._hatches[hatch]
         name = 'H%d' % len(self._hatches)
-        # linewidth = mpl.rcParams['hatch.linewidth']
+        linewidth = gc.get_hatch_linewidth()
         pageheight = self.height * 72
         self._pswriter.write(f"""\
   << /PatternType 1
@@ -933,7 +933,7 @@ grestore
                 write("grestore\n")
 
         if hatch:
-            hatch_name = self.create_hatch(hatch)
+            hatch_name = self.create_hatch(hatch, gc)
             write("gsave\n")
             write("%f setlinewidth" % gc.get_hatch_linewidth())
             write(_nums_to_str(*gc.get_hatch_color()[:3]))
