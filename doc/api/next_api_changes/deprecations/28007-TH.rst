@@ -1,0 +1,6 @@
+Changing ``Figure.number``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Changing ``Figure.number`` is deprecated. This value is used by `.pyplot`
+to identify figures. It must stay in sync with the pyplot internal state
+and is not intended to be modified by the user.
