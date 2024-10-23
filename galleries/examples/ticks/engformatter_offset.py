@@ -27,7 +27,7 @@ ax.yaxis.set_major_formatter(mticker.EngFormatter(
     unit=UNIT
 ))
 size = 100
-measurement = np.full(size, 1)*1e9
-noise = np.random.uniform(low=-2e3, high=2e3, size=(size))
+measurement = np.full(size, 1e9)
+noise = np.random.uniform(low=-2e3, high=2e3, size=size)
 ax.plot(measurement + noise)
 plt.show()

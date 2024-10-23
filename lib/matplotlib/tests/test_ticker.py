@@ -1622,7 +1622,6 @@ def test_engformatter_offset_oom(
     oom_noise_desired
 ):
     UNIT = "eV"
-    # Doesn't really matter here, but should be of order of magnitude ~= 1
     fig, ax = plt.subplots()
     # Use some random ugly number
     data_offset = 2.7149*10**oom_center
@@ -1641,9 +1640,6 @@ def test_engformatter_offset_oom(
     # only makes sure that offset text and the ticks gets the correct unit
     # prefixes and the ticks.
     if formatter.offset:
-        # These prefix_ variables are used only once, so we could have inlined
-        # them all, but it is more comfortable in case of tests breakages to
-        # view their values with pytest --showlocals.
         prefix_noise_got = offset_got[2]
         prefix_noise_desired = formatter.ENG_PREFIXES[oom_noise_desired]
         prefix_center_got = offset_got[-1-len(UNIT)]
