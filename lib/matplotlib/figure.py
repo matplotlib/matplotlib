@@ -2808,6 +2808,36 @@ None}, default: None
 
     get_axes = axes.fget
 
+    @property
+    def number(self):
+        """The figure id, used to identify figures in `.pyplot`."""
+        # Historically, pyplot dynamically added a number attribute to figure.
+        # However, this number must stay in sync with the figure manager.
+        # AFAICS overwriting the number attribute does not have the desired
+        # effect for pyplot. But there are some repos in GitHub that do change
+        # number. So let's take it slow and properly migrate away from writing.
+        #
+        # Making the dynamic attribute private and wrapping it in a property
+        # allows to maintain current behavior and deprecate write-access.
+        #
+        # When the deprecation expires, there's no need for duplicate state
+        # anymore and the private _number attribute can be replaced by
+        # `self.canvas.manager.num` if that exists and None otherwise.
+        if hasattr(self, '_number'):
+            return self._number
+        else:
+            raise AttributeError(
+                "'Figure' object has no attribute 'number'. In the future this"
+                "will change to returning 'None' instead.")
+
+    @number.setter
+    def number(self, num):
+        _api.warn_deprecated(
+            "3.10",
+            message="Changing 'Figure.number' is deprecated since %(since)s and "
+                    "will raise an error starting %(removal)s")
+        self._number = num
+
     def _get_renderer(self):
         if hasattr(self.canvas, 'get_renderer'):
             return self.canvas.get_renderer()
