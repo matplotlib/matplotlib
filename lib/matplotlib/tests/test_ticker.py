@@ -1592,40 +1592,38 @@ def test_engformatter_usetex_useMathText():
 
 
 @pytest.mark.parametrize(
-    'oom_center, oom_noise, oom_center_desired, oom_noise_desired', [
-        (11, 1, 9, 0),
-        (13, 7, 12, 6),
-        (1, -2, 0, -3),
-        (3, -2, 3, -3),
-        (5, -3, 3, -3),
-        (2, -3, 0, -3),
-        # The following sets of parameters demonstrates that when oom_center-1
-        # and oom_noise-2 equal a standard 3*N oom, we get that
-        # oom_noise_desired < oom_noise
-        (10, 2, 9, 3),
-        (1, -7, 0, -6),
-        (2, -4, 0, -3),
-        (1, -4, 0, -3),
-        # Tests where oom_center <= oom_noise, those are probably covered by the
-        # part where formatter.offset != 0
-        (4,  4, 0, 3),
-        (1,  4, 0, 3),
-        (1,  3, 0, 3),
-        (1,  2, 0, 0),
-        (1,  1, 0, 0),
+    'data_offset, noise, oom_center_desired, oom_noise_desired', [
+        (271_490_000_000.0,    10,         9,  0),
+        (27_149_000_000_000.0, 10_000_000, 12, 6),
+        (27.149,               0.01,       0, -3),
+        (2_714.9,              0.01,       3, -3),
+        (271_490.0,            0.001,      3, -3),
+        (271.49,               0.001,      0, -3),
+        # The following sets of parameters demonstrates that when
+        # oom(data_offset)-1 and oom(noise)-2 equal a standard 3*N oom, we get
+        # that oom_noise_desired < oom(noise)
+        (27_149_000_000.0,     100,        9, +3),
+        (27.149,               1e-07,      0, -6),
+        (271.49,               0.0001,     0, -3),
+        (27.149,               0.0001,     0, -3),
+        # Tests where oom(data_offset) <= oom(noise), those are probably
+        # covered by the part where formatter.offset != 0
+        (27_149.0,             10_000,     0, 3),
+        (27.149,               10_000,     0, 3),
+        (27.149,               1_000,      0, 3),
+        (27.149,               100,        0, 0),
+        (27.149,               10,         0, 0),
     ]
 )
 def test_engformatter_offset_oom(
-    oom_center,
-    oom_noise,
+    data_offset,
+    noise,
     oom_center_desired,
     oom_noise_desired
 ):
     UNIT = "eV"
     fig, ax = plt.subplots()
-    # Use some random ugly number
-    data_offset = 2.7149*10**oom_center
-    ydata = data_offset + np.arange(-5, 7, dtype=float)*10**oom_noise
+    ydata = data_offset + np.arange(-5, 7, dtype=float)*noise
     ax.plot(ydata)
     formatter = mticker.EngFormatter(useOffset=True, unit=UNIT)
     # So that offset strings will always have the same size
