@@ -47,7 +47,7 @@ requires-python = ">=3.10"
 # Should be a copy of the build dependencies below.
 dev = [
     "meson-python>=0.13.1",
-    "pybind11>=2.6,!=2.13.3",
+    "pybind11>=2.13,!=2.13.3",
     "setuptools_scm>=7",
     # Not required by us but setuptools_scm without a version, cso _if_
     # installed, then setuptools_scm 8 requires at least this version.
@@ -71,7 +71,7 @@ build-backend = "mesonpy"
 # Also keep in sync with optional dependencies above.
 requires = [
     "meson-python>=0.13.1",
-    "pybind11>=2.6,!=2.13.3",
+    "pybind11>=2.13,!=2.13.3",
     "setuptools_scm>=7",
 ]
 
