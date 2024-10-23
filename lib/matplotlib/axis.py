@@ -657,7 +657,7 @@ class Axis(martist.Artist):
             self.clear()
         else:
             self.converter = None
-            self._explicit_converter = False
+            self._converter_is_explicit = False
             self.units = None
 
         self._autoscale_on = True
@@ -888,7 +888,7 @@ class Axis(martist.Artist):
         self.reset_ticks()
 
         self.converter = None
-        self._explicit_converter = False
+        self._converter_is_explicit = False
         self.units = None
         self.stale = True
 
@@ -1743,7 +1743,7 @@ class Axis(martist.Artist):
         ``axis.converter`` instance if necessary. Return *True*
         if *data* is registered for unit conversion.
         """
-        if not self._explicit_converter:
+        if not self._converter_is_explicit:
             converter = munits.registry.get_converter(data)
         else:
             converter = self.converter
@@ -1816,14 +1816,31 @@ class Axis(martist.Artist):
                                          f'units: {x!r}') from e
         return ret
 
+    def get_converter(self):
+        """
+        Get the unit converter for axis.
+
+        Returns
+        -------
+        `~matplotlib.units.ConversionInterface` or None
+        """
+        return self.converter
+
     def set_converter(self, converter):
+        """
+        Set the unit converter for axis.
+
+        Parameters
+        ----------
+        converter : `~matplotlib.dates.ConversionInterface`
+        """
         self._set_converter(converter)
-        self._explicit_converter = True
+        self._converter_is_explicit = True
 
     def _set_converter(self, converter):
         if self.converter == converter:
             return
-        if self._explicit_converter:
+        if self._converter_is_explicit:
             raise RuntimeError("Axis already has an explicit converter set")
         elif self.converter is not None:
             _api.warn_external(
