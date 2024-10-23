@@ -232,7 +232,7 @@ means that the dependencies must be explicitly installed, either by :ref:`creati
 - `ninja <https://ninja-build.org/>`_ (>= 1.8.2). This may be available in your package
   manager or bundled with Meson, but may be installed via ``pip`` if otherwise not
   available.
-- `PyBind11 <https://pypi.org/project/pybind11/>`_ (>= 2.6). Used to connect C/C++ code
+- `PyBind11 <https://pypi.org/project/pybind11/>`_ (>= 2.13). Used to connect C/C++ code
   with Python.
 - `setuptools_scm <https://pypi.org/project/setuptools-scm/>`_ (>= 7).  Used to
   update the reported ``mpl.__version__`` based on the current git commit.
