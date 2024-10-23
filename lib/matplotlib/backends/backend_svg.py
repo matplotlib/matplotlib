@@ -500,7 +500,7 @@ class RendererSVG(RendererBase):
         edge = gc.get_hatch_color()
         if edge is not None:
             edge = tuple(edge)
-        lw = gc._linewidth
+        lw = gc.get_hatch_linewidth()
         dictkey = (gc.get_hatch(), rgbFace, edge, lw)
         oid = self._hatchd.get(dictkey)
         if oid is None:
