@@ -48,10 +48,14 @@ class FixedAxisArtistHelper(_FixedAxisArtistHelperBase):
 
     def __init__(self, grid_helper, side, nth_coord_ticks=None):
         """
-        nth_coord = along which coordinate value varies.
-         nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
-        """
 
+        Parameters
+        ----------
+        grid_helper :
+        side : ["left", "right", "top", "bottom"]
+        nth_coord_ticks : {0, 1}
+            0: x-axis, 1: y-axis.
+        """
         super().__init__(loc=side)
 
         self.grid_helper = grid_helper
