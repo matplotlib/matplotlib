@@ -1778,6 +1778,130 @@ def subplots(
     return fig, axs
 
 
+def subfigure_mosaic(
+    mosaic: str | HashableList,
+    *,
+    width_ratios: ArrayLike | None = None,
+    height_ratios: ArrayLike | None = None,
+    empty_sentinel: Any = '.',
+    subfigure_kw: dict[str, Any] | None = None,
+    gridspec_kw: dict[str, Any] | None = None,
+    per_subfigure_kw: dict[Hashable, dict[str, Any]] | None = None,
+    **fig_kw
+) -> tuple[Figure, dict[Hashable, matplotlib.figure.SubFigure]]:
+    """
+    Build a layout of SubFigures based on ASCII art or nested lists.
+
+    This is a helper function to build complex GridSpec layouts visually.
+
+    See :doc:`/gallery/subplots_axes_and_figures/subfig_mosaic`
+    for an example and full API documentation
+
+    Parameters
+    ----------
+    mosaic : list of list of {hashable or nested} or str
+
+        A visual layout of how you want your SubFigures to be arranged
+        labeled as strings.  For example ::
+
+           x = [['A panel', 'A panel', 'edge'],
+                ['C panel', '.',       'edge']]
+
+        produces 4 SubFigures:
+
+        - 'A panel' which is 1 row high and spans the first two columns
+        - 'edge' which is 2 rows high and is on the right edge
+        - 'C panel' which in 1 row and 1 column wide in the bottom left
+        - a blank space 1 row and 1 column wide in the bottom center
+
+        Any of the entries in the layout can be a list of lists
+        of the same form to create nested layouts.
+
+        If input is a str, then it can either be a multi-line string of
+        the form ::
+
+          '''
+          AAE
+          C.E
+          '''
+
+        where each character is a column and each line is a row. Or it
+        can be a single-line string where rows are separated by ``;``::
+
+          'AB;CC'
+
+        The string notation allows only single character SubFigure labels and
+        does not support nesting but is very terse.
+
+        The SubFigure identifiers may be `str` or a non-iterable hashable
+        object (e.g. `tuple` s may not be used).
+
+    width_ratios : array-like of length *ncols*, optional
+        Defines the relative widths of the columns. Each column gets a
+        relative width of ``width_ratios[i] / sum(width_ratios)``.
+        If not given, all columns will have the same width.  Equivalent
+        to ``gridspec_kw={'width_ratios': [...]}``. In the case of nested
+        layouts, this argument applies only to the outer layout.
+
+    height_ratios : array-like of length *nrows*, optional
+        Defines the relative heights of the rows. Each row gets a
+        relative height of ``height_ratios[i] / sum(height_ratios)``.
+        If not given, all rows will have the same height. Equivalent
+        to ``gridspec_kw={'height_ratios': [...]}``. In the case of nested
+        layouts, this argument applies only to the outer layout.
+
+    empty_sentinel : object, optional
+        Entry in the layout to mean "leave this space empty".  Defaults
+        to ``'.'``. Note, if *layout* is a string, it is processed via
+        `inspect.cleandoc` to remove leading white space, which may
+        interfere with using white-space as the empty sentinel.
+
+    subfigure_kw : dict, optional
+        Dictionary with keywords passed to the `.Figure.add_subfigure` call
+        used to create each subfigure.  These values may be overridden by
+        values in *per_subfigure_kw*.
+
+    per_subfigure_kw : dict, optional
+        A dictionary mapping the SubFigure identifiers or tuples of identifiers
+        to a dictionary of keyword arguments to be passed to the
+        `.Figure.add_subfigure` call used to create each subfigure.  The values
+        in these dictionaries have precedence over the values in
+        *subfigure_kw*.
+
+        If *mosaic* is a string, and thus all keys are single characters,
+        it is possible to use a single string instead of a tuple as keys;
+        i.e. ``"AB"`` is equivalent to ``("A", "B")``.
+
+    gridspec_kw : dict, optional
+        Dictionary with keywords passed to the `.GridSpec` constructor used
+        to create the grid the subfigures are placed on. In the case of
+        nested layouts, this argument applies only to the outer layout.
+
+    **fig_kw
+        All additional keyword arguments are passed to the
+        `.pyplot.figure` call.
+
+    Returns
+    -------
+    fig : `.Figure`
+       The new figure.
+
+    dict[label, SubFigure]
+       A dictionary mapping the labels to the SubFigure objects.  The order of
+       the subfigures is left-to-right and top-to-bottom of their position in the
+       total layout.
+    """
+    fig = figure(**fig_kw)
+    subfigs_dict = fig.subfigure_mosaic(
+        mosaic,
+        height_ratios=height_ratios, width_ratios=width_ratios,
+        subfigure_kw=subfigure_kw, gridspec_kw=gridspec_kw,
+        empty_sentinel=empty_sentinel,
+        per_subfigure_kw=per_subfigure_kw,
+    )
+    return fig, subfigs_dict
+
+
 @overload
 def subplot_mosaic(
     mosaic: str,
