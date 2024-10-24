@@ -147,9 +147,6 @@ class TaggedValue(metaclass=TaggedValueMeta):
             return getattr(variable, name)
         return object.__getattribute__(self, name)
 
-    def __array__(self, dtype=object, copy=False):
-        return np.asarray(self.value, dtype)
-
     def __array_wrap__(self, array, context=None, return_scalar=False):
         return TaggedValue(array, self.unit)
 
@@ -225,13 +222,6 @@ class BasicUnit:
 
     def __array_wrap__(self, array, context=None, return_scalar=False):
         return TaggedValue(array, self)
-
-    def __array__(self, t=None, context=None, copy=False):
-        ret = np.array(1)
-        if t is not None:
-            return ret.astype(t)
-        else:
-            return ret
 
     def add_conversion_factor(self, unit, factor):
         def convert(x):
