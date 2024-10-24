@@ -3186,6 +3186,11 @@ def test_stackplot_baseline():
 
     fig, axs = plt.subplots(2, 2)
 
+    # Attempt to use an integer value for 'baseline'
+    axs[0, 0].stackplot(range(100), d.T, baseline=5)
+
+    # Attempt to use a float value for 'baseline'
+    axs[0, 1].stackplot(range(100), d.T, baseline=2.5)
     axs[0, 0].stackplot(range(100), d.T, baseline='zero')
     axs[0, 1].stackplot(range(100), d.T, baseline='sym')
     axs[1, 0].stackplot(range(100), d.T, baseline='wiggle')
