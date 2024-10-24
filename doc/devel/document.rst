@@ -1111,7 +1111,7 @@ Figure size
 The default figure size is suitable in many cases. If you want to use an explicit
 figure size, it should be chosen so that the figure is not wider than the available
 space in rendered HTML docs to prevent downscaling. The current limit with
-*pydata-sphinx-theme* is 720px (corresponding to `figsize=(7.2, ...)`). This may be
+*pydata-sphinx-theme* is 720px (corresponding to ``figsize=(7.2, ...)``). This may be
 expanded to 840px if the page does not have subsections and thus does not have the
 "On this page" navigation on the right-hand side.
 
