@@ -147,9 +147,10 @@ Other documentation is generated from the following external sources:
 
 Instructions and guidelines for contributing documentation are found in:
 
-* :doc:`document`
-* :doc:`style_guide`
-* :doc:`tag_guidelines`
+* :doc:`document_build`
+* :doc:`document_format`
+* :doc:`document_style`
+* :doc:`document_tag`
 
 Documentation is contributed through pull requests, so we recommend that you start
 at :ref:`how-to-pull-request`. If that feels intimidating, we encourage you to
