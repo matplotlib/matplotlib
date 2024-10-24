@@ -189,7 +189,7 @@ algorithm that was not necessarily applicable to custom Axes. Three new private
 methods, ``matplotlib.axes._base._AxesBase._get_view``,
 ``matplotlib.axes._base._AxesBase._set_view``, and
 ``matplotlib.axes._base._AxesBase._set_view_from_bbox``, allow for custom
-*Axes* classes to override the pan and zoom algorithms. Implementors of
+*Axes* classes to override the pan and zoom algorithms. Implementers of
 custom *Axes* who override these methods may provide suitable behaviour for
 both pan and zoom as well as the view navigation buttons on the interactive
 toolbars.
