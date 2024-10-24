@@ -7217,6 +7217,50 @@ such objects
                           else "list[Polygon]")
             return tops, bins, cbook.silent_list(patch_type, patches)
 
+    def vector(self, start, *, delta=None, end=None, **kwargs):
+        """
+        Plot an arrow indicating a vector.
+
+        Parameters
+        ----------
+        start : (float, float)
+            The base point of the vector.
+        delta : (float, float)
+            The delta (deltaX, deltaY) from the start to the end of the vector.
+            Incompatible with *end*
+        end : float (optional)
+            The end point of the vector. Incompatible with *delta*
+
+        Other Parameters
+        ----------------
+        **kwargs
+        `~matplotlib.patches.FancyArrowPatch` properties
+        """
+        if not((delta is None) ^ (end is None)):
+            raise ValueError("Exactly one *delta* or *end* must be Non-Zero")
+        if end is None:
+            end = np.asanyarray(start) + np.asanyarray(delta)
+
+        color = kwargs.pop("color", None)
+        if color is None:
+            color = self._get_lines.get_next_color()
+        shrinkA = kwargs.get("shrinkA", 0)
+        shrinkB = kwargs.get("shrinkB", 0)
+        vect = mpatches.FancyArrowPatch(
+            start, end, color=color, shrinkA=shrinkA, shrinkB=shrinkB, **kwargs
+        )
+        ms = vect._mutation_scale
+        stylekw = {
+            "head_length": kwargs.get("head_length", 12) / ms,
+            "head_width": kwargs.get("head_width", 12) / ms,
+            "tail_width": kwargs.get("tail_width", 4) / ms,
+        }
+        vect.set_arrowstyle(kwargs.get("arrowstyle", "simple"), **stylekw)
+        self.add_patch(vect)
+        self.update_datalim([start, end])
+        self._request_autoscale_view()
+        return vect
+
     @_preprocess_data()
     def stairs(self, values, edges=None, *,
                orientation='vertical', baseline=0, fill=False, **kwargs):
