@@ -657,6 +657,7 @@ class Axis(martist.Artist):
             self.clear()
         else:
             self.converter = None
+            self._converter_is_explicit = False
             self.units = None
 
         self._autoscale_on = True
@@ -887,6 +888,7 @@ class Axis(martist.Artist):
         self.reset_ticks()
 
         self.converter = None
+        self._converter_is_explicit = False
         self.units = None
         self.stale = True
 
@@ -1741,12 +1743,16 @@ class Axis(martist.Artist):
         ``axis.converter`` instance if necessary. Return *True*
         if *data* is registered for unit conversion.
         """
-        converter = munits.registry.get_converter(data)
+        if not self._converter_is_explicit:
+            converter = munits.registry.get_converter(data)
+        else:
+            converter = self.converter
+
         if converter is None:
             return False
 
         neednew = self.converter != converter
-        self.converter = converter
+        self._set_converter(converter)
         default = self.converter.default_units(data, self)
         if default is not None and self.units is None:
             self.set_units(default)
@@ -1799,7 +1805,7 @@ class Axis(martist.Artist):
             return x
 
         if self.converter is None:
-            self.converter = munits.registry.get_converter(x)
+            self._set_converter(munits.registry.get_converter(x))
 
         if self.converter is None:
             return x
@@ -1809,6 +1815,39 @@ class Axis(martist.Artist):
             raise munits.ConversionError('Failed to convert value(s) to axis '
                                          f'units: {x!r}') from e
         return ret
+
+    def get_converter(self):
+        """
+        Get the unit converter for axis.
+
+        Returns
+        -------
+        `~matplotlib.units.ConversionInterface` or None
+        """
+        return self.converter
+
+    def set_converter(self, converter):
+        """
+        Set the unit converter for axis.
+
+        Parameters
+        ----------
+        converter : `~matplotlib.dates.ConversionInterface`
+        """
+        self._set_converter(converter)
+        self._converter_is_explicit = True
+
+    def _set_converter(self, converter):
+        if self.converter == converter:
+            return
+        if self._converter_is_explicit:
+            raise RuntimeError("Axis already has an explicit converter set")
+        elif self.converter is not None:
+            _api.warn_external(
+                "This axis already has an converter set and "
+                "is updating to a potentially incompatible converter"
+            )
+        self.converter = converter
 
     def set_units(self, u):
         """
