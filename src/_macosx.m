@@ -1789,6 +1789,18 @@ Timer__timer_stop(Timer* self)
     Py_RETURN_NONE;
 }
 
+static PyObject*
+Timer__timer_update(Timer* self)
+{
+    // stop and invalidate a timer if it is already running and then create a new one
+    // where the start() method retrieves the updated interval internally
+    if (self->timer) {
+        Timer__timer_stop_impl(self);
+        gil_call_method((PyObject*)self, "_timer_start");
+    }
+    Py_RETURN_NONE;
+}
+
 static void
 Timer_dealloc(Timer* self)
 {
@@ -1814,6 +1826,12 @@ static PyTypeObject TimerType = {
          METH_VARARGS},
         {"_timer_stop",
          (PyCFunction)Timer__timer_stop,
+         METH_NOARGS},
+        {"_timer_set_interval",
+         (PyCFunction)Timer__timer_update,
+         METH_NOARGS},
+        {"_timer_set_single_shot",
+         (PyCFunction)Timer__timer_update,
          METH_NOARGS},
         {}  // sentinel
     },

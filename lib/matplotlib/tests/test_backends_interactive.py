@@ -626,11 +626,13 @@ def _impl_test_interactive_timers():
     # We only want singleshot if we specify that ourselves, otherwise we want
     # a repeating timer
     import os
+    import sys
     from unittest.mock import Mock
     import matplotlib.pyplot as plt
     # increase pause duration on CI to let things spin up
     # particularly relevant for gtk3cairo
     pause_time = 2 if os.getenv("CI") else 0.5
+    expected_100ms_calls = int(pause_time / 0.1)
     fig = plt.figure()
     plt.pause(pause_time)
     timer = fig.canvas.new_timer(0.1)
@@ -638,17 +640,33 @@ def _impl_test_interactive_timers():
     timer.add_callback(mock)
     timer.start()
     plt.pause(pause_time)
-    timer.stop()
-    assert mock.call_count > 1
+    # NOTE: The timer is as fast as possible, but this is different between backends
+    #       so we can't assert on the exact number but it should be faster than 100ms
+    assert mock.call_count > expected_100ms_calls, \
+        f"Expected more than {expected_100ms_calls} calls, got {mock.call_count}"
+
+    # Test updating the interval updates a running timer
+    timer.interval = 100
+    mock.call_count = 0
+    plt.pause(pause_time)
+    # GTK4 on macos runners produces about 3x as many calls as expected
+    # It works locally and on Linux though, so only skip when running on CI
+    if not (os.getenv("CI")
+            and "gtk4" in os.getenv("MPLBACKEND")
+            and sys.platform == "darwin"):
+        # Could be off due to when the timers actually get fired (especially on CI)
+        assert 1 < mock.call_count <= expected_100ms_calls + 1, \
+            f"Expected less than {expected_100ms_calls + 1} calls, " \
+            "got {mock.call_count}"
 
     # Now turn it into a single shot timer and verify only one gets triggered
     mock.call_count = 0
     timer.single_shot = True
-    timer.start()
     plt.pause(pause_time)
     assert mock.call_count == 1
 
-    # Make sure we can start the timer a second time
+    # Make sure we can start the timer after stopping
+    timer.stop()
     timer.start()
     plt.pause(pause_time)
     assert mock.call_count == 2
