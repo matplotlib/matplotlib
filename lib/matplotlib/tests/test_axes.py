@@ -4727,6 +4727,10 @@ def test_hist_labels():
     assert bars[0].get_label() == '0'
     _, _, bars = ax.hist([0, 1], label='00')
     assert bars[0].get_label() == '00'
+    _, _, bars = ax.hist([0, 1], label={0: 42}.keys())
+    assert bars[0].get_label() == '0'
+    _, _, bars = ax.hist([0, 1], label={42: 0}.values())
+    assert bars[0].get_label() == '0'
 
 
 @image_comparison(['transparent_markers'], remove_text=True)
