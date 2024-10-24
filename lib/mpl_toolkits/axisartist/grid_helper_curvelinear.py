@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import _api
 from matplotlib.path import Path
-from matplotlib.transforms import Affine2D, IdentityTransform
+from matplotlib.transforms import Affine2D, Bbox, IdentityTransform
 from .axislines import (
     _FixedAxisArtistHelperBase, _FloatingAxisArtistHelperBase, GridHelperBase)
 from .axis_artist import AxisArtist
@@ -115,10 +115,10 @@ class FloatingAxisArtistHelper(_FloatingAxisArtistHelperBase):
         x1, x2 = axes.get_xlim()
         y1, y2 = axes.get_ylim()
         grid_finder = self.grid_helper.grid_finder
-        extremes = grid_finder.extreme_finder(grid_finder.inv_transform_xy,
-                                              x1, y1, x2, y2)
+        tbbox = grid_finder.extreme_finder._find_transformed_bbox(
+            grid_finder.get_transform().inverted(), Bbox.from_extents(x1, y1, x2, y2))
 
-        lon_min, lon_max, lat_min, lat_max = extremes
+        lon_min, lat_min, lon_max, lat_max = tbbox.extents
         e_min, e_max = self._extremes  # ranges of other coordinates
         if self.nth_coord == 0:
             lat_min = max(e_min, lat_min)
@@ -127,29 +127,29 @@ class FloatingAxisArtistHelper(_FloatingAxisArtistHelperBase):
             lon_min = max(e_min, lon_min)
             lon_max = min(e_max, lon_max)
 
-        lon_levs, lon_n, lon_factor = \
-            grid_finder.grid_locator1(lon_min, lon_max)
-        lat_levs, lat_n, lat_factor = \
-            grid_finder.grid_locator2(lat_min, lat_max)
+        lon_levs, lon_n, lon_factor = grid_finder.grid_locator1(lon_min, lon_max)
+        lat_levs, lat_n, lat_factor = grid_finder.grid_locator2(lat_min, lat_max)
 
         if self.nth_coord == 0:
-            xx0 = np.full(self._line_num_points, self.value)
-            yy0 = np.linspace(lat_min, lat_max, self._line_num_points)
-            xx, yy = grid_finder.transform_xy(xx0, yy0)
+            xys = grid_finder.get_transform().transform(np.column_stack([
+                np.full(self._line_num_points, self.value),
+                np.linspace(lat_min, lat_max, self._line_num_points),
+            ]))
         elif self.nth_coord == 1:
-            xx0 = np.linspace(lon_min, lon_max, self._line_num_points)
-            yy0 = np.full(self._line_num_points, self.value)
-            xx, yy = grid_finder.transform_xy(xx0, yy0)
+            xys = grid_finder.get_transform().transform(np.column_stack([
+                np.linspace(lon_min, lon_max, self._line_num_points),
+                np.full(self._line_num_points, self.value),
+            ]))
 
         self._grid_info = {
-            "extremes": (lon_min, lon_max, lat_min, lat_max),
+            "extremes": Bbox.from_extents(lon_min, lat_min, lon_max, lat_max),
             "lon_info": (lon_levs, lon_n, np.asarray(lon_factor)),
             "lat_info": (lat_levs, lat_n, np.asarray(lat_factor)),
             "lon_labels": grid_finder._format_ticks(
                 1, "bottom", lon_factor, lon_levs),
             "lat_labels": grid_finder._format_ticks(
                 2, "bottom", lat_factor, lat_levs),
-            "line_xy": (xx, yy),
+            "line_xy": xys,
         }
 
     def get_axislabel_transform(self, axes):
@@ -160,7 +160,7 @@ class FloatingAxisArtistHelper(_FloatingAxisArtistHelperBase):
             trf = self.grid_helper.grid_finder.get_transform() + axes.transData
             return trf.transform([x, y]).T
 
-        xmin, xmax, ymin, ymax = self._grid_info["extremes"]
+        xmin, ymin, xmax, ymax = self._grid_info["extremes"].extents
         if self.nth_coord == 0:
             xx0 = self.value
             yy0 = (ymin + ymax) / 2
@@ -232,8 +232,7 @@ class FloatingAxisArtistHelper(_FloatingAxisArtistHelperBase):
 
     def get_line(self, axes):
         self.update_lim(axes)
-        x, y = self._grid_info["line_xy"]
-        return Path(np.column_stack([x, y]))
+        return Path(self._grid_info["line_xy"])
 
 
 class GridHelperCurveLinear(GridHelperBase):
@@ -309,11 +308,9 @@ class GridHelperCurveLinear(GridHelperBase):
     def get_gridlines(self, which="major", axis="both"):
         grid_lines = []
         if axis in ["both", "x"]:
-            for gl in self._grid_info["lon"]["lines"]:
-                grid_lines.extend(gl)
+            grid_lines.extend([gl.T for gl in self._grid_info["lon"]["lines"]])
         if axis in ["both", "y"]:
-            for gl in self._grid_info["lat"]["lines"]:
-                grid_lines.extend(gl)
+            grid_lines.extend([gl.T for gl in self._grid_info["lat"]["lines"]])
         return grid_lines
 
     @_api.deprecated("3.9")
