@@ -13,6 +13,30 @@
 namespace py = pybind11;
 using namespace pybind11::literals;
 
+template <typename T>
+using double_or_ = std::variant<double, T>;
+
+template <typename T>
+static T
+_double_to_(const char *name, double_or_<T> &var)
+{
+    if (auto value = std::get_if<double>(&var)) {
+        auto api = py::module_::import("matplotlib._api");
+        auto warn = api.attr("warn_deprecated");
+        warn("since"_a="3.10", "name"_a=name, "obj_type"_a="parameter as float",
+             "alternative"_a="int({})"_s.format(name));
+        return static_cast<T>(*value);
+    } else if (auto value = std::get_if<T>(&var)) {
+        return *value;
+    } else {
+        // pybind11 will have only allowed types that match the variant, so this `else`
+        // can't happen. We only have this case because older macOS doesn't support
+        // `std::get` and using the conditional `std::get_if` means an `else` to silence
+        // compiler warnings about "unhandled" cases.
+        throw std::runtime_error("Should not happen");
+    }
+}
+
 /**********************************************************************
  * Enumerations
  * */
@@ -227,8 +251,15 @@ const char *PyFT2Image_draw_rect_filled__doc__ = R"""(
 )""";
 
 static void
-PyFT2Image_draw_rect_filled(FT2Image *self, double x0, double y0, double x1, double y1)
+PyFT2Image_draw_rect_filled(FT2Image *self,
+                            double_or_<long> vx0, double_or_<long> vy0,
+                            double_or_<long> vx1, double_or_<long> vy1)
 {
+    auto x0 = _double_to_<long>("x0", vx0);
+    auto y0 = _double_to_<long>("y0", vy0);
+    auto x1 = _double_to_<long>("x1", vx1);
+    auto y1 = _double_to_<long>("y1", vy1);
+
     self->draw_rect_filled(x0, y0, x1, y1);
 }
 
@@ -920,7 +951,7 @@ const char *PyFT2Font_draw_glyph_to_bitmap__doc__ = R"""(
     ----------
     image : FT2Image
         The image buffer on which to draw the glyph.
-    x, y : float
+    x, y : int
         The pixel location at which to draw the glyph.
     glyph : Glyph
         The glyph to draw.
@@ -933,9 +964,13 @@ const char *PyFT2Font_draw_glyph_to_bitmap__doc__ = R"""(
 )""";
 
 static void
-PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, FT2Image &image, double xd, double yd,
+PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, FT2Image &image,
+                               double_or_<int> vxd, double_or_<int> vyd,
                                PyGlyph *glyph, bool antialiased = true)
 {
+    auto xd = _double_to_<int>("x", vxd);
+    auto yd = _double_to_<int>("y", vyd);
+
     self->x->draw_glyph_to_bitmap(image, xd, yd, glyph->glyphInd, antialiased);
 }
 
@@ -1625,7 +1660,14 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
 
     py::class_<FT2Image>(m, "FT2Image", py::is_final(), py::buffer_protocol(),
                          PyFT2Image__doc__)
-        .def(py::init<double, double>(), "width"_a, "height"_a, PyFT2Image_init__doc__)
+        .def(py::init(
+                [](double_or_<long> width, double_or_<long> height) {
+                    return new FT2Image(
+                        _double_to_<long>("width", width),
+                        _double_to_<long>("height", height)
+                    );
+                }),
+             "width"_a, "height"_a, PyFT2Image_init__doc__)
         .def("draw_rect_filled", &PyFT2Image_draw_rect_filled,
              "x0"_a, "y0"_a, "x1"_a, "y1"_a,
              PyFT2Image_draw_rect_filled__doc__)

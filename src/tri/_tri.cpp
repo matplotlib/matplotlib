@@ -751,7 +751,7 @@ py::tuple TriContourGenerator::create_contour(const double& level)
     Contour contour;
 
     find_boundary_lines(contour, level);
-    find_interior_lines(contour, level, false, false);
+    find_interior_lines(contour, level, false);
 
     return contour_line_to_segs_and_kinds(contour);
 }
@@ -766,8 +766,8 @@ py::tuple TriContourGenerator::create_filled_contour(const double& lower_level,
     Contour contour;
 
     find_boundary_lines_filled(contour, lower_level, upper_level);
-    find_interior_lines(contour, lower_level, false, true);
-    find_interior_lines(contour, upper_level, true,  true);
+    find_interior_lines(contour, lower_level, false);
+    find_interior_lines(contour, upper_level, true);
 
     return contour_to_segs_and_kinds(contour);
 }
@@ -880,8 +880,7 @@ void TriContourGenerator::find_boundary_lines_filled(Contour& contour,
 
 void TriContourGenerator::find_interior_lines(Contour& contour,
                                               const double& level,
-                                              bool on_upper,
-                                              bool filled)
+                                              bool on_upper)
 {
     const Triangulation& triang = _triangulation;
     int ntri = triang.get_ntri();
