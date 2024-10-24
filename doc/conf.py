@@ -126,6 +126,7 @@ extensions = [
     'sphinxext.mock_gui_toolkits',
     'sphinxext.skip_deprecated',
     'sphinxext.redirect_from',
+    'sphinxext.image_search',
     'sphinx_copybutton',
     'sphinx_design',
     'sphinx_tags',
@@ -274,7 +275,7 @@ intersphinx_mapping = {
 
 
 gallery_dirs = [f'{ed}' for ed in
-                ['gallery', 'tutorials', 'plot_types', 'users/explain']
+                ['gallery', 'tutorials', 'plot_types', 'users/explain', 'image_search']
                 if f'{ed}/*' not in skip_subdirs]
 
 example_dirs = []
@@ -506,6 +507,10 @@ def add_html_cache_busting(app, pagename, templatename, context, doctree):
 # given in html_static_path.
 html_css_files = [
     "mpl.css",
+]
+
+html_js_files = [
+    "image_search.js"
 ]
 
 html_theme = "mpl_sphinx_theme"
