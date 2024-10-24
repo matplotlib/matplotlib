@@ -213,8 +213,9 @@ class _process_plot_var_args:
     an arbitrary number of *x*, *y*, *fmt* are allowed
     """
 
-    def __init__(self, command='plot'):
-        self.command = command
+    def __init__(self, output='Line2D'):
+        _api.check_in_list(['Line2D', 'Polygon', 'coordinates'], output=output)
+        self.output = output
         self.set_prop_cycle(None)
 
     def set_prop_cycle(self, cycler):
@@ -223,12 +224,12 @@ class _process_plot_var_args:
         self._idx = 0
         self._cycler_items = [*cycler]
 
-    def __call__(self, axes, *args, data=None, **kwargs):
+    def __call__(self, axes, *args, data=None, return_kwargs=False, **kwargs):
         axes._process_unit_info(kwargs=kwargs)
 
         for pos_only in "xy":
             if pos_only in kwargs:
-                raise _api.kwarg_error(self.command, pos_only)
+                raise _api.kwarg_error(inspect.stack()[1].function, pos_only)
 
         if not args:
             return
@@ -294,7 +295,9 @@ class _process_plot_var_args:
                 this += args[0],
                 args = args[1:]
             yield from self._plot_args(
-                axes, this, kwargs, ambiguous_fmt_datakey=ambiguous_fmt_datakey)
+                axes, this, kwargs, ambiguous_fmt_datakey=ambiguous_fmt_datakey,
+                return_kwargs=return_kwargs
+            )
 
     def get_next_color(self):
         """Return the next color in the cycle."""
@@ -329,13 +332,18 @@ class _process_plot_var_args:
             if kw.get(k, None) is None:
                 kw[k] = defaults[k]
 
-    def _makeline(self, axes, x, y, kw, kwargs):
+    def _make_line(self, axes, x, y, kw, kwargs):
         kw = {**kw, **kwargs}  # Don't modify the original kw.
         self._setdefaults(self._getdefaults(kw), kw)
         seg = mlines.Line2D(x, y, **kw)
         return seg, kw
 
-    def _makefill(self, axes, x, y, kw, kwargs):
+    def _make_coordinates(self, axes, x, y, kw, kwargs):
+        kw = {**kw, **kwargs}  # Don't modify the original kw.
+        self._setdefaults(self._getdefaults(kw), kw)
+        return (x, y), kw
+
+    def _make_polygon(self, axes, x, y, kw, kwargs):
         # Polygon doesn't directly support unitized inputs.
         x = axes.convert_xunits(x)
         y = axes.convert_yunits(y)
@@ -493,11 +501,15 @@ class _process_plot_var_args:
         if y.ndim == 1:
             y = y[:, np.newaxis]
 
-        if self.command == 'plot':
-            make_artist = self._makeline
-        else:
+        if self.output == 'Line2D':
+            make_artist = self._make_line
+        elif self.output == 'Polygon':
             kw['closed'] = kwargs.get('closed', True)
-            make_artist = self._makefill
+            make_artist = self._make_polygon
+        elif self.output == 'coordinates':
+            make_artist = self._make_coordinates
+        else:
+            _api.check_in_list(['Line2D', 'Polygon', 'coordinates'], output=self.output)
 
         ncx, ncy = x.shape[1], y.shape[1]
         if ncx > 1 and ncy > 1 and ncx != ncy:
@@ -1299,7 +1311,7 @@ class _AxesBase(martist.Artist):
         self._use_sticky_edges = True
 
         self._get_lines = _process_plot_var_args()
-        self._get_patches_for_fill = _process_plot_var_args('fill')
+        self._get_patches_for_fill = _process_plot_var_args('Polygon')
 
         self._gridOn = mpl.rcParams['axes.grid']
         # Swap children to minimize time we spend in an invalid state
