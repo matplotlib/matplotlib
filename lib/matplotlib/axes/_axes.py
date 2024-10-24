@@ -64,6 +64,23 @@ def _make_axes_method(func):
     return func
 
 
+class _GroupedBarReturn:
+    """
+    A provisional result object for `.Axes.grouped_bar`.
+
+    This is a placeholder for a future better return type. We try to build in
+    backward compatibility / migration possibilities.
+
+    The only public interfaces are the ``bar_containers`` attribute and the
+    ``remove()`` method.
+    """
+    def __init__(self, bar_containers):
+        self.bar_containers = bar_containers
+
+    def remove(self):
+        [b.remove() for b in self.bars]
+
+
 @_docstring.interpd
 class Axes(_AxesBase):
     """
@@ -2994,6 +3011,208 @@ class Axes(_AxesBase):
         self._request_autoscale_view()
 
         return col
+
+    @_docstring.interpd
+    def grouped_bar(self, x, heights, *, group_spacing=1.5, bar_spacing=0,
+                    labels=None, orientation="vertical", colors=None,
+                    **kwargs):
+        """
+        Make a grouped bar plot.
+
+        .. note::
+            This function is new in v3.10, and the API is still provisional.
+            We may still fine-tune some aspects based on user-feedback.
+
+        This is a convenience function to plot bar charts for multiple datasets
+        into one Axes. In particular, it simplifies positioning of the bars
+        compared to individual `~.Axes.bar` plots.
+
+        Parameters
+        ----------
+        x : array-like or list of str
+            The center positions of the bar groups. If these are numeric values,
+            they have to be equidistant. As with `~.Axes.bar`, you can provide
+            categorical labels, which will be used at integer numeric positions
+            ``range(x)``.
+
+        heights : list of array-like or dict of array-like or 2D array
+            The heights for all x and groups. One of:
+
+            - list of array-like: A list of datasets, each dataset must have
+              ``len(x)`` elements.
+
+              .. code-block:: none
+
+                  x = ["a", "b"]
+
+                  #            x[0]   x[1]
+                  dataset_0 = [ds0_a, ds0_b]
+                  dataset_1 = [ds1_a, ds1_b]
+                  dataset_2 = [ds2_a, ds2_b]
+
+                  heights = [dataset_0, dataset_1, dataset_2]
+
+              Example call::
+
+                  grouped_bar(x, [dataset_0, dataset_1, dataset_2])
+
+            - dict of array-like: A mapping names to datasets. Each dataset
+              (dict value) must have ``len(x)`` elements.
+
+              This is similar to passing a list of array-like, with the addition that
+              each dataset gets a name.
+
+              Example call::
+
+                grouped_bar(x, {'ds0': dataset_0, 'ds1': dataset_1, 'ds2': dataset_2]})
+
+              The names are used as *labels*, i.e. the following two calls are
+              equivalent::
+
+                data_dict = {'ds0': dataset_0, 'ds1': dataset_1, 'ds2': dataset_2]}
+                grouped_bar(x, data_dict)
+                grouped_bar(x, data_dict.values(), labels=data_dict.keys())
+
+              When using a dict-like input, you must not pass *labels* explicitly.
+
+            - a 2D array: The columns are the different datasets.
+
+              .. code-block:: none
+
+                          dataset_0 dataset_1 dataset_2
+                 x[0]="a"   ds0_a     ds1_a     ds2_a
+                 x[1]="b"   ds0_b     ds1_b     ds2_b
+
+              .. code-block::
+
+                  x = ["a", "b"]
+                  dataset_labels = ["dataset_0", "dataset_1", "dataset_2"]
+                  array = np.random.random((2, 3))
+
+              Note that this is consistent with pandas. These two calls produce
+              the same bar plot structure::
+
+                  grouped_bar(x, array, labels=dataset_labels)
+                  pd.DataFrame(array, index=x, columns=dataset_labels).plot.bar()
+
+        group_spacing : float
+            The space between two bar groups in units of bar width.
+
+        bar_spacing : float
+            The space between bars in units of bar width.
+
+        labels : array-like of str, optional
+            The labels of the datasets, i.e. the bars within one group.
+            These will show up in the legend.
+
+            Note: The "other" label dimension are the group labels, which
+            can be set via *x*.
+
+        orientation : {"vertical", "horizontal"}, default: "vertical"
+            The direction of the bars.
+
+        colors : list of :mpltype:`color`, optional
+            A sequence of colors to be cycled through and used to color bars
+            of the different datasets. The sequence need not be exactly the
+            same length as the number of provided y, in which case the colors
+            will repeat from the beginning.
+
+            If not specified, the colors from the Axes property cycle will be used.
+
+        **kwargs : `.Rectangle` properties
+
+            %(Rectangle:kwdoc)s
+
+        Returns
+        -------
+            _GroupedBarReturn
+
+                A provisional result object. This will be refined in the future.
+                For now, the API is limited to
+
+                - the attribute ``bar_containers``, which is a list of
+                  `.BarContainer`, i.e. the results of the individual `~.Axes.bar`
+                  calls for each dataset.
+
+                - a ``remove()`` method, that remove all bars from the Axes.
+                  See also `.Artist.remove()`.
+
+        """
+        if hasattr(heights, 'keys'):
+            if labels is not None:
+                raise ValueError(
+                    "'labels' cannot be used if 'heights' are a mapping")
+            labels = heights.keys()
+            heights = heights.values()
+        elif hasattr(heights, 'shape'):
+            heights = heights.T
+
+        num_groups = len(x)
+        num_datasets = len(heights)
+
+        if isinstance(x[0], str):
+            tick_labels = x
+            group_centers = np.arange(num_groups)
+            group_distance = 1
+        else:
+            if num_groups > 1:
+                d = np.diff(x)
+                if not np.allclose(d, d.mean()):
+                    raise ValueError("'x' must be equidistant")
+                group_distance = d[0]
+            else:
+                group_distance = 1
+            group_centers = np.asarray(x)
+            tick_labels = None
+
+        for i, dataset in enumerate(heights):
+            if len(dataset) != num_groups:
+                raise ValueError(
+                    f"'x' indicates {num_groups} groups, but dataset {i} "
+                    f"has {len(dataset)} groups"
+                )
+
+        _api.check_in_list(["vertical", "horizontal"], orientation=orientation)
+
+        if colors is None:
+            colors = itertools.cycle([None])
+        else:
+            # Note: This is equivalent to the behavior in stackplot
+            # TODO: do we want to be more restrictive and check lengths?
+            colors = itertools.cycle(colors)
+
+        bar_width = (group_distance /
+                     (num_datasets + (num_datasets - 1) * bar_spacing + group_spacing))
+        bar_spacing_abs = bar_spacing * bar_width
+        margin_abs = 0.5 * group_spacing * bar_width
+
+        if labels is None:
+            labels = [None] * num_datasets
+        else:
+            assert len(labels) == num_datasets
+
+        # place the bars, but only use numerical positions, categorical tick labels
+        # are handled separately below
+        result = []
+        for i, (hs, label, color) in enumerate(
+                zip(heights, labels, colors)):
+            lefts = (group_centers - 0.5 * group_distance + margin_abs
+                     + i * (bar_width + bar_spacing_abs))
+            if orientation == "vertical":
+                bc = self.bar(lefts, hs, width=bar_width, align="edge",
+                              label=label, color=color, **kwargs)
+            else:
+                bc = self.barh(lefts, hs, height=bar_width, align="edge",
+                               label=label, color=color, **kwargs)
+            result.append(bc)
+
+        if tick_labels is not None:
+            if orientation == "vertical":
+                self.xaxis.set_ticks(group_centers, labels=tick_labels)
+            else:
+                self.yaxis.set_ticks(group_centers, labels=tick_labels)
+
+        return result
 
     @_preprocess_data()
     def stem(self, *args, linefmt=None, markerfmt=None, basefmt=None, bottom=0,
