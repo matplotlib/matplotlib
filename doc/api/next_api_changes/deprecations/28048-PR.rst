@@ -1,0 +1,4 @@
+``PdfFile.hatchPatterns``
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... is deprecated.
