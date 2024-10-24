@@ -1129,10 +1129,11 @@ class _AxesBase(martist.Artist):
         matplotlib.transforms.Bbox.from_bounds
         matplotlib.transforms.Bbox.from_extents
         """
-        self._set_position(pos, which=which)
-        # because this is being called externally to the library we
-        # don't let it be in the layout.
-        self.set_in_layout(False)
+        for ax in self._twinned_axes.get_siblings(self):
+            ax._set_position(pos, which=which)
+            # because this is being called externally to the library we
+            # don't let it be in the layout.
+            ax.set_in_layout(False)
 
     def _set_position(self, pos, which='both'):
         """
