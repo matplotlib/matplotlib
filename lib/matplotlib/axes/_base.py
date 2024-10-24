@@ -555,6 +555,65 @@ class _AxesBase(martist.Artist):
     """The bounding `.Bbox` enclosing all data displayed in the Axes."""
 
     @property
+    def transAxes(self):
+        """
+        Transform object that represents a coordinate system relative
+        to the axes of a plot. It provides a mapping from coordinates specified
+        as fractions of the axes' dimensions. The origin of this coordinate
+        system (0, 0) is located at the bottom-left corner of the axes, while the
+        top-right corner is represented by the coordinates (1, 1).
+        """
+        return self._transAxes
+
+    @transAxes.setter
+    def transAxes(self, value):
+        self._transAxes = value
+
+    @property
+    def transScale(self):
+        """
+        Transform object that represents the scaling transformation for
+        the data coordinates within an axes. It is responsible for converting
+        the data coordinates to scaled coordinates used for rendering the plot.
+        The transformation incorporates the scaling applied to the data
+        along both the x-axis and the y-axis.
+        """
+        return self._transScale
+
+    @transScale.setter
+    def transScale(self, value):
+        self._transScale = value
+
+    @property
+    def transLimits(self):
+        """
+        Transform object that represents the transformation from data
+        coordinates to the coordinate system used for drawing within the axes
+        limits. It maps the range of data coordinates to the corresponding range
+        of the axes limits, taking into account any data clipping that might occur.
+        """
+        return self._transLimits
+
+    @transLimits.setter
+    def transLimits(self, value):
+        self._transLimits = value
+
+    @property
+    def transData(self):
+        """
+        Transform object that represents the transformation from data
+        coordinates to the coordinate system used for drawing within the axes.
+        It converts the data coordinates of a plot to the corresponding coordinate
+        values in the drawing space, enabling proper rendering of plot elements
+        relative to the axes and the figure.
+        """
+        return self._transData
+
+    @transData.setter
+    def transData(self, value):
+        self._transData = value
+
+    @property
     def _axis_map(self):
         """A mapping of axis names, e.g. 'x', to `Axis` instances."""
         return {name: getattr(self, f"{name}axis")
