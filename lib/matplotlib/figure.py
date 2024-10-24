@@ -378,7 +378,7 @@ default: %(va)s
         self.stale = True
         return suplab
 
-    @_docstring.Substitution(x0=0.5, y0=0.98, name='suptitle', ha='center',
+    @_docstring.Substitution(x0=0.5, y0=0.98, name='super title', ha='center',
                              va='top', rc='title')
     @_docstring.copy(_suplabels)
     def suptitle(self, t, **kwargs):
@@ -393,7 +393,7 @@ default: %(va)s
         text_obj = self._suptitle
         return "" if text_obj is None else text_obj.get_text()
 
-    @_docstring.Substitution(x0=0.5, y0=0.01, name='supxlabel', ha='center',
+    @_docstring.Substitution(x0=0.5, y0=0.01, name='super xlabel', ha='center',
                              va='bottom', rc='label')
     @_docstring.copy(_suplabels)
     def supxlabel(self, t, **kwargs):
@@ -408,7 +408,7 @@ default: %(va)s
         text_obj = self._supxlabel
         return "" if text_obj is None else text_obj.get_text()
 
-    @_docstring.Substitution(x0=0.02, y0=0.5, name='supylabel', ha='left',
+    @_docstring.Substitution(x0=0.02, y0=0.5, name='super ylabel', ha='left',
                              va='center', rc='label')
     @_docstring.copy(_suplabels)
     def supylabel(self, t, **kwargs):
