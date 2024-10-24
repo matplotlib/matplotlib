@@ -26,8 +26,26 @@ from gi.repository import Gio, GLib, Gtk, Gdk, GdkPixbuf
 from . import _backend_gtk
 from ._backend_gtk import (  # noqa: F401 # pylint: disable=W0611
     _BackendGTK, _FigureCanvasGTK, _FigureManagerGTK, _NavigationToolbar2GTK,
-    TimerGTK as TimerGTK4,
+    _WindowGTK, TimerGTK as TimerGTK4,
 )
+
+
+class WindowGTK4(_WindowGTK):
+    def _add_element(self, parent, child, appending, grow):
+        if appending:
+            parent.append(child)
+        else:
+            parent.prepend(child)
+
+    def _setup_signals(self):
+        self.connect('destroy', self.destroy_event)
+        self.connect('close-request', self.destroy_event)
+
+    def resize(self, width, height):
+        Gtk.Window.set_default_size(self, width, height)
+
+    def _get_self(self):
+        return self.get_surface()
 
 
 class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
@@ -595,6 +613,7 @@ Toolbar = ToolbarGTK4
 class FigureManagerGTK4(_FigureManagerGTK):
     _toolbar2_class = NavigationToolbar2GTK4
     _toolmanager_toolbar_class = ToolbarGTK4
+    _window_class = WindowGTK4
 
 
 @_BackendGTK.export

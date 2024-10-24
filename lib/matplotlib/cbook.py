@@ -393,6 +393,18 @@ class CallbackRegistry:
             self.callbacks = orig
 
 
+class EventEmitter(object):
+    def __init__(self, **kwargs):
+        super(EventEmitter, self).__init__(**kwargs)  # call next class on MRO
+        self._callbacks = CallbackRegistry()
+
+    def mpl_connect(self, s, func):
+        return self._callbacks.connect(s, func)
+
+    def mpl_disconnect(self, cid):
+        return self._callbacks.disconnect(cid)
+
+
 class silent_list(list):
     """
     A list with a short ``repr()``.
