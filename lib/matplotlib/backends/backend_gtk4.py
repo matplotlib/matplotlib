@@ -393,6 +393,7 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
                 msg.show()
 
         dialog.show()
+        return self.UNKNOWN_SAVED_STATUS
 
 
 class ToolbarGTK4(ToolContainerBase, Gtk.Box):
