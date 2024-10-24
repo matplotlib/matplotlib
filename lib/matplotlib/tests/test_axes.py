@@ -9028,6 +9028,11 @@ def test_zorder_and_explicit_rasterization():
     with io.BytesIO() as b:
         fig.savefig(b, format='pdf')
 
+@check_figures_equal(extensions=["png"])
+def test_anim_without_image(fig_test, fig_ref):
+    ax_ref = fig_ref.subplots()
+    imdata = np.random.random((20,20))
+    ax_ref.plot(imdata, animated=true)
 
 @image_comparison(["preset_clip_paths.png"], remove_text=True, style="mpl20",
                   tol=0.027 if platform.machine() == "arm64" else 0)
