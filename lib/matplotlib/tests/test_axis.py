@@ -1,7 +1,6 @@
 import numpy as np
-
 import matplotlib.pyplot as plt
-from matplotlib.axis import XTick
+from matplotlib.axis import XTick, XAxis
 
 
 def test_tick_labelcolor_array():
@@ -29,3 +28,15 @@ def test_axis_not_in_layout():
     # Positions should not be affected by overlapping 100 label
     assert ax1_left.get_position().bounds == ax2_left.get_position().bounds
     assert ax1_right.get_position().bounds == ax2_right.get_position().bounds
+
+
+def test__translate_tick_params():
+    fig, ax = plt.subplots()
+    xaxis = XAxis(ax)
+    kw = {'label1On': 'dummy_string_1', 'label2On': 'dummy_string_2',
+          'tick1On': 'dummy_string_3', 'tick2On': 'dummy_string_4'}
+    result = xaxis._translate_tick_params(kw, reverse=True)
+    assert result['labelbottom'] == 'dummy_string_1'
+    assert result['labeltop'] == 'dummy_string_2'
+    assert result['bottom'] == 'dummy_string_3'
+    assert result['top'] == 'dummy_string_4'

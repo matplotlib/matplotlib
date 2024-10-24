@@ -301,16 +301,16 @@ class Text(Artist):
 
         Parameters
         ----------
-        m : {None, 'default', 'anchor'}
+        m : {None, 'default', 'anchor', 'xtick', 'ytick'}
             If ``"default"``, the text will be first rotated, then aligned according
-            to their horizontal and vertical alignments.  If ``"anchor"``, then
-            alignment occurs before rotation. Passing ``None`` will set the rotation
-            mode to ``"default"``.
+            to their horizontal and vertical alignments.  If ``"anchor"``, ``"xtick"``
+            or ``"ytick", then alignment occurs before rotation. Passing ``None`` will
+            set the rotation mode to ``"default"``.
         """
         if m is None:
             m = "default"
         else:
-            _api.check_in_list(("anchor", "default"), rotation_mode=m)
+            _api.check_in_list(("anchor", "default", "xtick", "ytick"), rotation_mode=m)
         self._rotation_mode = m
         self.stale = True
 
@@ -454,6 +454,11 @@ class Text(Artist):
 
         rotation_mode = self.get_rotation_mode()
         if rotation_mode != "anchor":
+            angle = self.get_rotation()
+            if rotation_mode == 'xtick':
+                halign = self._ha_for_angle(angle)
+            elif rotation_mode == 'ytick':
+                valign = self._va_for_angle(angle)
             # compute the text location in display coords and the offsets
             # necessary to align the bbox with that location
             if halign == 'center':
@@ -1379,6 +1384,32 @@ class Text(Artist):
 
         """
         self.set_fontfamily(fontname)
+
+    def _ha_for_angle(self, angle):
+        """
+        Determines horizontal alignment ('ha') for rotation_mode "xtick" based on
+        the angle of rotation in degrees and the vertical alignment.
+        """
+        anchor_at_bottom = self.get_verticalalignment() == 'bottom'
+        if (angle < 5 or 85 <= angle < 105 or 355 <= angle < 360 or
+                170 <= angle < 190 or 265 <= angle < 275):
+            return 'center'
+        elif 5 <= angle < 85 or 190 <= angle < 265:
+            return 'left' if anchor_at_bottom else 'right'
+        return 'right' if anchor_at_bottom else 'left'
+
+    def _va_for_angle(self, angle):
+        """
+        Determines vertical alignment ('va') based on the angle of rotation
+        in degrees. Adjusts for is_tick_right_enabled.
+        """
+        anchor_at_left = self.get_horizontalalignment() == 'left'
+        if (angle < 5 or 355 <= angle < 360 or 170 <= angle < 190
+                or 85 <= angle < 105 or 265 <= angle < 275):
+            return 'center'
+        elif 190 <= angle < 265 or 5 <= angle < 85:
+            return 'baseline' if anchor_at_left else 'top'
+        return 'top' if anchor_at_left else 'baseline'
 
 
 class OffsetFrom:

@@ -1135,3 +1135,42 @@ def test_font_wrap():
     plt.text(3, 4, t, family='monospace', ha='right', wrap=True)
     plt.text(-1, 0, t, fontsize=14, style='italic', ha='left', rotation=-15,
              wrap=True)
+
+
+def _test_ha_for_angle():
+    text_instance = Text()
+    angles = np.arange(0, 360.1, 0.1)
+    for angle in angles:
+        alignment = text_instance.ha_for_angle(angle)
+        assert alignment in ['center', 'left', 'right']
+
+
+def _test_va_for_angle():
+    text_instance = Text()
+    angles = np.arange(0, 360.1, 0.1)
+    for angle in angles:
+        alignment = text_instance.va_for_angle(angle)
+        assert alignment in ['center', 'top', 'baseline']
+
+
+@image_comparison(baseline_images=['text_xtick_ytick_rotation_modes'],
+                    remove_text=False, extensions=['png'], style='mpl20')
+def test_xtick_ytick_rotation_modes():
+    def set_ticks(ax, angles):
+        ax.set_xticks(np.arange(10))
+        ax.set_yticks(np.arange(10))
+        ax.set_xticklabels(['L'] * 10)
+        ax.set_yticklabels(['L'] * 10)
+        ax.xaxis.set_tick_params(rotation_mode='xtick', labelsize=7)
+        ax.yaxis.set_tick_params(rotation_mode='ytick', labelsize=7)
+        for label, angle in zip(ax.get_xticklabels(), angles):
+            label.set_rotation(angle)
+        for label, angle in zip(ax.get_yticklabels(), angles):
+            label.set_rotation(angle)
+    angles = np.linspace(0, 360, 10)
+    fig, axs = plt.subplots(1, 2, figsize=(5, 2.5))
+    set_ticks(axs[0], angles)
+    axs[1].xaxis.tick_top()
+    axs[1].yaxis.tick_right()
+    set_ticks(axs[1], angles)
+    plt.tight_layout()

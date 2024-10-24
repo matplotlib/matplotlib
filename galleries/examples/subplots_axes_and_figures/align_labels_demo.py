@@ -17,25 +17,19 @@ import numpy as np
 
 fig, axs = plt.subplots(2, 2, layout='constrained')
 
-ax = axs[0][0]
-ax.plot(np.arange(0, 1e6, 1000))
-ax.set_title('Title0 0')
-ax.set_ylabel('YLabel0 0')
-
-ax = axs[0][1]
-ax.plot(np.arange(1., 0., -0.1) * 2000., np.arange(1., 0., -0.1))
-ax.set_title('Title0 1')
-ax.xaxis.tick_top()
-ax.tick_params(axis='x', rotation=55)
-
-
 for i in range(2):
-    ax = axs[1][i]
-    ax.plot(np.arange(1., 0., -0.1) * 2000., np.arange(1., 0., -0.1))
-    ax.set_ylabel('YLabel1 %d' % i)
-    ax.set_xlabel('XLabel1 %d' % i)
-    if i == 0:
-        ax.tick_params(axis='x', rotation=55)
+    for j in range(2):
+        ax = axs[i][j]
+        ax.plot(np.arange(1., 0., -0.1) * 1000., np.arange(1., 0., -0.1))
+        ax.set_title(f'Title {i} {j}')
+        ax.set_xlabel(f'XLabel {i} {j}')
+        ax.set_ylabel(f'YLabel {i} {j}')
+        if (i == 0 and j == 1) or (i == 1 and j == 0):
+            if i == 0 and j == 1:
+                ax.xaxis.tick_top()
+            ax.set_xticks(np.linspace(0, 1000, 5))
+            ax.set_xticklabels([250 * n for n in range(5)])
+            ax.xaxis.set_tick_params(rotation=55, rotation_mode='xtick')
 
 fig.align_labels()  # same as fig.align_xlabels(); fig.align_ylabels()
 fig.align_titles()
