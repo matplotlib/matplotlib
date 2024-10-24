@@ -1106,6 +1106,15 @@ minimal amount of code necessary to showcase the feature. The lack of extraneous
 makes it easier for the reader to map which parts of code correspond to which parts of
 the plot.
 
+Figure size
+^^^^^^^^^^^
+The default figure size is suitable in many cases. If you want to use an explicit
+figure size, it should be chosen so that the figure is not wider than the available
+space in rendered HTML docs to prevent downscaling. The current limit with
+*pydata-sphinx-theme* is 720px (corresponding to ``figsize=(7.2, ...)``). This may be
+expanded to 840px if the page does not have subsections and thus does not have the
+"On this page" navigation on the right-hand side.
+
 Miscellaneous
 =============
 
