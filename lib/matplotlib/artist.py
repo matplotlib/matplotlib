@@ -1391,6 +1391,61 @@ class Artist:
 
     mouseover = property(get_mouseover, set_mouseover)  # backcompat.
 
+def set_datalim_x(self, data):
+    """
+    Set the x-axis data limits for this 3D plot.
+
+    Parameters
+    ----------
+    data : array-like
+        The array containing data points for the x-axis.
+    """
+    self._datalim_x = (min(data), max(data))
+
+    ax = self.axes
+    if ax:
+        ax.dataLim.update_from_data_x(self._datalim_x)
+
+datalim_x = property(lambda self: self._datalim_x, set_datalim_x)
+
+
+def set_datalim_y(self, data):
+    """
+    Set the y-axis data limits for this 3D plot.
+
+    Parameters
+    ----------
+    data : array-like
+        The array containing data points for the y-axis.
+    """
+    self._datalim_y = (min(data), max(data))
+
+    ax = self.axes
+    if ax:
+        ax.dataLim.update_from_data_y(self._datalim_y)
+
+datalim_y = property(lambda self: self._datalim_y, set_datalim_y)
+
+
+def set_datalim_z(self, data):
+    """
+    Set the z-axis data limits for this 3D plot.
+
+    Parameters
+    ----------
+    data : array-like
+        The array containing data points for the z-axis.
+    """
+    self._datalim_z = (min(data), max(data))
+
+    ax = self.axes
+    if ax:
+        ax.dataLim.update_from_data_z(self._datalim_z)
+
+datalim_z = property(lambda self: self._datalim_z, set_datalim_z)
+
+
+
 
 def _get_tightbbox_for_layout_only(obj, *args, **kwargs):
     """
