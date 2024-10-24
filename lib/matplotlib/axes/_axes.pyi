@@ -348,7 +348,7 @@ class Axes(_AxesBase):
         whis: float | tuple[float, float] | None = ...,
         positions: ArrayLike | None = ...,
         widths: float | ArrayLike | None = ...,
-        patch_artist: bool | None = ...,
+        patch_artist: Literal["auto"] | bool | None = ...,
         bootstrap: int | None = ...,
         usermedians: ArrayLike | None = ...,
         conf_intervals: ArrayLike | None = ...,

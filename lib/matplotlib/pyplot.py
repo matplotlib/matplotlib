@@ -3028,7 +3028,7 @@ def boxplot(
     whis: float | tuple[float, float] | None = None,
     positions: ArrayLike | None = None,
     widths: float | ArrayLike | None = None,
-    patch_artist: bool | None = None,
+    patch_artist: Literal["auto"] | bool | None = "auto",
     bootstrap: int | None = None,
     usermedians: ArrayLike | None = None,
     conf_intervals: ArrayLike | None = None,
