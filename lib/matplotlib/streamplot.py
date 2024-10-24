@@ -19,7 +19,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                minlength=0.1, transform=None, zorder=None, start_points=None,
                maxlength=4.0, integration_direction='both',
-               broken_streamlines=True):
+               broken_streamlines=True, *, n_arrows=1):
     """
     Draw streamlines of a vector flow.
 
@@ -73,6 +73,11 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         If False, forces streamlines to continue until they
         leave the plot domain.  If True, they may be terminated if they
         come too close to another streamline.
+    n_arrows : int
+        Number of arrows per streamline. The arrows are spaced equally along the steps
+        each streamline takes. Note that this can be different to being spaced equally
+        along the distance of the streamline.
+
 
     Returns
     -------
@@ -91,6 +96,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     grid = Grid(x, y)
     mask = StreamMask(density)
     dmap = DomainMap(grid, mask)
+
+    if n_arrows < 0:
+        raise ValueError(f"The value of n_arrows must be >= 0, got {n_arrows=}")
 
     if zorder is None:
         zorder = mlines.Line2D.zorder
@@ -206,25 +214,30 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
             points = np.transpose([tx, ty])
             streamlines.append(points)
 
-        # Add arrows halfway along each trajectory.
+        # Distance along streamline
         s = np.cumsum(np.hypot(np.diff(tx), np.diff(ty)))
-        n = np.searchsorted(s, s[-1] / 2.)
-        arrow_tail = (tx[n], ty[n])
-        arrow_head = (np.mean(tx[n:n + 2]), np.mean(ty[n:n + 2]))
-
-        if isinstance(linewidth, np.ndarray):
-            line_widths = interpgrid(linewidth, tgx, tgy)[:-1]
-            line_kw['linewidth'].extend(line_widths)
-            arrow_kw['linewidth'] = line_widths[n]
-
         if use_multicolor_lines:
             color_values = interpgrid(color, tgx, tgy)[:-1]
             line_colors.append(color_values)
-            arrow_kw['color'] = cmap(norm(color_values[n]))
 
-        p = patches.FancyArrowPatch(
-            arrow_tail, arrow_head, transform=transform, **arrow_kw)
-        arrows.append(p)
+        # Add arrows along each trajectory.
+        for x in range(1, n_arrows+1):
+            # Get index of distance along streamline to place arrow
+            idx = np.searchsorted(s, s[-1] * (x/(n_arrows+1)))
+            arrow_tail = (tx[idx], ty[idx])
+            arrow_head = (np.mean(tx[idx:idx + 2]), np.mean(ty[idx:idx + 2]))
+
+            if isinstance(linewidth, np.ndarray):
+                line_widths = interpgrid(linewidth, tgx, tgy)[:-1]
+                line_kw['linewidth'].extend(line_widths)
+                arrow_kw['linewidth'] = line_widths[idx]
+
+            if use_multicolor_lines:
+                arrow_kw['color'] = cmap(norm(color_values[idx]))
+
+            p = patches.FancyArrowPatch(
+                arrow_tail, arrow_head, transform=transform, **arrow_kw)
+            arrows.append(p)
 
     lc = mcollections.LineCollection(
         streamlines, transform=transform, **line_kw)
