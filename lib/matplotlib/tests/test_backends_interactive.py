@@ -662,15 +662,24 @@ def _impl_test_interactive_timers():
     timer_repeating = fig.canvas.new_timer(0.1)
     mock_repeating = Mock()
     timer_repeating.add_callback(mock_repeating)
-    timer_repeating.start()
 
     timer_single_shot = fig.canvas.new_timer(100)
     mock_single_shot = Mock()
     timer_single_shot.add_callback(mock_single_shot)
+
+    # 100ms timer triggers and the callback takes 75ms to run
+    # Test that we don't drift and that we get called on every 100ms
+    # interval and not every 175ms
+    mock_slow_callback = Mock()
+    mock_slow_callback.side_effect = lambda: time.sleep(0.075)
+    timer_slow_callback = fig.canvas.new_timer(100)
+    timer_slow_callback.add_callback(mock_slow_callback)
+
+    timer_repeating.start()
     # Start as a repeating timer then change to singleshot via the attribute
     timer_single_shot.start()
     timer_single_shot.single_shot = True
-
+    timer_slow_callback.start()
     fig.canvas.start_event_loop(event_loop_time)
     # NOTE: The timer is as fast as possible, but this is different between backends
     #       so we can't assert on the exact number but it should be faster than 100ms
@@ -680,6 +689,9 @@ def _impl_test_interactive_timers():
         f"got {mock_repeating.call_count}"
     assert mock_single_shot.call_count == 1, \
         f"Expected 1 call, got {mock_single_shot.call_count}"
+    assert mock_slow_callback.call_count >= expected_100ms_calls - 1, \
+        f"Expected at least {expected_100ms_calls - 1} calls, " \
+        f"got {mock_slow_callback.call_count}"
 
     # Test updating the interval updates a running timer
     timer_repeating.interval = 100
