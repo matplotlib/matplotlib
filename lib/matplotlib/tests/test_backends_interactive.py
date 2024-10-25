@@ -626,8 +626,10 @@ def _impl_test_interactive_timers():
     # We only want singleshot if we specify that ourselves, otherwise we want
     # a repeating timer
     import os
+    import time
     from unittest.mock import Mock
     import matplotlib.pyplot as plt
+
     # increase pause duration on CI to let things spin up
     # particularly relevant for gtk3cairo
     pause_time = 2 if os.getenv("CI") else 0.5
@@ -637,9 +639,26 @@ def _impl_test_interactive_timers():
     mock = Mock()
     timer.add_callback(mock)
     timer.start()
+
+    mock_slow_callback = Mock()
+    def slow_callback():
+        time.sleep(0.075)  # 75ms
+        mock_slow_callback()
+    # 100ms timer triggers and the callback takes 75ms to run
+    # Make sure we don't drift and get called on every 100ms
+    # interval and not every 175ms
+    timer_slow_callback = fig.canvas.new_timer(100)
+    timer_slow_callback.add_callback(slow_callback)
+    timer_slow_callback.start()
+
     plt.pause(pause_time)
     timer.stop()
+    timer_slow_callback.stop()
     assert mock.call_count > 1
+    expected_slow_calls = pause_time * 10 - 1
+    assert expected_slow_calls <= mock_slow_callback.call_count, \
+        f"Expected at least {expected_slow_calls} calls, " \
+        f"got {mock_slow_callback.call_count}"
 
     # Now turn it into a single shot timer and verify only one gets triggered
     mock.call_count = 0
