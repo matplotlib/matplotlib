@@ -69,6 +69,10 @@ class TimerWx(TimerBase):
         if self._timer.IsRunning():
             self._timer_start()  # Restart with new interval.
 
+    def _timer_set_single_shot(self):
+        if self._timer.IsRunning():
+            self._timer_start()  # Restart with new interval.
+
 
 @_api.deprecated(
     "2.0", name="wx", obj_type="backend", removal="the future",

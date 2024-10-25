@@ -653,7 +653,8 @@ def _impl_test_interactive_timers():
     assert mock_repeating.call_count > expected_100ms_calls, \
         f"Expected more than {expected_100ms_calls} calls, " \
         f"got {mock_repeating.call_count}"
-    assert mock_single_shot.call_count == 1
+    assert mock_single_shot.call_count == 1, \
+        f"Expected 1 call, got {mock_single_shot.call_count}"
 
     # Test updating the interval updates a running timer
     timer_repeating.interval = 100
@@ -666,7 +667,8 @@ def _impl_test_interactive_timers():
     assert 1 < mock_repeating.call_count <= expected_100ms_calls + 1, \
         f"Expected less than {expected_100ms_calls + 1} calls, " \
         "got {mock.call_count}"
-    assert mock_single_shot.call_count == 2
+    assert mock_single_shot.call_count == 2, \
+        f"Expected 2 calls, got {mock_single_shot.call_count}"
     plt.close("all")
 
 
