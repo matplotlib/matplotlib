@@ -621,55 +621,52 @@ def test_blitting_events(env):
 
 
 def _impl_test_interactive_timers():
+    # NOTE: We run the timer tests in parallel to avoid longer sequential
+    #       delays which adds to the testing time. Add new tests to one of
+    #       the current event loop iterations if possible.
+    from unittest.mock import Mock
+    import matplotlib.pyplot as plt
+
+    fig = plt.figure()
+    event_loop_time = 0.5  # in seconds
+
     # A timer with <1 millisecond gets converted to int and therefore 0
     # milliseconds, which the mac framework interprets as singleshot.
     # We only want singleshot if we specify that ourselves, otherwise we want
     # a repeating timer
-    import os
-    import sys
-    from unittest.mock import Mock
-    import matplotlib.pyplot as plt
-    # increase pause duration on CI to let things spin up
-    # particularly relevant for gtk3cairo
-    pause_time = 2 if os.getenv("CI") else 0.5
-    expected_100ms_calls = int(pause_time / 0.1)
-    fig = plt.figure()
-    plt.pause(pause_time)
-    timer = fig.canvas.new_timer(0.1)
-    mock = Mock()
-    timer.add_callback(mock)
-    timer.start()
-    plt.pause(pause_time)
+    timer_repeating = fig.canvas.new_timer(0.1)
+    mock_repeating = Mock()
+    timer_repeating.add_callback(mock_repeating)
+    timer_repeating.start()
+
+    timer_single_shot = fig.canvas.new_timer(100)
+    mock_single_shot = Mock()
+    timer_single_shot.add_callback(mock_single_shot)
+    # Start as a repeating timer then change to singleshot via the attribute
+    timer_single_shot.start()
+    timer_single_shot.single_shot = True
+
+    fig.canvas.start_event_loop(event_loop_time)
     # NOTE: The timer is as fast as possible, but this is different between backends
     #       so we can't assert on the exact number but it should be faster than 100ms
-    assert mock.call_count > expected_100ms_calls, \
-        f"Expected more than {expected_100ms_calls} calls, got {mock.call_count}"
+    expected_100ms_calls = int(event_loop_time / 0.1)
+    assert mock_repeating.call_count > expected_100ms_calls, \
+        f"Expected more than {expected_100ms_calls} calls, " \
+        f"got {mock_repeating.call_count}"
+    assert mock_single_shot.call_count == 1
 
     # Test updating the interval updates a running timer
-    timer.interval = 100
-    mock.call_count = 0
-    plt.pause(pause_time)
-    # GTK4 on macos runners produces about 3x as many calls as expected
-    # It works locally and on Linux though, so only skip when running on CI
-    if not (os.getenv("CI")
-            and "gtk4" in os.getenv("MPLBACKEND")
-            and sys.platform == "darwin"):
-        # Could be off due to when the timers actually get fired (especially on CI)
-        assert 1 < mock.call_count <= expected_100ms_calls + 1, \
-            f"Expected less than {expected_100ms_calls + 1} calls, " \
-            "got {mock.call_count}"
+    timer_repeating.interval = 100
+    mock_repeating.call_count = 0
+    # Make sure we can start the timer after stopping a singleshot timer
+    timer_single_shot.stop()
+    timer_single_shot.start()
 
-    # Now turn it into a single shot timer and verify only one gets triggered
-    mock.call_count = 0
-    timer.single_shot = True
-    plt.pause(pause_time)
-    assert mock.call_count == 1
-
-    # Make sure we can start the timer after stopping
-    timer.stop()
-    timer.start()
-    plt.pause(pause_time)
-    assert mock.call_count == 2
+    fig.canvas.start_event_loop(event_loop_time)
+    assert 1 < mock_repeating.call_count <= expected_100ms_calls + 1, \
+        f"Expected less than {expected_100ms_calls + 1} calls, " \
+        "got {mock.call_count}"
+    assert mock_single_shot.call_count == 2
     plt.close("all")
 
 
