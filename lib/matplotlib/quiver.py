@@ -140,9 +140,9 @@ scale_units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'}, default: 'w
 
     The rendered arrow length is given by
 
-        length in x direction = $\frac{u}{\mathrm{scale}} \mathrm{scale_unit}$
+        length in x direction = $\\frac{u}{\\mathrm{scale}} \\mathrm{scale_unit}$
 
-        length in y direction = $\frac{v}{\mathrm{scale}} \mathrm{scale_unit}$
+        length in y direction = $\\frac{v}{\\mathrm{scale}} \\mathrm{scale_unit}$
 
     For example, ``(u, v) = (0.5, 0)`` with ``scale=10, scale_unit="width"`` results
     in a horizontal arrow with a length of *0.5 / 10 * "width"*, i.e. 0.05 times the
