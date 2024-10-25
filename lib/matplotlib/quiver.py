@@ -128,7 +128,7 @@ scale : float, optional
     arrow length relative to the width of the plot.
     Smaller scale parameter makes the arrow longer.
 
-    By default, an autoscaling algorithm is used to scale the arrow lenght to a
+    By default, an autoscaling algorithm is used to scale the arrow length to a
     reasonable size, which is based on the average vector length and the number of
     vectors.
 
