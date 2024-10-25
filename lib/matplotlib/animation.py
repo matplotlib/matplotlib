@@ -506,8 +506,9 @@ class FFMpegBase:
     @property
     def output_args(self):
         args = []
-        if Path(self.outfile).suffix == '.gif':
-            self.codec = 'gif'
+        suffix = Path(self.outfile).suffix
+        if suffix in {'.apng', '.avif', '.gif', '.webm', '.webp'}:
+            self.codec = suffix[1:]
         else:
             args.extend(['-vcodec', self.codec])
         extra_args = (self.extra_args if self.extra_args is not None
