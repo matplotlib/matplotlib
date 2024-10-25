@@ -17,6 +17,7 @@ packaging>=20
 pydata-sphinx-theme~=0.15.0
 mpl-sphinx-theme~=3.9.0
 pyyaml
+PyStemmer
 sphinxcontrib-svg2pdfconverter>=1.1.0
 sphinxcontrib-video>=0.2.1
 sphinx-copybutton

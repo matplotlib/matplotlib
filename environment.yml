@@ -49,6 +49,7 @@ dependencies:
       - sphinxcontrib-svg2pdfconverter>=1.1.0
       - sphinxcontrib-video>=0.2.1
       - pikepdf
+      - PyStemmer
   # testing
   - black<24
   - coverage
