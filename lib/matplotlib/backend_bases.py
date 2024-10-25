@@ -2320,13 +2320,11 @@ class FigureCanvasBase:
         """
         if timeout <= 0:
             timeout = np.inf
-        timestep = 0.01
-        counter = 0
+        t_end = time.perf_counter() + timeout
         self._looping = True
-        while self._looping and counter * timestep < timeout:
+        while self._looping and time.perf_counter() < t_end:
             self.flush_events()
-            time.sleep(timestep)
-            counter += 1
+            time.sleep(0.01)  # Pause for 10ms
 
     def stop_event_loop(self):
         """
