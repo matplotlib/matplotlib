@@ -306,8 +306,8 @@
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.broken_barh:84",
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.fill_between:121",
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.fill_betweenx:121",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.hexbin:213",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.pcolor:182",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.hexbin:217",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.pcolor:186",
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.quiver:255",
       "lib/matplotlib/collections.py:docstring of matplotlib.artist.AsteriskPolygonCollection.set:44",
       "lib/matplotlib/collections.py:docstring of matplotlib.artist.CircleCollection.set:44",
@@ -323,6 +323,8 @@
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.fill_betweenx:121",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.hexbin:213",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.pcolor:182",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.hexbin:217",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.pcolor:186",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.quiver:255",
       "lib/matplotlib/quiver.py:docstring of matplotlib.artist.Barbs.set:45",
       "lib/matplotlib/quiver.py:docstring of matplotlib.artist.Quiver.set:45",
@@ -332,10 +334,10 @@
       "lib/mpl_toolkits/mplot3d/art3d.py:docstring of matplotlib.artist.Poly3DCollection.set:45"
     ],
     "matplotlib.collections._MeshData.set_array": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.pcolormesh:164",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.pcolormesh:168",
       "lib/matplotlib/collections.py:docstring of matplotlib.artist.PolyQuadMesh.set:17",
       "lib/matplotlib/collections.py:docstring of matplotlib.artist.QuadMesh.set:17",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.pcolormesh:164"
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.pcolormesh:168"
     ]
   },
   "py:obj": {
@@ -354,12 +356,6 @@
     ],
     "Line2D.pick": [
       "doc/users/explain/figure/event_handling.rst:571"
-    ],
-    "QuadContourSet.changed()": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.contour:156",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.contourf:156",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.contour:156",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.contourf:156"
     ],
     "Rectangle.contains": [
       "doc/users/explain/figure/event_handling.rst:285"
