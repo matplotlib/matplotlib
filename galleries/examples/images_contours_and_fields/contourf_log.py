@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy import ma
 
-from matplotlib import cm, ticker
+from matplotlib import ticker
 
 N = 100
 x = np.linspace(-3.0, 3.0, N)
@@ -36,7 +36,7 @@ z = ma.masked_where(z <= 0, z)
 # Automatic selection of levels works; setting the
 # log locator tells contourf to use a log scale:
 fig, ax = plt.subplots()
-cs = ax.contourf(X, Y, z, locator=ticker.LogLocator(), cmap=cm.PuBu_r)
+cs = ax.contourf(X, Y, z, locator=ticker.LogLocator(), cmap="PuBu_r")
 
 # Alternatively, you can manually set the levels
 # and the norm:
