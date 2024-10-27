@@ -108,7 +108,7 @@ def test_double_register_builtin_cmap():
 
 
 def test_colormap_copy():
-    cmap = plt.cm.Reds
+    cmap = plt.colormaps["Reds"]
     copied_cmap = copy.copy(cmap)
     with np.errstate(invalid='ignore'):
         ret1 = copied_cmap([-1, 0, .5, 1, np.nan, np.inf])
@@ -118,7 +118,7 @@ def test_colormap_copy():
         ret2 = copied_cmap([-1, 0, .5, 1, np.nan, np.inf])
     assert_array_equal(ret1, ret2)
     # again with the .copy method:
-    cmap = plt.cm.Reds
+    cmap = plt.colormaps["Reds"]
     copied_cmap = cmap.copy()
     with np.errstate(invalid='ignore'):
         ret1 = copied_cmap([-1, 0, .5, 1, np.nan, np.inf])
@@ -950,7 +950,7 @@ def test_light_source_shading_default():
     y, x = np.mgrid[-1.2:1.2:8j, -1.2:1.2:8j]
     z = 10 * np.cos(x**2 + y**2)
 
-    cmap = plt.cm.copper
+    cmap = plt.colormaps["copper"]
     ls = mcolors.LightSource(315, 45)
     rgb = ls.shade(z, cmap)
 
@@ -1001,7 +1001,7 @@ def test_light_source_shading_empty_mask():
     z0 = 10 * np.cos(x**2 + y**2)
     z1 = np.ma.array(z0)
 
-    cmap = plt.cm.copper
+    cmap = plt.colormaps["copper"]
     ls = mcolors.LightSource(315, 45)
     rgb0 = ls.shade(z0, cmap)
     rgb1 = ls.shade(z1, cmap)
@@ -1022,7 +1022,7 @@ def test_light_source_masked_shading():
 
     z = np.ma.masked_greater(z, 9.9)
 
-    cmap = plt.cm.copper
+    cmap = plt.colormaps["copper"]
     ls = mcolors.LightSource(315, 45)
     rgb = ls.shade(z, cmap)
 
