@@ -3995,7 +3995,12 @@ class PolygonSelector(_SelectorWidget):
                 self._xys[-1] = self._get_data_coords(event)
 
         # Move all vertices.
-        elif 'move_all' in self._state and self._eventpress:
+        elif (
+            'move_all' in self._state and self._eventpress and
+            # Allow `move_all` when not completed
+            # or if the event is contained in the polygon
+            (not self._selection_completed or self._contains(event))
+        ):
             xdata, ydata = self._get_data_coords(event)
             dx = xdata - self._eventpress.xdata
             dy = ydata - self._eventpress.ydata
@@ -4069,6 +4074,11 @@ class PolygonSelector(_SelectorWidget):
         """Redraw the polygon based on the new vertex positions."""
         self._draw_polygon_without_update()
         self.update()
+
+    def _contains(self, event):
+        return mpl.path.Path(self.verts).contains_points(
+            [self._get_data_coords(event), ]
+            )
 
     @property
     def verts(self):
