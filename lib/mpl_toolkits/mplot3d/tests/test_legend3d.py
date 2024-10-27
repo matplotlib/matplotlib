@@ -1,11 +1,11 @@
 import platform
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 import matplotlib as mpl
 from matplotlib.colors import same_color
 from matplotlib.testing.decorators import image_comparison
-import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import art3d
 
 

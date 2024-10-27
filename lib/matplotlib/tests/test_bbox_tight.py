@@ -1,12 +1,12 @@
 from io import BytesIO
 import platform
 
+import matplotlib.pyplot as plt
 import numpy as np
 
-from matplotlib.testing.decorators import image_comparison
-import matplotlib.pyplot as plt
-import matplotlib.path as mpath
 import matplotlib.patches as mpatches
+import matplotlib.path as mpath
+from matplotlib.testing.decorators import image_comparison
 from matplotlib.ticker import FuncFormatter
 
 

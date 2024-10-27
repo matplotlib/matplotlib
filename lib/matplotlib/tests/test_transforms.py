@@ -1,18 +1,20 @@
 import copy
+from unittest.mock import MagicMock
 
-import numpy as np
-from numpy.testing import (assert_allclose, assert_almost_equal,
-                           assert_array_equal, assert_array_almost_equal)
 import pytest
 
-from matplotlib import scale
 import matplotlib.pyplot as plt
+import numpy as np
+from numpy.testing import (assert_allclose, assert_almost_equal,
+                           assert_array_almost_equal, assert_array_equal)
+
+from matplotlib import scale
 import matplotlib.patches as mpatches
-import matplotlib.transforms as mtransforms
-from matplotlib.transforms import Affine2D, Bbox, TransformedBbox, _ScaledRotation
 from matplotlib.path import Path
-from matplotlib.testing.decorators import image_comparison, check_figures_equal
-from unittest.mock import MagicMock
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
+import matplotlib.transforms as mtransforms
+from matplotlib.transforms import (Affine2D, Bbox, TransformedBbox,
+                                   _ScaledRotation)
 
 
 class TestAffine2D:

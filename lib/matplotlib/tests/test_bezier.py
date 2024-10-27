@@ -2,7 +2,8 @@
 Tests specific to the bezier module.
 """
 
-from matplotlib.bezier import inside_circle, split_bezier_intersecting_with_closedpath
+from matplotlib.bezier import (inside_circle,
+                               split_bezier_intersecting_with_closedpath)
 
 
 def test_split_bezier_with_large_values():

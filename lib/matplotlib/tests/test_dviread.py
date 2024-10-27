@@ -2,8 +2,9 @@ import json
 from pathlib import Path
 import shutil
 
-import matplotlib.dviread as dr
 import pytest
+
+import matplotlib.dviread as dr
 
 
 def test_PsfontsMap(monkeypatch):

@@ -3,18 +3,18 @@ import io
 import operator
 from unittest import mock
 
-from matplotlib.backend_bases import MouseEvent
-import matplotlib.colors as mcolors
-import matplotlib.widgets as widgets
-import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import check_figures_equal, image_comparison
-from matplotlib.testing.widgets import (click_and_drag, do_event, get_ax,
-                                        mock_event, noop)
+import pytest
 
+import matplotlib.pyplot as plt
 import numpy as np
 from numpy.testing import assert_allclose
 
-import pytest
+from matplotlib.backend_bases import MouseEvent
+import matplotlib.colors as mcolors
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
+from matplotlib.testing.widgets import (click_and_drag, do_event, get_ax,
+                                        mock_event, noop)
+import matplotlib.widgets as widgets
 
 
 @pytest.fixture
@@ -23,8 +23,8 @@ def ax():
 
 
 def test_save_blitted_widget_as_pdf():
-    from matplotlib.widgets import CheckButtons, RadioButtons
     from matplotlib.cbook import _get_running_interactive_framework
+    from matplotlib.widgets import CheckButtons, RadioButtons
     if _get_running_interactive_framework() not in ['headless', None]:
         pytest.xfail("Callback exceptions are not raised otherwise.")
 

@@ -1,12 +1,12 @@
 import datetime
 from unittest.mock import Mock
 
+import matplotlib.pyplot as plt
 import numpy as np
 
-import matplotlib.pyplot as plt
 from matplotlib.path import Path
 from matplotlib.table import CustomCell, Table
-from matplotlib.testing.decorators import image_comparison, check_figures_equal
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.transforms import Bbox
 import matplotlib.units as munits
 
@@ -55,7 +55,7 @@ def test_label_colours():
     dim = 3
 
     c = np.linspace(0, 1, dim)
-    colours = plt.cm.RdYlGn(c)
+    colours = plt.colormaps["RdYlGn"](c)
     cellText = [['1'] * dim] * dim
 
     fig = plt.figure()

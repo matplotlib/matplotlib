@@ -1,10 +1,11 @@
+import pytest
+
 import numpy as np
 from numpy.testing import assert_allclose
-import pytest
 
 import matplotlib as mpl
 from matplotlib import pyplot as plt
-from matplotlib.testing.decorators import image_comparison, check_figures_equal
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 
 @image_comparison(['polar_axes'], style='default', tol=0.012)

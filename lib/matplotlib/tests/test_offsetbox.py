@@ -1,19 +1,20 @@
 from collections import namedtuple
 import io
 
-import numpy as np
-from numpy.testing import assert_allclose
 import pytest
 
-from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-import matplotlib.lines as mlines
-from matplotlib.backend_bases import MouseButton, MouseEvent
+import numpy as np
+from numpy.testing import assert_allclose
 
-from matplotlib.offsetbox import (
-    AnchoredOffsetbox, AnnotationBbox, AnchoredText, DrawingArea, HPacker,
-    OffsetBox, OffsetImage, PaddedBox, TextArea, VPacker, _get_packed_offsets)
+from matplotlib.backend_bases import MouseButton, MouseEvent
+import matplotlib.lines as mlines
+from matplotlib.offsetbox import (AnchoredOffsetbox, AnchoredText,
+                                  AnnotationBbox, DrawingArea, HPacker,
+                                  OffsetBox, OffsetImage, PaddedBox, TextArea,
+                                  VPacker, _get_packed_offsets)
+import matplotlib.patches as mpatches
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 
 @image_comparison(['offsetbox_clipping'], remove_text=True)

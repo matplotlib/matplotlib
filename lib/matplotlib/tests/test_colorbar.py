@@ -1,22 +1,18 @@
 import platform
 
-import numpy as np
 import pytest
 
-from matplotlib import cm
-import matplotlib.colors as mcolors
-import matplotlib as mpl
-
-
-from matplotlib import rc_context
-from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-from matplotlib.colors import (
-    BoundaryNorm, LogNorm, PowerNorm, Normalize, NoNorm
-)
+import numpy as np
+
+import matplotlib as mpl
+from matplotlib import cm, rc_context
 from matplotlib.colorbar import Colorbar
+import matplotlib.colors as mcolors
+from matplotlib.colors import (BoundaryNorm, LogNorm, NoNorm, Normalize,
+                               PowerNorm)
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.ticker import FixedLocator, LogFormatter, StrMethodFormatter
-from matplotlib.testing.decorators import check_figures_equal
 
 
 def _get_cmap_norms():
@@ -317,7 +313,7 @@ def test_remove_from_figure_cl():
 def test_colorbarbase():
     # smoke test from #3805
     ax = plt.gca()
-    Colorbar(ax, cmap=plt.cm.bone)
+    Colorbar(ax, cmap=plt.colormaps["bone"])
 
 
 def test_parentless_mappable():

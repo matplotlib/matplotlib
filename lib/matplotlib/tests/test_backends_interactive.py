@@ -13,13 +13,13 @@ import time
 import urllib.request
 
 from PIL import Image
-
 import pytest
 
 import matplotlib as mpl
 from matplotlib import _c_internal_utils
 from matplotlib.backend_tools import ToolToggleBase
-from matplotlib.testing import subprocess_run_helper as _run_helper, is_ci_environment
+from matplotlib.testing import is_ci_environment
+from matplotlib.testing import subprocess_run_helper as _run_helper
 
 
 class _WaitForStringPopen(subprocess.Popen):
@@ -336,8 +336,10 @@ def test_interactive_thread_safety(env):
 
 
 def _impl_test_lazy_auto_backend_selection():
-    import matplotlib
     import matplotlib.pyplot as plt
+
+    import matplotlib
+
     # just importing pyplot should not be enough to trigger resolution
     bk = matplotlib.rcParams._get('backend')
     assert not isinstance(bk, str)
@@ -355,8 +357,9 @@ def test_lazy_auto_backend_selection():
 
 
 def _implqt5agg():
-    import matplotlib.backends.backend_qt5agg  # noqa
     import sys
+
+    import matplotlib.backends.backend_qt5agg  # noqa
 
     assert 'PyQt6' not in sys.modules
     assert 'pyside6' not in sys.modules
@@ -364,8 +367,9 @@ def _implqt5agg():
 
 
 def _implcairo():
-    import matplotlib.backends.backend_qt5cairo  # noqa
     import sys
+
+    import matplotlib.backends.backend_qt5cairo  # noqa
 
     assert 'PyQt6' not in sys.modules
     assert 'pyside6' not in sys.modules
@@ -373,8 +377,9 @@ def _implcairo():
 
 
 def _implcore():
-    import matplotlib.backends.backend_qt5  # noqa
     import sys
+
+    import matplotlib.backends.backend_qt5  # noqa
 
     assert 'PyQt6' not in sys.modules
     assert 'pyside6' not in sys.modules
@@ -400,6 +405,7 @@ def test_qt5backends_uses_qt5():
 
 def _impl_missing():
     import sys
+
     # Simulate uninstalled
     sys.modules["PyQt6"] = None
     sys.modules["PyQt5"] = None
@@ -636,7 +642,9 @@ def _impl_test_interactive_timers():
     # a repeating timer
     import os
     from unittest.mock import Mock
+
     import matplotlib.pyplot as plt
+
     # increase pause duration on CI to let things spin up
     # particularly relevant for gtk3cairo
     pause_time = 2 if os.getenv("CI") else 0.5
@@ -675,10 +683,11 @@ def test_interactive_timers(env):
 
 
 def _test_sigint_impl(backend, target_name, kwargs):
-    import sys
-    import matplotlib.pyplot as plt
     import os
+    import sys
     import threading
+
+    import matplotlib.pyplot as plt
 
     plt.switch_backend(backend)
 
@@ -732,6 +741,7 @@ def test_sigint(env, target, kwargs):
 
 def _test_other_signal_before_sigint_impl(backend, target_name, kwargs):
     import signal
+
     import matplotlib.pyplot as plt
 
     plt.switch_backend(backend)

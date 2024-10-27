@@ -1,14 +1,15 @@
-import numpy as np
-from numpy.testing import (
-    assert_array_equal, assert_array_almost_equal, assert_array_less)
-import numpy.ma.testutils as matest
 import pytest
 
-import matplotlib as mpl
 import matplotlib.pyplot as plt
-import matplotlib.tri as mtri
+import numpy as np
+import numpy.ma.testutils as matest
+from numpy.testing import (assert_array_almost_equal, assert_array_equal,
+                           assert_array_less)
+
+import matplotlib as mpl
 from matplotlib.path import Path
-from matplotlib.testing.decorators import image_comparison, check_figures_equal
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
+import matplotlib.tri as mtri
 
 
 class TestTriangulationParams:
@@ -1183,7 +1184,8 @@ def test_tricontourf_decreasing_levels():
 
 def test_internal_cpp_api() -> None:
     # Following github issue 8197.
-    from matplotlib import _tri  # noqa: F401, ensure lazy-loaded module *is* loaded.
+    from matplotlib import \
+        _tri  # noqa: F401, ensure lazy-loaded module *is* loaded.
 
     # C++ Triangulation.
     with pytest.raises(

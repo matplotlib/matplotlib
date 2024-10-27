@@ -1,14 +1,17 @@
-import numpy as np
-from numpy.testing import assert_array_equal, assert_allclose
+import base64
+from io import BytesIO
+from pathlib import Path
+
+from PIL import Image
+import pytest
+
 import matplotlib.pyplot as plt
+import numpy as np
+from numpy.testing import assert_allclose, assert_array_equal
+
+import matplotlib as mpl
 from matplotlib.testing.decorators import (image_comparison,
                                            remove_ticks_and_titles)
-import matplotlib as mpl
-import pytest
-from pathlib import Path
-from io import BytesIO
-from PIL import Image
-import base64
 
 
 @image_comparison(["bivariate_cmap_shapes.png"])

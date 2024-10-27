@@ -1,14 +1,15 @@
 import io
 
-import numpy as np
-from numpy.testing import assert_array_almost_equal
-from PIL import features, Image, TiffTags
+from PIL import Image, TiffTags, features
 import pytest
 
+import numpy as np
+from numpy.testing import assert_array_almost_equal
 
-from matplotlib import (
-    collections, patheffects, pyplot as plt, transforms as mtransforms,
-    rcParams, rc_context)
+from matplotlib import collections, patheffects
+from matplotlib import pyplot as plt
+from matplotlib import rc_context, rcParams
+from matplotlib import transforms as mtransforms
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.figure import Figure
 from matplotlib.image import imread

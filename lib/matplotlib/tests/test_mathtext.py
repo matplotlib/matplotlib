@@ -4,19 +4,19 @@ import io
 from pathlib import Path
 import platform
 import re
-from xml.etree import ElementTree as ET
 from typing import Any
+from xml.etree import ElementTree as ET
 
-import numpy as np
 from packaging.version import parse as parse_version
 import pyparsing
 import pytest
 
+import matplotlib.pyplot as plt
+import numpy as np
 
 import matplotlib as mpl
+from matplotlib import _mathtext, mathtext
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
-import matplotlib.pyplot as plt
-from matplotlib import mathtext, _mathtext
 
 pyparsing_version = parse_version(pyparsing.__version__)
 
