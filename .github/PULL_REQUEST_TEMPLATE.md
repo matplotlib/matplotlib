@@ -4,9 +4,9 @@ out the development guide https://matplotlib.org/devdocs/devel/index.html
 -->
 
 ## PR summary
-<!-- Please provide at least 1-2 sentences, per question, describing the pull request in detail and links to relevant issues and PRs:
+<!-- Please describe the pull request, using the questions below as guidance, and link to any relevant issues and PRs:
 
-- Why is this change is necessary?
+- Why is this change necessary?
 - What problem does it solve?
 - What is the reasoning for this implementation?
 

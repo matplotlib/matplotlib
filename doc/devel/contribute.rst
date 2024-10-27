@@ -188,11 +188,6 @@ If you have developed an extension to Matplotlib, please consider adding it to o
 New contributors
 ================
 
-.. _start-contributing:
-
-Get started
------------
-
 There is no pre-defined pathway for new contributors - we recommend looking at
 existing issue and pull request discussions, and following the conversations
 during pull request reviews to get context. Or you can deep-dive into a subset
@@ -277,12 +272,11 @@ guide you through each step.
    * If the issue has a pull request (is in progress), tag the user working on the issue, and ask to collaborate (optional).
       * If a pull request does not exist, create a `draft pull request <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests>`_ and follow the `pull request guidelines <https://matplotlib.org/devdocs/devel/pr_guide.html>`_.
 5. Please familiarize yourself with the pull request template (see below),
-   and ensure you understand/are able to complete the template when it comes time for your pull request.
+   and ensure you understand/are able to complete the template when you open your pull request.
    Additional information can be found in the `pull request guidelines <https://matplotlib.org/devdocs/devel/pr_guide.html>`_.
 
-.. note::
-
-   `Pull request template <https://github.com/matplotlib/matplotlib/blob/main/.github/PULL_REQUEST_TEMPLATE.md>`_
+.. dropdown:: `Pull request template <https://github.com/matplotlib/matplotlib/blob/main/.github/PULL_REQUEST_TEMPLATE.md>`_
+    :open:
 
     .. literalinclude:: ../../.github/PULL_REQUEST_TEMPLATE.md
        :language: markdown
