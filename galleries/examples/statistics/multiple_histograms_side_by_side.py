@@ -64,6 +64,7 @@ plt.show()
 # %%
 #
 # .. tags::
+#
 #    domain: statistics
 #    plot-type: barh
 #    plot-type: histogram
