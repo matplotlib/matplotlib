@@ -1729,50 +1729,6 @@ Timer_repr(Timer* self)
                                (void*) self, (void*)(self->timer));
 }
 
-static PyObject*
-Timer__timer_start(Timer* self, PyObject* args)
-{
-    NSTimeInterval interval;
-    PyObject* py_interval = NULL, * py_single = NULL, * py_on_timer = NULL;
-    int single;
-    if (!(py_interval = PyObject_GetAttrString((PyObject*)self, "_interval"))
-        || ((interval = PyFloat_AsDouble(py_interval) / 1000.), PyErr_Occurred())
-        || !(py_single = PyObject_GetAttrString((PyObject*)self, "_single"))
-        || ((single = PyObject_IsTrue(py_single)) == -1)
-        || !(py_on_timer = PyObject_GetAttrString((PyObject*)self, "_on_timer"))) {
-        goto exit;
-    }
-    if (!PyMethod_Check(py_on_timer)) {
-        PyErr_SetString(PyExc_RuntimeError, "_on_timer should be a Python method");
-        goto exit;
-    }
-
-    // hold a reference to the timer so we can invalidate/stop it later
-    self->timer = [NSTimer timerWithTimeInterval: interval
-                                         repeats: !single
-                                           block: ^(NSTimer *timer) {
-        gil_call_method((PyObject*)self, "_on_timer");
-        if (single) {
-            // A single-shot timer will be automatically invalidated when it fires, so
-            // we shouldn't do it ourselves when the object is deleted.
-            self->timer = NULL;
-        }
-    }];
-    // Schedule the timer on the main run loop which is needed
-    // when updating the UI from a background thread
-    [[NSRunLoop mainRunLoop] addTimer: self->timer forMode: NSRunLoopCommonModes];
-
-exit:
-    Py_XDECREF(py_interval);
-    Py_XDECREF(py_single);
-    Py_XDECREF(py_on_timer);
-    if (PyErr_Occurred()) {
-        return NULL;
-    } else {
-        Py_RETURN_NONE;
-    }
-}
-
 static void
 Timer__timer_stop_impl(Timer* self)
 {
@@ -1794,6 +1750,47 @@ Timer_dealloc(Timer* self)
 {
     Timer__timer_stop_impl(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+static PyObject*
+Timer__timer_start(Timer* self, PyObject* args)
+{
+    NSTimeInterval interval;
+    PyObject* py_interval = NULL, * py_single = NULL, * py_on_timer = NULL;
+    int single;
+    if (!(py_interval = PyObject_GetAttrString((PyObject*)self, "_interval"))
+        || ((interval = PyFloat_AsDouble(py_interval) / 1000.), PyErr_Occurred())
+        || !(py_single = PyObject_GetAttrString((PyObject*)self, "_single"))
+        || ((single = PyObject_IsTrue(py_single)) == -1)
+        || !(py_on_timer = PyObject_GetAttrString((PyObject*)self, "_on_timer"))) {
+        goto exit;
+    }
+    if (!PyMethod_Check(py_on_timer)) {
+        PyErr_SetString(PyExc_RuntimeError, "_on_timer should be a Python method");
+        goto exit;
+    }
+
+    // hold a reference to the timer so we can invalidate/stop it later
+    self->timer = [NSTimer scheduledTimerWithTimeInterval: interval
+                                                  repeats: !single
+                                                    block: ^(NSTimer *timer) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            gil_call_method((PyObject*)self, "_on_timer");
+            if (single) {
+                Timer__timer_stop_impl(self);
+            }
+        });
+    }];
+
+exit:
+    Py_XDECREF(py_interval);
+    Py_XDECREF(py_single);
+    Py_XDECREF(py_on_timer);
+    if (PyErr_Occurred()) {
+        return NULL;
+    } else {
+        Py_RETURN_NONE;
+    }
 }
 
 static PyTypeObject TimerType = {
