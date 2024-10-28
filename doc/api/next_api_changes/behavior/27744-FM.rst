@@ -1,0 +1,10 @@
+``NavigationToolbar2.save_figure`` now returns filepath of saved figure
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``NavigationToolbar2.save_figure`` function may return the filename of the saved figure.
+
+If a backend implements this functionality it should return `None`
+in the case where no figure is actually saved (because the user closed the dialog without saving).
+
+If the backend does not or can not implement this functionality (currently the Gtk4 backends
+and webagg backends do not) this method will return ``NavigationToolbar2.UNKNOWN_SAVED_STATUS``.

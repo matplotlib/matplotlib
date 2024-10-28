@@ -870,7 +870,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             )
 
         if fname in ["", ()]:
-            return
+            return None
         # Save dir for next time, unless empty str (i.e., use cwd).
         if initialdir != "":
             mpl.rcParams['savefig.directory'] = (
@@ -885,6 +885,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
 
         try:
             self.canvas.figure.savefig(fname, format=extension)
+            return fname
         except Exception as e:
             tkinter.messagebox.showerror("Error saving file", str(e))
 
