@@ -47,6 +47,8 @@ plt.show()
 
 # %%
 #
+# .. tags:: plot-type: histogram, domain: statistics, purpose: reference
+#
 # .. admonition:: References
 #
 #    The use of the following functions, methods, classes and modules is shown
