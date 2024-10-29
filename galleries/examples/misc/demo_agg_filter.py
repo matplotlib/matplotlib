@@ -188,7 +188,6 @@ def filtered_text(ax):
 
     # contour label
     cl = ax.clabel(CS, levels[1::2],  # label every second level
-                   inline=True,
                    fmt='%1.1f',
                    fontsize=11)
 
