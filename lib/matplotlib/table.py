@@ -33,6 +33,8 @@ from .text import Text
 from .transforms import Bbox
 from .path import Path
 
+from .cbook import _is_pandas_dataframe
+
 
 class Cell(Rectangle):
     """
@@ -670,7 +672,7 @@ def table(ax,
 
     Parameters
     ----------
-    cellText : 2D list of str, optional
+    cellText : 2D list of str or pandas.DataFrame, optional
         The texts to place into the table cells.
 
         *Note*: Line breaks in the strings are currently not accounted for and
@@ -739,6 +741,21 @@ def table(ax,
         rows = len(cellColours)
         cols = len(cellColours[0])
         cellText = [[''] * cols] * rows
+
+    # Check if we have a Pandas DataFrame
+    if _is_pandas_dataframe(cellText):
+        # if rowLabels/colLabels are empty, use DataFrame entries.
+        # Otherwise, throw an error.
+        if rowLabels is None:
+            rowLabels = cellText.index
+        else:
+            raise ValueError("rowLabels cannot be used alongside Pandas DataFrame")
+        if colLabels is None:
+            colLabels = cellText.columns
+        else:
+            raise ValueError("colLabels cannot be used alongside Pandas DataFrame")
+        # Update cellText with only values
+        cellText = cellText.values
 
     rows = len(cellText)
     cols = len(cellText[0])
