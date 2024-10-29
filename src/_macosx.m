@@ -59,12 +59,37 @@ static void stop_with_event() {
              atStart: YES];
 }
 
-// Signal handler for SIGINT, only sets a flag to exit the run loop
+// Signal handler for SIGINT, only argument matching for stop_with_event
 static void handleSigint(int signal) {
-  stop_with_event();
+    stop_with_event();
+}
+
+// Helper function to flush all events.
+// This is needed in some instances to ensure e.g. that windows are properly closed.
+// It is used in the input hook as well as wrapped in a version callable from Python.
+static void flushEvents() {
+    while (true) {
+        NSEvent* event = [NSApp nextEventMatchingMask: NSEventMaskAny
+                                   untilDate: [NSDate distantPast]
+                                      inMode: NSDefaultRunLoopMode
+                                     dequeue: YES];
+        if (!event) {
+            break;
+        }
+        [NSApp sendEvent:event];
+    }
 }
 
 static int wait_for_stdin() {
+    // Short circuit if no windows are active
+    // Rely on Python's input handling to manage CPU usage
+    // This queries the NSApp, rather than using our FigureWindowCount because that is decremented when events still
+    // need to be processed to properly close the windows.
+    if (![[NSApp windows] count]) {
+      flushEvents();
+      return 1;
+    }
+
     @autoreleasepool {
         // Set up a SIGINT handler to interrupt the event loop if ctrl+c comes in too
         originalSigintAction = PyOS_setsig(SIGINT, handleSigint);
@@ -72,8 +97,9 @@ static int wait_for_stdin() {
         // Create an NSFileHandle for standard input
         NSFileHandle *stdinHandle = [NSFileHandle fileHandleWithStandardInput];
 
+
         // Register for data available notifications on standard input
-        [[NSNotificationCenter defaultCenter] addObserverForName: NSFileHandleDataAvailableNotification
+        id notificationID = [[NSNotificationCenter defaultCenter] addObserverForName: NSFileHandleDataAvailableNotification
                                                           object: stdinHandle
                                                            queue: [NSOperationQueue mainQueue] // Use the main queue
                                                       usingBlock: ^(NSNotification *notification) {stop_with_event();}
@@ -82,13 +108,16 @@ static int wait_for_stdin() {
         // Wait in the background for anything that happens to stdin
         [stdinHandle waitForDataInBackgroundAndNotify];
 
+        // Run the application's event loop, which will be interrupted on stdin or SIGINT
         [NSApp run];
 
         // Remove the input handler as an observer
-        [[NSNotificationCenter defaultCenter] removeObserver: stdinHandle];
+        [[NSNotificationCenter defaultCenter] removeObserver: notificationID];
+
 
         // Restore the original SIGINT handler upon exiting the function
         PyOS_setsig(SIGINT, originalSigintAction);
+
         return 1;
     }
 }
@@ -366,20 +395,9 @@ FigureCanvas_flush_events(FigureCanvas* self)
     // We run the app, matching any events that are waiting in the queue
     // to process, breaking out of the loop when no events remain and
     // displaying the canvas if needed.
-    NSEvent *event;
-
     Py_BEGIN_ALLOW_THREADS
 
-    while (true) {
-        event = [NSApp nextEventMatchingMask: NSEventMaskAny
-                                   untilDate: [NSDate distantPast]
-                                      inMode: NSDefaultRunLoopMode
-                                     dequeue: YES];
-        if (!event) {
-            break;
-        }
-        [NSApp sendEvent:event];
-    }
+    flushEvents();
 
     Py_END_ALLOW_THREADS
 
@@ -1106,13 +1124,10 @@ choose_save_file(PyObject* unused, PyObject* args)
 {
     [super close];
     --FigureWindowCount;
-    if (!FigureWindowCount) {
-        /* This is needed for show(), which should exit from [NSApp run]
-        * after all windows are closed.
-        */
-        PyObject* x = stop(NULL);
-        Py_DECREF(x);
-    }
+    if (!FigureWindowCount) [NSApp stop: self];
+    /* This is needed for show(), which should exit from [NSApp run]
+    * after all windows are closed.
+    */
     // For each new window, we have incremented the manager reference, so
     // we need to bring that down during close and not just dealloc.
     Py_DECREF(manager);
