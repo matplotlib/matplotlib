@@ -17,6 +17,9 @@ graphics contexts must implement to serve as a Matplotlib backend.
     such as `KeyEvent` and `MouseEvent` store the meta data like keys and
     buttons pressed, x and y locations in pixel and `~.axes.Axes` coordinates.
 
+`WindowBase`
+    The base class to display a window.
+
 `ShowBase`
     The base class for the ``Show`` class of each interactive backend; the
     'show' callable is then set to ``Show.__call__``.
@@ -1621,7 +1624,60 @@ def _allow_interrupt(prepare_notifier, handle_sigint):
             old_sigint_handler(*handler_args)
 
 
-class FigureCanvasBase:
+class ExpandableBase(object):
+    """
+    Base class for GUI elements that can expand to fill the area given to them
+    by the encapsulating container (e.g. the main window).
+    At the moment this class does not do anything apart from mark such classes,
+    but this may well change at a later date, PRs welcome.
+    """
+    pass
+
+
+class FlowBase(object):
+    """
+    Base mixin class for all GUI elements that can flow, aka laid out in
+    different directions.
+    The MPL window class deals with the manipulation of this mixin, so users
+    don't actually need to interact with this class.
+    Classes the implement this class must override the _update_flow method.
+    """
+    flow_types = ['horizontal', 'vertical']
+
+    def __init__(self, flow='horizontal', flow_locked=False, **kwargs):
+        super(FlowBase, self).__init__(**kwargs)
+        self.flow_locked = flow_locked
+        self.flow = flow
+
+    @property
+    def flow(self):
+        """
+        The direction of flow, one of the strings in `flow_type`.
+        """
+        return FlowBase.flow_types[self._flow]
+
+    @flow.setter
+    def flow(self, flow):
+        if self.flow_locked:
+            return
+
+        try:
+            self._flow = FlowBase.flow_types.index(flow)
+        except ValueError:
+            raise ValueError('Flow (%s), not in list  %s' % (flow, FlowBase.flow_types))
+
+        self._update_flow()
+
+    def _update_flow(self):
+        """
+        Classes that extend FlowBase must override this method.
+        You can use the internal property self._flow whereby
+        flow_types[self._flow] gives the current flow.
+        """
+        raise NotImplementedError
+
+
+class FigureCanvasBase(ExpandableBase):
     """
     The canvas the figure renders into.
 
@@ -2501,6 +2557,126 @@ def button_press_handler(event, canvas=None, toolbar=None):
 class NonGuiException(Exception):
     """Raised when trying show a figure in a non-GUI backend."""
     pass
+
+
+class WindowEvent(object):
+    def __init__(self, name, window):
+        self.name = name
+        self.window = window
+
+
+class WindowBase(cbook.EventEmitter):
+    """
+    The base class to show a window on screen.
+
+    Parameters
+    ----------
+    title : str
+        The title of the window.
+    """
+
+    def __init__(self, title, **kwargs):
+        super(WindowBase, self).__init__(**kwargs)
+
+    def show(self):
+        """
+        For GUI backends, show the figure window and redraw.
+        For non-GUI backends, raise an exception to be caught
+        by :meth:`~matplotlib.figure.Figure.show`, for an
+        optional warning.
+        """
+        raise NonGuiException()
+
+    def destroy(self):
+        """Destroys the window"""
+        pass
+
+    def set_fullscreen(self, fullscreen):
+        """
+        Whether to show the window fullscreen or not, GUI only.
+
+        Parameters
+        ----------
+        fullscreen : bool
+            True for yes, False for no.
+        """
+        pass
+
+    def set_default_size(self, width, height):
+        """
+        Sets the default size of the window, defaults to a simple resize.
+
+        Parameters
+        ----------
+        width : int
+            The default width (in pixels) of the window.
+        height : int
+            The default height (in pixels) of the window.
+        """
+        self.resize(width, height)
+
+    def resize(self, width, height):
+        """
+        For gui backends, resizes the window.
+
+        Parameters
+        ----------
+        width : int
+            The new width (in pixels) for the window.
+        height : int
+            The new height (in pixels) for the window.
+        """
+        pass
+
+    def get_window_title(self):
+        """
+        Get the title text of the window containing the figure.
+        Return None for non-GUI backends (e.g., a PS backend).
+
+        Returns
+        -------
+        str : The window's title.
+        """
+        return 'image'
+
+    def set_window_title(self, title):
+        """
+        Set the title text of the window containing the figure.  Note that
+        this has no effect for non-GUI backends (e.g., a PS backend).
+
+        Parameters
+        ----------
+        title : str
+            The title of the window.
+        """
+        pass
+
+    def add_element(self, element, place):
+        """
+        Adds a gui widget to the window.
+        This has no effect for non-GUI backends and properties only apply
+        to those backends that support them, or have a suitable workaround.
+
+        Parameters
+        ----------
+        element : A gui element.
+            The element to add to the window
+        place : string
+            The location to place the element, either compass points north,
+            east, south, west, or center.
+        """
+        pass
+
+    def destroy_event(self, *args):
+        """
+        Fires this event when the window wants to destroy itself.
+
+        Note this method should hook up to the backend's internal window's
+        close event.
+        """
+        s = 'window_destroy_event'
+        event = WindowEvent(s, self)
+        self._callbacks.process(s, event)
 
 
 class FigureManagerBase:
