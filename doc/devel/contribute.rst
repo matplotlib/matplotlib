@@ -260,17 +260,18 @@ First contributions
 
 If this is your first open source contribution, or your first time contributing to Matplotlib,
 and you need help or guidance finding a good first issue, look no further. This section will
-guide you through each step.
+guide you through each step:
 
 1. Navigate to the `issues page <https://github.com/matplotlib/matplotlib/issues/>`_.
 2. Filter labels with `"Difficulty: Easy" <https://github.com/matplotlib/matplotlib/labels/Difficulty%3A%20Easy>`_
    & `"Good first Issue" <https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_ (optional).
 3. Click on an issue you would like to work on, and check to see if the issue has a pull request opened to resolve it.
-   A good way to judge if you chose a suitable issue is by asking yourself, "Can I independently submit a PR in 1-2 weeks?"
-4. Check the pull requests (e.g., :ghpull:`28476`) and filter by the issue number to make sure the issue is not in progress:
+
+   * A good way to judge if you chose a suitable issue is by asking yourself, "Can I independently submit a PR in 1-2 weeks?"
+4. Check existing pull requests (e.g., :ghpull:`28476`) and filter by the issue number to make sure the issue is not in progress:
 
    * If the issue has a pull request (is in progress), tag the user working on the issue, and ask to collaborate (optional).
-      * If a pull request does not exist, create a `draft pull request <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests>`_ and follow the `pull request guidelines <https://matplotlib.org/devdocs/devel/pr_guide.html>`_.
+   * If a pull request does not exist, create a `draft pull request <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests>`_ and follow the `pull request guidelines <https://matplotlib.org/devdocs/devel/pr_guide.html>`_.
 5. Please familiarize yourself with the pull request template (see below),
    and ensure you understand/are able to complete the template when you open your pull request.
    Additional information can be found in the `pull request guidelines <https://matplotlib.org/devdocs/devel/pr_guide.html>`_.
@@ -319,7 +320,7 @@ Start a pull request
 The preferred way to contribute to Matplotlib is to fork the `main
 repository <https://github.com/matplotlib/matplotlib/>`__ on GitHub,
 then submit a "pull request" (PR). You can do this by cloning a copy of the
-Maplotlib repository to your own computer, or alternatively using
+Matplotlib repository to your own computer, or alternatively using
 `GitHub Codespaces <https://docs.github.com/codespaces>`_, a cloud-based
 in-browser development environment that comes with the appropriate setup to
 contribute to Matplotlib.
@@ -417,7 +418,7 @@ extension. Locate the ``doc/build/html`` folder in the Explorer, right click
 the file you want to open and select "Open with Live Server."
 
 Open a pull request on Matplotlib
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------
 
 Finally, go to the web page of *your fork* of the Matplotlib repo, and click
 **Compare & pull request** to send your changes to the maintainers for review.
