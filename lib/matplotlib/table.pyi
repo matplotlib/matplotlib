@@ -10,10 +10,7 @@ from .typing import ColorType
 from collections.abc import Sequence
 from typing import Any, Literal, TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from pandas import DataFrame
-else:
-    DataFrame = None
+from pandas import DataFrame
 
 class Cell(Rectangle):
     PAD: float

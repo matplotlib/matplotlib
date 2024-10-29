@@ -1,4 +1,4 @@
-``ax.table`` will accept a pandas dataframe
+``ax.table`` will accept a pandas DataFrame
 --------------------------------------------
 
 The `~Axes.axes.table` method can now accept a Pandas DataFrame for the ``cellText`` argument.
