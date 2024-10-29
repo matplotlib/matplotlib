@@ -1,7 +1,7 @@
 ``ax.table`` will accept a pandas DataFrame
 --------------------------------------------
 
-The `~Axes.axes.table` method can now accept a Pandas DataFrame for the ``cellText`` argument.
+The `~.axes.Axes.table` method can now accept a Pandas DataFrame for the ``cellText`` argument.
 
 .. code-block:: python
 
