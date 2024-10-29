@@ -105,7 +105,7 @@ class ColorSequenceRegistry(Mapping):
     Read access uses a dict-like interface mapping names to lists of colors::
 
         import matplotlib as mpl
-        cmap = mpl.color_sequences['tab10']
+        colors = mpl.color_sequences['tab10']
 
     The returned lists are copies, so that their modification does not change
     the global definition of the color sequence.
