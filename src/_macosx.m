@@ -44,7 +44,7 @@ static bool leftMouseGrabbing = false;
 static PyOS_sighandler_t originalSigintAction = NULL;
 
 // Stop the current app's run loop, sending an event to ensure it actually stops
-static void stop_with_event() {
+static void stopWithEvent() {
     [NSApp stop: nil];
     // Post an event to trigger the actual stopping.
     [NSApp postEvent: [NSEvent otherEventWithType: NSEventTypeApplicationDefined
@@ -59,9 +59,9 @@ static void stop_with_event() {
              atStart: YES];
 }
 
-// Signal handler for SIGINT, only argument matching for stop_with_event
+// Signal handler for SIGINT, only argument matching for stopWithEvent
 static void handleSigint(int signal) {
-    stop_with_event();
+    stopWithEvent();
 }
 
 // Helper function to flush all events.
@@ -70,9 +70,9 @@ static void handleSigint(int signal) {
 static void flushEvents() {
     while (true) {
         NSEvent* event = [NSApp nextEventMatchingMask: NSEventMaskAny
-                                   untilDate: [NSDate distantPast]
-                                      inMode: NSDefaultRunLoopMode
-                                     dequeue: YES];
+                                            untilDate: [NSDate distantPast]
+                                               inMode: NSDefaultRunLoopMode
+                                              dequeue: YES];
         if (!event) {
             break;
         }
@@ -100,9 +100,9 @@ static int wait_for_stdin() {
 
         // Register for data available notifications on standard input
         id notificationID = [[NSNotificationCenter defaultCenter] addObserverForName: NSFileHandleDataAvailableNotification
-                                                          object: stdinHandle
-                                                           queue: [NSOperationQueue mainQueue] // Use the main queue
-                                                      usingBlock: ^(NSNotification *notification) {stop_with_event();}
+                                                                              object: stdinHandle
+                                                                               queue: [NSOperationQueue mainQueue] // Use the main queue
+                                                                          usingBlock: ^(NSNotification *notification) {stopWithEvent();}
         ];
 
         // Wait in the background for anything that happens to stdin
@@ -216,16 +216,16 @@ void process_event(char const* cls_name, char const* fmt, ...)
 static bool backend_inited = false;
 
 static void lazy_init(void) {
-    // Run our own event loop while waiting for stdin on the Python side
-    // this is needed to keep the application responsive while waiting for input
-    PyOS_InputHook = wait_for_stdin;
-
     if (backend_inited) { return; }
     backend_inited = true;
 
     NSApp = [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
     [NSApp setDelegate: [[[MatplotlibAppDelegate alloc] init] autorelease]];
+
+    // Run our own event loop while waiting for stdin on the Python side
+    // this is needed to keep the application responsive while waiting for input
+    PyOS_InputHook = wait_for_stdin;
 }
 
 static PyObject*
@@ -260,7 +260,7 @@ wake_on_fd_write(PyObject* unused, PyObject* args)
 static PyObject*
 stop(PyObject* self)
 {
-    stop_with_event();
+    stopWithEvent();
     Py_RETURN_NONE;
 }
 
@@ -1126,8 +1126,8 @@ choose_save_file(PyObject* unused, PyObject* args)
     --FigureWindowCount;
     if (!FigureWindowCount) [NSApp stop: self];
     /* This is needed for show(), which should exit from [NSApp run]
-    * after all windows are closed.
-    */
+     * after all windows are closed.
+     */
     // For each new window, we have incremented the manager reference, so
     // we need to bring that down during close and not just dealloc.
     Py_DECREF(manager);
