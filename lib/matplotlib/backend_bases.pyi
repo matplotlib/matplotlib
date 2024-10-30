@@ -258,6 +258,7 @@ class MouseEvent(LocationEvent):
         dblclick: bool = ...,
         guiEvent: Any | None = ...,
         *,
+        buttons: Iterable[MouseButton] | None = ...,
         modifiers: Iterable[str] | None = ...,
     ) -> None: ...
 
