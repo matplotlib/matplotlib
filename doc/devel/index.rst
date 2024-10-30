@@ -91,27 +91,6 @@ to contributing, we recommend that you first read our
       .. grid:: 1
          :gutter: 1
 
-         .. grid-item::
-
-            :octicon:`info;1em;sd-text-info` :ref:`Where should I start? <start-contributing>`
-
-         .. grid-item::
-
-            :octicon:`question;1em;sd-text-info` :ref:`Where should I ask questions? <get_connected>`
-
-         .. grid-item::
-
-            :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I work on an issue? <managing_issues_prs>`
-
-         .. grid-item::
-
-            :octicon:`codespaces;1em;sd-text-info` :ref:`How do I start a pull request? <how-to-pull-request>`
-
-   .. grid-item::
-
-      .. grid:: 1
-         :gutter: 1
-
          .. grid-item-card::
             :link: contribute_code
             :link-type: ref
@@ -143,6 +122,28 @@ to contributing, we recommend that you first read our
             :class-body: sd-text-{primary}
 
             :octicon:`globe;1em;sd-text-info` Build community
+
+   .. grid-item::
+
+      .. grid:: 1
+         :gutter: 1
+
+         .. grid-item::
+
+            :octicon:`info;1em;sd-text-info` :ref:`Is this my first contribution? <new_contributors>`
+
+         .. grid-item::
+
+            :octicon:`question;1em;sd-text-info` :ref:`Where do I ask questions? <get_connected>`
+
+         .. grid-item::
+
+            :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I choose an issue? <managing_issues_prs>`
+
+         .. grid-item::
+
+            :octicon:`codespaces;1em;sd-text-info` :ref:`How do I start a pull request? <how-to-pull-request>`
+
 
 .. _development_environment:
 
