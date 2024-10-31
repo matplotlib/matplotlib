@@ -1836,7 +1836,7 @@ class Axis(martist.Artist):
 
         Parameters
         ----------
-        converter : `~matplotlib.dates.ConversionInterface`
+        converter : `~matplotlib.units.ConversionInterface`
         """
         self._set_converter(converter)
         self._converter_is_explicit = True
