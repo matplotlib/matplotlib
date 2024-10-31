@@ -227,7 +227,8 @@ class UnitData:
 
 
 # Register the converter with Matplotlib's unit framework
-units.registry[str] = StrCategoryConverter()
-units.registry[np.str_] = StrCategoryConverter()
-units.registry[bytes] = StrCategoryConverter()
-units.registry[np.bytes_] = StrCategoryConverter()
+# Intentionally set to a single instance
+units.registry[str] = \
+    units.registry[np.str_] = \
+    units.registry[bytes] = \
+    units.registry[np.bytes_] = StrCategoryConverter()
