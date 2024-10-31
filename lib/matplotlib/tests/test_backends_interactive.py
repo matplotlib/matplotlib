@@ -653,13 +653,11 @@ def _impl_test_interactive_timers():
     import matplotlib.pyplot as plt
 
     fig = plt.figure()
-    event_loop_time = 0.5  # in seconds
+    event_loop_time = 1  # in seconds
+    expected_200ms_calls = int(event_loop_time / 0.2)
 
-    # A timer with <1 millisecond gets converted to int and therefore 0
-    # milliseconds, which the mac framework interprets as singleshot.
-    # We only want singleshot if we specify that ourselves, otherwise we want
-    # a repeating timer
-    timer_repeating = fig.canvas.new_timer(0.1)
+    # Start at 2s interval (would only get one firing), then update to 200ms
+    timer_repeating = fig.canvas.new_timer(2000)
     mock_repeating = Mock()
     timer_repeating.add_callback(mock_repeating)
 
@@ -667,52 +665,42 @@ def _impl_test_interactive_timers():
     mock_single_shot = Mock()
     timer_single_shot.add_callback(mock_single_shot)
 
-    # 100ms timer triggers and the callback takes 75ms to run
-    # Test that we don't drift and that we get called on every 100ms
-    # interval and not every 175ms
-    mock_slow_callback = Mock()
-    mock_slow_callback.side_effect = lambda: time.sleep(0.075)
-    timer_slow_callback = fig.canvas.new_timer(100)
-    timer_slow_callback.add_callback(mock_slow_callback)
-
     timer_repeating.start()
+    # Test updating the interval updates a running timer
+    timer_repeating.interval = 200
     # Start as a repeating timer then change to singleshot via the attribute
     timer_single_shot.start()
     timer_single_shot.single_shot = True
-    timer_slow_callback.start()
+
     fig.canvas.start_event_loop(event_loop_time)
-    # NOTE: The timer is as fast as possible, but this is different between backends
-    #       so we can't assert on the exact number but it should be faster than 100ms
-    expected_100ms_calls = int(event_loop_time / 0.1)
-    assert mock_repeating.call_count > expected_100ms_calls, \
-        f"Expected more than {expected_100ms_calls} calls, " \
+    assert 1 < mock_repeating.call_count <= expected_200ms_calls + 1, \
+        f"Interval update: Expected between 2 and {expected_200ms_calls + 1} calls, " \
         f"got {mock_repeating.call_count}"
     assert mock_single_shot.call_count == 1, \
-        f"Expected 1 call, got {mock_single_shot.call_count}"
-    assert mock_slow_callback.call_count >= expected_100ms_calls - 1, \
-        f"Expected at least {expected_100ms_calls - 1} calls, " \
-        f"got {mock_slow_callback.call_count}"
+        f"Singleshot: Expected 1 call, got {mock_single_shot.call_count}"
 
-    # Test updating the interval updates a running timer
-    timer_repeating.interval = 100
+    # 200ms timer triggers and the callback takes 100ms to run
+    # Test that we don't drift and that we get called on every 200ms
+    # interval and not every 300ms
+    mock_repeating.side_effect = lambda: time.sleep(0.1)
     mock_repeating.call_count = 0
     # Make sure we can start the timer after stopping a singleshot timer
     timer_single_shot.stop()
     timer_single_shot.start()
 
     fig.canvas.start_event_loop(event_loop_time)
-    assert 1 < mock_repeating.call_count <= expected_100ms_calls + 1, \
-        f"Expected less than {expected_100ms_calls + 1} calls, " \
-        "got {mock.call_count}"
+    # Not exact timers, so add a little slop. We really want to make sure we are
+    # getting more than 3 (every 300ms).
+    assert mock_repeating.call_count >= expected_200ms_calls - 1, \
+        f"Slow callback: Expected at least {expected_200ms_calls - 1} calls, " \
+        f"got {mock_repeating.call_count}"
     assert mock_single_shot.call_count == 2, \
-        f"Expected 2 calls, got {mock_single_shot.call_count}"
+        f"Singleshot: Expected 2 calls, got {mock_single_shot.call_count}"
     plt.close("all")
 
 
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
 def test_interactive_timers(env):
-    if env["MPLBACKEND"] == "gtk3cairo" and os.getenv("CI"):
-        pytest.skip("gtk3cairo timers do not work in remote CI")
     if env["MPLBACKEND"] == "wx":
         pytest.skip("wx backend is deprecated; tests failed on appveyor")
     _run_helper(_impl_test_interactive_timers,
