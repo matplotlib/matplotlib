@@ -244,10 +244,10 @@ def test_explicit_converter():
     # Explicit is set
     fig1, ax1 = plt.subplots()
     ax1.xaxis.set_converter(str_cat_converter)
-    assert ax1.xaxis.converter == str_cat_converter
+    assert ax1.xaxis.get_converter() == str_cat_converter
     # Explicit not overridden by implicit
     ax1.plot(d1.keys(), d1.values())
-    assert ax1.xaxis.converter == str_cat_converter
+    assert ax1.xaxis.get_converter() == str_cat_converter
     # No error when called twice with equivalent input
     ax1.xaxis.set_converter(str_cat_converter)
     # Error when explicit called twice
