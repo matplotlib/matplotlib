@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.units as munits
-from matplotlib.category import UnitData
+from matplotlib.category import StrCategoryConverter, UnitData
 import numpy as np
 import pytest
 
@@ -234,6 +234,32 @@ def test_shared_axis_categorical():
     ax2.plot(d2.keys(), d2.values())
     ax1.xaxis.set_units(UnitData(["c", "d"]))
     assert "c" in ax2.xaxis.get_units()._mapping.keys()
+
+
+def test_explicit_converter():
+    d1 = {"a": 1, "b": 2}
+    str_cat_converter = StrCategoryConverter()
+    str_cat_converter_2 = StrCategoryConverter()
+
+    # Explicit is set
+    fig1, ax1 = plt.subplots()
+    ax1.xaxis.set_converter(str_cat_converter)
+    assert ax1.xaxis.get_converter() == str_cat_converter
+    # Explicit not overridden by implicit
+    ax1.plot(d1.keys(), d1.values())
+    assert ax1.xaxis.get_converter() == str_cat_converter
+    # No error when called twice with equivalent input
+    ax1.xaxis.set_converter(str_cat_converter)
+    # Error when explicit called twice
+    with pytest.raises(RuntimeError):
+        ax1.xaxis.set_converter(str_cat_converter_2)
+
+    # Warn when implicit overridden
+    fig2, ax2 = plt.subplots()
+    ax2.plot(d1.keys(), d1.values())
+
+    with pytest.warns():
+        ax2.xaxis.set_converter(str_cat_converter)
 
 
 def test_empty_default_limits(quantity_converter):

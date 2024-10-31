@@ -42,7 +42,7 @@ def figure_edit(axes, parent=None):
     axis_map = axes._axis_map
     axis_limits = {
         name: tuple(convert_limits(
-            getattr(axes, f'get_{name}lim')(), axis.converter
+            getattr(axes, f'get_{name}lim')(), axis.get_converter()
         ))
         for name, axis in axis_map.items()
     }
@@ -66,7 +66,7 @@ def figure_edit(axes, parent=None):
 
     # Save the converter and unit data
     axis_converter = {
-        name: axis.converter
+        name: axis.get_converter()
         for name, axis in axis_map.items()
     }
     axis_units = {
@@ -209,7 +209,7 @@ def figure_edit(axes, parent=None):
             axis.set_label_text(axis_label)
 
             # Restore the unit data
-            axis.converter = axis_converter[name]
+            axis._set_converter(axis_converter[name])
             axis.set_units(axis_units[name])
 
         # Set / Curves

@@ -600,6 +600,10 @@ class Axis(martist.Artist):
     # The class used in _get_tick() to create tick instances. Must either be
     # overwritten in subclasses, or subclasses must reimplement _get_tick().
     _tick_class = None
+    converter = _api.deprecate_privatize_attribute(
+                    "3.10",
+                    alternative="get_converter and set_converter methods"
+                )
 
     def __str__(self):
         return "{}({},{})".format(
@@ -656,7 +660,8 @@ class Axis(martist.Artist):
         if clear:
             self.clear()
         else:
-            self.converter = None
+            self._converter = None
+            self._converter_is_explicit = False
             self.units = None
 
         self._autoscale_on = True
@@ -886,7 +891,8 @@ class Axis(martist.Artist):
                 mpl.rcParams['axes.grid.which'] in ('both', 'minor'))
         self.reset_ticks()
 
-        self.converter = None
+        self._converter = None
+        self._converter_is_explicit = False
         self.units = None
         self.stale = True
 
@@ -1738,16 +1744,20 @@ class Axis(martist.Artist):
     def update_units(self, data):
         """
         Introspect *data* for units converter and update the
-        ``axis.converter`` instance if necessary. Return *True*
+        ``axis.get_converter`` instance if necessary. Return *True*
         if *data* is registered for unit conversion.
         """
-        converter = munits.registry.get_converter(data)
+        if not self._converter_is_explicit:
+            converter = munits.registry.get_converter(data)
+        else:
+            converter = self._converter
+
         if converter is None:
             return False
 
-        neednew = self.converter != converter
-        self.converter = converter
-        default = self.converter.default_units(data, self)
+        neednew = self._converter != converter
+        self._set_converter(converter)
+        default = self._converter.default_units(data, self)
         if default is not None and self.units is None:
             self.set_units(default)
 
@@ -1761,10 +1771,10 @@ class Axis(martist.Artist):
         Check the axis converter for the stored units to see if the
         axis info needs to be updated.
         """
-        if self.converter is None:
+        if self._converter is None:
             return
 
-        info = self.converter.axisinfo(self.units, self)
+        info = self._converter.axisinfo(self.units, self)
 
         if info is None:
             return
@@ -1791,24 +1801,57 @@ class Axis(martist.Artist):
         self.set_default_intervals()
 
     def have_units(self):
-        return self.converter is not None or self.units is not None
+        return self._converter is not None or self.units is not None
 
     def convert_units(self, x):
         # If x is natively supported by Matplotlib, doesn't need converting
         if munits._is_natively_supported(x):
             return x
 
-        if self.converter is None:
-            self.converter = munits.registry.get_converter(x)
+        if self._converter is None:
+            self._set_converter(munits.registry.get_converter(x))
 
-        if self.converter is None:
+        if self._converter is None:
             return x
         try:
-            ret = self.converter.convert(x, self.units, self)
+            ret = self._converter.convert(x, self.units, self)
         except Exception as e:
             raise munits.ConversionError('Failed to convert value(s) to axis '
                                          f'units: {x!r}') from e
         return ret
+
+    def get_converter(self):
+        """
+        Get the unit converter for axis.
+
+        Returns
+        -------
+        `~matplotlib.units.ConversionInterface` or None
+        """
+        return self._converter
+
+    def set_converter(self, converter):
+        """
+        Set the unit converter for axis.
+
+        Parameters
+        ----------
+        converter : `~matplotlib.units.ConversionInterface`
+        """
+        self._set_converter(converter)
+        self._converter_is_explicit = True
+
+    def _set_converter(self, converter):
+        if self._converter == converter:
+            return
+        if self._converter_is_explicit:
+            raise RuntimeError("Axis already has an explicit converter set")
+        elif self._converter is not None:
+            _api.warn_external(
+                "This axis already has a converter set and "
+                "is updating to a potentially incompatible converter"
+            )
+        self._converter = converter
 
     def set_units(self, u):
         """
@@ -2529,8 +2572,8 @@ class XAxis(Axis):
         # not changed the view:
         if (not self.axes.dataLim.mutatedx() and
                 not self.axes.viewLim.mutatedx()):
-            if self.converter is not None:
-                info = self.converter.axisinfo(self.units, self)
+            if self._converter is not None:
+                info = self._converter.axisinfo(self.units, self)
                 if info.default_limits is not None:
                     xmin, xmax = self.convert_units(info.default_limits)
                     self.axes.viewLim.intervalx = xmin, xmax
@@ -2759,8 +2802,8 @@ class YAxis(Axis):
         # not changed the view:
         if (not self.axes.dataLim.mutatedy() and
                 not self.axes.viewLim.mutatedy()):
-            if self.converter is not None:
-                info = self.converter.axisinfo(self.units, self)
+            if self._converter is not None:
+                info = self._converter.axisinfo(self.units, self)
                 if info.default_limits is not None:
                     ymin, ymax = self.convert_units(info.default_limits)
                     self.axes.viewLim.intervaly = ymin, ymax
