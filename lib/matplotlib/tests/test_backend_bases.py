@@ -603,3 +603,10 @@ def test_timer_properties():
         timer.single_shot = True
         # Make sure it wasn't called again
         mock.assert_called_once()
+
+    # A timer with <1 millisecond gets converted to int and therefore 0
+    # milliseconds, which the mac framework interprets as singleshot.
+    # We only want singleshot if we specify that ourselves, otherwise we want
+    # a repeating timer, so make sure our interval is set to a minimum of 1ms.
+    timer.interval = 0.1
+    assert timer.interval == 1
