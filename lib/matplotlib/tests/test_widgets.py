@@ -1709,23 +1709,27 @@ def test_polygon_selector_move(ax):
     tool = widgets.PolygonSelector(ax, onselect)
     vertices = [(10, 40), (50, 90), (30, 20)]
     tool.verts = vertices
+    assert tool._selected
 
     # don't move polygon when pointer is outside of the polygon
     press_data = (100, 100)
     release_data = (110, 110)
     click_and_drag(tool, start=press_data, end=release_data, key="shift")
     assert tool.verts == vertices
+    assert not tool._selected
 
     # don't move polygon when shift key is not press
     press_data = (25, 45)
     release_data = (35, 55)
     click_and_drag(tool, start=press_data, end=release_data, key=None)
     assert tool.verts == vertices
+    assert tool._selected
 
     # move polygon when the pointer is on polygon
-    press_data = (25, 45)
-    release_data = (35, 55)
+    press_data = (25, 35)
+    release_data = (35, 45)
     click_and_drag(tool, start=press_data, end=release_data, key="shift")
+    assert tool._selected
     np.testing.assert_allclose(tool.verts, np.array(vertices) + 10)
 
 
