@@ -505,12 +505,11 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
                 self.fontname = fontname
                 self.fontsize = fontsize
 
-    def create_hatch(self, hatch, lw):
+    def create_hatch(self, hatch, linewidth):
         sidelen = 72
         if hatch in self._hatches:
             return self._hatches[hatch]
         name = 'H%d' % len(self._hatches)
-        linewidth = lw
         pageheight = self.height * 72
         self._pswriter.write(f"""\
   << /PatternType 1
