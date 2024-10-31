@@ -28,11 +28,11 @@ Fork the Matplotlib repository
 
 Matplotlib is hosted at https://github.com/matplotlib/matplotlib.git. If you
 plan on solving issues or submitting pull requests to the main Matplotlib
-repository, you should first *fork* this repository by visiting
-https://github.com/matplotlib/matplotlib.git and clicking on the
-``Fork`` :octicon:`repo-forked` button on the top right of the page. See
-`the GitHub documentation <https://docs.github.com/get-started/quickstart/fork-a-repo>`__
-for more details.
+repository, you should first fork this repository by *clicking* the
+:octicon:`repo-forked` **Fork** button near the top of the `project repository <https://github.com/matplotlib/matplotlib>`_ page.
+
+This creates a copy of the code under your account on the GitHub server. See `the GitHub
+documentation <https://docs.github.com/get-started/quickstart/fork-a-repo>`__ for more details.
 
 Retrieve the latest version of the code
 =======================================
@@ -111,8 +111,9 @@ Create a dedicated environment
 You should set up a dedicated environment to decouple your Matplotlib
 development from other Python and Matplotlib installations on your system.
 
-The simplest way to do this is to use either Python's virtual environment
-`venv`_ or `conda`_.
+We recommend using one of the following options for a dedicated development environment
+because these options are configured to install the Python dependencies as part of their
+setup.
 
 .. _venv: https://docs.python.org/3/library/venv.html
 .. _conda: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
@@ -138,6 +139,8 @@ The simplest way to do this is to use either Python's virtual environment
 
         pip install -r requirements/dev/dev-requirements.txt
 
+      Remember to activate the environment whenever you start working on Matplotlib!
+
    .. tab-item:: conda environment
 
       Create a new `conda`_ environment and install the Python dependencies with ::
@@ -153,13 +156,57 @@ The simplest way to do this is to use either Python's virtual environment
 
         conda activate mpl-dev
 
-Remember to activate the environment whenever you start working on Matplotlib.
+      Remember to activate the environment whenever you start working on Matplotlib!
+
+   .. tab-item:: :octicon:`codespaces` GitHub Codespaces
+
+      `GitHub Codespaces <https://docs.github.com/codespaces>`_ is a cloud-based
+      in-browser development environment that comes with the appropriate setup to
+      contribute to Matplotlib.
+
+      #. Open codespaces on your fork by clicking on the green :octicon:`code` ``Code``
+         button on the GitHub web interface and selecting the ``Codespaces`` tab.
+
+      #. Next, click on "Open codespaces on <your branch name>". You will be
+         able to change branches later, so you can select the default
+         ``main`` branch.
+
+      #. After the codespace is created, you will be taken to a new browser
+         tab where you can use the terminal to activate a pre-defined conda
+         environment called ``mpl-dev``::
+
+         conda activate mpl-dev
+
+      Remember to activate the *mpl-dev* environment whenever you start working on
+      Matplotlib.
+
+      If you need to open a GUI window with Matplotlib output on Codespaces, our
+      configuration includes a `light-weight Fluxbox-based desktop
+      <https://github.com/devcontainers/features/tree/main/src/desktop-lite>`_.
+      You can use it by connecting to this desktop via your web browser. To do this:
+
+      #. Press ``F1`` or ``Ctrl/Cmd+Shift+P`` and select
+         ``Ports: Focus on Ports View`` in the VSCode session to bring it into
+         focus. Open the ports view in your tool, select the ``noVNC`` port, and
+         click the Globe icon.
+      #. In the browser that appears, click the Connect button and enter the desktop
+         password (``vscode`` by default).
+
+      Check the `GitHub instructions
+      <https://github.com/devcontainers/features/tree/main/src/desktop-lite#connecting-to-the-desktop>`_
+      for more details on connecting to the desktop.
+
+      If you also built the documentation pages, you can view them using Codespaces.
+      Use the "Extensions" icon in the activity bar to install the "Live Server"
+      extension. Locate the ``doc/build/html`` folder in the Explorer, right click
+      the file you want to open and select "Open with Live Server."
+
 
 Install external dependencies
 =============================
 
 Python dependencies were installed as part of :ref:`setting up the environment <dev-environment>`.
-Additionally, the following non-Python dependencies must also be installed:
+Additionally, the following non-Python dependencies must also be installed locally:
 
 .. rst-class:: checklist
 
@@ -167,7 +214,8 @@ Additionally, the following non-Python dependencies must also be installed:
 * :ref:`documentation build dependencies <doc-dependencies-external>`
 
 
-For a full list of dependencies, see :ref:`dependencies`.
+For a full list of dependencies, see :ref:`dependencies`. External dependencies do not
+need to be installed when working in codespaces.
 
 .. _development-install:
 
