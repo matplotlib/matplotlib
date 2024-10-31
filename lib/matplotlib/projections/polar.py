@@ -386,6 +386,30 @@ class ThetaAxis(maxis.XAxis):
     axis_name = 'theta'  #: Read-only name identifying the axis.
     _tick_class = ThetaTick
 
+    def _update_label_position(self, renderer):
+        """
+        Update the label position based on the bounding box enclosing
+        all the ticklabels and axis spine
+        """
+        if not self._autolabelpos:
+            return
+
+        # get bounding boxes for this axis and any siblings
+        # that have been set by `fig.align_xlabels()`
+        xbboxes, xbboxes2 = self._get_tick_boxes_siblings(renderer=renderer)
+        ybboxes, ybboxes2 = self.axes.yaxis._get_tick_boxes_siblings(renderer=renderer)
+        # Union with extents of the bottom spine if present, of the axes otherwise.
+        bbox = mtransforms.Bbox.union([
+            *xbboxes, *xbboxes2, *ybboxes, *ybboxes2,
+            self.axes.spines.get(self.label_position, self.axes).get_window_extent()])
+
+        x, y = self.label.get_position()
+        if self.label_position == 'bottom':
+            y = bbox.y0 - self.labelpad * self.get_figure(root=True).dpi / 72
+        else:
+            y = bbox.y1 + self.labelpad * self.get_figure(root=True).dpi / 72
+        self.label.set_position((x, y))
+
     def _wrap_locator_formatter(self):
         self.set_major_locator(ThetaLocator(self.get_major_locator()))
         self.set_major_formatter(ThetaFormatter())
@@ -678,6 +702,30 @@ class RadialAxis(maxis.YAxis):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sticky_edges.y.append(0)
+
+    def _update_label_position(self, renderer):
+        """
+        Update the label position based on the bounding box enclosing
+        all the ticklabels and axis spine
+        """
+        if not self._autolabelpos:
+            return
+
+        # get bounding boxes for this axis and any siblings
+        # that have been set by `fig.align_xlabels()`
+        xbboxes, xbboxes2 = self._get_tick_boxes_siblings(renderer=renderer)
+        ybboxes, ybboxes2 = self.axes.xaxis._get_tick_boxes_siblings(renderer=renderer)
+        # Union with extents of the linked spine if present, of the axes otherwise.
+        bbox = mtransforms.Bbox.union([
+            *xbboxes, *xbboxes2, *ybboxes, *ybboxes2,
+            self.axes.spines.get(self.label_position, self.axes).get_window_extent()])
+
+        x, y = self.label.get_position()
+        if self.label_position == 'left':
+            x = bbox.x0 - self.labelpad * self.get_figure(root=True).dpi / 72
+        else:
+            x = bbox.x1 + self.labelpad * self.get_figure(root=True).dpi / 72
+        self.label.set_position((x, y))
 
     def _wrap_locator_formatter(self):
         self.set_major_locator(RadialLocator(self.get_major_locator(),
