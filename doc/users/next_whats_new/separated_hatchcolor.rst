@@ -1,20 +1,17 @@
 Separated ``hatchcolor`` from ``edgecolor``
 -------------------------------------------
 
-The ``hatchcolor`` parameter for `~matplotlib.patches.Patch` objects has been
-separated from the ``edgecolor`` parameter. This allows for using different colors
-for hatches and edges by explicitly setting the ``hatchcolor`` parameter.
+`~matplotlib.patches.Patch` gained a new *hatchcolor* parameter to explicitly
+control hatch colors. Previously, hatch colors were the same as edge colors,
+with a fallback to :rc:`hatch.color` if the patch did not have an edge color.
 
 Inherit Logic
 ~~~~~~~~~~~~~
 When the *hatchcolor* parameter is specified, it will be used for the hatch.
 If it is not specified, it will fallback to using :rc:`hatch.color`.
-If this is a valid color, it will be used for the hatch.
 
-If the *hatch.color* rcParam is not set, then its default value will be used,
-which is *inherit*. In this case, *hatchcolor* will try to inherit from *edgecolor*
-of the patch if it is specified. If *edgecolor* is also not specified,
-*hatchcolor* will fallback to :rc:`patch.edgecolor`.
+The special value 'inherit' takes over the patch edgecolor, with a fallback to
+:rc:`patch.edgecolor` if the patch edgecolor is 'none'.
 
 If the patch inherits hatchcolor from edgecolor, hatchcolor will
 be updated if edgecolor is changed (for example: by calling *set_edgecolor()*).
