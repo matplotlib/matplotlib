@@ -1,4 +1,6 @@
 """
+.. _custom_shaded_3d_surface:
+
 =======================================
 Custom hillshading in a 3D surface plot
 =======================================
