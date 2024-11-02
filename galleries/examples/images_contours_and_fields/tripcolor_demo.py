@@ -1,4 +1,6 @@
 """
+.. _tripcolor_demo:
+
 ==============
 Tripcolor Demo
 ==============
