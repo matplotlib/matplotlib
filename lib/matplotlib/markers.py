@@ -906,3 +906,22 @@ class MarkerStyle:
             self._transform.rotate_deg(
                 {'top': 0, 'left': 90, 'bottom': 180, 'right': 270}[fs])
             self._alt_transform = self._transform.frozen().rotate_deg(180)
+
+    @classmethod
+    def register(cls, marker_name, marker_path):
+        """
+        Register a new marker style from a user-specified `.Path`.
+
+        Parameters
+        ----------
+        name : str
+            The name of the marker style.
+        path : `.Path`
+            The path of the marker.
+        """
+        cls.markers[marker_name] = marker_name
+        # Add a new _set_* method to MarkerStyle
+        # Default argument ensures that the marker_path
+        # is captured when defining the lambda
+        setattr(cls, f'_set_{marker_name}',
+                lambda self, path=marker_path: self._set_custom_marker(path))
