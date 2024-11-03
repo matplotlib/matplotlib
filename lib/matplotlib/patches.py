@@ -72,9 +72,7 @@ class Patch(artist.Artist):
         if joinstyle is None:
             joinstyle = JoinStyle.miter
 
-        self._original_edgecolor = None
-        self._original_hatchcolor = None
-
+        self._hatch_color = None
         self._hatch_linewidth = mpl.rcParams['hatch.linewidth']
         self._fill = bool(fill)  # needed for set_facecolor call
         if color is not None:
@@ -343,6 +341,14 @@ class Patch(artist.Artist):
         """Return the face color."""
         return self._facecolor
 
+    def get_hatchcolor(self):
+        """Return the hatch color."""
+        if self._hatch_color == 'edge':
+            if self._edgecolor[3] == 0:
+                return colors.to_rgba(mpl.rcParams['patch.edgecolor'])
+            return self.get_edgecolor()
+        return self._hatch_color
+
     def get_linewidth(self):
         """Return the line width in points."""
         return self._linewidth
@@ -373,7 +379,7 @@ class Patch(artist.Artist):
                 color = 'none'
 
         self._edgecolor = colors.to_rgba(color, self._alpha)
-        if self._original_hatchcolor is None:
+        if self._hatch_color == 'edge':
             self._hatch_color = self._edgecolor
         self.stale = True
 
@@ -425,15 +431,10 @@ class Patch(artist.Artist):
 
     def _set_hatchcolor(self, color):
         color = mpl._val_or_rc(color, 'hatch.color')
-        if color == 'inherit':
-            color = self._original_edgecolor
-            if color is None or (
-                isinstance(color, str) and color in ('face', 'none')
-            ):
-                color = mpl.rcParams['patch.edgecolor']
+        if color in ('inherit', 'edge'):
+            self._hatch_color = 'edge'
         else:
-            self._original_hatchcolor = color
-        self._hatch_color = colors.to_rgba(color, self._alpha)
+            self._hatch_color = colors.to_rgba(color, self._alpha)
         self.stale = True
 
     def set_hatchcolor(self, color):
@@ -643,7 +644,7 @@ class Patch(artist.Artist):
 
         if self._hatch:
             gc.set_hatch(self._hatch)
-            gc.set_hatch_color(self._hatch_color)
+            gc.set_hatch_color(self.get_hatchcolor())
             gc.set_hatch_linewidth(self._hatch_linewidth)
 
         if self.get_sketch_params() is not None:
