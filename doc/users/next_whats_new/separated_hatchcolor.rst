@@ -5,15 +5,15 @@ Separated ``hatchcolor`` from ``edgecolor``
 control hatch colors. Previously, hatch colors were the same as edge colors,
 with a fallback to :rc:`hatch.color` if the patch did not have an edge color.
 
-Inherit Logic
-~~~~~~~~~~~~~
+Fallback Logic
+~~~~~~~~~~~~~~
 When the *hatchcolor* parameter is specified, it will be used for the hatch.
 If it is not specified, it will fallback to using :rc:`hatch.color`.
 
-The special value 'inherit' takes over the patch edgecolor, with a fallback to
+The special value 'edge' takes over the patch edgecolor, with a fallback to
 :rc:`patch.edgecolor` if the patch edgecolor is 'none'.
 
-If the patch inherits hatchcolor from edgecolor, hatchcolor will
+If the patch hatchcolor is 'edge' then hatchcolor matches edgecolor, that is, it will
 be updated if edgecolor is changed (for example: by calling *set_edgecolor()*).
 But if hatchcolor is explicitly set (for example: by calling *set_hatchcolor()*
 or by using *hatch.color* rcParam), it will not be updated when edgecolor changes.
@@ -34,10 +34,12 @@ or by using *hatch.color* rcParam), it will not be updated when edgecolor change
                       hatch='//', hatchcolor='orange')
     ax.add_patch(patch1)
 
-    # When hatchcolor is not specified, it inherits from edgecolor
+    # When hatchcolor is not specified, it matches edgecolor
     # In this case, hatchcolor is green
     patch2 = Rectangle((0.6, 0.1), 0.3, 0.3, edgecolor='green', linewidth=2,
                        hatch='//', facecolor='none')
+    assert patch2._hatch_color == 'edge'
+    assert patch2.get_hatchcolor() == mpl.colors.to_rgba('green')
     ax.add_patch(patch2)
 
     # If both hatchcolor and edgecolor are not specified, it will default to the 'patch.edgecolor' rcParam, which is black by default
@@ -52,10 +54,10 @@ or by using *hatch.color* rcParam), it will not be updated when edgecolor change
                            hatch='//', facecolor='none')
 
     # hatchcolor is black (it uses the `hatch.color` rcParam value)
-    assert patch4._hatch_color == mpl.colors.to_rgba('black')
+    assert patch4.get_hatchcolor() == mpl.colors.to_rgba('black')
     patch4.set_edgecolor('blue')
     # hatchcolor is still black (here, it does not update when edgecolor changes)
-    assert patch4._hatch_color == mpl.colors.to_rgba('black')
+    assert patch4.get_hatchcolor() == mpl.colors.to_rgba('black')
     ax.add_patch(patch4)
 
     plt.show()

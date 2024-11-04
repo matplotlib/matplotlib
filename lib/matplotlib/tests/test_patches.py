@@ -1011,7 +1011,7 @@ def test_patch_hatchcolor_inherit_logic(fig_test, fig_ref):
         ax_ref.add_patch(Rectangle((0.05, 0.05), 0.4, 0.4, hatch='//'))
     ax_test.add_patch(Rectangle((0.05, 0.05), 0.4, 0.4, hatch='//', hatchcolor='red'))
 
-    with mpl.rc_context({'hatch.color': 'inherit'}):
+    with mpl.rc_context({'hatch.color': 'edge'}):
         # Test for when edgecolor and hatchcolor is set
         # fig_ref uses a workaround to set hatchcolor to blue and edgecolor to red
         ax_ref.add_patch(Rectangle((0.05, 0.5), 0.4, 0.4, ec='yellow',
@@ -1062,13 +1062,16 @@ def test_patch_hatchcolor_fallback_logic():
         rect = Rectangle((0, 0), 1, 1, hatch='//', edgecolor='red')
     assert rect.get_hatchcolor() == mcolors.to_rgba('blue')
 
-    # Test that hatchcolor inherits edgecolor when
-    # hatchcolor parameter is not passed and hatch.color rcParam is set to 'inherit'
-    with mpl.rc_context({'hatch.color': 'inherit'}):
+    # Test that hatchcolor matches edgecolor when
+    # hatchcolor parameter is not passed and hatch.color rcParam is set to 'edge'
+    with mpl.rc_context({'hatch.color': 'edge'}):
         rect = Rectangle((0, 0), 1, 1, hatch='//', edgecolor='red')
     assert rect.get_hatchcolor() == mcolors.to_rgba('red')
+    # hatchcolor parameter is set to 'edge'
+    rect = Rectangle((0, 0), 1, 1, hatch='//', hatchcolor='edge', edgecolor='orange')
+    assert rect.get_hatchcolor() == mcolors.to_rgba('orange')
 
     # Test for default hatchcolor when hatchcolor parameter is not passed and
-    # hatch.color rcParam is set to 'inherit' and edgecolor is not set
+    # hatch.color rcParam is set to 'edge' and edgecolor is not set
     rect = Rectangle((0, 0), 1, 1, hatch='//')
     assert rect.get_hatchcolor() == mcolors.to_rgba(mpl.rcParams['patch.edgecolor'])
