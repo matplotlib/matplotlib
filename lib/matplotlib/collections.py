@@ -175,7 +175,7 @@ class Collection(mcolorizer.ColorizingArtist):
         self._edge_is_mapped = None
         self._mapped_colors = None  # calculated in update_scalarmappable
         hatch_color = mpl.rcParams['hatch.color']
-        if hatch_color == 'inherit':
+        if hatch_color == 'edge':
             hatch_color = mpl.rcParams['patch.edgecolor']
         self._hatch_color = mcolors.to_rgba(hatch_color)
         self._hatch_linewidth = mpl.rcParams['hatch.linewidth']

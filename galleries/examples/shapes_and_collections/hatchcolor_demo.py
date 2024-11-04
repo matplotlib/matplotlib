@@ -18,7 +18,7 @@ fig, (ax1, ax2) = plt.subplots(1, 2)
 # Rectangle with red hatch color and black edge color
 ax1.add_patch(Rectangle((0.1, 0.5), 0.8, 0.3, hatch=".", hatchcolor='red',
                         edgecolor='black', lw=2))
-# If hatchcolor is not passed, the hatch will inherit the edge color
+# If hatchcolor is not passed, the hatch will match the edge color
 ax1.add_patch(Rectangle((0.1, 0.1), 0.8, 0.3, hatch='x', edgecolor='orange', lw=2))
 
 x = np.arange(1, 5)

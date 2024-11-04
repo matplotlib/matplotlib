@@ -72,7 +72,6 @@ class Patch(artist.Artist):
         if joinstyle is None:
             joinstyle = JoinStyle.miter
 
-        self._hatch_color = None
         self._hatch_linewidth = mpl.rcParams['hatch.linewidth']
         self._fill = bool(fill)  # needed for set_facecolor call
         if color is not None:
@@ -379,8 +378,6 @@ class Patch(artist.Artist):
                 color = 'none'
 
         self._edgecolor = colors.to_rgba(color, self._alpha)
-        if self._hatch_color == 'edge':
-            self._hatch_color = self._edgecolor
         self.stale = True
 
     def set_edgecolor(self, color):
@@ -431,7 +428,7 @@ class Patch(artist.Artist):
 
     def _set_hatchcolor(self, color):
         color = mpl._val_or_rc(color, 'hatch.color')
-        if color in ('inherit', 'edge'):
+        if color == 'edge':
             self._hatch_color = 'edge'
         else:
             self._hatch_color = colors.to_rgba(color, self._alpha)
@@ -443,8 +440,10 @@ class Patch(artist.Artist):
 
         Parameters
         ----------
-        color : :mpltype:`color` or None
+        color : :mpltype:`color` or 'edge' or None
         """
+        if isinstance(color, str) and color.lower() == 'edge':
+            color = 'edge'
         self._original_hatchcolor = color
         self._set_hatchcolor(color)
 
