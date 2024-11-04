@@ -260,6 +260,8 @@ def test_interactive_colorbar(plot_func, orientation, tool, button, expected):
     # Set up the mouse movements
     start_event = MouseEvent(
         "button_press_event", fig.canvas, *s0, button)
+    drag_event = MouseEvent(
+        "motion_notify_event", fig.canvas, *s1, button, buttons={button})
     stop_event = MouseEvent(
         "button_release_event", fig.canvas, *s1, button)
 
@@ -267,12 +269,12 @@ def test_interactive_colorbar(plot_func, orientation, tool, button, expected):
     if tool == "zoom":
         tb.zoom()
         tb.press_zoom(start_event)
-        tb.drag_zoom(stop_event)
+        tb.drag_zoom(drag_event)
         tb.release_zoom(stop_event)
     else:
         tb.pan()
         tb.press_pan(start_event)
-        tb.drag_pan(stop_event)
+        tb.drag_pan(drag_event)
         tb.release_pan(stop_event)
 
     # Should be close, but won't be exact due to screen integer resolution
@@ -395,6 +397,9 @@ def test_interactive_pan(key, mouseend, expectedxlim, expectedylim):
     start_event = MouseEvent(
         "button_press_event", fig.canvas, *sstart, button=MouseButton.LEFT,
         key=key)
+    drag_event = MouseEvent(
+        "motion_notify_event", fig.canvas, *send, button=MouseButton.LEFT,
+        buttons={MouseButton.LEFT}, key=key)
     stop_event = MouseEvent(
         "button_release_event", fig.canvas, *send, button=MouseButton.LEFT,
         key=key)
@@ -402,7 +407,7 @@ def test_interactive_pan(key, mouseend, expectedxlim, expectedylim):
     tb = NavigationToolbar2(fig.canvas)
     tb.pan()
     tb.press_pan(start_event)
-    tb.drag_pan(stop_event)
+    tb.drag_pan(drag_event)
     tb.release_pan(stop_event)
     # Should be close, but won't be exact due to screen integer resolution
     assert tuple(ax.get_xlim()) == pytest.approx(expectedxlim, abs=0.02)
@@ -510,6 +515,8 @@ def test_interactive_pan_zoom_events(tool, button, patch_vis, forward_nav, t_s):
 
     # Set up the mouse movements
     start_event = MouseEvent("button_press_event", fig.canvas, *s0, button)
+    drag_event = MouseEvent(
+        "motion_notify_event", fig.canvas, *s1, button, buttons={button})
     stop_event = MouseEvent("button_release_event", fig.canvas, *s1, button)
 
     tb = NavigationToolbar2(fig.canvas)
@@ -534,7 +541,7 @@ def test_interactive_pan_zoom_events(tool, button, patch_vis, forward_nav, t_s):
 
         tb.zoom()
         tb.press_zoom(start_event)
-        tb.drag_zoom(stop_event)
+        tb.drag_zoom(drag_event)
         tb.release_zoom(stop_event)
 
         assert ax_t.get_xlim() == pytest.approx(xlim_t, abs=0.15)
@@ -570,7 +577,7 @@ def test_interactive_pan_zoom_events(tool, button, patch_vis, forward_nav, t_s):
 
         tb.pan()
         tb.press_pan(start_event)
-        tb.drag_pan(stop_event)
+        tb.drag_pan(drag_event)
         tb.release_pan(stop_event)
 
         assert ax_t.get_xlim() == pytest.approx(xlim_t, abs=0.15)
