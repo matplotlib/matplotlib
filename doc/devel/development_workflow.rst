@@ -28,6 +28,30 @@ why you did it, we recommend the following:
   Matplotlib developers can give feedback and eventually include your suggested
   code into the ``main`` branch.
 
+Overview
+--------
+
+After :ref:`setting up a development environment <installing_for_devs>`, the typical
+workflow is:
+
+#. Fetch all changes from ``upstream/main``::
+
+    git fetch upstream/main
+
+#. Start a new *feature branch* from ``upstream/main``::
+
+    git checkout -b my-feature upstream/main
+
+#. When you're done editing, e.g., ``lib/matplotlib/collections.py``, record your changes in Git::
+
+     git add lib/matplotlib/collections.py
+     git commit -m 'a commit message'
+
+#. Push the changes to your GitHub fork::
+
+     git push -u origin my-feature
+
+
 .. _update-mirror-main:
 
 Update the ``main`` branch
@@ -49,16 +73,14 @@ Make a new feature branch
 
 When you are ready to make some changes to the code, you should start a new
 branch.  Branches that are for a collection of related edits are often called
-'feature branches'.
-
-Making a new branch for each set of related changes will make it easier for
-someone reviewing your branch to see what you are doing.
+'feature branches'. Making a new branch for each set of related changes will make it
+easier for someone reviewing your branch to see what you are doing.
 
 Choose an informative name for the branch to remind yourself and the rest of us
 what the changes in the branch are for.  For example ``add-ability-to-fly``, or
 ``bugfix-for-issue-42``.
 
-::
+The process for creating a new feature branch is::
 
     # Update the main branch
     git fetch upstream
@@ -130,6 +152,11 @@ Open a pull request
 When you are ready to ask for someone to review your code and consider a merge,
 `submit your Pull Request (PR) <https://docs.github.com/pull-requests>`_.
 
+Go to the web page of *your fork* of the Matplotlib repo, and click
+``Compare & pull request`` to send your changes to the maintainers for review.
+The base repository is ``matplotlib/matplotlib`` and the base branch is
+generally ``main``.
+
 Enter a title for the set of changes with some explanation of what you've done.
 Mention anything you'd like particular attention for - such as a
 complicated change or some code you are not happy with.
@@ -137,6 +164,9 @@ complicated change or some code you are not happy with.
 If you don't think your request is ready to be merged, just say so in your pull
 request message and use the "Draft PR" feature of GitHub. This is a good way of
 getting some preliminary code review.
+
+For more guidance on the mechanics of making a pull request, see GitHub's
+`pull request tutorial <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork>`_.
 
 .. _update-pull-request:
 

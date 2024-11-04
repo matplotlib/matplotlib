@@ -319,113 +319,19 @@ Start a pull request
 
 The preferred way to contribute to Matplotlib is to fork the `main
 repository <https://github.com/matplotlib/matplotlib/>`__ on GitHub,
-then submit a "pull request" (PR). You can do this by cloning a copy of the
-Matplotlib repository to your own computer, or alternatively using
-`GitHub Codespaces <https://docs.github.com/codespaces>`_, a cloud-based
-in-browser development environment that comes with the appropriate setup to
-contribute to Matplotlib.
+then submit a "pull request" (PR). To work on a a pull request:
 
-Workflow overview
------------------
+#. **First** set up a development environment, either by cloning a copy of the
+   Matplotlib repository to your own computer or by using Github codespaces, by
+   following the instructions in :ref:`installing_for_devs`
 
-A brief overview of the workflow is as follows.
+#. **Then** start a pull request by following the guidance in :ref:`development workflow <development-workflow>`
 
-#. `Create an account <https://github.com/join>`_ on GitHub if you do not
-   already have one.
+#. **After starting** check that your contribution meets the :ref:`pull request guidelines <pr-author-guidelines>`
+   and :ref:`update the pull request <update-pull-request>` as needed.
 
-#. Fork the `project repository <https://github.com/matplotlib/matplotlib>`_ by
-   clicking on the :octicon:`repo-forked` **Fork** button near the top of the page.
-   This creates a copy of the code under your account on the GitHub server.
+#. **Finally** follow up with maintainers on the PR if waiting more than a few days for
+   feedback.
 
-#. Set up a development environment:
-
-   .. tab-set::
-
-      .. tab-item:: Local development
-
-          Clone this copy to your local disk::
-
-            git clone https://github.com/<YOUR GITHUB USERNAME>/matplotlib.git
-
-      .. tab-item:: Using GitHub Codespaces
-
-          Check out the Matplotlib repository and activate your development environment:
-
-          #. Open codespaces on your fork by clicking on the green "Code" button
-             on the GitHub web interface and selecting the "Codespaces" tab.
-
-          #. Next, click on "Open codespaces on <your branch name>". You will be
-             able to change branches later, so you can select the default
-             ``main`` branch.
-
-          #. After the codespace is created, you will be taken to a new browser
-             tab where you can use the terminal to activate a pre-defined conda
-             environment called ``mpl-dev``::
-
-              conda activate mpl-dev
-
-
-#. Install the local version of Matplotlib with::
-
-     python -m pip install --no-build-isolation --editable .[dev]
-
-   See :ref:`installing_for_devs` for detailed instructions.
-
-#. Create a branch to hold your changes::
-
-     git checkout -b my-feature origin/main
-
-   and start making changes. Never work in the ``main`` branch!
-
-#. Work on this task using Git to do the version control. Codespaces persist for
-   some time (check the `documentation for details
-   <https://docs.github.com/codespaces/getting-started/the-codespace-lifecycle>`_)
-   and can be managed on https://github.com/codespaces. When you're done editing
-   e.g., ``lib/matplotlib/collections.py``, do::
-
-     git add lib/matplotlib/collections.py
-     git commit -m 'a commit message'
-
-   to record your changes in Git, then push them to your GitHub fork with::
-
-     git push -u origin my-feature
-
-GitHub Codespaces workflows
-"""""""""""""""""""""""""""
-
-If you need to open a GUI window with Matplotlib output on Codespaces, our
-configuration includes a `light-weight Fluxbox-based desktop
-<https://github.com/devcontainers/features/tree/main/src/desktop-lite>`_.
-You can use it by connecting to this desktop via your web browser. To do this:
-
-#. Press ``F1`` or ``Ctrl/Cmd+Shift+P`` and select
-    ``Ports: Focus on Ports View`` in the VSCode session to bring it into
-    focus. Open the ports view in your tool, select the ``noVNC`` port, and
-    click the Globe icon.
-#. In the browser that appears, click the Connect button and enter the desktop
-    password (``vscode`` by default).
-
-Check the `GitHub instructions
-<https://github.com/devcontainers/features/tree/main/src/desktop-lite#connecting-to-the-desktop>`_
-for more details on connecting to the desktop.
-
-View documentation
-''''''''''''''''''
-
-If you also built the documentation pages, you can view them using Codespaces.
-Use the "Extensions" icon in the activity bar to install the "Live Server"
-extension. Locate the ``doc/build/html`` folder in the Explorer, right click
-the file you want to open and select "Open with Live Server."
-
-Open a pull request on Matplotlib
----------------------------------
-
-Finally, go to the web page of *your fork* of the Matplotlib repo, and click
-**Compare & pull request** to send your changes to the maintainers for review.
-The base repository is ``matplotlib/matplotlib`` and the base branch is
-generally ``main``. For more guidance, see GitHub's `pull request tutorial
-<https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork>`_.
-
-For more detailed instructions on how to set up Matplotlib for development and
-best practices for contribution, see :ref:`installing_for_devs` and
-:ref:`development-workflow`.
+If you have questions of any sort, reach out on the :ref:`contributor_incubator` and join
+the :ref:`new_contributors_meeting`.
