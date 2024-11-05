@@ -649,14 +649,12 @@ def _impl_test_interactive_timers():
     # NOTE: We run the timer tests in parallel to avoid longer sequential
     #       delays which adds to the testing time. Add new tests to one of
     #       the current event loop iterations if possible.
+    import time
     from unittest.mock import Mock
     import matplotlib.pyplot as plt
 
     fig = plt.figure()
-    event_loop_time = 1  # in seconds
-    expected_200ms_calls = int(event_loop_time / 0.2)
-
-    # Start at 2s interval (would only get one firing), then update to 200ms
+    # Start at 2s interval (wouldn't get any firings), then update to 100ms
     timer_repeating = fig.canvas.new_timer(2000)
     mock_repeating = Mock()
     timer_repeating.add_callback(mock_repeating)
@@ -667,42 +665,55 @@ def _impl_test_interactive_timers():
 
     timer_repeating.start()
     # Test updating the interval updates a running timer
-    timer_repeating.interval = 200
+    timer_repeating.interval = 100
     # Start as a repeating timer then change to singleshot via the attribute
     timer_single_shot.start()
     timer_single_shot.single_shot = True
 
-    fig.canvas.start_event_loop(event_loop_time)
-    assert 1 < mock_repeating.call_count <= expected_200ms_calls + 1, \
-        f"Interval update: Expected between 2 and {expected_200ms_calls + 1} calls, " \
-        f"got {mock_repeating.call_count}"
+    fig.canvas.start_event_loop(0.5)
+    assert 2 <= mock_repeating.call_count <= 5, \
+        f"Interval update: Expected 2-5 calls, got {mock_repeating.call_count}"
     assert mock_single_shot.call_count == 1, \
         f"Singleshot: Expected 1 call, got {mock_single_shot.call_count}"
 
-    # 200ms timer triggers and the callback takes 100ms to run
-    # Test that we don't drift and that we get called on every 200ms
-    # interval and not every 300ms
-    mock_repeating.side_effect = lambda: time.sleep(0.1)
+    # 250ms timer triggers and the callback takes 150ms to run
+    # Test that we don't drift and that we get called on every 250ms
+    # firing and not every 400ms
+    timer_repeating.interval = 250
+    mock_repeating.side_effect = lambda: time.sleep(0.15)
+    # calling start() again on a repeating timer should remove the old
+    # one, so we don't want double the number of calls here either because
+    # two timers are potentially running.
+    timer_repeating.start()
     mock_repeating.call_count = 0
     # Make sure we can start the timer after stopping a singleshot timer
     timer_single_shot.stop()
     timer_single_shot.start()
 
+    event_loop_time = 2  # in seconds
+    expected_calls = int(event_loop_time / (timer_repeating.interval / 1000))
+
+    t_start = time.perf_counter()
     fig.canvas.start_event_loop(event_loop_time)
-    # Not exact timers, so add a little slop. We really want to make sure we are
-    # getting more than 3 (every 300ms).
-    assert mock_repeating.call_count >= expected_200ms_calls - 1, \
-        f"Slow callback: Expected at least {expected_200ms_calls - 1} calls, " \
+    t_loop = time.perf_counter() - t_start
+    # Should be around 2s, but allow for some slop on CI. We want to make sure
+    # we aren't getting 2 + (callback time) 0.5s/iteration, which would be 4+ s.
+    assert 1.8 < t_loop < 3, \
+        f"Event loop: Expected to run for around 2s, but ran for {t_loop:.2f}s"
+    # Not exact timers, so add some slop. (Quite a bit for CI resources)
+    assert abs(mock_repeating.call_count - expected_calls) <= 2, \
+        f"Slow callback: Expected {expected_calls} calls, " \
         f"got {mock_repeating.call_count}"
     assert mock_single_shot.call_count == 2, \
         f"Singleshot: Expected 2 calls, got {mock_single_shot.call_count}"
-    plt.close("all")
 
 
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
 def test_interactive_timers(env):
     if env["MPLBACKEND"] == "wx":
         pytest.skip("wx backend is deprecated; tests failed on appveyor")
+    if env["MPLBACKEND"].startswith("gtk3") and is_ci_environment():
+        pytest.xfail("GTK3 backend timer is slow on CI resources")
     _run_helper(_impl_test_interactive_timers,
                 timeout=_test_timeout, extra_env=env)
 
