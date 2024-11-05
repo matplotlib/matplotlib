@@ -1754,6 +1754,15 @@ Timer_repr(Timer* self)
                                (void*) self, (void*)(self->timer));
 }
 
+static void
+Timer__timer_stop_impl(Timer* self)
+{
+    if (self->timer) {
+        [self->timer invalidate];
+        self->timer = NULL;
+    }
+}
+
 static PyObject*
 Timer__timer_start(Timer* self, PyObject* args)
 {
@@ -1772,6 +1781,8 @@ Timer__timer_start(Timer* self, PyObject* args)
         goto exit;
     }
 
+    // Stop the current timer if it is already running
+    Timer__timer_stop_impl(self);
     // hold a reference to the timer so we can invalidate/stop it later
     self->timer = [NSTimer scheduledTimerWithTimeInterval: interval
                                                   repeats: !single
@@ -1794,15 +1805,6 @@ exit:
         return NULL;
     } else {
         Py_RETURN_NONE;
-    }
-}
-
-static void
-Timer__timer_stop_impl(Timer* self)
-{
-    if (self->timer) {
-        [self->timer invalidate];
-        self->timer = NULL;
     }
 }
 
