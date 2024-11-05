@@ -138,6 +138,8 @@ class _ImageComparisonBase:
             try:
                 if 'microsoft' in uname().release.lower():
                     raise OSError  # On WSL, symlink breaks silently
+                if sys.platform == 'emscripten':
+                    raise OSError
                 os.symlink(orig_expected_path, expected_fname)
             except OSError:  # On Windows, symlink *may* be unavailable.
                 shutil.copyfile(orig_expected_path, expected_fname)

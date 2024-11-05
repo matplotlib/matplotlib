@@ -87,9 +87,14 @@ def subprocess_run_for_testing(command, env=None, timeout=60, stdout=None,
 
     Raises
     ------
+    pytest.skip
+        If running on emscripten, which does not support subprocesses.
     pytest.xfail
         If platform is Cygwin and subprocess reports a fork() failure.
     """
+    if sys.platform == 'emscripten':
+        import pytest
+        pytest.skip('emscripten does not support subprocesses')
     if capture_output:
         stdout = stderr = subprocess.PIPE
     try:
@@ -187,7 +192,7 @@ def _has_tex_package(package):
     try:
         mpl.dviread.find_tex_file(f"{package}.sty")
         return True
-    except FileNotFoundError:
+    except (FileNotFoundError, OSError):
         return False
 
 
