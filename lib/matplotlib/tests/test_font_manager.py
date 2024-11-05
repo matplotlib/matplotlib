@@ -228,6 +228,8 @@ def _model_handler(_):
     plt.close()
 
 
+@pytest.mark.skipif(sys.platform == 'emscripten',
+                    reason='emscripten does not support subprocesses')
 @pytest.mark.skipif(not hasattr(os, "register_at_fork"),
                     reason="Cannot register at_fork handlers")
 def test_fork():
