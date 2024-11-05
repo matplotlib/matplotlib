@@ -284,7 +284,7 @@ plt.show()
 # :class:`matplotlib.figure.Figure`, and it contains everything in the
 # figure.  The background of the figure is a
 # :class:`~matplotlib.patches.Rectangle` which is stored in
-# :attr:`Figure.patch <matplotlib.figure.Figure.patch>`.  As
+# :attr:`!Figure.patch <matplotlib.figure.Figure.patch>`.  As
 # you add subplots (:meth:`~matplotlib.figure.Figure.add_subplot`) and
 # Axes (:meth:`~matplotlib.figure.Figure.add_axes`) to the figure
 # these will be appended to the :attr:`Figure.axes
@@ -375,7 +375,7 @@ plt.show()
 # customize the ``Artists`` it contains.  Like the
 # :class:`~matplotlib.figure.Figure`, it contains a
 # :class:`~matplotlib.patches.Patch`
-# :attr:`~matplotlib.axes.Axes.patch` which is a
+# :attr:`!~matplotlib.axes.Axes.patch` which is a
 # :class:`~matplotlib.patches.Rectangle` for Cartesian coordinates and a
 # :class:`~matplotlib.patches.Circle` for polar coordinates; this patch
 # determines the shape, background and border of the plotting region::
