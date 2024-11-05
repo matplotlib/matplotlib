@@ -1888,16 +1888,31 @@ class Axes3D(Axes):
         """
         Invert the z-axis.
 
+        .. admonition:: Discouraged
+
+            The use of this method is discouraged.
+            Use `.Axes3D.set_zinverted` instead.
+
         See Also
         --------
-        zaxis_inverted
+        get_zinverted
         get_zlim, set_zlim
         get_zbound, set_zbound
         """
         bottom, top = self.get_zlim()
         self.set_zlim(top, bottom, auto=None)
 
+    set_zinverted = _axis_method_wrapper("zaxis", "set_inverted")
+    get_zinverted = _axis_method_wrapper("zaxis", "get_inverted")
     zaxis_inverted = _axis_method_wrapper("zaxis", "get_inverted")
+    if zaxis_inverted.__doc__:
+        zaxis_inverted.__doc__ += textwrap.dedent("""
+
+        .. admonition:: Discouraged
+
+            The use of this method is discouraged.
+            Use `.Axes3D.get_zinverted` instead.
+        """)
 
     def get_zbound(self):
         """

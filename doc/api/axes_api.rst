@@ -285,8 +285,12 @@ Axis limits and direction
    :template: autosummary.rst
    :nosignatures:
 
+   Axes.set_xinverted
+   Axes.get_xinverted
    Axes.invert_xaxis
    Axes.xaxis_inverted
+   Axes.set_yinverted
+   Axes.get_yinverted
    Axes.invert_yaxis
    Axes.yaxis_inverted
 
