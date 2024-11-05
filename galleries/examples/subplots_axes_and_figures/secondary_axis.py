@@ -122,8 +122,8 @@ ax.legend()
 
 # need to define mapped values outside of plotted range to ensure the secondary
 # axis is plotted correctly
-x1n = np.concatenate(([0.0], x1_vals, [20]))
-x2n = np.concatenate(([0.0], x2_vals, [20**2]))
+x1n = np.concatenate(([-1e10, 0], x1_vals, [20, 1e10]))
+x2n = np.concatenate(([-1e10, 0], x2_vals, [20**2, 1e10**2]))
 
 
 def forward(x):
