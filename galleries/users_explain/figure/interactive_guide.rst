@@ -320,7 +320,7 @@ with what is displayed on the screen.  This is intended to be used to
 determine if ``draw_idle`` should be called to schedule a re-rendering
 of the figure.
 
-Each artist has a `.Artist.stale_callback` attribute which holds a callback
+Each artist has a `!.Artist.stale_callback` attribute which holds a callback
 with the signature ::
 
   def callback(self: Artist, val: bool) -> None:
@@ -339,7 +339,7 @@ default callback is `None`.  If you call `.pyplot.ion` and are not in
 `~.backend_bases.FigureCanvasBase.draw_idle` on any stale figures
 after having executed the user's input, but before returning the prompt
 to the user.  If you are not using `.pyplot` you can use the callback
-`Figure.stale_callback` attribute to be notified when a figure has
+`!Figure.stale_callback` attribute to be notified when a figure has
 become stale.
 
 
@@ -420,7 +420,7 @@ IPython / prompt_toolkit
 With IPython >= 5.0 IPython has changed from using CPython's readline
 based prompt to a ``prompt_toolkit`` based prompt.  ``prompt_toolkit``
 has the same conceptual input hook, which is fed into ``prompt_toolkit`` via the
-:meth:`IPython.terminal.interactiveshell.TerminalInteractiveShell.inputhook`
+:meth:`!IPython.terminal.interactiveshell.TerminalInteractiveShell.inputhook`
 method.  The source for the ``prompt_toolkit`` input hooks lives at
 ``IPython.terminal.pt_inputhooks``.
 
