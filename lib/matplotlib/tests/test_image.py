@@ -1556,6 +1556,7 @@ def test_rc_interpolation_stage():
             mpl.rcParams["image.interpolation_stage"] = val
 
 
+@pytest.mark.skipif(sys.platform == 'emscripten', reason='Figure too large for WASM')
 # We check for the warning with a draw() in the test, but we also need to
 # filter the warning as it is emitted by the figure test decorator
 @pytest.mark.filterwarnings(r'ignore:Data with more than .* '
