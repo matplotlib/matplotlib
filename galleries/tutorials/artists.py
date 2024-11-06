@@ -11,15 +11,15 @@ Using Artist objects to render on the canvas.
 
 There are three layers to the Matplotlib API.
 
-* the :class:`matplotlib.backend_bases.FigureCanvas` is the area onto which
+* the :class:`!matplotlib.backend_bases.FigureCanvas` is the area onto which
   the figure is drawn
-* the :class:`matplotlib.backend_bases.Renderer` is the object which knows how
-  to draw on the :class:`~matplotlib.backend_bases.FigureCanvas`
+* the :class:`!matplotlib.backend_bases.Renderer` is the object which knows how
+  to draw on the :class:`!matplotlib.backend_bases.FigureCanvas`
 * and the :class:`matplotlib.artist.Artist` is the object that knows how to use
   a renderer to paint onto the canvas.
 
-The :class:`~matplotlib.backend_bases.FigureCanvas` and
-:class:`~matplotlib.backend_bases.Renderer` handle all the details of
+The :class:`!matplotlib.backend_bases.FigureCanvas` and
+:class:`!matplotlib.backend_bases.Renderer` handle all the details of
 talking to user interface toolkits like `wxPython
 <https://www.wxpython.org>`_ or drawing languages like PostScript®, and
 the ``Artist`` handles all the high level constructs like representing
@@ -156,12 +156,10 @@ plt.show()
 # (the standard white box with black edges in the typical Matplotlib
 # plot, has a ``Rectangle`` instance that determines the color,
 # transparency, and other properties of the Axes.  These instances are
-# stored as member variables :attr:`!Figure.patch
-# <matplotlib.figure.Figure.patch>` and :attr:`!Axes.patch
-# <matplotlib.axes.Axes.patch>` ("Patch" is a name inherited from
-# MATLAB, and is a 2D "patch" of color on the figure, e.g., rectangles,
-# circles and polygons).  Every Matplotlib ``Artist`` has the following
-# properties
+# stored as member variables :attr:`!Figure.patch` and :attr:`!Axes.patch`
+# ("Patch" is a name inherited from MATLAB, and is a 2D "patch" 
+# of color on the figure, e.g., rectangles, circles and polygons). 
+# Every Matplotlib ``Artist`` has the following properties
 #
 # ==========  =================================================================
 # Property    Description
@@ -284,7 +282,7 @@ plt.show()
 # :class:`matplotlib.figure.Figure`, and it contains everything in the
 # figure.  The background of the figure is a
 # :class:`~matplotlib.patches.Rectangle` which is stored in
-# :attr:`!Figure.patch <matplotlib.figure.Figure.patch>`.  As
+# :attr:`!Figure.patch`.  As
 # you add subplots (:meth:`~matplotlib.figure.Figure.add_subplot`) and
 # Axes (:meth:`~matplotlib.figure.Figure.add_axes`) to the figure
 # these will be appended to the :attr:`Figure.axes
@@ -331,8 +329,7 @@ plt.show()
 #
 # As with all ``Artist``\s, you can control this coordinate system by setting
 # the transform property. You can explicitly use "figure coordinates" by
-# setting the ``Artist`` transform to :attr:`!fig.transFigure
-# <matplotlib.figure.Figure.transFigure>`:
+# setting the ``Artist`` transform to :attr:`!fig.transFigure`:
 
 import matplotlib.lines as lines
 
@@ -375,7 +372,7 @@ plt.show()
 # customize the ``Artists`` it contains.  Like the
 # :class:`~matplotlib.figure.Figure`, it contains a
 # :class:`~matplotlib.patches.Patch`
-# :attr:`!~matplotlib.axes.Axes.patch` which is a
+# :attr:`!matplotlib.axes.Axes.patch` which is a
 # :class:`~matplotlib.patches.Rectangle` for Cartesian coordinates and a
 # :class:`~matplotlib.patches.Circle` for polar coordinates; this patch
 # determines the shape, background and border of the plotting region::
@@ -408,8 +405,7 @@ plt.show()
 #
 # Similarly, methods that create patches, like
 # :meth:`~matplotlib.axes.Axes.bar` creates a list of rectangles, will
-# add the patches to the :attr:`!Axes.patches
-# <matplotlib.axes.Axes.patches>` list:
+# add the patches to the :attr:`!Axes.patches` list:
 #
 # .. sourcecode:: ipython
 #
@@ -556,8 +552,8 @@ plt.show()
 # important ``Artist`` containers: the :class:`~matplotlib.axis.XAxis`
 # and :class:`~matplotlib.axis.YAxis`, which handle the drawing of the
 # ticks and labels.  These are stored as instance variables
-# :attr:`!~matplotlib.axes.Axes.xaxis` and
-# :attr:`!~matplotlib.axes.Axes.yaxis`.  The ``XAxis`` and ``YAxis``
+# :attr:`!matplotlib.axes.Axes.xaxis` and
+# :attr:`!matplotlib.axes.Axes.yaxis`.  The ``XAxis`` and ``YAxis``
 # containers will be detailed below, but note that the ``Axes`` contains
 # many helper methods which forward calls on to the
 # :class:`~matplotlib.axis.Axis` instances, so you often do not need to
