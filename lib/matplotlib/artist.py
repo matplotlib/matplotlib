@@ -1586,7 +1586,8 @@ class ArtistInspector:
         if target in self._NOT_LINKABLE:
             return f'``{s}``'
 
-        aliases = ''.join(' or %s' % x for x in sorted(self.aliasd.get(s, [])))
+        aliases = ''.join(
+            f' or :meth:`{a} <{target}>`' for a in sorted(self.aliasd.get(s, [])))
         return f':meth:`{s} <{target}>`{aliases}'
 
     def pprint_setters(self, prop=None, leadingspace=2):
