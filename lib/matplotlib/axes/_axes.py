@@ -8618,7 +8618,7 @@ such objects
 
         See Also
         --------
-        violin :
+        violinplot :
             Draw a violin plot from data instead of pre-computed statistics.
         """
 
