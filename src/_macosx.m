@@ -289,10 +289,13 @@ PyObject* mpl_buttons()
     PyGILState_STATE gstate = PyGILState_Ensure();
     PyObject* set = NULL;
     NSUInteger buttons = [NSEvent pressedMouseButtons];
+
     if (!(set = PySet_New(NULL))
         || mpl_check_button(buttons & (1 << 0), set, "LEFT")
         || mpl_check_button(buttons & (1 << 1), set, "RIGHT")
-        || mpl_check_button(buttons & (1 << 2), set, "MIDDLE")) {
+        || mpl_check_button(buttons & (1 << 2), set, "MIDDLE")
+        || mpl_check_button(buttons & (1 << 3), set, "BACK")
+        || mpl_check_button(buttons & (1 << 4), set, "FORWARD")) {
         Py_CLEAR(set);  // On failure, return NULL with an exception set.
     }
     PyGILState_Release(gstate);
