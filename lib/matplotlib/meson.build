@@ -91,7 +91,6 @@ typing_sources = [
   '_enums.pyi',
   '_path.pyi',
   '_pylab_helpers.pyi',
-  '_ttconv.pyi',
   'animation.pyi',
   'artist.pyi',
   'axis.pyi',
