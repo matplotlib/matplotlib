@@ -1095,13 +1095,12 @@ class Axes3D(Axes):
     def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z",
                   share=False):
         """
-        Set the elevation and azimuth of the Axes in degrees (not radians).
+        Set the elevation, azimuth, and roll of the Axes, in degrees (not radians).
 
         This can be used to rotate the Axes programmatically.
 
         To look normal to the primary planes, the following elevation and
-        azimuth angles can be used. A roll angle of 0, 90, 180, or 270 deg
-        will rotate these views while keeping the axes at right angles.
+        azimuth angles can be used:
 
         ==========   ====  ====
         view plane   elev  azim
@@ -1113,6 +1112,40 @@ class Axes3D(Axes):
         -XZ          0     90
         -YZ          0     180
         ==========   ====  ====
+
+        A roll angle of 0, 90, 180, or 270 degrees will rotate these views
+        while keeping the axes horizontal or vertical.
+
+        The *azim*, *elev*, *roll* angles correspond to rotations of the scene
+        observed by a stationary camera, as follows (assuming a default vertical
+        axis of 'z'). First, a left-handed rotation about the z axis is applied
+        (*azim*), then a right-handed rotation about the (camera) y axis (*elev*),
+        then a right-handed rotation about the (camera) x axis (*roll*). Here,
+        the z, y, and x axis are fixed axes (not the axes that rotate together
+        with the original scene).
+
+        If you would like to make the connection with quaternions (because
+        `Euler angles are horrible
+        <https://github.com/moble/quaternion/wiki/Euler-angles-are-horrible>`_):
+        the *azim*, *elev*, *roll* angles relate to the (intrinsic) rotation of
+        the plot via:
+
+             *q* = exp(+roll **x̂** / 2) exp(+elev **ŷ** / 2) exp(−azim **ẑ** / 2)
+
+        (with angles given in radians instead of degrees). That is, the angles
+        are a kind of `Tait-Bryan angles
+        <https://en.wikipedia.org/wiki/Euler_angles#Tait%E2%80%93Bryan_angles>`_:
+        −z, +y', +x", rather than classic `Euler angles
+        <https://en.wikipedia.org/wiki/Euler_angles>`_.
+
+        To avoid confusion, provide the view angles as keyword
+        arguments: ``.view_init(elev=30, azim=-60, roll=0, ...)``.
+        This specific order is consistent with the order of positional arguments.
+        Unfortunately, this order does not match the order in which rotations are
+        applied, and it differs from the order used in other programs (``azim, elev``)
+        and in `matplotlib.colors.LightSource`. However, it cannot be
+        changed, since that would compromise backward compatibility.
+
 
         Parameters
         ----------
@@ -1606,13 +1639,8 @@ class Axes3D(Axes):
 
             # update view
             vertical_axis = self._axis_names[self._vertical_axis]
-            self.view_init(
-                elev=elev,
-                azim=azim,
-                roll=roll,
-                vertical_axis=vertical_axis,
-                share=True,
-            )
+            self.view_init(elev, azim, roll, vertical_axis=vertical_axis,
+                           share=True)
             self.stale = True
 
         # Pan

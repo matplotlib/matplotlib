@@ -177,7 +177,7 @@ def test_bar3d_shaded():
     )
     for ax, (elev, azim, roll) in zip(axs, views):
         ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=True)
-        ax.view_init(elev=elev, azim=azim, roll=roll)
+        ax.view_init(elev, azim, roll)
     fig.canvas.draw()
 
 
@@ -708,7 +708,7 @@ def test_surface3d_masked():
     norm = mcolors.Normalize(vmax=z.max(), vmin=z.min())
     colors = mpl.colormaps["plasma"](norm(z))
     ax.plot_surface(x, y, z, facecolors=colors)
-    ax.view_init(30, -80, 0)
+    ax.view_init(elev=30, azim=-80, roll=0)
 
 
 @check_figures_equal(extensions=["png"])
@@ -748,7 +748,7 @@ def test_surface3d_masked_strides():
     z = np.ma.masked_less(x * y, 2)
 
     ax.plot_surface(x, y, z, rstride=4, cstride=4)
-    ax.view_init(60, -45, 0)
+    ax.view_init(elev=60, azim=-45, roll=0)
 
 
 @mpl3d_image_comparison(['text3d.png'], remove_text=False, style='mpl20')
@@ -1160,7 +1160,7 @@ def test_axes3d_cla():
 def test_axes3d_rotated():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, projection='3d')
-    ax.view_init(90, 45, 0)  # look down, rotated. Should be square
+    ax.view_init(elev=90, azim=45, roll=0)  # look down, rotated. Should be square
 
 
 def test_plotsurface_1d_raises():
@@ -1870,11 +1870,11 @@ def test_shared_view(fig_test, fig_ref):
     ax2 = fig_test.add_subplot(132, projection="3d", shareview=ax1)
     ax3 = fig_test.add_subplot(133, projection="3d")
     ax3.shareview(ax1)
-    ax2.view_init(elev=elev, azim=azim, roll=roll, share=True)
+    ax2.view_init(elev, azim, roll, share=True)
 
     for subplot_num in (131, 132, 133):
         ax = fig_ref.add_subplot(subplot_num, projection="3d")
-        ax.view_init(elev=elev, azim=azim, roll=roll)
+        ax.view_init(elev, azim, roll)
 
 
 def test_shared_axes_retick():
