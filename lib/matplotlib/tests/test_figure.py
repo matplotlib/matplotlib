@@ -265,6 +265,47 @@ def test_gca():
     assert fig.gca() is ax1
 
 
+def test_get_subplot_params():
+    fig = plt.figure()
+    subplotparams_keys = ["left", "bottom", "right", "top", "wspace", "hspace"]
+    subplotparams = fig.get_subplotparams()
+    test_dict = {}
+    for key in subplotparams_keys:
+        attr = getattr(subplotparams, key)
+        assert attr == mpl.rcParams[f"figure.subplot.{key}"]
+        test_dict[key] = attr * 2
+
+    fig.set_subplotparams(test_dict)
+    for key, value in test_dict.items():
+        assert getattr(fig.get_subplotparams(), key) == value
+
+    test_dict['foo'] = 'bar'
+    with pytest.warns(UserWarning,
+                      match="'foo' is not a valid key for set_subplotparams;"
+                      " this key was ignored"):
+        fig.set_subplotparams(test_dict)
+
+    with pytest.raises(TypeError,
+                       match="subplotparams must be a dictionary of "
+                       "keyword-argument pairs or "
+                       "an instance of SubplotParams()"):
+        fig.set_subplotparams(['foo'])
+
+
+def test_set_figsize():
+    fig = plt.figure()
+    fig.set_figsize(2, 4)
+    assert fig.get_figwidth() == 2
+    assert fig.get_figheight() == 4
+
+
+def test_get_figsize():
+    fig = plt.figure()
+    # check using tuple to first argument
+    fig.set_figsize((1, 3))
+    assert np.array_equal(fig.get_figsize(), [1, 3])
+
+
 def test_add_subplot_subclass():
     fig = plt.figure()
     fig.add_subplot(axes_class=Axes)
