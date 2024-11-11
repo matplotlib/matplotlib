@@ -738,6 +738,8 @@ class Colormap:
         """
         rgba, mask = self._get_rgba_and_mask(X, alpha=alpha, bytes=bytes)
         if not np.iterable(X):
+            if isinstance(rgba, np.ndarray):
+                rgba = rgba.tolist()
             rgba = tuple(rgba)
         return rgba
 
