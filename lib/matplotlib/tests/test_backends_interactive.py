@@ -216,10 +216,11 @@ def _test_interactive_impl():
     fig.canvas.mpl_connect("draw_event", lambda event: timer.start())
     fig.canvas.mpl_connect("close_event", print)
 
+    plt.show()
+
+    size_inches = fig.get_size_inches()
     result = io.BytesIO()
     fig.savefig(result, format='png')
-
-    plt.show()
 
     # Ensure that the window is really closed.
     plt.pause(0.5)
@@ -229,6 +230,8 @@ def _test_interactive_impl():
     result_after = io.BytesIO()
     fig.savefig(result_after, format='png')
 
+    assert tuple(fig.get_size_inches()) == tuple(size_inches), \
+        f"{fig.get_size_inches()}, {size_inches}"
     assert result.getvalue() == result_after.getvalue()
 
 
