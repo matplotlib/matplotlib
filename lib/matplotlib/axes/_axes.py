@@ -4666,9 +4666,19 @@ class Axes(_AxesBase):
                 edgecolors = kwcolor
             if facecolors is None:
                 facecolors = kwcolor
-
+         
+ 
         if edgecolors is None and not mpl.rcParams['_internal.classic_mode']:
             edgecolors = mpl.rcParams['scatter.edgecolors']
+
+        # Raise a warning if both `c` and `facecolor` are set (issue #24404).
+        if c is not None and facecolors is not None:
+            _api.warn_external(
+                "You passed both c and facecolor/facecolors for the markers. "
+                "Matplotlib is ignoring the facecolor "
+                "in favor of what you specified in c. "
+                "This behavior may change in the future."
+            )
 
         c_was_none = c is None
         if c is None:
