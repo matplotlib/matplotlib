@@ -4613,8 +4613,7 @@ class Axes(_AxesBase):
                 edgecolors = kwcolor
             if facecolors is None:
                 facecolors = kwcolor
-         
- 
+
         if edgecolors is None and not mpl.rcParams['_internal.classic_mode']:
             edgecolors = mpl.rcParams['scatter.edgecolors']
 
