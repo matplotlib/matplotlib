@@ -974,7 +974,6 @@ def test_legend_pathcollection_labelcolor_markfacecolor_cmap():
         np.arange(10),
         np.arange(10),
         label='#1',
-        c=np.arange(10),
         facecolor=facecolors
     )
 
