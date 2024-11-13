@@ -254,7 +254,7 @@ Pull Requests (1066):
 * :ghpull:`17617`: Rewrite pdf test to use check_figures_equal.
 * :ghpull:`17654`: Small fixes to recent What's New
 * :ghpull:`17649`: MNT: make _setattr_cm more forgiving
-* :ghpull:`17644`: Doc 33 whats new consolidation
+* :ghpull:`17644`: Doc 33 what's new consolidation
 * :ghpull:`17647`: Fix example in docstring of cbook._unfold.
 * :ghpull:`10187`: DOC: add a blitting tutorial
 * :ghpull:`17471`: Removed idiomatic constructs from interactive figures docs
@@ -306,7 +306,7 @@ Pull Requests (1066):
 * :ghpull:`17540`: Fix help window on GTK.
 * :ghpull:`17535`: Update docs on subplot2grid / SubplotBase
 * :ghpull:`17510`: Fix exception handling in FT2Font init.
-* :ghpull:`16953`: Changed 'colors' paramater in PyPlot vlines/hlines and Axes vlines/hlines to default to configured rcParams 'lines.color' option
+* :ghpull:`16953`: Changed 'colors' parameter in PyPlot vlines/hlines and Axes vlines/hlines to default to configured rcParams 'lines.color' option
 * :ghpull:`17459`: Use light icons on dark themes for wx and gtk, too.
 * :ghpull:`17539`: Use symbolic icons for buttons in GTK toolbar.
 * :ghpull:`15435`: Reuse png metadata handling of imsave() in FigureCanvasAgg.print_png().
@@ -469,7 +469,7 @@ Pull Requests (1066):
 * :ghpull:`15008`: ENH: add variable epoch
 * :ghpull:`17260`: Text Rotation Example: Correct roation_mode typo
 * :ghpull:`17258`: Improve info logged by tex subsystem.
-* :ghpull:`17211`: Deprecate support for running svg converter from path contaning newline.
+* :ghpull:`17211`: Deprecate support for running svg converter from path containing newline.
 * :ghpull:`17078`: Improve nbAgg & WebAgg toolbars
 * :ghpull:`17191`: Inline unsampled-image path; remove renderer kwarg from _check_unsampled_image.
 * :ghpull:`17213`: Replace use of Bbox.bounds by appropriate properties.
@@ -604,7 +604,7 @@ Pull Requests (1066):
 * :ghpull:`16823`: Dedupe implementation of axes grid switching in toolmanager.
 * :ghpull:`16951`: Cleanup dates docstrings.
 * :ghpull:`16769`: Fix some small style issues
-* :ghpull:`16936`: FIX: Plot is now rendered with correct inital value
+* :ghpull:`16936`: FIX: Plot is now rendered with correct initial value
 * :ghpull:`16937`: Making sure to keep over/under/bad in cmap resample/reverse.
 * :ghpull:`16915`: Tighten/cleanup wx backend.
 * :ghpull:`16923`: Test the macosx backend on Travis.
@@ -860,7 +860,7 @@ Pull Requests (1066):
 * :ghpull:`16439`: Rework pylab docstring.
 * :ghpull:`16441`: Rework pylab docstring.
 * :ghpull:`16442`: Expire deprecation of \stackrel.
-* :ghpull:`16365`: TST: test_acorr (replaced image comparison with figure comparion)
+* :ghpull:`16365`: TST: test_acorr (replaced image comparison with figure comparison)
 * :ghpull:`16206`: Expire deprecation of \stackrel
 * :ghpull:`16437`: Rework pylab docstring.
 * :ghpull:`8896`: Fix mplot3d projection
@@ -898,7 +898,7 @@ Pull Requests (1066):
 * :ghpull:`16304`: Simplify Legend.get_children.
 * :ghpull:`16309`: Remove duplicated computations in Axes.get_tightbbox.
 * :ghpull:`16314`: Avoid repeatedly warning about too many figures open.
-* :ghpull:`16319`: Put doc for XAxis befor YAxis and likewise for XTick, YTick.
+* :ghpull:`16319`: Put doc for XAxis before YAxis and likewise for XTick, YTick.
 * :ghpull:`16313`: Cleanup constrainedlayout_guide.
 * :ghpull:`16312`: Remove unnecessary Legend._approx_text_height.
 * :ghpull:`16307`: Cleanup axes_demo.
@@ -991,7 +991,7 @@ Pull Requests (1066):
 * :ghpull:`16078`: Refactor a bit animation start/save interaction.
 * :ghpull:`16081`: Delay resolution of animation extra_args.
 * :ghpull:`16088`: Use C++ true/false in ttconv.
-* :ghpull:`16082`: Defaut to writing animation frames to a temporary directory.
+* :ghpull:`16082`: Default to writing animation frames to a temporary directory.
 * :ghpull:`16070`: Make animation blit cache robust against 3d viewpoint changes.
 * :ghpull:`5056`: MNT: more control of colorbar with CountourSet
 * :ghpull:`16051`: Deprecate parameters to colorbar which have no effect.
@@ -1133,7 +1133,7 @@ Pull Requests (1066):
 * :ghpull:`15645`: Bump minimal numpy version to 1.12.
 * :ghpull:`15646`: Hide sphinx-gallery config comments
 * :ghpull:`15642`: Remove interpolation="nearest" from most examples.
-* :ghpull:`15671`: Don't mention tcl in tkagg commments anymore.
+* :ghpull:`15671`: Don't mention tcl in taking comments anymore.
 * :ghpull:`15607`: Simplify tk loader.
 * :ghpull:`15651`: Simplify axes_pad handling in axes_grid.
 * :ghpull:`15652`: Remove mention of Enthought Canopy from the docs.
@@ -1400,7 +1400,7 @@ Issues (198):
 * :ghissue:`16299`: The interactive polar plot animation's axis label won't scale.
 * :ghissue:`15182`: More tests ``ConciseDateFormatter`` needed
 * :ghissue:`16140`: Unclear Documentation for get_xticklabels
-* :ghissue:`16147`: pp.hist parmeter 'density' does not scale data appropriately
+* :ghissue:`16147`: pp.hist parameter 'density' does not scale data appropriately
 * :ghissue:`16069`: matplotlib glitch when rotating interactively a 3d animation
 * :ghissue:`14603`: Scatterplot: should vmin/vmax be ignored when a norm is specified?
 * :ghissue:`15730`: Setting lines.marker = s in matplotlibrc also sets markers in boxplots
@@ -1423,7 +1423,7 @@ Issues (198):
 * :ghissue:`15089`: Coerce MxNx1 images into MxN images for imshow
 * :ghissue:`5253`: abline() - for drawing arbitrary lines on a plot, given specifications.
 * :ghissue:`15165`: Switch to requiring Pillow rather than having our own png wrapper?
-* :ghissue:`15280`: Add pull request checklist to Reviewers Guidlines
+* :ghissue:`15280`: Add pull request checklist to Reviewers Guidelines
 * :ghissue:`15289`: cbook.warn_deprecated() should warn with a MatplotlibDeprecationWarning not a UserWarning
 * :ghissue:`15285`: DOC: make copy right year auto-update
 * :ghissue:`15059`: fig.add_axes() with no arguments silently does nothing
