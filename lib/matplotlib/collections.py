@@ -174,6 +174,9 @@ class Collection(mcolorizer.ColorizingArtist):
         self._face_is_mapped = None
         self._edge_is_mapped = None
         self._mapped_colors = None  # calculated in update_scalarmappable
+
+        # Temporary logic to set hatchcolor. This eager resolution is temporary
+        # and will be replaced by a proper mechanism in a follow-up PR.
         hatch_color = mpl.rcParams['hatch.color']
         if hatch_color == 'edge':
             hatch_color = mpl.rcParams['patch.edgecolor']
