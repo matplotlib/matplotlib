@@ -3700,23 +3700,19 @@ def from_levels_and_colors(levels, colors, extend='neither'):
     color_slice = slice_map[extend]
 
     n_data_colors = len(levels) - 1
-    n_expected = n_data_colors + color_slice.start - (color_slice.stop or 0)
+    n_extend_colors = color_slice.start - (color_slice.stop or 0)  # 0, 1 or 2
+    n_expected = n_data_colors + n_extend_colors
     if len(colors) != n_expected:
         raise ValueError(
-            f'With extend == {extend!r} and {len(levels)} levels, '
-            f'expected {n_expected} colors, but got {len(colors)}')
+            f'Expected {n_expected} colors ({n_data_colors} colors for {len(levels)} '
+            f'levels, and {n_extend_colors} colors for extend == {extend!r}), '
+            f'but got {len(colors)}')
 
-    cmap = ListedColormap(colors[color_slice], N=n_data_colors)
-
-    if extend in ['min', 'both']:
-        cmap.set_under(colors[0])
-    else:
-        cmap.set_under('none')
-
-    if extend in ['max', 'both']:
-        cmap.set_over(colors[-1])
-    else:
-        cmap.set_over('none')
+    data_colors = colors[color_slice]
+    under_color = colors[0] if extend in ['min', 'both'] else 'none'
+    over_color = colors[-1] if extend in ['max', 'both'] else 'none'
+    cmap = ListedColormap(data_colors).with_extremes(
+        under=under_color, over=over_color)
 
     cmap.colorbar_extend = extend
 
