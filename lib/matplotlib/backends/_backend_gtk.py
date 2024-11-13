@@ -13,16 +13,10 @@ from matplotlib.backend_bases import (
     TimerBase)
 from matplotlib.backend_tools import Cursors
 
-import gi
 # The GTK3/GTK4 backends will have already called `gi.require_version` to set
 # the desired GTK.
 from gi.repository import Gdk, Gio, GLib, Gtk, GdkPixbuf
 
-
-try:
-    gi.require_foreign("cairo")
-except ImportError as e:
-    raise ImportError("Gtk-based backends require cairo") from e
 
 _log = logging.getLogger(__name__)
 _application = None  # Placeholder

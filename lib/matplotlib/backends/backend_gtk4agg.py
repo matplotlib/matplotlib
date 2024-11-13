@@ -1,39 +1,29 @@
-import numpy as np
-
-from .. import cbook
 from . import backend_agg, backend_gtk4
-from .backend_gtk4 import GLib, Gtk, _BackendGTK4
-
-import cairo  # Presence of cairo is already checked by _backend_gtk.
+from .backend_gtk4 import GLib, Gdk, _BackendGTK4
 
 
 class FigureCanvasGTK4Agg(backend_agg.FigureCanvasAgg,
                           backend_gtk4.FigureCanvasGTK4):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._texture = None
 
-    def on_draw_event(self, widget, ctx):
+    def on_snapshot_event(self, snapshot):
         if self._idle_draw_id:
             GLib.source_remove(self._idle_draw_id)
             self._idle_draw_id = 0
             self.draw()
 
-        scale = self.device_pixel_ratio
-        allocation = self.get_allocation()
+            view = self.get_renderer().buffer_rgba()
+            buf = GLib.Bytes.new(bytes(view))
+            self._texture = Gdk.MemoryTexture.new(view.shape[1], view.shape[0],
+                                                  Gdk.MemoryFormat.R8G8B8A8,
+                                                  buf, view.strides[0])
 
-        Gtk.render_background(
-            self.get_style_context(), ctx,
-            allocation.x, allocation.y,
-            allocation.width, allocation.height)
-
-        buf = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(
-            np.asarray(self.get_renderer().buffer_rgba()))
-        height, width, _ = buf.shape
-        image = cairo.ImageSurface.create_for_data(
-            buf.ravel().data, cairo.FORMAT_ARGB32, width, height)
-        image.set_device_scale(scale, scale)
-        ctx.set_source_surface(image, 0, 0)
-        ctx.paint()
-
-        return False
+        okay, rect = self.compute_bounds(self)
+        if not okay:  # Bounds were invalid for some reason.
+            return
+        snapshot.append_texture(self._texture, rect)
 
 
 @_BackendGTK4.export

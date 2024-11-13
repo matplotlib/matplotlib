@@ -19,24 +19,36 @@ try:
     gi_require_version("Gtk", "4.0")
     gi_require_version("Gdk", "4.0")
     gi_require_version("GdkPixbuf", "2.0")
+    gi_require_version("Graphene", "1.0")
 except ValueError as e:
     # in this case we want to re-raise as ImportError so the
     # auto-backend selection logic correctly skips.
     raise ImportError(e) from e
 
 import gi
-from gi.repository import Gio, GLib, Gtk, Gdk, GdkPixbuf
+from gi.repository import GLib, Gio, Gdk, GdkPixbuf, Graphene, Gtk
 from . import _backend_gtk
 from ._backend_gtk import (  # noqa: F401 # pylint: disable=W0611
     _BackendGTK, _FigureCanvasGTK, _FigureManagerGTK, _NavigationToolbar2GTK,
     TimerGTK as TimerGTK4,
 )
 
+# For GTK 4.14, there is enough path implementation to use the snapshot for the zoom
+# tool, and then we don't need Cairo.
+_USE_SNAPSHOT_ZOOM = Gtk.check_version(4, 14, 0) is None
+if _USE_SNAPSHOT_ZOOM:
+    from gi.repository import Gsk
+else:
+    try:
+        gi.require_foreign("cairo")
+    except ImportError as e:
+        raise ImportError("Gtk-based backends require cairo") from e
+
 _GOBJECT_GE_3_47 = gi.version_info >= (3, 47, 0)
 _GTK_GE_4_12 = Gtk.check_version(4, 12, 0) is None
 
 
-class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
+class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.Widget):
     required_interactive_framework = "gtk4"
     supports_blit = False
     manager_class = _api.classproperty(lambda cls: FigureManagerGTK4)
@@ -50,8 +62,6 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         self._idle_draw_id = 0
         self._rubberband_rect = None
 
-        self.set_draw_func(self._draw_func)
-        self.connect('resize', self.resize_event)
         if _GTK_GE_4_12:
             self.connect('realize', self._realize_event)
         else:
@@ -80,16 +90,6 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         self.add_controller(scroll)
 
         self.set_focusable(True)
-
-        css = Gtk.CssProvider()
-        style = '.matplotlib-canvas { background-color: white; }'
-        if Gtk.check_version(4, 9, 3) is None:
-            css.load_from_data(style, -1)
-        else:
-            css.load_from_data(style.encode('utf-8'))
-        style_ctx = self.get_style_context()
-        style_ctx.add_provider(css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-        style_ctx.add_class("matplotlib-canvas")
 
     def destroy(self):
         CloseEvent("close_event", self)._process()
@@ -183,7 +183,7 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
             guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
 
-    def resize_event(self, area, width, height):
+    def do_size_allocate(self, width, height, baseline):
         self._update_device_pixel_ratio()
         dpi = self.figure.dpi
         winch = width * self.device_pixel_ratio / dpi
@@ -265,11 +265,15 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         # TODO: Only update the rubberband area.
         self.queue_draw()
 
-    def _draw_func(self, drawing_area, ctx, width, height):
-        self.on_draw_event(self, ctx)
-        self._post_draw(self, ctx)
+    def do_snapshot(self, snapshot):
+        white = Gdk.RGBA()
+        white.red = white.green = white.blue = white.alpha = 1.0
+        rect = Graphene.Rect().init(0, 0, self.get_width(), self.get_height())
+        snapshot.append_color(white, rect)
+        self.on_snapshot_event(snapshot)
+        self._post_snapshot(snapshot)
 
-    def _post_draw(self, widget, ctx):
+    def _post_snapshot(self, snapshot):
         if self._rubberband_rect is None:
             return
 
@@ -280,28 +284,49 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         x1 = x0 + w
         y1 = y0 + h
 
-        # Draw the lines from x0, y0 towards x1, y1 so that the
-        # dashes don't "jump" when moving the zoom box.
-        ctx.move_to(x0, y0)
-        ctx.line_to(x0, y1)
-        ctx.move_to(x0, y0)
-        ctx.line_to(x1, y0)
-        ctx.move_to(x0, y1)
-        ctx.line_to(x1, y1)
-        ctx.move_to(x1, y0)
-        ctx.line_to(x1, y1)
+        def make_path(builder):
+            # Draw the lines from x0, y0 towards x1, y1 so that the dashes don't "jump"
+            # when moving the zoom box.
+            builder.move_to(x0, y0)
+            builder.line_to(x0, y1)
+            builder.move_to(x0, y0)
+            builder.line_to(x1, y0)
+            builder.move_to(x0, y1)
+            builder.line_to(x1, y1)
+            builder.move_to(x1, y0)
+            builder.line_to(x1, y1)
 
-        ctx.set_antialias(1)
-        ctx.set_line_width(lw)
-        ctx.set_dash((dash, dash), 0)
-        ctx.set_source_rgb(0, 0, 0)
-        ctx.stroke_preserve()
+        if _USE_SNAPSHOT_ZOOM:
+            pb = Gsk.PathBuilder()
+            make_path(pb)
+            path = pb.to_path()
 
-        ctx.set_dash((dash, dash), dash)
-        ctx.set_source_rgb(1, 1, 1)
-        ctx.stroke()
+            stroke = Gsk.Stroke(line_width=lw)
+            stroke.set_dash((dash, dash))
+            colour = Gdk.RGBA()
+            colour.alpha = 1.0
+            colour.red = colour.green = colour.blue = 0.0
+            snapshot.append_stroke(path, stroke, colour)
 
-    def on_draw_event(self, widget, ctx):
+            stroke.set_dash_offset(dash)
+            colour.red = colour.green = colour.blue = 1.0
+            snapshot.append_stroke(path, stroke, colour)
+        else:
+            rect = Graphene.Rect().init(0, 0, self.get_width(), self.get_height())
+            ctx = snapshot.append_cairo(rect)
+            make_path(ctx)
+
+            ctx.set_antialias(1)
+            ctx.set_line_width(lw)
+            ctx.set_dash((dash, dash), 0)
+            ctx.set_source_rgb(0, 0, 0)
+            ctx.stroke_preserve()
+
+            ctx.set_dash((dash, dash), dash)
+            ctx.set_source_rgb(1, 1, 1)
+            ctx.stroke()
+
+    def on_snapshot_event(self, snapshot):
         # to be overwritten by GTK4Agg or GTK4Cairo
         pass
 
