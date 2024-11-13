@@ -13,11 +13,6 @@ If it is not specified, it will fallback to using :rc:`hatch.color`.
 The special value 'edge' takes over the patch edgecolor, with a fallback to
 :rc:`patch.edgecolor` if the patch edgecolor is 'none'.
 
-If the patch hatchcolor is 'edge' then hatchcolor matches edgecolor, that is, it will
-be updated if edgecolor is changed (for example: by calling *set_edgecolor()*).
-But if hatchcolor is explicitly set (for example: by calling *set_hatchcolor()*
-or by using *hatch.color* rcParam), it will not be updated when edgecolor changes.
-
 .. plot::
     :include-source: true
     :alt: Example of using the hatchcolor parameter in a Rectangle
