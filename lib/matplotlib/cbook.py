@@ -2341,6 +2341,11 @@ def _is_tensorflow_array(x):
 
 def _unpack_to_numpy(x):
     """Internal helper to extract data from e.g. pandas and xarray objects."""
+    if isinstance(x, ak.Array):
+        # Normalize akward irregular arrays to numpy array
+        xtmp = ak.to_numpy(ak.flatten(x))
+        print("Entrou")
+        return xtmp
     if isinstance(x, np.ndarray):
         # If numpy, return directly
         return x
