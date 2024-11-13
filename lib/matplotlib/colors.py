@@ -1191,17 +1191,13 @@ class ListedColormap(Colormap):
         the list will be extended by repetition.
     """
     def __init__(self, colors, name='from_list', N=None):
-        self.monochrome = False  # Are all colors identical? (for contour.py)
         if N is None:
             self.colors = colors
             N = len(colors)
         else:
             if isinstance(colors, str):
                 self.colors = [colors] * N
-                self.monochrome = True
             elif np.iterable(colors):
-                if len(colors) == 1:
-                    self.monochrome = True
                 self.colors = list(
                     itertools.islice(itertools.cycle(colors), N))
             else:
@@ -1211,7 +1207,6 @@ class ListedColormap(Colormap):
                     pass
                 else:
                     self.colors = [gray] * N
-                self.monochrome = True
         super().__init__(name, N)
 
     def _init(self):
@@ -1219,6 +1214,21 @@ class ListedColormap(Colormap):
         self._lut[:-3] = to_rgba_array(self.colors)
         self._isinit = True
         self._set_extremes()
+
+    @property
+    def monochrome(self):
+        """Return whether all colors in the colormap are identical."""
+        # Replacement for the attribute *monochrome*. This ensures a consistent
+        # response independent of the way the ListedColormap was created, which
+        # was not the case for the manually set attribute.
+        #
+        # TODO: It's a separate discussion whether we need this property on
+        #       colormaps at all (at least as public API). It's a very special edge
+        #       case and we only use it for contours internally.
+        if not self._isinit:
+            self._init()
+
+        return self.N <= 1 or np.all(self._lut[0] == self._lut[1:self.N])
 
     def resampled(self, lutsize):
         """Return a new colormap with *lutsize* entries."""

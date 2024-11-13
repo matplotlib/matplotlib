@@ -74,6 +74,12 @@ def test_resampled():
     assert_array_almost_equal(lc(np.nan), lc3(np.nan))
 
 
+def test_monochrome():
+    assert mcolors.ListedColormap(["red"]).monochrome
+    assert mcolors.ListedColormap(["red"] * 5).monochrome
+    assert not mcolors.ListedColormap(["red", "green"]).monochrome
+
+
 def test_colormaps_get_cmap():
     cr = mpl.colormaps
 
