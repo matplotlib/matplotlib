@@ -275,6 +275,16 @@ def test_get_subplot_params():
         assert attr == mpl.rcParams[f"figure.subplot.{key}"]
         test_dict[key] = attr * 2
 
+    fig.set_subplotparams()
+    for key in subplotparams_keys:
+        attr = getattr(subplotparams, key)
+        assert attr == mpl.rcParams[f"figure.subplot.{key}"]
+
+    fig.set_subplotparams(fig.get_subplotparams())
+    for key in subplotparams_keys:
+        attr = getattr(subplotparams, key)
+        assert attr == mpl.rcParams[f"figure.subplot.{key}"]
+
     fig.set_subplotparams(test_dict)
     for key, value in test_dict.items():
         assert getattr(fig.get_subplotparams(), key) == value
