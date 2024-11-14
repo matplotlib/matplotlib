@@ -157,8 +157,8 @@ plt.show()
 # plot, has a ``Rectangle`` instance that determines the color,
 # transparency, and other properties of the Axes.  These instances are
 # stored as member variables :attr:`!Figure.patch` and :attr:`!Axes.patch`
-# ("Patch" is a name inherited from MATLAB, and is a 2D "patch" 
-# of color on the figure, e.g., rectangles, circles and polygons). 
+# ("Patch" is a name inherited from MATLAB, and is a 2D "patch"
+# of color on the figure, e.g., rectangles, circles and polygons).
 # Every Matplotlib ``Artist`` has the following properties
 #
 # ==========  =================================================================
