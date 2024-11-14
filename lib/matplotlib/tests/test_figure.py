@@ -265,7 +265,16 @@ def test_gca():
     assert fig.gca() is ax1
 
 
-def test_get_subplot_params():
+def test_get_subplotparams():
+    fig = plt.figure()
+    subplotparams_keys = ["left", "bottom", "right", "top", "wspace", "hspace"]
+    subplotparams = fig.get_subplotparams()
+    for key in subplotparams_keys:
+        attr = getattr(subplotparams, key)
+        assert attr == mpl.rcParams[f"figure.subplot.{key}"]
+
+
+def test_set_subplotparams():
     fig = plt.figure()
     subplotparams_keys = ["left", "bottom", "right", "top", "wspace", "hspace"]
     subplotparams = fig.get_subplotparams()
