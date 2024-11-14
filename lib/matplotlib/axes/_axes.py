@@ -2320,9 +2320,8 @@ class Axes(_AxesBase):
             # we do by default and convert dx by itself.
             dx = convert(dx)
         return dx
-    
-    @staticmethod
-    def _parse_bar_color_args(kwargs, get_next_color_func):
+
+    def _parse_bar_color_args(self, kwargs):
         """
         Helper function to process color-related arguments of `.Axes.bar`.
 
@@ -2330,7 +2329,7 @@ class Axes(_AxesBase):
 
         - kwargs['facecolor']
         - kwargs['color']
-        - 'b' if in classic mode else the result of ``get_next_color_func()``
+        - 'Result of ``self._get_patches_for_fill.get_next_color``
 
         Argument precedence for edgecolors:
 
@@ -2340,13 +2339,13 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
+        self : Axes
+
         kwargs : dict
             Additional kwargs. If these keys exist, we pop and process them:
             'facecolor', 'edgecolor', 'color'
             Note: The dict is modified by this function.
-        get_next_color_func : callable
-            A callable that returns a color. This color is used as facecolor
-            if no other color is provided.
+
 
         Returns
         -------
@@ -2361,18 +2360,18 @@ class Axes(_AxesBase):
         edgecolor = kwargs.pop('edgecolor', color)
 
         facecolor = (facecolor if facecolor is not None
-                 else "b" if mpl.rcParams['_internal.classic_mode']
-                 else get_next_color_func())
-        
+                     else self._get_patches_for_fill.get_next_color())
+
         try:
             facecolor = mcolors.to_rgba_array(facecolor)
         except ValueError as err:
             raise ValueError(
-                "'facecolor' or 'color' argument must be a valid color or sequence of colors."
+                "'facecolor' or 'color' argument must be a valid color or"
+                    "sequence of colors."
             ) from err
 
         return facecolor, edgecolor
-    
+
     @_preprocess_data()
     @_docstring.interpd
     def bar(self, x, height, width=0.8, bottom=None, *, align="center",
@@ -2496,8 +2495,8 @@ class Axes(_AxesBase):
         bar. See :doc:`/gallery/lines_bars_and_markers/bar_stacked`.
         """
         kwargs = cbook.normalize_kwargs(kwargs, mpatches.Patch)
-        color, edgecolor = self._parse_bar_color_args(kwargs, self._get_patches_for_fill.get_next_color)
-        
+        color, edgecolor = self._parse_bar_color_args(kwargs)
+
         linewidth = kwargs.pop('linewidth', None)
         hatch = kwargs.pop('hatch', None)
 
