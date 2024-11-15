@@ -5899,6 +5899,130 @@ class Axes(_AxesBase):
         self.add_image(im)
         return im
 
+    # ==================== Segment numbering =======================
+    def setSegmentMaskNumbers(self, imgSegmentMask, **kwargs):
+        """
+        Automatically add the segment numbers created by
+        'skimage.segmentation.quickshift(...)' to the centre of each segment.
+
+        Parameters
+        ----------
+        imgSegmentMask : array of integers created by
+                         'skimage.segmentation.quickshift(...)'
+
+        Other Parameters
+        ----------------
+        **kwargs : `segment_values`
+            A list of manually added segment numbers without an even shape
+            (hence awkward to automatically get the centre of the segment) eg:
+
+            {'segment_values': [
+              {'num': 10, 'x': 0.25, 'y': 0.88},
+              {'num': 5, 'x': 0.68, 'y': 0.84}
+            ]}
+        """
+        import matplotlib.pyplot as plt
+
+        self.oldplugin_imshow(imgSegmentMask)
+
+        sortedSegmentNums = np.unique(np.sort(imgSegmentMask))
+
+        endX = imgSegmentMask.shape[0]
+        endY = imgSegmentMask.shape[1]
+
+        # Add awkward shaped segments manually
+        manual_segments = []
+        if 'segment_values' in kwargs:
+            for item in kwargs['segment_values']:
+                print(f"Manually adding segment number: {item['num']}")
+                plt.figtext(item['x'], item['y'], item['num'])
+                manual_segments.append(item['num'])
+
+        xLeft = 0.14
+        xRight = 0.8
+        yTop = 0.95
+        yBottom = 0.06
+
+        for num in sortedSegmentNums:
+            (midX, midY) = self.getSegmentMidpoint(imgSegmentMask, num)
+
+            xFigText = ((xRight - xLeft) * (midX / endX)) + xLeft
+            yFigText = (-(yTop - yBottom) * (midY / endY)) + yTop
+
+            if (num not in manual_segments):
+                plt.figtext(xFigText, yFigText, num)
+
+    def oldplugin_imshow(self, img):
+        from mpl_toolkits.axes_grid1 import make_axes_locatable
+        import matplotlib.pyplot as plt
+
+        ax_im = self.imshow(img)
+
+        divider = make_axes_locatable(self)
+        cax = divider.append_axes("right", size="5%", pad=0.05)
+        plt.colorbar(ax_im, cax=cax)
+        self.get_figure().tight_layout()
+
+    def getSegmentMidpoint(self, imgSegmentMask, segNum):
+
+        (startX, startY) = self.getSegmentStarts(imgSegmentMask, segNum)
+
+        endX = startX
+        endY = startY
+
+        rowNum = 0
+        for row in imgSegmentMask:
+            colNum = 0
+            for col in row:
+                try:
+                    if (imgSegmentMask[rowNum][colNum] == segNum):
+                        if (colNum > endX):
+                            endX = colNum
+                        if (rowNum > endY):
+                            endY = rowNum
+
+                except IndexError:
+                    pass
+
+                colNum += 1
+
+            rowNum += 1
+
+        # Now return the mid-point
+        midDeltaX = round((endX - startX) / 2)
+        midDeltaY = round((endY - startY) / 2)
+
+        midX = startX + midDeltaX
+        midY = startY + midDeltaY
+
+        return (midX, midY)
+
+    def getSegmentStarts(self, imgSegmentMask, segNum):
+        searchStartX = imgSegmentMask.shape[0]
+        searchStartY = imgSegmentMask.shape[1]
+
+        rowNum = 0
+        for row in imgSegmentMask:
+            colNum = 0
+            for col in row:
+                try:
+                    if (imgSegmentMask[rowNum][colNum] == segNum):
+                        if (colNum < searchStartX):
+                            searchStartX = colNum
+                        if (rowNum < searchStartY):
+                            searchStartY = rowNum
+
+                except IndexError:
+                    pass
+
+                colNum += 1
+
+            rowNum += 1
+
+        return (searchStartX, searchStartY)
+
+    # ==================== END: Segment numbering ==================
+
     def _pcolorargs(self, funcname, *args, shading='auto', **kwargs):
         # - create X and Y if not present;
         # - reshape X and Y as needed if they are 1-D;
