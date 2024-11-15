@@ -429,7 +429,7 @@ class NavigationToolbar2:
     def zoom(self, *args) -> None: ...
 
     class _ZoomInfo(NamedTuple):
-        direction: Literal["in", "out"]
+        button: MouseButton
         start_xy: tuple[float, float]
         axes: list[Axes]
         cid: int

@@ -3059,6 +3059,11 @@ class NavigationToolbar2:
 
     def drag_pan(self, event):
         """Callback for dragging in pan/zoom mode."""
+        if event.buttons != {self._pan_info.button}:
+            # Zoom ended while canvas not in focus (it did not receive a
+            # button_release_event); cancel it.
+            self.release_pan(None)  # release_pan doesn't actually use event.
+            return
         for ax in self._pan_info.axes:
             # Using the recorded button at the press is safer than the current
             # button, as multiple buttons can get pressed during motion.
@@ -3092,7 +3097,7 @@ class NavigationToolbar2:
         for a in self.canvas.figure.get_axes():
             a.set_navigate_mode(self.mode._navigate_mode)
 
-    _ZoomInfo = namedtuple("_ZoomInfo", "direction start_xy axes cid cbar")
+    _ZoomInfo = namedtuple("_ZoomInfo", "button start_xy axes cid cbar")
 
     def press_zoom(self, event):
         """Callback for mouse button press in zoom to rect mode."""
@@ -3117,11 +3122,17 @@ class NavigationToolbar2:
             cbar = None
 
         self._zoom_info = self._ZoomInfo(
-            direction="in" if event.button == 1 else "out",
-            start_xy=(event.x, event.y), axes=axes, cid=id_zoom, cbar=cbar)
+            button=event.button, start_xy=(event.x, event.y), axes=axes,
+            cid=id_zoom, cbar=cbar)
 
     def drag_zoom(self, event):
         """Callback for dragging in zoom mode."""
+        if event.buttons != {self._zoom_info.button}:
+            # Zoom ended while canvas not in focus (it did not receive a
+            # button_release_event); cancel it.
+            self._cleanup_post_zoom()
+            return
+
         start_xy = self._zoom_info.start_xy
         ax = self._zoom_info.axes[0]
         (x1, y1), (x2, y2) = np.clip(
@@ -3150,6 +3161,7 @@ class NavigationToolbar2:
         self.remove_rubberband()
 
         start_x, start_y = self._zoom_info.start_xy
+        direction = "in" if self._zoom_info.button == 1 else "out"
         key = event.key
         # Force the key on colorbars to ignore the zoom-cancel on the
         # short-axis side
@@ -3161,8 +3173,7 @@ class NavigationToolbar2:
         # "cancel" a zoom action by zooming by less than 5 pixels.
         if ((abs(event.x - start_x) < 5 and key != "y") or
                 (abs(event.y - start_y) < 5 and key != "x")):
-            self.canvas.draw_idle()
-            self._zoom_info = None
+            self._cleanup_post_zoom()
             return
 
         for i, ax in enumerate(self._zoom_info.axes):
@@ -3174,11 +3185,18 @@ class NavigationToolbar2:
                         for prev in self._zoom_info.axes[:i])
             ax._set_view_from_bbox(
                 (start_x, start_y, event.x, event.y),
-                self._zoom_info.direction, key, twinx, twiny)
+                direction, key, twinx, twiny)
 
+        self._cleanup_post_zoom()
+        self.push_current()
+
+    def _cleanup_post_zoom(self):
+        # We don't check the event button here, so that zooms can be cancelled
+        # by (pressing and) releasing another mouse button.
+        self.canvas.mpl_disconnect(self._zoom_info.cid)
+        self.remove_rubberband()
         self.canvas.draw_idle()
         self._zoom_info = None
-        self.push_current()
 
     def push_current(self):
         """Push the current view limits and position onto the stack."""
