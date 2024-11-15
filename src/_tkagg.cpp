@@ -356,7 +356,7 @@ PYBIND11_MODULE(_tkagg, m, py::mod_gil_not_used())
     }
 
     if (!(TCL_SETVAR || TCL_SETVAR2)) {
-        throw py::import_error("Failed to load Tcl_SetVar and Tcl_SetVar2");
+        throw py::import_error("Failed to load Tcl_SetVar or Tcl_SetVar2");
     } else if (!TK_FIND_PHOTO) {
         throw py::import_error("Failed to load Tk_FindPhoto");
     } else if (!TK_PHOTO_PUT_BLOCK) {
