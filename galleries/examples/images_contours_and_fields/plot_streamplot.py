@@ -37,7 +37,7 @@ axs[1].set_title('Varying Color')
 
 #  Varying line width along a streamline
 lw = 5*speed / speed.max()
-axs[2].streamplot(X, Y, U, V, density=0.6, color='k', linewidth=lw)
+axs[2].streamplot(X, Y, U, V, density=0.6, color='k', linewidth=lw, num_arrows=5)
 axs[2].set_title('Varying Line Width')
 
 # Controlling the starting points of the streamlines

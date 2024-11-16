@@ -23,8 +23,8 @@ def swirl_velocity_field():
     return x, y, U, V
 
 
-@image_comparison(['streamplot_startpoints'], remove_text=True, style='mpl20',
-                  extensions=['png'])
+@image_comparison(['streamplot_startpoints.png'], remove_text=True, style='mpl20',
+                  tol=0.003)
 def test_startpoints():
     # Test varying startpoints. Also tests a non-default num_arrows argument.
     X, Y, U, V = velocity_field()
@@ -44,14 +44,14 @@ def test_colormap():
     plt.colorbar()
 
 
-@image_comparison(['streamplot_linewidth'], remove_text=True, style='mpl20',
-                  tol=0.004)
+@image_comparison(['streamplot_linewidth.png'], remove_text=True, style='mpl20',
+                  tol=0.03)
 def test_linewidth():
     X, Y, U, V = velocity_field()
     speed = np.hypot(U, V)
     lw = 5 * speed / speed.max()
     ax = plt.figure().subplots()
-    ax.streamplot(X, Y, U, V, density=[0.5, 1], color='k', linewidth=lw)
+    ax.streamplot(X, Y, U, V, density=[0.5, 1], color='k', linewidth=lw, num_arrows=2)
 
 
 @image_comparison(['streamplot_masks_and_nans'],

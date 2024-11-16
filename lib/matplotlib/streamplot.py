@@ -216,6 +216,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
         # Distance along streamline
         s = np.cumsum(np.hypot(np.diff(tx), np.diff(ty)))
+        if isinstance(linewidth, np.ndarray):
+            line_widths = interpgrid(linewidth, tgx, tgy)[:-1]
+            line_kw['linewidth'].extend(line_widths)
         if use_multicolor_lines:
             color_values = interpgrid(color, tgx, tgy)[:-1]
             line_colors.append(color_values)
@@ -228,8 +231,6 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
             arrow_head = (np.mean(tx[idx:idx + 2]), np.mean(ty[idx:idx + 2]))
 
             if isinstance(linewidth, np.ndarray):
-                line_widths = interpgrid(linewidth, tgx, tgy)[:-1]
-                line_kw['linewidth'].extend(line_widths)
                 arrow_kw['linewidth'] = line_widths[idx]
 
             if use_multicolor_lines:
