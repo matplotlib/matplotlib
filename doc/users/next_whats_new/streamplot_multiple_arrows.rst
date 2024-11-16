@@ -1,7 +1,7 @@
 Multiple arrows on a streamline
 -------------------------------
 
-A new ``n_arrows`` argument has been added to `~matplotlib.axes.Axes.streamplot` that
+A new ``num_arrows`` argument has been added to `~matplotlib.axes.Axes.streamplot` that
 allows more than one arrow to be added to each streamline:
 
 .. plot::
@@ -17,6 +17,6 @@ allows more than one arrow to be added to each streamline:
     V = 1 + X - Y**2
 
     fig, ax = plt.subplots()
-    ax.streamplot(X, Y, U, V, n_arrows=3)
+    ax.streamplot(X, Y, U, V, num_arrows=3)
 
     plt.show()

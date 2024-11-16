@@ -19,7 +19,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                minlength=0.1, transform=None, zorder=None, start_points=None,
                maxlength=4.0, integration_direction='both',
-               broken_streamlines=True, *, n_arrows=1):
+               broken_streamlines=True, *, num_arrows=1):
     """
     Draw streamlines of a vector flow.
 
@@ -73,7 +73,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         If False, forces streamlines to continue until they
         leave the plot domain.  If True, they may be terminated if they
         come too close to another streamline.
-    n_arrows : int
+    num_arrows : int
         Number of arrows per streamline. The arrows are spaced equally along the steps
         each streamline takes. Note that this can be different to being spaced equally
         along the distance of the streamline.
@@ -97,8 +97,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     mask = StreamMask(density)
     dmap = DomainMap(grid, mask)
 
-    if n_arrows < 0:
-        raise ValueError(f"The value of n_arrows must be >= 0, got {n_arrows=}")
+    if num_arrows < 0:
+        raise ValueError(f"The value of num_arrows must be >= 0, got {num_arrows=}")
 
     if zorder is None:
         zorder = mlines.Line2D.zorder
@@ -221,9 +221,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
             line_colors.append(color_values)
 
         # Add arrows along each trajectory.
-        for x in range(1, n_arrows+1):
+        for x in range(1, num_arrows+1):
             # Get index of distance along streamline to place arrow
-            idx = np.searchsorted(s, s[-1] * (x/(n_arrows+1)))
+            idx = np.searchsorted(s, s[-1] * (x/(num_arrows+1)))
             arrow_tail = (tx[idx], ty[idx])
             arrow_head = (np.mean(tx[idx:idx + 2]), np.mean(ty[idx:idx + 2]))
 

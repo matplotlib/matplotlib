@@ -4125,7 +4125,7 @@ def streamplot(
     integration_direction="both",
     broken_streamlines=True,
     *,
-    n_arrows=1,
+    num_arrows=1,
     data=None,
 ):
     __ret = gca().streamplot(
@@ -4147,7 +4147,7 @@ def streamplot(
         maxlength=maxlength,
         integration_direction=integration_direction,
         broken_streamlines=broken_streamlines,
-        n_arrows=n_arrows,
+        num_arrows=num_arrows,
         **({"data": data} if data is not None else {}),
     )
     sci(__ret.lines)
