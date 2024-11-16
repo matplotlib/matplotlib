@@ -1194,8 +1194,8 @@ class ListedColormap(Colormap):
     @_api.delete_parameter(
         "3.11", "N",
         message="Passing 'N' to ListedColormap is deprecated since %(since)s "
-                "and will be removed in %(removal)s. Please process the list "
-                "of passed colors yourself if needed."
+                "and will be removed in %(removal)s. Please ensure the list "
+                "of passed colors is the required length instead."
     )
     def __init__(self, colors, name='from_list', N=None):
         if N is None:
