@@ -2779,24 +2779,6 @@ class TestScatter:
         plt.scatter([], [], c=[], **kwargs)
         plt.scatter([1, 2], [3, 4], c=[4, 5], **kwargs)
 
-    @pytest.mark.parametrize('colors',
-                                [
-                                    ('red', 'blue'),
-                                    (['red', 'blue'], ['green', 'yellow']),
-                                    ([[1, 0, 0], [0, 1, 0]], [[0, 0, 1], [1, 1, 0]])
-                                ])
-    def test_scatter_c_facecolor_warning(self, colors):
-        warn_match = (
-            "You passed both c and facecolor/facecolors for the markers. "
-            "c has precedence over facecolor/facecolors. This behavior may "
-            "change in the future."
-        )
-        fig, ax = plt.subplots()
-        x = [0, 1] if len(colors[0]) == 2 else [0]
-        y = x
-        with pytest.warns(UserWarning, match=warn_match):
-            ax.scatter(x, y, c=colors[0], facecolors=colors[1])
-
     def test_scatter_unfilled(self):
         coll = plt.scatter([0, 1, 2], [1, 3, 2], c=['0.1', '0.3', '0.5'],
                            marker=mmarkers.MarkerStyle('o', fillstyle='none'),
@@ -3078,6 +3060,55 @@ def test_parse_scatter_color_args_error():
         c = np.array([[0.1, 0.2, 0.7], [0.2, 0.4, 1.4]])  # value > 1
         mpl.axes.Axes._parse_scatter_color_args(
             c, None, kwargs={}, xsize=2, get_next_color_func=get_next_color)
+
+
+# Warning message tested in the next two tests.
+WARN_MSG = (
+    "You passed both c and facecolor/facecolors for the markers. "
+    "c has precedence over facecolor/facecolors. This behavior may "
+    "change in the future."
+)
+# Test cases shared between direct and integration tests
+COLOR_TEST_CASES = [
+    ('red', 'blue'),
+    (['red', 'blue'], ['green', 'yellow']),
+    ([[1, 0, 0], [0, 1, 0]], [[0, 0, 1], [1, 1, 0]])
+]
+
+
+@pytest.mark.parametrize('c, facecolor', COLOR_TEST_CASES)
+def test_parse_c_facecolor_warning_direct(c, facecolor):
+    """Test the internal _parse_scatter_color_args method directly."""
+    def get_next_color():
+        return 'blue'
+
+    # Test with facecolors (plural)
+    with pytest.warns(UserWarning, match=WARN_MSG):
+        mpl.axes.Axes._parse_scatter_color_args(
+            c=c, edgecolors=None, kwargs={'facecolors': facecolor},
+            xsize=2, get_next_color_func=get_next_color)
+
+    # Test with facecolor (singular)
+    with pytest.warns(UserWarning, match=WARN_MSG):
+        mpl.axes.Axes._parse_scatter_color_args(
+            c=c, edgecolors=None, kwargs={'facecolor': facecolor},
+            xsize=2, get_next_color_func=get_next_color)
+
+
+@pytest.mark.parametrize('c, facecolor', COLOR_TEST_CASES)
+def test_scatter_c_facecolor_warning_integration(c, facecolor):
+    """Test the warning through the actual scatter plot creation."""
+    fig, ax = plt.subplots()
+    x = [0, 1] if isinstance(c, (list, tuple)) else [0]
+    y = x
+
+    # Test with facecolors (plural)
+    with pytest.warns(UserWarning, match=WARN_MSG):
+        ax.scatter(x, y, c=c, facecolors=facecolor)
+
+    # Test with facecolor (singular)
+    with pytest.warns(UserWarning, match=WARN_MSG):
+        ax.scatter(x, y, c=c, facecolor=facecolor)
 
 
 def test_as_mpl_axes_api():
