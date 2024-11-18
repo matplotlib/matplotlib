@@ -4674,8 +4674,7 @@ class Axes(_AxesBase):
         if c is not None and facecolors is not None:
             _api.warn_external(
                 "You passed both c and facecolor/facecolors for the markers. "
-                "Matplotlib is ignoring the facecolor "
-                "in favor of what you specified in c. "
+                "c has precedence over facecolor/facecolors. "
                 "This behavior may change in the future."
             )
 
