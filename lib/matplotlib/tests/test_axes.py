@@ -2765,12 +2765,12 @@ class TestScatter:
         plt.scatter([], [], c=[], **kwargs)
         plt.scatter([1, 2], [3, 4], c=[4, 5], **kwargs)
 
-    @pytest.mark.parametrize('colors', 
-        [
-            ('red', 'blue'),                        # simple string colors
-            (['red', 'blue'], ['green', 'yellow']),      # array of colors
-            ([[1, 0, 0], [0, 1, 0]], [[0, 0, 1], [1, 1, 0]])  # RGB values
-        ])
+    @pytest.mark.parametrize('colors',
+                                [
+                                    ('red', 'blue'),
+                                    (['red', 'blue'], ['green', 'yellow']),
+                                    ([[1, 0, 0], [0, 1, 0]], [[0, 0, 1], [1, 1, 0]])
+                                ])
     def test_scatter_c_facecolor_warning(self, colors):
         warn_match = (
             "You passed both c and facecolor/facecolors for the markers. "
@@ -2782,7 +2782,7 @@ class TestScatter:
         y = x
         with pytest.warns(UserWarning, match=warn_match):
             ax.scatter(x, y, c=colors[0], facecolors=colors[1])
-        
+
     def test_scatter_unfilled(self):
         coll = plt.scatter([0, 1, 2], [1, 3, 2], c=['0.1', '0.3', '0.5'],
                            marker=mmarkers.MarkerStyle('o', fillstyle='none'),
