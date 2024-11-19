@@ -3875,9 +3875,11 @@ class Axes(_AxesBase):
             control is provided by the *flierprops* parameter.
 
         vert : bool, optional
-            .. deprecated:: 3.10
+            .. deprecated:: 3.11
                 Use *orientation* instead.
 
+                This is a pending deprecation for 3.10, with full deprecation
+                in 3.11 and removal in 3.13.
                 If this is given during the deprecation period, it overrides
                 the *orientation* parameter.
 
@@ -4222,9 +4224,11 @@ class Axes(_AxesBase):
             The default is ``0.5*(width of the box)``, see *widths*.
 
         vert : bool, optional
-            .. deprecated:: 3.10
+            .. deprecated:: 3.11
                 Use *orientation* instead.
 
+                This is a pending deprecation for 3.10, with full deprecation
+                in 3.11 and removal in 3.13.
                 If this is given during the deprecation period, it overrides
                 the *orientation* parameter.
 
@@ -4361,9 +4365,10 @@ class Axes(_AxesBase):
             vert = mpl.rcParams['boxplot.vertical']
         else:
             _api.warn_deprecated(
-                "3.10",
+                "3.11",
                 name="vert: bool",
-                alternative="orientation: {'vertical', 'horizontal'}"
+                alternative="orientation: {'vertical', 'horizontal'}",
+                pending=True,
             )
         if vert is False:
             orientation = 'horizontal'
@@ -8642,10 +8647,11 @@ such objects
         # vert takes precedence.
         if vert is not None:
             _api.warn_deprecated(
-                "3.10",
+                "3.11",
                 name="vert: bool",
-                alternative="orientation: {'vertical', 'horizontal'}"
-                )
+                alternative="orientation: {'vertical', 'horizontal'}",
+                pending=True,
+            )
             orientation = 'vertical' if vert else 'horizontal'
         _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
 
