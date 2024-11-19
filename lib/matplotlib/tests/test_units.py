@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.units as munits
 from matplotlib.category import StrCategoryConverter, UnitData
+from matplotlib.dates import DateConverter
 import numpy as np
 import pytest
 
@@ -240,6 +241,7 @@ def test_explicit_converter():
     d1 = {"a": 1, "b": 2}
     str_cat_converter = StrCategoryConverter()
     str_cat_converter_2 = StrCategoryConverter()
+    date_converter = DateConverter()
 
     # Explicit is set
     fig1, ax1 = plt.subplots()
@@ -254,12 +256,18 @@ def test_explicit_converter():
     with pytest.raises(RuntimeError):
         ax1.xaxis.set_converter(str_cat_converter_2)
 
-    # Warn when implicit overridden
     fig2, ax2 = plt.subplots()
     ax2.plot(d1.keys(), d1.values())
 
+    # No error when equivalent type is used
+    ax2.xaxis.set_converter(str_cat_converter)
+
+    fig3, ax3 = plt.subplots()
+    ax3.plot(d1.keys(), d1.values())
+
+    # Warn when implicit overridden
     with pytest.warns():
-        ax2.xaxis.set_converter(str_cat_converter)
+        ax3.xaxis.set_converter(date_converter)
 
 
 def test_empty_default_limits(quantity_converter):
