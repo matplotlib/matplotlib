@@ -120,10 +120,9 @@ ax.plot(x1_vals, x2_vals, label=r'$x_2 = x_1^2$')
 ax.set_xlabel(r'$x_1$')
 ax.legend()
 
-# need to define mapped values outside of plotted range to ensure the secondary
-# axis is plotted correctly
-x1n = np.concatenate(([-1e10, 0], x1_vals, [20, 1e10]))
-x2n = np.concatenate(([-1e10, 0], x2_vals, [20**2, 1e10**2]))
+# the forward and inverse functions must be defined on the complete visible axis range
+x1n = np.linspace(0, 20, 201)
+x2n = x1n**2
 
 
 def forward(x):
