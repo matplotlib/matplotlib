@@ -2334,7 +2334,6 @@ class Axes(_AxesBase):
         Argument precedence for edgecolors:
 
         - kwargs['edgecolor']
-        - kwargs['color']
         - None
 
         Parameters
@@ -2357,7 +2356,7 @@ class Axes(_AxesBase):
         color = kwargs.pop('color', None)
 
         facecolor = kwargs.pop('facecolor', color)
-        edgecolor = kwargs.pop('edgecolor', color)
+        edgecolor = kwargs.pop('edgecolor', None)
 
         facecolor = (facecolor if facecolor is not None
                      else self._get_patches_for_fill.get_next_color())
@@ -2427,7 +2426,7 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
         color : :mpltype:`color` or list of :mpltype:`color`, optional
-            The colors of the bar faces and edges.
+            The colors of the bar faces.
 
         facecolor : :mpltype:`color` or list of :mpltype:`color`, optional
             The colors of the bar faces.
