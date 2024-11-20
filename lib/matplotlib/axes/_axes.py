@@ -2593,8 +2593,8 @@ class Axes(_AxesBase):
         linewidth = itertools.cycle(np.atleast_1d(linewidth))
         hatch = itertools.cycle(np.atleast_1d(hatch))
         facecolor = itertools.chain(itertools.cycle(facecolor),
-                                # Fallback if color == "none".
-                                itertools.repeat('none'))
+                                    # Fallback if color == "none".
+                                    itertools.repeat('none'))
         if edgecolor is None:
             edgecolor = itertools.repeat(None)
         else:
