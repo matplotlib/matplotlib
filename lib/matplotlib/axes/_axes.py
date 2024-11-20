@@ -2350,9 +2350,9 @@ class Axes(_AxesBase):
         Returns
         -------
         facecolor
-            The facecolor.
+            The facecolor. One or more colors as (N, 4) rgba array.
         edgecolor
-            The edgecolor.
+            The edgecolor. Not normalized; may be any valid color spec or None.
         """
         color = kwargs.pop('color', None)
 
@@ -2495,7 +2495,7 @@ class Axes(_AxesBase):
         bar. See :doc:`/gallery/lines_bars_and_markers/bar_stacked`.
         """
         kwargs = cbook.normalize_kwargs(kwargs, mpatches.Patch)
-        color, edgecolor = self._parse_bar_color_args(kwargs)
+        facecolor, edgecolor = self._parse_bar_color_args(kwargs)
 
         linewidth = kwargs.pop('linewidth', None)
         hatch = kwargs.pop('hatch', None)
@@ -2592,7 +2592,7 @@ class Axes(_AxesBase):
 
         linewidth = itertools.cycle(np.atleast_1d(linewidth))
         hatch = itertools.cycle(np.atleast_1d(hatch))
-        color = itertools.chain(itertools.cycle(mcolors.to_rgba_array(color)),
+        facecolor = itertools.chain(itertools.cycle(facecolor),
                                 # Fallback if color == "none".
                                 itertools.repeat('none'))
         if edgecolor is None:
@@ -2628,7 +2628,7 @@ class Axes(_AxesBase):
             bottom = y
 
         patches = []
-        args = zip(left, bottom, width, height, color, edgecolor, linewidth,
+        args = zip(left, bottom, width, height, facecolor, edgecolor, linewidth,
                    hatch, patch_labels)
         for l, b, w, h, c, e, lw, htch, lbl in args:
             r = mpatches.Rectangle(
