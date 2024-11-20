@@ -9312,16 +9312,13 @@ def test_violinplot_orientation(fig_test, fig_ref):
 
     plt.close()
 
-    # Deprecation of `vert: bool` keyword
-    with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match='vert: bool was deprecated in Matplotlib 3.10'):
-        # Compare images between a figure that
-        # uses vert and one that uses orientation.
-        ax_ref = fig_ref.subplots()
-        ax_ref.violinplot(all_data, vert=False)
+    # Compare images between a figure that
+    # uses vert and one that uses orientation.
+    ax_ref = fig_ref.subplots()
+    ax_ref.violinplot(all_data, vert=False)
 
-        ax_test = fig_test.subplots()
-        ax_test.violinplot(all_data, orientation='horizontal')
+    ax_test = fig_test.subplots()
+    ax_test.violinplot(all_data, orientation='horizontal')
 
 
 @check_figures_equal(extensions=['png'])
