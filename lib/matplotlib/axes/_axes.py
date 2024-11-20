@@ -4364,7 +4364,6 @@ class Axes(_AxesBase):
                 "3.11",
                 name="vert: bool",
                 alternative="orientation: {'vertical', 'horizontal'}",
-                pending=True,
             )
         if vert is False:
             orientation = 'horizontal'
@@ -8646,7 +8645,6 @@ such objects
                 "3.11",
                 name="vert: bool",
                 alternative="orientation: {'vertical', 'horizontal'}",
-                pending=True,
             )
             orientation = 'vertical' if vert else 'horizontal'
         _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
