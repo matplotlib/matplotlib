@@ -676,11 +676,13 @@ def _impl_test_interactive_timers():
     assert mock_single_shot.call_count == 1, \
         f"Singleshot: Expected 1 call, got {mock_single_shot.call_count}"
 
-    # 250ms timer triggers and the callback takes 150ms to run
-    # Test that we don't drift and that we get called on every 250ms
-    # firing and not every 400ms
-    timer_repeating.interval = 250
-    mock_repeating.side_effect = lambda: time.sleep(0.15)
+    # 500ms timer triggers and the callback takes 400ms to run
+    # Test that we don't drift and that we get called on every 500ms
+    # firing and not every 900ms
+    timer_repeating.interval = 500
+    # sleep for 80% of the interval
+    sleep_time = timer_repeating.interval / 1000 * 0.8
+    mock_repeating.side_effect = lambda: time.sleep(sleep_time)
     # calling start() again on a repeating timer should remove the old
     # one, so we don't want double the number of calls here either because
     # two timers are potentially running.
@@ -690,18 +692,21 @@ def _impl_test_interactive_timers():
     timer_single_shot.stop()
     timer_single_shot.start()
 
-    event_loop_time = 2  # in seconds
+    # CI resources are inconsistent, so we need to allow for some slop
+    event_loop_time = 10 if os.getenv("CI") else 3  # in seconds
     expected_calls = int(event_loop_time / (timer_repeating.interval / 1000))
 
     t_start = time.perf_counter()
     fig.canvas.start_event_loop(event_loop_time)
     t_loop = time.perf_counter() - t_start
-    # Should be around 2s, but allow for some slop on CI. We want to make sure
-    # we aren't getting 2 + (callback time) 0.5s/iteration, which would be 4+ s.
-    assert 1.8 < t_loop < 3, \
-        f"Event loop: Expected to run for around 2s, but ran for {t_loop:.2f}s"
+    # Should be around event_loop_time, but allow for some slop on CI.
+    # We want to make sure we aren't getting
+    # event_loop_time + (callback time)*niterations
+    assert event_loop_time * 0.95 < t_loop < event_loop_time / 0.7, \
+        f"Event loop: Expected to run for around {event_loop_time}s, " \
+        f"but ran for {t_loop:.2f}s"
     # Not exact timers, so add some slop. (Quite a bit for CI resources)
-    assert abs(mock_repeating.call_count - expected_calls) <= 2, \
+    assert abs(mock_repeating.call_count - expected_calls) / expected_calls <= 0.3, \
         f"Slow callback: Expected {expected_calls} calls, " \
         f"got {mock_repeating.call_count}"
     assert mock_single_shot.call_count == 2, \
