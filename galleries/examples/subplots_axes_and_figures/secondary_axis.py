@@ -116,7 +116,7 @@ x1_vals = np.arange(2, 11, 0.4)
 x2_vals = x1_vals ** 2
 ydata = 50.0 + 20 * np.random.randn(len(x1_vals))
 ax.plot(x1_vals, ydata, label='Plotted data')
-ax.plot(x1_vals, x2_vals, label=r'$x_2(x_1)$')
+ax.plot(x1_vals, x2_vals, label=r'$x_2 = x_1^2$')
 ax.set_xlabel(r'$x_1$')
 ax.legend()
 
