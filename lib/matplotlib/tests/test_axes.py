@@ -9314,7 +9314,7 @@ def test_violinplot_orientation(fig_test, fig_ref):
 
     # Deprecation of `vert: bool` keyword
     with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match='vert: bool was deprecated in Matplotlib 3.10'):
+                      match='vert: bool was deprecated in Matplotlib 3.11'):
         # Compare images between a figure that
         # uses vert and one that uses orientation.
         ax_ref = fig_ref.subplots()
