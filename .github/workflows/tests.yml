@@ -419,7 +419,7 @@ jobs:
           fi
       - name: Upload code coverage
         if: ${{ !cancelled() && github.event_name != 'schedule' }}
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }}"
           token: ${{ secrets.CODECOV_TOKEN }}
