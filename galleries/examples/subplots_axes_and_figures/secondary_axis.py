@@ -111,8 +111,6 @@ plt.show()
 fig, ax = plt.subplots(layout='constrained')
 x1_vals = np.arange(2, 11, 0.4)
 # second independent variable is a nonlinear function of the other.
-# this simple example can be more easily handled without interpolation, and is done
-# this way only for pedagogical purposes.
 x2_vals = x1_vals ** 2
 ydata = 50.0 + 20 * np.random.randn(len(x1_vals))
 ax.plot(x1_vals, ydata, label='Plotted data')
