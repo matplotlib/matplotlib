@@ -540,18 +540,7 @@ def test_interactive_pan_zoom_events(tool, button, patch_vis, forward_nav, t_s):
                 ylim_b = init_ylim
 
         tb.zoom()
-        tb.press_zoom(start_event)
-        tb.drag_zoom(drag_event)
-        tb.release_zoom(stop_event)
 
-        assert ax_t.get_xlim() == pytest.approx(xlim_t, abs=0.15)
-        assert ax_t.get_ylim() == pytest.approx(ylim_t, abs=0.15)
-        assert ax_b.get_xlim() == pytest.approx(xlim_b, abs=0.15)
-        assert ax_b.get_ylim() == pytest.approx(ylim_b, abs=0.15)
-
-        # Check if twin-axes are properly triggered
-        assert ax_t.get_xlim() == pytest.approx(ax_t_twin.get_xlim(), abs=0.15)
-        assert ax_b.get_xlim() == pytest.approx(ax_b_twin.get_xlim(), abs=0.15)
     else:
         # Evaluate expected limits
         # (call start_pan to make sure ax._pan_start is set)
@@ -576,15 +565,16 @@ def test_interactive_pan_zoom_events(tool, button, patch_vis, forward_nav, t_s):
                 ylim_b = init_ylim
 
         tb.pan()
-        tb.press_pan(start_event)
-        tb.drag_pan(drag_event)
-        tb.release_pan(stop_event)
 
-        assert ax_t.get_xlim() == pytest.approx(xlim_t, abs=0.15)
-        assert ax_t.get_ylim() == pytest.approx(ylim_t, abs=0.15)
-        assert ax_b.get_xlim() == pytest.approx(xlim_b, abs=0.15)
-        assert ax_b.get_ylim() == pytest.approx(ylim_b, abs=0.15)
+    start_event._process()
+    drag_event._process()
+    stop_event._process()
 
-        # Check if twin-axes are properly triggered
-        assert ax_t.get_xlim() == pytest.approx(ax_t_twin.get_xlim(), abs=0.15)
-        assert ax_b.get_xlim() == pytest.approx(ax_b_twin.get_xlim(), abs=0.15)
+    assert ax_t.get_xlim() == pytest.approx(xlim_t, abs=0.15)
+    assert ax_t.get_ylim() == pytest.approx(ylim_t, abs=0.15)
+    assert ax_b.get_xlim() == pytest.approx(xlim_b, abs=0.15)
+    assert ax_b.get_ylim() == pytest.approx(ylim_b, abs=0.15)
+
+    # Check if twin-axes are properly triggered
+    assert ax_t.get_xlim() == pytest.approx(ax_t_twin.get_xlim(), abs=0.15)
+    assert ax_b.get_xlim() == pytest.approx(ax_b_twin.get_xlim(), abs=0.15)

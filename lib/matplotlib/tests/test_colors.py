@@ -1165,8 +1165,8 @@ def test_pandas_iterable(pd):
     # a single color
     lst = ['red', 'blue', 'green']
     s = pd.Series(lst)
-    cm1 = mcolors.ListedColormap(lst, N=5)
-    cm2 = mcolors.ListedColormap(s, N=5)
+    cm1 = mcolors.ListedColormap(lst)
+    cm2 = mcolors.ListedColormap(s)
     assert_array_equal(cm1.colors, cm2.colors)
 
 

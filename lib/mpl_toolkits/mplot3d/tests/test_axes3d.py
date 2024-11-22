@@ -2138,14 +2138,12 @@ def test_toolbar_zoom_pan(tool, button, key, expected):
     tb = NavigationToolbar2(fig.canvas)
     if tool == "zoom":
         tb.zoom()
-        tb.press_zoom(start_event)
-        tb.drag_zoom(drag_event)
-        tb.release_zoom(stop_event)
     else:
         tb.pan()
-        tb.press_pan(start_event)
-        tb.drag_pan(drag_event)
-        tb.release_pan(stop_event)
+
+    start_event._process()
+    drag_event._process()
+    stop_event._process()
 
     # Should be close, but won't be exact due to screen integer resolution
     xlim, ylim, zlim = expected

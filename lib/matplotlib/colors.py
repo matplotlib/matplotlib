@@ -1190,6 +1190,13 @@ class ListedColormap(Colormap):
 
         the list will be extended by repetition.
     """
+
+    @_api.delete_parameter(
+        "3.11", "N",
+        message="Passing 'N' to ListedColormap is deprecated since %(since)s "
+                "and will be removed in %(removal)s. Please ensure the list "
+                "of passed colors is the required length instead."
+    )
     def __init__(self, colors, name='from_list', N=None):
         if N is None:
             self.colors = colors
@@ -1259,7 +1266,7 @@ class ListedColormap(Colormap):
             name = self.name + "_r"
 
         colors_r = list(reversed(self.colors))
-        new_cmap = ListedColormap(colors_r, name=name, N=self.N)
+        new_cmap = ListedColormap(colors_r, name=name)
         # Reverse the over/under values too
         new_cmap._rgba_over = self._rgba_under
         new_cmap._rgba_under = self._rgba_over
@@ -1943,14 +1950,14 @@ class BivarColormap:
             if origin_1_as_int > self.M-1:
                 origin_1_as_int = self.M-1
             one_d_lut = self._lut[:, origin_1_as_int]
-            new_cmap = ListedColormap(one_d_lut, name=f'{self.name}_0', N=self.N)
+            new_cmap = ListedColormap(one_d_lut, name=f'{self.name}_0')
 
         elif item == 1:
             origin_0_as_int = int(self._origin[0]*self.N)
             if origin_0_as_int > self.N-1:
                 origin_0_as_int = self.N-1
             one_d_lut = self._lut[origin_0_as_int, :]
-            new_cmap = ListedColormap(one_d_lut, name=f'{self.name}_1', N=self.M)
+            new_cmap = ListedColormap(one_d_lut, name=f'{self.name}_1')
         else:
             raise KeyError(f"only 0 or 1 are"
                            f" valid keys for BivarColormap, not {item!r}")
