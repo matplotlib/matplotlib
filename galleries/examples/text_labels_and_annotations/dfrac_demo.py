@@ -5,13 +5,13 @@ The difference between \\dfrac and \\frac
 
 In this example, the differences between the \\dfrac and \\frac TeX macros are
 illustrated; in particular, the difference between display style and text style
-fractions when using Mathtex.
+fractions when using Mathtext.
 
 .. versionadded:: 2.1
 
 .. note::
     To use \\dfrac with the LaTeX engine (text.usetex : True), you need to
-    import the amsmath package with the text.latex.preamble rc, which is
+    import the amsmath package with :rc:`text.latex.preamble`, which is
     an unsupported feature; therefore, it is probably a better idea to just
     use the \\displaystyle option before the \\frac macro to get this behavior
     with the LaTeX engine.
