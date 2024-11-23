@@ -1218,6 +1218,7 @@ def _generate_normals(polygons):
         v2 = np.empty((len(polygons), 3))
         for poly_i, ps in enumerate(polygons):
             n = len(ps)
+            ps = np.asarray(ps)
             i1, i2, i3 = 0, n//3, 2*n//3
             v1[poly_i, :] = ps[i1, :] - ps[i2, :]
             v2[poly_i, :] = ps[i2, :] - ps[i3, :]
