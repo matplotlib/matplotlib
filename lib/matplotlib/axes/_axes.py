@@ -5919,6 +5919,8 @@ class Axes(_AxesBase):
             C = np.asanyarray(args[0])
             nrows, ncols = C.shape[:2]
             if shading in ['gouraud', 'nearest']:
+                if shading == 'nearest':
+                    shading = 'flat'
                 X, Y = np.meshgrid(np.arange(ncols), np.arange(nrows))
             else:
                 X, Y = np.meshgrid(np.arange(ncols + 1), np.arange(nrows + 1))
