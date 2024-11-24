@@ -2200,7 +2200,7 @@ def test_bar_hatches(fig_test, fig_ref):
     y = [2, 3]
     hatches = ['x', 'o']
     for i in range(2):
-        ax_ref.bar(x[i], y[i], color='C0', hatch=hatches[i])
+        ax_ref.bar(x[i], y[i], facecolor='C0', hatch=hatches[i])
 
     ax_test.bar(x, y, hatch=hatches)
 
@@ -9452,3 +9452,35 @@ def test_wrong_use_colorizer():
     for kwrd in kwrds:
         with pytest.raises(ValueError, match=match_str):
             fig.figimage(c, colorizer=cl, **kwrd)
+
+
+def test_bar_color_precedence():
+    # Test the precedence of 'color' and 'facecolor' in bar plots
+    to_rgba = mcolors.to_rgba
+    fig, ax = plt.subplots()
+
+    # Case 1: Only 'color'
+    bars = ax.bar([1, 2, 3], [4, 5, 6], color='red')
+    for bar in bars:
+        assert to_rgba(bar.get_facecolor()) == to_rgba('red')
+
+    ax.cla()
+
+    # Case 2: Only 'facecolor'
+    bars = ax.bar([1, 2, 3], [4, 5, 6], facecolor='blue')
+    for bar in bars:
+        assert to_rgba(bar.get_facecolor()) == to_rgba('blue')
+
+    ax.cla()
+
+    # Case 2: 'facecolor' and 'color'
+    bars = ax.bar([1, 2, 3], [4, 5, 6], color='red', facecolor='green')
+    for bar in bars:
+        assert to_rgba(bar.get_facecolor()) == to_rgba('green')
+
+    ax.cla()
+
+    # Case 4: None
+    bars = ax.bar([1, 2, 3], [4, 5, 6])
+    for bar in bars:
+        assert to_rgba(bar.get_facecolor()) == to_rgba('blue')
