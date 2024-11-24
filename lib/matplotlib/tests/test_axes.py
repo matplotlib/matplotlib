@@ -2200,7 +2200,7 @@ def test_bar_hatches(fig_test, fig_ref):
     y = [2, 3]
     hatches = ['x', 'o']
     for i in range(2):
-        ax_ref.bar(x[i], y[i], facecolor='C0', hatch=hatches[i])
+        ax_ref.bar(x[i], y[i], color='C0', hatch=hatches[i])
 
     ax_test.bar(x, y, hatch=hatches)
 
