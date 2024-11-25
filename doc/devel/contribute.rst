@@ -183,6 +183,21 @@ please cite us following the :doc:`/project/citing` guidelines.
 If you have developed an extension to Matplotlib, please consider adding it to our
 `third party package <https://github.com/matplotlib/mpl-third-party>`_  list.
 
+
+.. _generative_ai:
+
+
+Restrictions on Generative AI Usage
+===================================
+
+We expect authentic engagement in our community.  Be wary of posting output
+from Large Language Models or similar generative AI as comments on GitHub or
+our discourse server, as such comments tend to be formulaic and low content.
+If you use generative AI tools as an aid in developing code or documentation
+changes, ensure that you fully understand the proposed changes and can explain
+why they are the correct approach and an improvement to the current state.
+
+
 .. _new_contributors:
 
 New contributors
