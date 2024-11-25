@@ -202,8 +202,8 @@ plt.show()
 # ======
 #
 # Subplot titles are set in much the same way as labels, but there is
-# the ``loc`` keyword argument that can change the position and justification
-# (the default value is ``loc='center'``).
+# the *loc* keyword argument that can change the position and justification
+# (the default value is "center").
 
 fig, axs = plt.subplots(3, 1, figsize=(5, 6), tight_layout=True)
 locs = ['center', 'left', 'right']
