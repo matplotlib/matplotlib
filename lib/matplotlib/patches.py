@@ -4596,8 +4596,8 @@ class ConnectionPatch(FancyArrowPatch):
 
         fig = self.get_figure(root=False)
         if s in ["figure points", "axes points"]:
-            x *= fig.dpi / 72
-            y *= fig.dpi / 72
+            x = x * fig.dpi / 72
+            y = y * fig.dpi / 72
             s = s.replace("points", "pixels")
         elif s == "figure fraction":
             s = fig.transFigure
