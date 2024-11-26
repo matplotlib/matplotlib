@@ -123,11 +123,11 @@ jobs:
           allow-prereleases: true
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: deadsnakes/action@e640ac8743173a67cca4d7d77cd837e514bf98e8  # v3.2.0
+        uses: Quansight-Labs/setup-python@b9ab292c751a42bcd2bb465b7fa202ea2c3f5796  # v5.3.1
         if: matrix.python-version == '3.13t'
         with:
-          python-version: '3.13'
-          nogil: true
+          python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
 
       - name: Install OS dependencies
         run: |
@@ -174,11 +174,6 @@ jobs:
               texlive-luatex \
               texlive-pictures \
               texlive-xetex
-            if [[ "${{ matrix.python-version }}" = '3.13t' ]]; then
-              # TODO: Remove this once setup-python supports nogil distributions.
-              sudo apt-get install -yy --no-install-recommends \
-                python3.13-tk-nogil
-            fi
             if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
               sudo apt-get install -yy --no-install-recommends libopengl0
             else  # ubuntu-22.04
@@ -241,15 +236,6 @@ jobs:
           restore-keys: |
             4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
             4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-
-
-      - name: Install the nightly dependencies
-        if: matrix.python-version == '3.13t'
-        run: |
-          python -m pip install pytz tzdata python-dateutil  # Must be installed for Pandas.
-          python -m pip install \
-              --pre \
-              --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
-              --upgrade --only-binary=:all: numpy pandas pillow contourpy
 
       - name: Install Python dependencies
         run: |
