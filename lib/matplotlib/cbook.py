@@ -681,7 +681,10 @@ class _Stack:
 
 
 def safe_masked_invalid(x, copy=False):
-    x = np.array(x, subok=True, copy=copy)
+    x = np.array(x, subok=True)
+    if copy:
+        x = x.copy()
+    
     if not x.dtype.isnative:
         # If we have already made a copy, do the byteswap in place, else make a
         # copy with the byte order swapped.
