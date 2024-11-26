@@ -9464,7 +9464,7 @@ def test_bar_color_precedence():
         assert mcolors.same_color(bar.get_facecolor(), 'blue')
 
     # case 2: Only 'color'
-    bars = ax.bar([1, 2, 3], [4, 5, 6], color='red')
+    bars = ax.bar([11, 12, 13], [4, 5, 6], color='red')
     for bar in bars:
         assert mcolors.same_color(bar.get_facecolor(), 'red')
 
