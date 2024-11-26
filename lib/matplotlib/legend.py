@@ -374,6 +374,7 @@ class Legend(Artist):
         handletextpad=None,  # pad between the legend handle and text
         borderaxespad=None,  # pad between the Axes and legend border
         columnspacing=None,  # spacing between columns
+        itemboxalign="baseline", # vertical alignment of each entry in legend
 
         ncols=1,     # number of columns
         mode=None,  # horizontal distribution of columns: None or "expand"
@@ -453,6 +454,7 @@ class Legend(Artist):
         self.handletextpad = mpl._val_or_rc(handletextpad, 'legend.handletextpad')
         self.borderaxespad = mpl._val_or_rc(borderaxespad, 'legend.borderaxespad')
         self.columnspacing = mpl._val_or_rc(columnspacing, 'legend.columnspacing')
+        self.itemboxalign = mpl._val_or_rc(itemboxalign, 'legend.itemboxalign')
         self.shadow = mpl._val_or_rc(shadow, 'legend.shadow')
 
         if reverse:
@@ -908,7 +910,7 @@ class Legend(Artist):
             itemboxes = [HPacker(pad=0,
                                  sep=self.handletextpad * fontsize,
                                  children=[h, t] if markerfirst else [t, h],
-                                 align="baseline")
+                                 align=self.itemboxalign)
                          for h, t in handles_and_labels_column]
             # pack columnbox
             alignment = "baseline" if markerfirst else "right"
