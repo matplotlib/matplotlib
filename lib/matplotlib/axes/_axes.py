@@ -2426,10 +2426,12 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
         color : :mpltype:`color` or list of :mpltype:`color`, optional
-            The colors of the bar faces.
+            The colors of the bar faces. This is an alias for *facecolor*.
+            If both are given, *facecolor* takes precedence.
 
         facecolor : :mpltype:`color` or list of :mpltype:`color`, optional
             The colors of the bar faces.
+            If both *color* and *facecolor are given, *facecolor* takes precedence.
 
         edgecolor : :mpltype:`color` or list of :mpltype:`color`, optional
             The colors of the bar edges.
