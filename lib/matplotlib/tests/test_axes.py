@@ -9456,31 +9456,24 @@ def test_wrong_use_colorizer():
 
 def test_bar_color_precedence():
     # Test the precedence of 'color' and 'facecolor' in bar plots
-    to_rgba = mcolors.to_rgba
     fig, ax = plt.subplots()
 
-    # Case 1: Only 'color'
-    bars = ax.bar([1, 2, 3], [4, 5, 6], color='red')
-    for bar in bars:
-        assert to_rgba(bar.get_facecolor()) == to_rgba('red')
-
-    ax.cla()
-
-    # Case 2: Only 'facecolor'
-    bars = ax.bar([1, 2, 3], [4, 5, 6], facecolor='blue')
-    for bar in bars:
-        assert to_rgba(bar.get_facecolor()) == to_rgba('blue')
-
-    ax.cla()
-
-    # Case 2: 'facecolor' and 'color'
-    bars = ax.bar([1, 2, 3], [4, 5, 6], color='red', facecolor='green')
-    for bar in bars:
-        assert to_rgba(bar.get_facecolor()) == to_rgba('green')
-
-    ax.cla()
-
-    # Case 4: None
+    # case 1: no color specified
     bars = ax.bar([1, 2, 3], [4, 5, 6])
     for bar in bars:
-        assert to_rgba(bar.get_facecolor()) == to_rgba('blue')
+        assert mcolors.same_color(bar.get_facecolor(), 'blue')
+
+    # case 2: Only 'color'
+    bars = ax.bar([1, 2, 3], [4, 5, 6], color='red')
+    for bar in bars:
+        assert mcolors.same_color(bar.get_facecolor(), 'red')
+
+    # case 3: Only 'facecolor'
+    bars = ax.bar([1, 2, 3], [4, 5, 6], facecolor='blue')
+    for bar in bars:
+        assert mcolors.same_color(bar.get_facecolor(), 'blue')
+
+    # case 4: 'facecolor' and 'color'
+    bars = ax.bar([1, 2, 3], [4, 5, 6], color='red', facecolor='green')
+    for bar in bars:
+        assert mcolors.same_color(bar.get_facecolor(), 'green')
