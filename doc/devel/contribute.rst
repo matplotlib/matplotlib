@@ -340,13 +340,15 @@ then submit a "pull request" (PR). To work on a a pull request:
    Matplotlib repository to your own computer or by using Github codespaces, by
    following the instructions in :ref:`installing_for_devs`
 
-#. **Then** start a pull request by following the guidance in :ref:`development workflow <development-workflow>`
+#. **Then** start solving the issue, following the guidance in
+   :ref:`development workflow <development-workflow>`
 
-#. **After starting** check that your contribution meets the :ref:`pull request guidelines <pr-author-guidelines>`
-   and :ref:`update the pull request <update-pull-request>` as needed.
+#. **As part of verifying your changes** check that your contribution meets
+   the :ref:`pull request guidelines <pr-author-guidelines>`
+   and then :ref:`open a pull request <open-pull-request>`.
 
 #. **Finally** follow up with maintainers on the PR if waiting more than a few days for
-   feedback.
+   feedback.  :ref:`Update the pull request <update-pull-request>` as needed.
 
 If you have questions of any sort, reach out on the :ref:`contributor_incubator` and join
 the :ref:`new_contributors_meeting`.
