@@ -28,6 +28,8 @@ from matplotlib.transforms import (
     Affine2D, BboxBase, Bbox, BboxTransform, BboxTransformTo,
     IdentityTransform, TransformedBbox)
 
+import matplotlib.image as mimage
+
 _log = logging.getLogger(__name__)
 
 # map interpolation strings to module constants
@@ -1093,6 +1095,7 @@ class NonUniformImage(AxesImage):
         """
         Set the grid for the pixel centers, and the pixel values.
 
+
         Parameters
         ----------
         x, y : 1D array-like
@@ -1582,6 +1585,20 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             _api.check_in_list(('upper', 'lower'), origin=origin)
         if origin == "lower":
             arr = arr[::-1]
+
+        # This specifically handled list-of-list-of-list
+        if (isinstance(arr, list)):
+            fig = Figure()
+            ax = fig.add_axes([0, 0, 1, 1],
+                              aspect='auto',
+                              frameon=False,
+                              xticks=[],
+                              yticks=[])
+            im = mimage.AxesImage(ax, cmap=cmap)
+            im.set_data(arr)
+            im._scale_norm(None, vmin, vmax)
+            arr = im.get_array()
+
         if (isinstance(arr, memoryview) and arr.format == "B"
                 and arr.ndim == 3 and arr.shape[-1] == 4):
             # Such an ``arr`` would also be handled fine by sm.to_rgba below
@@ -1630,6 +1647,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             background = PIL.Image.new("RGB", pil_shape, color)
             background.paste(image, image)
             image = background
+
         pil_kwargs.setdefault("format", format)
         pil_kwargs.setdefault("dpi", (dpi, dpi))
         image.save(fname, **pil_kwargs)

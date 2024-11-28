@@ -5869,6 +5869,8 @@ class Axes(_AxesBase):
         `~matplotlib.pyplot.imshow` expects RGB images adopting the straight
         (unassociated) alpha representation.
         """
+        print("Entering imshow")
+
         im = mimage.AxesImage(self, cmap=cmap, norm=norm, colorizer=colorizer,
                               interpolation=interpolation, origin=origin,
                               extent=extent, filternorm=filternorm,
@@ -5895,6 +5897,8 @@ class Axes(_AxesBase):
         # update ax.dataLim, and, if autoscaling, set viewLim
         # to tightly fit the image, regardless of dataLim.
         im.set_extent(im.get_extent())
+
+        ##### TODO
 
         self.add_image(im)
         return im
