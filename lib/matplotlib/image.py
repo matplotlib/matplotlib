@@ -1587,6 +1587,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             arr = arr[::-1]
 
         # This specifically handled list-of-list-of-list
+        # Produced an image instance using the data from arr and do scaling
         if (isinstance(arr, list)):
             fig = Figure()
             ax = fig.add_axes([0, 0, 1, 1],

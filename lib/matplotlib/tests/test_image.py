@@ -196,22 +196,25 @@ def test_imsave_rgba_origin(origin):
 def test_imsave_fspath(fmt):
     plt.imsave(Path(os.devnull), np.array([[0, 1]]), format=fmt)
 
-def test_imsave_roundtrip():
-    # Initializing RGBA data
-    original_img = np.array(
-           [[[255, 0, 0, 1], [0, 255, 0, 1], [0, 0, 255, 1]],
-           [[0, 255, 0, 1], [0, 255, 0, 1], [0, 0, 0, 1]],
-           [[0, 0, 255, 1], [0, 0, 255, 1], [0, 0, 0, 1]]], dtype=np.uint8)
 
+def test_imsave_python_vanilla_list():
+    # Initializing RGBA data
+    # Instead of testing numpy array, use python list
+    input_img = [
+        [[255, 0, 0, 1], [0, 255, 0, 1], [0, 0, 255, 1]],
+        [[0, 255, 0, 1], [0, 255, 0, 1], [0, 0, 0, 1]],
+        [[0, 0, 255, 1], [0, 0, 255, 1], [0, 0, 0, 1]]
+    ]
     buff = io.BytesIO()
-    plt.imsave(buff, original_img, format="png")
+    plt.imsave(buff, input_img, format="png")
     buff.seek(0)
     read_img = plt.imread(buff)
 
-    # Need to multiplied by 255 to adjust for normalized process imread()
+    # Need to multiply by 255 to adjust for normalization in imread()
     read_img = (255*read_img).astype('uint8')
 
-    assert_array_equal(original_img, read_img)
+    assert_array_equal(np.array(input_img), read_img)
+
 
 def test_imsave_color_alpha():
     # Test that imsave accept arrays with ndim=3 where the third dimension is
