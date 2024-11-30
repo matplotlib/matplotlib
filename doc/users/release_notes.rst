@@ -23,6 +23,7 @@ Version 3.9
     ../api/prev_api_changes/api_changes_3.9.1.rst
     ../api/prev_api_changes/api_changes_3.9.0.rst
     github_stats.rst
+    prev_whats_new/github_stats_3.9.2.rst
     prev_whats_new/github_stats_3.9.1.rst
     prev_whats_new/github_stats_3.9.0.rst
 
