@@ -78,7 +78,10 @@ def _get_available_interactive_backends():
         missing = [dep for dep in deps if not importlib.util.find_spec(dep)]
         if missing:
             reason = "{} cannot be imported".format(", ".join(missing))
-        elif env["MPLBACKEND"] == "tkagg" and _is_linux_and_xdisplay_invalid:
+        elif _is_linux_and_xdisplay_invalid and (
+                env["MPLBACKEND"] == "tkagg"
+                # Remove when https://github.com/wxWidgets/Phoenix/pull/2638 is out.
+                or env["MPLBACKEND"].startswith("wx")):
             reason = "$DISPLAY is unset"
         elif _is_linux_and_display_invalid:
             reason = "$DISPLAY and $WAYLAND_DISPLAY are unset"
