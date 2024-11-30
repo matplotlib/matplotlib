@@ -5928,10 +5928,7 @@ class Axes(_AxesBase):
             else:
                 X, Y = np.meshgrid(np.arange(ncols + 1), np.arange(nrows + 1))
                 shading = 'flat'
-            C = cbook.safe_masked_invalid(C, copy=True)
-            return X, Y, C, shading
-
-        if len(args) == 3:
+        elif len(args) == 3:
             # Check x and y for bad data...
             C = np.asanyarray(args[2])
             # unit conversion allows e.g. datetime objects as axis values
