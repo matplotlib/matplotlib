@@ -1499,6 +1499,20 @@ def test_pcolormesh_rgba(fig_test, fig_ref, dims, alpha):
     ax.pcolormesh(c[..., 0], cmap="gray", vmin=0, vmax=1, alpha=alpha)
 
 
+@check_figures_equal(extensions=["png"])
+def test_pcolormesh_nearest_noargs(fig_test, fig_ref):
+    x = np.arange(4)
+    y = np.arange(7)
+    X, Y = np.meshgrid(x, y)
+    C = X + Y
+
+    ax = fig_test.subplots()
+    ax.pcolormesh(C, shading="nearest")
+
+    ax = fig_ref.subplots()
+    ax.pcolormesh(x, y, C, shading="nearest")
+
+
 @image_comparison(['pcolormesh_datetime_axis.png'], style='mpl20')
 def test_pcolormesh_datetime_axis():
     # Remove this line when this test image is regenerated.
