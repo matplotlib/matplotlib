@@ -455,6 +455,9 @@ def qt5_and_qt6_pairs():
             yield from ([qt5, qt6], [qt6, qt5])
 
 
+@pytest.mark.skipif(
+    sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
+    reason="$DISPLAY and $WAYLAND_DISPLAY are unset")
 @pytest.mark.parametrize('host, mpl', [*qt5_and_qt6_pairs()])
 def test_cross_Qt_imports(host, mpl):
     try:
