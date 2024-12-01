@@ -6028,9 +6028,9 @@ class Axes(_AxesBase):
                 # at the midpoints between the grid centers and then use the
                 # flat algorithm.
                 def _interp_grid(X, require_monotonicity=False):
-                    # helper for below. To ensure the cell edges are calculated 
-                    # correctly, when expanding columns, the monotonicity of 
-                    # X coords needs to be checked. When expanding rows, the 
+                    # helper for below. To ensure the cell edges are calculated
+                    # correctly, when expanding columns, the monotonicity of
+                    # X coords needs to be checked. When expanding rows, the
                     # monotonicity of Y coords needs to be checked.
                     if np.shape(X)[1] > 1:
                         dX = np.diff(X, axis=1) * 0.5
