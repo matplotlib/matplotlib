@@ -1741,6 +1741,7 @@ class IndexLocator(Locator):
     IndexLocator assumes index plotting; i.e., that the ticks are placed at integer
     values in the range between 0 and len(data) inclusive.
     """
+
     def __init__(self, base, offset):
         """Place ticks every *base* data point, starting at *offset*."""
         self._base = base
@@ -1793,9 +1794,7 @@ class FixedLocator(Locator):
 
         .. note::
 
-            Because the values are fixed, vmin and vmax are not used in this
-            method.
-
+            Because the values are fixed, *vmin* and *vmax* are not used.
         """
         if self.nbins is None:
             return self.locs
@@ -1810,7 +1809,7 @@ class FixedLocator(Locator):
 
 class NullLocator(Locator):
     """
-    No ticks
+    Place no ticks.
     """
 
     def __call__(self):
@@ -1822,8 +1821,7 @@ class NullLocator(Locator):
 
         .. note::
 
-            Because the values are Null, vmin and vmax are not used in this
-            method.
+            Because there are no ticks, *vmin* and *vmax* are not used.
         """
         return []
 
@@ -1832,12 +1830,11 @@ class LinearLocator(Locator):
     """
     Place ticks at evenly spaced values.
 
-    The first time this function is called it will try to set the
-    number of ticks to make a nice tick partitioning.  Thereafter, the
-    number of ticks will be fixed so that interactive navigation will
-    be nice
-
+    The first time this function is called, it will try to set the number of
+    ticks to make a nice tick partitioning.  Thereafter, the number of ticks
+    will be fixed to avoid jumping during interactive navigation.
     """
+
     def __init__(self, numticks=None, presets=None):
         """
         Parameters
@@ -1997,6 +1994,7 @@ class _Edge_integer:
     Take floating-point precision limitations into account when calculating
     tick locations as integer multiples of a step.
     """
+
     def __init__(self, step, offset):
         """
         Parameters

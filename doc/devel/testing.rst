@@ -32,6 +32,8 @@ particular the :ref:`additional dependencies <test-dependencies>` for testing.
    You have to additionally get the reference images from the repository,
    because they are not distributed with pre-built Matplotlib packages.
 
+.. _run_tests:
+
 Running the tests
 -----------------
 

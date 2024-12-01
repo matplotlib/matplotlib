@@ -13,6 +13,11 @@ out the development guide https://matplotlib.org/devdocs/devel/index.html
 Additionally, please summarize the changes in the title, for example "Raise ValueError on
 non-numeric input to set_xlim" and avoid non-descriptive titles such as "Addresses
 issue #8576".
+
+If possible, please provide a minimum self-contained example.  If you have used
+generative AI as an aid in preparing this PR, see
+https://dev.matplotlib.org/devel/contributing.html#generative_ai.
+
 -->
 
 

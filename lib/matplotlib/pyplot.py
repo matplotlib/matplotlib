@@ -818,8 +818,7 @@ def xkcd(
 
     Notes
     -----
-    This function works by a number of rcParams, so it will probably
-    override others you have set before.
+    This function works by a number of rcParams, overriding those set before.
 
     If you want the effects of this function to be temporary, it can
     be used as a context manager, for example::
@@ -1192,9 +1191,7 @@ def close(fig: None | int | str | Figure | Literal["all"] = None) -> None:
         _pylab_helpers.Gcf.destroy_all()
     elif isinstance(fig, int):
         _pylab_helpers.Gcf.destroy(fig)
-    elif hasattr(fig, 'int'):
-        # if we are dealing with a type UUID, we
-        # can use its integer representation
+    elif hasattr(fig, 'int'):  # UUIDs get converted to ints by figure().
         _pylab_helpers.Gcf.destroy(fig.int)
     elif isinstance(fig, str):
         all_labels = get_figlabels()
@@ -1204,8 +1201,8 @@ def close(fig: None | int | str | Figure | Literal["all"] = None) -> None:
     elif isinstance(fig, Figure):
         _pylab_helpers.Gcf.destroy_fig(fig)
     else:
-        raise TypeError("close() argument must be a Figure, an int, a string, "
-                        "or None, not %s" % type(fig))
+        _api.check_isinstance(  # type: ignore[unreachable]
+            (Figure, int, str, None), fig=fig)
 
 
 def clf() -> None:

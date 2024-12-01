@@ -146,6 +146,27 @@ The editing workflow
 .. _why the -a flag?: http://gitready.com/beginner/2009/01/18/the-staging-area.html
 
 
+Verify your changes
+===================
+
+Check that your change does what you intend.  For code changes:
+
+* If the issue you are working on provided a code example, run that example
+  against your branch and check that you now get the desired result.  Note that
+  adapting the issue example is often a good way to create a new test.
+
+* Run the tests to check that your change has not had unintended consequences
+  on existing functionality.  See :ref:`run_tests`.
+
+For documentation changes, build the documentation locally to check that
+it renders how you intended and that any new links work correctly.  See
+:ref:`build_docs`.
+
+This is also a good time to look through the :ref:`pr-author-guidelines` and
+address as many of the relevant points as you can.
+
+.. _open-pull-request:
+
 Open a pull request
 ===================
 

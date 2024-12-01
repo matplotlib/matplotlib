@@ -1499,6 +1499,20 @@ def test_pcolormesh_rgba(fig_test, fig_ref, dims, alpha):
     ax.pcolormesh(c[..., 0], cmap="gray", vmin=0, vmax=1, alpha=alpha)
 
 
+@check_figures_equal(extensions=["png"])
+def test_pcolormesh_nearest_noargs(fig_test, fig_ref):
+    x = np.arange(4)
+    y = np.arange(7)
+    X, Y = np.meshgrid(x, y)
+    C = X + Y
+
+    ax = fig_test.subplots()
+    ax.pcolormesh(C, shading="nearest")
+
+    ax = fig_ref.subplots()
+    ax.pcolormesh(x, y, C, shading="nearest")
+
+
 @image_comparison(['pcolormesh_datetime_axis.png'], style='mpl20')
 def test_pcolormesh_datetime_axis():
     # Remove this line when this test image is regenerated.
@@ -9452,3 +9466,28 @@ def test_wrong_use_colorizer():
     for kwrd in kwrds:
         with pytest.raises(ValueError, match=match_str):
             fig.figimage(c, colorizer=cl, **kwrd)
+
+
+def test_bar_color_precedence():
+    # Test the precedence of 'color' and 'facecolor' in bar plots
+    fig, ax = plt.subplots()
+
+    # case 1: no color specified
+    bars = ax.bar([1, 2, 3], [4, 5, 6])
+    for bar in bars:
+        assert mcolors.same_color(bar.get_facecolor(), 'blue')
+
+    # case 2: Only 'color'
+    bars = ax.bar([11, 12, 13], [4, 5, 6], color='red')
+    for bar in bars:
+        assert mcolors.same_color(bar.get_facecolor(), 'red')
+
+    # case 3: Only 'facecolor'
+    bars = ax.bar([21, 22, 23], [4, 5, 6], facecolor='yellow')
+    for bar in bars:
+        assert mcolors.same_color(bar.get_facecolor(), 'yellow')
+
+    # case 4: 'facecolor' and 'color'
+    bars = ax.bar([31, 32, 33], [4, 5, 6], color='red', facecolor='green')
+    for bar in bars:
+        assert mcolors.same_color(bar.get_facecolor(), 'green')
