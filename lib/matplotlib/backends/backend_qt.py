@@ -856,7 +856,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
 class SubplotToolQt(QtWidgets.QDialog):
     def __init__(self, targetfig, parent):
-        super().__init__()
+        super().__init__(parent)
         self.setWindowIcon(QtGui.QIcon(
             str(cbook._get_data_path("images/matplotlib.png"))))
         self.setObjectName("SubplotTool")

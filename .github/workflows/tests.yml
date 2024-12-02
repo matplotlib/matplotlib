@@ -123,11 +123,11 @@ jobs:
           allow-prereleases: true
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: deadsnakes/action@e640ac8743173a67cca4d7d77cd837e514bf98e8  # v3.2.0
+        uses: Quansight-Labs/setup-python@b9ab292c751a42bcd2bb465b7fa202ea2c3f5796  # v5.3.1
         if: matrix.python-version == '3.13t'
         with:
-          python-version: '3.13'
-          nogil: true
+          python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
 
       - name: Install OS dependencies
         run: |
@@ -139,7 +139,6 @@ jobs:
               ccache \
               cm-super \
               dvipng \
-              ffmpeg \
               fonts-freefont-otf \
               fonts-noto-cjk \
               fonts-wqy-zenhei \
@@ -174,10 +173,8 @@ jobs:
               texlive-luatex \
               texlive-pictures \
               texlive-xetex
-            if [[ "${{ matrix.python-version }}" = '3.13t' ]]; then
-              # TODO: Remove this once setup-python supports nogil distributions.
-              sudo apt-get install -yy --no-install-recommends \
-                python3.13-tk-nogil
+            if [[ "${{ matrix.name-suffix }}" != '(Minimum Versions)' ]]; then
+              sudo apt-get install -yy --no-install-recommends ffmpeg poppler-utils
             fi
             if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
               sudo apt-get install -yy --no-install-recommends libopengl0
@@ -201,8 +198,8 @@ jobs:
             done
             # Workaround for https://github.com/actions/runner-images/issues/10984
             brew uninstall --ignore-dependencies --force pkg-config@0.29.2
-            brew install ccache ghostscript gobject-introspection gtk4 ninja
-            brew install --cask font-noto-sans-cjk inkscape
+            brew install ccache ffmpeg ghostscript gobject-introspection gtk4 imagemagick ninja
+            brew install --cask font-noto-sans-cjk font-noto-sans-cjk-sc inkscape
             ;;
           esac
 
@@ -241,15 +238,6 @@ jobs:
           restore-keys: |
             4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
             4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-
-
-      - name: Install the nightly dependencies
-        if: matrix.python-version == '3.13t'
-        run: |
-          python -m pip install pytz tzdata python-dateutil  # Must be installed for Pandas.
-          python -m pip install \
-              --pre \
-              --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
-              --upgrade --only-binary=:all: numpy pandas pillow contourpy
 
       - name: Install Python dependencies
         run: |
