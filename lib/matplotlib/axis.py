@@ -539,7 +539,7 @@ class _LazyTickList:
             # attribute (e.g. in certain projection classes which override
             # e.g. get_xaxis_text1_transform).  In order to avoid infinite
             # recursion, first set the majorTicks on the instance temporarily
-            # to an empty lis. Then create the tick; note that _get_tick()
+            # to an empty list. Then create the tick; note that _get_tick()
             # may call reset_ticks(). Therefore, the final tick list is
             # created and assigned afterwards.
             if self._major:
