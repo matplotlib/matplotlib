@@ -2906,7 +2906,7 @@ class TestScatter:
     @pytest.mark.parametrize('c_case, re_key', params_test_scatter_c)
     def test_scatter_c(self, c_case, re_key):
         def get_next_color():
-            return 'blue'  # currently unused
+            return 'blue'  # currently unused   # pragma: no cover
 
         xsize = 4
         # Additional checking of *c* (introduced in #11383).
@@ -3000,7 +3000,7 @@ _result = namedtuple('_result', 'c, colors')
      ])
 def test_parse_scatter_color_args(params, expected_result):
     def get_next_color():
-        return 'blue'  # currently unused
+        return 'blue'  # currently unused   # pragma: no cover
 
     c, colors, _edgecolors = mpl.axes.Axes._parse_scatter_color_args(
         *params, get_next_color_func=get_next_color)
@@ -3027,7 +3027,7 @@ del _result
      ])
 def test_parse_scatter_color_args_edgecolors(kwargs, expected_edgecolors):
     def get_next_color():
-        return 'blue'  # currently unused
+        return 'blue'  # currently unused   # pragma: no cover
 
     c = kwargs.pop('c', None)
     edgecolors = kwargs.pop('edgecolors', None)
@@ -3039,7 +3039,7 @@ def test_parse_scatter_color_args_edgecolors(kwargs, expected_edgecolors):
 
 def test_parse_scatter_color_args_error():
     def get_next_color():
-        return 'blue'  # currently unused
+        return 'blue'  # currently unused   # pragma: no cover
 
     with pytest.raises(ValueError,
                        match="RGBA values should be within 0-1 range"):
@@ -3066,7 +3066,7 @@ COLOR_TEST_CASES = [
 def test_parse_c_facecolor_warning_direct(c, facecolor):
     """Test the internal _parse_scatter_color_args method directly."""
     def get_next_color():
-        return 'blue'
+        return 'blue'  # currently unused   # pragma: no cover
 
     # Test with facecolors (plural)
     with pytest.warns(UserWarning, match=WARN_MSG):
