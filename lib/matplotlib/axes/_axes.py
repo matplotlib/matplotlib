@@ -6035,7 +6035,7 @@ class Axes(_AxesBase):
                     if np.shape(X)[1] > 1:
                         dX = np.diff(X, axis=1) * 0.5
                         if (require_monotonicity and
-                                not (np.all(dX >= 0) or np.all(dX <= 0))):
+                            not (np.all(dX >= 0) or np.all(dX <= 0))):
                             _api.warn_external(
                                 f"The input coordinates to {funcname} are "
                                 "interpreted as cell centers, but are not "
