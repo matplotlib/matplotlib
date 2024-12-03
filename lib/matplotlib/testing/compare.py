@@ -300,7 +300,7 @@ def convert(filename, cache):
         _log.debug("For %s: converting to png.", filename)
         convert = converter[path.suffix[1:]]
         if path.suffix == ".svg":
-            contents = path.read_text()
+            contents = path.read_text(encoding="utf-8")
             # NOTE: This check should be kept in sync with font styling in
             # `lib/matplotlib/backends/backend_svg.py`. If it changes, then be sure to
             # re-generate any SVG test files using this mode, or else such tests will
