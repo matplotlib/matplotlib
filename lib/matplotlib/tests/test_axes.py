@@ -1600,15 +1600,15 @@ def test_pcolorargs():
                       match='are not monotonically increasing or decreasing'):
         ax.pcolormesh(X, Y, Z, shading='auto')
     # The case of specifying coordinates by inputting 2D arrays.
-    x = np.linspace(-1,1,3)
-    y = np.linspace(-1,1,3)
+    x = np.linspace(-1, 1, 3)
+    y = np.linspace(-1, 1, 3)
     X, Y = np.meshgrid(x, y)
     Z = np.zeros(X.shape)
     np.random.seed(19680801)
     noise_X = np.random.random(X.shape)
     noise_Y = np.random.random(Y.shape)
     with pytest.warns(UserWarning,
-        match='are not monotonically increasing or decreasing') as record:
+            match='are not monotonically increasing or decreasing') as record:
         # Small perturbations in coordinates will not disrupt the monotonicity
         # of the X-coords and Y-coords in their respective directions.
         # Therefore, no warnings will be triggered.
