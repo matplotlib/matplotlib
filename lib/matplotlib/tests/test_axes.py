@@ -1608,7 +1608,8 @@ def test_pcolorargs():
     noise_X = np.random.random(X.shape)
     noise_Y = np.random.random(Y.shape)
     with pytest.warns(UserWarning,
-            match='are not monotonically increasing or decreasing') as record:
+                      match='are not monotonically increasing or '
+                            'decreasing') as record:
         # Small perturbations in coordinates will not disrupt the monotonicity
         # of the X-coords and Y-coords in their respective directions.
         # Therefore, no warnings will be triggered.
