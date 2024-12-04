@@ -7,10 +7,8 @@ By default Matplotlib resamples images created with `~.Axes.imshow` to
 fit inside the parent `~.axes.Axes`.  This can mean that images that have very
 different original sizes can end up appearing similar in size.
 
-Sometimes, however,  it is desirable to keep the images the same relative size, or
-even to make the images keep exactly the same pixels as the original data.
-Matplotlib does not automatically make either of these things happen,
-but it is possible with some manual manipulation.
+This example shows how to keep the images the same relative size, or
+how to make the images keep exactly the same pixels as the original data.
 
 Preserving relative sizes
 =========================
@@ -39,7 +37,7 @@ a = np.sin(np.pi * 2 * (f0 * R + k * R**2 / 2))
 A = a[:100, :300]
 B = A[:40, :200]
 
-# plot with default axes handling:
+# default layout: both axes have the same size
 fig, axs = plt.subplots(1, 2, facecolor='aliceblue')
 
 axs[0].imshow(A, vmin=-1, vmax=1)
