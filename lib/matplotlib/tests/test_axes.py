@@ -2919,8 +2919,8 @@ class TestScatter:
 
     @pytest.mark.parametrize('c_case, re_key', params_test_scatter_c)
     def test_scatter_c(self, c_case, re_key):
-        def get_next_color():
-            return 'blue'  # currently unused   # pragma: no cover
+        def get_next_color():   # pragma: no cover
+            return 'blue'  # currently unused
 
         xsize = 4
         # Additional checking of *c* (introduced in #11383).
@@ -3013,8 +3013,8 @@ _result = namedtuple('_result', 'c, colors')
       _result(c=['b', 'g'], colors=np.array([[0, 0, 1, 1], [0, .5, 0, 1]]))),
      ])
 def test_parse_scatter_color_args(params, expected_result):
-    def get_next_color():
-        return 'blue'  # currently unused   # pragma: no cover
+    def get_next_color():   # pragma: no cover
+        return 'blue'  # currently unused
 
     c, colors, _edgecolors = mpl.axes.Axes._parse_scatter_color_args(
         *params, get_next_color_func=get_next_color)
@@ -3040,8 +3040,8 @@ del _result
      (dict(color='r', edgecolor='g'), 'g'),
      ])
 def test_parse_scatter_color_args_edgecolors(kwargs, expected_edgecolors):
-    def get_next_color():
-        return 'blue'  # currently unused   # pragma: no cover
+    def get_next_color():   # pragma: no cover
+        return 'blue'  # currently unused
 
     c = kwargs.pop('c', None)
     edgecolors = kwargs.pop('edgecolors', None)
@@ -3052,8 +3052,8 @@ def test_parse_scatter_color_args_edgecolors(kwargs, expected_edgecolors):
 
 
 def test_parse_scatter_color_args_error():
-    def get_next_color():
-        return 'blue'  # currently unused   # pragma: no cover
+    def get_next_color():   # pragma: no cover
+        return 'blue'  # currently unused
 
     with pytest.raises(ValueError,
                        match="RGBA values should be within 0-1 range"):
@@ -3079,8 +3079,8 @@ COLOR_TEST_CASES = [
 @pytest.mark.parametrize('c, facecolor', COLOR_TEST_CASES)
 def test_parse_c_facecolor_warning_direct(c, facecolor):
     """Test the internal _parse_scatter_color_args method directly."""
-    def get_next_color():
-        return 'blue'  # currently unused   # pragma: no cover
+    def get_next_color():   # pragma: no cover
+        return 'blue'  # currently unused
 
     # Test with facecolors (plural)
     with pytest.warns(UserWarning, match=WARN_MSG):
@@ -9072,8 +9072,8 @@ def test_child_axes_removal():
 
 def test_scatter_color_repr_error():
 
-    def get_next_color():
-        return 'blue'  # pragma: no cover
+    def get_next_color():   # pragma: no cover
+        return 'blue'  # currently unused
     msg = (
             r"'c' argument must be a color, a sequence of colors"
             r", or a sequence of numbers, not 'red\\n'"
