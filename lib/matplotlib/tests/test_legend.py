@@ -969,7 +969,7 @@ def test_legend_pathcollection_labelcolor_markfacecolor_cmap():
     # test the labelcolor for labelcolor='markerfacecolor' on PathCollection
     # with colormaps
     fig, ax = plt.subplots()
-    colormap = mpl.cm.viridis(np.random.rand(10))
+    colors = mpl.cm.viridis(np.random.rand(10))
     ax.scatter(
         np.arange(10),
         np.arange(10),
