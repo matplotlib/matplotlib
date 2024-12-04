@@ -210,7 +210,7 @@ class AbstractMovieWriter(abc.ABC):
         """
         Context manager to facilitate writing the movie file.
 
-        ``*args, **kw`` are any parameters that should be passed to `setup`.
+        ``*args, **kwargs`` are any parameters that should be passed to `setup`.
         """
         if mpl.rcParams['savefig.bbox'] == 'tight':
             _log.info("Disabling savefig.bbox = 'tight', as it may cause "
@@ -935,7 +935,7 @@ class Animation:
 
     def save(self, filename, writer=None, fps=None, dpi=None, codec=None,
              bitrate=None, extra_args=None, metadata=None, extra_anim=None,
-             savefig_kwargs=None, *, progress_callback=None):
+             savefig_kwargs=None, *, progress_callback=None, **kwargs):
         """
         Save the animation as a movie file by drawing every frame.
 
@@ -1001,6 +1001,9 @@ class Animation:
             Example code to write the progress to stdout::
 
                 progress_callback = lambda i, n: print(f'Saving frame {i}/{n}')
+
+        **kwargs :
+            Additional keyword arguments are passed to `AbstractMovieWriter.setup`.
 
         Notes
         -----
@@ -1088,7 +1091,7 @@ class Animation:
         # canvas._is_saving = True makes the draw_event animation-starting
         # callback a no-op; canvas.manager = None prevents resizing the GUI
         # widget (both are likewise done in savefig()).
-        with (writer.saving(self._fig, filename, dpi),
+        with (writer.saving(self._fig, filename, dpi, **kwargs),
               cbook._setattr_cm(self._fig.canvas, _is_saving=True, manager=None)):
             if not writer._supports_transparency():
                 facecolor = savefig_kwargs.get('facecolor',
