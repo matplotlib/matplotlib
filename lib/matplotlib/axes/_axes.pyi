@@ -143,14 +143,14 @@ class Axes(_AxesBase):
     def axline(
         self,
         xy1: tuple[float, float],
-        xy2: tuple[float, float],
+        xy2: tuple[float, float] | None = ...,
         **kwargs
     ) -> AxLine: ...
     @overload
     def axline(
         self,
         xy1: tuple[float, float],
-        slope: float,
+        slope: float | None = ...,
         **kwargs
     ) -> AxLine: ...
 
