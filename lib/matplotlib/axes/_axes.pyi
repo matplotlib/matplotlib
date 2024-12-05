@@ -150,6 +150,7 @@ class Axes(_AxesBase):
     def axline(
         self,
         xy1: tuple[float, float],
+        *,
         slope: float | None = ...,
         **kwargs
     ) -> AxLine: ...
