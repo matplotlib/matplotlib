@@ -78,7 +78,10 @@ def _get_available_interactive_backends():
         missing = [dep for dep in deps if not importlib.util.find_spec(dep)]
         if missing:
             reason = "{} cannot be imported".format(", ".join(missing))
-        elif env["MPLBACKEND"] == "tkagg" and _is_linux_and_xdisplay_invalid:
+        elif _is_linux_and_xdisplay_invalid and (
+                env["MPLBACKEND"] == "tkagg"
+                # Remove when https://github.com/wxWidgets/Phoenix/pull/2638 is out.
+                or env["MPLBACKEND"].startswith("wx")):
             reason = "$DISPLAY is unset"
         elif _is_linux_and_display_invalid:
             reason = "$DISPLAY and $WAYLAND_DISPLAY are unset"
@@ -452,6 +455,9 @@ def qt5_and_qt6_pairs():
             yield from ([qt5, qt6], [qt6, qt5])
 
 
+@pytest.mark.skipif(
+    sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
+    reason="$DISPLAY and $WAYLAND_DISPLAY are unset")
 @pytest.mark.parametrize('host, mpl', [*qt5_and_qt6_pairs()])
 def test_cross_Qt_imports(host, mpl):
     try:
