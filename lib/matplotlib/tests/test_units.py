@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
+import matplotlib.patches as mpatches
 import matplotlib.units as munits
 from matplotlib.category import StrCategoryConverter, UnitData
 from matplotlib.dates import DateConverter
@@ -336,3 +337,17 @@ def test_plot_kernel():
     # just a smoketest that fail
     kernel = Kernel([1, 2, 3, 4, 5])
     plt.plot(kernel)
+
+
+def test_connection_patch_units(pd):
+    # tests that this doesn't raise an error
+    fig, (ax1, ax2) = plt.subplots(nrows=2, figsize=(10, 5))
+    x = pd.Timestamp('2017-01-01T12')
+    ax1.axvline(x)
+    y = "test test"
+    ax2.axhline(y)
+    arr = mpatches.ConnectionPatch((x, 0), (0, y),
+                                   coordsA='data', coordsB='data',
+                                   axesA=ax1, axesB=ax2)
+    fig.add_artist(arr)
+    fig.draw_without_rendering()
