@@ -139,15 +139,21 @@ class Axes(_AxesBase):
         self, x: float = ..., ymin: float = ..., ymax: float = ..., **kwargs
     ) -> Line2D: ...
 
-    # TODO: Could separate the xy2 and slope signatures
+    @overload
     def axline(
         self,
         xy1: tuple[float, float],
-        xy2: tuple[float, float] | None = ...,
-        *,
-        slope: float | None = ...,
+        xy2: tuple[float, float],
         **kwargs
     ) -> AxLine: ...
+    @overload
+    def axline(
+        self,
+        xy1: tuple[float, float],
+        slope: float,
+        **kwargs
+    ) -> AxLine: ...
+
     def axhspan(
         self, ymin: float, ymax: float, xmin: float = ..., xmax: float = ..., **kwargs
     ) -> Rectangle: ...
