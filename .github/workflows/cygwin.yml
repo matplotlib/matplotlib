@@ -82,6 +82,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - uses: cygwin/cygwin-install-action@v4
         with:
