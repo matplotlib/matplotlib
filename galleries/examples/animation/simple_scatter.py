@@ -19,10 +19,10 @@ x = np.linspace(0, 10)
 
 def animate(i):
     scat.set_offsets((x[i], 0))
-    return scat,
+    return (scat,)
 
-ani = animation.FuncAnimation(fig, animate, repeat=True,
-                                    frames=len(x) - 1, interval=50)
+
+ani = animation.FuncAnimation(fig, animate, repeat=True, frames=len(x) - 1, interval=50)
 
 # To save the animation using Pillow as a gif
 # writer = animation.PillowWriter(fps=15,
@@ -31,3 +31,11 @@ ani = animation.FuncAnimation(fig, animate, repeat=True,
 # ani.save('scatter.gif', writer=writer)
 
 plt.show()
+
+# %%
+#
+# .. tags::
+#    component: animation,
+#    plot-type: scatter,
+#    purpose: reference,
+#    level: intermediate

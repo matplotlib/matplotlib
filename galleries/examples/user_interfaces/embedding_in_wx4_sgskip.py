@@ -1,7 +1,7 @@
 """
-==================
-Embedding in wx #4
-==================
+==============
+Embed in wx #4
+==============
 
 An example of how to use wxagg in a wx application with a custom toolbar.
 """

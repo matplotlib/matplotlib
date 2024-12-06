@@ -1,7 +1,7 @@
 """
-========================
-Composing Custom Legends
-========================
+======================
+Compose custom legends
+======================
 
 Composing custom legends piece-by-piece.
 

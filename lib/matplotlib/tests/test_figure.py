@@ -151,6 +151,29 @@ def test_figure_label():
         plt.figure(Figure())
 
 
+def test_figure_label_replaced():
+    plt.close('all')
+    fig = plt.figure(1)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match="Changing 'Figure.number' is deprecated"):
+        fig.number = 2
+    assert fig.number == 2
+
+
+def test_figure_no_label():
+    # standalone figures do not have a figure attribute
+    fig = Figure()
+    with pytest.raises(AttributeError):
+        fig.number
+    # but one can set one
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match="Changing 'Figure.number' is deprecated"):
+        fig.number = 5
+    assert fig.number == 5
+    # even though it's not known by pyplot
+    assert not plt.fignum_exists(fig.number)
+
+
 def test_fignum_exists():
     # pyplot figure creation, selection and closing with fignum_exists
     plt.figure('one')
@@ -473,6 +496,20 @@ def test_autofmt_xdate(which):
             assert int(label.get_rotation()) == angle
 
 
+def test_autofmt_xdate_colorbar_constrained():
+    # check works with a colorbar.
+    # with constrained layout, colorbars do not have a gridspec,
+    # but autofmt_xdate checks if all axes have a gridspec before being
+    # applied.
+    fig, ax = plt.subplots(layout="constrained")
+    im = ax.imshow([[1, 4, 6], [2, 3, 5]])
+    plt.colorbar(im)
+    fig.autofmt_xdate()
+    fig.draw_without_rendering()
+    label = ax.get_xticklabels(which='major')[1]
+    assert label.get_rotation() == 30.0
+
+
 @mpl.style.context('default')
 def test_change_dpi():
     fig = plt.figure(figsize=(4, 4))
@@ -518,12 +555,10 @@ def test_invalid_figure_add_axes():
         fig.add_axes(ax)
 
     fig2.delaxes(ax)
-    with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match="Passing more than one positional argument"):
+    with pytest.raises(TypeError, match=r"add_axes\(\) takes 1 positional arguments"):
         fig2.add_axes(ax, "extra positional argument")
 
-    with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match="Passing more than one positional argument"):
+    with pytest.raises(TypeError, match=r"add_axes\(\) takes 1 positional arguments"):
         fig.add_axes([0, 0, 1, 1], "extra positional argument")
 
 
@@ -1776,6 +1811,21 @@ def test_suplots_adjust_plt():
     del inDict['rc_default']
     assert plt.gcf().subplotpars.get_subplot_params() == inDict
 
+def test_set_figure():
+    fig = plt.figure()
+    sfig1 = fig.subfigures()
+    sfig2 = sfig1.subfigures()
+
+    for f in fig, sfig1, sfig2:
+        with pytest.warns(mpl.MatplotlibDeprecationWarning):
+            f.set_figure(fig)
+
+    with pytest.raises(ValueError, match="cannot be changed"):
+        sfig2.set_figure(sfig1)
+
+    with pytest.raises(ValueError, match="cannot be changed"):
+        sfig1.set_figure(plt.figure())
+
 
 def test_subfigure_row_order():
     # Test that subfigures are drawn in row-major order.
@@ -1800,10 +1850,13 @@ def test_subfigure_stale_propagation():
 
     sfig2 = sfig1.subfigures()
     assert fig.stale
+    assert sfig1.stale
 
     fig.draw_without_rendering()
     assert not fig.stale
+    assert not sfig1.stale
     assert not sfig2.stale
 
     sfig2.stale = True
+    assert sfig1.stale
     assert fig.stale

@@ -19,7 +19,7 @@ import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook, _c_internal_utils
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    TimerBase, ToolContainerBase, cursors, _Mode,
+    TimerBase, ToolContainerBase, cursors, _Mode, MouseButton,
     CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 from matplotlib._pylab_helpers import Gcf
 from . import _tkagg
@@ -176,8 +176,7 @@ class FigureCanvasTk(FigureCanvasBase):
         self._tkcanvas_image_region = self._tkcanvas.create_image(
             w//2, h//2, image=self._tkphoto)
         self._tkcanvas.bind("<Configure>", self.resize)
-        if sys.platform == 'win32':
-            self._tkcanvas.bind("<Map>", self._update_device_pixel_ratio)
+        self._tkcanvas.bind("<Map>", self._update_device_pixel_ratio)
         self._tkcanvas.bind("<Key>", self.key_press)
         self._tkcanvas.bind("<Motion>", self.motion_notify_event)
         self._tkcanvas.bind("<Enter>", self.enter_notify_event)
@@ -234,11 +233,15 @@ class FigureCanvasTk(FigureCanvasBase):
         self._rubberband_rect_white = None
 
     def _update_device_pixel_ratio(self, event=None):
-        # Tk gives scaling with respect to 72 DPI, but Windows screens are
-        # scaled vs 96 dpi, and pixel ratio settings are given in whole
-        # percentages, so round to 2 digits.
-        ratio = round(self._tkcanvas.tk.call('tk', 'scaling') / (96 / 72), 2)
-        if self._set_device_pixel_ratio(ratio):
+        ratio = None
+        if sys.platform == 'win32':
+            # Tk gives scaling with respect to 72 DPI, but Windows screens are
+            # scaled vs 96 dpi, and pixel ratio settings are given in whole
+            # percentages, so round to 2 digits.
+            ratio = round(self._tkcanvas.tk.call('tk', 'scaling') / (96 / 72), 2)
+        elif sys.platform == "linux":
+            ratio = self._tkcanvas.winfo_fpixels('1i') / 96
+        if ratio is not None and self._set_device_pixel_ratio(ratio):
             # The easiest way to resize the canvas is to resize the canvas
             # widget itself, since we implement all the logic for resizing the
             # canvas backing store on that event.
@@ -293,6 +296,7 @@ class FigureCanvasTk(FigureCanvasBase):
     def motion_notify_event(self, event):
         MouseEvent("motion_notify_event", self,
                    *self._event_mpl_coords(event),
+                   buttons=self._mpl_buttons(event),
                    modifiers=self._mpl_modifiers(event),
                    guiEvent=event)._process()
 
@@ -355,12 +359,32 @@ class FigureCanvasTk(FigureCanvasBase):
                    guiEvent=event)._process()
 
     @staticmethod
+    def _mpl_buttons(event):  # See _mpl_modifiers.
+        # NOTE: This fails to report multiclicks on macOS; only one button is
+        # reported (multiclicks work correctly on Linux & Windows).
+        modifiers = [
+            # macOS appears to swap right and middle (look for "Swap buttons
+            # 2/3" in tk/macosx/tkMacOSXMouseEvent.c).
+            (MouseButton.LEFT, 1 << 8),
+            (MouseButton.RIGHT, 1 << 9),
+            (MouseButton.MIDDLE, 1 << 10),
+            (MouseButton.BACK, 1 << 11),
+            (MouseButton.FORWARD, 1 << 12),
+        ] if sys.platform == "darwin" else [
+            (MouseButton.LEFT, 1 << 8),
+            (MouseButton.MIDDLE, 1 << 9),
+            (MouseButton.RIGHT, 1 << 10),
+            (MouseButton.BACK, 1 << 11),
+            (MouseButton.FORWARD, 1 << 12),
+        ]
+        # State *before* press/release.
+        return [name for name, mask in modifiers if event.state & mask]
+
+    @staticmethod
     def _mpl_modifiers(event, *, exclude=None):
-        # add modifier keys to the key string. Bit details originate from
-        # http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm
-        # BIT_SHIFT = 0x001; BIT_CAPSLOCK = 0x002; BIT_CONTROL = 0x004;
-        # BIT_LEFT_ALT = 0x008; BIT_NUMLOCK = 0x010; BIT_RIGHT_ALT = 0x080;
-        # BIT_MB_1 = 0x100; BIT_MB_2 = 0x200; BIT_MB_3 = 0x400;
+        # Add modifier keys to the key string. Bit values are inferred from
+        # the implementation of tkinter.Event.__repr__ (1, 2, 4, 8, ... =
+        # Shift, Lock, Control, Mod1, ..., Mod5, Button1, ..., Button5)
         # In general, the modifier key is excluded from the modifier flag,
         # however this is not the case on "darwin", so double check that
         # we aren't adding repeat modifier flags to a modifier key.
@@ -867,7 +891,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             )
 
         if fname in ["", ()]:
-            return
+            return None
         # Save dir for next time, unless empty str (i.e., use cwd).
         if initialdir != "":
             mpl.rcParams['savefig.directory'] = (
@@ -882,6 +906,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
 
         try:
             self.canvas.figure.savefig(fname, format=extension)
+            return fname
         except Exception as e:
             tkinter.messagebox.showerror("Error saving file", str(e))
 

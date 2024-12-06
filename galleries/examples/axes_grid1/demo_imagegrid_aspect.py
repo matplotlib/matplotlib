@@ -1,6 +1,6 @@
 """
 =========================================
-Setting a fixed aspect on ImageGrid cells
+ImageGrid cells with a fixed aspect ratio
 =========================================
 """
 

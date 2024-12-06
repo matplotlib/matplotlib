@@ -17,7 +17,7 @@ jobs:
       - name: Set up Python 3
         uses: actions/setup-python@v5
         with:
-          python-version: 3.9
+          python-version: '3.10'
 
       - name: Install flake8
         run: pip3 install -r requirements/testing/flake8.txt
@@ -42,7 +42,7 @@ jobs:
       - name: Set up Python 3
         uses: actions/setup-python@v5
         with:
-          python-version: 3.9
+          python-version: '3.10'
 
       - name: Install mypy
         run: pip3 install -r requirements/testing/mypy.txt -r requirements/testing/all.txt

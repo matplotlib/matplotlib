@@ -9,9 +9,10 @@ from matplotlib import scale
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.transforms as mtransforms
-from matplotlib.transforms import Affine2D, Bbox, TransformedBbox
+from matplotlib.transforms import Affine2D, Bbox, TransformedBbox, _ScaledRotation
 from matplotlib.path import Path
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
+from unittest.mock import MagicMock
 
 
 class TestAffine2D:
@@ -339,6 +340,31 @@ class TestAffine2D:
         b1.translate(3, 4)
         assert not s._invalid
         assert_array_equal(s.get_matrix(), a.get_matrix())
+
+
+class TestAffineDeltaTransform:
+    def test_invalidate(self):
+        before = np.array([[1.0, 4.0, 0.0],
+                           [5.0, 1.0, 0.0],
+                           [0.0, 0.0, 1.0]])
+        after = np.array([[1.0, 3.0, 0.0],
+                          [5.0, 1.0, 0.0],
+                          [0.0, 0.0, 1.0]])
+
+        # Translation and skew present
+        base = mtransforms.Affine2D.from_values(1, 5, 4, 1, 2, 3)
+        t = mtransforms.AffineDeltaTransform(base)
+        assert_array_equal(t.get_matrix(), before)
+
+        # Mess with the internal structure of `base` without invalidating
+        # This should not affect this transform because it's a passthrough:
+        # it's always invalid
+        base.get_matrix()[0, 1:] = 3
+        assert_array_equal(t.get_matrix(), after)
+
+        # Invalidate the base
+        base.invalidate()
+        assert_array_equal(t.get_matrix(), after)
 
 
 def test_non_affine_caching():
@@ -1079,3 +1105,27 @@ def test_interval_contains_open():
     assert not mtransforms.interval_contains_open((0, 1), -1)
     assert not mtransforms.interval_contains_open((0, 1), 2)
     assert mtransforms.interval_contains_open((1, 0), 0.5)
+
+
+def test_scaledrotation_initialization():
+    """Test that the ScaledRotation object is initialized correctly."""
+    theta = 1.0  # Arbitrary theta value for testing
+    trans_shift = MagicMock()  # Mock the trans_shift transformation
+    scaled_rot = _ScaledRotation(theta, trans_shift)
+    assert scaled_rot._theta == theta
+    assert scaled_rot._trans_shift == trans_shift
+    assert scaled_rot._mtx is None
+
+
+def test_scaledrotation_get_matrix_invalid():
+    """Test get_matrix when the matrix is invalid and needs recalculation."""
+    theta = np.pi / 2
+    trans_shift = MagicMock(transform=MagicMock(return_value=[[theta, 0]]))
+    scaled_rot = _ScaledRotation(theta, trans_shift)
+    scaled_rot._invalid = True
+    matrix = scaled_rot.get_matrix()
+    trans_shift.transform.assert_called_once_with([[theta, 0]])
+    expected_rotation = np.array([[0, -1],
+                                  [1,  0]])
+    assert matrix is not None
+    assert_allclose(matrix[:2, :2], expected_rotation, atol=1e-15)

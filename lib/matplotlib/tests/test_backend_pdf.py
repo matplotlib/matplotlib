@@ -14,7 +14,7 @@ from matplotlib import (
 from matplotlib.cbook import _get_data_path
 from matplotlib.ft2font import FT2Font
 from matplotlib.font_manager import findfont, FontProperties
-from matplotlib.backends._backend_pdf_ps import get_glyphs_subset
+from matplotlib.backends._backend_pdf_ps import get_glyphs_subset, font_as_file
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.patches import Rectangle
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
@@ -81,45 +81,15 @@ def test_multipage_properfinalize():
 
 
 def test_multipage_keep_empty(tmp_path):
-    # test empty pdf files
-
-    # an empty pdf is left behind with keep_empty unset
+    # An empty pdf deletes itself afterwards.
     fn = tmp_path / "a.pdf"
-    with pytest.warns(mpl.MatplotlibDeprecationWarning), PdfPages(fn) as pdf:
-        pass
-    assert fn.exists()
-
-    # an empty pdf is left behind with keep_empty=True
-    fn = tmp_path / "b.pdf"
-    with pytest.warns(mpl.MatplotlibDeprecationWarning), \
-            PdfPages(fn, keep_empty=True) as pdf:
-        pass
-    assert fn.exists()
-
-    # an empty pdf deletes itself afterwards with keep_empty=False
-    fn = tmp_path / "c.pdf"
-    with PdfPages(fn, keep_empty=False) as pdf:
+    with PdfPages(fn) as pdf:
         pass
     assert not fn.exists()
 
-    # test pdf files with content, they should never be deleted
-
-    # a non-empty pdf is left behind with keep_empty unset
-    fn = tmp_path / "d.pdf"
+    # Test pdf files with content, they should never be deleted.
+    fn = tmp_path / "b.pdf"
     with PdfPages(fn) as pdf:
-        pdf.savefig(plt.figure())
-    assert fn.exists()
-
-    # a non-empty pdf is left behind with keep_empty=True
-    fn = tmp_path / "e.pdf"
-    with pytest.warns(mpl.MatplotlibDeprecationWarning), \
-            PdfPages(fn, keep_empty=True) as pdf:
-        pdf.savefig(plt.figure())
-    assert fn.exists()
-
-    # a non-empty pdf is left behind with keep_empty=False
-    fn = tmp_path / "f.pdf"
-    with PdfPages(fn, keep_empty=False) as pdf:
         pdf.savefig(plt.figure())
     assert fn.exists()
 
@@ -407,7 +377,8 @@ def test_glyphs_subset():
     nosubfont.set_text(chars)
 
     # subsetted FT2Font
-    subfont = FT2Font(get_glyphs_subset(fpath, chars))
+    with get_glyphs_subset(fpath, chars) as subset:
+        subfont = FT2Font(font_as_file(subset))
     subfont.set_text(chars)
 
     nosubcmap = nosubfont.get_charmap()
@@ -463,3 +434,15 @@ def test_otf_font_smoke(family_name, file_name):
     fig = plt.figure()
     fig.text(0.15, 0.475, "Привет мир!")
     fig.savefig(io.BytesIO(), format="pdf")
+
+
+@image_comparison(["truetype-conversion.pdf"])
+# mpltest.ttf does not have "l"/"p" glyphs so we get a warning when trying to
+# get the font extents.
+def test_truetype_conversion(recwarn):
+    mpl.rcParams['pdf.fonttype'] = 3
+    fig, ax = plt.subplots()
+    ax.text(0, 0, "ABCDE",
+            font=Path(__file__).with_name("mpltest.ttf"), fontsize=80)
+    ax.set_xticks([])
+    ax.set_yticks([])

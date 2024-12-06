@@ -151,6 +151,15 @@ class GeoAxes(Axes):
                         "not supported.  Please consider using Cartopy.")
 
     set_ylim = set_xlim
+    set_xbound = set_xlim
+    set_ybound = set_ylim
+
+    def invert_xaxis(self):
+        """Not supported. Please consider using Cartopy."""
+        raise TypeError("Changing axes limits of a geographic projection is "
+                        "not supported.  Please consider using Cartopy.")
+
+    invert_yaxis = invert_xaxis
 
     def format_coord(self, lon, lat):
         """Return a format string formatting the coordinate."""
@@ -249,7 +258,6 @@ class AitoffAxes(GeoAxes):
     class AitoffTransform(_GeoTransform):
         """The base Aitoff transform."""
 
-        @_api.rename_parameter("3.8", "ll", "values")
         def transform_non_affine(self, values):
             # docstring inherited
             longitude, latitude = values.T
@@ -271,7 +279,6 @@ class AitoffAxes(GeoAxes):
 
     class InvertedAitoffTransform(_GeoTransform):
 
-        @_api.rename_parameter("3.8", "xy", "values")
         def transform_non_affine(self, values):
             # docstring inherited
             # MGDTODO: Math is hard ;(
@@ -297,7 +304,6 @@ class HammerAxes(GeoAxes):
     class HammerTransform(_GeoTransform):
         """The base Hammer transform."""
 
-        @_api.rename_parameter("3.8", "ll", "values")
         def transform_non_affine(self, values):
             # docstring inherited
             longitude, latitude = values.T
@@ -315,7 +321,6 @@ class HammerAxes(GeoAxes):
 
     class InvertedHammerTransform(_GeoTransform):
 
-        @_api.rename_parameter("3.8", "xy", "values")
         def transform_non_affine(self, values):
             # docstring inherited
             x, y = values.T
@@ -344,7 +349,6 @@ class MollweideAxes(GeoAxes):
     class MollweideTransform(_GeoTransform):
         """The base Mollweide transform."""
 
-        @_api.rename_parameter("3.8", "ll", "values")
         def transform_non_affine(self, values):
             # docstring inherited
             def d(theta):
@@ -385,7 +389,6 @@ class MollweideAxes(GeoAxes):
 
     class InvertedMollweideTransform(_GeoTransform):
 
-        @_api.rename_parameter("3.8", "xy", "values")
         def transform_non_affine(self, values):
             # docstring inherited
             x, y = values.T
@@ -426,7 +429,6 @@ class LambertAxes(GeoAxes):
             self._center_longitude = center_longitude
             self._center_latitude = center_latitude
 
-        @_api.rename_parameter("3.8", "ll", "values")
         def transform_non_affine(self, values):
             # docstring inherited
             longitude, latitude = values.T
@@ -460,7 +462,6 @@ class LambertAxes(GeoAxes):
             self._center_longitude = center_longitude
             self._center_latitude = center_latitude
 
-        @_api.rename_parameter("3.8", "xy", "values")
         def transform_non_affine(self, values):
             # docstring inherited
             x, y = values.T

@@ -1,9 +1,9 @@
 """
-===========
-Simple Plot
-===========
+=========
+Line plot
+=========
 
-Create a simple plot.
+Create a basic line plot.
 """
 
 import matplotlib.pyplot as plt
@@ -33,3 +33,8 @@ plt.show()
 #    - `matplotlib.axes.Axes.plot` / `matplotlib.pyplot.plot`
 #    - `matplotlib.pyplot.subplots`
 #    - `matplotlib.figure.Figure.savefig`
+#
+# .. tags::
+#
+#    plot-style: line
+#    level: beginner

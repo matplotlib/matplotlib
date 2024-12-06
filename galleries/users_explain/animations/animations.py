@@ -11,7 +11,7 @@ Based on its plotting functionality, Matplotlib also provides an interface to
 generate animations using the `~matplotlib.animation` module. An
 animation is a sequence of frames where each frame corresponds to a plot on a
 `~matplotlib.figure.Figure`. This tutorial covers a general guideline on
-how to create such animations and the different options available.
+how to create such animations and the different options available.  More information is available in the API description: `~matplotlib.animation`
 """
 
 import matplotlib.pyplot as plt
@@ -251,3 +251,8 @@ plt.show()
 #            writer="imagemagick", extra_args=["-quality", "100"])
 #
 # (the ``extra_args`` for *apng* are needed to reduce filesize by ~10x)
+#
+# Note that *ffmpeg* and *imagemagick* need to be separately installed.
+# A cross-platform way to obtain *ffmpeg* is to install the ``imageio_ffmpeg``
+# PyPI package, and then to set
+# ``rcParams["animation.ffmpeg_path"] = imageio_ffmpeg.get_ffmpeg_exe()``.

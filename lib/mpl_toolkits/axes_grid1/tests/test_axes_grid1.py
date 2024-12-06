@@ -18,15 +18,14 @@ from mpl_toolkits.axes_grid1 import (
     host_subplot, make_axes_locatable,
     Grid, AxesGrid, ImageGrid)
 from mpl_toolkits.axes_grid1.anchored_artists import (
-    AnchoredAuxTransformBox, AnchoredDrawingArea, AnchoredEllipse,
+    AnchoredAuxTransformBox, AnchoredDrawingArea,
     AnchoredDirectionArrows, AnchoredSizeBar)
 from mpl_toolkits.axes_grid1.axes_divider import (
     Divider, HBoxDivider, make_axes_area_auto_adjustable, SubplotDivider,
     VBoxDivider)
 from mpl_toolkits.axes_grid1.axes_rgb import RGBAxes
 from mpl_toolkits.axes_grid1.inset_locator import (
-    zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch,
-    InsetPosition)
+    zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch)
 import mpl_toolkits.axes_grid1.mpl_axes
 import pytest
 
@@ -424,7 +423,7 @@ def test_image_grid_single_bottom():
 
     fig = plt.figure(1, (2.5, 1.5))
     grid = ImageGrid(fig, (0, 0, 1, 1), nrows_ncols=(1, 3),
-                     axes_pad=(0.2, 0.15), cbar_mode="single",
+                     axes_pad=(0.2, 0.15), cbar_mode="single", cbar_pad=0.3,
                      cbar_location="bottom", cbar_size="10%", label_mode="1")
     # 4-tuple rect => Divider, isinstance will give True for SubplotDivider
     assert type(grid.get_divider()) is Divider
@@ -515,7 +514,7 @@ def test_picking_callbacks_overlap(big_on_axes, small_on_axes, click_on):
     if click_axes is axes["parasite"]:
         click_axes = axes["host"]
     (x, y) = click_axes.transAxes.transform(axes_coords)
-    m = MouseEvent("button_press_event", click_axes.figure.canvas, x, y,
+    m = MouseEvent("button_press_event", click_axes.get_figure(root=True).canvas, x, y,
                    button=1)
     click_axes.pick(m)
     # Checks
@@ -543,12 +542,14 @@ def test_anchored_artists():
     box.drawing_area.add_artist(el)
     ax.add_artist(box)
 
-    # Manually construct the ellipse instead, once the deprecation elapses.
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        ae = AnchoredEllipse(ax.transData, width=0.1, height=0.25, angle=-60,
-                             loc='lower left', pad=0.5, borderpad=0.4,
-                             frameon=True)
-    ax.add_artist(ae)
+    # This block used to test the AnchoredEllipse class, but that was removed. The block
+    # remains, though it duplicates the above ellipse, so that the test image doesn't
+    # need to be regenerated.
+    box = AnchoredAuxTransformBox(ax.transData, loc='lower left', frameon=True,
+                                  pad=0.5, borderpad=0.4)
+    el = Ellipse((0, 0), width=0.1, height=0.25, angle=-60)
+    box.drawing_area.add_artist(el)
+    ax.add_artist(box)
 
     asb = AnchoredSizeBar(ax.transData, 0.2, r"0.2 units", loc='lower right',
                           pad=0.3, borderpad=0.4, sep=4, fill_bar=True,
@@ -700,17 +701,6 @@ def test_rgb_axes():
     g = rng.random((5, 5))
     b = rng.random((5, 5))
     ax.imshow_rgb(r, g, b, interpolation='none')
-
-
-# Update style when regenerating the test image
-@image_comparison(['insetposition.png'], remove_text=True,
-                  style=('classic', '_classic_test_patch'))
-def test_insetposition():
-    fig, ax = plt.subplots(figsize=(2, 2))
-    ax_ins = plt.axes([0, 0, 1, 1])
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        ip = InsetPosition(ax, [0.2, 0.25, 0.5, 0.4])
-    ax_ins.set_axes_locator(ip)
 
 
 # The original version of this test relied on mpl_toolkits's slightly different

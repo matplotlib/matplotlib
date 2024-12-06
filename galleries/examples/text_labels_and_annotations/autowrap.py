@@ -1,10 +1,10 @@
 """
-==================
-Auto-wrapping text
-==================
+==============
+Auto-wrap text
+==============
 
-Matplotlib can wrap text automatically, but if it's too long, the text will be
-displayed slightly outside of the boundaries of the axis anyways.
+Matplotlib can wrap text automatically, but if it's too long, the text will
+still be displayed slightly outside the boundaries of the axis.
 
 Note: Auto-wrapping does not work together with
 ``savefig(..., bbox_inches='tight')``. The 'tight' setting rescales the canvas

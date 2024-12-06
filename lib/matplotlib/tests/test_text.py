@@ -921,7 +921,7 @@ def test_annotate_offset_fontsize():
                         fontsize='10',
                         xycoords='data',
                         textcoords=text_coords[i]) for i in range(2)]
-    points_coords, fontsize_coords = [ann.get_window_extent() for ann in anns]
+    points_coords, fontsize_coords = (ann.get_window_extent() for ann in anns)
     fig.canvas.draw()
     assert str(points_coords) == str(fontsize_coords)
 

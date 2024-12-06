@@ -35,8 +35,7 @@ from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
 from matplotlib.font_manager import get_font, fontManager as _fontManager
 from matplotlib._afm import AFM
-from matplotlib.ft2font import (FIXED_WIDTH, ITALIC, LOAD_NO_SCALE,
-                                LOAD_NO_HINTING, KERNING_UNFITTED, FT2Font)
+from matplotlib.ft2font import FT2Font, FaceFlags, Kerning, LoadFlags, StyleFlags
 from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
 from matplotlib.dates import UTC
@@ -617,7 +616,7 @@ def _get_pdf_charprocs(font_path, glyph_ids):
     conv = 1000 / font.units_per_EM  # Conversion to PS units (1/1000's).
     procs = {}
     for glyph_id in glyph_ids:
-        g = font.load_glyph(glyph_id, LOAD_NO_SCALE)
+        g = font.load_glyph(glyph_id, LoadFlags.NO_SCALE)
         # NOTE: We should be using round(), but instead use
         # "(x+.5).astype(int)" to keep backcompat with the old ttconv code
         # (this is different for negative x's).
@@ -732,7 +731,7 @@ class PdfFile:
         self._soft_mask_states = {}
         self._soft_mask_seq = (Name(f'SM{i}') for i in itertools.count(1))
         self._soft_mask_groups = []
-        self.hatchPatterns = {}
+        self._hatch_patterns = {}
         self._hatch_pattern_seq = (Name(f'H{i}') for i in itertools.count(1))
         self.gouraudTriangles = []
 
@@ -1185,7 +1184,7 @@ end"""
             def get_char_width(charcode):
                 s = ord(cp1252.decoding_table[charcode])
                 width = font.load_char(
-                    s, flags=LOAD_NO_SCALE | LOAD_NO_HINTING).horiAdvance
+                    s, flags=LoadFlags.NO_SCALE | LoadFlags.NO_HINTING).horiAdvance
                 return cvt(width)
             with warnings.catch_warnings():
                 # Ignore 'Required glyph missing from current font' warning
@@ -1270,7 +1269,8 @@ end"""
 
             subset_str = "".join(chr(c) for c in characters)
             _log.debug("SUBSET %s characters: %s", filename, subset_str)
-            fontdata = _backend_pdf_ps.get_glyphs_subset(filename, subset_str)
+            with _backend_pdf_ps.get_glyphs_subset(filename, subset_str) as subset:
+                fontdata = _backend_pdf_ps.font_as_file(subset)
             _log.debug(
                 "SUBSET %s %d -> %d", filename,
                 os.stat(filename).st_size, fontdata.getbuffer().nbytes
@@ -1321,7 +1321,7 @@ end"""
                 ccode = c
                 gind = font.get_char_index(ccode)
                 glyph = font.load_char(ccode,
-                                       flags=LOAD_NO_SCALE | LOAD_NO_HINTING)
+                                       flags=LoadFlags.NO_SCALE | LoadFlags.NO_HINTING)
                 widths.append((ccode, cvt(glyph.horiAdvance)))
                 if ccode < 65536:
                     cid_to_gid_map[ccode] = chr(gind)
@@ -1417,7 +1417,7 @@ end"""
 
         flags = 0
         symbolic = False  # ps_name.name in ('Cmsy10', 'Cmmi10', 'Cmex10')
-        if ff & FIXED_WIDTH:
+        if FaceFlags.FIXED_WIDTH in ff:
             flags |= 1 << 0
         if 0:  # TODO: serif
             flags |= 1 << 1
@@ -1425,7 +1425,7 @@ end"""
             flags |= 1 << 2
         else:
             flags |= 1 << 5
-        if sf & ITALIC:
+        if StyleFlags.ITALIC in sf:
             flags |= 1 << 6
         if 0:  # TODO: all caps
             flags |= 1 << 16
@@ -1534,26 +1534,29 @@ end"""
 
     def hatchPattern(self, hatch_style):
         # The colors may come in as numpy arrays, which aren't hashable
-        if hatch_style is not None:
-            edge, face, hatch = hatch_style
-            if edge is not None:
-                edge = tuple(edge)
-            if face is not None:
-                face = tuple(face)
-            hatch_style = (edge, face, hatch)
+        edge, face, hatch, lw = hatch_style
+        if edge is not None:
+            edge = tuple(edge)
+        if face is not None:
+            face = tuple(face)
+        hatch_style = (edge, face, hatch, lw)
 
-        pattern = self.hatchPatterns.get(hatch_style, None)
+        pattern = self._hatch_patterns.get(hatch_style, None)
         if pattern is not None:
             return pattern
 
         name = next(self._hatch_pattern_seq)
-        self.hatchPatterns[hatch_style] = name
+        self._hatch_patterns[hatch_style] = name
         return name
+
+    hatchPatterns = _api.deprecated("3.10")(property(lambda self: {
+        k: (e, f, h) for k, (e, f, h, l) in self._hatch_patterns.items()
+    }))
 
     def writeHatches(self):
         hatchDict = dict()
         sidelen = 72.0
-        for hatch_style, name in self.hatchPatterns.items():
+        for hatch_style, name in self._hatch_patterns.items():
             ob = self.reserveObject('hatch pattern')
             hatchDict[name] = ob
             res = {'Procsets':
@@ -1568,7 +1571,7 @@ end"""
                  # Change origin to match Agg at top-left.
                  'Matrix': [1, 0, 0, 1, 0, self.height * 72]})
 
-            stroke_rgb, fill_rgb, hatch = hatch_style
+            stroke_rgb, fill_rgb, hatch, lw = hatch_style
             self.output(stroke_rgb[0], stroke_rgb[1], stroke_rgb[2],
                         Op.setrgb_stroke)
             if fill_rgb is not None:
@@ -1577,7 +1580,7 @@ end"""
                             0, 0, sidelen, sidelen, Op.rectangle,
                             Op.fill)
 
-            self.output(mpl.rcParams['hatch.linewidth'], Op.setlinewidth)
+            self.output(lw, Op.setlinewidth)
 
             self.output(*self.pathOperations(
                 Path.hatch(hatch),
@@ -2378,7 +2381,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             multibyte_glyphs = []
             prev_was_multibyte = True
             prev_font = font
-            for item in _text_helpers.layout(s, font, kern_mode=KERNING_UNFITTED):
+            for item in _text_helpers.layout(s, font, kern_mode=Kerning.UNFITTED):
                 if _font_supports_glyph(fonttype, ord(item.char)):
                     if prev_was_multibyte or item.ft_object != prev_font:
                         singlebyte_chunks.append((item.ft_object, item.x, []))
@@ -2508,14 +2511,14 @@ class GraphicsContextPdf(GraphicsContextBase):
         name = self.file.alphaState(effective_alphas)
         return [name, Op.setgstate]
 
-    def hatch_cmd(self, hatch, hatch_color):
+    def hatch_cmd(self, hatch, hatch_color, hatch_linewidth):
         if not hatch:
             if self._fillcolor is not None:
                 return self.fillcolor_cmd(self._fillcolor)
             else:
                 return [Name('DeviceRGB'), Op.setcolorspace_nonstroke]
         else:
-            hatch_style = (hatch_color, self._fillcolor, hatch)
+            hatch_style = (hatch_color, self._fillcolor, hatch, hatch_linewidth)
             name = self.file.hatchPattern(hatch_style)
             return [Name('Pattern'), Op.setcolorspace_nonstroke,
                     name, Op.setcolor_nonstroke]
@@ -2580,8 +2583,8 @@ class GraphicsContextPdf(GraphicsContextBase):
         (('_dashes',), dash_cmd),
         (('_rgb',), rgb_cmd),
         # must come after fillcolor and rgb
-        (('_hatch', '_hatch_color'), hatch_cmd),
-        )
+        (('_hatch', '_hatch_color', '_hatch_linewidth'), hatch_cmd),
+    )
 
     def delta(self, other):
         """
@@ -2609,11 +2612,11 @@ class GraphicsContextPdf(GraphicsContextBase):
                     break
 
             # Need to update hatching if we also updated fillcolor
-            if params == ('_hatch', '_hatch_color') and fill_performed:
+            if cmd.__name__ == 'hatch_cmd' and fill_performed:
                 different = True
 
             if different:
-                if params == ('_fillcolor',):
+                if cmd.__name__ == 'fillcolor_cmd':
                     fill_performed = True
                 theirs = [getattr(other, p) for p in params]
                 cmds.extend(cmd(self, *theirs))
@@ -2663,9 +2666,9 @@ class PdfPages:
     confusion when using `~.pyplot.savefig` and forgetting the format argument.
     """
 
-    _UNSET = object()
-
-    def __init__(self, filename, keep_empty=_UNSET, metadata=None):
+    @_api.delete_parameter("3.10", "keep_empty",
+                           addendum="This parameter does nothing.")
+    def __init__(self, filename, keep_empty=None, metadata=None):
         """
         Create a new PdfPages object.
 
@@ -2675,10 +2678,6 @@ class PdfPages:
             Plots using `PdfPages.savefig` will be written to a file at this location.
             The file is opened when a figure is saved for the first time (overwriting
             any older file with the same name).
-
-        keep_empty : bool, optional
-            If set to False, then empty pdf files will be deleted automatically
-            when closed.
 
         metadata : dict, optional
             Information dictionary object (see PDF reference section 10.2.1
@@ -2693,13 +2692,6 @@ class PdfPages:
         self._filename = filename
         self._metadata = metadata
         self._file = None
-        if keep_empty and keep_empty is not self._UNSET:
-            _api.warn_deprecated("3.8", message=(
-                "Keeping empty pdf files is deprecated since %(since)s and support "
-                "will be removed %(removal)s."))
-        self._keep_empty = keep_empty
-
-    keep_empty = _api.deprecate_privatize_attribute("3.8")
 
     def __enter__(self):
         return self
@@ -2721,11 +2713,6 @@ class PdfPages:
             self._file.finalize()
             self._file.close()
             self._file = None
-        elif self._keep_empty:  # True *or* UNSET.
-            _api.warn_deprecated("3.8", message=(
-                "Keeping empty pdf files is deprecated since %(since)s and support "
-                "will be removed %(removal)s."))
-            PdfFile(self._filename, metadata=self._metadata).close()  # touch the file.
 
     def infodict(self):
         """

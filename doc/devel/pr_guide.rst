@@ -20,6 +20,8 @@ limited bandwidth. If there is no feedback within a couple of days, please ping
 us by posting a comment to your PR or reaching out on a :ref:`communication channel <communication-channels>`
 
 
+.. _pr-author-guidelines:
+
 Summary for pull request authors
 ================================
 

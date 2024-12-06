@@ -2,7 +2,7 @@
 #include <pybind11/numpy.h>
 
 #include "_image_resample.h"
-#include "py_converters_11.h"
+#include "py_converters.h"
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -200,7 +200,8 @@ image_resample(py::array input_array,
 }
 
 
-PYBIND11_MODULE(_image, m) {
+PYBIND11_MODULE(_image, m, py::mod_gil_not_used())
+{
     py::enum_<interpolation_e>(m, "_InterpolationType")
         .value("NEAREST", NEAREST)
         .value("BILINEAR", BILINEAR)

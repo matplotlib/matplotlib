@@ -276,7 +276,8 @@ delaunay(const CoordArray& x, const CoordArray& y, int verbose)
     return delaunay_impl(npoints, x.data(), y.data(), verbose == 0);
 }
 
-PYBIND11_MODULE(_qhull, m) {
+PYBIND11_MODULE(_qhull, m, py::mod_gil_not_used())
+{
     m.doc() = "Computing Delaunay triangulations.\n";
 
     m.def("delaunay", &delaunay, "x"_a, "y"_a, "verbose"_a,

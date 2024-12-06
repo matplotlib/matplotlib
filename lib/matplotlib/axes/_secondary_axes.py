@@ -27,13 +27,14 @@ class SecondaryAxis(_AxesBase):
         self._orientation = orientation
         self._ticks_set = False
 
+        fig = self._parent.get_figure(root=False)
         if self._orientation == 'x':
-            super().__init__(self._parent.figure, [0, 1., 1, 0.0001], **kwargs)
+            super().__init__(fig, [0, 1., 1, 0.0001], **kwargs)
             self._axis = self.xaxis
             self._locstrings = ['top', 'bottom']
             self._otherstrings = ['left', 'right']
         else:  # 'y'
-            super().__init__(self._parent.figure, [0, 1., 0.0001, 1], **kwargs)
+            super().__init__(fig, [0, 1., 0.0001, 1], **kwargs)
             self._axis = self.yaxis
             self._locstrings = ['right', 'left']
             self._otherstrings = ['top', 'bottom']
@@ -318,4 +319,4 @@ Other Parameters
 **kwargs : `~matplotlib.axes.Axes` properties.
     Other miscellaneous Axes parameters.
 '''
-_docstring.interpd.update(_secax_docstring=_secax_docstring)
+_docstring.interpd.register(_secax_docstring=_secax_docstring)

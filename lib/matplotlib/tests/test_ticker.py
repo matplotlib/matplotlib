@@ -362,15 +362,12 @@ class TestLogLocator:
     def test_set_params(self):
         """
         Create log locator with default value, base=10.0, subs=[1.0],
-        numdecs=4, numticks=15 and change it to something else.
+        numticks=15 and change it to something else.
         See if change was successful. Should not raise exception.
         """
         loc = mticker.LogLocator()
-        with pytest.warns(mpl.MatplotlibDeprecationWarning, match="numdecs"):
-            loc.set_params(numticks=7, numdecs=8, subs=[2.0], base=4)
+        loc.set_params(numticks=7, subs=[2.0], base=4)
         assert loc.numticks == 7
-        with pytest.warns(mpl.MatplotlibDeprecationWarning, match="numdecs"):
-            assert loc.numdecs == 8
         assert loc._base == 4
         assert list(loc._subs) == [2.0]
 
@@ -637,7 +634,7 @@ class TestSymmetricalLogLocator:
         sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, subs=[2.0, 4.0])
         sym.create_dummy_axis()
         sym.axis.set_view_interval(-10, 10)
-        assert (sym() == [-20., -40.,  -2.,  -4.,   0.,   2.,   4.,  20.,  40.]).all()
+        assert_array_equal(sym(), [-20, -40, -2, -4, 0, 2, 4, 20, 40])
 
     def test_extending(self):
         sym = mticker.SymmetricalLogLocator(base=10, linthresh=1)
@@ -1592,6 +1589,73 @@ def test_engformatter_usetex_useMathText():
         # Checking if the dollar `$` signs have been inserted around numbers
         # in tick labels.
         assert x_tick_label_text == ['$0$', '$500$', '$1$ k']
+
+
+@pytest.mark.parametrize(
+    'data_offset, noise, oom_center_desired, oom_noise_desired', [
+        (271_490_000_000.0,    10,         9,  0),
+        (27_149_000_000_000.0, 10_000_000, 12, 6),
+        (27.149,               0.01,       0, -3),
+        (2_714.9,              0.01,       3, -3),
+        (271_490.0,            0.001,      3, -3),
+        (271.49,               0.001,      0, -3),
+        # The following sets of parameters demonstrates that when
+        # oom(data_offset)-1 and oom(noise)-2 equal a standard 3*N oom, we get
+        # that oom_noise_desired < oom(noise)
+        (27_149_000_000.0,     100,        9, +3),
+        (27.149,               1e-07,      0, -6),
+        (271.49,               0.0001,     0, -3),
+        (27.149,               0.0001,     0, -3),
+        # Tests where oom(data_offset) <= oom(noise), those are probably
+        # covered by the part where formatter.offset != 0
+        (27_149.0,             10_000,     0, 3),
+        (27.149,               10_000,     0, 3),
+        (27.149,               1_000,      0, 3),
+        (27.149,               100,        0, 0),
+        (27.149,               10,         0, 0),
+    ]
+)
+def test_engformatter_offset_oom(
+    data_offset,
+    noise,
+    oom_center_desired,
+    oom_noise_desired
+):
+    UNIT = "eV"
+    fig, ax = plt.subplots()
+    ydata = data_offset + np.arange(-5, 7, dtype=float)*noise
+    ax.plot(ydata)
+    formatter = mticker.EngFormatter(useOffset=True, unit=UNIT)
+    # So that offset strings will always have the same size
+    formatter.ENG_PREFIXES[0] = "_"
+    ax.yaxis.set_major_formatter(formatter)
+    fig.canvas.draw()
+    offset_got = formatter.get_offset()
+    ticks_got = [labl.get_text() for labl in ax.get_yticklabels()]
+    # Predicting whether offset should be 0 or not is essentially testing
+    # ScalarFormatter._compute_offset . This function is pretty complex and it
+    # would be nice to test it, but this is out of scope for this test which
+    # only makes sure that offset text and the ticks gets the correct unit
+    # prefixes and the ticks.
+    if formatter.offset:
+        prefix_noise_got = offset_got[2]
+        prefix_noise_desired = formatter.ENG_PREFIXES[oom_noise_desired]
+        prefix_center_got = offset_got[-1-len(UNIT)]
+        prefix_center_desired = formatter.ENG_PREFIXES[oom_center_desired]
+        assert prefix_noise_desired == prefix_noise_got
+        assert prefix_center_desired == prefix_center_got
+        # Make sure the ticks didn't get the UNIT
+        for tick in ticks_got:
+            assert UNIT not in tick
+    else:
+        assert oom_center_desired == 0
+        assert offset_got == ""
+        # Make sure the ticks contain now the prefixes
+        for tick in ticks_got:
+            # 0 is zero on all orders of magnitudes, no matter what is
+            # oom_noise_desired
+            prefix_idx = 0 if tick[0] == "0" else oom_noise_desired
+            assert tick.endswith(formatter.ENG_PREFIXES[prefix_idx] + UNIT)
 
 
 class TestPercentFormatter:

@@ -82,7 +82,20 @@ def mpl_test_settings(request):
 
 @pytest.fixture
 def pd():
-    """Fixture to import and configure pandas."""
+    """
+    Fixture to import and configure pandas. Using this fixture, the test is skipped when
+    pandas is not installed. Use this fixture instead of importing pandas in test files.
+
+    Examples
+    --------
+    Request the pandas fixture by passing in ``pd`` as an argument to the test ::
+
+        def test_matshow_pandas(pd):
+
+            df = pd.DataFrame({'x':[1,2,3], 'y':[4,5,6]})
+            im = plt.figure().subplots().matshow(df)
+            np.testing.assert_array_equal(im.get_array(), df)
+    """
     pd = pytest.importorskip('pandas')
     try:
         from pandas.plotting import (
@@ -95,6 +108,20 @@ def pd():
 
 @pytest.fixture
 def xr():
-    """Fixture to import xarray."""
+    """
+    Fixture to import xarray so that the test is skipped when xarray is not installed.
+    Use this fixture instead of importing xrray in test files.
+
+    Examples
+    --------
+    Request the xarray fixture by passing in ``xr`` as an argument to the test ::
+
+        def test_imshow_xarray(xr):
+
+            ds = xr.DataArray(np.random.randn(2, 3))
+            im = plt.figure().subplots().imshow(ds)
+            np.testing.assert_array_equal(im.get_array(), ds)
+    """
+
     xr = pytest.importorskip('xarray')
     return xr

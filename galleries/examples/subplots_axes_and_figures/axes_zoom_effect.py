@@ -1,6 +1,6 @@
 """
 ================
-Axes Zoom Effect
+Axes zoom effect
 ================
 
 """
@@ -120,3 +120,10 @@ axs["zoom2"].set(xlim=(2, 3))
 zoom_effect02(axs["zoom2"], axs["main"])
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: subplot
+#    component: transform
+#    level: advanced

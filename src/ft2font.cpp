@@ -1,18 +1,16 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
-#define NO_IMPORT_ARRAY
-
 #include <algorithm>
+#include <cstdio>
 #include <iterator>
 #include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include "ft2font.h"
 #include "mplutils.h"
-#include "numpy_cpp.h"
-#include "py_exceptions.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338328
@@ -65,12 +63,12 @@ void throw_ft_error(std::string message, FT_Error error) {
     throw std::runtime_error(os.str());
 }
 
-FT2Image::FT2Image() : m_dirty(true), m_buffer(NULL), m_width(0), m_height(0)
+FT2Image::FT2Image() : m_buffer(NULL), m_width(0), m_height(0)
 {
 }
 
 FT2Image::FT2Image(unsigned long width, unsigned long height)
-    : m_dirty(true), m_buffer(NULL), m_width(0), m_height(0)
+    : m_buffer(NULL), m_width(0), m_height(0)
 {
     resize(width, height);
 }
@@ -104,8 +102,6 @@ void FT2Image::resize(long width, long height)
     if (numBytes && m_buffer) {
         memset(m_buffer, 0, numBytes);
     }
-
-    m_dirty = true;
 }
 
 void FT2Image::draw_bitmap(FT_Bitmap *bitmap, FT_Int x, FT_Int y)
@@ -143,29 +139,6 @@ void FT2Image::draw_bitmap(FT_Bitmap *bitmap, FT_Int x, FT_Int y)
     } else {
         throw std::runtime_error("Unknown pixel mode");
     }
-
-    m_dirty = true;
-}
-
-void FT2Image::draw_rect(unsigned long x0, unsigned long y0, unsigned long x1, unsigned long y1)
-{
-    if (x0 > m_width || x1 > m_width || y0 > m_height || y1 > m_height) {
-        throw std::runtime_error("Rect coords outside image bounds");
-    }
-
-    size_t top = y0 * m_width;
-    size_t bottom = y1 * m_width;
-    for (size_t i = x0; i < x1 + 1; ++i) {
-        m_buffer[i + top] = 255;
-        m_buffer[i + bottom] = 255;
-    }
-
-    for (size_t j = y0 + 1; j < y1; ++j) {
-        m_buffer[x0 + j * m_width] = 255;
-        m_buffer[x1 + j * m_width] = 255;
-    }
-
-    m_dirty = true;
 }
 
 void
@@ -181,63 +154,28 @@ FT2Image::draw_rect_filled(unsigned long x0, unsigned long y0, unsigned long x1,
             m_buffer[i + j * m_width] = 255;
         }
     }
-
-    m_dirty = true;
 }
 
-static void ft_glyph_warn(FT_ULong charcode, std::set<FT_String*> family_names)
-{
-    PyObject *text_helpers = NULL, *tmp = NULL;
-    std::set<FT_String*>::iterator it = family_names.begin();
-    std::stringstream ss;
-    ss<<*it;
-    while(++it != family_names.end()){
-        ss<<", "<<*it;
-    }
-
-    if (!(text_helpers = PyImport_ImportModule("matplotlib._text_helpers")) ||
-        !(tmp = PyObject_CallMethod(text_helpers,
-                "warn_on_missing_glyph", "(k, s)",
-                charcode, ss.str().c_str()))) {
-        goto exit;
-    }
-exit:
-    Py_XDECREF(text_helpers);
-    Py_XDECREF(tmp);
-    if (PyErr_Occurred()) {
-        throw mpl::exception();
-    }
-}
-
-// ft_outline_decomposer should be passed to FT_Outline_Decompose.  On the
-// first pass, vertices and codes are set to NULL, and index is simply
-// incremented for each vertex that should be inserted, so that it is set, at
-// the end, to the total number of vertices.  On a second pass, vertices and
-// codes should point to correctly sized arrays, and index set again to zero,
-// to get fill vertices and codes with the outline decomposition.
+// ft_outline_decomposer should be passed to FT_Outline_Decompose.
 struct ft_outline_decomposer
 {
-    int index;
-    double* vertices;
-    unsigned char* codes;
+    std::vector<double> &vertices;
+    std::vector<unsigned char> &codes;
 };
 
 static int
 ft_outline_move_to(FT_Vector const* to, void* user)
 {
     ft_outline_decomposer* d = reinterpret_cast<ft_outline_decomposer*>(user);
-    if (d->codes) {
-        if (d->index) {
-            // Appending CLOSEPOLY is important to make patheffects work.
-            *(d->vertices++) = 0;
-            *(d->vertices++) = 0;
-            *(d->codes++) = CLOSEPOLY;
-        }
-        *(d->vertices++) = to->x * (1. / 64.);
-        *(d->vertices++) = to->y * (1. / 64.);
-        *(d->codes++) = MOVETO;
+    if (!d->vertices.empty()) {
+        // Appending CLOSEPOLY is important to make patheffects work.
+        d->vertices.push_back(0);
+        d->vertices.push_back(0);
+        d->codes.push_back(CLOSEPOLY);
     }
-    d->index += d->index ? 2 : 1;
+    d->vertices.push_back(to->x * (1. / 64.));
+    d->vertices.push_back(to->y * (1. / 64.));
+    d->codes.push_back(MOVETO);
     return 0;
 }
 
@@ -245,12 +183,9 @@ static int
 ft_outline_line_to(FT_Vector const* to, void* user)
 {
     ft_outline_decomposer* d = reinterpret_cast<ft_outline_decomposer*>(user);
-    if (d->codes) {
-        *(d->vertices++) = to->x * (1. / 64.);
-        *(d->vertices++) = to->y * (1. / 64.);
-        *(d->codes++) = LINETO;
-    }
-    d->index++;
+    d->vertices.push_back(to->x * (1. / 64.));
+    d->vertices.push_back(to->y * (1. / 64.));
+    d->codes.push_back(LINETO);
     return 0;
 }
 
@@ -258,15 +193,12 @@ static int
 ft_outline_conic_to(FT_Vector const* control, FT_Vector const* to, void* user)
 {
     ft_outline_decomposer* d = reinterpret_cast<ft_outline_decomposer*>(user);
-    if (d->codes) {
-        *(d->vertices++) = control->x * (1. / 64.);
-        *(d->vertices++) = control->y * (1. / 64.);
-        *(d->vertices++) = to->x * (1. / 64.);
-        *(d->vertices++) = to->y * (1. / 64.);
-        *(d->codes++) = CURVE3;
-        *(d->codes++) = CURVE3;
-    }
-    d->index += 2;
+    d->vertices.push_back(control->x * (1. / 64.));
+    d->vertices.push_back(control->y * (1. / 64.));
+    d->vertices.push_back(to->x * (1. / 64.));
+    d->vertices.push_back(to->y * (1. / 64.));
+    d->codes.push_back(CURVE3);
+    d->codes.push_back(CURVE3);
     return 0;
 }
 
@@ -275,18 +207,15 @@ ft_outline_cubic_to(
   FT_Vector const* c1, FT_Vector const* c2, FT_Vector const* to, void* user)
 {
     ft_outline_decomposer* d = reinterpret_cast<ft_outline_decomposer*>(user);
-    if (d->codes) {
-        *(d->vertices++) = c1->x * (1. / 64.);
-        *(d->vertices++) = c1->y * (1. / 64.);
-        *(d->vertices++) = c2->x * (1. / 64.);
-        *(d->vertices++) = c2->y * (1. / 64.);
-        *(d->vertices++) = to->x * (1. / 64.);
-        *(d->vertices++) = to->y * (1. / 64.);
-        *(d->codes++) = CURVE4;
-        *(d->codes++) = CURVE4;
-        *(d->codes++) = CURVE4;
-    }
-    d->index += 3;
+    d->vertices.push_back(c1->x * (1. / 64.));
+    d->vertices.push_back(c1->y * (1. / 64.));
+    d->vertices.push_back(c2->x * (1. / 64.));
+    d->vertices.push_back(c2->y * (1. / 64.));
+    d->vertices.push_back(to->x * (1. / 64.));
+    d->vertices.push_back(to->y * (1. / 64.));
+    d->codes.push_back(CURVE4);
+    d->codes.push_back(CURVE4);
+    d->codes.push_back(CURVE4);
     return 0;
 }
 
@@ -296,52 +225,41 @@ static FT_Outline_Funcs ft_outline_funcs = {
     ft_outline_conic_to,
     ft_outline_cubic_to};
 
-PyObject*
-FT2Font::get_path()
+void
+FT2Font::get_path(std::vector<double> &vertices, std::vector<unsigned char> &codes)
 {
     if (!face->glyph) {
-        PyErr_SetString(PyExc_RuntimeError, "No glyph loaded");
-        return NULL;
+        throw std::runtime_error("No glyph loaded");
     }
-    ft_outline_decomposer decomposer = {};
-    if (FT_Error error =
-        FT_Outline_Decompose(
-          &face->glyph->outline, &ft_outline_funcs, &decomposer)) {
-        PyErr_Format(PyExc_RuntimeError,
-                     "FT_Outline_Decompose failed with error 0x%x", error);
-        return NULL;
+    ft_outline_decomposer decomposer = {
+        vertices,
+        codes,
+    };
+    // We can make a close-enough estimate based on number of points and number of
+    // contours (which produce a MOVETO each), though it's slightly underestimating due
+    // to higher-order curves.
+    size_t estimated_points = static_cast<size_t>(face->glyph->outline.n_contours) +
+                              static_cast<size_t>(face->glyph->outline.n_points);
+    vertices.reserve(2 * estimated_points);
+    codes.reserve(estimated_points);
+    if (FT_Error error = FT_Outline_Decompose(
+            &face->glyph->outline, &ft_outline_funcs, &decomposer)) {
+        throw std::runtime_error("FT_Outline_Decompose failed with error " +
+                                 std::to_string(error));
     }
-    if (!decomposer.index) {  // Don't append CLOSEPOLY to null glyphs.
-      npy_intp vertices_dims[2] = { 0, 2 };
-      numpy::array_view<double, 2> vertices(vertices_dims);
-      npy_intp codes_dims[1] = { 0 };
-      numpy::array_view<unsigned char, 1> codes(codes_dims);
-      return Py_BuildValue("NN", vertices.pyobj(), codes.pyobj());
+    if (vertices.empty()) {  // Don't append CLOSEPOLY to null glyphs.
+        return;
     }
-    npy_intp vertices_dims[2] = { decomposer.index + 1, 2 };
-    numpy::array_view<double, 2> vertices(vertices_dims);
-    npy_intp codes_dims[1] = { decomposer.index + 1 };
-    numpy::array_view<unsigned char, 1> codes(codes_dims);
-    decomposer.index = 0;
-    decomposer.vertices = vertices.data();
-    decomposer.codes = codes.data();
-    if (FT_Error error =
-        FT_Outline_Decompose(
-          &face->glyph->outline, &ft_outline_funcs, &decomposer)) {
-        PyErr_Format(PyExc_RuntimeError,
-                     "FT_Outline_Decompose failed with error 0x%x", error);
-        return NULL;
-    }
-    *(decomposer.vertices++) = 0;
-    *(decomposer.vertices++) = 0;
-    *(decomposer.codes++) = CLOSEPOLY;
-    return Py_BuildValue("NN", vertices.pyobj(), codes.pyobj());
+    vertices.push_back(0);
+    vertices.push_back(0);
+    codes.push_back(CLOSEPOLY);
 }
 
 FT2Font::FT2Font(FT_Open_Args &open_args,
                  long hinting_factor_,
-                 std::vector<FT2Font *> &fallback_list)
-    : image(), face(NULL)
+                 std::vector<FT2Font *> &fallback_list,
+                 FT2Font::WarnFunc warn)
+    : ft_glyph_warn(warn), image(), face(NULL)
 {
     clear();
 
@@ -386,8 +304,9 @@ FT2Font::~FT2Font()
 
 void FT2Font::clear()
 {
-    pen.x = 0;
-    pen.y = 0;
+    pen.x = pen.y = 0;
+    bbox.xMin = bbox.yMin = bbox.xMax = bbox.yMax = 0;
+    advance = 0;
 
     for (size_t i = 0; i < glyphs.size(); i++) {
         FT_Done_Glyph(glyphs[i]);
@@ -435,7 +354,8 @@ void FT2Font::select_charmap(unsigned long i)
     }
 }
 
-int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode, bool fallback = false)
+int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_Kerning_Mode mode,
+                         bool fallback = false)
 {
     if (fallback && glyph_to_font.find(left) != glyph_to_font.end() &&
         glyph_to_font.find(right) != glyph_to_font.end()) {
@@ -456,7 +376,8 @@ int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode, bool fallbac
     }
 }
 
-int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode, FT_Vector &delta)
+int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_Kerning_Mode mode,
+                         FT_Vector &delta)
 {
     if (!FT_HAS_KERNING(face)) {
         return 0;
@@ -478,7 +399,7 @@ void FT2Font::set_kerning_factor(int factor)
 }
 
 void FT2Font::set_text(
-    size_t N, uint32_t *codepoints, double angle, FT_Int32 flags, std::vector<double> &xys)
+    std::u32string_view text, double angle, FT_Int32 flags, std::vector<double> &xys)
 {
     FT_Matrix matrix; /* transformation matrix */
 
@@ -501,7 +422,7 @@ void FT2Font::set_text(
     FT_UInt previous = 0;
     FT2Font *previous_ft_object = NULL;
 
-    for (size_t n = 0; n < N; n++) {
+    for (auto codepoint : text) {
         FT_UInt glyph_index = 0;
         FT_BBox glyph_bbox;
         FT_Pos last_advance;
@@ -510,14 +431,14 @@ void FT2Font::set_text(
         std::set<FT_String*> glyph_seen_fonts;
         FT2Font *ft_object_with_glyph = this;
         bool was_found = load_char_with_fallback(ft_object_with_glyph, glyph_index, glyphs,
-                                                 char_to_font, glyph_to_font, codepoints[n], flags,
+                                                 char_to_font, glyph_to_font, codepoint, flags,
                                                  charcode_error, glyph_error, glyph_seen_fonts, false);
         if (!was_found) {
-            ft_glyph_warn((FT_ULong)codepoints[n], glyph_seen_fonts);
+            ft_glyph_warn((FT_ULong)codepoint, glyph_seen_fonts);
             // render missing glyph tofu
             // come back to top-most font
             ft_object_with_glyph = this;
-            char_to_font[codepoints[n]] = ft_object_with_glyph;
+            char_to_font[codepoint] = ft_object_with_glyph;
             glyph_to_font[glyph_index] = ft_object_with_glyph;
             ft_object_with_glyph->load_glyph(glyph_index, flags, ft_object_with_glyph, false);
         }
@@ -771,29 +692,6 @@ void FT2Font::draw_glyphs_to_bitmap(bool antialiased)
     }
 }
 
-void FT2Font::get_xys(bool antialiased, std::vector<double> &xys)
-{
-    for (size_t n = 0; n < glyphs.size(); n++) {
-
-        FT_Error error = FT_Glyph_To_Bitmap(
-            &glyphs[n], antialiased ? FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO, 0, 1);
-        if (error) {
-            throw_ft_error("Could not convert glyph to bitmap", error);
-        }
-
-        FT_BitmapGlyph bitmap = (FT_BitmapGlyph)glyphs[n];
-
-        // bitmap left and top in pixel, string bbox in subpixel
-        FT_Int x = (FT_Int)(bitmap->left - bbox.xMin * (1. / 64.));
-        FT_Int y = (FT_Int)(bbox.yMax * (1. / 64.) - bitmap->top + 1);
-        // make sure the index is non-neg
-        x = x < 0 ? 0 : x;
-        y = y < 0 ? 0 : y;
-        xys.push_back(x);
-        xys.push_back(y);
-    }
-}
-
 void FT2Font::draw_glyph_to_bitmap(FT2Image &im, int x, int y, size_t glyphInd, bool antialiased)
 {
     FT_Vector sub_offset;
@@ -819,7 +717,8 @@ void FT2Font::draw_glyph_to_bitmap(FT2Image &im, int x, int y, size_t glyphInd, 
     im.draw_bitmap(&bitmap->bitmap, x + bitmap->left, y);
 }
 
-void FT2Font::get_glyph_name(unsigned int glyph_number, char *buffer, bool fallback = false)
+void FT2Font::get_glyph_name(unsigned int glyph_number, std::string &buffer,
+                             bool fallback = false)
 {
     if (fallback && glyph_to_font.find(glyph_number) != glyph_to_font.end()) {
         // cache is only for parent FT2Font
@@ -830,10 +729,19 @@ void FT2Font::get_glyph_name(unsigned int glyph_number, char *buffer, bool fallb
     if (!FT_HAS_GLYPH_NAMES(face)) {
         /* Note that this generated name must match the name that
            is generated by ttconv in ttfont_CharStrings_getname. */
-        PyOS_snprintf(buffer, 128, "uni%08x", glyph_number);
+        auto len = snprintf(buffer.data(), buffer.size(), "uni%08x", glyph_number);
+        if (len >= 0) {
+            buffer.resize(len);
+        } else {
+            throw std::runtime_error("Failed to convert glyph to standard name");
+        }
     } else {
-        if (FT_Error error = FT_Get_Glyph_Name(face, glyph_number, buffer, 128)) {
+        if (FT_Error error = FT_Get_Glyph_Name(face, glyph_number, buffer.data(), buffer.size())) {
             throw_ft_error("Could not get glyph names", error);
+        }
+        auto len = buffer.find('\0');
+        if (len != buffer.npos) {
+            buffer.resize(len);
         }
     }
 }

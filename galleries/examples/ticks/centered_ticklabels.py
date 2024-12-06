@@ -1,7 +1,7 @@
 """
-==============================
-Centering labels between ticks
-==============================
+===========================
+Center labels between ticks
+===========================
 
 Ticklabels are aligned relative to their associated tick. The alignment
 'center', 'left', or 'right' can be controlled using the horizontal alignment

@@ -31,3 +31,9 @@ dz = hist.ravel()
 ax.bar3d(xpos, ypos, zpos, dx, dy, dz, zsort='average')
 
 plt.show()
+
+
+# %%
+# .. tags::
+#    plot-type: 3D, plot-type: histogram,
+#    level: beginner

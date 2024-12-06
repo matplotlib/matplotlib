@@ -1,42 +1,3 @@
-# NumPy include directory - needed in all submodules
-# The try-except is needed because when things are split across drives on Windows, there
-# is no relative path and an exception gets raised. There may be other such cases, so add
-# a catch-all and switch to an absolute path. Relative paths are needed when for example
-# a virtualenv is placed inside the source tree; Meson rejects absolute paths to places
-# inside the source tree.
-# For cross-compilation it is often not possible to run the Python interpreter in order
-# to retrieve numpy's include directory. It can be specified in the cross file instead:
-#
-#   [properties]
-#   numpy-include-dir = /abspath/to/host-pythons/site-packages/numpy/core/include
-#
-# This uses the path as is, and avoids running the interpreter.
-incdir_numpy = meson.get_external_property('numpy-include-dir', 'not-given')
-if incdir_numpy == 'not-given'
-  incdir_numpy = run_command(py3,
-    [
-      '-c',
-      '''import os
-import numpy as np
-try:
-    incdir = os.path.relpath(np.get_include())
-except Exception:
-    incdir = np.get_include()
-print(incdir)'''
-    ],
-    check: true
-  ).stdout().strip()
-endif
-numpy_dep = declare_dependency(
-  compile_args: [
-    '-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION',
-    # Allow NumPy's printf format specifiers in C++.
-    '-D__STDC_FORMAT_MACROS=1',
-  ],
-  include_directories: include_directories(incdir_numpy),
-  dependencies: py3_dep,
-)
-
 # For cross-compilation it is often not possible to run the Python interpreter in order
 # to retrieve the platform-specific /dev/null. It can be specified in the cross file
 # instead:
@@ -73,11 +34,10 @@ extension_data = {
   '_backend_agg': {
     'subdir': 'matplotlib/backends',
     'sources': files(
-      'py_converters.cpp',
       '_backend_agg.cpp',
       '_backend_agg_wrapper.cpp',
     ),
-    'dependencies': [agg_dep, numpy_dep, freetype_dep],
+    'dependencies': [agg_dep, freetype_dep, pybind11_dep],
   },
   '_c_internal_utils': {
     'subdir': 'matplotlib',
@@ -91,10 +51,9 @@ extension_data = {
     'sources': files(
       'ft2font.cpp',
       'ft2font_wrapper.cpp',
-      'py_converters.cpp',
     ),
     'dependencies': [
-      freetype_dep, numpy_dep, agg_dep.partial_dependency(includes: true),
+      freetype_dep, pybind11_dep, agg_dep.partial_dependency(includes: true),
     ],
     'cpp_args': [
       '-DFREETYPE_BUILD_TYPE="@0@"'.format(
@@ -106,7 +65,7 @@ extension_data = {
     'subdir': 'matplotlib',
     'sources': files(
       '_image_wrapper.cpp',
-      'py_converters_11.cpp',
+      'py_converters.cpp',
     ),
     'dependencies': [
       pybind11_dep,
@@ -117,11 +76,9 @@ extension_data = {
   '_path': {
     'subdir': 'matplotlib',
     'sources': files(
-      'py_converters.cpp',
-      'py_converters_11.cpp',
       '_path_wrapper.cpp',
     ),
-    'dependencies': [numpy_dep, agg_dep, pybind11_dep],
+    'dependencies': [agg_dep, pybind11_dep],
   },
   '_qhull': {
     'subdir': 'matplotlib',
@@ -151,30 +108,26 @@ extension_data = {
     ),
     'dependencies': [pybind11_dep],
   },
-  '_ttconv': {
-    'subdir': 'matplotlib',
-    'sources': files(
-      '_ttconv.cpp',
-    ),
-    'dependencies': [ttconv_dep, pybind11_dep],
-  },
 }
 
-cpp_special_arguments = []
-if cpp.get_id() == 'msvc' and get_option('buildtype') != 'plain'
-  # Disable FH4 Exception Handling implementation so that we don't require
-  # VCRUNTIME140_1.dll. For more details, see:
-  # https://devblogs.microsoft.com/cppblog/making-cpp-exception-handling-smaller-x64/
-  # https://github.com/joerick/cibuildwheel/issues/423#issuecomment-677763904
-  cpp_special_arguments += ['/d2FH4-']
+if cpp.get_id() == 'msvc'
+  # This flag fixes some bugs with the macro processing, namely
+  # https://learn.microsoft.com/en-us/cpp/preprocessor/preprocessor-experimental-overview?view=msvc-170#macro-arguments-are-unpacked
+  if cpp.has_argument('/Zc:preprocessor')
+    # This flag was added in MSVC 2019 version 16.5, which deprecated the one below.
+    new_preprocessor = '/Zc:preprocessor'
+  else
+    # Since we currently support any version of MSVC 2019 (vc142), we'll stick with the
+    # older flag, added in MSVC 2017 version 15.8.
+    new_preprocessor = '/experimental:preprocessor'
+  endif
+else
+  new_preprocessor = []
 endif
 
 foreach ext, kwargs : extension_data
-  # Ensure that PY_ARRAY_UNIQUE_SYMBOL is uniquely defined for each extension.
-  unique_array_api = '-DPY_ARRAY_UNIQUE_SYMBOL=MPL_@0@_ARRAY_API'.format(ext.replace('.', '_'))
   additions = {
-    'c_args': [unique_array_api] + kwargs.get('c_args', []),
-    'cpp_args': cpp_special_arguments + [unique_array_api] + kwargs.get('cpp_args', []),
+    'cpp_args': [new_preprocessor] + kwargs.get('cpp_args', []),
   }
   py3.extension_module(
     ext,

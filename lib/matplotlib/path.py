@@ -129,7 +129,7 @@ class Path:
         vertices = _to_unmasked_float_array(vertices)
         _api.check_shape((None, 2), vertices=vertices)
 
-        if codes is not None:
+        if codes is not None and len(vertices):
             codes = np.asarray(codes, self.code_type)
             if codes.ndim != 1 or len(codes) != len(vertices):
                 raise ValueError("'codes' must be a 1D list or array with the "
@@ -1086,10 +1086,7 @@ def get_path_collection_extents(
     if len(paths) == 0:
         raise ValueError("No paths provided")
     if len(offsets) == 0:
-        _api.warn_deprecated(
-            "3.8", message="Calling get_path_collection_extents() with an"
-            " empty offsets list is deprecated since %(since)s. Support will"
-            " be removed %(removal)s.")
+        raise ValueError("No offsets provided")
     extents, minpos = _path.get_path_collection_extents(
         master_transform, paths, np.atleast_3d(transforms),
         offsets, offset_transform)

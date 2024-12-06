@@ -253,7 +253,7 @@ class LabelBase(mtext.Text):
 
     def get_window_extent(self, renderer=None):
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
 
         # save original and adjust some properties
         tr = self.get_transform()
@@ -312,13 +312,13 @@ class AxisLabel(AttributeCopier, LabelBase):
 
     def get_ref_artist(self):
         # docstring inherited
-        return self._axis.get_label()
+        return self._axis.label
 
     def get_text(self):
         # docstring inherited
         t = super().get_text()
         if t == "__from_axes__":
-            return self._axis.get_label().get_text()
+            return self._axis.label.get_text()
         return self._text
 
     _default_alignments = dict(left=("bottom", "center"),
@@ -391,7 +391,7 @@ class AxisLabel(AttributeCopier, LabelBase):
 
     def get_window_extent(self, renderer=None):
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         if not self.get_visible():
             return
 
@@ -550,7 +550,7 @@ class TickLabels(AxisLabel):  # mtext.Text
 
     def get_window_extents(self, renderer=None):
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
 
         if not self.get_visible():
             self._axislabel_pad = self._external_pad
@@ -691,7 +691,7 @@ class AxisArtist(martist.Artist):
         self.offset_transform = ScaledTranslation(
             *offset,
             Affine2D().scale(1 / 72)  # points to inches.
-            + self.axes.figure.dpi_scale_trans)
+            + self.axes.get_figure(root=False).dpi_scale_trans)
 
         if axis_direction in ["left", "right"]:
             self.axis = axes.yaxis
@@ -879,7 +879,7 @@ class AxisArtist(martist.Artist):
         self.major_ticklabels = TickLabels(
             axis=self.axis,
             axis_direction=self._axis_direction,
-            figure=self.axes.figure,
+            figure=self.axes.get_figure(root=False),
             transform=trans,
             fontsize=size,
             pad=kwargs.get(
@@ -888,7 +888,7 @@ class AxisArtist(martist.Artist):
         self.minor_ticklabels = TickLabels(
             axis=self.axis,
             axis_direction=self._axis_direction,
-            figure=self.axes.figure,
+            figure=self.axes.get_figure(root=False),
             transform=trans,
             fontsize=size,
             pad=kwargs.get(
@@ -922,7 +922,7 @@ class AxisArtist(martist.Artist):
         # majorticks even for minor ticks. not clear what is best.
 
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
 
         dpi_cor = renderer.points_to_pixels(1.)
         if self.major_ticks.get_visible() and self.major_ticks.get_tick_out():
@@ -997,7 +997,7 @@ class AxisArtist(martist.Artist):
             transform=tr,
             axis_direction=self._axis_direction,
         )
-        self.label.set_figure(self.axes.figure)
+        self.label.set_figure(self.axes.get_figure(root=False))
         labelpad = kwargs.get("labelpad", 5)
         self.label.set_pad(labelpad)
 

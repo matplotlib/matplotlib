@@ -213,7 +213,6 @@ class LogTransform(Transform):
         return "{}(base={}, nonpositive={!r})".format(
             type(self).__name__, self.base, "clip" if self._clip else "mask")
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         # Ignore invalid values due to nans being passed to the transform.
         with np.errstate(divide="ignore", invalid="ignore"):
@@ -250,7 +249,6 @@ class InvertedLogTransform(Transform):
     def __str__(self):
         return f"{type(self).__name__}(base={self.base})"
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         return np.power(self.base, values)
 
@@ -362,7 +360,6 @@ class SymmetricalLogTransform(Transform):
         self._linscale_adj = (linscale / (1.0 - self.base ** -1))
         self._log_base = np.log(base)
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         abs_a = np.abs(values)
         with np.errstate(divide="ignore", invalid="ignore"):
@@ -390,7 +387,6 @@ class InvertedSymmetricalLogTransform(Transform):
         self.linscale = linscale
         self._linscale_adj = (linscale / (1.0 - self.base ** -1))
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         abs_a = np.abs(values)
         with np.errstate(divide="ignore", invalid="ignore"):
@@ -472,7 +468,6 @@ class AsinhTransform(Transform):
                              "must be strictly positive")
         self.linear_width = linear_width
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         return self.linear_width * np.arcsinh(values / self.linear_width)
 
@@ -488,7 +483,6 @@ class InvertedAsinhTransform(Transform):
         super().__init__()
         self.linear_width = linear_width
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         return self.linear_width * np.sinh(values / self.linear_width)
 
@@ -589,7 +583,6 @@ class LogitTransform(Transform):
         self._nonpositive = nonpositive
         self._clip = {"clip": True, "mask": False}[nonpositive]
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         """logit transform (base 10), masked or clipped"""
         with np.errstate(divide="ignore", invalid="ignore"):
@@ -613,7 +606,6 @@ class LogisticTransform(Transform):
         super().__init__()
         self._nonpositive = nonpositive
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         """logistic transform (base 10)"""
         return 1.0 / (1 + 10**(-values))
@@ -750,7 +742,7 @@ def _get_scale_docs():
     return "\n".join(docs)
 
 
-_docstring.interpd.update(
+_docstring.interpd.register(
     scale_type='{%s}' % ', '.join([repr(x) for x in get_scale_names()]),
     scale_docs=_get_scale_docs().rstrip(),
     )

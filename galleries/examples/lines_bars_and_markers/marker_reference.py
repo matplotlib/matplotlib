@@ -240,3 +240,9 @@ for y, join_style in enumerate(JoinStyle):
 format_axes(ax)
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: marker
+#    purpose: reference

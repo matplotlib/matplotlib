@@ -34,8 +34,6 @@ You can find a tutorial describing usage of axisartist at the
 
    axisartist.angle_helper
    axisartist.axes_divider
-   axisartist.axes_grid
-   axisartist.axes_rgb
    axisartist.axis_artist
    axisartist.axisline_style
    axisartist.axislines

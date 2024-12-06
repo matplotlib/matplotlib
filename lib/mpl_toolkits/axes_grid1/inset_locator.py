@@ -6,56 +6,11 @@ from matplotlib import _api, _docstring
 from matplotlib.offsetbox import AnchoredOffsetbox
 from matplotlib.patches import Patch, Rectangle
 from matplotlib.path import Path
-from matplotlib.transforms import Bbox, BboxTransformTo
+from matplotlib.transforms import Bbox
 from matplotlib.transforms import IdentityTransform, TransformedBbox
 
 from . import axes_size as Size
 from .parasite_axes import HostAxes
-
-
-@_api.deprecated("3.8", alternative="Axes.inset_axes")
-class InsetPosition:
-    @_docstring.dedent_interpd
-    def __init__(self, parent, lbwh):
-        """
-        An object for positioning an inset axes.
-
-        This is created by specifying the normalized coordinates in the axes,
-        instead of the figure.
-
-        Parameters
-        ----------
-        parent : `~matplotlib.axes.Axes`
-            Axes to use for normalizing coordinates.
-
-        lbwh : iterable of four floats
-            The left edge, bottom edge, width, and height of the inset axes, in
-            units of the normalized coordinate of the *parent* axes.
-
-        See Also
-        --------
-        :meth:`matplotlib.axes.Axes.set_axes_locator`
-
-        Examples
-        --------
-        The following bounds the inset axes to a box with 20%% of the parent
-        axes height and 40%% of the width. The size of the axes specified
-        ([0, 0, 1, 1]) ensures that the axes completely fills the bounding box:
-
-        >>> parent_axes = plt.gca()
-        >>> ax_ins = plt.axes([0, 0, 1, 1])
-        >>> ip = InsetPosition(parent_axes, [0.5, 0.1, 0.4, 0.2])
-        >>> ax_ins.set_axes_locator(ip)
-        """
-        self.parent = parent
-        self.lbwh = lbwh
-
-    def __call__(self, ax, renderer):
-        bbox_parent = self.parent.get_position(original=False)
-        trans = BboxTransformTo(bbox_parent)
-        bbox_inset = Bbox.from_bounds(*self.lbwh)
-        bb = TransformedBbox(bbox_inset, trans)
-        return bb
 
 
 class AnchoredLocatorBase(AnchoredOffsetbox):
@@ -70,13 +25,14 @@ class AnchoredLocatorBase(AnchoredOffsetbox):
         raise RuntimeError("No draw method should be called")
 
     def __call__(self, ax, renderer):
+        fig = ax.get_figure(root=False)
         if renderer is None:
-            renderer = ax.figure._get_renderer()
+            renderer = fig._get_renderer()
         self.axes = ax
         bbox = self.get_window_extent(renderer)
         px, py = self.get_offset(bbox.width, bbox.height, 0, 0, renderer)
         bbox_canvas = Bbox.from_bounds(px, py, bbox.width, bbox.height)
-        tr = ax.figure.transSubfigure.inverted()
+        tr = fig.transSubfigure.inverted()
         return TransformedBbox(bbox_canvas, tr)
 
 
@@ -130,7 +86,7 @@ class AnchoredZoomLocator(AnchoredLocatorBase):
 
 
 class BboxPatch(Patch):
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def __init__(self, bbox, **kwargs):
         """
         Patch showing the shape bounded by a Bbox.
@@ -192,7 +148,7 @@ class BboxConnector(Patch):
         x2, y2 = BboxConnector.get_bbox_edge_pos(bbox2, loc2)
         return Path([[x1, y1], [x2, y2]])
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def __init__(self, bbox1, bbox2, loc1, loc2=None, **kwargs):
         """
         Connect two bboxes with a straight line.
@@ -236,7 +192,7 @@ class BboxConnector(Patch):
 
 
 class BboxConnectorPatch(BboxConnector):
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def __init__(self, bbox1, bbox2, loc1a, loc2a, loc1b, loc2b, **kwargs):
         """
         Connect two bboxes with a quadrilateral.
@@ -287,13 +243,14 @@ def _add_inset_axes(parent_axes, axes_class, axes_kwargs, axes_locator):
         axes_class = HostAxes
     if axes_kwargs is None:
         axes_kwargs = {}
+    fig = parent_axes.get_figure(root=False)
     inset_axes = axes_class(
-        parent_axes.figure, parent_axes.get_position(),
+        fig, parent_axes.get_position(),
         **{"navigate": False, **axes_kwargs, "axes_locator": axes_locator})
-    return parent_axes.figure.add_axes(inset_axes)
+    return fig.add_axes(inset_axes)
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def inset_axes(parent_axes, width, height, loc='upper right',
                bbox_to_anchor=None, bbox_transform=None,
                axes_class=None, axes_kwargs=None,
@@ -395,7 +352,8 @@ def inset_axes(parent_axes, width, height, loc='upper right',
         Inset axes object created.
     """
 
-    if (bbox_transform in [parent_axes.transAxes, parent_axes.figure.transFigure]
+    if (bbox_transform in [parent_axes.transAxes,
+                           parent_axes.get_figure(root=False).transFigure]
             and bbox_to_anchor is None):
         _api.warn_external("Using the axes or figure transform requires a "
                            "bounding box in the respective coordinates. "
@@ -416,7 +374,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
             bbox_transform=bbox_transform, borderpad=borderpad))
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
                       bbox_to_anchor=None, bbox_transform=None,
                       axes_class=None, axes_kwargs=None,
@@ -509,7 +467,7 @@ class _TransformedBboxWithCallback(TransformedBbox):
         return super().get_points()
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
     """
     Draw a box to mark the location of an area represented by an inset axes.

@@ -2,6 +2,7 @@
 A PostScript backend, which can produce both PostScript .ps and .eps.
 """
 
+import bisect
 import codecs
 import datetime
 from enum import Enum
@@ -13,9 +14,12 @@ import math
 import os
 import pathlib
 import shutil
+import struct
 from tempfile import TemporaryDirectory
+import textwrap
 import time
 
+import fontTools
 import numpy as np
 
 import matplotlib as mpl
@@ -25,8 +29,7 @@ from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.cbook import is_writable_file_like, file_requires_unicode
 from matplotlib.font_manager import get_font
-from matplotlib.ft2font import LOAD_NO_SCALE, FT2Font
-from matplotlib._ttconv import convert_ttf_to_ps
+from matplotlib.ft2font import LoadFlags
 from matplotlib._mathtext_data import uni2type1
 from matplotlib.path import Path
 from matplotlib.texmanager import TexManager
@@ -37,12 +40,6 @@ from . import _backend_pdf_ps
 
 _log = logging.getLogger(__name__)
 debugPS = False
-
-
-@_api.caching_module_getattr
-class __getattr__:
-    # module-level deprecations
-    psDefs = _api.deprecated("3.8", obj_type="")(property(lambda self: _psDefs))
 
 
 papersize = {'letter': (8.5, 11),
@@ -70,15 +67,6 @@ papersize = {'letter': (8.5, 11),
              'b8': (2.51, 3.58),
              'b9': (1.76, 2.51),
              'b10': (1.26, 1.76)}
-
-
-def _get_papertype(w, h):
-    for key, (pw, ph) in sorted(papersize.items(), reverse=True):
-        if key.startswith('l'):
-            continue
-        if w < pw and h < ph:
-            return key
-    return 'a0'
 
 
 def _nums_to_str(*args, sep=" "):
@@ -160,7 +148,7 @@ FontName currentdict end definefont pop
 
     entries = []
     for glyph_id in glyph_ids:
-        g = font.load_glyph(glyph_id, LOAD_NO_SCALE)
+        g = font.load_glyph(glyph_id, LoadFlags.NO_SCALE)
         v, c = font.get_path()
         entries.append(
             "/%(name)s{%(bbox)s sc\n" % {
@@ -198,26 +186,199 @@ def _font_to_ps_type42(font_path, chars, fh):
     subset_str = ''.join(chr(c) for c in chars)
     _log.debug("SUBSET %s characters: %s", font_path, subset_str)
     try:
-        fontdata = _backend_pdf_ps.get_glyphs_subset(font_path, subset_str)
-        _log.debug("SUBSET %s %d -> %d", font_path, os.stat(font_path).st_size,
-                   fontdata.getbuffer().nbytes)
-
-        # Give ttconv a subsetted font along with updated glyph_ids.
-        font = FT2Font(fontdata)
-        glyph_ids = [font.get_char_index(c) for c in chars]
-        with TemporaryDirectory() as tmpdir:
-            tmpfile = os.path.join(tmpdir, "tmp.ttf")
-
-            with open(tmpfile, 'wb') as tmp:
-                tmp.write(fontdata.getvalue())
-
-            # TODO: allow convert_ttf_to_ps to input file objects (BytesIO)
-            convert_ttf_to_ps(os.fsencode(tmpfile), fh, 42, glyph_ids)
+        kw = {}
+        # fix this once we support loading more fonts from a collection
+        # https://github.com/matplotlib/matplotlib/issues/3135#issuecomment-571085541
+        if font_path.endswith('.ttc'):
+            kw['fontNumber'] = 0
+        with (fontTools.ttLib.TTFont(font_path, **kw) as font,
+              _backend_pdf_ps.get_glyphs_subset(font_path, subset_str) as subset):
+            fontdata = _backend_pdf_ps.font_as_file(subset).getvalue()
+            _log.debug(
+                "SUBSET %s %d -> %d", font_path, os.stat(font_path).st_size,
+                len(fontdata)
+            )
+            fh.write(_serialize_type42(font, subset, fontdata))
     except RuntimeError:
         _log.warning(
-            "The PostScript backend does not currently "
-            "support the selected font.")
+            "The PostScript backend does not currently support the selected font (%s).",
+            font_path)
         raise
+
+
+def _serialize_type42(font, subset, fontdata):
+    """
+    Output a PostScript Type-42 format representation of font
+
+    Parameters
+    ----------
+    font : fontTools.ttLib.ttFont.TTFont
+        The original font object
+    subset : fontTools.ttLib.ttFont.TTFont
+        The subset font object
+    fontdata : bytes
+        The raw font data in TTF format
+
+    Returns
+    -------
+    str
+        The Type-42 formatted font
+    """
+    version, breakpoints = _version_and_breakpoints(font.get('loca'), fontdata)
+    post = font['post']
+    name = font['name']
+    chars = _generate_charstrings(subset)
+    sfnts = _generate_sfnts(fontdata, subset, breakpoints)
+    return textwrap.dedent(f"""
+        %%!PS-TrueTypeFont-{version[0]}.{version[1]}-{font['head'].fontRevision:.7f}
+        10 dict begin
+        /FontType 42 def
+        /FontMatrix [1 0 0 1 0 0] def
+        /FontName /{name.getDebugName(6)} def
+        /FontInfo 7 dict dup begin
+        /FullName ({name.getDebugName(4)}) def
+        /FamilyName ({name.getDebugName(1)}) def
+        /Version ({name.getDebugName(5)}) def
+        /ItalicAngle {post.italicAngle} def
+        /isFixedPitch {'true' if post.isFixedPitch else 'false'} def
+        /UnderlinePosition {post.underlinePosition} def
+        /UnderlineThickness {post.underlineThickness} def
+        end readonly def
+        /Encoding StandardEncoding def
+        /FontBBox [{_nums_to_str(*_bounds(font))}] def
+        /PaintType 0 def
+        /CIDMap 0 def
+        {chars}
+        {sfnts}
+        FontName currentdict end definefont pop
+        """)
+
+
+def _version_and_breakpoints(loca, fontdata):
+    """
+    Read the version number of the font and determine sfnts breakpoints.
+
+    When a TrueType font file is written as a Type 42 font, it has to be
+    broken into substrings of at most 65535 bytes. These substrings must
+    begin at font table boundaries or glyph boundaries in the glyf table.
+    This function determines all possible breakpoints and it is the caller's
+    responsibility to do the splitting.
+
+    Helper function for _font_to_ps_type42.
+
+    Parameters
+    ----------
+    loca : fontTools.ttLib._l_o_c_a.table__l_o_c_a or None
+        The loca table of the font if available
+    fontdata : bytes
+        The raw data of the font
+
+    Returns
+    -------
+    version : tuple[int, int]
+        A 2-tuple of the major version number and minor version number.
+    breakpoints : list[int]
+        The breakpoints is a sorted list of offsets into fontdata; if loca is not
+        available, just the table boundaries.
+    """
+    v1, v2, numTables = struct.unpack('>3h', fontdata[:6])
+    version = (v1, v2)
+
+    tables = {}
+    for i in range(numTables):
+        tag, _, offset, _ = struct.unpack('>4sIII', fontdata[12 + i*16:12 + (i+1)*16])
+        tables[tag.decode('ascii')] = offset
+    if loca is not None:
+        glyf_breakpoints = {tables['glyf'] + offset for offset in loca.locations[:-1]}
+    else:
+        glyf_breakpoints = set()
+    breakpoints = sorted({*tables.values(), *glyf_breakpoints, len(fontdata)})
+
+    return version, breakpoints
+
+
+def _bounds(font):
+    """
+    Compute the font bounding box, as if all glyphs were written
+    at the same start position.
+
+    Helper function for _font_to_ps_type42.
+
+    Parameters
+    ----------
+    font : fontTools.ttLib.ttFont.TTFont
+        The font
+
+    Returns
+    -------
+    tuple
+        (xMin, yMin, xMax, yMax) of the combined bounding box
+        of all the glyphs in the font
+    """
+    gs = font.getGlyphSet(False)
+    pen = fontTools.pens.boundsPen.BoundsPen(gs)
+    for name in gs.keys():
+        gs[name].draw(pen)
+    return pen.bounds or (0, 0, 0, 0)
+
+
+def _generate_charstrings(font):
+    """
+    Transform font glyphs into CharStrings
+
+    Helper function for _font_to_ps_type42.
+
+    Parameters
+    ----------
+    font : fontTools.ttLib.ttFont.TTFont
+        The font
+
+    Returns
+    -------
+    str
+        A definition of the CharStrings dictionary in PostScript
+    """
+    go = font.getGlyphOrder()
+    s = f'/CharStrings {len(go)} dict dup begin\n'
+    for i, name in enumerate(go):
+        s += f'/{name} {i} def\n'
+    s += 'end readonly def'
+    return s
+
+
+def _generate_sfnts(fontdata, font, breakpoints):
+    """
+    Transform font data into PostScript sfnts format.
+
+    Helper function for _font_to_ps_type42.
+
+    Parameters
+    ----------
+    fontdata : bytes
+        The raw data of the font
+    font : fontTools.ttLib.ttFont.TTFont
+        The fontTools font object
+    breakpoints : list
+        Sorted offsets of possible breakpoints
+
+    Returns
+    -------
+    str
+        The sfnts array for the font definition, consisting
+        of hex-encoded strings in PostScript format
+    """
+    s = '/sfnts['
+    pos = 0
+    while pos < len(fontdata):
+        i = bisect.bisect_left(breakpoints, pos + 65534)
+        newpos = breakpoints[i-1]
+        if newpos <= pos:
+            # have to accept a larger string
+            newpos = breakpoints[-1]
+        s += f'<{fontdata[pos:newpos].hex()}00>'  # Always NUL terminate.
+        pos = newpos
+    s += ']def'
+    return '\n'.join(s[i:i+100] for i in range(0, len(s), 100))
 
 
 def _log_if_debug_on(meth):
@@ -344,12 +505,11 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
                 self.fontname = fontname
                 self.fontsize = fontsize
 
-    def create_hatch(self, hatch):
+    def create_hatch(self, hatch, linewidth):
         sidelen = 72
         if hatch in self._hatches:
             return self._hatches[hatch]
         name = 'H%d' % len(self._hatches)
-        linewidth = mpl.rcParams['hatch.linewidth']
         pageheight = self.height * 72
         self._pswriter.write(f"""\
   << /PatternType 1
@@ -772,7 +932,7 @@ grestore
                 write("grestore\n")
 
         if hatch:
-            hatch_name = self.create_hatch(hatch)
+            hatch_name = self.create_hatch(hatch, gc.get_hatch_linewidth())
             write("gsave\n")
             write(_nums_to_str(*gc.get_hatch_color()[:3]))
             write(f" {hatch_name} setpattern fill grestore\n")
@@ -828,7 +988,7 @@ class FigureCanvasPS(FigureCanvasBase):
         if papertype is None:
             papertype = mpl.rcParams['ps.papersize']
         papertype = papertype.lower()
-        _api.check_in_list(['figure', 'auto', *papersize], papertype=papertype)
+        _api.check_in_list(['figure', *papersize], papertype=papertype)
 
         orientation = _api.check_getitem(
             _Orientation, orientation=orientation.lower())
@@ -858,9 +1018,6 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # find the appropriate papertype
         width, height = self.figure.get_size_inches()
-        if papertype == 'auto':
-            papertype = _get_papertype(*orientation.swap_if_landscape((width, height)))
-
         if is_eps or papertype == 'figure':
             paper_width, paper_height = width, height
         else:
@@ -1041,8 +1198,6 @@ showpage
                 paper_width, paper_height = orientation.swap_if_landscape(
                     self.figure.get_size_inches())
             else:
-                if papertype == 'auto':
-                    papertype = _get_papertype(width, height)
                 paper_width, paper_height = papersize[papertype]
 
             psfrag_rotated = _convert_psfrags(

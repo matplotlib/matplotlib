@@ -1,7 +1,7 @@
 """
-===============================
-Resizing Axes with tight layout
-===============================
+=============================
+Resize Axes with tight layout
+=============================
 
 `~.Figure.tight_layout` attempts to resize subplots in a figure so that there
 are no overlaps between Axes objects and labels on the Axes.
@@ -132,3 +132,10 @@ plt.show()
 #    - `matplotlib.figure.Figure.add_gridspec`
 #    - `matplotlib.figure.Figure.add_subplot`
 #    - `matplotlib.pyplot.subplot2grid`
+#
+# .. tags::
+#
+#    component: axes
+#    component: subplot
+#    styling: size
+#    level: beginner

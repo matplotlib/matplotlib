@@ -111,7 +111,7 @@ Passing undefined *label_mode* to ``Grid``
 ... is no longer allowed. This includes `mpl_toolkits.axes_grid1.axes_grid.Grid`,
 `mpl_toolkits.axes_grid1.axes_grid.AxesGrid`, and
 `mpl_toolkits.axes_grid1.axes_grid.ImageGrid` as well as the corresponding classes
-imported from `mpl_toolkits.axisartist.axes_grid`.
+imported from ``mpl_toolkits.axisartist.axes_grid``.
 
 Pass ``label_mode='keep'`` instead to get the previous behavior of not modifying labels.
 

@@ -11,12 +11,13 @@ import warnings
 import numpy as np
 import pytest
 
+import matplotlib as mpl
 from matplotlib.font_manager import (
     findfont, findSystemFonts, FontEntry, FontProperties, fontManager,
     json_dump, json_load, get_font, is_opentype_cff_font,
     MSUserFontDirectories, _get_fontconfig_fonts, ttfFontProperty)
 from matplotlib import cbook, ft2font, pyplot as plt, rc_context, figure as mfigure
-from matplotlib.testing import subprocess_run_helper
+from matplotlib.testing import subprocess_run_helper, subprocess_run_for_testing
 
 
 has_fclist = shutil.which('fc-list') is not None
@@ -183,8 +184,8 @@ def test_addfont_as_path():
     path = Path(__file__).parent / font_test_file
     try:
         fontManager.addfont(path)
-        added, = [font for font in fontManager.ttflist
-                  if font.fname.endswith(font_test_file)]
+        added, = (font for font in fontManager.ttflist
+                  if font.fname.endswith(font_test_file))
         fontManager.ttflist.remove(added)
     finally:
         to_remove = [font for font in fontManager.ttflist
@@ -250,7 +251,7 @@ def test_missing_family(caplog):
 
 def _test_threading():
     import threading
-    from matplotlib.ft2font import LOAD_NO_HINTING
+    from matplotlib.ft2font import LoadFlags
     import matplotlib.font_manager as fm
 
     def loud_excepthook(args):
@@ -265,7 +266,7 @@ def _test_threading():
         b.wait(timeout=5)
         for j in range(100):
             font = fm.get_font(fm.findfont("DejaVu Sans"))
-            font.set_text(str(n), 0.0, flags=LOAD_NO_HINTING)
+            font.set_text(str(n), 0.0, flags=LoadFlags.NO_HINTING)
 
     threads = [
         threading.Thread(target=bad_idea, name=f"bad_thread_{j}", args=(j,))
@@ -285,6 +286,28 @@ def test_fontcache_thread_safe():
     pytest.importorskip('threading')
 
     subprocess_run_helper(_test_threading, timeout=10)
+
+
+def test_lockfilefailure(tmp_path):
+    # The logic here:
+    # 1. get a temp directory from pytest
+    # 2. import matplotlib which makes sure it exists
+    # 3. get the cache dir (where we check it is writable)
+    # 4. make it not writable
+    # 5. try to write into it via font manager
+    proc = subprocess_run_for_testing(
+        [
+            sys.executable,
+            "-c",
+            "import matplotlib;"
+            "import os;"
+            "p = matplotlib.get_cachedir();"
+            "os.chmod(p, 0o555);"
+            "import matplotlib.font_manager;"
+        ],
+        env={**os.environ, 'MPLCONFIGDIR': str(tmp_path)},
+        check=True
+    )
 
 
 def test_fontentry_dataclass():
@@ -345,3 +368,42 @@ def test_donot_cache_tracebacks():
     for obj in gc.get_objects():
         if isinstance(obj, SomeObject):
             pytest.fail("object from inner stack still alive")
+
+
+def test_fontproperties_init_deprecation():
+    """
+    Test the deprecated API of FontProperties.__init__.
+
+    The deprecation does not change behavior, it only adds a deprecation warning
+    via a decorator. Therefore, the purpose of this test is limited to check
+    which calls do and do not issue deprecation warnings. Behavior is still
+    tested via the existing regular tests.
+    """
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        # multiple positional arguments
+        FontProperties("Times", "italic")
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        # Mixed positional and keyword arguments
+        FontProperties("Times", size=10)
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        # passing a family list positionally
+        FontProperties(["Times"])
+
+    # still accepted:
+    FontProperties(family="Times", style="italic")
+    FontProperties(family="Times")
+    FontProperties("Times")  # works as pattern and family
+    FontProperties("serif-24:style=oblique:weight=bold")  # pattern
+
+    # also still accepted:
+    # passing as pattern via family kwarg was not covered by the docs but
+    # historically worked. This is left unchanged for now.
+    # AFAICT, we cannot detect this: We can determine whether a string
+    # works as pattern, but that doesn't help, because there are strings
+    # that are both pattern and family. We would need to identify, whether
+    # a string is *not* a valid family.
+    # Since this case is not covered by docs, I've refrained from jumping
+    # extra hoops to detect this possible API misuse.
+    FontProperties(family="serif-24:style=oblique:weight=bold")

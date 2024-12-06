@@ -1,6 +1,6 @@
 """
 ======================
-Inches and Centimeters
+Inches and centimeters
 ======================
 
 The example illustrates the ability to override default x and y units (ax1) to
