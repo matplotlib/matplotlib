@@ -28,7 +28,6 @@ from matplotlib.transforms import (
     Affine2D, BboxBase, Bbox, BboxTransform, BboxTransformTo,
     IdentityTransform, TransformedBbox)
 
-import matplotlib.image as mimage
 
 _log = logging.getLogger(__name__)
 
@@ -1595,7 +1594,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
                               frameon=False,
                               xticks=[],
                               yticks=[])
-            im = mimage.AxesImage(ax, cmap=cmap)
+            im = AxesImage(ax, cmap=cmap)
             im.set_data(arr)
             im._scale_norm(None, vmin, vmax)
             arr = im.get_array()
