@@ -15,6 +15,7 @@ programmatic plot generation::
     x = np.arange(0, 5, 0.1)
     y = np.sin(x)
     plt.plot(x, y)
+    plt.show()
 
 The explicit object-oriented API is recommended for complex plots, though
 pyplot is still usually used to create the figure and often the Axes in the
@@ -29,6 +30,7 @@ figure. See `.pyplot.figure`, `.pyplot.subplots`, and
     y = np.sin(x)
     fig, ax = plt.subplots()
     ax.plot(x, y)
+    plt.show()
 
 
 See :ref:`api_interfaces` for an explanation of the tradeoffs between the
