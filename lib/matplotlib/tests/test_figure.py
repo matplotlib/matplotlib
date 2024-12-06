@@ -1811,6 +1811,7 @@ def test_suplots_adjust_plt():
     del inDict['rc_default']
     assert plt.gcf().subplotpars.get_subplot_params() == inDict
 
+
 def test_set_figure():
     fig = plt.figure()
     sfig1 = fig.subfigures()
