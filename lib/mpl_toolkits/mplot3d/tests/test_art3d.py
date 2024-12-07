@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from matplotlib.backend_bases import MouseEvent
-from mpl_toolkits.mplot3d.art3d import Line3DCollection
+from mpl_toolkits.mplot3d.art3d import Line3DCollection, Poly3DCollection
 
 
 def test_scatter_3d_projection_conservation():
@@ -53,4 +53,15 @@ def test_zordered_error():
     ax = fig.add_subplot(projection="3d")
     ax.add_collection(Line3DCollection(lc))
     ax.scatter(*pc, visible=False)
+    plt.draw()
+
+
+def test_generate_normals():
+    # Smoke test for https://github.com/matplotlib/matplotlib/issues/29156
+    vertices = ((0, 0, 0), (0, 5, 0), (5, 5, 0), (5, 0, 0))
+    shape = Poly3DCollection([vertices], edgecolors='r', shade=True)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.add_collection3d(shape)
     plt.draw()
