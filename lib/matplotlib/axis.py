@@ -1053,8 +1053,8 @@ class Axis(martist.Artist):
             )
         return self._translate_tick_params(self._minor_tick_kw, reverse=True)
 
-    @staticmethod
-    def _translate_tick_params(kw, reverse=False):
+    @classmethod
+    def _translate_tick_params(cls, kw, reverse=False):
         """
         Translate the kwargs supported by `.Axis.set_tick_params` to kwargs
         supported by `.Tick._apply_params`.
@@ -1096,10 +1096,20 @@ class Axis(martist.Artist):
             'labeltop': 'label2On',
         }
         if reverse:
-            kwtrans = {
-                oldkey: kw_.pop(newkey)
-                for oldkey, newkey in keymap.items() if newkey in kw_
-            }
+            kwtrans = {}
+            is_x_axis = cls.axis_name == 'x'
+            for oldkey, newkey in keymap.items():
+                if newkey in kw_:
+                    if is_x_axis and newkey == 'label1On':
+                        kwtrans['labelbottom'] = kw_.pop(newkey)
+                    elif is_x_axis and newkey == 'tick1On':
+                        kwtrans['bottom'] = kw_.pop(newkey)
+                    elif is_x_axis and newkey == 'label2On':
+                        kwtrans['labeltop'] = kw_.pop(newkey)
+                    elif is_x_axis and newkey == 'tick2On':
+                        kwtrans['top'] = kw_.pop(newkey)
+                    else:
+                        kwtrans[oldkey] = kw_.pop(newkey)
         else:
             kwtrans = {
                 newkey: kw_.pop(oldkey)
