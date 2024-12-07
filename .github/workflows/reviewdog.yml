@@ -4,13 +4,13 @@ on: [pull_request]
 
 permissions:
   contents: read
-  checks: write
-  pull-requests: write
 
 jobs:
   flake8:
     name: flake8
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -38,6 +38,8 @@ jobs:
   mypy:
     name: mypy
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -67,6 +69,8 @@ jobs:
   eslint:
     name: eslint
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
     steps:
       - uses: actions/checkout@v4
         with:

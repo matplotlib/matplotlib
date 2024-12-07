@@ -4,12 +4,13 @@ on: [pull_request]
 
 permissions:
   contents: read
-  checks: write
 
 jobs:
   mypy-stubtest:
     name: mypy-stubtest
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
     steps:
       - uses: actions/checkout@v4
         with:
