@@ -64,4 +64,4 @@ def test_generate_normals():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     ax.add_collection3d(shape)
-    plt.show()
+    plt.draw()
