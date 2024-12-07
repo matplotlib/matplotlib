@@ -88,29 +88,11 @@ def test_all_points_on_plane():
 
 
 def test_generate_normals():
-
-    # Following code is an example taken from
-    # https://stackoverflow.com/questions/18897786/transparency-for-poly3dcollection-plot-in-matplotlib
-    # and modified to test _generate_normals function
+    # Smoke test for https://github.com/matplotlib/matplotlib/issues/29156
+    vertices = ((0, 0, 0), (0, 5, 0), (5, 5, 0), (5, 0, 0))
+    shape = Poly3DCollection([vertices], edgecolors='r', shade=True)
 
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-
-    x = [0, 2, 1, 1]
-    y = [0, 0, 1, 0]
-    z = [0, 0, 0, 1]
-
-    # deliberately use nested tuple
-    vertices = ((0, 1, 2), (0, 1, 3), (0, 2, 3), (1, 2, 3))
-
-    tupleList = list(zip(x, y, z))
-
-    poly3d = [[tupleList[vertices[ix][iy]] for iy in range(len(vertices[0]))]
-              for ix in range(len(vertices))]
-    ax.scatter(x, y, z)
-    collection = Poly3DCollection(poly3d, alpha=0.2, edgecolors='r', shade=True)
-    face_color = [0.5, 0.5, 1]  # alternative: matplotlib.colors.rgb2hex([0.5, 0.5, 1])
-    collection.set_facecolor(face_color)
-    ax.add_collection3d(collection)
-
-    plt.draw()
+    ax = fig.add_subplot(projection='3d')
+    ax.add_collection3d(shape)
+    plt.show()
