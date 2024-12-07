@@ -34,8 +34,10 @@ jobs:
 
       - name: Fetch result artifacts
         id: fetch-artifacts
+        env:
+          target_url: "${{ github.event.target_url }}"
         run: |
-          python .circleci/fetch_doc_logs.py "${{ github.event.target_url }}"
+          python .circleci/fetch_doc_logs.py "${target_url}"
 
       - name: Set up reviewdog
         if: "${{ steps.fetch-artifacts.outputs.count != 0 }}"
