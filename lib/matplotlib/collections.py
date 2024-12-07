@@ -98,10 +98,12 @@ class Collection(mcolorizer.ColorizingArtist):
         """
         Parameters
         ----------
-        edgecolors : :mpltype:`color` or list of colors, default: :rc:`patch.edgecolor`
+        edgecolors : :mpltype:`color` or list of colors, optional
             Edge color for each patch making up the collection. The special
             value 'face' can be passed to make the edgecolor match the
-            facecolor.
+            facecolor. If not provided, the value is :rc:`patch.edgecolor` if
+            :rc:`patch.force_edgecolor` is True or *facecolors* is 'none',
+            otherwise 'none'.
         facecolors : :mpltype:`color` or list of colors, default: :rc:`patch.facecolor`
             Face color for each patch making up the collection.
         linewidths : float or list of floats, default: :rc:`patch.linewidth`
