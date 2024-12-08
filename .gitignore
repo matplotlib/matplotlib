@@ -15,6 +15,7 @@
 *.swp
 .idea
 .vscode/
+venv/
 
 # Compiled source #
 ###################
