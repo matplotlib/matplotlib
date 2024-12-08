@@ -1974,8 +1974,10 @@ class CircleCollection(_CollectionWithSizes):
         self._paths = [mpath.Path.unit_circle()]
 
 
-class EllipseCollection(Collection):
-    """A collection of ellipses, drawn using splines."""
+class _CollectionWithWidthHeightAngle(Collection):
+    """
+    Base class for collections that have an array of widths, heights and angles
+    """
 
     def __init__(self, widths, heights, angles, *, units='points', **kwargs):
         """
@@ -2005,7 +2007,7 @@ class EllipseCollection(Collection):
         self._units = units
         self.set_transform(transforms.IdentityTransform())
         self._transforms = np.empty((0, 3, 3))
-        self._paths = [mpath.Path.unit_circle()]
+        self._paths = [self._path_generator()]
 
     def _set_transforms(self):
         """Calculate transforms immediately before drawing."""
@@ -2051,12 +2053,12 @@ class EllipseCollection(Collection):
 
     def set_widths(self, widths):
         """Set the lengths of the first axes (e.g., major axis)."""
-        self._widths = 0.5 * np.asarray(widths).ravel()
+        self._widths = np.asarray(widths).ravel()
         self.stale = True
 
     def set_heights(self, heights):
         """Set the lengths of second axes (e.g., minor axes)."""
-        self._heights = 0.5 * np.asarray(heights).ravel()
+        self._heights = np.asarray(heights).ravel()
         self.stale = True
 
     def set_angles(self, angles):
@@ -2066,11 +2068,11 @@ class EllipseCollection(Collection):
 
     def get_widths(self):
         """Get the lengths of the first axes (e.g., major axis)."""
-        return self._widths * 2
+        return self._widths
 
     def get_heights(self):
         """Set the lengths of second axes (e.g., minor axes)."""
-        return self._heights * 2
+        return self._heights
 
     def get_angles(self):
         """Get the angles of the first axes, degrees CCW from the x-axis."""
@@ -2080,6 +2082,67 @@ class EllipseCollection(Collection):
     def draw(self, renderer):
         self._set_transforms()
         super().draw(renderer)
+
+
+class EllipseCollection(_CollectionWithWidthHeightAngle):
+    """
+    A collection of ellipses, drawn using splines.
+
+    Parameters
+    ----------
+    widths : array-like
+        The lengths of the first axes (e.g., major axis lengths).
+    heights : array-like
+        The lengths of second axes.
+    angles : array-like
+        The angles of the first axes, degrees CCW from the x-axis.
+    units : {'points', 'inches', 'dots', 'width', 'height', 'x', 'y', 'xy'}
+        The units in which majors and minors are given; 'width' and
+        'height' refer to the dimensions of the axes, while 'x' and 'y'
+        refer to the *offsets* data units. 'xy' differs from all others in
+        that the angle as plotted varies with the aspect ratio, and equals
+        the specified angle only when the aspect ratio is unity.  Hence
+        it behaves the same as the `~.patches.Ellipse` with
+        ``axes.transData`` as its transform.
+    **kwargs
+        Forwarded to `Collection`.
+    """
+    _path_generator = mpath.Path.half_unit_circle
+
+
+class RectangleCollection(_CollectionWithWidthHeightAngle):
+    """
+    A collection of rectangles, drawn using splines.
+
+    Parameters
+    ----------
+    widths : array-like
+        The lengths of the first axes (e.g., major axis lengths).
+    heights : array-like
+        The lengths of second axes.
+    angles : array-like
+        The angles of the first axes, degrees CCW from the x-axis.
+    units : {'points', 'inches', 'dots', 'width', 'height', 'x', 'y', 'xy'}
+        The units in which majors and minors are given; 'width' and
+        'height' refer to the dimensions of the axes, while 'x' and 'y'
+        refer to the *offsets* data units. 'xy' differs from all others in
+        that the angle as plotted varies with the aspect ratio, and equals
+        the specified angle only when the aspect ratio is unity.  Hence
+        it behaves the same as the `~.patches.Rectangle` with
+        ``axes.transData`` as its transform.
+    centered : bool
+        Whether to use the center or the corner of the rectangle to
+        define the position of the rectangles. Default is False.
+    **kwargs
+        Forwarded to `Collection`.
+
+    """
+    _path_generator = mpath.Path.unit_rectangle
+
+    def __init__(self, *args, **kwargs):
+        if kwargs.pop("centered", False):
+            self._path_generator = mpath.Path.unit_rectangle_centered
+        super().__init__(*args, **kwargs)
 
 
 class PatchCollection(Collection):
