@@ -11,6 +11,7 @@ import tkinter.filedialog
 import tkinter.font
 import tkinter.messagebox
 from tkinter.simpledialog import SimpleDialog
+from tkinter import ttk
 
 import numpy as np
 from PIL import Image, ImageTk
@@ -685,7 +686,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         scale correctly to pixels.
         """
         for widget in self.winfo_children():
-            if isinstance(widget, (tk.Button, tk.Checkbutton)):
+            if isinstance(widget, (tk.Button, tk.Checkbutton, ttk.Button)):
                 if hasattr(widget, '_image_file'):
                     # Explicit class because ToolbarTk calls _rescale.
                     NavigationToolbar2Tk._set_image_for_button(self, widget)
@@ -919,6 +920,24 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         if "Forward" in self._buttons:
             self._buttons['Forward']['state'] = state_map[can_forward]
 
+class NavigationToolbar2Ttk(NavigationToolbar2Tk):
+    def _Button(self, text, image_file, toggle, command):
+        im = tk.PhotoImage(master=self, file=image_file)
+        b = ttk.Button(self, text=text, padding=(2, 2), image=im, command=command)
+        b._ntimage = im
+        b.pack(side='left')
+        return b
+    def _Spacer(self):
+        s = ttk.Separator(master=self, orient='vertical')
+        s.pack(side='left', padx='3p', pady='5p', fill='y')
+        return s
+    def _update_buttons_checked(self):
+        for text in ['Zoom', 'Pan']:
+            if text in self._buttons:
+                if self.mode.name == text.upper():
+                    self._buttons[text].state(['pressed'])
+                else:
+                    self._buttons[text].state(['!pressed'])
 
 def add_tooltip(widget, text):
     tipwindow = None
@@ -957,11 +976,11 @@ def add_tooltip(widget, text):
 @backend_tools._register_tool_class(FigureCanvasTk)
 class RubberbandTk(backend_tools.RubberbandBase):
     def draw_rubberband(self, x0, y0, x1, y1):
-        NavigationToolbar2Tk.draw_rubberband(
+        NavigationToolbar2Ttk.draw_rubberband(
             self._make_classic_style_pseudo_toolbar(), None, x0, y0, x1, y1)
 
     def remove_rubberband(self):
-        NavigationToolbar2Tk.remove_rubberband(
+        NavigationToolbar2Ttk.remove_rubberband(
             self._make_classic_style_pseudo_toolbar())
 
 
@@ -992,7 +1011,7 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
         self._groups = {}
 
     def _rescale(self):
-        return NavigationToolbar2Tk._rescale(self)
+        return NavigationToolbar2Ttk._rescale(self)
 
     def add_toolitem(
             self, name, group, position, image_file, description, toggle):
@@ -1002,7 +1021,7 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
             before = None
         else:
             before = buttons[position]
-        button = NavigationToolbar2Tk._Button(frame, name, image_file, toggle,
+        button = NavigationToolbar2Ttk._Button(frame, name, image_file, toggle,
                                               lambda: self._button_click(name))
         button.pack_configure(before=before)
         if description is not None:
@@ -1021,7 +1040,7 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
         return self._groups[group]
 
     def _add_separator(self):
-        return NavigationToolbar2Tk._Spacer(self)
+        return NavigationToolbar2Ttk._Spacer(self)
 
     def _button_click(self, name):
         self.trigger_tool(name)
@@ -1046,14 +1065,14 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
 @backend_tools._register_tool_class(FigureCanvasTk)
 class SaveFigureTk(backend_tools.SaveFigureBase):
     def trigger(self, *args):
-        NavigationToolbar2Tk.save_figure(
+        NavigationToolbar2Ttk.save_figure(
             self._make_classic_style_pseudo_toolbar())
 
 
 @backend_tools._register_tool_class(FigureCanvasTk)
 class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):
     def trigger(self, *args):
-        NavigationToolbar2Tk.configure_subplots(self)
+        NavigationToolbar2Ttk.configure_subplots(self)
 
 
 @backend_tools._register_tool_class(FigureCanvasTk)
@@ -1065,7 +1084,7 @@ class HelpTk(backend_tools.ToolHelpBase):
 
 
 Toolbar = ToolbarTk
-FigureManagerTk._toolbar2_class = NavigationToolbar2Tk
+FigureManagerTk._toolbar2_class = NavigationToolbar2Ttk
 FigureManagerTk._toolmanager_toolbar_class = ToolbarTk
 
 
