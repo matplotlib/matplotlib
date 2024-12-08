@@ -134,7 +134,7 @@ options will be particularly useful to those packaging Matplotlib.
 
 .. _meson.options: https://github.com/matplotlib/matplotlib/blob/main/meson.options
 
-Aspects of some behaviorial defaults of the library can be configured via:
+Aspects of some behavioral defaults of the library can be configured via:
 
 .. toctree::
   :maxdepth: 2
