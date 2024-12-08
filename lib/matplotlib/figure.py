@@ -9,6 +9,9 @@
     A logical figure inside a figure, usually added to a figure (or parent `SubFigure`)
     with `Figure.add_subfigure` or `Figure.subfigures` methods.
 
+`SubplotParams`
+    Control the default spacing between subplots.
+
 Figures are typically created using pyplot methods `~.pyplot.figure`,
 `~.pyplot.subplots`, and `~.pyplot.subplot_mosaic`.
 
@@ -48,7 +51,7 @@ import matplotlib.colorbar as cbar
 import matplotlib.image as mimage
 
 from matplotlib.axes import Axes
-from matplotlib.gridspec import GridSpec, SubplotParams
+from matplotlib.gridspec import GridSpec
 from matplotlib.layout_engine import (
     ConstrainedLayoutEngine, TightLayoutEngine, LayoutEngine,
     PlaceHolderLayoutEngine
@@ -113,6 +116,66 @@ class _AxesStack:
         next_counter = state.pop('_counter')
         vars(self).update(state)
         self._counter = itertools.count(next_counter)
+
+
+class SubplotParams:
+    """
+    A class to hold the parameters for a subplot.
+    """
+
+    def __init__(self, left=None, bottom=None, right=None, top=None,
+                 wspace=None, hspace=None):
+        """
+        Defaults are given by :rc:`figure.subplot.[name]`.
+
+        Parameters
+        ----------
+        left : float
+            The position of the left edge of the subplots,
+            as a fraction of the figure width.
+        right : float
+            The position of the right edge of the subplots,
+            as a fraction of the figure width.
+        bottom : float
+            The position of the bottom edge of the subplots,
+            as a fraction of the figure height.
+        top : float
+            The position of the top edge of the subplots,
+            as a fraction of the figure height.
+        wspace : float
+            The width of the padding between subplots,
+            as a fraction of the average Axes width.
+        hspace : float
+            The height of the padding between subplots,
+            as a fraction of the average Axes height.
+        """
+        for key in ["left", "bottom", "right", "top", "wspace", "hspace"]:
+            setattr(self, key, mpl.rcParams[f"figure.subplot.{key}"])
+        self.update(left, bottom, right, top, wspace, hspace)
+
+    def update(self, left=None, bottom=None, right=None, top=None,
+               wspace=None, hspace=None):
+        """
+        Update the dimensions of the passed parameters. *None* means unchanged.
+        """
+        if ((left if left is not None else self.left)
+                >= (right if right is not None else self.right)):
+            raise ValueError('left cannot be >= right')
+        if ((bottom if bottom is not None else self.bottom)
+                >= (top if top is not None else self.top)):
+            raise ValueError('bottom cannot be >= top')
+        if left is not None:
+            self.left = left
+        if right is not None:
+            self.right = right
+        if bottom is not None:
+            self.bottom = bottom
+        if top is not None:
+            self.top = top
+        if wspace is not None:
+            self.wspace = wspace
+        if hspace is not None:
+            self.hspace = hspace
 
 
 class FigureBase(Artist):
@@ -1354,6 +1417,65 @@ default: %(va)s
                 ax._set_position(ax.get_subplotspec().get_position(self))
         self.stale = True
 
+    def set_subplotpars(self, subplotparams={}):
+        """
+        Set the subplot layout parameters.
+        Accepts either a `.SubplotParams` object, from which the relevant
+        parameters are copied, or a dictionary of subplot layout parameters.
+        If a dictionary is provided, this function is a convenience wrapper for
+        `matplotlib.figure.Figure.subplots_adjust`
+
+        Parameters
+        ----------
+        subplotparams : `~matplotlib.figure.SubplotParams` or dict with keys
+        "left", "bottom", "right", 'top", "wspace", "hspace"] , optional
+            SubplotParams object to copy new subplot parameters from, or a dict
+            of SubplotParams constructor arguments.
+            By default, an empty dictionary is passed, which maintains the
+            current state of the figure's `.SubplotParams`
+
+        See Also
+        --------
+        matplotlib.figure.Figure.subplots_adjust
+        matplotlib.figure.Figure.get_subplotpars
+        """
+        subplotparams_args = ["left", "bottom", "right",
+                              "top", "wspace", "hspace"]
+        kwargs = {}
+        if isinstance(subplotparams, SubplotParams):
+            for key in subplotparams_args:
+                kwargs[key] = getattr(subplotparams, key)
+        elif isinstance(subplotparams, dict):
+            for key in subplotparams.keys():
+                if key in subplotparams_args:
+                    kwargs[key] = subplotparams[key]
+                else:
+                    _api.warn_external(
+                        f"'{key}' is not a valid key for set_subplotpars;"
+                        " this key was ignored.")
+        else:
+            raise TypeError(
+                "subplotpars must be a dictionary of keyword-argument pairs or"
+                " an instance of SubplotParams()")
+        if kwargs == {}:
+            self.set_subplotpars(self.get_subplotpars())
+        self.subplots_adjust(**kwargs)
+
+    def get_subplotpars(self):
+        """
+        Return the `.SubplotParams` object associated with the Figure.
+
+        Returns
+        -------
+        `.SubplotParams`
+
+        See Also
+        --------
+        matplotlib.figure.Figure.subplots_adjust
+        matplotlib.figure.Figure.get_subplotpars
+        """
+        return self.subplotpars
+
     def align_xlabels(self, axs=None):
         """
         Align the xlabels of subplots in the same subplot row if label
@@ -2417,6 +2539,10 @@ class SubFigure(FigureBase):
 
 
 @_docstring.interpd
+@_api.define_aliases({
+    "size_inches": ["figsize"],
+    "layout_engine": ["layout"]
+})
 class Figure(FigureBase):
     """
     The top level container for all the plot elements.
@@ -2492,7 +2618,7 @@ class Figure(FigureBase):
         frameon : bool, default: :rc:`figure.frameon`
             If ``False``, suppress drawing the figure background patch.
 
-        subplotpars : `~matplotlib.gridspec.SubplotParams`
+        subplotpars : `SubplotParams`
             Subplot parameters. If not given, the default subplot
             parameters :rc:`figure.subplot.*` are used.
 
