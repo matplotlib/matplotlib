@@ -401,6 +401,11 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const facepair_t &face,
         double linewidth = points_to_pixels(gc.linewidth);
         if (!gc.isaa) {
             linewidth = (linewidth < 0.5) ? 0.5 : mpl_round(linewidth);
+        } else {
+            // Too small linewidths are forced to zero because they require a
+            // lot of computation and do not make sense even with antialiasing.
+            // Compare github #14498.
+            linewidth = (linewidth < 0.001) ? 0 : mpl_round(linewidth);
         }
         if (gc.dashes.size() == 0) {
             stroke_t stroke(path);
