@@ -318,3 +318,17 @@ testpaths = ["lib"]
 addopts = [
     "--import-mode=importlib",
 ]
+
+# This build is just for testing right now.
+[tool.cibuildwheel.pyodide]
+build-frontend = "build; args: --exports whole_archive"
+test-requires = "pytest"
+test-command = "pytest -p no:cacheprovider --pyargs matplotlib"
+[tool.cibuildwheel.pyodide.config-settings]
+install-args = "--tags=data,python-runtime,runtime,tests"
+[tool.cibuildwheel.pyodide.environment]
+# Exceptions are needed for pybind11:
+# https://github.com/pybind/pybind11/pull/5298
+CFLAGS = "-fexceptions"
+CXXFLAGS = "-fexceptions"
+LDFLAGS = "-fexceptions"
