@@ -295,4 +295,3 @@ def test_table_fontsize():
     
     # Assert that the fontsize is correctly set to 30
     assert cell_fontsize == 30, f"Expected fontsize 30, but got {cell_fontsize}"
-
