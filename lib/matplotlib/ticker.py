@@ -1613,8 +1613,11 @@ class PercentFormatter(Formatter):
         else:
             decimals = self.decimals
         s = f'{x:0.{int(decimals)}f}'
+        s += self.symbol
+        if mpl.rcParams['text.usetex']:
+            s = r'$\mathdefault{%s}$' % s
 
-        return s + self.symbol
+        return s
 
     def convert_to_pct(self, x):
         return 100.0 * (x / self.xmax)
