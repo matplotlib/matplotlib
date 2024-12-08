@@ -275,13 +275,10 @@ def test_table_dataframe(pd):
 def test_table_fontsize():
     # Data for plotting
     tableData = [['a', 1], ['b', 1]]
-    
     # Create the figure and axis objects
     fig, ax = plt.subplots()
-    
     # Plot the data (although we are focusing on the table)
     ax.plot(np.linspace(0, 10, 100), np.linspace(0, 10, 100) + 1)
-    
     # Add a table with fontsize=30
     t = ax.table(
         cellText=tableData, 
@@ -289,9 +286,7 @@ def test_table_fontsize():
         cellLoc='center', 
         fontsize=30
     )
-    
     # Retrieve the font size from a specific cell (e.g., cell (0, 0))
     cell_fontsize = t[(0, 0)].get_fontsize()
-    
     # Assert that the fontsize is correctly set to 30
     assert cell_fontsize == 30, f"Expected fontsize 30, but got {cell_fontsize}"
