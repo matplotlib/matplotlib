@@ -89,5 +89,6 @@ def table(
     loc: str = ...,
     bbox: Bbox | None = ...,
     edges: str = ...,
+    fontsize: float | None = ..., 
     **kwargs
 ) -> Table: ...
