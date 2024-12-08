@@ -282,9 +282,21 @@ class Path:
         readonly, even if the source `Path` is.
         """
         # Deepcopying arrays (vertices, codes) strips the writeable=False flag.
-        p = copy.deepcopy(super(), memo)
-        p._readonly = False
-        return p
+        cls = self.__class__
+        new_instance = cls.__new__(cls)
+    
+        # Add the new instance to the memo dictionary to handle circular references
+        if memo is None:
+            memo = {}
+        memo[id(self)] = new_instance
+
+    # Deepcopy the attributes explicitly
+        new_instance.vertices = copy.deepcopy(self.vertices, memo)
+        new_instance.codes = copy.deepcopy(self.codes, memo)
+        new_instance._readonly = False
+
+        return new_instance
+
 
     deepcopy = __deepcopy__
 
