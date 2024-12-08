@@ -30,7 +30,7 @@ import matplotlib as mpl
 
 fig, ax = plt.subplots(figsize=(6, 1), layout='constrained')
 
-cmap = mpl.cm.cool
+cmap = mpl.colormaps["cool"]
 norm = mpl.colors.Normalize(vmin=5, vmax=10)
 
 fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap),
@@ -61,7 +61,7 @@ fig.colorbar(mpl.cm.ScalarMappable(norm=mpl.colors.Normalize(0, 1), cmap='magma'
 
 fig, ax = plt.subplots(figsize=(6, 1), layout='constrained')
 
-cmap = mpl.cm.viridis
+cmap = mpl.colormaps["viridis"]
 bounds = [-1, 2, 5, 7, 12, 15]
 norm = mpl.colors.BoundaryNorm(bounds, cmap.N, extend='both')
 

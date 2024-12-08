@@ -229,9 +229,9 @@ def test_contour3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
-    ax.contour(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm)
-    ax.contour(X, Y, Z, zdir='x', offset=-40, cmap=cm.coolwarm)
-    ax.contour(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)
+    ax.contour(X, Y, Z, zdir='z', offset=-100, cmap="coolwarm")
+    ax.contour(X, Y, Z, zdir='x', offset=-40, cmap="coolwarm")
+    ax.contour(X, Y, Z, zdir='y', offset=40, cmap="coolwarm")
     ax.axis(xmin=-40, xmax=40, ymin=-40, ymax=40, zmin=-100, zmax=100)
 
 
@@ -241,7 +241,7 @@ def test_contour3d_extend3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
-    ax.contour(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm, extend3d=True)
+    ax.contour(X, Y, Z, zdir='z', offset=-100, cmap="coolwarm", extend3d=True)
     ax.set_xlim(-30, 30)
     ax.set_ylim(-20, 40)
     ax.set_zlim(-80, 80)
@@ -253,9 +253,9 @@ def test_contourf3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
-    ax.contourf(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm)
-    ax.contourf(X, Y, Z, zdir='x', offset=-40, cmap=cm.coolwarm)
-    ax.contourf(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)
+    ax.contourf(X, Y, Z, zdir='z', offset=-100, cmap="coolwarm")
+    ax.contourf(X, Y, Z, zdir='x', offset=-40, cmap="coolwarm")
+    ax.contourf(X, Y, Z, zdir='y', offset=40, cmap="coolwarm")
     ax.set_xlim(-40, 40)
     ax.set_ylim(-40, 40)
     ax.set_zlim(-100, 100)
@@ -271,7 +271,7 @@ def test_contourf3d_fill():
     # This produces holes in the z=0 surface that causes rendering errors if
     # the Poly3DCollection is not aware of path code information (issue #4784)
     Z[::5, ::5] = 0.1
-    ax.contourf(X, Y, Z, offset=0, levels=[-0.1, 0], cmap=cm.coolwarm)
+    ax.contourf(X, Y, Z, offset=0, levels=[-0.1, 0], cmap="coolwarm")
     ax.set_xlim(-2, 2)
     ax.set_ylim(-2, 2)
     ax.set_zlim(-1, 1)
@@ -648,7 +648,7 @@ def test_surface3d():
     X, Y = np.meshgrid(X, Y)
     R = np.hypot(X, Y)
     Z = np.sin(R)
-    surf = ax.plot_surface(X, Y, Z, rcount=40, ccount=40, cmap=cm.coolwarm,
+    surf = ax.plot_surface(X, Y, Z, rcount=40, ccount=40, cmap="coolwarm",
                            lw=0, antialiased=False)
     plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     ax.set_zlim(-1.01, 1.01)
@@ -816,7 +816,7 @@ def test_trisurf3d():
 
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
-    ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.2)
+    ax.plot_trisurf(x, y, z, cmap="jet", linewidth=0.2)
 
 
 @mpl3d_image_comparison(['trisurf3d_shaded.png'], tol=0.03, style='mpl20')
@@ -936,7 +936,7 @@ def test_quiver3d_colorcoded():
     x = y = dx = dz = np.zeros(10)
     z = dy = np.arange(10.)
 
-    color = plt.cm.Reds(dy/dy.max())
+    color = plt.colormaps["Reds"](dy/dy.max())
     ax.quiver(x, y, z, dx, dy, dz, colors=color)
     ax.set_ylim(0, 10)
 
