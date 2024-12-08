@@ -1098,16 +1098,11 @@ class Axis(martist.Artist):
         if reverse:
             kwtrans = {}
             is_x_axis = cls.axis_name == 'x'
+            y_axis_keys = ['left', 'right', 'labelleft', 'labelright']
             for oldkey, newkey in keymap.items():
                 if newkey in kw_:
-                    if is_x_axis and newkey == 'label1On':
-                        kwtrans['labelbottom'] = kw_.pop(newkey)
-                    elif is_x_axis and newkey == 'tick1On':
-                        kwtrans['bottom'] = kw_.pop(newkey)
-                    elif is_x_axis and newkey == 'label2On':
-                        kwtrans['labeltop'] = kw_.pop(newkey)
-                    elif is_x_axis and newkey == 'tick2On':
-                        kwtrans['top'] = kw_.pop(newkey)
+                    if is_x_axis and oldkey in y_axis_keys:
+                        continue
                     else:
                         kwtrans[oldkey] = kw_.pop(newkey)
         else:
