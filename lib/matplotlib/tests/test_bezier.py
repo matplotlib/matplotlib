@@ -3,6 +3,10 @@ Tests specific to the bezier module.
 """
 
 from matplotlib.bezier import inside_circle, split_bezier_intersecting_with_closedpath
+from matplotlib.tests.test_path import _test_curves
+
+import numpy as np
+import pytest
 
 
 def test_split_bezier_with_large_values():
@@ -15,3 +19,44 @@ def test_split_bezier_with_large_values():
     # All we are testing is that this completes
     # The failure case is an infinite loop resulting from floating point precision
     # pytest will timeout if that occurs
+
+
+# get several curves to test our code on by borrowing the tests cases used in
+# `~.tests.test_path`. get last path element ([-1]) and curve, not code ([0])
+_test_curves = [list(tc.path.iter_bezier())[-1][0] for tc in _test_curves]
+# np2+ uses trapezoid, but we need to fallback to trapz for np<2 since it isn't there
+_trapezoid = getattr(np, "trapezoid", np.trapz)
+
+
+def _integral_arc_length(B):
+    dB = B.differentiate(B)
+    def integrand(t):
+        return np.linalg.norm(dB(t), axis=1)
+    x = np.linspace(0, 1, 1000)
+    y = integrand(x)
+    return _trapezoid(y, x)
+
+
+def _integral_arc_area(B):
+    """(Signed) area swept out by ray from origin to curve."""
+    dB = B.differentiate(B)
+    def integrand(t):
+        x = B(t)
+        y = dB(t)
+        # np.cross for 2d input
+        return (x[:, 0] * y[:, 1] - x[:, 1] * y[:, 0]) / 2
+    x = np.linspace(0, 1, 1000)
+    y = integrand(x)
+    return _trapezoid(y, x)
+
+
+@pytest.mark.parametrize("B", _test_curves)
+def test_area_formula(B):
+    assert np.isclose(_integral_arc_area(B), B.arc_area)
+
+
+@pytest.mark.parametrize("B", _test_curves)
+def test_length_iteration(B):
+    assert np.isclose(_integral_arc_length(B),
+                      B.arc_length(rtol=1e-5, atol=1e-8),
+                      rtol=1e-5, atol=1e-8)
