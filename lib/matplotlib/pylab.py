@@ -1,6 +1,6 @@
 """
 `pylab` is a historic interface and its use is strongly discouraged. The equivalent
-replacement is `matplotlib.pyplot`. See :ref:`api_interfaces` for a full overview
+replacement is `matplotlib.pyplot`.  See :ref:`api_interfaces` for a full overview
 of Matplotlib interfaces.
 
 `pylab` was designed to support a MATLAB-like way of working with all plotting related
@@ -18,47 +18,50 @@ wildcard import (``from pylab import *``).
    namespace. Even more severely, in the case of `pylab`, this will overwrite some
    builtin functions (e.g. the builtin `sum` will be replaced by `numpy.sum`), which
    can lead to unexpected behavior.
+
 """
 
-# Utility functions and classes from Matplotlib
 from matplotlib.cbook import flatten, silent_list
 
-# Main Matplotlib library import
 import matplotlib as mpl
 
-# Date and time handling functions from Matplotlib
 from matplotlib.dates import (
     date2num, num2date, datestr2num, drange, DateFormatter, DateLocator,
     RRuleLocator, YearLocator, MonthLocator, WeekdayLocator, DayLocator,
     HourLocator, MinuteLocator, SecondLocator, rrule, MO, TU, WE, TH, FR,
     SA, SU, YEARLY, MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY, SECONDLY,
-    relativedelta
-)
+    relativedelta)
 
-# Various utility functions from mlab
+# bring all the symbols in so folks can import them from
+# pylab in one fell swoop
+
+## We are still importing too many things from mlab; more cleanup is needed.
+
 from matplotlib.mlab import (
-    detrend, detrend_linear, detrend_mean, detrend_none, window_hanning, window_none
-)
+    detrend, detrend_linear, detrend_mean, detrend_none, window_hanning,
+    window_none)
 
-# Import specific functions from Matplotlib and Pyplot
 from matplotlib import cbook, mlab, pyplot as plt
+from matplotlib.pyplot import *
 
-# Import numpy and its submodules with alias to avoid conflicts
+from numpy import *
+from numpy.fft import *
+from numpy.random import *
+from numpy.linalg import *
+
 import numpy as np
 import numpy.ma as ma
-import numpy.fft as np_fft
-import numpy.random as np_random
-import numpy.linalg as np_linalg
 
-# Import datetime to avoid numpy's datetime hiding the standard library's datetime
+# don't let numpy's datetime hide stdlib
 import datetime
 
-# Override specific numpy functions with their standard library equivalents
-builtins = __import__("builtins")
-bytes = builtins.bytes  # Override numpy's bytes
-abs = builtins.abs  # Override numpy's abs
-bool = builtins.bool  # Override numpy's bool
-max = builtins.max  # Override numpy's max
-min = builtins.min  # Override numpy's min
-pow = builtins.pow  # Override numpy's pow
-round = builtins.round  # Override numpy's round
+# This is needed, or bytes will be numpy.random.bytes from
+# "from numpy.random import *" above
+bytes = __import__("builtins").bytes
+# We also don't want the numpy version of these functions
+abs = __import__("builtins").abs
+bool = __import__("builtins").bool
+max = __import__("builtins").max
+min = __import__("builtins").min
+pow = __import__("builtins").pow
+round = __import__("builtins").round
