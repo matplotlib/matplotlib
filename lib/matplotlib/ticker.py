@@ -1009,6 +1009,8 @@ class LogFormatter(Formatter):
             return '0'
 
         x = abs(x)
+        if not np.isfinite(x):
+            return ''
         b = self._base
         # only label the decades
         fx = math.log(x) / math.log(b)
@@ -1088,6 +1090,8 @@ class LogFormatterMathtext(LogFormatter):
 
         sign_string = '-' if x < 0 else ''
         x = abs(x)
+        if not np.isfinite(x):
+            return ''
         b = self._base
 
         # only label the decades
