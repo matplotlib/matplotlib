@@ -4589,10 +4589,15 @@ class ConnectionPatch(FancyArrowPatch):
         s0 = s  # For the error message, if needed.
         if axes is None:
             axes = self.axes
-        xy = np.array(xy)
+
+        # preserve mixed type input (such as str, int)
+        x = np.array(xy[0])
+        y = np.array(xy[1])
+
         fig = self.get_figure(root=False)
         if s in ["figure points", "axes points"]:
-            xy *= fig.dpi / 72
+            x = x * fig.dpi / 72
+            y = y * fig.dpi / 72
             s = s.replace("points", "pixels")
         elif s == "figure fraction":
             s = fig.transFigure
@@ -4600,12 +4605,11 @@ class ConnectionPatch(FancyArrowPatch):
             s = fig.transSubfigure
         elif s == "axes fraction":
             s = axes.transAxes
-        x, y = xy
 
         if s == 'data':
             trans = axes.transData
-            x = float(self.convert_xunits(x))
-            y = float(self.convert_yunits(y))
+            x = cbook._to_unmasked_float_array(axes.xaxis.convert_units(x))
+            y = cbook._to_unmasked_float_array(axes.yaxis.convert_units(y))
             return trans.transform((x, y))
         elif s == 'offset points':
             if self.xycoords == 'offset points':  # prevent recursion
