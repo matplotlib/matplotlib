@@ -147,6 +147,12 @@
       "lib/matplotlib/collections.py:docstring of matplotlib.collections.PolyCollection:1",
       "lib/matplotlib/collections.py:docstring of matplotlib.collections.RegularPolyCollection:1"
     ],
+    "matplotlib.collections._CollectionWithWidthHeightAngle": [
+      "doc/api/artist_api.rst:202",
+      "doc/api/collections_api.rst:13",
+      "lib/matplotlib/collections.py:docstring of matplotlib.collections.EllipseCollection:1",
+      "lib/matplotlib/collections.py:docstring of matplotlib.collections.RectangleCollection:1"
+    ],
     "matplotlib.collections._MeshData": [
       "doc/api/artist_api.rst:202",
       "doc/api/collections_api.rst:13",
@@ -322,6 +328,18 @@
       "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Quiver:292",
       "lib/mpl_toolkits/mplot3d/art3d.py:docstring of matplotlib.artist.Path3DCollection.set:47",
       "lib/mpl_toolkits/mplot3d/art3d.py:docstring of matplotlib.artist.Poly3DCollection.set:46"
+    ],
+    "matplotlib.collections._CollectionWithWidthHeightAngle.set_angles": [
+      "lib/matplotlib/collections.py:docstring of matplotlib.artist.EllipseCollection.set:15",
+      "lib/matplotlib/collections.py:docstring of matplotlib.artist.RectangleCollection.set:15"
+    ],
+    "matplotlib.collections._CollectionWithWidthHeightAngle.set_heights": [
+      "lib/matplotlib/collections.py:docstring of matplotlib.artist.EllipseCollection.set:31",
+      "lib/matplotlib/collections.py:docstring of matplotlib.artist.RectangleCollection.set:31"
+    ],
+    "matplotlib.collections._CollectionWithWidthHeightAngle.set_widths": [
+      "lib/matplotlib/collections.py:docstring of matplotlib.artist.EllipseCollection.set:52",
+      "lib/matplotlib/collections.py:docstring of matplotlib.artist.RectangleCollection.set:52"
     ],
     "matplotlib.collections._MeshData.set_array": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.pcolormesh:168",
