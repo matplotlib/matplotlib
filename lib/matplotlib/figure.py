@@ -2743,6 +2743,46 @@ None}, default: None
     # to the figure in the right context, but then IPython doesn't
     # use it, for some reason.
 
+    def set_layout(self, layout=None, **kwargs):
+        """
+        Wrapper method for set_layout_engine, used to provide consistency between the
+        variable's name and it's setter.
+
+        Parameters
+        ----------
+        layout : {'constrained', 'compressed', 'tight', 'none', `.LayoutEngine`, None}
+
+            - 'constrained' will use `~.ConstrainedLayoutEngine`
+            - 'compressed' will also use `~.ConstrainedLayoutEngine`, but with
+              a correction that attempts to make a good layout for fixed-aspect
+              ratio Axes.
+            - 'tight' uses `~.TightLayoutEngine`
+            - 'none' removes layout engine.
+
+            If a `.LayoutEngine` instance, that instance will be used.
+
+            If `None`, the behavior is controlled by :rc:`figure.autolayout`
+            (which if `True` behaves as if 'tight' was passed) and
+            :rc:`figure.constrained_layout.use` (which if `True` behaves as if
+            'constrained' was passed).  If both are `True`,
+            :rc:`figure.autolayout` takes priority.
+
+            Users and libraries can define their own layout engines and pass
+            the instance directly as well.
+
+        **kwargs
+            The keyword arguments are passed to the layout engine to set things
+            like padding and margin sizes.  Only used if *layout* is a string.
+
+        """
+        self.set_layout_engine(layout,**kwargs)
+
+    def get_layout(self):
+        # Wrapper class for get_layout_engine
+        return self.get_layout_engine()
+        
+
+
     def _repr_html_(self):
         # We can't use "isinstance" here, because then we'd end up importing
         # webagg unconditionally.
@@ -2992,6 +3032,54 @@ None}, default: None
 
         return w_pad, h_pad, wspace, hspace
 
+        def set_subplotparams(self, subplotparams={}):
+        """
+        Set the subplot layout parameters.
+        Accepts either a `.SubplotParams` object, from which the relevant
+        parameters are copied, or a dictionary of subplot layout parameters.
+        If a dictionary is provided, this function is a convenience wrapper for
+        `matplotlib.figure.Figure.subplots_adjust`
+        Parameters
+        ----------
+        subplotparams : `~matplotlib.figure.SubplotParams` or dict with keys \
+        "left", "bottom", "right", 'top", "wspace", "hspace"] , optional
+            SubplotParams object to copy new subplot parameters from, or a dict
+             of SubplotParams constructor arguments.
+            By default, an empty dictionary is passed, which maintains the
+             current state of the figure's `.SubplotParams`
+        See Also
+        --------
+        matplotlib.figure.Figure.subplots_adjust
+        matplotlib.figure.Figure.get_subplotparams
+        """
+        subplotparams_args = ["left", "bottom", "right", "top", "wspace", "hspace"]
+        if isinstance(subplotparams, dict):
+            # Filter out the valid keys
+            kwargs = {key: value for key, value in subplotparams.items() if key in subplotparams_args}
+            self.subplots_adjust(**kwargs)
+        elif isinstance(subplotparams, SubplotParams):
+            self.subplots_adjust(**subplotparams.__dict__)
+        else:
+            raise TypeError(
+                "subplotparams must be a dictionary of keyword-argument pairs or"
+                " an instance of SubplotParams()")
+            
+        if not subplotparams:
+            self.set_subplotparams(self.get_subplotparams())
+
+    def get_subplotparams(self):
+        """
+        Return the `.SubplotParams` object associated with the Figure.
+        Returns
+        -------
+        `.SubplotParams`
+        See Also
+        --------
+        matplotlib.figure.Figure.subplots_adjust
+        matplotlib.figure.Figure.get_subplotparams
+        """
+        return self.subplotpars
+
     def set_canvas(self, canvas):
         """
         Set the canvas that contains the figure
@@ -3162,6 +3250,38 @@ None}, default: None
         The size in pixels can be obtained by multiplying with `Figure.dpi`.
         """
         return np.array(self.bbox_inches.p1)
+    
+    def set_figsize(self, w, h=None, forward=True):
+        """
+        Set the figure size in inches.
+        Call signatures::
+             fig.set_size_inches(w, h)  # OR
+             fig.set_size_inches((w, h))
+        Parameters
+        ----------
+        w : (float, float) or float
+            Width and height in inches (if height not specified as a separate
+            argument) or width.
+        h : float
+            Height in inches.
+        forward : bool, default: True
+            If ``True``, the canvas size is automatically updated, e.g.,
+            you can resize the figure window from the shell.
+            
+        See Also
+        --------
+        matplotlib.figure.Figure.get_size_inches
+        matplotlib.figure.Figure.set_figwidth
+        matplotlib.figure.Figure.set_figheight
+        Notes
+        -----
+        To transform from pixels to inches divide by `Figure.dpi`.
+        """
+        self.set_size_inches(w, h, forward)
+    
+    def get_figsize(self):
+        """Return the figure size in inches."""
+        return self.get_size_inches()
 
     def get_figwidth(self):
         """Return the figure width in inches."""
