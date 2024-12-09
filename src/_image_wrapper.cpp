@@ -1,6 +1,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 
+#include <algorithm>
+
 #include "_image_resample.h"
 #include "py_converters.h"
 
@@ -200,6 +202,76 @@ image_resample(py::array input_array,
 }
 
 
+// This is used by matplotlib.testing.compare to calculate RMS and a difference image.
+static py::tuple
+calculate_rms_and_diff(py::array_t<unsigned char> expected_image,
+                       py::array_t<unsigned char> actual_image)
+{
+    if (expected_image.ndim() != 3) {
+        auto exceptions = py::module_::import("matplotlib.testing.exceptions");
+        auto ImageComparisonFailure = exceptions.attr("ImageComparisonFailure");
+        py::set_error(
+            ImageComparisonFailure,
+            "Expected image must be 3-dimensional, but is {ndim}-dimensional"_s.format(
+                "ndim"_a=expected_image.ndim()));
+        throw py::error_already_set();
+    }
+
+    if (actual_image.ndim() != 3) {
+        auto exceptions = py::module_::import("matplotlib.testing.exceptions");
+        auto ImageComparisonFailure = exceptions.attr("ImageComparisonFailure");
+        py::set_error(
+            ImageComparisonFailure,
+            "Actual image must be 3-dimensional, but is {ndim}-dimensional"_s.format(
+                "ndim"_a=actual_image.ndim()));
+        throw py::error_already_set();
+    }
+
+    auto height = expected_image.shape(0);
+    auto width = expected_image.shape(1);
+    auto depth = expected_image.shape(2);
+
+    if (height != actual_image.shape(0) || width != actual_image.shape(1) ||
+            depth != actual_image.shape(2)) {
+        auto exceptions = py::module_::import("matplotlib.testing.exceptions");
+        auto ImageComparisonFailure = exceptions.attr("ImageComparisonFailure");
+        py::set_error(
+            ImageComparisonFailure,
+            "Image sizes do not match expected size: {expected_image.shape} "_s
+            "actual size {actual_image.shape}"_s.format(
+                "expected_image"_a=expected_image, "actual_image"_a=actual_image));
+        throw py::error_already_set();
+    }
+    auto expected = expected_image.unchecked<3>();
+    auto actual = actual_image.unchecked<3>();
+
+    py::ssize_t diff_dims[3] = {height, width, 3};
+    py::array_t<unsigned char> diff_image(diff_dims);
+    auto diff = diff_image.mutable_unchecked<3>();
+
+    double total = 0.0;
+    for (auto i = 0; i < height; i++) {
+        for (auto j = 0; j < width; j++) {
+            for (auto k = 0; k < depth; k++) {
+                auto pixel_diff = static_cast<double>(expected(i, j, k)) -
+                                  static_cast<double>(actual(i, j, k));
+
+                total += pixel_diff*pixel_diff;
+
+                if (k != 3) { // Hard-code a fully solid alpha channel by omitting it.
+                    diff(i, j, k) = static_cast<unsigned char>(std::clamp(
+                        abs(pixel_diff) * 10, // Expand differences in luminance domain.
+                        0.0, 255.0));
+                }
+            }
+        }
+    }
+    total = total / (width * height * depth);
+
+    return py::make_tuple(sqrt(total), diff_image);
+}
+
+
 PYBIND11_MODULE(_image, m, py::mod_gil_not_used())
 {
     py::enum_<interpolation_e>(m, "_InterpolationType")
@@ -232,4 +304,7 @@ PYBIND11_MODULE(_image, m, py::mod_gil_not_used())
         "norm"_a = false,
         "radius"_a = 1,
         image_resample__doc__);
+
+    m.def("calculate_rms_and_diff", &calculate_rms_and_diff,
+          "expected_image"_a, "actual_image"_a);
 }
