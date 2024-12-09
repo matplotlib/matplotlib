@@ -3220,6 +3220,44 @@ None}, default: None
         """
         self.set_size_inches(self.get_figwidth(), val, forward=forward)
 
+    def set_figratio(self, width=None, height=None, aspect=None, forward=True):
+        """
+        Set the height of the figure in inches.
+
+        Parameters
+        ----------
+        height : float
+        width : float
+        aspect: float
+        forward : bool
+            See `set_size_inches`.
+
+        See Also
+        --------
+        matplotlib.figure.Figure.set_figwidth
+        matplotlib.figure.Figure.set_figheight
+        matplotlib.figure.Figure.set_size_inches
+        """
+        if height and width:
+            self.set_size_inches(width, height, forward=forward)
+        elif aspect:
+            if height:
+                self.set_size_inches(
+                    self.get_figwidth()*aspect, height, forward=forward
+                )
+            elif width:
+                self.set_size_inches(
+                    width, self.get_figheight()*aspect, forward=forward
+                )
+            else:
+                self.set_size_inches(
+                    self.get_figwidth()*aspect,
+                    self.get_figheight()*aspect,
+                    forward=forward
+                )
+        else:
+            raise ValueError("No value passed for aspect")
+
     def clear(self, keep_observers=False):
         # docstring inherited
         super().clear(keep_observers=keep_observers)
