@@ -3,7 +3,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from matplotlib.backend_bases import MouseEvent
-from mpl_toolkits.mplot3d.art3d import Line3DCollection, _all_points_on_plane
+
+from mpl_toolkits.mplot3d.art3d import (
+    Line3DCollection,
+    _all_points_on_plane,
+    Poly3DCollection,
+)
 
 
 def test_scatter_3d_projection_conservation():
@@ -85,3 +90,22 @@ def test_all_points_on_plane():
     # All points lie on a plane
     points = np.array([[0, 0, 0], [0, 1, 0], [1, 0, 0], [1, 1, 0], [1, 2, 0]])
     assert _all_points_on_plane(*points.T)
+
+
+def test_poly3dcollection_shade_with_tuple_list():
+    # Define a list of tuple vertices for a 3D polygon
+    corners = [(0, 0, 0), (1, 0, 0), (0, 1, 0), (0, 0, 1)]
+
+    # Create a Poly3DCollection with shade=True and facecolors
+    collection = Poly3DCollection([corners], shade=True, facecolors="cyan")
+
+    # Set up a figure and 3D Axes
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+    ax.add_collection(collection)
+
+    # Smoke test: Ensure no errors when drawing
+    fig.canvas.draw_idle()
+
+    # Ensure the collection exists in the Axes
+    assert collection in ax.collections
