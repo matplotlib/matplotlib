@@ -1382,8 +1382,8 @@ default: %(va)s
 
         Notes
         -----
-        This assumes that ``axs`` are from the same `.GridSpec`, so that
-        their `.SubplotSpec` positions correspond to figure positions.
+        This assumes that all Axes in ``axs`` are from the same `.GridSpec`,
+        so that their `.SubplotSpec` positions correspond to figure positions.
 
         Examples
         --------
@@ -1444,8 +1444,8 @@ default: %(va)s
 
         Notes
         -----
-        This assumes that ``axs`` are from the same `.GridSpec`, so that
-        their `.SubplotSpec` positions correspond to figure positions.
+        This assumes that all Axes in ``axs`` are from the same `.GridSpec`,
+        so that their `.SubplotSpec` positions correspond to figure positions.
 
         Examples
         --------
@@ -1500,8 +1500,8 @@ default: %(va)s
 
         Notes
         -----
-        This assumes that ``axs`` are from the same `.GridSpec`, so that
-        their `.SubplotSpec` positions correspond to figure positions.
+        This assumes that all Axes in ``axs`` are from the same `.GridSpec`,
+        so that their `.SubplotSpec` positions correspond to figure positions.
 
         Examples
         --------
@@ -1544,6 +1544,11 @@ default: %(va)s
         matplotlib.figure.Figure.align_xlabels
         matplotlib.figure.Figure.align_ylabels
         matplotlib.figure.Figure.align_titles
+
+        Notes
+        -----
+        This assumes that all Axes in ``axs`` are from the same `.GridSpec`,
+        so that their `.SubplotSpec` positions correspond to figure positions.
         """
         self.align_xlabels(axs=axs)
         self.align_ylabels(axs=axs)
