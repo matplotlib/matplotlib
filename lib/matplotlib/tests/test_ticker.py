@@ -1445,6 +1445,31 @@ class TestFormatStrFormatter:
         assert '00002' == tmp_form(2)
 
 
+class TestFuncFormatter:
+    @pytest.mark.parametrize("func, args, expected",
+                             [(lambda x: f"{x}!", [2], "2!"),
+                              (lambda x, pos: f"{x}+{pos}!", [2, 3], "2+3!")])
+    def test_arguments(self, func, args, expected):
+        assert expected == mticker.FuncFormatter(func)(*args)
+
+    @pytest.mark.parametrize("func, args, expected",
+                             [("{}!".format, [2], "2!"),
+                              ("{}+{}!".format, [2, 3], "2+3!")])
+    def test_builtins(self, func, args, expected):
+        with pytest.raises(UserWarning, match=r'not support format'):
+            assert expected == mticker.FuncFormatter(func)(*args)
+
+    def test_typerror(self):
+        with pytest.raises(TypeError, match=r'must take at most'):
+            mticker.FuncFormatter((lambda x, y, z: " "))
+
+    def test_update(self):
+        formatter = mticker.FuncFormatter(lambda x, pos: f"{x}+{pos}")
+        assert "1+2" == formatter(1, 2)
+        with pytest.raises(TypeError, match=r'must take at most'):
+            formatter.func = lambda x, pos, error: "!"
+
+
 class TestStrMethodFormatter:
     test_data = [
         ('{x:05d}', (2,), False, '00002'),
