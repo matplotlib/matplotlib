@@ -1003,6 +1003,7 @@ class TestLogFormatterMathtext:
         (3, 1e2, '$\\mathdefault{100}$'),
         (3, 1e-3, '$\\mathdefault{10^{-3}}$'),
         (3, 1e3, '$\\mathdefault{10^{3}}$'),
+        (2, np.inf, ''),
     ]
 
     @pytest.mark.parametrize('min_exponent, value, expected', test_data)
@@ -1257,6 +1258,13 @@ class TestLogFormatter:
         temp_lf = mticker.LogFormatter()
         temp_lf.create_dummy_axis()
         temp_lf.axis.set_view_interval(1, 10)
+        temp_lf(val)
+
+    @pytest.mark.parametrize('val', [1e+323, 2e+323, 10e+323, 11e+323])
+    def test_LogFormatter_call_big(self, val):
+        # test coeff computation in __call__
+        temp_lf = mticker.LogFormatter()
+        temp_lf.create_dummy_axis()
         temp_lf(val)
 
 
@@ -1900,6 +1908,27 @@ def test_small_range_loglocator(numticks):
     for top in [5, 7, 9, 11, 15, 50, 100, 1000]:
         ticks = ll.tick_values(.5, top)
         assert (np.diff(np.log10(ll.tick_values(6, 150))) == 1).all()
+
+
+# https://github.com/matplotlib/matplotlib/pull/27609
+# TODO: This test currently fails, as expected and it needs to be fixed...
+# To do this completely correctly, we should figure out what are our limits
+# for when do integers are interpreted eventually as infinities and why,
+# and perhaps always work with np.float128 to increase accuracy as much as
+# possible. Eitherway, we should document what is our limit and how it is
+# related to the accuracy of np.float{64,128} and Python's native float
+# which seems to be the same as np.float64 for this purpose...
+def test_LogFormatter_almost_inf():
+    fig, ax = plt.subplots()
+    # TODO: Figure out why 1e400 won't fail, but will make the ax.plot describe
+    # 1e400 as inf (and hence not print it, and hence not fail).
+    ax.plot([1, 2], [1, 1e300])
+    ax.set_yscale("log")
+    fig.draw_without_rendering()
+    almost_inf = ax.get_lines()[0].get_ydata()[1]
+    # TODO/WIP: remove of course when the above TODOs are fixed. Perhaps assert
+    # something with ydata...
+    assert True == False
 
 
 def test_NullFormatter():
