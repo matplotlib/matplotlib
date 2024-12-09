@@ -45,6 +45,8 @@ from matplotlib import cbook, mlab, pyplot as plt
 from matplotlib.pyplot import *
 
 from numpy import *
+del fft  # remove imported module numpy.fft to prevent implicit re-def
+del random  # remove imported module numpy.random to prevent implicit re-def
 from numpy.fft import *
 from numpy.random import *
 from numpy.linalg import *
