@@ -1296,9 +1296,10 @@ _validators = {
     "pdf.use14corefonts": validate_bool,
     "pdf.fonttype":       validate_fonttype,  # 3 (Type3) or 42 (Truetype)
 
-    "pgf.texsystem": ["xelatex", "lualatex", "pdflatex"],  # latex variant used
-    "pgf.rcfonts":   validate_bool,  # use mpl's rc settings for font config
-    "pgf.preamble":  validate_string,  # custom LaTeX preamble
+    "pgf.texsystem":     ["xelatex", "lualatex", "pdflatex"],  # latex variant used
+    "pgf.rcfonts":       validate_bool,  # use mpl's rc settings for font config
+    "pgf.documentclass": validate_string,  # custom LaTeX documentclass
+    "pgf.preamble":      validate_string,  # custom LaTeX preamble
 
     # write raster image data into the svg file
     "svg.image_inline": validate_bool,
