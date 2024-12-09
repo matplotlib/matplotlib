@@ -32,7 +32,8 @@ def stackplot(axes, x, *args,
             stackplot(x, y)           # where y has shape (M, N)
             stackplot(x, y1, y2, y3)  # where y1, y2, y3, y4 have length N
 
-    baseline : {'zero', 'sym', 'wiggle', 'weighted_wiggle'}
+    baseline : {'zero', 'sym', 'wiggle', 'weighted_wiggle', float,
+            datetime, timedelta}
         Method used to calculate the baseline:
 
         - ``'zero'``: Constant zero baseline, i.e. a simple stacked plot.
@@ -42,6 +43,12 @@ def stackplot(axes, x, *args,
         - ``'weighted_wiggle'``: Does the same but weights to account for
           size of each layer. It is also called 'Streamgraph'-layout. More
           details can be found at http://leebyron.com/streamgraph/.
+        - ``float``:  Scalar baseline. Useful for cases where 0 is not sensible.
+          Any type that can be casted to float is accepted
+          (int, float, bool and custom data objects)
+        - ``datetime64``: Calculates de difference between the date and
+            '1970-01-01' in seconds.
+        - ``timedelta64``: Converts the timedelta to seconds
 
     labels : list of str, optional
         A sequence of labels to assign to each data series. If unspecified,
@@ -97,8 +104,9 @@ def stackplot(axes, x, *args,
     # We'll need a float buffer for the upcoming calculations.
     stack = np.cumsum(y, axis=0, dtype=np.promote_types(y.dtype, np.float32))
 
-    _api.check_in_list(['zero', 'sym', 'wiggle', 'weighted_wiggle'],
-                       baseline=baseline)
+    if isinstance(baseline, str):
+        _api.check_in_list(['zero', 'sym', 'wiggle', 'weighted_wiggle'],
+                            baseline=baseline)
     if baseline == 'zero':
         first_line = 0.
 
@@ -127,6 +135,23 @@ def stackplot(axes, x, *args,
         center = np.cumsum(center.sum(0))
         first_line = center - 0.5 * total
         stack += first_line
+
+    elif isinstance(baseline, np.datetime64):
+        first_date = np.datetime64('1970-01-01')
+        baseline = baseline - first_date
+        first_line = baseline / np.timedelta64(1, 's')
+        stack += first_line
+
+    elif isinstance(baseline, np.timedelta64):
+        first_line = baseline / np.timedelta64(1, 's')
+        stack += first_line
+
+    else:
+        """
+        Here we are 100% certain that baseline is not a
+        string and not date-time/timedelta
+        """
+        first_line = float(baseline)
 
     # Color between x = 0 and the first array.
     coll = axes.fill_between(x, first_line, stack[0, :],
