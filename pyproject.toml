@@ -222,7 +222,7 @@ enable_incomplete_feature = [
 ]
 exclude = [
   #stubtest
-  ".*/matplotlib/(sphinxext|backends|testing/jpl_units)",
+  ".*/matplotlib/(sphinxext|backends|pylab|testing/jpl_units)",
   #mypy precommit
   "galleries/",
   "doc/",
@@ -234,7 +234,9 @@ exclude = [
   "lib/matplotlib/tests/",
   # tinypages is used for testing the sphinx ext,
   # stubtest will import and run, opening a figure if not excluded
-  ".*/tinypages"
+  ".*/tinypages",
+  # pylab's numpy wildcard imports cause re-def failures since numpy 2.2
+  "lib/matplotlib/pylab.py",
 ]
 files = [
   "lib/matplotlib",
