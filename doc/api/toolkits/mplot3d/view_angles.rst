@@ -57,34 +57,33 @@ To keep it this way, set ``mouserotationstyle: azel``.
 This approach works fine for spherical coordinate plots, where the *z* axis is special;
 however, it leads to a kind of 'gimbal lock' when looking down the *z* axis:
 the plot reacts differently to mouse movement, dependent on the particular
-orientation at hand. Also, 'roll' cannot be controlled.
+orientation at hand. Also, the 'roll' axis about the viewing direction cannot
+be controlled.
 
 As an alternative, there are various mouse rotation styles where the mouse
 manipulates a virtual 'trackball'. In its simplest form (``mouserotationstyle: trackball``),
 the trackball rotates around an in-plane axis perpendicular to the mouse motion
-(it is as if there is a plate laying on the trackball; the plate itself is fixed
+(it is as if there is a flat plate laying on a trackball; the plate itself is fixed
 in orientation, but you can drag the plate with the mouse, thus rotating the ball).
-This is more natural to work with than the ``azel`` style; however,
-the plot cannot be easily rotated around the viewing direction - one has to
-move the mouse in circles with a handedness opposite to the desired rotation,
-counterintuitively.
+This is more natural to work with than the ``azel`` style; however, it is
+difficult and unintuitive to control roll with it.
 
 A different variety of trackball rotates along the shortest arc on the virtual
-sphere (``mouserotationstyle: sphere``). Rotating around the viewing direction
-is straightforward with it: grab the ball near its edge instead of near the center.
+sphere (``mouserotationstyle: sphere``). Rotating roll is straightforward with it:
+grab the ball near its edge instead of near the center.
 
 Ken Shoemake's ARCBALL [Shoemake1992]_ is also available (``mouserotationstyle: Shoemake``);
-it resembles the ``sphere`` style, but is free of hysteresis,
-i.e., returning mouse to the original position
-returns the figure to its original orientation; the rotation is independent
-of the details of the path the mouse took, which could be desirable.
-However, Shoemake's arcball rotates at twice the angular rate of the
-mouse movement (it is quite noticeable, especially when adjusting roll),
-and it lacks an obvious mechanical equivalent; arguably, the path-independent
-rotation is not natural (however convenient), it could take some getting used to.
-So it is a trade-off.
+it resembles the ``sphere`` style, but has the benefit of being free of hysteresis,
+such that returning the mouse to the original position returns the figure to its
+original orientation. This path independence of the rotation has the nice property
+of being able to 'undo' an errant rotation. However, Shoemake's arcball rotates at
+twice the angular rate of the mouse movement (noticeable especially when adjusting
+roll), and it lacks an obvious mechanical equivalent; arguably, the path-independent
+rotation is not natural and it could take some getting used to.
+So there is a trade-off.
 
-Henriksen et al. [Henriksen2002]_ provide an overview. In summary:
+Henriksen et al. [Henriksen2002]_ and Shambaugh [Shambaugh2024]_ provide
+overviews. In summary:
 
 .. list-table::
    :width: 100%
@@ -106,7 +105,7 @@ Henriksen et al. [Henriksen2002]_ provide an overview. In summary:
      - ❌
      - ✓ [6]_
      - ✔️
-     - ❌
+     - ✔️
      - ✔️
    * - sphere
      - ❌
@@ -127,7 +126,7 @@ Henriksen et al. [Henriksen2002]_ provide an overview. In summary:
 .. [3] Figure reacts the same way to mouse movements, regardless of orientation (no difference between 'poles' and 'equator')
 .. [4] Returning mouse to original position returns figure to original orientation (rotation is independent of the details of the path the mouse took)
 .. [5] The style has a corresponding natural implementation as a mechanical device
-.. [6] While it is possible to control roll with the ``trackball`` style, this is not immediately obvious (it requires moving the mouse in large circles) and a bit counterintuitive (the resulting roll is in the opposite direction)
+.. [6] While it is possible to control roll with the ``trackball`` style, this is not immediately obvious (it requires chaining multiple rotations together)
 
 You can try out one of the various mouse rotation styles using:
 
@@ -201,5 +200,9 @@ The border is a circular arc, wrapped around the arcball sphere cylindrically
   "Virtual Trackballs Revisited", in IEEE Transactions on Visualization
   and Computer Graphics, Volume 10, Issue 2, March-April 2004, pp. 206-216,
   https://doi.org/10.1109/TVCG.2004.1260772 `[full-text]`__;
+
+.. [Shambaugh2024] Scott Shambaugh, "Virtual Trackballs: An Interactive
+  Taxonomy", 11 November 2024,
+  https://theshamblog.com/virtual-trackballs-a-taxonomy/
 
 __ https://www.researchgate.net/publication/8329656_Virtual_Trackballs_Revisited#fullTextFileContent

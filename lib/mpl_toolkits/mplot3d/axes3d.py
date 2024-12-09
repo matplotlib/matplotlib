@@ -1364,7 +1364,12 @@ class Axes3D(Axes):
     def _button_press(self, event):
         if event.inaxes == self:
             self.button_pressed = event.button
-            self._sx, self._sy = event.xdata, event.ydata
+            self._sx0, self._sy0 = event.xdata, event.ydata
+            self._sx, self._sy = self._sx0, self._sy0
+            q0 = _Quaternion.from_cardan_angles(
+                *np.deg2rad((self.elev, self.azim, self.roll)))
+            self._q0 = q0
+
             toolbar = self.get_figure(root=True).canvas.toolbar
             if toolbar and toolbar._nav_stack() is None:
                 toolbar.push_current()
@@ -1566,6 +1571,7 @@ class Axes3D(Axes):
             return
 
         dx, dy = x - self._sx, y - self._sy
+        dx0, dy0 = x - self._sx0, y - self._sy0
         w = self._pseudo_w
         h = self._pseudo_h
 
@@ -1589,10 +1595,13 @@ class Axes3D(Axes):
                         *np.deg2rad((self.elev, self.azim, self.roll)))
 
                 if style == 'trackball':
-                    k = np.array([0, -dy/h, dx/w])
+                    # To avoid precession, we need to rotate relative to the
+                    # original orientation, not the current orientation.
+                    k = np.array([0, -dy0/h, dx0/w])
                     nk = np.linalg.norm(k)
                     th = nk / mpl.rcParams['axes3d.trackballsize']
                     dq = _Quaternion(np.cos(th), k*np.sin(th)/nk)
+                    q = dq * self._q0
                 else:  # 'sphere', 'arcball'
                     current_vec = self._arcball(self._sx/w, self._sy/h)
                     new_vec = self._arcball(x/w, y/h)
@@ -1600,8 +1609,8 @@ class Axes3D(Axes):
                         dq = _Quaternion.rotate_from_to(current_vec, new_vec)
                     else:  # 'arcball'
                         dq = _Quaternion(0, new_vec) * _Quaternion(0, -current_vec)
+                    q = dq * q
 
-                q = dq * q
                 elev, azim, roll = np.rad2deg(q.as_cardan_angles())
 
             # update view
