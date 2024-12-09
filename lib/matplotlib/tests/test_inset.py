@@ -4,6 +4,7 @@ import pytest
 
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
+import matplotlib.transforms as mtransforms
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
@@ -104,3 +105,38 @@ def test_zoom_inset_connector_styles():
     # Make one visible connector a different style
     indicator.connectors[1].set_linestyle('dashed')
     indicator.connectors[1].set_color('blue')
+
+
+@image_comparison(['zoom_inset_transform.png'], remove_text=True, style='mpl20',
+                  tol=0.01)
+def test_zoom_inset_transform():
+    fig, ax = plt.subplots()
+
+    ax_ins = ax.inset_axes([0.2, 0.2, 0.3, 0.15])
+    ax_ins.set_ylim([0.3, 0.6])
+    ax_ins.set_xlim([0.5, 0.9])
+
+    tr = mtransforms.Affine2D().rotate_deg(30)
+    indicator = ax.indicate_inset_zoom(ax_ins, transform=tr + ax.transData)
+    for conn in indicator.connectors:
+        conn.set_visible(True)
+
+
+def test_zoom_inset_external_transform():
+    # Smoke test that an external transform that requires an axes (i.e.
+    # Cartopy) will work.
+    class FussyDataTr:
+        def _as_mpl_transform(self, axes=None):
+            if axes is None:
+                raise ValueError("I am a fussy transform that requires an axes")
+            return axes.transData
+
+    fig, ax = plt.subplots()
+
+    ax_ins = ax.inset_axes([0.2, 0.2, 0.3, 0.15])
+    ax_ins.set_xlim([0.7, 0.8])
+    ax_ins.set_ylim([0.7, 0.8])
+
+    ax.indicate_inset_zoom(ax_ins, transform=FussyDataTr())
+
+    fig.draw_without_rendering()
