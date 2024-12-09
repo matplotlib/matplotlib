@@ -290,6 +290,64 @@ class FigureBase(Artist):
                       doc=("The root `Figure`.  To get the parent of a `SubFigure`, "
                            "use the `get_figure` method."))
 
+    def set_subplotparams(self, subplotparams={}):
+        """
+        .. Set the subplot layout parameters.
+            Accepts either a `.SubplotParams` object, from which the relevant
+            parameters are copied, or a dictionary of subplot layout parameters.
+            If a dictionary is provided, this function is a convenience wrapper for
+            `matplotlib.figure.Figure.subplots_adjust`
+        Parameters
+        ----------
+         subplotparams : `~matplotlib.figure.SubplotParams` or dict with keys
+        "left", "bottom", "right", 'top", "wspace", "hspace"] , optional
+        SubplotParams object to copy new subplot parameters from, or a dict
+        of SubplotParams constructor arguments.
+        By default, an empty dictionary is passed, which maintains the
+        current state of the figure's `.SubplotParams`
+        See Also
+        --------
+        matplotlib.figure.Figure.subplots_adjust
+        matplotlib.figure.Figure.get_subplotparams
+        """
+
+        subplotparams_args = ["left", "bottom", "right",
+                              "top", "wspace", "hspace"]
+        kwargs = {}
+        if isinstance(subplotparams, SubplotParams):
+            for key in subplotparams_args:
+                kwargs[key] = getattr(subplotparams, key)
+        elif isinstance(subplotparams, dict):
+            for key in subplotparams.keys():
+                if key in subplotparams_args:
+                    kwargs[key] = subplotparams[key]
+                else:
+                    _api.warn_external(
+                        f"'{key}' is not a valid key for set_subplotparams;"
+                        " this key was ignored.")
+        else:
+            raise TypeError(
+                "subplotparams must be a dictionary of keyword-argument pairs or"
+                " an instance of SubplotParams()")
+        if kwargs == {}:
+            self.set_subplotparams(self.get_subplotparams())
+            self.subplots_adjust(**kwargs)
+
+    def get_subplotparams(self):
+        """
+        Return the `.SubplotParams` object associated with the Figure.
+        Returns
+        -------
+        .SubplotParams`
+        See Also
+        --------
+        matplotlib.figure.Figure.subplots_adjust
+        matplotlib.figure.Figure.get_subplotparams
+        """
+        subplotparms = []
+        for subfig in self.subfigs:
+            subplotparms.append(subfig.get_subplotparams())
+        return subplotparms
     def contains(self, mouseevent):
         """
         Test whether the mouse event occurred on the figure.
@@ -2892,6 +2950,70 @@ None}, default: None
         _tight_parameters = tight if isinstance(tight, dict) else {}
         self.set_layout_engine(_tight, **_tight_parameters)
         self.stale = True
+
+    def get_subplotparams(self):
+        """
+        Return the `.SubplotParams` object associated with the Figure.
+        Returns
+        -------
+        .SubplotParams`
+        See Also
+        --------
+        matplotlib.figure.Figure.subplots_adjust
+        matplotlib.figure.Figure.get_subplotparams
+        """
+        return self.subplotpars
+
+        def set_subplotparams(self, subplotparams={}):
+            """
+            .. Set the subplot layout parameters.
+                Accepts either a `.SubplotParams` object, from which the relevant
+                parameters are copied, or a dictionary of subplot layout parameters.
+                If a dictionary is provided, this function is a convenience wrapper for
+                `matplotlib.figure.Figure.subplots_adjust`
+                Parameters
+            ----------
+            subplotparams : `~matplotlib.figure.SubplotParams` or dict with keys
+            "left", "bottom", "right", 'top", "wspace", "hspace"] , optional
+            SubplotParams object to copy new subplot parameters from, or a dict
+            of SubplotParams constructor arguments.
+            By default, an empty dictionary is passed, which maintains the
+            current state of the figure's `.SubplotParams`
+            See Also
+            --------
+            matplotlib.figure.Figure.subplots_adjust
+            matplotlib.figure.Figure.get_subplotparams
+            """
+            subplotparams_args = ["left", "bottom", "right",
+                                  "top", "wspace", "hspace"]
+            kwargs = {}
+            if isinstance(subplotparams, SubplotParams):
+                for key in subplotparams_args:
+                    kwargs[key] = getattr(subplotparams, key)
+            elif isinstance(subplotparams, dict):
+                for key in subplotparams.keys():
+                    if key in subplotparams_args:
+                        kwargs[key] = subplotparams[key]
+                    else:
+                        _api.warn_external(
+                            f"'{key}' is not a valid key for set_subplotparams;"
+                            " this key was ignored.")
+            else:
+                raise TypeError(
+                    "subplotparams must be a dictionary of keyword-argument pairs or"
+                    " an instance of SubplotParams()")
+            if kwargs == {}:
+                self.set_subplotparams(self.get_subplotparams())
+                self.subplots_adjust(**kwargs)
+
+    @property
+    def get_figsize(self):
+        return self.get_size_inches()
+
+    @property
+    def set_figsize(self, w, h=None, forward=True):
+        self.set_size_inches(self, w, h=None, forward=True)
+
 
     def get_constrained_layout(self):
         """
