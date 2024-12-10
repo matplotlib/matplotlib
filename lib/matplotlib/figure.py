@@ -3219,7 +3219,43 @@ None}, default: None
         matplotlib.figure.Figure.set_size_inches
         """
         self.set_size_inches(self.get_figwidth(), val, forward=forward)
+    def set_figratio(self, width=None, height=None, aspect=None, forward=True):
+    """
+    Set the size of the figure using a width, height, or aspect ratio.
+    Parameters
+    ----------
+    width : float, optional
+        The width of the figure in inches. If None, the width is taken from rcParams["figure.figsize"].
+    height : float, optional
+        The height of the figure in inches. If None, the height is taken from rcParams["figure.figsize"].
+    aspect : float, optional
+        The aspect ratio to adjust the size. If set, the height or width will be adjusted accordingly.
+    forward : bool, optional
+        See `set_size_inches` for details.
+    
+    Raises
+    ------
+    ValueError
+        If neither width nor height nor aspect is provided.
+    """
+    figsize_default = plt.rcParams["figure.figsize"]
 
+    if width is not None and height is not None:
+        self.set_size_inches(width, height, forward=forward)
+    elif aspect is not None:
+        if height is not None:
+            self.set_size_inches(self.get_figwidth() * aspect, height, forward=forward)
+        elif width is not None:
+            self.set_size_inches(width, self.get_figheight() * aspect, forward=forward)
+        else:
+            self.set_size_inches(self.get_figwidth() * aspect, self.get_figheight() * aspect, forward=forward)
+    else:
+        if width is None:
+            width = figsize_default[0]  
+        if height is None:
+            height = figsize_default[1]  
+        self.set_size_inches(width, height, forward=forward)
+        
     def clear(self, keep_observers=False):
         # docstring inherited
         super().clear(keep_observers=keep_observers)
