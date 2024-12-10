@@ -1408,13 +1408,33 @@ class _AxesBase(martist.Artist):
         self.stale = True
 
     def clear(self):
-        """Clear the Axes."""
-        # Act as an alias, or as the superclass implementation depending on the
-        # subclass implementation.
-        if self._subclass_uses_cla:
-            self.cla()
-        else:
-            self.__clear()
+        """
+        Clear the axes.
+
+        This removes all data-like content (lines, images, collections, etc.) and
+        resets text labels, but preserves the axes layout, position, and formatting.
+        """
+
+        # Remove data-like artists
+        self.lines.clear()
+        self.patches.clear()
+        self.images.clear()
+        self.collections.clear()
+        self.containers.clear()
+        self.tables.clear()
+        self.texts.clear()  # If you want to remove any added text annotations
+        self.artists.clear()
+    
+        # Note: Do not clear self.texts if you want to preserve text annotations
+
+        # Reset text labels
+        self.set_title("")
+        self.set_xlabel("")
+        self.set_ylabel("")
+
+        # Clear the legend
+        self.legend_ = None
+        # Preserve layout and formatting (do not reset axes limits, ticks, etc.)
 
     def cla(self):
         """Clear the Axes."""
