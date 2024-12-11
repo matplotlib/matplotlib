@@ -60,20 +60,16 @@ namespace agg
         value_type a;
 
         //--------------------------------------------------------------------
-        gray64() {}
+        gray64() = default;
 
         //--------------------------------------------------------------------
-        explicit gray64(value_type v_, value_type a_ = 1) :
-        v(v_), a(a_) {}
+        explicit gray64(value_type v_, value_type a_ = 1) : v(v_), a(a_) {}
 
         //--------------------------------------------------------------------
-        gray64(const self_type& c, value_type a_) :
-            v(c.v), a(a_) {}
+        gray64(const self_type& c, value_type a_) : v(c.v), a(a_) {}
 
         //--------------------------------------------------------------------
-        gray64(const gray64& c) :
-            v(c.v),
-            a(c.a) {}
+        gray64(const gray64& c) = default;
 
         //--------------------------------------------------------------------
         static AGG_INLINE double to_double(value_type a)
@@ -246,7 +242,7 @@ namespace agg
         value_type a;
 
         //--------------------------------------------------------------------
-        rgba64() {}
+        rgba64() = default;
 
         //--------------------------------------------------------------------
         rgba64(value_type r_, value_type g_, value_type b_, value_type a_= 1) :

@@ -44,8 +44,7 @@ std::ostream& operator<<(std::ostream& os, const TriEdge& tri_edge)
 
 
 
-XY::XY()
-{}
+XY::XY() = default;
 
 XY::XY(const double& x_, const double& y_)
     : x(x_), y(y_)
