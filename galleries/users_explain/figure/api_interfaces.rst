@@ -121,6 +121,51 @@ In the explicit interface, this would be:
     axs[0].plot([1, 2, 3], [0, 0.5, 0.2])
     axs[1].plot([3, 2, 1], [0, 0.5, 0.2])
 
+Translating between the Axes interface and the pyplot interface
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+You may find either interface in existing code, and unfortunately sometimes even
+mixtures. This section describes the patterns for specific operations in both
+interfaces and how to translate from one to the other.
+
+- Creating figures is the same for both interfaces: Use the respective `.pyplot`
+  functions ``plt.figure()``, ``plt.subplots()``, ``plt.subplot_mosaic()``.
+  For the Axes interface, you typically store the created Figure (and possibly
+  Axes) in variables for later use. When using the pyplot interface, these
+  values are typically not stored. Example:
+
+  - Axes: ``fig, ax = plt.subplots()``
+  - pyplot: ``plt.subplots()``
+
+- "Plotting" functions, i.e. functions that add data, are named the same and
+  have identical parameters on the Axes and in pyplot. Example:
+
+  - Axes: ``ax.plot(x, y)``
+  - pyplot: ``plt.plot(x, y)``
+
+- Functions that retrieve properties are named like the property in pyplot
+  and are prefixed with ``get_`` on the Axes. Example:
+
+  - Axes: ``label = ax.get_xlabel()``
+  - pyplot: ``label = plt.xlabel()``
+
+- Functions that set properties like the property in pyplot and are prefixed with
+  ``set_`` on the Axes. Example:
+
+  - Axes: ``ax.set_xlabel("time")``
+  - pyplot: ``plt.xlabel("time")``
+
+Here is a short summary of the examples again as a side-by-side comparison:
+
+==================   ============================   ========================
+Operation            Axes interface                 pyplot interface
+==================   ============================   ========================
+Creating figures     ``fig, ax = plt.subplots()``   ``plt.subplots()``
+Plotting data        ``ax.plot(x, y)``              ``plt.plot(x, y)``
+Getting properties   ``label = ax.get_xlabel()``    ``label = plt.xlabel()``
+Setting properties   ``ax.set_xlabel("time")``      ``plt.xlabel("time")``
+==================   ============================   ========================
+
+
 Why be explicit?
 ^^^^^^^^^^^^^^^^
 
