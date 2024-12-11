@@ -499,51 +499,52 @@ typedef enum {
 // T is rgba if and only if it has an T::r field.
 template<typename T, typename = void> struct is_grayscale : std::true_type {};
 template<typename T> struct is_grayscale<T, std::void_t<decltype(T::r)>> : std::false_type {};
+template<typename T> constexpr bool is_grayscale_v = is_grayscale<T>::value;
 
 
 template<typename color_type>
 struct type_mapping
 {
-    using blender_type = typename std::conditional<
-        is_grayscale<color_type>::value,
+    using blender_type = std::conditional_t<
+        is_grayscale_v<color_type>,
         agg::blender_gray<color_type>,
-        typename std::conditional<
-            std::is_same<color_type, agg::rgba8>::value,
+        std::conditional_t<
+            std::is_same_v<color_type, agg::rgba8>,
             fixed_blender_rgba_plain<color_type, agg::order_rgba>,
             agg::blender_rgba_plain<color_type, agg::order_rgba>
-        >::type
-    >::type;
-    using pixfmt_type = typename std::conditional<
-        is_grayscale<color_type>::value,
+        >
+    >;
+    using pixfmt_type = std::conditional_t<
+        is_grayscale_v<color_type>,
         agg::pixfmt_alpha_blend_gray<blender_type, agg::rendering_buffer>,
         agg::pixfmt_alpha_blend_rgba<blender_type, agg::rendering_buffer>
-    >::type;
-    using pixfmt_pre_type = typename std::conditional<
-        is_grayscale<color_type>::value,
+    >;
+    using pixfmt_pre_type = std::conditional_t<
+        is_grayscale_v<color_type>,
         pixfmt_type,
         agg::pixfmt_alpha_blend_rgba<
-            typename std::conditional<
-                std::is_same<color_type, agg::rgba8>::value,
+            std::conditional_t<
+                std::is_same_v<color_type, agg::rgba8>,
                 fixed_blender_rgba_pre<color_type, agg::order_rgba>,
                 agg::blender_rgba_pre<color_type, agg::order_rgba>
-            >::type,
+            >,
             agg::rendering_buffer>
-    >::type;
-    template<typename A> using span_gen_affine_type = typename std::conditional<
-        is_grayscale<color_type>::value,
+    >;
+    template<typename A> using span_gen_affine_type = std::conditional_t<
+        is_grayscale_v<color_type>,
         agg::span_image_resample_gray_affine<A>,
         agg::span_image_resample_rgba_affine<A>
-    >::type;
-    template<typename A, typename B> using span_gen_filter_type = typename std::conditional<
-        is_grayscale<color_type>::value,
+    >;
+    template<typename A, typename B> using span_gen_filter_type = std::conditional_t<
+        is_grayscale_v<color_type>,
         agg::span_image_filter_gray<A, B>,
         agg::span_image_filter_rgba<A, B>
-    >::type;
-    template<typename A, typename B> using span_gen_nn_type = typename std::conditional<
-        is_grayscale<color_type>::value,
+    >;
+    template<typename A, typename B> using span_gen_nn_type = std::conditional_t<
+        is_grayscale_v<color_type>,
         agg::span_image_filter_gray_nn<A, B>,
         agg::span_image_filter_rgba_nn<A, B>
-    >::type;
+    >;
 };
 
 
