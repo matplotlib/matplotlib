@@ -456,7 +456,7 @@ def test_rectangle_resize_square_center(ax):
 
 @pytest.mark.parametrize('selector_class',
                          [widgets.RectangleSelector, widgets.EllipseSelector])
-def test_rectangle_rotate(ax, selector_class):
+def test_selector_rotate(ax, selector_class):
     ax.set_aspect(1)
     tool = selector_class(ax, interactive=True)
     # Draw rectangle
@@ -564,10 +564,13 @@ def test_ellipse(ax):
     assert_allclose(tool.geometry[:, 0], (70, 100))
 
 
-def test_rectangle_handles(ax):
-    tool = widgets.RectangleSelector(ax, grab_range=10, interactive=True,
-                                     handle_props={'markerfacecolor': 'r',
-                                                   'markeredgecolor': 'b'})
+@pytest.mark.parametrize('selector_class',
+                         [widgets.RectangleSelector, widgets.EllipseSelector])
+def test_selector_handles(ax, selector_class):
+    """Test geometry of Rectangle/Ellipse Selector [bounding box]"""
+    tool = selector_class(ax, grab_range=10, interactive=True,
+                          handle_props={'markerfacecolor': 'r',
+                                      'markeredgecolor': 'b'})
     tool.extents = (100, 150, 100, 150)
 
     assert_allclose(tool.corners, ((100, 150, 150, 100), (100, 100, 150, 150)))
@@ -584,7 +587,7 @@ def test_rectangle_handles(ax):
     click_and_drag(tool, start=(132, 132), end=(120, 120))
     assert_allclose(tool.extents, (108, 138, 108, 138))
 
-    # create a new rectangle
+    # create a new rectangle/ellipse
     click_and_drag(tool, start=(10, 10), end=(100, 100))
     assert_allclose(tool.extents, (10, 100, 10, 100))
 
@@ -596,11 +599,13 @@ def test_rectangle_handles(ax):
 
 
 @pytest.mark.parametrize('interactive', [True, False])
-def test_rectangle_selector_onselect(ax, interactive):
+@pytest.mark.parametrize('selector_class',
+                         [widgets.RectangleSelector, widgets.EllipseSelector])
+def test_selector_onselect(ax, interactive, selector_class):
     # check when press and release events take place at the same position
     onselect = mock.Mock(spec=noop, return_value=None)
 
-    tool = widgets.RectangleSelector(ax, onselect=onselect, interactive=interactive)
+    tool = selector_class(ax, onselect=onselect, interactive=interactive)
     # move outside of axis
     click_and_drag(tool, start=(100, 110), end=(150, 120))
 
@@ -613,11 +618,13 @@ def test_rectangle_selector_onselect(ax, interactive):
 
 
 @pytest.mark.parametrize('ignore_event_outside', [True, False])
-def test_rectangle_selector_ignore_outside(ax, ignore_event_outside):
+@pytest.mark.parametrize('selector_class',
+                         [widgets.RectangleSelector, widgets.EllipseSelector])
+def test_selector_ignore_outside(ax, ignore_event_outside, selector_class):
     onselect = mock.Mock(spec=noop, return_value=None)
 
-    tool = widgets.RectangleSelector(ax, onselect=onselect,
-                                     ignore_event_outside=ignore_event_outside)
+    tool = selector_class(ax, onselect=onselect,
+                          ignore_event_outside=ignore_event_outside)
     click_and_drag(tool, start=(100, 110), end=(150, 120))
     onselect.assert_called_once()
     assert_allclose(tool.extents, (100.0, 150.0, 110.0, 120.0))
