@@ -74,8 +74,8 @@ stages:
 
           - bash: |
               python -m pip install --upgrade pip
-              python -m pip install --upgrade -r requirements/dev/build-requirements.txt
-              python -m pip install -r requirements/testing/all.txt -r requirements/testing/extra.txt
+              python -m pip install --upgrade --group build
+              python -m pip install --prefer-binary --group test --group test-extra
             displayName: 'Install dependencies with pip'
 
           - bash: |
