@@ -3516,7 +3516,7 @@ class RectangleSelector(_SelectorWidget):
                         x0 += width - new_wh
                         width = height = new_wh
 
-            # Transform back into de-rotated display coordiantes
+            # Transform back into de-rotated display coordinates
             new_geom_state.x0, new_geom_state.y0 = t.inverted().transform(
                 (x0, y0))
             # Width and height are invariant under the rotation, so no need
@@ -3647,7 +3647,7 @@ class RectangleSelector(_SelectorWidget):
 
     def _clip_to_axes(self, x, y):
         """
-        Clip x and y values in diplay coordinates to the limits of the current
+        Clip x and y values in display coordinates to the limits of the current
         Axes.
         """
         xlim = sorted(self.ax.get_xlim())
@@ -3674,7 +3674,7 @@ class RectangleSelector(_SelectorWidget):
 
         return x, y
 
-    # TODO: _draw_shape can be removed in 3.7
+    # TODO: _draw_shape can be removed in 3.7(??) - still used in @extents.setter
     # draw_shape = _api.deprecate_privatize_attribute('3.5')
 
     def _draw_shape(self, extents):
