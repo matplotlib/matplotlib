@@ -3,7 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from matplotlib.backend_bases import MouseEvent
-from mpl_toolkits.mplot3d.art3d import Line3DCollection, Poly3DCollection, _all_points_on_plane
+from mpl_toolkits.mplot3d.art3d import (
+    Line3DCollection,
+    Poly3DCollection,
+    _all_points_on_plane,
+)
 
 
 def test_scatter_3d_projection_conservation():
