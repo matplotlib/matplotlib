@@ -22,7 +22,7 @@ jobs:
           python-version: '3.10'
 
       - name: Install flake8
-        run: pip3 install -r requirements/testing/flake8.txt
+        run: pip3 install --group lint
 
       - name: Set up reviewdog
         uses: reviewdog/action-setup@3f401fe1d58fe77e10d665ab713057375e39b887  # v1.3.9
@@ -51,7 +51,7 @@ jobs:
           python-version: '3.10'
 
       - name: Install mypy
-        run: pip3 install -r requirements/testing/mypy.txt -r requirements/testing/all.txt
+        run: pip3 install --group typing
 
       - name: Set up reviewdog
         uses: reviewdog/action-setup@3f401fe1d58fe77e10d665ab713057375e39b887  # v1.3.9
