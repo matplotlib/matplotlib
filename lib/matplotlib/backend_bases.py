@@ -2535,6 +2535,42 @@ def button_press_handler(event, canvas=None, toolbar=None):
             toolbar.forward()
 
 
+def scroll_handler(event, canvas=None, toolbar=None):
+    ax = event.inaxes
+    if ax is None:
+        return
+
+    if toolbar is None:
+        if canvas is None:
+            canvas = event.canvas
+        toolbar = canvas.toolbar
+
+    if toolbar is None or toolbar.mode == _Mode.NONE:
+        return
+
+    if event.key is None:  # vertical scroll
+        toolbar.push_current()
+        ymin, ymax = ax.get_ylim()
+        delta = 0.05 * event.step * (ymax - ymin)
+        ax.set_ylim(ymin + delta, ymax + delta)
+        ax.figure.canvas.draw_idle()
+    elif event.key == 'shift':  # horizontal scroll
+        toolbar.push_current()
+        xmin, xmax = ax.get_xlim()
+        delta = 0.05 * event.step * (xmax - xmin)
+        ax.set_xlim(xmin + delta, xmax + delta)
+        ax.figure.canvas.draw_idle()
+    elif event.key == 'control':  # zoom
+        toolbar.push_current()
+        xmin, xmax = ax.get_xlim()
+        delta = 0.05 * event.step * (xmax - xmin)
+        ax.set_xlim(xmin + delta, xmax - delta)
+        ymin, ymax = ax.get_ylim()
+        delta = 0.05 * event.step * (ymax - ymin)
+        ax.set_ylim(ymin + delta, ymax - delta)
+        ax.figure.canvas.draw_idle()
+
+
 class NonGuiException(Exception):
     """Raised when trying show a figure in a non-GUI backend."""
     pass
@@ -2614,11 +2650,14 @@ class FigureManagerBase:
 
         self.key_press_handler_id = None
         self.button_press_handler_id = None
+        self.scroll_handler_id = None
         if rcParams['toolbar'] != 'toolmanager':
             self.key_press_handler_id = self.canvas.mpl_connect(
                 'key_press_event', key_press_handler)
             self.button_press_handler_id = self.canvas.mpl_connect(
                 'button_press_event', button_press_handler)
+            self.scroll_handler_id = self.canvas.mpl_connect(
+                'scroll_event', scroll_handler)
 
         self.toolmanager = (ToolManager(canvas.figure)
                             if mpl.rcParams['toolbar'] == 'toolmanager'
