@@ -270,3 +270,17 @@ def test_table_dataframe(pd):
     for r, (index, row) in enumerate(df.iterrows()):
         for c, col in enumerate(df.columns if r == 0 else row.values):
             assert table[r if r == 0 else r+1, c].get_text().get_text() == str(col)
+
+
+def test_table_fontsize():
+    # Test that the passed fontsize propagates to cells
+    tableData = [['a', 1], ['b', 1]]
+    fig, ax = plt.subplots()
+    t = ax.table(
+        cellText=tableData,
+        loc='top',
+        cellLoc='center',
+        fontsize=30
+    )
+    cell_fontsize = t[(0, 0)].get_fontsize()
+    assert cell_fontsize == 30, f"Expected fontsize 30, but got {cell_fontsize}"

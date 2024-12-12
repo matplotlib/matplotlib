@@ -653,7 +653,7 @@ def table(ax,
           cellLoc='right', colWidths=None,
           rowLabels=None, rowColours=None, rowLoc='left',
           colLabels=None, colColours=None, colLoc='center',
-          loc='bottom', bbox=None, edges='closed',
+          loc='bottom', bbox=None, edges='closed', fontsize=None,
           **kwargs):
     """
     Add a table to an `~.axes.Axes`.
@@ -838,5 +838,8 @@ def table(ax,
         if rowLabelWidth == 0:
             table.auto_set_column_width(-1)
 
+    # set_fontsize is only effective after cells are added
+    if fontsize is not None:
+        table.set_fontsize(fontsize)
     ax.add_table(table)
     return table
