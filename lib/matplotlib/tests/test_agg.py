@@ -2,7 +2,7 @@ import io
 
 import numpy as np
 from numpy.testing import assert_array_almost_equal
-from PIL import Image, TiffTags
+from PIL import features, Image, TiffTags
 import pytest
 
 
@@ -181,8 +181,8 @@ def test_agg_filter():
         shadow.update_from(line)
 
         # offset transform
-        transform = mtransforms.offset_copy(line.get_transform(), ax.figure,
-                                            x=4.0, y=-6.0, units='points')
+        transform = mtransforms.offset_copy(
+            line.get_transform(), fig, x=4.0, y=-6.0, units='points')
         shadow.set_transform(transform)
 
         # adjust zorder of the shadow lines so that it is drawn below the
@@ -199,7 +199,7 @@ def test_agg_filter():
 
 
 def test_too_large_image():
-    fig = plt.figure(figsize=(300, 1000))
+    fig = plt.figure(figsize=(300, 2**25))
     buff = io.BytesIO()
     with pytest.raises(ValueError):
         fig.savefig(buff)
@@ -249,6 +249,7 @@ def test_pil_kwargs_tiff():
     assert tags["ImageDescription"] == "test image"
 
 
+@pytest.mark.skipif(not features.check("webp"), reason="WebP support not available")
 def test_pil_kwargs_webp():
     plt.plot([0, 1, 2], [0, 1, 0])
     buf_small = io.BytesIO()
@@ -262,6 +263,7 @@ def test_pil_kwargs_webp():
     assert buf_large.getbuffer().nbytes > buf_small.getbuffer().nbytes
 
 
+@pytest.mark.skipif(not features.check("webp"), reason="WebP support not available")
 def test_webp_alpha():
     plt.plot([0, 1, 2], [0, 1, 0])
     buf = io.BytesIO()

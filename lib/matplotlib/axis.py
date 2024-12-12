@@ -33,12 +33,6 @@ _line_param_aliases = [next(iter(d)) for d in _line_inspector.aliasd.values()]
 _gridline_param_names = ['grid_' + name
                          for name in _line_param_names + _line_param_aliases]
 
-_MARKER_DICT = {
-    'out': (mlines.TICKDOWN, mlines.TICKUP),
-    'in': (mlines.TICKUP, mlines.TICKDOWN),
-    'inout': ('|', '|'),
-}
-
 
 class Tick(martist.Artist):
     """
@@ -102,7 +96,7 @@ class Tick(martist.Artist):
             else:
                 gridOn = False
 
-        self.set_figure(axes.figure)
+        self.set_figure(axes.get_figure(root=False))
         self.axes = axes
 
         self._loc = loc
@@ -204,18 +198,21 @@ class Tick(martist.Artist):
         _api.check_in_list(['auto', 'default'], labelrotation=mode)
         self._labelrotation = (mode, angle)
 
+    @property
+    def _pad(self):
+        return self._base_pad + self.get_tick_padding()
+
     def _apply_tickdir(self, tickdir):
         """Set tick direction.  Valid values are 'out', 'in', 'inout'."""
-        # This method is responsible for updating `_pad`, and, in subclasses,
-        # for setting the tick{1,2}line markers as well.  From the user
-        # perspective this should always be called through _apply_params, which
-        # further updates ticklabel positions using the new pads.
+        # This method is responsible for verifying input and, in subclasses, for setting
+        # the tick{1,2}line markers.  From the user perspective this should always be
+        # called through _apply_params, which further updates ticklabel positions using
+        # the new pads.
         if tickdir is None:
             tickdir = mpl.rcParams[f'{self.__name__}.direction']
         else:
             _api.check_in_list(['in', 'out', 'inout'], tickdir=tickdir)
         self._tickdir = tickdir
-        self._pad = self._base_pad + self.get_tick_padding()
 
     def get_tickdir(self):
         return self._tickdir
@@ -234,7 +231,6 @@ class Tick(martist.Artist):
                     self.gridline, self.label1, self.label2]
         return children
 
-    @_api.rename_parameter("3.8", "clippath", "path")
     def set_clip_path(self, path, transform=None):
         # docstring inherited
         super().set_clip_path(path, transform)
@@ -281,32 +277,6 @@ class Tick(martist.Artist):
         renderer.close_group(self.__name__)
         self.stale = False
 
-    @_api.deprecated("3.8")
-    def set_label1(self, s):
-        """
-        Set the label1 text.
-
-        Parameters
-        ----------
-        s : str
-        """
-        self.label1.set_text(s)
-        self.stale = True
-
-    set_label = set_label1
-
-    @_api.deprecated("3.8")
-    def set_label2(self, s):
-        """
-        Set the label2 text.
-
-        Parameters
-        ----------
-        s : str
-        """
-        self.label2.set_text(s)
-        self.stale = True
-
     def set_url(self, url):
         """
         Set the url of label1 and label2.
@@ -321,7 +291,7 @@ class Tick(martist.Artist):
         self.stale = True
 
     def _set_artist_props(self, a):
-        a.set_figure(self.figure)
+        a.set_figure(self.get_figure(root=False))
 
     def get_view_interval(self):
         """
@@ -425,7 +395,11 @@ class XTick(Tick):
     def _apply_tickdir(self, tickdir):
         # docstring inherited
         super()._apply_tickdir(tickdir)
-        mark1, mark2 = _MARKER_DICT[self._tickdir]
+        mark1, mark2 = {
+            'out': (mlines.TICKDOWN, mlines.TICKUP),
+            'in': (mlines.TICKUP, mlines.TICKDOWN),
+            'inout': ('|', '|'),
+        }[self._tickdir]
         self.tick1line.set_marker(mark1)
         self.tick2line.set_marker(mark2)
 
@@ -564,17 +538,19 @@ class _LazyTickList:
             # instance._get_tick() can itself try to access the majorTicks
             # attribute (e.g. in certain projection classes which override
             # e.g. get_xaxis_text1_transform).  In order to avoid infinite
-            # recursion, first set the majorTicks on the instance to an empty
-            # list, then create the tick and append it.
+            # recursion, first set the majorTicks on the instance temporarily
+            # to an empty list. Then create the tick; note that _get_tick()
+            # may call reset_ticks(). Therefore, the final tick list is
+            # created and assigned afterwards.
             if self._major:
                 instance.majorTicks = []
                 tick = instance._get_tick(major=True)
-                instance.majorTicks.append(tick)
+                instance.majorTicks = [tick]
                 return instance.majorTicks
             else:
                 instance.minorTicks = []
                 tick = instance._get_tick(major=False)
-                instance.minorTicks.append(tick)
+                instance.minorTicks = [tick]
                 return instance.minorTicks
 
 
@@ -598,7 +574,7 @@ class Axis(martist.Artist):
         The axis label.
     labelpad : float
         The distance between the axis label and the tick labels.
-        Defaults to :rc:`axes.labelpad` = 4.
+        Defaults to :rc:`axes.labelpad`.
     offsetText : `~matplotlib.text.Text`
         A `.Text` object containing the data offset of the ticks (if any).
     pickradius : float
@@ -624,6 +600,10 @@ class Axis(martist.Artist):
     # The class used in _get_tick() to create tick instances. Must either be
     # overwritten in subclasses, or subclasses must reimplement _get_tick().
     _tick_class = None
+    converter = _api.deprecate_privatize_attribute(
+                    "3.10",
+                    alternative="get_converter and set_converter methods"
+                )
 
     def __str__(self):
         return "{}({},{})".format(
@@ -647,7 +627,7 @@ class Axis(martist.Artist):
         super().__init__()
         self._remove_overlapping_locs = True
 
-        self.set_figure(axes.figure)
+        self.set_figure(axes.get_figure(root=False))
 
         self.isDefault_label = True
 
@@ -663,7 +643,8 @@ class Axis(martist.Artist):
             fontsize=mpl.rcParams['axes.labelsize'],
             fontweight=mpl.rcParams['axes.labelweight'],
             color=mpl.rcParams['axes.labelcolor'],
-        )
+        )  #: The `.Text` object of the axis label.
+
         self._set_artist_props(self.label)
         self.offsetText = mtext.Text(np.nan, np.nan)
         self._set_artist_props(self.offsetText)
@@ -679,7 +660,8 @@ class Axis(martist.Artist):
         if clear:
             self.clear()
         else:
-            self.converter = None
+            self._converter = None
+            self._converter_is_explicit = False
             self.units = None
 
         self._autoscale_on = True
@@ -832,6 +814,10 @@ class Axis(martist.Artist):
                 **{f"scale{k}": k == name for k in self.axes._axis_names})
 
     def limit_range_for_scale(self, vmin, vmax):
+        """
+        Return the range *vmin*, *vmax*, restricted to the domain supported by the
+        current scale.
+        """
         return self._scale.limit_range_for_scale(vmin, vmax, self.get_minpos())
 
     def _get_autoscale_on(self):
@@ -840,8 +826,9 @@ class Axis(martist.Artist):
 
     def _set_autoscale_on(self, b):
         """
-        Set whether this Axis is autoscaled when drawing or by
-        `.Axes.autoscale_view`. If b is None, then the value is not changed.
+        Set whether this Axis is autoscaled when drawing or by `.Axes.autoscale_view`.
+
+        If b is None, then the value is not changed.
 
         Parameters
         ----------
@@ -904,7 +891,8 @@ class Axis(martist.Artist):
                 mpl.rcParams['axes.grid.which'] in ('both', 'minor'))
         self.reset_ticks()
 
-        self.converter = None
+        self._converter = None
+        self._converter_is_explicit = False
         self.units = None
         self.stale = True
 
@@ -1065,8 +1053,8 @@ class Axis(martist.Artist):
             )
         return self._translate_tick_params(self._minor_tick_kw, reverse=True)
 
-    @staticmethod
-    def _translate_tick_params(kw, reverse=False):
+    @classmethod
+    def _translate_tick_params(cls, kw, reverse=False):
         """
         Translate the kwargs supported by `.Axis.set_tick_params` to kwargs
         supported by `.Tick._apply_params`.
@@ -1108,10 +1096,15 @@ class Axis(martist.Artist):
             'labeltop': 'label2On',
         }
         if reverse:
-            kwtrans = {
-                oldkey: kw_.pop(newkey)
-                for oldkey, newkey in keymap.items() if newkey in kw_
-            }
+            kwtrans = {}
+            is_x_axis = cls.axis_name == 'x'
+            y_axis_keys = ['left', 'right', 'labelleft', 'labelright']
+            for oldkey, newkey in keymap.items():
+                if newkey in kw_:
+                    if is_x_axis and oldkey in y_axis_keys:
+                        continue
+                    else:
+                        kwtrans[oldkey] = kw_.pop(newkey)
         else:
             kwtrans = {
                 newkey: kw_.pop(oldkey)
@@ -1130,7 +1123,6 @@ class Axis(martist.Artist):
         kwtrans.update(kw_)
         return kwtrans
 
-    @_api.rename_parameter("3.8", "clippath", "path")
     def set_clip_path(self, path, transform=None):
         super().set_clip_path(path, transform)
         for child in self.majorTicks + self.minorTicks:
@@ -1280,8 +1272,9 @@ class Axis(martist.Artist):
                 other._axis_map[name]._set_lim(v0, v1, emit=False, auto=auto)
                 if emit:
                     other.callbacks.process(f"{name}lim_changed", other)
-                if other.figure != self.figure:
-                    other.figure.canvas.draw_idle()
+                if ((other_fig := other.get_figure(root=False)) !=
+                        self.get_figure(root=False)):
+                    other_fig.canvas.draw_idle()
 
         self.stale = True
         return v0, v1
@@ -1289,7 +1282,7 @@ class Axis(martist.Artist):
     def _set_artist_props(self, a):
         if a is None:
             return
-        a.set_figure(self.figure)
+        a.set_figure(self.get_figure(root=False))
 
     def _update_ticks(self):
         """
@@ -1346,7 +1339,7 @@ class Axis(martist.Artist):
     def _get_ticklabel_bboxes(self, ticks, renderer=None):
         """Return lists of bboxes for ticks' label1's and label2's."""
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         return ([tick.label1.get_window_extent(renderer)
                  for tick in ticks if tick.label1.get_visible()],
                 [tick.label2.get_window_extent(renderer)
@@ -1362,10 +1355,10 @@ class Axis(martist.Artist):
         collapsed to near zero.  This allows tight/constrained_layout to ignore
         too-long labels when doing their layout.
         """
-        if not self.get_visible():
+        if not self.get_visible() or for_layout_only and not self.get_in_layout():
             return
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         ticks_to_draw = self._update_ticks()
 
         self._update_label_position(renderer)
@@ -1442,8 +1435,21 @@ class Axis(martist.Artist):
         return cbook.silent_list('Line2D gridline',
                                  [tick.gridline for tick in ticks])
 
+    def set_label(self, s):
+        """Assigning legend labels is not supported. Raises RuntimeError."""
+        raise RuntimeError(
+            "A legend label cannot be assigned to an Axis. Did you mean to "
+            "set the axis label via set_label_text()?")
+
     def get_label(self):
-        """Return the axis label as a Text instance."""
+        """
+        Return the axis label as a Text instance.
+
+        .. admonition:: Discouraged
+
+           This overrides `.Artist.get_label`, which is for legend labels, with a new
+           semantic. It is recommended to use the attribute ``Axis.label`` instead.
+        """
         return self.label
 
     def get_offset_text(self):
@@ -1617,6 +1623,14 @@ class Axis(martist.Artist):
         dest.tick1line.update_from(src.tick1line)
         dest.tick2line.update_from(src.tick2line)
         dest.gridline.update_from(src.gridline)
+        dest.update_from(src)
+        dest._loc = src._loc
+        dest._size = src._size
+        dest._width = src._width
+        dest._base_pad = src._base_pad
+        dest._labelrotation = src._labelrotation
+        dest._zorder = src._zorder
+        dest._tickdir = src._tickdir
 
     def get_label_text(self):
         """Get the text of the label."""
@@ -1735,16 +1749,20 @@ class Axis(martist.Artist):
     def update_units(self, data):
         """
         Introspect *data* for units converter and update the
-        ``axis.converter`` instance if necessary. Return *True*
+        ``axis.get_converter`` instance if necessary. Return *True*
         if *data* is registered for unit conversion.
         """
-        converter = munits.registry.get_converter(data)
+        if not self._converter_is_explicit:
+            converter = munits.registry.get_converter(data)
+        else:
+            converter = self._converter
+
         if converter is None:
             return False
 
-        neednew = self.converter != converter
-        self.converter = converter
-        default = self.converter.default_units(data, self)
+        neednew = self._converter != converter
+        self._set_converter(converter)
+        default = self._converter.default_units(data, self)
         if default is not None and self.units is None:
             self.set_units(default)
 
@@ -1758,10 +1776,10 @@ class Axis(martist.Artist):
         Check the axis converter for the stored units to see if the
         axis info needs to be updated.
         """
-        if self.converter is None:
+        if self._converter is None:
             return
 
-        info = self.converter.axisinfo(self.units, self)
+        info = self._converter.axisinfo(self.units, self)
 
         if info is None:
             return
@@ -1788,24 +1806,61 @@ class Axis(martist.Artist):
         self.set_default_intervals()
 
     def have_units(self):
-        return self.converter is not None or self.units is not None
+        return self._converter is not None or self.units is not None
 
     def convert_units(self, x):
         # If x is natively supported by Matplotlib, doesn't need converting
         if munits._is_natively_supported(x):
             return x
 
-        if self.converter is None:
-            self.converter = munits.registry.get_converter(x)
+        if self._converter is None:
+            self._set_converter(munits.registry.get_converter(x))
 
-        if self.converter is None:
+        if self._converter is None:
             return x
         try:
-            ret = self.converter.convert(x, self.units, self)
+            ret = self._converter.convert(x, self.units, self)
         except Exception as e:
             raise munits.ConversionError('Failed to convert value(s) to axis '
                                          f'units: {x!r}') from e
         return ret
+
+    def get_converter(self):
+        """
+        Get the unit converter for axis.
+
+        Returns
+        -------
+        `~matplotlib.units.ConversionInterface` or None
+        """
+        return self._converter
+
+    def set_converter(self, converter):
+        """
+        Set the unit converter for axis.
+
+        Parameters
+        ----------
+        converter : `~matplotlib.units.ConversionInterface`
+        """
+        self._set_converter(converter)
+        self._converter_is_explicit = True
+
+    def _set_converter(self, converter):
+        if self._converter is converter or self._converter == converter:
+            return
+        if self._converter_is_explicit:
+            raise RuntimeError("Axis already has an explicit converter set")
+        elif (
+            self._converter is not None and
+            not isinstance(converter, type(self._converter)) and
+            not isinstance(self._converter, type(converter))
+        ):
+            _api.warn_external(
+                "This axis already has a converter set and "
+                "is updating to a potentially incompatible converter"
+            )
+        self._converter = converter
 
     def set_units(self, u):
         """
@@ -2185,9 +2240,9 @@ class Axis(martist.Artist):
         """
         # Get the Grouper keeping track of x or y label groups for this figure.
         name = self._get_axis_name()
-        if name not in self.figure._align_label_groups:
+        if name not in self.get_figure(root=False)._align_label_groups:
             return [], []
-        grouper = self.figure._align_label_groups[name]
+        grouper = self.get_figure(root=False)._align_label_groups[name]
         bboxes = []
         bboxes2 = []
         # If we want to align labels from other Axes:
@@ -2408,12 +2463,14 @@ class XAxis(Axis):
             # Union with extents of the bottom spine if present, of the axes otherwise.
             bbox = mtransforms.Bbox.union([
                 *bboxes, self.axes.spines.get("bottom", self.axes).get_window_extent()])
-            self.label.set_position((x, bbox.y0 - self.labelpad * self.figure.dpi / 72))
+            self.label.set_position(
+                (x, bbox.y0 - self.labelpad * self.get_figure(root=True).dpi / 72))
         else:
             # Union with extents of the top spine if present, of the axes otherwise.
             bbox = mtransforms.Bbox.union([
                 *bboxes2, self.axes.spines.get("top", self.axes).get_window_extent()])
-            self.label.set_position((x, bbox.y1 + self.labelpad * self.figure.dpi / 72))
+            self.label.set_position(
+                (x, bbox.y1 + self.labelpad * self.get_figure(root=True).dpi / 72))
 
     def _update_offset_text_position(self, bboxes, bboxes2):
         """
@@ -2429,14 +2486,14 @@ class XAxis(Axis):
             else:
                 bbox = mtransforms.Bbox.union(bboxes)
                 bottom = bbox.y0
-            y = bottom - self.OFFSETTEXTPAD * self.figure.dpi / 72
+            y = bottom - self.OFFSETTEXTPAD * self.get_figure(root=True).dpi / 72
         else:
             if not len(bboxes2):
                 top = self.axes.bbox.ymax
             else:
                 bbox = mtransforms.Bbox.union(bboxes2)
                 top = bbox.y1
-            y = top + self.OFFSETTEXTPAD * self.figure.dpi / 72
+            y = top + self.OFFSETTEXTPAD * self.get_figure(root=True).dpi / 72
         self.offsetText.set_position((x, y))
 
     def set_ticks_position(self, position):
@@ -2524,8 +2581,8 @@ class XAxis(Axis):
         # not changed the view:
         if (not self.axes.dataLim.mutatedx() and
                 not self.axes.viewLim.mutatedx()):
-            if self.converter is not None:
-                info = self.converter.axisinfo(self.units, self)
+            if self._converter is not None:
+                info = self._converter.axisinfo(self.units, self)
                 if info.default_limits is not None:
                     xmin, xmax = self.convert_units(info.default_limits)
                     self.axes.viewLim.intervalx = xmin, xmax
@@ -2533,7 +2590,7 @@ class XAxis(Axis):
 
     def get_tick_space(self):
         ends = mtransforms.Bbox.unit().transformed(
-            self.axes.transAxes - self.figure.dpi_scale_trans)
+            self.axes.transAxes - self.get_figure(root=False).dpi_scale_trans)
         length = ends.width * 72
         # There is a heuristic here that the aspect ratio of tick text
         # is no more than 3:1
@@ -2633,12 +2690,14 @@ class YAxis(Axis):
             # Union with extents of the left spine if present, of the axes otherwise.
             bbox = mtransforms.Bbox.union([
                 *bboxes, self.axes.spines.get("left", self.axes).get_window_extent()])
-            self.label.set_position((bbox.x0 - self.labelpad * self.figure.dpi / 72, y))
+            self.label.set_position(
+                (bbox.x0 - self.labelpad * self.get_figure(root=True).dpi / 72, y))
         else:
             # Union with extents of the right spine if present, of the axes otherwise.
             bbox = mtransforms.Bbox.union([
                 *bboxes2, self.axes.spines.get("right", self.axes).get_window_extent()])
-            self.label.set_position((bbox.x1 + self.labelpad * self.figure.dpi / 72, y))
+            self.label.set_position(
+                (bbox.x1 + self.labelpad * self.get_figure(root=True).dpi / 72, y))
 
     def _update_offset_text_position(self, bboxes, bboxes2):
         """
@@ -2653,7 +2712,7 @@ class YAxis(Axis):
             bbox = self.axes.bbox
         top = bbox.ymax
         self.offsetText.set_position(
-            (x, top + self.OFFSETTEXTPAD * self.figure.dpi / 72)
+            (x, top + self.OFFSETTEXTPAD * self.get_figure(root=True).dpi / 72)
         )
 
     def set_offset_position(self, position):
@@ -2752,8 +2811,8 @@ class YAxis(Axis):
         # not changed the view:
         if (not self.axes.dataLim.mutatedy() and
                 not self.axes.viewLim.mutatedy()):
-            if self.converter is not None:
-                info = self.converter.axisinfo(self.units, self)
+            if self._converter is not None:
+                info = self._converter.axisinfo(self.units, self)
                 if info.default_limits is not None:
                     ymin, ymax = self.convert_units(info.default_limits)
                     self.axes.viewLim.intervaly = ymin, ymax
@@ -2761,7 +2820,7 @@ class YAxis(Axis):
 
     def get_tick_space(self):
         ends = mtransforms.Bbox.unit().transformed(
-            self.axes.transAxes - self.figure.dpi_scale_trans)
+            self.axes.transAxes - self.get_figure(root=False).dpi_scale_trans)
         length = ends.height * 72
         # Having a spacing of at least 2 just looks good.
         size = self._get_tick_label_size('y') * 2

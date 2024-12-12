@@ -36,7 +36,7 @@ py_mod = import('python')
 py3 = py_mod.find_installation(pure: false)
 py3_dep = py3.dependency()
 
-pybind11_dep = dependency('pybind11', version: '>=2.6')
+pybind11_dep = dependency('pybind11', version: '>=2.13.2')
 
 subdir('extern')
 subdir('src')

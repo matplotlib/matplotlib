@@ -2,10 +2,8 @@ import datetime
 from unittest.mock import Mock
 
 import numpy as np
-import pytest
 
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 from matplotlib.path import Path
 from matplotlib.table import CustomCell, Table
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
@@ -128,10 +126,9 @@ def test_customcell():
 
 @image_comparison(['table_auto_column.png'])
 def test_auto_column():
-    fig = plt.figure()
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1)
 
     # iterable list input
-    ax1 = fig.add_subplot(4, 1, 1)
     ax1.axis('off')
     tb1 = ax1.table(
         cellText=[['Fit Text', 2],
@@ -144,7 +141,6 @@ def test_auto_column():
     tb1.auto_set_column_width([-1, 0, 1])
 
     # iterable tuple input
-    ax2 = fig.add_subplot(4, 1, 2)
     ax2.axis('off')
     tb2 = ax2.table(
         cellText=[['Fit Text', 2],
@@ -157,7 +153,6 @@ def test_auto_column():
     tb2.auto_set_column_width((-1, 0, 1))
 
     # 3 single inputs
-    ax3 = fig.add_subplot(4, 1, 3)
     ax3.axis('off')
     tb3 = ax3.table(
         cellText=[['Fit Text', 2],
@@ -171,8 +166,8 @@ def test_auto_column():
     tb3.auto_set_column_width(0)
     tb3.auto_set_column_width(1)
 
-    # 4 non integer iterable input
-    ax4 = fig.add_subplot(4, 1, 4)
+    # 4 this used to test non-integer iterable input, which did nothing, but only
+    # remains to avoid re-generating the test image.
     ax4.axis('off')
     tb4 = ax4.table(
         cellText=[['Fit Text', 2],
@@ -182,12 +177,6 @@ def test_auto_column():
         loc="center")
     tb4.auto_set_font_size(False)
     tb4.set_fontsize(12)
-    with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match="'col' must be an int or sequence of ints"):
-        tb4.auto_set_column_width("-101")  # type: ignore [arg-type]
-    with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match="'col' must be an int or sequence of ints"):
-        tb4.auto_set_column_width(["-101"])  # type: ignore [list-item]
 
 
 def test_table_cells():
@@ -264,3 +253,20 @@ def test_table_unit(fig_test, fig_ref):
 
     munits.registry.pop(FakeUnit)
     assert not munits.registry.get_converter(FakeUnit)
+
+
+def test_table_dataframe(pd):
+    # Test if Pandas Data Frame can be passed in cellText
+
+    data = {
+        'Letter': ['A', 'B', 'C'],
+        'Number': [100, 200, 300]
+    }
+
+    df = pd.DataFrame(data)
+    fig, ax = plt.subplots()
+    table = ax.table(df, loc='center')
+
+    for r, (index, row) in enumerate(df.iterrows()):
+        for c, col in enumerate(df.columns if r == 0 else row.values):
+            assert table[r if r == 0 else r+1, c].get_text().get_text() == str(col)

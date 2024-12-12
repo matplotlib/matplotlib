@@ -1,6 +1,7 @@
 import ast
 import os
 import pathlib
+import re
 import subprocess
 import sys
 import tempfile
@@ -12,10 +13,19 @@ mpl = lib / "matplotlib"
 
 
 class Visitor(ast.NodeVisitor):
-    def __init__(self, filepath, output):
+    def __init__(self, filepath, output, existing_allowed):
         self.filepath = filepath
         self.context = list(filepath.with_suffix("").relative_to(lib).parts)
         self.output = output
+        self.existing_allowed = existing_allowed
+
+    def _is_already_allowed(self, parts):
+        # Skip outputting a path if it's already allowed before.
+        candidates = ['.'.join(parts[:s]) for s in range(1, len(parts))]
+        for allow in self.existing_allowed:
+            if any(allow.fullmatch(path) for path in candidates):
+                return True
+        return False
 
     def visit_FunctionDef(self, node):
         # delete_parameter adds a private sentinel value that leaks
@@ -43,7 +53,9 @@ class Visitor(ast.NodeVisitor):
                     ):
                         parents.insert(0, parent.name)
                         parent = parent.parent
-                self.output.write(f"{'.'.join(self.context + parents)}.{node.name}\n")
+                parts = [*self.context, *parents, node.name]
+                if not self._is_already_allowed(parts):
+                    self.output.write("\\.".join(parts) + "\n")
                 break
 
     def visit_ClassDef(self, node):
@@ -62,20 +74,28 @@ class Visitor(ast.NodeVisitor):
                 # for setters on items with only a getter
                 for substitutions in aliases.values():
                     parts = self.context + parents + [node.name]
-                    self.output.write(
-                        "\n".join(
-                            f"{'.'.join(parts)}.[gs]et_{a}\n" for a in substitutions
-                        )
-                    )
+                    for a in substitutions:
+                        if not (self._is_already_allowed([*parts, f"get_{a}"]) and
+                                self._is_already_allowed([*parts, f"set_{a}"])):
+                            self.output.write("\\.".join([*parts, f"[gs]et_{a}\n"]))
         for child in ast.iter_child_nodes(node):
             self.visit(child)
+
+
+existing_allowed = []
+with (root / 'ci/mypy-stubtest-allowlist.txt').open() as f:
+    for line in f:
+        line, _, _ = line.partition('#')
+        line = line.strip()
+        if line:
+            existing_allowed.append(re.compile(line))
 
 
 with tempfile.TemporaryDirectory() as d:
     p = pathlib.Path(d) / "allowlist.txt"
     with p.open("wt") as f:
         for path in mpl.glob("**/*.py"):
-            v = Visitor(path, f)
+            v = Visitor(path, f, existing_allowed)
             tree = ast.parse(path.read_text())
 
             # Assign parents to tree so they can be backtraced

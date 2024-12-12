@@ -566,7 +566,8 @@ public:
     {
         if (m_alpha != 1.0) {
             do {
-                span->a *= m_alpha;
+                span->a = static_cast<typename color_type::value_type>(
+                    static_cast<typename color_type::calc_type>(span->a) * m_alpha);
                 ++span;
             } while (--len);
         }
@@ -712,6 +713,7 @@ void resample(
 
     using renderer_t = agg::renderer_base<output_pixfmt_t>;
     using rasterizer_t = agg::rasterizer_scanline_aa<agg::rasterizer_sl_clip_dbl>;
+    using scanline_t = agg::scanline32_u8;
 
     using reflect_t = agg::wrap_mode_reflect;
     using image_accessor_t = agg::image_accessor_wrap<input_pixfmt_t, reflect_t, reflect_t>;
@@ -739,7 +741,7 @@ void resample(
 
     span_alloc_t span_alloc;
     rasterizer_t rasterizer;
-    agg::scanline_u8 scanline;
+    scanline_t scanline;
 
     span_conv_alpha_t conv_alpha(params.alpha);
 

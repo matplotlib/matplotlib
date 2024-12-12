@@ -29,7 +29,7 @@ from . import cbook
 from ._mathtext_data import (
     latex_to_bakoma, stix_glyph_fixes, stix_virtual_fonts, tex2uni)
 from .font_manager import FontProperties, findfont, get_font
-from .ft2font import FT2Font, FT2Image, KERNING_DEFAULT
+from .ft2font import FT2Font, FT2Image, Kerning, LoadFlags
 
 from packaging.version import parse as parse_version
 from pyparsing import __version__ as pyparsing_version
@@ -153,7 +153,7 @@ class Output:
         w = xmax - xmin
         h = ymax - ymin - self.box.depth
         d = ymax - ymin - self.box.height
-        image = FT2Image(np.ceil(w), np.ceil(h + max(d, 0)))
+        image = FT2Image(int(np.ceil(w)), int(np.ceil(h + max(d, 0))))
 
         # Ideally, we could just use self.glyphs and self.rects here, shifting
         # their coordinates by (-xmin, -ymin), but this yields slightly
@@ -163,7 +163,7 @@ class Output:
 
         for ox, oy, info in shifted.glyphs:
             info.font.draw_glyph_to_bitmap(
-                image, ox, oy - info.metrics.iceberg, info.glyph,
+                image, int(ox), int(oy - info.metrics.iceberg), info.glyph,
                 antialiased=antialiased)
         for x1, y1, x2, y2 in shifted.rects:
             height = max(int(y2 - y1) - 1, 0)
@@ -172,7 +172,7 @@ class Output:
                 y = int(center - (height + 1) / 2)
             else:
                 y = int(y1)
-            image.draw_rect_filled(int(x1), y, np.ceil(x2), y + height)
+            image.draw_rect_filled(int(x1), y, int(np.ceil(x2)), y + height)
         return RasterParse(0, 0, w, h + d, d, image)
 
 
@@ -227,14 +227,14 @@ class Fonts(abc.ABC):
     to do the actual drawing.
     """
 
-    def __init__(self, default_font_prop: FontProperties, load_glyph_flags: int):
+    def __init__(self, default_font_prop: FontProperties, load_glyph_flags: LoadFlags):
         """
         Parameters
         ----------
         default_font_prop : `~.font_manager.FontProperties`
             The default non-math font, or the base font for Unicode (generic)
             font rendering.
-        load_glyph_flags : int
+        load_glyph_flags : `.ft2font.LoadFlags`
             Flags passed to the glyph loader (e.g. ``FT_Load_Glyph`` and
             ``FT_Load_Char`` for FreeType-based fonts).
         """
@@ -332,7 +332,7 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
     (through FT2Font).
     """
 
-    def __init__(self, default_font_prop: FontProperties, load_glyph_flags: int):
+    def __init__(self, default_font_prop: FontProperties, load_glyph_flags: LoadFlags):
         super().__init__(default_font_prop, load_glyph_flags)
         # Per-instance cache.
         self._get_info = functools.cache(self._get_info)  # type: ignore[method-assign]
@@ -426,7 +426,7 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
             info1 = self._get_info(font1, fontclass1, sym1, fontsize1, dpi)
             info2 = self._get_info(font2, fontclass2, sym2, fontsize2, dpi)
             font = info1.font
-            return font.get_kerning(info1.num, info2.num, KERNING_DEFAULT) / 64
+            return font.get_kerning(info1.num, info2.num, Kerning.DEFAULT) / 64
         return super().get_kern(font1, fontclass1, sym1, fontsize1,
                                 font2, fontclass2, sym2, fontsize2, dpi)
 
@@ -448,7 +448,7 @@ class BakomaFonts(TruetypeFonts):
         'ex':  'cmex10',
     }
 
-    def __init__(self, default_font_prop: FontProperties, load_glyph_flags: int):
+    def __init__(self, default_font_prop: FontProperties, load_glyph_flags: LoadFlags):
         self._stix_fallback = StixFonts(default_font_prop, load_glyph_flags)
 
         super().__init__(default_font_prop, load_glyph_flags)
@@ -557,7 +557,7 @@ class UnicodeFonts(TruetypeFonts):
         0x2212: 0x00A1,  # Minus sign.
     }
 
-    def __init__(self, default_font_prop: FontProperties, load_glyph_flags: int):
+    def __init__(self, default_font_prop: FontProperties, load_glyph_flags: LoadFlags):
         # This must come first so the backend's owner is set correctly
         fallback_rc = mpl.rcParams['mathtext.fallback']
         font_cls: type[TruetypeFonts] | None = {
@@ -672,7 +672,7 @@ class UnicodeFonts(TruetypeFonts):
 class DejaVuFonts(UnicodeFonts, metaclass=abc.ABCMeta):
     _fontmap: dict[str | int, str] = {}
 
-    def __init__(self, default_font_prop: FontProperties, load_glyph_flags: int):
+    def __init__(self, default_font_prop: FontProperties, load_glyph_flags: LoadFlags):
         # This must come first so the backend's owner is set correctly
         if isinstance(self, DejaVuSerifFonts):
             self._fallback_font = StixFonts(default_font_prop, load_glyph_flags)
@@ -776,7 +776,7 @@ class StixFonts(UnicodeFonts):
     _fallback_font = None
     _sans = False
 
-    def __init__(self, default_font_prop: FontProperties, load_glyph_flags: int):
+    def __init__(self, default_font_prop: FontProperties, load_glyph_flags: LoadFlags):
         TruetypeFonts.__init__(self, default_font_prop, load_glyph_flags)
         for key, name in self._fontmap.items():
             fullpath = findfont(name)

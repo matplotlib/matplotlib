@@ -6,9 +6,8 @@
     Many methods are implemented in `FigureBase`.
 
 `SubFigure`
-    A logical figure inside a figure, usually added to a figure (or parent
-    `SubFigure`) with `Figure.add_subfigure` or `Figure.subfigures` methods
-    (provisional API v3.4).
+    A logical figure inside a figure, usually added to a figure (or parent `SubFigure`)
+    with `Figure.add_subfigure` or `Figure.subfigures` methods.
 
 Figures are typically created using pyplot methods `~.pyplot.figure`,
 `~.pyplot.subplots`, and `~.pyplot.subplot_mosaic`.
@@ -195,14 +194,15 @@ class FigureBase(Artist):
             Selects which ticklabels to rotate.
         """
         _api.check_in_list(['major', 'minor', 'both'], which=which)
-        allsubplots = all(ax.get_subplotspec() for ax in self.axes)
-        if len(self.axes) == 1:
+        axes = [ax for ax in self.axes if ax._label != '<colorbar>']
+        allsubplots = all(ax.get_subplotspec() for ax in axes)
+        if len(axes) == 1:
             for label in self.axes[0].get_xticklabels(which=which):
                 label.set_ha(ha)
                 label.set_rotation(rotation)
         else:
             if allsubplots:
-                for ax in self.get_axes():
+                for ax in axes:
                     if ax.get_subplotspec().is_last_row():
                         for label in ax.get_xticklabels(which=which):
                             label.set_ha(ha)
@@ -212,7 +212,8 @@ class FigureBase(Artist):
                             label.set_visible(False)
                         ax.set_xlabel('')
 
-        if allsubplots:
+        engine = self.get_layout_engine()
+        if allsubplots and (engine is None or engine.adjust_compatible):
             self.subplots_adjust(bottom=bottom)
         self.stale = True
 
@@ -379,7 +380,7 @@ default: %(va)s
         self.stale = True
         return suplab
 
-    @_docstring.Substitution(x0=0.5, y0=0.98, name='suptitle', ha='center',
+    @_docstring.Substitution(x0=0.5, y0=0.98, name='super title', ha='center',
                              va='top', rc='title')
     @_docstring.copy(_suplabels)
     def suptitle(self, t, **kwargs):
@@ -394,7 +395,7 @@ default: %(va)s
         text_obj = self._suptitle
         return "" if text_obj is None else text_obj.get_text()
 
-    @_docstring.Substitution(x0=0.5, y0=0.01, name='supxlabel', ha='center',
+    @_docstring.Substitution(x0=0.5, y0=0.01, name='super xlabel', ha='center',
                              va='bottom', rc='label')
     @_docstring.copy(_suplabels)
     def supxlabel(self, t, **kwargs):
@@ -409,7 +410,7 @@ default: %(va)s
         text_obj = self._supxlabel
         return "" if text_obj is None else text_obj.get_text()
 
-    @_docstring.Substitution(x0=0.02, y0=0.5, name='supylabel', ha='left',
+    @_docstring.Substitution(x0=0.02, y0=0.5, name='super ylabel', ha='left',
                              va='center', rc='label')
     @_docstring.copy(_suplabels)
     def supylabel(self, t, **kwargs):
@@ -527,7 +528,7 @@ default: %(va)s
         self.stale = True
         return artist
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def add_axes(self, *args, **kwargs):
         """
         Add an `~.axes.Axes` to the figure.
@@ -614,22 +615,22 @@ default: %(va)s
         """
 
         if not len(args) and 'rect' not in kwargs:
-            raise TypeError(
-                "add_axes() missing 1 required positional argument: 'rect'")
+            raise TypeError("add_axes() missing 1 required positional argument: 'rect'")
         elif 'rect' in kwargs:
             if len(args):
-                raise TypeError(
-                    "add_axes() got multiple values for argument 'rect'")
+                raise TypeError("add_axes() got multiple values for argument 'rect'")
             args = (kwargs.pop('rect'), )
+        if len(args) != 1:
+            raise _api.nargs_error("add_axes", 1, len(args))
 
         if isinstance(args[0], Axes):
-            a, *extra_args = args
+            a, = args
             key = a._projection_init
-            if a.get_figure() is not self:
+            if a.get_figure(root=False) is not self:
                 raise ValueError(
                     "The Axes must have been created in the present figure")
         else:
-            rect, *extra_args = args
+            rect, = args
             if not np.isfinite(rect).all():
                 raise ValueError(f'all entries in rect must be finite not {rect}')
             projection_class, pkw = self._process_projection_requirements(**kwargs)
@@ -638,14 +639,9 @@ default: %(va)s
             a = projection_class(self, rect, **pkw)
             key = (projection_class, pkw)
 
-        if extra_args:
-            _api.warn_deprecated(
-                "3.8",
-                name="Passing more than one positional argument to Figure.add_axes",
-                addendum="Any additional positional arguments are currently ignored.")
         return self._add_axes_internal(a, key)
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def add_subplot(self, *args, **kwargs):
         """
         Add an `~.axes.Axes` to the figure as part of a subplot arrangement.
@@ -756,7 +752,7 @@ default: %(va)s
                 and args[0].get_subplotspec()):
             ax = args[0]
             key = ax._projection_init
-            if ax.get_figure() is not self:
+            if ax.get_figure(root=False) is not self:
                 raise ValueError("The Axes must have been created in "
                                  "the present figure")
         else:
@@ -947,7 +943,7 @@ default: %(va)s
 
         self._axobservers.process("_axes_change_event", self)
         self.stale = True
-        self.canvas.release_mouse(ax)
+        self._root_figure.canvas.release_mouse(ax)
 
         for name in ax._axis_names:  # Break link between any shared Axes
             grouper = ax._shared_axes[name]
@@ -1024,7 +1020,7 @@ default: %(va)s
     #    " legend(" -> " figlegend(" for the signatures
     #    "fig.legend(" -> "plt.figlegend" for the code examples
     #    "ax.plot" -> "plt.plot" for consistency in using pyplot when able
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def legend(self, *args, **kwargs):
         """
         Place a legend on the figure.
@@ -1144,7 +1140,7 @@ default: %(va)s
         self.stale = True
         return l
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def text(self, x, y, s, fontdict=None, **kwargs):
         """
         Add text to figure.
@@ -1194,7 +1190,7 @@ default: %(va)s
         self.stale = True
         return text
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def colorbar(
             self, mappable, cax=None, ax=None, use_gridspec=True, **kwargs):
         """
@@ -1282,7 +1278,7 @@ default: %(va)s
             fig = (  # Figure of first Axes; logic copied from make_axes.
                 [*ax.flat] if isinstance(ax, np.ndarray)
                 else [*ax] if np.iterable(ax)
-                else [ax])[0].figure
+                else [ax])[0].get_figure(root=False)
             current_ax = fig.gca()
             if (fig.get_layout_engine() is not None and
                     not fig.get_layout_engine().colorbar_gridspec):
@@ -1297,24 +1293,21 @@ default: %(va)s
             fig.sca(current_ax)
             cax.grid(visible=False, which='both', axis='both')
 
-        if hasattr(mappable, "figure") and mappable.figure is not None:
-            # Get top level artists
-            mappable_host_fig = mappable.figure
-            if isinstance(mappable_host_fig, mpl.figure.SubFigure):
-                mappable_host_fig = mappable_host_fig.figure
+        if (hasattr(mappable, "get_figure") and
+                (mappable_host_fig := mappable.get_figure(root=True)) is not None):
             # Warn in case of mismatch
-            if mappable_host_fig is not self.figure:
+            if mappable_host_fig is not self._root_figure:
                 _api.warn_external(
                         f'Adding colorbar to a different Figure '
-                        f'{repr(mappable.figure)} than '
-                        f'{repr(self.figure)} which '
+                        f'{repr(mappable_host_fig)} than '
+                        f'{repr(self._root_figure)} which '
                         f'fig.colorbar is called on.')
 
         NON_COLORBAR_KEYS = [  # remove kws that cannot be passed to Colorbar
             'fraction', 'pad', 'shrink', 'aspect', 'anchor', 'panchor']
         cb = cbar.Colorbar(cax, mappable, **{
             k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS})
-        cax.figure.stale = True
+        cax.get_figure(root=False).stale = True
         return cb
 
     def subplots_adjust(self, left=None, bottom=None, right=None, top=None,
@@ -1324,6 +1317,8 @@ default: %(va)s
 
         Unset parameters are left unmodified; initial values are given by
         :rc:`figure.subplot.[name]`.
+
+        .. plot:: _embedded_plots/figure_subplots_adjust.py
 
         Parameters
         ----------
@@ -1387,8 +1382,8 @@ default: %(va)s
 
         Notes
         -----
-        This assumes that ``axs`` are from the same `.GridSpec`, so that
-        their `.SubplotSpec` positions correspond to figure positions.
+        This assumes that all Axes in ``axs`` are from the same `.GridSpec`,
+        so that their `.SubplotSpec` positions correspond to figure positions.
 
         Examples
         --------
@@ -1449,8 +1444,8 @@ default: %(va)s
 
         Notes
         -----
-        This assumes that ``axs`` are from the same `.GridSpec`, so that
-        their `.SubplotSpec` positions correspond to figure positions.
+        This assumes that all Axes in ``axs`` are from the same `.GridSpec`,
+        so that their `.SubplotSpec` positions correspond to figure positions.
 
         Examples
         --------
@@ -1505,8 +1500,8 @@ default: %(va)s
 
         Notes
         -----
-        This assumes that ``axs`` are from the same `.GridSpec`, so that
-        their `.SubplotSpec` positions correspond to figure positions.
+        This assumes that all Axes in ``axs`` are from the same `.GridSpec`,
+        so that their `.SubplotSpec` positions correspond to figure positions.
 
         Examples
         --------
@@ -1549,6 +1544,11 @@ default: %(va)s
         matplotlib.figure.Figure.align_xlabels
         matplotlib.figure.Figure.align_ylabels
         matplotlib.figure.Figure.align_titles
+
+        Notes
+        -----
+        This assumes that all Axes in ``axs`` are from the same `.GridSpec`,
+        so that their `.SubplotSpec` positions correspond to figure positions.
         """
         self.align_xlabels(axs=axs)
         self.align_ylabels(axs=axs)
@@ -1610,9 +1610,6 @@ default: %(va)s
         A subfigure has the same artist methods as a figure, and is logically
         the same as a figure, but cannot print itself.
         See :doc:`/gallery/subplots_axes_and_figures/subfigures`.
-
-        .. note::
-            The *subfigure* concept is new in v3.4, and the API is still provisional.
 
         .. versionchanged:: 3.10
             subfigures are now added in row-major order.
@@ -1800,8 +1797,7 @@ default: %(va)s
                 bbox_artists.extend(ax.get_default_bbox_extra_artists())
         return bbox_artists
 
-    @_api.make_keyword_only("3.8", "bbox_extra_artists")
-    def get_tightbbox(self, renderer=None, bbox_extra_artists=None):
+    def get_tightbbox(self, renderer=None, *, bbox_extra_artists=None):
         """
         Return a (tight) bounding box of the figure *in inches*.
 
@@ -1829,7 +1825,7 @@ default: %(va)s
         """
 
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
 
         bb = []
         if bbox_extra_artists is None:
@@ -2233,9 +2229,6 @@ class SubFigure(FigureBase):
         axsR = sfigs[1].subplots(2, 1)
 
     See :doc:`/gallery/subplots_axes_and_figures/subfigures`
-
-    .. note::
-        The *subfigure* concept is new in v3.4, and the API is still provisional.
     """
 
     def __init__(self, parent, subplotspec, *,
@@ -2421,7 +2414,7 @@ class SubFigure(FigureBase):
             renderer.open_group('subfigure', gid=self.get_gid())
             self.patch.draw(renderer)
             mimage._draw_list_compositing_images(
-                renderer, self, artists, self.figure.suppressComposite)
+                renderer, self, artists, self.get_figure(root=True).suppressComposite)
             renderer.close_group('subfigure')
 
         finally:
@@ -2822,6 +2815,36 @@ None}, default: None
 
     get_axes = axes.fget
 
+    @property
+    def number(self):
+        """The figure id, used to identify figures in `.pyplot`."""
+        # Historically, pyplot dynamically added a number attribute to figure.
+        # However, this number must stay in sync with the figure manager.
+        # AFAICS overwriting the number attribute does not have the desired
+        # effect for pyplot. But there are some repos in GitHub that do change
+        # number. So let's take it slow and properly migrate away from writing.
+        #
+        # Making the dynamic attribute private and wrapping it in a property
+        # allows to maintain current behavior and deprecate write-access.
+        #
+        # When the deprecation expires, there's no need for duplicate state
+        # anymore and the private _number attribute can be replaced by
+        # `self.canvas.manager.num` if that exists and None otherwise.
+        if hasattr(self, '_number'):
+            return self._number
+        else:
+            raise AttributeError(
+                "'Figure' object has no attribute 'number'. In the future this"
+                "will change to returning 'None' instead.")
+
+    @number.setter
+    def number(self, num):
+        _api.warn_deprecated(
+            "3.10",
+            message="Changing 'Figure.number' is deprecated since %(since)s and "
+                    "will raise an error starting %(removal)s")
+        self._number = num
+
     def _get_renderer(self):
         if hasattr(self.canvas, 'get_renderer'):
             return self.canvas.get_renderer()
@@ -2986,7 +3009,8 @@ None}, default: None
 
     @_docstring.interpd
     def figimage(self, X, xo=0, yo=0, alpha=None, norm=None, cmap=None,
-                 vmin=None, vmax=None, origin=None, resize=False, **kwargs):
+                 vmin=None, vmax=None, origin=None, resize=False, *,
+                 colorizer=None, **kwargs):
         """
         Add a non-resampled image to the figure.
 
@@ -3029,6 +3053,10 @@ None}, default: None
         resize : bool
             If *True*, resize the figure to match the given image size.
 
+        %(colorizer_doc)s
+
+            This parameter is ignored if *X* is RGB(A).
+
         Returns
         -------
         `matplotlib.image.FigureImage`
@@ -3062,6 +3090,7 @@ None}, default: None
             self.set_size_inches(figsize, forward=True)
 
         im = mimage.FigureImage(self, cmap=cmap, norm=norm,
+                                colorizer=colorizer,
                                 offsetx=xo, offsety=yo,
                                 origin=origin, **kwargs)
         im.stale_callback = _stale_figure_callback
@@ -3069,6 +3098,7 @@ None}, default: None
         im.set_array(X)
         im.set_alpha(alpha)
         if norm is None:
+            im._check_exclusionary_keywords(colorizer, vmin=vmin, vmax=vmax)
             im.set_clim(vmin, vmax)
         self.images.append(im)
         im._remove_method = self.images.remove

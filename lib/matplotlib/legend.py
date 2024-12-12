@@ -98,8 +98,8 @@ class DraggableLegend(DraggableOffsetBox):
 _legend_kw_doc_base = """
 bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
     Box that is used to position the legend in conjunction with *loc*.
-    Defaults to `axes.bbox` (if called as a method to `.Axes.legend`) or
-    `figure.bbox` (if `.Figure.legend`).  This argument allows arbitrary
+    Defaults to ``axes.bbox`` (if called as a method to `.Axes.legend`) or
+    ``figure.bbox`` (if ``figure.legend``).  This argument allows arbitrary
     placement of the legend.
 
     Bbox coordinates are interpreted in the coordinate system given by
@@ -305,7 +305,7 @@ _legend_kw_axes_st = (
     _loc_doc_base.format(parent='axes', default=':rc:`legend.loc`',
                          best=_loc_doc_best, outside='') +
     _legend_kw_doc_base)
-_docstring.interpd.update(_legend_kw_axes=_legend_kw_axes_st)
+_docstring.interpd.register(_legend_kw_axes=_legend_kw_axes_st)
 
 _outside_doc = """
     If a figure is using the constrained layout manager, the string codes
@@ -323,20 +323,20 @@ _legend_kw_figure_st = (
     _loc_doc_base.format(parent='figure', default="'upper right'",
                          best='', outside=_outside_doc) +
     _legend_kw_doc_base)
-_docstring.interpd.update(_legend_kw_figure=_legend_kw_figure_st)
+_docstring.interpd.register(_legend_kw_figure=_legend_kw_figure_st)
 
 _legend_kw_both_st = (
     _loc_doc_base.format(parent='axes/figure',
                          default=":rc:`legend.loc` for Axes, 'upper right' for Figure",
                          best=_loc_doc_best, outside=_outside_doc) +
     _legend_kw_doc_base)
-_docstring.interpd.update(_legend_kw_doc=_legend_kw_both_st)
+_docstring.interpd.register(_legend_kw_doc=_legend_kw_both_st)
 
 _legend_kw_set_loc_st = (
     _loc_doc_base.format(parent='axes/figure',
                          default=":rc:`legend.loc` for Axes, 'upper right' for Figure",
                          best=_loc_doc_best, outside=_outside_doc))
-_docstring.interpd.update(_legend_kw_set_loc_doc=_legend_kw_set_loc_st)
+_docstring.interpd.register(_legend_kw_set_loc_doc=_legend_kw_set_loc_st)
 
 
 class Legend(Artist):
@@ -351,7 +351,7 @@ class Legend(Artist):
     def __str__(self):
         return "Legend"
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def __init__(
         self, parent, handles, labels,
         *,
@@ -454,24 +454,10 @@ class Legend(Artist):
         self.borderaxespad = mpl._val_or_rc(borderaxespad, 'legend.borderaxespad')
         self.columnspacing = mpl._val_or_rc(columnspacing, 'legend.columnspacing')
         self.shadow = mpl._val_or_rc(shadow, 'legend.shadow')
-        # trim handles and labels if illegal label...
-        _lab, _hand = [], []
-        for label, handle in zip(labels, handles):
-            if isinstance(label, str) and label.startswith('_'):
-                _api.warn_deprecated("3.8", message=(
-                    "An artist whose label starts with an underscore was passed to "
-                    "legend(); such artists will no longer be ignored in the future.  "
-                    "To suppress this warning, explicitly filter out such artists, "
-                    "e.g. with `[art for art in artists if not "
-                    "art.get_label().startswith('_')]`."))
-            else:
-                _lab.append(label)
-                _hand.append(handle)
-        labels, handles = _lab, _hand
 
         if reverse:
-            labels.reverse()
-            handles.reverse()
+            labels = [*reversed(labels)]
+            handles = [*reversed(handles)]
 
         if len(handles) < 2:
             ncols = 1
@@ -497,7 +483,7 @@ class Legend(Artist):
         if isinstance(parent, Axes):
             self.isaxes = True
             self.axes = parent
-            self.set_figure(parent.figure)
+            self.set_figure(parent.get_figure(root=False))
         elif isinstance(parent, FigureBase):
             self.isaxes = False
             self.set_figure(parent)
@@ -637,13 +623,13 @@ class Legend(Artist):
         """
         Set the boilerplate props for artists added to Axes.
         """
-        a.set_figure(self.figure)
+        a.set_figure(self.get_figure(root=False))
         if self.isaxes:
             a.axes = self.axes
 
         a.set_transform(self.get_transform())
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def set_loc(self, loc=None):
         """
         Set the location of the legend.
@@ -943,7 +929,7 @@ class Legend(Artist):
                                    align=self._alignment,
                                    children=[self._legend_title_box,
                                              self._legend_handle_box])
-        self._legend_box.set_figure(self.figure)
+        self._legend_box.set_figure(self.get_figure(root=False))
         self._legend_box.axes = self.axes
         self.texts = text_list
         self.legend_handles = handle_list
@@ -1065,7 +1051,7 @@ class Legend(Artist):
     def get_window_extent(self, renderer=None):
         # docstring inherited
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         return self._legend_box.get_window_extent(renderer=renderer)
 
     def get_tightbbox(self, renderer=None):
@@ -1196,7 +1182,6 @@ class Legend(Artist):
 
         return l, b
 
-    @_api.rename_parameter("3.8", "event", "mouseevent")
     def contains(self, mouseevent):
         return self.legendPatch.contains(mouseevent)
 
@@ -1338,7 +1323,7 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
         _api.warn_deprecated("3.9", message=(
             "You have mixed positional and keyword arguments, some input may "
             "be discarded.  This is deprecated since %(since)s and will "
-            "become an error %(removal)s."))
+            "become an error in %(removal)s."))
 
     if (hasattr(handles, "__len__") and
             hasattr(labels, "__len__") and

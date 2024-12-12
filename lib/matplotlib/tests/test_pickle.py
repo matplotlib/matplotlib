@@ -17,7 +17,7 @@ from matplotlib.lines import VertexSelector
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import matplotlib.figure as mfigure
-from mpl_toolkits.axes_grid1 import axes_divider, parasite_axes  # type: ignore
+from mpl_toolkits.axes_grid1 import axes_divider, parasite_axes  # type: ignore[import]
 
 
 def test_simple():
@@ -150,7 +150,15 @@ def test_pickle_load_from_subprocess(fig_test, fig_ref, tmp_path):
     proc = subprocess_run_helper(
         _pickle_load_subprocess,
         timeout=60,
-        extra_env={'PICKLE_FILE_PATH': str(fp), 'MPLBACKEND': 'Agg'}
+        extra_env={
+            "PICKLE_FILE_PATH": str(fp),
+            "MPLBACKEND": "Agg",
+            # subprocess_run_helper will set SOURCE_DATE_EPOCH=0, so for a dirty tree,
+            # the version will have the date 19700101. As we aren't trying to test the
+            # version compatibility warning, force setuptools-scm to use the same
+            # version as us.
+            "SETUPTOOLS_SCM_PRETEND_VERSION_FOR_MATPLOTLIB": mpl.__version__,
+        },
     )
 
     loaded_fig = pickle.loads(ast.literal_eval(proc.stdout))

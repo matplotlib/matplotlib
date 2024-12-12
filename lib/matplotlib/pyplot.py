@@ -15,6 +15,7 @@ programmatic plot generation::
     x = np.arange(0, 5, 0.1)
     y = np.sin(x)
     plt.plot(x, y)
+    plt.show()
 
 The explicit object-oriented API is recommended for complex plots, though
 pyplot is still usually used to create the figure and often the Axes in the
@@ -29,6 +30,7 @@ figure. See `.pyplot.figure`, `.pyplot.subplots`, and
     y = np.sin(x)
     fig, ax = plt.subplots()
     ax.plot(x, y)
+    plt.show()
 
 
 See :ref:`api_interfaces` for an explanation of the tradeoffs between the
@@ -56,7 +58,8 @@ import matplotlib.colorbar
 import matplotlib.image
 from matplotlib import _api
 # Re-exported (import x as x) for typing.
-from matplotlib import cm as cm, get_backend as get_backend, rcParams as rcParams
+from matplotlib import get_backend as get_backend, rcParams as rcParams
+from matplotlib import cm as cm  # noqa: F401
 from matplotlib import style as style  # noqa: F401
 from matplotlib import _pylab_helpers
 from matplotlib import interactive  # noqa: F401
@@ -72,6 +75,7 @@ from matplotlib.axes import Axes
 from matplotlib.axes import Subplot  # noqa: F401
 from matplotlib.backends import BackendFilter, backend_registry
 from matplotlib.projections import PolarAxes
+from matplotlib.colorizer import _ColorizerInterface, ColorizingArtist, Colorizer
 from matplotlib import mlab  # for detrend_none, window_hanning
 from matplotlib.scale import get_scale_names  # noqa: F401
 
@@ -96,11 +100,12 @@ if TYPE_CHECKING:
     import matplotlib.backend_bases
     from matplotlib.axis import Tick
     from matplotlib.axes._base import _AxesBase
-    from matplotlib.backend_bases import RendererBase, Event
+    from matplotlib.backend_bases import Event
     from matplotlib.cm import ScalarMappable
     from matplotlib.contour import ContourSet, QuadContourSet
     from matplotlib.collections import (
         Collection,
+        FillBetweenPolyCollection,
         LineCollection,
         PolyCollection,
         PathCollection,
@@ -120,8 +125,13 @@ if TYPE_CHECKING:
     from matplotlib.patches import FancyArrow, StepPatch, Wedge
     from matplotlib.quiver import Barbs, Quiver, QuiverKey
     from matplotlib.scale import ScaleBase
-    from matplotlib.transforms import Transform, Bbox
-    from matplotlib.typing import ColorType, LineStyleType, MarkerType, HashableList
+    from matplotlib.typing import (
+        ColorType,
+        CoordsType,
+        HashableList,
+        LineStyleType,
+        MarkerType,
+    )
     from matplotlib.widgets import SubplotTool
 
     _P = ParamSpec('_P')
@@ -410,8 +420,7 @@ def switch_backend(newbackend: str) -> None:
             switch_backend("agg")
             rcParamsOrig["backend"] = "agg"
             return
-    # have to escape the switch on access logic
-    old_backend = dict.__getitem__(rcParams, 'backend')
+    old_backend = rcParams._get('backend')  # get without triggering backend resolution
 
     module = backend_registry.load_backend_module(newbackend)
     canvas_class = module.FigureCanvas
@@ -509,14 +518,6 @@ def switch_backend(newbackend: str) -> None:
     # Need to keep a global reference to the backend for compatibility reasons.
     # See https://github.com/matplotlib/matplotlib/issues/6092
     matplotlib.backends.backend = newbackend  # type: ignore[attr-defined]
-
-    if not cbook._str_equal(old_backend, newbackend):
-        if get_fignums():
-            _api.warn_deprecated("3.8", message=(
-                "Auto-close()ing of figures upon backend switching is deprecated since "
-                "%(since)s and will be removed %(removal)s.  To suppress this warning, "
-                "explicitly call plt.close('all') first."))
-        close("all")
 
     # Make sure the repl display hook is installed in case we become interactive.
     install_repl_displayhook()
@@ -819,8 +820,7 @@ def xkcd(
 
     Notes
     -----
-    This function works by a number of rcParams, so it will probably
-    override others you have set before.
+    This function works by a number of rcParams, overriding those set before.
 
     If you want the effects of this function to be temporary, it can
     be used as a context manager, for example::
@@ -841,7 +841,7 @@ def xkcd(
             "xkcd mode is not compatible with text.usetex = True")
 
     stack = ExitStack()
-    stack.callback(dict.update, rcParams, rcParams.copy())  # type: ignore[arg-type]
+    stack.callback(rcParams._update_raw, rcParams.copy())  # type: ignore[arg-type]
 
     from matplotlib import patheffects
     rcParams.update({
@@ -990,15 +990,16 @@ default: None
 
     if isinstance(num, FigureBase):
         # type narrowed to `Figure | SubFigure` by combination of input and isinstance
-        if num.canvas.manager is None:
+        root_fig = num.get_figure(root=True)
+        if root_fig.canvas.manager is None:
             raise ValueError("The passed figure is not managed by pyplot")
         elif any([figsize, dpi, facecolor, edgecolor, not frameon,
-                  kwargs]) and num.canvas.manager.num in allnums:
+                  kwargs]) and root_fig.canvas.manager.num in allnums:
             _api.warn_external(
-                "Ignoring specified arguments in this call "
-                f"because figure with num: {num.canvas.manager.num} already exists")
-        _pylab_helpers.Gcf.set_active(num.canvas.manager)
-        return num.figure
+                "Ignoring specified arguments in this call because figure "
+                f"with num: {root_fig.canvas.manager.num} already exists")
+        _pylab_helpers.Gcf.set_active(root_fig.canvas.manager)
+        return root_fig
 
     next_num = max(allnums) + 1 if allnums else 1
     fig_label = ''
@@ -1192,9 +1193,7 @@ def close(fig: None | int | str | Figure | Literal["all"] = None) -> None:
         _pylab_helpers.Gcf.destroy_all()
     elif isinstance(fig, int):
         _pylab_helpers.Gcf.destroy(fig)
-    elif hasattr(fig, 'int'):
-        # if we are dealing with a type UUID, we
-        # can use its integer representation
+    elif hasattr(fig, 'int'):  # UUIDs get converted to ints by figure().
         _pylab_helpers.Gcf.destroy(fig.int)
     elif isinstance(fig, str):
         all_labels = get_figlabels()
@@ -1204,8 +1203,8 @@ def close(fig: None | int | str | Figure | Literal["all"] = None) -> None:
     elif isinstance(fig, Figure):
         _pylab_helpers.Gcf.destroy_fig(fig)
     else:
-        raise TypeError("close() argument must be a Figure, an int, a string, "
-                        "or None, not %s" % type(fig))
+        _api.check_isinstance(  # type: ignore[unreachable]
+            (Figure, int, str, None), fig=fig)
 
 
 def clf() -> None:
@@ -1257,7 +1256,7 @@ if Figure.legend.__doc__:
 
 ## Axes ##
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def axes(
     arg: None | tuple[float, float, float, float] = None,
     **kwargs
@@ -1363,8 +1362,9 @@ def sca(ax: Axes) -> None:
     # Mypy sees ax.figure as potentially None,
     # but if you are calling this, it won't be None
     # Additionally the slight difference between `Figure` and `FigureBase` mypy catches
-    figure(ax.figure)  # type: ignore[arg-type]
-    ax.figure.sca(ax)  # type: ignore[union-attr]
+    fig = ax.get_figure(root=False)
+    figure(fig)  # type: ignore[arg-type]
+    fig.sca(ax)  # type: ignore[union-attr]
 
 
 def cla() -> None:
@@ -1375,7 +1375,7 @@ def cla() -> None:
 
 ## More ways of creating Axes ##
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def subplot(*args, **kwargs) -> Axes:
     """
     Add an Axes to the current figure or retrieve an existing Axes.
@@ -2514,7 +2514,7 @@ def _get_pyplot_commands() -> list[str]:
 
 @_copy_docstring_and_deprecators(Figure.colorbar)
 def colorbar(
-    mappable: ScalarMappable | None = None,
+    mappable: ScalarMappable | ColorizingArtist | None = None,
     cax: matplotlib.axes.Axes | None = None,
     ax: matplotlib.axes.Axes | Iterable[matplotlib.axes.Axes] | None = None,
     **kwargs
@@ -2680,17 +2680,32 @@ def polar(*args, **kwargs) -> list[Line2D]:
 
     call signature::
 
-      polar(theta, r, **kwargs)
+      polar(theta, r, [fmt], **kwargs)
 
-    Multiple *theta*, *r* arguments are supported, with format strings, as in
-    `plot`.
+    This is a convenience wrapper around `.pyplot.plot`. It ensures that the
+    current Axes is polar (or creates one if needed) and then passes all parameters
+    to ``.pyplot.plot``.
+
+    .. note::
+        When making polar plots using the :ref:`pyplot API <pyplot_interface>`,
+        ``polar()`` should typically be the first command because that makes sure
+        a polar Axes is created. Using other commands such as ``plt.title()``
+        before this can lead to the implicit creation of a rectangular Axes, in which
+        case a subsequent ``polar()`` call will fail.
     """
     # If an axis already exists, check if it has a polar projection
     if gcf().get_axes():
         ax = gca()
         if not isinstance(ax, PolarAxes):
-            _api.warn_external('Trying to create polar plot on an Axes '
-                               'that does not have a polar projection.')
+            _api.warn_deprecated(
+                "3.10",
+                message="There exists a non-polar current Axes. Therefore, the "
+                        "resulting plot from 'polar()' is non-polar. You likely "
+                        "should call 'polar()' before any other pyplot plotting "
+                        "commands. "
+                        "Support for this scenario is deprecated in %(since)s and "
+                        "will raise an error in %(removal)s"
+            )
     else:
         ax = axes(projection="polar")
     return ax.plot(*args, **kwargs)
@@ -2724,6 +2739,8 @@ def figimage(
     vmax: float | None = None,
     origin: Literal["upper", "lower"] | None = None,
     resize: bool = False,
+    *,
+    colorizer: Colorizer | None = None,
     **kwargs,
 ) -> FigureImage:
     return gcf().figimage(
@@ -2737,6 +2754,7 @@ def figimage(
         vmax=vmax,
         origin=origin,
         resize=resize,
+        colorizer=colorizer,
         **kwargs,
     )
 
@@ -2757,7 +2775,7 @@ def gca() -> Axes:
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @_copy_docstring_and_deprecators(Figure._gci)
-def gci() -> ScalarMappable | None:
+def gci() -> ColorizingArtist | None:
     return gcf()._gci()
 
 
@@ -2859,17 +2877,8 @@ def annotate(
     text: str,
     xy: tuple[float, float],
     xytext: tuple[float, float] | None = None,
-    xycoords: str
-    | Artist
-    | Transform
-    | Callable[[RendererBase], Bbox | Transform]
-    | tuple[float, float] = "data",
-    textcoords: str
-    | Artist
-    | Transform
-    | Callable[[RendererBase], Bbox | Transform]
-    | tuple[float, float]
-    | None = None,
+    xycoords: CoordsType = "data",
+    textcoords: CoordsType | None = None,
     arrowprops: dict[str, Any] | None = None,
     annotation_clip: bool | None = None,
     **kwargs,
@@ -3326,7 +3335,7 @@ def fill_between(
     *,
     data=None,
     **kwargs,
-) -> PolyCollection:
+) -> FillBetweenPolyCollection:
     return gca().fill_between(
         x,
         y1,
@@ -3351,7 +3360,7 @@ def fill_betweenx(
     *,
     data=None,
     **kwargs,
-) -> PolyCollection:
+) -> FillBetweenPolyCollection:
     return gca().fill_betweenx(
         y,
         x1,
@@ -3396,6 +3405,7 @@ def hexbin(
     reduce_C_function: Callable[[np.ndarray | list[float]], float] = np.mean,
     mincnt: int | None = None,
     marginals: bool = False,
+    colorizer: Colorizer | None = None,
     *,
     data=None,
     **kwargs,
@@ -3419,6 +3429,7 @@ def hexbin(
         reduce_C_function=reduce_C_function,
         mincnt=mincnt,
         marginals=marginals,
+        colorizer=colorizer,
         **({"data": data} if data is not None else {}),
         **kwargs,
     )
@@ -3564,6 +3575,7 @@ def imshow(
     alpha: float | ArrayLike | None = None,
     vmin: float | None = None,
     vmax: float | None = None,
+    colorizer: Colorizer | None = None,
     origin: Literal["upper", "lower"] | None = None,
     extent: tuple[float, float, float, float] | None = None,
     interpolation_stage: Literal["data", "rgba", "auto"] | None = None,
@@ -3583,6 +3595,7 @@ def imshow(
         alpha=alpha,
         vmin=vmin,
         vmax=vmax,
+        colorizer=colorizer,
         origin=origin,
         extent=extent,
         interpolation_stage=interpolation_stage,
@@ -3677,6 +3690,7 @@ def pcolor(
     cmap: str | Colormap | None = None,
     vmin: float | None = None,
     vmax: float | None = None,
+    colorizer: Colorizer | None = None,
     data=None,
     **kwargs,
 ) -> Collection:
@@ -3688,6 +3702,7 @@ def pcolor(
         cmap=cmap,
         vmin=vmin,
         vmax=vmax,
+        colorizer=colorizer,
         **({"data": data} if data is not None else {}),
         **kwargs,
     )
@@ -3704,6 +3719,7 @@ def pcolormesh(
     cmap: str | Colormap | None = None,
     vmin: float | None = None,
     vmax: float | None = None,
+    colorizer: Colorizer | None = None,
     shading: Literal["flat", "nearest", "gouraud", "auto"] | None = None,
     antialiased: bool = False,
     data=None,
@@ -3716,6 +3732,7 @@ def pcolormesh(
         cmap=cmap,
         vmin=vmin,
         vmax=vmax,
+        colorizer=colorizer,
         shading=shading,
         antialiased=antialiased,
         **({"data": data} if data is not None else {}),
@@ -3911,6 +3928,7 @@ def scatter(
     linewidths: float | Sequence[float] | None = None,
     *,
     edgecolors: Literal["face", "none"] | ColorType | Sequence[ColorType] | None = None,
+    colorizer: Colorizer | None = None,
     plotnonfinite: bool = False,
     data=None,
     **kwargs,
@@ -3928,6 +3946,7 @@ def scatter(
         alpha=alpha,
         linewidths=linewidths,
         edgecolors=edgecolors,
+        colorizer=colorizer,
         plotnonfinite=plotnonfinite,
         **({"data": data} if data is not None else {}),
         **kwargs,
@@ -4017,7 +4036,7 @@ def spy(
         origin=origin,
         **kwargs,
     )
-    if isinstance(__ret, cm.ScalarMappable):
+    if isinstance(__ret, _ColorizerInterface):
         sci(__ret)
     return __ret
 
@@ -4105,6 +4124,7 @@ def streamplot(
     integration_direction="both",
     broken_streamlines=True,
     *,
+    num_arrows=1,
     data=None,
 ):
     __ret = gca().streamplot(
@@ -4126,6 +4146,7 @@ def streamplot(
         maxlength=maxlength,
         integration_direction=integration_direction,
         broken_streamlines=broken_streamlines,
+        num_arrows=num_arrows,
         **({"data": data} if data is not None else {}),
     )
     sci(__ret.lines)
@@ -4345,7 +4366,7 @@ def xcorr(
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @_copy_docstring_and_deprecators(Axes._sci)
-def sci(im: ScalarMappable) -> None:
+def sci(im: ColorizingArtist) -> None:
     gca()._sci(im)
 
 

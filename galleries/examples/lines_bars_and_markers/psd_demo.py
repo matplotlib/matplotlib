@@ -178,3 +178,10 @@ ax1.grid(True)
 ax1.set_ylim(yrange)
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    domain: signal-processing
+#    plot-type: line
+#    level: intermediate

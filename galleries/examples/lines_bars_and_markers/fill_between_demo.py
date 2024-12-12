@@ -1,7 +1,7 @@
 """
-==============================
-Filling the area between lines
-==============================
+===============================
+Fill the area between two lines
+===============================
 
 This example shows how to use `~.axes.Axes.fill_between` to color the area
 between two lines.
@@ -139,3 +139,10 @@ ax.fill_between(x, 0, 1, where=y > threshold,
 #
 #    - `matplotlib.axes.Axes.fill_between` / `matplotlib.pyplot.fill_between`
 #    - `matplotlib.axes.Axes.get_xaxis_transform`
+#
+# .. tags::
+#
+#    styling: conditional
+#    plot-type: fill_between
+#    level: beginner
+#    purpose: showcase

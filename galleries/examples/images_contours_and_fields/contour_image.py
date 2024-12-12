@@ -1,6 +1,6 @@
 """
 =============
-Contour Image
+Contour image
 =============
 
 Test combinations of contouring, filled contouring, and image plotting.

@@ -961,6 +961,10 @@ class GraphicsContextBase:
         """Get the hatch linewidth."""
         return self._hatch_linewidth
 
+    def set_hatch_linewidth(self, hatch_linewidth):
+        """Set the hatch linewidth."""
+        self._hatch_linewidth = hatch_linewidth
+
     def get_sketch_params(self):
         """
         Return the sketch parameters for the artist.
@@ -1178,26 +1182,12 @@ class Event:
     def __init__(self, name, canvas, guiEvent=None):
         self.name = name
         self.canvas = canvas
-        self._guiEvent = guiEvent
-        self._guiEvent_deleted = False
+        self.guiEvent = guiEvent
 
     def _process(self):
         """Process this event on ``self.canvas``, then unset ``guiEvent``."""
         self.canvas.callbacks.process(self.name, self)
-        self._guiEvent_deleted = True
-
-    @property
-    def guiEvent(self):
-        # After deprecation elapses: remove _guiEvent_deleted; make guiEvent a plain
-        # attribute set to None by _process.
-        if self._guiEvent_deleted:
-            _api.warn_deprecated(
-                "3.8", message="Accessing guiEvent outside of the original GUI event "
-                "handler is unsafe and deprecated since %(since)s; in the future, the "
-                "attribute will be set to None after quitting the event handler.  You "
-                "may separately record the value of the guiEvent attribute at your own "
-                "risk.")
-        return self._guiEvent
+        self.guiEvent = None
 
 
 class DrawEvent(Event):
@@ -1271,10 +1261,6 @@ class LocationEvent(Event):
         The keyboard modifiers currently being pressed (except for KeyEvent).
     """
 
-    # Fully delete all occurrences of lastevent after deprecation elapses.
-    _lastevent = None
-    lastevent = _api.deprecated("3.8")(
-        _api.classproperty(lambda cls: cls._lastevent))
     _last_axes_ref = None
 
     def __init__(self, name, canvas, x, y, guiEvent=None, *, modifiers=None):
@@ -1342,6 +1328,28 @@ class MouseEvent(LocationEvent):
         If this is unset, *name* is "scroll_event", and *step* is nonzero, then
         this will be set to "up" or "down" depending on the sign of *step*.
 
+    buttons : None or frozenset
+        For 'motion_notify_event', the mouse buttons currently being pressed
+        (a set of zero or more MouseButtons);
+        for other events, None.
+
+        .. note::
+           For 'motion_notify_event', this attribute is more accurate than
+           the ``button`` (singular) attribute, which is obtained from the last
+           'button_press_event' or 'button_release_event' that occurred within
+           the canvas (and thus 1. be wrong if the last change in mouse state
+           occurred when the canvas did not have focus, and 2. cannot report
+           when multiple buttons are pressed).
+
+           This attribute is not set for 'button_press_event' and
+           'button_release_event' because GUI toolkits are inconsistent as to
+           whether they report the button state *before* or *after* the
+           press/release occurred.
+
+        .. warning::
+           On macOS, the Tk backends only report a single button even if
+           multiple buttons are pressed.
+
     key : None or str
         The key pressed when the mouse event triggered, e.g. 'shift'.
         See `KeyEvent`.
@@ -1374,7 +1382,8 @@ class MouseEvent(LocationEvent):
     """
 
     def __init__(self, name, canvas, x, y, button=None, key=None,
-                 step=0, dblclick=False, guiEvent=None, *, modifiers=None):
+                 step=0, dblclick=False, guiEvent=None, *,
+                 buttons=None, modifiers=None):
         super().__init__(
             name, canvas, x, y, guiEvent=guiEvent, modifiers=modifiers)
         if button in MouseButton.__members__.values():
@@ -1385,6 +1394,16 @@ class MouseEvent(LocationEvent):
             elif step < 0:
                 button = "down"
         self.button = button
+        if name == "motion_notify_event":
+            self.buttons = frozenset(buttons if buttons is not None else [])
+        else:
+            # We don't support 'buttons' for button_press/release_event because
+            # toolkits are inconsistent as to whether they report the state
+            # before or after the event.
+            if buttons:
+                raise ValueError(
+                    "'buttons' is only supported for 'motion_notify_event'")
+            self.buttons = None
         self.key = key
         self.step = step
         self.dblclick = dblclick
@@ -1514,21 +1533,19 @@ def _mouse_handler(event):
                 # done with the internal _set_inaxes method which ensures that
                 # the xdata and ydata attributes are also correct.
                 try:
+                    canvas = last_axes.get_figure(root=True).canvas
                     leave_event = LocationEvent(
-                        "axes_leave_event", last_axes.figure.canvas,
+                        "axes_leave_event", canvas,
                         event.x, event.y, event.guiEvent,
                         modifiers=event.modifiers)
                     leave_event._set_inaxes(last_axes)
-                    last_axes.figure.canvas.callbacks.process(
-                        "axes_leave_event", leave_event)
+                    canvas.callbacks.process("axes_leave_event", leave_event)
                 except Exception:
                     pass  # The last canvas may already have been torn down.
             if event.inaxes is not None:
                 event.canvas.callbacks.process("axes_enter_event", event)
         LocationEvent._last_axes_ref = (
             weakref.ref(event.inaxes) if event.inaxes else None)
-        LocationEvent._lastevent = (
-            None if event.name == "figure_leave_event" else event)
 
 
 def _get_renderer(figure, print_method=None):
@@ -2103,12 +2120,6 @@ class FigureCanvasBase:
         if dpi == 'figure':
             dpi = getattr(self.figure, '_original_dpi', self.figure.dpi)
 
-        if kwargs.get("papertype") == 'auto':
-            # When deprecation elapses, remove backend_ps._get_papertype & its callers.
-            _api.warn_deprecated(
-                "3.8", name="papertype='auto'", addendum="Pass an explicit paper type, "
-                "'figure', or omit the *papertype* argument entirely.")
-
         # Remove the figure manager, if any, to avoid resizing the GUI widget.
         with (cbook._setattr_cm(self, manager=None),
               self._switch_canvas_and_return_print_method(format, backend)
@@ -2212,20 +2223,6 @@ class FigureCanvasBase:
             {ord(c): "_" for c in removed_chars})
         default_filetype = self.get_default_filetype()
         return f'{default_basename}.{default_filetype}'
-
-    @_api.deprecated("3.8")
-    def switch_backends(self, FigureCanvasClass):
-        """
-        Instantiate an instance of FigureCanvasClass
-
-        This is used for backend switching, e.g., to instantiate a
-        FigureCanvasPS from a FigureCanvasGTK.  Note, deep copying is
-        not done, so any changes to one of the instances (e.g., setting
-        figure size or line props), will be reflected in the other
-        """
-        newCanvas = FigureCanvasClass(self.figure)
-        newCanvas._is_saving = self._is_saving
-        return newCanvas
 
     def mpl_connect(self, s, func):
         """
@@ -2496,27 +2493,27 @@ def key_press_handler(event, canvas=None, toolbar=None):
         scale = ax.get_yscale()
         if scale == 'log':
             ax.set_yscale('linear')
-            ax.figure.canvas.draw_idle()
+            ax.get_figure(root=True).canvas.draw_idle()
         elif scale == 'linear':
             try:
                 ax.set_yscale('log')
             except ValueError as exc:
                 _log.warning(str(exc))
                 ax.set_yscale('linear')
-            ax.figure.canvas.draw_idle()
+            ax.get_figure(root=True).canvas.draw_idle()
     # toggle scaling of x-axes between 'log and 'linear' (default key 'k')
     elif event.key in rcParams['keymap.xscale']:
         scalex = ax.get_xscale()
         if scalex == 'log':
             ax.set_xscale('linear')
-            ax.figure.canvas.draw_idle()
+            ax.get_figure(root=True).canvas.draw_idle()
         elif scalex == 'linear':
             try:
                 ax.set_xscale('log')
             except ValueError as exc:
                 _log.warning(str(exc))
                 ax.set_xscale('linear')
-            ax.figure.canvas.draw_idle()
+            ax.get_figure(root=True).canvas.draw_idle()
 
 
 def button_press_handler(event, canvas=None, toolbar=None):
@@ -2820,6 +2817,8 @@ class NavigationToolbar2:
         ('Save', 'Save the figure', 'filesave', 'save_figure'),
       )
 
+    UNKNOWN_SAVED_STATUS = object()
+
     def __init__(self, canvas):
         self.canvas = canvas
         canvas.toolbar = self
@@ -3060,6 +3059,11 @@ class NavigationToolbar2:
 
     def drag_pan(self, event):
         """Callback for dragging in pan/zoom mode."""
+        if event.buttons != {self._pan_info.button}:
+            # Zoom ended while canvas not in focus (it did not receive a
+            # button_release_event); cancel it.
+            self.release_pan(None)  # release_pan doesn't actually use event.
+            return
         for ax in self._pan_info.axes:
             # Using the recorded button at the press is safer than the current
             # button, as multiple buttons can get pressed during motion.
@@ -3093,7 +3097,7 @@ class NavigationToolbar2:
         for a in self.canvas.figure.get_axes():
             a.set_navigate_mode(self.mode._navigate_mode)
 
-    _ZoomInfo = namedtuple("_ZoomInfo", "direction start_xy axes cid cbar")
+    _ZoomInfo = namedtuple("_ZoomInfo", "button start_xy axes cid cbar")
 
     def press_zoom(self, event):
         """Callback for mouse button press in zoom to rect mode."""
@@ -3118,11 +3122,17 @@ class NavigationToolbar2:
             cbar = None
 
         self._zoom_info = self._ZoomInfo(
-            direction="in" if event.button == 1 else "out",
-            start_xy=(event.x, event.y), axes=axes, cid=id_zoom, cbar=cbar)
+            button=event.button, start_xy=(event.x, event.y), axes=axes,
+            cid=id_zoom, cbar=cbar)
 
     def drag_zoom(self, event):
         """Callback for dragging in zoom mode."""
+        if event.buttons != {self._zoom_info.button}:
+            # Zoom ended while canvas not in focus (it did not receive a
+            # button_release_event); cancel it.
+            self._cleanup_post_zoom()
+            return
+
         start_xy = self._zoom_info.start_xy
         ax = self._zoom_info.axes[0]
         (x1, y1), (x2, y2) = np.clip(
@@ -3151,6 +3161,7 @@ class NavigationToolbar2:
         self.remove_rubberband()
 
         start_x, start_y = self._zoom_info.start_xy
+        direction = "in" if self._zoom_info.button == 1 else "out"
         key = event.key
         # Force the key on colorbars to ignore the zoom-cancel on the
         # short-axis side
@@ -3162,8 +3173,7 @@ class NavigationToolbar2:
         # "cancel" a zoom action by zooming by less than 5 pixels.
         if ((abs(event.x - start_x) < 5 and key != "y") or
                 (abs(event.y - start_y) < 5 and key != "x")):
-            self.canvas.draw_idle()
-            self._zoom_info = None
+            self._cleanup_post_zoom()
             return
 
         for i, ax in enumerate(self._zoom_info.axes):
@@ -3175,11 +3185,18 @@ class NavigationToolbar2:
                         for prev in self._zoom_info.axes[:i])
             ax._set_view_from_bbox(
                 (start_x, start_y, event.x, event.y),
-                self._zoom_info.direction, key, twinx, twiny)
+                direction, key, twinx, twiny)
 
+        self._cleanup_post_zoom()
+        self.push_current()
+
+    def _cleanup_post_zoom(self):
+        # We don't check the event button here, so that zooms can be cancelled
+        # by (pressing and) releasing another mouse button.
+        self.canvas.mpl_disconnect(self._zoom_info.cid)
+        self.remove_rubberband()
         self.canvas.draw_idle()
         self._zoom_info = None
-        self.push_current()
 
     def push_current(self):
         """Push the current view limits and position onto the stack."""
@@ -3234,7 +3251,26 @@ class NavigationToolbar2:
         return self.subplot_tool
 
     def save_figure(self, *args):
-        """Save the current figure."""
+        """
+        Save the current figure.
+
+        Backend implementations may choose to return
+        the absolute path of the saved file, if any, as
+        a string.
+
+        If no file is created then `None` is returned.
+
+        If the backend does not implement this functionality
+        then `NavigationToolbar2.UNKNOWN_SAVED_STATUS` is returned.
+
+        Returns
+        -------
+        str or `NavigationToolbar2.UNKNOWN_SAVED_STATUS` or `None`
+            The filepath of the saved figure.
+            Returns `None` if figure is not saved.
+            Returns `NavigationToolbar2.UNKNOWN_SAVED_STATUS` when
+            the backend does not provide the information.
+        """
         raise NotImplementedError
 
     def update(self):
@@ -3339,7 +3375,7 @@ class ToolContainerBase:
                 _api.warn_deprecated(
                     "3.9", message=f"Loading icon {tool.image!r} from the current "
                     "directory or from Matplotlib's image directory.  This behavior "
-                    "is deprecated since %(since)s and will be removed %(removal)s; "
+                    "is deprecated since %(since)s and will be removed in %(removal)s; "
                     "Tool.image should be set to a path relative to the Tool's source "
                     "file, or to an absolute path.")
                 return os.path.abspath(fname)
@@ -3419,7 +3455,7 @@ class ToolContainerBase:
 
         This hook must be implemented in each backend and contains the
         backend-specific code to remove an element from the toolbar; it is
-        called when `.ToolManager` emits a `tool_removed_event`.
+        called when `.ToolManager` emits a ``tool_removed_event``.
 
         Because some tools are present only on the `.ToolManager` but not on
         the `ToolContainer`, this method must be a no-op when called on a tool

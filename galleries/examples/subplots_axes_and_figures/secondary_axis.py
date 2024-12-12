@@ -17,7 +17,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import matplotlib.dates as mdates
-from matplotlib.ticker import AutoMinorLocator
 
 fig, ax = plt.subplots(layout='constrained')
 x = np.arange(0, 360, 1)
@@ -96,48 +95,47 @@ secax.set_xlabel('period [s]')
 plt.show()
 
 # %%
-# Sometime we want to relate the axes in a transform that is ad-hoc from
-# the data, and is derived empirically.  In that case we can set the
-# forward and inverse transforms functions to be linear interpolations from the
-# one data set to the other.
+# Sometime we want to relate the axes in a transform that is ad-hoc from the data, and
+# is derived empirically. Or, one axis could be a complicated nonlinear function of the
+# other. In these cases we can set the forward and inverse transform functions to be
+# linear interpolations from the one set of independent variables to the other.
 #
 # .. note::
 #
 #   In order to properly handle the data margins, the mapping functions
 #   (``forward`` and ``inverse`` in this example) need to be defined beyond the
-#   nominal plot limits.
-#
-#   In the specific case of the numpy linear interpolation, `numpy.interp`,
-#   this condition can be arbitrarily enforced by providing optional keyword
-#   arguments *left*, *right* such that values outside the data range are
-#   mapped well outside the plot limits.
+#   nominal plot limits. This condition can be enforced by extending the
+#   interpolation beyond the plotted values, both to the left and the right,
+#   see ``x1n`` and ``x2n`` below.
 
 fig, ax = plt.subplots(layout='constrained')
-xdata = np.arange(1, 11, 0.4)
-ydata = np.random.randn(len(xdata))
-ax.plot(xdata, ydata, label='Plotted data')
-
-xold = np.arange(0, 11, 0.2)
-# fake data set relating x coordinate to another data-derived coordinate.
-# xnew must be monotonic, so we sort...
-xnew = np.sort(10 * np.exp(-xold / 4) + np.random.randn(len(xold)) / 3)
-
-ax.plot(xold[3:], xnew[3:], label='Transform data')
-ax.set_xlabel('X [m]')
+x1_vals = np.arange(2, 11, 0.4)
+# second independent variable is a nonlinear function of the other.
+x2_vals = x1_vals ** 2
+ydata = 50.0 + 20 * np.random.randn(len(x1_vals))
+ax.plot(x1_vals, ydata, label='Plotted data')
+ax.plot(x1_vals, x2_vals, label=r'$x_2 = x_1^2$')
+ax.set_xlabel(r'$x_1$')
 ax.legend()
+
+# the forward and inverse functions must be defined on the complete visible axis range
+x1n = np.linspace(0, 20, 201)
+x2n = x1n**2
 
 
 def forward(x):
-    return np.interp(x, xold, xnew)
+    return np.interp(x, x1n, x2n)
 
 
 def inverse(x):
-    return np.interp(x, xnew, xold)
+    return np.interp(x, x2n, x1n)
 
-
+# use axvline to prove that the derived secondary axis is correctly plotted
+ax.axvline(np.sqrt(40), color="grey", ls="--")
+ax.axvline(10, color="grey", ls="--")
 secax = ax.secondary_xaxis('top', functions=(forward, inverse))
-secax.xaxis.set_minor_locator(AutoMinorLocator())
-secax.set_xlabel('$X_{other}$')
+secax.set_xticks([10, 20, 40, 60, 80, 100])
+secax.set_xlabel(r'$x_2$')
 
 plt.show()
 
@@ -211,3 +209,9 @@ plt.show()
 #
 #    - `matplotlib.axes.Axes.secondary_xaxis`
 #    - `matplotlib.axes.Axes.secondary_yaxis`
+#
+# .. tags::
+#
+#    component: axis
+#    plot-type: line
+#    level: beginner

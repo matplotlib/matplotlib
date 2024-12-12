@@ -1,0 +1,9 @@
+FontProperties initialization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`.FontProperties` initialization is limited to the two call patterns:
+
+- single positional parameter, interpreted as fontconfig pattern
+- only keyword parameters for setting individual properties
+
+All other previously supported call patterns are deprecated.

@@ -49,3 +49,10 @@ axs["angle"].set_title("Angle Spectrum")
 axs["angle"].angle_spectrum(s, Fs=Fs, color='C2')
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    domain: signal-processing
+#    plot-type: line
+#    level: beginner

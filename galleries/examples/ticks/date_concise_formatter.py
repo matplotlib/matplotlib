@@ -1,9 +1,9 @@
 """
 .. _date_concise_formatter:
 
-================================================
-Formatting date ticks using ConciseDateFormatter
-================================================
+============================================
+Format date ticks using ConciseDateFormatter
+============================================
 
 Finding good tick values and formatting the ticks for an axis that
 has date data is often a challenge.  `~.dates.ConciseDateFormatter` is

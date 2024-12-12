@@ -1,7 +1,7 @@
 """
-===========
-Poly Editor
-===========
+==============
+Polygon editor
+==============
 
 This is an example to show how to build cross-GUI applications using
 Matplotlib event handling to interact with objects on the canvas.

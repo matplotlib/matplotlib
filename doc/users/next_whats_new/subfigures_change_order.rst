@@ -1,3 +1,9 @@
+Subfigures no longer provisional
+--------------------------------
+
+The API on `.Figure.subfigures` and `.SubFigure` are now considered stable.
+
+
 Subfigures are now added in row-major order
 -------------------------------------------
 

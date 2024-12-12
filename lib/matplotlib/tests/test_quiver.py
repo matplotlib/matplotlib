@@ -6,6 +6,7 @@ import pytest
 
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal
 
 
 def draw_quiver(ax, **kwargs):
@@ -333,3 +334,53 @@ def test_quiver_setuvc_numbers():
 
     q = ax.quiver(X, Y, U, V)
     q.set_UVC(0, 1)
+
+
+def draw_quiverkey_zorder_argument(fig, zorder=None):
+    """Draw Quiver and QuiverKey using zorder argument"""
+    x = np.arange(1, 6, 1)
+    y = np.arange(1, 6, 1)
+    X, Y = np.meshgrid(x, y)
+    U, V = 2, 2
+
+    ax = fig.subplots()
+    q = ax.quiver(X, Y, U, V, pivot='middle')
+    ax.set_xlim(0.5, 5.5)
+    ax.set_ylim(0.5, 5.5)
+    if zorder is None:
+        ax.quiverkey(q, 4, 4, 25, coordinates='data',
+                     label='U', color='blue')
+        ax.quiverkey(q, 5.5, 2, 20, coordinates='data',
+                     label='V', color='blue', angle=90)
+    else:
+        ax.quiverkey(q, 4, 4, 25, coordinates='data',
+                     label='U', color='blue', zorder=zorder)
+        ax.quiverkey(q, 5.5, 2, 20, coordinates='data',
+                     label='V', color='blue', angle=90, zorder=zorder)
+
+
+def draw_quiverkey_setzorder(fig, zorder=None):
+    """Draw Quiver and QuiverKey using set_zorder"""
+    x = np.arange(1, 6, 1)
+    y = np.arange(1, 6, 1)
+    X, Y = np.meshgrid(x, y)
+    U, V = 2, 2
+
+    ax = fig.subplots()
+    q = ax.quiver(X, Y, U, V, pivot='middle')
+    ax.set_xlim(0.5, 5.5)
+    ax.set_ylim(0.5, 5.5)
+    qk1 = ax.quiverkey(q, 4, 4, 25, coordinates='data',
+                       label='U', color='blue')
+    qk2 = ax.quiverkey(q, 5.5, 2, 20, coordinates='data',
+                       label='V', color='blue', angle=90)
+    if zorder is not None:
+        qk1.set_zorder(zorder)
+        qk2.set_zorder(zorder)
+
+
+@pytest.mark.parametrize('zorder', [0, 2, 5, None])
+@check_figures_equal(extensions=['png'])
+def test_quiverkey_zorder(fig_test, fig_ref, zorder):
+    draw_quiverkey_zorder_argument(fig_test, zorder=zorder)
+    draw_quiverkey_setzorder(fig_ref, zorder=zorder)

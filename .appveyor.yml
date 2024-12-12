@@ -17,7 +17,7 @@ skip_commits:
 
 clone_depth: 50
 
-image: Visual Studio 2017
+image: Visual Studio 2019
 
 environment:
 
@@ -54,6 +54,7 @@ init:
   - micromamba shell init --shell cmd.exe
   - micromamba config set always_yes true
   - micromamba config prepend channels conda-forge
+  - micromamba info
 
 install:
   - micromamba env create -f environment.yml python=%PYTHON_VERSION% pywin32
@@ -90,7 +91,7 @@ artifacts:
 
 on_finish:
   - micromamba install codecov
-  - codecov -e PYTHON_VERSION PLATFORM -n "$PYTHON_VERSION Windows"
+  - codecov -e PYTHON_VERSION PLATFORM -n "%PYTHON_VERSION% Windows"
 
 on_failure:
   # Generate a html for visual tests

@@ -33,6 +33,8 @@ from .text import Text
 from .transforms import Bbox
 from .path import Path
 
+from .cbook import _is_pandas_dataframe
+
 
 class Cell(Rectangle):
     """
@@ -103,7 +105,6 @@ substring of 'BRTL'
                           text=text, fontproperties=fontproperties,
                           horizontalalignment=loc, verticalalignment='center')
 
-    @_api.rename_parameter("3.8", "trans", "t")
     def set_transform(self, t):
         super().set_transform(t)
         # the text does not get the transform!
@@ -176,7 +177,7 @@ substring of 'BRTL'
         l, b, w, h = self.get_text_bounds(renderer)
         return w * (1.0 + (2.0 * self.PAD))
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def set_text_props(self, **kwargs):
         """
         Update the text properties.
@@ -303,7 +304,7 @@ class Table(Artist):
                     "Unrecognized location {!r}. Valid locations are\n\t{}"
                     .format(loc, '\n\t'.join(self.codes)))
             loc = self.codes[loc]
-        self.set_figure(ax.figure)
+        self.set_figure(ax.get_figure(root=False))
         self._axes = ax
         self._loc = loc
         self._bbox = bbox
@@ -354,7 +355,7 @@ class Table(Artist):
         except Exception as err:
             raise KeyError('Only tuples length 2 are accepted as '
                            'coordinates') from err
-        cell.set_figure(self.figure)
+        cell.set_figure(self.get_figure(root=False))
         cell.set_transform(self.get_transform())
         cell.set_clip_on(False)
         self._cells[row, col] = cell
@@ -389,7 +390,7 @@ class Table(Artist):
         self.stale = True
 
     def _approx_text_height(self):
-        return (self.FONTSIZE / 72.0 * self.figure.dpi /
+        return (self.FONTSIZE / 72.0 * self.get_figure(root=True).dpi /
                 self._axes.bbox.height * 1.2)
 
     @allow_rasterization
@@ -399,7 +400,7 @@ class Table(Artist):
         # Need a renderer to do hit tests on mouseevent; assume the last one
         # will do
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         if renderer is None:
             raise RuntimeError('No renderer defined')
 
@@ -432,7 +433,7 @@ class Table(Artist):
             return False, {}
         # TODO: Return index of the cell containing the cursor so that the user
         # doesn't have to bind to each one individually.
-        renderer = self.figure._get_renderer()
+        renderer = self.get_figure(root=True)._get_renderer()
         if renderer is not None:
             boxes = [cell.get_window_extent(renderer)
                      for (row, col), cell in self._cells.items()
@@ -449,7 +450,7 @@ class Table(Artist):
     def get_window_extent(self, renderer=None):
         # docstring inherited
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         self._update_positions(renderer)
         boxes = [cell.get_window_extent(renderer)
                  for cell in self._cells.values()]
@@ -497,11 +498,7 @@ class Table(Artist):
         """
         col1d = np.atleast_1d(col)
         if not np.issubdtype(col1d.dtype, np.integer):
-            _api.warn_deprecated("3.8", name="col",
-                                 message="%(name)r must be an int or sequence of ints. "
-                                 "Passing other types is deprecated since %(since)s "
-                                 "and will be removed %(removal)s.")
-            return
+            raise TypeError("col must be an int or sequence of ints.")
         for cell in col1d:
             self._autoColumns.append(cell)
 
@@ -650,7 +647,7 @@ class Table(Artist):
         return self._cells
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def table(ax,
           cellText=None, cellColours=None,
           cellLoc='right', colWidths=None,
@@ -675,7 +672,7 @@ def table(ax,
 
     Parameters
     ----------
-    cellText : 2D list of str, optional
+    cellText : 2D list of str or pandas.DataFrame, optional
         The texts to place into the table cells.
 
         *Note*: Line breaks in the strings are currently not accounted for and
@@ -744,6 +741,21 @@ def table(ax,
         rows = len(cellColours)
         cols = len(cellColours[0])
         cellText = [[''] * cols] * rows
+
+    # Check if we have a Pandas DataFrame
+    if _is_pandas_dataframe(cellText):
+        # if rowLabels/colLabels are empty, use DataFrame entries.
+        # Otherwise, throw an error.
+        if rowLabels is None:
+            rowLabels = cellText.index
+        else:
+            raise ValueError("rowLabels cannot be used alongside Pandas DataFrame")
+        if colLabels is None:
+            colLabels = cellText.columns
+        else:
+            raise ValueError("colLabels cannot be used alongside Pandas DataFrame")
+        # Update cellText with only values
+        cellText = cellText.values
 
     rows = len(cellText)
     cols = len(cellText[0])

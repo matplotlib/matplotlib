@@ -52,6 +52,8 @@ To build the documentation you will need to
 particular the :ref:`additional dependencies <doc-dependencies>` required to
 build the documentation.
 
+.. _build_docs:
+
 Build the docs
 --------------
 
@@ -1105,6 +1107,13 @@ library features are used to implement the demonstrated visualization technique.
 minimal amount of code necessary to showcase the feature. The lack of extraneous code
 makes it easier for the reader to map which parts of code correspond to which parts of
 the plot.
+
+Figure size
+^^^^^^^^^^^
+When customizing figure sizes, we aim to avoid downscaling in rendered HTML docs.
+The current width limit (induced by *pydata-sphinx-theme*) is 720px, i.e.
+``figsize=(7.2, ...)``, or 896px if the page does not have subsections and
+thus does not have the "On this page" navigation on the right-hand side.
 
 Miscellaneous
 =============

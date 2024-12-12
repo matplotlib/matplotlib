@@ -60,3 +60,9 @@ plt.show()
 #    in this example:
 #
 #    - `matplotlib.axes.Axes.errorbar` / `matplotlib.pyplot.errorbar`
+#
+# .. tags::
+#
+#    component: error
+#    plot-type: errorbar
+#    level: beginner

@@ -142,6 +142,7 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
         if mpl.rcParams['savefig.directory']:
             mpl.rcParams['savefig.directory'] = os.path.dirname(filename)
         self.canvas.figure.savefig(filename)
+        return filename
 
 
 class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):

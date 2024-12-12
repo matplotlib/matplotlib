@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-import sys
 import itertools
+import pathlib
 import pickle
+import sys
 
 from typing import Any
 from unittest.mock import patch, Mock
@@ -180,6 +181,15 @@ class Test_boxplot_stats:
         assert_array_almost_equal(bstats_true[0]['fliers'], [])
 
 
+class Hashable:
+    def dummy(self): pass
+
+
+class Unhashable:
+    __hash__ = None  # type: ignore[assignment]
+    def dummy(self): pass
+
+
 class Test_callback_registry:
     def setup_method(self):
         self.signal = 'test'
@@ -195,20 +205,20 @@ class Test_callback_registry:
         return self.callbacks.disconnect(cid)
 
     def count(self):
-        count1 = len(self.callbacks._func_cid_map.get(self.signal, []))
+        count1 = sum(s == self.signal for s, p in self.callbacks._func_cid_map)
         count2 = len(self.callbacks.callbacks.get(self.signal))
         assert count1 == count2
         return count1
 
     def is_empty(self):
         np.testing.break_cycles()
-        assert self.callbacks._func_cid_map == {}
+        assert [*self.callbacks._func_cid_map] == []
         assert self.callbacks.callbacks == {}
         assert self.callbacks._pickled_cids == set()
 
     def is_not_empty(self):
         np.testing.break_cycles()
-        assert self.callbacks._func_cid_map != {}
+        assert [*self.callbacks._func_cid_map] != []
         assert self.callbacks.callbacks != {}
 
     def test_cid_restore(self):
@@ -219,12 +229,13 @@ class Test_callback_registry:
         assert cid == 1
 
     @pytest.mark.parametrize('pickle', [True, False])
-    def test_callback_complete(self, pickle):
+    @pytest.mark.parametrize('cls', [Hashable, Unhashable])
+    def test_callback_complete(self, pickle, cls):
         # ensure we start with an empty registry
         self.is_empty()
 
         # create a class for testing
-        mini_me = Test_callback_registry()
+        mini_me = cls()
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy, pickle)
@@ -235,7 +246,7 @@ class Test_callback_registry:
         cid2 = self.connect(self.signal, mini_me.dummy, pickle)
         assert cid1 == cid2
         self.is_not_empty()
-        assert len(self.callbacks._func_cid_map) == 1
+        assert len([*self.callbacks._func_cid_map]) == 1
         assert len(self.callbacks.callbacks) == 1
 
         del mini_me
@@ -244,12 +255,13 @@ class Test_callback_registry:
         self.is_empty()
 
     @pytest.mark.parametrize('pickle', [True, False])
-    def test_callback_disconnect(self, pickle):
+    @pytest.mark.parametrize('cls', [Hashable, Unhashable])
+    def test_callback_disconnect(self, pickle, cls):
         # ensure we start with an empty registry
         self.is_empty()
 
         # create a class for testing
-        mini_me = Test_callback_registry()
+        mini_me = cls()
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy, pickle)
@@ -262,12 +274,13 @@ class Test_callback_registry:
         self.is_empty()
 
     @pytest.mark.parametrize('pickle', [True, False])
-    def test_callback_wrong_disconnect(self, pickle):
+    @pytest.mark.parametrize('cls', [Hashable, Unhashable])
+    def test_callback_wrong_disconnect(self, pickle, cls):
         # ensure we start with an empty registry
         self.is_empty()
 
         # create a class for testing
-        mini_me = Test_callback_registry()
+        mini_me = cls()
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy, pickle)
@@ -280,20 +293,21 @@ class Test_callback_registry:
         self.is_not_empty()
 
     @pytest.mark.parametrize('pickle', [True, False])
-    def test_registration_on_non_empty_registry(self, pickle):
+    @pytest.mark.parametrize('cls', [Hashable, Unhashable])
+    def test_registration_on_non_empty_registry(self, pickle, cls):
         # ensure we start with an empty registry
         self.is_empty()
 
         # setup the registry with a callback
-        mini_me = Test_callback_registry()
+        mini_me = cls()
         self.connect(self.signal, mini_me.dummy, pickle)
 
         # Add another callback
-        mini_me2 = Test_callback_registry()
+        mini_me2 = cls()
         self.connect(self.signal, mini_me2.dummy, pickle)
 
         # Remove and add the second callback
-        mini_me2 = Test_callback_registry()
+        mini_me2 = cls()
         self.connect(self.signal, mini_me2.dummy, pickle)
 
         # We still have 2 references
@@ -304,9 +318,6 @@ class Test_callback_registry:
         mini_me = None
         mini_me2 = None
         self.is_empty()
-
-    def dummy(self):
-        pass
 
     def test_pickling(self):
         assert hasattr(pickle.loads(pickle.dumps(cbook.CallbackRegistry())),
@@ -452,6 +463,23 @@ def test_sanitize_sequence():
     assert k == cbook.sanitize_sequence(k)
 
 
+def test_resize_sequence():
+    a_list = [1, 2, 3]
+    arr = np.array([1, 2, 3])
+
+    # already same length: passthrough
+    assert cbook._resize_sequence(a_list, 3) is a_list
+    assert cbook._resize_sequence(arr, 3) is arr
+
+    # shortening
+    assert cbook._resize_sequence(a_list, 2) == [1, 2]
+    assert_array_equal(cbook._resize_sequence(arr, 2), [1, 2])
+
+    # extending
+    assert cbook._resize_sequence(a_list, 5) == [1, 2, 3, 1, 2]
+    assert_array_equal(cbook._resize_sequence(arr, 5), [1, 2, 3, 1, 2])
+
+
 fail_mapping: tuple[tuple[dict, dict], ...] = (
     ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['b']}}),
     ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
@@ -476,6 +504,22 @@ def test_normalize_kwargs_pass(inp, expected, kwargs_to_norm):
     with _api.suppress_matplotlib_deprecation_warning():
         # No other warning should be emitted.
         assert expected == cbook.normalize_kwargs(inp, **kwargs_to_norm)
+
+
+def test_warn_external(recwarn):
+    _api.warn_external("oops")
+    assert len(recwarn) == 1
+    if sys.version_info[:2] >= (3, 12):
+        # With Python 3.12, we let Python figure out the stacklevel using the
+        # `skip_file_prefixes` argument, which cannot exempt tests, so just confirm
+        # the filename is not in the package.
+        basedir = pathlib.Path(__file__).parents[2]
+        assert not recwarn[0].filename.startswith((str(basedir / 'matplotlib'),
+                                                   str(basedir / 'mpl_toolkits')))
+    else:
+        # On older Python versions, we manually calculated the stacklevel, and had an
+        # exception for our own tests.
+        assert recwarn[0].filename == __file__
 
 
 def test_warn_external_frame_embedded_python():
@@ -782,12 +826,6 @@ def test_safe_first_element_pandas_series(pd):
     s = pd.Series(range(5), index=range(10, 15))
     actual = cbook._safe_first_finite(s)
     assert actual == 0
-
-
-def test_warn_external(recwarn):
-    _api.warn_external("oops")
-    assert len(recwarn) == 1
-    assert recwarn[0].filename == __file__
 
 
 def test_array_patch_perimeters():

@@ -1,7 +1,6 @@
 """
-Matplotlib includes a framework for arbitrary geometric
-transformations that is used determine the final position of all
-elements drawn on the canvas.
+Matplotlib includes a framework for arbitrary geometric transformations that is used to
+determine the final position of all elements drawn on the canvas.
 
 Transforms are composed into trees of `TransformNode` objects
 whose actual value depends on their children.  When the contents of
@@ -11,10 +10,10 @@ reflect those changes.  This invalidation/caching approach prevents
 unnecessary recomputations of transforms, and contributes to better
 interactive performance.
 
-For example, here is a graph of the transform tree used to plot data
-to the graph:
+For example, here is a graph of the transform tree used to plot data to the figure:
 
-.. image:: ../_static/transforms.png
+.. graphviz:: /api/transforms.dot
+    :alt: Diagram of transform tree from data to figure coordinates.
 
 The framework can be used for both affine and non-affine
 transformations.  However, for speed, we want to use the backend
@@ -93,9 +92,6 @@ class TransformNode:
     # Invalidation may affect only the affine part.  If the
     # invalidation was "affine-only", the _invalid member is set to
     # INVALID_AFFINE_ONLY
-    INVALID_NON_AFFINE = _api.deprecated("3.8")(_api.classproperty(lambda cls: 1))
-    INVALID_AFFINE = _api.deprecated("3.8")(_api.classproperty(lambda cls: 2))
-    INVALID = _api.deprecated("3.8")(_api.classproperty(lambda cls: 3))
 
     # Possible values for the _invalid attribute.
     _VALID, _INVALID_AFFINE_ONLY, _INVALID_FULL = range(3)
@@ -480,7 +476,7 @@ class BboxBase(TransformNode):
              'NW': (0, 1.0),
              'W':  (0, 0.5)}
 
-    def anchored(self, c, container=None):
+    def anchored(self, c, container):
         """
         Return a copy of the `Bbox` anchored to *c* within *container*.
 
@@ -490,19 +486,13 @@ class BboxBase(TransformNode):
             Either an (*x*, *y*) pair of relative coordinates (0 is left or
             bottom, 1 is right or top), 'C' (center), or a cardinal direction
             ('SW', southwest, is bottom left, etc.).
-        container : `Bbox`, optional
+        container : `Bbox`
             The box within which the `Bbox` is positioned.
 
         See Also
         --------
         .Axes.set_anchor
         """
-        if container is None:
-            _api.warn_deprecated(
-                "3.8", message="Calling anchored() with no container bbox "
-                "returns a frozen copy of the original bbox and is deprecated "
-                "since %(since)s.")
-            container = self
         l, b, w, h = container.bounds
         L, B, W, H = self.bounds
         cx, cy = self.coefs[c] if isinstance(c, str) else c
@@ -606,7 +596,6 @@ class BboxBase(TransformNode):
         a = np.array([[-deltaw, -deltah], [deltaw, deltah]])
         return Bbox(self._points + a)
 
-    @_api.rename_parameter("3.8", "p", "w_pad")
     def padded(self, w_pad, h_pad=None):
         """
         Construct a `Bbox` by padding this one on all four sides.
@@ -1799,7 +1788,6 @@ class AffineBase(Transform):
         raise NotImplementedError('Affine subclasses should override this '
                                   'method.')
 
-    @_api.rename_parameter("3.8", "points", "values")
     def transform_non_affine(self, values):
         # docstring inherited
         return values
@@ -1857,7 +1845,6 @@ class Affine2DBase(AffineBase):
         mtx = self.get_matrix()
         return tuple(mtx[:2].swapaxes(0, 1).flat)
 
-    @_api.rename_parameter("3.8", "points", "values")
     def transform_affine(self, values):
         mtx = self.get_matrix()
         if isinstance(values, np.ma.MaskedArray):
@@ -1868,7 +1855,6 @@ class Affine2DBase(AffineBase):
     if DEBUG:
         _transform_affine = transform_affine
 
-        @_api.rename_parameter("3.8", "points", "values")
         def transform_affine(self, values):
             # docstring inherited
             # The major speed trap here is just converting to the
@@ -2131,17 +2117,14 @@ class IdentityTransform(Affine2DBase):
         # docstring inherited
         return self._mtx
 
-    @_api.rename_parameter("3.8", "points", "values")
     def transform(self, values):
         # docstring inherited
         return np.asanyarray(values)
 
-    @_api.rename_parameter("3.8", "points", "values")
     def transform_affine(self, values):
         # docstring inherited
         return np.asanyarray(values)
 
-    @_api.rename_parameter("3.8", "points", "values")
     def transform_non_affine(self, values):
         # docstring inherited
         return np.asanyarray(values)
@@ -2230,7 +2213,6 @@ class BlendedGenericTransform(_BlendedMixin, Transform):
         # docstring inherited
         return blended_transform_factory(self._x.frozen(), self._y.frozen())
 
-    @_api.rename_parameter("3.8", "points", "values")
     def transform_non_affine(self, values):
         # docstring inherited
         if self._x.is_affine and self._y.is_affine:
@@ -2423,12 +2405,10 @@ class CompositeGenericTransform(Transform):
 
     __str__ = _make_str_method("_a", "_b")
 
-    @_api.rename_parameter("3.8", "points", "values")
     def transform_affine(self, values):
         # docstring inherited
         return self.get_affine().transform(values)
 
-    @_api.rename_parameter("3.8", "points", "values")
     def transform_non_affine(self, values):
         # docstring inherited
         if self._a.is_affine and self._b.is_affine:
@@ -2704,6 +2684,25 @@ class ScaledTranslation(Affine2DBase):
         return self._mtx
 
 
+class _ScaledRotation(Affine2DBase):
+    """
+    A transformation that applies rotation by *theta*, after transform by *trans_shift*.
+    """
+    def __init__(self, theta, trans_shift):
+        super().__init__()
+        self._theta = theta
+        self._trans_shift = trans_shift
+        self._mtx = None
+
+    def get_matrix(self):
+        if self._invalid:
+            transformed_coords = self._trans_shift.transform([[self._theta, 0]])[0]
+            adjusted_theta = transformed_coords[0]
+            rotation = Affine2D().rotate(adjusted_theta)
+            self._mtx = rotation.get_matrix()
+        return self._mtx
+
+
 class AffineDeltaTransform(Affine2DBase):
     r"""
     A transform wrapper for transforming displacements between pairs of points.
@@ -2721,9 +2720,12 @@ class AffineDeltaTransform(Affine2DBase):
     This class is experimental as of 3.3, and the API may change.
     """
 
+    pass_through = True
+
     def __init__(self, transform, **kwargs):
         super().__init__(**kwargs)
         self._base_transform = transform
+        self.set_children(transform)
 
     __str__ = _make_str_method("_base_transform")
 

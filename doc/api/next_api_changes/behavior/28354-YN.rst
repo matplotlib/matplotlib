@@ -1,0 +1,4 @@
+Add zorder option in QuiverKey
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``zorder`` can be used as a keyword argument to `.QuiverKey`. Previously,
+that parameter did not have any effect because the zorder was hard coded.

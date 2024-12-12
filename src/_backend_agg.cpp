@@ -29,6 +29,16 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi)
       lastclippath(NULL),
       _fill_color(agg::rgba(1, 1, 1, 0))
 {
+    if (dpi <= 0.0) {
+        throw std::range_error("dpi must be positive");
+    }
+
+    if (width >= 1 << 23 || height >= 1 << 23) {
+        throw std::range_error(
+            "Image size of " + std::to_string(width) + "x" + std::to_string(height) +
+            " pixels is too large. It must be less than 2^23 in each direction.");
+    }
+
     unsigned stride(width * 4);
 
     pixBuffer = new agg::int8u[NUMBYTES];

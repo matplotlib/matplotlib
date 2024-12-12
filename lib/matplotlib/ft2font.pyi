@@ -1,46 +1,71 @@
-from typing import BinaryIO, Literal, TypedDict, overload
+from enum import Enum, Flag
+import sys
+from typing import BinaryIO, Literal, TypedDict, final, overload
+from typing_extensions import Buffer  # < Py 3.12
 
 import numpy as np
 from numpy.typing import NDArray
 
 __freetype_build_type__: str
 __freetype_version__: str
-BOLD: int
-EXTERNAL_STREAM: int
-FAST_GLYPHS: int
-FIXED_SIZES: int
-FIXED_WIDTH: int
-GLYPH_NAMES: int
-HORIZONTAL: int
-ITALIC: int
-KERNING: int
-KERNING_DEFAULT: int
-KERNING_UNFITTED: int
-KERNING_UNSCALED: int
-LOAD_CROP_BITMAP: int
-LOAD_DEFAULT: int
-LOAD_FORCE_AUTOHINT: int
-LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH: int
-LOAD_IGNORE_TRANSFORM: int
-LOAD_LINEAR_DESIGN: int
-LOAD_MONOCHROME: int
-LOAD_NO_AUTOHINT: int
-LOAD_NO_BITMAP: int
-LOAD_NO_HINTING: int
-LOAD_NO_RECURSE: int
-LOAD_NO_SCALE: int
-LOAD_PEDANTIC: int
-LOAD_RENDER: int
-LOAD_TARGET_LCD: int
-LOAD_TARGET_LCD_V: int
-LOAD_TARGET_LIGHT: int
-LOAD_TARGET_MONO: int
-LOAD_TARGET_NORMAL: int
-LOAD_VERTICAL_LAYOUT: int
-MULTIPLE_MASTERS: int
-SCALABLE: int
-SFNT: int
-VERTICAL: int
+
+class FaceFlags(Flag):
+    SCALABLE: int
+    FIXED_SIZES: int
+    FIXED_WIDTH: int
+    SFNT: int
+    HORIZONTAL: int
+    VERTICAL: int
+    KERNING: int
+    FAST_GLYPHS: int
+    MULTIPLE_MASTERS: int
+    GLYPH_NAMES: int
+    EXTERNAL_STREAM: int
+    HINTER: int
+    CID_KEYED: int
+    TRICKY: int
+    COLOR: int
+    # VARIATION: int  # FT 2.9
+    # SVG: int  # FT 2.12
+    # SBIX: int  # FT 2.12
+    # SBIX_OVERLAY: int  # FT 2.12
+
+class Kerning(Enum):
+    DEFAULT: int
+    UNFITTED: int
+    UNSCALED: int
+
+class LoadFlags(Flag):
+    DEFAULT: int
+    NO_SCALE: int
+    NO_HINTING: int
+    RENDER: int
+    NO_BITMAP: int
+    VERTICAL_LAYOUT: int
+    FORCE_AUTOHINT: int
+    CROP_BITMAP: int
+    PEDANTIC: int
+    IGNORE_GLOBAL_ADVANCE_WIDTH: int
+    NO_RECURSE: int
+    IGNORE_TRANSFORM: int
+    MONOCHROME: int
+    LINEAR_DESIGN: int
+    NO_AUTOHINT: int
+    COLOR: int
+    COMPUTE_METRICS: int  # FT 2.6.1
+    # BITMAP_METRICS_ONLY: int  # FT 2.7.1
+    # NO_SVG: int  # FT 2.13.1
+    # The following should be unique, but the above can be OR'd together.
+    TARGET_NORMAL: int
+    TARGET_LIGHT: int
+    TARGET_MONO: int
+    TARGET_LCD: int
+    TARGET_LCD_V: int
+
+class StyleFlags(Flag):
+    NORMAL: int
+    ITALIC: int
+    BOLD: int
 
 class _SfntHeadDict(TypedDict):
     version: tuple[int, int]
@@ -158,28 +183,8 @@ class _SfntPcltDict(TypedDict):
     widthType: int
     serifStyle: int
 
-class FT2Font:
-    ascender: int
-    bbox: tuple[int, int, int, int]
-    descender: int
-    face_flags: int
-    family_name: str
-    fname: str
-    height: int
-    max_advance_height: int
-    max_advance_width: int
-    num_charmaps: int
-    num_faces: int
-    num_fixed_sizes: int
-    num_glyphs: int
-    postscript_name: str
-    scalable: bool
-    style_flags: int
-    style_name: str
-    underline_position: int
-    underline_thickness: int
-    units_per_EM: int
-
+@final
+class FT2Font(Buffer):
     def __init__(
         self,
         filename: str | BinaryIO,
@@ -188,10 +193,12 @@ class FT2Font:
         _fallback_list: list[FT2Font] | None = ...,
         _kerning_factor: int = ...
     ) -> None: ...
+    if sys.version_info[:2] >= (3, 12):
+        def __buffer__(self, flags: int) -> memoryview: ...
     def _get_fontmap(self, string: str) -> dict[str, FT2Font]: ...
     def clear(self) -> None: ...
     def draw_glyph_to_bitmap(
-        self, image: FT2Image, x: float, y: float, glyph: Glyph, antialiased: bool = ...
+        self, image: FT2Image, x: int, y: int, glyph: Glyph, antialiased: bool = ...
     ) -> None: ...
     def draw_glyphs_to_bitmap(self, antialiased: bool = ...) -> None: ...
     def get_bitmap_offset(self) -> tuple[int, int]: ...
@@ -200,7 +207,7 @@ class FT2Font:
     def get_descent(self) -> int: ...
     def get_glyph_name(self, index: int) -> str: ...
     def get_image(self) -> NDArray[np.uint8]: ...
-    def get_kerning(self, left: int, right: int, mode: int) -> int: ...
+    def get_kerning(self, left: int, right: int, mode: Kerning) -> int: ...
     def get_name_index(self, name: str) -> int: ...
     def get_num_glyphs(self) -> int: ...
     def get_path(self) -> tuple[NDArray[np.float64], NDArray[np.int8]]: ...
@@ -223,31 +230,81 @@ class FT2Font:
     @overload
     def get_sfnt_table(self, name: Literal["pclt"]) -> _SfntPcltDict | None: ...
     def get_width_height(self) -> tuple[int, int]: ...
-    def get_xys(self, antialiased: bool = ...) -> NDArray[np.float64]: ...
-    def load_char(self, charcode: int, flags: int = ...) -> Glyph: ...
-    def load_glyph(self, glyphindex: int, flags: int = ...) -> Glyph: ...
+    def load_char(self, charcode: int, flags: LoadFlags = ...) -> Glyph: ...
+    def load_glyph(self, glyphindex: int, flags: LoadFlags = ...) -> Glyph: ...
     def select_charmap(self, i: int) -> None: ...
     def set_charmap(self, i: int) -> None: ...
     def set_size(self, ptsize: float, dpi: float) -> None: ...
     def set_text(
-        self, string: str, angle: float = ..., flags: int = ...
+        self, string: str, angle: float = ..., flags: LoadFlags = ...
     ) -> NDArray[np.float64]: ...
+    @property
+    def ascender(self) -> int: ...
+    @property
+    def bbox(self) -> tuple[int, int, int, int]: ...
+    @property
+    def descender(self) -> int: ...
+    @property
+    def face_flags(self) -> FaceFlags: ...
+    @property
+    def family_name(self) -> str: ...
+    @property
+    def fname(self) -> str: ...
+    @property
+    def height(self) -> int: ...
+    @property
+    def max_advance_height(self) -> int: ...
+    @property
+    def max_advance_width(self) -> int: ...
+    @property
+    def num_charmaps(self) -> int: ...
+    @property
+    def num_faces(self) -> int: ...
+    @property
+    def num_fixed_sizes(self) -> int: ...
+    @property
+    def num_glyphs(self) -> int: ...
+    @property
+    def postscript_name(self) -> str: ...
+    @property
+    def scalable(self) -> bool: ...
+    @property
+    def style_flags(self) -> StyleFlags: ...
+    @property
+    def style_name(self) -> str: ...
+    @property
+    def underline_position(self) -> int: ...
+    @property
+    def underline_thickness(self) -> int: ...
+    @property
+    def units_per_EM(self) -> int: ...
 
-class FT2Image:  # TODO: When updating mypy>=1.4, subclass from Buffer.
-    def __init__(self, width: float, height: float) -> None: ...
-    def draw_rect(self, x0: float, y0: float, x1: float, y1: float) -> None: ...
-    def draw_rect_filled(self, x0: float, y0: float, x1: float, y1: float) -> None: ...
+@final
+class FT2Image(Buffer):
+    def __init__(self, width: int, height: int) -> None: ...
+    def draw_rect_filled(self, x0: int, y0: int, x1: int, y1: int) -> None: ...
+    if sys.version_info[:2] >= (3, 12):
+        def __buffer__(self, flags: int) -> memoryview: ...
 
+@final
 class Glyph:
-    width: int
-    height: int
-    horiBearingX: int
-    horiBearingY: int
-    horiAdvance: int
-    linearHoriAdvance: int
-    vertBearingX: int
-    vertBearingY: int
-    vertAdvance: int
-
+    @property
+    def width(self) -> int: ...
+    @property
+    def height(self) -> int: ...
+    @property
+    def horiBearingX(self) -> int: ...
+    @property
+    def horiBearingY(self) -> int: ...
+    @property
+    def horiAdvance(self) -> int: ...
+    @property
+    def linearHoriAdvance(self) -> int: ...
+    @property
+    def vertBearingX(self) -> int: ...
+    @property
+    def vertBearingY(self) -> int: ...
+    @property
+    def vertAdvance(self) -> int: ...
     @property
     def bbox(self) -> tuple[int, int, int, int]: ...

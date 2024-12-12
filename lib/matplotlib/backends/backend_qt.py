@@ -329,6 +329,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             return
         MouseEvent("motion_notify_event", self,
                    *self.mouseEventCoords(event),
+                   buttons=self._mpl_buttons(event.buttons()),
                    modifiers=self._mpl_modifiers(),
                    guiEvent=event)._process()
 
@@ -393,8 +394,15 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         w, h = self.get_width_height()
         return QtCore.QSize(w, h)
 
-    def minumumSizeHint(self):
+    def minimumSizeHint(self):
         return QtCore.QSize(10, 10)
+
+    @staticmethod
+    def _mpl_buttons(buttons):
+        buttons = _to_int(buttons)
+        # State *after* press/release.
+        return {button for mask, button in FigureCanvasQT.buttond.items()
+                if _to_int(mask) & buttons}
 
     @staticmethod
     def _mpl_modifiers(modifiers=None, *, exclude=None):
@@ -658,9 +666,6 @@ class FigureManagerQT(FigureManagerBase):
 
 
 class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
-    _message = QtCore.Signal(str)  # Remove once deprecation below elapses.
-    message = _api.deprecate_privatize_attribute("3.8")
-
     toolitems = [*NavigationToolbar2.toolitems]
     toolitems.insert(
         # Add 'customize' action after 'subplots'
@@ -783,7 +788,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self._update_buttons_checked()
 
     def set_message(self, s):
-        self._message.emit(s)
         if self.coordinates:
             self.locLabel.setText(s)
 
@@ -839,6 +843,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                     self, "Error saving file", str(e),
                     QtWidgets.QMessageBox.StandardButton.Ok,
                     QtWidgets.QMessageBox.StandardButton.NoButton)
+        return fname
 
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0
@@ -851,7 +856,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
 class SubplotToolQt(QtWidgets.QDialog):
     def __init__(self, targetfig, parent):
-        super().__init__()
+        super().__init__(parent)
         self.setWindowIcon(QtGui.QIcon(
             str(cbook._get_data_path("images/matplotlib.png"))))
         self.setObjectName("SubplotTool")

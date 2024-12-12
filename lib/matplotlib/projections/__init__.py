@@ -123,4 +123,4 @@ def get_projection_class(projection=None):
 
 
 get_projection_names = projection_registry.get_projection_names
-_docstring.interpd.update(projection_names=get_projection_names())
+_docstring.interpd.register(projection_names=get_projection_names())

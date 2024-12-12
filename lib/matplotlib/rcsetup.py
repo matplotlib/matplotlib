@@ -463,19 +463,6 @@ def validate_ps_distiller(s):
         return ValidateInStrings('ps.usedistiller', ['ghostscript', 'xpdf'])(s)
 
 
-def _validate_papersize(s):
-    # Re-inline this validator when the 'auto' deprecation expires.
-    s = ValidateInStrings("ps.papersize",
-                          ["figure", "auto", "letter", "legal", "ledger",
-                           *[f"{ab}{i}" for ab in "ab" for i in range(11)]],
-                          ignorecase=True)(s)
-    if s == "auto":
-        _api.warn_deprecated("3.8", name="ps.papersize='auto'",
-                             addendum="Pass an explicit paper type, figure, or omit "
-                             "the *ps.papersize* rcParam entirely.")
-    return s
-
-
 # A validator dedicated to the named line styles, based on the items in
 # ls_mapper, and a list of possible strings read from Line2D.set_linestyle
 _validate_named_linestyle = ValidateInStrings(
@@ -695,7 +682,7 @@ def cycler(*args, **kwargs):
     Call signatures::
 
       cycler(cycler)
-      cycler(label=values[, label2=values2[, ...]])
+      cycler(label=values, label2=values2, ...)
       cycler(label, values)
 
     Form 1 copies a given `~cycler.Cycler` object.
@@ -1132,6 +1119,10 @@ _validators = {
     "axes3d.yaxis.panecolor":    validate_color,  # 3d background pane
     "axes3d.zaxis.panecolor":    validate_color,  # 3d background pane
 
+    "axes3d.mouserotationstyle": ["azel", "trackball", "sphere", "arcball"],
+    "axes3d.trackballsize": validate_float,
+    "axes3d.trackballborder": validate_float,
+
     # scatter props
     "scatter.marker":     _validate_marker,
     "scatter.edgecolors": validate_string,
@@ -1291,7 +1282,9 @@ _validators = {
     "tk.window_focus": validate_bool,  # Maintain shell focus for TkAgg
 
     # Set the papersize/type
-    "ps.papersize":       _validate_papersize,
+    "ps.papersize":       _ignorecase(
+                                ["figure", "letter", "legal", "ledger",
+                                 *[f"{ab}{i}" for ab in "ab" for i in range(11)]]),
     "ps.useafm":          validate_bool,
     # use ghostscript or xpdf to distill ps output
     "ps.usedistiller":    validate_ps_distiller,

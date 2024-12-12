@@ -2,7 +2,7 @@
 .. _basic_units:
 
 ===========
-Basic Units
+Basic units
 ===========
 
 """

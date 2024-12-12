@@ -1,7 +1,7 @@
 """
-==============
-Bar color demo
-==============
+====================================
+Bar chart with individual bar colors
+====================================
 
 This is an example showing how to control bar color and legend entries
 using the *color* and *label* parameters of `~matplotlib.pyplot.bar`.
@@ -24,3 +24,10 @@ ax.set_title('Fruit supply by kind and color')
 ax.legend(title='Fruit color')
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    styling: color
+#    plot-style: bar
+#    level: beginner

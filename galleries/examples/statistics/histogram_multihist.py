@@ -14,6 +14,9 @@ Selecting different bin counts and sizes can significantly affect the
 shape of a histogram. The Astropy docs have a great section on how to
 select these parameters:
 http://docs.astropy.org/en/stable/visualization/histogram.html
+
+.. redirect-from:: /gallery/lines_bars_and_markers/filled_step
+
 """
 # %%
 import matplotlib.pyplot as plt
@@ -134,6 +137,8 @@ ax.set_title('Bars with Linestyles')
 plt.show()
 
 # %%
+#
+# .. tags:: plot-type: histogram, domain: statistics, purpose: reference
 #
 # .. admonition:: References
 #

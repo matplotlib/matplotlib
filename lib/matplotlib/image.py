@@ -14,13 +14,14 @@ import PIL.Image
 import PIL.PngImagePlugin
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, cm
+from matplotlib import _api, cbook
 # For clarity, names from _image are given explicitly in this module
 from matplotlib import _image
 # For user convenience, the names from _image are also imported into
 # the image namespace
 from matplotlib._image import *  # noqa: F401, F403
 import matplotlib.artist as martist
+import matplotlib.colorizer as mcolorizer
 from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.colors as mcolors
 from matplotlib.transforms import (
@@ -229,26 +230,28 @@ def _rgb_to_rgba(A):
     return rgba
 
 
-class _ImageBase(martist.Artist, cm.ScalarMappable):
+class _ImageBase(mcolorizer.ColorizingArtist):
     """
     Base class for images.
 
-    interpolation and cmap default to their rc settings
+    *interpolation* and *cmap* default to their rc settings.
 
-    cmap is a colors.Colormap instance
-    norm is a colors.Normalize instance to map luminance to 0-1
+    *cmap* is a `.colors.Colormap` instance.
+    *norm* is a `.colors.Normalize` instance to map luminance to 0-1.
 
-    extent is data axes (left, right, bottom, top) for making image plots
-    registered with data plots.  Default is to label the pixel
-    centers with the zero-based row and column indices.
+    *extent* is a ``(left, right, bottom, top)`` tuple in data coordinates, for
+    making image plots registered with data plots; the default is to label the
+    pixel centers with the zero-based row and column indices.
 
-    Additional kwargs are matplotlib.artist properties
+    Additional kwargs are `.Artist` properties.
     """
+
     zorder = 0
 
     def __init__(self, ax,
                  cmap=None,
                  norm=None,
+                 colorizer=None,
                  interpolation=None,
                  origin=None,
                  filternorm=True,
@@ -258,8 +261,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                  interpolation_stage=None,
                  **kwargs
                  ):
-        martist.Artist.__init__(self)
-        cm.ScalarMappable.__init__(self, norm, cmap)
+        super().__init__(self._get_colorizer(cmap, norm, colorizer))
         if origin is None:
             origin = mpl.rcParams['image.origin']
         _api.check_in_list(["upper", "lower"], origin=origin)
@@ -331,7 +333,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         Call this whenever the mappable is changed so observers can update.
         """
         self._imcache = None
-        cm.ScalarMappable.changed(self)
+        super().changed()
 
     def _make_image(self, A, in_bbox, out_bbox, clip_bbox, magnification=1.0,
                     unsampled=False, round_to_pixel_border=True):
@@ -722,7 +724,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         Return when interpolation happens during the transform to RGBA.
 
-        One of 'data', 'rgba'.
+        One of 'data', 'rgba', 'auto'.
         """
         return self._interpolation_stage
 
@@ -732,11 +734,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        s : {'data', 'rgba', 'auto'} or None
-            Whether to apply up/downsampling interpolation in data or RGBA
-            space.  If None, use :rc:`image.interpolation_stage`.
-            If 'auto' we will check upsampling rate and if less
-            than 3 then use 'rgba', otherwise use 'data'.
+        s : {'data', 'rgba', 'auto'}, default: :rc:`image.interpolation_stage`
+            Whether to apply resampling interpolation in data or RGBA space.
+            If 'auto', 'rgba' is used if the upsampling rate is less than 3,
+            otherwise 'data' is used.
         """
         s = mpl._val_or_rc(s, 'image.interpolation_stage')
         _api.check_in_list(['data', 'rgba', 'auto'], s=s)
@@ -757,8 +758,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        v : bool or None
-            If None, use :rc:`image.resample`.
+        v : bool, default: :rc:`image.resample`
         """
         v = mpl._val_or_rc(v, 'image.resample')
         self._resample = v
@@ -787,8 +787,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def set_filterrad(self, filterrad):
         """
-        Set the resize filter radius only applicable to some
-        interpolation schemes -- see help for imshow
+        Set the resize filter radius (only applicable to some
+        interpolation schemes).
+
+        See help for `~.Axes.imshow`.
 
         Parameters
         ----------
@@ -857,6 +859,7 @@ class AxesImage(_ImageBase):
                  *,
                  cmap=None,
                  norm=None,
+                 colorizer=None,
                  interpolation=None,
                  origin=None,
                  extent=None,
@@ -873,6 +876,7 @@ class AxesImage(_ImageBase):
             ax,
             cmap=cmap,
             norm=norm,
+            colorizer=colorizer,
             interpolation=interpolation,
             origin=origin,
             filternorm=filternorm,
@@ -895,7 +899,7 @@ class AxesImage(_ImageBase):
         bbox = Bbox(np.array([[x1, y1], [x2, y2]]))
         transformed_bbox = TransformedBbox(bbox, trans)
         clip = ((self.get_clip_box() or self.axes.bbox) if self.get_clip_on()
-                else self.figure.bbox)
+                else self.get_figure(root=True).bbox)
         return self._make_image(self._A, bbox, transformed_bbox, clip,
                                 magnification, unsampled=unsampled)
 
@@ -919,10 +923,10 @@ class AxesImage(_ImageBase):
 
         Notes
         -----
-        This updates ``ax.dataLim``, and, if autoscaling, sets ``ax.viewLim``
-        to tightly fit the image, regardless of ``dataLim``.  Autoscaling
-        state is not changed, so following this with ``ax.autoscale_view()``
-        will redo the autoscaling in accord with ``dataLim``.
+        This updates `.Axes.dataLim`, and, if autoscaling, sets `.Axes.viewLim`
+        to tightly fit the image, regardless of `~.Axes.dataLim`.  Autoscaling
+        state is not changed, so a subsequent call to `.Axes.autoscale_view`
+        will redo the autoscaling in accord with `~.Axes.dataLim`.
         """
         (xmin, xmax), (ymin, ymax) = self.axes._process_unit_info(
             [("x", [extent[0], extent[1]]),
@@ -1129,11 +1133,9 @@ class NonUniformImage(AxesImage):
             raise RuntimeError('Must set data first')
         return self._Ax[0], self._Ax[-1], self._Ay[0], self._Ay[-1]
 
-    @_api.rename_parameter("3.8", "s", "filternorm")
     def set_filternorm(self, filternorm):
         pass
 
-    @_api.rename_parameter("3.8", "s", "filterrad")
     def set_filterrad(self, filterrad):
         pass
 
@@ -1173,6 +1175,7 @@ class PcolorImage(AxesImage):
                  *,
                  cmap=None,
                  norm=None,
+                 colorizer=None,
                  **kwargs
                  ):
         """
@@ -1199,7 +1202,7 @@ class PcolorImage(AxesImage):
             Maps luminance to 0-1.
         **kwargs : `~matplotlib.artist.Artist` properties
         """
-        super().__init__(ax, norm=norm, cmap=cmap)
+        super().__init__(ax, norm=norm, cmap=cmap, colorizer=colorizer)
         self._internal_update(kwargs)
         if A is not None:
             self.set_data(x, y, A)
@@ -1303,6 +1306,7 @@ class FigureImage(_ImageBase):
                  *,
                  cmap=None,
                  norm=None,
+                 colorizer=None,
                  offsetx=0,
                  offsety=0,
                  origin=None,
@@ -1318,9 +1322,10 @@ class FigureImage(_ImageBase):
             None,
             norm=norm,
             cmap=cmap,
+            colorizer=colorizer,
             origin=origin
         )
-        self.figure = fig
+        self.set_figure(fig)
         self.ox = offsetx
         self.oy = offsety
         self._internal_update(kwargs)
@@ -1334,14 +1339,15 @@ class FigureImage(_ImageBase):
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
-        fac = renderer.dpi/self.figure.dpi
+        fig = self.get_figure(root=True)
+        fac = renderer.dpi/fig.dpi
         # fac here is to account for pdf, eps, svg backends where
         # figure.dpi is set to 72.  This means we need to scale the
         # image (using magnification) and offset it appropriately.
         bbox = Bbox([[self.ox/fac, self.oy/fac],
                      [(self.ox/fac + self._A.shape[1]),
                      (self.oy/fac + self._A.shape[0])]])
-        width, height = self.figure.get_size_inches()
+        width, height = fig.get_size_inches()
         width *= renderer.dpi
         height *= renderer.dpi
         clip = Bbox([[0, 0], [width, height]])
@@ -1351,7 +1357,7 @@ class FigureImage(_ImageBase):
 
     def set_data(self, A):
         """Set the image array."""
-        cm.ScalarMappable.set_array(self, A)
+        super().set_data(A)
         self.stale = True
 
 
@@ -1362,6 +1368,7 @@ class BboxImage(_ImageBase):
                  *,
                  cmap=None,
                  norm=None,
+                 colorizer=None,
                  interpolation=None,
                  origin=None,
                  filternorm=True,
@@ -1379,6 +1386,7 @@ class BboxImage(_ImageBase):
             None,
             cmap=cmap,
             norm=norm,
+            colorizer=colorizer,
             interpolation=interpolation,
             origin=origin,
             filternorm=filternorm,
@@ -1582,7 +1590,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             # as is, saving a few operations.
             rgba = arr
         else:
-            sm = cm.ScalarMappable(cmap=cmap)
+            sm = mcolorizer.Colorizer(cmap=cmap)
             sm.set_clim(vmin, vmax)
             rgba = sm.to_rgba(arr, bytes=True)
         if pil_kwargs is None:

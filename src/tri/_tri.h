@@ -407,12 +407,10 @@ private:
      * intersect any boundary.
      *   contour: Contour to add new lines to.
      *   level: Contour level.
-     *   on_upper: Whether on upper or lower contour level.
-     *   filled: Whether contours are filled or not. */
+     *   on_upper: Whether on upper or lower contour level. */
     void find_interior_lines(Contour& contour,
                              const double& level,
-                             bool on_upper,
-                             bool filled);
+                             bool on_upper);
 
     /* Follow contour line around boundary of the Triangulation from the
      * specified TriEdge to its end which can be on either the lower or upper
