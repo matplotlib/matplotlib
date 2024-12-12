@@ -1466,6 +1466,18 @@ def test_polygon_selector(draw_bounding_box):
     ]
     check_selector(event_sequence, expected_result, 2)
 
+    # Complete the polygon and add new vertex
+    expected_result = [(75, 75), (175, 75), (125, 180), (75, 175)]
+    event_sequence = [
+        *polygon_place_vertex(75, 75),
+        *polygon_place_vertex(175, 75),
+        *polygon_place_vertex(75, 175),
+        *polygon_place_vertex(75, 75),
+        ('press', dict(xdata=125, ydata=180)),
+        ('release', dict(xdata=125, ydata=180)),
+        ]
+    check_selector(event_sequence, expected_result, 2)
+
     # Try to move a vertex and move all before placing any vertices.
     expected_result = [(50, 50), (150, 50), (50, 150)]
     event_sequence = [
