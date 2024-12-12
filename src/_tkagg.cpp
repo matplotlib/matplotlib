@@ -312,7 +312,7 @@ load_tkinter_funcs()
     // Load tkinter global funcs from tkinter compiled module.
 
     // Try loading from the main program namespace first.
-    auto main_program = dlopen(NULL, RTLD_LAZY);
+    auto main_program = dlopen(nullptr, RTLD_LAZY);
     auto success = load_tcl_tk(main_program);
     // We don't need to keep a reference open as the main program always exists.
     if (dlclose(main_program)) {
