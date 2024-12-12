@@ -1612,14 +1612,13 @@ class LineCollection(Collection):
         """
         Parameters
         ----------
-        segments : list of array-like
-            A sequence (*line0*, *line1*, *line2*) of lines, where each line is a list
-            of points::
+        segments : list of (N, 2) array-like
+            A sequence ``[line0, line1, ...]`` where each line is a (N, 2)-shape
+            array-like containing points::
 
-                lineN = [(x0, y0), (x1, y1), ... (xm, ym)]
+                line0 = [(x0, y0), (x1, y1), ...]
 
-            or the equivalent Mx2 numpy array with two columns. Each line
-            can have a different number of segments.
+            Each line can contain a different number of points.
         linewidths : float or list of float, default: :rc:`lines.linewidth`
             The width of each line in points.
         colors : :mpltype:`color` or list of color, default: :rc:`lines.color`
