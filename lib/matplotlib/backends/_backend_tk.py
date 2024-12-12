@@ -929,12 +929,12 @@ class NavigationToolbar2Ttk(NavigationToolbar2Tk):
         b._ntimage = im
         b.pack(side='left')
         return b
-    
+
     def _Spacer(self):
         s = ttk.Separator(master=self, orient='vertical')
         s.pack(side='left', padx='3p', pady='5p', fill='y')
         return s
-    
+
     def _update_buttons_checked(self):
         for text in ['Zoom', 'Pan']:
             if text in self._buttons:
