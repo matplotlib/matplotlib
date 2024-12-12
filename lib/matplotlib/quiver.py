@@ -488,21 +488,19 @@ def _check_consistent_shapes(*arrays):
 
 class Quiver(mcollections.PolyCollection):
     """
-    Specialized PolyCollection for arrows.
+    Specialized `.PolyCollection` for arrows.
 
-    The only API method is set_UVC(), which can be used
-    to change the size, orientation, and color of the
-    arrows; their locations are fixed when the class is
-    instantiated.  Possibly this method will be useful
-    in animations.
-
-    Much of the work in this class is done in the draw()
-    method so that as much information as possible is available
-    about the plot.  In subsequent draw() calls, recalculation
-    is limited to things that might have changed, so there
-    should be no performance penalty from putting the calculations
-    in the draw() method.
+    The only API method is `set_UVC`, which can be used to change the size,
+    orientation, and color of the arrows.  Locations are changed using the
+    (inherited) `.PolyCollection.set_offsets` method.  This method may be
+    useful in animations.
     """
+
+    # Much of the work in this class is done in the draw() method so that as
+    # much information as possible is available about the plot.  In subsequent
+    # draw() calls, recalculation is limited to things that might have changed,
+    # so there should be no performance penalty from putting the calculations
+    # in the draw() method.
 
     _PIVOT_VALS = ('tail', 'middle', 'tip')
 
@@ -519,10 +517,6 @@ class Quiver(mcollections.PolyCollection):
         """
         self._axes = ax  # The attr actually set by the Artist.axes property.
         X, Y, U, V, C = _parse_args(*args, caller_name='quiver')
-        self.X = X
-        self.Y = Y
-        self.XY = np.column_stack((X, Y))
-        self.N = len(X)
         self.scale = scale
         self.headwidth = headwidth
         self.headlength = float(headlength)
@@ -542,11 +536,17 @@ class Quiver(mcollections.PolyCollection):
         self.transform = kwargs.pop('transform', ax.transData)
         kwargs.setdefault('facecolors', color)
         kwargs.setdefault('linewidths', (0,))
-        super().__init__([], offsets=self.XY, offset_transform=self.transform,
+        super().__init__([], offsets=np.column_stack([X, Y]),
+                         offset_transform=self.transform,
                          closed=False, **kwargs)
         self.polykw = kwargs
         self.set_UVC(U, V, C)
         self._dpi_at_last_init = None
+
+    XY = property(lambda self: self.get_offsets())
+    X = property(lambda self: self.get_offsets()[:, 0])
+    Y = property(lambda self: self.get_offsets()[:, 1])
+    N = property(lambda self: len(self.get_offsets()))
 
     def _init(self):
         """
@@ -724,16 +724,14 @@ class Quiver(mcollections.PolyCollection):
         # length = np.minimum(length, 2 ** 16)
         np.clip(length, 0, 2 ** 16, out=length)
         # x, y: normal horizontal arrow
-        x = np.array([0, -self.headaxislength,
-                      -self.headlength, 0],
-                     np.float64)
+        x = np.array([0, -self.headaxislength, -self.headlength, 0], float)
         x = x + np.array([0, 1, 1, 1]) * length
-        y = 0.5 * np.array([1, 1, self.headwidth, 0], np.float64)
+        y = 0.5 * np.array([1, 1, self.headwidth, 0], float)
         y = np.repeat(y[np.newaxis, :], N, axis=0)
         # x0, y0: arrow without shaft, for short vectors
         x0 = np.array([0, minsh - self.headaxislength,
-                       minsh - self.headlength, minsh], np.float64)
-        y0 = 0.5 * np.array([1, 1, self.headwidth, 0], np.float64)
+                       minsh - self.headlength, minsh], float)
+        y0 = 0.5 * np.array([1, 1, self.headwidth, 0], float)
         ii = [0, 1, 2, 3, 2, 1, 0, 0]
         X = x[:, ii]
         Y = y[:, ii]
@@ -914,22 +912,18 @@ _docstring.interpd.register(barbs_doc=_barbs_doc)
 
 class Barbs(mcollections.PolyCollection):
     """
-    Specialized PolyCollection for barbs.
+    Specialized `.PolyCollection` for barbs.
 
-    The only API method is :meth:`set_UVC`, which can be used to
-    change the size, orientation, and color of the arrows.  Locations
-    are changed using the :meth:`set_offsets` collection method.
-    Possibly this method will be useful in animations.
-
-    There is one internal function :meth:`_find_tails` which finds
-    exactly what should be put on the barb given the vector magnitude.
-    From there :meth:`_make_barbs` is used to find the vertices of the
-    polygon to represent the barb based on this information.
+    The only API method is `set_UVC`, which can be used to change the size,
+    orientation, and color of the arrows.  Locations are changed using the
+    (inherited) `.PolyCollection.set_offsets` method.  This method may be
+    useful in animations.
     """
 
-    # This may be an abuse of polygons here to render what is essentially maybe
-    # 1 triangle and a series of lines.  It works fine as far as I can tell
-    # however.
+    # There is one internal function :meth:`_find_tails` which finds
+    # exactly what should be put on the barb given the vector magnitude.
+    # From there :meth:`_make_barbs` is used to find the vertices of the
+    # polygon to represent the barb based on this information.
 
     @_docstring.interpd
     def __init__(self, ax, *args,
@@ -951,7 +945,7 @@ class Barbs(mcollections.PolyCollection):
         self._pivot = pivot
         self._length = length
 
-        # Flagcolor and barbcolor provide convenience parameters for
+        # flagcolor and barbcolor provide convenience parameters for
         # setting the facecolor and edgecolor, respectively, of the barb
         # polygon.  We also work here to make the flag the same color as the
         # rest of the barb by default
@@ -976,8 +970,6 @@ class Barbs(mcollections.PolyCollection):
 
         # Parse out the data arrays from the various configurations supported
         x, y, u, v, c = _parse_args(*args, caller_name='barbs')
-        self.x = x
-        self.y = y
         xy = np.column_stack((x, y))
 
         # Make a collection
@@ -987,6 +979,9 @@ class Barbs(mcollections.PolyCollection):
         self.set_transform(transforms.IdentityTransform())
 
         self.set_UVC(u, v, c)
+
+    x = property(lambda self: self.get_offsets()[:, 0])
+    y = property(lambda self: self.get_offsets()[:, 1])
 
     def _find_tails(self, mag, rounding=True, half=5, full=10, flag=50):
         """
