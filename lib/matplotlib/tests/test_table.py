@@ -272,22 +272,15 @@ def test_table_dataframe(pd):
             assert table[r if r == 0 else r+1, c].get_text().get_text() == str(col)
 
 
-# Test function for fontsize in table
 def test_table_fontsize():
-    # Data for plotting
+    # Test that the passed fontsize propagates to cells
     tableData = [['a', 1], ['b', 1]]
-    # Create the figure and axis objects
     fig, ax = plt.subplots()
-    # Plot the data (although we are focusing on the table)
-    ax.plot(np.linspace(0, 10, 100), np.linspace(0, 10, 100) + 1)
-    # Add a table with fontsize=30
     t = ax.table(
         cellText=tableData,
         loc='top',
         cellLoc='center',
         fontsize=30
     )
-    # Retrieve the font size from a specific cell (e.g., cell (0, 0))
     cell_fontsize = t[(0, 0)].get_fontsize()
-    # Assert that the fontsize is correctly set to 30
     assert cell_fontsize == 30, f"Expected fontsize 30, but got {cell_fontsize}"
