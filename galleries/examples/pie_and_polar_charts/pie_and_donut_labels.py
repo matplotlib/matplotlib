@@ -15,14 +15,14 @@ as well as with `annotations <matplotlib.axes.Axes.annotate>`.
 # Now it's time for the pie. Starting with a pie recipe, we create the data
 # and a list of labels from it.
 #
-# We can provide a function to the ``autopct`` argument, which will expand
-# automatic percentage labeling by showing absolute values; we calculate
-# the latter back from relative data and the known sum of all values.
+# We can provide a function to the *absolutefmt* argument, which will expand
+# automatic labeling by also showing percentages.  Note that if we **only**
+# wanted percentages then we could more simply use the *autopct* parameter.
 #
 # We then create the pie and store the returned objects for later.  The first
 # returned element of the returned tuple is a list of the wedges.  Those are
 # `matplotlib.patches.Wedge` patches, which can directly be used as the handles
-# for a legend. We can use the legend's ``bbox_to_anchor`` argument to position
+# for a legend. We can use the legend's *bbox_to_anchor* argument to position
 # the legend outside of the pie. Here we use the axes coordinates ``(1, 0, 0.5,
 # 1)`` together with the location ``"center left"``; i.e. the left central
 # point of the legend will be at the left central point of the bounding box,
@@ -38,17 +38,17 @@ recipe = ["375 g flour",
           "250 g butter",
           "300 g berries"]
 
-data = [float(x.split()[0]) for x in recipe]
+data = [int(x.split()[0]) for x in recipe]
 ingredients = [x.split()[-1] for x in recipe]
+total = np.sum(data)
 
 
-def func(pct, allvals):
-    absolute = int(np.round(pct/100.*np.sum(allvals)))
-    return f"{pct:.1f}%\n({absolute:d} g)"
+def func(value):
+    fraction = value / total
+    return f"{fraction:.1%}\n({value:d} g)"
 
 
-wedges, texts, autotexts = ax.pie(data, autopct=lambda pct: func(pct, data),
-                                  textprops=dict(color="w"))
+wedges, texts, autotexts = ax.pie(data, absolutefmt=func, textprops=dict(color="w"))
 
 ax.legend(wedges, ingredients,
           title="Ingredients",
@@ -66,9 +66,9 @@ plt.show()
 # Now it's time for the donut. Starting with a donut recipe, we transcribe
 # the data to numbers (converting 1 egg to 50 g), and directly plot the pie.
 # The pie? Wait... it's going to be donut, is it not?
-# Well, as we see here, the donut is a pie, having a certain ``width`` set to
+# Well, as we see here, the donut is a pie, having a certain *width* set to
 # the wedges, which is different from its radius. It's as easy as it gets.
-# This is done via the ``wedgeprops`` argument.
+# This is done via the *wedgeprops* argument.
 #
 # We then want to label the wedges via
 # `annotations <matplotlib.axes.Axes.annotate>`. We first create some
