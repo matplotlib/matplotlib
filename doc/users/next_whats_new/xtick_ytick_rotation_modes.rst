@@ -3,7 +3,7 @@
 
 A new feature has been added for handling rotation of xtick and ytick
 labels more intuitively. The new `rotation modes <matplotlib.text.Text.set_rotation_mode>`
-"xtick" and "ytick" automatically adjusts the alignment of rotated tick labels,
+"xtick" and "ytick" automatically adjust the alignment of rotated tick labels,
 so that the texts point towards their anchor point, i.e. ticks.  This works for
 all four sides of the plot (bottom, top, left, right), reducing the need for
 manual adjustments when rotating labels.
