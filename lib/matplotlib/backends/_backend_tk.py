@@ -920,17 +920,21 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         if "Forward" in self._buttons:
             self._buttons['Forward']['state'] = state_map[can_forward]
 
+
 class NavigationToolbar2Ttk(NavigationToolbar2Tk):
+    """Subclass of NavigationToolbar2Tk that implements ttk widgets"""
     def _Button(self, text, image_file, toggle, command):
         im = tk.PhotoImage(master=self, file=image_file)
         b = ttk.Button(self, text=text, padding=(2, 2), image=im, command=command)
         b._ntimage = im
         b.pack(side='left')
         return b
+    
     def _Spacer(self):
         s = ttk.Separator(master=self, orient='vertical')
         s.pack(side='left', padx='3p', pady='5p', fill='y')
         return s
+    
     def _update_buttons_checked(self):
         for text in ['Zoom', 'Pan']:
             if text in self._buttons:
@@ -938,6 +942,7 @@ class NavigationToolbar2Ttk(NavigationToolbar2Tk):
                     self._buttons[text].state(['pressed'])
                 else:
                     self._buttons[text].state(['!pressed'])
+
 
 def add_tooltip(widget, text):
     tipwindow = None
@@ -1022,7 +1027,7 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
         else:
             before = buttons[position]
         button = NavigationToolbar2Ttk._Button(frame, name, image_file, toggle,
-                                              lambda: self._button_click(name))
+                                               lambda: self._button_click(name))
         button.pack_configure(before=before)
         if description is not None:
             add_tooltip(button, description)
