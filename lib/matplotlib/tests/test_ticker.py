@@ -1706,9 +1706,9 @@ class TestPercentFormatter:
 
     latex_data = [
         (False, False, r'50\{t}%'),
-        (False, True, r'50\\\{t\}\%'),
+        (False, True, r'$\mathdefault{50\\\{t\}\%}$'),
         (True, False, r'50\{t}%'),
-        (True, True, r'50\{t}%'),
+        (True, True, r'$\mathdefault{50\{t}%}$'),
     ]
 
     @pytest.mark.parametrize(
