@@ -838,8 +838,8 @@ def table(ax,
         if rowLabelWidth == 0:
             table.auto_set_column_width(-1)
 
-    ax.add_table(table)
-    # Set the fontsize if provided
+    # set_fontsize is only effective after cells are added
     if fontsize is not None:
         table.set_fontsize(fontsize)
+    ax.add_table(table)
     return table
