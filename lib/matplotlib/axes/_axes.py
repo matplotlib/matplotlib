@@ -440,7 +440,7 @@ class Axes(_AxesBase):
 
         transform : `.Transform`
             Transform for the rectangle coordinates. Defaults to
-            ``ax.transAxes``, i.e. the units of *rect* are in Axes-relative
+            ``ax.transData``, i.e. the units of *rect* are in the Axes' data
             coordinates.
 
         facecolor : :mpltype:`color`, default: 'none'
