@@ -1,21 +1,22 @@
 .. _github-stats:
 
-GitHub statistics for 3.10.0rc1 (Oct 31, 2024)
-==============================================
+GitHub statistics for 3.10.0 (Dec 13, 2024)
+===========================================
 
-GitHub statistics for 2024/05/15 (tag: v3.9.0) - 2024/10/31
+GitHub statistics for 2024/05/15 (tag: v3.9.0) - 2024/12/13
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 87 issues and merged 244 pull requests.
+We closed 100 issues and merged 337 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/84?closed=1>`__
 
-The following 116 authors contributed 1650 commits.
+The following 128 authors contributed 1932 commits.
 
 * abhi-jha
 * Adam J. Stewart
 * Aditi Gautam
 * Aditya Vidyadhar Kamath
+* Aishling Cooke
 * Alan
 * Alan Sosa
 * Alice
@@ -34,11 +35,14 @@ The following 116 authors contributed 1650 commits.
 * Charlie LeWarne
 * Christian Mattsson
 * ClarkeAC
+* Clemens Brunner
 * Clement Gilli
 * cmp0xff
 * Costa Paraskevopoulos
 * dale
 * Dani Pinyol
+* Daniel Weiss
+* Danny
 * David Bakaj
 * David Lowry-Duda
 * David Meyer
@@ -54,6 +58,7 @@ The following 116 authors contributed 1650 commits.
 * Felipe Cybis Pereira
 * Filippo Balzaretti
 * FMasson
+* Francisco Cardozo
 * Gavin S
 * Greg Lucas
 * haaris
@@ -75,7 +80,10 @@ The following 116 authors contributed 1650 commits.
 * Kherim Willems
 * Kyle Sunden
 * Kyra Cho
+* Larry Bradley
+* litchi
 * Lorenzo
+* Lucx33
 * Lumberbot (aka Jack)
 * MadPhysicist
 * malhar2460
@@ -104,12 +112,15 @@ The following 116 authors contributed 1650 commits.
 * Pranav
 * Pranav Raghu
 * pre-commit-ci[bot]
+* proximalf
 * r3kste
 * Randolf Scholz
 * Refael Ackermann
 * RickyP24
 * rnhmjoj
 * Ruth Comer
+* Ryan May
+* Sai Chaitanya, Sanivada
 * saranti
 * scaccol
 * Scott Shambaugh
@@ -126,13 +137,107 @@ The following 116 authors contributed 1650 commits.
 * Tim Hoffmann
 * trananso
 * Trygve Magnus Ræder
+* Victor Liu
 * vittoboa
 * Xeniya Shoiko
 
 GitHub issues and pull requests:
 
-Pull Requests (244):
+Pull Requests (337):
 
+* :ghpull:`29299`: Merge v3.9.x into v3.10.x
+* :ghpull:`29296`: Backport PR #29295 on branch v3.10.x (BLD: Pin meson-python to <0.17.0)
+* :ghpull:`29290`: Backport PR #29254 on branch v3.10.x (DOC: Add note to align_labels())
+* :ghpull:`29289`: Backport PR #29260 on branch v3.10.x (DOC: Better explanation of rcParams "patch.edgecolor" and "patch.force_edgecolor")
+* :ghpull:`29288`: Backport PR #29285 on branch v3.10.x (Retarget PR#29175 to main)
+* :ghpull:`29254`: DOC: Add note to align_labels()
+* :ghpull:`29260`: DOC: Better explanation of rcParams "patch.edgecolor" and "patch.force_edgecolor"
+* :ghpull:`29285`: Retarget PR#29175 to main
+* :ghpull:`29286`: Backport PR #29274 on branch v3.10.x (Bump the actions group across 1 directory with 2 updates)
+* :ghpull:`29274`: Bump the actions group across 1 directory with 2 updates
+* :ghpull:`29283`: Backport PR #29272 on branch v3.10.x (DOC: Add section on translating between Axes and pyplot interface)
+* :ghpull:`29272`: DOC: Add section on translating between Axes and pyplot interface
+* :ghpull:`29279`: Backport PR #29265 on branch v3.10.x (DOC: Slightly improve the LineCollection docstring)
+* :ghpull:`29276`: Backport PR #29247 on branch v3.10.x (Fix building freetype 2.6.1 on macOS clang 18)
+* :ghpull:`29244`: Switch to a 3d rotation trackball implementation with path independence
+* :ghpull:`29265`: DOC: Slightly improve the LineCollection docstring
+* :ghpull:`29247`: Fix building freetype 2.6.1 on macOS clang 18
+* :ghpull:`29268`: Bump the actions group with 2 updates
+* :ghpull:`29266`: Backport PR #29251 on branch v3.10.x (Zizmor audit)
+* :ghpull:`29269`: Backport PR #29267 on branch v3.10.x (Exclude pylab from mypy checks)
+* :ghpull:`29267`: Exclude pylab from mypy checks
+* :ghpull:`29251`: Zizmor audit
+* :ghpull:`29255`: Backport PR #29249 on branch v3.10.x ([Bug Fix] Fix reverse mapping for _translate_tick_params)
+* :ghpull:`29249`: [Bug Fix] Fix reverse mapping for _translate_tick_params
+* :ghpull:`29250`: Backport PR #29243 on branch v3.10.x (Add quotes around [dev] in environment.yml)
+* :ghpull:`29243`: Add quotes around [dev] in environment.yml
+* :ghpull:`29246`: Backport PR #29240 on branch v3.10.x (DOC: Add plt.show() to introductory pyplot example)
+* :ghpull:`29240`: DOC: Add plt.show() to introductory pyplot example
+* :ghpull:`29239`: Backport PR #29236 on branch v3.10.x (ANI: Reduce Pillow frames to RGB when opaque)
+* :ghpull:`29238`: Backport PR #29167 on branch v3.10.x (BUGFIX: use axes unit information in ConnectionPatch )
+* :ghpull:`29236`: ANI: Reduce Pillow frames to RGB when opaque
+* :ghpull:`29167`: BUGFIX: use axes unit information in ConnectionPatch
+* :ghpull:`29232`: Merge branch v3.9.x into v3.10.x
+* :ghpull:`29230`: Backport PR #29188 on branch v3.10.x (Bump pypa/cibuildwheel from 2.21.3 to 2.22.0 in the actions group)
+* :ghpull:`29188`: Bump pypa/cibuildwheel from 2.21.3 to 2.22.0 in the actions group
+* :ghpull:`29225`: Backport PR #29213 on branch v3.10.x (avoid-unnecessary-warning-in-_pcolorargs-function)
+* :ghpull:`29211`: Backport PR #29133 on branch v3.10.x (Creating_parse_bar_color_args to unify color handling in plt.bar with precedence and sequence support for facecolor and edgecolor)
+* :ghpull:`29177`: Backport PR #29148 on branch v3.10.x (Don't fail on equal-but-differently-named cmaps in qt figureoptions.)
+* :ghpull:`29226`: Backport PR #29206 on branch v3.10.x (Skip more tests on pure-Wayland systems)
+* :ghpull:`29206`: Skip more tests on pure-Wayland systems
+* :ghpull:`29213`: avoid-unnecessary-warning-in-_pcolorargs-function
+* :ghpull:`29210`: Backport PR #29209 on branch v3.10.x (FIX:  pcolormesh with no x y args and nearest interp)
+* :ghpull:`29133`: Creating_parse_bar_color_args to unify color handling in plt.bar with precedence and sequence support for facecolor and edgecolor
+* :ghpull:`29209`: FIX:  pcolormesh with no x y args and nearest interp
+* :ghpull:`29200`: Backport PR #29182 on branch v3.10.x (Update backend_qt.py: parent not passed to __init__ on subplottool)
+* :ghpull:`29207`: Backport PR #29169 on branch v3.10.x (Minor fixes to text intro explainer)
+* :ghpull:`29169`: Minor fixes to text intro explainer
+* :ghpull:`29159`: Pending warning for deprecated parameter 'vert' of box and violin on 3.10
+* :ghpull:`29196`: Backport PR #29191 on branch v3.10.x (ci: Simplify 3.13t test setup)
+* :ghpull:`29182`: Update backend_qt.py: parent not passed to __init__ on subplottool
+* :ghpull:`29189`: Backport PR #28934 on branch v3.10.x (ci: Unpin micromamba again)
+* :ghpull:`29186`: Backport PR #28335 on branch v3.10.x (DOC: do not posting LLM output as your own work)
+* :ghpull:`28934`: ci: Unpin micromamba again
+* :ghpull:`28335`: DOC: do not posting LLM output as your own work
+* :ghpull:`29178`: Backport PR #29163 on branch v3.9.x (ci: Remove outdated pkg-config package on macOS)
+* :ghpull:`29170`: Backport PR #29154 on branch v3.10.x (Relax conditions for warning on updating converters)
+* :ghpull:`29154`: Relax conditions for warning on updating converters
+* :ghpull:`29166`: Backport PR #29153 on branch v3.10.x (Bump codecov/codecov-action from 4 to 5 in the actions group)
+* :ghpull:`29164`: Backport PR #29163 on branch v3.10.x (ci: Remove outdated pkg-config package on macOS)
+* :ghpull:`29168`: Backport PR #29073 on branch v3.10.x (Update secondary_axis tutorial)
+* :ghpull:`29073`: Update secondary_axis tutorial
+* :ghpull:`29163`: ci: Remove outdated pkg-config package on macOS
+* :ghpull:`29145`: Backport PR #29144 on branch v3.10.x (Use both TCL_SETVAR and TCL_SETVAR2 for tcl 9 support)
+* :ghpull:`29144`: Use both TCL_SETVAR and TCL_SETVAR2 for tcl 9 support
+* :ghpull:`29140`: Backport PR #29080 on branch v3.10.x (Updates the ``galleries/tutorials/artists.py`` file in response to issue #28920)
+* :ghpull:`29080`: Updates the ``galleries/tutorials/artists.py`` file in response to issue #28920
+* :ghpull:`29138`: Backport PR #29134 on branch v3.10.x (MNT: Temporarily skip failing test to unbreak CI)
+* :ghpull:`29134`: MNT: Temporarily skip failing test to unbreak CI
+* :ghpull:`29132`: Backport PR #29128 on branch v3.10.x (Tweak AutoMinorLocator docstring.)
+* :ghpull:`29128`: Tweak AutoMinorLocator docstring.
+* :ghpull:`29123`: Bump the actions group with 2 updates
+* :ghpull:`29122`: Backport PR #29120 on branch v3.10.x (DOC: Switch nested pie example from cmaps to color_sequences)
+* :ghpull:`29100`: Backport PR #29099 on branch v3.10.x (MNT: remove _ttconv.pyi)
+* :ghpull:`29099`: MNT: remove _ttconv.pyi
+* :ghpull:`29098`: Backport PR #29097 on branch v3.10.x (ENH: add back/forward buttons to osx backend move)
+* :ghpull:`29097`: ENH: add back/forward buttons to osx backend move
+* :ghpull:`29095`: Backport PR #29071 on branch v3.10.x (Bump pypa/gh-action-pypi-publish from 1.10.3 to 1.11.0 in the actions group)
+* :ghpull:`29096`: Backport PR #29094 on branch v3.10.x (DOC: fix link in See Also section of axes.violin)
+* :ghpull:`29092`: Backport PR #29088 on branch v3.10.x (DOC: Format aliases in kwargs tables)
+* :ghpull:`29094`: DOC: fix link in See Also section of axes.violin
+* :ghpull:`29091`: Backport PR #29085 on branch v3.10.x (FIX: Update GTK3Agg backend export name for consistency)
+* :ghpull:`29088`: DOC: Format aliases in kwargs tables
+* :ghpull:`29089`: Backport PR #29065 on branch v3.10.x (DOC: Update docstring of triplot())
+* :ghpull:`29085`: FIX: Update GTK3Agg backend export name for consistency
+* :ghpull:`29084`: Backport PR #29081 on branch v3.10.x (Document "none" as color value)
+* :ghpull:`29065`: DOC: Update docstring of triplot()
+* :ghpull:`29081`: Document "none" as color value
+* :ghpull:`29061`: Backport PR #29024 on branch v3.10.x (Fix saving animations to transparent formats)
+* :ghpull:`29069`: Backport PR #29068 on branch v3.10.x ([DOC] Fix indentation in sync_cmaps example)
+* :ghpull:`29070`: Backport PR #29048 on branch v3.10.x (DOC: integrated pr workflow from contributing guide into install and workflow)
+* :ghpull:`29048`: DOC: integrated pr workflow from contributing guide into install and workflow
+* :ghpull:`29068`: [DOC] Fix indentation in sync_cmaps example
+* :ghpull:`29024`: Fix saving animations to transparent formats
 * :ghpull:`29059`: Cleanup converter docs and StrCategoryConverter behavior
 * :ghpull:`29058`: [DOC] Update missing-references.json
 * :ghpull:`29057`: DOC/TST: lock numpy<2.1 in environment.yml
@@ -378,12 +483,25 @@ Pull Requests (244):
 * :ghpull:`28037`: DOC: Fix inconsistent spacing in some docstrings in _axes.py
 * :ghpull:`28031`: Be more specific in findobj return type
 
-Issues (87):
+Issues (100):
 
+* :ghissue:`29298`: [Doc]: The link at "see also" is incorrect. (Axes.violin)
+* :ghissue:`29248`: [Bug]: Figure.align_labels() confused by GridSpecFromSubplotSpec
+* :ghissue:`26738`: Improve LineCollection docstring further
+* :ghissue:`29263`: [Bug]: mypy failures in CI
+* :ghissue:`27416`: [Bug]: get_tick_params on xaxis shows wrong keywords
+* :ghissue:`29241`: [Bug]: Instructions for setting up conda dev environment in environment.yml give issues with MacOS/zsh
+* :ghissue:`29227`: [Bug]: Introductory example on the pyplot API page does not show - missing plt.show()
+* :ghissue:`29190`: [Bug]: inconsistent ‘animation.FuncAnimation’ between display and save
+* :ghissue:`29090`: [MNT]: More consistent color parameters for bar()
+* :ghissue:`29179`: [Bug]: Incorrect pcolormesh when shading='nearest' and only the mesh data C is provided.
+* :ghissue:`29067`: [Bug]: ``secondary_xaxis`` produces ticks at incorrect locations
+* :ghissue:`29126`: [Bug]: TkAgg backend is broken with tcl/tk 9.0
+* :ghissue:`29045`: [ENH]: implement back/forward buttons on mouse move events on macOS
+* :ghissue:`27173`: [Bug]: Gifs no longer create transparent background
 * :ghissue:`19229`: Add public API for setting an axis unit converter
 * :ghissue:`21108`: [Bug]: Hatch linewidths cannot be modified in an  rcParam context
 * :ghissue:`27784`: [Bug]: Polar plot error bars don't rotate with angle for ``set_theta_direction`` and ``set_theta_offset``
-* :ghissue:`28944`: [Bug]: calling title before making polar plot
 * :ghissue:`29011`: [Bug]: Figure.autofmt_xdate() not working in presence of colorbar with constrained layout
 * :ghissue:`29020`: AIX internal CI build break #Matplotlib
 * :ghissue:`28726`: feature request: support passing DataFrames to table.table
