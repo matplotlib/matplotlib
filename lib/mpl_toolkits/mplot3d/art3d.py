@@ -990,8 +990,9 @@ def patch_collection_2d_to_3d(
     zs=0,
     zdir="z",
     depthshade=True,
-    depthshade_minalpha=0.3,
     axlim_clip=False,
+    *args,
+    depthshade_minalpha=0.3
 ):
     """
     Convert a `.PatchCollection` into a `.Patch3DCollection` object
@@ -1014,7 +1015,6 @@ def patch_collection_2d_to_3d(
         Sets the minimum alpha value used by depth-shading. Default: 0.3.
     axlim_clip : bool, default: False
         Whether to hide patches with a vertex outside the axes view limits.
-
     """
     if isinstance(col, PathCollection):
         col.__class__ = Path3DCollection
