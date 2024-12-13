@@ -528,6 +528,16 @@ def test_legend_stackplot():
     ax.legend(loc='best')
 
 
+@mpl.style.context('default')
+def test_polycollection_linestyles_unscaled():
+    fig, ax = plt.subplots()
+    q = ax.quiver(0, 0, 7, 1, label='v1 + v2', linewidth=3, linestyle='dotted')
+    leg = ax.legend()
+    handle, = leg.legend_handles
+
+    assert q.get_linestyle(scaled=False)[0] == handle.get_linestyle()
+
+
 def test_cross_figure_patch_legend():
     fig, ax = plt.subplots()
     fig2, ax2 = plt.subplots()
@@ -612,7 +622,7 @@ def test_linecollection_scaled_dashes():
     h1, h2, h3 = leg.legend_handles
 
     for oh, lh in zip((lc1, lc2, lc3), (h1, h2, h3)):
-        assert oh.get_linestyles()[0] == lh._dash_pattern
+        assert oh.get_linestyles()[0] == lh.get_linestyle()
 
 
 def test_handler_numpoints():

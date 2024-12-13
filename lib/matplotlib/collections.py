@@ -626,6 +626,11 @@ class Collection(mcolorizer.ColorizingArtist):
             ':', '', (offset, on-off-seq)}. See `.Line2D.set_linestyle` for a
             complete description.
         """
+        if isinstance(ls, (str, tuple)):
+            self._original_linestyle = [ls]
+        else:
+            self._original_linestyle = ls
+
         try:
             dashes = [mlines._get_dash_pattern(ls)]
         except ValueError:
@@ -866,8 +871,11 @@ class Collection(mcolorizer.ColorizingArtist):
     def get_linewidth(self):
         return self._linewidths
 
-    def get_linestyle(self):
-        return self._linestyles
+    def get_linestyle(self, scaled=False):
+        if scaled:
+            return self._linestyles
+
+        return self._original_linestyle
 
     def _set_mappable_flags(self):
         """

@@ -145,15 +145,14 @@ class HandlerDashedLines(HandlerLineCollection):
             except IndexError:
                 color = orig_handle.get_colors()[0]
             try:
-                dashes = orig_handle.get_dashes()[i]
+                linestyle = orig_handle.get_linestyle(scaled=False)[i]
             except IndexError:
-                dashes = orig_handle.get_dashes()[0]
+                linestyle = orig_handle.get_linestyle(scaled=False)[0]
             try:
                 lw = orig_handle.get_linewidths()[i]
             except IndexError:
                 lw = orig_handle.get_linewidths()[0]
-            if dashes[1] is not None:
-                legline.set_dashes(dashes[1])
+            legline.set_linestyle(linestyle)
             legline.set_color(color)
             legline.set_transform(trans)
             legline.set_linewidth(lw)
