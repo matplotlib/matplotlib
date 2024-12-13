@@ -663,9 +663,6 @@ class Patch3DCollection(PatchCollection):
     def get_depthshade(self):
         return self._depthshade
 
-    def get_depthshade_minalpha(self):
-        return self._depthshade_minalpha
-
     def set_depthshade(
         self,
         depthshade,
@@ -885,12 +882,6 @@ class Path3DCollection(PathCollection):
         super().set_linewidth(lw)
         if not self._in_draw:
             self._linewidths3d = np.array(self._linewidths)
-
-    def get_depthshade(self):
-        return self._depthshade
-
-    def get_depthshade_minalpha(self):
-        return self._depthshade_minalpha
 
     def set_depthshade(
         self,
