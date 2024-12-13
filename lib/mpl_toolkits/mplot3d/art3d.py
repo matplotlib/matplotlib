@@ -633,9 +633,7 @@ class Patch3DCollection(PatchCollection):
         zs=0,
         zdir="z",
         depthshade=True,
-        depthshade_inverted=False,
         depthshade_minalpha=0.3,
-        depthshade_legacy=False,
         axlim_clip=False,
         **kwargs
     ):
@@ -654,40 +652,24 @@ class Patch3DCollection(PatchCollection):
         give the appearance of depth (default is *True*).
         This is typically desired in scatter plots.
 
-        *depthshade_inverted* sets whether to reverse the order of
-        depth-shading transparency.
-
         *depthshade_minalpha* sets the minimum alpha value applied by
         depth-shading.
-
-        *depthshade_legacy* sets whether to use the legacy algorithm
-        for depth-shading.
         """
         self._depthshade = depthshade
-        self._depthshade_inverted = depthshade_inverted
         self._depthshade_minalpha = depthshade_minalpha
-        self._depthshade_legacy = depthshade_legacy
         super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir, axlim_clip)
 
     def get_depthshade(self):
         return self._depthshade
 
-    def get_depthshade_inverted(self):
-        return self._depthshade_inverted
-
     def get_depthshade_minalpha(self):
         return self._depthshade_minalpha
-
-    def get_depthshade_legacy(self):
-        return self._depthshade_legacy
 
     def set_depthshade(
         self,
         depthshade,
-        depthshade_inverted=False,
         depthshade_minalpha=0.3,
-        depthshade_legacy=False,
     ):
         """
         Set whether depth shading is performed on collection members.
@@ -697,17 +679,11 @@ class Patch3DCollection(PatchCollection):
         depthshade : bool
             Whether to shade the patches in order to give the appearance of
             depth.
-        depthshade_inverted : bool
-            Whether to reverse order of depth-shading transparency.
         depthshade_minalpha : float
             Sets the minimum alpha value used by depth-shading.
-        depthshade_legacy : bool
-            Whtether to use the legacy algorithm for depth-shading.
         """
         self._depthshade = depthshade
-        self._depthshade_inverted = depthshade_inverted
         self._depthshade_minalpha = depthshade_minalpha
-        self._depthshade_legacy = depthshade_legacy
         self.stale = True
 
     def set_sort_zpos(self, val):
@@ -767,9 +743,7 @@ class Patch3DCollection(PatchCollection):
             _zalpha(
                 color_array,
                 self._vzs,
-                inverted=self._depthshade_inverted,
                 min_alpha=self._depthshade_minalpha,
-                legacy=self._depthshade_legacy,
             )
             if self._vzs is not None and self._depthshade
             else color_array
@@ -813,9 +787,7 @@ class Path3DCollection(PathCollection):
         zs=0,
         zdir="z",
         depthshade=True,
-        depthshade_inverted=False,
         depthshade_minalpha=0.3,
-        depthshade_legacy=False,
         axlim_clip=False,
         **kwargs
     ):
@@ -834,19 +806,11 @@ class Path3DCollection(PathCollection):
         give the appearance of depth (default is *True*).
         This is typically desired in scatter plots.
 
-        *depthshade_inverted* sets whether to reverse the order of
-        depth-shading transparency.
-
         *depthshade_minalpha* sets the minimum alpha value applied by
         depth-shading.
-
-        *depthshade_legacy* sets whether to use the legacy algorithm
-        for depth-shading.
         """
         self._depthshade = depthshade
-        self._depthshade_inverted = depthshade_inverted
         self._depthshade_minalpha = depthshade_minalpha
-        self._depthshade_legacy = depthshade_legacy
         self._in_draw = False
         super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir, axlim_clip)
@@ -925,21 +889,13 @@ class Path3DCollection(PathCollection):
     def get_depthshade(self):
         return self._depthshade
 
-    def get_depthshade_inverted(self):
-        return self._depthshade_inverted
-
     def get_depthshade_minalpha(self):
         return self._depthshade_minalpha
-
-    def get_depthshade_legacy(self):
-        return self._depthshade_legacy
 
     def set_depthshade(
         self,
         depthshade,
-        depthshade_inverted=False,
         depthshade_minalpha=0.3,
-        depthshade_legacy=False,
     ):
         """
         Set whether depth shading is performed on collection members.
@@ -949,17 +905,11 @@ class Path3DCollection(PathCollection):
         depthshade : bool
             Whether to shade the patches in order to give the appearance of
             depth.
-        depthshade_inverted : bool
-            Whether to reverse order of depth-shading transparency.
         depthshade_minalpha : float
             Sets the minimum alpha value used by depth-shading.
-        depthshade_legacy : bool
-            Whtether to use the legacy algorithm for depth-shading.
         """
         self._depthshade = depthshade
-        self._depthshade_inverted = depthshade_inverted
         self._depthshade_minalpha = depthshade_minalpha
-        self._depthshade_legacy = depthshade_legacy
         self.stale = True
 
     def do_3d_projection(self):
@@ -1021,9 +971,7 @@ class Path3DCollection(PathCollection):
             color_array = _zalpha(
                 color_array,
                 self._vzs,
-                inverted=self._depthshade_inverted,
                 min_alpha=self._depthshade_minalpha,
-                legacy=self._depthshade_legacy,
                 _data_scale=self._data_scale,
             )
 
@@ -1051,9 +999,7 @@ def patch_collection_2d_to_3d(
     zs=0,
     zdir="z",
     depthshade=True,
-    depthshade_inverted=False,
     depthshade_minalpha=0.3,
-    depthshade_legacy=False,
     axlim_clip=False,
 ):
     """
@@ -1073,12 +1019,8 @@ def patch_collection_2d_to_3d(
         See `.get_dir_vector` for a description of the values.
     depthshade
         Whether to shade the patches to give a sense of depth. Default: *True*.
-    depthshade_invert
-        Whether to reverse order of depth-shading transparency. Default: *False*.
     depthshade_minalpha
         Sets the minimum alpha value used by depth-shading. Default: 0.3.
-    depthshade_legacy
-        Whether to use the legacy algorithm for depth-shading. Default: *False*.
     axlim_clip : bool, default: False
         Whether to hide patches with a vertex outside the axes view limits.
 
@@ -1089,9 +1031,7 @@ def patch_collection_2d_to_3d(
     elif isinstance(col, PatchCollection):
         col.__class__ = Patch3DCollection
     col._depthshade = depthshade
-    col._depthshade_inverted = depthshade_inverted
     col._depthshade_minalpha = depthshade_minalpha
-    col._depthshade_legacy = depthshade_legacy
     col._in_draw = False
     col.set_3d_properties(zs, zdir, axlim_clip)
 
@@ -1435,9 +1375,7 @@ def rotate_axes(xs, ys, zs, zdir):
 def _zalpha(
     colors,
     zs,
-    inverted=False,
     min_alpha=0.3,
-    legacy=False,
     _data_scale=None,
 ):
     """Modify the alphas of the color list according to depth."""
@@ -1448,49 +1386,17 @@ def _zalpha(
     # Alpha values beyond the range 0-1 inclusive make no sense, so clip them
     min_alpha = np.clip(min_alpha, 0, 1)
 
-    if _data_scale is None or legacy:
-        # Revert to "legacy mode" if the new method of calculating
-        # _data_scale fails, or if the user asks for it
-
-        # This only works well if the points for *zs* are well-spaced in
-        # all three dimensions. Otherwise, at certain orientations the
-        # min and max zs are very close together.
-        # Should really normalize against the viewing depth.
-
-        # Normalize the z-depths to the range 0 - 1
-        norm = Normalize(min(zs), max(zs))
-
-        # Generate alpha multipliers using the normalized z-depths so that
-        # closer points are opaque and the furthest points are still visible,
-        # but transparent
-        if inverted:
-            sats = norm(zs) * (1 - min_alpha) + min_alpha
-        else:
-            sats = 1 - norm(zs) * (1 - min_alpha)
+    if _data_scale is None or _data_scale == 0:
+        # Don't scale the alpha values since we have no valid data scale for reference
+        sats = np.ones_like(zs)
 
     else:
-        # Improved normalization using a scale value derived from the XYZ 
-        # limits of the plot
-
-        if _data_scale == 0:
-            # Don't scale the alpha values since we have no valid
-            # data scale for reference
-            sats = np.ones_like(zs)
-
-        else:
-            if inverted:
-                # Deeper points have an increasingly solid appearance
-                sats = np.clip(1 - (max(zs) - zs) / _data_scale, min_alpha, 1)
-            else:
-                # This is the mode that most closely matches the legacy behavior
-
-                # Deeper points have an increasingly transparent appearance
-                sats = np.clip(1 - (zs - min(zs)) / _data_scale, min_alpha, 1)
+        # Deeper points have an increasingly transparent appearance
+        sats = np.clip(1 - (zs - min(zs)) / _data_scale, min_alpha, 1)
 
     rgba = np.broadcast_to(mcolors.to_rgba_array(colors), (len(zs), 4))
 
-    # Change the alpha values of the colors using the generated alpha
-    # multipliers
+    # Change the alpha values of the colors using the generated alpha multipliers
     return np.column_stack([rgba[:, :3], rgba[:, 3] * sats])
 
 
