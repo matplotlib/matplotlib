@@ -256,3 +256,8 @@ To do so, add a note to the docstring ::
 
 You find several examples for good descriptions if you search the codebase for
 ``.. admonition:: Discouraged``.
+
+Additionally, if a whole function is discouraged, prefix the summary line with
+``[*Discouraged*]`` so that it renders in API overview like this
+
+    [*Discouraged*] Return the XAxis instance.
