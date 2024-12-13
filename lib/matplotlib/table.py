@@ -841,5 +841,6 @@ def table(ax,
     # set_fontsize is only effective after cells are added
     if fontsize is not None:
         table.set_fontsize(fontsize)
+
     ax.add_table(table)
     return table
