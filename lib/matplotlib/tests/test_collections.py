@@ -681,6 +681,16 @@ def test_set_wrong_linestyle():
 
 
 @mpl.style.context('default')
+def test_zero_linewidth_scaling():
+    c = Collection()
+    c.set_linestyle('dashed')
+    c.set_linewidth(0)
+
+    # With a zero linewidth, there can be no pattern
+    assert c.get_linestyle() == [(0, None)]
+
+
+@mpl.style.context('default')
 def test_capstyle():
     col = mcollections.PathCollection([])
     assert col.get_capstyle() is None
