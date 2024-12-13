@@ -1,4 +1,4 @@
-.. _github-stats:
+.. _github-stats-3-9-3:
 
 GitHub statistics for 3.9.3 (Nov 30, 2024)
 ==========================================
@@ -106,14 +106,3 @@ Issues (6):
 * :ghissue:`28386`: [Bug]: Minor issue - Drawing an axline sets slopes less than 1E-8 to 0
 * :ghissue:`28817`: [Bug]: ``~/.config/matplotlib`` is never used because ``~/.config`` is a symlink
 * :ghissue:`28716`: Size hint method in Qt backend should be named ``minimumSizeHint``, not ``minumumSizeHint``
-
-
-Previous GitHub statistics
---------------------------
-
-.. toctree::
-    :maxdepth: 1
-    :glob:
-    :reversed:
-
-    prev_whats_new/github_stats_*
