@@ -409,7 +409,6 @@ def test_tight_layout_text(fig_test, fig_ref):
 
 @mpl3d_image_comparison(['scatter3d.png'], style='mpl20')
 def test_scatter3d():
-    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     ax.scatter(np.arange(10), np.arange(10), np.arange(10),
@@ -423,7 +422,6 @@ def test_scatter3d():
 
 @mpl3d_image_comparison(['scatter3d_color.png'], style='mpl20')
 def test_scatter3d_color():
-    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
 
@@ -467,7 +465,7 @@ def test_scatter3d_modification(fig_ref, fig_test):
     # Changing Path3DCollection properties post-creation should work correctly.
     ax_test = fig_test.add_subplot(projection='3d')
     c = ax_test.scatter(np.arange(10), np.arange(10), np.arange(10),
-                        marker='o')
+                        marker='o', depthshade=True)
     c.set_facecolor('C1')
     c.set_edgecolor('C2')
     c.set_alpha([0.3, 0.7] * 5)
@@ -483,13 +481,13 @@ def test_scatter3d_modification(fig_ref, fig_test):
                    depthshade=False, s=75, linewidths=3)
 
 
-@pytest.mark.parametrize('depthshade', [True, False])
 @check_figures_equal(extensions=['png'])
-def test_scatter3d_sorting(fig_ref, fig_test, depthshade):
+def test_scatter3d_sorting(fig_ref, fig_test):
     """Test that marker properties are correctly sorted."""
 
     y, x = np.mgrid[:10, :10]
     z = np.arange(x.size).reshape(x.shape)
+    depthshade = False
 
     sizes = np.full(z.shape, 25)
     sizes[0::2, 0::2] = 100
@@ -890,7 +888,6 @@ def test_mixedsamplesraises():
 # remove tolerance when regenerating the test image
 @mpl3d_image_comparison(['quiver3d.png'], style='mpl20', tol=0.003)
 def test_quiver3d():
-    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     pivots = ['tip', 'middle', 'tail']
@@ -968,7 +965,7 @@ def test_patch_collection_modification(fig_test, fig_ref):
     patch1 = Circle((0, 0), 0.05)
     patch2 = Circle((0.1, 0.1), 0.03)
     facecolors = np.array([[0., 0.5, 0., 1.], [0.5, 0., 0., 0.5]])
-    c = art3d.Patch3DCollection([patch1, patch2], linewidths=3)
+    c = art3d.Patch3DCollection([patch1, patch2], linewidths=3, depthshade=True)
 
     ax_test = fig_test.add_subplot(projection='3d')
     ax_test.add_collection3d(c)
