@@ -12,10 +12,8 @@ from typing import Any, Literal
 
 from pandas import DataFrame
 
-
 class Cell(Rectangle):
     PAD: float
-
     def __init__(
         self,
         xy: tuple[float, float],
@@ -34,7 +32,6 @@ class Cell(Rectangle):
     def set_fontsize(self, size: float) -> None: ...
     def get_fontsize(self) -> float: ...
     def auto_set_font_size(self, renderer: RendererBase) -> float: ...
-
     def get_text_bounds(
         self, renderer: RendererBase
     ) -> tuple[float, float, float, float]: ...
@@ -48,12 +45,10 @@ class Cell(Rectangle):
 
 CustomCell = Cell
 
-
 class Table(Artist):
     codes: dict[str, int]
     FONTSIZE: float
     AXESPAD: float
-
     def __init__(
         self, ax: Axes, loc: str | None = ..., bbox: Bbox | None = ..., **kwargs
     ) -> None: ...
@@ -73,7 +68,6 @@ class Table(Artist):
     def set_fontsize(self, size: float) -> None: ...
     def get_celld(self) -> dict[tuple[int, int], Cell]: ...
 
-
 def table(
     ax: Axes,
     cellText: Sequence[Sequence[str]] | DataFrame | None = ...,
@@ -89,6 +83,6 @@ def table(
     loc: str = ...,
     bbox: Bbox | None = ...,
     edges: str = ...,
-    fontsize: float | None = ..., 
+    fontsize: float | None = ...,
     **kwargs
 ) -> Table: ...
