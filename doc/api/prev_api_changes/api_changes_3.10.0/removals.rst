@@ -1,3 +1,126 @@
+ttconv removed
+~~~~~~~~~~~~~~
+
+The ``matplotlib._ttconv`` extension has been removed. Most of its
+functionaliy was already replaced by other code, and the only thing left
+was embedding TTF fonts in PostScript in Type 42 format. This is now
+done in the PS backend using the FontTools library.
+
+Remove hard reference to ``lastevent`` in ``LocationEvent``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+This was previously used to detect exiting from axes, however the hard
+reference would keep closed `.Figure` objects and their children alive longer
+than expected.
+
+``ft2font.FT2Image.draw_rect`` and ``ft2font.FT2Font.get_xys``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... have been removed as they are unused.
+
+``Tick.set_label``, ``Tick.set_label1`` and ``Tick.set_label2``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are removed.  Calling these methods from third-party code usually had no
+effect, as the labels are overwritten at draw time by the tick formatter.
+
+
+Functions in ``mpl_toolkits.mplot3d.proj3d``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The function ``transform`` is just an alias for ``proj_transform``,
+use the latter instead.
+
+The following functions were either unused (so no longer required in Matplotlib)
+or considered private.
+
+* ``ortho_transformation``
+* ``persp_transformation``
+* ``proj_points``
+* ``proj_trans_points``
+* ``rot_x``
+* ``rotation_about_vector``
+* ``view_transformation``
+
+
+Arguments other than ``renderer`` to ``get_tightbbox``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... are keyword-only arguments. This is for consistency and that
+different classes have different additional arguments.
+
+
+Method parameters renamed to match base classes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The only parameter of ``transform_affine`` and ``transform_non_affine`` in ``Transform`` subclasses is renamed
+to *values*.
+
+The *points* parameter of ``transforms.IdentityTransform.transform`` is renamed to *values*.
+
+The *trans* parameter of ``table.Cell.set_transform`` is renamed to *t* consistently with
+`.Artist.set_transform`.
+
+The *clippath* parameters of ``axis.Axis.set_clip_path``  and ``axis.Tick.set_clip_path`` are
+renamed to *path* consistently with `.Artist.set_clip_path`.
+
+The *s* parameter of ``images.NonUniformImage.set_filternorm`` is renamed to *filternorm*
+consistently with ``_ImageBase.set_filternorm``.
+
+The *s* parameter of ``images.NonUniformImage.set_filterrad`` is renamed to *filterrad*
+consistently with ``_ImageBase.set_filterrad``.
+
+The only parameter of ``Annotation.contains`` and ``Legend.contains`` is renamed to *mouseevent*
+consistently with `.Artist.contains`.
+
+Method parameters renamed
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The *p* parameter of ``BboxBase.padded`` is renamed to *w_pad*, consistently with the other parameter, *h_pad*
+
+*numdecs* parameter and attribute of ``LogLocator``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are removed without replacement, because they had no effect.
+The ``PolyQuadMesh`` class requires full 2D arrays of values
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously, if a masked array was input, the list of polygons within the collection
+would shrink to the size of valid polygons and users were required to keep track of
+which polygons were drawn and call ``set_array()`` with the smaller "compressed"
+array size. Passing the "compressed" and flattened array values will no longer
+work and the full 2D array of values (including the mask) should be passed
+to `.PolyQuadMesh.set_array`.
+``ContourSet.collections``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... has been removed.  `~.ContourSet` is now implemented as a single
+`~.Collection` of paths, each path corresponding to a contour level, possibly
+including multiple unconnected components.
+
+``ContourSet.antialiased``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... has been removed.  Use `~.Collection.get_antialiased` or
+`~.Collection.set_antialiased` instead.  Note that `~.Collection.get_antialiased`
+returns an array.
+
+``tcolors`` and ``tlinewidths`` attributes of ``ContourSet``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... have been removed.  Use `~.Collection.get_facecolor`, `~.Collection.get_edgecolor`
+or `~.Collection.get_linewidths` instead.
+
+
+``calc_label_rot_and_inline`` method of ``ContourLabeler``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... has been removed without replacement.
+
+
+``add_label_clabeltext`` method of ``ContourLabeler``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... has been removed.  Use `~.ContourLabeler.add_label` instead.
 Passing extra positional arguments to ``Figure.add_axes``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

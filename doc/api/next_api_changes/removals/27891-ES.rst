@@ -1,4 +1,0 @@
-``ft2font.FT2Image.draw_rect`` and ``ft2font.FT2Font.get_xys``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-... have been removed as they are unused.
