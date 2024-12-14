@@ -1585,19 +1585,8 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         if origin == "lower":
             arr = arr[::-1]
 
-        # This specifically handled list-of-list-of-list
-        # Produced an image instance using the data from arr and do scaling
         if (isinstance(arr, list)):
-            fig = Figure()
-            ax = fig.add_axes([0, 0, 1, 1],
-                              aspect='auto',
-                              frameon=False,
-                              xticks=[],
-                              yticks=[])
-            im = AxesImage(ax, cmap=cmap)
-            im.set_data(arr)
-            im._scale_norm(None, vmin, vmax)
-            arr = im.get_array()
+            arr = np.asarray(arr, dtype=np.uint8)
 
         if (isinstance(arr, memoryview) and arr.format == "B"
                 and arr.ndim == 3 and arr.shape[-1] == 4):
