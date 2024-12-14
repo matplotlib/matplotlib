@@ -434,5 +434,5 @@ process will raise various warnings.
 
 * `Inkscape <https://inkscape.org>`_
 * `optipng <http://optipng.sourceforge.net>`_
-* the font `xkcd script <https://github.com/ipython/xkcd-font/>`_ or `Comic Neue <http://comicneue.com/>`_
+* the font `xkcd script <https://github.com/ipython/xkcd-font/>`_ or `Comic Neue <https://github.com/crozynski/comicneue>`_
 * the font "Times New Roman"

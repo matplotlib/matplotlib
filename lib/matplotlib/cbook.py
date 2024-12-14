@@ -615,9 +615,9 @@ def flatten(seq, scalarp=is_scalar_or_string):
         ['John', 'Hunter', 1, 23, 42, 5, 23]
 
     By: Composite of Holger Krekel and Luther Blissett
-    From: https://code.activestate.com/recipes/121294/
+    From: https://code.activestate.com/recipes/121294-simple-generator-for-flattening-nested-containers/
     and Recipe 1.12 in cookbook
-    """
+    """  # noqa: E501
     for item in seq:
         if scalarp(item) or item is None:
             yield item
