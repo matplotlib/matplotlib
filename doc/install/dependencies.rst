@@ -256,7 +256,7 @@ source files.
    .. tab-item:: Linux
 
       On some Linux systems, you can install a meta-build package. For example,
-      on  Ubuntu ``apt install build-essential``
+      on  Ubuntu ``apt install build-essential`` with elevated privileges.
 
       Otherwise, use the system distribution's package manager to install
       :ref:`gcc <compiler-table>`.
