@@ -4169,8 +4169,6 @@ def table(
     loc="bottom",
     bbox=None,
     edges="closed",
-    *,
-    fontsize=None,
     **kwargs,
 ):
     return gca().table(
@@ -4187,7 +4185,6 @@ def table(
         loc=loc,
         bbox=bbox,
         edges=edges,
-        fontsize=fontsize,
         **kwargs,
     )
 
