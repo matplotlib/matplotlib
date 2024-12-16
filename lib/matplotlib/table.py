@@ -653,7 +653,7 @@ def table(ax,
           cellLoc='right', colWidths=None,
           rowLabels=None, rowColours=None, rowLoc='left',
           colLabels=None, colColours=None, colLoc='center',
-          loc='bottom', bbox=None, edges='closed', *, fontsize=None,
+          loc='bottom', bbox=None, edges='closed',
           **kwargs):
     """
     Add a table to an `~.axes.Axes`.
