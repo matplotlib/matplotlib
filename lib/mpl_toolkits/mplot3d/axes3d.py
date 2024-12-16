@@ -1886,7 +1886,7 @@ class Axes3D(Axes):
 
     def invert_zaxis(self):
         """
-        Invert the z-axis.
+        [*Discouraged*] Invert the z-axis.
 
         .. admonition:: Discouraged
 
@@ -1906,13 +1906,14 @@ class Axes3D(Axes):
     get_zinverted = _axis_method_wrapper("zaxis", "get_inverted")
     zaxis_inverted = _axis_method_wrapper("zaxis", "get_inverted")
     if zaxis_inverted.__doc__:
-        zaxis_inverted.__doc__ += textwrap.dedent("""
+        zaxis_inverted.__doc__ = ("[*Discouraged*] " + zaxis_inverted.__doc__ +
+                                  textwrap.dedent("""
 
         .. admonition:: Discouraged
 
             The use of this method is discouraged.
             Use `.Axes3D.get_zinverted` instead.
-        """)
+        """))
 
     def get_zbound(self):
         """

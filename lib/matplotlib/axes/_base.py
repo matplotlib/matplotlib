@@ -3602,7 +3602,7 @@ class _AxesBase(martist.Artist):
 
     def invert_xaxis(self):
         """
-        Invert the x-axis.
+        [*Discouraged*] Invert the x-axis.
 
         .. admonition:: Discouraged
 
@@ -3621,13 +3621,14 @@ class _AxesBase(martist.Artist):
     get_xinverted = _axis_method_wrapper("xaxis", "get_inverted")
     xaxis_inverted = _axis_method_wrapper("xaxis", "get_inverted")
     if xaxis_inverted.__doc__:
-        xaxis_inverted.__doc__ += textwrap.dedent("""
+        xaxis_inverted.__doc__ = ("[*Discouraged*] " + xaxis_inverted.__doc__ +
+                                  textwrap.dedent("""
 
         .. admonition:: Discouraged
 
             The use of this method is discouraged.
             Use `.Axes.get_xinverted` instead.
-        """)
+        """))
 
     def get_xbound(self):
         """
@@ -3870,7 +3871,7 @@ class _AxesBase(martist.Artist):
 
     def invert_yaxis(self):
         """
-        Invert the y-axis.
+        [*Discouraged*]  Invert the y-axis.
 
         .. admonition:: Discouraged
 
@@ -3889,13 +3890,14 @@ class _AxesBase(martist.Artist):
     get_yinverted = _axis_method_wrapper("yaxis", "get_inverted")
     yaxis_inverted = _axis_method_wrapper("yaxis", "get_inverted")
     if yaxis_inverted.__doc__:
-        yaxis_inverted.__doc__ += textwrap.dedent("""
+        yaxis_inverted.__doc__ = ("[*Discouraged*] " + yaxis_inverted.__doc__ +
+                                  textwrap.dedent("""
 
         .. admonition:: Discouraged
 
             The use of this method is discouraged.
             Use `.Axes.get_yinverted` instead.
-        """)
+        """))
 
     def get_ybound(self):
         """
