@@ -4596,7 +4596,7 @@ class _AxesBase(martist.Artist):
         self._twinned_axes.join(self, twin)
         return twin
 
-    def twinx(self):
+    def twinx(self, **kwargs):
         """
         Create a twin Axes sharing the xaxis.
 
@@ -4605,6 +4605,11 @@ class _AxesBase(martist.Artist):
         x-axis autoscale setting will be inherited from the original
         Axes.  To ensure that the tick marks of both y-axes align, see
         `~matplotlib.ticker.LinearLocator`.
+
+        Parameters
+        ----------
+        kwargs : dict
+            The keyword arguments passed to ``add_subplot()`` or ``add_axes()``.
 
         Returns
         -------
@@ -4616,7 +4621,7 @@ class _AxesBase(martist.Artist):
         For those who are 'picking' artists while using twinx, pick
         events are only called for the artists in the top-most Axes.
         """
-        ax2 = self._make_twin_axes(sharex=self)
+        ax2 = self._make_twin_axes(sharex=self, axes_class=type(self), **kwargs)
         ax2.yaxis.tick_right()
         ax2.yaxis.set_label_position('right')
         ax2.yaxis.set_offset_position('right')
@@ -4627,7 +4632,7 @@ class _AxesBase(martist.Artist):
         ax2.xaxis.units = self.xaxis.units
         return ax2
 
-    def twiny(self):
+    def twiny(self, **kwargs):
         """
         Create a twin Axes sharing the yaxis.
 
@@ -4636,6 +4641,11 @@ class _AxesBase(martist.Artist):
         y-axis autoscale setting will be inherited from the original Axes.
         To ensure that the tick marks of both x-axes align, see
         `~matplotlib.ticker.LinearLocator`.
+
+        Parameters
+        ----------
+        kwargs : dict
+            The keyword arguments passed to ``add_subplot()`` or ``add_axes()``.
 
         Returns
         -------
@@ -4647,7 +4657,7 @@ class _AxesBase(martist.Artist):
         For those who are 'picking' artists while using twiny, pick
         events are only called for the artists in the top-most Axes.
         """
-        ax2 = self._make_twin_axes(sharey=self)
+        ax2 = self._make_twin_axes(sharey=self, axes_class=type(self), **kwargs)
         ax2.xaxis.tick_top()
         ax2.xaxis.set_label_position('top')
         ax2.set_autoscaley_on(self.get_autoscaley_on())
