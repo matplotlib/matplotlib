@@ -28,37 +28,37 @@ the *display* coordinates.  In the "Transformation Object" column, ``ax`` is a
 |Coordinate      |Description                        |Transformation object        |
 |system          |                                   |from system to display       |
 +================+===================================+=============================+
-|"data"          |The coordinate system of the data  |``ax.transData``             |
+|*data*          |The coordinate system of the data  |``ax.transData``             |
 |                |in the Axes.                       |                             |
 +----------------+-----------------------------------+-----------------------------+
-|"axes"          |The coordinate system of the       |``ax.transAxes``             |
+|*axes*          |The coordinate system of the       |``ax.transAxes``             |
 |                |`~matplotlib.axes.Axes`; (0, 0)    |                             |
 |                |is bottom left of the Axes, and    |                             |
 |                |(1, 1) is top right of the Axes.   |                             |
 +----------------+-----------------------------------+-----------------------------+
-|"subfigure"     |The coordinate system of the       |``subfigure.transSubfigure`` |
+|*subfigure*     |The coordinate system of the       |``subfigure.transSubfigure`` |
 |                |`.SubFigure`; (0, 0) is bottom left|                             |
 |                |of the subfigure, and (1, 1) is top|                             |
 |                |right of the subfigure.  If a      |                             |
 |                |figure has no subfigures, this is  |                             |
 |                |the same as ``transFigure``.       |                             |
 +----------------+-----------------------------------+-----------------------------+
-|"figure"        |The coordinate system of the       |``fig.transFigure``          |
+|*figure*        |The coordinate system of the       |``fig.transFigure``          |
 |                |`.Figure`; (0, 0) is bottom left   |                             |
 |                |of the figure, and (1, 1) is top   |                             |
 |                |right of the figure.               |                             |
 +----------------+-----------------------------------+-----------------------------+
-|"figure-inches" |The coordinate system of the       |``fig.dpi_scale_trans``      |
+|*figure-inches* |The coordinate system of the       |``fig.dpi_scale_trans``      |
 |                |`.Figure` in inches; (0, 0) is     |                             |
 |                |bottom left of the figure, and     |                             |
 |                |(width, height) is the top right   |                             |
 |                |of the figure in inches.           |                             |
 +----------------+-----------------------------------+-----------------------------+
-|"xaxis",        |Blended coordinate systems, using  |``ax.get_xaxis_transform()``,|
-|"yaxis"         |data coordinates on one direction  |``ax.get_yaxis_transform()`` |
+|*xaxis*,        |Blended coordinate systems, using  |``ax.get_xaxis_transform()``,|
+|*yaxis*         |data coordinates on one direction  |``ax.get_yaxis_transform()`` |
 |                |and axes coordinates on the other. |                             |
 +----------------+-----------------------------------+-----------------------------+
-|"display"       |The native coordinate system of the|`None`, or                   |
+|*display*       |The native coordinate system of the|`None`, or                   |
 |                |output ; (0, 0) is the bottom left |`.IdentityTransform()`       |
 |                |of the window, and (width, height) |                             |
 |                |is top right of the output in      |                             |
