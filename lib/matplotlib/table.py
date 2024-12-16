@@ -839,8 +839,8 @@ def table(ax,
             table.auto_set_column_width(-1)
 
     # set_fontsize is only effective after cells are added
-    if fontsize is not None:
-        table.set_fontsize(fontsize)
+    if "fontsize" in kwargs:
+        table.set_fontsize(kwargs["fontsize"])
 
     ax.add_table(table)
     return table
