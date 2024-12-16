@@ -8,7 +8,7 @@ from .transforms import Bbox
 from .typing import ColorType
 
 from collections.abc import Sequence
-from typing import Any, Literal
+from typing import Any, Literal, TYPE_CHECKING
 
 from pandas import DataFrame
 
@@ -83,6 +83,5 @@ def table(
     loc: str = ...,
     bbox: Bbox | None = ...,
     edges: str = ...,
-    fontsize: float | None = ...,
     **kwargs
 ) -> Table: ...
