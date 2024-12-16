@@ -6,7 +6,7 @@ from .path import Path
 from .text import Text
 from .transforms import Bbox
 from .typing import ColorType
-
+from typing import Optional, Union
 from collections.abc import Sequence
 from typing import Any, Literal, TYPE_CHECKING
 
@@ -83,5 +83,7 @@ def table(
     loc: str = ...,
     bbox: Bbox | None = ...,
     edges: str = ...,
+    *,
+    fontsize: Optional[Union[int, float]] = None,
     **kwargs
 ) -> Table: ...
