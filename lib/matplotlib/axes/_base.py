@@ -4621,7 +4621,9 @@ class _AxesBase(martist.Artist):
         For those who are 'picking' artists while using twinx, pick
         events are only called for the artists in the top-most Axes.
         """
-        ax2 = self._make_twin_axes(sharex=self, axes_class=type(self), **kwargs)
+        if not {"projection", "polar", "axes_class"}.intersection(kwargs):
+            kwargs["axes_class"] = type(self)
+        ax2 = self._make_twin_axes(sharex=self, **kwargs)
         ax2.yaxis.tick_right()
         ax2.yaxis.set_label_position('right')
         ax2.yaxis.set_offset_position('right')
@@ -4657,7 +4659,9 @@ class _AxesBase(martist.Artist):
         For those who are 'picking' artists while using twiny, pick
         events are only called for the artists in the top-most Axes.
         """
-        ax2 = self._make_twin_axes(sharey=self, axes_class=type(self), **kwargs)
+        if not {"projection", "polar", "axes_class"}.intersection(kwargs):
+            kwargs["axes_class"] = type(self)
+        ax2 = self._make_twin_axes(sharey=self, **kwargs)
         ax2.xaxis.tick_top()
         ax2.xaxis.set_label_position('top')
         ax2.set_autoscaley_on(self.get_autoscaley_on())
