@@ -77,9 +77,15 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     integration_max_step : float, default: 1.0
         Multiplier on the maximum step in the streamline integration routine.
         Must be greater than zero.
+
+        .. versionadded:: 3.11
+
     integration_max_error : float, default: 1.0
         Multiplier on the maximum error in the streamline integration routine.
         Must be greater than zero.
+
+        .. versionadded:: 3.11
+
     num_arrows : int
         Number of arrows per streamline. The arrows are spaced equally along the steps
         each streamline takes. Note that this can be different to being spaced equally
