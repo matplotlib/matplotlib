@@ -1,0 +1,6 @@
+Setting titles of figures using webagg backend
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously when using the ``webagg`` backend the title of a figure was set using
+``figure.set_label``. Now it is set using ``figure.canvas.manager.set_window_title``
+which is more consistent with other backends.
