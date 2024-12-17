@@ -1443,7 +1443,7 @@ class Axis(martist.Artist):
 
     def get_label(self):
         """
-        Return the axis label as a Text instance.
+        [*Discouraged*] Return the axis label as a Text instance.
 
         .. admonition:: Discouraged
 
