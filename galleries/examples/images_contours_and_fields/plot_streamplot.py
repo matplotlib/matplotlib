@@ -87,9 +87,10 @@ plt.show()
 # the ``integration_max_step`` and ``integration_max_error`` optional parameters.
 # See the `~.axes.Axes.streamplot` function documentation for more details.
 #
-# This example shows how adjusting the maximum allowed step size for the
-# integrator changes the appearance of the streamline. The differences are subtle,
-# but can be observed particularly where the streamlines have high curvature.
+# This example shows how adjusting the maximum allowed step size and error for
+# the integrator changes the appearance of the streamline. The differences can
+# be subtle, but can be observed particularly where the streamlines have
+# high curvature.
 
 # Linear potential flow over a lifting cylinder
 n = 50
