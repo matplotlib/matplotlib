@@ -19,8 +19,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                minlength=0.1, transform=None, zorder=None, start_points=None,
                maxlength=4.0, integration_direction='both',
-               broken_streamlines=True, integration_max_step=1.0,
-               integration_max_error=1.0, *, num_arrows=1):
+               broken_streamlines=True, *, integration_max_step=1.0,
+               integration_max_error=1.0, num_arrows=1):
     """
     Draw streamlines of a vector flow.
 

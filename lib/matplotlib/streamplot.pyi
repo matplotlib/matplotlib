@@ -28,9 +28,9 @@ def streamplot(
     maxlength: float = ...,
     integration_direction: Literal["forward", "backward", "both"] = ...,
     broken_streamlines: bool = ...,
+    *,
     integration_max_step: float = ...,
     integration_max_error: float = ...,
-    *,
     num_arrows: int = ...,
 ) -> StreamplotSet: ...
 
