@@ -4128,6 +4128,8 @@ def streamplot(
     integration_direction="both",
     broken_streamlines=True,
     *,
+    integration_max_step=1.0,
+    integration_max_error=1.0,
     num_arrows=1,
     data=None,
 ):
@@ -4150,6 +4152,8 @@ def streamplot(
         maxlength=maxlength,
         integration_direction=integration_direction,
         broken_streamlines=broken_streamlines,
+        integration_max_step=integration_max_step,
+        integration_max_error=integration_max_error,
         num_arrows=num_arrows,
         **({"data": data} if data is not None else {}),
     )
