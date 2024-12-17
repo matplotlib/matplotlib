@@ -100,6 +100,58 @@ def test_direction():
                    linewidth=2, density=2)
 
 
+@image_comparison(['streamplot_integration.pdf'],
+                  remove_text=True, style='mpl20', tol=0.1)
+def test_integration_options():
+    # Linear potential flow over a lifting cylinder
+    n = 100
+    x, y = np.meshgrid(np.linspace(-2, 2, n), np.linspace(-3, 3, n))
+    th = np.arctan2(y, x)
+    r = np.sqrt(x**2 + y**2)
+    vr = -np.cos(th) / r**2
+    vt = -np.sin(th) / r**2 - 1 / r
+    vx = vr * np.cos(th) - vt * np.sin(th) + 1.0
+    vy = vr * np.sin(th) + vt * np.cos(th)
+
+    # Seed points
+    n_seed = 50
+    seed_pts = np.column_stack((np.full(n_seed, -1.75), np.linspace(-2, 2, n_seed)))
+
+    fig, axs = plt.subplots(2, 1, figsize=(3, 4.5))
+    for i, max_step in enumerate([4, 0.05]):
+        axs[i].streamplot(
+            x,
+            y,
+            vx,
+            vy,
+            start_points=seed_pts,
+            broken_streamlines=False,
+            arrowsize=1e-10,
+            linewidth=0.5,
+            color="k",
+            integration_max_step=max_step,
+        )
+        axs[i].text(
+            0.0,
+            0.0,
+            f"integration_max_step: {max_step}",
+            ha="center",
+            va="center",
+            fontsize=6,
+        )
+
+    # Draw the cylinder
+    th_circ = np.linspace(0, 2 * np.pi, 100)
+    for ax in axs:
+        ax.fill(np.cos(th_circ), np.sin(th_circ), color="w", ec="k")
+
+        ax.set_aspect("equal")
+        ax.set_ylim(-1.5, 1.5)
+        ax.axis("off")
+
+    fig.tight_layout()
+
+
 def test_streamplot_limits():
     ax = plt.axes()
     x = np.linspace(-5, 10, 20)

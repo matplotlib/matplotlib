@@ -76,6 +76,70 @@ axs[7].set_title('Streamplot with unbroken streamlines')
 
 plt.tight_layout()
 plt.show()
+
+# %%
+# Streamline computation
+# ----------------------
+#
+# The streamlines are computed by integrating along the provided vector field
+# from the seed points, which are either generated automatically or manually
+# specified. The accuracy and smoothness of the streamlines can be adjusted using
+# the ``integration_max_step`` and ``integration_max_error`` optional parameters.
+# See the `~.axes.Axes.streamplot` function documentation for more details.
+#
+# This example shows how adjusting the maximum allowed step size for the
+# integrator changes the appearance of the streamline. The differences are subtle,
+# but can be observed particularly where the streamlines have high curvature.
+
+# Linear potential flow over a lifting cylinder
+n = 100
+x, y = np.meshgrid(np.linspace(-2, 2, n), np.linspace(-3, 3, n))
+th = np.arctan2(y, x)
+r = np.sqrt(x**2 + y**2)
+vr = -np.cos(th) / r**2
+vt = -np.sin(th) / r**2 - 1 / r
+vx = vr * np.cos(th) - vt * np.sin(th) + 1.0
+vy = vr * np.sin(th) + vt * np.cos(th)
+
+# Seed points
+n_seed = 50
+seed_pts = np.column_stack((np.full(n_seed, -1.75), np.linspace(-2, 2, n_seed)))
+
+_, axs = plt.subplots(2, 1, figsize=(3, 4.5))
+for i, max_step in enumerate([4, 0.05]):
+    axs[i].streamplot(
+        x,
+        y,
+        vx,
+        vy,
+        start_points=seed_pts,
+        broken_streamlines=False,
+        density=1,
+        arrowsize=1e-10,
+        linewidth=0.5,
+        color="k",
+        integration_max_step=max_step,
+    )
+    axs[i].text(
+        0.0,
+        0.0,
+        f"integration_max_step: {max_step}",
+        ha="center",
+        va="center",
+        fontsize=6,
+    )
+
+# Draw the cylinder
+th_circ = np.linspace(0, 2 * np.pi, 100)
+for ax in axs:
+    ax.fill(np.cos(th_circ), np.sin(th_circ), color="w", ec="k")
+
+    ax.set_aspect("equal")
+    ax.set_ylim(-1.5, 1.5)
+    ax.axis("off")
+
+plt.tight_layout()
+plt.show()
 # %%
 #
 # .. admonition:: References
