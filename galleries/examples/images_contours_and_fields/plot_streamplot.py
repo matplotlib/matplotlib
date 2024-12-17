@@ -92,7 +92,7 @@ plt.show()
 # but can be observed particularly where the streamlines have high curvature.
 
 # Linear potential flow over a lifting cylinder
-n = 100
+n = 50
 x, y = np.meshgrid(np.linspace(-2, 2, n), np.linspace(-3, 3, n))
 th = np.arctan2(y, x)
 r = np.sqrt(x**2 + y**2)
@@ -105,8 +105,8 @@ vy = vr * np.sin(th) + vt * np.cos(th)
 n_seed = 50
 seed_pts = np.column_stack((np.full(n_seed, -1.75), np.linspace(-2, 2, n_seed)))
 
-_, axs = plt.subplots(2, 1, figsize=(3, 4.5))
-for i, max_step in enumerate([4, 0.05]):
+_, axs = plt.subplots(2, 1, figsize=(6, 9.5))
+for i, max_val in enumerate([5, 0.05]):
     axs[i].streamplot(
         x,
         y,
@@ -118,15 +118,16 @@ for i, max_step in enumerate([4, 0.05]):
         arrowsize=1e-10,
         linewidth=0.5,
         color="k",
-        integration_max_step=max_step,
+        integration_max_step=max_val,
+        integration_max_error=max_val,
     )
     axs[i].text(
         0.0,
         0.0,
-        f"integration_max_step: {max_step}",
+        f"integration_max_step: {max_val}\n" +
+        f"integration_max_error: {max_val}",
         ha="center",
         va="center",
-        fontsize=6,
     )
 
 # Draw the cylinder
