@@ -106,12 +106,14 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     if integration_max_step <= 0.0:
         raise ValueError(
-            f"The value of integration_max_step must be > 0, got {integration_max_step=}"
+            "The value of integration_max_step must be > 0, " +
+            f"got {integration_max_step=}"
         )
 
     if integration_max_error <= 0.0:
         raise ValueError(
-            f"The value of integration_max_error must be > 0, got {integration_max_error=}"
+            "The value of integration_max_error must be > 0, " +
+            f"got {integration_max_error=}"
         )
 
     if num_arrows < 0:
