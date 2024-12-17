@@ -75,18 +75,22 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         leave the plot domain.  If True, they may be terminated if they
         come too close to another streamline.
     integration_max_step : float, default: 1.0
-        Multiplier on the maximum step in the streamline integration routine. A
-        value between zero and one results in a max integration step smaller than
-        the default max step, while a value greater than one results in a max
-        integration step larger than the default value. Must be greater than zero.
+        Multiplier on the maximum allowable step in the streamline integration routine.
+        A value between zero and one results in a max integration step smaller than
+        the default max step, resulting in more accurate streamlines at the cost
+        of greater computation time. A value greater than one results in a max
+        integration step larger than the default value, reducing computation time
+        at the cost of less accurate streamlines. Must be greater than zero.
 
         .. versionadded:: 3.11
 
     integration_max_error : float, default: 1.0
-        Multiplier on the maximum error in the streamline integration routine. A
-        value between zero and one results in a tighter max integration error than
-        the default max error, while a value greater than one results in a looser
-        max integration error than the default value. Must be greater than zero.
+        Multiplier on the maximum allowable error in the streamline integration routine.
+        A value between zero and one results in a tighter max integration error than
+        the default max error, resulting in more accurate streamlines at the cost
+        of greater computation time. A value greater than one results in a looser
+        max integration error than the default value, reducing computation time at
+        the cost of less accurate streamlines. Must be greater than zero.
 
         .. versionadded:: 3.11
 
