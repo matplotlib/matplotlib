@@ -18,7 +18,6 @@ from matplotlib import (
     path as mpath)
 from matplotlib.collections import (
     Collection, LineCollection, PolyCollection, PatchCollection, PathCollection)
-from matplotlib.colors import Normalize
 from matplotlib.patches import Patch
 from . import proj3d
 

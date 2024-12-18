@@ -2904,7 +2904,7 @@ class Axes3D(Axes):
                                      "edgecolors", "c", "facecolor",
                                      "facecolors", "color"])
     def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=True,
-                *args, 
+                *args,
                 depthshade_minalpha=0.3,
                 axlim_clip=False,
                 **kwargs):
@@ -2987,8 +2987,7 @@ class Axes3D(Axes):
             depthshade=depthshade,
             depthshade_minalpha=depthshade_minalpha,
             axlim_clip=axlim_clip,
-       )
-
+        )
         if self._zmargin < 0.05 and xs.size > 0:
             self.set_zmargin(0.05)
 
