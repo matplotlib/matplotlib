@@ -1599,7 +1599,7 @@ def test_polygon_selector_redraw(ax, draw_bounding_box):
     for (etype, event_args) in event_sequence:
         do_event(tool, etype, **event_args)
     # After removing two verts, only one remains, and the
-    # selector should be automatically resete
+    # selector should be automatically reset
     assert tool.verts == verts[0:2]
 
 
