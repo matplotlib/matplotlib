@@ -883,6 +883,9 @@ class Path3DCollection(PathCollection):
         if not self._in_draw:
             self._linewidths3d = np.array(self._linewidths)
 
+    def get_depthshade(self):
+        return self._depthshade
+
     def set_depthshade(
         self,
         depthshade,
