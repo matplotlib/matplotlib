@@ -91,7 +91,7 @@ class FigureBase(Artist):
 
     # TODO: docstring indicates SubplotSpec a valid arg, but none of the listed signatures appear to be that
     @overload
-    def add_subplot(self, *args, projection="3d", **kwargs) -> mpl_toolkits.mplot3d.Axes3D: ...
+    def add_subplot(self, *args, projection: Literal["3d"], **kwargs) -> mpl_toolkits.mplot3d.Axes3D: ...
     @overload
     def add_subplot(
         self, nrows: int, ncols: int, index: int | tuple[int, int], **kwargs
