@@ -1208,7 +1208,7 @@ def test_colorbar_errors(kwargs, error, message):
         fig.colorbar(im, **kwargs)
 
 
-def test_colorbar_axes_parmeters():
+def test_colorbar_axes_parameters():
     fig, ax = plt.subplots(2)
     im = ax[0].imshow([[0, 1], [2, 3]])
     # colorbar should accept any form of axes sequence:

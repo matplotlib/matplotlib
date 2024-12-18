@@ -1068,7 +1068,7 @@ class _AxesBase(martist.Artist):
         Returns
         -------
         transform : Transform
-            The transform used for drawing secondart y-axis labels, which will
+            The transform used for drawing secondary y-axis labels, which will
             add *pad_points* of padding (in points) between the axis and the
             label.  The x-direction is in axis coordinates and the y-direction
             is in data coordinates

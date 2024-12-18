@@ -51,7 +51,7 @@ dev = [
     "setuptools_scm>=7",
     # Not required by us but setuptools_scm without a version, cso _if_
     # installed, then setuptools_scm 8 requires at least this version.
-    # Unfortunately, we can't do a sort of minimum-if-instaled dependency, so
+    # Unfortunately, we can't do a sort of minimum-if-installed dependency, so
     # we need to keep this for now until setuptools_scm _fully_ drops
     # setuptools.
     "setuptools>=64",
