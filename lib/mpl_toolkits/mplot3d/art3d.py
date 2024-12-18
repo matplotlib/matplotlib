@@ -769,7 +769,7 @@ def _get_data_scale(X, Y, Z):
         return 0
 
     # Estimate the scale using the RSS of the ranges of the dimensions
-    return np.sqrt(np.ptp(X) ** 2 + np.ptp(Y) ** 2 + np.ptp(Z) ** 2)
+    return np.sqrt(np.ma.ptp(X) ** 2 + np.ma.ptp(Y) ** 2 + np.ma.ptp(Z) ** 2)
 
 
 class Path3DCollection(PathCollection):
