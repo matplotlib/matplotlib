@@ -1,4 +1,3 @@
-import time
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 import pytest
@@ -120,7 +119,6 @@ def test_integration_options():
 
     fig, axs = plt.subplots(3, 1, figsize=(6, 14))
     for i, max_val in enumerate([0.05, 1, 5]):
-        t_start = time.time()
         axs[i].streamplot(
             x,
             y,
@@ -136,8 +134,7 @@ def test_integration_options():
         )
 
         text = f"integration_max_step: {max_val}\n" \
-            f"integration_max_error: {max_val}\n" \
-            f"streamplot time: {time.time() - t_start:.2f} sec"
+            f"integration_max_error: {max_val}"
         if max_val == 1:
             text += "\n(default)"
         axs[i].text(0.0, 0.0, text, ha="center", va="center")
