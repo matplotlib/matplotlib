@@ -129,12 +129,12 @@ def test_integration_options():
             arrowsize=1e-10,
             linewidth=0.6,
             color="k",
-            integration_max_step=max_val,
-            integration_max_error=max_val,
+            integration_max_step_scale=max_val,
+            integration_max_error_scale=max_val,
         )
 
-        text = f"integration_max_step: {max_val}\n" \
-            f"integration_max_error: {max_val}"
+        text = f"integration_max_step_scale: {max_val}\n" \
+            f"integration_max_error_scale: {max_val}"
         if max_val == 1:
             text += "\n(default)"
         axs[i].text(0.0, 0.0, text, ha="center", va="center")
@@ -214,15 +214,15 @@ def test_streamplot_integration_params():
     u = np.ones((2, 2))
     v = np.zeros((2, 2))
 
-    err_str = "The value of integration_max_step must be > 0, " \
-              "got integration_max_step=-0.5"
+    err_str = "The value of integration_max_step_scale must be > 0, " \
+              "got integration_max_step_scale=-0.5"
     with pytest.raises(ValueError, match=err_str):
-        plt.streamplot(x, y, u, v, integration_max_step=-0.5)
+        plt.streamplot(x, y, u, v, integration_max_step_scale=-0.5)
 
-    err_str = "The value of integration_max_error must be > 0, " \
-              "got integration_max_error=0.0"
+    err_str = "The value of integration_max_error_scale must be > 0, " \
+              "got integration_max_error_scale=0.0"
     with pytest.raises(ValueError, match=err_str):
-        plt.streamplot(x, y, u, v, integration_max_error=0.0)
+        plt.streamplot(x, y, u, v, integration_max_error_scale=0.0)
 
 
 def test_streamplot_inputs():  # test no exception occurs.

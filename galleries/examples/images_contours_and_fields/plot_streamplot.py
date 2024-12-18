@@ -86,8 +86,9 @@ plt.show()
 # The streamlines are computed by integrating along the provided vector field
 # from the seed points, which are either generated automatically or manually
 # specified. The accuracy and smoothness of the streamlines can be adjusted using
-# the ``integration_max_step`` and ``integration_max_error`` optional parameters.
-# See the `~.axes.Axes.streamplot` function documentation for more details.
+# the ``integration_max_step_scale`` and ``integration_max_error_scale`` optional
+# parameters. See the `~.axes.Axes.streamplot` function documentation for more
+# details.
 #
 # This example shows how adjusting the maximum allowed step size and error for
 # the integrator changes the appearance of the streamline. The differences can
@@ -121,12 +122,12 @@ for i, max_val in enumerate([0.05, 1, 5]):
         arrowsize=1e-10,
         linewidth=0.6,
         color="k",
-        integration_max_step=max_val,
-        integration_max_error=max_val,
+        integration_max_step_scale=max_val,
+        integration_max_error_scale=max_val,
     )
 
-    text = f"integration_max_step: {max_val}\n" \
-        f"integration_max_error: {max_val}\n" \
+    text = f"integration_max_step_scale: {max_val}\n" \
+        f"integration_max_error_scale: {max_val}\n" \
         f"streamplot time: {time.time() - t_start:.2f} sec"
     if max_val == 1:
         text += "\n(default)"
