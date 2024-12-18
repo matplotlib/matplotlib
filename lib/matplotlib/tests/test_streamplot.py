@@ -152,7 +152,6 @@ def test_integration_options():
         ax.axis("off")
 
     fig.tight_layout()
-    fig.savefig("baseline_images/test_streamplot/streamplot_integration.pdf")
 
 
 def test_streamplot_limits():
