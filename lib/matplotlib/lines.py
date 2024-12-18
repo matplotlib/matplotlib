@@ -1354,7 +1354,6 @@ class Line2D(Artist):
         self._solidcapstyle = other._solidcapstyle
         self._solidjoinstyle = other._solidjoinstyle
 
-        self._linestyle = other._linestyle
         self._marker = MarkerStyle(marker=other._marker)
         self._drawstyle = other._drawstyle
 
