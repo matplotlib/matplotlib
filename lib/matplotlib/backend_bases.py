@@ -2153,6 +2153,9 @@ class FigureCanvasBase:
                 # so that we can inject the orientation
                 with getattr(renderer, "_draw_disabled", nullcontext)():
                     self.figure.draw(renderer)
+            else:
+                renderer = None
+
             if bbox_inches:
                 if bbox_inches == "tight":
                     bbox_inches = self.figure.get_tightbbox(
@@ -2169,7 +2172,7 @@ class FigureCanvasBase:
 
                 # call adjust_bbox to save only the given area
                 restore_bbox = _tight_bbox.adjust_bbox(
-                    self.figure, bbox_inches, self.figure.canvas.fixed_dpi)
+                    self.figure, bbox_inches, renderer, self.figure.canvas.fixed_dpi)
 
                 _bbox_inches_restore = (bbox_inches, restore_bbox)
             else:
