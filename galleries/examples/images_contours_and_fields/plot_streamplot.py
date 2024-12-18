@@ -14,6 +14,8 @@ example shows a few features of the `~.axes.Axes.streamplot` function:
 * Unbroken streamlines even when exceeding the limit of lines within a single
   grid cell.
 """
+import time
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -105,8 +107,9 @@ vy = vr * np.sin(th) + vt * np.cos(th)
 n_seed = 50
 seed_pts = np.column_stack((np.full(n_seed, -1.75), np.linspace(-2, 2, n_seed)))
 
-_, axs = plt.subplots(2, 1, figsize=(6, 9.5))
-for i, max_val in enumerate([5, 0.05]):
+_, axs = plt.subplots(3, 1, figsize=(6, 14))
+for i, max_val in enumerate([0.05, 1, 5]):
+    t_start = time.time()
     axs[i].streamplot(
         x,
         y,
@@ -114,21 +117,19 @@ for i, max_val in enumerate([5, 0.05]):
         vy,
         start_points=seed_pts,
         broken_streamlines=False,
-        density=1,
         arrowsize=1e-10,
-        linewidth=0.5,
+        linewidth=0.6,
         color="k",
         integration_max_step=max_val,
         integration_max_error=max_val,
     )
-    axs[i].text(
-        0.0,
-        0.0,
-        f"integration_max_step: {max_val}\n" +
-        f"integration_max_error: {max_val}",
-        ha="center",
-        va="center",
-    )
+
+    text = f"integration_max_step: {max_val}\n" \
+        f"integration_max_error: {max_val}\n" \
+        f"streamplot time: {time.time() - t_start:.2f} sec"
+    if max_val == 1:
+        text += "\n(default)"
+    axs[i].text(0.0, 0.0, text, ha="center", va="center")
 
 # Draw the cylinder
 th_circ = np.linspace(0, 2 * np.pi, 100)

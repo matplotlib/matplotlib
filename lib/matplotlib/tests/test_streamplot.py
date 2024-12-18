@@ -1,3 +1,4 @@
+import time
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 import pytest
@@ -117,8 +118,9 @@ def test_integration_options():
     n_seed = 50
     seed_pts = np.column_stack((np.full(n_seed, -1.75), np.linspace(-2, 2, n_seed)))
 
-    fig, axs = plt.subplots(2, 1, figsize=(6, 9.5))
-    for i, max_val in enumerate([5, 0.05]):
+    fig, axs = plt.subplots(3, 1, figsize=(6, 14))
+    for i, max_val in enumerate([0.05, 1, 5]):
+        t_start = time.time()
         axs[i].streamplot(
             x,
             y,
@@ -132,14 +134,13 @@ def test_integration_options():
             integration_max_step=max_val,
             integration_max_error=max_val,
         )
-        axs[i].text(
-            0.0,
-            0.0,
-            f"integration_max_step: {max_val}\n" +
-            f"integration_max_error: {max_val}",
-            ha="center",
-            va="center",
-        )
+
+        text = f"integration_max_step: {max_val}\n" \
+            f"integration_max_error: {max_val}\n" \
+            f"streamplot time: {time.time() - t_start:.2f} sec"
+        if max_val == 1:
+            text += "\n(default)"
+        axs[i].text(0.0, 0.0, text, ha="center", va="center")
 
     # Draw the cylinder
     th_circ = np.linspace(0, 2 * np.pi, 100)
@@ -151,6 +152,7 @@ def test_integration_options():
         ax.axis("off")
 
     fig.tight_layout()
+    fig.savefig("baseline_images/test_streamplot/streamplot_integration.pdf")
 
 
 def test_streamplot_limits():
