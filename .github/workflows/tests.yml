@@ -196,10 +196,10 @@ jobs:
             ~/.cache/matplotlib
             !~/.cache/matplotlib/tex.cache
             !~/.cache/matplotlib/test_cache
-          key: 5-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
+          key: 6-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
           restore-keys: |
-            5-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
-            5-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-
+            6-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
+            6-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-
 
       - name: Install Python dependencies
         run: |
