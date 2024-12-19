@@ -30,8 +30,13 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
 
     def __init__(self, grid_helper, side, nth_coord_ticks=None):
         """
-        nth_coord = along which coordinate value varies.
-         nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
+
+        Parameters
+        ----------
+        grid_helper :
+        side : ["left", "right", "top", "bottom"]
+        nth_coord_ticks : {0, 1}
+            0: x-axis, 1: y-axis.
         """
         lon1, lon2, lat1, lat2 = grid_helper.grid_finder.extreme_finder(*[None] * 5)
         value, nth_coord = _api.check_getitem(
