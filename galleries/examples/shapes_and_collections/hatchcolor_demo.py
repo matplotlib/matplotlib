@@ -1,10 +1,10 @@
 """
-===========================
-Using hatchcolor in patches
-===========================
+================
+Patch hatchcolor
+================
 
-This example shows how to use the `hatchcolor` parameter to set the color of
-the hatch. The `hatchcolor` parameter is available for `~.patches.Patch` and
+This example shows how to use the *hatchcolor* parameter to set the color of
+the hatch. The *hatchcolor* parameter is available for `~.patches.Patch` and
 its children.
 """
 
