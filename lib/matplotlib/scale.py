@@ -412,6 +412,8 @@ class SymmetricalLogScale(ScaleBase):
     *linthresh* allows the user to specify the size of this range
     (-*linthresh*, *linthresh*).
 
+    See :doc:`/gallery/scales/symlog_demo` for a detailed description.
+
     Parameters
     ----------
     base : float, default: 10
