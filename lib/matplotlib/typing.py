@@ -37,7 +37,11 @@ RGBColourType: TypeAlias = RGBColorType
 RGBAColourType: TypeAlias = RGBAColorType
 ColourType: TypeAlias = ColorType
 
-LineStyleType: TypeAlias = str | tuple[float, Sequence[float]]
+LineStyleType: TypeAlias = (
+    Literal["-", "solid", "--", "dashed", "-.", "dashdot", ":", "dotted",
+            "", "none", " ", "None"] |
+    tuple[float, Sequence[float]]
+)
 DrawStyleType: TypeAlias = Literal["default", "steps", "steps-pre", "steps-mid",
                                    "steps-post"]
 MarkEveryType: TypeAlias = (
