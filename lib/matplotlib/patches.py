@@ -4270,6 +4270,28 @@ default: 'arc3'
             self._posA_posB[1] = posB
         self.stale = True
 
+    def set_delta(self, delta):
+        """
+        Set the end position by the delta from the start (posA).
+
+        Parameters
+        ----------
+        delta : (float, float)
+            The delta between the arrow tail and head.
+        """
+        self._posA_posB[1] = self._posA_posB[0] + delta
+        self.stale = True
+
+    def get_delta(self):
+        """
+        Get the delta between the end and start positions.
+
+        Returns
+        -------
+        np.array
+        """
+        return np.asanyarray(self._posA_posB[1] - self._posA_posB[0])
+
     def set_patchA(self, patchA):
         """
         Set the tail patch.
