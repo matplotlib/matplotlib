@@ -1,12 +1,13 @@
 import contextlib
 from io import StringIO
 
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import numpy as np
+from cycler import cycler
 import pytest
 
-from cycler import cycler
+import matplotlib.pyplot as plt
+import numpy as np
+
+import matplotlib as mpl
 
 
 def test_colorcycle_basic():

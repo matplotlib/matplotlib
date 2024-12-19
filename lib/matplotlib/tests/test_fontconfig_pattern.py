@@ -2,7 +2,6 @@ import pytest
 
 from matplotlib.font_manager import FontProperties
 
-
 # Attributes on FontProperties object to check for consistency
 keys = [
     "get_family",

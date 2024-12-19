@@ -1,18 +1,17 @@
 import copy
+import io
+
+import pytest
 
 import matplotlib.pyplot as plt
-from matplotlib.scale import (
-    AsinhScale, AsinhTransform,
-    LogTransform, InvertedLogTransform,
-    SymmetricalLogTransform)
-import matplotlib.scale as mscale
-from matplotlib.ticker import AsinhLocator, LogFormatterSciNotation
-from matplotlib.testing.decorators import check_figures_equal, image_comparison
-
 import numpy as np
 from numpy.testing import assert_allclose
-import io
-import pytest
+
+import matplotlib.scale as mscale
+from matplotlib.scale import (AsinhScale, AsinhTransform, InvertedLogTransform,
+                              LogTransform, SymmetricalLogTransform)
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
+from matplotlib.ticker import AsinhLocator, LogFormatterSciNotation
 
 
 @check_figures_equal()

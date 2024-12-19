@@ -1,7 +1,9 @@
-import matplotlib._type1font as t1f
-import os.path
 import difflib
+import os.path
+
 import pytest
+
+import matplotlib._type1font as t1f
 
 
 def test_Type1Font():

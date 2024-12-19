@@ -1,8 +1,9 @@
 import re
 import sys
 
-import numpy as np
 import pytest
+
+import numpy as np
 
 from matplotlib import _preprocess_data
 from matplotlib.axes import Axes

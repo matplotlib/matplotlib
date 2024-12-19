@@ -10,7 +10,6 @@ import pytest
 from matplotlib import _c_internal_utils
 from matplotlib.testing import subprocess_run_helper
 
-
 _test_timeout = 60  # A reasonably safe value for slower architectures.
 
 
@@ -76,8 +75,9 @@ def _isolated_tk_test(success_count, func=None):
 def test_blit():
     import matplotlib.pyplot as plt
     import numpy as np
-    import matplotlib.backends.backend_tkagg  # noqa
+
     from matplotlib.backends import _backend_tk, _tkagg
+    import matplotlib.backends.backend_tkagg  # noqa
 
     fig, ax = plt.subplots()
     photoimage = fig.canvas._tkphoto
@@ -105,6 +105,7 @@ def test_blit():
 @_isolated_tk_test(success_count=1)
 def test_figuremanager_preserves_host_mainloop():
     import tkinter
+
     import matplotlib.pyplot as plt
     success = []
 
@@ -132,10 +133,12 @@ def test_figuremanager_preserves_host_mainloop():
 @pytest.mark.flaky(reruns=3)
 @_isolated_tk_test(success_count=1)
 def test_figuremanager_cleans_own_mainloop():
-    import tkinter
-    import time
-    import matplotlib.pyplot as plt
     import threading
+    import time
+    import tkinter
+
+    import matplotlib.pyplot as plt
+
     from matplotlib.cbook import _get_running_interactive_framework
 
     root = tkinter.Tk()
@@ -183,6 +186,7 @@ def test_never_update():
 @_isolated_tk_test(success_count=2)
 def test_missing_back_button():
     import matplotlib.pyplot as plt
+
     from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
 
     class Toolbar(NavigationToolbar2Tk):
@@ -198,8 +202,9 @@ def test_missing_back_button():
 
 @_isolated_tk_test(success_count=2)
 def test_save_figure_return():
-    import matplotlib.pyplot as plt
     from unittest import mock
+
+    import matplotlib.pyplot as plt
     fig = plt.figure()
     prop = "tkinter.filedialog.asksaveasfilename"
     with mock.patch(prop, return_value="foobar.png"):
@@ -216,6 +221,7 @@ def test_save_figure_return():
 @_isolated_tk_test(success_count=1)
 def test_canvas_focus():
     import tkinter as tk
+
     import matplotlib.pyplot as plt
     success = []
 
@@ -245,9 +251,10 @@ def test_canvas_focus():
 @_isolated_tk_test(success_count=2)
 def test_embedding():
     import tkinter as tk
-    from matplotlib.backends.backend_tkagg import (
-        FigureCanvasTkAgg, NavigationToolbar2Tk)
+
     from matplotlib.backend_bases import key_press_handler
+    from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
+                                                   NavigationToolbar2Tk)
     from matplotlib.figure import Figure
 
     root = tk.Tk()

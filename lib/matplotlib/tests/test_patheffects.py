@@ -1,14 +1,14 @@
 import platform
 
+import matplotlib.pyplot as plt
 import numpy as np
 
-from matplotlib.testing.decorators import image_comparison
-import matplotlib.pyplot as plt
-import matplotlib.patheffects as path_effects
-from matplotlib.path import Path
-import matplotlib.patches as patches
 from matplotlib.backend_bases import RendererBase
+import matplotlib.patches as patches
+from matplotlib.path import Path
+import matplotlib.patheffects as path_effects
 from matplotlib.patheffects import PathEffectRenderer
+from matplotlib.testing.decorators import image_comparison
 
 
 @image_comparison(['patheffect1'], remove_text=True)

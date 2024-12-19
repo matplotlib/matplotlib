@@ -4,14 +4,18 @@ import re
 from unittest import mock
 
 import contourpy
+import pytest
+
 import numpy as np
-from numpy.testing import assert_array_almost_equal, assert_array_almost_equal_nulp
+from numpy.testing import (assert_array_almost_equal,
+                           assert_array_almost_equal_nulp)
+
 import matplotlib as mpl
-from matplotlib import pyplot as plt, rc_context, ticker
+from matplotlib import pyplot as plt
+from matplotlib import rc_context, ticker
 from matplotlib.colors import LogNorm, same_color
 import matplotlib.patches as mpatches
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
-import pytest
 
 
 def test_contour_shape_1d_valid():

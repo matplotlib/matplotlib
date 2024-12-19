@@ -8,9 +8,11 @@ import timeit
 from types import SimpleNamespace
 
 from cycler import cycler
+import pytest
+
+import matplotlib.pyplot as plt
 import numpy as np
 from numpy.testing import assert_array_equal
-import pytest
 
 import matplotlib
 import matplotlib as mpl
@@ -18,9 +20,8 @@ from matplotlib import _path
 import matplotlib.lines as mlines
 from matplotlib.markers import MarkerStyle
 from matplotlib.path import Path
-import matplotlib.pyplot as plt
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.transforms as mtransforms
-from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
 def test_segment_hits():

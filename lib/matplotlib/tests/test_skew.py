@@ -7,14 +7,14 @@ import itertools
 import platform
 
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
 
 from matplotlib.axes import Axes
-import matplotlib.transforms as transforms
 import matplotlib.axis as maxis
-import matplotlib.spines as mspines
 import matplotlib.patches as mpatch
 from matplotlib.projections import register_projection
+import matplotlib.spines as mspines
+from matplotlib.testing.decorators import image_comparison
+import matplotlib.transforms as transforms
 
 
 # The sole purpose of this class is to look at the upper, lower, or total

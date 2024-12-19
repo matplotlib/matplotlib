@@ -1,14 +1,14 @@
 import difflib
-
-import numpy as np
-import sys
 from pathlib import Path
+import sys
 
 import pytest
 
+import numpy as np
+
 import matplotlib as mpl
-from matplotlib.testing import subprocess_run_for_testing
 from matplotlib import pyplot as plt
+from matplotlib.testing import subprocess_run_for_testing
 
 
 def test_pyplot_up_to_date(tmp_path):

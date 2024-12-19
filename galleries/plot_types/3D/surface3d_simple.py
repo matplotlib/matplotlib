@@ -8,8 +8,6 @@ See `~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_surface`.
 import matplotlib.pyplot as plt
 import numpy as np
 
-from matplotlib import cm
-
 plt.style.use('_mpl-gallery')
 
 # Make data
@@ -21,7 +19,7 @@ Z = np.sin(R)
 
 # Plot the surface
 fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-ax.plot_surface(X, Y, Z, vmin=Z.min() * 2, cmap=cm.Blues)
+ax.plot_surface(X, Y, Z, vmin=Z.min() * 2, cmap="Blues")
 
 ax.set(xticklabels=[],
        yticklabels=[],

@@ -1,7 +1,8 @@
-import numpy as np
 import pytest
 
 import matplotlib.pyplot as plt
+import numpy as np
+
 from matplotlib.spines import Spines
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 

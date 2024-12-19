@@ -4,32 +4,25 @@ import subprocess
 import sys
 from unittest import mock
 
-from cycler import cycler, Cycler
+from cycler import Cycler, cycler
 from packaging.version import parse as parse_version
 import pytest
 
+import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib as mpl
 from matplotlib import _api, _c_internal_utils
-import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
-import numpy as np
-from matplotlib.rcsetup import (
-    validate_bool,
-    validate_color,
-    validate_colorlist,
-    _validate_color_or_linecolor,
-    validate_cycler,
-    validate_float,
-    validate_fontstretch,
-    validate_fontweight,
-    validate_hatch,
-    validate_hist_bins,
-    validate_int,
-    validate_markevery,
-    validate_stringlist,
-    validate_sketch,
-    _validate_linestyle,
-    _listify_validator)
+from matplotlib.rcsetup import (_listify_validator,
+                                _validate_color_or_linecolor,
+                                _validate_linestyle, validate_bool,
+                                validate_color, validate_colorlist,
+                                validate_cycler, validate_float,
+                                validate_fontstretch, validate_fontweight,
+                                validate_hatch, validate_hist_bins,
+                                validate_int, validate_markevery,
+                                validate_sketch, validate_stringlist)
 from matplotlib.testing import subprocess_run_for_testing
 
 

@@ -3,19 +3,23 @@ Tests specific to the patches module.
 """
 import platform
 
-import numpy as np
-from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
-import matplotlib as mpl
-from matplotlib.patches import (Annulus, Ellipse, Patch, Polygon, Rectangle,
-                                FancyArrowPatch, FancyArrow, BoxStyle, Arc)
-from matplotlib.testing.decorators import image_comparison, check_figures_equal
-from matplotlib.transforms import Bbox
 import matplotlib.pyplot as plt
-from matplotlib import (
-    collections as mcollections, colors as mcolors, patches as mpatches,
-    path as mpath, transforms as mtransforms, rcParams)
+import numpy as np
+from numpy.testing import assert_almost_equal, assert_array_equal
+
+import matplotlib as mpl
+from matplotlib import collections as mcollections
+from matplotlib import colors as mcolors
+from matplotlib import patches as mpatches
+from matplotlib import path as mpath
+from matplotlib import rcParams
+from matplotlib import transforms as mtransforms
+from matplotlib.patches import (Annulus, Arc, BoxStyle, Ellipse, FancyArrow,
+                                FancyArrowPatch, Patch, Polygon, Rectangle)
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
+from matplotlib.transforms import Bbox
 
 
 def test_Polygon_close():
@@ -705,6 +709,7 @@ def test_shadow(fig_test, fig_ref):
 
 def test_fancyarrow_units():
     from datetime import datetime
+
     # Smoke test to check that FancyArrowPatch works with units
     dtime = datetime(2000, 1, 1)
     fig, ax = plt.subplots()

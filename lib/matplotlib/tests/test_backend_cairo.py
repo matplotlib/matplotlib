@@ -1,10 +1,11 @@
-import numpy as np
-
 import pytest
 
+import numpy as np
+
+from matplotlib import collections as mcollections
+from matplotlib import patches as mpatches
+from matplotlib import path as mpath
 from matplotlib.testing.decorators import check_figures_equal
-from matplotlib import (
-    collections as mcollections, patches as mpatches, path as mpath)
 
 
 @pytest.mark.backend('cairo')
