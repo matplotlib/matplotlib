@@ -1,13 +1,13 @@
 import os
 from pathlib import Path
-
-import pytest
 from unittest import mock
 
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-from matplotlib.testing import subprocess_run_helper
+import pytest
 
+import matplotlib.pyplot as plt
+
+import matplotlib as mpl
+from matplotlib.testing import subprocess_run_helper
 
 _test_timeout = 60
 

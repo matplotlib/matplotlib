@@ -1,6 +1,8 @@
-import matplotlib.gridspec as gridspec
-import matplotlib.pyplot as plt
 import pytest
+
+import matplotlib.pyplot as plt
+
+import matplotlib.gridspec as gridspec
 
 
 def test_equal():

@@ -3,22 +3,22 @@ from io import BytesIO
 import os
 import shutil
 
-import numpy as np
 from packaging.version import parse as parse_version
 import pytest
 
-import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.testing import _has_tex_package, _check_for_pgf
-from matplotlib.testing.exceptions import ImageComparisonFailure
-from matplotlib.testing.compare import compare_images
-from matplotlib.backends.backend_pgf import PdfPages
-from matplotlib.testing.decorators import (
-    _image_directories, check_figures_equal, image_comparison)
-from matplotlib.testing._markers import (
-    needs_ghostscript, needs_pgf_lualatex, needs_pgf_pdflatex,
-    needs_pgf_xelatex)
+import numpy as np
 
+import matplotlib as mpl
+from matplotlib.backends.backend_pgf import PdfPages
+from matplotlib.testing import _check_for_pgf, _has_tex_package
+from matplotlib.testing._markers import (needs_ghostscript, needs_pgf_lualatex,
+                                         needs_pgf_pdflatex, needs_pgf_xelatex)
+from matplotlib.testing.compare import compare_images
+from matplotlib.testing.decorators import (_image_directories,
+                                           check_figures_equal,
+                                           image_comparison)
+from matplotlib.testing.exceptions import ImageComparisonFailure
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
 

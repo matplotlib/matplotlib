@@ -1,21 +1,24 @@
 from collections import Counter
-from pathlib import Path
 import io
+from pathlib import Path
 import re
 import tempfile
 
-import numpy as np
 import pytest
 
-from matplotlib import cbook, path, patheffects, font_manager as fm
+import matplotlib.pyplot as plt
+import numpy as np
+
+import matplotlib as mpl
+from matplotlib import cbook
+from matplotlib import font_manager as fm
+from matplotlib import path, patheffects
+import matplotlib.collections as mcollections
+import matplotlib.colors as mcolors
 from matplotlib.figure import Figure
 from matplotlib.patches import Ellipse
 from matplotlib.testing._markers import needs_ghostscript, needs_usetex
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
-import matplotlib as mpl
-import matplotlib.collections as mcollections
-import matplotlib.colors as mcolors
-import matplotlib.pyplot as plt
 
 
 # This tests tends to hit a TeX cache lock on AppVeyor.

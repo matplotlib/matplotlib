@@ -104,19 +104,19 @@ fig.canvas.manager.set_window_title('Left Ventricle Bulls Eyes (AHA)')
 
 # Set the colormap and norm to correspond to the data for which
 # the colorbar will be used.
-cmap = mpl.cm.viridis
+cmap = mpl.colormaps["viridis"]
 norm = mpl.colors.Normalize(vmin=1, vmax=17)
 # Create an empty ScalarMappable to set the colorbar's colormap and norm.
 # The following gives a basic continuous colorbar with ticks and labels.
-fig.colorbar(mpl.cm.ScalarMappable(cmap=cmap, norm=norm),
+fig.colorbar(mpl.cm.ScalarMappable(cmap="viridis", norm=norm),
              cax=axs[0].inset_axes([0, -.15, 1, .1]),
              orientation='horizontal', label='Some units')
 
 
 # And again for the second colorbar.
-cmap2 = mpl.cm.cool
+cmap2 = mpl.colormaps["cool"]
 norm2 = mpl.colors.Normalize(vmin=1, vmax=17)
-fig.colorbar(mpl.cm.ScalarMappable(cmap=cmap2, norm=norm2),
+fig.colorbar(mpl.cm.ScalarMappable(cmap="cool", norm=norm2),
              cax=axs[1].inset_axes([0, -.15, 1, .1]),
              orientation='horizontal', label='Some other units')
 

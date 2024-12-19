@@ -1,18 +1,17 @@
 import platform
 import re
 
-import numpy as np
-
-from numpy.testing import assert_array_equal
 import pytest
 
-from matplotlib import patches
-from matplotlib.path import Path
-from matplotlib.patches import Polygon
-from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-from matplotlib import transforms
+import numpy as np
+from numpy.testing import assert_array_equal
+
+from matplotlib import patches, transforms
 from matplotlib.backend_bases import MouseEvent
+from matplotlib.patches import Polygon
+from matplotlib.path import Path
+from matplotlib.testing.decorators import image_comparison
 
 
 def test_empty_closed_path():

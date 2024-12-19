@@ -6,17 +6,17 @@ import xml.parsers.expat
 
 import pytest
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib.figure import Figure
-from matplotlib.patches import Circle
-from matplotlib.text import Text
-import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import check_figures_equal, image_comparison
-from matplotlib.testing._markers import needs_usetex
 from matplotlib import font_manager as fm
-from matplotlib.offsetbox import (OffsetImage, AnnotationBbox)
+from matplotlib.figure import Figure
+from matplotlib.offsetbox import AnnotationBbox, OffsetImage
+from matplotlib.patches import Circle
+from matplotlib.testing._markers import needs_usetex
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
+from matplotlib.text import Text
 
 
 def test_visibility():
@@ -239,8 +239,8 @@ def test_svgnone_with_data_coordinates():
 
 def test_gid():
     """Test that object gid appears in output svg."""
-    from matplotlib.offsetbox import OffsetBox
     from matplotlib.axis import Tick
+    from matplotlib.offsetbox import OffsetBox
 
     fig = plt.figure()
 

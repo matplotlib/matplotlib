@@ -5,12 +5,12 @@ import re
 import typing
 from typing import Any, TypeVar
 
-import numpy as np
 import pytest
+
+import numpy as np
 
 import matplotlib as mpl
 from matplotlib import _api
-
 
 if typing.TYPE_CHECKING:
     from typing_extensions import Self

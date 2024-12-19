@@ -1,11 +1,12 @@
-import numpy as np
+import pytest
+
 import matplotlib.pyplot as plt
+import numpy as np
+
 from matplotlib import markers
 from matplotlib.path import Path
 from matplotlib.testing.decorators import check_figures_equal
 from matplotlib.transforms import Affine2D
-
-import pytest
 
 
 def test_marker_fillstyle():

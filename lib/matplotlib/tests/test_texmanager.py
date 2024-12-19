@@ -6,6 +6,7 @@ import sys
 import pytest
 
 import matplotlib.pyplot as plt
+
 from matplotlib.testing import subprocess_run_for_testing
 from matplotlib.testing._markers import needs_usetex
 from matplotlib.texmanager import TexManager

@@ -1,8 +1,9 @@
 import os
-from matplotlib import pyplot as plt
+from unittest import mock
 
 import pytest
-from unittest import mock
+
+from matplotlib import pyplot as plt
 
 
 @pytest.mark.backend("gtk3agg", skip_on_importerror=True)

@@ -6,9 +6,9 @@ from pathlib import Path
 import shutil
 import sys
 
-from matplotlib.testing import subprocess_run_for_testing
 import pytest
 
+from matplotlib.testing import subprocess_run_for_testing
 
 pytest.importorskip('sphinx', minversion='4.1.3')
 

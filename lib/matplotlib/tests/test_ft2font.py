@@ -1,16 +1,17 @@
-import itertools
 import io
+import itertools
 from pathlib import Path
 
-import numpy as np
 import pytest
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 import matplotlib as mpl
 from matplotlib import ft2font
-from matplotlib.testing.decorators import check_figures_equal
 import matplotlib.font_manager as fm
 import matplotlib.path as mpath
-import matplotlib.pyplot as plt
+from matplotlib.testing.decorators import check_figures_equal
 
 
 def test_ft2image_draw_rect_filled():

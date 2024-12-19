@@ -7,22 +7,23 @@ from threading import Timer
 from types import SimpleNamespace
 import warnings
 
-import numpy as np
-import pytest
 from PIL import Image
+import pytest
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 import matplotlib as mpl
 from matplotlib import gridspec
-from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
 from matplotlib.backend_bases import KeyEvent, MouseEvent
+import matplotlib.dates as mdates
 from matplotlib.figure import Figure, FigureBase
 from matplotlib.layout_engine import (ConstrainedLayoutEngine,
-                                      TightLayoutEngine,
-                                      PlaceHolderLayoutEngine)
+                                      PlaceHolderLayoutEngine,
+                                      TightLayoutEngine)
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 
 
 @image_comparison(['figure_align_labels'], extensions=['png', 'svg'],

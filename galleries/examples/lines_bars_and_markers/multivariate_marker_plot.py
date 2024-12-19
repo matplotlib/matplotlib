@@ -39,7 +39,7 @@ for skill, takeoff, thrust, mood, pos in data:
     t = Affine2D().scale(skill).rotate_deg(takeoff)
     m = MarkerStyle(SUCCESS_SYMBOLS[mood], transform=t)
     ax.plot(pos[0], pos[1], marker=m, color=cmap(thrust))
-fig.colorbar(plt.cm.ScalarMappable(norm=Normalize(0, 1), cmap=cmap),
+fig.colorbar(plt.cm.ScalarMappable(norm=Normalize(0, 1), cmap="plasma"),
              ax=ax, label="Normalized Thrust [a.u.]")
 ax.set_xlabel("X position [m]")
 ax.set_ylabel("Y position [m]")

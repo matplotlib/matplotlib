@@ -1,7 +1,9 @@
+import pytest
+
+import matplotlib.pyplot as plt
 import numpy as np
 from numpy.testing import assert_array_almost_equal
-import pytest
-import matplotlib.pyplot as plt
+
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.transforms as mtransforms
 
@@ -40,7 +42,7 @@ def test_startpoints():
 def test_colormap():
     X, Y, U, V = velocity_field()
     plt.streamplot(X, Y, U, V, color=U, density=0.6, linewidth=2,
-                   cmap=plt.cm.autumn)
+                   cmap="autumn")
     plt.colorbar()
 
 
@@ -64,7 +66,7 @@ def test_masks_and_nans():
     U = np.ma.array(U, mask=mask)
     ax = plt.figure().subplots()
     with np.errstate(invalid='ignore'):
-        ax.streamplot(X, Y, U, V, color=U, cmap=plt.cm.Blues)
+        ax.streamplot(X, Y, U, V, color=U, cmap="Blues")
 
 
 @image_comparison(['streamplot_maxlength.png'],

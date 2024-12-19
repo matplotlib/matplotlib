@@ -2,18 +2,17 @@ import base64
 import io
 import platform
 
+import pytest
+
+import matplotlib.pyplot as plt
 import numpy as np
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 
-import pytest
-
-from matplotlib.testing.decorators import (
-    check_figures_equal, image_comparison, remove_ticks_and_titles)
-import matplotlib.pyplot as plt
-
 from matplotlib import patches, transforms
 from matplotlib.path import Path
-
+from matplotlib.testing.decorators import (check_figures_equal,
+                                           image_comparison,
+                                           remove_ticks_and_titles)
 
 # NOTE: All of these tests assume that path.simplify is set to True
 # (the default)

@@ -1,10 +1,10 @@
 from io import BytesIO
-import pytest
 import logging
+
+import pytest
 
 from matplotlib import _afm
 from matplotlib import font_manager as fm
-
 
 # See note in afm.py re: use of comma as decimal separator in the
 # UnderlineThickness field and re: use of non-ASCII characters in the Notice

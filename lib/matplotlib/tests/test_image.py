@@ -1,5 +1,4 @@
 from contextlib import ExitStack
-from copy import copy
 import functools
 import io
 import os
@@ -8,20 +7,23 @@ import platform
 import sys
 import urllib.request
 
+from PIL import Image
+import pytest
+
 import numpy as np
 from numpy.testing import assert_array_equal
-from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import (
-    colors, image as mimage, patches, pyplot as plt, style, rcParams)
+from matplotlib import colors
+from matplotlib import image as mimage
+from matplotlib import patches
+from matplotlib import pyplot as plt
+from matplotlib import rcParams, style
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
-from matplotlib.transforms import Bbox, Affine2D, TransformedBbox
 import matplotlib.ticker as mticker
-
-import pytest
+from matplotlib.transforms import Affine2D, Bbox, TransformedBbox
 
 
 @image_comparison(['interp_alpha.png'], remove_text=True)
@@ -863,7 +865,7 @@ def test_mask_image_over_under():
           (2 * np.pi * 0.5 * 1.5))
     Z = 10*(Z2 - Z1)  # difference of Gaussians
 
-    palette = plt.cm.gray.with_extremes(over='r', under='g', bad='b')
+    palette = plt.colormaps["gray"].with_extremes(over='r', under='g', bad='b')
     Zm = np.ma.masked_where(Z > 1.2, Z)
     fig, (ax1, ax2) = plt.subplots(1, 2)
     im = ax1.imshow(Zm, interpolation='bilinear',
@@ -1160,7 +1162,7 @@ def test_image_array_alpha_validation():
 
 @mpl.style.context('mpl20')
 def test_exact_vmin():
-    cmap = copy(mpl.colormaps["autumn_r"])
+    cmap = mpl.colormaps["autumn_r"]
     cmap.set_under(color="lightgrey")
 
     # make the image exactly 190 pixels wide
@@ -1435,7 +1437,7 @@ def test_rgba_antialias():
     aa[70:90, 195:215] = 1e6
     aa[20:30, 195:215] = -1e6
 
-    cmap = copy(plt.cm.RdBu_r)
+    cmap = plt.colormaps["RdBu_r"]
     cmap.set_over('yellow')
     cmap.set_under('cyan')
 

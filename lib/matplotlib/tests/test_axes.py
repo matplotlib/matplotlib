@@ -1,5 +1,5 @@
+from collections import deque, namedtuple
 import contextlib
-from collections import namedtuple, deque
 import datetime
 from decimal import Decimal
 from functools import partial
@@ -11,38 +11,39 @@ import platform
 import sys
 from types import SimpleNamespace
 
+from cycler import cycler
 import dateutil.tz
+import pytest
 
+import matplotlib.pyplot as plt
 import numpy as np
 from numpy import ma
-from cycler import cycler
-import pytest
+from numpy.testing import (assert_allclose, assert_array_almost_equal,
+                           assert_array_equal)
 
 import matplotlib
 import matplotlib as mpl
-from matplotlib import rc_context, patheffects
+from matplotlib import patheffects, rc_context
+from matplotlib.axes import Axes
+from matplotlib.collections import PathCollection
 import matplotlib.colors as mcolors
 import matplotlib.dates as mdates
 from matplotlib.figure import Figure
-from matplotlib.axes import Axes
-from matplotlib.lines import Line2D
-from matplotlib.collections import PathCollection
 import matplotlib.font_manager as mfont_manager
+from matplotlib.lines import Line2D
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 from matplotlib.projections.geo import HammerAxes
 from matplotlib.projections.polar import PolarAxes
-import matplotlib.pyplot as plt
+from matplotlib.testing._markers import needs_usetex
+from matplotlib.testing.decorators import (check_figures_equal,
+                                           image_comparison,
+                                           remove_ticks_and_titles)
 import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import mpl_toolkits.axisartist as AA  # type: ignore[import]
-from numpy.testing import (
-    assert_allclose, assert_array_equal, assert_array_almost_equal)
-from matplotlib.testing.decorators import (
-    image_comparison, check_figures_equal, remove_ticks_and_titles)
-from matplotlib.testing._markers import needs_usetex
 
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
@@ -2171,10 +2172,8 @@ def test_boxplot_capwidths():
 
 
 def test_pcolor_regression(pd):
-    from pandas.plotting import (
-        register_matplotlib_converters,
-        deregister_matplotlib_converters,
-    )
+    from pandas.plotting import (deregister_matplotlib_converters,
+                                 register_matplotlib_converters)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
