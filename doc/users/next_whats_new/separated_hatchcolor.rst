@@ -10,7 +10,7 @@ Fallback Logic
 When the *hatchcolor* parameter is specified, it will be used for the hatch.
 If it is not specified, it will fall back to using :rc:`hatch.color`.
 
-The special value 'edge' uses the patch edgecolor, with a fall back to
+The special value 'edge' uses the patch edgecolor, with a fallback to
 :rc:`patch.edgecolor` if the patch edgecolor is 'none'.
 
 .. plot::
@@ -25,7 +25,7 @@ The special value 'edge' uses the patch edgecolor, with a fall back to
 
     # In this case, hatchcolor is orange
     patch1 = Rectangle((0.1, 0.1), 0.3, 0.3, edgecolor='red', linewidth=2,
-                      hatch='//', hatchcolor='orange')
+                       hatch='//', hatchcolor='orange')
     ax.add_patch(patch1)
 
     # When hatchcolor is not specified, it matches edgecolor
@@ -48,10 +48,17 @@ The special value 'edge' uses the patch edgecolor, with a fall back to
                            hatch='//', facecolor='none')
 
     # hatchcolor is black (it uses the `hatch.color` rcParam value)
-    assert patch4.get_hatchcolor() == mpl.colors.to_rgba('black')
     patch4.set_edgecolor('blue')
     # hatchcolor is still black (here, it does not update when edgecolor changes)
-    assert patch4.get_hatchcolor() == mpl.colors.to_rgba('black')
     ax.add_patch(patch4)
+
+    ax.annotate("hatchcolor = 'orange'",
+                xy=(.5, 1.03), xycoords=patch1, ha='center', va='bottom')
+    ax.annotate("hatchcolor=None\nedgecolor='green'",
+                xy=(.5, 1.03), xycoords=patch2, ha='center', va='bottom')
+    ax.annotate("hatch.color unspecified\nusing patch.edgecolor",
+                xy=(.5, 1.03), xycoords=patch3, ha='center', va='bottom')
+    ax.annotate("hatch.color='black'",
+                xy=(.5, 1.03), xycoords=patch4, ha='center', va='bottom')
 
     plt.show()

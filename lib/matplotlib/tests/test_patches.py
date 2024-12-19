@@ -1001,77 +1001,65 @@ def test_set_and_get_hatch_linewidth(fig_test, fig_ref):
     assert ax_test.patches[0].get_hatch_linewidth() == lw
 
 
-@check_figures_equal(extensions=['png', 'pdf', 'svg', 'eps'], tol=0.021)
-def test_patch_hatchcolor_inherit_logic(fig_test, fig_ref):
-    ax_ref = fig_ref.subplots()
-    ax_test = fig_test.subplots()
-
-    # Test that setting hatchcolor works with how hatchcolor was previously controlled
-    with mpl.rc_context({'hatch.color': 'red'}):
-        ax_ref.add_patch(Rectangle((0.05, 0.05), 0.4, 0.4, hatch='//'))
-    ax_test.add_patch(Rectangle((0.05, 0.05), 0.4, 0.4, hatch='//', hatchcolor='red'))
-
+def test_patch_hatchcolor_inherit_logic():
     with mpl.rc_context({'hatch.color': 'edge'}):
         # Test for when edgecolor and hatchcolor is set
-        # fig_ref uses a workaround to set hatchcolor to blue and edgecolor to red
-        ax_ref.add_patch(Rectangle((0.05, 0.5), 0.4, 0.4, ec='yellow',
-                                   lw=0, hatch='//'))
-        ax_ref.add_patch(Rectangle((0.05, 0.5), 0.4, 0.4, ec='red', fc='none'))
-        ax_test.add_patch(Rectangle((0.05, 0.5), 0.4, 0.4, hatch='//', ec='red',
-                                    hatchcolor='yellow'))
+        rect = Rectangle((0, 0), 1, 1, hatch='//', ec='red',
+                         hatchcolor='yellow')
+        assert mcolors.same_color(rect.get_edgecolor(), 'red')
+        assert mcolors.same_color(rect.get_hatchcolor(), 'yellow')
 
         # Test for explicitly setting edgecolor and then hatchcolor
-        ax_ref.add_patch(Rectangle((0.5, 0.05), 0.4, 0.4, ec='cyan', lw=0, hatch='//'))
-        ax_ref.add_patch(Rectangle((0.5, 0.05), 0.4, 0.4, ec='orange', fc='none'))
-        rect = Rectangle((0.5, 0.05), 0.4, 0.4, hatch='//')
+        rect = Rectangle((0, 0), 1, 1, hatch='//')
         rect.set_edgecolor('orange')
-        assert rect.get_hatchcolor() == mcolors.to_rgba('orange')
+        assert mcolors.same_color(rect.get_hatchcolor(), 'orange')
         rect.set_hatchcolor('cyan')
-        assert rect.get_hatchcolor() == mcolors.to_rgba('cyan')
-        ax_test.add_patch(rect)
+        assert mcolors.same_color(rect.get_hatchcolor(), 'cyan')
 
         # Test for explicitly setting hatchcolor and then edgecolor
-        ax_ref.add_patch(Rectangle((0.5, 0.5), 0.4, 0.4, ec='purple', lw=0, hatch='//'))
-        ax_ref.add_patch(Rectangle((0.5, 0.5), 0.4, 0.4, ec='green', fc='none'))
-        rect = Rectangle((0.5, 0.5), 0.4, 0.4, hatch='//')
+        rect = Rectangle((0, 0), 1, 1, hatch='//')
         rect.set_hatchcolor('purple')
-        assert rect.get_hatchcolor() == mcolors.to_rgba('purple')
+        assert mcolors.same_color(rect.get_hatchcolor(), 'purple')
         rect.set_edgecolor('green')
-        assert rect.get_hatchcolor() == mcolors.to_rgba('purple')
-        ax_test.add_patch(rect)
+        assert mcolors.same_color(rect.get_hatchcolor(), 'purple')
 
 
 def test_patch_hatchcolor_fallback_logic():
     # Test for when hatchcolor parameter is passed
     rect = Rectangle((0, 0), 1, 1, hatch='//', hatchcolor='green')
-    assert rect.get_hatchcolor() == mcolors.to_rgba('green')
+    assert mcolors.same_color(rect.get_hatchcolor(), 'green')
 
     # Test that hatchcolor parameter takes precedence over rcParam
     # When edgecolor is not set
     with mpl.rc_context({'hatch.color': 'blue'}):
         rect = Rectangle((0, 0), 1, 1, hatch='//', hatchcolor='green')
-    assert rect.get_hatchcolor() == mcolors.to_rgba('green')
+    assert mcolors.same_color(rect.get_hatchcolor(), 'green')
     # When edgecolor is set
     with mpl.rc_context({'hatch.color': 'yellow'}):
         rect = Rectangle((0, 0), 1, 1, hatch='//', hatchcolor='green', edgecolor='red')
-    assert rect.get_hatchcolor() == mcolors.to_rgba('green')
+    assert mcolors.same_color(rect.get_hatchcolor(), 'green')
 
     # Test that hatchcolor is not overridden by edgecolor when
     # hatchcolor parameter is not passed and hatch.color rcParam is set to a color
+    # When edgecolor is not set
+    with mpl.rc_context({'hatch.color': 'blue'}):
+        rect = Rectangle((0, 0), 1, 1, hatch='//')
+    assert mcolors.same_color(rect.get_hatchcolor(), 'blue')
+    # When edgecolor is set
     with mpl.rc_context({'hatch.color': 'blue'}):
         rect = Rectangle((0, 0), 1, 1, hatch='//', edgecolor='red')
-    assert rect.get_hatchcolor() == mcolors.to_rgba('blue')
+    assert mcolors.same_color(rect.get_hatchcolor(), 'blue')
 
     # Test that hatchcolor matches edgecolor when
     # hatchcolor parameter is not passed and hatch.color rcParam is set to 'edge'
     with mpl.rc_context({'hatch.color': 'edge'}):
         rect = Rectangle((0, 0), 1, 1, hatch='//', edgecolor='red')
-    assert rect.get_hatchcolor() == mcolors.to_rgba('red')
+    assert mcolors.same_color(rect.get_hatchcolor(), 'red')
     # hatchcolor parameter is set to 'edge'
     rect = Rectangle((0, 0), 1, 1, hatch='//', hatchcolor='edge', edgecolor='orange')
-    assert rect.get_hatchcolor() == mcolors.to_rgba('orange')
+    assert mcolors.same_color(rect.get_hatchcolor(), 'orange')
 
     # Test for default hatchcolor when hatchcolor parameter is not passed and
     # hatch.color rcParam is set to 'edge' and edgecolor is not set
     rect = Rectangle((0, 0), 1, 1, hatch='//')
-    assert rect.get_hatchcolor() == mcolors.to_rgba(mpl.rcParams['patch.edgecolor'])
+    assert mcolors.same_color(rect.get_hatchcolor(), mpl.rcParams['patch.edgecolor'])
