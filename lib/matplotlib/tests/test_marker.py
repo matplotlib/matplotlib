@@ -209,6 +209,26 @@ def test_marker_clipping(fig_ref, fig_test):
     ax_test.axis('off')
 
 
+def test_register_marker():
+    markers.MarkerStyle.register("test_marker", Path.unit_circle())
+    assert "test_marker" in markers.MarkerStyle.markers
+    assert hasattr(markers.MarkerStyle, "_set_test_marker")
+    MS = markers.MarkerStyle("test_marker")
+    assert MS._path == Path.unit_circle()
+
+
+@check_figures_equal()
+def test_custom_marker(fig_ref, fig_test):
+
+    ax_ref = fig_ref.add_subplot()
+    ax_test = fig_test.add_subplot()
+
+    markers.MarkerStyle.register("test_marker", Path.unit_circle())
+
+    ax_ref.plot(0, 0, marker='o', markersize=100, markeredgewidth=0)
+    ax_test.plot(0, 0, marker="test_marker", markersize=100, markeredgewidth=0)
+
+
 def test_marker_init_transforms():
     """Test that initializing marker with transform is a simple addition."""
     marker = markers.MarkerStyle("o")
