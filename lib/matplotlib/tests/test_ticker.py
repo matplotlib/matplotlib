@@ -1235,11 +1235,16 @@ class TestLogFormatter:
         ax.set_xlim(1, 80)
         self._sub_labels(ax.xaxis, subs=[])
 
-        # axis range at 0.4 to 1 decades, label subs 2, 3, 4, 6
+        # axis range slightly more than 1 decade, but spanning a single major
+        # tick, label subs 2, 3, 4, 6
+        ax.set_xlim(.8, 9)
+        self._sub_labels(ax.xaxis, subs=[2, 3, 4, 6])
+
+        # axis range at 0.4 to 1 decade, label subs 2, 3, 4, 6
         ax.set_xlim(1, 8)
         self._sub_labels(ax.xaxis, subs=[2, 3, 4, 6])
 
-        # axis range at 0 to 0.4 decades, label all
+        # axis range at 0 to 0.4 decade, label all
         ax.set_xlim(0.5, 0.9)
         self._sub_labels(ax.xaxis, subs=np.arange(2, 10, dtype=int))
 
