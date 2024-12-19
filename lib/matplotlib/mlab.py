@@ -49,6 +49,7 @@ Spectral functions
 
 import functools
 from numbers import Number
+import sys
 
 import numpy as np
 
@@ -210,6 +211,30 @@ def detrend_linear(y):
     return y - (b*x + a)
 
 
+def _stride_windows(x, n, noverlap=0):
+    if noverlap >= n:
+        raise ValueError('noverlap must be less than n')
+    if n < 1:
+        raise ValueError('n cannot be less than 1')
+
+    x = np.asarray(x)
+
+    if n == 1 and noverlap == 0:
+        return x[np.newaxis]
+    if n > x.size:
+        raise ValueError('n cannot be greater than the length of x')
+
+    # np.lib.stride_tricks.as_strided easily leads to memory corruption for
+    # non integer shape and strides, i.e. noverlap or n. See #3845.
+    noverlap = int(noverlap)
+    n = int(n)
+
+    step = n - noverlap
+    shape = (n, (x.shape[-1]-noverlap)//step)
+    strides = (x.strides[0], step*x.strides[0])
+    return np.lib.stride_tricks.as_strided(x, shape=shape, strides=strides)
+
+
 def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
                      window=None, noverlap=None, pad_to=None,
                      sides=None, scale_by_freq=None, mode=None):
@@ -304,8 +329,11 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
         raise ValueError(
             "The window length must match the data's first dimension")
 
-    result = np.lib.stride_tricks.sliding_window_view(
-        x, NFFT, axis=0)[::NFFT - noverlap].T
+    if sys.maxsize > 2**32:  # NumPy version on 32-bit OOMs.
+        result = np.lib.stride_tricks.sliding_window_view(
+            x, NFFT, axis=0)[::NFFT - noverlap].T
+    else:
+        result = _stride_windows(x, NFFT, noverlap=noverlap)
     result = detrend(result, detrend_func, axis=0)
     result = result * window.reshape((-1, 1))
     result = np.fft.fft(result, n=pad_to, axis=0)[:numFreqs, :]
@@ -313,8 +341,11 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
 
     if not same_data:
         # if same_data is False, mode must be 'psd'
-        resultY = np.lib.stride_tricks.sliding_window_view(
-            y, NFFT, axis=0)[::NFFT - noverlap].T
+        if sys.maxsize > 2**32:  # NumPy version on 32-bit OOMs.
+            resultY = np.lib.stride_tricks.sliding_window_view(
+                y, NFFT, axis=0)[::NFFT - noverlap].T
+        else:
+            resultY = _stride_windows(y, NFFT, noverlap=noverlap)
         resultY = detrend(resultY, detrend_func, axis=0)
         resultY = resultY * window.reshape((-1, 1))
         resultY = np.fft.fft(resultY, n=pad_to, axis=0)[:numFreqs, :]

@@ -1,4 +1,5 @@
 import io
+import sys
 
 import numpy as np
 from numpy.testing import assert_array_almost_equal
@@ -279,6 +280,7 @@ def test_draw_path_collection_error_handling():
         fig.canvas.draw()
 
 
+@pytest.mark.skipif(sys.platform == 'emscripten', reason='Too large for emscripten VM')
 def test_chunksize_fails():
     # NOTE: This test covers multiple independent test scenarios in a single
     #       function, because each scenario uses ~2GB of memory and we don't
