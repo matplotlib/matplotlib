@@ -24,6 +24,35 @@ else
   freetype_dep = freetype_proj.get_variable('freetype_dep')
 endif
 
+if get_option('system-libraqm')
+  libraqm_dep = dependency('raqm', version: '>=0.10.3')
+else
+  subproject('harfbuzz',
+    default_options: [
+      'default_library=static',
+      'cairo=disabled',
+      'coretext=disabled',
+      'directwrite=disabled',
+      'fontations=disabled',
+      'freetype=enabled',
+      'gdi=disabled',
+      'glib=disabled',
+      'gobject=disabled',
+      'harfruzz=disabled',
+      'icu=disabled',
+      'tests=disabled',
+    ]
+  )
+  subproject('sheenbidi', default_options: ['default_library=static'])
+  libraqm_proj = subproject('libraqm-0.10.3',
+    default_options: [
+      'default_library=static',
+      'sheenbidi=true',
+    ]
+  )
+  libraqm_dep = libraqm_proj.get_variable('libraqm_dep')
+endif
+
 if get_option('system-qhull')
   qhull_dep = dependency('qhull_r', version: '>=8.0.2', required: false)
   if not qhull_dep.found()

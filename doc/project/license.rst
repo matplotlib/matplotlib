@@ -71,6 +71,38 @@ Bundled software
    .. literalinclude:: ../../LICENSE/LICENSE_QT4_EDITOR
       :language: none
 
+Rendering software
+------------------
+
+.. dropdown:: Agg
+   :class-container: sdd
+
+   .. literalinclude:: ../../extern/agg24-svn/src/copying
+      :language: none
+
+.. dropdown:: FreeType
+   :class-container: sdd
+
+   .. literalinclude:: ../../LICENSE/LICENSE_FREETYPE
+      :language: none
+
+.. dropdown:: Harfbuzz
+   :class-container: sdd
+
+   .. literalinclude:: ../../LICENSE/LICENSE_HARFBUZZ
+      :language: none
+
+.. dropdown:: libraqm
+   :class-container: sdd
+
+   .. literalinclude:: ../../LICENSE/LICENSE_LIBRAQM
+      :language: none
+
+.. dropdown:: SheenBidi
+   :class-container: sdd
+
+   .. literalinclude:: ../../LICENSE/LICENSE_SHEENBIDI
+      :language: none
 
 .. _licenses-cmaps-styles:
 

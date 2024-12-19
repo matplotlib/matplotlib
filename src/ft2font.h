@@ -26,6 +26,8 @@ extern "C" {
 #include FT_TRUETYPE_TABLES_H
 }
 
+#include <raqm.h>
+
 namespace py = pybind11;
 
 // By definition, FT_FIXED as 2 16bit values stored in a single long.

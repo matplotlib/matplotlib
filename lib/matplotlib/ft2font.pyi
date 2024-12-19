@@ -8,6 +8,7 @@ from numpy.typing import NDArray
 
 __freetype_build_type__: str
 __freetype_version__: str
+__libraqm_version__: str
 
 # We can't change the type hints for standard library chr/ord, so character codes are a
 # simple type alias.
