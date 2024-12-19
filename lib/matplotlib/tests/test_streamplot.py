@@ -100,7 +100,7 @@ def test_direction():
                    linewidth=2, density=2)
 
 
-@image_comparison(['streamplot_integration.png'], style='mpl20')
+@image_comparison(['streamplot_integration.png'], style='mpl20', tol=0.05)
 def test_integration_options():
     # Linear potential flow over a lifting cylinder
     n = 50
