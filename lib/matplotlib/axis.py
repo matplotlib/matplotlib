@@ -853,7 +853,7 @@ class Axis(martist.Artist):
                 mpl.rcParams['axes.grid'] and
                 mpl.rcParams['axes.grid.which'] in ('both', 'minor'))
 
-    def clear(self):
+    def clear(self, **kwargs):
         """
         Clear the axis.
 
@@ -865,17 +865,35 @@ class Axis(martist.Artist):
         - major and minor grid
         - units
         - registered callbacks
-        """
-        self.label._reset_visual_defaults()
-        # The above resets the label formatting using text rcParams,
-        # so we then update the formatting using axes rcParams
-        self.label.set_color(mpl.rcParams['axes.labelcolor'])
-        self.label.set_fontsize(mpl.rcParams['axes.labelsize'])
-        self.label.set_fontweight(mpl.rcParams['axes.labelweight'])
-        self.offsetText._reset_visual_defaults()
-        self.labelpad = mpl.rcParams['axes.labelpad']
 
-        self._init()
+        If no *kwargs* are passed *'reset'* is set by default to *False*.
+
+        When *'reset'* is set to *False*, part of the formatting of the axis
+        (labels and relative properties) is left unchanged. Thus, a "soft"
+        clear is executed in this case.
+        """
+        if len(kwargs) > 1:
+            _log.debug(
+                "Method 'clear' can accept only one argument")
+        if 'reset' in kwargs:
+            reset = kwargs.pop('reset')
+        else:
+            reset = False  # Default
+        if type(reset) is not bool:
+            reset = False  # Default
+            _log.debug(
+                "kwarg 'reset' must be a bool. It will be set to False")
+        if reset:
+            self.label._reset_visual_defaults()
+            # The above resets the label formatting using text rcParams,
+            # so we then update the formatting using axes rcParams
+            self.label.set_color(mpl.rcParams['axes.labelcolor'])
+            self.label.set_fontsize(mpl.rcParams['axes.labelsize'])
+            self.label.set_fontweight(mpl.rcParams['axes.labelweight'])
+            self.offsetText._reset_visual_defaults()
+            self.labelpad = mpl.rcParams['axes.labelpad']
+
+            self._init()
 
         self._set_scale('linear')
 
