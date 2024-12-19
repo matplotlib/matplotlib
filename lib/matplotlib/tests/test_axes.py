@@ -5998,6 +5998,39 @@ def test_pie_default():
             autopct='%1.1f%%', shadow=True, startangle=90)
 
 
+def test_pie_abs():
+    labels = ['Frogs', 'Hogs', 'Dogs', 'Logs']
+    sizes = [15, 30, 45, 10]
+    fig1, ax1 = plt.subplots(figsize=(8, 6))
+    slices, texts, autotexts = ax1.pie(
+        sizes, labels=labels, absolutefmt='%d')
+
+    assert [txt.get_text() for txt in texts] == labels
+    assert [txt.get_text() for txt in autotexts] == [str(size) for size in sizes]
+
+
+def test_pie_abs_func():
+    labels = ['Frogs', 'Hogs', 'Dogs', 'Logs']
+    sizes = [15, 30, 45, 10]
+    fig1, ax1 = plt.subplots(figsize=(8, 6))
+
+    def double(n):
+        return n * 2
+
+    slices, texts, autotexts = ax1.pie(
+        sizes, labels=labels, absolutefmt=double)
+
+    assert [txt.get_text() for txt in texts] == labels
+    assert [txt.get_text() for txt in autotexts] == [str(size * 2) for size in sizes]
+
+
+def test_pie_both_number_formats():
+    sizes = [15, 30, 45, 10]
+    fig1, ax1 = plt.subplots(figsize=(8, 6))
+    with pytest.raises(ValueError, match='Only one of autopct and absolutefmt'):
+        ax1.pie(sizes, absolutefmt='%d', autopct='%1.1f%%')
+
+
 @image_comparison(['pie_linewidth_0', 'pie_linewidth_0', 'pie_linewidth_0'],
                   extensions=['png'], style='mpl20', tol=0.01)
 def test_pie_linewidth_0():

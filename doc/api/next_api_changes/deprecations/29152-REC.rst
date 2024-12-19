@@ -1,0 +1,4 @@
+The *pctdistance* parameter of ``Axes.pie``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... is deprecated.  Please use *autodistance* instead.
