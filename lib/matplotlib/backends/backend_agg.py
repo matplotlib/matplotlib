@@ -66,7 +66,7 @@ class RendererAgg(RendererBase):
         self.dpi = dpi
         self.width = width
         self.height = height
-        self._renderer = _RendererAgg(int(width), int(height), dpi)
+        self._renderer = _RendererAgg(int(round(width)), int(round(height)), dpi)
         self._filter_renderers = []
 
         self._update_methods()
@@ -98,7 +98,7 @@ class RendererAgg(RendererBase):
         if (npts > nmax > 100 and path.should_simplify and
                 rgbFace is None and gc.get_hatch() is None):
             nch = np.ceil(npts / nmax)
-            chsize = int(np.ceil(npts / nch))
+            chsize = int(round((npts / nch)))
             i0 = np.arange(0, npts, chsize)
             i1 = np.zeros_like(i0)
             i1[:-1] = i0[1:] - 1
@@ -178,8 +178,8 @@ class RendererAgg(RendererBase):
 
         xd = descent * sin(radians(angle))
         yd = descent * cos(radians(angle))
-        x = round(x + ox + xd)
-        y = round(y - oy + yd)
+        x = int(round(x + ox + xd))
+        y = int(round(y - oy + yd))
         self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
@@ -199,8 +199,8 @@ class RendererAgg(RendererBase):
         yo /= 64.0
         xd = d * sin(radians(angle))
         yd = d * cos(radians(angle))
-        x = round(x + xo + xd)
-        y = round(y + yo + yd)
+        x = int(round(x + xo + xd))
+        y = int(round(y + yo + yd))
         self._renderer.draw_text_image(font, x, y + 1, angle, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
@@ -237,8 +237,8 @@ class RendererAgg(RendererBase):
         w, h, d = self.get_text_width_height_descent(s, prop, ismath="TeX")
         xd = d * sin(radians(angle))
         yd = d * cos(radians(angle))
-        x = round(x + xd)
-        y = round(y + yd)
+        x = int(round(x + xd))
+        y = int(round(y + yd))
         self._renderer.draw_text_image(Z, x, y, angle, gc)
 
     def get_canvas_width_height(self):
@@ -309,8 +309,9 @@ class RendererAgg(RendererBase):
 
             # The incoming data is float, but the _renderer type-checking wants
             # to see integers.
-            self._renderer.restore_region(region, int(x1), int(y1),
-                                          int(x2), int(y2), int(ox), int(oy))
+            self._renderer.restore_region(region, int(round(x1)), int(round(y1)),
+                                          int(round(x2)), int(round(y2)),
+                                          int(round(ox)), int(round(oy)))
 
         else:
             self._renderer.restore_region(region)
@@ -320,7 +321,7 @@ class RendererAgg(RendererBase):
         Start filtering. It simply creates a new canvas (the old one is saved).
         """
         self._filter_renderers.append(self._renderer)
-        self._renderer = _RendererAgg(int(self.width), int(self.height),
+        self._renderer = _RendererAgg(int(round(self.width)), int(round(self.height)),
                                       self.dpi)
         self._update_methods()
 
@@ -355,7 +356,7 @@ class RendererAgg(RendererBase):
             if img.dtype.kind == 'f':
                 img = np.asarray(img * 255., np.uint8)
             self._renderer.draw_image(
-                gc, slice_x.start + ox, int(self.height) - slice_y.stop + oy,
+                gc, slice_x.start + ox, int(round(self.height)) - slice_y.stop + oy,
                 img[::-1])
 
 
@@ -484,7 +485,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         FigureCanvasAgg.draw(self)
         renderer = self.get_renderer()
         return (bytes(renderer.buffer_rgba()),
-                (int(renderer.width), int(renderer.height)))
+                (int(round(renderer.width)), int(round(renderer.height))))
 
     # Note that these methods should typically be called via savefig() and
     # print_figure(), and the latter ensures that `self.figure.dpi` already
