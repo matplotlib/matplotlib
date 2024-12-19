@@ -301,7 +301,7 @@ def validate_color_or_auto(s):
     return validate_color(s)
 
 
-def validate_color_or_edge(s):
+def _validate_color_or_edge(s):
     if cbook._str_equal(s, 'edge'):
         return s
     return validate_color(s)
@@ -956,7 +956,7 @@ _validators = {
     "patch.antialiased":     validate_bool,  # antialiased (no jaggies)
 
     ## hatch props
-    "hatch.color":     validate_color_or_edge,
+    "hatch.color":     _validate_color_or_edge,
     "hatch.linewidth": validate_float,
 
     ## Histogram properties
