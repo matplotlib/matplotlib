@@ -1,4 +1,6 @@
 """
+.. _contourf_log:
+
 ============================
 Contourf and log color scale
 ============================
