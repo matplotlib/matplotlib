@@ -351,7 +351,7 @@ class Axes3D(Axes):
             ax_indices = [1, 2]
         return ax_indices
 
-    def set_box_aspect(self, aspect, *, zoom=1):
+    def set_box_aspect(self, aspect, *, zoom: float = 1):
         """
         Set the Axes box aspect.
 
