@@ -1772,5 +1772,6 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
 
     m.attr("__freetype_version__") = version_string;
     m.attr("__freetype_build_type__") = FREETYPE_BUILD_TYPE;
+    m.attr("__libraqm_version__") = raqm_version_string();
     m.def("__getattr__", ft2font__getattr__);
 }
