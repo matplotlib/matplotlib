@@ -321,10 +321,8 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
             if text is None:
                 self.append(Gtk.Separator())
                 continue
-            image = Gtk.Image.new_from_gicon(
-                Gio.Icon.new_for_string(
-                    str(cbook._get_data_path('images',
-                                             f'{image_file}-symbolic.svg'))))
+            image = Gtk.Image.new_from_icon_name(
+                f'org.matplotlib.Matplotlib.{image_file}-symbolic')
             self._gtk_ids[text] = button = (
                 Gtk.ToggleButton() if callback in ['zoom', 'pan'] else
                 Gtk.Button())
@@ -424,6 +422,7 @@ class ToolbarGTK4(ToolContainerBase, Gtk.Box):
         ToolContainerBase.__init__(self, toolmanager)
         Gtk.Box.__init__(self)
         self.set_property('orientation', Gtk.Orientation.HORIZONTAL)
+        self.add_css_class('toolbar')
 
         # Tool items are created later, but must appear before the message.
         self._tool_box = Gtk.Box()
@@ -445,18 +444,27 @@ class ToolbarGTK4(ToolContainerBase, Gtk.Box):
         self._message.set_justify(Gtk.Justification.RIGHT)
         self.append(self._message)
 
+    def _get_image_filename(self, tool):
+        if (fname := super()._get_image_filename(tool)) is not None:
+            return fname
+        if tool.image.startswith('mpl-data/'):
+            return os.path.basename(tool.image)
+
     def add_toolitem(self, name, group, position, image_file, description,
                      toggle):
         if toggle:
             button = Gtk.ToggleButton()
         else:
             button = Gtk.Button()
-        button.set_label(name)
         button.add_css_class('flat')
 
         if image_file is not None:
-            image = Gtk.Image.new_from_gicon(
-                Gio.Icon.new_for_string(image_file))
+            if os.path.isabs(image_file):
+                image = Gtk.Image.new_from_gicon(
+                    Gio.Icon.new_for_string(image_file))
+            else:
+                image = Gtk.Image.new_from_icon_name(
+                    f'org.matplotlib.Matplotlib.{image_file}-symbolic')
             button.set_child(image)
             button.add_css_class('image-button')
 
