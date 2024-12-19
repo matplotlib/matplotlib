@@ -360,7 +360,7 @@ however, nbagg does not work in Jupyter Lab.
 
    To get the interactive functionality described here, you must be
    using an interactive backend.  The default backend in notebooks,
-   the inline backend, is not.  `~ipykernel.pylab.backend_inline`
+   the inline backend, is not.  `!ipykernel.pylab.backend_inline`
    renders the figure once and inserts a static image into the
    notebook when the cell is executed.  Because the images are static, they
    cannot be panned / zoomed, take user input, or be updated from other
