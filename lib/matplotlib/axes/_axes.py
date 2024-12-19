@@ -4940,8 +4940,8 @@ class Axes(_AxesBase):
             marker_obj = mmarkers.MarkerStyle(marker)
         if cbook._str_equal(marker_obj.get_marker(), ","):
             _api.warn_external(
-                "The pixel maker ',' is not supported on scatter(). Fallback "
-                "to a finite-sized square, which is not necessarily 1 pixel in "
+                "The pixel maker ',' is not supported on scatter(); using "
+                "a finite-sized square instead, which is not necessarily 1 pixel in "
                 "size. Use the square marker 's' instead to suppress this warning."
             )
 
