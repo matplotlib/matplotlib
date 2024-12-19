@@ -119,15 +119,15 @@ class InsetIndicator(artist.Artist):
         """
         Set the linestyle of the rectangle and the connectors.
 
-        ==========================================  =================
-        linestyle                                   description
-        ==========================================  =================
-        ``'-'`` or ``'solid'``                      solid line
-        ``'--'`` or ``'dashed'``                    dashed line
-        ``'-.'`` or ``'dashdot'``                   dash-dotted line
-        ``':'`` or ``'dotted'``                     dotted line
-        ``'none'``, ``'None'``, ``' '``, or ``''``  draw nothing
-        ==========================================  =================
+        =======================================================  ================
+        linestyle                                                description
+        =======================================================  ================
+        ``'-'`` or ``'solid'``                                   solid line
+        ``'--'`` or ``'dashed'``                                 dashed line
+        ``'-.'`` or ``'dashdot'``                                dash-dotted line
+        ``':'`` or ``'dotted'``                                  dotted line
+        ``''`` or ``'none'`` (discouraged: ``'None'``, ``' '``)  draw nothing
+        =======================================================  ================
 
         Alternatively a dash tuple of the following form can be provided::
 
