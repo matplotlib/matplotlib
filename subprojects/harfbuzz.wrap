@@ -1,0 +1,8 @@
+[wrap-file]
+directory = harfbuzz-11.2.0
+source_url = https://github.com/harfbuzz/harfbuzz/releases/download/11.2.0/harfbuzz-11.2.0.tar.xz
+source_filename = harfbuzz-11.2.0.tar.xz
+source_hash = 50f7d0a208367e606dbf6eecc5cfbecc01a47be6ee837ae7aff2787e24b09b45
+
+# This patch allows using our bundled FreeType.
+diff_files = harfbuzz-11.2.0-bundle-freetype.patch
