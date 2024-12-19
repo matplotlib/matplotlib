@@ -343,7 +343,7 @@ class Patch(artist.Artist):
     def get_hatchcolor(self):
         """Return the hatch color."""
         if self._hatch_color == 'edge':
-            if self._edgecolor[3] == 0:
+            if self._edgecolor[3] == 0:  # fully transparent
                 return colors.to_rgba(mpl.rcParams['patch.edgecolor'])
             return self.get_edgecolor()
         return self._hatch_color
