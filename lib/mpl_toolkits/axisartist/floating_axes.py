@@ -71,25 +71,19 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
 
         if self.nth_coord == 0:
             mask = (ymin <= yy0) & (yy0 <= ymax)
-            (xx1, yy1), (dxx1, dyy1), (dxx2, dyy2) = \
-                grid_helper_curvelinear._value_and_jacobian(
+            (xx1, yy1), angle_normal, angle_tangent = \
+                grid_helper_curvelinear._value_and_jac_angle(
                     trf_xy, self.value, yy0[mask], (xmin, xmax), (ymin, ymax))
             labels = self._grid_info["lat_labels"]
 
         elif self.nth_coord == 1:
             mask = (xmin <= xx0) & (xx0 <= xmax)
-            (xx1, yy1), (dxx2, dyy2), (dxx1, dyy1) = \
-                grid_helper_curvelinear._value_and_jacobian(
+            (xx1, yy1), angle_tangent, angle_normal = \
+                grid_helper_curvelinear._value_and_jac_angle(
                     trf_xy, xx0[mask], self.value, (xmin, xmax), (ymin, ymax))
             labels = self._grid_info["lon_labels"]
 
         labels = [l for l, m in zip(labels, mask) if m]
-
-        angle_normal = np.arctan2(dyy1, dxx1)
-        angle_tangent = np.arctan2(dyy2, dxx2)
-        mm = (dyy1 == 0) & (dxx1 == 0)  # points with degenerate normal
-        angle_normal[mm] = angle_tangent[mm] + np.pi / 2
-
         tick_to_axes = self.get_tick_transform(axes) - axes.transAxes
         in_01 = functools.partial(
             mpl.transforms._interval_contains_close, (0, 1))

@@ -16,29 +16,75 @@ from .axis_artist import AxisArtist
 from .grid_finder import GridFinder
 
 
-def _value_and_jacobian(func, xs, ys, xlims, ylims):
+def _value_and_jac_angle(func, xs, ys, xlim, ylim):
     """
-    Compute *func* and its derivatives along x and y at positions *xs*, *ys*,
-    while ensuring that finite difference calculations don't try to evaluate
-    values outside of *xlims*, *ylims*.
+    Parameters
+    ----------
+    func : callable
+        A function that transforms the coordinates of a point (x, y) to a new coordinate
+        system (u, v), and which can also take x and y as arrays of shape *shape* and
+        returns (u, v) as a ``(2, shape)`` array.
+    xs, ys : array-likes
+        Points where *func* and its derivatives will be evaluated.
+    xlim, ylim : pairs of floats
+        (min, max) beyond which *func* should not be evaluated.
+
+    Returns
+    -------
+    val
+        Value of *func* at each point of ``(xs, ys)``.
+    thetas_dx
+        Angles (in radians) defined by the (u, v) components of the numerically
+        differentiated df/dx vector, at each point of ``(xs, ys)``.  If needed, the
+        differentiation step size is increased until at least one component of df/dx
+        is nonzero, under the constraint of not going out of the *xlims*, *ylims*
+        bounds.  If the gridline at a point is actually null (and the angle is thus not
+        well defined), the derivatives are evaluated after taking a small step along y;
+        this ensures e.g. that the tick at r=0 on a radial axis of a polar plot is
+        parallel with the ticks at r!=0.
+    thetas_dy
+        Like *thetas_dx*, but for df/dy.
     """
-    eps = np.finfo(float).eps ** (1/2)  # see e.g. scipy.optimize.approx_fprime
+
+    shape = np.broadcast_shapes(np.shape(xs), np.shape(ys))
     val = func(xs, ys)
-    # Take the finite difference step in the direction where the bound is the
-    # furthest; the step size is min of epsilon and distance to that bound.
-    xlo, xhi = sorted(xlims)
-    dxlo = xs - xlo
-    dxhi = xhi - xs
-    xeps = (np.take([-1, 1], dxhi >= dxlo)
-            * np.minimum(eps, np.maximum(dxlo, dxhi)))
-    val_dx = func(xs + xeps, ys)
-    ylo, yhi = sorted(ylims)
-    dylo = ys - ylo
-    dyhi = yhi - ys
-    yeps = (np.take([-1, 1], dyhi >= dylo)
-            * np.minimum(eps, np.maximum(dylo, dyhi)))
-    val_dy = func(xs, ys + yeps)
-    return (val, (val_dx - val) / xeps, (val_dy - val) / yeps)
+
+    # Take finite difference steps towards the furthest bound; the step size will be the
+    # min of epsilon and the distance to that bound.
+    eps0 = np.finfo(float).eps ** (1/2)  # cf. scipy.optimize.approx_fprime
+
+    def calc_eps(vals, lim):
+        lo, hi = sorted(lim)
+        dlo = vals - lo
+        dhi = hi - vals
+        eps_max = np.maximum(dlo, dhi)
+        eps = np.where(dhi >= dlo, 1, -1) * np.minimum(eps0, eps_max)
+        return eps, eps_max
+
+    xeps, xeps_max = calc_eps(xs, xlim)
+    yeps, yeps_max = calc_eps(ys, ylim)
+
+    def calc_thetas(dfunc, ps, eps_p0, eps_max, eps_q):
+        thetas_dp = np.full(shape, np.nan)
+        missing = np.full(shape, True)
+        eps_p = eps_p0
+        for it, eps_q in enumerate([0, eps_q]):
+            while missing.any() and (abs(eps_p) < eps_max).any():
+                if it == 0 and (eps_p > 1).any():
+                    break  # Degenerate derivative, move a bit along the other coord.
+                eps_p = np.minimum(eps_p, eps_max)
+                df_x, df_y = (dfunc(eps_p, eps_q) - dfunc(0, eps_q)) / eps_p
+                good = missing & ((df_x != 0) | (df_y != 0))
+                thetas_dp[good] = np.arctan2(df_y, df_x)[good]
+                missing &= ~good
+                eps_p *= 2
+        return thetas_dp
+
+    thetas_dx = calc_thetas(lambda eps_p, eps_q: func(xs + eps_p, ys + eps_q),
+                            xs, xeps, xeps_max, yeps)
+    thetas_dy = calc_thetas(lambda eps_p, eps_q: func(xs + eps_q, ys + eps_p),
+                            ys, yeps, yeps_max, xeps)
+    return (val, thetas_dx, thetas_dy)
 
 
 class FixedAxisArtistHelper(_FixedAxisArtistHelperBase):
@@ -167,12 +213,11 @@ class FloatingAxisArtistHelper(_FloatingAxisArtistHelperBase):
         elif self.nth_coord == 1:
             xx0 = (xmin + xmax) / 2
             yy0 = self.value
-        xy1, dxy1_dx, dxy1_dy = _value_and_jacobian(
+        xy1, angle_dx, angle_dy = _value_and_jac_angle(
             trf_xy, xx0, yy0, (xmin, xmax), (ymin, ymax))
         p = axes.transAxes.inverted().transform(xy1)
         if 0 <= p[0] <= 1 and 0 <= p[1] <= 1:
-            d = [dxy1_dy, dxy1_dx][self.nth_coord]
-            return xy1, np.rad2deg(np.arctan2(*d[::-1]))
+            return xy1, np.rad2deg([angle_dy, angle_dx][self.nth_coord])
         else:
             return None, None
 
@@ -197,23 +242,17 @@ class FloatingAxisArtistHelper(_FloatingAxisArtistHelperBase):
         # find angles
         if self.nth_coord == 0:
             mask = (e0 <= yy0) & (yy0 <= e1)
-            (xx1, yy1), (dxx1, dyy1), (dxx2, dyy2) = _value_and_jacobian(
+            (xx1, yy1), angle_normal, angle_tangent = _value_and_jac_angle(
                 trf_xy, self.value, yy0[mask], (-np.inf, np.inf), (e0, e1))
             labels = self._grid_info["lat_labels"]
 
         elif self.nth_coord == 1:
             mask = (e0 <= xx0) & (xx0 <= e1)
-            (xx1, yy1), (dxx2, dyy2), (dxx1, dyy1) = _value_and_jacobian(
+            (xx1, yy1), angle_tangent, angle_normal = _value_and_jac_angle(
                 trf_xy, xx0[mask], self.value, (-np.inf, np.inf), (e0, e1))
             labels = self._grid_info["lon_labels"]
 
         labels = [l for l, m in zip(labels, mask) if m]
-
-        angle_normal = np.arctan2(dyy1, dxx1)
-        angle_tangent = np.arctan2(dyy2, dxx2)
-        mm = (dyy1 == 0) & (dxx1 == 0)  # points with degenerate normal
-        angle_normal[mm] = angle_tangent[mm] + np.pi / 2
-
         tick_to_axes = self.get_tick_transform(axes) - axes.transAxes
         in_01 = functools.partial(
             mpl.transforms._interval_contains_close, (0, 1))
