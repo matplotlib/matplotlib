@@ -3,16 +3,17 @@ from enum import Enum
 
 
 class JoinStyle(str, Enum):
-    miter = cast(str, ...)
-    round = cast(str, ...)
-    bevel = cast(str, ...)
+    miter = "miter"
+    round = "round"
+    bevel = "bevel"
     @staticmethod
     def demo() -> None: ...
 
 
 class CapStyle(str, Enum):
-    butt = cast(str, ...)
-    projecting = cast(str, ...)
-    round = cast(str, ...)
+    butt = "butt"
+    projecting = "projecting"
+    round = "round"
+
     @staticmethod
     def demo() -> None: ...

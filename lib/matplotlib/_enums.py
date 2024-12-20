@@ -10,12 +10,8 @@ As an end-user you will not use these classes directly, but only the values
 they define.
 """
 
-from enum import Enum, auto
+from enum import Enum
 from matplotlib import _docstring
-
-
-class __AutoStringNameEnum(Enum):
-    """Automate the ``name = 'name'`` part of making a (str, Enum)."""
 
 
 class JoinStyle(str, Enum):
@@ -73,12 +69,9 @@ class JoinStyle(str, Enum):
 
     """
 
-    def _generate_next_value_(name, start, count, last_values):
-        return name
-
-    miter = auto()
-    round = auto()
-    bevel = auto()
+    miter = "miter"
+    round = "round"
+    bevel = "bevel"
 
     @staticmethod
     def demo():
@@ -148,12 +141,9 @@ class CapStyle(str, Enum):
         CapStyle.demo()
 
     """
-    def _generate_next_value_(name, start, count, last_values):
-        return name
-
-    butt = auto()
-    projecting = auto()
-    round = auto()
+    butt = "butt"
+    projecting = "projecting"
+    round = "round"
 
     @staticmethod
     def demo():
