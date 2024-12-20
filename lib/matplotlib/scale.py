@@ -681,14 +681,19 @@ class LogitScale(ScaleBase):
 
 
 _scale_mapping = {
-    'linear': LinearScale,
-    'log':    LogScale,
-    'symlog': SymmetricalLogScale,
-    'asinh':  AsinhScale,
-    'logit':  LogitScale,
-    'function': FuncScale,
-    'functionlog': FuncScaleLog,
-    }
+    # values temporarily changed from Scale to tuple
+    # (Scale, accepts_axis_parameter) so that we can handle
+    # both scales with and without the historic *axis* parameter
+    # as the first argument
+    # change back when the axis parameter is completely removed
+    'linear': (LinearScale, True),
+    'log': (LogScale, True),
+    'symlog': (SymmetricalLogScale, True),
+    'asinh':  (AsinhScale, True),
+    'logit':  (LogitScale, True),
+    'function': (FuncScale, True),
+    'functionlog': (FuncScaleLog, True),
+}
 
 
 def get_scale_names():
@@ -705,8 +710,11 @@ def scale_factory(scale, axis, **kwargs):
     scale : {%(names)s}
     axis : `~matplotlib.axis.Axis`
     """
-    scale_cls = _api.check_getitem(_scale_mapping, scale=scale)
-    return scale_cls(axis, **kwargs)
+    scale_cls, has_axis_parameter = _api.check_getitem(_scale_mapping, scale=scale)
+    if has_axis_parameter:
+        return scale_cls(axis, **kwargs)
+    else:
+        return scale_cls(**kwargs)
 
 
 if scale_factory.__doc__:
@@ -723,7 +731,9 @@ def register_scale(scale_class):
     scale_class : subclass of `ScaleBase`
         The scale to register.
     """
-    _scale_mapping[scale_class.name] = scale_class
+    # Monkey-patch the signature information onto the scale so
+    has_axis_parameter = "axis" in inspect.signature(scale_class).parameters
+    _scale_mapping[scale_class.name] = (scale_class, has_axis_parameter)
 
 
 def _get_scale_docs():
