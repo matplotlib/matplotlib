@@ -702,12 +702,8 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             self.origin = mpl.rcParams['image.origin']
 
         self._orig_linestyles = linestyles  # Only kept for user access.
-        self.negative_linestyles = negative_linestyles
-        # If negative_linestyles was not defined as a keyword argument, define
-        # negative_linestyles with rcParams
-        if self.negative_linestyles is None:
-            self.negative_linestyles = \
-                mpl.rcParams['contour.negative_linestyle']
+        self.negative_linestyles = mpl._val_or_rc(negative_linestyles,
+                                                  'contour.negative_linestyle')
 
         kwargs = self._process_args(*args, **kwargs)
         self._process_levels()
@@ -1314,8 +1310,7 @@ class QuadContourSet(ContourSet):
         else:
             import contourpy
 
-            if algorithm is None:
-                algorithm = mpl.rcParams['contour.algorithm']
+            algorithm = mpl._val_or_rc(algorithm, 'contour.algorithm')
             mpl.rcParams.validate["contour.algorithm"](algorithm)
             self._algorithm = algorithm
 

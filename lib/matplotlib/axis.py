@@ -89,9 +89,9 @@ class Tick(martist.Artist):
 
         if gridOn is None:
             which = mpl.rcParams['axes.grid.which']
-            if major and (which in ('both', 'major')):
+            if major and which in ('both', 'major'):
                 gridOn = mpl.rcParams['axes.grid']
-            elif (not major) and (which in ('both', 'minor')):
+            elif not major and which in ('both', 'minor'):
                 gridOn = mpl.rcParams['axes.grid']
             else:
                 gridOn = False
@@ -104,31 +104,15 @@ class Tick(martist.Artist):
 
         name = self.__name__
         major_minor = "major" if major else "minor"
-
-        if size is None:
-            size = mpl.rcParams[f"{name}.{major_minor}.size"]
-        self._size = size
-
-        if width is None:
-            width = mpl.rcParams[f"{name}.{major_minor}.width"]
-        self._width = width
-
-        if color is None:
-            color = mpl.rcParams[f"{name}.color"]
-
-        if pad is None:
-            pad = mpl.rcParams[f"{name}.{major_minor}.pad"]
-        self._base_pad = pad
-
-        if labelcolor is None:
-            labelcolor = mpl.rcParams[f"{name}.labelcolor"]
-
+        self._size = mpl._val_or_rc(size, f"{name}.{major_minor}.size")
+        self._width = mpl._val_or_rc(width, f"{name}.{major_minor}.width")
+        self._base_pad = mpl._val_or_rc(pad, f"{name}.{major_minor}.pad")
+        color = mpl._val_or_rc(color, f"{name}.color")
+        labelcolor = mpl._val_or_rc(labelcolor, f"{name}.labelcolor")
         if cbook._str_equal(labelcolor, 'inherit'):
             # inherit from tick color
             labelcolor = mpl.rcParams[f"{name}.color"]
-
-        if labelsize is None:
-            labelsize = mpl.rcParams[f"{name}.labelsize"]
+        labelsize = mpl._val_or_rc(labelsize, f"{name}.labelsize")
 
         self._set_labelrotation(labelrotation)
 
@@ -154,12 +138,12 @@ class Tick(martist.Artist):
         self.tick1line = mlines.Line2D(
             [], [],
             color=color, linestyle="none", zorder=zorder, visible=tick1On,
-            markeredgecolor=color, markersize=size, markeredgewidth=width,
+            markeredgecolor=color, markersize=self._size, markeredgewidth=self._width,
         )
         self.tick2line = mlines.Line2D(
             [], [],
             color=color, linestyle="none", zorder=zorder, visible=tick2On,
-            markeredgecolor=color, markersize=size, markeredgewidth=width,
+            markeredgecolor=color, markersize=self._size, markeredgewidth=self._width,
         )
         self.gridline = mlines.Line2D(
             [], [],
@@ -208,10 +192,8 @@ class Tick(martist.Artist):
         # the tick{1,2}line markers.  From the user perspective this should always be
         # called through _apply_params, which further updates ticklabel positions using
         # the new pads.
-        if tickdir is None:
-            tickdir = mpl.rcParams[f'{self.__name__}.direction']
-        else:
-            _api.check_in_list(['in', 'out', 'inout'], tickdir=tickdir)
+        tickdir = mpl._val_or_rc(tickdir, f'{self.__name__}.direction')
+        _api.check_in_list(['in', 'out', 'inout'], tickdir=tickdir)
         self._tickdir = tickdir
 
     def get_tickdir(self):

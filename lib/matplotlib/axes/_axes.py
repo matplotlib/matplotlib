@@ -168,11 +168,8 @@ class Axes(_AxesBase):
             Other keyword arguments are text properties, see `.Text` for a list
             of valid text properties.
         """
-        if loc is None:
-            loc = mpl.rcParams['axes.titlelocation']
-
-        if y is None:
-            y = mpl.rcParams['axes.titley']
+        loc = mpl._val_or_rc(loc, 'axes.titlelocation').lower()
+        y = mpl._val_or_rc(y, 'axes.titley')
         if y is None:
             y = 1.0
         else:
@@ -182,18 +179,16 @@ class Axes(_AxesBase):
         titles = {'left': self._left_title,
                   'center': self.title,
                   'right': self._right_title}
-        title = _api.check_getitem(titles, loc=loc.lower())
+        title = _api.check_getitem(titles, loc=loc)
         default = {
             'fontsize': mpl.rcParams['axes.titlesize'],
             'fontweight': mpl.rcParams['axes.titleweight'],
             'verticalalignment': 'baseline',
-            'horizontalalignment': loc.lower()}
+            'horizontalalignment': loc}
         titlecolor = mpl.rcParams['axes.titlecolor']
         if not cbook._str_lower_equal(titlecolor, 'auto'):
             default["color"] = titlecolor
-        if pad is None:
-            pad = mpl.rcParams['axes.titlepad']
-        self._set_title_offset_trans(float(pad))
+        self._set_title_offset_trans(float(mpl._val_or_rc(pad, 'axes.titlepad')))
         title.set_text(label)
         title.update(default)
         if fontdict is not None:
@@ -3160,8 +3155,7 @@ class Axes(_AxesBase):
             markerfmt = "o"
         if markerfmt == '':
             markerfmt = ' '  # = empty line style; '' would resolve rcParams
-        markerstyle, markermarker, markercolor = \
-            _process_plot_format(markerfmt)
+        markerstyle, markermarker, markercolor = _process_plot_format(markerfmt)
         if markermarker is None:
             markermarker = 'o'
         if markerstyle is None:
@@ -3176,8 +3170,7 @@ class Axes(_AxesBase):
         basestyle, basemarker, basecolor = _process_plot_format(basefmt)
 
         # New behaviour in 3.1 is to use a LineCollection for the stemlines
-        if linestyle is None:
-            linestyle = mpl.rcParams['lines.linestyle']
+        linestyle = mpl._val_or_rc(linestyle, 'lines.linestyle')
         xlines = self.vlines if orientation == "vertical" else self.hlines
         stemlines = xlines(
             locs, bottom, heads,
@@ -3745,8 +3738,7 @@ class Axes(_AxesBase):
 
         # Make the style dict for caps (the "hats").
         eb_cap_style = {**base_style, 'linestyle': 'none'}
-        if capsize is None:
-            capsize = mpl.rcParams["errorbar.capsize"]
+        capsize = mpl._val_or_rc(capsize, "errorbar.capsize")
         if capsize > 0:
             eb_cap_style['markersize'] = 2. * capsize
         if capthick is not None:
@@ -4100,27 +4092,18 @@ class Axes(_AxesBase):
         """
 
         # Missing arguments default to rcParams.
-        if whis is None:
-            whis = mpl.rcParams['boxplot.whiskers']
-        if bootstrap is None:
-            bootstrap = mpl.rcParams['boxplot.bootstrap']
+        whis = mpl._val_or_rc(whis, 'boxplot.whiskers')
+        bootstrap = mpl._val_or_rc(bootstrap, 'boxplot.bootstrap')
 
         bxpstats = cbook.boxplot_stats(x, whis=whis, bootstrap=bootstrap,
                                        labels=tick_labels, autorange=autorange)
-        if notch is None:
-            notch = mpl.rcParams['boxplot.notch']
-        if patch_artist is None:
-            patch_artist = mpl.rcParams['boxplot.patchartist']
-        if meanline is None:
-            meanline = mpl.rcParams['boxplot.meanline']
-        if showmeans is None:
-            showmeans = mpl.rcParams['boxplot.showmeans']
-        if showcaps is None:
-            showcaps = mpl.rcParams['boxplot.showcaps']
-        if showbox is None:
-            showbox = mpl.rcParams['boxplot.showbox']
-        if showfliers is None:
-            showfliers = mpl.rcParams['boxplot.showfliers']
+        notch = mpl._val_or_rc(notch, 'boxplot.notch')
+        patch_artist = mpl._val_or_rc(patch_artist, 'boxplot.patchartist')
+        meanline = mpl._val_or_rc(meanline, 'boxplot.meanline')
+        showmeans = mpl._val_or_rc(showmeans, 'boxplot.showmeans')
+        showcaps = mpl._val_or_rc(showcaps, 'boxplot.showcaps')
+        showbox = mpl._val_or_rc(showbox, 'boxplot.showbox')
+        showfliers = mpl._val_or_rc(showfliers, 'boxplot.showfliers')
 
         if boxprops is None:
             boxprops = {}
@@ -4931,8 +4914,7 @@ class Axes(_AxesBase):
         scales = s   # Renamed for readability below.
 
         # load default marker from rcParams
-        if marker is None:
-            marker = mpl.rcParams['scatter.marker']
+        marker = mpl._val_or_rc(marker, 'scatter.marker')
 
         if isinstance(marker, mmarkers.MarkerStyle):
             marker_obj = marker
@@ -6478,9 +6460,7 @@ class Axes(_AxesBase):
         `~.Axes.pcolormesh`, which is not available with `~.Axes.pcolor`.
 
         """
-        if shading is None:
-            shading = mpl.rcParams['pcolor.shading']
-        shading = shading.lower()
+        shading = mpl._val_or_rc(shading, 'pcolor.shading').lower()
         kwargs.setdefault('edgecolors', 'none')
 
         X, Y, C, shading = self._pcolorargs('pcolormesh', *args,
@@ -6985,8 +6965,7 @@ such objects
         if np.isscalar(x):
             x = [x]
 
-        if bins is None:
-            bins = mpl.rcParams['hist.bins']
+        bins = mpl._val_or_rc(bins, 'hist.bins')
 
         # Validate string inputs here to avoid cluttering subsequent code.
         _api.check_in_list(['bar', 'barstacked', 'step', 'stepfilled'],

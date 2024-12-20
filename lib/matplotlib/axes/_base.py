@@ -220,10 +220,8 @@ class _process_plot_var_args:
         self.set_prop_cycle(None)
 
     def set_prop_cycle(self, cycler):
-        if cycler is None:
-            cycler = mpl.rcParams['axes.prop_cycle']
         self._idx = 0
-        self._cycler_items = [*cycler]
+        self._cycler_items = [*mpl._val_or_rc(cycler, 'axes.prop_cycle')]
 
     def __call__(self, axes, *args, data=None, return_kwargs=False, **kwargs):
         axes._process_unit_info(kwargs=kwargs)
@@ -687,9 +685,7 @@ class _AxesBase(martist.Artist):
 
         # this call may differ for non-sep axes, e.g., polar
         self._init_axis()
-        if facecolor is None:
-            facecolor = mpl.rcParams['axes.facecolor']
-        self._facecolor = facecolor
+        self._facecolor = mpl._val_or_rc(facecolor, 'axes.facecolor')
         self._frameon = frameon
         self.set_axisbelow(mpl.rcParams['axes.axisbelow'])
 
@@ -3587,8 +3583,7 @@ class _AxesBase(martist.Artist):
                                 f"supplied")
 
         else:
-            loc = (loc if loc is not None
-                   else mpl.rcParams['xaxis.labellocation'])
+            loc = mpl._val_or_rc(loc, 'xaxis.labellocation')
             _api.check_in_list(('left', 'center', 'right'), loc=loc)
 
             x = {
@@ -3856,8 +3851,7 @@ class _AxesBase(martist.Artist):
                                 f"supplied")
 
         else:
-            loc = (loc if loc is not None
-                   else mpl.rcParams['yaxis.labellocation'])
+            loc = mpl._val_or_rc(loc, 'yaxis.labellocation')
             _api.check_in_list(('bottom', 'center', 'top'), loc=loc)
 
             y, ha = {

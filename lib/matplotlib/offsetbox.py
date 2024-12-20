@@ -1343,9 +1343,7 @@ or callable, default: value of *xycoords*
 
         If *s* is not given, reset to :rc:`legend.fontsize`.
         """
-        if s is None:
-            s = mpl.rcParams["legend.fontsize"]
-
+        s = mpl._val_or_rc(s, "legend.fontsize")
         self.prop = FontProperties(size=s)
         self.stale = True
 

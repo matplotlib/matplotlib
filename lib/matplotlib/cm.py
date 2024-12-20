@@ -270,8 +270,7 @@ def get_cmap(name=None, lut=None):
     -------
     Colormap
     """
-    if name is None:
-        name = mpl.rcParams['image.cmap']
+    name = mpl._val_or_rc(name, 'image.cmap')
     if isinstance(name, colors.Colormap):
         return name
     _api.check_in_list(sorted(_colormaps), name=name)
@@ -302,7 +301,7 @@ def _ensure_cmap(cmap):
     """
     if isinstance(cmap, colors.Colormap):
         return cmap
-    cmap_name = cmap if cmap is not None else mpl.rcParams["image.cmap"]
+    cmap_name = mpl._val_or_rc(cmap, "image.cmap")
     # use check_in_list to ensure type stability of the exception raised by
     # the internal usage of this (ValueError vs KeyError)
     if cmap_name not in _colormaps:

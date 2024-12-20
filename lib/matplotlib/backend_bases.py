@@ -2115,8 +2115,7 @@ class FigureCanvasBase:
                     filename = filename.rstrip('.') + '.' + format
         format = format.lower()
 
-        if dpi is None:
-            dpi = rcParams['savefig.dpi']
+        dpi = mpl._val_or_rc(dpi, 'savefig.dpi')
         if dpi == 'figure':
             dpi = getattr(self.figure, '_original_dpi', self.figure.dpi)
 
@@ -2129,15 +2128,12 @@ class FigureCanvasBase:
               cbook._setattr_cm(self.figure.canvas, _is_saving=True),
               ExitStack() as stack):
 
-            for prop in ["facecolor", "edgecolor"]:
-                color = locals()[prop]
-                if color is None:
-                    color = rcParams[f"savefig.{prop}"]
+            for prop, color in [("facecolor", facecolor), ("edgecolor", edgecolor)]:
+                color = mpl._val_or_rc(color, f"savefig.{prop}")
                 if not cbook._str_equal(color, "auto"):
                     stack.enter_context(self.figure._cm_set(**{prop: color}))
 
-            if bbox_inches is None:
-                bbox_inches = rcParams['savefig.bbox']
+            bbox_inches = mpl._val_or_rc(bbox_inches, 'savefig.bbox')
 
             layout_engine = self.figure.get_layout_engine()
             if layout_engine is not None or bbox_inches == "tight":
