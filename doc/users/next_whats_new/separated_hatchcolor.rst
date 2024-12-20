@@ -54,9 +54,9 @@ The special value 'edge' uses the patch edgecolor, with a fallback to
 
     ax.annotate("hatchcolor = 'orange'",
                 xy=(.5, 1.03), xycoords=patch1, ha='center', va='bottom')
-    ax.annotate("hatchcolor=None\nedgecolor='green'",
+    ax.annotate("hatch color unspecified\nedgecolor='green'",
                 xy=(.5, 1.03), xycoords=patch2, ha='center', va='bottom')
-    ax.annotate("hatch.color unspecified\nusing patch.edgecolor",
+    ax.annotate("hatch color unspecified\nusing patch.edgecolor",
                 xy=(.5, 1.03), xycoords=patch3, ha='center', va='bottom')
     ax.annotate("hatch.color='black'",
                 xy=(.5, 1.03), xycoords=patch4, ha='center', va='bottom')
