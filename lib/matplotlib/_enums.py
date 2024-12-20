@@ -14,17 +14,11 @@ from enum import Enum, auto
 from matplotlib import _docstring
 
 
-class _AutoStringNameEnum(Enum):
+class __AutoStringNameEnum(Enum):
     """Automate the ``name = 'name'`` part of making a (str, Enum)."""
 
-    def _generate_next_value_(name, start, count, last_values):
-        return name
 
-    def __hash__(self):
-        return str(self).__hash__()
-
-
-class JoinStyle(str, _AutoStringNameEnum):
+class JoinStyle(str, Enum):
     """
     Define how the connection between two line segments is drawn.
 
@@ -79,6 +73,9 @@ class JoinStyle(str, _AutoStringNameEnum):
 
     """
 
+    def _generate_next_value_(name, start, count, last_values):
+        return name
+
     miter = auto()
     round = auto()
     bevel = auto()
@@ -116,7 +113,7 @@ JoinStyle.input_description = "{" \
         + "}"
 
 
-class CapStyle(str, _AutoStringNameEnum):
+class CapStyle(str, Enum):
     r"""
     Define how the two endpoints (caps) of an unclosed line are drawn.
 
@@ -151,6 +148,9 @@ class CapStyle(str, _AutoStringNameEnum):
         CapStyle.demo()
 
     """
+    def _generate_next_value_(name, start, count, last_values):
+        return name
+
     butt = auto()
     projecting = auto()
     round = auto()
