@@ -690,6 +690,9 @@ _scale_mapping = {
     'functionlog': FuncScaleLog,
     }
 
+# caching of signature info
+_scale_has_axis_parameter = {}
+
 
 def get_scale_names():
     """Return the names of the available scales."""
@@ -706,7 +709,19 @@ def scale_factory(scale, axis, **kwargs):
     axis : `~matplotlib.axis.Axis`
     """
     scale_cls = _api.check_getitem(_scale_mapping, scale=scale)
-    return scale_cls(axis, **kwargs)
+
+    # We support scales that may or may not have an initial *axis* parameter.
+    # This information is cached, so that we do not need to inspect the signature
+    # on every time we create a scale.
+    if scale not in _scale_has_axis_parameter:
+        _scale_has_axis_parameter[scale] = (
+            "axis" in inspect.signature(scale_cls).parameters
+        )
+
+    if _scale_has_axis_parameter[scale]:
+        return scale_cls(axis, **kwargs)
+    else:
+        return scale_cls(**kwargs)
 
 
 if scale_factory.__doc__:
