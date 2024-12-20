@@ -110,8 +110,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     if color is None:
         color = axes._get_lines.get_next_color()
 
-    if linewidth is None:
-        linewidth = mpl.rcParams['lines.linewidth']
+    linewidth = mpl._val_or_rc(linewidth, 'lines.linewidth')
 
     line_kw = {}
     arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10 * arrowsize)

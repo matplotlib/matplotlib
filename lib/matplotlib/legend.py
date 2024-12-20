@@ -581,9 +581,8 @@ class Legend(Artist):
             'markeredgecolor': ['get_markeredgecolor', 'get_edgecolor'],
             'mec':             ['get_markeredgecolor', 'get_edgecolor'],
         }
-        labelcolor = mpl._val_or_rc(labelcolor, 'legend.labelcolor')
-        if labelcolor is None:
-            labelcolor = mpl.rcParams['text.color']
+        labelcolor = mpl._val_or_rc(mpl._val_or_rc(labelcolor, 'legend.labelcolor'),
+                                    'text.color')
         if isinstance(labelcolor, str) and labelcolor in color_getters:
             getter_names = color_getters[labelcolor]
             for handle, text in zip(self.legend_handles, self.texts):

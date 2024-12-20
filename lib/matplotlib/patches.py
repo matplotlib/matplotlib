@@ -354,9 +354,7 @@ class Patch(artist.Artist):
         ----------
         aa : bool or None
         """
-        if aa is None:
-            aa = mpl.rcParams['patch.antialiased']
-        self._antialiased = aa
+        self._antialiased = mpl._val_or_rc(aa, 'patch.antialiased')
         self.stale = True
 
     def _set_edgecolor(self, color):
@@ -386,8 +384,7 @@ class Patch(artist.Artist):
         self._set_edgecolor(color)
 
     def _set_facecolor(self, color):
-        if color is None:
-            color = mpl.rcParams['patch.facecolor']
+        color = mpl._val_or_rc(color, 'patch.facecolor')
         alpha = self._alpha if self._fill else 0
         self._facecolor = colors.to_rgba(color, alpha)
         self.stale = True
@@ -434,11 +431,9 @@ class Patch(artist.Artist):
         ----------
         w : float or None
         """
-        if w is None:
-            w = mpl.rcParams['patch.linewidth']
+        w = mpl._val_or_rc(w, 'patch.linewidth')
         self._linewidth = float(w)
-        self._dash_pattern = mlines._scale_dashes(
-            *self._unscaled_dash_pattern, w)
+        self._dash_pattern = mlines._scale_dashes(*self._unscaled_dash_pattern, w)
         self.stale = True
 
     def set_linestyle(self, ls):

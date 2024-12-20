@@ -451,10 +451,8 @@ class ScalarFormatter(Formatter):
 
     def __init__(self, useOffset=None, useMathText=None, useLocale=None, *,
                  usetex=None):
-        if useOffset is None:
-            useOffset = mpl.rcParams['axes.formatter.useoffset']
-        self._offset_threshold = \
-            mpl.rcParams['axes.formatter.offset_threshold']
+        useOffset = mpl._val_or_rc(useOffset, 'axes.formatter.useoffset')
+        self._offset_threshold = mpl.rcParams['axes.formatter.offset_threshold']
         self.set_useOffset(useOffset)
         self.set_usetex(usetex)
         self.set_useMathText(useMathText)
@@ -540,10 +538,7 @@ class ScalarFormatter(Formatter):
         val : bool or None
             *None* resets to :rc:`axes.formatter.use_locale`.
         """
-        if val is None:
-            self._useLocale = mpl.rcParams['axes.formatter.use_locale']
-        else:
-            self._useLocale = val
+        self._useLocale = mpl._val_or_rc(val, 'axes.formatter.use_locale')
 
     useLocale = property(fget=get_useLocale, fset=set_useLocale)
 

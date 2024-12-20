@@ -262,8 +262,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                  **kwargs
                  ):
         super().__init__(self._get_colorizer(cmap, norm, colorizer))
-        if origin is None:
-            origin = mpl.rcParams['image.origin']
+        origin = mpl._val_or_rc(origin, 'image.origin')
         _api.check_in_list(["upper", "lower"], origin=origin)
         self.origin = origin
         self.set_filternorm(filternorm)
@@ -1576,10 +1575,8 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
     else:
         # Don't bother creating an image; this avoids rounding errors on the
         # size when dividing and then multiplying by dpi.
-        if origin is None:
-            origin = mpl.rcParams["image.origin"]
-        else:
-            _api.check_in_list(('upper', 'lower'), origin=origin)
+        origin = mpl._val_or_rc(origin, "image.origin")
+        _api.check_in_list(('upper', 'lower'), origin=origin)
         if origin == "lower":
             arr = arr[::-1]
         if (isinstance(arr, memoryview) and arr.format == "B"

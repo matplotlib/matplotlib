@@ -2270,10 +2270,8 @@ class SubFigure(FigureBase):
         super().__init__(**kwargs)
         if facecolor is None:
             facecolor = "none"
-        if edgecolor is None:
-            edgecolor = mpl.rcParams['figure.edgecolor']
-        if frameon is None:
-            frameon = mpl.rcParams['figure.frameon']
+        edgecolor = mpl._val_or_rc(edgecolor, 'figure.edgecolor')
+        frameon = mpl._val_or_rc(frameon, 'figure.frameon')
 
         self._subplotspec = subplotspec
         self._parent = parent
@@ -2609,16 +2607,11 @@ None}, default: None
         self._button_pick_id = connect('button_press_event', self.pick)
         self._scroll_pick_id = connect('scroll_event', self.pick)
 
-        if figsize is None:
-            figsize = mpl.rcParams['figure.figsize']
-        if dpi is None:
-            dpi = mpl.rcParams['figure.dpi']
-        if facecolor is None:
-            facecolor = mpl.rcParams['figure.facecolor']
-        if edgecolor is None:
-            edgecolor = mpl.rcParams['figure.edgecolor']
-        if frameon is None:
-            frameon = mpl.rcParams['figure.frameon']
+        figsize = mpl._val_or_rc(figsize, 'figure.figsize')
+        dpi = mpl._val_or_rc(dpi, 'figure.dpi')
+        facecolor = mpl._val_or_rc(facecolor, 'figure.facecolor')
+        edgecolor = mpl._val_or_rc(edgecolor, 'figure.edgecolor')
+        frameon = mpl._val_or_rc(frameon, 'figure.frameon')
 
         if not np.isfinite(figsize).all() or (np.array(figsize) < 0).any():
             raise ValueError('figure size must be positive finite not '
@@ -2891,8 +2884,7 @@ None}, default: None
             If a dict, pass it as kwargs to `.Figure.tight_layout`, overriding the
             default paddings.
         """
-        if tight is None:
-            tight = mpl.rcParams['figure.autolayout']
+        tight = mpl._val_or_rc(tight, 'figure.autolayout')
         _tight = 'tight' if bool(tight) else 'none'
         _tight_parameters = tight if isinstance(tight, dict) else {}
         self.set_layout_engine(_tight, **_tight_parameters)
@@ -2923,8 +2915,7 @@ None}, default: None
         ----------
         constrained : bool or dict or None
         """
-        if constrained is None:
-            constrained = mpl.rcParams['figure.constrained_layout.use']
+        constrained = mpl._val_or_rc(constrained, 'figure.constrained_layout.use')
         _constrained = 'constrained' if bool(constrained) else 'none'
         _parameters = constrained if isinstance(constrained, dict) else {}
         self.set_layout_engine(_constrained, **_parameters)
@@ -3451,8 +3442,7 @@ None}, default: None
         """
 
         kwargs.setdefault('dpi', mpl.rcParams['savefig.dpi'])
-        if transparent is None:
-            transparent = mpl.rcParams['savefig.transparent']
+        transparent = mpl._val_or_rc(transparent, 'savefig.transparent')
 
         with ExitStack() as stack:
             if transparent:
