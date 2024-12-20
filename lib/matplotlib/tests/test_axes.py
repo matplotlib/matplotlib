@@ -7548,7 +7548,7 @@ def test_twinx_subclass(axes_class, kw0, kw1):
     for k, v in kw0.items():
         assert getattr(classed_ax, k) == v
 
-    twin = classed_ax.twinx(**kw1)
+    twin = classed_ax.twinx(axes_class=axes_class, **kw1)
     assert type(twin) is axes_class
     for k, v in kw1.items():
         assert getattr(twin, k) == v
