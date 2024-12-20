@@ -1,14 +1,15 @@
 import datetime
-
-import dateutil.tz
-import dateutil.rrule
 import functools
-import numpy as np
+
+import dateutil.rrule
+import dateutil.tz
 import pytest
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 from matplotlib import rc_context, style
 import matplotlib.dates as mdates
-import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.ticker as mticker
 

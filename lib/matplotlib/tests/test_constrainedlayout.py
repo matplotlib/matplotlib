@@ -1,14 +1,15 @@
 import gc
 import platform
 
-import numpy as np
 import pytest
 
-import matplotlib as mpl
-from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-import matplotlib.transforms as mtransforms
+import numpy as np
+
+import matplotlib as mpl
 from matplotlib import gridspec, ticker
+from matplotlib.testing.decorators import image_comparison
+import matplotlib.transforms as mtransforms
 
 
 def example_plot(ax, fontsize=12, nodec=False):

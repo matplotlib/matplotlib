@@ -1,24 +1,23 @@
 from __future__ import annotations
 
+from datetime import date, datetime, timedelta
 import itertools
 import pathlib
 import pickle
 import sys
-
+from types import ModuleType
 from typing import Any
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
-from datetime import datetime, date, timedelta
-
-import numpy as np
-from numpy.testing import (assert_array_equal, assert_approx_equal,
-                           assert_array_almost_equal)
 import pytest
 
+import numpy as np
+from numpy.testing import (assert_approx_equal, assert_array_almost_equal,
+                           assert_array_equal)
+
 from matplotlib import _api, cbook
-import matplotlib.colors as mcolors
 from matplotlib.cbook import delete_masked_points, strip_math
-from types import ModuleType
+import matplotlib.colors as mcolors
 
 
 class Test_delete_masked_points:

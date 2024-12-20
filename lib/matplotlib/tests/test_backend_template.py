@@ -9,8 +9,8 @@ from unittest.mock import MagicMock
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib.backends import backend_template
-from matplotlib.backends.backend_template import (
-    FigureCanvasTemplate, FigureManagerTemplate)
+from matplotlib.backends.backend_template import (FigureCanvasTemplate,
+                                                  FigureManagerTemplate)
 
 
 def test_load_template():

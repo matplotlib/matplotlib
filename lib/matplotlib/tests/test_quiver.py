@@ -1,12 +1,12 @@
 import platform
 import sys
 
-import numpy as np
 import pytest
 
+import numpy as np
+
 from matplotlib import pyplot as plt
-from matplotlib.testing.decorators import image_comparison
-from matplotlib.testing.decorators import check_figures_equal
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 
 def draw_quiver(ax, **kwargs):

@@ -1,8 +1,9 @@
 from importlib import import_module
 from pkgutil import walk_packages
 
-import matplotlib
 import pytest
+
+import matplotlib
 
 # Get the names of all matplotlib submodules,
 # except for the unit tests and private modules.

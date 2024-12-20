@@ -3,6 +3,7 @@ import warnings
 import pytest
 
 import matplotlib.pyplot as plt
+
 from matplotlib.testing.decorators import check_figures_equal
 
 

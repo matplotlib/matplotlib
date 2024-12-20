@@ -1,5 +1,6 @@
 import os
 import sys
+
 import pytest
 
 import matplotlib.backends.backend_webagg_core

@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 # Check that the test directories exist.
 if not (Path(__file__).parent / 'baseline_images').exists():
     raise OSError(

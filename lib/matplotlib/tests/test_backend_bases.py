@@ -1,17 +1,17 @@
 import importlib
 
+import pytest
+
+import matplotlib.pyplot as plt
+import numpy as np
+
 from matplotlib import path, transforms
-from matplotlib.backend_bases import (
-    FigureCanvasBase, KeyEvent, LocationEvent, MouseButton, MouseEvent,
-    NavigationToolbar2, RendererBase)
+from matplotlib.backend_bases import (FigureCanvasBase, KeyEvent,
+                                      LocationEvent, MouseButton, MouseEvent,
+                                      NavigationToolbar2, RendererBase)
 from matplotlib.backend_tools import RubberbandBase
 from matplotlib.figure import Figure
 from matplotlib.testing._markers import needs_pgf_xelatex
-import matplotlib.pyplot as plt
-
-import numpy as np
-import pytest
-
 
 _EXPECTED_WARNING_TOOLMANAGER = (
     r"Treat the new Tool classes introduced in "
@@ -328,8 +328,8 @@ def test_toolbar_home_restores_autoscale():
                 pytest.param('pgf', marks=needs_pgf_xelatex)]
 )
 def test_draw(backend):
-    from matplotlib.figure import Figure
     from matplotlib.backends.backend_agg import FigureCanvas
+    from matplotlib.figure import Figure
     test_backend = importlib.import_module(f'matplotlib.backends.backend_{backend}')
     TestCanvas = test_backend.FigureCanvas
     fig_test = Figure(constrained_layout=True)

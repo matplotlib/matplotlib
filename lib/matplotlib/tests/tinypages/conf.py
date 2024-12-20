@@ -1,5 +1,5 @@
-import sphinx
 from packaging.version import parse as parse_version
+import sphinx
 
 # -- General configuration ------------------------------------------------
 

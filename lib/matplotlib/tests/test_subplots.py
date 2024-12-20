@@ -1,11 +1,12 @@
 import itertools
 import platform
 
-import numpy as np
 import pytest
 
-from matplotlib.axes import Axes, SubplotBase
 import matplotlib.pyplot as plt
+import numpy as np
+
+from matplotlib.axes import Axes, SubplotBase
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 

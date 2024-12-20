@@ -1,8 +1,11 @@
-import pytest
 import platform
+
+import pytest
+
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+
 import matplotlib.patches as mpatches
+from matplotlib.testing.decorators import image_comparison
 
 
 def draw_arrow(ax, t, r):

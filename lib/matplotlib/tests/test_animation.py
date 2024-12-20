@@ -7,12 +7,13 @@ import subprocess
 import sys
 import weakref
 
-import numpy as np
 import pytest
 
+import numpy as np
+
 import matplotlib as mpl
-from matplotlib import pyplot as plt
 from matplotlib import animation
+from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import check_figures_equal
 
 

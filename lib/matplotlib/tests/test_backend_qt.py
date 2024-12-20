@@ -1,22 +1,23 @@
 import copy
+from datetime import date, datetime
 import importlib
 import os
 import signal
 import sys
-
-from datetime import date, datetime
 from unittest import mock
 
 import pytest
 
 import matplotlib
+from matplotlib import _c_internal_utils
 from matplotlib import pyplot as plt
 from matplotlib._pylab_helpers import Gcf
-from matplotlib import _c_internal_utils
 
 try:
-    from matplotlib.backends.qt_compat import QtGui  # type: ignore[attr-defined]  # noqa: E501, F401
-    from matplotlib.backends.qt_compat import QtWidgets  # type: ignore[attr-defined]
+    from matplotlib.backends.qt_compat import \
+        QtGui  # type: ignore[attr-defined]  # noqa: E501, F401
+    from matplotlib.backends.qt_compat import \
+        QtWidgets  # type: ignore[attr-defined]
     from matplotlib.backends.qt_editor import _formlayout
 except ImportError:
     pytestmark = pytest.mark.skip('No usable Qt bindings')
@@ -108,7 +109,7 @@ def test_correct_key(backend, qt_core, qt_key, qt_mods, answer, monkeypatch):
     Catch the event.
     Assert sent and caught keys are the same.
     """
-    from matplotlib.backends.qt_compat import _to_int, QtCore
+    from matplotlib.backends.qt_compat import QtCore, _to_int
 
     if sys.platform == "darwin" and answer is not None:
         answer = answer.replace("ctrl", "cmd")
@@ -335,6 +336,7 @@ def _get_testable_qt_backends():
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_fig_sigint_override(qt_core):
     from matplotlib.backends.backend_qt5 import _BackendQT5
+
     # Create a figure
     plt.figure()
 
