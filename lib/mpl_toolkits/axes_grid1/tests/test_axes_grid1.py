@@ -780,3 +780,9 @@ def test_anchored_locator_base_call():
 def test_grid_with_axes_class_not_overriding_axis():
     Grid(plt.figure(), 111, (2, 2), axes_class=mpl.axes.Axes)
     RGBAxes(plt.figure(), 111, axes_class=mpl.axes.Axes)
+
+
+def test_grid_ngrids():
+    fig = plt.figure()
+    grid = Grid(fig, 111, (3, 3), ngrids=5)
+    assert len(fig.axes) == grid.ngrids == 5
