@@ -14,6 +14,8 @@ from numpy.testing import assert_allclose
 import io
 import pytest
 
+from lib.matplotlib.transforms import IdentityTransform
+
 
 @check_figures_equal()
 def test_log_scales(fig_test, fig_ref):
@@ -293,3 +295,27 @@ class TestAsinhScale:
             AsinhScale(axis=None, linear_width=-1)
         s0 = AsinhScale(axis=None, )
         s1 = AsinhScale(axis=None, linear_width=3.0)
+
+
+def test_custom_scale_without_axis():
+    """
+    Test that one can register and use custom scales that don't take an *axis* param.
+    """
+    class CustomTransform(IdentityTransform):
+        pass
+
+    class CustomScale(mscale.ScaleBase):
+        def __init__(self):
+            self._transform = CustomTransform()
+
+        def get_transform(self):
+            return self._transform
+
+    try:
+        mscale.register_scale("custom", CustomScale)
+        fig, ax = plt.subplots()
+        ax.set_xscale('custom')
+        assert isinstance(ax.xaxis.get_transform(), CustomTransform)
+    finally:
+        # cleanup - there's no public unregister_scale()
+        del mscale._scale_mapping["custom"]
