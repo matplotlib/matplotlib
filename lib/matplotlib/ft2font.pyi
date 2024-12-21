@@ -1,6 +1,6 @@
 from enum import Enum, Flag
 import sys
-from typing import BinaryIO, Literal, TypedDict, final, overload
+from typing import BinaryIO, Literal, TypedDict, final, overload, cast
 from typing_extensions import Buffer  # < Py 3.12
 
 import numpy as np
@@ -10,62 +10,62 @@ __freetype_build_type__: str
 __freetype_version__: str
 
 class FaceFlags(Flag):
-    SCALABLE: int
-    FIXED_SIZES: int
-    FIXED_WIDTH: int
-    SFNT: int
-    HORIZONTAL: int
-    VERTICAL: int
-    KERNING: int
-    FAST_GLYPHS: int
-    MULTIPLE_MASTERS: int
-    GLYPH_NAMES: int
-    EXTERNAL_STREAM: int
-    HINTER: int
-    CID_KEYED: int
-    TRICKY: int
-    COLOR: int
-    # VARIATION: int  # FT 2.9
-    # SVG: int  # FT 2.12
-    # SBIX: int  # FT 2.12
-    # SBIX_OVERLAY: int  # FT 2.12
+    SCALABLE = cast(int, ...)
+    FIXED_SIZES = cast(int, ...)
+    FIXED_WIDTH = cast(int, ...)
+    SFNT = cast(int, ...)
+    HORIZONTAL = cast(int, ...)
+    VERTICAL = cast(int, ...)
+    KERNING = cast(int, ...)
+    FAST_GLYPHS = cast(int, ...)
+    MULTIPLE_MASTERS = cast(int, ...)
+    GLYPH_NAMES = cast(int, ...)
+    EXTERNAL_STREAM = cast(int, ...)
+    HINTER = cast(int, ...)
+    CID_KEYED = cast(int, ...)
+    TRICKY = cast(int, ...)
+    COLOR = cast(int, ...)
+    # VARIATION = cast(int, ...)  # FT 2.9
+    # SVG = cast(int, ...)  # FT 2.12
+    # SBIX = cast(int, ...)  # FT 2.12
+    # SBIX_OVERLAY = cast(int, ...)  # FT 2.12
 
 class Kerning(Enum):
-    DEFAULT: int
-    UNFITTED: int
-    UNSCALED: int
+    DEFAULT = cast(int, ...)
+    UNFITTED = cast(int, ...)
+    UNSCALED = cast(int, ...)
 
 class LoadFlags(Flag):
-    DEFAULT: int
-    NO_SCALE: int
-    NO_HINTING: int
-    RENDER: int
-    NO_BITMAP: int
-    VERTICAL_LAYOUT: int
-    FORCE_AUTOHINT: int
-    CROP_BITMAP: int
-    PEDANTIC: int
-    IGNORE_GLOBAL_ADVANCE_WIDTH: int
-    NO_RECURSE: int
-    IGNORE_TRANSFORM: int
-    MONOCHROME: int
-    LINEAR_DESIGN: int
-    NO_AUTOHINT: int
-    COLOR: int
-    COMPUTE_METRICS: int  # FT 2.6.1
-    # BITMAP_METRICS_ONLY: int  # FT 2.7.1
-    # NO_SVG: int  # FT 2.13.1
+    DEFAULT = cast(int, ...)
+    NO_SCALE = cast(int, ...)
+    NO_HINTING = cast(int, ...)
+    RENDER = cast(int, ...)
+    NO_BITMAP = cast(int, ...)
+    VERTICAL_LAYOUT = cast(int, ...)
+    FORCE_AUTOHINT = cast(int, ...)
+    CROP_BITMAP = cast(int, ...)
+    PEDANTIC = cast(int, ...)
+    IGNORE_GLOBAL_ADVANCE_WIDTH = cast(int, ...)
+    NO_RECURSE = cast(int, ...)
+    IGNORE_TRANSFORM = cast(int, ...)
+    MONOCHROME = cast(int, ...)
+    LINEAR_DESIGN = cast(int, ...)
+    NO_AUTOHINT = cast(int, ...)
+    COLOR = cast(int, ...)
+    COMPUTE_METRICS = cast(int, ...)  # FT 2.6.1
+    # BITMAP_METRICS_ONLY = cast(int, ...)  # FT 2.7.1
+    # NO_SVG = cast(int, ...)  # FT 2.13.1
     # The following should be unique, but the above can be OR'd together.
-    TARGET_NORMAL: int
-    TARGET_LIGHT: int
-    TARGET_MONO: int
-    TARGET_LCD: int
-    TARGET_LCD_V: int
+    TARGET_NORMAL = cast(int, ...)
+    TARGET_LIGHT = cast(int, ...)
+    TARGET_MONO = cast(int, ...)
+    TARGET_LCD = cast(int, ...)
+    TARGET_LCD_V = cast(int, ...)
 
 class StyleFlags(Flag):
-    NORMAL: int
-    ITALIC: int
-    BOLD: int
+    NORMAL = cast(int, ...)
+    ITALIC = cast(int, ...)
+    BOLD = cast(int, ...)
 
 class _SfntHeadDict(TypedDict):
     version: tuple[int, int]
