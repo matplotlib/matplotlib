@@ -383,3 +383,8 @@ PyCharm, Spyder, and VSCode
 
 Many IDEs have built-in integration with Matplotlib, please consult their
 documentation for configuration details.
+
+Marimo
+------
+
+`marimo <https://github.com/marimo-team/marimo>`__ is a reactive notebook that supports matplotlib natively in both the local library or WebAssembly playground (checkout this notebook on the `Mandelbrot Set <https://marimo.app/l/lm1j9a>`__).
