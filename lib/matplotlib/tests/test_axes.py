@@ -7538,17 +7538,18 @@ class SubclassAxes(Axes):
         self.foo = foo
 
 
+@pytest.mark.parametrize("twinning", ["twinx", "twiny"])
 @pytest.mark.parametrize(("axes_class", "kw0", "kw1"), [
     (Axes, {}, {}),
     (SubclassAxes, {"foo": 0}, {"foo": 1}),
 ])
-def test_twinx_subclass(axes_class, kw0, kw1):
+def test_twinning_subclass(twinning, axes_class, kw0, kw1):
     fig = plt.figure()
     classed_ax = fig.add_subplot(axes_class=axes_class, **kw0)
     for k, v in kw0.items():
         assert getattr(classed_ax, k) == v
 
-    twin = classed_ax.twinx(axes_class=axes_class, **kw1)
+    twin = getattr(classed_ax, twinning)(axes_class=axes_class, **kw1)
     assert type(twin) is axes_class
     for k, v in kw1.items():
         assert getattr(twin, k) == v
