@@ -15,7 +15,7 @@ from contextlib import contextmanager
 
 from matplotlib import (
     _api, artist, cbook, colors as mcolors, lines, text as mtext,
-    path as mpath)
+    path as mpath, rcParams)
 from matplotlib.collections import (
     Collection, LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.patches import Patch
@@ -647,8 +647,8 @@ class Patch3DCollection(PatchCollection):
         *args,
         zs=0,
         zdir="z",
-        depthshade=True,
-        depthshade_minalpha=0.3,
+        depthshade=None,
+        depthshade_minalpha=None,
         axlim_clip=False,
         **kwargs
     ):
@@ -670,6 +670,10 @@ class Patch3DCollection(PatchCollection):
         *depthshade_minalpha* sets the minimum alpha value applied by
         depth-shading.
         """
+        if depthshade is None:
+            depthshade = rcParams['axes3d.depthshade']
+        if depthshade_minalpha is None:
+            depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
         self._depthshade = depthshade
         self._depthshade_minalpha = depthshade_minalpha
         super().__init__(*args, **kwargs)
@@ -681,7 +685,7 @@ class Patch3DCollection(PatchCollection):
     def set_depthshade(
         self,
         depthshade,
-        depthshade_minalpha=0.3,
+        depthshade_minalpha=None,
     ):
         """
         Set whether depth shading is performed on collection members.
@@ -691,9 +695,12 @@ class Patch3DCollection(PatchCollection):
         depthshade : bool
             Whether to shade the patches in order to give the appearance of
             depth.
-        depthshade_minalpha : float
+        depthshade_minalpha : float, default: None
             Sets the minimum alpha value used by depth-shading.
+            If None, use the value from rcParams['axes3d.depthshade_minalpha'].
         """
+        if depthshade_minalpha is None:
+            depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
         self._depthshade = depthshade
         self._depthshade_minalpha = depthshade_minalpha
         self.stale = True
@@ -813,8 +820,8 @@ class Path3DCollection(PathCollection):
         *args,
         zs=0,
         zdir="z",
-        depthshade=True,
-        depthshade_minalpha=0.3,
+        depthshade=None,
+        depthshade_minalpha=None,
         axlim_clip=False,
         **kwargs
     ):
@@ -836,6 +843,10 @@ class Path3DCollection(PathCollection):
         *depthshade_minalpha* sets the minimum alpha value applied by
         depth-shading.
         """
+        if depthshade is None:
+            depthshade = rcParams['axes3d.depthshade']
+        if depthshade_minalpha is None:
+            depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
         self._depthshade = depthshade
         self._depthshade_minalpha = depthshade_minalpha
         self._in_draw = False
@@ -919,7 +930,7 @@ class Path3DCollection(PathCollection):
     def set_depthshade(
         self,
         depthshade,
-        depthshade_minalpha=0.3,
+        depthshade_minalpha=None,
     ):
         """
         Set whether depth shading is performed on collection members.
@@ -932,6 +943,8 @@ class Path3DCollection(PathCollection):
         depthshade_minalpha : float
             Sets the minimum alpha value used by depth-shading.
         """
+        if depthshade_minalpha is None:
+            depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
         self._depthshade = depthshade
         self._depthshade_minalpha = depthshade_minalpha
         self.stale = True
@@ -1029,10 +1042,10 @@ def patch_collection_2d_to_3d(
     col,
     zs=0,
     zdir="z",
-    depthshade=True,
+    depthshade=None,
     axlim_clip=False,
     *args,
-    depthshade_minalpha=0.3
+    depthshade_minalpha=None,
 ):
     """
     Convert a `.PatchCollection` into a `.Patch3DCollection` object
@@ -1049,10 +1062,12 @@ def patch_collection_2d_to_3d(
     zdir : {'x', 'y', 'z'}
         The axis in which to place the patches. Default: "z".
         See `.get_dir_vector` for a description of the values.
-    depthshade
-        Whether to shade the patches to give a sense of depth. Default: *True*.
-    depthshade_minalpha
-        Sets the minimum alpha value used by depth-shading. Default: 0.3.
+    depthshade : bool, default: None
+        Whether to shade the patches to give a sense of depth.
+        If None, use the value from rcParams['axes3d.depthshade'].
+    depthshade_minalpha : float, default: None
+        Sets the minimum alpha value used by depth-shading.
+        If None, use the value from rcParams['axes3d.depthshade_minalpha'].
     axlim_clip : bool, default: False
         Whether to hide patches with a vertex outside the axes view limits.
     """
@@ -1061,6 +1076,10 @@ def patch_collection_2d_to_3d(
         col._offset_zordered = None
     elif isinstance(col, PatchCollection):
         col.__class__ = Patch3DCollection
+    if depthshade is None:
+        depthshade = rcParams['axes3d.depthshade']
+    if depthshade_minalpha is None:
+        depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
     col._depthshade = depthshade
     col._depthshade_minalpha = depthshade_minalpha
     col._in_draw = False
