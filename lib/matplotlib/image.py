@@ -808,7 +808,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
 
 class AxesImage(_ImageBase):
     """
-    An image attached to an Axes.
+    An image, i.e. data on a regular grid, attached to an Axes.
 
     Parameters
     ----------
@@ -995,6 +995,14 @@ class AxesImage(_ImageBase):
 
 
 class NonUniformImage(AxesImage):
+    """
+    An image with pixels on a rectilinear grid.
+
+    In contrast to `.AxesImage`, where pixels are on a regular grid,
+    NonUniformImage allows rows and columns with individual heights / widths.
+
+    See also :doc:`/gallery/images_contours_and_fields/image_nonuniform`.
+    """
 
     def __init__(self, ax, *, interpolation='nearest', **kwargs):
         """
