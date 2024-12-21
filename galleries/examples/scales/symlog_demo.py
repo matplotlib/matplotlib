@@ -43,8 +43,8 @@ plt.show()
 # ----------------
 # Since each decade on a logarithmic scale covers the same amount of visual space
 # and there are infinitely many decades between a given number and zero, the symlog
-# scale must deviate from logarithmic mapping in a small range *(-linthresh, linthresh)*, so that
-# the range is mapped to a finite visual space.
+# scale must deviate from logarithmic mapping in a small range
+# *(-linthresh, linthresh)*, so that the range is mapped to a finite visual space.
 
 
 def format_axes(ax, title=None):
