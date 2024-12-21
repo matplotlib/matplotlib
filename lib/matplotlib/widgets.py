@@ -62,6 +62,12 @@ class LockDraw:
         """Return whether the lock is currently held by an owner."""
         return self._owner is not None
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.release(self)
+
 
 class Widget:
     """
