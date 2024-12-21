@@ -7538,21 +7538,27 @@ class SubclassAxes(Axes):
         self.foo = foo
 
 
-@pytest.mark.parametrize("twinning", ["twinx", "twiny"])
-@pytest.mark.parametrize(("axes_class", "kw0", "kw1"), [
-    (Axes, {}, {}),
-    (SubclassAxes, {"foo": 0}, {"foo": 1}),
-])
-def test_twinning_subclass(twinning, axes_class, kw0, kw1):
-    fig = plt.figure()
-    classed_ax = fig.add_subplot(axes_class=axes_class, **kw0)
-    for k, v in kw0.items():
-        assert getattr(classed_ax, k) == v
+def test_twinning_with_axes_class():
+    """Check that twinx/y(axes_class=...) gives the appropriate class."""
+    _, ax = plt.subplots()
+    twinx = ax.twinx(axes_class=SubclassAxes, foo=1)
+    assert isinstance(twinx, SubclassAxes)
+    assert twinx.foo == 1
+    twiny = ax.twiny(axes_class=SubclassAxes, foo=2)
+    assert isinstance(twiny, SubclassAxes)
+    assert twiny.foo == 2
 
-    twin = getattr(classed_ax, twinning)(axes_class=axes_class, **kw1)
-    assert type(twin) is axes_class
-    for k, v in kw1.items():
-        assert getattr(twin, k) == v
+
+def test_twinning_default_axes_class():
+    """
+    Check that the default class for twinx/y() is Axes,
+    even if the original is an Axes subclass.
+    """
+    _, ax = plt.subplots(subplot_kw=dict(axes_class=SubclassAxes, foo=1))
+    twinx = ax.twinx()
+    assert type(twinx) is Axes
+    twiny = ax.twiny()
+    assert type(twiny) is Axes
 
 
 def test_zero_linewidth():

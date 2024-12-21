@@ -4613,6 +4613,8 @@ class _AxesBase(martist.Artist):
             is incompatible with *projection* and *polar*.  See
             :ref:`axisartist_users-guide-index` for examples.
 
+            By default, `~.axes.Axes` is used.
+
         kwargs : dict
             The keyword arguments passed to ``add_subplot()`` or ``add_axes()``.
 
@@ -4655,6 +4657,8 @@ class _AxesBase(martist.Artist):
             The `.axes.Axes` subclass that is instantiated.  This parameter
             is incompatible with *projection* and *polar*.  See
             :ref:`axisartist_users-guide-index` for examples.
+
+            By default, `~.axes.Axes` is used.
 
         kwargs : dict
             The keyword arguments passed to ``add_subplot()`` or ``add_axes()``.
