@@ -532,7 +532,7 @@ ax3 = plt.subplot(2, 2, (2, 4))
 example_plot(ax1)
 example_plot(ax2)
 example_plot(ax3)
-plt.suptitle('Homogenous nrows, ncols')
+plt.suptitle('Homogeneous nrows, ncols')
 
 # %%
 # but the following leads to a poor layout:
