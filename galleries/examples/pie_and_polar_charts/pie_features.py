@@ -34,13 +34,19 @@ ax.pie(sizes, labels=labels)
 # Auto-label slices
 # -----------------
 #
-# Pass a function or format string to *autopct* to label slices.
+# Pass a function or format string to *absolutefmt* to label slices with your
+# input values...
+
+fig, ax = plt.subplots()
+ax.pie(sizes, labels=labels, absolutefmt='%d')
+
+# %%
+# ...or to *autopct* to label slices with the percent sizes of the slice.
 
 fig, ax = plt.subplots()
 ax.pie(sizes, labels=labels, autopct='%1.1f%%')
 
 # %%
-# By default, the label values are obtained from the percent size of the slice.
 #
 # Color slices
 # ------------
@@ -63,15 +69,15 @@ ax.pie(sizes, labels=labels, hatch=['**O', 'oO', 'O.O', '.||.'])
 # %%
 # Swap label and autopct text positions
 # -------------------------------------
-# Use the *labeldistance* and *pctdistance* parameters to position the *labels*
+# Use the *labeldistance* and *autodistance* parameters to position the *labels*
 # and *autopct* text respectively.
 
 fig, ax = plt.subplots()
 ax.pie(sizes, labels=labels, autopct='%1.1f%%',
-       pctdistance=1.25, labeldistance=.6)
+       autodistance=1.25, labeldistance=.6)
 
 # %%
-# *labeldistance* and *pctdistance* are ratios of the radius; therefore they
+# *labeldistance* and *autodistance* are ratios of the radius; therefore they
 # vary between ``0`` for the center of the pie and ``1`` for the edge of the
 # pie, and can be set to greater than ``1`` to place text outside the pie.
 #
