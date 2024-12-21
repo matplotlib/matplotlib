@@ -1,7 +1,6 @@
 import datetime
 import decimal
 import io
-import os
 from pathlib import Path
 
 import numpy as np
@@ -307,8 +306,8 @@ def test_text_urls_tex():
             assert annot.Rect[1] == decimal.Decimal('0.7') * 72
 
 
-def test_pdfpages_fspath():
-    with PdfPages(Path(os.devnull)) as pdf:
+def test_pdfpages_fspath(tmp_path):
+    with PdfPages(tmp_path / 'unused.pdf') as pdf:
         pdf.savefig(plt.figure())
 
 
