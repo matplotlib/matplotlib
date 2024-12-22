@@ -204,6 +204,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
 
             if extension not in comparable_formats():
                 reason = {
+                    'gif': 'because ImageMagick is not installed',
                     'pdf': 'because Ghostscript is not installed',
                     'eps': 'because Ghostscript is not installed',
                     'svg': 'because Inkscape is not installed',
@@ -279,7 +280,7 @@ def image_comparison(baseline_images, extensions=None, tol=0,
     extensions : None or list of str
         The list of extensions to test, e.g. ``['png', 'pdf']``.
 
-        If *None*, defaults to all supported extensions: png, pdf, and svg.
+        If *None*, defaults to: png, pdf, and svg.
 
         When testing a single extension, it can be directly included in the
         names passed to *baseline_images*.  In that case, *extensions* must not
@@ -359,7 +360,7 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
 
     Parameters
     ----------
-    extensions : list, default: ["png", "pdf", "svg"]
+    extensions : list, default: ["gif", "png", "pdf", "svg"]
         The extensions to test.
     tol : float
         The RMS threshold above which the test is considered failed.

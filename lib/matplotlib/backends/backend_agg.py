@@ -490,6 +490,12 @@ class FigureCanvasAgg(FigureCanvasBase):
     # print_figure(), and the latter ensures that `self.figure.dpi` already
     # matches the dpi kwarg (if any).
 
+    def print_gif(self, filename_or_obj, *, metadata=None, pil_kwargs=None):
+        # savefig() has already applied savefig.facecolor; we now set it to
+        # white to make imsave() blend semi-transparent figures against an
+        # assumed white background.
+        self._print_pil(filename_or_obj, "gif", pil_kwargs, metadata)
+
     def print_jpg(self, filename_or_obj, *, metadata=None, pil_kwargs=None):
         # savefig() has already applied savefig.facecolor; we now set it to
         # white to make imsave() blend semi-transparent figures against an
@@ -507,7 +513,7 @@ class FigureCanvasAgg(FigureCanvasBase):
     def print_webp(self, filename_or_obj, *, metadata=None, pil_kwargs=None):
         self._print_pil(filename_or_obj, "webp", pil_kwargs, metadata)
 
-    print_jpg.__doc__, print_tif.__doc__, print_webp.__doc__ = map(
+    print_gif.__doc__, print_jpg.__doc__, print_tif.__doc__, print_webp.__doc__ = map(
         """
         Write the figure to a {} file.
 
@@ -518,7 +524,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         pil_kwargs : dict, optional
             Additional keyword arguments that are passed to
             `PIL.Image.Image.save` when saving the figure.
-        """.format, ["JPEG", "TIFF", "WebP"])
+        """.format, ["GIF", "JPEG", "TIFF", "WebP"])
 
 
 @_Backend.export

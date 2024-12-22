@@ -99,6 +99,16 @@ class _Converter:
                 return bytes(buf)
 
 
+class _MagickConverter:
+    def __call__(self, orig, dest):
+        try:
+            subprocess.run(
+                [mpl._get_executable_info("magick").executable, orig, dest],
+                check=True)
+        except subprocess.CalledProcessError as e:
+            raise _ConverterError() from e
+
+
 class _GSConverter(_Converter):
     def __call__(self, orig, dest):
         if not self._proc:
@@ -230,6 +240,12 @@ class _SVGWithMatplotlibFontsConverter(_SVGConverter):
 
 
 def _update_converter():
+    try:
+        mpl._get_executable_info("magick")
+    except mpl.ExecutableNotFoundError:
+        pass
+    else:
+        converter['gif'] = _MagickConverter()
     try:
         mpl._get_executable_info("gs")
     except mpl.ExecutableNotFoundError:
