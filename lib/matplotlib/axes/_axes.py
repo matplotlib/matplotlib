@@ -1,3 +1,4 @@
+import collections.abc
 import functools
 import itertools
 import logging
@@ -3200,13 +3201,12 @@ class Axes(_AxesBase):
         self.add_container(stem_container)
         return stem_container
 
-    @_api.make_keyword_only("3.9", "explode")
     @_preprocess_data(replace_names=["x", "explode", "labels", "colors"])
-    def pie(self, x, explode=None, labels=None, colors=None,
-            autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
-            startangle=0, radius=1, counterclock=True,
-            wedgeprops=None, textprops=None, center=(0, 0),
-            frame=False, rotatelabels=False, *, normalize=True, hatch=None):
+    def pie(self, x, *, explode=None, labels=None, colors=None, wedge_labels=None,
+            wedge_label_distance=0.6, rotate_wedge_labels=False, autopct=None,
+            pctdistance=0.6, shadow=False, labeldistance=False, startangle=0, radius=1,
+            counterclock=True, wedgeprops=None, textprops=None, center=(0, 0),
+            frame=False, rotatelabels=False, normalize=True, hatch=None):
         """
         Plot a pie chart.
 
@@ -3238,6 +3238,8 @@ class Axes(_AxesBase):
             see :doc:`/gallery/shapes_and_collections/hatch_style_reference`.
 
             .. versionadded:: 3.7
+
+        wedge_labels :
 
         autopct : None or str or callable, default: None
             If not *None*, *autopct* is a string or function used to label the
@@ -3321,9 +3323,7 @@ class Axes(_AxesBase):
         The Axes aspect ratio can be controlled with `.Axes.set_aspect`.
         """
         self.set_aspect('equal')
-        # The use of float32 is "historical", but can't be changed without
-        # regenerating the test baselines.
-        x = np.asarray(x, np.float32)
+        x = np.asarray(x)
         if x.ndim > 1:
             raise ValueError("x must be 1D")
 
@@ -3332,18 +3332,19 @@ class Axes(_AxesBase):
 
         sx = x.sum()
 
+        def check_length(name, values):
+            if len(values) != len(x):
+                raise ValueError(f"'{name}' must be of length 'x', not {len(values)}")
+
         if normalize:
-            x = x / sx
+            fracs = x / sx
         elif sx > 1:
             raise ValueError('Cannot plot an unnormalized pie with sum(x) > 1')
-        if labels is None:
-            labels = [''] * len(x)
+        else:
+            fracs = x
         if explode is None:
             explode = [0] * len(x)
-        if len(x) != len(labels):
-            raise ValueError(f"'labels' must be of length 'x', not {len(labels)}")
-        if len(x) != len(explode):
-            raise ValueError(f"'explode' must be of length 'x', not {len(explode)}")
+        check_length("explode", explode)
         if colors is None:
             get_next_color = self._get_patches_for_fill.get_next_color
         else:
@@ -3366,18 +3367,147 @@ class Axes(_AxesBase):
         if textprops is None:
             textprops = {}
 
-        texts = []
         slices = []
         autotexts = []
 
-        for frac, label, expl in zip(x, labels, explode):
-            x, y = center
+        # Define some functions for choosing label fontize and horizontal alignment
+        # based on distance and whether we are right of center (i.e. cartesian x > 0)
+
+        def legacy(distance, is_right):
+            # Used to place `labels`.  This function can be removed when the
+            # `labeldistance` deprecation expires.  Always align so the labels
+            # do not overlap the pie
+            ha = 'left' if is_right else 'right'
+            return mpl.rcParams['xtick.labelsize'], ha
+
+        def flexible(distance, is_right):
+            if distance >= 1:
+                # Align so the labels do not overlap the pie
+                ha = 'left' if is_right else 'right'
+            else:
+                ha = 'center'
+
+            return None, ha
+
+        def fixed(distance, is_right):
+            # Used to place the labels generated with autopct.  Always centered
+            # for backwards compatibility
+            return None, 'center'
+
+        # Build a (possibly empty) list of lists of wedge labels, with corresponding
+        # lists of distances, rotation choices and alignment functions
+
+        def sanitize_formatted_string(s):
+            if mpl._val_or_rc(textprops.get("usetex"), "text.usetex"):
+                # escape % (i.e. \%) if it is not already escaped
+                return re.sub(r"([^\\])%", r"\1\\%", s)
+
+            return s
+
+        def fmt_str_to_list(wl):
+            return [sanitize_formatted_string(wl.format(abs=absval, frac=frac))
+                    for absval, frac in zip(x, fracs)]
+
+        if wedge_labels is None:
+            processed_wedge_labels = []
+            wedge_label_distance = []
+            rotate_wedge_labels = []
+        elif isinstance(wedge_labels, str):
+            # Format string.
+            processed_wedge_labels = [fmt_str_to_list(wedge_labels)]
+        elif not isinstance(wedge_labels, collections.abc.Sequence):
+            raise TypeError("wedge_labels must be a string or sequence")
+        else:
+            wl0 = wedge_labels[0]
+            if isinstance(wl0, str) and wl0.format(abs=1, frac=1) == wl0:
+                # Plain string.  Assume we have a sequence of ready-made labels
+                check_length("wedge_labels", wedge_labels)
+                processed_wedge_labels = [wedge_labels]
+            else:
+                processed_wedge_labels = []
+                for wl in wedge_labels:
+                    if isinstance(wl, str):
+                        # Format string
+                        processed_wedge_labels.append(fmt_str_to_list(wl))
+                    else:
+                        # Ready made list
+                        check_length("wedge_labels[i]", wl)
+                        processed_wedge_labels.append(wl)
+
+        if isinstance(wedge_label_distance, Number):
+            wedge_label_distance = [wedge_label_distance]
+        else:
+            # Copy so we won't append to user input
+            wedge_label_distance = wedge_label_distance[:]
+
+        n_label_sets = len(processed_wedge_labels)
+        if n_label_sets != (nd := len(wedge_label_distance)):
+            raise ValueError(f"Found {n_label_sets} sets of wedge labels but "
+                             f"{nd} wedge label distances.")
+
+        if isinstance(rotate_wedge_labels, bool):
+            rotate_wedge_labels = [rotate_wedge_labels]
+        else:
+            # Copy so we won't append to user input
+            rotate_wedge_labels = rotate_wedge_labels[:]
+
+        if len(rotate_wedge_labels) == 1:
+            rotate_wedge_labels = rotate_wedge_labels * n_label_sets
+        elif n_label_sets != (nr := len(rotate_wedge_labels)):
+            raise ValueError(f"Found {n_label_sets} sets of wedge labels but "
+                             f"{nr} wedge label rotation choices.")
+
+        prop_funcs = [flexible] * n_label_sets
+
+        if labels is None:
+            labels = [None] * len(x)
+        else:
+            check_length("labels", labels)
+
+            if not labeldistance and labeldistance is False:
+                msg = ("In future labeldistance will default to None.  To preserve "
+                       "existing behavior, pass labeldistance=1.1.  Consider using "
+                       "wedge_labels instead of labels.")
+                _api.warn_deprecated("3.11", message=msg)
+                labeldistance = 1.1
+
+            if labeldistance is not None:
+                processed_wedge_labels.append(labels)
+                wedge_label_distance.append(labeldistance)
+                prop_funcs.append(legacy)
+                rotate_wedge_labels.append(rotatelabels)
+
+        wedgetexts = [[]] * len(processed_wedge_labels)
+
+        if autopct is not None:
+            if isinstance(autopct, str):
+                processed_pct = [sanitize_formatted_string(autopct % (100. * frac))
+                                 for frac in fracs]
+            elif callable(autopct):
+                processed_pct = [sanitize_formatted_string(autopct(100. * frac))
+                                 for frac in fracs]
+            else:
+                raise TypeError('autopct must be callable or a format string')
+
+            processed_wedge_labels.append(processed_pct)
+            wedge_label_distance.append(pctdistance)
+            prop_funcs.append(fixed)
+            rotate_wedge_labels.append(False)
+
+        # Transpose so we can loop over wedges
+        processed_wedge_labels = np.transpose(processed_wedge_labels)
+        if not processed_wedge_labels.size:
+            processed_wedge_labels = processed_wedge_labels.reshape(len(x), 0)
+
+        for frac, label, expl, wls in zip(fracs, labels, explode,
+                                          processed_wedge_labels):
+            x_pos, y_pos = center
             theta2 = (theta1 + frac) if counterclock else (theta1 - frac)
             thetam = 2 * np.pi * 0.5 * (theta1 + theta2)
-            x += expl * math.cos(thetam)
-            y += expl * math.sin(thetam)
+            x_pos += expl * math.cos(thetam)
+            y_pos += expl * math.sin(thetam)
 
-            w = mpatches.Wedge((x, y), radius, 360. * min(theta1, theta2),
+            w = mpatches.Wedge((x_pos, y_pos), radius, 360. * min(theta1, theta2),
                                360. * max(theta1, theta2),
                                facecolor=get_next_color(),
                                hatch=next(hatch_cycle),
@@ -3395,44 +3525,31 @@ class Axes(_AxesBase):
                     shadow_dict.update(shadow)
                 self.add_patch(mpatches.Shadow(w, **shadow_dict))
 
-            if labeldistance is not None:
-                xt = x + labeldistance * radius * math.cos(thetam)
-                yt = y + labeldistance * radius * math.sin(thetam)
-                label_alignment_h = 'left' if xt > 0 else 'right'
-                label_alignment_v = 'center'
-                label_rotation = 'horizontal'
-                if rotatelabels:
-                    label_alignment_v = 'bottom' if yt > 0 else 'top'
-                    label_rotation = (np.rad2deg(thetam)
-                                      + (0 if xt > 0 else 180))
-                t = self.text(xt, yt, label,
-                              clip_on=False,
-                              horizontalalignment=label_alignment_h,
-                              verticalalignment=label_alignment_v,
-                              rotation=label_rotation,
-                              size=mpl.rcParams['xtick.labelsize'])
-                t.set(**textprops)
-                texts.append(t)
-
-            if autopct is not None:
-                xt = x + pctdistance * radius * math.cos(thetam)
-                yt = y + pctdistance * radius * math.sin(thetam)
-                if isinstance(autopct, str):
-                    s = autopct % (100. * frac)
-                elif callable(autopct):
-                    s = autopct(100. * frac)
-                else:
-                    raise TypeError(
-                        'autopct must be callable or a format string')
-                if mpl._val_or_rc(textprops.get("usetex"), "text.usetex"):
-                    # escape % (i.e. \%) if it is not already escaped
-                    s = re.sub(r"([^\\])%", r"\1\\%", s)
-                t = self.text(xt, yt, s,
-                              clip_on=False,
-                              horizontalalignment='center',
-                              verticalalignment='center')
-                t.set(**textprops)
-                autotexts.append(t)
+            if wls.size > 0:
+                # Add wedge labels
+                for i, (wl, ld, pf, rot) in enumerate(
+                        zip(wls, wedge_label_distance, prop_funcs,
+                            rotate_wedge_labels)):
+                    xt = x_pos + ld * radius * math.cos(thetam)
+                    yt = y_pos + ld * radius * math.sin(thetam)
+                    fontsize, label_alignment_h = pf(ld, xt > 0)
+                    label_alignment_v = 'center'
+                    label_rotation = 'horizontal'
+                    if rot:
+                        label_alignment_v = 'bottom' if yt > 0 else 'top'
+                        label_rotation = (np.rad2deg(thetam) + (0 if xt > 0 else 180))
+                    t = self.text(xt, yt, wl,
+                                  clip_on=False,
+                                  horizontalalignment=label_alignment_h,
+                                  verticalalignment=label_alignment_v,
+                                  rotation=label_rotation,
+                                  size=fontsize)
+                    t.set(**textprops)
+                    if i == len(wedgetexts):
+                        # autopct texts are returned separately
+                        autotexts.append(t)
+                    else:
+                        wedgetexts[i].append(t)
 
             theta1 = theta2
 
@@ -3443,10 +3560,13 @@ class Axes(_AxesBase):
                      xlim=(-1.25 + center[0], 1.25 + center[0]),
                      ylim=(-1.25 + center[1], 1.25 + center[1]))
 
+        if len(wedgetexts) == 1:
+            wedgetexts = wedgetexts[0]
+
         if autopct is None:
-            return slices, texts
+            return slices, wedgetexts
         else:
-            return slices, texts, autotexts
+            return slices, wedgetexts, autotexts
 
     @staticmethod
     def _errorevery_to_mask(x, errorevery):
