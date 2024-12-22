@@ -25,8 +25,9 @@ labels = ['Approve', 'Disapprove', 'Undecided']
 explode = [0.1, 0, 0]
 # rotate so that first wedge is split by the x-axis
 angle = -180 * overall_ratios[0]
-wedges, *_ = ax1.pie(overall_ratios, autopct='%1.1f%%', startangle=angle,
-                     labels=labels, explode=explode)
+wedges, *_ = ax1.pie(
+    overall_ratios, startangle=angle, explode=explode,
+    wedge_labels=[labels, '{frac:.1%}'], wedge_label_distance=[1.1, 0.6])
 
 # bar chart parameters
 age_ratios = [.33, .54, .07, .06]

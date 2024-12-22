@@ -1429,7 +1429,8 @@ def _add_data_doc(docstring, replace_names):
     return docstring.replace('    DATA_PARAMETER_PLACEHOLDER', data_doc)
 
 
-def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
+def _preprocess_data(func=None, *, replace_names=None, replace_names_multi=None,
+                     label_namer=None):
     """
     A decorator to add a 'data' kwarg to a function.
 
@@ -1454,6 +1455,11 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
     replace_names : list of str or None, default: None
         The list of parameter names for which lookup into *data* should be
         attempted. If None, replacement is attempted for all arguments.
+    replace_names_multi : list of str or None, default: None
+        As for *replace_names*, but if a sequence is passed, a lookup into *data*
+        will be attempted for each element of the sequence.  Currently only
+        supported for parameters named in the function signature (not those passed via
+        *args or **kwargs).
     label_namer : str, default: None
         If set e.g. to "namer" (which must be a kwarg in the function's
         signature -- not as ``**kwargs``), if the *namer* argument passed in is
@@ -1471,7 +1477,8 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
     if func is None:  # Return the actual decorator.
         return functools.partial(
             _preprocess_data,
-            replace_names=replace_names, label_namer=label_namer)
+            replace_names=replace_names, replace_names_multi=replace_names_multi,
+            label_namer=label_namer)
 
     sig = inspect.signature(func)
     varargs_name = None
@@ -1523,6 +1530,9 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
             else:
                 if replace_names is None or k in replace_names:
                     bound.arguments[k] = _replacer(data, v)
+                if (replace_names_multi is not None and k in replace_names_multi and
+                        not cbook.is_scalar_or_string(v)):
+                    bound.arguments[k] = [_replacer(data, vi) for vi in v]
 
         new_args = bound.args
         new_kwargs = bound.kwargs
