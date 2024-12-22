@@ -1155,7 +1155,70 @@ class AnchoredText(AnchoredOffsetbox):
 
 
 class OffsetImage(OffsetBox):
+    """
+    Container artist for images.
 
+    Image data is displayed using `.BboxImage`. This image is meant to be positioned
+    relative to a parent artist.
+
+    Parameters
+    ----------
+    arr: array-like or `PIL.Image.Image`
+        The data to be color-coded. The interpretation depends on the
+        shape:
+
+        - (M, N) `~numpy.ndarray` or masked array: values to be colormapped
+        - (M, N, 3): RGB array
+        - (M, N, 4): RGBA array
+
+    zoom: float, default: 1
+        zoom factor:
+
+        - no zoom: factor =1
+        - zoom in: factor > 1
+        - zoom out: 0< factor < 1
+
+    cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+        The Colormap instance or registered colormap name used to map scalar
+        data to colors. This parameter is ignored if X is RGB(A).
+
+    norm : str or `~matplotlib.colors.Normalize`, default: None
+        Maps luminance to 0-1. This parameter is ignored if X is RGB(A).
+
+    interpolation : str, default: :rc:`image.interpolation`
+        Supported values are 'none', 'auto', 'nearest', 'bilinear',
+        'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
+        'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
+        'sinc', 'lanczos', 'blackman'.
+
+    origin : {'upper', 'lower'}, default: :rc:`image.origin`
+        Place the [0, 0] index of the array in the upper left or lower left
+        corner of the Axes. The convention 'upper' is typically used for
+        matrices and images.
+
+    filternorm : bool, default: True
+        A parameter for the antigrain image resize filter
+        (see the antigrain documentation).
+        If filternorm is set, the filter normalizes integer values and corrects
+        the rounding errors. It doesn't do anything with the source floating
+        point values, it corrects only integers according to the rule of 1.0
+        which means that any sum of pixel weights must be equal to 1.0. So,
+        the filter function must produce a graph of the proper shape.
+
+    filterrad : float > 0, default: 4
+        The filter radius for filters that have a radius parameter, i.e. when
+        interpolation is one of: 'sinc', 'lanczos' or 'blackman'.
+
+    resample : bool, default: False
+        When True, use a full resampling method. When False, only resample when
+        the output image is larger than the input image.
+
+    dpi_cor: bool, default: True
+        Correct for the backend DPI setting
+
+    **kwargs : `.BboxImage` properties
+
+    """
     def __init__(self, arr, *,
                  zoom=1,
                  cmap=None,
@@ -1168,7 +1231,6 @@ class OffsetImage(OffsetBox):
                  dpi_cor=True,
                  **kwargs
                  ):
-
         super().__init__()
         self._dpi_cor = dpi_cor
 
