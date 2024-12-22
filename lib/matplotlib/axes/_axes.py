@@ -41,6 +41,7 @@ from matplotlib.container import (
     BarContainer, ErrorbarContainer, PieContainer, StemContainer)
 from matplotlib.text import Text
 from matplotlib.transforms import _ScaledRotation
+from matplotlib._api import UNSET as _UNSET
 
 _log = logging.getLogger(__name__)
 
@@ -3534,13 +3535,13 @@ or pandas.DataFrame
         self.add_container(stem_container)
         return stem_container
 
-    @_api.make_keyword_only("3.10", "explode")
-    @_preprocess_data(replace_names=["x", "explode", "labels", "colors"])
-    def pie(self, x, explode=None, labels=None, colors=None,
-            autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
-            startangle=0, radius=1, counterclock=True,
-            wedgeprops=None, textprops=None, center=(0, 0),
-            frame=False, rotatelabels=False, *, normalize=True, hatch=None):
+    @_preprocess_data(replace_names=["x", "explode", "labels", "colors",
+                                     "wedge_labels"])
+    def pie(self, x, *, explode=None, labels=None, colors=None, wedge_labels=None,
+            wedge_label_distance=0.6, autopct=None, pctdistance=0.6, shadow=False,
+            labeldistance=_UNSET, startangle=0, radius=1, counterclock=True,
+            wedgeprops=None, textprops=None, center=(0, 0), frame=False,
+            rotatelabels=False, normalize=True, hatch=None):
         """
         Plot a pie chart.
 
@@ -3560,7 +3561,13 @@ or pandas.DataFrame
             of the radius with which to offset each wedge.
 
         labels : list, default: None
-            A sequence of strings providing the labels for each wedge
+            A sequence of strings providing the legend labels for each wedge.
+
+            .. deprecated:: 3.12
+                In future these labels will not appear on the wedges but only
+                be made available for the legend (see *labeldistance* below).
+                To place labels on the wedges, use *wedge_labels* or the
+                `pie_label` method.
 
         colors : :mpltype:`color` or list of :mpltype:`color`, default: None
             A sequence of colors through which the pie chart will cycle.  If
@@ -3573,11 +3580,34 @@ or pandas.DataFrame
 
             .. versionadded:: 3.7
 
+        wedge_labels : str or list of str, optional
+            A sequence of strings providing the labels for each wedge, or a format
+            string with ``absval`` and/or ``frac`` placeholders.  For example, to label
+            each wedge with its value and the percentage in brackets::
+
+                wedge_labels="{absval:d} ({frac:.0%})"
+
+            For more control or to add multiple sets of labels, use `pie_label`
+            instead.
+
+            .. versionadded:: 3.12
+
+        wedge_label_distance : float, default: 0.6
+            The radial position of the wedge labels, relative to the pie radius.
+            Values > 1 are outside the wedge and values < 1 are inside the wedge.
+
+            .. versionadded:: 3.12
+
         autopct : None or str or callable, default: None
             If not *None*, *autopct* is a string or function used to label the
             wedges with their numeric value. The label will be placed inside
             the wedge. If *autopct* is a format string, the label will be
             ``fmt % pct``. If *autopct* is a function, then it will be called.
+
+            .. admonition:: Discouraged
+
+                Consider using the *wedge_labels* parameter or `pie_label`
+                method instead.
 
         pctdistance : float, default: 0.6
             The relative distance along the radius at which the text
@@ -3590,6 +3620,11 @@ or pandas.DataFrame
             drawn. To draw the labels inside the pie, set  *labeldistance* < 1.
             If set to ``None``, labels are not drawn but are still stored for
             use in `.legend`.
+
+            .. deprecated:: 3.12
+                From v3.14 *labeldistance* will default to ``None`` and will
+                later be removed altogether.  Use *wedge_labels* and
+                *wedge_label_distance* or the `pie_label` method instead.
 
         shadow : bool or dict, default: False
             If bool, whether to draw a shadow beneath the pie. If dict, draw a shadow
@@ -3672,8 +3707,33 @@ or pandas.DataFrame
             raise ValueError('Cannot plot an unnormalized pie with sum(x) > 1')
         else:
             fracs = x
+
+        if labeldistance is _UNSET:
+            # NB: when the labeldistance default changes, both labeldistance and
+            # rotatelabels should be deprecated for removal.
+            if labels is not None:
+                msg = (
+                    "From %(removal)s labeldistance will default to None, so that the "
+                    "strings provided in the labels parameter are only available for "
+                    "the legend.  Later labeldistance will be removed completely.  To "
+                    "preserve existing behavior for now, pass labeldistance=1.1.  "
+                    "Consider using the wedge_labels parameter or the pie_label method "
+                    "instead of the labels parameter."
+                    )
+                _api.warn_deprecated("3.12", message=msg)
+            labeldistance = 1.1
+
         if labels is None:
             labels = [''] * len(x)
+        else:
+            if wedge_labels is not None and labeldistance is not None:
+                raise ValueError(
+                    'wedge_labels is a replacement for labels when annotating the '
+                    'wedges, so the two should not be used together unless '
+                    'labeldistance is None.  To add multiple sets of labels, use the '
+                    'pie_label method.'
+                    )
+
         if explode is None:
             explode = [0] * len(x)
         if len(x) != len(labels):
@@ -3731,11 +3791,16 @@ or pandas.DataFrame
 
         pc = PieContainer(slices, x, normalize)
 
-        if labeldistance is None:
+        if wedge_labels is not None:
+            self.pie_label(pc, wedge_labels, distance=wedge_label_distance,
+                           textprops=textprops)
+
+        elif labeldistance is None:
             # Insert an empty list of texts for backwards compatibility of the
             # return value.
             pc.add_texts([])
-        else:
+
+        if labeldistance is not None:
             # Add labels to the wedges.
             labels_textprops = {
                 'fontsize': mpl.rcParams['xtick.labelsize'],
