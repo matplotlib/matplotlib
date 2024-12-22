@@ -78,9 +78,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         Multiplier on the maximum allowable step in the streamline integration routine.
         A value between zero and one results in a max integration step smaller than
         the default max step, resulting in more accurate streamlines at the cost
-        of greater computation time. A value greater than one results in a max
-        integration step larger than the default value, reducing computation time
-        at the cost of less accurate streamlines. Must be greater than zero.
+        of greater computation time; a value greater than one does the converse. Must be 
+        greater than zero.
 
         .. versionadded:: 3.11
 
@@ -88,9 +87,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         Multiplier on the maximum allowable error in the streamline integration routine.
         A value between zero and one results in a tighter max integration error than
         the default max error, resulting in more accurate streamlines at the cost
-        of greater computation time. A value greater than one results in a looser
-        max integration error than the default value, reducing computation time at
-        the cost of less accurate streamlines. Must be greater than zero.
+        of greater computation time; a value greater than one does the converse. Must be 
+        greater than zero.
 
         .. versionadded:: 3.11
 
