@@ -19,7 +19,7 @@ dependencies:
   - pybind11>=2.13.2
   - meson-python>=0.13.1
   - numpy<2.1
-  - pillow>=8
+  - pillow>=9
   - pkg-config
   - pygobject
   - pyparsing>=2.3.1
