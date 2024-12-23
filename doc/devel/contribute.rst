@@ -203,10 +203,11 @@ why they are the correct approach and an improvement to the current state.
 New contributors
 ================
 
-There is no pre-defined pathway for new contributors - we recommend looking at
-existing issue and pull request discussions, and following the conversations
-during pull request reviews to get context. Or you can deep-dive into a subset
-of the code-base to understand what is going on.
+Everyone comes to the project from a different place -- in terms of experience
+and interest -- so there is no one-size-fits-all path to getting involved.  We
+recommend looking at existing issue or pull request discussions, and following
+the conversations during pull request reviews to get context.  Or you can
+deep-dive into a subset of the code-base to understand what is going on.
 
 .. _new_contributors_meeting:
 
