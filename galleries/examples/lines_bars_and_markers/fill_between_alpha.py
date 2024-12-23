@@ -44,7 +44,7 @@ fig.autofmt_xdate()
 # regions can overlap and alpha allows you to see both.  Note that the
 # postscript format does not support alpha (this is a postscript
 # limitation, not a matplotlib limitation), so when using alpha save
-# your figures in PNG, PDF or SVG.
+# your figures in GIF, PNG, PDF or SVG.
 #
 # Our next example computes two populations of random walkers with a
 # different mean and standard deviation of the normal distributions from
