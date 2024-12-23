@@ -40,7 +40,7 @@ Ways to contribute
       visualization, 3D plotting, design, technical writing, statistics, or some
       other field where Matplotlib could be improved.**
 
-      Awesome -- you have a focus on a specific application and domain and can
+      Awesome — you have a focus on a specific application and domain and can
       start there. In this case, maintainers can help you figure out the best
       implementation; open an issue or pull request with a starting point, and we'll
       be happy to discuss technical approaches.
@@ -203,8 +203,8 @@ why they are the correct approach and an improvement to the current state.
 New contributors
 ================
 
-Everyone comes to the project from a different place -- in terms of experience
-and interest -- so there is no one-size-fits-all path to getting involved.  We
+Everyone comes to the project from a different place — in terms of experience
+and interest — so there is no one-size-fits-all path to getting involved.  We
 recommend looking at existing issue or pull request discussions, and following
 the conversations during pull request reviews to get context.  Or you can
 deep-dive into a subset of the code-base to understand what is going on.
