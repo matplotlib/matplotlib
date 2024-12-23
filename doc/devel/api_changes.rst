@@ -62,11 +62,12 @@ team. Generally API deprecation happens in two stages:
 * **expire:** API *is* changed as described in the introduction period
 
 This ensures that users are notified before the change will take effect and thus
-prevents unexpected breaking of code.
+prevents unexpected breaking of code. Occasionally deprecations are marked as
+**pending**, which means that the deprecation will be introduced in a future release.
 
 Rules
 ^^^^^
-- Deprecations are targeted at the next :ref:`meso release <pr-milestones>` (e.g. 3.x)
+- Deprecations are targeted at the next :ref:`meso release <pr-milestones>` (e.g. 3.Y)
 - Deprecated API is generally removed (expired) two point-releases after introduction
   of the deprecation. Longer deprecations can be imposed by core developers on
   a case-by-case basis to give more time for the transition
@@ -76,12 +77,17 @@ Rules
 - If in doubt, decisions about API changes are finally made by the
   `API consistency lead <https://matplotlib.org/governance/people.html>`_ developer.
 
+
 .. _intro-deprecation:
 
 Introduce deprecation
 ^^^^^^^^^^^^^^^^^^^^^
 
-#. Create :ref:`deprecation notice <api_whats_new>`
+Deprecations are introduced to warn users that the API will change. The deprecation
+notice describes how the API will change. When alternatives to the deprecated API exist,
+they are also listed in the notice and decorators.
+
+#. Create a :ref:`deprecation notice <api_whats_new>`
 
 #. If possible, issue a `~matplotlib.MatplotlibDeprecationWarning` when the
    deprecated API is used. There are a number of helper tools for this:
@@ -117,8 +123,10 @@ Introduce deprecation
 
 Expire deprecation
 ^^^^^^^^^^^^^^^^^^
+The API changes described in the introduction notice are only implemented after the
+introduction period has expired.
 
-#. Create :ref:`deprecation announcement <api_whats_new>`. For the content,
+#. Create a :ref:`deprecation announcement <api_whats_new>`. For the content,
    you can usually copy the deprecation notice and adapt it slightly.
 
 #. Change the code functionality and remove any related deprecation warnings.
@@ -136,6 +144,35 @@ Expire deprecation
      items were never type hinted in the first place and were added to this file
      instead. For removed items that were not in the stub file, only deleting from the
      allowlist is required.
+
+.. _pending-deprecation:
+
+Pending deprecation
+^^^^^^^^^^^^^^^^^^^
+
+A pending deprecation is an announcement that a deprecation will be introduced in the
+future. By default, pending deprecations do not raise a warning to the user; however,
+pending deprecations are rendered in the documentation and listed in the release notes.
+Pending notices are primarily intended to give downstream library and tool developers
+time to adapt their code so that it does not raise a deprecation
+warning. This is because their users cannot act on warnings triggered by how the tools
+and libraries use Matplotlib. It's also possible to run Python in dev mode to raise
+`PendingDeprecationWarning`.
+
+To mark a deprecation as pending, set the following parameters on the appropriate
+deprecation decorator:
+* the *pending* parameter is set to ``True``
+* the *removal* parameter is left blank
+
+When converting a pending deprecation to an introduced deprecation, update the
+decorator such that:
+* *pending* is set to ``False``
+* *since* is set to the next meso release (3.Y+1)
+* *removal* is set to at least 2 meso releases after (3.Y+3) introduction.
+
+Pending deprecations are documented in the :ref:`API change notes <api_whats_new>` in
+the same manner as introduced and expired deprecations. The notice should include
+*pending deprecation* in the title.
 
 
 .. redirect-from:: /devel/coding_guide#new-features-and-api-changes
