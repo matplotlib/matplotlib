@@ -491,9 +491,6 @@ class FigureCanvasAgg(FigureCanvasBase):
     # matches the dpi kwarg (if any).
 
     def print_gif(self, filename_or_obj, *, metadata=None, pil_kwargs=None):
-        # savefig() has already applied savefig.facecolor; we now set it to
-        # white to make imsave() blend semi-transparent figures against an
-        # assumed white background.
         self._print_pil(filename_or_obj, "gif", pil_kwargs, metadata)
 
     def print_jpg(self, filename_or_obj, *, metadata=None, pil_kwargs=None):
