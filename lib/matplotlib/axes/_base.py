@@ -565,6 +565,12 @@ class _AxesBase(martist.Artist):
     dataLim: mtransforms.Bbox
     """The bounding `.Bbox` enclosing all data displayed in the Axes."""
 
+    xaxis: maxis.XAxis
+    """The x-axis."""
+
+    yaxis: maxis.YAxis
+    """The y-axis."""
+
     @property
     def _axis_map(self):
         """A mapping of axis names, e.g. 'x', to `Axis` instances."""
