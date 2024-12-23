@@ -1486,6 +1486,8 @@ class DraggableBase:
 
     def on_pick(self, evt):
         if self._check_still_parented():
+            if evt.name == "scroll_event":
+                return
             if evt.artist == self.ref_artist:
                 self.mouse_x = evt.mouseevent.x
                 self.mouse_y = evt.mouseevent.y
