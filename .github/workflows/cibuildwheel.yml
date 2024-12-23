@@ -70,7 +70,7 @@ jobs:
         run: twine check dist/*
 
       - name: Upload sdist result
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
         with:
           name: cibw-sdist
           path: dist/*.tar.gz
@@ -188,7 +188,7 @@ jobs:
           CIBW_ENABLE: pypy
         if: matrix.cibw_archs != 'aarch64' && matrix.os != 'windows-latest'
 
-      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
+      - uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
         with:
           name: cibw-wheels-${{ runner.os }}-${{ matrix.cibw_archs }}
           path: ./wheelhouse/*.whl
