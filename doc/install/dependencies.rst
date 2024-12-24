@@ -28,7 +28,7 @@ reference.
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.3.1)
 * `NumPy <https://numpy.org>`_ (>= 1.23)
 * `packaging <https://pypi.org/project/packaging/>`_ (>= 20.0)
-* `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 8.0)
+* `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 9.0)
 * `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.3.1)
 
 

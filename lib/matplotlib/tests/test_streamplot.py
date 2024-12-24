@@ -100,6 +100,66 @@ def test_direction():
                    linewidth=2, density=2)
 
 
+@image_comparison(['streamplot_integration.png'], style='mpl20', tol=0.05)
+def test_integration_options():
+    # Linear potential flow over a lifting cylinder
+    n = 50
+    x, y = np.meshgrid(np.linspace(-2, 2, n), np.linspace(-3, 3, n))
+    th = np.arctan2(y, x)
+    r = np.sqrt(x**2 + y**2)
+    vr = -np.cos(th) / r**2
+    vt = -np.sin(th) / r**2 - 1 / r
+    vx = vr * np.cos(th) - vt * np.sin(th) + 1.0
+    vy = vr * np.sin(th) + vt * np.cos(th)
+
+    # Seed points
+    n_seed = 50
+    seed_pts = np.column_stack((np.full(n_seed, -1.75), np.linspace(-2, 2, n_seed)))
+
+    fig, axs = plt.subplots(3, 1, figsize=(6, 14))
+    th_circ = np.linspace(0, 2 * np.pi, 100)
+    for ax, max_val in zip(axs, [0.05, 1, 5]):
+        ax_ins = ax.inset_axes([0.0, 0.7, 0.3, 0.35])
+        for ax_curr, is_inset in zip([ax, ax_ins], [False, True]):
+            ax_curr.streamplot(
+                x,
+                y,
+                vx,
+                vy,
+                start_points=seed_pts,
+                broken_streamlines=False,
+                arrowsize=1e-10,
+                linewidth=2 if is_inset else 0.6,
+                color="k",
+                integration_max_step_scale=max_val,
+                integration_max_error_scale=max_val,
+            )
+
+            # Draw the cylinder
+            ax_curr.fill(
+                np.cos(th_circ),
+                np.sin(th_circ),
+                color="w",
+                ec="k",
+                lw=6 if is_inset else 2,
+            )
+
+            # Set axis properties
+            ax_curr.set_aspect("equal")
+
+        # Set axis limits and show zoomed region
+        ax_ins.set_xlim(-1.2, -0.7)
+        ax_ins.set_ylim(-0.8, -0.4)
+        ax_ins.set_yticks(())
+        ax_ins.set_xticks(())
+
+        ax.set_ylim(-1.5, 1.5)
+        ax.axis("off")
+        ax.indicate_inset_zoom(ax_ins, ec="k")
+
+    fig.tight_layout()
+
+
 def test_streamplot_limits():
     ax = plt.axes()
     x = np.linspace(-5, 10, 20)
@@ -156,8 +216,20 @@ def test_streamplot_grid():
     x = np.array([0, 20, 40])
     y = np.array([0, 20, 10])
 
-    with pytest.raises(ValueError, match="'y' must be strictly increasing"):
-        plt.streamplot(x, y, u, v)
+
+def test_streamplot_integration_params():
+    x = np.array([[10, 20], [10, 20]])
+    y = np.array([[10, 10], [20, 20]])
+    u = np.ones((2, 2))
+    v = np.zeros((2, 2))
+
+    err_str = "The value of integration_max_step_scale must be > 0, got -0.5"
+    with pytest.raises(ValueError, match=err_str):
+        plt.streamplot(x, y, u, v, integration_max_step_scale=-0.5)
+
+    err_str = "The value of integration_max_error_scale must be > 0, got 0.0"
+    with pytest.raises(ValueError, match=err_str):
+        plt.streamplot(x, y, u, v, integration_max_error_scale=0.0)
 
 
 def test_streamplot_inputs():  # test no exception occurs.
