@@ -4,8 +4,8 @@ Patch hatchcolor
 ================
 
 This example shows how to use the *hatchcolor* parameter to set the color of
-the hatch. The *hatchcolor* parameter is available for `~.patches.Patch` and
-its children.
+the hatch. The *hatchcolor* parameter is available for `~.patches.Patch`,
+child classes of Patch, and methods that pass through to Patch.
 """
 
 import matplotlib.pyplot as plt

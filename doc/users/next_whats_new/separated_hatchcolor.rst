@@ -1,21 +1,16 @@
 Separated ``hatchcolor`` from ``edgecolor``
 -------------------------------------------
 
-`~matplotlib.patches.Patch` gained a new *hatchcolor* parameter to explicitly
-control hatch colors. Previously, hatch colors were the same as edge colors,
-with a fallback to :rc:`hatch.color` if the patch did not have an edge color.
-
-Fallback Logic
-~~~~~~~~~~~~~~
 When the *hatchcolor* parameter is specified, it will be used for the hatch.
 If it is not specified, it will fall back to using :rc:`hatch.color`.
-
 The special value 'edge' uses the patch edgecolor, with a fallback to
 :rc:`patch.edgecolor` if the patch edgecolor is 'none'.
+Previously, hatch colors were the same as edge colors, with a fallback to
+:rc:`hatch.color` if the patch did not have an edge color.
 
 .. plot::
     :include-source: true
-    :alt: Example of using the hatchcolor parameter in a Rectangle
+    :alt: Four Rectangle patches, each displaying the color of hatches in different specifications of edgecolor and hatchcolor. Top left has hatchcolor='black' representing the default value when both hatchcolor and edgecolor are not set, top right has edgecolor='blue' and hatchcolor='black' which remains when the edgecolor is set again, bottom left has edgecolor='red' and hatchcolor='orange' on explicit specification and bottom right has edgecolor='green' and hatchcolor='green' when the hatchcolor is not set.
 
     import matplotlib as mpl
     import matplotlib.pyplot as plt
