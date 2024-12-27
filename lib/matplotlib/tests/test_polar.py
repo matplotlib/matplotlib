@@ -220,6 +220,13 @@ def test_polar_rlabel_position():
     ax.tick_params(rotation='auto')
 
 
+@image_comparison(['polar_title_position.png'], style='mpl20')
+def test_polar_title_position():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='polar')
+    ax.set_title('foo')
+
+
 @image_comparison(['polar_theta_wedge'], style='default')
 def test_polar_theta_limits():
     r = np.arange(0, 3.0, 0.01)
