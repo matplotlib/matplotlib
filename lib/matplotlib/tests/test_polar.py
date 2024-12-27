@@ -220,6 +220,21 @@ def test_polar_rlabel_position():
     ax.tick_params(rotation='auto')
 
 
+@mpl.style.context('default')
+def test_polar_title_position():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='polar')
+
+    t = ax.set_title('foo')
+    fig.draw_without_rendering()
+    default_position = t.get_position()
+
+    # With no x/theta tick labels, the title should be lower
+    ax.tick_params(labelbottom=False, labeltop=False)
+    fig.draw_without_rendering()
+    assert t.get_position()[1] < default_position[1]
+
+
 @image_comparison(['polar_theta_wedge'], style='default')
 def test_polar_theta_limits():
     r = np.arange(0, 3.0, 0.01)
