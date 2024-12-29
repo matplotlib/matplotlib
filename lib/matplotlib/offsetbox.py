@@ -206,10 +206,10 @@ class OffsetBox(martist.Artist):
     The child artists are meant to be drawn at a relative position to its
     parent.
 
-    Being an artist itself, all parameters are passed on to `.Artist`.
+    Being an artist itself, all keyword arguments are passed on to `.Artist`.
     """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args)
+    def __init__(self, **kwargs):
+        super().__init__()
         self._internal_update(kwargs)
         # Clipping has not been implemented in the OffsetBox family, so
         # disable the clip flag for consistency. It can always be turned back
