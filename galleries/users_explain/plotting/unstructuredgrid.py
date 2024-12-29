@@ -9,10 +9,10 @@ collected without the benefit of a grid, with :math:`z = f(x, y)` where
 :math:`x` and :math:`y` are one-dimensional arrays of the same length, and
 hence :math:`z` is also one-dimensional.  Sometimes it is useful to grid that
 data via appropriate interpolation schemes (see `scipy.interpolate.griddata`
-for some in python). However, if the data is spaced appropriately it can sometimes
+for some in python). However, if the data is spaced appropriately, it can sometimes
 be plotted directly in Matplotlib.
 
-Matplotlib does this via a suite of triangulation routines in the
+Matplotlib accomplishes this via a suite of triangulation routines in the
 :mod:`matplotlib.tri` module.  The most basic triangulation routine is
 `~matplotlib.tri.Triangulation`, which is a simple wrapper around the popular
 `Qhull <http://www.qhull.org/>`_ library.  The `~matplotlib.tri.Triangulation`
@@ -27,8 +27,8 @@ contour plots.
 # -------
 #
 # The most basic plot is the `~.axes.Axes.triplot` method, which plots the
-# edges of the triangles.  Here we create a simple triangulation on a set of
-# points, and plot the edges of the triangles that are created.
+# edges of triangles in a triangulation.  Here we create a simple triangulation
+# on a set of points, and plot the edges of the triangles that are created.
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -86,8 +86,10 @@ for ax, shade in zip(axs, ['flat', 'gouraud']):
 # tricontour and tricontourf
 # --------------------------
 #
-# The `~.axes.Axes.tricontour` and `~.axes.Axes.tricontourf` methods can also be used to
-# plot contours on a triangulation.
+# The `~.axes.Axes.tricontour` and `~.axes.Axes.tricontourf` methods can be
+# used to plot contours of unstractured data, where the underlying
+# triangulation is used to interpolate the contour locations.  Here we plot
+# contours of the same data as above.
 
 fig, ax = plt.subplots()
 ax.plot(x, y, 'm.')
