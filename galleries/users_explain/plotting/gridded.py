@@ -172,12 +172,12 @@ ax.set_title('contourf plot')
 fig.colorbar(cf, ax=ax)
 
 # %%
-# Note that like for `.Axes.pcolormesh`, the grid need not be orthogonal.
-# Here is the same data as above, but with the y grid points varying with x:
-#
-# The *levels* can be specified with a list of levels or a locator (see
-# :ref:`contourf_log` for an example of using a locator), and the colormap can
-# be set with the *cmap* argument (see :ref:`colormaps`).
+# Note that like for `.Axes.pcolormesh`, the grid need not be orthogonal. In
+# the following example the the same data is plotted as above, but with the y
+# grid points varying with x. The contour *levels* are also manually specified
+# in this example with a list of levels, (see :ref:`contourf_log` for an
+# example of using a tick locator instead of a list), and the colormap set with
+# the *cmap* argument (see :ref:`colormaps`).
 
 Yn = Y + 0.3 * np.abs(x)
 
@@ -198,10 +198,10 @@ fig.colorbar(cf, ax=ax)
 # %%
 # barbs and quiver
 # ----------------
-# `~.axes.Axes.barbs` and `~.axes.Axes.quiver` allow us to represent vector
-# fields specified at points on an x-y grid by two-dimensional arrays U, V.
-# The arrays must be the same shape as x and y and the arrows are placed at the
-# corresponding points in the grid.  The main difference between the two
+# `~.axes.Axes.barbs` and `~.axes.Axes.quiver` allow us to represent gridded
+# vector fields specified at points on an x-y grid by two-dimensional arrays U,
+# V. The arrays must be the same shape as x and y and the arrows are placed at
+# the corresponding points in the grid.  The main difference between the two
 # functions is that `~.axes.Axes.barbs` plots barbs, which are a more
 # traditional representation of wind speed and direction, while
 # `~.axes.Axes.quiver` plots arrows with a uniform size and the direction is
@@ -249,16 +249,14 @@ ax.set_ylabel('y')
 ax.set_title('streamplot')
 
 # %%
-# There are more examples of how to style the streamlines in the
-# :ref:`streamplot demo<plot_streamplot>`.  Note that `~.axes.Axes.streamplot`
-# performs an interpolation and the streamlines are not guaranteed to be
-# accurate.  For more accurate streamlines, the data grid could be refined.
+# `~.axes.Axes.streamplot` performs an interpolation and the streamlines are
+# not guaranteed to be accurate.  For more accurate streamlines, the data grid
+# could be refined.
 #
 # .. note::
 #
-#   Unlike `~.axes.Axes.barbs` and `~.axes.Axes.quiver`,
-#   `~.axes.Axes.streamplot` does not accept 2D arrays for the x and y data.
-#   The x and y data must be 1D arrays, and the spacing between the points must
+#   `~.axes.Axes.streamplot` does not accept 2D arrays for the x and y data:
+#   the x and y data must be 1D arrays, and the spacing between the points must
 #   be uniform.
 #
 # .. seealso:: :ref:`Streamplot demo <plot_streamplot>`
