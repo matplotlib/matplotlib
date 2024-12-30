@@ -436,6 +436,14 @@ class VPacker(PackerBase):
     """
     VPacker packs its children vertically, automatically adjusting their
     relative positions at draw time.
+
+    .. code-block:: none
+
+       +---------+
+       | Child 1 |
+       | Child 2 |
+       | Child 3 |
+       +---------+
     """
 
     def _get_bbox_and_child_offsets(self, renderer):
@@ -468,6 +476,12 @@ class HPacker(PackerBase):
     """
     HPacker packs its children horizontally, automatically adjusting their
     relative positions at draw time.
+
+    .. code-block:: none
+
+       +-------------------------------+
+       | Child 1    Child 2    Child 3 |
+       +-------------------------------+
     """
 
     def _get_bbox_and_child_offsets(self, renderer):
@@ -498,6 +512,26 @@ class PaddedBox(OffsetBox):
 
     The `.PaddedBox` contains a `.FancyBboxPatch` that is used to visualize
     it when rendering.
+
+    .. code-block:: none
+
+       +----------------------------+
+       |                            |
+       |                            |
+       |                            |
+       | <--pad--> Artist           |
+       |             ^              |
+       |            pad             |
+       |             v              |
+       +----------------------------+
+
+    Attributes
+    ----------
+    pad : float
+        The padding in points.
+    patch : `.FancyBboxPatch`
+        When *draw_frame* is True, this `.FancyBboxPatch` is made visible and
+        creates a border around the box.
     """
 
     def __init__(self, child, pad=0., *, draw_frame=False, patch_attrs=None):
