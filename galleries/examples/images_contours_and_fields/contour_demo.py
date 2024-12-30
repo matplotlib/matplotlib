@@ -13,8 +13,6 @@ See also the :doc:`contour image example
 import matplotlib.pyplot as plt
 import numpy as np
 
-import matplotlib.cm as cm
-
 delta = 0.025
 x = np.arange(-3.0, 3.0, delta)
 y = np.arange(-2.0, 2.0, delta)
@@ -79,7 +77,7 @@ ax.set_title('Crazy lines')
 
 fig, ax = plt.subplots()
 im = ax.imshow(Z, interpolation='bilinear', origin='lower',
-               cmap=cm.gray, extent=(-3, 3, -2, 2))
+               cmap="gray", extent=(-3, 3, -2, 2))
 levels = np.arange(-1.2, 1.6, 0.2)
 CS = ax.contour(Z, levels, origin='lower', cmap='flag', extend='both',
                 linewidths=2, extent=(-3, 3, -2, 2))
