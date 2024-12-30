@@ -3636,13 +3636,21 @@ class RectangleSelector(_SelectorWidget):
     @property
     def rotation(self):
         """
-        Rotation in degrees.
+        Rotation in degrees (around center).
         """
         return np.rad2deg(self._rotation)
 
     @rotation.setter
     def rotation(self, value):
-        self._rotation = np.deg2rad(value)
+        new_angle = np.deg2rad(value)
+        rot = new_angle - self._rotation
+        xc, yc = self._selection_artist.get_center()
+        new_geom_state = copy.copy(self._geometry_state)
+        new_geom_state.rotation = new_angle
+        # Transform the rectangle corner xy so we are rotating about the center.
+        new_geom_state.xy = Affine2D().rotate_around(xc, yc, rot).transform(
+            self._geometry_state.xy)
+        self._geometry_state = new_geom_state
         self._update_selection_artist()
 
     def _clip_to_axes(self, x, y):

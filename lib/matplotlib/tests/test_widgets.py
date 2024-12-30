@@ -459,9 +459,11 @@ def test_rectangle_resize_square_center(ax):
 def test_selector_rotate(ax, selector_class):
     ax.set_aspect(1)
     tool = selector_class(ax, interactive=True)
+    corners = np.array([[100, 130, 130, 100], [100, 100, 140, 140]])
     # Draw rectangle
     click_and_drag(tool, start=(100, 100), end=(130, 140))
     assert_allclose(tool.extents, (100, 130, 100, 140))
+    assert_allclose(tool.corners, corners, atol=1e-6)
     assert len(tool._state) == 0
 
     # Rotate anticlockwise using top-right corner
@@ -474,20 +476,37 @@ def test_selector_rotate(ax, selector_class):
     # Extents change as the selector remains rigid in display coordinates
     assert_allclose(tool.extents, (110.10, 119.90, 95.49, 144.51), atol=0.01)
     assert_allclose(tool.rotation, 25.56, atol=0.01)
+    angle = tool.rotation
+    corners_dragged = tool.corners
+
+    # Check corners on returning to unrotated position, then rotate back with @setter
+    tool.rotation = 0
+    assert tool.rotation == 0
+    assert_allclose(tool.corners, corners, atol=1e-6)
+
+    tool.rotation = angle
+    assert_allclose(tool.rotation, 25.56, atol=0.01)
+    assert_allclose(tool.corners, corners_dragged, atol=1e-6)
+    assert_allclose(tool.extents, (110.10, 119.90, 95.49, 144.51), atol=0.01)
+
     tool.rotation = 45
     assert tool.rotation == 45
-    # Corners should move
+    # Corners should move again
     assert_allclose(tool.corners,
-                    np.array([[110.10, 131.31, 103.03, 81.81],
-                              [95.49, 116.70, 144.98, 123.77]]), atol=0.01)
+                    np.array([[118.54, 139.75, 111.46,  90.25],
+                              [95.25, 116.46, 144.75, 123.54]]), atol=0.01)
 
-    # Scale using top-right corner
-    click_and_drag(tool, start=(110, 145), end=(110, 160))
-    assert_allclose(tool.extents, (110, 110, 145, 160), atol=0.01)
+    # Rescale using top-right corner
+    click_and_drag(tool, start=(111, 145), end=(111, 160))
+    assert_allclose(tool.corners,
+                    np.array([[118.54, 147.25, 111.46,  82.75],
+                              [95.25, 123.96, 159.75, 131.04]]), atol=0.01)
+    assert_allclose(tool.extents, (118.54, 111.46,  95.25, 159.75), atol=0.01)
 
     if selector_class == widgets.RectangleSelector:
+        assert tool._selection_artist.rotation_point == 'xy'
         with pytest.raises(ValueError):
-            tool._selection_artist.rotation_point = 'unvalid_value'
+            tool._selection_artist.rotation_point = 'invalid_value'
 
 
 def test_rectangle_add_remove_set(ax):
@@ -570,7 +589,7 @@ def test_selector_handles(ax, selector_class):
     """Test geometry of Rectangle/Ellipse Selector [bounding box]"""
     tool = selector_class(ax, grab_range=10, interactive=True,
                           handle_props={'markerfacecolor': 'r',
-                                      'markeredgecolor': 'b'})
+                                        'markeredgecolor': 'b'})
     tool.extents = (100, 150, 100, 150)
 
     assert_allclose(tool.corners, ((100, 150, 150, 100), (100, 100, 150, 150)))
