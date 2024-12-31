@@ -372,8 +372,8 @@ class _process_plot_var_args:
 
         # Looks like we don't want "color" to be interpreted to
         # mean both facecolor and edgecolor for some reason.
-        # So the "kw" dictionary is thrown out, and only its
-        # 'color' value is kept and translated as a 'facecolor'.
+        # So the "kw" dictionary is thrown out, and only its 'color' value is
+        # kept and translated as a 'facecolor'.
         # This design should probably be revisited as it increases
         # complexity.
         facecolor = kw.get('color', None)
@@ -3617,7 +3617,7 @@ class _AxesBase(martist.Artist):
     xaxis_inverted = _axis_method_wrapper("xaxis", "get_inverted")
     if xaxis_inverted.__doc__:
         xaxis_inverted.__doc__ = ("[*Discouraged*] " + xaxis_inverted.__doc__ +
-                                  textwrap.dedent("""
+                                 textwrap.dedent("""
 
         .. admonition:: Discouraged
 
@@ -3846,9 +3846,9 @@ class _AxesBase(martist.Artist):
         if {*kwargs} & {*protected_kw}:
             if loc is not None:
                 raise TypeError(f"Specifying 'loc' is disallowed when any of "
-                                f"its corresponding low level keyword "
-                                f"arguments ({protected_kw}) are also "
-                                f"supplied")
+                               f"its corresponding low level keyword "
+                               f"arguments ({protected_kw}) are also "
+                               f"supplied")
 
         else:
             loc = mpl._val_or_rc(loc, 'yaxis.labellocation')

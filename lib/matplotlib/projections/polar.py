@@ -1552,16 +1552,10 @@ class PolarAxes(Axes):
             The top edge position of the title in axis coordinates,
             adjusted for polar projection.
         """
-        # Get base value from parent class
         base_top = super().get_title_top()
-        
-        # Special adjustments for polar axes
         theta_direction = -1 if self.get_theta_direction() < 0 else 1
         theta_offset = np.deg2rad(self.get_theta_offset())
-        
-        # Additional adjustment for polar coordinates
         polar_adjustment = 0.05 * theta_direction * np.cos(theta_offset)
-        
         return base_top + polar_adjustment
 
 
