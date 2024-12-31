@@ -285,7 +285,12 @@ class Path:
         p._readonly = False
         return p
 
-    deepcopy = __deepcopy__
+    def deepcopy(self, memo=None):
+        """
+        Return a shallow copy of the `Path`, which will share the
+        vertices and codes with the source `Path`.
+        """
+        return copy.deepcopy(self, memo=memo)
 
     @classmethod
     def make_compound_path_from_polys(cls, XY):
