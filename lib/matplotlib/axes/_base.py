@@ -4791,16 +4791,24 @@ class _AxesBase(martist.Artist):
         return top
 
     def _adjust_title_position(self, title, renderer):
-        """Başlığın pozisyonunu ayarlar."""
-        # Mevcut kodun başlangıcı...
-        
-        # Eski hesaplama yerine yeni metodu kullan
+        """
+        Adjust the position of the title.
+
+        Parameters
+        ----------
+        title : matplotlib.text.Text
+            The title text instance
+        renderer : matplotlib.backend_bases.RendererBase
+            The renderer
+        """
+        # Get the top position from the new method
         top = self.get_title_top()
         
-        # Başlığı ayarla
+        # Set the title position
         title.set_position((0.5, top))
         
-        # Mevcut kodun devamı...
+        # Update the title layout
+        title.update_bbox_position_size(renderer)
 
 
 def _draw_rasterized(figure, artists, renderer):

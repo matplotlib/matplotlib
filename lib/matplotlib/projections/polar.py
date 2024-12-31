@@ -1545,6 +1545,12 @@ class PolarAxes(Axes):
     def get_title_top(self) -> float:
         """
         Calculate the top position of the title for polar axes.
+
+        Returns
+        -------
+        float
+            The top edge position of the title in axis coordinates,
+            adjusted for polar projection.
         """
         # Get base value from parent class
         base_top = super().get_title_top()
