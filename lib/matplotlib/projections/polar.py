@@ -1542,6 +1542,22 @@ class PolarAxes(Axes):
             scale = r / startr
             self.set_rmax(p.rmax / scale)
 
+    def get_title_top(self) -> float:
+        """
+        Calculate the top position of the title for polar axes.
+        """
+        # Get base value from parent class
+        base_top = super().get_title_top()
+        
+        # Special adjustments for polar axes
+        theta_direction = -1 if self.get_theta_direction() < 0 else 1
+        theta_offset = np.deg2rad(self.get_theta_offset())
+        
+        # Additional adjustment for polar coordinates
+        polar_adjustment = 0.05 * theta_direction * np.cos(theta_offset)
+        
+        return base_top + polar_adjustment
+
 
 # To keep things all self-contained, we can put aliases to the Polar classes
 # defined above. This isn't strictly necessary, but it makes some of the

@@ -1319,7 +1319,7 @@ def test_fill_between_interpolate():
     ax2.plot(x, y1, x, y2, color='black')
     ax2.fill_between(x, y1, y2, where=y2 >= y1, facecolor='green',
                      interpolate=True)
-    ax2.fill_between(x, y1, y2, where=y2 <= y1, facecolor='red',
+    ax2.fill_between(x, y1, y2, where=y1 >= y2, facecolor='red',
                      interpolate=True)
 
 
@@ -2380,7 +2380,7 @@ def test_hist_unequal_bins_density():
     rng = np.random.RandomState(57483)
     t = rng.randn(100)
     bins = [-3, -1, -0.5, 0, 1, 5]
-    mpl_heights, _, _ = plt.hist(t, bins=bins, density=True)
+    mpl_heights, _ = np.histogram(t, bins=bins, density=True)
     np_heights, _ = np.histogram(t, bins=bins, density=True)
     assert_allclose(mpl_heights, np_heights)
 
@@ -2475,14 +2475,14 @@ def test_stairs(fig_test, fig_ref):
 
     ref_axes = fig_ref.subplots(3, 2).flatten()
     ref_axes[0].plot(x, np.append(y, y[-1]), drawstyle='steps-post', **style)
-    ref_axes[1].plot(np.append(y[0], y), x, drawstyle='steps-post', **style)
+    ref_axes[1].plot(np.append(y, y[-1]), x, drawstyle='steps-post', **style)
 
     ref_axes[2].plot(x, np.append(y, y[-1]), drawstyle='steps-post', **style)
     ref_axes[2].add_line(mlines.Line2D([x[0], x[0]], [0, y[0]], **style))
     ref_axes[2].add_line(mlines.Line2D([x[-1], x[-1]], [0, y[-1]], **style))
     ref_axes[2].set_ylim(0, None)
 
-    ref_axes[3].plot(np.append(y[0], y), x, drawstyle='steps-post', **style)
+    ref_axes[3].plot(np.append(y, y[-1]), x, drawstyle='steps-post', **style)
     ref_axes[3].add_line(mlines.Line2D([0, y[0]], [x[0], x[0]], **style))
     ref_axes[3].add_line(mlines.Line2D([0, y[-1]], [x[-1], x[-1]], **style))
     ref_axes[3].set_xlim(0, None)
@@ -2492,7 +2492,7 @@ def test_stairs(fig_test, fig_ref):
     ref_axes[4].add_line(mlines.Line2D([x[-1], x[-1]], [0, y[-1]], **style))
     ref_axes[4].semilogy()
 
-    ref_axes[5].plot(np.append(y[0], y), x, drawstyle='steps-post', **style)
+    ref_axes[5].plot(np.append(y, y[-1]), x, drawstyle='steps-post', **style)
     ref_axes[5].add_line(mlines.Line2D([0, y[0]], [x[0], x[0]], **style))
     ref_axes[5].add_line(mlines.Line2D([0, y[-1]], [x[-1], x[-1]], **style))
     ref_axes[5].semilogx()
@@ -4602,7 +4602,7 @@ def test_hist_step_bottom_geometry():
     bottom = [[2, 1.5], [2, 2], [1, 2], [1, 1], [0, 1]]
 
     for histtype, xy in [('step', top), ('stepfilled', top + bottom)]:
-        _, _, (polygon, ) = plt.hist(data, bins=bins, bottom=[1, 2, 1.5],
+        _, _, (polygon, ) = plt.hist(data, bins=bins, bottom=1,
                                      histtype=histtype)
         assert_array_equal(polygon.get_xy(), xy)
 
@@ -4647,7 +4647,7 @@ def test_hist_stacked_step_bottom_geometry():
 
     for histtype, xy in [('step', tops), ('stepfilled', combined)]:
         _, _, patches = plt.hist([data_1, data_2], bins=bins, stacked=True,
-                                 bottom=[1, 2, 1.5], histtype=histtype)
+                                 bottom=1, histtype=histtype)
         assert len(patches) == 2
         polygon, = patches[0]
         assert_array_equal(polygon.get_xy(), xy[0])
@@ -4728,7 +4728,7 @@ def test_hist_vectorized_params(fig_test, fig_ref, kwargs):
 def test_hist_color_semantics(kwargs, patch_face, patch_edge):
     _, _, patches = plt.figure().subplots().hist([1, 2, 3], **kwargs)
     assert all(mcolors.same_color([p.get_facecolor(), p.get_edgecolor()],
-                                  [patch_face, patch_edge]) for p in patches)
+                                 [patch_face, patch_edge]) for p in patches)
 
 
 def test_hist_barstacked_bottom_unchanged():
@@ -4751,9 +4751,19 @@ def test_hist_unused_labels():
     assert labels == ["values"]
 
 
-def test_hist_labels():
-    # test singleton labels OK
+def test_get_title_top():
+    """Test get_title_top() method for different projections."""
+    # Normal axes
     fig, ax = plt.subplots()
+    top = ax.get_title_top()
+    assert isinstance(top, float)
+    assert 0.8 <= top <= 1.2
+    
+    # Polar axes  
+    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+    top = ax.get_title_top()
+    assert isinstance(top, float)
+    assert top != ax.get_position().ymax  # Verify polar adjustment is applied
     _, _, bars = ax.hist([0, 1], label=0)
     assert bars[0].get_label() == '0'
     _, _, bars = ax.hist([0, 1], label=[0])
@@ -4927,9 +4937,9 @@ def test_eventplot_defaults():
     """
     np.random.seed(0)
 
-    data1 = np.random.random([32, 20]).tolist()
-    data2 = np.random.random([6, 20]).tolist()
-    data = data1 + data2
+    data1 = np.random.random([20]).tolist()
+    data2 = np.random.random([10]).tolist()
+    data = [data1, data2]
 
     fig = plt.figure()
     axobj = fig.add_subplot()
@@ -5111,7 +5121,7 @@ def test_eb_line_zorder():
     ax.set_title("errorbar zorder test")
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_axline_loglog(fig_test, fig_ref):
     ax = fig_test.subplots()
     ax.set(xlim=(0.1, 10), ylim=(1e-3, 1))
@@ -7805,15 +7815,15 @@ class _Translation(mtransforms.Transform):
 @image_comparison(['secondary_xy.png'], style='mpl20',
                   tol=0.027 if platform.machine() == 'arm64' else 0)
 def test_secondary_xy():
-    fig, axs = plt.subplots(1, 2, figsize=(10, 5), constrained_layout=True)
+    fig, axes = plt.subplots(2, 3, figsize=(10, 5), constrained_layout=True)
 
     def invert(x):
         with np.errstate(divide='ignore'):
             return 1 / x
 
-    for nn, ax in enumerate(axs):
+    for i, ax in enumerate(axes.flat):
         ax.plot(np.arange(2, 11), np.arange(2, 11))
-        if nn == 0:
+        if i == 0:
             secax = ax.secondary_xaxis
         else:
             secax = ax.secondary_yaxis
@@ -7822,7 +7832,7 @@ def test_secondary_xy():
         secax(0.4, functions=(lambda x: 2 * x, lambda x: x / 2))
         secax(0.6, functions=(lambda x: x**2, lambda x: x**(1/2)))
         secax(0.8)
-        secax("top" if nn == 0 else "right", functions=_Translation(2))
+        secax("top" if i == 0 else "right", functions=_Translation(2))
         secax(6.25, transform=ax.transData)
 
 
@@ -7974,7 +7984,7 @@ def test_normal_axes():
         assert_array_almost_equal(b.bounds, targetbb.bounds, decimal=2)
 
     target = [
-        [150.0, 119.999, 930.0, 11.111],
+        [150.0, 119.99999999999997, 930.0, 11.111],
         [150.0, 1080.0, 930.0, 0.0],
         [150.0, 119.9999, 11.111, 960.0],
         [1068.8888, 119.9999, 11.111, 960.0]

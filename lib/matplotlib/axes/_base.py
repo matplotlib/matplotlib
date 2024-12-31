@@ -4764,6 +4764,44 @@ class _AxesBase(martist.Artist):
         """Get how pan/zoom events are forwarded to Axes below this one."""
         return self._forward_navigation_events
 
+    def get_title_top(self) -> float:
+        """
+        Calculate the top position of the title.
+
+        Returns
+        -------
+        float
+            The top edge position of the title in axis coordinates.
+
+        Notes
+        -----
+        This method can be overridden by subclasses (e.g., PolarAxes or GeoAxes)
+        for custom title positioning.
+        """
+        bbox = self.get_position()
+        
+        # Current padding and other calculations
+        pad = self._axislines_get_title_offset() if self._axislines else 0
+        top = bbox.ymax + pad
+        
+        # Additional adjustments (e.g. for tight_layout)
+        if self._tight:
+            top += self._get_tight_layout_padding()
+            
+        return top
+
+    def _adjust_title_position(self, title, renderer):
+        """Başlığın pozisyonunu ayarlar."""
+        # Mevcut kodun başlangıcı...
+        
+        # Eski hesaplama yerine yeni metodu kullan
+        top = self.get_title_top()
+        
+        # Başlığı ayarla
+        title.set_position((0.5, top))
+        
+        # Mevcut kodun devamı...
+
 
 def _draw_rasterized(figure, artists, renderer):
     """
