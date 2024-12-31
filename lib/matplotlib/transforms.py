@@ -38,6 +38,7 @@ of how to use transforms.
 import copy
 import functools
 import itertools
+import sys
 import textwrap
 import weakref
 import math
@@ -139,7 +140,12 @@ class TransformNode:
             for k, v in self._parents.items() if v is not None}
 
     def __copy__(self):
-        other = copy.copy(super())
+        if sys.version_info >= (3, 14):
+            from copy import _reconstruct
+            rv = super().__reduce_ex__(4)
+            other = _reconstruct(self, None, *rv)
+        else:
+            other = copy.copy(super())
         # If `c = a + b; a1 = copy(a)`, then modifications to `a1` do not
         # propagate back to `c`, i.e. we need to clear the parents of `a1`.
         other._parents = {}
