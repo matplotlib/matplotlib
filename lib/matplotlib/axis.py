@@ -1269,7 +1269,7 @@ class Axis(martist.Artist):
     def _update_ticks(self):
         """
         Update ticks (position and labels) using the current data interval of
-        the axes.  Return the list of ticks that will be drawn.
+        the axes.
         """
         major_locs = self.get_majorticklocs()
         major_labels = self.major.formatter.format_ticks(major_locs)
@@ -1285,7 +1285,7 @@ class Axis(martist.Artist):
             tick.update_position(loc)
             tick.label1.set_text(label)
             tick.label2.set_text(label)
-        ticks = [*major_ticks, *minor_ticks]
+        self._ticks = [*major_ticks, *minor_ticks]
 
         view_low, view_high = self.get_view_interval()
         if view_low > view_high:
@@ -1302,10 +1302,16 @@ class Axis(martist.Artist):
             view_high = view_high - delta * margin
             view_low = view_low + delta * margin
 
-        interval_t = self.get_transform().transform([view_low, view_high])
+        self._interval_t = self.get_transform().transform([view_low, view_high])
 
+    def _get_ticks_to_draw(self, update=True):
+        """
+        Return the list of ticks that will be drawn.
+        """
+        if update:
+            self._update_ticks()
         ticks_to_draw = []
-        for tick in ticks:
+        for tick in self._ticks:
             try:
                 loc_t = self.get_transform().transform(tick.get_loc())
             except AssertionError:
@@ -1313,7 +1319,7 @@ class Axis(martist.Artist):
                 # some scales might make them, so we need this try/except.
                 pass
             else:
-                if mtransforms._interval_contains_close(interval_t, loc_t):
+                if mtransforms._interval_contains_close(self._interval_t, loc_t):
                     ticks_to_draw.append(tick)
 
         return ticks_to_draw
@@ -1341,7 +1347,7 @@ class Axis(martist.Artist):
             return
         if renderer is None:
             renderer = self.get_figure(root=True)._get_renderer()
-        ticks_to_draw = self._update_ticks()
+        ticks_to_draw = self._get_ticks_to_draw(update=True)
 
         self._update_label_position(renderer)
 
@@ -1394,7 +1400,7 @@ class Axis(martist.Artist):
             return
         renderer.open_group(__name__, gid=self.get_gid())
 
-        ticks_to_draw = self._update_ticks()
+        ticks_to_draw = self._get_ticks_to_draw(update=True)
         tlb1, tlb2 = self._get_ticklabel_bboxes(ticks_to_draw, renderer)
 
         for tick in ticks_to_draw:
@@ -2230,7 +2236,7 @@ class Axis(martist.Artist):
         # If we want to align labels from other Axes:
         for ax in grouper.get_siblings(self.axes):
             axis = ax._axis_map[name]
-            ticks_to_draw = axis._update_ticks()
+            ticks_to_draw = axis._get_ticks_to_draw(update=True)
             tlb, tlb2 = axis._get_ticklabel_bboxes(ticks_to_draw, renderer)
             bboxes.extend(tlb)
             bboxes2.extend(tlb2)

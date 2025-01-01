@@ -435,10 +435,9 @@ class Axis(maxis.XAxis):
 
     def _draw_ticks(self, renderer, edgep1, centers, deltas, highs,
                     deltas_per_point, pos):
-        ticks = self._update_ticks()
+        ticks = self._get_ticks_to_draw(update=False)  # We updated in Axes3D.draw()
         info = self._axinfo
         index = info["i"]
-        juggled = info["juggled"]
 
         mins, maxs, tc, highs = self._get_coord_info()
         centers, deltas = self._calc_centers_deltas(maxs, mins)
@@ -461,17 +460,28 @@ class Axis(maxis.XAxis):
             # Get tick line positions
             pos = edgep1.copy()
             pos[index] = tick.get_loc()
-            pos[tickdir] = out_tickdir
-            x1, y1, z1 = proj3d.proj_transform(*pos, self.axes.M)
-            pos[tickdir] = in_tickdir
-            x2, y2, z2 = proj3d.proj_transform(*pos, self.axes.M)
 
-            # Get position of label
-            labeldeltas = (tick.get_pad() + default_label_offset) * points
+            # Add out and in tickdir positions
+            positions = []
+            for td in (out_tickdir, in_tickdir):
+                p = pos.copy()
+                p[tickdir] = td
+                positions.append(p)
 
-            pos[tickdir] = edgep1_tickdir
-            pos = _move_from_center(pos, centers, labeldeltas, self._axmask())
-            lx, ly, lz = proj3d.proj_transform(*pos, self.axes.M)
+            # Add label position
+            p = pos.copy()
+            p[tickdir] = edgep1_tickdir
+            positions.append(_move_from_center(
+                p, centers,
+                (tick.get_pad() + default_label_offset) * points,
+                self._axmask()
+            ))
+
+            xs, ys, zs = proj3d._proj_trans_points(np.array(positions), self.axes.M)
+
+            x1, y1, z1 = xs[0], ys[0], zs[0]
+            x2, y2, z2 = xs[1], ys[1], zs[1]
+            lx, ly, lz = xs[2], ys[2], zs[2]
 
             _tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
             tick.tick1line.set_linewidth(tick_lw[tick._major])
@@ -636,7 +646,7 @@ class Axis(maxis.XAxis):
 
         renderer.open_group("grid3d", gid=self.get_gid())
 
-        ticks = self._update_ticks()
+        ticks = self._get_ticks_to_draw(update=False)  # We updated in Axes3D.draw()
         if len(ticks):
             # Get general axis information:
             info = self._axinfo

@@ -3128,7 +3128,8 @@ def test_log_scales():
     ax.invert_yaxis()
     ax.set_xscale('log', base=9.0)
     xticks, yticks = (
-        [(t.get_loc(), t.label1.get_text()) for t in axis._update_ticks()]
+        [(t.get_loc(), t.label1.get_text())
+         for t in axis._get_ticks_to_draw(update=True)]
         for axis in [ax.xaxis, ax.yaxis]
     )
     assert xticks == [
