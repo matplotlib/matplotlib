@@ -988,7 +988,7 @@ def test_transformed_path():
                     atol=1e-15)
 
     # Changing the path does not change the result (it's cached).
-    path.points = [(0, 0)] * 4
+    path._vertices = [(0, 0)] * 4
     assert_allclose(trans_path.get_fully_transformed_path().vertices,
                     [(0, 0), (r2, r2), (0, 2 * r2), (-r2, r2)],
                     atol=1e-15)

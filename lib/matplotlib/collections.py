@@ -1242,15 +1242,14 @@ class PolyCollection(_CollectionWithSizes):
             return
 
         # Fast path for arrays
-        if isinstance(verts, np.ndarray) and len(verts.shape) == 3:
+        if isinstance(verts, np.ndarray) and len(verts.shape) == 3 and verts.size:
             verts_pad = np.concatenate((verts, verts[:, :1]), axis=1)
-            # Creating the codes once is much faster than having Path do it
-            # separately each time by passing closed=True.
-            example_path = mpath.Path(verts_pad[0], closed=True)
-            # Looking up the values once speeds up the iteration a bit
+            # It's faster to create the codes and internal flags once in a
+            # template path and reuse them.
+            template_path = mpath.Path(verts_pad[0], closed=True)
+            codes = template_path.codes
             _make_path = mpath.Path._fast_from_codes_and_verts
-            codes = example_path.codes
-            self._paths = [_make_path(xy, codes, internals_from=example_path)
+            self._paths = [_make_path(xy, codes, internals_from=template_path)
                            for xy in verts_pad]
             return
 
