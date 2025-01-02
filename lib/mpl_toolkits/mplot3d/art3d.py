@@ -1038,7 +1038,7 @@ class Poly3DCollection(PolyCollection):
         self._axlim_clip = axlim_clip
 
     _zsort_functions = {
-        'average': np.average,
+        'average': np.mean,
         'min': np.min,
         'max': np.max,
     }
