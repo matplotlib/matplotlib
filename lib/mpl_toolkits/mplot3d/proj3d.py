@@ -144,6 +144,27 @@ def _proj_transform_vec(vec, M):
     return txs, tys, tzs
 
 
+def _proj_transform_vectors(vecs, M):
+    """Vectorized version of ``_proj_transform_vec``.
+    Parameters
+    ----------
+    vecs : ... x 3 np.ndarray
+        Input vectors
+    M : 4 x 4 np.ndarray
+        Projection matrix
+    """
+    vecs_shape = vecs.shape
+    vecs = vecs.reshape(-1, 3).T
+
+    vecs_pad = np.empty((vecs.shape[0] + 1,) + vecs.shape[1:])
+    vecs_pad[:-1] = vecs
+    vecs_pad[-1] = 1
+    product = np.dot(M, vecs_pad)
+    tvecs = product[:3] / product[3]
+
+    return tvecs.T.reshape(vecs_shape)
+
+
 def _proj_transform_vec_clip(vec, M, focal_length):
     vecw = np.dot(M, vec.data)
     w = vecw[3]
