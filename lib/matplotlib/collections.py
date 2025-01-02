@@ -1246,11 +1246,12 @@ class PolyCollection(_CollectionWithSizes):
             verts_pad = np.concatenate((verts, verts[:, :1]), axis=1)
             # Creating the codes once is much faster than having Path do it
             # separately each time by passing closed=True.
-            codes = np.empty(verts_pad.shape[1], dtype=mpath.Path.code_type)
-            codes[:] = mpath.Path.LINETO
-            codes[0] = mpath.Path.MOVETO
-            codes[-1] = mpath.Path.CLOSEPOLY
-            self._paths = [mpath.Path(xy, codes) for xy in verts_pad]
+            example_path = mpath.Path(verts_pad[0], closed=True)
+            # Looking up the values once speeds up the iteration a bit
+            _make_path = mpath.Path._fast_from_codes_and_verts
+            codes = example_path.codes
+            self._paths = [_make_path(xy, codes, internals_from=example_path)
+                           for xy in verts_pad]
             return
 
         self._paths = []
