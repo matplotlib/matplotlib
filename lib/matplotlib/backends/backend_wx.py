@@ -686,6 +686,22 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         self.draw_idle()
 
     @staticmethod
+    def _mpl_buttons():
+        state = wx.GetMouseState()
+        # NOTE: Alternatively, we could use event.LeftIsDown() / etc. but this
+        # fails to report multiclick drags on macOS (other OSes have not been
+        # verified).
+        mod_table = [
+            (MouseButton.LEFT, state.LeftIsDown()),
+            (MouseButton.RIGHT, state.RightIsDown()),
+            (MouseButton.MIDDLE, state.MiddleIsDown()),
+            (MouseButton.BACK, state.Aux1IsDown()),
+            (MouseButton.FORWARD, state.Aux2IsDown()),
+        ]
+        # State *after* press/release.
+        return {button for button, flag in mod_table if flag}
+
+    @staticmethod
     def _mpl_modifiers(event=None, *, exclude=None):
         mod_table = [
             ("ctrl", wx.MOD_CONTROL, wx.WXK_CONTROL),
@@ -794,9 +810,8 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             MouseEvent("button_press_event", self, x, y, button,
                        modifiers=modifiers, guiEvent=event)._process()
         elif event.ButtonDClick():
-            MouseEvent("button_press_event", self, x, y, button,
-                       dblclick=True, modifiers=modifiers,
-                       guiEvent=event)._process()
+            MouseEvent("button_press_event", self, x, y, button, dblclick=True,
+                       modifiers=modifiers, guiEvent=event)._process()
         elif event.ButtonUp():
             MouseEvent("button_release_event", self, x, y, button,
                        modifiers=modifiers, guiEvent=event)._process()
@@ -826,6 +841,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         event.Skip()
         MouseEvent("motion_notify_event", self,
                    *self._mpl_coords(event),
+                   buttons=self._mpl_buttons(),
                    modifiers=self._mpl_modifiers(event),
                    guiEvent=event)._process()
 
@@ -1143,6 +1159,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                 mpl.rcParams["savefig.directory"] = str(path.parent)
             try:
                 self.canvas.figure.savefig(path, format=fmt)
+                return path
             except Exception as e:
                 dialog = wx.MessageDialog(
                     parent=self.canvas.GetParent(), message=str(e),
@@ -1197,8 +1214,8 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
         ``ToolBar.GetToolPos`` is not useful because wx assigns the same Id to
         all Separators and StretchableSpaces.
         """
-        pos, = [pos for pos in range(self.ToolsCount)
-                if self.GetToolByPos(pos) == tool]
+        pos, = (pos for pos in range(self.ToolsCount)
+                if self.GetToolByPos(pos) == tool)
         return pos
 
     def add_toolitem(self, name, group, position, image_file, description,

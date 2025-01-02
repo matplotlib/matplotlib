@@ -1,6 +1,7 @@
 import functools
 import itertools
 import platform
+import sys
 
 import pytest
 
@@ -115,7 +116,7 @@ def test_axes3d_repr():
 
 
 @mpl3d_image_comparison(['axes3d_primary_views.png'], style='mpl20',
-                        tol=0.05 if platform.machine() == "arm64" else 0)
+                        tol=0.05 if sys.platform == "darwin" else 0)
 def test_axes3d_primary_views():
     # (elev, azim, roll)
     views = [(90, -90, 0),  # XY
@@ -222,7 +223,7 @@ def test_bar3d_lightsource():
 
 @mpl3d_image_comparison(
     ['contour3d.png'], style='mpl20',
-    tol=0.002 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
+    tol=0.002 if platform.machine() in ('aarch64', 'arm64', 'ppc64le', 's390x') else 0)
 def test_contour3d():
     plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
@@ -508,10 +509,10 @@ def test_scatter3d_sorting(fig_ref, fig_test, depthshade):
     linewidths[0::2, 0::2] = 5
     linewidths[1::2, 1::2] = 5
 
-    x, y, z, sizes, facecolors, edgecolors, linewidths = [
+    x, y, z, sizes, facecolors, edgecolors, linewidths = (
         a.flatten()
         for a in [x, y, z, sizes, facecolors, edgecolors, linewidths]
-    ]
+    )
 
     ax_ref = fig_ref.add_subplot(projection='3d')
     sets = (np.unique(a) for a in [sizes, facecolors, edgecolors, linewidths])
@@ -666,8 +667,6 @@ def test_surface3d_label_offset_tick_position():
     ax.set_xlabel("X label")
     ax.set_ylabel("Y label")
     ax.set_zlabel("Z label")
-
-    ax.figure.canvas.draw()
 
 
 @mpl3d_image_comparison(['surface3d_shaded.png'], style='mpl20')
@@ -1325,6 +1324,21 @@ def test_unautoscale(axis, auto):
     np.testing.assert_array_equal(get_lim(), (-0.5, 0.5))
 
 
+@check_figures_equal(extensions=["png"])
+def test_culling(fig_test, fig_ref):
+    xmins = (-100, -50)
+    for fig, xmin in zip((fig_test, fig_ref), xmins):
+        ax = fig.add_subplot(projection='3d')
+        n = abs(xmin) + 1
+        xs = np.linspace(0, xmin, n)
+        ys = np.ones(n)
+        zs = np.zeros(n)
+        ax.plot(xs, ys, zs, 'k')
+
+        ax.set(xlim=(-5, 5), ylim=(-5, 5), zlim=(-5, 5))
+        ax.view_init(5, 180, 0)
+
+
 def test_axes3d_focal_length_checks():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -1363,6 +1377,45 @@ def test_axes3d_isometric():
             ax.plot3D(*zip(s, e), c='k')
     ax.view_init(elev=np.degrees(np.arctan(1. / np.sqrt(2))), azim=-45, roll=0)
     ax.grid(True)
+
+
+@check_figures_equal(extensions=["png"])
+def test_axlim_clip(fig_test, fig_ref):
+    # With axlim clipping
+    ax = fig_test.add_subplot(projection="3d")
+    x = np.linspace(0, 1, 11)
+    y = np.linspace(0, 1, 11)
+    X, Y = np.meshgrid(x, y)
+    Z = X + Y
+    ax.plot_surface(X, Y, Z, facecolor='C1', edgecolors=None,
+                    rcount=50, ccount=50, axlim_clip=True)
+    # This ax.plot is to cover the extra surface edge which is not clipped out
+    ax.plot([0.5, 0.5], [0, 1], [0.5, 1.5],
+            color='k', linewidth=3, zorder=5, axlim_clip=True)
+    ax.scatter(X.ravel(), Y.ravel(), Z.ravel() + 1, axlim_clip=True)
+    ax.quiver(X.ravel(), Y.ravel(), Z.ravel() + 2,
+              0*X.ravel(), 0*Y.ravel(), 0*Z.ravel() + 1,
+              arrow_length_ratio=0, axlim_clip=True)
+    ax.plot(X[0], Y[0], Z[0] + 3, color='C2', axlim_clip=True)
+    ax.text(1.1, 0.5, 4, 'test', axlim_clip=True)  # won't be visible
+    ax.set(xlim=(0, 0.5), ylim=(0, 1), zlim=(0, 5))
+
+    # With manual clipping
+    ax = fig_ref.add_subplot(projection="3d")
+    idx = (X <= 0.5)
+    X = X[idx].reshape(11, 6)
+    Y = Y[idx].reshape(11, 6)
+    Z = Z[idx].reshape(11, 6)
+    ax.plot_surface(X, Y, Z, facecolor='C1', edgecolors=None,
+                    rcount=50, ccount=50, axlim_clip=False)
+    ax.plot([0.5, 0.5], [0, 1], [0.5, 1.5],
+            color='k', linewidth=3, zorder=5, axlim_clip=False)
+    ax.scatter(X.ravel(), Y.ravel(), Z.ravel() + 1, axlim_clip=False)
+    ax.quiver(X.ravel(), Y.ravel(), Z.ravel() + 2,
+              0*X.ravel(), 0*Y.ravel(), 0*Z.ravel() + 1,
+              arrow_length_ratio=0, axlim_clip=False)
+    ax.plot(X[0], Y[0], Z[0] + 3, color='C2', axlim_clip=False)
+    ax.set(xlim=(0, 0.5), ylim=(0, 1), zlim=(0, 5))
 
 
 @pytest.mark.parametrize('value', [np.inf, np.nan])
@@ -1501,8 +1554,9 @@ class TestVoxels:
             ax.voxels(x, y)
         # x, y, z are positional only - this passes them on as attributes of
         # Poly3DCollection
-        with pytest.raises(AttributeError):
+        with pytest.raises(AttributeError, match="keyword argument 'x'") as exec_info:
             ax.voxels(filled=filled, x=x, y=y, z=z)
+        assert exec_info.value.name == 'x'
 
 
 def test_line3d_set_get_data_3d():
@@ -1925,37 +1979,78 @@ def test_quaternion():
                 np.deg2rad(elev), np.deg2rad(azim), np.deg2rad(roll))
             assert np.isclose(q.norm, 1)
             q = Quaternion(mag * q.scalar, mag * q.vector)
-            e, a, r = np.rad2deg(Quaternion.as_cardan_angles(q))
-            assert np.isclose(e, elev)
-            assert np.isclose(a, azim)
-            assert np.isclose(r, roll)
+            np.testing.assert_allclose(np.rad2deg(Quaternion.as_cardan_angles(q)),
+                                       (elev, azim, roll), atol=1e-6)
 
 
-def test_rotate():
+@pytest.mark.parametrize('style',
+                         ('azel', 'trackball', 'sphere', 'arcball'))
+def test_rotate(style):
     """Test rotating using the left mouse button."""
-    for roll, dx, dy, new_elev, new_azim, new_roll in [
-            [0, 0.5, 0, 0, -90, 0],
-            [30, 0.5, 0, 30, -90, 0],
-            [0, 0, 0.5, -90, 0, 0],
-            [30, 0, 0.5, -60, -90, 90],
-            [0, 0.5, 0.5, -45, -90, 45],
-            [30, 0.5, 0.5, -15, -90, 45]]:
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1, projection='3d')
-        ax.view_init(0, 0, roll)
-        ax.figure.canvas.draw()
+    if style == 'azel':
+        s = 0.5
+    else:
+        s = mpl.rcParams['axes3d.trackballsize'] / 2
+    s *= 0.5
+    mpl.rcParams['axes3d.trackballborder'] = 0
+    with mpl.rc_context({'axes3d.mouserotationstyle': style}):
+        for roll, dx, dy in [
+                [0, 1, 0],
+                [30, 1, 0],
+                [0, 0, 1],
+                [30, 0, 1],
+                [0, 0.5, np.sqrt(3)/2],
+                [30, 0.5, np.sqrt(3)/2],
+                [0, 2, 0]]:
+            fig = plt.figure()
+            ax = fig.add_subplot(1, 1, 1, projection='3d')
+            ax.view_init(0, 0, roll)
+            ax.figure.canvas.draw()
 
-        # drag mouse to change orientation
-        ax._button_press(
-            mock_event(ax, button=MouseButton.LEFT, xdata=0, ydata=0))
-        ax._on_move(
-            mock_event(ax, button=MouseButton.LEFT,
-                           xdata=dx*ax._pseudo_w, ydata=dy*ax._pseudo_h))
-        ax.figure.canvas.draw()
+            # drag mouse to change orientation
+            ax._button_press(
+                mock_event(ax, button=MouseButton.LEFT, xdata=0, ydata=0))
+            ax._on_move(
+                mock_event(ax, button=MouseButton.LEFT,
+                           xdata=s*dx*ax._pseudo_w, ydata=s*dy*ax._pseudo_h))
+            ax.figure.canvas.draw()
 
-        assert np.isclose(ax.elev, new_elev)
-        assert np.isclose(ax.azim, new_azim)
-        assert np.isclose(ax.roll, new_roll)
+            c = np.sqrt(3)/2
+            expectations = {
+                ('azel', 0, 1, 0): (0,  -45, 0),
+                ('azel', 0, 0, 1): (-45, 0, 0),
+                ('azel', 0, 0.5, c): (-38.971143, -22.5, 0),
+                ('azel', 0, 2, 0): (0, -90, 0),
+                ('azel', 30, 1, 0): (22.5, -38.971143, 30),
+                ('azel', 30, 0, 1): (-38.971143, -22.5, 30),
+                ('azel', 30, 0.5, c): (-22.5, -38.971143, 30),
+
+                ('trackball', 0, 1, 0): (0, -28.64789, 0),
+                ('trackball', 0, 0, 1): (-28.64789, 0, 0),
+                ('trackball', 0, 0.5, c): (-24.531578, -15.277726, 3.340403),
+                ('trackball', 0, 2, 0): (0, -180/np.pi, 0),
+                ('trackball', 30, 1, 0): (13.869588, -25.319385, 26.87008),
+                ('trackball', 30, 0, 1): (-24.531578, -15.277726, 33.340403),
+                ('trackball', 30, 0.5, c): (-13.869588, -25.319385, 33.129920),
+
+                ('sphere', 0, 1, 0): (0, -30, 0),
+                ('sphere', 0, 0, 1): (-30, 0, 0),
+                ('sphere', 0, 0.5, c): (-25.658906, -16.102114, 3.690068),
+                ('sphere', 0, 2, 0): (0, -90, 0),
+                ('sphere', 30, 1, 0): (14.477512, -26.565051, 26.565051),
+                ('sphere', 30, 0, 1): (-25.658906, -16.102114, 33.690068),
+                ('sphere', 30, 0.5, c): (-14.477512, -26.565051, 33.434949),
+
+                ('arcball', 0, 1, 0): (0, -60, 0),
+                ('arcball', 0, 0, 1): (-60, 0, 0),
+                ('arcball', 0, 0.5, c): (-48.590378, -40.893395, 19.106605),
+                ('arcball', 0, 2, 0): (0, 180, 0),
+                ('arcball', 30, 1, 0): (25.658906, -56.309932, 16.102114),
+                ('arcball', 30, 0, 1): (-48.590378, -40.893395, 49.106605),
+                ('arcball', 30, 0.5, c): (-25.658906, -56.309932, 43.897886)}
+            new_elev, new_azim, new_roll = expectations[(style, roll, dx, dy)]
+            np.testing.assert_allclose((ax.elev, ax.azim, ax.roll),
+                                       (new_elev, new_azim, new_roll), atol=1e-6)
 
 
 def test_pan():
@@ -1967,9 +2062,10 @@ def test_pan():
         range_ = dmax - dmin
         return center, range_
 
-    ax = plt.figure().add_subplot(projection='3d')
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
     ax.scatter(0, 0, 0)
-    ax.figure.canvas.draw()
+    fig.canvas.draw()
 
     x_center0, x_range0 = convert_lim(*ax.get_xlim3d())
     y_center0, y_range0 = convert_lim(*ax.get_ylim3d())
@@ -2034,20 +2130,20 @@ def test_toolbar_zoom_pan(tool, button, key, expected):
     # Set up the mouse movements
     start_event = MouseEvent(
         "button_press_event", fig.canvas, *s0, button, key=key)
+    drag_event = MouseEvent(
+        "motion_notify_event", fig.canvas, *s1, button, key=key, buttons={button})
     stop_event = MouseEvent(
         "button_release_event", fig.canvas, *s1, button, key=key)
 
     tb = NavigationToolbar2(fig.canvas)
     if tool == "zoom":
         tb.zoom()
-        tb.press_zoom(start_event)
-        tb.drag_zoom(stop_event)
-        tb.release_zoom(stop_event)
     else:
         tb.pan()
-        tb.press_pan(start_event)
-        tb.drag_pan(stop_event)
-        tb.release_pan(stop_event)
+
+    start_event._process()
+    drag_event._process()
+    stop_event._process()
 
     # Should be close, but won't be exact due to screen integer resolution
     xlim, ylim, zlim = expected
@@ -2424,7 +2520,7 @@ def test_view_init_vertical_axis(
     rtol = 2e-06
     ax = plt.subplot(1, 1, 1, projection="3d")
     ax.view_init(elev=0, azim=0, roll=0, vertical_axis=vertical_axis)
-    ax.figure.canvas.draw()
+    ax.get_figure().canvas.draw()
 
     # Assert the projection matrix:
     proj_actual = ax.get_proj()
@@ -2450,7 +2546,7 @@ def test_on_move_vertical_axis(vertical_axis: str) -> None:
     """
     ax = plt.subplot(1, 1, 1, projection="3d")
     ax.view_init(elev=0, azim=0, roll=0, vertical_axis=vertical_axis)
-    ax.figure.canvas.draw()
+    ax.get_figure().canvas.draw()
 
     proj_before = ax.get_proj()
     event_click = mock_event(ax, button=MouseButton.LEFT, xdata=0, ydata=1)
@@ -2479,7 +2575,7 @@ def test_on_move_vertical_axis(vertical_axis: str) -> None:
 def test_set_box_aspect_vertical_axis(vertical_axis, aspect_expected):
     ax = plt.subplot(1, 1, 1, projection="3d")
     ax.view_init(elev=0, azim=0, roll=0, vertical_axis=vertical_axis)
-    ax.figure.canvas.draw()
+    ax.get_figure().canvas.draw()
 
     ax.set_box_aspect(None)
 

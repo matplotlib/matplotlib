@@ -22,7 +22,7 @@ from PIL import Image
 from matplotlib import _api, backend_bases, backend_tools
 from matplotlib.backends import backend_agg
 from matplotlib.backend_bases import (
-    _Backend, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
+    _Backend, MouseButton, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 
 _log = logging.getLogger(__name__)
 
@@ -283,10 +283,17 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         y = event['y']
         y = self.get_renderer().height - y
         self._last_mouse_xy = x, y
-        # JavaScript button numbers and Matplotlib button numbers are off by 1.
-        button = event['button'] + 1
-
         e_type = event['type']
+        button = event['button'] + 1  # JS numbers off by 1 compared to mpl.
+        buttons = {  # JS ordering different compared to mpl.
+            button for button, mask in [
+                (MouseButton.LEFT, 1),
+                (MouseButton.RIGHT, 2),
+                (MouseButton.MIDDLE, 4),
+                (MouseButton.BACK, 8),
+                (MouseButton.FORWARD, 16),
+            ] if event['buttons'] & mask  # State *after* press/release.
+        }
         modifiers = event['modifiers']
         guiEvent = event.get('guiEvent')
         if e_type in ['button_press', 'button_release']:
@@ -300,10 +307,12 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                        modifiers=modifiers, guiEvent=guiEvent)._process()
         elif e_type == 'motion_notify':
             MouseEvent(e_type + '_event', self, x, y,
-                       modifiers=modifiers, guiEvent=guiEvent)._process()
+                       buttons=buttons, modifiers=modifiers, guiEvent=guiEvent,
+                       )._process()
         elif e_type in ['figure_enter', 'figure_leave']:
             LocationEvent(e_type + '_event', self, x, y,
                           modifiers=modifiers, guiEvent=guiEvent)._process()
+
     handle_button_press = handle_button_release = handle_dblclick = \
         handle_figure_enter = handle_figure_leave = handle_motion_notify = \
         handle_scroll = _handle_mouse
@@ -403,8 +412,9 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
         self.canvas.send_event("rubberband", x0=-1, y0=-1, x1=-1, y1=-1)
 
     def save_figure(self, *args):
-        """Save the current figure"""
+        """Save the current figure."""
         self.canvas.send_event('save')
+        return self.UNKNOWN_SAVED_STATUS
 
     def pan(self):
         super().pan()

@@ -75,14 +75,16 @@ class MixedModeRenderer:
         """
         # change the dpi of the figure temporarily.
         self.figure.dpi = self.dpi
-        if self._bbox_inches_restore:  # when tight bbox is used
-            r = process_figure_for_rasterizing(self.figure,
-                                               self._bbox_inches_restore)
-            self._bbox_inches_restore = r
 
         self._raster_renderer = self._raster_renderer_class(
             self._width*self.dpi, self._height*self.dpi, self.dpi)
         self._renderer = self._raster_renderer
+
+        if self._bbox_inches_restore:  # when tight bbox is used
+            r = process_figure_for_rasterizing(self.figure,
+                                               self._bbox_inches_restore,
+                                               self._raster_renderer)
+            self._bbox_inches_restore = r
 
     def stop_rasterizing(self):
         """
@@ -115,5 +117,6 @@ class MixedModeRenderer:
         if self._bbox_inches_restore:  # when tight bbox is used
             r = process_figure_for_rasterizing(self.figure,
                                                self._bbox_inches_restore,
+                                               self._vector_renderer,
                                                self._figdpi)
             self._bbox_inches_restore = r

@@ -17,6 +17,7 @@ import matplotlib.path as mpath
 import matplotlib.transforms as mtransforms
 from matplotlib.collections import (Collection, LineCollection,
                                     EventCollection, PolyCollection)
+from matplotlib.collections import FillBetweenPolyCollection
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 
@@ -455,7 +456,7 @@ def test_EllipseCollection_setter_getter():
 
 @image_comparison(['polycollection_close.png'], remove_text=True, style='mpl20')
 def test_polycollection_close():
-    from mpl_toolkits.mplot3d import Axes3D  # type: ignore
+    from mpl_toolkits.mplot3d import Axes3D  # type: ignore[import]
     plt.rcParams['axes3d.automargin'] = True
 
     vertsQuad = [
@@ -518,7 +519,7 @@ def test_regularpolycollection_scale():
             """Return transform scaling circle areas to data space."""
             ax = self.axes
 
-            pts2pixels = 72.0 / ax.figure.dpi
+            pts2pixels = 72.0 / ax.get_figure(root=True).dpi
 
             scale_x = pts2pixels * ax.bbox.width / ax.viewLim.width
             scale_y = pts2pixels * ax.bbox.height / ax.viewLim.height
@@ -830,6 +831,35 @@ def test_collection_set_verts_array():
         assert np.array_equal(ap._codes, atp._codes)
 
 
+@check_figures_equal(extensions=["png"])
+@pytest.mark.parametrize("kwargs", [{}, {"step": "pre"}])
+def test_fill_between_poly_collection_set_data(fig_test, fig_ref, kwargs):
+    t = np.linspace(0, 16)
+    f1 = np.sin(t)
+    f2 = f1 + 0.2
+
+    fig_ref.subplots().fill_between(t, f1, f2, **kwargs)
+
+    coll = fig_test.subplots().fill_between(t, -1, 1.2, **kwargs)
+    coll.set_data(t, f1, f2)
+
+
+@pytest.mark.parametrize(("t_direction", "f1", "shape", "where", "msg"), [
+    ("z", None, None, None, r"t_direction must be 'x' or 'y', got 'z'"),
+    ("x", None, (-1, 1), None, r"'x' is not 1-dimensional"),
+    ("x", None, None, [False] * 3, r"where size \(3\) does not match 'x' size \(\d+\)"),
+    ("y", [1, 2], None, None, r"'y' has size \d+, but 'x1' has an unequal size of \d+"),
+])
+def test_fill_between_poly_collection_raise(t_direction, f1, shape, where, msg):
+    t = np.linspace(0, 16)
+    f1 = np.sin(t) if f1 is None else np.asarray(f1)
+    f2 = f1 + 0.2
+    if shape:
+        t = t.reshape(*shape)
+    with pytest.raises(ValueError, match=msg):
+        FillBetweenPolyCollection(t_direction, t, f1, f2, where=where)
+
+
 def test_collection_set_array():
     vals = [*range(10)]
 
@@ -964,11 +994,6 @@ def test_polyquadmesh_masked_vertices_array():
     assert len(polymesh.get_paths()) == 5
     # Poly version should have the same facecolors as the end of the quadmesh
     assert_array_equal(quadmesh_fc, polymesh.get_facecolor())
-
-    # Setting array with 1D compressed values is deprecated
-    with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match="Setting a PolyQuadMesh"):
-        polymesh.set_array(np.ones(5))
 
     # We should also be able to call set_array with a new mask and get
     # updated polys
@@ -1316,7 +1341,6 @@ def test_check_offsets_dtype():
 
 @pytest.mark.parametrize('gapcolor', ['orange', ['r', 'k']])
 @check_figures_equal(extensions=['png'])
-@mpl.rc_context({'lines.linewidth': 20})
 def test_striped_lines(fig_test, fig_ref, gapcolor):
     ax_test = fig_test.add_subplot(111)
     ax_ref = fig_ref.add_subplot(111)
@@ -1328,11 +1352,35 @@ def test_striped_lines(fig_test, fig_ref, gapcolor):
     x = range(1, 6)
     linestyles = [':', '-', '--']
 
-    ax_test.vlines(x, 0, 1, linestyle=linestyles, gapcolor=gapcolor, alpha=0.5)
+    ax_test.vlines(x, 0, 1, linewidth=20, linestyle=linestyles, gapcolor=gapcolor,
+                   alpha=0.5)
 
     if isinstance(gapcolor, str):
         gapcolor = [gapcolor]
 
     for x, gcol, ls in zip(x, itertools.cycle(gapcolor),
                            itertools.cycle(linestyles)):
-        ax_ref.axvline(x, 0, 1, linestyle=ls, gapcolor=gcol, alpha=0.5)
+        ax_ref.axvline(x, 0, 1, linewidth=20, linestyle=ls, gapcolor=gcol, alpha=0.5)
+
+
+@check_figures_equal(extensions=['png', 'pdf', 'svg', 'eps'])
+def test_hatch_linewidth(fig_test, fig_ref):
+    ax_test = fig_test.add_subplot()
+    ax_ref = fig_ref.add_subplot()
+
+    lw = 2.0
+
+    polygons = [
+        [(0.1, 0.1), (0.1, 0.4), (0.4, 0.4), (0.4, 0.1)],
+        [(0.6, 0.6), (0.6, 0.9), (0.9, 0.9), (0.9, 0.6)],
+    ]
+    ref = PolyCollection(polygons, hatch="x")
+    ref.set_hatch_linewidth(lw)
+
+    with mpl.rc_context({"hatch.linewidth": lw}):
+        test = PolyCollection(polygons, hatch="x")
+
+    ax_ref.add_collection(ref)
+    ax_test.add_collection(test)
+
+    assert test.get_hatch_linewidth() == ref.get_hatch_linewidth() == lw

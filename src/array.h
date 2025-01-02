@@ -56,9 +56,7 @@ class empty
   public:
     typedef empty<T> sub_t;
 
-    empty()
-    {
-    }
+    empty() = default;
 
     T &operator()(int i, int j = 0, int k = 0)
     {

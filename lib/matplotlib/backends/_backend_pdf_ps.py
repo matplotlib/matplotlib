@@ -4,6 +4,7 @@ Common functionality between the PDF and PS backends.
 
 from io import BytesIO
 import functools
+import logging
 
 from fontTools import subset
 
@@ -24,7 +25,6 @@ def get_glyphs_subset(fontfile, characters):
     Subset a TTF font
 
     Reads the named fontfile and restricts the font to the characters.
-    Returns a serialization of the subset font as file-like object.
 
     Parameters
     ----------
@@ -32,6 +32,12 @@ def get_glyphs_subset(fontfile, characters):
         Path to the font file
     characters : str
         Continuous set of characters to include in subset
+
+    Returns
+    -------
+    fontTools.ttLib.ttFont.TTFont
+        An open font object representing the subset, which needs to
+        be closed by the caller.
     """
 
     options = subset.Options(glyph_names=True, recommended_glyphs=True)
@@ -42,19 +48,51 @@ def get_glyphs_subset(fontfile, characters):
         'PfEd',  # FontForge personal table.
         'BDF',  # X11 BDF header.
         'meta',  # Metadata stores design/supported languages (meaningless for subsets).
+        'MERG',  # Merge Table.
+        'TSIV',  # Microsoft Visual TrueType extension.
+        'Zapf',  # Information about the individual glyphs in the font.
+        'bdat',  # The bitmap data table.
+        'bloc',  # The bitmap location table.
+        'cidg',  # CID to Glyph ID table (Apple Advanced Typography).
+        'fdsc',  # The font descriptors table.
+        'feat',  # Feature name table (Apple Advanced Typography).
+        'fmtx',  # The Font Metrics Table.
+        'fond',  # Data-fork font information (Apple Advanced Typography).
+        'just',  # The justification table (Apple Advanced Typography).
+        'kerx',  # An extended kerning table (Apple Advanced Typography).
+        'ltag',  # Language Tag.
+        'morx',  # Extended Glyph Metamorphosis Table.
+        'trak',  # Tracking table.
+        'xref',  # The cross-reference table (some Apple font tooling information).
     ]
-
     # if fontfile is a ttc, specify font number
     if fontfile.endswith(".ttc"):
         options.font_number = 0
 
-    with subset.load_font(fontfile, options) as font:
-        subsetter = subset.Subsetter(options=options)
-        subsetter.populate(text=characters)
-        subsetter.subset(font)
-        fh = BytesIO()
-        font.save(fh, reorderTables=False)
-        return fh
+    font = subset.load_font(fontfile, options)
+    subsetter = subset.Subsetter(options=options)
+    subsetter.populate(text=characters)
+    subsetter.subset(font)
+    return font
+
+
+def font_as_file(font):
+    """
+    Convert a TTFont object into a file-like object.
+
+    Parameters
+    ----------
+    font : fontTools.ttLib.ttFont.TTFont
+        A font object
+
+    Returns
+    -------
+    BytesIO
+        A file object with the font saved into it
+    """
+    fh = BytesIO()
+    font.save(fh, reorderTables=False)
+    return fh
 
 
 class CharacterTracker:
@@ -123,7 +161,7 @@ class RendererPDFPSBase(RendererBase):
             return w, h, d
         else:
             font = self._get_font_ttf(prop)
-            font.set_text(s, 0.0, flags=ft2font.LOAD_NO_HINTING)
+            font.set_text(s, 0.0, flags=ft2font.LoadFlags.NO_HINTING)
             w, h = font.get_width_height()
             d = font.get_descent()
             scale = 1 / 64
@@ -139,7 +177,13 @@ class RendererPDFPSBase(RendererBase):
 
     def _get_font_ttf(self, prop):
         fnames = font_manager.fontManager._find_fonts_by_props(prop)
-        font = font_manager.get_font(fnames)
-        font.clear()
-        font.set_size(prop.get_size_in_points(), 72)
-        return font
+        try:
+            font = font_manager.get_font(fnames)
+            font.clear()
+            font.set_size(prop.get_size_in_points(), 72)
+            return font
+        except RuntimeError:
+            logging.getLogger(__name__).warning(
+                "The PostScript/PDF backend does not currently "
+                "support the selected font (%s).", fnames)
+            raise

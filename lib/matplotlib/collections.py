@@ -10,6 +10,7 @@ line segments).
 """
 
 import itertools
+import functools
 import math
 from numbers import Number, Real
 import warnings
@@ -17,8 +18,8 @@ import warnings
 import numpy as np
 
 import matplotlib as mpl
-from . import (_api, _path, artist, cbook, cm, colors as mcolors, _docstring,
-               hatch as mhatch, lines as mlines, path as mpath, transforms)
+from . import (_api, _path, artist, cbook, colorizer as mcolorizer, colors as mcolors,
+               _docstring, hatch as mhatch, lines as mlines, path as mpath, transforms)
 from ._enums import JoinStyle, CapStyle
 
 
@@ -32,7 +33,7 @@ from ._enums import JoinStyle, CapStyle
     "linewidth": ["linewidths", "lw"],
     "offset_transform": ["transOffset"],
 })
-class Collection(artist.Artist, cm.ScalarMappable):
+class Collection(mcolorizer.ColorizingArtist):
     r"""
     Base class for Collections. Must be subclassed to be usable.
 
@@ -87,6 +88,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  offset_transform=None,
                  norm=None,  # optional for ScalarMappable
                  cmap=None,  # ditto
+                 colorizer=None,
                  pickradius=5.0,
                  hatch=None,
                  urls=None,
@@ -113,10 +115,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
             where *onoffseq* is an even length tuple of on and off ink lengths
             in points. For examples, see
             :doc:`/gallery/lines_bars_and_markers/linestyles`.
-        capstyle : `.CapStyle`-like, default: :rc:`patch.capstyle`
+        capstyle : `.CapStyle`-like, default: 'butt'
             Style to use for capping lines for all paths in the collection.
             Allowed values are %(CapStyle)s.
-        joinstyle : `.JoinStyle`-like, default: :rc:`patch.joinstyle`
+        joinstyle : `.JoinStyle`-like, default: 'round'
             Style to use for joining lines for all paths in the collection.
             Allowed values are %(JoinStyle)s.
         antialiaseds : bool or list of bool, default: :rc:`patch.antialiased`
@@ -155,8 +157,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
             Remaining keyword arguments will be used to set properties as
             ``Collection.set_{key}(val)`` for each key-value pair in *kwargs*.
         """
-        artist.Artist.__init__(self)
-        cm.ScalarMappable.__init__(self, norm, cmap)
+
+        super().__init__(self._get_colorizer(cmap, norm, colorizer))
         # list of un-scaled dash patterns
         # this is needed scaling the dash pattern by linewidth
         self._us_linestyles = [(0, None)]
@@ -172,7 +174,14 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._face_is_mapped = None
         self._edge_is_mapped = None
         self._mapped_colors = None  # calculated in update_scalarmappable
-        self._hatch_color = mcolors.to_rgba(mpl.rcParams['hatch.color'])
+
+        # Temporary logic to set hatchcolor. This eager resolution is temporary
+        # and will be replaced by a proper mechanism in a follow-up PR.
+        hatch_color = mpl.rcParams['hatch.color']
+        if hatch_color == 'edge':
+            hatch_color = mpl.rcParams['patch.edgecolor']
+        self._hatch_color = mcolors.to_rgba(hatch_color)
+        self._hatch_linewidth = mpl.rcParams['hatch.linewidth']
         self.set_facecolor(facecolors)
         self.set_edgecolor(edgecolors)
         self.set_linewidth(linewidths)
@@ -363,6 +372,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if self._hatch:
             gc.set_hatch(self._hatch)
             gc.set_hatch_color(self._hatch_color)
+            gc.set_hatch_linewidth(self._hatch_linewidth)
 
         if self.get_sketch_params() is not None:
             gc.set_sketch_params(*self.get_sketch_params())
@@ -392,8 +402,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
             else:
                 combined_transform = transform
             extents = paths[0].get_extents(combined_transform)
-            if (extents.width < self.figure.bbox.width
-                    and extents.height < self.figure.bbox.height):
+            if (extents.width < self.get_figure(root=True).bbox.width
+                    and extents.height < self.get_figure(root=True).bbox.height):
                 do_single_path_optimization = True
 
         if self._joinstyle:
@@ -540,6 +550,14 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def get_hatch(self):
         """Return the current hatching pattern."""
         return self._hatch
+
+    def set_hatch_linewidth(self, lw):
+        """Set the hatch linewidth."""
+        self._hatch_linewidth = lw
+
+    def get_hatch_linewidth(self):
+        """Return the hatch linewidth."""
+        return self._hatch_linewidth
 
     def set_offsets(self, offsets):
         """
@@ -1001,7 +1019,7 @@ class _CollectionWithSizes(Collection):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        self.set_sizes(self._sizes, self.figure.dpi)
+        self.set_sizes(self._sizes, self.get_figure(root=True).dpi)
         super().draw(renderer)
 
 
@@ -1254,6 +1272,248 @@ class PolyCollection(_CollectionWithSizes):
         self.stale = True
 
 
+class FillBetweenPolyCollection(PolyCollection):
+    """
+    `.PolyCollection` that fills the area between two x- or y-curves.
+    """
+    def __init__(
+            self, t_direction, t, f1, f2, *,
+            where=None, interpolate=False, step=None, **kwargs):
+        """
+        Parameters
+        ----------
+        t_direction : {{'x', 'y'}}
+            The axes on which the variable lies.
+
+            - 'x': the curves are ``(t, f1)`` and ``(t, f2)``.
+            - 'y': the curves are ``(f1, t)`` and ``(f2, t)``.
+
+        t : array (length N)
+            The ``t_direction`` coordinates of the nodes defining the curves.
+
+        f1 : array (length N) or scalar
+            The other coordinates of the nodes defining the first curve.
+
+        f2 : array (length N) or scalar
+            The other coordinates of the nodes defining the second curve.
+
+        where : array of bool (length N), optional
+            Define *where* to exclude some {dir} regions from being filled.
+            The filled regions are defined by the coordinates ``t[where]``.
+            More precisely, fill between ``t[i]`` and ``t[i+1]`` if
+            ``where[i] and where[i+1]``.  Note that this definition implies
+            that an isolated *True* value between two *False* values in *where*
+            will not result in filling.  Both sides of the *True* position
+            remain unfilled due to the adjacent *False* values.
+
+        interpolate : bool, default: False
+            This option is only relevant if *where* is used and the two curves
+            are crossing each other.
+
+            Semantically, *where* is often used for *f1* > *f2* or
+            similar.  By default, the nodes of the polygon defining the filled
+            region will only be placed at the positions in the *t* array.
+            Such a polygon cannot describe the above semantics close to the
+            intersection.  The t-sections containing the intersection are
+            simply clipped.
+
+            Setting *interpolate* to *True* will calculate the actual
+            intersection point and extend the filled region up to this point.
+
+        step : {{'pre', 'post', 'mid'}}, optional
+            Define *step* if the filling should be a step function,
+            i.e. constant in between *t*.  The value determines where the
+            step will occur:
+
+            - 'pre': The f value is continued constantly to the left from
+              every *t* position, i.e. the interval ``(t[i-1], t[i]]`` has the
+              value ``f[i]``.
+            - 'post': The y value is continued constantly to the right from
+              every *x* position, i.e. the interval ``[t[i], t[i+1])`` has the
+              value ``f[i]``.
+            - 'mid': Steps occur half-way between the *t* positions.
+
+        **kwargs
+            Forwarded to `.PolyCollection`.
+
+        See Also
+        --------
+        .Axes.fill_between, .Axes.fill_betweenx
+        """
+        self.t_direction = t_direction
+        self._interpolate = interpolate
+        self._step = step
+        verts = self._make_verts(t, f1, f2, where)
+        super().__init__(verts, **kwargs)
+
+    @staticmethod
+    def _f_dir_from_t(t_direction):
+        """The direction that is other than `t_direction`."""
+        if t_direction == "x":
+            return "y"
+        elif t_direction == "y":
+            return "x"
+        else:
+            msg = f"t_direction must be 'x' or 'y', got {t_direction!r}"
+            raise ValueError(msg)
+
+    @property
+    def _f_direction(self):
+        """The direction that is other than `self.t_direction`."""
+        return self._f_dir_from_t(self.t_direction)
+
+    def set_data(self, t, f1, f2, *, where=None):
+        """
+        Set new values for the two bounding curves.
+
+        Parameters
+        ----------
+        t : array (length N)
+            The ``self.t_direction`` coordinates of the nodes defining the curves.
+
+        f1 : array (length N) or scalar
+            The other coordinates of the nodes defining the first curve.
+
+        f2 : array (length N) or scalar
+            The other coordinates of the nodes defining the second curve.
+
+        where : array of bool (length N), optional
+            Define *where* to exclude some {dir} regions from being filled.
+            The filled regions are defined by the coordinates ``t[where]``.
+            More precisely, fill between ``t[i]`` and ``t[i+1]`` if
+            ``where[i] and where[i+1]``.  Note that this definition implies
+            that an isolated *True* value between two *False* values in *where*
+            will not result in filling.  Both sides of the *True* position
+            remain unfilled due to the adjacent *False* values.
+
+        See Also
+        --------
+        .PolyCollection.set_verts, .Line2D.set_data
+        """
+        t, f1, f2 = self.axes._fill_between_process_units(
+            self.t_direction, self._f_direction, t, f1, f2)
+
+        verts = self._make_verts(t, f1, f2, where)
+        self.set_verts(verts)
+
+    def get_datalim(self, transData):
+        """Calculate the data limits and return them as a `.Bbox`."""
+        datalim = transforms.Bbox.null()
+        datalim.update_from_data_xy((self.get_transform() - transData).transform(
+            np.concatenate([self._bbox, [self._bbox.minpos]])))
+        return datalim
+
+    def _make_verts(self, t, f1, f2, where):
+        """
+        Make verts that can be forwarded to `.PolyCollection`.
+        """
+        self._validate_shapes(self.t_direction, self._f_direction, t, f1, f2)
+
+        where = self._get_data_mask(t, f1, f2, where)
+        t, f1, f2 = np.broadcast_arrays(np.atleast_1d(t), f1, f2, subok=True)
+
+        self._bbox = transforms.Bbox.null()
+        self._bbox.update_from_data_xy(self._fix_pts_xy_order(np.concatenate([
+            np.stack((t[where], f[where]), axis=-1) for f in (f1, f2)])))
+
+        return [
+            self._make_verts_for_region(t, f1, f2, idx0, idx1)
+            for idx0, idx1 in cbook.contiguous_regions(where)
+        ]
+
+    def _get_data_mask(self, t, f1, f2, where):
+        """
+        Return a bool array, with True at all points that should eventually be rendered.
+
+        The array is True at a point if none of the data inputs
+        *t*, *f1*, *f2* is masked and if the input *where* is true at that point.
+        """
+        if where is None:
+            where = True
+        else:
+            where = np.asarray(where, dtype=bool)
+            if where.size != t.size:
+                msg = "where size ({}) does not match {!r} size ({})".format(
+                    where.size, self.t_direction, t.size)
+                raise ValueError(msg)
+        return where & ~functools.reduce(
+            np.logical_or, map(np.ma.getmaskarray, [t, f1, f2]))
+
+    @staticmethod
+    def _validate_shapes(t_dir, f_dir, t, f1, f2):
+        """Validate that t, f1 and f2 are 1-dimensional and have the same length."""
+        names = (d + s for d, s in zip((t_dir, f_dir, f_dir), ("", "1", "2")))
+        for name, array in zip(names, [t, f1, f2]):
+            if array.ndim > 1:
+                raise ValueError(f"{name!r} is not 1-dimensional")
+            if t.size > 1 and array.size > 1 and t.size != array.size:
+                msg = "{!r} has size {}, but {!r} has an unequal size of {}".format(
+                    t_dir, t.size, name, array.size)
+                raise ValueError(msg)
+
+    def _make_verts_for_region(self, t, f1, f2, idx0, idx1):
+        """
+        Make ``verts`` for a contiguous region between ``idx0`` and ``idx1``, taking
+        into account ``step`` and ``interpolate``.
+        """
+        t_slice = t[idx0:idx1]
+        f1_slice = f1[idx0:idx1]
+        f2_slice = f2[idx0:idx1]
+        if self._step is not None:
+            step_func = cbook.STEP_LOOKUP_MAP["steps-" + self._step]
+            t_slice, f1_slice, f2_slice = step_func(t_slice, f1_slice, f2_slice)
+
+        if self._interpolate:
+            start = self._get_interpolating_points(t, f1, f2, idx0)
+            end = self._get_interpolating_points(t, f1, f2, idx1)
+        else:
+            # Handle scalar f2 (e.g. 0): the fill should go all
+            # the way down to 0 even if none of the dep1 sample points do.
+            start = t_slice[0], f2_slice[0]
+            end = t_slice[-1], f2_slice[-1]
+
+        pts = np.concatenate((
+            np.asarray([start]),
+            np.stack((t_slice, f1_slice), axis=-1),
+            np.asarray([end]),
+            np.stack((t_slice, f2_slice), axis=-1)[::-1]))
+
+        return self._fix_pts_xy_order(pts)
+
+    @classmethod
+    def _get_interpolating_points(cls, t, f1, f2, idx):
+        """Calculate interpolating points."""
+        im1 = max(idx - 1, 0)
+        t_values = t[im1:idx+1]
+        diff_values = f1[im1:idx+1] - f2[im1:idx+1]
+        f1_values = f1[im1:idx+1]
+
+        if len(diff_values) == 2:
+            if np.ma.is_masked(diff_values[1]):
+                return t[im1], f1[im1]
+            elif np.ma.is_masked(diff_values[0]):
+                return t[idx], f1[idx]
+
+        diff_root_t = cls._get_diff_root(0, diff_values, t_values)
+        diff_root_f = cls._get_diff_root(diff_root_t, t_values, f1_values)
+        return diff_root_t, diff_root_f
+
+    @staticmethod
+    def _get_diff_root(x, xp, fp):
+        """Calculate diff root."""
+        order = xp.argsort()
+        return np.interp(x, xp[order], fp[order])
+
+    def _fix_pts_xy_order(self, pts):
+        """
+        Fix pts calculation results with `self.t_direction`.
+
+        In the workflow, it is assumed that `self.t_direction` is 'x'. If this
+        is not true, we need to exchange the coordinates.
+        """
+        return pts[:, ::-1] if self.t_direction == "y" else pts
+
+
 class RegularPolyCollection(_CollectionWithSizes):
     """A collection of n-sided regular polygons."""
 
@@ -1310,7 +1570,7 @@ class RegularPolyCollection(_CollectionWithSizes):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        self.set_sizes(self._sizes, self.figure.dpi)
+        self.set_sizes(self._sizes, self.get_figure(root=True).dpi)
         self._transforms = [
             transforms.Affine2D(x).rotate(-self._rotation).get_matrix()
             for x in self._transforms
@@ -1358,14 +1618,13 @@ class LineCollection(Collection):
         """
         Parameters
         ----------
-        segments : list of array-like
-            A sequence (*line0*, *line1*, *line2*) of lines, where each line is a list
-            of points::
+        segments : list of (N, 2) array-like
+            A sequence ``[line0, line1, ...]`` where each line is a (N, 2)-shape
+            array-like containing points::
 
-                lineN = [(x0, y0), (x1, y1), ... (xm, ym)]
+                line0 = [(x0, y0), (x1, y1), ...]
 
-            or the equivalent Mx2 numpy array with two columns. Each line
-            can have a different number of segments.
+            Each line can contain a different number of points.
         linewidths : float or list of float, default: :rc:`lines.linewidth`
             The width of each line in points.
         colors : :mpltype:`color` or list of color, default: :rc:`lines.color`
@@ -1757,7 +2016,7 @@ class EllipseCollection(Collection):
         """Calculate transforms immediately before drawing."""
 
         ax = self.axes
-        fig = self.figure
+        fig = self.get_figure(root=False)
 
         if self._units == 'xy':
             sc = 1
@@ -2252,14 +2511,8 @@ class PolyQuadMesh(_MeshData, PolyCollection):
     """
 
     def __init__(self, coordinates, **kwargs):
-        # We need to keep track of whether we are using deprecated compression
-        # Update it after the initializers
-        self._deprecated_compression = False
         super().__init__(coordinates=coordinates)
         PolyCollection.__init__(self, verts=[], **kwargs)
-        # Store this during the compression deprecation period
-        self._original_mask = ~self._get_unmasked_polys()
-        self._deprecated_compression = np.any(self._original_mask)
         # Setting the verts updates the paths of the PolyCollection
         # This is called after the initializers to make sure the kwargs
         # have all been processed and available for the masking calculations
@@ -2272,14 +2525,7 @@ class PolyQuadMesh(_MeshData, PolyCollection):
 
         # We want the shape of the polygon, which is the corner of each X/Y array
         mask = (mask[0:-1, 0:-1] | mask[1:, 1:] | mask[0:-1, 1:] | mask[1:, 0:-1])
-
-        if (getattr(self, "_deprecated_compression", False) and
-                np.any(self._original_mask)):
-            return ~(mask | self._original_mask)
-        # Take account of the array data too, temporarily avoiding
-        # the compression warning and resetting the variable after the call
-        with cbook._setattr_cm(self, _deprecated_compression=False):
-            arr = self.get_array()
+        arr = self.get_array()
         if arr is not None:
             arr = np.ma.getmaskarray(arr)
             if arr.ndim == 3:
@@ -2335,42 +2581,8 @@ class PolyQuadMesh(_MeshData, PolyCollection):
     def set_array(self, A):
         # docstring inherited
         prev_unmask = self._get_unmasked_polys()
-        # MPL <3.8 compressed the mask, so we need to handle flattened 1d input
-        # until the deprecation expires, also only warning when there are masked
-        # elements and thus compression occurring.
-        if self._deprecated_compression and np.ndim(A) == 1:
-            _api.warn_deprecated("3.8", message="Setting a PolyQuadMesh array using "
-                                 "the compressed values is deprecated. "
-                                 "Pass the full 2D shape of the original array "
-                                 f"{prev_unmask.shape} including the masked elements.")
-            Afull = np.empty(self._original_mask.shape)
-            Afull[~self._original_mask] = A
-            # We also want to update the mask with any potential
-            # new masked elements that came in. But, we don't want
-            # to update any of the compression from the original
-            mask = self._original_mask.copy()
-            mask[~self._original_mask] |= np.ma.getmask(A)
-            A = np.ma.array(Afull, mask=mask)
-            return super().set_array(A)
-        self._deprecated_compression = False
         super().set_array(A)
         # If the mask has changed at all we need to update
         # the set of Polys that we are drawing
         if not np.array_equal(prev_unmask, self._get_unmasked_polys()):
             self._set_unmasked_verts()
-
-    def get_array(self):
-        # docstring inherited
-        # Can remove this entire function once the deprecation period ends
-        A = super().get_array()
-        if A is None:
-            return
-        if self._deprecated_compression and np.any(np.ma.getmask(A)):
-            _api.warn_deprecated("3.8", message=(
-                "Getting the array from a PolyQuadMesh will return the full "
-                "array in the future (uncompressed). To get this behavior now "
-                "set the PolyQuadMesh with a 2D array .set_array(data2d)."))
-            # Setting an array of a polycollection required
-            # compressing the array
-            return np.ma.compressed(A)
-        return A

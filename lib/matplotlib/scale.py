@@ -1,16 +1,31 @@
 """
 Scales define the distribution of data values on an axis, e.g. a log scaling.
-They are defined as subclasses of `ScaleBase`.
 
-See also `.axes.Axes.set_xscale` and the scales examples in the documentation.
+The mapping is implemented through `.Transform` subclasses.
 
-See :doc:`/gallery/scales/custom_scale` for a full example of defining a custom
-scale.
+The following scales are builtin:
 
-Matplotlib also supports non-separable transformations that operate on both
-`~.axis.Axis` at the same time.  They are known as projections, and defined in
-`matplotlib.projections`.
-"""
+============= ===================== ================================ =================================
+Name          Class                 Transform                        Inverted transform
+============= ===================== ================================ =================================
+"asinh"       `AsinhScale`          `AsinhTransform`                 `InvertedAsinhTransform`
+"function"    `FuncScale`           `FuncTransform`                  `FuncTransform`
+"functionlog" `FuncScaleLog`        `FuncTransform` + `LogTransform` `InvertedLogTransform` + `FuncTransform`
+"linear"      `LinearScale`         `.IdentityTransform`             `.IdentityTransform`
+"log"         `LogScale`            `LogTransform`                   `InvertedLogTransform`
+"logit"       `LogitScale`          `LogitTransform`                 `LogisticTransform`
+"symlog"      `SymmetricalLogScale` `SymmetricalLogTransform`        `InvertedSymmetricalLogTransform`
+============= ===================== ================================ =================================
+
+A user will often only use the scale name, e.g. when setting the scale through
+`~.Axes.set_xscale`: ``ax.set_xscale("log")``.
+
+See also the :ref:`scales examples <sphx_glr_gallery_scales>` in the documentation.
+
+Custom scaling can be achieved through `FuncScale`, or by creating your own
+`ScaleBase` subclass and corresponding transforms (see :doc:`/gallery/scales/custom_scale`).
+Third parties can register their scales by name through `register_scale`.
+"""  # noqa: E501
 
 import inspect
 import textwrap
@@ -213,7 +228,6 @@ class LogTransform(Transform):
         return "{}(base={}, nonpositive={!r})".format(
             type(self).__name__, self.base, "clip" if self._clip else "mask")
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         # Ignore invalid values due to nans being passed to the transform.
         with np.errstate(divide="ignore", invalid="ignore"):
@@ -250,7 +264,6 @@ class InvertedLogTransform(Transform):
     def __str__(self):
         return f"{type(self).__name__}(base={self.base})"
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         return np.power(self.base, values)
 
@@ -362,7 +375,6 @@ class SymmetricalLogTransform(Transform):
         self._linscale_adj = (linscale / (1.0 - self.base ** -1))
         self._log_base = np.log(base)
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         abs_a = np.abs(values)
         with np.errstate(divide="ignore", invalid="ignore"):
@@ -390,7 +402,6 @@ class InvertedSymmetricalLogTransform(Transform):
         self.linscale = linscale
         self._linscale_adj = (linscale / (1.0 - self.base ** -1))
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         abs_a = np.abs(values)
         with np.errstate(divide="ignore", invalid="ignore"):
@@ -415,6 +426,8 @@ class SymmetricalLogScale(ScaleBase):
     need to have a range around zero that is linear.  The parameter
     *linthresh* allows the user to specify the size of this range
     (-*linthresh*, *linthresh*).
+
+    See :doc:`/gallery/scales/symlog_demo` for a detailed description.
 
     Parameters
     ----------
@@ -472,7 +485,6 @@ class AsinhTransform(Transform):
                              "must be strictly positive")
         self.linear_width = linear_width
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         return self.linear_width * np.arcsinh(values / self.linear_width)
 
@@ -488,7 +500,6 @@ class InvertedAsinhTransform(Transform):
         super().__init__()
         self.linear_width = linear_width
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         return self.linear_width * np.sinh(values / self.linear_width)
 
@@ -589,7 +600,6 @@ class LogitTransform(Transform):
         self._nonpositive = nonpositive
         self._clip = {"clip": True, "mask": False}[nonpositive]
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         """logit transform (base 10), masked or clipped"""
         with np.errstate(divide="ignore", invalid="ignore"):
@@ -613,7 +623,6 @@ class LogisticTransform(Transform):
         super().__init__()
         self._nonpositive = nonpositive
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         """logistic transform (base 10)"""
         return 1.0 / (1 + 10**(-values))
@@ -750,7 +759,7 @@ def _get_scale_docs():
     return "\n".join(docs)
 
 
-_docstring.interpd.update(
+_docstring.interpd.register(
     scale_type='{%s}' % ', '.join([repr(x) for x in get_scale_names()]),
     scale_docs=_get_scale_docs().rstrip(),
     )

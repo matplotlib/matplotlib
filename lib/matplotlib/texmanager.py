@@ -31,7 +31,7 @@ from tempfile import TemporaryDirectory
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, dviread
+from matplotlib import cbook, dviread
 
 _log = logging.getLogger(__name__)
 
@@ -63,7 +63,6 @@ class TexManager:
     Repeated calls to this constructor always return the same instance.
     """
 
-    texcache = _api.deprecate_privatize_attribute("3.8")
     _texcache = os.path.join(mpl.get_cachedir(), 'tex.cache')
     _grey_arrayd = {}
 
@@ -324,10 +323,8 @@ class TexManager:
     @classmethod
     def get_grey(cls, tex, fontsize=None, dpi=None):
         """Return the alpha channel."""
-        if not fontsize:
-            fontsize = mpl.rcParams['font.size']
-        if not dpi:
-            dpi = mpl.rcParams['savefig.dpi']
+        fontsize = mpl._val_or_rc(fontsize, 'font.size')
+        dpi = mpl._val_or_rc(dpi, 'savefig.dpi')
         key = cls._get_tex_source(tex, fontsize), dpi
         alpha = cls._grey_arrayd.get(key)
         if alpha is None:

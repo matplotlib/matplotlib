@@ -4,26 +4,28 @@ on: [pull_request]
 
 permissions:
   contents: read
-  checks: write
-  pull-requests: write
 
 jobs:
   flake8:
     name: flake8
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Set up Python 3
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b  # v5.3.0
         with:
-          python-version: 3.9
+          python-version: '3.10'
 
       - name: Install flake8
         run: pip3 install -r requirements/testing/flake8.txt
 
       - name: Set up reviewdog
-        uses: reviewdog/action-setup@v1
+        uses: reviewdog/action-setup@3f401fe1d58fe77e10d665ab713057375e39b887  # v1.3.9
 
       - name: Run flake8
         env:
@@ -36,19 +38,23 @@ jobs:
   mypy:
     name: mypy
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Set up Python 3
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b  # v5.3.0
         with:
-          python-version: 3.9
+          python-version: '3.10'
 
       - name: Install mypy
         run: pip3 install -r requirements/testing/mypy.txt -r requirements/testing/all.txt
 
       - name: Set up reviewdog
-        uses: reviewdog/action-setup@v1
+        uses: reviewdog/action-setup@3f401fe1d58fe77e10d665ab713057375e39b887  # v1.3.9
 
       - name: Run mypy
         env:
@@ -63,11 +69,15 @@ jobs:
   eslint:
     name: eslint
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: eslint
-        uses: reviewdog/action-eslint@v1
+        uses: reviewdog/action-eslint@9b5b0150e399e1f007ee3c27bc156549810a64e3  # v1.33.0
         with:
           filter_mode: nofilter
           github_token: ${{ secrets.GITHUB_TOKEN }}

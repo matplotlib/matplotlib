@@ -19,7 +19,14 @@
 #define WIN32_LEAN_AND_MEAN
 // Windows 8.1
 #define WINVER 0x0603
-#define _WIN32_WINNT 0x0603
+#if defined(_WIN32_WINNT)
+#if _WIN32_WINNT < WINVER
+#undef _WIN32_WINNT
+#define _WIN32_WINNT WINVER
+#endif
+#else
+#define _WIN32_WINNT WINVER
+#endif
 #endif
 
 #include <pybind11/pybind11.h>
@@ -85,6 +92,7 @@ static Tk_PhotoPutBlock_t TK_PHOTO_PUT_BLOCK;
 // Global vars for Tcl functions.  We load these symbols from the tkinter
 // extension module or loaded Tcl libraries at run-time.
 static Tcl_SetVar_t TCL_SETVAR;
+static Tcl_SetVar2_t TCL_SETVAR2;
 
 static void
 mpl_tk_blit(py::object interp_obj, const char *photo_name,
@@ -166,7 +174,15 @@ DpiSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
             std::string dpi = std::to_string(LOWORD(wParam));
 
             Tcl_Interp* interp = (Tcl_Interp*)dwRefData;
-            TCL_SETVAR(interp, var_name.c_str(), dpi.c_str(), 0);
+            if (TCL_SETVAR) {
+                TCL_SETVAR(interp, var_name.c_str(), dpi.c_str(), 0);
+            } else if (TCL_SETVAR2) {
+                TCL_SETVAR2(interp, var_name.c_str(), NULL, dpi.c_str(), 0);
+            } else {
+                // This should be prevented at import time, and therefore unreachable.
+                // But defensively throw just in case.
+                throw std::runtime_error("Unable to call Tcl_SetVar or Tcl_SetVar2");
+            }
         }
         return 0;
     case WM_NCDESTROY:
@@ -239,13 +255,16 @@ bool load_tcl_tk(T lib)
     if (auto ptr = dlsym(lib, "Tcl_SetVar")) {
         TCL_SETVAR = (Tcl_SetVar_t)ptr;
     }
+    if (auto ptr = dlsym(lib, "Tcl_SetVar2")) {
+        TCL_SETVAR2 = (Tcl_SetVar2_t)ptr;
+    }
     if (auto ptr = dlsym(lib, "Tk_FindPhoto")) {
         TK_FIND_PHOTO = (Tk_FindPhoto_t)ptr;
     }
     if (auto ptr = dlsym(lib, "Tk_PhotoPutBlock")) {
         TK_PHOTO_PUT_BLOCK = (Tk_PhotoPutBlock_t)ptr;
     }
-    return TCL_SETVAR && TK_FIND_PHOTO && TK_PHOTO_PUT_BLOCK;
+    return (TCL_SETVAR || TCL_SETVAR2) && TK_FIND_PHOTO && TK_PHOTO_PUT_BLOCK;
 }
 
 #ifdef WIN32_DLL
@@ -293,7 +312,7 @@ load_tkinter_funcs()
     // Load tkinter global funcs from tkinter compiled module.
 
     // Try loading from the main program namespace first.
-    auto main_program = dlopen(NULL, RTLD_LAZY);
+    auto main_program = dlopen(nullptr, RTLD_LAZY);
     auto success = load_tcl_tk(main_program);
     // We don't need to keep a reference open as the main program always exists.
     if (dlclose(main_program)) {
@@ -326,7 +345,7 @@ load_tkinter_funcs()
 }
 #endif // end not Windows
 
-PYBIND11_MODULE(_tkagg, m)
+PYBIND11_MODULE(_tkagg, m, py::mod_gil_not_used())
 {
     try {
         load_tkinter_funcs();
@@ -336,8 +355,8 @@ PYBIND11_MODULE(_tkagg, m)
         throw py::error_already_set();
     }
 
-    if (!TCL_SETVAR) {
-        throw py::import_error("Failed to load Tcl_SetVar");
+    if (!(TCL_SETVAR || TCL_SETVAR2)) {
+        throw py::import_error("Failed to load Tcl_SetVar or Tcl_SetVar2");
     } else if (!TK_FIND_PHOTO) {
         throw py::import_error("Failed to load Tk_FindPhoto");
     } else if (!TK_PHOTO_PUT_BLOCK) {

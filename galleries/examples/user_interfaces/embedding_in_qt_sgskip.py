@@ -1,7 +1,7 @@
 """
-===============
-Embedding in Qt
-===============
+===========
+Embed in Qt
+===========
 
 Simple Qt application embedding Matplotlib canvases.  This program will work
 equally well using any Qt binding (PyQt6, PySide6, PyQt5, PySide2).  The
@@ -44,18 +44,34 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self._static_ax.plot(t, np.tan(t), ".")
 
         self._dynamic_ax = dynamic_canvas.figure.subplots()
-        t = np.linspace(0, 10, 101)
         # Set up a Line2D.
-        self._line, = self._dynamic_ax.plot(t, np.sin(t + time.time()))
-        self._timer = dynamic_canvas.new_timer(50)
-        self._timer.add_callback(self._update_canvas)
-        self._timer.start()
+        self.xdata = np.linspace(0, 10, 101)
+        self._update_ydata()
+        self._line, = self._dynamic_ax.plot(self.xdata, self.ydata)
+        # The below two timers must be attributes of self, so that the garbage
+        # collector won't clean them after we finish with __init__...
+
+        # The data retrieval may be fast as possible (Using QRunnable could be
+        # even faster).
+        self.data_timer = dynamic_canvas.new_timer(1)
+        self.data_timer.add_callback(self._update_ydata)
+        self.data_timer.start()
+        # Drawing at 50Hz should be fast enough for the GUI to feel smooth, and
+        # not too fast for the GUI to be overloaded with events that need to be
+        # processed while the GUI element is changed.
+        self.drawing_timer = dynamic_canvas.new_timer(20)
+        self.drawing_timer.add_callback(self._update_canvas)
+        self.drawing_timer.start()
+
+    def _update_ydata(self):
+        # Shift the sinusoid as a function of time.
+        self.ydata = np.sin(self.xdata + time.time())
 
     def _update_canvas(self):
-        t = np.linspace(0, 10, 101)
-        # Shift the sinusoid as a function of time.
-        self._line.set_data(t, np.sin(t + time.time()))
-        self._line.figure.canvas.draw()
+        self._line.set_data(self.xdata, self.ydata)
+        # It should be safe to use the synchronous draw() method for most drawing
+        # frequencies, but it is safer to use draw_idle().
+        self._line.figure.canvas.draw_idle()
 
 
 if __name__ == "__main__":

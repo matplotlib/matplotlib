@@ -163,8 +163,9 @@ def test_close():
     try:
         plt.close(1.1)
     except TypeError as e:
-        assert str(e) == "close() argument must be a Figure, an int, " \
-                         "a string, or None, not <class 'float'>"
+        assert str(e) == (
+            "'fig' must be an instance of matplotlib.figure.Figure, int, str "
+            "or None, not a float")
 
 
 def test_subplot_reuse():
@@ -439,9 +440,8 @@ def test_switch_backend_no_close():
     assert len(plt.get_fignums()) == 2
     plt.switch_backend('agg')
     assert len(plt.get_fignums()) == 2
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        plt.switch_backend('svg')
-    assert len(plt.get_fignums()) == 0
+    plt.switch_backend('svg')
+    assert len(plt.get_fignums()) == 2
 
 
 def figure_hook_example(figure):

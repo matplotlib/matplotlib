@@ -31,3 +31,10 @@ ax2.bar3d(x, y, bottom, width, depth, top, shade=False)
 ax2.set_title('Not Shaded')
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    styling: texture,
+#    plot-type: bar,
+#    level: beginner

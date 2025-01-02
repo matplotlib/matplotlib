@@ -6,6 +6,7 @@ import logging
 from numbers import Real
 from operator import attrgetter
 import re
+import textwrap
 import types
 
 import numpy as np
@@ -115,7 +116,7 @@ class _TransformedBoundsLocator:
         # time as transSubfigure may otherwise change after this is evaluated.
         return mtransforms.TransformedBbox(
             mtransforms.Bbox.from_bounds(*self._bounds),
-            self._transform - ax.figure.transSubfigure)
+            self._transform - ax.get_figure(root=False).transSubfigure)
 
 
 def _process_plot_format(fmt, *, ambiguous_fmt_datakey=False):
@@ -213,22 +214,21 @@ class _process_plot_var_args:
     an arbitrary number of *x*, *y*, *fmt* are allowed
     """
 
-    def __init__(self, command='plot'):
-        self.command = command
+    def __init__(self, output='Line2D'):
+        _api.check_in_list(['Line2D', 'Polygon', 'coordinates'], output=output)
+        self.output = output
         self.set_prop_cycle(None)
 
     def set_prop_cycle(self, cycler):
-        if cycler is None:
-            cycler = mpl.rcParams['axes.prop_cycle']
         self._idx = 0
-        self._cycler_items = [*cycler]
+        self._cycler_items = [*mpl._val_or_rc(cycler, 'axes.prop_cycle')]
 
-    def __call__(self, axes, *args, data=None, **kwargs):
+    def __call__(self, axes, *args, data=None, return_kwargs=False, **kwargs):
         axes._process_unit_info(kwargs=kwargs)
 
         for pos_only in "xy":
             if pos_only in kwargs:
-                raise _api.kwarg_error(self.command, pos_only)
+                raise _api.kwarg_error(inspect.stack()[1].function, pos_only)
 
         if not args:
             return
@@ -294,7 +294,9 @@ class _process_plot_var_args:
                 this += args[0],
                 args = args[1:]
             yield from self._plot_args(
-                axes, this, kwargs, ambiguous_fmt_datakey=ambiguous_fmt_datakey)
+                axes, this, kwargs, ambiguous_fmt_datakey=ambiguous_fmt_datakey,
+                return_kwargs=return_kwargs
+            )
 
     def get_next_color(self):
         """Return the next color in the cycle."""
@@ -329,13 +331,18 @@ class _process_plot_var_args:
             if kw.get(k, None) is None:
                 kw[k] = defaults[k]
 
-    def _makeline(self, axes, x, y, kw, kwargs):
+    def _make_line(self, axes, x, y, kw, kwargs):
         kw = {**kw, **kwargs}  # Don't modify the original kw.
         self._setdefaults(self._getdefaults(kw), kw)
         seg = mlines.Line2D(x, y, **kw)
         return seg, kw
 
-    def _makefill(self, axes, x, y, kw, kwargs):
+    def _make_coordinates(self, axes, x, y, kw, kwargs):
+        kw = {**kw, **kwargs}  # Don't modify the original kw.
+        self._setdefaults(self._getdefaults(kw), kw)
+        return (x, y), kw
+
+    def _make_polygon(self, axes, x, y, kw, kwargs):
         # Polygon doesn't directly support unitized inputs.
         x = axes.convert_xunits(x)
         y = axes.convert_yunits(y)
@@ -493,11 +500,15 @@ class _process_plot_var_args:
         if y.ndim == 1:
             y = y[:, np.newaxis]
 
-        if self.command == 'plot':
-            make_artist = self._makeline
-        else:
+        if self.output == 'Line2D':
+            make_artist = self._make_line
+        elif self.output == 'Polygon':
             kw['closed'] = kwargs.get('closed', True)
-            make_artist = self._makefill
+            make_artist = self._make_polygon
+        elif self.output == 'coordinates':
+            make_artist = self._make_coordinates
+        else:
+            _api.check_in_list(['Line2D', 'Polygon', 'coordinates'], output=self.output)
 
         ncx, ncy = x.shape[1], y.shape[1]
         if ncx > 1 and ncy > 1 and ncx != ncy:
@@ -550,6 +561,9 @@ class _AxesBase(martist.Artist):
     _twinned_axes = cbook.Grouper()
 
     _subclass_uses_cla = False
+
+    dataLim: mtransforms.Bbox
+    """The bounding `.Bbox` enclosing all data displayed in the Axes."""
 
     @property
     def _axis_map(self):
@@ -646,7 +660,7 @@ class _AxesBase(martist.Artist):
         self._aspect = 'auto'
         self._adjustable = 'box'
         self._anchor = 'C'
-        self._stale_viewlims = {name: False for name in self._axis_names}
+        self._stale_viewlims = dict.fromkeys(self._axis_names, False)
         self._forward_navigation_events = forward_navigation_events
         self._sharex = sharex
         self._sharey = sharey
@@ -671,9 +685,7 @@ class _AxesBase(martist.Artist):
 
         # this call may differ for non-sep axes, e.g., polar
         self._init_axis()
-        if facecolor is None:
-            facecolor = mpl.rcParams['axes.facecolor']
-        self._facecolor = facecolor
+        self._facecolor = mpl._val_or_rc(facecolor, 'axes.facecolor')
         self._frameon = frameon
         self.set_axisbelow(mpl.rcParams['axes.axisbelow'])
 
@@ -777,8 +789,8 @@ class _AxesBase(martist.Artist):
             if titles:
                 fields += [f"title={titles}"]
         for name, axis in self._axis_map.items():
-            if axis.get_label() and axis.get_label().get_text():
-                fields += [f"{name}label={axis.get_label().get_text()!r}"]
+            if axis.label and axis.label.get_text():
+                fields += [f"{name}label={axis.label.get_text()!r}"]
         return f"<{self.__class__.__name__}: " + ", ".join(fields) + ">"
 
     def get_subplotspec(self):
@@ -788,7 +800,7 @@ class _AxesBase(martist.Artist):
     def set_subplotspec(self, subplotspec):
         """Set the `.SubplotSpec`. associated with the subplot."""
         self._subplotspec = subplotspec
-        self._set_position(subplotspec.get_position(self.figure))
+        self._set_position(subplotspec.get_position(self.get_figure(root=False)))
 
     def get_gridspec(self):
         """Return the `.GridSpec` associated with the subplot, or None."""
@@ -849,6 +861,7 @@ class _AxesBase(martist.Artist):
 
     @property
     def viewLim(self):
+        """The view limits as `.Bbox` in data coordinates."""
         self._unstale_viewLim()
         return self._viewLim
 
@@ -959,8 +972,9 @@ class _AxesBase(martist.Artist):
         """
         labels_align = mpl.rcParams["xtick.alignment"]
         return (self.get_xaxis_transform(which='tick1') +
-                mtransforms.ScaledTranslation(0, -1 * pad_points / 72,
-                                              self.figure.dpi_scale_trans),
+                mtransforms.ScaledTranslation(
+                    0, -1 * pad_points / 72,
+                    self.get_figure(root=False).dpi_scale_trans),
                 "top", labels_align)
 
     def get_xaxis_text2_transform(self, pad_points):
@@ -985,8 +999,9 @@ class _AxesBase(martist.Artist):
         """
         labels_align = mpl.rcParams["xtick.alignment"]
         return (self.get_xaxis_transform(which='tick2') +
-                mtransforms.ScaledTranslation(0, pad_points / 72,
-                                              self.figure.dpi_scale_trans),
+                mtransforms.ScaledTranslation(
+                    0, pad_points / 72,
+                    self.get_figure(root=False).dpi_scale_trans),
                 "bottom", labels_align)
 
     def get_yaxis_transform(self, which='grid'):
@@ -1039,8 +1054,9 @@ class _AxesBase(martist.Artist):
         """
         labels_align = mpl.rcParams["ytick.alignment"]
         return (self.get_yaxis_transform(which='tick1') +
-                mtransforms.ScaledTranslation(-1 * pad_points / 72, 0,
-                                              self.figure.dpi_scale_trans),
+                mtransforms.ScaledTranslation(
+                    -1 * pad_points / 72, 0,
+                    self.get_figure(root=False).dpi_scale_trans),
                 labels_align, "right")
 
     def get_yaxis_text2_transform(self, pad_points):
@@ -1048,7 +1064,7 @@ class _AxesBase(martist.Artist):
         Returns
         -------
         transform : Transform
-            The transform used for drawing secondart y-axis labels, which will
+            The transform used for drawing secondary y-axis labels, which will
             add *pad_points* of padding (in points) between the axis and the
             label.  The x-direction is in axis coordinates and the y-direction
             is in data coordinates
@@ -1065,8 +1081,9 @@ class _AxesBase(martist.Artist):
         """
         labels_align = mpl.rcParams["ytick.alignment"]
         return (self.get_yaxis_transform(which='tick2') +
-                mtransforms.ScaledTranslation(pad_points / 72, 0,
-                                              self.figure.dpi_scale_trans),
+                mtransforms.ScaledTranslation(
+                    pad_points / 72, 0,
+                    self.get_figure(root=False).dpi_scale_trans),
                 labels_align, "left")
 
     def _update_transScale(self):
@@ -1173,7 +1190,7 @@ class _AxesBase(martist.Artist):
 
     def _set_artist_props(self, a):
         """Set the boilerplate props for artists added to Axes."""
-        a.set_figure(self.figure)
+        a.set_figure(self.get_figure(root=False))
         if not a.is_transform_set():
             a.set_transform(self.transData)
 
@@ -1291,12 +1308,17 @@ class _AxesBase(martist.Artist):
         self._use_sticky_edges = True
 
         self._get_lines = _process_plot_var_args()
-        self._get_patches_for_fill = _process_plot_var_args('fill')
+        self._get_patches_for_fill = _process_plot_var_args('Polygon')
 
         self._gridOn = mpl.rcParams['axes.grid']
+        # Swap children to minimize time we spend in an invalid state
         old_children, self._children = self._children, []
         for chld in old_children:
-            chld.axes = chld.figure = None
+            chld._remove_method = None
+            chld._parent_figure = None
+            chld.axes = None
+        # Use list.clear to break the `artist._remove_method` reference cycle
+        old_children.clear()
         self._mouseover_set = _OrderedSet()
         self.child_axes = []
         self._current_image = None  # strictly for pyplot via _sci, _gci
@@ -1347,7 +1369,7 @@ class _AxesBase(martist.Artist):
         # the other artists.  We use the frame to draw the edges so we are
         # setting the edgecolor to None.
         self.patch = self._gen_axes_patch()
-        self.patch.set_figure(self.figure)
+        self.patch.set_figure(self.get_figure(root=False))
         self.patch.set_facecolor(self._facecolor)
         self.patch.set_edgecolor('none')
         self.patch.set_linewidth(0)
@@ -1522,7 +1544,7 @@ class _AxesBase(martist.Artist):
         """
         self.titleOffsetTrans = mtransforms.ScaledTranslation(
                 0.0, title_offset_points / 72,
-                self.figure.dpi_scale_trans)
+                self.get_figure(root=False).dpi_scale_trans)
         for _title in (self.title, self._left_title, self._right_title):
             _title.set_transform(self.transAxes + self.titleOffsetTrans)
             _title.set_clip_box(None)
@@ -1538,7 +1560,7 @@ class _AxesBase(martist.Artist):
         Call signatures::
 
           set_prop_cycle(cycler)
-          set_prop_cycle(label=values[, label2=values2[, ...]])
+          set_prop_cycle(label=values, label2=values2, ...)
           set_prop_cycle(label, values)
 
         Form 1 sets given `~cycler.Cycler` object.
@@ -1548,7 +1570,7 @@ class _AxesBase(martist.Artist):
         Axes. If multiple properties are given, their value lists must have
         the same length. This is just a shortcut for explicitly creating a
         cycler and passing it to the function, i.e. it's short for
-        ``set_prop_cycle(cycler(label=values label2=values2, ...))``.
+        ``set_prop_cycle(cycler(label=values, label2=values2, ...))``.
 
         Form 3 creates a `~cycler.Cycler` for a single property and set it
         as the property cycle of the Axes. This form exists for compatibility
@@ -1705,7 +1727,8 @@ class _AxesBase(martist.Artist):
         ----------
         adjustable : {'box', 'datalim'}
             If 'box', change the physical dimensions of the Axes.
-            If 'datalim', change the ``x`` or ``y`` data limits.
+            If 'datalim', change the ``x`` or ``y`` data limits. This
+            may ignore explicitly defined axis limits.
 
         share : bool, default: False
             If ``True``, apply the settings to all shared Axes.
@@ -1937,7 +1960,7 @@ class _AxesBase(martist.Artist):
             self._set_position(position, which='active')
             return
 
-        trans = self.get_figure().transSubfigure
+        trans = self.get_figure(root=False).transSubfigure
         bb = mtransforms.Bbox.unit().transformed(trans)
         # this is the physical aspect of the panel (or figure):
         fig_aspect = bb.height / bb.width
@@ -2022,11 +2045,17 @@ class _AxesBase(martist.Artist):
             yc = 0.5 * (ymin + ymax)
             y0 = yc - Ysize / 2.0
             y1 = yc + Ysize / 2.0
+            if not self.get_autoscaley_on():
+                _log.warning("Ignoring fixed y limits to fulfill fixed data aspect "
+                             "with adjustable data limits.")
             self.set_ybound(y_trf.inverted().transform([y0, y1]))
         else:
             xc = 0.5 * (xmin + xmax)
             x0 = xc - Xsize / 2.0
             x1 = xc + Xsize / 2.0
+            if not self.get_autoscalex_on():
+                _log.warning("Ignoring fixed x limits to fulfill fixed data aspect "
+                             "with adjustable data limits.")
             self.set_xbound(x_trf.inverted().transform([x0, x1]))
 
     def axis(self, arg=None, /, *, emit=True, **kwargs):
@@ -2243,8 +2272,8 @@ class _AxesBase(martist.Artist):
 
         Use `add_artist` only for artists for which there is no dedicated
         "add" method; and if necessary, use a method such as `update_datalim`
-        to manually update the dataLim if the artist is to be included in
-        autoscaling.
+        to manually update the `~.Axes.dataLim` if the artist is to be included
+        in autoscaling.
 
         If no ``transform`` has been specified when creating the artist (e.g.
         ``artist.get_transform() == None``) then the transform is set to
@@ -2261,7 +2290,7 @@ class _AxesBase(martist.Artist):
 
     def add_child_axes(self, ax):
         """
-        Add an `.AxesBase` to the Axes' children; return the child Axes.
+        Add an `.Axes` to the Axes' children; return the child Axes.
 
         This is the lowlevel version.  See `.axes.Axes.inset_axes`.
         """
@@ -2274,7 +2303,7 @@ class _AxesBase(martist.Artist):
 
         self.child_axes.append(ax)
         ax._remove_method = functools.partial(
-            self.figure._remove_axes, owners=[self.child_axes])
+            self.get_figure(root=False)._remove_axes, owners=[self.child_axes])
         self.stale = True
         return ax
 
@@ -2357,7 +2386,7 @@ class _AxesBase(martist.Artist):
 
     def _update_line_limits(self, line):
         """
-        Figures out the data limit of the given line, updating self.dataLim.
+        Figures out the data limit of the given line, updating `.Axes.dataLim`.
         """
         path = line.get_path()
         if path.vertices.size == 0:
@@ -2635,7 +2664,7 @@ class _AxesBase(martist.Artist):
     @property
     def use_sticky_edges(self):
         """
-        When autoscaling, whether to obey all `Artist.sticky_edges`.
+        When autoscaling, whether to obey all `.Artist.sticky_edges`.
 
         Default is ``True``.
 
@@ -2732,19 +2761,22 @@ class _AxesBase(martist.Artist):
 
     def margins(self, *margins, x=None, y=None, tight=True):
         """
-        Set or retrieve autoscaling margins.
+        Set or retrieve margins around the data for autoscaling axis limits.
 
-        The padding added to each limit of the Axes is the *margin*
-        times the data interval. All input parameters must be floats
-        greater than -0.5. Passing both positional and keyword
-        arguments is invalid and will raise a TypeError. If no
-        arguments (positional or otherwise) are provided, the current
+        This allows to configure the padding around the data without having to
+        set explicit limits using `~.Axes.set_xlim` / `~.Axes.set_ylim`.
+
+        Autoscaling determines the axis limits by adding *margin* times the
+        data interval as padding around the data. See the following illustration:
+
+        .. plot:: _embedded_plots/axes_margins.py
+
+        All input parameters must be floats greater than -0.5. Passing both
+        positional and keyword arguments is invalid and will raise a TypeError.
+        If no arguments (positional or otherwise) are provided, the current
         margins will remain unchanged and simply be returned.
 
-        Specifying any margin changes only the autoscaling; for example,
-        if *xmargin* is not None, then *xmargin* times the X data
-        interval will be added to each end of that interval before
-        it is used in autoscaling.
+        The default margins are :rc:`axes.xmargin` and :rc:`axes.ymargin`.
 
         Parameters
         ----------
@@ -2776,10 +2808,14 @@ class _AxesBase(martist.Artist):
         Notes
         -----
         If a previously used Axes method such as :meth:`pcolor` has set
-        :attr:`use_sticky_edges` to `True`, only the limits not set by
-        the "sticky artists" will be modified. To force all of the
-        margins to be set, set :attr:`use_sticky_edges` to `False`
+        `~.Axes.use_sticky_edges` to `True`, only the limits not set by
+        the "sticky artists" will be modified. To force all
+        margins to be set, set `~.Axes.use_sticky_edges` to `False`
         before calling :meth:`margins`.
+
+        See Also
+        --------
+        .Axes.set_xmargin, .Axes.set_ymargin
         """
 
         if margins and (x is not None or y is not None):
@@ -2962,22 +2998,16 @@ class _AxesBase(martist.Artist):
 
             # Prevent margin addition from crossing a sticky value.  A small
             # tolerance must be added due to floating point issues with
-            # streamplot; it is defined relative to x0, x1, x1-x0 but has
+            # streamplot; it is defined relative to x1-x0 but has
             # no absolute term (e.g. "+1e-8") to avoid issues when working with
             # datasets where all values are tiny (less than 1e-8).
-            tol = 1e-5 * max(abs(x0), abs(x1), abs(x1 - x0))
+            tol = 1e-5 * abs(x1 - x0)
             # Index of largest element < x0 + tol, if any.
             i0 = stickies.searchsorted(x0 + tol) - 1
             x0bound = stickies[i0] if i0 != -1 else None
-            # Ensure the boundary acts only if the sticky is the extreme value
-            if x0bound is not None and x0bound > x0:
-                x0bound = None
             # Index of smallest element > x1 - tol, if any.
             i1 = stickies.searchsorted(x1 - tol)
             x1bound = stickies[i1] if i1 != len(stickies) else None
-            # Ensure the boundary acts only if the sticky is the extreme value
-            if x1bound is not None and x1bound < x1:
-                x1bound = None
 
             # Add the margin in figure space and then transform back, to handle
             # non-linear scales.
@@ -3028,7 +3058,8 @@ class _AxesBase(martist.Artist):
         axs = set()
         axs.update(self.child_axes)
         axs.update(self._twinned_axes.get_siblings(self))
-        axs.update(self.figure._align_label_groups['title'].get_siblings(self))
+        axs.update(
+            self.get_figure(root=False)._align_label_groups['title'].get_siblings(self))
 
         for ax in self.child_axes:  # Child positions must be updated first.
             locator = ax.get_axes_locator()
@@ -3114,7 +3145,7 @@ class _AxesBase(martist.Artist):
             for _axis in self._axis_map.values():
                 artists.remove(_axis)
 
-        if not self.figure.canvas.is_saving():
+        if not self.get_figure(root=True).canvas.is_saving():
             artists = [
                 a for a in artists
                 if not a.get_animated() or isinstance(a, mimage.AxesImage)]
@@ -3142,10 +3173,10 @@ class _AxesBase(martist.Artist):
                 artists = [self.patch] + artists
 
         if artists_rasterized:
-            _draw_rasterized(self.figure, artists_rasterized, renderer)
+            _draw_rasterized(self.get_figure(root=True), artists_rasterized, renderer)
 
         mimage._draw_list_compositing_images(
-            renderer, self, artists, self.figure.suppressComposite)
+            renderer, self, artists, self.get_figure(root=True).suppressComposite)
 
         renderer.close_group('axes')
         self.stale = False
@@ -3154,7 +3185,7 @@ class _AxesBase(martist.Artist):
         """
         Efficiently redraw a single artist.
         """
-        a.draw(self.figure.canvas.get_renderer())
+        a.draw(self.get_figure(root=True).canvas.get_renderer())
 
     def redraw_in_frame(self):
         """
@@ -3164,7 +3195,7 @@ class _AxesBase(martist.Artist):
             for artist in [*self._axis_map.values(),
                            self.title, self._left_title, self._right_title]:
                 stack.enter_context(artist._cm_set(visible=False))
-            self.draw(self.figure.canvas.get_renderer())
+            self.draw(self.get_figure(root=True).canvas.get_renderer())
 
     # Axes rectangle characteristics
 
@@ -3236,7 +3267,7 @@ class _AxesBase(martist.Artist):
             axis.set_zorder(zorder)
         self.stale = True
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def grid(self, visible=None, which='major', axis='both', **kwargs):
         """
         Configure the grid lines.
@@ -3511,7 +3542,7 @@ class _AxesBase(martist.Artist):
         """
         Get the xlabel text string.
         """
-        label = self.xaxis.get_label()
+        label = self.xaxis.label
         return label.get_text()
 
     def set_xlabel(self, xlabel, fontdict=None, labelpad=None, *,
@@ -3552,8 +3583,7 @@ class _AxesBase(martist.Artist):
                                 f"supplied")
 
         else:
-            loc = (loc if loc is not None
-                   else mpl.rcParams['xaxis.labellocation'])
+            loc = mpl._val_or_rc(loc, 'xaxis.labellocation')
             _api.check_in_list(('left', 'center', 'right'), loc=loc)
 
             x = {
@@ -3567,17 +3597,33 @@ class _AxesBase(martist.Artist):
 
     def invert_xaxis(self):
         """
-        Invert the x-axis.
+        [*Discouraged*] Invert the x-axis.
+
+        .. admonition:: Discouraged
+
+            The use of this method is discouraged.
+            Use `.Axes.set_xinverted` instead.
 
         See Also
         --------
-        xaxis_inverted
+        get_xinverted
         get_xlim, set_xlim
         get_xbound, set_xbound
         """
         self.xaxis.set_inverted(not self.xaxis.get_inverted())
 
+    set_xinverted = _axis_method_wrapper("xaxis", "set_inverted")
+    get_xinverted = _axis_method_wrapper("xaxis", "get_inverted")
     xaxis_inverted = _axis_method_wrapper("xaxis", "get_inverted")
+    if xaxis_inverted.__doc__:
+        xaxis_inverted.__doc__ = ("[*Discouraged*] " + xaxis_inverted.__doc__ +
+                                  textwrap.dedent("""
+
+        .. admonition:: Discouraged
+
+            The use of this method is discouraged.
+            Use `.Axes.get_xinverted` instead.
+        """))
 
     def get_xbound(self):
         """
@@ -3764,7 +3810,7 @@ class _AxesBase(martist.Artist):
         """
         Get the ylabel text string.
         """
-        label = self.yaxis.get_label()
+        label = self.yaxis.label
         return label.get_text()
 
     def set_ylabel(self, ylabel, fontdict=None, labelpad=None, *,
@@ -3805,8 +3851,7 @@ class _AxesBase(martist.Artist):
                                 f"supplied")
 
         else:
-            loc = (loc if loc is not None
-                   else mpl.rcParams['yaxis.labellocation'])
+            loc = mpl._val_or_rc(loc, 'yaxis.labellocation')
             _api.check_in_list(('bottom', 'center', 'top'), loc=loc)
 
             y, ha = {
@@ -3820,17 +3865,33 @@ class _AxesBase(martist.Artist):
 
     def invert_yaxis(self):
         """
-        Invert the y-axis.
+        [*Discouraged*]  Invert the y-axis.
+
+        .. admonition:: Discouraged
+
+            The use of this method is discouraged.
+            Use `.Axes.set_yinverted` instead.
 
         See Also
         --------
-        yaxis_inverted
+        get_yinverted
         get_ylim, set_ylim
         get_ybound, set_ybound
         """
         self.yaxis.set_inverted(not self.yaxis.get_inverted())
 
+    set_yinverted = _axis_method_wrapper("yaxis", "set_inverted")
+    get_yinverted = _axis_method_wrapper("yaxis", "get_inverted")
     yaxis_inverted = _axis_method_wrapper("yaxis", "get_inverted")
+    if yaxis_inverted.__doc__:
+        yaxis_inverted.__doc__ = ("[*Discouraged*] " + yaxis_inverted.__doc__ +
+                                  textwrap.dedent("""
+
+        .. admonition:: Discouraged
+
+            The use of this method is discouraged.
+            Use `.Axes.get_yinverted` instead.
+        """))
 
     def get_ybound(self):
         """
@@ -4426,9 +4487,8 @@ class _AxesBase(martist.Artist):
         return [a for a in artists if a.get_visible() and a.get_in_layout()
                 and (isinstance(a, noclip) or not a._fully_clipped_to_axes())]
 
-    @_api.make_keyword_only("3.8", "call_axes_locator")
-    def get_tightbbox(self, renderer=None, call_axes_locator=True,
-                      bbox_extra_artists=None, *, for_layout_only=False):
+    def get_tightbbox(self, renderer=None, *, call_axes_locator=True,
+                      bbox_extra_artists=None, for_layout_only=False):
         """
         Return the tight bounding box of the Axes, including axis and their
         decorators (xlabel, title, etc).
@@ -4472,7 +4532,7 @@ class _AxesBase(martist.Artist):
 
         bb = []
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
 
         if not self.get_visible():
             return None
@@ -4523,9 +4583,9 @@ class _AxesBase(martist.Artist):
                 raise ValueError("Twinned Axes may share only one axis")
         ss = self.get_subplotspec()
         if ss:
-            twin = self.figure.add_subplot(ss, *args, **kwargs)
+            twin = self.get_figure(root=False).add_subplot(ss, *args, **kwargs)
         else:
-            twin = self.figure.add_axes(
+            twin = self.get_figure(root=False).add_axes(
                 self.get_position(True), *args, **kwargs,
                 axes_locator=_TransformedBoundsLocator(
                     [0, 0, 1, 1], self.transAxes))
@@ -4753,6 +4813,12 @@ def _draw_rasterized(figure, artists, renderer):
         def __init__(self, figure, artists):
             self.figure = figure
             self.artists = artists
+
+        def get_figure(self, root=False):
+            if root:
+                return self.figure.get_figure(root=True)
+            else:
+                return self.figure
 
         @martist.allow_rasterization
         def draw(self, renderer):

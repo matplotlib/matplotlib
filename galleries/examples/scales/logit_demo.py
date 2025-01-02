@@ -1,7 +1,7 @@
 """
-================
-Logit Demo
-================
+===========
+Logit scale
+===========
 
 Examples of plots with logit axes.
 """

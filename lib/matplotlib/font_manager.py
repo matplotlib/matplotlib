@@ -28,10 +28,10 @@ Future versions may implement the Level 2 or 2.1 specifications.
 from __future__ import annotations
 
 from base64 import b64encode
-from collections import namedtuple
 import copy
 import dataclasses
 from functools import lru_cache
+import functools
 from io import BytesIO
 import json
 import logging
@@ -131,8 +131,6 @@ font_family_aliases = {
     'monospace',
     'sans',
 }
-
-_ExceptionProxy = namedtuple('_ExceptionProxy', ['klass', 'message'])
 
 # OS Font paths
 try:
@@ -381,7 +379,7 @@ def ttfFontProperty(font):
         style = 'italic'
     elif sfnt2.find('regular') >= 0:
         style = 'normal'
-    elif font.style_flags & ft2font.ITALIC:
+    elif ft2font.StyleFlags.ITALIC in font.style_flags:
         style = 'italic'
     else:
         style = 'normal'
@@ -430,7 +428,7 @@ def ttfFontProperty(font):
             for regex, weight in _weight_regexes:
                 if re.search(regex, style, re.I):
                     return weight
-        if font.style_flags & ft2font.BOLD:
+        if ft2font.StyleFlags.BOLD in font.style_flags:
             return 700  # "bold"
         return 500  # "medium", not "regular"!
 
@@ -536,6 +534,57 @@ def afmFontProperty(fontpath, font):
     return FontEntry(fontpath, name, style, variant, weight, stretch, size)
 
 
+def _cleanup_fontproperties_init(init_method):
+    """
+    A decorator to limit the call signature to single a positional argument
+    or alternatively only keyword arguments.
+
+    We still accept but deprecate all other call signatures.
+
+    When the deprecation expires we can switch the signature to::
+
+        __init__(self, pattern=None, /, *, family=None, style=None, ...)
+
+    plus a runtime check that pattern is not used alongside with the
+    keyword arguments. This results eventually in the two possible
+    call signatures::
+
+        FontProperties(pattern)
+        FontProperties(family=..., size=..., ...)
+
+    """
+    @functools.wraps(init_method)
+    def wrapper(self, *args, **kwargs):
+        # multiple args with at least some positional ones
+        if len(args) > 1 or len(args) == 1 and kwargs:
+            # Note: Both cases were previously handled as individual properties.
+            # Therefore, we do not mention the case of font properties here.
+            _api.warn_deprecated(
+                "3.10",
+                message="Passing individual properties to FontProperties() "
+                        "positionally was deprecated in Matplotlib %(since)s and "
+                        "will be removed in %(removal)s. Please pass all properties "
+                        "via keyword arguments."
+            )
+        # single non-string arg -> clearly a family not a pattern
+        if len(args) == 1 and not kwargs and not cbook.is_scalar_or_string(args[0]):
+            # Case font-family list passed as single argument
+            _api.warn_deprecated(
+                "3.10",
+                message="Passing family as positional argument to FontProperties() "
+                        "was deprecated in Matplotlib %(since)s and will be removed "
+                        "in %(removal)s. Please pass family names as keyword"
+                        "argument."
+            )
+        # Note on single string arg:
+        # This has been interpreted as pattern so far. We are already raising if a
+        # non-pattern compatible family string was given. Therefore, we do not need
+        # to warn for this case.
+        return init_method(self, *args, **kwargs)
+
+    return wrapper
+
+
 class FontProperties:
     """
     A class for storing and manipulating font properties.
@@ -585,9 +634,14 @@ class FontProperties:
     approach allows all text sizes to be made larger or smaller based
     on the font manager's default font size.
 
-    This class will also accept a fontconfig_ pattern_, if it is the only
-    argument provided.  This support does not depend on fontconfig; we are
-    merely borrowing its pattern syntax for use here.
+    This class accepts a single positional string as fontconfig_ pattern_,
+    or alternatively individual properties as keyword arguments::
+
+        FontProperties(pattern)
+        FontProperties(*, family=None, style=None, variant=None, ...)
+
+    This support does not depend on fontconfig; we are merely borrowing its
+    pattern syntax for use here.
 
     .. _fontconfig: https://www.freedesktop.org/wiki/Software/fontconfig/
     .. _pattern:
@@ -599,6 +653,7 @@ class FontProperties:
     fontconfig.
     """
 
+    @_cleanup_fontproperties_init
     def __init__(self, family=None, style=None, variant=None, weight=None,
                  stretch=None, size=None,
                  fname=None,  # if set, it's a hardcoded filename to use
@@ -734,8 +789,7 @@ class FontProperties:
         font names.  Real font names are not supported when
         :rc:`text.usetex` is `True`. Default: :rc:`font.family`
         """
-        if family is None:
-            family = mpl.rcParams['font.family']
+        family = mpl._val_or_rc(family, 'font.family')
         if isinstance(family, str):
             family = [family]
         self._family = family
@@ -748,8 +802,7 @@ class FontProperties:
         ----------
         style : {'normal', 'italic', 'oblique'}, default: :rc:`font.style`
         """
-        if style is None:
-            style = mpl.rcParams['font.style']
+        style = mpl._val_or_rc(style, 'font.style')
         _api.check_in_list(['normal', 'italic', 'oblique'], style=style)
         self._slant = style
 
@@ -761,8 +814,7 @@ class FontProperties:
         ----------
         variant : {'normal', 'small-caps'}, default: :rc:`font.variant`
         """
-        if variant is None:
-            variant = mpl.rcParams['font.variant']
+        variant = mpl._val_or_rc(variant, 'font.variant')
         _api.check_in_list(['normal', 'small-caps'], variant=variant)
         self._variant = variant
 
@@ -777,8 +829,7 @@ class FontProperties:
 'extra bold', 'black'}, default: :rc:`font.weight`
             If int, must be in the range  0-1000.
         """
-        if weight is None:
-            weight = mpl.rcParams['font.weight']
+        weight = mpl._val_or_rc(weight, 'font.weight')
         if weight in weight_dict:
             self._weight = weight
             return
@@ -803,8 +854,7 @@ class FontProperties:
 'ultra-expanded'}, default: :rc:`font.stretch`
             If int, must be in the range  0-1000.
         """
-        if stretch is None:
-            stretch = mpl.rcParams['font.stretch']
+        stretch = mpl._val_or_rc(stretch, 'font.stretch')
         if stretch in stretch_dict:
             self._stretch = stretch
             return
@@ -829,8 +879,7 @@ class FontProperties:
             If a float, the font size in points. The string values denote
             sizes relative to the default font size.
         """
-        if size is None:
-            size = mpl.rcParams['font.size']
+        size = mpl._val_or_rc(size, 'font.size')
         try:
             size = float(size)
         except ValueError:
@@ -965,11 +1014,11 @@ def json_dump(data, filename):
     This function temporarily locks the output file to prevent multiple
     processes from overwriting one another's output.
     """
-    with cbook._lock_path(filename), open(filename, 'w') as fh:
-        try:
+    try:
+        with cbook._lock_path(filename), open(filename, 'w') as fh:
             json.dump(data, fh, cls=_JSONEncoder, indent=2)
-        except OSError as e:
-            _log.warning('Could not save font_manager cache %s', e)
+    except OSError as e:
+        _log.warning('Could not save font_manager cache %s', e)
 
 
 def json_load(filename):
@@ -1297,8 +1346,8 @@ class FontManager:
         ret = self._findfont_cached(
             prop, fontext, directory, fallback_to_default, rebuild_if_missing,
             rc_params)
-        if isinstance(ret, _ExceptionProxy):
-            raise ret.klass(ret.message)
+        if isinstance(ret, cbook._ExceptionInfo):
+            raise ret.to_exception()
         return ret
 
     def get_font_names(self):
@@ -1451,7 +1500,7 @@ class FontManager:
                 # This return instead of raise is intentional, as we wish to
                 # cache that it was not found, which will not occur if it was
                 # actually raised.
-                return _ExceptionProxy(
+                return cbook._ExceptionInfo(
                     ValueError,
                     f"Failed to find font {prop}, and fallback to the default font was "
                     f"disabled"
@@ -1477,7 +1526,7 @@ class FontManager:
                 # This return instead of raise is intentional, as we wish to
                 # cache that it was not found, which will not occur if it was
                 # actually raised.
-                return _ExceptionProxy(ValueError, "No valid font could be found")
+                return cbook._ExceptionInfo(ValueError, "No valid font could be found")
 
         return _cached_realpath(result)
 
@@ -1554,8 +1603,7 @@ def get_font(font_filepaths, hinting_factor=None):
     else:
         paths = tuple(_cached_realpath(fname) for fname in font_filepaths)
 
-    if hinting_factor is None:
-        hinting_factor = mpl.rcParams['text.hinting_factor']
+    hinting_factor = mpl._val_or_rc(hinting_factor, 'text.hinting_factor')
 
     return _get_font(
         # must be a tuple to be cached

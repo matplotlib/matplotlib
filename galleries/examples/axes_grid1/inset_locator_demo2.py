@@ -36,7 +36,7 @@ def add_sizebar(ax, size):
     asb = AnchoredSizeBar(ax.transData,
                           size,
                           str(size),
-                          loc=8,
+                          loc="lower center",
                           pad=0.1, borderpad=0.5, sep=5,
                           frameon=False)
     ax.add_artist(asb)
@@ -54,7 +54,7 @@ Z2[30:30+ny, 30:30+nx] = Z
 
 ax2.imshow(Z2, extent=extent, origin="lower")
 
-axins2 = zoomed_inset_axes(ax2, zoom=6, loc=1)
+axins2 = zoomed_inset_axes(ax2, zoom=6, loc="upper right")
 axins2.imshow(Z2, extent=extent, origin="lower")
 
 # subregion of the original image

@@ -1,7 +1,7 @@
 """
-====================
-Rotating tick labels
-====================
+===================
+Rotated tick labels
+===================
 """
 
 import matplotlib.pyplot as plt

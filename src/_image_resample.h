@@ -3,6 +3,8 @@
 #ifndef MPL_RESAMPLE_H
 #define MPL_RESAMPLE_H
 
+#define MPL_DISABLE_AGG_GRAY_CLIPPING
+
 #include "agg_image_accessors.h"
 #include "agg_path_storage.h"
 #include "agg_pixfmt_gray.h"
@@ -58,20 +60,16 @@ namespace agg
         value_type a;
 
         //--------------------------------------------------------------------
-        gray64() {}
+        gray64() = default;
 
         //--------------------------------------------------------------------
-        explicit gray64(value_type v_, value_type a_ = 1) :
-        v(v_), a(a_) {}
+        explicit gray64(value_type v_, value_type a_ = 1) : v(v_), a(a_) {}
 
         //--------------------------------------------------------------------
-        gray64(const self_type& c, value_type a_) :
-            v(c.v), a(a_) {}
+        gray64(const self_type& c, value_type a_) : v(c.v), a(a_) {}
 
         //--------------------------------------------------------------------
-        gray64(const gray64& c) :
-            v(c.v),
-            a(c.a) {}
+        gray64(const gray64& c) = default;
 
         //--------------------------------------------------------------------
         static AGG_INLINE double to_double(value_type a)
@@ -244,7 +242,7 @@ namespace agg
         value_type a;
 
         //--------------------------------------------------------------------
-        rgba64() {}
+        rgba64() = default;
 
         //--------------------------------------------------------------------
         rgba64(value_type r_, value_type g_, value_type b_, value_type a_= 1) :
@@ -500,52 +498,53 @@ typedef enum {
 
 // T is rgba if and only if it has an T::r field.
 template<typename T, typename = void> struct is_grayscale : std::true_type {};
-template<typename T> struct is_grayscale<T, decltype(T::r, void())> : std::false_type {};
+template<typename T> struct is_grayscale<T, std::void_t<decltype(T::r)>> : std::false_type {};
+template<typename T> constexpr bool is_grayscale_v = is_grayscale<T>::value;
 
 
 template<typename color_type>
 struct type_mapping
 {
-    using blender_type = typename std::conditional<
-        is_grayscale<color_type>::value,
+    using blender_type = std::conditional_t<
+        is_grayscale_v<color_type>,
         agg::blender_gray<color_type>,
-        typename std::conditional<
-            std::is_same<color_type, agg::rgba8>::value,
+        std::conditional_t<
+            std::is_same_v<color_type, agg::rgba8>,
             fixed_blender_rgba_plain<color_type, agg::order_rgba>,
             agg::blender_rgba_plain<color_type, agg::order_rgba>
-        >::type
-    >::type;
-    using pixfmt_type = typename std::conditional<
-        is_grayscale<color_type>::value,
+        >
+    >;
+    using pixfmt_type = std::conditional_t<
+        is_grayscale_v<color_type>,
         agg::pixfmt_alpha_blend_gray<blender_type, agg::rendering_buffer>,
         agg::pixfmt_alpha_blend_rgba<blender_type, agg::rendering_buffer>
-    >::type;
-    using pixfmt_pre_type = typename std::conditional<
-        is_grayscale<color_type>::value,
+    >;
+    using pixfmt_pre_type = std::conditional_t<
+        is_grayscale_v<color_type>,
         pixfmt_type,
         agg::pixfmt_alpha_blend_rgba<
-            typename std::conditional<
-                std::is_same<color_type, agg::rgba8>::value,
+            std::conditional_t<
+                std::is_same_v<color_type, agg::rgba8>,
                 fixed_blender_rgba_pre<color_type, agg::order_rgba>,
                 agg::blender_rgba_pre<color_type, agg::order_rgba>
-            >::type,
+            >,
             agg::rendering_buffer>
-    >::type;
-    template<typename A> using span_gen_affine_type = typename std::conditional<
-        is_grayscale<color_type>::value,
+    >;
+    template<typename A> using span_gen_affine_type = std::conditional_t<
+        is_grayscale_v<color_type>,
         agg::span_image_resample_gray_affine<A>,
         agg::span_image_resample_rgba_affine<A>
-    >::type;
-    template<typename A, typename B> using span_gen_filter_type = typename std::conditional<
-        is_grayscale<color_type>::value,
+    >;
+    template<typename A, typename B> using span_gen_filter_type = std::conditional_t<
+        is_grayscale_v<color_type>,
         agg::span_image_filter_gray<A, B>,
         agg::span_image_filter_rgba<A, B>
-    >::type;
-    template<typename A, typename B> using span_gen_nn_type = typename std::conditional<
-        is_grayscale<color_type>::value,
+    >;
+    template<typename A, typename B> using span_gen_nn_type = std::conditional_t<
+        is_grayscale_v<color_type>,
         agg::span_image_filter_gray_nn<A, B>,
         agg::span_image_filter_rgba_nn<A, B>
-    >::type;
+    >;
 };
 
 
@@ -564,7 +563,8 @@ public:
     {
         if (m_alpha != 1.0) {
             do {
-                span->a *= m_alpha;
+                span->a = static_cast<typename color_type::value_type>(
+                    static_cast<typename color_type::calc_type>(span->a) * m_alpha);
                 ++span;
             } while (--len);
         }
@@ -710,6 +710,7 @@ void resample(
 
     using renderer_t = agg::renderer_base<output_pixfmt_t>;
     using rasterizer_t = agg::rasterizer_scanline_aa<agg::rasterizer_sl_clip_dbl>;
+    using scanline_t = agg::scanline32_u8;
 
     using reflect_t = agg::wrap_mode_reflect;
     using image_accessor_t = agg::image_accessor_wrap<input_pixfmt_t, reflect_t, reflect_t>;
@@ -737,7 +738,7 @@ void resample(
 
     span_alloc_t span_alloc;
     rasterizer_t rasterizer;
-    agg::scanline_u8 scanline;
+    scanline_t scanline;
 
     span_conv_alpha_t conv_alpha(params.alpha);
 

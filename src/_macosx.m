@@ -40,60 +40,84 @@ static bool keyChangeOption = false;
 static bool keyChangeCapsLock = false;
 /* Keep track of the current mouse up/down state for open/closed cursor hand */
 static bool leftMouseGrabbing = false;
-/* Keep track of whether stdin has been received */
-static bool stdin_received = false;
-static bool stdin_sigint = false;
 // Global variable to store the original SIGINT handler
 static PyOS_sighandler_t originalSigintAction = NULL;
 
-// Signal handler for SIGINT, only sets a flag to exit the run loop
+// Stop the current app's run loop, sending an event to ensure it actually stops
+static void stopWithEvent() {
+    [NSApp stop: nil];
+    // Post an event to trigger the actual stopping.
+    [NSApp postEvent: [NSEvent otherEventWithType: NSEventTypeApplicationDefined
+                                         location: NSZeroPoint
+                                    modifierFlags: 0
+                                        timestamp: 0
+                                     windowNumber: 0
+                                          context: nil
+                                          subtype: 0
+                                            data1: 0
+                                            data2: 0]
+             atStart: YES];
+}
+
+// Signal handler for SIGINT, only argument matching for stopWithEvent
 static void handleSigint(int signal) {
-    stdin_sigint = true;
+    stopWithEvent();
+}
+
+// Helper function to flush all events.
+// This is needed in some instances to ensure e.g. that windows are properly closed.
+// It is used in the input hook as well as wrapped in a version callable from Python.
+static void flushEvents() {
+    while (true) {
+        NSEvent* event = [NSApp nextEventMatchingMask: NSEventMaskAny
+                                            untilDate: [NSDate distantPast]
+                                               inMode: NSDefaultRunLoopMode
+                                              dequeue: YES];
+        if (!event) {
+            break;
+        }
+        [NSApp sendEvent:event];
+    }
 }
 
 static int wait_for_stdin() {
-    @autoreleasepool {
-        stdin_received = false;
-        stdin_sigint = false;
+    // Short circuit if no windows are active
+    // Rely on Python's input handling to manage CPU usage
+    // This queries the NSApp, rather than using our FigureWindowCount because that is decremented when events still
+    // need to be processed to properly close the windows.
+    if (![[NSApp windows] count]) {
+      flushEvents();
+      return 1;
+    }
 
+    @autoreleasepool {
         // Set up a SIGINT handler to interrupt the event loop if ctrl+c comes in too
         originalSigintAction = PyOS_setsig(SIGINT, handleSigint);
 
         // Create an NSFileHandle for standard input
         NSFileHandle *stdinHandle = [NSFileHandle fileHandleWithStandardInput];
 
+
         // Register for data available notifications on standard input
-        [[NSNotificationCenter defaultCenter] addObserverForName: NSFileHandleDataAvailableNotification
-                                                          object: stdinHandle
-                                                           queue: [NSOperationQueue mainQueue] // Use the main queue
-                                                      usingBlock: ^(NSNotification *notification) {
-                                                                    // Mark that input has been received
-                                                                    stdin_received = true;
-                                                                    }
+        id notificationID = [[NSNotificationCenter defaultCenter] addObserverForName: NSFileHandleDataAvailableNotification
+                                                                              object: stdinHandle
+                                                                               queue: [NSOperationQueue mainQueue] // Use the main queue
+                                                                          usingBlock: ^(NSNotification *notification) {stopWithEvent();}
         ];
 
         // Wait in the background for anything that happens to stdin
         [stdinHandle waitForDataInBackgroundAndNotify];
 
-        // continuously run an event loop until the stdin_received flag is set to exit
-        while (!stdin_received && !stdin_sigint) {
-            // This loop is similar to the main event loop and flush_events which have
-            // Py_[BEGIN|END]_ALLOW_THREADS surrounding the loop.
-            // This should not be necessary here because PyOS_InputHook releases the GIL for us.
-            while (true) {
-                NSEvent *event = [NSApp nextEventMatchingMask: NSEventMaskAny
-                                                    untilDate: [NSDate distantPast]
-                                                       inMode: NSDefaultRunLoopMode
-                                                      dequeue: YES];
-                if (!event) { break; }
-                [NSApp sendEvent: event];
-            }
-        }
+        // Run the application's event loop, which will be interrupted on stdin or SIGINT
+        [NSApp run];
+
         // Remove the input handler as an observer
-        [[NSNotificationCenter defaultCenter] removeObserver: stdinHandle];
+        [[NSNotificationCenter defaultCenter] removeObserver: notificationID];
+
 
         // Restore the original SIGINT handler upon exiting the function
         PyOS_setsig(SIGINT, originalSigintAction);
+
         return 1;
     }
 }
@@ -236,18 +260,7 @@ wake_on_fd_write(PyObject* unused, PyObject* args)
 static PyObject*
 stop(PyObject* self)
 {
-    [NSApp stop: nil];
-    // Post an event to trigger the actual stopping.
-    [NSApp postEvent: [NSEvent otherEventWithType: NSEventTypeApplicationDefined
-                                         location: NSZeroPoint
-                                    modifierFlags: 0
-                                        timestamp: 0
-                                     windowNumber: 0
-                                          context: nil
-                                          subtype: 0
-                                            data1: 0
-                                            data2: 0]
-             atStart: YES];
+    stopWithEvent();
     Py_RETURN_NONE;
 }
 
@@ -257,20 +270,46 @@ static CGFloat _get_device_scale(CGContextRef cr)
     return pixelSize.width;
 }
 
-bool
-mpl_check_modifier(
-        NSUInteger modifiers, NSEventModifierFlags flag,
-        PyObject* list, char const* name)
+bool mpl_check_button(bool present, PyObject* set, char const* name) {
+    PyObject* module = NULL, * cls = NULL, * button = NULL;
+    bool failed = (
+        present
+        && (!(module = PyImport_ImportModule("matplotlib.backend_bases"))
+            || !(cls = PyObject_GetAttrString(module, "MouseButton"))
+            || !(button = PyObject_GetAttrString(cls, name))
+            || PySet_Add(set, button)));
+    Py_XDECREF(module);
+    Py_XDECREF(cls);
+    Py_XDECREF(button);
+    return failed;
+}
+
+PyObject* mpl_buttons()
 {
-    bool failed = false;
-    if (modifiers & flag) {
-        PyObject* py_name = NULL;
-        if (!(py_name = PyUnicode_FromString(name))
-            || PyList_Append(list, py_name)) {
-            failed = true;
-        }
-        Py_XDECREF(py_name);
+    PyGILState_STATE gstate = PyGILState_Ensure();
+    PyObject* set = NULL;
+    NSUInteger buttons = [NSEvent pressedMouseButtons];
+
+    if (!(set = PySet_New(NULL))
+        || mpl_check_button(buttons & (1 << 0), set, "LEFT")
+        || mpl_check_button(buttons & (1 << 1), set, "RIGHT")
+        || mpl_check_button(buttons & (1 << 2), set, "MIDDLE")
+        || mpl_check_button(buttons & (1 << 3), set, "BACK")
+        || mpl_check_button(buttons & (1 << 4), set, "FORWARD")) {
+        Py_CLEAR(set);  // On failure, return NULL with an exception set.
     }
+    PyGILState_Release(gstate);
+    return set;
+}
+
+bool mpl_check_modifier(bool present, PyObject* list, char const* name)
+{
+    PyObject* py_name = NULL;
+    bool failed = (
+        present
+        && (!(py_name = PyUnicode_FromString(name))
+            || (PyList_Append(list, py_name))));
+    Py_XDECREF(py_name);
     return failed;
 }
 
@@ -278,17 +317,14 @@ PyObject* mpl_modifiers(NSEvent* event)
 {
     PyGILState_STATE gstate = PyGILState_Ensure();
     PyObject* list = NULL;
-    if (!(list = PyList_New(0))) {
-        goto exit;
-    }
     NSUInteger modifiers = [event modifierFlags];
-    if (mpl_check_modifier(modifiers, NSEventModifierFlagControl, list, "ctrl")
-        || mpl_check_modifier(modifiers, NSEventModifierFlagOption, list, "alt")
-        || mpl_check_modifier(modifiers, NSEventModifierFlagShift, list, "shift")
-        || mpl_check_modifier(modifiers, NSEventModifierFlagCommand, list, "cmd")) {
+    if (!(list = PyList_New(0))
+        || mpl_check_modifier(modifiers & NSEventModifierFlagControl, list, "ctrl")
+        || mpl_check_modifier(modifiers & NSEventModifierFlagOption, list, "alt")
+        || mpl_check_modifier(modifiers & NSEventModifierFlagShift, list, "shift")
+        || mpl_check_modifier(modifiers & NSEventModifierFlagCommand, list, "cmd")) {
         Py_CLEAR(list);  // On failure, return NULL with an exception set.
     }
-exit:
     PyGILState_Release(gstate);
     return list;
 }
@@ -382,20 +418,9 @@ FigureCanvas_flush_events(FigureCanvas* self)
     // We run the app, matching any events that are waiting in the queue
     // to process, breaking out of the loop when no events remain and
     // displaying the canvas if needed.
-    NSEvent *event;
-
     Py_BEGIN_ALLOW_THREADS
 
-    while (true) {
-        event = [NSApp nextEventMatchingMask: NSEventMaskAny
-                                   untilDate: [NSDate distantPast]
-                                      inMode: NSDefaultRunLoopMode
-                                     dequeue: YES];
-        if (!event) {
-            break;
-        }
-        [NSApp sendEvent:event];
-    }
+    flushEvents();
 
     Py_END_ALLOW_THREADS
 
@@ -1236,7 +1261,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     CGContextRef cr = [[NSGraphicsContext currentContext] CGContext];
 
     if (!(renderer = PyObject_CallMethod(canvas, "get_renderer", ""))
-        || !(renderer_buffer = PyObject_GetAttrString(renderer, "_renderer"))) {
+        || !(renderer_buffer = PyObject_CallMethod(renderer, "buffer_rgba", ""))) {
         PyErr_Print();
         goto exit;
     }
@@ -1448,9 +1473,9 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     x = location.x * device_scale;
     y = location.y * device_scale;
     process_event(
-        "MouseEvent", "{s:s, s:O, s:i, s:i, s:N}",
+        "MouseEvent", "{s:s, s:O, s:i, s:i, s:N, s:N}",
         "name", "motion_notify_event", "canvas", canvas, "x", x, "y", y,
-        "modifiers", mpl_modifiers(event));
+        "buttons", mpl_buttons(), "modifiers", mpl_modifiers(event));
 }
 
 - (void)mouseDragged:(NSEvent *)event
@@ -1461,9 +1486,9 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     x = location.x * device_scale;
     y = location.y * device_scale;
     process_event(
-        "MouseEvent", "{s:s, s:O, s:i, s:i, s:N}",
+        "MouseEvent", "{s:s, s:O, s:i, s:i, s:N, s:N}",
         "name", "motion_notify_event", "canvas", canvas, "x", x, "y", y,
-        "modifiers", mpl_modifiers(event));
+        "buttons", mpl_buttons(), "modifiers", mpl_modifiers(event));
 }
 
 - (void)rightMouseDown:(NSEvent *)event { [self mouseDown: event]; }

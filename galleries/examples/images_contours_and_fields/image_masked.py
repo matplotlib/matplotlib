@@ -1,7 +1,7 @@
 """
-============
-Image Masked
-============
+========================
+Image with masked values
+========================
 
 imshow with masked array input and out-of-range colors.
 

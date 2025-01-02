@@ -9,13 +9,8 @@ if the added benefit is worth the effort of adapting existing code.
 
 Because we are a visualization library, our primary output is the final
 visualization the user sees; therefore, the appearance of the figure is part of
-the API and any changes, either semantic or :ref:`aesthetic <color_changes>`,
-are backwards-incompatible API changes.
-
-.. toctree::
-   :hidden:
-
-   color_changes.rst
+the API and any changes, either semantic or aesthetic, are backwards-incompatible
+API changes.
 
 
 Add new API and features
@@ -36,6 +31,23 @@ take particular care when adding new API:
 
   __ https://emptysqua.re/blog/api-evolution-the-right-way/#adding-parameters
 
+
+Add or change colormaps, color sequences, and styles
+----------------------------------------------------
+Visual changes are considered an API break. Therefore, we generally do not modify
+existing colormaps, color sequences, or styles.
+
+We put a high bar on adding new colormaps and styles to prevent excessively growing
+them. While the decision is case-by-case, evaluation criteria include:
+
+- novelty: Does it support a new use case? e.g. slight variations of existing maps,
+  sequences and styles are likely not accepted.
+- usability and accessibility: Are colors of sequences sufficiently distinct? Has
+  colorblindness been considered?
+- evidence of wide spread usage: for example academic papers, industry blogs and
+  whitepapers, or inclusion in other visualization libraries or domain specific tools
+- open license: colormaps, sequences, and styles must have a BSD compatible license
+  (see :ref:`license-discussion`)
 
 .. _deprecation-guidelines:
 
@@ -216,8 +228,8 @@ API change notes
 """"""""""""""""
 
 .. include:: ../api/next_api_changes/README.rst
-   :start-line: 5
-   :end-line: 31
+   :start-after: api-change-guide-start
+   :end-before: api-change-guide-end
 
 .. _whats-new-notes:
 
@@ -225,5 +237,27 @@ What's new notes
 """"""""""""""""
 
 .. include:: ../users/next_whats_new/README.rst
-   :start-line: 5
-   :end-line: 24
+   :start-after: whats-new-guide-start
+   :end-before: whats-new-guide-end
+
+Discourage API
+--------------
+
+We have API that we do not recommend anymore for new code, but that cannot be
+deprecated because its removal would be breaking backward-compatibility and too
+disruptive. In such a case we can formally discourage API. This can cover
+specific parameters, call patterns, whole methods etc.
+
+To do so, add a note to the docstring ::
+
+    .. admonition:: Discouraged
+
+       [description and suggested alternative]
+
+You find several examples for good descriptions if you search the codebase for
+``.. admonition:: Discouraged``.
+
+Additionally, if a whole function is discouraged, prefix the summary line with
+``[*Discouraged*]`` so that it renders in the API overview like this
+
+    [*Discouraged*] Return the XAxis instance.

@@ -1,0 +1,6 @@
+Calling ``pyplot.polar()`` with an existing non-polar Axes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This currently plots the data into the non-polar Axes, ignoring
+the "polar" intention. This usage scenario is deprecated and
+will raise an error in the future.

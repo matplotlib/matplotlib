@@ -148,15 +148,21 @@
 ## for more information on patch properties.
 #patch.linewidth:       1.0    # edge width in points.
 #patch.facecolor:       C0
-#patch.edgecolor:       black  # if forced, or patch is not filled
-#patch.force_edgecolor: False  # True to always use edgecolor
+#patch.edgecolor:       black  # By default, Patches and Collections do not draw edges.
+                               # This value is only used if facecolor is "none"
+                               # (an Artist without facecolor and edgecolor would be
+                               # invisible)  or if patch.force_edgecolor is True.
+#patch.force_edgecolor: False  # By default, Patches and Collections do not draw edges.
+                               # Set this to True to draw edges with patch.edgedcolor
+                               # as the default edgecolor.
+                               # This is mainly relevant for styles.
 #patch.antialiased:     True   # render patches in antialiased (no jaggies)
 
 
 ## ***************************************************************************
 ## * HATCHES                                                                 *
 ## ***************************************************************************
-#hatch.color:     black
+#hatch.color:     edge
 #hatch.linewidth: 1.0
 
 
@@ -433,6 +439,11 @@
 #axes3d.yaxis.panecolor:    (0.90, 0.90, 0.90, 0.5)  # background pane on 3D axes
 #axes3d.zaxis.panecolor:    (0.925, 0.925, 0.925, 0.5)  # background pane on 3D axes
 
+#axes3d.mouserotationstyle: arcball  # {azel, trackball, sphere, arcball}
+                            # See also https://matplotlib.org/stable/api/toolkits/mplot3d/view_angles.html#rotation-with-mouse
+#axes3d.trackballsize: 0.667  # trackball diameter, in units of the Axes bbox
+#axes3d.trackballborder: 0.2  # trackball border width, in units of the Axes bbox (only for 'sphere' and 'arcball' style)
+
 ## ***************************************************************************
 ## * AXIS                                                                    *
 ## ***************************************************************************
@@ -602,8 +613,8 @@
 ## * IMAGES                                                                  *
 ## ***************************************************************************
 #image.aspect:          equal        # {equal, auto} or a number
-#image.interpolation:   antialiased  # see help(imshow) for options
-#image.interpolation_stage: data     # see help(imshow) for options
+#image.interpolation:   auto         # see help(imshow) for options
+#image.interpolation_stage: auto     # see help(imshow) for options
 #image.cmap:            viridis      # A colormap name (plasma, magma, etc.)
 #image.lut:             256          # the size of the colormap lookup table
 #image.origin:          upper        # {lower, upper}
@@ -671,7 +682,7 @@
                   # to the nearest pixel when certain criteria are met.
                   # When False, paths will never be snapped.
 #path.sketch: None  # May be None, or a tuple of the form:
-                    #  path.sketch: (scale, length, randomness) 
+                    #  path.sketch: (scale, length, randomness)
                     # - *scale* is the amplitude of the wiggle
                     #    perpendicular to the line (in pixels).
                     # - *length* is the length of the wiggle along the
@@ -735,6 +746,8 @@
                          #     None: Assume fonts are installed on the
                          #           machine where the SVG will be viewed.
 #svg.hashsalt: None      # If not None, use this string as hash salt instead of uuid4
+#svg.id: None            # If not None, use this string as the value for the `id`
+                         # attribute in the top <svg> tag
 
 ### pgf parameter
 ## See https://matplotlib.org/stable/tutorials/text/pgf.html for more information.

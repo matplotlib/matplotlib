@@ -1,0 +1,31 @@
+``ContourSet.collections``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... has been removed.  `~.ContourSet` is now implemented as a single
+`~.Collection` of paths, each path corresponding to a contour level, possibly
+including multiple unconnected components.
+
+``ContourSet.antialiased``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... has been removed.  Use `~.Collection.get_antialiased` or
+`~.Collection.set_antialiased` instead.  Note that `~.Collection.get_antialiased`
+returns an array.
+
+``tcolors`` and ``tlinewidths`` attributes of ``ContourSet``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... have been removed.  Use `~.Collection.get_facecolor`, `~.Collection.get_edgecolor`
+or `~.Collection.get_linewidths` instead.
+
+
+``calc_label_rot_and_inline`` method of ``ContourLabeler``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... has been removed without replacement.
+
+
+``add_label_clabeltext`` method of ``ContourLabeler``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... has been removed.  Use `~.ContourLabeler.add_label` instead.

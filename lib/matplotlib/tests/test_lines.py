@@ -417,16 +417,20 @@ def test_axline_setters():
     line2 = ax.axline((.1, .1), (.8, .4))
     # Testing xy1, xy2 and slope setters.
     # This should not produce an error.
-    line1.set_xy1(.2, .3)
+    line1.set_xy1((.2, .3))
     line1.set_slope(2.4)
-    line2.set_xy1(.3, .2)
-    line2.set_xy2(.6, .8)
+    line2.set_xy1((.3, .2))
+    line2.set_xy2((.6, .8))
     # Testing xy1, xy2 and slope getters.
     # Should return the modified values.
     assert line1.get_xy1() == (.2, .3)
     assert line1.get_slope() == 2.4
     assert line2.get_xy1() == (.3, .2)
     assert line2.get_xy2() == (.6, .8)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        line1.set_xy1(.2, .3)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        line2.set_xy2(.6, .8)
     # Testing setting xy2 and slope together.
     # These test should raise a ValueError
     with pytest.raises(ValueError,
@@ -436,3 +440,14 @@ def test_axline_setters():
     with pytest.raises(ValueError,
                        match="Cannot set a 'slope' value while 'xy2' is set"):
         line2.set_slope(3)
+
+
+def test_axline_small_slope():
+    """Test that small slopes are not coerced to zero in the transform."""
+    line = plt.axline((0, 0), slope=1e-14)
+    p1 = line.get_transform().transform_point((0, 0))
+    p2 = line.get_transform().transform_point((1, 1))
+    # y-values must be slightly different
+    dy = p2[1] - p1[1]
+    assert dy > 0
+    assert dy < 4e-12

@@ -153,10 +153,10 @@ The *clippath* parameters of ``axis.Axis.set_clip_path``  and ``axis.Tick.set_cl
 renamed to *path* consistently with `.Artist.set_clip_path`.
 
 The *s* parameter of ``images.NonUniformImage.set_filternorm`` is renamed to *filternorm*
-consistently with ```_ImageBase.set_filternorm``.
+consistently with ``_ImageBase.set_filternorm``.
 
 The *s* parameter of ``images.NonUniformImage.set_filterrad`` is renamed to *filterrad*
-consistently with ```_ImageBase.set_filterrad``.
+consistently with ``_ImageBase.set_filterrad``.
 
 
 *numdecs* parameter and attribute of ``LogLocator``

@@ -4,7 +4,7 @@ from .backend_bases import FigureCanvasBase, Event, MouseEvent, MouseButton
 from .collections import LineCollection
 from .figure import Figure
 from .lines import Line2D
-from .patches import Circle, Polygon, Rectangle
+from .patches import Polygon, Rectangle
 from .text import Text
 
 import PIL.Image
@@ -276,7 +276,7 @@ class _SelectorWidget(AxesWidget):
     def __init__(
         self,
         ax: Axes,
-        onselect: Callable[[float, float], Any],
+        onselect: Callable[[float, float], Any] | None = ...,
         useblit: bool = ...,
         button: MouseButton | Collection[MouseButton] | None = ...,
         state_modifier_keys: dict[str, str] | None = ...,
@@ -294,8 +294,6 @@ class _SelectorWidget(AxesWidget):
     def on_key_release(self, event: Event) -> None: ...
     def set_visible(self, visible: bool) -> None: ...
     def get_visible(self) -> bool: ...
-    @property
-    def visible(self) -> bool: ...
     def clear(self) -> None: ...
     @property
     def artists(self) -> tuple[Artist]: ...
@@ -403,7 +401,7 @@ class RectangleSelector(_SelectorWidget):
     def __init__(
         self,
         ax: Axes,
-        onselect: Callable[[MouseEvent, MouseEvent], Any],
+        onselect: Callable[[MouseEvent, MouseEvent], Any] | None = ...,
         *,
         minspanx: float = ...,
         minspany: float = ...,
@@ -443,7 +441,7 @@ class LassoSelector(_SelectorWidget):
     def __init__(
         self,
         ax: Axes,
-        onselect: Callable[[list[tuple[float, float]]], Any],
+        onselect: Callable[[list[tuple[float, float]]], Any] | None = ...,
         *,
         useblit: bool = ...,
         props: dict[str, Any] | None = ...,
@@ -455,7 +453,7 @@ class PolygonSelector(_SelectorWidget):
     def __init__(
         self,
         ax: Axes,
-        onselect: Callable[[ArrayLike, ArrayLike], Any],
+        onselect: Callable[[ArrayLike, ArrayLike], Any] | None = ...,
         *,
         useblit: bool = ...,
         props: dict[str, Any] | None = ...,

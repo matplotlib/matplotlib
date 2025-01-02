@@ -1,0 +1,7 @@
+(Sub)Figure.get_figure
+~~~~~~~~~~~~~~~~~~~~~~
+
+...in future will by default return the direct parent figure, which may be a SubFigure.
+This will make the default behavior consistent with the
+`~matplotlib.artist.Artist.get_figure` method of other artists.  To control the
+behavior, use the newly introduced *root* parameter.

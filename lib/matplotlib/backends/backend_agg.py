@@ -31,8 +31,7 @@ from matplotlib import _api, cbook
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.font_manager import fontManager as _fontManager, get_font
-from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
-                                LOAD_DEFAULT, LOAD_NO_AUTOHINT)
+from matplotlib.ft2font import LoadFlags
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
@@ -41,16 +40,16 @@ from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
 
 def get_hinting_flag():
     mapping = {
-        'default': LOAD_DEFAULT,
-        'no_autohint': LOAD_NO_AUTOHINT,
-        'force_autohint': LOAD_FORCE_AUTOHINT,
-        'no_hinting': LOAD_NO_HINTING,
-        True: LOAD_FORCE_AUTOHINT,
-        False: LOAD_NO_HINTING,
-        'either': LOAD_DEFAULT,
-        'native': LOAD_NO_AUTOHINT,
-        'auto': LOAD_FORCE_AUTOHINT,
-        'none': LOAD_NO_HINTING,
+        'default': LoadFlags.DEFAULT,
+        'no_autohint': LoadFlags.NO_AUTOHINT,
+        'force_autohint': LoadFlags.FORCE_AUTOHINT,
+        'no_hinting': LoadFlags.NO_HINTING,
+        True: LoadFlags.FORCE_AUTOHINT,
+        False: LoadFlags.NO_HINTING,
+        'either': LoadFlags.DEFAULT,
+        'native': LoadFlags.NO_AUTOHINT,
+        'auto': LoadFlags.FORCE_AUTOHINT,
+        'none': LoadFlags.NO_HINTING,
     }
     return mapping[mpl.rcParams['text.hinting']]
 
@@ -266,10 +265,6 @@ class RendererAgg(RendererBase):
     def tostring_argb(self):
         return np.asarray(self._renderer).take([3, 0, 1, 2], axis=2).tobytes()
 
-    @_api.deprecated("3.8", alternative="buffer_rgba")
-    def tostring_rgb(self):
-        return np.asarray(self._renderer).take([0, 1, 2], axis=2).tobytes()
-
     def clear(self):
         self._renderer.clear()
 
@@ -397,16 +392,6 @@ class FigureCanvasAgg(FigureCanvasBase):
             self.renderer = RendererAgg(w, h, self.figure.dpi)
             self._lastKey = key
         return self.renderer
-
-    @_api.deprecated("3.8", alternative="buffer_rgba")
-    def tostring_rgb(self):
-        """
-        Get the image as RGB `bytes`.
-
-        `draw` must be called at least once before this function will work and
-        to update the renderer for any subsequent changes to the Figure.
-        """
-        return self.renderer.tostring_rgb()
 
     def tostring_argb(self):
         """

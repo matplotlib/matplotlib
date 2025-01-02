@@ -1,7 +1,7 @@
 """
-=================================
-Plotting cumulative distributions
-=================================
+========================
+Cumulative distributions
+========================
 
 This example shows how to plot the empirical cumulative distribution function
 (ECDF) of a sample. We also show the theoretical CDF.
@@ -66,6 +66,8 @@ for ax in axs:
 plt.show()
 
 # %%
+#
+# .. tags:: plot-type: ecdf, plot-type: histogram, domain: statistics
 #
 # .. admonition:: References
 #

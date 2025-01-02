@@ -1,4 +1,5 @@
 import collections
+import io
 import itertools
 import platform
 import time
@@ -19,7 +20,7 @@ import matplotlib.collections as mcollections
 import matplotlib.lines as mlines
 from matplotlib.legend_handler import HandlerTuple
 import matplotlib.legend as mlegend
-from matplotlib import _api, rc_context
+from matplotlib import rc_context
 from matplotlib.font_manager import FontProperties
 
 
@@ -136,19 +137,6 @@ def test_various_labels():
     ax.plot(np.linspace(4, 4.1), 'o', label='Développés')
     ax.plot(np.arange(4, 1, -1), 'o', label='__nolegend__')
     ax.legend(numpoints=1, loc='best')
-
-
-def test_legend_label_with_leading_underscore():
-    """
-    Test that artists with labels starting with an underscore are not added to
-    the legend, and that a warning is issued if one tries to add them
-    explicitly.
-    """
-    fig, ax = plt.subplots()
-    line, = ax.plot([0, 1], label='_foo')
-    with pytest.warns(_api.MatplotlibDeprecationWarning, match="with an underscore"):
-        legend = ax.legend(handles=[line])
-    assert len(legend.legend_handles) == 0
 
 
 @image_comparison(['legend_labels_first.png'], remove_text=True,
@@ -415,7 +403,7 @@ class TestLegendFunction:
             "be discarded.")
 
     def test_parasite(self):
-        from mpl_toolkits.axes_grid1 import host_subplot  # type: ignore
+        from mpl_toolkits.axes_grid1 import host_subplot  # type: ignore[import]
 
         host = host_subplot(111)
         par = host.twinx()
@@ -868,8 +856,8 @@ def test_legend_pathcollection_labelcolor_linecolor_iterable():
     # test the labelcolor for labelcolor='linecolor' on PathCollection
     # with iterable colors
     fig, ax = plt.subplots()
-    colors = np.random.default_rng().choice(['r', 'g', 'b'], 10)
-    ax.scatter(np.arange(10), np.arange(10)*1, label='#1', c=colors)
+    colors = np.array(['r', 'g', 'b', 'c', 'm'] * 2)
+    ax.scatter(np.arange(10), np.arange(10), label='#1', c=colors)
 
     leg = ax.legend(labelcolor='linecolor')
     text, = leg.get_texts()
@@ -915,8 +903,8 @@ def test_legend_pathcollection_labelcolor_markeredgecolor_iterable():
     # test the labelcolor for labelcolor='markeredgecolor' on PathCollection
     # with iterable colors
     fig, ax = plt.subplots()
-    colors = np.random.default_rng().choice(['r', 'g', 'b'], 10)
-    ax.scatter(np.arange(10), np.arange(10)*1, label='#1', edgecolor=colors)
+    colors = np.array(['r', 'g', 'b', 'c', 'm'] * 2)
+    ax.scatter(np.arange(10), np.arange(10), label='#1', edgecolor=colors)
 
     leg = ax.legend(labelcolor='markeredgecolor')
     for text, color in zip(leg.get_texts(), ['k']):
@@ -970,8 +958,8 @@ def test_legend_pathcollection_labelcolor_markerfacecolor_iterable():
     # test the labelcolor for labelcolor='markerfacecolor' on PathCollection
     # with iterable colors
     fig, ax = plt.subplots()
-    colors = np.random.default_rng().choice(['r', 'g', 'b'], 10)
-    ax.scatter(np.arange(10), np.arange(10)*1, label='#1', facecolor=colors)
+    colors = np.array(['r', 'g', 'b', 'c', 'm'] * 2)
+    ax.scatter(np.arange(10), np.arange(10), label='#1', facecolor=colors)
 
     leg = ax.legend(labelcolor='markerfacecolor')
     for text, color in zip(leg.get_texts(), ['k']):
@@ -1259,7 +1247,7 @@ def test_subfigure_legend():
     ax = subfig.subplots()
     ax.plot([0, 1], [0, 1], label="line")
     leg = subfig.legend()
-    assert leg.figure is subfig
+    assert leg.get_figure(root=False) is subfig
 
 
 def test_setting_alpha_keeps_polycollection_color():
@@ -1438,6 +1426,21 @@ def test_legend_text():
         leg_bboxes.append(
             leg.get_window_extent().transformed(ax.transAxes.inverted()))
     assert_allclose(leg_bboxes[1].bounds, leg_bboxes[0].bounds)
+
+
+def test_legend_annotate():
+    fig, ax = plt.subplots()
+
+    ax.plot([1, 2, 3], label="Line")
+    ax.annotate("a", xy=(1, 1))
+    ax.legend(loc=0)
+
+    with mock.patch.object(
+            fig, '_get_renderer', wraps=fig._get_renderer) as mocked_get_renderer:
+        fig.savefig(io.BytesIO())
+
+    # Finding the legend position should not require _get_renderer to be called
+    mocked_get_renderer.assert_not_called()
 
 
 def test_boxplot_legend_labels():
