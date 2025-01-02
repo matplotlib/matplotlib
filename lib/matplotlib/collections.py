@@ -1247,8 +1247,8 @@ class PolyCollection(_CollectionWithSizes):
             # Creating the codes once is much faster than having Path do it
             # separately each time by passing closed=True.
             codes = np.empty(verts_pad.shape[1], dtype=mpath.Path.code_type)
-            codes[:] = mpath.Path.LINETO
             codes[0] = mpath.Path.MOVETO
+            codes[1:-1] = mpath.Path.LINETO
             codes[-1] = mpath.Path.CLOSEPOLY
             self._paths = [mpath.Path(xy, codes) for xy in verts_pad]
             return
