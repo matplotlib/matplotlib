@@ -179,14 +179,13 @@ class Text3D(mtext.Text):
     @artist.allow_rasterization
     def draw(self, renderer):
         if self._axlim_clip:
-            xs, ys, zs = _viewlim_mask(self._x, self._y, self._z, self.axes)
-            position3d = np.ma.row_stack((xs, ys, zs)).ravel().filled(np.nan)
+            mask = _viewlim_mask(self._x, self._y, self._z, self.axes)
+            pos3d = np.ma.array((self._x, self._y, self._z),
+                                dtype=float, mask=mask).filled(np.nan)
         else:
-            xs, ys, zs = self._x, self._y, self._z
-            position3d = np.asanyarray([xs, ys, zs])
+            pos3d = np.asanyarray([self._x, self._y, self._z])
 
-        proj = proj3d._proj_trans_points(
-            [position3d, position3d + self._dir_vec], self.axes.M)
+        proj = proj3d._proj_trans_points([pos3d, pos3d + self._dir_vec], self.axes.M)
         dx = proj[0][1] - proj[0][0]
         dy = proj[1][1] - proj[1][0]
         angle = math.degrees(math.atan2(dy, dx))
