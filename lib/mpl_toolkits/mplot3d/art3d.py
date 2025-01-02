@@ -309,7 +309,9 @@ class Line3D(lines.Line2D):
     @artist.allow_rasterization
     def draw(self, renderer):
         if self._axlim_clip:
-            xs3d, ys3d, zs3d = _viewlim_mask(*self._verts3d, self.axes)
+            mask = _viewlim_mask(*self._verts3d, self.axes)
+            xs3d, ys3d, zs3d = np.ma.array(self._verts3d,
+                                           dtype=float, mask=mask).filled(np.nan)
         else:
             xs3d, ys3d, zs3d = self._verts3d
         xs, ys, zs, tis = proj3d._proj_transform_clip(xs3d, ys3d, zs3d,
@@ -527,7 +529,9 @@ class Patch3D(Patch):
     def do_3d_projection(self):
         s = self._segment3d
         if self._axlim_clip:
-            xs, ys, zs = _viewlim_mask(*zip(*s), self.axes)
+            mask = _viewlim_mask(*zip(*s), self.axes)
+            xs, ys, zs = np.ma.array(zip(*s),
+                                     dtype=float, mask=mask).filled(np.nan)
         else:
             xs, ys, zs = zip(*s)
         vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
@@ -583,7 +587,9 @@ class PathPatch3D(Patch3D):
     def do_3d_projection(self):
         s = self._segment3d
         if self._axlim_clip:
-            xs, ys, zs = _viewlim_mask(*zip(*s), self.axes)
+            mask = _viewlim_mask(*zip(*s), self.axes)
+            xs, ys, zs = np.ma.array(zip(*s),
+                                     dtype=float, mask=mask).filled(np.nan)
         else:
             xs, ys, zs = zip(*s)
         vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
