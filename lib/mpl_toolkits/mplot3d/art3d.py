@@ -448,22 +448,27 @@ class Line3DCollection(LineCollection):
         """
         Project the points according to renderer matrix.
         """
-        segments = self._segments3d
+        segments = np.asanyarray(self._segments3d)
+
+        mask = False
+        if np.ma.isMA(segments):
+            mask = segments.mask
+
         if self._axlim_clip:
-            all_points = np.ma.vstack(segments)
-            masked_points = np.ma.column_stack([*_viewlim_mask(*all_points.T,
-                                                               self.axes)])
-            segment_lengths = [np.shape(segment)[0] for segment in segments]
-            segments = np.split(masked_points, np.cumsum(segment_lengths[:-1]))
-        xyslist = [proj3d._proj_trans_points(points, self.axes.M)
-                   for points in segments]
-        segments_2d = [np.ma.column_stack([xs, ys]) for xs, ys, zs in xyslist]
+            viewlim_mask = _viewlim_mask(segments[..., 0],
+                                         segments[..., 1],
+                                         segments[..., 2],
+                                         self.axes)
+            if np.any(viewlim_mask):
+                # broadcast mask to 3D
+                viewlim_mask = viewlim_mask[..., np.newaxis].repeat(3, axis=-1)
+                mask = mask | viewlim_mask
+        xyzs = np.ma.array(proj3d._proj_transform_vectors(segments, self.axes.M), mask=mask)
+        segments_2d = xyzs[..., 0:2]
         LineCollection.set_segments(self, segments_2d)
 
         # FIXME
-        minz = 1e9
-        for xs, ys, zs in xyslist:
-            minz = min(minz, min(zs))
+        minz = min(xyzs[..., 2].min(), 1e9)
         return minz
 
 
@@ -853,11 +858,17 @@ class Path3DCollection(PathCollection):
         self.stale = True
 
     def do_3d_projection(self):
+        mask = False
+        for xyz in self._offsets3d:
+            if np.ma.isMA(xyz):
+                mask = mask | xyz.mask
         if self._axlim_clip:
-            xs, ys, zs = _viewlim_mask(*self._offsets3d, self.axes)
+            mask = mask | _viewlim_mask(*self._offsets3d, self.axes)
+            mask = np.broadcast_to(mask, (len(self._offsets3d), *self._offsets3d[0].shape))
+            xyzs = np.ma.array(self._offsets3d, mask=mask)
         else:
-            xs, ys, zs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
+            xyzs = self._offsets3d
+        vxs, vys, vzs, vis = proj3d._proj_transform_clip(*xyzs,
                                                          self.axes.M,
                                                          self.axes._focal_length)
         # Sort the points based on z coordinates
