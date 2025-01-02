@@ -77,8 +77,8 @@ class Path:
         data changes.
     """
     __slots__ = ('_vertices', '_codes', '_readonly',
-                '_should_simplify', '_simplify_threshold',
-                '_interpolation_steps', '__weakref__')
+                 '_should_simplify', '_simplify_threshold',
+                 '_interpolation_steps', '__weakref__')
 
     code_type = np.uint8
 
