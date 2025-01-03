@@ -76,6 +76,9 @@ class Path:
         made up front in the constructor that will not change when the
         data changes.
     """
+    __slots__ = ('_vertices', '_codes', '_readonly',
+                 '_should_simplify', '_simplify_threshold',
+                 '_interpolation_steps', '__weakref__')
 
     code_type = np.uint8
 
