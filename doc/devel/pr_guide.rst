@@ -230,11 +230,14 @@ unsure why a test is failing, ask on the PR or in our :ref:`communication-channe
 Number of commits and squashing
 -------------------------------
 
-* Squashing is case-by-case.  The balance is between burden on the
-  contributor, keeping a relatively clean history, and keeping a
-  history usable for bisecting.  The only time we are really strict
-  about it is to eliminate binary files (ex multiple test image
-  re-generations) and to remove upstream merges.
+* The default and preferred method of merging code into the main branch
+  is to squash merge commits so that a single clean and usable
+  commit is in the git history. The commit message should be cleaned up
+  by the person merging so that the git history has useful messages
+  when going through the history. If the commits are organized and contain
+  useful messages, the PR author can ask the person merging to not squash
+  the commits. This is done on a case-by-case basis and at the discretion
+  of the person merging.
 
 * Do not let perfect be the enemy of the good, particularly for
   documentation or example PRs.  If you find yourself making many
