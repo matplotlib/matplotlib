@@ -105,6 +105,10 @@ class Collection(mcolorizer.ColorizingArtist):
             facecolor.
         facecolors : :mpltype:`color` or list of colors, default: :rc:`patch.facecolor`
             Face color for each patch making up the collection.
+        hatchcolors : :mpltype:`color` or list of colors, default: :rc:`hatch.color`
+            Hatch color for each patch making up the collection. The special
+            value 'edge' can be passed to make the hatchcolor match the
+            edgecolor.
         linewidths : float or list of floats, default: :rc:`patch.linewidth`
             Line width for each patch making up the collection.
         linestyles : str or tuple or list thereof, default: 'solid'
@@ -754,7 +758,7 @@ class Collection(mcolorizer.ColorizingArtist):
 
     def set_color(self, c):
         """
-        Set both the edgecolor and the facecolor.
+        Sets the edgecolor, facecolor and hatchcolor.
 
         Parameters
         ----------
@@ -767,6 +771,7 @@ class Collection(mcolorizer.ColorizingArtist):
         """
         self.set_facecolor(c)
         self.set_edgecolor(c)
+        self.set_hatchcolor(c)
 
     def _get_default_facecolor(self):
         # This may be overridden in a subclass.
@@ -811,7 +816,7 @@ class Collection(mcolorizer.ColorizingArtist):
 
     def get_hatchcolor(self):
         if cbook._str_equal(self._hatchcolors, 'edge'):
-            if self.get_edgecolor().size == 0:
+            if len(self.get_edgecolor()) == 0:
                 return mpl.colors.to_rgba_array(self._get_default_edgecolor(),
                                                 self._alpha)
             return self.get_edgecolor()
@@ -852,7 +857,7 @@ class Collection(mcolorizer.ColorizingArtist):
 
     def _set_hatchcolor(self, c):
         c = mpl._val_or_rc(c, 'hatch.color')
-        if c == 'edge':
+        if cbook._str_equal(c, 'edge'):
             self._hatchcolors = 'edge'
         else:
             self._hatchcolors = mcolors.to_rgba_array(c, self._alpha)
@@ -868,8 +873,6 @@ class Collection(mcolorizer.ColorizingArtist):
             The collection hatchcolor(s).  If a sequence, the patches cycle
             through it.
         """
-        if cbook._str_equal(c, 'edge'):
-            c = 'edge'
         self._original_hatchcolor = c
         self._set_hatchcolor(c)
 
@@ -888,6 +891,7 @@ class Collection(mcolorizer.ColorizingArtist):
         artist.Artist._set_alpha_for_array(self, alpha)
         self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
+        self._set_hatchcolor(self._original_hatchcolor)
 
     set_alpha.__doc__ = artist.Artist._set_alpha_for_array.__doc__
 
