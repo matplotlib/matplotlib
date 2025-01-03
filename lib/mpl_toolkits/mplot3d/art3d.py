@@ -467,7 +467,8 @@ class Line3DCollection(LineCollection):
                 # broadcast mask to 3D
                 viewlim_mask = viewlim_mask[..., np.newaxis].repeat(3, axis=-1)
                 mask = mask | viewlim_mask
-        xyzs = np.ma.array(proj3d._proj_transform_vectors(segments, self.axes.M), mask=mask)
+        xyzs = np.ma.array(proj3d._proj_transform_vectors(segments, self.axes.M),
+                           mask=mask)
         segments_2d = xyzs[..., 0:2]
         LineCollection.set_segments(self, segments_2d)
 
@@ -875,7 +876,8 @@ class Path3DCollection(PathCollection):
                 mask = mask | xyz.mask
         if self._axlim_clip:
             mask = mask | _viewlim_mask(*self._offsets3d, self.axes)
-            mask = np.broadcast_to(mask, (len(self._offsets3d), *self._offsets3d[0].shape))
+            mask = np.broadcast_to(mask,
+                                   (len(self._offsets3d), *self._offsets3d[0].shape))
             xyzs = np.ma.array(self._offsets3d, mask=mask)
         else:
             xyzs = self._offsets3d
@@ -1086,13 +1088,14 @@ class Poly3DCollection(PolyCollection):
         return self._get_vector(segments3d)
 
     def _get_vector(self, segments3d):
-        """Optimize points for projection.
+        """
+        Optimize points for projection.
 
         Parameters
         ----------
         segments3d : NumPy array or list of NumPy arrays
             List of vertices of the boundary of every segment. If all paths are
-            of equal length and this argument is a NumPy arrray, then it should
+            of equal length and this argument is a NumPy array, then it should
             be of shape (num_faces, num_vertices, 3).
         """
         if isinstance(segments3d, np.ndarray):
@@ -1177,7 +1180,6 @@ class Poly3DCollection(PolyCollection):
                 self._facecolor3d = self._facecolors
             if self._edge_is_mapped:
                 self._edgecolor3d = self._edgecolors
-
 
         needs_masking = np.any(self._invalid_vertices)
         num_faces = len(self._faces)
