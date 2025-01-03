@@ -133,15 +133,10 @@ def _ortho_transformation(zfront, zback):
 
 def _proj_transform_vec(vec, M):
     vecw = np.dot(M, vec.data)
-    w = vecw[3]
-    txs, tys, tzs = vecw[0]/w, vecw[1]/w, vecw[2]/w
-    if np.ma.isMA(vec[0]):  # we check each to protect for scalars
-        txs = np.ma.array(txs, mask=vec[0].mask)
-    if np.ma.isMA(vec[1]):
-        tys = np.ma.array(tys, mask=vec[1].mask)
-    if np.ma.isMA(vec[2]):
-        tzs = np.ma.array(tzs, mask=vec[2].mask)
-    return txs, tys, tzs
+    ts = vecw[0:3]/vecw[3]
+    if np.ma.isMA(vec):
+        ts = np.ma.array(ts, mask=vec.mask)
+    return ts[0], ts[1], ts[2]
 
 
 def _proj_transform_vectors(vecs, M):
