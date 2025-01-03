@@ -34,13 +34,6 @@
     "lines": [
       "lib/matplotlib/colorbar.py:docstring of matplotlib.colorbar.Colorbar.add_lines:4"
     ],
-    "matplotlib.axes.Axes.patch": [
-      "doc/tutorials/artists.rst:185",
-      "doc/tutorials/artists.rst:424"
-    ],
-    "matplotlib.axes.Axes.patches": [
-      "doc/tutorials/artists.rst:462"
-    ],
     "matplotlib.axes.Axes.transAxes": [
       "lib/mpl_toolkits/axes_grid1/anchored_artists.py:docstring of mpl_toolkits.axes_grid1.anchored_artists.AnchoredDirectionArrows:8"
     ],
@@ -49,19 +42,10 @@
       "lib/mpl_toolkits/axes_grid1/anchored_artists.py:docstring of mpl_toolkits.axes_grid1.anchored_artists.AnchoredSizeBar:8"
     ],
     "matplotlib.axes.Axes.xaxis": [
-      "doc/tutorials/artists.rst:608",
       "doc/users/explain/axes/axes_intro.rst:133"
     ],
     "matplotlib.axes.Axes.yaxis": [
-      "doc/tutorials/artists.rst:608",
       "doc/users/explain/axes/axes_intro.rst:133"
-    ],
-    "matplotlib.figure.Figure.patch": [
-      "doc/tutorials/artists.rst:185",
-      "doc/tutorials/artists.rst:318"
-    ],
-    "matplotlib.figure.Figure.transFigure": [
-      "doc/tutorials/artists.rst:367"
     ],
     "max": [
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.Bbox.p1:4"
@@ -118,15 +102,6 @@
     ],
     "matplotlib.axes._base._AxesBase": [
       "doc/api/artist_api.rst:202"
-    ],
-    "matplotlib.backend_bases.FigureCanvas": [
-      "doc/tutorials/artists.rst:33",
-      "doc/tutorials/artists.rst:35",
-      "doc/tutorials/artists.rst:40"
-    ],
-    "matplotlib.backend_bases.Renderer": [
-      "doc/tutorials/artists.rst:35",
-      "doc/tutorials/artists.rst:40"
     ],
     "matplotlib.backend_bases._Backend": [
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.ShowBase:1"
@@ -294,36 +269,36 @@
       "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Barbs:9"
     ],
     "matplotlib.collections._CollectionWithSizes.set_sizes": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.barbs:180",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.broken_barh:85",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.fill_between:122",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.fill_betweenx:122",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.hexbin:218",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.pcolor:187",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.quiver:256",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.scatter:174",
-      "lib/matplotlib/collections.py:docstring of matplotlib.artist.AsteriskPolygonCollection.set:45",
-      "lib/matplotlib/collections.py:docstring of matplotlib.artist.CircleCollection.set:45",
-      "lib/matplotlib/collections.py:docstring of matplotlib.artist.FillBetweenPolyCollection.set:46",
-      "lib/matplotlib/collections.py:docstring of matplotlib.artist.PathCollection.set:45",
-      "lib/matplotlib/collections.py:docstring of matplotlib.artist.PolyCollection.set:45",
-      "lib/matplotlib/collections.py:docstring of matplotlib.artist.PolyQuadMesh.set:45",
-      "lib/matplotlib/collections.py:docstring of matplotlib.artist.RegularPolyCollection.set:45",
-      "lib/matplotlib/collections.py:docstring of matplotlib.artist.StarPolygonCollection.set:45",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.barbs:180",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.broken_barh:85",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.fill_between:122",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.fill_betweenx:122",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.hexbin:218",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.pcolor:187",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.quiver:256",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.scatter:174",
-      "lib/matplotlib/quiver.py:docstring of matplotlib.artist.Barbs.set:46",
-      "lib/matplotlib/quiver.py:docstring of matplotlib.artist.Quiver.set:46",
-      "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Barbs:213",
-      "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Quiver:292",
-      "lib/mpl_toolkits/mplot3d/art3d.py:docstring of matplotlib.artist.Path3DCollection.set:47",
-      "lib/mpl_toolkits/mplot3d/art3d.py:docstring of matplotlib.artist.Poly3DCollection.set:46"
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.barbs:181",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.broken_barh:86",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.fill_between:123",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.fill_betweenx:123",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.hexbin:219",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.pcolor:188",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.quiver:257",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.scatter:175",
+      "lib/matplotlib/collections.py:docstring of matplotlib.artist.AsteriskPolygonCollection.set:46",
+      "lib/matplotlib/collections.py:docstring of matplotlib.artist.CircleCollection.set:46",
+      "lib/matplotlib/collections.py:docstring of matplotlib.artist.FillBetweenPolyCollection.set:47",
+      "lib/matplotlib/collections.py:docstring of matplotlib.artist.PathCollection.set:46",
+      "lib/matplotlib/collections.py:docstring of matplotlib.artist.PolyCollection.set:46",
+      "lib/matplotlib/collections.py:docstring of matplotlib.artist.PolyQuadMesh.set:46",
+      "lib/matplotlib/collections.py:docstring of matplotlib.artist.RegularPolyCollection.set:46",
+      "lib/matplotlib/collections.py:docstring of matplotlib.artist.StarPolygonCollection.set:46",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.barbs:181",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.broken_barh:86",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.fill_between:123",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.fill_betweenx:123",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.hexbin:219",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.pcolor:188",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.quiver:257",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.scatter:175",
+      "lib/matplotlib/quiver.py:docstring of matplotlib.artist.Barbs.set:47",
+      "lib/matplotlib/quiver.py:docstring of matplotlib.artist.Quiver.set:47",
+      "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Barbs:214",
+      "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Quiver:293",
+      "lib/mpl_toolkits/mplot3d/art3d.py:docstring of matplotlib.artist.Path3DCollection.set:48",
+      "lib/mpl_toolkits/mplot3d/art3d.py:docstring of matplotlib.artist.Poly3DCollection.set:47"
     ],
     "matplotlib.collections._MeshData.set_array": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.pcolormesh:168",
@@ -341,12 +316,6 @@
     ],
     "Image": [
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.gci:4"
-    ],
-    "Line2D.pick": [
-      "doc/users/explain/figure/event_handling.rst:571"
-    ],
-    "Rectangle.contains": [
-      "doc/users/explain/figure/event_handling.rst:285"
     ],
     "Size.from_any": [
       "lib/mpl_toolkits/axes_grid1/axes_grid.py:docstring of mpl_toolkits.axes_grid1.axes_grid.ImageGrid:87"
