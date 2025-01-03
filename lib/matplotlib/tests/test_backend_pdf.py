@@ -368,6 +368,101 @@ def test_kerning():
     fig.text(0, .75, s, size=20)
 
 
+def test_image_url():
+    pikepdf = pytest.importorskip('pikepdf')
+
+    image_url = 'https://test_image_urls.matplotlib.org/'
+    image_url2 = 'https://test_image_urls2.matplotlib.org/'
+
+    X, Y = np.meshgrid(np.arange(-5, 5, 1), np.arange(-5, 5, 1))
+    Z = np.sin(Y ** 2)
+    fig, ax = plt.subplots()
+    ax.imshow(Z, extent=[0, 1, 0, 1], url=image_url)
+    with io.BytesIO() as fd:
+        fig.savefig(fd, format="pdf")
+        with pikepdf.Pdf.open(fd) as pdf:
+            annots = pdf.pages[0].Annots
+
+            # Iteration over Annots must occur within the context manager,
+            # otherwise it may fail depending on the pdf structure.
+            annot = next(
+                (a for a in annots if a.A.URI == image_url),
+                None)
+            assert annot is not None
+            # Positions in points (72 per inch.)
+            assert annot.Rect == [decimal.Decimal('122.4'),
+                                  decimal.Decimal('43.2'),
+                                  468,
+                                  decimal.Decimal('388.8')]
+    ax.set_xlim(0, 3)
+    ax.imshow(Z[::-1], extent=[2, 3, 0, 1], url=image_url2)
+    # Must save as separate images
+    plt.rcParams['image.composite_image'] = False
+    with io.BytesIO() as fd:
+        fig.savefig(fd, format="pdf")
+        with pikepdf.Pdf.open(fd) as pdf:
+            annots = pdf.pages[0].Annots
+
+            # Iteration over Annots must occur within the context manager,
+            # otherwise it may fail depending on the pdf structure.
+            annot = next(
+                (a for a in annots if a.A.URI == image_url2),
+                None)
+            assert annot is not None
+            # Positions in points (72 per inch.)
+            assert annot.Rect == [decimal.Decimal('369.6'),
+                                  decimal.Decimal('141.6'),
+                                  decimal.Decimal('518.64'),
+                                  decimal.Decimal('290.64')]
+
+
+def test_transformed_image_url():
+    pikepdf = pytest.importorskip('pikepdf')
+
+    image_url = 'https://test_image_urls.matplotlib.org/'
+
+    X, Y = np.meshgrid(np.arange(-5, 5, 1), np.arange(-5, 5, 1))
+    Z = np.sin(Y ** 2)
+    fig, ax = plt.subplots()
+    im = ax.imshow(Z, interpolation='none', url=image_url)
+    with io.BytesIO() as fd:
+        fig.savefig(fd, format="pdf")
+        with pikepdf.Pdf.open(fd) as pdf:
+            annots = pdf.pages[0].Annots
+
+            # Iteration over Annots must occur within the context manager,
+            # otherwise it may fail depending on the pdf structure.
+            annot = next(
+                (a for a in annots if a.A.URI == image_url),
+                None)
+            assert annot is not None
+            # Positions in points (72 per inch.)
+            assert annot.Rect == [decimal.Decimal('122.4'),
+                                  decimal.Decimal('43.2'),
+                                  decimal.Decimal('468.4'),
+                                  decimal.Decimal('389.2')]
+            assert getattr(annot, 'QuadPoints', None) is None
+    # Transform
+    im.set_transform(mpl.transforms.Affine2D().skew_deg(30, 15) + ax.transData)
+    with io.BytesIO() as fd:
+        fig.savefig(fd, format="pdf")
+        with pikepdf.Pdf.open(fd) as pdf:
+            annots = pdf.pages[0].Annots
+
+            # Iteration over Annots must occur within the context manager,
+            # otherwise it may fail depending on the pdf structure.
+            annot = next(
+                (a for a in annots if a.A.URI == image_url),
+                None)
+            assert annot is not None
+            # Positions in points (72 per inch.)
+            assert annot.Rect[0] == decimal.Decimal('112.411830343')
+            assert getattr(annot, 'QuadPoints', None) is not None
+            # Positions in points (72 per inch)
+            assert annot.Rect[0] == \
+               annot.QuadPoints[0] - decimal.Decimal('0.00001')
+
+
 def test_glyphs_subset():
     fpath = str(_get_data_path("fonts/ttf/DejaVuSerif.ttf"))
     chars = "these should be subsetted! 1234567890"
