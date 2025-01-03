@@ -462,6 +462,18 @@ def test_twinx_axis_scales():
     ax2.margins(0, 0)
 
 
+@pytest.mark.parametrize('twin', ('x', 'y'))
+def test_twin_moved(twin):
+    fig, ax = plt.subplots()
+    # test twinx or twiny
+    ax_twin = getattr(ax, f'twin{twin}')()
+    ax.set_position([0.2, 0.2, 0.5, 0.5])
+    fig.draw_without_rendering()
+
+    assert_array_equal(ax.bbox.extents,
+                       ax_twin.bbox.extents)
+
+
 def test_twin_inherit_autoscale_setting():
     fig, ax = plt.subplots()
     ax_x_on = ax.twinx()
