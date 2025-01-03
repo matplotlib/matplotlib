@@ -232,7 +232,11 @@ def is_color_like(c):
 
 
 def _has_alpha_channel(c):
-    """Return whether *c* is a color with an alpha channel"""
+    """Return whether *c* is a color with an alpha channel.
+
+    If *c* is not a valid color specifier, then the result is
+    undefined but will return False.
+    """
     # if c is a hex, it has an alpha channel when it has 4 (or 8) digits after '#'
     if isinstance(c, str):
         if c[0] == '#' and (len(c) == 5 or len(c) == 9):
@@ -251,7 +255,7 @@ def _has_alpha_channel(c):
             # example: ([0.5, 0.5, 0.5, 0.5], None) or ('r', 0.5)
             return True
 
-    # otherwise it doesn't have an alpha channel
+    # otherwise it doesn't have an alpha channel (or is not a valid color specifier)
     return False
 
 
