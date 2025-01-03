@@ -467,12 +467,16 @@ class Line3DCollection(LineCollection):
                 # broadcast mask to 3D
                 viewlim_mask = viewlim_mask[..., np.newaxis].repeat(3, axis=-1)
                 mask = mask | viewlim_mask
-        xyzs = np.ma.array(proj3d._proj_transform_vectors(segments, self.axes.M), mask=mask)
+        xyzs = np.ma.array(proj3d._proj_transform_vectors(segments, self.axes.M),
+                           mask=mask)
         segments_2d = xyzs[..., 0:2]
         LineCollection.set_segments(self, segments_2d)
 
         # FIXME
-        minz = min(xyzs[..., 2].min(), 1e9)
+        if len(xyzs) > 0:
+            minz = min(xyzs[..., 2].min(), 1e9)
+        else:
+            minz = np.nan
         return minz
 
 
@@ -872,7 +876,8 @@ class Path3DCollection(PathCollection):
                 mask = mask | xyz.mask
         if self._axlim_clip:
             mask = mask | _viewlim_mask(*self._offsets3d, self.axes)
-            mask = np.broadcast_to(mask, (len(self._offsets3d), *self._offsets3d[0].shape))
+            mask = np.broadcast_to(mask,
+                                   (len(self._offsets3d), *self._offsets3d[0].shape))
             xyzs = np.ma.array(self._offsets3d, mask=mask)
         else:
             xyzs = self._offsets3d
@@ -1083,13 +1088,14 @@ class Poly3DCollection(PolyCollection):
         return self._get_vector(segments3d)
 
     def _get_vector(self, segments3d):
-        """Optimize points for projection.
+        """
+        Optimize points for projection.
 
         Parameters
         ----------
         segments3d : NumPy array or list of NumPy arrays
             List of vertices of the boundary of every segment. If all paths are
-            of equal length and this argument is a NumPy arrray, then it should
+            of equal length and this argument is a NumPy array, then it should
             be of shape (num_faces, num_vertices, 3).
         """
         if isinstance(segments3d, np.ndarray):
@@ -1175,8 +1181,7 @@ class Poly3DCollection(PolyCollection):
             if self._edge_is_mapped:
                 self._edgecolor3d = self._edgecolors
 
-
-        needs_masking = self._invalid_vertices is not False
+        needs_masking = np.any(self._invalid_vertices)
         num_faces = len(self._faces)
         mask = self._invalid_vertices
 
@@ -1207,13 +1212,19 @@ class Poly3DCollection(PolyCollection):
             else:
                 cedge = cedge.repeat(num_faces, axis=0)
 
-        face_z = self._zsortfunc(pzs, axis=-1)
+        if len(pzs) > 0:
+            face_z = self._zsortfunc(pzs, axis=-1)
+        else:
+            face_z = pzs
         if needs_masking:
             face_z = face_z.data
         face_order = np.argsort(face_z, axis=-1)[::-1]
 
-        faces_2d = pfaces[face_order, :, :2]
-        if self._codes3d is not None:
+        if len(pfaces) > 0:
+            faces_2d = pfaces[face_order, :, :2]
+        else:
+            faces_2d = pfaces
+        if self._codes3d is not None and len(self._codes3d) > 0:
             if needs_masking:
                 segment_mask = ~mask[face_order, :]
                 faces_2d = [face[mask, :] for face, mask
@@ -1221,7 +1232,7 @@ class Poly3DCollection(PolyCollection):
             codes = [self._codes3d[idx] for idx in face_order]
             PolyCollection.set_verts_and_codes(self, faces_2d, codes)
         else:
-            if needs_masking:
+            if needs_masking and len(faces_2d) > 0:
                 invalid_vertices_2d = np.broadcast_to(
                     mask[face_order, :, None],
                     faces_2d.shape)
@@ -1229,8 +1240,11 @@ class Poly3DCollection(PolyCollection):
                         faces_2d, mask=invalid_vertices_2d)
             PolyCollection.set_verts(self, faces_2d, self._closed)
 
-        self._facecolors2d = cface[face_order]
-        if len(self._edgecolor3d) == len(cface):
+        if len(cface) > 0:
+            self._facecolors2d = cface[face_order]
+        else:
+            self._facecolors2d = cface
+        if len(self._edgecolor3d) == len(cface) and len(cedge) > 0:
             self._edgecolors2d = cedge[face_order]
         else:
             self._edgecolors2d = self._edgecolor3d

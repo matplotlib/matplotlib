@@ -140,7 +140,9 @@ def _proj_transform_vec(vec, M):
 
 
 def _proj_transform_vectors(vecs, M):
-    """Vectorized version of ``_proj_transform_vec``.
+    """
+    Vectorized version of ``_proj_transform_vec``.
+
     Parameters
     ----------
     vecs : ... x 3 np.ndarray
