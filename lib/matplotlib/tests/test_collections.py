@@ -1384,3 +1384,72 @@ def test_hatch_linewidth(fig_test, fig_ref):
     ax_test.add_collection(test)
 
     assert test.get_hatch_linewidth() == ref.get_hatch_linewidth() == lw
+
+
+def test_collection_hatchcolor_inherit_logic():
+    from matplotlib.collections import PathCollection
+    path = mpath.Path.unit_rectangle()
+
+    colors_1 = ['purple', 'red', 'green', 'yellow']
+    colors_2 = ['orange', 'cyan', 'blue', 'magenta']
+    with mpl.rc_context({'hatch.color': 'edge'}):
+        # edgecolor and hatchcolor is set
+        col = PathCollection([path], hatch='//',
+                              edgecolor=colors_1, hatchcolor=colors_2)
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(colors_2))
+
+        # explicitly setting edgecolor and then hatchcolor
+        col = PathCollection([path], hatch='//')
+        col.set_edgecolor(colors_1)
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(colors_1))
+        col.set_hatchcolor(colors_2)
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(colors_2))
+
+        # explicitly setting hatchcolor and then edgecolor
+        col = PathCollection([path], hatch='//')
+        col.set_hatchcolor(colors_1)
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(colors_1))
+        col.set_edgecolor(colors_2)
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(colors_1))
+
+
+def test_collection_hatchcolor_fallback_logic():
+    from matplotlib.collections import PathCollection
+    path = mpath.Path.unit_rectangle()
+
+    colors_1 = ['purple', 'red', 'green', 'yellow']
+    colors_2 = ['orange', 'cyan', 'blue', 'magenta']
+
+    # hatchcolor parameter should take precedence over rcParam
+    # When edgecolor is not set
+    with mpl.rc_context({'hatch.color': 'green'}):
+        col = PathCollection([path], hatch='//', hatchcolor=colors_1)
+    assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(colors_1))
+    # When edgecolor is set
+    with mpl.rc_context({'hatch.color': 'green'}):
+        col = PathCollection([path], hatch='//',
+                             edgecolor=colors_2, hatchcolor=colors_1)
+    assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(colors_1))
+
+    # hatchcolor should not be overridden by edgecolor when
+    # hatchcolor parameter is not passed and hatch.color rcParam is set to a color
+    with mpl.rc_context({'hatch.color': 'green'}):
+        col = PathCollection([path], hatch='//')
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array('green'))
+        col.set_edgecolor(colors_1)
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array('green'))
+
+    # hatchcolor should match edgecolor when
+    # hatchcolor parameter is not passed and hatch.color rcParam is set to 'edge'
+    with mpl.rc_context({'hatch.color': 'edge'}):
+        col = PathCollection([path], hatch='//', edgecolor=colors_1)
+    assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(colors_1))
+    # hatchcolor parameter is set to 'edge'
+    col = PathCollection([path], hatch='//', edgecolor=colors_1, hatchcolor='edge')
+    assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(colors_1))
+
+    # default hatchcolor should be used when hatchcolor parameter is not passed and
+    # hatch.color rcParam is set to 'edge' and edgecolor is not set
+    col = PathCollection([path], hatch='//')
+    assert_array_equal(col.get_hatchcolor(),
+                       mpl.colors.to_rgba_array(mpl.rcParams['patch.edgecolor']))
