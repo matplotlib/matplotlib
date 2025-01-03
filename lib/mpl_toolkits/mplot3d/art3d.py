@@ -402,7 +402,8 @@ class Collection3D(Collection):
         """Project the points according to renderer matrix."""
         vs_list = [vs for vs, _ in self._3dverts_codes]
         if self._axlim_clip:
-            vs_list = [np.ma.row_stack(_viewlim_mask(*vs.T, self.axes)).T
+            vs_list = [np.ma.array(vs, mask=np.broadcast_to(
+                       _viewlim_mask(*vs.T, self.axes), vs.shape))
                        for vs in vs_list]
         xyzs_list = [proj3d.proj_transform(*vs.T, self.axes.M) for vs in vs_list]
         self._paths = [mpath.Path(np.ma.column_stack([xs, ys]), cs)
