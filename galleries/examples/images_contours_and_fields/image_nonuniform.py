@@ -3,9 +3,12 @@
 Image nonuniform
 ================
 
-This illustrates the NonUniformImage class.  It is not
-available via an Axes method, but it is easily added to an
-Axes instance as shown here.
+`.NonUniformImage` is a generalized image with pixels on a rectilinear grid,
+i.e. it allows rows and columns with individual heights / widths.
+
+There is no high-level plotting method on `~.axes.Axes` or `.pyplot` to
+create a NonUniformImage. Instead, you have to instantiate the image
+explicitly add it to the Axes using `.Axes.add_image`.
 """
 
 import matplotlib.pyplot as plt
