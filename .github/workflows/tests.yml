@@ -417,12 +417,12 @@ jobs:
           fi
       - name: Upload code coverage
         if: ${{ !cancelled() && github.event_name != 'schedule' }}
-        uses: codecov/codecov-action@7f8b4b4bde536c465e797be725718b88c5d95e0e  # v5.1.1
+        uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303  # v5.1.2
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }}"
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
+      - uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
         if: failure()
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }} result images"
