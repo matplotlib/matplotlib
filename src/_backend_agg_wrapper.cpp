@@ -146,12 +146,14 @@ PyRendererAgg_draw_path_collection(RendererAgg *self,
                                    py::array_t<uint8_t> antialiaseds_obj,
                                    py::object Py_UNUSED(ignored_obj),
                                    // offset position is no longer used
-                                   py::object Py_UNUSED(offset_position_obj))
+                                   py::object Py_UNUSED(offset_position_obj),
+                                   py::array_t<double> hatchcolors_obj)
 {
     auto transforms = convert_transforms(transforms_obj);
     auto offsets = convert_points(offsets_obj);
     auto facecolors = convert_colors(facecolors_obj);
     auto edgecolors = convert_colors(edgecolors_obj);
+    auto hatchcolors = convert_colors(hatchcolors_obj);
     auto linewidths = linewidths_obj.unchecked<1>();
     auto antialiaseds = antialiaseds_obj.unchecked<1>();
 
@@ -165,7 +167,8 @@ PyRendererAgg_draw_path_collection(RendererAgg *self,
             edgecolors,
             linewidths,
             dashes,
-            antialiaseds);
+            antialiaseds,
+            hatchcolors);
 }
 
 static void
@@ -179,12 +182,14 @@ PyRendererAgg_draw_quad_mesh(RendererAgg *self,
                              agg::trans_affine offset_trans,
                              py::array_t<double> facecolors_obj,
                              bool antialiased,
-                             py::array_t<double> edgecolors_obj)
+                             py::array_t<double> edgecolors_obj,
+                             py::array_t<double> hatchcolors_obj)
 {
     auto coordinates = coordinates_obj.mutable_unchecked<3>();
     auto offsets = convert_points(offsets_obj);
     auto facecolors = convert_colors(facecolors_obj);
     auto edgecolors = convert_colors(edgecolors_obj);
+    auto hatchcolors = convert_colors(hatchcolors_obj);
 
     self->draw_quad_mesh(gc,
             master_transform,
@@ -195,7 +200,8 @@ PyRendererAgg_draw_quad_mesh(RendererAgg *self,
             offset_trans,
             facecolors,
             antialiased,
-            edgecolors);
+            edgecolors,
+            hatchcolors);
 }
 
 static void
@@ -229,11 +235,12 @@ PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
         .def("draw_path_collection", &PyRendererAgg_draw_path_collection,
              "gc"_a, "master_transform"_a, "paths"_a, "transforms"_a, "offsets"_a,
              "offset_trans"_a, "facecolors"_a, "edgecolors"_a, "linewidths"_a,
-             "dashes"_a, "antialiaseds"_a, "ignored"_a, "offset_position"_a)
+             "dashes"_a, "antialiaseds"_a, "ignored"_a, "offset_position"_a,
+             "hatchcolors"_a = nullptr)
         .def("draw_quad_mesh", &PyRendererAgg_draw_quad_mesh,
              "gc"_a, "master_transform"_a, "mesh_width"_a, "mesh_height"_a,
              "coordinates"_a, "offsets"_a, "offset_trans"_a, "facecolors"_a,
-             "antialiased"_a, "edgecolors"_a)
+             "antialiased"_a, "edgecolors"_a, "hatchcolors"_a = nullptr)
         .def("draw_gouraud_triangles", &PyRendererAgg_draw_gouraud_triangles,
              "gc"_a, "points"_a, "colors"_a, "trans"_a = nullptr)
 
