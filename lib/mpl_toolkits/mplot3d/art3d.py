@@ -708,14 +708,18 @@ class Patch3DCollection(PatchCollection):
 
     def do_3d_projection(self):
         if self._axlim_clip:
-            xs, ys, zs = _viewlim_mask(*self._offsets3d, self.axes)
+            mask = _viewlim_mask(*self._offsets3d, self.axes)
+            xs, ys, zs = np.ma.array(self._offsets3d, mask=mask)
         else:
             xs, ys, zs = self._offsets3d
         vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
                                                          self.axes.M,
                                                          self.axes._focal_length)
         self._vzs = vzs
-        super().set_offsets(np.ma.column_stack([vxs, vys]))
+        if np.ma.isMA(vxs):
+            super().set_offsets(np.ma.column_stack([vxs, vys]))
+        else:
+            super().set_offsets(np.column_stack([vxs, vys]))
 
         if vzs.size > 0:
             return min(vzs)
