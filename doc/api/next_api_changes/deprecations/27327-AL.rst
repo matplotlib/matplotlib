@@ -1,0 +1,5 @@
+``matplotlib.colors._has_alpha_channel_array``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated with no replacement. Users can use
+``use matplotlib.colors._has_alpha_channel`` with list comprehension if they need to
+check if a sequence of colors has an alpha channel.
