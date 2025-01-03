@@ -309,7 +309,10 @@ class Line3D(lines.Line2D):
     @artist.allow_rasterization
     def draw(self, renderer):
         if self._axlim_clip:
-            mask = _viewlim_mask(*self._verts3d, self.axes)
+            mask = np.broadcast_to(
+                _viewlim_mask(*self._verts3d, self.axes),
+                (len(self._verts3d), *self._verts3d[0].shape)
+            )
             xs3d, ys3d, zs3d = np.ma.array(self._verts3d,
                                            dtype=float, mask=mask).filled(np.nan)
         else:
