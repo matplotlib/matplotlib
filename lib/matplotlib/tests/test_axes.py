@@ -4274,6 +4274,24 @@ def test_errorbar_nonefmt():
         assert np.all(errbar.get_color() == mcolors.to_rgba('C0'))
 
 
+def test_errorbar_remove():
+    x = np.arange(5)
+    y = np.arange(5)
+
+    fig, ax = plt.subplots()
+    ec = ax.errorbar(x, y, xerr=1, yerr=1)
+
+    assert len(ax.containers) == 1
+    assert len(ax.lines) == 5
+    assert len(ax.collections) == 2
+
+    ec.remove()
+
+    assert not ax.containers
+    assert not ax.lines
+    assert not ax.collections
+
+
 def test_errorbar_line_specific_kwargs():
     # Check that passing line-specific keyword arguments will not result in
     # errors.
