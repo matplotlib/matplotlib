@@ -349,7 +349,7 @@ class ImageGrid(Grid):
             Whether to create a colorbar for "each" axes, a "single" colorbar
             for the entire grid, colorbars only for axes on the "edge"
             determined by *cbar_location*, or no colorbars.  The colorbars are
-            stored in the :attr:`cbar_axes` attribute.
+            stored in the :attr:`!cbar_axes` attribute.
         cbar_location : {"left", "right", "bottom", "top"}, default: "right"
         cbar_pad : float, default: None
             Padding between the image axes and the colorbar axes.
@@ -358,7 +358,7 @@ class ImageGrid(Grid):
                 ``cbar_mode="single"`` no longer adds *axes_pad* between the axes
                 and the colorbar if the *cbar_location* is "left" or "bottom".
 
-        cbar_size : size specification (see `.Size.from_any`), default: "5%"
+        cbar_size : size specification (see `!.Size.from_any`), default: "5%"
             Colorbar size.
         cbar_set_cax : bool, default: True
             If True, each axes in the grid has a *cax* attribute that is bound

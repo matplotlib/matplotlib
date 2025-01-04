@@ -49,7 +49,7 @@ class ScaleBase:
 
     Subclasses should override
 
-    :attr:`name`
+    :attr:`!name`
         The scale's name.
     :meth:`get_transform`
         A method returning a `.Transform`, which converts data coordinates to

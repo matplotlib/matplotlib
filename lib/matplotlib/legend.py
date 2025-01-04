@@ -204,7 +204,7 @@ mode : {"expand", None}
 bbox_transform : None or `~matplotlib.transforms.Transform`
     The transform for the bounding box (*bbox_to_anchor*). For a value
     of ``None`` (default) the Axes'
-    :data:`~matplotlib.axes.Axes.transAxes` transform will be used.
+    :data:`!matplotlib.axes.Axes.transAxes` transform will be used.
 
 title : str or None
     The legend's title. Default is no title (``None``).

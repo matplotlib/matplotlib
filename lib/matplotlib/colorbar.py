@@ -737,7 +737,7 @@ class Colorbar:
         """
         Draw lines on the colorbar.
 
-        The lines are appended to the list :attr:`lines`.
+        The lines are appended to the list :attr:`!lines`.
 
         Parameters
         ----------

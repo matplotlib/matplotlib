@@ -225,7 +225,7 @@ class RendererBase:
         Backends may want to override this in order to render each set of
         path data only once, and then reference that path multiple times with
         the different offsets, colors, styles etc.  The generator methods
-        `_iter_collection_raw_paths` and `_iter_collection` are provided to
+        `!_iter_collection_raw_paths` and `!_iter_collection` are provided to
         help with (and standardize) the implementation across backends.  It
         is highly recommended to use those generators, so that changes to the
         behavior of `draw_path_collection` can be made globally.
@@ -441,12 +441,13 @@ class RendererBase:
 
         transform : `~matplotlib.transforms.Affine2DBase`
             If and only if the concrete backend is written such that
-            `option_scale_image` returns ``True``, an affine transformation
-            (i.e., an `.Affine2DBase`) *may* be passed to `draw_image`.  The
-            translation vector of the transformation is given in physical units
-            (i.e., dots or pixels). Note that the transformation does not
-            override *x* and *y*, and has to be applied *before* translating
-            the result by *x* and *y* (this can be accomplished by adding *x*
+            `~.RendererBase.option_scale_image` returns ``True``, an affine
+            transformation (i.e., an `.Affine2DBase`) *may* be passed to
+            `~.RendererBase.draw_image`.  The translation vector of the
+            transformation is given in physical units (i.e., dots or pixels).
+            Note that the transformation does not override *x* and *y*,
+            and has to be applied *before* translatingthe result by
+            *x* and *y* (this can be accomplished by adding *x*
             and *y* to the translation vector defined by *transform*).
         """
         raise NotImplementedError
@@ -463,8 +464,8 @@ class RendererBase:
 
     def option_scale_image(self):
         """
-        Return whether arbitrary affine transformations in `draw_image` are
-        supported (True for most vector backends).
+        Return whether arbitrary affine transformations in
+        `~.RendererBase.draw_image` are supported (True for most vector backends).
         """
         return False
 
@@ -1020,7 +1021,7 @@ class TimerBase:
     Subclasses may additionally override the following methods:
 
     - ``_timer_set_single_shot``: Code for setting the timer to single shot
-      operating mode, if supported by the timer object.  If not, the `Timer`
+      operating mode, if supported by the timer object.  If not, the `TimerBase`
       class itself will store the flag and the ``_on_timer`` method should be
       overridden to support such behavior.
 
@@ -2306,7 +2307,7 @@ class FigureCanvasBase:
 
     def new_timer(self, interval=None, callbacks=None):
         """
-        Create a new backend-specific subclass of `.Timer`.
+        Create a new backend-specific subclass of `.TimerBase`.
 
         This is useful for getting periodic events through the backend's native
         event loop.  Implemented only for backends with GUIs.
@@ -3288,7 +3289,7 @@ class ToolContainerBase:
     Attributes
     ----------
     toolmanager : `.ToolManager`
-        The tools with which this `ToolContainer` wants to communicate.
+        The tools with which this `ToolContainerBase` wants to communicate.
     """
 
     _icon_extension = '.png'
@@ -3457,7 +3458,7 @@ class ToolContainerBase:
         called when `.ToolManager` emits a ``tool_removed_event``.
 
         Because some tools are present only on the `.ToolManager` but not on
-        the `ToolContainer`, this method must be a no-op when called on a tool
+        the `ToolContainerBase`, this method must be a no-op when called on a tool
         absent from the container.
 
         .. warning::

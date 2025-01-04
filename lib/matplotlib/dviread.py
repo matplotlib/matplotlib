@@ -651,7 +651,7 @@ class Vf(Dvi):
     The virtual font format is a derivative of dvi:
     http://mirrors.ctan.org/info/knuth/virtual-fonts
     This class reuses some of the machinery of `Dvi`
-    but replaces the `_read` loop and dispatch mechanism.
+    but replaces the `!_read` loop and dispatch mechanism.
 
     Examples
     --------

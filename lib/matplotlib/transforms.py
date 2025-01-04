@@ -242,7 +242,7 @@ class BboxBase(TransformNode):
         The first of the pair of *x* coordinates that define the bounding box.
 
         This is not guaranteed to be less than :attr:`x1` (for that, use
-        :attr:`xmin`).
+        :attr:`~BboxBase.xmin`).
         """
         return self.get_points()[0, 0]
 
@@ -252,7 +252,7 @@ class BboxBase(TransformNode):
         The first of the pair of *y* coordinates that define the bounding box.
 
         This is not guaranteed to be less than :attr:`y1` (for that, use
-        :attr:`ymin`).
+        :attr:`~BboxBase.ymin`).
         """
         return self.get_points()[0, 1]
 
@@ -262,7 +262,7 @@ class BboxBase(TransformNode):
         The second of the pair of *x* coordinates that define the bounding box.
 
         This is not guaranteed to be greater than :attr:`x0` (for that, use
-        :attr:`xmax`).
+        :attr:`~BboxBase.xmax`).
         """
         return self.get_points()[1, 0]
 
@@ -272,7 +272,7 @@ class BboxBase(TransformNode):
         The second of the pair of *y* coordinates that define the bounding box.
 
         This is not guaranteed to be greater than :attr:`y0` (for that, use
-        :attr:`ymax`).
+        :attr:`~BboxBase.ymax`).
         """
         return self.get_points()[1, 1]
 
@@ -282,7 +282,7 @@ class BboxBase(TransformNode):
         The first pair of (*x*, *y*) coordinates that define the bounding box.
 
         This is not guaranteed to be the bottom-left corner (for that, use
-        :attr:`min`).
+        :attr:`~BboxBase.min`).
         """
         return self.get_points()[0]
 
@@ -292,7 +292,7 @@ class BboxBase(TransformNode):
         The second pair of (*x*, *y*) coordinates that define the bounding box.
 
         This is not guaranteed to be the top-right corner (for that, use
-        :attr:`max`).
+        :attr:`~BboxBase.max`).
         """
         return self.get_points()[1]
 
@@ -364,7 +364,10 @@ class BboxBase(TransformNode):
 
     @property
     def bounds(self):
-        """Return (:attr:`x0`, :attr:`y0`, :attr:`width`, :attr:`height`)."""
+        """
+        Return (:attr:`x0`, :attr:`y0`, :attr:`~BboxBase.width`,
+        :attr:`~BboxBase.height`).
+        """
         (x0, y0), (x1, y1) = self.get_points()
         return (x0, y0, x1 - x0, y1 - y0)
 
@@ -1476,14 +1479,14 @@ class Transform(TransformNode):
         Parameters
         ----------
         values : array-like
-            The input values as an array of length :attr:`input_dims` or
-            shape (N, :attr:`input_dims`).
+            The input values as an array of length :attr:`~Transform.input_dims` or
+            shape (N, :attr:`~Transform.input_dims`).
 
         Returns
         -------
         array
-            The output values as an array of length :attr:`output_dims` or
-            shape (N, :attr:`output_dims`), depending on the input.
+            The output values as an array of length :attr:`~Transform.output_dims` or
+            shape (N, :attr:`~Transform.output_dims`), depending on the input.
         """
         # Ensure that values is a 2d array (but remember whether
         # we started with a 1d or 2d array).
@@ -1521,14 +1524,14 @@ class Transform(TransformNode):
         Parameters
         ----------
         values : array
-            The input values as an array of length :attr:`input_dims` or
-            shape (N, :attr:`input_dims`).
+            The input values as an array of length :attr:`~Transform.input_dims` or
+            shape (N, :attr:`~Transform.input_dims`).
 
         Returns
         -------
         array
-            The output values as an array of length :attr:`output_dims` or
-            shape (N, :attr:`output_dims`), depending on the input.
+            The output values as an array of length :attr:`~Transform.output_dims` or
+            shape (N, :attr:`~Transform.output_dims`), depending on the input.
         """
         return self.get_affine().transform(values)
 
@@ -1546,14 +1549,17 @@ class Transform(TransformNode):
         Parameters
         ----------
         values : array
-            The input values as an array of length :attr:`input_dims` or
-            shape (N, :attr:`input_dims`).
+            The input values as an array of length
+            :attr:`~matplotlib.transforms.Transform.input_dims` or
+            shape (N, :attr:`~matplotlib.transforms.Transform.input_dims`).
 
         Returns
         -------
         array
-            The output values as an array of length :attr:`output_dims` or
-            shape (N, :attr:`output_dims`), depending on the input.
+            The output values as an array of length
+            :attr:`~matplotlib.transforms.Transform.output_dims` or shape
+            (N, :attr:`~matplotlib.transforms.Transform.output_dims`),
+            depending on the input.
         """
         return values
 
