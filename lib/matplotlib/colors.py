@@ -237,6 +237,10 @@ def _has_alpha_channel(c):
 
     If *c* is not a valid color specifier, then the result is undefined.
     """
+    # If c isn't a color, this is undefined. Return False instead of raising.
+    if not is_color_like(c):
+        return False
+
     # if c is a hex, it has an alpha channel when it has 4 (or 8) digits after '#'
     if isinstance(c, str):
         if c[0] == '#' and (len(c) == 5 or len(c) == 9):
@@ -251,7 +255,7 @@ def _has_alpha_channel(c):
 
         # if it has length 2, it's a color/alpha tuple
         # if the second element isn't None or the first element has length = 4
-        if len(c) == 2 and (c[1] is not None or _has_alpha_channel(c[0]):
+        if len(c) == 2 and (c[1] is not None or _has_alpha_channel(c[0])):
             # example: ([0.5, 0.5, 0.5, 0.5], None) or ('r', 0.5)
             return True
 
