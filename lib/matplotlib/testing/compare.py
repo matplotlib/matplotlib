@@ -397,7 +397,7 @@ def compare_images(expected, actual, tol, in_decorator=False):
     Compare two "image" files checking differences within a tolerance.
 
     The two given filenames may point to files which are convertible to
-    PNG via the `.converter` dictionary. The underlying RMS is calculated
+    PNG via the `!converter` dictionary. The underlying RMS is calculated
     with the `.calculate_rms` function.
 
     Parameters

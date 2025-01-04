@@ -352,7 +352,7 @@ class Axes(_AxesBase):
             Lower-left corner of inset Axes, and its width and height.
 
         transform : `.Transform`
-            Defaults to `ax.transAxes`, i.e. the units of *rect* are in
+            Defaults to `!ax.transAxes`, i.e. the units of *rect* are in
             Axes-relative coordinates.
 
         projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
@@ -8504,7 +8504,7 @@ such objects
 
         bw_method : {'scott', 'silverman'} or float or callable, default: 'scott'
             The method used to calculate the estimator bandwidth.  If a
-            float, this will be used directly as `kde.factor`.  If a
+            float, this will be used directly as `!kde.factor`.  If a
             callable, it should take a `matplotlib.mlab.GaussianKDE` instance as
             its only parameter and return a float.
 

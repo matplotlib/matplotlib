@@ -192,7 +192,7 @@ class ToolToggleBase(ToolBase):
         super().__init__(*args, **kwargs)
 
     def trigger(self, sender, event, data=None):
-        """Calls `enable` or `disable` based on `toggled` value."""
+        """Calls `enable` or `disable` based on `~ToolToggleBase.toggled` value."""
         if self._toggled:
             self.disable(event)
         else:
@@ -203,7 +203,7 @@ class ToolToggleBase(ToolBase):
         """
         Enable the toggle tool.
 
-        `trigger` calls this method when `toggled` is False.
+        `trigger` calls this method when `~ToolToggleBase.toggled` is False.
         """
         pass
 
@@ -211,7 +211,7 @@ class ToolToggleBase(ToolBase):
         """
         Disable the toggle tool.
 
-        `trigger` call this method when `toggled` is True.
+        `trigger` call this method when `~ToolToggleBase.toggled` is True.
 
         This can happen in different circumstances.
 

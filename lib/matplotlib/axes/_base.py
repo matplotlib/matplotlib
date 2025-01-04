@@ -4066,7 +4066,7 @@ class _AxesBase(martist.Artist):
         """
         Return *x* formatted as an x-value.
 
-        This function will use the `.fmt_xdata` attribute if it is not None,
+        This function will use the `!fmt_xdata` attribute if it is not None,
         else will fall back on the xaxis major formatter.
         """
         return (self.fmt_xdata if self.fmt_xdata is not None
@@ -4076,7 +4076,7 @@ class _AxesBase(martist.Artist):
         """
         Return *y* formatted as a y-value.
 
-        This function will use the `.fmt_ydata` attribute if it is not None,
+        This function will use the `!fmt_ydata` attribute if it is not None,
         else will fall back on the yaxis major formatter.
         """
         return (self.fmt_ydata if self.fmt_ydata is not None
