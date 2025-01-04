@@ -46,8 +46,7 @@ import numpy as np
 from numpy.linalg import inv
 
 from matplotlib import _api
-from matplotlib._path import (
-    affine_transform, count_bboxes_overlapping_bbox, update_path_extents)
+from matplotlib._path import affine_transform, count_bboxes_overlapping_bbox
 from .path import Path
 
 DEBUG = False
@@ -868,8 +867,21 @@ class Bbox(BboxBase):
         if path.vertices.size == 0:
             return
 
-        points, minpos, changed = update_path_extents(
-            path, None, self._points, self._minpos, ignore)
+        changed = False
+        points = self._points.copy()
+        minpos = self._minpos.copy()
+        if updatex:
+            points[0, 0] = min(points[0, 0], np.min(path.vertices[..., 0]))
+            points[1, 0] = max(points[1, 0], np.max(path.vertices[..., 0]))
+            minpos[0] = min(minpos[0], np.min(np.where(path.vertices[..., 0] > 0,
+                                                       path.vertices[..., 0], np.inf)))
+        if updatey:
+            points[0, 1] = min(points[0, 1], np.min(path.vertices[..., 1]))
+            points[1, 1] = max(points[1, 1], np.max(path.vertices[..., 1]))
+            minpos[1] = min(minpos[1], np.min(np.where(path.vertices[..., 1] > 0,
+                                                       path.vertices[..., 1], np.inf)))
+        if np.any(points != self._points) or np.any(minpos != self._minpos):
+            changed = True
 
         if changed:
             self.invalidate()
@@ -896,8 +908,9 @@ class Bbox(BboxBase):
            - When ``None``, use the last value passed to :meth:`ignore`.
         """
         x = np.ravel(x)
-        self.update_from_data_xy(np.column_stack([x, np.ones(x.size)]),
-                                 ignore=ignore, updatey=False)
+        xy = np.empty((x.size, 2), dtype=x.dtype)
+        xy[:, 0] = x
+        self.update_from_data_xy(xy, ignore=ignore, updatey=False)
 
     def update_from_data_y(self, y, ignore=None):
         """
@@ -915,8 +928,9 @@ class Bbox(BboxBase):
             - When ``None``, use the last value passed to :meth:`ignore`.
         """
         y = np.ravel(y)
-        self.update_from_data_xy(np.column_stack([np.ones(y.size), y]),
-                                 ignore=ignore, updatex=False)
+        xy = np.empty((y.size, 2), dtype=y.dtype)
+        xy[:, 1] = y
+        self.update_from_data_xy(xy, ignore=ignore, updatex=False)
 
     def update_from_data_xy(self, xy, ignore=None, updatex=True, updatey=True):
         """

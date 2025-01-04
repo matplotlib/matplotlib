@@ -2419,19 +2419,20 @@ class Axes3D(Axes):
         tX, tY, tZ = np.transpose(X), np.transpose(Y), np.transpose(Z)
 
         if rstride:
-            rii = list(range(0, rows, rstride))
+            rii = np.arange(0, rows, rstride)
             # Add the last index only if needed
             if rows > 0 and rii[-1] != (rows - 1):
-                rii += [rows-1]
+                rii = np.append(rii, rows-1)
         else:
-            rii = []
+            rii = np.array([], dtype=int)
+
         if cstride:
-            cii = list(range(0, cols, cstride))
+            cii = np.arange(0, cols, cstride)
             # Add the last index only if needed
             if cols > 0 and cii[-1] != (cols - 1):
-                cii += [cols-1]
+                cii = np.append(cii, cols-1)
         else:
-            cii = []
+            cii = np.array([], dtype=int)
 
         if rstride == 0 and cstride == 0:
             raise ValueError("Either rstride or cstride must be non zero")
@@ -2439,21 +2440,13 @@ class Axes3D(Axes):
         # If the inputs were empty, then just
         # reset everything.
         if Z.size == 0:
-            rii = []
-            cii = []
+            rii = np.array([], dtype=int)
+            cii = np.array([], dtype=int)
 
-        xlines = [X[i] for i in rii]
-        ylines = [Y[i] for i in rii]
-        zlines = [Z[i] for i in rii]
+        row_lines = np.stack([X[rii], Y[rii], Z[rii]], axis=-1)
+        col_lines = np.stack([tX[cii], tY[cii], tZ[cii]], axis=-1)
 
-        txlines = [tX[i] for i in cii]
-        tylines = [tY[i] for i in cii]
-        tzlines = [tZ[i] for i in cii]
-
-        lines = ([list(zip(xl, yl, zl))
-                 for xl, yl, zl in zip(xlines, ylines, zlines)]
-                 + [list(zip(xl, yl, zl))
-                 for xl, yl, zl in zip(txlines, tylines, tzlines)])
+        lines = np.concatenate([row_lines, col_lines])
 
         linec = art3d.Line3DCollection(lines, axlim_clip=axlim_clip, **kwargs)
         self.add_collection(linec)
