@@ -235,8 +235,7 @@ def _has_alpha_channel(c):
     """
     Return whether *c* is a color with an alpha channel.
 
-    If *c* is not a valid color specifier, then the result is
-    undefined but will return False.
+    If *c* is not a valid color specifier, then the result is undefined.
     """
     # if c is a hex, it has an alpha channel when it has 4 (or 8) digits after '#'
     if isinstance(c, str):
