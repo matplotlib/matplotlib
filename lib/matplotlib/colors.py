@@ -232,7 +232,8 @@ def is_color_like(c):
 
 
 def _has_alpha_channel(c):
-    """Return whether *c* is a color with an alpha channel.
+    """
+    Return whether *c* is a color with an alpha channel.
 
     If *c* is not a valid color specifier, then the result is
     undefined but will return False.
