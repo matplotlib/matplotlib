@@ -15,6 +15,7 @@ programmatic plot generation::
     x = np.arange(0, 5, 0.1)
     y = np.sin(x)
     plt.plot(x, y)
+    plt.show()
 
 The explicit object-oriented API is recommended for complex plots, though
 pyplot is still usually used to create the figure and often the Axes in the
@@ -29,6 +30,7 @@ figure. See `.pyplot.figure`, `.pyplot.subplots`, and
     y = np.sin(x)
     fig, ax = plt.subplots()
     ax.plot(x, y)
+    plt.show()
 
 
 See :ref:`api_interfaces` for an explanation of the tradeoffs between the
@@ -518,7 +520,11 @@ def switch_backend(newbackend: str) -> None:
     matplotlib.backends.backend = newbackend  # type: ignore[attr-defined]
 
     # Make sure the repl display hook is installed in case we become interactive.
-    install_repl_displayhook()
+    try:
+        install_repl_displayhook()
+    except NotImplementedError as err:
+        _log.warning("Fallback to a different backend")
+        raise ImportError from err
 
 
 def _warn_if_gui_out_of_main_thread() -> None:
@@ -818,8 +824,7 @@ def xkcd(
 
     Notes
     -----
-    This function works by a number of rcParams, so it will probably
-    override others you have set before.
+    This function works by a number of rcParams, overriding those set before.
 
     If you want the effects of this function to be temporary, it can
     be used as a context manager, for example::
@@ -1192,9 +1197,7 @@ def close(fig: None | int | str | Figure | Literal["all"] = None) -> None:
         _pylab_helpers.Gcf.destroy_all()
     elif isinstance(fig, int):
         _pylab_helpers.Gcf.destroy(fig)
-    elif hasattr(fig, 'int'):
-        # if we are dealing with a type UUID, we
-        # can use its integer representation
+    elif hasattr(fig, 'int'):  # UUIDs get converted to ints by figure().
         _pylab_helpers.Gcf.destroy(fig.int)
     elif isinstance(fig, str):
         all_labels = get_figlabels()
@@ -1204,8 +1207,8 @@ def close(fig: None | int | str | Figure | Literal["all"] = None) -> None:
     elif isinstance(fig, Figure):
         _pylab_helpers.Gcf.destroy_fig(fig)
     else:
-        raise TypeError("close() argument must be a Figure, an int, a string, "
-                        "or None, not %s" % type(fig))
+        _api.check_isinstance(  # type: ignore[unreachable]
+            (Figure, int, str, None), fig=fig)
 
 
 def clf() -> None:
@@ -4125,6 +4128,9 @@ def streamplot(
     integration_direction="both",
     broken_streamlines=True,
     *,
+    integration_max_step_scale=1.0,
+    integration_max_error_scale=1.0,
+    num_arrows=1,
     data=None,
 ):
     __ret = gca().streamplot(
@@ -4146,6 +4152,9 @@ def streamplot(
         maxlength=maxlength,
         integration_direction=integration_direction,
         broken_streamlines=broken_streamlines,
+        integration_max_step_scale=integration_max_step_scale,
+        integration_max_error_scale=integration_max_error_scale,
+        num_arrows=num_arrows,
         **({"data": data} if data is not None else {}),
     )
     sci(__ret.lines)

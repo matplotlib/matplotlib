@@ -56,6 +56,7 @@ class Patch(artist.Artist):
                  fill=True,
                  capstyle=None,
                  joinstyle=None,
+                 hatchcolor=None,
                  **kwargs):
         """
         The following kwarg properties are supported
@@ -71,7 +72,6 @@ class Patch(artist.Artist):
         if joinstyle is None:
             joinstyle = JoinStyle.miter
 
-        self._hatch_color = colors.to_rgba(mpl.rcParams['hatch.color'])
         self._hatch_linewidth = mpl.rcParams['hatch.linewidth']
         self._fill = bool(fill)  # needed for set_facecolor call
         if color is not None:
@@ -82,6 +82,7 @@ class Patch(artist.Artist):
             self.set_color(color)
         else:
             self.set_edgecolor(edgecolor)
+            self.set_hatchcolor(hatchcolor)
             self.set_facecolor(facecolor)
 
         self._linewidth = 0
@@ -291,6 +292,7 @@ class Patch(artist.Artist):
         self._fill = other._fill
         self._hatch = other._hatch
         self._hatch_color = other._hatch_color
+        self._original_hatchcolor = other._original_hatchcolor
         self._unscaled_dash_pattern = other._unscaled_dash_pattern
         self.set_linewidth(other._linewidth)  # also sets scaled dashes
         self.set_transform(other.get_data_transform())
@@ -338,6 +340,14 @@ class Patch(artist.Artist):
         """Return the face color."""
         return self._facecolor
 
+    def get_hatchcolor(self):
+        """Return the hatch color."""
+        if self._hatch_color == 'edge':
+            if self._edgecolor[3] == 0:  # fully transparent
+                return colors.to_rgba(mpl.rcParams['patch.edgecolor'])
+            return self.get_edgecolor()
+        return self._hatch_color
+
     def get_linewidth(self):
         """Return the line width in points."""
         return self._linewidth
@@ -354,24 +364,18 @@ class Patch(artist.Artist):
         ----------
         aa : bool or None
         """
-        if aa is None:
-            aa = mpl.rcParams['patch.antialiased']
-        self._antialiased = aa
+        self._antialiased = mpl._val_or_rc(aa, 'patch.antialiased')
         self.stale = True
 
     def _set_edgecolor(self, color):
-        set_hatch_color = True
         if color is None:
             if (mpl.rcParams['patch.force_edgecolor'] or
                     not self._fill or self._edge_default):
                 color = mpl.rcParams['patch.edgecolor']
             else:
                 color = 'none'
-                set_hatch_color = False
 
         self._edgecolor = colors.to_rgba(color, self._alpha)
-        if set_hatch_color:
-            self._hatch_color = self._edgecolor
         self.stale = True
 
     def set_edgecolor(self, color):
@@ -386,8 +390,7 @@ class Patch(artist.Artist):
         self._set_edgecolor(color)
 
     def _set_facecolor(self, color):
-        if color is None:
-            color = mpl.rcParams['patch.facecolor']
+        color = mpl._val_or_rc(color, 'patch.facecolor')
         alpha = self._alpha if self._fill else 0
         self._facecolor = colors.to_rgba(color, alpha)
         self.stale = True
@@ -416,14 +419,37 @@ class Patch(artist.Artist):
         Patch.set_facecolor, Patch.set_edgecolor
             For setting the edge or face color individually.
         """
-        self.set_facecolor(c)
         self.set_edgecolor(c)
+        self.set_hatchcolor(c)
+        self.set_facecolor(c)
+
+    def _set_hatchcolor(self, color):
+        color = mpl._val_or_rc(color, 'hatch.color')
+        if color == 'edge':
+            self._hatch_color = 'edge'
+        else:
+            self._hatch_color = colors.to_rgba(color, self._alpha)
+        self.stale = True
+
+    def set_hatchcolor(self, color):
+        """
+        Set the patch hatch color.
+
+        Parameters
+        ----------
+        color : :mpltype:`color` or 'edge' or None
+        """
+        if cbook._str_equal(color, 'edge'):
+            color = 'edge'
+        self._original_hatchcolor = color
+        self._set_hatchcolor(color)
 
     def set_alpha(self, alpha):
         # docstring inherited
         super().set_alpha(alpha)
         self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
+        self._set_hatchcolor(self._original_hatchcolor)
         # stale is already True
 
     def set_linewidth(self, w):
@@ -434,26 +460,24 @@ class Patch(artist.Artist):
         ----------
         w : float or None
         """
-        if w is None:
-            w = mpl.rcParams['patch.linewidth']
+        w = mpl._val_or_rc(w, 'patch.linewidth')
         self._linewidth = float(w)
-        self._dash_pattern = mlines._scale_dashes(
-            *self._unscaled_dash_pattern, w)
+        self._dash_pattern = mlines._scale_dashes(*self._unscaled_dash_pattern, w)
         self.stale = True
 
     def set_linestyle(self, ls):
         """
         Set the patch linestyle.
 
-        ==========================================  =================
-        linestyle                                   description
-        ==========================================  =================
-        ``'-'`` or ``'solid'``                      solid line
-        ``'--'`` or  ``'dashed'``                   dashed line
-        ``'-.'`` or  ``'dashdot'``                  dash-dotted line
-        ``':'`` or ``'dotted'``                     dotted line
-        ``'none'``, ``'None'``, ``' '``, or ``''``  draw nothing
-        ==========================================  =================
+        =======================================================  ================
+        linestyle                                                description
+        =======================================================  ================
+        ``'-'`` or ``'solid'``                                   solid line
+        ``'--'`` or ``'dashed'``                                 dashed line
+        ``'-.'`` or ``'dashdot'``                                dash-dotted line
+        ``':'`` or ``'dotted'``                                  dotted line
+        ``''`` or ``'none'`` (discouraged: ``'None'``, ``' '``)  draw nothing
+        =======================================================  ================
 
         Alternatively a dash tuple of the following form can be provided::
 
@@ -487,6 +511,7 @@ class Patch(artist.Artist):
         self._fill = bool(b)
         self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
+        self._set_hatchcolor(self._original_hatchcolor)
         self.stale = True
 
     def get_fill(self):
@@ -613,7 +638,7 @@ class Patch(artist.Artist):
 
         if self._hatch:
             gc.set_hatch(self._hatch)
-            gc.set_hatch_color(self._hatch_color)
+            gc.set_hatch_color(self.get_hatchcolor())
             gc.set_hatch_linewidth(self._hatch_linewidth)
 
         if self.get_sketch_params() is not None:
@@ -4589,10 +4614,15 @@ class ConnectionPatch(FancyArrowPatch):
         s0 = s  # For the error message, if needed.
         if axes is None:
             axes = self.axes
-        xy = np.array(xy)
+
+        # preserve mixed type input (such as str, int)
+        x = np.array(xy[0])
+        y = np.array(xy[1])
+
         fig = self.get_figure(root=False)
         if s in ["figure points", "axes points"]:
-            xy *= fig.dpi / 72
+            x = x * fig.dpi / 72
+            y = y * fig.dpi / 72
             s = s.replace("points", "pixels")
         elif s == "figure fraction":
             s = fig.transFigure
@@ -4600,12 +4630,11 @@ class ConnectionPatch(FancyArrowPatch):
             s = fig.transSubfigure
         elif s == "axes fraction":
             s = axes.transAxes
-        x, y = xy
 
         if s == 'data':
             trans = axes.transData
-            x = float(self.convert_xunits(x))
-            y = float(self.convert_yunits(y))
+            x = cbook._to_unmasked_float_array(axes.xaxis.convert_units(x))
+            y = cbook._to_unmasked_float_array(axes.yaxis.convert_units(y))
             return trans.transform((x, y))
         elif s == 'offset points':
             if self.xycoords == 'offset points':  # prevent recursion

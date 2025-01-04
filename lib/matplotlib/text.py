@@ -188,8 +188,7 @@ class Text(Artist):
             linespacing = 1.2  # Maybe use rcParam later.
         self.set_linespacing(linespacing)
         self.set_rotation_mode(rotation_mode)
-        self.set_antialiased(antialiased if antialiased is not None else
-                             mpl.rcParams['text.antialiased'])
+        self.set_antialiased(mpl._val_or_rc(antialiased, 'text.antialiased'))
 
     def update(self, kwargs):
         # docstring inherited
@@ -1336,10 +1335,7 @@ class Text(Artist):
             Whether to render using TeX, ``None`` means to use
             :rc:`text.usetex`.
         """
-        if usetex is None:
-            self._usetex = mpl.rcParams['text.usetex']
-        else:
-            self._usetex = bool(usetex)
+        self._usetex = bool(mpl._val_or_rc(usetex, 'text.usetex'))
         self.stale = True
 
     def get_usetex(self):

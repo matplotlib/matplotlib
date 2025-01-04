@@ -1,4 +1,5 @@
 import collections
+import io
 import itertools
 import platform
 import time
@@ -969,13 +970,12 @@ def test_legend_pathcollection_labelcolor_markfacecolor_cmap():
     # test the labelcolor for labelcolor='markerfacecolor' on PathCollection
     # with colormaps
     fig, ax = plt.subplots()
-    facecolors = mpl.cm.viridis(np.random.rand(10))
+    colors = mpl.cm.viridis(np.random.rand(10))
     ax.scatter(
         np.arange(10),
         np.arange(10),
         label='#1',
-        c=np.arange(10),
-        facecolor=facecolors
+        c=colors
     )
 
     leg = ax.legend(labelcolor='markerfacecolor')
@@ -1425,6 +1425,21 @@ def test_legend_text():
         leg_bboxes.append(
             leg.get_window_extent().transformed(ax.transAxes.inverted()))
     assert_allclose(leg_bboxes[1].bounds, leg_bboxes[0].bounds)
+
+
+def test_legend_annotate():
+    fig, ax = plt.subplots()
+
+    ax.plot([1, 2, 3], label="Line")
+    ax.annotate("a", xy=(1, 1))
+    ax.legend(loc=0)
+
+    with mock.patch.object(
+            fig, '_get_renderer', wraps=fig._get_renderer) as mocked_get_renderer:
+        fig.savefig(io.BytesIO())
+
+    # Finding the legend position should not require _get_renderer to be called
+    mocked_get_renderer.assert_not_called()
 
 
 def test_boxplot_legend_labels():

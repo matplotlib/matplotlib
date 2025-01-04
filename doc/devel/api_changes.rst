@@ -239,3 +239,25 @@ What's new notes
 .. include:: ../users/next_whats_new/README.rst
    :start-after: whats-new-guide-start
    :end-before: whats-new-guide-end
+
+Discourage API
+--------------
+
+We have API that we do not recommend anymore for new code, but that cannot be
+deprecated because its removal would be breaking backward-compatibility and too
+disruptive. In such a case we can formally discourage API. This can cover
+specific parameters, call patterns, whole methods etc.
+
+To do so, add a note to the docstring ::
+
+    .. admonition:: Discouraged
+
+       [description and suggested alternative]
+
+You find several examples for good descriptions if you search the codebase for
+``.. admonition:: Discouraged``.
+
+Additionally, if a whole function is discouraged, prefix the summary line with
+``[*Discouraged*]`` so that it renders in the API overview like this
+
+    [*Discouraged*] Return the XAxis instance.

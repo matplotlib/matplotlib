@@ -6,6 +6,7 @@ import logging
 from numbers import Real
 from operator import attrgetter
 import re
+import textwrap
 import types
 
 import numpy as np
@@ -219,10 +220,8 @@ class _process_plot_var_args:
         self.set_prop_cycle(None)
 
     def set_prop_cycle(self, cycler):
-        if cycler is None:
-            cycler = mpl.rcParams['axes.prop_cycle']
         self._idx = 0
-        self._cycler_items = [*cycler]
+        self._cycler_items = [*mpl._val_or_rc(cycler, 'axes.prop_cycle')]
 
     def __call__(self, axes, *args, data=None, return_kwargs=False, **kwargs):
         axes._process_unit_info(kwargs=kwargs)
@@ -686,9 +685,7 @@ class _AxesBase(martist.Artist):
 
         # this call may differ for non-sep axes, e.g., polar
         self._init_axis()
-        if facecolor is None:
-            facecolor = mpl.rcParams['axes.facecolor']
-        self._facecolor = facecolor
+        self._facecolor = mpl._val_or_rc(facecolor, 'axes.facecolor')
         self._frameon = frameon
         self.set_axisbelow(mpl.rcParams['axes.axisbelow'])
 
@@ -1067,7 +1064,7 @@ class _AxesBase(martist.Artist):
         Returns
         -------
         transform : Transform
-            The transform used for drawing secondart y-axis labels, which will
+            The transform used for drawing secondary y-axis labels, which will
             add *pad_points* of padding (in points) between the axis and the
             label.  The x-direction is in axis coordinates and the y-direction
             is in data coordinates
@@ -3586,8 +3583,7 @@ class _AxesBase(martist.Artist):
                                 f"supplied")
 
         else:
-            loc = (loc if loc is not None
-                   else mpl.rcParams['xaxis.labellocation'])
+            loc = mpl._val_or_rc(loc, 'xaxis.labellocation')
             _api.check_in_list(('left', 'center', 'right'), loc=loc)
 
             x = {
@@ -3601,17 +3597,33 @@ class _AxesBase(martist.Artist):
 
     def invert_xaxis(self):
         """
-        Invert the x-axis.
+        [*Discouraged*] Invert the x-axis.
+
+        .. admonition:: Discouraged
+
+            The use of this method is discouraged.
+            Use `.Axes.set_xinverted` instead.
 
         See Also
         --------
-        xaxis_inverted
+        get_xinverted
         get_xlim, set_xlim
         get_xbound, set_xbound
         """
         self.xaxis.set_inverted(not self.xaxis.get_inverted())
 
+    set_xinverted = _axis_method_wrapper("xaxis", "set_inverted")
+    get_xinverted = _axis_method_wrapper("xaxis", "get_inverted")
     xaxis_inverted = _axis_method_wrapper("xaxis", "get_inverted")
+    if xaxis_inverted.__doc__:
+        xaxis_inverted.__doc__ = ("[*Discouraged*] " + xaxis_inverted.__doc__ +
+                                  textwrap.dedent("""
+
+        .. admonition:: Discouraged
+
+            The use of this method is discouraged.
+            Use `.Axes.get_xinverted` instead.
+        """))
 
     def get_xbound(self):
         """
@@ -3839,8 +3851,7 @@ class _AxesBase(martist.Artist):
                                 f"supplied")
 
         else:
-            loc = (loc if loc is not None
-                   else mpl.rcParams['yaxis.labellocation'])
+            loc = mpl._val_or_rc(loc, 'yaxis.labellocation')
             _api.check_in_list(('bottom', 'center', 'top'), loc=loc)
 
             y, ha = {
@@ -3854,17 +3865,33 @@ class _AxesBase(martist.Artist):
 
     def invert_yaxis(self):
         """
-        Invert the y-axis.
+        [*Discouraged*]  Invert the y-axis.
+
+        .. admonition:: Discouraged
+
+            The use of this method is discouraged.
+            Use `.Axes.set_yinverted` instead.
 
         See Also
         --------
-        yaxis_inverted
+        get_yinverted
         get_ylim, set_ylim
         get_ybound, set_ybound
         """
         self.yaxis.set_inverted(not self.yaxis.get_inverted())
 
+    set_yinverted = _axis_method_wrapper("yaxis", "set_inverted")
+    get_yinverted = _axis_method_wrapper("yaxis", "get_inverted")
     yaxis_inverted = _axis_method_wrapper("yaxis", "get_inverted")
+    if yaxis_inverted.__doc__:
+        yaxis_inverted.__doc__ = ("[*Discouraged*] " + yaxis_inverted.__doc__ +
+                                  textwrap.dedent("""
+
+        .. admonition:: Discouraged
+
+            The use of this method is discouraged.
+            Use `.Axes.get_yinverted` instead.
+        """))
 
     def get_ybound(self):
         """
@@ -4035,7 +4062,7 @@ class _AxesBase(martist.Artist):
         """
         Return *x* formatted as an x-value.
 
-        This function will use the `.fmt_xdata` attribute if it is not None,
+        This function will use the `!fmt_xdata` attribute if it is not None,
         else will fall back on the xaxis major formatter.
         """
         return (self.fmt_xdata if self.fmt_xdata is not None
@@ -4045,7 +4072,7 @@ class _AxesBase(martist.Artist):
         """
         Return *y* formatted as a y-value.
 
-        This function will use the `.fmt_ydata` attribute if it is not None,
+        This function will use the `!fmt_ydata` attribute if it is not None,
         else will fall back on the yaxis major formatter.
         """
         return (self.fmt_ydata if self.fmt_ydata is not None

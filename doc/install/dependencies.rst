@@ -28,7 +28,7 @@ reference.
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.3.1)
 * `NumPy <https://numpy.org>`_ (>= 1.23)
 * `packaging <https://pypi.org/project/packaging/>`_ (>= 20.0)
-* `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 8.0)
+* `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 9.0)
 * `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.3.1)
 
 
@@ -256,7 +256,7 @@ source files.
    .. tab-item:: Linux
 
       On some Linux systems, you can install a meta-build package. For example,
-      on  Ubuntu ``apt install build-essential``
+      on  Ubuntu ``apt install build-essential`` with elevated privileges.
 
       Otherwise, use the system distribution's package manager to install
       :ref:`gcc <compiler-table>`.

@@ -225,7 +225,7 @@ class RendererBase:
         Backends may want to override this in order to render each set of
         path data only once, and then reference that path multiple times with
         the different offsets, colors, styles etc.  The generator methods
-        `_iter_collection_raw_paths` and `_iter_collection` are provided to
+        `!_iter_collection_raw_paths` and `!_iter_collection` are provided to
         help with (and standardize) the implementation across backends.  It
         is highly recommended to use those generators, so that changes to the
         behavior of `draw_path_collection` can be made globally.
@@ -441,12 +441,13 @@ class RendererBase:
 
         transform : `~matplotlib.transforms.Affine2DBase`
             If and only if the concrete backend is written such that
-            `option_scale_image` returns ``True``, an affine transformation
-            (i.e., an `.Affine2DBase`) *may* be passed to `draw_image`.  The
-            translation vector of the transformation is given in physical units
-            (i.e., dots or pixels). Note that the transformation does not
-            override *x* and *y*, and has to be applied *before* translating
-            the result by *x* and *y* (this can be accomplished by adding *x*
+            `~.RendererBase.option_scale_image` returns ``True``, an affine
+            transformation (i.e., an `.Affine2DBase`) *may* be passed to
+            `~.RendererBase.draw_image`.  The translation vector of the
+            transformation is given in physical units (i.e., dots or pixels).
+            Note that the transformation does not override *x* and *y*,
+            and has to be applied *before* translatingthe result by
+            *x* and *y* (this can be accomplished by adding *x*
             and *y* to the translation vector defined by *transform*).
         """
         raise NotImplementedError
@@ -463,8 +464,8 @@ class RendererBase:
 
     def option_scale_image(self):
         """
-        Return whether arbitrary affine transformations in `draw_image` are
-        supported (True for most vector backends).
+        Return whether arbitrary affine transformations in
+        `~.RendererBase.draw_image` are supported (True for most vector backends).
         """
         return False
 
@@ -690,7 +691,7 @@ class GraphicsContextBase:
         self._linewidth = 1
         self._rgb = (0.0, 0.0, 0.0, 1.0)
         self._hatch = None
-        self._hatch_color = colors.to_rgba(rcParams['hatch.color'])
+        self._hatch_color = None
         self._hatch_linewidth = rcParams['hatch.linewidth']
         self._url = None
         self._gid = None
@@ -1020,7 +1021,7 @@ class TimerBase:
     Subclasses may additionally override the following methods:
 
     - ``_timer_set_single_shot``: Code for setting the timer to single shot
-      operating mode, if supported by the timer object.  If not, the `Timer`
+      operating mode, if supported by the timer object.  If not, the `TimerBase`
       class itself will store the flag and the ``_on_timer`` method should be
       overridden to support such behavior.
 
@@ -2115,8 +2116,7 @@ class FigureCanvasBase:
                     filename = filename.rstrip('.') + '.' + format
         format = format.lower()
 
-        if dpi is None:
-            dpi = rcParams['savefig.dpi']
+        dpi = mpl._val_or_rc(dpi, 'savefig.dpi')
         if dpi == 'figure':
             dpi = getattr(self.figure, '_original_dpi', self.figure.dpi)
 
@@ -2129,15 +2129,12 @@ class FigureCanvasBase:
               cbook._setattr_cm(self.figure.canvas, _is_saving=True),
               ExitStack() as stack):
 
-            for prop in ["facecolor", "edgecolor"]:
-                color = locals()[prop]
-                if color is None:
-                    color = rcParams[f"savefig.{prop}"]
+            for prop, color in [("facecolor", facecolor), ("edgecolor", edgecolor)]:
+                color = mpl._val_or_rc(color, f"savefig.{prop}")
                 if not cbook._str_equal(color, "auto"):
                     stack.enter_context(self.figure._cm_set(**{prop: color}))
 
-            if bbox_inches is None:
-                bbox_inches = rcParams['savefig.bbox']
+            bbox_inches = mpl._val_or_rc(bbox_inches, 'savefig.bbox')
 
             layout_engine = self.figure.get_layout_engine()
             if layout_engine is not None or bbox_inches == "tight":
@@ -2153,6 +2150,9 @@ class FigureCanvasBase:
                 # so that we can inject the orientation
                 with getattr(renderer, "_draw_disabled", nullcontext)():
                     self.figure.draw(renderer)
+            else:
+                renderer = None
+
             if bbox_inches:
                 if bbox_inches == "tight":
                     bbox_inches = self.figure.get_tightbbox(
@@ -2169,7 +2169,7 @@ class FigureCanvasBase:
 
                 # call adjust_bbox to save only the given area
                 restore_bbox = _tight_bbox.adjust_bbox(
-                    self.figure, bbox_inches, self.figure.canvas.fixed_dpi)
+                    self.figure, bbox_inches, renderer, self.figure.canvas.fixed_dpi)
 
                 _bbox_inches_restore = (bbox_inches, restore_bbox)
             else:
@@ -2307,7 +2307,7 @@ class FigureCanvasBase:
 
     def new_timer(self, interval=None, callbacks=None):
         """
-        Create a new backend-specific subclass of `.Timer`.
+        Create a new backend-specific subclass of `.TimerBase`.
 
         This is useful for getting periodic events through the backend's native
         event loop.  Implemented only for backends with GUIs.
@@ -3059,6 +3059,11 @@ class NavigationToolbar2:
 
     def drag_pan(self, event):
         """Callback for dragging in pan/zoom mode."""
+        if event.buttons != {self._pan_info.button}:
+            # Zoom ended while canvas not in focus (it did not receive a
+            # button_release_event); cancel it.
+            self.release_pan(None)  # release_pan doesn't actually use event.
+            return
         for ax in self._pan_info.axes:
             # Using the recorded button at the press is safer than the current
             # button, as multiple buttons can get pressed during motion.
@@ -3092,7 +3097,7 @@ class NavigationToolbar2:
         for a in self.canvas.figure.get_axes():
             a.set_navigate_mode(self.mode._navigate_mode)
 
-    _ZoomInfo = namedtuple("_ZoomInfo", "direction start_xy axes cid cbar")
+    _ZoomInfo = namedtuple("_ZoomInfo", "button start_xy axes cid cbar")
 
     def press_zoom(self, event):
         """Callback for mouse button press in zoom to rect mode."""
@@ -3117,11 +3122,17 @@ class NavigationToolbar2:
             cbar = None
 
         self._zoom_info = self._ZoomInfo(
-            direction="in" if event.button == 1 else "out",
-            start_xy=(event.x, event.y), axes=axes, cid=id_zoom, cbar=cbar)
+            button=event.button, start_xy=(event.x, event.y), axes=axes,
+            cid=id_zoom, cbar=cbar)
 
     def drag_zoom(self, event):
         """Callback for dragging in zoom mode."""
+        if event.buttons != {self._zoom_info.button}:
+            # Zoom ended while canvas not in focus (it did not receive a
+            # button_release_event); cancel it.
+            self._cleanup_post_zoom()
+            return
+
         start_xy = self._zoom_info.start_xy
         ax = self._zoom_info.axes[0]
         (x1, y1), (x2, y2) = np.clip(
@@ -3150,6 +3161,7 @@ class NavigationToolbar2:
         self.remove_rubberband()
 
         start_x, start_y = self._zoom_info.start_xy
+        direction = "in" if self._zoom_info.button == 1 else "out"
         key = event.key
         # Force the key on colorbars to ignore the zoom-cancel on the
         # short-axis side
@@ -3161,8 +3173,7 @@ class NavigationToolbar2:
         # "cancel" a zoom action by zooming by less than 5 pixels.
         if ((abs(event.x - start_x) < 5 and key != "y") or
                 (abs(event.y - start_y) < 5 and key != "x")):
-            self.canvas.draw_idle()
-            self._zoom_info = None
+            self._cleanup_post_zoom()
             return
 
         for i, ax in enumerate(self._zoom_info.axes):
@@ -3174,11 +3185,18 @@ class NavigationToolbar2:
                         for prev in self._zoom_info.axes[:i])
             ax._set_view_from_bbox(
                 (start_x, start_y, event.x, event.y),
-                self._zoom_info.direction, key, twinx, twiny)
+                direction, key, twinx, twiny)
 
+        self._cleanup_post_zoom()
+        self.push_current()
+
+    def _cleanup_post_zoom(self):
+        # We don't check the event button here, so that zooms can be cancelled
+        # by (pressing and) releasing another mouse button.
+        self.canvas.mpl_disconnect(self._zoom_info.cid)
+        self.remove_rubberband()
         self.canvas.draw_idle()
         self._zoom_info = None
-        self.push_current()
 
     def push_current(self):
         """Push the current view limits and position onto the stack."""
@@ -3271,7 +3289,7 @@ class ToolContainerBase:
     Attributes
     ----------
     toolmanager : `.ToolManager`
-        The tools with which this `ToolContainer` wants to communicate.
+        The tools with which this `ToolContainerBase` wants to communicate.
     """
 
     _icon_extension = '.png'
@@ -3440,7 +3458,7 @@ class ToolContainerBase:
         called when `.ToolManager` emits a ``tool_removed_event``.
 
         Because some tools are present only on the `.ToolManager` but not on
-        the `ToolContainer`, this method must be a no-op when called on a tool
+        the `ToolContainerBase`, this method must be a no-op when called on a tool
         absent from the container.
 
         .. warning::

@@ -40,7 +40,7 @@ Ways to contribute
       visualization, 3D plotting, design, technical writing, statistics, or some
       other field where Matplotlib could be improved.**
 
-      Awesome -- you have a focus on a specific application and domain and can
+      Awesome — you have a focus on a specific application and domain and can
       start there. In this case, maintainers can help you figure out the best
       implementation; open an issue or pull request with a starting point, and we'll
       be happy to discuss technical approaches.
@@ -183,15 +183,31 @@ please cite us following the :doc:`/project/citing` guidelines.
 If you have developed an extension to Matplotlib, please consider adding it to our
 `third party package <https://github.com/matplotlib/mpl-third-party>`_  list.
 
+
+.. _generative_ai:
+
+
+Restrictions on Generative AI Usage
+===================================
+
+We expect authentic engagement in our community.  Be wary of posting output
+from Large Language Models or similar generative AI as comments on GitHub or
+our discourse server, as such comments tend to be formulaic and low content.
+If you use generative AI tools as an aid in developing code or documentation
+changes, ensure that you fully understand the proposed changes and can explain
+why they are the correct approach and an improvement to the current state.
+
+
 .. _new_contributors:
 
 New contributors
 ================
 
-There is no pre-defined pathway for new contributors - we recommend looking at
-existing issue and pull request discussions, and following the conversations
-during pull request reviews to get context. Or you can deep-dive into a subset
-of the code-base to understand what is going on.
+Everyone comes to the project from a different place — in terms of experience
+and interest — so there is no one-size-fits-all path to getting involved.  We
+recommend looking at existing issue or pull request discussions, and following
+the conversations during pull request reviews to get context.  Or you can
+deep-dive into a subset of the code-base to understand what is going on.
 
 .. _new_contributors_meeting:
 
@@ -325,13 +341,15 @@ then submit a "pull request" (PR). To work on a a pull request:
    Matplotlib repository to your own computer or by using Github codespaces, by
    following the instructions in :ref:`installing_for_devs`
 
-#. **Then** start a pull request by following the guidance in :ref:`development workflow <development-workflow>`
+#. **Then** start solving the issue, following the guidance in
+   :ref:`development workflow <development-workflow>`
 
-#. **After starting** check that your contribution meets the :ref:`pull request guidelines <pr-author-guidelines>`
-   and :ref:`update the pull request <update-pull-request>` as needed.
+#. **As part of verifying your changes** check that your contribution meets
+   the :ref:`pull request guidelines <pr-author-guidelines>`
+   and then :ref:`open a pull request <open-pull-request>`.
 
 #. **Finally** follow up with maintainers on the PR if waiting more than a few days for
-   feedback.
+   feedback.  :ref:`Update the pull request <update-pull-request>` as needed.
 
 If you have questions of any sort, reach out on the :ref:`contributor_incubator` and join
 the :ref:`new_contributors_meeting`.

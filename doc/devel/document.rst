@@ -52,6 +52,8 @@ To build the documentation you will need to
 particular the :ref:`additional dependencies <doc-dependencies>` required to
 build the documentation.
 
+.. _build_docs:
+
 Build the docs
 --------------
 

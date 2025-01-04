@@ -533,7 +533,7 @@ The following miscellaneous API elements have been removed
     logger = logging.getLogger('matplotlib')
     logger.setLevel(logging.INFO)
     # configure log handling: Either include it into your ``logging`` hierarchy,
-    # e.g. by configuring a root looger using ``logging.basicConfig()``,
+    # e.g. by configuring a root logger using ``logging.basicConfig()``,
     # or add a standalone handler to the matplotlib logger:
     logger.addHandler(logging.StreamHandler())
 

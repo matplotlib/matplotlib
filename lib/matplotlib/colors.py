@@ -1190,18 +1190,21 @@ class ListedColormap(Colormap):
 
         the list will be extended by repetition.
     """
+
+    @_api.delete_parameter(
+        "3.11", "N",
+        message="Passing 'N' to ListedColormap is deprecated since %(since)s "
+                "and will be removed in %(removal)s. Please ensure the list "
+                "of passed colors is the required length instead."
+    )
     def __init__(self, colors, name='from_list', N=None):
-        self.monochrome = False  # Are all colors identical? (for contour.py)
         if N is None:
             self.colors = colors
             N = len(colors)
         else:
             if isinstance(colors, str):
                 self.colors = [colors] * N
-                self.monochrome = True
             elif np.iterable(colors):
-                if len(colors) == 1:
-                    self.monochrome = True
                 self.colors = list(
                     itertools.islice(itertools.cycle(colors), N))
             else:
@@ -1211,7 +1214,6 @@ class ListedColormap(Colormap):
                     pass
                 else:
                     self.colors = [gray] * N
-                self.monochrome = True
         super().__init__(name, N)
 
     def _init(self):
@@ -1219,6 +1221,21 @@ class ListedColormap(Colormap):
         self._lut[:-3] = to_rgba_array(self.colors)
         self._isinit = True
         self._set_extremes()
+
+    @property
+    def monochrome(self):
+        """Return whether all colors in the colormap are identical."""
+        # Replacement for the attribute *monochrome*. This ensures a consistent
+        # response independent of the way the ListedColormap was created, which
+        # was not the case for the manually set attribute.
+        #
+        # TODO: It's a separate discussion whether we need this property on
+        #       colormaps at all (at least as public API). It's a very special edge
+        #       case and we only use it for contours internally.
+        if not self._isinit:
+            self._init()
+
+        return self.N <= 1 or np.all(self._lut[0] == self._lut[1:self.N])
 
     def resampled(self, lutsize):
         """Return a new colormap with *lutsize* entries."""
@@ -1249,7 +1266,7 @@ class ListedColormap(Colormap):
             name = self.name + "_r"
 
         colors_r = list(reversed(self.colors))
-        new_cmap = ListedColormap(colors_r, name=name, N=self.N)
+        new_cmap = ListedColormap(colors_r, name=name)
         # Reverse the over/under values too
         new_cmap._rgba_over = self._rgba_under
         new_cmap._rgba_under = self._rgba_over
@@ -1933,14 +1950,14 @@ class BivarColormap:
             if origin_1_as_int > self.M-1:
                 origin_1_as_int = self.M-1
             one_d_lut = self._lut[:, origin_1_as_int]
-            new_cmap = ListedColormap(one_d_lut, name=f'{self.name}_0', N=self.N)
+            new_cmap = ListedColormap(one_d_lut, name=f'{self.name}_0')
 
         elif item == 1:
             origin_0_as_int = int(self._origin[0]*self.N)
             if origin_0_as_int > self.N-1:
                 origin_0_as_int = self.N-1
             one_d_lut = self._lut[origin_0_as_int, :]
-            new_cmap = ListedColormap(one_d_lut, name=f'{self.name}_1', N=self.M)
+            new_cmap = ListedColormap(one_d_lut, name=f'{self.name}_1')
         else:
             raise KeyError(f"only 0 or 1 are"
                            f" valid keys for BivarColormap, not {item!r}")
@@ -3690,23 +3707,19 @@ def from_levels_and_colors(levels, colors, extend='neither'):
     color_slice = slice_map[extend]
 
     n_data_colors = len(levels) - 1
-    n_expected = n_data_colors + color_slice.start - (color_slice.stop or 0)
+    n_extend_colors = color_slice.start - (color_slice.stop or 0)  # 0, 1 or 2
+    n_expected = n_data_colors + n_extend_colors
     if len(colors) != n_expected:
         raise ValueError(
-            f'With extend == {extend!r} and {len(levels)} levels, '
-            f'expected {n_expected} colors, but got {len(colors)}')
+            f'Expected {n_expected} colors ({n_data_colors} colors for {len(levels)} '
+            f'levels, and {n_extend_colors} colors for extend == {extend!r}), '
+            f'but got {len(colors)}')
 
-    cmap = ListedColormap(colors[color_slice], N=n_data_colors)
-
-    if extend in ['min', 'both']:
-        cmap.set_under(colors[0])
-    else:
-        cmap.set_under('none')
-
-    if extend in ['max', 'both']:
-        cmap.set_over(colors[-1])
-    else:
-        cmap.set_over('none')
+    data_colors = colors[color_slice]
+    under_color = colors[0] if extend in ['min', 'both'] else 'none'
+    over_color = colors[-1] if extend in ['max', 'both'] else 'none'
+    cmap = ListedColormap(data_colors).with_extremes(
+        under=under_color, over=over_color)
 
     cmap.colorbar_extend = extend
 

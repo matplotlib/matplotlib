@@ -183,10 +183,14 @@ class ContourLabeler:
             self.labelMappable = self
             self.labelCValueList = np.take(self.cvalues, self.labelIndiceList)
         else:
-            cmap = mcolors.ListedColormap(colors, N=len(self.labelLevelList))
-            self.labelCValueList = list(range(len(self.labelLevelList)))
-            self.labelMappable = cm.ScalarMappable(cmap=cmap,
-                                                   norm=mcolors.NoNorm())
+            # handling of explicit colors for labels:
+            # make labelCValueList contain integers [0, 1, 2, ...] and a cmap
+            # so that cmap(i) == colors[i]
+            num_levels = len(self.labelLevelList)
+            colors = cbook._resize_sequence(mcolors.to_rgba_array(colors), num_levels)
+            self.labelMappable = cm.ScalarMappable(
+                cmap=mcolors.ListedColormap(colors), norm=mcolors.NoNorm())
+            self.labelCValueList = list(range(num_levels))
 
         self.labelXYs = []
 
@@ -698,12 +702,8 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             self.origin = mpl.rcParams['image.origin']
 
         self._orig_linestyles = linestyles  # Only kept for user access.
-        self.negative_linestyles = negative_linestyles
-        # If negative_linestyles was not defined as a keyword argument, define
-        # negative_linestyles with rcParams
-        if self.negative_linestyles is None:
-            self.negative_linestyles = \
-                mpl.rcParams['contour.negative_linestyle']
+        self.negative_linestyles = mpl._val_or_rc(negative_linestyles,
+                                                  'contour.negative_linestyle')
 
         kwargs = self._process_args(*args, **kwargs)
         self._process_levels()
@@ -738,7 +738,8 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                 if self._extend_min:
                     i0 = 1
 
-            cmap = mcolors.ListedColormap(color_sequence[i0:None], N=ncolors)
+            cmap = mcolors.ListedColormap(
+                cbook._resize_sequence(color_sequence[i0:], ncolors))
 
             if use_set_under_over:
                 if self._extend_min:
@@ -1309,8 +1310,7 @@ class QuadContourSet(ContourSet):
         else:
             import contourpy
 
-            if algorithm is None:
-                algorithm = mpl.rcParams['contour.algorithm']
+            algorithm = mpl._val_or_rc(algorithm, 'contour.algorithm')
             mpl.rcParams.validate["contour.algorithm"](algorithm)
             self._algorithm = algorithm
 

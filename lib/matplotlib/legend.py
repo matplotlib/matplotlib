@@ -204,7 +204,7 @@ mode : {"expand", None}
 bbox_transform : None or `~matplotlib.transforms.Transform`
     The transform for the bounding box (*bbox_to_anchor*). For a value
     of ``None`` (default) the Axes'
-    :data:`~matplotlib.axes.Axes.transAxes` transform will be used.
+    :data:`!matplotlib.axes.Axes.transAxes` transform will be used.
 
 title : str or None
     The legend's title. Default is no title (``None``).
@@ -581,9 +581,8 @@ class Legend(Artist):
             'markeredgecolor': ['get_markeredgecolor', 'get_edgecolor'],
             'mec':             ['get_markeredgecolor', 'get_edgecolor'],
         }
-        labelcolor = mpl._val_or_rc(labelcolor, 'legend.labelcolor')
-        if labelcolor is None:
-            labelcolor = mpl.rcParams['text.color']
+        labelcolor = mpl._val_or_rc(mpl._val_or_rc(labelcolor, 'legend.labelcolor'),
+                                    'text.color')
         if isinstance(labelcolor, str) and labelcolor in color_getters:
             getter_names = color_getters[labelcolor]
             for handle, text in zip(self.legend_handles, self.texts):
@@ -934,7 +933,7 @@ class Legend(Artist):
         self.texts = text_list
         self.legend_handles = handle_list
 
-    def _auto_legend_data(self):
+    def _auto_legend_data(self, renderer):
         """
         Return display coordinates for hit testing for "best" positioning.
 
@@ -969,7 +968,7 @@ class Legend(Artist):
                 if len(hoffsets):
                     offsets.extend(transOffset.transform(hoffsets))
             elif isinstance(artist, Text):
-                bboxes.append(artist.get_window_extent())
+                bboxes.append(artist.get_window_extent(renderer))
 
         return bboxes, lines, offsets
 
@@ -1150,7 +1149,7 @@ class Legend(Artist):
 
         start_time = time.perf_counter()
 
-        bboxes, lines, offsets = self._auto_legend_data()
+        bboxes, lines, offsets = self._auto_legend_data(renderer)
 
         bbox = Bbox.from_bounds(0, 0, width, height)
 

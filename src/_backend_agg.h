@@ -65,6 +65,10 @@ class BufferRegion
         delete[] data;
     };
 
+    // prevent copying
+    BufferRegion(const BufferRegion &) = delete;
+    BufferRegion &operator=(const BufferRegion &) = delete;
+
     agg::int8u *get_data()
     {
         return data;
@@ -96,11 +100,6 @@ class BufferRegion
     int width;
     int height;
     int stride;
-
-  private:
-    // prevent copying
-    BufferRegion(const BufferRegion &);
-    BufferRegion &operator=(const BufferRegion &);
 };
 
 #define MARKER_CACHE_SIZE 512
@@ -890,7 +889,7 @@ inline void RendererAgg::draw_image(GCAgg &gc,
     } else {
         set_clipbox(gc.cliprect, rendererBase);
         rendererBase.blend_from(
-            pixf, 0, (int)x, (int)(height - (y + image.shape(0))), (agg::int8u)(alpha * 255));
+            pixf, nullptr, (int)x, (int)(height - (y + image.shape(0))), (agg::int8u)(alpha * 255));
     }
 
     rendererBase.reset_clipping(true);

@@ -2130,20 +2130,20 @@ def test_toolbar_zoom_pan(tool, button, key, expected):
     # Set up the mouse movements
     start_event = MouseEvent(
         "button_press_event", fig.canvas, *s0, button, key=key)
+    drag_event = MouseEvent(
+        "motion_notify_event", fig.canvas, *s1, button, key=key, buttons={button})
     stop_event = MouseEvent(
         "button_release_event", fig.canvas, *s1, button, key=key)
 
     tb = NavigationToolbar2(fig.canvas)
     if tool == "zoom":
         tb.zoom()
-        tb.press_zoom(start_event)
-        tb.drag_zoom(stop_event)
-        tb.release_zoom(stop_event)
     else:
         tb.pan()
-        tb.press_pan(start_event)
-        tb.drag_pan(stop_event)
-        tb.release_pan(stop_event)
+
+    start_event._process()
+    drag_event._process()
+    stop_event._process()
 
     # Should be close, but won't be exact due to screen integer resolution
     xlim, ylim, zlim = expected

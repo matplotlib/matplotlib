@@ -1,16 +1,31 @@
 """
 Scales define the distribution of data values on an axis, e.g. a log scaling.
-They are defined as subclasses of `ScaleBase`.
 
-See also `.axes.Axes.set_xscale` and the scales examples in the documentation.
+The mapping is implemented through `.Transform` subclasses.
 
-See :doc:`/gallery/scales/custom_scale` for a full example of defining a custom
-scale.
+The following scales are builtin:
 
-Matplotlib also supports non-separable transformations that operate on both
-`~.axis.Axis` at the same time.  They are known as projections, and defined in
-`matplotlib.projections`.
-"""
+============= ===================== ================================ =================================
+Name          Class                 Transform                        Inverted transform
+============= ===================== ================================ =================================
+"asinh"       `AsinhScale`          `AsinhTransform`                 `InvertedAsinhTransform`
+"function"    `FuncScale`           `FuncTransform`                  `FuncTransform`
+"functionlog" `FuncScaleLog`        `FuncTransform` + `LogTransform` `InvertedLogTransform` + `FuncTransform`
+"linear"      `LinearScale`         `.IdentityTransform`             `.IdentityTransform`
+"log"         `LogScale`            `LogTransform`                   `InvertedLogTransform`
+"logit"       `LogitScale`          `LogitTransform`                 `LogisticTransform`
+"symlog"      `SymmetricalLogScale` `SymmetricalLogTransform`        `InvertedSymmetricalLogTransform`
+============= ===================== ================================ =================================
+
+A user will often only use the scale name, e.g. when setting the scale through
+`~.Axes.set_xscale`: ``ax.set_xscale("log")``.
+
+See also the :ref:`scales examples <sphx_glr_gallery_scales>` in the documentation.
+
+Custom scaling can be achieved through `FuncScale`, or by creating your own
+`ScaleBase` subclass and corresponding transforms (see :doc:`/gallery/scales/custom_scale`).
+Third parties can register their scales by name through `register_scale`.
+"""  # noqa: E501
 
 import inspect
 import textwrap
@@ -34,7 +49,7 @@ class ScaleBase:
 
     Subclasses should override
 
-    :attr:`name`
+    :attr:`!name`
         The scale's name.
     :meth:`get_transform`
         A method returning a `.Transform`, which converts data coordinates to
@@ -411,6 +426,8 @@ class SymmetricalLogScale(ScaleBase):
     need to have a range around zero that is linear.  The parameter
     *linthresh* allows the user to specify the size of this range
     (-*linthresh*, *linthresh*).
+
+    See :doc:`/gallery/scales/symlog_demo` for a detailed description.
 
     Parameters
     ----------

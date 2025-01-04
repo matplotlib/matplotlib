@@ -98,6 +98,7 @@ jobs:
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
           - os: macos-13  # This runner is on Intel chips.
+            # merge numpy and pandas install in nighties test when this runner is dropped
             python-version: '3.10'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
@@ -111,23 +112,24 @@ jobs:
             pyside6-ver: '!=6.5.1'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b  # v5.3.0
         if: matrix.python-version != '3.13t'
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: deadsnakes/action@e640ac8743173a67cca4d7d77cd837e514bf98e8  # v3.2.0
+        uses: Quansight-Labs/setup-python@b9ab292c751a42bcd2bb465b7fa202ea2c3f5796  # v5.3.1
         if: matrix.python-version == '3.13t'
         with:
-          python-version: '3.13'
-          nogil: true
+          python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
 
       - name: Install OS dependencies
         run: |
@@ -139,7 +141,6 @@ jobs:
               ccache \
               cm-super \
               dvipng \
-              ffmpeg \
               fonts-freefont-otf \
               fonts-noto-cjk \
               fonts-wqy-zenhei \
@@ -174,10 +175,8 @@ jobs:
               texlive-luatex \
               texlive-pictures \
               texlive-xetex
-            if [[ "${{ matrix.python-version }}" = '3.13t' ]]; then
-              # TODO: Remove this once setup-python supports nogil distributions.
-              sudo apt-get install -yy --no-install-recommends \
-                python3.13-tk-nogil
+            if [[ "${{ matrix.name-suffix }}" != '(Minimum Versions)' ]]; then
+              sudo apt-get install -yy --no-install-recommends ffmpeg poppler-utils
             fi
             if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
               sudo apt-get install -yy --no-install-recommends libopengl0
@@ -199,13 +198,15 @@ jobs:
               brew unlink ${python_package}
               brew link --overwrite ${python_package}
             done
-            brew install ccache ghostscript gobject-introspection gtk4 ninja
-            brew install --cask font-noto-sans-cjk inkscape
+            # Workaround for https://github.com/actions/runner-images/issues/10984
+            brew uninstall --ignore-dependencies --force pkg-config@0.29.2
+            brew install ccache ffmpeg ghostscript gobject-introspection gtk4 imagemagick ninja
+            brew install --cask font-noto-sans-cjk font-noto-sans-cjk-sc inkscape
             ;;
           esac
 
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57  # v4.2.0
         if: startsWith(runner.os, 'Linux')
         with:
           path: ~/.cache/pip
@@ -213,7 +214,7 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57  # v4.2.0
         if: startsWith(runner.os, 'macOS')
         with:
           path: ~/Library/Caches/pip
@@ -221,7 +222,7 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
       - name: Cache ccache
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57  # v4.2.0
         with:
           path: |
             ~/.ccache
@@ -229,7 +230,7 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-py${{ matrix.python-version }}-ccache-
       - name: Cache Matplotlib
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57  # v4.2.0
         with:
           path: |
             ~/.cache/matplotlib
@@ -239,15 +240,6 @@ jobs:
           restore-keys: |
             4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
             4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-
-
-      - name: Install the nightly dependencies
-        if: matrix.python-version == '3.13t'
-        run: |
-          python -m pip install pytz tzdata python-dateutil  # Must be installed for Pandas.
-          python -m pip install \
-              --pre \
-              --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
-              --upgrade --only-binary=:all: numpy pandas pillow contourpy
 
       - name: Install Python dependencies
         run: |
@@ -329,7 +321,13 @@ jobs:
           python -m pip install pytz tzdata  # Must be installed for Pandas.
           python -m pip install \
             --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
-            --upgrade --only-binary=:all: numpy pandas
+            --upgrade --only-binary=:all: numpy
+          # wheels for intel osx is not always available on nightly wheels index, merge this back into
+          # the above install command when the OSX-13 (intel) runners are dropped.
+          python -m pip install \
+            --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
+            --upgrade --only-binary=:all: pandas || true
+
 
       - name: Install Matplotlib
         run: |
@@ -419,12 +417,12 @@ jobs:
           fi
       - name: Upload code coverage
         if: ${{ !cancelled() && github.event_name != 'schedule' }}
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@7f8b4b4bde536c465e797be725718b88c5d95e0e  # v5.1.1
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }}"
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
         if: failure()
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }} result images"
@@ -441,7 +439,7 @@ jobs:
 
     steps:
       - name: Create issue on failure
-        uses: imjohnbo/issue-bot@v3
+        uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd  # v3.4.4
         with:
           title: "[TST] Upcoming dependency test failures"
           body: |

@@ -320,7 +320,7 @@ with what is displayed on the screen.  This is intended to be used to
 determine if ``draw_idle`` should be called to schedule a re-rendering
 of the figure.
 
-Each artist has a `!.Artist.stale_callback` attribute which holds a callback
+Each artist has a `!Artist.stale_callback` attribute which holds a callback
 with the signature ::
 
   def callback(self: Artist, val: bool) -> None:

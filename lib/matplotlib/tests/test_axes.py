@@ -1499,6 +1499,20 @@ def test_pcolormesh_rgba(fig_test, fig_ref, dims, alpha):
     ax.pcolormesh(c[..., 0], cmap="gray", vmin=0, vmax=1, alpha=alpha)
 
 
+@check_figures_equal(extensions=["png"])
+def test_pcolormesh_nearest_noargs(fig_test, fig_ref):
+    x = np.arange(4)
+    y = np.arange(7)
+    X, Y = np.meshgrid(x, y)
+    C = X + Y
+
+    ax = fig_test.subplots()
+    ax.pcolormesh(C, shading="nearest")
+
+    ax = fig_ref.subplots()
+    ax.pcolormesh(x, y, C, shading="nearest")
+
+
 @image_comparison(['pcolormesh_datetime_axis.png'], style='mpl20')
 def test_pcolormesh_datetime_axis():
     # Remove this line when this test image is regenerated.
@@ -1575,7 +1589,9 @@ def test_pcolorargs():
         x = np.ma.array(x, mask=(x < 0))
     with pytest.raises(ValueError):
         ax.pcolormesh(x, y, Z[:-1, :-1])
-    # Expect a warning with non-increasing coordinates
+    # If the X or Y coords do not possess monotonicity in their respective
+    # directions, a warning indicating a bad grid will be triggered.
+    # The case of specifying coordinates by inputting 1D arrays.
     x = [359, 0, 1]
     y = [-10, 10]
     X, Y = np.meshgrid(x, y)
@@ -1583,6 +1599,27 @@ def test_pcolorargs():
     with pytest.warns(UserWarning,
                       match='are not monotonically increasing or decreasing'):
         ax.pcolormesh(X, Y, Z, shading='auto')
+    # The case of specifying coordinates by inputting 2D arrays.
+    x = np.linspace(-1, 1, 3)
+    y = np.linspace(-1, 1, 3)
+    X, Y = np.meshgrid(x, y)
+    Z = np.zeros(X.shape)
+    np.random.seed(19680801)
+    noise_X = np.random.random(X.shape)
+    noise_Y = np.random.random(Y.shape)
+    with pytest.warns(UserWarning,
+                      match='are not monotonically increasing or '
+                            'decreasing') as record:
+        # Small perturbations in coordinates will not disrupt the monotonicity
+        # of the X-coords and Y-coords in their respective directions.
+        # Therefore, no warnings will be triggered.
+        ax.pcolormesh(X+noise_X, Y+noise_Y, Z, shading='auto')
+        assert len(record) == 0
+        # Large perturbations have disrupted the monotonicity of the X-coords
+        # and Y-coords in their respective directions, thus resulting in two
+        # bad grid warnings.
+        ax.pcolormesh(X+10*noise_X, Y+10*noise_Y, Z, shading='auto')
+        assert len(record) == 2
 
 
 def test_pcolormesh_underflow_error():
@@ -2905,7 +2942,7 @@ class TestScatter:
 
     @pytest.mark.parametrize('c_case, re_key', params_test_scatter_c)
     def test_scatter_c(self, c_case, re_key):
-        def get_next_color():
+        def get_next_color():   # pragma: no cover
             return 'blue'  # currently unused
 
         xsize = 4
@@ -2999,7 +3036,7 @@ _result = namedtuple('_result', 'c, colors')
       _result(c=['b', 'g'], colors=np.array([[0, 0, 1, 1], [0, .5, 0, 1]]))),
      ])
 def test_parse_scatter_color_args(params, expected_result):
-    def get_next_color():
+    def get_next_color():   # pragma: no cover
         return 'blue'  # currently unused
 
     c, colors, _edgecolors = mpl.axes.Axes._parse_scatter_color_args(
@@ -3026,7 +3063,7 @@ del _result
      (dict(color='r', edgecolor='g'), 'g'),
      ])
 def test_parse_scatter_color_args_edgecolors(kwargs, expected_edgecolors):
-    def get_next_color():
+    def get_next_color():   # pragma: no cover
         return 'blue'  # currently unused
 
     c = kwargs.pop('c', None)
@@ -3038,7 +3075,7 @@ def test_parse_scatter_color_args_edgecolors(kwargs, expected_edgecolors):
 
 
 def test_parse_scatter_color_args_error():
-    def get_next_color():
+    def get_next_color():   # pragma: no cover
         return 'blue'  # currently unused
 
     with pytest.raises(ValueError,
@@ -3046,6 +3083,55 @@ def test_parse_scatter_color_args_error():
         c = np.array([[0.1, 0.2, 0.7], [0.2, 0.4, 1.4]])  # value > 1
         mpl.axes.Axes._parse_scatter_color_args(
             c, None, kwargs={}, xsize=2, get_next_color_func=get_next_color)
+
+
+# Warning message tested in the next two tests.
+WARN_MSG = (
+    "You passed both c and facecolor/facecolors for the markers. "
+    "c has precedence over facecolor/facecolors. This behavior may "
+    "change in the future."
+)
+# Test cases shared between direct and integration tests
+COLOR_TEST_CASES = [
+    ('red', 'blue'),
+    (['red', 'blue'], ['green', 'yellow']),
+    ([[1, 0, 0], [0, 1, 0]], [[0, 0, 1], [1, 1, 0]])
+]
+
+
+@pytest.mark.parametrize('c, facecolor', COLOR_TEST_CASES)
+def test_parse_c_facecolor_warning_direct(c, facecolor):
+    """Test the internal _parse_scatter_color_args method directly."""
+    def get_next_color():   # pragma: no cover
+        return 'blue'  # currently unused
+
+    # Test with facecolors (plural)
+    with pytest.warns(UserWarning, match=WARN_MSG):
+        mpl.axes.Axes._parse_scatter_color_args(
+            c=c, edgecolors=None, kwargs={'facecolors': facecolor},
+            xsize=2, get_next_color_func=get_next_color)
+
+    # Test with facecolor (singular)
+    with pytest.warns(UserWarning, match=WARN_MSG):
+        mpl.axes.Axes._parse_scatter_color_args(
+            c=c, edgecolors=None, kwargs={'facecolor': facecolor},
+            xsize=2, get_next_color_func=get_next_color)
+
+
+@pytest.mark.parametrize('c, facecolor', COLOR_TEST_CASES)
+def test_scatter_c_facecolor_warning_integration(c, facecolor):
+    """Test the warning through the actual scatter plot creation."""
+    fig, ax = plt.subplots()
+    x = [0, 1] if isinstance(c, (list, tuple)) else [0]
+    y = x
+
+    # Test with facecolors (plural)
+    with pytest.warns(UserWarning, match=WARN_MSG):
+        ax.scatter(x, y, c=c, facecolors=facecolor)
+
+    # Test with facecolor (singular)
+    with pytest.warns(UserWarning, match=WARN_MSG):
+        ax.scatter(x, y, c=c, facecolor=facecolor)
 
 
 def test_as_mpl_axes_api():
@@ -9009,8 +9095,8 @@ def test_child_axes_removal():
 
 def test_scatter_color_repr_error():
 
-    def get_next_color():
-        return 'blue'  # pragma: no cover
+    def get_next_color():   # pragma: no cover
+        return 'blue'  # currently unused
     msg = (
             r"'c' argument must be a color, a sequence of colors"
             r", or a sequence of numbers, not 'red\\n'"
@@ -9314,7 +9400,7 @@ def test_violinplot_orientation(fig_test, fig_ref):
 
     # Deprecation of `vert: bool` keyword
     with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match='vert: bool was deprecated in Matplotlib 3.10'):
+                      match='vert: bool was deprecated in Matplotlib 3.11'):
         # Compare images between a figure that
         # uses vert and one that uses orientation.
         ax_ref = fig_ref.subplots()
@@ -9452,3 +9538,28 @@ def test_wrong_use_colorizer():
     for kwrd in kwrds:
         with pytest.raises(ValueError, match=match_str):
             fig.figimage(c, colorizer=cl, **kwrd)
+
+
+def test_bar_color_precedence():
+    # Test the precedence of 'color' and 'facecolor' in bar plots
+    fig, ax = plt.subplots()
+
+    # case 1: no color specified
+    bars = ax.bar([1, 2, 3], [4, 5, 6])
+    for bar in bars:
+        assert mcolors.same_color(bar.get_facecolor(), 'blue')
+
+    # case 2: Only 'color'
+    bars = ax.bar([11, 12, 13], [4, 5, 6], color='red')
+    for bar in bars:
+        assert mcolors.same_color(bar.get_facecolor(), 'red')
+
+    # case 3: Only 'facecolor'
+    bars = ax.bar([21, 22, 23], [4, 5, 6], facecolor='yellow')
+    for bar in bars:
+        assert mcolors.same_color(bar.get_facecolor(), 'yellow')
+
+    # case 4: 'facecolor' and 'color'
+    bars = ax.bar([31, 32, 33], [4, 5, 6], color='red', facecolor='green')
+    for bar in bars:
+        assert mcolors.same_color(bar.get_facecolor(), 'green')

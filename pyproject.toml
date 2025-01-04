@@ -37,7 +37,7 @@ dependencies = [
     "kiwisolver >= 1.3.1",
     "numpy >= 1.23",
     "packaging >= 20.0",
-    "pillow >= 8",
+    "pillow >= 9",
     "pyparsing >= 2.3.1",
     "python-dateutil >= 2.7",
 ]
@@ -46,12 +46,12 @@ requires-python = ">=3.10"
 [project.optional-dependencies]
 # Should be a copy of the build dependencies below.
 dev = [
-    "meson-python>=0.13.1",
+    "meson-python>=0.13.1,<0.17.0",
     "pybind11>=2.13.2,!=2.13.3",
     "setuptools_scm>=7",
     # Not required by us but setuptools_scm without a version, cso _if_
     # installed, then setuptools_scm 8 requires at least this version.
-    # Unfortunately, we can't do a sort of minimum-if-instaled dependency, so
+    # Unfortunately, we can't do a sort of minimum-if-installed dependency, so
     # we need to keep this for now until setuptools_scm _fully_ drops
     # setuptools.
     "setuptools>=64",
@@ -70,7 +70,7 @@ dev = [
 build-backend = "mesonpy"
 # Also keep in sync with optional dependencies above.
 requires = [
-    "meson-python>=0.13.1",
+    "meson-python>=0.13.1,<0.17.0",
     "pybind11>=2.13.2,!=2.13.3",
     "setuptools_scm>=7",
 ]
@@ -222,7 +222,7 @@ enable_incomplete_feature = [
 ]
 exclude = [
   #stubtest
-  ".*/matplotlib/(sphinxext|backends|testing/jpl_units)",
+  ".*/matplotlib/(sphinxext|backends|pylab|testing/jpl_units)",
   #mypy precommit
   "galleries/",
   "doc/",
@@ -234,7 +234,9 @@ exclude = [
   "lib/matplotlib/tests/",
   # tinypages is used for testing the sphinx ext,
   # stubtest will import and run, opening a figure if not excluded
-  ".*/tinypages"
+  ".*/tinypages",
+  # pylab's numpy wildcard imports cause re-def failures since numpy 2.2
+  "lib/matplotlib/pylab.py",
 ]
 files = [
   "lib/matplotlib",

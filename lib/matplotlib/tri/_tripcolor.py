@@ -1,10 +1,11 @@
 import numpy as np
 
-from matplotlib import _api
+from matplotlib import _api, _docstring
 from matplotlib.collections import PolyCollection, TriMesh
 from matplotlib.tri._triangulation import Triangulation
 
 
+@_docstring.interpd
 def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
               vmax=None, shading='flat', facecolors=None, **kwargs):
     """
@@ -54,8 +55,25 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
         values used for each triangle are from the mean c of the triangle's
         three points. If *shading* is 'gouraud' then color values must be
         defined at points.
-    other_parameters
-        All other parameters are the same as for `~.Axes.pcolor`.
+    %(cmap_doc)s
+
+    %(norm_doc)s
+
+    %(vmin_vmax_doc)s
+
+    %(colorizer_doc)s
+
+    Returns
+    -------
+    `~matplotlib.collections.PolyCollection` or `~matplotlib.collections.TriMesh`
+        The result depends on *shading*: For ``shading='flat'`` the result is a
+        `.PolyCollection`, for ``shading='gouraud'`` the result is a `.TriMesh`.
+
+    Other Parameters
+    ----------------
+    **kwargs : `~matplotlib.collections.Collection` properties
+
+        %(Collection:kwdoc)s
     """
     _api.check_in_list(['flat', 'gouraud'], shading=shading)
 

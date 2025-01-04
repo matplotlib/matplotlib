@@ -174,7 +174,13 @@ class Collection(mcolorizer.ColorizingArtist):
         self._face_is_mapped = None
         self._edge_is_mapped = None
         self._mapped_colors = None  # calculated in update_scalarmappable
-        self._hatch_color = mcolors.to_rgba(mpl.rcParams['hatch.color'])
+
+        # Temporary logic to set hatchcolor. This eager resolution is temporary
+        # and will be replaced by a proper mechanism in a follow-up PR.
+        hatch_color = mpl.rcParams['hatch.color']
+        if hatch_color == 'edge':
+            hatch_color = mpl.rcParams['patch.edgecolor']
+        self._hatch_color = mcolors.to_rgba(hatch_color)
         self._hatch_linewidth = mpl.rcParams['hatch.linewidth']
         self.set_facecolor(facecolors)
         self.set_edgecolor(edgecolors)
@@ -1612,14 +1618,13 @@ class LineCollection(Collection):
         """
         Parameters
         ----------
-        segments : list of array-like
-            A sequence (*line0*, *line1*, *line2*) of lines, where each line is a list
-            of points::
+        segments : list of (N, 2) array-like
+            A sequence ``[line0, line1, ...]`` where each line is a (N, 2)-shape
+            array-like containing points::
 
-                lineN = [(x0, y0), (x1, y1), ... (xm, ym)]
+                line0 = [(x0, y0), (x1, y1), ...]
 
-            or the equivalent Mx2 numpy array with two columns. Each line
-            can have a different number of segments.
+            Each line can contain a different number of points.
         linewidths : float or list of float, default: :rc:`lines.linewidth`
             The width of each line in points.
         colors : :mpltype:`color` or list of color, default: :rc:`lines.color`

@@ -1400,7 +1400,7 @@ class Axes3D(Axes):
     def format_zdata(self, z):
         """
         Return *z* string formatted.  This function will use the
-        :attr:`fmt_zdata` attribute if it is callable, else will fall
+        :attr:`!fmt_zdata` attribute if it is callable, else will fall
         back on the zaxis major formatter
         """
         try:
@@ -1886,18 +1886,34 @@ class Axes3D(Axes):
 
     def invert_zaxis(self):
         """
-        Invert the z-axis.
+        [*Discouraged*] Invert the z-axis.
+
+        .. admonition:: Discouraged
+
+            The use of this method is discouraged.
+            Use `.Axes3D.set_zinverted` instead.
 
         See Also
         --------
-        zaxis_inverted
+        get_zinverted
         get_zlim, set_zlim
         get_zbound, set_zbound
         """
         bottom, top = self.get_zlim()
         self.set_zlim(top, bottom, auto=None)
 
+    set_zinverted = _axis_method_wrapper("zaxis", "set_inverted")
+    get_zinverted = _axis_method_wrapper("zaxis", "get_inverted")
     zaxis_inverted = _axis_method_wrapper("zaxis", "get_inverted")
+    if zaxis_inverted.__doc__:
+        zaxis_inverted.__doc__ = ("[*Discouraged*] " + zaxis_inverted.__doc__ +
+                                  textwrap.dedent("""
+
+        .. admonition:: Discouraged
+
+            The use of this method is discouraged.
+            Use `.Axes3D.get_zinverted` instead.
+        """))
 
     def get_zbound(self):
         """
@@ -4000,8 +4016,7 @@ class Axes3D(Axes):
 
         # Determine style for stem lines.
         linestyle, linemarker, linecolor = _process_plot_format(linefmt)
-        if linestyle is None:
-            linestyle = mpl.rcParams['lines.linestyle']
+        linestyle = mpl._val_or_rc(linestyle, 'lines.linestyle')
 
         # Plot everything in required order.
         baseline, = self.plot(basex, basey, basefmt, zs=bottom,
