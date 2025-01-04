@@ -778,7 +778,7 @@ class GaussianKDE:
         array, otherwise a 2D array with shape (# of dims, # of data).
     bw_method : {'scott', 'silverman'} or float or callable, optional
         The method used to calculate the estimator bandwidth.  If a
-        float, this will be used directly as `!factor`.  If a
+        float, this will be used directly as `!kde.factor`.  If a
         callable, it should take a `GaussianKDE` instance as only
         parameter and return a float. If None (default), 'scott' is used.
 
@@ -795,7 +795,7 @@ class GaussianKDE:
         the covariance matrix is multiplied.
     covariance : ndarray
         The covariance matrix of *dataset*, scaled by the calculated bandwidth
-        (`!factor`).
+        (`!kde.factor`).
     inv_cov : ndarray
         The inverse of *covariance*.
 
