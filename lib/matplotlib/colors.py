@@ -259,18 +259,6 @@ def _has_alpha_channel(c):
     return False
 
 
-@_api.deprecated(
-    '3.11',
-    removal='3.14',
-    alternative="``use matplotlib.colors._has_alpha_channel`` with list comprehension"
-    )
-def _has_alpha_channel_array(cseq):
-    """Return whether each element in *cseq* is a color with an alpha channel"""
-    if is_color_like(cseq):
-        cseq = [cseq]  # force it to be a sequence
-    return [_has_alpha_channel(c) for c in cseq]
-
-
 def _check_color_like(**kwargs):
     """
     For each *key, value* pair in *kwargs*, check that *value* is color-like.
