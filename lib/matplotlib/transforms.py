@@ -874,11 +874,13 @@ class Bbox(BboxBase):
         if updatex:
             points[0, 0] = min(points[0, 0], np.min(path.vertices[..., 0]))
             points[1, 0] = max(points[1, 0], np.max(path.vertices[..., 0]))
-            minpos[0] = min(minpos[0], np.min(np.where(path.vertices[..., 0] > 0, path.vertices[..., 0], np.inf)))
+            minpos[0] = min(minpos[0], np.min(np.where(path.vertices[..., 0] > 0,
+                                                       path.vertices[..., 0], np.inf)))
         if updatey:
             points[0, 1] = min(points[0, 1], np.min(path.vertices[..., 1]))
             points[1, 1] = max(points[1, 1], np.max(path.vertices[..., 1]))
-            minpos[1] = min(minpos[1], np.min(np.where(path.vertices[..., 1] > 0, path.vertices[..., 1], np.inf)))
+            minpos[1] = min(minpos[1], np.min(np.where(path.vertices[..., 1] > 0,
+                                                       path.vertices[..., 1], np.inf)))
         if np.any(points != self._points) or np.any(minpos != self._minpos):
             changed = True
 
