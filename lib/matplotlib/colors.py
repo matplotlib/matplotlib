@@ -259,7 +259,7 @@ def _has_alpha_channel(c):
             # example: ([0.5, 0.5, 0.5, 0.5], None) or ('r', 0.5)
             return True
 
-    # otherwise it doesn't have an alpha channel (or is not a valid color specifier)
+    # otherwise it doesn't have an alpha channel
     return False
 
 
