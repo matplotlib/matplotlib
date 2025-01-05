@@ -896,8 +896,9 @@ class Bbox(BboxBase):
            - When ``None``, use the last value passed to :meth:`ignore`.
         """
         x = np.ravel(x)
-        self.update_from_data_xy(np.column_stack([x, np.ones(x.size)]),
-                                 ignore=ignore, updatey=False)
+        xy = np.empty((x.size, 2), dtype=x.dtype)
+        xy[:, 0] = x
+        self.update_from_data_xy(xy, ignore=ignore, updatey=False)
 
     def update_from_data_y(self, y, ignore=None):
         """
@@ -915,8 +916,9 @@ class Bbox(BboxBase):
             - When ``None``, use the last value passed to :meth:`ignore`.
         """
         y = np.ravel(y)
-        self.update_from_data_xy(np.column_stack([np.ones(y.size), y]),
-                                 ignore=ignore, updatex=False)
+        xy = np.empty((y.size, 2), dtype=y.dtype)
+        xy[:, 1] = y
+        self.update_from_data_xy(xy, ignore=ignore, updatex=False)
 
     def update_from_data_xy(self, xy, ignore=None, updatex=True, updatey=True):
         """
