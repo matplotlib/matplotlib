@@ -237,9 +237,9 @@ def _has_alpha_channel(c):
 
     If *c* is not a valid color specifier, then the result is undefined.
     """
-    # If c isn't a color, this is undefined. Return False instead of raising.
-    if not is_color_like(c):
-        return False
+    # The following logic is build with the assumtion that c is a valid color spec.
+    # For speed and simplicity, we intentionally don't care about other inputs.
+    # Anything can happen with them.
 
     # if c is a hex, it has an alpha channel when it has 4 (or 8) digits after '#'
     if isinstance(c, str):
