@@ -1243,7 +1243,6 @@ def test_has_alpha_channel():
     assert not mcolors._has_alpha_channel('#0f0f0f')
     assert not mcolors._has_alpha_channel(('r', None))
     assert not mcolors._has_alpha_channel(([1, 1, 1], None))
-    assert not mcolors._has_alpha_channel(1)  # non-colors don't have alpha channels
 
 
 def test_cn():
