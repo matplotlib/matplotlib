@@ -237,7 +237,7 @@ def _has_alpha_channel(c):
 
     If *c* is not a valid color specifier, then the result is undefined.
     """
-    # The following logic is build with the assumption that c is a valid color spec.
+    # The following logic uses the assumption that c is a valid color spec.
     # For speed and simplicity, we intentionally don't care about other inputs.
     # Anything can happen with them.
 
