@@ -1242,7 +1242,7 @@ class PolyCollection(_CollectionWithSizes):
             return
 
         # Fast path for arrays
-        if isinstance(verts, np.ndarray) and len(verts.shape) == 3 and len(verts) > 0:
+        if isinstance(verts, np.ndarray) and len(verts.shape) == 3 and verts.size:
             verts_pad = np.concatenate((verts, verts[:, :1]), axis=1)
             # Creating the codes once is much faster than having Path do it
             # separately each time by passing closed=True.
