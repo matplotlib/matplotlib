@@ -3379,7 +3379,7 @@ class MultiNorm(Normalize):
             clip = self.clip
         else:
             if not np.iterable(clip):
-                value = [value]*self.n_input
+                clip = [clip]*self.n_input
 
         value = self._iterable_variates_in_data(value, self.n_input)
         result = [n(v, clip=c) for n, v, c in zip(self.norms, value, clip)]
@@ -3408,8 +3408,10 @@ class MultiNorm(Normalize):
         with self.callbacks.blocked():
             # Pause callbacks while we are updating so we only get
             # a single update signal at the end
-            self.vmin = self.vmax = None
-        self.autoscale_None(A)
+            A = self._iterable_variates_in_data(A, self.n_input)
+            for n, a in zip(self.norms, A):
+                n.autoscale(a)
+        self._changed()
 
     def autoscale_None(self, A):
         """
