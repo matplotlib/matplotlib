@@ -620,6 +620,15 @@ mpl._docstring.interpd.register(
 cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
     The Colormap instance or registered colormap name used to map scalar data
     to colors.""",
+    multi_cmap_doc="""\
+cmap : str, `~matplotlib.colors.Colormap`, `~matplotlib.colors.BivarColormap`\
+    or `~matplotlib.colors.MultivarColormap`, default: :rc:`image.cmap`
+    The Colormap instance or registered colormap name used to map
+    scalar/multivariate data to colors.
+
+    Multivariate data is only accepted if a multivariate colormap
+    (`~matplotlib.colors.BivarColormap` or `~matplotlib.colors.MultivarColormap`)
+    is used.""",
     norm_doc="""\
 norm : str or `~matplotlib.colors.Normalize`, optional
     The normalization method used to scale scalar data to the [0, 1] range
@@ -634,6 +643,23 @@ norm : str or `~matplotlib.colors.Normalize`, optional
       list of available scales, call `matplotlib.scale.get_scale_names()`.
       In that case, a suitable `.Normalize` subclass is dynamically generated
       and instantiated.""",
+    multi_norm_doc="""\
+norm : str, `~matplotlib.colors.Normalize` or list, optional
+    The normalization method used to scale data to the [0, 1] range
+    before mapping to colors using *cmap*. By default, a linear scaling is
+    used, mapping the lowest value to 0 and the highest to 1.
+
+    If given, this can be one of the following:
+
+    - An instance of `.Normalize` or one of its subclasses
+      (see :ref:`colormapnorms`).
+    - A scale name, i.e. one of "linear", "log", "symlog", "logit", etc.  For a
+      list of available scales, call `matplotlib.scale.get_scale_names()`.
+      In that case, a suitable `.Normalize` subclass is dynamically generated
+      and instantiated.
+    - A list of scale names or `.Normalize` objects matching the number of
+      variates in the colormap, for use with `~matplotlib.colors.BivarColormap`
+      or `~matplotlib.colors.MultivarColormap`, i.e. ``["linear", "log"]``.""",
     vmin_vmax_doc="""\
 vmin, vmax : float, optional
     When using scalar data and no explicit *norm*, *vmin* and *vmax* define
@@ -641,6 +667,17 @@ vmin, vmax : float, optional
     the complete value range of the supplied data. It is an error to use
     *vmin*/*vmax* when a *norm* instance is given (but using a `str` *norm*
     name together with *vmin*/*vmax* is acceptable).""",
+    multi_vmin_vmax_doc="""\
+vmin, vmax : float or list, optional
+    When using scalar data and no explicit *norm*, *vmin* and *vmax* define
+    the data range that the colormap covers. By default, the colormap covers
+    the complete value range of the supplied data. It is an error to use
+    *vmin*/*vmax* when a *norm* instance is given (but using a `str` *norm*
+    name together with *vmin*/*vmax* is acceptable).
+
+    A list can be used to define independent limits for each variate when
+    using a `~matplotlib.colors.BivarColormap` or
+    `~matplotlib.colors.MultivarColormap`.""",
 )
 
 

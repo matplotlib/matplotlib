@@ -5685,7 +5685,7 @@ class Axes(_AxesBase):
         """
         Display data as an image, i.e., on a 2D regular raster.
 
-        The input may either be actual RGB(A) data, or 2D scalar data, which
+        The input may either be actual RGB(A) data, or 2D data, which
         will be rendered as a pseudocolor image. For displaying a grayscale
         image, set up the colormapping using the parameters
         ``cmap='gray', vmin=0, vmax=255``.
@@ -5706,24 +5706,25 @@ class Axes(_AxesBase):
             - (M, N): an image with scalar data. The values are mapped to
               colors using normalization and a colormap. See parameters *norm*,
               *cmap*, *vmin*, *vmax*.
+            - (K, M, N): multiple images with scalar data. Must be used
+              with a multivariate or bivariate colormap. See *cmap*.
             - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
             - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
               i.e. including transparency.
 
-            The first two dimensions (M, N) define the rows and columns of
-            the image.
+            Here M and N define the rows and columns of the image.
 
             Out-of-range RGB(A) values are clipped.
 
-        %(cmap_doc)s
+        %(multi_cmap_doc)s
 
             This parameter is ignored if *X* is RGB(A).
 
-        %(norm_doc)s
+        %(multi_norm_doc)s
 
             This parameter is ignored if *X* is RGB(A).
 
-        %(vmin_vmax_doc)s
+        %(multi_vmin_vmax_doc)s
 
             This parameter is ignored if *X* is RGB(A).
 
@@ -6062,9 +6063,10 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        C : 2D array-like
+        C : 2D array-like or list of 2D array-like objects
             The color-mapped values.  Color-mapping is controlled by *cmap*,
-            *norm*, *vmin*, and *vmax*.
+            *norm*, *vmin*, and *vmax*.  Multiple arrays are only supported
+            when a bivariate or mulivariate colormap is used, see *cmap*.
 
         X, Y : array-like, optional
             The coordinates of the corners of quadrilaterals of a pcolormesh::
@@ -6111,11 +6113,11 @@ class Axes(_AxesBase):
             See :doc:`/gallery/images_contours_and_fields/pcolormesh_grids`
             for more description.
 
-        %(cmap_doc)s
+        %(multi_cmap_doc)s
 
-        %(norm_doc)s
+        %(multi_norm_doc)s
 
-        %(vmin_vmax_doc)s
+        %(multi_vmin_vmax_doc)s
 
         %(colorizer_doc)s
 
@@ -6280,12 +6282,13 @@ class Axes(_AxesBase):
             - (M, N) or M*N: a mesh with scalar data. The values are mapped to
               colors using normalization and a colormap. See parameters *norm*,
               *cmap*, *vmin*, *vmax*.
+            - (K, M, N): multiple images with scalar data. Must be used with
+              a multivariate or bivariate colormap. See *cmap*.
             - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
             - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
               i.e. including transparency.
 
-            The first two dimensions (M, N) define the rows and columns of
-            the mesh data.
+            Here M and N define the rows and columns of the image.
 
         X, Y : array-like, optional
             The coordinates of the corners of quadrilaterals of a pcolormesh::
@@ -6316,11 +6319,11 @@ class Axes(_AxesBase):
             expanded as needed into the appropriate 2D arrays, making a
             rectangular grid.
 
-        %(cmap_doc)s
+        %(multi_cmap_doc)s
 
-        %(norm_doc)s
+        %(multi_norm_doc)s
 
-        %(vmin_vmax_doc)s
+        %(multi_vmin_vmax_doc)s
 
         %(colorizer_doc)s
 
