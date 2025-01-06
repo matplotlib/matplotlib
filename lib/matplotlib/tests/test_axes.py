@@ -9134,7 +9134,7 @@ def test_zorder_and_explicit_rasterization():
 
 
 @image_comparison(["preset_clip_paths.png"], remove_text=True, style="mpl20",
-                  tol=0.027 if platform.machine() == "arm64" else 0)
+                  tol=0.027 if platform.machine() in ("arm64", "ppc64le") else 0)
 def test_preset_clip_paths():
     fig, ax = plt.subplots()
 
