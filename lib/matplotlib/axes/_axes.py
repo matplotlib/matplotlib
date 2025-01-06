@@ -3861,7 +3861,7 @@ class Axes(_AxesBase):
             (data_line, tuple(caplines), tuple(barcols)),
             has_xerr=(xerr is not None), has_yerr=(yerr is not None),
             label=label)
-        self.containers.append(errorbar_container)
+        self.add_container(errorbar_container)
 
         return errorbar_container  # (l0, caplines, barcols)
 
