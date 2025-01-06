@@ -2107,7 +2107,8 @@ class Axis(martist.Artist):
         else:
             _api.warn_external(
                  "set_ticklabels() should only be used with a fixed number of "
-                 "ticks, i.e. after set_ticks() or using a FixedLocator.")
+                 "ticks, i.e. after set_ticks() or using a FixedLocator. "
+                 "Otherwise, ticks may be mislabeled.")
             formatter = mticker.FixedFormatter(labels)
 
         with warnings.catch_warnings():
