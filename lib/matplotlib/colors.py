@@ -1420,10 +1420,10 @@ class MultivarColormap:
         combination_mode: str, 'sRGB_add' or 'sRGB_sub'
             Describe how colormaps are combined in sRGB space
 
-            - If 'sRGB_add' -> Mixing produces brighter colors
-              `sRGB = sum(colors)`
-            - If 'sRGB_sub' -> Mixing produces darker colors
-              `sRGB = 1 - sum(1 - colors)`
+            - If 'sRGB_add': Mixing produces brighter colors
+              ``sRGB = sum(colors)``
+            - If 'sRGB_sub': Mixing produces darker colors
+              ``sRGB = 1 - sum(1 - colors)``
         name : str, optional
             The name of the colormap family.
         """
@@ -1598,12 +1598,12 @@ class MultivarColormap:
         bad: :mpltype:`color`, default: None
             If Matplotlib color, the bad value is set accordingly in the copy
 
-        under tuple of :mpltype:`color`, default: None
-            If tuple, the `under` value of each component is set with the values
+        under: tuple of :mpltype:`color`, default: None
+            If tuple, the ``under`` value of each component is set with the values
             from the tuple.
 
-        over tuple of :mpltype:`color`, default: None
-            If tuple, the `over` value of each component is set with the values
+        over: tuple of :mpltype:`color`, default: None
+            If tuple, the ``over`` value of each component is set with the values
             from the tuple.
 
         Returns
