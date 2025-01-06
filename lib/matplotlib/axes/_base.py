@@ -3068,9 +3068,8 @@ class _AxesBase(martist.Artist):
         top = -np.inf
         for ax in axs:
             bb = None
-            xticklabel_top = any(tick.label2.get_visible() for tick in
-                                 [ax.xaxis.majorTicks[0], ax.xaxis.minorTicks[0]])
-            if (xticklabel_top or ax.xaxis.get_label_position() == 'top'):
+            if (ax.xaxis.get_ticks_position() in ['top', 'unknown'] or
+                    ax.xaxis.get_label_position() == 'top'):
                 bb = ax.xaxis.get_tightbbox(renderer)
             if bb is None:
                 # Extent of the outline for colorbars, of the axes otherwise.
