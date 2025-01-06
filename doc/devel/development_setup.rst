@@ -211,7 +211,7 @@ Additionally, the following non-Python dependencies must also be installed local
 .. rst-class:: checklist
 
 * :ref:`c++ compiler<compile-dependencies>`
-* :ref:`documentation build dependencies <doc-dependencies-external>`
+* :ref:`external tools used by the documentation build <doc-dependencies-external>`
 
 
 For a full list of dependencies, see :ref:`dependencies`. External dependencies do not
