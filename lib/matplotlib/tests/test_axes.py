@@ -9581,3 +9581,13 @@ def test_bar_color_precedence():
     bars = ax.bar([31, 32, 33], [4, 5, 6], color='red', facecolor='green')
     for bar in bars:
         assert mcolors.same_color(bar.get_facecolor(), 'green')
+
+
+def test_axes_set_position_external_bbox_unchanged():
+    # From #29410: Modifying Axes' position also alters the original Bbox
+    # object used for initialization
+    bbox = mtransforms.Bbox([[0.0, 0.0], [1.0, 1.0]])
+    fig = plt.figure()
+    ax = fig.add_axes(bbox)
+    ax.set_position([0.25, 0.25, 0.5, 0.5])
+    assert (bbox.x0, bbox.y0, bbox.width, bbox.height) == (0.0, 0.0, 1.0, 1.0)
