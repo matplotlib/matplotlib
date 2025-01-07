@@ -9424,8 +9424,8 @@ def test_violinplot_orientation(fig_test, fig_ref):
         ax_ref = fig_ref.subplots()
         ax_ref.violinplot(all_data, vert=False)
 
-        ax_test = fig_test.subplots()
-        ax_test.violinplot(all_data, orientation='horizontal')
+    ax_test = fig_test.subplots()
+    ax_test.violinplot(all_data, orientation='horizontal')
 
 
 @check_figures_equal(extensions=['png'])

@@ -7,7 +7,7 @@ You can use Matplotlib to generate thumbnails from existing images.
 Matplotlib relies on Pillow_ for reading images, and thus supports all formats
 supported by Pillow.
 
-.. _Pillow: https://python-pillow.org/
+.. _Pillow: https://python-pillow.github.io
 """
 
 from argparse import ArgumentParser
