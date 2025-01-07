@@ -84,7 +84,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: cygwin/cygwin-install-action@006ad0b0946ca6d0a3ea2d4437677fa767392401  # v4
+      - uses: cygwin/cygwin-install-action@f61179d72284ceddc397ed07ddb444d82bf9e559  # v5
         with:
           packages: >-
             ccache gcc-g++ gdb git graphviz libcairo-devel libffi-devel
