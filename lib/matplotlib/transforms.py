@@ -908,23 +908,19 @@ class Bbox(BboxBase):
             points = self._points.copy()
             minpos = self._minpos.copy()
 
-        if updatex and updatey:
-            where = (np.isfinite(path.vertices[..., 0])
-                     & np.isfinite(path.vertices[..., 1]))
-        elif updatex:
-            where = np.isfinite(path.vertices[..., 0])
-        elif updatey:
-            where = np.isfinite(path.vertices[..., 1])
-        else:
+        if not (updatex or updatey):
             return points, minpos, False
 
+        valid_points = (np.isfinite(path.vertices[..., 0])
+                        & np.isfinite(path.vertices[..., 1]))
+
         if updatex:
-            x = path.vertices[..., 0][where]
+            x = path.vertices[..., 0][valid_points]
             points[0, 0] = min(points[0, 0], np.min(x, initial=np.inf))
             points[1, 0] = max(points[1, 0], np.max(x, initial=-np.inf))
             minpos[0] = min(minpos[0], np.min(x[x > 0], initial=np.inf))
         if updatey:
-            y = path.vertices[..., 1][where]
+            y = path.vertices[..., 1][valid_points]
             points[0, 1] = min(points[0, 1], np.min(y, initial=np.inf))
             points[1, 1] = max(points[1, 1], np.max(y, initial=-np.inf))
             minpos[1] = min(minpos[1], np.min(y[y > 0], initial=np.inf))
@@ -949,9 +945,7 @@ class Bbox(BboxBase):
            - When ``None``, use the last value passed to :meth:`ignore`.
         """
         x = np.ravel(x)
-        xy = np.empty((x.size, 2), dtype=x.dtype)
-        xy[:, 0] = x
-        self.update_from_data_xy(xy, ignore=ignore, updatey=False)
+        self.update_from_data_xy(np.array([x, x]).T, ignore=ignore, updatey=False)
 
     def update_from_data_y(self, y, ignore=None):
         """
@@ -969,9 +963,7 @@ class Bbox(BboxBase):
             - When ``None``, use the last value passed to :meth:`ignore`.
         """
         y = np.ravel(y)
-        xy = np.empty((y.size, 2), dtype=y.dtype)
-        xy[:, 1] = y
-        self.update_from_data_xy(xy, ignore=ignore, updatex=False)
+        self.update_from_data_xy(np.array([y, y]).T, ignore=ignore, updatex=False)
 
     def update_from_data_xy(self, xy, ignore=None, updatex=True, updatey=True):
         """
