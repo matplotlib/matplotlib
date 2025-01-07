@@ -425,7 +425,7 @@ class Patch(artist.Artist):
 
     def _set_hatchcolor(self, color):
         color = mpl._val_or_rc(color, 'hatch.color')
-        if isinstance(color, str) and color == 'edge':
+        if cbook._str_equal(color, 'edge'):
             self._hatch_color = 'edge'
         else:
             self._hatch_color = colors.to_rgba(color, self._alpha)
