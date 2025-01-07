@@ -1023,6 +1023,9 @@ def test_patch_hatchcolor_inherit_logic():
         rect.set_edgecolor('green')
         assert mcolors.same_color(rect.get_hatchcolor(), 'purple')
 
+    # Smoke test for setting with numpy array
+    rect.set_hatchcolor(np.ones(3))
+
 
 def test_patch_hatchcolor_fallback_logic():
     # Test for when hatchcolor parameter is passed
