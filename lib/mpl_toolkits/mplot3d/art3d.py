@@ -178,12 +178,10 @@ class Text3D(mtext.Text):
 
     @artist.allow_rasterization
     def draw(self, renderer):
+        pos3d = np.array([self._x, self._y, self._z], dtype=float)
         if self._axlim_clip:
             mask = _viewlim_mask(self._x, self._y, self._z, self.axes)
-            pos3d = np.ma.array((self._x, self._y, self._z),
-                                dtype=float, mask=mask).filled(np.nan)
-        else:
-            pos3d = np.asanyarray([self._x, self._y, self._z])
+            pos3d[mask] = np.nan
 
         proj = proj3d._proj_trans_points([pos3d, pos3d + self._dir_vec], self.axes.M)
         dx = proj[0][1] - proj[0][0]
@@ -465,7 +463,8 @@ class Line3DCollection(LineCollection):
                                          self.axes)
             if np.any(viewlim_mask):
                 # broadcast mask to 3D
-                viewlim_mask = viewlim_mask[..., np.newaxis].repeat(3, axis=-1)
+                viewlim_mask = np.broadcast_to(viewlim_mask[..., np.newaxis],
+                                               (*viewlim_mask.shape, 3))
                 mask = mask | viewlim_mask
         xyzs = np.ma.array(proj3d._proj_transform_vectors(segments, self.axes.M),
                            mask=mask)
@@ -1100,8 +1099,8 @@ class Poly3DCollection(PolyCollection):
         """
         if isinstance(segments3d, np.ndarray):
             if segments3d.ndim != 3 or segments3d.shape[-1] != 3:
-                raise ValueError("segments3d must be a MxNx3 array, but got " +
-                                 "shape {}".format(segments3d.shape))
+                raise ValueError("segments3d must be a MxNx3 array, but got "
+                                 f"shape {segments3d.shape}")
             if isinstance(segments3d, np.ma.MaskedArray):
                 self._faces = segments3d.data
                 self._invalid_vertices = segments3d.mask.any(axis=-1)
@@ -1109,6 +1108,8 @@ class Poly3DCollection(PolyCollection):
                 self._faces = segments3d
                 self._invalid_vertices = False
         else:
+            # Turn the potentially ragged list into a numpy array for later speedups
+            # If it is ragged, set the unused vertices per face as invalid
             num_faces = len(segments3d)
             num_verts = np.fromiter(map(len, segments3d), dtype=np.intp)
             max_verts = num_verts.max(initial=0)
@@ -1117,8 +1118,6 @@ class Poly3DCollection(PolyCollection):
                 segments[i, :len(face)] = face
             self._faces = segments
             self._invalid_vertices = np.arange(max_verts) >= num_verts[:, None]
-        assert self._invalid_vertices is False or \
-            self._invalid_vertices.shape == self._faces.shape[:-1]
 
     def set_verts(self, verts, closed=True):
         """
@@ -1184,11 +1183,7 @@ class Poly3DCollection(PolyCollection):
         needs_masking = np.any(self._invalid_vertices)
         num_faces = len(self._faces)
         mask = self._invalid_vertices
-
-        # Some faces might contain masked vertices, so we want to ignore any
-        # errors that those might cause
-        with np.errstate(invalid='ignore', divide='ignore'):
-            pfaces = proj3d._proj_transform_vectors(self._faces, self.axes.M)
+        pfaces = proj3d._proj_transform_vectors(self._faces, self.axes.M)
 
         if self._axlim_clip:
             viewlim_mask = _viewlim_mask(self._faces[..., 0], self._faces[..., 1],
