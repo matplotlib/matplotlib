@@ -565,12 +565,6 @@ class _AxesBase(martist.Artist):
     dataLim: mtransforms.Bbox
     """The bounding `.Bbox` enclosing all data displayed in the Axes."""
 
-    @property
-    def _axis_map(self):
-        """A mapping of axis names, e.g. 'x', to `Axis` instances."""
-        return {name: getattr(self, f"{name}axis")
-                for name in self._axis_names}
-
     def __str__(self):
         return "{0}({1[0]:g},{1[1]:g};{1[2]:g}x{1[3]:g})".format(
             type(self).__name__, self._position.bounds)
@@ -685,6 +679,9 @@ class _AxesBase(martist.Artist):
 
         # this call may differ for non-sep axes, e.g., polar
         self._init_axis()
+        self._axis_map = {
+            name: getattr(self, f"{name}axis") for name in self._axis_names
+        }  # A mapping of axis names, e.g. 'x', to `Axis` instances.
         self._facecolor = mpl._val_or_rc(facecolor, 'axes.facecolor')
         self._frameon = frameon
         self.set_axisbelow(mpl.rcParams['axes.axisbelow'])

@@ -5,7 +5,7 @@ from collections.abc import Callable, Iterable, Iterator, Sequence
 from matplotlib import cbook
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
-from matplotlib.axis import XAxis, YAxis, Tick
+from matplotlib.axis import Axis, XAxis, YAxis, Tick
 from matplotlib.backend_bases import RendererBase, MouseButton, MouseEvent
 from matplotlib.cbook import CallbackRegistry
 from matplotlib.container import Container
@@ -62,6 +62,7 @@ class _AxesBase(martist.Artist):
     child_axes: list[_AxesBase]
     legend_: Legend | None
     title: Text
+    _axis_map: dict[str, Axis]
     _projection_init: Any
 
     def __init__(
