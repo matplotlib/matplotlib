@@ -1,0 +1,8 @@
+hist_plot
+boxplot_plot
+errorbar_plot
+violin
+eventplot
+hist2d
+hexbin
+pie

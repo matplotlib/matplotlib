@@ -1,0 +1,6 @@
+imshow
+pcolormesh
+contourcontourf
+barbs
+quiver
+streamplot
