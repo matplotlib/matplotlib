@@ -439,8 +439,6 @@ class Patch(artist.Artist):
         ----------
         color : :mpltype:`color` or 'edge' or None
         """
-        if cbook._str_equal(color, 'edge'):
-            color = 'edge'
         self._original_hatchcolor = color
         self._set_hatchcolor(color)
 
