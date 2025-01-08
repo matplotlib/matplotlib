@@ -2445,7 +2445,19 @@ class Axes3D(Axes):
 
         row_lines = np.stack([X[rii], Y[rii], Z[rii]], axis=-1)
         col_lines = np.stack([tX[cii], tY[cii], tZ[cii]], axis=-1)
-        lines = np.concatenate([row_lines, col_lines])
+
+        nr, nc = len(rii), len(cii)
+        if nr == nc:
+            lines = np.concatenate([row_lines, col_lines])
+        elif nr == 0:
+            lines = col_lines
+        elif nc == 0:
+            lines = row_lines
+        else:
+            lines = np.full((nr + nc, max(row_lines.shape[1], col_lines.shape[1]), 3),
+                            np.nan)
+            lines[:nr, :row_lines.shape[1], :] = row_lines
+            lines[nr:, :col_lines.shape[1], :] = col_lines
 
         linec = art3d.Line3DCollection(lines, axlim_clip=axlim_clip, **kwargs)
         self.add_collection(linec)
