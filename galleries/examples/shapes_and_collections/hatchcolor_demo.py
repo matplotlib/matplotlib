@@ -1,7 +1,10 @@
 """
-================
-Patch hatchcolor
-================
+===============
+Hatchcolor Demo
+===============
+
+Patch Hatchcolor
+----------------
 
 This example shows how to use the *hatchcolor* parameter to set the color of
 the hatch. The *hatchcolor* parameter is available for `~.patches.Patch`,
@@ -11,6 +14,7 @@ child classes of Patch, and methods that pass through to Patch.
 import matplotlib.pyplot as plt
 import numpy as np
 
+import matplotlib.cm as cm
 from matplotlib.patches import Rectangle
 
 fig, (ax1, ax2) = plt.subplots(1, 2)
@@ -28,6 +32,49 @@ ax2.bar(x, y, facecolor='none', edgecolor='red', hatch='//', hatchcolor='blue')
 ax2.set_xlim(0, 5)
 ax2.set_ylim(0, 5)
 
+# %%
+# Collection Hatchcolor
+# ---------------------
+#
+# The following example shows how to use the *hatchcolor* parameter to set the color of
+# the hatch in a scatter plot. The *hatchcolor* parameter can also be passed to
+# `~.collections.Collection`, child classes of Collection, and methods that pass
+# through to Collection.
+
+fig, ax = plt.subplots()
+
+num_points_x = 10
+num_points_y = 9
+x = np.linspace(0, 1, num_points_x)
+y = np.linspace(0, 1, num_points_y)
+
+X, Y = np.meshgrid(x, y)
+X[1::2, :] += (x[1] - x[0]) / 2  # stagger every alternate row
+
+# As ax.scatter (PathCollection) is drawn row by row, setting hatchcolors to the
+# first row is enough, as the colors will be cycled through for the next rows.
+colors = [cm.rainbow(val) for val in x]
+
+ax.scatter(
+    X.ravel(),
+    Y.ravel(),
+    s=1700,
+    facecolor="none",
+    edgecolor="gray",
+    linewidth=2,
+    marker="h",  # Use hexagon as marker
+    hatch="xxx",
+    hatchcolor=colors,
+)
+ax.set_xlim(0, 1)
+ax.set_ylim(0, 1)
+
+# Remove ticks and labels
+ax.set_xticks([])
+ax.set_yticks([])
+ax.set_xticklabels([])
+ax.set_yticklabels([])
+
 plt.show()
 
 # %%
@@ -41,3 +88,5 @@ plt.show()
 #    - `matplotlib.patches.Polygon`
 #    - `matplotlib.axes.Axes.add_patch`
 #    - `matplotlib.axes.Axes.bar` / `matplotlib.pyplot.bar`
+#    - `matplotlib.collections`
+#    - `matplotlib.axes.Axes.scatter` / `matplotlib.pyplot.scatter`
