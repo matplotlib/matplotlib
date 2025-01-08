@@ -2461,7 +2461,7 @@ class Axes3D(Axes):
 
         linec = art3d.Line3DCollection(lines, axlim_clip=axlim_clip, **kwargs)
         self.add_collection(linec)
-        self.auto_scale_xyz(X, Y, Z, had_data)
+        self.auto_scale_xyz(lines[..., 0], lines[..., 1], lines[..., 2], had_data)
 
         return linec
 
