@@ -4615,8 +4615,12 @@ class _AxesBase(martist.Artist):
 
             By default, `~.axes.Axes` is used.
 
+            .. versionadded:: 3.11
+
         kwargs : dict
-            The keyword arguments passed to ``add_subplot()`` or ``add_axes()``.
+            The keyword arguments passed to `.Figure.add_subplot` or `.Figure.add_axes`.
+
+            .. versionadded:: 3.11
 
         Returns
         -------
@@ -4660,8 +4664,12 @@ class _AxesBase(martist.Artist):
 
             By default, `~.axes.Axes` is used.
 
+            .. versionadded:: 3.11
+
         kwargs : dict
-            The keyword arguments passed to ``add_subplot()`` or ``add_axes()``.
+            The keyword arguments passed to `.Figure.add_subplot` or `.Figure.add_axes`.
+
+            .. versionadded:: 3.11
 
         Returns
         -------
