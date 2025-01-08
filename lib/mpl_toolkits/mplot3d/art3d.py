@@ -1183,7 +1183,11 @@ class Poly3DCollection(PolyCollection):
         needs_masking = np.any(self._invalid_vertices)
         num_faces = len(self._faces)
         mask = self._invalid_vertices
-        pfaces = proj3d._proj_transform_vectors(self._faces, self.axes.M)
+
+        # Some faces might contain masked vertices, so we want to ignore any
+        # errors that those might cause
+        with np.errstate(invalid='ignore', divide='ignore'):
+            pfaces = proj3d._proj_transform_vectors(self._faces, self.axes.M)
 
         if self._axlim_clip:
             viewlim_mask = _viewlim_mask(self._faces[..., 0], self._faces[..., 1],
