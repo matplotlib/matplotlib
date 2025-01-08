@@ -945,6 +945,8 @@ class Bbox(BboxBase):
            - When ``None``, use the last value passed to :meth:`ignore`.
         """
         x = np.ravel(x)
+        # The y-component in np.array([x, *y*]).T is not used. We simply pass
+        # x again to not spend extra time on creating an array of unused data
         self.update_from_data_xy(np.array([x, x]).T, ignore=ignore, updatey=False)
 
     def update_from_data_y(self, y, ignore=None):
@@ -963,6 +965,8 @@ class Bbox(BboxBase):
             - When ``None``, use the last value passed to :meth:`ignore`.
         """
         y = np.ravel(y)
+        # The x-component in np.array([*x*, y]).T is not used. We simply pass
+        # y again to not spend extra time on creating an array of unused data
         self.update_from_data_xy(np.array([y, y]).T, ignore=ignore, updatex=False)
 
     def update_from_data_xy(self, xy, ignore=None, updatex=True, updatey=True):

@@ -2413,39 +2413,38 @@ class Axes3D(Axes):
                 rstride = int(max(np.ceil(rows / rcount), 1)) if rcount else 0
                 cstride = int(max(np.ceil(cols / ccount), 1)) if ccount else 0
 
+        if rstride == 0 and cstride == 0:
+            raise ValueError("Either rstride or cstride must be non zero")
+
         # We want two sets of lines, one running along the "rows" of
         # Z and another set of lines running along the "columns" of Z.
         # This transpose will make it easy to obtain the columns.
         tX, tY, tZ = np.transpose(X), np.transpose(Y), np.transpose(Z)
 
-        if rstride:
+        # Compute the indices of the row and column lines to be drawn
+        # For Z.size == 0, we don't want to draw any lines since the data is empty
+        if rstride == 0 or Z.size == 0:
+            rii = np.array([], dtype=int)
+        elif (rows - 1) % rstride == 0:
+            # last index is hit: rii[-1] == rows - 1
             rii = np.arange(0, rows, rstride)
-            # Add the last index only if needed
-            if rows > 0 and rii[-1] != (rows - 1):
-                rii = np.append(rii, rows-1)
         else:
-            rii = np.array([], dtype=int)
+            # add the last index
+            rii = np.arange(0, rows + rstride, rstride)
+            rii[-1] = rows - 1
 
-        if cstride:
+        if cstride == 0 or Z.size == 0:
+            cii = np.array([], dtype=int)
+        elif (cols - 1) % cstride == 0:
+            # last index is hit: cii[-1] == cols - 1
             cii = np.arange(0, cols, cstride)
-            # Add the last index only if needed
-            if cols > 0 and cii[-1] != (cols - 1):
-                cii = np.append(cii, cols-1)
         else:
-            cii = np.array([], dtype=int)
-
-        if rstride == 0 and cstride == 0:
-            raise ValueError("Either rstride or cstride must be non zero")
-
-        # If the inputs were empty, then just
-        # reset everything.
-        if Z.size == 0:
-            rii = np.array([], dtype=int)
-            cii = np.array([], dtype=int)
+            # add the last index
+            cii = np.arange(0, cols + cstride, cstride)
+            cii[-1] = cols - 1
 
         row_lines = np.stack([X[rii], Y[rii], Z[rii]], axis=-1)
         col_lines = np.stack([tX[cii], tY[cii], tZ[cii]], axis=-1)
-
         lines = np.concatenate([row_lines, col_lines])
 
         linec = art3d.Line3DCollection(lines, axlim_clip=axlim_clip, **kwargs)
