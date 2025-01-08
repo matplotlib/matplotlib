@@ -46,8 +46,7 @@ import numpy as np
 from numpy.linalg import inv
 
 from matplotlib import _api
-from matplotlib._path import (
-    affine_transform, count_bboxes_overlapping_bbox, update_path_extents)
+from matplotlib._path import affine_transform, count_bboxes_overlapping_bbox
 from .path import Path
 
 DEBUG = False
@@ -871,8 +870,8 @@ class Bbox(BboxBase):
         if path.vertices.size == 0:
             return
 
-        points, minpos, changed = update_path_extents(
-            path, None, self._points, self._minpos, ignore)
+        points, minpos, changed = self._calc_extents_from_path(path, ignore,
+                                                               updatex, updatey)
 
         if changed:
             self.invalidate()
@@ -882,6 +881,56 @@ class Bbox(BboxBase):
             if updatey:
                 self._points[:, 1] = points[:, 1]
                 self._minpos[1] = minpos[1]
+
+    def _calc_extents_from_path(self, path, ignore, updatex=True, updatey=True):
+        """
+        Calculate the new bounds and minimum positive values for a `Bbox` from
+        the path.
+
+        Parameters
+        ----------
+        path : `~matplotlib.path.Path`
+        ignore : bool
+            - When ``True``, ignore the existing bounds of the `Bbox`.
+            - When ``False``, include the existing bounds of the `Bbox`.
+        updatex : bool
+            When ``True``, update the x-values.
+        updatey : bool
+            When ``True``, update the y-values.
+
+        Returns
+        -------
+        points : (2, 2) array
+        minpos : (2,) array
+        changed : bool
+        """
+        if ignore:
+            points = np.array([[np.inf, np.inf], [-np.inf, -np.inf]])
+            minpos = np.array([np.inf, np.inf])
+        else:
+            points = self._points.copy()
+            minpos = self._minpos.copy()
+
+        if not (updatex or updatey):
+            return points, minpos, False
+
+        valid_points = (np.isfinite(path.vertices[..., 0])
+                        & np.isfinite(path.vertices[..., 1]))
+
+        if updatex:
+            x = path.vertices[..., 0][valid_points]
+            points[0, 0] = min(points[0, 0], np.min(x, initial=np.inf))
+            points[1, 0] = max(points[1, 0], np.max(x, initial=-np.inf))
+            minpos[0] = min(minpos[0], np.min(x[x > 0], initial=np.inf))
+        if updatey:
+            y = path.vertices[..., 1][valid_points]
+            points[0, 1] = min(points[0, 1], np.min(y, initial=np.inf))
+            points[1, 1] = max(points[1, 1], np.max(y, initial=-np.inf))
+            minpos[1] = min(minpos[1], np.min(y[y > 0], initial=np.inf))
+
+        changed = np.any(points != self._points) or np.any(minpos != self._minpos)
+
+        return points, minpos, changed
 
     def update_from_data_x(self, x, ignore=None):
         """
@@ -899,8 +948,9 @@ class Bbox(BboxBase):
            - When ``None``, use the last value passed to :meth:`ignore`.
         """
         x = np.ravel(x)
-        self.update_from_data_xy(np.column_stack([x, np.ones(x.size)]),
-                                 ignore=ignore, updatey=False)
+        # The y-component in np.array([x, *y*]).T is not used. We simply pass
+        # x again to not spend extra time on creating an array of unused data
+        self.update_from_data_xy(np.array([x, x]).T, ignore=ignore, updatey=False)
 
     def update_from_data_y(self, y, ignore=None):
         """
@@ -918,8 +968,9 @@ class Bbox(BboxBase):
             - When ``None``, use the last value passed to :meth:`ignore`.
         """
         y = np.ravel(y)
-        self.update_from_data_xy(np.column_stack([np.ones(y.size), y]),
-                                 ignore=ignore, updatex=False)
+        # The x-component in np.array([*x*, y]).T is not used. We simply pass
+        # y again to not spend extra time on creating an array of unused data
+        self.update_from_data_xy(np.array([y, y]).T, ignore=ignore, updatex=False)
 
     def update_from_data_xy(self, xy, ignore=None, updatex=True, updatey=True):
         """
