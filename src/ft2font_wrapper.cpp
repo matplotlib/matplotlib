@@ -1475,7 +1475,13 @@ PyFT2Font_face_flags(PyFT2Font *self)
 static StyleFlags
 PyFT2Font_style_flags(PyFT2Font *self)
 {
-    return static_cast<StyleFlags>(self->x->get_face()->style_flags);
+    return static_cast<StyleFlags>(self->x->get_face()->style_flags & 0xffff);
+}
+
+static FT_Long
+PyFT2Font_num_named_instances(PyFT2Font *self)
+{
+    return (self->x->get_face()->style_flags & 0x7fff0000) >> 16;
 }
 
 static FT_Long
@@ -1766,6 +1772,8 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
                                "Face flags; see `.FaceFlags`.")
         .def_property_readonly("style_flags", &PyFT2Font_style_flags,
                                "Style flags; see `.StyleFlags`.")
+        .def_property_readonly("num_named_instances", &PyFT2Font_num_named_instances,
+                               "Number of named instances in the face.")
         .def_property_readonly("num_glyphs", &PyFT2Font_num_glyphs,
                                "Number of glyphs in the face.")
         .def_property_readonly("num_fixed_sizes", &PyFT2Font_num_fixed_sizes,

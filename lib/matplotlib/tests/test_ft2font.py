@@ -40,6 +40,7 @@ def test_ft2font_dejavu_attrs():
     assert font.family_name == 'DejaVu Sans'
     assert font.style_name == 'Book'
     assert font.num_faces == 1  # Single TTF.
+    assert font.num_named_instances == 0  # Not a variable font.
     assert font.num_glyphs == 6241  # From compact encoding view in FontForge.
     assert font.num_fixed_sizes == 0  # All glyphs are scalable.
     assert font.num_charmaps == 5
@@ -73,6 +74,7 @@ def test_ft2font_cm_attrs():
     assert font.family_name == 'cmtt10'
     assert font.style_name == 'Regular'
     assert font.num_faces == 1  # Single TTF.
+    assert font.num_named_instances == 0  # Not a variable font.
     assert font.num_glyphs == 133  # From compact encoding view in FontForge.
     assert font.num_fixed_sizes == 0  # All glyphs are scalable.
     assert font.num_charmaps == 2
@@ -105,6 +107,7 @@ def test_ft2font_stix_bold_attrs():
     assert font.family_name == 'STIXSizeTwoSym'
     assert font.style_name == 'Bold'
     assert font.num_faces == 1  # Single TTF.
+    assert font.num_named_instances == 0  # Not a variable font.
     assert font.num_glyphs == 20  # From compact encoding view in FontForge.
     assert font.num_fixed_sizes == 0  # All glyphs are scalable.
     assert font.num_charmaps == 3
