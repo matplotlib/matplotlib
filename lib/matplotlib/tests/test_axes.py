@@ -7599,6 +7599,35 @@ def test_twinx_knows_limits():
     assert_array_equal(xtwin.viewLim.intervalx, ax2.viewLim.intervalx)
 
 
+class SubclassAxes(Axes):
+    def __init__(self, *args, foo, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.foo = foo
+
+
+def test_twinning_with_axes_class():
+    """Check that twinx/y(axes_class=...) gives the appropriate class."""
+    _, ax = plt.subplots()
+    twinx = ax.twinx(axes_class=SubclassAxes, foo=1)
+    assert isinstance(twinx, SubclassAxes)
+    assert twinx.foo == 1
+    twiny = ax.twiny(axes_class=SubclassAxes, foo=2)
+    assert isinstance(twiny, SubclassAxes)
+    assert twiny.foo == 2
+
+
+def test_twinning_default_axes_class():
+    """
+    Check that the default class for twinx/y() is Axes,
+    even if the original is an Axes subclass.
+    """
+    _, ax = plt.subplots(subplot_kw=dict(axes_class=SubclassAxes, foo=1))
+    twinx = ax.twinx()
+    assert type(twinx) is Axes
+    twiny = ax.twiny()
+    assert type(twiny) is Axes
+
+
 def test_zero_linewidth():
     # Check that setting a zero linewidth doesn't error
     plt.plot([0, 1], [0, 1], ls='--', lw=0)
