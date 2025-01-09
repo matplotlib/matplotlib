@@ -258,7 +258,7 @@ Changing the guidelines
 
 As the person tasked with implementing these guidelines, the `community-manager`_
 should be alerted to proposed changes. Similarly, specific platform guidelines
-(e.g. x, instagram) should be reviewed by the person responsible for that
+(e.g. X, Instagram) should be reviewed by the person responsible for that
 platform, when different from the community manager. If there is no consensus,
 decisions about guidelines revert to the community manager.
 
