@@ -51,7 +51,7 @@ Social media
 Active social media
 ^^^^^^^^^^^^^^^^^^^
 
-* https://twitter.com/matplotlib
+* https://x.com/matplotlib
 * https://instagram.com/matplotart/
 
 Official accounts
@@ -119,7 +119,7 @@ General guidelines
 
   * Do not share non-expert visualizations when it could cause harm:
 
-    * e.g. https://twitter.com/matplotlib/status/1244178154618605568
+    * e.g. https://x.com/matplotlib/status/1244178154618605568
 
   * Clearly state when the visualization data/conclusions cannot be verified.
   * Do not rely on machine translations for sensitive visualization.
@@ -144,7 +144,7 @@ Specifically:
 
 * Visual media must conform to the guidelines of all sites it may be posted on:
 
-  * https://help.twitter.com/en/rules-and-policies/twitter-rules
+  * https://help.x.com/en/rules-and-policies/x-rules
   * https://help.instagram.com/477434105621119
 
 * Emphasize the visualization techniques demonstrated by the visual media.
@@ -258,7 +258,7 @@ Changing the guidelines
 
 As the person tasked with implementing these guidelines, the `community-manager`_
 should be alerted to proposed changes. Similarly, specific platform guidelines
-(e.g. twitter, instagram) should be reviewed by the person responsible for that
+(e.g. x, instagram) should be reviewed by the person responsible for that
 platform, when different from the community manager. If there is no consensus,
 decisions about guidelines revert to the community manager.
 
