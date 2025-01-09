@@ -298,7 +298,7 @@ class Path:
 
     def deepcopy(self, memo=None):
         """
-        Return a shallow copy of the `Path`, which will share the
+        Return a deep copy of the `Path`, with copies of the
         vertices and codes with the source `Path`.
         """
         return copy.deepcopy(self, memo=memo)
