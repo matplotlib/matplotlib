@@ -1,5 +1,5 @@
 =============================================
-What's new in Matplotlib 3.10.0 (May 15, 2024)
+What's new in Matplotlib 3.10.0 (Dec 14, 2024)
 =============================================
 
 For a list of all of the issues and pull requests since the last revision, see the
