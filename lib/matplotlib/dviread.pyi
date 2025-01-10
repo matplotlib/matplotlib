@@ -8,11 +8,11 @@ from typing import NamedTuple
 from typing_extensions import Self  # < Py 3.11
 
 class _dvistate(Enum):
-    pre: int
-    outer: int
-    inpage: int
-    post_post: int
-    finale: int
+    pre = ...
+    outer = ...
+    inpage = ...
+    post_post = ...
+    finale = ...
 
 class Page(NamedTuple):
     text: list[Text]
