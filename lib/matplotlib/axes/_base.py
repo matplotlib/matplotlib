@@ -648,7 +648,7 @@ class _AxesBase(martist.Artist):
             args = (rect,)
         subplotspec = None
         if len(args) == 1 and isinstance(args[0], mtransforms.Bbox):
-            self._position = args[0]
+            self._position = args[0].frozen()
         elif len(args) == 1 and np.iterable(args[0]):
             self._position = mtransforms.Bbox.from_bounds(*args[0])
         else:
