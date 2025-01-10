@@ -8,6 +8,7 @@
 #include "agg_image_accessors.h"
 #include "agg_path_storage.h"
 #include "agg_pixfmt_gray.h"
+#include "agg_pixfmt_rgb.h"
 #include "agg_pixfmt_rgba.h"
 #include "agg_renderer_base.h"
 #include "agg_renderer_scanline.h"
@@ -16,6 +17,7 @@
 #include "agg_span_allocator.h"
 #include "agg_span_converter.h"
 #include "agg_span_image_filter_gray.h"
+#include "agg_span_image_filter_rgb.h"
 #include "agg_span_image_filter_rgba.h"
 #include "agg_span_interpolator_adaptor.h"
 #include "agg_span_interpolator_linear.h"
@@ -496,16 +498,38 @@ typedef enum {
 } interpolation_e;
 
 
-// T is rgba if and only if it has an T::r field.
+// T is rgb(a) if and only if it has an T::r field.
 template<typename T, typename = void> struct is_grayscale : std::true_type {};
 template<typename T> struct is_grayscale<T, std::void_t<decltype(T::r)>> : std::false_type {};
 template<typename T> constexpr bool is_grayscale_v = is_grayscale<T>::value;
 
 
-template<typename color_type>
+template<typename color_type, bool input_has_alpha>
 struct type_mapping
 {
-    using blender_type = std::conditional_t<
+    using input_blender_type = std::conditional_t<
+        is_grayscale_v<color_type>,
+        agg::blender_gray<color_type>,
+        std::conditional_t<
+            input_has_alpha,
+            std::conditional_t<
+                std::is_same_v<color_type, agg::rgba8>,
+                fixed_blender_rgba_plain<color_type, agg::order_rgba>,
+                agg::blender_rgba_plain<color_type, agg::order_rgba>
+            >,
+            agg::blender_rgb<color_type, agg::order_rgb>
+        >
+    >;
+    using input_pixfmt_type = std::conditional_t<
+        is_grayscale_v<color_type>,
+        agg::pixfmt_alpha_blend_gray<input_blender_type, agg::rendering_buffer>,
+        std::conditional_t<
+            input_has_alpha,
+            agg::pixfmt_alpha_blend_rgba<input_blender_type, agg::rendering_buffer>,
+            agg::pixfmt_alpha_blend_rgb<input_blender_type, agg::rendering_buffer, 3>
+        >
+    >;
+    using output_blender_type = std::conditional_t<
         is_grayscale_v<color_type>,
         agg::blender_gray<color_type>,
         std::conditional_t<
@@ -514,25 +538,37 @@ struct type_mapping
             agg::blender_rgba_plain<color_type, agg::order_rgba>
         >
     >;
-    using pixfmt_type = std::conditional_t<
+    using output_pixfmt_type = std::conditional_t<
         is_grayscale_v<color_type>,
-        agg::pixfmt_alpha_blend_gray<blender_type, agg::rendering_buffer>,
-        agg::pixfmt_alpha_blend_rgba<blender_type, agg::rendering_buffer>
+        agg::pixfmt_alpha_blend_gray<output_blender_type, agg::rendering_buffer>,
+        agg::pixfmt_alpha_blend_rgba<output_blender_type, agg::rendering_buffer>
     >;
     template<typename A> using span_gen_affine_type = std::conditional_t<
         is_grayscale_v<color_type>,
         agg::span_image_resample_gray_affine<A>,
-        agg::span_image_resample_rgba_affine<A>
+        std::conditional_t<
+            input_has_alpha,
+            agg::span_image_resample_rgba_affine<A>,
+            agg::span_image_resample_rgb_affine<A>
+        >
     >;
     template<typename A, typename B> using span_gen_filter_type = std::conditional_t<
         is_grayscale_v<color_type>,
         agg::span_image_filter_gray<A, B>,
-        agg::span_image_filter_rgba<A, B>
+        std::conditional_t<
+            input_has_alpha,
+            agg::span_image_filter_rgba<A, B>,
+            agg::span_image_filter_rgb<A, B>
+        >
     >;
     template<typename A, typename B> using span_gen_nn_type = std::conditional_t<
         is_grayscale_v<color_type>,
         agg::span_image_filter_gray_nn<A, B>,
-        agg::span_image_filter_rgba_nn<A, B>
+        std::conditional_t<
+            input_has_alpha,
+            agg::span_image_filter_rgba_nn<A, B>,
+            agg::span_image_filter_rgb_nn<A, B>
+        >
     >;
 };
 
@@ -686,16 +722,16 @@ static void get_filter(const resample_params_t &params,
 }
 
 
-template<typename color_type>
+template<typename color_type, bool input_has_alpha = true>
 void resample(
-    const void *input, int in_width, int in_height,
-    void *output, int out_width, int out_height,
+    const void *input, int in_width, int in_height, int in_stride,
+    void *output, int out_width, int out_height, int out_stride,
     resample_params_t &params)
 {
-    using type_mapping_t = type_mapping<color_type>;
+    using type_mapping_t = type_mapping<color_type, input_has_alpha>;
 
-    using input_pixfmt_t = typename type_mapping_t::pixfmt_type;
-    using output_pixfmt_t = typename type_mapping_t::pixfmt_type;
+    using input_pixfmt_t = typename type_mapping_t::input_pixfmt_type;
+    using output_pixfmt_t = typename type_mapping_t::output_pixfmt_type;
 
     using renderer_t = agg::renderer_base<output_pixfmt_t>;
     using rasterizer_t = agg::rasterizer_scanline_aa<agg::rasterizer_sl_clip_dbl>;
@@ -710,11 +746,6 @@ void resample(
     using affine_interpolator_t = agg::span_interpolator_linear<>;
     using arbitrary_interpolator_t =
         agg::span_interpolator_adaptor<agg::span_interpolator_linear<>, lookup_distortion>;
-
-    size_t itemsize = sizeof(color_type);
-    if (is_grayscale<color_type>::value) {
-        itemsize /= 2;  // agg::grayXX includes an alpha channel which we don't have.
-    }
 
     if (params.interpolation != NEAREST &&
         params.is_affine &&
@@ -732,14 +763,12 @@ void resample(
     span_conv_alpha_t conv_alpha(params.alpha);
 
     agg::rendering_buffer input_buffer;
-    input_buffer.attach(
-        (unsigned char *)input, in_width, in_height, in_width * itemsize);
+    input_buffer.attach((unsigned char *)input, in_width, in_height, in_stride);
     input_pixfmt_t input_pixfmt(input_buffer);
     image_accessor_t input_accessor(input_pixfmt);
 
     agg::rendering_buffer output_buffer;
-    output_buffer.attach(
-        (unsigned char *)output, out_width, out_height, out_width * itemsize);
+    output_buffer.attach((unsigned char *)output, out_width, out_height, out_stride);
     output_pixfmt_t output_pixfmt(output_buffer);
     renderer_t renderer(output_pixfmt);
 
