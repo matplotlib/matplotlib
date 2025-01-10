@@ -155,6 +155,7 @@ jobs:
               libffi-dev \
               libgeos-dev \
               libgirepository1.0-dev \
+              libnotify4 \
               libsdl2-2.0-0 \
               libxkbcommon-x11-0 \
               libxcb-cursor0 \
@@ -181,8 +182,7 @@ jobs:
             if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
               sudo apt-get install -yy --no-install-recommends libopengl0
             else  # ubuntu-22.04
-              sudo apt-get install -yy --no-install-recommends \
-                gir1.2-gtk-4.0 libnotify4
+              sudo apt-get install -yy --no-install-recommends gir1.2-gtk-4.0
             fi
             ;;
           macOS)
