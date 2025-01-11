@@ -1016,7 +1016,7 @@ class Artist:
 
         Parameters
         ----------
-        alpha : scalar or None
+        alpha : float or None
             *alpha* must be within the 0-1 range, inclusive.
         """
         if alpha is not None and not isinstance(alpha, Real):
@@ -1035,7 +1035,7 @@ class Artist:
 
         Parameters
         ----------
-        alpha : array-like or scalar or None
+        alpha : array-like or float or None
             All values must be within the 0-1 range, inclusive.
             Masked values and nans are not supported.
         """
