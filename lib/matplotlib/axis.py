@@ -777,26 +777,15 @@ class Axis(martist.Artist):
 
         Parameters
         ----------
-        value : {"linear", "log", "symlog", "logit", ...} or `.ScaleBase`
-            The axis scale type to apply.
+        value : str or `.ScaleBase`
+            The axis scale type to apply.  Valid string values are the names of scale
+            classes ("linear", "log", "function",...).  These may be the names of any
+            of the :ref:`built-in scales<builtin_scales>` or of any custom scales
+            registered using `matplotlib.scale.register_scale`.
 
         **kwargs
-            Different keyword arguments are accepted, depending on the scale.
-            See the respective class keyword arguments:
-
-            - `matplotlib.scale.LinearScale`
-            - `matplotlib.scale.LogScale`
-            - `matplotlib.scale.SymmetricalLogScale`
-            - `matplotlib.scale.LogitScale`
-            - `matplotlib.scale.FuncScale`
-            - `matplotlib.scale.AsinhScale`
-
-        Notes
-        -----
-        By default, Matplotlib supports the above-mentioned scales.
-        Additionally, custom scales may be registered using
-        `matplotlib.scale.register_scale`. These scales can then also
-        be used here.
+            If *value* is a string, keywords are passed to the instantiation method of
+            the respective class.
         """
         name = self._get_axis_name()
         old_default_lims = (self.get_major_locator()
