@@ -1282,16 +1282,16 @@ class FillBetweenPolyCollection(PolyCollection):
             - 'x': the curves are ``(t, f1)`` and ``(t, f2)``.
             - 'y': the curves are ``(f1, t)`` and ``(f2, t)``.
 
-        t : array (length N)
+        t : array-like
             The ``t_direction`` coordinates of the nodes defining the curves.
 
-        f1 : array (length N) or scalar
+        f1 : array-like or float
             The other coordinates of the nodes defining the first curve.
 
-        f2 : array (length N) or scalar
+        f2 : array-like or float
             The other coordinates of the nodes defining the second curve.
 
-        where : array of bool (length N), optional
+        where : array-like of bool, optional
             Define *where* to exclude some {dir} regions from being filled.
             The filled regions are defined by the coordinates ``t[where]``.
             More precisely, fill between ``t[i]`` and ``t[i+1]`` if
@@ -1362,16 +1362,16 @@ class FillBetweenPolyCollection(PolyCollection):
 
         Parameters
         ----------
-        t : array (length N)
+        t : array-like
             The ``self.t_direction`` coordinates of the nodes defining the curves.
 
-        f1 : array (length N) or scalar
+        f1 : array-like or float
             The other coordinates of the nodes defining the first curve.
 
-        f2 : array (length N) or scalar
+        f2 : array-like or float
             The other coordinates of the nodes defining the second curve.
 
-        where : array of bool (length N), optional
+        where : array-like of bool, optional
             Define *where* to exclude some {dir} regions from being filled.
             The filled regions are defined by the coordinates ``t[where]``.
             More precisely, fill between ``t[i]`` and ``t[i+1]`` if
