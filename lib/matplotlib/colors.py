@@ -221,7 +221,7 @@ def _is_nth_color(c):
 
 
 def is_color_like(c):
-    """Return whether *c* can be interpreted as an RGB(A) color."""
+    """Return whether *c* as a valid Matplotlib :mpltype:`color` specifier."""
     # Special-case nth color syntax because it cannot be parsed during setup.
     if _is_nth_color(c):
         return True
@@ -306,7 +306,7 @@ def to_rgba(c, alpha=None):
 
     Parameters
     ----------
-    c : Matplotlib color or ``np.ma.masked``
+    c : :mpltype:`color` or ``np.ma.masked``
 
     alpha : float, optional
         If *alpha* is given, force the alpha value of the returned RGBA tuple
@@ -447,7 +447,7 @@ def to_rgba_array(c, alpha=None):
 
     Parameters
     ----------
-    c : Matplotlib color or array of colors
+    c : :mpltype:`color` or list of :mpltype:`color` or RGB(A) array
         If *c* is a masked array, an `~numpy.ndarray` is returned with a
         (0, 0, 0, 0) row for each masked value or row in *c*.
 
@@ -550,7 +550,11 @@ def to_rgba_array(c, alpha=None):
 
 
 def to_rgb(c):
-    """Convert *c* to an RGB color, silently dropping the alpha channel."""
+    """
+    Convert the :mpltype:`color` *c* to an RGB color tuple.
+
+    If c has an alpha channel value specified, that is silently dropped.
+    """
     return to_rgba(c)[:3]
 
 
@@ -560,7 +564,7 @@ def to_hex(c, keep_alpha=False):
 
     Parameters
     ----------
-    c : :ref:`color <colors_def>` or `numpy.ma.masked`
+    c : :mpltype:`color` or `numpy.ma.masked`
 
     keep_alpha : bool, default: False
       If False, use the ``#rrggbb`` format, otherwise use ``#rrggbbaa``.
@@ -1198,7 +1202,7 @@ class ListedColormap(Colormap):
 
     Parameters
     ----------
-    colors : list, array
+    colors : list of :mpltype:`color` or array
         Sequence of Matplotlib color specifications (color names or RGB(A)
         values).
     name : str, optional
@@ -1857,12 +1861,12 @@ class BivarColormap:
 
         Parameters
         ----------
-        bad : None or :mpltype:`color`
-            If Matplotlib color, the *bad* value is set accordingly in the copy
+        bad : :mpltype:`color`, optional
+            If given, the *bad* value is set accordingly in the copy.
 
-        outside : None or :mpltype:`color`
-            If Matplotlib color and shape is 'ignore' or 'circleignore', values
-            *outside* the colormap are colored accordingly in the copy
+        outside : :mpltype:`color`, optional
+            If given and shape is 'ignore' or 'circleignore', values
+            *outside* the colormap are colored accordingly in the copy.
 
         shape : {'square', 'circle', 'ignore', 'circleignore'}
 
