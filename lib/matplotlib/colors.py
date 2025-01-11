@@ -743,7 +743,7 @@ class Colormap:
         r"""
         Parameters
         ----------
-        X : float or int, `~numpy.ndarray` or scalar
+        X : float or int or array-like
             The data value(s) to convert to RGBA.
             For floats, *X* should be in the interval ``[0.0, 1.0]`` to
             return the RGBA values ``X*100`` percent along the Colormap line.
@@ -771,7 +771,7 @@ class Colormap:
         r"""
         Parameters
         ----------
-        X : float or int, `~numpy.ndarray` or scalar
+        X : float or int or array-like
             The data value(s) to convert to RGBA.
             For floats, *X* should be in the interval ``[0.0, 1.0]`` to
             return the RGBA values ``X*100`` percent along the Colormap line.
@@ -1609,7 +1609,7 @@ class BivarColormap:
         r"""
         Parameters
         ----------
-        X : tuple (X0, X1), X0 and X1: float or int `~numpy.ndarray` or scalar
+        X : tuple (X0, X1), X0 and X1: float or int or array-like
             The data value(s) to convert to RGBA.
 
             - For floats, *X* should be in the interval ``[0.0, 1.0]`` to
