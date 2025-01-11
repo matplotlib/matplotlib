@@ -1613,7 +1613,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x, y : array-like or scalar
+        x, y : array-like or float
             The horizontal / vertical coordinates of the data points.
             *x* values are optional and default to ``range(len(y))``.
 
@@ -4231,13 +4231,13 @@ class Axes(_AxesBase):
             A list of dictionaries containing stats for each boxplot.
             Required keys are:
 
-            - ``med``: Median (scalar).
-            - ``q1``, ``q3``: First & third quartiles (scalars).
-            - ``whislo``, ``whishi``: Lower & upper whisker positions (scalars).
+            - ``med``: Median (float).
+            - ``q1``, ``q3``: First & third quartiles (float).
+            - ``whislo``, ``whishi``: Lower & upper whisker positions (float).
 
             Optional keys are:
 
-            - ``mean``: Mean (scalar).  Needed if ``showmeans=True``.
+            - ``mean``: Mean (float).  Needed if ``showmeans=True``.
             - ``fliers``: Data beyond the whiskers (array-like).
               Needed if ``showfliers=True``.
             - ``cilo``, ``cihi``: Lower & upper confidence intervals
@@ -6872,7 +6872,7 @@ class Axes(_AxesBase):
             ``True``, then the histogram is normalized such that the first bin
             equals 1.
 
-        bottom : array-like, scalar, or None, default: None
+        bottom : array-like or float, default: 0
             Location of the bottom of each bin, i.e. bins are drawn from
             ``bottom`` to ``bottom + hist(x, bins)`` If a scalar, the bottom
             of each bin is shifted by the same amount. If an array, each bin

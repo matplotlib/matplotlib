@@ -21,9 +21,9 @@ class MixedModeRenderer:
         ----------
         figure : `~matplotlib.figure.Figure`
             The figure instance.
-        width : scalar
+        width : float
             The width of the canvas in logical units
-        height : scalar
+        height : float
             The height of the canvas in logical units
         dpi : float
             The dpi of the canvas
