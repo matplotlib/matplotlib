@@ -138,12 +138,9 @@ The editing workflow
    Note the ``-am`` options to ``commit``. The ``m`` flag signals that you are
    going to type a message on the command line.  The ``a`` flag stages every
    file that has been modified, except files listed in ``.gitignore``. For more
-   information, see `why the -a flag?`_ and the
-   `git commit <https://git-scm.com/docs/git-commit>`_  manual page.
+   information, see the `git commit <https://git-scm.com/docs/git-commit>`_  manual page.
 #. To push the changes up to your forked repo on GitHub, do a ``git
    push``.
-
-.. _why the -a flag?: http://gitready.com/beginner/2009/01/18/the-staging-area.html
 
 
 Verify your changes
