@@ -5582,16 +5582,16 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        {ind} : array (length N)
+        {ind} : array-like
             The {ind} coordinates of the nodes defining the curves.
 
-        {dep}1 : array (length N) or scalar
+        {dep}1 : array-like or float
             The {dep} coordinates of the nodes defining the first curve.
 
-        {dep}2 : array (length N) or scalar, default: 0
+        {dep}2 : array-like or float, default: 0
             The {dep} coordinates of the nodes defining the second curve.
 
-        where : array of bool (length N), optional
+        where : array-like of bool, optional
             Define *where* to exclude some {dir} regions from being filled.
             The filled regions are defined by the coordinates ``{ind}[where]``.
             More precisely, fill between ``{ind}[i]`` and ``{ind}[i+1]`` if
