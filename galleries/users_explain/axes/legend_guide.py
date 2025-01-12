@@ -175,7 +175,7 @@ fig.legend(loc='outside upper right')
 #
 ucl = ['upper', 'center', 'lower']
 lcr = ['left', 'center', 'right']
-fig, ax = plt.subplots(figsize=(6, 4), layout='constrained', facecolor='0.7')
+fig, ax = plt.subplots(figsize=(6, 4), layout='constrained', facecolor='0.95')
 
 ax.plot([1, 2], [1, 2], label='TEST')
 # Place a legend to the right of this smaller subplot.
@@ -188,12 +188,14 @@ for loc in [
         'outside lower right']:
     fig.legend(loc=loc, title=loc)
 
-fig, ax = plt.subplots(figsize=(6, 4), layout='constrained', facecolor='0.7')
+fig, ax = plt.subplots(figsize=(6, 4), layout='constrained', facecolor='0.95')
 ax.plot([1, 2], [1, 2], label='test')
 
 for loc in [
         'outside left upper',
         'outside right upper',
+        'outside left center',
+        'outside right center',
         'outside left lower',
         'outside right lower']:
     fig.legend(loc=loc, title=loc)
