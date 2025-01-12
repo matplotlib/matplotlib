@@ -19,7 +19,7 @@ from matplotlib.transforms import (
 import pathlib
 from collections.abc import Iterable
 from typing import Any, Literal, overload
-from .typing import ColorType
+from .typing import ColorType, LegendLocType
 
 class DraggableLegend(DraggableOffsetBox):
     legend: Legend
@@ -55,7 +55,7 @@ class Legend(Artist):
         handles: Iterable[Artist | tuple[Artist, ...]],
         labels: Iterable[str],
         *,
-        loc: str | tuple[float, float] | int | None = ...,
+        loc: LegendLocType | None = ...,
         numpoints: int | None = ...,
         markerscale: float | None = ...,
         markerfirst: bool = ...,
@@ -118,7 +118,7 @@ class Legend(Artist):
     def get_texts(self) -> list[Text]: ...
     def set_alignment(self, alignment: Literal["center", "left", "right"]) -> None: ...
     def get_alignment(self) -> Literal["center", "left", "right"]: ...
-    def set_loc(self, loc: str | tuple[float, float] | int | None = ...) -> None: ...
+    def set_loc(self, loc: LegendLocType | None = ...) -> None: ...
     def set_title(
         self, title: str, prop: FontProperties | str | pathlib.Path | None = ...
     ) -> None: ...
