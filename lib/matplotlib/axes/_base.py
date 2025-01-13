@@ -202,6 +202,42 @@ def _process_plot_format(fmt, *, ambiguous_fmt_datakey=False):
     return linestyle, marker, color
 
 
+class _PropCycle:
+    """
+    A class that holds the property cycle information.
+
+    It expands the iterator-based Cycler into an explicit indexed list to support
+    conditional advancing.
+    """
+    def __init__(self, cycler):
+        self._idx = 0
+        self._cycler_items = [*cycler]
+
+    def get_next_color(self):
+        """Return the next color in the cycle."""
+        entry = self._cycler_items[self._idx]
+        if "color" in entry:
+            self._idx = (self._idx + 1) % len(self._cycler_items)  # Advance cycler.
+            return entry["color"]
+        else:
+            return "k"
+
+    def getdefaults(self, kw, ignore=frozenset()):
+        """
+        If some keys in the property cycle (excluding those in the set
+        *ignore*) are absent or set to None in the dict *kw*, return a copy
+        of the next entry in the property cycle, excluding keys in *ignore*.
+        Otherwise, don't advance the property cycle, and return an empty dict.
+        """
+        defaults = self._cycler_items[self._idx]
+        if any(kw.get(k, None) is None for k in {*defaults} - ignore):
+            self._idx = (self._idx + 1) % len(self._cycler_items)  # Advance cycler.
+            # Return a new dict to avoid exposing _cycler_items entries to mutation.
+            return {k: v for k, v in defaults.items() if k not in ignore}
+        else:
+            return {}
+
+
 class _process_plot_var_args:
     """
     Process variable length arguments to `~.Axes.plot`, to support ::
@@ -220,8 +256,7 @@ class _process_plot_var_args:
         self.set_prop_cycle(None)
 
     def set_prop_cycle(self, cycler):
-        self._idx = 0
-        self._cycler_items = [*mpl._val_or_rc(cycler, 'axes.prop_cycle')]
+        self._prop_cycle = _PropCycle(mpl._val_or_rc(cycler, 'axes.prop_cycle'))
 
     def __call__(self, axes, *args, data=None, return_kwargs=False, **kwargs):
         axes._process_unit_info(kwargs=kwargs)
@@ -300,29 +335,10 @@ class _process_plot_var_args:
 
     def get_next_color(self):
         """Return the next color in the cycle."""
-        entry = self._cycler_items[self._idx]
-        if "color" in entry:
-            self._idx = (self._idx + 1) % len(self._cycler_items)  # Advance cycler.
-            return entry["color"]
-        else:
-            return "k"
+        return self._prop_cycle.get_next_color()
 
-    def _getdefaults(self, kw, ignore=frozenset()):
-        """
-        If some keys in the property cycle (excluding those in the set
-        *ignore*) are absent or set to None in the dict *kw*, return a copy
-        of the next entry in the property cycle, excluding keys in *ignore*.
-        Otherwise, don't advance the property cycle, and return an empty dict.
-        """
-        defaults = self._cycler_items[self._idx]
-        if any(kw.get(k, None) is None for k in {*defaults} - ignore):
-            self._idx = (self._idx + 1) % len(self._cycler_items)  # Advance cycler.
-            # Return a new dict to avoid exposing _cycler_items entries to mutation.
-            return {k: v for k, v in defaults.items() if k not in ignore}
-        else:
-            return {}
-
-    def _setdefaults(self, defaults, kw):
+    @staticmethod
+    def _setdefaults(defaults, kw):
         """
         Add to the dict *kw* the entries in the dict *default* that are absent
         or set to None in *kw*.
@@ -333,13 +349,13 @@ class _process_plot_var_args:
 
     def _make_line(self, axes, x, y, kw, kwargs):
         kw = {**kw, **kwargs}  # Don't modify the original kw.
-        self._setdefaults(self._getdefaults(kw), kw)
+        self._setdefaults(self._prop_cycle.getdefaults(kw), kw)
         seg = mlines.Line2D(x, y, **kw)
         return seg, kw
 
     def _make_coordinates(self, axes, x, y, kw, kwargs):
         kw = {**kw, **kwargs}  # Don't modify the original kw.
-        self._setdefaults(self._getdefaults(kw), kw)
+        self._setdefaults(self._prop_cycle.getdefaults(kw), kw)
         return (x, y), kw
 
     def _make_polygon(self, axes, x, y, kw, kwargs):
@@ -367,7 +383,7 @@ class _process_plot_var_args:
         # for getting defaults for back-compat reasons.
         # Doing it with both seems to mess things up in
         # various places (probably due to logic bugs elsewhere).
-        default_dict = self._getdefaults(kw, ignores)
+        default_dict = self._prop_cycle.getdefaults(kw, ignores)
         self._setdefaults(default_dict, kw)
 
         # Looks like we don't want "color" to be interpreted to
