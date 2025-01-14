@@ -1450,15 +1450,13 @@ def subplot(*args, **kwargs) -> Axes:
 
     Notes
     -----
-    Creating a new Axes will delete any preexisting Axes that
-    overlaps with it beyond sharing a boundary::
+    Creating a new Axes will not delete any preexisting Axes, even if they overlap::
 
         import matplotlib.pyplot as plt
         # plot a line, implicitly creating a subplot(111)
         plt.plot([1, 2, 3])
         # now create a subplot which represents the top plot of a grid
-        # with 2 rows and 1 column. Since this subplot will overlap the
-        # first, the plot (and its Axes) previously created, will be removed
+        # with 2 rows and 1 column. The existing plot (and its Axes) will remain
         plt.subplot(211)
 
     If you do not want this behavior, use the `.Figure.add_subplot` method
