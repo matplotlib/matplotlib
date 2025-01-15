@@ -8,7 +8,6 @@ Example of displaying your own contour lines and polygons using ContourSet.
 
 import matplotlib.pyplot as plt
 
-import matplotlib.cm as cm
 from matplotlib.contour import ContourSet
 from matplotlib.path import Path
 
@@ -30,12 +29,12 @@ filled12 = [[[2, 0], [3, 0], [3, 2], [1, 3], [1, 2]],   # Note two polygons.
 fig, ax = plt.subplots()
 
 # Filled contours using filled=True.
-cs = ContourSet(ax, [0, 1, 2], [filled01, filled12], filled=True, cmap=cm.bone)
+cs = ContourSet(ax, [0, 1, 2], [filled01, filled12], filled=True, cmap="bone")
 cbar = fig.colorbar(cs)
 
 # Contour lines (non-filled).
 lines = ContourSet(
-    ax, [0, 1, 2], [lines0, lines1, lines2], cmap=cm.cool, linewidths=3)
+    ax, [0, 1, 2], [lines0, lines1, lines2], cmap="cool", linewidths=3)
 cbar.add_lines(lines)
 
 ax.set(xlim=(-0.5, 3.5), ylim=(-0.5, 4.5),

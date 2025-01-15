@@ -863,7 +863,7 @@ def test_mask_image_over_under():
           (2 * np.pi * 0.5 * 1.5))
     Z = 10*(Z2 - Z1)  # difference of Gaussians
 
-    palette = plt.cm.gray.with_extremes(over='r', under='g', bad='b')
+    palette = plt.colormaps["gray"].with_extremes(over='r', under='g', bad='b')
     Zm = np.ma.masked_where(Z > 1.2, Z)
     fig, (ax1, ax2) = plt.subplots(1, 2)
     im = ax1.imshow(Zm, interpolation='bilinear',
@@ -1435,7 +1435,7 @@ def test_rgba_antialias():
     aa[70:90, 195:215] = 1e6
     aa[20:30, 195:215] = -1e6
 
-    cmap = copy(plt.cm.RdBu_r)
+    cmap = plt.colormaps["RdBu_r"]
     cmap.set_over('yellow')
     cmap.set_under('cyan')
 

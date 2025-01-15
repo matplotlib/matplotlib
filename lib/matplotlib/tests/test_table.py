@@ -55,7 +55,7 @@ def test_label_colours():
     dim = 3
 
     c = np.linspace(0, 1, dim)
-    colours = plt.cm.RdYlGn(c)
+    colours = plt.colormaps["RdYlGn"](c)
     cellText = [['1'] * dim] * dim
 
     fig = plt.figure()

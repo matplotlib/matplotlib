@@ -49,7 +49,6 @@ can clearly be seen:
 import matplotlib.pyplot as plt
 import numpy as np
 
-from matplotlib import cm
 import matplotlib.cbook as cbook
 import matplotlib.colors as colors
 
@@ -101,7 +100,7 @@ Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
 Z = (0.9*Z1 - 0.5*Z2) * 2
 
 # select a divergent colormap
-cmap = cm.coolwarm
+cmap = "coolwarm"
 
 fig, (ax1, ax2) = plt.subplots(ncols=2)
 pc = ax1.pcolormesh(Z, cmap=cmap)
@@ -262,8 +261,8 @@ latitude = dem['latitude']
 fig, ax = plt.subplots()
 # make a colormap that has land and ocean clearly delineated and of the
 # same length (256 + 256)
-colors_undersea = plt.cm.terrain(np.linspace(0, 0.17, 256))
-colors_land = plt.cm.terrain(np.linspace(0.25, 1, 256))
+colors_undersea = plt.colormaps["terrain"](np.linspace(0, 0.17, 256))
+colors_land = plt.colormaps["terrain"](np.linspace(0.25, 1, 256))
 all_colors = np.vstack((colors_undersea, colors_land))
 terrain_map = colors.LinearSegmentedColormap.from_list(
     'terrain_map', all_colors)
