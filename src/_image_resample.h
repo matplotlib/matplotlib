@@ -519,17 +519,6 @@ struct type_mapping
         agg::pixfmt_alpha_blend_gray<blender_type, agg::rendering_buffer>,
         agg::pixfmt_alpha_blend_rgba<blender_type, agg::rendering_buffer>
     >;
-    using pixfmt_pre_type = std::conditional_t<
-        is_grayscale_v<color_type>,
-        pixfmt_type,
-        agg::pixfmt_alpha_blend_rgba<
-            std::conditional_t<
-                std::is_same_v<color_type, agg::rgba8>,
-                fixed_blender_rgba_pre<color_type, agg::order_rgba>,
-                agg::blender_rgba_pre<color_type, agg::order_rgba>
-            >,
-            agg::rendering_buffer>
-    >;
     template<typename A> using span_gen_affine_type = std::conditional_t<
         is_grayscale_v<color_type>,
         agg::span_image_resample_gray_affine<A>,
