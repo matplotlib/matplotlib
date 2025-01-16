@@ -719,3 +719,81 @@ def test_layout_leak():
     gc.collect()
     assert not any(isinstance(obj, mpl._layoutgrid.LayoutGrid)
                    for obj in gc.get_objects())
+
+
+def plot_nested_grid_alignment(top, middle, bottom_axes, bottom):
+    def add_subplots(axis, nx, ny):
+        axis.clear()
+        axis.get_xaxis().set_visible(False)
+        axis.get_yaxis().set_visible(False)
+        subplot_spec = axis.get_subplotspec()
+        subgrid_spec = subplot_spec.subgridspec(nx, ny)
+        axis_list = subgrid_spec.subplots().flatten().tolist()
+        for a in axis_list:
+            show_random_image(a)
+
+        return axis_list
+
+    def show_random_image(axis):
+        z = np.linspace(0, 1, 30).reshape(10, 3)
+        axis.pcolormesh(z, cmap="plasma")
+
+    fig = plt.figure(figsize=[20, 12], layout="constrained")
+    fig.get_layout_engine().set(w_pad=0.2, h_pad=0.2)
+
+    axes = fig.subplots(2, 2, width_ratios=[1, 2]).flatten().tolist()
+    for a in axes:
+        show_random_image(a)
+    show_random_image(axes[0])
+    if top:
+        axes[0].set_title("title", fontsize=50)
+        axes[0].set_xlabel("xlabel", fontsize=50)
+        axes[0].get_xaxis().set_tick_params(labelsize=50)
+        axes[-1].set_ylabel("ylabel", fontsize=50)
+        axes[-1].get_yaxis().set_tick_params(labelsize=50)
+        axes[0].get_xaxis().set_visible(False)
+    axes = add_subplots(axes[1], 2, 2)
+    if middle:
+        axes[-1].set_title("title", fontsize=50)
+        axes[0].set_title("title", fontsize=50)
+        axes[0].set_ylabel("ylabel", fontsize=50)
+        axes[0].get_yaxis().set_tick_params(labelsize=30)
+        axes[1].set_ylabel("ylabel", fontsize=50)
+        axes[1].get_yaxis().set_tick_params(labelsize=30)
+        axes[-1].get_xaxis().set_tick_params(labelsize=50)
+        axes[-1].set_xlabel("xlabel", fontsize=50)
+    if bottom_axes:
+        axes = add_subplots(axes[2], 2, 3)
+        if bottom:
+            axes[3].set_ylabel("ylabel", fontsize=50)
+            axes[3].get_yaxis().set_tick_params(labelsize=50)
+
+
+@image_comparison(['plot_nested_grid_alignment1.png'])
+def test_nested_grid_alignment1():
+    plot_nested_grid_alignment(False, False, False, False)
+
+
+@image_comparison(['plot_nested_grid_alignment2.png'])
+def test_nested_grid_alignment2():
+    plot_nested_grid_alignment(True, False, False, False)
+
+
+@image_comparison(['plot_nested_grid_alignment3.png'])
+def test_nested_grid_alignment3():
+    plot_nested_grid_alignment(False, True, False, False)
+
+
+@image_comparison(['plot_nested_grid_alignment4.png'])
+def test_nested_grid_alignment4():
+    plot_nested_grid_alignment(True, False, True, False)
+
+
+@image_comparison(['plot_nested_grid_alignment5.png'])
+def test_nested_grid_alignment5():
+    plot_nested_grid_alignment(False, True, True, False)
+
+
+@image_comparison(['plot_nested_grid_alignment6.png'])
+def test_nested_grid_alignment6():
+    plot_nested_grid_alignment(False, False, True, True)
