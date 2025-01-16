@@ -360,7 +360,7 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
 
     Parameters
     ----------
-    extensions : list, default: ["gif", "png", "pdf", "svg"]
+    extensions : list, default: ["png", "pdf", "svg"]
         The extensions to test.
     tol : float
         The RMS threshold above which the test is considered failed.
