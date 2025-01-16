@@ -4,6 +4,8 @@ Nested GridSpecs
 ================
 
 This example demonstrates the use of nested `.GridSpec`\s.
+
+.. redirect-from:: /gallery/userdemo/demo_gridspec06
 """
 
 import matplotlib.pyplot as plt
