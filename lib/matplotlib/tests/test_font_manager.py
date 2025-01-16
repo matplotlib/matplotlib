@@ -20,7 +20,7 @@ from matplotlib import cbook, ft2font, pyplot as plt, rc_context, figure as mfig
 from matplotlib.testing import subprocess_run_helper, subprocess_run_for_testing
 
 
-has_fclist = shutil.which('fc-list') is not None
+has_fclist = sys.platform != 'emscripten' and shutil.which('fc-list') is not None
 
 
 def test_font_priority():
@@ -228,6 +228,8 @@ def _model_handler(_):
     plt.close()
 
 
+@pytest.mark.skipif(sys.platform == 'emscripten',
+                    reason='emscripten does not support subprocesses')
 @pytest.mark.skipif(not hasattr(os, "register_at_fork"),
                     reason="Cannot register at_fork handlers")
 def test_fork():

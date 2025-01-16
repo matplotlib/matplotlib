@@ -193,8 +193,8 @@ def test_imsave_rgba_origin(origin):
 
 
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
-def test_imsave_fspath(fmt):
-    plt.imsave(Path(os.devnull), np.array([[0, 1]]), format=fmt)
+def test_imsave_fspath(fmt, tmp_path):
+    plt.imsave(tmp_path / f'unused.{fmt}', np.array([[0, 1]]), format=fmt)
 
 
 def test_imsave_color_alpha():
@@ -1507,6 +1507,7 @@ def test_rc_interpolation_stage():
             mpl.rcParams["image.interpolation_stage"] = val
 
 
+@pytest.mark.skipif(sys.platform == 'emscripten', reason='Figure too large for WASM')
 # We check for the warning with a draw() in the test, but we also need to
 # filter the warning as it is emitted by the figure test decorator
 @pytest.mark.filterwarnings(r'ignore:Data with more than .* '
