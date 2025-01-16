@@ -845,6 +845,14 @@ def test_wireframe3d():
     ax.plot_wireframe(X, Y, Z, rcount=13, ccount=13)
 
 
+@mpl3d_image_comparison(['wireframe3dasymmetric.png'], style='mpl20')
+def test_wireframe3dasymmetric():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    X, Y, Z = axes3d.get_test_data(0.05)
+    ax.plot_wireframe(X, Y, Z, rcount=3, ccount=13)
+
+
 @mpl3d_image_comparison(['wireframe3dzerocstride.png'], style='mpl20')
 def test_wireframe3dzerocstride():
     fig = plt.figure()
