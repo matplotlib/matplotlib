@@ -40,6 +40,11 @@ import numpy as np
 from numpy.typing import ArrayLike
 from matplotlib.typing import ColorType, MarkerType, LineStyleType
 
+
+class _GroupedBarReturn:
+    def __init__(self, bar_containers: list[BarContainer]) -> None: ...
+    def remove(self) -> None: ...
+
 class Axes(_AxesBase):
     def get_title(self, loc: Literal["left", "center", "right"] = ...) -> str: ...
     def set_title(
@@ -279,6 +284,18 @@ class Axes(_AxesBase):
         data=...,
         **kwargs
     ) -> PolyCollection: ...
+    def grouped_bar(
+        self,
+        x : ArrayLike,
+        heights : Sequence[ArrayLike] | dict[str, ArrayLike] | np.ndarray,
+        *,
+        group_spacing : float | None = ...,
+        bar_spacing : float | None = ...,
+        labels : Sequence[str] | None = ...,
+        orientation: Literal["vertical", "horizontal"] = ...,
+        colors: Iterable[ColorType] | None = ...,
+        **kwargs
+    ) -> list[BarContainer]: ...
     def stem(
         self,
         *args: ArrayLike | str,
