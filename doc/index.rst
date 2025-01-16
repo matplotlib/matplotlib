@@ -102,7 +102,7 @@ Learn
 Live example
 ============
 
-Try Matplotlib directly in this documentation (Press ``shift+Enter`` to execute code)! Alternatively, you can try the gallery examples in `our JupyterLite deployment <./lite/lab>`__.
+Try Matplotlib directly in this documentation (Press ``shift+Enter`` to execute code)!
 
 .. replite::
     :kernel: python
@@ -118,6 +118,8 @@ Try Matplotlib directly in this documentation (Press ``shift+Enter`` to execute 
    fig = plt.figure()
    plt.plot(np.sin(np.linspace(0, 20, 100)))
    plt.show();
+
+Alternatively, you can try the gallery examples in `our JupyterLite deployment <./lite/lab>`__.
 
 Community
 =========
