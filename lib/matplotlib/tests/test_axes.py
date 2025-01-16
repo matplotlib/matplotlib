@@ -4022,6 +4022,108 @@ def test_violinplot_outofrange_quantiles():
 
 
 @check_figures_equal(extensions=["png"])
+def test_violinplot_color_specification(fig_test, fig_ref):
+    # Ensures that setting colors in violinplot constructor works
+    # the same way as setting the color of each object manually
+    np.random.seed(19680801)
+    data = [sorted(np.random.normal(0, std, 100)) for std in range(1, 5)]
+    kwargs = {'showmeans': True,
+              'showextrema': True,
+              'showmedians': True
+              }
+
+    # Test image
+    ax = fig_test.subplots(1, 5)
+    parts0 = ax[0].violinplot(data, **kwargs)
+    for pc in parts0['bodies']:
+        pc.set_facecolor(('r', 0.5))
+    for partname in ('cbars', 'cmins', 'cmaxes', 'cmeans', 'cmedians'):
+        if partname in parts0:
+            pc = parts0[partname]
+            pc.set_edgecolor('r')
+
+    parts1 = ax[1].violinplot(data, **kwargs)
+    for pc in parts1['bodies']:
+        pc.set_facecolor(('r', 0.3))
+
+    parts2 = ax[2].violinplot(data, **kwargs)
+    for partname in ('cbars', 'cmins', 'cmaxes', 'cmeans', 'cmedians'):
+        if partname in parts2:
+            pc = parts2[partname]
+            pc.set_edgecolor('r')
+
+    parts3 = ax[3].violinplot(data, **kwargs)
+    for pc in parts3['bodies']:
+        pc.set_facecolor(('g', 0.3))
+    for partname in ('cbars', 'cmins', 'cmaxes', 'cmeans', 'cmedians'):
+        if partname in parts3:
+            pc = parts3[partname]
+            pc.set_edgecolor('r')
+
+    parts4 = ax[4].violinplot(data, **kwargs)
+    for pc in parts4['bodies']:
+        pc.set_facecolor(('k', 0.5))
+
+    # Reference image
+    ax = fig_ref.subplots(1, 5)
+    ax[0].violinplot(data, facecolor='r', edgecolor='r', alpha=0.5, **kwargs)
+    ax[1].violinplot(data, facecolor='r', **kwargs)
+    ax[2].violinplot(data, edgecolor='r', **kwargs)
+    ax[3].violinplot(data, facecolor='g', edgecolor='r', **kwargs)
+    ax[4].violinplot(data, facecolor=('k', 0.5), alpha=None, **kwargs)
+
+
+@check_figures_equal(extensions=["png"])
+def test_violinplot_color_sequence(fig_test, fig_ref):
+    # Ensures that setting a sequence of colors works the same as setting
+    # each color independently
+    np.random.seed(19680801)
+    data = [sorted(np.random.normal(0, std, 100)) for std in range(1, 5)]
+    kwargs = {'showmeans': True,
+              'showextrema': True,
+              'showmedians': True
+              }
+
+    # Color sequence
+    N = len(data)
+    positions = range(N)
+    colors = ['k', 'r', 'b', 'g', 'm']
+
+    # Test image
+    ax = fig_test.gca()
+    ax.violinplot(data, positions=positions, facecolor=colors,
+                  edgecolor=colors, **kwargs)
+    # Get all x/y axis features
+    xlim = ax.get_xlim()
+    ylim = ax.get_ylim()
+    xticks = ax.get_xticks()
+    yticks = ax.get_yticks()
+    xticklabels = ax.get_xticklabels()
+    yticklabels = ax.get_yticklabels()
+    # Ensure all x/y axis features are identical (not what this is designed to test)
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
+    ax.set_xticks(xticks)
+    ax.set_yticks(yticks)
+    ax.set_xticklabels(xticklabels)
+    ax.set_yticklabels(yticklabels)
+
+    # Reference image
+    ax = fig_ref.gca()
+    for (p, c, d) in zip(positions, colors, data):
+        ax.violinplot(d, positions=[p], facecolor=c, edgecolor=c, **kwargs)
+    # Ensure all x/y axis features are identical (not what this is designed to test)
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
+    ax.set_xticks(xticks)
+    ax.set_yticks(yticks)
+    ax.set_xticklabels(xticklabels)
+    ax.set_yticklabels(yticklabels)
+
+    return fig_test, fig_ref
+
+
+@check_figures_equal(extensions=["png"])
 def test_violinplot_single_list_quantiles(fig_test, fig_ref):
     # Ensures quantile list for 1D can be passed in as single list
     # First 9 digits of frac(sqrt(83))

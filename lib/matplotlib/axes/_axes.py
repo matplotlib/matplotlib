@@ -8439,7 +8439,8 @@ such objects
     def violinplot(self, dataset, positions=None, vert=None,
                    orientation='vertical', widths=0.5, showmeans=False,
                    showextrema=True, showmedians=False, quantiles=None,
-                   points=100, bw_method=None, side='both',):
+                   points=100, bw_method=None, side='both',
+                   facecolor=None, edgecolor=None, alpha=0.3):
         """
         Make a violin plot.
 
@@ -8506,6 +8507,22 @@ such objects
             'both' plots standard violins. 'low'/'high' only
             plots the side below/above the positions value.
 
+        facecolor : color or list of colors or None; see :ref:`colors_def`
+            If provided, will set the face color(s) of the violin plots.
+
+        edgecolor : color or list of colors or None; see :ref:`colors_def`
+            If provided, will set the edge color(s) of the violin plots (the
+            horizontal and vertical spines).
+
+        alpha : float, default: 0.3
+            Sets the alpha value of the facecolor(s) of the violin plots. This
+            overwrites any alpha value provided in facecolor, so if you want to
+            set the alpha via the facecolor argument, set alpha to None.
+
+            .. versionadded:: 3.11
+
+                facecolor, edgecolor, alpha
+
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
 
@@ -8558,12 +8575,14 @@ such objects
         return self.violin(vpstats, positions=positions, vert=vert,
                            orientation=orientation, widths=widths,
                            showmeans=showmeans, showextrema=showextrema,
-                           showmedians=showmedians, side=side)
+                           showmedians=showmedians, side=side,
+                           facecolor=facecolor, edgecolor=edgecolor, alpha=alpha)
 
     @_api.make_keyword_only("3.9", "vert")
     def violin(self, vpstats, positions=None, vert=None,
                orientation='vertical', widths=0.5, showmeans=False,
-               showextrema=True, showmedians=False, side='both'):
+               showextrema=True, showmedians=False, side='both',
+               facecolor=None, edgecolor=None, alpha=0.3):
         """
         Draw a violin plot from pre-computed statistics.
 
@@ -8634,6 +8653,22 @@ such objects
         side : {'both', 'low', 'high'}, default: 'both'
             'both' plots standard violins. 'low'/'high' only
             plots the side below/above the positions value.
+
+        facecolor : color or list of colors or None; see :ref:`colors_def`
+            If provided, will set the face color(s) of the violin plots.
+
+        edgecolor : color or list of colors or None; see :ref:`colors_def`
+            If provided, will set the edge color(s) of the violin plots (the
+            horizontal and vertical spines).
+
+        alpha : float, default: 0.3
+            Sets the alpha value of the facecolor(s) of the violin plots. This
+            overwrites any alpha value provided in facecolor, so if you want to
+            set the alpha via the facecolor argument, set alpha to None.
+
+            .. versionadded:: 3.11
+
+                facecolor, edgecolor, alpha
 
         Returns
         -------
@@ -8717,45 +8752,71 @@ such objects
                      [0.25 if side in ['both', 'high'] else 0]] \
                           * np.array(widths) + positions
 
-        # Colors.
+        # Make a cycle of color to iterate through, using 'none' as fallback
+        def cycle_color(color, alpha=None):
+            rgba = mcolors.to_rgba_array(color, alpha=alpha)
+            color_cycler = itertools.chain(itertools.cycle(rgba),
+                                           itertools.repeat('none'))
+            color_list = []
+            for _ in range(N):
+                color_list.append(next(color_cycler))
+            return color_list
+
+        # Set default colors for when user doesn't provide them
         if mpl.rcParams['_internal.classic_mode']:
-            fillcolor = 'y'
-            linecolor = 'r'
+            default_facecolor = cycle_color('y')
+            default_edgecolor = cycle_color('r')
         else:
-            fillcolor = linecolor = self._get_lines.get_next_color()
+            next_color = self._get_lines.get_next_color()
+            default_facecolor = cycle_color(next_color, alpha=alpha)
+            default_edgecolor = cycle_color(next_color)
+
+        # Convert colors to chain (number of colors can be different from len(vpstats))
+        if facecolor is not None:
+            facecolor = cycle_color(facecolor, alpha=alpha)
+
+        if edgecolor is not None:
+            edgecolor = cycle_color(edgecolor)
+
+        # Set color of violin plots
+        if facecolor is None:
+            facecolor = default_facecolor
+        if edgecolor is None:
+            edgecolor = default_edgecolor
 
         # Check whether we are rendering vertically or horizontally
         if orientation == 'vertical':
             fill = self.fill_betweenx
             if side in ['low', 'high']:
-                perp_lines = functools.partial(self.hlines, colors=linecolor,
+                perp_lines = functools.partial(self.hlines, colors=edgecolor,
                                                 capstyle='projecting')
-                par_lines = functools.partial(self.vlines, colors=linecolor,
+                par_lines = functools.partial(self.vlines, colors=edgecolor,
                                                 capstyle='projecting')
             else:
-                perp_lines = functools.partial(self.hlines, colors=linecolor)
-                par_lines = functools.partial(self.vlines, colors=linecolor)
+                perp_lines = functools.partial(self.hlines, colors=edgecolor)
+                par_lines = functools.partial(self.vlines, colors=edgecolor)
         else:
             fill = self.fill_between
             if side in ['low', 'high']:
-                perp_lines = functools.partial(self.vlines, colors=linecolor,
+                perp_lines = functools.partial(self.vlines, colors=edgecolor,
                                                 capstyle='projecting')
-                par_lines = functools.partial(self.hlines, colors=linecolor,
+                par_lines = functools.partial(self.hlines, colors=edgecolor,
                                                 capstyle='projecting')
             else:
-                perp_lines = functools.partial(self.vlines, colors=linecolor)
-                par_lines = functools.partial(self.hlines, colors=linecolor)
+                perp_lines = functools.partial(self.vlines, colors=edgecolor)
+                par_lines = functools.partial(self.hlines, colors=edgecolor)
 
         # Render violins
         bodies = []
-        for stats, pos, width in zip(vpstats, positions, widths):
+        bodies_zip = zip(vpstats, positions, widths, facecolor)
+        for stats, pos, width, facecol in bodies_zip:
             # The 0.5 factor reflects the fact that we plot from v-p to v+p.
             vals = np.array(stats['vals'])
             vals = 0.5 * width * vals / vals.max()
             bodies += [fill(stats['coords'],
                             -vals + pos if side in ['both', 'low'] else pos,
                             vals + pos if side in ['both', 'high'] else pos,
-                            facecolor=fillcolor, alpha=0.3)]
+                            facecolor=facecol, alpha=0.3)]
             means.append(stats['mean'])
             mins.append(stats['min'])
             maxes.append(stats['max'])
