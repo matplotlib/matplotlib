@@ -372,8 +372,8 @@ class _process_plot_var_args:
 
         # Looks like we don't want "color" to be interpreted to
         # mean both facecolor and edgecolor for some reason.
-        # So the "kw" dictionary is thrown out, and only its
-        # 'color' value is kept and translated as a 'facecolor'.
+        # So the "kw" dictionary is thrown out, and only its 'color' value is
+        # kept and translated as a 'facecolor'.
         # This design should probably be revisited as it increases
         # complexity.
         facecolor = kw.get('color', None)
@@ -3613,7 +3613,7 @@ class _AxesBase(martist.Artist):
     xaxis_inverted = _axis_method_wrapper("xaxis", "get_inverted")
     if xaxis_inverted.__doc__:
         xaxis_inverted.__doc__ = ("[*Discouraged*] " + xaxis_inverted.__doc__ +
-                                  textwrap.dedent("""
+                                 textwrap.dedent("""
 
         .. admonition:: Discouraged
 
@@ -3842,9 +3842,9 @@ class _AxesBase(martist.Artist):
         if {*kwargs} & {*protected_kw}:
             if loc is not None:
                 raise TypeError(f"Specifying 'loc' is disallowed when any of "
-                                f"its corresponding low level keyword "
-                                f"arguments ({protected_kw}) are also "
-                                f"supplied")
+                               f"its corresponding low level keyword "
+                               f"arguments ({protected_kw}) are also "
+                               f"supplied")
 
         else:
             loc = mpl._val_or_rc(loc, 'yaxis.labellocation')
@@ -4795,6 +4795,52 @@ class _AxesBase(martist.Artist):
     def get_forward_navigation_events(self):
         """Get how pan/zoom events are forwarded to Axes below this one."""
         return self._forward_navigation_events
+
+    def get_title_top(self) -> float:
+        """
+        Calculate the top position of the title.
+
+        Returns
+        -------
+        float
+            The top edge position of the title in axis coordinates.
+
+        Notes
+        -----
+        This method can be overridden by subclasses (e.g., PolarAxes or GeoAxes)
+        for custom title positioning.
+        """
+        bbox = self.get_position()
+        
+        # Current padding and other calculations
+        pad = self._axislines_get_title_offset() if self._axislines else 0
+        top = bbox.ymax + pad
+        
+        # Additional adjustments (e.g. for tight_layout)
+        if self._tight:
+            top += self._get_tight_layout_padding()
+            
+        return top
+
+    def _adjust_title_position(self, title, renderer):
+        """
+        Adjust the position of the title.
+
+        Parameters
+        ----------
+        title : matplotlib.text.Text
+            The title text instance
+        renderer : matplotlib.backend_bases.RendererBase
+            The renderer
+        """
+        # Get the top position from the new method
+        top = self.get_title_top()
+        
+        # Set the title position
+        title.set_position((0.5, top))
+        
+        # Update the title layout
+        title.update_bbox_position_size(renderer)
 
 
 def _draw_rasterized(figure, artists, renderer):
