@@ -1,3 +1,20 @@
+=============================================
+What's new in Matplotlib 3.10.0 (Dec 14, 2024)
+=============================================
+
+For a list of all of the issues and pull requests since the last revision, see the
+:ref:`github-stats`.
+
+.. contents:: Table of Contents
+   :depth: 4
+
+.. toctree::
+   :maxdepth: 4
+
+Accessible Colors
+=================
+
+
 New more-accessible color cycle
 -------------------------------
 
@@ -43,6 +60,12 @@ colour maps version 8.0.1 (DOI: https://doi.org/10.5281/zenodo.1243862).
     ax[1].imshow(img, cmap=plt.cm.managua)
     ax[2].imshow(img, cmap=plt.cm.vanimo)
 
+
+
+Plotting and Annotation improvements
+====================================
+
+
 Specifying a single color in ``contour`` and ``contourf``
 ---------------------------------------------------------
 
@@ -64,66 +87,6 @@ may be passed.
     ax2.contour(z, colors=(0.1, 0.2, 0.5))
 
     plt.show()
-
-Exception handling control
---------------------------
-
-The exception raised when an invalid keyword parameter is passed now includes
-that parameter name as the exception's ``name`` property.  This provides more
-control for exception handling:
-
-
-.. code-block:: python
-
-    import matplotlib.pyplot as plt
-
-    def wobbly_plot(args, **kwargs):
-        w = kwargs.pop('wobble_factor', None)
-
-        try:
-            plt.plot(args, **kwargs)
-        except AttributeError as e:
-            raise AttributeError(f'wobbly_plot does not take parameter {e.name}') from e
-
-
-    wobbly_plot([0, 1], wibble_factor=5)
-
-.. code-block::
-
-    AttributeError: wobbly_plot does not take parameter wibble_factor
-
-Preliminary support for free-threaded CPython 3.13
---------------------------------------------------
-
-Matplotlib 3.10 has preliminary support for the free-threaded build of CPython 3.13. See
-https://py-free-threading.github.io, `PEP 703 <https://peps.python.org/pep-0703/>`_ and
-the `CPython 3.13 release notes
-<https://docs.python.org/3.13/whatsnew/3.13.html#free-threaded-cpython>`_ for more detail
-about free-threaded Python.
-
-Support for free-threaded Python does not mean that Matplotlib is wholly thread safe. We
-expect that use of a Figure within a single thread will work, and though input data is
-usually copied, modification of data objects used for a plot from another thread may
-cause inconsistencies in cases where it is not. Use of any global state (such as the
-``pyplot`` module) is highly discouraged and unlikely to work consistently. Also note
-that most GUI toolkits expect to run on the main thread, so interactive usage may be
-limited or unsupported from other threads.
-
-If you are interested in free-threaded Python, for example because you have a
-multiprocessing-based workflow that you are interested in running with Python threads, we
-encourage testing and experimentation. If you run into problems that you suspect are
-because of Matplotlib, please open an issue, checking first if the bug also occurs in the
-“regular” non-free-threaded CPython 3.13 build.
-
-Increased Figure limits with Agg renderer
------------------------------------------
-
-Figures using the Agg renderer are now limited to 2**23 pixels in each
-direction, instead of 2**16. Additionally, bugs that caused artists to not
-render past 2**15 pixels horizontally have been fixed.
-
-Note that if you are using a GUI backend, it may have its own smaller limits
-(which may themselves depend on screen size.)
 
 Vectorized ``hist`` style parameters
 ------------------------------------
@@ -259,39 +222,6 @@ Subfigures are now added in row-major order
         ax.set_yticks([])
     plt.show()
 
-``svg.id`` rcParam
-------------------
-
-:rc:`svg.id` lets you insert an ``id`` attribute into the top-level ``<svg>`` tag.
-
-e.g. ``rcParams["svg.id"] = "svg1"`` results in
-default), no ``id`` tag is included
-
-.. code-block:: XML
-
-    <svg
-        xmlns:xlink="http://www.w3.org/1999/xlink"
-        width="50pt" height="50pt"
-        viewBox="0 0 50 50"
-        xmlns="http://www.w3.org/2000/svg"
-        version="1.1"
-        id="svg1"
-    ></svg>
-
-This is useful if you would like to link the entire matplotlib SVG file within
-another SVG file with the ``<use>`` tag.
-
-.. code-block:: XML
-
-    <svg>
-    <use
-        width="50" height="50"
-        xlink:href="mpl.svg#svg1" id="use1"
-        x="0" y="0"
-    /></svg>
-
-Where the ``#svg1`` indicator will now refer to the top level ``<svg>`` tag, and
-will hence result in the inclusion of the entire file.
 
 ``boxplot`` and ``bxp`` orientation parameter
 ---------------------------------------------
@@ -360,6 +290,11 @@ the ``set_data`` method, enabling e.g. resampling
 
     coll.set_data(t, -t**4, t**4)
     fig.savefig("after.png")
+
+
+3D plotting improvements
+========================
+
 
 Fill between 3D lines
 ---------------------
@@ -469,6 +404,108 @@ view box is a limitation of the current renderer.
     ax.plot_wireframe(X, Y, Z, color='C1', axlim_clip=True)
     ax.set(xlim=(0, 10), ylim=(-5, 5), zlim=(-1, 0.5))
     ax.legend(['axlim_clip=False (default)', 'axlim_clip=True'])
+
+
+Preliminary support for free-threaded CPython 3.13
+==================================================
+
+Matplotlib 3.10 has preliminary support for the free-threaded build of CPython 3.13. See
+https://py-free-threading.github.io, `PEP 703 <https://peps.python.org/pep-0703/>`_ and
+the `CPython 3.13 release notes
+<https://docs.python.org/3.13/whatsnew/3.13.html#free-threaded-cpython>`_ for more detail
+about free-threaded Python.
+
+Support for free-threaded Python does not mean that Matplotlib is wholly thread safe. We
+expect that use of a Figure within a single thread will work, and though input data is
+usually copied, modification of data objects used for a plot from another thread may
+cause inconsistencies in cases where it is not. Use of any global state (such as the
+``pyplot`` module) is highly discouraged and unlikely to work consistently. Also note
+that most GUI toolkits expect to run on the main thread, so interactive usage may be
+limited or unsupported from other threads.
+
+If you are interested in free-threaded Python, for example because you have a
+multiprocessing-based workflow that you are interested in running with Python threads, we
+encourage testing and experimentation. If you run into problems that you suspect are
+because of Matplotlib, please open an issue, checking first if the bug also occurs in the
+“regular” non-free-threaded CPython 3.13 build.
+
+
+
+Other Improvements
+==================
+
+``svg.id`` rcParam
+------------------
+
+:rc:`svg.id` lets you insert an ``id`` attribute into the top-level ``<svg>`` tag.
+
+e.g. ``rcParams["svg.id"] = "svg1"`` results in
+
+.. code-block:: XML
+
+    <svg
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        width="50pt" height="50pt"
+        viewBox="0 0 50 50"
+        xmlns="http://www.w3.org/2000/svg"
+        version="1.1"
+        id="svg1"
+    ></svg>
+
+This is useful if you would like to link the entire matplotlib SVG file within
+another SVG file with the ``<use>`` tag.
+
+.. code-block:: XML
+
+    <svg>
+    <use
+        width="50" height="50"
+        xlink:href="mpl.svg#svg1" id="use1"
+        x="0" y="0"
+    /></svg>
+
+Where the ``#svg1`` indicator will now refer to the top level ``<svg>`` tag, and
+will hence result in the inclusion of the entire file.
+
+By default, no ``id`` tag is included.
+
+Exception handling control
+--------------------------
+
+The exception raised when an invalid keyword parameter is passed now includes
+that parameter name as the exception's ``name`` property.  This provides more
+control for exception handling:
+
+
+.. code-block:: python
+
+    import matplotlib.pyplot as plt
+
+    def wobbly_plot(args, **kwargs):
+        w = kwargs.pop('wobble_factor', None)
+
+        try:
+            plt.plot(args, **kwargs)
+        except AttributeError as e:
+            raise AttributeError(f'wobbly_plot does not take parameter {e.name}') from e
+
+
+    wobbly_plot([0, 1], wibble_factor=5)
+
+.. code-block::
+
+    AttributeError: wobbly_plot does not take parameter wibble_factor
+
+Increased Figure limits with Agg renderer
+-----------------------------------------
+
+Figures using the Agg renderer are now limited to 2**23 pixels in each
+direction, instead of 2**16. Additionally, bugs that caused artists to not
+render past 2**15 pixels horizontally have been fixed.
+
+Note that if you are using a GUI backend, it may have its own smaller limits
+(which may themselves depend on screen size.)
+
 
 
 Miscellaneous Changes
