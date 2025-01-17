@@ -292,6 +292,62 @@ the ``set_data`` method, enabling e.g. resampling
     fig.savefig("after.png")
 
 
+Added ``matplotlib.colorizer.Colorizer`` as a container for ``norm`` and ``cmap``
+-------------------------------------------------------------------------------
+
+Plotting methods that support the ``norm`` and ``cmap`` keywords now additionally accepts the ``colorizer`` keyword supporting `matplotlib.colorizer.Colorizer` objects. This allows for easier re-use of a data-to-color pipeline.
+
+In the following example the norm and cmap are changed on multiple plots simultaneously:
+
+
+.. plot::
+    :include-source: true
+    :alt: Example use of a matplotlib.colorizer.Colorizer object
+
+    import matplotlib.pyplot as plt
+    import matplotlib as mpl
+    import numpy as np
+
+    x = np.linspace(-2, 2, 50)[np.newaxis, :]
+    y = np.linspace(-2, 2, 50)[:, np.newaxis]
+    im_0 = 1 * np.exp( - (x**2 + y**2 - x * y))
+    im_1 = 2 * np.exp( - (x**2 + y**2 + x * y))
+
+    colorizer = mpl.colorizer.Colorizer()
+    fig, axes = plt.subplots(1, 2, figsize=(6, 2))
+    cim_0 = axes[0].imshow(im_0, colorizer=colorizer)
+    fig.colorbar(cim_0)
+    cim_1 = axes[1].imshow(im_1, colorizer=colorizer)
+    fig.colorbar(cim_1)
+
+    colorizer.vmin = 0.5
+    colorizer.vmax = 2
+    colorizer.cmap = 'RdBu'
+
+All plotting methods that use a data-to-color pipeline now create a colorizer object if one is not provided. This can be re-used in by subsequent artists such that they will share a single data-to-color pipeline:
+
+.. plot::
+    :include-source: true
+    :alt: Example of how artists that share a ``colorizer`` have coupled colormaps
+
+    import matplotlib.pyplot as plt
+    import matplotlib as mpl
+    import numpy as np
+
+    x = np.linspace(-2, 2, 50)[np.newaxis, :]
+    y = np.linspace(-2, 2, 50)[:, np.newaxis]
+    im_0 = 1 * np.exp( - (x**2 + y**2 - x * y))
+    im_1 = 2 * np.exp( - (x**2 + y**2 + x * y))
+
+    fig, axes = plt.subplots(1, 2, figsize=(6, 2))
+
+    cim_0 = axes[0].imshow(im_0, cmap='RdBu', vmin=0.5, vmax=2)
+    fig.colorbar(cim_0)
+    cim_1 = axes[1].imshow(im_1, colorizer=cim_0.colorizer)
+    fig.colorbar(cim_1)
+
+    cim_1.cmap = 'rainbow'
+
 3D plotting improvements
 ========================
 
