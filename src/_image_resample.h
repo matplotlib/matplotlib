@@ -504,7 +504,8 @@ template<typename T> struct is_grayscale<T, std::void_t<decltype(T::r)>> : std::
 template<typename T> constexpr bool is_grayscale_v = is_grayscale<T>::value;
 
 
-template<typename color_type, bool input_has_alpha>
+// rgb_step is only used if input_has_alpha=false.
+template<typename color_type, bool input_has_alpha, int rgb_step=3>
 struct type_mapping
 {
     using input_blender_type = std::conditional_t<
@@ -526,7 +527,7 @@ struct type_mapping
         std::conditional_t<
             input_has_alpha,
             agg::pixfmt_alpha_blend_rgba<input_blender_type, agg::rendering_buffer>,
-            agg::pixfmt_alpha_blend_rgb<input_blender_type, agg::rendering_buffer, 3>
+            agg::pixfmt_alpha_blend_rgb<input_blender_type, agg::rendering_buffer, rgb_step>
         >
     >;
     using output_blender_type = std::conditional_t<
@@ -722,13 +723,14 @@ static void get_filter(const resample_params_t &params,
 }
 
 
-template<typename color_type, bool input_has_alpha = true>
+// rgb_step is only used if input_has_alpha=false.
+template<typename color_type, bool input_has_alpha = true, int rgb_step = 3>
 void resample(
     const void *input, int in_width, int in_height, int in_stride,
     void *output, int out_width, int out_height, int out_stride,
     resample_params_t &params)
 {
-    using type_mapping_t = type_mapping<color_type, input_has_alpha>;
+    using type_mapping_t = type_mapping<color_type, input_has_alpha, rgb_step>;
 
     using input_pixfmt_t = typename type_mapping_t::input_pixfmt_type;
     using output_pixfmt_t = typename type_mapping_t::output_pixfmt_type;
