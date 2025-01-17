@@ -295,7 +295,7 @@ the ``set_data`` method, enabling e.g. resampling
 Added ``matplotlib.colorizer.Colorizer`` as a container for ``norm`` and ``cmap``
 -------------------------------------------------------------------------------
 
-Plotting methods that support the ``norm`` and ``cmap`` keywords now additionally accepts the ``colorizer`` keyword supporting `matplotlib.colorizer.Colorizer` objects. This allows for easier re-use of a data-to-color pipeline.
+ `matplotlib.colorizer.Colorizer` encapsulates the data-to-color pipeline. It makes reuse of colormapping easier, e.g. across multiple images. Plotting methods that support ``norm`` and ``cmap`` keyword arguments now also accept a ``colorizer`` keyword argument.
 
 In the following example the norm and cmap are changed on multiple plots simultaneously:
 
