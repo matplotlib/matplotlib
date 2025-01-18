@@ -124,24 +124,32 @@ class Tick(martist.Artist):
                 zorder = mlines.Line2D.zorder
         self._zorder = zorder
 
-        grid_color = (mpl._val_or_rc(grid_color, "grid.color")
-                      if mpl.rcParams[f"grid.{major_minor}.color"] == "none"
-                      else mpl._val_or_rc(grid_color, f"grid.{major_minor}.color"))
-        grid_linestyle = (mpl._val_or_rc(grid_linestyle, "grid.linestyle")
-                          if mpl.rcParams[f"grid.{major_minor}.linestyle"] == "none"
-                          else mpl._val_or_rc(grid_linestyle, f"grid.{major_minor}.linestyle"))
-        grid_linewidth = (mpl._val_or_rc(grid_linewidth, "grid.linewidth")
-                          if mpl.rcParams[f"grid.{major_minor}.linewidth"] is None
-                          else mpl._val_or_rc(grid_linewidth, f"grid.{major_minor}.linewidth"))
+        grid_color = (
+            mpl._val_or_rc(grid_color, "grid.color")
+            if mpl.rcParams[f"grid.{major_minor}.color"] == "none"
+            else mpl._val_or_rc(grid_color, f"grid.{major_minor}.color")
+        )
+        grid_linestyle = (
+            mpl._val_or_rc(grid_linestyle, "grid.linestyle")
+            if mpl.rcParams[f"grid.{major_minor}.linestyle"] == "none"
+            else mpl._val_or_rc(grid_linestyle, f"grid.{major_minor}.linestyle")
+        )
+        grid_linewidth = (
+            mpl._val_or_rc(grid_linewidth, "grid.linewidth")
+            if mpl.rcParams[f"grid.{major_minor}.linewidth"] is None
+            else mpl._val_or_rc(grid_linewidth, f"grid.{major_minor}.linewidth")
+        )
         if grid_alpha is None and not mcolors._has_alpha_channel(grid_color):
             # alpha precedence: kwarg > color alpha > rcParams['grid.alpha']
             # Note: only resolve to rcParams if the color does not have alpha
             # otherwise `grid(color=(1, 1, 1, 0.5))` would work like
             #   grid(color=(1, 1, 1, 0.5), alpha=rcParams['grid.alpha'])
             # so the that the rcParams default would override color alpha.
-            grid_alpha = (mpl.rcParams["grid.alpha"] 
-                          if f"grid.{major_minor}.alpha" not in mpl.rcParams
-                          else mpl.rcParams[f"grid.{major_minor}.alpha"])
+            grid_alpha = (
+                mpl.rcParams["grid.alpha"]
+                if f"grid.{major_minor}.alpha" not in mpl.rcParams
+                else mpl.rcParams[f"grid.{major_minor}.alpha"]
+            )
         grid_kw = {k[5:]: v for k, v in kwargs.items()}
 
         self.tick1line = mlines.Line2D(
