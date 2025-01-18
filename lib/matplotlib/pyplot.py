@@ -1451,9 +1451,9 @@ def subplot(*args, **kwargs) -> Axes:
     Notes
     -----
     .. versionchanged:: 3.8
-   In versions prior to 3.8, any preexisting Axes that overlap with the new Axes
-   beyond sharing a boundary was deleted. Deletion does not happen in more
-   recent versions anymore. Use `.Axes.remove` explicitly if needed.
+        In versions prior to 3.8, any preexisting Axes that overlap with the new Axes
+        beyond sharing a boundary was deleted. Deletion does not happen in more
+        recent versions anymore. Use `.Axes.remove` explicitly if needed.
 
     If you do not want this behavior, use the `.Figure.add_subplot` method
     or the `.pyplot.axes` function instead.
