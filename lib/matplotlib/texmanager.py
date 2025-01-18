@@ -247,10 +247,6 @@ class TexManager:
             report = subprocess.check_output(
                 command, cwd=cwd if cwd is not None else cls._texcache,
                 stderr=subprocess.STDOUT)
-        except FileNotFoundError as exc:
-            raise RuntimeError(
-                f'Failed to process string with tex because {command[0]} '
-                'could not be found') from exc
         except subprocess.CalledProcessError as exc:
             raise RuntimeError(
                 '{prog} was not able to process the following string:\n'
@@ -263,6 +259,10 @@ class TexManager:
                     tex=tex.encode('unicode_escape'),
                     exc=exc.output.decode('utf-8', 'backslashreplace'))
                 ) from None
+        except (FileNotFoundError, OSError) as exc:
+            raise RuntimeError(
+                f'Failed to process string with tex because {command[0]} '
+                'could not be found') from exc
         _log.debug(report)
         return report
 
