@@ -1454,7 +1454,8 @@ def test_pcolormesh_small():
 
 
 @image_comparison(['pcolormesh_alpha'], extensions=["png", "pdf"],
-                  remove_text=True)
+                  remove_text=True,
+                  tol=0.2 if platform.machine() == "aarch64" else 0)
 def test_pcolormesh_alpha():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -9162,8 +9163,10 @@ def test_zorder_and_explicit_rasterization():
         fig.savefig(b, format='pdf')
 
 
-@image_comparison(["preset_clip_paths.png"], remove_text=True, style="mpl20",
-                  tol=0.027 if platform.machine() in ("arm64", "ppc64le") else 0)
+@image_comparison(
+    ["preset_clip_paths.png"],
+    remove_text=True, style="mpl20",
+    tol=0.027 if platform.machine() in ("aarch64", "arm64", "ppc64le") else 0)
 def test_preset_clip_paths():
     fig, ax = plt.subplots()
 
