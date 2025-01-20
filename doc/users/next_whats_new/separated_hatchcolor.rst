@@ -57,3 +57,30 @@ Previously, hatch colors were the same as edge colors, with a fallback to
                 xy=(.5, 1.03), xycoords=patch4, ha='center', va='bottom')
 
     plt.show()
+
+For collections, a sequence of colors can be passed to the *hatchcolor* parameter
+which will be cycled through for each hatch, similar to *facecolor* and *edgecolor*.
+
+.. plot::
+    :include-source: true
+    :alt: A scatter plot of a quadratic function with hatches on the markers. The hatches are colored in blue, orange, and green, respectively. After the first three markers, the colors are cycled through again.
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    fig, ax = plt.subplots()
+
+    x = np.linspace(0, 1, 10)
+    y = x**2
+    colors = ["blue", "orange", "green"]
+
+    ax.scatter(
+        x,
+        y,
+        s=800,
+        hatch="xxxx",
+        hatchcolor=colors,
+        facecolor="none",
+        edgecolor="black",
+    )
+    plt.show()
