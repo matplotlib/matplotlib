@@ -194,10 +194,70 @@ jobs:
           path: ./wheelhouse/*.whl
           if-no-files-found: error
 
+  build_ppc64le_wheels:
+    if: >-
+        github.event_name == 'push' ||
+        github.event_name == 'pull_request' && (
+          (
+            github.event.action == 'labeled' &&
+            github.event.label.name == 'CI: Run cibuildwheel'
+          ) ||
+          contains(github.event.pull_request.labels.*.name,
+                   'CI: Run cibuildwheel')
+        )
+    needs: build_sdist
+    name: Build wheels for CPython${{ matrix.python_version }} (ppc64le)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - python_version: "3.10"
+            cibw_build: "cp310-*"
+          - python_version: "3.11"
+            cibw_build: "cp311-*"
+          - python_version: "3.12"
+            cibw_build: "cp312-*"
+          - python_version: "3.13"
+            cibw_build: "cp313-*"
+    env:
+      CIBW_BEFORE_BUILD: >-
+          rm -rf {package}/build
+      CIBW_AFTER_BUILD: >-
+          twine check {wheel} &&
+          python {package}/ci/check_wheel_licenses.py {wheel}
+      CIBW_SKIP: "*-musllinux_ppc64le"
+      CIBW_ARCHS: "ppc64le"
+      
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf
+        with:
+          platforms: ppc64le
+
+      - name: Download sdist
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        with:
+          name: cibw-sdist
+          path: dist/
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@ee63bf16da6cddfb925f542f2c7b59ad50e93969  # v2.22.0
+        with:
+          package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
+        env:
+          CIBW_BUILD: ${{ matrix.cibw_build }}
+          CIBW_BEFORE_BUILD: >
+            yum update && yum install -y openssl-devel libffi-devel libjpeg-devel zlib-devel bzip2-devel ncurses-devel readline-devel sqlite-devel curl tk-devel xz-devel
+
+      - uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b
+        with:
+          name: cibw-wheels-ppc64le-${{ matrix.python_version }}
+          path: ./wheelhouse/*.whl
+
   publish:
     if: github.event_name == 'push' && github.ref_type == 'tag'
     name: Upload release to PyPI
-    needs: [build_sdist, build_wheels]
+    needs: [build_sdist, build_wheels, build_ppc64le_wheels]
     runs-on: ubuntu-latest
     environment: release
     permissions:
