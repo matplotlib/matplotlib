@@ -147,7 +147,7 @@ commands:
               export RELEASE_TAG='-t release'
             fi
             mkdir -p logs
-            make html O="-T $RELEASE_TAG -j4 -w /tmp/sphinxerrorswarnings.log"
+            make html O="-T $RELEASE_TAG -j4 -w /tmp/sphinxerrorswarnings.log -D plot_gallery=0"
             rm -r build/html/_sources
           working_directory: doc
       - save_cache:
