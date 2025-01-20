@@ -3194,6 +3194,8 @@ class Axes(_AxesBase):
         baseline, = self.plot(baseline_x, baseline_y,
                               color=basecolor, linestyle=basestyle,
                               marker=basemarker, label="_nolegend_")
+        baseline.get_path()._interpolation_steps = \
+            mpl.axis.GRIDLINE_INTERPOLATION_STEPS
 
         stem_container = StemContainer((markerline, stemlines, baseline),
                                        label=label)
