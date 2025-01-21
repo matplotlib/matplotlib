@@ -314,6 +314,10 @@ sphinx_gallery_conf = {
     'within_subsection_order': gallery_order_subsectionorder,
     'capture_repr': (),
     'copyfile_regex': r'.*\.rst',
+    # Disable Sphinx-Gallery's JupyterLite integration until there's
+    # further notice. It comes from our usage of jupyterlite-sphinx
+    # as a registered extension.
+    'jupyterlite': None,
 }
 
 if parse_version(sphinx_gallery.__version__) >= parse_version('0.17.0'):
