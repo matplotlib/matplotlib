@@ -1,6 +1,9 @@
 ---
 extends: default
 
+ignore: |
+  doc/jupyterlite_environment.yml
+
 rules:
   line-length:
     max: 120

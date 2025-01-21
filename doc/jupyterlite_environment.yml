@@ -1,0 +1,7 @@
+name: mpl-wasm-docs
+channels:
+  - https://repo.mamba.pm/emscripten-forge
+  - conda-forge
+dependencies:
+  - xeus-python
+  - matplotlib

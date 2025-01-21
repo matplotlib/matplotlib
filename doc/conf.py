@@ -776,11 +776,16 @@ texinfo_documents = [
      1),
 ]
 
-# jupyterlite config
-jupyterlite_config = "jupyter_lite_config.json"
-jupyterlite_dir = "."
-# jupyterlite_contents = ["gallery/**"]
+# JupyterLite config
 jupyterlite_bind_ipynb_suffix = False
+# Set this to False to aid debugging locally or in CI. It is
+# disabled by default as there is no way to disable the JupyterLite
+# output in parts right now, and it can be quite verbose.
+jupyterlite_silence = False
+jupyterlite_build_command_options = {
+    "XeusAddon.environment_file": "jupyterlite_environment.yml",
+}
+
 
 # numpydoc config
 
