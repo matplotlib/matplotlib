@@ -102,6 +102,15 @@ sys.path.append('.')
 # usage in the gallery.
 warnings.filterwarnings('error', append=True)
 
+# Prevent Sphinx-Gallery and jupytext incompatibility warning. This is spurious
+# and can be ignored for our use case. This has to be added before importing
+# jupyterlite_sphinx below, so that we can block the warning before it is raised.
+# TODO: Fix this in jupyterlite-sphinx
+warnings.filterwarnings('ignore', category=UserWarning,
+                        message=(
+                            r'(\n|.)*Sphinx Gallery in version 0.18.0 is not '
+                            r'supported by Jupytext'))
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
@@ -770,7 +779,7 @@ texinfo_documents = [
 # jupyterlite config
 jupyterlite_config = "jupyter_lite_config.json"
 jupyterlite_dir = "."
-jupyterlite_contents = ["gallery/**"]
+# jupyterlite_contents = ["gallery/**"]
 jupyterlite_bind_ipynb_suffix = False
 
 # numpydoc config
