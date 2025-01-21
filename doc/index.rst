@@ -104,6 +104,7 @@ Live example
 
 Try Matplotlib directly in this documentation (Press ``shift+Enter`` to execute code)!
 
+.. rstcheck: ignore-directives=replite
 .. replite::
     :kernel: python
     :height: 600px
