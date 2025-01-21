@@ -106,10 +106,10 @@ Try Matplotlib directly in this documentation (Press ``shift+Enter`` to execute 
 
 .. rstcheck: ignore-directives=replite
 .. replite::
-    :kernel: python
-    :height: 600px
-    :prompt: Try Matplotlib!
-    :execute: False
+   :kernel: python
+   :height: 600px
+   :prompt: Try Matplotlib!
+   :execute: False
 
    %matplotlib inline
 
