@@ -9624,3 +9624,12 @@ def test_axes_set_position_external_bbox_unchanged(fig_test, fig_ref):
     ax_test.set_position([0.25, 0.25, 0.5, 0.5])
     assert (bbox.x0, bbox.y0, bbox.width, bbox.height) == (0.0, 0.0, 1.0, 1.0)
     ax_ref = fig_ref.add_axes([0.25, 0.25, 0.5, 0.5])
+
+
+def test_barh_shape_mismatch():
+    # missing a comma to create shape mismatch
+    arg_k = ["foo", "bar" "baz"]
+    arg_n = [1, 2, 3]
+
+    with pytest.raises(ValueError, match="shape mismatch"):
+        plt.barh(arg_k, arg_n)
