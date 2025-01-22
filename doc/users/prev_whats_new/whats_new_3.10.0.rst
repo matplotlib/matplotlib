@@ -292,10 +292,10 @@ the ``set_data`` method, enabling e.g. resampling
     fig.savefig("after.png")
 
 
-Added ``matplotlib.colorizer.Colorizer`` as a container for ``norm`` and ``cmap``
--------------------------------------------------------------------------------
+``matplotlib.colorizer.Colorizer`` as container for ``norm`` and ``cmap``
+-------------------------------------------------------------------------
 
- `matplotlib.colorizer.Colorizer` encapsulates the data-to-color pipeline. It makes reuse of colormapping easier, e.g. across multiple images. Plotting methods that support ``norm`` and ``cmap`` keyword arguments now also accept a ``colorizer`` keyword argument.
+ `matplotlib.colorizer.Colorizer` encapsulates the data-to-color pipeline. It makes reuse of colormapping easier, e.g. across multiple images. Plotting methods that support *norm* and *cmap* keyword arguments now also accept a *colorizer* keyword argument.
 
 In the following example the norm and cmap are changed on multiple plots simultaneously:
 
@@ -324,7 +324,7 @@ In the following example the norm and cmap are changed on multiple plots simulta
     colorizer.vmax = 2
     colorizer.cmap = 'RdBu'
 
-All plotting methods that use a data-to-color pipeline now create a colorizer object if one is not provided. This can be re-used in by subsequent artists such that they will share a single data-to-color pipeline:
+All plotting methods that use a data-to-color pipeline now create a colorizer object if one is not provided. This can be re-used by subsequent artists such that they will share a single data-to-color pipeline:
 
 .. plot::
     :include-source: true
