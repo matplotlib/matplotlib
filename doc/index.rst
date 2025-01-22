@@ -102,7 +102,7 @@ Learn
 Live example
 ============
 
-Try Matplotlib directly in this documentation (Press ``shift+Enter`` to execute code)!
+Try Matplotlib directly in this documentation (Press :kbd:`shift` + :kbd:`Enter` to execute code)!
 
 .. rstcheck: ignore-directives=replite
 .. replite::
