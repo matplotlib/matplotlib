@@ -3,5 +3,6 @@ channels:
   - https://repo.mamba.pm/emscripten-forge
   - conda-forge
 dependencies:
-  - xeus-python
+  - numpy
   - matplotlib
+  - ipympl
