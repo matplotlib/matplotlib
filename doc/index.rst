@@ -99,10 +99,10 @@ Learn
                 - figures: `.pyplot.figure`
                 - subplots: `.pyplot.subplots`, `.pyplot.subplot_mosaic`
 
-Live example
-============
+Live example (experimental)
+===========================
 
-Try Matplotlib directly in this documentation (Press :kbd:`shift` + :kbd:`Enter` to execute code)!
+Try Matplotlib directly in this documentation (press :kbd:`shift` + :kbd:`Enter` to execute code)!
 
 .. rstcheck: ignore-directives=replite
 .. replite::
