@@ -1,6 +1,6 @@
 {
   "LiteBuildConfig": {
-    "ignore_contents": ["\\.(rst|zip|pickle|py|md5|png|gif)"],
+    "extra_ignore_contents": ["\\.(rst|zip|pickle|py|json|svg|md5|png|gif)"],
     "no_unused_shared_packages": true,
     "no_sourcemaps": true
   }
