@@ -4,6 +4,7 @@
         "disabledExtensions": [
           "@jupyterlite/javascript-kernel-extension",
           "@jupyterlite/pyodide-kernel-extension"
-        ]
+        ],
+        "contentsStorageName": "JupyterLite Matplotlib Docs Storage"
     }
 }
