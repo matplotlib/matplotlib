@@ -8,7 +8,8 @@ channels:
   - conda-forge
 dependencies:
   # for examples in the gallery
-  - numpy
+  # temporary: pin NumPy to <2 for now, see https://github.com/emscripten-forge/recipes/issues/1766
+  - numpy==1.26.4
   - matplotlib
   - ipympl
   # a kernel for running them
