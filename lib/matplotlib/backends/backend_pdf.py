@@ -3,7 +3,19 @@ A PDF Matplotlib backend.
 
 Author: Jouni K Seppänen <jks@iki.fi> and others.
 """
+'''Expected Behavior: the alpha parameter in imshow() should support both 
+constant values(e.g., alpha=0.5) and array-like inputs (e.g., alpha=2D_array),
+allowing per-pixel transparency effect. this createes inconsistency in the 
+behavior of imshow().'''
 
+'''in some workflows, users may not be able to construct an RGBA array directly
+and rely on alpha to manage transparency, especially when working with 
+libraries that expose only tha imshow() parameters.'''
+
+
+# 1. use imshow() to display an RGB image.
+# 2. pass an array-like alpha parameter to apply per-pixel transparency
+# 3. observe that the transparency effect is not correctly applied
 import codecs
 from datetime import timezone
 from datetime import datetime
@@ -21,10 +33,11 @@ import time
 import types
 import warnings
 import zlib
-
+#for creating RGB image
 import numpy as np
 from PIL import Image
-
+#create an RGB image
+''''image = np.ones((10, 10, 3))''''
 import matplotlib as mpl
 from matplotlib import _api, _text_helpers, _type1font, cbook, dviread
 from matplotlib._pylab_helpers import Gcf
@@ -725,6 +738,8 @@ class PdfFile:
         # differently encoded Type-1 fonts may share the same descriptor
         self.type1Descriptors = {}
         self._character_tracker = _backend_pdf_ps.CharacterTracker()
+        #create an alpha array
+      ''''alpha_array = np.linspace(0, 1, 10). reshape(10, 1)''''
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
         self._alpha_state_seq = (Name(f'A{i}') for i in itertools.count(1))
@@ -1112,6 +1127,12 @@ class PdfFile:
             Fx.name.decode(),
             os.path.splitext(os.path.basename(filename))[0],
             glyph_name])
+
+             # Display the image with the alpha array
+     ''''plt.imshow(image,
+        alpha=alpha_array)
+         plt.show()''''
+
 
     _identityToUnicodeCMap = b"""/CIDInit /ProcSet findresource begin
 12 dict begin
