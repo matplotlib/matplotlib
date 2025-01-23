@@ -7,6 +7,9 @@ channels:
   - https://repo.mamba.pm/emscripten-forge
   - conda-forge
 dependencies:
+  # for examples in the gallery
   - numpy
   - matplotlib
   - ipympl
+  # a kernel for running them
+  - xeus-python
