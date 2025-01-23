@@ -781,7 +781,12 @@ texinfo_documents = [
 ]
 
 # JupyterLite config
+
 jupyterlite_bind_ipynb_suffix = False
+# Include the gallery examples in the JupyterLite deployment.
+# .zip,.png,.gif, and other file formats are ignored via
+# LiteBuildConfig/ignore_contents in jupyter_lite_config.json.
+jupyterlite_contents = ["gallery/**"]
 # Set this to False to aid debugging locally or in CI. It is
 # disabled by default as there is no way to disable the JupyterLite
 # output in parts right now, and it can be quite verbose.
