@@ -791,7 +791,7 @@ jupyterlite_contents = ["gallery/**"]
 # Set this to False to aid debugging locally or in CI. It is silenced
 # by default as there is no way to disable the JupyterLite output in
 # parts right now, and it can be quite verbose.
-jupyterlite_silence = True
+jupyterlite_silence = False
 jupyterlite_build_command_options = {
     "XeusAddon.environment_file": "jupyterlite_environment.yml",
 }
