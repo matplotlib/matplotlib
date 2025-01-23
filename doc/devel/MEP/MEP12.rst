@@ -62,6 +62,7 @@ Gallery sections
 The naming of sections is critical and will guide the clean-up
 effort. The current sections are:
 
+* Live example (experimental)
 * Lines, bars, and markers (more-or-less 1D data)
 * Shapes and collections
 * Statistical plots
