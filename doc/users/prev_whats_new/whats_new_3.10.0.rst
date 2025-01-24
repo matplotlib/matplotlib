@@ -1,6 +1,6 @@
-=============================================
-What's new in Matplotlib 3.10.0 (Dec 14, 2024)
-=============================================
+===================================================
+What's new in Matplotlib 3.10.0 (December 13, 2024)
+===================================================
 
 For a list of all of the issues and pull requests since the last revision, see the
 :ref:`github-stats`.
@@ -10,9 +10,6 @@ For a list of all of the issues and pull requests since the last revision, see t
 
 .. toctree::
    :maxdepth: 4
-
-Accessible Colors
-=================
 
 
 New more-accessible color cycle
