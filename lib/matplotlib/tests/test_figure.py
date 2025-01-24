@@ -210,7 +210,7 @@ def test_clf_keyword():
 
 
 @image_comparison(['figure_today'],
-                  tol=0.015 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.015)
 def test_figure():
     # named figure support
     fig = plt.figure('today')

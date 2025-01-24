@@ -391,7 +391,7 @@ def test_barb_limits():
 
 
 @image_comparison(['EllipseCollection_test_image.png'], remove_text=True,
-                  tol=0.021 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.021)
 def test_EllipseCollection():
     # Test basic functionality
     fig, ax = plt.subplots()

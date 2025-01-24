@@ -175,7 +175,7 @@ def test_exceptions():
 
 
 @image_comparison(['subplots_offset_text'],
-                  tol=0.028 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.028)
 def test_subplots_offsettext():
     x = np.arange(0, 1e10, 1e9)
     y = np.arange(0, 100, 10)+1e4

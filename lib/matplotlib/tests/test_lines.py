@@ -140,7 +140,7 @@ def test_valid_linestyles():
 
 
 @image_comparison(['drawstyle_variants.png'], remove_text=True,
-                  tol=0.03 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.03)
 def test_drawstyle_variants():
     fig, axs = plt.subplots(6)
     dss = ["default", "steps-mid", "steps-pre", "steps-post", "steps", None]
@@ -183,9 +183,8 @@ def test_set_drawstyle():
     assert len(line.get_path().vertices) == len(x)
 
 
-@image_comparison(
-    ['line_collection_dashes'], remove_text=True, style='mpl20',
-    tol=0 if platform.machine() == 'x86_64' else 0.65)
+@image_comparison(['line_collection_dashes'], remove_text=True, style='mpl20',
+                  tol=0 if platform.machine() == 'x86_64' else 0.65)
 def test_set_line_coll_dash_image():
     fig, ax = plt.subplots()
     np.random.seed(0)

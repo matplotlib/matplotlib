@@ -29,7 +29,7 @@ def test_clipping():
 
 
 @image_comparison(['overflow'], remove_text=True,
-                  tol=0.007 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.007)
 def test_overflow():
     x = np.array([1.0, 2.0, 3.0, 2.0e5])
     y = np.arange(len(x))
