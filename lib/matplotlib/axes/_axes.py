@@ -2714,9 +2714,9 @@ class Axes(_AxesBase):
 
             Bars are often used for categorical data, i.e. string labels below
             the bars. You can provide a list of strings directly to *y*.
-            ``bar(['A', 'B', 'C'], [1, 2, 3])`` is often a shorter and more
+            ``barh(['A', 'B', 'C'], [1, 2, 3])`` is often a shorter and more
             convenient notation compared to
-            ``bar(range(3), [1, 2, 3], tick_label=['A', 'B', 'C'])``. They are
+            ``barh(range(3), [1, 2, 3], tick_label=['A', 'B', 'C'])``. They are
             equivalent as long as the names are unique. The explicit *tick_label*
             notation draws the names in the sequence given. However, when having
             duplicate values in categorical *y* data, these values map to the same
