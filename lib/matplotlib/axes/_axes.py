@@ -2391,6 +2391,17 @@ class Axes(_AxesBase):
             The x coordinates of the bars. See also *align* for the
             alignment of the bars to the coordinates.
 
+            Bars are often used for categorical data, i.e. string labels below
+            the bars. You can provide a list of strings directly to *x*.
+            ``bar(['A', 'B', 'C'], [1, 2, 3])`` is often a shorter and more
+            convenient notation compared to
+            ``bar(range(3), [1, 2, 3], tick_label=['A', 'B', 'C'])``. They are
+            equivalent as long as the names are unique. The explicit *tick_label*
+            notation draws the names in the sequence given. However, when having
+            duplicate values in categorical *x* data, these values map to the same
+            numerical x coordinate, and hence the corresponding bars are drawn on
+            top of each other.
+
         height : float or array-like
             The height(s) of the bars.
 
@@ -2705,6 +2716,17 @@ class Axes(_AxesBase):
         y : float or array-like
             The y coordinates of the bars. See also *align* for the
             alignment of the bars to the coordinates.
+
+            Bars are often used for categorical data, i.e. string labels below
+            the bars. You can provide a list of strings directly to *y*.
+            ``barh(['A', 'B', 'C'], [1, 2, 3])`` is often a shorter and more
+            convenient notation compared to
+            ``barh(range(3), [1, 2, 3], tick_label=['A', 'B', 'C'])``. They are
+            equivalent as long as the names are unique. The explicit *tick_label*
+            notation draws the names in the sequence given. However, when having
+            duplicate values in categorical *y* data, these values map to the same
+            numerical y coordinate, and hence the corresponding bars are drawn on
+            top of each other.
 
         width : float or array-like
             The width(s) of the bars.
