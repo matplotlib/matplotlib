@@ -2892,7 +2892,9 @@ class Axes3D(Axes):
                 self.auto_scale_xyz(*np.array(col._segments3d).transpose(),
                                     had_data=had_data)
             elif isinstance(col, art3d.Poly3DCollection):
-                self.auto_scale_xyz(*col._vec[:-1], had_data=had_data)
+                self.auto_scale_xyz(col._faces[..., 0],
+                                    col._faces[..., 1],
+                                    col._faces[..., 2], had_data=had_data)
             elif isinstance(col, art3d.Patch3DCollection):
                 pass
                 # FIXME: Implement auto-scaling function for Patch3DCollection
