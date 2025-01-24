@@ -55,7 +55,13 @@ from PIL.PngImagePlugin import PngInfo
 import matplotlib as mpl
 import numpy as np
 from matplotlib import _api, _cm, cbook, scale, _image
-from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS, SPECTRAL_COLORS
+from ._color_data import (
+    BASE_COLORS,
+    TABLEAU_COLORS,
+    CSS4_COLORS,
+    XKCD_COLORS,
+    SPECTRAL_COLORS,
+)
 
 
 class _ColorMapping(dict):
