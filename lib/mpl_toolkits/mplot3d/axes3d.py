@@ -2940,15 +2940,12 @@ class Axes3D(Axes):
             - A 2D array in which the rows are RGB or RGBA.
 
             For more details see the *c* argument of `~.axes.Axes.scatter`.
-        depthshade : bool, default: None
+        depthshade : bool, default: :rc:`axes3d.depthshade`
             Whether to shade the scatter markers to give the appearance of
             depth. Each call to ``scatter()`` will perform its depthshading
             independently.
-            If None, use the value from rcParams['axes3d.depthshade'].
-
-        depthshade_minalpha : float, default: None
+        depthshade_minalpha : float, default: :rc:`axes3d.depthshade_minalpha`
             The lowest alpha value applied by depth-shading.
-            If None, use the value from rcParams['axes3d.depthshade_minalpha'].
         axlim_clip : bool, default: False
             Whether to hide the scatter points outside the axes view limits.
 
@@ -2976,10 +2973,8 @@ class Axes3D(Axes):
             )
         if kwargs.get("color") is not None:
             kwargs['color'] = color
-        if depthshade is None:
-            depthshade = mpl.rcParams['axes3d.depthshade']
-        if depthshade_minalpha is None:
-            depthshade_minalpha = mpl.rcParams['axes3d.depthshade_minalpha']
+        depthshade = mpl._val_or_rc(depthshade, 'axes3d.depthshade')
+        depthshade_minalpha = mpl._val_or_rc(depthshade_minalpha, 'axes3d.depthshade_minalpha')
 
         # For xs and ys, 2D scatter() will do the copying.
         if np.may_share_memory(zs_orig, zs):  # Avoid unnecessary copies.

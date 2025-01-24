@@ -6,11 +6,11 @@ items could lead to sudden and unexpected changes in transparency as the plot
 orientation changed.
 
 Now, the behavior has been made smooth and predictable. A new parameter
-``depthshade_minalpha`` has also been added to allow users to set the minimum
+*depthshade_minalpha* has also been added to allow users to set the minimum
 transparency level. Depth-shading is an option for Patch3DCollections and
 Path3DCollections, including 3D scatter plots.
 
-The default values for ``depthshade`` and ``depthshade_minalpha`` are now also
+The default values for *depthshade* and *depthshade_minalpha* are now also
 controlled via rcParams, with values of ``True`` and ``0.3`` respectively.
 
 A simple example:

@@ -654,23 +654,16 @@ class Patch3DCollection(PatchCollection):
         *depthshade_minalpha* sets the minimum alpha value applied by
         depth-shading.
         """
-        if depthshade is None:
-            depthshade = rcParams['axes3d.depthshade']
-        if depthshade_minalpha is None:
-            depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
-        self._depthshade = depthshade
-        self._depthshade_minalpha = depthshade_minalpha
+        self._depthshade = mpl._val_or_rc(depthshape, 'axes3d.depthshade')
+        self._depthshade_minalpha = mpl._val_or_rc(depthshade_minalpha,
+                                                   'axes3d.depthshade_minalpha')
         super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir, axlim_clip)
 
     def get_depthshade(self):
         return self._depthshade
 
-    def set_depthshade(
-        self,
-        depthshade,
-        depthshade_minalpha=None,
-    ):
+    def set_depthshade(self, depthshade, depthshade_minalpha=None):
         """
         Set whether depth shading is performed on collection members.
 
@@ -679,14 +672,12 @@ class Patch3DCollection(PatchCollection):
         depthshade : bool
             Whether to shade the patches in order to give the appearance of
             depth.
-        depthshade_minalpha : float, default: None
+        depthshade_minalpha : float, default: :rc:`axes3d.depthshade_minalpha`
             Sets the minimum alpha value used by depth-shading.
-            If None, use the value from rcParams['axes3d.depthshade_minalpha'].
         """
-        if depthshade_minalpha is None:
-            depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
         self._depthshade = depthshade
-        self._depthshade_minalpha = depthshade_minalpha
+        self._depthshade_minalpha = mpl._val_or_rc(depthshade_minalpha,
+                                                   'axes3d.depthshade_minalpha')
         self.stale = True
 
     def set_sort_zpos(self, val):
@@ -743,11 +734,7 @@ class Patch3DCollection(PatchCollection):
 
     def _maybe_depth_shade_and_sort_colors(self, color_array):
         color_array = (
-            _zalpha(
-                color_array,
-                self._vzs,
-                min_alpha=self._depthshade_minalpha,
-            )
+            _zalpha(color_array, self._vzs, min_alpha=self._depthshade_minalpha)
             if self._vzs is not None and self._depthshade
             else color_array
         )
@@ -823,12 +810,9 @@ class Path3DCollection(PathCollection):
         *depthshade_minalpha* sets the minimum alpha value applied by
         depth-shading.
         """
-        if depthshade is None:
-            depthshade = rcParams['axes3d.depthshade']
-        if depthshade_minalpha is None:
-            depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
-        self._depthshade = depthshade
-        self._depthshade_minalpha = depthshade_minalpha
+        self._depthshade = mpl._val_or_rc(depthshape, 'axes3d.depthshade')
+        self._depthshade_minalpha = mpl._val_or_rc(depthshade_minalpha,
+                                                   'axes3d.depthshade_minalpha')
         self._in_draw = False
         super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir, axlim_clip)
@@ -907,11 +891,7 @@ class Path3DCollection(PathCollection):
     def get_depthshade(self):
         return self._depthshade
 
-    def set_depthshade(
-        self,
-        depthshade,
-        depthshade_minalpha=None,
-    ):
+    def set_depthshade(self, depthshade, depthshade_minalpha=None):
         """
         Set whether depth shading is performed on collection members.
 
@@ -920,13 +900,12 @@ class Path3DCollection(PathCollection):
         depthshade : bool
             Whether to shade the patches in order to give the appearance of
             depth.
-        depthshade_minalpha : float
+        depthshade_minalpha : float, default: :rc:`axes3d.depthshade_minalpha`
             Sets the minimum alpha value used by depth-shading.
         """
-        if depthshade_minalpha is None:
-            depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
         self._depthshade = depthshade
-        self._depthshade_minalpha = depthshade_minalpha
+        self._depthshade_minalpha = mpl._val_or_rc(depthshade_minalpha,
+                                                   'axes3d.depthshade_minalpha')
         self.stale = True
 
     def do_3d_projection(self):
@@ -1017,7 +996,7 @@ def patch_collection_2d_to_3d(
     zdir="z",
     depthshade=None,
     axlim_clip=False,
-    *args,
+    *,
     depthshade_minalpha=None,
 ):
     """
@@ -1035,12 +1014,10 @@ def patch_collection_2d_to_3d(
     zdir : {'x', 'y', 'z'}
         The axis in which to place the patches. Default: "z".
         See `.get_dir_vector` for a description of the values.
-    depthshade : bool, default: None
+    depthshade : bool, default: :rc:`axes3d.depthshade`
         Whether to shade the patches to give a sense of depth.
-        If None, use the value from rcParams['axes3d.depthshade'].
-    depthshade_minalpha : float, default: None
+    depthshade_minalpha : float, default: :rc:`axes3d.depthshade_minalpha`
         Sets the minimum alpha value used by depth-shading.
-        If None, use the value from rcParams['axes3d.depthshade_minalpha'].
     axlim_clip : bool, default: False
         Whether to hide patches with a vertex outside the axes view limits.
     """
@@ -1049,12 +1026,9 @@ def patch_collection_2d_to_3d(
         col._offset_zordered = None
     elif isinstance(col, PatchCollection):
         col.__class__ = Patch3DCollection
-    if depthshade is None:
-        depthshade = rcParams['axes3d.depthshade']
-    if depthshade_minalpha is None:
-        depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
     col._depthshade = depthshade
-    col._depthshade_minalpha = depthshade_minalpha
+    col._depthshade_minalpha = mpl._val_or_rc(depthshade_minalpha,
+                                              'axes3d.depthshade_minalpha')
     col._in_draw = False
     col.set_3d_properties(zs, zdir, axlim_clip)
 
@@ -1395,12 +1369,7 @@ def rotate_axes(xs, ys, zs, zdir):
         return xs, ys, zs
 
 
-def _zalpha(
-    colors,
-    zs,
-    min_alpha=0.3,
-    _data_scale=None,
-):
+def _zalpha(colors, zs, min_alpha=0.3, _data_scale=None):
     """Modify the alphas of the color list according to depth."""
 
     if len(colors) == 0 or len(zs) == 0:
