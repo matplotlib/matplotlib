@@ -2,6 +2,8 @@
 # key in the jupyterlite_build_command_options dict in conf.py. See
 # https://jupyterlite-sphinx.readthedocs.io/en/stable/configuration.html
 # for more information on additional configuration options.
+---
+
 name: mpl-wasm-docs
 channels:
   - https://repo.mamba.pm/emscripten-forge
