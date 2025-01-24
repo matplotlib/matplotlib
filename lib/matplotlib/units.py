@@ -36,6 +36,13 @@ datetime objects::
             "Return the default unit for x or None."
             return 'date'
 
+        @staticmethod
+        def validate_formatter(formatter):
+            "Return whether the formatter works with this converter"
+            return isinstance(formatter, (dates.DateFormatter,
+                                          dates.ConciseDateFormatter,
+                                          dates.AutoDateFormatter))
+
     # Finally we register our object type with the Matplotlib units registry.
     units.registry[datetime.date] = DateConverter()
 """
@@ -130,6 +137,22 @@ class ConversionInterface:
         be a sequence of scalars that can be used by the numpy array layer.
         """
         return obj
+
+    @staticmethod
+    def validate_formatter(formatter):
+        """Return whether a given formatter is valid for the converter
+
+        Parameters
+        ----------
+        formatter: `~.Formatter`
+            The formatter instance to validate.
+
+        Returns
+        -------
+        bool: if the formatter is valid
+        """
+        # For backwards compatibility, the default is to accept any formatter
+        return True
 
 
 class DecimalConverter(ConversionInterface):
