@@ -104,8 +104,8 @@ plt.show()
 # ---------------
 # Spectral Colors
 # ---------------
-# The full visible spectrum from 390nm to 780nm is supported in integers e.g. ``"405nm"``.
-# A sub sample of the defined colors by wavelength is shown below.
+# The full visible spectrum from 390nm to 780nm is supported in integers
+# e.g. ``"405nm"``. A sub sample of the defined colors by wavelength is shown below.
 plot_colortable(mcolors.SPECTRAL_COLORS, ncols=4, sort_colors=False, sample=True)
 
 # %%
