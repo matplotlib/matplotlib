@@ -718,7 +718,7 @@ class Colormap:
     chain.
     """
 
-    def __init__(self, name, N=256):
+    def __init__(self, name, N=256, *, bad=None, under=None, over=None):
         """
         Parameters
         ----------
@@ -726,12 +726,26 @@ class Colormap:
             The name of the colormap.
         N : int
             The number of RGB quantization levels.
+        bad : :mpltype:`color`, default: transparent
+            The color for invalid values (NaN or masked).
+
+            .. versionadded:: 3.11
+
+        under : :mpltype:`color`, default: color of the lowest value
+            The color for low out-of-range values.
+
+            .. versionadded:: 3.11
+
+        over : :mpltype:`color`, default: color of the highest value
+            The color for high out-of-range values.
+
+            .. versionadded:: 3.11
         """
         self.name = name
         self.N = int(N)  # ensure that N is always int
-        self._rgba_bad = (0.0, 0.0, 0.0, 0.0)  # If bad, don't paint anything.
-        self._rgba_under = None
-        self._rgba_over = None
+        self._rgba_bad = (0.0, 0.0, 0.0, 0.0) if bad is None else to_rgba(bad)
+        self._rgba_under = None if under is None else to_rgba(under)
+        self._rgba_over = None if over is None else to_rgba(over)
         self._i_under = self.N
         self._i_over = self.N + 1
         self._i_bad = self.N + 2
@@ -1038,43 +1052,69 @@ class LinearSegmentedColormap(Colormap):
     segments.
     """
 
-    def __init__(self, name, segmentdata, N=256, gamma=1.0):
+    def __init__(self, name, segmentdata, N=256, gamma=1.0, *,
+                 bad=None, under=None, over=None):
         """
-        Create colormap from linear mapping segments
+        Create colormap from linear mapping segments.
 
-        segmentdata argument is a dictionary with a red, green and blue
-        entries. Each entry should be a list of *x*, *y0*, *y1* tuples,
-        forming rows in a table. Entries for alpha are optional.
+        Parameters
+        ----------
+        name : str
+            The name of the colormap.
+        segmentdata : dict
+            A dictionary with keys "red", "green", "blue" for the color channels.
+            Each entry should be a list of *x*, *y0*, *y1* tuples, forming rows
+            in a table. Entries for alpha are optional.
 
-        Example: suppose you want red to increase from 0 to 1 over
-        the bottom half, green to do the same over the middle half,
-        and blue over the top half.  Then you would use::
+            Example: suppose you want red to increase from 0 to 1 over
+            the bottom half, green to do the same over the middle half,
+            and blue over the top half.  Then you would use::
 
-            cdict = {'red':   [(0.0,  0.0, 0.0),
-                               (0.5,  1.0, 1.0),
-                               (1.0,  1.0, 1.0)],
+                {
+                    'red':   [(0.0,  0.0, 0.0),
+                              (0.5,  1.0, 1.0),
+                              (1.0,  1.0, 1.0)],
+                    'green': [(0.0,  0.0, 0.0),
+                              (0.25, 0.0, 0.0),
+                              (0.75, 1.0, 1.0),
+                              (1.0,  1.0, 1.0)],
+                    'blue':  [(0.0,  0.0, 0.0),
+                              (0.5,  0.0, 0.0),
+                              (1.0,  1.0, 1.0)]
+                }
 
-                     'green': [(0.0,  0.0, 0.0),
-                               (0.25, 0.0, 0.0),
-                               (0.75, 1.0, 1.0),
-                               (1.0,  1.0, 1.0)],
+            Each row in the table for a given color is a sequence of
+            *x*, *y0*, *y1* tuples.  In each sequence, *x* must increase
+            monotonically from 0 to 1.  For any input value *z* falling
+            between *x[i]* and *x[i+1]*, the output value of a given color
+            will be linearly interpolated between *y1[i]* and *y0[i+1]*::
 
-                     'blue':  [(0.0,  0.0, 0.0),
-                               (0.5,  0.0, 0.0),
-                               (1.0,  1.0, 1.0)]}
+                row i:   x  y0  y1
+                               /
+                              /
+                row i+1: x  y0  y1
 
-        Each row in the table for a given color is a sequence of
-        *x*, *y0*, *y1* tuples.  In each sequence, *x* must increase
-        monotonically from 0 to 1.  For any input value *z* falling
-        between *x[i]* and *x[i+1]*, the output value of a given color
-        will be linearly interpolated between *y1[i]* and *y0[i+1]*::
+            Hence, y0 in the first row and y1 in the last row are never used.
 
-            row i:   x  y0  y1
-                           /
-                          /
-            row i+1: x  y0  y1
+        N : int
+            The number of RGB quantization levels.
+        gamma : float
+            Gamma correction factor for input distribution x of the mapping.
+            See also https://en.wikipedia.org/wiki/Gamma_correction.
+        bad : :mpltype:`color`, default: transparent
+            The color for invalid values (NaN or masked).
 
-        Hence y0 in the first row and y1 in the last row are never used.
+            .. versionadded:: 3.11
+
+        under : :mpltype:`color`, default: color of the lowest value
+            The color for low out-of-range values.
+
+            .. versionadded:: 3.11
+
+        over : :mpltype:`color`, default: color of the highest value
+            The color for high out-of-range values.
+
+            .. versionadded:: 3.11
 
         See Also
         --------
@@ -1084,7 +1124,7 @@ class LinearSegmentedColormap(Colormap):
         """
         # True only if all colors in map are identical; needed for contouring.
         self.monochrome = False
-        super().__init__(name, N)
+        super().__init__(name, N, bad=bad, under=under, over=over)
         self._segmentdata = segmentdata
         self._gamma = gamma
 
@@ -1108,7 +1148,7 @@ class LinearSegmentedColormap(Colormap):
         self._init()
 
     @staticmethod
-    def from_list(name, colors, N=256, gamma=1.0):
+    def from_list(name, colors, N=256, gamma=1.0, *, bad=None, under=None, over=None):
         """
         Create a `LinearSegmentedColormap` from a list of colors.
 
@@ -1125,6 +1165,13 @@ class LinearSegmentedColormap(Colormap):
         N : int
             The number of RGB quantization levels.
         gamma : float
+
+        bad : :mpltype:`color`, default: transparent
+            The color for invalid values (NaN or masked).
+        under : :mpltype:`color`, default: color of the lowest value
+            The color for low out-of-range values.
+        over : :mpltype:`color`, default: color of the highest value
+            The color for high out-of-range values.
         """
         if not np.iterable(colors):
             raise ValueError('colors must be iterable')
@@ -1144,7 +1191,8 @@ class LinearSegmentedColormap(Colormap):
             "alpha": np.column_stack([vals, a, a]),
         }
 
-        return LinearSegmentedColormap(name, cdict, N, gamma)
+        return LinearSegmentedColormap(name, cdict, N, gamma,
+                                       bad=bad, under=under, over=over)
 
     def resampled(self, lutsize):
         """Return a new colormap with *lutsize* entries."""
@@ -1219,6 +1267,26 @@ class ListedColormap(Colormap):
             N > len(colors)
 
         the list will be extended by repetition.
+
+        .. deprecated:: 3.11
+
+            This parameter will be removed. Please instead ensure that
+            the list of passed colors is the required length.
+
+    bad : :mpltype:`color`, default: transparent
+        The color for invalid values (NaN or masked).
+
+        .. versionadded:: 3.11
+
+    under : :mpltype:`color`, default: color of the lowest value
+        The color for low out-of-range values.
+
+        .. versionadded:: 3.11
+
+    over : :mpltype:`color`, default: color of the highest value
+        The color for high out-of-range values.
+
+        .. versionadded:: 3.11
     """
 
     @_api.delete_parameter(
@@ -1227,7 +1295,8 @@ class ListedColormap(Colormap):
                 "and will be removed in %(removal)s. Please ensure the list "
                 "of passed colors is the required length instead."
     )
-    def __init__(self, colors, name='from_list', N=None):
+    def __init__(self, colors, name='from_list', N=None, *,
+                 bad=None, under=None, over=None):
         if N is None:
             self.colors = colors
             N = len(colors)
@@ -1244,7 +1313,7 @@ class ListedColormap(Colormap):
                     pass
                 else:
                     self.colors = [gray] * N
-        super().__init__(name, N)
+        super().__init__(name, N, bad=bad, under=under, over=over)
 
     def _init(self):
         self._lut = np.zeros((self.N + 3, 4), float)
@@ -3748,8 +3817,7 @@ def from_levels_and_colors(levels, colors, extend='neither'):
     data_colors = colors[color_slice]
     under_color = colors[0] if extend in ['min', 'both'] else 'none'
     over_color = colors[-1] if extend in ['max', 'both'] else 'none'
-    cmap = ListedColormap(data_colors).with_extremes(
-        under=under_color, over=over_color)
+    cmap = ListedColormap(data_colors, under=under_color, over=over_color)
 
     cmap.colorbar_extend = extend
 
