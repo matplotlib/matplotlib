@@ -55,7 +55,7 @@ from PIL.PngImagePlugin import PngInfo
 import matplotlib as mpl
 import numpy as np
 from matplotlib import _api, _cm, cbook, scale, _image
-from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
+from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS, SPECTRAL_COLORS
 
 
 class _ColorMapping(dict):
@@ -74,6 +74,7 @@ class _ColorMapping(dict):
 
 _colors_full_map = {}
 # Set by reverse priority order.
+_colors_full_map.update(SPECTRAL_COLORS)
 _colors_full_map.update(XKCD_COLORS)
 _colors_full_map.update({k.replace('grey', 'gray'): v
                          for k, v in XKCD_COLORS.items()

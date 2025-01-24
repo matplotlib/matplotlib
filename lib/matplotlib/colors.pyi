@@ -13,6 +13,7 @@ BASE_COLORS: dict[str, ColorType]
 CSS4_COLORS: dict[str, ColorType]
 TABLEAU_COLORS: dict[str, ColorType]
 XKCD_COLORS: dict[str, ColorType]
+SPECTRAL_COLORS: dict[str, ColorType]
 
 class _ColorMapping(dict[str, ColorType]):
     cache: dict[tuple[ColorType, float | None], tuple[float, float, float, float]]
