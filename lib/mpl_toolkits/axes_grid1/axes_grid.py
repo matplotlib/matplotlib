@@ -160,9 +160,9 @@ class Grid:
             axes_array[row, col] = axes_class(
                 fig, rect, sharex=sharex, sharey=sharey)
         self.axes_all = axes_array.ravel(
-            order="C" if self._direction == "row" else "F").tolist()
-        self.axes_column = axes_array.T.tolist()
-        self.axes_row = axes_array.tolist()
+            order="C" if self._direction == "row" else "F").tolist()[:ngrids]
+        self.axes_row = [[ax for ax in row if ax] for row in axes_array]
+        self.axes_column = [[ax for ax in col if ax] for col in axes_array.T]
         self.axes_llc = self.axes_column[0][-1]
 
         self._init_locators()
@@ -264,7 +264,10 @@ class Grid:
             return
         for i in range(self._nrows):
             for j in range(self._ncols):
-                ax = self.axes_row[i][j]
+                try:
+                    ax = self.axes_row[i][j]
+                except IndexError:
+                    continue
                 if isinstance(ax.axis, MethodType):
                     bottom_axis = SimpleAxisArtist(ax.xaxis, 1, ax.spines["bottom"])
                     left_axis = SimpleAxisArtist(ax.yaxis, 1, ax.spines["left"])
