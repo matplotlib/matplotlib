@@ -26,7 +26,7 @@ import matplotlib.dates as mdates
 
 
 @image_comparison(['figure_align_labels'], extensions=['png', 'svg'],
-                  tol=0 if platform.machine() == 'x86_64' else 0.01)
+                  tol=0.01 if platform.machine() != 'x86_64' else 0)
 def test_align_labels():
     fig = plt.figure(layout='tight')
     gs = gridspec.GridSpec(3, 3)
@@ -68,7 +68,7 @@ def test_align_labels():
 
 @image_comparison(['figure_align_titles_tight.png',
                    'figure_align_titles_constrained.png'],
-                  tol=0 if platform.machine() == 'x86_64' else 0.022,
+                  tol=0.022 if platform.machine() != 'x86_64' else 0,
                   style='mpl20')
 def test_align_titles():
     for layout in ['tight', 'constrained']:
@@ -210,7 +210,7 @@ def test_clf_keyword():
 
 
 @image_comparison(['figure_today'],
-                  tol=0.015 if platform.machine() == 'arm64' else 0)
+                  tol=0.015 if platform.machine() != 'x86_64' else 0)
 def test_figure():
     # named figure support
     fig = plt.figure('today')

@@ -925,7 +925,7 @@ def test_imshow_endianess():
 
 
 @image_comparison(['imshow_masked_interpolation'],
-                  tol=0 if platform.machine() == 'x86_64' else 0.01,
+                  tol=0.01 if platform.machine() != 'x86_64' else 0,
                   remove_text=True, style='mpl20')
 def test_imshow_masked_interpolation():
 

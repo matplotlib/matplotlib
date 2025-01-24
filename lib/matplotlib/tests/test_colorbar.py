@@ -235,7 +235,7 @@ def test_colorbar_single_ax_panchor_east(constrained):
 
 
 @image_comparison(['contour_colorbar.png'], remove_text=True,
-                  tol=0 if platform.machine() == 'x86_64' else 0.054)
+                  tol=0.054 if platform.machine() != 'x86_64' else 0)
 def test_contour_colorbar():
     fig, ax = plt.subplots(figsize=(4, 2))
     data = np.arange(1200).reshape(30, 40) - 500

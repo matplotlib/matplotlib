@@ -12,7 +12,7 @@ def draw_arrow(ax, t, r):
 
 
 @image_comparison(['fancyarrow_test_image'],
-                  tol=0.012 if platform.machine() == 'arm64' else 0)
+                  tol=0.012 if platform.machine() != 'x86_64' else 0)
 def test_fancyarrow():
     # Added 0 to test division by zero error described in issue 3930
     r = [0.4, 0.3, 0.2, 0.1, 0]
@@ -68,7 +68,7 @@ def __prepare_fancyarrow_dpi_cor_test():
 
 
 @image_comparison(['fancyarrow_dpi_cor_100dpi.png'], remove_text=True,
-                  tol=0 if platform.machine() == 'x86_64' else 0.02,
+                  tol=0.02 if platform.machine() != 'x86_64' else 0,
                   savefig_kwarg=dict(dpi=100))
 def test_fancyarrow_dpi_cor_100dpi():
     """
@@ -83,7 +83,7 @@ def test_fancyarrow_dpi_cor_100dpi():
 
 
 @image_comparison(['fancyarrow_dpi_cor_200dpi.png'], remove_text=True,
-                  tol=0 if platform.machine() == 'x86_64' else 0.02,
+                  tol=0.02 if platform.machine() != 'x86_64' else 0,
                   savefig_kwarg=dict(dpi=200))
 def test_fancyarrow_dpi_cor_200dpi():
     """
@@ -116,7 +116,7 @@ def test_fancyarrow_dash():
 
 
 @image_comparison(['arrow_styles.png'], style='mpl20', remove_text=True,
-                  tol=0 if platform.machine() == 'x86_64' else 0.02)
+                  tol=0.02 if platform.machine() != 'x86_64' else 0)
 def test_arrow_styles():
     styles = mpatches.ArrowStyle.get_styles()
 
@@ -149,7 +149,7 @@ def test_arrow_styles():
 
 
 @image_comparison(['connection_styles.png'], style='mpl20', remove_text=True,
-                  tol=0.013 if platform.machine() == 'arm64' else 0)
+                  tol=0.013 if platform.machine() != 'x86_64' else 0)
 def test_connection_styles():
     styles = mpatches.ConnectionStyle.get_styles()
 
