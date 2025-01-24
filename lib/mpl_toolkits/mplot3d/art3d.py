@@ -15,7 +15,7 @@ from contextlib import contextmanager
 
 from matplotlib import (
     _api, artist, cbook, colors as mcolors, lines, text as mtext,
-    path as mpath, rcParams)
+    path as mpath, _val_or_rc)
 from matplotlib.collections import (
     Collection, LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.patches import Patch
@@ -646,31 +646,36 @@ class Patch3DCollection(PatchCollection):
         :class:`~matplotlib.collections.PatchCollection`. In addition,
         keywords *zs=0* and *zdir='z'* are available.
 
-        The keyword argument *depthshade* is available to
-        indicate whether or not to shade the patches in order to
-        give the appearance of depth (default is *True*).
-        This is typically desired in scatter plots.
-
-        *depthshade_minalpha* sets the minimum alpha value applied by
-        depth-shading.
+        Parameters
+        ----------
+        zs : float or array of floats
+            The location or locations to place the patches in the collection
+            along the *zdir* axis.
+        zdir : {'x', 'y', 'z'}
+            Plane to plot patches orthogonal to.
+            All patches must have the same direction.
+            See `.get_dir_vector` for a description of the values.
+        depthshade : bool, default: :rc:`axes3d.depthshade`
+            Whether to shade the patches in order to give the appearance of
+            depth.
+        depthshade_minalpha : float, default: :rc:`axes3d.depthshade_minalpha`
+            Sets the minimum alpha value used by depth-shading.
+        axlim_clip : bool, default: False
+            Whether to hide patches with a vertex outside the axes view limits.
+        kwargs :
+            Additional keyword arguments are the same as for
+            :class:`~matplotlib.collections.PatchCollection`.
         """
-        if depthshade is None:
-            depthshade = rcParams['axes3d.depthshade']
-        if depthshade_minalpha is None:
-            depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
-        self._depthshade = depthshade
-        self._depthshade_minalpha = depthshade_minalpha
+        self._depthshade = _val_or_rc(depthshade, 'axes3d.depthshade')
+        self._depthshade_minalpha = _val_or_rc(depthshade_minalpha,
+                                               'axes3d.depthshade_minalpha')
         super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir, axlim_clip)
 
     def get_depthshade(self):
         return self._depthshade
 
-    def set_depthshade(
-        self,
-        depthshade,
-        depthshade_minalpha=None,
-    ):
+    def set_depthshade(self, depthshade, depthshade_minalpha=None):
         """
         Set whether depth shading is performed on collection members.
 
@@ -679,14 +684,12 @@ class Patch3DCollection(PatchCollection):
         depthshade : bool
             Whether to shade the patches in order to give the appearance of
             depth.
-        depthshade_minalpha : float, default: None
+        depthshade_minalpha : float, default: :rc:`axes3d.depthshade_minalpha`
             Sets the minimum alpha value used by depth-shading.
-            If None, use the value from rcParams['axes3d.depthshade_minalpha'].
         """
-        if depthshade_minalpha is None:
-            depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
         self._depthshade = depthshade
-        self._depthshade_minalpha = depthshade_minalpha
+        self._depthshade_minalpha = _val_or_rc(depthshade_minalpha,
+                                               'axes3d.depthshade_minalpha')
         self.stale = True
 
     def set_sort_zpos(self, val):
@@ -743,11 +746,7 @@ class Patch3DCollection(PatchCollection):
 
     def _maybe_depth_shade_and_sort_colors(self, color_array):
         color_array = (
-            _zalpha(
-                color_array,
-                self._vzs,
-                min_alpha=self._depthshade_minalpha,
-            )
+            _zalpha(color_array, self._vzs, min_alpha=self._depthshade_minalpha)
             if self._vzs is not None and self._depthshade
             else color_array
         )
@@ -776,18 +775,12 @@ def _get_data_scale(X, Y, Z):
     X, Y, Z : masked arrays
         The data to estimate the scale of.
     """
-    # Account for empty datasets. Assume that X Y and Z have the same number
-    # of elements.
-    if not np.ma.count(X):
+    # Account for empty datasets.
+    if not np.ma.count(X) or not np.ma.count(Y) or not np.ma.count(Z):
         return 0
 
     # Estimate the scale using the RSS of the ranges of the dimensions
-    # Note that we don't use np.ma.ptp() because we otherwise get a build
-    # warning about handing empty arrays.
-    ptp_x = X.max() - X.min()
-    ptp_y = Y.max() - Y.min()
-    ptp_z = Z.max() - Z.min()
-    return np.sqrt(ptp_x ** 2 + ptp_y ** 2 + ptp_z ** 2)
+    return np.sqrt(np.ma.ptp(X) ** 2 + np.ma.ptp(Y) ** 2 + np.ma.ptp(Z) ** 2)
 
 
 class Path3DCollection(PathCollection):
@@ -815,20 +808,29 @@ class Path3DCollection(PathCollection):
         :class:`~matplotlib.collections.PathCollection`. In addition,
         keywords *zs=0* and *zdir='z'* are available.
 
-        Also, the keyword argument *depthshade* is available to
-        indicate whether or not to shade the patches in order to
-        give the appearance of depth (default is *True*).
-        This is typically desired in scatter plots.
-
-        *depthshade_minalpha* sets the minimum alpha value applied by
-        depth-shading.
+        Parameters
+        ----------
+        zs : float or array of floats
+            The location or locations to place the paths in the collection
+            along the *zdir* axis.
+        zdir : {'x', 'y', 'z'}
+            Vector to plot paths orthogonal to.
+            All paths must have the same direction.
+            See `.get_dir_vector` for a description of the values.
+        depthshade : bool, default: :rc:`axes3d.depthshade`
+            Whether to shade the paths in order to give the appearance of
+            depth.
+        depthshade_minalpha : float, default: :rc:`axes3d.depthshade_minalpha`
+            Sets the minimum alpha value used by depth-shading.
+        axlim_clip : bool, default: False
+            Whether to hide paths with a vertex outside the axes view limits.
+        kwargs :
+            Additional keyword arguments are the same as for
+            :class:`~matplotlib.collections.PathCollection`.
         """
-        if depthshade is None:
-            depthshade = rcParams['axes3d.depthshade']
-        if depthshade_minalpha is None:
-            depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
-        self._depthshade = depthshade
-        self._depthshade_minalpha = depthshade_minalpha
+        self._depthshade = _val_or_rc(depthshade, 'axes3d.depthshade')
+        self._depthshade_minalpha = _val_or_rc(depthshade_minalpha,
+                                               'axes3d.depthshade_minalpha')
         self._in_draw = False
         super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir, axlim_clip)
@@ -854,7 +856,7 @@ class Path3DCollection(PathCollection):
             The location or locations to place the paths in the collection
             along the *zdir* axis.
         zdir : {'x', 'y', 'z'}
-            Plane to plot paths orthogonal to.
+            Vector to plot paths orthogonal to.
             All paths must have the same direction.
             See `.get_dir_vector` for a description of the values.
         axlim_clip : bool, default: False
@@ -907,11 +909,7 @@ class Path3DCollection(PathCollection):
     def get_depthshade(self):
         return self._depthshade
 
-    def set_depthshade(
-        self,
-        depthshade,
-        depthshade_minalpha=None,
-    ):
+    def set_depthshade(self, depthshade, depthshade_minalpha=None):
         """
         Set whether depth shading is performed on collection members.
 
@@ -920,13 +918,12 @@ class Path3DCollection(PathCollection):
         depthshade : bool
             Whether to shade the patches in order to give the appearance of
             depth.
-        depthshade_minalpha : float
+        depthshade_minalpha : float, default: :rc:`axes3d.depthshade_minalpha`
             Sets the minimum alpha value used by depth-shading.
         """
-        if depthshade_minalpha is None:
-            depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
         self._depthshade = depthshade
-        self._depthshade_minalpha = depthshade_minalpha
+        self._depthshade_minalpha = _val_or_rc(depthshade_minalpha,
+                                               'axes3d.depthshade_minalpha')
         self.stale = True
 
     def do_3d_projection(self):
@@ -989,7 +986,7 @@ class Path3DCollection(PathCollection):
                 color_array,
                 self._vzs,
                 min_alpha=self._depthshade_minalpha,
-                _data_scale=self._data_scale,
+                data_scale=self._data_scale,
             )
 
         # Adjust the order of the color_array using the _z_markers_idx,
@@ -997,7 +994,7 @@ class Path3DCollection(PathCollection):
         if len(color_array) > 1:
             color_array = color_array[self._z_markers_idx]
 
-        return mcolors.to_rgba_array(color_array)
+        return mcolors.to_rgba_array(color_array, self._alpha)
 
     def get_facecolor(self):
         return self._maybe_depth_shade_and_sort_colors(super().get_facecolor())
@@ -1017,7 +1014,7 @@ def patch_collection_2d_to_3d(
     zdir="z",
     depthshade=None,
     axlim_clip=False,
-    *args,
+    *,
     depthshade_minalpha=None,
 ):
     """
@@ -1035,12 +1032,10 @@ def patch_collection_2d_to_3d(
     zdir : {'x', 'y', 'z'}
         The axis in which to place the patches. Default: "z".
         See `.get_dir_vector` for a description of the values.
-    depthshade : bool, default: None
+    depthshade : bool, default: :rc:`axes3d.depthshade`
         Whether to shade the patches to give a sense of depth.
-        If None, use the value from rcParams['axes3d.depthshade'].
-    depthshade_minalpha : float, default: None
+    depthshade_minalpha : float, default: :rc:`axes3d.depthshade_minalpha`
         Sets the minimum alpha value used by depth-shading.
-        If None, use the value from rcParams['axes3d.depthshade_minalpha'].
     axlim_clip : bool, default: False
         Whether to hide patches with a vertex outside the axes view limits.
     """
@@ -1049,12 +1044,9 @@ def patch_collection_2d_to_3d(
         col._offset_zordered = None
     elif isinstance(col, PatchCollection):
         col.__class__ = Patch3DCollection
-    if depthshade is None:
-        depthshade = rcParams['axes3d.depthshade']
-    if depthshade_minalpha is None:
-        depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
     col._depthshade = depthshade
-    col._depthshade_minalpha = depthshade_minalpha
+    col._depthshade_minalpha = _val_or_rc(depthshade_minalpha,
+                                          'axes3d.depthshade_minalpha')
     col._in_draw = False
     col.set_3d_properties(zs, zdir, axlim_clip)
 
@@ -1395,12 +1387,7 @@ def rotate_axes(xs, ys, zs, zdir):
         return xs, ys, zs
 
 
-def _zalpha(
-    colors,
-    zs,
-    min_alpha=0.3,
-    _data_scale=None,
-):
+def _zalpha(colors, zs, min_alpha=0.3, data_scale=None):
     """Modify the alphas of the color list according to depth."""
 
     if len(colors) == 0 or len(zs) == 0:
@@ -1409,13 +1396,13 @@ def _zalpha(
     # Alpha values beyond the range 0-1 inclusive make no sense, so clip them
     min_alpha = np.clip(min_alpha, 0, 1)
 
-    if _data_scale is None or _data_scale == 0:
+    if data_scale is None or data_scale == 0:
         # Don't scale the alpha values since we have no valid data scale for reference
         sats = np.ones_like(zs)
 
     else:
         # Deeper points have an increasingly transparent appearance
-        sats = np.clip(1 - (zs - min(zs)) / _data_scale, min_alpha, 1)
+        sats = np.clip(1 - (zs - min(zs)) / data_scale, min_alpha, 1)
 
     rgba = np.broadcast_to(mcolors.to_rgba_array(colors), (len(zs), 4))
 
