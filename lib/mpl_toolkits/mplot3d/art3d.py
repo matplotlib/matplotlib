@@ -1468,7 +1468,7 @@ def _zalpha(
     min_alpha=0.3,
     _data_scale=None,
 ):
-    """Modify the alphas of the color list according to depth."""
+    """Modify the alpha values of the color list according to z-depth."""
 
     if len(colors) == 0 or len(zs) == 0:
         return np.zeros((0, 4))
