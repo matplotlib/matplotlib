@@ -669,6 +669,16 @@ def test_surface3d_label_offset_tick_position():
     ax.set_zlabel("Z label")
 
 
+@mpl3d_image_comparison(['axis3d_zlabel.png'], style='mpl20')
+def test_surface3d_zlabel():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection="3d")
+
+    ax.set_zlabel("Z Label")
+
+    ax.figure.canvas.draw()
+
+
 @mpl3d_image_comparison(['surface3d_shaded.png'], style='mpl20')
 def test_surface3d_shaded():
     fig = plt.figure()
