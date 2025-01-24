@@ -106,6 +106,7 @@ warnings.filterwarnings('error', append=True)
 # and can be ignored for our use case. This has to be added before importing
 # jupyterlite_sphinx below, so that we can block the warning before it is raised.
 # TODO: Fix this in jupyterlite-sphinx
+# https://github.com/jupyterlite/jupyterlite-sphinx/issues/258
 warnings.filterwarnings('ignore', category=UserWarning,
                         message=(
                             r'(\n|.)*Sphinx Gallery in version 0.18.0 is not '
