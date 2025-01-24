@@ -19,7 +19,7 @@ import warnings
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, _docstring, _preprocess_data
+from matplotlib import _api, cbook, _docstring, _preprocess_data, _val_or_rc
 import matplotlib.artist as martist
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
@@ -2973,8 +2973,8 @@ class Axes3D(Axes):
             )
         if kwargs.get("color") is not None:
             kwargs['color'] = color
-        depthshade = mpl._val_or_rc(depthshade, 'axes3d.depthshade')
-        depthshade_minalpha = mpl._val_or_rc(depthshade_minalpha, 'axes3d.depthshade_minalpha')
+        depthshade = _val_or_rc(depthshade, 'axes3d.depthshade')
+        depthshade_minalpha = _val_or_rc(depthshade_minalpha, 'axes3d.depthshade_minalpha')
 
         # For xs and ys, 2D scatter() will do the copying.
         if np.may_share_memory(zs_orig, zs):  # Avoid unnecessary copies.
@@ -4028,7 +4028,7 @@ class Axes3D(Axes):
 
         # Determine style for stem lines.
         linestyle, linemarker, linecolor = _process_plot_format(linefmt)
-        linestyle = mpl._val_or_rc(linestyle, 'lines.linestyle')
+        linestyle = _val_or_rc(linestyle, 'lines.linestyle')
 
         # Plot everything in required order.
         baseline, = self.plot(basex, basey, basefmt, zs=bottom,
