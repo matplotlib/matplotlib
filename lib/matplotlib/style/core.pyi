@@ -17,3 +17,5 @@ library: dict[str, RcParams]
 available: list[str]
 
 def reload_library() -> None: ...
+
+__all__ = ['use', 'context', 'available', 'library', 'reload_library']
