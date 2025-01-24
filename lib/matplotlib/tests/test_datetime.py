@@ -812,11 +812,25 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.tricontour(...)
 
-    @pytest.mark.xfail(reason="Test for tricontourf not written yet")
     @mpl.style.context("default")
     def test_tricontourf(self):
+        mpl.rcParams["date.converter"] = "concise"
         fig, ax = plt.subplots()
-        ax.tricontourf(...)
+
+        np.random.seed(19680801)
+        limit_value = 30
+
+        x_dates = np.array(
+            [datetime.datetime(2023, 10, n) for n in range(1, limit_value)]
+        )
+
+        x_dates_converted = mpl.dates.date2num(x_dates)
+
+        y_data = np.random.rand(limit_value - 1)
+
+        z_data = np.sin(x_dates_converted) + np.cos(y_data)
+
+        ax.tricontourf(x_dates_converted, y_data, z_data)
 
     @pytest.mark.xfail(reason="Test for tripcolor not written yet")
     @mpl.style.context("default")
