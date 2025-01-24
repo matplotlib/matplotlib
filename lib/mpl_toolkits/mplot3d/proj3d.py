@@ -133,8 +133,7 @@ def _ortho_transformation(zfront, zback):
 
 def _proj_transform_vec(vec, M):
     vecw = np.dot(M, vec.data)
-    w = vecw[3]
-    txs, tys, tzs = vecw[0]/w, vecw[1]/w, vecw[2]/w
+    txs, tys, tzs = vecw[0:3] / vecw[3]
     if np.ma.isMA(vec[0]):  # we check each to protect for scalars
         txs = np.ma.array(txs, mask=vec[0].mask)
     if np.ma.isMA(vec[1]):
@@ -146,8 +145,7 @@ def _proj_transform_vec(vec, M):
 
 def _proj_transform_vec_clip(vec, M, focal_length):
     vecw = np.dot(M, vec.data)
-    w = vecw[3]
-    txs, tys, tzs = vecw[0] / w, vecw[1] / w, vecw[2] / w
+    txs, tys, tzs = vecw[0:3] / vecw[3]
     if np.isinf(focal_length):  # don't clip orthographic projection
         tis = np.ones(txs.shape, dtype=bool)
     else:
