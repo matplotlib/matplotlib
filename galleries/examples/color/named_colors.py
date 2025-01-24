@@ -25,12 +25,15 @@ import matplotlib.colors as mcolors
 from matplotlib.patches import Rectangle
 
 
-def plot_colortable(colors, *, ncols=4, sort_colors=True):
+def plot_colortable(colors, *, ncols=4, sort_colors=True, sample=False):
 
     cell_width = 212
     cell_height = 22
     swatch_width = 48
     margin = 12
+
+    if sample:
+        colors = dict(list(colors.items())[::10])
 
     # Sort colors by hue, saturation, value and name.
     if sort_colors is True:
@@ -96,6 +99,14 @@ plot_colortable(mcolors.TABLEAU_COLORS, ncols=2, sort_colors=False)
 # sphinx_gallery_thumbnail_number = 3
 plot_colortable(mcolors.CSS4_COLORS)
 plt.show()
+
+# %%
+# ---------------
+# Spectral Colors
+# ---------------
+# The full visible spectrum from 390nm to 780nm is supported in integers e.g. ``"405nm"``.
+# A sub sample of the defined colors by wavelength is shown below.
+plot_colortable(mcolors.SPECTRAL_COLORS, ncols=4, sort_colors=False, sample=True)
 
 # %%
 # -----------
