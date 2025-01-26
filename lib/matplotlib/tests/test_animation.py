@@ -526,3 +526,31 @@ def test_movie_writer_invalid_path(anim):
     with pytest.raises(FileNotFoundError, match=match_str):
         anim.save("/foo/bar/aardvark/thiscannotreallyexist.mp4",
                   writer=animation.FFMpegFileWriter())
+
+
+def test_exhausted_animation_with_transparency(tmp_path):
+    fig, ax = plt.subplots()
+    rect = plt.Rectangle((0, 0), 1, 1, color='red', alpha=0.5)
+    ax.add_patch(rect)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+
+    def update(frame):
+        # Modify transparency in each frame
+        rect.set_alpha(0.1 + frame * 0.1)
+        return [rect]
+
+    # Create and save animation
+    anim = animation.FuncAnimation(
+        fig, update, frames=iter(range(5)), repeat=False,
+        cache_frame_data=False,
+
+    )
+    tmp_file = tmp_path / "test_transparent.gif"
+    anim.save(tmp_file, writer='pillow', savefig_kwargs={"transparent": True})
+
+    # Verify exhausted warning
+    with pytest.warns(UserWarning, match="exhausted"):
+        anim._start()
+
+    plt.close(fig)
