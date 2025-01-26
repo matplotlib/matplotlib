@@ -943,6 +943,26 @@ class Colormap:
             self._lut[self._i_over] = self._lut[self.N - 1]
         self._lut[self._i_bad] = self._rgba_bad
 
+    def with_alpha(self, alpha):
+        """
+        Return a copy of the colormap with a new uniform transparency.
+
+        Parameters
+        ----------
+        alpha : float
+             The alpha blending value, between 0 (transparent) and 1 (opaque).
+        """
+        if not isinstance(alpha, Real):
+            raise TypeError(
+                f"'alpha' must be numeric or None, not {type(alpha)}")
+        if not 0 <= alpha <= 1:
+            ValueError("'alpha' must be between 0 and 1, inclusive")
+        new_cm = self.copy()
+        if not new_cm._isinit:
+            new_cm._init()
+        new_cm._lut[:, 3] = alpha
+        return new_cm
+
     def _init(self):
         """Generate the lookup table, ``self._lut``."""
         raise NotImplementedError("Abstract class only")

@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import matplotlib.scale as mscale
 from matplotlib.rcsetup import cycler
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
-from matplotlib.colors import is_color_like, to_rgba_array
+from matplotlib.colors import is_color_like, to_rgba_array, ListedColormap
 
 
 @pytest.mark.parametrize('N, result', [
@@ -246,6 +246,17 @@ def test_LinearSegmentedColormap_from_list_bad_under_over():
     assert mcolors.same_color(cmap.get_bad(), "c")
     assert mcolors.same_color(cmap.get_under(), "m")
     assert mcolors.same_color(cmap.get_over(), "y")
+
+
+def test_colormap_with_alpha():
+    cmap = ListedColormap(["red", "green", ("blue", 0.8)])
+    cmap2 = cmap.with_alpha(0.5)
+    # color is the same:
+    vals = [0, 0.5, 1]  # numeric positions that map to the listed colors
+    assert_array_equal(cmap(vals)[:, :2], cmap2(vals)[:, :2])
+    # alpha of cmap2 is changed:
+    assert_array_equal(cmap(vals)[:, 3], [1, 1, 0.8])
+    assert_array_equal(cmap2(vals)[:, 3], [0.5, 0.5, 0.5])
 
 
 def test_BoundaryNorm():
