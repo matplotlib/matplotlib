@@ -87,7 +87,7 @@ def _viewlim_mask(xs, ys, zs, axes):
     Returns
     -------
     mask : np.array
-        The mask of the points.
+        The mask of the points as a bool array.
     """
     mask = np.logical_or.reduce((xs < axes.xy_viewLim.xmin,
                                  xs > axes.xy_viewLim.xmax,
@@ -178,10 +178,12 @@ class Text3D(mtext.Text):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        pos3d = np.array([self._x, self._y, self._z], dtype=float)
         if self._axlim_clip:
             mask = _viewlim_mask(self._x, self._y, self._z, self.axes)
-            pos3d[mask] = np.nan
+            pos3d = np.ma.array([self._x, self._y, self._z],
+                                mask=mask, dtype=float).filled(np.nan)
+        else:
+            pos3d = np.array([self._x, self._y, self._z], dtype=float)
 
         proj = proj3d._proj_trans_points([pos3d, pos3d + self._dir_vec], self.axes.M)
         dx = proj[0][1] - proj[0][0]
