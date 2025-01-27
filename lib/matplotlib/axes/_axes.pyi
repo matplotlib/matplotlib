@@ -756,8 +756,7 @@ class Axes(_AxesBase):
         | None = ...,
         side: Literal["both", "low", "high"] = ...,
         facecolor: Sequence[ColorType] | ColorType | None = ...,
-        edgecolor: Sequence[ColorType] | ColorType | None = ...,
-        alpha: float | None = ...,
+        linecolor: Sequence[ColorType] | ColorType | None = ...,
         data=...,
     ) -> dict[str, Collection]: ...
     def violin(
@@ -773,8 +772,7 @@ class Axes(_AxesBase):
         showmedians: bool = ...,
         side: Literal["both", "low", "high"] = ...,
         facecolor: Sequence[ColorType] | ColorType | None = ...,
-        edgecolor: Sequence[ColorType] | ColorType | None = ...,
-        alpha: float | None = ...,
+        linecolor: Sequence[ColorType] | ColorType | None = ...,
     ) -> dict[str, Collection]: ...
 
     table = mtable.table

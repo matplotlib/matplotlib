@@ -44,14 +44,18 @@ ax1.violinplot(data)
 
 ax2.set_title('Set colors of violins')
 ax2.set_ylabel('Observed values')
-ax2.violinplot(data, facecolor=['y', 'b', 'r', 'g'], edgecolor='k')
+ax2.violinplot(
+    data,
+    facecolor=[('y', 0.3), ('b', 0.3), ('r', 0.3), ('g', 0.3)],
+    linecolor='k',
+)
 # Note that when passing a sequence of colors, the method will repeat the sequence if
 # less colors are provided than data distributions.
 
 ax3.set_title('Customized violin plot')
 parts = ax3.violinplot(
         data, showmeans=False, showmedians=False, showextrema=False,
-        facecolor='#D43F3A', edgecolor='k')
+        facecolor='#D43F3A', lineolor='k')
 
 for pc in parts['bodies']:
     pc.set_edgecolor('k')

@@ -4044,7 +4044,7 @@ def test_violinplot_color_specification(fig_test, fig_ref):
 
     parts1 = ax[1].violinplot(data, **kwargs)
     for pc in parts1['bodies']:
-        pc.set_facecolor(('r', 0.3))
+        pc.set_facecolor('r')
 
     parts2 = ax[2].violinplot(data, **kwargs)
     for partname in ('cbars', 'cmins', 'cmaxes', 'cmeans', 'cmedians'):
@@ -4054,7 +4054,7 @@ def test_violinplot_color_specification(fig_test, fig_ref):
 
     parts3 = ax[3].violinplot(data, **kwargs)
     for pc in parts3['bodies']:
-        pc.set_facecolor(('g', 0.3))
+        pc.set_facecolor('g')
     for partname in ('cbars', 'cmins', 'cmaxes', 'cmeans', 'cmedians'):
         if partname in parts3:
             pc = parts3[partname]
@@ -4066,11 +4066,11 @@ def test_violinplot_color_specification(fig_test, fig_ref):
 
     # Reference image
     ax = fig_ref.subplots(1, 5)
-    ax[0].violinplot(data, facecolor='r', edgecolor='r', alpha=0.5, **kwargs)
+    ax[0].violinplot(data, facecolor=('r', 0.5), linecolor='r', **kwargs)
     ax[1].violinplot(data, facecolor='r', **kwargs)
-    ax[2].violinplot(data, edgecolor='r', **kwargs)
-    ax[3].violinplot(data, facecolor='g', edgecolor='r', **kwargs)
-    ax[4].violinplot(data, facecolor=('k', 0.5), alpha=None, **kwargs)
+    ax[2].violinplot(data, linecolor='r', **kwargs)
+    ax[3].violinplot(data, facecolor='g', linecolor='r', **kwargs)
+    ax[4].violinplot(data, facecolor=('k', 0.5), **kwargs)
 
 
 @check_figures_equal(extensions=["png"])
@@ -4087,12 +4087,12 @@ def test_violinplot_color_sequence(fig_test, fig_ref):
     # Color sequence
     N = len(data)
     positions = range(N)
-    colors = ['k', 'r', 'b', 'g', 'm']
+    colors = ['k', 'r', ('b', 0.5), 'g', ('m', 0.2)]
 
     # Test image
     ax = fig_test.gca()
     ax.violinplot(data, positions=positions, facecolor=colors,
-                  edgecolor=colors, **kwargs)
+                  linecolor=colors, **kwargs)
     # Get all x/y axis features
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
@@ -4111,7 +4111,7 @@ def test_violinplot_color_sequence(fig_test, fig_ref):
     # Reference image
     ax = fig_ref.gca()
     for (p, c, d) in zip(positions, colors, data):
-        ax.violinplot(d, positions=[p], facecolor=c, edgecolor=c, **kwargs)
+        ax.violinplot(d, positions=[p], facecolor=c, linecolor=c, **kwargs)
     # Ensure all x/y axis features are identical (not what this is designed to test)
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)
