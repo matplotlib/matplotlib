@@ -360,6 +360,12 @@ def validate_color(s):
     raise ValueError(f'{s!r} does not look like a color arg')
 
 
+def validate_color_or_None(s):
+    if s is None or cbook._str_equal(s, "None"):
+        return None
+    return validate_color(s)
+
+
 validate_colorlist = _listify_validator(
     validate_color, allow_stringlist=True, doc='return a list of colorspecs')
 
@@ -512,6 +518,13 @@ def _validate_linestyle(ls):
             return (offset, onoff)
 
     raise ValueError(f"linestyle {ls!r} is not a valid on-off ink sequence.")
+
+
+def _validate_linestyle_or_None(ls):
+    if ls is None or cbook._str_equal(ls, "None"):
+        return None
+
+    return _validate_linestyle(ls)
 
 
 validate_fillstyle = ValidateInStrings(
@@ -1237,13 +1250,13 @@ _validators = {
     "grid.linewidth":    validate_float,     # in points
     "grid.alpha":        validate_float,
 
-    "grid.major.color":        validate_color,  # grid color
-    "grid.major.linestyle":    _validate_linestyle,  # solid
+    "grid.major.color":        validate_color_or_None,  # grid color
+    "grid.major.linestyle":    _validate_linestyle_or_None,  # solid
     "grid.major.linewidth":    validate_float_or_None,     # in points
     "grid.major.alpha":        validate_float_or_None,
 
-    "grid.minor.color":        validate_color,  # grid color
-    "grid.minor.linestyle":    _validate_linestyle,  # solid
+    "grid.minor.color":        validate_color_or_None,  # grid color
+    "grid.minor.linestyle":    _validate_linestyle_or_None,  # solid
     "grid.minor.linewidth":    validate_float_or_None,     # in points
     "grid.minor.alpha":        validate_float_or_None,
 

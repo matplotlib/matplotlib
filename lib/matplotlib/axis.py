@@ -126,12 +126,12 @@ class Tick(martist.Artist):
 
         grid_color = (
             mpl._val_or_rc(grid_color, "grid.color")
-            if mpl.rcParams[f"grid.{major_minor}.color"] == "none"
+            if mpl.rcParams[f"grid.{major_minor}.color"] is None
             else mpl._val_or_rc(grid_color, f"grid.{major_minor}.color")
         )
         grid_linestyle = (
             mpl._val_or_rc(grid_linestyle, "grid.linestyle")
-            if mpl.rcParams[f"grid.{major_minor}.linestyle"] == "none"
+            if mpl.rcParams[f"grid.{major_minor}.linestyle"] is None
             else mpl._val_or_rc(grid_linestyle, f"grid.{major_minor}.linestyle")
         )
         grid_linewidth = (
@@ -147,7 +147,7 @@ class Tick(martist.Artist):
             # so the that the rcParams default would override color alpha.
             grid_alpha = (
                 mpl.rcParams["grid.alpha"]
-                if f"grid.{major_minor}.alpha" not in mpl.rcParams
+                if mpl.rcParams[f"grid.{major_minor}.alpha"] is None
                 else mpl.rcParams[f"grid.{major_minor}.alpha"]
             )
         grid_kw = {k[5:]: v for k, v in kwargs.items()}
