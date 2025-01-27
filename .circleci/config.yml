@@ -156,9 +156,6 @@ commands:
           command: |
             export PATH="$(pwd)/../bin:$PATH"
             echo $PATH
-
-            source venv/bin/activate
-
             # Set epoch to date of latest tag.
             export SOURCE_DATE_EPOCH="$(git log -1 --format=%at $(git describe --abbrev=0))"
             # Set release mode only when deploying to devdocs.
