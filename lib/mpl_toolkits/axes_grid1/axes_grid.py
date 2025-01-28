@@ -251,28 +251,24 @@ class Grid:
             - "keep": Do not do anything.
         """
         _api.check_in_list(["all", "L", "1", "keep"], mode=mode)
-        is_last_row, is_first_col = (
-            np.mgrid[:self._nrows, :self._ncols] == [[[self._nrows - 1]], [[0]]])
-        if mode == "all":
-            bottom = left = np.full((self._nrows, self._ncols), True)
-        elif mode == "L":
-            bottom = is_last_row
-            left = is_first_col
-        elif mode == "1":
-            bottom = left = is_last_row & is_first_col
-        else:
+        if mode == "keep":
             return
-        for i in range(self._nrows):
-            for j in range(self._ncols):
-                ax = self.axes_row[i][j]
-                if isinstance(ax.axis, MethodType):
-                    bottom_axis = SimpleAxisArtist(ax.xaxis, 1, ax.spines["bottom"])
-                    left_axis = SimpleAxisArtist(ax.yaxis, 1, ax.spines["left"])
-                else:
-                    bottom_axis = ax.axis["bottom"]
-                    left_axis = ax.axis["left"]
-                bottom_axis.toggle(ticklabels=bottom[i, j], label=bottom[i, j])
-                left_axis.toggle(ticklabels=left[i, j], label=left[i, j])
+        for i, j in np.ndindex(self._nrows, self._ncols):
+            ax = self.axes_row[i][j]
+            if isinstance(ax.axis, MethodType):
+                bottom_axis = SimpleAxisArtist(ax.xaxis, 1, ax.spines["bottom"])
+                left_axis = SimpleAxisArtist(ax.yaxis, 1, ax.spines["left"])
+            else:
+                bottom_axis = ax.axis["bottom"]
+                left_axis = ax.axis["left"]
+            display_at_bottom = (i == self._nrows - 1 if mode == "L" else
+                                 i == self._nrows - 1 and j == 0 if mode == "1" else
+                                 True)  # if mode == "all"
+            display_at_left = (j == 0 if mode == "L" else
+                               i == self._nrows - 1 and j == 0 if mode == "1" else
+                               True)  # if mode == "all"
+            bottom_axis.toggle(ticklabels=display_at_bottom, label=display_at_bottom)
+            left_axis.toggle(ticklabels=display_at_left, label=display_at_left)
 
     def get_divider(self):
         return self._divider

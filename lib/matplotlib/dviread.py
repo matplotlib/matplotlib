@@ -893,11 +893,10 @@ class PsfontsMap:
             return self._parsed[texname]
         except KeyError:
             raise LookupError(
-                f"An associated PostScript font (required by Matplotlib) "
-                f"could not be found for TeX font {texname.decode('ascii')!r} "
-                f"in {self._filename!r}; this problem can often be solved by "
-                f"installing a suitable PostScript font package in your TeX "
-                f"package manager") from None
+                f"The font map {self._filename!r} is missing a PostScript font "
+                f"associated to TeX font {texname.decode('ascii')!r}; this problem can "
+                f"often be solved by installing a suitable PostScript font package in "
+                f"your TeX package manager") from None
 
     def _parse_and_cache_line(self, line):
         """

@@ -1100,9 +1100,7 @@ class Poly3DCollection(PolyCollection):
             be of shape (num_faces, num_vertices, 3).
         """
         if isinstance(segments3d, np.ndarray):
-            if segments3d.ndim != 3 or segments3d.shape[-1] != 3:
-                raise ValueError("segments3d must be a MxNx3 array, but got "
-                                 f"shape {segments3d.shape}")
+            _api.check_shape((None, None, 3), segments3d=segments3d)
             if isinstance(segments3d, np.ma.MaskedArray):
                 self._faces = segments3d.data
                 self._invalid_vertices = segments3d.mask.any(axis=-1)
