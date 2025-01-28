@@ -4023,6 +4023,91 @@ def test_violinplot_outofrange_quantiles():
 
 
 @check_figures_equal(extensions=["png"])
+def test_violinplot_color_specification(fig_test, fig_ref):
+    # Ensures that setting colors in violinplot constructor works
+    # the same way as setting the color of each object manually
+    np.random.seed(19680801)
+    data = [sorted(np.random.normal(0, std, 100)) for std in range(1, 4)]
+    kwargs = {'showmeans': True,
+              'showextrema': True,
+              'showmedians': True
+              }
+
+    def color_violins(parts, facecolor=None, linecolor=None):
+        """Helper to color parts manually."""
+        if facecolor is not None:
+            for pc in parts['bodies']:
+                pc.set_facecolor(facecolor)
+        if linecolor is not None:
+            for partname in ('cbars', 'cmins', 'cmaxes', 'cmeans', 'cmedians'):
+                if partname in parts:
+                    lc = parts[partname]
+                    lc.set_edgecolor(linecolor)
+
+    # Reference image
+    ax = fig_ref.subplots(1, 3)
+    parts0 = ax[0].violinplot(data, **kwargs)
+    parts1 = ax[1].violinplot(data, **kwargs)
+    parts2 = ax[2].violinplot(data, **kwargs)
+
+    color_violins(parts0, facecolor=('r', 0.5), linecolor=('r', 0.2))
+    color_violins(parts1, facecolor='r')
+    color_violins(parts2, linecolor='r')
+
+    # Test image
+    ax = fig_test.subplots(1, 3)
+    ax[0].violinplot(data, facecolor=('r', 0.5), linecolor=('r', 0.2), **kwargs)
+    ax[1].violinplot(data, facecolor='r', **kwargs)
+    ax[2].violinplot(data, linecolor='r', **kwargs)
+
+
+def test_violinplot_color_sequence():
+    # Ensures that setting a sequence of colors works the same as setting
+    # each color independently
+    np.random.seed(19680801)
+    data = [sorted(np.random.normal(0, std, 100)) for std in range(1, 5)]
+    kwargs = {'showmeans': True,
+              'showextrema': True,
+              'showmedians': True
+              }
+
+    def assert_colors_equal(colors1, colors2):
+        assert all(mcolors.same_color(c1, c2) for c1, c2 in zip(colors1, colors2))
+
+    parts_with_facecolor = ["bodies"]
+    parts_with_edgecolor = ["cbars", "cmins", "cmaxes", "cmeans", "cmedians"]
+
+    # Color sequence
+    N = len(data)
+    positions = range(N)
+    colors = ['k', 'r', ('b', 0.5), 'g', ('m', 0.2)]
+
+    # Test image
+    fig_test = plt.figure()
+    ax = fig_test.gca()
+    parts_test = ax.violinplot(data, positions=positions, facecolor=colors,
+                               linecolor=colors, **kwargs)
+
+    # Reference image
+    fig_ref = plt.figure()
+    ax = fig_ref.gca()
+    parts_ref = []
+    for (p, c, d) in zip(positions, colors, data):
+        cparts = ax.violinplot(d, positions=[p], facecolor=c, linecolor=c, **kwargs)
+        parts_ref.append(cparts)
+
+    for part in parts_with_facecolor:
+        colors_test = [p.get_facecolor() for p in parts_test[part]]
+        colors_ref = [p[part][0].get_facecolor() for p in parts_ref]
+        assert_colors_equal(colors_test, colors_ref)
+
+    for part in parts_with_edgecolor:
+        colors_test = parts_test[part].get_edgecolor()
+        colors_ref = [p[part].get_edgecolor() for p in parts_ref]
+        assert_colors_equal(colors_test, colors_ref)
+
+
+@check_figures_equal(extensions=["png"])
 def test_violinplot_single_list_quantiles(fig_test, fig_ref):
     # Ensures quantile list for 1D can be passed in as single list
     # First 9 digits of frac(sqrt(83))
